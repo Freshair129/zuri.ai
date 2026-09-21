@@ -2,6 +2,7 @@
 // are proved at the shared service boundary before HTTP/MCP dispatch.
 // @spec ADR-072, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
 // @tested tests/unit/knowledge-admission-service.test.js
+import { createHash } from 'node:crypto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../factories/viewer'
 import {
@@ -152,6 +153,40 @@ describe('knowledge admission service', () => {
 
     await expect(admitKnowledge({ businessId: 'b-1', idempotencyKey: 'file-request', source: { kind: 'FILE', fileAssetId: 'file-1' } }, options(repository, { authorization, fileContentResolver }))).rejects.toMatchObject({ status: 403 })
     expect(fileContentResolver).not.toHaveBeenCalled()
+  })
+
+  it('admits an authorized managed Markdown FileAsset as immutable FILE content', async () => {
+    const content = '# Managed policy\n\nKeep the source bytes.'
+    const contentHash = createHash('sha256').update(content, 'utf8').digest('hex')
+    const fileAsset = {
+      id: 'file-1', businessId: 'b-1', projectId: null, name: 'policy.md',
+      mime: 'text/markdown', size: Buffer.byteLength(content, 'utf8'), status: 'ACTIVE',
+      storageKind: 'MANAGED_BLOB', version: 3, sha256: contentHash,
+    }
+    repository = fakeRepository({ fileAsset })
+    const authorization = vi.fn(async () => ({ authorized: true, asset: fileAsset }))
+    const fileContentResolver = vi.fn(async () => ({ content: Buffer.from(content, 'utf8') }))
+
+    const result = await admitKnowledge({
+      businessId: 'b-1',
+      idempotencyKey: 'file-request',
+      source: { kind: 'FILE', fileAssetId: 'file-1' },
+    }, options(repository, { authorization, fileContentResolver }))
+
+    expect(result).toMatchObject({
+      status: 'QUEUED', unchanged: false, contentHash, sourceVersion: contentHash,
+      source: { kind: 'FILE', fileAssetId: 'file-1', sourceKey: 'file-1', title: 'policy.md' },
+    })
+    expect(repository.state.ingestions[0]).toMatchObject({
+      content, contentHash, sourceVersion: contentHash, status: 'QUEUED',
+    })
+    const metadata = JSON.parse(repository.state.ingestions[0].sourceMetaJson)
+    expect(metadata).toMatchObject({
+      kind: 'FILE', fileAssetId: 'file-1', fileAssetVersion: 3,
+      mime: 'text/markdown', size: Buffer.byteLength(content, 'utf8'), storageKind: 'MANAGED_BLOB',
+    })
+    expect(metadata).not.toHaveProperty('content')
+    expect(fileContentResolver).toHaveBeenCalledWith('file-1', expect.objectContaining({ visibleBusinessIds: ['b-1'] }))
   })
 
   it('lists and reads status without exposing queued content or lease internals', async () => {

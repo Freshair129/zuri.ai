@@ -55,7 +55,10 @@ describe('FR-146 LineOaAccount domain rules', () => {
   })
 
   it('defaults LINE transport to CLOUD independently of Edge credentials (ADR-061)', () => {
-    expect(LINE_OA_TRANSPORT_MODES).toEqual(['EDGE', 'CLOUD'])
+    // @req FR-265 — EDGE left the vocabulary (ADR-100 D1); CLOUD is the only
+    // transport owner, and the default that already was CLOUD is now also the
+    // only value the schema will take.
+    expect(LINE_OA_TRANSPORT_MODES).toEqual(['CLOUD'])
     expect(defaultTransportMode({ hasActiveEdgeCredential: true })).toBe('CLOUD')
     expect(defaultTransportMode({ hasActiveEdgeCredential: false })).toBe('CLOUD')
     expect(defaultTransportMode()).toBe('CLOUD')
@@ -64,7 +67,7 @@ describe('FR-146 LineOaAccount domain rules', () => {
   it('accepts a well-formed connect input and rejects the shapes that would widen scope or corrupt identity', () => {
     const ok = zConnectLineOaAccount.parse({
       businessId: 'b-1', integrationConnectionId: 'c-1', code: 'oa-smartgift-main', displayName: 'SmartGift',
-      basicId: '@smartgift', transportMode: 'EDGE', botProfile: { greeting: 'สวัสดีค่ะ' },
+      basicId: '@smartgift', transportMode: 'CLOUD', botProfile: { greeting: 'สวัสดีค่ะ' },
     })
     expect(ok.code).toBe('oa-smartgift-main')
     // Unknown properties are refused (strict), so tenantId or status can never
@@ -77,14 +80,26 @@ describe('FR-146 LineOaAccount domain rules', () => {
     }
     expect(() => zConnectLineOaAccount.parse({ businessId: 'b', integrationConnectionId: 'c', code: 'oa-x', displayName: 'X', basicId: 'smartgift' })).toThrow()
     expect(() => zConnectLineOaAccount.parse({ businessId: 'b', integrationConnectionId: 'c', code: 'oa-x', displayName: 'X', transportMode: 'HYBRID' })).toThrow()
+    // @req FR-265 — and EDGE is now refused by the same enum that refuses HYBRID.
+    expect(() => zConnectLineOaAccount.parse({ businessId: 'b', integrationConnectionId: 'c', code: 'oa-x', displayName: 'X', transportMode: 'EDGE' })).toThrow()
   })
 
-  it('requires a version on every action and a target mode on a switch', () => {
+  // @req FR-265 — the "target mode on a switch" half of this case is retired with
+  // `SWITCH_TRANSPORT_MODE` (ADR-100 D1). Its place is taken by the one field
+  // `CONFIGURE_EXECUTION` still requires, and by proving the withdrawn action is
+  // refused by the enum rather than merely unhandled by the writer.
+  it('requires a version on every action, a delivery choice on CONFIGURE_EXECUTION, and refuses withdrawn actions', () => {
     expect(zLineOaAccountAction.parse({ action: 'PAUSE', version: 1 })).toEqual({ action: 'PAUSE', version: 1 })
     expect(() => zLineOaAccountAction.parse({ action: 'PAUSE' })).toThrow()
     expect(() => zLineOaAccountAction.parse({ action: 'PAUSE', version: 0 })).toThrow()
-    expect(() => zLineOaAccountAction.parse({ action: 'SWITCH_TRANSPORT_MODE', version: 1 })).toThrow()
-    expect(zLineOaAccountAction.parse({ action: 'SWITCH_TRANSPORT_MODE', version: 1, transportMode: 'CLOUD' }).transportMode).toBe('CLOUD')
+    expect(() => zLineOaAccountAction.parse({ action: 'CONFIGURE_EXECUTION', version: 1 })).toThrow()
+    expect(zLineOaAccountAction.parse({ action: 'CONFIGURE_EXECUTION', version: 1, allowDelayedPush: true }).allowDelayedPush).toBe(true)
+    // Absent and false must not mean the same thing for a delivery policy.
+    expect(zLineOaAccountAction.parse({ action: 'CONFIGURE_EXECUTION', version: 1, allowDelayedPush: false }).allowDelayedPush).toBe(false)
+    expect(() => zLineOaAccountAction.parse({ action: 'SWITCH_TRANSPORT_MODE', version: 1, transportMode: 'CLOUD' })).toThrow()
+    // The retired execution/model-access fields are refused outright by .strict().
+    expect(() => zLineOaAccountAction.parse({ action: 'CONFIGURE_EXECUTION', version: 1, allowDelayedPush: true, executionMode: 'EDGE' })).toThrow()
+    expect(() => zLineOaAccountAction.parse({ action: 'CONFIGURE_EXECUTION', version: 1, allowDelayedPush: true, modelAccess: 'LOCAL_ONLY' })).toThrow()
     expect(() => zLineOaAccountAction.parse({ action: 'GO_LIVE', version: 1 })).toThrow()
   })
 

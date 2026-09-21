@@ -9,6 +9,8 @@ owns_models:
   - PurchaseOrderLine
   - GoodsReceipt
   - GoodsReceiptLine
+  - SupplierCostSheet
+  - SupplierCostLine
 owns_routes:
   - src/app/(pm)/procurement/**
   - src/app/api/procurement/**
@@ -16,9 +18,9 @@ owns_code:
   - src/modules/procurement/**
 technical_owner: TD-PROCUREMENT
 status: active-foundation
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-07T02:00:00+07:00"
-updated_at: "2026-09-07T02:00:00+07:00"
+updated_at: "2026-09-20T19:45:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -74,6 +76,12 @@ Architecture decision: [ADR-066](../../decisions/ADR-066-PROCUREMENT-LANE-SUPPLI
   edited (FR-165).
 - `GoodsReceiptLine` — one received quantity against one order line, with the
   lot code, expiry and serials it carried into the ledger (FR-165).
+- `SupplierCostSheet` — one Business-scoped factory source version with its
+  supplier, currency, locked FX rate, source hash and preview state; the source
+  snapshot is idempotent on `(businessId, sourceSha256)` (TASK-ZAI-053).
+- `SupplierCostLine` — one person-confirmed SKU price break from a confirmed
+  sheet, carrying its locked-rate cost and the carton facts supplied by the
+  factory. Product carton columns remain Inventory-owned facts (TASK-ZAI-053).
 
 **Never stored:** an order's total, received value, outstanding value, a
 line's received or outstanding quantity, or the order's `receiptState`
@@ -107,6 +115,11 @@ PROCUREMENT_RECEIPT_REQUIRES_INVENTORY_AUTHORITY` otherwise — an honest
 refusal for a viewer who holds the domain). Every refusal of scope is the
 FR-072 `404 Business not found`.
 
+Supplier cost-sheet preview and commit use the same Procurement owner or
+`PROCUREMENT_BUYER` write ladder. Commit also calls Inventory's explicit Product
+carton writer inside the same transaction; a Procurement buyer cannot widen
+Inventory authority by confirming a mapping (TASK-ZAI-053).
+
 ## Aggregate invariants
 
 - Internal keys are UUIDs; codes and delivery-note numbers are never keys.
@@ -128,6 +141,11 @@ FR-072 `404 Business not found`.
   and appends one `AuditEvent` (`SUPPLIER`, `PURCHASE_ORDER`,
   `GOODS_RECEIPT`); a receipt that completes an order also audits the order.
 - Nothing is deleted; a receipt is never edited.
+- A cost-sheet source hash is unique per Business; preview creates a DRAFT
+  source snapshot but no cost line. Commit requires the stored preview hash and
+  a confirmed mapping for every source SKU, then writes the lines and Product
+  carton facts atomically. A confirmed sheet is immutable and later confirmed
+  sheets for the supplier supersede it (TASK-ZAI-053).
 
 ## Source layout
 
@@ -138,6 +156,8 @@ src/modules/procurement/
 ├── application/supplier-service.js             the only writer of suppliers (FR-164)
 ├── application/purchase-order-service.js       the only writer of orders and lines (FR-164)
 ├── application/goods-receipt-service.js        the only writer of receipts; posts into the Inventory ledger (FR-165)
+├── application/supplier-cost-sheet-service.js   preview/commit and locked-FX source versions (TASK-ZAI-053)
+├── import/supplier-cost-workbook.js             bounded Excel template and reader (TASK-ZAI-053)
 └── index.js                                    stable module exports
 ```
 
@@ -148,11 +168,14 @@ contract (Inventory's `appendMovement`, `mayManage`) or a read projection.
 
 ## Delivery state
 
-FR-164 and FR-165 are implemented locally with both migrations written
-(`20260907010000_procurement`) and the production SQL **not applied** (an
-owner-instructed operator step, ADR-057). Not in this slice: purchase
-requests and approvals, RFQs and quotes, purchase returns and credit notes,
-supplier invoices and payables, landed cost.
+FR-164, FR-165 and TASK-ZAI-053 are implemented locally with both migrations
+written (`20260907010000_procurement` and
+`20260919090000_supplier_cost_sheet`) and the production SQL **not applied**
+(an owner-instructed operator step, ADR-057). TASK-ZAI-053's local proof is the
+focused workbook, route, domain and integration suite; no production source
+workbook, cost sheet or Product data was fabricated. Not in this slice:
+purchase requests and approvals, RFQs and quotes, purchase returns and credit
+notes, supplier invoices and payables, PricingRuleSet or quote lifecycle.
 
 ## References
 
@@ -167,3 +190,4 @@ supplier invoices and payables, landed cost.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0 | 2026-09-07 | active-foundation | Established the Procurement lane with suppliers, purchase orders, lines and goods receipts; the receipt-to-ledger contract and the two-ladder rule recorded in ADR-066 | working-tree | Claude Fable 5.1 |
+| 1.1.0 | 2026-09-20 | active-foundation | Added the bounded TASK-ZAI-053 supplier cost-sheet intake boundary: locked-FX source versions, confirmed price-break lines, Inventory-owned carton writes, Excel reader and local-only migration evidence | working-tree | Codex |

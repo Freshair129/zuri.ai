@@ -51,16 +51,16 @@ describe('knowledge runtime authority', () => {
   })
 })
 
-async function durableJob() {
+async function durableJob({ sourceKind = 'TEXT', sourceMetaJson = '{}' } = {}) {
   const suffix = randomUUID().slice(0, 8)
   const portfolio = await createPortfolio({ name: `Runtime ${suffix}`, code: `PF-KRT-${suffix}` })
   const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Runtime tenant', code: `TN-KRT-${suffix}` })
   const business = await createBusiness({ tenantId: tenant.id, name: 'Runtime business', code: `BU-KRT-${suffix}` })
   const actualScope = { ...scope, portfolioId: portfolio.id, tenantId: tenant.id, businessId: business.id }
   const corpus = await prisma.knowledgeCorpus.create({ data: { corpusKey: suffix, portfolioId: portfolio.id, tenantId: tenant.id, businessId: business.id, scopeJson: JSON.stringify(actualScope), policyJson: JSON.stringify({ allowEmbedding: true, allowPublication: true }) } })
-  const source = await prisma.knowledgeSource.create({ data: { corpusId: corpus.id, sourceKey: suffix, kind: 'TEXT', title: 'Runtime source', desiredRevision: 1 } })
+  const source = await prisma.knowledgeSource.create({ data: { corpusId: corpus.id, sourceKey: suffix, kind: sourceKind, title: 'Runtime source', desiredRevision: 1 } })
   const content = '# Employment\n\nAlice works for Acme Ltd.\n\n# Purchase\n\nAlice purchased Atlas.'
-  const job = await prisma.knowledgeIngestion.create({ data: { corpusId: corpus.id, sourceId: source.id, revision: 1, sourceVersion: '1', content, contentHash: hashGenesisRag17Text(content), idempotencyKey: suffix, requestHash: hashGenesisRag17Text(suffix) } })
+  const job = await prisma.knowledgeIngestion.create({ data: { corpusId: corpus.id, sourceId: source.id, revision: 1, sourceVersion: '1', content, contentHash: hashGenesisRag17Text(content), sourceMetaJson, idempotencyKey: suffix, requestHash: hashGenesisRag17Text(suffix) } })
   return { corpus, source, job, actualScope, env: environment(actualScope) }
 }
 
@@ -118,6 +118,24 @@ describe('knowledge durable queue', () => {
     await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, ingest }).runOnce()
     expect(ingest).not.toHaveBeenCalled()
     expect((await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })).status).toBe('WITHDRAWN')
+  })
+
+  it('preserves a FileAsset MIME when creating the Stage 1 request', async () => {
+    const fixture = await durableJob({
+      sourceKind: 'FILE',
+      sourceMetaJson: JSON.stringify({ kind: 'FILE', fileAssetId: 'file-markdown', mime: 'text/markdown; charset=utf-8' }),
+    })
+    const ingest = vi.fn(async () => ({
+      run: { executionRunId: `runtime-file-${fixture.job.id}` },
+      source: { rawArtifactId: `raw-${fixture.job.id}`, parsedArtifactId: `parsed-${fixture.job.id}` },
+    }))
+    const sourceWorkerFactory = vi.fn(() => ({ runOnce: vi.fn(async () => {}) }))
+
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, ingest, sourceWorkerFactory }).runOnce()
+
+    expect(ingest).toHaveBeenCalledWith(expect.objectContaining({
+      source: expect.objectContaining({ sourceType: 'FILE', contentType: 'text/markdown' }),
+    }), expect.anything())
   })
 
   it('closes confirmed local stage failure instead of retrying a failed attempt forever', async () => {

@@ -65,6 +65,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-173 — shared source admission and scoped corpus retrieval.
   ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
   ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
+  ['/api/knowledge/catalog-files', ['POST']],
   // @req FR-254 — enumerate the Console read contracts alongside existing admission.
   ['/api/knowledge/sources/{sourceId}', ['GET', 'DELETE']],
   ['/api/knowledge/sources', ['GET']], ['/api/knowledge/console/runs', ['GET']],
@@ -101,14 +102,19 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/connections/{id}/credential', ['POST']],
   ['/api/line-oa/connections/{id}/credential/revoke', ['POST']],
   ['/api/line-oa/connections/{id}/credential/validate', ['POST']],
+  // @req FR-266 — the Business owner's model provider API key (ADR-100 D4): the
+  // same write-only vault lifecycle as the LINE channel credential above, for the
+  // key every server answer now calls a model with. GET carries status only.
+  ['/api/integration/model-providers', ['GET', 'POST']],
+  ['/api/integration/model-providers/{id}/revoke', ['POST']],
+  ['/api/integration/model-providers/{id}/validate', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/line-oa/jobs/failures', ['GET']],
-  ['/api/edge/conversation-jobs/claim', ['POST']],
-  ['/api/edge/conversation-jobs/{id}/context', ['POST']], ['/api/edge/conversation-jobs/{id}/tools', ['POST']],
-  ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
-  // @req FR-244 — the identity-free residency poll (ADR-061, ADR-094 D6 option A).
-  ['/api/edge/model-residency', ['POST']],
+  // @req FR-265 — the five edge conversation-job operations and the identity-free
+  // residency poll are withdrawn (ADR-100 D2). The extraction and pairing
+  // operations below are untouched: this retired LINE conversation work on the
+  // device, not the device.
   // @req FR-143, FR-144 — the edge-executed extraction surface: three
   // owner-governed credential operations on the Platform side, four
   // device-authenticated job operations, and the review surface's job read.
@@ -235,6 +241,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/procurement/purchase-orders', ['GET', 'POST']], ['/api/procurement/purchase-orders/{id}', ['GET', 'PATCH']],
   ['/api/procurement/purchase-orders/{id}/receipts', ['GET', 'POST']],
   ['/api/procurement/receipts', ['GET']], ['/api/procurement/receipts/{id}', ['GET']],
+  ['/api/procurement/cost-sheets', ['GET']], ['/api/procurement/cost-sheets/preview', ['POST']],
+  ['/api/procurement/cost-sheets/xlsx', ['POST']], ['/api/procurement/cost-sheets/commit', ['POST']],
+  ['/api/procurement/cost-sheets/template', ['GET']], ['/api/procurement/cost-sheets/{id}', ['GET']],
   // @req FR-092 — Market Intelligence's surface-reachable endpoints. Reads are GET
   // only; the only writer of MarketObservation rows is the owner-triggered
   // production translation run below.

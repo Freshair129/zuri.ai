@@ -68,7 +68,7 @@ describe('FR-253 pricing console', () => {
     expect(html).toContain('Unknown variable')
   })
   it('shows integer-satang server results and missing comparison truthfully', () => {
-    const html = render(PricingResults, { preview: { result: { unitPriceSatang: 12550, totalPriceSatang: 25100, unitLandedCostSatang: 10000, grossProfitSatang: 5100, priceDriver: 'floor', warnings: ['MISSING_WEIGHT'], breakdown: { factoryCostSatang: 1234 } } } })
+    const html = render(PricingResults, { preview: { result: { unitPriceSatang: 12550, totalPriceSatang: 25100, unitLandedCostSatang: 10000, grossProfitSatang: 5100, priceDriver: 'FLOOR', warnings: ['MISSING_WEIGHT'], breakdown: { factoryCostSatang: 1234 } } } })
     expect(html).toContain('125.50 บาท')
     expect(html).toContain('12.34 บาท')
     expect(html).toContain('ยังไม่มีรุ่นใช้งานสำหรับเปรียบเทียบ')

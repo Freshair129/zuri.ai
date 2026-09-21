@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.60.0b"
+version: "1.61.0b"
 status: active
-last_update: "2026-09-17T02:46:11+07:00,RWANG"
+last_update: "2026-09-19T00:00:00+07:00,Luna Max"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -11,6 +11,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.60.0b -> 1.61.0b (2026-09-19): Added FEAT-044 for Mission Control DAG orchestration observability, bundling FR-260..FR-264. The implementation remains adapter-only and production is not claimed.
 
 Version diff 1.59.0b -> 1.60.0b: compose Knowledge Console as FR-254 in FEAT-013, preserving published FR-253 Commerce pricing. Console scope unchanged; release verification pending.
 
@@ -84,6 +86,8 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-041 | Chat evidence — what a customer and the business said stays provable: staff replies sent from the inbox are part of the record, and message bodies past their retention window move to an encrypted, hash-chained archive on a local disk for 10 years, retrieved only by an owner at AAL2 with a case reference and kept past an erasure only under a recorded legal hold (ADR-093, `DOM-CRM`) | FR-245, FR-246 | declared |
 | FEAT-042 | Observability — error tracking and feature usage: operators read a deduplicated, resolvable error list and a per-person breakdown of which pages and actions are actually used, both extending the existing structured logger rather than a third-party service (ADR-095, `DOM-PLATFORM-CONTROL`) | FR-247, FR-248, FR-249 | building |
 | FEAT-043 | Server-owned self-hosted inference pool | FR-255, FR-256, FR-257, FR-258, FR-259 | approved design — repository declaration pending |
+| FEAT-044 | Mission Control DAG orchestration observability — an installation-operator-only, read-only projection that joins the canonical roadmap DAG and its 21 waves with provenance-bound Programme Orchestration Run Ledger observations for workers, threads, branches, worktrees, commits, checks and evidence; same-wave work is only candidate-parallel until dependency, owner, lane, shared-file, revision and capability gates pass; missing or stale records stay UNKNOWN/NOT_RUN; /roadmap remains server-redacted and mobile uses the same SOT (ADR-048, ADR-086, ADR-092) | FR-260, FR-261, FR-262, FR-263, FR-264 | building |
+| FEAT-045 | LINE OA on API keys only — the Studio's EDGE execution mode, its edge conversation-job claim surface and the LOCAL_ONLY deterministic-answer branch are retired, and the model provider API key every server answer needs is entered by the Business owner in the browser, write-only, through the same credential vault that already holds the LINE channel secret (ADR-100, amending ADR-061 D2/D3 for LINE OA; ADR-041 pairing and ADR-059 asset extraction are untouched) | FR-265, FR-266, FR-267 | building |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -930,6 +934,16 @@ writing one sentence here, or the governance chain stops.
     "useCase": "Business owner or Operator configures self-hosted vLLM inference pool (12GB/16GB GPU nodes) without mandatory Edge device for Zuri Server LINE OA responses, including node registration, credential qualification, capacity routing, and safe cutover"
   },
   {
+    "id": "FEAT-044",
+    "primaryDomain": "platform-control",
+    "useCase": "installation operator opens Mission Control and sees the canonical roadmap DAG by wave together with only provenance-bound worker, thread, branch, worktree, commit, check and evidence observations; same-wave work is marked candidate-parallel until merge-safety gates pass, while stale or absent records remain visibly unknown and members never receive operator orchestration detail"
+  },
+  {
+    "id": "FEAT-045",
+    "primaryDomain": "line-oa-studio",
+    "useCase": "Business OWNER ใส่ API key ของโมเดลเองจากหน้าเว็บ แบบเขียนอย่างเดียว ตรวจกับผู้ให้บริการก่อนบันทึก แล้ว LINE OA ตอบลูกค้าโดยเรียกโมเดลด้วยคีย์นั้นบนเซิร์ฟเวอร์ของ Zuri โดยไม่ต้องมี Edge device อีกต่อไป"
+  },
+  {
     "id": "FR-253",
     "primaryDomain": "commerce",
     "useCase": "Business OWNER ใส่สูตรและตัวแปรราคา ทดลองเทียบรุ่นเดิม อนุมัติรุ่นใหม่และตรวจที่มาของผลคำนวณ ก่อนส่งราคาขายที่อนุมัติแล้วเข้า Knowledge"
@@ -985,4 +999,3 @@ Version diff 1.55.0b → 1.56.0b (2026-09-16): Added **FEAT-042** (FR-247..FR-24
 Version diff 1.56.0b → 1.57.0b (2026-09-16): FEAT-033's FR-215 live overlay is implemented locally with four bounded owning-domain reads and truthful unavailable/null states. The Knowledge Documents surface is narrowed to Text/Markdown admission; no production activation is claimed.
 
 Version diff 1.58.0b → 1.59.0b (2026-09-17): adds FR-253 Commerce pricing rules/engine readiness entry; local implementation only, no production activation.
-

@@ -201,6 +201,14 @@ export default function InventoryProductPage() {
     { key: 'costSatang', label: 'ต้นทุนต่อหน่วย', render: (r) => r.costSatang !== null ? `${(r.costSatang / 100).toFixed(2)} ฿` : 'ไม่มีต้นทุน' },
   ]
 
+  const supplierCostColumns = [
+    { key: 'minQty', label: 'เริ่มที่', render: (r) => String(r.minQty) + ' ' + (product?.unit || '') },
+    { key: 'unitCostBaht', label: 'ต้นทุนโรงงาน', render: (r) => Number(r.unitCostBaht).toFixed(2) + ' ฿ / ' + (product?.unit || '') },
+    { key: 'fxRateLocked', label: 'FX ล็อก', render: (r) => String(r.fxRateLocked) + ' ' + r.currency + ' → THB' },
+    { key: 'supplier', label: 'ซัพพลายเออร์', render: (r) => r.sheet?.supplier?.name || r.sheet?.supplier?.code || '—' },
+    { key: 'sheet', label: 'เวอร์ชัน', render: (r) => <span className="font-mono text-xs">{r.sheet?.code || '—'}</span> },
+  ]
+
   return <div>
     <PageHeader
       eyebrow="Inventory · SKU"
@@ -262,6 +270,36 @@ export default function InventoryProductPage() {
           rows={product?.costing?.costHistory ?? []}
           rowKey={(r) => r.id}
           empty={<p className="mb-3 text-sm text-muted">ยังไม่มีประวัติการรับเข้าสต๊อกสำหรับ SKU นี้</p>}
+        />
+      </Card>
+
+      <Card className="mb-4">
+        <SectionTitle caption="price break จาก SupplierCostSheet ที่ยืนยันแล้ว · แปลงเป็นบาทด้วย FX ที่ล็อกอยู่กับชีต">
+          ต้นทุนโรงงานและข้อมูลลัง
+        </SectionTitle>
+        <div className="mb-3 grid gap-3 md:grid-cols-4">
+          <div className="rounded-lg border border-[var(--border)] p-3">
+            <span className="text-xs text-muted">หน่วยต่อกล่อง</span>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">{product?.unitsPerCarton ?? '—'}</p>
+          </div>
+          <div className="rounded-lg border border-[var(--border)] p-3">
+            <span className="text-xs text-muted">CBM ต่อกล่อง</span>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">{product?.cartonCbm ?? '—'}</p>
+          </div>
+          <div className="rounded-lg border border-[var(--border)] p-3">
+            <span className="text-xs text-muted">กิโลกรัมต่อกล่อง</span>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">{product?.cartonKg ?? '—'}</p>
+          </div>
+          <div className="rounded-lg border border-[var(--border)] p-3">
+            <span className="text-xs text-muted">ประเภทขนส่ง</span>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">{product?.freightGoodsType || '—'}</p>
+          </div>
+        </div>
+        <DataTable
+          columns={supplierCostColumns}
+          rows={product?.supplierCostPriceBreaks ?? []}
+          rowKey={(r) => r.id}
+          empty={<p className="mb-3 text-sm text-muted">ยังไม่มี price break จาก cost sheet ที่ยืนยันแล้ว</p>}
         />
       </Card>
 

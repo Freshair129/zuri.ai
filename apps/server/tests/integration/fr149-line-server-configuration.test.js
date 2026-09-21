@@ -48,10 +48,14 @@ describe('FR-149 account configuration', () => {
     account = await applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: account.version, legacyQuiesced: true }, { viewer: owner, ports })
     expect(account).toMatchObject({ serverEnabled: true, status: 'CONNECTED', effectiveStatus: 'LIVE', bindingCode: null, transportEpoch: 2 })
   })
-  it('persists explicit model policy and disables ownership with epoch/version fencing', async () => {
-    await expect(applyLineOaAccountAction(account.id, { action: 'CONFIGURE_EXECUTION', version: account.version, executionMode: 'EDGE', modelAccess: 'LOCAL_ONLY', allowDelayedPush: false }, { viewer: member })).rejects.toMatchObject({ status: 404 })
-    account = await applyLineOaAccountAction(account.id, { action: 'CONFIGURE_EXECUTION', version: account.version, executionMode: 'EDGE', modelAccess: 'LOCAL_ONLY', allowDelayedPush: false }, { viewer: owner })
-    expect(account).toMatchObject({ executionMode: 'EDGE', modelAccess: 'LOCAL_ONLY', allowDelayedPush: false, serverEnabled: true, transportEpoch: 3 })
+  // @req FR-265 — `CONFIGURE_EXECUTION` carried an execution placement and a model
+  // policy; both are retired (ADR-100 D1, D3) and the schema refuses them outright.
+  // What the case still proves is unchanged: a member cannot apply the action, the
+  // owner can, it fences by bumping the epoch, and DISABLE_SERVER is version-checked.
+  it('persists the delivery policy and disables ownership with epoch/version fencing', async () => {
+    await expect(applyLineOaAccountAction(account.id, { action: 'CONFIGURE_EXECUTION', version: account.version, allowDelayedPush: true }, { viewer: member })).rejects.toMatchObject({ status: 404 })
+    account = await applyLineOaAccountAction(account.id, { action: 'CONFIGURE_EXECUTION', version: account.version, allowDelayedPush: true }, { viewer: owner })
+    expect(account).toMatchObject({ executionMode: 'SERVER', allowDelayedPush: true, serverEnabled: true, transportEpoch: 3 })
     await expect(applyLineOaAccountAction(account.id, { action: 'DISABLE_SERVER', version: account.version - 1 }, { viewer: owner })).rejects.toMatchObject({ status: 409 })
     account = await applyLineOaAccountAction(account.id, { action: 'DISABLE_SERVER', version: account.version }, { viewer: owner })
     expect(account).toMatchObject({ serverEnabled: false, transportEpoch: 4 })
@@ -60,7 +64,7 @@ describe('FR-149 account configuration', () => {
     const inbound = await ingestLineMessage({ tenantId: business.tenantId, businessId: business.id, channelAccountId: account.id, lineUserId: 'line-config-user', threadId: 'line-config-thread', text: 'Hello', externalMessageId: 'configuration-message' })
     const job = await prisma.lineConversationJob.create({ data: {
       accountId: account.id, inboundMessageId: inbound.messageId, eventId: 'config-event', tenantId: business.tenantId, businessId: business.id,
-      channelAccountId: account.id, transportEpoch: account.transportEpoch, executionMode: 'EDGE', modelAccess: 'LOCAL_ONLY', recipientId: 'line-config-user', sourceUserId: 'line-config-user',
+      channelAccountId: account.id, transportEpoch: account.transportEpoch, executionMode: 'SERVER', modelAccess: 'EXTERNAL_MODEL_ALLOWED', recipientId: 'line-config-user', sourceUserId: 'line-config-user',
       status: 'SENDING', expiresAt: new Date(Date.now() + 60000), correlationId: 'configuration-job',
     } })
     for (const status of ['SENDING', 'UNKNOWN']) {

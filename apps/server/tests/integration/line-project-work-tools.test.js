@@ -10,15 +10,12 @@ import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { resolveLineIdentity } from '@/modules/identity/resolve-line-identity'
 import { admitLineConversation, runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
-import { executeEdgeProjectWorkTool } from '@/modules/agent/edge-project-work-tools'
-import { validateEdgeMemoryInvocation } from '@/modules/agent/edge-memory-invocation'
-import { drainEdgeInvocationTraces } from '@/modules/agent/edge-invocation-trace'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
 import { searchLineProjectWork, proposeLineWork, confirmLineWork, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
 
 // @req FR-026, FR-072, FR-150 — real isolated SQLite confirms permission, confirmation,
 // stale version, channel binding, replay and canonical writer transaction behavior.
-// @spec SEC-001, SEC-008, ADR-061
+// @spec SEC-001, SEC-008, ADR-061, ADR-100 D2
 let tenant, business, otherBusiness, account, person, owner, stream, otherStream, membership
 const subject = 'U-line-work-owner'
 const at = new Date()
@@ -139,109 +136,13 @@ describe('LINE Project / Work tools', () => {
     await expect(updateItem(created.itemId, { title: 'Stale' }, { viewer: owner, expectedVersion: 1 })).rejects.toThrow('WORK_VERSION_CONFLICT')
   })
 
-  it('remote Edge tools fence scope/version/lease and never expose an execution tool', async () => {
-    const request = await toolJob('/projects')
-    const deviceContext = { isEdgeDevice: true, credentialId: request.claimantId, tenantId: tenant.id, businessId: business.id }
-    const input = { version: request.version, executionId: request.executionId, toolName: 'search_project_work', args: { kind: 'projects' } }
-    const result = await executeEdgeProjectWorkTool(request.id, input, { deviceContext, now: at })
-    expect(result.result.items.map(item => item.code)).toEqual(['PRJ-LINE-WORK'])
-    await drainEdgeInvocationTraces()
-    const rows = await prisma.agentTraceEvent.findMany({ where: { turnId: request.id, kind: { not: 'CONTEXT_COMMITTED' } }, orderBy: { createdAt: 'asc' } })
-    expect(rows.map(row => row.kind)).toEqual(['TOOL_INVOKED', 'TOOL_RESULT'])
-    const payloads = rows.map(row => JSON.parse(row.payloadJson))
-    expect(payloads.map(payload => payload.phase)).toEqual(['STARTED', 'COMPLETED'])
-    expect(payloads[0].toolInvocationId).toBe(payloads[1].toolInvocationId)
-    expect(payloads.every(payload => Object.keys(payload).sort().join(',') === 'evidenceSource,phase,toolInvocationId,toolName')).toBe(true)
-    await expect(executeEdgeProjectWorkTool(request.id, { ...input, version: 99 }, { deviceContext, now: at })).rejects.toMatchObject({ status: 409 })
-    await expect(executeEdgeProjectWorkTool(request.id, input, { deviceContext: { ...deviceContext, businessId: otherBusiness.id }, now: at })).rejects.toMatchObject({ status: 409 })
-    await expect(executeEdgeProjectWorkTool(request.id, { ...input, toolName: 'confirm_work' }, { deviceContext, now: at })).rejects.toThrow()
-    await prisma.lineConversationJob.update({ where: { id: request.id }, data: { leaseExpiresAt: new Date(at.getTime() - 1) } })
-    await expect(executeEdgeProjectWorkTool(request.id, input, { deviceContext, now: at })).rejects.toMatchObject({ status: 409 })
-    await drainEdgeInvocationTraces()
-    expect(await prisma.agentTraceEvent.count({ where: { turnId: request.id } })).toBe(3)
-  })
-
-  it('journals tool failures without copying arguments, output, or internal failure messages', async () => {
-    const request = await toolJob('private inbound', { sourceUserId: 'U-unlinked-telemetry' })
-    await expect(executeEdgeProjectWorkTool(request.id, { version: request.version, executionId: request.executionId,
-      toolName: 'search_project_work', args: { kind: 'projects', query: 'private search' } }, {
-      deviceContext: { isEdgeDevice: true, credentialId: request.claimantId, tenantId: tenant.id, businessId: business.id }, now: at,
-    })).rejects.toThrow()
-    await drainEdgeInvocationTraces()
-    const rows = await prisma.agentTraceEvent.findMany({ where: { turnId: request.id, kind: { not: 'CONTEXT_COMMITTED' } }, orderBy: { createdAt: 'asc' } })
-    expect(rows.map(row => JSON.parse(row.payloadJson).phase)).toEqual(['STARTED', 'FAILED'])
-    expect(JSON.stringify(rows)).not.toContain('private')
-    expect(JSON.stringify(rows)).not.toContain('WORK_IDENTITY_REQUIRED')
-  })
-
-  it('honors the original delayed-push tool budget and rejects missing, expired or wrong-execution contracts', async () => {
-    const delayed = await toolJob('/projects', { allowDelayedPush: true, replyExpiresAt: new Date(at.getTime() - 1000) }, { mode: 'DELAYED_PUSH' })
-    const call = (request, now = at) => executeEdgeProjectWorkTool(request.id, { version: request.version, executionId: request.executionId,
-      toolName: 'search_project_work', args: { kind: 'projects' } }, {
-      deviceContext: { isEdgeDevice: true, credentialId: request.claimantId, tenantId: tenant.id, businessId: business.id }, now,
-    })
-    expect((await call(delayed)).result.items.length).toBeGreaterThan(0)
-    await expect(call(delayed, new Date(at.getTime() + 35000))).rejects.toMatchObject({ status: 409 })
-    const missing = await job('/projects')
-    await expect(call(missing)).rejects.toMatchObject({ status: 409 })
-    const expired = await toolJob('/projects', {}, { deadline: at })
-    await expect(call(expired)).rejects.toMatchObject({ status: 409 })
-    const wrong = await toolJob('/projects')
-    const reclaimed = await prisma.lineConversationJob.update({ where: { id: wrong.id }, data: { executionId: randomUUID() } })
-    await expect(call(reclaimed)).rejects.toMatchObject({ status: 409 })
-    const crossing = await toolJob('/projects')
-    let current = at
-    const find = prisma.project.findMany.bind(prisma.project)
-    const query = vi.spyOn(prisma.project, 'findMany').mockImplementationOnce(async args => {
-      const result = await find(args)
-      current = new Date(at.getTime() + 35000)
-      return result
-    })
-    try {
-      await expect(call(crossing, () => current)).rejects.toMatchObject({ status: 409 })
-      expect(query).toHaveBeenCalledTimes(1)
-    } finally { query.mockRestore() }
-    await drainEdgeInvocationTraces()
-  })
-
-  it('journals live model phases idempotently without fabricating a context receipt or retaining memory', async () => {
-    const request = await job('private inbound', { memorySyncOptIn: true, replyExpiresAt: new Date(at.getTime() + 40000) })
-    const contextHash = 'a'.repeat(64)
-    await appendTraceEvent(prisma, { scope: { tenantId: tenant.id, businessId: business.id }, turnId: request.id,
-      executionId: request.executionId, kind: 'CONTEXT_COMMITTED', idempotencyKey: `${request.id}:execution:${request.executionId}:contract`,
-      payload: { contractVersion: '2', memoryContextHash: contextHash,
-        executionBudget: { deliveryMode: 'REPLY', answerDeadlineAt: new Date(at.getTime() + 35000).toISOString() } } })
-    const recordInjection = vi.fn(async () => ({}))
-    const contextBuilder = async (_job, options) => {
-      options.onContextResolved({ port: { recordInjection }, threadId: 'thread', exchangeId: 'exchange',
-        slices: [{ id: 'memory', text: 'private memory' }] })
-      return { contextHash }
-    }
-    for (const state of ['RESOLVED', 'SUBMITTED', 'COMPLETED', 'COMPLETED']) {
-      await validateEdgeMemoryInvocation(request.id, { version: request.version, executionId: request.executionId,
-        contextHash, injection: { id: 'ctxrcpt_test', modelRef: 'openai-compatible:qwen3.5:9b', state, mspRefs: ['memory'] } }, {
-        deviceContext: { isEdgeDevice: true, credentialId: request.claimantId, tenantId: tenant.id, businessId: business.id },
-        contextBuilder, now: () => at,
-      })
-      await drainEdgeInvocationTraces()
-    }
-    const rows = await prisma.agentTraceEvent.findMany({ where: { turnId: request.id, kind: { not: 'CONTEXT_COMMITTED' } }, orderBy: { createdAt: 'asc' } })
-    expect(rows.map(row => row.kind)).toEqual(['EVIDENCE_SELECTED', 'EVIDENCE_SELECTED', 'MODEL_COMPLETED'])
-    expect(rows.map(row => JSON.parse(row.payloadJson).phase)).toEqual(['CONTEXT_RESOLVED', 'MODEL_SUBMITTED', 'MODEL_COMPLETED'])
-    expect(rows.every(row => row.executionId === request.executionId && row.tenantId === tenant.id && row.businessId === business.id)).toBe(true)
-    expect(JSON.stringify(rows)).not.toContain('private')
-    expect(rows.every(row => Object.keys(JSON.parse(row.payloadJson)).sort().join(',') === 'evidenceSource,modelRef,phase,receiptId,snapshotState')).toBe(true)
-    await validateEdgeMemoryInvocation(request.id, { version: request.version, executionId: request.executionId,
-      contextHash, injection: { id: 'ctxrcpt_unknown', modelRef: 'openai-compatible:qwen3.5:9b', state: 'UNKNOWN', mspRefs: ['memory'] } }, {
-      deviceContext: { isEdgeDevice: true, credentialId: request.claimantId, tenantId: tenant.id, businessId: business.id },
-      contextBuilder, now: () => at,
-    })
-    await drainEdgeInvocationTraces()
-    const unknown = await prisma.agentTraceEvent.findFirst({ where: { turnId: request.id,
-      idempotencyKey: `${request.id}:${request.executionId}:model:ctxrcpt_unknown:UNKNOWN` } })
-    expect(unknown.kind).toBe('EVIDENCE_SELECTED')
-    expect(JSON.parse(unknown.payloadJson).phase).toBe('MODEL_UNKNOWN')
-  })
+  // @req FR-265 — four cases stood here, all against `executeEdgeProjectWorkTool`
+  // and `validateEdgeMemoryInvocation`: remote tool fencing, failure journalling,
+  // the delayed-push tool budget and the live-model phase journal. They covered the
+  // device's own lease/scope authority over a tool call, and that surface is
+  // withdrawn (ADR-100 D2) along with the modules behind it. The server-side tool
+  // path they shared — `searchLineProjectWork`, `proposeLineWork`, `confirmLineWork`
+  // and `handleLineProjectWorkCommand` — keeps every case above and below.
 
   it('binds confirmation to actor/identity epoch and rolls back receipt when writer fails', async () => {
     const proposed = await proposal('Identity changed')

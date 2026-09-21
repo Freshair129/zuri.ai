@@ -13,6 +13,6 @@ export { getRevenueSummary } from './application/revenue-read-model'
 export { getBillingDocument, getBillingProfile, issueBillingDocument, previewBillingDocument, updateBillingProfile } from './application/billing-invoice-service'
 export { checkoutPosSale, getPosTerminalCatalogue } from './application/pos-cashier-service'
 // @req FR-253 — public Commerce boundaries; other domains do not import internals.
-export { calculatePrice, defaultPricingRules, validatePricingRules } from './domain/pricing-engine'
+export { calculatePrice, defaultPricingRules, validatePricingRules, PRICE_DRIVERS } from './domain/pricing-engine'
 export { getActivePricingRuleSet } from './application/pricing-rules-service'
 export { priceLandedInventoryQuote } from './application/pricing-inventory-service'

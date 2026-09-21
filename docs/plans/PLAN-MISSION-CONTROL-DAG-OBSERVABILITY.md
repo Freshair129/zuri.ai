@@ -1,0 +1,402 @@
+---
+id: ZAI:PLAN-MISSION-CONTROL-DAG-OBSERVABILITY
+title: "Mission Control — DAG orchestration observability"
+version: "0.1.1"
+status: beta
+created_at: "2026-09-19T00:00:00+07:00,Luna Max,base 33cb69c7"
+last_update: "2026-09-19T00:30:00+07:00,Luna Max"
+attributes:
+  domain: platform-control
+  doc_type: design-proposal
+  scope: installation-operator observation of roadmap-driven multi-agent execution
+  source_of_truth: false
+  registry_allocation: FEAT-044 and FR-260..FR-264 allocated; no runtime authorization in this document
+relations:
+  - type: references
+    target: ZAI:FR-105
+  - type: references
+    target: ZAI:FR-241
+  - type: references
+    target: ZAI:ADR-048
+  - type: references
+    target: ZAI:ADR-086
+  - type: references
+    target: ZAI:ADR-092
+---
+
+# Mission Control — DAG orchestration observability
+
+> Approved design baseline. This document does not allocate a registry ID, change
+> the roadmap, create a run ledger, expose a route, or authorize implementation.
+
+## 1. Purpose, complexity and assumptions
+
+This is a C-3 / HIGH-risk control-plane design. Mission Control is a read-only
+operator dashboard for answering four questions about the programme:
+
+1. What does the approved roadmap say can proceed, and in which dependency wave?
+2. Which workers, threads, branches and worktrees have actually reported work?
+3. Which checks and evidence exist, at what proof scope, and which are still
+   `UNKNOWN` or `NOT_RUN`?
+4. Which same-wave tasks are only candidate-parallel, and which have passed the
+   gates needed to be merge-safe?
+
+The dashboard never becomes a scheduler, merger, deployer, roadmap editor or
+second status source.
+
+### Assumptions
+
+1. `ROADMAP.md` remains the approved programme SOT and `roadmap-sot.js` remains
+   its generated runtime projection.
+2. The dashboard is a new operator surface, proposed as
+   `/control/mission-control`; `/control/roadmap` remains the existing plan
+   board and `/roadmap` remains the time-boxed member projection.
+3. A future orchestration source can provide signed or otherwise provenance-
+   bound run observations. Until that source exists, the dashboard must render
+   `UNKNOWN`, `SNAPSHOT` or `NOT_RUN`, never guessed live Codex state.
+4. Owner/PIC, executor, approver, auditor, lane and branch declarations remain
+   the current task/lane contract until a reviewed contract replaces them.
+
+## 2. Evidence and parent/peer boundary
+
+| Evidence found | Consequence for this design |
+|---|---|
+| [`ROADMAP.md`](../roadmap/ROADMAP.md) frontmatter and canonical delivery ledger | It is the sole task/status/proof/implementation/dependency authority. The derived 118-node, 132-edge, 21-wave DAG is display input, not a new source. |
+| [`roadmap-sot.js`](../../apps/server/src/modules/platform-control/roadmap-sot.js) | Generated projection already carries the status/proof/implementation vocabularies, the DAG and `SUBPLAN-ROADMAP-MOBILE`; it must not be hand-edited or extended with fabricated run state. |
+| [`ADR-048`](../decisions/ADR-048-PLATFORM-CONTROL-SHELL.md) and the platform-control charter | `/control/**` is installation-operator-only, outside Business scope, read-only and removable. `isInstallationOperator` is the sole control authorization predicate. |
+| [`ADR-092`](../decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md), `/roadmap` and `programme-member-view.js` | Signed-in members receive only the server-redacted plan/Domain-map projection. No worker, thread, branch, worktree, person/device, tool/model or live-run data may be added to that route. |
+| `ProgramRoadmapBoard.jsx`, `program-roadmap-data.js`, `program-roadmap-containers.js` | The existing board renders phases, sprints, task accordions, dependencies, DoD, evidence badges and usage. It does not render the DAG or actual orchestration run state. |
+| `PROGRAMME_USAGE`, `ProgrammeUsageReport` and `task-usage-ledger.js` | These are usage/measurement inputs, not a worker execution ledger. They may be shown beside a run only as measurement with its own provenance. |
+| `pipeline-tracking-contract.js` and pipeline run routes | These are the data-pipeline execution ledger. They must not be relabelled as Codex/worker/thread orchestration state. |
+| `reference/GoVibe/ROADMAP-govibe-mcp-runtime.md` and `WIREFRAME-A2-Roadmap-Board.md` | Useful prior art for document-fed snapshots and honest empty states, but not authority over this zuri-ai SOT or current authorization contract. |
+
+The existing tests already prove the relevant baseline: the control guard runs
+before rendering, member redaction occurs on the server, the programme contains
+118 tasks, and the generated DAG matches `ROADMAP.md`. This proposal adds no
+claim that those tests prove a future live orchestration feed.
+
+## 3. Two-source authority model
+
+### 3.1 Plan and DAG truth — existing authority
+
+Mission Control reads the same generated projection as the existing board:
+
+```text
+docs/roadmap/ROADMAP.md
+  └─ generated by the existing programme generator
+     └─ apps/server/src/modules/platform-control/roadmap-sot.js
+```
+
+The plan projection owns:
+
+- task identity, title, phase/sprint, `depends_on` and task status;
+- proof scope (`SPEC`, `UNKNOWN`, `LOCAL`, `ISOLATED`, `HOSTED_CI`,
+  `PRODUCTION`);
+- implementation state (`NOT_STARTED` through `ACTIVE`, `BLOCKED` and
+  `UNKNOWN`);
+- subplan declarations, duplicate keys and explicit adapter/fallback relations;
+- the DAG algorithm, node/edge/wave counts and same-wave policy.
+
+The dashboard may calculate display indexes and filters from this projection,
+but it may not write a task status, add a dependency, promote proof scope or
+create a second mobile/operational roadmap.
+
+### 3.2 Execution and evidence truth — proposed adapter boundary
+
+The repository currently has no tracked source that is authoritative for
+worker/thread/branch/worktree/commit/test/evidence state. Propose a narrowly
+scoped **Programme Orchestration Run Ledger (PORL) adapter**. PORL is a name for
+the boundary in this proposal, not an existing model or implementation.
+
+PORL is a read adapter over the actual orchestration/harness record. It must
+return an immutable observation envelope, for example:
+
+```json
+{
+  "runRef": "opaque-run-ref",
+  "taskId": "TASK-ZAI-001",
+  "laneId": "LANE-EXAMPLE",
+  "assignment": { "owner": "declared-owner", "worker": "opaque-worker-ref" },
+  "threadRef": "opaque-thread-ref",
+  "branch": "codex/example",
+  "worktreeRef": "opaque-worktree-ref",
+  "baseCommit": "sha-or-null",
+  "headCommit": "sha-or-null",
+  "runState": "RUNNING",
+  "observedAt": "2026-09-19T00:00:00.000Z",
+  "freshness": "LIVE",
+  "source": "adapter-name",
+  "checks": [{ "kind": "unit", "scope": "LOCAL", "state": "NOT_RUN" }],
+  "changedFiles": { "state": "UNKNOWN", "paths": [] },
+  "evidenceRefs": [],
+  "blockers": []
+}
+```
+
+Required rules:
+
+- PORL is subordinate to the roadmap SOT. A run cannot promote a roadmap task
+  or change its dependency graph.
+- Every field has `source`, `observedAt`/`capturedAt` and an evidence or
+  absence reason. Missing data is not an empty array that implies no work.
+- A worker or Codex integration must report its own identity/provenance; the
+  UI must never infer a live thread, branch, worktree, commit or test result
+  from a task label, usage row, process guess or current browser session.
+- Changed-file data is required for a `merge-safe` result. If the adapter cannot
+  provide a trustworthy manifest, the result is `UNKNOWN`, never safe.
+- The first implementation should prefer an adapter over an external or
+  existing run record. A new database model, event writer or external contract
+  is a separate approved slice; this document does not authorize one.
+
+## 4. Truthful display vocabulary
+
+These are orthogonal dimensions; the UI must not collapse them into one green
+or red badge.
+
+| Dimension | Display state | Meaning |
+|---|---|---|
+| freshness | `LIVE` | PORL supplied a current, provenance-bound observation under the approved freshness rule. Show observed time and source. |
+| freshness | `SNAPSHOT` | An immutable captured run/commit/CI record exists, but it is not a current heartbeat. Show capture time and as-of revision. |
+| freshness | `UNKNOWN` | No trustworthy record, the source is unavailable/stale/unmapped, or a field was not reported. Never render zero, idle or green by inference. |
+| task/gate | `BLOCKED` | The SOT or a verified dependency/conflict gate names a blocker. Show the blocker and downstream impact; do not use this for missing telemetry. |
+| check | `NOT_RUN` | A declared unit/build/e2e/hosted/production check has no execution record. It is not pass, fail or skipped. |
+| run | `QUEUED`, `RUNNING`, `SUCCEEDED`, `FAILED`, `CANCELLED` | Terminal/run result from PORL only; it never overwrites the SOT status. |
+| proof | `SPEC`, `LOCAL`, `ISOLATED`, `HOSTED_CI`, `PRODUCTION` | Evidence scope from the roadmap or verified run record. These are not interchangeable readiness claims. |
+
+Examples:
+
+- A local test pass for a task whose SOT proof scope is `ISOLATED` is shown as
+  `SNAPSHOT + SUCCEEDED + ISOLATED`, not production-ready.
+- A task marked `done` in `ROADMAP.md` with no PORL record still shows the SOT
+  plan status and `UNKNOWN` execution observation; the dashboard does not invent
+  a worker completion.
+- A stale heartbeat with an old successful commit remains `SNAPSHOT` for that
+  commit and `UNKNOWN` for current liveness.
+- A check with no result is `NOT_RUN`, even if a wrapper process exited 0 or a
+  neighbouring check passed.
+
+## 5. DAG, waves, and merge-safety model
+
+Mission Control should render the 21-wave DAG from the canonical SOT, including
+incoming and outgoing dependencies, current SOT status/proof/implementation
+state, declared lane and owner, PORL observations, checks, and the merge gate.
+The view must distinguish scheduling eligibility from merge safety:
+
+- `candidate-parallel` means only that two tasks occupy the same topological
+  wave and have no declared dependency path between them. It is a scheduling
+  candidate, not permission to run or merge concurrently.
+- `merge-safe` is granted only when every applicable gate below is
+  satisfied. The first failed or unknown gate is shown with its source and
+  reason.
+
+The proposed merge-safety gates are:
+
+1. **Dependency gate** — all required predecessors are resolved, and none is
+   `blocked`, `unknown`, or `not-run` for a required check.
+2. **Owner and assignment gate** — exactly one declared owner/PIC and one
+   compatible active assignment exist. Duplicate active claims are a conflict
+   unless an explicit review, adapter, fallback, or replacement relation is
+   recorded.
+3. **Lane gate** — the run maps to one declared roadmap lane and permitted
+   branch. A branch claimed by two lanes is a conflict.
+4. **Shared-file gate** — changed-file manifests are disjoint, or an explicit
+   serial integrator owns the overlap. An unknown manifest is not merge-safe.
+   Generated files and SOT sources are shared even when their tasks are in the
+   same wave.
+5. **Revision gate** — base commit, head commit, and worktree identity are
+   mutually consistent with the observation. Missing or contradictory revision
+   data is `unknown`, not safe.
+6. **Capability-identity gate** — duplicate capability keys require an explicit
+   adapter/legacy/fallback/replaces relation; similar labels alone do not
+   establish identity.
+
+The dashboard should show a compact gate trace such as
+`candidate-parallel → shared-file unknown → merge-safe: false`, with the
+responsible source and observation timestamp. It must not silently convert a
+candidate into an approval.
+
+## 6. Current blocker panel
+
+The first panel should make the two cross-system blocker families visible from
+the SOT without upgrading their status:
+
+1. **`TASK-ZAI-081` — real LINE test channel.** The canonical row is
+   `blocked`, proof is `UNKNOWN`, and implementation is `BLOCKED`. Its
+   acceptance needs a real LINE test channel through development providers and
+   stores, with Supabase/Vault/operator evidence. Until code is merged and a
+   deployed image is verified, Mission Control must show the acceptance as
+   blocked/unknown rather than claiming readiness.
+2. **`TASK-ZAI-100 → TASK-ZAI-101 → TASK-ZAI-102` — MSP dependency chain.**
+   The rows explicitly require missing MSP thread/erase tools and a canary.
+   The panel should show the external owner/dependency and the absence of local
+   activation evidence. It must not claim that the external system is
+   activated.
+
+Other blocked SOT rows remain visible through the same projection. Mission
+Control is an observer: it does not edit roadmap status, resolve blockers, or
+turn missing evidence into a pass.
+
+## 7. Authorization and data boundary
+
+The proposed route `/control/mission-control` belongs under the existing
+PlatformControlGuard/Shell and is installation-operator-only, using
+`isInstallationOperator`. Business, Tenant, Project, domain, global, or
+ordinary member roles do not grant access. The guard must run before any PORL
+or orchestration payload is loaded.
+
+An operator may see the minimum opaque/provenance-bound fields needed to
+observe worker/thread/branch/worktree/commit/check/evidence relationships. The
+route must not expose secrets, prompts, customer payloads, tokens, or
+arbitrary child-agent output. The proposed surface is read-only: no assign,
+cancel, retry, merge, deploy, reset, roadmap edit, or notification operation.
+
+There is no new member Mission Control surface. The existing `/roadmap`
+projection remains the signed-in member view governed by ADR-092. If its
+existing redacted data includes a DAG summary, it may continue to show that
+summary, but it must not receive PORL fields, per-person assignments, device
+or tool details, model/thread identifiers, or live orchestration state. This
+is an explicit member projection boundary, not a CSS-hidden operator panel.
+
+## 8. Relationship to `SUBPLAN-ROADMAP-MOBILE`
+
+`SUBPLAN-ROADMAP-MOBILE` remains the only mobile roadmap plan and continues
+to use `ROADMAP.md` and generated `roadmap-sot.js` as its data authority.
+Mission Control adds no mobile task/status source and no second mobile SOT.
+
+The proposed operator extension should reuse the subplan's responsive
+principles:
+
+- stack the DAG, blocker, evidence, and gate panels at 360–430px widths;
+- preserve touch and keyboard access, including `aria-expanded` for
+  collapsible wave/run detail;
+- use bounded inner scrolling for wide tables and never create document-level
+  horizontal overflow;
+- keep the member-redacted projection identical in substance at desktop and
+  mobile widths.
+
+The existing 390x844 and 430x932 member checks remain applicable to
+`/roadmap`. Mission Control adds focused operator viewport checks only after
+the PORL contract and route are approved. A mobile operator view is a
+responsive rendering of the same read-only observation, not a new workflow.
+
+## 9. Exact acceptance criteria
+
+This proposal is accepted only when the implementation can demonstrate all of
+the following:
+
+1. The operator route is denied to non-operators before the protected payload
+   is loaded; the member `/roadmap` response remains unchanged in scope.
+2. The rendered DAG agrees with the SOT: 118 nodes, 132 edges, 21 waves, no
+   missing dependency targets, and no cycles; the dashboard performs no SOT
+   write.
+3. Every displayed run, assignment, revision, check, and evidence field has a
+   named source and observed/captured time. Missing or stale values render
+   `UNKNOWN` or `NOT_RUN` with a reason.
+4. `LIVE` and `SNAPSHOT` are visibly distinct. Absent or stale heartbeat
+   data cannot be rendered as live, zero, green, or production-ready.
+5. Same-wave work is labeled `candidate-parallel` only. The dependency,
+   owner, lane, shared-file, revision, and capability-identity gates produce a
+   visible `merge-safe` result and expose the first failed/unknown gate.
+6. The panel shows `TASK-ZAI-081` and the
+   `TASK-ZAI-100 → TASK-ZAI-101 → TASK-ZAI-102` chain with their actual
+   blocked/unknown/external-dependency states; it never upgrades either family.
+7. Member payloads contain no PORL records, worker/person assignments, device
+   or tool details, model/thread identifiers, or live orchestration fields.
+8. Desktop and mobile renderings remain keyboard accessible and avoid document
+   horizontal overflow at 390x844 and 430x932; wide evidence tables use a
+   bounded scroll region.
+9. The route and adapter are read-only and have no assign, cancel, retry,
+   merge, deploy, migration, reset, activation, or notification path.
+10. After IDs and ownership are approved, the implementation carries the
+    required source/test annotations, governance outputs are regenerated by
+    the sanctioned command, and all verification evidence preserves its
+    scope. Production evidence remains `NOT_RUN` unless actually produced.
+
+## 10. Verification plan
+
+Before implementation, the owner must approve the route boundary, PORL
+ownership/contract, and whether the first release is adapter-only or includes
+a durable orchestration ledger. Only then may the implementation worker
+allocate any required IDs and write its implementation plan.
+
+After ID allocation, the worker should use the sanctioned ID writer, run
+`npm run govern`, and review ownership of every regenerated output. The
+focused proof set should include:
+
+- SOT/DAG consistency tests for node, edge, wave, dependency, and cycle
+  counts;
+- PORL envelope validation, source/time requirements, immutable snapshot
+  handling, stale-observation handling, duplicate-claim handling, and
+  `NOT_RUN` semantics;
+- merge-gate fixtures for dependency, owner, lane, shared-file, revision, and
+  capability conflicts;
+- viewer-factory authorization tests proving operator-only access and
+  pre-guard payload suppression;
+- route/render tests for live, snapshot, unknown, blocked, not-run, blocker,
+  and conflict states, including member payload redaction;
+- browser checks for operator read-only behavior, member `/roadmap`, and
+  390x844/430x932 overflow/accessibility behavior;
+- applicable unit, integration, build, e2e, and governance checks.
+
+Fixture, local, isolated, hosted-CI, and production evidence must remain
+separate in the report. A local or isolated pass is not production proof, and
+production is `NOT_RUN` unless a real production run is captured.
+
+## 11. Non-goals and open decisions
+
+This proposal does not authorize:
+
+- a second roadmap or mobile SOT, client-side task status, or replacement of
+  `ROADMAP.md`/generated `roadmap-sot.js`;
+- fabricated Codex live state, inferred process/worktree ownership, guessed
+  identity, or status derived only from a label;
+- scheduler, assignment, cancellation, retry, merge, deploy, migration,
+  activation, or notification behavior;
+- replacement of `ProgrammeUsageReport`, pipeline tracking, MSP, GKS,
+  GenesisBlockDB, or an external execution harness;
+- a Business/Tenant/Project merge or a new business data boundary;
+- raw prompts, secrets, customer payloads, tokens, or arbitrary child-agent
+  output in the operator surface.
+
+The following decisions remain open and must be resolved before implementation:
+
+1. Who owns and authenticates PORL, and whether the first adapter reads a
+   remote run ledger or accepts bounded signed/read-only receipts.
+2. The freshness threshold and retention policy for live observations and
+   immutable snapshots.
+3. Whether raw thread/worktree identifiers are exposed to operators or
+   represented by opaque links requiring re-authentication.
+4. The authority for changed-file manifests and the rule for selecting a
+   serial integrator when shared files overlap.
+5. Whether Mission Control is a separate control route or a tab under
+   `/control/roadmap`; either choice must preserve the authorization and
+   member-projection boundaries above.
+
+## 12. Version diff and approval boundary
+
+This document is a new candidate proposal:
+
+- **Before:** no approved Mission Control DAG-observability design in this
+  repository.
+- **After:** a documentation-only candidate defining source authority, the
+  proposed PORL adapter boundary, truthful status vocabulary, DAG/wave and
+  merge-safety gates, the two blocker families, operator/member authorization,
+  mobile relationship, acceptance criteria, verification, non-goals, and open
+  decisions.
+- **Not changed:** runtime/UI code, tests, generated files, `ROADMAP.md`,
+  `roadmap-sot.js`, production systems, and requirement/feature/ADR
+  registries. No new registry ID is assigned by this candidate.
+
+**Approval required:** the owner must approve this design scope, the proposed
+operator-only route, the PORL ownership/contract boundary, the blocker
+projections, and the acceptance/verification criteria. After that approval,
+a separate Luna Max implementation worker may allocate any required IDs,
+write the implementation plan, and request a second approval before code.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.0b | 2026-09-19 | candidate | Initial documentation-only Mission Control DAG observability proposal; no registry ID or runtime change | 33cb69c7 (base, uncommitted) | Luna Max |
+| 0.1.0 | 2026-09-19 | beta | Owner-approved design boundary; implementation plan opened, with no registry ID or runtime change | 33cb69c7 (base, uncommitted) | Luna Max |
+| 0.1.1 | 2026-09-19 | beta | FEAT-044 and FR-260..FR-264 allocated in the documentation gate; runtime/UI and production remain out of scope | 33cb69c7 (base, uncommitted) | Luna Max |

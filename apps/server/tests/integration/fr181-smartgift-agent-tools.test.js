@@ -140,7 +140,7 @@ describe('FR-181 SmartGift agent tools', () => {
     expect(quote.remoteSurchargeRequired).toBe(false)
     // Every default it leaned on is declared rather than presented as fact.
     expect(quote.assumptions.some((a) => a.startsWith('TIER_MARGIN_DEFAULT'))).toBe(false)
-    expect(quote.priceDriver).toBe('formula')
+    expect(quote.priceDriver).toBe('LADDER')
 
     const island = await read.get('calculate_smartgift_quote').handler({ skuCode: 'TMS06-4(P-16)', quantity: 100, deliveryDestination: 'เกาะสมุย' })
     expect(island.remoteSurchargeRequired).toBe(true)

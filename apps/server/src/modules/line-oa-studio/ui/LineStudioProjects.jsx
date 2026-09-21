@@ -152,7 +152,8 @@ export default function LineStudioProjects({ onSelectProject }) {
       typeLabel: "บัญชี LINE OA",
       serverEnabled: acc.serverEnabled,
       status: acc.effectiveStatus || acc.status || "UNKNOWN",
-      transport: acc.serverEnabled ? "Zuri Server" : acc.transportMode === "EDGE" ? "Edge worker" : "Server not enabled",
+      // @req FR-265 — EDGE is retired (ADR-100 D1) and reads as a leftover here too.
+      transport: acc.serverEnabled ? "Zuri Server" : acc.transportMode === "EDGE" ? "Edge (retired)" : "Server not enabled",
       updatedAt: acc.updatedAt || acc.createdAt,
       raw: acc
     })),
@@ -229,7 +230,7 @@ export default function LineStudioProjects({ onSelectProject }) {
             <span>ลงทะเบียน Group / User</span>
           </button>
           <button
-            onClick={() => router.push("/line-oa/edge-connection")}
+            onClick={() => router.push("/line-oa/connections")}
             className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center gap-1.5"
           >
             <span>💬 + เชื่อมต่อ LINE OA</span>

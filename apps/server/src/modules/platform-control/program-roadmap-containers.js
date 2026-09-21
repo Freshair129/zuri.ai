@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.13, 2026-09-19) so the board can open a task the way the html board
+// (v0.4.20, 2026-09-21) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -14,7 +14,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-001",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-01",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "Codex",
@@ -207,7 +207,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [
@@ -430,7 +430,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -475,7 +475,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -610,7 +610,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -655,7 +655,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "missing"
     },
     "delivers": [],
@@ -1051,7 +1051,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-024",
     "phase": "PHASE-ZAI-05",
     "sprint": "SPR-ZAI-09",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -1060,19 +1060,19 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/agent/context.js",
       "doc": "docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/unit/agent-context-retrieval.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given a principal without permission for a memory partition, when retrieval runs, then nothing is returned and the refusal is audited",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a permitted retrieval, when the result is assembled, then every item names the Business and partition it came from",
@@ -1080,23 +1080,23 @@ export const PROGRAMME_CONTAINERS = {
       },
       "exit": {
         "text": "Given npm test, when the retrieval suite runs, then policy is evaluated before retrieval, not after",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. The acceptance criterion — retrieval refused and audited *by role* — waits on the role registry (TASK-ZAI-007/008), and the exit criterion on a suite that asserts ordering, which does not exist yet.",
+    "changelog": "Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. TASK-ZAI-024 is merged in PR #481 at `823ae325`; hosted verify/govern/tests/build/edge/changes passed. Production activation and release evidence remain NOT_RUN.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 54000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-008"
     ],
-    "evidence": "Section 3.1 row 4; FR-098, FR-173, ADR-072"
+    "evidence": "PR #481 merged at `823ae325`; hosted verify/govern/tests/build/edge/changes passed; production NOT_RUN"
   },
   "TASK-ZAI-025": {
     "container": "TC-TASK-ZAI-025",
     "phase": "PHASE-ZAI-05",
     "sprint": "SPR-ZAI-09",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -1105,12 +1105,12 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/agent/runtime.js",
       "doc": "docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/unit/agent-runtime-lineage.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
@@ -1128,14 +1128,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened to make the Second Brain auditable rather than merely persistent. Reproducibility of context and reproducibility of output are recorded as separate claims. Moved to in-progress on the 2026-09-13 re-baseline — FR-116 gives every derived knowledge object the ten provenance fields and a lineage chain back to its source; FR-117 records duplicate and version relationships; FR-171 (ADR-070, execution trace and replay v0.3) journals the native SERVER LINE path into an append-only AgentTraceEvent with MSP memory provenance preserved. The PRD marks FR-171 🟡: MSP erasure API, live Postgres and a deployed canary are still open, and none of the three criteria has its fail-closed replay test yet, so all stay unticked.",
+    "changelog": "Reconciled 2026-09-21 after PR #494 implementation head `a2bd5f90` merged at `06d61da5`. Hosted Governance run #1381 govern/tests/build/verify/changes passed with E2E skipped; Edge run #711 edge-verify/changes passed with Desktop skipped; local focused lineage evidence is linked above. The task remains `review`: production, owner activation, MSP, GKS, migrations, deployment and credentials remain NOT_RUN, and the broader acceptance boundary is not promoted to done.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 40000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-024"
     ],
-    "evidence": "Section 3.1 row 4; FR-116, FR-171, ADR-070"
+    "evidence": "PR #494 implementation head `a2bd5f90` merged at `06d61da5`; hosted Governance run #1381 govern/tests/build/verify/changes passed with E2E skipped; Edge run #711 edge-verify/changes passed with desktop skipped; local focused 52 tests, govern and build passed; production, owner activation, MSP, GKS, migrations, deployment and credentials remain NOT_RUN; broader task criteria remain open"
   },
   "TASK-ZAI-026": {
     "container": "TC-TASK-ZAI-026",
@@ -1199,7 +1199,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -1618,7 +1618,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-036",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-01",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -1662,12 +1662,12 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged. Transport health chip rendered in LineStudioSettings.jsx with unit tests passing. Moved to review awaiting production deployment verification tail.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged through PR #341/#359. The isolated FR-190 audit found that the worker sweep omitted integrationConnectionId from its explicit account projection; the bounded fix, two-account regression and RCA are recorded in .brain/rca/2026-09-19-fr190-sweep-account-scope.md. PR #480 merged that fix at `d8a8e0e` with hosted checks passing. PR #507 then preserved the mutable `UPLOAD` stage when rich-menu upload throws; its focused regression passed 8/8 and hosted Governance/Edge runs `35549452929`/`35549452972` passed with E2E/Desktop skipped. The exit criterion stays unchecked because provider canary, real LINE delivery and production verification remain NOT_RUN.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
     "dependsOn": [],
-    "evidence": "CR-019 deliverable 11; ADR-060, ADR-061"
+    "evidence": "PR #507 head `b1151774fd0721ea3c1057f6ec7c29611a1e4220` merged as `3f408ba9ffea415f1add48c1b5c1efd7d6f40187`; focused thrown-upload regression 8/8 and hosted Governance/Edge runs `35549452929`/`35549452972` passed with E2E/Desktop skipped; provider canary, real LINE delivery and production remain NOT_RUN; CR-019 deliverable 11; ADR-060, ADR-061"
   },
   "TASK-ZAI-037": {
     "container": "TC-TASK-ZAI-037",
@@ -1780,7 +1780,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-039",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "priority": "P1",
     "pic": "RWANG",
     "executor": "RWANG",
@@ -1816,7 +1816,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Owner-approved and locally verified 2026-09-11 (PRD 🔵; ROADMAP.md 2.52.0b records FR-184's isolated browser, concurrency and recovery proof). In review, not done, because the two migrations are written and not applied — the exit criterion is TASK-ZAI-043's job for this lane.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Owner-approved and locally verified 2026-09-11 (PRD 🔵; ROADMAP.md 2.52.0b records FR-184's isolated browser, concurrency and recovery proof). PR #508 merged the current-worktree Prisma generation fix at `259867faf4a3f41e91f3428c2bff3cfdda3d006d`; its harness 21/21, commerce/stocktake unit 8/8, integration 29/29 and focused browser 4/4 receipts passed, and hosted Governance/Edge runs `35549785192`/`35549785191` passed with E2E/Desktop skipped. In review, not done, because the two migrations are written and not applied — the exit criterion is TASK-ZAI-043's job for this lane.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
@@ -1824,13 +1824,13 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-033",
       "TASK-ZAI-038"
     ],
-    "evidence": "CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910"
+    "evidence": "PR #508 head `0d3a3c6b7d726c36fa7c821c0cb7bbb5194dfc06` merged as `259867faf4a3f41e91f3428c2bff3cfdda3d006d`; Prisma E2E harness 21/21, commerce/stocktake unit 8/8, integration 29/29 and focused browser 4/4 passed; hosted Governance/Edge runs `35549785192`/`35549785191` passed with E2E/Desktop skipped; migrations `20260911010000`/`20260911020000`, owner approval and production activation remain NOT_RUN; CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910"
   },
   "TASK-ZAI-040": {
     "container": "TC-TASK-ZAI-040",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "priority": "P1",
     "pic": "RWANG",
     "executor": "RWANG",
@@ -1839,12 +1839,12 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/marketing/application/marketing-plan-service.js",
       "doc": "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
-      "test": "apps/server/tests/integration/marketing"
+      "test": "apps/server/tests/integration/marketing-plan.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FEAT-021",
@@ -1870,18 +1870,18 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158 are 🟢 locally verified beta, FR-157, FR-160, FR-162 🟠 in progress, FR-185 🟠 P5 planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). Stays in-progress: CR-018 phases beyond planning and read integration are not delivered, and the PRD says so.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158, FR-157, FR-160 and FR-162 are locally verified bounded slices; FR-185 is locally verified planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). PR #482 merged the reconciliation at `11826890` with hosted checks passing. PR #503 added the six-test broadcast-planning client contract and merged at `5cfb3443625b4e833662945c34742c167a7bf2bd`; hosted Governance/Edge runs `35548539602`/`35548539585` passed with E2E/Desktop skipped. Remains review: target import, provider, owner, release and production gates are not delivered, and the PRD says so.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
     "dependsOn": [],
-    "evidence": "CR-019 deliverable 11; CR-018"
+    "evidence": "PR #503 head `0d3d9568b148e2f0910b090fd00572a50cfcbbfb` merged as `5cfb3443625b4e833662945c34742c167a7bf2bd`; six broadcast-planning contract tests and hosted Governance/Edge runs `35548539602`/`35548539585` passed with E2E/Desktop skipped; target import, provider, owner, release and production gates remain open; CR-019 deliverable 11; CR-018"
   },
   "TASK-ZAI-041": {
     "container": "TC-TASK-ZAI-041",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.2.1",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -1927,14 +1927,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 on the re-baseline; it belongs to deliverables 9 (audit) and 10 (security checklist), not to deliverable 11, and is listed with the CR-019 wave because it merged in the same week. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) all merged 2026-09-12 with integration tests; the owner ran ADR-077 and ADR-078 in parallel by instruction. In review because the five migrations are written and, at the time of writing, not recorded applied — TASK-ZAI-043 closes that.",
+    "changelog": "Reconciled 2026-09-21: PR #352's displayed E2E conclusion is FAILURE; hosted/other implementation evidence does not establish all-CI pass. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) merged with integration evidence. PR #506 added the bounded tenant-wide-grant roster fix and merged at `5fd32fb78fb04e32d7edc5ed4dd7f888fd258eeb`; focused identity evidence passed 26/26, the full server receipt passed 777 files / 6,537 tests with 32 skipped, and hosted Governance/Edge runs `35549400774`/`35549400779` passed with E2E/Desktop skipped. The five migrations remain written but not recorded as applied, so the task remains review and TASK-ZAI-043 remains the production migration gate.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-001"
     ],
-    "evidence": "Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
+    "evidence": "PR #506 head `5c5f57849cd2fb0fe4fa377f4118883e8d389a85` merged as `5fd32fb78fb04e32d7edc5ed4dd7f888fd258eeb`; bounded tenant-wide-grant roster fix, focused identity evidence 26/26 and full server receipt 777 files / 6,537 tests passed / 32 skipped; hosted Governance/Edge runs `35549400774`/`35549400779` passed with E2E/Desktop skipped; PR #352's historical E2E failure remains separate; migrations, owner approval and production activation remain NOT_RUN; Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
   },
   "TASK-ZAI-042": {
     "container": "TC-TASK-ZAI-042",
@@ -2187,7 +2187,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-047",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "priority": "P0",
     "pic": "Codex",
     "executor": "Codex",
@@ -2221,14 +2221,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.1) to provide the missing Console over FR-173 sources, the FR-071 ledger and FR-110 generations. Owner approved the concrete specification on 2026-09-17; FR-254 declared before implementation. Moved to review 2026-09-17 with isolated browser fixtures (6 scenarios plus warmup), full Server tests (5287 passed, 15 skipped), local build and actual native browser acceptance (2 tests, 4 runs with 17 stages each) passing. Native command is npm run test:knowledge-admission; ordinary e2e fixtures alone do not prove publication. Exact scope, commands, full regression results and immutable receipts are recorded in .brain/reports/2026-09-17-task-zai-047-knowledge-console.md. Not deployed; TASK-ZAI-050 production activation remains separate.",
+    "changelog": "Reconciled 2026-09-21: the Console release was reviewed from a frozen production-base branch, not from the moving production head. Isolated browser fixtures, Server tests, local build and native admission-to-citation acceptance passed; the implementation remains isolated and is not deployed. Runtime activation is explicitly owned by TASK-ZAI-050 and is outside this task. Exact scope and receipts remain in .brain/reports/2026-09-17-task-zai-047-knowledge-console.md and .brain/reports/2026-09-17-knowledge-console-release.md.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-045"
     ],
-    "evidence": "Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110"
+    "evidence": "frozen production-base branch; isolated implementation/native acceptance; runtime activation under TASK-ZAI-050; not deployed; Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110"
   },
   "TASK-ZAI-048": {
     "container": "TC-TASK-ZAI-048",
@@ -2467,32 +2467,32 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/procurement/application/purchase-order-service.js",
+      "code": "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js",
       "doc": "docs/domains/procurement/CHARTER.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/integration/task-zai-053-supplier-cost-sheet.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given a factory cost workbook or JSON export, when it is previewed and committed, then one SupplierCostSheet version records supplier, currency, the locked FX rate, the source file hash and one line per SKU price break, and no line is written until its product mapping is confirmed by a person",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a confirmed sheet line, when the SKU is opened, then the product page shows the sheet's price breaks in baht at the locked rate and the carton attributes (units per carton, CBM, kg) the sheet supplied, and SKU Hygiene reports CARTON_DATA_MISSING for a counted SKU without them",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the cost sheet suites run, then preview and commit are idempotent on the file hash, an unconfirmed mapping refuses the write, and both migrations (SQLite and supabase/migrations) exist with schema-migration drift green",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.2). Lifts SmartGift's 08_factory_costs lane and ADR-005's confirm-before-write rule into a Procurement record, so a cost has a version and a locked rate (SmartGift ADR-009 D4 — 34.00 THB per USD, never spot). Placed in the current sprint on the owner's instruction; may move to SPR-ZAI-03 at sprint exit without a plan revision if the sprint ends first.",
+    "changelog": "Closed 2026-09-20 (v0.4.15). TASK-ZAI-053 is merged in PR #483 at `68d27022` after the strict Phase-B inventory fix; hosted checks passed. The JSON and bounded Excel preview path, locked FX and person-confirmed mappings, idempotent source-hash replay, Inventory carton writes, price-break projection and CARTON_DATA_MISSING hygiene remain evidenced. Both migrations are written; production migration and activation are NOT_RUN; later quote/rules work remains in TASK-ZAI-055 onward.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 56000,
     "totalTokens": 0,
@@ -2500,7 +2500,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-052",
       "TASK-ZAI-034"
     ],
-    "evidence": "CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084"
+    "evidence": "PR #483 merged at `68d27022` after the strict Phase-B inventory fix; hosted checks passed; production migration/activation NOT_RUN"
   },
   "TASK-ZAI-054": {
     "container": "TC-TASK-ZAI-054",
@@ -2597,7 +2597,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-056",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -2629,7 +2629,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.2). Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.",
+    "changelog": "Reconciled 2026-09-21 (v0.2.0). PR #487 merged the pure integer-satang pricing engine and FR-181 rule-set integration at `5b2964c5`; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed, while Governance E2E and Edge Desktop were skipped. Price-boss parity vectors are captured fixtures only, not live cross-repository proof. Production, owner approval/activation, deployment, migrations, MSP and GKS remain NOT_RUN; the DOD criteria above stay unchecked pending their applicable verification gates.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 64000,
     "totalTokens": 0,
@@ -2637,7 +2637,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-054",
       "TASK-ZAI-055"
     ],
-    "evidence": "CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181"
+    "evidence": "PR #487 merged at 5b2964c5; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed; Governance E2E and Edge Desktop skipped; price-boss parity vectors are captured fixtures, not live cross-repository proof; DOD acceptance/success/exit criteria remain unchecked; production, owner approval/activation, deployment, migrations, MSP and GKS NOT_RUN"
   },
   "TASK-ZAI-057": {
     "container": "TC-TASK-ZAI-057",
@@ -4625,7 +4625,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-094",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-05",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -4634,30 +4634,30 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
       "doc": "docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/acceptance/genesisrag17-e2e.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given the four-process isolated harness with a published corpus generation, when a LINE job for an account in GKS_CORPUS mode is answered, then the reply is grounded and GET /api/line-oa/jobs/{id}/trace shows retrievalRefs (ADR-090 proof 2)",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a second Business in the harness and a stopped worker, when jobs are answered, then no cross-tenant evidence appears and the stopped worker yields the deterministic reply rather than an error or a model-only answer (proofs 5 and 6)",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given the measured MSP spawn time inside a four-wide worker tick, when it is recorded, then the evidence states whether the 2 500 ms budget holds, and if spawn dominates the finding is written for the MSP daemon transport decision instead of widening the budget",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 gate of ADR-090, run on the KI17 acceptance setup.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 gate of ADR-090, run on the KI17 acceptance setup. 2026-09-20: final receipt run `59a0a93d862e442895296872f4b9ca58` is PASS on the fixed zuri.ai snapshot `3b92cd0f` and artifact-attested Linux image: `40/40` tests passed across `2` files (`5` Vitest suites), `0` failed/pending/todo, all four TASK-ZAI-094 assertions passed, `tickElapsedMs=504`, grounding hops `[290,300,292,300]` ms, and the `2,500 ms` budget holds. Receipt: `C:\\Users\\pc\\.codex\\runtimes\\ki17-runtime\\runs\\ki17-59a0a93d862e442895296872f4b9ca58\\receipt.json`; tracked summary: `.brain/reports/2026-09-20-ki17-runtime-recovery.json`; tracked report: `.brain/reports/task-zai-094-line-grounding.json`. This is isolated artifact evidence only: no Git-restored source, native Windows acceptance or production activation is claimed, and TASK-ZAI-095 remains planned.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 26000,
     "totalTokens": 0,
@@ -5464,7 +5464,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-105"
     ],
-    "evidence": "Section 3.1 row 8; ADR-094 D6 option A"
+    "evidence": "PR #427 implementation merged at `09fc5978`; PR #476 fix merged at `95edda4c`; hosted Governance #1197/#1327 and Edge #531/#657 passed with E2E skipped; migration `20260916130000_line_oa_business_hours.sql`, matching Server+Edge deployment, release after last account closes, out-of-hours no-model reply receipt, no-declared-hours behavior, first reply after 09:00 ICT and immutable production receipt remain open; production/owner activation NOT_RUN"
   },
   "TASK-ZAI-110": {
     "container": "TC-TASK-ZAI-110",
@@ -5660,7 +5660,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-113",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-05",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -5708,20 +5708,20 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Built locally on `verify/crm-archive-key-legal-hold`: the append-only OWNER legal-hold record, hold-gated PDPA erasure, 10-year archive-key/file expiry and audit/status reporting are implemented; the Postgres schema and migration `20260916160000` are included. Focused integration evidence is 12/12 tests passed; the full Server suite is 5,947 passed with 32 skipped across 718 files, and the production build compiles successfully. Governance is WARN with 0 CRITICAL and 22 inherited warnings. The migration is written but not applied to production; that operator gate belongs to TASK-ZAI-114, so this task is `review`, not production `done`.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Built locally on `verify/crm-archive-key-legal-hold`: the append-only OWNER legal-hold record, hold-gated PDPA erasure, 10-year archive-key/file expiry and audit/status reporting are implemented; the Postgres schema and migration `20260916160000` are included. Focused integration evidence is 12/12 tests passed; the full Server suite is 5,947 passed with 32 skipped across 718 files, and the production build compiles successfully. Governance is WARN with 0 CRITICAL and 22 inherited warnings. Evidence paths are `apps/server/src/modules/crm/chat-evidence-archive-service.js`, `apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js`, `apps/server/src/modules/crm/chat-evidence-legal-hold-service.js`, `apps/server/src/modules/identity/erase-principal.js`, `apps/server/tests/integration/crm-archive-legal-hold.test.js`, `apps/server/tests/unit/crm-legal-hold-migration.test.js`, `apps/server/prisma/migrations/20260916160000_crm_customer_legal_hold/migration.sql`, and `apps/server/supabase/migrations/20260916160000_crm_customer_legal_hold.sql`. The migration is written but not applied to production; no key or data destruction is performed by this task, and the operator gate belongs to TASK-ZAI-114, so this task is `review / LOCAL / LOCAL`, not production `done`.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-112"
     ],
-    "evidence": "Section 3.1 row 8; ADR-093 D5, D6; SEC-031; SEC-034"
+    "evidence": "PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; archive legal-hold/key-destruction migration(s) written but not applied to production; production archive mount/KEK and live expiry/erasure/legal-hold behavior unproven; owner/legal receipt and deployment/rollback evidence remain NOT_RUN; the 2026-09-20 #497 hosted reconciliation conflicts in scope with the 2026-09-17 TASK-ZAI-114 infrastructure receipt and remains unresolved pending dated receipt reconciliation"
   },
   "TASK-ZAI-114": {
     "container": "TC-TASK-ZAI-114",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-06",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P1",
     "pic": "ATHER",
     "executor": "ATHER",
@@ -5753,14 +5753,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "changelog": "Reconciled 2026-09-21 from the 2026-09-17 production-infrastructure receipt: the cold-archive overlay and `/archive` mount, KEK format/version check, migration receipts, retention token and scheduled sweep readiness are evidenced; the live inventory has 0 eligible records, so the first manifest remains NOT_RUN. This is partial production evidence only: final owner/production acceptance and the first real manifest remain open. The dated scope conflicts with TASK-ZAI-113's 2026-09-20 #497 hosted reconciliation, which leaves archive migration/mount/KEK/live behavior unproven; the conflict remains unresolved pending receipt reconciliation.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 15000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-113"
     ],
-    "evidence": "ADR-057; ADR-093 phase 4; TASK-ZAI-091"
+    "evidence": "the 2026-09-17 receipt records only partial production overlay/mount, KEK-format, migration and scheduler evidence with 0 eligible records; first manifest NOT_RUN and final owner/production acceptance remain open; this dated scope conflicts with TASK-ZAI-113's 2026-09-20 #497 hosted reconciliation, which leaves archive migration/mount/KEK/live behavior unproven, pending receipt reconciliation; ADR-057; ADR-093 phase 4; TASK-ZAI-091"
   },
   "TASK-ZAI-115": {
     "container": "TC-TASK-ZAI-115",
@@ -5978,5 +5978,197 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-116"
     ],
     "evidence": "ADR-095 D2, D3; FR-248, FR-249"
+  },
+  "TASK-ZAI-119": {
+    "container": "TC-TASK-ZAI-119",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0b",
+    "priority": "P1",
+    "pic": "RWANG",
+    "executor": "RWANG",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/app/(control)/control/mission-control/page.jsx",
+      "doc": "docs/plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md",
+      "test": "apps/server/tests/e2e/fr260-mission-control.spec.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FEAT-044",
+      "FR-260",
+      "FR-261",
+      "FR-262",
+      "FR-263",
+      "FR-264"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "PORL observation contract and read-only DAG projection",
+        "status": "done"
+      },
+      {
+        "id": "P1",
+        "title": "Installation-operator route, blocker/gate evidence and mobile board",
+        "status": "review"
+      },
+      {
+        "id": "P2",
+        "title": "External PORL source binding and hosted/production proof",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given an installation operator, when they open Mission Control, then the canonical DAG, dependency waves, task proof state, named blockers and merge-gate traces render without Business scope or mutation controls",
+        "checked": true
+      },
+      "success": {
+        "text": "Given no configured PORL source, when the operator reads the board, then observations remain UNKNOWN or NOT_RUN and no stale record is treated as live",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the external PORL owner and freshness contract, when the source is bound and hosted checks run, then provenance, mobile, authorization and read-only boundaries are verified without claiming deployment here",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Local read-only/operator-only code and focused unit evidence are present. Sanitized targeted Playwright receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; raw reports were removed. The PORL source remains unavailable and no deployment is claimed.",
+    "created": "2026-09-19T00:00:00Z,RWANG,pending",
+    "predictedTokens": 50000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-064"
+    ],
+    "evidence": "PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264"
+  },
+  "TASK-ZAI-120": {
+    "container": "TC-TASK-ZAI-120",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.0b",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/agent/server-line-answer.js",
+      "doc": "docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md",
+      "test": "apps/server/tests/integration/fr266-model-provider-credential.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FEAT-045",
+      "FR-265",
+      "FR-266"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Retire EDGE conversation execution, model residency polling and the LOCAL_ONLY canned answerer",
+        "status": "done"
+      },
+      {
+        "id": "P1",
+        "title": "Provision and resolve the Business model provider key through the browser write-only vault path",
+        "status": "done"
+      },
+      {
+        "id": "P2",
+        "title": "Owner-instructed migration apply, deployment, production provider/LINE validation and rollback receipt",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a Business owner at AAL2, when a provider key is entered and proved from the browser, then the key is stored write-only through SecretStorePort and server LINE execution resolves it before the Phase-1 fallback",
+        "checked": true
+      },
+      "success": {
+        "text": "Given a present but broken Business model credential, when resolveModel runs, then it fails closed without silently using the Phase-1 resolver, while an absent credential remains the only fallback case",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the owner-instructed ADR-057 operator step, when migration 20260921090000 is applied and the release is deployed, then a real Business key and LINE/provider receipt plus rollback evidence are recorded without an agent handling credentials",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-21 under ADR-100 and the owner's instruction to retire LINE OA EDGE execution. PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`. Hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped; run `35545108894` passed Edge changes/edge-verify with desktop skipped. The hosted full-test receipt is 777 files / 6,536 tests passed, 32 skipped, 0 failed. Migration `20260921090000_line_oa_retire_edge_execution.sql` is written and not applied. Owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open; Phase-1 resolver retirement remains TASK-ZAI-103. No deployment or credential use is claimed.",
+    "created": "2026-09-21T00:00:00Z,Claude,pending",
+    "predictedTokens": 50000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-103"
+    ],
+    "evidence": "PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions runs `35545108878`/`35545108894` passed applicable checks with E2E/Desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN"
+  },
+  "TASK-ZAI-121": {
+    "container": "TC-TASK-ZAI-121",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.0b",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
+      "doc": "docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md",
+      "test": "apps/server/tests/unit/private-runtime-model-port.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FEAT-045",
+      "FR-267"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Add provider prp with an operator-configured address, PRP granted-model validation and reasoning removal",
+        "status": "done"
+      },
+      {
+        "id": "P1",
+        "title": "Owner-instructed merge, deployment with ZURI_PRIVATE_RUNTIME_BASE_URL set, owner-entered PRP key and a real LINE answer receipt",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given the server has ZURI_PRIVATE_RUNTIME_BASE_URL configured, when a Business owner at AAL2 enters a PRP client key and a granted alias, then the key is proved against PRP's granted-model list and stored write-only, and the answer path calls PRP at that address",
+        "checked": true
+      },
+      "success": {
+        "text": "Given a PRP answer containing a reasoning block, when it is returned, then no <think> content reaches the customer, and an answer that is only unfinished reasoning fails closed",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the owner-instructed deployment, when a real LINE message is answered through the operator's private runtime, then a production receipt shows the answer and no request to an external provider",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-21 after the owner pointed out the Private Runtime Platform (F:\\Private-Runtime-Platform, live as F:\\prp-mvp). ADR-100 D7 records that ADR-100 had not read ADR-099 and corrects course. Built and verified locally on branch feat/line-oa-private-runtime-provider; not merged, not deployed. The two-node pool, capacity leases, observations and data classification remain ADR-099's later steps.",
+    "created": "2026-09-21T00:00:00Z,Claude,pending",
+    "predictedTokens": 50000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-120"
+    ],
+    "evidence": "branch feat/line-oa-private-runtime-provider; govern, build and full npm test run locally; not merged, not deployed"
   }
 }

@@ -59,6 +59,7 @@ const zId = z.string().trim().min(1).max(200)
 const zText = (max) => z.string().trim().min(1).max(max)
 const zOptionalText = (max) => z.string().trim().max(max).nullable().optional()
 const zMoney = z.number().finite().nonnegative()
+const zOptionalPositiveNumber = z.number().finite().positive().nullable().optional()
 
 export const zCreateCategory = z.object({
   businessId: zBusinessId,
@@ -116,10 +117,26 @@ export const zProductFields = z.object({
   material: zOptionalText(100),
   unit: zText(20).optional(),
   safetyStock: z.number().int().nonnegative().optional(),
+  // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
+  //   carton data is nullable until a confirmed factory sheet or a person
+  //   supplies it; the hygiene report names counted SKUs that remain incomplete.
+  unitsPerCarton: z.number().int().positive().max(1_000_000).nullable().optional(),
+  cartonCbm: zOptionalPositiveNumber,
+  cartonKg: zOptionalPositiveNumber,
+  freightGoodsType: zOptionalText(100),
   // @req FR-202, FR-207 — a variant value may be corrected (the key is
   //   recomputed and re-checked) and the replenishment parameters edited.
   variant: zVariant.optional(),
 }).merge(zReplenishmentFields).strict()
+
+export const zProductCartonAttributesInput = z.object({
+  businessId: zBusinessId,
+  unitsPerCarton: z.number().int().positive().max(1_000_000).nullable().optional(),
+  cartonCbm: zOptionalPositiveNumber,
+  cartonKg: zOptionalPositiveNumber,
+  freightGoodsType: zOptionalText(100),
+  leadTimeDays: z.number().int().nonnegative().max(3650).nullable().optional(),
+}).strict()
 
 export const zCreateProduct = zProductFields.extend({
   businessId: zBusinessId,

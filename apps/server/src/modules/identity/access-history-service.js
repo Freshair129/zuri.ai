@@ -217,10 +217,25 @@ export async function listAccessHistory({ businessId, tenantId, personId, limit 
 export async function listBusinessAccess({ businessId } = {}, { db = prisma, resolve = resolveViewer } = {}) {
   if (!businessId) throw failure(400, 'BUSINESS_ID_REQUIRED')
   const viewer = await resolve({ db })
-  if (!isInstallationOperator(viewer) && !ownsBusiness(viewer, businessId)) throw notFound()
+  const operator = isInstallationOperator(viewer)
+  if (!operator && !ownsBusiness(viewer, businessId)) throw notFound()
+  const business = await db.business.findUnique({
+    where: { id: businessId },
+    select: { id: true, tenantId: true },
+  })
+  if (!business) throw notFound()
 
   const grants = await db.membership.findMany({
-    where: { businessId },
+    // A TENANT-scoped grant has no businessId but resolves into every Business
+    // in its Tenant. The access-review roster must show that effective grant,
+    // just as the People Directory does, or "who has access right now" is
+    // incomplete for the broadest grant shape.
+    where: {
+      OR: [
+        { businessId },
+        { tenantId: business.tenantId, businessId: null },
+      ],
+    },
     select: {
       id: true,
       personId: true,

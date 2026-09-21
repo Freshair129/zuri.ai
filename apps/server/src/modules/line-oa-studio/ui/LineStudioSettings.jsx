@@ -103,8 +103,9 @@ export default function LineStudioSettings() {
           }[chip.tone]
           const transport = account.serverEnabled
             ? 'Zuri Server'
+            // @req FR-265 — see LineCrmMultiOa.jsx: EDGE is a leftover, not a mode.
             : account.transportMode === 'EDGE'
-              ? 'Edge worker'
+              ? 'Edge (เลิกใช้แล้ว)'
               : 'ยังไม่เปิด Server'
           return (
             <div key={account.id} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -128,7 +129,7 @@ export default function LineStudioSettings() {
               </div>
               {chip.detail && <p className="mt-3 text-[11px] text-slate-500">{chip.detail}</p>}
               <div className="mt-4 flex flex-wrap items-center gap-2">
-                <button type="button" onClick={() => router.push('/line-oa/edge-connection')} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700"><ShieldCheck className="h-3.5 w-3.5" /> จัดการบัญชีและ transport</button>
+                <button type="button" onClick={() => router.push('/line-oa/connections')} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700"><ShieldCheck className="h-3.5 w-3.5" /> จัดการบัญชีและ transport</button>
                 <button type="button" onClick={() => router.push('/platform/integrations')} className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900"><ExternalLink className="h-3.5 w-3.5" /> Model metadata</button>
               </div>
             </div>
@@ -138,7 +139,7 @@ export default function LineStudioSettings() {
 
       {!loading && business && accounts.length === 0 && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> ยังไม่มีบัญชี LINE OA ใน Business นี้ — เชื่อมบัญชีจาก Edge & การเชื่อมต่อ
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> ยังไม่มีบัญชี LINE OA ใน Business นี้ — เชื่อมบัญชีจาก การเชื่อมต่อ & API key
         </div>
       )}
     </div>

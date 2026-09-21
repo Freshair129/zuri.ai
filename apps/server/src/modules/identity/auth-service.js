@@ -118,7 +118,10 @@ export function verifySessionToken(token, { secret, now = Date.now() } = {}) {
 }
 
 export async function persistSession({ token, sessionId, personId, db = prisma, env = process.env, secret, now = Date.now(), assurance = 'PASSWORD', assuranceLevel } = {}) {
-  if (typeof db.session?.create !== 'function') return null
+  if (typeof db.session?.create !== 'function') {
+    if (env.NODE_ENV === 'production') throw new Error('SESSION_STORE_UNAVAILABLE')
+    return null
+  }
   const sessionSecret = secret ?? requireSessionSecret(env)
   const verified = verifySessionToken(token, { secret: sessionSecret, now })
   if (!verified || verified.sessionId !== sessionId || verified.principalId !== personId) {
@@ -148,7 +151,10 @@ export async function revokeSessionToken(token, {
   now = Date.now(),
   reason = 'LOGOUT',
 } = {}) {
-  if (typeof db.session?.updateMany !== 'function') return false
+  if (typeof db.session?.updateMany !== 'function') {
+    if (env.NODE_ENV === 'production') throw new Error('SESSION_STORE_UNAVAILABLE')
+    return false
+  }
   const session = verifySessionToken(token, { secret: requireSessionSecret(env), now })
   if (!session?.sessionId) return false
 
@@ -169,8 +175,11 @@ export async function revokeSessionToken(token, {
   return result.count > 0
 }
 
-export async function revokeAllSessions(personId, { db = prisma, now = Date.now(), reason = 'LOGOUT_ALL' } = {}) {
-  if (typeof db.session?.updateMany !== 'function') return 0
+export async function revokeAllSessions(personId, { db = prisma, env = process.env, now = Date.now(), reason = 'LOGOUT_ALL' } = {}) {
+  if (typeof db.session?.updateMany !== 'function') {
+    if (env.NODE_ENV === 'production') throw new Error('SESSION_STORE_UNAVAILABLE')
+    return 0
+  }
   if (typeof personId !== 'string' || !personId.trim()) throw new Error('SESSION_PRINCIPAL_REQUIRED')
 
   const result = await db.session.updateMany({

@@ -1,0 +1,340 @@
+---
+id: ZAI:PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION
+title: "Mission Control — DAG orchestration observability implementation plan"
+version: "0.3.0b"
+status: approved
+created_at: "2026-09-19T00:00:00+07:00,Luna Max"
+last_update: "2026-09-19T22:25:00+07:00,RWANG"
+attributes:
+  domain: platform-control
+  scope: documentation-first implementation plan for operator-only DAG observability
+  source_of_truth: false
+  registry_allocation: FEAT-044 and FR-260..FR-264 allocated; read-only implementation merged in PR #468 with hosted evidence; PORL and production observation remain NOT_RUN
+relations:
+  - type: relates_to
+    target: ZAI:PLAN-MISSION-CONTROL-DAG-OBSERVABILITY
+  - type: relates_to
+    target: ZAI:ADR-048
+  - type: relates_to
+    target: ZAI:ADR-086
+  - type: relates_to
+    target: ZAI:ADR-092
+---
+
+# Mission Control — DAG orchestration observability implementation plan
+
+This is the implementation plan following approval of the design proposal.
+The bounded read-only runtime/UI slice described here is now merged in PR #468
+and verified by hosted CI. It does not authorize PORL writes, migration,
+deployment, production activation, or live orchestration state. Registry
+allocation and the implementation evidence remain recorded in the governed
+documentation and generated projections.
+
+The design proposal remains the boundary document:
+PLAN-MISSION-CONTROL-DAG-OBSERVABILITY.md. The implementation must preserve
+its two-source authority model and its truthful LIVE / SNAPSHOT / UNKNOWN /
+BLOCKED / NOT_RUN vocabulary.
+
+## 1. Approval, complexity, and proposed identity
+
+The first approval covers the design scope, operator-only route, PORL adapter
+boundary, blocker projections, and acceptance/verification criteria.
+
+This plan records the following newly allocated identities:
+
+| Identity | Proposed subject | Reason |
+|---|---|---|
+| FEAT-044 | Mission Control DAG orchestration observability | A new capability that joins the roadmap DAG with externally reported execution observations; it is not telemetry or usage detail. |
+| FR-260 | Operator reads the roadmap DAG and verified orchestration observations | The protected read surface and blocker projection. |
+| FR-261 | Orchestration observations carry provenance and truthful execution state | The PORL adapter contract and unknown/not-run semantics. |
+| FR-262 | Same-wave work is separated from merge-safe work by explicit gates | Dependency, owner, lane, shared-file, revision, and capability conflict evaluation. |
+| FR-263 | Member roadmap projection excludes operator orchestration detail | Server-side redaction and preservation of the existing /roadmap boundary. |
+| FR-264 | Mission Control remains responsive and read-only on supported mobile widths | Operator evidence/gate rendering and accessibility at 390x844 and 430x932. |
+
+These are the next unused IDs found by repository enumeration. FEAT-034 and
+FEAT-039 remain pinned to programme delivery telemetry and agent usage detail;
+reusing either would change an existing subject. The registry rows and ID
+ledger are written by the sanctioned documentation gate. No new ADR identity
+is proposed yet because the PORL owner, freshness policy, and persistence
+choice remain open.
+
+Risk: HIGH. This is an installation-wide authorization boundary and a
+cross-system evidence contract, even though the first slice is read-only.
+
+## 2. Existing authority and file-level scope
+
+### 2.1 Read-only inputs
+
+The implementation reads, without changing:
+
+- docs/roadmap/ROADMAP.md as the canonical task/status/proof/implementation/
+  dependency SOT;
+- generated apps/server/src/modules/platform-control/roadmap-sot.js as the
+  checked-in projection of the roadmap SOT, including 119 nodes, 133 dependency
+  edges, 21 waves, and SUBPLAN-ROADMAP-MOBILE;
+- existing programme data/container modules only where the generated board
+  already uses them;
+- the approved external Programme Orchestration Run Ledger through a read-only
+  adapter, if and when its owner and contract are approved.
+
+The implementation must not edit ROADMAP.md, roadmap-sot.js, or any generated
+board module to create run state. Existing PROGRAMME_USAGE and
+ProgrammeUsageReport data remains measured usage, not orchestration state.
+Pipeline tracking remains the knowledge-ingestion execution ledger, not a
+worker/thread/branch/worktree ledger.
+
+### 2.2 Landed implementation files
+
+The following bounded write set is the implementation landed by PR #468:
+
+| Area | Landed path | Responsibility |
+|---|---|---|
+| Contract | apps/server/src/modules/platform-control/mission-control/mission-control-contract.js | Validate the normalized observation envelope, state vocabulary, source/time requirements, and opaque identifier policy. |
+| Adapter | apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js | Read PORL records only; return source-bound observations or explicit unknown/not-run reasons. |
+| Read model | apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js | Join SOT DAG data and PORL observations, compute blocker/gate projections, and expose no mutation operation. |
+| Route | apps/server/src/app/(control)/control/mission-control/page.jsx | Server entrypoint under the existing PlatformControlGuard; load protected data only after authorization. |
+| View | apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx | Read-only DAG, wave, blocker, observation, evidence, and merge-gate rendering. |
+| Styles | apps/server/src/modules/platform-control/mission-control/components/mission-control-board.module.css | Responsive bounded layout without document-level horizontal overflow. |
+| Unit tests | apps/server/tests/unit/mission-control-contract.test.js, mission-control-read-model.test.js, mission-control-route-contract.test.js | Contract, source precedence, state vocabulary, auth boundary, and gate fixtures. |
+| E2E | apps/server/tests/e2e/fr260-mission-control.spec.js | Operator route, forbidden member, read-only UI, blockers, stale/unknown states, and mobile viewports. |
+
+The landed implementation uses `/control/mission-control` under the existing
+operator guard. It does not add a second Mission Control surface.
+
+## 3. Data flow and PORL contract
+
+The read path is:
+
+    ROADMAP.md
+      -> generated roadmap-sot.js
+      -> SOT DAG read model
+
+    PORL source
+      -> read-only adapter
+      -> schema/provenance validation
+      -> observation normalizer
+
+    SOT DAG + normalized PORL observations
+      -> Mission Control read model
+      -> operator-only route and responsive board
+
+The member path remains separate:
+
+    ROADMAP.md + existing usage projection
+      -> existing server member redaction
+      -> /roadmap
+
+No PORL field may enter that member path.
+
+The minimum normalized observation shape is:
+
+    {
+      schemaVersion,
+      observationId,
+      runRef,
+      taskId,
+      laneId,
+      assignment: { ownerRef, workerRef, threadRef },
+      revision: { branch, worktreeRef, baseCommit, headCommit },
+      runState,
+      freshness,
+      source: { kind, ref, observedAt, capturedAt },
+      checks: [{ kind, state, scope, startedAt, finishedAt, evidenceRefs }],
+      changedFiles: { state, paths, sourceRef },
+      blockers: [{ code, state, sourceRef }]
+    }
+
+The adapter may return only opaque references where raw identity would expose
+more than an operator needs. It must preserve the source reference and the
+observation/capture time for every returned field. It must reject or quarantine
+malformed records rather than guessing.
+
+Required rules:
+
+- runState is QUEUED, RUNNING, SUCCEEDED, FAILED, or CANCELLED, and comes from
+  PORL only.
+- freshness is LIVE only when the approved freshness rule is satisfied; a
+  historical capture is SNAPSHOT; absent, stale, or unmapped data is UNKNOWN.
+- A declared check with no execution record is NOT_RUN; a wrapper exit code
+  cannot substitute for the missing record.
+- Local, isolated, hosted-CI, and production proof scopes remain distinct.
+- A task marked done by the SOT with no PORL record keeps the SOT status and
+  has UNKNOWN execution observation; no worker completion is inferred.
+- No adapter method assigns, cancels, retries, merges, deploys, resets,
+  activates, notifies, or writes to PORL.
+
+## 4. DAG and merge-safety implementation
+
+The read model derives the topological waves and dependency edges from the SOT
+projection. It does not recompute or mutate the SOT. For every task pair:
+
+1. Mark candidate-parallel only when both tasks are in the same SOT wave and
+   no declared dependency path exists between them.
+2. Evaluate merge-safe only after all applicable gates pass.
+3. Return the first failed or unknown gate with source and observation time.
+
+The gates are:
+
+1. Dependency — required predecessors are resolved and have no BLOCKED,
+   UNKNOWN, or NOT_RUN required check.
+2. Owner/assignment — exactly one owner/PIC and one compatible active
+   assignment; duplicate active claims require an explicit relation.
+3. Lane — the run maps to one declared lane and permitted branch; a branch
+   claimed by two lanes is a conflict.
+4. Shared file — changed-file manifests are disjoint or a declared serial
+   integrator owns the overlap; an unknown manifest is not safe.
+5. Revision — base, head, branch, and worktree references are mutually
+   consistent; missing or contradictory revision data is unknown.
+6. Capability identity — duplicate capability keys require an explicit
+   adapter, legacy, fallback, or replacement relation.
+
+Generated sources and SOT files are shared files even when tasks are in the
+same wave. The board must display a trace such as
+candidate-parallel -> shared-file unknown -> merge-safe: false; it must never
+render scheduling eligibility as merge approval.
+
+## 5. Blockers, evidence, and display model
+
+The first blocker panel reads the canonical rows without changing them:
+
+- TASK-ZAI-081 remains blocked with UNKNOWN proof and BLOCKED implementation
+  until the real LINE test channel, both provider/store paths, and
+  Supabase/Vault/operator evidence exist in a development deployment.
+- TASK-ZAI-100 -> TASK-ZAI-101 -> TASK-ZAI-102 remains an external MSP
+  dependency chain. Missing thread/erase tools and the MSP canary are shown as
+  blockers, not as local activation.
+
+Every displayed run, check, revision, and evidence item must show:
+
+- its source or source reference;
+- observed/captured time;
+- freshness/state;
+- proof scope;
+- a reason when it is unknown, stale, blocked, or not run.
+
+The absence of a PORL record is not a failed run and is not a success. A stale
+snapshot can prove the old commit only; it cannot prove current liveness.
+
+## 6. Authorization and member boundary
+
+The route is mounted below the existing (control) layout and
+PlatformControlGuard. The server must resolve the viewer and apply
+isInstallationOperator before loading the PORL adapter or rendering protected
+data. A trusted non-operator receives the existing non-enumerating forbidden
+behavior. Business, Tenant, Project, domain, global, and isPlatform labels do
+not grant access.
+
+The operator view is read-only and may expose only opaque, provenance-bound
+worker/thread/branch/worktree/commit/check/evidence references. It must exclude
+secrets, prompts, customer payloads, tokens, and arbitrary child-agent output.
+
+/roadmap remains ADR-092's signed-in member projection. It may continue to
+show the existing plan, Domain map, evidence badges, and redacted lane-level
+usage within its declared window. It must not receive PORL records, assignments,
+device/tool/model details, thread identifiers, or live orchestration state.
+The redaction must be server-side and tested as absence from the serialized
+payload.
+
+## 7. Mobile and accessibility implementation
+
+Mission Control reuses SUBPLAN-ROADMAP-MOBILE; it does not create a second
+mobile SOT or task-status source. The implementation must:
+
+- stack wave, blocker, evidence, and gate sections at 360–430px;
+- keep DAG/evidence tables inside bounded scroll regions;
+- avoid document-level horizontal overflow;
+- preserve keyboard navigation and aria-expanded state for collapsible detail;
+- render the same state truthfully at desktop and mobile widths;
+- keep member redaction identical at all widths.
+
+The existing /roadmap checks at 390x844 and 430x932 remain unchanged. Mission
+Control adds operator-focused checks at those widths after the PORL contract is
+approved.
+
+## 8. Verification matrix
+
+| Layer | Proof required | Scope |
+|---|---|---|
+| Contract | Valid/invalid envelopes, source/time requirements, state vocabulary, opaque identifiers, immutable snapshots | Unit |
+| Adapter | No record, stale record, live observation, snapshot, malformed record, duplicate claim, missing manifest | Unit with explicit fixtures |
+| SOT join | 119 nodes, 133 edges, 21 waves, no missing targets/cycles, no SOT writes | Unit/static |
+| Merge gates | Each gate passes/fails/unknown; first-failure trace; same-wave candidate does not imply safe | Unit |
+| Authorization | Operator ready; member/non-operator denied before PORL access; no protected payload on forbidden path | Viewer factory + route contract |
+| Member projection | No PORL/person/device/tool/model/thread fields in serialized /roadmap payload | Unit + e2e |
+| Operator browser | Blockers, live/snapshot/unknown/not-run, evidence sources, conflict trace, read-only controls | E2E |
+| Mobile browser | 390x844 and 430x932, keyboard disclosure, bounded table scroll, no document overflow | E2E |
+| Governance | Registry/ID ledger, graph, preflight, annotations, generated-output freshness | After second approval |
+| Build/release | Hosted tests, govern, build, edge-verify and changes passed; desktop/e2e skipped by repository policy; production evidence remains NOT_RUN | Hosted CI / production scopes labeled |
+
+Production readiness is NOT_RUN until an actual approved production observation
+and deployment evidence exist. Local or isolated success cannot be promoted by
+the dashboard.
+
+## 9. Landed implementation and evidence status
+
+1. **Identity and approval:** FEAT-044 and FR-260..FR-264 were allocated in the
+   governed documentation gate and are implemented by the bounded file set in
+   §2.2.
+2. **Read-only implementation:** the contract, unavailable PORL adapter,
+   SOT/read-model join, blocker and merge-gate projection, operator route,
+   member redaction, responsive board and focused tests landed in PR #468.
+3. **Hosted evidence:** the approved head
+   `53a2439ad722ca32797db381f3e3f46360ffd5d8` passed hosted tests, govern,
+   build, edge-verify and changes. Desktop and e2e jobs were skipped by the
+   repository policy; they are not represented as passes.
+4. **Merge evidence:** PR #468 merged as
+   `0932f31e2e130af95b0a889772005281ffc8d112`.
+5. **Remaining boundary:** PORL has no available observation source. PORL
+   observation, deployment, production activation and production readiness are
+   all `NOT_RUN`; no worker completion, live orchestration state or production
+   claim is inferred.
+
+Any future PORL owner, freshness, durable receipt, scheduler, or production
+activation decision requires its own approved contract and evidence scope.
+
+## 10. Open decisions and remaining risks
+
+These remain open and block any future live-orchestration or production slice;
+they do not invalidate the merged read-only projection:
+
+1. PORL owning system, authentication, and whether the first adapter reads a
+   remote ledger or signed/read-only receipts.
+2. Freshness threshold and snapshot retention.
+3. Raw versus opaque thread/worktree references and re-authentication.
+4. Changed-file manifest authority and serial-integrator selection.
+5. Separate /control/mission-control route versus a tab under /control/roadmap.
+6. Whether a durable local receipt store is needed; no migration is planned by
+   this document.
+
+Primary risks are accidental inference from stale data, leaking operator
+identity or connector details to members, marking shared-file work safe without
+a manifest, and letting an external ledger outage appear as a green board.
+The fail-closed response for each is explicit UNKNOWN/NOT_RUN, server-side
+redaction, a failed shared-file gate, and a visible source outage.
+
+## 11. Non-goals
+
+This plan does not authorize any capability beyond the landed read-only
+projection: a second roadmap SOT, live Codex-process discovery, scheduler or
+assignment behavior, PORL cancellation/retry/merge/deploy/migration/activation,
+replacement of usage telemetry or pipeline tracking, Business/Tenant data
+changes, raw prompts/secrets/customer data, or production activation.
+
+## 12. Version diff and evidence closeout
+
+Before: this was a candidate implementation plan that described a proposed
+file set and a runtime slice pending separate approval.
+
+After: this approved plan records the landed read-only implementation, the
+119-node/133-edge/21-wave SOT join, hosted evidence for PR #468, the exact
+merge commit, and the unchanged PORL/production `NOT_RUN` boundary.
+
+No new PORL or production approval is implied. The remaining open decisions in
+§10 are the gates for any future live observation or activation work.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.2.0b | 2026-09-19 | candidate | FEAT-044 and FR-260..FR-264 allocated; implementation plan remains documentation-only and runtime is gated | 33cb69c7 (base, uncommitted) | Luna Max |
+| 0.3.0b | 2026-09-19 | approved | Reconciled the merged PR #468 implementation and hosted evidence; PORL and production observation remain NOT_RUN | pending | RWANG |

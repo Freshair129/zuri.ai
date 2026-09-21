@@ -25,6 +25,7 @@ import {
   PROGRAMME_SNAPSHOT,
   PROGRAMME_TASKS,
 } from '@/modules/platform-control/program-roadmap-data'
+import { ROADMAP_SOT, ROADMAP_TASK_LEDGER } from '@/modules/platform-control/roadmap-sot'
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
 import {
   formatDuration,
@@ -169,41 +170,43 @@ function PhaseMetrics({ phase, metrics, member = false }) {
   const m = metrics.measured
   const breakdown = STATUS_ORDER.filter((s) => metrics.byStatus[s]).map((s) => `${s} ${metrics.byStatus[s]}`).join(' · ')
   return (
-    <div className={styles.metrics} data-testid={`phase-metrics-${phase.id}`}>
-      <div className={styles.metricRow}>
-        <span className={styles.metricLabel}>แผน</span>
-        <span className={styles.metric}><b>{metrics.sprintCount}</b> sprint</span>
-        <span className={styles.metric} title={breakdown}><b>{metrics.taskCount}</b> task</span>
-        <span className={styles.metric} title="size = ผลรวม complexity point (C-1 = 1, C-2 = 2, C-3 = 3)"><b>{metrics.sizePoints}</b> pt</span>
-        <span className={styles.metric} title={`plan window ${phase.start} → ${phase.end}`}><b>{metrics.planDays ?? '—'}</b> วัน</span>
-        <span className={styles.metric} title="effort ประมาณจากตาราง sizing ในเอกสารโปรแกรม"><b>~{metrics.effortHours}</b> ชม. effort</span>
-        <span className={styles.metric} title="predicted_token_usage รวมของทุก task — ค่าคาดการณ์"><b>{formatTokens(metrics.predictedTokens)}</b> token คาดการณ์</span>
-        <span className={styles.metricMuted}>{breakdown}</span>
+    <div className={styles.metricFrame} data-testid={`phase-metrics-frame-${phase.id}`}>
+      <div className={styles.metrics} data-testid={`phase-metrics-${phase.id}`}>
+        <div className={styles.metricRow}>
+          <span className={styles.metricLabel}>แผน</span>
+          <span className={styles.metric}><b>{metrics.sprintCount}</b> sprint</span>
+          <span className={styles.metric} title={breakdown}><b>{metrics.taskCount}</b> task</span>
+          <span className={styles.metric} title="size = ผลรวม complexity point (C-1 = 1, C-2 = 2, C-3 = 3)"><b>{metrics.sizePoints}</b> pt</span>
+          <span className={styles.metric} title={`plan window ${phase.start} → ${phase.end}`}><b>{metrics.planDays ?? '—'}</b> วัน</span>
+          <span className={styles.metric} title="effort ประมาณจากตาราง sizing ในเอกสารโปรแกรม"><b>~{metrics.effortHours}</b> ชม. effort</span>
+          <span className={styles.metric} title="predicted_token_usage รวมของทุก task — ค่าคาดการณ์"><b>{formatTokens(metrics.predictedTokens)}</b> token คาดการณ์</span>
+          <span className={styles.metricMuted}>{breakdown}</span>
+        </div>
+        <div className={styles.metricRow} data-measured={m ? 'true' : 'false'}>
+          <span className={`${styles.metricLabel} ${styles.metricLabelMeasured}`}>วัดจริง</span>
+          {m ? (
+            <>
+              <span className={styles.metric} title={`input ${m.tokens.input.toLocaleString()} · cache write ${m.tokens.cacheWrite.toLocaleString()} · output ${m.tokens.output.toLocaleString()}`}>
+                <b>{formatTokens(m.used)}</b> token ใช้ไป
+              </span>
+              <span className={styles.metricMuted}>+ cache read {formatTokens(m.tokens.cacheRead)}</span>
+              {metrics.done ? (
+                <>
+                  <span className={styles.metric}><b>{m.elapsedDays === null ? '—' : m.elapsedDays < 1 ? formatDuration(m.elapsedDays * 1440) : `${m.elapsedDays.toFixed(1)} วัน`}</b> เวลาจริง</span>
+                  <span className={styles.metric}><b>{formatDuration(m.activeMinutes)}</b> active</span>
+                </>
+              ) : (
+                <span className={styles.metricMuted}>เวลาจริงแสดงเมื่อ phase done · active ถึงตอนนี้ {formatDuration(m.activeMinutes)}</span>
+              )}
+              <span className={styles.metricMuted}>{m.sessions} session · วัดได้ {m.coveredTasks}/{metrics.taskCount} task · {usageSources(m.sources)}</span>
+              {member ? null : <Breakdown rows={m.byPerson} testId={`phase-people-${phase.id}`} />}
+            </>
+          ) : (
+            <span className={styles.metricMuted}>ยังไม่วัด — ไม่มี lane ที่ประกาศ branch และมี session ใน phase นี้</span>
+          )}
+        </div>
+        {m ? <UsageDetailRow tokens={m.tokens} detail={m.detail} detailSessions={m.detailSessions} sessions={m.sessions} testId={`phase-detail-${phase.id}`} /> : null}
       </div>
-      <div className={styles.metricRow} data-measured={m ? 'true' : 'false'}>
-        <span className={`${styles.metricLabel} ${styles.metricLabelMeasured}`}>วัดจริง</span>
-        {m ? (
-          <>
-            <span className={styles.metric} title={`input ${m.tokens.input.toLocaleString()} · cache write ${m.tokens.cacheWrite.toLocaleString()} · output ${m.tokens.output.toLocaleString()}`}>
-              <b>{formatTokens(m.used)}</b> token ใช้ไป
-            </span>
-            <span className={styles.metricMuted}>+ cache read {formatTokens(m.tokens.cacheRead)}</span>
-            {metrics.done ? (
-              <>
-                <span className={styles.metric}><b>{m.elapsedDays === null ? '—' : m.elapsedDays < 1 ? formatDuration(m.elapsedDays * 1440) : `${m.elapsedDays.toFixed(1)} วัน`}</b> เวลาจริง</span>
-                <span className={styles.metric}><b>{formatDuration(m.activeMinutes)}</b> active</span>
-              </>
-            ) : (
-              <span className={styles.metricMuted}>เวลาจริงแสดงเมื่อ phase done · active ถึงตอนนี้ {formatDuration(m.activeMinutes)}</span>
-            )}
-            <span className={styles.metricMuted}>{m.sessions} session · วัดได้ {m.coveredTasks}/{metrics.taskCount} task · {usageSources(m.sources)}</span>
-            {member ? null : <Breakdown rows={m.byPerson} testId={`phase-people-${phase.id}`} />}
-          </>
-        ) : (
-          <span className={styles.metricMuted}>ยังไม่วัด — ไม่มี lane ที่ประกาศ branch และมี session ใน phase นี้</span>
-        )}
-      </div>
-      {m ? <UsageDetailRow tokens={m.tokens} detail={m.detail} detailSessions={m.detailSessions} sessions={m.sessions} testId={`phase-detail-${phase.id}`} /> : null}
     </div>
   )
 }
@@ -442,11 +445,90 @@ const VIEWS = [
   { id: 'devices', label: 'Agent devices', icon: MonitorSmartphone },
 ]
 
+const TASK_SOT_BY_ID = new Map(ROADMAP_TASK_LEDGER.map((task) => [task.id, task]))
+const PRODUCTION_ACTIVATION = ROADMAP_SOT.subplans.find((plan) => plan.id === 'SUBPLAN-KI-PRODUCTION-ACTIVATION')
+
 const toneOf = (status) => (status === 'done' ? 'done' : status === 'review' ? 'review' : null)
 
 const NO_SIZING = { points: {}, effortHours: {} }
 const closingLabel = (iso) =>
   new Date(iso).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', dateStyle: 'long', timeStyle: 'short' })
+
+const displaySotValue = (value) => String(value ?? 'UNKNOWN').replace(/_/g, ' ')
+
+function SotTags({ item, testId, compact = false }) {
+  if (!item) return null
+  return (
+    <div
+      className={`${styles.sotTags} ${compact ? styles.sotTagsCompact : ''}`}
+      data-testid={testId}
+      aria-label={`${item.id || item.stageId} status ${displaySotValue(item.status)}, proof scope ${displaySotValue(item.proofScope)}, implementation state ${displaySotValue(item.implementationState)}`}
+    >
+      <span className={styles.sotTag} data-sot-kind="status" data-sot-value={item.status}>
+        <span className={styles.sotTagLabel}>status</span>
+        <b>{displaySotValue(item.status)}</b>
+      </span>
+      <span className={styles.sotTag} data-sot-kind="proof" data-sot-value={item.proofScope}>
+        <span className={styles.sotTagLabel}>proof</span>
+        <b>{displaySotValue(item.proofScope)}</b>
+      </span>
+      <span className={styles.sotTag} data-sot-kind="implementation" data-sot-value={item.implementationState}>
+        <span className={styles.sotTagLabel}>implementation</span>
+        <b>{displaySotValue(item.implementationState)}</b>
+      </span>
+    </div>
+  )
+}
+
+function RoadmapEvidence() {
+  const coverage = ROADMAP_SOT.coverage || []
+  const isolatedAccepted = coverage.filter((stage) => stage.implementationState === 'ISOLATED_ACCEPTED').length
+  return (
+    <section className={styles.truthGrid} aria-label="Roadmap source of truth and evidence" data-testid="roadmap-evidence">
+      <Card className={styles.sotCard} data-testid="genesisrag17-coverage">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <ShieldCheck size={17} aria-hidden />
+          <h2 className="text-base font-bold">GenesisRAG17 coverage</h2>
+          <span className={styles.sotSummary}>{isolatedAccepted}/{coverage.length} isolated accepted</span>
+        </div>
+        <p className="mb-3 text-xs text-muted">
+          The stage ledger is evidence for the isolated profile. Each stage keeps its proof scope and implementation state visible; it does not imply production activation.
+        </p>
+        <div className={styles.stageGrid} role="list" aria-label="GenesisRAG17 stages">
+          {coverage.map((stage) => (
+            <article
+              key={stage.stageId}
+              className={styles.stage}
+              role="listitem"
+              data-testid={`genesisrag17-stage-${stage.stage.replace(/\s+/g, '-').toLowerCase()}`}
+            >
+              <div className={styles.stageHead}>
+                <strong>{stage.stage}</strong>
+                <code>{stage.stageId}</code>
+              </div>
+              <SotTags item={stage} compact testId={`genesisrag17-sot-${stage.stage.replace(/\s+/g, '-').toLowerCase()}`} />
+              <p className={styles.stageOwner}>{stage.owner}</p>
+            </article>
+          ))}
+        </div>
+      </Card>
+
+      <Card className={`${styles.sotCard} ${styles.activationCard}`} data-testid="production-activation-gate">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <Flag size={17} aria-hidden />
+          <h2 className="text-base font-bold">Production activation</h2>
+          <span className={styles.sotSummary}>separate gate</span>
+        </div>
+        <p className={styles.sotSeparation}>
+          Isolated acceptance is not production activation. This planned gate stays visible so the board never upgrades the proof scope by implication.
+        </p>
+        <SotTags item={PRODUCTION_ACTIVATION} testId="production-activation-status" />
+        <p className="mt-3 text-xs text-muted">{PRODUCTION_ACTIVATION?.evidence || 'No production activation claim.'}</p>
+        <p className="mt-2 text-xs text-muted">Authority: <code className="break-all">{PRODUCTION_ACTIVATION?.authority || 'ROADMAP.md'}</code></p>
+      </Card>
+    </section>
+  )
+}
 
 export default function ProgramRoadmapBoard({
   domainMap = null,
@@ -486,7 +568,7 @@ export default function ProgramRoadmapBoard({
     })
 
   return (
-    <div className="space-y-6">
+    <div className={`${styles.board} space-y-6`}>
       <PageHeader
         eyebrow={member ? 'PLATFORM PROGRAMME · SIGNED-IN PREVIEW' : 'PLATFORM PROGRAMME · OPERATOR ONLY'}
         title="Zuri AI — 24-week delivery programme"
@@ -501,7 +583,7 @@ export default function ProgramRoadmapBoard({
       )}
 
       {domainMap && (
-        <div className={styles.tabs} role="tablist" aria-label="Roadmap views">
+        <div className={styles.tabs} role="tablist" aria-label="Roadmap views" data-testid="roadmap-view-tabs">
           {views.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -537,7 +619,7 @@ export default function ProgramRoadmapBoard({
         <span className="text-xs text-muted">{PROGRAMME_SNAPSHOT.sourceLabel} · v{PROGRAMME_SNAPSHOT.version}</span>
       </Card>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Programme scope">
+      <section className={`${styles.scopeGrid} grid gap-3 sm:grid-cols-2 xl:grid-cols-4`} aria-label="Programme scope">
         <Kpi label="Delivery window" value="24 weeks" meta="24 Aug 2026 – 7 Feb 2027" />
         <Kpi label="Programme structure" value="6 / 12" meta="phases / two-week sprints" />
         <Kpi label="Task containers" value={PROGRAMME_TASKS.length} meta="submitted work items" />
@@ -557,12 +639,14 @@ export default function ProgramRoadmapBoard({
           <span><i className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-[#3D7A9E] align-[-1px]" />FR declared (ends at {PROGRAMME_HISTORY.rows.at(-1)[6]})</span>
           <span><i className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-[#6B7280] align-[-1px]" />test files tracked (ends at {PROGRAMME_HISTORY.rows.at(-1)[8]})</span>
         </div>
-        <div className={styles.chartFrame}>
+        <div className={styles.chartFrame} data-testid="roadmap-history-chart">
           <HistoryChart history={PROGRAMME_HISTORY} />
         </div>
       </Card>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <RoadmapEvidence />
+
+      <section className={`${styles.contentGrid} grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]`}>
         <div>
           <div className="mb-3 flex items-center gap-2">
             <Layers3 size={17} aria-hidden />
@@ -592,9 +676,10 @@ export default function ProgramRoadmapBoard({
                 <Card key={phase.id} className={`p-0 ${styles.phase}`} data-tone={toneOf(phase.status) || undefined} data-testid={`phase-card-${phase.id}`}>
                   <button
                     type="button"
-                    className={`flex w-full items-start gap-3 p-4 text-left ${styles.phaseHead}`}
+                    className={`flex w-full items-start gap-3 text-left ${styles.phaseHead}`}
                     onClick={() => setOpenPhase(expanded ? null : phase.id)}
                     aria-expanded={expanded}
+                    aria-controls={`phase-detail-${phase.id}`}
                   >
                     <ChevronDown size={18} className={`mt-0.5 shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`} aria-hidden />
                     <span className="min-w-0 flex-1">
@@ -609,7 +694,7 @@ export default function ProgramRoadmapBoard({
                   <PhaseMetrics phase={phase} metrics={metrics} member={member} />
                   <ProgressBar percent={phase.progress} label={`${phase.id} submitted plan progress`} />
                   {expanded && (
-                    <div className={`space-y-4 p-4 ${styles.phaseBody}`}>
+                    <div id={`phase-detail-${phase.id}`} className={`space-y-4 ${styles.phaseBody}`}>
                       {phase.sprints.map((sprint) => (
                         <div key={sprint.id} className={styles.sprint} data-tone={toneOf(sprint.status) || undefined}>
                           <div className={`flex flex-wrap items-center gap-2 ${styles.sprintHead}`}>
@@ -622,11 +707,12 @@ export default function ProgramRoadmapBoard({
                             {tasks.filter((task) => task[1] === sprint.id).map(([id, , title, type, complexity, scope, status]) => {
                               const open = openTasks.has(id)
                               const container = PROGRAMME_CONTAINERS[id]
+                              const taskSot = TASK_SOT_BY_ID.get(id)
                               return (
                                 <TiltCard as="li" key={id} id={`task-${id}`} className={`${styles.task} ${open ? styles.taskOpen : ''}`} data-status={status} data-open={open ? 'true' : 'false'}>
                                   <button
                                     type="button"
-                                    className={`flex w-full items-start gap-3 p-3 text-left ${styles.taskHead}`}
+                                    className={`flex w-full items-start gap-3 text-left ${styles.taskHead}`}
                                     onClick={() => toggleTask(id)}
                                     aria-expanded={open}
                                     aria-controls={`task-detail-${id}`}
@@ -644,6 +730,7 @@ export default function ProgramRoadmapBoard({
                                   </button>
                                   <div className={styles.taskMeta}>
                                     <EvidenceBadges id={id} evidence={taskEvidence?.[id]} />
+                                    <SotTags item={taskSot} testId={`roadmap-sot-task-${id}`} compact />
                                     <SubtaskBar id={id} subtasks={container?.subtasks || []} />
                                     {taskUsageByCode.has(id) && <TaskUsageSummary usage={taskUsageByCode.get(id)} />}
                                   </div>

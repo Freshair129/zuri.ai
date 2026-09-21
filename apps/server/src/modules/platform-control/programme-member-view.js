@@ -1,6 +1,9 @@
 // @req FR-241 — the programme roadmap member view: a declared 30-day window for any
 //   signed-in person, and a projection that carries no person, device, tool or
 //   model name to the client.
+// @req FR-263 — the member projection remains separate from Mission Control and
+//   never receives PORL records, assignments, device/tool/model details,
+//   thread identifiers or live orchestration state.
 // @spec ADR-092 D1–D3, ADR-048 D3, ADR-086 D7, SEC-020
 // @tested tests/unit/programme-member-view.test.js
 

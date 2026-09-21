@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
-import { PUBLIC_LINE_PROVIDERS } from './model-provider-catalog'
+import { PRIVATE_RUNTIME_PROVIDERS, PUBLIC_LINE_PROVIDERS } from './model-provider-catalog'
 
-export { LOCAL_EVAL_PROVIDERS, PUBLIC_LINE_PROVIDERS } from './model-provider-catalog'
+export { LOCAL_EVAL_PROVIDERS, PRIVATE_RUNTIME_PROVIDERS, PUBLIC_LINE_PROVIDERS } from './model-provider-catalog'
 
 // @req FR-048 — one normalized provider port for approved public LINE credential modes.
 // @req FR-171 — record exact model-call inputs and truthful nullable provider usage.
@@ -12,13 +12,50 @@ export { LOCAL_EVAL_PROVIDERS, PUBLIC_LINE_PROVIDERS } from './model-provider-ca
 
 const LOCAL_RUNTIME_SOURCES = new Set(['LOCAL_DEV', 'TEST', 'EVAL'])
 
+// The private runtime provider (ADR-100 D7) — cited in prose, not by requirement
+// id, because this is the shared port for every provider and an id here would make
+// all of its tests count as private-runtime evidence; that requirement's own tests
+// are tests/unit/private-runtime-model-port.test.js. `prp` joins the public
+// providers here but, unlike them, has no
+// address of its own: the operator's configured base URL is required, never
+// defaulted, so a missing configuration fails the port rather than sending a
+// Business's key somewhere by assumption.
 const zConfig = z.object({
-  provider: z.enum(PUBLIC_LINE_PROVIDERS),
+  provider: z.enum([...PUBLIC_LINE_PROVIDERS, ...PRIVATE_RUNTIME_PROVIDERS]),
   model: z.string().trim().min(1).max(200),
   credential: z.string().trim().min(1),
   timeoutMs: z.number().int().min(100).max(25000).default(10000),
   baseUrl: z.string().url().optional(),
-}).strict()
+}).strict().refine((config) => !PRIVATE_RUNTIME_PROVIDERS.includes(config.provider) || Boolean(config.baseUrl), {
+  path: ['baseUrl'], message: 'PRIVATE_RUNTIME_NOT_CONFIGURED',
+})
+
+/**
+ * Remove a reasoning model's private thinking from its answer before
+ * the text can reach a customer.
+ *
+ * The operator's runtime serves Qwen3-family models, which think in `<think>…</think>`
+ * unless a server-side parser strips it — and whether one is enabled is the runtime's
+ * configuration, not something this port can see. So the answer is cleaned here, for
+ * every shape the thinking arrives in:
+ *   - complete `<think>…</think>` blocks, anywhere;
+ *   - a leading run of thinking closed by `</think>` with no opening tag, which is what
+ *     a chat template that inserts `<think>` into the *prompt* produces;
+ *   - an opening `<think>` never closed — the answer was cut off mid-thought at the
+ *     token limit. Everything from it on is thinking, so it is removed.
+ * What remains may be empty. That is deliberate: an empty answer fails the call as
+ * MODEL_PROVIDER_EMPTY_RESPONSE, and a failed answer is better than a customer being
+ * sent the model's half-finished reasoning about them.
+ */
+export function stripReasoning(text) {
+  if (typeof text !== 'string') return text
+  let out = text.replace(/<think>[\s\S]*?<\/think>/gi, '')
+  const orphanClose = out.search(/<\/think>/i)
+  if (orphanClose !== -1) out = out.slice(orphanClose).replace(/^<\/think>/i, '')
+  const unclosed = out.search(/<think>/i)
+  if (unclosed !== -1) out = out.slice(0, unclosed)
+  return out.trim()
+}
 
 export const MODEL_PROMPT_ID = 'b2c3d4e5-f607-489a-b1c2-d3e4f5061728'
 export const MODEL_PROMPT_VERSION = 'line-answer-v1'
@@ -249,6 +286,16 @@ function requestFor(config, prompt) {
       body: { model: config.model, input: prompt, max_output_tokens: 500 },
     }
   }
+  if (PRIVATE_RUNTIME_PROVIDERS.includes(config.provider)) {
+    // PRP's client contract: OpenAI-compatible chat completions under `/v1`, `n=1`,
+    // no provider extras — "unsupported fields are rejected rather than silently
+    // dropped", so nothing beyond the contract's own fields is sent.
+    return {
+      url: `${config.baseUrl}/v1/chat/completions`,
+      headers: { Authorization: `Bearer ${config.credential}` },
+      body: { model: config.model, messages: [{ role: 'user', content: prompt }], max_tokens: 500, stream: false },
+    }
+  }
 
   const base = config.provider === 'openrouter'
     ? 'https://openrouter.ai/api/v1/chat/completions'
@@ -278,6 +325,7 @@ function textFrom(provider, json) {
       ? json.candidates[0].content.parts.map((part) => part?.text ?? '').join('')
       : undefined
   }
+  if (PRIVATE_RUNTIME_PROVIDERS.includes(provider)) return stripReasoning(json.choices?.[0]?.message?.content)
   return json.choices?.[0]?.message?.content
 }
 

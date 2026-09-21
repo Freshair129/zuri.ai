@@ -7,7 +7,7 @@ import {
   Workflow, Gauge, TrendingUp,
   PackageCheck, MessageCircle, LayoutGrid, QrCode,
   Warehouse, Truck, ClipboardList,
-  Layers, Bot, Cpu, Bookmark, Contact, Waypoints, FileText, Calculator,
+  Layers, Bot, KeyRound, Bookmark, Contact, Waypoints, FileText, Calculator,
 } from 'lucide-react'
 import { businessHasCapability } from '@/lib/business-capabilities'
 
@@ -179,7 +179,16 @@ export const DOMAINS = [
       { label: 'บัญชี & กลุ่ม LINE OA', path: '/line-oa/projects', icon: Layers },
       { label: 'Design Studio', path: '/line-oa/design-studio', icon: Bot },
       { label: 'Live CRM & แชทสด', path: '/line-oa/live-crm', icon: MessagesSquare },
-      { label: 'Edge & การเชื่อมต่อ', path: '/line-oa/edge-connection', icon: Cpu },
+      // Renamed from "Edge & การเชื่อมต่อ" / `/line-oa/edge-connection` when
+      // edge execution was retired from LINE OA Studio. The old label advertised
+      // a mode that no longer exists while hiding the form an owner needs to make
+      // LINE answer at all. The page still holds device pairing, which asset
+      // extraction keeps using — so it is named for connections, not for Edge.
+      //
+      // Cited in prose, not by requirement id: this file is every domain's nav,
+      // and the graph would count each of their navigation tests as evidence for
+      // the LINE OA requirement. The rename's own anchor is the connections page.
+      { label: 'การเชื่อมต่อ & API key', path: '/line-oa/connections', icon: KeyRound },
       { label: 'Templates', path: '/line-oa/templates', icon: Bookmark },
       { label: 'ทีม', path: '/line-oa/team', icon: Users },
       { label: 'Settings', path: '/line-oa/settings', icon: Settings },

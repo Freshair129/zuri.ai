@@ -1,16 +1,17 @@
 "use client";
 import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle2, Circle, ExternalLink } from 'lucide-react';
-import { lineOaReadinessJourney, LINE_LOCAL_MODEL, LINE_LOCAL_QUANTIZATION } from '../domain/line-oa-readiness-journey';
+import { lineOaReadinessJourney } from '../domain/line-oa-readiness-journey';
 
-// @req FR-225, FR-227, FR-228, FR-150, FR-235 — eight-step evidence-based onboarding.
-// @spec ADR-089, ADR-090, ADR-061
+// @req FR-225, FR-227, FR-228, FR-235 — eight-step evidence-based onboarding.
+// @req FR-265, FR-266 — step 5 is the model API key, not an Edge/local-model choice.
+// @spec ADR-089, ADR-090, ADR-061, ADR-100
 // @tested tests/unit/line-oa-readiness-journey.test.js
 const labels = { COMPLETE: 'มีหลักฐานแล้ว', ACTION_REQUIRED: 'รอดำเนินการ', NOT_RUN: 'ยังไม่ทดสอบ (NOT_RUN)', CONFIGURED: 'ตั้งค่าแล้ว รอตรวจจริง', ACTIVE_UNQUALIFIED: 'เปิดอยู่ รอรับรองครบเส้นทาง' };
 const buttonClass = 'rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700';
 
-export default function LineOaReadinessJourney({ account, credentials = [], onAction, onLoadJobs, busy = false }) {
-  const journey = lineOaReadinessJourney({ account, credentials });
+export default function LineOaReadinessJourney({ account, modelCredential = null, onAction, onLoadJobs, busy = false }) {
+  const journey = lineOaReadinessJourney({ account, modelCredential });
   const [selected, setSelected] = useState(() => Math.max(0, journey.steps.findIndex(step => step.status !== 'COMPLETE')));
   const [webhookAcknowledged, setWebhookAcknowledged] = useState(false);
   const current = journey.steps[selected];
@@ -46,12 +47,9 @@ export default function LineOaReadinessJourney({ account, credentials = [], onAc
           onClick={() => onAction(account, { action: 'REGISTER_WEBHOOK' })}>ลงทะเบียนและทดสอบกับ LINE</button>
         <p className="text-xs text-slate-500">หากไม่ผ่าน ให้เปิด LINE Developers ตรวจ endpoint และเปิด Use webhook แล้วลองอีกครั้ง ผลทดสอบนี้ยังไม่ยืนยันว่าโมเดลตอบทันเวลา</p>
       </div>}
-      {current.id === 'runtime' && <div className="space-y-2">
-        <p className="font-mono text-xs">{LINE_LOCAL_MODEL} · {LINE_LOCAL_QUANTIZATION}</p>
-        <a className="inline-block text-xs underline" href="#line-edge-pairing">จับคู่หรือตรวจอุปกรณ์ Edge</a>
-        <div><button type="button" className={buttonClass} disabled={busy || !onAction || journey.localSelected || account.status === 'ARCHIVED'}
-          onClick={() => onAction(account, { action: 'CONFIGURE_EXECUTION', executionMode: 'EDGE', modelAccess: 'LOCAL_ONLY', allowDelayedPush: account.allowDelayedPush })}>เลือก Edge / Local only</button></div>
-        <p className="text-xs text-slate-500">ทดสอบบนเครื่องที่จับคู่จริง: model digest, warm state และเวลาจน LINE รับคำตอบ p95 ≤30 วินาที / p99 ≤40 วินาที การมีกุญแจจับคู่ยังไม่ยืนยันว่าเครื่องออนไลน์</p>
+      {current.id === 'model-key' && <div className="space-y-2">
+        <a className="inline-block text-xs underline" href="#line-oa-model-key">ไปฟอร์มใส่ API key ของโมเดล</a>
+        <p className="text-xs text-slate-500">ขั้นนี้ผ่านเมื่อมีคีย์ที่ตรวจกับผู้ให้บริการแล้วและยังไม่ถูกเพิกถอน การบันทึกคีย์อย่างเดียวยังไม่ยืนยันว่าโมเดลตอบทันเวลา ให้วัดจาก trace จริงในขั้นทดสอบ</p>
       </div>}
       {current.id === 'knowledge' && <div className="space-y-2">
         <button type="button" className={buttonClass} disabled={busy || !onAction || account.knowledgeGrounding === 'GKS_CORPUS' || account.status === 'ARCHIVED'}

@@ -53,10 +53,10 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/overview/)
   // FR-149's console is a tab of LINE Studio Enterprise now
-  // (LineStudioEdgeConnection). `/line-oa` reads `?tab=` straight into the
+  // (LineStudioAccountConsole). `/line-oa` reads `?tab=` straight into the
   // shell's initial tab, so the URL selects it — and survives the reload below,
   // which a click on a tab control would not.
-  await page.goto('/line-oa?tab=edge-connection')
+  await page.goto('/line-oa?tab=connections')
   await expect(page.getByRole('heading', { name: 'บัญชี LINE และการตอบข้อความ' })).toBeVisible()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   // FR-225: the deployment-secret field is gone from this page; the wizard
@@ -74,21 +74,31 @@ test('LINE account onboarding persists and activation requires an explicit hando
   // FR-225: a mount-backed account (this one) offers the migration card, not
   // the "already in the vault" status line.
   await expect(panel.getByText('ย้ายข้อมูลรับรองเข้า Vault')).toBeVisible()
-  await panel.getByLabel('ประมวลผลคำตอบ', { exact: true }).selectOption('EDGE')
+  // FR-265 — this drove the execution-placement select to EDGE and read it back.
+  // Both the select and EDGE are retired (ADR-100 D1); `CONFIGURE_EXECUTION` now
+  // carries only the delayed-push policy, so that is what proves the same thing
+  // this case always proved: a versioned account write round-trips through the
+  // console and survives a reload. The console must also no longer offer the
+  // retired control at all.
+  await expect(panel.getByLabel('ประมวลผลคำตอบ', { exact: true })).toHaveCount(0)
+  await expect(panel.getByLabel('การใช้โมเดล', { exact: true })).toHaveCount(0)
+  const delayedPush = panel.getByLabel('อนุญาต Push คำตอบภายหลัง หาก reply token หมดอายุ', { exact: true })
+  await expect(delayedPush).not.toBeChecked()
+  await delayedPush.check()
   const saved = page.waitForResponse(response => response.request().method() === 'PATCH' && response.url().includes('/api/line-oa/accounts/'))
-  await panel.getByRole('button', { name: 'บันทึกการประมวลผล', exact: true }).click()
+  await panel.getByRole('button', { name: 'บันทึกนโยบายการส่ง', exact: true }).click()
   expect((await saved).ok()).toBe(true)
   await expect(page.locator('p[role="alert"]')).toHaveCount(0)
   // This flaked before the console's `refresh()` guarded against an
-  // out-of-order response (fixed in LineStudioEdgeConnection.jsx): the click's
+  // out-of-order response (fixed in LineStudioAccountConsole.jsx): the click's
   // own refresh and an earlier still-pending one could resolve in either
   // order, and whichever landed last used to win regardless of which request
   // was actually newest. With that fixed, the default timeout is enough.
-  await expect(panel.getByLabel('ประมวลผลคำตอบ', { exact: true })).toHaveValue('EDGE')
+  await expect(delayedPush).toBeChecked()
   await page.reload()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   const restored = page.getByRole('heading', { name: tag }).locator('xpath=../../..')
-  await expect(restored.getByLabel('ประมวลผลคำตอบ', { exact: true })).toHaveValue('EDGE')
+  await expect(restored.getByLabel('อนุญาต Push คำตอบภายหลัง หาก reply token หมดอายุ', { exact: true })).toBeChecked()
   await restored.getByRole('button', { name: 'ดูสถานะข้อความ', exact: true }).click()
   await expect(restored.getByText('ยังไม่มีข้อความในคิว', { exact: true })).toBeVisible()
 })

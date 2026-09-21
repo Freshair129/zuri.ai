@@ -6,7 +6,7 @@
 // This repo's render-based UI test harness (tests/unit/sot-pipeline-scope-render.test.js,
 // tests/unit/market-intelligence/market-dashboard-render.test.js) renders with
 // react-dom/server's renderToStaticMarkup, which never runs effects. The
-// default export still fetches inside a `useEffect` (LineStudioEdgeConnection's
+// default export still fetches inside a `useEffect` (LineStudioAccountConsole's
 // own convention, copied verbatim), so it stays covered only for the one state
 // reachable without an effect running at all: no active Business. Everything
 // the effect would otherwise hide — whether the red count, its errorCode

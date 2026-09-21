@@ -25,6 +25,8 @@ export interface ModelResidencyScheduleOptions {
   release: () => void;
   intervalMs?: number;
   onEvent?: (event: { ok: boolean; shouldBeWarm?: boolean; changed?: boolean; reason?: string }) => void;
+  /** A permanently withdrawn route may stop this schedule; ordinary failures retry. */
+  isTerminalError?: (error: unknown) => boolean;
   setIntervalFn?: typeof setInterval;
   clearIntervalFn?: typeof clearInterval;
 }
@@ -38,13 +40,24 @@ export function resolveResidencyIntervalMs(requested: number | undefined): numbe
 }
 
 export function startModelResidencySchedule(options: ModelResidencyScheduleOptions): () => void {
-  const { shouldBeWarm, warm, release, onEvent, setIntervalFn = setInterval, clearIntervalFn = clearInterval } = options;
+  const { shouldBeWarm, warm, release, onEvent, isTerminalError, setIntervalFn = setInterval, clearIntervalFn = clearInterval } = options;
   const intervalMs = resolveResidencyIntervalMs(options.intervalMs);
   let inFlight = false;
   let lastKnown: boolean | null = null;
+  let stopped = false;
+  let timer: ReturnType<typeof setInterval> | null = null;
+
+  const stop = (): void => {
+    if (stopped) return;
+    stopped = true;
+    if (timer !== null) {
+      clearIntervalFn(timer);
+      timer = null;
+    }
+  };
 
   const tick = async (): Promise<void> => {
-    if (inFlight) return;
+    if (stopped || inFlight) return;
     inFlight = true;
     try {
       const warmNow = await shouldBeWarm();
@@ -54,13 +67,14 @@ export function startModelResidencySchedule(options: ModelResidencyScheduleOptio
       onEvent?.({ ok: true, shouldBeWarm: warmNow, changed });
     } catch (error) {
       onEvent?.({ ok: false, reason: error instanceof Error ? error.message : String(error) });
+      if (isTerminalError?.(error)) stop();
     } finally {
       inFlight = false;
     }
   };
 
-  void tick();
-  const timer = setIntervalFn(() => void tick(), intervalMs);
+  timer = setIntervalFn(() => void tick(), intervalMs);
   (timer as unknown as { unref?: () => void }).unref?.();
-  return () => clearIntervalFn(timer);
+  void tick();
+  return stop;
 }

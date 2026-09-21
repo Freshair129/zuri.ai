@@ -184,6 +184,22 @@ describe('FR-152 LineOaRichMenuJob', () => {
     expect((await versionRow(job2.versionId)).status).toBe('FROZEN')
   })
 
+  it('AC-152.5a — a thrown upload keeps the current UPLOAD stage and queues the job without repeating create', async () => {
+    const oa = await account()
+    const menu = await frozenMenu(oa)
+    const job = await queueRichMenuJob(menu.id, { kind: 'PUBLISH', version: menu.version }, { viewer: owner, now: start })
+    const upload = vi.fn(async () => { throw new Error('upload transport unavailable') })
+    const w = worker({ richMenuTransport: transport({ uploadImage: upload }) })
+
+    expect(await runLineRichMenuWorker(w)).toEqual({ id: job.id, status: 'QUEUED', stage: 'UPLOAD' })
+    expect(w.richMenuTransport.create).toHaveBeenCalledTimes(1)
+    expect(w.richMenuTransport.uploadImage).toHaveBeenCalledTimes(1)
+    expect(await jobRow(job.id)).toMatchObject({
+      status: 'QUEUED', stage: 'UPLOAD', externalRichMenuId: 'richmenu-created',
+      errorCode: 'LINE_REQUEST_UNCONFIRMED', attempts: 1,
+    })
+  })
+
   it('AC-152.6 — the fence: a paused, non-server or re-epoched account cancels waiting work; a stale lease ends UNKNOWN', async () => {
     const oa = await account()
     const menu = await frozenMenu(oa)

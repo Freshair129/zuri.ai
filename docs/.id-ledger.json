@@ -387,6 +387,14 @@
     "FR-257",
     "FR-258",
     "FR-259",
+    "FR-260",
+    "FR-261",
+    "FR-262",
+    "FR-263",
+    "FR-264",
+    "FR-265",
+    "FR-266",
+    "FR-267",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -517,6 +525,7 @@
     "SDD-103",
     "SDD-104",
     "SDD-105",
+    "SDD-106",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -596,6 +605,8 @@
     "FEAT-041",
     "FEAT-042",
     "FEAT-043",
+    "FEAT-044",
+    "FEAT-045",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -783,6 +794,7 @@
     "ADR-097",
     "ADR-098",
     "ADR-099",
+    "ADR-100",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4819,6 +4831,110 @@
         }
       ]
     },
+    "FR-260": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "96675609d9c9496c145648f2a382e2c536fd5488fab9101dde7d3db94db7fb74",
+      "history": [
+        {
+          "anchor": "mission control operator projection",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-261": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "420a73a4045017cfda99d7a82e7c5089f300bff6b04a77939e50cbd13c26872f",
+      "history": [
+        {
+          "anchor": "programme orchestration run ledger observation contract",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-262": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "88ee04e1f9f8ee8e389e05363850208ca5e11eaa9a3810e0d4334692c8f5f28d",
+      "history": [
+        {
+          "anchor": "dag scheduling and merge safety projection",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-263": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8ea0c2c6b53000773fb425b3f8675fd022d83cb9b9c482ba2d569cbd0616e55d",
+      "history": [
+        {
+          "anchor": "member roadmap redaction",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-264": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "95395627af276b415dad791748374794121f18e5489933ea30bb4e672ea2a4d8",
+      "history": [
+        {
+          "anchor": "responsive mission control evidence view",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-265": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cff5e1e1e7039544d820d4b825db9f639f4c0f51b26158484540b30f29435741",
+      "history": [
+        {
+          "anchor": "line oa studio conversation work is server executed only",
+          "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-266": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6d521e25e48c874b467dd90b2e3b0778088577cc82faee8d1f46a09e00c33baf",
+      "history": [
+        {
+          "anchor": "a business owner provisions the model provider api key from",
+          "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-267": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d7d4b771952a9071de3081d8e80db8fa4316525de62c796e65c074402d33bbc2",
+      "history": [
+        {
+          "anchor": "a business owner may choose the operator s private runtime",
+          "since": "2026-09-21",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6535,6 +6651,19 @@
         }
       ]
     },
+    "SDD-106": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c5e5f3978ec7a507bd166305845110eecf766904300f1e50e2f1bf0246a207c1",
+      "history": [
+        {
+          "anchor": "model credential resolution order for a server line answer",
+          "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -7597,6 +7726,32 @@
         {
           "anchor": "server owned self hosted inference pool",
           "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-044": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "bce14ed4a821e8e77ebed6172b72d036351dff51d626b63afee7717be69be789",
+      "history": [
+        {
+          "anchor": "mission control dag orchestration observability",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-045": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "a8b0fdf589c99e877a38ba1d017f7f6b1cf3dfec22ab7471f5e5e796ce7bbe60",
+      "history": [
+        {
+          "anchor": "line oa on api keys only",
+          "since": "2026-09-20",
           "reason": "declared"
         }
       ]
@@ -10054,6 +10209,19 @@
         {
           "anchor": "server owned self hosted inference pool",
           "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-100": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md",
+      "status": "current",
+      "statement_digest": "5a1aaf854d3b89610707a2307c727b8cd94ae84b52a173cea9fb112ae6771755",
+      "history": [
+        {
+          "anchor": "line oa runs server executed on browser provisioned api keys",
+          "since": "2026-09-20",
           "reason": "declared"
         }
       ]

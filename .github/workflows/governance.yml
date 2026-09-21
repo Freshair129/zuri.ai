@@ -12,11 +12,12 @@ on:
   push:
     branches: [main]
   # 02:00 Asia/Bangkok. A full e2e run on `main`, on a clock rather than on a
-  # commit.
+  # commit. Use workflow_dispatch for an on-demand run after a merge or before
+  # a release; pushes to `main` do not start this slow suite automatically.
   #
   # What this does NOT exist for: "specs the selector never picks would never
-  # run". They do — a push to `main` sets `forceAll` and runs every spec, so
-  # each merge already exercises the whole suite.
+  # run". Scheduled and manual runs pass `--all`, so every spec is exercised
+  # by the full suite even though ordinary merges do not pay its warm-up cost.
   #
   # It exists for the failures that arrive with no commit at all: a Playwright
   # browser build refreshed under a restored cache, a `windows-latest` runner
@@ -30,6 +31,7 @@ on:
   # the tree does not.
   schedule:
     - cron: '0 19 * * *'
+  workflow_dispatch:
 
 jobs:
   # Which parts of the tree changed. The e2e suite takes 7-8 minutes and cannot
@@ -290,9 +292,8 @@ jobs:
       - name: Production build
         run: npm run build
 
-  # The required check. `if: always()` so it reports on failure too — without
-  # it a failed dependency would leave `verify` skipped, and a skipped required
-  # check blocks the merge with no explanation of which job to look at.
+  # The required aggregate check. `if: always()` makes dependency failures
+  # visible in one explicit result instead of leaving the aggregate ambiguous.
   verify:
     if: always() && github.event_name != 'schedule'
     needs: [govern, tests, build]
@@ -312,10 +313,11 @@ jobs:
           done
 
   e2e:
-    # Skipped when the diff touches only `docs/` and `.brain/` — see the
-    # `changes` job for why that decision is safe in the direction it fails.
+    # Eligible only on the nightly schedule or an explicit workflow_dispatch;
+    # both triggers force the full suite. `changes` remains a dependency so the
+    # run has one visible classification path and records why it ran.
     needs: changes
-    # NOT on pull requests, by decision (2026-09-12).
+    # Not on pull requests or pushes to `main`, by decision (2026-09-21).
     #
     # e2e has never been a required check — branch protection asks for
     # `changes`, `verify` and `edge-verify` — so on a pull request it could
@@ -328,18 +330,18 @@ jobs:
     # tests/e2e/warmup.setup.js), so even a run of three specs cannot finish
     # much under twenty minutes. The cost is the environment, not the specs.
     #
-    # So the suite moves to where a slow honest answer is still useful: every
-    # push to `main`, which already forces the full run, plus the nightly
-    # schedule above. A break is therefore caught just after the merge that
-    # caused it rather than just before — accepted deliberately, because the
-    # alternative on offer was not "caught earlier" but "cancelled".
+    # So the suite moves to where a slow honest answer is still useful: the
+    # nightly schedule above and an explicit workflow_dispatch. It no longer
+    # runs on every push to `main`; it removes that post-merge workload while
+    # required PR gates already exclude E2E. Detection is deliberately delayed
+    # until the nightly or manual run.
     #
-    # Consequence worth stating: with PRs excluded, both remaining triggers
-    # force the full suite, so the selective mapping in
+    # Consequence worth stating: with PRs and main pushes excluded, both
+    # remaining triggers force the full suite, so the selective mapping in
     # `scripts/ci-select-e2e.mjs` no longer narrows anything in CI. It stays
     # because `npm run test:e2e:changed` — the local loop this was really
     # costing — is now its main consumer.
-    if: github.event_name != 'pull_request' && needs.changes.outputs.code == 'true'
+    if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && needs.changes.outputs.code == 'true'
     # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
     # hardcodes `path.win32` in three files, deliberately — mounted-root
     # containment has to reason about drive letters, UNC paths and
@@ -387,15 +389,76 @@ jobs:
           else
             changed=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
           fi
-          # `--all` on a schedule, stated rather than inferred. The selector
-          # also forces everything when GITHUB_REF is refs/heads/main, which a
-          # scheduled run happens to satisfy — but that coupling is invisible
-          # here, and a future change to the default branch's ref handling
-          # should not quietly turn the nightly run into a targeted one.
+          # `--all` on scheduled and manual runs, stated rather than inferred.
+          # The selector must not decide full-vs-targeted coverage from the
+          # branch ref: manual runs may be launched from another ref, and a
+          # future ref-handling change must not narrow this full run quietly.
           select_args=''
-          if [ "${{ github.event_name }}" = "schedule" ]; then select_args='--all'; fi
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then select_args='--all'; fi
           echo "Determining impacted e2e targets from changed files..."
           printf '%s\n' "$changed" | node scripts/ci-select-e2e.mjs $select_args >> "$GITHUB_OUTPUT"
+
+      # The e2e server is production-built so route compilation cannot consume
+      # a spec's test budget. The dev-only warm-up remains the local default;
+      # CI does not need it once `next start` has a complete build. The build
+      # is skipped when the selector has no impacted specs.
+      - name: Production build for e2e server
+        if: steps.select-e2e.outputs.skip != 'true'
+        run: npm run build
+
+      - name: Prepare production e2e database
+        if: steps.select-e2e.outputs.skip != 'true'
+        env:
+          E2E_PORT: '3100'
+          ZURI_E2E_AUTH_PASSWORD: e2e-ci-owner-password
+          ZURI_E2E_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+          NODE_ENV: test
+          DATABASE_URL: file:./e2e-3100.db
+          ZURI_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+          ZURI_SEED_OWNER_PASSWORD: e2e-ci-owner-password
+        run: node -e "require('./tests/e2e/global-setup.js')()"
+
+      # Playwright's Windows webServer teardown can wait indefinitely when it
+      # force-kills a Next process after a real request. Start the built server
+      # outside Playwright so the test runner reuses it and this job owns the
+      # explicit process cleanup instead.
+      - name: Start production e2e server
+        if: steps.select-e2e.outputs.skip != 'true'
+        shell: pwsh
+        env:
+          E2E_PORT: '3100'
+          E2E_EXTERNAL_SERVER: 'true'
+          ZURI_E2E_AUTH_PASSWORD: e2e-ci-owner-password
+          ZURI_E2E_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $port = [int]$env:E2E_PORT
+          $env:NODE_ENV = 'test'
+          $env:DATABASE_URL = "file:./e2e-$port.db"
+          $env:PUBLIC_BASE_URL = "http://localhost:$port"
+          $env:ZURI_SESSION_SECRET = $env:ZURI_E2E_SESSION_SECRET
+          $env:ZURI_SEED_OWNER_PASSWORD = $env:ZURI_E2E_AUTH_PASSWORD
+          $env:ZURI_PLUGIN_CLIENT_ID = 'zuri-plugin-e2e'
+          $env:ZURI_PLUGIN_CLIENT_NAME = 'Zuri E2E Harness'
+          $env:ZURI_PLUGIN_REDIRECT_URIS = "http://localhost:$port/plugin/e2e-callback"
+          $server = Start-Process -FilePath 'node' -ArgumentList @('node_modules/next/dist/bin/next', 'start', '-p', "$port") -WorkingDirectory (Get-Location).Path -WindowStyle Hidden -PassThru
+          "E2E_SERVER_PID=$($server.Id)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $deadline = (Get-Date).AddSeconds(120)
+          while ($true) {
+            if ($server.HasExited) {
+              throw "Production e2e server exited before readiness (code $($server.ExitCode))."
+            }
+            try {
+              $response = Invoke-WebRequest -Uri "http://localhost:$port/overview" -UseBasicParsing -TimeoutSec 5
+              if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 500) { break }
+            } catch { }
+            if ((Get-Date) -gt $deadline) {
+              taskkill /PID $server.Id /T /F 2>$null
+              throw "Timed out waiting for production e2e server on port $port."
+            }
+            Start-Sleep -Milliseconds 250
+          }
+          Write-Output "Production e2e server ready on port $port (pid $($server.Id))."
 
       - name: Run targeted end-to-end tests
         if: steps.select-e2e.outputs.skip != 'true'
@@ -410,10 +473,31 @@ jobs:
             npm run test:e2e -- ${{ steps.select-e2e.outputs.specs }}
           fi
         env:
+          E2E_SERVER_MODE: production
+          E2E_PORT: '3100'
+          E2E_EXTERNAL_SERVER: 'true'
+          ZURI_E2E_AUTH_PASSWORD: e2e-ci-owner-password
+          ZURI_E2E_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+          NODE_ENV: test
+          DATABASE_URL: file:./e2e-3100.db
+          PUBLIC_BASE_URL: http://localhost:3100
+          ZURI_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+          ZURI_SEED_OWNER_PASSWORD: e2e-ci-owner-password
           # Every expect/pw:api step's duration, so the `expect` budget in
           # playwright.config.js can be set from a measurement rather than
           # from the last failure. See tests/e2e/step-timings-reporter.js.
           E2E_STEP_TIMINGS: node_modules/.cache/zuri-test-proof/e2e-step-timings.json
+
+      - name: Stop production e2e server
+        if: always() && steps.select-e2e.outputs.skip != 'true'
+        shell: pwsh
+        run: |
+          if ($env:E2E_SERVER_PID) {
+            $server = Get-Process -Id ([int]$env:E2E_SERVER_PID) -ErrorAction SilentlyContinue
+            if ($server) {
+              taskkill /PID $server.Id /T /F
+            }
+          }
 
       - name: e2e skipped (no impacted UI/domain targets)
         if: steps.select-e2e.outputs.skip == 'true'

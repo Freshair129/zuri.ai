@@ -214,6 +214,7 @@ function renderDescriptive(record, code) {
       field('occasion', record.occasion),
       field('giftTier', record.giftTier),
       field('recipientSegment', record.recipientSegment),
+      field('unboxingExperience', record.unboxingExperience),
       field('flowaccountOfferCode', record.flowaccountOfferCode),
       field('componentSrpQty1TotalThb', record.componentSrpQty1TotalThb),
       field('components', record.components.length ? record.components.map((component) => `${component.productExternalId} x${component.qty} srp ${component.srpQty1Thb} THB`).join('; ') : null),

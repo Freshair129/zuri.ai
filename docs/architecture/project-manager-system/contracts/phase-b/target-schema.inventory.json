@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "23f8c04baf70ebc90fe71e3be0002c0b3f33a46de735e4f56eb3ec814ed91a58",
+  "schemaSha256": "e7ec1c06ea166b8199c501b741b637454426d431ed78d0dc7a33f2377ad00696",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -832,6 +832,16 @@
       "tableName": "Supplier"
     },
     {
+      "modelName": "SupplierCostLine",
+      "schemaName": "public",
+      "tableName": "SupplierCostLine"
+    },
+    {
+      "modelName": "SupplierCostSheet",
+      "schemaName": "public",
+      "tableName": "SupplierCostSheet"
+    },
+    {
       "modelName": "SyncCursor",
       "schemaName": "public",
       "tableName": "SyncCursor"
@@ -906,5 +916,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "8e86b994d15cc165d4d26ea28760f9c1c5f4aa93fa038febf9e636666092b362"
+  "targetSchemaSha256": "55a7118038ac472f286c0f559843f024f90281e72b86dd8525e52d752d67054a"
 }

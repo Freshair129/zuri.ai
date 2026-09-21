@@ -1,9 +1,9 @@
 {
-  "version": "0.6.2b",
-  "status": "Strategy first slice, Campaign and Content verified locally on the integrated monorepo; Operations planned; SmartGift instance and Workspace unresolved; not imported",
+  "version": "0.6.3b",
+  "status": "Strategy, Campaign, Content, Operations and approved FR-185 planning/read slices verified locally on the integrated monorepo; full Wave 1, SmartGift instance/Workspace and server import remain open",
   "projectCode": "PRJ-ZURI-MARKETING-IMPLEMENTATION",
   "initialPlannedProgressPercent": 5,
-  "progressMeaning": "Initial 5% is the design preparation snapshot. Campaign and Content bounded tasks are locally DONE with evidence; full Wave 1 remains open. Actual PM percentage is unverified because no server import occurred.",
+  "progressMeaning": "Initial 5% remains the design-preparation snapshot. Six plan items are DONE locally (including Operations); seven W1 items remain IN_PROGRESS and 34 are PLANNED. FR-185 is a bounded planning/read slice outside the original 47-item envelope. Actual PM percentage is unverified because no server import occurred.",
   "counts": {
     "workstreams": 5,
     "items": 47,
@@ -29,7 +29,7 @@
   },
   "localImplementation": {
     "slice": "FR-159 / FR-158 Strategy revision, decision and PM handoff",
-    "status": "first Strategy slice locally verified; broader tasks remain in progress",
+    "status": "Strategy/PM handoff, Campaign, Content and Operations are locally verified bounded slices; FR-185 is locally verified planning/read only; broader Wave 1 remains open",
     "baselineCommit": "5044ba25",
     "foundationCommit": "89147247",
     "parallelModel": "gpt-5.6-luna",
@@ -118,9 +118,19 @@
     "planValidation": "PASS: 47 tasks, 158 acyclic dependencies, 100 unique interface mappings"
   },
   "localTaskCounts": {
-    "DONE": 5,
+    "DONE": 6,
     "IN_PROGRESS": 7,
-    "PLANNED": 35
+    "PLANNED": 34
+  },
+  "broadcastImplementation": {
+    "requirement": "FR-185",
+    "status": "locally verified bounded planning/read slice",
+    "phaseReport": ".brain/reports/2026-09-11-marketing-p5-implementation.md",
+    "productionMigrationApplied": false,
+    "providerMetrics": "NOT_RUN",
+    "audienceResolution": "NOT_RUN",
+    "dispatch": "NOT_RUN",
+    "fullWave1Complete": false
   },
   "contentImplementation": {
     "requirement": "FR-157",
@@ -212,7 +222,7 @@
     "pageRoutes": 70,
     "apiPaths": 179,
     "apiOperations": 243,
-    "operationsTaskStatus": "PLANNED",
+    "operationsTaskStatus": "DONE (local)",
     "productionMigrationApplied": false,
     "serverPlanImported": false,
     "governance": {

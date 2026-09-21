@@ -20,6 +20,7 @@ export const PROCUREMENT_DOMAIN_KEY = 'procurement'
 export const SUPPLIER_ENTITY = 'SUPPLIER'
 export const PURCHASE_ORDER_ENTITY = 'PURCHASE_ORDER'
 export const GOODS_RECEIPT_ENTITY = 'GOODS_RECEIPT'
+export const SUPPLIER_COST_SHEET_ENTITY = 'SUPPLIER_COST_SHEET'
 export const PROCUREMENT_TIME_ZONE = 'Asia/Bangkok'
 export const PURCHASE_ORDER_OPEN_STATUSES = Object.freeze(['DRAFT', 'SENT'])
 /** The derived receipt state of a purchase order — computed on read, never a column. */
@@ -127,6 +128,93 @@ export const zPurchaseOrderListQuery = z.object({
   includeClosed: z.boolean().optional(),
   limit: z.number().int().positive().max(500).optional(),
 }).strict()
+
+// ── Supplier cost-sheet contracts ───────────────────────────────────────────
+
+const zPositiveNumber = z.number().finite().positive()
+const zOptionalPositiveNumber = zPositiveNumber.nullable().optional()
+const zOptionalNonNegativeInteger = z.number().int().nonnegative().max(3650).nullable().optional()
+const zCurrency = z.string().trim().toUpperCase().regex(/^[A-Z]{3}$/, 'currency must be a three-letter ISO code')
+const zSha256 = z.string().trim().toLowerCase().regex(/^[a-f0-9]{64}$/, 'sourceSha256 must be a SHA-256 hex digest')
+
+export const zSupplierCostLine = z.object({
+  sku: zText(100),
+  minQty: z.number().int().positive().max(1_000_000).default(1),
+  unitCostForeign: zPositiveNumber,
+  unitsPerCarton: z.number().int().positive().max(1_000_000).nullable().optional(),
+  cartonCbm: zOptionalPositiveNumber,
+  cartonKg: zOptionalPositiveNumber,
+  freightGoodsType: zOptionalText(100),
+  leadTimeDays: zOptionalNonNegativeInteger,
+}).strict()
+
+export const zSupplierCostSheetEnvelope = z.object({
+  businessId: zId,
+  supplierId: zId,
+  currency: zCurrency,
+  fxRateLocked: zPositiveNumber,
+  sourceRef: zOptionalText(1000),
+  sourceSha256: zSha256.optional(),
+  lines: z.array(zSupplierCostLine).min(1).max(5000),
+}).strict().superRefine((value, ctx) => {
+  const seen = new Set()
+  for (const [index, line] of value.lines.entries()) {
+    const key = line.sku + '\u0000' + line.minQty
+    if (seen.has(key)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['lines', index, 'minQty'], message: 'a SKU price break appears once per minimum quantity' })
+    seen.add(key)
+  }
+})
+
+export const zSupplierCostSheetMapping = z.object({
+  sourceSku: zText(100),
+  productId: zId,
+  confirmed: z.boolean().optional(),
+}).strict()
+
+export const zSupplierCostSheetCommit = z.object({
+  businessId: zId,
+  sheetId: zId.optional(),
+  sourceSha256: zSha256.optional(),
+  previewHash: zSha256.optional(),
+  mappings: z.array(zSupplierCostSheetMapping).max(5000).optional(),
+}).strict().superRefine((value, ctx) => {
+  if (!value.sheetId && !value.sourceSha256) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['sheetId'], message: 'sheetId or sourceSha256 is required' })
+  if (value.sheetId && value.sourceSha256) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['sourceSha256'], message: 'name either sheetId or sourceSha256, not both' })
+})
+
+function decimalFraction(value) {
+  const text = String(value).trim().toLowerCase()
+  const match = /^([+]?)(\d+)(?:\.(\d+))?(?:e([+-]?\d+))?$/.exec(text)
+  if (!match) throw new Error('cost and FX rate must be finite and non-negative')
+  const fraction = match[3] || ''
+  const exponent = Number(match[4] || 0)
+  const digits = BigInt(`${match[2]}${fraction}`)
+  const scale = fraction.length - exponent
+  return scale > 0
+    ? { numerator: digits, denominator: 10n ** BigInt(scale) }
+    : { numerator: digits * (10n ** BigInt(-scale)), denominator: 1n }
+}
+
+/** Locked foreign cost × locked FX, ceiled once to integer satang. */
+export function supplierCostSatang(unitCostForeign, fxRateLocked) {
+  const cost = Number(unitCostForeign)
+  const fx = Number(fxRateLocked)
+  if (!Number.isFinite(cost) || !Number.isFinite(fx) || cost < 0 || fx < 0) {
+    throw new Error('cost and FX rate must be finite and non-negative')
+  }
+  const costFraction = decimalFraction(cost)
+  const fxFraction = decimalFraction(fx)
+  const numerator = costFraction.numerator * fxFraction.numerator * 100n
+  const denominator = costFraction.denominator * fxFraction.denominator
+  const satang = (numerator + denominator - 1n) / denominator
+  const result = Number(satang)
+  if (!Number.isSafeInteger(result)) throw new Error('cost and FX rate exceed safe integer satang')
+  return result
+}
+
+export function supplierCostBaht(unitCostForeign, fxRateLocked) {
+  return supplierCostSatang(unitCostForeign, fxRateLocked) / 100
+}
 
 // ── Goods-receipt contracts ─────────────────────────────────────────────────
 

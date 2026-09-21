@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { resolve } from 'node:path';
 import {
   catalogRootHasCatalog,
+  createModelResidencyController,
   isModelResident,
   parseDesktopWorkerCommand,
   parseDesktopWorkerInit,
@@ -83,4 +84,36 @@ test('isModelResident treats a non-OK response or a throw as "not resident", nev
   assert.equal(notOk, false);
   const threw = await isModelResident('http://127.0.0.1:11434', 'qwen3.5:9b', async () => { throw new Error('ECONNREFUSED'); });
   assert.equal(threw, false);
+});
+
+test('residency controller waits for the directive, does not re-warm after close, and queues a close behind a warm', async () => {
+  const calls: string[] = [];
+  let resolveWarm!: () => void;
+  const warmFinished = new Promise<void>(resolve => { resolveWarm = resolve; });
+  const controller = createModelResidencyController({
+    warm: () => { calls.push('warm'); return warmFinished; },
+    release: async () => { calls.push('release'); },
+  });
+
+  // Before the first successful business-hours directive, a heartbeat probe cannot warm the model.
+  controller.retryWarmIfDesired();
+  await new Promise<void>(resolve => setImmediate(resolve));
+  assert.deepEqual(calls, []);
+
+  controller.request(true);
+  await new Promise<void>(resolve => setImmediate(resolve));
+  assert.deepEqual(calls, ['warm']);
+
+  // Closing while the warm is still running queues the release instead of dropping it.
+  controller.request(false);
+  assert.deepEqual(calls, ['warm']);
+  resolveWarm();
+  await new Promise<void>(resolve => setImmediate(resolve));
+  await new Promise<void>(resolve => setImmediate(resolve));
+  assert.deepEqual(calls, ['warm', 'release']);
+
+  // The heartbeat's cold-model probe cannot warm again while the last directive is false.
+  controller.retryWarmIfDesired();
+  await new Promise<void>(resolve => setImmediate(resolve));
+  assert.deepEqual(calls, ['warm', 'release']);
 });

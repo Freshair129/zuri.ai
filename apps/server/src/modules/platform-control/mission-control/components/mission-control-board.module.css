@@ -1,0 +1,400 @@
+/* @req FR-264 — Mission Control stays keyboard accessible and mobile-scannable
+   at 390x844 and 430x932; wide evidence tables scroll inside bounded regions.
+   @spec ADR-092 D3, NFR-008 */
+
+.root {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.readOnlyMark,
+.stateBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: var(--text-primary);
+  background: var(--bg-subtle);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.readOnlyMark {
+  color: var(--action-primary);
+  border-color: color-mix(in srgb, var(--action-primary) 45%, var(--border-default));
+}
+
+.stateBadge[data-state='LIVE'],
+.stateBadge[data-state='MERGE_SAFE'],
+.stateBadge[data-state='PASS'] {
+  color: var(--status-success);
+  background: var(--status-success-bg);
+  border-color: color-mix(in srgb, var(--status-success) 35%, var(--border-default));
+}
+
+.stateBadge[data-state='SNAPSHOT'],
+.stateBadge[data-state='CANDIDATE_PARALLEL'] {
+  color: var(--status-info);
+  background: var(--status-info-bg);
+}
+
+.stateBadge[data-state='BLOCKED'],
+.stateBadge[data-state='FAIL'],
+.stateBadge[data-state='NOT_SAFE'] {
+  color: var(--status-danger);
+  background: var(--status-danger-bg);
+}
+
+.stateBadge[data-state='NOT_RUN'],
+.stateBadge[data-state='UNKNOWN'] {
+  color: var(--text-secondary);
+  background: var(--bg-sunken);
+}
+
+.authorityBanner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-default);
+  border-left: 4px solid var(--action-primary);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.authorityBanner div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.authorityBanner b {
+  color: var(--text-primary);
+}
+
+.authorityBanner code {
+  color: var(--status-info);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.panelGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.porlCard,
+.blockerCard,
+.gatesCard,
+.wavesCard {
+  min-width: 0;
+}
+
+.gatesCard,
+.wavesCard {
+  margin-bottom: 16px;
+}
+
+.cardHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.cardHeading h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 2px;
+  color: var(--action-primary);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bodyCopy {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.muted,
+.cellNote,
+.summaryMeta,
+.sourceStamp {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.definitionList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.definitionList div {
+  min-width: 0;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 6px;
+}
+
+.definitionList dt {
+  color: var(--text-tertiary);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.definitionList dd {
+  margin: 2px 0 0;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.warning,
+.externalNote {
+  margin: 12px 0 0;
+  color: var(--status-warning);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.blockerList {
+  display: grid;
+  gap: 8px;
+}
+
+.blockerList details,
+.waveList details {
+  min-width: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+}
+
+.blockerList summary,
+.waveList summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.blockerList summary::-webkit-details-marker,
+.waveList summary::-webkit-details-marker {
+  display: none;
+}
+
+.blockerList details > p,
+.blockerList details > ul {
+  margin: 0 12px 10px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.blockerList ul {
+  padding-left: 18px;
+}
+
+.blockerList li + li {
+  margin-top: 6px;
+}
+
+.blockerList li code {
+  color: var(--status-info);
+}
+
+.tableViewport {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  color: var(--text-primary);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 9px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table thead th {
+  color: var(--text-tertiary);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table tbody th {
+  max-width: 320px;
+  font-weight: 600;
+}
+
+.table code {
+  color: var(--status-info);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.taskTitle {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.sourceStamp {
+  display: grid;
+  gap: 2px;
+  min-width: 130px;
+}
+
+.sourceStamp span:first-child {
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.gateTrace {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  min-width: 350px;
+}
+
+.gateItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 3px 5px;
+  background: var(--bg-sunken);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.gateItem b {
+  font-size: 9px;
+}
+
+.gateItem .stateBadge {
+  min-height: 18px;
+  padding: 1px 5px;
+  font-size: 9px;
+  line-height: 14px;
+}
+
+.traceArrow {
+  color: var(--text-tertiary);
+}
+
+.cellNote {
+  display: block;
+  max-width: 240px;
+  margin-top: 3px;
+}
+
+.waveList {
+  display: grid;
+  gap: 8px;
+}
+
+.waveList summary {
+  background: var(--bg-surface);
+}
+
+.waveList details[open] > summary {
+  border-bottom: 1px solid var(--border-default);
+}
+
+.summaryMeta {
+  margin-left: auto;
+  text-align: right;
+}
+
+.waveList .tableViewport {
+  padding: 0 8px 8px;
+  background: var(--bg-sunken);
+}
+
+@media (max-width: 920px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .panelGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .authorityBanner {
+    display: grid;
+    gap: 8px;
+  }
+
+  .kpiGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .definitionList {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cardHeading {
+    align-items: flex-start;
+  }
+
+  .summaryMeta {
+    max-width: 46%;
+  }
+}

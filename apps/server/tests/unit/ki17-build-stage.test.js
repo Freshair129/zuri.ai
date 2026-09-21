@@ -282,9 +282,29 @@ describe('the compose service', () => {
     // would make every `docker compose up -d --build web` fail without the three
     // pinned checkouts on disk.
     const web = compose.slice(compose.indexOf('  web:'), compose.indexOf('  # ADR-075 Phase 3 (P-4)'))
-    expect(web).toContain('target: runner')
+    // Selectable, but the default is still the context-free `runner`.
+    expect(web).toContain('target: ${ZURI_WEB_BUILD_TARGET:-runner}\n')
     expect(web).not.toContain('additional_contexts')
     expect(dockerfile).toContain('FROM base AS runner')
+  })
+
+  it('offers runner-ki17 for web only through an opt-in overlay that supplies every pinned context', () => {
+    // A knowledge host whose web image lacks /opt/ki17 keeps every Stage 9 batch
+    // PENDING while the healthcheck stays green, so that host needs a way to
+    // build runner-ki17 from compose. It must be opt-in (the test above) and
+    // must pass all three contexts: ki17-pins verifies msp, gks AND genesisblock.
+    const overlay = read('docker-compose.ki17-web.yml')
+    expect(overlay).toContain('target: ${ZURI_WEB_BUILD_TARGET:-runner-ki17}')
+    const worker = compose.slice(compose.indexOf('  genesis-worker:'), compose.indexOf('  ngrok:'))
+    for (const name of ['msp', 'gks', 'genesisblock']) {
+      const line = new RegExp(`\\n\\s+${name}: (\\$\\{KI17_[A-Z]+_CONTEXT:-[^}]+\\})`)
+      const inOverlay = line.exec(overlay)?.[1]
+      expect(inOverlay, `${name} context in the overlay`).toBeTruthy()
+      // Same variable and default as the genesis-worker build, so one setting moves both.
+      expect(inOverlay).toBe(line.exec(worker)?.[1])
+    }
+    expect(dockerfileStage(dockerfile, 'runner-ki17')).toBeTruthy()
+    expect(overlay).not.toMatch(/^\s+(image|environment|volumes|env_file):/m)
   })
 })
 

@@ -90,7 +90,7 @@ export async function sweepLineTransportHealth({
 } = {}) {
   const accounts = await db.lineOaAccount.findMany({
     where: { serverEnabled: true, status: 'CONNECTED', archivedAt: null },
-    select: { id: true, businessId: true, status: true, serverEnabled: true, archivedAt: true, createdAt: true, updatedAt: true },
+    select: { id: true, businessId: true, integrationConnectionId: true, status: true, serverEnabled: true, archivedAt: true, createdAt: true, updatedAt: true },
   })
   let warned = 0
   for (const account of accounts) {

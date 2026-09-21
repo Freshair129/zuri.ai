@@ -135,7 +135,7 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onNavigate("edge-connection")}
+              onClick={() => onNavigate("connections")}
               className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-all flex items-center gap-2"
             >
               <span>⚙️ ตั้งค่า Server & Edge</span>
@@ -269,10 +269,10 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
             <Radio className="w-8 h-8 text-slate-400 mx-auto" />
             <h3 className="font-bold text-slate-900 dark:text-white text-sm">ยังไม่มีบัญชี LINE OA หรือกลุ่มแชทใน Business นี้</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              เริ่มต้นโดยการเชื่อมต่อบัญชี LINE OA ใหม่ในแท็บ Edge & การเชื่อมต่อ หรือลงทะเบียนกลุ่มแชท
+              เริ่มต้นโดยการเชื่อมต่อบัญชี LINE OA ใหม่ในแท็บ การเชื่อมต่อ & API key หรือลงทะเบียนกลุ่มแชท
             </p>
             <button
-              onClick={() => onNavigate("edge-connection")}
+              onClick={() => onNavigate("connections")}
               className="px-4 py-2 rounded-xl bg-brand-amber text-white text-xs font-semibold hover:bg-brand-hover transition-all"
             >
               เชื่อมบัญชี LINE OA

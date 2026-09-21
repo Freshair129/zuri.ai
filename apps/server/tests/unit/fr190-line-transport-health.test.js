@@ -199,6 +199,33 @@ describe('readLineTransportHealth', () => {
 })
 
 describe('sweepLineTransportHealth', () => {
+  it('keeps the silence query scoped to each account connection', async () => {
+    const base = fakeDb()
+    const accounts = [
+      { ...base.row, id: 'acc-a', integrationConnectionId: 'conn-a' },
+      { ...base.row, id: 'acc-b', integrationConnectionId: 'conn-b' },
+    ]
+    base.lineOaAccount.findMany = vi.fn(async () => accounts)
+    base.rawExternalRecord.aggregate = vi.fn(async ({ where }) => ({
+      _max: { receivedAt: where.connectionId === 'conn-a' ? hoursAgo(1) : hoursAgo(30) },
+    }))
+
+    await sweepLineTransportHealth({
+      db: base,
+      env: ENV,
+      now: NOW,
+      cache: new Map(),
+      fetchImpl: fakeFetch({ endpoint: OURS, active: true }),
+      log: () => {},
+    })
+
+    expect(base.lineOaAccount.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      select: expect.objectContaining({ integrationConnectionId: true }),
+    }))
+    expect(base.rawExternalRecord.aggregate.mock.calls.map(([args]) => args.where.connectionId))
+      .toEqual(['conn-a', 'conn-b'])
+  })
+
   it('logs one warning line per account that is not OK, and nothing for a healthy one', async () => {
     const db = fakeDb({ lastInboundAt: hoursAgo(30) })
     const lines = []

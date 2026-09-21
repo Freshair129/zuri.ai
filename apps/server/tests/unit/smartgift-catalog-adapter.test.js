@@ -107,6 +107,25 @@ describe('SmartGift catalog adapter', () => {
     expect(product.externalId).toBe('PM-TMB')
   })
 
+  it('admits a bundle carrying an unboxing narrative and keeps it on the record', () => {
+    const rows = JSON.parse(read('bundles.json'))
+    rows[0] = { ...rows[0], unboxingExperience: 'Pastel tones, packed in a premium lift-off box' }
+    const result = splitSmartGiftCatalogRecords({
+      content: JSON.stringify(rows),
+      fileAssetId: 'file-smartgift-1',
+      fileSha256: 'd'.repeat(64),
+      fileName: 'bundles.json',
+    })
+    expect(result.denied).toEqual([])
+    expect(result.records[0].record.unboxingExperience).toBe('Pastel tones, packed in a premium lift-off box')
+  })
+
+  it('still refuses an unknown bundle field, so the new one is an explicit addition', () => {
+    const rows = JSON.parse(read('bundles.json'))
+    rows[0] = { ...rows[0], unboxingNarrative: 'wrong key' }
+    expect(() => parseSmartGiftCatalogFile(JSON.stringify(rows))).toThrow()
+  })
+
   it('denies a customer-shaped record per record, leaving its siblings admissible', () => {
     const rows = JSON.parse(read('products.json'))
     rows[1] = { ...rows[1], provenance: { ...rows[1].provenance, upstreamFile: 'data-pipeline/01_raw/05_crm_customer_data/export.json' } }

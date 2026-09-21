@@ -18,6 +18,12 @@ module.exports = function globalSetup() {
   const repositoryRoot = path.resolve(__dirname, '..', '..')
   const target = e2eTarget({ root: repositoryRoot })
 
+  // CI starts the production server before Playwright so the runner does not
+  // own the Windows process tree. That server must keep the database it was
+  // started against; the workflow runs this same setup once before launching
+  // it, and the test process only verifies the already-seeded authority.
+  if (process.env.E2E_EXTERNAL_SERVER === 'true') return
+
   // Only this run's own database, so a sibling worktree's e2e run is untouched.
   for (const file of [target.databasePath, `${target.databasePath}-journal`]) {
     if (existsSync(file)) rmSync(file)
@@ -31,6 +37,10 @@ module.exports = function globalSetup() {
     ZURI_SEED_OWNER_PASSWORD: E2E_PASSWORD,
     RUST_LOG: /(?:trace|debug|info)/.test(inheritedRustLog) ? process.env.RUST_LOG : 'info',
   }
-  execSync('npx prisma db push --skip-generate', { cwd: repositoryRoot, env, stdio: 'inherit' })
+  // Generate the client for this checkout. A relative SQLite datasource is
+  // resolved from the schema directory baked into the generated client, so
+  // skipping generation can make a shared node_modules client open a sibling
+  // worktree's empty database.
+  execSync('npx prisma db push', { cwd: repositoryRoot, env, stdio: 'inherit' })
   execSync('node prisma/seed.js', { cwd: repositoryRoot, env, stdio: 'inherit' })
 }

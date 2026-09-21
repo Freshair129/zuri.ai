@@ -12,7 +12,7 @@ import { SESSION_CODE_PATTERN } from '@/modules/line-oa-studio/application/line-
 // @tested tests/unit/conversation-session-ui.test.js
 
 const inboxPage = () => readFileSync('src/app/(pm)/customer/conversations/page.jsx', 'utf8')
-const studio = () => readFileSync('src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx', 'utf8')
+const studio = () => readFileSync('src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx', 'utf8')
 
 describe('inbox session divider', () => {
   it('opens a divider only when a message has a session different from the one before it', () => {

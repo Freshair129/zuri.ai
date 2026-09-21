@@ -30,8 +30,10 @@ describe('Playwright database bootstrap', () => {
     expect(setup).not.toMatch(/DATABASE_URL:\s*'file:/)
 
     expect(config).toContain("globalSetup: './tests/e2e/global-setup.js'")
-    // A run owns its server; reusing someone else's means testing their data.
-    expect(config).toContain('reuseExistingServer: false')
+    // Local runs own their server; CI starts the production server explicitly
+    // so Playwright cannot hang while force-killing it on Windows.
+    expect(config).toContain('reuseExistingServer: useProductionServer')
+    expect(setup).toContain("process.env.E2E_EXTERNAL_SERVER === 'true'")
   })
 
   it('isolates the e2e database from the dev and unit-test ones', () => {
@@ -41,7 +43,8 @@ describe('Playwright database bootstrap', () => {
     const setup = read('tests/e2e/global-setup.js')
     expect(setup).not.toMatch(/dev\.db|test\.db/)
     // Deleting before the push is what makes the seed idempotent from a clean slate.
-    expect(setup).toContain('npx prisma db push --skip-generate')
+    expect(setup).toContain('npx prisma db push')
+    expect(setup).not.toContain('--skip-generate')
     expect(setup).toContain('node prisma/seed.js')
   })
 

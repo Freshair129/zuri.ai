@@ -55,6 +55,26 @@ describe('FR-095 persisted IAM sessions', () => {
     expect(JSON.stringify(session.mock.calls)).not.toContain(result.token)
   })
 
+  it('refuses to mint a production session when the persistence store is unavailable', async () => {
+    const db = {
+      person: {
+        findFirst: vi.fn().mockResolvedValue({
+          id: 'person-1',
+          code: 'PER-001',
+          displayName: 'Owner',
+          credential: { passwordHash: hashPassword('correct horse battery staple') },
+        }),
+      },
+    }
+
+    await expect(authenticateUser({
+      username: 'PER-001',
+      password: 'correct horse battery staple',
+      db,
+      env: { NODE_ENV: 'production', ZURI_SESSION_SECRET: secret },
+    })).rejects.toThrow('SESSION_STORE_UNAVAILABLE')
+  })
+
   it('revokes a current token only when its live row and hash match', async () => {
     const token = generateSessionToken('person-1', { secret, sessionId: 'session-1' })
     const updateMany = vi.fn().mockResolvedValue({ count: 1 })
@@ -73,6 +93,15 @@ describe('FR-095 persisted IAM sessions', () => {
       }),
       data: expect.objectContaining({ status: 'REVOKED', version: { increment: 1 } }),
     }))
+  })
+
+  it('does not report production logout success without a revocation store', async () => {
+    const token = generateSessionToken('person-1', { secret, sessionId: 'session-1' })
+
+    await expect(revokeSessionToken(token, {
+      db: { session: {} },
+      env: { NODE_ENV: 'production', ZURI_SESSION_SECRET: secret },
+    })).rejects.toThrow('SESSION_STORE_UNAVAILABLE')
   })
 
   it('revalidates the persisted row on every protected request', async () => {
@@ -122,5 +151,12 @@ describe('FR-095 persisted IAM sessions', () => {
       where: { personId: 'person-1', status: 'ACTIVE' },
       data: expect.objectContaining({ status: 'REVOKED', version: { increment: 1 } }),
     }))
+  })
+
+  it('does not silently skip production logout-all without a revocation store', async () => {
+    await expect(revokeAllSessions('person-1', {
+      db: { session: {} },
+      env: { NODE_ENV: 'production' },
+    })).rejects.toThrow('SESSION_STORE_UNAVAILABLE')
   })
 })

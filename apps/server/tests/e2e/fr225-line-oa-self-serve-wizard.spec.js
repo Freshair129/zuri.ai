@@ -31,7 +31,7 @@ test('the wizard has no deployment-secret field, and a Person with no MFA factor
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/overview/)
-  await page.goto('/line-oa?tab=edge-connection')
+  await page.goto('/line-oa?tab=connections')
   await expect(page.getByRole('heading', { name: 'เชื่อมต่อ LINE Official Account' })).toBeVisible()
 
   // FR-225 exit criterion: the Studio form no longer accepts a deployment-secret reference.

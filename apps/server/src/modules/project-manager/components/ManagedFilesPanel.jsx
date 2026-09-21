@@ -49,7 +49,7 @@ function knowledgeAsset(asset) {
 // fetch instead of changing every existing caller.
 function useScopedKnowledgeFetch(businessId, projectId) {
   const path = businessId
-    ? `/api/knowledge/ingestions?businessId=${encodeURIComponent(businessId)}${projectId ? `&projectId=${encodeURIComponent(projectId)}` : ''}`
+    ? `/api/knowledge/ingestions?businessId=${encodeURIComponent(businessId)}${projectId ? `&projectId=${encodeURIComponent(projectId)}` : ''}&limit=${KNOWLEDGE_LIST_LIMIT}`
     : null
   const scopeKey = `${businessId || ''}:${projectId || ''}`
   const sequence = useRef(0)
@@ -132,8 +132,23 @@ function TextKnowledgeModal({ businessId, projectId, onSaved, onClose }) {
   )
 }
 
+// The admission API's own maximum; the table pages through what it returns.
+const KNOWLEDGE_LIST_LIMIT = 100
+const KNOWLEDGE_PAGE_SIZE = 10
+
+function shortTime(value) {
+  if (!value) return '—'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })
+}
+
 function KnowledgeJobs({ data, onReload, onMessage }) {
   const items = data?.items || []
+  const [page, setPage] = useState(0)
+  const pageCount = Math.max(1, Math.ceil(items.length / KNOWLEDGE_PAGE_SIZE))
+  // A reload can shrink the list; never leave the view on a page that no longer exists.
+  const current = Math.min(page, pageCount - 1)
+  const visible = items.slice(current * KNOWLEDGE_PAGE_SIZE, (current + 1) * KNOWLEDGE_PAGE_SIZE)
   const pending = items.some((item) => ['QUEUED', 'RUNNING'].includes(item.status))
   useEffect(() => {
     if (!pending) return undefined
@@ -160,15 +175,38 @@ function KnowledgeJobs({ data, onReload, onMessage }) {
     if (item.status === 'WITHDRAWN') return 'Withdrawn'
     return 'Status updated'
   }
-  return <Card className="mb-4" data-testid="knowledge-admissions">
+  return <Card className="mt-4" data-testid="knowledge-admissions">
     <div className="mb-2 flex items-center justify-between gap-2"><SectionTitle>Knowledge admissions</SectionTitle><button className="btn px-2" type="button" onClick={onReload} aria-label="Refresh knowledge admissions"><RefreshCw size={13} /></button></div>
-    <div className="space-y-2">
-      {items.map((item) => <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border)] pb-2 last:border-b-0 last:pb-0" data-testid={`knowledge-status-${item.id}`} key={item.id}>
-        <StatusPill status={item.status} />
-        <span className="min-w-0 flex-1 truncate text-xs">{item.source?.title || item.sourceVersion}</span>
-        <span className="text-[10px] text-muted">rev {item.revision} · {statusDetail(item)}</span>
-        {item.source?.id && !item.source.revoked && <button className="btn px-2 text-[10px]" data-testid={`knowledge-withdraw-${item.source.id}`} type="button" onClick={() => withdraw(item)}>Withdraw</button>}
-      </div>)}
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[40rem] text-left text-xs" data-testid="knowledge-admissions-table">
+        <thead>
+          <tr className="border-b border-[var(--border)] text-[10px] uppercase text-muted">
+            <th className="py-2 pr-2 font-semibold">Status</th>
+            <th className="py-2 pr-2 font-semibold">Source</th>
+            <th className="py-2 pr-2 font-semibold">Rev</th>
+            <th className="py-2 pr-2 font-semibold">Detail</th>
+            <th className="py-2 pr-2 font-semibold">Updated</th>
+            <th className="py-2 font-semibold"><span className="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {visible.map((item) => <tr className="border-b border-[var(--border)] last:border-b-0" data-testid={`knowledge-status-${item.id}`} key={item.id}>
+            <td className="py-2 pr-2"><StatusPill status={item.status} /></td>
+            <td className="max-w-[18rem] truncate py-2 pr-2" title={item.source?.title || item.sourceVersion}>{item.source?.title || item.sourceVersion}</td>
+            <td className="py-2 pr-2 text-muted">{item.revision}</td>
+            <td className="py-2 pr-2 text-muted">{statusDetail(item)}{item.failureCode ? ` · ${item.failureCode}` : ''}</td>
+            <td className="whitespace-nowrap py-2 pr-2 text-muted">{shortTime(item.updatedAt || item.createdAt)}</td>
+            <td className="py-2 text-right">{item.source?.id && !item.source.revoked && <button className="btn px-2 text-[10px]" data-testid={`knowledge-withdraw-${item.source.id}`} type="button" onClick={() => withdraw(item)}>Withdraw</button>}</td>
+          </tr>)}
+        </tbody>
+      </table>
+    </div>
+    <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-muted" data-testid="knowledge-admissions-pager">
+      <span>{items.length} รายการ · หน้า {current + 1}/{pageCount}</span>
+      <div className="flex gap-2">
+        <button className="btn px-2 text-[11px]" type="button" onClick={() => setPage(current - 1)} disabled={current === 0} aria-label="Previous page of knowledge admissions">ก่อนหน้า</button>
+        <button className="btn px-2 text-[11px]" type="button" onClick={() => setPage(current + 1)} disabled={current >= pageCount - 1} aria-label="Next page of knowledge admissions">ถัดไป</button>
+      </div>
     </div>
   </Card>
 }
@@ -300,9 +338,7 @@ function ManagedFilesPanelBody({ businessId, projectId = null, businessTools = f
       </>}
     </div>
     {message && <pre className="card mb-4 overflow-auto text-[10px]">{message}</pre>}
-    {knowledge.error && <ErrorState title="Could not load knowledge admissions" detail={knowledge.error} retry={reloadKnowledge} />}
-    {!knowledge.loading && !knowledge.error && <KnowledgeJobs key={`${businessId}:${projectId || ''}`} data={knowledge.data} onReload={reloadKnowledge} onMessage={setMessage} />}
-    <KnowledgeQuery key={`${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onMessage={setMessage} />
+    <KnowledgeQuery key={`query:${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onMessage={setMessage} />
     {!assets.length ? <EmptyState title="No managed files" hint="Add a Business or Project file. Local content requires a configured device mount." /> : <FileManagerViews
       view={view}
       onViewChange={setView}
@@ -320,8 +356,10 @@ function ManagedFilesPanelBody({ businessId, projectId = null, businessTools = f
         </div>
       </Card>}
     />}
+    {knowledge.error && <ErrorState title="Could not load knowledge admissions" detail={knowledge.error} retry={reloadKnowledge} />}
+    {!knowledge.loading && !knowledge.error && <KnowledgeJobs key={`jobs:${businessId}:${projectId || ''}`} data={knowledge.data} onReload={reloadKnowledge} onMessage={setMessage} />}
     {adding && <AddManagedFile businessId={businessId} projectId={projectId} mounts={activeMounts} onSaved={files.reload} onClose={() => setAdding(false)} />}
-    {textAdding && <TextKnowledgeModal key={`${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onSaved={reloadKnowledge} onClose={() => setTextAdding(false)} />}
+    {textAdding && <TextKnowledgeModal key={`text:${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onSaved={reloadKnowledge} onClose={() => setTextAdding(false)} />}
   </>
 }
 

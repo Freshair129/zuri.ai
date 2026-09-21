@@ -1,0 +1,51 @@
+{
+  "schema": "zuri.task-evidence.v1",
+  "task": "TASK-ZAI-119",
+  "evidence": "responsive-mobile-targeted-playwright",
+  "sourceCommit": "892712583178dd05af3413c616c38843f484dfa9",
+  "runner": "Playwright 1.49.1 / Chromium chromium-1148",
+  "command": "playwright test tests/e2e/fr260-mission-control.spec.js --project=e2e --no-deps --retries=1 --reporter=json",
+  "result": "passed",
+  "testsExpected": 1,
+  "testsPassed": 1,
+  "testsUnexpected": 0,
+  "testsSkipped": 0,
+  "durationMs": 32787,
+  "retriesConfigured": 1,
+  "retryObserved": 0,
+  "flaky": 0,
+  "viewports": [
+    "390x844",
+    "430x932"
+  ],
+  "checks": [
+    "operator-only forbidden response",
+    "Mission Control visible",
+    "PORL UNKNOWN and NOT RUN",
+    "blocker projection",
+    "candidate-parallel gate",
+    "read-only control count",
+    "document width bounded",
+    "keyboard focus"
+  ],
+  "isolatedTarget": {
+    "port": 3198,
+    "scope": "recovery-worktree",
+    "database": "e2e-3198.db"
+  },
+  "artifacts": [
+    {
+      "sha256": "37AA570A073FD3BACD760B56F59B5B3A71CD31AADBA6254E0D5CBC4E479CE34A",
+      "name": "task-zai-119-responsive-390x844.png",
+      "path": ".brain/reports/task-zai-119-responsive-390x844.png"
+    }
+  ],
+  "porl": "UNKNOWN/NOT_RUN; no PORL data created",
+  "production": "NOT_RUN; no deployment or activation",
+  "notes": [
+    "Suite warmup was interrupted before assertions; targeted run used --no-deps without changing the test or config.",
+    "The installed Playwright CLI does not support --fail-on-flaky; retry/flaky fields were inspected directly from the JSON result.",
+    "Raw Playwright reports were removed because the JSON reporter embeds test-only environment secrets; this sanitized receipt contains no secrets."
+  ],
+  "recordedAt": "2026-09-20T10:15:05.8027271Z"
+}

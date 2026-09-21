@@ -305,19 +305,61 @@ export const INTEGRATION_CREDENTIAL_VERSION_STATUSES = ['PENDING_VALIDATION', 'A
 export const INTEGRATION_CREDENTIAL_PURGEABLE_VERSION_STATUSES = INTEGRATION_CREDENTIAL_VERSION_STATUSES.filter(status => status !== 'PURGED')
 export const INTEGRATION_CREDENTIAL_CREATED_VIA = ['BROWSER_MFA', 'OPERATOR_CLI', 'BACKFILL']
 
+// @req FR-266 — the model provider key a Business owner enters in the browser
+// (ADR-100 D4). The connection `purpose` that carries it, and the provider codes
+// a key may be entered for. `ollama` is deliberately absent: it takes no key, and
+// `model-provider.js` already refuses it outside a local runtime source — a form
+// that offered it would be offering a field the adapter forbids.
+export const MODEL_PROVIDER_PURPOSE = 'MODEL_PROVIDER'
+// `prp` is the operator's own Private Runtime Platform (ADR-100 D7, the first step
+// of ADR-099). Cited in prose, not by requirement id: this is the app-wide enum
+// source, and an id here would make every test that imports it — plan schemas,
+// procurement, everything — count as evidence for the private runtime. Unlike the
+// four public providers it has no fixed
+// address: its base URL is operator configuration on the server, so the code is
+// only *offered* where that configuration exists (`readModelProviderStatus`) and
+// is refused, not guessed, where it does not.
+export const PRIVATE_RUNTIME_PROVIDER = 'prp'
+export const MODEL_PROVIDER_CODES = ['anthropic', 'openai', 'gemini', 'groq', PRIVATE_RUNTIME_PROVIDER]
+// The model id is entered by the owner, not defaulted by the server. A server-side
+// default would be a guess that silently decides what the Business pays per token
+// and how good its answers are, and it would rot the moment a provider renames a
+// model. These are the suggestions the form pre-fills — visible, editable, and
+// wrong in an obvious way rather than a hidden one. `prp` has no entry here: its
+// model aliases belong to the operator's deployment, so its suggestion comes from
+// the server's own configuration at read time, never from this constant.
+export const MODEL_PROVIDER_SUGGESTED_MODELS = Object.freeze({
+  anthropic: 'claude-sonnet-5',
+  openai: 'gpt-4o-mini',
+  gemini: 'gemini-2.0-flash',
+  groq: 'llama-3.3-70b-versatile',
+})
+// A model id is an opaque provider string: bounded and printable, never parsed.
+export const MODEL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:\/-]{0,120}$/
+
 // @req FR-146 — LINE OA Studio account vocabulary (ADR-060 D2/D5). `LIVE` is
 // derived, never stored: the stored machine is DRAFT → CONNECTED → PAUSED |
 // ARCHIVED, and an account reads LIVE only while the agent lane reports an
-// ACTIVE binding for it. `transportMode` names who owns the account's LINE
-// transport — the tenant's Zuri Edge Device or the cloud.
+// ACTIVE binding for it.
+// @req FR-265 — `transportMode` named who owns the account's LINE transport, the
+// tenant's Zuri Edge Device or the cloud. ADR-100 D1 retires the first: the cloud
+// owns it, so the list has one member and the account column is pinned to it. The
+// list is kept as a list rather than collapsed to a constant because
+// `LineConversationJob.executionMode` still reads `EDGE` rows as history, and a
+// vocabulary that once had two members is more honest about that than a boolean.
 export const LINE_OA_ACCOUNT_STATUSES = ['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIVED']
 export const LINE_OA_ACCOUNT_EFFECTIVE_STATUSES = [...LINE_OA_ACCOUNT_STATUSES, 'LIVE']
-export const LINE_OA_TRANSPORT_MODES = ['EDGE', 'CLOUD']
+export const LINE_OA_TRANSPORT_MODES = ['CLOUD']
 // @req FR-227 — REGISTER_WEBHOOK sets, reads back and tests the account's LINE
 // webhook endpoint, storing the outcome as computed health (`webhookStateJson`).
 // It never fences transport work: it changes no credential, no transport owner
 // and no execution policy — only which health the account reports.
-export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'SWITCH_TRANSPORT_MODE', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER', 'CONFIGURE_KNOWLEDGE_GROUNDING', 'REGISTER_WEBHOOK', 'CONFIGURE_SESSION_TIMEOUT', 'CONFIGURE_BUSINESS_HOURS']
+// @req FR-265 — `SWITCH_TRANSPORT_MODE` is withdrawn (ADR-100 D1): there is one
+// transport owner, so there is nothing to switch between. `CONFIGURE_EXECUTION`
+// keeps its name and its audit action string although it now carries only
+// `allowDelayedPush` — the string is a key that history already wrote, and
+// renaming it would orphan every event recorded under it (AGENTS.md §18).
+export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER', 'CONFIGURE_KNOWLEDGE_GROUNDING', 'REGISTER_WEBHOOK', 'CONFIGURE_SESSION_TIMEOUT', 'CONFIGURE_BUSINESS_HOURS']
 // @req FR-235 — per-account grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE is
 // the default and every existing account's unchanged behaviour; GKS_CORPUS and
 // GKS_THEN_BUSINESS_KNOWLEDGE read the Business's published corpus generation
@@ -401,7 +443,7 @@ export const INVENTORY_CATALOG_INTAKE_DECISIONS = ['CREATE', 'MATCH', 'UNCHANGED
 // FR-206 — the kinds of finding the catalogue hygiene report can raise.
 export const INVENTORY_HYGIENE_FINDING_KINDS = [
   'NATURE_MISMATCH', 'LOOKALIKE_SKUS', 'MASTER_WITHOUT_AXES', 'MASTER_WITHOUT_SKUS',
-  'DORMANT_SKU', 'SKU_WITHOUT_IDENTIFIER', 'SERVICE_WITH_STOCK_FIELDS', 'PHASE_OUT_WITH_STOCK',
+  'DORMANT_SKU', 'SKU_WITHOUT_IDENTIFIER', 'SERVICE_WITH_STOCK_FIELDS', 'PHASE_OUT_WITH_STOCK', 'CARTON_DATA_MISSING',
 ]
 export const INVENTORY_LOT_STATUSES = ['OPEN', 'QUARANTINE', 'CLOSED']
 export const INVENTORY_SERIAL_STATUSES = ['IN_STOCK', 'RESERVED', 'ISSUED', 'RETURNED', 'SCRAPPED']
@@ -554,6 +596,8 @@ export const zAssetResponsibilityRole = z.enum(ASSET_RESPONSIBILITY_ROLES)
 export const zAssetDepreciationMethod = z.enum(ASSET_DEPRECIATION_METHODS)
 export const zLineOaAccountStatus = z.enum(LINE_OA_ACCOUNT_STATUSES)
 export const zLineOaTransportMode = z.enum(LINE_OA_TRANSPORT_MODES)
+// @req FR-266 — the provider a browser-entered model key belongs to (ADR-100 D4).
+export const zModelProviderCode = z.enum(MODEL_PROVIDER_CODES)
 export const zLineOaAccountAction = z.enum(LINE_OA_ACCOUNT_ACTIONS)
 export const zKnowledgeGroundingMode = z.enum(KNOWLEDGE_GROUNDING_MODES)
 export const zLineOaRichMenuLayout = z.enum(LINE_OA_RICH_MENU_LAYOUTS)

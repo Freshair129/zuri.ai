@@ -104,7 +104,6 @@ chain คือเส้นทางจากต้นทางภายนอ�
 
 | Chain | ชื่อ | รวมอะไรก่อนส่ง |
 |---|---|---|
-| CH-01 | LINE turn — ตอบบน Edge Device | event จาก webhook + CRM inbound → งานที่ device claim → คำตอบ → reply ไป LINE |
 | CH-02 | LINE turn — ตอบบน server | ประวัติ CRM + business knowledge + ATP/ต้นทุน (FR-181) + policy → model → คำตอบที่ตรวจแล้ว → LINE |
 | CH-03 | Business knowledge → คำตอบใน LINE | export ของ SmartGift → business_knowledge rows → evidence ของรอบสนทนา → LINE |
 | CH-04 | Knowledge 17 stage → MSP / GKS / GenesisBlockDB | เอกสาร / catalog projection → Tier 1 Stage 1–8 → batch ไป MSP |
@@ -126,7 +125,7 @@ chain คือเส้นทางจากต้นทางภายนอ�
 | CH-20 | ประวัติลูกค้าจาก SmartGift → บริบทของรอบสนทนา | backfill → CRM → evidence ของ agent → LINE |
 | CH-21 | LINE turn — grounded ด้วย corpus ที่ publish แล้ว | คำถาม + snapshot ที่ publish (citation) → evidence packet → model → คำตอบที่ตรวจแล้ว → LINE; business_knowledge เป็น fallback ที่บันทึกใน trace (ADR-090, declared) |
 | CH-22 | FAQ candidate จาก LINE → review → 17 stage → corpus | บทสนทนาที่มี consent → Q/A แบบ locator-only → OWNER / LINE_OA_PUBLISHER อนุมัติ (audited) → Text admission → Stage 1–17 → corpus manifest (ADR-090 D6, FR-236 built) |
-| CH-23 | LINE local v2 — MemoryOS → CIN → model | scoped memory + pinned knowledge + current records → bounded CIN → local model → execution receipt; local integration only, live LINE qualification pending |
+| CH-23 | LINE v2 — MemoryOS → CIN → model (server) | scoped memory + pinned knowledge + current records → bounded CIN → model ที่ server เรียกด้วย API key ของธุรกิจ → execution receipt; live LINE qualification pending |
 
 ## 6. แก้ map เมื่อไหร่
 
@@ -168,10 +167,10 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "in.edge-heartbeat", "kind": "ENTRY", "system": "zuri-ai", "domain": "agent", "label": "Edge heartbeat และ pairing",
       "requirements": ["FR-141", "FR-144"], "decisions": ["ADR-041"],
       "surfaces": [{ "type": "ENDPOINT", "ref": "/api/agent/heartbeat" }, { "type": "ENDPOINT", "ref": "/api/edge/pairing/start" }, { "type": "UI", "ref": "/edge/pair" }] },
-    { "id": "in.edge-conversation", "kind": "ENTRY", "system": "zuri-ai", "domain": "line-oa-studio", "label": "Edge conversation jobs (claim · complete)",
-      "requirements": ["FR-150"], "decisions": ["ADR-061"],
-      "surfaces": [{ "type": "ENDPOINT", "ref": "/api/edge/conversation-jobs/claim" }, { "type": "ENDPOINT", "ref": "/api/edge/conversation-jobs/[id]/complete" }],
-      "production": { "evidence": ".brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md, 'Verified end to end, 2026-09-12': edge worker claim 200 (a job, not an empty 204) and complete 200" } },
+    { "id": "in.model-provider-key", "kind": "ENTRY", "system": "zuri-ai", "domain": "integration", "label": "Model provider API key (browser, write-only)",
+      "requirements": ["FR-266"], "decisions": ["ADR-100", "ADR-089"],
+      "surfaces": [{ "type": "ENDPOINT", "ref": "/api/integration/model-providers" }, { "type": "UI", "ref": "/line-oa" }],
+      "production": { "evidence": "none: FR-266 is built on a branch and not deployed. The entry that stood here, in.edge-conversation, is withdrawn by FR-265 / ADR-100 D2 together with its two endpoints; its 2026-09-12 production evidence stays readable in the RCA it cited." } },
     { "id": "in.edge-extraction", "kind": "ENTRY", "system": "zuri-ai", "domain": "asset-management", "label": "Edge extraction jobs (claim · evidence · complete)",
       "requirements": ["FR-143"], "decisions": ["ADR-059"],
       "surfaces": [{ "type": "ENDPOINT", "ref": "/api/edge/extraction-jobs/claim" }, { "type": "ENDPOINT", "ref": "/api/edge/extraction-jobs/[id]/evidence" }, { "type": "ENDPOINT", "ref": "/api/edge/extraction-jobs/[id]/complete" }] },
@@ -255,15 +254,15 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "production": { "evidence": ".brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md, 'Verified end to end, 2026-09-12': line-worker returned to IDLE with nothing pending; line-worker ticks 200 IDLE after the 2026-09-13 deploy of release-eb1fcfa8" } },
     { "id": "p.msp-context", "kind": "PROCESS", "system": "zuri-ai", "domain": "agent", "label": "MemoryOS authorization + ephemeral context", "detail": "Server resolves thread/identity/consent; revalidates recall and erase/relink before each model call",
       "requirements": ["FR-232", "FR-234"], "decisions": ["ADR-091"],
-      "surfaces": [{ "type": "FILE", "ref": "apps/server/src/modules/agent/edge-line-memory-context.js" }, { "type": "ENDPOINT", "ref": "/api/edge/conversation-jobs/[id]/context" }] },
+      "surfaces": [{ "type": "FILE", "ref": "apps/server/src/modules/agent/server-line-answer.js" }, { "type": "FILE", "ref": "apps/server/src/modules/agent/msp-thread-memory-port.js" }] },
     { "id": "p.cin", "kind": "PROCESS", "system": "edge", "domain": "agent", "label": "CIN — Context Injection Node", "detail": "records > published citations > authorized memory; bounded context and content-free receipt for each local model invocation",
       "requirements": ["FR-234"], "decisions": ["ADR-091"],
       "surfaces": [{ "type": "FILE", "ref": "apps/edge/src/answer/context-injection.ts" }, { "type": "FILE", "ref": "apps/server/src/modules/agent/context-composer.js" }] },
     { "id": "p.agent-turn", "kind": "PROCESS", "system": "zuri-ai", "domain": "agent", "label": "Agent turn (server)", "detail": "ประกอบบริบท: identity · CRM history · business knowledge · SmartGift tools · policy → model → verified reply · execution trace",
       "requirements": ["FR-171", "FR-098", "FR-181"], "decisions": ["ADR-070"],
       "surfaces": [{ "type": "FILE", "ref": "apps/server/src/modules/agent/turn.js" }, { "type": "ENDPOINT", "ref": "/api/line-oa/jobs/[id]/trace" }] },
-    { "id": "p.edge-execution", "kind": "PROCESS", "system": "edge", "domain": "line-oa-studio", "label": "Edge Device execution", "detail": "รอบสนทนาด้วย local model และ vision extraction บน device",
-      "requirements": ["FR-150", "FR-143"], "decisions": ["ADR-059", "ADR-061"],
+    { "id": "p.edge-execution", "kind": "PROCESS", "system": "edge", "domain": "asset-management", "label": "Edge Device execution (extraction only)", "detail": "vision extraction บน device; รอบสนทนา LINE ไม่ทำบน device อีกต่อไป (FR-265 / ADR-100 D2)",
+      "requirements": ["FR-143"], "decisions": ["ADR-059"],
       "surfaces": [{ "type": "FILE", "ref": "apps/edge/src/answer/providers/openai-compatible.ts" }],
       "production": { "evidence": ".brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md, 'Verified end to end, 2026-09-12': a real LINE message was claimed and completed by the edge worker on desktop-vetatmq (conversation jobs only; edge extraction is not production-evidenced)" } },
     { "id": "p.plan-import", "kind": "PROCESS", "system": "zuri-ai", "domain": "project-manager", "label": "Plan import (dry run → commit)", "detail": "writer เดียวของ Project system, AuditEvent + receipt",
@@ -391,15 +390,13 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "e.legacy-to-raw", "from": "in.line-legacy", "to": "p.raw-ingestion", "label": "normalized envelope" },
     { "id": "e.raw-to-records", "from": "p.raw-ingestion", "to": "s.raw-records", "label": "raw record (redacted)" },
     { "id": "e.legacy-to-agent", "from": "in.line-legacy", "to": "p.agent-turn", "label": "handleAgentTurn" },
-    { "id": "e.jobs-to-edge", "from": "p.line-jobs", "to": "p.edge-execution", "label": "งานสนทนาที่ device claim (edgk_)" },
-    { "id": "e.jobs-to-memory-context", "from": "p.line-jobs", "to": "p.msp-context", "label": "v2 claim: server-owned execution deadline + memory opt-in" },
+    { "id": "e.jobs-to-memory-context", "from": "p.line-jobs", "to": "p.msp-context", "label": "server-owned execution deadline + memory opt-in" },
+    { "id": "e.model-key-to-turn", "from": "in.model-provider-key", "to": "p.agent-turn", "label": "Business-scoped provider key resolved per answer (SDD-106)" },
     { "id": "e.memory-to-context", "from": "src.msp-memory", "to": "p.msp-context", "label": "scope/grant-authorized packet; missing authority fails closed" },
     { "id": "e.memory-context-to-cin", "from": "p.msp-context", "to": "p.cin", "label": "ephemeral same-thread DIRECT context and revalidation" },
     { "id": "e.corpus-to-cin", "from": "s.knowledge-corpus", "to": "p.cin", "label": "pinned published graph/vector citations" },
-    { "id": "e.cin-to-edge", "from": "p.cin", "to": "p.edge-execution", "label": "exact budgeted model input, per-invocation receipt" },
+    { "id": "e.cin-to-agent", "from": "p.cin", "to": "p.agent-turn", "label": "bounded composed context → server model call (FR-234, SDD-100)" },
     { "id": "e.cin-to-trace", "from": "p.cin", "to": "s.agent-trace", "label": "refs/hash/budget only via execution settlement" },
-    { "id": "e.edge-to-complete", "from": "p.edge-execution", "to": "in.edge-conversation", "label": "คำตอบจาก device" },
-    { "id": "e.complete-to-jobs", "from": "in.edge-conversation", "to": "p.line-jobs", "label": "settle job" },
     { "id": "e.jobs-to-line", "from": "p.line-jobs", "to": "r.line-api", "label": "reply / push (retry key)" },
     { "id": "e.jobs-to-agent", "from": "p.line-jobs", "to": "p.agent-turn", "label": "งานที่ server ตอบเอง" },
     { "id": "e.agent-to-jobs", "from": "p.agent-turn", "to": "p.line-jobs", "label": "คำตอบที่ตรวจแล้ว" },
@@ -513,8 +510,6 @@ chain คือเส้นทางจากต้นทางภายนอ�
   ],
 
   "chains": [
-    { "id": "CH-01", "name": "LINE turn — ตอบบน Edge Device", "summary": "เส้นทางที่ใช้งานจริงบน production วันนี้",
-      "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-edge", "e.edge-to-complete", "e.complete-to-jobs", "e.jobs-to-line"], "branches": ["e.jobs-to-crm"] },
     { "id": "CH-02", "name": "LINE turn — ตอบบน server", "summary": "ประกอบบริบทหลายแหล่งก่อนเรียก model",
       "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-agent", "e.agent-to-jobs", "e.jobs-to-line"],
       "branches": ["e.agent-to-models", "e.crm-to-agent", "e.knowledge-to-agent", "e.atp-to-agent", "e.agent-to-trace", "e.jobs-to-crm"] },
@@ -563,9 +558,9 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "CH-21", "name": "LINE turn — grounded ด้วย corpus ที่ publish แล้ว", "summary": "ADR-090: อ่าน published corpus ก่อนเรียก model ตามโหมดของบัญชี business knowledge เป็น fallback ที่บันทึกใน trace",
       "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-agent", "e.agent-to-jobs", "e.jobs-to-line"],
       "branches": ["e.corpus-to-agent", "e.knowledge-to-agent", "e.agent-to-models", "e.agent-to-trace", "e.agent-to-msp-session", "e.jobs-to-crm"] },
-    { "id": "CH-23", "name": "LINE local v2 — MemoryOS → CIN → model", "summary": "Local integration evidence only; reply latency and live LINE acceptance remain unqualified",
-      "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-memory-context", "e.memory-context-to-cin", "e.cin-to-edge", "e.edge-to-complete", "e.complete-to-jobs", "e.jobs-to-line"],
-      "branches": ["e.memory-to-context", "e.corpus-to-cin", "e.cin-to-trace"] },
+    { "id": "CH-23", "name": "LINE v2 — MemoryOS → CIN → model (server)", "summary": "FR-265/ADR-100 D2 moved this chain's tail off the device; the MemoryOS and CIN hops are branches of the server turn, and live LINE qualification remains pending",
+      "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-memory-context", "e.memory-context-to-cin", "e.cin-to-agent", "e.agent-to-jobs", "e.jobs-to-line"],
+      "branches": ["e.memory-to-context", "e.corpus-to-cin", "e.cin-to-trace", "e.model-key-to-turn", "e.agent-to-models"] },
     { "id": "CH-22", "name": "FAQ candidate จาก LINE → review → 17 stage → corpus", "summary": "ADR-090: ความรู้จากแชทเข้า GKS ได้เฉพาะ Q/A แบบ locator-only ที่คนอนุมัติ",
       "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-crm", "e.crm-to-candidate-review", "e.candidate-review-to-admission", "e.admission-to-tier1", "e.tier1-to-msp"],
       "branches": ["e.candidate-review-to-store", "e.staff-to-admission", "e.tier1-to-corpus"] }

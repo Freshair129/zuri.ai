@@ -1,26 +1,25 @@
 import { erasePrincipal } from '@/modules/identity/erase-principal'
-import { conversationEnvelope } from '../../../edge/src/conversation/contract.ts'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
 import { ROLE_LINE_OA_PUBLISHER } from '@/modules/identity/rbac'
-import { mintEdgeDeviceCredential, resolveEdgeDeviceContext } from '@/modules/identity/edge-device-credential'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import {
-  admitLineConversation, claimEdgeConversation, completeEdgeConversation, failEdgeConversation,
-  runLineConversationWorker, LINE_JOB_LEASE_MS, acknowledgeUnknownLineJob,
+  admitLineConversation, runLineConversationWorker, LINE_JOB_LEASE_MS, acknowledgeUnknownLineJob,
 } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { applyLineOaAccountAction } from '@/modules/line-oa-studio/application/line-oa-account-service'
 
-// @req FR-149, FR-150 — real durable admission, scoped compute leases and fenced delivery recovery.
-// @spec ADR-061, FR-148, SEC-001
+// @req FR-149, FR-150 — real durable admission and fenced delivery recovery.
+// @req FR-265 — the device compute lease this file also covered is withdrawn
+//   (ADR-100 D2); what survives is the server worker's own claim and send path.
+// @spec ADR-061, ADR-100 D2, FR-148, SEC-001
 // @tested tests/integration/server-line-jobs.test.js
 
 const env = { ZURI_LINE_REPLY_SEAL_KEY: 'a7'.repeat(32) }
 const start = new Date('2026-09-06T13:00:00.000Z')
 const later = (ms) => new Date(start.getTime() + ms)
-let tenant, businessA, businessB, provider, deviceA, deviceA2, deviceB, sequence = 0
+let tenant, businessA, businessB, provider, sequence = 0
 const event = (id, over = {}) => ({
   type: 'message', webhookEventId: `event-${id}`, replyToken: `token-${id}`,
   source: { type: 'user', userId: `user-${id}` },
@@ -75,14 +74,6 @@ beforeAll(async () => {
   businessA = await createBusiness({ tenantId: tenant.id, name: 'Job business A', code: 'BUS-SERVER-LINE-A' })
   businessB = await createBusiness({ tenantId: tenant.id, name: 'Job business B', code: 'BUS-SERVER-LINE-B' })
   provider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE OA' })
-  const owner = makeViewer({ visibleBusinessIds: [businessA.id, businessB.id], ownedBusinessIds: [businessA.id, businessB.id], visibleDomains: ['platform', 'line-oa'] })
-  const mint = async (businessId, deviceId) => {
-    const { key } = await mintEdgeDeviceCredential({ businessId, deviceId, label: deviceId, viewer: owner })
-    return resolveEdgeDeviceContext({ headers: { get: name => name.toLowerCase() === 'authorization' ? `Bearer ${key}` : null } })
-  }
-  deviceA = await mint(businessA.id, 'device-job-a')
-  deviceA2 = await mint(businessA.id, 'device-job-a2')
-  deviceB = await mint(businessB.id, 'device-job-b')
 })
 
 afterEach(async () => {
@@ -90,136 +81,27 @@ afterEach(async () => {
   await prisma.lineConversationJob.deleteMany({ where: { tenantId: tenant.id } })
 })
 
-describe('negotiated Edge reply deadline', () => {
-  it('does not hand an already-expired v2 claim to Edge after memory assembly', async () => {
-    const oa = await account({ executionMode: 'EDGE' })
-    const admitted = await admit(oa, event('slow-claim-context'), { env: { ...env, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' } })
-    let elapsed = 0
-    const monotonic = vi.spyOn(performance, 'now').mockImplementation(() => elapsed)
-    try {
-      await expect(claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start,
-        memoryContext: async () => { elapsed = 41000; return null } })).rejects.toMatchObject({ status: 409 })
-      expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'REPLY_DEADLINE_MISSED' })
-      expect(await prisma.agentTraceEvent.count({ where: { turnId: admitted.jobId, kind: 'CONTEXT_COMMITTED' } })).toBe(0)
-    } finally { monotonic.mockRestore() }
-  })
-  it('charges the initial completion contract read against the original deadline without memory', async () => {
-    const oa = await account({ executionMode: 'EDGE' })
-    const admitted = await admit(oa, event('slow-contract-read'))
-    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
-    let elapsed = 0
-    const monotonic = vi.spyOn(performance, 'now').mockImplementation(() => elapsed)
-    const db = new Proxy(prisma, { get(target, key) {
-      if (key !== 'agentTraceEvent') return target[key]
-      return { findFirst: async args => { const result = await target.agentTraceEvent.findFirst(args); elapsed = 21000; return result } }
-    } })
-    try {
-      await completeEdgeConversation(admitted.jobId, { version: job.version, executionId: job.executionId, text: 'too late' },
-        { db, deviceContext: deviceA, now: later(20000), nudge: () => {} })
-      expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', answerText: null, errorCode: 'REPLY_DEADLINE_MISSED' })
-    } finally { monotonic.mockRestore() }
-  })
-  it.each(['account-resolution', 'send-transaction'])('never starts Reply if %s crosses the token deadline', async stage => {
-    const oa = await account()
-    const admitted = await admit(oa, event(`slow-${stage}`))
-    let clock = start
-    const db = stage === 'send-transaction' ? failingTransaction('agentTraceEvent', 'create', args => {
-      if (args.data.kind === 'SEND_STARTED') clock = later(46000)
-      return false
-    }, 'unused') : prisma
-    const options = worker({ db, now: () => clock, resolveAccount: async id => {
-      const result = await prisma.lineOaAccount.findUnique({ where: { id } })
-      if (stage === 'account-resolution') clock = later(46000)
-      return result
-    } })
-    await runLineConversationWorker(options)
-    expect(options.replyTransport.send).not.toHaveBeenCalled()
-    expect(options.pushTransport.send).not.toHaveBeenCalled()
-    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'REPLY_DEADLINE_MISSED', sealedReplyToken: null })
-  })
-  it('sends the persisted deadline less send reserve, accounting for time queued', async () => {
-    const oa = await account({ executionMode: 'EDGE', modelAccess: 'LOCAL_ONLY' })
-    const admitted = await admit(oa, event('budget'))
-    const claimed = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2', '1'], now: later(9000) })
-    expect(claimed.contractVersion).toBe('2')
-    expect(conversationEnvelope.safeParse(claimed).success).toBe(true)
-    expect(claimed.job.deadline).toEqual({
-      issuedAt: later(9000).toISOString(), answerDeadlineAt: later(40000).toISOString(),
-      remainingBudgetMs: 31000, deliveryMode: 'REPLY',
-    })
-    expect(claimed.job.executionId).toBe((await row(admitted.jobId)).executionId)
-    expect(JSON.stringify(claimed)).not.toContain('token-budget')
-  })
-
-  it('rejects mismatched execution identity and discards a late v2 answer without sending', async () => {
-    const oa = await account({ executionMode: 'EDGE', allowDelayedPush: true })
-    const admitted = await admit(oa, event('late-budget'))
-    const claimed = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
-    const completion = { version: claimed.job.version, executionId: claimed.job.executionId, text: 'late' }
-    await expect(completeEdgeConversation(admitted.jobId, { version: claimed.job.version, text: 'omit identity' },
-      { deviceContext: deviceA, now: start })).rejects.toMatchObject({ status: 409 })
-    await expect(completeEdgeConversation(admitted.jobId, { ...completion,
-      executionId: '00000000-0000-4000-8000-000000000000' }, { deviceContext: deviceA, now: start })).rejects.toMatchObject({ status: 409 })
-    const nudge = vi.fn()
-    expect(await completeEdgeConversation(admitted.jobId, completion, { deviceContext: deviceA, now: later(40001), nudge })).toMatchObject({ status: 'FAILED' })
-    expect(await row(admitted.jobId)).toMatchObject({ errorCode: 'REPLY_DEADLINE_MISSED', answerText: null, sealedReplyToken: null })
-    expect(nudge).not.toHaveBeenCalled()
-  })
-
-  it('nudges delivery only after a timely answer is durably READY', async () => {
-    const oa = await account({ executionMode: 'EDGE' })
-    const admitted = await admit(oa, event('timely-budget'))
-    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
-    const nudge = vi.fn()
-    await completeEdgeConversation(admitted.jobId, { version: job.version, executionId: job.executionId, text: 'verified answer' },
-      { deviceContext: deviceA, now: later(29000), nudge })
-    expect(nudge).toHaveBeenCalledOnce()
-    expect(await row(admitted.jobId)).toMatchObject({ status: 'READY', answerText: 'verified answer' })
-  })
-
-  it('labels work claimed after token expiry as delayed push only when allowed', async () => {
-    const oa = await account({ executionMode: 'EDGE', allowDelayedPush: true })
-    const admitted = await admit(oa, event('delayed-budget'))
-    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: later(60000) })
-    expect(job.deadline.deliveryMode).toBe('DELAYED_PUSH')
-    expect(job.deadline.remainingBudgetMs).toBe(240000)
-    await completeEdgeConversation(admitted.jobId, { version: job.version, executionId: job.executionId, text: 'delayed answer' },
-      { deviceContext: deviceA, now: later(90000), nudge: () => {} })
-    expect(await row(admitted.jobId)).toMatchObject({ status: 'READY', sendMethod: 'PUSH' })
-  })
-  it('stores bounded invocation receipts under the claimed execution and rejects raw context', async () => {
-    const oa = await account({ executionMode: 'EDGE' })
-    const admitted = await admit(oa, event('context-receipt'))
-    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
-    const receipt = { receiptId: 'ctxrcpt_20c0eacf-1e65-413a-a6c1-3f6d125cf123',
-      refs: { msp: [], citations: [], records: ['tool:0'] }, hash: 'a'.repeat(64),
-      budget: { max: 32768, used: 5000, trimmed: 0, unit: 'utf8-bytes' }, dropped: [] }
-    const input = { version: job.version, executionId: job.executionId, text: 'verified answer', contextReceipts: [receipt] }
-    await expect(completeEdgeConversation(admitted.jobId, { ...input, contextReceipts: [{ ...receipt, prompt: 'PRIVATE' }] },
-      { deviceContext: deviceA, now: later(20000) })).rejects.toThrow()
-    await completeEdgeConversation(admitted.jobId, input, { deviceContext: deviceA, now: later(20000), nudge: () => {} })
-    const events = await prisma.agentTraceEvent.findMany({ where: { turnId: admitted.jobId, kind: 'CONTEXT_RECEIPT' } })
-    expect(events).toHaveLength(1)
-    expect(events[0].executionId).toBe(job.executionId)
-    expect(JSON.parse(events[0].payloadJson)).toMatchObject({ ...receipt, evidenceSource: 'EDGE_REPORTED' })
-    expect(events[0].payloadJson).not.toContain('PRIVATE')
-  })
-})
+// @req FR-265 — `describe('negotiated Edge reply deadline')` covered the v2 claim
+// contract a device negotiated: budget, memory packet, corpus context and
+// execution identity on the edge claim. The whole surface is withdrawn (ADR-100
+// D2), so the cases are deleted rather than ported — the server worker's own
+// deadline, lease and epoch behaviour is covered below, through the tick.
 
 describe('server LINE admission', () => {
-  it('persists content-free invocation receipts when model submission becomes unknown', async () => {
-    const oa = await account({ executionMode: 'EDGE' })
+  // @req FR-265 — this case reached UNKNOWN through a device's `fail` call with a
+  // context receipt attached. The device call is withdrawn (ADR-100 D2); the
+  // outcome it was proving — an MSP injection receipt whose fate is unknown leaves
+  // the job UNKNOWN with no answer and no live reply token, rather than failed —
+  // is a server-side rule, so it is re-proved through the tick.
+  it('leaves a job UNKNOWN, unanswered and token-free when the memory receipt is unknown', async () => {
+    const oa = await account()
     const admitted = await admit(oa, event('failed-context-receipt'))
-    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
-    const receipt = { receiptId: 'ctxrcpt_20c0eacf-1e65-413a-a6c1-3f6d125cf123',
-      refs: { msp: [], citations: [], records: [] }, hash: 'b'.repeat(64),
-      budget: { max: 32768, used: 500, trimmed: 0, unit: 'utf8-bytes' }, dropped: [] }
-    await failEdgeConversation(admitted.jobId, { version: job.version, executionId: job.executionId,
-      code: 'MSP_INJECTION_RECEIPT_UNKNOWN', contextReceipts: [receipt] }, { deviceContext: deviceA, now: later(20000) })
+    const options = worker({ now: () => later(20000), answer: vi.fn(async () => {
+      throw Object.assign(new Error('MSP_INJECTION_RECEIPT_UNKNOWN'), { code: 'MSP_INJECTION_RECEIPT_UNKNOWN' })
+    }) })
+    await runLineConversationWorker(options)
     expect(await row(admitted.jobId)).toMatchObject({ status: 'UNKNOWN', answerText: null, sealedReplyToken: null })
-    const traces = await prisma.agentTraceEvent.findMany({ where: { turnId: admitted.jobId, kind: 'CONTEXT_RECEIPT' } })
-    expect(traces).toHaveLength(1)
-    expect(JSON.parse(traces[0].payloadJson)).toMatchObject(receipt)
+    expect(options.replyTransport.send).not.toHaveBeenCalled()
   })
   it('deduplicates redelivery and changed event IDs without a second inbound or job', async () => {
     const oa = await account()
@@ -269,43 +151,12 @@ describe('server LINE admission', () => {
   })
 })
 
-describe('optional Edge compute lease', () => {
-  it('leases only the credential business and exposes a minimized payload without transport or user secrets', async () => {
-    const oaB = await account({ executionMode: 'EDGE', businessId: businessB.id })
-    const oaA = await account({ executionMode: 'EDGE', modelAccess: 'LOCAL_ONLY' })
-    const b = await admit(oaB, event('edge-b'))
-    const a = await admit(oaA, event('edge-a'))
-    const claimed = await claimEdgeConversation({ deviceContext: deviceA, now: start })
-    // Actual durable Server producer -> actual Edge runtime validator, no constructed envelope.
-    expect(conversationEnvelope.safeParse(claimed).success).toBe(true)
-    expect(conversationEnvelope.safeParse({ ...claimed, job: { ...claimed.job, replyToken: 'synthetic-forbidden' } }).success).toBe(false)
-    expect(conversationEnvelope.safeParse({ ...claimed, contractVersion: 'unsupported' }).success).toBe(false)
-    expect(claimed).toMatchObject({ contractVersion: '1', job: { id: a.jobId, question: 'question edge-a', policy: { modelAccess: 'LOCAL_ONLY', retainHistory: false } } })
-    expect(Object.keys(claimed.job).sort()).toEqual(['conversationKey', 'id', 'leaseExpiresAt', 'policy', 'question', 'version'])
-    const serialized = JSON.stringify(claimed)
-    for (const secret of ['token-edge-a', 'user-edge-a', oaA.bindingCode, 'sealedReplyToken', 'recipientId', 'sourceUserId', 'channelAccessToken']) expect(serialized).not.toContain(secret)
-    expect((await row(b.jobId)).status).toBe('QUEUED')
-    const completion = { version: claimed.job.version, text: 'local answer' }
-    await expect(completeEdgeConversation(a.jobId, { ...completion, businessId: businessB.id, deviceContext: deviceB }, { deviceContext: deviceA, now: start })).rejects.toThrow()
-    expect((await row(a.jobId)).status).toBe('CLAIMED')
-    await expect(completeEdgeConversation(a.jobId, completion, { deviceContext: deviceB, now: start })).rejects.toMatchObject({ status: 404 })
-    await expect(completeEdgeConversation(a.jobId, completion, { deviceContext: deviceA2, now: start })).rejects.toMatchObject({ status: 409 })
-    await expect(completeEdgeConversation(a.jobId, { ...completion, version: completion.version - 1 }, { deviceContext: deviceA, now: start })).rejects.toMatchObject({ status: 409 })
-    expect((await completeEdgeConversation(a.jobId, completion, { deviceContext: deviceA, now: start })).status).toBe('READY')
-    await expect(completeEdgeConversation(a.jobId, completion, { deviceContext: deviceA, now: start })).rejects.toMatchObject({ status: 409 })
-  })
-
-  it('releases an expired lease and fences the stale device completion', async () => {
-    const oa = await account({ executionMode: 'EDGE' })
-    const admitted = await admit(oa, event('edge-expiry'))
-    const first = await claimEdgeConversation({ deviceContext: deviceA, now: start })
-    const afterLease = later(LINE_JOB_LEASE_MS + 1)
-    const second = await claimEdgeConversation({ deviceContext: deviceA2, now: afterLease })
-    expect(second.job.id).toBe(admitted.jobId)
-    expect(second.job.version).toBeGreaterThan(first.job.version)
-    await expect(completeEdgeConversation(admitted.jobId, { version: first.job.version, text: 'stale answer' }, { deviceContext: deviceA, now: afterLease })).rejects.toMatchObject({ status: 409 })
-  })
-})
+// @req FR-265 — `describe('optional Edge compute lease')` proved the device
+// surface's scope isolation, lease fencing and minimized payload. Withdrawn with
+// the surface it guarded (ADR-100 D2). The equivalent server-side invariants —
+// one claimant per job, version fencing, stale-lease recovery — are exercised by
+// the worker tick in the describes below and in `one tick serves more than one
+// customer`.
 
 describe('server transport and acceptance recovery', () => {
   it('generates once, replies once, and records inbound + accepted outbound without an Edge', async () => {
@@ -456,13 +307,26 @@ describe('server transport and acceptance recovery', () => {
     expect((await row(admitted.jobId)).sealedReplyToken).toBeNull()
   })
 
-  it('blocks admission and Edge completion after account ownership changes', async () => {
-    const oa = await account({ executionMode: 'EDGE' })
+  // @req FR-265 — this case used a device claim to prove that an epoch change
+  // fences work already in flight. The device half is withdrawn (ADR-100 D2); the
+  // invariant is not, so it is re-proved through the server tick: after the epoch
+  // moves, admission is refused and the job already claimed by the worker cannot
+  // complete into a send.
+  it('blocks admission and settles in-flight work after account ownership changes', async () => {
+    const oa = await account()
     const admitted = await admit(oa, event('ownership-admission'))
-    const lease = await claimEdgeConversation({ deviceContext: deviceA, now: start })
-    await prisma.lineOaAccount.update({ where: { id: oa.id }, data: { transportEpoch: { increment: 1 } } })
+    const options = worker({ answer: vi.fn(async () => {
+      await prisma.lineOaAccount.update({ where: { id: oa.id }, data: { transportEpoch: { increment: 1 } } })
+      return { text: 'old owner answer' }
+    }) })
+    await runLineConversationWorker(options)
     await expect(admit(oa, event('new-after-epoch'))).rejects.toMatchObject({ status: 409 })
-    await expect(completeEdgeConversation(admitted.jobId, { version: lease.job.version, text: 'old owner answer' }, { deviceContext: deviceA, now: start })).rejects.toMatchObject({ status: 409 })
+    expect(options.replyTransport.send).not.toHaveBeenCalled()
+    // The fence refuses the settle, so the job stays CLAIMED until its lease
+    // expires and `maintenance` reclaims it — deliberately, not as a leak. What
+    // must never happen is the part asserted here: the old owner's answer is not
+    // persisted, and no reply token survives to make it sendable later.
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'CLAIMED', answerText: null })
   })
 
   it('recovers cleanly without throwing out of the tick when model execution outlives its lease and fails', async () => {
@@ -565,7 +429,11 @@ describe('operational closure and restart recovery', () => {
     const publisher = makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id], visibleDomains: ['line-oa'] })
     for (const change of [
       { action: 'DISABLE_SERVER' },
-      { action: 'SWITCH_TRANSPORT_MODE', transportMode: 'EDGE' },
+      // FR-265 — `SWITCH_TRANSPORT_MODE` was the third fencing action here and is
+      // withdrawn (ADR-100 D1). `CONFIGURE_EXECUTION` takes its place in this list
+      // because it still fences: it decides whether a late answer may be pushed,
+      // which is exactly the decision this unconfirmed Push is waiting on.
+      { action: 'CONFIGURE_EXECUTION', allowDelayedPush: false },
       { action: 'PAUSE' },
     ]) {
       await expect(applyLineOaAccountAction(oa.id, { ...change, version: current.version }, { viewer: publisher })).rejects.toMatchObject({ status: 409, message: 'LINE_OA_DELIVERY_RECONCILIATION_REQUIRED' })

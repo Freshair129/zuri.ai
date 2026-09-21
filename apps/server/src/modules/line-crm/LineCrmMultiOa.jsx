@@ -82,8 +82,11 @@ export default function LineCrmMultiOa() {
             const status = account.effectiveStatus || account.status || 'UNKNOWN'
             const transport = account.serverEnabled
               ? 'Zuri Server'
+              // @req FR-265 — EDGE is retired (ADR-100 D1); a row still holding it
+              // is a pre-migration leftover, and saying so beats calling it a
+              // worker that is no longer allowed to run.
               : account.transportMode === 'EDGE'
-                ? 'Edge worker'
+                ? 'Edge (เลิกใช้แล้ว)'
                 : 'ยังไม่เปิด transport'
             return (
               <div key={account.id} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -98,7 +101,7 @@ export default function LineCrmMultiOa() {
                   <div><span className="text-slate-500">Connection</span><p className="font-semibold">{account.health?.connection?.status || 'UNKNOWN'}</p></div>
                   <div><span className="text-slate-500">Webhook</span><p className="font-mono text-[11px]">/api/line-oa/accounts/{account.id}/webhook</p></div>
                 </div>
-                <a href="/line-oa/edge-connection" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-400"><ShieldCheck className="h-3.5 w-3.5" /> จัดการใน LINE OA Studio</a>
+                <a href="/line-oa/connections" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-400"><ShieldCheck className="h-3.5 w-3.5" /> จัดการใน LINE OA Studio</a>
               </div>
             )
           })}

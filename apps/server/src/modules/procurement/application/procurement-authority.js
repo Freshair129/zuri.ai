@@ -41,6 +41,19 @@ export function mayWritePurchaseOrders(viewer, businessId) {
   return ownsBusiness(viewer, businessId) || hasPermission(viewer, businessId, PURCHASE_ORDER_WRITE_PERMISSION)
 }
 
+// @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
+//   cost-sheet intake is a procurement write and therefore reuses the buyer
+//   capability; committing carton attributes additionally asks Inventory for
+//   its own write authority in the transaction.
+export function mayWriteSupplierCostSheets(viewer, businessId) {
+  return mayWritePurchaseOrders(viewer, businessId)
+}
+
+export function assertMayWriteSupplierCostSheets(viewer, businessId) {
+  assertMayView(viewer, businessId)
+  if (!mayWriteSupplierCostSheets(viewer, businessId)) throw notFound()
+}
+
 export function mayPostReceipts(viewer, businessId) {
   return ownsBusiness(viewer, businessId) || hasPermission(viewer, businessId, GOODS_RECEIPT_POST_PERMISSION)
 }
@@ -51,6 +64,7 @@ export async function loadBusiness(db, viewer, businessId, { capability = 'read'
   if (!id) throw notFound()
   assertMayView(viewer, id)
   if (capability === 'po' && !mayWritePurchaseOrders(viewer, id)) throw notFound()
+  if (capability === 'costSheet' && !mayWriteSupplierCostSheets(viewer, id)) throw notFound()
   if (capability === 'receipt' && !mayPostReceipts(viewer, id)) throw notFound()
   const business = await db.business.findUnique({ where: { id }, select: { id: true, tenantId: true } })
   if (!business) throw notFound()
