@@ -238,8 +238,8 @@ export default function KnowledgeDocumentsView({ initialTab = 'intake' }) {
         <IntakeTabPanel
           businessId={businessId}
           businessFiles={businessFiles}
-          onSuccess={(jobId) => {
-            notify(`ส่งเอกสารเข้าคิวเรียบร้อย (Job ID: ${jobId})`, 'success')
+          onSuccess={(jobId, text) => {
+            notify(text || `ส่งเอกสารเข้าคิวเรียบร้อย (Job ID: ${jobId})`, 'success')
             reloadAdmissions()
           }}
           onError={(err) => notify(err, 'error')}
@@ -271,6 +271,32 @@ export default function KnowledgeDocumentsView({ initialTab = 'intake' }) {
 // ---------------------------------------------------------------------------
 // Tab 1: Intake Panel (Dropzone, Manual Entry, Existing FileAssets)
 // ---------------------------------------------------------------------------
+// The structured SmartGift format the admission API accepts on a FILE source (FR-187).
+// Kept as a literal: importing the adapter would pull zod into the client bundle.
+export const SMARTGIFT_CATALOG_FORMAT = 'SMARTGIFT_CATALOG_V1'
+
+export function existingAssetAdmissionBody({ businessId, asset, format = null }) {
+  return {
+    businessId,
+    projectId: null,
+    idempotencyKey: `asset:${format ? `${format}:` : ''}${asset.id}:${asset.sha256 || asset.version || Date.now()}`,
+    source: {
+      kind: 'FILE',
+      fileAssetId: asset.id,
+      ...(format ? { format } : {}),
+    },
+  }
+}
+
+export function isTextAsset(asset) {
+  const name = (asset.name || '').toLowerCase()
+  return name.endsWith('.txt') || name.endsWith('.md') || name.endsWith('.markdown') || asset.mime?.includes('markdown') || asset.mime === 'text/plain'
+}
+
+export function isCatalogAsset(asset) {
+  return (asset.name || '').toLowerCase().endsWith('.json') || asset.mime === 'application/json'
+}
+
 function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
   const [uploadMode, setUploadMode] = useState('file') // 'file' | 'editor' | 'asset'
   const [dragOver, setDragOver] = useState(false)
@@ -397,21 +423,18 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
     }
   }
 
-  const admitExistingAsset = async (asset) => {
+  // `format` names a structured projection (FR-187). The server then splits the
+  // file into one source per record; without it a JSON file is refused.
+  const admitExistingAsset = async (asset, format = null) => {
     try {
-      const idempotencyKey = `asset:${asset.id}:${asset.sha256 || asset.version || Date.now()}`
       const res = await api('/api/knowledge/ingestions', {
         method: 'POST',
-        body: {
-          businessId,
-          projectId: null,
-          idempotencyKey,
-          source: {
-            kind: 'FILE',
-            fileAssetId: asset.id,
-          },
-        },
+        body: existingAssetAdmissionBody({ businessId, asset, format }),
       })
+      if (format) {
+        onSuccess(null, `SmartGift catalog: เข้าคิว ${res.admittedCount}/${res.recordCount} record · ไม่เปลี่ยน ${res.unchangedCount} · ถูกปฏิเสธ ${res.deniedCount}`)
+        return
+      }
       onSuccess(res.admissionId || res.id)
     } catch (err) {
       onError(err.message)
@@ -665,7 +688,7 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
       {/* Mode 3: Existing FileAssets Intake */}
       {uploadMode === 'asset' && (
         <Card className="space-y-3">
-          <SectionTitle caption="เลือกไฟล์ Text/Markdown ที่เคยอัพโหลดไว้ในระบบ File Manager เพื่อนำเข้าคลังความรู้">
+          <SectionTitle caption="เลือกไฟล์ Text/Markdown หรือ SmartGift catalog (.json) ที่เคยอัพโหลดไว้ในระบบ File Manager เพื่อนำเข้าคลังความรู้">
             ไฟล์ในระบบของ Business นี้
           </SectionTitle>
 
@@ -675,16 +698,12 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
           {!businessFiles.loading && !businessFiles.error && (
             <div className="space-y-2">
               {(businessFiles.data?.assets || []).filter((a) => {
-                const name = (a.name || '').toLowerCase()
-                return name.endsWith('.txt') || name.endsWith('.md') || name.endsWith('.markdown') || a.mime?.includes('markdown') || a.mime === 'text/plain'
+                return isTextAsset(a) || isCatalogAsset(a)
               }).length === 0 ? (
-                <p className="text-xs text-muted p-4 text-center">ไม่มีไฟล์ Text หรือ Markdown ในระบบ File Manager ของ Business นี้</p>
+                <p className="text-xs text-muted p-4 text-center">ไม่มีไฟล์ Text, Markdown หรือ SmartGift catalog ในระบบ File Manager ของ Business นี้</p>
               ) : (
                 (businessFiles.data?.assets || [])
-                  .filter((a) => {
-                    const name = (a.name || '').toLowerCase()
-                    return name.endsWith('.txt') || name.endsWith('.md') || name.endsWith('.markdown') || a.mime?.includes('markdown') || a.mime === 'text/plain'
-                  })
+                  .filter((a) => isTextAsset(a) || isCatalogAsset(a))
                   .map((asset) => (
                     <div
                       key={asset.id}
@@ -694,13 +713,24 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
                         <p className="font-semibold truncate">{asset.name}</p>
                         <p className="text-[10px] text-muted">{asset.storageKind} · {asset.size} bytes · {asset.status}</p>
                       </div>
-                      <button
-                        type="button"
-                        className="btn btn-primary text-xs flex items-center gap-1 ml-3 shrink-0"
-                        onClick={() => admitExistingAsset(asset)}
-                      >
-                        <UploadCloud size={13} /> นำเข้าเป็นความรู้
-                      </button>
+                      {isCatalogAsset(asset) ? (
+                        <button
+                          type="button"
+                          data-testid="admit-smartgift-catalog"
+                          className="btn btn-primary text-xs flex items-center gap-1 ml-3 shrink-0"
+                          onClick={() => admitExistingAsset(asset, SMARTGIFT_CATALOG_FORMAT)}
+                        >
+                          <UploadCloud size={13} /> นำเข้าเป็น SmartGift catalog
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-primary text-xs flex items-center gap-1 ml-3 shrink-0"
+                          onClick={() => admitExistingAsset(asset)}
+                        >
+                          <UploadCloud size={13} /> นำเข้าเป็นความรู้
+                        </button>
+                      )}
                     </div>
                   ))
               )}
