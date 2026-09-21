@@ -173,7 +173,7 @@ describe('FR-105 / FR-219 committed modules', () => {
     })
     const dag = buildRoadmapDag(new Map(ROADMAP_TASK_LEDGER.map((row) => [row.id, row])))
     expect(dag).toEqual(ROADMAP_SOT.dag)
-    expect(dag).toMatchObject({ nodeCount: PROGRAMME_TASKS.length, edgeCount: 133, waveCount: 21, missingDependencies: [], cycles: [] })
+    expect(dag).toMatchObject({ nodeCount: PROGRAMME_TASKS.length, edgeCount: 134, waveCount: 21, missingDependencies: [], cycles: [] })
     expect(dag.waves[0].taskIds).toContain('TASK-ZAI-001')
     expect(dag.waves[0].taskIds).toContain('TASK-ZAI-116')
     expect(dag.waves.at(-1).taskIds).toEqual(['TASK-ZAI-115'])

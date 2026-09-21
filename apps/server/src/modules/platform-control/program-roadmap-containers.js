@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.17, 2026-09-21) so the board can open a task the way the html board
+// (v0.4.18, 2026-09-21) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -6046,5 +6046,70 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-064"
     ],
     "evidence": "PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264"
+  },
+  "TASK-ZAI-120": {
+    "container": "TC-TASK-ZAI-120",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.0b",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/agent/server-line-answer.js",
+      "doc": "docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md",
+      "test": "apps/server/tests/integration/fr266-model-provider-credential.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FEAT-045",
+      "FR-265",
+      "FR-266"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Retire EDGE conversation execution, model residency polling and the LOCAL_ONLY canned answerer",
+        "status": "done"
+      },
+      {
+        "id": "P1",
+        "title": "Provision and resolve the Business model provider key through the browser write-only vault path",
+        "status": "done"
+      },
+      {
+        "id": "P2",
+        "title": "Owner-instructed migration apply, deployment, production provider/LINE validation and rollback receipt",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a Business owner at AAL2, when a provider key is entered and proved from the browser, then the key is stored write-only through SecretStorePort and server LINE execution resolves it before the Phase-1 fallback",
+        "checked": true
+      },
+      "success": {
+        "text": "Given a present but broken Business model credential, when resolveModel runs, then it fails closed without silently using the Phase-1 resolver, while an absent credential remains the only fallback case",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the owner-instructed ADR-057 operator step, when migration 20260921090000 is applied and the release is deployed, then a real Business key and LINE/provider receipt plus rollback evidence are recorded without an agent handling credentials",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-21 under ADR-100 and the owner's instruction to retire LINE OA EDGE execution. PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`. Hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped; run `35545108894` passed Edge changes/edge-verify with desktop skipped. The hosted full-test receipt is 777 files / 6,536 tests passed, 32 skipped, 0 failed. Migration `20260921090000_line_oa_retire_edge_execution.sql` is written and not applied. Owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open; Phase-1 resolver retirement remains TASK-ZAI-103. No deployment or credential use is claimed.",
+    "created": "2026-09-21T00:00:00Z,Claude,pending",
+    "predictedTokens": 50000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-103"
+    ],
+    "evidence": "PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions runs `35545108878`/`35545108894` passed applicable checks with E2E/Desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN"
   }
 }

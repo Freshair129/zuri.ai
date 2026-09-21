@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.17"
+version: "0.4.18"
 updated: "2026-09-21"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -36,6 +36,7 @@ related_docs:
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
 
+Version diff 0.4.17 → 0.4.18 (2026-09-21): Add the TASK-ZAI-120 backlog row and Task Container after PR #500 merged. Hosted Actions runs `35545108878` and `35545108894` passed the applicable checks, with E2E/Desktop skipped; full hosted npm test passed 777 files / 6,536 tests with 32 skips. The migration remains written and not applied; owner-instructed migration, deployment, production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open. The task remains review.
 Version diff 0.4.16 → 0.4.17 (2026-09-21): Targeted source-container reconciliation only. TASK-ZAI-025 now reflects merged implementation/hosted evidence while remaining review; TASK-ZAI-041 records the cited E2E failure and makes no all-CI-pass claim; TASK-ZAI-047 names the frozen production-base branch and keeps runtime activation under TASK-ZAI-050; TASK-ZAI-056 retains fixture-only parity and unchecked criterion-level acceptance; TASK-ZAI-114 remains review with partial production-infrastructure evidence and a NOT_RUN first manifest; TASK-ZAI-119 remains review with PORL as the blocking external gate. No task is promoted to done.
 
 Version diff 0.4.15 → 0.4.16 (2026-09-21): TASK-ZAI-056 is reconciled as review/hosted-CI
@@ -593,6 +594,7 @@ locates the week.
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
 | TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
 | TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
+| TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | P1 | Claude | review | TASK-ZAI-103 | PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions runs `35545108878`/`35545108894` passed applicable checks with E2E/Desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN |
 
 ## Assignments
 
@@ -6239,6 +6241,61 @@ changelog: Opened 2026-09-19 after the owner approved the Mission Control implem
 created_at: 2026-09-19T00:00:00Z,RWANG,pending
 token_telemetry:
   model_name: gpt-5
+  context_length: 200k
+  predicted_token_usage: 50000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-120
+
+```yaml
+task_container_id: TC-TASK-ZAI-120
+task_id: TASK-ZAI-120
+parent_phase_id: PHASE-ZAI-05
+parent_sprint_id: SPR-ZAI-10
+title: LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback
+requirement_type: FEAT
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.1.0b
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/agent/server-line-answer.js
+  doc: docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md
+  test: apps/server/tests/integration/fr266-model-provider-credential.test.js
+delivers: [FEAT-045, FR-265, FR-266]
+subtasks:
+  - id: P0
+    title: Retire EDGE conversation execution, model residency polling and the LOCAL_ONLY canned answerer
+    status: done
+  - id: P1
+    title: Provision and resolve the Business model provider key through the browser write-only vault path
+    status: done
+  - id: P2
+    title: Owner-instructed migration apply, deployment, production provider/LINE validation and rollback receipt
+    status: planned
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Business owner at AAL2, when a provider key is entered and proved from the browser, then the key is stored write-only through SecretStorePort and server LINE execution resolves it before the Phase-1 fallback
+      checked: true
+  success_criteria:
+    - criterion: Given a present but broken Business model credential, when resolveModel runs, then it fails closed without silently using the Phase-1 resolver, while an absent credential remains the only fallback case
+      checked: true
+  exit_criteria:
+    - criterion: Given the owner-instructed ADR-057 operator step, when migration 20260921090000 is applied and the release is deployed, then a real Business key and LINE/provider receipt plus rollback evidence are recorded without an agent handling credentials
+      checked: false
+changelog: Opened 2026-09-21 under ADR-100 and the owner's instruction to retire LINE OA EDGE execution. PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`. Hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped; run `35545108894` passed Edge changes/edge-verify with desktop skipped. The hosted full-test receipt is 777 files / 6,536 tests passed, 32 skipped, 0 failed. Migration `20260921090000_line_oa_retire_edge_execution.sql` is written and not applied. Owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open; Phase-1 resolver retirement remains TASK-ZAI-103. No deployment or credential use is claimed.
+created_at: 2026-09-21T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
   context_length: 200k
   predicted_token_usage: 50000
   total_token_usage: 0
