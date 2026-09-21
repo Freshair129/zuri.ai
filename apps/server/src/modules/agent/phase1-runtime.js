@@ -249,6 +249,10 @@ export function createPhase1BusinessAgentPortsFromEnv(
           model: vaulted.model,
           credential: vaulted.apiKey,
           timeoutMs: Number(env.ZURI_MODEL_TIMEOUT_MS ?? 10000),
+          // Set only for the private runtime (`prp`, ADR-100 D7), and only from the
+          // operator's server configuration — the resolver reads it; a public
+          // provider gets none and keeps its fixed address.
+          ...(vaulted.baseUrl ? { baseUrl: vaulted.baseUrl } : {}),
           fetchFn,
         })
       }

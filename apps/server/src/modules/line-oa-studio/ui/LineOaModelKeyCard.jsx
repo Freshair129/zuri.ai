@@ -24,6 +24,7 @@ const REFUSALS = {
   // replace a key that works.
   MODEL_NOT_FOUND: 'คีย์ใช้ได้ แต่ผู้ให้บริการไม่มีโมเดลนี้ให้คีย์นี้ใช้ — ตรวจการสะกดชื่อโมเดล หรือเลือกรุ่นที่บัญชีของคุณเรียกได้ ยังไม่มีการบันทึกคีย์',
   MODEL_ID_INVALID: 'ชื่อโมเดลมีอักขระที่ใช้ไม่ได้',
+  PRIVATE_RUNTIME_NOT_CONFIGURED: 'server นี้ยังไม่ได้ตั้งค่า Private Runtime — ให้ผู้ดูแลระบบตั้ง ZURI_PRIVATE_RUNTIME_BASE_URL ก่อน',
   MODEL_PROVIDER_UNAVAILABLE: 'ติดต่อผู้ให้บริการไม่ได้ในขณะนี้ ยังไม่มีการบันทึกคีย์ ลองใหม่อีกครั้ง',
   MODEL_PROVIDER_UNSUPPORTED: 'ยังไม่รองรับผู้ให้บริการนี้',
   MFA_FACTOR_REQUIRED: 'ต้องเปิดใช้ยืนยันตัวตนสองขั้นก่อนจึงจะใส่คีย์ได้',
@@ -33,6 +34,10 @@ const REFUSALS = {
   CREDENTIAL_REENTRY_REQUIRED: 'คีย์เดิมอ่านกลับมาไม่ได้แล้ว ต้องใส่คีย์ใหม่',
   CHANNEL_SECRET_STORE_UNAVAILABLE: 'ที่เก็บความลับยังไม่พร้อมใช้งาน ติดต่อผู้ดูแลระบบ',
 };
+
+// @req FR-267 — the operator's own runtime is named for what it means to the owner,
+// not by its code: that the customer's message stays on their hardware.
+const PROVIDER_LABELS = Object.freeze({ prp: 'Private Runtime (GPU ของเราเอง)' });
 
 function explain(message) {
   for (const [code, thai] of Object.entries(REFUSALS)) if (String(message).includes(code)) return thai;
@@ -126,6 +131,17 @@ function ModelKeyForm({ businessId, status, onSaved, api, busy }) {
       คีย์จะถูกตรวจกับผู้ให้บริการก่อนบันทึก เก็บแบบเขียนอย่างเดียว และจะไม่แสดงกลับมาในหน้านี้อีก
     </p>
 
+    {/* @req FR-267 — what choosing the private runtime means, stated where it is
+        chosen. The other providers are external services; this one is not, and an
+        owner deciding where customer messages go should not have to infer that. */}
+    {provider === 'prp'
+      ? <p className="rounded-lg bg-emerald-50 px-2 py-1.5 text-[11px] text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
+          ข้อความลูกค้าประมวลผลบน GPU ของเราเอง (Private Runtime) ไม่ส่งออกไปผู้ให้บริการภายนอก และไม่มีการสลับไปใช้ผู้ให้บริการอื่นเมื่อเครื่องไม่ว่าง — ใช้คีย์ที่ออกจาก Private Runtime
+        </p>
+      : providers.includes('prp') && <p className="rounded-lg bg-slate-50 px-2 py-1.5 text-[11px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          ผู้ให้บริการนี้อยู่ภายนอก — ข้อความลูกค้าจะถูกส่งไปที่ {provider} · ถ้าต้องการให้อยู่ในเครื่องเราเอง เลือก Private Runtime
+        </p>}
+
     {lastFailure && <p role="status" className="rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] text-amber-900 dark:bg-amber-950 dark:text-amber-200">
       การตรวจครั้งล่าสุดไม่ผ่าน: {lastFailure}
     </p>}
@@ -142,7 +158,7 @@ function ModelKeyForm({ businessId, status, onSaved, api, busy }) {
         <label htmlFor={`model-provider-${businessId}`} className="mb-1 block text-[11px] font-semibold text-slate-700 dark:text-slate-300">ผู้ให้บริการ</label>
         <select id={`model-provider-${businessId}`} className={fieldClass} value={provider} disabled={disabled}
           onChange={(event) => pickProvider(event.target.value)}>
-          {providers.map((code) => <option key={code} value={code}>{code}</option>)}
+          {providers.map((code) => <option key={code} value={code}>{PROVIDER_LABELS[code] ?? code}</option>)}
         </select>
       </div>
       <div>

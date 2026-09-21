@@ -1,7 +1,7 @@
 ---
 id: "ZAI:ADR-100"
 title: "LINE OA runs server-executed on browser-provisioned API keys"
-version: "0.3.0b"
+version: "0.4.0b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-21"
@@ -34,6 +34,10 @@ relations:
     target: "ZAI:FR-265"
   - type: relates_to
     target: "ZAI:FR-266"
+  - type: relates_to
+    target: "ZAI:FR-267"
+  - type: relates_to
+    target: "ZAI:ADR-099"
   - type: relates_to
     target: "ZAI:FEAT-045"
 ---
@@ -121,7 +125,10 @@ This is the decision with a real consequence for money and privacy, and it is st
 plainly rather than buried: before this change an account could be configured so that no
 external provider ever saw a customer's message. After it, every answered LINE message on
 a server-enabled account is sent to the configured provider under the Business's own API
-key. The owner asked for exactly this. The Business-hours shedding of FR-244 and the
+key. The owner asked for exactly this. *(Corrected in D7: the owner asked for API keys, not
+for every message to leave for an external vendor — and ADR-099, approved three days
+earlier, had already chosen the opposite for this lane. D7 makes the operator's own runtime
+a provider, so choosing it keeps messages on the operator's hardware.)* The Business-hours shedding of FR-244 and the
 out-of-hours canned reply are the remaining ways an account answers without inference, and
 both are unchanged.
 
@@ -222,6 +229,55 @@ one thing an evidence ledger must not do.
 
 Applying the migration is an owner-instructed operator step (ADR-057). This decision
 authorizes the file, not the operation.
+
+### D7 — The operator's own runtime is a provider, and choosing it keeps messages on the operator's hardware
+
+*Added 2026-09-21, the same day, after the owner pointed out: "เรามี private runtime provider นะ".*
+
+**What this decision got wrong.** D3 said every answered message "is sent to the configured
+provider" and that "the owner asked for exactly this". It was written without reading
+**ADR-099**, the decision immediately before this one, which the owner had approved on
+2026-09-18: a *server-owned self-hosted inference pool*, so LINE answers run on the operator's
+own GPUs and a customer's message reaches no external provider. D3 also retired the
+`modelAccess` contract outright — the contract ADR-099 D3 planned to extend with
+`SELF_HOSTED_ONLY`. The owner's instruction was "use API keys"; it was not "send everything to
+an external vendor", and reading it that way overrode an approved decision nobody had withdrawn.
+
+**What exists.** The operator runs the **Private Runtime Platform (PRP)** — designed in
+`F:\Private-Runtime-Platform`, with its MVP live at `F:\prp-mvp`: vLLM serving a Thai-tuned
+model on this machine's GPU, an OpenAI-compatible proxy with `fallbacks: []`, and a public HTTPS
+origin. That is ADR-099's node A, already standing.
+
+**Decision (FR-267).** PRP is a model provider on the D4 route, code `prp`:
+
+- **Its address is operator configuration only** — `ZURI_PRIVATE_RUNTIME_BASE_URL` on the
+  server, HTTPS (plain HTTP on loopback only), no credentials, query or fragment. The browser
+  never supplies it. The server sends the Business's key to this address, so an address from a
+  form would let the form aim a credentialed request anywhere (ADR-099 D10).
+- **It is offered only where configured**, and first when it is.
+- **Zuri speaks PRP's client contract, not an engine's.** PRP publishes `GET /v1/models` —
+  *granted* model aliases — and `POST /v1/chat/completions`, and no per-model read. So a `prp`
+  key is proved against the granted list: 401/403 is the key, an alias missing from the list is
+  the model. Whatever PRP runs behind that contract — LiteLLM today, its own control plane
+  later — is PRP's concern. (ADR-099 D1 did not require a gateway; it did not forbid one.)
+- **A reasoning block is removed before an answer can reach a customer.** PRP serves
+  Qwen3-family models, which think in `<think>…</think>` unless the runtime strips it, and this
+  side cannot see whether it does. An answer that is only an unfinished thought fails closed.
+
+**How D7 honours ADR-099 D3 without its flag.** ADR-099 D3 wanted a `SELF_HOSTED_ONLY`
+model-access value so an account could be *held* to self-hosted processing. Under D4/D5 that
+guarantee is structural rather than a flag: a Business has one provider connection; once it
+exists, `resolveModel` never falls back (D5 fails closed on a present-but-broken key); a `prp`
+connection on a server that has lost its runtime setting fails closed rather than choosing
+another provider; and PRP itself refuses with "no eligible node" and has no cloud fallback. So a
+Business that chose `prp` cannot have a message sent elsewhere. The difference from ADR-099's
+design is visible, not hidden: the policy is *which provider the Business chose*, recorded on
+its connection, not a separate account field.
+
+**Not done by D7**, and still owed to ADR-099: the two-node pool and spill-over, capacity
+leases, node observations, and ADR-099 D3's data-classification check ("a valid selected pool is
+necessary but not sufficient"). D7 is ADR-099's own first step — "Server calls one vLLM
+endpoint" — and nothing further.
 
 ## Consequences
 

@@ -38,10 +38,10 @@
     "domainCount": 14,
     "featureCount": 158,
     "readyFeatureCount": 118,
-    "requirementCount": 266,
+    "requirementCount": 267,
     "verifiedRequirementCount": 241,
-    "progressPercent": 93.5,
-    "gapCount": 56,
+    "progressPercent": 93.4,
+    "gapCount": 58,
     "gaps": [
       {
         "domain": "agent",
@@ -338,6 +338,23 @@
         ]
       },
       {
+        "domain": "integration",
+        "id": "REQ-FR-267",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-267 is partial",
+        "evidence": [
+          "apps/server/src/modules/integration/application/model-provider-credential-service.js",
+          "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
+          "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
+          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
+          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
+          "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
+          "apps/server/tests/unit/platform/private-runtime-config.test.js",
+          "apps/server/tests/unit/private-runtime-model-port.test.js"
+        ]
+      },
+      {
         "domain": "inventory",
         "id": "UI-STATUS-001",
         "severity": "medium",
@@ -491,6 +508,21 @@
           "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
           "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
+        ]
+      },
+      {
+        "domain": "line-oa-studio",
+        "id": "REQ-FR-267",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-267 is partial",
+        "evidence": [
+          "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
+          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
+          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
+          "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
+          "apps/server/tests/unit/platform/private-runtime-config.test.js",
+          "apps/server/tests/unit/private-runtime-model-port.test.js"
         ]
       },
       {
@@ -781,7 +813,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-049",
@@ -2881,7 +2913,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-052",
@@ -3176,6 +3208,24 @@
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
           ]
+        },
+        {
+          "id": "FR-267",
+          "title": "A Business owner may choose the operator's Private Runtime Platform (PRP) as the model provider for its LINE answers, so a customer's…",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 5,
+          "evidence": [
+            "apps/server/src/modules/integration/application/model-provider-credential-service.js",
+            "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
+            "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
+            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
+            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
+            "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
+            "apps/server/tests/unit/platform/private-runtime-config.test.js",
+            "apps/server/tests/unit/private-runtime-model-port.test.js"
+          ]
         }
       ],
       "checks": {
@@ -3355,6 +3405,22 @@
             "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-267",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-267 is partial",
+          "evidence": [
+            "apps/server/src/modules/integration/application/model-provider-credential-service.js",
+            "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
+            "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
+            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
+            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
+            "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
+            "apps/server/tests/unit/platform/private-runtime-config.test.js",
+            "apps/server/tests/unit/private-runtime-model-port.test.js"
           ]
         }
       ],
@@ -4463,6 +4529,22 @@
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
           ]
+        },
+        {
+          "id": "FR-267",
+          "title": "A Business owner may choose the operator's Private Runtime Platform (PRP) as the model provider for its LINE answers, so a customer's…",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 5,
+          "evidence": [
+            "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
+            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
+            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
+            "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
+            "apps/server/tests/unit/platform/private-runtime-config.test.js",
+            "apps/server/tests/unit/private-runtime-model-port.test.js"
+          ]
         }
       ],
       "checks": {
@@ -4692,6 +4774,20 @@
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-267",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-267 is partial",
+          "evidence": [
+            "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
+            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
+            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
+            "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
+            "apps/server/tests/unit/platform/private-runtime-config.test.js",
+            "apps/server/tests/unit/private-runtime-model-port.test.js"
+          ]
         }
       ],
       "details": {
@@ -4709,7 +4805,7 @@
       ],
       "featureCount": 4,
       "readyFeatureCount": 1,
-      "progressPercent": 96.4
+      "progressPercent": 95
     },
     "market-intelligence": {
       "status": "verified",
@@ -7705,7 +7801,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-079",
@@ -7778,6 +7874,7 @@
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/platform/connector-catalog.test.js",
+        "apps/server/tests/unit/private-runtime-model-port.test.js",
         "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
@@ -12288,7 +12385,8 @@
       "registryStatus": "building",
       "requirementIds": [
         "FR-265",
-        "FR-266"
+        "FR-266",
+        "FR-267"
       ],
       "primaryDomain": "line-oa-studio",
       "contributorDomains": [
@@ -12305,7 +12403,8 @@
       "blockers": [
         "FEAT-045 registry status is building",
         "FR-265 is partial",
-        "FR-266 is partial"
+        "FR-266 is partial",
+        "FR-267 is partial"
       ],
       "requirements": [
         {
@@ -12323,6 +12422,14 @@
           "progressPercent": 80,
           "codeCount": 14,
           "testCount": 15
+        },
+        {
+          "id": "FR-267",
+          "title": "A Business owner may choose the operator's Private Runtime Platform (PRP) as the model provider for its LINE answers, so a customer's…",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 4,
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -12347,6 +12454,7 @@
         "apps/server/src/modules/line-oa-studio/ui/credential-input-props.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
+        "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
         "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
@@ -12377,6 +12485,8 @@
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
+        "apps/server/tests/unit/platform/private-runtime-config.test.js",
+        "apps/server/tests/unit/private-runtime-model-port.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
         "apps/server/tests/unit/server-line-worker-routes.test.js"
       ]

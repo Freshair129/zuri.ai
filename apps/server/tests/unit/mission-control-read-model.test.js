@@ -50,10 +50,10 @@ const liveObservation = (taskId = 'TASK-ZAI-081') => ({
 })
 
 describe('FR-260/FR-261/FR-262 Mission Control read model', () => {
-  it('projects the canonical 120-node, 134-edge, 21-wave DAG and fail-closed execution states', () => {
+  it('projects the canonical 121-node, 135-edge, 21-wave DAG and fail-closed execution states', () => {
     const model = buildMissionControlReadModel()
-    expect(model.authority).toMatchObject({ source: 'ROADMAP.md', nodeCount: 120, edgeCount: 134, waveCount: 21 })
-    expect(model.tasks).toHaveLength(120)
+    expect(model.authority).toMatchObject({ source: 'ROADMAP.md', nodeCount: 121, edgeCount: 135, waveCount: 21 })
+    expect(model.tasks).toHaveLength(121)
     expect(model.waves).toHaveLength(21)
     expect(model.porl.availability).toBe('UNKNOWN')
     expect(model.tasks.every((task) => task.execution.freshness === 'UNKNOWN')).toBe(true)
@@ -100,7 +100,7 @@ describe('FR-260/FR-261/FR-262 Mission Control read model', () => {
     expect(observed.execution).toMatchObject({ freshness: 'LIVE', runState: 'SUCCEEDED', proofScope: 'LOCAL' })
     expect(absent.execution).toMatchObject({ freshness: 'UNKNOWN', runState: 'UNKNOWN' })
     expect(model.porl.freshnessCounts.LIVE).toBe(1)
-    expect(model.porl.freshnessCounts.UNKNOWN).toBe(119)
+    expect(model.porl.freshnessCounts.UNKNOWN).toBe(120)
   })
 
   it('quarantines malformed observations at the projection boundary', () => {

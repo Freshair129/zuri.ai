@@ -6,6 +6,7 @@ import {
   MODEL_PROVIDER_CODES,
   MODEL_PROVIDER_PURPOSE,
   MODEL_PROVIDER_SUGGESTED_MODELS,
+  PRIVATE_RUNTIME_PROVIDER,
   zModelProviderCode,
 } from '@/lib/validation/enums'
 import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
@@ -19,6 +20,7 @@ import {
   parseSecretBundle,
 } from '@/platform/integrations/core/secret-store/secret-store-port'
 import { createModelProviderAdminPort } from '@/platform/integrations/providers/model/model-provider-admin-port'
+import { readPrivateRuntimeBaseUrl, readPrivateRuntimeSuggestedModel } from '@/platform/integrations/providers/model/private-runtime-config'
 import { credentialView, parseCredentialInput, refusal } from './line-channel-connection-service'
 
 // @req FR-266 — a Business owner provisions, rotates, revokes and re-validates the
@@ -75,7 +77,41 @@ const PROVIDER_NAMES = Object.freeze({
   openai: 'OpenAI',
   gemini: 'Google Gemini',
   groq: 'Groq',
+  [PRIVATE_RUNTIME_PROVIDER]: 'Private Runtime Platform',
 })
+
+/**
+ * @req FR-267 — the base URL to validate a provider against: the operator's
+ * configured private runtime for `prp`, nothing for a public provider (which has
+ * its own fixed address). `prp` on a server with no runtime configured is refused
+ * here, before any call, with a code that names it as the operator's to fix.
+ */
+/**
+ * @req FR-267 — the providers this server can actually offer, and their suggested
+ * model ids. `prp` is listed only where the operator has configured a runtime: a
+ * form that offered it everywhere would invite an owner to choose something that
+ * can only fail. It is listed *first* where it exists — the operator stood it up so
+ * that customer messages stay on their own hardware, and the form should say so by
+ * default rather than leading with an external vendor.
+ */
+function modelProviderCatalogue(env) {
+  const privateRuntime = Boolean(readPrivateRuntimeBaseUrl(env))
+  const publicProviders = MODEL_PROVIDER_CODES.filter((code) => code !== PRIVATE_RUNTIME_PROVIDER)
+  const suggestedModels = { ...MODEL_PROVIDER_SUGGESTED_MODELS }
+  const privateModel = privateRuntime ? readPrivateRuntimeSuggestedModel(env) : null
+  if (privateModel) suggestedModels[PRIVATE_RUNTIME_PROVIDER] = privateModel
+  return {
+    providers: privateRuntime ? [PRIVATE_RUNTIME_PROVIDER, ...publicProviders] : publicProviders,
+    suggestedModels,
+  }
+}
+
+function probeBaseUrl(provider, env) {
+  if (provider !== PRIVATE_RUNTIME_PROVIDER) return undefined
+  const baseUrl = readPrivateRuntimeBaseUrl(env)
+  if (!baseUrl) throw refusal(503, 'PRIVATE_RUNTIME_NOT_CONFIGURED')
+  return baseUrl
+}
 
 function asRefusal(error, fallback) {
   if (error?.status && typeof error?.message === 'string' && /^[A-Z][A-Z0-9_:]+$/.test(error.message)) {
@@ -125,10 +161,10 @@ export async function readModelProviderConnection(businessId, { db = prisma } = 
  * (SDD-101) and is not in the shape at all, so a future caller cannot start
  * rendering four characters of an API key by mistake.
  */
-export async function readModelProviderStatus(businessId, { viewer, db = prisma } = {}) {
+export async function readModelProviderStatus(businessId, { viewer, db = prisma, env = process.env } = {}) {
   const business = await loadBusiness(db, businessId, viewer)
   const connection = await readModelProviderConnection(business.id, { db })
-  const catalogue = { providers: MODEL_PROVIDER_CODES, suggestedModels: MODEL_PROVIDER_SUGGESTED_MODELS }
+  const catalogue = modelProviderCatalogue(env)
   if (!connection?.credential) return { modelCredential: null, ...catalogue }
   return {
     modelCredential: {
@@ -192,9 +228,20 @@ export async function resolveBusinessModelCredential({ tenantId, businessId }, {
     throw new Error('MODEL_CREDENTIAL_NOT_RESOLVABLE')
   }
   if (typeof apiKey !== 'string' || !apiKey) throw new Error('MODEL_CREDENTIAL_NOT_RESOLVABLE')
+  // @req FR-267 — a Business on the private runtime is answered from the address
+  // the operator configured, read now rather than stored on the connection, so
+  // moving the runtime is one server setting and not a re-entry for every Business.
+  // A Business that chose `prp` on a server that has lost that setting fails
+  // closed: it asked for its messages to stay on the operator's hardware, and the
+  // only honest answer when that is impossible is none — not another provider.
+  let baseUrl = null
+  if (provider === PRIVATE_RUNTIME_PROVIDER) {
+    baseUrl = readPrivateRuntimeBaseUrl(env)
+    if (!baseUrl) throw new Error('MODEL_CREDENTIAL_NOT_RESOLVABLE')
+  }
   // Non-enumerable, so the key cannot ride out through a spread, a JSON
   // serialization or a logger that stringifies whatever it is handed.
-  const answer = { provider, model }
+  const answer = baseUrl ? { provider, model, baseUrl } : { provider, model }
   Object.defineProperty(answer, 'apiKey', { value: apiKey, enumerable: false })
   return Object.freeze(answer)
 }
@@ -217,9 +264,10 @@ export async function provisionModelProviderCredential(input, { viewer, db = pri
   const admin = ports.modelAdmin ?? createModelProviderAdminPort()
   const bundle = parseSecretBundle('MODEL_PROVIDER_KEY', { apiKey: data.apiKey })
 
+  const baseUrl = probeBaseUrl(data.provider, env)
   let validation
   try {
-    validation = await admin.validateKey({ provider: data.provider, apiKey: data.apiKey, model: data.model })
+    validation = await admin.validateKey({ provider: data.provider, apiKey: data.apiKey, model: data.model, baseUrl })
   } catch (error) {
     if (error?.code === 'MODEL_KEY_REJECTED' && typeof ports.onValidationRejected === 'function') {
       await ports.onValidationRejected({ viewer, businessId: business.id })
@@ -368,7 +416,10 @@ export async function validateModelProviderCredential(connectionId, input, { vie
     // worth pressing later: a provider that retires the model a Business chose
     // leaves the key perfectly valid and every answer failing, and this is the
     // one place an owner can find that out before a customer does.
-    const validation = await admin.validateKey({ provider: connection.provider?.code, apiKey, model: readConnectionModel(connection) })
+    const validation = await admin.validateKey({
+      provider: connection.provider?.code, apiKey, model: readConnectionModel(connection),
+      baseUrl: probeBaseUrl(connection.provider?.code, env),
+    })
     await record(validation.validationCode)
   } catch (error) {
     // A refusal is recorded: "the stored key (or model) no longer works" is exactly

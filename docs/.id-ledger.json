@@ -394,6 +394,7 @@
     "FR-264",
     "FR-265",
     "FR-266",
+    "FR-267",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -4917,6 +4918,19 @@
         {
           "anchor": "a business owner provisions the model provider api key from",
           "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-267": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d7d4b771952a9071de3081d8e80db8fa4316525de62c796e65c074402d33bbc2",
+      "history": [
+        {
+          "anchor": "a business owner may choose the operator s private runtime",
+          "since": "2026-09-21",
           "reason": "declared"
         }
       ]
