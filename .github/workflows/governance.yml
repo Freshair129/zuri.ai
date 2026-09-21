@@ -292,9 +292,8 @@ jobs:
       - name: Production build
         run: npm run build
 
-  # The required check. `if: always()` so it reports on failure too — without
-  # it a failed dependency would leave `verify` skipped, and a skipped required
-  # check blocks the merge with no explanation of which job to look at.
+  # The required aggregate check. `if: always()` makes dependency failures
+  # visible in one explicit result instead of leaving the aggregate ambiguous.
   verify:
     if: always() && github.event_name != 'schedule'
     needs: [govern, tests, build]
@@ -314,10 +313,11 @@ jobs:
           done
 
   e2e:
-    # Skipped when the diff touches only `docs/` and `.brain/` — see the
-    # `changes` job for why that decision is safe in the direction it fails.
+    # Eligible only on the nightly schedule or an explicit workflow_dispatch;
+    # both triggers force the full suite. `changes` remains a dependency so the
+    # run has one visible classification path and records why it ran.
     needs: changes
-    # NOT on pull requests, by decision (2026-09-12).
+    # Not on pull requests or pushes to `main`, by decision (2026-09-21).
     #
     # e2e has never been a required check — branch protection asks for
     # `changes`, `verify` and `edge-verify` — so on a pull request it could
@@ -332,8 +332,9 @@ jobs:
     #
     # So the suite moves to where a slow honest answer is still useful: the
     # nightly schedule above and an explicit workflow_dispatch. It no longer
-    # runs on every push to `main`, so merge latency is shorter; post-merge
-    # detection is deliberately delayed until the nightly or manual run.
+    # runs on every push to `main`; it removes that post-merge workload while
+    # required PR gates already exclude E2E. Detection is deliberately delayed
+    # until the nightly or manual run.
     #
     # Consequence worth stating: with PRs and main pushes excluded, both
     # remaining triggers force the full suite, so the selective mapping in
