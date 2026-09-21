@@ -11,6 +11,7 @@
 import React, { useState } from "react";
 import { ShieldCheck, ArrowUpFromLine } from "lucide-react";
 import { describeLineOaConnectError } from "@/modules/line-oa-studio/domain/line-oa-connect-wizard-copy";
+import { SECRET_INPUT_PROPS, identifierInputProps } from "./credential-input-props";
 
 const fieldClass = "w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 text-[11px] focus:ring-2 focus:ring-brand-amber/30 focus:outline-none";
 
@@ -86,8 +87,8 @@ export default function LineOaCredentialMigrationCard({ account, onMigrated }) {
       </div>
       {open && (
         <form onSubmit={migrate} className="space-y-2">
-          <input value={channelId} onChange={(e) => setChannelId(e.target.value)} className={fieldClass} placeholder="Channel ID" pattern="[0-9]{6,20}" required disabled={busy} />
-          <input type="password" autoComplete="off" value={channelSecret} onChange={(e) => setChannelSecret(e.target.value)} className={fieldClass} placeholder="Channel secret" pattern="[0-9a-f]{32}" required disabled={busy} />
+          <input {...identifierInputProps("line-channel-id")} value={channelId} onChange={(e) => setChannelId(e.target.value)} className={fieldClass} placeholder="Channel ID" pattern="[0-9]{6,20}" required disabled={busy} />
+          <input {...SECRET_INPUT_PROPS} name="line-channel-secret" value={channelSecret} onChange={(e) => setChannelSecret(e.target.value)} className={fieldClass} placeholder="Channel secret" pattern="[0-9a-f]{32}" required disabled={busy} />
           {error && <p className="text-rose-600">{error.message}</p>}
           <button type="submit" disabled={busy} className="w-full py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold disabled:opacity-50">
             {busy ? "กำลังย้าย…" : "ยืนยันและย้ายเข้า Vault"}

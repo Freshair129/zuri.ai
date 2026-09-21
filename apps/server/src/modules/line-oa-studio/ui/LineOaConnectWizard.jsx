@@ -14,6 +14,7 @@ import React, { useState } from "react";
 import { Loader2, ShieldAlert, Sparkles, KeyRound, CheckCircle2 } from "lucide-react";
 import { describeLineOaConnectError } from "@/modules/line-oa-studio/domain/line-oa-connect-wizard-copy";
 import { suggestLineOaAccountCode } from "@/modules/line-oa-studio/domain/line-oa-account";
+import { SECRET_INPUT_PROPS, identifierInputProps } from "./credential-input-props";
 
 const fieldClass = "w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-xs focus:ring-2 focus:ring-brand-amber/30 focus:outline-none";
 const CHANNEL_ID_PATTERN = "[0-9]{6,20}";
@@ -272,11 +273,11 @@ export default function LineOaConnectWizard({ businessId, onConnected }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
                 <span>Channel ID (ตัวเลข ดูได้ที่แท็บ Basic settings) <span className="text-rose-500">*</span></span>
-                <input value={channelId} onChange={(e) => setChannelId(e.target.value)} className={fieldClass} placeholder="1234567890" pattern={CHANNEL_ID_PATTERN} required inputMode="numeric" />
+                <input {...identifierInputProps("line-channel-id")} value={channelId} onChange={(e) => setChannelId(e.target.value)} className={fieldClass} placeholder="1234567890" pattern={CHANNEL_ID_PATTERN} required inputMode="numeric" />
               </label>
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
                 <span>Channel secret (แท็บ Basic settings) — เก็บแบบเข้ารหัส ไม่แสดงซ้ำ <span className="text-rose-500">*</span></span>
-                <input type="password" autoComplete="off" value={channelSecret} onChange={(e) => setChannelSecret(e.target.value)} className={fieldClass} placeholder="••••••••••••••••••••••••••••••••" pattern={CHANNEL_SECRET_PATTERN} required />
+                <input {...SECRET_INPUT_PROPS} name="line-channel-secret" value={channelSecret} onChange={(e) => setChannelSecret(e.target.value)} className={fieldClass} placeholder="••••••••••••••••••••••••••••••••" pattern={CHANNEL_SECRET_PATTERN} required />
               </label>
             </div>
             <div>
@@ -285,7 +286,7 @@ export default function LineOaConnectWizard({ businessId, onConnected }) {
                 {showTokenField ? "ซ่อน Channel access token" : "Channel access token (ไม่จำเป็น) — โดยปกติระบบจะขอ token ชั่วคราวเองจาก Channel ID และ secret"}
               </button>
               {showTokenField && (
-                <input type="password" autoComplete="off" value={channelAccessToken} onChange={(e) => setChannelAccessToken(e.target.value)} className={`${fieldClass} mt-1.5`} placeholder="Channel access token (long-lived, override)" />
+                <input {...SECRET_INPUT_PROPS} name="line-channel-access-token" value={channelAccessToken} onChange={(e) => setChannelAccessToken(e.target.value)} className={`${fieldClass} mt-1.5`} placeholder="Channel access token (long-lived, override)" />
               )}
             </div>
             <button type="submit" disabled={busy || !businessId} className="w-full py-3 rounded-xl bg-brand-amber hover:bg-brand-hover active:scale-[0.99] text-white text-xs font-bold transition-all shadow-md shadow-brand-amber/20 flex items-center justify-center gap-2">
