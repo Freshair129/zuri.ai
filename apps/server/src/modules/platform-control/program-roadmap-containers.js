@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.20, 2026-09-21) so the board can open a task the way the html board
+// (v0.4.21, 2026-09-21) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -6085,7 +6085,12 @@ export const PROGRAMME_CONTAINERS = {
       },
       {
         "id": "P2",
-        "title": "Owner-instructed migration apply, deployment, production provider/LINE validation and rollback receipt",
+        "title": "Owner-instructed migration apply and deployment",
+        "status": "done"
+      },
+      {
+        "id": "P3",
+        "title": "Owner-entered production key, an answered LINE message and a rollback receipt",
         "status": "planned"
       }
     ],
@@ -6103,14 +6108,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-21 under ADR-100 and the owner's instruction to retire LINE OA EDGE execution. PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`. Hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped; run `35545108894` passed Edge changes/edge-verify with desktop skipped. The hosted full-test receipt is 777 files / 6,536 tests passed, 32 skipped, 0 failed. Migration `20260921090000_line_oa_retire_edge_execution.sql` is written and not applied. Owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open; Phase-1 resolver retirement remains TASK-ZAI-103. No deployment or credential use is claimed.",
+    "changelog": "Opened 2026-09-21 under ADR-100 and the owner's instruction to retire LINE OA EDGE execution. PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`. Hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped; run `35545108894` passed Edge changes/edge-verify with desktop skipped. The hosted full-test receipt is 777 files / 6,536 tests passed, 32 skipped, 0 failed. Migration `20260921090000_line_oa_retire_edge_execution.sql` is written and not applied. Owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open; Phase-1 resolver retirement remains TASK-ZAI-103. Deployed 2026-09-21 and migration 20260921090000 applied (record 2026-09-22); production runs 5c5f12d3; the production receipt remains NOT_RUN because no key is saved yet.",
     "created": "2026-09-21T00:00:00Z,Claude,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-103"
     ],
-    "evidence": "PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions runs `35545108878`/`35545108894` passed applicable checks with E2E/Desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN"
+    "evidence": "PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103"
   },
   "TASK-ZAI-121": {
     "container": "TC-TASK-ZAI-121",
@@ -6144,7 +6149,12 @@ export const PROGRAMME_CONTAINERS = {
       },
       {
         "id": "P1",
-        "title": "Owner-instructed merge, deployment with ZURI_PRIVATE_RUNTIME_BASE_URL set, owner-entered PRP key and a real LINE answer receipt",
+        "title": "Owner-instructed merge and deployment with ZURI_PRIVATE_RUNTIME_BASE_URL set",
+        "status": "done"
+      },
+      {
+        "id": "P2",
+        "title": "Owner-entered PRP key and a real LINE answer receipt",
         "status": "planned"
       }
     ],
@@ -6162,13 +6172,13 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-21 after the owner pointed out the Private Runtime Platform (F:\\Private-Runtime-Platform, live as F:\\prp-mvp). ADR-100 D7 records that ADR-100 had not read ADR-099 and corrects course. Built and verified locally on branch feat/line-oa-private-runtime-provider; not merged, not deployed. The two-node pool, capacity leases, observations and data classification remain ADR-099's later steps.",
+    "changelog": "Opened 2026-09-21 after the owner pointed out the Private Runtime Platform (F:\\Private-Runtime-Platform, live as F:\\prp-mvp). ADR-100 D7 records that ADR-100 had not read ADR-099 and corrects course. Merged as f9ea5c88 and deployed 2026-09-21 with the private runtime settings on production; the production receipt remains NOT_RUN because no PRP key is saved yet. The two-node pool, capacity leases, observations and data classification remain ADR-099's later steps.",
     "created": "2026-09-21T00:00:00Z,Claude,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-120"
     ],
-    "evidence": "branch feat/line-oa-private-runtime-provider; govern, build and full npm test run locally; not merged, not deployed"
+    "evidence": "PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open"
   }
 }

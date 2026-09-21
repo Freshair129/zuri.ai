@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.20"
+version: "0.4.21"
 updated: "2026-09-21"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.20 → 0.4.21 (2026-09-22): TASK-ZAI-120 and TASK-ZAI-121 merged and deployed; both stay in review with production receipts NOT_RUN (no key saved yet). TC-TASK-ZAI-120 P2 split into the done migration and deploy and the open receipt (P3); TC-TASK-ZAI-121 likewise (P1 done, P2 open).
 
 Version diff 0.4.19 → 0.4.20 (2026-09-21): Add the TASK-ZAI-121 backlog row and Task Container — FR-267, LINE OA answering on the operator's own Private Runtime Platform, first step of ADR-099. Built and verified locally; not merged, not deployed.
 
@@ -597,8 +599,8 @@ locates the week.
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
 | TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
 | TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
-| TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | P1 | Claude | review | TASK-ZAI-103 | PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions runs `35545108878`/`35545108894` passed applicable checks with E2E/Desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN |
-| TASK-ZAI-121 | SPR-ZAI-10 | task | LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099 | P1 | Claude | in-progress | TASK-ZAI-120 | branch feat/line-oa-private-runtime-provider; govern, build and full npm test run locally; not merged, not deployed |
+| TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | P1 | Claude | review | TASK-ZAI-103 | PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103 |
+| TASK-ZAI-121 | SPR-ZAI-10 | task | LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099 | P1 | Claude | review | TASK-ZAI-120 | PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open |
 
 ## Assignments
 
@@ -6284,7 +6286,10 @@ subtasks:
     title: Provision and resolve the Business model provider key through the browser write-only vault path
     status: done
   - id: P2
-    title: Owner-instructed migration apply, deployment, production provider/LINE validation and rollback receipt
+    title: Owner-instructed migration apply and deployment
+    status: done
+  - id: P3
+    title: Owner-entered production key, an answered LINE message and a rollback receipt
     status: planned
 definition_of_done:
   acceptance_criteria:
@@ -6296,7 +6301,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the owner-instructed ADR-057 operator step, when migration 20260921090000 is applied and the release is deployed, then a real Business key and LINE/provider receipt plus rollback evidence are recorded without an agent handling credentials
       checked: false
-changelog: Opened 2026-09-21 under ADR-100 and the owner's instruction to retire LINE OA EDGE execution. PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`. Hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped; run `35545108894` passed Edge changes/edge-verify with desktop skipped. The hosted full-test receipt is 777 files / 6,536 tests passed, 32 skipped, 0 failed. Migration `20260921090000_line_oa_retire_edge_execution.sql` is written and not applied. Owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open; Phase-1 resolver retirement remains TASK-ZAI-103. No deployment or credential use is claimed.
+changelog: Opened 2026-09-21 under ADR-100 and the owner's instruction to retire LINE OA EDGE execution. PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`. Hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped; run `35545108894` passed Edge changes/edge-verify with desktop skipped. The hosted full-test receipt is 777 files / 6,536 tests passed, 32 skipped, 0 failed. Migration `20260921090000_line_oa_retire_edge_execution.sql` is written and not applied. Owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open; Phase-1 resolver retirement remains TASK-ZAI-103. Deployed 2026-09-21 and migration 20260921090000 applied (record 2026-09-22); production runs 5c5f12d3; the production receipt remains NOT_RUN because no key is saved yet.
 created_at: 2026-09-21T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -6320,7 +6325,7 @@ title: LINE OA on the operator's Private Runtime Platform — FR-267 adds provid
 requirement_type: FEAT
 complexity: C-3
 access_scope: H3
-status: in-progress
+status: review
 version: 0.1.0b
 pic: Claude
 executor: Claude
@@ -6336,7 +6341,10 @@ subtasks:
     title: Add provider prp with an operator-configured address, PRP granted-model validation and reasoning removal
     status: done
   - id: P1
-    title: Owner-instructed merge, deployment with ZURI_PRIVATE_RUNTIME_BASE_URL set, owner-entered PRP key and a real LINE answer receipt
+    title: Owner-instructed merge and deployment with ZURI_PRIVATE_RUNTIME_BASE_URL set
+    status: done
+  - id: P2
+    title: Owner-entered PRP key and a real LINE answer receipt
     status: planned
 definition_of_done:
   acceptance_criteria:
@@ -6348,7 +6356,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the owner-instructed deployment, when a real LINE message is answered through the operator's private runtime, then a production receipt shows the answer and no request to an external provider
       checked: false
-changelog: Opened 2026-09-21 after the owner pointed out the Private Runtime Platform (F:\Private-Runtime-Platform, live as F:\prp-mvp). ADR-100 D7 records that ADR-100 had not read ADR-099 and corrects course. Built and verified locally on branch feat/line-oa-private-runtime-provider; not merged, not deployed. The two-node pool, capacity leases, observations and data classification remain ADR-099's later steps.
+changelog: Opened 2026-09-21 after the owner pointed out the Private Runtime Platform (F:\Private-Runtime-Platform, live as F:\prp-mvp). ADR-100 D7 records that ADR-100 had not read ADR-099 and corrects course. Merged as f9ea5c88 and deployed 2026-09-21 with the private runtime settings on production; the production receipt remains NOT_RUN because no PRP key is saved yet. The two-node pool, capacity leases, observations and data classification remain ADR-099's later steps.
 created_at: 2026-09-21T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5

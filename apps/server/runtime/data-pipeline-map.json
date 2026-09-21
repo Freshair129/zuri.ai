@@ -426,7 +426,7 @@
       "requirements": [
         {
           "id": "FR-266",
-          "status": "partial",
+          "status": "verified",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file"
         }
       ],

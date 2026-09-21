@@ -39,9 +39,9 @@
     "featureCount": 158,
     "readyFeatureCount": 118,
     "requirementCount": 267,
-    "verifiedRequirementCount": 241,
-    "progressPercent": 93.4,
-    "gapCount": 58,
+    "verifiedRequirementCount": 244,
+    "progressPercent": 93.6,
+    "gapCount": 46,
     "gaps": [
       {
         "domain": "agent",
@@ -106,68 +106,6 @@
         "evidence": []
       },
       {
-        "domain": "agent",
-        "id": "REQ-FR-265",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-265 is partial",
-        "evidence": [
-          "apps/server/src/modules/agent/server-line-answer.js",
-          "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-          "apps/server/tests/integration/fr146-line-oa-account.test.js",
-          "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/integration/line-gks-grounding.test.js",
-          "apps/server/tests/integration/line-non-text-admission.test.js",
-          "apps/server/tests/integration/line-project-work-tools.test.js",
-          "apps/server/tests/integration/line-worker-memory.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/server-line-jobs.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/business-model-credential-resolution.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-          "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/server-line-answer.test.js",
-          "apps/server/tests/unit/server-line-worker-routes.test.js"
-        ]
-      },
-      {
-        "domain": "agent",
-        "id": "REQ-FR-266",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-266 is partial",
-        "evidence": [
-          "apps/server/src/modules/agent/phase1-runtime.js",
-          "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/business-model-credential-resolution.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/conversation-session-ui.test.js",
-          "apps/server/tests/unit/line-binding-status.test.js",
-          "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-          "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-        ]
-      },
-      {
         "domain": "asset-management",
         "id": "AUTH-001",
         "severity": "high",
@@ -180,57 +118,6 @@
         "severity": "medium",
         "check": "authorization",
         "summary": "At least one read route lacks a recognizable request viewer seam"
-      },
-      {
-        "domain": "crm",
-        "id": "CONTRACT-001",
-        "severity": "medium",
-        "check": "runtimeContract",
-        "summary": "At least one requirement in this domain is not fully code-and-test verified"
-      },
-      {
-        "domain": "crm",
-        "id": "TEST-001",
-        "severity": "medium",
-        "check": "tests",
-        "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "crm",
-        "id": "REQ-FR-265",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-265 is partial",
-        "evidence": [
-          "apps/server/src/modules/line-crm/LineCrmMultiOa.jsx",
-          "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-          "apps/server/tests/integration/fr146-line-oa-account.test.js",
-          "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/integration/line-gks-grounding.test.js",
-          "apps/server/tests/integration/line-non-text-admission.test.js",
-          "apps/server/tests/integration/line-project-work-tools.test.js",
-          "apps/server/tests/integration/line-worker-memory.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/server-line-jobs.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/business-model-credential-resolution.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-          "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/server-line-answer.test.js",
-          "apps/server/tests/unit/server-line-worker-routes.test.js"
-        ]
       },
       {
         "domain": "identity",
@@ -307,52 +194,6 @@
         "check": "requirements",
         "summary": "FR-255 is planned",
         "evidence": []
-      },
-      {
-        "domain": "integration",
-        "id": "REQ-FR-266",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-266 is partial",
-        "evidence": [
-          "apps/server/src/app/api/integration/model-providers/[id]/revoke/route.js",
-          "apps/server/src/app/api/integration/model-providers/[id]/validate/route.js",
-          "apps/server/src/app/api/integration/model-providers/route.js",
-          "apps/server/src/modules/integration/application/model-provider-credential-service.js",
-          "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
-          "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/business-model-credential-resolution.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/conversation-session-ui.test.js",
-          "apps/server/tests/unit/line-binding-status.test.js",
-          "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-          "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-        ]
-      },
-      {
-        "domain": "integration",
-        "id": "REQ-FR-267",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-267 is partial",
-        "evidence": [
-          "apps/server/src/modules/integration/application/model-provider-credential-service.js",
-          "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
-          "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
-          "apps/server/tests/unit/platform/private-runtime-config.test.js",
-          "apps/server/tests/unit/private-runtime-model-port.test.js"
-        ]
       },
       {
         "domain": "inventory",
@@ -436,94 +277,6 @@
         "check": "requirements",
         "summary": "FR-259 is planned",
         "evidence": []
-      },
-      {
-        "domain": "line-oa-studio",
-        "id": "REQ-FR-265",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-265 is partial",
-        "evidence": [
-          "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-          "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-          "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
-          "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
-          "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
-          "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-          "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
-          "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-          "apps/server/tests/integration/fr146-line-oa-account.test.js",
-          "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/integration/line-gks-grounding.test.js",
-          "apps/server/tests/integration/line-non-text-admission.test.js",
-          "apps/server/tests/integration/line-project-work-tools.test.js",
-          "apps/server/tests/integration/line-worker-memory.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/server-line-jobs.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/business-model-credential-resolution.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-          "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/server-line-answer.test.js",
-          "apps/server/tests/unit/server-line-worker-routes.test.js"
-        ]
-      },
-      {
-        "domain": "line-oa-studio",
-        "id": "REQ-FR-266",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-266 is partial",
-        "evidence": [
-          "apps/server/src/app/(pm)/line-oa/connections/page.jsx",
-          "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
-          "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
-          "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
-          "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
-          "apps/server/src/modules/line-oa-studio/ui/credential-input-props.js",
-          "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/business-model-credential-resolution.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/conversation-session-ui.test.js",
-          "apps/server/tests/unit/line-binding-status.test.js",
-          "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-          "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-        ]
-      },
-      {
-        "domain": "line-oa-studio",
-        "id": "REQ-FR-267",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-267 is partial",
-        "evidence": [
-          "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
-          "apps/server/tests/unit/platform/private-runtime-config.test.js",
-          "apps/server/tests/unit/private-runtime-model-port.test.js"
-        ]
       },
       {
         "domain": "platform-control",
@@ -690,68 +443,6 @@
         "check": "requirements",
         "summary": "FR-082 is planned",
         "evidence": []
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-265",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-265 is partial",
-        "evidence": [
-          "apps/server/src/modules/project-manager/api-docs/openapi.js",
-          "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-          "apps/server/tests/integration/fr146-line-oa-account.test.js",
-          "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/integration/line-gks-grounding.test.js",
-          "apps/server/tests/integration/line-non-text-admission.test.js",
-          "apps/server/tests/integration/line-project-work-tools.test.js",
-          "apps/server/tests/integration/line-worker-memory.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/server-line-jobs.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/business-model-credential-resolution.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-          "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/server-line-answer.test.js",
-          "apps/server/tests/unit/server-line-worker-routes.test.js"
-        ]
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-266",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-266 is partial",
-        "evidence": [
-          "apps/server/src/modules/project-manager/api-docs/openapi.js",
-          "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-          "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/business-model-credential-resolution.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/conversation-session-ui.test.js",
-          "apps/server/tests/unit/line-binding-status.test.js",
-          "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-          "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-          "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-          "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-        ]
       }
     ]
   },
@@ -1100,66 +791,18 @@
         {
           "id": "FR-265",
           "title": "LINE OA Studio conversation work is server-executed only",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 27,
-          "evidence": [
-            "apps/server/src/modules/agent/server-line-answer.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-project-work-tools.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js",
-            "apps/server/tests/unit/server-line-worker-routes.test.js"
-          ]
+          "testCount": 27
         },
         {
           "id": "FR-266",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 15,
-          "evidence": [
-            "apps/server/src/modules/agent/phase1-runtime.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/line-binding-status.test.js",
-            "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-          ]
+          "testCount": 15
         }
       ],
       "checks": {
@@ -1341,66 +984,6 @@
           "check": "requirements",
           "summary": "FR-257 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-265",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-265 is partial",
-          "evidence": [
-            "apps/server/src/modules/agent/server-line-answer.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-project-work-tools.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js",
-            "apps/server/tests/unit/server-line-worker-routes.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-266",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-266 is partial",
-          "evidence": [
-            "apps/server/src/modules/agent/phase1-runtime.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/line-binding-status.test.js",
-            "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-          ]
         }
       ],
       "details": {
@@ -1844,7 +1427,7 @@
       "progressPercent": 100
     },
     "crm": {
-      "status": "partial",
+      "status": "verified",
       "requirements": [
         {
           "id": "FR-022",
@@ -2033,40 +1616,10 @@
         {
           "id": "FR-265",
           "title": "LINE OA Studio conversation work is server-executed only",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 27,
-          "evidence": [
-            "apps/server/src/modules/line-crm/LineCrmMultiOa.jsx",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-project-work-tools.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js",
-            "apps/server/tests/unit/server-line-worker-routes.test.js"
-          ]
+          "testCount": 27
         }
       ],
       "checks": {
@@ -2093,18 +1646,12 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": [
-            {
-              "id": "CONTRACT-001",
-              "severity": "medium",
-              "summary": "At least one requirement in this domain is not fully code-and-test verified"
-            }
-          ]
+          "gaps": []
         },
         "jsonSchema": {
           "status": "verified",
@@ -2130,17 +1677,11 @@
           "gaps": []
         },
         "tests": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": [
-            {
-              "id": "TEST-001",
-              "severity": "medium",
-              "summary": "At least one requirement lacks complete code-and-test evidence"
-            }
-          ]
+          "gaps": []
         }
       },
       "evidence": [
@@ -2166,56 +1707,7 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [
-        {
-          "id": "CONTRACT-001",
-          "severity": "medium",
-          "check": "runtimeContract",
-          "summary": "At least one requirement in this domain is not fully code-and-test verified"
-        },
-        {
-          "id": "TEST-001",
-          "severity": "medium",
-          "check": "tests",
-          "summary": "At least one requirement lacks complete code-and-test evidence"
-        },
-        {
-          "id": "REQ-FR-265",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-265 is partial",
-          "evidence": [
-            "apps/server/src/modules/line-crm/LineCrmMultiOa.jsx",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-project-work-tools.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js",
-            "apps/server/tests/unit/server-line-worker-routes.test.js"
-          ]
-        }
-      ],
+      "gaps": [],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
@@ -3182,50 +2674,18 @@
         {
           "id": "FR-266",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 5,
-          "testCount": 15,
-          "evidence": [
-            "apps/server/src/app/api/integration/model-providers/[id]/revoke/route.js",
-            "apps/server/src/app/api/integration/model-providers/[id]/validate/route.js",
-            "apps/server/src/app/api/integration/model-providers/route.js",
-            "apps/server/src/modules/integration/application/model-provider-credential-service.js",
-            "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/line-binding-status.test.js",
-            "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-          ]
+          "testCount": 15
         },
         {
           "id": "FR-267",
           "title": "A Business owner may choose the operator's Private Runtime Platform (PRP) as the model provider for its LINE answers, so a customer's…",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 3,
-          "testCount": 5,
-          "evidence": [
-            "apps/server/src/modules/integration/application/model-provider-credential-service.js",
-            "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
-            "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
-            "apps/server/tests/unit/platform/private-runtime-config.test.js",
-            "apps/server/tests/unit/private-runtime-model-port.test.js"
-          ]
+          "testCount": 5
         }
       ],
       "checks": {
@@ -3378,50 +2838,6 @@
           "check": "requirements",
           "summary": "FR-255 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-266",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-266 is partial",
-          "evidence": [
-            "apps/server/src/app/api/integration/model-providers/[id]/revoke/route.js",
-            "apps/server/src/app/api/integration/model-providers/[id]/validate/route.js",
-            "apps/server/src/app/api/integration/model-providers/route.js",
-            "apps/server/src/modules/integration/application/model-provider-credential-service.js",
-            "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/line-binding-status.test.js",
-            "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-267",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-267 is partial",
-          "evidence": [
-            "apps/server/src/modules/integration/application/model-provider-credential-service.js",
-            "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
-            "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
-            "apps/server/tests/unit/platform/private-runtime-config.test.js",
-            "apps/server/tests/unit/private-runtime-model-port.test.js"
-          ]
         }
       ],
       "details": {
@@ -4458,93 +3874,26 @@
         {
           "id": "FR-265",
           "title": "LINE OA Studio conversation work is server-executed only",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 7,
-          "testCount": 27,
-          "evidence": [
-            "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
-            "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-project-work-tools.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js",
-            "apps/server/tests/unit/server-line-worker-routes.test.js"
-          ]
+          "testCount": 27
         },
         {
           "id": "FR-266",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 6,
-          "testCount": 15,
-          "evidence": [
-            "apps/server/src/app/(pm)/line-oa/connections/page.jsx",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
-            "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/credential-input-props.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/line-binding-status.test.js",
-            "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-          ]
+          "testCount": 15
         },
         {
           "id": "FR-267",
           "title": "A Business owner may choose the operator's Private Runtime Platform (PRP) as the model provider for its LINE answers, so a customer's…",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 5,
-          "evidence": [
-            "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
-            "apps/server/tests/unit/platform/private-runtime-config.test.js",
-            "apps/server/tests/unit/private-runtime-model-port.test.js"
-          ]
+          "testCount": 5
         }
       ],
       "checks": {
@@ -4703,91 +4052,6 @@
           "check": "requirements",
           "summary": "FR-259 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-265",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-265 is partial",
-          "evidence": [
-            "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
-            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
-            "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-project-work-tools.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js",
-            "apps/server/tests/unit/server-line-worker-routes.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-266",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-266 is partial",
-          "evidence": [
-            "apps/server/src/app/(pm)/line-oa/connections/page.jsx",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
-            "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
-            "apps/server/src/modules/line-oa-studio/ui/credential-input-props.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/line-binding-status.test.js",
-            "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-267",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-267 is partial",
-          "evidence": [
-            "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
-            "apps/server/tests/unit/platform/private-runtime-config.test.js",
-            "apps/server/tests/unit/private-runtime-model-port.test.js"
-          ]
         }
       ],
       "details": {
@@ -4805,7 +4069,7 @@
       ],
       "featureCount": 4,
       "readyFeatureCount": 1,
-      "progressPercent": 95
+      "progressPercent": 100
     },
     "market-intelligence": {
       "status": "verified",
@@ -7062,66 +6326,18 @@
         {
           "id": "FR-265",
           "title": "LINE OA Studio conversation work is server-executed only",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 27,
-          "evidence": [
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-project-work-tools.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js",
-            "apps/server/tests/unit/server-line-worker-routes.test.js"
-          ]
+          "testCount": 27
         },
         {
           "id": "FR-266",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 15,
-          "evidence": [
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/line-binding-status.test.js",
-            "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-          ]
+          "testCount": 15
         }
       ],
       "checks": {
@@ -7339,66 +6555,6 @@
           "check": "requirements",
           "summary": "FR-082 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-265",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-265 is partial",
-          "evidence": [
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-project-work-tools.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js",
-            "apps/server/tests/unit/server-line-worker-routes.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-266",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-266 is partial",
-          "evidence": [
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/tests/e2e/fr149-line-server-console.spec.js",
-            "apps/server/tests/integration/fr266-model-provider-credential.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/business-model-credential-resolution.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/line-binding-status.test.js",
-            "apps/server/tests/unit/line-oa-credential-input-props.test.js",
-            "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
-            "apps/server/tests/unit/line-oa-readiness-journey.test.js",
-            "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/platform/model-provider-admin-port.test.js"
-          ]
         }
       ],
       "details": {
@@ -12404,37 +11560,34 @@
         "project-manager"
       ],
       "useCase": "Business OWNER ใส่ API key ของโมเดลเองจากหน้าเว็บ แบบเขียนอย่างเดียว ตรวจกับผู้ให้บริการก่อนบันทึก แล้ว LINE OA ตอบลูกค้าโดยเรียกโมเดลด้วยคีย์นั้นบนเซิร์ฟเวอร์ของ Zuri โดยไม่ต้องมี Edge device อีกต่อไป",
-      "progressPercent": 80,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-045 registry status is building",
-        "FR-265 is partial",
-        "FR-266 is partial",
-        "FR-267 is partial"
+        "FEAT-045 registry status is building"
       ],
       "requirements": [
         {
           "id": "FR-265",
           "title": "LINE OA Studio conversation work is server-executed only",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 11,
           "testCount": 27
         },
         {
           "id": "FR-266",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 14,
           "testCount": 15
         },
         {
           "id": "FR-267",
           "title": "A Business owner may choose the operator's Private Runtime Platform (PRP) as the model provider for its LINE answers, so a customer's…",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 4,
           "testCount": 5
         }
