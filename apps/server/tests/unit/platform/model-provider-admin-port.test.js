@@ -93,6 +93,12 @@ describe('model provider admin port', () => {
     }
   })
 
+  it('reads Gemini’s 400 as a rejected key, as Gemini answers an unknown key', async () => {
+    // Measured live on 2026-09-21 with a fake key: Gemini 400; OpenAI, Groq, Anthropic 401.
+    const { port: subject } = port(() => code(400))
+    await expect(subject.validateKey(probe('gemini', 'gemini-2.0-flash'))).rejects.toMatchObject({ code: 'MODEL_KEY_REJECTED', status: 422 })
+  })
+
   it('names a missing model separately from a bad key, so the owner fixes the right field', async () => {
     // The owner's case on 2026-09-21: the key worked and the model id was the
     // question. A listing probe answered only the first; this one answers both.

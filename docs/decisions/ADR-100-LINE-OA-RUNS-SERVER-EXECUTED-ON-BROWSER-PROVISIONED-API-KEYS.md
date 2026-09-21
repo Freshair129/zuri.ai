@@ -1,7 +1,7 @@
 ---
 id: "ZAI:ADR-100"
 title: "LINE OA runs server-executed on browser-provisioned API keys"
-version: "0.5.0b"
+version: "0.5.1b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-21"
@@ -310,8 +310,15 @@ mistake in the setting fails safe.
 for an owner can replace that Business's model key or LINE channel secret without a second
 factor — for example pointing the Business at a provider account they control, which would
 then receive its customers' messages. The rate limit bounds how fast; the audit row records
-that it happened; neither prevents it. The switch is meant to be turned back on (removed)
-once the key card can enrol a factor itself — the gap that made it necessary.
+that it happened; neither prevents it.
+
+> **Owner decision, 2026-09-22: two-factor is not used on this installation** — *"ไม่ใช้ F2A"*,
+> in answer to whether to build enrolment into the key card so the switch could be removed.
+> So the switch stays off, and enrolment in the key card is not being built. This replaces
+> the earlier expectation that the switch was temporary. The cost above therefore stands
+> for as long as the decision does, and it is recorded here so a later reader finds it as a
+> choice rather than an oversight. Restoring the step-up is deleting one line from the
+> server's `.env`; nothing in the code needs to change.
 
 ## Consequences
 
