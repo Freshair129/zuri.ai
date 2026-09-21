@@ -1129,11 +1129,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-02",
     "title": "Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109",
     "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-005",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 4; ADR-072, ADR-073"
+    "evidence": "PR #511 head `0fa8fa5050d060fbd8d32bd5d521f907abad24f2` merged as `291db06f05d2eba52336de378ca40ba971d28cc4`; focused admission/runtime 15/15 passed; hosted Governance/Edge runs `35552902035`/`35552902044` passed applicable checks with E2E/Desktop skipped; FileAsset MIME now reaches the Stage 1 request; native KI17, FR-071 production ledger and production activation remain NOT_RUN; 24-week baseline; Section 3.1 row 4; ADR-072, ADR-073"
   },
   {
     "id": "TASK-ZAI-046",
@@ -1568,12 +1568,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-085",
     "sprint": "SPR-ZAI-04",
     "title": "Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes",
-    "status": "in-progress",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "status": "review",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-084",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
+    "evidence": "Existing migration/redeploy record remains in TC-TASK-ZAI-085; PR #510 head `4e0d762b6be777d0fa101f566a8a4b12fc9a6b5a` merged as `8cba5433ed07de8bbfc4eacf560f813fc4f6ede6`; fail-closed webhook-state consumer regression 42 passed across FR-227/FR-228/schema/migration-drift suites; hosted Governance/Edge runs `35551869394`/`35551869433` passed applicable checks with E2E/Desktop skipped; Vault default-ACL/privilege success gate remains open; no new migration, credential, provider or production action claimed; ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
   },
   {
     "id": "TASK-ZAI-086",
@@ -1837,7 +1837,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-105",
     "authority": "ROADMAP.md",
-    "evidence": "PR #427 implementation merged at `09fc5978`; PR #476 fix merged at `95edda4c`; hosted Governance #1197/#1327 and Edge #531/#657 passed with E2E skipped; migration `20260916130000_line_oa_business_hours.sql`, matching Server+Edge deployment, release after last account closes, out-of-hours no-model reply receipt, no-declared-hours behavior, first reply after 09:00 ICT and immutable production receipt remain open; production/owner activation NOT_RUN"
+    "evidence": "PR #427 implementation merged at `09fc5978`; PR #476 fix merged at `95edda4c`; PR #514 head `f49f06c1d3dcaba2389705a6b62b502186ead886` merged as `ff07d011a4ef96744b1a5a0cf87e42050cfa9631`; focused Edge residency/client 11 passed; hosted Governance/Edge runs `35552382409`/`35552382401` passed and the Edge desktop job passed; the 404 withdrawn-route fix preserves network/5xx retry behavior but does not prove migration `20260916130000_line_oa_business_hours.sql`, first reply after 09:00 ICT, immutable production receipt, owner activation, MSP or PORL; production remains NOT_RUN"
   },
   {
     "id": "TASK-ZAI-110",
