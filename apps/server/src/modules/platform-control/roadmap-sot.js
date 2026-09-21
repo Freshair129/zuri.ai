@@ -737,7 +737,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Proposal scope, AI Control"
+    "evidence": "Audit wave 2026-09-21: no approved Agent Factory contract; proposal/design-gated; owner must declare the canonical local contract; no implementation or test evidence claimed; 24-week baseline; Proposal scope, AI Control"
   },
   {
     "id": "TASK-ZAI-010",
@@ -748,7 +748,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 9"
+    "evidence": "Audit wave 2026-09-21: only FR-026 Gate F exists; owner-approved L1-L4 semantics and persistence contract are missing; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 9"
   },
   {
     "id": "TASK-ZAI-011",
@@ -825,7 +825,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-005",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 8; ADR-053"
+    "evidence": "Audit wave 2026-09-21: FR-125/ADR-053 implementation is unauthorized; provider verification, owner sign-off and FlowAccount Sandbox credentials are required; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 8; ADR-053"
   },
   {
     "id": "TASK-ZAI-018",
@@ -924,7 +924,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-024",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 3"
+    "evidence": "Audit wave 2026-09-21: FR-082..085/ADR-035 remains design-only; no approved node/traversal/redaction contract; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 3"
   },
   {
     "id": "TASK-ZAI-027",
@@ -1166,18 +1166,18 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-046",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; 17-stage flow, \"PDF/OCR/HTML/table parser\" row; FR-115, FR-138"
+    "evidence": "Audit wave 2026-09-21: ADR-072 currently allows text/Markdown only; a binary/OCR parser needs raw mapping and the downstream Stage 7-9 offset/provenance contract; no parser/provider approval or implementation/test evidence claimed; 24-week baseline; 17-stage flow, \"PDF/OCR/HTML/table parser\" row; FR-115, FR-138"
   },
   {
     "id": "TASK-ZAI-049",
     "sprint": "SPR-ZAI-03",
     "title": "Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1)",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "review",
+    "proofScope": "LOCAL",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-045",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 4; FR-045, FR-111, FR-137"
+    "evidence": "PR #461 merge `e70385fe735644c8b3449f254c9618f0292ab45c`; tracked knowledge artifact storage service, S3 object-storage port, SQLite/Postgres schema and migrations, storage target/deploy contracts and focused unit/schema/S3-port/ingestion-recovery tests; audit found no new change. Provider/volume/license/key setup, migration apply, canary, separate-host backup, measured RPO/RTO, restore, MSP/GKS/Tier-4 lineage and TASK-ZAI-050 activation remain NOT_RUN; no production claim"
   },
   {
     "id": "TASK-ZAI-050",
@@ -1265,7 +1265,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-056; TASK-ZAI-039",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md"
+    "evidence": "Audit wave 2026-09-21: approved proposal schedules this task but explicitly declares no standing requirement/decision record; Task Container and DoD are planned/unavailable/unchecked; TASK-ZAI-056/039 gates remain open; no implementation or test evidence claimed; ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md"
   },
   {
     "id": "TASK-ZAI-058",
@@ -1287,7 +1287,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-045; TASK-ZAI-042",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md"
+    "evidence": "Audit wave 2026-09-21: approved proposal schedules this task but generic STRUCTURED_RECORDS_V1 schema, entity registry, Excel mapping and MCP request contract are missing; ADR-075/FR-187 authorize only SMARTGIFT_CATALOG_V1; no implementation or test evidence claimed; ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md"
   },
   {
     "id": "TASK-ZAI-060",
