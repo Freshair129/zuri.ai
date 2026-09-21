@@ -171,7 +171,25 @@ That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. The curren
 release tuple in `pins.json` pins `genesisblock` to
 `5e75c4a85e1a42faf6d2afe42633c4f2a4725c92`; `7c9261c4` is retained only as the
 historical P-2 base reference, not as the current build context.
-`--target runner-ki17` and `--target ki17` never needed it.
+`--target runner-ki17` and `--target ki17` do not use its files, but the
+`ki17-pins` stage they build on verifies every context it is given, so a build of
+either still needs a `genesisblock` context at the pinned commit.
+
+### Building web through compose
+
+The base `docker-compose.yml` builds web with `target: ${ZURI_WEB_BUILD_TARGET:-runner}`,
+so a routine web build needs no knowledge context. A host that runs GenesisRAG17
+adds the opt-in overlay, which selects `runner-ki17` and supplies the three pinned
+contexts with the same `KI17_*_CONTEXT` variables as the genesis-worker build:
+
+```text
+COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.ki17-web.yml
+```
+
+Without it the web image has no `/opt/ki17`: web cannot spawn the MSP/GKS stdio
+servers, every Stage 9 batch stays `PENDING`, and the healthcheck still passes.
+After a build, `docker run --rm --entrypoint ls <web-image> /opt/ki17` must list
+`gks msp node pins`.
 
 ### Running the acceptance inside the images (gate G-3)
 
