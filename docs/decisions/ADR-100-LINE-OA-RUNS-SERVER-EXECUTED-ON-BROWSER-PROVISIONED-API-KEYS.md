@@ -1,7 +1,7 @@
 ---
 id: "ZAI:ADR-100"
 title: "LINE OA runs server-executed on browser-provisioned API keys"
-version: "0.1.0b"
+version: "0.2.0b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-21"
@@ -145,16 +145,35 @@ restated by reference, not re-derived.
 
 ### D5 — Resolution order, and why the Phase-1 resolver is not deleted in this change
 
+> **Correction, 2026-09-21 (same day, after deployment).** The paragraph below claimed the
+> Phase-1 resolver "is the live path production resolves its Anthropic key through today".
+> **That was wrong, and it was never checked before it was written.** A read-only probe of
+> production taken immediately before the deploy found `zuri_core.integration_connection`
+> **empty**, `ZURI_MODEL_PROVIDER` and `ZURI_MODEL_NAME` set to the literal placeholders
+> `SET_PROVIDER` / `SET_MODEL_NAME`, and `ZURI_LINE_BUSINESS_AGENT_ENABLED=false`, so the
+> fallback raises `PHASE1_CONNECTION_NOT_FOUND` rather than resolving anything.
+>
+> The *design* below is unchanged and still correct: vault first, fall back only on absence,
+> fail closed on a broken key. What was wrong was the factual premise about this
+> installation — and with it the Consequences claim that the change "is deployable before
+> any Business has used the new form" without answers stopping. It is not: until an owner
+> enters a key at `/line-oa`, this installation cannot answer.
+>
+> That was survivable here only because the account was **already** failing — every job
+> since 2026-09-15 expired `FAILED / EXECUTION_EXPIRED` with no device claiming it — so the
+> deploy took nothing working away. On an installation whose Phase-1 resolver really is
+> provisioned, the original sentence would have been a correct reading; the error was
+> asserting it of this one without looking.
+
 `resolveModel` reads the Business's `MODEL_PROVIDER` connection first and resolves its key
 through the port. Only when **no such connection exists** does it fall back to the Phase-1
-`zuri_core` resolver that production resolves its Anthropic key through today.
+`zuri_core` resolver.
 
 The fallback is a declared transition state with an owner, not a permanent second path. It
-exists because deploying D4 must not silence a Business that has not yet entered a key, and
-because the Phase-1 resolver is the live path — the roadmap's own note on TASK-ZAI-103 says
-its retirement "could not be proven safe within this task without a live/staging smoke
-test", and that is still true. Retiring it is a separate step, gated on every live Business
-holding a vault-backed key.
+exists so that an installation which *has* provisioned Phase-1 is not silenced by deploying
+D4, and because retiring that resolver — the roadmap's own note on TASK-ZAI-103 says it
+"could not be proven safe within this task without a live/staging smoke test" — is still a
+separate step, gated on every live Business holding a vault-backed key.
 
 Neither path falls back to the other on a resolution *failure*. A present-but-broken
 credential fails closed. A silent downgrade to a different key is the same class of
@@ -174,9 +193,19 @@ authorizes the file, not the operation.
 
 ## Consequences
 
-An installation that has not provisioned a model key keeps answering through the Phase-1
-resolver, so the change is deployable before any Business has used the new form. An
-installation that has provisioned one stops depending on an operator for the first time.
+An installation that has provisioned Phase-1 keeps answering through that resolver until a
+Business enters its own key, and stops depending on an operator the moment one does.
+
+An installation that has **not** provisioned Phase-1 cannot answer at all until an owner
+enters a key at `/line-oa`. This one had not — see the correction in D5 — so the deploy of
+2026-09-21 left LINE answering blocked on that single owner action. It was deployed anyway,
+on owner instruction, because the account had already been failing every job since
+2026-09-15: the change did not remove a working path, it replaced a dead one with a path the
+owner can complete without an operator.
+
+The lesson recorded here is narrower than "check production first": it is that a decision
+record may state a design freely, but a sentence asserting what a *particular* installation
+currently does is a claim about the world and needs a reading before it is written down.
 
 A customer running the edge daemon for LINE conversation work loses that capability on the
 deploy that removes the routes, not on the merge. Their extraction work is unaffected. The
