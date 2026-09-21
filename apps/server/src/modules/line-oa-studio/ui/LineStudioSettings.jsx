@@ -103,8 +103,9 @@ export default function LineStudioSettings() {
           }[chip.tone]
           const transport = account.serverEnabled
             ? 'Zuri Server'
+            // @req FR-265 — see LineCrmMultiOa.jsx: EDGE is a leftover, not a mode.
             : account.transportMode === 'EDGE'
-              ? 'Edge worker'
+              ? 'Edge (เลิกใช้แล้ว)'
               : 'ยังไม่เปิด Server'
           return (
             <div key={account.id} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">

@@ -1,6 +1,6 @@
-import { createPostgresBusinessKnowledgeReader, createCorpusKnowledgeReader } from '@/modules/knowledge'
-import { answerBusinessQuestion, createDeterministicBusinessModel, selectRegisteredQuery } from './grounded-business-answer'
-import { createLineReadQueryFromEnv, createPhase1BusinessAgentPortsFromEnv } from './phase1-runtime'
+import { createCorpusKnowledgeReader } from '@/modules/knowledge'
+import { answerBusinessQuestion, selectRegisteredQuery } from './grounded-business-answer'
+import { createPhase1BusinessAgentPortsFromEnv } from './phase1-runtime'
 import { assembleAgentContext } from './context'
 import { resolveAgentAuthorization } from './auth-context'
 import { composeContext } from './context-composer'
@@ -24,9 +24,10 @@ import {
 // no composer-representable shape yet and is stripped rather than leaked
 // unbudgeted; the rebuilt manifest folds in the composer's own drops so it
 // cannot claim nothing was truncated when the composer trimmed something.
-// Coverage today is partial: the LOCAL_ONLY / non-opt-in path's
-// business-evidence model invocation does not run through the composer and
-// records no receipt (see the composer module's own note).
+// Coverage today is partial: the non-opt-in path's business-evidence model
+// invocation does not run through the composer and records no receipt (see the
+// composer module's own note). This sentence named the LOCAL_ONLY path too until
+// FR-265 retired it.
 // @req FR-235 — the account's `knowledgeGrounding` mode (ADR-090 D1) selects
 // the reader `answerBusinessQuestion`'s single `knowledge.query` call uses.
 // `BUSINESS_KNOWLEDGE` (default) is completely unwrapped — same reader, same
@@ -270,7 +271,6 @@ export async function assertMemoryJobLive(job, memoryStateReader) {
 /** Input is the worker's claimed job, including the CRM `inbound` relation. */
 export function createServerLineAnswer({
   env = process.env,
-  knowledge,
   queryFn,
   runtimeFactory = createPhase1BusinessAgentPortsFromEnv,
   threadMemory = null,
@@ -278,7 +278,6 @@ export function createServerLineAnswer({
   authorizationResolver = resolveAgentAuthorization,
   ...runtimeDependencies
 } = {}) {
-  let localKnowledge = knowledge
   return async function answer(job, { trace, memoryStateReader } = {}) {
     const tenantId = job?.tenantId
     const businessId = job?.businessId
@@ -289,8 +288,6 @@ export function createServerLineAnswer({
     if (job.account && (job.account.tenantId !== tenantId || job.account.businessId !== businessId)) {
       throw failure('LINE_ANSWER_SCOPE_MISMATCH')
     }
-    const modelAccess = job.modelAccess ?? 'LOCAL_ONLY'
-    if (!['LOCAL_ONLY', 'EXTERNAL_MODEL_ALLOWED'].includes(modelAccess)) throw failure('LINE_MODEL_ACCESS_INVALID')
     const memoryOptIn = job.memorySyncOptIn === true
     const route = memoryOptIn ? memoryRoute(job) : null
     let selectedThreadMemory = memoryOptIn ? threadMemory : null
@@ -307,17 +304,15 @@ export function createServerLineAnswer({
       if (memoryOptIn && typeof selectedThreadMemory.withInjectionReceipt !== 'function') {
         throw failure('LINE_MEMORY_INJECTION_RECEIPT_UNAVAILABLE')
       }
-      if (modelAccess === 'LOCAL_ONLY') {
-        if (!localKnowledge) {
-          const execute = queryFn ?? createLineReadQueryFromEnv(env, { serverOwned: true })
-          if (!execute) throw failure('LINE_BUSINESS_KNOWLEDGE_NOT_CONFIGURED')
-          localKnowledge = createPostgresBusinessKnowledgeReader({ queryFn: execute })
-        }
-        businessKnowledge = localKnowledge
-        model = createDeterministicBusinessModel()
-      } else {
-        // Direct native ingress has already authenticated account scope. Opting
-        // out of Edge binding does not weaken the production provider/Vault gates.
+      // @req FR-265 — there was a branch here on `job.modelAccess`. Its
+      // `LOCAL_ONLY` side did not call a local model: it built
+      // `createDeterministicBusinessModel()`, a canned answerer, and replied to
+      // the customer with it. ADR-100 D3 retires the policy and with it the
+      // branch, so every answered turn resolves a real provider under the
+      // Business's own key (FR-266) — or fails closed and says so.
+      // Direct native ingress has already authenticated account scope; opting out
+      // of the legacy Edge binding does not weaken the provider/Vault gates.
+      {
         const ports = runtimePorts ?? await runtimeFactory(env, { ...runtimeDependencies, queryFn, bindingRequired: false })
         if (!ports?.businessKnowledge || typeof ports.resolveModel !== 'function') {
           throw failure('LINE_BUSINESS_AGENT_NOT_CONFIGURED')

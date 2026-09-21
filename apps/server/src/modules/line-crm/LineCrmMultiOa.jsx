@@ -82,8 +82,11 @@ export default function LineCrmMultiOa() {
             const status = account.effectiveStatus || account.status || 'UNKNOWN'
             const transport = account.serverEnabled
               ? 'Zuri Server'
+              // @req FR-265 — EDGE is retired (ADR-100 D1); a row still holding it
+              // is a pre-migration leftover, and saying so beats calling it a
+              // worker that is no longer allowed to run.
               : account.transportMode === 'EDGE'
-                ? 'Edge worker'
+                ? 'Edge (เลิกใช้แล้ว)'
                 : 'ยังไม่เปิด transport'
             return (
               <div key={account.id} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">

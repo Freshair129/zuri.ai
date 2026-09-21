@@ -12,10 +12,7 @@ import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './l
 import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 import { lineExecutionBudget } from '../domain/line-execution-budget'
 import { isLineProjectWorkCommand, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
-import { createEdgeLineMemoryContext } from '@/modules/agent/edge-line-memory-context'
-import { validateEdgeMemoryInvocation } from '@/modules/agent/edge-memory-invocation'
 import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
-import { createEdgePublishedCorpusContext, assertEdgePublishedCorpusContextCurrent } from '@/modules/knowledge/edge-published-corpus-context'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
@@ -24,19 +21,36 @@ import { createEdgePublishedCorpusContext, assertEdgePublishedCorpusContextCurre
 // @req FR-244 — outside the account's declared business hours, admission creates the
 //   job straight at READY with the out-of-hours text as its answer, so it is sent and
 //   recorded by the existing send phase and never reaches execution (ADR-094 D6 option A).
+// @req FR-265 — execution is server-only (ADR-100 D1, D2). The edge claim,
+//   context, tools, complete and fail entry points are withdrawn, and with them
+//   the memory/corpus context packets that existed only to hand a device enough
+//   to answer with. `LineConversationJob.executionMode` and `modelAccess` are
+//   still written, always with their one surviving value, because they are the
+//   ledger's record of how a turn ran and a column that stops being written
+//   reads as "unknown" rather than "server".
 // @spec ADR-061, SEC-001, FR-148 — queue and CRM share a transaction; devices cannot send.
 // @spec ADR-091 D5; ADR-094 D6
 // @tested tests/integration/server-line-jobs.test.js, tests/integration/line-non-text-admission.test.js,
 //   tests/integration/fr244-line-oa-business-hours.test.js
 
 export const LINE_JOB_LEASE_MS = 300_000
+
+// @req FR-265 — `LineConversationJob.modelAccess` recorded whether a turn was
+// allowed to reach an external provider. ADR-100 D3 retires the policy: every
+// server answer calls the configured provider under the Business's own key, so
+// there is one value left and this is it. The column keeps being written so that
+// a job row never reads as "no policy recorded"; nothing reads it back.
+const RETIRED_MODEL_ACCESS = 'EXTERNAL_MODEL_ALLOWED'
 const JOB_TTL_MS = 30 * 60_000
 const RETRY_WINDOW_MS = 23 * 60 * 60_000
 const WAITING = ['QUEUED', 'CLAIMED', 'READY']
 const runtimeInstanceId = randomUUID()
+// @req FR-265 — `zCompletion` outlives the withdrawn edge completion route: the
+// server worker still parses its own answer text through `zCompletion.shape.text`,
+// which is what bounds a model's reply. The matching `zFailure` had exactly one
+// caller, `failEdgeConversation`, and goes with it.
 const zCompletion = z.object({ version: z.number().int().positive(), text: z.string().trim().min(1).max(5000),
   executionId: z.string().uuid().optional(), contextReceipts: z.array(zEdgeContextReceipt).max(3).optional() }).strict()
-const zFailure = z.object({ version: z.number().int().positive(), code: z.enum(['EXECUTION_FAILED', 'LOCAL_POLICY_UNAVAILABLE', 'REPLY_DEADLINE_MISSED', 'MSP_INJECTION_RECEIPT_UNKNOWN']), executionId: z.string().uuid().optional(), contextReceipts: z.array(zEdgeContextReceipt).max(3).optional() }).strict()
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const sourceTimeMs = timestamp => Number.isFinite(timestamp) && Number.isFinite(new Date(timestamp).getTime())
   ? new Date(timestamp).getTime() : null
@@ -219,10 +233,13 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
       sessionId: inbound.sessionId ?? null,
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
       transportEpoch: current.transportEpoch,
-      // Human confirmations and deterministic work commands run at the authority
-      // that owns the records, even when this OA uses Edge for inference.
-      executionMode: isLineProjectWorkCommand(text) ? 'SERVER' : current.executionMode,
-      modelAccess: current.modelAccess, allowDelayedPush: current.allowDelayedPush,
+      // @req FR-265 — one execution placement remains (ADR-100 D1). This read the
+      // account's `executionMode` and forced SERVER for work commands; there is
+      // nothing left to force. `modelAccess` is written as the retired constant
+      // rather than copied from the account, because the account no longer
+      // carries a policy and nothing reads the job's copy.
+      executionMode: 'SERVER',
+      modelAccess: RETIRED_MODEL_ACCESS, allowDelayedPush: current.allowDelayedPush,
       // This is immutable trusted LINE admission provenance. The opt-in flag is
       // a per-job decision captured at the same boundary; later env changes do
       // not enroll or silently drop an already admitted job.
@@ -379,9 +396,14 @@ async function maintenance(db, now, scope = {}) {
     data: { status: 'READY', availableAt: now, claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
 }
 
-async function claimExecution({ db, executionMode, claimantId, deviceContext, now }) {
-  const scope = deviceContext ? { tenantId: deviceContext.tenantId, businessId: deviceContext.businessId } : {}
-  const rows = await db.lineConversationJob.findMany({ where: { ...scope, executionMode, status: 'QUEUED', availableAt: { lte: now }, expiresAt: { gt: now } },
+// @req FR-265 — the server is the only claimant (ADR-100 D2), so the device scope
+// and the execution-mode selector are gone. The `executionMode: 'SERVER'` filter
+// stays in the query: a job admitted before this change may still be QUEUED with
+// EDGE, and the server must not pick up work it was never meant to run — that job
+// expires through `maintenance` and is visible as a terminal failure, which is a
+// truthful outcome, where a silent takeover would not be.
+async function claimExecution({ db, claimantId, now }) {
+  const rows = await db.lineConversationJob.findMany({ where: { executionMode: 'SERVER', status: 'QUEUED', availableAt: { lte: now }, expiresAt: { gt: now } },
     include: { account: true, inbound: { include: { conversation: true } } }, orderBy: { createdAt: 'asc' }, take: 20 })
   for (const row of rows) {
     if (!activeAccount(row.account, row)) {
@@ -394,8 +416,8 @@ async function claimExecution({ db, executionMode, claimantId, deviceContext, no
       const result = await tx.lineConversationJob.updateMany({ where: { id: row.id, version: row.version, status: 'QUEUED' },
         data: { status: 'CLAIMED', claimantId, executionId, leaseExpiresAt, version: { increment: 1 } } })
       if (result.count) await traceEvent(tx, { ...row, executionId }, 'EXECUTION_STARTED', `execution:${executionId}`, {
-        instanceId: executionMode === 'SERVER' ? runtimeInstanceId : null,
-        claimantRef: claimantId, executionMode, claimedAt: now.toISOString(),
+        instanceId: runtimeInstanceId,
+        claimantRef: claimantId, executionMode: 'SERVER', claimedAt: now.toISOString(),
         conversationId: row.inbound.conversationId, inboundMessageId: row.inboundMessageId,
         sessionId: null, sessionDisposition: 'NOT_RESOLVED',
       }, now)
@@ -504,77 +526,13 @@ export async function admitCapturedLineEvents({
   return outcome
 }
 
-export async function claimEdgeConversation({ deviceContext, contractVersions = ['1'], db = prisma, now = new Date(),
-  memoryContext = createEdgeLineMemoryContext(), corpusContext = createEdgePublishedCorpusContext }) {
-  const claimStartedAt = performance.now()
-  const claimTime = () => new Date(now.getTime() + Math.max(0, performance.now() - claimStartedAt))
-  if (!deviceContext?.isEdgeDevice) throw failure(401, 'EDGE_CREDENTIAL_REQUIRED')
-  // The route re-resolves the active credential on every call; maintenance has no payload output.
-  await maintenance(db, now, { tenantId: deviceContext.tenantId, businessId: deviceContext.businessId })
-  const job = await claimExecution({ db, executionMode: 'EDGE', claimantId: deviceContext.credentialId, deviceContext, now })
-  if (!job) return null
-  const useV2 = contractVersions.includes('2')
-  const deadline = useV2 ? lineExecutionBudget(job, now) : null
-  const checkBudget = async () => {
-    if (!deadline || claimTime().getTime() < Date.parse(deadline.answerDeadlineAt)) return
-    await settleExecution(job.id, { version: job.version, executionId: job.executionId, code: 'REPLY_DEADLINE_MISSED' },
-      { db, claimantId: deviceContext.credentialId, deviceContext, now: claimTime() })
-    throw failure(409, 'REPLY_DEADLINE_MISSED')
-  }
-  await checkBudget()
-  let memoryPacket = null
-  let publishedCorpus = null
-  if (useV2 && ['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE'].includes(job.account.knowledgeGrounding)) {
-    try {
-      publishedCorpus = await corpusContext({ tenantId: job.tenantId, businessId: job.businessId,
-        expiresAt: new Date(Math.min(Date.parse(deadline.answerDeadlineAt), now.getTime() + 60000)).toISOString() }, { db })
-      if (!publishedCorpus) throw new Error('PUBLISHED_CORPUS_REQUIRED')
-    } catch {
-      await settleExecution(job.id, { version: job.version, executionId: job.executionId, code: 'EXECUTION_FAILED' },
-        { db, claimantId: deviceContext.credentialId, deviceContext, now: claimTime() })
-      throw failure(503, 'PUBLISHED_CORPUS_UNAVAILABLE')
-    }
-  }
-  await checkBudget()
-  if (useV2 && job.memorySyncOptIn) {
-    try {
-      memoryPacket = await memoryContext({ ...job, answerDeadlineAt: deadline.answerDeadlineAt }, {
-        memoryStateReader: id => db.lineConversationJob.findUnique({ where: { id }, include: { account: true } }),
-        budgetMs: Math.max(1, Math.min(3000, Date.parse(deadline.answerDeadlineAt) - claimTime().getTime() - 2000)),
-      })
-    } catch {
-      await settleExecution(job.id, { version: job.version, executionId: job.executionId, code: 'EXECUTION_FAILED' },
-        { db, claimantId: deviceContext.credentialId, deviceContext, now: claimTime() })
-      throw failure(503, 'LINE_MEMORY_CONTEXT_UNAVAILABLE')
-    }
-  }
-  await checkBudget()
-  if (useV2) await atomic(db, async tx => {
-    const current = await tx.lineConversationJob.findFirst({ where: { id: job.id, status: 'CLAIMED',
-      version: job.version, executionId: job.executionId, claimantId: deviceContext.credentialId },
-      include: { account: true } })
-    if (!current || !activeAccount(current.account, current) || !current.leaseExpiresAt
-      || current.leaseExpiresAt <= claimTime() || current.expiresAt <= claimTime()) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
-    await traceEvent(tx, job, 'CONTEXT_COMMITTED', `execution:${job.executionId}:contract`, {
-      contractVersion: '2', executionBudget: deadline,
-      ...(memoryPacket ? { memoryContextHash: memoryPacket.contextHash } : {}),
-      ...(publishedCorpus ? { publishedCorpus: { corpusId: publishedCorpus.corpusId,
-        corpusGeneration: publishedCorpus.corpusGeneration, manifestHash: publishedCorpus.manifestHash } } : {}),
-    }, now)
-  })
-  await checkBudget()
-  return { contractVersion: useV2 ? '2' : '1', job: { id: job.id, version: job.version, question: job.inbound.body,
-    conversationKey: `line:${job.accountId}:${job.inbound.conversationId}`, leaseExpiresAt: job.leaseExpiresAt.toISOString(),
-    ...(useV2 ? { executionId: job.executionId, deadline, ...(memoryPacket ? { memoryContext: memoryPacket } : {}),
-      ...(publishedCorpus ? { corpusContext: publishedCorpus } : {}) } : {}),
-    policy: { modelAccess: job.modelAccess, role: 'sales', retainHistory: false } } }
-}
-
-async function settleExecution(id, { version, text, code, executionId, contextReceipts, traceFailureCode, outcome }, { db, claimantId, deviceContext, now }) {
+// @req FR-265 — the only settler is the server worker (ADR-100 D2). `deviceContext`
+// scoping, the `EDGE_REPORTED` context-receipt source and the published-corpus
+// re-check a device's claim needed are gone with the claim that produced them.
+async function settleExecution(id, { version, text, code, executionId, contextReceipts, traceFailureCode, outcome }, { db, claimantId, now }) {
   const startedAt = performance.now()
   return db.$transaction(async tx => {
-    const scope = deviceContext ? { tenantId: deviceContext.tenantId, businessId: deviceContext.businessId, executionMode: 'EDGE' } : { executionMode: 'SERVER' }
-    const job = await tx.lineConversationJob.findFirst({ where: { id, ...scope }, include: { account: true } })
+    const job = await tx.lineConversationJob.findFirst({ where: { id, executionMode: 'SERVER' }, include: { account: true } })
     if (!job) throw failure(404, 'CONVERSATION_JOB_NOT_FOUND')
     if (!activeAccount(job.account, job) || job.status !== 'CLAIMED' || job.version !== version
       || job.claimantId !== claimantId || !job.leaseExpiresAt || job.leaseExpiresAt <= now || job.expiresAt <= now) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
@@ -585,11 +543,6 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
     if (contract?.contractVersion === '2' && executionId !== job.executionId) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
     if (contextReceipts?.length && !executionId) throw failure(400, 'CONTEXT_RECEIPT_EXECUTION_REQUIRED')
     const deadline = contract?.executionBudget ?? (executionId ? lineExecutionBudget(job, new Date(job.leaseExpiresAt.getTime() - LINE_JOB_LEASE_MS)) : null)
-    if (!code && contract?.publishedCorpus) {
-      try { await assertEdgePublishedCorpusContextCurrent({ tenantId: job.tenantId, businessId: job.businessId,
-        ...contract.publishedCorpus }, { db: tx }) }
-      catch { code = 'EXECUTION_FAILED'; text = undefined }
-    }
     // Charge authorization/corpus validation time too; an expensive manifest read
     // must not turn an answer that crossed the cutoff into READY.
     const checkedAt = now.getTime() + Math.max(0, performance.now() - startedAt)
@@ -608,50 +561,17 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
     if (!update.count) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
     for (const [index, receipt] of (contextReceipts ?? []).entries()) {
       await traceEvent(tx, job, 'CONTEXT_RECEIPT', `context:${executionId}:${index}`,
-        { ...receipt, evidenceSource: 'EDGE_REPORTED' }, now)
+        { ...receipt, evidenceSource: 'SERVER' }, now)
     }
     await traceEvent(tx, job, code ? 'EXECUTION_FAILED' : 'ANSWER_READY', `settled:${version}`, {
       ...(code ? { errorCode: code, traceFailureCode: traceFailureCode ?? null,
         ...(outcome === 'UNKNOWN' ? { outcome: 'UNKNOWN' } : {}) }
         : { text, answerReadyAt: now.toISOString() }),
-      executionEvidence: job.executionMode === 'EDGE' ? (contextReceipts?.length ? 'EDGE_CONTEXT_REPORTED' : 'EXTERNAL_CONTEXT_NOT_REPORTED') : 'SERVER',
+      executionEvidence: 'SERVER',
       ...(deadline ? { executionBudget: deadline, completedAt: now.toISOString() } : {}),
     }, now)
     return { id, status: finalStatus, version: version + 1 }
   })
-}
-
-export async function completeEdgeConversation(id, input, { deviceContext, db = prisma, now = new Date(), env = process.env, nudge = nudgeWorker,
-  validateMemory = validateEdgeMemoryInvocation }) {
-  const completionStartedAt = performance.now()
-  const currentTime = () => new Date(now.getTime() + Math.max(0, performance.now() - completionStartedAt))
-  if (!deviceContext?.isEdgeDevice) throw failure(401, 'EDGE_CREDENTIAL_REQUIRED')
-  const parsed = zCompletion.parse(input)
-  if (parsed.executionId) {
-    const contract = await db.agentTraceEvent.findFirst({ where: {
-      turnId: id, executionId: parsed.executionId, tenantId: deviceContext.tenantId, businessId: deviceContext.businessId,
-      idempotencyKey: `${id}:execution:${parsed.executionId}:contract`, kind: 'CONTEXT_COMMITTED',
-    } })
-    const memoryContextHash = contract ? JSON.parse(contract.payloadJson).memoryContextHash : null
-    if (memoryContextHash) {
-      try { await validateMemory(id, { version: parsed.version, executionId: parsed.executionId, contextHash: memoryContextHash },
-        { db, deviceContext }) }
-      catch {
-        return settleExecution(id, { version: parsed.version, executionId: parsed.executionId, code: 'LOCAL_POLICY_UNAVAILABLE',
-          contextReceipts: parsed.contextReceipts }, { db, claimantId: deviceContext.credentialId, deviceContext, now: currentTime() })
-      }
-    }
-  }
-  const result = await settleExecution(id, parsed, { db, claimantId: deviceContext.credentialId, deviceContext, now: currentTime() })
-  if (result.status === 'READY') { try { nudge(env) } catch { /* durable worker polling remains the floor */ } }
-  return result
-}
-
-export async function failEdgeConversation(id, input, { deviceContext, db = prisma, now = new Date() }) {
-  if (!deviceContext?.isEdgeDevice) throw failure(401, 'EDGE_CREDENTIAL_REQUIRED')
-  const parsed = zFailure.parse(input)
-  return settleExecution(id, { ...parsed, ...(parsed.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? { outcome: 'UNKNOWN' } : {}) },
-    { db, claimantId: deviceContext.credentialId, deviceContext, now })
 }
 
 async function reconcileAccepted(db, job) {
@@ -793,7 +713,7 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
     // The first claimant keeps the plain worker id, so a tick that finds one job behaves — and
     // records — exactly as it did before this became a batch.
     const claimantId = index === 0 ? workerId : `${workerId}#${index}`
-    const claimed = await claimExecution({ db, executionMode: 'SERVER', claimantId, now: now() })
+    const claimed = await claimExecution({ db, claimantId, now: now() })
     if (!claimed) break
     claims.push({ execution: claimed, claimantId })
   }

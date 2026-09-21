@@ -61,6 +61,9 @@ describe('FR-146 LineOaAccount Prisma, backup and migration contract', () => {
   it('names the closed vocabularies once, in enums.js', () => {
     const enums = read('src/lib/validation/enums.js')
     expect(enums).toMatch(/LINE_OA_ACCOUNT_STATUSES = \['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIVED'\]/)
-    expect(enums).toMatch(/LINE_OA_TRANSPORT_MODES = \['EDGE', 'CLOUD'\]/)
+    // @req FR-265 — EDGE left the vocabulary (ADR-100 D1). The list is kept as a
+    // list of one rather than collapsed to a constant, because job rows still read
+    // EDGE as history and a vocabulary that once had two members says so.
+    expect(enums).toMatch(/LINE_OA_TRANSPORT_MODES = \['CLOUD'\]/)
   })
 })

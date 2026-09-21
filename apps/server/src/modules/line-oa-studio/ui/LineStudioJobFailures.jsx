@@ -13,7 +13,7 @@
 import React, { useEffect, useState } from "react";
 import { useScope } from "@/context/ScopeContext";
 
-// Copied verbatim from LineStudioEdgeConnection.jsx — the module's one fetch
+// Copied verbatim from LineStudioAccountConsole.jsx — the module's one fetch
 // convention, so this card fails the same way the rest of the Studio does.
 async function api(url, method = "GET", body) {
   const response = await fetch(url, {

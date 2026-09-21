@@ -101,14 +101,19 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/connections/{id}/credential', ['POST']],
   ['/api/line-oa/connections/{id}/credential/revoke', ['POST']],
   ['/api/line-oa/connections/{id}/credential/validate', ['POST']],
+  // @req FR-266 — the Business owner's model provider API key (ADR-100 D4): the
+  // same write-only vault lifecycle as the LINE channel credential above, for the
+  // key every server answer now calls a model with. GET carries status only.
+  ['/api/integration/model-providers', ['GET', 'POST']],
+  ['/api/integration/model-providers/{id}/revoke', ['POST']],
+  ['/api/integration/model-providers/{id}/validate', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/line-oa/jobs/failures', ['GET']],
-  ['/api/edge/conversation-jobs/claim', ['POST']],
-  ['/api/edge/conversation-jobs/{id}/context', ['POST']], ['/api/edge/conversation-jobs/{id}/tools', ['POST']],
-  ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
-  // @req FR-244 — the identity-free residency poll (ADR-061, ADR-094 D6 option A).
-  ['/api/edge/model-residency', ['POST']],
+  // @req FR-265 — the five edge conversation-job operations and the identity-free
+  // residency poll are withdrawn (ADR-100 D2). The extraction and pairing
+  // operations below are untouched: this retired LINE conversation work on the
+  // device, not the device.
   // @req FR-143, FR-144 — the edge-executed extraction surface: three
   // owner-governed credential operations on the Platform side, four
   // device-authenticated job operations, and the review surface's job read.

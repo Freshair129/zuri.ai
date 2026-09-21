@@ -82,7 +82,6 @@ const ACTIONS = Object.freeze({
   RESUME: 'LINE_OA_ACCOUNT_RESUMED',
   ARCHIVE: 'LINE_OA_ACCOUNT_ARCHIVED',
   SET_DEFAULT: 'LINE_OA_ACCOUNT_DEFAULT_SET',
-  SWITCH_TRANSPORT_MODE: 'LINE_OA_ACCOUNT_TRANSPORT_MODE_SWITCHED',
   CONFIGURE_KNOWLEDGE_GROUNDING: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED',
   REGISTER_WEBHOOK: 'LINE_OA_ACCOUNT_WEBHOOK_REGISTERED',
   // @req FR-243 — the conversation session idle timeout (ADR-094 D3).
@@ -542,23 +541,18 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
         payload.to.isDefaultForBusiness = true
         break
       }
-      case 'SWITCH_TRANSPORT_MODE': {
-        if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
-        if (row.transportMode === data.transportMode) throw failure(409, 'LINE_OA_TRANSPORT_MODE_UNCHANGED')
-        change.transportMode = data.transportMode
-        payload.from.transportMode = row.transportMode
-        payload.to.transportMode = data.transportMode
-        // The shared epoch fence below cancels work issued to the old owner.
-        if (data.transportMode === 'EDGE') change.serverEnabled = false
-        break
-      }
+      // @req FR-265 — `SWITCH_TRANSPORT_MODE` is withdrawn (ADR-100 D1); the
+      // action no longer exists in the vocabulary, so there is no case for it.
+      // @req FR-265 — `CONFIGURE_EXECUTION` writes only the delivery choice now.
+      // It still fences queued work, exactly as it did when it also carried the
+      // execution placement: `allowDelayedPush` decides whether a job whose reply
+      // token died may still be pushed, so a job already waiting on the old
+      // answer must not be completed under the new policy.
       case 'CONFIGURE_EXECUTION': {
         if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
-        for (const key of ['executionMode', 'modelAccess', 'allowDelayedPush']) {
-          change[key] = data[key]
-          payload.from[key] = row[key]
-          payload.to[key] = data[key]
-        }
+        change.allowDelayedPush = data.allowDelayedPush
+        payload.from.allowDelayedPush = row.allowDelayedPush
+        payload.to.allowDelayedPush = data.allowDelayedPush
         break
       }
       // @req FR-235 — the publisher's grounding-mode switch (ADR-090 D1).
@@ -603,6 +597,11 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       }
       case 'ENABLE_SERVER': {
         if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
+        // @req FR-265 — the `transportMode !== 'CLOUD'` half of this guard can no
+        // longer be false through any supported path (ADR-100 D1). It is kept
+        // rather than deleted because a row restored from a pre-ADR-100 snapshot
+        // or a hand-edited database can still carry EDGE, and activation is the
+        // one place that must refuse it rather than assume it away.
         if (!LINE_OA_ACCOUNT_STATUSES.filter(status => status !== 'ARCHIVED').includes(row.status) || row.transportMode !== 'CLOUD') throw failure(409, 'LINE_OA_SERVER_ACTIVATION_INVALID')
 
         // @req FR-228 — whether the legacy handoff is typed or derived depends on

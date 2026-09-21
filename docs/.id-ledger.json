@@ -392,6 +392,8 @@
     "FR-262",
     "FR-263",
     "FR-264",
+    "FR-265",
+    "FR-266",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -522,6 +524,7 @@
     "SDD-103",
     "SDD-104",
     "SDD-105",
+    "SDD-106",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -602,6 +605,7 @@
     "FEAT-042",
     "FEAT-043",
     "FEAT-044",
+    "FEAT-045",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -789,6 +793,7 @@
     "ADR-097",
     "ADR-098",
     "ADR-099",
+    "ADR-100",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4890,6 +4895,32 @@
         }
       ]
     },
+    "FR-265": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cff5e1e1e7039544d820d4b825db9f639f4c0f51b26158484540b30f29435741",
+      "history": [
+        {
+          "anchor": "line oa studio conversation work is server executed only",
+          "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-266": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6d521e25e48c874b467dd90b2e3b0778088577cc82faee8d1f46a09e00c33baf",
+      "history": [
+        {
+          "anchor": "a business owner provisions the model provider api key from",
+          "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6606,6 +6637,19 @@
         }
       ]
     },
+    "SDD-106": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c5e5f3978ec7a507bd166305845110eecf766904300f1e50e2f1bf0246a207c1",
+      "history": [
+        {
+          "anchor": "model credential resolution order for a server line answer",
+          "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -7681,6 +7725,19 @@
         {
           "anchor": "mission control dag orchestration observability",
           "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-045": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "a8b0fdf589c99e877a38ba1d017f7f6b1cf3dfec22ab7471f5e5e796ce7bbe60",
+      "history": [
+        {
+          "anchor": "line oa on api keys only",
+          "since": "2026-09-20",
           "reason": "declared"
         }
       ]
@@ -10138,6 +10195,19 @@
         {
           "anchor": "server owned self hosted inference pool",
           "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-100": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md",
+      "status": "current",
+      "statement_digest": "5a1aaf854d3b89610707a2307c727b8cd94ae84b52a173cea9fb112ae6771755",
+      "history": [
+        {
+          "anchor": "line oa runs server executed on browser provisioned api keys",
+          "since": "2026-09-20",
           "reason": "declared"
         }
       ]

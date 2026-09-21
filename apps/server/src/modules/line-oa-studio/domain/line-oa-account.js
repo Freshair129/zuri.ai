@@ -24,7 +24,11 @@ import {
 //   service in application/ is the only writer and calls these.
 // @spec ADR-060 D2, D3, D5, D11 — one Business per account, many accounts per
 //   Business; LIVE is derived from the agent lane's binding and never stored;
-//   transportMode is EDGE or CLOUD; ADR-061 makes CLOUD the unconditional default.
+//   transportMode was EDGE or CLOUD and ADR-061 made CLOUD the unconditional
+//   default; ADR-100 D1 makes it the only value.
+// @req FR-265 — the account action contract no longer carries a transport mode,
+//   an execution mode or a model-access policy. `CONFIGURE_EXECUTION` keeps its
+//   name and carries the one field that is still a choice, `allowDelayedPush`.
 // @spec BR-002 — LINE identifiers (basic id, channel id, bot user id) are
 //   attributes here, never keys.
 // @tested tests/unit/line-oa-account-domain.test.js, tests/integration/fr227-line-oa-webhook-registration.test.js,
@@ -62,6 +66,8 @@ export const zConnectLineOaAccount = z.object({
   displayName: z.string().trim().min(1).max(200),
   basicId: z.string().trim().regex(BASIC_ID_PATTERN, 'basicId must look like @handle').optional(),
   bindingCode: z.string().trim().min(1).max(200).optional(),
+  // @req FR-265 — kept so a caller may name the one legal value explicitly; it
+  //   can no longer select a different owner, because there is no other one.
   transportMode: z.enum(LINE_OA_TRANSPORT_MODES).optional(),
   isDefaultForBusiness: z.boolean().optional(),
   botProfile: zBotProfile.optional(),
@@ -72,9 +78,6 @@ export const zLineOaAccountAction = z.object({
   // Optimistic concurrency: the caller names the version it read. A stale
   // version is a conflict, never a silent last-writer-wins (ADR-060 D5, D11).
   version: z.number().int().positive(),
-  transportMode: z.enum(LINE_OA_TRANSPORT_MODES).optional(),
-  executionMode: z.enum(['SERVER', 'EDGE']).optional(),
-  modelAccess: z.enum(['LOCAL_ONLY', 'EXTERNAL_MODEL_ALLOWED']).optional(),
   allowDelayedPush: z.boolean().optional(),
   legacyQuiesced: z.literal(true).optional(),
   // @req FR-235 — publisher-set grounding mode (ADR-090 D1).
@@ -90,17 +93,19 @@ export const zLineOaAccountAction = z.object({
   outOfHoursReplyText: z.string().trim().min(1).max(1000).optional(),
   clearBusinessHours: z.literal(true).optional(),
 }).strict().superRefine((value, ctx) => {
-  if (value.action === 'CONFIGURE_EXECUTION' && (!value.executionMode || !value.modelAccess || typeof value.allowDelayedPush !== 'boolean')) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Execution mode, model access and delayed push policy are required' })
+  // @req FR-265 — `CONFIGURE_EXECUTION` once required an execution mode and a
+  // model-access policy alongside the delivery choice. Both are retired (ADR-100
+  // D1, D3), so the delivery choice is the whole payload — and it is still
+  // required, because "absent" and "false" must not mean the same thing for a
+  // setting that decides whether a late answer reaches the customer at all.
+  if (value.action === 'CONFIGURE_EXECUTION' && typeof value.allowDelayedPush !== 'boolean') {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['allowDelayedPush'], message: 'allowDelayedPush is required for CONFIGURE_EXECUTION' })
   }
   // @req FR-228 — whether ENABLE_SERVER needs the typed `legacyQuiesced` literal
   // depends on the account's credential store (mount-backed keeps it; a
   // vault-backed account derives it instead, ADR-089 D8) — data this pure
   // schema cannot see, so the service enforces it after loading the row rather
   // than here. This schema only shapes the field when it is present.
-  if (value.action === 'SWITCH_TRANSPORT_MODE' && !value.transportMode) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['transportMode'], message: 'transportMode is required for SWITCH_TRANSPORT_MODE' })
-  }
   if (value.action === 'CONFIGURE_SESSION_TIMEOUT' && value.sessionIdleTimeoutMinutes === undefined) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['sessionIdleTimeoutMinutes'], message: 'sessionIdleTimeoutMinutes is required for CONFIGURE_SESSION_TIMEOUT' })
   }

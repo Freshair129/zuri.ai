@@ -231,8 +231,8 @@ describe('OpenAPI document', () => {
       // The branch's FR-215 pipeline-health route remains in the composition.
       // FR-094/FR-095 adds WebAuthn Passkeys: six paths, seven operations.
       // TASK-ZAI-053 adds six supplier cost-sheet paths and six operations.
-      pathCount: 328,
-      operationCount: 433,
+      pathCount: 325,
+      operationCount: 431,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

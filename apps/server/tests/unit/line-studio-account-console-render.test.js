@@ -7,7 +7,7 @@ import { resolve } from 'node:path'
 import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
-import LineStudioEdgeConnection from '@/modules/line-oa-studio/ui/LineStudioEdgeConnection'
+import LineStudioAccountConsole from '@/modules/line-oa-studio/ui/LineStudioAccountConsole'
 import { ScopeProvider } from '@/context/ScopeContext'
 import { sampleInventory } from '../factories/scope-context'
 
@@ -23,7 +23,7 @@ describe('LINE OA Edge Connection rendering', () => {
     const html = renderToStaticMarkup(createElement(
       ScopeProvider,
       { inventory: sampleInventory(), selection: { businessId: 'biz-1' } },
-      createElement(LineStudioEdgeConnection),
+      createElement(LineStudioAccountConsole),
     ))
     // The real FR-144 pairing form is present.
     expect(html).toContain('จับคู่ Edge Device ใหม่')
@@ -38,7 +38,7 @@ describe('LINE OA Edge Connection rendering', () => {
     const html = renderToStaticMarkup(createElement(
       ScopeProvider,
       { inventory: sampleInventory(), selection: {} },
-      createElement(LineStudioEdgeConnection),
+      createElement(LineStudioAccountConsole),
     ))
     expect(html).toContain('กรุณาเลือก Business ก่อนจัดการ')
   })
@@ -48,7 +48,7 @@ describe('LINE OA Edge Connection rendering', () => {
 // only appears once credentials have loaded cannot be asserted from the markup. The shipped source
 // is the checkable surface — the same approach integrations-page-claims.test.js takes.
 describe('the one surface that governs device keys offers all three operations', () => {
-  const page = readFileSync(resolve(process.cwd(), 'src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx'), 'utf8')
+  const page = readFileSync(resolve(process.cwd(), 'src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx'), 'utf8')
 
   it('can revoke, not only mint and list', () => {
     // Consolidating the pairing UI here (PR #304) removed the Integrations page's revoke button

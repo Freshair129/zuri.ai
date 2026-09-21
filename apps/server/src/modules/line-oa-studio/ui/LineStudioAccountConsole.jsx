@@ -54,6 +54,7 @@ import LineOaConnectWizard from "./LineOaConnectWizard";
 import LineOaCredentialMigrationCard from "./LineOaCredentialMigrationCard";
 import { lineTraceSummary } from "../domain/line-trace-summary";
 import LineOaReadinessJourney from "./LineOaReadinessJourney";
+import LineOaModelKeyCard from "./LineOaModelKeyCard";
 
 async function api(url, method = "GET", body) {
   const response = await fetch(url, {
@@ -67,7 +68,7 @@ async function api(url, method = "GET", body) {
 
 const fieldClass = "w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-xs focus:ring-2 focus:ring-brand-amber/30 focus:outline-none";
 
-export default function LineStudioEdgeConnection() {
+export default function LineStudioAccountConsole() {
   const scope = useScope();
   const business = scope?.shell?.activeBusiness;
 
@@ -92,6 +93,9 @@ export default function LineStudioEdgeConnection() {
   // response, never again (mintEdgeDeviceCredential's own contract).
   const [credentials, setCredentials] = useState([]);
   const [credentialsLoading, setCredentialsLoading] = useState(false);
+  // @req FR-266 — the Business's model provider key status (ADR-100 D4). Status
+  // only: provider, model id and validation time, never material.
+  const [modelStatus, setModelStatus] = useState(null);
   const [mintDeviceId, setMintDeviceId] = useState("");
   const [mintLabel, setMintLabel] = useState("");
   const [minting, setMinting] = useState(false);
@@ -102,6 +106,21 @@ export default function LineStudioEdgeConnection() {
   useEffect(() => {
     setPublicOrigin(resolveBrowserOrigin({ location: window.location }));
   }, []);
+
+  const loadModelStatus = useCallback(async () => {
+    if (!business?.id) {
+      setModelStatus(null);
+      return;
+    }
+    try {
+      setModelStatus(await api(`/api/integration/model-providers?businessId=${encodeURIComponent(business.id)}`));
+    } catch {
+      // A model-status read that fails must not blank the account console: the
+      // card renders its own "not entered" state, which is also the truthful
+      // answer when we could not find out.
+      setModelStatus(null);
+    }
+  }, [business?.id]);
 
   const loadCredentials = useCallback(async () => {
     if (!business?.id) {
@@ -213,7 +232,11 @@ export default function LineStudioEdgeConnection() {
     setMinted(null);
     refresh().catch((err) => setError(err.message));
     loadCredentials().catch((err) => setError(err.message));
-  }, [refresh, loadCredentials]);
+    // @req FR-266 — the model key status is swallowed rather than surfaced as a
+    // page error: `loadModelStatus` already leaves `modelStatus` null on failure,
+    // and the card reads that as "no key yet", which is the honest rendering.
+    loadModelStatus();
+  }, [refresh, loadCredentials, loadModelStatus]);
 
   async function run(task) {
     setBusy(true);
@@ -263,11 +286,16 @@ export default function LineStudioEdgeConnection() {
               </span>
               <span className="text-xs text-slate-400">Zero Secret Exposure Architecture</span>
             </div>
+            {/* FR-265 — this said the architecture could dispatch an answer to a
+                Zuri Edge Device. It cannot any more (ADR-100 D1), and a page that
+                advertises a capability the server refuses is worse than one that
+                says nothing. The device keeps its pairing and its extraction work,
+                which is what the section below is actually about. */}
             <h2 className="text-lg font-bold text-white tracking-tight">
               Server Transport & Zuri Edge Device Topology
             </h2>
             <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              สถาปัตยกรรม 2 ขา: <strong>Zuri Cloud Server</strong> รับ Ingress Webhook ตลอด 24/7 และสลับประมวลผลคำตอบได้ทั้งบน Cloud หรือส่งคำสั่งไปยัง <strong>Zuri Edge Device</strong> ในองค์กรแบบ Zero-Trust
+              <strong>Zuri Cloud Server</strong> รับ Ingress Webhook ตลอด 24/7 และประมวลผลคำตอบทุกข้อความเอง โดยเรียกโมเดลด้วย API key ของธุรกิจ · <strong>Zuri Edge Device</strong> ที่จับคู่ไว้ใช้สำหรับงานสกัดหลักฐานในองค์กรแบบ Zero-Trust ไม่ใช่การตอบแชท
             </p>
           </div>
 
@@ -482,7 +510,7 @@ export default function LineStudioEdgeConnection() {
                   <AccountCard
                     key={account.id}
                     account={account}
-                    credentials={credentials}
+                    modelCredential={modelStatus?.modelCredential ?? null}
                     onAction={action}
                     onRefresh={refresh}
                     busy={busy}
@@ -490,6 +518,14 @@ export default function LineStudioEdgeConnection() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* FR-266: the model provider API key every server answer calls a
+              model with (ADR-100 D4). One per Business, so it sits beside the
+              account list rather than inside each account card. */}
+          <div id="line-oa-model-key">
+            <LineOaModelKeyCard businessId={business?.id} status={modelStatus} api={api}
+              busy={busy} onSaved={loadModelStatus} />
           </div>
 
           {/* FR-225: the Thai self-serve connect wizard replaces the old
@@ -501,9 +537,7 @@ export default function LineStudioEdgeConnection() {
   );
 }
 
-function AccountCard({ account, credentials, onAction, onRefresh, busy }) {
-  const [mode, setMode] = useState(account.executionMode);
-  const [access, setAccess] = useState(account.modelAccess);
+function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
   const [push, setPush] = useState(account.allowDelayedPush);
   const [grounding, setGrounding] = useState(account.knowledgeGrounding);
   const [sessionTimeout, setSessionTimeout] = useState(String(account.sessionIdleTimeoutMinutes ?? 30));
@@ -517,8 +551,6 @@ function AccountCard({ account, credentials, onAction, onRefresh, busy }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setMode(account.executionMode);
-    setAccess(account.modelAccess);
     setPush(account.allowDelayedPush);
     setGrounding(account.knowledgeGrounding);
     setSessionTimeout(String(account.sessionIdleTimeoutMinutes ?? 30));
@@ -580,7 +612,7 @@ function AccountCard({ account, credentials, onAction, onRefresh, busy }) {
             <span className="text-xs text-slate-500 font-mono">({account.basicId || account.code})</span>
           </h2>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            LINE Transport: <strong className="text-slate-800 dark:text-slate-200">{account.serverEnabled ? "Zuri Server" : account.transportMode === "EDGE" ? "Edge worker" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-emerald-600">{account.health?.connection?.status || "UNKNOWN"}</span>
+            LINE Transport: <strong className="text-slate-800 dark:text-slate-200">{account.serverEnabled ? "Zuri Server" : account.transportMode === "EDGE" ? "Edge (เลิกใช้แล้ว - ต้องย้าย)" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-emerald-600">{account.health?.connection?.status || "UNKNOWN"}</span>
           </p>
         </div>
         <StatusPill status={account.effectiveStatus} />
@@ -599,42 +631,13 @@ function AccountCard({ account, credentials, onAction, onRefresh, busy }) {
           mount-to-vault migration card only for a DEPLOYMENT_MOUNT-backed
           connection (design §4.9 step 4). */}
       <LineOaCredentialMigrationCard account={account} onMigrated={onRefresh} />
-      <LineOaReadinessJourney key={account.id} account={account} credentials={credentials}
+      <LineOaReadinessJourney key={account.id} account={account} modelCredential={modelCredential}
         onAction={onAction} onLoadJobs={() => loadJobs()} busy={busy} />
 
       <fieldset disabled={busy || account.status === "ARCHIVED"} className="grid gap-3 pt-1">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          <div>
-            <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-              ประมวลผลคำตอบ
-            </label>
-            <select
-              aria-label="ประมวลผลคำตอบ"
-              className={fieldClass}
-              value={mode}
-              onChange={(e) => setMode(e.target.value)}
-            >
-              <option value="SERVER">Server</option>
-              <option value="EDGE">Edge worker</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-              การใช้โมเดล
-            </label>
-            <select
-              aria-label="การใช้โมเดล"
-              className={fieldClass}
-              value={access}
-              onChange={(e) => setAccess(e.target.value)}
-            >
-              <option value="LOCAL_ONLY">Local only</option>
-              <option value="EXTERNAL_MODEL_ALLOWED">อนุญาต Cloud API</option>
-            </select>
-          </div>
-        </div>
-
+        {/* FR-265 — the execution-placement and model-access selects are gone
+            (ADR-100 D1, D3). Answers run on the server and call the Business's own
+            model key; neither was a choice the owner could act on any more. */}
         <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
           <input
             type="checkbox"
@@ -691,9 +694,10 @@ function AccountCard({ account, credentials, onAction, onRefresh, busy }) {
           <button
             type="button"
             className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold"
-            onClick={() => onAction(account, { action: "CONFIGURE_EXECUTION", executionMode: mode, modelAccess: access, allowDelayedPush: push })}
+            disabled={push === account.allowDelayedPush}
+            onClick={() => onAction(account, { action: "CONFIGURE_EXECUTION", allowDelayedPush: push })}
           >
-            บันทึกการประมวลผล
+            บันทึกนโยบายการส่ง
           </button>
 
           <button
@@ -738,13 +742,13 @@ function AccountCard({ account, credentials, onAction, onRefresh, busy }) {
               </button>
             </div>
           ) : (
-            <button
-              type="button"
-              className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold"
-              onClick={() => onAction(account, { action: "SWITCH_TRANSPORT_MODE", transportMode: "CLOUD" })}
-            >
-              เตรียมย้ายไป Server
-            </button>
+            /* FR-265 — this branch used to offer SWITCH_TRANSPORT_MODE back to
+               CLOUD. The action is withdrawn (ADR-100 D1), so a row still reading
+               EDGE is a pre-migration leftover the owner cannot fix from here; it
+               says so rather than offering a button that would 400. */
+            <p className="rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[11px] text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+              บัญชีนี้ยังบันทึกเป็น transport แบบ Edge ซึ่งเลิกใช้แล้ว ต้องให้ผู้ดูแลระบบย้ายข้อมูลเป็น CLOUD ก่อนจึงจะเปิด Server transport ได้
+            </p>
           )}
 
           <button

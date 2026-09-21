@@ -7,7 +7,7 @@ import LineStudioDashboard from "./LineStudioDashboard";
 import LineStudioProjects from "./LineStudioProjects";
 import LineStudioDesignHub from "./LineStudioDesignHub";
 import LineStudioLiveCrm from "./LineStudioLiveCrm";
-import LineStudioEdgeConnection from "./LineStudioEdgeConnection";
+import LineStudioAccountConsole from "./LineStudioAccountConsole";
 import LineStudioJobFailures from "./LineStudioJobFailures";
 import LineStudioTemplates from "./LineStudioTemplates";
 import LineStudioTeam from "./LineStudioTeam";
@@ -203,7 +203,7 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
         {activeTab === "edge-connection" && (
           <div className="space-y-6">
             <LineStudioJobFailures />
-            <LineStudioEdgeConnection />
+            <LineStudioAccountConsole />
           </div>
         )}
 
