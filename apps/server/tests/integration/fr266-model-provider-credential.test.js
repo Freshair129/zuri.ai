@@ -29,21 +29,30 @@ const savedEnv = {}
 const responses = []
 let business, person, viewer, sessionToken
 
-// The stub provider: a key is good only if it was handed out by `key()`, and the
-// probe URL must be the one this provider's adapter is supposed to call.
+// The stub provider behaves like the real per-model endpoints: the key is checked
+// first (401 for one not handed out by `key()`), then the model (404 for one this
+// provider does not offer). The URL must be the provider's own per-model endpoint.
 const goodKeys = new Set()
 const fetchCalls = []
 let providerStatus = null // when set, every probe answers with this status instead
+const AVAILABLE_MODELS = {
+  anthropic: new Set(['claude-sonnet-5']),
+  openai: new Set(['gpt-4o-mini']),
+  gemini: new Set(['gemini-2.0-flash']),
+  groq: new Set(['llama-3.3-70b-versatile']),
+}
 async function fakeFetch(url, init) {
   fetchCalls.push({ url, headers: init?.headers ?? {} })
   const reply = (status) => ({ status, ok: status < 300, json: async () => ({}) })
   if (providerStatus) return reply(providerStatus)
-  const known = Object.values(MODEL_PROVIDER_API).includes(url)
-  if (!known) return reply(404)
+  const provider = Object.keys(MODEL_PROVIDER_API).find((code) => url.startsWith(MODEL_PROVIDER_API[code]))
+  if (!provider) return reply(404)
   const presented = init?.headers?.['x-api-key']
     ?? init?.headers?.['x-goog-api-key']
     ?? String(init?.headers?.authorization ?? '').replace(/^Bearer /, '')
-  return reply(goodKeys.has(presented) ? 200 : 401)
+  if (!goodKeys.has(presented)) return reply(401)
+  const model = decodeURIComponent(url.slice(MODEL_PROVIDER_API[provider].length))
+  return reply(AVAILABLE_MODELS[provider].has(model) ? 200 : 404)
 }
 
 function key(good = true) {
@@ -151,7 +160,7 @@ describe('model provider credential (FR-266)', () => {
   it('sends the key in the header each provider expects, never in the URL', async () => {
     await provision({ businessId: business.id, provider: 'gemini', model: 'gemini-2.0-flash', apiKey: key() })
     const probe = fetchCalls.at(-1)
-    expect(probe.url).toBe(MODEL_PROVIDER_API.gemini)
+    expect(probe.url).toBe(`${MODEL_PROVIDER_API.gemini}gemini-2.0-flash`)
     expect(probe.url).not.toContain('sk-')
     expect(probe.headers['x-goog-api-key']).toMatch(/^sk-/)
   })
@@ -197,11 +206,55 @@ describe('model provider credential (FR-266)', () => {
     expect(credential.lastValidationCode).toBe('MODEL_KEY_REJECTED')
 
     // The readiness step reads that evidence: a key whose last validation failed
-    // is not a completed step (FR-265).
+    // is not a completed step (FR-265). Fed the status the API actually returns.
+    // This used to be handed a hand-made `{ status: 'REVOKED', lastValidatedAt: null }`,
+    // which passed for a reason unrelated to the failure — and so missed that the
+    // real record (ACTIVE, just stamped `lastValidatedAt`) read as ready.
+    const real = (await status()).json.modelCredential
+    expect(real).toMatchObject({ status: 'ACTIVE', lastValidationCode: 'MODEL_KEY_REJECTED' })
+    expect(real.lastValidatedAt).not.toBeNull()
     const account = { id: 'oa', businessId: business.id, tenantId: business.tenantId }
-    const journey = lineOaReadinessJourney({ account, modelCredential: { provider: 'anthropic', status: 'REVOKED', lastValidatedAt: null } })
+    const journey = lineOaReadinessJourney({ account, modelCredential: real })
     expect(journey.modelKeyReady).toBe(false)
     expect(journey.steps.find(step => step.id === 'model-key').status).toBe('ACTION_REQUIRED')
+  })
+
+  it('stores nothing when the key works but the model does not, and says it was the model', async () => {
+    const stored = () => prisma.integrationCredential.count({ where: { connection: { businessId: business.id } } })
+    const typo = await provision({ businessId: business.id, provider: 'openai', model: 'gpt-4o-minni', apiKey: key() })
+    expect({ status: typo.status, error: typo.json.error }).toEqual({ status: 422, error: 'MODEL_NOT_FOUND' })
+    expect(await stored()).toBe(0)
+    // The same key with the right model is accepted: it was the model, not the key.
+    const fixed = await provision({ businessId: business.id, provider: 'openai', model: 'gpt-4o-mini', apiKey: key() })
+    expect(fixed.status).toBe(200)
+    expect((await status()).json.modelCredential).toMatchObject({ model: 'gpt-4o-mini', lastValidationCode: 'MODEL_KEY_VALIDATED:OPENAI' })
+  })
+
+  it('records a model the provider has since withdrawn when the stored key is re-validated', async () => {
+    const { json } = await provision({ businessId: business.id, provider: 'openai', model: 'gpt-4o-mini', apiKey: key() })
+    AVAILABLE_MODELS.openai.delete('gpt-4o-mini')
+    try {
+      const revalidated = await call(VALIDATE, 'http://local/api/integration/model-providers/x/validate', {}, { id: json.connectionId })
+      expect({ status: revalidated.status, error: revalidated.json.error }).toEqual({ status: 422, error: 'MODEL_NOT_FOUND' })
+      const real = (await status()).json.modelCredential
+      expect(real.lastValidationCode).toBe('MODEL_NOT_FOUND')
+      const journey = lineOaReadinessJourney({ account: { id: 'oa', businessId: business.id, tenantId: business.tenantId }, modelCredential: real })
+      expect(journey.modelKeyReady).toBe(false)
+    } finally {
+      AVAILABLE_MODELS.openai.add('gpt-4o-mini')
+    }
+  })
+
+  it('accepts a correct key pasted with the whitespace a copy often carries', async () => {
+    // The owner's refusal on 2026-09-21: a trailing newline or space failed the key
+    // pattern, and the message blamed the key's format.
+    const apiKey = key()
+    for (const pasted of [`${apiKey}\n`, ` ${apiKey} `, `${apiKey}\r\n`]) {
+      const result = await provision({ businessId: business.id, provider: 'openai', model: 'gpt-4o-mini', apiKey: pasted })
+      expect(result.status).toBe(200)
+    }
+    // What reached the provider was the trimmed key, not the pasted one.
+    expect(fetchCalls.at(-1).headers.authorization).toBe(`Bearer ${apiKey}`)
   })
 
   it('refuses a Business the viewer does not own, shaped as not found', async () => {

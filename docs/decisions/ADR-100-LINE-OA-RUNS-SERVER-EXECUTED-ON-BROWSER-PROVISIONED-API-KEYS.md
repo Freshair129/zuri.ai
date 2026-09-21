@@ -1,7 +1,7 @@
 ---
 id: "ZAI:ADR-100"
 title: "LINE OA runs server-executed on browser-provisioned API keys"
-version: "0.2.0b"
+version: "0.3.0b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-21"
@@ -142,6 +142,38 @@ connection's kind underneath a live credential.
 The key has no non-secret identifier — unlike a LINE channel ID or an OAuth client ID — so
 its display hint is null, never four characters of the key itself. SEC-030 and SEC-033 are
 restated by reference, not re-derived.
+
+> **Amended 2026-09-21, after the owner's first attempt to enter a key.** Four defects in
+> the first cut of D4, all found from one screenshot:
+>
+> 1. **The model was never checked.** "Prove the key live" was implemented as *list the
+>    provider's models*, which proves the key and says nothing about the model id beside
+>    it. A typo, or a model the provider has since retired, saved cleanly and then failed
+>    on every customer message. The probe now **reads the one chosen model**
+>    (`GET …/models/{id}`, which all four providers expose and none charge for), so a
+>    single call answers both: 401/403 is the key, **404 is the model**
+>    (`MODEL_NOT_FOUND`). Re-validation proves the stored model too, which is how an
+>    owner learns of a retirement before a customer does. The id is percent-encoded as
+>    one path segment: `MODEL_ID_PATTERN` admits `/`, and an unencoded id could walk to
+>    another endpoint on the provider's host under the owner's key.
+> 2. **A failed check read as ready.** A refused re-validation still stamps
+>    `lastValidatedAt`, and readiness read only that. It now also requires
+>    `lastValidationCode` to be a success, through one function
+>    (`isModelCredentialReady`) that the journey and the key card share.
+> 3. **The key was never trimmed**, and the pattern admits no whitespace, so a key
+>    pasted with its trailing newline was refused as malformed.
+> 4. **The model field rendered empty.** The card chose its initial model inside
+>    `useState` on a render before the status had loaded; it now mounts only once the
+>    status exists.
+>
+> Separately, every credential input in LINE OA Studio now carries
+> `autoComplete="new-password"` rather than `"off"`, which Chrome ignores on password
+> fields: the connect form had been offered the owner's own e-mail and saved password
+> as a Channel ID and secret. Nothing was stored — both fail their patterns — but the
+> form was one rule away from it.
+>
+> None of this changes FR-266's statement: the key is still proved live before anything
+> is stored. It proves more than the statement promises, not less.
 
 ### D5 — Resolution order, and why the Phase-1 resolver is not deleted in this change
 
