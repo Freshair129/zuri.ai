@@ -1034,7 +1034,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "PR #480 merged at `d8a8e0e`; hosted checks passed; provider canary, real LINE delivery and production remain NOT_RUN"
+    "evidence": "PR #480 merged at `d8a8e0e`; PR #507 head `b1151774fd0721ea3c1057f6ec7c29611a1e4220` merged as `3f408ba9ffea415f1add48c1b5c1efd7d6f40187`; thrown-upload rich-menu regression 8/8 passed; hosted runs `35549452929`/`35549452972` passed applicable checks with E2E/Desktop skipped; provider canary, real LINE delivery and production remain NOT_RUN"
   },
   {
     "id": "TASK-ZAI-037",
@@ -1063,11 +1063,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-02",
     "title": "Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184",
     "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-033; TASK-ZAI-038",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910"
+    "evidence": "PR #508 head `0d3a3c6b7d726c36fa7c821c0cb7bbb5194dfc06` merged as `259867faf4a3f41e91f3428c2bff3cfdda3d006d`; Prisma E2E harness 21/21, commerce/stocktake unit 8/8, integration 29/29 and focused browser 4/4 passed; hosted runs `35549785192`/`35549785191` passed applicable checks with E2E/Desktop skipped; migrations `20260911010000`/`20260911020000`, owner approval and production activation remain NOT_RUN; 24-week baseline; CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910"
   },
   {
     "id": "TASK-ZAI-040",
@@ -1078,18 +1078,18 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "PR #482 merged at `11826890`; hosted checks passed; target, provider, owner, release and production gates remain open"
+    "evidence": "PR #482 merged at `11826890`; PR #503 head `0d3d9568b148e2f0910b090fd00572a50cfcbbfb` merged as `5cfb3443625b4e833662945c34742c167a7bf2bd`; six broadcast-planning contract tests passed; hosted runs `35548539602`/`35548539585` passed applicable checks with E2E/Desktop skipped; target, provider, owner, release and production gates remain open; 24-week baseline; CR-019 deliverable 11; CR-018"
   },
   {
     "id": "TASK-ZAI-041",
     "sprint": "SPR-ZAI-02",
     "title": "Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199",
     "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-001",
     "authority": "ROADMAP.md",
-    "evidence": "cited E2E failure; no all-CI-pass claim; production migration and owner approval/activation remain NOT_RUN; 24-week baseline; Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
+    "evidence": "PR #506 head `5c5f57849cd2fb0fe4fa377f4118883e8d389a85` merged as `5fd32fb78fb04e32d7edc5ed4dd7f888fd258eeb`; bounded tenant-wide-grant roster fix, focused identity evidence 26/26 and full server receipt 777 files / 6,537 tests passed / 32 skipped; hosted runs `35549400774`/`35549400779` passed applicable checks with E2E/Desktop skipped; PR #352's historical E2E failure remains separate; migrations, owner approval and production activation remain NOT_RUN; 24-week baseline; Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
   },
   {
     "id": "TASK-ZAI-042",
