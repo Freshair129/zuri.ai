@@ -1,7 +1,7 @@
 // @req FR-144, FR-146 — the Edge Connection page renders the real device-pairing
 //   flow (FR-144 mint/list/revoke), never the mock telemetry it used to show.
 // @spec SDD-060
-// @tested tests/unit/line-studio-edge-connection-render.test.js
+// @tested tests/unit/line-studio-account-console-render.test.js
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import React, { createElement } from 'react'

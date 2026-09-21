@@ -45,6 +45,21 @@ const nextConfig = {
         }
       : {}),
   },
+
+  // `/line-oa/edge-connection` was renamed to `/line-oa/connections` when edge
+  // execution was retired from LINE OA Studio. The old path is a page an owner may
+  // have bookmarked, so it answers with a redirect rather than a 404. (Cited in
+  // prose: a requirement id in this app-wide file would make every test that
+  // loads the config count as evidence for it.)
+  //
+  // `permanent: false` (307) on purpose: a 308 is cached by the browser until the
+  // user clears site data, so a permanent redirect to a path we might rename again
+  // is a decision we could not take back from here.
+  async redirects() {
+    return [
+      { source: '/line-oa/edge-connection', destination: '/line-oa/connections', permanent: false },
+    ]
+  },
 }
 
 module.exports = nextConfig

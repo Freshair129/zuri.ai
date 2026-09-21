@@ -21,7 +21,7 @@
 //   tests/unit/line-oa-connect-wizard-render.test.js,
 //   tests/e2e/fr149-line-server-console.spec.js,
 //   tests/e2e/fr225-line-oa-self-serve-wizard.spec.js,
-//   tests/unit/line-studio-edge-connection-render.test.js
+//   tests/unit/line-studio-account-console-render.test.js
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";

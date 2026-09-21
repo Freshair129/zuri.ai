@@ -79,7 +79,7 @@ const ROUTES = [
   '/line-oa/design-studio',
   '/line-oa/rich-menus',
   '/line-oa/live-crm',
-  '/line-oa/edge-connection',
+  '/line-oa/connections',
   '/line-oa/templates',
   '/line-oa/team',
   '/line-oa/settings',

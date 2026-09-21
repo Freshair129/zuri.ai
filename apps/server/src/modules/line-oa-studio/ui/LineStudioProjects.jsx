@@ -230,7 +230,7 @@ export default function LineStudioProjects({ onSelectProject }) {
             <span>ลงทะเบียน Group / User</span>
           </button>
           <button
-            onClick={() => router.push("/line-oa/edge-connection")}
+            onClick={() => router.push("/line-oa/connections")}
             className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center gap-1.5"
           >
             <span>💬 + เชื่อมต่อ LINE OA</span>

@@ -56,7 +56,7 @@ test('LINE account onboarding persists and activation requires an explicit hando
   // (LineStudioAccountConsole). `/line-oa` reads `?tab=` straight into the
   // shell's initial tab, so the URL selects it — and survives the reload below,
   // which a click on a tab control would not.
-  await page.goto('/line-oa?tab=edge-connection')
+  await page.goto('/line-oa?tab=connections')
   await expect(page.getByRole('heading', { name: 'บัญชี LINE และการตอบข้อความ' })).toBeVisible()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   // FR-225: the deployment-secret field is gone from this page; the wizard

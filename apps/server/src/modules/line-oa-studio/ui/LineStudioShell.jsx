@@ -149,7 +149,7 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
         {/* Right: Connect Button & Search */}
         <div className="flex items-center gap-2.5">
           <button
-            onClick={() => handleNavigate("edge-connection")}
+            onClick={() => handleNavigate("connections")}
             className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 active:scale-95 text-white text-xs font-bold transition-all shadow-sm shadow-emerald-600/20 flex items-center gap-1.5 whitespace-nowrap"
           >
             <span>💬 + เชื่อมต่อ LINE OA</span>
@@ -200,7 +200,7 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
           <LineStudioLiveCrm />
         )}
 
-        {activeTab === "edge-connection" && (
+        {activeTab === "connections" && (
           <div className="space-y-6">
             <LineStudioJobFailures />
             <LineStudioAccountConsole />
