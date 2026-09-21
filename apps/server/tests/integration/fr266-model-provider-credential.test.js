@@ -27,7 +27,7 @@ const { POST: VALIDATE } = await import('@/app/api/integration/model-providers/[
 const { resolveBusinessModelCredential } = await import('@/modules/integration/application/model-provider-credential-service')
 const { lineOaReadinessJourney } = await import('@/modules/line-oa-studio/domain/line-oa-readiness-journey')
 
-const ENV_KEYS = ['ZURI_SECRET_STORE', 'ZURI_SECRET_KEK', 'ZURI_SECRET_KEK_VERSION', 'ZURI_PRIVATE_RUNTIME_BASE_URL', 'ZURI_PRIVATE_RUNTIME_MODEL']
+const ENV_KEYS = ['ZURI_SECRET_STORE', 'ZURI_SECRET_KEK', 'ZURI_SECRET_KEK_VERSION', 'ZURI_PRIVATE_RUNTIME_BASE_URL', 'ZURI_PRIVATE_RUNTIME_MODEL', 'ZURI_CREDENTIAL_STEP_UP']
 // The operator's private runtime, as the stub serves it (PRP's client contract).
 const PRP_BASE = 'https://gpu.example.test'
 const PRP_GRANTED = new Set(['typhoon2.5-qwen3-4b'])
@@ -143,6 +143,39 @@ describe('model provider credential (FR-266)', () => {
     // characters of the key itself (SDD-101).
     expect(json.credential.displayHint).toBeNull()
     expect(findLeaks([JSON.stringify(json)], secretNeedles({ apiKey }))).toEqual([])
+  })
+
+  it('saves a key for a Person with no second factor only while the operator has suspended the step-up', async () => {
+    // @req FR-224 — the owner's state on 2026-09-21: no TOTP factor at all, and a
+    // Session that was never stepped up. The key form answered MFA_FACTOR_REQUIRED.
+    const bare = await prisma.person.create({ data: { code: `PER-${randomUUID().slice(0, 8)}`, displayName: 'No factor' } })
+    const bareViewer = makeViewer({
+      principal: { id: bare.id, code: bare.code, displayName: bare.displayName },
+      visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: ['line-oa'],
+    })
+    resolveRequestViewer.mockResolvedValue(bareViewer)
+    const token = randomBytes(24).toString('base64url')
+    await prisma.session.create({ data: {
+      personId: bare.id, tokenHash: hashSessionToken(token), status: 'ACTIVE', assuranceLevel: 'AAL1',
+      elevatedUntil: null, expiresAt: new Date(Date.now() + 3600_000),
+    } })
+    const url = 'http://local/api/integration/model-providers'
+    const body = () => ({ businessId: business.id, provider: 'openai', model: 'gpt-4o-mini', apiKey: key() })
+
+    const refused = await call(PROVISION, url, body(), { token })
+    expect({ status: refused.status, error: refused.json.error }).toEqual({ status: 403, error: 'MFA_FACTOR_REQUIRED' })
+    expect(fetchCalls).toHaveLength(0)
+
+    process.env.ZURI_CREDENTIAL_STEP_UP = 'off'
+    try {
+      const saved = await call(PROVISION, url, body(), { token })
+      expect(saved.status).toBe(200)
+      const audit = await prisma.auditEvent.findFirst({ where: { action: 'CREDENTIAL_STEP_UP_SUSPENDED', actorId: bare.id, businessId: business.id } })
+      expect(audit).toBeTruthy()
+      expect(JSON.parse(audit.payloadJson)).toEqual({ credentialAction: 'ROTATE', setting: 'ZURI_CREDENTIAL_STEP_UP=off' })
+    } finally {
+      delete process.env.ZURI_CREDENTIAL_STEP_UP
+    }
   })
 
   it('refuses before the provider is called when the step-up gate is not satisfied', async () => {

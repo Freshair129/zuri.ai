@@ -1,7 +1,7 @@
 ---
 id: "ZAI:ADR-100"
 title: "LINE OA runs server-executed on browser-provisioned API keys"
-version: "0.4.0b"
+version: "0.5.0b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-21"
@@ -36,6 +36,8 @@ relations:
     target: "ZAI:FR-266"
   - type: relates_to
     target: "ZAI:FR-267"
+  - type: relates_to
+    target: "ZAI:FR-224"
   - type: relates_to
     target: "ZAI:ADR-099"
   - type: relates_to
@@ -278,6 +280,38 @@ its connection, not a separate account field.
 leases, node observations, and ADR-099 D3's data-classification check ("a valid selected pool is
 necessary but not sufficient"). D7 is ADR-099's own first step — "Server calls one vLLM
 endpoint" — and nothing further.
+
+### D8 — The operator may suspend the credential-write step-up
+
+*Added 2026-09-21 on the owner's instruction: "ยังไม่ต้องใส่ 2FA มา" — entering an API key
+should not wait on two-factor enrolment for now.*
+
+D4 routes a key through the FR-224 gate, which requires an ACTIVE TOTP factor and a live
+AAL2 step-up window. The owner had neither, and the key card offered no way to enrol: the
+only enrolment screen sat inside the LINE connect form, reachable only by submitting it.
+Rather than route an owner through a form for a different credential, the owner chose to
+defer two-factor for now.
+
+**Decision.** `ZURI_CREDENTIAL_STEP_UP=off` on the server suspends the step-up for the
+installation. It is an operator setting — never a code path deleted, never a flag a browser
+can send — and it suspends **only** the two checks it names. Kept in force:
+
+- **Login.** A request with no logged-in Person is still 401; the suspension is read after
+  the Person, so it never admits an anonymous request.
+- **Both rate limits** — per Person and Business, and installation-wide for LINE.
+- **The audit trail.** Every write the gate lets through while suspended is recorded as
+  `CREDENTIAL_STEP_UP_SUSPENDED` with the credential action and the setting, never a
+  credential, so "who changed this key without a second factor, and when" stays answerable.
+
+Only the exact value `off` suspends it. Unset, empty or mistyped leaves the gate on, so a
+mistake in the setting fails safe.
+
+**What this costs, stated plainly.** While suspended, anyone holding a logged-in session
+for an owner can replace that Business's model key or LINE channel secret without a second
+factor — for example pointing the Business at a provider account they control, which would
+then receive its customers' messages. The rate limit bounds how fast; the audit row records
+that it happened; neither prevents it. The switch is meant to be turned back on (removed)
+once the key card can enrol a factor itself — the gap that made it necessary.
 
 ## Consequences
 
