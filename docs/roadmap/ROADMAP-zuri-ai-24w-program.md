@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.17"
+version: "0.4.18"
 updated: "2026-09-21"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.17 → 0.4.18 (2026-09-21): Register the merged TASK-ZAI-120 LINE OA API-key-only implementation in the derived backlog and Task Container. PR #500 (`cfb62da3`) passed hosted required checks; E2E/Desktop were skipped by workflow policy. The migration, deployment, owner provider canary and Phase-1 resolver retirement remain separate open gates; no production activation is claimed.
 
 Version diff 0.4.16 → 0.4.17 (2026-09-21): Targeted source-container reconciliation only. TASK-ZAI-025 now reflects merged implementation/hosted evidence while remaining review; TASK-ZAI-041 records the cited E2E failure and makes no all-CI-pass claim; TASK-ZAI-047 names the frozen production-base branch and keeps runtime activation under TASK-ZAI-050; TASK-ZAI-056 retains fixture-only parity and unchecked criterion-level acceptance; TASK-ZAI-114 remains review with partial production-infrastructure evidence and a NOT_RUN first manifest; TASK-ZAI-119 remains review with PORL as the blocking external gate. No task is promoted to done.
 
@@ -593,6 +595,7 @@ locates the week.
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
 | TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
 | TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
+| TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only (FEAT-045; FR-265, FR-266) — retire EDGE execution from the Studio and provision the Business-scoped model provider key in the browser through the existing credential vault; server execution is CLOUD/SERVER only and resolution fails closed on a broken present credential | P1 | Claude | review | TASK-ZAI-103 | PR #500 merged at `cfb62da3`; Governance #1393 and Edge #722 passed required checks with E2E/Desktop skipped; migration `20260921090000` is written but not applied; deployment, owner provider canary, production and Phase-1 resolver retirement remain open; ADR-100; FEAT-045; FR-265; FR-266 |
 
 ## Assignments
 
@@ -6241,6 +6244,61 @@ token_telemetry:
   model_name: gpt-5
   context_length: 200k
   predicted_token_usage: 50000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-120
+
+```yaml
+task_container_id: TC-TASK-ZAI-120
+task_id: TASK-ZAI-120
+parent_phase_id: PHASE-ZAI-05
+parent_sprint_id: SPR-ZAI-10
+title: LINE OA on API keys only — server execution is CLOUD/SERVER only and the Business owner provisions a model provider key in the browser through the existing credential vault
+requirement_type: FEAT
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.1.0b
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx
+  doc: docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md
+  test: apps/server/tests/integration/fr266-model-provider-credential.test.js, apps/server/tests/unit/business-model-credential-resolution.test.js
+delivers: [FEAT-045, FR-265, FR-266]
+subtasks:
+  - id: P0
+    title: Retire conversational EDGE execution, its routes and the LOCAL_ONLY deterministic branch
+    status: done
+  - id: P1
+    title: Business-owner browser model-key entry, lifecycle and fail-closed resolution
+    status: done
+  - id: P2
+    title: Migration apply, deployment and real provider/LINE canary with rollback evidence
+    status: planned
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the merged implementation, when the LINE Studio and server routes are inspected, then conversational execution is CLOUD/SERVER only, the withdrawn EDGE surface is absent, and the asset-extraction and pairing surfaces remain untouched
+      checked: true
+  success_criteria:
+    - criterion: Given a Business owner at AAL2, when a model provider key is entered, rotated, revoked or revalidated, then the existing SecretStorePort lifecycle is used without material appearing in responses, logs or audit payloads and a present broken credential fails closed
+      checked: true
+  exit_criteria:
+    - criterion: Given the owner/operator gate, when migration `20260921090000` is applied, the merged image is deployed, and a real provider/LINE canary plus rollback are recorded, then the browser-provisioned path is production-proven without claiming that the Phase-1 resolver is retired here
+      checked: false
+changelog: Opened 2026-09-21 under ADR-100 on the owner's instruction. PR #500 merged at `cfb62da3` from implementation head `d227ac23`; Governance #1393 and Edge #722 passed required hosted checks, with E2E and Desktop skipped by workflow policy. Migration `20260921090000` is written but not applied; deployment, owner provider canary and production activation remain open. Phase-1 resolver retirement is TASK-ZAI-103's separate evidence-gated exit criterion.
+created_at: 2026-09-21T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: gpt-5.6-luna
+  context_length: 200k
+  predicted_token_usage: 0
   total_token_usage: 0
 ui_state:
   dropdown_default: collapsed

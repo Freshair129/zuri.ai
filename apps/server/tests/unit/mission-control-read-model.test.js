@@ -50,10 +50,10 @@ const liveObservation = (taskId = 'TASK-ZAI-081') => ({
 })
 
 describe('FR-260/FR-261/FR-262 Mission Control read model', () => {
-  it('projects the canonical 119-node, 132-edge, 21-wave DAG and fail-closed execution states', () => {
+  it('projects the canonical 120-node, 134-edge, 21-wave DAG and fail-closed execution states', () => {
     const model = buildMissionControlReadModel()
-    expect(model.authority).toMatchObject({ source: 'ROADMAP.md', nodeCount: 119, edgeCount: 133, waveCount: 21 })
-    expect(model.tasks).toHaveLength(119)
+    expect(model.authority).toMatchObject({ source: 'ROADMAP.md', nodeCount: 120, edgeCount: 134, waveCount: 21 })
+    expect(model.tasks).toHaveLength(120)
     expect(model.waves).toHaveLength(21)
     expect(model.porl.availability).toBe('UNKNOWN')
     expect(model.tasks.every((task) => task.execution.freshness === 'UNKNOWN')).toBe(true)

@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.17, 2026-09-21) so the board can open a task the way the html board
+// (v0.4.18, 2026-09-21) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -6046,5 +6046,70 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-064"
     ],
     "evidence": "PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264"
+  },
+  "TASK-ZAI-120": {
+    "container": "TC-TASK-ZAI-120",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.0b",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
+      "doc": "docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md",
+      "test": "apps/server/tests/integration/fr266-model-provider-credential.test.js, apps/server/tests/unit/business-model-credential-resolution.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "missing"
+    },
+    "delivers": [
+      "FEAT-045",
+      "FR-265",
+      "FR-266"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Retire conversational EDGE execution, its routes and the LOCAL_ONLY deterministic branch",
+        "status": "done"
+      },
+      {
+        "id": "P1",
+        "title": "Business-owner browser model-key entry, lifecycle and fail-closed resolution",
+        "status": "done"
+      },
+      {
+        "id": "P2",
+        "title": "Migration apply, deployment and real provider/LINE canary with rollback evidence",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given the merged implementation, when the LINE Studio and server routes are inspected, then conversational execution is CLOUD/SERVER only, the withdrawn EDGE surface is absent, and the asset-extraction and pairing surfaces remain untouched",
+        "checked": true
+      },
+      "success": {
+        "text": "Given a Business owner at AAL2, when a model provider key is entered, rotated, revoked or revalidated, then the existing SecretStorePort lifecycle is used without material appearing in responses, logs or audit payloads and a present broken credential fails closed",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the owner/operator gate, when migration `20260921090000` is applied, the merged image is deployed, and a real provider/LINE canary plus rollback are recorded, then the browser-provisioned path is production-proven without claiming that the Phase-1 resolver is retired here",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-21 under ADR-100 on the owner's instruction. PR #500 merged at `cfb62da3` from implementation head `d227ac23`; Governance #1393 and Edge #722 passed required hosted checks, with E2E and Desktop skipped by workflow policy. Migration `20260921090000` is written but not applied; deployment, owner provider canary and production activation remain open. Phase-1 resolver retirement is TASK-ZAI-103's separate evidence-gated exit criterion.",
+    "created": "2026-09-21T00:00:00Z,Claude,pending",
+    "predictedTokens": 0,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-103"
+    ],
+    "evidence": "PR #500 merged at `cfb62da3`; Governance #1393 and Edge #722 passed required checks with E2E/Desktop skipped; migration `20260921090000` is written but not applied; deployment, owner provider canary, production and Phase-1 resolver retirement remain open; ADR-100; FEAT-045; FR-265; FR-266"
   }
 }

@@ -113,8 +113,8 @@ export const ROADMAP_SOT = {
   },
   "dag": {
     "algorithm": "kahn-topological-layers",
-    "nodeCount": 119,
-    "edgeCount": 133,
+    "nodeCount": 120,
+    "edgeCount": 134,
     "waveCount": 21,
     "missingDependencies": [],
     "cycles": [],
@@ -323,7 +323,8 @@ export const ROADMAP_SOT = {
         "wave": 18,
         "taskIds": [
           "TASK-ZAI-087",
-          "TASK-ZAI-112"
+          "TASK-ZAI-112",
+          "TASK-ZAI-120"
         ]
       },
       {
@@ -1947,6 +1948,17 @@ export const ROADMAP_TASK_LEDGER = [
     "dependsOn": "TASK-ZAI-064",
     "authority": "ROADMAP.md",
     "evidence": "PR #468; approved head 53a2439ad722ca32797db381f3e3f46360ffd5d8; merge commit 0932f31e2e130af95b0a889772005281ffc8d112; hosted tests/govern/build/edge-verify/changes passed; desktop/e2e remained skipped by repository policy; targeted local receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; PORL unavailable; no deployment or production activation claimed; production/PORL observation NOT_RUN"
+  },
+  {
+    "id": "TASK-ZAI-120",
+    "sprint": "SPR-ZAI-10",
+    "title": "LINE OA on API keys only (FEAT-045; FR-265, FR-266) — retire EDGE execution from the Studio and provision the Business-scoped model provider key in the browser through the existing credential vault; server execution is CLOUD/SERVER only and resolution fails closed on a broken present credential",
+    "status": "review",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
+    "dependsOn": "TASK-ZAI-103",
+    "authority": "ROADMAP.md",
+    "evidence": "PR #500 merged at `cfb62da3` from `d227ac23`; Governance #1393 and Edge #722 passed required checks with E2E/Desktop skipped; migration `20260921090000` is not applied; deployment, owner provider canary and production remain NOT_RUN; Phase-1 resolver retirement is a separate TASK-ZAI-103 exit gate"
   }
 ]
 

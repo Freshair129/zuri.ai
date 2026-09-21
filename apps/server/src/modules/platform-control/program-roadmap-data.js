@@ -14,8 +14,8 @@ import { ROADMAP_SOT, ROADMAP_TASK_STATUS } from './roadmap-sot'
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
   status: 'approved',
-  version: '0.4.10',
-  updated: '2026-09-14',
+  version: '0.4.18',
+  updated: '2026-09-21',
   baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
   programmeEnd: '2027-02-07',
@@ -257,6 +257,7 @@ const PROGRAMME_TASK_DEFINITIONS = [
   ['TASK-ZAI-117', 'SPR-ZAI-02', 'Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action', 'FR', 'C-2', 'H2', 'done'],
   ['TASK-ZAI-118', 'SPR-ZAI-02', 'Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup', 'FR', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-119', 'SPR-ZAI-02', 'Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations', 'FEAT', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-120', 'SPR-ZAI-10', 'LINE OA on API keys only — retire conversational EDGE execution and provision the Business-scoped model provider key in the browser through the existing credential vault; server execution is CLOUD/SERVER only', 'FEAT', 'C-3', 'H3', 'review'],
 ]
 
 // Task completion is always read from the canonical ROADMAP.md ledger.

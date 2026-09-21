@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.125.0b"
+version: "2.126.0b"
 updated: "2026-09-21"
 owner: "Owen"
 source_of_truth: true
@@ -19,6 +19,7 @@ live_document: true
 
 # ROADMAP: zuri-ai — Live Delivery State
 
+> Revision 2.126.0b (2026-09-21): Reconcile TASK-ZAI-120 after PR #500 merged at `cfb62da3` (implementation head `d227ac23`). Hosted Governance run #1393 passed `changes`, `govern`, `tests`, `build` and `verify` with E2E skipped; Edge run #722 passed `changes` and `edge-verify` with Desktop skipped. The browser-provisioned model-key implementation is merged, but migration `20260921090000` is not applied, deployment/owner provider canary remain open, and Phase-1 resolver retirement remains TASK-ZAI-103's separate evidence-gated exit criterion. No production activation is claimed.
 > Revision 2.125.0b (2026-09-21): Targeted SOT reconciliation only. TASK-ZAI-025's container now reflects the merged implementation and hosted evidence while remaining `review`; TASK-ZAI-041 records that PR #352's displayed E2E conclusion is FAILURE and makes no all-CI-pass claim; TASK-ZAI-047 remains isolated from a frozen production-base branch with runtime activation under TASK-ZAI-050; TASK-ZAI-056 retains fixture-only parity with unchecked criterion-level acceptance; TASK-ZAI-113 remains `review / HOSTED_CI / MERGED` from the hosted reconciliation while production archive migration/mount/KEK/live expiry-erasure-hold, owner/legal and deployment/rollback gates remain open; TASK-ZAI-114 retains only partial production-infrastructure evidence and an unresolved final-manifest/owner gate; TASK-ZAI-119 remains `review` with PORL as the blocking external gate. No task is promoted to `done` and no production action is claimed.
 > Revision 2.124.0b (2026-09-21): Reconcile TASK-ZAI-056 as `review / HOSTED_CI / MERGED` after PR #487 merged the pure integer-satang pricing engine and FR-181 rule-set integration at `5b2964c5`. Hosted Governance `changes`, `govern`, `tests`, `build` and `verify`, plus Edge `changes` and `edge-verify`, passed; Governance `e2e` and Edge `desktop` were skipped. The price-boss parity vectors are captured fixtures, not live cross-repository proof. Production, owner approval/activation, deployment, migrations, MSP and GKS remain `NOT_RUN`.
 > Revision 2.123.0b (2026-09-20): Reconcile the four requested merged task slices from hosted evidence. TASK-ZAI-024 (PR #481, merge `823ae325`) and TASK-ZAI-053 (PR #483, merge `68d27022`) are `done / HOSTED_CI / MERGED`; TASK-ZAI-036 (PR #480, merge `d8a8e0e`) and TASK-ZAI-040 (PR #482, merge `11826890`) remain `review / HOSTED_CI / MERGED` because provider, real LINE, target, owner and release gates remain open as applicable. Production migration, deployment and activation remain `NOT_RUN`.
@@ -492,7 +493,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-ZAI-117 | PHASE-ZAI-OBSERVABILITY | task | Error tracking (FR-247) — logger.exception() fingerprints/dedupes into ErrorEvent, operator-only view with resolve | P1 | Claude | done (merged #433, deployed release-992f8f11, migration applied on production 2026-09-16) | TASK-ZAI-116 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-118 | PHASE-ZAI-OBSERVABILITY | task | Feature usage (FR-248, FR-249) — UsageEvent at route + action level, per person, 90-day raw then aggregate rollup, operator-only view | P2 | Claude | done (merged into main, migration 20260916190000 applied 2026-09-19) | TASK-ZAI-116 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-119 | PHASE-ZAI-OBSERVABILITY | task | Mission Control DAG orchestration observability (FEAT-044; FR-260..264) — installation-operator-only, read-only projection of the canonical roadmap DAG, dependency waves, blocker and merge gates, provenance-bound PORL observations, server-redacted member boundary, and responsive evidence view | P1 | RWANG | review (merged PR #468; hosted CI passed; isolated targeted Playwright receipt is 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; PORL unavailable; no deployment or production activation claimed; production/PORL observation NOT_RUN) | TASK-ZAI-064 | ../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md |
-| TASK-ZAI-120 | PHASE-ZAI-LINE-OA-PLATFORM | task | LINE OA on API keys only (FEAT-045; FR-265, FR-266) — retire EDGE execution from the Studio: transportMode CLOUD only, executionMode SERVER only, SWITCH_TRANSPORT_MODE withdrawn, the five /api/edge/conversation-jobs operations and the model-residency poll removed, and the modelAccess LOCAL_ONLY branch (a canned answerer, never a local model) deleted; in its place the Business owner enters the model provider API key in the browser, write-only under AAL2, through the same SecretStorePort that already holds the LINE channel secret, and resolveModel prefers it over the Phase-1 operator resolver, falling back only on absence and failing closed on a broken credential | P1 | Claude | review (branch `feat/line-oa-api-key-only`; ADR-100 accepted on the owner's instruction 2026-09-21; migration 20260921090000 written and NOT applied; not merged, not deployed; the Phase-1 resolver retirement stays TASK-ZAI-103's separate exit criterion) | TASK-ZAI-103 | ../decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md |
+| TASK-ZAI-120 | PHASE-ZAI-LINE-OA-PLATFORM | task | LINE OA on API keys only (FEAT-045; FR-265, FR-266) — retire EDGE execution from the Studio: transportMode CLOUD only, executionMode SERVER only, SWITCH_TRANSPORT_MODE withdrawn, the five /api/edge/conversation-jobs operations and the model-residency poll removed, and the modelAccess LOCAL_ONLY branch (a canned answerer, never a local model) deleted; in its place the Business owner enters the model provider API key in the browser, write-only under AAL2, through the same SecretStorePort that already holds the LINE channel secret, and resolveModel prefers it over the Phase-1 operator resolver, falling back only on absence and failing closed on a broken credential | P1 | Claude | review (PR #500 merged at `cfb62da3` from implementation head `d227ac23`; hosted Governance #1393 changes/govern/tests/build/verify passed with E2E skipped; Edge #722 changes/edge-verify passed with Desktop skipped; migration 20260921090000 written and NOT applied; deployment, owner provider canary and production remain NOT_RUN; the Phase-1 resolver retirement stays TASK-ZAI-103's separate exit criterion) | TASK-ZAI-103 | ../decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md |
 | TASK-ZAI-060 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data pipeline map decision record — ADR-085 for a Knowledge (GKS) navigation slot that consumes GKS without becoming it; FEAT-033 declarations | P0 | Claude | done (ADR-085 accepted; FR-212..FR-215 and FEAT-033 declared and pinned 2026-09-13) | ADR-063; ADR-050; FR-124 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-061 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data pipeline registry (FR-212) — written map of inbound sources, outbound recipients and combine chains; validated JSON registry; generated runtime projection; govern and CI guards | P0 | Claude | done (closed via PR #403 on 2026-09-18; projection committed and preflight clean) | FR-124; ADR-081 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-062 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data Pipeline Map node-edge view (FR-213) under the Knowledge (GKS) slot (FR-214) — layered SVG graph, chain/domain/status filters, edge detail, list view | P0 | Claude | done (closed via PR #403 on 2026-09-18; WebGL 3D map, SVG fallback and reachability tests pass) | FR-040; FR-101; FR-061 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
@@ -789,6 +790,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 | TASK-ZAI-117 | SPR-ZAI-02 | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | done | PRODUCTION | ACTIVE | TASK-ZAI-116 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-118 | SPR-ZAI-02 | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | done | HOSTED_CI | MERGED | TASK-ZAI-116 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-119 | SPR-ZAI-02 | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | review | HOSTED_CI | MERGED | TASK-ZAI-064 | ROADMAP.md | PR #468; approved head 53a2439ad722ca32797db381f3e3f46360ffd5d8; merge commit 0932f31e2e130af95b0a889772005281ffc8d112; hosted tests/govern/build/edge-verify/changes passed; desktop/e2e remained skipped by repository policy; targeted local receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; PORL unavailable; no deployment or production activation claimed; production/PORL observation NOT_RUN |
+| TASK-ZAI-120 | SPR-ZAI-10 | LINE OA on API keys only (FEAT-045; FR-265, FR-266) — retire EDGE execution from the Studio and provision the Business-scoped model provider key in the browser through the existing credential vault; server execution is CLOUD/SERVER only and resolution fails closed on a broken present credential | review | HOSTED_CI | MERGED | TASK-ZAI-103 | ROADMAP.md | PR #500 merged at `cfb62da3` from `d227ac23`; Governance #1393 and Edge #722 passed required checks with E2E/Desktop skipped; migration `20260921090000` is not applied; deployment, owner provider canary and production remain NOT_RUN; Phase-1 resolver retirement is a separate TASK-ZAI-103 exit gate |
 <!-- roadmap-task-ledger:end -->
 
 ### Subplans and implementation coverage
@@ -903,8 +905,8 @@ Task names and dependencies below are canonicalized from the programme backlog; 
   },
   "dag": {
     "algorithm": "kahn-topological-layers",
-    "nodeCount": 119,
-    "edgeCount": 133,
+    "nodeCount": 120,
+    "edgeCount": 134,
     "waveCount": 21,
     "missingDependencies": [],
     "cycles": [],
@@ -1113,7 +1115,8 @@ Task names and dependencies below are canonicalized from the programme backlog; 
         "wave": 18,
         "taskIds": [
           "TASK-ZAI-087",
-          "TASK-ZAI-112"
+          "TASK-ZAI-112",
+          "TASK-ZAI-120"
         ]
       },
       {
