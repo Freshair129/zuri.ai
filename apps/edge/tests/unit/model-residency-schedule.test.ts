@@ -93,6 +93,31 @@ describe('model residency schedule', () => {
     assert.equal(events.length, 1);
     assert.equal(events[0].ok, false);
     assert.equal(events[0].reason, 'CONVERSATION_NETWORK_FAILED');
+
+    // Ordinary failures remain retryable.
+    timers.fire(); await flush();
+    assert.equal(events.length, 2);
+  });
+
+  it('stops polling after the withdrawn residency endpoint returns a permanent 404', async () => {
+    const timers = fakeTimers();
+    let polls = 0;
+    startModelResidencySchedule({
+      shouldBeWarm: async () => {
+        polls += 1;
+        throw Object.assign(new Error('CONVERSATION_HTTP_FAILED'), { status: 404 });
+      },
+      warm: () => {}, release: () => {},
+      isTerminalError: error => (error as { status?: number }).status === 404,
+      ...timers,
+    });
+
+    await flush();
+    assert.equal(polls, 1);
+    assert.equal(timers.cleared, true);
+
+    timers.fire(); await flush();
+    assert.equal(polls, 1);
   });
 
   it('returns a stop function that clears the timer', () => {

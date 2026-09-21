@@ -49,6 +49,17 @@ describe('residency client', () => {
       return true;
     });
 
+    const withdrawn = createResidencyClient({
+      baseUrl: 'https://zuri.example', deviceKey: 'edgk_test',
+      fetchFn: async () => new Response(null, { status: 404 }),
+    });
+    await assert.rejects(() => withdrawn.shouldBeWarm(), (error: unknown) => {
+      assert.ok(error instanceof ConversationError);
+      assert.equal(error.message, 'CONVERSATION_HTTP_FAILED');
+      assert.equal(error.status, 404);
+      return true;
+    });
+
     const down = createResidencyClient({
       baseUrl: 'https://zuri.example', deviceKey: 'edgk_test',
       fetchFn: async () => { throw new Error('ECONNREFUSED'); },
