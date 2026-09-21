@@ -33,7 +33,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=325 -->
+<!-- api-spec-counts: route_handlers=326 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -1184,6 +1184,7 @@ Five paths / six operations share the [admission contract](../plans/KNOWLEDGE-AD
 | POST | `/api/knowledge/ingestions` | `{businessId,projectId?,idempotencyKey,source}`; TEXT contains sourceKey/version/content and optional title; FILE names an existing readable text/Markdown fileAssetId. Returns durable QUEUED identity, never synthetic stage success. |
 | GET | `/api/knowledge/ingestions` | Business/optional Project list with limit; job/source/publication metadata, no raw content. |
 | GET | `/api/knowledge/ingestions/[runId]` | Authorized admission state and separate executionRunId when attached. |
+| POST | `/api/knowledge/catalog-files` | `{businessId,projectId?,name,contentBase64}`; `name` must end in `.json`. Validates the bytes as a SmartGift catalog before storing anything, stores them on the private knowledge store (MinIO) at `knowledge/raw/<tenant>/<business>/catalog-files/<sha256>/<uuid>.json` as a `MANAGED_BLOB` FileAsset (identical bytes reuse the existing asset), then admits it with `format: SMARTGIFT_CATALOG_V1`. Returns `{fileAssetId,fileName,sha256,recordCount,reused,admission}`; 422 for a non-catalog file, 503 when the private store is not enabled. |
 | POST | `/api/knowledge/queries` | `{businessId,projectId?,query,topK?}`; pins one corpus manifest, queries explicit native snapshots through MSP, checks lineage and current access, returns ranked results and citationId. |
 | GET | `/api/knowledge/citations/[citationId]` | Resolves a historical source/version/chunk only while current corpus/source/file/project access permits it. |
 | DELETE | `/api/knowledge/sources/[sourceId]` | `{expectedVersion}`; corpus writer atomically withdraws membership, retaining immutable history. This does not modify the FileAsset, and remains available to clean up membership after a file is deleted. |

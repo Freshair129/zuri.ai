@@ -95,6 +95,11 @@ export const zBundleOffer = z.object({
   occasion: zText.nullish(),
   giftTier: zText.nullish(),
   recipientSegment: zText.nullish(),
+  // The unboxing narrative a portfolio offer carries for the recipient. It is
+  // seller-authored copy about the bundle, never about a customer, so it stays
+  // inside the record bytes like every other descriptive field and is subject
+  // to the same Stage 5 Zero-PII deny.
+  unboxingExperience: zText.nullish(),
   flowaccountOfferCode: zText.nullish(),
   componentSrpQty1TotalThb: zMoney.nullish(),
   components: z.array(z.object({

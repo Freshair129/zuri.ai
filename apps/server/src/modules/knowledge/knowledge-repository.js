@@ -10,10 +10,13 @@ function mutable(data, allowed) {
 
 export function createKnowledgeRepository(db = prisma) {
   const repository = {
-    transaction(callback) {
-      return typeof db.$transaction === 'function'
-        ? db.$transaction((tx) => callback(createKnowledgeRepository(tx)))
-        : callback(repository)
+    // `options` ({ maxWait, timeout }) is passed to Prisma's interactive
+    // transaction; without it Prisma closes the transaction after 5s.
+    transaction(callback, options) {
+      if (typeof db.$transaction !== 'function') return callback(repository)
+      return options
+        ? db.$transaction((tx) => callback(createKnowledgeRepository(tx)), options)
+        : db.$transaction((tx) => callback(createKnowledgeRepository(tx)))
     },
     getCorpus: (id) => db.knowledgeCorpus.findUnique({ where: { id } }),
     findCorpusByKey: (corpusKey) => db.knowledgeCorpus.findUnique({ where: { corpusKey } }),

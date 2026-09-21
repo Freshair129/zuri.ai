@@ -1,0 +1,22 @@
+# ADR-075 Phase 3 — opt-in overlay for a host that runs GenesisRAG17.
+#
+# The base web build uses target `runner`, which has no /opt/ki17. On a host
+# where the knowledge pipeline runs, web spawns the MSP/GKS stdio servers from
+# /opt/ki17 to hand Stage 9 batches over; an image without it keeps every batch
+# PENDING while the healthcheck stays green. This overlay builds `runner-ki17`
+# instead and supplies the source contexts it needs.
+#
+# All three contexts are required: the ki17-pins stage verifies msp, gks AND
+# genesisblock against deploy/ki17/pins.json and refuses a context that is not
+# at its pinned commit. Defaults match the genesis-worker service.
+#
+# Use it through COMPOSE_FILE in the host's .env (';' separator on Windows):
+#   COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.ki17-web.yml
+services:
+  web:
+    build:
+      target: ${ZURI_WEB_BUILD_TARGET:-runner-ki17}
+      additional_contexts:
+        msp: ${KI17_MSP_CONTEXT:-../../../Memory-and-Soul-Passport}
+        gks: ${KI17_GKS_CONTEXT:-../../../Genesis-Knowledge-System}
+        genesisblock: ${KI17_GENESISBLOCK_CONTEXT:-../../../GenesisBlock-ki17}

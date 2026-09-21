@@ -78,6 +78,7 @@ activation.
 | `pins.json` | The four commits this cycle targets, the Node/Python/model versions and the worker port |
 | `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit |
 | `build-smartgift-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the SmartGift acceptance corpus. Read its header before changing it |
+| `build-smartgift-real-corpus.mjs` | Derives a benchmark corpus (the input of `build-smartgift-benchmark.mjs`) from **real** SmartGift catalog files instead of the Phase 2 test corpus. Every gold text comes from the production path (`splitSmartGiftCatalogRecords` → `renderStructuredCatalogDocument`), so a real upload can pass the retrieval dimension; queries are natural phrasings, never the chunk text itself. Regenerate it whenever the catalog changes, or Stage 16 refuses the changed records with `BENCHMARK_NO_APPLICABLE_QUERIES` |
 
 The `ki17-acceptance` build target (gate G-3) is described under
 [Running the acceptance inside the images](#running-the-acceptance-inside-the-images-gate-g-3).
@@ -170,7 +171,25 @@ That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. The curren
 release tuple in `pins.json` pins `genesisblock` to
 `5e75c4a85e1a42faf6d2afe42633c4f2a4725c92`; `7c9261c4` is retained only as the
 historical P-2 base reference, not as the current build context.
-`--target runner-ki17` and `--target ki17` never needed it.
+`--target runner-ki17` and `--target ki17` do not use its files, but the
+`ki17-pins` stage they build on verifies every context it is given, so a build of
+either still needs a `genesisblock` context at the pinned commit.
+
+### Building web through compose
+
+The base `docker-compose.yml` builds web with `target: ${ZURI_WEB_BUILD_TARGET:-runner}`,
+so a routine web build needs no knowledge context. A host that runs GenesisRAG17
+adds the opt-in overlay, which selects `runner-ki17` and supplies the three pinned
+contexts with the same `KI17_*_CONTEXT` variables as the genesis-worker build:
+
+```text
+COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.ki17-web.yml
+```
+
+Without it the web image has no `/opt/ki17`: web cannot spawn the MSP/GKS stdio
+servers, every Stage 9 batch stays `PENDING`, and the healthcheck still passes.
+After a build, `docker run --rm --entrypoint ls <web-image> /opt/ki17` must list
+`gks msp node pins`.
 
 ### Running the acceptance inside the images (gate G-3)
 

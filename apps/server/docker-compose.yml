@@ -25,7 +25,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: runner
+      # `runner` needs no knowledge context, so a routine web build works on any
+      # checkout. A host that runs GenesisRAG17 needs /opt/ki17 in this image
+      # (without it every Stage 9 batch stays PENDING while web reports healthy):
+      # it adds docker-compose.ki17-web.yml, which selects `runner-ki17` and
+      # supplies the three pinned source contexts.
+      target: ${ZURI_WEB_BUILD_TARGET:-runner}
     # A registry tag lets a later VPS `docker compose pull web` instead of building
     # (see .github/workflows/docker-image.yml). Local builds keep the :local tag.
     image: ${ZURI_WEB_IMAGE:-zuri-ai-web:local}
