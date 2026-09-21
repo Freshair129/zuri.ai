@@ -30,9 +30,13 @@ test.describe('FR-213 Data Pipeline Map', () => {
     await expect(map.getByRole('heading', { level: 1, name: 'แผนที่ data pipeline' })).toBeVisible()
     await expect(map.getByTestId(PROJECTION_MARKER)).toBeVisible()
 
-    await map.getByTestId('pipeline-chain-CH-01').click()
-    await expect(map.getByTestId('pipeline-chain-CH-01')).toHaveAttribute('aria-pressed', 'true')
-    const detail = map.getByTestId('pipeline-detail-CH-01')
+    // CH-02, not CH-01: CH-01 was the edge-executed LINE turn and was retired
+    // with the rest of EDGE execution (FR-265, ADR-100 D2). CH-02 is its
+    // successor — the same `in.line-webhook` entry, now answered on the server —
+    // so this case still follows a real LINE turn end to end.
+    await map.getByTestId('pipeline-chain-CH-02').click()
+    await expect(map.getByTestId('pipeline-chain-CH-02')).toHaveAttribute('aria-pressed', 'true')
+    const detail = map.getByTestId('pipeline-detail-CH-02')
     await expect(detail).toContainText('LINE turn')
     await expect(detail).toContainText('line-oa-studio')
 
@@ -59,7 +63,7 @@ test.describe('FR-213 Data Pipeline Map', () => {
 
     await map.getByRole('tab', { name: 'รายการ' }).click()
     const list = map.getByTestId('data-pipeline-map-list')
-    await expect(list.getByRole('table', { name: 'Chains' })).toContainText('CH-01')
+    await expect(list.getByRole('table', { name: 'Chains' })).toContainText('CH-02')
     await expect(list.getByRole('table', { name: 'Nodes' })).toContainText('in.line-webhook')
 
     // The chain also opens straight from the URL.
