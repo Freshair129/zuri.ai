@@ -1902,16 +1902,16 @@
           "title": "Canonical IAM principal",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 21,
-          "testCount": 25
+          "codeCount": 22,
+          "testCount": 26
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 24,
-          "testCount": 43
+          "codeCount": 25,
+          "testCount": 44
         },
         {
           "id": "FR-096",
@@ -4432,7 +4432,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-105",
@@ -5612,7 +5612,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-095",
@@ -5620,7 +5620,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-097",
@@ -7660,16 +7660,16 @@
           "title": "Canonical IAM principal",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 23,
-          "testCount": 25
+          "codeCount": 24,
+          "testCount": 26
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 29,
-          "testCount": 43
+          "codeCount": 30,
+          "testCount": 44
         },
         {
           "id": "FR-096",
@@ -7739,6 +7739,7 @@
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/identity/sign-out.js",
         "apps/server/src/modules/identity/totp.js",
+        "apps/server/src/modules/identity/ui/MfaSecurityCard.jsx",
         "apps/server/src/modules/identity/webauthn-cbor.js",
         "apps/server/src/modules/identity/webauthn-challenge.js",
         "apps/server/src/modules/identity/webauthn.js",
@@ -7801,6 +7802,7 @@
         "apps/server/tests/unit/identity/webauthn.test.js",
         "apps/server/tests/unit/line-binding-resolver.test.js",
         "apps/server/tests/unit/line-channel-binding.test.js",
+        "apps/server/tests/unit/mfa-security-card-render.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
         "apps/server/tests/unit/password-reset-service.test.js",
         "apps/server/tests/unit/platform-control-entry-link.test.js",
