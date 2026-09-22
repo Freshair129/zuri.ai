@@ -175,6 +175,19 @@ export const ROADMAP_STATUSES = ['ACTIVE', 'ARCHIVED']
 export const GOAL_STATUSES = ['PLANNED', 'ACTIVE', 'DONE', 'ARCHIVED']
 export const GOAL_PRIORITIES = ['MEDIUM', 'HIGH']
 
+// @req FR-268, ADR-101 — Business Key Results (OKR). New vocabulary, not an
+// extension of an existing one, so "frozen from observed usage" above does
+// not apply the way it does to GOAL_STATUSES — there is no prior usage to
+// observe yet. Kept minimal on purpose: a Key Result is ACTIVE or ARCHIVED,
+// no separate "done" state (progress reaching 100% is a fact about the
+// numbers, not a status a person sets).
+export const KEY_RESULT_DIRECTIONS = ['UP', 'DOWN']
+export const KEY_RESULT_STATUSES = ['ACTIVE', 'ARCHIVED']
+// @req ADR-101 D1, FR-269 — Balanced Scorecard perspective, shared by
+// BusinessGoal.perspective (Phase 1) and BusinessKpi.perspective (FR-269,
+// Phase 2) so both surfaces group under the same four labels.
+export const BUSINESS_GOAL_PERSPECTIVES = ['FINANCIAL', 'CUSTOMER', 'INTERNAL_PROCESS', 'LEARNING_GROWTH']
+
 // FR-023 — CRM slice (ADR-007 P2)
 export const CHANNELS = ['LINE', 'FACEBOOK', 'WEB']
 export const MESSAGE_DIRECTIONS = ['INBOUND', 'OUTBOUND']
@@ -655,6 +668,9 @@ export const zEmploymentType = z.enum(EMPLOYMENT_TYPES)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)
+export const zKeyResultDirection = z.enum(KEY_RESULT_DIRECTIONS)
+export const zKeyResultStatus = z.enum(KEY_RESULT_STATUSES)
+export const zBusinessGoalPerspective = z.enum(BUSINESS_GOAL_PERSPECTIVES)
 export const zMessageContentKind = z.enum(MESSAGE_CONTENT_KINDS)
 export const zMessageAttachmentKind = z.enum(MESSAGE_ATTACHMENT_KINDS)
 export const zMessageAttachmentFetchState = z.enum(MESSAGE_ATTACHMENT_FETCH_STATES)

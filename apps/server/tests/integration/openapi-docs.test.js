@@ -233,10 +233,17 @@ describe('OpenAPI document', () => {
       // TASK-ZAI-053 adds six supplier cost-sheet paths and six operations.
       // FR-187 adds the SmartGift catalog upload: one path, POST only.
       // FR-069 adds the optional meeting intake boundary: one identity
-      // binding path and two PlanEnvelope convergence paths. FR-069/FR-070
-      // add the PM-owned execution trace resource and replay command.
-      pathCount: 331,
-      operationCount: 437,
+      // binding path and two PlanEnvelope convergence paths — three paths,
+      // three operations (one method each, all POST). 326 + 3 = 329;
+      // 432 + 3 = 435. FR-069/FR-070 add the PM-owned execution trace
+      // resource and replay command: two more paths and operations.
+      // 329 + 2 = 331; 435 + 2 = 437.
+      // FR-268 (ADR-101) adds Business Key Results: create-under-goal, patch
+      // (archive is a status patch, never a DELETE) and weekly check-in —
+      // three paths, three operations (one method each). 331 + 3 = 334;
+      // 437 + 3 = 440.
+      pathCount: 334,
+      operationCount: 440,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

@@ -183,6 +183,35 @@ describe('attention queue', () => {
     expect(attention.some((a) => a.id.includes('g-done'))).toBe(false)
   })
 
+  it('raises a Key Result off track as HIGH and behind pace as MED, but not one on track', () => {
+    // @req FR-268, ADR-101 D6 — same (progress, expectedProgress, confidence)
+    // gap thresholds keyResultStatus() itself defines: gap>30 is BAD, gap>12
+    // is WARN, otherwise OK. This fixture matches serializeKeyResultDto's real
+    // shape (business-strategy-mutation-service.js) — already-computed
+    // progress/expectedProgress/confidence, never a raw check-in to re-derive.
+    const goal = {
+      id: 'g-kr', code: 'G4', title: 'Grow revenue', status: 'ACTIVE', targetAt: future, projects: [{ id: 'p1' }],
+      keyResults: [
+        { id: 'kr-bad', code: 'KR1', title: 'Off track KR', progress: 10, expectedProgress: 50, confidence: 3 },
+        { id: 'kr-warn', code: 'KR2', title: 'Behind pace KR', progress: 40, expectedProgress: 60, confidence: 3 },
+        { id: 'kr-ok', code: 'KR3', title: 'On track KR', progress: 55, expectedProgress: 60, confidence: 3 },
+      ],
+    }
+    const { attention } = build({ strategy: { roadmaps: [{ id: 'r1', horizons: [{ id: 'h1', goals: [goal] }] }] } })
+    expect(attention.find((a) => a.id === 'key-result:kr-bad').severity).toBe(SEVERITY.HIGH)
+    expect(attention.find((a) => a.id === 'key-result:kr-warn').severity).toBe(SEVERITY.MED)
+    expect(attention.some((a) => a.id === 'key-result:kr-ok')).toBe(false)
+  })
+
+  it('skips Key Result rows for a goal already marked DONE', () => {
+    const goal = {
+      id: 'g-done-kr', code: 'G5', title: 'Wrapped up', status: 'DONE', targetAt: past, projects: [],
+      keyResults: [{ id: 'kr-in-done', code: 'KR9', title: 'Should not appear', progress: 0, expectedProgress: 100, confidence: 1 }],
+    }
+    const { attention } = build({ strategy: { roadmaps: [{ id: 'r1', horizons: [{ id: 'h1', goals: [goal] }] }] } })
+    expect(attention).toEqual([])
+  })
+
   it('reports no goal rows for a strategy with roadmaps but no horizons/goals yet', () => {
     expect(build({ strategy: { roadmaps: [] } }).attention).toEqual([])
     expect(build({ strategy: { roadmaps: [{ id: 'r1', horizons: [] }] } }).attention).toEqual([])

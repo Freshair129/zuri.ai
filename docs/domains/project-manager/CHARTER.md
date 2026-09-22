@@ -25,6 +25,8 @@ owns_models:
   - BusinessRoadmapHorizon
   - BusinessGoal
   - ProjectGoal
+  - BusinessKeyResult
+  - BusinessKeyResultCheckIn
   - Workstream
   - WorkContainer
   - WorkItem
@@ -141,19 +143,24 @@ their own — both write **nothing**:
   domain's `Membership` with crm's `Person` (read-only cross-domain read, the
   pattern the architecture spec's §5.3 explicitly allows).
 
-## Declared, not yet in schema (FEAT-002, ADR-101)
+## Delivered in Phase 1 (FEAT-002, ADR-101 D6)
 
 [ADR-101](../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md)
-(approved 2026-09-22) extends `BusinessGoal` into an OKR Objective, tagged to one
-Balanced Scorecard perspective and optionally marked Wildly Important (4DX), and
-adds a family of child models under this domain — none exist in
-`prisma/schema.prisma` yet, and none of this section grants a write any sooner
-than the schema does:
+extends `BusinessGoal` into an OKR Objective, tagged to one Balanced Scorecard
+`perspective` (nullable — every existing goal, and the FR-108 bundle importer's
+`zGoal`, carry none) and optionally marked `isWig` (boolean, default false; at
+most two per Business, enforced in the service — BR-043, still unenforced until
+its Phase 3 writer exists). `BusinessKeyResult` (+ append-only
+`BusinessKeyResultCheckIn`), both now in `owns_models` above, are its first
+child model family: a measurable child of `BusinessGoal` whose weekly check-ins
+roll `BusinessGoal.progress` up through a pure calculator (SDD-107, FR-268),
+and once a goal holds one, a manual `progress` patch is refused (BR-044).
 
-- `BusinessKeyResult` (+ append-only `BusinessKeyResultCheckIn`) — a measurable
-  child of `BusinessGoal`; its weekly check-ins roll `BusinessGoal.progress` up
-  through a pure calculator (SDD-107), and once a goal holds one, a manual
-  `progress` patch is refused (BR-044).
+## Declared, not yet in schema (FEAT-002, ADR-101 D6 Phase 2/3)
+
+The rest of ADR-101's model family does not exist in `prisma/schema.prisma`
+yet, and none of this section grants a write any sooner than the schema does:
+
 - `BusinessKpi` (+ append-only `BusinessKpiObservation`) — a Business-scoped,
   **not** goal-scoped, ongoing health metric carrying a Balanced Scorecard
   perspective. Named with the `Business` prefix deliberately: the shell already
@@ -165,10 +172,6 @@ than the schema does:
 - `BusinessWeeklyCommitment`, `BusinessWigSession` — the weekly 4DX ritual: what
   a named Person commits to, and the report/scoreboard/plan session state, both
   Business-scoped.
-
-`BusinessGoal` itself gains `perspective` (nullable — every existing goal, and
-the FR-108 bundle importer's `zGoal`, carry none today) and `isWig` (boolean,
-default false; at most two per Business, enforced in the service — BR-043).
 
 Every new writer lives in `project-manager/application/`, alongside the
 existing `business-strategy-mutation-service.js`, never in the `business`

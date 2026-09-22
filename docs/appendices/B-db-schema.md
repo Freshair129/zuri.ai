@@ -1,5 +1,7 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.57.0b → 1.58.0b (2026-09-22): add the FR-268 `BusinessKeyResult` and `BusinessKeyResultCheckIn` models, plus `BusinessGoal.perspective`/`isWig` (ADR-101 D1). SQLite and Supabase migrations are written locally; production application remains an ADR-057 operator gate.
+
 Version diff 1.56.0b → 1.57.0b (2026-09-22): add the PM-owned `ProjectExecutionRun`
 and `ProjectExecutionStep` trace/replay ledger models (FR-069/FR-070, ADR-102),
 including bounded input snapshots, ordered attempts, failure evidence and replay
@@ -14,7 +16,7 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.57.0b |
+| **Version** | 1.58.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-22 |
 
@@ -105,8 +107,10 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | ProjectFile | projectId, workItemId?, name, mime, size, url/blobRef, version, uploadedBy | metadata/reference only; optional WorkItem must belong to Project (FR-037) |
 | BusinessRoadmap | businessId, code, title, status, startAt/targetAt | Business-level direction container (FR-041) |
 | BusinessRoadmapHorizon | roadmapId, key, label, position, targetAt | ordered short/medium/long horizon; service allows 2 or 3 |
-| BusinessGoal | businessId, roadmapId?, horizonId?, code, title, status, progress | Business goal displayed in Strategy Overview |
+| BusinessGoal | businessId, roadmapId?, horizonId?, code, title, status, progress, perspective?, isWig | Business goal displayed in Strategy Overview; `progress` becomes a write-through cache once a non-archived `BusinessKeyResult` exists (SDD-107, BR-044) |
 | ProjectGoal | projectId, goalId | optional many-to-many link; Project remains a Development resource |
+| BusinessKeyResult | goalId, businessId, code, title, metric, unit, baseline, target, direction, dueAt?, ownerPersonId?, confidence, status | FR-268 — a measurable child of BusinessGoal (OKR Key Result); no stored progress/status, both computed on every read from `(baseline, target, direction, latest check-in)` (SDD-107) |
+| BusinessKeyResultCheckIn | keyResultId, weekStartAt unique per keyResultId, value, confidence, note?, actorPersonId? | FR-268 — append-only weekly check-in; `weekStartAt` is server-computed (`weekStartFor`, Monday 00:00 Asia/Bangkok), never a client field |
 | AuditEvent | entityType, entityId, action, payloadJson, actorType | append-only (SEC-003). `entityType` is **SCREAMING_SNAKE_CASE**, enforced by preflight `audit-entity-type`. It names a *category*, not a Prisma model — `SNAPSHOT`, `STEP_UP`, `AGENT_ACTION` and `PLUGIN_AUTH_MAINTENANCE` have no model behind them — so it is never spelled like one. Four other models carry a column of the same name (`RawExternalRecord`, `ExternalEntityRef`, `ExternalRef`, `FileLink`); those are a separate vocabulary of provider-side and link-side kinds (`listing`, `retail_price`) and this rule does not reach them |
 | PipelineRun | executionRunId unique, dataPipelineDefinitionId, executionContractId, tenantId, businessId?, status, hashes, counts, replay lineage, heartbeat | server-owned full-pipeline run envelope; distinct from IngestionRun and PlanImportReceipt (FR-071) |
 | PipelineStep | executionStepId unique, runId, pipelineStageId, sequence, attemptId unique, status, hashes, failure evidence, heartbeat | one stage occurrence/attempt; retries create new executionStepId/attemptId (FR-071) |
