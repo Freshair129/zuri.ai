@@ -1,7 +1,7 @@
 ---
-version: "0.2.3b"
+version: "0.2.4b"
 created_at: "2026-08-22T00:00:00+07:00,ATHER"
-last_update: "2026-08-23T07:05:31+07:00,ATHER"
+last_update: "2026-09-22T00:00:00+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
@@ -68,6 +68,28 @@ cutover; it does not activate a provider or introduce an IAM microservice.
   revocation, or cross-tenant isolation. Do not claim the full Issue #99
   application cutover production-ready yet.
 
+## Production evidence — 2026-09-22 controlled MSP activation attempt
+
+- The controlled candidate enabled `ZURI_MSP_THREAD_MEMORY_ENABLED=true` in the
+  deployment-only knowledge environment for the server LINE runtime. The r3
+  candidate passed the configured MSP agent/workspace binding and the explicit
+  private-grant/HMAC environment allowlist; no secret value is recorded here.
+- Direct signed calls through the pinned MSP process passed initialization,
+  ping, thread resolve, human append and context retrieval. A forged
+  agent/principal context was denied with `thread_scope_denied`. This proves the
+  production-container boundary, not the complete LINE memory lifecycle.
+- The signed live loopback was admitted with `memorySyncOptIn=true`, but the
+  application could not reach the model/memory path because the dedicated
+  `zuri_line_smartgift_login` credential failed authentication. The initial
+  pooler username lacked the project reference and returned `ENOIDENTIFIER`;
+  after the username contract was corrected, the stored password returned
+  `28P01`. The non-privileged application role cannot rotate that login, and no
+  password was guessed or copied from `DATABASE_URL`.
+- W8 therefore remains blocked for the authenticated memory canary, erasure
+  proof, rollback proof and owner acceptance. The proof scope is
+  `PRODUCTION` for activation configuration and boundary evidence only; this is
+  not a full Issue #99 production-ready claim.
+
 ## Exit gates for this slice
 
 - no protected operation relies only on a signed cookie when a live Session store
@@ -112,3 +134,4 @@ backup; there is no destructive automatic rollback.
 | 0.2.1b | 2026-08-23 | beta | Recorded free-plan logical backup and live W7 migration evidence; W8 credential/canary gate remains open | working-tree | ATHER |
 | 0.2.2b | 2026-08-23 | beta | Recorded Vercel Production runtime-secret rotation, redeploy and direct transaction-pooler canary; authenticated app canary remains open | working-tree | ATHER |
 | 0.2.3b | 2026-08-23 | beta | Recorded PR #100 merge, clean Production deployment and negative application auth canary; authenticated session and tenant evidence remain open | working-tree | ATHER |
+| 0.2.4b | 2026-09-22 | beta | Recorded controlled MSP memory activation and forged-principal boundary proof; authenticated canary is blocked by dedicated DB role credential and owner acceptance remains open | working-tree | Codex |

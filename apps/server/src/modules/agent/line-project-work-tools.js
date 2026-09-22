@@ -35,7 +35,10 @@ async function contextFor(jobId, db, now, expectedClaim) {
     || convo.businessId !== job.businessId || convo.channelAccountId !== job.channelAccountId
     || job.account.tenantId !== job.tenantId || job.account.businessId !== job.businessId
     || !job.account.serverEnabled || job.account.transportMode !== 'CLOUD' || job.account.status !== 'CONNECTED'
-    || job.account.bindingCode !== job.channelAccountId || job.status !== 'CLAIMED' || !job.leaseExpiresAt || new Date(job.leaseExpiresAt).getTime() <= now.getTime()
+    // Admission uses the account id when a legacy row has no binding code;
+    // apply the same effective-key rule here or every such job is denied after
+    // admission, including a verified channel identity.
+    || (job.account.bindingCode || job.account.id) !== job.channelAccountId || job.status !== 'CLAIMED' || !job.leaseExpiresAt || new Date(job.leaseExpiresAt).getTime() <= now.getTime()
     || new Date(job.expiresAt).getTime() <= now.getTime()
     || job.account.transportEpoch !== job.transportEpoch || job.errorCode === 'PDPA_ERASURE') fail('WORK_SCOPE_DENIED')
   if (expectedClaim && (job.executionMode !== 'EDGE' || job.version !== expectedClaim.version

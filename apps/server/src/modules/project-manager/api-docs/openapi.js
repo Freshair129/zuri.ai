@@ -288,6 +288,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/identity/link-tokens', ['POST']],
   ['/api/identity/link-tokens/redeem', ['POST']],
   ['/api/identity/channel-identities', ['GET']],
+  // @req FR-069 — meeting producers are optional callers; PM owns the
+  // canonical binding and normalized action intake contract, not either app.
+  ['/api/identity/meeting-bindings', ['POST']],
+  ['/api/import/meeting-actions/dry-run', ['POST']],
+  ['/api/import/meeting-actions/commit', ['POST']],
   // @req FR-094, FR-095 — Multi-Factor Authentication (TOTP) and session step-up elevation (ADR-045).
   ['/api/auth/mfa/totp/enroll', ['POST']],
   ['/api/auth/mfa/totp/verify', ['POST']],
