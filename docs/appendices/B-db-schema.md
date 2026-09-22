@@ -1,6 +1,12 @@
 # Appendix B — Database Schema Summary
 
-Version diff 1.56.0b → 1.57.0b (2026-09-22): add the FR-268 `BusinessKeyResult` and `BusinessKeyResultCheckIn` models, plus `BusinessGoal.perspective`/`isWig` (ADR-101 D1). SQLite and Supabase migrations are written locally; production application remains an ADR-057 operator gate.
+Version diff 1.57.0b → 1.58.0b (2026-09-22): add the FR-268 `BusinessKeyResult` and `BusinessKeyResultCheckIn` models, plus `BusinessGoal.perspective`/`isWig` (ADR-101 D1). SQLite and Supabase migrations are written locally; production application remains an ADR-057 operator gate.
+
+Version diff 1.56.0b → 1.57.0b (2026-09-22): add the PM-owned `ProjectExecutionRun`
+and `ProjectExecutionStep` trace/replay ledger models (FR-069/FR-070, ADR-102),
+including bounded input snapshots, ordered attempts, failure evidence and replay
+lineage. SQLite and Supabase migrations are written locally; production application
+remains an ADR-057 operator gate.
 
 Version diff 1.55.0b → 1.56.0b (2026-09-20): add the TASK-ZAI-053 `SupplierCostSheet` and `SupplierCostLine` models plus the four nullable Product carton columns. SQLite and Supabase migrations are written locally; production application remains an ADR-057 operator gate.
 
@@ -10,7 +16,7 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.57.0b |
+| **Version** | 1.58.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-22 |
 
@@ -60,6 +66,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Workspace | scopeType (PORTFOLIO/TENANT/BUSINESS) + denormalized ancestor ids | ต้องมี scope ชัดเจน |
 | Project | businessId?, workspaceId, type, status, priority?, picPersonId?, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete. `priority` (FR-087) and `picPersonId` (FR-088) are both nullable at rest — every row predates them, and unset is a state the Dashboard renders honestly rather than defaulting |
 | PlanImportReceipt | idempotencyKey, payloadHash, executionRunId, executionStepId?, attemptId?, correlationId, projectId | server-owned PlanEnvelope commit receipt; stable trace/idempotency boundary; never accepts client-generated execution IDs |
+| ProjectExecutionRun | executionRunId, executionContractId, contractVersion, sourceKind, tenantId?, businessId?, workspaceId?, projectId?, projectIdsJson, planId?, status, correlationId, idempotencyKey?, requestHash, inputSnapshotJson, snapshotState, replay lineage | FR-069/FR-070 / ADR-102 — PM-owned execution run authority with a bounded canonical snapshot; no transcript, audio or provider secret payload; `projectIdsJson` scopes a bundle run to every affected Project; included in backup/restore |
+| ProjectExecutionStep | executionStepId, runId, stepKey, sequence, attemptId, status, scoped refs, inputHash?, outputHash?, failureCode?, errorRef?, retryable, skippedReason?, auditEventId?, replay lineage | FR-069/FR-070 / ADR-102 — ordered PM step/attempt evidence; retries get new IDs and replay preserves source lineage while leaving the source immutable; included in backup/restore |
 | PersonCredential | personId unique, passwordHash | FR-090 — production auth credential. Declared here because the table is live on Supabase with a real row; the service that uses it is still on `codex/postgres-primary-runtime`. Undeclared, `migrate diff` proposes DROP |
 | PasswordResetToken | personId, token unique, expiresAt, usedAt? | FR-090 — same origin as PersonCredential; currently empty |
 | MfaFactor | personId, type, secret, label?, status, verifiedAt?, revokedAt?, version | FR-094, FR-095 (ADR-045 D2, D5) — multi-factor authentication factors (TOTP, SMS); PENDING/ACTIVE/REVOKED lifecycle, enables session elevation to AAL2. `secret` is an AES-256-GCM envelope bound to Person and factor, never the base32 secret (SEC-029, SDD-096, ADR-088) |

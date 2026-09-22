@@ -41,12 +41,16 @@ activation/boundary เท่านั้น; authenticated memory canary, erasu
 - Direct pinned-MSP process ผ่าน initialize, ping, resolve, human append และ
   context retrieval; forged agent/principal context ถูกปฏิเสธด้วย
   `thread_scope_denied`.
-- Signed live loopback ถูก admit ด้วย `memorySyncOptIn=true` แต่ worker ยังสร้าง
-  MSP delivery/context receipt ไม่ได้ เพราะ dedicated
-  `zuri_line_smartgift_login` credential authentication ล้มเหลว (`28P01`) หลัง
-  แก้ pooler username ให้มี project reference แล้ว
+- Signed live loopback ถูก admit ด้วย `memorySyncOptIn=true` และ dedicated
+  `zuri_line_smartgift_login` ผ่าน atomic alter-and-login probe หลังแก้
+  project-qualified pooler username แล้ว
+- Worker endpoint ตอบ HTTP 200 แต่ job จบ `EXECUTION_FAILED` ก่อน
+  `CONTEXT_COMMITTED`; read-only inventory พบว่า Business นี้ไม่มี active
+  primary `MODEL_PROVIDER` หรือ `PHASE1_LINE_LLM` connection และ configured
+  private-runtime `/v1/models` ตอบ HTTP 502 จากทั้ง container และ host
 - ดังนั้น TASK-MEMOS-006 อยู่สถานะ **BLOCKED — production boundary proven,
-  end-to-end memory canary not accepted**. ห้ามเปลี่ยนเป็น done จนกว่าจะมี
+  model-provider prerequisite and end-to-end memory canary not accepted**.
+  ห้ามเปลี่ยนเป็น done จนกว่าจะมี active validated model connection,
   multi-turn recall หลัง restart, erasure invalidation และ rollback receipt
   ครบถ้วน
 
@@ -136,5 +140,6 @@ Unset `ZURI_MSP_THREAD_MEMORY_ENABLED` for the account. Jobs admitted after that
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.4b | 2026-09-22 | beta | Recorded verified dedicated-role repair and signed admission; TASK-MEMOS-006 remains blocked by missing Business model-provider readiness and incomplete canary gates | working-tree | Codex |
 | 0.1.3b | 2026-09-22 | beta | Recorded controlled production activation and direct MSP boundary proof; TASK-MEMOS-006 remains blocked by the dedicated LINE runtime credential and incomplete canary gates | working-tree | Codex |
 | 0.1.2b | 2026-09-14 | beta | Ordered MSP thread-memory and LINE-agent work; production opt-in held behind TASK-MEMOS-006 | working-tree | Claude Opus 5 |

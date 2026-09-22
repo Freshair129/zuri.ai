@@ -1316,6 +1316,93 @@ model PlanImportReceipt {
   @@index([replayOfExecutionRunId])
 }
 
+// @req FR-069, FR-070 — Project Manager-owned execution run identity and
+// append-only replay lineage, separate from business Project/work identities.
+// @spec ADR-102, ADR-029, SDD-041, SEC-003, SEC-008
+// @tested tests/integration/project-execution-trace.test.js
+model ProjectExecutionRun {
+  id                    String    @id @default(uuid())
+  executionRunId        String    @unique
+  executionContractId   String
+  contractVersion        String
+  sourceKind             String
+  tenantId              String?
+  businessId            String?
+  workspaceId           String?
+  projectId             String?
+  projectIdsJson        String    @default("[]")
+  planId                String?
+  status                String    @default("RUNNING")
+  correlationId         String
+  idempotencyKey        String?
+  requestHash           String
+  inputSnapshotJson     String
+  snapshotState         String    @default("RETAINED")
+  tagIdsJson            String    @default("[]")
+  identityRefsJson      String    @default("{}")
+  failureCode           String?
+  errorRef              String?
+  retryable             Boolean?
+  auditEventId          String?
+  replayOfExecutionRunId String?
+  replayOfExecutionStepId String?
+  startedAt             DateTime  @default(now())
+  finishedAt            DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  steps ProjectExecutionStep[]
+
+  @@unique([businessId, idempotencyKey], map: "ProjectExecutionRun_business_idempotency_key")
+  @@index([tenantId, businessId, status, createdAt])
+  @@index([projectId, createdAt])
+  @@index([correlationId])
+  @@index([replayOfExecutionRunId])
+}
+
+// @req FR-069, FR-070 — ordered step/attempt evidence with explicit failure
+// and downstream state; source rows are never overwritten by replay.
+// @spec ADR-102, ADR-029, SDD-041, SEC-003, SEC-008
+// @tested tests/integration/project-execution-trace.test.js
+model ProjectExecutionStep {
+  id                    String    @id @default(uuid())
+  executionStepId       String    @unique
+  runId                 String
+  executionContractId   String
+  stepKey               String
+  sequence              Int
+  attemptId             String    @unique
+  status                String    @default("NOT_STARTED")
+  tenantId              String?
+  businessId            String?
+  workspaceId           String?
+  projectId             String?
+  planId                String?
+  containerId           String?
+  workItemId            String?
+  inputHash             String?
+  outputHash            String?
+  tagIdsJson            String    @default("[]")
+  identityRefsJson      String    @default("{}")
+  failureCode           String?
+  errorRef              String?
+  retryable             Boolean?
+  skippedReason         String?
+  auditEventId          String?
+  replayOfExecutionStepId String?
+  startedAt             DateTime?
+  finishedAt            DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  run ProjectExecutionRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, sequence])
+  @@index([runId, status])
+  @@index([tenantId, businessId, projectId, status])
+  @@index([replayOfExecutionStepId])
+}
+
 model WorkContainer {
   id           String    @id @default(uuid())
   code         String    @unique

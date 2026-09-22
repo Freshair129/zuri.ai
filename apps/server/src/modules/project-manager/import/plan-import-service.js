@@ -1,9 +1,18 @@
-import { createHash, randomUUID } from 'node:crypto'
+import { createHash } from 'node:crypto'
 import prisma from '@/lib/db'
 import { normalizePlanEnvelope, zPlanEnvelope, validatePlanSemantics } from './plan-schema'
 import { resolveEntityIdentity, syncExternalRefs } from './external-ref'
 import { authorizeImportTarget } from './import-authorization'
 import { recordAudit } from '../application/audit'
+import {
+  PLAN_EXECUTION_STEP_KEYS,
+  createExecutionTraceContext,
+  createExecutionTraceRows,
+  finishExecutionStep,
+  finishExecutionRun,
+  recordExecutionStepAudit,
+  recordFailedExecutionTrace,
+} from '../application/execution-trace'
 
 // @req FR-012, FR-019, FR-069, FR-070 — dry-run + transactional commit,
 // stable execution/domain identity and trace receipt + audit,
@@ -386,8 +395,15 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer, db = prisma } =
     valid: conflicts.length === 0,
     errors: conflicts.map((c) => `${c.kind} ${c.code}: ${c.reason}`),
     plan,
-    workspace: { id: workspace.id, code: workspace.code, name: workspace.name, businessId: targetBusinessId },
+    workspace: {
+      id: workspace.id,
+      code: workspace.code,
+      name: workspace.name,
+      businessId: targetBusinessId,
+      tenantId: workspace.tenantId || viewer?.tenantId || null,
+    },
     resolution,
+    existingProjectId: existingProject?.id || null,
     preview: {
       inserts,
       updates,
@@ -411,23 +427,47 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer, db = prisma } =
  * `viewer` is REQUIRED (@req FR-065) and is authorized by the dry run this
  * delegates to — one decision point, not two that could disagree.
  */
-export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } = {}) {
+export async function commitPlan(rawPlan, {
+  workspaceId,
+  viewer,
+  db = prisma,
+  traceSourceKind = 'PLAN',
+  replayOfExecutionStepIds = null,
+  traceStepKeys = PLAN_EXECUTION_STEP_KEYS,
+} = {}) {
   const dry = await dryRunPlan(rawPlan, { workspaceId, viewer, db })
   if (!dry.valid) {
     return { committed: false, errors: dry.errors, preview: dry.preview }
   }
   const { plan, workspace, resolution } = dry
   const idempotencyKey = plan.schemaVersion === '1.2' ? plan.trace?.idempotencyKey : null
-  const correlationId = plan.schemaVersion === '1.2' ? plan.trace?.correlationId : null
-  const payloadHash = idempotencyKey ? normalizedPayloadHash(plan) : null
-  const executionRunId = randomUUID()
-  const executionStepId = randomUUID()
-  const attemptId = randomUUID()
-  const stepKey = 'plan.import.commit'
+  const traceContext = createExecutionTraceContext({
+    plan,
+    workspace,
+    sourceKind: traceSourceKind,
+    projectId: dry.existingProjectId,
+    projectIds: dry.existingProjectId ? [dry.existingProjectId] : [],
+    replayOfExecutionRunId: plan.trace?.replayOfExecutionRunId || null,
+    replayOfExecutionStepId: plan.trace?.replayOfExecutionStepId || null,
+    replayOfExecutionStepIds,
+    stepKeys: traceStepKeys,
+  })
+  const correlationId = traceContext.correlationId
+  const executionRunId = traceContext.executionRunId
+  const commitStep = traceContext.steps.find((step) => step.stepKey === 'plan.commit')
+  const executionStepId = commitStep.executionStepId
+  const attemptId = commitStep.attemptId
+  const stepKey = 'plan.commit'
+  // Existing PlanImportReceipt consumers receive this compatibility label;
+  // the PM trace row itself uses the stable `plan.commit` key.
+  const receiptStepKey = 'plan.import.commit'
+  const payloadHash = idempotencyKey ? traceContext.requestHash : null
   const replayOfExecutionRunId = plan.trace?.replayOfExecutionRunId || null
   const replayOfExecutionStepId = plan.trace?.replayOfExecutionStepId || null
 
-  const result = await db.$transaction(async (tx) => {
+  let result
+  try {
+    result = await db.$transaction(async (tx) => {
     if (idempotencyKey) {
       const existingReceipt = await tx.planImportReceipt.findUnique({
         where: { idempotencyKey },
@@ -466,8 +506,19 @@ export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } =
       }
     }
 
+    const replayStepKeys = plan.trace?.replayStepKeys || null
+    await createExecutionTraceRows(tx, traceContext, {
+      stepStatuses: Object.fromEntries(traceContext.steps.map((step) => [
+        step.stepKey,
+        step.stepKey === 'plan.commit'
+          ? 'RUNNING'
+          : (replayStepKeys && !replayStepKeys.includes(step.stepKey) ? 'SKIPPED' : 'SUCCEEDED'),
+      ])),
+    })
+
     const codeToEntity = new Map() // code -> { kind, id }
     const now = new Date()
+    let firstWorkstreamId = null
 
     /**
      * Write one entity through the identity decided in the dry run:
@@ -555,6 +606,7 @@ export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } =
           status: 'PLANNED',
         }
       )
+      if (!firstWorkstreamId) firstWorkstreamId = workstream.id
 
       const containerIdByCode = new Map()
       for (const c of ws.containers || []) {
@@ -722,7 +774,8 @@ export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } =
         executionRunId,
         executionStepId,
         attemptId,
-        stepKey,
+        stepKey: receiptStepKey,
+        executionStepKey: stepKey,
         replayOfExecutionRunId,
         replayOfExecutionStepId,
         workstreams: plan.workstreams.length,
@@ -735,6 +788,35 @@ export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } =
       },
     })
 
+    const previewHash = normalizedPayloadHash(dry.preview)
+    for (const step of traceContext.steps.filter((candidate) => candidate.stepKey !== 'plan.commit')) {
+      const skipped = replayStepKeys && !replayStepKeys.includes(step.stepKey)
+      await recordExecutionStepAudit(tx, {
+        context: traceContext,
+        step,
+        entityId: project.id,
+        planId: firstWorkstreamId,
+        status: skipped ? 'SKIPPED' : 'SUCCEEDED',
+        skippedReason: skipped ? 'PARTIAL_REPLAY_NOT_SELECTED' : null,
+        outputHash: skipped ? null : previewHash,
+      })
+    }
+    await finishExecutionStep(tx, executionStepId, {
+      status: 'SUCCEEDED',
+      projectId: project.id,
+      projectIds: [project.id],
+      planId: firstWorkstreamId,
+      inputHash: traceContext.requestHash,
+      outputHash: normalizedPayloadHash({ projectId: project.id, preview: dry.preview }),
+      auditEventId: auditEvent.id,
+    })
+    await finishExecutionRun(tx, executionRunId, {
+      status: 'SUCCEEDED',
+      projectId: project.id,
+      planId: firstWorkstreamId,
+      auditEventId: auditEvent.id,
+    })
+
     if (idempotencyKey) {
       await tx.planImportReceipt.create({
         data: {
@@ -743,7 +825,7 @@ export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } =
           executionRunId,
           executionStepId,
           attemptId,
-          stepKey,
+          stepKey: receiptStepKey,
           status: 'SUCCEEDED',
           correlationId,
           schemaVersion: plan.schemaVersion,
@@ -761,14 +843,29 @@ export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } =
       executionRunId,
       executionStepId,
       attemptId,
-      stepKey,
+      stepKey: receiptStepKey,
+      executionStepKey: stepKey,
       status: 'SUCCEEDED',
       auditEventId: auditEvent.id,
       replayOfExecutionRunId,
       replayOfExecutionStepId,
       preview: dry.preview,
     }
-  }, PLAN_COMMIT_TRANSACTION_OPTIONS)
+    }, PLAN_COMMIT_TRANSACTION_OPTIONS)
+  } catch (error) {
+    // A bundle's outer transaction owns rollback and must not persist a nested
+    // failure. The root PlanEnvelope path records the failed trace after its
+    // business transaction has rolled back.
+    if (db === prisma && db.projectExecutionRun) {
+      try {
+        await recordFailedExecutionTrace(db, traceContext, error)
+      } catch {
+        // Preserve the original transaction error; trace persistence is
+        // evidence, never a reason to hide the mutation failure.
+      }
+    }
+    throw error
+  }
 
   if (result.idempotencyConflict) {
     return { committed: false, errors: result.errors, preview: dry.preview }

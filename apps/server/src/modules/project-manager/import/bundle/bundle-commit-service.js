@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import {
   createGoal,
@@ -9,6 +8,14 @@ import {
 import { commitPlan, PLAN_COMMIT_TRANSACTION_OPTIONS } from '../plan-import-service'
 import { dryRunBundle } from './bundle-dry-run'
 import { findBundleReplay, normalizedBundleHash, recordBundleReceipt } from './bundle-receipt'
+import {
+  createExecutionTraceContext,
+  createExecutionTraceRows,
+  finishExecutionRun,
+  finishExecutionStep,
+  recordExecutionStepAudit,
+  recordFailedExecutionTrace,
+} from '../../application/execution-trace'
 
 // @req FR-108 — Phase G: the confirmed bundle commit (ADR-049 D3/D8/D9).
 // @spec ADR-049, SDD-056, BR-007, BR-009, SEC-001, SEC-002, SEC-003
@@ -17,7 +24,8 @@ import { findBundleReplay, normalizedBundleHash, recordBundleReceipt } from './b
 // COMMIT MODE: **ATOMIC** (ADR-049 D8, first implementation). Every model this
 // bundle touches — BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal,
 // ProjectGoal, Project, Workstream, WorkContainer, WorkItem, Milestone, Gate,
-// Repository, Dependency, AuditEvent, PlanImportReceipt — lives in the one
+// Repository, Dependency, AuditEvent, PlanImportReceipt and PM execution trace
+// rows — lives in the one
 // Project Manager database, so ONE interactive Prisma transaction owns all
 // writes: strategy → N × PlanEnvelope commit → cross-Project dependencies →
 // bundle receipt/audit, in reference order. A failure anywhere rolls the whole
@@ -156,19 +164,35 @@ async function applyStrategy(bundle, { strategy, business, viewer, db }) {
  * per-Project commit. Re-runs the bundle dry-run first and refuses on any
  * conflict — one decision point, not a stored preview that could go stale.
  */
-export async function commitBundle(rawBundle, { viewer } = {}) {
-  const dry = await dryRunBundle(rawBundle, { viewer })
+export async function commitBundle(rawBundle, { viewer, db = prisma } = {}) {
+  const dry = await dryRunBundle(rawBundle, { viewer, db })
   if (!dry.valid) {
     return { committed: false, errors: dry.errors, preview: dry.preview }
   }
   const { bundle, business, strategy } = dry
   const idempotencyKey = bundle.trace?.idempotencyKey ?? null
   const payloadHash = normalizedBundleHash(bundle)
-  const bundleRunId = randomUUID()
+  const traceContext = createExecutionTraceContext({
+    plan: bundle,
+    snapshotValue: bundle,
+    workspace: dry.projects.find((project) => project.workspace)?.workspace || {
+      id: dry.defaultWorkspace?.id || null,
+      tenantId: business.tenantId,
+      businessId: business.id,
+    },
+    sourceKind: 'BUNDLE',
+    executionContractId: 'PM-BUNDLE-V1',
+    contractVersion: bundle.schemaVersion,
+    replayOfExecutionRunId: bundle.trace?.replayOfBundleRunId || null,
+    replayOfExecutionStepId: bundle.trace?.replayOfBundleStepId || null,
+    stepKeys: ['bundle.strategy', 'bundle.project.commit', 'bundle.dependencies'],
+  })
+  const bundleRunId = traceContext.executionRunId
+  let failedStepKey = 'bundle.strategy'
 
   let result
   try {
-    result = await prisma.$transaction(async (tx) => {
+    result = await db.$transaction(async (tx) => {
       const db = asTransactionDb(tx)
 
       if (idempotencyKey) {
@@ -177,11 +201,27 @@ export async function commitBundle(rawBundle, { viewer } = {}) {
         if (prior?.replay) return { replay: true, receipt: prior.receipt }
       }
 
+      await createExecutionTraceRows(tx, traceContext, {
+        stepStatuses: {
+          'bundle.strategy': 'RUNNING',
+          'bundle.project.commit': 'NOT_STARTED',
+          'bundle.dependencies': 'NOT_STARTED',
+        },
+      })
+
       // 1. Strategy, so every symbol has a canonical id before any plan needs it.
       const goalIdByRef = await applyStrategy(bundle, { strategy, business, viewer, db })
+      const strategyStep = traceContext.steps.find((step) => step.stepKey === 'bundle.strategy')
+      await recordExecutionStepAudit(tx, {
+        context: traceContext,
+        step: strategyStep,
+        entityId: null,
+        outputHash: normalizedBundleHash({ strategy: [...goalIdByRef.entries()] }),
+      })
 
       // 2. Every Project through the EXISTING PlanEnvelope commit, inside this
       //    same transaction, with ALL goal refs now resolved to real UUIDs.
+      failedStepKey = 'bundle.project.commit'
       const projects = []
       for (const entry of bundle.projects) {
         const projectPreview = dry.projects.find((project) => project.bundleProjectRef === entry.bundleProjectRef)
@@ -190,7 +230,12 @@ export async function commitBundle(rawBundle, { viewer } = {}) {
         if (injectedGoalIds.length) {
           plan.project.goalIds = [...new Set([...(plan.project.goalIds || []), ...injectedGoalIds])]
         }
-        const committed = await commitPlan(plan, { workspaceId: projectPreview?.workspaceId, viewer, db })
+        const committed = await commitPlan(plan, {
+          workspaceId: projectPreview?.workspaceId,
+          viewer,
+          db,
+          traceSourceKind: 'BUNDLE',
+        })
         if (!committed.committed) {
           throw new BundleCommitError(
             (committed.errors || ['commit refused']).map((error) => `Project "${entry.bundleProjectRef}": ${error}`)
@@ -207,8 +252,17 @@ export async function commitBundle(rawBundle, { viewer } = {}) {
         })
       }
 
+      const projectStep = traceContext.steps.find((step) => step.stepKey === 'bundle.project.commit')
+      await recordExecutionStepAudit(tx, {
+        context: traceContext,
+        step: projectStep,
+        entityId: projects[0]?.projectId || null,
+        outputHash: normalizedBundleHash(projects),
+      })
+
       // 3. Cross-Project dependency edges (see the file-top note on why this
       //    write lives in the import lane).
+      failedStepKey = 'bundle.dependencies'
       const projectIdByRef = new Map(projects.map((project) => [project.bundleProjectRef, project.projectId]))
       const dependencies = []
       for (const dependency of bundle.dependencies) {
@@ -248,9 +302,31 @@ export async function commitBundle(rawBundle, { viewer } = {}) {
         dependencies,
       }
       const auditEvent = await recordBundleReceipt(tx, { bundle, business, payloadHash, receipt })
+      const dependencyStep = traceContext.steps.find((step) => step.stepKey === 'bundle.dependencies')
+      await finishExecutionStep(tx, dependencyStep.executionStepId, {
+        status: 'SUCCEEDED',
+        projectId: projects[0]?.projectId || null,
+        inputHash: traceContext.requestHash,
+        outputHash: normalizedBundleHash(dependencies),
+        auditEventId: auditEvent.id,
+      })
+      await finishExecutionRun(tx, bundleRunId, {
+        status: 'SUCCEEDED',
+        projectId: projects[0]?.projectId || null,
+        projectIds: projects.map((project) => project.projectId),
+        auditEventId: auditEvent.id,
+      })
       return { receipt: { ...receipt, auditEventId: auditEvent.id } }
     }, BUNDLE_TRANSACTION_OPTIONS)
   } catch (error) {
+    if (db === prisma && db.projectExecutionRun) {
+      try {
+        await recordFailedExecutionTrace(db, traceContext, error, { failedStepKey })
+      } catch {
+        // Preserve the original bundle refusal/failure if evidence persistence
+        // is unavailable; the failed mutation must remain visible to callers.
+      }
+    }
     if (error instanceof BundleCommitError) {
       return { committed: false, errors: error.errors, preview: dry.preview }
     }
@@ -267,7 +343,19 @@ export async function commitBundle(rawBundle, { viewer } = {}) {
     return { committed: false, errors: result.errors, preview: dry.preview }
   }
   if (result.replay) {
-    return { committed: true, replay: true, receipt: result.receipt, preview: dry.preview }
+    return {
+      committed: true,
+      replay: true,
+      executionRunId: result.receipt.bundleRunId,
+      receipt: result.receipt,
+      preview: dry.preview,
+    }
   }
-  return { committed: true, replay: false, receipt: result.receipt, preview: dry.preview }
+  return {
+    committed: true,
+    replay: false,
+    executionRunId: result.receipt.bundleRunId,
+    receipt: result.receipt,
+    preview: dry.preview,
+  }
 }

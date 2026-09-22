@@ -44,6 +44,8 @@ owns_models:
   - FileLink
   - AuditEvent
   - PlanImportReceipt
+  - ProjectExecutionRun
+  - ProjectExecutionStep
   - GovernanceSnapshot
   - ProjectFeature
   - FeatureContribution
@@ -87,6 +89,11 @@ trail. This is the back-office console's core.
   package above that boundary: it may coordinate Roadmap/Horizon/Goal services
   and N existing PlanEnvelope imports, but it may not bypass or fork the
   PlanEnvelope writer.
+- [ADR-102](../../decisions/ADR-102-PM-EXECUTION-TRACE-AND-REPLAY.md) makes
+  `ProjectExecutionRun` and `ProjectExecutionStep` the PM-owned trace and
+  replay ledger. `PlanImportReceipt` remains the compatibility receipt; it is
+  not the step/attempt authority. AgentTraceEvent and PipelineRun remain
+  outside this domain.
 - `ExecutionPlanBundle` is **not a persistence model** and is not a synonym for
   `WorkContainer`. `container` keeps its existing Workstream-local meaning.
 - FR-252 adds Project-local Feature authority and explicit Domain, WorkItem and
