@@ -806,6 +806,7 @@
     "ADR-101",
     "ADR-102",
     "ADR-103",
+    "ADR-104",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -10381,6 +10382,19 @@
       "history": [
         {
           "anchor": "project manager approval gateway admission",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-104": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-104-PRODUCTION-MIGRATION-LINEAGE-RECONCILIATION.md",
+      "status": "current",
+      "statement_digest": "c7585941d7ba3dc93a9118dd8c7293ca703134063c50814cedc6e3830fefbc75",
+      "history": [
+        {
+          "anchor": "production postgresql migration lineage reconciliation and",
           "since": "2026-09-22",
           "reason": "declared"
         }

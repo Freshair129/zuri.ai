@@ -66,6 +66,7 @@
         "evidence": [
           "apps/server/tests/unit/phase1-runtime-login-probe.test.js",
           "apps/server/tests/unit/postgres-business-knowledge.test.js",
+          "apps/server/tests/unit/production-migration-reconciliation.test.js",
           "apps/server/tests/unit/supabase-production-isolation.test.js"
         ]
       },
@@ -552,10 +553,11 @@
           "declared": "n/a",
           "status": "not_implemented",
           "codeCount": 0,
-          "testCount": 3,
+          "testCount": 4,
           "evidence": [
             "apps/server/tests/unit/phase1-runtime-login-probe.test.js",
             "apps/server/tests/unit/postgres-business-knowledge.test.js",
+            "apps/server/tests/unit/production-migration-reconciliation.test.js",
             "apps/server/tests/unit/supabase-production-isolation.test.js"
           ]
         },
@@ -974,6 +976,7 @@
           "evidence": [
             "apps/server/tests/unit/phase1-runtime-login-probe.test.js",
             "apps/server/tests/unit/postgres-business-knowledge.test.js",
+            "apps/server/tests/unit/production-migration-reconciliation.test.js",
             "apps/server/tests/unit/supabase-production-isolation.test.js"
           ]
         },
@@ -1900,7 +1903,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-095",
@@ -1908,7 +1911,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 25,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-096",
@@ -3247,7 +3250,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-052",
@@ -4429,7 +4432,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-105",
@@ -5465,7 +5468,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-070",
@@ -5609,7 +5612,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-095",
@@ -5617,7 +5620,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-097",
@@ -6377,7 +6380,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-269",
@@ -6419,7 +6422,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "checks": {
@@ -6907,7 +6910,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-269",
@@ -7011,6 +7014,7 @@
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/production-migration-reconciliation.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
@@ -7052,7 +7056,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-070",
@@ -7113,6 +7117,7 @@
         "apps/server/tests/unit/plan-import-commit-transaction.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/plan-status-vocabulary.test.js",
+        "apps/server/tests/unit/production-migration-reconciliation.test.js",
         "apps/server/tests/unit/project-domain-read-model.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
         "apps/server/tests/unit/project-roadmap-read-model.test.js",
@@ -7656,7 +7661,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 24,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-095",
@@ -7664,7 +7669,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 30,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-096",
@@ -7803,6 +7808,7 @@
         "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
+        "apps/server/tests/unit/production-migration-reconciliation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out-surfaces-render.test.js",
         "apps/server/tests/unit/sign-out.test.js",
@@ -14101,13 +14107,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         }
       ],
       "evidence": [
         "apps/server/src/modules/knowledge/postgres-business-knowledge.js",
         "apps/server/tests/unit/phase1-runtime-login-probe.test.js",
         "apps/server/tests/unit/postgres-business-knowledge.test.js",
+        "apps/server/tests/unit/production-migration-reconciliation.test.js",
         "apps/server/tests/unit/supabase-production-isolation.test.js"
       ]
     },
@@ -17474,7 +17481,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "evidence": [
@@ -17483,7 +17490,8 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/approval-gateway.js",
         "apps/server/tests/integration/openapi-docs.test.js",
-        "apps/server/tests/integration/project-approval-gateway.test.js"
+        "apps/server/tests/integration/project-approval-gateway.test.js",
+        "apps/server/tests/unit/production-migration-reconciliation.test.js"
       ]
     }
   ],
