@@ -416,6 +416,11 @@
         "status": {
           "type": "string"
         },
+        "assigneeRef": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Canonical Person.id resolved by the server; external source user ids never go here."
+        },
         "weight": {
           "type": "number"
         },
@@ -432,6 +437,12 @@
         },
         "metadata": {
           "type": "object"
+        },
+        "targetAt": {
+          "anyOf": [
+            { "type": "string", "format": "date-time" },
+            { "type": "string", "format": "date" }
+          ]
         },
         "externalRefs": {
           "type": "array",
