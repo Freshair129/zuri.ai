@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { Link2, Monitor } from 'lucide-react'
 import { Card, ErrorState, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
 import { LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
+import MfaSecurityCard from '@/modules/identity/ui/MfaSecurityCard'
 
 const LANGUAGE_KEY = 'zuri-v2-language'
 
@@ -49,6 +50,7 @@ export default function ProfilePage() {
           <SectionTitle caption="Signed HttpOnly session cookie for this device">Sessions</SectionTitle>
           <div className="flex items-center gap-2 text-xs"><Monitor size={16} aria-hidden /> This device · {data.session.active ? 'active authenticated session' : 'inactive'}</div>
         </Card>
+        <MfaSecurityCard />
       </div>
     </div>
   )
