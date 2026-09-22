@@ -804,6 +804,7 @@
     "ADR-100",
     "ADR-101",
     "ADR-102",
+    "ADR-103",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -10353,6 +10354,19 @@
       "history": [
         {
           "anchor": "project manager execution trace and append only replay",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-103": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-103-PM-APPROVAL-GATEWAY-ADMISSION.md",
+      "status": "current",
+      "statement_digest": "e9bb88442e472ea8d2e8b39d0f4653f79fdc96fa7309b5e00e13dc16346307ed",
+      "history": [
+        {
+          "anchor": "project manager approval gateway admission",
           "since": "2026-09-22",
           "reason": "declared"
         }
