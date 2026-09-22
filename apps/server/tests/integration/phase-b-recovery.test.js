@@ -84,11 +84,13 @@ function fakeAdapter(sourceInventory = inventory) {
 }
 
 describe('Phase B offline recovery runners', () => {
-  it('loads the committed pinned 184-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(184)
-    expect(inventory.schemaSha256).toBe('5167f82e334c25d39657c732fcdd2b32f1020e0b28037bd63160085f01309200')
-    expect(inventory.targetSchemaSha256).toBe('4bed3ff2382a0a1ea75906c14eb6f01a5ea61eb4bd5570179fb44a074c301a53')
-    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet']))
+  it('loads the committed pinned 186-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(186)
+    expect(inventory.schemaSha256).toBe('479172f2ba9a81a29fd08d061689cb875cd70e98125710fc0c847d098ef36e15')
+    expect(inventory.targetSchemaSha256).toBe('8cb1b79f1fcc3fd2298eee93af821956791a8363d38eee7cb67803b55efb38fb')
+    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
+      expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet', 'BusinessKeyResult', 'BusinessKeyResultCheckIn'])
+    )
   })
 
   it('rejects a CRLF-mutated schema even with the approved inventory', async () => {
@@ -249,8 +251,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 184-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 184-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 186-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 186-table inventory/)
     }
   })
 

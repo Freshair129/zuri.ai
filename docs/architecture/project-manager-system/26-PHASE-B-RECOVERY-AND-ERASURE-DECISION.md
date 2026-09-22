@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.5b"
+version: "0.3.6b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-19T04:40:59+07:00,RWANG"
+last_update: "2026-09-22T00:00:00+07:00,Claude Sonnet 5"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -190,6 +190,12 @@ the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.5b → 0.3.6b (2026-09-22): rebind the frozen recovery inventory
+to the composed 186-model schema after FR-268's `BusinessKeyResult`/
+`BusinessKeyResultCheckIn` models landed (ADR-101 D6 Phase 1), on top of
+ADR-102's already-merged `ProjectExecutionRun`/`ProjectExecutionStep` models.
+schemaSha256 `479172f2ba9a81a29fd08d061689cb875cd70e98125710fc0c847d098ef36e15`.
 
 Version diff 0.3.4b → 0.3.5b: rebind the frozen recovery inventory to the composed
 179-model schema after adding the two Knowledge artifact storage models; the

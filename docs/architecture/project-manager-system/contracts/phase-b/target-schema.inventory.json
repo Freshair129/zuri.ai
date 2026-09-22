@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "5167f82e334c25d39657c732fcdd2b32f1020e0b28037bd63160085f01309200",
+  "schemaSha256": "479172f2ba9a81a29fd08d061689cb875cd70e98125710fc0c847d098ef36e15",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -90,6 +90,16 @@
       "modelName": "BusinessGoal",
       "schemaName": "public",
       "tableName": "BusinessGoal"
+    },
+    {
+      "modelName": "BusinessKeyResult",
+      "schemaName": "public",
+      "tableName": "BusinessKeyResult"
+    },
+    {
+      "modelName": "BusinessKeyResultCheckIn",
+      "schemaName": "public",
+      "tableName": "BusinessKeyResultCheckIn"
     },
     {
       "modelName": "BusinessRoadmap",
@@ -921,10 +931,5 @@
       "schemaName": "public",
       "tableName": "Workstream"
     }
-  ],
-  "migrationTables": [
-    "_prisma_migrations",
-    "schema_migrations"
-  ],
-  "targetSchemaSha256": "4bed3ff2382a0a1ea75906c14eb6f01a5ea61eb4bd5570179fb44a074c301a53"
+  ]
 }
