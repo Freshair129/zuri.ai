@@ -650,7 +650,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "BLOCKED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "Controlled production activation/boundary evidence is recorded, but the authenticated MSP memory canary is blocked by the dedicated DB role credential; FEAT-010; .brain/reports/2026-09-20-task-zai-001-closeout.md; .brain/rca/2026-09-22-line-runtime-credential-drift.md"
+    "evidence": "Controlled production activation/boundary evidence is recorded; the dedicated DB role now authenticates, but the authenticated MSP memory canary is blocked by missing Business model-provider readiness and an unavailable private runtime; FEAT-010; .brain/reports/2026-09-20-task-zai-001-closeout.md; .brain/rca/2026-09-22-line-memory-canary-model-provider.md"
   },
   {
     "id": "TASK-ZAI-002",
