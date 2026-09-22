@@ -232,8 +232,10 @@ describe('OpenAPI document', () => {
       // FR-094/FR-095 adds WebAuthn Passkeys: six paths, seven operations.
       // TASK-ZAI-053 adds six supplier cost-sheet paths and six operations.
       // FR-187 adds the SmartGift catalog upload: one path, POST only.
-      pathCount: 326,
-      operationCount: 432,
+      // FR-069 adds the optional meeting intake boundary: one identity
+      // binding path and two PlanEnvelope convergence paths.
+      pathCount: 329,
+      operationCount: 435,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

@@ -1,5 +1,9 @@
 # Appendix A — API Specification
 
+Version diff 1.89.0b → 1.90.0b (2026-09-22): add the FUNG/Lalin AI meeting
+recording-to-PM action handoff preview/commit routes and the owner-attested
+meeting identity binding route; current inventory is 329 route-handler paths.
+
 Version diff 1.88.0b → 1.89.0b (2026-09-20): add the six TASK-ZAI-053 supplier cost-sheet paths to the Procurement contract; current inventory is 328 route-handler paths. The migration is written locally and production application remains an ADR-057 operator gate.
 
 Version diff 1.87.0b → 1.88.0b: add FR-254 Knowledge Console routes to the composed FR-252/TaskUsageLedger baseline; target 315 paths and 419 operations. Final composed verification and production delivery remain pending.
@@ -12,9 +16,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.89.0b |
+| **Version** | 1.90.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-20 |
+| **Last Updated** | 2026-09-22 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -33,7 +37,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=326 -->
+<!-- api-spec-counts: route_handlers=329 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -286,6 +290,20 @@ fail-closed (`IDENTITY_PENDING`).
 | POST | `/api/identity/link-tokens` | Issues a single-use time-bounded (`ttlSeconds`, default 900) link token for a tenant/person. Requires authenticated viewer session (`401 AUTHENTICATION_REQUIRED`). Returns `{ token, tokenId, expiresAt }`. |
 | POST | `/api/identity/link-tokens/redeem` | Single-use bearer token redemption binding channel account (LINE user) to canonical Person identity (`merge: true` re-points existing unlinked principal). Activates `ChannelIdentity` (`ACTIVE`, sets `verifiedAt` and `linkedAt`). Returns 400 if expired, already consumed, or invalid. |
 | GET | `/api/identity/channel-identities` | Query verification status of a channel identity for given `tenantId` and `providerSubject` (optional `channelAccountId`, `channel='LINE'`). Returns `{ found, id, personId, status, verified, verifiedAt, linkedAt, revokedAt }`. |
+
+## Meeting identity binding and action intake (FR-069 / ADR-025)
+
+FUNG and Lalin AI publish meeting events with their own user identifiers. These
+routes resolve those identifiers to the canonical Tenant `Person` before PM
+work is created. The source application supplies only its provider and subject;
+it never supplies a canonical `personId` for an action. Binding is an
+owner-attested operation, and action intake is workspace-scoped, idempotent and
+single-writer through the PlanEnvelope importer. Unresolved assignees remain
+visible as PM review warnings rather than becoming an unverified assignment.
+
+| Method | Path | Contract |
+|---|---|---|
+| POST | `/api/identity/meeting-bindings` | Owner/operator-attested `{ tenantId?, personId?, sourceApp: FUNG\|LALIN_AI, sourceUserId }` binding. Creates or reactivates a verified `ExternalIdentity` for the canonical Person; refuses an active subject already bound to another Person. |
 
 ## Multi-Factor Authentication (TOTP) and Session Assurance (FR-094, FR-095, FR-096 / ADR-045)
 
@@ -853,6 +871,8 @@ these compatibility reads are not second stable list DTOs and are not used by
 | POST | `/api/import/commit` | เหมือน dry-run แล้ว commit ใน transaction เดียว + audit |
 | POST | `/api/import/bundle/dry-run` | `{bundle}` (ExecutionPlanBundle) → one combined programme preview: strategy + per-Project PlanEnvelope dry-runs + cross-Project dependencies + symbol resolution — read-only, authorized เหมือน commit (FR-108, ADR-049 D5/D7) |
 | POST | `/api/import/bundle/commit` | `{bundle}` → atomic single-transaction commit ของทั้ง programme ผ่าน orchestrator ที่เรียกเฉพาะ service เดิม; bundle receipt + idempotent replay ด้วย `trace.idempotencyKey` (FR-108, ADR-049 D8/D9) |
+| POST | `/api/import/meeting-actions/dry-run` | `{intake, workspaceId?, projectId?}` → validates a strict FUNG/Lalin AI meeting-action envelope, resolves source identity and target scope, previews WorkItems and reports unresolved/out-of-scope assignees without persistence. |
+| POST | `/api/import/meeting-actions/commit` | Same meeting-action contract after dry-run; commits through the existing PlanEnvelope transaction and AuditEvent path with `trace.idempotencyKey`. |
 | GET | `/api/backup/export` | full snapshot JSON |
 | POST | `/api/backup/import` | `{snapshot}` = preview; `{snapshot, confirm:true}` = restore |
 | GET | `/api/audit` | events (filter: entityType, entityId, limit), plus `entityTypes: [{value, count}]` — every entityType present in the log with how many rows carry it. The facet is **unfiltered**: it counts the whole table, not the current `where`, so choosing one option never removes the others and the counts stay true past the `limit` window. The audit console builds its filter from this instead of a hand-kept list, which covered 15 of the 57 entityTypes the codebase writes (FR-014) |
@@ -1010,6 +1030,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.90.0b | 2026-09-22 | candidate | FR-069: add owner-attested FUNG/Lalin AI meeting identity binding plus strict meeting-action dry-run/commit handoff into the PM PlanEnvelope single-writer path; route handler inventory 326 -> 329 | working-tree | Codex |
 | 1.88.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console source, scoped run/corpus/citation routes and artifact lineage contract with the current 309-path baseline; target 315 paths/419 operations | 2bd61b49 | RWANG |
 | 1.87.0b | 2026-09-18 | candidate | Add authenticated TaskUsageLedger projection and explicit taskCode attribution; reconcile composed inventory to 309 paths/412 operations; no database model or migration | 56ae925a | RWANG |
 | 1.86.0b (LINE local execution v2) | 2026-09-17 | beta | Preserve the live FR-254 Knowledge Console and add approved LINE local execution v2 context/tool routes on the pricing and CRM baseline; route handler inventory 302 -> 304 and operations 402 -> 404. Production activation remains separate. | composition-2bd61b49-0c7fd884 | RWANG |

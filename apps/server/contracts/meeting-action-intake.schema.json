@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "zuri-v2://contracts/meeting-action-intake.schema.json",
+  "title": "Zuri Meeting Action Intake",
+  "description": "Normalized action candidates sent from FUNG or Lalin AI into Project Manager review.",
+  "type": "object",
+  "required": ["schemaVersion", "trace", "source", "scope", "meeting", "actions"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "meeting-action-intake.v1" },
+    "trace": { "$ref": "#/$defs/trace" },
+    "source": { "$ref": "#/$defs/source" },
+    "scope": {
+      "type": "object",
+      "required": ["workspaceCode"],
+      "additionalProperties": false,
+      "properties": {
+        "workspaceCode": { "type": "string", "minLength": 1 },
+        "projectCode": { "type": "string", "minLength": 1 },
+        "workstreamCode": { "type": "string", "minLength": 1 }
+      }
+    },
+    "meeting": {
+      "type": "object",
+      "required": ["meetingId", "recordingId", "transcriptRevision"],
+      "additionalProperties": false,
+      "properties": {
+        "meetingId": { "type": "string", "minLength": 1 },
+        "recordingId": { "type": "string", "minLength": 1 },
+        "transcriptRevision": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": { "$ref": "#/$defs/action" }
+    }
+  },
+  "$defs": {
+    "trace": {
+      "type": "object",
+      "required": ["correlationId", "idempotencyKey"],
+      "additionalProperties": false,
+      "properties": {
+        "correlationId": { "type": "string", "minLength": 1 },
+        "idempotencyKey": { "type": "string", "minLength": 1 }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["app", "userId"],
+      "additionalProperties": false,
+      "properties": {
+        "app": { "enum": ["FUNG", "LALIN_AI"] },
+        "userId": { "type": "string", "minLength": 1 }
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": ["actionId", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "actionId": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "maxItems": 30,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "assignee": { "$ref": "#/$defs/assignee" },
+        "targetAt": {
+          "anyOf": [
+            { "type": "string", "format": "date-time" },
+            { "type": "string", "format": "date" }
+          ]
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence": {
+          "type": "array",
+          "maxItems": 30,
+          "items": { "$ref": "#/$defs/evidence" }
+        }
+      }
+    },
+    "assignee": {
+      "type": "object",
+      "required": ["sourceUserId"],
+      "additionalProperties": false,
+      "properties": {
+        "sourceUserId": { "type": "string", "minLength": 1 },
+        "displayName": { "type": "string", "minLength": 1 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["type", "ref"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["TRANSCRIPT", "AUDIO", "TIMESTAMP", "QUOTE"] },
+        "ref": { "type": "string", "minLength": 1 },
+        "startMs": { "type": "integer", "minimum": 0 },
+        "endMs": { "type": "integer", "minimum": 0 },
+        "quote": { "type": "string" }
+      }
+    }
+  }
+}

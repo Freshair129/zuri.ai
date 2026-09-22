@@ -177,9 +177,48 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer, db = prisma } =
   const inserts = []
   const updates = []
   const conflicts = []
+  const targetBusinessId = workspace.businessId || null
   // Identity decision per plan code, reused verbatim by commit so the preview
   // can never disagree with what is actually written.
   const resolution = {}
+
+  // @req FR-069 / FR-065 — once PlanEnvelope formally carries an assignee,
+  // the value is a canonical Person.id but it is still not authority. Resolve
+  // every requested Person against an ACTIVE Membership in the target Business
+  // (or a tenant-wide membership) before the plan can preview or commit. This
+  // keeps the generic import lane as safe as the meeting adapter and prevents
+  // a caller from using an arbitrary Person UUID to cross Business scope.
+  const requestedAssigneeIds = [...new Set(
+    plan.workstreams.flatMap((workstream) => (workstream.items || [])
+      .map((item) => item.assigneeRef)
+      .filter(Boolean)),
+  )]
+  if (requestedAssigneeIds.length > 0) {
+    const targetTenantId = workspace.tenantId || (targetBusinessId
+      ? (await db.business.findUnique({ where: { id: targetBusinessId }, select: { tenantId: true } }))?.tenantId
+      : null)
+    const memberRows = targetTenantId && targetBusinessId
+      ? await db.membership.findMany({
+        where: {
+          tenantId: targetTenantId,
+          personId: { in: requestedAssigneeIds },
+          status: 'ACTIVE',
+          OR: [{ businessId: targetBusinessId }, { businessId: null }],
+        },
+        select: { personId: true },
+      })
+      : []
+    const inScope = new Set(memberRows.map((row) => row.personId))
+    for (const personId of requestedAssigneeIds) {
+      if (!inScope.has(personId)) {
+        conflicts.push({
+          kind: 'assignee',
+          code: personId,
+          reason: 'Person is not an active member of the target Business',
+        })
+      }
+    }
+  }
 
   /**
    * Classify one entity: external id first, then code, then insert.
@@ -281,7 +320,6 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer, db = prisma } =
     return existing
   }
 
-  const targetBusinessId = workspace.businessId || null
   const existingProject = await classify(
     'project',
     'project',
@@ -561,12 +599,14 @@ export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } =
             title: i.title,
             subtype: i.subtype,
             status: i.status ?? undefined,
+            assigneeRef: i.assigneeRef ?? undefined,
             containerId: i.containerCode ? containerIdByCode.get(i.containerCode) : undefined,
             weight: i.weight ?? undefined,
             numericValue: i.numericValue ?? undefined,
             probability: i.probability ?? undefined,
             metricDataJson: i.metrics ? JSON.stringify(i.metrics) : undefined,
             metadataJson: i.metadata ? JSON.stringify(i.metadata) : undefined,
+            targetAt: i.targetAt ? new Date(i.targetAt) : undefined,
             version: { increment: 1 },
           },
           {
@@ -576,11 +616,13 @@ export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } =
             subtype: i.subtype,
             title: i.title,
             status: i.status || 'PLANNED',
+            assigneeRef: i.assigneeRef || null,
             weight: i.weight ?? 1,
             numericValue: i.numericValue ?? null,
             probability: i.probability ?? null,
             metricDataJson: JSON.stringify(i.metrics || {}),
             metadataJson: JSON.stringify(i.metadata || {}),
+            targetAt: i.targetAt ? new Date(i.targetAt) : null,
           }
         )
       }
