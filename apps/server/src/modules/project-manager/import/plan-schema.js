@@ -53,6 +53,10 @@ export const zExternalRef = z
   .strict()
 
 const externalRefs = z.array(zExternalRef).optional()
+const zPlanDate = z.union([
+  z.string().datetime({ offset: true }),
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+])
 
 const zContainer = z
   .object({
@@ -73,11 +77,15 @@ const zItem = z
     subtype: z.string().min(1),
     title: z.string().min(1),
     status: zWorkStatus.optional(),
+    // Canonical Person.id only. External app subject ids are resolved by the
+    // meeting adapter before this envelope reaches the shared importer.
+    assigneeRef: z.string().min(1).optional(),
     weight: z.number().optional(),
     numericValue: z.number().optional(),
     probability: z.number().min(0).max(1).optional(),
     metrics: z.record(z.any()).optional(),
     metadata: z.record(z.any()).optional(),
+    targetAt: zPlanDate.optional(),
     externalRefs,
   })
   .strict()
@@ -187,7 +195,7 @@ export const zPlanEnvelope = z
         description: z.string().optional(),
         type: z.string().optional(),
         status: zProjectStatus.optional(),
-        targetAt: z.union([z.string().datetime(), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).optional(),
+        targetAt: zPlanDate.optional(),
         // Optional links to existing BusinessGoal rows. The import service
         // resolves them inside the target Business and creates ProjectGoal
         // links transactionally; it never creates or copies a Goal.

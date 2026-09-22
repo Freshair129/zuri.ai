@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "zuri-v2://contracts/meeting-recording-intake.schema.json",
+  "title": "Zuri Meeting Recording Intake",
+  "description": "Common recording handoff used by meeting-capable apps. It carries source metadata only; it does not create PM work.",
+  "type": "object",
+  "required": ["schemaVersion", "trace", "source", "meeting", "recording"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "meeting-recording-intake.v1" },
+    "trace": { "$ref": "#/$defs/trace" },
+    "source": { "$ref": "#/$defs/source" },
+    "meeting": {
+      "type": "object",
+      "required": ["meetingId"],
+      "additionalProperties": false,
+      "properties": {
+        "meetingId": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "endedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "recording": {
+      "type": "object",
+      "required": ["audioRef", "mimeType"],
+      "additionalProperties": false,
+      "properties": {
+        "audioRef": { "type": "string", "minLength": 1 },
+        "mimeType": { "type": "string", "minLength": 1 },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "contentHash": { "type": "string", "minLength": 1 },
+        "transcriptRef": { "type": "string", "minLength": 1 }
+      }
+    },
+    "participants": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "required": ["sourceUserId"],
+        "additionalProperties": false,
+        "properties": {
+          "sourceUserId": { "type": "string", "minLength": 1 },
+          "displayName": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "trace": {
+      "type": "object",
+      "required": ["correlationId", "idempotencyKey"],
+      "additionalProperties": false,
+      "properties": {
+        "correlationId": { "type": "string", "minLength": 1 },
+        "idempotencyKey": { "type": "string", "minLength": 1 }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["app", "userId", "recordingId", "capturedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "app": { "enum": ["FUNG", "LALIN_AI"] },
+        "userId": { "type": "string", "minLength": 1 },
+        "recordingId": { "type": "string", "minLength": 1 },
+        "capturedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

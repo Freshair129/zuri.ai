@@ -3,7 +3,7 @@ domain: project-manager
 feature: FR-069
 module: project-manager
 source: v2-native
-version: 0.9.0
+version: 0.10.0b
 status: candidate
 ---
 
@@ -401,6 +401,50 @@ If a contract row conflicts with one of those machine sources, the implementatio
 must stop and reconcile the documentation/schema first. It must not add a local
 allowlist in a UI component or Agent prompt.
 
+## Approved meeting recording → PM action intake extension
+
+Meeting-capable products do not create Project Manager records directly. FUNG
+and Lalin AI use the same two lifecycle contracts:
+
+1. `apps/server/contracts/meeting-recording-intake.schema.json` identifies a
+   recording, its meeting and capture provenance. It is a recording handoff,
+   not a task payload.
+2. `apps/server/contracts/meeting-action-intake.schema.json` carries normalized
+   action candidates, tags, evidence, a proposed source-app assignee and the
+   target Business-scoped Workspace/Project selectors.
+
+The producer name is a value in `source.app` (`FUNG` or `LALIN_AI`), not a
+different field naming convention. The action contract deliberately has no
+`fungTask`, `lalinTask` or caller-supplied `personId` field.
+
+The PM adapter performs this sequence:
+
+```text
+recording contract (FUNG/Lalin AI)
+  → local transcription/diarization/review in the producer
+  → meeting-action contract
+  → source app user binding lookup
+  → Business/Workspace/Project scope check
+  → canonical Person.id assignment resolution
+  → PlanEnvelope 1.2
+  → dry-run + conflict preview
+  → PM transactional commit + AuditEvent
+```
+
+`ExternalIdentity` stores the explicit `(tenantId, provider, providerSubject)`
+binding, with `provider` values `FUNG` and `LALIN_AI`. A meeting action may
+populate `WorkItem.assigneeRef` only when that binding is verified, active and
+has an active Membership in the target Business (or a tenant-wide Membership).
+An unresolved or out-of-scope proposal remains visible in WorkItem metadata for
+PM review and is never auto-assigned by display name.
+
+The PM routes are `POST /api/import/meeting-actions/dry-run` and
+`POST /api/import/meeting-actions/commit`; identity provisioning is the
+owner-attested `POST /api/identity/meeting-bindings`. The recording bytes,
+transcription runtime, speaker evidence and producer UI remain owned by FUNG or
+Lalin AI. PM owns only the normalized action review, assignment and work-item
+state after the handoff.
+
 ## Acceptance criteria
 
 - **AC-069.1** The first Project planning step begins with title/goal/outcome and
@@ -472,6 +516,11 @@ allowlist in a UI component or Agent prompt.
   `promotion_id` remains a promotion occurrence. `int_id` is accepted only as
   a legacy alias for `integration_id`; none of these fields may be silently
   reinterpreted as another owner or resource.
+- **AC-069.22** Meeting recording and meeting-action handoffs from FUNG and
+  Lalin AI use the shared contracts, resolve source users through an explicit
+  tenant-scoped external identity binding, and converge on the existing
+  PlanEnvelope preview/commit/audit path. Unresolved assignees remain pending
+  PM review and cannot cross Business scope.
 
 ## Non-goals
 
@@ -493,4 +542,6 @@ allowlist in a UI component or Agent prompt.
 - [FR-070 — Stable execution, domain and tag identities](FR-070-stable-execution-domain-and-tag-identities.md)
 - [Seven Execution Modes](../../../EXECUTION-MODES.md)
 - [PlanEnvelope schema](../../../../apps/server/contracts/plan-envelope.schema.json)
+- [Meeting recording intake contract](../../../../apps/server/contracts/meeting-recording-intake.schema.json)
+- [Meeting action intake contract](../../../../apps/server/contracts/meeting-action-intake.schema.json)
 - SDD-039 — Roadmap contract (registered in [PRD-SDD-v1.0.md](../../../PRD-SDD-v1.0.md))
