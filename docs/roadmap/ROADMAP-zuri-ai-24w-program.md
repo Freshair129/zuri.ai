@@ -480,7 +480,7 @@ locates the week.
 
 | ID | Parent ID | Type | Title | Priority | Owner | Status | Dependencies | Source Section |
 |---|---|---|---|---|---|---|---|---|
-| TASK-ZAI-001 | SPR-ZAI-01 | task | Close the production request-session and credential boundary | P0 | ATHER | review | - | Section 3.1 row 10; FEAT-010 |
+| TASK-ZAI-001 | SPR-ZAI-01 | task | Close the production request-session and credential boundary | P0 | ATHER | blocked | - | Section 3.1 row 10; FEAT-010 |
 | TASK-ZAI-002 | SPR-ZAI-01 | task | Declare the five built-but-undeclared features into the registry | P0 | Claude | done | - | Section 3 evidence baseline |
 | TASK-ZAI-003 | SPR-ZAI-01 | task | Profile-first onboarding and Waiting Room, FR-066 | P1 | Codex | done | TASK-ZAI-001 | PRD FR-066, FR-122 |
 | TASK-ZAI-004 | SPR-ZAI-02 | task | Workspace collaboration boundary and scoped invites, FR-067 | P0 | Codex | done | TASK-ZAI-003 | PRD FR-067; FR-195 generalises it |

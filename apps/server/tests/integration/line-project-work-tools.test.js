@@ -21,12 +21,13 @@ const subject = 'U-line-work-owner'
 const at = new Date()
 async function job(body, over = {}) {
   const sourceUserId = over.sourceUserId ?? subject
+  const channelAccountId = over.channelAccountId ?? account.bindingCode ?? account.id
   const eventId = randomUUID()
   const inbound = await ingestLineMessage({ tenantId: tenant.id, businessId: business.id,
-    channelAccountId: account.bindingCode, lineUserId: sourceUserId, threadId: sourceUserId,
+    channelAccountId, lineUserId: sourceUserId, threadId: sourceUserId,
     externalMessageId: eventId, text: body })
   return prisma.lineConversationJob.create({ data: { accountId: account.id, inboundMessageId: inbound.messageId,
-    eventId, tenantId: tenant.id, businessId: business.id, channelAccountId: account.bindingCode,
+    eventId, tenantId: tenant.id, businessId: business.id, channelAccountId,
     transportEpoch: account.transportEpoch, executionMode: 'EDGE', modelAccess: 'LOCAL_ONLY',
     status: 'CLAIMED', leaseExpiresAt: new Date(at.getTime() + 600000), executionId: randomUUID(), claimantId: 'edge-work-credential',
     recipientId: sourceUserId, sourceUserId, correlationId: randomUUID(), expiresAt: new Date(at.getTime() + 600000), ...over },
@@ -92,6 +93,23 @@ describe('LINE Project / Work tools', () => {
     expect(result.observedAt).toBe(at.toISOString())
     expect(result.items.every(item => item.sourceRef === item.id && item.version > 0)).toBe(true)
     await expect(proposeLineWork(request.id, { action: 'create_work', targetId: otherStream.id, args: { title: 'Cross business' } }, { now: at })).rejects.toThrow()
+  })
+
+  it('uses the account id when a legacy account has no binding code', async () => {
+    const legacySubject = 'U-line-work-null-binding'
+    const link = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    await redeemLinkToken({ tenantId: tenant.id, token: link.token, channelAccountId: account.id, lineUserId: legacySubject })
+    const previousBindingCode = account.bindingCode
+    await prisma.lineOaAccount.update({ where: { id: account.id }, data: { bindingCode: null } })
+    account.bindingCode = null
+    try {
+      const request = await job('/projects', { sourceUserId: legacySubject })
+      const result = await searchLineProjectWork(request.id, { kind: 'projects' }, { now: at })
+      expect(result.items.map(project => project.code)).toEqual(['PRJ-LINE-WORK'])
+    } finally {
+      await prisma.lineOaAccount.update({ where: { id: account.id }, data: { bindingCode: previousBindingCode } })
+      account.bindingCode = previousBindingCode
+    }
   })
 
   it('requires actual human confirmation text; model cannot confirm', async () => {
