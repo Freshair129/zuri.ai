@@ -38,6 +38,9 @@ export const MSP_RUNTIME_ENV_NAMES = Object.freeze([
   'MSP_THREAD_SERVICE_KEY',
   'MSP_THREAD_SERVICE_KEYRING',
   'MSP_IDENTITY_HMAC_KEY',
+  'MSP_GLOBAL_PRIVATE_GRANT_REQUIRED',
+  'MSP_IDENTITY_HMAC_KEY_VERSION',
+  'MSP_IDENTITY_HMAC_KEYRING',
   'MSP_THREAD_IDLE_TIMEOUT_MINUTES',
   'MSP_THREAD_RECENT_EXCHANGES',
   'MSP_THREAD_RETENTION_DAYS',
@@ -75,6 +78,9 @@ export const MSP_OS_ENV_NAMES = Object.freeze([
   'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'TZ',
   'PATHEXT', 'SYSTEMROOT', 'SYSTEMDRIVE', 'WINDIR', 'COMSPEC',
   'USERPROFILE', 'HOMEDRIVE', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA',
+  // File path only; needed when MSP's GKS child trusts a private CA. It is
+  // not credential material and remains explicitly allowlisted.
+  'NODE_EXTRA_CA_CERTS',
 ])
 
 // Windows spells these `Path` and `SystemRoot`, and its environment is

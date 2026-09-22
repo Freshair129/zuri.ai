@@ -645,12 +645,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-001",
     "sprint": "SPR-ZAI-01",
     "title": "Close the production request-session and credential boundary",
-    "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "status": "blocked",
+    "proofScope": "PRODUCTION",
+    "implementationState": "BLOCKED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 10; FEAT-010; .brain/reports/2026-09-20-task-zai-001-closeout.md"
+    "evidence": "Controlled production activation/boundary evidence is recorded, but the authenticated MSP memory canary is blocked by the dedicated DB role credential; FEAT-010; .brain/reports/2026-09-20-task-zai-001-closeout.md; .brain/rca/2026-09-22-line-runtime-credential-drift.md"
   },
   {
     "id": "TASK-ZAI-002",

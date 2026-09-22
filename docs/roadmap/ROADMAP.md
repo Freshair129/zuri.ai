@@ -675,7 +675,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 <!-- roadmap-task-ledger:start -->
 | task_id | sprint | task | status | proof_scope | implementation_state | depends_on | authority | evidence |
 |---|---|---|---|---|---|---|---|---|
-| TASK-ZAI-001 | SPR-ZAI-01 | Close the production request-session and credential boundary | review | UNKNOWN | IN_PROGRESS | — | ROADMAP.md | 24-week baseline; Section 3.1 row 10; FEAT-010; .brain/reports/2026-09-20-task-zai-001-closeout.md |
+| TASK-ZAI-001 | SPR-ZAI-01 | Close the production request-session and credential boundary | blocked | PRODUCTION | BLOCKED | — | ROADMAP.md | Controlled production activation/boundary evidence is recorded, but the authenticated MSP memory canary is blocked by the dedicated DB role credential; FEAT-010; .brain/reports/2026-09-20-task-zai-001-closeout.md; .brain/rca/2026-09-22-line-runtime-credential-drift.md |
 | TASK-ZAI-002 | SPR-ZAI-01 | Declare the five built-but-undeclared features into the registry | done | UNKNOWN | UNKNOWN | — | ROADMAP.md | 24-week baseline; Section 3 evidence baseline |
 | TASK-ZAI-003 | SPR-ZAI-01 | Profile-first onboarding and Waiting Room, FR-066 | done | UNKNOWN | UNKNOWN | TASK-ZAI-001 | ROADMAP.md | 24-week baseline; PRD FR-066, FR-122 |
 | TASK-ZAI-004 | SPR-ZAI-02 | Workspace collaboration boundary and scoped invites, FR-067 | done | UNKNOWN | UNKNOWN | TASK-ZAI-003 | ROADMAP.md | 24-week baseline; PRD FR-067; FR-195 generalises it |

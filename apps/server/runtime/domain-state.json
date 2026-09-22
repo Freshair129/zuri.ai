@@ -1002,7 +1002,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-150",
@@ -1018,7 +1018,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-181",
@@ -3073,7 +3073,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-152",
@@ -4301,7 +4301,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-150",
@@ -4341,7 +4341,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-190",
@@ -6521,7 +6521,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-150",
@@ -9430,7 +9430,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-150",
@@ -9556,6 +9556,7 @@
         "apps/server/tests/unit/reply-record-service.test.js",
         "apps/server/tests/unit/scope-external-ids-migration.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
+        "apps/server/tests/unit/server-line-runtime.test.js",
         "apps/server/tests/unit/server-line-worker-cadence.test.js",
         "apps/server/tests/unit/server-line-worker-routes.test.js"
       ]
@@ -17438,7 +17439,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -17481,7 +17482,8 @@
         "apps/server/tests/unit/model-provider-port.test.js",
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/msp-memory-evidence.test.js",
-        "apps/server/tests/unit/server-line-answer.test.js"
+        "apps/server/tests/unit/server-line-answer.test.js",
+        "apps/server/tests/unit/server-line-runtime.test.js"
       ]
     },
     {
