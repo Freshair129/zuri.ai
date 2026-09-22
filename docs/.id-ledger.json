@@ -7287,9 +7287,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "31fc8a8b5c801cce8309c9115b0214bb979bb618aa184cba81dccbc808fd25a3",
+      "statement_digest": "75197c7072695e92d5531b66e2188b1699a122007520ee11b69f6a0e372c5e46",
       "statement_digest_reviewed_at": "2026-09-22",
-      "statement_digest_reason": "FR-268..271 added to the FR list and the description names OKR/SMART/BSC/4DX under the already-reserved Goals & KPIs sub-page; the bundle's own subject (Business Home cross-domain aggregation) is unchanged (ADR-101)"
+      "statement_digest_reason": "Phase 1 (ADR-101 D6) status-cell update: FR-268/FR-271 move from declared to implemented; statement scope unchanged."
     },
     "FEAT-003": {
       "family": "FEAT",

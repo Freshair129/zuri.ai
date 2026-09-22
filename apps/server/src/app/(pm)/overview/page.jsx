@@ -26,9 +26,13 @@ import { PageHeader, Card, Kpi, SectionTitle, StatusPill, ProgressBar, EmptyStat
 import { MODE_LABELS, SLUG_BY_MODE } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
-import { RoadmapModal, GoalModal, LinkProjectModal } from '@/modules/project-manager/components/StrategyEditModals'
+import { RoadmapModal, GoalModal, LinkProjectModal, KeyResultModal, CheckInModal } from '@/modules/project-manager/components/StrategyEditModals'
 import { DOMAINS } from '@/config/domains'
 import { buildBusinessHomeReadModel, DOMAIN_STATE } from '@/modules/business/application/business-home-read-model'
+// @req FR-268 — the same pure status calculator the attention queue uses for
+// its Key-Result row (business-home-read-model.js), so a card's pill and an
+// attention-queue entry about the same Key Result never disagree.
+import { keyResultStatus } from '@/modules/project-manager/progress/key-result-progress'
 
 // @req FR-060 — the cross-domain half of Business Home: briefing, per-domain
 // health and the attention queue. Every figure comes from the pure projection in
@@ -36,6 +40,7 @@ import { buildBusinessHomeReadModel, DOMAIN_STATE } from '@/modules/business/app
 // not compute (SDD-033).
 
 const SEVERITY_PILL = { HIGH: 'pill-blocked', MED: 'pill-active', INFO: 'pill-planned' }
+const KR_STATUS_PILL = { OK: 'pill-active', WARN: 'pill-review', BAD: 'pill-blocked' }
 
 function BriefingCard({ briefing }) {
   return (
@@ -138,12 +143,21 @@ function StrategyCard({ strategy, loading, error, reload, businessId, isOwner, p
   // in sync with its own mutation.
   const [goalModalState, setGoalModalState] = useState(null) // { goalId, horizonId } | null
   const [linkingGoalId, setLinkingGoalId] = useState(null)
+  const [krModalState, setKrModalState] = useState(null) // { goalId, keyResultId } | null
+  const [checkInKrId, setCheckInKrId] = useState(null)
 
   const roadmap = strategy?.roadmaps?.[0] || null
   const horizonOptions = roadmap ? roadmap.horizons.map((h) => ({ id: h.id, key: h.key, label: h.label })) : []
   const allGoals = roadmap ? roadmap.horizons.flatMap((h) => h.goals) : []
   const editingGoal = goalModalState?.goalId ? allGoals.find((g) => g.id === goalModalState.goalId) || null : null
   const linkingGoal = linkingGoalId ? allGoals.find((g) => g.id === linkingGoalId) || null : null
+  const krModalGoal = krModalState?.goalId ? allGoals.find((g) => g.id === krModalState.goalId) || null : null
+  const editingKeyResult = krModalState?.keyResultId
+    ? (krModalGoal?.keyResults || []).find((kr) => kr.id === krModalState.keyResultId) || null
+    : null
+  const checkInKeyResult = checkInKrId
+    ? allGoals.flatMap((g) => g.keyResults || []).find((kr) => kr.id === checkInKrId) || null
+    : null
   const onMutated = () => reload()
 
   return (
@@ -198,6 +212,50 @@ function StrategyCard({ strategy, loading, error, reload, businessId, isOwner, p
                         <span className="text-[10px] font-bold">{goal.progress}%</span>
                       </div>
                       {goal.projects.length > 0 && <p className="mt-1 text-[10px] text-muted">{goal.projects.length} linked project{goal.projects.length === 1 ? '' : 's'}</p>}
+                      {goal.keyResults && goal.keyResults.length > 0 && (
+                        <div className="mt-2 space-y-1.5 border-t border-dashed border-[var(--border)] pt-2">
+                          {goal.keyResults.map((kr) => {
+                            const status = keyResultStatus(kr.progress, kr.expectedProgress, kr.confidence)
+                            return (
+                              <div key={kr.id} className="rounded-lg bg-[var(--surface-muted)] p-2" data-testid={`strategy-kr-${kr.code}`}>
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className="truncate text-[10px] font-bold">{kr.title}</p>
+                                  <span className={`pill ${KR_STATUS_PILL[status]} shrink-0`}>{status}</span>
+                                </div>
+                                <div className="mt-1 flex items-center gap-2">
+                                  <div className="flex-1"><ProgressBar percent={kr.progress} label={`${kr.title} progress`} /></div>
+                                  <span className="text-[9px] font-bold">{kr.progress}%</span>
+                                </div>
+                                <p className="mt-0.5 text-[9px] text-muted">{kr.current} / {kr.target} {kr.unit}</p>
+                                {isOwner && (
+                                  <div className="mt-1.5 flex gap-1.5">
+                                    <button
+                                      type="button"
+                                      className="btn px-1.5 py-0.5 text-[10px]"
+                                      onClick={() => setKrModalState({ goalId: goal.id, keyResultId: kr.id })}
+                                      aria-label={`Edit ${kr.title}`}
+                                    >
+                                      <Pencil size={10} className="mr-1 inline" aria-hidden /> Edit
+                                    </button>
+                                    <button type="button" className="btn px-1.5 py-0.5 text-[10px]" onClick={() => setCheckInKrId(kr.id)}>
+                                      Check in
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                      {isOwner && (
+                        <button
+                          type="button"
+                          className="mt-1.5 w-full rounded-lg border border-dashed border-[var(--border)] py-1 text-[9px] font-semibold text-muted hover:bg-[var(--brand-surface)]"
+                          onClick={() => setKrModalState({ goalId: goal.id, keyResultId: null })}
+                        >
+                          <Plus size={10} className="mr-1 inline" aria-hidden /> Key Result
+                        </button>
+                      )}
                       {isOwner && (
                         <div className="mt-2 flex gap-1.5">
                           <button
@@ -278,6 +336,25 @@ function StrategyCard({ strategy, loading, error, reload, businessId, isOwner, p
           onClose={() => setLinkingGoalId(null)}
           goal={linkingGoal}
           projects={projects}
+          onSaved={onMutated}
+        />
+      )}
+      {isOwner && krModalState && krModalGoal && (
+        <KeyResultModal
+          key={krModalState.keyResultId || `new-kr-${krModalState.goalId}`}
+          open
+          onClose={() => setKrModalState(null)}
+          goal={krModalGoal}
+          keyResult={editingKeyResult}
+          onSaved={onMutated}
+        />
+      )}
+      {isOwner && checkInKeyResult && (
+        <CheckInModal
+          key={checkInKeyResult.id}
+          open
+          onClose={() => setCheckInKrId(null)}
+          keyResult={checkInKeyResult}
           onSaved={onMutated}
         />
       )}

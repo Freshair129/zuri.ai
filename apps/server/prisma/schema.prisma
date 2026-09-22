@@ -323,6 +323,10 @@ model Business {
   featureWorkLinks                FeatureWorkLink[]
   requirementBindings             RequirementBinding[]
   projectFeatureMutationReceipts  ProjectFeatureMutationReceipt[]
+  // @req FR-268, ADR-101 — a goal's Key Results are always fetched through
+  // the goal, never listed at the Business directly; this relation exists so
+  // Prisma has the back-reference `businessId` on BusinessKeyResult needs.
+  businessKeyResults              BusinessKeyResult[]
 
   @@index([tenantId])
 }
@@ -426,6 +430,11 @@ model Person {
   // @req SEC-034 — legal holds this OWNER recorded on a Customer's chat evidence archive (ADR-093 D6).
   customerLegalHoldsRecorded    CustomerLegalHold[]             @relation("CustomerLegalHoldRecordedBy")
   passkeyCredentials            PasskeyCredential[]
+  // @req FR-268, ADR-101 — Key Results this Person owns, and check-ins this
+  // Person recorded (distinct: an OWNER can check in a Key Result owned by
+  // someone else, Phase 1's authorization boundary — ADR-101 D4).
+  businessKeyResultsOwned        BusinessKeyResult[]             @relation("BusinessKeyResultOwner")
+  businessKeyResultCheckIns      BusinessKeyResultCheckIn[]      @relation("BusinessKeyResultCheckInActor")
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -1137,20 +1146,96 @@ model BusinessGoal {
   status      String    @default("PLANNED")
   priority    String    @default("MEDIUM")
   progress    Float     @default(0)
+  // @req ADR-101 D1 — Balanced Scorecard tag; nullable so every existing goal,
+  // and the FR-108 bundle importer's zGoal (which carries none), keep working
+  // with no data migration.
+  perspective String?
+  // @req ADR-101 D1, FR-270 — 4DX Wildly Important Goal flag. The <=2-per-
+  // Business enforcement (BR-043) is FR-270/Phase 3; this column exists from
+  // Phase 1 so goal-touching migrations are not split across two phases.
+  isWig       Boolean   @default(false)
   startAt     DateTime?
   targetAt    DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   version     Int       @default(1)
 
-  business Business                @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  roadmap  BusinessRoadmap?        @relation(fields: [roadmapId], references: [id])
-  horizon  BusinessRoadmapHorizon? @relation(fields: [horizonId], references: [id])
-  projects ProjectGoal[]
+  business   Business                @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  roadmap    BusinessRoadmap?        @relation(fields: [roadmapId], references: [id])
+  horizon    BusinessRoadmapHorizon? @relation(fields: [horizonId], references: [id])
+  projects   ProjectGoal[]
+  // @req FR-268 — a goal's Key Results; progress rolls up from these once any
+  // exist (SDD-107, BR-044) instead of the `progress` column above being
+  // hand-typed.
+  keyResults BusinessKeyResult[]
 
   @@index([businessId, status])
   @@index([roadmapId])
   @@index([horizonId])
+}
+
+// @req FR-268 — a measurable child of a BusinessGoal (OKR Key Result). No
+// stored progress/status column by design: both are pure functions of
+// (baseline, target, direction, latest check-in) — project-manager/progress/
+// key-result-progress.js — computed on every read the same way
+// project-roadmap-read-model.js already computes workstream progress, never
+// cached on this row. `businessId` is denormalized from `goal.businessId`
+// (BusinessGoal's own precedent: BusinessRoadmapHorizon denormalizes nothing
+// from its roadmap either) purely so authorization and Business-scoped
+// queries never need a join through the goal to know whose row this is.
+model BusinessKeyResult {
+  id            String    @id @default(uuid())
+  businessId    String
+  goalId        String
+  code          String    @unique
+  title         String
+  metric        String
+  unit          String
+  baseline      Float
+  target        Float
+  direction     String    @default("UP")
+  dueAt         DateTime?
+  ownerPersonId String?
+  confidence    Int       @default(3)
+  status        String    @default("ACTIVE")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  version       Int       @default(1)
+
+  business Business                   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  goal     BusinessGoal               @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  owner    Person?                    @relation("BusinessKeyResultOwner", fields: [ownerPersonId], references: [id], onDelete: SetNull)
+  checkIns BusinessKeyResultCheckIn[]
+
+  @@index([businessId, status])
+  @@index([goalId])
+}
+
+// @req FR-268 — append-only weekly check-ins. `weekStartAt` is the Monday
+// 00:00 (Asia/Bangkok, ADR-101 D1) the check-in belongs to, computed by
+// project-manager/progress/week.js — never a raw client timestamp — so a
+// second check-in in the same week upserts by @@unique rather than
+// accumulating duplicate rows a "latest" query would have to disambiguate.
+model BusinessKeyResultCheckIn {
+  id            String   @id @default(uuid())
+  keyResultId   String
+  weekStartAt   DateTime
+  value         Float
+  confidence    Int
+  note          String?
+  // Free text naming what wrote this row (an integration's display name),
+  // never an enum — Phase 1 has no automated caller (that is Phase 4), and a
+  // human check-in leaves this null. Distinct from `actorPersonId`, which
+  // names the signed-in Person who made the request, when there was one.
+  source        String?
+  actorPersonId String?
+  createdAt     DateTime @default(now())
+
+  keyResult BusinessKeyResult @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
+  actor     Person?           @relation("BusinessKeyResultCheckInActor", fields: [actorPersonId], references: [id], onDelete: SetNull)
+
+  @@unique([keyResultId, weekStartAt])
+  @@index([keyResultId])
 }
 
 model ProjectGoal {

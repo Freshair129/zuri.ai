@@ -178,8 +178,59 @@ async function main() {
       },
     })
   await goal('GOAL-B01-FOUNDATION', 'Stabilize the operating foundation', shortHorizon.id, 72, 'HIGH')
-  await goal('GOAL-B01-GROWTH', 'Reach the next growth milestone', mediumHorizon.id, 38, 'HIGH')
+  // @req FR-268, SDD-107 — GOAL-B01-GROWTH carries Key Results, so its
+  // `progress` below is the two Key Results' rollup (SDD-107 write-through:
+  // 41.7% deals + 48.0% MRR, mean 44.9%; hand-computed with
+  // keyResultProgress/rollupGoal, the same formula the app uses, following
+  // this file's existing convention of a hand-picked demo number rather than
+  // a live import — this is a CommonJS script, those calculators are ESM).
+  // GOAL-B01-FOUNDATION and GOAL-B01-EXPANSION stay Key-Result-free on
+  // purpose, so the seeded demo shows both progressSource values at once:
+  // KEY_RESULTS here, MANUAL on its siblings.
+  const growthGoal = await goal('GOAL-B01-GROWTH', 'Reach the next growth milestone', mediumHorizon.id, 44.9, 'HIGH')
   await goal('GOAL-B01-EXPANSION', 'Prepare the next business expansion', longHorizon.id, 12, 'MEDIUM')
+
+  const keyResult = async (code, goalId, fields) =>
+    prisma.businessKeyResult.upsert({
+      where: { code },
+      update: { goalId, businessId: businesses['BUS-001'].id, ...fields },
+      create: { code, goalId, businessId: businesses['BUS-001'].id, ...fields },
+    })
+  const checkIn = async (keyResultId, weekStartAt, value, confidence, note) =>
+    prisma.businessKeyResultCheckIn.upsert({
+      where: { keyResultId_weekStartAt: { keyResultId, weekStartAt: new Date(weekStartAt) } },
+      update: { value, confidence, note: note ?? null },
+      create: { keyResultId, weekStartAt: new Date(weekStartAt), value, confidence, note: note ?? null },
+    })
+
+  const growthDeals = await keyResult('KR-B01-GROWTH-DEALS', growthGoal.id, {
+    title: 'Close 12 enterprise deals',
+    metric: 'Closed-won deals',
+    unit: 'deals',
+    baseline: 0,
+    target: 12,
+    direction: 'UP',
+    dueAt: new Date('2026-08-15'),
+    ownerPersonId: owner.id,
+    confidence: 3,
+  })
+  await checkIn(growthDeals.id, '2026-08-24T17:00:00Z', 2, 4, 'Two closed in the first sprint of the quarter.')
+  await checkIn(growthDeals.id, '2026-08-31T17:00:00Z', 4, 4)
+  await checkIn(growthDeals.id, '2026-09-07T17:00:00Z', 5, 3, 'Pipeline slowed — two deals pushed to next quarter.')
+
+  const growthMrr = await keyResult('KR-B01-GROWTH-MRR', growthGoal.id, {
+    title: 'Grow MRR from ฿400,000 to ฿650,000',
+    metric: 'MRR',
+    unit: '฿',
+    baseline: 400000,
+    target: 650000,
+    direction: 'UP',
+    dueAt: new Date('2026-08-31'),
+    ownerPersonId: owner.id,
+    confidence: 4,
+  })
+  await checkIn(growthMrr.id, '2026-08-31T17:00:00Z', 460000, 4)
+  await checkIn(growthMrr.id, '2026-09-07T17:00:00Z', 520000, 4, 'Two of the new deals include an annual upsell.')
 
   // ---- Demo project: one workstream per execution mode ---------------------
   // @req FR-087, FR-088 — `priority` and `pic` are set on `update` as well as
