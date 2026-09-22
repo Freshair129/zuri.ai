@@ -123,6 +123,7 @@ const zTrace = z.object({
   idempotencyKey: z.string().min(1).optional(),
   replayOfExecutionRunId: z.string().min(1).nullable().optional(),
   replayOfExecutionStepId: z.string().min(1).nullable().optional(),
+  replayStepKeys: z.array(z.string().min(1)).max(20).optional(),
 }).strict()
 
 const zDomainBinding = z.object({

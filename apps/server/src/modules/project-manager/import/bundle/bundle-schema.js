@@ -113,6 +113,7 @@ const zTrace = z
     sourceType: z.enum(['HUMAN', 'AGENT', 'API', 'MCP', 'IMPORT', 'OTHER']).optional(),
     sourceRef: z.string().max(1000).optional(),
     replayOfBundleRunId: z.string().max(256).optional(),
+    replayOfBundleStepId: z.string().max(256).optional(),
   })
   .strict()
 

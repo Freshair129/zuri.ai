@@ -5,11 +5,11 @@ import { recordAudit } from '../../application/audit'
 // @spec ADR-049, SDD-056, BR-002, SEC-003
 // @tested tests/integration/execution-plan-bundle.test.js
 //
-// The bundle receipt REUSES the existing `PlanImportReceipt` model rather than
-// adding a table (first preference of the FR-108 slice — no schema change):
-// the model is exactly an idempotency ledger (`idempotencyKey` @id +
-// `payloadHash` + run identity + `auditEventId`), and a bundle occurrence is
-// one more step kind in that ledger, distinguished by
+// The compatibility receipt still REUSES the existing `PlanImportReceipt`
+// model. The PM-owned `ProjectExecutionRun`/`ProjectExecutionStep` ledger is
+// now the step authority; this receipt remains the cross-version idempotency
+// projection. A bundle occurrence is one more step kind in that projection,
+// distinguished by
 // `stepKey = 'bundle.import.commit'` (per-Project rows keep their default
 // 'plan.import.commit'). `projectId` is a required relation on the model, so
 // the bundle row anchors on the FIRST Project the bundle committed — a bundle

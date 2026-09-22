@@ -550,7 +550,12 @@
         "correlationId": { "type": "string", "minLength": 1 },
         "idempotencyKey": { "type": "string", "minLength": 1 },
         "replayOfExecutionRunId": { "type": ["string", "null"] },
-        "replayOfExecutionStepId": { "type": ["string", "null"] }
+        "replayOfExecutionStepId": { "type": ["string", "null"] },
+        "replayStepKeys": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "type": "string", "minLength": 1 }
+        }
       }
     },
     "domainBinding": {
