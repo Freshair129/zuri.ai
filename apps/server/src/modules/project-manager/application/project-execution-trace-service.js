@@ -20,7 +20,7 @@ function projectNotFound() {
   return error
 }
 
-async function loadAuthorizedProject(projectId, { viewer, db }) {
+export async function loadAuthorizedProject(projectId, { viewer, db }) {
   if (!projectId) throw new Error('projectId is required')
   const project = await db.project.findUnique({
     where: { id: projectId },
@@ -34,7 +34,7 @@ async function loadAuthorizedProject(projectId, { viewer, db }) {
   return project
 }
 
-async function loadRun(projectId, executionRunId, { db }) {
+export async function loadRun(projectId, executionRunId, { db }) {
   const run = await db.projectExecutionRun.findFirst({
     where: { executionRunId },
     include: { steps: { orderBy: { sequence: 'asc' } } },

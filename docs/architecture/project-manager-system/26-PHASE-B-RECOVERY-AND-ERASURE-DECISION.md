@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.6b"
+version: "0.3.7b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-22T00:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-23T00:37:41+07:00,RWANG"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -180,6 +180,16 @@ The canonical LF schema has `schemaSha256`
 Independent Luna Max review recomputed both hashes, model mappings, ordinal
 serialization and SQLite/PostgreSQL parity and passed on 2026-09-17.
 The loader and all executable adapters enforce this exact binding.
+
+The current composed schema then binds the FR-268 Business Key Result models at
+186 application tables. The PM approval gateway adds `ProjectApprovalRequest`,
+giving **187 application tables** in the frozen inventory. The canonical LF
+schema has `schemaSha256`
+`a265b10cc6366b3d586e9d6a3350fb0dce88add831008aa3f378128429102f33` and the
+inventory binding has `targetSchemaSha256`
+`fd36fe16bc94f66605164b131124d1b7a59916e4caff2fc6f964f5a628825c92`.
+The 186-model, 179-model and earlier bindings remain historical and refuse
+cross-schema recovery.
 Historical 175-bound snapshots refuse; no automatic cross-schema artifact
 rewrite is authorized by this decision. The composed actual CLI proof remains
 a separate gate from static inventory review.
@@ -191,11 +201,11 @@ synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-p
 retains the exact proof; this does not establish production role or migration
 readiness.
 
-Version diff 0.3.5b → 0.3.6b (2026-09-22): rebind the frozen recovery inventory
-to the composed 186-model schema after FR-268's `BusinessKeyResult`/
-`BusinessKeyResultCheckIn` models landed (ADR-101 D6 Phase 1), on top of
-ADR-102's already-merged `ProjectExecutionRun`/`ProjectExecutionStep` models.
-schemaSha256 `479172f2ba9a81a29fd08d061689cb875cd70e98125710fc0c847d098ef36e15`.
+Version diff 0.3.6b → 0.3.7b: rebind the frozen recovery inventory to the
+composed 187-table schema after FR-268's `BusinessKeyResult`/
+`BusinessKeyResultCheckIn` models and the PM approval gateway's
+`ProjectApprovalRequest` model landed. The 186-table binding remains historical
+and refuses cross-schema recovery.
 
 Version diff 0.3.4b → 0.3.5b: rebind the frozen recovery inventory to the composed
 179-model schema after adding the two Knowledge artifact storage models; the
@@ -402,6 +412,8 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.7b | 2026-09-23 | beta | Rebind Phase B recovery to the composed 187-table schema after FR-268 and PM approval gateway models landed; preserve the historical 186-table binding | working-tree | RWANG |
+| 0.3.6b | 2026-09-22 | beta | Rebind Phase B recovery to the composed 186-model schema after the FR-268 Business Key Result models landed; preserve the historical 179-model binding | origin/main | RWANG |
 | 0.3.5b | 2026-09-19 | beta | Rebind Phase B recovery to the composed 179-model schema after the two Knowledge artifact storage models landed; preserve the historical 177-model binding | working-tree | RWANG |
 | 0.3.4b | 2026-09-17 | beta | Close the separate executable 177-model recovery gate with 22 positive and 15 adversarial frozen-source checks | 052821a7 + 892f23f3 | RWANG |
 | 0.3.3b | 2026-09-17 | beta | Bind reviewed Pricing/PM 177-model schema and complete snapshot coverage; require fresh executable proof and preserve obsolete-binding refusal | 052821a7 + 892f23f3 | RWANG |

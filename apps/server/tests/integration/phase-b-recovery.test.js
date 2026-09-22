@@ -84,13 +84,14 @@ function fakeAdapter(sourceInventory = inventory) {
 }
 
 describe('Phase B offline recovery runners', () => {
-  it('loads the committed pinned 186-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(186)
-    expect(inventory.schemaSha256).toBe('479172f2ba9a81a29fd08d061689cb875cd70e98125710fc0c847d098ef36e15')
-    expect(inventory.targetSchemaSha256).toBe('8cb1b79f1fcc3fd2298eee93af821956791a8363d38eee7cb67803b55efb38fb')
+  it('loads the committed pinned 187-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(187)
+    expect(inventory.schemaSha256).toBe('a265b10cc6366b3d586e9d6a3350fb0dce88add831008aa3f378128429102f33')
+    expect(inventory.targetSchemaSha256).toBe('fd36fe16bc94f66605164b131124d1b7a59916e4caff2fc6f964f5a628825c92')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet', 'BusinessKeyResult', 'BusinessKeyResultCheckIn'])
     )
+    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining(['ProjectApprovalRequest']))
   })
 
   it('rejects a CRLF-mutated schema even with the approved inventory', async () => {
@@ -251,8 +252,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 186-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 186-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 187-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 187-table inventory/)
     }
   })
 

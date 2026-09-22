@@ -46,6 +46,7 @@ owns_models:
   - PlanImportReceipt
   - ProjectExecutionRun
   - ProjectExecutionStep
+  - ProjectApprovalRequest
   - GovernanceSnapshot
   - ProjectFeature
   - FeatureContribution

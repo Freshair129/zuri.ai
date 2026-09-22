@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "479172f2ba9a81a29fd08d061689cb875cd70e98125710fc0c847d098ef36e15",
+  "schemaSha256": "a265b10cc6366b3d586e9d6a3350fb0dce88add831008aa3f378128429102f33",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -472,11 +472,6 @@
       "tableName": "LocalWorkspaceMount"
     },
     {
-      "modelName": "MarketObservation",
-      "schemaName": "public",
-      "tableName": "MarketObservation"
-    },
-    {
       "modelName": "MarketingBroadcastIntent",
       "schemaName": "public",
       "tableName": "MarketingBroadcastIntent"
@@ -540,6 +535,11 @@
       "modelName": "MarketingReview",
       "schemaName": "public",
       "tableName": "MarketingReview"
+    },
+    {
+      "modelName": "MarketObservation",
+      "schemaName": "public",
+      "tableName": "MarketObservation"
     },
     {
       "modelName": "Membership",
@@ -720,6 +720,11 @@
       "modelName": "Project",
       "schemaName": "public",
       "tableName": "Project"
+    },
+    {
+      "modelName": "ProjectApprovalRequest",
+      "schemaName": "public",
+      "tableName": "ProjectApprovalRequest"
     },
     {
       "modelName": "ProjectExecutionRun",
@@ -931,5 +936,10 @@
       "schemaName": "public",
       "tableName": "Workstream"
     }
-  ]
+  ],
+  "migrationTables": [
+    "_prisma_migrations",
+    "schema_migrations"
+  ],
+  "targetSchemaSha256": "fd36fe16bc94f66605164b131124d1b7a59916e4caff2fc6f964f5a628825c92"
 }

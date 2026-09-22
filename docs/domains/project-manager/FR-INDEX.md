@@ -56,6 +56,7 @@ This is a link-only index. The feature note is the canonical home for each regis
 |FR-250|FR-250 — Hierarchical Projects and Work navigation|beta|[open](features/FR-250-hierarchical-project-navigation.md)|
 |FR-251|FR-251 — Project Execution Domains view|beta|[open](features/FR-251-project-execution-domains.md)|
 |FR-252|FR-252 — Project Feature authority|beta|[open](features/FR-252-project-feature-authority.md)|
+|FR-272|FR-272 — Project Manager approval gateway admission|beta|[open](features/FR-272-approval-gateway-admission.md)|
 
 ## Proposal requirements awaiting canonical registration
 
@@ -75,7 +76,7 @@ The Site spine also contains PMR proposal keys. Their extracted bodies are in [r
 |PMR-010|[proposal requirement](requirements/PMR-010-proposal-requirement.md)|PENDING_CANONICAL_FR_REGISTRATION|
 |PMR-011|[proposal requirement](requirements/PMR-011-proposal-requirement.md)|PENDING_CANONICAL_FR_REGISTRATION|
 |PMR-012|[proposal requirement](requirements/PMR-012-proposal-requirement.md)|PENDING_CANONICAL_FR_REGISTRATION|
-|PMR-013|[proposal requirement](requirements/PMR-013-proposal-requirement.md)|PENDING_CANONICAL_FR_REGISTRATION|
+|PMR-013|[proposal requirement](requirements/PMR-013-proposal-requirement.md)|REGISTERED_AS_FR-272|
 |PMR-014|[proposal requirement](requirements/PMR-014-proposal-requirement.md)|PENDING_CANONICAL_FR_REGISTRATION|
 |PMR-015|[proposal requirement](requirements/PMR-015-proposal-requirement.md)|PENDING_CANONICAL_FR_REGISTRATION|
 |PMR-016|[proposal requirement](requirements/PMR-016-proposal-requirement.md)|PENDING_CANONICAL_FR_REGISTRATION|

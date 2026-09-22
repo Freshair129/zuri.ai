@@ -1,6 +1,11 @@
 # Appendix B — Database Schema Summary
 
-Version diff 1.57.0b → 1.58.0b (2026-09-22): add the FR-268 `BusinessKeyResult` and `BusinessKeyResultCheckIn` models, plus `BusinessGoal.perspective`/`isWig` (ADR-101 D1). SQLite and Supabase migrations are written locally; production application remains an ADR-057 operator gate.
+Version diff 1.58.0b → 1.59.0b (2026-09-23): compose the FR-268
+`BusinessKeyResult`/`BusinessKeyResultCheckIn` models and goal fields with the
+PM-owned `ProjectApprovalRequest` approval-gateway admission model (FR-272,
+ADR-101, ADR-103). SQLite and Supabase migrations are written locally;
+production application remains an ADR-057 operator gate. The Phase B frozen
+recovery inventory is rebound to 187 application tables.
 
 Version diff 1.56.0b → 1.57.0b (2026-09-22): add the PM-owned `ProjectExecutionRun`
 and `ProjectExecutionStep` trace/replay ledger models (FR-069/FR-070, ADR-102),
@@ -16,9 +21,9 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.58.0b |
+| **Version** | 1.59.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-22 |
+| **Last Updated** | 2026-09-23 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -68,6 +73,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | PlanImportReceipt | idempotencyKey, payloadHash, executionRunId, executionStepId?, attemptId?, correlationId, projectId | server-owned PlanEnvelope commit receipt; stable trace/idempotency boundary; never accepts client-generated execution IDs |
 | ProjectExecutionRun | executionRunId, executionContractId, contractVersion, sourceKind, tenantId?, businessId?, workspaceId?, projectId?, projectIdsJson, planId?, status, correlationId, idempotencyKey?, requestHash, inputSnapshotJson, snapshotState, replay lineage | FR-069/FR-070 / ADR-102 — PM-owned execution run authority with a bounded canonical snapshot; no transcript, audio or provider secret payload; `projectIdsJson` scopes a bundle run to every affected Project; included in backup/restore |
 | ProjectExecutionStep | executionStepId, runId, stepKey, sequence, attemptId, status, scoped refs, inputHash?, outputHash?, failureCode?, errorRef?, retryable, skippedReason?, auditEventId?, replay lineage | FR-069/FR-070 / ADR-102 — ordered PM step/attempt evidence; retries get new IDs and replay preserves source lineage while leaving the source immutable; included in backup/restore |
+| ProjectApprovalRequest | approvalRequestId, resolved scope, executionRunId/executionStepId, action/effect, manifest/input/artifact/commit hashes, bounded summaries, reviewer capability, policy version, expiry, immutable requestDigest, CAS state, decision/admission refs | FR-272 / ADR-103 — PM-owned exact-hash approval admission projection; request content is immutable, state transitions are audited, and it is included in backup/restore without provider secrets or executable payloads |
 | PersonCredential | personId unique, passwordHash | FR-090 — production auth credential. Declared here because the table is live on Supabase with a real row; the service that uses it is still on `codex/postgres-primary-runtime`. Undeclared, `migrate diff` proposes DROP |
 | PasswordResetToken | personId, token unique, expiresAt, usedAt? | FR-090 — same origin as PersonCredential; currently empty |
 | MfaFactor | personId, type, secret, label?, status, verifiedAt?, revokedAt?, version | FR-094, FR-095 (ADR-045 D2, D5) — multi-factor authentication factors (TOTP, SMS); PENDING/ACTIVE/REVOKED lifecycle, enables session elevation to AAL2. `secret` is an AES-256-GCM envelope bound to Person and factor, never the base32 secret (SEC-029, SDD-096, ADR-088) |

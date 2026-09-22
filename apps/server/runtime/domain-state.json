@@ -36,10 +36,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 158,
-    "readyFeatureCount": 118,
-    "requirementCount": 271,
-    "verifiedRequirementCount": 246,
+    "featureCount": 159,
+    "readyFeatureCount": 119,
+    "requirementCount": 272,
+    "verifiedRequirementCount": 247,
     "progressPercent": 93.6,
     "gapCount": 48,
     "gaps": [
@@ -845,7 +845,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -1140,7 +1140,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -1353,7 +1353,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -2199,7 +2199,7 @@
           "details": {
             "routes": 34,
             "inventoried": 33,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -2735,7 +2735,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -3107,7 +3107,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -3943,7 +3943,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -4138,7 +4138,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -4305,7 +4305,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -4670,7 +4670,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -4978,7 +4978,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 334,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -6412,6 +6412,14 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 4
+        },
+        {
+          "id": "FR-272",
+          "title": "Effectful Project Manager Agent/Fleet steps enter a durable approval gateway before admission",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 2
         }
       ],
       "checks": {
@@ -6445,9 +6453,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 168,
-            "inventoried": 168,
-            "openApiPaths": 334,
+            "routes": 170,
+            "inventoried": 170,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -6491,8 +6499,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 41,
-            "present": 41
+            "models": 42,
+            "present": 42
           }
         },
         "authorization": {
@@ -6513,9 +6521,9 @@
             }
           ],
           "details": {
-            "mutations": 128,
-            "guardedMutations": 125,
-            "reads": 81,
+            "mutations": 129,
+            "guardedMutations": 126,
+            "reads": 82,
             "unguardedReads": 9
           }
         },
@@ -6579,6 +6587,7 @@
         "docs/domains/project-manager/features/FR-269-business-scorecard-kpis.md",
         "docs/domains/project-manager/features/FR-270-4dx-weekly-execution.md",
         "docs/domains/project-manager/features/FR-271-smart-validation-contract.md",
+        "docs/domains/project-manager/features/FR-272-approval-gateway-admission.md",
         "docs/domains/project-manager/features/PHASE-FR-069-P1-execution-trace-replay.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P1-feature-persistence.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P3-feature-api.md",
@@ -6659,11 +6668,11 @@
         }
       ],
       "details": {
-        "routes": 215,
-        "apiRoutes": 168,
+        "routes": 217,
+        "apiRoutes": 170,
         "pageRoutes": 47,
-        "ownedModels": 41,
-        "featureNotes": 44
+        "ownedModels": 42,
+        "featureNotes": 45
       },
       "featureIds": [
         "FEAT-001",
@@ -6715,11 +6724,12 @@
         "FR-124",
         "FR-250",
         "FR-251",
-        "FR-252"
+        "FR-252",
+        "FR-272"
       ],
-      "featureCount": 50,
-      "readyFeatureCount": 46,
-      "progressPercent": 93.5
+      "featureCount": 51,
+      "readyFeatureCount": 47,
+      "progressPercent": 93.6
     }
   },
   "features": [
@@ -17436,6 +17446,42 @@
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-feature-forms.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js"
+      ]
+    },
+    {
+      "id": "FR-272",
+      "title": "Effectful Project Manager Agent/Fleet steps enter a durable approval gateway before admission. The request is scoped to the server-resolved Tenant/Business/Workspace/Project and exact execution run/step, action class, effect key, manifest/input/artifact/commit hashes, bounded redacted effect summary, reviewer capability, policy version and expiry; its canonical SHA-256 digest is immutable. Identity re-resolves the reviewer capability and scope at decision and admission, refuses requester self-approval, expiry, revoked or superseded grants, foreign scope and stale lease/input hashes, and every state transition is an append-only AuditEvent. A replay never inherits source approval; read-only steps create no approval row.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-272"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้จัดการโครงการตรวจและอนุมัติผลกระทบของ Agent/Fleet ต่อ Project จาก digest เดียวกัน โดยระบบตรวจ scope, สิทธิ์ reviewer, expiry, input hash และ lease ซ้ำก่อนเปิดทางให้ executor",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-272",
+          "title": "Effectful Project Manager Agent/Fleet steps enter a durable approval gateway before admission",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/projects/[id]/execution-runs/[executionRunId]/approvals/[approvalRequestId]/decision/route.js",
+        "apps/server/src/app/api/projects/[id]/execution-runs/[executionRunId]/approvals/route.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/approval-gateway.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/project-approval-gateway.test.js"
       ]
     }
   ],
