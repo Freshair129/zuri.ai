@@ -853,7 +853,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -1148,7 +1148,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -1361,7 +1361,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -2207,7 +2207,7 @@
           "details": {
             "routes": 34,
             "inventoried": 33,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -2743,7 +2743,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -3115,7 +3115,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -3951,7 +3951,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -4146,7 +4146,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -4313,7 +4313,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -4678,7 +4678,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -4986,7 +4986,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -5472,16 +5472,16 @@
           "title": "Plan Blueprint and Human/Agent intake",
           "declared": "done",
           "status": "verified",
-          "codeCount": 12,
-          "testCount": 19
+          "codeCount": 16,
+          "testCount": 20
         },
         {
           "id": "FR-070",
           "title": "Stable execution, domain, goal, risk, tag, trace and supporting identities",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 12
+          "codeCount": 10,
+          "testCount": 14
         },
         {
           "id": "FR-071",
@@ -6443,9 +6443,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 163,
-            "inventoried": 163,
-            "openApiPaths": 329,
+            "routes": 165,
+            "inventoried": 165,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -6489,8 +6489,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 37,
-            "present": 37
+            "models": 39,
+            "present": 39
           }
         },
         "authorization": {
@@ -6511,9 +6511,9 @@
             }
           ],
           "details": {
-            "mutations": 124,
-            "guardedMutations": 121,
-            "reads": 80,
+            "mutations": 125,
+            "guardedMutations": 122,
+            "reads": 81,
             "unguardedReads": 9
           }
         },
@@ -6577,6 +6577,7 @@
         "docs/domains/project-manager/features/FR-269-business-scorecard-kpis.md",
         "docs/domains/project-manager/features/FR-270-4dx-weekly-execution.md",
         "docs/domains/project-manager/features/FR-271-smart-validation-contract.md",
+        "docs/domains/project-manager/features/PHASE-FR-069-P1-execution-trace-replay.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P1-feature-persistence.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P3-feature-api.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P4-feature-ui-and-final-gate.md",
@@ -6662,11 +6663,11 @@
         }
       ],
       "details": {
-        "routes": 210,
-        "apiRoutes": 163,
+        "routes": 212,
+        "apiRoutes": 165,
         "pageRoutes": 47,
-        "ownedModels": 37,
-        "featureNotes": 43
+        "ownedModels": 39,
+        "featureNotes": 44
       },
       "featureIds": [
         "FEAT-001",
@@ -7016,16 +7017,16 @@
           "title": "Plan Blueprint and Human/Agent intake",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 19
+          "codeCount": 16,
+          "testCount": 20
         },
         {
           "id": "FR-070",
           "title": "Stable execution, domain, goal, risk, tag, trace and supporting identities",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 12
+          "codeCount": 10,
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -7034,8 +7035,12 @@
         "apps/server/src/app/api/import/meeting-actions/commit/route.js",
         "apps/server/src/app/api/import/meeting-actions/dry-run/route.js",
         "apps/server/src/app/api/mcp/route.js",
+        "apps/server/src/app/api/projects/[id]/execution-runs/[executionRunId]/replay/route.js",
+        "apps/server/src/app/api/projects/[id]/execution-runs/[executionRunId]/route.js",
         "apps/server/src/app/api/projects/[id]/roadmap/route.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/execution-trace.js",
+        "apps/server/src/modules/project-manager/application/project-execution-trace-service.js",
         "apps/server/src/modules/project-manager/application/project-roadmap-labels.js",
         "apps/server/src/modules/project-manager/application/project-roadmap-read-model.js",
         "apps/server/src/modules/project-manager/application/work-read-service.js",
@@ -7057,6 +7062,7 @@
         "apps/server/tests/integration/plan-import.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-domain-view.test.js",
+        "apps/server/tests/integration/project-execution-trace.test.js",
         "apps/server/tests/integration/project-roadmap-stall.test.js",
         "apps/server/tests/integration/project-roadmap.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",

@@ -284,6 +284,10 @@
         "replayOfBundleRunId": {
           "type": "string",
           "maxLength": 256
+        },
+        "replayOfBundleStepId": {
+          "type": "string",
+          "maxLength": 256
         }
       }
     }

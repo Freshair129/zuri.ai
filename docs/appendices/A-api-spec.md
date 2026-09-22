@@ -1,8 +1,9 @@
 # Appendix A — API Specification
 
-Version diff 1.89.0b → 1.90.0b (2026-09-22): add the FUNG/Lalin AI meeting
-recording-to-PM action handoff preview/commit routes and the owner-attested
-meeting identity binding route; current inventory is 329 route-handler paths.
+Version diff 1.90.0b → 1.91.0b (2026-09-22): add the PM-owned execution trace
+read/replay route for bounded PlanEnvelope, bundle and meeting-action evidence;
+current inventory is 331 route-handler paths. Replay remains a local PM operation
+and does not add producer changes to FUNG or Lalin AI.
 
 Version diff 1.88.0b → 1.89.0b (2026-09-20): add the six TASK-ZAI-053 supplier cost-sheet paths to the Procurement contract; current inventory is 328 route-handler paths. The migration is written locally and production application remains an ADR-057 operator gate.
 
@@ -16,7 +17,7 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.90.0b |
+| **Version** | 1.91.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-22 |
 
@@ -37,7 +38,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=329 -->
+<!-- api-spec-counts: route_handlers=331 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -304,6 +305,18 @@ visible as PM review warnings rather than becoming an unverified assignment.
 | Method | Path | Contract |
 |---|---|---|
 | POST | `/api/identity/meeting-bindings` | Owner/operator-attested `{ tenantId?, personId?, sourceApp: FUNG\|LALIN_AI, sourceUserId }` binding. Creates or reactivates a verified `ExternalIdentity` for the canonical Person; refuses an active subject already bound to another Person. |
+
+## Project execution trace and replay (FR-069 / FR-070 / ADR-102)
+
+Project Manager owns the durable run, ordered step and attempt evidence for
+PlanEnvelope, bundle and meeting-action commits. The response is scope-filtered
+to the requested Project and exposes bounded hashes, failure evidence, audit links
+and replay lineage; it never exposes transcript/audio/provider secrets.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/projects/[id]/execution-runs/[executionRunId]` | Returns the authorized PM execution run with ordered steps and attempts; a missing or out-of-scope run is indistinguishable from not found. |
+| POST | `/api/projects/[id]/execution-runs/[executionRunId]/replay` | `{ mode: "full"\|"partial", stepKeys? }` replays the retained bounded PlanEnvelope snapshot into a new run with new execution IDs and source lineage; partial replay must include the commit step. |
 
 ## Multi-Factor Authentication (TOTP) and Session Assurance (FR-094, FR-095, FR-096 / ADR-045)
 

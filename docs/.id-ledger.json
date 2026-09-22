@@ -803,6 +803,7 @@
     "ADR-099",
     "ADR-100",
     "ADR-101",
+    "ADR-102",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -10339,6 +10340,19 @@
       "history": [
         {
           "anchor": "business goals become okr smart balanced scorecard 4dx",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-102": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-102-PM-EXECUTION-TRACE-AND-REPLAY.md",
+      "status": "current",
+      "statement_digest": "28bdde0a8d77e8cf995cad753dd00544e74028f36fa20a10b4fb262675d7fb53",
+      "history": [
+        {
+          "anchor": "project manager execution trace and append only replay",
           "since": "2026-09-22",
           "reason": "declared"
         }

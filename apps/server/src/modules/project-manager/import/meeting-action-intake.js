@@ -1,5 +1,6 @@
 import { zMeetingActionIntake } from './meeting-contracts'
 import { commitPlan, dryRunPlan } from './plan-import-service'
+import { MEETING_EXECUTION_STEP_KEYS } from '../application/execution-trace'
 import { authorizeImportTarget } from './import-authorization'
 import { isInstallationOperator, ownsTenant } from '@/modules/identity/viewer-authority'
 import { MODE_DEFAULT_STRATEGY } from '@/lib/validation/enums'
@@ -279,6 +280,8 @@ export async function commitMeetingActions(rawIntake, options = {}) {
     workspaceId: prepared.target.workspace.id,
     viewer: options.viewer,
     db: options.db || prisma,
+    traceSourceKind: 'MEETING_ACTION',
+    traceStepKeys: MEETING_EXECUTION_STEP_KEYS,
   })
   return {
     ...result,
