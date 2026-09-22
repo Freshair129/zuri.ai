@@ -36,7 +36,7 @@ PMR/PMF/PMT are proposal-local keys. They are useful for design traceability, bu
 |PMR-010|PMF-07|integration|PMT-010|none|[PMR-010](PMR-010-proposal-requirement.md)|
 |PMR-011|PMF-07|integration|PMT-011|FR-242|[PMR-011](PMR-011-proposal-requirement.md)|
 |PMR-012|PMF-08|identity|PMT-012|FR-191, FR-192|[PMR-012](PMR-012-proposal-requirement.md)|
-|PMR-013|PMF-06|project-manager|PMT-013|FR-196|[PMR-013](PMR-013-proposal-requirement.md)|
+|PMR-013|PMF-06|project-manager|PMT-013|FR-272 (FR-196 context)|[PMR-013](PMR-013-proposal-requirement.md)|
 |PMR-014|PMF-02|project-manager|PMT-014|none|[PMR-014](PMR-014-proposal-requirement.md)|
 |PMR-015|PMF-08|project-manager|PMT-015|FR-124|[PMR-015](PMR-015-proposal-requirement.md)|
 |PMR-016|PMF-01|project-manager|PMT-016|none|[PMR-016](PMR-016-proposal-requirement.md)|

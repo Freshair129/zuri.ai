@@ -1,5 +1,10 @@
 # Appendix A — API Specification
 
+Version diff 1.91.0b → 1.92.0b (2026-09-22): add the FR-272 PM approval
+inbox and reviewer decision handlers; current inventory is 333 route-handler
+paths. Executor admission remains an internal service boundary and production
+migration/deployment are not claimed.
+
 Version diff 1.90.0b → 1.91.0b (2026-09-22): add the PM-owned execution trace
 read/replay route for bounded PlanEnvelope, bundle and meeting-action evidence;
 current inventory is 331 route-handler paths. Replay remains a local PM operation
@@ -38,7 +43,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=331 -->
+<!-- api-spec-counts: route_handlers=333 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -317,6 +322,19 @@ and replay lineage; it never exposes transcript/audio/provider secrets.
 |---|---|---|
 | GET | `/api/projects/[id]/execution-runs/[executionRunId]` | Returns the authorized PM execution run with ordered steps and attempts; a missing or out-of-scope run is indistinguishable from not found. |
 | POST | `/api/projects/[id]/execution-runs/[executionRunId]/replay` | `{ mode: "full"\|"partial", stepKeys? }` replays the retained bounded PlanEnvelope snapshot into a new run with new execution IDs and source lineage; partial replay must include the commit step. |
+
+## Project Manager approval gateway (FR-272 / ADR-103)
+
+Effectful Agent/Fleet steps are admitted only through a PM-owned exact-hash
+approval request. The browser can read the scoped reviewer projection and
+submit a decision; request creation and executor admission remain application
+service boundaries. The response never includes transcript, audio, provider
+credentials, executable imported code or the short-lived executor receipt.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/projects/[id]/execution-runs/[executionRunId]/approvals` | Returns `{ executionRunId, approvals[] }` for the authorized Project/run. Each row carries the immutable action/scope/effect/hash/expiry digest and bounded redacted summaries. |
+| POST | `/api/projects/[id]/execution-runs/[executionRunId]/approvals/[approvalRequestId]/decision` | Body `{ decision: "APPROVE"\|"REJECT", reason? }`; re-resolves the reviewer capability in the Business scope, refuses requester self-approval, expiry and stale PM input, then records the CAS decision and AuditEvent. |
 
 ## Multi-Factor Authentication (TOTP) and Session Assurance (FR-094, FR-095, FR-096 / ADR-045)
 

@@ -2,7 +2,7 @@
 id: ZAI:ADR-103
 title: Project Manager approval gateway admission
 version: "0.1.0b"
-status: candidate
+status: beta
 created_at: "2026-09-22T00:00:00+07:00,RWANG"
 last_update: "2026-09-22T00:00:00+07:00,RWANG"
 author: RWANG
@@ -13,6 +13,8 @@ attributes:
 relations:
   - type: relates_to
     target: ZAI:ADR-102
+  - type: relates_to
+    target: ZAI:FR-272
   - type: relates_to
     target: ZAI:ADR-049
   - type: relates_to

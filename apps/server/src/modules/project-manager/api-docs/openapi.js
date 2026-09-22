@@ -268,6 +268,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/domain-view', ['GET']],
   // @req FR-069, FR-070 — PM-owned execution trace resource and explicit replay command.
   ['/api/projects/{id}/execution-runs/{executionRunId}', ['GET']], ['/api/projects/{id}/execution-runs/{executionRunId}/replay', ['POST']],
+  // @req FR-272 — scoped PM approval inbox and two-party decision surface.
+  ['/api/projects/{id}/execution-runs/{executionRunId}/approvals', ['GET']],
+  ['/api/projects/{id}/execution-runs/{executionRunId}/approvals/{approvalRequestId}/decision', ['POST']],
   ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
   ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST']], ['/api/auth/login', ['POST']], ['/api/auth/logout', ['POST']], ['/api/auth/reset-password', ['POST']], ['/api/auth/signup', ['POST']], ['/api/onboarding/profile', ['POST']], ['/api/onboarding/state', ['GET']], ['/api/onboarding/workspaces', ['POST']], ['/api/workspace-invites', ['POST']], ['/api/workspace-invites/accept', ['POST']], ['/api/workspace-invites/{id}', ['DELETE']], ['/api/workspace-memberships', ['GET', 'DELETE']], ['/api/platform/users/password-resets', ['POST']],
   // @req FR-038 — the owner attaches an existing Person to a Business they own.

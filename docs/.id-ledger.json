@@ -401,6 +401,7 @@
     "FR-269",
     "FR-270",
     "FR-271",
+    "FR-272",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5020,6 +5021,19 @@
       "history": [
         {
           "anchor": "creating or editing a businesskeyresult runs a pure",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-272": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b9078ddcd6c1e361c6397a598d9be976c63cb32367c5eb6f99a94ef907c4934c",
+      "history": [
+        {
+          "anchor": "effectful project manager agent fleet steps enter a durable",
           "since": "2026-09-22",
           "reason": "declared"
         }

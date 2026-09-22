@@ -951,6 +951,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FR-253",
     "primaryDomain": "commerce",
     "useCase": "Business OWNER ใส่สูตรและตัวแปรราคา ทดลองเทียบรุ่นเดิม อนุมัติรุ่นใหม่และตรวจที่มาของผลคำนวณ ก่อนส่งราคาขายที่อนุมัติแล้วเข้า Knowledge"
+  },
+  {
+    "id": "FR-272",
+    "primaryDomain": "project-manager",
+    "useCase": "ผู้จัดการโครงการตรวจและอนุมัติผลกระทบของ Agent/Fleet ต่อ Project จาก digest เดียวกัน โดยระบบตรวจ scope, สิทธิ์ reviewer, expiry, input hash และ lease ซ้ำก่อนเปิดทางให้ executor"
   }
 ]
 ```

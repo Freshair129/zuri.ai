@@ -235,8 +235,10 @@ describe('OpenAPI document', () => {
       // FR-069 adds the optional meeting intake boundary: one identity
       // binding path and two PlanEnvelope convergence paths. FR-069/FR-070
       // add the PM-owned execution trace resource and replay command.
-      pathCount: 331,
-      operationCount: 437,
+      // FR-272 adds the scoped approval inbox and reviewer decision path:
+      // two paths and two operations.
+      pathCount: 333,
+      operationCount: 439,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

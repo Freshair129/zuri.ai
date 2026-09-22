@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "5167f82e334c25d39657c732fcdd2b32f1020e0b28037bd63160085f01309200",
+  "schemaSha256": "85f07416d6231d6d2516164ee961a9cf44dd1dc12cd807ff6fbad30b425a480a",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -712,6 +712,11 @@
       "tableName": "Project"
     },
     {
+      "modelName": "ProjectApprovalRequest",
+      "schemaName": "public",
+      "tableName": "ProjectApprovalRequest"
+    },
+    {
       "modelName": "ProjectExecutionRun",
       "schemaName": "public",
       "tableName": "ProjectExecutionRun"
@@ -926,5 +931,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "4bed3ff2382a0a1ea75906c14eb6f01a5ea61eb4bd5570179fb44a074c301a53"
+  "targetSchemaSha256": "f593c30ccb52e94c3907e6bcf3850ba7923e547cda03cb47a1a8915f456f08c1"
 }

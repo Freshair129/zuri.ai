@@ -1274,6 +1274,7 @@ model ProjectExecutionRun {
   updatedAt             DateTime  @updatedAt
 
   steps ProjectExecutionStep[]
+  approvalRequests ProjectApprovalRequest[]
 
   @@unique([businessId, idempotencyKey], map: "ProjectExecutionRun_business_idempotency_key")
   @@index([tenantId, businessId, status, createdAt])
@@ -1318,11 +1319,62 @@ model ProjectExecutionStep {
   updatedAt             DateTime  @updatedAt
 
   run ProjectExecutionRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  approvalRequests ProjectApprovalRequest[]
 
   @@index([runId, sequence])
   @@index([runId, status])
   @@index([tenantId, businessId, projectId, status])
   @@index([replayOfExecutionStepId])
+}
+
+// @req FR-272 — exact-hash PM approval admission projection; request content is
+// immutable and state changes are CAS-projected with AuditEvent evidence.
+// @spec ADR-103, PMR-013, PMT-013, SEC-001, SEC-003, SEC-008
+// @tested tests/integration/project-approval-gateway.test.js
+model ProjectApprovalRequest {
+  id                         String    @id @default(uuid())
+  approvalRequestId          String    @unique
+  tenantId                   String
+  businessId                 String
+  workspaceId                String?
+  projectId                  String
+  executionRunDbId           String
+  executionStepDbId          String
+  executionRunId             String
+  executionStepId            String
+  actionClass                String
+  effectKey                  String
+  manifestHash               String?
+  inputHash                  String?
+  artifactHashesJson         String    @default("[]")
+  commitSha                  String?
+  payloadSummaryJson         String    @default("{}")
+  expectedEffectsJson        String    @default("{}")
+  eligibleReviewerCapability String
+  policyVersion              String
+  requestedByPersonId        String
+  requestedAt                DateTime  @default(now())
+  expiresAt                  DateTime
+  requestDigest              String
+  state                      String    @default("PENDING")
+  decidedByPersonId          String?
+  decidedAt                  DateTime?
+  decisionReason             String?
+  admissionLeaseEpoch        String?
+  admissionReceiptHash       String?
+  admissionExpiresAt         DateTime?
+  consumedAt                 DateTime?
+  auditEventId               String?
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  run  ProjectExecutionRun  @relation(fields: [executionRunDbId], references: [id], onDelete: Cascade)
+  step ProjectExecutionStep @relation(fields: [executionStepDbId], references: [id], onDelete: Cascade)
+
+  @@unique([executionRunId, executionStepId, requestDigest], map: "ProjectApprovalRequest_run_step_digest")
+  @@index([tenantId, businessId, projectId, state, expiresAt])
+  @@index([executionRunId, executionStepId, state])
+  @@index([requestedByPersonId])
 }
 
 model WorkContainer {
