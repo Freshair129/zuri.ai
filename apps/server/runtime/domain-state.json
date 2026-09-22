@@ -38,10 +38,10 @@
     "domainCount": 14,
     "featureCount": 158,
     "readyFeatureCount": 118,
-    "requirementCount": 267,
+    "requirementCount": 271,
     "verifiedRequirementCount": 244,
-    "progressPercent": 93.6,
-    "gapCount": 46,
+    "progressPercent": 92.3,
+    "gapCount": 50,
     "gaps": [
       {
         "domain": "agent",
@@ -442,6 +442,38 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-082 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-268",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-268 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-269",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-269 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-270",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-270 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-271",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-271 is planned",
         "evidence": []
       }
     ]
@@ -6338,6 +6370,38 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 15
+        },
+        {
+          "id": "FR-268",
+          "title": "A BusinessGoal may declare one or more BusinessKeyResult children",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-269",
+          "title": "A Business may track ongoing health metrics independent of any Objective or cycle as BusinessKpi (name, one Balanced Scorecard perspective",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-270",
+          "title": "A Business may mark at most two active BusinessGoal rows Wildly Important (isWig, BR-043), each naming one BusinessKeyResult as its lag…",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-271",
+          "title": "Creating or editing a BusinessKeyResult runs a pure smartChecks() function returning the deterministic subset of SMART as booleans",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -6501,6 +6565,10 @@
         "docs/domains/project-manager/features/FR-250-hierarchical-project-navigation.md",
         "docs/domains/project-manager/features/FR-251-project-execution-domains.md",
         "docs/domains/project-manager/features/FR-252-project-feature-authority.md",
+        "docs/domains/project-manager/features/FR-268-business-key-results.md",
+        "docs/domains/project-manager/features/FR-269-business-scorecard-kpis.md",
+        "docs/domains/project-manager/features/FR-270-4dx-weekly-execution.md",
+        "docs/domains/project-manager/features/FR-271-smart-validation-contract.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P1-feature-persistence.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P3-feature-api.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P4-feature-ui-and-final-gate.md",
@@ -6555,6 +6623,34 @@
           "check": "requirements",
           "summary": "FR-082 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-268",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-268 is planned",
+          "evidence": []
+        },
+        {
+          "id": "REQ-FR-269",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-269 is planned",
+          "evidence": []
+        },
+        {
+          "id": "REQ-FR-270",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-270 is planned",
+          "evidence": []
+        },
+        {
+          "id": "REQ-FR-271",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-271 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -6562,7 +6658,7 @@
         "apiRoutes": 160,
         "pageRoutes": 47,
         "ownedModels": 37,
-        "featureNotes": 39
+        "featureNotes": 43
       },
       "featureIds": [
         "FEAT-001",
@@ -6618,7 +6714,7 @@
       ],
       "featureCount": 50,
       "readyFeatureCount": 46,
-      "progressPercent": 93.8
+      "progressPercent": 88.2
     }
   },
   "features": [
@@ -6749,23 +6845,31 @@
     },
     {
       "id": "FEAT-002",
-      "title": "Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)",
+      "title": "Business Home — shell-level cross-domain aggregation (Dashboard; Goals & KPIs as OKR/SMART/Balanced-Scorecard/4DX execution on `BusinessGoal`, declared under ADR-101; Risks & Alerts and Reports later)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
         "FR-041",
-        "FR-060"
+        "FR-060",
+        "FR-268",
+        "FR-269",
+        "FR-270",
+        "FR-271"
       ],
       "primaryDomain": "project-manager",
       "contributorDomains": [
         "project-manager"
       ],
       "useCase": "ผู้บริหารเลือก Business แล้วดู project health, domain health และรายการที่ต้องจัดการในหน้า Home เดียว",
-      "progressPercent": 100,
+      "progressPercent": 33.3,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-002 registry status is building"
+        "FEAT-002 registry status is building",
+        "FR-268 is planned",
+        "FR-269 is planned",
+        "FR-270 is planned",
+        "FR-271 is planned"
       ],
       "requirements": [
         {
@@ -6783,6 +6887,38 @@
           "progressPercent": 100,
           "codeCount": 6,
           "testCount": 34
+        },
+        {
+          "id": "FR-268",
+          "title": "A BusinessGoal may declare one or more BusinessKeyResult children",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-269",
+          "title": "A Business may track ongoing health metrics independent of any Objective or cycle as BusinessKpi (name, one Balanced Scorecard perspective",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-270",
+          "title": "A Business may mark at most two active BusinessGoal rows Wildly Important (isWig, BR-043), each naming one BusinessKeyResult as its lag…",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-271",
+          "title": "Creating or editing a BusinessKeyResult runs a pure smartChecks() function returning the deterministic subset of SMART as booleans",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "evidence": [

@@ -107,6 +107,23 @@ function domainHealthRows({ domains, projects, peopleCount, now }) {
   })
 }
 
+/**
+ * The FR-041 strategy payload nests goals under `roadmaps[].horizons[].goals[]`
+ * (`business-strategy-service.js` `serializeRoadmap`/`serializeGoal`); it has no
+ * top-level `goals` array. This flattens the real shape rather than assuming one
+ * that was never produced.
+ *
+ * Correction, PRD-SDD 1.246.0b (2026-09-22): `attentionQueue` read `strategy?.goals`
+ * directly, which is always `undefined` against the real payload — every
+ * "Goal past target" / "Goal has no linked Project" row below was dead code in
+ * production. The prior unit test passed only because it hand-fed a `{ goals: […] }`
+ * fixture that production never sends. No behaviour beyond "these rows now actually
+ * fire" changes; FR-060's statement is unchanged.
+ */
+function strategyGoals(strategy) {
+  return (strategy?.roadmaps || []).flatMap((roadmap) => (roadmap.horizons || []).flatMap((horizon) => horizon.goals || []))
+}
+
 /** Cross-domain exceptions, from real rows only. Empty is a valid, honest answer. */
 function attentionQueue({ projects, strategy, now }) {
   const items = []
@@ -137,7 +154,7 @@ function attentionQueue({ projects, strategy, now }) {
     }
   }
 
-  for (const goal of strategy?.goals || []) {
+  for (const goal of strategyGoals(strategy)) {
     if (goal.status === 'DONE') continue
     if (overdue(goal.targetAt, now)) {
       items.push({
