@@ -1,16 +1,20 @@
 ---
 id: ZAI:FEATURES
-version: "1.61.0b"
+version: "1.62.0b"
 status: active
-last_update: "2026-09-19T00:00:00+07:00,Luna Max"
+last_update: "2026-09-22T00:00:00+07:00,Claude Sonnet 5"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:ADR-101
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.61.0b -> 1.62.0b (2026-09-22): FEAT-002 gains its long-reserved "Goals & KPIs" sub-page — FR-268..FR-271 declared under ADR-101, ownership staying inside FEAT-002 rather than a new bundle because FR-060's own feature note already named this scope ("Out, and each needs its own FR when built: Goals & KPIs, Risks & Alerts and Reports sub-pages"). Declaration only, on `feat/task-zai-122-goal-service-phase0-docs`; FEAT-002 stays `building`.
 
 Version diff 1.60.0b -> 1.61.0b (2026-09-19): Added FEAT-044 for Mission Control DAG orchestration observability, bundling FR-260..FR-264. The implementation remains adapter-only and production is not claimed.
 
@@ -44,7 +48,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | ID | Feature | FRs | Status |
 |---|---|---|---|
 | FEAT-001 | File Manager — Business/Project files with managed local workspace | FR-037, FR-045, FR-058 | live |
-| FEAT-002 | Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later) | FR-041, FR-060 | building |
+| FEAT-002 | Business Home — shell-level cross-domain aggregation (Dashboard; Goals & KPIs as OKR/SMART/Balanced-Scorecard/4DX execution on `BusinessGoal`, declared under ADR-101; Risks & Alerts and Reports later) | FR-041, FR-060, FR-268, FR-269, FR-270, FR-271 | building |
 | FEAT-003 | Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings | FR-068, FR-069, FR-070 | live |
 | FEAT-004 | Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management | FR-048, FR-079, FR-080 | building |
 | FEAT-005 | Project Inventory — authorized, read-only Project-wide operational snapshot | FR-077 | live |

@@ -134,6 +134,42 @@ their own — both write **nothing**:
   domain's `Membership` with crm's `Person` (read-only cross-domain read, the
   pattern the architecture spec's §5.3 explicitly allows).
 
+## Declared, not yet in schema (FEAT-002, ADR-101)
+
+[ADR-101](../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md)
+(approved 2026-09-22) extends `BusinessGoal` into an OKR Objective, tagged to one
+Balanced Scorecard perspective and optionally marked Wildly Important (4DX), and
+adds a family of child models under this domain — none exist in
+`prisma/schema.prisma` yet, and none of this section grants a write any sooner
+than the schema does:
+
+- `BusinessKeyResult` (+ append-only `BusinessKeyResultCheckIn`) — a measurable
+  child of `BusinessGoal`; its weekly check-ins roll `BusinessGoal.progress` up
+  through a pure calculator (SDD-107), and once a goal holds one, a manual
+  `progress` patch is refused (BR-044).
+- `BusinessKpi` (+ append-only `BusinessKpiObservation`) — a Business-scoped,
+  **not** goal-scoped, ongoing health metric carrying a Balanced Scorecard
+  perspective. Named with the `Business` prefix deliberately: the shell already
+  exports a `Kpi` UI component (`src/components/ui/index.jsx`), and a bare `KPI`
+  Prisma model would both collide with it and produce an awkward `db.kPI`
+  client accessor.
+- `BusinessLeadMeasure` (+ append-only `BusinessLeadMeasureValue`) — a 4DX lead
+  measure, meaningful only under a goal with `isWig=true`.
+- `BusinessWeeklyCommitment`, `BusinessWigSession` — the weekly 4DX ritual: what
+  a named Person commits to, and the report/scoreboard/plan session state, both
+  Business-scoped.
+
+`BusinessGoal` itself gains `perspective` (nullable — every existing goal, and
+the FR-108 bundle importer's `zGoal`, carry none today) and `isWig` (boolean,
+default false; at most two per Business, enforced in the service — BR-043).
+
+Every new writer lives in `project-manager/application/`, alongside the
+existing `business-strategy-mutation-service.js`, never in the `business`
+read-slice above — the "both write nothing" rule for satellite modules is
+unchanged by this section. Owner check-in authority for Phase 1 is OWNER-only,
+the same authority that can already hand-edit a goal's progress (ADR-101 D4);
+a narrower Key-Result-owner grant is explicitly future work, not assumed here.
+
 ## Known shared-write exceptions (debt, visible on purpose)
 
 - `AuditEvent` is appended by other domains' services through the shared

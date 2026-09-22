@@ -151,18 +151,41 @@ describe('attention queue', () => {
   })
 
   it('raises a goal past target, and flags an unlinked goal only as INFO', () => {
+    // Regression (PRD-SDD 1.246.0b): the real FR-041 payload nests goals under
+    // roadmaps[].horizons[].goals[], never a top-level `goals` array. This
+    // fixture matches `business-strategy-service.js`'s actual serialized shape —
+    // a flat `strategy.goals` fixture here would pass even if attentionQueue
+    // read a key production never sends, which is exactly the bug this closes.
     const { attention } = build({
       strategy: {
-        goals: [
-          { id: 'g-late', code: 'G1', title: 'Late goal', status: 'ACTIVE', targetAt: past, projects: [{ id: 'p1' }] },
-          { id: 'g-orphan', code: 'G2', title: 'Orphan goal', status: 'ACTIVE', targetAt: future, projects: [] },
-          { id: 'g-done', code: 'G3', title: 'Done goal', status: 'DONE', targetAt: past, projects: [] },
-        ],
+        roadmaps: [{
+          id: 'r1',
+          horizons: [
+            {
+              id: 'h1',
+              goals: [
+                { id: 'g-late', code: 'G1', title: 'Late goal', status: 'ACTIVE', targetAt: past, projects: [{ id: 'p1' }] },
+                { id: 'g-orphan', code: 'G2', title: 'Orphan goal', status: 'ACTIVE', targetAt: future, projects: [] },
+              ],
+            },
+            {
+              id: 'h2',
+              goals: [
+                { id: 'g-done', code: 'G3', title: 'Done goal', status: 'DONE', targetAt: past, projects: [] },
+              ],
+            },
+          ],
+        }],
       },
     })
     expect(attention.find((a) => a.id === 'goal:g-late').severity).toBe(SEVERITY.HIGH)
     expect(attention.find((a) => a.id === 'goal-unlinked:g-orphan').severity).toBe(SEVERITY.INFO)
     expect(attention.some((a) => a.id.includes('g-done'))).toBe(false)
+  })
+
+  it('reports no goal rows for a strategy with roadmaps but no horizons/goals yet', () => {
+    expect(build({ strategy: { roadmaps: [] } }).attention).toEqual([])
+    expect(build({ strategy: { roadmaps: [{ id: 'r1', horizons: [] }] } }).attention).toEqual([])
   })
 
   it('orders by severity and is deterministic regardless of input order', () => {
