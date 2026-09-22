@@ -14,9 +14,15 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Modal, Field } from '@/components/ui'
-import { GOAL_STATUSES, GOAL_PRIORITIES, ROADMAP_STATUSES } from '@/lib/validation/enums'
-import { Trash2 } from 'lucide-react'
+import { GOAL_STATUSES, GOAL_PRIORITIES, ROADMAP_STATUSES, KEY_RESULT_DIRECTIONS, KEY_RESULT_STATUSES } from '@/lib/validation/enums'
+import { Trash2, Check, X as XIcon } from 'lucide-react'
 import { api } from './useApi'
+// @req FR-271 — the SAME pure function the server enforces at write time, so
+// this live checklist can never claim a check the API does not also make.
+import { smartChecks } from '../progress/smart-checks'
+// @req FR-268, SDD-107 — the check-in modal's live progress preview uses the
+// same calculator the server writes through, never a second formula.
+import { keyResultProgress } from '../progress/key-result-progress'
 
 function toDateInputValue(value) {
   if (!value) return ''
@@ -582,6 +588,217 @@ export function LinkProjectModal({ open, onClose, goal, projects, onSaved }) {
           </button>
         </div>
       </div>
+    </A11yModal>
+  )
+}
+
+function SmartChecklistRow({ label, value }) {
+  if (value === null) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] text-muted">
+        <span aria-hidden>—</span>
+        {label} <span className="text-muted">(self-assessed)</span>
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px]" style={{ color: value ? 'var(--success)' : 'var(--muted)' }}>
+      {value ? <Check size={12} aria-hidden /> : <XIcon size={12} aria-hidden />}
+      {label}
+    </span>
+  )
+}
+
+/**
+ * Create or edit a Key Result under a Goal. The SMART checklist re-runs
+ * smartChecks() — the exact function FR-271 enforces server-side — on every
+ * keystroke, so this preview can never claim a check the API would refuse.
+ * `status` only appears when editing: zKeyResultCreateInput has no status
+ * field (a new Key Result is always ACTIVE) — archiving is a patch.
+ *
+ * Owner assignment is deliberately left out of this form for Phase 1
+ * (`ownerPersonId` stays null via the UI; the field is nullable server-side)
+ * — an owner picker needs `people` threaded through StrategyCard, out of
+ * scope for this pass.
+ */
+export function KeyResultModal({ open, onClose, goal, keyResult, onSaved }) {
+  const [form, setForm] = useState(() => ({
+    title: keyResult?.title || '',
+    metric: keyResult?.metric || '',
+    unit: keyResult?.unit || '',
+    baseline: keyResult?.baseline ?? 0,
+    target: keyResult?.target ?? '',
+    direction: keyResult?.direction || 'UP',
+    dueAt: toDateInputValue(keyResult?.dueAt),
+    confidence: keyResult?.confidence ?? 3,
+    status: keyResult?.status || 'ACTIVE',
+  }))
+  const [error, setError] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const set = (key, value) => setForm((f) => ({ ...f, [key]: value }))
+
+  const checklist = smartChecks(
+    { title: form.title, metric: form.metric, unit: form.unit, baseline: form.baseline, target: form.target, dueAt: form.dueAt },
+    goal
+  )
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setBusy(true)
+    setError(null)
+    try {
+      const body = {
+        title: form.title,
+        metric: form.metric,
+        unit: form.unit,
+        baseline: Number(form.baseline),
+        target: Number(form.target),
+        direction: form.direction,
+        dueAt: form.dueAt || null,
+        confidence: Number(form.confidence),
+      }
+      if (keyResult) {
+        await api(`/api/business/key-results/${keyResult.id}`, { method: 'PATCH', body: { ...body, status: form.status } })
+      } else {
+        await api(`/api/business/goals/${goal.id}/key-results`, { method: 'POST', body })
+      }
+      onSaved?.()
+      onClose()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <A11yModal open={open} onClose={onClose} title={keyResult ? `Edit ${keyResult.code}` : `New Key Result · ${goal.code}`}>
+      <form onSubmit={submit}>
+        <Field label="Title">
+          <input className="input" value={form.title} onChange={(e) => set('title', e.target.value)} required />
+        </Field>
+        <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
+          <Field label="Metric">
+            <input className="input" value={form.metric} placeholder="e.g. Closed-won deals" onChange={(e) => set('metric', e.target.value)} required />
+          </Field>
+          <Field label="Unit">
+            <input className="input" value={form.unit} placeholder="e.g. deals" onChange={(e) => set('unit', e.target.value)} required />
+          </Field>
+        </div>
+        <div className="grid grid-cols-3 gap-3 max-md:grid-cols-1">
+          <Field label="Baseline">
+            <input className="input" type="number" step="any" value={form.baseline} onChange={(e) => set('baseline', e.target.value)} required />
+          </Field>
+          <Field label="Target">
+            <input className="input" type="number" step="any" value={form.target} onChange={(e) => set('target', e.target.value)} required />
+          </Field>
+          <Field label="Direction">
+            <select className="input" value={form.direction} onChange={(e) => set('direction', e.target.value)}>
+              {KEY_RESULT_DIRECTIONS.map((d) => (
+                <option key={d} value={d}>{d === 'UP' ? 'UP — higher is better' : 'DOWN — lower is better'}</option>
+              ))}
+            </select>
+          </Field>
+        </div>
+        <div className="grid grid-cols-3 gap-3 max-md:grid-cols-1">
+          <Field label="Due date">
+            <input className="input" type="date" value={form.dueAt} onChange={(e) => set('dueAt', e.target.value)} />
+          </Field>
+          <Field label="Confidence (1–5)">
+            <input className="input" type="number" min="1" max="5" value={form.confidence} onChange={(e) => set('confidence', e.target.value)} />
+          </Field>
+          {keyResult && (
+            <Field label="Status">
+              <select className="input" value={form.status} onChange={(e) => set('status', e.target.value)}>
+                {KEY_RESULT_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </Field>
+          )}
+        </div>
+
+        <div className="mb-3 mt-1 rounded-xl border border-[var(--border)] p-2.5">
+          <p className="mb-1.5 text-[10px] font-bold text-muted">SMART checklist (FR-271)</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            <SmartChecklistRow label="Specific" value={checklist.specific} />
+            <SmartChecklistRow label="Measurable" value={checklist.measurable} />
+            <SmartChecklistRow label="Achievable" value={checklist.achievable} />
+            <SmartChecklistRow label="Relevant" value={checklist.relevant} />
+            <SmartChecklistRow label="Time-bound" value={checklist.timeBound} />
+          </div>
+        </div>
+
+        <FormError message={error} />
+        <div className="flex justify-end gap-2">
+          <button type="button" className="btn" onClick={onClose}>Cancel</button>
+          <button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
+        </div>
+      </form>
+    </A11yModal>
+  )
+}
+
+/**
+ * Record this week's check-in for a Key Result. `weekStartAt` is never a
+ * client field — the server buckets by weekStartFor(now) itself (FR-268) —
+ * so a second check-in the same week always upserts the same row instead of
+ * piling up a duplicate. The progress preview reuses keyResultProgress(), the
+ * same calculator the write-through recompute uses, so the number shown here
+ * never disagrees with what the reload afterward will show.
+ */
+export function CheckInModal({ open, onClose, keyResult, onSaved }) {
+  const [value, setValue] = useState(keyResult?.current ?? keyResult?.baseline ?? 0)
+  const [confidence, setConfidence] = useState(keyResult?.confidence ?? 3)
+  const [note, setNote] = useState('')
+  const [error, setError] = useState(null)
+  const [busy, setBusy] = useState(false)
+
+  const previewProgress = keyResultProgress(
+    { baseline: keyResult.baseline, target: keyResult.target, direction: keyResult.direction },
+    Number(value)
+  )
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setBusy(true)
+    setError(null)
+    try {
+      await api(`/api/business/key-results/${keyResult.id}/check-ins`, {
+        method: 'POST',
+        body: { value: Number(value), confidence: Number(confidence), note: note || null },
+      })
+      onSaved?.()
+      onClose()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <A11yModal open={open} onClose={onClose} title={`Check in · ${keyResult.code}`}>
+      <form onSubmit={submit}>
+        <p className="mb-2 text-[11px] text-muted">
+          {keyResult.title} — baseline {keyResult.baseline} {keyResult.unit}, target {keyResult.target} {keyResult.unit}
+        </p>
+        <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
+          <Field label={`Current value (${keyResult.unit})`}>
+            <input className="input" type="number" step="any" value={value} onChange={(e) => setValue(e.target.value)} required />
+          </Field>
+          <Field label="Confidence (1–5)">
+            <input className="input" type="number" min="1" max="5" value={confidence} onChange={(e) => setConfidence(e.target.value)} required />
+          </Field>
+        </div>
+        <Field label="Note">
+          <textarea className="input" rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
+        </Field>
+        <FormInfo message={`New progress: ${previewProgress}%`} />
+        <FormError message={error} />
+        <div className="flex justify-end gap-2">
+          <button type="button" className="btn" onClick={onClose}>Cancel</button>
+          <button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Saving…' : 'Check in'}</button>
+        </div>
+      </form>
     </A11yModal>
   )
 }

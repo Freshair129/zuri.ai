@@ -39,9 +39,9 @@
     "featureCount": 158,
     "readyFeatureCount": 118,
     "requirementCount": 271,
-    "verifiedRequirementCount": 244,
-    "progressPercent": 92.3,
-    "gapCount": 50,
+    "verifiedRequirementCount": 246,
+    "progressPercent": 93.6,
+    "gapCount": 48,
     "gaps": [
       {
         "domain": "agent",
@@ -446,35 +446,27 @@
       },
       {
         "domain": "project-manager",
-        "id": "REQ-FR-268",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-268 is planned",
-        "evidence": []
-      },
-      {
-        "domain": "project-manager",
         "id": "REQ-FR-269",
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-269 is planned",
-        "evidence": []
+        "evidence": [
+          "apps/server/tests/integration/xlsx-intake.test.js",
+          "apps/server/tests/unit/context-composer.test.js",
+          "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/plan-schema.test.js"
+        ]
       },
       {
         "domain": "project-manager",
         "id": "REQ-FR-270",
         "severity": "medium",
         "check": "requirements",
-        "summary": "FR-270 is planned",
-        "evidence": []
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-271",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-271 is planned",
-        "evidence": []
+        "summary": "FR-270 is partial",
+        "evidence": [
+          "apps/server/src/modules/project-manager/progress/week.js",
+          "apps/server/tests/unit/fr268-week.test.js"
+        ]
       }
     ]
   },
@@ -853,7 +845,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -1148,7 +1140,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -1361,7 +1353,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -1828,7 +1820,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 75
+          "testCount": 76
         },
         {
           "id": "FR-059",
@@ -1836,7 +1828,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-061",
@@ -2207,7 +2199,7 @@
           "details": {
             "routes": 34,
             "inventoried": 33,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -2743,7 +2735,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -3115,7 +3107,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -3951,7 +3943,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4146,7 +4138,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4313,7 +4305,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4421,7 +4413,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 75
+          "testCount": 76
         },
         {
           "id": "FR-075",
@@ -4678,7 +4670,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4986,7 +4978,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -5368,8 +5360,8 @@
           "title": "Production viewer entry contract",
           "declared": "done",
           "status": "verified",
-          "codeCount": 66,
-          "testCount": 75
+          "codeCount": 69,
+          "testCount": 76
         },
         {
           "id": "FR-056",
@@ -5393,7 +5385,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-060",
@@ -6374,10 +6366,10 @@
         {
           "id": "FR-268",
           "title": "A BusinessGoal may declare one or more BusinessKeyResult children",
-          "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 11,
+          "testCount": 28
         },
         {
           "id": "FR-269",
@@ -6385,23 +6377,33 @@
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 4,
+          "evidence": [
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/plan-schema.test.js"
+          ]
         },
         {
           "id": "FR-270",
           "title": "A Business may mark at most two active BusinessGoal rows Wildly Important (isWig, BR-043), each naming one BusinessKeyResult as its lag…",
           "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 1,
+          "evidence": [
+            "apps/server/src/modules/project-manager/progress/week.js",
+            "apps/server/tests/unit/fr268-week.test.js"
+          ]
         },
         {
           "id": "FR-271",
           "title": "Creating or editing a BusinessKeyResult runs a pure smartChecks() function returning the deterministic subset of SMART as booleans",
-          "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 4
         }
       ],
       "checks": {
@@ -6435,9 +6437,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 160,
-            "inventoried": 160,
-            "openApiPaths": 326,
+            "routes": 163,
+            "inventoried": 163,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -6481,8 +6483,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 37,
-            "present": 37
+            "models": 39,
+            "present": 39
           }
         },
         "authorization": {
@@ -6503,8 +6505,8 @@
             }
           ],
           "details": {
-            "mutations": 121,
-            "guardedMutations": 118,
+            "mutations": 124,
+            "guardedMutations": 121,
             "reads": 80,
             "unguardedReads": 9
           }
@@ -6625,39 +6627,33 @@
           "evidence": []
         },
         {
-          "id": "REQ-FR-268",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-268 is planned",
-          "evidence": []
-        },
-        {
           "id": "REQ-FR-269",
           "severity": "medium",
           "check": "requirements",
           "summary": "FR-269 is planned",
-          "evidence": []
+          "evidence": [
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/plan-schema.test.js"
+          ]
         },
         {
           "id": "REQ-FR-270",
           "severity": "medium",
           "check": "requirements",
-          "summary": "FR-270 is planned",
-          "evidence": []
-        },
-        {
-          "id": "REQ-FR-271",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-271 is planned",
-          "evidence": []
+          "summary": "FR-270 is partial",
+          "evidence": [
+            "apps/server/src/modules/project-manager/progress/week.js",
+            "apps/server/tests/unit/fr268-week.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 207,
-        "apiRoutes": 160,
+        "routes": 210,
+        "apiRoutes": 163,
         "pageRoutes": 47,
-        "ownedModels": 37,
+        "ownedModels": 39,
         "featureNotes": 43
       },
       "featureIds": [
@@ -6714,7 +6710,7 @@
       ],
       "featureCount": 50,
       "readyFeatureCount": 46,
-      "progressPercent": 88.2
+      "progressPercent": 93.5
     }
   },
   "features": [
@@ -6845,7 +6841,7 @@
     },
     {
       "id": "FEAT-002",
-      "title": "Business Home — shell-level cross-domain aggregation (Dashboard; Goals & KPIs as OKR/SMART/Balanced-Scorecard/4DX execution on `BusinessGoal`, declared under ADR-101; Risks & Alerts and Reports later)",
+      "title": "Business Home — shell-level cross-domain aggregation (Dashboard; Goals & KPIs as OKR/SMART/Balanced-Scorecard/4DX execution on `BusinessGoal`, ADR-101 — Key Results/SMART Phase 1 implemented, KPIs/4DX Phase 2/3 still declared; Risks & Alerts and Reports later)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -6861,15 +6857,13 @@
         "project-manager"
       ],
       "useCase": "ผู้บริหารเลือก Business แล้วดู project health, domain health และรายการที่ต้องจัดการในหน้า Home เดียว",
-      "progressPercent": 33.3,
+      "progressPercent": 93.3,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-002 registry status is building",
-        "FR-268 is planned",
-        "FR-269 is planned",
-        "FR-270 is planned",
-        "FR-271 is planned"
+        "FR-269 is partial",
+        "FR-270 is partial"
       ],
       "requirements": [
         {
@@ -6891,47 +6885,58 @@
         {
           "id": "FR-268",
           "title": "A BusinessGoal may declare one or more BusinessKeyResult children",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 13,
+          "testCount": 28
         },
         {
           "id": "FR-269",
           "title": "A Business may track ongoing health metrics independent of any Objective or cycle as BusinessKpi (name, one Balanced Scorecard perspective",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 1,
+          "testCount": 4
         },
         {
           "id": "FR-270",
           "title": "A Business may mark at most two active BusinessGoal rows Wildly Important (isWig, BR-043), each naming one BusinessKeyResult as its lag…",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 1,
+          "testCount": 1
         },
         {
           "id": "FR-271",
           "title": "Creating or editing a BusinessKeyResult runs a pure smartChecks() function returning the deterministic subset of SMART as booleans",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 4
         }
       ],
       "evidence": [
         "apps/server/prisma/seed.js",
         "apps/server/src/app/(pm)/overview/page.jsx",
+        "apps/server/src/app/api/business/goals/[id]/key-results/route.js",
+        "apps/server/src/app/api/business/key-results/[id]/check-ins/route.js",
+        "apps/server/src/app/api/business/key-results/[id]/route.js",
         "apps/server/src/app/api/business/strategy/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/config/modules.js",
         "apps/server/src/lib/business-shell-guard.js",
         "apps/server/src/lib/shell-mode.js",
+        "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/business/application/business-home-read-model.js",
         "apps/server/src/modules/business/application/business-strategy-service.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js",
         "apps/server/src/modules/project-manager/application/project-service.js",
+        "apps/server/src/modules/project-manager/components/StrategyEditModals.jsx",
+        "apps/server/src/modules/project-manager/progress/key-result-progress.js",
+        "apps/server/src/modules/project-manager/progress/smart-checks.js",
+        "apps/server/src/modules/project-manager/progress/week.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr044-entry-routing.spec.js",
         "apps/server/tests/e2e/fr045-files.spec.js",
@@ -6943,18 +6948,32 @@
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
         "apps/server/tests/integration/fr072-project-service-authorization.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
+        "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/business-shell-guard.test.js",
         "apps/server/tests/unit/business-strategy-route.test.js",
         "apps/server/tests/unit/business-strategy-service.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
+        "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/fr059-strategy-edit-ui.test.js",
         "apps/server/tests/unit/fr059-strategy-validation.test.js",
@@ -6963,10 +6982,15 @@
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
         "apps/server/tests/unit/fr124-product-readiness-read-model.test.js",
         "apps/server/tests/unit/fr124-product-readiness-ui.test.js",
+        "apps/server/tests/unit/fr268-key-result-progress.test.js",
+        "apps/server/tests/unit/fr268-week.test.js",
+        "apps/server/tests/unit/fr271-smart-checks.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/overview-split.test.js",
+        "apps/server/tests/unit/plan-schema.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
@@ -13725,8 +13749,8 @@
           "title": "Production viewer entry contract",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 84,
-          "testCount": 75
+          "codeCount": 87,
+          "testCount": 76
         }
       ],
       "evidence": [
@@ -13741,10 +13765,13 @@
         "apps/server/src/app/api/backup/export/route.js",
         "apps/server/src/app/api/backup/import/route.js",
         "apps/server/src/app/api/business/files/route.js",
+        "apps/server/src/app/api/business/goals/[id]/key-results/route.js",
         "apps/server/src/app/api/business/goals/[id]/projects/[projectId]/route.js",
         "apps/server/src/app/api/business/goals/[id]/projects/route.js",
         "apps/server/src/app/api/business/goals/[id]/route.js",
         "apps/server/src/app/api/business/goals/route.js",
+        "apps/server/src/app/api/business/key-results/[id]/check-ins/route.js",
+        "apps/server/src/app/api/business/key-results/[id]/route.js",
         "apps/server/src/app/api/business/roadmaps/[id]/route.js",
         "apps/server/src/app/api/business/roadmaps/route.js",
         "apps/server/src/app/api/business/strategy/route.js",
@@ -13836,6 +13863,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr089-team-scope.test.js",
         "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
+        "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
@@ -14346,7 +14374,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -14367,6 +14395,7 @@
         "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
         "apps/server/tests/integration/fr193-remove-controls.test.js",
+        "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr059-strategy-edit-ui.test.js",
         "apps/server/tests/unit/fr059-strategy-validation.test.js",

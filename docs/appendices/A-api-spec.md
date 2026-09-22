@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.89.0b → 1.90.0b (2026-09-22): add the three FR-268 Business Key Result paths (create, patch, weekly check-in) to the Business Strategy contract. Route handler count 326 → 329. Production application of the migration remains an ADR-057 operator gate.
+
 Version diff 1.88.0b → 1.89.0b (2026-09-20): add the six TASK-ZAI-053 supplier cost-sheet paths to the Procurement contract; current inventory is 328 route-handler paths. The migration is written locally and production application remains an ADR-057 operator gate.
 
 Version diff 1.87.0b → 1.88.0b: add FR-254 Knowledge Console routes to the composed FR-252/TaskUsageLedger baseline; target 315 paths and 419 operations. Final composed verification and production delivery remain pending.
@@ -12,9 +14,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.89.0b |
+| **Version** | 1.90.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-20 |
+| **Last Updated** | 2026-09-22 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -33,7 +35,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=326 -->
+<!-- api-spec-counts: route_handlers=329 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -256,6 +258,26 @@ belong to Business`, `Project does not belong to Business`, a mismatched
 `400`. All six mutations also require the target Business to be in the
 viewer's `visibleBusinessIds` (not just `role === 'OWNER'`, which is a global
 grant) — see FR-059-business-strategy-mutation.md §1.
+
+## Business Key Results (FR-268, ADR-101 D6 Phase 1)
+
+OWNER-only writes, same authority as the Business Strategy mutations above
+(D4 — narrower per-assignee check-in authority is a later FR). Every handler
+delegates to `business-strategy-mutation-service.js`'s Key Result functions,
+which record one `AuditEvent` per mutation and recompute the parent Goal's
+`progress` in the same transaction once it holds a non-archived Key Result
+(SDD-107, BR-044) — see FR-268's own feature note for the full contract.
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| POST | `/api/business/goals/[id]/key-results` | `{title, metric, unit, baseline, target, direction?, dueAt?, ownerPersonId?, confidence?}` — `target` must differ from `baseline` (FR-271 Measurable) | serialized Key Result |
+| PATCH | `/api/business/key-results/[id]` | partial of the create fields, plus `status` (`ACTIVE`\|`ARCHIVED`) — archiving is this patch, there is no separate archive verb | serialized Key Result |
+| POST | `/api/business/key-results/[id]/check-ins` | `{value, confidence, note?}` — `weekStartAt` is never a client field; the server buckets by `weekStartFor(now)` (Monday 00:00 Asia/Bangkok) and a second check-in the same week upserts rather than duplicating | serialized Key Result (current value, recomputed `progress`/`expectedProgress`, full `checkIns` history) |
+
+A Key Result's `progress`/`expectedProgress`/`status` are never stored columns
+— both are recomputed on every read from `(baseline, target, direction,
+latest check-in)` (SDD-107), the same pure calculators the Key Result
+list/modal UI uses for its live preview.
 
 ## Entry and Business Routing (FR-044 and FR-046 implemented beta)
 
@@ -1010,6 +1032,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.90.0b | 2026-09-22 | candidate | FR-268 (ADR-101 D6 Phase 1): three handler files under `/api/business/goals/[id]/key-results` and `/api/business/key-results/[id]`(`/check-ins`) — create/patch a Key Result and record a weekly check-in, OWNER-only, write-through recompute of the parent Goal's progress (SDD-107, BR-044). Route handler count 326 -> 329 | working-tree | Claude Sonnet 5 |
 | 1.88.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console source, scoped run/corpus/citation routes and artifact lineage contract with the current 309-path baseline; target 315 paths/419 operations | 2bd61b49 | RWANG |
 | 1.87.0b | 2026-09-18 | candidate | Add authenticated TaskUsageLedger projection and explicit taskCode attribution; reconcile composed inventory to 309 paths/412 operations; no database model or migration | 56ae925a | RWANG |
 | 1.86.0b (LINE local execution v2) | 2026-09-17 | beta | Preserve the live FR-254 Knowledge Console and add approved LINE local execution v2 context/tool routes on the pricing and CRM baseline; route handler inventory 302 -> 304 and operations 402 -> 404. Production activation remains separate. | composition-2bd61b49-0c7fd884 | RWANG |
