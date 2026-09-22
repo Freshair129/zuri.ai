@@ -9,9 +9,9 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0b |
-| **Status** | P0 implemented locally; provider and production migration gates open |
-| **Date** | 2026-08-22 |
+| **Version** | 0.2.0b |
+| **Status** | P0 and MFA enrollment UI implemented locally; provider and production migration gates open |
+| **Date** | 2026-09-23 |
 | **Relates to** | Issue #99, ADR-044, ADR-045, ADR-017, ADR-022, ADR-027, ADR-033 |
 
 ## Contract
@@ -82,6 +82,20 @@ client/model-selected vault or scope.
 Provider-specific onboarding, OIDC/LINE Login, MFA, recovery, device/session
 management UI, live Supabase migration/RLS proof and production canary are
 explicit follow-on gates, not P0 completion claims.
+
+## MFA enrollment follow-on gate
+
+The authenticated Profile now exposes a Security & MFA surface backed by the
+canonical factor routes. It lists only redacted factor metadata, generates the
+one-time enrollment QR in the browser, submits the user-entered six-digit code
+to activate the factor, and clears the enrollment code and QR state after the
+flow ends. It does not persist or log the TOTP secret, URI or code and does not
+bypass the existing AAL2 credential-write gate.
+
+Local acceptance requires the profile render contract, MFA lifecycle tests and
+build to pass. Production acceptance still requires deployment, manual
+enrollment by the owner, an AAL2 step-up and the downstream Provider key and
+real-channel canary receipts; this UI change alone is not production proof.
 
 The next local candidate is documented in
 [`PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING.md`](../../../roadmap/PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING.md).
