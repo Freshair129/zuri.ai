@@ -1,7 +1,7 @@
 ---
 id: "ZAI:ADR-100"
 title: "LINE OA runs server-executed on browser-provisioned API keys"
-version: "0.5.0b"
+version: "0.5.2b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-21"
@@ -9,7 +9,7 @@ approved_by: "Owner instruction, 2026-09-21"
 integration_status: pending
 implementation_status: in-progress
 created_at: "2026-09-21"
-last_update: "2026-09-21"
+last_update: "2026-09-22"
 author: Claude Opus 5
 domain: line-oa-studio
 attributes:
@@ -310,8 +310,15 @@ mistake in the setting fails safe.
 for an owner can replace that Business's model key or LINE channel secret without a second
 factor — for example pointing the Business at a provider account they control, which would
 then receive its customers' messages. The rate limit bounds how fast; the audit row records
-that it happened; neither prevents it. The switch is meant to be turned back on (removed)
-once the key card can enrol a factor itself — the gap that made it necessary.
+that it happened; neither prevents it.
+
+> **Owner decision, 2026-09-22: two-factor is not used on this installation** — *"ไม่ใช้ F2A"*,
+> in answer to whether to build enrolment into the key card so the switch could be removed.
+> So the switch stays off, and enrolment in the key card is not being built. This replaces
+> the earlier expectation that the switch was temporary. The cost above therefore stands
+> for as long as the decision does, and it is recorded here so a later reader finds it as a
+> choice rather than an oversight. Restoring the step-up is deleting one line from the
+> server's `.env`; nothing in the code needs to change.
 
 ## Consequences
 
@@ -368,6 +375,17 @@ wants a second execution placement finds the seam still cut.
 - `resolveModel` prefers the vault-backed connection, falls back only on *absence*, and
   fails closed on a broken credential in either path.
 - A rotation keeps answering; a revocation stops it with a distinguishable code.
+
+> **Owner decision, 2026-09-22: on this installation LINE OA keeps being answered by
+> `smartgift-local-agent`, not by Zuri, for now** — *"ใช้ smartgift-local-agent ต่อไปก่อน"*.
+> That service receives the channel's webhook through Tailscale Funnel `:10000` and answers
+> through the operator's LiteLLM gateway (`typhoon2.5-qwen3-4b`); its LiteLLM log showed 71
+> successful completions on 2026-09-22. So no model key is saved in Zuri, and Zuri's own
+> `SERVER` jobs keep ending `EXECUTION_FAILED` and sending nothing — expected, not a fault.
+> **Moving LINE to Zuri is one step, not two:** save the key *and* repoint the webhook in the
+> LINE Developers console together. Saving a key while both services receive the channel's
+> events would answer every customer twice. TASK-ZAI-120 and TASK-ZAI-121 stay in review:
+> their production receipt waits on that move.
 
 ## Not decided here
 

@@ -133,6 +133,14 @@ export function createModelProviderAdminPort({ fetchFn = globalThis.fetch, timeo
     }
 
     if (response.status === 401 || response.status === 403) throw modelProviderFailure('MODEL_KEY_REJECTED', 422)
+    // Gemini answers a key it does not recognise with 400 (API_KEY_INVALID), not 401 —
+    // measured against the live endpoint on 2026-09-21 with a fake key, while OpenAI,
+    // Groq and Anthropic all answered 401. Reported as unavailability, a wrong Gemini key
+    // told the owner to "try again later" forever. On this GET — no body, a pattern-
+    // checked and percent-encoded model id — the key is the one input a 400 can be about.
+    // (A model id Gemini rejects as malformed would read as a rejected key too; the
+    // pattern check upstream makes that the rarer mistake by far.)
+    if (provider === 'gemini' && response.status === 400) throw modelProviderFailure('MODEL_KEY_REJECTED', 422)
     // 404 now has one meaning: the key got through and the model is not there for
     // it. (When this probe listed models, 404 meant the probe itself was wrong, and
     // was reported as unavailability for that reason.) The key is checked first by

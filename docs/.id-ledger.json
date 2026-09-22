@@ -6657,14 +6657,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "c5e5f3978ec7a507bd166305845110eecf766904300f1e50e2f1bf0246a207c1",
+      "statement_digest": "c6cccec38b64c7e509e59367641567617fe18a1d83415a8e47a3e8b4a6cc1b36",
       "history": [
         {
           "anchor": "model credential resolution order for a server line answer",
           "since": "2026-09-20",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-21",
+      "statement_digest_reason": "Drop the false claim that production resolves its key through the Phase-1 resolver (it holds no credential here, ADR-100 D5 correction); scope the fallback's purpose to provisioned installations; subject unchanged"
     },
     "SEC-001": {
       "family": "SEC",
