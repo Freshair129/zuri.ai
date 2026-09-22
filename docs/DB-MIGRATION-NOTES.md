@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.11 |
+| **Version** | 1.0.12 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
@@ -210,6 +210,26 @@ and is governed by ADR-104. It uses the direct Supabase connection, a redacted
 preflight/snapshot, a rolled-back dry run and an explicit `--apply` gate. Docker
 Compose image replacement is a separate release decision; the container never
 mutates this external database on startup.
+
+### Recorded production apply — 2026-09-23
+
+The owner-approved operator run completed after PR #533 merged at commit
+`119f98639fa7efa03d0157fe0b7c6eccf044026c`:
+
+| Evidence | Result |
+|---|---|
+| Target | Supabase `qcnmhyglarzcpudjorzc`, PostgreSQL 17, `public` |
+| Apply | `APPLIED`, 11/11 allowlisted steps; 7 historical effects recorded and 4 additive migration files plus hardening applied/recorded |
+| Ledger | 107 total rows after apply; all 11 expected version/name pairs present |
+| Snapshot | Redacted logical snapshot SHA-256 `39619a2064b9ba7f5beb8222201747fae622cc85dbb27aca8026cf37a3de2d9f` |
+| Post-apply security | 7 target tables present; forced RLS and one runtime policy each; 8 runtime grants each; 0 `service_role`/Data API grants |
+| Data effect | New target-table row counts all 0; `BusinessGoal.perspective` and `BusinessGoal.isWig` present |
+| Runtime | `/api/health` returned `status=ok`, `db=ok`, latency 103 ms |
+| Docker image | Not replaced by this database step; release source reconciliation remains a separate gate |
+
+This receipt proves the database migration lane only. It is not an application
+deployment or a claim that the currently running Docker image contains the
+merged PM/OKR/approval code.
 
 ## Supabase cutover — concrete steps (FR-030, ADR-007 P4)
 

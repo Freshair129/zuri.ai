@@ -80,7 +80,22 @@ Record the apply receipt, preflight receipt, snapshot SHA-256, commit SHA and
 post-apply query output in the operator evidence directory. Do not put database
 URLs, tokens, cookies, audio, transcripts or credential material in the receipt.
 
-## 4. Release boundary
+## 4. Recorded apply receipt — 2026-09-23
+
+PR #533 merged at `119f98639fa7efa03d0157fe0b7c6eccf044026c` before the write.
+The operator apply completed with `APPLIED` for all 11 allowlisted steps against
+Supabase `qcnmhyglarzcpudjorzc` (PostgreSQL 17, `public`). The redacted
+pre-migration snapshot SHA-256 was
+`39619a2064b9ba7f5beb8222201747fae622cc85dbb27aca8026cf37a3de2d9f`.
+
+Post-apply verification found 107 total ledger rows and all 11 expected
+version/name pairs, seven target tables, forced RLS, one policy and eight
+runtime grants on each target table, zero `service_role`/Data API grants, and
+zero rows in the new target tables. `BusinessGoal.perspective` and `isWig` were
+present. The live Docker health endpoint returned `status=ok`, `db=ok` and
+`dbLatencyMs=103`. The Docker image was not replaced by this database step.
+
+## 5. Release boundary
 
 Only after the database receipt is accepted may the release lane build a Docker
 image. The image must come from a reconciled commit and must preserve the
@@ -94,3 +109,4 @@ checks.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-23 | beta | Initial owner-approved production migration reconciliation runbook | uncommitted | RWANG |
+| 0.2.0b | 2026-09-23 | applied | Production reconciliation applied and verified after PR #533; Docker image release remains separate | 119f9863 | RWANG |
