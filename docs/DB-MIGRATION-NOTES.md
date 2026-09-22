@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.10 |
+| **Version** | 1.0.11 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-19 |
+| **Last Updated** | 2026-09-23 |
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
@@ -191,6 +191,25 @@ where n.nspname = 'public' order by grantor, objtype;
 The `postgres` row is the project's to keep clean and the thing a migration is
 answerable for. The `supabase_admin` row is the platform's; record it, do not
 report it as closed, and do not write a migration that pretends to close it.
+
+## Production lineage reconciliation — ADR-104
+
+When the repository contains a migration whose exact effect is already present
+but `supabase_migrations.schema_migrations` does not contain its version, do not
+run the whole pending backlog. Historical files may contain unguarded renames,
+drops or backfills that are safe only once. The operator must first prove the
+effect from the live catalog, then record the version with the controlled
+operator tool. A migration SQL file must never insert its own ledger row.
+
+When an effect is absent, apply the reviewed `supabase/migrations/*.sql` file in
+the allowlisted order, record its receipt, and verify the resulting table,
+RLS/policy and grant state. The owner-approved procedure for the current PM/OKR
+reconciliation is in
+[`docs/runbooks/production-migration-reconciliation.md`](runbooks/production-migration-reconciliation.md)
+and is governed by ADR-104. It uses the direct Supabase connection, a redacted
+preflight/snapshot, a rolled-back dry run and an explicit `--apply` gate. Docker
+Compose image replacement is a separate release decision; the container never
+mutates this external database on startup.
 
 ## Supabase cutover — concrete steps (FR-030, ADR-007 P4)
 
