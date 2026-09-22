@@ -1,8 +1,8 @@
 # TASK-ZAI-001 closeout evidence and production-tail runbook
 
-Version: 0.3.0b
-Date: 2026-09-20  
-Status: BLOCKED — production activation/boundary evidence exists, but the authenticated memory canary is blocked by the dedicated DB role credential
+Version: 0.4.0b
+Date: 2026-09-22
+Status: BLOCKED — production activation/boundary evidence exists, but the authenticated memory canary is blocked by missing Business model-provider configuration and an unavailable private runtime
 Task owner: ATHER  
 Approver: Owen  
 Executor: Codex
@@ -11,9 +11,11 @@ Executor: Codex
 
 This report is limited to `TASK-ZAI-001`, “Close the production request-session
 and credential boundary”. It records repository evidence and a controlled
-production activation attempt for the MSP memory boundary. It does not rotate
-or reset a secret, apply a migration, use a customer credential, or change
-another task. The live activation attempt is not a task-acceptance claim.
+production activation attempt for the MSP memory boundary. The controlled
+repair rotated only the dedicated runtime role through the verified operator
+path; no password, service key, HMAC material, LINE secret, reply token or
+customer content is recorded here. The live activation attempt is not a
+task-acceptance claim.
 
 The isolated closeout branch starts from the deployed baseline
 `5c5f12d3729a077ac7bdc5928b400af548a6cf7f`. The shared primary checkout was not
@@ -25,7 +27,7 @@ The canonical ledger in `docs/roadmap/ROADMAP.md` records:
 
 | Field | Current value | Evidence |
 |---|---|---|
-| Status | `blocked` | canonical TASK-ZAI-001 row; dedicated DB role credential blocks the authenticated memory canary |
+| Status | `blocked` | canonical TASK-ZAI-001 row; the database role now authenticates, but the Business has no active model-provider connection and the configured private runtime returns HTTP 502 |
 | Proof scope | `PRODUCTION` | live activation/boundary evidence only; full acceptance is not proven |
 | Implementation state | `BLOCKED` | deployed candidate and live configuration exist; end-to-end canary cannot execute |
 | Task container | `TC-TASK-ZAI-001`, version `0.3.0` | `docs/roadmap/ROADMAP-zuri-ai-24w-program.md` |
@@ -104,7 +106,7 @@ that `main` is deployed or production-accepted.
 | Membership/cross-tenant isolation canary | `NOT_RUN` | two-scope denial proof with no payload or audit leakage |
 | Provider/channel onboarding proof | `NOT_RUN` | signed transport origin, pending unlinked subject, server-owned link and active Membership |
 | Agent/tool/MSP side-effect denial | `PARTIAL` | effective channel-key tool boundary, direct MSP resolve/context, and forged-principal denial passed; full app memory side-effect receipt remains blocked |
-| Production deployment/activation | `BLOCKED` | r3 candidate and memory flag are live; dedicated DB role authentication prevents the E2E memory canary |
+| Production deployment/activation | `BLOCKED` | candidate and memory flag are live; signed admission works, but worker execution fails before MSP context commit because model resolution has no active Business model connection and the configured private runtime is unavailable |
 
 ## Owner-run production-tail runbook
 
@@ -190,21 +192,31 @@ customer content were not recorded.
   context was denied with `thread_scope_denied`; no cross-principal context was
   returned. This is a production-container boundary proof, not an end-to-end
   LINE memory acceptance proof.
-- A signed live loopback webhook was admitted with `memorySyncOptIn=true`, but
-  the worker failed before producing an MSP delivery/context receipt. The
-  dedicated `zuri_line_smartgift_login` route first rejected the pooler
-  username without the project reference (`ENOIDENTIFIER`); after that
-  contract was corrected, the same credential was rejected as
-  `28P01 password authentication failed`.
-- The production app role remains non-privileged and cannot rotate that
-  dedicated role. Windows Credential Manager has no matching runtime entry, and
-  no password was guessed or copied from the general application connection.
+- The deployment database URL was repaired with the project-qualified pooler
+  username, and the dedicated `zuri_line_smartgift_login` role was rotated by
+  an atomic alter-and-login check before the new secret was persisted. A
+  follow-up runtime probe returned `current_user=session_user=
+  zuri_line_smartgift_login`; the web and line-worker containers were then
+  recreated and remained healthy. The password is not recorded here.
+- A signed synthetic loopback webhook returned HTTP 200 with one captured event;
+  admission persisted `memorySyncOptIn=true`. The authenticated worker endpoint
+  also returned HTTP 200, but the job ended `EXECUTION_FAILED` with only
+  `TURN_RECEIVED`, `EXECUTION_STARTED` and `EXECUTION_FAILED` traces—no
+  `CONTEXT_COMMITTED`, `CONTEXT_RECEIPT` or MSP injection receipt.
+- Read-only model inventory for the target Tenant/Business found no active
+  primary `MODEL_PROVIDER` connection and no active primary
+  `PHASE1_LINE_LLM` connection. The configured private-runtime `/v1/models`
+  probe returned HTTP 502 from both the web container and the host network.
+- No erasure or rollback proof was claimed. The memory flag remains enabled so
+  the candidate does not silently change policy while the provider prerequisite
+  is repaired.
 - The branch's focused regression suite passed from the isolated worktree:
   3 files, 26 tests. `npm run govern` passed with 0 critical findings,
   `programme-containers --check` passed with 121 containers, the production
   build passed and generated 99 pages, and `git diff --check` passed.
-- Therefore the proof scope is `PRODUCTION` for activation configuration and
-  boundary behavior only. The authenticated memory canary, erasure proof,
+- Therefore the proof scope is `PRODUCTION` for activation configuration,
+  database-role authentication, signed admission and boundary behavior only.
+  The authenticated memory canary, model-provider readiness, erasure proof,
   rollback proof and owner acceptance remain open; the canonical task status is
   `blocked`, not `done`.
 
@@ -213,10 +225,11 @@ customer content were not recorded.
 The existing FEAT-010 implementation is present in merged repository history;
 this branch carries the effective-channel-key, MSP environment/workspace
 binding and regression proof, plus the sanitized controlled activation result.
-TASK-ZAI-001 remains blocked for the dedicated DB role credential, authenticated
-memory canary, erasure/rollback proof and owner acceptance. No full production
-readiness claim is made.
+TASK-ZAI-001 remains blocked for the missing Business model-provider/PRP
+prerequisite, authenticated memory canary, erasure/rollback proof and owner
+acceptance. No full production readiness claim is made.
 
-Version diff: `0.2.0b` → `0.3.0b`; recorded the controlled memory activation,
-changed the canonical proof state to `PRODUCTION / BLOCKED`, and documented the
-credential blocker. DoD acceptance/exit flags remain unchanged.
+Version diff: `0.3.0b` → `0.4.0b`; recorded the verified dedicated-role repair,
+the signed live admission result and the newly observed model-provider/PRP
+blocker. Proof remains `PRODUCTION / BLOCKED`; DoD acceptance/exit flags remain
+unchanged.
