@@ -807,6 +807,7 @@
     "ADR-102",
     "ADR-103",
     "ADR-104",
+    "ADR-105",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -10396,6 +10397,19 @@
         {
           "anchor": "production postgresql migration lineage reconciliation and",
           "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-105": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md",
+      "status": "current",
+      "statement_digest": "bc73537071af9c64468630e6d53cb40c9d2d5b8127f730fdd2698f292fc95098",
+      "history": [
+        {
+          "anchor": "line oa studio stateless application tier with stateful",
+          "since": "2026-09-23",
           "reason": "declared"
         }
       ]

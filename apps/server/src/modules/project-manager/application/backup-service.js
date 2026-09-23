@@ -441,6 +441,9 @@ export const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  lineOaWorkerCheckpoint:
+    'FR-190 / ADR-105 operational scheduling checkpoints are disposable coordination state, not business evidence. ' +
+    'They are recreated with an expired lease after restore so a snapshot can never restore a live worker claimant.',
   pluginInstallation:
     'FR-123 first-party plugin installation bindings are security state, not business data. A restore clears ' +
     'them, so a recovered installation requires explicit plugin re-registration rather than inheriting a ' +

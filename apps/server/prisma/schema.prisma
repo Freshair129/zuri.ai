@@ -4057,6 +4057,26 @@ model LineOaLiffApp {
   @@index([lineOaAccountId, status])
 }
 
+// @req FR-190 — a stateless worker needs a durable, compare-and-set checkpoint
+// for advisory transport-health scheduling. The checkpoint is operational state,
+// not account authority or provider configuration; an expired lease is safe to
+// reclaim after a process restart.
+// @spec ADR-105 D1/D3
+// @tested tests/unit/line-transport-health-schedule.test.js
+model LineOaWorkerCheckpoint {
+  id               String    @id @default(uuid())
+  kind             String    @unique
+  lastCompletedAt  DateTime?
+  nextDueAt        DateTime  @default(now())
+  claimantId       String?
+  leaseExpiresAt   DateTime?
+  version          Int       @default(1)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([kind, nextDueAt, leaseExpiresAt])
+}
+
 model LineOaRichMenuJob {
   id                 String    @id @default(uuid())
   tenantId           String
