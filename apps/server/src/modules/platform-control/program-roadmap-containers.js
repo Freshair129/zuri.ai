@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.21, 2026-09-21) so the board can open a task the way the html board
+// (v0.4.22, 2026-09-23) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -5660,7 +5660,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-113",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-05",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -5708,14 +5708,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Built locally on `verify/crm-archive-key-legal-hold`: the append-only OWNER legal-hold record, hold-gated PDPA erasure, 10-year archive-key/file expiry and audit/status reporting are implemented; the Postgres schema and migration `20260916160000` are included. Focused integration evidence is 12/12 tests passed; the full Server suite is 5,947 passed with 32 skipped across 718 files, and the production build compiles successfully. Governance is WARN with 0 CRITICAL and 22 inherited warnings. Evidence paths are `apps/server/src/modules/crm/chat-evidence-archive-service.js`, `apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js`, `apps/server/src/modules/crm/chat-evidence-legal-hold-service.js`, `apps/server/src/modules/identity/erase-principal.js`, `apps/server/tests/integration/crm-archive-legal-hold.test.js`, `apps/server/tests/unit/crm-legal-hold-migration.test.js`, `apps/server/prisma/migrations/20260916160000_crm_customer_legal_hold/migration.sql`, and `apps/server/supabase/migrations/20260916160000_crm_customer_legal_hold.sql`. The migration is written but not applied to production; no key or data destruction is performed by this task, and the operator gate belongs to TASK-ZAI-114, so this task is `review / LOCAL / LOCAL`, not production `done`.",
+    "changelog": "Reconciled 2026-09-23 after PR #536 merged as main `bf68979b`: the implementation is `done / HOSTED_CI / MERGED` at its declared boundary. PR #451 head `8180bef2` merged as `cfd5521e`, implementation commit `badc11ee` is an ancestor on current main, and post-merge Governance #35888132371, Edge #35888132365 and Docker #35888132360 passed. The three acceptance/success/exit criteria are checked; the archive legal-hold/key-destruction migration remains written but unapplied, and production archive mount/KEK/live behavior, owner/legal receipt, deployment and rollback remain NOT_RUN under TASK-ZAI-114. No production action or key/data destruction is claimed. Earlier local evidence is retained in the prior reconciliation history.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-112"
     ],
-    "evidence": "PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; archive legal-hold/key-destruction migration(s) written but not applied to production; production archive mount/KEK and live expiry/erasure/legal-hold behavior unproven; owner/legal receipt and deployment/rollback evidence remain NOT_RUN; the 2026-09-20 #497 hosted reconciliation conflicts in scope with the 2026-09-17 TASK-ZAI-114 infrastructure receipt and remains unresolved pending dated receipt reconciliation"
+    "evidence": "PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; post-merge Governance #35888132371, Edge #35888132365 and Docker #35888132360 passed; the three TASK-ZAI-113 criteria are checked in TC-TASK-ZAI-113; archive legal-hold/key-destruction migration(s) remain written but not applied to production; archive mount/KEK/live expiry-erasure-hold behavior, owner/legal receipt and deployment/rollback remain NOT_RUN under TASK-ZAI-114; no production action or key/data destruction is claimed"
   },
   "TASK-ZAI-114": {
     "container": "TC-TASK-ZAI-114",
@@ -5753,14 +5753,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Reconciled 2026-09-21 from the 2026-09-17 production-infrastructure receipt: the cold-archive overlay and `/archive` mount, KEK format/version check, migration receipts, retention token and scheduled sweep readiness are evidenced; the live inventory has 0 eligible records, so the first manifest remains NOT_RUN. This is partial production evidence only: final owner/production acceptance and the first real manifest remain open. The dated scope conflicts with TASK-ZAI-113's 2026-09-20 #497 hosted reconciliation, which leaves archive migration/mount/KEK/live behavior unproven; the conflict remains unresolved pending receipt reconciliation.",
+    "changelog": "Reconciled 2026-09-23: the 2026-09-17 production-infrastructure receipt still evidences only partial cold-archive overlay/mount, KEK-format, migration and scheduler readiness with 0 eligible records, so the first manifest and final owner/production acceptance remain NOT_RUN. TASK-ZAI-113's merged implementation boundary is now separated from this production gate; no migration apply, deployment, key/data destruction or legal receipt is claimed by TASK-ZAI-113.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 15000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-113"
     ],
-    "evidence": "the 2026-09-17 receipt records only partial production overlay/mount, KEK-format, migration and scheduler evidence with 0 eligible records; first manifest NOT_RUN and final owner/production acceptance remain open; this dated scope conflicts with TASK-ZAI-113's 2026-09-20 #497 hosted reconciliation, which leaves archive migration/mount/KEK/live behavior unproven, pending receipt reconciliation; ADR-057; ADR-093 phase 4; TASK-ZAI-091"
+    "evidence": "the 2026-09-17 receipt records only partial production overlay/mount, KEK-format, migration and scheduler evidence with 0 eligible records; first manifest NOT_RUN and final owner/production acceptance remain open; TASK-ZAI-113's implementation boundary is now reconciled separately, while this container remains the production gate; ADR-057; ADR-093 phase 4; TASK-ZAI-091"
   },
   "TASK-ZAI-115": {
     "container": "TC-TASK-ZAI-115",
