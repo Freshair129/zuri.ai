@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process'
+import { buildMspChildEnvironment } from './msp-child-environment.mjs'
+export { buildMspChildEnvironment, MSP_OS_ENV_NAMES, MSP_RUNTIME_ENV_NAMES } from './msp-child-environment.mjs'
 
 // @req FR-057 — the one lawful call direction out of Tier 1 is zuri-ai → MSP
 //   (ADR-043 D2); this is the transport that carries it, spawning the MSP
@@ -15,89 +17,12 @@ import { spawn } from 'node:child_process'
 // process's file descriptors only for as long as one call's timeout.
 //
 // The child gets an ALLOWLISTED environment, never a copy of this server's.
-// The web process holds the production database URLs, LINE channel secrets,
-// model keys and seal keys; MSP reads none of them. The pinned MSP separately
-// filters its GKS child environment, so its thread-signing/identity keys do
-// not cross that next boundary. Names here are exact — no prefix — so a
-// variable MSP starts reading later arrives only after it is named here, which
-// fails closed instead of open.
+// Unrelated database, LINE, model and seal credentials do not cross the boundary.
+// In HTTP mode the dedicated bearer and pipeline caller credentials are passed
+// to MSP; the GKS verifier alias is not. The web and worker parents remain
+// trusted principals, and this allowlist is not process isolation.
 
 const DEFAULT_TIMEOUT_MS = 15_000
-
-/**
- * Every variable the MSP runtime reads, taken from MSP's own source
- * (Memory-and-Soul-Passport origin/main), plus the GKS variables MSP must
- * carry because it spawns GKS with its own environment. Nothing named
- * ZURI_MSP_* is here: those configure this transport and MSP never reads them.
- */
-export const MSP_RUNTIME_ENV_NAMES = Object.freeze([
-  // apps/msp-server/bin/msp-server.mjs — the store; MSP refuses to start without it
-  'MSP_DB_PATH',
-  // API-011 MemoryOS, independently provisioned for the MSP child. Never map
-  // a Zuri secret implicitly; deployment must configure both trust endpoints.
-  'MSP_THREAD_SERVICE_KEY',
-  'MSP_THREAD_SERVICE_KEYRING',
-  'MSP_IDENTITY_HMAC_KEY',
-  'MSP_GLOBAL_PRIVATE_GRANT_REQUIRED',
-  'MSP_IDENTITY_HMAC_KEY_VERSION',
-  'MSP_IDENTITY_HMAC_KEYRING',
-  'MSP_THREAD_IDLE_TIMEOUT_MINUTES',
-  'MSP_THREAD_RECENT_EXCHANGES',
-  'MSP_THREAD_RETENTION_DAYS',
-  // apps/msp-server/src/providers/gks-stdio-provider.mjs — how MSP spawns GKS
-  'MSP_GKS_COMMAND',
-  'MSP_GKS_ARGS',
-  'MSP_GKS_CWD',
-  // apps/msp-server/src/transport/handlers/pipeline-handlers.mjs — relay grants and credentials
-  'MSP_PIPELINE_PRINCIPALS',
-  'MSP_GKS_PIPELINE_CREDENTIAL',
-  'MSP_PIPELINE_WORKER_URL',
-  'MSP_PIPELINE_WORKER_TOKEN',
-  // packages/msp-retrieval/src/retrieval/vector.mjs — the embedding endpoint
-  'OLLAMA_BASE_URL',
-  // Read by GKS (apps/gks-server/src/server.mjs, packages/gks-contracts/src/resolution.mjs),
-  // reaching it only because MSP spawns GKS with MSP's environment
-  'GKS_DB_PATH',
-  'GKS_PIPELINE_RELAY_CREDENTIAL',
-  'GKS_DEFAULT_PORTFOLIO_ID',
-  'GKS_AUTOMERGE_FLOOR',
-])
-
-/**
- * What a Node child needs from the OS to start and to spawn its own child:
- * command lookup (PATH, PATHEXT), os.tmpdir() (TMPDIR/TMP/TEMP), os.homedir()
- * (HOME, USERPROFILE/HOMEDRIVE/HOMEPATH), Windows system services that libuv
- * and OpenSSL resolve through SystemRoot/windir, and locale/time zone so the
- * child formats time the way its parent does. No credentials, no proxies, and
- * no NODE_OPTIONS — that one can load code into the child. On Windows, libuv
- * itself copies its required variables from this process into any explicit
- * environment (adding LOGONSERVER, USERDOMAIN and USERNAME to the names below);
- * that is outside this allowlist's reach, and none of them is a credential.
- */
-export const MSP_OS_ENV_NAMES = Object.freeze([
-  'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'TZ',
-  'PATHEXT', 'SYSTEMROOT', 'SYSTEMDRIVE', 'WINDIR', 'COMSPEC',
-  'USERPROFILE', 'HOMEDRIVE', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA',
-  // File path only; needed when MSP's GKS child trusts a private CA. It is
-  // not credential material and remains explicitly allowlisted.
-  'NODE_EXTRA_CA_CERTS',
-])
-
-// Windows spells these `Path` and `SystemRoot`, and its environment is
-// case-insensitive, so names are matched without case and copied as spelled.
-const ALLOWED_ENV_NAMES = new Set([...MSP_RUNTIME_ENV_NAMES, ...MSP_OS_ENV_NAMES].map((name) => name.toUpperCase()))
-
-/**
- * The environment an MSP child is spawned with: the allowlisted names from
- * `env`, and nothing else.
- */
-export function buildMspChildEnvironment(env = process.env) {
-  const child = {}
-  for (const [name, value] of Object.entries(env ?? {})) {
-    if (typeof value === 'string' && ALLOWED_ENV_NAMES.has(name.toUpperCase())) child[name] = value
-  }
-  return child
-}
 
 function parseArgs(value) {
   if (!value) return []

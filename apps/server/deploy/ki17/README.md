@@ -4,10 +4,15 @@ Operator notes for ADR-075 Phase 3 prerequisites P-3 to P-6. The design is
 [`docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md`](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md);
 where this file and that one disagree, the design wins.
 
-> **Nothing here has been deployed.** No credential has been generated, no service
-> started and no `docker compose` command run. The deployment is a separate operator
-> step the owner triggers, and only after every item in the pre-deploy gate (§9)
-> passes.
+> **Nothing here has been deployed.** A render-only `docker compose config --quiet`
+> check was run on 2026-09-23 with example env and secret-file paths; it did not build
+> or start services and did not validate real credentials. No canary credential has
+> been generated. Deployment remains a separate operator step, only after every item
+> in the pre-deploy gate (§9) passes.
+>
+> **The private MSP-to-GKS HTTP container canary is also NOT_RUN.** The historical
+> G-3 acceptance below proves the older recorded image tuple only; it is not evidence
+> for this new HTTP image, secret wiring or private-network route.
 >
 > **Historical G-3 record** (2026-09-16): the Phase 2 acceptance passed 35/35 inside a
 > throwaway `ki17-acceptance` image built from the pinned commits — Linux, MSP/GKS/
@@ -77,11 +82,15 @@ activation.
 |---|---|
 | `pins.json` | The four commits this cycle targets, the Node/Python/model versions and the worker port |
 | `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit |
+| `docker-compose.ki17-gks-http.yml` | Opt-in private MSP-to-GKS HTTP overlay; the default transport remains stdio |
+| `docker-compose.ki17-gks-http-canary.yml` | Local-canary-only overlay that disables the ngrok profile |
 | `build-smartgift-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the SmartGift acceptance corpus. Read its header before changing it |
 | `build-smartgift-real-corpus.mjs` | Derives a benchmark corpus (the input of `build-smartgift-benchmark.mjs`) from **real** SmartGift catalog files instead of the Phase 2 test corpus. Every gold text comes from the production path (`splitSmartGiftCatalogRecords` → `renderStructuredCatalogDocument`), so a real upload can pass the retrieval dimension; queries are natural phrasings, never the chunk text itself. Regenerate it whenever the catalog changes, or Stage 16 refuses the changed records with `BENCHMARK_NO_APPLICABLE_QUERIES` |
 
 The `ki17-acceptance` build target (gate G-3) is described under
 [Running the acceptance inside the images](#running-the-acceptance-inside-the-images-gate-g-3).
+That historical G-3 result does not certify the candidate HTTP pin tuple or the
+separate HTTP canary.
 
 ## The build stages
 
@@ -127,8 +136,16 @@ than attested. Prefer it.
 ```bash
 # The web image: runner + /opt/ki17/{node,msp,gks} + the P-5 smoke script
 docker buildx build --target runner-ki17 -t zuri-ai-web-ki17:<tag> \
-  --build-context msp=<Memory-and-Soul-Passport at 68e6169d> \
-  --build-context gks=<Genesis-Knowledge-System at ecf1e4de> \
+  --build-context msp=<Memory-and-Soul-Passport at a65914defd5918ad7e44173ec1cdccf379eca7fe> \
+  --build-context gks=<Genesis-Knowledge-System at 1ebcff09ce5f19b0bd219433d376670a44be0278> \
+  --build-context genesisblock=<GenesisBlock at 5156f412da73905a23d74775a82cc14d1f6d04d0> \
+  apps/server
+
+# The isolated GKS HTTP canary service image. No port is published by this build.
+docker buildx build --target gks-http -t zuri-ai-gks-http:<tag> \
+  --build-context msp=<Memory-and-Soul-Passport at a65914defd5918ad7e44173ec1cdccf379eca7fe> \
+  --build-context gks=<Genesis-Knowledge-System at 1ebcff09ce5f19b0bd219433d376670a44be0278> \
+  --build-context genesisblock=<GenesisBlock at 5156f412da73905a23d74775a82cc14d1f6d04d0> \
   apps/server
 
 # The Tier 4 sidecar: + the GenesisBlock worker, its linux addon and the venv
@@ -151,6 +168,7 @@ Then point Compose at the results, in `apps/server/.env`:
 ```
 ZURI_WEB_IMAGE=zuri-ai-web-ki17:<tag>
 ZURI_GENESIS_WORKER_IMAGE=zuri-ai-genesis-worker:<tag>
+ZURI_GKS_HTTP_IMAGE=zuri-ai-gks-http:<tag>
 ```
 
 `docker compose build genesis-worker` also works — that service carries the three
@@ -169,9 +187,11 @@ KI17_GENESISBLOCK_LINUX_ADDON_MISSING: .../npm/linux-x64-gnu/index.linux-x64-gnu
 
 That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. The current
 release tuple in `pins.json` pins `genesisblock` to
-`5156f412da73905a23d74775a82cc14d1f6d04d0` (the tuple the running images were
-verified against: MSP `68e6169d`, GKS `ecf1e4de`); `5e75c4a8` and `7c9261c4` are
-retained only as historical references, not as the current build context.
+`5156f412da73905a23d74775a82cc14d1f6d04d0`; the current candidate tuple also pins
+MSP `a65914defd5918ad7e44173ec1cdccf379eca7fe` and GKS
+`1ebcff09ce5f19b0bd219433d376670a44be0278`. The older G-3 run used its own
+recorded tuple (`68e6169d` / `ecf1e4de`) and does not qualify these newer builds.
+`5e75c4a8` and `7c9261c4` remain historical references only.
 `--target runner-ki17` and `--target ki17` do not use its files, but the
 `ki17-pins` stage they build on verifies every context it is given, so a build of
 either still needs a `genesisblock` context at the pinned commit.
@@ -191,6 +211,47 @@ Without it the web image has no `/opt/ki17`: web cannot spawn the MSP/GKS stdio
 servers, every Stage 9 batch stays `PENDING`, and the healthcheck still passes.
 After a build, `docker run --rm --entrypoint ls <web-image> /opt/ki17` must list
 `gks msp node pins`.
+
+The private HTTP canary uses a **separate, uniquely named Compose project** and the
+`docker-compose.ki17-gks-http.yml` plus canary-only overlay. It builds/starts `gks-http` on an
+`internal: true` network, without a host `ports` mapping. Provide two protected host
+secret files through `ZURI_GKS_MSP_RELAY_CREDENTIAL_FILE_HOST` and
+`ZURI_GKS_PIPELINE_RELAY_CREDENTIAL_FILE_HOST`; use fresh, non-production credentials
+and volumes. Compose mounts both files into `web`, `genesis-worker` and `gks-http`. The
+web transport and worker launcher read them and pass the bearer plus the required
+pipeline caller credential to MSP under its aliases; the equal
+`GKS_PIPELINE_RELAY_CREDENTIAL` verifier alias remains server-side. The worker launcher
+is required because GenesisBlock's MSP spawn inherits the full worker environment.
+Do not use the pinned
+production Compose project, production `.env.knowledge`, production volumes or ngrok
+route for the canary. This runbook describes the procedure; it does not mean the
+canary has run or authorize production activation.
+
+To isolate the web and database settings too, create fresh files from `.env.example`,
+`.env.knowledge.example` and a database-only `.env.docker` equivalent using the names
+`.env.ki17-canary`, `.env.ki17-canary.docker` and
+`.env.knowledge.ki17-canary`. Set the three `ZURI_*_ENV_FILE` selectors in
+`.env.ki17-canary`, use a disposable local Postgres URL, set `WEB_PORT=3301`, and
+provide fresh non-production relay secrets in protected files outside the checkout.
+Never copy production values into these files.
+
+From `apps/server`, validate the merged canary configuration without printing its
+environment values:
+
+~~~powershell
+docker compose --project-name gks-http-canary --env-file .env.ki17-canary `
+  -f docker-compose.yml `
+  -f docker-compose.ki17-web.yml `
+  -f docker-compose.ki17-gks-http.yml `
+  -f docker-compose.ki17-gks-http-canary.yml `
+  --profile local-db --profile knowledge config --quiet
+~~~
+
+Only after checking that command succeeds, run it with `config --quiet` replaced by
+`up -d --build`. The canary-only overlay assigns ngrok an inactive profile; do not
+enable that profile or `line-server`. After startup, inspect `docker compose ps` and
+confirm ngrok is not running. The render-only Compose configuration check passed
+with example paths; this local canary has **not** been run.
 
 ### Running the acceptance inside the images (gate G-3)
 

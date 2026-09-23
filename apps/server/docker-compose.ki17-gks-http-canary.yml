@@ -1,0 +1,6 @@
+# ADR-075 D10 / G-9 — local isolated canary only.
+# Apply with a distinct --project-name, fresh canary env files and volumes.
+# Adding this profile to ngrok keeps the public tunnel disabled for this overlay.
+services:
+  ngrok:
+    profiles: ["gks-http-canary-disabled"]
