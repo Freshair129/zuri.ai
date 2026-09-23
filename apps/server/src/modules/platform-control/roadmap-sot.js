@@ -1882,7 +1882,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-112",
     "authority": "ROADMAP.md",
-    "evidence": "PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; the three TASK-ZAI-113 criteria are checked in TC-TASK-ZAI-113; archive legal-hold/key-destruction migration(s) remain written but not applied to production; archive mount/KEK/live expiry-erasure-hold behavior, owner/legal receipt and deployment/rollback remain NOT_RUN under TASK-ZAI-114; no production action or key/data destruction is claimed; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
+    "evidence": "PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; post-merge Governance #35888132371, Edge #35888132365 and Docker #35888132360 passed; the three TASK-ZAI-113 criteria are checked in TC-TASK-ZAI-113; archive legal-hold/key-destruction migration(s) remain written but not applied to production; archive mount/KEK/live expiry-erasure-hold behavior, owner/legal receipt and deployment/rollback remain NOT_RUN under TASK-ZAI-114; no production action or key/data destruction is claimed; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
   },
   {
     "id": "TASK-ZAI-114",

@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.21"
-updated: "2026-09-21"
+version: "0.4.22"
+updated: "2026-09-23"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.21 → 0.4.22 (2026-09-23): Reconcile TASK-ZAI-113 after PR #536 merged as main `bf68979b`. Its backlog row, phase summary and Task Container now agree on the `done / HOSTED_CI / MERGED` implementation boundary; post-merge Governance #35888132371, Edge #35888132365 and Docker #35888132360 passed. Production archive migration/apply, archive mount/KEK/live behavior, owner/legal receipt, deployment and rollback remain under TASK-ZAI-114 and are not claimed here.
 
 Version diff 0.4.20 → 0.4.21 (2026-09-22): TASK-ZAI-120 and TASK-ZAI-121 merged and deployed; both stay in review with production receipts NOT_RUN (no key saved yet). TC-TASK-ZAI-120 P2 split into the done migration and deploy and the open receipt (P3); TC-TASK-ZAI-121 likewise (P1 done, P2 open).
 
@@ -592,8 +594,8 @@ locates the week.
 | TASK-ZAI-110 | SPR-ZAI-04 | task | Staff replies recorded, FR-246 — a member with CRM write access replies from the inbox, the server pushes it through the account's LINE transport and records an OUTBOUND message with reply source STAFF in the conversation's session | P0 | Claude | done | TASK-ZAI-106 | Section 3.1 row 8; ADR-093 evidence gap; FR-093 |
 | TASK-ZAI-111 | SPR-ZAI-05 | task | Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed | P1 | Claude | done | TASK-ZAI-108; TASK-ZAI-110 | Section 3.1 row 8; ADR-093 D1 to D4; SDD-103; SEC-034 |
 | TASK-ZAI-112 | SPR-ZAI-05 | task | Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited | P1 | Claude | done | TASK-ZAI-111 | Section 3.1 row 8; ADR-093 D7; SEC-034; FR-224 |
-| TASK-ZAI-113 | SPR-ZAI-05 | task | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | P1 | Claude | done | TASK-ZAI-112 | PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; archive legal-hold/key-destruction migration(s) written but not applied to production; production archive mount/KEK and live expiry/erasure/legal-hold behavior unproven; owner/legal receipt and deployment/rollback evidence remain NOT_RUN; the 2026-09-20 #497 hosted reconciliation conflicts in scope with the 2026-09-17 TASK-ZAI-114 infrastructure receipt and remains unresolved pending dated receipt reconciliation |
-| TASK-ZAI-114 | SPR-ZAI-06 | task | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | P1 | ATHER | review | TASK-ZAI-113 | the 2026-09-17 receipt records only partial production overlay/mount, KEK-format, migration and scheduler evidence with 0 eligible records; first manifest NOT_RUN and final owner/production acceptance remain open; this dated scope conflicts with TASK-ZAI-113's 2026-09-20 #497 hosted reconciliation, which leaves archive migration/mount/KEK/live behavior unproven, pending receipt reconciliation; ADR-057; ADR-093 phase 4; TASK-ZAI-091 |
+| TASK-ZAI-113 | SPR-ZAI-05 | task | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | P1 | Claude | done | TASK-ZAI-112 | PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; post-merge Governance #35888132371, Edge #35888132365 and Docker #35888132360 passed; the three TASK-ZAI-113 criteria are checked in TC-TASK-ZAI-113; archive legal-hold/key-destruction migration(s) remain written but not applied to production; archive mount/KEK/live expiry-erasure-hold behavior, owner/legal receipt and deployment/rollback remain NOT_RUN under TASK-ZAI-114; no production action or key/data destruction is claimed |
+| TASK-ZAI-114 | SPR-ZAI-06 | task | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | P1 | ATHER | review | TASK-ZAI-113 | the 2026-09-17 receipt records only partial production overlay/mount, KEK-format, migration and scheduler evidence with 0 eligible records; first manifest NOT_RUN and final owner/production acceptance remain open; TASK-ZAI-113's implementation boundary is now reconciled separately, while this container remains the production gate; ADR-057; ADR-093 phase 4; TASK-ZAI-091 |
 | TASK-ZAI-115 | SPR-ZAI-06 | task | Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded | P2 | Owen | planned | TASK-ZAI-114 | ADR-093 D8; FR-245 |
 | TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
@@ -5912,8 +5914,8 @@ title: Archive key destruction and the legal hold, SEC-034 — expiry and PDPA e
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: review
-version: 0.2.0
+status: done
+version: 0.3.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -5943,7 +5945,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given a message older than 10 years, when the expiry runs, then its Customer's key is destroyed once no unexpired line remains and a file whose lines have all expired is deleted
       checked: true
-changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. Built locally on `verify/crm-archive-key-legal-hold`: the append-only OWNER legal-hold record, hold-gated PDPA erasure, 10-year archive-key/file expiry and audit/status reporting are implemented; the Postgres schema and migration `20260916160000` are included. Focused integration evidence is 12/12 tests passed; the full Server suite is 5,947 passed with 32 skipped across 718 files, and the production build compiles successfully. Governance is WARN with 0 CRITICAL and 22 inherited warnings. Evidence paths are `apps/server/src/modules/crm/chat-evidence-archive-service.js`, `apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js`, `apps/server/src/modules/crm/chat-evidence-legal-hold-service.js`, `apps/server/src/modules/identity/erase-principal.js`, `apps/server/tests/integration/crm-archive-legal-hold.test.js`, `apps/server/tests/unit/crm-legal-hold-migration.test.js`, `apps/server/prisma/migrations/20260916160000_crm_customer_legal_hold/migration.sql`, and `apps/server/supabase/migrations/20260916160000_crm_customer_legal_hold.sql`. The migration is written but not applied to production; no key or data destruction is performed by this task, and the operator gate belongs to TASK-ZAI-114, so this task is `review / LOCAL / LOCAL`, not production `done`.
+changelog: Reconciled 2026-09-23 after PR #536 merged as main `bf68979b`: the implementation is `done / HOSTED_CI / MERGED` at its declared boundary. PR #451 head `8180bef2` merged as `cfd5521e`, implementation commit `badc11ee` is an ancestor on current main, and post-merge Governance #35888132371, Edge #35888132365 and Docker #35888132360 passed. The three acceptance/success/exit criteria are checked; the archive legal-hold/key-destruction migration remains written but unapplied, and production archive mount/KEK/live behavior, owner/legal receipt, deployment and rollback remain NOT_RUN under TASK-ZAI-114. No production action or key/data destruction is claimed. Earlier local evidence is retained in the prior reconciliation history.
 created_at: 2026-09-16T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5988,7 +5990,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then it names its date and session and the redeploy keeps both the ADR-061 and the cold-archive overlays
       checked: false
-changelog: Reconciled 2026-09-21 from the 2026-09-17 production-infrastructure receipt: the cold-archive overlay and `/archive` mount, KEK format/version check, migration receipts, retention token and scheduled sweep readiness are evidenced; the live inventory has 0 eligible records, so the first manifest remains NOT_RUN. This is partial production evidence only: final owner/production acceptance and the first real manifest remain open. The dated scope conflicts with TASK-ZAI-113's 2026-09-20 #497 hosted reconciliation, which leaves archive migration/mount/KEK/live behavior unproven; the conflict remains unresolved pending receipt reconciliation.
+changelog: Reconciled 2026-09-23: the 2026-09-17 production-infrastructure receipt still evidences only partial cold-archive overlay/mount, KEK-format, migration and scheduler readiness with 0 eligible records, so the first manifest and final owner/production acceptance remain NOT_RUN. TASK-ZAI-113's merged implementation boundary is now separated from this production gate; no migration apply, deployment, key/data destruction or legal receipt is claimed by TASK-ZAI-113.
 created_at: 2026-09-16T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
