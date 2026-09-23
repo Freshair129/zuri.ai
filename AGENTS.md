@@ -4,12 +4,17 @@
 
 Canonical governance remains in root `docs/`. Server source, tests, Prisma,
 scripts and lockfile live in `apps/server/`; Edge has its own complete dependency
-tree in `apps/edge/`. Run app-specific commands from that application's directory.
-Root npm commands delegate to Server; `edge:test`, `edge:build` and `edge:typecheck`
-select Edge. Root `npm run govern` regenerates and validates both graph scopes.
-Install each app independently (`npm --prefix apps/server ci` and
-`npm --prefix apps/edge ci`). Server installation does not install Edge dependencies.
-Cross-app contract tests additionally need the Edge consumer dependencies.
+tree in `apps/edge/`; the Conversation Runtime is independently buildable in
+`services/conversation-runtime/`. Run app-specific commands from that application's
+directory. Root npm commands delegate to Server; `edge:test`, `edge:build` and
+`edge:typecheck` select Edge, while `conversation-runtime:test` and
+`conversation-runtime:build` select the independent Node service. Root
+`npm run govern` regenerates and validates both document graph scopes and discovers
+the service's source/tests. Install each app independently (`npm --prefix
+apps/server ci` and `npm --prefix apps/edge ci`); the service has no third-party
+runtime dependencies and its package lock is scoped to its directory. Server
+installation does not install Edge dependencies. Cross-app contract tests
+additionally need the Edge consumer dependencies.
 
 Historical `src/`, `tests/`, `prisma/` and `scripts/` references below are
 Server-relative; canonical IDs and subject anchors are unchanged. Edge historical

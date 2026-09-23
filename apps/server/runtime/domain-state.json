@@ -529,7 +529,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-049",
@@ -719,7 +719,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 49
+          "testCount": 53
         },
         {
           "id": "FR-150",
@@ -735,7 +735,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-181",
@@ -772,7 +772,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-235",
@@ -780,7 +780,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-243",
@@ -828,7 +828,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "checks": {
@@ -2432,7 +2432,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-052",
@@ -2592,7 +2592,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 49
+          "testCount": 53
         },
         {
           "id": "FR-152",
@@ -2704,7 +2704,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-267",
@@ -2712,7 +2712,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "checks": {
@@ -3446,7 +3446,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-236",
@@ -3744,7 +3744,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 49
+          "testCount": 53
         },
         {
           "id": "FR-150",
@@ -3784,7 +3784,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-190",
@@ -3864,7 +3864,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-238",
@@ -3912,7 +3912,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-267",
@@ -3920,7 +3920,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "checks": {
@@ -5820,7 +5820,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 49
+          "testCount": 53
         },
         {
           "id": "FR-150",
@@ -6372,7 +6372,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-268",
@@ -7155,8 +7155,8 @@
           "title": "Provider selection contract",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 12
+          "codeCount": 7,
+          "testCount": 13
         },
         {
           "id": "FR-079",
@@ -7230,7 +7230,9 @@
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/platform/connector-catalog.test.js",
         "apps/server/tests/unit/private-runtime-model-port.test.js",
-        "apps/server/tests/unit/role-memory-partition.test.js"
+        "apps/server/tests/unit/role-memory-partition.test.js",
+        "services/conversation-runtime/src/model-port.js",
+        "services/conversation-runtime/test/model-port.test.js"
       ]
     },
     {
@@ -8788,8 +8790,8 @@
           "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 34,
-          "testCount": 49
+          "codeCount": 40,
+          "testCount": 53
         },
         {
           "id": "FR-150",
@@ -8917,7 +8919,17 @@
         "apps/server/tests/unit/server-line-answer.test.js",
         "apps/server/tests/unit/server-line-runtime.test.js",
         "apps/server/tests/unit/server-line-worker-cadence.test.js",
-        "apps/server/tests/unit/server-line-worker-routes.test.js"
+        "apps/server/tests/unit/server-line-worker-routes.test.js",
+        "services/conversation-runtime/src/contracts.js",
+        "services/conversation-runtime/src/core-client.js",
+        "services/conversation-runtime/src/health-server.js",
+        "services/conversation-runtime/src/main.js",
+        "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/src/worker-loop.js",
+        "services/conversation-runtime/test/contracts.test.js",
+        "services/conversation-runtime/test/health-server.test.js",
+        "services/conversation-runtime/test/turn-runtime.test.js",
+        "services/conversation-runtime/test/worker-loop.test.js"
       ]
     },
     {
@@ -11014,8 +11026,8 @@
           "title": "Context Composer",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 15
+          "codeCount": 10,
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -11086,7 +11098,9 @@
         "apps/server/tests/unit/reply-record-service.test.js",
         "apps/server/tests/unit/retention-sweep-worker-run.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
-        "apps/server/tests/unit/server-retention-sweep-worker-script.test.js"
+        "apps/server/tests/unit/server-retention-sweep-worker-script.test.js",
+        "services/conversation-runtime/src/context.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {
@@ -11122,8 +11136,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 29
+          "codeCount": 13,
+          "testCount": 30
         },
         {
           "id": "FR-236",
@@ -11259,7 +11273,9 @@
         "apps/server/tests/unit/runtime-isolation-probe.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
-        "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
+        "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
+        "services/conversation-runtime/src/context.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {
@@ -11784,16 +11800,16 @@
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 15
+          "codeCount": 15,
+          "testCount": 16
         },
         {
           "id": "FR-267",
           "title": "A Business owner may choose the operator's Private Runtime Platform (PRP) as the model provider for its LINE answers, so a customer's…",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 5
+          "codeCount": 5,
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -11852,7 +11868,9 @@
         "apps/server/tests/unit/platform/private-runtime-config.test.js",
         "apps/server/tests/unit/private-runtime-model-port.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
-        "apps/server/tests/unit/server-line-worker-routes.test.js"
+        "apps/server/tests/unit/server-line-worker-routes.test.js",
+        "services/conversation-runtime/src/model-port.js",
+        "services/conversation-runtime/test/model-port.test.js"
       ]
     },
     {
@@ -16805,8 +16823,8 @@
           "title": "Execution Trace & Replay v0.3",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 15,
-          "testCount": 26
+          "codeCount": 17,
+          "testCount": 28
         }
       ],
       "evidence": [
@@ -16850,7 +16868,11 @@
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/msp-memory-evidence.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
-        "apps/server/tests/unit/server-line-runtime.test.js"
+        "apps/server/tests/unit/server-line-runtime.test.js",
+        "services/conversation-runtime/src/contracts.js",
+        "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/test/contracts.test.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {

@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { serverLinePorts } from '@/modules/line-oa-studio/application/server-line-runtime'
-import { admitCapturedLineEvents } from '@/modules/line-oa-studio/application/line-conversation-jobs'
+import { admitCapturedLineEvents, markLineAdmissionIntent } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { verifyServerLineWebhook } from '@/platform/integrations/providers/line/server-line-transport'
 import { createLineOaEvidenceRecorder } from '@/platform/integrations/providers/line/line-oa-evidence'
 import { resolveCorrelationId } from '@/lib/observability/correlation'
-// @req FR-149 — native signed webhook; acknowledge durable capture, then admit in-process.
+// @req FR-149 — native signed webhook; persist the admission outbox marker before 2xx.
 // @spec ADR-061, SEC-001, FR-081
 // @tested tests/integration/server-line-webhook.test.js
 async function boundedBody(request) {
@@ -29,7 +29,8 @@ async function boundedBody(request) {
 }
 export const dynamic = 'force-dynamic'
 export function createServerLineWebhookPost({ db = prisma, ports = serverLinePorts,
-  evidenceFactory = createLineOaEvidenceRecorder, admitCaptured = admitCapturedLineEvents } = {}) {
+  evidenceFactory = createLineOaEvidenceRecorder, admitCaptured = admitCapturedLineEvents,
+  markAdmissionIntent = markLineAdmissionIntent } = {}) {
   return async (request, { params }) => {
     const ingressReceivedAt = new Date()
     const { correlationId } = resolveCorrelationId(request.headers)
@@ -40,7 +41,9 @@ export function createServerLineWebhookPost({ db = prisma, ports = serverLinePor
       const body = verifyServerLineWebhook({ rawBody: bytes, signature: request.headers.get('x-line-signature'), account })
       const evidence = await evidenceFactory({ db, tenantId: account.tenantId, businessId: account.businessId, destination: account.destination })
       if (!evidence || evidence.connectionId !== account.connectionId) throw new Error('LINE_EVIDENCE_UNAVAILABLE')
-      // What LINE waits for is durable capture, not admission.
+      // The 2xx means this event has a restart-recoverable handoff. A raw evidence
+      // row alone is insufficient: persist ADMITTING before acknowledging so the
+      // bounded reconciler can recover if this process stops immediately afterwards.
       //
       // Admission runs ~25-30 sequential queries against a remote Postgres and took 7-11 s here,
       // far past what LINE waits for: measured on production 2026-09-09, the first delivery of a
@@ -49,12 +52,10 @@ export function createServerLineWebhookPost({ db = prisma, ports = serverLinePor
       // record and admit are both idempotent — but every genuinely new message was reported to
       // LINE as a failed delivery, and the retries only answered fast because they deduped.
       //
-      // So the acknowledgement boundary moves to the write that makes the event unloseable. Each
-      // event is recorded as evidence first; a capture failure still returns non-2xx, because
-      // redelivery remains the only recovery for an event we never stored. Once stored, LINE is
-      // answered and admission continues in this process. That is safe here specifically because
-      // ADR-058 replaced Vercel with a long-lived Node container — on a serverless runtime the
-      // response would end the execution and this would silently drop work.
+      // Raw capture is followed by a durable ADMITTING outbox marker before 2xx.
+      // If either write fails, LINE receives non-2xx and may redeliver. After the
+      // marker, this continuation is only a latency hint: the durable reconciler
+      // is the recovery path and does not depend on this process staying alive.
       //
       // One event must not discard its neighbours, so a failure here is counted and the loop
       // continues. Classifying admission failures — which are deterministic, which are worth
@@ -78,9 +79,10 @@ export function createServerLineWebhookPost({ db = prisma, ports = serverLinePor
           }))
         }
       }
+      if (captured.length) await markAdmissionIntent({ db, entries: captured })
       // Deliberately not awaited — this is the whole point. Its own failures are logged and
-      // labelled on the evidence row; nothing here can reject into the response path. It runs even
-      // when a sibling failed to record, so one unstorable event does not hold up the rest.
+      // labelled on the durable outbox row; nothing here can reject into the response path. It runs
+      // even when a sibling failed to record, so one unstorable event does not hold up the rest.
       if (captured.length) {
         const admission = admitCaptured({ db, account, entries: captured, correlationId, ingressReceivedAt })
         if (typeof admission?.catch === 'function') admission.catch(() => {})

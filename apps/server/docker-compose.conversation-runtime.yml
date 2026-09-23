@@ -1,0 +1,37 @@
+# Candidate-only Conversation Runtime process.
+# The private core v1 facade and authoritative queue owner gate must exist before
+# readiness can become READY; this profile does not replace or start another queue writer.
+services:
+  web:
+    environment:
+      CONVERSATION_RUNTIME_TOKEN: ${CONVERSATION_RUNTIME_TOKEN:?Set a dedicated private core token}
+
+  conversation-runtime:
+    profiles: ["conversation-runtime"]
+    build:
+      context: ..
+      dockerfile: services/conversation-runtime/Dockerfile
+    image: ${ZURI_CONVERSATION_RUNTIME_IMAGE:-zuri-conversation-runtime:local}
+    restart: unless-stopped
+    stop_grace_period: 30s
+    environment:
+      NODE_ENV: production
+      CONVERSATION_RUNTIME_PORT: "3081"
+      CONVERSATION_RUNTIME_CORE_URL: http://web:3000
+      CONVERSATION_RUNTIME_TOKEN: ${CONVERSATION_RUNTIME_TOKEN:?Set a dedicated private core token}
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - zuri-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3081/readyz').then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"

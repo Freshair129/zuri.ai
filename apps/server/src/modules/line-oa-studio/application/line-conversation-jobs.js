@@ -477,11 +477,24 @@ async function markRawRecord(db, rawRecordId, processingStatus, processingError 
   } catch { /* label only */ }
 }
 
+/** Persist the restart-recoverable admission intent before a signed webhook returns 2xx. */
+export async function markLineAdmissionIntent({ entries, db = prisma } = {}) {
+  for (const { rawRecordId } of entries || []) {
+    if (typeof rawRecordId !== 'string' || !rawRecordId.trim()) {
+      throw Object.assign(new Error('LINE_ADMISSION_OUTBOX_ID_REQUIRED'), { status: 503 })
+    }
+    await db.rawExternalRecord.update({
+      where: { id: rawRecordId },
+      data: { processingStatus: 'ADMITTING', processingError: null },
+    })
+  }
+}
+
 /**
- * Admit events that have already been captured as evidence and acknowledged to LINE.
+ * Admit events whose durable outbox marker was written before acknowledgement.
  *
- * @req FR-149 — admission is durable, but it is no longer what LINE waits for. The webhook answers
- *   once the event is recorded; this runs afterwards in the same process.
+ * @req FR-149 — the durable ADMITTING outbox marker is written before 2xx; this bounded continuation
+ *   is a wake-up hint and the reconciler recovers it after a process stop.
  * @spec ADR-061 — a device never sends; admission still owns the queue and the CRM write.
  */
 export async function admitCapturedLineEvents({
@@ -490,10 +503,9 @@ export async function admitCapturedLineEvents({
 } = {}) {
   const outcome = { admitted: 0, skipped: 0, failed: 0 }
   for (const { event, rawRecordId } of entries || []) {
-    // Once per entry, before the first attempt (not before each retry): if the process dies
-    // partway through admission, this is what leaves exactly the stranded rows at ADMITTING —
-    // never-attempted rows stay RECEIVED, so the 34 legacy RECEIVED rows from before this change
-    // are not swept up as false positives.
+    // Keep the marker here for direct/reconciler callers as well. The webhook has already
+    // persisted it before 2xx; this idempotent write also ensures every admission path starts
+    // from the same recoverable state.
     await markRawRecord(db, rawRecordId, 'ADMITTING')
     for (let attempt = 0; ; attempt += 1) {
       try {

@@ -127,12 +127,13 @@ jobs:
   #             is half done.
   #   tests   — the full unit + integration suite. The long job; unchanged.
   #   build   — the production build, no longer queued behind the tests.
-  #   verify  — an aggregate that fails if any of the three did. Branch
+  #   conversation-runtime — isolated service tests, boundary build and image build.
+  #   verify  — an aggregate that fails if any of the four did. Branch
   #             protection requires a check literally named `verify`
   #             (`changes`, `verify`, `edge-verify`), and a required check that
   #             only covered one of the three would let a red suite merge.
   #
-  # The three run in PARALLEL rather than govern-first-then-the-rest: gating the
+  # The server's three long checks run in PARALLEL rather than govern-first-then-the-rest: gating the
   # 11-minute suite on a 3-minute job would add 3 minutes to every green run to
   # save runner minutes on the red ones, and time-to-signal — not runner cost —
   # is what this split is for. `gh run rerun --failed` now re-runs only the job
@@ -292,20 +293,45 @@ jobs:
       - name: Production build
         run: npm run build
 
+  conversation-runtime:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: services/conversation-runtime/package-lock.json
+
+      - name: Install isolated service package
+        run: npm ci --prefix services/conversation-runtime
+
+      - name: Conversation Runtime tests
+        run: npm --prefix services/conversation-runtime test
+
+      - name: Conversation Runtime build and boundary scan
+        run: npm --prefix services/conversation-runtime run build
+
+      - name: Build standalone service image
+        run: docker build -f services/conversation-runtime/Dockerfile -t zuri-conversation-runtime:ci .
+
   # The required aggregate check. `if: always()` makes dependency failures
   # visible in one explicit result instead of leaving the aggregate ambiguous.
   verify:
     if: always() && github.event_name != 'schedule'
-    needs: [govern, tests, build]
+    needs: [govern, tests, build, conversation-runtime]
     runs-on: ubuntu-latest
     steps:
-      - name: All three verification jobs passed
+      - name: All four verification jobs passed
         shell: bash
         run: |
           echo "govern: ${{ needs.govern.result }}"
           echo "tests:  ${{ needs.tests.result }}"
           echo "build:  ${{ needs.build.result }}"
-          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}"; do
+          echo "conversation-runtime: ${{ needs.conversation-runtime.result }}"
+          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}" "${{ needs.conversation-runtime.result }}"; do
             if [ "$r" != "success" ]; then
               echo "::error::a verification job did not succeed (see the job results above)"
               exit 1

@@ -1,8 +1,8 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.240.0b"
+version: "1.249.0b"
 status: draft
-last_update: "2026-09-19T00:00:00+07:00,Luna Max"
+last_update: "2026-09-24T00:00:00+07:00,Codex"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -19,17 +19,18 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.238.0b |
+| **Version** | 1.249.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-17 |
+| **Last Updated** | 2026-09-24 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Version History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.249.0b | 2026-09-24 | Codex | Approve ADR-106 and declare SDD-108 for the independently buildable Conversation Runtime boundary; keep queue, Identity, CRM, Work writers, MSP/GKS authority and provider side-effect owners in core while CR owns the turn process. Local implementation only; no production migration, cutover or deployment. |
 | 1.248.0b | 2026-09-22 | Claude Sonnet 5 | FR-268 and FR-271 implemented (ADR-101 D6 Phase 1): `BusinessGoal.perspective`/`isWig` fields, `BusinessKeyResult`(+`CheckIn`) models, the pure `keyResultProgress`/`expectedProgress`/`keyResultStatus`/`rollupGoal`/`smartChecks`/`weekStartFor` calculators, the OWNER-only write-through mutation service (SDD-107, BR-044), the FR-041 read extension, the Key Result list/modals/SMART checklist UI on StrategyCard, a Key-Result-off-track attention-queue row (FR-060), both migration trees (not production-applied — ADR-057), `SNAPSHOT_MODELS`, seed data and tests. FR-269, FR-270, BR-043 remain declared only (Phase 2/3). Implementation on `feat/task-zai-122-goal-service-phase1-key-results`; PR pending merge. |
 | 1.247.0b | 2026-09-22 | Claude Sonnet 5 | Declare FR-268, FR-269, FR-270 and FR-271, SDD-107, BR-043 and BR-044 under ADR-101 and FEAT-002's reserved "Goals & KPIs" sub-page (`docs/domains/project-manager/features/FR-060-business-home.md`, "Out, and each needs its own FR when built"): Key Results and weekly check-ins roll up into `BusinessGoal.progress` as a write-through cache (SDD-107, BR-044); a Business-scoped Balanced Scorecard (`BusinessKpi`/`BusinessKpiObservation`, FR-269); 4DX weekly execution — at most two WIG goals per Business (BR-043), lead measures, commitments, a weekly session ritual (FR-270); and a SMART validation contract that returns Achievable/Relevant as `null` rather than a fabricated score (FR-271). Declaration only, on `feat/task-zai-122-goal-service-phase0-docs`; no schema, route or UI change is claimed by this revision — see ADR-101 for the phased plan. |
 | 1.246.0b | 2026-09-22 | Claude Sonnet 5 | Reword FR-060's status cell (statement unchanged): `attentionQueue` read `strategy?.goals`, a key the real FR-041 payload never sends — goals nest under `roadmaps[].horizons[].goals[]` — so every goal-based attention row ("Goal past target", "Goal has no linked Project") was dead code in production. Fixed in `business-home-read-model.js`; the prior unit test only passed because it hand-fed the wrong shape, now corrected to the real nested shape plus a new empty-roadmap case. Local only, on `feat/task-zai-122-goal-service-phase0-docs`; not merged. |
@@ -854,6 +855,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-105 | Atomic inference reservation and uncertain-capacity discipline: reserve each invocation atomically by canonical engine identity across processes using a bounded database lease; distinguish pre-dispatch expiry from uncertain post-dispatch work and never recycle disputed remote capacity without a verified recovery boundary. | 🔜 approved design — not registered, not implemented, not deployed |
 | SDD-106 | Model credential resolution order for a server LINE answer: `resolveModel` first reads the Business-scoped `IntegrationConnection` with purpose MODEL_PROVIDER, status ACTIVE and role PRIMARY from the application database and resolves its `MODEL_PROVIDER_KEY` through the `SecretStorePort`; only when that connection does not exist does it fall back to the Phase-1 `zuri_core` resolver. The fallback is a declared, traced transition state, not a permanent second path — it exists so that, on an installation whose Phase-1 resolver is provisioned, a deploy of FR-266 cannot silence a Business that has not yet entered a key (on this installation it is not: `zuri_core.integration_connection` is empty, so a Business with no key of its own cannot answer — ADR-100 D5 correction), and retiring it is a separate evidence-gated step once every live Business holds a vault-backed key. Neither path ever falls back to the other on a resolution *failure*: a present-but-broken credential fails closed, because a silent downgrade to a different key is exactly the ambiguity ADR-061 D6 refuses elsewhere. | 🚧 deployed 2026-09-21 (production main `5c5f12d3`; TASK-ZAI-120, ADR-100 D5) |
 | SDD-107 | `BusinessGoal.progress` becomes a write-through cache, never a second source of truth: `recordKeyResultCheckIn` recomputes it from the goal's non-archived Key Results inside the same transaction as the check-in, through a pure `rollupGoal(keyResults)` calculator mirroring `rollupProject`'s `{ percent, formula, warnings }` shape, and persists the result with the goal's `version` incremented. `updateGoal` refuses a manual `progress` patch once the goal holds a non-archived Key Result (BR-044), and the FR-041 strategy DTO exposes `progressSource: 'MANUAL' \| 'KEY_RESULTS'` per goal so the UI labels the number honestly instead of implying every goal is measured the same way. | ✅ Phase 1 implemented — `recomputeGoalProgress`/`rollupGoal`, `updateGoal`'s BR-044 refusal, `progressSource` on the FR-041 DTO (ADR-101 D6, TASK-ZAI-122; local branch, PR pending merge) |
+| SDD-108 | Conversation Runtime is an independent Node process over strict `conversation-runtime.v1` ports: core owns durable LINE admission/jobs, Identity and account authority, CRM messages, canonical Work transactions, Integration secrets/LINE transport, MSP/GKS calls and trace persistence; the runtime owns claim orchestration, context assembly, bounded tool routing, model invocation and delivery coordination. Every side-effect call carries the stored job scope, claimant/execution/version fence, deadline, correlation id and idempotency/receipt key. Provider uncertainty stays `UNKNOWN`; credentials are claim-bound and memory-only; runtime has no Prisma, Next.js or shared-table access. |
 
 ## 2.3 Security requirements
 
@@ -931,4 +933,4 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 
 [FR-148 / FR-149 / FR-150 domain phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) adds navigation and handoff detail while preserving registry subjects and delivery status. Phase IDs are document children, not new global FRs. Server source/CI, Edge branch/release and production activation remain separate evidence gates.
 
-Version diff 1.154.0b → 1.155.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
+Version diff 1.248.0b -> 1.249.0b: Added ADR-106 and SDD-108; existing FR subjects and IDs remain unchanged.

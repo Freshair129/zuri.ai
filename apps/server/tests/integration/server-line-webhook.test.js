@@ -6,7 +6,7 @@ import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVI
 import { createServerLineWebhookPost } from '@/app/api/line-oa/accounts/[id]/webhook/route'
 import { admitCapturedLineEvents, admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 
-// @req FR-149 — signed native ingress authenticates before parsing/persistence and retries admission failures.
+// @req FR-149 — signed native ingress authenticates, persists a recoverable admission outbox before 2xx, and retries admission failures.
 // @spec ADR-061, SEC-001, FR-081, FR-148
 // @tested tests/integration/server-line-webhook.test.js
 
@@ -23,14 +23,15 @@ function harness(over = {}) {
   const record = vi.fn(async () => ({ recorded: true, rawRecordId: 'raw-record-1' }))
   const evidenceFactory = vi.fn(async () => ({ connectionId: scope.connectionId, record }))
   const admit = over.admit || vi.fn(async () => ({ created: true }))
+  const markAdmissionIntent = over.markAdmissionIntent || vi.fn(async () => {})
   // The route hands admission to one call it does not await. Standing in for it with a function
   // that drives the per-event `admit` spy keeps the old assertions honest and gives the test a
   // handle on the background work, which is otherwise unobservable by construction.
   const admitCaptured = vi.fn(args => admitCapturedLineEvents({ ...args, admit, delays: [] }))
-  const { admit: _ignored, ...rest } = over
-  const handler = createServerLineWebhookPost({ db: {}, ports: () => ({ resolveAccount }), evidenceFactory, admitCaptured, ...rest })
+  const { admit: _ignored, markAdmissionIntent: _ignoredMarker, ...rest } = over
+  const handler = createServerLineWebhookPost({ db: {}, ports: () => ({ resolveAccount }), evidenceFactory, admitCaptured, markAdmissionIntent, ...rest })
   const settled = () => Promise.allSettled(admitCaptured.mock.results.map(result => result.value))
-  return { handler, resolveAccount, record, evidenceFactory, admit, admitCaptured, settled }
+  return { handler, resolveAccount, record, evidenceFactory, admit, admitCaptured, markAdmissionIntent, settled }
 }
 const invoke = (handler, raw, signature) => handler(request(raw, signature), { params: { id: scope.id } })
 
@@ -66,15 +67,16 @@ describe('native LINE webhook trust boundary', () => {
     expect(h.admit).not.toHaveBeenCalled()
   })
 
-  it('uses exact signed bytes, then records evidence before admitting each event', async () => {
+  it('uses exact signed bytes, then records evidence and durable intent before admitting each event', async () => {
     const order = []
-    const record = vi.fn(async () => { order.push('evidence') })
+    const record = vi.fn(async () => { order.push('evidence'); return { rawRecordId: 'raw-1' } })
     const admit = vi.fn(async () => { order.push('admit') })
-    const h = harness({ evidenceFactory: async () => ({ connectionId: scope.connectionId, record }), admit })
+    const markAdmissionIntent = vi.fn(async () => { order.push('outbox') })
+    const h = harness({ evidenceFactory: async () => ({ connectionId: scope.connectionId, record }), admit, markAdmissionIntent })
     const raw = ` { "destination": "${scope.destination}", "events": ${JSON.stringify([textEvent])} }\n`
     expect((await invoke(h.handler, raw)).status).toBe(200)
     await h.settled()
-    expect(order).toEqual(['evidence', 'admit'])
+    expect(order).toEqual(['evidence', 'outbox', 'admit'])
     expect(admit).toHaveBeenCalledWith(expect.objectContaining({ account: scope, event: expect.objectContaining({ type: textEvent.type, message: textEvent.message, source: textEvent.source }), correlationId: 'corr-native-webhook' }))
     expect(admit.mock.calls[0][0].event.replyToken).toBe(textEvent.replyToken)
     expect(JSON.stringify(record.mock.calls[0][0])).not.toContain(textEvent.replyToken)
@@ -101,9 +103,8 @@ describe('native LINE webhook trust boundary', () => {
   })
 
   it('answers LINE once the event is stored, without waiting for admission', async () => {
-    // The reason this endpoint exists in this shape: admission is slow enough that LINE gave up
-    // and redelivered the same event four times. Capture is what makes the event unloseable, so
-    // capture is what the acknowledgement is for.
+    // Admission is slow, but the durable outbox marker makes the event recoverable
+    // after a process stop, so LINE does not wait for CRM/job admission.
     let releaseAdmission
     const admit = vi.fn(() => new Promise(resolve => { releaseAdmission = () => resolve({ created: true }) }))
     const h = harness({ admit })
@@ -113,6 +114,9 @@ describe('native LINE webhook trust boundary', () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject({ accepted: true, captured: 1 })
     expect(h.record).toHaveBeenCalledTimes(1)
+    expect(h.markAdmissionIntent).toHaveBeenCalledWith(expect.objectContaining({
+      entries: [{ event: expect.objectContaining({ webhookEventId: textEvent.webhookEventId }), rawRecordId: 'raw-record-1' }],
+    }))
     expect(admit).toHaveBeenCalledTimes(1)
     // Answered while admission is still in flight — the property the old contract could not have.
     releaseAdmission()
@@ -120,8 +124,8 @@ describe('native LINE webhook trust boundary', () => {
   })
 
   it('still answers 200 when admission fails, and never leaks its cause', async () => {
-    // Admission owns its own retries and labels the evidence row on the way out; a failure there
-    // must not turn into a redelivery request for an event that is already stored.
+    // The durable outbox owns recovery after acknowledgement; an in-process failure
+    // must not turn into a duplicate delivery request.
     const admit = vi.fn().mockRejectedValue(new Error('PRIVATE_QUEUE_ERROR'))
     const h = harness({ admit })
 
@@ -130,6 +134,15 @@ describe('native LINE webhook trust boundary', () => {
 
     expect(response.status).toBe(200)
     expect(await response.text()).not.toContain('PRIVATE_QUEUE_ERROR')
+  })
+
+  it('does not acknowledge when the durable admission outbox marker fails', async () => {
+    const admit = vi.fn()
+    const h = harness({ markAdmissionIntent: vi.fn(async () => { throw new Error('OUTBOX_WRITE_FAILED') }), admit })
+    const response = await invoke(h.handler, body([textEvent]))
+    expect(response.status).toBe(503)
+    expect(await response.text()).not.toContain('OUTBOX_WRITE_FAILED')
+    expect(admit).not.toHaveBeenCalled()
   })
 
   it('rejects an oversized body before parsing or persistence', async () => {
@@ -213,6 +226,7 @@ describe('native webhook retry with durable SQLite admission', () => {
     const settle = []
     const handler = createServerLineWebhookPost({ db: prisma, ports: () => ({ resolveAccount: async () => oa }),
       evidenceFactory: async () => ({ connectionId: oa.connectionId, record }),
+      markAdmissionIntent: async () => {},
       admitCaptured: args => { const done = admitCapturedLineEvents({ ...args, admit, delays: [0] }); settle.push(done); return done } })
     const raw = body([textEvent, second])
     try {

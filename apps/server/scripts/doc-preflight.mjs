@@ -1107,6 +1107,9 @@ const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
         ...walk(workspacePath(ROOT, 'src'), '.js'),
         ...walk(workspacePath(ROOT, 'src'), '.jsx'),
         ...walk(workspacePath(ROOT, 'tests'), '.js'),
+        ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'src'), '.js'),
+        ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'test'), '.js'),
+        ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'contracts'), '.json'),
         ...walk(workspacePath(ROOT, 'prisma'), '.prisma'),
         ...walk(workspacePath(ROOT, 'supabase'), '.sql'),
         ...walk(workspacePath(ROOT, 'contracts'), '.json'),
@@ -1121,6 +1124,9 @@ const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
     ...walk(workspacePath(ROOT, 'src'), '.js'),
     ...walk(workspacePath(ROOT, 'src'), '.jsx'),
     ...walk(workspacePath(ROOT, 'tests'), '.js'),
+    ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'src'), '.js'),
+    ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'test'), '.js'),
+    ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'contracts'), '.json'),
     ...allDocs,
   ].map((f) => ({ path: rel(f), body: read(f) }))
 

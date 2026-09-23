@@ -1,0 +1,26 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { createModelPort } from '../src/model-port.js'
+
+test('model port invokes a fixed approved endpoint and returns bounded provider text', async () => {
+  let request
+  const model = createModelPort({ fetchFn: async (url, options) => {
+    request = { url: String(url), options }
+    return new Response(JSON.stringify({ choices: [{ message: { content: 'ตอบตามหลักฐาน' } }] }), { status: 200 })
+  } })
+  const text = await model.generate({ question: 'ถาม', evidence: [{ code: 'A1' }], contextPacket: '',
+    credential: { provider: 'openai', model: 'gpt-test', apiKey: 'synthetic-key' }, deadlineAt: new Date(Date.now() + 5000).toISOString() })
+  assert.equal(text, 'ตอบตามหลักฐาน')
+  assert.equal(request.url, 'https://api.openai.com/v1/chat/completions')
+  assert.equal(request.options.headers.authorization, 'Bearer synthetic-key')
+})
+
+test('model port refuses user-selected endpoints and never includes provider error bodies', async () => {
+  const model = createModelPort({ fetchFn: async () => new Response('PRIVATE_PROVIDER_BODY', { status: 500 }) })
+  await assert.rejects(model.generate({ question: 'q', evidence: [{}], credential: { provider: 'openai', model: 'm', apiKey: 'synthetic-key', baseUrl: 'https://evil.test' } }), /MODEL_BASE_URL_NOT_ALLOWED/)
+  await assert.rejects(model.generate({ question: 'q', evidence: [{}], credential: { provider: 'openai', model: 'm', apiKey: 'synthetic-key' }, deadlineAt: new Date(Date.now() + 5000).toISOString() }), error => {
+    assert.equal(error.code, 'MODEL_PROVIDER_HTTP_500')
+    assert.doesNotMatch(error.message, /PRIVATE_PROVIDER_BODY/)
+    return true
+  })
+})

@@ -1,0 +1,8 @@
+**
+!services/
+!services/conversation-runtime/
+!services/conversation-runtime/package.json
+!services/conversation-runtime/src/
+!services/conversation-runtime/src/**
+!services/conversation-runtime/contracts/
+!services/conversation-runtime/contracts/**
