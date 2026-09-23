@@ -177,11 +177,11 @@ Stop and return to design review if:
 | SRS amendment | APPROVED | SRS v0.6.0b |
 | W1 inventory | COMPLETE | source inventory + RCA + focused scheduler tests |
 | Code implementation | IN PROGRESS | W1 durable health-sweep checkpoint slice complete; W2-W6 remain |
-| Focused tests | PASS | 7/7 focused tests; 10 LINE regression files / 109 tests |
-| Full Vitest | PARTIAL | Direct run: 795 suites passed, 4 unrelated suites failed (7 tests); 6,689 passed, 32 skipped |
+| Focused tests | PASS | LINE scheduler/route 5 files / 44 tests; migration/worker 6 files / 46 tests; Phase B rebind 5 files / 52 tests |
+| Full Vitest | PASS | Process-scoped `ZURI_CREDENTIAL_STEP_UP=on`: 799 files passed, 6 skipped; 6,707 tests passed, 32 skipped |
 | Build | PASS | `npm run build` from `apps/server` |
-| E2E | NOT RUN | separate W7 gate |
-| Governance | PASS | `npm run govern`: critical 0, warning 2 |
+| E2E | FAIL / NOT_ACCEPTED | Main-checkout run: 220 passed, 3 retry-persistent failures, 4 skipped; failures were SKU hygiene assertion and two 429 signup responses. This is not branch-specific proof. |
+| Governance | PASS | `npm run govern`: critical 0, warning 1; 188 models / 108 migrations checked |
 | Staging canary | NOT RUN | external gate |
 | Production activation | NOT RUN | owner/operator gate |
 
@@ -191,3 +191,4 @@ Stop and return to design review if:
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-23 | candidate | Initial C-3 implementation plan for stateless API/worker execution over durable LINE OA Studio state | uncommitted | RWANG |
 | 0.2.1b | 2026-09-23 | in-progress | Approved W1 implementation: durable transport-health checkpoint, focused/regression evidence, build and governance status recorded; W2-W9 remain gated | uncommitted | RWANG |
+| 0.2.2b | 2026-09-24 | in-progress | Rebound Phase B recovery to the 188-model schema and recorded full Vitest/build/governance evidence; E2E remains NOT_ACCEPTED and W2-W9 remain gated | working-tree | RWANG |

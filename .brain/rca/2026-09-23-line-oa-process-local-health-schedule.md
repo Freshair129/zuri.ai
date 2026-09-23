@@ -50,3 +50,16 @@ restart-equivalent empty process state and failure lease release.
 When a Prisma model is added, rebind the frozen Phase B inventory and exact
 schema hashes in the same change, even when the model is excluded from backup
 contents. Add the inventory loader to the focused regression set.
+
+## Verification status — 2026-09-24
+
+- Focused LINE scheduler/route tests: PASS, 5 files / 44 tests.
+- Migration/worker regression tests: PASS, 6 files / 46 tests.
+- Phase B recovery rebind tests: PASS, 5 files / 52 tests.
+- Full Vitest: PASS, 799 files passed and 6 skipped; 6,707 tests passed and 32
+  skipped, with `ZURI_CREDENTIAL_STEP_UP=on` scoped to the process only.
+- Build: PASS. Governance: PASS, 0 critical and 1 warning.
+- A full E2E run on the primary `main` checkout completed with 220 passed, 3
+  retry-persistent failures and 4 skipped. It is recorded as NOT_ACCEPTED for
+  this branch because it did not execute from the checkpoint branch; the
+  failures were an SKU hygiene assertion and two signup 429 responses.
