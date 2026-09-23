@@ -1,7 +1,7 @@
 ---
 id: "ZAI:ADR-100"
 title: "LINE OA runs server-executed on browser-provisioned API keys"
-version: "0.4.0b"
+version: "0.5.2b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-21"
@@ -9,7 +9,7 @@ approved_by: "Owner instruction, 2026-09-21"
 integration_status: pending
 implementation_status: in-progress
 created_at: "2026-09-21"
-last_update: "2026-09-21"
+last_update: "2026-09-22"
 author: Claude Opus 5
 domain: line-oa-studio
 attributes:
@@ -36,6 +36,8 @@ relations:
     target: "ZAI:FR-266"
   - type: relates_to
     target: "ZAI:FR-267"
+  - type: relates_to
+    target: "ZAI:FR-224"
   - type: relates_to
     target: "ZAI:ADR-099"
   - type: relates_to
@@ -279,6 +281,45 @@ leases, node observations, and ADR-099 D3's data-classification check ("a valid 
 necessary but not sufficient"). D7 is ADR-099's own first step — "Server calls one vLLM
 endpoint" — and nothing further.
 
+### D8 — The operator may suspend the credential-write step-up
+
+*Added 2026-09-21 on the owner's instruction: "ยังไม่ต้องใส่ 2FA มา" — entering an API key
+should not wait on two-factor enrolment for now.*
+
+D4 routes a key through the FR-224 gate, which requires an ACTIVE TOTP factor and a live
+AAL2 step-up window. The owner had neither, and the key card offered no way to enrol: the
+only enrolment screen sat inside the LINE connect form, reachable only by submitting it.
+Rather than route an owner through a form for a different credential, the owner chose to
+defer two-factor for now.
+
+**Decision.** `ZURI_CREDENTIAL_STEP_UP=off` on the server suspends the step-up for the
+installation. It is an operator setting — never a code path deleted, never a flag a browser
+can send — and it suspends **only** the two checks it names. Kept in force:
+
+- **Login.** A request with no logged-in Person is still 401; the suspension is read after
+  the Person, so it never admits an anonymous request.
+- **Both rate limits** — per Person and Business, and installation-wide for LINE.
+- **The audit trail.** Every write the gate lets through while suspended is recorded as
+  `CREDENTIAL_STEP_UP_SUSPENDED` with the credential action and the setting, never a
+  credential, so "who changed this key without a second factor, and when" stays answerable.
+
+Only the exact value `off` suspends it. Unset, empty or mistyped leaves the gate on, so a
+mistake in the setting fails safe.
+
+**What this costs, stated plainly.** While suspended, anyone holding a logged-in session
+for an owner can replace that Business's model key or LINE channel secret without a second
+factor — for example pointing the Business at a provider account they control, which would
+then receive its customers' messages. The rate limit bounds how fast; the audit row records
+that it happened; neither prevents it.
+
+> **Owner decision, 2026-09-22: two-factor is not used on this installation** — *"ไม่ใช้ F2A"*,
+> in answer to whether to build enrolment into the key card so the switch could be removed.
+> So the switch stays off, and enrolment in the key card is not being built. This replaces
+> the earlier expectation that the switch was temporary. The cost above therefore stands
+> for as long as the decision does, and it is recorded here so a later reader finds it as a
+> choice rather than an oversight. Restoring the step-up is deleting one line from the
+> server's `.env`; nothing in the code needs to change.
+
 ## Consequences
 
 An installation that has provisioned Phase-1 keeps answering through that resolver until a
@@ -334,6 +375,17 @@ wants a second execution placement finds the seam still cut.
 - `resolveModel` prefers the vault-backed connection, falls back only on *absence*, and
   fails closed on a broken credential in either path.
 - A rotation keeps answering; a revocation stops it with a distinguishable code.
+
+> **Owner decision, 2026-09-22: on this installation LINE OA keeps being answered by
+> `smartgift-local-agent`, not by Zuri, for now** — *"ใช้ smartgift-local-agent ต่อไปก่อน"*.
+> That service receives the channel's webhook through Tailscale Funnel `:10000` and answers
+> through the operator's LiteLLM gateway (`typhoon2.5-qwen3-4b`); its LiteLLM log showed 71
+> successful completions on 2026-09-22. So no model key is saved in Zuri, and Zuri's own
+> `SERVER` jobs keep ending `EXECUTION_FAILED` and sending nothing — expected, not a fault.
+> **Moving LINE to Zuri is one step, not two:** save the key *and* repoint the webhook in the
+> LINE Developers console together. Saving a key while both services receive the channel's
+> events would answer every customer twice. TASK-ZAI-120 and TASK-ZAI-121 stay in review:
+> their production receipt waits on that move.
 
 ## Not decided here
 

@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.10 |
+| **Version** | 1.0.12 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-19 |
+| **Last Updated** | 2026-09-23 |
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
@@ -191,6 +191,45 @@ where n.nspname = 'public' order by grantor, objtype;
 The `postgres` row is the project's to keep clean and the thing a migration is
 answerable for. The `supabase_admin` row is the platform's; record it, do not
 report it as closed, and do not write a migration that pretends to close it.
+
+## Production lineage reconciliation — ADR-104
+
+When the repository contains a migration whose exact effect is already present
+but `supabase_migrations.schema_migrations` does not contain its version, do not
+run the whole pending backlog. Historical files may contain unguarded renames,
+drops or backfills that are safe only once. The operator must first prove the
+effect from the live catalog, then record the version with the controlled
+operator tool. A migration SQL file must never insert its own ledger row.
+
+When an effect is absent, apply the reviewed `supabase/migrations/*.sql` file in
+the allowlisted order, record its receipt, and verify the resulting table,
+RLS/policy and grant state. The owner-approved procedure for the current PM/OKR
+reconciliation is in
+[`docs/runbooks/production-migration-reconciliation.md`](runbooks/production-migration-reconciliation.md)
+and is governed by ADR-104. It uses the direct Supabase connection, a redacted
+preflight/snapshot, a rolled-back dry run and an explicit `--apply` gate. Docker
+Compose image replacement is a separate release decision; the container never
+mutates this external database on startup.
+
+### Recorded production apply — 2026-09-23
+
+The owner-approved operator run completed after PR #533 merged at commit
+`119f98639fa7efa03d0157fe0b7c6eccf044026c`:
+
+| Evidence | Result |
+|---|---|
+| Target | Supabase `qcnmhyglarzcpudjorzc`, PostgreSQL 17, `public` |
+| Apply | `APPLIED`, 11/11 allowlisted steps; 7 historical effects recorded and 4 additive migration files plus hardening applied/recorded |
+| Ledger | 107 total rows after apply; all 11 expected version/name pairs present |
+| Snapshot | Redacted logical snapshot SHA-256 `39619a2064b9ba7f5beb8222201747fae622cc85dbb27aca8026cf37a3de2d9f` |
+| Post-apply security | 7 target tables present; forced RLS and one runtime policy each; 8 runtime grants each; 0 `service_role`/Data API grants |
+| Data effect | New target-table row counts all 0; `BusinessGoal.perspective` and `BusinessGoal.isWig` present |
+| Runtime | `/api/health` returned `status=ok`, `db=ok`, latency 103 ms |
+| Docker image | Not replaced by this database step; release source reconciliation remains a separate gate |
+
+This receipt proves the database migration lane only. It is not an application
+deployment or a claim that the currently running Docker image contains the
+merged PM/OKR/approval code.
 
 ## Supabase cutover — concrete steps (FR-030, ADR-007 P4)
 

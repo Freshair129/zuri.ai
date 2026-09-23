@@ -25,6 +25,8 @@ owns_models:
   - BusinessRoadmapHorizon
   - BusinessGoal
   - ProjectGoal
+  - BusinessKeyResult
+  - BusinessKeyResultCheckIn
   - Workstream
   - WorkContainer
   - WorkItem
@@ -42,6 +44,9 @@ owns_models:
   - FileLink
   - AuditEvent
   - PlanImportReceipt
+  - ProjectExecutionRun
+  - ProjectExecutionStep
+  - ProjectApprovalRequest
   - GovernanceSnapshot
   - ProjectFeature
   - FeatureContribution
@@ -85,6 +90,11 @@ trail. This is the back-office console's core.
   package above that boundary: it may coordinate Roadmap/Horizon/Goal services
   and N existing PlanEnvelope imports, but it may not bypass or fork the
   PlanEnvelope writer.
+- [ADR-102](../../decisions/ADR-102-PM-EXECUTION-TRACE-AND-REPLAY.md) makes
+  `ProjectExecutionRun` and `ProjectExecutionStep` the PM-owned trace and
+  replay ledger. `PlanImportReceipt` remains the compatibility receipt; it is
+  not the step/attempt authority. AgentTraceEvent and PipelineRun remain
+  outside this domain.
 - `ExecutionPlanBundle` is **not a persistence model** and is not a synonym for
   `WorkContainer`. `container` keeps its existing Workstream-local meaning.
 - FR-252 adds Project-local Feature authority and explicit Domain, WorkItem and
@@ -133,6 +143,43 @@ their own — both write **nothing**:
 - `people` — the People Directory (FR-042): a Business-scoped view joining this
   domain's `Membership` with crm's `Person` (read-only cross-domain read, the
   pattern the architecture spec's §5.3 explicitly allows).
+
+## Delivered in Phase 1 (FEAT-002, ADR-101 D6)
+
+[ADR-101](../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md)
+extends `BusinessGoal` into an OKR Objective, tagged to one Balanced Scorecard
+`perspective` (nullable — every existing goal, and the FR-108 bundle importer's
+`zGoal`, carry none) and optionally marked `isWig` (boolean, default false; at
+most two per Business, enforced in the service — BR-043, still unenforced until
+its Phase 3 writer exists). `BusinessKeyResult` (+ append-only
+`BusinessKeyResultCheckIn`), both now in `owns_models` above, are its first
+child model family: a measurable child of `BusinessGoal` whose weekly check-ins
+roll `BusinessGoal.progress` up through a pure calculator (SDD-107, FR-268),
+and once a goal holds one, a manual `progress` patch is refused (BR-044).
+
+## Declared, not yet in schema (FEAT-002, ADR-101 D6 Phase 2/3)
+
+The rest of ADR-101's model family does not exist in `prisma/schema.prisma`
+yet, and none of this section grants a write any sooner than the schema does:
+
+- `BusinessKpi` (+ append-only `BusinessKpiObservation`) — a Business-scoped,
+  **not** goal-scoped, ongoing health metric carrying a Balanced Scorecard
+  perspective. Named with the `Business` prefix deliberately: the shell already
+  exports a `Kpi` UI component (`src/components/ui/index.jsx`), and a bare `KPI`
+  Prisma model would both collide with it and produce an awkward `db.kPI`
+  client accessor.
+- `BusinessLeadMeasure` (+ append-only `BusinessLeadMeasureValue`) — a 4DX lead
+  measure, meaningful only under a goal with `isWig=true`.
+- `BusinessWeeklyCommitment`, `BusinessWigSession` — the weekly 4DX ritual: what
+  a named Person commits to, and the report/scoreboard/plan session state, both
+  Business-scoped.
+
+Every new writer lives in `project-manager/application/`, alongside the
+existing `business-strategy-mutation-service.js`, never in the `business`
+read-slice above — the "both write nothing" rule for satellite modules is
+unchanged by this section. Owner check-in authority for Phase 1 is OWNER-only,
+the same authority that can already hand-edit a goal's progress (ADR-101 D4);
+a narrower Key-Result-owner grant is explicitly future work, not assumed here.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 

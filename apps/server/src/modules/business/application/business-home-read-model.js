@@ -9,6 +9,15 @@
 // surface can never disagree with the page that owns the number.
 // @tested tests/unit/fr060-business-home-read-model.test.js
 
+// @req FR-268, ADR-101 D6 — the same pure status calculator project-manager's
+// own StrategyCard uses for a Key Result's pill, so an attention-queue row
+// and the card it links to can never disagree about whether it's off track.
+// Same-domain import, not a cross-domain reach: `business` is a
+// project-manager charter module (docs/domains/project-manager/CHARTER.md),
+// and this calculator does zero I/O — importing it does not compromise the
+// "no I/O at all" guarantee this file's own header states below.
+import { keyResultStatus, KEY_RESULT_STATUS } from '@/modules/project-manager/progress/key-result-progress'
+
 /**
  * Domain states. `RESERVED` and `NO_SIGNAL` are deliberately distinct: a
  * reserved slot has no module at all, while a live domain may simply have
@@ -107,6 +116,23 @@ function domainHealthRows({ domains, projects, peopleCount, now }) {
   })
 }
 
+/**
+ * The FR-041 strategy payload nests goals under `roadmaps[].horizons[].goals[]`
+ * (`business-strategy-service.js` `serializeRoadmap`/`serializeGoal`); it has no
+ * top-level `goals` array. This flattens the real shape rather than assuming one
+ * that was never produced.
+ *
+ * Correction, PRD-SDD 1.246.0b (2026-09-22): `attentionQueue` read `strategy?.goals`
+ * directly, which is always `undefined` against the real payload — every
+ * "Goal past target" / "Goal has no linked Project" row below was dead code in
+ * production. The prior unit test passed only because it hand-fed a `{ goals: […] }`
+ * fixture that production never sends. No behaviour beyond "these rows now actually
+ * fire" changes; FR-060's statement is unchanged.
+ */
+function strategyGoals(strategy) {
+  return (strategy?.roadmaps || []).flatMap((roadmap) => (roadmap.horizons || []).flatMap((horizon) => horizon.goals || []))
+}
+
 /** Cross-domain exceptions, from real rows only. Empty is a valid, honest answer. */
 function attentionQueue({ projects, strategy, now }) {
   const items = []
@@ -137,7 +163,7 @@ function attentionQueue({ projects, strategy, now }) {
     }
   }
 
-  for (const goal of strategy?.goals || []) {
+  for (const goal of strategyGoals(strategy)) {
     if (goal.status === 'DONE') continue
     if (overdue(goal.targetAt, now)) {
       items.push({
@@ -154,6 +180,23 @@ function attentionQueue({ projects, strategy, now }) {
         severity: SEVERITY.INFO,
         title: `Goal has no linked Project — ${goal.title}`,
         detail: 'Strategy · not connected to execution',
+        domainKey: 'projects',
+        href: '/overview',
+      })
+    }
+
+    // FR-268's DTO already filters `goal.keyResults` to non-archived rows
+    // (business-strategy-service.js's GOAL_INCLUDE), so every row reached
+    // here is a live Key Result. ON TRACK (OK) is not attention-worthy — only
+    // WARN/BAD surface, mirroring the gate rows' open/overdue split above.
+    for (const keyResult of goal.keyResults || []) {
+      const status = keyResultStatus(keyResult.progress, keyResult.expectedProgress, keyResult.confidence)
+      if (status === KEY_RESULT_STATUS.OK) continue
+      items.push({
+        id: `key-result:${keyResult.id}`,
+        severity: status === KEY_RESULT_STATUS.BAD ? SEVERITY.HIGH : SEVERITY.MED,
+        title: `${status === KEY_RESULT_STATUS.BAD ? 'Key Result off track' : 'Key Result behind pace'} — ${keyResult.title}`,
+        detail: `Strategy · ${goal.code} · ${keyResult.code}`,
         domainKey: 'projects',
         href: '/overview',
       })

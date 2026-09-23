@@ -612,7 +612,9 @@ test('the edge pipeline allowlist matches Server except its explicit MemoryOS-on
   // API-011 memory is authorized on Server and arrives as ephemeral CIN input.
   // Edge's pipeline child must never acquire the keys that mint memory grants.
   const serverMemoryOnly = new Set(['MSP_THREAD_SERVICE_KEY', 'MSP_THREAD_SERVICE_KEYRING',
-    'MSP_IDENTITY_HMAC_KEY', 'MSP_THREAD_IDLE_TIMEOUT_MINUTES', 'MSP_THREAD_RETENTION_DAYS', 'MSP_THREAD_RECENT_EXCHANGES']);
+    'MSP_IDENTITY_HMAC_KEY', 'MSP_GLOBAL_PRIVATE_GRANT_REQUIRED', 'MSP_IDENTITY_HMAC_KEY_VERSION',
+    'MSP_IDENTITY_HMAC_KEYRING', 'MSP_THREAD_IDLE_TIMEOUT_MINUTES', 'MSP_THREAD_RETENTION_DAYS',
+    'MSP_THREAD_RECENT_EXCHANGES']);
   assert.deepEqual([...MSP_RUNTIME_ENV_NAMES].sort(), namesIn('MSP_RUNTIME_ENV_NAMES').filter((name) => !serverMemoryOnly.has(name)).sort());
   for (const name of serverMemoryOnly) assert.equal(MSP_RUNTIME_ENV_NAMES.includes(name), false);
   assert.deepEqual([...MSP_OS_ENV_NAMES].sort(), namesIn('MSP_OS_ENV_NAMES').sort());

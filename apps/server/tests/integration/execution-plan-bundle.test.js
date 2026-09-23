@@ -12,6 +12,7 @@ import { makeViewer, ownsElsewhere } from '../factories/viewer'
 import { dryRunBundle } from '@/modules/project-manager/import/bundle/bundle-dry-run'
 import { commitBundle } from '@/modules/project-manager/import/bundle/bundle-commit-service'
 import { BUNDLE_STEP_KEY, BUNDLE_AUDIT_ACTION } from '@/modules/project-manager/import/bundle/bundle-receipt'
+import { replayProjectExecutionTrace } from '@/modules/project-manager/application/project-execution-trace-service'
 
 // @req FR-108 — the ExecutionPlanBundle round trip against a seeded database:
 // combined dry-run → single confirmation → one-transaction commit → receipt,
@@ -151,6 +152,32 @@ describe('ExecutionPlanBundle import (FR-108)', () => {
     const lineage = JSON.parse(auditEvent.payloadJson).receipt.projects
     expect(lineage.map((entry) => entry.projectCode).sort()).toEqual(['PRJ-GKS', 'PRJ-MSP'])
     for (const entry of lineage) expect(entry.executionRunId).toBeTruthy()
+
+    const bundleRun = await prisma.projectExecutionRun.findUnique({
+      where: { executionRunId: result.receipt.bundleRunId },
+      include: { steps: { orderBy: { sequence: 'asc' } } },
+    })
+    expect(bundleRun.sourceKind).toBe('BUNDLE')
+    expect(JSON.parse(bundleRun.projectIdsJson).sort()).toEqual(projects.map((project) => project.id).sort())
+    expect(bundleRun.steps.map((step) => step.stepKey)).toEqual([
+      'bundle.strategy',
+      'bundle.project.commit',
+      'bundle.dependencies',
+    ])
+    expect(bundleRun.steps.every((step) => step.status === 'SUCCEEDED')).toBe(true)
+
+    const bundleReplay = await replayProjectExecutionTrace(msp.id, result.receipt.bundleRunId, {
+      viewer,
+      mode: 'full',
+    })
+    expect(bundleReplay.committed).toBe(true)
+    expect(bundleReplay.executionRunId).not.toBe(result.receipt.bundleRunId)
+    expect(bundleReplay.trace).toMatchObject({
+      sourceKind: 'BUNDLE',
+      replayOfExecutionRunId: result.receipt.bundleRunId,
+      status: 'SUCCEEDED',
+    })
+    expect(bundleReplay.trace.projectIds.sort()).toEqual(projects.map((project) => project.id).sort())
   })
 
   it('replays an accepted idempotency key: prior receipt back, no duplicates written', async () => {

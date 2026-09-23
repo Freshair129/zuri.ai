@@ -58,6 +58,8 @@ export const MSP_OS_ENV_NAMES: readonly string[] = Object.freeze([
   'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'TZ',
   'PATHEXT', 'SYSTEMROOT', 'SYSTEMDRIVE', 'WINDIR', 'COMSPEC',
   'USERPROFILE', 'HOMEDRIVE', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA',
+  // File path only; permits MSP's GKS child to trust a private CA without forwarding credentials.
+  'NODE_EXTRA_CA_CERTS',
 ]);
 
 // Windows spells these `Path` and `SystemRoot`, and its environment is case-insensitive, so names

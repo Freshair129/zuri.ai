@@ -226,6 +226,11 @@ export const SNAPSHOT_MODELS = [
   // coverage check below started deriving it from the schema.
   'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
   'person',
+  // @req FR-268 — a Key Result hangs off a goal and a Business, and (nullable)
+  // off an owner Person; a check-in hangs off its Key Result and, nullable,
+  // off an actor Person. Both restore after Person, above, and after
+  // businessGoal on the line before it.
+  'businessKeyResult', 'businessKeyResultCheckIn',
   // @req FR-248, FR-249 — route/action usage, per person; restores after Person,
   // which it references (ADR-095 D2). No secret, no Business/Tenant scope.
   'usageEvent',
@@ -257,7 +262,7 @@ export const SNAPSHOT_MODELS = [
   // restore in this order and delete in the reverse. `projectTeam` needs
   // `project` as well and therefore waits for the next line.
   'team', 'teamMembership',
-  'workspace', 'project', 'planImportReceipt', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
+  'workspace', 'project', 'planImportReceipt', 'projectExecutionRun', 'projectExecutionStep', 'projectApprovalRequest', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
   // @req FR-151 — a rich menu hangs off a LINE OA account (above) and its

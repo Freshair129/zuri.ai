@@ -128,6 +128,8 @@
     "BR-040",
     "BR-041",
     "BR-042",
+    "BR-043",
+    "BR-044",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -395,6 +397,11 @@
     "FR-265",
     "FR-266",
     "FR-267",
+    "FR-268",
+    "FR-269",
+    "FR-270",
+    "FR-271",
+    "FR-272",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -526,6 +533,7 @@
     "SDD-104",
     "SDD-105",
     "SDD-106",
+    "SDD-107",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -795,6 +803,10 @@
     "ADR-098",
     "ADR-099",
     "ADR-100",
+    "ADR-101",
+    "ADR-102",
+    "ADR-103",
+    "ADR-104",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1355,6 +1367,32 @@
         {
           "anchor": "a line message may change the catalogue only for a verified",
           "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-043": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "921dd0057cd40de08064c09e205a89076e3bb58b6077a2b28f2ba3374b7884a1",
+      "history": [
+        {
+          "anchor": "a business may hold at most two wildly important goals",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-044": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a571bb50babb51fe460bc9db20509bbc8b3a9513770a1151aee749dce7e833d2",
+      "history": [
+        {
+          "anchor": "a businessgoal s progress is never both hand typed and",
+          "since": "2026-09-22",
           "reason": "declared"
         }
       ]
@@ -4367,14 +4405,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "b785b585c72e2e1caff15bb5bb396fe3f4cbf558a48e81f3a3b16e3214f7ed9c",
+      "statement_digest": "5cfbfb479cc3ace2ece6f6b21fb71469720360142a0719fe4fc1558bc26504be",
       "history": [
         {
           "anchor": "credential write step up gate",
           "since": "2026-09-13",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-21",
+      "statement_digest_reason": "Add the operator switch ZURI_CREDENTIAL_STEP_UP=off that suspends only the step-up (ADR-100 D8, owner instruction 2026-09-21); login, rate limits and audit unchanged; subject unchanged"
     },
     "FR-225": {
       "family": "FR",
@@ -4931,6 +4971,71 @@
         {
           "anchor": "a business owner may choose the operator s private runtime",
           "since": "2026-09-21",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-268": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a1def8ec0662b9dfe43f682eeac189e1bf2d9880debc514733c0ae5734d1292b",
+      "history": [
+        {
+          "anchor": "a businessgoal may declare one or more businesskeyresult",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-269": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "afb809bad81b5b2be2ccbaa6ca04b0d88f75d5827346a34214b68366cbcf65c5",
+      "history": [
+        {
+          "anchor": "a business may track ongoing health metrics independent of",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-270": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e88f6ebe7577b685bffd3b9b7c646785fae50c46cbb208d59575b86040a3a262",
+      "history": [
+        {
+          "anchor": "a business may mark at most two active businessgoal rows",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-271": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c13a48c57ca994ec8b98cc5eece1b78adb2a4a74fc648ef020ddcdb5d7a3b77d",
+      "history": [
+        {
+          "anchor": "creating or editing a businesskeyresult runs a pure",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-272": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b9078ddcd6c1e361c6397a598d9be976c63cb32367c5eb6f99a94ef907c4934c",
+      "history": [
+        {
+          "anchor": "effectful project manager agent fleet steps enter a durable",
+          "since": "2026-09-22",
           "reason": "declared"
         }
       ]
@@ -6655,11 +6760,26 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "c5e5f3978ec7a507bd166305845110eecf766904300f1e50e2f1bf0246a207c1",
+      "statement_digest": "c6cccec38b64c7e509e59367641567617fe18a1d83415a8e47a3e8b4a6cc1b36",
       "history": [
         {
           "anchor": "model credential resolution order for a server line answer",
           "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-21",
+      "statement_digest_reason": "Drop the false claim that production resolves its key through the Phase-1 resolver (it holds no credential here, ADR-100 D5 correction); scope the fallback's purpose to provisioned installations; subject unchanged"
+    },
+    "SDD-107": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "21e6705737fc81105700c58c7ce2785b190aa1f3822fac43c982f1495e963495",
+      "history": [
+        {
+          "anchor": "businessgoal progress becomes a write through cache never a",
+          "since": "2026-09-22",
           "reason": "declared"
         }
       ]
@@ -7168,7 +7288,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "9ea383d9bbe48ae00060f291f550f2eeb97d4b985d507023cadd5c5604fa2511"
+      "statement_digest": "75197c7072695e92d5531b66e2188b1699a122007520ee11b69f6a0e372c5e46",
+      "statement_digest_reviewed_at": "2026-09-22",
+      "statement_digest_reason": "Phase 1 (ADR-101 D6) status-cell update: FR-268/FR-271 move from declared to implemented; statement scope unchanged."
     },
     "FEAT-003": {
       "family": "FEAT",
@@ -10222,6 +10344,58 @@
         {
           "anchor": "line oa runs server executed on browser provisioned api keys",
           "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-101": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md",
+      "status": "current",
+      "statement_digest": "28e08f5d5e525963ee710ebf8f8946ca172e7b6e9c855416310897c433e0743d",
+      "history": [
+        {
+          "anchor": "business goals become okr smart balanced scorecard 4dx",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-102": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-102-PM-EXECUTION-TRACE-AND-REPLAY.md",
+      "status": "current",
+      "statement_digest": "28bdde0a8d77e8cf995cad753dd00544e74028f36fa20a10b4fb262675d7fb53",
+      "history": [
+        {
+          "anchor": "project manager execution trace and append only replay",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-103": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-103-PM-APPROVAL-GATEWAY-ADMISSION.md",
+      "status": "current",
+      "statement_digest": "e9bb88442e472ea8d2e8b39d0f4653f79fdc96fa7309b5e00e13dc16346307ed",
+      "history": [
+        {
+          "anchor": "project manager approval gateway admission",
+          "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-104": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-104-PRODUCTION-MIGRATION-LINEAGE-RECONCILIATION.md",
+      "status": "current",
+      "statement_digest": "c7585941d7ba3dc93a9118dd8c7293ca703134063c50814cedc6e3830fefbc75",
+      "history": [
+        {
+          "anchor": "production postgresql migration lineage reconciliation and",
+          "since": "2026-09-22",
           "reason": "declared"
         }
       ]

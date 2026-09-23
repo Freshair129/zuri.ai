@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "e7ec1c06ea166b8199c501b741b637454426d431ed78d0dc7a33f2377ad00696",
+  "schemaSha256": "a265b10cc6366b3d586e9d6a3350fb0dce88add831008aa3f378128429102f33",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -90,6 +90,16 @@
       "modelName": "BusinessGoal",
       "schemaName": "public",
       "tableName": "BusinessGoal"
+    },
+    {
+      "modelName": "BusinessKeyResult",
+      "schemaName": "public",
+      "tableName": "BusinessKeyResult"
+    },
+    {
+      "modelName": "BusinessKeyResultCheckIn",
+      "schemaName": "public",
+      "tableName": "BusinessKeyResultCheckIn"
     },
     {
       "modelName": "BusinessRoadmap",
@@ -462,11 +472,6 @@
       "tableName": "LocalWorkspaceMount"
     },
     {
-      "modelName": "MarketObservation",
-      "schemaName": "public",
-      "tableName": "MarketObservation"
-    },
-    {
       "modelName": "MarketingBroadcastIntent",
       "schemaName": "public",
       "tableName": "MarketingBroadcastIntent"
@@ -530,6 +535,11 @@
       "modelName": "MarketingReview",
       "schemaName": "public",
       "tableName": "MarketingReview"
+    },
+    {
+      "modelName": "MarketObservation",
+      "schemaName": "public",
+      "tableName": "MarketObservation"
     },
     {
       "modelName": "Membership",
@@ -710,6 +720,21 @@
       "modelName": "Project",
       "schemaName": "public",
       "tableName": "Project"
+    },
+    {
+      "modelName": "ProjectApprovalRequest",
+      "schemaName": "public",
+      "tableName": "ProjectApprovalRequest"
+    },
+    {
+      "modelName": "ProjectExecutionRun",
+      "schemaName": "public",
+      "tableName": "ProjectExecutionRun"
+    },
+    {
+      "modelName": "ProjectExecutionStep",
+      "schemaName": "public",
+      "tableName": "ProjectExecutionStep"
     },
     {
       "modelName": "ProjectFeature",
@@ -916,5 +941,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "55a7118038ac472f286c0f559843f024f90281e72b86dd8525e52d752d67054a"
+  "targetSchemaSha256": "fd36fe16bc94f66605164b131124d1b7a59916e4caff2fc6f964f5a628825c92"
 }

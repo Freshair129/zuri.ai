@@ -54,7 +54,7 @@ Requirement bodies are extracted one per file under [Project Manager proposal re
 |PMR-010|[requirement file](../../domains/project-manager/requirements/PMR-010-proposal-requirement.md)|PMF-07|integration|none|
 |PMR-011|[requirement file](../../domains/project-manager/requirements/PMR-011-proposal-requirement.md)|PMF-07|integration|FR-242|
 |PMR-012|[requirement file](../../domains/project-manager/requirements/PMR-012-proposal-requirement.md)|PMF-08|identity|FR-191, FR-192|
-|PMR-013|[requirement file](../../domains/project-manager/requirements/PMR-013-proposal-requirement.md)|PMF-06|project-manager|FR-196|
+|PMR-013|[requirement file](../../domains/project-manager/requirements/PMR-013-proposal-requirement.md)|PMF-06|project-manager|FR-272 (FR-196 SoD context)|
 |PMR-014|[requirement file](../../domains/project-manager/requirements/PMR-014-proposal-requirement.md)|PMF-02|project-manager|none|
 |PMR-015|[requirement file](../../domains/project-manager/requirements/PMR-015-proposal-requirement.md)|PMF-08|project-manager|FR-124|
 |PMR-016|[requirement file](../../domains/project-manager/requirements/PMR-016-proposal-requirement.md)|PMF-01|project-manager|none|

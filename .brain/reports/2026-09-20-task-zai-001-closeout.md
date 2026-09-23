@@ -1,8 +1,8 @@
 # TASK-ZAI-001 closeout evidence and production-tail runbook
 
-Version: 0.6.0b
+Version: 0.7.0b
 Date: 2026-09-22
-Status: REVIEW — Person force-RLS, authenticated canary, provider/channel boundary and effective-key fix verified; agent/MSP boundary and owner acceptance remain open
+Status: BLOCKED — production boundary evidence is recorded, but the authenticated memory canary is blocked by missing Business model-provider configuration and an unavailable private runtime
 Task owner: ATHER  
 Approver: Owen  
 Executor: Codex
@@ -10,14 +10,16 @@ Executor: Codex
 ## Scope and evidence boundary
 
 This report is limited to `TASK-ZAI-001`, “Close the production request-session
-and credential boundary”. It records repository and pull-request evidence,
-the narrowly scoped production IAM repair and canary, and the remaining
-owner-run production gates. It does not rotate a secret or change another task.
+and credential boundary”. It records repository evidence, the narrowly scoped
+production IAM repairs, a controlled MSP memory activation attempt and the
+remaining owner-run production gates. The controlled repair rotated only the
+dedicated runtime role through the verified operator path; no password, service
+key, HMAC material, LINE secret, reply token or customer content is recorded.
+The activation attempt is not a task-acceptance claim.
 
-The isolated closeout branch starts from `origin/main` at
-`01a6712b422d73e1892b647953729d8da7f410cb`. The shared primary checkout was not
-used for changes because it contains unrelated dirty report files and its local
-`main` is behind the remote branch.
+The isolated closeout branch starts from the deployed baseline
+`5c5f12d3729a077ac7bdc5928b400af548a6cf7f`. The shared primary checkout was not
+used for branch changes because it contains unrelated dirty files.
 
 ## Current SOT and DoD
 
@@ -25,17 +27,18 @@ The canonical ledger in `docs/roadmap/ROADMAP.md` records:
 
 | Field | Current value | Evidence |
 |---|---|---|
-| Status | `review` | canonical TASK-ZAI-001 row |
-| Proof scope | `UNKNOWN` | canonical TASK-ZAI-001 row |
-| Implementation state | `IN_PROGRESS` | canonical TASK-ZAI-001 row |
-| Task container | `TC-TASK-ZAI-001`, version `0.2.0` | `docs/roadmap/ROADMAP-zuri-ai-24w-program.md` |
+| Status | `blocked` | canonical TASK-ZAI-001 row; the database role now authenticates, but the Business has no active model-provider connection and the configured private runtime returns HTTP 502 |
+| Proof scope | `PRODUCTION` | live activation/boundary evidence only; full acceptance is not proven |
+| Implementation state | `BLOCKED` | deployed candidate and live configuration exist; end-to-end canary cannot execute |
+| Task container | `TC-TASK-ZAI-001`, version `0.3.0` | `docs/roadmap/ROADMAP-zuri-ai-24w-program.md` |
 | Acceptance criterion | unchecked | request without trusted session must refuse before the service runs |
 | Success criterion | checked | FR-090 password-reset token is single-use and expires |
 | Exit criterion | unchecked | `fr046-entry-contract.spec.js` unauthenticated negative case under `npm run test:e2e` |
 
-The checked success criterion is repository/test evidence. It is not evidence
-that the production request-session boundary is accepted. The unchecked
-acceptance and exit criteria remain intentionally unchanged.
+The checked success criterion is repository/test evidence. The live production
+activation and direct MSP boundary are additional scoped evidence, not evidence
+that the task acceptance or exit criterion is complete. The unchecked acceptance
+and exit criteria remain intentionally unchanged.
 
 ## Existing implementation evidence
 
@@ -69,7 +72,7 @@ This is merged repository evidence only. It does not prove that the deployed
 production artifact, database schema, runtime role, provider binding and live
 data all match this commit.
 
-## Bounded patch and current merge state
+## Bounded implementation changes and current merge state
 
 The bounded Session-store patch was initially prepared on the closeout branch.
 It is now present in `origin/main` through `d1bba8ab` and is an ancestor of the
@@ -113,6 +116,11 @@ repair documented in `.brain/rca/2026-09-22-msp-runtime-env-allowlist.md`.
 It passes the current pinned MSP control variables through the explicit
 allowlist without enabling environment pass-through.
 
+The branch also passes the configured MSP `agentId` and `workspaceId` from the
+server LINE runtime into the thread-memory port. The null-binding-code
+Project/Work regression, transport allowlist regression and runtime composition
+regression are included in the focused test set.
+
 ## Existing production evidence and open gates
 
 `docs/roadmap/PLAN-FR-094-PRODUCTION-IAM.md` records W7/W8 runtime-role and
@@ -130,7 +138,7 @@ that `main` is deployed or production-accepted.
 | Membership/cross-tenant isolation canary | `PASS` | canary sees only SmartGift; crafted EMC Project identifier returns not-present-in-current-scope |
 | Provider/channel onboarding proof | `PASS (loopback)` | signed transport origin, pending unlinked subject denied, server-owned link and active Membership verified; no real provider delivery claimed |
 | Agent/tool/MSP side-effect denial | `PARTIAL` | live Project tool boundary verified; local pinned real-MSP process and 38 transport/context tests pass; production private-memory activation and owner receipt remain open |
-| Production deployment/activation | `VERIFIED FOR CANARY` | deployed image, health, rollback tag and scoped live receipts verified; explicit owner release gate remains absent |
+| Production deployment/activation | `BLOCKED` | candidate and memory flag are live; signed admission works, but worker execution fails before MSP context commit because model resolution has no active Business model connection and the configured private runtime is unavailable |
 
 ## Owner-run production-tail runbook
 
@@ -302,18 +310,58 @@ hops with outcome codes only: `empty_page` for MSP→GKS and
 `published_generation` for MSP→worker. No batch, receipt, publication or
 customer payload was written by this smoke.
 
+## Verification run — 2026-09-22 controlled MSP memory activation
+
+The production candidate was rebuilt and exercised with synthetic, signed
+loopback input. Passwords, service keys, HMAC material, reply tokens and
+customer content were not recorded.
+
+- `ZURI_MSP_THREAD_MEMORY_ENABLED=true` was set in the deployment-only
+  knowledge environment for the server LINE runtime. The r3 candidate passed
+  the configured MSP agent/workspace binding and the explicit private-grant/HMAC
+  environment allowlist; no secret value is recorded here.
+- Direct signed calls through the pinned MSP process passed initialization,
+  ping, thread resolve, human append and context retrieval. A forged
+  agent/principal context was denied with `thread_scope_denied`. This proves the
+  production-container boundary, not the complete LINE memory lifecycle.
+- The deployment database URL was repaired with the project-qualified pooler
+  username, and the dedicated `zuri_line_smartgift_login` role was rotated by an
+  atomic alter-and-login check before the new secret was persisted. A follow-up
+  runtime probe returned `current_user=session_user=zuri_line_smartgift_login`;
+  the web and line-worker containers were then recreated and remained healthy.
+  The password is not recorded here.
+- A signed synthetic loopback webhook returned HTTP 200 with one captured event;
+  admission persisted `memorySyncOptIn=true`. The authenticated worker endpoint
+  also returned HTTP 200, but the job ended `EXECUTION_FAILED` with only
+  `TURN_RECEIVED`, `EXECUTION_STARTED` and `EXECUTION_FAILED` traces—no
+  `CONTEXT_COMMITTED`, `CONTEXT_RECEIPT` or MSP injection receipt.
+- Read-only model inventory for the target Tenant/Business found no active
+  primary `MODEL_PROVIDER` connection and no active primary `PHASE1_LINE_LLM`
+  connection. The configured private-runtime `/v1/models` probe returned HTTP
+  502 from both the web container and the host network.
+- No erasure or rollback proof was claimed. The memory flag remains enabled so
+  the candidate does not silently change policy while the provider prerequisite
+  is repaired.
+- The focused regression suite passed from the isolated worktree; `npm run
+  govern` passed with 0 critical findings and the production build generated 99
+  pages. `git diff --check` passed.
+- Therefore the proof scope is `PRODUCTION` for activation configuration,
+  database-role authentication, signed admission and boundary behavior only.
+  The authenticated memory canary, model-provider readiness, erasure proof,
+  rollback proof and owner acceptance remain open; the canonical task status is
+  `blocked`, not `done`.
+
 ## Closeout decision
 
 The existing FEAT-010 implementation and Session-store fail-closed guard are
-present in merged repository history. The Person force-RLS drift is repaired
-and verified, the authenticated/cross-business canary is evidenced, the
-provider/channel plus effective-key Project-tool boundary is live-verified,
-the pinned MSP transport contract is locally verified, and the deployed
-MSP→GKS→worker relay smoke passes. TASK-ZAI-001 remains open for production
-private-memory activation/forged-agent side-effect receipt and owner acceptance;
-no canonical proof-scope or roadmap status transition is made.
+present in merged repository history. The Person force-RLS drift is repaired and
+verified, the authenticated/cross-business canary and provider/channel boundary
+are evidenced, the effective-key and pinned MSP transport contracts are locally
+verified, and the controlled memory activation boundary is recorded. TASK-ZAI-001
+remains blocked for the missing Business model-provider/private-runtime
+prerequisite, authenticated memory canary, erasure/rollback proof and owner
+acceptance. No full production-readiness claim is made.
 
-Version diff: `0.5.0b` → `0.6.0b`; recorded the MSP allowlist RCA and repair,
-pinned real-MSP local acceptance, second production-baseline image, repeat
-active/pending live canary and KI17 shared-namespace repair. No requirement ids,
-DoD flags or canonical roadmap status were changed.
+Version diff: `0.6.0b` → `0.7.0b`; composed the controlled activation blocker
+with the Person force-RLS, effective-key, MSP allowlist and KI17 namespace
+evidence. No requirement ids or canonical DoD flags were changed.

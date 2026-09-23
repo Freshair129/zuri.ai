@@ -21,9 +21,15 @@
 import prisma from '@/lib/db'
 import { z } from 'zod'
 import { uniqueHumanCode } from '@/lib/ids'
-import { zRoadmapStatus, zGoalStatus, zGoalPriority } from '@/lib/validation/enums'
+import { zRoadmapStatus, zGoalStatus, zGoalPriority, zKeyResultDirection, zKeyResultStatus, zBusinessGoalPerspective } from '@/lib/validation/enums'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { recordAudit } from './audit'
+// @req FR-268, SDD-107 — the pure calculators this file's Key Result writers
+// call to keep BusinessGoal.progress a write-through cache (never a second
+// source of truth) rather than a value this file invents its own formula for.
+import { keyResultProgress, expectedProgress } from '../progress/key-result-progress'
+import { rollupGoal } from '../progress/goal-rollup'
+import { weekStartFor } from '../progress/week'
 
 // ---- authorization ----------------------------------------------------------
 // Owner-role check follows the same idiom as
@@ -148,6 +154,11 @@ export const zGoalCreateInput = z.object({
   description: z.string().nullish(),
   status: zGoalStatus.default('PLANNED'),
   priority: zGoalPriority.default('MEDIUM'),
+  // @req ADR-101 D1 — nullable Balanced Scorecard tag; absent by default, same
+  // as every goal that existed before FR-268. `isWig` is deliberately not
+  // settable here — FR-270/Phase 3 owns the <=2-per-Business rule (BR-043)
+  // and its own dedicated mutation.
+  perspective: zBusinessGoalPerspective.nullish(),
   progress: z.number().min(0).max(100).default(0),
   startAt: z.coerce.date().nullish(),
   targetAt: z.coerce.date().nullish(),
@@ -163,9 +174,51 @@ export const zGoalPatchInput = z.object({
   description: z.string().nullish().optional(),
   status: zGoalStatus.optional(),
   priority: zGoalPriority.optional(),
+  perspective: zBusinessGoalPerspective.nullish().optional(),
   progress: z.number().min(0).max(100).optional(),
   startAt: z.coerce.date().nullish().optional(),
   targetAt: z.coerce.date().nullish().optional(),
+})
+
+// @req FR-268 — a Key Result under an existing goal. `goalId` is a function
+// parameter (createKeyResult(goalId, input, …)), never a body field — the
+// same shape linkProjectToGoal already uses, so a caller cannot claim a
+// businessId the target goal disagrees with; it is always derived from the
+// goal, never trusted from input.
+export const zKeyResultCreateInput = z
+  .object({
+    code: z.string().min(1).max(128).optional(),
+    title: z.string().min(1),
+    metric: z.string().min(1),
+    unit: z.string().min(1),
+    baseline: z.number(),
+    target: z.number(),
+    direction: zKeyResultDirection.default('UP'),
+    dueAt: z.coerce.date().nullish(),
+    ownerPersonId: z.string().min(1).nullish(),
+    confidence: z.number().int().min(1).max(5).default(3),
+  })
+  .refine((d) => d.target !== d.baseline, { message: 'target must differ from baseline (FR-271 Measurable)', path: ['target'] })
+
+export const zKeyResultPatchInput = z.object({
+  title: z.string().min(1).optional(),
+  metric: z.string().min(1).optional(),
+  unit: z.string().min(1).optional(),
+  baseline: z.number().optional(),
+  target: z.number().optional(),
+  direction: zKeyResultDirection.optional(),
+  dueAt: z.coerce.date().nullish().optional(),
+  ownerPersonId: z.string().min(1).nullish().optional(),
+  confidence: z.number().int().min(1).max(5).optional(),
+  status: zKeyResultStatus.optional(),
+})
+
+// weekStartAt is never a client field (Phase 1 keeps this simple): every
+// check-in belongs to weekStartFor(now) at call time, server-computed.
+export const zCheckInInput = z.object({
+  value: z.number(),
+  confidence: z.number().int().min(1).max(5),
+  note: z.string().nullish(),
 })
 
 export const zProjectLinkInput = z.object({
@@ -217,7 +270,52 @@ function projectLinkDto(project, businessId) {
   }
 }
 
+function serializeCheckInDto(checkIn) {
+  return {
+    id: checkIn.id,
+    weekStartAt: checkIn.weekStartAt,
+    value: checkIn.value,
+    confidence: checkIn.confidence,
+    note: checkIn.note,
+    source: checkIn.source,
+    actorPersonId: checkIn.actorPersonId,
+  }
+}
+
+// @req FR-268, SDD-107 — progress/expectedProgress are never stored on
+// BusinessKeyResult; both are recomputed here from (baseline, target,
+// direction, latest check-in), the same pure calculators the read side and
+// the UI's live SMART/status rendering call, so this response can never
+// disagree with what a reload of the same row would show.
+function serializeKeyResultDto(kr, now = Date.now()) {
+  const checkIns = [...(kr.checkIns || [])].sort((a, b) => new Date(a.weekStartAt) - new Date(b.weekStartAt))
+  const latest = checkIns[checkIns.length - 1]
+  const current = latest ? latest.value : kr.baseline
+  return {
+    id: kr.id,
+    code: kr.code,
+    title: kr.title,
+    metric: kr.metric,
+    unit: kr.unit,
+    baseline: kr.baseline,
+    target: kr.target,
+    direction: kr.direction,
+    dueAt: kr.dueAt,
+    ownerPersonId: kr.ownerPersonId,
+    confidence: kr.confidence,
+    status: kr.status,
+    current,
+    progress: keyResultProgress(kr, current),
+    expectedProgress: expectedProgress(kr, now),
+    checkIns: checkIns.map(serializeCheckInDto),
+  }
+}
+
 function serializeGoalDto(goal, businessId) {
+  // GOAL_INCLUDE below already filters keyResults to non-archived, so its
+  // length here is exactly BR-044's "does this goal have an active Key
+  // Result" test — no second query.
+  const keyResults = (goal.keyResults || []).map((kr) => serializeKeyResultDto(kr))
   return {
     id: goal.id,
     code: goal.code,
@@ -225,12 +323,16 @@ function serializeGoalDto(goal, businessId) {
     description: goal.description,
     status: goal.status,
     priority: goal.priority,
+    perspective: goal.perspective,
+    isWig: goal.isWig,
     progress: goal.progress,
+    progressSource: keyResults.length > 0 ? 'KEY_RESULTS' : 'MANUAL',
     startAt: goal.startAt,
     targetAt: goal.targetAt,
     projects: (goal.projects || [])
       .map((link) => projectLinkDto(link.project, businessId))
       .filter(Boolean),
+    keyResults,
   }
 }
 
@@ -261,7 +363,14 @@ function serializeRoadmapDto(roadmap, businessId) {
 const PROJECT_SELECT = {
   select: { id: true, code: true, name: true, status: true, businessId: true, workspace: { select: { businessId: true } } },
 }
-const GOAL_INCLUDE = { projects: { include: { project: PROJECT_SELECT } } }
+// Up to 13 check-ins (a quarter of weeks) per Key Result — enough for the
+// strategy card's own read, without an unbounded include on a goal that has
+// been running for a year.
+const KEY_RESULT_INCLUDE = { checkIns: { orderBy: { weekStartAt: 'desc' }, take: 13 } }
+const GOAL_INCLUDE = {
+  projects: { include: { project: PROJECT_SELECT } },
+  keyResults: { where: { status: { not: 'ARCHIVED' } }, orderBy: { code: 'asc' }, include: KEY_RESULT_INCLUDE },
+}
 const ROADMAP_INCLUDE = { horizons: { orderBy: { position: 'asc' }, include: { goals: { include: GOAL_INCLUDE } } } }
 
 // ---- roadmap --------------------------------------------------------------
@@ -494,6 +603,7 @@ export async function createGoal(input, { db = prisma, viewer } = {}) {
         description: data.description ?? null,
         status: data.status,
         priority: data.priority,
+        perspective: data.perspective ?? null,
         progress: data.progress,
         startAt: data.startAt ?? null,
         targetAt: data.targetAt ?? null,
@@ -520,6 +630,22 @@ export async function updateGoal(id, patch, { db = prisma, viewer } = {}) {
   if (!existing) throw new Error('Goal not found')
   const businessId = existing.businessId
   assertBusinessOwned(businessId, viewer)
+
+  // @req BR-044, SDD-107 — once a goal holds an active Key Result, its
+  // progress is a write-through cache only recordKeyResultCheckIn writes;
+  // a manual patch here is refused so there is exactly one writer of the
+  // number, never two that can disagree.
+  if (data.progress !== undefined) {
+    const activeKeyResultCount = await db.businessKeyResult.count({
+      where: { goalId: id, status: { not: 'ARCHIVED' } },
+    })
+    if (activeKeyResultCount > 0) {
+      throw conflict(
+        `Cannot set progress by hand — this goal has ${activeKeyResultCount} active Key Result(s); ` +
+        'progress is derived from them (BR-044).'
+      )
+    }
+  }
 
   let nextRoadmapId
   if (data.horizonId !== undefined) {
@@ -549,6 +675,7 @@ export async function updateGoal(id, patch, { db = prisma, viewer } = {}) {
         description: data.description === undefined ? existing.description : data.description,
         status: data.status ?? existing.status,
         priority: data.priority ?? existing.priority,
+        perspective: data.perspective === undefined ? existing.perspective : data.perspective,
         progress: data.progress === undefined ? existing.progress : data.progress,
         startAt: data.startAt === undefined ? existing.startAt : data.startAt,
         targetAt: data.targetAt === undefined ? existing.targetAt : data.targetAt,
@@ -630,4 +757,217 @@ export async function unlinkProjectFromGoal(goalId, projectId, { db = prisma, vi
   })
 
   return serializeGoalDto(updated, goal.businessId)
+}
+
+// ---- key result --------------------------------------------------------
+// @req FR-268, SDD-107, BR-044 — OWNER-only, same authority as every other
+// write in this file (ADR-101 D4: a narrower Key-Result-owner grant is
+// explicit future work, not assumed here). Every write that changes a check-
+// in or a Key Result's archived status recomputes the parent goal's
+// `progress` in the SAME transaction (recomputeGoalProgress below), so a
+// reader of the goal never observes a check-in without the number it
+// produced.
+
+/**
+ * Recompute and persist a goal's progress from its own active (non-archived)
+ * Key Results, inside the caller's transaction. Returns the new percent, or
+ * `null` when there are no active Key Results left to roll up — archiving a
+ * goal's last Key Result leaves `progress` at its last computed value rather
+ * than resetting it to 0, so BR-044's manual-edit gate reopens on a real
+ * number, not a discontinuity.
+ *
+ * `overrideValueFor(keyResultId)` lets a caller supply the value a check-in
+ * just wrote before that write would otherwise be visible to this query —
+ * belt-and-suspenders alongside the transaction's own read-your-writes
+ * guarantee, so this function's correctness never depends on relying on it.
+ */
+async function recomputeGoalProgress(tx, goalId, { overrideValueFor } = {}) {
+  const siblings = await tx.businessKeyResult.findMany({
+    where: { goalId, status: { not: 'ARCHIVED' } },
+    include: { checkIns: { orderBy: { weekStartAt: 'desc' }, take: 1 } },
+  })
+  if (siblings.length === 0) return null
+  const percents = siblings.map((sibling) => {
+    const overridden = overrideValueFor ? overrideValueFor(sibling.id) : undefined
+    const current = overridden !== undefined && overridden !== null
+      ? overridden
+      : (sibling.checkIns[0] ? sibling.checkIns[0].value : sibling.baseline)
+    return keyResultProgress(sibling, current)
+  })
+  const rollup = rollupGoal(percents)
+  await tx.businessGoal.update({ where: { id: goalId }, data: { progress: rollup.percent, version: { increment: 1 } } })
+  return rollup.percent
+}
+
+export async function createKeyResult(goalId, input, { db = prisma, viewer } = {}) {
+  requireOwner(viewer)
+  const data = zKeyResultCreateInput.parse(input)
+  const goal = await db.businessGoal.findUnique({ where: { id: goalId }, select: { id: true, businessId: true } })
+  if (!goal) throw new Error('Goal not found')
+  assertBusinessOwned(goal.businessId, viewer)
+
+  let code
+  if (data.code) {
+    if (await db.businessKeyResult.findUnique({ where: { code: data.code } })) {
+      throw conflict(`Key Result code "${data.code}" already exists`)
+    }
+    code = data.code
+  } else {
+    code = await uniqueHumanCode('KR', data.title, async (candidate) =>
+      Boolean(await db.businessKeyResult.findUnique({ where: { code: candidate } }))
+    )
+  }
+
+  const kr = await db.$transaction(async (tx) => {
+    const created = await tx.businessKeyResult.create({
+      data: {
+        code,
+        businessId: goal.businessId,
+        goalId,
+        title: data.title,
+        metric: data.metric,
+        unit: data.unit,
+        baseline: data.baseline,
+        target: data.target,
+        direction: data.direction,
+        dueAt: data.dueAt ?? null,
+        ownerPersonId: data.ownerPersonId ?? null,
+        confidence: data.confidence,
+      },
+      include: KEY_RESULT_INCLUDE,
+    })
+    // A brand-new Key Result starts at its baseline (0% progress) with no
+    // check-in yet, so it changes the goal's rollup the moment it exists —
+    // recompute now rather than waiting for the first check-in.
+    await recomputeGoalProgress(tx, goalId)
+    await recordAudit(tx, {
+      entityType: 'BUSINESS_KEY_RESULT',
+      entityId: created.id,
+      action: 'CREATED',
+      payload: { code, goalId, businessId: goal.businessId },
+      actorId: viewer.principal?.id ?? null,
+      businessId: goal.businessId,
+    })
+    return created
+  })
+
+  return serializeKeyResultDto(kr)
+}
+
+export async function updateKeyResult(id, patch, { db = prisma, viewer } = {}) {
+  requireOwner(viewer)
+  const data = zKeyResultPatchInput.parse(patch)
+  const existing = await db.businessKeyResult.findUnique({ where: { id } })
+  if (!existing) throw new Error('Key Result not found')
+  assertBusinessOwned(existing.businessId, viewer)
+
+  if (data.target !== undefined || data.baseline !== undefined) {
+    const nextBaseline = data.baseline ?? existing.baseline
+    const nextTarget = data.target ?? existing.target
+    if (nextTarget === nextBaseline) throw badRequest('target must differ from baseline (FR-271 Measurable)')
+  }
+
+  if (Object.keys(data).length === 0) {
+    const unchanged = await db.businessKeyResult.findUnique({ where: { id }, include: KEY_RESULT_INCLUDE })
+    return serializeKeyResultDto(unchanged)
+  }
+
+  const kr = await db.$transaction(async (tx) => {
+    const updated = await tx.businessKeyResult.update({
+      where: { id },
+      data: {
+        title: data.title ?? existing.title,
+        metric: data.metric ?? existing.metric,
+        unit: data.unit ?? existing.unit,
+        baseline: data.baseline ?? existing.baseline,
+        target: data.target ?? existing.target,
+        direction: data.direction ?? existing.direction,
+        dueAt: data.dueAt === undefined ? existing.dueAt : data.dueAt,
+        ownerPersonId: data.ownerPersonId === undefined ? existing.ownerPersonId : data.ownerPersonId,
+        confidence: data.confidence ?? existing.confidence,
+        status: data.status ?? existing.status,
+        version: { increment: 1 },
+      },
+      include: KEY_RESULT_INCLUDE,
+    })
+    // baseline/target/direction/status can all move what this Key Result
+    // contributes to its goal's rollup — recompute unconditionally rather
+    // than trying to enumerate which patched fields matter.
+    await recomputeGoalProgress(tx, existing.goalId)
+    await recordAudit(tx, {
+      entityType: 'BUSINESS_KEY_RESULT',
+      entityId: id,
+      action: 'UPDATED',
+      payload: data,
+      actorId: viewer.principal?.id ?? null,
+      businessId: existing.businessId,
+    })
+    return updated
+  })
+
+  return serializeKeyResultDto(kr)
+}
+
+// No separate archiveKeyResult: `updateKeyResult(id, { status: 'ARCHIVED' })`
+// already recomputes the parent goal's rollup unconditionally (a status
+// change is exactly the kind of edit that changes what a goal rolls up from),
+// the same way BusinessGoal itself has no dedicated archive verb — archiving
+// a goal is a PATCH with `status: 'ARCHIVED'` too.
+
+/**
+ * Weekly check-in (FR-268). Upserts by (keyResultId, weekStartFor(now)) —
+ * a second check-in the same week updates the same row rather than
+ * accumulating duplicates a "latest" read would have to disambiguate — and
+ * write-through recomputes the parent goal's progress in the same
+ * transaction (SDD-107).
+ */
+export async function recordKeyResultCheckIn(keyResultId, input, { db = prisma, viewer, now = Date.now() } = {}) {
+  requireOwner(viewer)
+  const data = zCheckInInput.parse(input)
+  const existing = await db.businessKeyResult.findUnique({ where: { id: keyResultId } })
+  if (!existing) throw new Error('Key Result not found')
+  assertBusinessOwned(existing.businessId, viewer)
+
+  const weekStartAt = weekStartFor(now)
+  const actorId = viewer.principal?.id ?? null
+
+  const result = await db.$transaction(async (tx) => {
+    await tx.businessKeyResultCheckIn.upsert({
+      where: { keyResultId_weekStartAt: { keyResultId, weekStartAt } },
+      create: {
+        keyResultId,
+        weekStartAt,
+        value: data.value,
+        confidence: data.confidence,
+        note: data.note ?? null,
+        actorPersonId: actorId,
+      },
+      update: {
+        value: data.value,
+        confidence: data.confidence,
+        note: data.note ?? null,
+        actorPersonId: actorId,
+      },
+    })
+    if (data.confidence !== existing.confidence) {
+      await tx.businessKeyResult.update({
+        where: { id: keyResultId },
+        data: { confidence: data.confidence, version: { increment: 1 } },
+      })
+    }
+    await recomputeGoalProgress(tx, existing.goalId, {
+      overrideValueFor: (id) => (id === keyResultId ? data.value : undefined),
+    })
+    await recordAudit(tx, {
+      entityType: 'BUSINESS_KEY_RESULT',
+      entityId: keyResultId,
+      action: 'CHECKED_IN',
+      payload: { weekStartAt, value: data.value, confidence: data.confidence, note: data.note ?? null },
+      actorId,
+      businessId: existing.businessId,
+    })
+    return tx.businessKeyResult.findUnique({ where: { id: keyResultId }, include: KEY_RESULT_INCLUDE })
+  })
+
+  return serializeKeyResultDto(result, now)
 }

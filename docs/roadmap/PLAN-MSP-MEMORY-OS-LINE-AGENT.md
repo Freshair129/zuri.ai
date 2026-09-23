@@ -1,7 +1,7 @@
 ---
-version: "0.1.2b"
+version: "0.1.3b"
 created_at: "2026-09-14T09:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-14T11:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-22T00:00:00+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
@@ -28,8 +28,31 @@ isolation ระหว่างผู้ใช้ งานเรียงตา
 8. vault รายบุคคล
 9. ความจำข้ามแชท
 
-**ยังไม่มีการเปิดใช้ใด ๆ** ตัวแปร `ZURI_MSP_THREAD_MEMORY_ENABLED` ยังต้องปล่อยว่างไว้
-จนกว่า TASK-MEMOS-006 จะผ่าน gate ทั้งหมด
+**มีการเปิด flag ใน controlled production candidate แล้ว แต่ยังไม่ถือว่า
+TASK-MEMOS-006 ผ่าน** ตัวแปร `ZURI_MSP_THREAD_MEMORY_ENABLED` เปิดเพื่อพิสูจน์
+activation/boundary เท่านั้น; authenticated memory canary, erasure, rollback
+และ owner acceptance ยังไม่ผ่าน จึงห้ามประกาศว่า production memory พร้อมใช้งาน
+เต็มรูปแบบ
+
+## Controlled activation evidence — 2026-09-22
+
+- Candidate production เปิด `ZURI_MSP_THREAD_MEMORY_ENABLED=true` พร้อม
+  `agentId`/`workspaceId` binding และ explicit MSP private-grant/HMAC controls.
+- Direct pinned-MSP process ผ่าน initialize, ping, resolve, human append และ
+  context retrieval; forged agent/principal context ถูกปฏิเสธด้วย
+  `thread_scope_denied`.
+- Signed live loopback ถูก admit ด้วย `memorySyncOptIn=true` และ dedicated
+  `zuri_line_smartgift_login` ผ่าน atomic alter-and-login probe หลังแก้
+  project-qualified pooler username แล้ว
+- Worker endpoint ตอบ HTTP 200 แต่ job จบ `EXECUTION_FAILED` ก่อน
+  `CONTEXT_COMMITTED`; read-only inventory พบว่า Business นี้ไม่มี active
+  primary `MODEL_PROVIDER` หรือ `PHASE1_LINE_LLM` connection และ configured
+  private-runtime `/v1/models` ตอบ HTTP 502 จากทั้ง container และ host
+- ดังนั้น TASK-MEMOS-006 อยู่สถานะ **BLOCKED — production boundary proven,
+  model-provider prerequisite and end-to-end memory canary not accepted**.
+  ห้ามเปลี่ยนเป็น done จนกว่าจะมี active validated model connection,
+  multi-turn recall หลัง restart, erasure invalidation และ rollback receipt
+  ครบถ้วน
 
 ## Why this plan exists
 
@@ -112,3 +135,11 @@ These are the ten decisions from the RKOI reconciliation. TASK-MEMOS-001 records
 ## Rollback
 
 Unset `ZURI_MSP_THREAD_MEMORY_ENABLED` for the account. Jobs admitted after that point are not opted in and answer from public knowledge only. MSP data stays in place under its retention and erasure rules, and nothing in the Zuri CRM database changes.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.4b | 2026-09-22 | beta | Recorded verified dedicated-role repair and signed admission; TASK-MEMOS-006 remains blocked by missing Business model-provider readiness and incomplete canary gates | working-tree | Codex |
+| 0.1.3b | 2026-09-22 | beta | Recorded controlled production activation and direct MSP boundary proof; TASK-MEMOS-006 remains blocked by the dedicated LINE runtime credential and incomplete canary gates | working-tree | Codex |
+| 0.1.2b | 2026-09-14 | beta | Ordered MSP thread-memory and LINE-agent work; production opt-in held behind TASK-MEMOS-006 | working-tree | Claude Opus 5 |

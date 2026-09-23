@@ -1,7 +1,7 @@
 ---
-version: "0.2.6b"
+version: "0.2.7b"
 created_at: "2026-08-22T00:00:00+07:00,ATHER"
-last_update: "2026-09-22T07:29:28+07:00,Codex"
+last_update: "2026-09-23T19:20:00+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
@@ -115,6 +115,28 @@ cutover; it does not activate a provider or introduce an IAM microservice.
   `msp_pipeline_evidence=empty_page` and
   `msp_pipeline_query=published_generation`. No batch or receipt was written.
 
+## Production evidence — 2026-09-22 controlled MSP activation attempt
+
+- The controlled candidate enabled `ZURI_MSP_THREAD_MEMORY_ENABLED=true` in the
+  deployment-only knowledge environment for the server LINE runtime. The r3
+  candidate passed the configured MSP agent/workspace binding and the explicit
+  private-grant/HMAC environment allowlist; no secret value is recorded here.
+- Direct signed calls through the pinned MSP process passed initialization,
+  ping, thread resolve, human append and context retrieval. A forged
+  agent/principal context was denied with `thread_scope_denied`. This proves the
+  production-container boundary, not the complete LINE memory lifecycle.
+- The signed live loopback was admitted with `memorySyncOptIn=true`, but the
+  application could not reach the model/memory path because the dedicated
+  `zuri_line_smartgift_login` credential failed authentication. The initial
+  pooler username lacked the project reference and returned `ENOIDENTIFIER`;
+  after the username contract was corrected, the stored password returned
+  `28P01`. The non-privileged application role cannot rotate that login, and no
+  password was guessed or copied from `DATABASE_URL`.
+- W8 therefore remains blocked for the authenticated memory canary, erasure
+  proof, rollback proof and owner acceptance. The proof scope is
+  `PRODUCTION` for activation configuration and boundary evidence only; this is
+  not a full Issue #99 production-ready claim.
+
 ## Exit gates for this slice
 
 - no protected operation relies only on a signed cookie when a live Session store
@@ -163,3 +185,4 @@ backup; there is no destructive automatic rollback.
 | 0.2.4b | 2026-09-22 | beta | Recorded the effective channel-key repair, pinned production-baseline deployment, signed active/pending tool canaries and 60 focused tests; MSP side-effect and owner gates remain open | working-tree | Codex |
 | 0.2.5b | 2026-09-22 | beta | Recorded the MSP environment allowlist repair, real pinned-MSP acceptance and second production-baseline deployment; production memory activation and owner gate remain open | working-tree | Codex |
 | 0.2.6b | 2026-09-22 | beta | Recorded the KI17 shared-namespace repair and final read-only MSP-to-GKS-to-worker smoke; production memory activation and owner gate remain open | working-tree | Codex |
+| 0.2.7b | 2026-09-23 | beta | Recorded the controlled MSP activation boundary and missing Business model-provider/private-runtime blocker; authenticated memory canary and owner gate remain open | working-tree | Codex |

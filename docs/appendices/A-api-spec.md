@@ -1,5 +1,11 @@
 # Appendix A — API Specification
 
+Version diff 1.92.0b → 1.93.0b (2026-09-23): compose the three FR-268 Business Key Result paths with the two FR-272 PM approval gateway paths; current inventory is 336 route-handler paths. Executor admission remains an internal service boundary and production migration/deployment are not claimed.
+
+Version diff 1.90.0b → 1.91.0b (2026-09-22): add the PM-owned execution trace
+read/replay route for bounded PlanEnvelope, bundle and meeting-action evidence;
+current inventory is 331 route-handler paths. Replay remains a local PM operation
+and does not add producer changes to FUNG or Lalin AI.
 Version diff 1.89.0b → 1.90.0b (2026-09-22): add the FUNG/Lalin AI meeting
 recording-to-PM action handoff preview/commit routes and the owner-attested
 meeting identity binding route; current inventory is 329 route-handler paths.
@@ -16,9 +22,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.90.0b |
+| **Version** | 1.93.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-22 |
+| **Last Updated** | 2026-09-23 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -37,7 +43,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=329 -->
+<!-- api-spec-counts: route_handlers=336 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -261,6 +267,26 @@ belong to Business`, `Project does not belong to Business`, a mismatched
 viewer's `visibleBusinessIds` (not just `role === 'OWNER'`, which is a global
 grant) — see FR-059-business-strategy-mutation.md §1.
 
+## Business Key Results (FR-268, ADR-101 D6 Phase 1)
+
+OWNER-only writes, same authority as the Business Strategy mutations above
+(D4 — narrower per-assignee check-in authority is a later FR). Every handler
+delegates to `business-strategy-mutation-service.js`'s Key Result functions,
+which record one `AuditEvent` per mutation and recompute the parent Goal's
+`progress` in the same transaction once it holds a non-archived Key Result
+(SDD-107, BR-044) — see FR-268's own feature note for the full contract.
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| POST | `/api/business/goals/[id]/key-results` | `{title, metric, unit, baseline, target, direction?, dueAt?, ownerPersonId?, confidence?}` — `target` must differ from `baseline` (FR-271 Measurable) | serialized Key Result |
+| PATCH | `/api/business/key-results/[id]` | partial of the create fields, plus `status` (`ACTIVE`\|`ARCHIVED`) — archiving is this patch, there is no separate archive verb | serialized Key Result |
+| POST | `/api/business/key-results/[id]/check-ins` | `{value, confidence, note?}` — `weekStartAt` is never a client field; the server buckets by `weekStartFor(now)` (Monday 00:00 Asia/Bangkok) and a second check-in the same week upserts rather than duplicating | serialized Key Result (current value, recomputed `progress`/`expectedProgress`, full `checkIns` history) |
+
+A Key Result's `progress`/`expectedProgress`/`status` are never stored columns
+— both are recomputed on every read from `(baseline, target, direction,
+latest check-in)` (SDD-107), the same pure calculators the Key Result
+list/modal UI uses for its live preview.
+
 ## Entry and Business Routing (FR-044 and FR-046 implemented beta)
 
 `/login` authenticates an email or account code and password through
@@ -304,6 +330,31 @@ visible as PM review warnings rather than becoming an unverified assignment.
 | Method | Path | Contract |
 |---|---|---|
 | POST | `/api/identity/meeting-bindings` | Owner/operator-attested `{ tenantId?, personId?, sourceApp: FUNG\|LALIN_AI, sourceUserId }` binding. Creates or reactivates a verified `ExternalIdentity` for the canonical Person; refuses an active subject already bound to another Person. |
+
+## Project execution trace and replay (FR-069 / FR-070 / ADR-102)
+
+Project Manager owns the durable run, ordered step and attempt evidence for
+PlanEnvelope, bundle and meeting-action commits. The response is scope-filtered
+to the requested Project and exposes bounded hashes, failure evidence, audit links
+and replay lineage; it never exposes transcript/audio/provider secrets.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/projects/[id]/execution-runs/[executionRunId]` | Returns the authorized PM execution run with ordered steps and attempts; a missing or out-of-scope run is indistinguishable from not found. |
+| POST | `/api/projects/[id]/execution-runs/[executionRunId]/replay` | `{ mode: "full"\|"partial", stepKeys? }` replays the retained bounded PlanEnvelope snapshot into a new run with new execution IDs and source lineage; partial replay must include the commit step. |
+
+## Project Manager approval gateway (FR-272 / ADR-103)
+
+Effectful Agent/Fleet steps are admitted only through a PM-owned exact-hash
+approval request. The browser can read the scoped reviewer projection and
+submit a decision; request creation and executor admission remain application
+service boundaries. The response never includes transcript, audio, provider
+credentials, executable imported code or the short-lived executor receipt.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/projects/[id]/execution-runs/[executionRunId]/approvals` | Returns `{ executionRunId, approvals[] }` for the authorized Project/run. Each row carries the immutable action/scope/effect/hash/expiry digest and bounded redacted summaries. |
+| POST | `/api/projects/[id]/execution-runs/[executionRunId]/approvals/[approvalRequestId]/decision` | Body `{ decision: "APPROVE"\|"REJECT", reason? }`; re-resolves the reviewer capability in the Business scope, refuses requester self-approval, expiry and stale PM input, then records the CAS decision and AuditEvent. |
 
 ## Multi-Factor Authentication (TOTP) and Session Assurance (FR-094, FR-095, FR-096 / ADR-045)
 
@@ -1030,6 +1081,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.92.0b | 2026-09-22 | candidate | FR-268 (ADR-101 D6 Phase 1): three handler files under `/api/business/goals/[id]/key-results` and `/api/business/key-results/[id]`(`/check-ins`) — create/patch a Key Result and record a weekly check-in, OWNER-only, write-through recompute of the parent Goal's progress (SDD-107, BR-044). Route handler count 331 -> 334 | working-tree | Claude Sonnet 5 |
 | 1.90.0b | 2026-09-22 | candidate | FR-069: add owner-attested FUNG/Lalin AI meeting identity binding plus strict meeting-action dry-run/commit handoff into the PM PlanEnvelope single-writer path; route handler inventory 326 -> 329 | working-tree | Codex |
 | 1.88.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console source, scoped run/corpus/citation routes and artifact lineage contract with the current 309-path baseline; target 315 paths/419 operations | 2bd61b49 | RWANG |
 | 1.87.0b | 2026-09-18 | candidate | Add authenticated TaskUsageLedger projection and explicit taskCode attribution; reconcile composed inventory to 309 paths/412 operations; no database model or migration | 56ae925a | RWANG |

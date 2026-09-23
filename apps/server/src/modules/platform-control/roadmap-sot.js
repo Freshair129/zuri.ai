@@ -645,12 +645,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-001",
     "sprint": "SPR-ZAI-01",
     "title": "Close the production request-session and credential boundary",
-    "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "status": "blocked",
+    "proofScope": "PRODUCTION",
+    "implementationState": "BLOCKED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 10; FEAT-010; .brain/reports/2026-09-20-task-zai-001-closeout.md"
+    "evidence": "Controlled production activation/boundary evidence is recorded; the dedicated DB role now authenticates, but the authenticated MSP memory canary is blocked by missing Business model-provider readiness and an unavailable private runtime; FEAT-010; .brain/reports/2026-09-20-task-zai-001-closeout.md; .brain/rca/2026-09-22-line-memory-canary-model-provider.md"
   },
   {
     "id": "TASK-ZAI-002",
@@ -1956,21 +1956,21 @@ export const ROADMAP_TASK_LEDGER = [
     "title": "LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback",
     "status": "review",
     "proofScope": "HOSTED_CI",
-    "implementationState": "MERGED",
+    "implementationState": "DEPLOYED",
     "dependsOn": "TASK-ZAI-103",
     "authority": "ROADMAP.md",
-    "evidence": "PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped and run `35545108894` passed Edge changes/edge-verify with desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration apply, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN; Phase-1 resolver retirement remains TASK-ZAI-103"
+    "evidence": "PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103"
   },
   {
     "id": "TASK-ZAI-121",
     "sprint": "SPR-ZAI-10",
     "title": "LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099",
-    "status": "in-progress",
-    "proofScope": "LOCAL",
-    "implementationState": "LOCAL",
+    "status": "review",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "DEPLOYED",
     "dependsOn": "TASK-ZAI-120",
     "authority": "ROADMAP.md",
-    "evidence": "branch feat/line-oa-private-runtime-provider; govern, build and full npm test run locally; not merged, not deployed"
+    "evidence": "PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open"
   }
 ]
 
