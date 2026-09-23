@@ -2,7 +2,7 @@
 id: ZAI:CONVERSATION-RUNTIME-HANDOFF
 version: "0.2.0b"
 status: candidate
-last_update: "2026-09-24T04:00:15+07:00,Codex"
+last_update: "2026-09-24T04:52:33+07:00,Codex"
 attributes:
   domain: agent
   scope: conversation-runtime-extraction-checkpoint
@@ -25,10 +25,10 @@ relations:
 
 - Repository: `Freshair129/zuri.ai`
 - Branch: `codex/conversation-runtime-service`
-- Working base SHA: `8d0e41ead80b802654b8e54ac9ec933f8b75a163`
-- Verified current `main` SHA: `fad8ec6252941ca3de01afdb3116484f86b366c3`; rebasing this checkpoint is pending.
-- Head SHA: pending the local checkpoint commit.
-- PR: not created yet. GitHub CLI authentication with `repo` scope is available; draft PR will follow the rebase and final evidence update.
+- Working base SHA before rebase: `8d0e41ead80b802654b8e54ac9ec933f8b75a163`
+- Rebased onto verified `main` SHA: `fad8ec6252941ca3de01afdb3116484f86b366c3`; rebase completed.
+- Implementation checkpoint/head SHA: `3c53693650af1748cd7a44bdc10bbab8c29fb3ad` (`feat(line-oa): add Conversation Runtime checkpoint`); this is the source checkpoint before the final evidence-only handoff update.
+- PR: not created yet. GitHub CLI authentication with `repo` scope is available; a draft PR will follow this evidence update.
 - Production deployment, migration, live LINE send and real model call: not run.
 - No production `.env`, secret files, production DB, Edge device repository, MSP/GKS repository or legacy zuri repository was read or changed.
 
@@ -72,21 +72,21 @@ Commands ran on Windows with Node `v24.19.0`. Service tests use Node's built-in 
 
 | Level/check | Status | Exact evidence |
 |---|---|---|
-| A Unit: Conversation Runtime | PASS | `npm test` from `services/conversation-runtime`: 13 discovered, 13 executed, 0 skipped, exit 0, 180.8 ms; no report artifact emitted. |
+| A Unit: Conversation Runtime | PASS | `npm test` from `services/conversation-runtime`: 13 discovered, 13 executed, 0 skipped, exit 0, 176.5 ms on the post-rebase full gate; no report artifact emitted. |
 | Service boundary build | PASS | `npm run build` from service: 8 source files checked, exit 0, Node 24.19.0. |
 | B Component: service + owned queue/store | NOT_RUN | No core adapter or disposable service queue/store component harness exists. |
 | C Contract: core/CR + WorkToolPort | PARTIAL | Service-side strict envelope/client/readiness tests pass; no server façade exists to validate both sides. |
 | D Workflow: signed fake ingress → CR → fake delivery | NOT_RUN | No workflow connects the webhook route to this service. |
 | E Failure/recovery matrix | PARTIAL | Existing admission/reconciliation/worker behavior covered by the focused tests below; CR restart, lease fencing, stale completion, delivery UNKNOWN and service recovery are not covered. |
 | F Image isolation | NOT_RUN | Dockerfile and CI image build step exist; Docker CLI is unavailable in this environment, so no image build/start was verified. Candidate Compose YAML parsed successfully with the installed `yaml` parser. |
-| G Existing LINE compatibility | PASS (focused only) | From `apps/server`: `npm test -- tests/unit/line-admission-after-ack.test.js tests/integration/server-line-webhook.test.js tests/integration/line-admission-reconciler.test.js tests/integration/server-line-jobs.test.js`; 4 files, 78 discovered/executed, 0 skipped, exit 0, Vitest duration 35.04 s. Artifact: `apps/server/node_modules/.cache/zuri-test-proof/vitest.json`. This is not full regression evidence. |
-| Governance | PASS with warnings | `npm run govern`: exit 0, 0 critical, 2 warnings, 32 info. The warnings were 10 dangling graph edges and the two new governance documents being untracked at run time; no base-SHA comparison was run. |
-| Generated LLM corpus | PASS | `npm run docs:llms` then `npm run docs:llms:check`: current, 351 KB. |
-| Full server verify/build/e2e | NOT_RUN | `npm run verify` was not run. |
+| G Existing LINE compatibility | PASS | Focused pre-rebase command from `apps/server`: 4 files, 78 tests, 0 skipped, exit 0, 35.04 s. The post-rebase full server suite also passed; see full verify below. Artifact: `apps/server/node_modules/.cache/zuri-test-proof/vitest.json`. |
+| Governance | PASS with warnings | Post-rebase `npm run govern`: exit 0, 0 critical, 1 warning, 32 info. The warning is 10 pre-existing dangling annotation edges. |
+| Generated LLM corpus | PASS | After the evidence handoff edits, `npm run docs:llms` and `npm run docs:llms:check` both exit 0; current, 351 KB. |
+| Full server verify/build/e2e | PASS | Post-rebase `npm run verify` from repository root, exit 0. Service: 13/13, 0 skipped, 176.5 ms; boundary build: 8 files. Server Vitest: 799 files passed, 6 skipped; 6,710 tests passed, 32 skipped, 572.30 s. Next production build passed. Playwright: 223 passed, 4 skipped from 227 discovered, `--fail-on-flaky`, exit 0; 18.5 min total including the 456-module warm-up (691 s). |
 | CI | NOT_RUN | Added the service job to `.github/workflows/governance.yml`; hosted checks have not run. |
 | Production cutover | NOT_RUN | No deployment, migration, public endpoint, live LINE call or production model call. |
 
-The focused Vitest run created its temporary SQLite database under the test harness's per-run `.test-dbs` path and emitted its report under ignored `node_modules/.cache`. `npm ci` installed 308 server packages in this isolated checkout; npm reported 12 dependency audit findings (5 moderate, 5 high, 2 critical). No audit fix was run. Docker is unavailable locally. An initial sandbox test startup was blocked while Vitest resolved parent paths; the same focused command was rerun with the reviewed read permission and passed.
+The server suite used its disposable per-run SQLite database and emitted the Vitest report under ignored `node_modules/.cache`. `npm ci` installed 308 server packages in this isolated checkout; npm reported 12 dependency audit findings (5 moderate, 5 high, 2 critical). No audit fix was run. Docker is unavailable locally. The full verify needed a process-scoped Git `safe.directory` setting because this managed worktree is owned by the sandbox identity; no global Git configuration was changed. The first full-gate attempt without that setting stopped at preflight, then the complete retry passed. E2E screenshots generated by this run were restored/removed from the isolated worktree after verification.
 
 ## Changed paths
 
@@ -112,12 +112,11 @@ The focused Vitest run created its temporary SQLite database under the test harn
 
 ## Unresolved debt and exact next action
 
-1. Rebase this branch from `8d0e41e` onto verified `main` `fad8ec6`, then rerun governance and the focused tests against the composed tree.
-2. Implement the authenticated server-side `conversation-runtime.v1` façade for claim/renew/resolve/prepare/WorkTool/credential/complete/fail/send/trace. Every request and response must be strict and bounded, and scope/epoch/consent must be revalidated from server state.
+1. Implement the authenticated server-side `conversation-runtime.v1` façade for claim/renew/resolve/prepare/WorkTool/credential/complete/fail/send/trace. Every request and response must be strict and bounded, and scope/epoch/consent must be revalidated from server state.
 3. Refactor the answer path so the new process actually composes approved context and invokes the model. First prove provider request/response conformance to the existing `model-provider.js`; the current service adapter is not compatible evidence.
 4. Move delivery orchestration to the service while retaining the existing reply-token lifecycle, transactional CRM append, trace receipts and `UNKNOWN` semantics in their current owners.
 5. Add an authoritative single-consumer ownership gate, fake signed-ingress-to-service workflow, component/contract tests, restart/fencing/UNKNOWN matrix and image build/start proof. Do not start this service's claims until that gate and the core façade exist.
-6. Run the repo's full `npm run verify`, hosted CI, and review the draft PR. Session 2 must not start Work Management extraction until Conversation Runtime extraction is complete and reviewed.
+6. Review the draft PR and hosted CI results. Session 2 must not start Work Management extraction until Conversation Runtime extraction is complete and reviewed.
 7. Production deployment, migration and traffic cutover remain separate gates; before any later cutover, drain/reconcile active leases and `UNKNOWN` jobs, then stop exactly one executor before enabling the other.
 
 ## Cutover/rollback checklist
