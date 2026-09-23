@@ -194,6 +194,15 @@ Historical 175-bound snapshots refuse; no automatic cross-schema artifact
 rewrite is authorized by this decision. The composed actual CLI proof remains
 a separate gate from static inventory review.
 
+The stateless LINE OA worker checkpoint is an operational application model even
+though it is excluded from snapshot contents. Its additive schema change therefore
+rebinds the frozen inventory to **188 application tables**. The canonical LF
+schema has `schemaSha256`
+`9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a` and the
+inventory binding has `targetSchemaSha256`
+`a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115`.
+The 187-table binding remains historical and refuses cross-schema recovery.
+
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
@@ -412,6 +421,7 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.8b | 2026-09-24 | beta | Rebind Phase B recovery to the 188-table schema after adding the operational LINE OA worker checkpoint; preserve the historical 187-table binding | working-tree | RWANG |
 | 0.3.7b | 2026-09-23 | beta | Rebind Phase B recovery to the composed 187-table schema after FR-268 and PM approval gateway models landed; preserve the historical 186-table binding | working-tree | RWANG |
 | 0.3.6b | 2026-09-22 | beta | Rebind Phase B recovery to the composed 186-model schema after the FR-268 Business Key Result models landed; preserve the historical 179-model binding | origin/main | RWANG |
 | 0.3.5b | 2026-09-19 | beta | Rebind Phase B recovery to the composed 179-model schema after the two Knowledge artifact storage models landed; preserve the historical 177-model binding | working-tree | RWANG |

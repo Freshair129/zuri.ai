@@ -1,5 +1,10 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.60.0b → 1.61.0b (2026-09-24): rebind the Phase B frozen
+recovery inventory to 188 application tables after adding the operational
+`LineOaWorkerCheckpoint` model. The model remains excluded from backup snapshots;
+the previous 187-table binding remains historical and refuses cross-schema recovery.
+
 Version diff 1.59.0b → 1.60.0b (2026-09-23): add the LINE OA Studio
 `LineOaWorkerCheckpoint` operational model (FR-190, ADR-105) so the hourly
 transport-health sweep uses a durable compare-and-set lease instead of a

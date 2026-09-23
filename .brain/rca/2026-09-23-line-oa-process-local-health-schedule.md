@@ -19,6 +19,10 @@ monitoring cadence absent until another process happened to receive a request.
 - The approved ADR-105 contract permits process-local caches as disposable
   optimisations, but does not permit a local timer to be the authority for a
   scheduled operation.
+- Adding the durable checkpoint changed the canonical Prisma schema from 187 to
+  188 application models. The frozen Phase B recovery inventory and its exact
+  schema binding initially remained at 187, so the recovery loader correctly
+  failed closed during the full-suite run.
 
 ## Root Cause
 
@@ -42,3 +46,7 @@ next-due timestamp. Claim it with a database compare-and-set before probing,
 clear the lease after completion or failure, and keep the existing endpoint
 probe cache explicitly disposable. Add unit coverage for concurrent claims,
 restart-equivalent empty process state and failure lease release.
+
+When a Prisma model is added, rebind the frozen Phase B inventory and exact
+schema hashes in the same change, even when the model is excluded from backup
+contents. Add the inventory loader to the focused regression set.
