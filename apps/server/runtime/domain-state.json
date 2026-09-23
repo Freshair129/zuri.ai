@@ -3791,8 +3791,8 @@
           "title": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 12
+          "codeCount": 8,
+          "testCount": 13
         },
         {
           "id": "FR-210",
@@ -3988,8 +3988,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 6,
-            "present": 6
+            "models": 7,
+            "present": 7
           }
         },
         "authorization": {
@@ -4085,7 +4085,7 @@
         "routes": 25,
         "apiRoutes": 15,
         "pageRoutes": 10,
-        "ownedModels": 6,
+        "ownedModels": 7,
         "featureNotes": 14
       },
       "featureIds": [
@@ -17019,14 +17019,15 @@
           "title": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 12
+          "codeCount": 8,
+          "testCount": 13
         }
       ],
       "evidence": [
         "apps/server/src/app/api/line-oa/accounts/[id]/transport-health/route.js",
         "apps/server/src/app/api/line-oa/worker/route.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "apps/server/src/modules/line-oa-studio/application/line-transport-health-schedule.js",
         "apps/server/src/modules/line-oa-studio/application/line-transport-health.js",
         "apps/server/src/modules/line-oa-studio/domain/transport-health-presentation.js",
         "apps/server/src/modules/line-oa-studio/domain/transport-health.js",
@@ -17042,6 +17043,7 @@
         "apps/server/tests/unit/fr190-settings-chip-render.test.js",
         "apps/server/tests/unit/fr190-transport-health-presentation.test.js",
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
+        "apps/server/tests/unit/line-transport-health-schedule.test.js",
         "apps/server/tests/unit/programme-containers.test.js"
       ]
     },
