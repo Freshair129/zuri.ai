@@ -135,7 +135,7 @@ test.describe('Marketing Content first functional slice', () => {
     const origin = new URL(page.url()).origin
     const secondaryContext = await browser.newContext({ baseURL: origin })
     try {
-      const signup = await secondaryContext.request.post('/api/auth/signup', { data: { displayName: 'Content reviewer', email: secondaryEmail, password: secondaryPassword } })
+      const signup = await secondaryContext.request.post('/api/auth/signup', { headers: { 'x-forwarded-for': '192.0.2.253' }, data: { displayName: 'Content reviewer', email: secondaryEmail, password: secondaryPassword } })
       expect(signup.status()).toBe(201)
       const membershipResponse = await page.request.post('/api/platform/users/memberships', { data: { businessId: business.id, identifier: secondaryEmail, domainKeys: ['growth'] } })
       expect(membershipResponse.status()).toBe(200)
