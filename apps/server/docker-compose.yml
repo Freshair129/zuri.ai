@@ -14,6 +14,8 @@
 #   .env         — required; interpolates this file and is the web container's env_file
 #   .env.docker  — optional; container-only overrides (e.g. a Postgres DATABASE_URL while
 #                  .env keeps SQLite for `npm run dev`). Never committed (.gitignore: .env*).
+#   ZURI_WEB_ENV_FILE / ZURI_WEB_DOCKER_ENV_FILE / ZURI_KNOWLEDGE_ENV_FILE select alternate
+#   runtime files for isolated Compose projects; defaults preserve the paths above.
 #   COMPOSE_PROFILES=local-db in .env starts the bundled Postgres + schema push.
 #
 # Nothing here contains a credential: every secret is a ${VARIABLE} or comes from env_file.
@@ -41,16 +43,16 @@ services:
     # customer's message is lost with no trace.
     stop_grace_period: 60s
     env_file:
-      - path: .env
+      - path: ${ZURI_WEB_ENV_FILE:-.env}
         required: true
-      - path: .env.docker
+      - path: ${ZURI_WEB_DOCKER_ENV_FILE:-.env.docker}
         required: false
       # ADR-075 Phase 3 §7 — the knowledge settings live in ONE file that both web
       # and genesis-worker read, so the shared credentials cannot drift between two
       # copies. Optional here and required there: web runs perfectly well without it
       # (admission stays 503), the worker cannot run at all without it. Gitignored;
       # .env.knowledge.example lists every name.
-      - path: .env.knowledge
+      - path: ${ZURI_KNOWLEDGE_ENV_FILE:-.env.knowledge}
         required: false
     environment:
       NODE_ENV: production
@@ -159,7 +161,7 @@ services:
     stop_grace_period: 60s
     network_mode: "service:web"
     env_file:
-      - path: .env.knowledge
+      - path: ${ZURI_KNOWLEDGE_ENV_FILE:-.env.knowledge}
         required: true
     depends_on:
       web:
@@ -269,9 +271,9 @@ services:
     profiles: ["local-db"]
     restart: "no"
     env_file:
-      - path: .env
+      - path: ${ZURI_WEB_ENV_FILE:-.env}
         required: true
-      - path: .env.docker
+      - path: ${ZURI_WEB_DOCKER_ENV_FILE:-.env.docker}
         required: false
     environment:
       NODE_ENV: production

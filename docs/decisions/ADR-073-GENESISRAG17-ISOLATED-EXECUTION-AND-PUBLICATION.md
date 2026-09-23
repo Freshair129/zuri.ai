@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-073
 title: GenesisRAG17 isolated execution and publication
-version: "1.4.0b"
+version: "1.5.2"
 status: beta
 created_at: "2026-09-07T22:19:00+07:00,RWANG,base b17e7258"
-last_update: "2026-09-11T19:15:00+07:00,Claude Opus 5"
+last_update: "2026-09-23T20:59:00+07:00,RWANG"
 author: RWANG
 attributes:
   doc_type: architecture-decision
@@ -24,9 +24,11 @@ relations:
 
 # ADR-073 — GenesisRAG17 isolated execution and publication
 
-Version 1.4.0b adds the dated Amendment (2026-09-11) below. It lifts the "no production
-deployment" statement for the SmartGift structured-record profile on the edge device only,
-under ADR-075's Phase 3 conditions. Everything else in this ADR stands.
+Version 1.5.0 adds the dated Amendments (2026-09-11 and 2026-09-23) below. The first
+lifts the "no production deployment" statement for the SmartGift structured-record profile
+on the edge device only, under ADR-075's Phase 3 conditions. The second permits an isolated,
+no-customer-traffic canary of MSP-to-GKS HTTP on the existing edge host. It does not lift
+the production restriction or authorize live traffic. Everything else in this ADR stands.
 
 Version 1.3.0b moves this unmerged branch declaration from ADR-071 to ADR-073
 because main d36f9a61 published ADR-071 for CRM first. The ID ledger retains
@@ -143,10 +145,43 @@ Everything else in this ADR stands. In particular:
   [`GENESISRAG17-CONTRACT.md`](../plans/GENESISRAG17-CONTRACT.md) ("No deployment") is read
   through this amendment for this profile only.
 
+## Amendment (2026-09-23) — isolated private MSP-to-GKS HTTP canary
+
+**Decided by:** Owner, 2026-09-23 (approval of the Zuri Knowledge/GKS integration plan).
+The implementation and canary shape are recorded in
+[ADR-075 D10](ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md) and
+[`GENESISRAG17-EDGE-DEPLOYMENT.md`](../plans/GENESISRAG17-EDGE-DEPLOYMENT.md).
+
+This amendment authorizes code and a **separate local canary only** for the existing
+`zuri-ai → MSP` stdio boundary followed by `MSP → GKS` over authenticated HTTP on a
+Compose `internal: true` network. The GKS HTTP service has no host-published port and no
+ngrok route. The Knowledge (GKS) UI remains a Zuri web surface; it is not a GKS service
+endpoint. MSP remains the only application caller of GKS, and stdio remains its rollback
+transport.
+
+The canary uses a distinct Compose project and fresh named volumes, not the production
+`zuri-ai` project or its SQLite files. It selects separate web/database/knowledge
+environment files and includes a canary-only override that keeps ngrok inactive; the
+default service-file paths and ngrok behavior are unchanged. The web and worker are
+trusted credential principals: both bearer and pipeline credential files are mounted
+into those parents and `gks-http`. A shared environment builder reads the files and
+passes MSP's bearer value and pipeline caller credential under their MSP aliases. The
+equal GKS verifier alias itself remains server-side and is not forwarded. The worker
+launcher applies the same allowlist because its upstream spawn inherits the worker's
+full environment. These boundaries do not claim process isolation from either parent.
+
+This amendment authorizes **no** production service start, production secret change,
+production data access, customer traffic, knowledge activation, migration, or edge-query
+cutover. Any such action remains a separately gated operator decision under the existing
+ADR-075 Phase 3–5 conditions.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.5.2 | 2026-09-23 | beta | Applies the shared MSP environment filter to the worker spawn path and mounts caller/verifier credential files for HTTP mode | working-tree | RWANG |
+| 1.5.1 | 2026-09-23 | beta | Clarifies isolated canary env-file selection and ngrok suppression while preserving default Compose behavior | working-tree | RWANG |
+| 1.5.0 | 2026-09-23 | beta | Owner-approved isolated canary for authenticated MSP-to-GKS HTTP on an internal Compose network; production authorization and live traffic remain unchanged | working-tree | RWANG |
 | 1.4.0b | 2026-09-11 | beta | Amendment: "no production deployment" lifted for the SmartGift structured-record profile on the edge device, only after ADR-075 Phase 2 acceptance and as an owner-triggered operator step; everything else stands | — | Claude Opus 5 |
 | 1.3.0b | 2026-09-08 | beta | ADR-071 abandoned by this unmerged branch in favor of ADR-073 because main published CRM first; runtime unchanged | main d36f9a61 | RWANG |
 | 1.2.0b | 2026-09-08 | beta | ADR-070 abandoned by this unmerged branch in favor of ADR-071 because main published execution trace/replay first | main bd385c1d | RWANG |

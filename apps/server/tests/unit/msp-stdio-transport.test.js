@@ -1,3 +1,5 @@
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { buildMspChildEnvironment, createMspStdioTransport, createMspTransportFromEnvironment, MSP_OS_ENV_NAMES, MSP_RUNTIME_ENV_NAMES } from '@/modules/agent/msp-stdio-transport'
@@ -75,6 +77,12 @@ const MSP_CONFIGURATION = {
   GKS_AUTOMERGE_FLOOR: '0.9',
 }
 
+const HTTP_GKS_CONFIGURATION = {
+  MSP_GKS_TRANSPORT: 'http',
+  MSP_GKS_HTTP_URL: 'http://gks-http:8787',
+  GKS_MSP_RELAY_CREDENTIAL: 'test-gks-msp-http-credential',
+}
+
 // This transport's own knobs: they configure the spawn and MSP never reads them.
 const TRANSPORT_CONFIGURATION = {
   ZURI_MSP_COMMAND: process.execPath,
@@ -99,6 +107,84 @@ describe('the MSP child environment', () => {
     expect(Object.keys(child).sort()).toEqual([...Object.keys(osBasics()), ...Object.keys(MSP_CONFIGURATION)].sort())
   })
 
+  it('passes the GKS HTTP settings but drops GKS stdio-only credentials in HTTP mode', () => {
+    const child = buildMspChildEnvironment({ ...serverShapedEnvironment(), ...HTTP_GKS_CONFIGURATION })
+    const stdioOnly = [
+      'MSP_GKS_COMMAND', 'MSP_GKS_ARGS', 'MSP_GKS_CWD', 'GKS_DB_PATH',
+      'GKS_PIPELINE_RELAY_CREDENTIAL', 'GKS_DEFAULT_PORTFOLIO_ID', 'GKS_AUTOMERGE_FLOOR',
+    ]
+    for (const name of stdioOnly) expect(child).not.toHaveProperty(name)
+    for (const name of Object.keys(DECOY_SECRETS)) expect(child).not.toHaveProperty(name)
+    expect(child).toMatchObject(HTTP_GKS_CONFIGURATION)
+    expect(child).toHaveProperty('MSP_GKS_PIPELINE_CREDENTIAL', MSP_CONFIGURATION.MSP_GKS_PIPELINE_CREDENTIAL)
+    expect(child).toHaveProperty('MSP_PIPELINE_PRINCIPALS', MSP_CONFIGURATION.MSP_PIPELINE_PRINCIPALS)
+  })
+
+  it('reads HTTP bearer and pipeline caller secrets in the parent and passes only values to MSP', async () => {
+    const directory = mkdtempSync(path.join(tmpdir(), 'zuri-gks-secret-'))
+    const bearerFile = path.join(directory, 'relay-credential')
+    const pipelineFile = path.join(directory, 'pipeline-credential')
+    try {
+      writeFileSync(bearerFile, 'mounted-gks-bearer-secret\n', { mode: 0o600 })
+      writeFileSync(pipelineFile, 'mounted-pipeline-caller-secret\n', { mode: 0o600 })
+      const source = {
+        ...serverShapedEnvironment(),
+        ...HTTP_GKS_CONFIGURATION,
+        GKS_MSP_RELAY_CREDENTIAL: 'stale-env-value',
+        GKS_MSP_RELAY_CREDENTIAL_FILE: bearerFile,
+        MSP_GKS_PIPELINE_CREDENTIAL: 'stale-pipeline-env-value',
+        MSP_GKS_PIPELINE_CREDENTIAL_FILE: pipelineFile,
+      }
+      const child = buildMspChildEnvironment(source)
+      expect(child.GKS_MSP_RELAY_CREDENTIAL).toBe('mounted-gks-bearer-secret')
+      expect(child.MSP_GKS_PIPELINE_CREDENTIAL).toBe('mounted-pipeline-caller-secret')
+      expect(child).not.toHaveProperty('GKS_MSP_RELAY_CREDENTIAL_FILE')
+      expect(child).not.toHaveProperty('MSP_GKS_PIPELINE_CREDENTIAL_FILE')
+
+      const transport = createMspTransportFromEnvironment(source)
+      const report = await transport('environment', { names: [
+        'GKS_MSP_RELAY_CREDENTIAL', 'GKS_MSP_RELAY_CREDENTIAL_FILE',
+        'MSP_GKS_PIPELINE_CREDENTIAL', 'MSP_GKS_PIPELINE_CREDENTIAL_FILE',
+        'GKS_PIPELINE_RELAY_CREDENTIAL',
+      ] })
+      expect(report.values).toEqual({
+        GKS_MSP_RELAY_CREDENTIAL: 'mounted-gks-bearer-secret',
+        GKS_MSP_RELAY_CREDENTIAL_FILE: null,
+        MSP_GKS_PIPELINE_CREDENTIAL: 'mounted-pipeline-caller-secret',
+        MSP_GKS_PIPELINE_CREDENTIAL_FILE: null,
+        GKS_PIPELINE_RELAY_CREDENTIAL: null,
+      })
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  it('fails closed when either HTTP secret file is empty or unreadable', () => {
+    const directory = mkdtempSync(path.join(tmpdir(), 'zuri-gks-secret-'))
+    const bearerFile = path.join(directory, 'relay-credential')
+    const pipelineFile = path.join(directory, 'pipeline-credential')
+    try {
+      writeFileSync(bearerFile, ' \n', { mode: 0o600 })
+      writeFileSync(pipelineFile, ' \n', { mode: 0o600 })
+      const source = {
+        ...serverShapedEnvironment(),
+        ...HTTP_GKS_CONFIGURATION,
+        GKS_MSP_RELAY_CREDENTIAL_FILE: bearerFile,
+        MSP_GKS_PIPELINE_CREDENTIAL_FILE: pipelineFile,
+      }
+      expect(() => buildMspChildEnvironment(source)).toThrow('GKS_MSP_RELAY_CREDENTIAL_FILE is empty')
+      writeFileSync(bearerFile, 'valid-bearer')
+      expect(() => buildMspChildEnvironment(source)).toThrow('MSP_GKS_PIPELINE_CREDENTIAL_FILE is empty')
+      expect(() => buildMspChildEnvironment({ ...source, GKS_MSP_RELAY_CREDENTIAL_FILE: path.join(directory, 'missing') }))
+        .toThrow('GKS_MSP_RELAY_CREDENTIAL_FILE could not be read')
+      writeFileSync(pipelineFile, 'valid-pipeline')
+      expect(() => buildMspChildEnvironment({ ...source, MSP_GKS_PIPELINE_CREDENTIAL_FILE: path.join(directory, 'missing') }))
+        .toThrow('MSP_GKS_PIPELINE_CREDENTIAL_FILE could not be read')
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
   it('matches names without case, as Windows does, and keeps their spelling', () => {
     const child = buildMspChildEnvironment({ Path: 'C:\Windows', SystemRoot: 'C:\Windows', windir: 'C:\Windows', database_url: 'decoy' })
     expect(child).toEqual({ Path: 'C:\Windows', SystemRoot: 'C:\Windows', windir: 'C:\Windows' })
@@ -110,11 +196,37 @@ describe('the MSP child environment', () => {
     expect(MSP_OS_ENV_NAMES).not.toContain('NODE_OPTIONS')
   })
 
+  it('uses the same child-environment filter in the worker MSP launcher', () => {
+    const launcher = readFileSync(path.resolve('scripts/ki17-worker-msp-launcher.mjs'), 'utf8')
+    expect(launcher).toContain("../src/modules/agent/msp-child-environment.mjs")
+    expect(launcher).toContain('buildMspChildEnvironment(process.env)')
+    expect(launcher).toContain("stdio: 'inherit'")
+    expect(launcher).toContain("shell: false")
+  })
+
   it('reaches the spawned child from deployment configuration without a single decoy secret', async () => {
     const transport = createMspTransportFromEnvironment(serverShapedEnvironment())
     const report = await transport('environment', { names: Object.keys(MSP_CONFIGURATION) })
     for (const name of [...Object.keys(DECOY_SECRETS), ...Object.keys(TRANSPORT_CONFIGURATION)]) expect(report.names).not.toContain(name)
     expect(report.values).toEqual(MSP_CONFIGURATION)
+  })
+
+  it('reaches MSP with HTTP settings and without GKS stdio-only values', async () => {
+    const env = { ...serverShapedEnvironment(), ...HTTP_GKS_CONFIGURATION }
+    const transport = createMspTransportFromEnvironment(env)
+    const names = [...Object.keys(MSP_CONFIGURATION), ...Object.keys(HTTP_GKS_CONFIGURATION)]
+    const report = await transport('environment', { names })
+    const stdioOnly = [
+      'MSP_GKS_COMMAND', 'MSP_GKS_ARGS', 'MSP_GKS_CWD', 'GKS_DB_PATH',
+      'GKS_PIPELINE_RELAY_CREDENTIAL', 'GKS_DEFAULT_PORTFOLIO_ID', 'GKS_AUTOMERGE_FLOOR',
+    ]
+    for (const name of stdioOnly) expect(report.names).not.toContain(name)
+    for (const name of Object.keys(DECOY_SECRETS)) expect(report.names).not.toContain(name)
+    expect(report.values).toMatchObject({
+      ...Object.fromEntries(Object.entries(MSP_CONFIGURATION).filter(([name]) => !stdioOnly.includes(name))),
+      ...HTTP_GKS_CONFIGURATION,
+    })
+    for (const name of stdioOnly) expect(report.values[name]).toBeNull()
   })
 
   it('filters an environment passed to the transport directly, and defaults to the filtered process environment', async () => {

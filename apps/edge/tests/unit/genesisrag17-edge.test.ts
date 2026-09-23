@@ -601,22 +601,25 @@ test('allowlisted names are matched without case and copied as the caller spelle
   assert.deepEqual(child, { Path: '/usr/bin', SystemRoot: 'C:/Windows', windir: 'C:/Windows', msp_db_path: '/msp.sqlite' });
 });
 
-test('the edge pipeline allowlist matches Server except its explicit MemoryOS-only authority', () => {
-  const serverTransport = fs.readFileSync(fileURLToPath(new URL('../../../server/src/modules/agent/msp-stdio-transport.js', import.meta.url)), 'utf8');
+test('the edge pipeline allowlist matches shared Server names except Server-only authorities', () => {
+  const serverEnvironmentContract = fs.readFileSync(fileURLToPath(new URL('../../../server/src/modules/agent/msp-child-environment.mjs', import.meta.url)), 'utf8');
   const namesIn = (constant: string) => {
-    const start = serverTransport.indexOf(`export const ${constant} = Object.freeze([`);
-    assert.ok(start >= 0, `${constant} not found in the server transport`);
-    const end = serverTransport.indexOf('])', start);
-    return serverTransport.slice(start, end).match(/'([A-Z0-9_]+)'/g)?.map((quoted) => quoted.slice(1, -1)) ?? [];
+    const start = serverEnvironmentContract.indexOf(`export const ${constant} = Object.freeze([`);
+    assert.ok(start >= 0, `${constant} not found in the shared server environment helper`);
+    const end = serverEnvironmentContract.indexOf('])', start);
+    return serverEnvironmentContract.slice(start, end).match(/'([A-Z0-9_]+)'/g)?.map((quoted) => quoted.slice(1, -1)) ?? [];
   };
-  // API-011 memory is authorized on Server and arrives as ephemeral CIN input.
-  // Edge's pipeline child must never acquire the keys that mint memory grants.
+  // API-011 memory keys and the Server-only HTTP provider settings are not part of
+  // Edge's stdio child environment. Edge must never acquire either authority.
   const serverMemoryOnly = new Set(['MSP_THREAD_SERVICE_KEY', 'MSP_THREAD_SERVICE_KEYRING',
     'MSP_IDENTITY_HMAC_KEY', 'MSP_GLOBAL_PRIVATE_GRANT_REQUIRED', 'MSP_IDENTITY_HMAC_KEY_VERSION',
     'MSP_IDENTITY_HMAC_KEYRING', 'MSP_THREAD_IDLE_TIMEOUT_MINUTES', 'MSP_THREAD_RETENTION_DAYS',
     'MSP_THREAD_RECENT_EXCHANGES']);
-  assert.deepEqual([...MSP_RUNTIME_ENV_NAMES].sort(), namesIn('MSP_RUNTIME_ENV_NAMES').filter((name) => !serverMemoryOnly.has(name)).sort());
+  const serverHttpOnly = new Set(['MSP_GKS_TRANSPORT', 'MSP_GKS_HTTP_URL', 'GKS_MSP_RELAY_CREDENTIAL']);
+  const serverOnly = new Set([...serverMemoryOnly, ...serverHttpOnly]);
+  assert.deepEqual([...MSP_RUNTIME_ENV_NAMES].sort(), namesIn('MSP_RUNTIME_ENV_NAMES').filter((name) => !serverOnly.has(name)).sort());
   for (const name of serverMemoryOnly) assert.equal(MSP_RUNTIME_ENV_NAMES.includes(name), false);
+  for (const name of serverHttpOnly) assert.equal(MSP_RUNTIME_ENV_NAMES.includes(name), false);
   assert.deepEqual([...MSP_OS_ENV_NAMES].sort(), namesIn('MSP_OS_ENV_NAMES').sort());
 });
 
