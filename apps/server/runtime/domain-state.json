@@ -930,7 +930,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-097",
@@ -1002,7 +1002,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-150",
@@ -1018,7 +1018,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-181",
@@ -1178,7 +1178,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -1533,7 +1533,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -1746,7 +1746,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -2248,7 +2248,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-022",
@@ -2383,16 +2383,16 @@
           "title": "Canonical IAM principal",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 21,
-          "testCount": 24
+          "codeCount": 22,
+          "testCount": 26
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 24,
-          "testCount": 42
+          "codeCount": 25,
+          "testCount": 44
         },
         {
           "id": "FR-096",
@@ -2400,7 +2400,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-097",
@@ -2683,7 +2683,7 @@
           "details": {
             "routes": 34,
             "inventoried": 33,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -3073,7 +3073,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-152",
@@ -3251,7 +3251,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -3667,7 +3667,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4245,7 +4245,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-022",
@@ -4301,7 +4301,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-150",
@@ -4341,7 +4341,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-190",
@@ -4570,7 +4570,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4850,7 +4850,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -5017,7 +5017,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -5141,7 +5141,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 42
+          "testCount": 44
         },
         {
           "id": "FR-105",
@@ -5382,7 +5382,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -5690,7 +5690,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 326,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -5940,6 +5940,14 @@
           "testCount": 17
         },
         {
+          "id": "FR-021",
+          "title": "Identity resolution",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 4
+        },
+        {
           "id": "FR-022",
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
@@ -6144,8 +6152,8 @@
           "title": "Import target authorization",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 11
+          "codeCount": 7,
+          "testCount": 12
         },
         {
           "id": "FR-067",
@@ -6168,8 +6176,8 @@
           "title": "Plan Blueprint and Human/Agent intake",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 15
+          "codeCount": 12,
+          "testCount": 19
         },
         {
           "id": "FR-070",
@@ -6313,7 +6321,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-095",
@@ -6321,7 +6329,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 42
+          "testCount": 44
         },
         {
           "id": "FR-097",
@@ -6521,7 +6529,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-150",
@@ -7155,9 +7163,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 160,
-            "inventoried": 160,
-            "openApiPaths": 326,
+            "routes": 163,
+            "inventoried": 163,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -7223,8 +7231,8 @@
             }
           ],
           "details": {
-            "mutations": 121,
-            "guardedMutations": 118,
+            "mutations": 124,
+            "guardedMutations": 121,
             "reads": 80,
             "unguardedReads": 9
           }
@@ -7402,8 +7410,8 @@
         }
       ],
       "details": {
-        "routes": 207,
-        "apiRoutes": 160,
+        "routes": 210,
+        "apiRoutes": 163,
         "pageRoutes": 47,
         "ownedModels": 37,
         "featureNotes": 39
@@ -7716,8 +7724,8 @@
           "title": "Plan Blueprint and Human/Agent intake",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 15
+          "codeCount": 12,
+          "testCount": 19
         },
         {
           "id": "FR-070",
@@ -7730,14 +7738,20 @@
       ],
       "evidence": [
         "apps/server/src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+        "apps/server/src/app/api/identity/meeting-bindings/route.js",
+        "apps/server/src/app/api/import/meeting-actions/commit/route.js",
+        "apps/server/src/app/api/import/meeting-actions/dry-run/route.js",
         "apps/server/src/app/api/mcp/route.js",
         "apps/server/src/app/api/projects/[id]/roadmap/route.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/project-roadmap-labels.js",
         "apps/server/src/modules/project-manager/application/project-roadmap-read-model.js",
         "apps/server/src/modules/project-manager/application/work-read-service.js",
         "apps/server/src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
         "apps/server/src/modules/project-manager/components/WorkViewTabs.jsx",
         "apps/server/src/modules/project-manager/import/human-plan-builder.js",
+        "apps/server/src/modules/project-manager/import/meeting-action-intake.js",
+        "apps/server/src/modules/project-manager/import/meeting-contracts.js",
         "apps/server/src/modules/project-manager/import/plan-import-service.js",
         "apps/server/src/modules/project-manager/import/plan-schema.js",
         "apps/server/src/modules/project-manager/mcp/transport.js",
@@ -7747,6 +7761,7 @@
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/external-ref-import.test.js",
         "apps/server/tests/integration/import-target-authorization.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/plan-import.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-domain-view.test.js",
@@ -7759,6 +7774,9 @@
         "apps/server/tests/unit/human-plan-builder.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/marketing-campaign-ui.test.js",
+        "apps/server/tests/unit/meeting-action-intake.test.js",
+        "apps/server/tests/unit/meeting-action-route-contract.test.js",
+        "apps/server/tests/unit/meeting-contracts.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/plan-import-commit-transaction.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
@@ -8305,16 +8323,16 @@
           "title": "Canonical IAM principal",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 23,
-          "testCount": 24
+          "codeCount": 24,
+          "testCount": 26
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 29,
-          "testCount": 42
+          "codeCount": 30,
+          "testCount": 44
         },
         {
           "id": "FR-096",
@@ -8322,7 +8340,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-097",
@@ -8384,6 +8402,7 @@
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/identity/sign-out.js",
         "apps/server/src/modules/identity/totp.js",
+        "apps/server/src/modules/identity/ui/MfaSecurityCard.jsx",
         "apps/server/src/modules/identity/webauthn-cbor.js",
         "apps/server/src/modules/identity/webauthn-challenge.js",
         "apps/server/src/modules/identity/webauthn.js",
@@ -8446,8 +8465,10 @@
         "apps/server/tests/unit/identity/webauthn.test.js",
         "apps/server/tests/unit/line-binding-resolver.test.js",
         "apps/server/tests/unit/line-channel-binding.test.js",
+        "apps/server/tests/unit/mfa-security-card-render.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
         "apps/server/tests/unit/password-reset-service.test.js",
+        "apps/server/tests/unit/person-rls-hardening-migration.test.js",
         "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
@@ -9430,7 +9451,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-150",
@@ -9556,6 +9577,7 @@
         "apps/server/tests/unit/reply-record-service.test.js",
         "apps/server/tests/unit/scope-external-ids-migration.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
+        "apps/server/tests/unit/server-line-runtime.test.js",
         "apps/server/tests/unit/server-line-worker-cadence.test.js",
         "apps/server/tests/unit/server-line-worker-routes.test.js"
       ]
@@ -13404,7 +13426,8 @@
       "primaryDomain": "identity",
       "contributorDomains": [
         "identity",
-        "line-oa-studio"
+        "line-oa-studio",
+        "project-manager"
       ],
       "useCase": "LINE user คนเดิมถูก resolve เป็น Person เดิมภายใน Tenant เดิมโดยไม่สร้าง identity ซ้ำ",
       "progressPercent": 100,
@@ -13417,16 +13440,18 @@
           "title": "Identity resolution",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 2,
-          "testCount": 3
+          "codeCount": 3,
+          "testCount": 4
         }
       ],
       "evidence": [
+        "apps/server/src/app/api/identity/meeting-bindings/route.js",
         "apps/server/src/modules/identity/resolve-line-identity.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
         "apps/server/tests/integration/identity-gate.test.js",
         "apps/server/tests/integration/identity-resolve.test.js",
-        "apps/server/tests/integration/line-ingest.test.js"
+        "apps/server/tests/integration/line-ingest.test.js",
+        "apps/server/tests/unit/meeting-action-route-contract.test.js"
       ]
     },
     {
@@ -15321,8 +15346,8 @@
           "title": "Import target authorization",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 11
+          "codeCount": 7,
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -15331,6 +15356,7 @@
         "apps/server/src/app/api/import/xlsx/route.js",
         "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/src/modules/project-manager/import/import-authorization.js",
+        "apps/server/src/modules/project-manager/import/meeting-action-intake.js",
         "apps/server/src/modules/project-manager/import/plan-import-service.js",
         "apps/server/tests/e2e/project-domain-view.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
@@ -15342,6 +15368,7 @@
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/import-authorization.test.js",
+        "apps/server/tests/unit/meeting-action-intake.test.js",
         "apps/server/tests/unit/project-work-route.test.js"
       ]
     },
@@ -17437,7 +17464,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -17480,7 +17507,8 @@
         "apps/server/tests/unit/model-provider-port.test.js",
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/msp-memory-evidence.test.js",
-        "apps/server/tests/unit/server-line-answer.test.js"
+        "apps/server/tests/unit/server-line-answer.test.js",
+        "apps/server/tests/unit/server-line-runtime.test.js"
       ]
     },
     {

@@ -65,6 +65,10 @@ const MSP_CONFIGURATION = {
   MSP_PIPELINE_WORKER_URL: 'http://127.0.0.1:8790',
   MSP_PIPELINE_WORKER_TOKEN: 'test-worker-token',
   OLLAMA_BASE_URL: 'http://127.0.0.1:11434',
+  MSP_GLOBAL_PRIVATE_GRANT_REQUIRED: 'true',
+  MSP_IDENTITY_HMAC_KEY_VERSION: 'acceptance-v1',
+  MSP_IDENTITY_HMAC_KEYRING: '{"acceptance-v1":"test-identity-key"}',
+  NODE_EXTRA_CA_CERTS: 'C:\\synthetic\\private-ca.pem',
   GKS_DB_PATH: '/var/lib/zuri-ki17/state/gks.sqlite',
   GKS_PIPELINE_RELAY_CREDENTIAL: 'test-relay-credential',
   GKS_DEFAULT_PORTFOLIO_ID: 'test-portfolio',
@@ -129,4 +133,3 @@ describe('the MSP child environment', () => {
     expect(defaulted.names.filter((name) => !name.startsWith('=') && !allowed.has(name.toUpperCase()))).toEqual([])
   })
 })
-
