@@ -1,0 +1,19 @@
+{
+  "name": "@zuri/file-management",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/main.js",
+    "migrate": "node src/migrate.js",
+    "test": "node --test tests/*.test.js",
+    "check": "node --check src/main.js && node --check src/http-server.js && node --check src/file-service.js && node --check src/postgres-repository.js && node --check src/s3-storage.js && node --check src/authority-http-client.js && node --check src/config.js && node --check src/validation.js && node --check src/migrate.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1136.0",
+    "pg": "8.23.0"
+  }
+}

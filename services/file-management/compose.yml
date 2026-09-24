@@ -1,0 +1,30 @@
+# @spec ADR-107 - isolated service rehearsal profile.
+services:
+  file-management:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: zuri-file-management:local
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=600m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      FILE_PORT: "4401"
+      FILE_MAX_UPLOAD_BYTES: "${FILE_MAX_UPLOAD_BYTES:-536870912}"
+      FILE_UPLOAD_TIMEOUT_MS: "${FILE_UPLOAD_TIMEOUT_MS:-600000}"
+      FILE_DATABASE_URL: "${FILE_DATABASE_URL:?Set a restricted Files database URL}"
+      FILE_STORAGE_ENDPOINT: "${FILE_STORAGE_ENDPOINT:?Set the existing private S3-compatible endpoint}"
+      FILE_STORAGE_BINDING_ID: "${FILE_STORAGE_BINDING_ID:?Set the stable non-secret identity for this provider and bucket}"
+      FILE_STORAGE_BUCKET: "${FILE_STORAGE_BUCKET:?Set the existing private bucket}"
+      FILE_STORAGE_REGION: "${FILE_STORAGE_REGION:-us-east-1}"
+      FILE_STORAGE_ACCESS_KEY_ID: "${FILE_STORAGE_ACCESS_KEY_ID:?Supply through a local secret store}"
+      FILE_STORAGE_SECRET_ACCESS_KEY: "${FILE_STORAGE_SECRET_ACCESS_KEY:?Supply through a local secret store}"
+      FILE_AUTHORITY_URL: "${FILE_AUTHORITY_URL:?Set the approved authority endpoint}"
+      FILE_AUTHORITY_SERVICE_TOKEN: "${FILE_AUTHORITY_SERVICE_TOKEN:?Supply through a local secret store}"
+    expose:
+      - "4401"
