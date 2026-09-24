@@ -28,7 +28,12 @@ each of them. **PR:** [#546](https://github.com/Freshair129/zuri.ai/pull/546) �
 **Legacy hotfix (separate lane):** [#557](https://github.com/Freshair129/zuri.ai/pull/557) — branch
 `fix/scm-legacy-pg-races` from `main` @ `85d8fd06`, worktree
 `.claude/worktrees/scm-legacy-race-hotfix`, commits `d374bcb7` (F-1/F-9/F-12)
-and `385fe279` (F-2 test). OPEN / DRAFT, not for merge. Merge rule (all lanes,
+and `385fe279` (F-2 test). S1 review round 1 (head `385fe279`) returned
+REQUEST_CHANGES with one P1: the race-suite target guard could be bypassed by a
+`?host=` override. It is fixed in `00dff8b3`: the guard refuses any query or
+fragment and checks pg's own parse. After the fix the guard cases pass with no
+database, the race suite passes 5/5 on embedded PostgreSQL 17, and govern exits 0.
+Re-review is requested for head `00dff8b3`. OPEN / DRAFT, not for merge. Merge rule (all lanes,
 2026-09-24): no merge until S1 sends REVIEW_RESULT = PASS for the PR's latest
 head SHA (a new push needs a new review), and even then merging is the user's
 decision in the S5 chat.
@@ -664,7 +669,7 @@ contracts:
 blockers:
   - { dependency: "scm.delegation.v1 review + core issuer", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + S5", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
   - { dependency: "root CI job for services/scm", kind: INTEGRATION_ORDER, phase_blocked: "CI_VERIFIED/HOSTED_IMAGE_BUILD", owner_to_unblock: integrator, condition_to_unblock: "job merged", safe_work_now: ["local tests"] }
-next_action: "Owner picks the next group: ATP/reservations (unblocks product ARCHIVE), recipes + work orders (unblocks MERGE), stocktake/transfers, or billing behind an Identity command path; #557 awaits review."
+next_action: "Owner picks the next group: ATP/reservations (unblocks product ARCHIVE), recipes + work orders (unblocks MERGE), stocktake/transfers, or billing behind an Identity command path; #557 awaits S1 re-review of 00dff8b3."
 owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js, apps/server/tests/unit/scm-revenue-parity.test.js, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
 shared_changes_requested: ["FR id for F-10 (fulfilment issue carries salesOrderId/customerId) in docs/PRD-SDD-v1.0.md — PRD registry owner", "docs/.id-ledger.json +ADR-109", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
 board_expected_source_commit: "REFACTOR-STATUS.md 0.1.0b on feat/market-intelligence-service"
@@ -679,8 +684,8 @@ board_update: BOARD_UPDATE_PENDING
    transfers (retire the rest of D-3), or billing behind an Identity command
    path. Pricing catalog freeze/admission stays behind SCM-FILES /
    SCM-KNOWLEDGE (F-11).
-3. PR #557 (legacy F-1/F-9/F-12 fixes + F-2 test) awaits review; S5 does not
-   merge it. F-10 is ruled unintended; its FR id is requested from the PRD
+3. PR #557 (legacy F-1/F-9/F-12 fixes + F-2 test): the round-1 P1 is fixed in
+   `00dff8b3`, which awaits S1's re-review. S5 does not merge it. F-10 is ruled unintended; its FR id is requested from the PRD
    registry owner.
 4. When SCM-CORE lands: route `/api/commerce/revenue` (S5-owned) to SCM per
    cohort, and hand Marketing's call site to its owner.
