@@ -84,7 +84,25 @@ describe('knowledge document Zero-PII policy (FR-173, ADR-072 Amendment 2026-09-
     // e-mail rule's bare `[a-zA-Z]{2,}` TLD group used to accept `png`.
     '![logo](logo@2x.png)',
     '![ไอคอนสาขา](icon@3x.jpg)',
+    // Gate round 2: case and multi-label extensions, and a barcode written
+    // with a separator after its first digit group.
+    '![logo](logo@2x.PNG)',
+    '![x](logo@2x.retina.png)',
+    '![x](img@2x.min.jpg)',
+    'บาร์โค้ด 885 0123456789',
+    'EAN 885-0123456789',
   ]
+
+  // The hardening must not open a hole: real addresses and phone numbers
+  // written next to these shapes are still refused.
+  it.each([
+    ['ติดต่อ sales@smartgift.co.th', 'email_address'],
+    ['Contact SALES@EXAMPLE.COM today', 'email_address'],
+    ['โทร 081 234 5678', 'phone_number'],
+    ['สาขา 2 โทร 0812345678', 'phone_number'],
+  ])('still refuses %s', (text, term) => {
+    expect(findDocumentProseViolation(text)).toEqual({ term })
+  })
 
   it.each(MUST_PASS)('does not refuse realistic owner-document prose: %s', (text) => {
     expect(findDocumentProseViolation(text)).toBeNull()

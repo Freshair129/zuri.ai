@@ -50,16 +50,25 @@ import { LINE_USER_ID_PATTERN, THAI_PHONE_PATTERN, INTERNATIONAL_PHONE_PATTERN }
 /** The policy identity recorded in Stage 5 evidence, so a run says which rule ran. */
 export const DOCUMENT_ZERO_PII_POLICY = 'knowledge-document-zero-pii-1'
 
-// A plain e-mail address, with two document-only tightenings the candidate
-// policy does not need (it never sees an e-mail rule at all — see the module
-// header). Neither tightening changes THAI_PHONE_PATTERN/LINE_USER_ID_PATTERN
-// themselves, so FR-236's candidate policy is untouched:
-//   - the TLD group excludes common image/file extensions (`png`, `jpg`,
-//     `jpeg`, `gif`, `svg`, `webp`, `bmp`, `ico`), because a Markdown retina
-//     image reference such as `![logo](logo@2x.png)` — routine in an owner's
-//     product manual or catalogue document — otherwise reads as a valid
-//     `logo@2x.png` address. No real TLD collides with these strings.
-const EMAIL_PATTERN = /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(?!png\b|jpe?g\b|gif\b|svg\b|webp\b|bmp\b|ico\b)[a-zA-Z]{2,}\b/
+// A plain e-mail address, with one document-only tightening the candidate
+// policy does not need (it has no e-mail rule at all — see the module
+// header): a match whose LAST dot-label is a common image/file extension,
+// compared case-insensitively, is not an address. A Markdown retina image
+// reference — `![logo](logo@2x.png)`, `logo@2x.PNG`, `logo@2x.retina.png`,
+// `img@2x.min.jpg` — is routine in an owner's product manual or catalogue
+// and otherwise reads as `name@host.tld`. No real TLD is one of these.
+const EMAIL_CANDIDATE_PATTERN = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+/g
+const FILE_EXTENSION_LABELS = new Set(['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'ico', 'avif', 'tif', 'tiff', 'pdf'])
+function hasEmailMatch(content) {
+  for (const match of content.matchAll(EMAIL_CANDIDATE_PATTERN)) {
+    const labels = match[0].slice(match[0].indexOf('@') + 1).split('.')
+    const last = labels[labels.length - 1].toLowerCase()
+    if (!/^[a-z]{2,}$/.test(last)) continue
+    if (FILE_EXTENSION_LABELS.has(last)) continue
+    return true
+  }
+  return false
+}
 
 // Document-only guard on THAI_PHONE_PATTERN's `0\d{1,2}...` branch: require
 // that the character immediately before a match is not itself a digit. This
@@ -73,8 +82,11 @@ function hasThaiPhoneMatch(content) {
   const withGlobalFlag = new RegExp(THAI_PHONE_PATTERN.source, THAI_PHONE_PATTERN.flags.includes('g') ? THAI_PHONE_PATTERN.flags : `${THAI_PHONE_PATTERN.flags}g`)
   let match
   while ((match = withGlobalFlag.exec(content))) {
-    const precedingChar = match.index > 0 ? content[match.index - 1] : ''
-    if (!/[0-9]/.test(precedingChar)) return true
+    // Not a phone number when a digit precedes it directly, or across one
+    // space/dash: "8850123456789" and "885 0123456789" / "885-0123456789"
+    // are one barcode, not a phone number after a digit group.
+    const before = content.slice(Math.max(0, match.index - 2), match.index)
+    if (!/[0-9]$/.test(before) && !/[0-9][\s-]$/.test(before)) return true
     if (withGlobalFlag.lastIndex === match.index) withGlobalFlag.lastIndex += 1 // guard against a zero-length match looping forever
   }
   return false
@@ -84,7 +96,7 @@ const CHECKS = Object.freeze([
   ['line_user_id', (text) => LINE_USER_ID_PATTERN.test(text)],
   ['phone_number', hasThaiPhoneMatch],
   ['phone_number', (text) => INTERNATIONAL_PHONE_PATTERN.test(text)],
-  ['email_address', (text) => EMAIL_PATTERN.test(text)],
+  ['email_address', hasEmailMatch],
 ])
 
 /**

@@ -67,6 +67,26 @@ async function durableJob({ sourceKind = 'TEXT', sourceMetaJson = '{}' } = {}) {
 }
 
 describe('knowledge durable queue', () => {
+  // ADR-072 amendment 2026-09-24 / ADR-090 D7: FR-238 studio descriptions are
+  // outside the KNOWLEDGE_ADMISSION Zero-PII gate. One admitted before the
+  // admission service wrote its descriptor has sourceMetaJson '{}', so the
+  // runtime must key on the source kind — or a queued pre-deploy description
+  // quoting the shop's phone number would now fail Stage 5.
+  it('keeps a pre-descriptor LINE_STUDIO_DESCRIPTION out of the document Zero-PII gate', async () => {
+    const fixture = await durableJob({ sourceKind: 'LINE_STUDIO_DESCRIPTION', sourceMetaJson: '{}' })
+    const content = '# Greeting\n\nWelcome to Smart Gift. Call us on 081 234 5678 for bulk orders.'
+    await prisma.knowledgeIngestion.update({ where: { id: fixture.job.id }, data: { content, contentHash: hashGenesisRag17Text(content) } })
+    const seen = []
+    const ingest = vi.fn(async (input, options) => { seen.push(input.source.provider); return ingestGenesisRag17Raw(input, options) })
+    const transport = vi.fn(async () => { throw new Error('simulated reply loss after local work') })
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, ingest }).runOnce()
+    expect(seen).toEqual(['LINE_STUDIO_DESCRIPTION'])
+    const job = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(job.status).toBe('RUNNING')
+    const stage5 = await prisma.genesisRag17StageEvidence.findFirst({ where: { executionRunId: job.executionRunId, stageNumber: 5 } })
+    expect(stage5.outcome).toBe('SUCCEEDED')
+  })
+
   it('atomically attaches its real pipeline run before reply loss and resumes that run after restart', async () => {
     const fixture = await durableJob()
     const publish = vi.fn()
