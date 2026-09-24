@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.6.0"
+version: "0.7.0"
 status: candidate
-last_update: "2026-09-24T13:30:00+07:00,Claude"
+last_update: "2026-09-24T14:15:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -17,15 +17,33 @@ relations:
 
 # Market Intelligence extraction handoff (Session 4)
 
-**Checkpoint state:** M2 done; M3(a) done; M3(b) façade merged into this lane branch
-(2026-09-24, PR #545 → `ee47f4c6`, at the owner's instruction, **without integrator
-review**). The Market service runs as
-its own process with an owned store and a proven image start. The two Market routes
-now carry the `MARKET_EXECUTOR` switch. **It defaults to `legacy`, so production
-behaviour is unchanged.** Core's façade routes (M3(b)) now live on this branch, so
-#544 carries the whole lane. They are not on `main`, so no deployment has a real
-authority provider yet, and the integrator still has to review them before #544
-can leave draft. Draft PR: [#544](https://github.com/Freshair129/zuri.ai/pull/544).
+**Checkpoint state:** M2 done; M3(a) and M3(b) are on `main` (#544 at `85d8fd06`,
+façade fixes #556 at `b936d41e`), merged at the owner's instruction **before**
+integrator review; S1 verifies them post-merge. **`MARKET_EXECUTOR` defaults to
+`legacy` and nothing is deployed, so production behaviour is unchanged.** See
+"Merge audit" below for who ordered each merge.
+
+## Merge audit
+
+Recorded at MC0's request (2026-09-24) so each merge that skipped integrator review
+has an owner instruction attached. Quotes are the owner's own words in the Session 4
+chat; times are GitHub `mergedAt` (UTC) with the Bangkok time in brackets.
+
+| PR | Into | Merge commit | When | Instruction |
+|---|---|---|---|---|
+| #545 façade | `feat/market-intelligence-service` (lane) | `ee47f4c6` | 2026-09-24T04:56:25Z (11:56) | Owner wrote "merge"; Session 4 asked which merge was meant and the owner chose "Merge #545 → lane" |
+| #544 lane | `main` | `85d8fd06` | 2026-09-24T05:38:08Z (12:38) | Owner wrote "merge"; Session 4 asked whether to merge #544 into `main` without integrator review, with e2e skipped and service tests not in CI, and the owner chose "Merge #544 → main" |
+| #556 review fixes | `main` | `b936d41e` | 2026-09-24T06:52:18Z (13:52) | Owner wrote "ready and merge" after Session 4 reported #556 CI green and S1's re-review still pending |
+
+None of the three had an integrator REVIEW_RESULT = PASS for its head SHA. S1's first
+review (NOT PASS, three P2 findings) came after #544 merged; #556 fixed them and merged
+before S1's re-review. Neither merge is being reverted.
+
+**Merge rule from 2026-09-24 (owner via MC0, approval `apr_11cab31b3590`):** a PR merges
+into `main` only after S1 sends REVIEW_RESULT = PASS for its latest head SHA. A new
+commit after review needs a new review. A PASS still does not authorize the merge: the
+merge needs a direct owner instruction in the Session 4 chat. Findings from S1's
+post-merge check of #556 are fixed forward in a new PR under this rule.
 
 ## Provenance
 
@@ -33,7 +51,7 @@ can leave draft. Draft PR: [#544](https://github.com/Freshair129/zuri.ai/pull/54
 - Branch: `feat/market-intelligence-service` (worktree `.claude/worktrees/market-intelligence-service`)
 - Base SHA: `fad8ec6252941ca3de01afdb3116484f86b366c3` (`origin/main` on 2026-09-24)
 - Commits: M1 `d40a3329`; M2 is the commit that adds this revision (see `git log`)
-- PR: [#544](https://github.com/Freshair129/zuri.ai/pull/544), draft, not for merge
+- PR: [#544](https://github.com/Freshair129/zuri.ai/pull/544) merged into `main` `85d8fd06`; [#556](https://github.com/Freshair129/zuri.ai/pull/556) merged `b936d41e` (see Merge audit)
 - Existing work checked first: no Market branch, PR or handoff existed. Session 1
   (`codex/conversation-runtime-service`, PR #542) and Session 3 (local worktree
   `codex/file-management-service`, uncommitted ADR-107) were read, not modified.
@@ -328,32 +346,32 @@ Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 IN_PRO
 
 ## Next exact action
 
-1. Integrator: land the scanner/CI wiring.
-2. Integrator: review the façade inside [#544](https://github.com/Freshair129/zuri.ai/pull/544)
-   (merged from #545; harness in `services/market-intelligence/conformance/`).
-   Approving it completes M3. #544 and #542 both edit `openapi.js`, the openapi-docs
-   test and the API appendix: whichever lands second recomputes the counters.
-3. Owners: review the M4 proposals (P1 audit, P2 revoke/redaction).
+1. S1: post-merge read-only verification of the façade fixes on `main` (#556). A PASS
+   completes M3; any finding is fixed forward in a new PR under the merge rule above.
+2. Session 4: CI/scanner wiring for `services/market-intelligence` as COMMON_RESOURCES
+   item (b), after S1's item (a), under a lease (owner confirmed 2026-09-24). S1's item
+   (a) stays Conversation Runtime-only, so Session 4 adds the service to the scanners too.
+3. #542 must merge `main` and recompute the route counters (`main` has 337 paths / 444 ops).
+4. Owners: review the M4 proposals (P1 audit, P2 revoke/redaction).
 
 
 ```yaml
 session: S4
 workstream: market-intelligence
-observed_at: "2026-09-24T12:00:00+07:00"
+observed_at: "2026-09-24T14:15:00+07:00"
 base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
 m1_commit: d40a3329
-code_head_sha: ee47f4c615f92d832b68715201944e5f445d8a4b   # merge of #545; this revision is committed on top
-branch: feat/market-intelligence-service
-pr_number: 544   # draft; #545 MERGED into this branch 2026-09-24T04:56:25Z
+code_head_sha: b936d41edc652e606ac58f7354a3b1c59706f8ea   # main after #556
+branch: main
+pr_number: 556   # #544 and #556 MERGED into main; see Merge audit
 current_tranche: M3
 execution_status: PARTIAL
-merge_status: NOT_MERGED   # to main; #545 → lane only
+merge_status: MERGED   # without integrator PASS, on owner instruction
 production_status: NOT_RUN
 board_update: DELTA_ACKNOWLEDGED   # 2026-09-24, comment on #542: https://github.com/Freshair129/zuri.ai/pull/542#issuecomment-5806819890
 # Session 1 reply (relayed by the owner, 2026-09-24): #542 stays Conversation Runtime-only;
 # #545 is recorded as a shared-file dependency to compose after the integrator decides scope.
 # #542 also edits openapi.js and the API appendix, so the route counters will conflict:
 # whichever lands second recomputes pathCount/operationCount and the appendix count.
-# Board not yet merged. 2026-09-24: the owner merged #545 into the lane without integrator
-# review; the integrator needs a fresh delta.
+# Board not yet merged. S1 was told of each merge via Mission Control (2026-09-24).
 ```
