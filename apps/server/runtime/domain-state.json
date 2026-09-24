@@ -847,7 +847,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -1143,7 +1143,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -1274,7 +1274,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-166",
@@ -1322,7 +1322,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-253",
@@ -1356,7 +1356,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -1478,7 +1478,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-078",
@@ -1839,7 +1839,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-062",
@@ -2055,7 +2055,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-164",
@@ -2063,7 +2063,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-166",
@@ -2111,7 +2111,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-197",
@@ -2202,7 +2202,7 @@
           "details": {
             "routes": 34,
             "inventoried": 33,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -2448,7 +2448,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-079",
@@ -2480,7 +2480,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-099",
@@ -2520,7 +2520,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-110",
@@ -2738,7 +2738,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -3110,7 +3110,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -3274,7 +3274,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-109",
@@ -3282,7 +3282,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-110",
@@ -3704,7 +3704,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-080",
@@ -3946,7 +3946,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -4106,16 +4106,16 @@
           "title": "Per-Business domain visibility",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 48
+          "codeCount": 2,
+          "testCount": 49
         },
         {
           "id": "FR-092",
           "title": "Market translation core",
           "declared": "done",
           "status": "verified",
-          "codeCount": 20,
-          "testCount": 35
+          "codeCount": 23,
+          "testCount": 37
         }
       ],
       "checks": {
@@ -4139,9 +4139,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
-            "openApiPaths": 336,
+            "routes": 3,
+            "inventoried": 3,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -4188,9 +4188,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 1,
-            "guardedMutations": 1,
-            "reads": 1,
+            "mutations": 2,
+            "guardedMutations": 2,
+            "reads": 2,
             "unguardedReads": 0
           }
         },
@@ -4220,8 +4220,8 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 3,
-        "apiRoutes": 2,
+        "routes": 4,
+        "apiRoutes": 3,
         "pageRoutes": 1,
         "ownedModels": 1,
         "featureNotes": 1
@@ -4308,7 +4308,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -4673,7 +4673,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -4923,7 +4923,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-165",
@@ -4931,7 +4931,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-168",
@@ -4955,7 +4955,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         }
       ],
       "checks": {
@@ -4981,7 +4981,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -5412,7 +5412,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-062",
@@ -5484,7 +5484,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-072",
@@ -5604,7 +5604,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-094",
@@ -5700,7 +5700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-110",
@@ -5924,7 +5924,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-164",
@@ -5932,7 +5932,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-165",
@@ -5940,7 +5940,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-166",
@@ -6458,7 +6458,7 @@
           "details": {
             "routes": 170,
             "inventoried": 170,
-            "openApiPaths": 336,
+            "openApiPaths": 337,
             "missingFromOpenApi": 0
           }
         },
@@ -7980,7 +7980,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-110",
@@ -9386,7 +9386,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-166",
@@ -9431,6 +9431,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/scm-legacy-races.postgres.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
@@ -9480,7 +9481,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-165",
@@ -9488,7 +9489,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 33
+          "testCount": 34
         }
       ],
       "evidence": [
@@ -9535,6 +9536,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/scm-legacy-races.postgres.test.js",
         "apps/server/tests/integration/task-zai-053-supplier-cost-sheet.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
@@ -10104,7 +10106,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-197",
@@ -10161,6 +10163,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/release-safety-backup.test.js",
+        "apps/server/tests/integration/scm-legacy-races.postgres.test.js",
         "apps/server/tests/integration/superadmin-access.test.js",
         "apps/server/tests/integration/workspace-collaboration-roster.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
@@ -14501,8 +14504,8 @@
           "title": "Per-Business domain visibility",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 48
+          "codeCount": 13,
+          "testCount": 49
         }
       ],
       "evidence": [
@@ -14515,6 +14518,7 @@
         "apps/server/src/modules/identity/resolve-viewer.js",
         "apps/server/src/modules/identity/viewer-domains.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
+        "apps/server/src/modules/market-intelligence/application/market-core-facade.js",
         "apps/server/src/modules/market-intelligence/application/market-observation-service.js",
         "apps/server/src/modules/people/application/employment-service.js",
         "apps/server/src/modules/people/application/people-service.js",
@@ -14556,6 +14560,7 @@
         "apps/server/tests/unit/line-oa-liff-app-routes.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-jobs-routes.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-routes.test.js",
+        "apps/server/tests/unit/market-intelligence/market-core-facade.test.js",
         "apps/server/tests/unit/market-intelligence/market-observation-feed.test.js",
         "apps/server/tests/unit/market-intelligence/market-observation-service.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
@@ -14875,7 +14880,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 26
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -14907,6 +14912,7 @@
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
+        "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/pipeline-monitor-ui.test.js",
         "apps/server/tests/unit/pipeline-tracking-route.test.js",
@@ -15422,17 +15428,19 @@
           "title": "Market translation core",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 24,
-          "testCount": 35
+          "codeCount": 27,
+          "testCount": 37
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/market/page.jsx",
+        "apps/server/src/app/api/internal/market-intelligence/v1/[operation]/route.js",
         "apps/server/src/app/api/market/observations/route.js",
         "apps/server/src/app/api/market/translations/route.js",
         "apps/server/src/modules/integration/adapters/marketplace-listing-adapter.js",
         "apps/server/src/modules/integration/adapters/retail-price-adapter.js",
         "apps/server/src/modules/market-intelligence/application/generic-candidate-extractor.js",
+        "apps/server/src/modules/market-intelligence/application/market-core-facade.js",
         "apps/server/src/modules/market-intelligence/application/market-observation-service.js",
         "apps/server/src/modules/market-intelligence/application/market-research-service.js",
         "apps/server/src/modules/market-intelligence/application/price-intelligence-service.js",
@@ -15447,6 +15455,7 @@
         "apps/server/src/modules/market-intelligence/domain/supplier-candidate.js",
         "apps/server/src/modules/market-intelligence/domain/watch-rule.js",
         "apps/server/src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+        "apps/server/src/modules/market-intelligence/infrastructure/market-executor.js",
         "apps/server/src/modules/market-intelligence/infrastructure/market-observation-repository.js",
         "apps/server/src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -15469,7 +15478,9 @@
         "apps/server/tests/unit/market-intelligence-schema-migration.test.js",
         "apps/server/tests/unit/market-intelligence/generic-candidate-extractor.test.js",
         "apps/server/tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+        "apps/server/tests/unit/market-intelligence/market-core-facade.test.js",
         "apps/server/tests/unit/market-intelligence/market-dashboard-render.test.js",
+        "apps/server/tests/unit/market-intelligence/market-executor.test.js",
         "apps/server/tests/unit/market-intelligence/market-observation-domain.test.js",
         "apps/server/tests/unit/market-intelligence/market-observation-feed.test.js",
         "apps/server/tests/unit/market-intelligence/market-observation-repository.test.js",

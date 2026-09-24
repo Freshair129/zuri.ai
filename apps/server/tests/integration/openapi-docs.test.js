@@ -246,8 +246,10 @@ describe('OpenAPI document', () => {
       // 437 + 3 = 440.
       // FR-272 adds the scoped approval inbox and reviewer decision path:
       // two paths and two operations. 334 + 2 = 336; 440 + 2 = 442.
-      pathCount: 336,
-      operationCount: 442,
+      // ADR-108 D4 (draft for the integrator) adds the Market service's private
+      // core façade: one dynamic path, GET + POST. 336 + 1 = 337; 442 + 2 = 444.
+      pathCount: 337,
+      operationCount: 444,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

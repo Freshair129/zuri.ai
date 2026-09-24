@@ -374,13 +374,13 @@ export const ROADMAP_SOT = {
     {
       "id": "SUBPLAN-KI-PRODUCTION-ACTIVATION",
       "parent": "TASK-ZAI-050 / ADR-073 amendment / ADR-075 Phase 2",
-      "status": "planned",
-      "proofScope": "SPEC",
-      "implementationState": "NOT_STARTED",
+      "status": "in-progress",
+      "proofScope": "PRODUCTION",
+      "implementationState": "IN_PROGRESS",
       "authority": "docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
-      "evidence": "ADR-075 Phase 2 gate; no production activation claim",
+      "evidence": "ADR-075 Phase 2 gate; production observation 2026-09-24 (Revision 2.134.0b): the ki17 overlay and genesis-worker have run on production since 2026-09-21 with 22 published generations; not done — knowledge migrations recorded and a documented operator activation record remain unverified",
       "duplicateKey": "KI-PRODUCTION-ACTIVATION",
-      "relation": "gate; do not infer from isolated acceptance"
+      "relation": "gate; production observation reconciled 2026-09-24, still short of the done DoD"
     },
     {
       "id": "SUBPLAN-SMARTGIFT-STRUCTURED-ADAPTER",
@@ -1134,7 +1134,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-005",
     "authority": "ROADMAP.md",
-    "evidence": "PR #511 head `0fa8fa5050d060fbd8d32bd5d521f907abad24f2` merged as `291db06f05d2eba52336de378ca40ba971d28cc4`; focused admission/runtime 15/15 passed; hosted Governance/Edge runs `35552902035`/`35552902044` passed applicable checks with E2E/Desktop skipped; FileAsset MIME now reaches the Stage 1 request; native KI17, FR-071 production ledger and production activation remain NOT_RUN; 24-week baseline; Section 3.1 row 4; ADR-072, ADR-073"
+    "evidence": "PR #511 head `0fa8fa5050d060fbd8d32bd5d521f907abad24f2` merged as `291db06f05d2eba52336de378ca40ba971d28cc4`; focused admission/runtime 15/15 passed; hosted Governance/Edge runs `35552902035`/`35552902044` passed applicable checks with E2E/Desktop skipped; FileAsset MIME now reaches the Stage 1 request; native KI17 acceptance and the FR-071 production ledger remain NOT_RUN; production activation is tracked under TASK-ZAI-050, now `in-progress / PRODUCTION / IN_PROGRESS` (Revision 2.134.0b) rather than NOT_STARTED; 24-week baseline; Section 3.1 row 4; ADR-072, ADR-073"
   },
   {
     "id": "TASK-ZAI-046",
@@ -1184,12 +1184,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-050",
     "sprint": "SPR-ZAI-03",
     "title": "Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "in-progress",
+    "proofScope": "PRODUCTION",
+    "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-045; TASK-ZAI-049",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; ADR-073 amendment; ADR-075 Phase 2 gate"
+    "evidence": "Production observation 2026-09-24: `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay` and a healthy `genesis-worker` have run on the production host since 2026-09-21 with `ZURI_KNOWLEDGE_ENABLED=1`, `ZURI_KNOWLEDGE_STORAGE_ENABLED=1`, `ZURI_KNOWLEDGE_BINDINGS` and `MSP_PIPELINE_PRINCIPALS` set in `apps/server/.env.knowledge`; the one SmartGift `KnowledgeCorpus` is at generation 22 with 22 `KnowledgeIngestion` rows PUBLISHED, 22 `GenesisRag17PublicationReceipt` rows dated 2026-09-21, and gate verdicts at `ontology_v2` (38 rows). PR #519 (main `2295dc2b`) fixed the 2026-09-18 Stage 2/Stage 17 failures; PR #521 (main `0e36a993`) pinned the tuple the running images were verified against; `.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md` records the worker-namespace recreate that restored the relay. Not `done`: knowledge migrations recorded and a documented operator activation record — this row's other DoD items — remain unverified; one `PipelineRun` (`1db6810c-eb86-4e96-9f4c-e9c89c8ba0d3`) is stuck RUNNING since 2026-09-21 06:04; see Revision 2.134.0b; 24-week baseline; ADR-073 amendment; ADR-075 Phase 2 gate"
   },
   {
     "id": "TASK-ZAI-051",

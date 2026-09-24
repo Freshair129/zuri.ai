@@ -301,6 +301,14 @@ export async function commitSupplierCostSheet(input, { viewer, db = prisma, now 
     }
     if (row.status === 'SUPERSEDED') throw failure(409, 'PROCUREMENT_COST_SHEET_SUPERSEDED')
     if (!data.previewHash || data.previewHash !== row.previewHash) throw failure(409, 'PROCUREMENT_COST_SHEET_PREVIEW_STALE')
+    // @req FR-164 — one CONFIRMED sheet per supplier: commits of that supplier's
+    // sheets take the supplier row lock first, so the supersession below sees
+    // any sheet a concurrent commit confirmed. Without it, PostgreSQL READ
+    // COMMITTED let two commits each supersede before the other confirmed and
+    // leave two CONFIRMED sheets (SCM-HANDOFF F-12,
+    // tests/integration/scm-legacy-races.postgres.test.js). Lock-only: no value changes.
+    // (`inTx` also accepts a transaction-less db double; it has no concurrency to guard.)
+    if (typeof tx.$executeRaw === 'function') await tx.$executeRaw`UPDATE "Supplier" SET "updatedAt" = "updatedAt" WHERE "id" = ${row.supplierId}`
 
     const preview = parsePreview(row)
     const envelope = preview.envelope
