@@ -1478,7 +1478,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-078",
@@ -1839,7 +1839,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-062",
@@ -2480,7 +2480,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-099",
@@ -3704,7 +3704,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-080",
@@ -4107,7 +4107,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-092",
@@ -4115,7 +4115,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 23,
-          "testCount": 37
+          "testCount": 38
         }
       ],
       "checks": {
@@ -5412,7 +5412,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-062",
@@ -5604,7 +5604,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-094",
@@ -14491,7 +14491,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 49
+          "testCount": 50
         }
       ],
       "evidence": [
@@ -14522,6 +14522,7 @@
         "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
         "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
+        "apps/server/tests/integration/market-core-facade-http.test.js",
         "apps/server/tests/integration/market-intelligence-observation-feed.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
@@ -15415,7 +15416,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 27,
-          "testCount": 37
+          "testCount": 38
         }
       ],
       "evidence": [
@@ -15451,6 +15452,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/market-core-facade-http.test.js",
         "apps/server/tests/integration/market-intelligence-observation-feed.test.js",
         "apps/server/tests/integration/market-intelligence-persistence.test.js",
         "apps/server/tests/integration/market-intelligence-translation-run.test.js",

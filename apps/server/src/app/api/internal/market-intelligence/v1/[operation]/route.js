@@ -11,7 +11,7 @@ import { listMarketLaneRawRecordCandidates } from '@/modules/market-intelligence
 //   its OpenAPI inventory tuple and the counter bump are the lines Session 1 may
 //   rewrite. Bearer MARKET_CORE_TOKEN only; never reachable with a browser session.
 // @spec BR-001, SEC-001, SEC-017, SDD-049, ADR-108
-// @tested tests/unit/market-intelligence/market-core-facade.test.js
+// @tested tests/unit/market-intelligence/market-core-facade.test.js, tests/integration/market-core-facade-http.test.js
 //
 // One dynamic segment instead of five routes: GET health | execution-ownership,
 // POST authorize | raw-candidates | audit. The composition root is here; every
