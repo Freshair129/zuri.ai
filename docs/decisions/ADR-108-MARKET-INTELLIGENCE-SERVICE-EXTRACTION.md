@@ -129,7 +129,9 @@ tenant arrives.
 - **Audit:** observations commit, then one audit event is sent (counts only, never
   payloads). An audit outage fails the request, now 503 instead of legacy's 500
   because it is a dependency outage, and the observations stay committed and
-  idempotent through `lineageKey`. A durable audit handoff is M4 and needs the audit
+  idempotent through `lineageKey`. Every `CORE_UNAVAILABLE` body carries `phase`
+  (`before-write` or `audit`) and `committed`, and an audit-phase failure is logged,
+  so operators and the M4 work can tell "nothing written" from "audit lost". A durable audit handoff is M4 and needs the audit
   owner's contract review. M2 must not add an outbox that silently changes the audit
   owner.
 - **Concurrency:** `insertIfAbsent` is the only serialization point. There are no

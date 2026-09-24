@@ -68,7 +68,14 @@ function toErrorResponse(error, log) {
     return [400, { error: 'Validation failed', issues: error.issues.map((i) => `${i.path.join('.')}: ${i.message}`) }]
   }
   if (error instanceof MarketRefusal) return [error.status, { error: error.message }]
-  if (error instanceof CoreUnavailable) return [503, { error: error.message, code: error.code }]
+  if (error instanceof CoreUnavailable) {
+    // ADR-108 D7: an operator must be able to tell "nothing was written" from
+    // "observations committed, audit event lost" without reading code.
+    const phase = error.phase ?? 'before-write'
+    const committed = error.committed === true
+    if (committed) log('error', 'audit append failed after commit', { phase, reason: error.reason })
+    return [503, { error: error.message, code: error.code, phase, committed }]
+  }
   if (error instanceof LineageScopeCollision) {
     log('error', 'lineage scope collision', { error: error.message })
     return [500, { error: 'Internal error', code: 'INTERNAL' }]
@@ -152,7 +159,17 @@ export function createMarketHttpServer({ config, storeFactory, core, now, log = 
           scopeAuthority: core.scopeAuthority,
           rawEvidence: { listMarketCandidates: (query) => core.rawEvidence.listMarketCandidates({ ...query, subject }) },
           openObservationStore: storeFactory.open,
-          audit: core.audit,
+          audit: {
+            // The run appends audit only after its writes, so a failure here means
+            // the observations are already committed.
+            async record(event) {
+              try {
+                await core.audit.record(event)
+              } catch (error) {
+                throw Object.assign(error, { phase: 'audit', committed: true })
+              }
+            },
+          },
           extractCandidate: extractGenericMarketCandidate,
           now,
         },

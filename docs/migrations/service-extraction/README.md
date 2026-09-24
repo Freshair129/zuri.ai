@@ -57,6 +57,8 @@ Session 2 ยังต้องรอ CR extraction ที่ครบเกณ�
 
 สถานะล่าสุดของ Market อยู่ใน handoff ไม่ใช่ใน board: board จะอัปเดตเมื่อ integrator รวม status delta ตามโปรโตคอล
 
+**Market (S4) live state:** ดู `MARKET-INTELLIGENCE-HANDOFF.md` หัวข้อ "Verification" และ "Board delta"
+
 ## ขอบเขตความน่าเชื่อถือ
 
 ข้อมูลวันที่ 24 กันยายน 2026: main `fad8ec6…`; PR #542 ยัง draft/partial/not merged ที่ `189c607…`; hosted governance และ edge-ci ผ่านแล้ว ส่วน Files/WM/Market ไม่มี implementation checkpoint ที่ตรวจยืนยันในรอบนี้ จึงไม่เดาว่า agent กำลังรันหรือไม่ทำงาน

@@ -154,7 +154,9 @@ test('core unreachable fails closed: 503 on reads and writes, not ready, no cach
     down.core.state.down = true
     const read = await down.call('GET', '/v1/observations?businessId=business-a')
     assert.equal(read.status, 503)
-    assert.deepEqual(await read.json(), { error: 'Core authority is unavailable', code: 'CORE_UNAVAILABLE' })
+    assert.deepEqual(await read.json(), {
+      error: 'Core authority is unavailable', code: 'CORE_UNAVAILABLE', phase: 'before-write', committed: false,
+    })
     assert.equal((await down.call('POST', '/v1/translations', { body: { businessId: 'business-a' } })).status, 503)
     assert.equal((await down.call('GET', '/readyz')).status, 503)
   } finally {
@@ -185,6 +187,9 @@ test('an audit failure after the writes is surfaced and the observations stay co
   try {
     const response = await noAudit.call('POST', '/v1/translations', { body: { businessId: 'business-a' } })
     assert.equal(response.status, 503)
+    assert.deepEqual(await response.json(), {
+      error: 'Core authority is unavailable', code: 'CORE_UNAVAILABLE', phase: 'audit', committed: true,
+    })
     const store = await noAudit.storeFactory.open({ tenantId: 'tenant-t', businessId: 'business-a' })
     assert.equal((await store.listRecent({ limit: 10 })).length, 1)
   } finally {

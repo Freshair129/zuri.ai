@@ -233,6 +233,18 @@ this handoff are committed together).
 - `docs/.id-ledger.json`: merge ADR-106 (Session 1) and ADR-108 (this branch), which
   are independent additions.
 
+## Board delta (for the integrator to paste into REFACTOR-STATUS.md)
+
+The board stays at snapshot 0.1 on this branch because it belongs to the integrator.
+Replacement row for §1:
+
+```text
+| **Market Intelligence — Session 4** | **PARTIAL / M2 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; branch feat/market-intelligence-service, draft PR | Nothing routes to the service; core façade /api/internal/market-intelligence/v1/* absent; MARKET_EXECUTOR flag (M3a) in progress; restricted DB role not applied; CI not wired | M3a on branch; M3b façade offered to integrator as a separate draft PR; Gate MARKET = façade review + provider conformance |
+```
+
+Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 IN_PROGRESS
+(flag on this branch; façade waiting on the integrator), M4 NOT_STARTED, M5 NOT_STARTED.
+
 ## Next exact action
 
 1. Integrator: land the scanner/CI wiring and decide who writes the core façade
