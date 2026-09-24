@@ -23,6 +23,7 @@ test('authorizeScope only accepts well-formed allow or 403/404 refusals', async 
   const run = (decision) => market.authorizeScope({ authorize: async () => decision }, { actor: {}, businessId: 'b', action: 'market.feed.read' })
   assert.deepEqual(await run({ allowed: true, scope: { tenantId: 't', businessId: 'b' } }), { tenantId: 't', businessId: 'b' })
   await assert.rejects(run({ allowed: false, status: 404, message: 'Business not found' }), market.MarketRefusal)
+  await assert.rejects(run({ allowed: false, status: 401, message: 'AUTH_REQUIRED' }), { status: 401, message: 'AUTH_REQUIRED' })
   await assert.rejects(run({ allowed: false, status: 500, message: 'x' }), /invalid decision/)
   await assert.rejects(run({ allowed: true, scope: { businessId: 'b' } }), /does not match/)
   await assert.rejects(run(undefined), /invalid decision/)

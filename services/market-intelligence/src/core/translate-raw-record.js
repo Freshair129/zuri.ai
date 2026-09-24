@@ -60,6 +60,41 @@ function parsePayloadJson(payloadJson) {
   }
 }
 
+export const DEFAULT_TRANSLATION_SCHEMA_VERSION = 'market-observation.v1'
+
+/**
+ * The lineage key this raw record WOULD get under `translationSchemaVersion`, without
+ * resolving identity or building a draft. The translation run uses it to skip only
+ * records already translated under the current version (handoff finding 2); a record
+ * translated under an older version is new work for the new version.
+ */
+export async function deriveMarketObservationLineageKey(
+  rawRecord,
+  { extractCandidate, translationSchemaVersion = DEFAULT_TRANSLATION_SCHEMA_VERSION } = {},
+) {
+  requireRawRecord(rawRecord)
+  if (typeof extractCandidate !== 'function') throw new Error('market extractCandidate port is required')
+  const payload = parsePayloadJson(rawRecord.payloadJson)
+  const extracted = normalizeCandidate(await extractCandidate({ payload, source: sourceOf(rawRecord) }))
+  return buildMarketObservationLineageKey({
+    rawRecordId: rawRecord.id,
+    payloadHash: rawRecord.payloadHash,
+    translationSchemaVersion,
+    observationType: extracted.observationType,
+  })
+}
+
+function sourceOf(rawRecord) {
+  return {
+    provider: rawRecord.provider,
+    entityType: rawRecord.entityType,
+    externalId: rawRecord.externalId,
+    sourceType: rawRecord.sourceType ?? null,
+    sourceUri: rawRecord.sourceUri ?? null,
+    schemaVersion: rawRecord.schemaVersion ?? null,
+  }
+}
+
 export function buildMarketObservationLineageKey({
   rawRecordId,
   payloadHash,
@@ -127,7 +162,7 @@ export async function translateRawRecordToMarketObservation(
   {
     extractCandidate,
     knowledgeResolver,
-    translationSchemaVersion = 'market-observation.v1',
+    translationSchemaVersion = DEFAULT_TRANSLATION_SCHEMA_VERSION,
     now = () => new Date(),
   } = {},
 ) {
@@ -141,17 +176,7 @@ export async function translateRawRecordToMarketObservation(
   }
 
   const payload = parsePayloadJson(rawRecord.payloadJson)
-  const extracted = normalizeCandidate(await extractCandidate({
-    payload,
-    source: {
-      provider: rawRecord.provider,
-      entityType: rawRecord.entityType,
-      externalId: rawRecord.externalId,
-      sourceType: rawRecord.sourceType ?? null,
-      sourceUri: rawRecord.sourceUri ?? null,
-      schemaVersion: rawRecord.schemaVersion ?? null,
-    },
-  }))
+  const extracted = normalizeCandidate(await extractCandidate({ payload, source: sourceOf(rawRecord) }))
 
   const resolution = normalizeResolution(
     typeof knowledgeResolver === 'function'

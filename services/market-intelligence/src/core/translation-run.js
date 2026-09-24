@@ -10,7 +10,10 @@ import {
   authorizeScope,
 } from '../ports/contracts.js'
 import { optionalLimit, trimmedId } from './observation-feed.js'
-import { translateRawRecordToMarketObservation } from './translate-raw-record.js'
+import {
+  deriveMarketObservationLineageKey,
+  translateRawRecordToMarketObservation,
+} from './translate-raw-record.js'
 
 // The owner-initiated translation run over one Business's already-ingested
 // MARKET_INTELLIGENCE backlog, ported from apps/server's
@@ -83,7 +86,7 @@ export async function runMarketTranslationForBusiness(
   })
   const store = assertObservationStore(
     await openObservationStore({ tenantId: scope.tenantId, businessId: scope.businessId }),
-    ['insertIfAbsent', 'findTranslatedRawRecordIds'],
+    ['insertIfAbsent', 'findExistingLineageKeys'],
   )
 
   const scanLimit = Math.min(
@@ -97,10 +100,21 @@ export async function runMarketTranslationForBusiness(
   })
   if (!Array.isArray(candidates)) throw new Error('RawEvidenceReadPort must return an array')
 
-  const translatedIds = new Set(
-    candidates.length ? await store.findTranslatedRawRecordIds(candidates.map((row) => row.id)) : [],
-  )
-  const eligible = candidates.filter((row) => !translatedIds.has(row.id)).slice(0, limit)
+  // Handoff finding 2: skip a candidate only when its lineage key for THIS
+  // translationSchemaVersion already exists. The legacy filter matched rawRecordId,
+  // which silently skipped re-translation after a version bump. A candidate whose key
+  // cannot be derived (bad payload, extractor refusal) stays eligible so the loop
+  // reports it as a per-record failure, exactly as before.
+  const keyed = await Promise.all(candidates.map(async (row) => {
+    try {
+      return { row, key: await deriveMarketObservationLineageKey(row, { extractCandidate, translationSchemaVersion }) }
+    } catch {
+      return { row, key: null }
+    }
+  }))
+  const keys = keyed.map((entry) => entry.key).filter(Boolean)
+  const existing = new Set(keys.length ? await store.findExistingLineageKeys(keys) : [])
+  const eligible = keyed.filter((entry) => !entry.key || !existing.has(entry.key)).map((entry) => entry.row).slice(0, limit)
 
   let translated = 0
   let unchanged = 0

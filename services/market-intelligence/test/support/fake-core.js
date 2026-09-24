@@ -60,7 +60,11 @@ export function createFakeCore({
     const subject = request.headers['x-zuri-subject']
     if (path === '/health') return ok(response, { ok: true, mode: 'fake' })
     if (path === '/execution-ownership') return ok(response, { ownsTranslation: state.ownsTranslation })
-    if (path === '/authorize') return ok(response, decide(subjects[subject], body.businessId, body.action))
+    // An unknown subject is not a live session: core answers 401, like legacy.
+    if (path === '/authorize') {
+      if (!subjects[subject]) return ok(response, { allowed: false, status: 401, message: 'AUTH_REQUIRED' })
+      return ok(response, decide(subjects[subject], body.businessId, body.action))
+    }
     if (path === '/raw-candidates') {
       const decision = decide(subjects[subject], body.businessId, 'market.translation.run')
       if (!decision.allowed || decision.scope.tenantId !== body.tenantId) return reply(response, 403, { error: 'scope' })

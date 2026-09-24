@@ -220,7 +220,7 @@ this handoff are committed together).
 - dependency: core façade routes /api/internal/market-intelligence/v1/* (market-core.v1)
   kind: CONTRACT
   phase_blocked: M3 completion (real end-to-end)
-  owner_to_unblock: integrator (Session 1) + Identity/Integration/audit owners; Session 4 drafted them on branch feat/market-intelligence-core-facade as a separate draft PR for the integrator to adopt, rewrite or decline
+  owner_to_unblock: integrator (Session 1) + Identity/Integration/audit owners; Session 4 drafted them in PR #545 (branch feat/market-intelligence-core-facade, stacked on #544) for the integrator to adopt, rewrite or decline
   condition_to_unblock: reviewed routes passing the same scenarios test/support/fake-core.js encodes (refusal statuses, subject re-check on raw-candidates, envelope shape)
   evidence: [services/market-intelligence/src/adapters/core-client.js, services/market-intelligence/test/http-api.test.js]
   safe_work_now: [M4 durable-audit design, BFF flag patch on the two Market-owned routes]
@@ -269,7 +269,7 @@ Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 IN_PRO
 ## Next exact action
 
 1. Integrator: land the scanner/CI wiring, and adopt, rewrite or decline the core
-   façade draft PR (branch `feat/market-intelligence-core-facade`).
+   façade draft PR [#545](https://github.com/Freshair129/zuri.ai/pull/545).
 2. Session 4, after the façade is reviewed: a provider conformance run (real core
    façade ↔ Market service ↔ BFF) on a disposable stack, which completes M3.
 3. Session 4, M4: a durable audit handoff (with the audit owner's review), a replay

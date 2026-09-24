@@ -8,7 +8,9 @@
 //
 //   ScopeAuthorityPort.authorize({ actor, businessId, action })
 //     -> { allowed: true, scope: { tenantId, businessId, businessName? } }
-//      | { allowed: false, status: 403 | 404, message }
+//      | { allowed: false, status: 401 | 403 | 404, message }
+//     401 'AUTH_REQUIRED' = the subject is not a live session (missing, expired,
+//     revoked, malformed) — the same answer legacy's resolveRequestViewer gives.
 //     action 'market.feed.read'       : not-visible Business -> 403 'Business access
 //                                       denied'; Market domain hidden or unknown
 //                                       Business -> 404 'Business not found'.
@@ -25,7 +27,10 @@
 //   openObservationStore(scope) -> ObservationStore
 //     insertIfAbsent(draft)              atomic on lineageKey; CREATED | UNCHANGED
 //     listRecent({ limit })              newest observedAt first, scope-only
-//     findTranslatedRawRecordIds(ids)    ids already translated in this scope
+//     findExistingLineageKeys(keys)      keys already present in this scope; the run's
+//                                        candidate filter (per translationSchemaVersion)
+//     findTranslatedRawRecordIds(ids)    ids translated under ANY version (legacy shape,
+//                                        kept for parity; not used by the run)
 //
 //   AuditPort.record({ entityType, entityId, action, payload })
 //     One event per run. Never receives raw payloads or candidates.
@@ -98,7 +103,7 @@ export async function authorizeScope(scopeAuthority, { actor, businessId, action
     }
     return scope
   }
-  if (decision?.allowed === false && [403, 404].includes(decision.status) && decision.message) {
+  if (decision?.allowed === false && [401, 403, 404].includes(decision.status) && decision.message) {
     throw new MarketRefusal(decision.status, decision.message)
   }
   throw new Error('ScopeAuthorityPort returned an invalid decision')

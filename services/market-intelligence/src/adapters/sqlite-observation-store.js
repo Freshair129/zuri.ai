@@ -74,6 +74,13 @@ export function createSqliteObservationStoreFactory({ location, busyTimeoutMs } 
         for (const row of rows) assertRowInStoreScope(row, scope)
         return rows
       },
+      async findExistingLineageKeys(lineageKeys) {
+        if (!Array.isArray(lineageKeys) || lineageKeys.length === 0) return []
+        const marks = lineageKeys.map(() => '?').join(', ')
+        return db.prepare(
+          `SELECT "lineageKey" FROM "MarketObservation" WHERE "tenantId" = ? AND ${businessClause} AND "lineageKey" IN (${marks})`,
+        ).all(...scopeParams, ...lineageKeys).map((row) => row.lineageKey)
+      },
       async findTranslatedRawRecordIds(rawRecordIds) {
         if (!Array.isArray(rawRecordIds) || rawRecordIds.length === 0) return []
         const marks = rawRecordIds.map(() => '?').join(', ')

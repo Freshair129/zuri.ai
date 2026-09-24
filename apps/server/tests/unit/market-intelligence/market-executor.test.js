@@ -79,6 +79,7 @@ describe('createMarketRouting', () => {
     const routing = createMarketRouting(serviceEnv, { fetchFn })
     const response = await routing.feed(new Request('http://local/api/market/observations?businessId=b-1'))
     expect(response.status).toBe(401)
+    await expect(response.json()).resolves.toEqual({ error: 'AUTH_REQUIRED' })
     expect(fetchFn).not.toHaveBeenCalled()
   })
 
