@@ -165,7 +165,10 @@ required to recreate `genesis-worker`, which must happen after every `web` recre
 `genesis-worker` runs in `network_mode: service:web`, so its loopback namespace belongs
 to the `web` container instance and goes dead (its own pinned image is untouched) when
 `web` is replaced without it also being recreated
-([RCA](.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)). After any deploy, check
+([RCA](.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)). Outside the `-f`
+deploy-override pattern, from `apps/server` the non-`-f` recreate-and-verify pair is
+`docker compose --profile knowledge up -d genesis-worker` followed by
+`docker compose exec web node scripts/ki17-smoke.mjs`. After any deploy, check
 that the web container's `com.docker.compose.project.config_files` label names all four
 files and that `docker exec zuri-ai-web-1 sh -c 'printf %s "$ZURI_LINE_SERVER_ENABLED"'`
 prints `true`.
