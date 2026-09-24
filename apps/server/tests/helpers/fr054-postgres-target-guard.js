@@ -6,9 +6,10 @@
 //
 // Roles are cluster-global: loopback plus a dedicated database name does not
 // prove the cluster is disposable (a forwarded or shared local cluster could lose
-// the zuri_line_smartgift_* roles other suites and tools rely on). So, like
-// FR-055, the suite also needs a per-run marker that the connected cluster itself
-// must report before any DDL. Enable locally with a disposable cluster, e.g.
+// the zuri_line_smartgift_* roles other suites and tools rely on). So, like the
+// LINE activation suites, it also needs a per-run marker that the connected
+// cluster itself must report before any DDL. Enable locally with a disposable
+// cluster, e.g.
 //   docker run -d --rm --name zuri-fr054-pg -e POSTGRES_HOST_AUTH_METHOD=trust \
 //     -e POSTGRES_DB=zuri_fr054_test -p 127.0.0.1:55435:5432 postgres:17-alpine \
 //     -c zuri.fr054_disposable_cluster=fr054-disposable:<uuid v4>

@@ -60,7 +60,7 @@ describe('FR-054 runtime isolation PostgreSQL target guard', () => {
   it.each([
     ['missing', undefined],
     ['generic', 'disposable'],
-    ['FR-055 marker', 'fr055-w4-disposable:11111111-1111-4111-8111-111111111111'],
+    ['marker of another suite', 'fr055-w4-disposable:11111111-1111-4111-8111-111111111111'],
     ['non-v4 uuid', 'fr054-disposable:11111111-1111-1111-8111-111111111111'],
   ])('fails closed when the URL is present without a per-run cluster marker: %s', (_label, clusterMarker) => {
     expect(() => parseFr054PostgresTarget({ databaseUrl: BASE, destructiveOptIn: FR054_DESTRUCTIVE_OPT_IN, clusterMarker }))
