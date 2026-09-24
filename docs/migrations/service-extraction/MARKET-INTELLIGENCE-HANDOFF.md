@@ -224,7 +224,7 @@ this handoff are committed together).
 |---|---|---|
 | CODE_IMPLEMENTED | PARTIAL | M2 complete; M3 façades/BFF flag, M4 not started |
 | ISOLATED_TESTS_VERIFIED | PASS | `npm --prefix services/market-intelligence test`: 95 tests, 94 pass, 0 fail, 1 skipped (the Postgres suite, reported `NOT_RUN: MARKET_TEST_PG_URL is unset`, because it runs separately below) |
-| Postgres conformance | PASS at M2 (`084e6ba0`); **NOT_RUN for `3f3fb808`** (`findExistingLineageKeys` added to both stores; SQLite PASS) because the local Docker engine returned 500 and was left for the owner to handle; `npm --prefix services/market-intelligence run test:pg`: disposable `postgres:16-alpine` container, 10/10 including the 8-connection lineage race; container removed afterwards |
+| Postgres conformance | PASS: 11/11 at `9379c9e8` (includes the `findExistingLineageKeys` case added in `3f3fb808`), after the owner restored the local Docker engine; `npm --prefix services/market-intelligence run test:pg`: disposable `postgres:16-alpine` container, 10/10 including the 8-connection lineage race; container removed afterwards |
 | SQLite conformance | PASS | included above: 10/10 including the 8-thread race |
 | Boundary build | PASS | `npm --prefix services/market-intelligence run build`: 15 source files, no violation |
 | Legacy parity | PASS | apps/server `service-core-parity.test.js` 10/10; service `parity-vectors` and HTTP-level parity (service-translated rows equal the v1 vectors) |
@@ -302,10 +302,9 @@ Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 IN_PRO
 
 1. Integrator: land the scanner/CI wiring, and adopt, rewrite or decline the core
    façade draft PR [#545](https://github.com/Freshair129/zuri.ai/pull/545).
-2. Session 4, once Docker is healthy: re-run `npm run test:pg` for `3f3fb808`.
-3. Integrator: review #545 (the local conformance result and the harness are in the PR).
+2. Integrator: review #545 (the local conformance result and the harness are in the PR).
    Adopting it completes M3.
-4. Owners: review the M4 proposals (P1 audit, P2 revoke/redaction).
+3. Owners: review the M4 proposals (P1 audit, P2 revoke/redaction).
 
 
 ```yaml
