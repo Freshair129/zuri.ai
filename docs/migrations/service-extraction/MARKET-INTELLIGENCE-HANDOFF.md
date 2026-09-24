@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.7.0"
+version: "0.7.1"
 status: candidate
-last_update: "2026-09-24T14:15:00+07:00,Claude"
+last_update: "2026-09-24T22:20:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -19,7 +19,8 @@ relations:
 
 **Checkpoint state:** M2 done; M3(a) and M3(b) are on `main` (#544 at `85d8fd06`,
 façade fixes #556 at `b936d41e`), merged at the owner's instruction **before**
-integrator review; S1 verifies them post-merge. **`MARKET_EXECUTOR` defaults to
+integrator review. S1's post-merge read-only review returned **PASS** for #556 at head
+`f8571132` / `main` `b936d41e` (2026-09-24), which closes the three façade findings. **`MARKET_EXECUTOR` defaults to
 `legacy` and nothing is deployed, so production behaviour is unchanged.** See
 "Merge audit" below for who ordered each merge.
 
@@ -275,7 +276,7 @@ this handoff are committed together).
 | Boundary build | PASS | `npm --prefix services/market-intelligence run build`: 15 source files, no violation |
 | Legacy parity | PASS | apps/server `service-core-parity.test.js` 10/10; service `parity-vectors` and HTTP-level parity (service-translated rows equal the v1 vectors) |
 | Legacy Market suite | PASS | 182/182 with `MARKET_EXECUTOR` unset and 182/182 with `legacy` (includes executor, domain-visibility and FR-072 disclosure suites); `npm run build` clean |
-| CONTRACT_VERIFIED | PARTIAL | consumer proven against the fake core; provider (the façade, merged from #545) **LOCAL PASS** 12/12 parity against legacy (not integrator-reviewed, so the row stays PARTIAL) |
+| CONTRACT_VERIFIED | PARTIAL | consumer proven against the fake core; provider **LOCAL PASS** 12/12 parity against legacy; S1 post-merge review PASS for the façade fixes (#556, read-only). Stays PARTIAL: no committed consumer-to-real-Next-façade HTTP test |
 | CONSUMER_INTEGRATION_VERIFIED | PARTIAL | BFF → service → façade proven end-to-end locally (12/12 parity); default `legacy`; no deployed stack |
 | DATA_OWNERSHIP_ENFORCED | PARTIAL | the service writes only `"MarketObservation"` through its own adapter; the restricted role is **not applied**, and legacy still writes the same table |
 | IMAGE_BUILD_VERIFIED | PASS | `docker compose -f services/market-intelligence/compose.rehearsal.yml up -d --build --wait` |
@@ -287,7 +288,7 @@ this handoff are committed together).
 
 | Contract | Provider owner | Consumer | Revision | State |
 |---|---|---|---|---|
-| `market-core.v1` façade: authorize / raw-candidates / audit / execution-ownership / health | core integrator (Session 1) with Identity, Integration, audit owners | Session 4 | `src/adapters/core-client.js` + `test/support/fake-core.js` at this commit | DRAFTED on this branch (merged from #545); consumer proven against the fake; provider LOCAL PASS 12/12; not integrator-reviewed |
+| `market-core.v1` façade: authorize / raw-candidates / audit / execution-ownership / health | core integrator (Session 1) with Identity, Integration, audit owners | Session 4 | `src/adapters/core-client.js` + `test/support/fake-core.js` at this commit | On `main` (#544 + #556); consumer proven against the fake; provider LOCAL PASS 12/12; S1 post-merge review PASS (#556, read-only); no committed consumer-to-real-façade HTTP test |
 | Market service API v1 (`/v1/observations`, `/v1/translations`) | Session 4 | console BFF (M3) | `src/http/server.js` at this commit | provider tested; consumer NOT_RUN |
 | ObservationStore | Session 4 | Market core | `test/store-conformance.js` | PASS on sqlite and postgres |
 | translation-vectors v1 | Session 4 | apps/server legacy module | `contracts/v1/translation-vectors.json` | PASS on both sides and at the HTTP level |
@@ -338,16 +339,17 @@ The board stays at snapshot 0.1 on this branch because it belongs to the integra
 Replacement row for §1:
 
 ```text
-| **Market Intelligence — Session 4** | **PARTIAL / M2 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; branch feat/market-intelligence-service, draft PR | Nothing routes to the service; core façade /api/internal/market-intelligence/v1/* on the lane branch (merged from #545, not reviewed, not on main); MARKET_EXECUTOR flag DONE (default legacy); local end-to-end parity 12/12; restricted DB role not applied; CI not wired | M3a and M3b both on #544; Gate MARKET = integrator review of the façade in #544 + provider conformance replay |
+| **Market Intelligence — Session 4** | **PARTIAL / M3 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; on main via #544 (85d8fd06) and #556 (b936d41e), both merged on owner instruction before integrator review (see Merge audit); S1 post-merge PASS for #556 at f8571132 | Nothing routes to the service in any deployment; MARKET_EXECUTOR default legacy; no committed consumer-to-real-façade HTTP test; restricted DB role not applied; CI not wired | Session 4: CI/scanner wiring as COMMON_RESOURCES item (b) after S1 (a); owners: M4 P1/P2; operator: restricted role. Any later finding is fixed forward in a new PR (merge needs S1 PASS for the head SHA + owner instruction) |
 ```
 
-Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 IN_PROGRESS
-(M3(a) flag DONE; M3(b) façade merged into the lane from #545 and LOCAL PASS 12/12; completion waits on integrator review of #544), M4 NOT_STARTED, M5 NOT_STARTED.
+Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 DONE
+(M3(a) flag and M3(b) façade on `main`; S1 post-merge review PASS for #556 at `f8571132`,
+read-only; no committed consumer-to-real-façade HTTP test), M4 PROPOSED (docs only), M5 NOT_STARTED.
 
 ## Next exact action
 
-1. S1: post-merge read-only verification of the façade fixes on `main` (#556). A PASS
-   completes M3; any finding is fixed forward in a new PR under the merge rule above.
+1. Done 2026-09-24: S1's post-merge review of #556 returned PASS, completing M3. Any
+   later finding is fixed forward in a new PR under the merge rule above.
 2. Session 4: CI/scanner wiring for `services/market-intelligence` as COMMON_RESOURCES
    item (b), after S1's item (a), under a lease (owner confirmed 2026-09-24). S1's item
    (a) stays Conversation Runtime-only, so Session 4 adds the service to the scanners too.
@@ -364,7 +366,7 @@ m1_commit: d40a3329
 code_head_sha: b936d41edc652e606ac58f7354a3b1c59706f8ea   # main after #556
 branch: main
 pr_number: 556   # #544 and #556 MERGED into main; see Merge audit
-current_tranche: M3
+current_tranche: M3   # DONE (S1 post-merge PASS for #556); next: CI wiring (b)
 execution_status: PARTIAL
 merge_status: MERGED   # without integrator PASS, on owner instruction
 production_status: NOT_RUN
