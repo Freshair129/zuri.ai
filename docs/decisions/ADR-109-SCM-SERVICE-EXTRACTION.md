@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-109
 title: "SCM service extraction — one deployable over Inventory, Procurement and Commerce"
-version: "0.1.2b"
+version: "0.1.3b"
 status: candidate
 created_at: "2026-09-24T14:00:00+07:00,Claude Opus 5.5"
-last_update: "2026-09-24T19:30:00+07:00,Claude Opus 5.5"
+last_update: "2026-09-24T21:30:00+07:00,Claude Opus 5.5"
 author: Claude Opus 5.5 (Session 5)
 attributes:
   doc_type: architecture-decision
@@ -203,8 +203,12 @@ For this candidate revision:
 - **Payments (0.1.2b):** 136 service tests (135 pass, 1 NOT_RUN on Windows),
   including legacy AC-163.1–163.3, the FR-196 audit assertions, a Payment CAS
   interleaving test and a two-process refund-ceiling race.
+- **Sales orders (0.1.3b):** 150 service tests (149 pass, 1 NOT_RUN on
+  Windows), including legacy AC-162.1–162.6, the Commerce cohort end to end, an
+  order CAS interleaving test and a two-process fulfilment race.
 - **Server regression:** 12 files / 222 tests (receipt slice), 10 files / 121
-  tests (commerce/inventory, POS slice) and 5 files / 30 tests (payments) pass.
+  tests (commerce/inventory, POS slice), 5 files / 30 tests (payments) and 6
+  files / 39 tests (sales orders) pass.
 - **Not yet run:**
   - image build and start;
   - PostgreSQL;
@@ -218,4 +222,5 @@ For this candidate revision:
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-24 | candidate | Initial proposal with the first vertical slice | 45092b78 | Claude Opus 5.5 (Session 5) |
 | 0.1.1b | 2026-09-24 | candidate | POS checkout moved whole; ReferenceAuthority consequence; POS/payments/sales orders switch together | d2a73275 | Claude Opus 5.5 (Session 5) |
-| 0.1.2b | 2026-09-24 | candidate | Payments (record/verify/reject/refund) moved whole | uncommitted | Claude Opus 5.5 (Session 5) |
+| 0.1.2b | 2026-09-24 | candidate | Payments (record/verify/reject/refund) moved whole | dab82845 | Claude Opus 5.5 (Session 5) |
+| 0.1.3b | 2026-09-24 | candidate | Sales orders (create/actions/fulfilment/list) moved whole; all Commerce writers now in SCM | uncommitted | Claude Opus 5.5 (Session 5) |
