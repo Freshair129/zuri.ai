@@ -114,7 +114,10 @@ export function createKnowledgeRepository(db = prisma) {
             // refused-close row nothing else ever writes to would sit at the
             // front of this oldest-first page on every single pass, forever,
             // and a genuine orphan behind it would never be reached.
-            AND: { OR: [{ failureCode: { not: KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE } }, { updatedAt: { lte: backoffThreshold } }] },
+            // `not` is SQL `<>`, which is never true against NULL: a row with no
+            // failureCode at all (written by a pre-sweep runtime) has never been
+            // marked and must stay actionable, so it is listed explicitly.
+            AND: { OR: [{ failureCode: null }, { failureCode: { not: KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE } }, { updatedAt: { lte: backoffThreshold } }] },
           },
         }))
       }
