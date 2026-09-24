@@ -1,0 +1,23 @@
+{
+  "name": "@zuri/scm",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./pricing": "./src/modules/commerce/pricing/index.js"
+  },
+  "scripts": {
+    "kernel:sync": "node scripts/sync-kernel.mjs",
+    "kernel:check": "node scripts/sync-kernel.mjs --check",
+    "test": "node scripts/run-tests.mjs",
+    "test:pricing": "node --test test/unit/pricing-*.test.js",
+    "start": "node src/main.js"
+  },
+  "dependencies": {
+    "yaml": "2.9.0",
+    "zod": "3.23.8"
+  }
+}

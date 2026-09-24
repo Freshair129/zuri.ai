@@ -1,0 +1,33 @@
+{
+  "contract": "scm-api",
+  "revision": "v1-draft.1",
+  "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
+  "auth": {
+    "header": "Authorization: Delegation <token>",
+    "token": "scm.delegation.v1 (HMAC-SHA256 over base64url JSON claims; see src/infrastructure/delegation.js)",
+    "claims": ["v", "iss", "aud=zuri-scm", "sub (actor person id)", "tenantId", "iat", "exp (lifetime <= 120s default)", "jti", "grants{businessId:{owner,domains[],permissions[]}}"],
+    "issuer": "core Identity owner (gate SCM-CORE); tests use a synthetic issuer",
+    "scopeDenial": "404 SCM_SCOPE_NOT_FOUND — identical for unknown and forbidden (FR-072 non-enumeration)"
+  },
+  "mutations": {
+    "idempotency": "Idempotency-Key header required (8-200 of [A-Za-z0-9._:-]); scoped by tenant+business+action+actor; same key+same payload → 200 replayed:true with the stored outcome; same key+different payload/target → 409 SCM_IDEMPOTENCY_KEY_CONFLICT; replay re-checks current authority",
+    "unknownOutcome": "on network loss or 5xx, GET /v1/operations/{action}/{key}?businessId= — never resend with a new key",
+    "created": 201,
+    "replayed": 200
+  },
+  "routes": [
+    { "method": "GET", "path": "/healthz", "auth": false },
+    { "method": "GET", "path": "/readyz", "auth": false },
+    { "method": "POST", "path": "/v1/procurement/suppliers", "command": "procurement.supplier.create", "capability": "procurement.po.write | owner" },
+    { "method": "POST", "path": "/v1/procurement/purchase-orders", "command": "procurement.purchase-order.create", "capability": "procurement.po.write | owner" },
+    { "method": "GET", "path": "/v1/procurement/purchase-orders/{id}", "capability": "procurement domain" },
+    { "method": "POST", "path": "/v1/procurement/purchase-orders/{id}/actions", "command": "procurement.purchase-order.action", "capability": "procurement.po.write | owner", "body": "{action: UPDATE|SEND|CLOSE|CANCEL, version, fields?, reason?}" },
+    { "method": "POST", "path": "/v1/procurement/purchase-orders/{id}/receipts", "command": "procurement.goods-receipt.post", "capability": "procurement.receipt.post | owner; counted lines additionally inventory domain + (inventory.catalog.write | owner)" },
+    { "method": "GET", "path": "/v1/inventory/stock?businessId=", "capability": "inventory domain" },
+    { "method": "GET", "path": "/v1/inventory/movements?businessId=&productId=&limit=", "capability": "inventory domain" },
+    { "method": "GET", "path": "/v1/operations/{action}/{key}?businessId=", "capability": "procurement domain; same actor; goods-receipt replay also inventory domain" }
+  ],
+  "errorShape": { "error": { "code": "string", "message": "string", "retryable": "boolean", "details": "optional", "issues": "optional (422 validation)", "outcome": "UNKNOWN (500 only)" } },
+  "retryableCodes": ["PURCHASE_ORDER_VERSION_CONFLICT (receipt race only)", "SCM_STORE_BUSY", "SCM_DRAINING", "SCM_STORE_CLOSED"],
+  "notMigrated": ["ISSUE/ADJUSTMENT movements → 409 SCM_MOVEMENT_KIND_NOT_MIGRATED", "non-base unit movements → 409 SCM_UNIT_CONVERSION_NOT_MIGRATED"]
+}

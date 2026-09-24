@@ -1,0 +1,5 @@
+*
+!services/scm/package.json
+!services/scm/package-lock.json
+!services/scm/src/**
+!services/scm/contracts/**
