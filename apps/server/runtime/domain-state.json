@@ -2448,7 +2448,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-079",
@@ -2520,7 +2520,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-110",
@@ -3274,7 +3274,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-109",
@@ -3282,7 +3282,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-110",
@@ -5484,7 +5484,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-072",
@@ -5700,7 +5700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-110",
@@ -7978,7 +7978,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-110",
@@ -14857,7 +14857,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 26
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -14889,6 +14889,7 @@
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
+        "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/pipeline-monitor-ui.test.js",
         "apps/server/tests/unit/pipeline-tracking-route.test.js",

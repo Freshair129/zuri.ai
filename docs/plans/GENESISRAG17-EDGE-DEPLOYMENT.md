@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-EDGE-DEPLOYMENT
 title: GenesisRAG17 edge-device deployment design (SmartGift structured-record profile)
-version: "0.2.0"
+version: "0.3.0"
 status: proposed
 created_at: "2026-09-11T19:15:00+07:00,Claude Opus 5"
-last_update: "2026-09-16T20:30:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-24T09:00:00+07:00,Claude Fable 5.1"
 attributes:
   domain: knowledge
   doc_type: deployment-design
@@ -18,17 +18,17 @@ relations:
 
 # GenesisRAG17 on the edge device: Phase 3 deployment design
 
-> **Status: this is a design awaiting the operator step. None of it has been deployed.**
-> No `docker compose` command has been run, no credential generated and no migration
-> applied. The one thing that has been executed is gate **G-3** (§9.1): throwaway test
-> images were built from the pinned commits and the Phase 2 acceptance ran inside them,
-> on Linux. Nothing from that run was tagged for deployment, pushed or left behind. The
-> owner approved
+> **Status (updated 2026-09-24): superseded by §9.2 — see there for current production
+> state.** This section is left as written through the 2026-09-16 revision (0.2.0) as a
+> historical record of the design-time assumption: "None of it has been deployed," no
+> `docker compose` command run, no credential generated, no migration applied, the one
+> thing executed being gate **G-3** (§9.1) against throwaway test images. That assumption
+> no longer holds — §9.2 records a 2026-09-24 read-only production probe that found the
+> runtime this design describes already running. Do not read this blockquote as the
+> current state; read §9.2. The owner approved
 > [ADR-075](../decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
 > Phase 3 on 2026-09-11. [ADR-073](../decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)'s
-> 2026-09-11 Amendment lifts "no production deployment" for this profile only. The
-> deployment is a separate operator step that the owner triggers, and only after every
-> item in the pre-deploy gate (§9) passes.
+> 2026-09-11 Amendment lifts "no production deployment" for this profile only.
 
 ## 1. Scope
 
@@ -266,6 +266,46 @@ C11 is therefore discharged for the worker: a Linux run of the pinned commit is 
 record. G-7 is not — this run verified the model against the worker's own five SHA-256
 values from a host cache, not from the `ki17-model` volume the deploy will populate.
 
+### 9.2 Current state (2026-09-24)
+
+A read-only 2026-09-24 production check (part of the GenesisRAG17 remediation-board
+review), recorded in
+[`.brain/reports/2026-09-24-genesisrag17-production-probe.md`](../../.brain/reports/2026-09-24-genesisrag17-production-probe.md),
+found the runtime this section describes **already running**, not merely gated: the
+web container runs `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay` with
+`ZURI_KNOWLEDGE_ENABLED=1` and `ZURI_KNOWLEDGE_STORAGE_ENABLED=1` set, `genesis-worker`
+is healthy, and one `KnowledgeCorpus` (SmartGift Business, generation 22) has 22
+published ingestions (probe report, "Containers and images" and "Knowledge pipeline
+row counts" tables). The knowledge/MSP/GKS/worker variables named in §7 and §10 live
+in `apps/server/.env.knowledge`, a second `env_file` beside `apps/server/.env` (probe
+report, "Web container configuration" table); a web recreate that keeps
+`.env.knowledge` but skips recreating `genesis-worker` leaves the worker in a dead
+namespace (CLAUDE.md, "The primary checkout is not a working lane";
+[RCA](../../.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)). `scripts/ki17-smoke.mjs`
+is step 4 of §10 and the post-recreate check §10's health-check table calls for "after
+every web recreate."
+
+The probe also found 16 Stage 17 `FAIL` verdicts (of 38 total) dated 2026-09-18, one
+Stage 16 benchmark failure on 2026-09-21, and one `PipelineRun` still `RUNNING` since
+2026-09-21T06:04:20Z behind a superseded ingestion revision (probe report, "Stage
+evidence" and "Stuck run" tables) — the deployed runtime is not shown to be free of
+open failures. The one `LineOaAccount` is grounded on `BUSINESS_KNOWLEDGE`, but per the
+same probe the published corpus is not yet served to LINE.
+
+What is **not yet true**: no record of the operator activation step itself (who ran
+§10, when, against which image digest and pin manifest, per §10 step 7) exists in
+`.brain/reports/`, and [`docs/roadmap/ROADMAP.md`](../roadmap/ROADMAP.md)'s
+`TASK-ZAI-050` row still reads `planned / UNKNOWN / NOT_STARTED`. The 2026-09-24 probe
+proves the ki17 stack is deployed and has published 22 catalog-record generations; it
+does not prove that the knowledge migrations behind those tables were recorded in a
+migration ledger, that an operator activation record exists, production answer
+quality, or that LINE serves the corpus (probe report, "What this does and does not
+prove"). This document's own status blockquote above (updated to point here) and
+`apps/server/deploy/ki17/README.md` ("Nothing here has been deployed") named the same
+gap before this probe existed: the runtime is live, the paper trail for when and how it
+went live is not written yet. Writing that activation record is tracked as separate
+follow-up work, not done in this note.
+
 ## 10. Start order (operator procedure, not executed)
 
 Rollout is accept-before-produce (ADR-075 D6, revision 2): the worker accepts
@@ -361,3 +401,4 @@ cutover.
 |---|---|---|---|---|---|
 | 0.1.0 | 2026-09-11 | proposed | Phase 3 design after the owner approved ADR-075 Phases 3–5. Constraints read from code; options (a), (b), (c1)–(c3); recommends a Linux sidecar in web's network namespace with shared named volumes; env names, processes, ports, paths, start order, health checks, rollback and the pre-deploy gate. Not executed | — | Claude Opus 5 |
 | 0.2.0 | 2026-09-16 | proposed | Records the G-3 result (new §9.1): the Phase 2 acceptance ran inside the images this design ships and passed 35/35 on Linux, with MSP/GKS/worker on Node 24.18.0, the P-2 Linux addon and the pinned venv, crash and replay cases included. Adds the test-only `ki17-acceptance` build target and the `KI17_NODE` seam the run needed. Still not deployed | — | Claude Sonnet 5 |
+| 0.3.0 | 2026-09-24 | proposed | Backs every §9.2 production claim with a citation to the new committed probe record, `.brain/reports/2026-09-24-genesisrag17-production-probe.md`. Amends the top status blockquote to point at §9.2 instead of standing beside it, resolving the "None of it has been deployed" contradiction the round-3 gate named. No new production claim added beyond what the cited report proves | — | Claude Fable 5.1 |

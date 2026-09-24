@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { KNOWLEDGE_INGESTION_DEFINITION_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 
 // @req FR-173 — one persistence adapter for durable admission and immutable corpus manifests.
 // @spec ADR-072, SEC-001
@@ -7,6 +8,16 @@ import prisma from '@/lib/db'
 function mutable(data, allowed) {
   if (Object.keys(data).some((key) => !allowed.includes(key))) throw new Error('Knowledge repository refuses immutable field mutation')
 }
+
+// A refused close (closeOrphanedExecutionRun declined or failed) gets this
+// failureCode written back onto the KnowledgeIngestion row — status
+// unchanged, but the write advances `updatedAt` (see knowledge-runtime.js's
+// sweep). Without that write nothing ever moves the row, so an oldest-first
+// page fills forever with rows nothing can act on. `ORPHAN_RETRY_BACKOFF_MS`
+// is how long `listOrphanedIngestionsForRuns` excludes a row after that: a
+// refused close is retried hourly, never on every single pass.
+export const KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE = 'KNOWLEDGE_ORPHAN_RUN_OPEN'
+export const ORPHAN_RETRY_BACKOFF_MS = 60 * 60 * 1000
 
 export function createKnowledgeRepository(db = prisma) {
   const repository = {
@@ -52,6 +63,66 @@ export function createKnowledgeRepository(db = prisma) {
     },
     listPending({ now = new Date(), limit = 20 } = {}) {
       return db.knowledgeIngestion.findMany({ where: { status: { in: ['QUEUED', 'RUNNING'] }, OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }] }, orderBy: { createdAt: 'asc' }, take: limit })
+    },
+    // FR-173: a job stopped being resumed the moment its status left
+    // QUEUED/RUNNING (listPending never claims it again), so the runtime-side
+    // reconciliation sweep has to find any such orphan itself — whether that
+    // status was written here (processJob) or by a caller outside the runtime
+    // entirely (withdrawKnowledgeSource, publishInTransaction's
+    // stale-revision/revoked-source branches). Two bounded queries, no
+    // cursor: this one is the *candidate set* — every knowledge PipelineRun
+    // still QUEUED/RUNNING, ids only. It is never itself the actionable set:
+    // most of these ids belong to runs with no KnowledgeIngestion at all
+    // (FR-071 replay runs, FR-109 reporter runs — KNOWLEDGE_INGESTION_DEFINITION_ID
+    // is shared, the executionRunId is not) or to an ingestion that is
+    // legitimately still QUEUED/RUNNING. `listOrphanedIngestionsForRuns`
+    // resolves which of these ids are real orphans.
+    listOpenKnowledgeRunIds({ limit = 500 } = {}) {
+      return db.pipelineRun.findMany({
+        where: { dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID, status: { in: ['QUEUED', 'RUNNING'] } },
+        select: { executionRunId: true },
+        // Deterministic oldest-first order: a real run always has a value here
+        // once it is actually processed, so a never-started candidate sorts
+        // before it. This is what makes the `limit` truncation below never
+        // arbitrarily drop the oldest genuine candidates.
+        orderBy: [{ startedAt: 'asc' }, { createdAt: 'asc' }],
+        take: limit,
+      })
+    },
+    // Every row this returns is actionable by construction: it is already
+    // scoped to open (QUEUED/RUNNING) runs, already filtered to
+    // SUPERSEDED/WITHDRAWN, and already filtered to an expired-or-absent
+    // lease. Nothing the sweep does after this can skip a returned row for a
+    // reason baked into the query itself — a page can never be filled by rows
+    // the sweep goes on to ignore. `executionRunIds` is chunked in slices of
+    // 100 to stay under Prisma/SQL parameter limits; results are merged and
+    // re-sorted (oldest `updatedAt` first) before the final `limit`, since a
+    // per-chunk `take` could not enforce a single global ordering.
+    async listOrphanedIngestionsForRuns({ executionRunIds, now = new Date(), limit = 20 } = {}) {
+      if (!Array.isArray(executionRunIds) || executionRunIds.length === 0) return []
+      const backoffThreshold = new Date(now.getTime() - ORPHAN_RETRY_BACKOFF_MS)
+      const rows = []
+      for (let start = 0; start < executionRunIds.length; start += 100) {
+        const chunk = executionRunIds.slice(start, start + 100)
+        rows.push(...await db.knowledgeIngestion.findMany({
+          where: {
+            executionRunId: { in: chunk },
+            status: { in: ['SUPERSEDED', 'WITHDRAWN'] },
+            OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }],
+            // A row already marked KNOWLEDGE_ORPHAN_RUN_OPEN by a prior refused
+            // close is excluded until its backoff window elapses — otherwise a
+            // refused-close row nothing else ever writes to would sit at the
+            // front of this oldest-first page on every single pass, forever,
+            // and a genuine orphan behind it would never be reached.
+            // `not` is SQL `<>`, which is never true against NULL: a row with no
+            // failureCode at all (written by a pre-sweep runtime) has never been
+            // marked and must stay actionable, so it is listed explicitly.
+            AND: { OR: [{ failureCode: null }, { failureCode: { not: KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE } }, { updatedAt: { lte: backoffThreshold } }] },
+          },
+        }))
+      }
+      rows.sort((left, right) => left.updatedAt.getTime() - right.updatedAt.getTime())
+      return rows.slice(0, limit)
     },
     async claimIngestion(id, { claimToken, now = new Date(), leaseMs = 120000 } = {}) {
       const result = await db.knowledgeIngestion.updateMany({

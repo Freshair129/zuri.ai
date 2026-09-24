@@ -4,10 +4,21 @@ Operator notes for ADR-075 Phase 3 prerequisites P-3 to P-6. The design is
 [`docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md`](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md);
 where this file and that one disagree, the design wins.
 
-> **Nothing here has been deployed.** No credential has been generated, no service
-> started and no `docker compose` command run. The deployment is a separate operator
-> step the owner triggers, and only after every item in the pre-deploy gate (§9)
-> passes.
+> **Status (2026-09-24): the overlay is deployed on the production host.** The
+> `runner-ki17` web image and the `genesis-worker` sidecar have run there since
+> 2026-09-21 (currently `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay`, with the
+> `genesis-worker` container healthy). The enabling variables —
+> `ZURI_KNOWLEDGE_ENABLED`, `ZURI_KNOWLEDGE_STORAGE_ENABLED`, `ZURI_KNOWLEDGE_BINDINGS`
+> and `MSP_PIPELINE_PRINCIPALS` — live in `apps/server/.env.knowledge`, not in
+> `apps/server/.env`; `apps/server/.env` only selects the Compose overlay files and
+> profile that bring `genesis-worker` up. `node scripts/ki17-smoke.mjs` (see
+> "Verifying the relay after a deploy" below) is the post-deploy check — run it after
+> every web recreate, since recreating web without also recreating `genesis-worker`
+> can leave the worker listening in a dead namespace
+> (`.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md`). This status note
+> records that the overlay is running; it does not itself claim that knowledge
+> migrations are recorded or that a documented operator activation record exists —
+> those remain open under TASK-ZAI-050 (`docs/roadmap/ROADMAP.md`).
 >
 > **Historical G-3 record** (2026-09-16): the Phase 2 acceptance passed 35/35 inside a
 > throwaway `ki17-acceptance` image built from the pinned commits — Linux, MSP/GKS/
@@ -184,7 +195,7 @@ adds the opt-in overlay, which selects `runner-ki17` and supplies the three pinn
 contexts with the same `KI17_*_CONTEXT` variables as the genesis-worker build:
 
 ```text
-COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.ki17-web.yml
+COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.cold-archive.yml;docker-compose.ki17-web.yml
 ```
 
 Without it the web image has no `/opt/ki17`: web cannot spawn the MSP/GKS stdio
