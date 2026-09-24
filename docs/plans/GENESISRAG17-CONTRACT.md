@@ -1,7 +1,7 @@
 ---
 id: ZAI:GENESISRAG17-CONTRACT
 title: GenesisRAG17 isolated execution wire contract
-version: "1.4.4b"
+version: "1.4.5b"
 status: active
 created_at: "2026-09-07T23:00:00+07:00,RWANG"
 last_update: "2026-09-25T00:00:00+07:00,Claude Sonnet 5"
@@ -54,18 +54,34 @@ versions, and zuri-ai sends parser-2 batches (step 3).
 - `genesisrag17-parser-3` + recognizer `rule_v1`: every prose (TEXT-profile) source
   (2026-09-24 remediation). Bounds each window by whichever of the 80-whitespace-token
   budget or a 480-character budget is hit first — a Thai paragraph has no spaces, so
-  it is one whitespace token, and only the character budget bounds it. 480 chars
-  keeps every chunk under the pinned e5 embedder's 512-token `MAX_LENGTH` even in
-  the worst case of one tokenizer token per character: `512 − 2` (special tokens)
-  `− 9` (one token per character of the 9-character `"passage: "` prefix) `= 501`,
-  and 480 keeps a 21-token margin under that. Cuts prefer, in order, a paragraph
-  break, then sentence punctuation (`. ! ?`) or a plain space between two Thai runs
-  (Thai's usual sentence break), then any whitespace, and only as a last resort a
-  hard character cut; a cut never opens on a combining mark (Thai vowel/tone marks
-  U+0E31, U+0E34-U+0E3A, U+0E47-U+0E4E, and more generally any Unicode combining
-  mark) or inside a surrogate pair. Consecutive windows of the same section keep up
-  to 60 characters of overlap, itself boundary-aligned where possible. `genesisrag17-
-  chunker-2` records this behavior; `genesisrag17-parser-1` / `genesisrag17-chunker-1`
+  it is one whitespace token, and only the character budget bounds it. The arithmetic
+  `512 − 2` (special tokens) `− 9` (one token per character of the 9-character
+  `"passage: "` prefix) `= 501`, 480 keeping a 21-token margin under that, holds for
+  ordinary prose in any script (measured: a 3,000-character Thai paragraph chunks at
+  up to 480 raw characters and at most ~142 tokenizer tokens per chunk) but is NOT a
+  universal guarantee: the pinned XLM-R tokenizer applies NFKC before tokenizing, and
+  NFKC expands a handful of Unicode compatibility characters well past one token per
+  raw character (measured: 480 x U+FDFA normalizes to 8,640 characters; 480 x U+3231
+  to 1,440). To close that gap too, every window is additionally bounded so that
+  `text.normalize('NFKC').length` also stays `<= 480` (`nfkcBoundedCharBudgetEnd` in
+  the implementation, 2026-09-25 follow-up), which keeps every chunk inside the
+  512-token window regardless of script or NFKC expansion. Cuts prefer, in order, a
+  paragraph break, then sentence punctuation (`. ! ?`) or a plain space between two
+  Thai runs (Thai's usual sentence break), then any whitespace, and only as a last
+  resort a hard character cut AT the 480-character (NFKC-safe) budget edge — a
+  2026-09-25 follow-up closed a gap where, on input with no safe grapheme boundary
+  anywhere (e.g. a long run of nothing but combining marks), the cut used to keep
+  extending forward past the budget instead of hard-cutting at it (measured pre-fix:
+  single chunks of 1,001 and 1,500 characters). A cut never opens on a combining mark
+  (Thai vowel/tone marks U+0E31, U+0E34-U+0E3A, U+0E47-U+0E4E, and more generally any
+  Unicode combining mark) or inside a surrogate pair. Consecutive windows of the same
+  section keep up to 60 characters of overlap, itself boundary-aligned where possible
+  and advanced past any leading separator — a 2026-09-25 follow-up fixed the overlap
+  search so it can no longer re-find the exact boundary that produced the cut (which
+  had been collapsing the overlap to zero on the majority of sentence-punctuation and
+  plain-whitespace cuts; only a hard cut ever got the configured overlap before this
+  fix). `genesisrag17-chunker-2` records this behavior; `genesisrag17-parser-1` /
+  `genesisrag17-chunker-1`
   remain defined as historical identities for rows already parsed under them — no
   new ingestion produces them, and no re-ingestion of existing parser-1 generations
   is triggered by this change. Resume (`resumeGenesisRag17Worker`) and the FR-071
@@ -211,6 +227,7 @@ engine/model revisions.
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 1.4.5b | 2026-09-25 | active | Closes three gaps an Opus gate review found in the 1.4.2b/1.4.3b remediation: (1) the "cannot exceed 512 e5 tokens" claim assumed at most one tokenizer token per raw character, but the pinned XLM-R tokenizer applies NFKC before tokenizing and NFKC expands some Unicode compatibility characters (measured: 480 x U+FDFA -> 8,640 normalized characters, 480 x U+3231 -> 1,440) — every window is now additionally bounded so `text.normalize('NFKC').length` also stays within the 480-character budget (`nfkcBoundedCharBudgetEnd`), and the profile bullet's arithmetic is reworded to state this as a measured practical bound for ordinary prose plus a closed NFKC-expansion exception, not an unconditional one; (2) the overlap search reused the same hard end that produced the cut, so it re-found the identical boundary and delivered zero overlap on the majority of ordinary prose cuts (sentence-punctuation and plain-whitespace cuts alike; only a hard cut ever got the configured overlap) — fixed by requiring the overlap boundary to be strictly earlier than the cut, and advanced past any leading separator without collapsing back onto the cut (`findOverlapStart`); (3) when no safe grapheme boundary existed anywhere before the section's end, the forward safety-nudge extended a chunk without bound (measured: single 1,001- and 1,500-character chunks) — fixed by capping that forward search to the character budget and accepting a hard cut there as the documented last resort. A cut also now advances past trailing whitespace so a chunk never opens on a leading separator. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`. Production note: SmartGift production uses parser-2 only (untouched by this change; `tests/unit/genesisrag17-parser-2.test.js` proves byte-identical output), so this changes no published record. No wire field, pin value or new-ingestion parser identity changed | Claude Sonnet 5 |
 | 1.4.4b | 2026-09-25 | active | Correction to the 1.4.3b claim: a persisted parser-1/chunker-1 intent's resume/replay did NOT in fact avoid a Stage 2 conflict, because `ensureParsedArtifact` (genesisrag17-executor.js) hashes `parsed.metadata`, and 1.4.3b's legacy code path set `metadata.maxChars`/`metadata.overlapChars` to `null` instead of omitting them — a shape no pre-1.4.2b row ever had, so `parsedArtifactContentHash` mismatched every already-persisted parser-1 row and Stage 2 still 409'd (`GENESISRAG17_PARSED_IDENTITY_CONFLICT`) on any resume/replay that re-runs it. Fixed by omitting both keys for a legacy request, restoring metadata byte-identical to the pre-remediation shape; a `splitRange` overlap corner case (a paragraph break immediately followed by a combining mark could re-emit a chunk fully contained in the previous one on malformed input) is also closed with an explicit forward-progress guard. Proven by a real ingest -> FR-071 replay -> Stage 2 integration test (`tests/integration/genesisrag17-tier1.test.js`) and a pinned-metadata/hash regression unit test (`tests/unit/genesisrag17-executor-legacy-resume.test.js`). No wire field, pin value, parser-2 output or new-ingestion parser-3 output changed | Claude Sonnet 5 |
 | 1.4.3b | 2026-09-25 | active | Fixes to the 1.4.2b remediation: (1) the overlap step could stall near a paragraph/sentence boundary, moving `cursor` forward by only 1 character and re-finding the same cut repeatedly, emitting long runs of near-duplicate or whitespace-only slivers — fixed by skipping the overlap entirely whenever the chunk just cut is not longer than the overlap budget, and otherwise moving directly to a boundary-aligned overlap start strictly between the previous cursor and the cut, guaranteeing forward progress; (2) the overlap start is now actually searched for the same paragraph/sentence/whitespace boundary preference as the cut itself, not only nudged for grapheme safety, matching what this doc already claimed; (3) a persisted parser-1/chunker-1 intent (recorded before 1.4.2b) now resumes and replays through the historical splitter unchanged instead of 400/409ing on `resumeGenesisRag17Worker` or the FR-071 replay path — see the Tier 1 Stage 2/7/8 profiles section. No wire field, pin value, parser-2 or new-ingestion parser-3 output changed | Claude Sonnet 5 |
 | 1.4.2b | 2026-09-24 | active | TEXT-profile Tier 1-internal identity becomes `genesisrag17-parser-3` / `genesisrag17-chunker-2` — adds a 480-character budget (arithmetic in the profile bullet) alongside the existing 80-whitespace-token budget so a spaceless-script (Thai) prose source cannot silently exceed the pinned e5 embedder's 512-token window; boundary-preferred cuts, ≤60-character overlap, never splits a combining mark or surrogate pair. `genesisrag17-parser-1`/`-chunker-1` recorded as historical-only. No wire field, pin value or SMARTGIFT_CATALOG parser-2 behavior changed; verified no GKS/MSP/worker code validates the parser-identity string (Tier 1-internal, confirmed unchanged) | Claude Sonnet 5 |

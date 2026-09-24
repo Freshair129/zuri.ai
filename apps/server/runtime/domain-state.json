@@ -2520,7 +2520,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 53
+          "testCount": 54
         },
         {
           "id": "FR-110",
@@ -3282,7 +3282,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 53
+          "testCount": 54
         },
         {
           "id": "FR-110",
@@ -5700,7 +5700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 53
+          "testCount": 54
         },
         {
           "id": "FR-110",
@@ -7978,7 +7978,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 53
+          "testCount": 54
         },
         {
           "id": "FR-110",
@@ -8122,6 +8122,7 @@
         "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
         "apps/server/tests/unit/fr254-knowledge-console-routes.test.js",
         "apps/server/tests/unit/genesisrag17-chunker-overlap-regression.test.js",
+        "apps/server/tests/unit/genesisrag17-chunker-safety-fixes.test.js",
         "apps/server/tests/unit/genesisrag17-contract.test.js",
         "apps/server/tests/unit/genesisrag17-executor-legacy-resume.test.js",
         "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",

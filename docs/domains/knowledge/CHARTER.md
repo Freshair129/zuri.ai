@@ -1,6 +1,6 @@
 ---
 domain: knowledge
-version: "1.8.4b"
+version: "1.8.5b"
 status: beta
 last_update: "2026-09-25T00:00:00+07:00,Claude Sonnet 5"
 module: src/modules/knowledge
@@ -311,7 +311,31 @@ this by omitting both keys for a legacy request instead of setting them to
 (`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.4b). Proven end to end by
 `tests/integration/genesisrag17-tier1.test.js` ("replays a historical
 parser-1 legacy TEXT intent through Stage 2 without a parsed-identity
-conflict").
+conflict"). A THIRD 2026-09-25 follow-up closed three more gaps an Opus gate
+review found: (1) the "480 characters cannot exceed 512 e5 tokens" claim
+assumed at most one tokenizer token per raw character, but the pinned
+tokenizer's own NFKC normalization step can expand some Unicode
+compatibility characters far past that (measured: 480 x U+FDFA normalizes to
+8,640 characters; 480 x U+3231 to 1,440) — real prose in any script measures
+far under one token per character (the DoD's 3,000-character Thai paragraph
+tops out at ~142 tokenizer tokens per 480-character chunk), so this only
+matters for pathological input, but every window is now additionally bounded
+by `text.normalize('NFKC').length <= 480` (`nfkcBoundedCharBudgetEnd`) to
+close it regardless; (2) the overlap start, despite the previous follow-up's
+fix, could still land on the exact boundary that produced the cut and so
+still deliver zero overlap on the majority of ordinary sentence/whitespace
+cuts (only a hard cut ever got the configured overlap before this fix) —
+fixed by requiring the overlap boundary to be strictly earlier than the cut
+(`findOverlapStart`); (3) when no safe grapheme boundary existed anywhere
+before a section's end, the forward safety-nudge extended a chunk without
+bound (measured: single 1,001- and 1,500-character chunks) — fixed by
+capping that forward search to the character budget and hard-cutting there
+as the documented last resort. Proven by
+`tests/unit/genesisrag17-chunker-safety-fixes.test.js`
+(`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.5b). Production note: SmartGift
+production uses `parser-2` only (untouched by any of this — proven
+byte-identical by `tests/unit/genesisrag17-parser-2.test.js`), so none of
+these three fixes changes a published record.
 `ensureParsedArtifact` and `ensureChunks` both read `parsedAndChunks.chunks` from that single call;
 neither imports `./chunking` or `./parsing`. **FR-112's `chunkDocument`
 (`chunking.js`: 400 tokens, 10% overlap, parent-child) and FR-115's
@@ -443,6 +467,7 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.8.4b → 1.8.5b (2026-09-25) | Closes three gaps an Opus gate review found in the 2026-09-24 Thai-safe-chunker remediation: (1) the "480 characters cannot exceed 512 e5 tokens" claim assumed at most one tokenizer token per raw character, but the pinned tokenizer's own NFKC normalization can expand some Unicode compatibility characters far past that (measured: 480 x U+FDFA -> 8,640 normalized characters) — every window is now also bounded by `text.normalize('NFKC').length <= 480`; (2) the overlap start could still land on the exact boundary that produced the cut, delivering zero overlap on most sentence/whitespace cuts — fixed by requiring it strictly earlier (`findOverlapStart`); (3) the forward grapheme-safety nudge used to extend a chunk without bound when no safe boundary existed at all (measured: single 1,001/1,500-character chunks) — fixed by capping it to the character budget. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; parser-2 unaffected (proven byte-identical) | `genesisrag17-source.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows; SmartGift production (parser-2 only) publishes no changed record |
 | 1.8.3b → 1.8.4b (2026-09-25) | Correction: 1.8.3b's "resumes/replays unchanged instead of 400/409ing" was only true of the input-value 400 (`GENESISRAG17_PARSER_CONFIG_UNSUPPORTED`/`_CHUNKER_CONFIG_UNSUPPORTED`) — a Stage 2 409 (`GENESISRAG17_PARSED_IDENTITY_CONFLICT`) still fired on the same resume/replay, because the legacy parse path added `maxChars: null, overlapChars: null` to `metadata` (a shape no pre-2026-09-24 row ever had), and `ensureParsedArtifact` hashes `metadata`. Fixed by omitting both keys for a legacy request instead of nulling them, restoring the pre-remediation metadata shape exactly; a `splitRange` overlap corner case on malformed input (a paragraph break directly followed by a combining mark could re-emit a chunk fully contained in the previous one) also closed with an explicit forward-progress guard. Proven by a real ingest -> FR-071 replay -> Stage 2 integration test and a pinned-hash regression unit test (`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.4b) | `genesisrag17-source.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows |
 | 1.8.2b → 1.8.3b (2026-09-25) | Fixes to the 1.8.2b remediation, and names the affected providers: the overlap step could stall on a near boundary and emit long runs of near-duplicate/whitespace-only slivers (fixed by skipping the overlap when the chunk is not longer than it, and otherwise moving to a boundary-aligned overlap start that guarantees forward progress); the overlap start is now actually boundary-searched, not only grapheme-nudged; a persisted `genesisrag17-parser-1`/`-chunker-1` intent now resumes/replays unchanged instead of 400/409ing. Both live TEXT-profile LINE OA providers, `LINE_FAQ_CANDIDATE` (FR-236) and `LINE_STUDIO_DESCRIPTION` (FR-238), get new chunk ids/boundaries for any new admission | `genesisrag17-source.js` and `genesisrag17-executor.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows |
 | 1.8.1b → 1.8.2b (2026-09-24) | Records the Thai-safe prose chunker remediation: the live `genesisrag17-source.js` TEXT profile now also bounds every window by a 480-character budget alongside the 80-whitespace-token one, cuts at a boundary, keeps a small overlap, and never splits a combining mark or surrogate pair (identity `genesisrag17-parser-3` / `genesisrag17-chunker-2`; `genesisrag17-parser-1` / `genesisrag17-chunker-1` are historical only). Closes the Thai-truncation gap this file's 1.8.1b revision recorded; `parser-2` (SMARTGIFT_CATALOG) is unaffected | `apps/server/src/modules/knowledge/genesisrag17-source.js` changed for new TEXT-profile ingestions; no model, route or requirement statement touched; no re-ingestion of existing `parser-1` rows |

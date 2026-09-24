@@ -174,9 +174,11 @@ function inputValue(input) {
   // parser-3/chunker-2 identity and refusing the mismatch — is what lets
   // `resumeGenesisRag17Worker` (genesisrag17-worker.js) and the FR-071 replay
   // path (`loadReplayRun` below) keep working for a RUNNING or replayed
-  // intent recorded under the old identity (a live case: the 2026-09-24
-  // production probe records run 1db6810c, a TEXT source, still at
-  // nextStageNumber 9). A NEW ingestion never supplies this pair —
+  // intent recorded under the old identity (a historical example: the
+  // 2026-09-24 production probe found run 1db6810c, a TEXT source, still at
+  // nextStageNumber 9 — the same day's deploy record shows the #549 sweep
+  // then closed that run FAILED, so it is no longer live). A NEW ingestion
+  // never supplies this pair —
   // `genesisRag17ParserIdentity` no longer returns it — so this path is
   // unreachable for anything but a historical request.
   const isLegacyTextRequest = !structuredProfile && parserVersion !== undefined && isHistoricalParserIdentity(parserVersion, maxTokens) &&

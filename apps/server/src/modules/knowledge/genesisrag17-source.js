@@ -73,10 +73,24 @@ export const GENESIS_RAG17_DEFAULT_MAX_TOKENS = 80
 // for the tokenizer's own special tokens (2, e.g. an XLM-R-style CLS/SEP pair)
 // and reserving one tokenizer token per character of the 9-character
 // "passage: " prefix (the worst case the pipeline must survive) leaves
-// 512 - 2 - 9 = 501 tokens for the chunk body. A chunk of N characters can
-// need at most N tokenizer tokens (the pathological one-token-per-character
-// case named in the task), so bounding N at 480 keeps a 21-token safety
-// margin below that already-conservative 501 for every script, spaced or not.
+// 512 - 2 - 9 = 501 tokens for the chunk body. A chunk of N *raw* characters
+// needs at most N tokenizer tokens ONLY if the tokenizer's own NFKC
+// normalization step cannot expand the string — and it can: the pinned
+// XLM-R tokenizer applies NFKC before tokenizing, and a handful of Unicode
+// compatibility characters expand under it (measured: 480 x U+FDFA
+// normalizes to 8,640 characters, 480 x U+3231 to 1,440 — both far more
+// tokenizer tokens than the 480-character raw budget would suggest). Real
+// prose in any script measures far under one token per character (the DoD's
+// 3,000-character Thai paragraph chunks at up to 480 raw characters and at
+// most ~142 tokenizer tokens per chunk), so 480 raw characters is already a
+// generous, practically-safe bound for ordinary text. To close the
+// NFKC-expansion gap for the pathological case too, `splitRange` additionally
+// bounds every window by `text.normalize('NFKC').length <= GENESIS_RAG17_
+// DEFAULT_MAX_CHARS` (see `nfkcBoundedCharBudgetEnd` below), so a chunk can
+// never exceed the 480-token NFKC-normalized length even when NFKC expands
+// it — which, combined with the 21-token safety margin below the
+// already-conservative 501, keeps every chunk inside the tokenizer's 512-
+// token window regardless of script or expansion.
 export const GENESIS_RAG17_DEFAULT_MAX_CHARS = 480
 // A small overlap keeps a boundary's context available to both neighbouring
 // chunks. Bounded well under the safety margin above so it can never itself
@@ -206,7 +220,15 @@ function isUnsafeChunkStart(content, pos) {
 /**
  * Nudges `pos` off an unsafe grapheme boundary. Prefers moving earlier
  * (extending the chunk that ends here) so the budget is never exceeded;
- * only extends forward if that would collapse the range to empty.
+ * only extends forward if that would collapse the range to empty — and even
+ * then, `upperBound` must itself already be budget-bounded (the caller's
+ * job): this function only ever returns a value `<= upperBound`, so passing
+ * the character budget's own edge (rather than the whole section's `end`)
+ * is what stops a run of nothing-but-combining-marks input from extending a
+ * chunk arbitrarily far forward. When even `upperBound` is itself unsafe,
+ * that hard cut is accepted as the documented last resort — the input is
+ * malformed (no safe grapheme boundary exists anywhere in the budget), and
+ * a bounded-but-imperfect cut beats an unbounded chunk.
  */
 function safeChunkBoundary(content, pos, lowerBound, upperBound) {
   let candidate = pos
@@ -215,6 +237,64 @@ function safeChunkBoundary(content, pos, lowerBound, upperBound) {
   candidate = pos
   while (candidate < upperBound && isUnsafeChunkStart(content, candidate)) candidate += 1
   return candidate
+}
+
+/**
+ * Bounds `end` (already `<= cursor + maxChars` on entry) so that the
+ * NFKC-normalized length of `content.slice(cursor, end)` also stays within
+ * `maxChars` — the pinned e5 tokenizer normalizes with NFKC before
+ * tokenizing, and NFKC expands some Unicode compatibility characters (see
+ * the arithmetic note on `GENESIS_RAG17_DEFAULT_MAX_CHARS`), so bounding on
+ * raw length alone is not safe against that pathological case. Shrinks by
+ * one character at a time: `maxChars` is small (480) and this only runs
+ * once per window, so the cost is negligible, and NFKC's effect on a
+ * shrinking substring is monotonic-in-practice for the compatibility
+ * expansions this guards against (each removed trailing character can only
+ * remove its own expansion, never add one elsewhere).
+ */
+function nfkcBoundedCharBudgetEnd(content, cursor, end, maxChars) {
+  let candidate = end
+  while (candidate > cursor && content.slice(cursor, candidate).normalize('NFKC').length > maxChars) candidate -= 1
+  return Math.max(cursor, candidate)
+}
+
+/**
+ * Finds the overlap start: the best cut-preference boundary (see
+ * `findChunkBoundary`), advanced past any trailing whitespace so the
+ * overlapping chunk does not open on a separator — but ONLY when the
+ * result stays STRICTLY less than `cutEnd`. Both conditions need the
+ * retry loop below, not a single `findChunkBoundary` call:
+ *
+ *  - `cutEnd` is the chunk boundary that was just cut, which is itself
+ *    very often exactly the boundary `findChunkBoundary` would find again
+ *    (the sentence-end or whitespace character immediately preceding
+ *    `cutEnd` IS what produced `cutEnd`), so a plain call collapses the
+ *    overlap to zero on the majority of prose cuts (sentence-punctuation
+ *    and whitespace cuts alike — measured: 0-length overlap at every seam
+ *    for spaced English, spaced Thai and plain space-separated words).
+ *  - `cutEnd` was itself advanced past trailing whitespace (see the cut
+ *    site above), so the gap between a boundary and `cutEnd` is very often
+ *    EXACTLY one separator — advancing past it here lands right back on
+ *    `cutEnd` and reopens the same zero-overlap failure one step later.
+ *
+ * So each retry both requires a strictly-earlier boundary AND checks that
+ * advancing past whitespace from it still leaves something before
+ * `cutEnd`; only once neither is possible anywhere in the window does this
+ * return `null`, and the caller then keeps the raw arithmetic offset
+ * (accepting a leading separator in that rare case rather than losing the
+ * overlap entirely).
+ */
+function findOverlapStart(content, lowerBound, cutEnd) {
+  let limit = cutEnd
+  while (limit > lowerBound) {
+    const candidate = findChunkBoundary(content, lowerBound, limit)
+    if (candidate === null) return null
+    let advanced = candidate
+    while (advanced < cutEnd && /\s/u.test(content[advanced] || '')) advanced += 1
+    if (candidate < cutEnd && advanced < cutEnd) return advanced
+    limit = candidate - 1
+  }
+  return null
 }
 
 const THAI_CHAR = /[฀-๿]/u
@@ -284,28 +364,46 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
   // mark straight after a paragraph break — but it is cheap to close.
   let previousCutEnd = start - 1
   while (cursor < end) {
-    const charBudgetEnd = Math.min(end, cursor + maxChars)
+    const rawCharBudgetEnd = Math.min(end, cursor + maxChars)
+    // Also bound the window by NFKC-normalized length (see the arithmetic
+    // note on `GENESIS_RAG17_DEFAULT_MAX_CHARS`): this can only shrink
+    // `rawCharBudgetEnd`, never grow it, so it is safe to apply before the
+    // whitespace-token count below (which only shrinks it further too).
+    const charBudgetEnd = nfkcBoundedCharBudgetEnd(content, cursor, rawCharBudgetEnd, maxChars)
     const tokens = [...content.slice(cursor, charBudgetEnd).matchAll(/\S+/gu)]
     let windowEnd = charBudgetEnd
     if (tokens.length > maxTokens) {
       const last = tokens[maxTokens - 1]
       windowEnd = cursor + last.index + last[0].length
     }
+    // The true hard stop for THIS window's forward grapheme-safety nudge.
+    // Bounding it to `charBudgetEnd` — the NFKC-safe budget end, not the
+    // raw one, and not the section's whole `end` — is what stops a run of
+    // nothing-but-combining-marks input (no safe boundary anywhere) from
+    // growing a chunk past the budget instead of hard-cutting at it (see
+    // `safeChunkBoundary`'s doc comment), without reopening the NFKC-length
+    // guarantee `nfkcBoundedCharBudgetEnd` just established above.
+    const hardLimit = charBudgetEnd
     let cutEnd
     if (windowEnd >= end) {
       cutEnd = end
     } else {
       const boundary = findChunkBoundary(content, cursor, windowEnd)
-      cutEnd = safeChunkBoundary(content, boundary ?? windowEnd, cursor, end)
-      if (cutEnd <= cursor) cutEnd = safeChunkBoundary(content, windowEnd, cursor, end)
+      cutEnd = safeChunkBoundary(content, boundary ?? windowEnd, cursor, hardLimit)
+      if (cutEnd <= cursor) cutEnd = safeChunkBoundary(content, windowEnd, cursor, hardLimit)
       if (cutEnd <= cursor) cutEnd = Math.min(end, cursor + 1)
+      // Advance past any whitespace the cut landed just before, so the next
+      // chunk (and this chunk's own trailing edge) never carries a leading
+      // separator into the citation text — parser-1 always started a chunk
+      // at `\S`, and this keeps parser-3 doing the same on ordinary cuts.
+      while (cutEnd < end && cutEnd < hardLimit && /\s/u.test(content[cutEnd] || '')) cutEnd += 1
     }
     if (cutEnd <= previousCutEnd) {
       // Force strictly-forward progress past the previous chunk's end.
       // `safeChunkBoundary`'s lower bound is `previousCutEnd`, so its
       // backward nudge can reach no further than `previousCutEnd` itself
       // (never below it) before falling through to its forward search.
-      cutEnd = safeChunkBoundary(content, Math.min(end, previousCutEnd + 1), previousCutEnd, end)
+      cutEnd = safeChunkBoundary(content, Math.min(end, previousCutEnd + 1), previousCutEnd, Math.min(end, previousCutEnd + 1 + maxChars))
     }
     previousCutEnd = cutEnd
     if (content.slice(cursor, cutEnd).trim()) ranges.push({ start: cursor, end: cutEnd })
@@ -315,14 +413,14 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       // Align the overlap start to the same boundary preference as the cut
       // itself (paragraph > sentence/Thai-run-space > whitespace), searched
       // in the narrow window the overlap budget actually allows — not a
-      // grapheme-only nudge of the raw arithmetic offset. The grapheme-safety
-      // nudge here is forward-ONLY (never `safeChunkBoundary`'s bidirectional
-      // nudge): `findChunkBoundary` already guarantees its result is >=
-      // `desiredOverlapStart`, and nudging it earlier to dodge a combining
-      // mark would silently grow the overlap past `overlapChars` — nudging
-      // later only ever shrinks it, which stays within budget.
+      // grapheme-only nudge of the raw arithmetic offset. `findOverlapStart`
+      // (unlike a plain `findChunkBoundary` call) guarantees its result is
+      // strictly less than `cutEnd` and past any trailing whitespace, which
+      // is what actually delivers a real, separator-free overlap on a
+      // sentence/whitespace cut rather than re-finding the same boundary
+      // that produced `cutEnd` and collapsing the overlap to zero.
       const desiredOverlapStart = cutEnd - overlapChars
-      const boundary = findChunkBoundary(content, desiredOverlapStart, cutEnd)
+      const boundary = findOverlapStart(content, desiredOverlapStart, cutEnd)
       let overlapStart = boundary ?? desiredOverlapStart
       while (overlapStart < cutEnd && isUnsafeChunkStart(content, overlapStart)) overlapStart += 1
       cursor = overlapStart > cursor && overlapStart < cutEnd ? overlapStart : cutEnd
