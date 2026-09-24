@@ -1614,7 +1614,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-243",
@@ -2608,7 +2608,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 50
+          "testCount": 52
         },
         {
           "id": "FR-187",
@@ -2616,7 +2616,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-188",
@@ -2672,7 +2672,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-242",
@@ -3377,8 +3377,8 @@
           "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 10,
-          "testCount": 50
+          "codeCount": 11,
+          "testCount": 52
         },
         {
           "id": "FR-187",
@@ -3386,7 +3386,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-188",
@@ -3454,7 +3454,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-237",
@@ -3470,7 +3470,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-253",
@@ -3872,7 +3872,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-243",
@@ -5980,7 +5980,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 50
+          "testCount": 52
         },
         {
           "id": "FR-174",
@@ -6060,7 +6060,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-191",
@@ -6252,7 +6252,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-237",
@@ -8001,8 +8001,8 @@
           "title": "Knowledge source admission and corpus publication",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 26,
-          "testCount": 50
+          "codeCount": 27,
+          "testCount": 52
         },
         {
           "id": "FR-254",
@@ -8050,6 +8050,7 @@
         "apps/server/src/modules/knowledge/knowledge-console-repository.js",
         "apps/server/src/modules/knowledge/knowledge-console-service.js",
         "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
+        "apps/server/src/modules/knowledge/knowledge-document-zero-pii.js",
         "apps/server/src/modules/knowledge/knowledge-execution-authority.js",
         "apps/server/src/modules/knowledge/knowledge-http.js",
         "apps/server/src/modules/knowledge/knowledge-repository.js",
@@ -8094,6 +8095,7 @@
         "apps/server/tests/integration/fr254-citation-artifact.test.js",
         "apps/server/tests/integration/fr254-knowledge-console.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
+        "apps/server/tests/integration/genesisrag17-tier1-knowledge-admission-zero-pii.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-admission-backup.test.js",
         "apps/server/tests/integration/knowledge-admission.integration.test.js",
@@ -8140,6 +8142,7 @@
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-corpus-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+        "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-documents-ui.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",
         "apps/server/tests/unit/knowledge-http.test.js",
@@ -9792,7 +9795,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-188",
@@ -9855,6 +9858,7 @@
         "apps/server/tests/unit/knowledge-admission-transaction.test.js",
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
+        "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
@@ -11135,7 +11139,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-237",
@@ -11151,7 +11155,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -11247,8 +11251,10 @@
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-candidates-ui.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+        "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-gap-report-service.test.js",
         "apps/server/tests/unit/knowledge-gap-report-ui.test.js",
+        "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/line-knowledge-grounding.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
