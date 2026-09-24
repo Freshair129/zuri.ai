@@ -42,7 +42,7 @@ default).
 | HOSTED_IMAGE_BUILD | NOT_RUN | No CI workflow wired (root CI is integrator-owned; request in §8) |
 | IMAGE_START_SMOKE | NOT_RUN | — |
 | MIGRATION_REHEARSAL_VERIFIED | NOT_RUN | — |
-| CI_VERIFIED | NOT_RUN | No PR yet |
+| CI_VERIFIED | NOT_RUN | Draft PR #546 opened; existing workflows do not run `services/scm` tests (CI job requested in §8), so their result says nothing about the service |
 | MERGE_STATUS | NOT_MERGED | — |
 | PRODUCTION_CUTOVER | NOT_RUN | Not authorized |
 
