@@ -2,14 +2,12 @@
 // commands, queries and ledger. [legacy] tests mirror apps/server
 // fr176-customization-work-order.test.js and fr177-kitting-work-order.test.js with
 // the same inputs and expectations. Locations are seeded (their writers move with
-// the stocktake/transfers group) and the FR-180 quote hold is inserted directly
-// (the reservation writers move with the ATP group — SCM-HANDOFF); the ATP READ
-// that refuses the build is SCM's own.
+// the stocktake/transfers group); the FR-180 quote hold is placed with SCM's own
+// reservation command.
 import { test, describe, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { randomUUID } from 'node:crypto'
 import { createHarness, rejects } from '../support/harness.js'
-import { BIZ, TENANT, idem } from '../support/fixtures.js'
+import { BIZ, idem } from '../support/fixtures.js'
 import { appendMovement } from '../../src/modules/inventory/index.js'
 
 const G = {
@@ -194,15 +192,11 @@ describe('[legacy] FR-177 kitting work orders', () => {
 
   test('AC-177.3 — availability is ATP, so components another quote already promised do not count as free (FR-180)', async () => {
     // 1,000 tumblers on hand and a live quote holds 400: not enough for 714 (700 + 2%).
-    const now = new Date().toISOString()
-    await h.store.transaction((sql) => sql.run(
-      "INSERT INTO StockReservation (id, code, tenantId, businessId, productId, purpose, quantity, status, quoteReference, reservedAt, expiresAt, createdAt, updatedAt, version) VALUES (?,?,?,?,?,'QUOTE',400,'ACTIVE','QT-SCG-1',?,?,?,?,1)",
-      randomUUID(), 'RSV-TEST-001', TENANT, BIZ, tumbler.id, now, new Date(Date.now() + 7 * 86400000).toISOString(), now, now,
-    ))
+    const quote = (await run('owner', 'inventory.reservation.create', { businessId: BIZ, productId: tumbler.id, quantity: 400, purpose: 'QUOTE', quoteReference: 'QT-SCG-1' })).reservation
     const error = await rejects(kwo.open({ recipeId: recipe.id, plannedQty: 700 }), { status: 409, code: 'INVENTORY_KITTING_SHORTAGE' })
     assert.deepEqual(error.details.map((d) => [d.code, d.required, d.available]), [['KIT-TUMBLER-SUS304-500ML', 714, 600]])
-    // An expired hold no longer counts (BR-031: liveness is decided against the clock).
-    await h.store.transaction((sql) => sql.run("UPDATE StockReservation SET expiresAt = '2020-01-01T00:00:00.000Z' WHERE code = 'RSV-TEST-001'"))
+    // A released hold no longer counts (expiry on the clock is AC-180.3).
+    await run('owner', 'inventory.reservation.action', { businessId: BIZ, action: 'RELEASE', version: quote.version }, quote.id)
     const fits = await kwo.open({ recipeId: recipe.id, plannedQty: 700 })
     await kwo.act(fits.id, { action: 'CANCEL', version: fits.version })
   })

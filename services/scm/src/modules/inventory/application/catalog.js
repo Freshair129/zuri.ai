@@ -25,8 +25,7 @@ import * as wipRepo from '../adapters/wip-repo.js'
 //             moves for plain SKUs; identifiers, pack sizes, bundle items and
 //             recipes follow the survivor; blocked by open work orders and BOMs
 //             that would change meaning). The reservation count these guards read
-//             is SCM's own StockReservation table, whose writers move with the ATP
-//             group — ARCHIVE / MERGE cut over only with them (SCM-HANDOFF D-21).
+//             is SCM's own StockReservation table, written by application/atp.js.
 //   reads   — lists by code; the product page with recomputed on-hand and costing.
 // Writing needs OWNER or `inventory.catalog.write`; reading needs the inventory
 // domain; every refusal of scope is the same 404.

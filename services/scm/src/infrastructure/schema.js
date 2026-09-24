@@ -34,7 +34,7 @@ export const OWNERS = Object.freeze({
 // v7 (S5.4 identifiers + unit conversions, F-13): ProductUnitConversion; ProductIdentifier
 // is now written here too.
 // v8 (S5.4 recipes + work orders): ProductRecipe(+Line), CustomizationWorkOrder,
-// KittingWorkOrder; StockReservation (read by ATP; its writers have not moved).
+// KittingWorkOrder; StockReservation (its writers joined in the ATP tranche; no schema change).
 // Disposable stores only — there is no v1→…→v8 migration (the migration owner writes one).
 export const SCHEMA_VERSION = 8
 
@@ -271,8 +271,8 @@ CREATE TABLE IF NOT EXISTS KittingWorkOrder (
 );
 CREATE INDEX IF NOT EXISTS KittingWorkOrder_business ON KittingWorkOrder (businessId, status);
 
--- Reservations (FR-180): a promise, never a ledger write, never deleted. READ here by
--- Available-to-Promise (kitting open); the writers have NOT moved (ATP group).
+-- Reservations (FR-180): a promise, never a ledger write, never deleted; read by ATP,
+-- kitting open and the ARCHIVE / MERGE guards; written by application/atp.js.
 CREATE TABLE IF NOT EXISTS StockReservation (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
   productId TEXT NOT NULL REFERENCES Product(id), purpose TEXT NOT NULL, quantity INTEGER NOT NULL,

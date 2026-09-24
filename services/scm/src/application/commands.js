@@ -13,7 +13,7 @@ import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSale
 import { zCreateOrder } from '../kernel/commerce/commerce.js'
 import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
 import { authorizeCatalogue, getPosTerminalCatalogue } from '../modules/commerce/application/pos-catalogue.js'
-import { catalog, customization, deKitting, identity, kitting, recipes } from '../modules/inventory/index.js'
+import { atp, catalog, customization, deKitting, identity, kitting, recipes } from '../modules/inventory/index.js'
 import { supplierCostPriceBreaks } from '../modules/procurement/application/supplier-cost-sheets.js'
 import { applyPricingRuleAction, calculatePricing, calculationRequest, createPricingRuleSet, getActivePricingRuleSet, guardCalculationReplay, listPricingRules, loadRuleInScope, ownerBusiness, previewPricingRules, updatePricingRuleSet, zCalculatePricing, zCreatePricingRule } from '../modules/commerce/application/pricing-rules.js'
 
@@ -90,6 +90,10 @@ const COMMANDS = {
   'inventory.customization-work-order.open': { authorize: (sql, scope, { body }) => customization.openerOf(scope, body), execute: (sql, scope, { body }, ctx) => customization.openCustomizationWorkOrder(sql, scope, body, ctx) },
   'inventory.customization-work-order.action': { authorize: (sql, scope, { targetId, body }) => customization.actorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => customization.applyCustomizationWorkOrderAction(sql, scope, targetId, body, ctx) },
   'inventory.kitting-work-order.open': { authorize: (sql, scope, { body }) => kitting.openerOf(scope, body), execute: (sql, scope, { body }, ctx) => kitting.openKittingWorkOrder(sql, scope, body, ctx) },
+  // Reservations (FR-180): Inventory write on the Business the body names; a hold takes the ledger fence (D-23).
+  'inventory.reservation.create': { authorize: (sql, scope, { body }) => atp.reserverOf(scope, body), execute: (sql, scope, { body }, ctx) => atp.createReservation(sql, scope, body, ctx) },
+  'inventory.reservation.action': { authorize: (sql, scope, { targetId, body }) => atp.reservationActorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => atp.applyReservationAction(sql, scope, targetId, body, ctx) },
+  'inventory.reservation.expire': { authorize: (sql, scope, { body }) => atp.sweeperOf(scope, body), execute: (sql, scope, { body }, ctx) => atp.expireDueReservations(sql, scope, body ?? {}, ctx) },
   'inventory.kitting-work-order.action': { authorize: (sql, scope, { targetId, body }) => kitting.actorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => kitting.applyKittingWorkOrderAction(sql, scope, targetId, body, ctx) },
   'commerce.pos.checkout': {
     // Authorization needs the parsed businessId; a malformed body is a 422 before any lookup.
@@ -251,6 +255,10 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     customizationWorkOrder: (scope, id) => store.read((sql) => ({ order: customization.getCustomizationWorkOrder(sql, scope, id) })),
     kittingWorkOrders: (scope, query) => store.read((sql) => ({ orders: kitting.listKittingWorkOrders(sql, scope, query) })),
     kittingWorkOrder: (scope, id) => store.read((sql) => ({ order: kitting.getKittingWorkOrder(sql, scope, id) })),
+    reservations: (scope, query) => store.read((sql) => ({ reservations: atp.listReservations(sql, scope, { ...query, now: clock().toISOString() }) })),
+    atp: (scope, query) => store.read((sql) => (query.recipeId
+      ? atp.maxBuildableSets(sql, scope, { ...query, now: clock().toISOString() })
+      : atp.availableToPromiseFor(sql, scope, { ...query, now: clock().toISOString() }))),
     costSheet: (scope, id) => store.read((sql) => ({ sheet: getSupplierCostSheet(sql, scope, id) })),
     costSheets: (scope, query) => store.read((sql) => listSupplierCostSheets(sql, scope, query)),
     pricingRules: (scope, query) => store.read((sql) => listPricingRules(sql, scope, query, clock().toISOString())),

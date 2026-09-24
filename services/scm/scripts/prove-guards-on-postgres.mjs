@@ -38,6 +38,18 @@ const GUARDS = [
     remove: [['src/infrastructure/schema.js', "CREATE UNIQUE INDEX IF NOT EXISTS SupplierCostSheet_one_confirmed ON SupplierCostSheet (businessId, supplierId) WHERE status = 'CONFIRMED';\n", '']],
   },
   {
+    finding: 'R-1', guard: 'ledger fence before a new hold reads ATP (D-23)', test: 'recovery/two-process-reservation',
+    common: [],
+    remove: [['src/modules/inventory/application/atp.js', '  repo.acquireFence(sql, { tenantId: business.tenantId, businessId: business.id, now: ctx.now })\n', '']],
+  },
+  {
+    finding: 'R-2', guard: 'reservation compare-and-swap (D-23)', test: 'recovery/two-process-reservation',
+    // Hold codes are made collision-free in BOTH arms: two CONVERTs otherwise pick the
+    // same RSV code, and the store's re-run on the duplicate would mask the shape.
+    common: [['src/modules/inventory/adapters/wip-repo.js', "const row = { id, ...values, status: 'ACTIVE', version: 1 }", "const row = { id, ...values, code: `${values.code}-${id.slice(0, 8)}`, status: 'ACTIVE', version: 1 }"]],
+    remove: [['src/modules/inventory/adapters/wip-repo.js', "WHERE id = ? AND version = ? AND status = 'ACTIVE'`", 'WHERE id = ? AND CAST(? AS INTEGER) IS NOT NULL`']],
+  },
+  {
     finding: 'W-1', guard: 'work-order compare-and-swap (D-20)', test: 'recovery/two-process-kitting',
     common: [],
     remove: [['src/modules/inventory/adapters/wip-repo.js', 'updatedAt = ? WHERE id = ? AND version = ?`, ...keys.map', 'updatedAt = ? WHERE id = ? AND CAST(? AS INTEGER) IS NOT NULL`, ...keys.map']],

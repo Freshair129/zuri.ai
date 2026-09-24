@@ -17,5 +17,7 @@ export * as recipes from './application/recipes.js'
 export * as customization from './application/customization.js'
 export * as kitting from './application/kitting.js'
 export * as deKitting from './application/de-kitting.js'
+/** Available-to-Promise and reservations (FR-180). */
+export * as atp from './application/atp.js'
 /** On-hand from the ledger (read port for a pre-issue shortage report; the writer re-checks). */
 export { onHandOf } from './adapters/inventory-repo.js'

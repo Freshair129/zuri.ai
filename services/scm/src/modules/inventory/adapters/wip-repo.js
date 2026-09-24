@@ -1,9 +1,8 @@
 import { randomUUID } from 'node:crypto'
 
 // Inventory's recipe / work-order adapter: the only SQL over ProductRecipe(+Line),
-// CustomizationWorkOrder and KittingWorkOrder, the READ of StockReservation (its
-// writers have not moved — ATP group), and the lot-intake correction a transfer
-// makes. Every function takes the unit-of-work handle.
+// CustomizationWorkOrder, KittingWorkOrder and StockReservation, and the
+// lot-intake correction a transfer makes. Every function takes the unit-of-work handle.
 
 const RECIPE_COLUMNS = 'id, code, tenantId, businessId, productId, name, batchSize, yieldQty, unit, notes, scrapAllowanceFactor, status, archivedAt, createdAt, updatedAt, version'
 const LINE_COLUMNS = 'id, componentProductId, qty, unit, fixed, note'
@@ -93,6 +92,39 @@ export function activeReservationsOf(sql, businessId, productIds) {
     businessId, ...productIds,
   )
 }
+// ── Reservations (FR-180): the only SQL writing StockReservation ────────────
+export const RESERVATION_COLUMNS = 'id, code, tenantId, businessId, productId, purpose, quantity, status, customerId, salesOrderId, quoteReference, customerCompany, contactHandle, notes, reservedAt, expiresAt, releasedAt, convertedAt, createdByPersonId, createdAt, updatedAt, version'
+export const reservationById = (sql, id) => {
+  const row = sql.get(`SELECT ${RESERVATION_COLUMNS} FROM StockReservation WHERE id = ?`, id)
+  return row ? { ...row } : null
+}
+export const reservationCodeCount = (sql, tenantId, prefix) => Number(sql.get('SELECT COUNT(*) AS n FROM StockReservation WHERE tenantId = ? AND code LIKE ?', tenantId, `${prefix}%`).n)
+export const reservationCodeTaken = (sql, tenantId, code) => Boolean(sql.get('SELECT id FROM StockReservation WHERE tenantId = ? AND code = ?', tenantId, code))
+export function insertReservation(sql, values) {
+  const id = randomUUID()
+  const row = { id, ...values, status: 'ACTIVE', version: 1 }
+  const keys = Object.keys(row)
+  sql.run(`INSERT INTO StockReservation (${keys.join(', ')}) VALUES (${keys.map(() => '?').join(',')})`, ...keys.map((k) => row[k]))
+  return reservationById(sql, id)
+}
+const RESERVATION_CHANGE = new Set(['status', 'releasedAt', 'convertedAt'])
+/** Compare-and-swap on (id, version) and still ACTIVE: 1 when this writer won. */
+export function casReservation(sql, { id, version, change, now }) {
+  const keys = Object.keys(change)
+  for (const k of keys) if (!RESERVATION_CHANGE.has(k)) throw new Error(`reservation column ${k} is not updatable`)
+  return Number(sql.run(`UPDATE StockReservation SET ${keys.map((k) => `${k} = ?`).join(', ')}, version = version + 1, updatedAt = ? WHERE id = ? AND version = ? AND status = 'ACTIVE'`, ...keys.map((k) => change[k]), now, id, version).changes)
+}
+export function reservationsOf(sql, businessId, { productId, status } = {}) {
+  return sql.all(
+    `SELECT ${RESERVATION_COLUMNS} FROM StockReservation WHERE businessId = ? ${productId ? 'AND productId = ?' : ''} ${status ? 'AND status = ?' : ''} ORDER BY reservedAt DESC, id DESC`,
+    ...[businessId, ...(productId ? [productId] : []), ...(status ? [status] : [])],
+  ).map((row) => ({ ...row }))
+}
+/** ACTIVE quote/order holds whose clock has run out (a committed hold with no expiry never qualifies). */
+export const dueReservations = (sql, businessId, now) => sql.all("SELECT id, code, quantity, productId, version FROM StockReservation WHERE businessId = ? AND status = 'ACTIVE' AND expiresAt IS NOT NULL AND expiresAt <= ? ORDER BY expiresAt, id", businessId, now)
+/** Stamp EXPIRED only while the row is still ACTIVE (two sweeps never both stamp it). */
+export const expireReservation = (sql, id, now) => Number(sql.run("UPDATE StockReservation SET status = 'EXPIRED', version = version + 1, updatedAt = ? WHERE id = ? AND status = 'ACTIVE'", now, id).changes)
+
 /** ACTIVE reservation rows of one SKU, clock ignored — the legacy ARCHIVE / MERGE guard count. */
 export const activeReservationCount = (sql, productId) => Number(sql.get("SELECT COUNT(*) AS n FROM StockReservation WHERE productId = ? AND status = 'ACTIVE'", productId).n)
 

@@ -1,14 +1,12 @@
 // Product ARCHIVE and MERGE (FR-205) through the real SCM commands, queries and
 // ledger. [legacy] tests mirror apps/server fr201-inventory-sku-governance.test.js
 // AC-205.1 and AC-205.2 with the same inputs and expectations. Quote holds are
-// inserted / released directly: the reservation writers move with the ATP group
-// (SCM-HANDOFF D-21); the guards that read them are SCM's own. The last describe
+// placed and released through SCM's own reservation commands. The last describe
 // covers the blockers this tranche made reachable — recipes and open work orders.
 import { test, describe, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { randomUUID } from 'node:crypto'
 import { createHarness, rejects } from '../support/harness.js'
-import { BIZ, TENANT, idem } from '../support/fixtures.js'
+import { BIZ, idem } from '../support/fixtures.js'
 import { appendMovement } from '../../src/modules/inventory/index.js'
 
 const G = {
@@ -31,15 +29,8 @@ const act = (id, body, who = 'owner') => run(who, 'inventory.product.action', bo
 const move = (productId, kind, quantity, over = {}) => h.store.transaction((sql) => appendMovement(sql, as('owner'), { businessId: BIZ, productId, kind, quantity, reason: 'TEST', ...over }, { now: new Date().toISOString() }))
 const product = (id) => h.bus.queries.product(as('member'), id).then((r) => r.product)
 const productAudits = (ids) => h.store.read((sql) => sql.all(`SELECT entityId, action FROM ScmAuditEvent WHERE entityType = 'PRODUCT' AND entityId IN (${ids.map(() => '?').join(',')}) ORDER BY occurredAt, rowid`, ...ids))
-function hold(productId, quantity = 1) {
-  const now = new Date().toISOString()
-  const id = randomUUID()
-  return h.store.transaction((sql) => {
-    sql.run("INSERT INTO StockReservation (id, code, tenantId, businessId, productId, purpose, quantity, status, reservedAt, expiresAt, createdAt, updatedAt, version) VALUES (?,?,?,?,?,'QUOTE',?,'ACTIVE',?,?,?,?,1)", id, `RSV-LC-${id.slice(0, 6)}`, TENANT, BIZ, productId, quantity, now, new Date(Date.now() + 7 * 86400000).toISOString(), now, now)
-    return id
-  })
-}
-const releaseHold = (id) => h.store.transaction((sql) => sql.run("UPDATE StockReservation SET status = 'RELEASED', version = version + 1 WHERE id = ?", id))
+const hold = (productId, quantity = 1) => run('owner', 'inventory.reservation.create', { businessId: BIZ, productId, quantity }).then((r) => r.reservation.id)
+const releaseHold = (id) => run('owner', 'inventory.reservation.action', { businessId: BIZ, action: 'RELEASE', version: 1 }, id)
 
 describe('[legacy] FR-205 lifecycle: ARCHIVE and MERGE', () => {
   test('AC-205.1 — PHASE_OUT refuses receipts and keeps issuing; ARCHIVE refuses stock or a live promise; REACTIVATE restores', async () => {
@@ -150,6 +141,7 @@ describe('FR-205 MERGE against recipes and work orders (reachable now that they 
   test('a live promise on the duplicate blocks a merge exactly as it blocks an archive (BR-040)', async () => {
     const keep = await sku('RS-KEEP', { safetyStock: 0 })
     const dup = await sku('RS-DUP', { safetyStock: 0 })
+    await move(dup.id, 'RECEIPT', 2)
     const quote = await hold(dup.id, 2)
     await rejects(act(dup.id, { action: 'MERGE', version: 1, into: keep.id }), { status: 409, code: 'INVENTORY_PRODUCT_HAS_RESERVATIONS' })
     await releaseHold(quote)

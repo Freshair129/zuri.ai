@@ -79,11 +79,16 @@ const ROUTES = [
   route('GET', '/v1/inventory/kitting-work-orders', 'kwo.list'),
   route('GET', '/v1/inventory/kitting-work-orders/:id', 'kwo.get'),
   route('POST', '/v1/inventory/kitting-work-orders/:id/actions', 'kwo.action'),
+  route('POST', '/v1/inventory/reservations', 'rsv.create'),
+  route('GET', '/v1/inventory/reservations', 'rsv.list'),
+  route('POST', '/v1/inventory/reservations/expire', 'rsv.expire'),
+  route('POST', '/v1/inventory/reservations/:id/actions', 'rsv.action'),
+  route('GET', '/v1/inventory/atp', 'atp'),
   route('GET', '/v1/inventory/stock', 'stock'),
   route('GET', '/v1/inventory/movements', 'movements'),
   route('GET', '/v1/operations/:action/:key', 'operation'),
 ]
-const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'catalog.category.create': 'inventory.category.create', 'catalog.family.create': 'inventory.family.create', 'catalog.factory.create': 'inventory.factory.create', 'catalog.product-master.create': 'inventory.product-master.create', 'catalog.product.create': 'inventory.product.create', 'catalog.bundle.create': 'inventory.bundle.create', 'catalog.product.action': 'inventory.product.action', 'identity.identifier.add': 'inventory.identifier.add', 'identity.identifier.action': 'inventory.identifier.action', 'identity.conversion.add': 'inventory.unit-conversion.add', 'identity.conversion.action': 'inventory.unit-conversion.action', 'identity.flowaccount': 'inventory.product.flowaccount-sku', 'recipe.create': 'inventory.recipe.create', 'recipe.action': 'inventory.recipe.action', 'recipe.build': 'inventory.recipe.build', 'dekit': 'inventory.de-kit', 'cwo.open': 'inventory.customization-work-order.open', 'cwo.action': 'inventory.customization-work-order.action', 'kwo.open': 'inventory.kitting-work-order.open', 'kwo.action': 'inventory.kitting-work-order.action','costsheet.preview': 'procurement.cost-sheet.preview', 'costsheet.commit': 'procurement.cost-sheet.commit', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
+const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'catalog.category.create': 'inventory.category.create', 'catalog.family.create': 'inventory.family.create', 'catalog.factory.create': 'inventory.factory.create', 'catalog.product-master.create': 'inventory.product-master.create', 'catalog.product.create': 'inventory.product.create', 'catalog.bundle.create': 'inventory.bundle.create', 'catalog.product.action': 'inventory.product.action', 'identity.identifier.add': 'inventory.identifier.add', 'identity.identifier.action': 'inventory.identifier.action', 'identity.conversion.add': 'inventory.unit-conversion.add', 'identity.conversion.action': 'inventory.unit-conversion.action', 'identity.flowaccount': 'inventory.product.flowaccount-sku', 'recipe.create': 'inventory.recipe.create', 'recipe.action': 'inventory.recipe.action', 'recipe.build': 'inventory.recipe.build', 'dekit': 'inventory.de-kit', 'cwo.open': 'inventory.customization-work-order.open', 'cwo.action': 'inventory.customization-work-order.action', 'kwo.open': 'inventory.kitting-work-order.open', 'kwo.action': 'inventory.kitting-work-order.action', 'rsv.create': 'inventory.reservation.create', 'rsv.action': 'inventory.reservation.action', 'rsv.expire': 'inventory.reservation.expire', 'costsheet.preview': 'procurement.cost-sheet.preview', 'costsheet.commit': 'procurement.cost-sheet.commit', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
 
 function send(res, status, body) {
   const text = JSON.stringify(body)
@@ -176,6 +181,13 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
         result = await bus.queries[name === 'cwo.list' ? 'customizationWorkOrders' : 'kittingWorkOrders'](scope, { businessId: p.get('businessId'), status: p.get('status') || undefined, salesOrderId: p.get('salesOrderId') || undefined })
       } else if (name === 'cwo.get') result = await bus.queries.customizationWorkOrder(scope, params.id)
       else if (name === 'kwo.get') result = await bus.queries.kittingWorkOrder(scope, params.id)
+      else if (name === 'rsv.list') {
+        const p = url.searchParams
+        result = await bus.queries.reservations(scope, { businessId: p.get('businessId'), productId: p.get('productId') || undefined, status: p.get('status') || undefined })
+      } else if (name === 'atp') {
+        const p = url.searchParams
+        result = await bus.queries.atp(scope, { businessId: p.get('businessId'), productIds: p.getAll('productId').filter(Boolean), ...(p.get('recipeId') ? { recipeId: p.get('recipeId'), quantity: p.get('quantity') ? Number(p.get('quantity')) : undefined } : {}) })
+      }
       else if (name === 'pos.catalogue') result = await bus.queries.posCatalogue(scope, { businessId: url.searchParams.get('businessId') })
       else if (name === 'costsheet.get') result = await bus.queries.costSheet(scope, params.id)
       else if (name === 'costsheet.list') {

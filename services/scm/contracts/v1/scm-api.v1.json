@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.11",
+  "revision": "v1-draft.12",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -427,7 +427,7 @@
       "path": "/v1/inventory/kitting-work-orders",
       "capability": "inventory domain + (OWNER or inventory.catalog.write)",
       "command": "inventory.kitting-work-order.open",
-      "note": "FR-177: output must carry a FlowAccount finished-set SKU; BOM exploded with the scrap allowance and frozen; components checked against ATP (SCM-local reservations, D-21)"
+      "note": "FR-177: output must carry a FlowAccount finished-set SKU; BOM exploded with the scrap allowance and frozen; components checked against ATP"
     },
     {
       "method": "GET",
@@ -446,6 +446,39 @@
       "capability": "inventory domain + (OWNER or inventory.catalog.write)",
       "command": "inventory.kitting-work-order.action",
       "note": "RELEASE (stage gross at the line) / COMPLETE (per-set × attempts consumed; sets received at blended landed cost; buffer returned; short → BLOCKED_SHORTAGE) / CANCEL; compare-and-swap on version (W-1)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/reservations",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.reservation.create",
+      "note": "FR-180: QUOTE (expires, 7 days by default) or ORDER (needs salesOrderId, no expiry); refused 409 STOCK_RESERVATION_INSUFFICIENT_ATP beyond ATP; takes the Business ledger fence first (D-23); never writes the ledger"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/reservations?businessId=&productId=&status=",
+      "capability": "inventory domain",
+      "note": "newest first; `live` computed against the clock (BR-031), never stored"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/reservations/expire",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.reservation.expire",
+      "note": "stamps EXPIRED on ACTIVE holds whose clock ran out — reporting only, no ATP figure changes"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/reservations/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.reservation.action",
+      "note": "RELEASE / CONVERT (a quote hold ends CONVERTED and an ORDER hold replaces it in the same unit of work) by compare-and-swap on version (D-23)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/atp?businessId=&productId=&recipeId=&quantity=",
+      "capability": "inventory domain",
+      "note": "productId repeatable: on-hand − live holds per SKU (uncounted → available null); with recipeId: max buildable sets from ATP with the per-component picture"
     },
     {
       "method": "GET",
@@ -483,7 +516,6 @@
   "notMigrated": [
     "ADJUSTMENT movements → 409 SCM_MOVEMENT_KIND_NOT_MIGRATED",
     "serial ISSUE → 409 SCM_SERIAL_ISSUE_NOT_MIGRATED (POS refuses serial lines first, as legacy)",
-    "reservation writers (create / RELEASE / CONVERT / expiry stamping) and the public ATP / max-buildable reads → not served; kitting OPEN, ARCHIVE and MERGE read SCM's own StockReservation table and cut over only with them (SCM-HANDOFF D-21)",
     "standalone stock transfer and warehouse-location writers → not served (stocktake/transfers group); the transfer CORE runs inside work orders"
   ]
 }
