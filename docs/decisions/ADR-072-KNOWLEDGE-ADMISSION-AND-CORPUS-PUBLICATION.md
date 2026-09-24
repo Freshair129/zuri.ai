@@ -115,8 +115,11 @@ digits forming a valid EAN-13 (correct GS1 check digit, for example
 refused, and the owner writes it unseparated. A phone number after an ordinary
 number, year or house number (`สาขา 3 081-234-5678`, `อัปเดตปี 2026 02-123-4567`,
 `บ้านเลขที่ 199 081-234-5675`) is always refused.
-`tests/unit/knowledge-document-zero-pii.test.js` pins all of these. No leak
-is accepted: a false refusal can be corrected by the owner, a leak cannot.
+`tests/unit/knowledge-document-zero-pii.test.js` pins all of these. The one
+shape read as a barcode is a phone number glued, with no separator, to other
+digits so that the whole run is a valid 13-digit EAN-13; such text holds one
+13-digit number, not a written phone number. No other leak is accepted: a
+false refusal can be corrected by the owner, a leak cannot.
 
 **Rule set deliberately NOT extended to owner documents:** the Thai-honorific
 personal-name heuristic and the quoted-wording rule, both from FR-236's

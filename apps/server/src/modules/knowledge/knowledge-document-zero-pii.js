@@ -70,14 +70,13 @@ function hasEmailMatch(content) {
   return false
 }
 
-// Document-only guard on THAI_PHONE_PATTERN's `0\d{1,2}...` branch: require
-// that the character immediately before a match is not itself a digit. This
-// is a wrapper around the shared pattern, not an edit to it — the pattern
-// object FR-236's candidate policy imports and matches against is untouched,
-// so that policy's behaviour cannot drift. Without this guard, a Thai EAN-13
-// barcode such as "8850123456789" (routine in a product manual or catalogue
-// document) contains an embedded "0123456789" run that the phone pattern's
-// `0\d{1,2}` branch matches with no leading boundary of its own.
+// Document-only guard on THAI_PHONE_PATTERN's `0\d{1,2}...` branch, a
+// wrapper around the shared pattern, not an edit to it — the pattern object
+// FR-236's candidate policy imports is untouched, so that policy cannot
+// drift. A Thai EAN-13 barcode such as "8850123456787" contains an embedded
+// "0123456787" that the phone pattern matches with no leading boundary of
+// its own; the guard skips a match only inside a single run of exactly 13
+// contiguous digits with a valid check digit, and refuses everything else.
 // GS1 EAN-13: 13 digits whose last digit is the check digit over the first
 // twelve, weighted 1,3,1,3,... from the left.
 function isValidEan13(digits) {
