@@ -796,7 +796,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-256",
@@ -1330,7 +1330,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 19,
-          "testCount": 37
+          "testCount": 38
         }
       ],
       "checks": {
@@ -3478,7 +3478,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-254",
@@ -6348,7 +6348,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-254",
@@ -17393,7 +17393,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 24,
-          "testCount": 37
+          "testCount": 38
         }
       ],
       "evidence": [
@@ -17457,7 +17457,8 @@
         "apps/server/tests/unit/pricing-rules-ui.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-feature-forms.test.js",
-        "apps/server/tests/unit/scm-group-navigation.test.js"
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/scm-pricing-parity.test.js"
       ]
     },
     {
