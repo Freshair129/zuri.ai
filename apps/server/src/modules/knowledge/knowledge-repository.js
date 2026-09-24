@@ -59,22 +59,42 @@ export function createKnowledgeRepository(db = prisma) {
     // reconciliation sweep has to find any such orphan itself — whether that
     // status was written here (processJob) or by a caller outside the runtime
     // entirely (withdrawKnowledgeSource, publishInTransaction's
-    // stale-revision/revoked-source branches). It starts from the PipelineRun
-    // side (still QUEUED/RUNNING), not from KnowledgeIngestion: taking the
-    // oldest SUPERSEDED/WITHDRAWN rows first fills this bounded window forever
-    // once every published-then-withdrawn source's run has already finished
-    // (SUCCEEDED/FAILED) — those rows never age out, so a real orphan sitting
-    // behind them is never reached. There is no Prisma relation between the
-    // two models, so the caller resolves each run's KnowledgeIngestion with a
-    // second query (findIngestionByExecutionRunId) and decides there.
-    listOpenKnowledgeRuns({ limit = 50 } = {}) {
+    // stale-revision/revoked-source branches). Two bounded queries, no
+    // cursor: this one is the *candidate set* — every knowledge PipelineRun
+    // still QUEUED/RUNNING, ids only. It is never itself the actionable set:
+    // most of these ids belong to runs with no KnowledgeIngestion at all
+    // (FR-071 replay runs, FR-109 reporter runs — KNOWLEDGE_INGESTION_DEFINITION_ID
+    // is shared, the executionRunId is not) or to an ingestion that is
+    // legitimately still QUEUED/RUNNING. `listOrphanedIngestionsForRuns`
+    // resolves which of these ids are real orphans.
+    listOpenKnowledgeRunIds({ limit = 500 } = {}) {
       return db.pipelineRun.findMany({
         where: { dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID, status: { in: ['QUEUED', 'RUNNING'] } },
-        orderBy: [{ startedAt: 'asc' }, { createdAt: 'asc' }],
+        select: { executionRunId: true },
         take: limit,
       })
     },
-    findIngestionByExecutionRunId: (executionRunId) => db.knowledgeIngestion.findUnique({ where: { executionRunId } }),
+    // Every row this returns is actionable by construction: it is already
+    // scoped to open (QUEUED/RUNNING) runs, already filtered to
+    // SUPERSEDED/WITHDRAWN, and already filtered to an expired-or-absent
+    // lease. Nothing the sweep does after this can skip a returned row for a
+    // reason baked into the query itself — a page can never be filled by rows
+    // the sweep goes on to ignore. `executionRunIds` is chunked in slices of
+    // 100 to stay under Prisma/SQL parameter limits; results are merged and
+    // re-sorted (oldest `updatedAt` first) before the final `limit`, since a
+    // per-chunk `take` could not enforce a single global ordering.
+    async listOrphanedIngestionsForRuns({ executionRunIds, now = new Date(), limit = 20 } = {}) {
+      if (!Array.isArray(executionRunIds) || executionRunIds.length === 0) return []
+      const rows = []
+      for (let start = 0; start < executionRunIds.length; start += 100) {
+        const chunk = executionRunIds.slice(start, start + 100)
+        rows.push(...await db.knowledgeIngestion.findMany({
+          where: { executionRunId: { in: chunk }, status: { in: ['SUPERSEDED', 'WITHDRAWN'] }, OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }] },
+        }))
+      }
+      rows.sort((left, right) => left.updatedAt.getTime() - right.updatedAt.getTime())
+      return rows.slice(0, limit)
+    },
     async claimIngestion(id, { claimToken, now = new Date(), leaseMs = 120000 } = {}) {
       const result = await db.knowledgeIngestion.updateMany({
         where: { id, status: { in: ['QUEUED', 'RUNNING'] }, OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }] },

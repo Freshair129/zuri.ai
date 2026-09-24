@@ -472,4 +472,167 @@ describe('knowledge durable queue', () => {
     expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: failed.executionRunId } })).status).toBe('FAILED')
     expect(await prisma.genesisRag17StageEvidence.findMany({ where: { executionRunId: failed.executionRunId } })).toEqual([expect.objectContaining({ stageNumber: 1, outcome: 'FAILED', errorCount: 1 })])
   })
+
+  // Round 4 gate: `listOpenKnowledgeRuns` took an oldest-first page of open
+  // (QUEUED/RUNNING) knowledge PipelineRuns and silently skipped any it could
+  // not act on — a run with no KnowledgeIngestion at all (FR-071 replay runs,
+  // FR-109 reporter runs share this same dataPipelineDefinitionId but not the
+  // executionRunId), a run whose ingestion is itself still QUEUED/RUNNING, or
+  // a run whose close is refused. 20+ of those ahead of a real orphan meant
+  // the orphan was never reached. These helpers build exactly that shape
+  // against the *open-run* query (distinct from `closedRunFillerIngestion`
+  // above, whose PipelineRuns are already SUCCEEDED/FAILED and so never even
+  // enter it).
+  async function openRunWithNoIngestion(fixture, index) {
+    await prisma.pipelineRun.create({ data: {
+      executionRunId: `open-no-ingestion-${fixture.job.id}-${index}`,
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+      tenantId: fixture.actualScope.tenantId,
+      businessId: fixture.actualScope.businessId,
+      status: index % 2 === 0 ? 'QUEUED' : 'RUNNING',
+      correlationId: `open-no-ingestion-corr-${fixture.job.id}-${index}`,
+      idempotencyKey: `open-no-ingestion-idem-${fixture.job.id}-${index}`,
+      requestHash: 'filler-hash',
+    } })
+  }
+
+  async function openRunWithOpenIngestion(fixture, index) {
+    const executionRunId = `open-ingestion-${fixture.job.id}-${index}`
+    await prisma.pipelineRun.create({ data: {
+      executionRunId,
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+      tenantId: fixture.actualScope.tenantId,
+      businessId: fixture.actualScope.businessId,
+      status: 'RUNNING',
+      correlationId: `open-ingestion-corr-${fixture.job.id}-${index}`,
+      idempotencyKey: `open-ingestion-idem-run-${fixture.job.id}-${index}`,
+      requestHash: 'filler-hash',
+    } })
+    const sourceVersion = `open-${index}`
+    const content = `open content ${index}`
+    await prisma.knowledgeIngestion.create({ data: {
+      corpusId: fixture.corpus.id,
+      sourceId: fixture.source.id,
+      revision: 1,
+      sourceVersion,
+      content,
+      contentHash: hashGenesisRag17Text(content),
+      idempotencyKey: `open-ingestion-idem-${fixture.job.id}-${index}`,
+      requestHash: hashGenesisRag17Text(sourceVersion),
+      status: 'RUNNING',
+      executionRunId,
+    } })
+  }
+
+  // A different corpus from `fixture`'s own, with an unparsable scopeJson —
+  // its close is refused by `closeOrphanedExecutionRun` exactly as in
+  // "surfaces a refused close" above, but kept isolated from `fixture.corpus`
+  // so refusing it never prevents the real orphan (which uses `fixture.corpus`)
+  // from closing.
+  async function refusedCloseOrphan(fixture, label) {
+    const corpus = await prisma.knowledgeCorpus.create({ data: {
+      corpusKey: `refused-${fixture.job.id}-${label}`,
+      portfolioId: fixture.actualScope.portfolioId,
+      tenantId: fixture.actualScope.tenantId,
+      businessId: fixture.actualScope.businessId,
+      scopeJson: 'not-json',
+      policyJson: JSON.stringify({ allowEmbedding: true, allowPublication: true }),
+    } })
+    const source = await prisma.knowledgeSource.create({ data: { corpusId: corpus.id, sourceKey: `refused-${fixture.job.id}-${label}`, kind: 'TEXT', title: 'Refused source', desiredRevision: 1 } })
+    const executionRunId = `refused-${fixture.job.id}-${label}`
+    await prisma.pipelineRun.create({ data: {
+      executionRunId,
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+      tenantId: fixture.actualScope.tenantId,
+      businessId: fixture.actualScope.businessId,
+      status: 'RUNNING',
+      correlationId: `refused-corr-${fixture.job.id}-${label}`,
+      idempotencyKey: `refused-idem-run-${fixture.job.id}-${label}`,
+      requestHash: 'filler-hash',
+    } })
+    const sourceVersion = `refused-${label}`
+    const content = `refused content ${label}`
+    await prisma.knowledgeIngestion.create({ data: {
+      corpusId: corpus.id,
+      sourceId: source.id,
+      revision: 1,
+      sourceVersion,
+      content,
+      contentHash: hashGenesisRag17Text(content),
+      idempotencyKey: `refused-idem-${fixture.job.id}-${label}`,
+      requestHash: hashGenesisRag17Text(sourceVersion),
+      status: 'SUPERSEDED',
+      failureCode: 'KNOWLEDGE_SOURCE_REVISION_SUPERSEDED',
+      executionRunId,
+      updatedAt: new Date(Date.now() - 3600000 * 50),
+    } })
+    return { executionRunId }
+  }
+
+  it('closes the real SUPERSEDED orphan in one runOnce() despite 21+ older still-open knowledge PipelineRuns — some with no KnowledgeIngestion, some legitimately in flight, and one refused close', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport, pendingBatch } = await pendingBatchRun(fixture)
+
+    for (let index = 0; index < 12; index += 1) await openRunWithNoIngestion(fixture, index)
+    for (let index = 0; index < 9; index += 1) await openRunWithOpenIngestion(fixture, index)
+    const refused = await refusedCloseOrphan(fixture, 'd')
+    // 12 + 9 + 1 = 22 older still-open knowledge PipelineRuns sit ahead of the
+    // real orphan below in `listOpenKnowledgeRunIds` — none of them actionable.
+
+    await prisma.knowledgeIngestion.update({
+      where: { id: fixture.job.id },
+      data: { status: 'SUPERSEDED', failureCode: 'KNOWLEDGE_SOURCE_REVISION_SUPERSEDED', claimToken: null, leaseExpiresAt: null },
+    })
+
+    const onError = vi.fn()
+    const result = await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError }).runOnce()
+
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(['QUEUED', 'RUNNING']).not.toContain(run.status)
+    expect(run.status).toBe('FAILED')
+
+    const intent = await prisma.genesisRag17IngestionIntent.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(intent.status).toBe('FAILED')
+    expect(JSON.parse(intent.lastErrorJson).code).toBe('KNOWLEDGE_SOURCE_REVISION_SUPERSEDED')
+
+    const batchAfter = await prisma.genesisRag17Batch.findUnique({ where: { id: pendingBatch.id } })
+    expect(batchAfter.status).toBe('PENDING')
+    expect(batchAfter.responseJson).toBe(pendingBatch.responseJson)
+
+    // The refused row is reported and left open — it never silently blocks
+    // the real orphan from being reached or closed in this same pass.
+    expect(onError).toHaveBeenCalledWith({ code: 'KNOWLEDGE_ORPHAN_RUN_OPEN', executionRunId: refused.executionRunId })
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: refused.executionRunId } })).status).toBe('RUNNING')
+
+    // The legitimately in-flight row is left exactly as it was.
+    expect((await prisma.knowledgeIngestion.findUnique({ where: { executionRunId: `open-ingestion-${fixture.job.id}-0` } })).status).toBe('RUNNING')
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: `open-ingestion-${fixture.job.id}-0` } })).status).toBe('RUNNING')
+
+    expect(result.sweep.closed).toBeGreaterThanOrEqual(1)
+  })
+
+  it('reports a refused close via onError once across three runOnce() passes, not once per pass', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport } = await pendingBatchRun(fixture)
+
+    await prisma.knowledgeIngestion.update({
+      where: { id: fixture.job.id },
+      data: { status: 'SUPERSEDED', failureCode: 'KNOWLEDGE_SOURCE_REVISION_SUPERSEDED', claimToken: null, leaseExpiresAt: null },
+    })
+    await prisma.knowledgeCorpus.update({ where: { id: fixture.corpus.id }, data: { scopeJson: 'not-json' } })
+
+    const onError = vi.fn()
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError })
+    await runtime.runOnce()
+    await runtime.runOnce()
+    await runtime.runOnce()
+
+    const reportsForThisRun = onError.mock.calls.filter(([event]) => event.code === 'KNOWLEDGE_ORPHAN_RUN_OPEN' && event.executionRunId === stuck.executionRunId)
+    expect(reportsForThisRun).toHaveLength(1)
+
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
+  })
 })
