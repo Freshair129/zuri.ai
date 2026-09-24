@@ -53,6 +53,16 @@ export function createKnowledgeRepository(db = prisma) {
     listPending({ now = new Date(), limit = 20 } = {}) {
       return db.knowledgeIngestion.findMany({ where: { status: { in: ['QUEUED', 'RUNNING'] }, OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }] }, orderBy: { createdAt: 'asc' }, take: limit })
     },
+    // FR-173: a job stopped being resumed the moment its status left
+    // QUEUED/RUNNING (listPending never claims it again), so a row that
+    // already carries SUPERSEDED/WITHDRAWN plus an attached run is exactly
+    // the shape the runtime-side reconciliation sweep has to find — whether
+    // that status was written here (processJob) or by a caller outside the
+    // runtime entirely (withdrawKnowledgeSource, publishInTransaction's
+    // stale-revision/revoked-source branches).
+    listOrphanableIngestions({ limit = 20 } = {}) {
+      return db.knowledgeIngestion.findMany({ where: { status: { in: ['SUPERSEDED', 'WITHDRAWN'] }, executionRunId: { not: null } }, orderBy: { updatedAt: 'asc' }, take: limit })
+    },
     async claimIngestion(id, { claimToken, now = new Date(), leaseMs = 120000 } = {}) {
       const result = await db.knowledgeIngestion.updateMany({
         where: { id, status: { in: ['QUEUED', 'RUNNING'] }, OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }] },

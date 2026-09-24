@@ -176,6 +176,47 @@ async function closeOrphanedExecutionRun({ db, now, corpus, executionRunId, fail
   } catch { /* best effort — without derivable stage evidence the run stays honestly open */ }
 }
 
+/**
+ * Runtime-side reconciliation (FR-173): closes any KnowledgeIngestion that is
+ * already SUPERSEDED/WITHDRAWN, carries an executionRunId, and whose
+ * PipelineRun is still QUEUED/RUNNING.
+ *
+ * `processJob`'s own close (above) only fires for a job this admission still
+ * claims — but three other places write SUPERSEDED/WITHDRAWN straight onto
+ * the KnowledgeIngestion row without ever going through `processJob` again:
+ * `withdrawKnowledgeSource`/`withdrawInTransaction` (the user-facing withdraw
+ * route), and `publishInTransaction`'s own stale-revision/revoked-source
+ * branches (knowledge-corpus-service.js). None of them own a PipelineRun
+ * close, and once a row leaves QUEUED/RUNNING, `listPending` never selects it
+ * again — so nothing else ever revisits the run those callers may have left
+ * attached. This sweep is that "something else": it is the one place that
+ * looks at every such row, not only the ones this process happens to still be
+ * claiming, which is exactly what closes production's already-SUPERSEDED run
+ * 1db6810c-eb86-4e96-9f4c-e9c89c8ba0d3.
+ *
+ * Bounded (one page per pass, oldest first) and idempotent: closing a run
+ * moves it out of QUEUED/RUNNING, so a row this pass already closed is a
+ * cheap no-op on the next one (closeOrphanedExecutionRun re-checks the run's
+ * live status before doing anything). Each row is closed with its own
+ * corpus's scope — never a cross-tenant/business bypass — exactly as
+ * `processJob`'s own call does.
+ */
+async function sweepOrphanedExecutionRuns({ db, now, limit = 20 } = {}) {
+  const repository = createKnowledgeRepository(db)
+  const rows = await repository.listOrphanableIngestions({ limit })
+  let closed = 0
+  for (const row of rows) {
+    const run = await db.pipelineRun.findUnique({ where: { executionRunId: row.executionRunId } })
+    if (!run || !['QUEUED', 'RUNNING'].includes(run.status)) continue
+    const corpus = await repository.getCorpus(row.corpusId)
+    if (!corpus) continue
+    const failureCode = row.failureCode || (row.status === 'WITHDRAWN' ? 'KNOWLEDGE_SOURCE_WITHDRAWN' : 'KNOWLEDGE_SOURCE_SUPERSEDED')
+    await closeOrphanedExecutionRun({ db, now, corpus, executionRunId: row.executionRunId, failureCode })
+    closed += 1
+  }
+  return { examined: rows.length, closed }
+}
+
 /** The canonical MANUAL/FILE adapter has no external credentials or URL fetching. */
 async function ensureAdmissionConnection(db, scope) {
   const provider = await db.integrationProvider.upsert({ where: { code: 'KNOWLEDGE_ADMISSION' }, create: { code: 'KNOWLEDGE_ADMISSION', name: 'Knowledge admission', capabilitiesJson: '{"text":true,"markdown":true}' }, update: {} })
@@ -271,9 +312,14 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
   async function runOnce() {
     if (inFlight) return inFlight
     inFlight = (async () => {
+      // Reconcile orphaned runs first: a row a sweep pass closes this tick
+      // can never again be one `listPending` would have claimed anyway
+      // (SUPERSEDED/WITHDRAWN is not QUEUED/RUNNING), so the order between
+      // the two never changes which jobs get processed.
+      const sweep = await sweepOrphanedExecutionRuns({ db, now, limit: 20 }).catch(() => { onError?.({ code: 'KNOWLEDGE_SWEEP_FAILED' }); return { examined: 0, closed: 0 } })
       const rows = await repository.listPending({ now: date(now), limit: 20 })
       for (const row of rows) await processJob(row)
-      return { examined: rows.length }
+      return { examined: rows.length, sweep }
     })()
     try { return await inFlight } finally { inFlight = null }
   }

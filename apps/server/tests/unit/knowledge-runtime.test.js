@@ -6,6 +6,7 @@ import { makeViewer } from '../factories/viewer'
 import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 import { createKnowledgeExecutionAuthority, hasKnowledgeScopeAuthority, hasKnowledgeRunAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import { resolveKnowledgeRuntimeBinding, createKnowledgeAdmissionRuntime } from '@/modules/knowledge/knowledge-runtime'
+import { withdrawKnowledgeSource } from '@/modules/knowledge/knowledge-corpus-service'
 import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17-executor'
 import { createPipelineRun, requestPipelineReplay, getPipelineMonitor } from '@/platform/integrations/core/pipeline-tracking-service'
 import { KNOWLEDGE_INGESTION_DEFINITION_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
@@ -190,6 +191,123 @@ describe('knowledge durable queue', () => {
     const batchAfter = await prisma.genesisRag17Batch.findUnique({ where: { id: pendingBatch.id } })
     expect(batchAfter.status).toBe('PENDING')
     expect(batchAfter.responseJson).toBe(pendingBatch.responseJson)
+  })
+
+  // Production's actual orphan (1db6810c-eb86-4e96-9f4c-e9c89c8ba0d3) was not
+  // discovered by a claimed job at all: its KnowledgeIngestion was already
+  // SUPERSEDED by the time anyone looked, so `listPending` (QUEUED/RUNNING
+  // only) had already stopped selecting it and `processJob`'s own close
+  // could never run again. This is the shape the reconciliation sweep in
+  // `runOnce` exists for.
+  it('sweeps and closes a PipelineRun for an ingestion already SUPERSEDED before this process ever claims it again (the production shape)', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport, pendingBatch } = await pendingBatchRun(fixture)
+
+    // Simulate the production row directly: something other than this
+    // admission process (a competing pass, or `publishInTransaction`'s own
+    // stale-revision branch) already wrote SUPERSEDED without closing the
+    // run it left attached.
+    await prisma.knowledgeIngestion.update({
+      where: { id: fixture.job.id },
+      data: { status: 'SUPERSEDED', failureCode: 'KNOWLEDGE_SOURCE_REVISION_SUPERSEDED', claimToken: null, leaseExpiresAt: null },
+    })
+
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport }).runOnce()
+
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(['QUEUED', 'RUNNING']).not.toContain(run.status)
+    expect(run.status).toBe('FAILED')
+
+    const intent = await prisma.genesisRag17IngestionIntent.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(intent.status).toBe('FAILED')
+    expect(JSON.parse(intent.lastErrorJson).code).toBe('KNOWLEDGE_SOURCE_REVISION_SUPERSEDED')
+
+    const batchAfter = await prisma.genesisRag17Batch.findUnique({ where: { id: pendingBatch.id } })
+    expect(batchAfter.status).toBe('PENDING')
+    expect(batchAfter.responseJson).toBe(pendingBatch.responseJson)
+
+    // The sweep closes the run; it never reinterprets the admission's own
+    // verdict on the ingestion row itself.
+    const ingestion = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(ingestion.status).toBe('SUPERSEDED')
+    expect(ingestion.failureCode).toBe('KNOWLEDGE_SOURCE_REVISION_SUPERSEDED')
+  })
+
+  // The main user-facing withdraw path (withdrawKnowledgeSource, reached from
+  // DELETE /api/knowledge/sources/[sourceId]) goes around the runtime
+  // entirely: withdrawInTransaction writes WITHDRAWN onto the source's active
+  // ingestion directly. Once that row leaves QUEUED/RUNNING, this admission
+  // never claims it again, so the sweep — not `processJob` — has to be what
+  // closes the run it already owns.
+  it('closes the orphaned PipelineRun after the real withdrawKnowledgeSource service withdraws its source mid-flight', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport, pendingBatch } = await pendingBatchRun(fixture)
+
+    // Mirror production: the source's active ingestion points at the job
+    // this run belongs to, exactly as knowledge-admission-service.js leaves
+    // it after admitting the request.
+    await prisma.knowledgeSource.update({ where: { id: fixture.source.id }, data: { activeIngestionId: fixture.job.id } })
+    const sourceBeforeWithdraw = await prisma.knowledgeSource.findUnique({ where: { id: fixture.source.id } })
+    const owner = makeViewer({ visibleBusinessIds: [fixture.actualScope.businessId], ownedBusinessIds: [fixture.actualScope.businessId] })
+
+    const withdrawn = await withdrawKnowledgeSource(fixture.source.id, { expectedVersion: sourceBeforeWithdraw.version }, { db: prisma, viewer: owner })
+    expect(withdrawn.status).toBe('WITHDRAWN')
+
+    const ingestionAfterWithdraw = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(ingestionAfterWithdraw.status).toBe('WITHDRAWN')
+    expect(ingestionAfterWithdraw.failureCode).toBe('KNOWLEDGE_SOURCE_WITHDRAWN')
+    // The withdraw service itself never touches the run — this is the gap.
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
+
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport }).runOnce()
+
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(['QUEUED', 'RUNNING']).not.toContain(run.status)
+    expect(run.status).toBe('FAILED')
+
+    const intent = await prisma.genesisRag17IngestionIntent.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(intent.status).toBe('FAILED')
+    expect(JSON.parse(intent.lastErrorJson).code).toBe('KNOWLEDGE_SOURCE_WITHDRAWN')
+
+    const batchAfterWithdraw = await prisma.genesisRag17Batch.findUnique({ where: { id: pendingBatch.id } })
+    expect(batchAfterWithdraw.status).toBe('PENDING')
+    expect(batchAfterWithdraw.responseJson).toBe(pendingBatch.responseJson)
+  })
+
+  // The catch branch (a source that moves on concurrently with an in-flight
+  // resumed job) is the other close path `processJob` owns directly, not the
+  // sweep — worth covering separately from the top-of-job check above.
+  it('closes the orphaned PipelineRun via the catch branch when a source is superseded while a resumed job is mid-flight', async () => {
+    const fixture = await durableJob()
+    const { stuck, pendingBatch } = await pendingBatchRun(fixture)
+
+    const sourceWorkerFactory = vi.fn(() => ({
+      runOnce: vi.fn(async () => {
+        // The source moves on concurrently with this in-flight pass, exactly
+        // as production could see it: nothing about the thrown error names
+        // supersession — the catch branch discovers it fresh.
+        await prisma.knowledgeSource.update({ where: { id: fixture.source.id }, data: { desiredRevision: 2 } })
+        throw new Error('simulated transport interruption mid-flight')
+      }),
+    }))
+
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, sourceWorkerFactory }).runOnce()
+
+    const closed = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(closed.status).toBe('SUPERSEDED')
+    expect(closed.failureCode).toBe('KNOWLEDGE_SOURCE_SUPERSEDED')
+
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(['QUEUED', 'RUNNING']).not.toContain(run.status)
+    expect(run.status).toBe('FAILED')
+
+    const intent = await prisma.genesisRag17IngestionIntent.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(intent.status).toBe('FAILED')
+    expect(JSON.parse(intent.lastErrorJson).code).toBe('KNOWLEDGE_SOURCE_SUPERSEDED')
+
+    const batchAfterCatch = await prisma.genesisRag17Batch.findUnique({ where: { id: pendingBatch.id } })
+    expect(batchAfterCatch.status).toBe('PENDING')
+    expect(batchAfterCatch.responseJson).toBe(pendingBatch.responseJson)
   })
 
   it('preserves a FileAsset MIME when creating the Stage 1 request', async () => {
