@@ -2,7 +2,7 @@ import { randomUUID, createHash } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import prisma from '@/lib/db'
 import { parseGenesisRag17Scope } from './genesisrag17-contract'
-import { createKnowledgeRepository } from './knowledge-repository'
+import { createKnowledgeRepository, KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE } from './knowledge-repository'
 import { createKnowledgeExecutionAuthority } from './knowledge-execution-authority'
 import { createGenesisRag17LineageRepository } from './genesisrag17-lineage-repository'
 import { ingestGenesisRag17Raw, resolveRuntimeCredential } from '@/platform/integrations/core/genesisrag17-executor'
@@ -224,38 +224,79 @@ async function closeOrphanedExecutionRun({ db, now, corpus, executionRunId, fail
  *
  * `closeOrphanedExecutionRun` can decline or fail to close a run (it is still
  * inside Tier 1, its corpus is gone, or a stage report is rejected) and
- * leaves the run open on purpose rather than fabricate evidence. Those rows
- * remain in the actionable set on every later pass — they are cheaply
- * re-attempted, not abandoned — but a flood of one `KNOWLEDGE_ORPHAN_RUN_OPEN`
- * per stuck row per pass is its own problem, so `reportedOpenRunIds` (a Set
- * living for this runtime instance's lifetime) reports each executionRunId
- * through `onError` once rather than once per pass. A run cannot close then
- * reopen, so "once per instance lifetime" and "once until it closes" coincide.
+ * leaves the run open on purpose rather than fabricate evidence. Nothing else
+ * ever writes to that KnowledgeIngestion row, so without a mark of its own its
+ * `updatedAt` would never move — it would sit at the front of the
+ * oldest-`updatedAt` page (`listOrphanedIngestionsForRuns`) on every single
+ * pass forever, and 20+ of them ahead of a genuine orphan would starve it
+ * permanently (round 4's exact gap). So a refused close is marked on the
+ * ingestion row itself — status unchanged, `failureCode` set to
+ * `KNOWLEDGE_ORPHAN_RUN_OPEN` via the repository's ordinary update method,
+ * which also advances `updatedAt` as a side effect. `listOrphanedIngestionsForRuns`
+ * then excludes a row marked this way until `ORPHAN_RETRY_BACKOFF_MS` (an
+ * hour) has passed, so a refused row is retried hourly, never on every pass,
+ * and can never again hold a page slot indefinitely.
+ *
+ * Because a single page can now be fully "drained" (every row on it either
+ * closed or backed off) without the underlying candidate set becoming empty,
+ * one call re-queries up to `MAX_SWEEP_PAGES` (3) pages, stopping early the
+ * moment a page returns fewer than `limit` rows (nothing left to page
+ * through). This bounds one `runOnce()`'s sweep work at 3 × `limit` rows
+ * rather than looping until the actionable set is empty, while still letting
+ * a real orphan sitting behind 20+ already-backed-off refused rows be reached
+ * within the same pass that marks them.
+ *
+ * A flood of one `KNOWLEDGE_ORPHAN_RUN_OPEN` `onError` per stuck row per pass
+ * is a separate problem from the starvation above: `reportedOpenRunIds` (a
+ * Set living for this runtime instance's lifetime) reports each
+ * executionRunId through `onError` once rather than once per pass. A run
+ * cannot close then reopen, so "once per instance lifetime" and "once until
+ * it closes" coincide.
  */
-async function sweepOrphanedExecutionRuns({ db, now, limit = 20, onError, reportedOpenRunIds = new Set() } = {}) {
+const MAX_SWEEP_PAGES = 3
+
+async function sweepOrphanedExecutionRuns({ db, now, limit = 20, onError, reportedOpenRunIds = new Set(), truncatedReported = { value: false } } = {}) {
   const repository = createKnowledgeRepository(db)
   const openRuns = await repository.listOpenKnowledgeRunIds({ limit: 500 })
-  if (openRuns.length >= 500) onError?.({ code: 'KNOWLEDGE_ORPHAN_SWEEP_TRUNCATED' })
+  if (openRuns.length >= 500 && !truncatedReported.value) {
+    truncatedReported.value = true
+    onError?.({ code: 'KNOWLEDGE_ORPHAN_SWEEP_TRUNCATED' })
+  }
   const executionRunIds = openRuns.map((run) => run.executionRunId)
-  const orphans = executionRunIds.length ? await repository.listOrphanedIngestionsForRuns({ executionRunIds, now: date(now), limit }) : []
-  let closed = 0, open = 0
-  for (const ingestion of orphans) {
-    const corpus = await repository.getCorpus(ingestion.corpusId)
-    if (!corpus) continue
-    const failureCode = ingestion.failureCode || (ingestion.status === 'WITHDRAWN' ? 'KNOWLEDGE_SOURCE_WITHDRAWN' : 'KNOWLEDGE_SOURCE_SUPERSEDED')
-    await closeOrphanedExecutionRun({ db, now, corpus, executionRunId: ingestion.executionRunId, failureCode })
-    const after = await repository.getPipelineRun(ingestion.executionRunId)
-    if (after && ['QUEUED', 'RUNNING'].includes(after.status)) {
-      open += 1
-      if (!reportedOpenRunIds.has(ingestion.executionRunId)) {
-        reportedOpenRunIds.add(ingestion.executionRunId)
-        onError?.({ code: 'KNOWLEDGE_ORPHAN_RUN_OPEN', executionRunId: ingestion.executionRunId })
+  let examined = 0, closed = 0, open = 0
+  if (executionRunIds.length) {
+    for (let page = 0; page < MAX_SWEEP_PAGES; page += 1) {
+      const orphans = await repository.listOrphanedIngestionsForRuns({ executionRunIds, now: date(now), limit })
+      if (orphans.length === 0) break
+      examined += orphans.length
+      for (const ingestion of orphans) {
+        const corpus = await repository.getCorpus(ingestion.corpusId)
+        if (!corpus) continue
+        // A row already carrying our own backoff marker never reaches this
+        // pass again while it is honoring the backoff window (excluded by the
+        // query itself), so seeing the marker here means its window just
+        // elapsed and this is a retry — fall back to the status-derived code
+        // rather than re-using the marker as the close reason.
+        const failureCode = ingestion.failureCode && ingestion.failureCode !== KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE
+          ? ingestion.failureCode
+          : (ingestion.status === 'WITHDRAWN' ? 'KNOWLEDGE_SOURCE_WITHDRAWN' : 'KNOWLEDGE_SOURCE_SUPERSEDED')
+        await closeOrphanedExecutionRun({ db, now, corpus, executionRunId: ingestion.executionRunId, failureCode })
+        const after = await repository.getPipelineRun(ingestion.executionRunId)
+        if (after && ['QUEUED', 'RUNNING'].includes(after.status)) {
+          open += 1
+          await repository.updateIngestion(ingestion.id, { failureCode: KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE })
+          if (!reportedOpenRunIds.has(ingestion.executionRunId)) {
+            reportedOpenRunIds.add(ingestion.executionRunId)
+            onError?.({ code: 'KNOWLEDGE_ORPHAN_RUN_OPEN', executionRunId: ingestion.executionRunId })
+          }
+        } else {
+          closed += 1
+        }
       }
-    } else {
-      closed += 1
+      if (orphans.length < limit) break
     }
   }
-  return { examined: orphans.length, closed, open }
+  return { examined, closed, open }
 }
 
 /** The canonical MANUAL/FILE adapter has no external credentials or URL fetching. */
@@ -270,10 +311,12 @@ async function ensureAdmissionConnection(db, scope) {
 export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env, now = () => new Date(), intervalMs = 1000, leaseMs = 120000, transport, ingest = ingestGenesisRag17Raw, sourceWorkerFactory = createGenesisRag17SourceWorker, publish, onError } = {}) {
   if (!Number.isSafeInteger(intervalMs) || intervalMs < 10 || !Number.isSafeInteger(leaseMs) || leaseMs < 1000) throw new Error('Invalid knowledge runtime interval')
   const repository = createKnowledgeRepository(db)
-  // Lives for this runtime instance, not per pass: a refused-close report is
-  // only ever surfaced once for a given executionRunId (see
+  // Live for this runtime instance, not per pass: a refused-close report is
+  // only ever surfaced once for a given executionRunId, and a truncated-sweep
+  // report only once for this instance's whole lifetime (see
   // sweepOrphanedExecutionRuns above).
   const reportedOpenRunIds = new Set()
+  const truncatedReported = { value: false }
   let active = false, timer = null, inFlight = null
   async function processJob(row) {
     const token = randomUUID()
@@ -361,7 +404,7 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
       // can never again be one `listPending` would have claimed anyway
       // (SUPERSEDED/WITHDRAWN is not QUEUED/RUNNING), so the order between
       // the two never changes which jobs get processed.
-      const sweep = await sweepOrphanedExecutionRuns({ db, now, limit: 20, onError, reportedOpenRunIds }).catch(() => { onError?.({ code: 'KNOWLEDGE_SWEEP_FAILED' }); return { examined: 0, closed: 0, open: 0 } })
+      const sweep = await sweepOrphanedExecutionRuns({ db, now, limit: 20, onError, reportedOpenRunIds, truncatedReported }).catch(() => { onError?.({ code: 'KNOWLEDGE_SWEEP_FAILED' }); return { examined: 0, closed: 0, open: 0 } })
       const rows = await repository.listPending({ now: date(now), limit: 20 })
       for (const row of rows) await processJob(row)
       return { examined: rows.length, sweep }

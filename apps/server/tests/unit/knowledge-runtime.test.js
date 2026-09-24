@@ -494,6 +494,11 @@ describe('knowledge durable queue', () => {
       correlationId: `open-no-ingestion-corr-${fixture.job.id}-${index}`,
       idempotencyKey: `open-no-ingestion-idem-${fixture.job.id}-${index}`,
       requestHash: 'filler-hash',
+      // Explicitly older than the real orphan's run (created afterward, by
+      // `pendingBatchRun`) — `listOpenKnowledgeRunIds`'s oldest-first ordering
+      // must not depend on incidental creation order or on null-vs-non-null
+      // `startedAt` tie-breaking to sit these ahead of the genuine orphan.
+      startedAt: new Date(Date.now() - 3600000 * 2),
     } })
   }
 
@@ -509,6 +514,7 @@ describe('knowledge durable queue', () => {
       correlationId: `open-ingestion-corr-${fixture.job.id}-${index}`,
       idempotencyKey: `open-ingestion-idem-run-${fixture.job.id}-${index}`,
       requestHash: 'filler-hash',
+      startedAt: new Date(Date.now() - 3600000 * 2),
     } })
     const sourceVersion = `open-${index}`
     const content = `open content ${index}`
@@ -530,7 +536,9 @@ describe('knowledge durable queue', () => {
   // its close is refused by `closeOrphanedExecutionRun` exactly as in
   // "surfaces a refused close" above, but kept isolated from `fixture.corpus`
   // so refusing it never prevents the real orphan (which uses `fixture.corpus`)
-  // from closing.
+  // from closing. Its run and its ingestion's `updatedAt` are both explicitly
+  // older (50h) than the real orphan below, which is only ever marked SUPERSEDED
+  // at "now" — never relying on incidental creation order or null tie-breaks.
   async function refusedCloseOrphan(fixture, label) {
     const corpus = await prisma.knowledgeCorpus.create({ data: {
       corpusKey: `refused-${fixture.job.id}-${label}`,
@@ -552,6 +560,7 @@ describe('knowledge durable queue', () => {
       correlationId: `refused-corr-${fixture.job.id}-${label}`,
       idempotencyKey: `refused-idem-run-${fixture.job.id}-${label}`,
       requestHash: 'filler-hash',
+      startedAt: new Date(Date.now() - 3600000 * 50),
     } })
     const sourceVersion = `refused-${label}`
     const content = `refused content ${label}`
@@ -575,7 +584,16 @@ describe('knowledge durable queue', () => {
   it('closes the real SUPERSEDED orphan in one runOnce() despite 21+ older still-open knowledge PipelineRuns — some with no KnowledgeIngestion, some legitimately in flight, and one refused close', async () => {
     const fixture = await durableJob()
     const { stuck, transport, pendingBatch } = await pendingBatchRun(fixture)
-
+    // `pendingBatchRun` runs its own internal `runOnce()` to create the real
+    // orphan's PipelineRun, so it stays first: once the fillers below exist,
+    // any `runOnce()` — including this helper's own — sweeps them too, and
+    // (with the marking this round adds) would silently back the refused
+    // filler off before the assertions' own spied pass ever ran. The fillers
+    // are still explicitly stamped OLDER than this run (`startedAt`/`updatedAt`
+    // in the past) rather than relying on being created earlier, so their
+    // place in `listOpenKnowledgeRunIds`'s oldest-first ordering is genuine —
+    // not a coincidence of creation order a `0bb8bf46`-shaped paging bug could
+    // pass by accident.
     for (let index = 0; index < 12; index += 1) await openRunWithNoIngestion(fixture, index)
     for (let index = 0; index < 9; index += 1) await openRunWithOpenIngestion(fixture, index)
     const refused = await refusedCloseOrphan(fixture, 'd')
@@ -634,5 +652,63 @@ describe('knowledge durable queue', () => {
     expect(reportsForThisRun).toHaveLength(1)
 
     expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
+  })
+
+  // Round 5 gate: a refused close now marks its own ingestion row with
+  // `KNOWLEDGE_ORPHAN_RUN_OPEN` so it stops sitting at the front of
+  // `listOrphanedIngestionsForRuns`'s oldest-`updatedAt` page forever — but
+  // that page is still bounded (`limit` per query, `MAX_SWEEP_PAGES` queries
+  // per pass), so 20+ refused rows ahead of a genuine orphan must not starve
+  // it within that same bound, and once marked they must back off rather
+  // than being retried on every subsequent pass.
+  it('closes the real orphan in one runOnce() despite 25 older refused-close rows, then backs every one of them off on the very next pass', async () => {
+    const fixture = await durableJob()
+    // `pendingBatchRun` runs its own internal `runOnce()` to create the real
+    // orphan's run, so it has to happen before the refused rows exist —
+    // otherwise that internal pass would sweep and silently back all 25 of
+    // them off before the assertions' own spied pass ever ran (see the
+    // round-4 test's comment above for the same trap). The refused rows are
+    // still stamped with an explicitly older `startedAt`/`updatedAt` (50h in
+    // the past, well before the real orphan is marked SUPERSEDED below), so
+    // their place in the oldest-first ordering is genuine.
+    const { stuck, transport } = await pendingBatchRun(fixture)
+
+    // 25 refused-close orphans, each already SUPERSEDED with an
+    // unparsable-scope corpus, a still-RUNNING run and no live lease.
+    const refusedRuns = []
+    for (let index = 0; index < 25; index += 1) refusedRuns.push(await refusedCloseOrphan(fixture, `starve-${index}`))
+
+    await prisma.knowledgeIngestion.update({
+      where: { id: fixture.job.id },
+      data: { status: 'SUPERSEDED', failureCode: 'KNOWLEDGE_SOURCE_REVISION_SUPERSEDED', claimToken: null, leaseExpiresAt: null },
+    })
+
+    const onError = vi.fn()
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError })
+
+    const firstPass = await runtime.runOnce()
+    expect(firstPass.sweep).toMatchObject({ closed: 1, open: 25 })
+
+    // The real orphan's run is closed in this same pass, despite 25 older
+    // refused rows sitting ahead of it (2 pages of `limit` 20, within the
+    // bounded `MAX_SWEEP_PAGES` of 3).
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(['QUEUED', 'RUNNING']).not.toContain(run.status)
+    expect(run.status).toBe('FAILED')
+
+    // All 25 refused rows are left exactly as refused, but now carry the
+    // backoff marker and a fresh `updatedAt`.
+    for (const { executionRunId } of refusedRuns) {
+      const ingestion = await prisma.knowledgeIngestion.findUnique({ where: { executionRunId } })
+      expect(ingestion.status).toBe('SUPERSEDED')
+      expect(ingestion.failureCode).toBe('KNOWLEDGE_ORPHAN_RUN_OPEN')
+      expect((await prisma.pipelineRun.findUnique({ where: { executionRunId } })).status).toBe('RUNNING')
+    }
+
+    // A second pass immediately afterward must not re-attempt any of them —
+    // they are all within the hour-long backoff window, and the real orphan
+    // is already closed, so nothing actionable remains at all.
+    const secondPass = await runtime.runOnce()
+    expect(secondPass.sweep).toMatchObject({ closed: 0, open: 0 })
   })
 })

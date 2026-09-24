@@ -9,6 +9,16 @@ function mutable(data, allowed) {
   if (Object.keys(data).some((key) => !allowed.includes(key))) throw new Error('Knowledge repository refuses immutable field mutation')
 }
 
+// A refused close (closeOrphanedExecutionRun declined or failed) gets this
+// failureCode written back onto the KnowledgeIngestion row — status
+// unchanged, but the write advances `updatedAt` (see knowledge-runtime.js's
+// sweep). Without that write nothing ever moves the row, so an oldest-first
+// page fills forever with rows nothing can act on. `ORPHAN_RETRY_BACKOFF_MS`
+// is how long `listOrphanedIngestionsForRuns` excludes a row after that: a
+// refused close is retried hourly, never on every single pass.
+export const KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE = 'KNOWLEDGE_ORPHAN_RUN_OPEN'
+export const ORPHAN_RETRY_BACKOFF_MS = 60 * 60 * 1000
+
 export function createKnowledgeRepository(db = prisma) {
   const repository = {
     // `options` ({ maxWait, timeout }) is passed to Prisma's interactive
@@ -71,6 +81,11 @@ export function createKnowledgeRepository(db = prisma) {
       return db.pipelineRun.findMany({
         where: { dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID, status: { in: ['QUEUED', 'RUNNING'] } },
         select: { executionRunId: true },
+        // Deterministic oldest-first order: a real run always has a value here
+        // once it is actually processed, so a never-started candidate sorts
+        // before it. This is what makes the `limit` truncation below never
+        // arbitrarily drop the oldest genuine candidates.
+        orderBy: [{ startedAt: 'asc' }, { createdAt: 'asc' }],
         take: limit,
       })
     },
@@ -85,11 +100,22 @@ export function createKnowledgeRepository(db = prisma) {
     // per-chunk `take` could not enforce a single global ordering.
     async listOrphanedIngestionsForRuns({ executionRunIds, now = new Date(), limit = 20 } = {}) {
       if (!Array.isArray(executionRunIds) || executionRunIds.length === 0) return []
+      const backoffThreshold = new Date(now.getTime() - ORPHAN_RETRY_BACKOFF_MS)
       const rows = []
       for (let start = 0; start < executionRunIds.length; start += 100) {
         const chunk = executionRunIds.slice(start, start + 100)
         rows.push(...await db.knowledgeIngestion.findMany({
-          where: { executionRunId: { in: chunk }, status: { in: ['SUPERSEDED', 'WITHDRAWN'] }, OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }] },
+          where: {
+            executionRunId: { in: chunk },
+            status: { in: ['SUPERSEDED', 'WITHDRAWN'] },
+            OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }],
+            // A row already marked KNOWLEDGE_ORPHAN_RUN_OPEN by a prior refused
+            // close is excluded until its backoff window elapses — otherwise a
+            // refused-close row nothing else ever writes to would sit at the
+            // front of this oldest-first page on every single pass, forever,
+            // and a genuine orphan behind it would never be reached.
+            AND: { OR: [{ failureCode: { not: KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE } }, { updatedAt: { lte: backoffThreshold } }] },
+          },
         }))
       }
       rows.sort((left, right) => left.updatedAt.getTime() - right.updatedAt.getTime())
