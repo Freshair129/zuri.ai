@@ -2,7 +2,7 @@
 id: ZAI:SCM-HANDOFF
 version: "0.1.0b"
 status: candidate
-last_update: "2026-09-24T13:15:00+07:00,Claude Opus 5.5 (Session 5)"
+last_update: "2026-09-24T13:55:00+07:00,Claude Opus 5.5 (Session 5)"
 attributes:
   domain: inventory
   scope: session-5-scm-service-extraction-handoff
@@ -24,6 +24,10 @@ relations:
 cost sheets), `2db0b1e9` (S5.5 PostgreSQL store adapter) and `27dbf55e` (S5.4
 POS terminal catalogue). This file is updated in doc-only commits after
 each of them. **PR:** [#546](https://github.com/Freshair129/zuri.ai/pull/546) — OPEN / DRAFT, not for merge. **Merge:** NOT_MERGED.
+**Legacy hotfix (separate lane):** [#557](https://github.com/Freshair129/zuri.ai/pull/557) — branch
+`fix/scm-legacy-pg-races` from `main` @ `85d8fd06`, worktree
+`.claude/worktrees/scm-legacy-race-hotfix`, commits `d374bcb7` (F-1/F-9/F-12)
+and `385fe279` (F-2 test). OPEN / DRAFT, not for merge.
 **Production:** NOT_RUN. Nothing routes to the SCM process; no data, stock,
 price or credential was touched.
 
@@ -499,19 +503,19 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 
 | Id | Finding | Evidence | Status | Proposed handling |
 |---|---|---|---|---|
-| F-1 | Legacy `postGoodsReceipt` plans against the PO read at the start and updates `version: {increment: 1}` with no predicate. On PostgreSQL READ COMMITTED, two concurrent receipts can both pass the outstanding check → **over-receipt** | Code reading `goods-receipt-service.js:98–177`; **reproduced on PostgreSQL 17**: the SCM port without its CAS receives 6 on a line of 5, 3/3 runs (§4.7) | **CONFIRMED (mechanism)** — the legacy code itself was not run on PostgreSQL; with colliding `GRN-` codes legacy more often fails with F-4's unretried error | Separate hotfix PR: failing PostgreSQL race test, then `updateMany({where:{id,version}})` → 409. Not mixed into the extraction |
-| F-2 | `GOODS_RECEIPT_SELF_POST_FORBIDDEN` has no legacy test | grep of apps/server/tests | CONFIRMED gap | Legacy test in the hotfix PR; SCM test exists |
+| F-1 | Legacy `postGoodsReceipt` plans against the PO read at the start and updates `version: {increment: 1}` with no predicate. On PostgreSQL READ COMMITTED, concurrent receipts each pass the outstanding check → **over-receipt** | **Reproduced on the legacy code itself** (PR #557, `scm-legacy-races.postgres.test.js`, PostgreSQL 17.10): 12 received on a line of 5, 3/3 runs; also the SCM port without its CAS (§4.7) | **CONFIRMED** — **fix proposed in #557** (PO `updateMany({where:{id,version}})` → 409 `PURCHASE_ORDER_VERSION_CONFLICT`); green 3/3 | Review and merge #557 (owner/integrator); not mixed into the extraction |
+| F-2 | `GOODS_RECEIPT_SELF_POST_FORBIDDEN` had no legacy test | grep of apps/server/tests | **Test added in #557** (`fr165-goods-receipt.test.js`): refusal, attested post audited `selfVerified: true`, another receiver `false`; removing the guard or the audit field fails it | Review with #557 |
 | F-3 | Receipts, POS checkout, order create and payment record take no idempotency key. A timed-out client retry creates a second GRN/order and stock effect | Code | CONFIRMED gap | SCM API requires keys; legacy transition needs a contract review (prompt §11.2) |
 | F-4 | GRN/PO/order codes are count-then-probe; a race gives a non-retried unique violation | Code | CONFIRMED (legacy) | SCM runs code generation inside the writer lock / CAS |
 | F-5 | `priceLandedInventoryQuote` returns `rulesJson` (the private rule document) and accepts caller `sourceRefs`; its only caller (agent tools) is not wired | `pricing-inventory-service.js` | TO_VERIFY with S1 before any agent wiring | Gate SCM-AGENT must use an allowlisted DTO |
 | F-6 | Procurement ↔ Inventory import cycle (inventory-catalog imports procurement cost helpers; procurement domain imports `zInventoryCode`) | Code | CONFIRMED | Kept in the kernel as-is (pure); break when catalog moves |
 | F-7 | Customer erasure does not touch SCM `customerId` references (SalesOrder, StockMovement, StockReservation) | `identity/erase-customer-principal.js` | CONFIRMED, cross-owner | Report to Identity/CRM owner; not SCM's decision |
 | F-8 | While both stores exist, three tenant-wide uniqueness rules cannot hold across them: `Payment.bankReference`, `ORD-…` and `PAY-…` codes | By construction (two databases) | CONFIRMED (design). **SCM capability complete** for the Commerce cohort: all writers (ce304e84) and the revenue read (d160acaf) exist in SCM. Open: consumer routing and the cohort data transfer | Cutover gate: per Tenant, one single-writer switch moves POS, payments, sales orders and the revenue read together, after a transfer of that Tenant's orders/payments/codes; no dual-write period |
-| F-10 | Legacy fulfilment (`issueStockForOrder`) issues without `customerId`/`salesOrderId`, so a SKU dedicated to another customer or order leaves stock on COMPLETE; POS passes both and refuses | `sales-order-service.js:208`; SCM parity test | CONFIRMED (behaviour); intent UNKNOWN | Owner decision: if unintended, pass the order and its customer on the fulfilment issue (a behaviour change with its own FR/test) — not changed during extraction |
+| F-10 | Legacy fulfilment (`issueStockForOrder`) issues without `customerId`/`salesOrderId`, so a SKU dedicated to another customer or order leaves stock on COMPLETE; POS passes both and refuses | `sales-order-service.js:208`; SCM parity test | **OWNER RULING 2026-09-24: unintended** (proposed via Mission Control, confirmed by the owner in the S5 chat) | Not changed during extraction: parity kept in legacy and SCM until a separate FR is implemented (pass the order and its customer on the fulfilment issue, with its own test). The FR id is declared by the PRD registry owner (shared file) — requested in §9 |
 | F-11 | `pricing-catalog-service` (catalog freeze) **also inserts PricingCalculation** rows (key prefix per freeze) and reads the active policy; `pricing-publication`, `pricing-inventory-service` (F-5) and Knowledge `assertPricingCatalogCurrent` read PricingRuleSet/PricingCalculation directly | `pricing-catalog-service.js:82/93`, `pricing-publication.js:15/19`, `pricing-inventory-service.js:25` | CONFIRMED (design) | These tables have one owner only after the catalog group moves with them (behind SCM-FILES/SCM-KNOWLEDGE) or reads them through the SCM API; until then SCM pricing serves no consumer, and the per-Business key space is shared with catalog keys at transfer |
-| F-12 | Legacy commit supersedes the supplier's other CONFIRMED sheets with an unguarded `updateMany` before its own CAS, and no constraint holds "one CONFIRMED per supplier". On PostgreSQL READ COMMITTED, two commits of different sheets of one supplier can each supersede before the other confirms → two CONFIRMED sheets | Code reading `supplier-cost-sheet-service.js:351–359`; **reproduced on PostgreSQL 17**: without the partial unique index, 2 CONFIRMED sheets, 3/3 runs (§4.7). With carton facts on the same product the Product CAS happens to serialize the commits | **CONFIRMED (mechanism)** — legacy code itself not run on PostgreSQL | Same hotfix PR as F-1/F-9: a PostgreSQL race test first, then a partial unique index (as D-13) |
+| F-12 | Legacy commit supersedes the supplier's other CONFIRMED sheets with an unguarded `updateMany` before its own CAS, and no constraint holds "one CONFIRMED per supplier". On PostgreSQL READ COMMITTED two commits can each supersede before the other confirms → two CONFIRMED sheets | **Reproduced on the legacy code itself** (#557): 2 CONFIRMED, 3/3 runs (sheets without carton facts — with them the Product CAS happens to serialize the commits) | **CONFIRMED** — **fix proposed in #557** (lock-only touch of the supplier row before the supersession; no migration); green 3/3. SCM additionally keeps the partial unique index (D-13) | Review and merge #557; a DB-level index in legacy would need a migration (schema owner) |
 | F-13 | SCM reads Inventory tables whose writers have not moved: `ProductIdentifier` (cost-sheet SKU matcher; `inventory-identity-service`) and `ProductMaster` / `InventoryCategory` (POS catalogue; `inventory-catalog-service`). Until they move or their rows are transferred, SCM sees only what its store holds | Design | CONFIRMED (design); impact bounded — suggestions a person confirms, and a read-only catalogue | Move the Inventory catalogue + identifier writers as one group, or transfer those rows at cutover, before routing cost-sheet intake or the POS catalogue to SCM |
-| F-9 | Legacy `applyPaymentAction` reads the verified net for a REFUND and updates the payment by CAS on the payment row only. On PostgreSQL READ COMMITTED, two refunds of one order verified concurrently can both pass the ceiling → refunded > paid | Code reading `payment-service.js:135–145`; **reproduced on PostgreSQL 17**: without the order-row lock, 3 × 400 verified on 1000 paid, 3/3 runs (§4.7) | **CONFIRMED (mechanism)** — legacy code itself not run on PostgreSQL | Same hotfix PR as F-1: a PostgreSQL race test first, then an order-row lock before the read |
+| F-9 | Legacy `applyPaymentAction` reads the verified net for a REFUND and updates the payment by CAS on the payment row only. On PostgreSQL READ COMMITTED, concurrent refund verifications can each pass the ceiling → refunded > paid | **Reproduced on the legacy code itself** (#557): 4 × 400 verified on 1000 paid, 3/3 runs; also the SCM port without its lock (§4.7) | **CONFIRMED** — **fix proposed in #557** (lock-only touch of the order row before the read); green 3/3 | Review and merge #557 |
 
 ## 8. Dependencies, blockers and shared changes requested
 
@@ -544,7 +548,7 @@ code_head_sha: 27dbf55e
 handoff_source_commit: "the doc commit after 27dbf55e on feat/scm-service-extraction"
 branch: feat/scm-service-extraction
 pr_number: 546
-current_tranche: S5.4 POS terminal catalogue done (both engines, legacy-recorded parity) → legacy hotfix PR for F-1/F-9/F-12, or the Inventory catalogue/identifier writers (F-13), next (owner's choice)
+current_tranche: legacy hotfix #557 (F-1/F-9/F-12 fixed, F-2 test) opened → S5.4 Inventory catalogue + identifier writers (F-13) next
 execution_status: IN_PROGRESS
 merge_status: NOT_MERGED
 production_status: NOT_RUN
@@ -594,12 +598,15 @@ verified:
   - { level: ISOLATED_TESTS, result: PASS, verified_code_sha: 27dbf55e, command: "node services/scm/scripts/run-tests.mjs (sqlite) and --engine=postgres", discovered: 202, executed: 201, skipped: 1, exit_code: 0, environment: "win32, node 24.19.0, sqlite + embedded PostgreSQL 17.10" }
   - { level: POS_CATALOGUE_PARITY, result: PASS, verified_code_sha: 27dbf55e, command: "vitest scm-pos-catalogue-parity (legacy recorder) + node --test pos-catalogue-parity (SCM)", discovered: 5, executed: 5, skipped: 0, exit_code: 0 }
   - { level: POSTGRES_GUARD_PROOF, result: PASS, verified_code_sha: 2db0b1e9, command: "node services/scm/scripts/prove-guards-on-postgres.mjs --runs=3", findings: "F-1, F-9, F-12 reproduced 3/3 without the guard; intact control PASS", exit_code: 0 }
+  - { level: LEGACY_RACE_POSTGRES, result: PASS, verified_code_sha: 385fe279, branch: fix/scm-legacy-pg-races, command: "vitest tests/integration/scm-legacy-races.postgres.test.js (opt-in loopback DB)", evidence: "original code FAIL 3/3 (12 of 5 received; 4 × 400 refunds on 1000; 2 CONFIRMED); fixed PASS 3/3", environment: "embedded PostgreSQL 17.10" }
+  - { level: LEGACY_FULL_SUITE, result: PASS, verified_code_sha: d374bcb7, branch: fix/scm-legacy-pg-races, command: "npm --prefix apps/server test && npm --prefix apps/server run build", discovered: "809 files", executed: "802 files / 6747 tests", skipped: "7 files (opt-in)", exit_code: 0 }
   - { level: CI, result: NOT_RUN }
 remaining:
   - "S5.4 remaining: pricing catalog freeze/admission/publication (behind SCM-FILES/SCM-KNOWLEDGE; F-11), billing (behind an Identity command path for LegalEntity/Branch), Inventory catalogue/identifier writers (F-13) — each as a whole group"
   - "Consumer routing (BFF → SCM) for the Commerce cohort, behind SCM-CORE"
   - "Image build/start smoke; BFF consumer; core delegation issuer; audit outbox relay; a managed PostgreSQL rehearsal (pooler, TLS, restricted role) under SCM-CUTOVER"
-  - "Legacy hotfix for F-1/F-2/F-9/F-12 as a separate PR"
+  - "Review/merge of legacy hotfix PR #557 (owner/integrator; S5 does not merge)"
+  - "F-10 separate FR (declared by the PRD registry owner), then the fulfilment change in legacy and SCM together"
 contracts:
   - { name: scm-api, revision: v1-draft.8, provider_owner: S5, consumer_owner: "BFF (unassigned)", review_status: PROPOSED, provider_conformance: "LOCAL PASS", consumer_conformance: NOT_RUN }
   - { name: scm.delegation.v1, provider_owner: "Identity/Core", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (synthetic issuer)" }
@@ -607,9 +614,9 @@ contracts:
 blockers:
   - { dependency: "scm.delegation.v1 review + core issuer", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + S5", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
   - { dependency: "root CI job for services/scm", kind: INTEGRATION_ORDER, phase_blocked: "CI_VERIFIED/HOSTED_IMAGE_BUILD", owner_to_unblock: integrator, condition_to_unblock: "job merged", safe_work_now: ["local tests"] }
-next_action: "Owner picks the next tranche: the legacy hotfix PR for F-1/F-9/F-12 (failing PostgreSQL race tests first), or the Inventory catalogue/identifier writers (F-13); owner decision on F-10 pending."
+next_action: "S5.4 Inventory catalogue + identifier writers (F-13) as one group in services/scm, parity-pinned against legacy; #557 awaits review."
 owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js, apps/server/tests/unit/scm-revenue-parity.test.js, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
-shared_changes_requested: ["docs/.id-ledger.json +ADR-109", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
+shared_changes_requested: ["FR id for F-10 (fulfilment issue carries salesOrderId/customerId) in docs/PRD-SDD-v1.0.md — PRD registry owner", "docs/.id-ledger.json +ADR-109", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
 board_expected_source_commit: "REFACTOR-STATUS.md 0.1.0b on feat/market-intelligence-service"
 board_update: BOARD_UPDATE_PENDING
 ```
@@ -617,13 +624,13 @@ board_update: BOARD_UPDATE_PENDING
 ## 10. Next exact action
 
 1. Read the hosted check results on PR #546 and record them here (CI_VERIFIED is NOT_RUN until then).
-2. Next tranche (owner's choice): the legacy hotfix PR for F-1 / F-9 / F-12
-   (now CONFIRMED on PostgreSQL; each fix starts from a failing PostgreSQL race
-   test in apps/server), or the Inventory catalogue and identifier writers
-   (F-13: the SKU matcher and the POS catalogue read tables whose writers are
-   still legacy). Pricing catalog freeze/admission stays behind SCM-FILES /
-   SCM-KNOWLEDGE (F-11).
-3. Owner decision on F-10 (dedication on fulfilment) — recorded, not changed.
+2. Next tranche: the Inventory catalogue and identifier writers (F-13 — the
+   SKU matcher and the POS catalogue read tables whose writers are still
+   legacy), moved as one group and parity-pinned. Pricing catalog
+   freeze/admission stays behind SCM-FILES / SCM-KNOWLEDGE (F-11).
+3. PR #557 (legacy F-1/F-9/F-12 fixes + F-2 test) awaits review; S5 does not
+   merge it. F-10 is ruled unintended; its FR id is requested from the PRD
+   registry owner.
 4. When SCM-CORE lands: route `/api/commerce/revenue` (S5-owned) to SCM per
    cohort, and hand Marketing's call site to its owner.
 5. When SCM-CORE lands, the Branch owner's `branches` fact unblocks the POS
