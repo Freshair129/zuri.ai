@@ -57,23 +57,29 @@ export function createLinePushReportNotifier({
     const text = buildSyncFailureAlertText({
       brandDisplayName, brandSlug, reasonCode, syncRunId, window,
     })
-    const retryKey = retryKeyForFailure({ syncRunId, failureKey: failureKey ?? reasonCode })
     const messages = [{ type: 'text', text }]
     const results = []
     for (const recipient of validRecipients) {
       // One push per recipient, sequential: the shared hourly call budget
-      // (R-17) is spent by the caller of this port, not raced here.
+      // (R-17) is spent by the caller of this port, not raced here. The
+      // retry key MUST vary per recipient: LINE's X-Line-Retry-Key is
+      // checked per push request, so one shared key would get every push
+      // after the first rejected as a duplicate and only the first
+      // recipient would ever be alerted.
+      const retryKey = retryKeyForFailure({
+        syncRunId, failureKey: failureKey ?? reasonCode, recipientKind: recipient.kind, recipientId: recipient.id,
+      })
       const result = await transport.push({
         credentialRef, to: recipient.id, messages, retryKey,
       })
-      results.push({ recipient, result })
+      results.push({ recipient, retryKey, result })
     }
     const failed = results.filter(({ result }) => result?.status !== 'ACCEPTED_BY_LINE')
     if (results.length > 0 && failed.length === results.length) {
       throw insightsErrors.sourceUnavailable('LINE push report notifier: every recipient push failed')
     }
     return {
-      sent: results.length - failed.length, failed: failed.length, retryKey, quotaNote, results,
+      sent: results.length - failed.length, failed: failed.length, quotaNote, results,
     }
   }
 

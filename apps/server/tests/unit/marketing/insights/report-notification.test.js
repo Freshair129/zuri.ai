@@ -55,23 +55,35 @@ describe('sync failure alert text', () => {
 })
 
 describe('retry key for a failure intent', () => {
-  it('is deterministic for the same syncRunId + failureKey', () => {
-    const a = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'TRANSIENT_ERROR' })
-    const b = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'TRANSIENT_ERROR' })
+  const recipient = { recipientKind: 'user', recipientId: 'fx-line-user-1' }
+
+  it('is deterministic for the same syncRunId + failureKey + recipient', () => {
+    const a = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'TRANSIENT_ERROR', ...recipient })
+    const b = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'TRANSIENT_ERROR', ...recipient })
     expect(a).toBe(b)
     expect(a).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
   })
 
   it('differs when the syncRunId or the failureKey differs', () => {
-    const a = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'TRANSIENT_ERROR' })
-    const b = retryKeyForFailure({ syncRunId: 'fx-sync-2', failureKey: 'TRANSIENT_ERROR' })
-    const c = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'AUTH_ERROR' })
+    const a = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'TRANSIENT_ERROR', ...recipient })
+    const b = retryKeyForFailure({ syncRunId: 'fx-sync-2', failureKey: 'TRANSIENT_ERROR', ...recipient })
+    const c = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'AUTH_ERROR', ...recipient })
     expect(a).not.toBe(b)
     expect(a).not.toBe(c)
   })
 
-  it('requires both a syncRunId and a failureKey', () => {
-    expect(() => retryKeyForFailure({ failureKey: 'x' })).toThrow(ReportNotificationError)
-    expect(() => retryKeyForFailure({ syncRunId: 'fx-sync-1' })).toThrow(ReportNotificationError)
+  it('differs per recipient, so one shared key never covers a second recipient', () => {
+    const a = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'TRANSIENT_ERROR', recipientKind: 'user', recipientId: 'fx-line-user-1' })
+    const b = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'TRANSIENT_ERROR', recipientKind: 'user', recipientId: 'fx-line-user-2' })
+    const c = retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'TRANSIENT_ERROR', recipientKind: 'group', recipientId: 'fx-line-user-1' })
+    expect(a).not.toBe(b)
+    expect(a).not.toBe(c)
+  })
+
+  it('requires syncRunId, failureKey, recipientKind and recipientId', () => {
+    expect(() => retryKeyForFailure({ failureKey: 'x', ...recipient })).toThrow(ReportNotificationError)
+    expect(() => retryKeyForFailure({ syncRunId: 'fx-sync-1', ...recipient })).toThrow(ReportNotificationError)
+    expect(() => retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'x', recipientId: 'fx-line-user-1' })).toThrow(ReportNotificationError)
+    expect(() => retryKeyForFailure({ syncRunId: 'fx-sync-1', failureKey: 'x', recipientKind: 'user' })).toThrow(ReportNotificationError)
   })
 })

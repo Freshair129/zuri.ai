@@ -53,14 +53,22 @@ function uuidV5(name, namespaceUuid) {
 }
 
 /**
- * Deterministic per the failure intent: the same syncRunId + failureKey
- * always produce the same retry key, so a repeated call for the same failure
- * reaches the provider's own idempotency check instead of sending twice.
+ * Deterministic per the failure intent AND the recipient: the same
+ * syncRunId + failureKey + recipient always produce the same retry key, so a
+ * repeated call for the same failure to the same recipient reaches the
+ * provider's own idempotency check instead of sending twice. The key must
+ * vary per recipient — LINE's X-Line-Retry-Key is checked per push request,
+ * so reusing one key across recipients gets every push after the first
+ * rejected as a duplicate of it, and only the first recipient is ever alerted.
  */
-export function retryKeyForFailure({ syncRunId, failureKey }) {
+export function retryKeyForFailure({
+  syncRunId, failureKey, recipientKind, recipientId,
+}) {
   if (!syncRunId || typeof syncRunId !== 'string') throw new ReportNotificationError('syncRunId is required')
   if (!failureKey || typeof failureKey !== 'string') throw new ReportNotificationError('failureKey is required')
-  return uuidV5(`${syncRunId}|${failureKey}`, RETRY_KEY_NAMESPACE)
+  if (!recipientKind || typeof recipientKind !== 'string') throw new ReportNotificationError('recipientKind is required')
+  if (!recipientId || typeof recipientId !== 'string') throw new ReportNotificationError('recipientId is required')
+  return uuidV5(`${syncRunId}|${failureKey}|${recipientKind}:${recipientId}`, RETRY_KEY_NAMESPACE)
 }
 
 /**

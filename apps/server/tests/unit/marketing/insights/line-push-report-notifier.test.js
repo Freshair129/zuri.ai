@@ -48,7 +48,7 @@ describe('LINE push report notifier', () => {
     })).toThrow(/transport/)
   })
 
-  it('pushes one message per recipient through the injected transport, never touching a URL itself', async () => {
+  it('pushes one message per recipient through the injected transport, each with its own retry key', async () => {
     const transport = fakeTransport()
     const port = createLinePushReportNotifier({
       credentialRef: 'env:ZURI_INSIGHTS_LINE_CHANNEL_ACCESS_TOKEN',
@@ -59,17 +59,24 @@ describe('LINE push report notifier', () => {
     expect(port.available).toBe(true)
     const result = await port.invoke(failure)
     expect(result).toMatchObject({ sent: 2, failed: 0, quotaNote: 'shared OA monthly quota' })
+    expect(result.retryKey).toBeUndefined()
     expect(transport.calls).toHaveLength(2)
     for (const call of transport.calls) {
       expect(call.credentialRef).toBe('env:ZURI_INSIGHTS_LINE_CHANNEL_ACCESS_TOKEN')
       expect(call.messages).toEqual([{ type: 'text', text: expect.stringContaining('TRANSIENT_ERROR') }])
-      expect(call.retryKey).toBe(transport.calls[0].retryKey)
     }
+    // Never touching a URL itself, and — the bug this guards against — never
+    // reusing one LINE retry key across recipients: LINE checks
+    // X-Line-Retry-Key per request, so a shared key would get every push
+    // after the first rejected as a duplicate and only the first recipient
+    // would ever be alerted.
+    expect(transport.calls[0].retryKey).not.toBe(transport.calls[1].retryKey)
     expect(transport.calls[0].to).toBe('fx-line-user-1')
     expect(transport.calls[1].to).toBe('fx-line-group-1')
+    expect(result.results.map((entry) => entry.retryKey)).toEqual([transport.calls[0].retryKey, transport.calls[1].retryKey])
   })
 
-  it('derives the same retry key across repeated invocations of the same failure intent', async () => {
+  it('derives the same retry key for the same recipient across repeated invocations, but a different one for a different failure', async () => {
     const transport = fakeTransport()
     const port = createLinePushReportNotifier({
       credentialRef: 'env:ZURI_INSIGHTS_LINE_CHANNEL_ACCESS_TOKEN',
