@@ -38,6 +38,11 @@ const GUARDS = [
     remove: [['src/infrastructure/schema.js', "CREATE UNIQUE INDEX IF NOT EXISTS SupplierCostSheet_one_confirmed ON SupplierCostSheet (businessId, supplierId) WHERE status = 'CONFIRMED';\n", '']],
   },
   {
+    finding: 'S-1', guard: 'stocktake commit takes the ledger fence before its reads (legacy FR-184 design)', test: 'recovery/two-process-stocktake',
+    common: [],
+    remove: [['src/modules/inventory/application/stocktake.js', "  // then observes COMMITTED and returns the stored result.\n  const fenceRevision = Number(repo.acquireFence(sql, { tenantId: business.tenantId, businessId: business.id, now: ctx.now }))", "  // then observes COMMITTED and returns the stored result.\n  const fenceRevision = Number(sql.get('SELECT COALESCE(MAX(mutationRevision), 0) AS r FROM InventoryLedgerFence WHERE tenantId = ? AND businessId = ?', business.tenantId, business.id).r)"]],
+  },
+  {
     finding: 'R-1', guard: 'ledger fence before a new hold reads ATP (D-23)', test: 'recovery/two-process-reservation',
     common: [],
     remove: [['src/modules/inventory/application/atp.js', '  repo.acquireFence(sql, { tenantId: business.tenantId, businessId: business.id, now: ctx.now })\n', '']],

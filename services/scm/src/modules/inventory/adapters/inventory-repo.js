@@ -6,7 +6,7 @@ import { INT32_MAX } from '../../../kernel/inventory/inventory-stocktake.js'
 // Every function takes the unit-of-work handle, never opens its own transaction.
 
 const PRODUCT_COLUMNS = 'id, code, tenantId, businessId, name, unit, stockPolicy, trackingMode, safetyStock, status, itemKind, dedicatedCustomerId, dedicatedSalesOrderId, maintenanceIntervalDays, maxStorageDays, reorderPoint'
-const LOT_COLUMNS = 'id, code, tenantId, businessId, productId, manufacturedAt, expiresAt, receivedQty, status, lastMaintainedAt, createdAt, updatedAt, version'
+const LOT_COLUMNS = 'id, code, tenantId, businessId, productId, factoryId, manufacturedAt, expiresAt, receivedQty, status, lastMaintainedAt, createdAt, updatedAt, version'
 const SERIAL_COLUMNS = 'id, serialNo, tenantId, businessId, productId, lotId, status, createdAt, updatedAt, version'
 export const MOVEMENT_COLUMNS = 'id, tenantId, businessId, productId, lotId, serialUnitId, kind, quantity, reason, reference, actorId, occurredAt, createdAt, sourceLocationId, targetLocationId, costSatang, customerId, salesOrderId, workOrderId'
 
@@ -49,6 +49,20 @@ export function createLot(sql, { code, tenantId, businessId, productId, now }) {
   return lotById(sql, id)
 }
 
+/** An explicit lot (FR-155 createLot): code, optional factory and dates, status. */
+export function insertLot(sql, { code, tenantId, businessId, productId, factoryId, manufacturedAt, expiresAt, status, now }) {
+  const id = randomUUID()
+  sql.run('INSERT INTO ProductLot (id, code, tenantId, businessId, productId, factoryId, manufacturedAt, expiresAt, receivedQty, status, createdAt, updatedAt, version) VALUES (?,?,?,?,?,?,?,?,0,?,?,?,1)', id, code, tenantId, businessId, productId, factoryId ?? null, manufacturedAt ?? null, expiresAt ?? null, status ?? 'OPEN', now, now)
+  return lotById(sql, id)
+}
+/** Lots of a Business (optionally one SKU), oldest first, with on-hand per lot from the ledger. */
+export function lotsWithOnHand(sql, businessId, productId) {
+  const lots = sql.all(`SELECT ${LOT_COLUMNS} FROM ProductLot WHERE businessId = ? ${productId ? 'AND productId = ?' : ''} ORDER BY createdAt, id`, ...[businessId, ...(productId ? [productId] : [])])
+  if (!lots.length) return lots
+  const onHand = new Map(sql.all(`SELECT lotId, COALESCE(SUM(quantity), 0) AS q FROM StockMovement WHERE lotId IN (${lots.map(() => '?').join(',')}) GROUP BY lotId`, ...lots.map((l) => l.id)).map((r) => [r.lotId, Number(r.q)]))
+  return lots.map((lot) => ({ ...lot, onHand: onHand.get(lot.id) ?? 0 }))
+}
+
 export function addLotReceivedQty(sql, lotId, qty, now) {
   sql.run('UPDATE ProductLot SET receivedQty = receivedQty + ?, version = version + 1, updatedAt = ? WHERE id = ?', qty, now, lotId)
 }
@@ -68,6 +82,49 @@ export function receiveSerial(sql, { existing, serialNo, tenantId, businessId, p
   sql.run('INSERT INTO SerialUnit (id, serialNo, tenantId, businessId, productId, lotId, status, createdAt, updatedAt, version) VALUES (?,?,?,?,?,?,\'IN_STOCK\',?,?,1)', id, serialNo, tenantId, businessId, productId, lotId ?? null, now, now)
   return serialByNo(sql, productId, serialNo)
 }
+
+/** A serial unit leaves stock (FR-155): IN_STOCK → ISSUED. */
+export function issueSerial(sql, unit, now) {
+  sql.run("UPDATE SerialUnit SET status = 'ISSUED', version = version + 1, updatedAt = ? WHERE id = ?", now, unit.id)
+  return serialByNo(sql, unit.productId, unit.serialNo)
+}
+export function serialsOf(sql, businessId, { productId, lotId, status } = {}) {
+  return sql.all(
+    `SELECT ${SERIAL_COLUMNS} FROM SerialUnit WHERE businessId = ? ${productId ? 'AND productId = ?' : ''} ${lotId ? 'AND lotId = ?' : ''} ${status ? 'AND status = ?' : ''} ORDER BY serialNo`,
+    ...[businessId, ...(productId ? [productId] : []), ...(lotId ? [lotId] : []), ...(status ? [status] : [])],
+  )
+}
+
+// ── Warehouse locations (FR-174): the only SQL writing WarehouseLocation ────
+export const LOCATION_COLUMNS = 'id, code, tenantId, businessId, name, type, isVirtual, address, status, archivedAt, createdAt, updatedAt, version'
+const location = (row) => (row ? { ...row, isVirtual: Boolean(row.isVirtual) } : null)
+export const locationRow = (sql, id) => location(sql.get(`SELECT ${LOCATION_COLUMNS} FROM WarehouseLocation WHERE id = ?`, id))
+export const locationCodeTaken = (sql, tenantId, code) => Boolean(sql.get('SELECT id FROM WarehouseLocation WHERE tenantId = ? AND code = ?', tenantId, code))
+export function insertLocation(sql, { code, tenantId, businessId, name, type, isVirtual, address, now }) {
+  const id = randomUUID()
+  sql.run(`INSERT INTO WarehouseLocation (${LOCATION_COLUMNS}) VALUES (?,?,?,?,?,?,?,?,'ACTIVE',NULL,?,?,1)`, id, code, tenantId, businessId, name, type, isVirtual ? 1 : 0, address ?? null, now, now)
+  return locationRow(sql, id)
+}
+export function locationsOf(sql, businessId, { type, includeArchived = false } = {}) {
+  return sql.all(
+    `SELECT ${LOCATION_COLUMNS} FROM WarehouseLocation WHERE businessId = ? ${type ? 'AND type = ?' : ''} ${includeArchived ? '' : "AND status <> 'ARCHIVED'"} ORDER BY code`,
+    ...[businessId, ...(type ? [type] : [])],
+  ).map(location)
+}
+const LOCATION_CHANGE = new Set(['name', 'address', 'isVirtual', 'status', 'archivedAt'])
+export function casLocation(sql, { id, version, change, now }) {
+  const keys = Object.keys(change)
+  for (const k of keys) if (!LOCATION_CHANGE.has(k)) throw new Error(`location column ${k} is not updatable`)
+  const value = (k) => (k === 'isVirtual' ? (change[k] ? 1 : 0) : change[k])
+  return Number(sql.run(`UPDATE WarehouseLocation SET ${keys.map((k) => `${k} = ?`).join(', ')}${keys.length ? ', ' : ''}version = version + 1, updatedAt = ? WHERE id = ? AND version = ?`, ...keys.map(value), now, id, version).changes)
+}
+/** Legacy archive guard: the sum of rows arriving at the location plus the rows leaving it. */
+export const locatedBalance = (sql, locationId) => Number(sql.get('SELECT COALESCE(SUM(quantity), 0) AS q FROM StockMovement WHERE targetLocationId = ?', locationId).q) + Number(sql.get('SELECT COALESCE(SUM(quantity), 0) AS q FROM StockMovement WHERE sourceLocationId = ?', locationId).q)
+/** Located rows of a Business (optionally one SKU) for the per-location view and the stocktake snapshot. */
+export const locatedMovements = (sql, businessId, productIds) => sql.all(
+  `SELECT productId, lotId, quantity, sourceLocationId, targetLocationId FROM StockMovement WHERE businessId = ? ${productIds ? `AND productId IN (${productIds.map(() => '?').join(',') || 'NULL'})` : ''}`,
+  ...[businessId, ...(productIds ?? [])],
+).map((m) => ({ ...m, quantity: Number(m.quantity) }))
 
 export function insertMovement(sql, row) {
   const id = randomUUID()

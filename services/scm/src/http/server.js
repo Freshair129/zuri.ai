@@ -84,11 +84,24 @@ const ROUTES = [
   route('POST', '/v1/inventory/reservations/expire', 'rsv.expire'),
   route('POST', '/v1/inventory/reservations/:id/actions', 'rsv.action'),
   route('GET', '/v1/inventory/atp', 'atp'),
+  route('POST', '/v1/inventory/stock-movements', 'mv.record'),
+  route('POST', '/v1/inventory/lots', 'lot.create'),
+  route('GET', '/v1/inventory/lots', 'lot.list'),
+  route('GET', '/v1/inventory/serial-units', 'serial.list'),
+  route('POST', '/v1/inventory/locations', 'loc.create'),
+  route('GET', '/v1/inventory/locations', 'loc.list'),
+  route('GET', '/v1/inventory/locations/:id', 'loc.get'),
+  route('POST', '/v1/inventory/locations/:id/actions', 'loc.action'),
+  route('GET', '/v1/inventory/location-stock', 'loc.stock'),
+  route('POST', '/v1/inventory/transfers', 'transfer'),
+  route('POST', '/v1/inventory/stocktakes/preview', 'st.preview'),
+  route('POST', '/v1/inventory/stocktakes/commit', 'st.commit'),
+  route('GET', '/v1/inventory/stocktakes/:id', 'st.get'),
   route('GET', '/v1/inventory/stock', 'stock'),
   route('GET', '/v1/inventory/movements', 'movements'),
   route('GET', '/v1/operations/:action/:key', 'operation'),
 ]
-const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'catalog.category.create': 'inventory.category.create', 'catalog.family.create': 'inventory.family.create', 'catalog.factory.create': 'inventory.factory.create', 'catalog.product-master.create': 'inventory.product-master.create', 'catalog.product.create': 'inventory.product.create', 'catalog.bundle.create': 'inventory.bundle.create', 'catalog.product.action': 'inventory.product.action', 'identity.identifier.add': 'inventory.identifier.add', 'identity.identifier.action': 'inventory.identifier.action', 'identity.conversion.add': 'inventory.unit-conversion.add', 'identity.conversion.action': 'inventory.unit-conversion.action', 'identity.flowaccount': 'inventory.product.flowaccount-sku', 'recipe.create': 'inventory.recipe.create', 'recipe.action': 'inventory.recipe.action', 'recipe.build': 'inventory.recipe.build', 'dekit': 'inventory.de-kit', 'cwo.open': 'inventory.customization-work-order.open', 'cwo.action': 'inventory.customization-work-order.action', 'kwo.open': 'inventory.kitting-work-order.open', 'kwo.action': 'inventory.kitting-work-order.action', 'rsv.create': 'inventory.reservation.create', 'rsv.action': 'inventory.reservation.action', 'rsv.expire': 'inventory.reservation.expire', 'costsheet.preview': 'procurement.cost-sheet.preview', 'costsheet.commit': 'procurement.cost-sheet.commit', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
+const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'catalog.category.create': 'inventory.category.create', 'catalog.family.create': 'inventory.family.create', 'catalog.factory.create': 'inventory.factory.create', 'catalog.product-master.create': 'inventory.product-master.create', 'catalog.product.create': 'inventory.product.create', 'catalog.bundle.create': 'inventory.bundle.create', 'catalog.product.action': 'inventory.product.action', 'identity.identifier.add': 'inventory.identifier.add', 'identity.identifier.action': 'inventory.identifier.action', 'identity.conversion.add': 'inventory.unit-conversion.add', 'identity.conversion.action': 'inventory.unit-conversion.action', 'identity.flowaccount': 'inventory.product.flowaccount-sku', 'recipe.create': 'inventory.recipe.create', 'recipe.action': 'inventory.recipe.action', 'recipe.build': 'inventory.recipe.build', 'dekit': 'inventory.de-kit', 'cwo.open': 'inventory.customization-work-order.open', 'cwo.action': 'inventory.customization-work-order.action', 'kwo.open': 'inventory.kitting-work-order.open', 'kwo.action': 'inventory.kitting-work-order.action', 'rsv.create': 'inventory.reservation.create', 'rsv.action': 'inventory.reservation.action', 'rsv.expire': 'inventory.reservation.expire', 'mv.record': 'inventory.movement.record', 'lot.create': 'inventory.lot.create', 'loc.create': 'inventory.location.create', 'loc.action': 'inventory.location.action', 'transfer': 'inventory.transfer', 'st.preview': 'inventory.stocktake.preview', 'st.commit': 'inventory.stocktake.commit', 'costsheet.preview': 'procurement.cost-sheet.preview', 'costsheet.commit': 'procurement.cost-sheet.commit', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
 
 function send(res, status, body) {
   const text = JSON.stringify(body)
@@ -195,7 +208,17 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
         result = await bus.queries.costSheets(scope, Object.fromEntries(Object.entries({ businessId: p.get('businessId'), supplierId: p.get('supplierId') || undefined, status: p.get('status') || undefined, limit: p.get('limit') || undefined }).filter(([, v]) => v !== undefined)))
       } else if (name === 'pricing.list') result = await bus.queries.pricingRules(scope, { businessId: url.searchParams.get('businessId') })
       else if (name === 'pricing.active') result = await bus.queries.activePricingRule(scope, url.searchParams.get('businessId'))
-      else if (name === 'stock') result = await bus.queries.stock(scope, url.searchParams.get('businessId'))
+      else if (name === 'stock') result = await bus.queries.stock(scope, url.searchParams.get('businessId'), { includeArchived: url.searchParams.get('includeArchived') === 'true' })
+      else if (name === 'lot.list') result = await bus.queries.lots(scope, { businessId: url.searchParams.get('businessId'), productId: url.searchParams.get('productId') || undefined })
+      else if (name === 'serial.list') {
+        const p = url.searchParams
+        result = await bus.queries.serialUnits(scope, { businessId: p.get('businessId'), productId: p.get('productId') || undefined, lotId: p.get('lotId') || undefined, status: p.get('status') || undefined })
+      } else if (name === 'loc.list') {
+        const p = url.searchParams
+        result = await bus.queries.locations(scope, { businessId: p.get('businessId'), type: p.get('type') || undefined, includeArchived: p.get('includeArchived') === 'true' })
+      } else if (name === 'loc.get') result = await bus.queries.location(scope, params.id)
+      else if (name === 'loc.stock') result = await bus.queries.locationStock(scope, { businessId: url.searchParams.get('businessId'), productId: url.searchParams.get('productId') || undefined })
+      else if (name === 'st.get') result = await bus.queries.stocktake(scope, params.id, { businessId: url.searchParams.get('businessId') })
       else if (name === 'movements') result = await bus.queries.movements(scope, { businessId: url.searchParams.get('businessId'), productId: url.searchParams.get('productId') || undefined, limit: url.searchParams.get('limit') })
       else if (name === 'operation') result = await bus.lookup(scope, { action: decodeURIComponent(params.action), businessId: url.searchParams.get('businessId'), idempotencyKey: decodeURIComponent(params.key) })
       status = 200

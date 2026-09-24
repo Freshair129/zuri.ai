@@ -14,7 +14,7 @@
 import { toPostgres } from './sql-dialect.js'
 
 export const OWNERS = Object.freeze({
-  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem', 'ProductUnitConversion', 'ProductRecipe', 'ProductRecipeLine', 'CustomizationWorkOrder', 'KittingWorkOrder', 'StockReservation'],
+  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem', 'ProductUnitConversion', 'ProductRecipe', 'ProductRecipeLine', 'CustomizationWorkOrder', 'KittingWorkOrder', 'StockReservation', 'InventoryStocktake'],
   procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine', 'SupplierCostSheet', 'SupplierCostLine'],
   commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile', 'PricingRuleSet', 'PricingCalculation'],
   scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
@@ -35,8 +35,10 @@ export const OWNERS = Object.freeze({
 // is now written here too.
 // v8 (S5.4 recipes + work orders): ProductRecipe(+Line), CustomizationWorkOrder,
 // KittingWorkOrder; StockReservation (its writers joined in the ATP tranche; no schema change).
-// Disposable stores only — there is no v1→…→v8 migration (the migration owner writes one).
-export const SCHEMA_VERSION = 8
+// v9 (S5.4 stocktake, transfers, locations): InventoryStocktake; ProductLot.factoryId;
+// WarehouseLocation.archivedAt.
+// Disposable stores only — there is no v1→…→v9 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 9
 
 const TABLES = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
@@ -131,7 +133,7 @@ CREATE INDEX IF NOT EXISTS Product_business ON Product (businessId, status);
 
 CREATE TABLE IF NOT EXISTS ProductLot (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
-  productId TEXT NOT NULL REFERENCES Product(id), manufacturedAt TEXT, expiresAt TEXT,
+  productId TEXT NOT NULL REFERENCES Product(id), factoryId TEXT, manufacturedAt TEXT, expiresAt TEXT,
   receivedQty INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'OPEN', lastMaintainedAt TEXT,
   createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
   UNIQUE (productId, code)
@@ -284,9 +286,21 @@ CREATE TABLE IF NOT EXISTS StockReservation (
 );
 CREATE INDEX IF NOT EXISTS StockReservation_product ON StockReservation (productId, status);
 
+-- Physical stocktake (FR-184): a durable preview (no movement) and its commit, which
+-- appends signed ADJUSTMENT rows under the Business ledger fence. idempotencyKey is
+-- the caller's body key (PREVIEW:<id> until committed).
+CREATE TABLE IF NOT EXISTS InventoryStocktake (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, idempotencyKey TEXT NOT NULL,
+  payloadHash TEXT NOT NULL, normalizedLinesJson TEXT NOT NULL, snapshotVersion INTEGER NOT NULL, snapshotHash TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'PREVIEWED', resultJson TEXT, committedAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, businessId, idempotencyKey)
+);
+CREATE INDEX IF NOT EXISTS InventoryStocktake_business ON InventoryStocktake (businessId, status, createdAt);
+
 CREATE TABLE IF NOT EXISTS WarehouseLocation (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, name TEXT NOT NULL,
-  type TEXT NOT NULL, isVirtual INTEGER NOT NULL DEFAULT 0, address TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  type TEXT NOT NULL, isVirtual INTEGER NOT NULL DEFAULT 0, address TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE', archivedAt TEXT,
   createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
   UNIQUE (tenantId, code)
 );

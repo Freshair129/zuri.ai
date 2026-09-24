@@ -2,6 +2,12 @@
 // modules (Procurement, Commerce) call ONLY these functions; they never import
 // ./adapters or write Inventory tables (test/unit/module-boundaries.test.js).
 export { appendMovement, requireIssuableLocation, setLotExpiryIfUnset, stockSummary, listMovements } from './application/stock-ledger.js'
+/** Public stock commands and reads (FR-155): one movement, an explicit lot, lots, serial units. */
+export * as stock from './application/stock-ledger.js'
+/** Warehouse locations, the located view and the standalone transfer (FR-174). */
+export * as locations from './application/locations.js'
+/** Physical stocktake (FR-184). */
+export * as stocktake from './application/stocktake.js'
 export { inventoryAuthority } from '../../infrastructure/delegation.js'
 export { productsByIds } from './adapters/inventory-repo.js'
 /** POS terminal catalogue read port: ACTIVE SKUs with master facts, on-hand per SKU, categories, selling locations. */

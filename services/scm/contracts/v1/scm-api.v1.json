@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.12",
+  "revision": "v1-draft.13",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -481,9 +481,93 @@
       "note": "productId repeatable: on-hand − live holds per SKU (uncounted → available null); with recipeId: max buildable sets from ATP with the per-component picture"
     },
     {
+      "method": "POST",
+      "path": "/v1/inventory/stock-movements",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.movement.record",
+      "note": "FR-155: one RECEIPT / ISSUE / ADJUSTMENT (signed) through the ledger writer; serial units received and issued one per quantity; a serial ADJUSTMENT is refused"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/lots",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.lot.create",
+      "note": "an explicit lot with optional factory and dates; code unique per SKU"
+    },
+    {
       "method": "GET",
-      "path": "/v1/inventory/stock?businessId=",
+      "path": "/v1/inventory/lots?businessId=&productId=",
+      "capability": "inventory domain",
+      "note": "oldest first, with on-hand per lot from the ledger"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/serial-units?businessId=&productId=&lotId=&status=",
+      "capability": "inventory domain",
+      "note": "by serial number"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/locations",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.location.create",
+      "note": "FR-174: Business-scoped, typed, code unique per Tenant"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/locations?businessId=&type=&includeArchived=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/locations/{id}",
       "capability": "inventory domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/locations/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.location.action",
+      "note": "UPDATE (name, address, isVirtual) / ARCHIVE (refused while the location holds stock) by compare-and-swap on version"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/location-stock?businessId=&productId=",
+      "capability": "inventory domain",
+      "note": "on-hand per location from the located ledger; the unlocated remainder beside the total (BR-026)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/transfers",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.transfer",
+      "note": "one ISSUE at the source + one RECEIPT per lot at the target in one unit of work; branded stock never into a generic-stock location (BR-028)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/stocktakes/preview",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.stocktake.preview",
+      "note": "FR-184: durable preview under the ledger fence; UUID ids; NONE / LOT only; no movement"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/stocktakes/commit",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.stocktake.commit",
+      "note": "takes the ledger fence first; body idempotencyKey replays a committed result (409 on a different payload); stale / incomplete / mismatched refused; one signed ADJUSTMENT per variance"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/stocktakes/{id}?businessId=",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/stock?businessId=&includeArchived=",
+      "capability": "inventory domain",
+      "note": "every SKU with on-hand recomputed from the ledger (uncounted → null) and the legacy counts block"
     },
     {
       "method": "GET",
@@ -513,9 +597,5 @@
     "SCM_STORE_CLOSED",
     "SCM_REFERENCE_AUTHORITY_UNAVAILABLE"
   ],
-  "notMigrated": [
-    "ADJUSTMENT movements → 409 SCM_MOVEMENT_KIND_NOT_MIGRATED",
-    "serial ISSUE → 409 SCM_SERIAL_ISSUE_NOT_MIGRATED (POS refuses serial lines first, as legacy)",
-    "standalone stock transfer and warehouse-location writers → not served (stocktake/transfers group); the transfer CORE runs inside work orders"
-  ]
+  "notMigrated": []
 }

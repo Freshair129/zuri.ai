@@ -114,9 +114,9 @@ describe('[legacy] FR-176 customization work orders', () => {
     await rejects(issue(branded, 1, { customerId: 'cust-scg', salesOrderId: 'so-scg-1' }), { status: 409, code: 'INVENTORY_CUSTOM_COMPONENT_WRONG_CUSTOMER' })
     await rejects(issue(branded, 1, { customerId: PTT, salesOrderId: 'so-other' }), { status: 409, code: 'INVENTORY_CUSTOM_COMPONENT_WRONG_SALES_ORDER' })
     assert.equal((await issue(branded, 2, { customerId: PTT, salesOrderId: SO })).onHandAfter, 500)
-    // The stated ADJUSTMENT write-off (legacy's other half of this AC) is not migrated:
-    // ADJUSTMENT moves with stocktake (SCM-HANDOFF §2.1), and SCM says so rather than half-doing it.
-    await rejects(h.store.transaction((sql) => appendMovement(sql, as('owner'), { businessId: BIZ, productId: branded, kind: 'ADJUSTMENT', quantity: -1, reason: 'ORPHANED_CLIENT_CANCEL' }, { now: new Date().toISOString() })), { status: 409, code: 'SCM_MOVEMENT_KIND_NOT_MIGRATED' })
+    // …and so does the one exit BR-028 leaves open: a stated write-off.
+    const writeOff = await run('owner', 'inventory.movement.record', { businessId: BIZ, productId: branded, kind: 'ADJUSTMENT', quantity: -1, reason: 'ORPHANED_CLIENT_CANCEL' })
+    assert.equal(writeOff.movement.onHandAfter, 499)
   })
 
   test('AC-176.6 — a scrap overrun leaves the order BLOCKED_SHORTAGE with the shortfall named, not quietly COMPLETED', async () => {

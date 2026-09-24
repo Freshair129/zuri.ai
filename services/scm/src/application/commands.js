@@ -13,7 +13,7 @@ import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSale
 import { zCreateOrder } from '../kernel/commerce/commerce.js'
 import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
 import { authorizeCatalogue, getPosTerminalCatalogue } from '../modules/commerce/application/pos-catalogue.js'
-import { atp, catalog, customization, deKitting, identity, kitting, recipes } from '../modules/inventory/index.js'
+import { atp, catalog, customization, deKitting, identity, kitting, locations, recipes, stock, stocktake } from '../modules/inventory/index.js'
 import { supplierCostPriceBreaks } from '../modules/procurement/application/supplier-cost-sheets.js'
 import { applyPricingRuleAction, calculatePricing, calculationRequest, createPricingRuleSet, getActivePricingRuleSet, guardCalculationReplay, listPricingRules, loadRuleInScope, ownerBusiness, previewPricingRules, updatePricingRuleSet, zCalculatePricing, zCreatePricingRule } from '../modules/commerce/application/pricing-rules.js'
 
@@ -90,6 +90,14 @@ const COMMANDS = {
   'inventory.customization-work-order.open': { authorize: (sql, scope, { body }) => customization.openerOf(scope, body), execute: (sql, scope, { body }, ctx) => customization.openCustomizationWorkOrder(sql, scope, body, ctx) },
   'inventory.customization-work-order.action': { authorize: (sql, scope, { targetId, body }) => customization.actorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => customization.applyCustomizationWorkOrderAction(sql, scope, targetId, body, ctx) },
   'inventory.kitting-work-order.open': { authorize: (sql, scope, { body }) => kitting.openerOf(scope, body), execute: (sql, scope, { body }, ctx) => kitting.openKittingWorkOrder(sql, scope, body, ctx) },
+  // Stock core, locations, transfers, stocktake (FR-155, FR-174, FR-184): Inventory write on the named Business.
+  'inventory.movement.record': { authorize: (sql, scope, { body }) => stock.movementWriterOf(scope, body), execute: (sql, scope, { body }, ctx) => stock.recordMovement(sql, scope, body, ctx) },
+  'inventory.lot.create': { authorize: (sql, scope, { body }) => stock.lotWriterOf(scope, body), execute: (sql, scope, { body }, ctx) => stock.createLot(sql, scope, body, ctx) },
+  'inventory.location.create': { authorize: (sql, scope, { body }) => locations.creatorOf(scope, body), execute: (sql, scope, { body }, ctx) => locations.createLocation(sql, scope, body, ctx) },
+  'inventory.location.action': { authorize: (sql, scope, { targetId }) => locations.locationForWrite(sql, scope, targetId).businessId, execute: (sql, scope, { targetId, body }, ctx) => locations.applyLocationAction(sql, scope, targetId, body, ctx) },
+  'inventory.transfer': { authorize: (sql, scope, { body }) => locations.transferrerOf(scope, body), execute: (sql, scope, { body }, ctx) => locations.transferStock(sql, scope, body, ctx) },
+  'inventory.stocktake.preview': { authorize: (sql, scope, { body }) => stocktake.previewerOf(scope, body), execute: (sql, scope, { body }, ctx) => stocktake.previewStocktake(sql, scope, body, ctx) },
+  'inventory.stocktake.commit': { authorize: (sql, scope, { body }) => stocktake.committerOf(scope, body), execute: (sql, scope, { body }, ctx) => stocktake.commitStocktake(sql, scope, body, ctx) },
   // Reservations (FR-180): Inventory write on the Business the body names; a hold takes the ledger fence (D-23).
   'inventory.reservation.create': { authorize: (sql, scope, { body }) => atp.reserverOf(scope, body), execute: (sql, scope, { body }, ctx) => atp.createReservation(sql, scope, body, ctx) },
   'inventory.reservation.action': { authorize: (sql, scope, { targetId, body }) => atp.reservationActorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => atp.applyReservationAction(sql, scope, targetId, body, ctx) },
@@ -220,7 +228,7 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
 
   const queries = {
     purchaseOrder: (scope, id) => store.read((sql) => ({ order: getPurchaseOrder(sql, scope, id) })),
-    stock: (scope, businessId) => store.read((sql) => stockSummary(sql, scope, { businessId })),
+    stock: (scope, businessId, options = {}) => store.read((sql) => stockSummary(sql, scope, { businessId, ...options })),
     movements: (scope, q) => store.read((sql) => ({ movements: listMovements(sql, scope, q) })),
     salesOrder: (scope, id) => store.read((sql) => ({ order: getOrder(sql, scope, id) })),
     payment: (scope, id) => store.read((sql) => ({ payment: getPayment(sql, scope, id) })),
@@ -255,6 +263,12 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     customizationWorkOrder: (scope, id) => store.read((sql) => ({ order: customization.getCustomizationWorkOrder(sql, scope, id) })),
     kittingWorkOrders: (scope, query) => store.read((sql) => ({ orders: kitting.listKittingWorkOrders(sql, scope, query) })),
     kittingWorkOrder: (scope, id) => store.read((sql) => ({ order: kitting.getKittingWorkOrder(sql, scope, id) })),
+    lots: (scope, query) => store.read((sql) => ({ lots: stock.listLots(sql, scope, query) })),
+    serialUnits: (scope, query) => store.read((sql) => ({ serialUnits: stock.listSerialUnits(sql, scope, query) })),
+    locations: (scope, query) => store.read((sql) => ({ locations: locations.listLocations(sql, scope, query) })),
+    location: (scope, id) => store.read((sql) => ({ location: locations.getLocation(sql, scope, id) })),
+    locationStock: (scope, query) => store.read((sql) => locations.locationStock(sql, scope, query)),
+    stocktake: (scope, id, query) => store.read((sql) => ({ stocktake: stocktake.getStocktake(sql, scope, id, query) })),
     reservations: (scope, query) => store.read((sql) => ({ reservations: atp.listReservations(sql, scope, { ...query, now: clock().toISOString() }) })),
     atp: (scope, query) => store.read((sql) => (query.recipeId
       ? atp.maxBuildableSets(sql, scope, { ...query, now: clock().toISOString() })
