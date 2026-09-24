@@ -1,7 +1,7 @@
 import pg from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { runRuntimeIsolationProbe } from '@/modules/knowledge/runtime-isolation-probe'
-import { parseFr054PostgresTarget } from '../helpers/fr054-postgres-target-guard.js'
+import { parseFr054PostgresTarget, verifyFr054DisposableClusterMarker } from '../helpers/fr054-postgres-target-guard.js'
 
 // @req FR-054 — execute the isolation probe against PostgreSQL's real type and RLS semantics.
 // @spec SDD-027, SEC-011 — UUID-shaped scope identifiers use the deployed text contract.
@@ -11,6 +11,7 @@ const { Client } = pg
 const target = parseFr054PostgresTarget({
   databaseUrl: process.env.ZURI_TEST_POSTGRES_URL,
   destructiveOptIn: process.env.ZURI_FR054_TEST_DESTRUCTIVE_OPT_IN,
+  clusterMarker: process.env.ZURI_FR054_TEST_CLUSTER_MARKER,
 })
 const adminUrl = target.enabled ? target.databaseUrl : undefined
 const runPostgres = target.enabled ? describe : describe.skip
@@ -32,9 +33,14 @@ function runtimeUrl() {
 
 runPostgres('runtime isolation probe PostgreSQL contract (FR-054)', () => {
   const admin = new Client({ connectionString: adminUrl })
+  // afterAll runs even when beforeAll throws, so role cleanup is gated on the
+  // marker having been proven on this connection.
+  let disposableClusterVerified = false
 
   beforeAll(async () => {
     await admin.connect()
+    await verifyFr054DisposableClusterMarker(admin, target.clusterMarker)
+    disposableClusterVerified = true
     await admin.query(`
       drop schema if exists zuri_core cascade;
       drop role if exists ${loginRole};
@@ -69,12 +75,17 @@ runPostgres('runtime isolation probe PostgreSQL contract (FR-054)', () => {
   })
 
   afterAll(async () => {
-    await admin.query(`
-      drop schema if exists zuri_core cascade;
-      drop role if exists ${loginRole};
-      drop role if exists ${policyRole};
-    `)
-    await admin.end()
+    try {
+      if (disposableClusterVerified) {
+        await admin.query(`
+          drop schema if exists zuri_core cascade;
+          drop role if exists ${loginRole};
+          drop role if exists ${policyRole};
+        `)
+      }
+    } finally {
+      await admin.end()
+    }
   })
 
   it('passes with text scope columns and denies cross-Tenant reads and mutation', async () => {
