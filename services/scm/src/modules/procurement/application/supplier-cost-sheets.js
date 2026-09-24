@@ -153,8 +153,15 @@ export function commitSupplierCostSheet(sql, scope, input, ctx) {
   const { now, faults = {} } = ctx
   const data = zSupplierCostSheetCommit.parse(input)
   const business = procurementAuthority.require(scope, data.businessId, 'costSheet')
-  const row = data.sheetId ? repo.loadSheet(sql, { id: data.sheetId }) : repo.loadSheet(sql, { businessId: business.id, sourceSha256: data.sourceSha256 })
+  let row = data.sheetId ? repo.loadSheet(sql, { id: data.sheetId }) : repo.loadSheet(sql, { businessId: business.id, sourceSha256: data.sourceSha256 })
   if (!row || row.businessId !== business.id) throw denied()
+  // F-18: a DRAFT is decided under its row lock. A concurrent commit of the same
+  // sheet waits here, then re-reads the winner's CONFIRMED row (each READ
+  // COMMITTED statement sees what committed before it) and replays.
+  if (row.status === 'DRAFT') {
+    repo.lockSheetRow(sql, row.id)
+    row = repo.loadSheet(sql, { id: row.id })
+  }
   if (row.status === 'CONFIRMED') {
     if (data.previewHash && data.previewHash !== row.previewHash) throw failure(409, 'PROCUREMENT_COST_SHEET_PREVIEW_STALE')
     return outcome({ replayed: true, sheet: sheetDto(row) })
