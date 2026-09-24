@@ -124,9 +124,12 @@ A record that cannot answer those questions is not fit to drive price, supplier,
 
 Long-running polling/browser/translation work may execute in a separate worker **process** while remaining one Zuri codebase/release and using the same Integration + Market application contracts. A worker is not an independently owned service.
 
+**Amended by [ADR-108](../../decisions/ADR-108-MARKET-INTELLIGENCE-SERVICE-EXTRACTION.md) (2026-09-24, ownership trigger):** Market translation and `MarketObservation` writes are being extracted into the Market Intelligence service (`services/market-intelligence/`). The service calls core's private façade for authority, raw evidence and audit. Until `MARKET_EXECUTOR=service` is set under a separate operator instruction, the in-process module in `src/modules/market-intelligence` remains the only executor.
+
 ## Related state
 
 - SRS: `docs/domains/market-intelligence/SRS.md`
 - Architecture decision: `docs/decisions/ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY.md`
+- Service extraction: `docs/decisions/ADR-108-MARKET-INTELLIGENCE-SERVICE-EXTRACTION.md`, handoff `docs/migrations/service-extraction/MARKET-INTELLIGENCE-HANDOFF.md`
 - Context map: `docs/domains/market-intelligence/CONTEXT-MAP.md`
 - Persistent initiative state: GitHub issue #74
