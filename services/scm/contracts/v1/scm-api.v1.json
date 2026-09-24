@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.10",
+  "revision": "v1-draft.11",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -302,7 +302,7 @@
       "path": "/v1/inventory/products/{id}/actions",
       "capability": "inventory domain + (OWNER or inventory.catalog.write)",
       "command": "inventory.product.action",
-      "note": "UPDATE (re-keys a corrected description), PHASE_OUT, REACTIVATE by compare-and-swap on version; ARCHIVE and MERGE → 409 SCM_PRODUCT_ACTION_NOT_MIGRATED (their guards read reservations/recipes/work orders not in SCM)"
+      "note": "UPDATE (re-keys a corrected description), PHASE_OUT, REACTIVATE, ARCHIVE (BR-040: no stock, no ACTIVE reservation) and MERGE (plain stock moves through the ledger; identifiers, pack sizes, bundle items and recipes follow the survivor; blocked by BOMs that would change meaning and open work orders — every same-batch survivor recipe named, archived or not, D-22) by compare-and-swap on version"
     },
     {
       "method": "POST",
@@ -358,6 +358,96 @@
       "note": "code, then FlowAccount code, then an ACTIVE identifier (with the pack factor); a merged duplicate is followed to its survivor; a miss is 200 with product null"
     },
     {
+      "method": "POST",
+      "path": "/v1/inventory/recipes",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.recipe.create",
+      "note": "FR-156: one output SKU at one batch size; same-Business components, never the output; code unique per Tenant, (product, batchSize) unique"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/recipes?businessId=&productId=&includeArchived=",
+      "capability": "inventory domain",
+      "note": "by product, batch size; archived hidden unless includeArchived"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/recipes/{id}?quantity=",
+      "capability": "inventory domain",
+      "note": "exploded to quantity (default: batch size) against on-hand from the ledger; maxBuildableQuantity"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/recipes/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.recipe.action",
+      "note": "UPDATE (fields and, when given, the whole line set) / ARCHIVE by compare-and-swap on version"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/recipes/{id}/build",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.recipe.build",
+      "note": "issues every counted component (FEFO) and receives the output in one unit of work; refused whole on shortage (details name the short lines) or a SERIAL component/output"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/de-kitting",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.de-kit",
+      "note": "FR-178: issues finished sets, receives surviving components at the stated location with their landed cost; destroyed lines written off; a CUSTOM_COMPONENT never returns to generic stock; LOT components refused"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/customization-work-orders",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.customization-work-order.open",
+      "note": "FR-176: gross issue = net + scrap buffer; creates the dedicated CUSTOM_COMPONENT output SKU unless one is named"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/customization-work-orders?businessId=&status=&salesOrderId=",
+      "capability": "inventory domain",
+      "note": "newest first"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/customization-work-orders/{id}",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/customization-work-orders/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.customization-work-order.action",
+      "note": "RELEASE (transfer to the workshop, or an on-hand proof) / COMPLETE (worked and scrapped issued separately; output at landed + setup + run cost; buffer returned; short → BLOCKED_SHORTAGE) / CANCEL; compare-and-swap on version"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/kitting-work-orders",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.kitting-work-order.open",
+      "note": "FR-177: output must carry a FlowAccount finished-set SKU; BOM exploded with the scrap allowance and frozen; components checked against ATP (SCM-local reservations, D-21)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/kitting-work-orders?businessId=&status=&salesOrderId=",
+      "capability": "inventory domain",
+      "note": "newest first"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/kitting-work-orders/{id}",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/kitting-work-orders/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.kitting-work-order.action",
+      "note": "RELEASE (stage gross at the line) / COMPLETE (per-set × attempts consumed; sets received at blended landed cost; buffer returned; short → BLOCKED_SHORTAGE) / CANCEL; compare-and-swap on version (W-1)"
+    },
+    {
       "method": "GET",
       "path": "/v1/inventory/stock?businessId=",
       "capability": "inventory domain"
@@ -393,6 +483,7 @@
   "notMigrated": [
     "ADJUSTMENT movements → 409 SCM_MOVEMENT_KIND_NOT_MIGRATED",
     "serial ISSUE → 409 SCM_SERIAL_ISSUE_NOT_MIGRATED (POS refuses serial lines first, as legacy)",
-    "product ARCHIVE / MERGE → 409 SCM_PRODUCT_ACTION_NOT_MIGRATED (guards read reservations, recipes, work orders not in SCM)"
+    "reservation writers (create / RELEASE / CONVERT / expiry stamping) and the public ATP / max-buildable reads → not served; kitting OPEN, ARCHIVE and MERGE read SCM's own StockReservation table and cut over only with them (SCM-HANDOFF D-21)",
+    "standalone stock transfer and warehouse-location writers → not served (stocktake/transfers group); the transfer CORE runs inside work orders"
   ]
 }

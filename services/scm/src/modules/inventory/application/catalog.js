@@ -3,10 +3,13 @@ import {
   bundleAvailability, stockOnHand, zCreateBundle, zCreateCategory, zCreateFactory, zCreateFamily, zCreateProduct, zCreateProductMaster, zProductAction,
 } from '../../../kernel/inventory/inventory.js'
 import { weightedAverageUnitCostSatang } from '../../../kernel/inventory/inventory-costing.js'
-import { lookalikeFingerprint, natureRule, parseVariant, parseVariantAxes, productLifecycleRule, variantKeyFor, variantValues } from '../../../kernel/inventory/inventory-governance.js'
+import { archiveGuard, lookalikeFingerprint, mergeRule, natureRule, parseVariant, parseVariantAxes, productLifecycleRule, variantKeyFor, variantValues } from '../../../kernel/inventory/inventory-governance.js'
 import { denied, inventoryAuthority } from '../../../infrastructure/delegation.js'
 import { enqueueOutbox, recordAudit } from '../../../infrastructure/evidence.js'
+import { appendMovement } from './stock-ledger.js'
 import * as repo from '../adapters/catalog-repo.js'
+import * as identityRepo from '../adapters/identity-repo.js'
+import * as wipRepo from '../adapters/wip-repo.js'
 
 // The Inventory catalogue writers (FR-154, FR-201, FR-202, FR-205, FR-207) inside
 // SCM — port of apps/server inventory-catalog-service with the same codes, the
@@ -17,10 +20,13 @@ import * as repo from '../adapters/catalog-repo.js'
 //             master; lookalike guard unless `allowLookalike`, which is audited),
 //             bundle (same-Business, non-archived SKUs).
 //   actions — UPDATE (descriptive + replenishment fields; a corrected
-//             description is re-keyed and re-checked), PHASE_OUT, REACTIVATE.
-//             ARCHIVE and MERGE are refused here: ARCHIVE's guard reads live
-//             reservations and MERGE re-points recipes, reservations and work
-//             orders — tables whose writers have not moved (SCM-HANDOFF F-13).
+//             description is re-keyed and re-checked), PHASE_OUT, REACTIVATE,
+//             ARCHIVE (BR-040: no stock, no ACTIVE reservation) and MERGE (stock
+//             moves for plain SKUs; identifiers, pack sizes, bundle items and
+//             recipes follow the survivor; blocked by open work orders and BOMs
+//             that would change meaning). The reservation count these guards read
+//             is SCM's own StockReservation table, whose writers move with the ATP
+//             group — ARCHIVE / MERGE cut over only with them (SCM-HANDOFF D-21).
 //   reads   — lists by code; the product page with recomputed on-hand and costing.
 // Writing needs OWNER or `inventory.catalog.write`; reading needs the inventory
 // domain; every refusal of scope is the same 404.
@@ -180,9 +186,59 @@ export function createBundle(sql, scope, input, ctx) {
   return outcome('bundle', { ...row, items: repo.bundleItemsOf(sql, row.id) })
 }
 
-const PRODUCT_ACTIONS = Object.freeze({ UPDATE: 'PRODUCT_UPDATED', PHASE_OUT: 'PRODUCT_PHASED_OUT', REACTIVATE: 'PRODUCT_REACTIVATED' })
+const PRODUCT_ACTIONS = Object.freeze({ UPDATE: 'PRODUCT_UPDATED', ARCHIVE: 'PRODUCT_ARCHIVED', PHASE_OUT: 'PRODUCT_PHASED_OUT', REACTIVATE: 'PRODUCT_REACTIVATED', MERGE: 'PRODUCT_MERGED' })
 const FIELDS = ['name', 'color', 'material', 'unit', 'safetyStock', 'reorderPoint', 'reorderQty', 'leadTimeDays', 'unitsPerCarton', 'cartonCbm', 'cartonKg', 'freightGoodsType']
-const onHandOf = (sql, product) => (product.stockPolicy === 'TRACKED' ? repo.onHandSum(sql, [product.id]).get(product.id) ?? 0 : null)
+const onHandOf = (sql, product) => (product.stockPolicy === 'TRACKED' ? Number(repo.onHandSum(sql, [product.id]).get(product.id) ?? 0) : null)
+
+/**
+ * Everything that would still point at the duplicate after a merge and that a
+ * merge cannot re-point on its own (legacy mergeBlockers, same kinds and order).
+ */
+function mergeBlockers(sql, duplicate, survivor) {
+  const blockers = []
+  for (const item of repo.bundleItemsHolding(sql, duplicate.id)) {
+    if (repo.bundleHolds(sql, item.bundleId, survivor.id)) blockers.push({ kind: 'BUNDLE_HOLDS_BOTH', bundleId: item.bundleId, code: item.bundleCode })
+  }
+  for (const line of wipRepo.recipeLinesNaming(sql, duplicate.id)) {
+    if (line.recipeProductId === survivor.id) { blockers.push({ kind: 'RECIPE_OUTPUT_IS_SURVIVOR', recipeId: line.recipeId, code: line.recipeCode }); continue }
+    if (wipRepo.recipeNames(sql, line.recipeId, survivor.id)) blockers.push({ kind: 'RECIPE_HOLDS_BOTH', recipeId: line.recipeId, code: line.recipeCode })
+  }
+  for (const recipe of wipRepo.recipesProducing(sql, duplicate.id)) {
+    if (wipRepo.recipeNames(sql, recipe.id, survivor.id)) { blockers.push({ kind: 'RECIPE_COMPONENT_IS_SURVIVOR', recipeId: recipe.id, code: recipe.code }); continue }
+    // Legacy checks only a live pair, but UNIQUE (productId, batchSize) also holds
+    // archived rows, so there the re-point died on the constraint (F-15). SCM names
+    // every pair the store would refuse, with the same kind (D-22).
+    const clash = wipRepo.recipeAtBatch(sql, survivor.id, recipe.batchSize)
+    if (clash) {
+      const archivedPair = recipe.status === 'ARCHIVED' || clash.status === 'ARCHIVED'
+      blockers.push({ kind: 'RECIPE_BATCH_SIZE_EXISTS', recipeId: recipe.id, code: recipe.code, batchSize: recipe.batchSize, ...(archivedPair ? { recipeStatus: recipe.status, survivorRecipeStatus: clash.status } : {}) })
+    }
+  }
+  const customization = wipRepo.openCustomizationOrdersOf(sql, duplicate.id)
+  if (customization) blockers.push({ kind: 'OPEN_CUSTOMIZATION_WORK_ORDERS', count: customization })
+  const kitting = wipRepo.openKittingOrdersOf(sql, duplicate.id)
+  if (kitting) blockers.push({ kind: 'OPEN_KITTING_WORK_ORDERS', count: kitting })
+  return blockers
+}
+
+function repointReferences(sql, duplicate, survivor, now) {
+  const identifiers = identityRepo.repointActiveIdentifiers(sql, duplicate.id, survivor.id, now)
+  let conversions = 0
+  let conversionsRetired = 0
+  for (const conversion of identityRepo.conversionsOf(sql, duplicate.id, false)) {
+    if (identityRepo.conversionByUnit(sql, survivor.id, conversion.unit) || conversion.unit === survivor.unit) {
+      identityRepo.retireConversion(sql, conversion.id, now)
+      conversionsRetired += 1
+    } else {
+      identityRepo.moveConversion(sql, conversion.id, survivor.id, now)
+      conversions += 1
+    }
+  }
+  const bundleItems = repo.repointBundleItems(sql, duplicate.id, survivor.id)
+  const recipeLines = wipRepo.repointRecipeLines(sql, duplicate.id, survivor.id)
+  const recipes = wipRepo.repointRecipes(sql, duplicate.id, survivor.id, now)
+  return { identifiers, conversions, conversionsRetired, bundleItems, recipeLines, recipes }
+}
 
 /** The product a command targets, in the caller's Tenant, with Inventory write authority. */
 export function loadProductForWrite(sql, scope, id) {
@@ -199,9 +255,9 @@ export function applyProductAction(sql, scope, id, input, ctx) {
   if (row.version !== data.version) throw failure(409, 'PRODUCT_VERSION_CONFLICT')
   const lifecycle = productLifecycleRule(row, data.action)
   if (!lifecycle.ok) throw failure(409, lifecycle.code)
-  if (data.action === 'ARCHIVE' || data.action === 'MERGE') throw failure(409, 'SCM_PRODUCT_ACTION_NOT_MIGRATED', { action: data.action })
   const change = {}
   const payload = { businessId: row.businessId, code: row.code, ...(data.reason ? { reason: data.reason } : {}) }
+  let survivor = null
   if (data.action === 'UPDATE') {
     for (const key of FIELDS) if (data.fields[key] !== undefined) change[key] = data.fields[key]
     if (row.stockPolicy === 'SERVICE') {
@@ -221,6 +277,34 @@ export function applyProductAction(sql, scope, id, input, ctx) {
       if (data.fields.variant !== undefined) payload.variant = { from: parseVariant(row.variantJson), to: identity.variant }
     }
     payload.fields = Object.keys(change).filter((k) => k !== 'variantJson')
+  } else if (data.action === 'ARCHIVE') {
+    // BR-040: a counted SKU with stock or a live promise stays.
+    const onHand = onHandOf(sql, row)
+    const guard = archiveGuard({ onHand, activeReservations: wipRepo.activeReservationCount(sql, row.id) })
+    if (!guard.ok) throw failure(409, guard.code, { onHand })
+    change.status = 'ARCHIVED'
+    change.archivedAt = ctx.now
+    Object.assign(payload, { from: { status: row.status }, to: { status: 'ARCHIVED' } })
+  } else if (data.action === 'MERGE') {
+    // FR-205 — the anti-bloat repair (ADR-083 D5).
+    survivor = typeof data.into === 'string' ? repo.byId(sql, 'product', data.into) : null
+    const onHand = onHandOf(sql, row)
+    const rule = mergeRule(row, survivor, { onHand, activeReservations: wipRepo.activeReservationCount(sql, row.id) })
+    if (!rule.ok) throw failure(rule.code === 'INVENTORY_MERGE_TARGET_NOT_FOUND' ? 422 : 409, rule.code, { onHand, into: data.into })
+    const blockers = mergeBlockers(sql, row, survivor)
+    if (blockers.length) throw failure(409, 'INVENTORY_MERGE_BLOCKED_BY_REFERENCES', blockers)
+    let moved = 0
+    if (rule.movesStock) {
+      const reference = `MERGE:${row.code}`
+      appendMovement(sql, scope, { businessId: row.businessId, productId: row.id, kind: 'ISSUE', quantity: onHand, reason: 'SKU_MERGE', reference, occurredAt: ctx.now, requestId: ctx.requestId }, { now: ctx.now })
+      appendMovement(sql, scope, { businessId: row.businessId, productId: survivor.id, kind: 'RECEIPT', quantity: onHand, reason: 'SKU_MERGE', reference, occurredAt: ctx.now, requestId: ctx.requestId }, { now: ctx.now })
+      moved = onHand
+    }
+    const repointed = repointReferences(sql, row, survivor, ctx.now)
+    change.status = 'ARCHIVED'
+    change.archivedAt = ctx.now
+    change.mergedIntoProductId = survivor.id
+    Object.assign(payload, { into: { productId: survivor.id, code: survivor.code }, movedQty: moved, repointed, from: { status: row.status }, to: { status: 'ARCHIVED' } })
   } else if (data.action === 'PHASE_OUT') {
     change.status = 'PHASE_OUT'
     Object.assign(payload, { from: { status: row.status }, to: { status: 'PHASE_OUT' }, onHand: onHandOf(sql, row) })
@@ -235,7 +319,11 @@ export function applyProductAction(sql, scope, id, input, ctx) {
   if (repo.casUpdateProduct(sql, { id: row.id, version: row.version, change, now: ctx.now }) !== 1) throw failure(409, 'PRODUCT_VERSION_CONFLICT')
   const fresh = repo.byId(sql, 'product', row.id)
   evidence(sql, scope, { entityType: PRODUCT_ENTITY, row: fresh, action: PRODUCT_ACTIONS[data.action], payload: { ...payload, version: row.version + 1 }, ctx })
-  return { response: { product: productDto(fresh) }, affected: { productId: fresh.id, version: fresh.version, status: fresh.status } }
+  if (survivor) {
+    const version = repo.bumpProductVersion(sql, survivor.id, ctx.now)
+    evidence(sql, scope, { entityType: PRODUCT_ENTITY, row: { ...survivor, version }, action: 'PRODUCT_ABSORBED_MERGE', payload: { businessId: row.businessId, code: survivor.code, from: { productId: row.id, code: row.code }, movedQty: payload.movedQty, repointed: payload.repointed, version }, ctx })
+  }
+  return { response: { product: productDto(fresh) }, affected: { productId: fresh.id, version: fresh.version, status: fresh.status, ...(survivor ? { mergedIntoProductId: survivor.id } : {}) } }
 }
 
 // ── Reads ────────────────────────────────────────────────────────────────────

@@ -118,7 +118,7 @@ test('pricing rules over HTTP: draft → PATCH → approve → active → calcul
   }
 })
 
-test('inventory catalogue over HTTP: create category → master → product, list, page, UPDATE; ARCHIVE not migrated', async () => {
+test('inventory catalogue over HTTP: create category → master → product, list, page, UPDATE, ARCHIVE', async () => {
   const manager = () => delegation({ sub: 'per-http-catalog', grants: { [BIZ]: { owner: false, domains: ['inventory'], permissions: ['inventory.catalog.write'] } } })
   const post = (path, body) => call('POST', path, { token: manager(), key: idem('cat'), body })
   const category = await post('/v1/inventory/categories', { businessId: BIZ, code: 'http-cat', nameTh: 'หมวด', nameEn: 'Category' })
@@ -134,7 +134,7 @@ test('inventory catalogue over HTTP: create category → master → product, lis
   const updated = await post(`/v1/inventory/products/${product.body.product.id}/actions`, { action: 'UPDATE', version: 1, fields: { name: 'Thing medium' } })
   assert.deepEqual([updated.status, updated.body.product.name, updated.body.product.version], [201, 'Thing medium', 2])
   const archive = await post(`/v1/inventory/products/${product.body.product.id}/actions`, { action: 'ARCHIVE', version: 2 })
-  assert.deepEqual([archive.status, archive.body.error.code], [409, 'SCM_PRODUCT_ACTION_NOT_MIGRATED'])
+  assert.deepEqual([archive.status, archive.body.product.status, archive.body.product.version], [201, 'ARCHIVED', 3])
   const invalid = await post('/v1/inventory/products', { businessId: BIZ, code: 'SKU-HTTP-X', productMasterId: master.body.master.id })
   assert.deepEqual([invalid.status, invalid.body.error.code], [422, 'INVENTORY_VARIANT_AXES_INCOMPLETE'])
   assert.ok(invalid.body.error.details)

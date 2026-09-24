@@ -41,6 +41,11 @@ export function casConversion(sql, { id, version, change, now }) {
   return Number(sql.run(`UPDATE ProductUnitConversion SET ${keys.map((k) => `${k} = ?`).join(', ')}${keys.length ? ', ' : ''}version = version + 1, updatedAt = ? WHERE id = ? AND version = ?`, ...keys.map((k) => change[k]), now, id, version).changes)
 }
 
+// ── FR-205 MERGE: identifiers and pack sizes follow the survivor ────────────
+export const repointActiveIdentifiers = (sql, fromId, toId, now) => Number(sql.run("UPDATE ProductIdentifier SET productId = ?, updatedAt = ? WHERE productId = ? AND status = 'ACTIVE'", toId, now, fromId).changes)
+export const retireConversion = (sql, id, now) => sql.run("UPDATE ProductUnitConversion SET status = 'RETIRED', version = version + 1, updatedAt = ? WHERE id = ?", now, id)
+export const moveConversion = (sql, id, toProductId, now) => sql.run('UPDATE ProductUnitConversion SET productId = ?, version = version + 1, updatedAt = ? WHERE id = ?', toProductId, now, id)
+
 export const productByTenantCode = (sql, tenantId, code) => {
   const row = sql.get('SELECT id FROM Product WHERE tenantId = ? AND code = ?', tenantId, code)
   return row ? plain(sql.get('SELECT id, code, tenantId, businessId, productMasterId, name, color, material, unit, stockPolicy, trackingMode, status, mergedIntoProductId, variantJson, variantKey, flowAccountSku, version FROM Product WHERE id = ?', row.id)) : null

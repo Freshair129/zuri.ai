@@ -14,7 +14,7 @@
 import { toPostgres } from './sql-dialect.js'
 
 export const OWNERS = Object.freeze({
-  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem', 'ProductUnitConversion'],
+  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem', 'ProductUnitConversion', 'ProductRecipe', 'ProductRecipeLine', 'CustomizationWorkOrder', 'KittingWorkOrder', 'StockReservation'],
   procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine', 'SupplierCostSheet', 'SupplierCostLine'],
   commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile', 'PricingRuleSet', 'PricingCalculation'],
   scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
@@ -33,8 +33,10 @@ export const OWNERS = Object.freeze({
 // the remaining catalogue columns of InventoryCategory, ProductMaster and Product.
 // v7 (S5.4 identifiers + unit conversions, F-13): ProductUnitConversion; ProductIdentifier
 // is now written here too.
-// Disposable stores only — there is no v1→…→v7 migration (the migration owner writes one).
-export const SCHEMA_VERSION = 7
+// v8 (S5.4 recipes + work orders): ProductRecipe(+Line), CustomizationWorkOrder,
+// KittingWorkOrder; StockReservation (read by ATP; its writers have not moved).
+// Disposable stores only — there is no v1→…→v8 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 8
 
 const TABLES = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
@@ -221,6 +223,66 @@ CREATE TABLE IF NOT EXISTS SupplierCostLine (
   UNIQUE (sheetId, sourceSku, minQty)
 );
 CREATE INDEX IF NOT EXISTS SupplierCostLine_product ON SupplierCostLine (productId, minQty);
+
+-- Recipes (FR-156): a bill of materials for one output SKU at one batch size.
+-- Lines name component SKUs of the same Business; qty is per batch (Float, like legacy).
+CREATE TABLE IF NOT EXISTS ProductRecipe (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), name TEXT NOT NULL, batchSize INTEGER NOT NULL, yieldQty INTEGER NOT NULL,
+  unit TEXT NOT NULL DEFAULT 'EA', notes TEXT, scrapAllowanceFactor REAL NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'ACTIVE', archivedAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code),
+  UNIQUE (productId, batchSize)
+);
+CREATE INDEX IF NOT EXISTS ProductRecipe_business ON ProductRecipe (businessId, status);
+
+CREATE TABLE IF NOT EXISTS ProductRecipeLine (
+  id TEXT PRIMARY KEY, recipeId TEXT NOT NULL REFERENCES ProductRecipe(id), componentProductId TEXT NOT NULL REFERENCES Product(id),
+  qty REAL NOT NULL, unit TEXT, fixed INTEGER NOT NULL DEFAULT 0, note TEXT,
+  UNIQUE (recipeId, componentProductId)
+);
+CREATE INDEX IF NOT EXISTS ProductRecipeLine_component ON ProductRecipeLine (componentProductId);
+
+-- Work orders (FR-176, FR-177) hold intent and progress; the ledger keeps holding fact.
+-- customerId / salesOrderId are opaque references (CRM, Commerce), never joined.
+CREATE TABLE IF NOT EXISTS CustomizationWorkOrder (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  salesOrderId TEXT, customerId TEXT, rawProductId TEXT NOT NULL REFERENCES Product(id), outputProductId TEXT REFERENCES Product(id),
+  technique TEXT NOT NULL, logoArtworkUrl TEXT, pantoneColorsJson TEXT,
+  plannedQty INTEGER NOT NULL, issuedQty INTEGER NOT NULL DEFAULT 0, completedQty INTEGER NOT NULL DEFAULT 0, scrapQty INTEGER NOT NULL DEFAULT 0,
+  scrapAllowanceFactor REAL NOT NULL DEFAULT 0.02, setupCostSatang INTEGER NOT NULL DEFAULT 0, runCostSatang INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'DRAFT', wipLocationId TEXT, scrapLocationId TEXT, sourceLocationId TEXT,
+  scheduledDate TEXT, startedAt TEXT, completedAt TEXT, cancelledAt TEXT, notes TEXT, createdByPersonId TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS CustomizationWorkOrder_business ON CustomizationWorkOrder (businessId, status);
+
+CREATE TABLE IF NOT EXISTS KittingWorkOrder (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  salesOrderId TEXT, customerId TEXT, recipeId TEXT NOT NULL REFERENCES ProductRecipe(id), finishedProductId TEXT NOT NULL REFERENCES Product(id),
+  plannedQty INTEGER NOT NULL, assembledQty INTEGER NOT NULL DEFAULT 0, scrapQty INTEGER NOT NULL DEFAULT 0,
+  laborCostSatang INTEGER NOT NULL DEFAULT 0, unitCostSatang INTEGER, plannedLinesJson TEXT,
+  status TEXT NOT NULL DEFAULT 'DRAFT', sourceLocationId TEXT, wipLocationId TEXT, targetLocationId TEXT, scrapLocationId TEXT,
+  outputLotCode TEXT, startedAt TEXT, completedAt TEXT, cancelledAt TEXT, notes TEXT, createdByPersonId TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS KittingWorkOrder_business ON KittingWorkOrder (businessId, status);
+
+-- Reservations (FR-180): a promise, never a ledger write, never deleted. READ here by
+-- Available-to-Promise (kitting open); the writers have NOT moved (ATP group).
+CREATE TABLE IF NOT EXISTS StockReservation (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), purpose TEXT NOT NULL, quantity INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'ACTIVE', customerId TEXT, salesOrderId TEXT, quoteReference TEXT,
+  customerCompany TEXT, contactHandle TEXT, notes TEXT, reservedAt TEXT NOT NULL, expiresAt TEXT,
+  releasedAt TEXT, convertedAt TEXT, createdByPersonId TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS StockReservation_product ON StockReservation (productId, status);
 
 CREATE TABLE IF NOT EXISTS WarehouseLocation (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, name TEXT NOT NULL,

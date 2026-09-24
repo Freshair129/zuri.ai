@@ -84,6 +84,12 @@
       "kernel": "src/kernel/inventory/inventory-stocktake.js",
       "sourceSha256": "be0a35fbc6c0d96f3cd401e723cbeef4d7d737cb5ce411692f7c405cdb841271",
       "kernelSha256": "be0a35fbc6c0d96f3cd401e723cbeef4d7d737cb5ce411692f7c405cdb841271"
+    },
+    {
+      "source": "apps/server/src/modules/inventory/domain/warehouse-location.js",
+      "kernel": "src/kernel/inventory/warehouse-location.js",
+      "sourceSha256": "6ab4a0562b9f364b31b5f23c62e81f3d551ffa0539f2ffba9ab5685664e72454",
+      "kernelSha256": "41c093e59aff4fd148232d6caf0672f3e3dcef6e10deb78d4519207837713a4c"
     }
   ]
 }

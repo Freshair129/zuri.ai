@@ -9,7 +9,7 @@
 //     i.e. the legacy shape really breaks there, so the guard is necessary,
 //   • without the guard, SQLite still passes — i.e. the SQLite suite alone could
 //     never have shown it (why the PostgreSQL run is required evidence).
-// The working tree is never modified. Usage: node scripts/prove-guards-on-postgres.mjs [--runs=3]
+// The working tree is never modified. Usage: node scripts/prove-guards-on-postgres.mjs [--runs=3] [--only=F-1,W-1]
 import { spawnSync } from 'node:child_process'
 import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -37,6 +37,11 @@ const GUARDS = [
     common: [],
     remove: [['src/infrastructure/schema.js', "CREATE UNIQUE INDEX IF NOT EXISTS SupplierCostSheet_one_confirmed ON SupplierCostSheet (businessId, supplierId) WHERE status = 'CONFIRMED';\n", '']],
   },
+  {
+    finding: 'W-1', guard: 'work-order compare-and-swap (D-20)', test: 'recovery/two-process-kitting',
+    common: [],
+    remove: [['src/modules/inventory/adapters/wip-repo.js', 'updatedAt = ? WHERE id = ? AND version = ?`, ...keys.map', 'updatedAt = ? WHERE id = ? AND CAST(? AS INTEGER) IS NOT NULL`, ...keys.map']],
+  },
 ]
 
 function copyWith(edits) {
@@ -58,8 +63,9 @@ function race(dir, engine, test) {
   return { failed: (summary.fail ?? 1) > 0 || summary.pass === 0, diagnostics: [...r.stdout.matchAll(/ℹ (outcomes|two sheets|same sheet): (.*)/g)].map((m) => `${m[1]}: ${m[2]}`) }
 }
 
+const only = (process.argv.find((a) => a.startsWith('--only=')) ?? '').slice('--only='.length).split(',').filter(Boolean)
 const report = []
-for (const g of GUARDS) {
+for (const g of GUARDS.filter((x) => !only.length || only.includes(x.finding))) {
   const intact = copyWith(g.common)
   const removed = copyWith([...g.common, ...g.remove])
   try {

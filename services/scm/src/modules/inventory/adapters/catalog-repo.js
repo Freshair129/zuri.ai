@@ -64,13 +64,24 @@ export const liveUnderMaster = (sql, masterId, exceptId = null) => sql.all(
   ...[masterId, ...(exceptId ? [exceptId] : [])],
 ).map(plain)
 
-const PRODUCT_CHANGE = new Set(['name', 'color', 'material', 'unit', 'safetyStock', 'reorderPoint', 'reorderQty', 'leadTimeDays', 'unitsPerCarton', 'cartonCbm', 'cartonKg', 'freightGoodsType', 'variantJson', 'variantKey', 'status', 'archivedAt'])
+const PRODUCT_CHANGE = new Set(['name', 'color', 'material', 'unit', 'safetyStock', 'reorderPoint', 'reorderQty', 'leadTimeDays', 'unitsPerCarton', 'cartonCbm', 'cartonKg', 'freightGoodsType', 'variantJson', 'variantKey', 'status', 'archivedAt', 'mergedIntoProductId'])
 /** Compare-and-swap on (id, version): 1 when this writer won. */
 export function casUpdateProduct(sql, { id, version, change, now }) {
   const keys = Object.keys(change)
   for (const k of keys) if (!PRODUCT_CHANGE.has(k)) throw new Error(`product column ${k} is not updatable here`)
   return Number(sql.run(`UPDATE Product SET ${keys.map((k) => `${k} = ?`).join(', ')}${keys.length ? ', ' : ''}version = version + 1, updatedAt = ? WHERE id = ? AND version = ?`, ...keys.map((k) => change[k]), now, id, version).changes)
 }
+
+/** The survivor of a merge records that it absorbed another SKU: version + 1, no other column. */
+export function bumpProductVersion(sql, id, now) {
+  sql.run('UPDATE Product SET version = version + 1, updatedAt = ? WHERE id = ?', now, id)
+  return Number(sql.get('SELECT version FROM Product WHERE id = ?', id).version)
+}
+
+// ── FR-205 MERGE: bundle items that point at a SKU ──────────────────────────
+export const bundleItemsHolding = (sql, productId) => sql.all('SELECT i.id, i.bundleId, b.code AS bundleCode FROM ProductBundleItem i JOIN ProductBundle b ON b.id = i.bundleId WHERE i.productId = ? ORDER BY i.id', productId).map(plain)
+export const bundleHolds = (sql, bundleId, productId) => Boolean(sql.get('SELECT id FROM ProductBundleItem WHERE bundleId = ? AND productId = ?', bundleId, productId))
+export const repointBundleItems = (sql, fromId, toId) => Number(sql.run('UPDATE ProductBundleItem SET productId = ? WHERE productId = ?', toId, fromId).changes)
 
 /** Receipt movements and confirmed-sheet price breaks feed the product page's costing. */
 export const productMovements = (sql, productId) => sql.all('SELECT id, kind, quantity, costSatang, occurredAt, createdAt, reference FROM StockMovement WHERE productId = ? ORDER BY occurredAt DESC, createdAt DESC', productId).map(plain)

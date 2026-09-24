@@ -12,5 +12,10 @@ export * as catalog from './application/catalog.js'
 export * as identity from './application/identity.js'
 /** Product carton facts: Inventory's own writer (with Inventory authority) and the SKU-matching read port. */
 export { setProductCartonAttributes, productCandidates, productFacts } from './application/product-carton.js'
+/** Recipes (FR-156) and the work orders built on them: customization (FR-176), kitting (FR-177), de-kitting (FR-178). */
+export * as recipes from './application/recipes.js'
+export * as customization from './application/customization.js'
+export * as kitting from './application/kitting.js'
+export * as deKitting from './application/de-kitting.js'
 /** On-hand from the ledger (read port for a pre-issue shortage report; the writer re-checks). */
 export { onHandOf } from './adapters/inventory-repo.js'

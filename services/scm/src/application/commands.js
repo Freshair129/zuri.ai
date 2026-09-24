@@ -13,7 +13,7 @@ import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSale
 import { zCreateOrder } from '../kernel/commerce/commerce.js'
 import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
 import { authorizeCatalogue, getPosTerminalCatalogue } from '../modules/commerce/application/pos-catalogue.js'
-import { catalog, identity } from '../modules/inventory/index.js'
+import { catalog, customization, deKitting, identity, kitting, recipes } from '../modules/inventory/index.js'
 import { supplierCostPriceBreaks } from '../modules/procurement/application/supplier-cost-sheets.js'
 import { applyPricingRuleAction, calculatePricing, calculationRequest, createPricingRuleSet, getActivePricingRuleSet, guardCalculationReplay, listPricingRules, loadRuleInScope, ownerBusiness, previewPricingRules, updatePricingRuleSet, zCalculatePricing, zCreatePricingRule } from '../modules/commerce/application/pricing-rules.js'
 
@@ -81,6 +81,16 @@ const COMMANDS = {
   'inventory.unit-conversion.add': { authorize: (sql, scope, { body }) => identity.writerOf(scope, identity.SCHEMAS.conversion, body), execute: (sql, scope, { targetId, body }, ctx) => identity.addUnitConversion(sql, scope, targetId, body, ctx) },
   'inventory.unit-conversion.action': { authorize: (sql, scope, { targetId, body }) => identity.conversionInScope(sql, scope, targetId, body?.conversionId).businessId, execute: (sql, scope, { targetId, body }, ctx) => identity.applyUnitConversionAction(sql, scope, targetId, body, ctx) },
   'inventory.product.flowaccount-sku': { authorize: (sql, scope, { body }) => identity.flowAccountWriter(scope, body), execute: (sql, scope, { targetId, body }, ctx) => identity.setFlowAccountSku(sql, scope, targetId, body, ctx) },
+  // Recipes and work orders (FR-156, FR-176..178): Inventory write on the Business the
+  // body names (create / build / open / action) or the recipe's own (recipe action).
+  'inventory.recipe.create': { authorize: (sql, scope, { body }) => recipes.creatorOf(scope, body), execute: (sql, scope, { body }, ctx) => recipes.createRecipe(sql, scope, body, ctx) },
+  'inventory.recipe.action': { authorize: (sql, scope, { targetId }) => recipes.recipeForWrite(sql, scope, targetId).businessId, execute: (sql, scope, { targetId, body }, ctx) => recipes.applyRecipeAction(sql, scope, targetId, body, ctx) },
+  'inventory.recipe.build': { authorize: (sql, scope, { targetId, body }) => recipes.builderOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => recipes.buildRecipe(sql, scope, targetId, body, ctx) },
+  'inventory.de-kit': { authorize: (sql, scope, { body }) => deKitting.deKitterOf(scope, body), execute: (sql, scope, { body }, ctx) => deKitting.deKitFinishedSets(sql, scope, body, ctx) },
+  'inventory.customization-work-order.open': { authorize: (sql, scope, { body }) => customization.openerOf(scope, body), execute: (sql, scope, { body }, ctx) => customization.openCustomizationWorkOrder(sql, scope, body, ctx) },
+  'inventory.customization-work-order.action': { authorize: (sql, scope, { targetId, body }) => customization.actorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => customization.applyCustomizationWorkOrderAction(sql, scope, targetId, body, ctx) },
+  'inventory.kitting-work-order.open': { authorize: (sql, scope, { body }) => kitting.openerOf(scope, body), execute: (sql, scope, { body }, ctx) => kitting.openKittingWorkOrder(sql, scope, body, ctx) },
+  'inventory.kitting-work-order.action': { authorize: (sql, scope, { targetId, body }) => kitting.actorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => kitting.applyKittingWorkOrderAction(sql, scope, targetId, body, ctx) },
   'commerce.pos.checkout': {
     // Authorization needs the parsed businessId; a malformed body is a 422 before any lookup.
     authorize: (sql, scope, { body }) => commerceAuthority.require(scope, parseCheckout(body).businessId, 'order').id,
@@ -235,6 +245,12 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     identifiers: (scope, productId, options) => store.read((sql) => ({ identifiers: identity.listIdentifiers(sql, scope, productId, options) })),
     unitConversions: (scope, productId, options) => store.read((sql) => identity.listUnitConversions(sql, scope, productId, options)),
     resolve: (scope, query) => store.read((sql) => identity.resolveProduct(sql, scope, query)),
+    recipes: (scope, query) => store.read((sql) => ({ recipes: recipes.listRecipes(sql, scope, query) })),
+    recipe: (scope, id, query) => store.read((sql) => ({ recipe: recipes.getRecipe(sql, scope, id, query) })),
+    customizationWorkOrders: (scope, query) => store.read((sql) => ({ orders: customization.listCustomizationWorkOrders(sql, scope, query) })),
+    customizationWorkOrder: (scope, id) => store.read((sql) => ({ order: customization.getCustomizationWorkOrder(sql, scope, id) })),
+    kittingWorkOrders: (scope, query) => store.read((sql) => ({ orders: kitting.listKittingWorkOrders(sql, scope, query) })),
+    kittingWorkOrder: (scope, id) => store.read((sql) => ({ order: kitting.getKittingWorkOrder(sql, scope, id) })),
     costSheet: (scope, id) => store.read((sql) => ({ sheet: getSupplierCostSheet(sql, scope, id) })),
     costSheets: (scope, query) => store.read((sql) => listSupplierCostSheets(sql, scope, query)),
     pricingRules: (scope, query) => store.read((sql) => listPricingRules(sql, scope, query, clock().toISOString())),

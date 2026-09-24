@@ -2,8 +2,7 @@
 // SCM commands and store. [legacy] tests mirror apps/server
 // tests/integration/fr154-inventory-catalog.test.js and the in-scope cases of
 // fr201-inventory-sku-governance.test.js with the same inputs and expectations;
-// ARCHIVE and MERGE answer SCM_PRODUCT_ACTION_NOT_MIGRATED here (their guards read
-// reservations / recipes / work orders that SCM does not hold — SCM-HANDOFF F-13).
+// ARCHIVE and MERGE (AC-205) are in inventory-lifecycle.test.js.
 import { test, describe, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createHarness, rejects } from '../support/harness.js'
@@ -83,14 +82,15 @@ describe('[legacy] FR-154 Inventory catalogue', () => {
     await assert.rejects(create('category', { code: 'bad code with spaces', nameTh: 'x' }, 'member'), (e) => e.name === 'ZodError')
   })
 
-  test('AC-154.5 — versioned product actions: UPDATE edits fields and a stale version conflicts; ARCHIVE has not moved', async () => {
+  test('AC-154.5 — versioned product actions: UPDATE edits fields, a stale version conflicts, ARCHIVE keeps the row', async () => {
     const product = (await create('product', { code: next('SKU'), productMasterId: master.id, name: 'Before' })).product
     const updated = await act(product, { action: 'UPDATE', version: 1, fields: { name: 'After', safetyStock: 2, color: 'red' } }, 'manager')
     assert.deepEqual([updated.name, updated.safetyStock, updated.color, updated.version, updated.stockPolicy], ['After', 2, 'red', 2, 'TRACKED'])
     await rejects(act(product, { action: 'UPDATE', version: 1, fields: { name: 'x' } }), { status: 409, code: 'PRODUCT_VERSION_CONFLICT' })
-    await rejects(act(product, { action: 'ARCHIVE', version: 2 }), { status: 409, code: 'SCM_PRODUCT_ACTION_NOT_MIGRATED' })
-    await rejects(act(product, { action: 'MERGE', version: 2, into: product.id }), { status: 409, code: 'SCM_PRODUCT_ACTION_NOT_MIGRATED' })
-    assert.deepEqual((await audits(product.id)).map((a) => a.action), ['PRODUCT_CREATED', 'PRODUCT_UPDATED'])
+    await rejects(act(product, { action: 'MERGE', version: 2, into: product.id }), { status: 409, code: 'INVENTORY_MERGE_INTO_SELF' })
+    const archived = await act(product, { action: 'ARCHIVE', version: 2 })
+    assert.deepEqual([archived.status, archived.version], ['ARCHIVED', 3])
+    assert.deepEqual((await audits(product.id)).map((a) => a.action), ['PRODUCT_CREATED', 'PRODUCT_UPDATED', 'PRODUCT_ARCHIVED'])
   })
 
   test('AC-154.6 — a bundle packs same-Business SKUs with quantities and reports the complete sets the ledger allows', async () => {

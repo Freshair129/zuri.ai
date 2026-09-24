@@ -41,6 +41,7 @@ export const KERNEL_FILES = Object.freeze({
   'modules/inventory/domain/inventory-governance.js': 'inventory/inventory-governance.js',
   'modules/inventory/domain/inventory-wip.js': 'inventory/inventory-wip.js',
   'modules/inventory/domain/inventory-stocktake.js': 'inventory/inventory-stocktake.js',
+  'modules/inventory/domain/warehouse-location.js': 'inventory/warehouse-location.js',
 })
 
 const sha256 = (text) => createHash('sha256').update(text).digest('hex')
