@@ -320,5 +320,5 @@ current_tranche: M3
 execution_status: PARTIAL
 merge_status: NOT_MERGED
 production_status: NOT_RUN
-board_update: PENDING
+board_update: DELTA_SENT   # 2026-09-24, comment on #542: https://github.com/Freshair129/zuri.ai/pull/542#issuecomment-5806819890 — integrator has not merged it into the board yet
 ```
