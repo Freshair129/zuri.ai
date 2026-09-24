@@ -407,6 +407,12 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       cutEnd = safeChunkBoundary(content, boundary ?? windowEnd, searchFloor, hardLimit)
       if (cutEnd <= searchFloor) cutEnd = safeChunkBoundary(content, windowEnd, searchFloor, hardLimit)
       if (cutEnd <= searchFloor) cutEnd = Math.min(end, searchFloor + 1)
+      // The whitespace skip above can carry `searchFloor` up to `windowEnd`
+      // when the rest of the window is blank, and `searchFloor + 1` would
+      // then land one past the budget. Never cut past the window's hard
+      // limit; `hardLimit > previousCutEnd` always (the overlap is at most
+      // `overlapChars` < `maxChars`), so forward progress still holds.
+      if (cutEnd > hardLimit) cutEnd = hardLimit
       // Advance past any whitespace the cut landed just before, so the next
       // chunk (and this chunk's own trailing edge) never carries a leading
       // separator into the citation text — parser-1 always started a chunk

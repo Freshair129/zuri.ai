@@ -198,6 +198,15 @@ describe('GenesisRAG17 prose chunker: no sliver after a paragraph cut', () => {
     for (const gap of ['\n\n\n\n', '\n\n\n', '\n\n\n\n\n', '\n \n\t\n\n']) assertNoSliver(`${p1}${gap}${p2}`)
   })
 
+  // Gate round 6 repro: a whitespace run longer than the rest of the window
+  // carried the search floor to the window end, and the fallback cut one past
+  // the budget (a 481-character chunk).
+  it('a whitespace run longer than the window never pushes a chunk past the budget', () => {
+    const p1 = `${'Maintenance inspection certificates remain available everywhere. '.repeat(7).trim()} Certified again, today.`
+    const p2 = englishSentence.repeat(12).trim()
+    for (const gap of ['\n'.repeat(457), ' '.repeat(457), '\n \n'.repeat(433), '\n'.repeat(700)]) assertNoSliver(`${p1}${gap}${p2}`)
+  })
+
   it('mixed Thai/English paragraphs', () => {
     const chunks = assertNoSliver(`${englishSentence.repeat(3)}\n\nย่อหน้าที่สอง ${thaiClause.repeat(10)}\n\n${englishSentence.repeat(6)}`)
     expect(chunks.length).toBeGreaterThanOrEqual(3)
