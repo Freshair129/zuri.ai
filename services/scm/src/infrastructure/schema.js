@@ -14,7 +14,7 @@
 import { toPostgres } from './sql-dialect.js'
 
 export const OWNERS = Object.freeze({
-  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory'],
+  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem'],
   procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine', 'SupplierCostSheet', 'SupplierCostLine'],
   commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile', 'PricingRuleSet', 'PricingCalculation'],
   scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
@@ -29,8 +29,10 @@ export const OWNERS = Object.freeze({
 // ProductIdentifier (Inventory-owned; read for SKU matching, its writers have not moved).
 // v5 (S5.4 POS terminal catalogue): ProductMaster, InventoryCategory (Inventory-owned;
 // read by the catalogue, their writers — the catalogue service — have not moved).
-// Disposable stores only — there is no v1→…→v5 migration (the migration owner writes one).
-export const SCHEMA_VERSION = 5
+// v6 (S5.4 Inventory catalogue writers, F-13): ProductFamily, Factory, ProductBundle(+Item);
+// the remaining catalogue columns of InventoryCategory, ProductMaster and Product.
+// Disposable stores only — there is no v1→…→v6 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 6
 
 const TABLES = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
@@ -43,9 +45,13 @@ CREATE TABLE IF NOT EXISTS Product (
   itemKind TEXT NOT NULL DEFAULT 'RAW_COMPONENT', dedicatedCustomerId TEXT, dedicatedSalesOrderId TEXT,
   maintenanceIntervalDays INTEGER, maxStorageDays INTEGER, reorderPoint INTEGER,
   unitsPerCarton INTEGER, cartonCbm REAL, cartonKg REAL, freightGoodsType TEXT, leadTimeDays INTEGER,
+  color TEXT, material TEXT, archivedAt TEXT, flowAccountSku TEXT, variantJson TEXT NOT NULL DEFAULT '{}',
+  variantKey TEXT, mergedIntoProductId TEXT, reorderQty INTEGER,
   createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
-  UNIQUE (tenantId, code)
+  UNIQUE (tenantId, code),
+  UNIQUE (tenantId, flowAccountSku)
 );
+CREATE INDEX IF NOT EXISTS Product_master_variant ON Product (productMasterId, variantKey);
 
 -- Scannable / legacy codes of a SKU (ADR-083 D3). Read here by the cost-sheet SKU
 -- matcher; the identifier writers (inventory-identity-service) have not moved.
@@ -58,20 +64,51 @@ CREATE TABLE IF NOT EXISTS ProductIdentifier (
 );
 CREATE INDEX IF NOT EXISTS ProductIdentifier_business ON ProductIdentifier (businessId, value);
 
--- The catalogue above a SKU (FR-154): a master names the product family member and
--- sits in one category. Read here by the POS terminal catalogue; written by the
--- Inventory catalogue service, which has not moved.
+-- The catalogue above a SKU (FR-154): category, family, factory and master, plus
+-- bundles of SKUs. Written by Inventory's catalogue writers (application/catalog.js);
+-- read by the POS terminal catalogue and the cost-sheet SKU matcher.
 CREATE TABLE IF NOT EXISTS InventoryCategory (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
-  nameTh TEXT NOT NULL, nameEn TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  nameTh TEXT NOT NULL, nameEn TEXT NOT NULL, slug TEXT, vibe TEXT, targetRecipient TEXT, guardrail TEXT,
+  status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code),
+  UNIQUE (businessId, slug)
+);
+
+CREATE TABLE IF NOT EXISTS ProductFamily (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  name TEXT NOT NULL, description TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE',
   createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
   UNIQUE (tenantId, code)
 );
+
+CREATE TABLE IF NOT EXISTS Factory (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  name TEXT NOT NULL, country TEXT, contact TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS ProductBundle (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  name TEXT NOT NULL, description TEXT, targetRecipients INTEGER, totalPrice REAL, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS ProductBundleItem (
+  id TEXT PRIMARY KEY, bundleId TEXT NOT NULL REFERENCES ProductBundle(id), productId TEXT NOT NULL REFERENCES Product(id), qty INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ProductBundleItem_bundle ON ProductBundleItem (bundleId);
 CREATE INDEX IF NOT EXISTS InventoryCategory_business ON InventoryCategory (businessId, status);
 
 CREATE TABLE IF NOT EXISTS ProductMaster (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
-  categoryId TEXT NOT NULL, nameTh TEXT NOT NULL, nameEn TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  categoryId TEXT NOT NULL, familyId TEXT, factoryId TEXT, nameTh TEXT NOT NULL, nameEn TEXT NOT NULL,
+  baseCost REAL NOT NULL DEFAULT 0, specsJson TEXT NOT NULL DEFAULT '{}', nature TEXT NOT NULL DEFAULT 'GOOD',
+  defaultStockPolicy TEXT NOT NULL DEFAULT 'TRACKED', variantAxesJson TEXT NOT NULL DEFAULT '[]',
+  status TEXT NOT NULL DEFAULT 'ACTIVE',
   createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
   UNIQUE (tenantId, code)
 );

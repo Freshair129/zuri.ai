@@ -48,6 +48,13 @@ export const supersedeConfirmed = (sql, { businessId, supplierId, exceptId, now 
   now, now, businessId, supplierId, exceptId,
 ).changes)
 
+/** Lines of CONFIRMED sheets for one SKU with their sheet and supplier, by minQty then source SKU. */
+export const confirmedLinesOfProduct = (sql, productId) => sql.all(
+  `SELECT l.id, l.sourceSku, l.minQty, l.unitCostForeign, l.unitsPerCarton, l.cartonCbm, l.cartonKg, l.freightGoodsType, l.leadTimeDays,
+          s.id AS sheetId, s.code AS sheetCode, s.currency, s.fxRateLocked, s.sourceSha256, s.confirmedAt, s.supplierId
+   FROM SupplierCostLine l JOIN SupplierCostSheet s ON s.id = l.sheetId
+   WHERE l.productId = ? AND s.status = 'CONFIRMED' ORDER BY l.minQty ASC, l.sourceSku ASC`, productId).map((row) => ({ ...row, supplier: supplierOf(sql, row.supplierId) }))
+
 /** DRAFT → CONFIRMED by compare-and-swap on (id, version, DRAFT). */
 export const confirmSheet = (sql, { id, version, actorId, now }) => Number(sql.run(
   "UPDATE SupplierCostSheet SET status = 'CONFIRMED', confirmedByPersonId = ?, confirmedAt = ?, version = version + 1, updatedAt = ? WHERE id = ? AND version = ? AND status = 'DRAFT'",

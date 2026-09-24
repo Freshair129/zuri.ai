@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.8",
+  "revision": "v1-draft.9",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -214,6 +214,97 @@
       "note": "APPROVE (DRAFT → APPROVED, effectiveFrom not in the past, expiresAt after it) or REVOKE (APPROVED → REVOKED, no dates); compare-and-swap on version"
     },
     {
+      "method": "POST",
+      "path": "/v1/inventory/categories",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.category.create",
+      "note": "code unique per Tenant, slug unique per Business"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/categories?businessId=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/families",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.family.create",
+      "note": "code unique per Tenant"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/families?businessId=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/factories",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.factory.create",
+      "note": "code unique per Tenant"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/factories?businessId=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/product-masters",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.product-master.create",
+      "note": "category/family/factory of the same Business; nature, default stock policy and variant axes fixed here"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/product-masters?businessId=&categoryId=&nature=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.product.create",
+      "note": "the master decides the nature (INVENTORY_NATURE_MISMATCH); variant key unique per master (INVENTORY_PRODUCT_VARIANT_EXISTS); lookalike guard unless allowLookalike (audited); flowAccountSku unique per Tenant (INVENTORY_FLOWACCOUNT_SKU_TAKEN)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/products?businessId=&productMasterId=&stockPolicy=&status=&nature=&includeArchived=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/bundles",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.bundle.create",
+      "note": "same-Business, non-archived SKUs with quantities"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/bundles?businessId=",
+      "capability": "inventory domain",
+      "note": "by code; availableSets from the ledger"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/products/{id}",
+      "capability": "inventory domain",
+      "note": "product + recomputed on-hand + receipt costing + price breaks of CONFIRMED supplier cost sheets"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.product.action",
+      "note": "UPDATE (re-keys a corrected description), PHASE_OUT, REACTIVATE by compare-and-swap on version; ARCHIVE and MERGE → 409 SCM_PRODUCT_ACTION_NOT_MIGRATED (their guards read reservations/recipes/work orders not in SCM)"
+    },
+    {
       "method": "GET",
       "path": "/v1/inventory/stock?businessId=",
       "capability": "inventory domain"
@@ -226,7 +317,7 @@
     {
       "method": "GET",
       "path": "/v1/operations/{action}/{key}?businessId=",
-      "capability": "the action's own domain (procurement.* → procurement, commerce.* → commerce); same actor; a replay that discloses on-hand (goods receipt, POS with stock) also needs the inventory domain; commerce.pricing-* also needs Business OWNER"
+      "capability": "the action's own domain (procurement.* → procurement, commerce.* → commerce, inventory.* → inventory); same actor; a replay that discloses on-hand (goods receipt, POS with stock) also needs the inventory domain; commerce.pricing-* also needs Business OWNER"
     }
   ],
   "errorShape": {

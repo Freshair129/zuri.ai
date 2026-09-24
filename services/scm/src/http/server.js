@@ -43,11 +43,25 @@ const ROUTES = [
   route('POST', '/v1/commerce/pricing-rules/calculate', 'pricing.calculate'),
   route('PATCH', '/v1/commerce/pricing-rules/:id', 'pricing.update'),
   route('POST', '/v1/commerce/pricing-rules/:id/actions', 'pricing.action'),
+  route('POST', '/v1/inventory/categories', 'catalog.category.create'),
+  route('GET', '/v1/inventory/categories', 'catalog.categories.list'),
+  route('POST', '/v1/inventory/families', 'catalog.family.create'),
+  route('GET', '/v1/inventory/families', 'catalog.families.list'),
+  route('POST', '/v1/inventory/factories', 'catalog.factory.create'),
+  route('GET', '/v1/inventory/factories', 'catalog.factories.list'),
+  route('POST', '/v1/inventory/product-masters', 'catalog.product-master.create'),
+  route('GET', '/v1/inventory/product-masters', 'catalog.product-masters.list'),
+  route('POST', '/v1/inventory/products', 'catalog.product.create'),
+  route('GET', '/v1/inventory/products', 'catalog.products.list'),
+  route('POST', '/v1/inventory/bundles', 'catalog.bundle.create'),
+  route('GET', '/v1/inventory/bundles', 'catalog.bundles.list'),
+  route('GET', '/v1/inventory/products/:id', 'catalog.product.get'),
+  route('POST', '/v1/inventory/products/:id/actions', 'catalog.product.action'),
   route('GET', '/v1/inventory/stock', 'stock'),
   route('GET', '/v1/inventory/movements', 'movements'),
   route('GET', '/v1/operations/:action/:key', 'operation'),
 ]
-const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'costsheet.preview': 'procurement.cost-sheet.preview', 'costsheet.commit': 'procurement.cost-sheet.commit', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
+const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'catalog.category.create': 'inventory.category.create', 'catalog.family.create': 'inventory.family.create', 'catalog.factory.create': 'inventory.factory.create', 'catalog.product-master.create': 'inventory.product-master.create', 'catalog.product.create': 'inventory.product.create', 'catalog.bundle.create': 'inventory.bundle.create', 'catalog.product.action': 'inventory.product.action', 'costsheet.preview': 'procurement.cost-sheet.preview', 'costsheet.commit': 'procurement.cost-sheet.commit', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
 
 function send(res, status, body) {
   const text = JSON.stringify(body)
@@ -122,6 +136,12 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
       }
       else if (name === 'order.payments') result = await bus.queries.orderPayments(scope, params.id)
       else if (name === 'payment.get') result = await bus.queries.payment(scope, params.id)
+      else if (name.startsWith('catalog.') && name.endsWith('.list')) {
+        const p = url.searchParams
+        const query = Object.fromEntries([...p.entries()].filter(([k]) => ['businessId', 'categoryId', 'nature', 'productMasterId', 'stockPolicy', 'status', 'includeArchived'].includes(k)).map(([k, v]) => [k, k === 'includeArchived' ? v === 'true' : v]))
+        const which = { 'catalog.categories.list': 'categories', 'catalog.families.list': 'families', 'catalog.factories.list': 'factories', 'catalog.product-masters.list': 'productMasters', 'catalog.products.list': 'products', 'catalog.bundles.list': 'bundles' }[name]
+        result = { [which]: await bus.queries[which](scope, query) }
+      } else if (name === 'catalog.product.get') result = await bus.queries.product(scope, params.id)
       else if (name === 'pos.catalogue') result = await bus.queries.posCatalogue(scope, { businessId: url.searchParams.get('businessId') })
       else if (name === 'costsheet.get') result = await bus.queries.costSheet(scope, params.id)
       else if (name === 'costsheet.list') {

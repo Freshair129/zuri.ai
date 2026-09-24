@@ -13,6 +13,8 @@ import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSale
 import { zCreateOrder } from '../kernel/commerce/commerce.js'
 import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
 import { authorizeCatalogue, getPosTerminalCatalogue } from '../modules/commerce/application/pos-catalogue.js'
+import { catalog } from '../modules/inventory/index.js'
+import { supplierCostPriceBreaks } from '../modules/procurement/application/supplier-cost-sheets.js'
 import { applyPricingRuleAction, calculatePricing, calculationRequest, createPricingRuleSet, getActivePricingRuleSet, guardCalculationReplay, listPricingRules, loadRuleInScope, ownerBusiness, previewPricingRules, updatePricingRuleSet, zCalculatePricing, zCreatePricingRule } from '../modules/commerce/application/pricing-rules.js'
 
 // SCM business commands — the external API's only mutation entry points. A
@@ -25,6 +27,9 @@ import { applyPricingRuleAction, calculatePricing, calculationRequest, createPri
 //      never while holding the writer lock), only when no receipt exists yet,
 //   4. otherwise executes the use case and writes the receipt in the SAME unit
 //      of work, so "committed" and "has a receipt" cannot diverge.
+
+/** Catalogue create: Inventory write authority on the Business the parsed body names (legacy order: parse, then scope). */
+const catalogWriter = (scope, data) => inventoryAuthority.require(scope, data.businessId, { write: true }).id
 
 const PRICING_VIEW = { mayView: (scope, businessId) => commerceAuthority.mayView(scope, businessId) && scope.owns(businessId) }
 
@@ -57,6 +62,18 @@ const COMMANDS = {
   'procurement.cost-sheet.commit': {
     authorize: (sql, scope, { body }) => commitBusiness(scope, body).id,
     execute: (sql, scope, { body }, ctx) => commitSupplierCostSheet(sql, scope, body, ctx),
+  },
+  // Inventory catalogue (FR-154 …): OWNER or inventory.catalog.write; the SKU's own
+  // Business for an action. ARCHIVE/MERGE are refused as not migrated (F-13).
+  'inventory.category.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.category.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createCategory(sql, scope, body, ctx) },
+  'inventory.family.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.family.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createFamily(sql, scope, body, ctx) },
+  'inventory.factory.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.factory.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createFactory(sql, scope, body, ctx) },
+  'inventory.product-master.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.master.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createProductMaster(sql, scope, body, ctx) },
+  'inventory.product.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.product.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createProduct(sql, scope, body, ctx) },
+  'inventory.bundle.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.bundle.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createBundle(sql, scope, body, ctx) },
+  'inventory.product.action': {
+    authorize: (sql, scope, { targetId }) => catalog.loadProductForWrite(sql, scope, targetId).businessId,
+    execute: (sql, scope, { targetId, body }, ctx) => catalog.applyProductAction(sql, scope, targetId, body, ctx),
   },
   'commerce.pos.checkout': {
     // Authorization needs the parsed businessId; a malformed body is a 422 before any lookup.
@@ -126,7 +143,7 @@ const COMMANDS = {
   },
 }
 
-const LOOKUP_VIEW = { commerce: commerceAuthority, procurement: procurementAuthority }
+const LOOKUP_VIEW = { commerce: commerceAuthority, procurement: procurementAuthority, inventory: inventoryAuthority }
 
 export const COMMAND_NAMES = Object.freeze(Object.keys(COMMANDS))
 
@@ -196,6 +213,19 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
       const branches = await references.branches(scope, { businessId: business.id })
       return store.read((sql) => getPosTerminalCatalogue(sql, business, branches))
     },
+    categories: (scope, query) => store.read((sql) => catalog.listCategories(sql, scope, query)),
+    families: (scope, query) => store.read((sql) => catalog.listFamilies(sql, scope, query)),
+    factories: (scope, query) => store.read((sql) => catalog.listFactories(sql, scope, query)),
+    productMasters: (scope, query) => store.read((sql) => catalog.listProductMasters(sql, scope, query)),
+    products: (scope, query) => store.read((sql) => catalog.listProducts(sql, scope, query)),
+    bundles: (scope, query) => store.read((sql) => catalog.listBundles(sql, scope, query)),
+    // The product page: Inventory's half (product, on-hand, costing) and Procurement's
+    // confirmed-sheet price breaks, in one snapshot.
+    product: (scope, id) => store.read((sql) => {
+      const product = catalog.getProduct(sql, scope, id)
+      const supplierCostPriceBreaksOfProduct = supplierCostPriceBreaks(sql, product.id)
+      return { product: { ...product, costing: { ...product.costing, supplierCostPriceBreaks: supplierCostPriceBreaksOfProduct }, supplierCostPriceBreaks: supplierCostPriceBreaksOfProduct } }
+    }),
     costSheet: (scope, id) => store.read((sql) => ({ sheet: getSupplierCostSheet(sql, scope, id) })),
     costSheets: (scope, query) => store.read((sql) => listSupplierCostSheets(sql, scope, query)),
     pricingRules: (scope, query) => store.read((sql) => listPricingRules(sql, scope, query, clock().toISOString())),

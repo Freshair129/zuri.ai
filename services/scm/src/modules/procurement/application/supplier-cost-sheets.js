@@ -203,6 +203,16 @@ export function commitSupplierCostSheet(sql, scope, input, ctx) {
   return outcome({ replayed: false, sheet: sheetDto(repo.loadSheet(sql, { id: row.id })) })
 }
 
+/** The product page's Procurement half: price breaks from CONFIRMED sheets (the caller has authorized the product read). */
+export function supplierCostPriceBreaks(sql, productId) {
+  return repo.confirmedLinesOfProduct(sql, productId).map((line) => ({
+    id: line.id, sourceSku: line.sourceSku, minQty: line.minQty, unitCostForeign: line.unitCostForeign, currency: line.currency, fxRateLocked: line.fxRateLocked,
+    unitCostSatang: supplierCostSatang(line.unitCostForeign, line.fxRateLocked), unitCostBaht: supplierCostBaht(line.unitCostForeign, line.fxRateLocked),
+    unitsPerCarton: line.unitsPerCarton, cartonCbm: line.cartonCbm, cartonKg: line.cartonKg, freightGoodsType: line.freightGoodsType, leadTimeDays: line.leadTimeDays,
+    sheet: { id: line.sheetId, code: line.sheetCode, sourceSha256: line.sourceSha256, confirmedAt: line.confirmedAt, supplier: line.supplier },
+  }))
+}
+
 export function getSupplierCostSheet(sql, scope, id) {
   const sheetId = typeof id === 'string' ? id.trim() : ''
   if (!sheetId) throw denied()

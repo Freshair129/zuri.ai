@@ -6,6 +6,8 @@ export { inventoryAuthority } from '../../infrastructure/delegation.js'
 export { productsByIds } from './adapters/inventory-repo.js'
 /** POS terminal catalogue read port: ACTIVE SKUs with master facts, on-hand per SKU, categories, selling locations. */
 export { catalogueFacts } from './application/catalogue.js'
+/** The Inventory catalogue writers and reads (FR-154, FR-201, FR-202, FR-205, FR-207). */
+export * as catalog from './application/catalog.js'
 /** Product carton facts: Inventory's own writer (with Inventory authority) and the SKU-matching read port. */
 export { setProductCartonAttributes, productCandidates, productFacts } from './application/product-carton.js'
 /** On-hand from the ledger (read port for a pre-issue shortage report; the writer re-checks). */
