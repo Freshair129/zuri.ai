@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.8.2b"
+version: "1.8.3b"
 status: beta
-last_update: "2026-09-24T23:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-24T23:45:00+07:00,Claude Sonnet 5"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -388,7 +388,10 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
   and last-seen times of `NO_EVIDENCE` answers per Business; never admitted.
 - **Studio descriptions (FR-238, later) — declared, not built.** Published rich
   menu, LIFF and bot-profile descriptions as `LINE_STUDIO_DESCRIPTION` TEXT
-  sources; never the JSON.
+  sources; never the JSON. It stays absent from `ZERO_PII_POLICY_BY_PROVIDER`
+  by its own explicit provider descriptor (`knowledge-admission-service.js`),
+  deliberately outside the "Owner-admitted document Zero-PII gate" section
+  below — see that section's scope-boundary note.
 - **Registry.** `docs/DATA-PIPELINE-MAP.md`: CH-21 (FR-235) stays an undeclared
   (`"wired": false`) edge; CH-22 (FR-236) is wired for real now — `p.knowledge-
   candidate-review` (the review process) and `s.knowledge-candidates` (the
@@ -419,17 +422,31 @@ so applying those two rules here would refuse ordinary, approved document
 content (ADR-090 D6's reasoning, applied one level further). A violation stops
 Stage 5 with terminal evidence in the same failure-code family as
 `SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE`
-(`KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED`, 422), the policy identity recorded in
-Stage 5 evidence, and the violated rule named — never the matched value. Both
-TEXT and FILE sources admitted as `KNOWLEDGE_ADMISSION` share the same
-`value.content` path and are covered identically.
+(`KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED`, 422) — never the matched value. As with
+those two providers today, the *persisted* Stage 5 evidence row carries only
+that `errorCode`; the policy identity and the violated rule name are set on
+the thrown error's own `details` (visible to the caller, not persisted to
+`GenesisRag17StageEvidence`) — `zeroPiiPolicy` is recorded in evidence only on
+the success path. Both TEXT and FILE sources admitted as `KNOWLEDGE_ADMISSION`
+share the same `value.content` path and are covered identically.
 `SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE` behaviour is unchanged; their existing
 tests pass byte-identical.
+
+**Scope boundary — FR-238 excluded.** `LINE_STUDIO_DESCRIPTION` (rich menu /
+LIFF app / bot profile copy, ADR-090 D7) used to fall back to the same
+`KNOWLEDGE_ADMISSION` default when it carried no `structured` descriptor, and
+would otherwise have been swept into this gate too — out of scope for C2
+("documents an OWNER admits") and contrary to D7's own no-gate reasoning
+(operator-authored menu/LIFF/profile copy is not customer conversation
+content). It now gets its own explicit `{ provider: 'LINE_STUDIO_DESCRIPTION'
+}` descriptor instead, so it stays outside `ZERO_PII_POLICY_BY_PROVIDER` on
+its own terms.
 
 ## Documentation version diff — 2026-09-16
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.8.2b → 1.8.3b (2026-09-24) | Gate-review fixes: FR-238 (`LINE_STUDIO_DESCRIPTION`) explicitly excluded from the new gate via its own provider descriptor, not the shared `KNOWLEDGE_ADMISSION` fallback; corrected the Stage 5 denial evidence claim — persisted evidence carries only `errorCode`, policy identity/rule name live on the thrown error only | No schema change; documentation and scope correction only |
 | 1.8.1b → 1.8.2b (2026-09-24) | Remediation item C2, owner-approved ("approve"): `KNOWLEDGE_ADMISSION` (owner-admitted TEXT/FILE documents) gains its own Stage 5 Zero-PII gate (`knowledge-document-zero-pii.js`, identity `knowledge-document-zero-pii-1`) — identifier rules only (LINE id, phone, e-mail), reusing FR-236's exported patterns; name/quote rules deliberately excluded | No schema change; a `KNOWLEDGE_ADMISSION` document with an identifier now denies at Stage 5 instead of reaching GKS/GenesisBlockDB unchecked |
 | 1.8.0b → 1.8.1b (2026-09-24) | Remediation-board checklist C4: state which chunker/parser production actually runs (`genesisrag17-executor.js` → `genesisrag17-source.js`'s `parseGenesisRag17Document`, Stage 2/7/8) and that FR-112 `chunking.js` / FR-115 `parsing.js` are composition-tested via `stage-runner.js` but not on that live path; unifying them is left open (C4/C1), no decision taken | Documentation only; no model, route or requirement statement touched |
 | 1.7.1 → 1.8.0b (2026-09-16) | FR-215 implemented locally through four owning-domain read ports with Business-scoped authorization and unavailable/null failure states; the Knowledge Documents surface is bounded to Text/Markdown admission | No model or migration; no GKS/MSP runtime or production activation |

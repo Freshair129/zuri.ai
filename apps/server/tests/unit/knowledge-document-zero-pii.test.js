@@ -75,6 +75,15 @@ describe('knowledge document Zero-PII policy (FR-173, ADR-072 Amendment 2026-09-
     'รหัสสินค้า SKU-00123 มีจำหน่ายตั้งแต่วันที่ 2026-01-15',
     'John Smith Consulting ให้บริการที่ปรึกษาด้านโลจิสติกส์',
     'ราคาต่อชิ้น 1,250 บาท รวมภาษีมูลค่าเพิ่มแล้ว',
+    // Thai EAN-13 barcode: the phone rule's `0\d{1,2}...` branch has no
+    // leading boundary of its own, so an embedded "0123456789" run inside a
+    // longer digit string used to read as a phone number.
+    'บาร์โค้ด 8850123456789',
+    'รหัสบาร์โค้ดสินค้า 8851234567890 พิมพ์บนฉลากทุกชิ้น',
+    // Markdown retina-image reference, routine in a product manual: the
+    // e-mail rule's bare `[a-zA-Z]{2,}` TLD group used to accept `png`.
+    '![logo](logo@2x.png)',
+    '![ไอคอนสาขา](icon@3x.jpg)',
   ]
 
   it.each(MUST_PASS)('does not refuse realistic owner-document prose: %s', (text) => {

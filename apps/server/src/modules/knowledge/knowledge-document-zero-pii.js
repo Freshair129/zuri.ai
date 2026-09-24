@@ -50,16 +50,41 @@ import { LINE_USER_ID_PATTERN, THAI_PHONE_PATTERN, INTERNATIONAL_PHONE_PATTERN }
 /** The policy identity recorded in Stage 5 evidence, so a run says which rule ran. */
 export const DOCUMENT_ZERO_PII_POLICY = 'knowledge-document-zero-pii-1'
 
-// A plain e-mail address. Not reused from the candidate policy — FR-236's
-// candidate prose policy has no e-mail rule, because a LINE FAQ candidate
-// answer is not the shape that carries one; an owner's admitted document is.
-const EMAIL_PATTERN = /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/
+// A plain e-mail address, with two document-only tightenings the candidate
+// policy does not need (it never sees an e-mail rule at all — see the module
+// header). Neither tightening changes THAI_PHONE_PATTERN/LINE_USER_ID_PATTERN
+// themselves, so FR-236's candidate policy is untouched:
+//   - the TLD group excludes common image/file extensions (`png`, `jpg`,
+//     `jpeg`, `gif`, `svg`, `webp`, `bmp`, `ico`), because a Markdown retina
+//     image reference such as `![logo](logo@2x.png)` — routine in an owner's
+//     product manual or catalogue document — otherwise reads as a valid
+//     `logo@2x.png` address. No real TLD collides with these strings.
+const EMAIL_PATTERN = /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(?!png\b|jpe?g\b|gif\b|svg\b|webp\b|bmp\b|ico\b)[a-zA-Z]{2,}\b/
+
+// Document-only guard on THAI_PHONE_PATTERN's `0\d{1,2}...` branch: require
+// that the character immediately before a match is not itself a digit. This
+// is a wrapper around the shared pattern, not an edit to it — the pattern
+// object FR-236's candidate policy imports and matches against is untouched,
+// so that policy's behaviour cannot drift. Without this guard, a Thai EAN-13
+// barcode such as "8850123456789" (routine in a product manual or catalogue
+// document) contains an embedded "0123456789" run that the phone pattern's
+// `0\d{1,2}` branch matches with no leading boundary of its own.
+function hasThaiPhoneMatch(content) {
+  const withGlobalFlag = new RegExp(THAI_PHONE_PATTERN.source, THAI_PHONE_PATTERN.flags.includes('g') ? THAI_PHONE_PATTERN.flags : `${THAI_PHONE_PATTERN.flags}g`)
+  let match
+  while ((match = withGlobalFlag.exec(content))) {
+    const precedingChar = match.index > 0 ? content[match.index - 1] : ''
+    if (!/[0-9]/.test(precedingChar)) return true
+    if (withGlobalFlag.lastIndex === match.index) withGlobalFlag.lastIndex += 1 // guard against a zero-length match looping forever
+  }
+  return false
+}
 
 const CHECKS = Object.freeze([
-  ['line_user_id', LINE_USER_ID_PATTERN],
-  ['phone_number', THAI_PHONE_PATTERN],
-  ['phone_number', INTERNATIONAL_PHONE_PATTERN],
-  ['email_address', EMAIL_PATTERN],
+  ['line_user_id', (text) => LINE_USER_ID_PATTERN.test(text)],
+  ['phone_number', hasThaiPhoneMatch],
+  ['phone_number', (text) => INTERNATIONAL_PHONE_PATTERN.test(text)],
+  ['email_address', (text) => EMAIL_PATTERN.test(text)],
 ])
 
 /**
@@ -71,8 +96,8 @@ const CHECKS = Object.freeze([
  */
 export function findDocumentProseViolation(content) {
   if (typeof content !== 'string' || !content) return null
-  for (const [term, pattern] of CHECKS) {
-    if (pattern.test(content)) return { term }
+  for (const [term, test] of CHECKS) {
+    if (test(content)) return { term }
   }
   return null
 }

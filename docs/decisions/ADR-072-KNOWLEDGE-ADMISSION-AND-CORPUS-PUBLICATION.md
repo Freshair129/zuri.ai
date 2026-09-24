@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-072
 title: Knowledge admission and corpus publication
-version: "1.0.4b"
+version: "1.0.4c"
 status: beta
 created_at: "2026-09-08T16:30:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-24T23:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-24T23:45:00+07:00,Claude Sonnet 5"
 relations:
   - type: references
     target: ZAI:ADR-073
@@ -67,11 +67,28 @@ record the policy identity in Stage 5 evidence as done for SMARTGIFT_CATALOG".
 provider `KNOWLEDGE_ADMISSION` into `genesisrag17-executor.js`
 (`apps/server/src/modules/knowledge/knowledge-runtime.js:358`). Before this
 amendment, `ZERO_PII_POLICY_BY_PROVIDER`
-(`apps/server/src/platform/integrations/core/genesisrag17-executor.js:90`)
-named only `SMARTGIFT_CATALOG` (FR-187) and `LINE_FAQ_CANDIDATE` (FR-236); a
-provider absent from that map "carries no Stage 5 Zero-PII gate at all" (the
-map's own comment), so an owner document containing a phone number or a LINE
-user id reached GKS/GenesisBlockDB with no check.
+(`apps/server/src/platform/integrations/core/genesisrag17-executor.js:104`,
+after this amendment's own comment lines — it was `:90` beforehand) named only
+`SMARTGIFT_CATALOG` (FR-187) and `LINE_FAQ_CANDIDATE` (FR-236); a provider
+absent from that map "carries no Stage 5 Zero-PII gate at all" (the map's own
+comment), so an owner document containing a phone number or a LINE user id
+reached GKS/GenesisBlockDB with no check.
+
+**Scope boundary — FR-238 is deliberately excluded.** `KNOWLEDGE_ADMISSION` is
+not the only provider that used to fall back to it: before this amendment,
+`LINE_STUDIO_DESCRIPTION` (FR-238, ADR-090 D7 — a rich menu / LIFF app / bot
+profile's operator-authored copy) had no `structured` descriptor either
+(`knowledge-admission-service.js`), so it also took the runtime's
+`structured?.provider || 'KNOWLEDGE_ADMISSION'` default and would silently
+have started running this new gate. That is out of scope for C2 (approved for
+"documents an OWNER admits", not operator-authored menu/LIFF/profile copy) and
+contrary to D7's own reasoning. So this amendment also gives
+`LINE_STUDIO_DESCRIPTION` its own explicit `{ provider:
+'LINE_STUDIO_DESCRIPTION', ... }` descriptor in `knowledge-admission-service.js`,
+which stays absent from `ZERO_PII_POLICY_BY_PROVIDER` — D7's no-gate decision
+keeps holding on its own terms, not by accident of a shared fallback.
+`fr238-line-studio-description-admission.test.js` is unchanged in behaviour by
+this amendment.
 
 **Rule set adopted — reused, not copied:** `KNOWLEDGE_ADMISSION` now runs a new
 provider-scoped policy, identity `knowledge-document-zero-pii-1`
@@ -99,15 +116,24 @@ argument.
 DOCUMENT_ZERO_PII_POLICY }` is added to `ZERO_PII_POLICY_BY_PROVIDER`. A
 violation stops the run at Stage 5 with terminal `STEP_FAILED` evidence, the
 same failure code family as `SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE`
-(`KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED`, status 422), the policy identity
-recorded in Stage 5 evidence (`zeroPiiPolicy: 'knowledge-document-zero-pii-1'`,
-matching how `smartgift-zero-pii-1` is already recorded for
-`SMARTGIFT_CATALOG`), and the violated rule named — **never the matched value
-itself**, so evidence cannot leak the PII it caught. Both a TEXT source and a
-FILE source admitted as `KNOWLEDGE_ADMISSION` reach Stage 5 through the same
-`value.content` field and are covered by the same path.
-`SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE` behaviour is byte-identical to before
-this amendment; their existing tests are unchanged and still pass.
+(`KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED`, status 422) — **never the matched value
+itself**, so evidence cannot leak the PII it caught. This matches
+`SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE` denials exactly, including a detail
+worth stating precisely rather than glossing over: the executor's generic
+failure path (`runLocalStage` in `genesisrag17-executor.js`) persists only
+`{ errorCode: failureCode }` into the Stage 5 evidence row for *every*
+provider's denial — the policy identity and the violated rule name live on
+the *thrown error's* `details` (`assertDocumentProseZeroPii`,
+`assertCandidateProseZeroPii`, `assertZeroPii` each set them), which the
+caller sees and can log, but which is not itself persisted to
+`GenesisRag17StageEvidence`. `zeroPiiPolicy` is recorded in Stage 5 evidence
+only on the **success** path (the non-throwing branch, where the source
+passed the gate) — this is pre-existing behaviour for `SMARTGIFT_CATALOG`,
+unchanged here. Both a TEXT source and a FILE source admitted as
+`KNOWLEDGE_ADMISSION` reach Stage 5 through the same `value.content` field and
+are covered by the same path. `SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE`
+behaviour is byte-identical to before this amendment; their existing tests are
+unchanged and still pass.
 
 **Production note:** SmartGift production sources use provider
 `SMARTGIFT_CATALOG`, so this changes no published record. The one production
@@ -162,6 +188,7 @@ flowchart TB
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.4b | 2026-09-24 | beta | Amendment: KNOWLEDGE_ADMISSION (owner-admitted TEXT/FILE documents) gets its own Stage 5 Zero-PII gate, identity `knowledge-document-zero-pii-1` (identifier rules only — LINE id, phone, e-mail; no name/quote rules); owner approved remediation item C2 2026-09-24 ("approve") | working-tree | Claude Sonnet 5 |
+| 1.0.4c | 2026-09-24 | beta | Fixes after gate review: FR-238 (`LINE_STUDIO_DESCRIPTION`) explicitly excluded from the new gate (its own provider descriptor, not the shared `KNOWLEDGE_ADMISSION` fallback), so ADR-090 D7's no-gate decision is unaffected; corrected the Wiring paragraph — a Stage 5 denial's persisted evidence carries only `errorCode`, never the policy identity or rule name (those live on the thrown error only, same as `SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE` today); corrected the `ZERO_PII_POLICY_BY_PROVIDER` line reference | working-tree | Claude Sonnet 5 |
 | 1.0.3b | 2026-09-16 | beta | Bound `/knowledge/documents` to the existing Text/Markdown admission path and removed unsupported direct JSON/catalog and binary intake claims; local/isolated evidence only | working-tree | RWANG |
 | 1.0.2b | 2026-09-14 | beta | Pointer only: D1 gains the `LINE_FAQ_CANDIDATE` and `LINE_STUDIO_DESCRIPTION` TEXT source kinds under ADR-090 | working-tree | Claude Opus 5 |
 | 1.0.1b | 2026-09-08 | beta | Record isolated Business surface/native acceptance and distinguish Project/API-grant test evidence | 03256b74 + integration | RWANG |

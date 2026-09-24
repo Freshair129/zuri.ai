@@ -60,7 +60,7 @@ describe('GenesisRAG17 Tier 1 — KNOWLEDGE_ADMISSION Stage 5 Zero-PII gate (FR-
     status: 'PENDING',
   })
 
-  it('stops a TEXT document containing a phone number at Stage 5 with terminal evidence carrying the document policy identity', async () => {
+  it('stops a TEXT document containing a phone number at Stage 5 with terminal evidence carrying the KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED errorCode (the thrown error itself carries the policy identity and rule name, matching how SMARTGIFT_CATALOG/LINE_FAQ_CANDIDATE denials behave today — see the executor\'s generic failure path)', async () => {
     const raw = input('นโยบายการจัดส่ง: ติดต่อเจ้าหน้าที่ที่เบอร์ 081-234-5678 ทุกวันจันทร์ถึงศุกร์')
     let thrown
     try {
@@ -95,6 +95,27 @@ describe('GenesisRAG17 Tier 1 — KNOWLEDGE_ADMISSION Stage 5 Zero-PII gate (FR-
     }
     expect(thrown).toMatchObject({ status: 422, code: 'KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED', details: { policy: 'knowledge-document-zero-pii-1', term: 'line_user_id' } })
     expect(JSON.stringify(thrown.details || {})).not.toContain(lineId)
+
+    const intent = await prisma.genesisRag17IngestionIntent.findFirst({ where: { sourceId: raw.sourceId } })
+    const evidence = await prisma.genesisRag17StageEvidence.findMany({ where: { executionRunId: intent.executionRunId }, orderBy: { stageNumber: 'asc' } })
+    expect(evidence.map((row) => row.stageNumber)).toEqual([1, 2, 3, 4, 5])
+    expect(evidence.at(-1)).toMatchObject({ stageNumber: 5, outcome: 'FAILED', errorCount: 1 })
+  })
+
+  // @req FR-173 — the docs (ADR-072 Amendment, CHARTER, flow doc) say a FILE
+  // source is covered by the same Stage 5 path as TEXT because the executor
+  // never branches on sourceType — only `value.content` matters. Prove it
+  // rather than argue it: pass `sourceType: 'FILE'` through the real
+  // executor and confirm the same denial.
+  it('stops a FILE source containing a phone number at Stage 5, the same as a TEXT source', async () => {
+    const raw = input('คู่มือการใช้งาน: ติดต่อฝ่ายสนับสนุนที่ 081-234-5678', { sourceType: 'FILE' })
+    let thrown
+    try {
+      await ingestGenesisRag17Raw(raw, { db: prisma, viewer, now, transport, credential: 'test-source' })
+    } catch (error) {
+      thrown = error
+    }
+    expect(thrown).toMatchObject({ status: 422, code: 'KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED', details: { policy: 'knowledge-document-zero-pii-1', term: 'phone_number' } })
 
     const intent = await prisma.genesisRag17IngestionIntent.findFirst({ where: { sourceId: raw.sourceId } })
     const evidence = await prisma.genesisRag17StageEvidence.findMany({ where: { executionRunId: intent.executionRunId }, orderBy: { stageNumber: 'asc' } })
