@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-CONTRACT
 title: GenesisRAG17 isolated execution wire contract
-version: "1.4.0b"
+version: "1.4.1b"
 status: active
 created_at: "2026-09-07T23:00:00+07:00,RWANG"
-last_update: "2026-09-11T12:30:00+07:00,Claude Opus 5"
+last_update: "2026-09-24T00:00:00+07:00,Claude Sonnet 5"
 attributes:
   domain: knowledge
   scope: isolated seventeen-stage acceptance implementation
@@ -17,9 +17,11 @@ relations:
 
 Version 1.3.1b records the user-approved code-audit remediation; wire `genesisrag17.v1` is unchanged.
 Version 1.4.0b records ADR-075 D6 / FR-188 (structured-record profile, contract revision 2):
-`ontology_v2` and `genesisrag17-parser-2`. **Both pins take effect when the GKS
-`ontology_v2` PR is merged (rollout step 2)**; until then GKS produces and the gate
-accepts `ontology_v1` only, and no parser-2 batch is sent. The wire schema stays
+`ontology_v2` and `genesisrag17-parser-2`. **Both pins have been in effect since
+2026-09-21 on the production edge deployment (GKS `ecf1e4de`, GenesisBlock
+`5156f412`, MSP `68e6169d` per `apps/server/deploy/ki17/pins.json`, rollout step 2)**;
+GKS produces and the gate accept both `ontology_v1` and `ontology_v2`, and
+parser-2 batches are sent for `SMARTGIFT_CATALOG` sources. The wire schema stays
 `genesisrag17.v1` and no field is added.
 Read [the stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and
 [execution/extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) before adding fields
@@ -43,10 +45,11 @@ Stage identity is `{runId,pipelineStageId,executionStepId,attemptId}`. `runId` i
 
 ### Tier 1 Stage 2/7/8 profiles (FR-188, ADR-075 D6)
 
-Tier 1-internal identities; none crosses the wire as a field. **Effective when the GKS
-`ontology_v2` PR is merged (rollout step 2)**; zuri-ai sends parser-2 batches only at
-rollout step 3, after the GenesisBlock worker (step 1) and GKS (step 2) accept both
-ontology versions.
+Tier 1-internal identities; none crosses the wire as a field. **In effect since
+2026-09-21 on the production edge deployment (GKS `ecf1e4de`, GenesisBlock
+`5156f412`, MSP `68e6169d` per `apps/server/deploy/ki17/pins.json`)**: the
+GenesisBlock worker (rollout step 1) and GKS (step 2) accept both ontology
+versions, and zuri-ai sends parser-2 batches (step 3).
 
 - `genesisrag17-parser-1` + recognizer `rule_v1`: every prose source. Unchanged.
 - `genesisrag17-parser-2` + recognizer `genesisrag17-structured-recognizer-1`: sources
@@ -71,7 +74,7 @@ ontology versions.
 MSP names below relay to the same suffix with `gks_` replacing `msp_`. Provider methods may use suffix names. Requests and results below include schemaVersion and exact scope unless stated.
 
 1. `msp_pipeline_submit`: `{batch}` -> `{batchId,decisionId,status}`. Batch is `{schemaVersion,batchId,idempotencyKey,scope,runId,stages,source,policy,chunks,mentions}`. `source` is `{sourceId,rawArtifactId,parsedArtifactId,documentId,version,contentHash,content}`. `chunks[]` is `{chunkId,parsedArtifactId,ordinal,text,contentHash,startOffset,endOffset}`; offsets must identify exact source substrings. `mentions[]` is `{sourceMentionId,resolutionKey,semanticType,name,chunkId,startOffset,endOffset}`; offsets are chunk-local and must match the name. `policy` is `{allowEmbedding:true,allowPublication:true}` (false explicitly denies). `batchId` and idempotencyKey remain stable across lost replies. GKS validates source and chunk hashes/positions before canonical processing. `decisionId` may initially be null if processing pending.
-2. `msp_pipeline_claim`: `{limit:1}` -> `{decisions:[decision]}`. No destructive dequeue. Return pending decisions until final publication acknowledged; worker receipt idempotency prevents duplicated writes. Decision is `{schemaVersion,decisionId,decisionHash,batchId,scope,runId,stages,source,chunks,entities,facts,held,derived,policy,ontologyVersion,pipelineVersion:"genesisrag17.v1"}`. `ontologyVersion` is `"ontology_v1"` until rollout step 2; **effective when the GKS `ontology_v2` PR is merged**, it is one of the fixed supported set `{"ontology_v1","ontology_v2"}`, GKS produces `"ontology_v2"`, in-flight v1 decisions complete under v1 rules, and GKS (Stage 17) and the worker (Stage 13) validate each decision against its own version's table. `ontology_v2` is a strict superset of `ontology_v1` (`WORKS_FOR` PERSON→ORGANIZATION and `PURCHASED` PERSON|ORGANIZATION→PRODUCT unchanged) that adds `HAS_COMPONENT` PACKAGE→PRODUCT, `PRICED_AT` PRODUCT|PACKAGE→PRICE_TIER and `IN_CATEGORY` PRODUCT|PACKAGE→CATEGORY; endpoint types are `PERSON`, `ORGANIZATION`, `PRODUCT`, `PACKAGE`, `CATEGORY`, `PRICE_TIER`. There is no `PACKAGED_AS` and no `OFFER`. The fact shape is unchanged (a tier-qualified price is a distinct `PRICE_TIER` entity, Option A). decisionHash is canonical hash of the decision excluding decisionHash. Every fact/derived row has stable id and source references `{sourceId,rawArtifactId,parsedArtifactId,chunkId,sourceMentionIds}`. Facts include subjectId,predicate,objectId OR value,confidence,temporal. Entities have id,name,semanticType,mentions. Payload belongs in GKS/worker; zuri ledger stores counts only.
+2. `msp_pipeline_claim`: `{limit:1}` -> `{decisions:[decision]}`. No destructive dequeue. Return pending decisions until final publication acknowledged; worker receipt idempotency prevents duplicated writes. Decision is `{schemaVersion,decisionId,decisionHash,batchId,scope,runId,stages,source,chunks,entities,facts,held,derived,policy,ontologyVersion,pipelineVersion:"genesisrag17.v1"}`. `ontologyVersion` is one of the fixed supported set `{"ontology_v1","ontology_v2"}`; **in effect since 2026-09-21 on the production edge deployment (GKS `ecf1e4de`, GenesisBlock `5156f412`, MSP `68e6169d` per `apps/server/deploy/ki17/pins.json`)**, GKS produces `"ontology_v2"`, in-flight v1 decisions complete under v1 rules, and GKS (Stage 17) and the worker (Stage 13) validate each decision against its own version's table. `ontology_v2` is a strict superset of `ontology_v1` (`WORKS_FOR` PERSON→ORGANIZATION and `PURCHASED` PERSON|ORGANIZATION→PRODUCT unchanged) that adds `HAS_COMPONENT` PACKAGE→PRODUCT, `PRICED_AT` PRODUCT|PACKAGE→PRICE_TIER and `IN_CATEGORY` PRODUCT|PACKAGE→CATEGORY; endpoint types are `PERSON`, `ORGANIZATION`, `PRODUCT`, `PACKAGE`, `CATEGORY`, `PRICE_TIER`. There is no `PACKAGED_AS` and no `OFFER`. The fact shape is unchanged (a tier-qualified price is a distinct `PRICE_TIER` entity, Option A). decisionHash is canonical hash of the decision excluding decisionHash. Every fact/derived row has stable id and source references `{sourceId,rawArtifactId,parsedArtifactId,chunkId,sourceMentionIds}`. Facts include subjectId,predicate,objectId OR value,confidence,temporal. Entities have id,name,semanticType,mentions. Payload belongs in GKS/worker; zuri ledger stores counts only.
 3. `msp_pipeline_write_receipt`: `{receipt}` -> `{accepted:true,receiptHash}`. Receipt is `{schemaVersion,scope,runId,decisionId,decisionHash,stages,snapshotId,generation,model,transaction,readback,laneManifest,metrics,benchmark}`. `model` = `{id:"intfloat/multilingual-e5-small",revision:"614241f622f53c4eeff9890bdc4f31cfecc418b3",dimensions:384,metric:"cosine",artifactHashes:{path:sha256}}`. `transaction` = `{id,frontier,checkpoint}` (actual native values represented as JSON-safe strings). `readback` = `{ok,nodeCount,edgeCount,vectorCount,citationCount}` from actual reads. laneManifest has vector,lexical,graph,sqlite,bitemporal,provenance each `{status:"ready"|"not_applicable"|"unsupported",reason,objects}`. Unsupported required capability fails gate. `metrics` maps stage numbers 13,15,16 to all six counters. `benchmark` = `{fixtureVersion,queryCount,recallAt5,mrr,citationCorrectness,crossTenantLeaks}` derived from real queries on frozen fixtures. Runtime identity supplied by authenticated MSP is reporter authority.
 4. `msp_pipeline_gate`: `{decisionId,decisionHash}` -> `{verdict}`. Verdict = `{schemaVersion,scope,runId,decisionId,decisionHash,snapshotId,generation,receiptHash,verdict:"PASS"|"WARN"|"FAIL",allowPublication,dimensions}`. Each dimension data,graph,knowledge,security,retrieval has `{result:"PASS"|"WARN"|"FAIL",critical:boolean,reasons:[]}`. GKS evaluates immutable source/facts/policy and matching physical receipt; missing receipt cannot pass. Recall@5 >= .80, MRR >= .65, citation correctness == 1, cross tenant leaks == 0. No inferred success or synthesized zero metrics.
 5. `msp_pipeline_publication_receipt`: `{receipt}` -> `{accepted:true}`. Receipt is `{schemaVersion,scope,runId,decisionId,decisionHash,snapshotId,generation,receiptHash,publishedAt,pointerHash,modelRevision,transactionFrontier,readback:{ok:true}}`. GKS checks against exact allowed verdict/write receipt before storing, then emits Stage17 terminal evidence. Duplicate identical receipt succeeds; different content for same identity conflicts.
@@ -170,11 +173,16 @@ engine/model revisions.
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 1.4.1b | 2026-09-24 | active | Wording only, D5 remediation: record that the `ontology_v2` / `genesisrag17-parser-2` pins from 1.4.0b are in effect on the production edge deployment since 2026-09-21, not still conditional on a future merge; no wire field, pin value or stage identity changed | Claude Sonnet 5 |
 | 1.3.0b | 2026-09-08 | active | User-approved audit repairs: semantic correctness, durable recovery, measured evidence and PASS-only atomic publication | RWANG |
 | 1.2.1b | 2026-09-08 | active | Consolidate current nine-operation authority, graph receipt ordering and extension navigation; wire unchanged | RWANG |
 | 1.0.0b | 2026-09-07 | active | User-approved isolated execution and wire freeze | RWANG |
 | 1.1.0b | 2026-09-07 | active | Separate graph acknowledgement preserves actual 13 -> 14 -> 15 -> 16 execution order and operation timestamps | RWANG |
 | 1.2.0b | 2026-09-07 | active | Authenticated stage failures terminate honestly; publication receipt required only for successful completion | RWANG |
+
+## Version diff 1.4.0b → 1.4.1b
+
+Production evidence (2026-09-24, verified read-only on 2026-09-24): 38 Stage 17 gate verdicts carry `ontologyVersion: "ontology_v2"` and 38 of 40 `KnowledgeParsedArtifact` rows are `genesisrag17-parser-2`, on the production edge deployment pinned at GKS `ecf1e4de`, GenesisBlock `5156f412`, MSP `68e6169d` (`apps/server/deploy/ki17/pins.json`). The three passages above that said the 1.4.0b pins "take effect when the GKS `ontology_v2` PR is merged" now read "in effect since 2026-09-21 on the production edge deployment"; no wire field, pin value or stage identity changed.
 
 ## Version diff 1.3.0b → 1.3.1b
 
