@@ -2,7 +2,7 @@
 id: ZAI:SCM-HANDOFF
 version: "0.1.0b"
 status: candidate
-last_update: "2026-09-24T21:30:00+07:00,Claude Opus 5.5 (Session 5)"
+last_update: "2026-09-24T22:30:00+07:00,Claude Opus 5.5 (Session 5)"
 attributes:
   domain: inventory
   scope: session-5-scm-service-extraction-handoff
@@ -18,8 +18,8 @@ relations:
 **Owner:** Session 5. **Branch:** `feat/scm-service-extraction`, worktree
 `.claude/worktrees/scm-service-extraction`. **Base:** `main` @ `fad8ec62`.
 **Tested implementation SHAs:** `7726b99b` (S5.1 + receipt slice),
-`f60fceb6` (S5.4 POS checkout), `3b522a9d` (S5.4 payments) and `ce304e84`
-(S5.4 sales orders). This file is updated in doc-only commits after
+`f60fceb6` (S5.4 POS checkout), `3b522a9d` (S5.4 payments), `ce304e84`
+(S5.4 sales orders) and `d160acaf` (S5.4 revenue read model). This file is updated in doc-only commits after
 each of them. **PR:** [#546](https://github.com/Freshair129/zuri.ai/pull/546) — OPEN / DRAFT, not for merge. **Merge:** NOT_MERGED.
 **Production:** NOT_RUN. Nothing routes to the SCM process; no data, stock,
 price or credential was touched.
@@ -33,10 +33,10 @@ default).
 
 | Axis | Result | Evidence |
 |---|---|---|
-| CODE_IMPLEMENTED | PARTIAL | S5.1 pricing kernel; S5.3 PO → GRN → stock → PO slice; S5.4 POS checkout, payments (record / verify / reject / refund) and sales orders (create / actions / fulfilment / list). The revenue read model, cost sheet, pricing rules/catalog and billing are not moved |
-| PRICING_PARITY_VERIFIED | PASS | 64 pinned cases (47 priced, 17 refused). The legacy recorder and the SCM kernel reproduce the same golden (§6) |
+| CODE_IMPLEMENTED | PARTIAL | S5.1 pricing kernel; S5.3 PO → GRN → stock → PO slice; S5.4 POS checkout, payments (record / verify / reject / refund), sales orders (create / actions / fulfilment / list) and the revenue read model. Cost sheet, pricing rules/calculation/catalog, billing and the POS terminal catalogue are not moved |
+| PRICING_PARITY_VERIFIED | PASS | 64 pinned cases (47 priced, 17 refused). The legacy recorder and the SCM kernel reproduce the same golden (§6). Revenue parity: 7 pinned queries, legacy-recorded golden, SCM reproduces it from its own store (§4.4) |
 | TRANSACTION_INVARIANTS_VERIFIED | PARTIAL | Receipt, POS, payment and sales-order groups: injected-fault rollback, CAS interleaving (receipt, payment, order), two-process SQLite contention (receipt, POS oversell, refund ceiling, fulfilment over scarce stock) |
-| ISOLATED_TESTS_VERIFIED | PASS | 150 service tests (149 pass, 1 NOT_RUN on Windows), no Next.js/DB/global setup, about 4.9 s |
+| ISOLATED_TESTS_VERIFIED | PASS | 158 service tests (157 pass, 1 NOT_RUN on Windows), no Next.js/DB/global setup, about 5 s |
 | CORE_CONTRACT_VERIFIED | NOT_RUN | `scm.delegation.v1` and the ReferenceAuthority port are PROPOSED; the issuer and the reference owners are synthetic in tests |
 | CONSUMER_INTEGRATION_VERIFIED | NOT_RUN | No BFF/route calls SCM; legacy routes are unchanged |
 | DATA_OWNERSHIP_ENFORCED | NOT_RUN | Service-local disposable SQLite only; no restricted role; no transfer |
@@ -69,7 +69,8 @@ default).
 | Pricing rules lifecycle, calculation, catalog freeze/admission | SHARED_TRANSITION | Commerce | `pricing-rules-service`, `pricing-catalog-service` | rule CAS; calculation + idempotency; then Files + Knowledge outside the tx | S5.4; gates SCM-FILES and SCM-KNOWLEDGE |
 | Billing profile / documents | SHARED_TRANSITION | Commerce | `billing-invoice-service` | profile **+ LegalEntity/Branch writes**; sequence + document | Identity-owned rows are written: needs an owner command path before moving |
 | Payments record / verify / reject / refund | MOVE_SCM (slice) | Commerce | `payment-service` → `modules/commerce/application/payments.js` | Payment (+ order-row lock for refunds) + audit | Slip as a Files fact. Recording works only on orders the SCM store holds (D-8) |
-| Revenue read model (`revenue-read-model`, Marketing insights) | SHARED_TRANSITION | Commerce (read) | legacy | read over SalesOrder + VERIFIED Payment | Must read the SCM store for SCM cohorts before cutover (F-8) |
+| Revenue read model | MOVE_SCM (slice) | Commerce (read) | `revenue-read-model.getRevenueSummary` → `modules/commerce/application/revenue.js`, `GET /v1/commerce/revenue` | read | Parity-pinned against legacy (§4.4) |
+| Revenue consumers (`/api/commerce/revenue`, Marketing insights `marketing-insights-service.js:79/134`) | SHARED_TRANSITION (consumer) | Commerce route (S5) / Marketing | still call legacy `getRevenueSummary` | read | Routing a cohort to SCM needs the core delegation issuer (gate SCM-CORE); Marketing's call site is Marketing-owned |
 | Catalogue, identifiers, conversions, recipes, kitting, customization, de-kitting, transfers, locations, stocktake, reservations/ATP, shelf life, catalog intake | SHARED_TRANSITION | Inventory | `modules/inventory/application/*` | as listed in §2.2 | Not in this checkpoint |
 | Agent tools (`smartgift-inventory-tools.js`) | KEEP_EXTERNAL (consumer) | Agent / S1 | — | — | **Only a test imports it** (not wired). Direct Prisma reads of Product/Recipe/StockMovement/WarehouseLocation — must use the SCM API when wired (gate SCM-AGENT) |
 | LINE `#sku` intake (`line-catalog-command.js`) | KEEP_EXTERNAL (consumer) | Agent / S1 | — | via Inventory services | Gate SCM-AGENT |
@@ -184,6 +185,20 @@ Every case of legacy `fr183-pos.test.js` is mirrored, marked `[legacy]`:
 Mutation check (run once, not committed): making the payment `VERIFIED` fails 2
 tests; removing the dedication check fails 1 test.
 
+### 4.4 Revenue read model (`test/unit/revenue-parity.test.js`, `apps/server/tests/unit/scm-revenue-parity.test.js`)
+
+Five synthetic orders and 7 queries are pinned in
+`contracts/v1/revenue-parity-cases.json`. The queries cover the Bangkok-midnight
+boundary (16:59:59Z → the 6th, 17:30Z → the 7th), a single Bangkok day, from-only,
+to-only, an empty range and a malformed day. The golden is **recorded by the
+legacy `getRevenueSummary`** (in-memory db stub, factory viewer). The SCM read
+model writes the same rows into its own SQLite store, reads them back through
+SQL, the kernel calculator and the DTO, and reproduces every output exactly:
+8/8 on both sides. Values checked by hand for `all`: net 1223.45 = 900 − 100 +
+300 + 123.45 + 200 − 200. The pending PAYMENT is counted, the pending REFUND is
+not, and the REJECTED 999 is not. Without the commerce domain the read is 404.
+Legacy AC-163.4 itself (built on legacy writers) keeps running in apps/server.
+
 ### 4.3 Sales orders (`test/component/sales-orders.test.js`, `test/recovery/sales-order-concurrency.test.js`)
 
 Legacy `fr166-sales-order.test.js` AC-162.1–162.6 are mirrored.
@@ -283,6 +298,15 @@ S5.4 payments (code SHA `3b522a9d`, same environment):
 | Payments component | `node --test test/component/payments.test.js` | 8 / 8 / 0 | 0 | — |
 | Server regression (payments) | `vitest` fr163-payment, fr196-segregation-of-duties, fr183-pos, fr166-sales-order, commerce-domain | 5 files / 30 / 0 | 0 | — |
 
+S5.4 revenue (code SHA `d160acaf`):
+
+| Level | Command | Discovered / executed / skipped | Exit | Duration |
+|---|---|---|---|---|
+| SCM all | `node services/scm/scripts/run-tests.mjs` | 158 / 157 pass / 1 skipped (graceful SIGTERM, Windows) | 0 | ~5 s |
+| Revenue parity, legacy recorder | `vitest tests/unit/scm-revenue-parity.test.js` | 8 / 8 / 0 | 0 | — |
+| Server regression | `vitest` fr163-payment, scm-revenue-parity, marketing-insights-service, commerce-domain | 4 files / 25 / 0 | 0 | — |
+| Governance | `npm --prefix apps/server run govern` | — | 0 (no CRITICAL) | — |
+
 Not run: full `npm test` / `build` / e2e of apps/server (not in the inner loop
 for this slice), Docker image build/start, PostgreSQL, CI.
 
@@ -304,7 +328,7 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 | F-5 | `priceLandedInventoryQuote` returns `rulesJson` (the private rule document) and accepts caller `sourceRefs`; its only caller (agent tools) is not wired | `pricing-inventory-service.js` | TO_VERIFY with S1 before any agent wiring | Gate SCM-AGENT must use an allowlisted DTO |
 | F-6 | Procurement ↔ Inventory import cycle (inventory-catalog imports procurement cost helpers; procurement domain imports `zInventoryCode`) | Code | CONFIRMED | Kept in the kernel as-is (pure); break when catalog moves |
 | F-7 | Customer erasure does not touch SCM `customerId` references (SalesOrder, StockMovement, StockReservation) | `identity/erase-customer-principal.js` | CONFIRMED, cross-owner | Report to Identity/CRM owner; not SCM's decision |
-| F-8 | While both stores exist, three tenant-wide uniqueness rules cannot hold across them: `Payment.bankReference`, `ORD-…` and `PAY-…` codes. All Commerce **writers** (POS, payments, sales orders) now run in SCM; the revenue read model (and Marketing insights) still read legacy tables only | By construction (two databases) | CONFIRMED (design); writers moved (ce304e84); read model open | Cutover gate: the Commerce cohort switches per Tenant behind one single-writer switch, with the revenue read pointed at SCM for that cohort; no dual-write period |
+| F-8 | While both stores exist, three tenant-wide uniqueness rules cannot hold across them: `Payment.bankReference`, `ORD-…` and `PAY-…` codes | By construction (two databases) | CONFIRMED (design). **SCM capability complete** for the Commerce cohort: all writers (ce304e84) and the revenue read (d160acaf) exist in SCM. Open: consumer routing and the cohort data transfer | Cutover gate: per Tenant, one single-writer switch moves POS, payments, sales orders and the revenue read together, after a transfer of that Tenant's orders/payments/codes; no dual-write period |
 | F-10 | Legacy fulfilment (`issueStockForOrder`) issues without `customerId`/`salesOrderId`, so a SKU dedicated to another customer or order leaves stock on COMPLETE; POS passes both and refuses | `sales-order-service.js:208`; SCM parity test | CONFIRMED (behaviour); intent UNKNOWN | Owner decision: if unintended, pass the order and its customer on the fulfilment issue (a behaviour change with its own FR/test) — not changed during extraction |
 | F-9 | Legacy `applyPaymentAction` reads the verified net for a REFUND and updates the payment by CAS on the payment row only. On PostgreSQL READ COMMITTED, two refunds of one order verified concurrently can both pass the ceiling → refunded > paid | Code reading `payment-service.js:135–145`; SCM two-process test + D-9 | PLAUSIBLE — not reproduced (no PostgreSQL here) | Same hotfix PR as F-1: a PostgreSQL race test first, then an order-row lock before the read |
 
@@ -333,13 +357,13 @@ PRD/FEATURES/ROADMAP or tracker change.
 session: S5
 workstream: scm
 owner: Session 5 implementation owner
-observed_at: "2026-09-24T21:30:00+07:00"
+observed_at: "2026-09-24T22:30:00+07:00"
 base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
-code_head_sha: ce304e84
-handoff_source_commit: "the doc commit after ce304e84 on feat/scm-service-extraction"
+code_head_sha: d160acaf
+handoff_source_commit: "the doc commit after d160acaf on feat/scm-service-extraction"
 branch: feat/scm-service-extraction
 pr_number: 546
-current_tranche: S5.4 (POS + payments + sales orders done) → revenue read model next
+current_tranche: S5.4 (Commerce cohort complete in SCM: POS, payments, sales orders, revenue read) → Pricing rules/calculation next
 execution_status: IN_PROGRESS
 merge_status: NOT_MERGED
 production_status: NOT_RUN
@@ -356,6 +380,8 @@ completed:
     code_paths: [services/scm/src/modules/commerce/application/payments.js]
   - claim: "S5.4 sales orders create/UPDATE/CONFIRM/COMPLETE(+issueStock)/CANCEL/list (FR-166) as SCM units of work"
     code_paths: [services/scm/src/modules/commerce/application/sales-orders.js]
+  - claim: "S5.4 revenue read model over the SCM store, parity-pinned against the legacy engine"
+    code_paths: [services/scm/src/modules/commerce/application/revenue.js, services/scm/contracts/v1/revenue-parity-cases.json, services/scm/contracts/v1/revenue-parity-golden.json, apps/server/tests/unit/scm-revenue-parity.test.js]
 verified:
   - { level: ISOLATED_TESTS, result: PASS, verified_code_sha: 7726b99b, command: "node services/scm/scripts/run-tests.mjs", discovered: 103, executed: 102, skipped: 1, exit_code: 0, duration_seconds: 2.2, environment: "win32, node 24.19.0" }
   - { level: PRICING_PARITY, result: PASS, verified_code_sha: 7726b99b, command: "vitest scm-pricing-parity + pricing-engine", discovered: 157, executed: 157, skipped: 0, exit_code: 0, duration_seconds: 7.2 }
@@ -366,11 +392,14 @@ verified:
   - { level: SERVER_REGRESSION_PAYMENTS, result: PASS, verified_code_sha: 3b522a9d, command: "vitest fr163/fr196/fr183/fr166 + commerce-domain", discovered: 30, executed: 30, skipped: 0, exit_code: 0 }
   - { level: ISOLATED_TESTS, result: PASS, verified_code_sha: ce304e84, command: "node services/scm/scripts/run-tests.mjs", discovered: 150, executed: 149, skipped: 1, exit_code: 0, duration_seconds: 4.9, environment: "win32, node 24.19.0" }
   - { level: SERVER_REGRESSION_SALES_ORDERS, result: PASS, verified_code_sha: ce304e84, command: "vitest fr166/fr163/fr183/fr155 + commerce-domain + commerce-routes", discovered: 39, executed: 39, skipped: 0, exit_code: 0 }
+  - { level: ISOLATED_TESTS, result: PASS, verified_code_sha: d160acaf, command: "node services/scm/scripts/run-tests.mjs", discovered: 158, executed: 157, skipped: 1, exit_code: 0, environment: "win32, node 24.19.0" }
+  - { level: REVENUE_PARITY, result: PASS, verified_code_sha: d160acaf, command: "vitest scm-revenue-parity (legacy recorder) + node --test revenue-parity (SCM)", discovered: 16, executed: 16, skipped: 0, exit_code: 0 }
   - { level: LOCAL_IMAGE_BUILD, result: NOT_RUN, reason: "docker daemon down; not started because host Docker serves production" }
   - { level: POSTGRES, result: NOT_RUN }
   - { level: CI, result: NOT_RUN }
 remaining:
-  - "S5.4 remaining: revenue read model (closes F-8 for the Commerce cohort), cost-sheet commit, pricing rules/calculation, billing, POS terminal catalogue — each as a whole group"
+  - "S5.4 remaining: pricing rules lifecycle + calculation (+ catalog freeze/admission behind SCM-FILES/SCM-KNOWLEDGE), supplier cost-sheet commit, billing (behind an Identity command path for LegalEntity/Branch), POS terminal catalogue — each as a whole group"
+  - "Consumer routing (BFF → SCM) for the Commerce cohort, behind SCM-CORE"
   - "PostgreSQL adapter + concurrency proof; image build/start smoke; BFF consumer; core delegation issuer; audit outbox relay"
   - "Legacy hotfix for F-1/F-2 as a separate PR"
 contracts:
@@ -380,7 +409,7 @@ contracts:
 blockers:
   - { dependency: "scm.delegation.v1 review + core issuer", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + S5", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
   - { dependency: "root CI job for services/scm", kind: INTEGRATION_ORDER, phase_blocked: "CI_VERIFIED/HOSTED_IMAGE_BUILD", owner_to_unblock: integrator, condition_to_unblock: "job merged", safe_work_now: ["local tests"] }
-next_action: "Move the revenue read model (revenue-read-model.js) onto the SCM store (verified net by origin and Bangkok day, pending apart, AC-163.4 parity), then decide with the owner on F-10."
+next_action: "Move Pricing rules lifecycle + calculation (pricing-rules-service.js: create/update/approve/revoke CAS, calculatePricing with idempotency + requestHash, owner-only guard) into SCM on the existing kernel; owner decision on F-10 pending."
 owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js]
 shared_changes_requested: ["docs/.id-ledger.json +ADR-109", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
 board_expected_source_commit: "REFACTOR-STATUS.md 0.1.0b on feat/market-intelligence-service"
@@ -390,9 +419,13 @@ board_update: BOARD_UPDATE_PENDING
 ## 10. Next exact action
 
 1. Read the hosted check results on PR #546 and record them here (CI_VERIFIED is NOT_RUN until then).
-2. S5.4 next: the revenue read model over the SCM store (AC-163.4 parity:
-   verified net by origin and Bangkok day, pending apart, rejected never
-   counted). It closes F-8 for the Commerce cohort.
+2. S5.4 next: Pricing rules lifecycle and calculation (`pricing-rules-service.js`)
+   on the existing parity-pinned kernel. That covers draft/approve/revoke with
+   CAS on version + status, owner-only guard, `calculatePricing` with
+   idempotency key + request hash, and no silent fallback to an older rule.
+   Catalog freeze/admission stays behind SCM-FILES / SCM-KNOWLEDGE.
 3. Owner decision on F-10 (dedication on fulfilment) — recorded, not changed.
+4. When SCM-CORE lands: route `/api/commerce/revenue` (S5-owned) to SCM per
+   cohort, and hand Marketing's call site to its owner.
 4. Separately, a legacy hotfix PR for F-1, F-2 and F-9, each with a failing
    PostgreSQL race test first.
