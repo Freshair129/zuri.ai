@@ -2632,7 +2632,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-224",
@@ -3808,7 +3808,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-224",
@@ -6204,7 +6204,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-224",
@@ -10802,7 +10802,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-224",
@@ -10916,6 +10916,7 @@
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/conversation-session-ui.test.js",
+        "apps/server/tests/unit/credential-vault-postgres-target.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr080-integration-management.test.js",
         "apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js",

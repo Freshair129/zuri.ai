@@ -8,10 +8,11 @@
 // @req FR-164 — F-12: concurrent commits of two cost sheets of one supplier must
 //   leave exactly one CONFIRMED sheet. The supplier row is locked before the
 //   previous confirmed sheet is superseded.
-// F-14 (customization and kitting work orders): concurrent RELEASE / COMPLETE of
-//   one work order must post it once. The order update is a compare-and-swap on
-//   its version, so a call that passed the version check with a stale version is
-//   refused 409 *_WORK_ORDER_VERSION_CONFLICT and its ledger rows roll back.
+// F-14 (customization and kitting work orders): concurrent RELEASE / COMPLETE /
+//   CANCEL of one work order must post it once. The order update is a
+//   compare-and-swap on its version, so a call that passed the version check with
+//   a stale version is refused 409 *_WORK_ORDER_VERSION_CONFLICT and its ledger
+//   rows roll back.
 // F-16 (stock reservations): concurrent holds on one product must never promise
 //   more than is on hand. A hold takes the per-Business ledger fence before it
 //   reads on-hand and the live holds, so holds serialize with each other and
@@ -22,9 +23,11 @@
 //   and ACTIVE status, so a call that passed the version check with a stale
 //   version is refused 409 STOCK_RESERVATION_VERSION_CONFLICT and its ORDER hold
 //   rolls back.
-//   (F-14, F-16 and F-17 are stated without requirement annotations so these
-//   hotfixes leave the generated domain-state test counts, held by another
-//   lane, untouched.)
+//   The F-14 and F-17 races are made deterministic with an in-test barrier that
+//   holds each transaction after its first read of the row under test until both
+//   have read it. (F-14, F-16 and F-17 are stated without requirement
+//   annotations so these hotfixes leave the generated domain-state test counts,
+//   held by another lane, untouched.)
 // @spec ADR-066, ADR-065
 // @tested tests/integration/scm-legacy-races.postgres.test.js
 //
@@ -54,8 +57,8 @@ import { setFlowAccountSku } from '@/modules/inventory/application/inventory-cat
 import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
 import { createRecipe } from '@/modules/inventory/application/inventory-recipe-service'
 import { createLocation } from '@/modules/inventory/application/warehouse-location-service'
-import { completeKittingWorkOrder, openKittingWorkOrder, releaseKittingWorkOrder } from '@/modules/inventory/application/kitting-work-order-service'
-import { completeCustomizationWorkOrder, openCustomizationWorkOrder, releaseCustomizationWorkOrder } from '@/modules/inventory/application/customization-work-order-service'
+import { cancelKittingWorkOrder, completeKittingWorkOrder, openKittingWorkOrder, releaseKittingWorkOrder } from '@/modules/inventory/application/kitting-work-order-service'
+import { cancelCustomizationWorkOrder, completeCustomizationWorkOrder, openCustomizationWorkOrder, releaseCustomizationWorkOrder } from '@/modules/inventory/application/customization-work-order-service'
 import { applyReservationAction, createReservation } from '@/modules/inventory/application/inventory-atp-service'
 import { parseScmRacePostgresTarget } from '../helpers/scm-race-postgres-target'
 
@@ -193,86 +196,172 @@ runPostgres('SCM legacy races on PostgreSQL (F-1, F-9, F-12)', () => {
     }
   }, 120000)
 
-  // F-14: a work order's RELEASE / COMPLETE check its version and then update it.
-  // Without a version predicate on that update, concurrent calls with the same
-  // version each pass the check and each post their ledger rows.
+  // F-14: a work order's RELEASE / COMPLETE / CANCEL check its version and then
+  // update it. Each race below is DETERMINISTIC: both calls run through a client
+  // whose transaction pauses right after its first read of the order until BOTH
+  // transactions have read it — so both hold the same version before either
+  // writes. Then exactly one may commit; the other must be refused with the
+  // version conflict (never the post-commit status code, which would mean it read
+  // after the winner) and must leave no ledger row and no audit row behind.
   const onHand = async (productId) => (await db.stockMovement.aggregate({ where: { productId }, _sum: { quantity: true } }))._sum.quantity ?? 0
-  const settle = async (calls) => {
-    const outcomes = await Promise.allSettled(calls)
-    return { won: outcomes.filter((o) => o.status === 'fulfilled').length, refusals: outcomes.filter((o) => o.status === 'rejected').map((o) => codeOf(o.reason)) }
+  const atLocation = async (productId, locationId) => {
+    const into = (await db.stockMovement.aggregate({ where: { productId, targetLocationId: locationId }, _sum: { quantity: true } }))._sum.quantity ?? 0
+    const out = (await db.stockMovement.aggregate({ where: { productId, sourceLocationId: locationId }, _sum: { quantity: true } }))._sum.quantity ?? 0
+    return into + out
+  }
+  const audits = (entityId, action) => db.auditEvent.count({ where: { entityId, action } })
+
+  function barrier(parties, timeoutMs = 15000) {
+    let arrived = 0
+    let open
+    const opened = new Promise((resolve) => { open = resolve })
+    return {
+      get arrived() { return arrived },
+      async arrive() {
+        arrived += 1
+        if (arrived === parties) open()
+        let timer
+        const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`BARRIER_TIMEOUT: ${arrived}/${parties} read the order`)), timeoutMs) })
+        try { await Promise.race([opened, timeout]) } finally { clearTimeout(timer) }
+      },
+    }
   }
 
-  async function kittingRun(tag, { locations = null } = {}) {
+  /** A client whose interactive transactions pause after their FIRST read of `model` until every racer has read it. */
+  function gatedClient(model, gate) {
+    const gatedTx = (tx) => {
+      let paused = false
+      const delegate = new Proxy(tx[model], {
+        get(target, prop) {
+          const value = target[prop]
+          if (prop !== 'findUnique') return typeof value === 'function' ? value.bind(target) : value
+          return async (...args) => {
+            const row = await value.apply(target, args)
+            if (!paused) { paused = true; await gate.arrive() }
+            return row
+          }
+        },
+      })
+      return new Proxy(tx, { get: (target, prop) => (prop === model ? delegate : (typeof target[prop] === 'function' ? target[prop].bind(target) : target[prop])) })
+    }
+    return { $transaction: (fn, options) => db.$transaction((tx) => fn(gatedTx(tx)), options) }
+  }
+
+  /** Two calls that both read the order at the same version before either writes. */
+  async function race(model, call) {
+    const gate = barrier(2)
+    const client = gatedClient(model, gate)
+    const outcomes = await Promise.allSettled([call(client, 0), call(client, 1)])
+    return { reached: gate.arrived, won: outcomes.filter((o) => o.status === 'fulfilled').length, refusals: outcomes.filter((o) => o.status === 'rejected').map((o) => codeOf(o.reason)) }
+  }
+
+  async function locations(tag) {
+    const viewer = owner(`per-loc-${tag}`)
+    const source = await createLocation({ businessId: business.id, code: `LOC-${tag}-RAW`, name: 'Raw', type: 'TH_CENTRAL_RAW' }, { viewer, db })
+    const wip = await createLocation({ businessId: business.id, code: `LOC-${tag}-WIP`, name: 'Workshop', type: 'TH_WIP_ASSEMBLY' }, { viewer, db })
+    return { source, wip }
+  }
+
+  async function kittingRun(tag, { locations: at = null } = {}) {
     const viewer = owner(`per-kwo-${tag}`)
     const component = await product(`SKU-KWO-COMP-${tag}`)
     const finished = await product(`SKU-KWO-SET-${tag}`)
     await setFlowAccountSku({ businessId: business.id, productId: finished.id, flowAccountSku: `KWO${tag}-1(P-01)` }, { viewer, db })
-    await recordMovement({ businessId: business.id, productId: component.id, kind: 'RECEIPT', quantity: 100, ...(locations ? { targetLocationId: locations.source.id } : {}) }, { viewer, db })
+    await recordMovement({ businessId: business.id, productId: component.id, kind: 'RECEIPT', quantity: 100, ...(at ? { targetLocationId: at.source.id } : {}) }, { viewer, db })
     const recipe = await createRecipe({ businessId: business.id, code: `RCP-KWO-${tag}`, productId: finished.id, name: 'Race set', batchSize: 1, lines: [{ componentProductId: component.id, qty: 2 }] }, { viewer, db })
-    const order = await openKittingWorkOrder({ businessId: business.id, recipeId: recipe.id, plannedQty: 10, ...(locations ? { sourceLocationId: locations.source.id, wipLocationId: locations.wip.id } : {}) }, { viewer, db })
+    const order = await openKittingWorkOrder({ businessId: business.id, recipeId: recipe.id, plannedQty: 10, ...(at ? { sourceLocationId: at.source.id, wipLocationId: at.wip.id } : {}) }, { viewer, db })
     return { viewer, component, finished, order }
   }
 
-  it('F-14: four concurrent COMPLETEs of one kitting order post it exactly once', async () => {
-    const { viewer, component, finished, order } = await kittingRun('C')
+  async function customizationRun(tag, { locations: at = null } = {}) {
+    const viewer = owner(`per-cwo-${tag}`)
+    const blank = await product(`SKU-CWO-BLANK-${tag}`)
+    await recordMovement({ businessId: business.id, productId: blank.id, kind: 'RECEIPT', quantity: 100, costSatang: 1000, ...(at ? { targetLocationId: at.source.id } : {}) }, { viewer, db })
+    const order = await openCustomizationWorkOrder({ businessId: business.id, rawProductId: blank.id, technique: 'SILK_SCREEN', netQuantity: 10, customerId: 'cust-race', salesOrderId: `so-race-${tag}`, ...(at ? { sourceLocationId: at.source.id, wipLocationId: at.wip.id } : {}) }, { viewer, db })
+    return { viewer, blank, order }
+  }
+
+  it('F-14: two kitting COMPLETEs that read the same version post the order exactly once', async () => {
+    const { viewer, component, finished, order } = await kittingRun('KC')
     const released = await releaseKittingWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db })
-    const { won, refusals } = await settle(Array.from({ length: 4 }, () => completeKittingWorkOrder(order.id, { businessId: business.id, version: released.version, assembledQty: 10 }, { viewer, db })))
-    expect({ won, finished: await onHand(finished.id), component: await onHand(component.id) }, JSON.stringify(refusals)).toEqual({ won: 1, finished: 10, component: 80 })
-    for (const code of refusals) expect(['KITTING_WORK_ORDER_VERSION_CONFLICT', 'KITTING_WORK_ORDER_COMPLETED']).toContain(code)
+    const result = await race('kittingWorkOrder', (client) => completeKittingWorkOrder(order.id, { businessId: business.id, version: released.version, assembledQty: 10 }, { viewer, db: client }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['KITTING_WORK_ORDER_VERSION_CONFLICT'] })
+    expect({ finished: await onHand(finished.id), component: await onHand(component.id), completed: await audits(order.id, 'KITTING_WORK_ORDER_COMPLETED') }).toEqual({ finished: 10, component: 80, completed: 1 })
+    expect(await db.stockMovement.count({ where: { workOrderId: order.id } })).toBe(2)
   }, 120000)
 
-  it('F-14: four concurrent RELEASEs of one kitting order stage its components exactly once', async () => {
-    const viewer = owner('per-kwo-locations')
-    const source = await createLocation({ businessId: business.id, code: 'LOC-KWO-RAW', name: 'Raw', type: 'TH_CENTRAL_RAW' }, { viewer, db })
-    const wip = await createLocation({ businessId: business.id, code: 'LOC-KWO-ASM', name: 'Assembly', type: 'TH_WIP_ASSEMBLY' }, { viewer, db })
-    const { component, order } = await kittingRun('R', { locations: { source, wip } })
-    const { won, refusals } = await settle(Array.from({ length: 4 }, () => releaseKittingWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db })))
-    const staged = (await db.stockMovement.aggregate({ where: { productId: component.id, targetLocationId: wip.id }, _sum: { quantity: true } }))._sum.quantity ?? 0
-    expect({ won, staged, onHand: await onHand(component.id) }, JSON.stringify(refusals)).toEqual({ won: 1, staged: 20, onHand: 100 })
-    for (const code of refusals) expect(['KITTING_WORK_ORDER_VERSION_CONFLICT', 'KITTING_WORK_ORDER_ALREADY_RELEASED']).toContain(code)
+  it('F-14: two kitting RELEASEs that read the same version stage the components exactly once', async () => {
+    const at = await locations('KR')
+    const { viewer, component, order } = await kittingRun('KR', { locations: at })
+    const result = await race('kittingWorkOrder', (client) => releaseKittingWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db: client }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['KITTING_WORK_ORDER_VERSION_CONFLICT'] })
+    expect({ staged: await atLocation(component.id, at.wip.id), onHand: await onHand(component.id), released: await audits(order.id, 'KITTING_WORK_ORDER_RELEASED') }).toEqual({ staged: 20, onHand: 100, released: 1 })
   }, 120000)
 
-  it('F-14: four concurrent COMPLETEs of one customization order post it exactly once', async () => {
-    const viewer = owner('per-cwo')
-    const blank = await product('SKU-CWO-BLANK')
-    await recordMovement({ businessId: business.id, productId: blank.id, kind: 'RECEIPT', quantity: 100, costSatang: 1000 }, { viewer, db })
-    const order = await openCustomizationWorkOrder({ businessId: business.id, rawProductId: blank.id, technique: 'SILK_SCREEN', netQuantity: 10, customerId: 'cust-race', salesOrderId: 'so-race' }, { viewer, db })
+  it('F-14: two kitting CANCELs that read the same version return the staged components exactly once', async () => {
+    const at = await locations('KX')
+    const { viewer, component, order } = await kittingRun('KX', { locations: at })
+    const released = await releaseKittingWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db })
+    const result = await race('kittingWorkOrder', (client) => cancelKittingWorkOrder(order.id, { businessId: business.id, version: released.version }, { viewer, db: client }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['KITTING_WORK_ORDER_VERSION_CONFLICT'] })
+    expect({ wip: await atLocation(component.id, at.wip.id), source: await atLocation(component.id, at.source.id), cancelled: await audits(order.id, 'KITTING_WORK_ORDER_CANCELLED') }).toEqual({ wip: 0, source: 100, cancelled: 1 })
+  }, 120000)
+
+  it('F-14: two customization RELEASEs that read the same version move the gross issue exactly once', async () => {
+    const at = await locations('CR')
+    const { viewer, blank, order } = await customizationRun('CR', { locations: at })
+    const result = await race('customizationWorkOrder', (client) => releaseCustomizationWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db: client }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['CUSTOMIZATION_WORK_ORDER_VERSION_CONFLICT'] })
+    expect({ workshop: await atLocation(blank.id, at.wip.id), onHand: await onHand(blank.id), released: await audits(order.id, 'CUSTOMIZATION_WORK_ORDER_RELEASED') }).toEqual({ workshop: 11, onHand: 100, released: 1 })
+  }, 120000)
+
+  it('F-14: two customization COMPLETEs that read the same version post the order exactly once', async () => {
+    const { viewer, blank, order } = await customizationRun('CC')
     const released = await releaseCustomizationWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db })
-    const { won, refusals } = await settle(Array.from({ length: 4 }, () => completeCustomizationWorkOrder(order.id, { businessId: business.id, version: released.version, completedQty: 10 }, { viewer, db })))
-    expect({ won, output: await onHand(order.outputProductId), blank: await onHand(blank.id) }, JSON.stringify(refusals)).toEqual({ won: 1, output: 10, blank: 90 })
-    for (const code of refusals) expect(['CUSTOMIZATION_WORK_ORDER_VERSION_CONFLICT', 'CUSTOMIZATION_WORK_ORDER_COMPLETED']).toContain(code)
+    const result = await race('customizationWorkOrder', (client) => completeCustomizationWorkOrder(order.id, { businessId: business.id, version: released.version, completedQty: 10 }, { viewer, db: client }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['CUSTOMIZATION_WORK_ORDER_VERSION_CONFLICT'] })
+    expect({ output: await onHand(order.outputProductId), blank: await onHand(blank.id), completed: await audits(order.id, 'CUSTOMIZATION_WORK_ORDER_COMPLETED') }).toEqual({ output: 10, blank: 90, completed: 1 })
+    expect(await db.stockMovement.count({ where: { workOrderId: order.id } })).toBe(2)
   }, 120000)
 
-  // F-16: a hold reads on-hand and the live holds, then inserts. Without the
-  // per-Business ledger fence, concurrent holds each read the same free stock.
-  it('F-16: eight concurrent holds of three on ten on hand promise at most ten', async () => {
+  it('F-14: two customization CANCELs that read the same version return the unworked blanks exactly once', async () => {
+    const at = await locations('CX')
+    const { viewer, blank, order } = await customizationRun('CX', { locations: at })
+    const released = await releaseCustomizationWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db })
+    const result = await race('customizationWorkOrder', (client) => cancelCustomizationWorkOrder(order.id, { businessId: business.id, version: released.version }, { viewer, db: client }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['CUSTOMIZATION_WORK_ORDER_VERSION_CONFLICT'] })
+    expect({ workshop: await atLocation(blank.id, at.wip.id), source: await atLocation(blank.id, at.source.id), cancelled: await audits(order.id, 'CUSTOMIZATION_WORK_ORDER_CANCELLED') }).toEqual({ workshop: 0, source: 100, cancelled: 1 })
+  }, 120000)
+
+  // F-16: a hold reads on-hand and the live holds, then inserts. Both holds pause
+  // after their product read — before the per-Business ledger fence — until both
+  // have read it; with the fence the second then waits for the first to commit
+  // and reads its hold. Each racer uses its own day so the day-keyed RSV codes
+  // never collide (a collision would refuse the loser for an unrelated reason),
+  // and a 30-day hold keeps both live.
+  it('F-16: two holds of six on ten on hand that race past the product read promise at most ten', async () => {
     const viewer = owner('per-rsv-hold')
     const item = await product('SKU-RSV-HOLD')
     await recordMovement({ businessId: business.id, productId: item.id, kind: 'RECEIPT', quantity: 10 }, { viewer, db })
-    // A different day per hold so the day-keyed RSV codes never collide: a code
-    // collision would fail the loser for an unrelated reason and hide the
-    // over-promise this test is about. A 30-day hold keeps every one of them live.
-    const { won, refusals } = await settle(Array.from({ length: 8 }, (_, i) => createReservation({ businessId: business.id, productId: item.id, quantity: 3, purpose: 'QUOTE', holdDays: 30, quoteReference: `Q-RACE-${i}` }, { viewer, db, now: new Date(Date.UTC(2026, 1, 1 + i, 3)) })))
+    const result = await race('product', (client, i) => createReservation({ businessId: business.id, productId: item.id, quantity: 6, purpose: 'QUOTE', holdDays: 30, quoteReference: `Q-RACE-${i}` }, { viewer, db: client, now: new Date(Date.UTC(2026, 1, 1 + i, 3)) }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['STOCK_RESERVATION_INSUFFICIENT_ATP'] })
     const held = (await db.stockReservation.aggregate({ where: { productId: item.id, status: 'ACTIVE' }, _sum: { quantity: true } }))._sum.quantity ?? 0
-    expect({ won, held }, JSON.stringify(refusals)).toEqual({ won: 3, held: 9 })
-    for (const code of refusals) expect(code).toBe('STOCK_RESERVATION_INSUFFICIENT_ATP')
+    expect({ held, holds: await db.stockReservation.count({ where: { productId: item.id } }) }).toEqual({ held: 6, holds: 1 })
   }, 120000)
 
-  // F-17: RELEASE / CONVERT check the hold's version and then update it. Without
-  // a version predicate on that update, concurrent CONVERTs each commit a hold.
-  it('F-17: four concurrent CONVERTs of one quote hold commit exactly one ORDER hold', async () => {
+  // F-17: RELEASE / CONVERT check the hold's version and then update it. Both
+  // CONVERTs pause after their first read of the hold until both have read it,
+  // so both hold the same version; exactly one may commit its ORDER hold, and the
+  // other must be refused with the version conflict and leave no hold or audit.
+  it('F-17: two CONVERTs that read the same version commit exactly one ORDER hold', async () => {
     const viewer = owner('per-rsv-convert')
     const item = await product('SKU-RSV-CONVERT')
     await recordMovement({ businessId: business.id, productId: item.id, kind: 'RECEIPT', quantity: 10 }, { viewer, db })
     const quote = await createReservation({ businessId: business.id, productId: item.id, quantity: 4, purpose: 'QUOTE' }, { viewer, db })
-    // A different day per call, as above, so the version guard alone decides.
-    const { won, refusals } = await settle(Array.from({ length: 4 }, (_, i) => applyReservationAction(quote.id, { businessId: business.id, action: 'CONVERT', version: quote.version, salesOrderId: 'so-rsv-race' }, { viewer, db, now: new Date(Date.UTC(2026, 2, 1 + i, 3)) })))
+    const result = await race('stockReservation', (client, i) => applyReservationAction(quote.id, { businessId: business.id, action: 'CONVERT', version: quote.version, salesOrderId: 'so-rsv-race' }, { viewer, db: client, now: new Date(Date.UTC(2026, 2, 1 + i, 3)) }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['STOCK_RESERVATION_VERSION_CONFLICT'] })
     const orders = await db.stockReservation.count({ where: { productId: item.id, purpose: 'ORDER', salesOrderId: 'so-rsv-race' } })
     const quoteAfter = await db.stockReservation.findUnique({ where: { id: quote.id }, select: { status: true, version: true } })
-    expect({ won, orders, quoteAfter }, JSON.stringify(refusals)).toEqual({ won: 1, orders: 1, quoteAfter: { status: 'CONVERTED', version: quote.version + 1 } })
-    // Two CONVERTs on one day may draw the same RSV code (count-then-probe); the
-    // loser of that tie fails on the unique code index instead of the version
-    // check, which still leaves one ORDER hold, so it is an accepted refusal.
-    for (const code of refusals) expect(code).toMatch(/^(STOCK_RESERVATION_VERSION_CONFLICT|STOCK_RESERVATION_NOT_ACTIVE)$|Unique constraint failed on the fields: \(`tenantId`,`code`\)/)
+    expect({ orders, quoteAfter, converted: await audits(quote.id, 'STOCK_RESERVATION_CONVERTED') }).toEqual({ orders: 1, quoteAfter: { status: 'CONVERTED', version: quote.version + 1 }, converted: 1 })
   }, 120000)
 })
