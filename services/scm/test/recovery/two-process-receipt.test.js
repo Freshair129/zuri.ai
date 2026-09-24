@@ -32,7 +32,7 @@ test('concurrent receipts across two processes never over-receive', async (t) =>
     const committed = results.filter((r) => r.status === 201)
     const refused = results.filter((r) => r.status !== 201)
     assert.equal(committed.length, 5, JSON.stringify(results.map((r) => [r.status, r.body.error?.code])))
-    for (const r of refused) assert.ok(['PROCUREMENT_RECEIPT_EXCEEDS_ORDERED', 'PURCHASE_ORDER_NOT_RECEIVABLE', 'PURCHASE_ORDER_VERSION_CONFLICT', 'SCM_STORE_BUSY'].includes(r.body.error.code), r.body.error.code)
+    for (const r of refused) assert.ok(['PROCUREMENT_RECEIPT_EXCEEDS_ORDERED', 'PURCHASE_ORDER_NOT_RECEIVABLE', 'PURCHASE_ORDER_VERSION_CONFLICT', 'SCM_STORE_BUSY', 'SCM_CONCURRENT_CONFLICT'].includes(r.body.error.code), r.body.error.code)
     const byProcess = results.map((r, i) => [i % 2 ? 'A' : 'B', r.status === 201 ? 'COMMITTED' : r.body.error.code])
     t.diagnostic(`outcomes: ${JSON.stringify(byProcess)}`)
     assert.equal(new Set(committed.map((r) => r.body.operation.id)).size, 5)

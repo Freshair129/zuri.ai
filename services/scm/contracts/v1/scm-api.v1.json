@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.14",
+  "revision": "v1-draft.15",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -656,6 +656,7 @@
   "retryableCodes": [
     "PURCHASE_ORDER_VERSION_CONFLICT (receipt race only)",
     "SCM_STORE_BUSY",
+    "SCM_CONCURRENT_CONFLICT (409: the unit lost a serialization / deadlock / unique race on every bounded re-run and was rolled back whole, receipt included; no effect, resend with the SAME key)",
     "SCM_DRAINING",
     "SCM_STORE_CLOSED",
     "SCM_REFERENCE_AUTHORITY_UNAVAILABLE"
