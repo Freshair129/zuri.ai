@@ -56,12 +56,20 @@ const ROUTES = [
   route('POST', '/v1/inventory/bundles', 'catalog.bundle.create'),
   route('GET', '/v1/inventory/bundles', 'catalog.bundles.list'),
   route('GET', '/v1/inventory/products/:id', 'catalog.product.get'),
+  route('POST', '/v1/inventory/products/:id/identifiers', 'identity.identifier.add'),
+  route('POST', '/v1/inventory/products/:id/identifiers/actions', 'identity.identifier.action'),
+  route('GET', '/v1/inventory/products/:id/identifiers', 'identity.identifiers'),
+  route('POST', '/v1/inventory/products/:id/unit-conversions', 'identity.conversion.add'),
+  route('POST', '/v1/inventory/products/:id/unit-conversions/actions', 'identity.conversion.action'),
+  route('GET', '/v1/inventory/products/:id/unit-conversions', 'identity.conversions'),
+  route('POST', '/v1/inventory/products/:id/flowaccount-sku', 'identity.flowaccount'),
+  route('GET', '/v1/inventory/resolve', 'identity.resolve'),
   route('POST', '/v1/inventory/products/:id/actions', 'catalog.product.action'),
   route('GET', '/v1/inventory/stock', 'stock'),
   route('GET', '/v1/inventory/movements', 'movements'),
   route('GET', '/v1/operations/:action/:key', 'operation'),
 ]
-const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'catalog.category.create': 'inventory.category.create', 'catalog.family.create': 'inventory.family.create', 'catalog.factory.create': 'inventory.factory.create', 'catalog.product-master.create': 'inventory.product-master.create', 'catalog.product.create': 'inventory.product.create', 'catalog.bundle.create': 'inventory.bundle.create', 'catalog.product.action': 'inventory.product.action', 'costsheet.preview': 'procurement.cost-sheet.preview', 'costsheet.commit': 'procurement.cost-sheet.commit', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
+const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'catalog.category.create': 'inventory.category.create', 'catalog.family.create': 'inventory.family.create', 'catalog.factory.create': 'inventory.factory.create', 'catalog.product-master.create': 'inventory.product-master.create', 'catalog.product.create': 'inventory.product.create', 'catalog.bundle.create': 'inventory.bundle.create', 'catalog.product.action': 'inventory.product.action', 'identity.identifier.add': 'inventory.identifier.add', 'identity.identifier.action': 'inventory.identifier.action', 'identity.conversion.add': 'inventory.unit-conversion.add', 'identity.conversion.action': 'inventory.unit-conversion.action', 'identity.flowaccount': 'inventory.product.flowaccount-sku', 'costsheet.preview': 'procurement.cost-sheet.preview', 'costsheet.commit': 'procurement.cost-sheet.commit', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
 
 function send(res, status, body) {
   const text = JSON.stringify(body)
@@ -141,7 +149,10 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
         const query = Object.fromEntries([...p.entries()].filter(([k]) => ['businessId', 'categoryId', 'nature', 'productMasterId', 'stockPolicy', 'status', 'includeArchived'].includes(k)).map(([k, v]) => [k, k === 'includeArchived' ? v === 'true' : v]))
         const which = { 'catalog.categories.list': 'categories', 'catalog.families.list': 'families', 'catalog.factories.list': 'factories', 'catalog.product-masters.list': 'productMasters', 'catalog.products.list': 'products', 'catalog.bundles.list': 'bundles' }[name]
         result = { [which]: await bus.queries[which](scope, query) }
-      } else if (name === 'catalog.product.get') result = await bus.queries.product(scope, params.id)
+      } else if (name === 'identity.identifiers') result = await bus.queries.identifiers(scope, params.id, { includeRetired: url.searchParams.get('includeRetired') === 'true' })
+      else if (name === 'identity.conversions') result = await bus.queries.unitConversions(scope, params.id, { includeRetired: url.searchParams.get('includeRetired') === 'true' })
+      else if (name === 'identity.resolve') result = await bus.queries.resolve(scope, { businessId: url.searchParams.get('businessId'), identifier: url.searchParams.get('identifier') })
+      else if (name === 'catalog.product.get') result = await bus.queries.product(scope, params.id)
       else if (name === 'pos.catalogue') result = await bus.queries.posCatalogue(scope, { businessId: url.searchParams.get('businessId') })
       else if (name === 'costsheet.get') result = await bus.queries.costSheet(scope, params.id)
       else if (name === 'costsheet.list') {

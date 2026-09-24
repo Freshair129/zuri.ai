@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.9",
+  "revision": "v1-draft.10",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -305,6 +305,59 @@
       "note": "UPDATE (re-keys a corrected description), PHASE_OUT, REACTIVATE by compare-and-swap on version; ARCHIVE and MERGE → 409 SCM_PRODUCT_ACTION_NOT_MIGRATED (their guards read reservations/recipes/work orders not in SCM)"
     },
     {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/identifiers",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.identifier.add",
+      "note": "kind/value unique per Tenant, scannable kinds (GTIN, BARCODE) share one value space; GTIN check digit; a pack barcode's unit must be the base unit or an ACTIVE conversion"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/identifiers/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.identifier.action",
+      "note": "RETIRE by CAS; the row stays and the value stays taken"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/products/{id}/identifiers?includeRetired=",
+      "capability": "inventory domain",
+      "note": "by kind, value"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/unit-conversions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.unit-conversion.add",
+      "note": "integer factor; never the base unit (INVENTORY_UNIT_IS_BASE), a serial product (INVENTORY_UNIT_NOT_FOR_SERIAL) or a service"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/unit-conversions/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.unit-conversion.action",
+      "note": "UPDATE (name, factor, usage) or RETIRE by CAS"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/products/{id}/unit-conversions?includeRetired=",
+      "capability": "inventory domain",
+      "note": "{baseUnit, conversions} by factor"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/flowaccount-sku",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.product.flowaccount-sku",
+      "note": "finished-set SKU pattern (INVENTORY_FINISHED_SET_SKU_INVALID), unique per Tenant (INVENTORY_FLOWACCOUNT_SKU_TAKEN)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/resolve?businessId=&identifier=",
+      "capability": "inventory domain",
+      "note": "code, then FlowAccount code, then an ACTIVE identifier (with the pack factor); a merged duplicate is followed to its survivor; a miss is 200 with product null"
+    },
+    {
       "method": "GET",
       "path": "/v1/inventory/stock?businessId=",
       "capability": "inventory domain"
@@ -340,6 +393,6 @@
   "notMigrated": [
     "ADJUSTMENT movements → 409 SCM_MOVEMENT_KIND_NOT_MIGRATED",
     "serial ISSUE → 409 SCM_SERIAL_ISSUE_NOT_MIGRATED (POS refuses serial lines first, as legacy)",
-    "non-base unit movements → 409 SCM_UNIT_CONVERSION_NOT_MIGRATED"
+    "product ARCHIVE / MERGE → 409 SCM_PRODUCT_ACTION_NOT_MIGRATED (guards read reservations, recipes, work orders not in SCM)"
   ]
 }

@@ -13,7 +13,7 @@ import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSale
 import { zCreateOrder } from '../kernel/commerce/commerce.js'
 import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
 import { authorizeCatalogue, getPosTerminalCatalogue } from '../modules/commerce/application/pos-catalogue.js'
-import { catalog } from '../modules/inventory/index.js'
+import { catalog, identity } from '../modules/inventory/index.js'
 import { supplierCostPriceBreaks } from '../modules/procurement/application/supplier-cost-sheets.js'
 import { applyPricingRuleAction, calculatePricing, calculationRequest, createPricingRuleSet, getActivePricingRuleSet, guardCalculationReplay, listPricingRules, loadRuleInScope, ownerBusiness, previewPricingRules, updatePricingRuleSet, zCalculatePricing, zCreatePricingRule } from '../modules/commerce/application/pricing-rules.js'
 
@@ -75,6 +75,12 @@ const COMMANDS = {
     authorize: (sql, scope, { targetId }) => catalog.loadProductForWrite(sql, scope, targetId).businessId,
     execute: (sql, scope, { targetId, body }, ctx) => catalog.applyProductAction(sql, scope, targetId, body, ctx),
   },
+  // SKU identity (FR-203/204/177): the path names the SKU; the body names the Business.
+  'inventory.identifier.add': { authorize: (sql, scope, { body }) => identity.writerOf(scope, identity.SCHEMAS.identifier, body), execute: (sql, scope, { targetId, body }, ctx) => identity.addIdentifier(sql, scope, targetId, body, ctx) },
+  'inventory.identifier.action': { authorize: (sql, scope, { targetId, body }) => identity.identifierInScope(sql, scope, targetId, body?.identifierId).businessId, execute: (sql, scope, { targetId, body }, ctx) => identity.applyIdentifierAction(sql, scope, targetId, body, ctx) },
+  'inventory.unit-conversion.add': { authorize: (sql, scope, { body }) => identity.writerOf(scope, identity.SCHEMAS.conversion, body), execute: (sql, scope, { targetId, body }, ctx) => identity.addUnitConversion(sql, scope, targetId, body, ctx) },
+  'inventory.unit-conversion.action': { authorize: (sql, scope, { targetId, body }) => identity.conversionInScope(sql, scope, targetId, body?.conversionId).businessId, execute: (sql, scope, { targetId, body }, ctx) => identity.applyUnitConversionAction(sql, scope, targetId, body, ctx) },
+  'inventory.product.flowaccount-sku': { authorize: (sql, scope, { body }) => identity.flowAccountWriter(scope, body), execute: (sql, scope, { targetId, body }, ctx) => identity.setFlowAccountSku(sql, scope, targetId, body, ctx) },
   'commerce.pos.checkout': {
     // Authorization needs the parsed businessId; a malformed body is a 422 before any lookup.
     authorize: (sql, scope, { body }) => commerceAuthority.require(scope, parseCheckout(body).businessId, 'order').id,
@@ -226,6 +232,9 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
       const supplierCostPriceBreaksOfProduct = supplierCostPriceBreaks(sql, product.id)
       return { product: { ...product, costing: { ...product.costing, supplierCostPriceBreaks: supplierCostPriceBreaksOfProduct }, supplierCostPriceBreaks: supplierCostPriceBreaksOfProduct } }
     }),
+    identifiers: (scope, productId, options) => store.read((sql) => ({ identifiers: identity.listIdentifiers(sql, scope, productId, options) })),
+    unitConversions: (scope, productId, options) => store.read((sql) => identity.listUnitConversions(sql, scope, productId, options)),
+    resolve: (scope, query) => store.read((sql) => identity.resolveProduct(sql, scope, query)),
     costSheet: (scope, id) => store.read((sql) => ({ sheet: getSupplierCostSheet(sql, scope, id) })),
     costSheets: (scope, query) => store.read((sql) => listSupplierCostSheets(sql, scope, query)),
     pricingRules: (scope, query) => store.read((sql) => listPricingRules(sql, scope, query, clock().toISOString())),

@@ -1,5 +1,6 @@
 import { allocateFefo, movementDelta, movementRule, serialStatusAfter, stockSummaryRow } from '../../../kernel/inventory/inventory.js'
 import { dedicationRule, shelfLifeIssueRule } from '../../../kernel/inventory/inventory-wip.js'
+import { toBaseQuantity } from '../../../kernel/inventory/inventory-governance.js'
 import { STOCK_MOVEMENT_ENTITY, SERIAL_UNIT_ENTITY } from '../domain/entities.js'
 import { inventoryAuthority } from '../../../infrastructure/delegation.js'
 import { recordAudit } from '../../../infrastructure/evidence.js'
@@ -8,16 +9,17 @@ import * as repo from '../adapters/inventory-repo.js'
 // The Inventory core writer inside SCM — port of apps/server
 // inventory-stock-service.appendMovement for RECEIPT and ISSUE, with the same
 // order of checks: authority (read) → fence (first write-side statement) →
-// product → movementRule (kernel, shared with legacy) → on-hand → lot →
+// product → unit conversion to base units (FR-204, ACTIVE conversions) →
+// movementRule (kernel, shared with legacy) → on-hand → lot →
 // dedication (ISSUE) → shelf life (ISSUE of a named lot) → rows (serials; FEFO
 // across OPEN, non-expired lots for a LOT issue without a lot, one row per lot,
 // lot-less remainder last) → lot receivedQty (RECEIPT) → audit → fence advance.
 // Append-only: the store's triggers refuse UPDATE/DELETE of StockMovement.
 //
-// Transitional scope (SHARED_TRANSITION, SCM-HANDOFF.md): ADJUSTMENT, serial
-// ISSUE and non-base units stay in the legacy writer until their callers
-// (stocktake, fulfilment of serial goods, unit-converting intakes) move whole;
-// they are refused here explicitly instead of being half-implemented.
+// Transitional scope (SHARED_TRANSITION, SCM-HANDOFF.md): ADJUSTMENT and serial
+// ISSUE stay in the legacy writer until their callers (stocktake, fulfilment of
+// serial goods) move whole; they are refused here explicitly instead of being
+// half-implemented.
 
 const failure = (status, code, details) => Object.assign(new Error(code), { status, code, retryable: false, ...(details ? { details } : {}) })
 
@@ -31,8 +33,15 @@ export function appendMovement(sql, scope, input, { now }) {
   if (input.kind !== 'RECEIPT' && input.kind !== 'ISSUE') throw failure(409, 'SCM_MOVEMENT_KIND_NOT_MIGRATED', { kind: input.kind })
   const product = repo.productById(sql, input.productId)
   if (!product || product.businessId !== business.id || product.tenantId !== business.tenantId) throw failure(422, 'INVENTORY_PRODUCT_NOT_FOUND')
-  if (input.unit && input.unit !== product.unit) throw failure(409, 'SCM_UNIT_CONVERSION_NOT_MIGRATED', { unit: input.unit, baseUnit: product.unit })
-  const data = { ...input, unit: undefined }
+  // @req FR-204 — the caller's unit becomes base units here, before any rule.
+  let data = { ...input, unit: undefined }
+  let unitConversion = null
+  if (input.unit && input.unit !== product.unit) {
+    const converted = toBaseQuantity(product, input.quantity, input.unit, repo.activeConversionsOf(sql, product.id))
+    if (!converted.ok) throw failure(422, converted.code, { unit: input.unit, baseUnit: product.unit })
+    data = { ...input, quantity: converted.quantity, unit: undefined }
+    unitConversion = { unit: converted.unit, factor: converted.factor, quantityInUnit: Math.trunc(input.quantity) }
+  }
   const rule = movementRule(product, data)
   if (!rule.ok) throw failure(rule.code === 'INVENTORY_PRODUCT_ARCHIVED' || rule.code === 'INVENTORY_PRODUCT_PHASED_OUT' ? 409 : 422, rule.code)
   if (data.kind === 'ISSUE' && product.trackingMode === 'SERIAL') throw failure(409, 'SCM_SERIAL_ISSUE_NOT_MIGRATED')
@@ -106,10 +115,10 @@ export function appendMovement(sql, scope, input, { now }) {
   recordAudit(sql, {
     entityType: STOCK_MOVEMENT_ENTITY, entityId: rows[0].id, action: `STOCK_${data.kind}_RECORDED`, actorId: scope.actorId,
     tenantId: business.tenantId, businessId: business.id, requestId: data.requestId, now,
-    payload: { businessId: business.id, productId: product.id, code: product.code, kind: data.kind, quantity: delta, lotId: lot?.id ?? null, allocations: allocations.length ? allocations : undefined, serials: data.serialNos?.length ?? 0, onHandBefore: before, onHandAfter: after, reference: data.reference ?? null, sourceLocationId: base.sourceLocationId, targetLocationId: base.targetLocationId, costSatang: base.costSatang, customerId: base.customerId, salesOrderId: base.salesOrderId, workOrderId: base.workOrderId },
+    payload: { businessId: business.id, productId: product.id, code: product.code, kind: data.kind, quantity: delta, lotId: lot?.id ?? null, allocations: allocations.length ? allocations : undefined, serials: data.serialNos?.length ?? 0, onHandBefore: before, onHandAfter: after, reference: data.reference ?? null, sourceLocationId: base.sourceLocationId, targetLocationId: base.targetLocationId, costSatang: base.costSatang, customerId: base.customerId, salesOrderId: base.salesOrderId, workOrderId: base.workOrderId, ...(unitConversion ? { unitConversion } : {}) },
   })
   if (repo.advanceFence(sql, { tenantId: business.tenantId, businessId: business.id }) !== 1) throw failure(409, 'INVENTORY_LEDGER_FENCE_EXHAUSTED')
-  return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows, costSatang: base.costSatang }
+  return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows, costSatang: base.costSatang, unitConversion }
 }
 
 /**

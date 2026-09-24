@@ -14,6 +14,8 @@ export const productById = (sql, id) => sql.get(`SELECT ${PRODUCT_COLUMNS} FROM 
 export const productsByIds = (sql, ids) => (ids.length ? sql.all(`SELECT ${PRODUCT_COLUMNS} FROM Product WHERE id IN (${ids.map(() => '?').join(',')})`, ...ids) : [])
 export const productsOfBusiness = (sql, businessId) => sql.all(`SELECT ${PRODUCT_COLUMNS} FROM Product WHERE businessId = ? AND status != 'ARCHIVED' ORDER BY code`, businessId)
 
+export const activeConversionsOf = (sql, productId) => sql.all("SELECT unit, factor, status FROM ProductUnitConversion WHERE productId = ? AND status = 'ACTIVE'", productId).map((r) => ({ ...r }))
+
 export const onHandOf = (sql, productId) => sql.get('SELECT COALESCE(SUM(quantity), 0) AS q FROM StockMovement WHERE productId = ?', productId).q
 export const onHandByProduct = (sql, businessId) => new Map(sql.all('SELECT productId, SUM(quantity) AS q FROM StockMovement WHERE businessId = ? GROUP BY productId', businessId).map((r) => [r.productId, r.q]))
 

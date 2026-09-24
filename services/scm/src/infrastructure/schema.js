@@ -14,7 +14,7 @@
 import { toPostgres } from './sql-dialect.js'
 
 export const OWNERS = Object.freeze({
-  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem'],
+  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem', 'ProductUnitConversion'],
   procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine', 'SupplierCostSheet', 'SupplierCostLine'],
   commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile', 'PricingRuleSet', 'PricingCalculation'],
   scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
@@ -31,8 +31,10 @@ export const OWNERS = Object.freeze({
 // read by the catalogue, their writers — the catalogue service — have not moved).
 // v6 (S5.4 Inventory catalogue writers, F-13): ProductFamily, Factory, ProductBundle(+Item);
 // the remaining catalogue columns of InventoryCategory, ProductMaster and Product.
-// Disposable stores only — there is no v1→…→v6 migration (the migration owner writes one).
-export const SCHEMA_VERSION = 6
+// v7 (S5.4 identifiers + unit conversions, F-13): ProductUnitConversion; ProductIdentifier
+// is now written here too.
+// Disposable stores only — there is no v1→…→v7 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 7
 
 const TABLES = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
@@ -53,8 +55,9 @@ CREATE TABLE IF NOT EXISTS Product (
 );
 CREATE INDEX IF NOT EXISTS Product_master_variant ON Product (productMasterId, variantKey);
 
--- Scannable / legacy codes of a SKU (ADR-083 D3). Read here by the cost-sheet SKU
--- matcher; the identifier writers (inventory-identity-service) have not moved.
+-- Scannable / legacy codes of a SKU (ADR-083 D3): an attribute of one SKU, never a key.
+-- Written by Inventory's identity writers (application/identity.js), read by resolve and
+-- by the cost-sheet SKU matcher.
 CREATE TABLE IF NOT EXISTS ProductIdentifier (
   id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
   productId TEXT NOT NULL REFERENCES Product(id), kind TEXT NOT NULL, value TEXT NOT NULL,
@@ -63,6 +66,16 @@ CREATE TABLE IF NOT EXISTS ProductIdentifier (
   UNIQUE (tenantId, kind, value)
 );
 CREATE INDEX IF NOT EXISTS ProductIdentifier_business ON ProductIdentifier (businessId, value);
+
+-- A pack size is an integer factor on the SKU (FR-204, BR-037): never the base unit,
+-- never on a serial-tracked product or a service. RETIRE keeps the row.
+CREATE TABLE IF NOT EXISTS ProductUnitConversion (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), unit TEXT NOT NULL, name TEXT, factor INTEGER NOT NULL,
+  usage TEXT NOT NULL DEFAULT 'ANY', status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (productId, unit)
+);
 
 -- The catalogue above a SKU (FR-154): category, family, factory and master, plus
 -- bundles of SKUs. Written by Inventory's catalogue writers (application/catalog.js);
