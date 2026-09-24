@@ -1,0 +1,804 @@
+import { z } from 'zod'
+
+// @spec SDD-002, BR-004 — one Zod source of truth for every persisted enum;
+// only seven canonical execution modes exist.
+// @tested tests/unit/plan-schema.test.js, tests/integration/xlsx-intake.test.js
+// Persisted enums are plain strings in SQLite; these Zod enums are the single
+// source of truth so the data model can move to Postgres without connector
+// enum coupling.
+
+export const EXECUTION_MODES = [
+  'SOFTWARE_SPRINT',
+  'DATA_MIGRATION',
+  'B2B_SALES',
+  'B2C_CAMPAIGN',
+  'PRODUCT_LAUNCH',
+  'OPERATIONS',
+  'BUSINESS_EXPANSION',
+]
+
+export const PROGRESS_STRATEGIES = [
+  'TASK_WEIGHT',
+  'RECORD_VALIDATION',
+  'WEIGHTED_PIPELINE',
+  'KPI_ATTAINMENT',
+  'MILESTONE_READINESS',
+  'SLA_SCORE',
+  'EXPANSION_READINESS',
+]
+
+// Default strategy per mode (used when a workstream is created without one).
+export const MODE_DEFAULT_STRATEGY = {
+  SOFTWARE_SPRINT: 'TASK_WEIGHT',
+  DATA_MIGRATION: 'RECORD_VALIDATION',
+  B2B_SALES: 'WEIGHTED_PIPELINE',
+  B2C_CAMPAIGN: 'KPI_ATTAINMENT',
+  PRODUCT_LAUNCH: 'MILESTONE_READINESS',
+  OPERATIONS: 'SLA_SCORE',
+  BUSINESS_EXPANSION: 'EXPANSION_READINESS',
+}
+
+export const DEPENDENCY_TYPES = [
+  'BLOCKS',
+  'REQUIRES',
+  'RELATES_TO',
+  'START_AFTER',
+  'FINISH_BEFORE',
+  // Lineage (ADR-009 §D3): "what replaced what" and "where it came from". Used by the
+  // self-governance import (doc-graph supersedes/relates → Dependency rows).
+  'SUPERSEDES',
+  'DERIVES_FROM',
+]
+
+export const DEPENDENCY_ENDPOINT_TYPES = [
+  'PROJECT',
+  'WORKSTREAM',
+  'MILESTONE',
+  'GATE',
+  'WORK_CONTAINER',
+  'WORK_ITEM',
+]
+
+export const PROJECT_STATUSES = ['PLANNED', 'ACTIVE', 'ON_HOLD', 'DONE', 'ARCHIVED']
+// @req FR-086 / ADR-036 Consequences — the subset of PROJECT_STATUSES the
+// Projects Dashboard's KPI band highlights; ON_HOLD and ARCHIVED are the
+// remainder its "Other" disclosure accounts for (tests/unit/projects-dashboard-ui.test.js).
+// Named here, next to the enum it is a subset of, and imported by the page —
+// never hand-copied at the call site (CLAUDE.md) — so a sixth PROJECT_STATUSES
+// value added tomorrow lands in the remainder automatically, with no edit to
+// the page required.
+export const PROJECT_STATUS_HIGHLIGHTS = ['PLANNED', 'ACTIVE', 'DONE']
+// @req FR-087 — ordered most-urgent first, and the order is the contract: the
+// Projects Dashboard's "Top 5 Priority" sorts by this array's index, so a value
+// inserted in the middle re-ranks the list. Four levels rather than five because
+// a scale with a middle has one, and everything lands on it.
+export const PROJECT_PRIORITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']
+export const WORKSTREAM_STATUSES = ['PLANNED', 'ACTIVE', 'ON_HOLD', 'DONE', 'ARCHIVED']
+export const WORK_STATUSES = ['PLANNED', 'READY', 'IN_PROGRESS', 'REVIEW', 'BLOCKED', 'DONE', 'CANCELLED']
+// A WorkContainer (sprint / stage / pipeline / wave / phase / period / site) is a
+// grouping, not a unit of work, so it does not share WORK_STATUSES — it has no
+// READY, REVIEW, BLOCKED or CANCELLED. Frozen from observed usage only, the same
+// discipline as ROADMAP_STATUSES below: `PLANNED` is the default in both
+// `prisma/schema.prisma` and `zWorkContainerInput`, and `ACTIVE` is what
+// `prisma/seed.js` gives every container it creates. Nothing else has ever been
+// written — no UI path mutates a container's status at all (`StatusSelect`
+// wires `entity="container"` but nobody renders it). Do NOT add DONE or
+// ARCHIVED here on the argument that they feel right; add them when something
+// actually sets them.
+export const CONTAINER_STATUSES = ['PLANNED', 'ACTIVE']
+export const MILESTONE_STATUSES = ['PLANNED', 'IN_PROGRESS', 'DONE', 'MISSED']
+export const GATE_STATUSES = ['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']
+// @req FR-111 — the knowledge sensitivity lattice, listed most open first.
+//
+// The order is descriptive, not a contract. Nothing compares by position: every
+// site in the codebase tests equality against 'PUBLIC', and SDD-062 is the
+// decision that the serve filter STAYS that way. Do not read this ordering as an
+// invitation to make a filter lattice-aware — that is the exact change SDD-062
+// exists to stop.
+//
+// Named KNOWLEDGE_ rather than SENSITIVITY_ on purpose. `sensitivity` already
+// means something else in the agent domain — FR-026 action sensitivity, LOW/HIGH,
+// about step-up re-auth. Three usages, two vocabularies: action-gate.js and
+// write-tools.js speak the action one; agent/auth-context.js speaks THIS one —
+// its only value is the string 'PUBLIC', a lattice member, not LOW or HIGH.
+// `write-tools.js` rejects an action sensitivity outside LOW/HIGH, so a knowledge
+// value cannot reach that path; `agent/auth-context.js` validates a request against
+// AGENT_REQUESTABLE_SENSITIVITY (a policy-restricted subset of this lattice, not
+// a copy of it), so the separation rests on a guard there, not only on naming.
+export const KNOWLEDGE_SENSITIVITY_LEVELS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED']
+
+export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
+export const MEMBERSHIP_ROLES = ['OWNER', 'MEMBER']
+
+// @req FR-193 — Employment is an HR assignment record, distinct from
+// Membership's access grant (ADR-078; the same separation SAP SU01/PA and
+// Oracle FND_USER/PER_ALL_ASSIGNMENTS_F draw). `ACTIVE` is the only value the
+// FR-193 backfill writes; `ON_LEAVE` and `ENDED` are assigned by
+// `employment-service.js` (setEmploymentOnLeave / endEmployment) so the
+// vocabulary is reachable from the day it is declared (ADR-077 D7 discipline).
+export const EMPLOYMENT_STATUSES = ['ACTIVE', 'ON_LEAVE', 'ENDED']
+// A registry of kinds, not statuses — nothing branches on the absence of one
+// (the same distinction the ADR-077 D7 preflight check draws).
+export const EMPLOYMENT_TYPES = ['EMPLOYEE', 'CONTRACTOR', 'INTERN', 'OWNER_OPERATOR']
+
+// @req FR-194 — a Branch's operating purpose. `SITE` is the default and covers
+// today's undifferentiated Branch rows; the others exist so a warehouse or a
+// kitchen can be named as what it is instead of overloading `name` text.
+export const BRANCH_KINDS = ['SITE', 'WAREHOUSE', 'KITCHEN', 'OFFICE']
+
+// @req FR-191 — the lifecycle ADR-045 D3 declared and nothing could write.
+// Until ADR-077 this vocabulary existed only in prose: `resolve-viewer.js` and
+// `authorization-context.js` both filtered on `status === 'ACTIVE'`, and no
+// service anywhere assigned any other value, so a read filter stood in for a
+// control that was never built
+// (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
+//
+// One vocabulary for every grant-shaped table, not three. `RoleBinding`
+// already used ACTIVE/SUSPENDED/REVOKED and `Membership` used a free string;
+// `WorkspaceMembership` keeps its own ACTIVE/REMOVED because it is a different
+// contract (BR-016) and renaming its values would move a subject.
+export const ACCESS_STATUSES = ['PENDING', 'ACTIVE', 'SUSPENDED', 'REVOKED']
+export const MEMBERSHIP_STATUSES = ACCESS_STATUSES
+export const ROLE_BINDING_STATUSES = ACCESS_STATUSES
+// A grant that is still capable of granting. `REVOKED` is terminal and
+// `PENDING` has not started, so neither reaches the resolver; both still
+// occupy the row, which is why the partial unique indexes key off this set
+// rather than off `ACTIVE` alone.
+export const LIVE_ACCESS_STATUSES = ACCESS_STATUSES.filter((s) => s !== 'REVOKED')
+
+// @req FR-191 — how a grant came to exist, so that a null `grantedByPersonId`
+// is legible. `MIGRATION` means "predates ADR-077 and its author is
+// unrecoverable", which is a different statement from "nobody granted it".
+export const MEMBERSHIP_GRANT_SOURCES = ['ADMIN', 'INVITE', 'SELF_PROVISION', 'SEED', 'MIGRATION']
+
+// @req FR-192 — scope is a declared value, never the meaning of a null.
+// `Membership` uses TENANT and BUSINESS; `RoleBinding` adds BRANCH (ADR-077 D3,
+// extending ADR-033 D3 rather than superseding it).
+export const MEMBERSHIP_SCOPE_TYPES = ['TENANT', 'BUSINESS']
+export const ROLE_BINDING_SCOPE_TYPES = ['TENANT', 'BUSINESS', 'BRANCH']
+
+// Derived subsets — a genuine filter over an enum is named here, next to its
+// source, and imported, rather than hand-copied at each call site (CLAUDE.md;
+// .brain/rca/2026-08-17-a-prose-rule-is-not-a-gate.md). Computed from the
+// parent above so it cannot drift from it.
+// A gate no longer blocks progress once PASSED or WAIVED (progress/strategies.js).
+export const SATISFIED_GATE_STATUSES = GATE_STATUSES.filter((s) => s === 'PASSED' || s === 'WAIVED')
+
+// FR-059 — Business Strategy mutation. Frozen from observed usage only: schema
+// defaults (BusinessRoadmap.status, BusinessGoal.status/priority in
+// prisma/schema.prisma), prisma/seed.js values, and the `status: { not: 'ARCHIVED' }`
+// filters already applied to both models in
+// src/modules/business/application/business-strategy-service.js. Do not add
+// values (e.g. ON_HOLD, LOW) that are not observed anywhere yet.
+// @spec SDD-002, SDD-032
+export const ROADMAP_STATUSES = ['ACTIVE', 'ARCHIVED']
+export const GOAL_STATUSES = ['PLANNED', 'ACTIVE', 'DONE', 'ARCHIVED']
+export const GOAL_PRIORITIES = ['MEDIUM', 'HIGH']
+
+// @req FR-268, ADR-101 — Business Key Results (OKR). New vocabulary, not an
+// extension of an existing one, so "frozen from observed usage" above does
+// not apply the way it does to GOAL_STATUSES — there is no prior usage to
+// observe yet. Kept minimal on purpose: a Key Result is ACTIVE or ARCHIVED,
+// no separate "done" state (progress reaching 100% is a fact about the
+// numbers, not a status a person sets).
+export const KEY_RESULT_DIRECTIONS = ['UP', 'DOWN']
+export const KEY_RESULT_STATUSES = ['ACTIVE', 'ARCHIVED']
+// @req ADR-101 D1, FR-269 — Balanced Scorecard perspective, shared by
+// BusinessGoal.perspective (Phase 1) and BusinessKpi.perspective (FR-269,
+// Phase 2) so both surfaces group under the same four labels.
+export const BUSINESS_GOAL_PERSPECTIVES = ['FINANCIAL', 'CUSTOMER', 'INTERNAL_PROCESS', 'LEARNING_GROWTH']
+
+// FR-023 — CRM slice (ADR-007 P2)
+export const CHANNELS = ['LINE', 'FACEBOOK', 'WEB']
+export const MESSAGE_DIRECTIONS = ['INBOUND', 'OUTBOUND']
+export const CUSTOMER_LIFECYCLE = ['LEAD', 'ACTIVE', 'DORMANT', 'LOST']
+
+// FR-103 — SEC-005 PDPA consent, recorded on the Customer row that FR-023's own
+// docstring already calls the CRM-sharing unit (businesses in one tenant share
+// the Customer). PENDING is the default for every new Customer from here on;
+// GRANDFATHERED marks a row that predates this column and was already being
+// served, so shipping this migration does not retroactively cut off a live
+// conversation — see the migration comment for the backfill this pairs with.
+export const CUSTOMER_CONSENT_STATUSES = ['PENDING', 'GRANTED', 'DECLINED', 'GRANDFATHERED']
+
+// FR-127 — CRM conversation analysis vocabulary. The values are deliberately
+// closed so persisted derived rows remain portable and queryable across SQLite
+// and Postgres; CTA text remains an advisory open string.
+// @tested tests/unit/conversation-analysis-contract.test.js
+export const CONVERSATION_ANALYSIS_CONTACT_TYPES = ['NEW_LEAD', 'RETURNING', 'SUPPORT']
+export const CONVERSATION_ANALYSIS_STATES = ['HOT', 'WARM', 'COLD', 'CLOSED_WON', 'CLOSED_LOST']
+
+// FR-229 — non-text LINE content in the CRM record (ADR-091 D5). Message.contentKind
+// stays coarse on purpose: every media type collapses into MEDIA_REF and the
+// specific kind lives on MessageAttachment.kind, so a new media type never touches
+// Message's own vocabulary.
+export const MESSAGE_CONTENT_KINDS = ['TEXT', 'STICKER', 'LOCATION', 'MEDIA_REF']
+export const MESSAGE_ATTACHMENT_KINDS = ['IMAGE', 'VIDEO', 'AUDIO', 'FILE']
+// STORED/EXPIRED_AT_PROVIDER belong to the later fetch phase FR-229 explicitly
+// defers; only PENDING (admission) and ERASED (unsend/erasure tombstone) are
+// written by this change.
+export const MESSAGE_ATTACHMENT_FETCH_STATES = ['PENDING', 'STORED', 'EXPIRED_AT_PROVIDER', 'ERASED']
+// Exactly FR-229's own list: follow, unfollow, join, leave, member joined, member
+// left, postback and unsend. DELIVERY/READ read receipts are a different, undecided
+// requirement and are deliberately not declared here.
+export const CONVERSATION_EVENT_KINDS = [
+  'FOLLOW', 'UNFOLLOW', 'JOIN', 'LEAVE', 'MEMBER_JOINED', 'MEMBER_LEFT', 'POSTBACK', 'UNSEND',
+]
+
+// FR-230 — every copy of a person's conversation content has a declared retention
+// data class and an installation-default window (ADR-091 D2, SEC-031). A Tenant
+// may only shorten a window (TenantRetentionOverride); lengthening one is refused
+// by the writer. Only MESSAGE_BODY_AND_ATTACHMENTS is swept by this codebase today
+// — the other three name a model this crm-scoped change does not own:
+//   RAW_LINE_PAYLOAD        — RawExternalRecord.payloadJson, integration's charter
+//   AGENT_TRACE_EVENT       — AgentTraceEvent payloads, agent's charter
+//   MSP_SESSION_CONTENT     — MSP's own storage, a separate repository this
+//                             codebase never reaches
+// Their entries here exist so a Tenant can already declare an override for them
+// (and TenantRetentionOverride never needs a schema change when their own
+// sweepers land), not because this change sweeps them.
+export const RETENTION_DATA_CLASSES = [
+  'RAW_LINE_PAYLOAD', 'MESSAGE_BODY_AND_ATTACHMENTS', 'AGENT_TRACE_EVENT', 'MSP_SESSION_CONTENT',
+]
+// Days. 24 months is approximated as 365 * 2 — this repository has no existing
+// month-to-day convention to match, and the owner's numbers are policy, not law
+// (ADR-091 "Retention numbers are product policy, not law").
+export const RETENTION_DEFAULT_WINDOW_DAYS = Object.freeze({
+  RAW_LINE_PAYLOAD: 90,
+  MESSAGE_BODY_AND_ATTACHMENTS: 365 * 2,
+  AGENT_TRACE_EVENT: 90,
+  MSP_SESSION_CONTENT: 90,
+})
+// The subset of RETENTION_DATA_CLASSES this codebase can actually tombstone —
+// see the module comment above. retention-sweep-service.js sweeps exactly this
+// list; a class outside it is not this crm-scoped change's model to write.
+export const CRM_OWNED_RETENTION_CLASSES = ['MESSAGE_BODY_AND_ATTACHMENTS']
+// LineConversationJob's own status vocabulary is deliberately NOT registered
+// here — see the FR-152 comment above this block: a registry entry would read
+// every file's own narrower, purpose-built subset (line-conversation-jobs.js's
+// own `WAITING`, and others) as a "hand copy" of it. retention-sweep-service.js
+// keeps its own local non-terminal list for exactly that reason.
+
+// FR-066/FR-067 — Workspace collaboration boundary (ADR-027 D5). "Workspace"
+// here is the top-level container, schema Portfolio — never schema Workspace,
+// which is a Space (see WORKSPACE_SCOPE_TYPES above, a different axis).
+// Statuses are frozen from what the code actually writes: ADR-027 D5 also names
+// a PENDING membership, but nothing writes one — the waiting state is a PENDING
+// *invite*, not a pending membership row — so it is deliberately absent here
+// (the CONTAINER_STATUSES discipline: add it when something sets it).
+export const WORKSPACE_MEMBERSHIP_ROLES = ['OWNER', 'ADMIN', 'MEMBER']
+export const WORKSPACE_MEMBERSHIP_STATUSES = ['ACTIVE', 'REMOVED']
+// An invite can never mint OWNER: ownership is taken by creating the Workspace
+// or by a later owner-authorized change, not by a token (AC-067.6). Derived
+// from the parent so it cannot drift from it.
+export const WORKSPACE_INVITE_ROLES = WORKSPACE_MEMBERSHIP_ROLES.filter((r) => r !== 'OWNER')
+// EXPIRED is not persisted: expiry is a fail-closed comparison against
+// `expiresAt` at acceptance time, never a status column somebody must update.
+export const WORKSPACE_INVITE_STATUSES = ['PENDING', 'ACCEPTED', 'REVOKED']
+
+// @req FR-195 — AccessInvite generalises WorkspaceInvite to TENANT and
+// BUSINESS scope, on top of the PORTFOLIO scope WorkspaceInvite already had.
+// Its own status vocabulary adds DECLINED, a state WorkspaceInvite had no way
+// to express (a targeted invite that a Person actively turns down, distinct
+// from letting it expire or having it revoked).
+export const ACCESS_INVITE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
+export const ACCESS_INVITE_STATUSES = ['PENDING', 'ACCEPTED', 'DECLINED', 'REVOKED']
+// TENANT/BUSINESS scope becomes a real Membership on acceptance
+// (`grantBusinessMembership`), whose role vocabulary is MEMBERSHIP_ROLES —
+// OWNER excluded here for the same reason WORKSPACE_INVITE_ROLES excludes it:
+// a token never mints ownership.
+export const ACCESS_INVITE_ROLES = MEMBERSHIP_ROLES.filter((r) => r !== 'OWNER')
+
+// FR-022 — the P3 gate's staff/customer split. In V2's unified identity a Person
+// is STAFF when it holds a Membership in the tenant (RBAC side) and CUSTOMER when
+// it holds a Customer record (CRM side); a Person that is both resolves to STAFF
+// (precedence), and one that is neither is UNKNOWN. Structural, not a stored column.
+export const PRINCIPAL_TYPES = ['STAFF', 'CUSTOMER', 'UNKNOWN']
+export const IDENTITY_PROVIDERS = ['LINE']
+
+// @req FR-133, FR-134, FR-135, FR-136 — closed Asset foundation vocabulary.
+// @spec SDD-078, SDD-079, SDD-080, ADR-055
+export const ASSET_INTAKE_CHANNELS = ['WEB', 'REST_API', 'EXCEL', 'GOOGLE_SHEET', 'AGENT_MCP', 'LINE_OA', 'LIFF']
+export const ASSET_EVIDENCE_ROLES = ['ASSET_PHOTO', 'RECEIPT', 'INVOICE', 'PAYMENT_PROOF', 'DELIVERY', 'INSPECTION', 'WARRANTY', 'OTHER']
+export const ASSET_EVIDENCE_DOCUMENT_TYPES = ['RECEIPT', 'INVOICE', 'PAYMENT_SLIP', 'DELIVERY', 'OTHER']
+export const ASSET_PROCUREMENT_REF_TYPES = ['PR', 'PR_LINE', 'PO', 'PO_LINE', 'GRN', 'INVOICE', 'SUPPLIER']
+export const ASSET_RESPONSIBILITY_ROLES = ['ACCOUNTABLE', 'CUSTODIAN', 'USER']
+export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
+
+// @req FR-223 — Integration credential vault vocabulary (ADR-089 D1, D5; SDD-097).
+// A store is named by the reference prefix it answers (`supabase-vault:`,
+// `envelope:`, `deployment-secret:`); a version is PURGED once its material is gone.
+export const SECRET_STORES = ['DEPLOYMENT_MOUNT', 'SUPABASE_VAULT', 'ENVELOPE']
+export const SECRET_KINDS = ['LINE_CHANNEL', 'OAUTH_CLIENT', 'API_KEY', 'MODEL_PROVIDER_KEY']
+export const INTEGRATION_CREDENTIAL_STATUSES = ['PENDING_VALIDATION', 'ACTIVE', 'ROTATING', 'EXPIRED', 'REVOKED', 'REENTRY_REQUIRED']
+// ROTATING still resolves: the previous version stays live until the new one validates.
+export const INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES = INTEGRATION_CREDENTIAL_STATUSES.filter(status => status === 'ACTIVE' || status === 'ROTATING')
+export const INTEGRATION_CREDENTIAL_VERSION_STATUSES = ['PENDING_VALIDATION', 'ACTIVE', 'SUPERSEDED', 'REJECTED', 'REVOKED', 'PURGED']
+// Every version whose material may still exist in a store.
+export const INTEGRATION_CREDENTIAL_PURGEABLE_VERSION_STATUSES = INTEGRATION_CREDENTIAL_VERSION_STATUSES.filter(status => status !== 'PURGED')
+export const INTEGRATION_CREDENTIAL_CREATED_VIA = ['BROWSER_MFA', 'OPERATOR_CLI', 'BACKFILL']
+
+// @req FR-266 — the model provider key a Business owner enters in the browser
+// (ADR-100 D4). The connection `purpose` that carries it, and the provider codes
+// a key may be entered for. `ollama` is deliberately absent: it takes no key, and
+// `model-provider.js` already refuses it outside a local runtime source — a form
+// that offered it would be offering a field the adapter forbids.
+export const MODEL_PROVIDER_PURPOSE = 'MODEL_PROVIDER'
+// `prp` is the operator's own Private Runtime Platform (ADR-100 D7, the first step
+// of ADR-099). Cited in prose, not by requirement id: this is the app-wide enum
+// source, and an id here would make every test that imports it — plan schemas,
+// procurement, everything — count as evidence for the private runtime. Unlike the
+// four public providers it has no fixed
+// address: its base URL is operator configuration on the server, so the code is
+// only *offered* where that configuration exists (`readModelProviderStatus`) and
+// is refused, not guessed, where it does not.
+export const PRIVATE_RUNTIME_PROVIDER = 'prp'
+export const MODEL_PROVIDER_CODES = ['anthropic', 'openai', 'gemini', 'groq', PRIVATE_RUNTIME_PROVIDER]
+// The model id is entered by the owner, not defaulted by the server. A server-side
+// default would be a guess that silently decides what the Business pays per token
+// and how good its answers are, and it would rot the moment a provider renames a
+// model. These are the suggestions the form pre-fills — visible, editable, and
+// wrong in an obvious way rather than a hidden one. `prp` has no entry here: its
+// model aliases belong to the operator's deployment, so its suggestion comes from
+// the server's own configuration at read time, never from this constant.
+export const MODEL_PROVIDER_SUGGESTED_MODELS = Object.freeze({
+  anthropic: 'claude-sonnet-5',
+  openai: 'gpt-4o-mini',
+  gemini: 'gemini-2.0-flash',
+  groq: 'llama-3.3-70b-versatile',
+})
+// A model id is an opaque provider string: bounded and printable, never parsed.
+export const MODEL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:\/-]{0,120}$/
+
+// @req FR-146 — LINE OA Studio account vocabulary (ADR-060 D2/D5). `LIVE` is
+// derived, never stored: the stored machine is DRAFT → CONNECTED → PAUSED |
+// ARCHIVED, and an account reads LIVE only while the agent lane reports an
+// ACTIVE binding for it.
+// @req FR-265 — `transportMode` named who owns the account's LINE transport, the
+// tenant's Zuri Edge Device or the cloud. ADR-100 D1 retires the first: the cloud
+// owns it, so the list has one member and the account column is pinned to it. The
+// list is kept as a list rather than collapsed to a constant because
+// `LineConversationJob.executionMode` still reads `EDGE` rows as history, and a
+// vocabulary that once had two members is more honest about that than a boolean.
+export const LINE_OA_ACCOUNT_STATUSES = ['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIVED']
+export const LINE_OA_ACCOUNT_EFFECTIVE_STATUSES = [...LINE_OA_ACCOUNT_STATUSES, 'LIVE']
+export const LINE_OA_TRANSPORT_MODES = ['CLOUD']
+// @req FR-227 — REGISTER_WEBHOOK sets, reads back and tests the account's LINE
+// webhook endpoint, storing the outcome as computed health (`webhookStateJson`).
+// It never fences transport work: it changes no credential, no transport owner
+// and no execution policy — only which health the account reports.
+// @req FR-265 — `SWITCH_TRANSPORT_MODE` is withdrawn (ADR-100 D1): there is one
+// transport owner, so there is nothing to switch between. `CONFIGURE_EXECUTION`
+// keeps its name and its audit action string although it now carries only
+// `allowDelayedPush` — the string is a key that history already wrote, and
+// renaming it would orphan every event recorded under it (AGENTS.md §18).
+export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER', 'CONFIGURE_KNOWLEDGE_GROUNDING', 'REGISTER_WEBHOOK', 'CONFIGURE_SESSION_TIMEOUT', 'CONFIGURE_BUSINESS_HOURS']
+// @req FR-235 — per-account grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE is
+// the default and every existing account's unchanged behaviour; GKS_CORPUS and
+// GKS_THEN_BUSINESS_KNOWLEDGE read the Business's published corpus generation
+// through an in-process knowledge.query reader before (or instead of) the
+// curated table. A missing or unrecognised value always resolves to
+// BUSINESS_KNOWLEDGE — the least-permissive, already-shipped behaviour — never
+// to a corpus read (fail closed).
+export const KNOWLEDGE_GROUNDING_MODES = ['BUSINESS_KNOWLEDGE', 'GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']
+// FR-151 — rich menu designer vocabularies (ADR-060 D3, SRS LOS-RQ-040..042).
+export const LINE_OA_RICH_MENU_LAYOUTS = ['1x1', '2x1', '2x2', '2x3', '3x1', '1x2']
+export const LINE_OA_RICH_MENU_STATUSES = ['DRAFT', 'READY', 'ARCHIVED']
+export const LINE_OA_RICH_MENU_VERSION_STATUSES = ['DRAFT', 'FROZEN', 'PUBLISHED', 'RETIRED']
+export const LINE_OA_RICH_MENU_ACTION_TYPES = ['MESSAGE', 'POSTBACK', 'URI', 'LIFF', 'RICHMENU_SWITCH']
+export const LINE_OA_RICH_MENU_ACTIONS = ['SAVE_DRAFT', 'FREEZE', 'ARCHIVE']
+// FR-152 — rich menu publish jobs, server-owned (ADR-061 D1, D6, D7). The job's
+// status vocabulary lives with the job (domain/line-oa-rich-menu-publish.js), as
+// LineConversationJob's does: its words (QUEUED, CLAIMED, FAILED, CANCELLED,
+// UNKNOWN) are the common job-ledger words other lanes also spell, and a
+// registry entry here would read every one of those as a hand copy.
+export const LINE_OA_RICH_MENU_JOB_KINDS = ['PUBLISH', 'SET_DEFAULT', 'SET_ALIAS']
+export const LINE_OA_RICH_MENU_JOB_STAGES = ['CREATE', 'UPLOAD', 'APPLY', 'DONE']
+// FR-153 — LIFF app registry vocabularies (SRS LOS-RQ-070). Statuses live with
+// the aggregate (domain/line-oa-liff-app.js) for the same enum-copy reason as
+// the job statuses above.
+export const LINE_OA_LIFF_VIEW_SIZES = ['COMPACT', 'TALL', 'FULL']
+export const LINE_OA_LIFF_SCOPES = ['profile', 'openid', 'email', 'chat_message.write']
+export const LINE_OA_LIFF_BOT_PROMPTS = ['NONE', 'NORMAL', 'AGGRESSIVE']
+export const LINE_OA_LIFF_APP_ACTIONS = ['UPDATE', 'RECORD_LIFF_ID', 'ARCHIVE']
+// FR-154 / FR-155 / FR-168 — Inventory (คลังสินค้า) vocabularies. A Product
+// (SKU) declares which of three natures it has, and the three differ in
+// accounting, not only in bookkeeping convenience:
+//
+//   TRACKED   สินค้านับสต๊อก — a good the Business counts. Every movement is a
+//             ledger row, on-hand is their sum, and the cost sits in stock
+//             until the goods leave.
+//   UNTRACKED สินค้าไม่นับสต๊อก — still a good, and it can still be bought and
+//             received, but the Business has decided not to carry a perpetual
+//             count of it (consumables, made-to-order, print-on-demand). It has
+//             no ledger and therefore no on-hand — never a zero, which would
+//             read as "counted and empty".
+//   SERVICE   บริการ — not a good at all. Nothing is ever received into a
+//             warehouse, so it carries no stock fields, cannot appear on a
+//             goods receipt, and is a service line rather than a goods line
+//             wherever that distinction is made.
+//
+// SERVICE was folded into UNTRACKED until 2026-09-07 (FR-168). That conflated
+// "we do not count this good" with "this is not a good", which is a difference
+// an accountant cares about, and it left every service line on a purchase order
+// as free text with no catalogue identity.
+//
+// A counted product additionally says how its units are identified: as an
+// anonymous quantity (NONE), per manufacturing lot (LOT) or per individual
+// serial number (SERIAL).
+export const INVENTORY_STOCK_POLICIES = ['TRACKED', 'UNTRACKED', 'SERVICE']
+/** The natures that have no stock ledger: no on-hand, no lot, no serial. */
+export const INVENTORY_UNSTOCKED_POLICIES = ['UNTRACKED', 'SERVICE']
+export const INVENTORY_TRACKING_MODES = ['NONE', 'LOT', 'SERIAL']
+// FR-201 — the nature is declared once, at the master: a GOOD's SKUs are
+// TRACKED or UNTRACKED, a SERVICE's SKUs are SERVICE, and a service is never a
+// variant of a good (ADR-083 D1, BR-038).
+export const INVENTORY_PRODUCT_NATURES = ['GOOD', 'SERVICE']
+// FR-205 — a SKU's lifecycle: ACTIVE, PHASE_OUT (sell what is left, buy no
+// more), ARCHIVED (gone, never deleted). Other catalogue rows keep the two
+// states in `INVENTORY_RECORD_STATUSES`.
+export const INVENTORY_PRODUCT_STATUSES = ['ACTIVE', 'PHASE_OUT', 'ARCHIVED']
+// FR-205 — the five versioned product actions: the two from FR-154 and the
+// three the lifecycle adds. MERGE is the anti-bloat repair (ADR-083 D5).
+export const INVENTORY_PRODUCT_ACTIONS = ['UPDATE', 'ARCHIVE', 'PHASE_OUT', 'REACTIVATE', 'MERGE']
+// FR-203 — the kinds of identifier a SKU may carry. GTIN covers EAN-13 and
+// UPC-A (GTIN-13 / GTIN-12); BARCODE is any other scannable string; the rest
+// are a partner's names for our item. Never keys (BR-002).
+export const INVENTORY_IDENTIFIER_KINDS = ['GTIN', 'BARCODE', 'SUPPLIER_CODE', 'MANUFACTURER_PART', 'LEGACY_CODE']
+// FR-204 — where a unit conversion applies: buying, selling, or anywhere.
+export const INVENTORY_UNIT_USAGES = ['PURCHASE', 'SALES', 'ANY']
+// FR-208 — catalogue intake (ADR-084): the surfaces that convert into the one
+// envelope, the states of a persisted preview, and what the planner decided
+// for each item after resolving it against the catalogue.
+export const INVENTORY_CATALOG_INTAKE_CHANNELS = ['REST_API', 'EXCEL', 'LINE_OA', 'WEB']
+export const INVENTORY_CATALOG_INTAKE_STATUSES = ['PREVIEWED', 'COMMITTED', 'CANCELLED']
+export const INVENTORY_CATALOG_INTAKE_DECISIONS = ['CREATE', 'MATCH', 'UNCHANGED', 'CONFLICT', 'INVALID']
+// FR-206 — the kinds of finding the catalogue hygiene report can raise.
+export const INVENTORY_HYGIENE_FINDING_KINDS = [
+  'NATURE_MISMATCH', 'LOOKALIKE_SKUS', 'MASTER_WITHOUT_AXES', 'MASTER_WITHOUT_SKUS',
+  'DORMANT_SKU', 'SKU_WITHOUT_IDENTIFIER', 'SERVICE_WITH_STOCK_FIELDS', 'PHASE_OUT_WITH_STOCK', 'CARTON_DATA_MISSING',
+]
+export const INVENTORY_LOT_STATUSES = ['OPEN', 'QUARANTINE', 'CLOSED']
+export const INVENTORY_SERIAL_STATUSES = ['IN_STOCK', 'RESERVED', 'ISSUED', 'RETURNED', 'SCRAPPED']
+export const INVENTORY_MOVEMENT_KINDS = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
+// FR-156 — a recipe (bill of materials at one batch size) is edited or
+// archived through the same two versioned actions a product has.
+export const INVENTORY_RECIPE_ACTIONS = ['UPDATE', 'ARCHIVE']
+
+// FR-174 — where stock is. A location's type is what makes it answerable:
+// "how much is still at sea" and "how much failed QC" are the questions an
+// importing manufacturer asks, and a free-text label cannot be aggregated.
+// The list is the physical supply chain of an import-and-assemble business,
+// ordered as goods actually travel — factory, vessel, port, raw store,
+// the two workshop stages, finished goods, quarantine, and the customer.
+export const INVENTORY_LOCATION_TYPES = [
+  'CN_FACTORY',
+  'INTL_SEA_TRANSIT',
+  'TH_PORT_CUSTOMS',
+  'TH_CENTRAL_RAW',
+  'TH_WIP_CUSTOMIZATION',
+  'TH_WIP_ASSEMBLY',
+  'TH_FINISHED_GOODS',
+  'TH_QUARANTINE_SCRAP',
+  'CUSTOMER_SITE',
+]
+/** Locations that hold unbranded, freely allocatable stock. Branded stock may never be transferred into one (BR-028). */
+export const INVENTORY_GENERIC_STOCK_LOCATION_TYPES = ['CN_FACTORY', 'INTL_SEA_TRANSIT', 'TH_PORT_CUSTOMS', 'TH_CENTRAL_RAW']
+
+// FR-176 — the role a SKU plays in a kit, distinct from its nature
+// (`stockPolicy`) and from how its units are identified (`trackingMode`).
+// CUSTOM_COMPONENT is the one that carries a customer lock and can therefore
+// be refused for anyone else.
+export const INVENTORY_ITEM_KINDS = ['RAW_COMPONENT', 'PACKAGING_MATERIAL', 'CUSTOM_COMPONENT', 'FINISHED_SET']
+
+// FR-176 — how a logo is put onto a component. The list is the set of
+// processes that change the physical item irreversibly; a sticker or a hang
+// tag is packaging, not customization, and is deliberately absent.
+export const CUSTOMIZATION_TECHNIQUES = ['LASER_ENGRAVING', 'SILK_SCREEN', 'UV_DIGITAL_PRINT', 'HOT_STAMP_FOIL', 'EMBOSSING']
+
+// FR-176, FR-177 — one lifecycle for both work orders. BLOCKED_SHORTAGE is a
+// real state rather than a flag: a work order whose scrap outran its buffer
+// has stock issued and is neither in progress nor finished, and calling that
+// IN_PROGRESS would hide the one thing the shop floor needs to see.
+export const WORK_ORDER_STATUSES = ['DRAFT', 'RELEASED', 'IN_PROGRESS', 'COMPLETED', 'BLOCKED_SHORTAGE', 'CANCELLED']
+/** Work-order states that still hold issued stock, so the order may not be forgotten. */
+export const WORK_ORDER_OPEN_STATUSES = ['RELEASED', 'IN_PROGRESS', 'BLOCKED_SHORTAGE']
+
+// FR-182 — the verbs a work order accepts from a surface, declared once so a
+// route dispatches on a validated vocabulary rather than branching on a string
+// it invented. DRAFT → RELEASE → COMPLETE is the run; CANCEL ends it early.
+export const WORK_ORDER_ACTIONS = ['RELEASE', 'COMPLETE', 'CANCEL']
+
+// FR-180 — the two tiers of promise. QUOTE is soft and expires; ORDER is
+// committed against a confirmed sales order and does not.
+export const STOCK_RESERVATION_PURPOSES = ['QUOTE', 'ORDER']
+// A reservation is never deleted, so its end state stays readable: released by
+// hand, converted into a committed one, or expired by the clock.
+export const STOCK_RESERVATION_STATUSES = ['ACTIVE', 'RELEASED', 'CONVERTED', 'EXPIRED']
+// FR-161 — sales tasks (crm): a follow-up a salesperson owes a customer,
+// distinct from project-manager's WorkItem. The legacy product's "URGENT"
+// status is a priority here, and its PROJECT task kind with milestones is
+// project-manager's, so neither appears.
+export const SALES_TASK_TYPES = ['FOLLOW_UP', 'CALL', 'LINE_MESSAGE', 'EMAIL', 'MEETING', 'DEMO', 'QUOTE']
+export const SALES_TASK_PRIORITIES = ['URGENT', 'HIGH', 'NORMAL', 'LOW']
+export const SALES_TASK_STATUSES = ['OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED']
+export const SALES_TASK_SCHEDULE_KINDS = ['SINGLE', 'RANGE']
+export const SALES_TASK_ACTIONS = ['UPDATE', 'ASSIGN', 'START', 'COMPLETE', 'CANCEL', 'REOPEN']
+// FR-166 / FR-163 — commerce: a sales order and the payments against it. The
+// order's origin is where the sale came from (CHAT = attributed to a
+// Conversation, the legacy "ads revenue"); its status is the sale's, while the
+// payment state (unpaid / partial / paid …) is DERIVED from verified payments
+// and lives with the aggregate, never here or in a column. A payment is
+// PENDING until a verifier confirms the slip; the legacy "CREDIT" kind (store
+// credit) is not a payment and does not appear.
+export const SALES_ORDER_ORIGINS = ['CHAT', 'WALK_IN', 'ONLINE']
+export const SALES_ORDER_STATUSES = ['DRAFT', 'CONFIRMED', 'COMPLETED', 'CANCELLED']
+export const SALES_ORDER_ACTIONS = ['UPDATE', 'CONFIRM', 'COMPLETE', 'CANCEL']
+export const PAYMENT_KINDS = ['PAYMENT', 'REFUND']
+export const PAYMENT_METHODS = ['TRANSFER', 'CASH', 'QR', 'CARD', 'OTHER']
+export const PAYMENT_STATUSES = ['PENDING', 'VERIFIED', 'REJECTED']
+export const PAYMENT_ACTIONS = ['VERIFY', 'REJECT']
+
+// FR-236 (knowledge, ADR-090 D6) — a LINE FAQ knowledge candidate: drafted
+// from one consent-GRANTED Conversation, decided by a Business OWNER or
+// LINE_OA_PUBLISHER, admitted as one immutable LINE_FAQ_CANDIDATE TEXT source
+// on APPROVED. TOMBSTONED is FR-232's erasure outcome, never a user action.
+export const KNOWLEDGE_CANDIDATE_STATUSES = ['PENDING_REVIEW', 'APPROVED', 'REJECTED', 'TOMBSTONED']
+export const KNOWLEDGE_CANDIDATE_DECISIONS = ['APPROVE', 'REJECT']
+
+// @req FR-164, FR-165 — Procurement (ADR-066), the buy side. A supplier is
+// ACTIVE until archived (the row stays). A purchase order is DRAFT until SENT
+// to the supplier; RECEIVED is set by the goods receipt that completes every
+// line, SHORT_CLOSED is a short-close of a SENT order with lines outstanding,
+// CANCELLED is possible only while nothing has been received. "Partially
+// received" is NOT a status: it is the `receiptState` (NONE / PARTIAL /
+// COMPLETE) derived on read from the receipt lines against the ordered
+// quantities, and lives with the aggregate, never in a column. A goods
+// receipt has no status of its own — it is posted by its creation and never
+// edited; a wrong receipt is corrected by an Inventory ADJUSTMENT.
+export const SUPPLIER_STATUSES = ['ACTIVE', 'ARCHIVED']
+export const SUPPLIER_ACTIONS = ['UPDATE', 'ARCHIVE']
+export const PURCHASE_ORDER_STATUSES = ['DRAFT', 'SENT', 'RECEIVED', 'SHORT_CLOSED', 'CANCELLED']
+export const PURCHASE_ORDER_ACTIONS = ['UPDATE', 'SEND', 'CLOSE', 'CANCEL']
+
+// @req FR-194 — LegalEntity moves under Tenant (ADR-078); its lifecycle is the
+// same shape every other master-data record in this schema uses.
+export const LEGAL_ENTITY_STATUSES = ['ACTIVE', 'ARCHIVED']
+// @req FR-194 — a legal entity's VAT branch registrations (ประมวลรัษฎากร ม.86,
+// ภ.พ.20), split out of `Branch` because a branch code belongs to the legal
+// entity's tax registration, not to an operating site (ADR-078).
+export const TAX_REGISTRATION_BRANCH_STATUSES = ['ACTIVE', 'ARCHIVED']
+
+export const zExecutionMode = z.enum(EXECUTION_MODES)
+export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
+export const zDependencyType = z.enum(DEPENDENCY_TYPES)
+export const zDependencyEndpointType = z.enum(DEPENDENCY_ENDPOINT_TYPES)
+export const zProjectStatus = z.enum(PROJECT_STATUSES)
+export const zProjectPriority = z.enum(PROJECT_PRIORITIES)
+export const zWorkstreamStatus = z.enum(WORKSTREAM_STATUSES)
+export const zWorkStatus = z.enum(WORK_STATUSES)
+export const zContainerStatus = z.enum(CONTAINER_STATUSES)
+export const zMilestoneStatus = z.enum(MILESTONE_STATUSES)
+export const zGateStatus = z.enum(GATE_STATUSES)
+export const zWorkspaceScopeType = z.enum(WORKSPACE_SCOPE_TYPES)
+export const zMembershipRole = z.enum(MEMBERSHIP_ROLES)
+export const zMembershipStatus = z.enum(MEMBERSHIP_STATUSES)
+export const zMembershipScopeType = z.enum(MEMBERSHIP_SCOPE_TYPES)
+export const zMembershipGrantSource = z.enum(MEMBERSHIP_GRANT_SOURCES)
+export const zRoleBindingScopeType = z.enum(ROLE_BINDING_SCOPE_TYPES)
+export const zChannel = z.enum(CHANNELS)
+export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
+export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)
+export const zCustomerConsentStatus = z.enum(CUSTOMER_CONSENT_STATUSES)
+export const zConversationAnalysisContactType = z.enum(CONVERSATION_ANALYSIS_CONTACT_TYPES)
+export const zConversationAnalysisState = z.enum(CONVERSATION_ANALYSIS_STATES)
+export const zWorkspaceMembershipRole = z.enum(WORKSPACE_MEMBERSHIP_ROLES)
+export const zWorkspaceMembershipStatus = z.enum(WORKSPACE_MEMBERSHIP_STATUSES)
+export const zWorkspaceInviteRole = z.enum(WORKSPACE_INVITE_ROLES)
+export const zWorkspaceInviteStatus = z.enum(WORKSPACE_INVITE_STATUSES)
+export const zAccessInviteScopeType = z.enum(ACCESS_INVITE_SCOPE_TYPES)
+export const zAccessInviteStatus = z.enum(ACCESS_INVITE_STATUSES)
+export const zAccessInviteRole = z.enum(ACCESS_INVITE_ROLES)
+export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
+export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
+export const zAssetIntakeChannel = z.enum(ASSET_INTAKE_CHANNELS)
+export const zAssetEvidenceRole = z.enum(ASSET_EVIDENCE_ROLES)
+export const zAssetEvidenceDocumentType = z.enum(ASSET_EVIDENCE_DOCUMENT_TYPES)
+export const zAssetProcurementRefType = z.enum(ASSET_PROCUREMENT_REF_TYPES)
+export const zAssetResponsibilityRole = z.enum(ASSET_RESPONSIBILITY_ROLES)
+export const zAssetDepreciationMethod = z.enum(ASSET_DEPRECIATION_METHODS)
+export const zLineOaAccountStatus = z.enum(LINE_OA_ACCOUNT_STATUSES)
+export const zLineOaTransportMode = z.enum(LINE_OA_TRANSPORT_MODES)
+// @req FR-266 — the provider a browser-entered model key belongs to (ADR-100 D4).
+export const zModelProviderCode = z.enum(MODEL_PROVIDER_CODES)
+export const zLineOaAccountAction = z.enum(LINE_OA_ACCOUNT_ACTIONS)
+export const zKnowledgeGroundingMode = z.enum(KNOWLEDGE_GROUNDING_MODES)
+export const zLineOaRichMenuLayout = z.enum(LINE_OA_RICH_MENU_LAYOUTS)
+export const zLineOaRichMenuStatus = z.enum(LINE_OA_RICH_MENU_STATUSES)
+export const zLineOaRichMenuVersionStatus = z.enum(LINE_OA_RICH_MENU_VERSION_STATUSES)
+export const zLineOaRichMenuActionType = z.enum(LINE_OA_RICH_MENU_ACTION_TYPES)
+export const zLineOaRichMenuAction = z.enum(LINE_OA_RICH_MENU_ACTIONS)
+export const zLineOaRichMenuJobKind = z.enum(LINE_OA_RICH_MENU_JOB_KINDS)
+export const zLineOaLiffViewSize = z.enum(LINE_OA_LIFF_VIEW_SIZES)
+export const zLineOaLiffScope = z.enum(LINE_OA_LIFF_SCOPES)
+export const zLineOaLiffBotPrompt = z.enum(LINE_OA_LIFF_BOT_PROMPTS)
+export const zLineOaLiffAppAction = z.enum(LINE_OA_LIFF_APP_ACTIONS)
+export const zInventoryStockPolicy = z.enum(INVENTORY_STOCK_POLICIES)
+export const zInventoryTrackingMode = z.enum(INVENTORY_TRACKING_MODES)
+export const zInventoryProductAction = z.enum(INVENTORY_PRODUCT_ACTIONS)
+export const zInventoryProductNature = z.enum(INVENTORY_PRODUCT_NATURES)
+export const zInventoryProductStatus = z.enum(INVENTORY_PRODUCT_STATUSES)
+export const zInventoryIdentifierKind = z.enum(INVENTORY_IDENTIFIER_KINDS)
+export const zInventoryUnitUsage = z.enum(INVENTORY_UNIT_USAGES)
+export const zInventoryHygieneFindingKind = z.enum(INVENTORY_HYGIENE_FINDING_KINDS)
+export const zInventoryLotStatus = z.enum(INVENTORY_LOT_STATUSES)
+export const zInventorySerialStatus = z.enum(INVENTORY_SERIAL_STATUSES)
+export const zInventoryMovementKind = z.enum(INVENTORY_MOVEMENT_KINDS)
+export const zInventoryRecipeAction = z.enum(INVENTORY_RECIPE_ACTIONS)
+export const zInventoryLocationType = z.enum(INVENTORY_LOCATION_TYPES)
+export const zInventoryItemKind = z.enum(INVENTORY_ITEM_KINDS)
+export const zCustomizationTechnique = z.enum(CUSTOMIZATION_TECHNIQUES)
+export const zWorkOrderStatus = z.enum(WORK_ORDER_STATUSES)
+export const zWorkOrderAction = z.enum(WORK_ORDER_ACTIONS)
+export const zStockReservationPurpose = z.enum(STOCK_RESERVATION_PURPOSES)
+export const zStockReservationStatus = z.enum(STOCK_RESERVATION_STATUSES)
+export const zSalesTaskType = z.enum(SALES_TASK_TYPES)
+export const zSalesTaskPriority = z.enum(SALES_TASK_PRIORITIES)
+export const zSalesTaskStatus = z.enum(SALES_TASK_STATUSES)
+export const zSalesTaskScheduleKind = z.enum(SALES_TASK_SCHEDULE_KINDS)
+export const zSalesTaskAction = z.enum(SALES_TASK_ACTIONS)
+export const zSalesOrderOrigin = z.enum(SALES_ORDER_ORIGINS)
+export const zSalesOrderStatus = z.enum(SALES_ORDER_STATUSES)
+export const zSalesOrderAction = z.enum(SALES_ORDER_ACTIONS)
+export const zPaymentKind = z.enum(PAYMENT_KINDS)
+export const zPaymentMethod = z.enum(PAYMENT_METHODS)
+export const zPaymentStatus = z.enum(PAYMENT_STATUSES)
+export const zPaymentAction = z.enum(PAYMENT_ACTIONS)
+export const zKnowledgeCandidateStatus = z.enum(KNOWLEDGE_CANDIDATE_STATUSES)
+export const zKnowledgeCandidateDecision = z.enum(KNOWLEDGE_CANDIDATE_DECISIONS)
+export const zSupplierStatus = z.enum(SUPPLIER_STATUSES)
+export const zSupplierAction = z.enum(SUPPLIER_ACTIONS)
+export const zPurchaseOrderStatus = z.enum(PURCHASE_ORDER_STATUSES)
+export const zPurchaseOrderAction = z.enum(PURCHASE_ORDER_ACTIONS)
+export const zLegalEntityStatus = z.enum(LEGAL_ENTITY_STATUSES)
+export const zTaxRegistrationBranchStatus = z.enum(TAX_REGISTRATION_BRANCH_STATUSES)
+export const zBranchKind = z.enum(BRANCH_KINDS)
+export const zEmploymentStatus = z.enum(EMPLOYMENT_STATUSES)
+export const zEmploymentType = z.enum(EMPLOYMENT_TYPES)
+export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
+export const zGoalStatus = z.enum(GOAL_STATUSES)
+export const zGoalPriority = z.enum(GOAL_PRIORITIES)
+export const zKeyResultDirection = z.enum(KEY_RESULT_DIRECTIONS)
+export const zKeyResultStatus = z.enum(KEY_RESULT_STATUSES)
+export const zBusinessGoalPerspective = z.enum(BUSINESS_GOAL_PERSPECTIVES)
+export const zMessageContentKind = z.enum(MESSAGE_CONTENT_KINDS)
+export const zMessageAttachmentKind = z.enum(MESSAGE_ATTACHMENT_KINDS)
+export const zMessageAttachmentFetchState = z.enum(MESSAGE_ATTACHMENT_FETCH_STATES)
+export const zConversationEventKind = z.enum(CONVERSATION_EVENT_KINDS)
+
+// Container subtype vocabulary per mode (open set; these are the documented ones).
+export const CONTAINER_SUBTYPES = [
+  'SPRINT', 'EPIC', 'RELEASE',
+  'MIGRATION_STAGE', 'MIGRATION_BATCH',
+  'SALES_PIPELINE', 'SALES_STAGE',
+  'CAMPAIGN', 'CAMPAIGN_WAVE', 'CHANNEL',
+  'LAUNCH_PHASE',
+  'OPS_PERIOD', 'OPS_PROCESS',
+  'EXPANSION_INITIATIVE', 'EXPANSION_SITE',
+]
+
+export const ITEM_SUBTYPES = [
+  'TASK', 'BUG',
+  'DATASET', 'VALIDATION', 'RECONCILIATION',
+  'ACCOUNT', 'DEAL', 'ACTIVITY',
+  'CREATIVE', 'AUDIENCE', 'EXPERIMENT',
+  'DELIVERABLE',
+  'CHECKLIST_ITEM', 'ISSUE', 'SLA',
+  'SETUP_ACTION', 'APPROVAL',
+]
+
+// @req FR-012 — PlanEnvelope accepts only the vocabulary belonging to the
+// selected execution mode; the neutral database remains unchanged.
+// @spec BR-004, BR-009 — seven canonical modes share one intake pipeline.
+// @tested tests/unit/plan-schema.test.js
+export const EXECUTION_MODE_CONTRACTS = Object.freeze({
+  SOFTWARE_SPRINT: Object.freeze({
+    progressStrategy: 'TASK_WEIGHT',
+    containerSubtypes: Object.freeze(['SPRINT', 'EPIC', 'RELEASE']),
+    itemSubtypes: Object.freeze(['TASK', 'BUG']),
+    metricKeys: Object.freeze(['completedWeight', 'plannedWeight', 'defects']),
+  }),
+  DATA_MIGRATION: Object.freeze({
+    progressStrategy: 'RECORD_VALIDATION',
+    containerSubtypes: Object.freeze(['MIGRATION_STAGE', 'MIGRATION_BATCH']),
+    itemSubtypes: Object.freeze(['DATASET', 'VALIDATION', 'RECONCILIATION']),
+    metricKeys: Object.freeze(['recordsTotal', 'processed', 'success', 'failed', 'validated', 'reconciled']),
+  }),
+  B2B_SALES: Object.freeze({
+    progressStrategy: 'WEIGHTED_PIPELINE',
+    containerSubtypes: Object.freeze(['SALES_PIPELINE', 'SALES_STAGE']),
+    itemSubtypes: Object.freeze(['ACCOUNT', 'DEAL', 'ACTIVITY']),
+    metricKeys: Object.freeze(['target', 'wonRevenue', 'weightedValue']),
+  }),
+  B2C_CAMPAIGN: Object.freeze({
+    progressStrategy: 'KPI_ATTAINMENT',
+    containerSubtypes: Object.freeze(['CAMPAIGN', 'CAMPAIGN_WAVE', 'CHANNEL']),
+    itemSubtypes: Object.freeze(['CREATIVE', 'AUDIENCE', 'EXPERIMENT']),
+    metricKeys: Object.freeze(['spend', 'leads', 'cpa', 'cac', 'conversion', 'conversions', 'revenue', 'roas']),
+  }),
+  PRODUCT_LAUNCH: Object.freeze({
+    progressStrategy: 'MILESTONE_READINESS',
+    containerSubtypes: Object.freeze(['LAUNCH_PHASE']),
+    itemSubtypes: Object.freeze(['DELIVERABLE']),
+    metricKeys: Object.freeze(['readiness', 'blockedGates']),
+  }),
+  OPERATIONS: Object.freeze({
+    progressStrategy: 'SLA_SCORE',
+    containerSubtypes: Object.freeze(['OPS_PERIOD', 'OPS_PROCESS']),
+    itemSubtypes: Object.freeze(['CHECKLIST_ITEM', 'ISSUE', 'SLA']),
+    metricKeys: Object.freeze(['slaMet', 'slaTotal', 'throughput', 'backlog', 'incidents', 'completed']),
+  }),
+  BUSINESS_EXPANSION: Object.freeze({
+    progressStrategy: 'EXPANSION_READINESS',
+    containerSubtypes: Object.freeze(['EXPANSION_INITIATIVE', 'EXPANSION_SITE']),
+    itemSubtypes: Object.freeze(['SETUP_ACTION', 'APPROVAL']),
+    metricKeys: Object.freeze(['legal', 'location', 'budget', 'hiring', 'vendors', 'operationalReadiness', 'goLive']),
+  }),
+})
+
+export const MODE_LABELS = {
+  SOFTWARE_SPRINT: 'Software Sprint',
+  DATA_MIGRATION: 'Data Migration',
+  B2B_SALES: 'B2B Sales',
+  B2C_CAMPAIGN: 'B2C Campaign',
+  PRODUCT_LAUNCH: 'Product Launch',
+  OPERATIONS: 'Operations',
+  BUSINESS_EXPANSION: 'Business Expansion',
+}
+
+// Route slug <-> mode mapping for /execution/[mode] and project execution views.
+export const MODE_SLUGS = {
+  sprint: 'SOFTWARE_SPRINT',
+  migration: 'DATA_MIGRATION',
+  'b2b-sales': 'B2B_SALES',
+  'b2c-campaign': 'B2C_CAMPAIGN',
+  'product-launch': 'PRODUCT_LAUNCH',
+  operations: 'OPERATIONS',
+  expansion: 'BUSINESS_EXPANSION',
+}
+
+export const SLUG_BY_MODE = Object.fromEntries(
+  Object.entries(MODE_SLUGS).map(([slug, mode]) => [mode, slug])
+)
+
+// @req FR-234 — the Context Composer's slice sources and drop/trim reasons are a
+// single enumerated vocabulary, so a `ContextReceipt` never reports free text for
+// why a slice was excluded.
+// @spec ADR-091 D7, SDD-100
+// @tested tests/unit/context-composer.test.js
+export const CONTEXT_SLICE_SOURCES = ['RECORD', 'KNOWLEDGE', 'MSP']
+export const zContextSliceSource = z.enum(CONTEXT_SLICE_SOURCES)
+
+export const CONTEXT_DROP_REASONS = [
+  // A CRM/ERP record outranks MSP memory; a memory slice naming the same subject
+  // as a record is dropped, never silently overridden.
+  'SUPERSEDED_BY_RECORD',
+  // A group/room thread's slices never cross into another thread; a slice
+  // carrying no thread at all once a thread is in scope is treated the same
+  // way (fail closed), never passed through by omission.
+  'THREAD_SCOPE_MISMATCH',
+  // Passport/cross-thread recall is denied to a non-DIRECT audience.
+  'AUDIENCE_SCOPE_DENIED',
+  // The one prompt-wide budget could not fit the slice; every trim is reported.
+  'BUDGET_TRIMMED',
+]
+export const zContextDropReason = z.enum(CONTEXT_DROP_REASONS)
+
+// The default reason `composeContext` reports when the caller's authorization
+// decision was `false` — named here rather than left as a literal inside the
+// composer, same as every drop reason above.
+export const CONTEXT_DENIAL_REASONS = ['CONTEXT_DENIED']
+export const zContextDenialReason = z.enum(CONTEXT_DENIAL_REASONS)
+
+// FR-230 — retention data class, for TenantRetentionOverride input validation.
+export const zRetentionDataClass = z.enum(RETENTION_DATA_CLASSES)

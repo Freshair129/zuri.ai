@@ -1,0 +1,564 @@
+import { z } from 'zod'
+import { FINISHED_SET_SKU_PATTERN } from './inventory-costing.js'
+import {
+  INVENTORY_ITEM_KINDS,
+  INVENTORY_LOT_STATUSES,
+  INVENTORY_MOVEMENT_KINDS,
+  INVENTORY_PRODUCT_ACTIONS,
+  INVENTORY_RECIPE_ACTIONS,
+  INVENTORY_SERIAL_STATUSES,
+  INVENTORY_STOCK_POLICIES,
+  INVENTORY_TRACKING_MODES,
+  INVENTORY_UNSTOCKED_POLICIES,
+} from '../lib/enums.js'
+import { zDefaultStockPolicy, zProductNature, zReplenishmentFields, zVariant, zVariantAxes } from './inventory-governance.js'
+
+// @req FR-201, FR-202, FR-205, FR-207 — since ADR-083 the master contract
+//   declares its nature and variant axes, the SKU contract carries its
+//   variant values and replenishment parameters, the product action
+//   vocabulary grows to five (PHASE_OUT, REACTIVATE, MERGE), a movement may
+//   name a unit (FR-204), and a phased-out SKU refuses a receipt. The rules
+//   themselves live in `inventory-governance.js`; this file holds the
+//   contracts that carry them.
+// @req FR-154 — the pure vocabulary of the Inventory catalogue (คลังสินค้า):
+//   the input contracts for category, family, factory, product master, product
+//   (SKU) and bundle, the human `code` shape, and the one rule a SKU carries
+//   about itself — whether it is counted (TRACKED) or not (UNTRACKED), and how
+//   its units are identified (NONE / LOT / SERIAL).
+// @req FR-155 — the pure calculators of the stock ledger: the signed delta a
+//   movement contributes, on-hand as the sum of a product's movements, the
+//   safety-stock comparison, bundle availability from on-hand, and the
+//   refusal rules that keep an uncounted product out of the ledger and a
+//   counted one consistent with its tracking mode. No I/O here on purpose:
+//   every number a page shows is recomputed from these.
+// @spec BR-002 (codes, serials and lot numbers are attributes, never keys)
+// @tested tests/unit/inventory-domain.test.js
+
+export const INVENTORY_DOMAIN_KEY = 'inventory'
+
+export const INVENTORY_CATEGORY_ENTITY = 'INVENTORY_CATEGORY'
+export const PRODUCT_FAMILY_ENTITY = 'PRODUCT_FAMILY'
+export const FACTORY_ENTITY = 'FACTORY'
+export const PRODUCT_MASTER_ENTITY = 'PRODUCT_MASTER'
+export const PRODUCT_ENTITY = 'PRODUCT'
+export const PRODUCT_BUNDLE_ENTITY = 'PRODUCT_BUNDLE'
+export const PRODUCT_LOT_ENTITY = 'PRODUCT_LOT'
+export const SERIAL_UNIT_ENTITY = 'SERIAL_UNIT'
+export const STOCK_MOVEMENT_ENTITY = 'STOCK_MOVEMENT'
+
+/** Catalogue row statuses; two words, so they live here rather than in the registry. */
+export const INVENTORY_RECORD_STATUSES = Object.freeze(['ACTIVE', 'ARCHIVED'])
+
+// A human code: letters, digits, dot, dash, underscore; 1–64 characters. It
+// is the user-facing identity (BR-002) and unique per Tenant — never the key.
+export const INVENTORY_CODE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/
+export const zInventoryCode = z.string().trim().regex(INVENTORY_CODE_PATTERN, 'code must be 1–64 letters, digits, ".", "-" or "_"')
+const zSlug = z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'slug must be kebab-case').max(64)
+const zBusinessId = z.string().trim().min(1).max(200)
+const zId = z.string().trim().min(1).max(200)
+const zText = (max) => z.string().trim().min(1).max(max)
+const zOptionalText = (max) => z.string().trim().max(max).nullable().optional()
+const zMoney = z.number().finite().nonnegative()
+const zOptionalPositiveNumber = z.number().finite().positive().nullable().optional()
+
+export const zCreateCategory = z.object({
+  businessId: zBusinessId,
+  code: zInventoryCode,
+  nameTh: zText(200),
+  nameEn: zText(200),
+  slug: zSlug.nullable().optional(),
+  vibe: zOptionalText(500),
+  targetRecipient: zOptionalText(500),
+  guardrail: zOptionalText(1000),
+}).strict()
+
+export const zCreateFamily = z.object({
+  businessId: zBusinessId,
+  code: zInventoryCode,
+  name: zText(200),
+  description: zOptionalText(1000),
+}).strict()
+
+export const zCreateFactory = z.object({
+  businessId: zBusinessId,
+  code: zInventoryCode,
+  name: zText(200),
+  country: zOptionalText(100),
+  contact: zOptionalText(500),
+}).strict()
+
+export const zCreateProductMaster = z.object({
+  businessId: zBusinessId,
+  code: zInventoryCode,
+  categoryId: zId,
+  familyId: zId.nullable().optional(),
+  factoryId: zId.nullable().optional(),
+  nameTh: zText(200),
+  nameEn: zText(200),
+  baseCost: zMoney.optional(),
+  specs: z.record(z.string(), z.unknown()).optional(),
+  // @req FR-201, FR-202 — the nature every SKU inherits, the policy a GOOD's
+  //   SKU defaults to, and the axes that give its SKUs a variant identity.
+  nature: zProductNature.optional(),
+  defaultStockPolicy: zDefaultStockPolicy.optional(),
+  variantAxes: zVariantAxes.optional(),
+}).strict().superRefine((value, ctx) => {
+  if (value.nature === 'SERVICE' && value.defaultStockPolicy) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['defaultStockPolicy'], message: 'a SERVICE master has no stock policy to default; its SKUs are services' })
+  }
+  if (value.nature === 'SERVICE' && value.variantAxes?.length) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['variantAxes'], message: 'a SERVICE master has no physical variants' })
+  }
+})
+
+export const zProductFields = z.object({
+  name: zOptionalText(200),
+  color: zOptionalText(100),
+  material: zOptionalText(100),
+  unit: zText(20).optional(),
+  safetyStock: z.number().int().nonnegative().optional(),
+  // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
+  //   carton data is nullable until a confirmed factory sheet or a person
+  //   supplies it; the hygiene report names counted SKUs that remain incomplete.
+  unitsPerCarton: z.number().int().positive().max(1_000_000).nullable().optional(),
+  cartonCbm: zOptionalPositiveNumber,
+  cartonKg: zOptionalPositiveNumber,
+  freightGoodsType: zOptionalText(100),
+  // @req FR-202, FR-207 — a variant value may be corrected (the key is
+  //   recomputed and re-checked) and the replenishment parameters edited.
+  variant: zVariant.optional(),
+}).merge(zReplenishmentFields).strict()
+
+export const zProductCartonAttributesInput = z.object({
+  businessId: zBusinessId,
+  unitsPerCarton: z.number().int().positive().max(1_000_000).nullable().optional(),
+  cartonCbm: zOptionalPositiveNumber,
+  cartonKg: zOptionalPositiveNumber,
+  freightGoodsType: zOptionalText(100),
+  leadTimeDays: z.number().int().nonnegative().max(3650).nullable().optional(),
+}).strict()
+
+export const zCreateProduct = zProductFields.extend({
+  businessId: zBusinessId,
+  code: zInventoryCode,
+  productMasterId: zId,
+  stockPolicy: z.enum(INVENTORY_STOCK_POLICIES).optional(),
+  trackingMode: z.enum(INVENTORY_TRACKING_MODES).optional(),
+  // @req FR-176 — the role this SKU plays in a kit, and (for a branded one)
+  //   the customer and order it belongs to. `dedicated*` are set by the
+  //   customization service when it creates the branded SKU, and are accepted
+  //   here so a Business can also record a branded item it already holds.
+  itemKind: z.enum(INVENTORY_ITEM_KINDS).optional(),
+  // @req FR-177 — the accounting system's code for a tradeable set, unique per
+  //   Tenant. `setFlowAccountSku` is the other writer; both validate the
+  //   pattern, so the column can never hold a code FlowAccount would reject.
+  flowAccountSku: z.string().trim().regex(FINISHED_SET_SKU_PATTERN, 'a finished set SKU is [MODEL]-[COUNT]([PACKAGE]), e.g. TMS06-4(P-16)').nullable().optional(),
+  dedicatedCustomerId: zId.nullable().optional(),
+  dedicatedSalesOrderId: zId.nullable().optional(),
+  // @req FR-179 — how long a unit of this SKU may sit in storage before it is
+  //   due for maintenance, and before it may not be issued at all. Absent on
+  //   almost every product, and absent means "does not age".
+  maintenanceIntervalDays: z.number().int().positive().max(3650).nullable().optional(),
+  maxStorageDays: z.number().int().positive().max(3650).nullable().optional(),
+  // @req FR-202 — a caller that has seen the lookalike refusal and still
+  //   means a second SKU says so; the flag is recorded in the audit row.
+  allowLookalike: z.boolean().optional(),
+}).strict().superRefine((value, ctx) => {
+  // @req FR-176 — only a CUSTOM_COMPONENT carries a customer lock. Allowing a
+  // raw component to name a dedicated customer would create stock that looks
+  // free in the catalogue and is refused by the ledger (BR-028).
+  if ((value.dedicatedCustomerId || value.dedicatedSalesOrderId) && value.itemKind !== 'CUSTOM_COMPONENT') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['itemKind'],
+      message: 'only a CUSTOM_COMPONENT is dedicated to a customer or a sales order',
+    })
+  }
+  // @req FR-179 — a maintenance interval later than the hard limit could never
+  // fire before the lot was already refused, which reads as a guard and is not one.
+  if (value.maintenanceIntervalDays && value.maxStorageDays && value.maintenanceIntervalDays > value.maxStorageDays) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['maintenanceIntervalDays'],
+      message: 'maintenance falls due before the storage limit, not after it',
+    })
+  }
+  // @req FR-168 — the rule is "no ledger, no tracking mode", so it holds for a
+  // SERVICE exactly as it does for an UNTRACKED good. Naming only UNTRACKED
+  // would have let a service be created asking for lot or serial identity it
+  // can never have.
+  if (value.stockPolicy && INVENTORY_UNSTOCKED_POLICIES.includes(value.stockPolicy) && value.trackingMode && value.trackingMode !== 'NONE') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['trackingMode'],
+      message: `a ${value.stockPolicy} product has no stock ledger, so it has no tracking mode`,
+    })
+  }
+})
+
+export const zProductAction = z.object({
+  action: z.enum(INVENTORY_PRODUCT_ACTIONS),
+  version: z.number().int().positive(),
+  fields: zProductFields.partial().strict().optional(),
+  // @req FR-205 — MERGE names its survivor; every lifecycle action may carry
+  //   the reason a person gives, which lands in the audit row.
+  into: zId.optional(),
+  reason: zOptionalText(500),
+}).strict().superRefine((value, ctx) => {
+  if (value.action === 'UPDATE' && (!value.fields || Object.keys(value.fields).length === 0)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fields'], message: 'fields is required for UPDATE' })
+  }
+  if (value.action === 'MERGE' && !value.into) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['into'], message: 'MERGE names the surviving product in `into`' })
+  }
+  if (value.action !== 'MERGE' && value.into) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['into'], message: 'only MERGE takes `into`' })
+  }
+  if (value.action !== 'UPDATE' && value.fields) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fields'], message: 'only UPDATE takes fields' })
+  }
+})
+
+export const zBundleItem = z.object({ productId: zId, qty: z.number().int().positive() }).strict()
+
+export const zCreateBundle = z.object({
+  businessId: zBusinessId,
+  code: zInventoryCode,
+  name: zText(200),
+  description: zOptionalText(1000),
+  targetRecipients: z.number().int().positive().nullable().optional(),
+  totalPrice: zMoney.nullable().optional(),
+  items: z.array(zBundleItem).min(1).max(200)
+    .refine((items) => new Set(items.map((i) => i.productId)).size === items.length, 'a product appears once per bundle'),
+}).strict()
+
+const zDate = z.coerce.date()
+
+export const zCreateLot = z.object({
+  businessId: zBusinessId,
+  productId: zId,
+  code: zInventoryCode,
+  factoryId: zId.nullable().optional(),
+  manufacturedAt: zDate.nullable().optional(),
+  expiresAt: zDate.nullable().optional(),
+  status: z.enum(INVENTORY_LOT_STATUSES).optional(),
+}).strict().superRefine((value, ctx) => {
+  if (value.manufacturedAt && value.expiresAt && value.expiresAt <= value.manufacturedAt) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['expiresAt'], message: 'expiresAt must be after manufacturedAt' })
+  }
+})
+
+export const zRecordMovement = z.object({
+  businessId: zBusinessId,
+  productId: zId,
+  kind: z.enum(INVENTORY_MOVEMENT_KINDS),
+  quantity: z.number().int(),
+  lotId: zId.nullable().optional(),
+  lotCode: zInventoryCode.nullable().optional(),
+  serialNos: z.array(zText(100)).max(500).optional(),
+  serialUnitId: zId.nullable().optional(),
+  reason: zOptionalText(500),
+  reference: zOptionalText(200),
+  occurredAt: zDate.optional(),
+  // @req FR-174, FR-175, FR-176 — where this quantity moved, what it cost per
+  //   unit in satang, and what it was for. All optional: a movement that names
+  //   no location is exactly what every movement written before ADR-074 is,
+  //   and the ledger must keep accepting one.
+  sourceLocationId: zId.nullable().optional(),
+  targetLocationId: zId.nullable().optional(),
+  costSatang: z.number().int().nonnegative().nullable().optional(),
+  customerId: zId.nullable().optional(),
+  salesOrderId: zId.nullable().optional(),
+  workOrderId: zId.nullable().optional(),
+  // @req FR-204 — the unit `quantity` is expressed in. Absent or the base unit
+  //   means base units; anything else must be a conversion the product
+  //   declares, and the ledger row is written in base units (BR-037).
+  unit: z.string().trim().min(1).max(20).nullable().optional(),
+}).strict().superRefine((value, ctx) => {
+  if (value.kind !== 'ADJUSTMENT' && value.quantity <= 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantity'], message: 'RECEIPT and ISSUE take a positive quantity' })
+  }
+  if (value.kind === 'ADJUSTMENT' && value.quantity === 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantity'], message: 'an ADJUSTMENT of zero changes nothing' })
+  }
+  if (value.lotId && value.lotCode) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['lotCode'], message: 'give lotId or lotCode, not both' })
+  }
+})
+
+/**
+ * The signed quantity a movement contributes to on-hand. RECEIPT adds,
+ * ISSUE removes, ADJUSTMENT carries its own sign (a stocktake correction
+ * either way). Anything else contributes nothing rather than guessing.
+ */
+export function movementDelta(kind, quantity) {
+  const qty = Number.isFinite(quantity) ? Math.trunc(quantity) : 0
+  if (kind === 'RECEIPT') return Math.abs(qty)
+  if (kind === 'ISSUE') return -Math.abs(qty)
+  if (kind === 'ADJUSTMENT') return qty
+  return 0
+}
+
+/** On-hand is the sum of the ledger — never a stored number. */
+export function stockOnHand(movements = []) {
+  return movements.reduce((sum, m) => sum + (typeof m.quantity === 'number' ? m.quantity : movementDelta(m.kind, m.quantity)), 0)
+}
+
+/** Only a counted product can be below its safety stock; an uncounted one has no stock to compare. */
+export function isBelowSafetyStock(product, onHand) {
+  if (!product || product.stockPolicy !== 'TRACKED') return false
+  return onHand < (product.safetyStock ?? 0)
+}
+
+/**
+ * One summary row per product: on-hand, safety stock and the flag a
+ * dashboard shows. `onHand` is null for an uncounted product so a page
+ * cannot print a zero that reads as "measured and empty".
+ */
+export function stockSummaryRow(product, movements = []) {
+  const tracked = product.stockPolicy === 'TRACKED'
+  const onHand = tracked ? stockOnHand(movements) : null
+  // @req FR-207 — the reorder threshold is the declared point or, absent one,
+  //   the safety stock; a phased-out SKU is never below it because it is never
+  //   reordered.
+  const reorderPoint = product.reorderPoint ?? null
+  const threshold = reorderPoint ?? product.safetyStock ?? 0
+  return {
+    productId: product.id,
+    code: product.code,
+    name: product.name ?? null,
+    stockPolicy: product.stockPolicy,
+    trackingMode: product.trackingMode,
+    status: product.status ?? 'ACTIVE',
+    unit: product.unit,
+    safetyStock: product.safetyStock,
+    reorderPoint,
+    onHand,
+    belowSafetyStock: tracked ? isBelowSafetyStock(product, onHand) : false,
+    belowReorderPoint: tracked && (product.status ?? 'ACTIVE') === 'ACTIVE' ? onHand < threshold : false,
+  }
+}
+
+/**
+ * How many complete bundles the on-hand of its counted items allows. An
+ * uncounted item never limits (its supply is not measured here); a bundle of
+ * only uncounted items reports `null`, not infinity.
+ */
+export function bundleAvailability(items = [], onHandByProductId = {}) {
+  let limit = null
+  for (const item of items) {
+    const onHand = onHandByProductId[item.productId]
+    if (onHand === null || onHand === undefined) continue
+    const sets = Math.max(0, Math.floor(onHand / Math.max(1, item.qty)))
+    limit = limit === null ? sets : Math.min(limit, sets)
+  }
+  return limit
+}
+
+/**
+ * Whether a movement is allowed against this product, answered by code so the
+ * service refuses rather than records something the ledger cannot explain.
+ */
+export function movementRule(product, movement) {
+  if (!product) return { ok: false, code: 'INVENTORY_PRODUCT_NOT_FOUND' }
+  if (product.status === 'ARCHIVED') return { ok: false, code: 'INVENTORY_PRODUCT_ARCHIVED' }
+  // @req FR-168 — both refusals mean "this has no ledger", but they are not the
+  // same refusal to read: an uncounted good could be counted if the Business
+  // decided to, while a service can never be, because nothing physical exists
+  // to count. A caller that reports the reason should be able to say which.
+  if (product.stockPolicy === 'SERVICE') return { ok: false, code: 'INVENTORY_PRODUCT_IS_A_SERVICE' }
+  if (product.stockPolicy !== 'TRACKED') return { ok: false, code: 'INVENTORY_PRODUCT_UNTRACKED' }
+  // @req FR-205 — a phased-out SKU is sold down, not restocked: issues and
+  //   corrections still land, a receipt does not (ADR-083 D5).
+  if (product.status === 'PHASE_OUT' && movement.kind === 'RECEIPT') return { ok: false, code: 'INVENTORY_PRODUCT_PHASED_OUT' }
+  const serials = movement.serialNos ?? []
+  if (product.trackingMode === 'SERIAL') {
+    if (movement.kind === 'ADJUSTMENT') return { ok: false, code: 'INVENTORY_SERIAL_ADJUSTMENT_NOT_ALLOWED' }
+    if (movement.kind === 'RECEIPT' && serials.length !== movement.quantity) return { ok: false, code: 'INVENTORY_SERIAL_COUNT_MISMATCH' }
+    if (movement.kind === 'ISSUE' && serials.length !== movement.quantity) return { ok: false, code: 'INVENTORY_SERIAL_COUNT_MISMATCH' }
+    if (new Set(serials).size !== serials.length) return { ok: false, code: 'INVENTORY_SERIAL_DUPLICATE' }
+  } else if (serials.length) {
+    return { ok: false, code: 'INVENTORY_SERIAL_NOT_TRACKED' }
+  }
+  if (product.trackingMode === 'LOT') {
+    if (movement.kind === 'RECEIPT' && !movement.lotId && !movement.lotCode) return { ok: false, code: 'INVENTORY_LOT_REQUIRED' }
+  } else if (product.trackingMode === 'NONE' && (movement.lotId || movement.lotCode)) {
+    return { ok: false, code: 'INVENTORY_LOT_NOT_TRACKED' }
+  }
+  return { ok: true, code: null }
+}
+
+/** The serial-unit status a movement leaves behind, or null when it does not touch one. */
+export function serialStatusAfter(kind) {
+  if (kind === 'RECEIPT') return 'IN_STOCK'
+  if (kind === 'ISSUE') return 'ISSUED'
+  return null
+}
+
+export const INVENTORY_SERIAL_STATUS_SET = new Set(INVENTORY_SERIAL_STATUSES)
+
+// ── FR-156 — recipe / bill of materials at a batch size ─────────────────────
+// @req FR-156 — a recipe is the BOM of one output SKU at one `batchSize`:
+//   "the recipe for 10 seats" and "for 20 seats" are two rows on one product,
+//   exactly as a gift box has a BOM at 10 / 50 / 100 / 500 sets. Lines name
+//   component SKUs with a quantity per batch; a `fixed` line (tooling, one
+//   crate per batch) does not scale. The calculators here pick the recipe for
+//   a quantity, explode it, compare the requirements with on-hand, and say how
+//   many can be built — all pure, so a page and a build agree.
+// @tested tests/unit/inventory-domain.test.js
+
+export const PRODUCT_RECIPE_ENTITY = 'PRODUCT_RECIPE'
+
+export const zRecipeLine = z.object({
+  componentProductId: zId,
+  qty: z.number().finite().positive(),
+  unit: zOptionalText(20),
+  fixed: z.boolean().optional(),
+  note: zOptionalText(300),
+}).strict()
+
+export const zRecipeLines = z.array(zRecipeLine).min(1).max(200)
+  .refine((lines) => new Set(lines.map((l) => l.componentProductId)).size === lines.length, 'a component appears once per recipe')
+
+// @req FR-177 — the loss this bill of materials expects, a fraction in
+//   [0, 0.20]. Optional and defaulting to 0, so a recipe written before
+//   ADR-074 explodes exactly as it always did (BR-029).
+export const zScrapAllowance = z.number().finite().min(0).max(0.2)
+
+export const zCreateRecipe = z.object({
+  businessId: zBusinessId,
+  code: zInventoryCode,
+  productId: zId,
+  name: zText(200),
+  batchSize: z.number().int().positive(),
+  yieldQty: z.number().int().positive().optional(),
+  unit: zText(20).optional(),
+  notes: zOptionalText(2000),
+  scrapAllowanceFactor: zScrapAllowance.optional(),
+  lines: zRecipeLines,
+}).strict()
+
+export const zRecipeFields = z.object({
+  name: zText(200),
+  yieldQty: z.number().int().positive(),
+  unit: zText(20),
+  notes: zOptionalText(2000),
+  scrapAllowanceFactor: zScrapAllowance,
+  lines: zRecipeLines,
+}).strict()
+
+export const zRecipeAction = z.object({
+  action: z.enum(INVENTORY_RECIPE_ACTIONS),
+  version: z.number().int().positive(),
+  fields: zRecipeFields.partial().strict().optional(),
+}).strict().superRefine((value, ctx) => {
+  if (value.action === 'UPDATE' && (!value.fields || Object.keys(value.fields).length === 0)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fields'], message: 'fields is required for UPDATE' })
+  }
+})
+
+export const zBuildRecipe = z.object({
+  businessId: zBusinessId,
+  quantity: z.number().int().positive(),
+  outputLotCode: zInventoryCode.nullable().optional(),
+  reason: zOptionalText(500),
+  reference: zOptionalText(200),
+  occurredAt: zDate.optional(),
+}).strict()
+
+const round4 = (n) => Math.round(n * 10000) / 10000
+
+/**
+ * The recipe to use for a quantity: the largest batch size that does not
+ * exceed it (a 60-set order uses the 50-set BOM, scaled), else the smallest
+ * one there is. Archived recipes never qualify. Null when none exist.
+ */
+export function pickRecipeForQuantity(recipes = [], quantity) {
+  const active = recipes.filter((r) => r && r.status !== 'ARCHIVED' && Number.isFinite(r.batchSize) && r.batchSize > 0)
+  if (!active.length) return null
+  const fitting = active.filter((r) => r.batchSize <= quantity).sort((a, b) => b.batchSize - a.batchSize)
+  if (fitting.length) return fitting[0]
+  return active.slice().sort((a, b) => a.batchSize - b.batchSize)[0]
+}
+
+/** Explode a recipe to the quantity to build: scaled lines multiply, fixed lines do not. */
+export function explodeRecipe(recipe, quantity) {
+  const factor = quantity / recipe.batchSize
+  return {
+    recipeId: recipe.id,
+    productId: recipe.productId,
+    batchSize: recipe.batchSize,
+    quantity,
+    factor: round4(factor),
+    producedQty: Math.round((quantity * (recipe.yieldQty ?? recipe.batchSize)) / recipe.batchSize),
+    lines: (recipe.lines || []).map((line) => ({
+      componentProductId: line.componentProductId,
+      qty: line.qty,
+      unit: line.unit ?? null,
+      fixed: Boolean(line.fixed),
+      required: line.fixed ? line.qty : round4(line.qty * factor),
+    })),
+  }
+}
+
+/**
+ * The explosion compared with on-hand. A counted component reports its
+ * shortage; an uncounted one (on-hand null) reports none and never blocks.
+ * The ledger counts whole units, so a fractional requirement is issued as the
+ * next whole one (`issueQty`).
+ */
+export function recipeRequirements(explosion, onHandByProductId = {}) {
+  const lines = explosion.lines.map((line) => {
+    const onHand = onHandByProductId[line.componentProductId]
+    const counted = onHand !== null && onHand !== undefined
+    const issueQty = Math.ceil(line.required - 1e-9)
+    const shortage = counted ? Math.max(0, issueQty - onHand) : 0
+    return { ...line, issueQty, onHand: counted ? onHand : null, shortage }
+  })
+  return { ...explosion, lines, canBuild: lines.every((l) => l.shortage === 0) }
+}
+
+/**
+ * How many units the current on-hand allows this recipe to build: the
+ * tightest scaled counted line limits proportionally, a fixed counted line
+ * allows the batch or nothing, and an uncounted line never limits. Null when
+ * no line is counted.
+ */
+export function maxBuildableQuantity(recipe, onHandByProductId = {}) {
+  let limit = null
+  for (const line of recipe.lines || []) {
+    const onHand = onHandByProductId[line.componentProductId]
+    if (onHand === null || onHand === undefined) continue
+    const allows = line.fixed
+      ? (onHand >= line.qty ? Number.POSITIVE_INFINITY : 0)
+      : Math.floor((onHand / line.qty) * recipe.batchSize)
+    limit = limit === null ? allows : Math.min(limit, allows)
+  }
+  if (limit === Number.POSITIVE_INFINITY) return null
+  return limit
+}
+
+/**
+ * FEFO — first expired, first out. Open lots ordered by expiry (unknown
+ * expiry last), then by age, and the quantity taken from each until covered.
+ * `remainder` is what no open lot could cover.
+ */
+export function allocateFefo(lots = [], quantity) {
+  const ordered = lots
+    .filter((lot) => lot && lot.status === 'OPEN' && lot.onHand > 0)
+    .sort((a, b) => {
+      const ea = a.expiresAt ? new Date(a.expiresAt).getTime() : Number.POSITIVE_INFINITY
+      const eb = b.expiresAt ? new Date(b.expiresAt).getTime() : Number.POSITIVE_INFINITY
+      if (ea !== eb) return ea - eb
+      return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+    })
+  const allocations = []
+  let remainder = quantity
+  for (const lot of ordered) {
+    if (remainder <= 0) break
+    const take = Math.min(lot.onHand, remainder)
+    allocations.push({ lotId: lot.id, qty: take })
+    remainder -= take
+  }
+  return { allocations, remainder }
+}

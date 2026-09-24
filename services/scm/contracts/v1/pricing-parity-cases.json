@@ -1,0 +1,2042 @@
+{
+  "schema": "scm.pricing-parity-cases.v1",
+  "cases": [
+    {
+      "id": "standard-cny-q10",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 10,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "standard-cny-q20",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 20,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "standard-cny-q50",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 50,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "standard-cny-q100",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "standard-cny-q300",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 300,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "standard-cny-q500",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 500,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "standard-cny-q1000",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 1000,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "corporate-landed-q100",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "corporate-landed-q300",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 300,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "corporate-landed-q500",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 500,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "corporate-landed-q1000",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 1000,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "standard-usd",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "4.75",
+          "currency": "USD"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "standard-thb",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "155.5",
+          "currency": "THB"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "weight-charged-dense-carton",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 10,
+          "cbm": "0.05",
+          "kg": "40"
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "volume-charged-light-carton",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 10,
+          "cbm": "0.2",
+          "kg": "5"
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "auto-sea-above-threshold",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 1000,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 5,
+          "cbm": "0.2",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "auto-truck-peak-month",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 1000,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 5,
+          "cbm": "0.2",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 10,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "forced-sea",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "sea",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "forced-truck-yiwu-electronic-elite",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "yiwu",
+          "mode": "truck",
+          "month": 4,
+          "goodsType": "electronic_tisi",
+          "tier": "ELITE",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "member-tier-single-drop",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "MEMBER",
+          "domesticMode": "single_drop"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-flat",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "flat",
+          "positions": 2,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-flat-custom-rate",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "flat",
+          "positions": 1,
+          "colors": 1,
+          "rateThb": "7.5"
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-hotstamp-q500",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 500,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "hotstamp",
+          "positions": 2,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-hotstamp-text",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "hotstamp_text",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-engrave-q300",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 300,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "engrave",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-silk-flat-small-qty",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 50,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "silk",
+          "positions": 1,
+          "colors": 2
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-silk-per-piece-large-qty",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 1000,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "silk",
+          "positions": 2,
+          "colors": 3
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-uv-with-evidenced-rate",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "uv",
+          "positions": 1,
+          "colors": 1,
+          "uvRateUsd": "0.35"
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-uv-missing-rate-is-not-zero",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "uv",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "logo-positions-from-code-digit",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "flat",
+          "positions": null,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ],
+        "productCode": "SYN-SET-3"
+      }
+    },
+    {
+      "id": "logo-positions-code-without-digit",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "flat",
+          "positions": null,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ],
+        "productCode": "SYN-SET-X"
+      }
+    },
+    {
+      "id": "extra-and-order-cost",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "12.345",
+        "orderCostThb": "1500",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rush-with-deadline-risk",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ],
+        "rush": true,
+        "deadlineDays": 5
+      }
+    },
+    {
+      "id": "deadline-comfortable",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ],
+        "deadlineDays": 120
+      }
+    },
+    {
+      "id": "no-source-references",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "kind-single-q1000",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 1000,
+        "kind": "single",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "corporate-single-drop-order-cost",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 300,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "2500",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "corporate-cheap-floor-driven",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "1",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "boundary-landed-whole-satang",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "0.01",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "refuse-landed-fraction-of-satang",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100.001",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "refuse-unsupported-tier",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 150,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "refuse-landed-on-factory-profile",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "refuse-unknown-input-field",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ],
+        "discount": "10"
+      }
+    },
+    {
+      "id": "refuse-negative-cost",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "-1",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "refuse-float-noise-decimal",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0.1234567890123",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "refuse-price-overflow",
+      "fn": "calculatePrice",
+      "ruleOverrides": [],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "999999999999999999",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "formula-floor-dominates",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "formulas"
+          ],
+          "value": [
+            {
+              "name": "candidatePrice",
+              "expression": "landedCost * 0",
+              "unit": "THB/unit"
+            }
+          ]
+        }
+      ],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "formula-min-max-ceil",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "formulas"
+          ],
+          "value": [
+            {
+              "name": "candidatePrice",
+              "expression": "ceilToStep(max(anchorPrice * factor / anchorFactor, landedCost), priceStep)",
+              "unit": "THB/unit"
+            }
+          ]
+        }
+      ],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 300,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "formula-quantity-band",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "formulas"
+          ],
+          "value": [
+            {
+              "name": "candidatePrice",
+              "expression": "anchorPrice * quantityBand(quantity)",
+              "unit": "THB/unit"
+            }
+          ]
+        }
+      ],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 500,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "refuse-formula-negative",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "formulas"
+          ],
+          "value": [
+            {
+              "name": "candidatePrice",
+              "expression": "-landedCost",
+              "unit": "THB/unit"
+            }
+          ]
+        }
+      ],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "refuse-formula-division-by-variable-zero",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "formulas"
+          ],
+          "value": [
+            {
+              "name": "candidatePrice",
+              "expression": "anchorPrice / (factor - factor)",
+              "unit": "THB/unit"
+            }
+          ]
+        }
+      ],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "refuse-formula-injection",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "formulas"
+          ],
+          "value": [
+            {
+              "name": "candidatePrice",
+              "expression": "process.exit()",
+              "unit": "THB/unit"
+            }
+          ]
+        }
+      ],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "refuse-formula-member-access",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "formulas"
+          ],
+          "value": [
+            {
+              "name": "candidatePrice",
+              "expression": "anchorPrice.constructor",
+              "unit": "THB/unit"
+            }
+          ]
+        }
+      ],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "refuse-formula-unit-mismatch",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "formulas"
+          ],
+          "value": [
+            {
+              "name": "candidatePrice",
+              "expression": "landedCost + quantity",
+              "unit": "THB/unit"
+            }
+          ]
+        }
+      ],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "refuse-formula-depth",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "formulas"
+          ],
+          "value": [
+            {
+              "name": "candidatePrice",
+              "expression": "((((((((((((((((((((((((((((((((((((((((anchorPrice))))))))))))))))))))))))))))))))))))))))",
+              "unit": "THB/unit"
+            }
+          ]
+        }
+      ],
+      "input": {
+        "costBasis": "landed",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "corporate",
+        "landedUnitCostThb": "100",
+        "orderCostThb": "0",
+        "sourceRefs": []
+      }
+    },
+    {
+      "id": "rules-fx-override",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "fx",
+            "cnyToThb"
+          ],
+          "value": "5.25"
+        }
+      ],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "refuse-rules-unknown-field",
+      "fn": "calculatePrice",
+      "ruleOverrides": [
+        {
+          "path": [
+            "eval"
+          ],
+          "value": "x"
+        }
+      ],
+      "input": {
+        "costBasis": "factory",
+        "quantity": 100,
+        "kind": "set",
+        "profile": "standard",
+        "factoryUnitCost": {
+          "amount": "32",
+          "currency": "CNY"
+        },
+        "carton": {
+          "units": 20,
+          "cbm": "0.1",
+          "kg": null
+        },
+        "shipping": {
+          "warehouse": "guangzhou_shenzhen",
+          "mode": "auto",
+          "month": 4,
+          "goodsType": "general",
+          "tier": "GOLD",
+          "domesticMode": "none"
+        },
+        "logo": {
+          "method": "none",
+          "positions": 1,
+          "colors": 1
+        },
+        "extraUnitCostThb": "0",
+        "orderCostThb": "0",
+        "sourceRefs": [
+          {
+            "sourceId": "synthetic-cost-sheet",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      }
+    },
+    {
+      "id": "customization-none",
+      "fn": "calculatePricingCustomization",
+      "ruleOverrides": [],
+      "input": {
+        "quantity": 300,
+        "method": "none",
+        "positions": 1,
+        "colors": 1
+      }
+    },
+    {
+      "id": "customization-flat",
+      "fn": "calculatePricingCustomization",
+      "ruleOverrides": [],
+      "input": {
+        "quantity": 300,
+        "method": "flat",
+        "positions": 2,
+        "colors": 1
+      }
+    },
+    {
+      "id": "customization-hotstamp",
+      "fn": "calculatePricingCustomization",
+      "ruleOverrides": [],
+      "input": {
+        "quantity": 300,
+        "method": "hotstamp",
+        "positions": 1,
+        "colors": 1
+      }
+    },
+    {
+      "id": "customization-engrave",
+      "fn": "calculatePricingCustomization",
+      "ruleOverrides": [],
+      "input": {
+        "quantity": 300,
+        "method": "engrave",
+        "positions": 3,
+        "colors": 1
+      }
+    },
+    {
+      "id": "customization-silk",
+      "fn": "calculatePricingCustomization",
+      "ruleOverrides": [],
+      "input": {
+        "quantity": 300,
+        "method": "silk",
+        "positions": 1,
+        "colors": 4
+      }
+    },
+    {
+      "id": "customization-uv",
+      "fn": "calculatePricingCustomization",
+      "ruleOverrides": [],
+      "input": {
+        "quantity": 300,
+        "method": "uv",
+        "positions": 1,
+        "colors": 1,
+        "uvRateUsd": "0.2"
+      }
+    },
+    {
+      "id": "refuse-customization-null-positions",
+      "fn": "calculatePricingCustomization",
+      "ruleOverrides": [],
+      "input": {
+        "quantity": 100,
+        "method": "flat",
+        "positions": null,
+        "colors": 1
+      }
+    }
+  ]
+}

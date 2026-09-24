@@ -1,0 +1,248 @@
+{
+  "contract": "scm-api",
+  "revision": "v1-draft.7",
+  "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
+  "auth": {
+    "header": "Authorization: Delegation <token>",
+    "token": "scm.delegation.v1 (HMAC-SHA256 over base64url JSON claims; see src/infrastructure/delegation.js)",
+    "claims": [
+      "v",
+      "iss",
+      "aud=zuri-scm",
+      "sub (actor person id)",
+      "tenantId",
+      "iat",
+      "exp (lifetime <= 120s default)",
+      "jti",
+      "grants{businessId:{owner,domains[],permissions[]}}"
+    ],
+    "issuer": "core Identity owner (gate SCM-CORE); tests use a synthetic issuer",
+    "scopeDenial": "404 SCM_SCOPE_NOT_FOUND — identical for unknown and forbidden (FR-072 non-enumeration)"
+  },
+  "mutations": {
+    "idempotency": "Idempotency-Key header required (8-200 of [A-Za-z0-9._:-]); scoped by tenant+business+action+actor; same key+same payload → 200 replayed:true with the stored outcome; same key+different payload/target → 409 SCM_IDEMPOTENCY_KEY_CONFLICT; replay re-checks current authority; commerce.pricing.calculate binds the key per Business (any owner) to the NORMALIZED request and answers a reuse with 409 PRICING_CALCULATION_IDEMPOTENCY_CONFLICT, and its replay/lookup re-checks that the policy is still the usable latest one (409 PRICING_RULE_NOT_ACTIVE)",
+    "unknownOutcome": "on network loss or 5xx, GET /v1/operations/{action}/{key}?businessId= — never resend with a new key",
+    "created": 201,
+    "replayed": 200
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/healthz",
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/readyz",
+      "auth": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/suppliers",
+      "command": "procurement.supplier.create",
+      "capability": "procurement.po.write | owner"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/purchase-orders",
+      "command": "procurement.purchase-order.create",
+      "capability": "procurement.po.write | owner"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/procurement/purchase-orders/{id}",
+      "capability": "procurement domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/purchase-orders/{id}/actions",
+      "command": "procurement.purchase-order.action",
+      "capability": "procurement.po.write | owner",
+      "body": "{action: UPDATE|SEND|CLOSE|CANCEL, version, fields?, reason?}"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/purchase-orders/{id}/receipts",
+      "command": "procurement.goods-receipt.post",
+      "capability": "procurement.receipt.post | owner; counted lines additionally inventory domain + (inventory.catalog.write | owner)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/cost-sheets/preview",
+      "capability": "procurement domain + (OWNER or procurement.po.write)",
+      "command": "procurement.cost-sheet.preview",
+      "note": "stores the normalized source + SKU-match suggestions only (no lines); sourceSha256 unique per Business: same payload → replayed:true (200) under any key, changed payload → 409 PROCUREMENT_COST_SHEET_SOURCE_HASH_REUSED; parity-pinned by contracts/v1/cost-sheet-parity-*.json; an .xlsx upload is converted to this JSON envelope at the edge"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/cost-sheets/commit",
+      "capability": "procurement domain + (OWNER or procurement.po.write) — and Inventory write authority (OWNER or inventory.catalog.write) for the carton facts, else 404 and nothing written",
+      "command": "procurement.cost-sheet.commit",
+      "note": "sheetId or sourceSha256 + previewHash + a confirmed mapping per SKU; one unit of work: Product carton facts (Inventory writer) + lines + supersede the supplier's previous CONFIRMED sheet + CAS confirm; a CONFIRMED sheet replays (replayed:true)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/procurement/cost-sheets?businessId=&supplierId=&status=&limit=",
+      "capability": "procurement domain",
+      "note": "summaries newest first (no preview, no lines); limit 1-100, default 20"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/procurement/cost-sheets/{id}",
+      "capability": "procurement domain",
+      "note": "sheet + supplier {id, code, name} + preview + lines with locked-FX unitCostSatang/unitCostBaht"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pos/checkout",
+      "command": "commerce.pos.checkout",
+      "capability": "commerce domain + (commerce.order.write | owner) + (inventory.catalog.write | owner); counted lines also inventory domain",
+      "references": "branch (core), customer (CRM), slip fileAsset (Files) via ReferenceAuthority; owner unavailable → 503 SCM_REFERENCE_AUTHORITY_UNAVAILABLE",
+      "invariant": "payment is always PENDING; price is manual"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/orders",
+      "command": "commerce.sales-order.create",
+      "capability": "commerce.order.write | owner",
+      "references": "customer + conversation (CRM) via ReferenceAuthority; a Business-bound reference must be VISIBLE to the actor (legacy seesBusiness)",
+      "invariant": "DRAFT; conversation makes origin CHAT and supplies its customer; mismatch → 422"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/orders?businessId=&status=&includeClosed=&origin=&customerId=&conversationId=&limit=",
+      "capability": "commerce domain",
+      "note": "open orders by default + summary {open, unpaid, pendingPayments}"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/orders/{id}/actions",
+      "command": "commerce.sales-order.action",
+      "capability": "commerce.order.write | owner; COMPLETE+issueStock also (inventory.catalog.write | owner) and inventory domain",
+      "body": "{action: UPDATE|CONFIRM|COMPLETE|CANCEL, version, fields?, issueStock?, reason?}",
+      "invariant": "lines editable only in DRAFT; whole-order shortage refused before any issue; serial lines refused; CAS on version"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/orders/{id}",
+      "capability": "commerce domain",
+      "note": "customer is an id reference (+code when known); display fields stay with CRM"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/orders/{id}/payments",
+      "capability": "commerce domain",
+      "note": "payments + summary (paid/refunded/net/pending from VERIFIED money)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/orders/{id}/payments",
+      "command": "commerce.payment.record",
+      "capability": "commerce.order.write | owner",
+      "references": "slip fileAsset (Files) via ReferenceAuthority when slipFileAssetId is given",
+      "invariant": "recorded PENDING; bank reference unique per Tenant; no PAYMENT on a CANCELLED order (REFUND allowed)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/payments/{id}",
+      "capability": "commerce domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/payments/{id}/actions",
+      "command": "commerce.payment.action",
+      "capability": "commerce.payment.verify | owner",
+      "body": "{action: VERIFY|REJECT, version, reason?, selfVerifyAttested?}",
+      "invariant": "FR-196: recorder cannot verify own payment (owner included) without selfVerifyAttested; REFUND verify ≤ verified net; CAS on version"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/revenue?businessId=&from=&to=",
+      "capability": "commerce domain",
+      "note": "VERIFIED net of VERIFIED refunds by origin and Asia/Bangkok day of payment; pending PAYMENTs beside it; rejected never counted; from/to are YYYY-MM-DD Bangkok days; parity-pinned by contracts/v1/revenue-parity-*.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/pricing-rules?businessId=",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "note": "all rule sets of the Business, newest first, with isActive for the usable latest policy only; template = the reviewed default rules"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing-rule.create",
+      "note": "DRAFT only; rules validated by the kernel evaluator (422 with details); sourceRuleSetId must be in the same Business"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/pricing-rules/active?businessId=",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "note": "the usable latest effective policy or 409 PRICING_RULE_NOT_ACTIVE — never an older one, never the template"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules/preview",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "note": "a query: evaluates caller rules (optionally against a stored rule set) with the same evaluator; stores nothing; no Idempotency-Key"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules/calculate",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing.calculate",
+      "note": "immutable snapshot against the usable latest policy (an explicit ruleSetId must be it); publishable is always false; body has no idempotencyKey — the header is the key"
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/commerce/pricing-rules/{id}",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing-rule.update",
+      "note": "DRAFT only; compare-and-swap on version; reason required"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules/{id}/actions",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing-rule.action",
+      "note": "APPROVE (DRAFT → APPROVED, effectiveFrom not in the past, expiresAt after it) or REVOKE (APPROVED → REVOKED, no dates); compare-and-swap on version"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/stock?businessId=",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/movements?businessId=&productId=&limit=",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/operations/{action}/{key}?businessId=",
+      "capability": "the action's own domain (procurement.* → procurement, commerce.* → commerce); same actor; a replay that discloses on-hand (goods receipt, POS with stock) also needs the inventory domain; commerce.pricing-* also needs Business OWNER"
+    }
+  ],
+  "errorShape": {
+    "error": {
+      "code": "string",
+      "message": "string",
+      "retryable": "boolean",
+      "details": "optional",
+      "issues": "optional (422 validation)",
+      "outcome": "UNKNOWN (500 only)"
+    }
+  },
+  "retryableCodes": [
+    "PURCHASE_ORDER_VERSION_CONFLICT (receipt race only)",
+    "SCM_STORE_BUSY",
+    "SCM_DRAINING",
+    "SCM_STORE_CLOSED",
+    "SCM_REFERENCE_AUTHORITY_UNAVAILABLE"
+  ],
+  "notMigrated": [
+    "ADJUSTMENT movements → 409 SCM_MOVEMENT_KIND_NOT_MIGRATED",
+    "serial ISSUE → 409 SCM_SERIAL_ISSUE_NOT_MIGRATED (POS refuses serial lines first, as legacy)",
+    "non-base unit movements → 409 SCM_UNIT_CONVERSION_NOT_MIGRATED"
+  ]
+}

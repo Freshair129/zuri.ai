@@ -808,6 +808,7 @@
     "ADR-103",
     "ADR-104",
     "ADR-105",
+    "ADR-109",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -10410,6 +10411,19 @@
         {
           "anchor": "line oa studio stateless application tier with stateful",
           "since": "2026-09-23",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-109": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md",
+      "status": "current",
+      "statement_digest": "d0e2d8bece7b6ee9f7eca35ad3ea42cd9743bf644b6c8ec1001f9f9f93d8dffc",
+      "history": [
+        {
+          "anchor": "scm service extraction",
+          "since": "2026-09-24",
           "reason": "declared"
         }
       ]
