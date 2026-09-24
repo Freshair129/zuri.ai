@@ -42,10 +42,10 @@ export function findReceipt(sql, { tenantId, businessId, action, actorId, idempo
  * of work, after the caller's CURRENT authority was checked (a key is never a
  * read capability).
  */
-export function replayOrConflict(existing, hash, targetId) {
+export function replayOrConflict(existing, hash, targetId, conflictCode = 'SCM_IDEMPOTENCY_KEY_CONFLICT') {
   if (!existing) return null
   if (existing.requestHash !== hash || (existing.targetId ?? null) !== (targetId ?? null)) {
-    throw Object.assign(new Error('Idempotency-Key was already used for a different request'), { status: 409, code: 'SCM_IDEMPOTENCY_KEY_CONFLICT', retryable: false })
+    throw Object.assign(new Error('Idempotency-Key was already used for a different request'), { status: 409, code: conflictCode, retryable: false })
   }
   return { ...JSON.parse(existing.responseJson), replayed: true, operation: operationDto(existing) }
 }
@@ -63,11 +63,12 @@ export function writeReceipt(sql, { tenantId, businessId, action, actorId, idemp
   return operationDto(row)
 }
 
-export function recordAudit(sql, { entityType, entityId, action, actorId, tenantId, businessId, requestId, payload, now }) {
+export function recordAudit(sql, { entityType, entityId, action, actorId, tenantId, businessId, requestId, payload, reason = null, before = null, after = null, now }) {
   const id = randomUUID()
   sql.run(
-    'INSERT INTO ScmAuditEvent (id, entityType, entityId, action, payloadJson, actorType, actorId, occurredAt, tenantId, businessId, requestId) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+    'INSERT INTO ScmAuditEvent (id, entityType, entityId, action, payloadJson, actorType, actorId, occurredAt, tenantId, businessId, requestId, reason, beforeJson, afterJson) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
     id, entityType, entityId, action, JSON.stringify(payload ?? {}), 'DELEGATED_USER', actorId ?? null, now, tenantId ?? null, businessId ?? null, requestId ?? null,
+    reason ?? null, before == null ? null : JSON.stringify(before), after == null ? null : JSON.stringify(after),
   )
   return id
 }

@@ -31,11 +31,18 @@ const ROUTES = [
   route('POST', '/v1/commerce/orders/:id/payments', 'payment.record'),
   route('GET', '/v1/commerce/payments/:id', 'payment.get'),
   route('POST', '/v1/commerce/payments/:id/actions', 'payment.action'),
+  route('GET', '/v1/commerce/pricing-rules', 'pricing.list'),
+  route('POST', '/v1/commerce/pricing-rules', 'pricing.create'),
+  route('GET', '/v1/commerce/pricing-rules/active', 'pricing.active'),
+  route('POST', '/v1/commerce/pricing-rules/preview', 'pricing.preview'),
+  route('POST', '/v1/commerce/pricing-rules/calculate', 'pricing.calculate'),
+  route('PATCH', '/v1/commerce/pricing-rules/:id', 'pricing.update'),
+  route('POST', '/v1/commerce/pricing-rules/:id/actions', 'pricing.action'),
   route('GET', '/v1/inventory/stock', 'stock'),
   route('GET', '/v1/inventory/movements', 'movements'),
   route('GET', '/v1/operations/:action/:key', 'operation'),
 ]
-const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action' }
+const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
 
 function send(res, status, body) {
   const text = JSON.stringify(body)
@@ -86,7 +93,12 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
       if (!auth.startsWith('Delegation ')) throw Object.assign(new Error('delegation required'), { status: 401, code: 'SCM_DELEGATION_REQUIRED' })
       const scope = verify(auth.slice('Delegation '.length))
       let body
-      if (req.method === 'POST') {
+      if (name === 'pricing.preview') {
+        // A POST that is a query: evaluates, stores nothing, needs no key.
+        status = 200
+        return send(res, 200, await bus.queries.pricingPreview(scope, await readJson(req, config.maxBodyBytes)))
+      }
+      if (req.method === 'POST' || req.method === 'PATCH') {
         body = await readJson(req, config.maxBodyBytes)
         const result = await bus.run(scope, COMMAND_OF[name], { idempotencyKey: req.headers['idempotency-key'], targetId: params.id ?? null, body })
         status = result.replayed ? 200 : 201
@@ -105,6 +117,8 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
       }
       else if (name === 'order.payments') result = await bus.queries.orderPayments(scope, params.id)
       else if (name === 'payment.get') result = await bus.queries.payment(scope, params.id)
+      else if (name === 'pricing.list') result = await bus.queries.pricingRules(scope, { businessId: url.searchParams.get('businessId') })
+      else if (name === 'pricing.active') result = await bus.queries.activePricingRule(scope, url.searchParams.get('businessId'))
       else if (name === 'stock') result = await bus.queries.stock(scope, url.searchParams.get('businessId'))
       else if (name === 'movements') result = await bus.queries.movements(scope, { businessId: url.searchParams.get('businessId'), productId: url.searchParams.get('productId') || undefined, limit: url.searchParams.get('limit') })
       else if (name === 'operation') result = await bus.lookup(scope, { action: decodeURIComponent(params.action), businessId: url.searchParams.get('businessId'), idempotencyKey: decodeURIComponent(params.key) })

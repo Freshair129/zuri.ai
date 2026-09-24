@@ -130,6 +130,9 @@ export const commerceAuthority = {
     if (!id || !this.mayView(scope, id)) throw denied()
     if (capability === 'order' && !this.mayWriteOrders(scope, id)) throw denied()
     if (capability === 'verify' && !this.mayVerifyPayments(scope, id)) throw denied()
+    // Pricing rules and calculations (FR-253): Business OWNER only — no permission
+    // grants it, the same as legacy ownerBusiness (commerce view + ownsBusiness).
+    if (capability === 'pricing' && !scope.owns(id)) throw denied()
     return { id, tenantId: scope.tenantId }
   },
 }

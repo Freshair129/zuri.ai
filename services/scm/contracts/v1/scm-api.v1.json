@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.5",
+  "revision": "v1-draft.6",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -20,7 +20,7 @@
     "scopeDenial": "404 SCM_SCOPE_NOT_FOUND — identical for unknown and forbidden (FR-072 non-enumeration)"
   },
   "mutations": {
-    "idempotency": "Idempotency-Key header required (8-200 of [A-Za-z0-9._:-]); scoped by tenant+business+action+actor; same key+same payload → 200 replayed:true with the stored outcome; same key+different payload/target → 409 SCM_IDEMPOTENCY_KEY_CONFLICT; replay re-checks current authority",
+    "idempotency": "Idempotency-Key header required (8-200 of [A-Za-z0-9._:-]); scoped by tenant+business+action+actor; same key+same payload → 200 replayed:true with the stored outcome; same key+different payload/target → 409 SCM_IDEMPOTENCY_KEY_CONFLICT; replay re-checks current authority; commerce.pricing.calculate binds the key per Business (any owner) to the NORMALIZED request and answers a reuse with 409 PRICING_CALCULATION_IDEMPOTENCY_CONFLICT, and its replay/lookup re-checks that the policy is still the usable latest one (409 PRICING_RULE_NOT_ACTIVE)",
     "unknownOutcome": "on network loss or 5xx, GET /v1/operations/{action}/{key}?businessId= — never resend with a new key",
     "created": 201,
     "replayed": 200
@@ -137,6 +137,52 @@
     },
     {
       "method": "GET",
+      "path": "/v1/commerce/pricing-rules?businessId=",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "note": "all rule sets of the Business, newest first, with isActive for the usable latest policy only; template = the reviewed default rules"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing-rule.create",
+      "note": "DRAFT only; rules validated by the kernel evaluator (422 with details); sourceRuleSetId must be in the same Business"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/pricing-rules/active?businessId=",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "note": "the usable latest effective policy or 409 PRICING_RULE_NOT_ACTIVE — never an older one, never the template"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules/preview",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "note": "a query: evaluates caller rules (optionally against a stored rule set) with the same evaluator; stores nothing; no Idempotency-Key"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules/calculate",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing.calculate",
+      "note": "immutable snapshot against the usable latest policy (an explicit ruleSetId must be it); publishable is always false; body has no idempotencyKey — the header is the key"
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/commerce/pricing-rules/{id}",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing-rule.update",
+      "note": "DRAFT only; compare-and-swap on version; reason required"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules/{id}/actions",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing-rule.action",
+      "note": "APPROVE (DRAFT → APPROVED, effectiveFrom not in the past, expiresAt after it) or REVOKE (APPROVED → REVOKED, no dates); compare-and-swap on version"
+    },
+    {
+      "method": "GET",
       "path": "/v1/inventory/stock?businessId=",
       "capability": "inventory domain"
     },
@@ -148,7 +194,7 @@
     {
       "method": "GET",
       "path": "/v1/operations/{action}/{key}?businessId=",
-      "capability": "the action's own domain (procurement.* → procurement, commerce.* → commerce); same actor; a replay that discloses on-hand (goods receipt, POS with stock) also needs the inventory domain"
+      "capability": "the action's own domain (procurement.* → procurement, commerce.* → commerce); same actor; a replay that discloses on-hand (goods receipt, POS with stock) also needs the inventory domain; commerce.pricing-* also needs Business OWNER"
     }
   ],
   "errorShape": {

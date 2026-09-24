@@ -11,6 +11,7 @@ import * as commerceRepo from '../modules/commerce/adapters/commerce-repo.js'
 import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSalesOrderInScope, prepareCreateOrder, prepareOrderAction } from '../modules/commerce/application/sales-orders.js'
 import { zCreateOrder } from '../kernel/commerce/commerce.js'
 import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
+import { applyPricingRuleAction, calculatePricing, calculationRequest, createPricingRuleSet, getActivePricingRuleSet, guardCalculationReplay, listPricingRules, loadRuleInScope, ownerBusiness, previewPricingRules, updatePricingRuleSet, zCalculatePricing, zCreatePricingRule } from '../modules/commerce/application/pricing-rules.js'
 
 // SCM business commands — the external API's only mutation entry points. A
 // client sends ONE business command (e.g. "post this receipt"); it never opens a
@@ -22,6 +23,8 @@ import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
 //      never while holding the writer lock), only when no receipt exists yet,
 //   4. otherwise executes the use case and writes the receipt in the SAME unit
 //      of work, so "committed" and "has a receipt" cannot diverge.
+
+const PRICING_VIEW = { mayView: (scope, businessId) => commerceAuthority.mayView(scope, businessId) && scope.owns(businessId) }
 
 const COMMANDS = {
   'procurement.supplier.create': {
@@ -81,6 +84,33 @@ const COMMANDS = {
     },
     execute: (sql, scope, { targetId, body }, ctx) => applyPaymentAction(sql, scope, targetId, body, ctx),
   },
+  // Pricing (FR-253): OWNER only — also for an outcome lookup (lookupView). Rule content is validated by the one kernel evaluator.
+  'commerce.pricing-rule.create': {
+    lookupView: PRICING_VIEW,
+    authorize: (sql, scope, { body }) => ownerBusiness(scope, zCreatePricingRule.parse(body).businessId).id,
+    execute: (sql, scope, { body }, ctx) => createPricingRuleSet(sql, scope, body, ctx),
+  },
+  'commerce.pricing-rule.update': {
+    lookupView: PRICING_VIEW,
+    authorize: (sql, scope, { targetId, body }) => loadRuleInScope(sql, scope, targetId, body?.businessId).businessId,
+    execute: (sql, scope, { targetId, body }, ctx) => updatePricingRuleSet(sql, scope, targetId, body, ctx),
+  },
+  'commerce.pricing-rule.action': {
+    lookupView: PRICING_VIEW,
+    authorize: (sql, scope, { targetId, body }) => loadRuleInScope(sql, scope, targetId, body?.businessId).businessId,
+    execute: (sql, scope, { targetId, body }, ctx) => applyPricingRuleAction(sql, scope, targetId, body, ctx),
+  },
+  'commerce.pricing.calculate': {
+    lookupView: PRICING_VIEW,
+    authorize: (sql, scope, { body }) => ownerBusiness(scope, zCalculatePricing.parse(body).businessId).id,
+    // The key is bound to the NORMALIZED request (legacy requestHash), so "12.5"
+    // and "12.50" are one request, and a reuse gets the legacy conflict code.
+    hashBody: (body) => calculationRequest(body),
+    conflictCode: 'PRICING_CALCULATION_IDEMPOTENCY_CONFLICT',
+    // A replay must not offer a price whose policy was since withdrawn or superseded.
+    replayGuard: (scope, businessId, stored, { sql, now }) => guardCalculationReplay(sql, scope, businessId, stored, now),
+    execute: (sql, scope, { body }, ctx) => calculatePricing(sql, scope, body, ctx),
+  },
 }
 
 const LOOKUP_VIEW = { commerce: commerceAuthority, procurement: procurementAuthority }
@@ -92,14 +122,17 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     const command = COMMANDS[action]
     if (!command) throw Object.assign(new Error('unknown command'), { status: 404, code: 'SCM_COMMAND_UNKNOWN' })
     assertIdempotencyKey(idempotencyKey)
-    const hash = requestHash({ action, targetId, body: body ?? null })
+    // Hashed only after authorization, so a caller without the capability learns
+    // nothing from a normalization refusal (legacy order: parse, scope, engine).
+    let hash
+    const hashOf = () => (hash ??= requestHash({ action, targetId, body: command.hashBody ? command.hashBody(body) : body ?? null }))
     const replayIfCommitted = (sql) => {
       const businessId = command.authorize(sql, scope, { targetId, body })
       const key = { tenantId: scope.tenantId, businessId, action, actorId: scope.actorId, idempotencyKey }
       const existing = findReceipt(sql, key)
       if (!existing) return { key, businessId, replay: null }
-      const replay = replayOrConflict(existing, hash, targetId)
-      command.replayGuard?.(scope, businessId, replay)
+      const replay = replayOrConflict(existing, hashOf(), targetId, command.conflictCode)
+      command.replayGuard?.(scope, businessId, replay, { sql, now: clock().toISOString() })
       return { key, businessId, replay }
     }
     let prepared
@@ -112,8 +145,9 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
       const { key, replay } = replayIfCommitted(sql)
       if (replay) return replay
       const now = clock().toISOString()
+      hashOf()
       const outcome = command.execute(sql, scope, { targetId, body, prepared }, { now, requestId: idempotencyKey, faults: faults[action] ?? {} })
-      const operation = writeReceipt(sql, { ...key, hash, targetId, response: outcome.response, affected: outcome.affected, now })
+      const operation = writeReceipt(sql, { ...key, hash: hashOf(), targetId, response: outcome.response, affected: outcome.affected, now })
       return { ...outcome.response, replayed: false, operation }
     })
   }
@@ -123,12 +157,12 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     const command = COMMANDS[action]
     if (!command) throw Object.assign(new Error('unknown command'), { status: 404, code: 'SCM_COMMAND_UNKNOWN' })
     assertIdempotencyKey(idempotencyKey)
-    if (!LOOKUP_VIEW[action.split('.')[0]]?.mayView(scope, businessId)) throw denied()
+    if (!(command.lookupView ?? LOOKUP_VIEW[action.split('.')[0]])?.mayView(scope, businessId)) throw denied()
     return store.read((sql) => {
       const row = findReceipt(sql, { tenantId: scope.tenantId, businessId, action, actorId: scope.actorId, idempotencyKey })
       if (!row) throw Object.assign(new Error('no committed operation for this key'), { status: 404, code: 'SCM_OPERATION_NOT_FOUND', retryable: false })
       const response = JSON.parse(row.responseJson)
-      command.replayGuard?.(scope, businessId, response)
+      command.replayGuard?.(scope, businessId, response, { sql, now: clock().toISOString() })
       return { operation: operationDto(row), response }
     })
   }
@@ -142,6 +176,10 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     orders: (scope, query) => store.read((sql) => listOrders(sql, scope, query)),
     revenue: (scope, query) => store.read((sql) => getRevenueSummary(sql, scope, query)),
     orderPayments: (scope, orderId) => store.read((sql) => listPayments(sql, scope, orderId)),
+    pricingRules: (scope, query) => store.read((sql) => listPricingRules(sql, scope, query, clock().toISOString())),
+    activePricingRule: (scope, businessId) => store.read((sql) => getActivePricingRuleSet(sql, scope, businessId, clock().toISOString())),
+    // Read-only evaluation (no key, nothing stored): the same evaluator as calculate.
+    pricingPreview: (scope, body) => store.read((sql) => previewPricingRules(sql, scope, body)),
   }
 
   return { run, lookup, queries }

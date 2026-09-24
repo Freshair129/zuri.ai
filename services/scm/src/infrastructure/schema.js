@@ -14,14 +14,16 @@
 export const OWNERS = Object.freeze({
   inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation'],
   procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine'],
-  commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile'],
+  commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile', 'PricingRuleSet', 'PricingCalculation'],
   scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
 })
 
 // v2 (S5.4 POS checkout): WarehouseLocation, SalesOrder(+Line), Payment,
 // BusinessBillingProfile; Product.maintenanceIntervalDays, ProductLot.lastMaintainedAt.
-// Disposable stores only — there is no v1→v2 migration (the migration owner writes one).
-export const SCHEMA_VERSION = 2
+// v3 (S5.4 pricing rules): PricingRuleSet, PricingCalculation; ScmAuditEvent gains
+// the reason / beforeJson / afterJson columns of core AuditEvent.
+// Disposable stores only — there is no v1→v2→v3 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 3
 
 export const DDL = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
@@ -161,6 +163,39 @@ CREATE TABLE IF NOT EXISTS BusinessBillingProfile (
   createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1
 );
 
+-- Pricing (FR-253, ADR-098). Rule content is immutable once it leaves DRAFT and a
+-- calculation is an immutable snapshot: both are enforced here as well as in the
+-- service, so no future writer can quietly rewrite an approved policy or a price.
+CREATE TABLE IF NOT EXISTS PricingRuleSet (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, name TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'DRAFT', rulesJson TEXT NOT NULL, rulesHash TEXT NOT NULL,
+  sourceRuleSetId TEXT REFERENCES PricingRuleSet(id), createdByPersonId TEXT,
+  approvedByPersonId TEXT, approvedAt TEXT, effectiveFrom TEXT, expiresAt TEXT, approvalReason TEXT,
+  revokedByPersonId TEXT, revokedAt TEXT, revocationReason TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS PricingRuleSet_scope ON PricingRuleSet (tenantId, businessId);
+CREATE INDEX IF NOT EXISTS PricingRuleSet_effective ON PricingRuleSet (businessId, effectiveFrom, approvedAt);
+CREATE TRIGGER IF NOT EXISTS PricingRuleSet_content_immutable BEFORE UPDATE OF rulesJson, rulesHash, name, tenantId, businessId, sourceRuleSetId ON PricingRuleSet
+  WHEN OLD.status <> 'DRAFT' BEGIN SELECT RAISE(ABORT, 'PRICING_RULE_IMMUTABLE'); END;
+CREATE TRIGGER IF NOT EXISTS PricingRuleSet_no_delete BEFORE DELETE ON PricingRuleSet
+  BEGIN SELECT RAISE(ABORT, 'PRICING_RULE_IMMUTABLE'); END;
+
+CREATE TABLE IF NOT EXISTS PricingCalculation (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  ruleSetId TEXT NOT NULL REFERENCES PricingRuleSet(id), ruleVersion INTEGER NOT NULL,
+  rulesHash TEXT NOT NULL, rulesJson TEXT NOT NULL, evaluatorVersion TEXT NOT NULL,
+  inputHash TEXT NOT NULL, inputJson TEXT NOT NULL, resultJson TEXT NOT NULL,
+  inputProvenance TEXT NOT NULL DEFAULT 'USER_ENTERED', requestHash TEXT NOT NULL,
+  idempotencyKey TEXT NOT NULL, createdByPersonId TEXT, createdAt TEXT NOT NULL,
+  UNIQUE (businessId, idempotencyKey)
+);
+CREATE INDEX IF NOT EXISTS PricingCalculation_ruleSet ON PricingCalculation (ruleSetId);
+CREATE TRIGGER IF NOT EXISTS PricingCalculation_no_update BEFORE UPDATE ON PricingCalculation
+  BEGIN SELECT RAISE(ABORT, 'PRICING_CALCULATION_IMMUTABLE'); END;
+CREATE TRIGGER IF NOT EXISTS PricingCalculation_no_delete BEFORE DELETE ON PricingCalculation
+  BEGIN SELECT RAISE(ABORT, 'PRICING_CALCULATION_IMMUTABLE'); END;
+
 -- Durable mutation identity: one row per (scope, idempotency key), committed in
 -- the SAME transaction as the effect, so "committed" and "has a receipt" are one fact.
 CREATE TABLE IF NOT EXISTS ScmOperationReceipt (
@@ -175,7 +210,7 @@ CREATE TABLE IF NOT EXISTS ScmOperationReceipt (
 CREATE TABLE IF NOT EXISTS ScmAuditEvent (
   id TEXT PRIMARY KEY, entityType TEXT NOT NULL, entityId TEXT NOT NULL, action TEXT NOT NULL,
   payloadJson TEXT NOT NULL, actorType TEXT NOT NULL, actorId TEXT, occurredAt TEXT NOT NULL,
-  tenantId TEXT, businessId TEXT, requestId TEXT
+  tenantId TEXT, businessId TEXT, requestId TEXT, reason TEXT, beforeJson TEXT, afterJson TEXT
 );
 
 -- Transactional outbox: written with the effect; delivery to the core audit view is a
