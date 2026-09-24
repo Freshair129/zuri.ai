@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-109
 title: "SCM service extraction — one deployable over Inventory, Procurement and Commerce"
-version: "0.1.7b"
+version: "0.1.8b"
 status: candidate
 created_at: "2026-09-24T14:00:00+07:00,Claude Opus 5.5"
-last_update: "2026-09-24T12:40:00+07:00,Claude Opus 5.5"
+last_update: "2026-09-24T13:15:00+07:00,Claude Opus 5.5"
 author: Claude Opus 5.5 (Session 5)
 attributes:
   doc_type: architecture-decision
@@ -220,6 +220,9 @@ For this candidate revision:
 - **Sales orders (0.1.3b):** 150 service tests (149 pass, 1 NOT_RUN on
   Windows), including legacy AC-162.1–162.6, the Commerce cohort end to end, an
   order CAS interleaving test and a two-process fulfilment race.
+- **POS terminal catalogue (0.1.8b):** the read moves onto the SCM store with
+  Branch facts from the core owner; 2/2 catalogues reproduce a legacy-recorded
+  golden; 202 service tests on both engines (201 pass, 1 NOT_RUN on Windows).
 - **PostgreSQL (0.1.7b):** the same 197 service tests pass on embedded
   PostgreSQL 17 (196 pass, 1 NOT_RUN on Windows) and on SQLite; the guard proof
   reproduces F-1, F-9 and F-12 on PostgreSQL (3/3 runs each) when the matching
@@ -258,4 +261,5 @@ For this candidate revision:
 | 0.1.4b | 2026-09-24 | candidate | Revenue read model on the SCM store, parity-pinned | 105d90c7 | Claude Opus 5.5 (Session 5) |
 | 0.1.5b | 2026-09-24 | candidate | Pricing rules lifecycle + calculation moved whole; catalog freeze stays behind SCM-FILES/SCM-KNOWLEDGE (F-11) | cd3abb54 | Claude Opus 5.5 (Session 5) |
 | 0.1.6b | 2026-09-24 | candidate | Supplier cost sheets moved whole (Procurement + Inventory carton writer in one unit of work) | 1810c90c | Claude Opus 5.5 (Session 5) |
-| 0.1.7b | 2026-09-24 | candidate | D9: PostgreSQL store behind the same synchronous port; suite on both engines; guard proof for F-1/F-9/F-12 | uncommitted | Claude Opus 5.5 (Session 5) |
+| 0.1.7b | 2026-09-24 | candidate | D9: PostgreSQL store behind the same synchronous port; suite on both engines; guard proof for F-1/F-9/F-12 | ccb3db24 | Claude Opus 5.5 (Session 5) |
+| 0.1.8b | 2026-09-24 | candidate | POS terminal catalogue read moved; Branch list as a ReferenceAuthority fact | uncommitted | Claude Opus 5.5 (Session 5) |
