@@ -90,6 +90,12 @@
       "kernel": "src/kernel/inventory/warehouse-location.js",
       "sourceSha256": "6ab4a0562b9f364b31b5f23c62e81f3d551ffa0539f2ffba9ab5685664e72454",
       "kernelSha256": "41c093e59aff4fd148232d6caf0672f3e3dcef6e10deb78d4519207837713a4c"
+    },
+    {
+      "source": "apps/server/src/modules/inventory/domain/catalog-intake.js",
+      "kernel": "src/kernel/inventory/catalog-intake.js",
+      "sourceSha256": "7b5fbd402a66a51d1ec8451be10b652006b1a3ccda4da478d62f44d944bb70ba",
+      "kernelSha256": "85d552b293ad56a1f9ca69f8b71a4669286e455e13c901f2b483340d005f5d9c"
     }
   ]
 }

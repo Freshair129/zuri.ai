@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.13",
+  "revision": "v1-draft.14",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -562,6 +562,69 @@
       "method": "GET",
       "path": "/v1/inventory/stocktakes/{id}?businessId=",
       "capability": "inventory domain"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/shelf-life?businessId=&thresholdDays=&includeEmpty=",
+      "capability": "inventory domain",
+      "note": "FR-179: every lot of every live SKU that declares a storage limit with its standing (OK / DUE / EXPIRED); on-hand from the ledger; empty lots only with includeEmpty=true"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/shelf-life",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.lot.maintain",
+      "note": "FR-179: records a maintenance, which resets the lot's clock; audited; no ledger movement; the lot is locked before it is read (D-27)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/catalog-hygiene?businessId=&dormantDays=",
+      "capability": "inventory domain",
+      "note": "FR-206: read-only findings from the kernel hygieneReport; dormantDays clamped to 1..3650 (default 180)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/replenishment?businessId=",
+      "capability": "inventory domain",
+      "note": "FR-207: counted ACTIVE SKUs below their reorder point (or safety stock) with the quantity to order; a suggestion, never a purchase order"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/catalog-intakes/preview",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.catalog-intake.preview",
+      "note": "FR-208: the JSON envelope every surface converges on (the Excel workbook converter and template stay at the edge, D-26); plan persisted with its hash, idempotent on (Business, channel, correlationId); a different payload under one correlation is 409 INVENTORY_CATALOG_INTAKE_CORRELATION_REUSED"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/catalog-intakes/commit",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.catalog-intake.commit",
+      "note": "FR-208: re-plans in one unit of work and runs every action through the catalogue and identity writers; a stale plan, an expired, cancelled or uncommittable intake is refused; the intake is locked first, so a concurrent second commit replays (D-27); requesterOnly: true refuses (404) anyone but the actor who previewed"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/catalog-intakes?businessId=&limit=",
+      "capability": "inventory domain",
+      "note": "newest first, without plans; limit 1..100 (default 20)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/catalog-intakes/by-code?businessId=&code=",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "note": "the intake a LINE confirmation names by its human code"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/catalog-intakes/{id}",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/catalog-intakes/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.catalog-intake.action",
+      "note": "CANCEL {version, businessId?, requesterOnly?}: PREVIEWED only, compare-and-swap on version"
     },
     {
       "method": "GET",

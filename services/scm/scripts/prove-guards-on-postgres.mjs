@@ -55,6 +55,11 @@ const GUARDS = [
     remove: [['src/modules/inventory/adapters/wip-repo.js', "WHERE id = ? AND version = ? AND status = 'ACTIVE'`", 'WHERE id = ? AND CAST(? AS INTEGER) IS NOT NULL`']],
   },
   {
+    finding: 'I-1', guard: 'catalogue-intake commit locks the intake before it reads the status (D-27)', test: 'recovery/two-process-catalog-intake',
+    common: [],
+    remove: [['src/modules/inventory/adapters/intake-repo.js', "export const lockIntake = (sql, id) => Number(sql.run('UPDATE InventoryCatalogIntake SET version = version WHERE id = ?', id).changes)", 'export const lockIntake = () => 1']],
+  },
+  {
     finding: 'W-1', guard: 'work-order compare-and-swap (D-20)', test: 'recovery/two-process-kitting',
     common: [],
     remove: [['src/modules/inventory/adapters/wip-repo.js', 'updatedAt = ? WHERE id = ? AND version = ?`, ...keys.map', 'updatedAt = ? WHERE id = ? AND CAST(? AS INTEGER) IS NOT NULL`, ...keys.map']],

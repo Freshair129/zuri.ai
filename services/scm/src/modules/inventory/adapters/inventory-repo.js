@@ -67,6 +67,14 @@ export function addLotReceivedQty(sql, lotId, qty, now) {
   sql.run('UPDATE ProductLot SET receivedQty = receivedQty + ?, version = version + 1, updatedAt = ? WHERE id = ?', qty, now, lotId)
 }
 
+/** FR-179: a lock-only touch, so two maintenance records of one lot serialize and each audits the value it replaced (D-27). */
+export const lockLot = (sql, lotId) => Number(sql.run('UPDATE ProductLot SET version = version WHERE id = ?', lotId).changes)
+/** FR-179: a recorded maintenance resets the lot's clock. */
+export function maintainLot(sql, lotId, maintainedAt, now) {
+  sql.run('UPDATE ProductLot SET lastMaintainedAt = ?, version = version + 1, updatedAt = ? WHERE id = ?', maintainedAt, now, lotId)
+  return lotById(sql, lotId)
+}
+
 export function setLotExpiryIfUnset(sql, lotId, expiresAt, now) {
   return Number(sql.run('UPDATE ProductLot SET expiresAt = ?, updatedAt = ?, version = version + 1 WHERE id = ? AND expiresAt IS NULL', expiresAt, now, lotId).changes)
 }

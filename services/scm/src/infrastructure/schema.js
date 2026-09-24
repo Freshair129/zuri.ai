@@ -14,7 +14,7 @@
 import { toPostgres } from './sql-dialect.js'
 
 export const OWNERS = Object.freeze({
-  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem', 'ProductUnitConversion', 'ProductRecipe', 'ProductRecipeLine', 'CustomizationWorkOrder', 'KittingWorkOrder', 'StockReservation', 'InventoryStocktake'],
+  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem', 'ProductUnitConversion', 'ProductRecipe', 'ProductRecipeLine', 'CustomizationWorkOrder', 'KittingWorkOrder', 'StockReservation', 'InventoryStocktake', 'InventoryCatalogIntake'],
   procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine', 'SupplierCostSheet', 'SupplierCostLine'],
   commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile', 'PricingRuleSet', 'PricingCalculation'],
   scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
@@ -37,8 +37,9 @@ export const OWNERS = Object.freeze({
 // KittingWorkOrder; StockReservation (its writers joined in the ATP tranche; no schema change).
 // v9 (S5.4 stocktake, transfers, locations): InventoryStocktake; ProductLot.factoryId;
 // WarehouseLocation.archivedAt.
-// Disposable stores only — there is no v1→…→v9 migration (the migration owner writes one).
-export const SCHEMA_VERSION = 9
+// v10 (S5.4 catalogue intake, shelf-life, hygiene, replenishment): InventoryCatalogIntake.
+// Disposable stores only — there is no v1→…→v10 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 10
 
 const TABLES = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
@@ -297,6 +298,21 @@ CREATE TABLE IF NOT EXISTS InventoryStocktake (
   UNIQUE (tenantId, businessId, idempotencyKey)
 );
 CREATE INDEX IF NOT EXISTS InventoryStocktake_business ON InventoryStocktake (businessId, status, createdAt);
+
+-- Catalogue intake (FR-208, ADR-084): a persisted plan (preview) and its commit, which
+-- runs every action through the catalogue and identity writers in one unit of work.
+-- One row per (Business, channel, correlation); code is unique per Tenant.
+CREATE TABLE IF NOT EXISTS InventoryCatalogIntake (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  sourceChannel TEXT NOT NULL, sourceCorrelationId TEXT NOT NULL, payloadSha256 TEXT NOT NULL,
+  normalizedEnvelopeJson TEXT NOT NULL, planJson TEXT NOT NULL, planHash TEXT NOT NULL,
+  committable INTEGER NOT NULL DEFAULT 0, itemCount INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'PREVIEWED',
+  requestedById TEXT, resultJson TEXT, expiresAt TEXT NOT NULL, committedAt TEXT, cancelledAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (businessId, sourceChannel, sourceCorrelationId),
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS InventoryCatalogIntake_business ON InventoryCatalogIntake (businessId, status, createdAt);
 
 CREATE TABLE IF NOT EXISTS WarehouseLocation (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, name TEXT NOT NULL,

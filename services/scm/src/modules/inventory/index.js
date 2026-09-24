@@ -25,5 +25,9 @@ export * as kitting from './application/kitting.js'
 export * as deKitting from './application/de-kitting.js'
 /** Available-to-Promise and reservations (FR-180). */
 export * as atp from './application/atp.js'
+/** Shelf-life (FR-179), catalogue hygiene and replenishment (FR-206, FR-207), catalogue intake (FR-208). */
+export * as shelfLife from './application/shelf-life.js'
+export * as hygiene from './application/hygiene.js'
+export * as catalogIntake from './application/catalog-intake.js'
 /** On-hand from the ledger (read port for a pre-issue shortage report; the writer re-checks). */
 export { onHandOf } from './adapters/inventory-repo.js'

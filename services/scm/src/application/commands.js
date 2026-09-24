@@ -13,7 +13,7 @@ import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSale
 import { zCreateOrder } from '../kernel/commerce/commerce.js'
 import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
 import { authorizeCatalogue, getPosTerminalCatalogue } from '../modules/commerce/application/pos-catalogue.js'
-import { atp, catalog, customization, deKitting, identity, kitting, locations, recipes, stock, stocktake } from '../modules/inventory/index.js'
+import { atp, catalog, catalogIntake, customization, deKitting, hygiene, identity, kitting, locations, recipes, shelfLife, stock, stocktake } from '../modules/inventory/index.js'
 import { supplierCostPriceBreaks } from '../modules/procurement/application/supplier-cost-sheets.js'
 import { applyPricingRuleAction, calculatePricing, calculationRequest, createPricingRuleSet, getActivePricingRuleSet, guardCalculationReplay, listPricingRules, loadRuleInScope, ownerBusiness, previewPricingRules, updatePricingRuleSet, zCalculatePricing, zCreatePricingRule } from '../modules/commerce/application/pricing-rules.js'
 
@@ -102,6 +102,12 @@ const COMMANDS = {
   'inventory.reservation.create': { authorize: (sql, scope, { body }) => atp.reserverOf(scope, body), execute: (sql, scope, { body }, ctx) => atp.createReservation(sql, scope, body, ctx) },
   'inventory.reservation.action': { authorize: (sql, scope, { targetId, body }) => atp.reservationActorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => atp.applyReservationAction(sql, scope, targetId, body, ctx) },
   'inventory.reservation.expire': { authorize: (sql, scope, { body }) => atp.sweeperOf(scope, body), execute: (sql, scope, { body }, ctx) => atp.expireDueReservations(sql, scope, body ?? {}, ctx) },
+  // Shelf-life maintenance (FR-179) and catalogue intake (FR-208): Inventory write on the named
+  // Business (an intake action: the intake's own); intake commit/cancel lock the intake first (D-27).
+  'inventory.lot.maintain': { authorize: (sql, scope, { body }) => shelfLife.maintainerOf(scope, body), execute: (sql, scope, { body }, ctx) => shelfLife.recordLotMaintenance(sql, scope, body, ctx) },
+  'inventory.catalog-intake.preview': { authorize: (sql, scope, { body }) => catalogIntake.previewerOf(scope, body), execute: (sql, scope, { body }, ctx) => catalogIntake.previewCatalogIntake(sql, scope, body, ctx) },
+  'inventory.catalog-intake.commit': { authorize: (sql, scope, { body }) => catalogIntake.committerOf(scope, body), execute: (sql, scope, { body }, ctx) => catalogIntake.commitCatalogIntake(sql, scope, body, ctx) },
+  'inventory.catalog-intake.action': { authorize: (sql, scope, { targetId, body }) => catalogIntake.cancellerOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => catalogIntake.applyCatalogIntakeAction(sql, scope, targetId, body, ctx) },
   'inventory.kitting-work-order.action': { authorize: (sql, scope, { targetId, body }) => kitting.actorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => kitting.applyKittingWorkOrderAction(sql, scope, targetId, body, ctx) },
   'commerce.pos.checkout': {
     // Authorization needs the parsed businessId; a malformed body is a 422 before any lookup.
@@ -268,6 +274,12 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     locations: (scope, query) => store.read((sql) => ({ locations: locations.listLocations(sql, scope, query) })),
     location: (scope, id) => store.read((sql) => ({ location: locations.getLocation(sql, scope, id) })),
     locationStock: (scope, query) => store.read((sql) => locations.locationStock(sql, scope, query)),
+    shelfLife: (scope, query) => store.read((sql) => shelfLife.shelfLifeAudit(sql, scope, { ...query, now: clock().toISOString() })),
+    catalogHygiene: (scope, query) => store.read((sql) => hygiene.catalogHygiene(sql, scope, { ...query, now: clock().toISOString() })),
+    replenishment: (scope, query) => store.read((sql) => hygiene.replenishment(sql, scope, query)),
+    catalogIntakes: (scope, query) => store.read((sql) => ({ intakes: catalogIntake.listCatalogIntakes(sql, scope, query) })),
+    catalogIntake: (scope, id) => store.read((sql) => ({ intake: catalogIntake.getCatalogIntake(sql, scope, id) })),
+    catalogIntakeByCode: (scope, query) => store.read((sql) => ({ intake: catalogIntake.findCatalogIntakeByCode(sql, scope, query) })),
     stocktake: (scope, id, query) => store.read((sql) => ({ stocktake: stocktake.getStocktake(sql, scope, id, query) })),
     reservations: (scope, query) => store.read((sql) => ({ reservations: atp.listReservations(sql, scope, { ...query, now: clock().toISOString() }) })),
     atp: (scope, query) => store.read((sql) => (query.recipeId
