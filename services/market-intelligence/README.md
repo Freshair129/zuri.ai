@@ -1,18 +1,29 @@
-# Market Intelligence service core
+# Market Intelligence service
 
-Session 4 service-extraction package (M1). It holds the Market translation core,
-the observation feed and the translation run behind explicit ports. It does not
-import apps/server, Next.js, Prisma or another domain.
+Session 4 service extraction ([ADR-108](../../docs/decisions/ADR-108-MARKET-INTELLIGENCE-SERVICE-EXTRACTION.md)).
+It is a standalone Node process that owns Market translation and `MarketObservation`
+writes. Authority, raw evidence and audit come from core's private façade.
 
-**It does not run anything yet.** `apps/server` still executes every Market request.
-A separately running process (M2) waits on an ADR amending ADR-038 D8. See
-[the handoff](../../docs/migrations/service-extraction/MARKET-INTELLIGENCE-HANDOFF.md).
+**Nothing routes to it yet.** `apps/server` still executes every Market request. Core's
+`/api/internal/market-intelligence/v1/*` façade and the `MARKET_EXECUTOR` flag are M3.
+See [the handoff](../../docs/migrations/service-extraction/MARKET-INTELLIGENCE-HANDOFF.md).
 
 ```bash
-npm ci        # installs zod only
-npm test      # node --test, no DB and no Next
-npm run build # boundary scan + syntax check
+npm ci
+npm test          # node --test: core, both stores (Postgres reported NOT_RUN), HTTP API vs a fake core
+npm run test:pg   # Postgres conformance in a disposable container (needs Docker)
+npm run build     # boundary scan + syntax check
 ```
+
+Local image-start rehearsal, as a separate Compose project that never touches `zuri-ai`:
+
+```bash
+docker compose -f services/market-intelligence/compose.rehearsal.yml up -d --build --wait
+docker compose -f services/market-intelligence/compose.rehearsal.yml down
+```
+
+Configuration lives in `.env.example` (names only). Production refuses sqlite, schema
+creation and assumed execution ownership.
 
 `contracts/v1/translation-vectors.json` is shared with
 `apps/server/tests/unit/market-intelligence/service-core-parity.test.js`. Both copies

@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.1.0b"
+version: "0.2.0b"
 status: candidate
-last_update: "2026-09-24T08:30:00+07:00,Claude"
+last_update: "2026-09-24T10:00:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -11,20 +11,24 @@ relations:
     target: ZAI:ADR-038
   - type: relates_to
     target: ZAI:FR-092
+  - type: relates_to
+    target: ZAI:ADR-108
 ---
 
 # Market Intelligence extraction handoff (Session 4)
 
-**Checkpoint state:** M0 discovery done, M1 pure core + isolated tests done. Nothing
-executes in the new package yet: `apps/server` still runs every Market request. No
-extraction, integration or release claim is made.
+**Checkpoint state:** M2 service-local runtime done (2026-09-24). The Market service
+runs as its own process with an owned Postgres/SQLite store, and a real workflow
+through its started image is proven. **Nothing routes to it yet:** `apps/server`
+still executes every production Market request, and core's façade routes (M3) do not
+exist. No extraction-complete, integration or release claim is made.
 
 ## Provenance
 
 - Repository: `Freshair129/zuri.ai`
 - Branch: `feat/market-intelligence-service` (worktree `.claude/worktrees/market-intelligence-service`)
 - Base SHA: `fad8ec6252941ca3de01afdb3116484f86b366c3` (`origin/main` on 2026-09-24)
-- Code head SHA: the commit that adds this file (no earlier implementation commit exists)
+- Commits: M1 `d40a3329`; M2 is the commit that adds this revision (see `git log`)
 - PR: none yet
 - Existing work checked first: no Market branch, PR or handoff existed. Session 1
   (`codex/conversation-runtime-service`, PR #542) and Session 3 (local worktree
@@ -32,21 +36,15 @@ extraction, integration or release claim is made.
 - Not read or touched: production `.env`, production DB, Edge repo, MSP/GKS repos,
   legacy zuri. No deploy, migration, provider call or live model call.
 
-## Governing decision found in M0 — ADR-038 D8 blocks M2 as written
+## Governing decision — resolved by ADR-108
 
-[ADR-038](../../decisions/ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY.md) D8 says a
-Market worker process is an execution topology, not a microservice boundary. It also
-says extraction to a service requires a real operational trigger (independent load,
-deployment cadence, security/compliance, availability or ownership). The
-[charter](../../domains/market-intelligence/CHARTER.md) repeats this: *"A worker is not
-an independently owned service."*
-
-M1 does not conflict with D8. It moves code within one codebase and release; nothing
-runs separately. **M2 (its own process, owned persistence, network API) does conflict.**
-It needs a new accepted ADR that amends or supersedes D8 and names the operational
-trigger. Session 1 did the same for its service (ADR-106, still unmerged). Only the
-owner can make this decision. Session 4 has not allocated an ADR number: ADR-106 is
-held by Session 1's PR and ADR-107 by Session 3's local worktree.
+M0 found that [ADR-038](../../decisions/ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY.md)
+D8 blocked a separately running Market service without an operational trigger. On
+2026-09-24 the owner chose **ownership** and delegated the remaining decisions for
+this lane to Claude Fable 5.1. The rulings are recorded in
+[ADR-108](../../decisions/ADR-108-MARKET-INTELLIGENCE-SERVICE-EXTRACTION.md), which is
+pinned in `docs/.id-ledger.json`. When this branch and Session 1's PR (which pins
+ADR-106) both land, the ledger needs a trivial merge: two independent additions.
 
 ## M0 — capability inventory at `fad8ec62`
 
@@ -60,7 +58,7 @@ names.
 | `MarketObservation` draft schema | apps/server | Market | translator, repository | service core | MOVE — copied | `test/domain.test.js` + vectors |
 | Observation feed (`GET /api/market/observations`) | Next route → service fn | Market | `MarketDashboard` (`/market`) | service core behind a BFF | MOVE core (M1); route becomes a thin ADAPTER at M3 | `test/observation-feed.test.js` + feed-row vectors |
 | Translation run (`POST /api/market/translations`) | Next route → service fn | writes Market; reads Integration; appends PM audit | `MarketDashboard` button | service core | MOVE core (M1); route becomes an ADAPTER at M3 | `test/translation-run.test.js` |
-| Persistence (`insertIfAbsent` / `listRecent` / `findTranslatedRawRecordIds`) | apps/server Prisma adapter | Market (`MarketObservation`, unique `lineageKey`, **no FK relations**) | feed, run | service-owned adapter | M2 — **blocked by the D8 gate** | legacy tests only |
+| Persistence (`insertIfAbsent` / `listRecent` / `findTranslatedRawRecordIds`) | apps/server Prisma adapter | Market (`MarketObservation`, unique `lineageKey`, **no FK relations**) | feed, run | service-owned adapter | MOVE — M2 pg + sqlite adapters (ADR-108 D2/D3); legacy Prisma writer remains until the M3 flag | shared conformance suite on both engines |
 | Scope authority (`seesBusiness`, `ownsBusiness`, `assertDomainVisible`, Business lookup) | Identity, in-process | Identity | feed, run | `ScopeAuthorityPort` → core façade | KEEP in core; ADAPTER | fake conformance only |
 | Raw candidate read (`listMarketLaneRawRecordCandidates` reads `rawExternalRecord` directly) | Market infra reading Integration's table | Integration | run | `RawEvidenceReadPort` → Integration façade | SHARED-TRANSITION | none yet |
 | Audit (`recordAudit`, project-manager) | PM, in-process | PM audit | run | `AuditPort` | KEEP owner; ADAPTER | fake only |
@@ -117,92 +115,144 @@ Findings for owners (no semantics were changed):
   cannot drift silently. Only the JSON file crosses the app boundary; the server
   image is unaffected.
 
+## M2 — what was implemented (ADR-108 D2–D7)
+
+- `src/adapters/observation-schema.js`: one column list for both adapters, and
+  Postgres DDL used **only** for disposable databases. `test/ddl-parity.test.js`
+  pins it to `apps/server/supabase/migrations/20260820080000_market_observation.sql`
+  and to the generated `schema.postgres.prisma` model.
+- `src/adapters/pg-observation-store.js`: the production store.
+  `INSERT … ON CONFLICT ("lineageKey") DO NOTHING RETURNING *` makes creation atomic.
+  Timestamps are written and parsed as UTC, and it never runs DDL outside
+  `ensureTestSchema({ disposable: true })`.
+- `src/adapters/sqlite-observation-store.js`: the dev/test store (`node:sqlite`, WAL,
+  busy timeout). It is lazy-loaded, so a production process never imports it.
+- `test/store-conformance.js`: the shared ObservationStore contract, run by both
+  adapters. It includes a race of 8 inserts from separate connections (worker threads
+  for SQLite, separate pools for Postgres) and a cross-scope lineage collision treated
+  as a fault.
+- `src/adapters/core-client.js`: HTTP adapter for ScopeAuthority, RawEvidenceRead,
+  Audit, execution ownership and health against
+  `/api/internal/market-intelligence/v1/*` (`market-core.v1` envelope). It sends the
+  service bearer token plus the opaque `x-zuri-subject` header, fails closed with 503
+  `CORE_UNAVAILABLE`, retries only reads (bounded and jittered), and never retries audit.
+- `src/http/server.js`: `/healthz`, `/readyz` (deps named, and never ready on a fake
+  core in production), `GET /v1/observations`, `POST /v1/translations` (64 KiB cap,
+  strict schema, 409 `MARKET_NOT_EXECUTION_OWNER` unless core grants execution). The
+  legacy `{ error, issues? }` bodies are kept, and the server drains on close.
+- `src/config.js` + `src/main.js`: env-only configuration. Production refuses sqlite,
+  schema creation, assumed ownership and a non-private plain-http core. SIGTERM drains.
+- `Dockerfile` + `Dockerfile.dockerignore`: `node:22-alpine`, copies only this package,
+  `npm ci --omit=dev` (pg, zod), no mounts, no `next build`.
+- `compose.rehearsal.yml`: a separate Compose project `zuri-market-rehearsal`
+  (disposable Postgres, fake core, loopback port 38082). `test/compose-guard.test.js`
+  fails if it could ever resolve to `zuri-ai`, join its network or mount source.
+- `test/support/fake-core.js`: the fake of core's M3 façade, announcing
+  `mode: "fake"`.
+- `docs/decisions/ADR-108-…md` + ledger pin.
+
+Behaviour differences from legacy, all deliberate:
+
+1. When the audit owner is unreachable after the writes, the service answers
+   **503 `CORE_UNAVAILABLE`**, where legacy answers 500. In both, the observations
+   stay committed and replay is idempotent.
+2. The service refuses translation writes unless core says it owns execution
+   (ADR-108 D6).
+3. Raw candidates outside the authorized scope or lane are refused per record
+   (introduced in M1).
+
 ## Verification
+
+Environment: Windows 11 Pro, Node 24.19.0 (host), `node:22-alpine` (image), Docker
+29.8.0, `postgres:16-alpine`. Source: the commit that adds this revision (M2 code and
+this handoff are committed together).
 
 | Axis | Result | Evidence |
 |---|---|---|
-| CODE_IMPLEMENTED | PARTIAL | M1 core only; no process, persistence adapter or façade |
-| ISOLATED_TESTS_VERIFIED | PASS | `npm --prefix services/market-intelligence test`: 51 pass / 0 fail / 0 skipped, Node 24.19.0, Windows 11, local |
-| Boundary build | PASS | `npm --prefix services/market-intelligence run build`: 8 source files, no violation |
-| Legacy parity | PASS | `npx vitest run tests/unit/market-intelligence/service-core-parity.test.js` (apps/server): 10 pass |
-| Legacy Market baseline (before change) | PASS | 23 files / 130 tests at `fad8ec62` |
-| CONTRACT_VERIFIED | NOT_RUN | ports are a proposal; in-memory fakes only, and the "concurrent runs" test is single-threaded fake proof, not DB race proof |
-| CONSUMER_INTEGRATION_VERIFIED | NOT_RUN | routes still call the legacy module |
-| DATA_OWNERSHIP_ENFORCED | NOT_RUN | no service persistence exists |
-| IMAGE_BUILD_VERIFIED / IMAGE_START_VERIFIED | NOT_APPLICABLE at M1 | no process yet |
-| CI_VERIFIED | NOT_RUN | no PR; CI does not run the service package yet (shared patch below) |
+| CODE_IMPLEMENTED | PARTIAL | M2 complete; M3 façades/BFF flag, M4 not started |
+| ISOLATED_TESTS_VERIFIED | PASS | `npm --prefix services/market-intelligence test`: 95 tests, 94 pass, 0 fail, 1 skipped (the Postgres suite, reported `NOT_RUN: MARKET_TEST_PG_URL is unset`, because it runs separately below) |
+| Postgres conformance | PASS | `npm --prefix services/market-intelligence run test:pg`: disposable `postgres:16-alpine` container, 10/10 including the 8-connection lineage race; container removed afterwards |
+| SQLite conformance | PASS | included above: 10/10 including the 8-thread race |
+| Boundary build | PASS | `npm --prefix services/market-intelligence run build`: 15 source files, no violation |
+| Legacy parity | PASS | apps/server `service-core-parity.test.js` 10/10; service `parity-vectors` and HTTP-level parity (service-translated rows equal the v1 vectors) |
+| Legacy Market suite | PASS | apps/server Market unit + integration + parity: 140 tests (M1 run; no apps/server code changed in M2) |
+| CONTRACT_VERIFIED | PARTIAL | consumer side proven against a conformant **fake** core over real HTTP; no real provider exists until M3 |
+| CONSUMER_INTEGRATION_VERIFIED | NOT_RUN | the Next routes still call the legacy module (flag is M3) |
+| DATA_OWNERSHIP_ENFORCED | PARTIAL | the service writes only `"MarketObservation"` through its own adapter; the restricted role is **not applied**, and legacy still writes the same table |
+| IMAGE_BUILD_VERIFIED | PASS | `docker compose -f services/market-intelligence/compose.rehearsal.yml up -d --build --wait` |
+| IMAGE_START_VERIFIED | PASS | through the started container: `/readyz` → `{"ready":true,"deps":{"store":"postgres","core":"fake"}}`; POST translation → `{"translated":1}`, replay → `{"translated":0}`; feed returned the row; `psql` showed 1 row `raw-rehearsal-1`; SIGTERM logged draining → stopped, exit 0; stack removed; the live `zuri-ai` containers were untouched |
+| CI_VERIFIED | NOT_RUN | CI does not run the service yet (shared patch requested) |
 | PRODUCTION_CUTOVER | NOT_RUN | not authorized |
 
 ## Contracts
 
 | Contract | Provider owner | Consumer | Revision | State |
 |---|---|---|---|---|
-| ScopeAuthorityPort | Identity / core integrator | Session 4 | `src/ports/contracts.js` at this commit | PROPOSED |
-| RawEvidenceReadPort | Integration owner | Session 4 | same | PROPOSED |
-| AuditPort | project-manager audit owner | Session 4 | same | PROPOSED |
-| KnowledgeIdentityReadPort (optional) | Knowledge read owner | Session 4 | same | PROPOSED; existing in-process reader shape |
-| Market API (feed + translation run) | Session 4 | `/market` BFF | legacy shape, feed version 1.0 | preserved by parity vectors |
-| translation-vectors v1 | Session 4 | apps/server legacy module | `contracts/v1/translation-vectors.json` | PASS on both sides |
+| `market-core.v1` façade: authorize / raw-candidates / audit / execution-ownership / health | core integrator (Session 1) with Identity, Integration, audit owners | Session 4 | `src/adapters/core-client.js` + `test/support/fake-core.js` at this commit | PROPOSED; consumer proven against the fake; provider NOT_RUN |
+| Market service API v1 (`/v1/observations`, `/v1/translations`) | Session 4 | console BFF (M3) | `src/http/server.js` at this commit | provider tested; consumer NOT_RUN |
+| ObservationStore | Session 4 | Market core | `test/store-conformance.js` | PASS on sqlite and postgres |
+| translation-vectors v1 | Session 4 | apps/server legacy module | `contracts/v1/translation-vectors.json` | PASS on both sides and at the HTTP level |
 
 ## Blockers
 
 ```yaml
-- dependency: accepted ADR amending ADR-038 D8 for a separately running Market service
-  kind: HARD_START
-  phase_blocked: M2
-  owner_to_unblock: owner (Boss) + ADR id allocation via the integrator
-  condition_to_unblock: accepted ADR naming the operational trigger, the runtime shape and data ownership
-  evidence: [docs/decisions/ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY.md D8, docs/domains/market-intelligence/CHARTER.md "Runtime topology"]
-  safe_work_now: [M1 hardening, contract review, M3 façade design as a proposal]
-- dependency: reviewed ScopeAuthority / RawEvidenceRead / Audit contracts (Gate MARKET)
+- dependency: core façade routes /api/internal/market-intelligence/v1/* (market-core.v1)
   kind: CONTRACT
   phase_blocked: M3
-  owner_to_unblock: Identity + Integration + audit owners, with Session 1 as integrator
-  condition_to_unblock: reviewed revision + provider conformance run against the fakes' semantics
-  evidence: [services/market-intelligence/src/ports/contracts.js]
-  safe_work_now: [M1, fake conformance]
+  owner_to_unblock: integrator (Session 1) + Identity/Integration/audit owners; Session 4 can draft the routes as a separate shared-patch PR on request
+  condition_to_unblock: reviewed routes passing the same scenarios test/support/fake-core.js encodes (refusal statuses, subject re-check on raw-candidates, envelope shape)
+  evidence: [services/market-intelligence/src/adapters/core-client.js, services/market-intelligence/test/http-api.test.js]
+  safe_work_now: [M4 durable-audit design, BFF flag patch on the two Market-owned routes]
+- dependency: restricted DB role zuri_market_service + RLS policy
+  kind: HARD_START
+  phase_blocked: cutover (and M4 rehearsal on production-like data)
+  owner_to_unblock: operator (ADR-057)
+  condition_to_unblock: runbook in ADR-108 applied and verified
+  evidence: [docs/decisions/ADR-108-MARKET-INTELLIGENCE-SERVICE-EXTRACTION.md]
+  safe_work_now: [everything before cutover]
 - dependency: governance scanners, CI job and root scripts include services/market-intelligence
   kind: INTEGRATION_ORDER
   phase_blocked: CI_VERIFIED
   owner_to_unblock: integrator (Session 1 by default)
   condition_to_unblock: shared patch merged (see below)
   evidence: [PR #542 adds the same wiring for services/conversation-runtime only]
-  safe_work_now: [local test/build]
+  safe_work_now: [local test/build/test:pg/rehearsal]
 ```
 
 ## Shared changes requested from the integrator (not made on this branch)
 
-These files are Session 1's integration surface in PR #542. Editing them here would
-create conflicts:
-
 - `apps/server/scripts/doc-graph.mjs` and `doc-preflight.mjs`: scan
-  `services/market-intelligence/{src,test,contracts}` the same way #542 scans
+  `services/market-intelligence/{src,test,contracts}` as #542 does for
   `services/conversation-runtime`. Generalizing to every `services/*` is preferable.
 - `apps/server/scripts/workspace-path.mjs`: `services` as a shared root (already in #542).
-- `.github/workflows/governance.yml`: a `market-intelligence` job (`npm ci`, `test`,
-  `build`) that feeds the `verify` aggregate. It must also make the server `tests` job
-  able to read `services/market-intelligence/contracts/`, which a full checkout already does.
+- `.github/workflows/governance.yml`: a `market-intelligence` job that feeds `verify`.
+  It should run `npm ci --prefix services/market-intelligence`, `npm test`,
+  `npm run build`, `npm run test:pg` (Docker is available on ubuntu-latest) and
+  `docker build -f services/market-intelligence/Dockerfile .`.
 - Root `package.json`: `market-intelligence:test` / `market-intelligence:build`.
+- `docs/.id-ledger.json`: merge ADR-106 (Session 1) and ADR-108 (this branch), which
+  are independent additions.
 
 ## Next exact action
 
-1. Owner: decide the D8 question (a new ADR for a separately running service, or
-   keep Market in-process and stop at a shared-core package).
-2. Integrator: land the scanner/CI wiring above, or ask Session 4 for a standalone
-   shared-patch PR.
-3. Session 4, once D8 is decided: M2 service-local runtime with owned persistence
-   (`MarketObservation`, no FKs, so a same-DB restricted-role transition is feasible),
-   and meanwhile M3 façade proposals for the three core ports.
+1. Integrator: land the scanner/CI wiring and decide who writes the core façade
+   routes (Session 4 can draft them as a separate shared-patch PR).
+2. Session 4, M3: the `MARKET_EXECUTOR` flag in `apps/server/src/app/api/market/*`
+   (Market-owned routes), a BFF client for the service API, and provider conformance
+   once the façade exists.
+3. Session 4, M4: a durable audit handoff (with the audit owner's review), a replay
+   and schema-version rehearsal (see finding 2), and a revoke/redaction path.
 
 ```yaml
 session: S4
 workstream: market-intelligence
-observed_at: "2026-09-24T08:30:00+07:00"
+observed_at: "2026-09-24T10:00:00+07:00"
 base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
-code_head_sha: null   # the commit adding this file; see git log
+m1_commit: d40a3329
+code_head_sha: null   # the commit adding this revision; see git log
 branch: feat/market-intelligence-service
 pr_number: null
-current_tranche: M1
+current_tranche: M2
 execution_status: PARTIAL
 merge_status: NOT_MERGED
 production_status: NOT_RUN

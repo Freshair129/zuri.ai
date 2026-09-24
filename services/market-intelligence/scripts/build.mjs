@@ -31,7 +31,7 @@ const FORBIDDEN_IN_CORE = [
   [/from\s+['"]node:(?:fs|net|http|https|child_process)/, 'does I/O in the pure core'],
 ]
 const PURE = ['src/core/', 'src/domain/', 'src/ports/']
-const ALLOWED_PACKAGES = new Set(['zod'])
+const ALLOWED_PACKAGES = new Set(['zod', 'pg'])
 
 const files = await walk(path.join(root, 'src'))
 if (!files.length) throw new Error('SERVICE_SOURCE_MISSING')
