@@ -188,15 +188,33 @@ export function deriveRealCorpus(files, { fixtureVersion, base = null, baseSha25
       replaced.push(benchmark.externalId)
     }
   }
-  if ((added.length || replaced.length) && fixtureVersion === prior.fixtureVersion) {
-    throw fail('KI17_FIXTURE_VERSION_REUSED', `--fixture-version ${fixtureVersion} is the deployed fixture's own version; a merge that adds or replaces a record needs a new one`)
+  const changed = added.length > 0 || replaced.length > 0
+  if (changed) {
+    // Every version already used in the base, not only its top-level one: an
+    // unchanged record keeps the version it was first judged under, so a base
+    // at v3 can still hold `v1:X`. Re-using v1 would recreate `v1:X` with
+    // different gold texts — the unattributable verdict this guard prevents.
+    const usedVersions = new Set([prior.fixtureVersion])
+    for (const benchmark of prior.benchmarks) {
+      const suffix = `:${benchmark.externalId}`
+      if (benchmark.fixtureVersion.endsWith(suffix)) usedVersions.add(benchmark.fixtureVersion.slice(0, -suffix.length))
+    }
+    if (usedVersions.has(fixtureVersion)) {
+      throw fail('KI17_FIXTURE_VERSION_REUSED', `--fixture-version ${fixtureVersion} is already used in the deployed fixture (${[...usedVersions].join(', ')}); a merge that adds or replaces a record needs a new one`)
+    }
   }
+  // Lineage grows only when something is installed. A production fixture
+  // written before --base existed carries no generatedFrom at all, so the
+  // first merge onto it lists only the new files; the §10.1 step 8 record is
+  // where the earlier sources are written down.
   const generatedFrom = [...prior.generatedFrom]
-  for (const source of sources) {
-    if (!generatedFrom.some((known) => known.sha256 === source.sha256 && known.file === source.file)) generatedFrom.push(source)
+  if (changed) {
+    for (const source of sources) {
+      if (!generatedFrom.some((known) => known.sha256 === source.sha256 && known.file === source.file)) generatedFrom.push(source)
+    }
   }
   return {
-    fixtureVersion: added.length || replaced.length ? fixtureVersion : prior.fixtureVersion,
+    fixtureVersion: changed ? fixtureVersion : prior.fixtureVersion,
     ontologyVersion: 'ontology_v2',
     purpose: 'Retrieval benchmark derived from the real SmartGift catalog files uploaded to GenesisRAG17.',
     generatedFrom,

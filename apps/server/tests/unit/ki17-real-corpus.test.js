@@ -105,6 +105,24 @@ describe('per-record merge onto the deployed fixture', () => {
     expect(() => deriveRealCorpus([bundles], { fixtureVersion: 'real-v1', base: deployed })).toThrow(/KI17_FIXTURE_VERSION_REUSED/)
   })
 
+  it('refuses a version an unchanged record still carries, even when the top-level version has moved on', () => {
+    // v1 deployed products; v2 added bundles. Products still carry `real-v1:*`.
+    const atV2 = deriveSmartgiftBenchmark(deriveRealCorpus([bundles], { fixtureVersion: 'real-v2', base: deployed }))
+    expect(atV2.fixtureVersion).toBe('real-v2')
+    const changed = JSON.parse(readFileSync(products, 'utf8'))
+    changed[0] = { ...changed[0], nameEn: `${changed[0].nameEn} (reissue)` }
+    const dir = mkdtempSync(path.join(tmpdir(), 'ki17-reuse-'))
+    const changedFile = path.join(dir, 'products.json')
+    writeFileSync(changedFile, JSON.stringify(changed))
+    expect(() => deriveRealCorpus([changedFile], { fixtureVersion: 'real-v1', base: atV2 })).toThrow(/KI17_FIXTURE_VERSION_REUSED/)
+    expect(deriveRealCorpus([changedFile], { fixtureVersion: 'real-v3', base: atV2 }).merge.replaced).toEqual([changed[0].externalId])
+  })
+
+  it('leaves lineage and version alone when nothing is installed', () => {
+    const merged = deriveRealCorpus([products], { fixtureVersion: 'real-v2', base: deployed })
+    expect(merged.generatedFrom).toEqual(deployed.derivedFrom.generatedFrom)
+  })
+
   it('refuses the same record twice in one merge', () => {
     expect(() => deriveRealCorpus([products, products], { fixtureVersion: 'real-v2', base: deployed })).toThrow(/KI17_CATALOG_DUPLICATE/)
   })

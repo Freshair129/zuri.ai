@@ -24,6 +24,10 @@ relations:
 
 # ADR-073 — GenesisRAG17 isolated execution and publication
 
+Version 1.5.0b adds the dated Amendment (2026-09-24) below. It records the owner's ruling
+that the Stage 16/17 retrieval benchmark stays a per-record publish condition for the
+SmartGift profile, and points at the operator step that adds a record. Nothing else changes.
+
 Version 1.4.0b adds the dated Amendment (2026-09-11) below. It lifts the "no production
 deployment" statement for the SmartGift structured-record profile on the edge device only,
 under ADR-075's Phase 3 conditions. Everything else in this ADR stands.
@@ -155,7 +159,10 @@ which found one Stage 16 `BENCHMARK_NO_APPLICABLE_QUERIES` failure for a text so
 
 **What was open.** Verification above calls the thresholds test-corpus results. In
 production the benchmark does more than that. Since 2026-09-21 the worker has booted
-with a fixture of real catalog records on the `ki17-state` volume, and it scores each
+with a fixture of real catalog records on the `ki17-state` volume, not the image-baked
+Phase 2 fixture
+([`.brain/reports/2026-09-24-genesisrag17-b2-fixture-rehearsal.md`](../../.brain/reports/2026-09-24-genesisrag17-b2-fixture-rehearsal.md),
+"Which fixture production's worker reads"), and it scores each
 candidate only on the queries whose gold texts are byte-equal to that candidate's own
 chunks (`scopedBenchmarkFixture`, GenesisBlock worker at the pinned `5156f412`). A
 candidate generation holds only the record being published. So a record with no entry
@@ -200,7 +207,8 @@ production answer quality, which is still measured by ADR-075 Phase 4's shadow c
 - **Free text cannot publish on this profile.** Text and Markdown sources admitted
   through FR-173 are still outside the 2026-09-11 amendment's production scope, and under
   this decision a text chunk could not pass Stage 16 without a benchmark entry anyway. The
-  failed `test01` run of 2026-09-21 is the expected outcome, not a defect. A future
+  2026-09-21 Stage 16 failure of run `774b95f7`, a `TEXT` source (probe report, "Stage
+  evidence"), is the expected outcome, not a defect. A future
   profile must say how its per-record benchmark is produced before its production
   deployment is lifted.
 - **TASK-ZAI-051 cannot publish new or changed records on its own.** A scheduler or
