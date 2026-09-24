@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.93.0b → 1.94.0b (2026-09-24): DRAFT for the integrator — add the Market Intelligence service's private core façade (ADR-108 D4), one dynamic path; current inventory is 337 route-handler paths. Not reachable with a browser session; no production route switch is claimed.
+
 Version diff 1.92.0b → 1.93.0b (2026-09-23): compose the three FR-268 Business Key Result paths with the two FR-272 PM approval gateway paths; current inventory is 336 route-handler paths. Executor admission remains an internal service boundary and production migration/deployment are not claimed.
 
 Version diff 1.90.0b → 1.91.0b (2026-09-22): add the PM-owned execution trace
@@ -43,7 +45,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=336 -->
+<!-- api-spec-counts: route_handlers=337 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -500,6 +502,7 @@ legal/ToS review (see the FR-092 feature note's "Decision 2026-09-02").
 |---|---|---|
 | GET | `/api/market/observations` | implemented: translated market observations for one Business, newest `observedAt` first — provider, source entity/external id, source URI, observation type, resolution status/confidence and the normalized candidate fields (title, price, currency, seller, condition) alongside the raw candidate object. `limit` defaults to 50 and is capped server-side at 200; the response carries `counts` (observations, distinct providers, by resolution status) and says whether it truncated. A Business the viewer cannot see answers **403**, an unknown Business **404** |
 | POST | `/api/market/translations` | implemented: the production translation trigger. Body `{ businessId, limit? }` (`limit` defaults to 20, capped at 100); translates this Business's untranslated `MARKET_INTELLIGENCE` raw backlog (rows with no `MarketObservation` yet, by unique lineage key) and returns `{ translated, unchanged, failed: [{ rawRecordId, reason }] }`. Owner-only — a translation run is a write — and gated on `ownsBusiness`, not `seesBusiness`; a Business the viewer only sees, or does not own, answers **404** identically to a nonexistent one (no enumeration oracle). One audit event per run (`MarketObservation` / `MARKET_TRANSLATION_RUN`), never per row, and it never carries raw candidate payloads |
+| GET, POST | `/api/internal/market-intelligence/v1/[operation]` | draft (ADR-108 D4): core's private `market-core.v1` façade for the separately running Market service. Bearer `MARKET_CORE_TOKEN` only; the end user is re-resolved from their own session token in `x-zuri-subject`, never from service-sent fields. GET `health` or `execution-ownership`; POST `authorize` (feed read: 403 not visible, 404 domain hidden/unknown; translation: identical 404), `raw-candidates` (re-authorizes the subject for translation and checks the tenant; `scanLimit` ≤ 500) and `audit` (counts-only `MARKET_TRANSLATION_RUN` event). Responses use the `{ contractVersion, ok, data }` envelope |
 
 ## Customer duplicate review queue (FR-078 / ADR-033)
 
