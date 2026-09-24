@@ -90,6 +90,12 @@ export function deriveSmartgiftBenchmark(corpus, { sourceFile = null, sourceSha2
       benchmarkCount: corpus.benchmarks.length,
       sourceQueryCount,
       shape: 'per-record benchmarks[].queries, scoped by candidate generation',
+      // Carried through so the file the worker boots with can itself be the
+      // `--base` of the next per-record merge (build-smartgift-real-corpus.mjs)
+      // without losing which catalog files it came from. The worker reads
+      // neither field.
+      ...(Array.isArray(corpus.generatedFrom) ? { generatedFrom: corpus.generatedFrom } : {}),
+      ...(corpus.merge ? { merge: corpus.merge } : {}),
     },
     benchmarks,
   }

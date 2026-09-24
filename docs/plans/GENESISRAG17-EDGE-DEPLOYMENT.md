@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-EDGE-DEPLOYMENT
 title: GenesisRAG17 edge-device deployment design (SmartGift structured-record profile)
-version: "0.3.0"
+version: "0.4.0"
 status: proposed
 created_at: "2026-09-11T19:15:00+07:00,Claude Opus 5"
-last_update: "2026-09-24T09:00:00+07:00,Claude Fable 5.1"
+last_update: "2026-09-24T13:10:00+07:00,Claude Opus 5.5"
 attributes:
   domain: knowledge
   doc_type: deployment-design
@@ -170,7 +170,8 @@ proposed value. Nothing is published: the port is unreachable from the host, fro
 | `/var/lib/zuri-ki17/state/gks.sqlite` | `ki17-state` | web, genesis-worker | GKS decisions, receipts, verdicts and stage evidence | `GKS_DB_PATH` |
 | `/var/lib/zuri-ki17/genesis/` | `ki17-genesis-store` | genesis-worker only | native store, candidate and published snapshots, publication pointer, durable outbox and transaction intents | `GENESIS_WORKER_DB_PATH` |
 | `/opt/ki17/model/<revision>/` | `ki17-model` (read-only) | genesis-worker only | the five pinned model files | `GENESIS_WORKER_MODEL_DIR` |
-| `/opt/ki17/fixtures/` | baked into the image | genesis-worker | the Phase 2 SmartGift benchmark fixture | `GENESIS_WORKER_BENCHMARK_FIXTURE` |
+| `/opt/ki17/fixtures/` | baked into the image | genesis-worker (G-3 acceptance only) | the Phase 2 SmartGift benchmark fixture, derived from the test corpus. Its gold texts are test records', so no real upload can match them | `GENESIS_WORKER_BENCHMARK_FIXTURE` in the `ki17-acceptance` run |
+| `/var/lib/zuri-ki17/state/smartgift-real-benchmark-v1.json` | `ki17-state` | genesis-worker | the production benchmark fixture: one entry per real catalog record, cumulative, installed by the §10.1 step. Read once when the worker starts. The `v1` in the name is historical; the version that counts is the `fixtureVersion` inside | `GENESIS_WORKER_BENCHMARK_FIXTURE` in `.env.knowledge` |
 | `/opt/ki17/{node,msp,gks}` | baked into the image | web and genesis-worker | the runtime and pinned sources | `ZURI_MSP_COMMAND`, `ZURI_MSP_ARGS`, `ZURI_MSP_CWD`, `MSP_GKS_COMMAND`, `MSP_GKS_ARGS`, `MSP_GKS_CWD`, `GENESIS_WORKER_MSP_*` |
 | `/opt/ki17/{genesisblock,venv}` | baked into the image | genesis-worker | the worker package, native addon and Python | `GENESISRAG17_PYTHON` |
 
@@ -351,6 +352,89 @@ The order is therefore **worker → GKS relay verified → zuri-ai enabled**:
 | Pipeline outcome | a run truly published | 17 SUCCEEDED terminals plus the publication receipt; FAILED terminals show in the FR-071 execution ledger | every run |
 | Logs | start-up crashes the health endpoint cannot see | `docker logs` for both containers | every deploy |
 
+### 10.1 Adding or changing a catalog record: the per-record benchmark step
+
+[ADR-073's 2026-09-24 amendment](../decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md#amendment-2026-09-24--the-stage-1617-retrieval-benchmark-stays-a-per-record-publish-condition)
+keeps the retrieval benchmark as a per-record publish condition. A catalog record
+publishes only when the fixture the worker booted with holds gold texts equal to the
+chunks production renders for it. A candidate generation holds only the record being
+published, so a record the fixture does not know fails Stage 16 with
+`BENCHMARK_NO_APPLICABLE_QUERIES`. A record whose rendered text changed fails the same
+way until its entry is refreshed. This step runs **before** the upload, for every new
+record and every changed one. An unchanged re-upload needs nothing.
+
+It changes one file on the `ki17-state` volume and restarts one container. No image is
+rebuilt, `.env.knowledge` is not edited and web is not touched. The worker reads the
+fixture once, in its constructor, so the restart is what makes a new file take effect.
+The file is **cumulative**: the worker boots with exactly one file, so a record dropped
+from it can never be re-published. `--base` is what keeps it cumulative.
+
+Run from `apps/server` in a tree at the merged `main` commit (the primary checkout,
+refreshed as in §10 step 0). `<work>` is a scratch directory outside the repository.
+`<catalog.json>` is the file the SmartGift data pipeline exported and that will be
+uploaded, byte for byte (`data-pipeline/05_genesisrag17/` in the SmartGift repository;
+its exporters take `--out`). Pass only the new or changed files. The records already in
+the base stay as they are.
+
+1. **Gate.** The owner triggers the step, as for §10.
+2. **Copy the deployed fixture out** and keep it: it is both the base and the rollback.
+
+   ```bash
+   docker cp zuri-ai-genesis-worker-1:/var/lib/zuri-ki17/state/smartgift-real-benchmark-v1.json <work>/deployed.json
+   ```
+
+3. **Check first.** If every record is already covered, stop here and just upload.
+
+   ```bash
+   npx vite-node --config vitest.config.js deploy/ki17/build-smartgift-real-corpus.mjs -- --check <work>/deployed.json <catalog.json>
+   ```
+
+   Exit 0 with `OK  every record is covered` means there is nothing to install. Exit 2
+   lists each record as `missing` (none of its sections) or `partial` (some of them).
+4. **Merge** onto the deployed file under a **new** `--fixture-version`. The builder
+   refuses to add or replace a record under the deployed version, because Stage 16's
+   metrics record the per-record version and two gold texts under one version string
+   would make a verdict unattributable. Unchanged records keep their original version.
+
+   ```bash
+   npx vite-node --config vitest.config.js deploy/ki17/build-smartgift-real-corpus.mjs -- --fixture-version smartgift-real-catalog-v<N+1> --base <work>/deployed.json --out <work>/corpus.json <catalog.json>
+   node deploy/ki17/build-smartgift-benchmark.mjs --corpus <work>/corpus.json --out <work>/benchmark.json
+   ```
+
+   The merge prints `added`, `replaced` and `unchanged` with the record ids. Read them.
+   An id in `replaced` that you did not mean to change is a catalog change you did not
+   know about. Re-run step 3 against `<work>/benchmark.json`; it must now exit 0.
+5. **Install** as the worker's own user, with the old file kept beside the new one and
+   an atomic rename, so the worker never sees a half-written file.
+
+   ```bash
+   docker exec -i zuri-ai-genesis-worker-1 sh -c 'd=/var/lib/zuri-ki17/state; cat > "$d/.benchmark.new" && cp -p "$d/smartgift-real-benchmark-v1.json" "$d/smartgift-real-benchmark-v1.json.bak-$(date +%Y%m%d%H%M%S)" && chmod 444 "$d/.benchmark.new" && mv -f "$d/.benchmark.new" "$d/smartgift-real-benchmark-v1.json" && sha256sum "$d/smartgift-real-benchmark-v1.json"' < <work>/benchmark.json
+   ```
+
+   The printed hash must equal `sha256sum <work>/benchmark.json`.
+6. **Restart the worker** and prove the relay. Web is unchanged, so the worker's network
+   namespace is still valid; the recreate only makes it read the new file.
+
+   ```bash
+   docker compose --profile knowledge up -d --no-build --no-deps --force-recreate genesis-worker
+   MSYS_NO_PATHCONV=1 docker compose exec -T web node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ki17-smoke.mjs
+   ```
+
+   The worker must be healthy and its log must show the endpoint line with no
+   `BENCHMARK_FIXTURE_*` error; a malformed file fails the worker at start, not later.
+7. **Upload** `<catalog.json>` through the console's catalog import (FR-187/FR-173). Each
+   record is its own source and its own run. Follow each run to all 17 successes and its
+   publication receipt, as in §10 step 6.
+8. **Record** in `.brain/reports/`: the fixture versions before and after, the sha256 of
+   both files, the `added`/`replaced` ids, the catalog file's sha256, and for each record
+   its run id, Stage 16 metrics and publication receipt hash. Never record payloads.
+
+**Rollback.** Install `<work>/deployed.json`, the copy from step 2, with step 5's command
+(reading it instead of `<work>/benchmark.json`), and repeat step 6. The `.bak-*` file
+step 5 left on the volume is the same bytes, kept in case `<work>` is gone.
+Publications already made are unaffected: the fixture is read only when a candidate is
+benchmarked, and nothing that was published refers back to it.
+
 ## 11. Rollback
 
 | Level | Action | Effect |
@@ -402,3 +486,4 @@ cutover.
 | 0.1.0 | 2026-09-11 | proposed | Phase 3 design after the owner approved ADR-075 Phases 3–5. Constraints read from code; options (a), (b), (c1)–(c3); recommends a Linux sidecar in web's network namespace with shared named volumes; env names, processes, ports, paths, start order, health checks, rollback and the pre-deploy gate. Not executed | — | Claude Opus 5 |
 | 0.2.0 | 2026-09-16 | proposed | Records the G-3 result (new §9.1): the Phase 2 acceptance ran inside the images this design ships and passed 35/35 on Linux, with MSP/GKS/worker on Node 24.18.0, the P-2 Linux addon and the pinned venv, crash and replay cases included. Adds the test-only `ki17-acceptance` build target and the `KI17_NODE` seam the run needed. Still not deployed | — | Claude Sonnet 5 |
 | 0.3.0 | 2026-09-24 | proposed | Backs every §9.2 production claim with a citation to the new committed probe record, `.brain/reports/2026-09-24-genesisrag17-production-probe.md`. Amends the top status blockquote to point at §9.2 instead of standing beside it, resolving the "None of it has been deployed" contradiction the round-3 gate named. No new production claim added beyond what the cited report proves | — | Claude Fable 5.1 |
+| 0.4.0 | 2026-09-24 | proposed | New §10.1, the per-record benchmark step ADR-073's 2026-09-24 amendment requires: check, merge onto the deployed fixture with `--base`, install atomically as the worker's user, recreate only the worker, upload, record. §6 now names the production fixture on the `ki17-state` volume, which the worker has read since 2026-09-21, and marks the image-baked Phase 2 fixture as G-3 acceptance only. No image rebuild is part of the step | — | Claude Opus 5.5 |
