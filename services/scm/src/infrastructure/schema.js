@@ -12,8 +12,8 @@
 // delegated scope (ReferenceAuthority), never joined here.
 
 export const OWNERS = Object.freeze({
-  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation'],
-  procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine'],
+  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier'],
+  procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine', 'SupplierCostSheet', 'SupplierCostLine'],
   commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile', 'PricingRuleSet', 'PricingCalculation'],
   scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
 })
@@ -22,8 +22,11 @@ export const OWNERS = Object.freeze({
 // BusinessBillingProfile; Product.maintenanceIntervalDays, ProductLot.lastMaintainedAt.
 // v3 (S5.4 pricing rules): PricingRuleSet, PricingCalculation; ScmAuditEvent gains
 // the reason / beforeJson / afterJson columns of core AuditEvent.
-// Disposable stores only — there is no v1→v2→v3 migration (the migration owner writes one).
-export const SCHEMA_VERSION = 3
+// v4 (S5.4 supplier cost sheets): SupplierCostSheet, SupplierCostLine; Product carton
+// facts (unitsPerCarton, cartonCbm, cartonKg, freightGoodsType, leadTimeDays);
+// ProductIdentifier (Inventory-owned; read for SKU matching, its writers have not moved).
+// Disposable stores only — there is no v1→…→v4 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 4
 
 export const DDL = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
@@ -35,9 +38,21 @@ CREATE TABLE IF NOT EXISTS Product (
   safetyStock INTEGER NOT NULL DEFAULT 10, status TEXT NOT NULL DEFAULT 'ACTIVE',
   itemKind TEXT NOT NULL DEFAULT 'RAW_COMPONENT', dedicatedCustomerId TEXT, dedicatedSalesOrderId TEXT,
   maintenanceIntervalDays INTEGER, maxStorageDays INTEGER, reorderPoint INTEGER,
+  unitsPerCarton INTEGER, cartonCbm REAL, cartonKg REAL, freightGoodsType TEXT, leadTimeDays INTEGER,
   createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
   UNIQUE (tenantId, code)
 );
+
+-- Scannable / legacy codes of a SKU (ADR-083 D3). Read here by the cost-sheet SKU
+-- matcher; the identifier writers (inventory-identity-service) have not moved.
+CREATE TABLE IF NOT EXISTS ProductIdentifier (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), kind TEXT NOT NULL, value TEXT NOT NULL,
+  issuer TEXT, unit TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, kind, value)
+);
+CREATE INDEX IF NOT EXISTS ProductIdentifier_business ON ProductIdentifier (businessId, value);
 CREATE INDEX IF NOT EXISTS Product_business ON Product (businessId, status);
 
 CREATE TABLE IF NOT EXISTS ProductLot (
@@ -118,6 +133,36 @@ CREATE TRIGGER IF NOT EXISTS GoodsReceipt_immutable BEFORE UPDATE ON GoodsReceip
   BEGIN SELECT RAISE(ABORT, 'GOODS_RECEIPT_IMMUTABLE'); END;
 CREATE TRIGGER IF NOT EXISTS GoodsReceiptLine_immutable BEFORE UPDATE ON GoodsReceiptLine
   BEGIN SELECT RAISE(ABORT, 'GOODS_RECEIPT_IMMUTABLE'); END;
+
+-- Supplier cost sheets (TASK-ZAI-053). A sheet holds one immutable source version
+-- (locked FX + normalized preview) until a person confirms every SKU mapping; lines
+-- exist only after commit. At most one CONFIRMED sheet per supplier (see F-12).
+CREATE TABLE IF NOT EXISTS SupplierCostSheet (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  supplierId TEXT NOT NULL REFERENCES Supplier(id), currency TEXT NOT NULL, fxRateLocked REAL NOT NULL,
+  sourceRef TEXT, sourceSha256 TEXT NOT NULL, previewHash TEXT NOT NULL, previewJson TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'DRAFT', lineCount INTEGER NOT NULL DEFAULT 0,
+  createdByPersonId TEXT, confirmedByPersonId TEXT, confirmedAt TEXT, supersededAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code),
+  UNIQUE (businessId, sourceSha256)
+);
+CREATE INDEX IF NOT EXISTS SupplierCostSheet_business ON SupplierCostSheet (businessId, status, createdAt);
+CREATE UNIQUE INDEX IF NOT EXISTS SupplierCostSheet_one_confirmed ON SupplierCostSheet (businessId, supplierId) WHERE status = 'CONFIRMED';
+CREATE TRIGGER IF NOT EXISTS SupplierCostSheet_source_immutable BEFORE UPDATE OF currency, fxRateLocked, sourceSha256, previewHash, previewJson, supplierId, businessId, tenantId ON SupplierCostSheet
+  BEGIN SELECT RAISE(ABORT, 'PROCUREMENT_COST_SHEET_SOURCE_IMMUTABLE'); END;
+
+CREATE TABLE IF NOT EXISTS SupplierCostLine (
+  id TEXT PRIMARY KEY, sheetId TEXT NOT NULL REFERENCES SupplierCostSheet(id), productId TEXT NOT NULL REFERENCES Product(id),
+  sourceSku TEXT NOT NULL, minQty INTEGER NOT NULL, unitCostForeign REAL NOT NULL,
+  unitsPerCarton INTEGER, cartonCbm REAL, cartonKg REAL, freightGoodsType TEXT, leadTimeDays INTEGER,
+  mappingConfidence TEXT NOT NULL, mappingConfirmedByPersonId TEXT, mappingConfirmedAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL,
+  UNIQUE (sheetId, sourceSku, minQty)
+);
+CREATE INDEX IF NOT EXISTS SupplierCostLine_product ON SupplierCostLine (productId, minQty);
+CREATE TRIGGER IF NOT EXISTS SupplierCostLine_immutable BEFORE UPDATE ON SupplierCostLine
+  BEGIN SELECT RAISE(ABORT, 'PROCUREMENT_COST_LINE_IMMUTABLE'); END;
 
 CREATE TABLE IF NOT EXISTS WarehouseLocation (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, name TEXT NOT NULL,

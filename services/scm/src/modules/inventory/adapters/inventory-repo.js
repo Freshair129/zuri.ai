@@ -83,3 +83,23 @@ export const movementsOf = (sql, { businessId, productId, limit }) => sql.all(
   `SELECT ${MOVEMENT_COLUMNS} FROM StockMovement WHERE businessId = ? ${productId ? 'AND productId = ?' : ''} ORDER BY occurredAt DESC, createdAt DESC LIMIT ?`,
   ...[businessId, ...(productId ? [productId] : []), limit],
 )
+
+// ── Product carton facts (TASK-ZAI-053) ──────────────────────────────────────
+const CARTON_COLUMNS = 'id, code, tenantId, businessId, status, unitsPerCarton, cartonCbm, cartonKg, freightGoodsType, leadTimeDays, version'
+export const productCartonRow = (sql, id) => sql.get(`SELECT ${CARTON_COLUMNS} FROM Product WHERE id = ?`, id) ?? null
+const CARTON_FIELDS = new Set(['unitsPerCarton', 'cartonCbm', 'cartonKg', 'freightGoodsType', 'leadTimeDays'])
+/** Compare-and-swap on (id, version): 1 when this writer won. */
+export function casUpdateProductCarton(sql, { id, version, change, now }) {
+  const keys = Object.keys(change)
+  for (const k of keys) if (!CARTON_FIELDS.has(k)) throw new Error(`carton column ${k} is not updatable`)
+  return Number(sql.run(`UPDATE Product SET ${keys.map((k) => `${k} = ?`).join(', ')}, version = version + 1, updatedAt = ? WHERE id = ? AND version = ?`, ...keys.map((k) => change[k]), now, id, version).changes)
+}
+
+/** Non-archived SKUs of a Business with their ACTIVE identifiers (SKU matching read port). */
+export function productCandidates(sql, businessId) {
+  const products = sql.all("SELECT id, code, name, status FROM Product WHERE businessId = ? AND status != 'ARCHIVED'", businessId)
+  const identifiers = sql.all("SELECT productId, kind, value FROM ProductIdentifier WHERE businessId = ? AND status = 'ACTIVE'", businessId)
+  const byProduct = new Map(products.map((p) => [p.id, []]))
+  for (const i of identifiers) byProduct.get(i.productId)?.push({ kind: i.kind, value: i.value })
+  return products.map((p) => ({ ...p, identifiers: byProduct.get(p.id) }))
+}

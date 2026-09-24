@@ -21,6 +21,10 @@ const ROUTES = [
   route('GET', '/v1/procurement/purchase-orders/:id', 'po.get'),
   route('POST', '/v1/procurement/purchase-orders/:id/actions', 'po.action'),
   route('POST', '/v1/procurement/purchase-orders/:id/receipts', 'grn.post'),
+  route('POST', '/v1/procurement/cost-sheets/preview', 'costsheet.preview'),
+  route('POST', '/v1/procurement/cost-sheets/commit', 'costsheet.commit'),
+  route('GET', '/v1/procurement/cost-sheets', 'costsheet.list'),
+  route('GET', '/v1/procurement/cost-sheets/:id', 'costsheet.get'),
   route('POST', '/v1/commerce/pos/checkout', 'pos.checkout'),
   route('POST', '/v1/commerce/orders', 'order.create'),
   route('GET', '/v1/commerce/orders', 'order.list'),
@@ -42,7 +46,7 @@ const ROUTES = [
   route('GET', '/v1/inventory/movements', 'movements'),
   route('GET', '/v1/operations/:action/:key', 'operation'),
 ]
-const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
+const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'costsheet.preview': 'procurement.cost-sheet.preview', 'costsheet.commit': 'procurement.cost-sheet.commit', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action', 'pricing.create': 'commerce.pricing-rule.create', 'pricing.update': 'commerce.pricing-rule.update', 'pricing.action': 'commerce.pricing-rule.action', 'pricing.calculate': 'commerce.pricing.calculate' }
 
 function send(res, status, body) {
   const text = JSON.stringify(body)
@@ -117,7 +121,11 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
       }
       else if (name === 'order.payments') result = await bus.queries.orderPayments(scope, params.id)
       else if (name === 'payment.get') result = await bus.queries.payment(scope, params.id)
-      else if (name === 'pricing.list') result = await bus.queries.pricingRules(scope, { businessId: url.searchParams.get('businessId') })
+      else if (name === 'costsheet.get') result = await bus.queries.costSheet(scope, params.id)
+      else if (name === 'costsheet.list') {
+        const p = url.searchParams
+        result = await bus.queries.costSheets(scope, Object.fromEntries(Object.entries({ businessId: p.get('businessId'), supplierId: p.get('supplierId') || undefined, status: p.get('status') || undefined, limit: p.get('limit') || undefined }).filter(([, v]) => v !== undefined)))
+      } else if (name === 'pricing.list') result = await bus.queries.pricingRules(scope, { businessId: url.searchParams.get('businessId') })
       else if (name === 'pricing.active') result = await bus.queries.activePricingRule(scope, url.searchParams.get('businessId'))
       else if (name === 'stock') result = await bus.queries.stock(scope, url.searchParams.get('businessId'))
       else if (name === 'movements') result = await bus.queries.movements(scope, { businessId: url.searchParams.get('businessId'), productId: url.searchParams.get('productId') || undefined, limit: url.searchParams.get('limit') })

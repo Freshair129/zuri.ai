@@ -2063,7 +2063,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-166",
@@ -4923,7 +4923,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-165",
@@ -5932,7 +5932,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-165",
@@ -9469,7 +9469,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-165",
@@ -9545,6 +9545,7 @@
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-domain.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-cost-sheet-parity.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/supplier-cost-sheet-routes.test.js"
       ]

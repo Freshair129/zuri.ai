@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.6",
+  "revision": "v1-draft.7",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -65,6 +65,32 @@
       "path": "/v1/procurement/purchase-orders/{id}/receipts",
       "command": "procurement.goods-receipt.post",
       "capability": "procurement.receipt.post | owner; counted lines additionally inventory domain + (inventory.catalog.write | owner)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/cost-sheets/preview",
+      "capability": "procurement domain + (OWNER or procurement.po.write)",
+      "command": "procurement.cost-sheet.preview",
+      "note": "stores the normalized source + SKU-match suggestions only (no lines); sourceSha256 unique per Business: same payload → replayed:true (200) under any key, changed payload → 409 PROCUREMENT_COST_SHEET_SOURCE_HASH_REUSED; parity-pinned by contracts/v1/cost-sheet-parity-*.json; an .xlsx upload is converted to this JSON envelope at the edge"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/cost-sheets/commit",
+      "capability": "procurement domain + (OWNER or procurement.po.write) — and Inventory write authority (OWNER or inventory.catalog.write) for the carton facts, else 404 and nothing written",
+      "command": "procurement.cost-sheet.commit",
+      "note": "sheetId or sourceSha256 + previewHash + a confirmed mapping per SKU; one unit of work: Product carton facts (Inventory writer) + lines + supersede the supplier's previous CONFIRMED sheet + CAS confirm; a CONFIRMED sheet replays (replayed:true)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/procurement/cost-sheets?businessId=&supplierId=&status=&limit=",
+      "capability": "procurement domain",
+      "note": "summaries newest first (no preview, no lines); limit 1-100, default 20"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/procurement/cost-sheets/{id}",
+      "capability": "procurement domain",
+      "note": "sheet + supplier {id, code, name} + preview + lines with locked-FX unitCostSatang/unitCostBaht"
     },
     {
       "method": "POST",

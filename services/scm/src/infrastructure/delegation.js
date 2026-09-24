@@ -101,6 +101,8 @@ export const procurementAuthority = {
   require(scope, businessId, capability = 'read') {
     if (!this.mayView(scope, businessId)) throw denied()
     if (capability === 'po' && !this.mayWritePurchaseOrders(scope, businessId)) throw denied()
+    // Cost-sheet intake is a procurement write: it reuses the buyer capability (legacy mayWriteSupplierCostSheets).
+    if (capability === 'costSheet' && !this.mayWritePurchaseOrders(scope, businessId)) throw denied()
     if (capability === 'receipt' && !this.mayPostReceipts(scope, businessId)) throw denied()
     return { id: businessId, tenantId: scope.tenantId }
   },

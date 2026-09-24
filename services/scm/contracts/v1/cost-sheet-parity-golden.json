@@ -1,0 +1,239 @@
+{
+  "schema": "scm.cost-sheet-parity-golden.v1",
+  "outputs": {
+    "explicit-hash-all-match-kinds": {
+      "ok": true,
+      "result": {
+        "code": "SCS-2AC36EFED18900D7",
+        "previewHash": "f3a05d565dfe96117c8c30bc13de529ff2069d4788885134f02c15c774086980",
+        "sourceSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sourceRef": "factory-costs.json",
+        "lineCount": 6,
+        "lines": [
+          {
+            "sku": "SG-BOX",
+            "minQty": 1,
+            "unitCostForeign": 1.25,
+            "unitsPerCarton": 24,
+            "cartonCbm": 0.018,
+            "cartonKg": 4.2,
+            "freightGoodsType": "GENERAL",
+            "leadTimeDays": 14,
+            "fxRateLocked": 34,
+            "unitCostSatang": 4250,
+            "unitCostBaht": 42.5,
+            "mapping": {
+              "productId": "prod-parity-box",
+              "confidence": "EXACT_PRODUCT_CODE",
+              "candidates": [
+                {
+                  "productId": "prod-parity-box",
+                  "code": "SG-BOX",
+                  "name": "Gift box",
+                  "matchedBy": "PRODUCT_CODE"
+                }
+              ]
+            }
+          },
+          {
+            "sku": "SG-BOX",
+            "minQty": 100,
+            "unitCostForeign": 1.1,
+            "unitsPerCarton": 24,
+            "cartonCbm": 0.018,
+            "cartonKg": 4.2,
+            "freightGoodsType": "GENERAL",
+            "leadTimeDays": 14,
+            "fxRateLocked": 34,
+            "unitCostSatang": 3740,
+            "unitCostBaht": 37.4,
+            "mapping": {
+              "productId": "prod-parity-box",
+              "confidence": "EXACT_PRODUCT_CODE",
+              "candidates": [
+                {
+                  "productId": "prod-parity-box",
+                  "code": "SG-BOX",
+                  "name": "Gift box",
+                  "matchedBy": "PRODUCT_CODE"
+                }
+              ]
+            }
+          },
+          {
+            "sku": "8850000000017",
+            "minQty": 1,
+            "unitCostForeign": 0.333,
+            "unitsPerCarton": null,
+            "cartonCbm": null,
+            "cartonKg": null,
+            "freightGoodsType": null,
+            "leadTimeDays": null,
+            "fxRateLocked": 34,
+            "unitCostSatang": 1133,
+            "unitCostBaht": 11.33,
+            "mapping": {
+              "productId": "prod-parity-cup",
+              "confidence": "EXACT_IDENTIFIER",
+              "candidates": [
+                {
+                  "productId": "prod-parity-cup",
+                  "code": "SG-CUP",
+                  "name": "Mug",
+                  "matchedBy": "IDENTIFIER"
+                }
+              ]
+            }
+          },
+          {
+            "sku": "AMB-1",
+            "minQty": 1,
+            "unitCostForeign": 2,
+            "unitsPerCarton": null,
+            "cartonCbm": null,
+            "cartonKg": null,
+            "freightGoodsType": null,
+            "leadTimeDays": null,
+            "fxRateLocked": 34,
+            "unitCostSatang": 6800,
+            "unitCostBaht": 68,
+            "mapping": {
+              "productId": null,
+              "confidence": "AMBIGUOUS",
+              "candidates": [
+                {
+                  "productId": "prod-parity-amb",
+                  "code": "AMB-1",
+                  "name": "Ambiguous code",
+                  "matchedBy": "PRODUCT_CODE"
+                },
+                {
+                  "productId": "prod-parity-pen",
+                  "code": "SG-PEN",
+                  "name": "Pen",
+                  "matchedBy": "IDENTIFIER"
+                }
+              ]
+            }
+          },
+          {
+            "sku": "SG-OLD",
+            "minQty": 1,
+            "unitCostForeign": 3,
+            "unitsPerCarton": null,
+            "cartonCbm": null,
+            "cartonKg": null,
+            "freightGoodsType": null,
+            "leadTimeDays": null,
+            "fxRateLocked": 34,
+            "unitCostSatang": 10200,
+            "unitCostBaht": 102,
+            "mapping": {
+              "productId": null,
+              "confidence": "UNMATCHED",
+              "candidates": []
+            }
+          },
+          {
+            "sku": "OLD-CUP",
+            "minQty": 1,
+            "unitCostForeign": 4,
+            "unitsPerCarton": null,
+            "cartonCbm": null,
+            "cartonKg": null,
+            "freightGoodsType": null,
+            "leadTimeDays": null,
+            "fxRateLocked": 34,
+            "unitCostSatang": 13600,
+            "unitCostBaht": 136,
+            "mapping": {
+              "productId": null,
+              "confidence": "UNMATCHED",
+              "candidates": []
+            }
+          }
+        ]
+      }
+    },
+    "derived-hash-no-source-ref": {
+      "ok": true,
+      "result": {
+        "code": "SCS-00222A784D0E38ED",
+        "previewHash": "9745f8504ce358c2793967dc7854d76ccaabfc76e9cb06e70b216f8e78861bda",
+        "sourceSha256": "ec1125a4a84173fadf0c9698a2556d2737a88f2c0ade0f38ab2aeab9679ae0b2",
+        "sourceRef": null,
+        "lineCount": 2,
+        "lines": [
+          {
+            "sku": "SG-PEN",
+            "minQty": 50,
+            "unitCostForeign": 0.07,
+            "unitsPerCarton": null,
+            "cartonCbm": null,
+            "cartonKg": null,
+            "freightGoodsType": null,
+            "leadTimeDays": 0,
+            "fxRateLocked": 4.9876,
+            "unitCostSatang": 35,
+            "unitCostBaht": 0.35,
+            "mapping": {
+              "productId": "prod-parity-pen",
+              "confidence": "EXACT_PRODUCT_CODE",
+              "candidates": [
+                {
+                  "productId": "prod-parity-pen",
+                  "code": "SG-PEN",
+                  "name": "Pen",
+                  "matchedBy": "PRODUCT_CODE"
+                }
+              ]
+            }
+          },
+          {
+            "sku": "SG-PEN",
+            "minQty": 500,
+            "unitCostForeign": 0.061,
+            "unitsPerCarton": null,
+            "cartonCbm": null,
+            "cartonKg": null,
+            "freightGoodsType": null,
+            "leadTimeDays": null,
+            "fxRateLocked": 4.9876,
+            "unitCostSatang": 31,
+            "unitCostBaht": 0.31,
+            "mapping": {
+              "productId": "prod-parity-pen",
+              "confidence": "EXACT_PRODUCT_CODE",
+              "candidates": [
+                {
+                  "productId": "prod-parity-pen",
+                  "code": "SG-PEN",
+                  "name": "Pen",
+                  "matchedBy": "PRODUCT_CODE"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "refuse-duplicate-break": {
+      "ok": false,
+      "error": {
+        "name": "ZodError",
+        "paths": [
+          "lines.1.minQty"
+        ]
+      }
+    },
+    "refuse-unknown-field": {
+      "ok": false,
+      "error": {
+        "name": "ZodError",
+        "paths": [
+          ""
+        ]
+      }
+    }
+  }
+}

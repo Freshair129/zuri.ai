@@ -4,6 +4,7 @@ import { createUnavailableReferenceAuthority } from '../infrastructure/reference
 import { applyPurchaseOrderAction, createPurchaseOrder, createSupplier, getPurchaseOrder, loadOrderInScope } from '../modules/procurement/application/purchase-orders.js'
 import { listMovements, stockSummary } from '../modules/inventory/index.js'
 import { postGoodsReceipt } from '../workflows/post-goods-receipt.js'
+import { commitBusiness, commitSupplierCostSheet, getSupplierCostSheet, listSupplierCostSheets, normalizeEnvelope, previewSupplierCostSheet } from '../modules/procurement/application/supplier-cost-sheets.js'
 import { checkoutPosSale, parseCheckout, prepareCheckout } from '../workflows/pos-checkout.js'
 import { getOrder } from '../modules/commerce/application/orders.js'
 import { applyPaymentAction, getPayment, listPayments, loadOrderForPayment, prepareRecordPayment, recordPayment } from '../modules/commerce/application/payments.js'
@@ -44,6 +45,17 @@ const COMMANDS = {
     // A replayed receipt discloses on-hand figures: Inventory visibility is re-checked.
     replayGuard: (scope, businessId, stored) => { if (stored.posted?.length && !inventoryAuthority.mayView(scope, businessId)) throw denied() },
     execute: (sql, scope, { targetId, body }, ctx) => postGoodsReceipt(sql, scope, targetId, body, ctx),
+  },
+  // Supplier cost sheets (TASK-ZAI-053): buyer capability; the commit also needs
+  // Inventory write authority, checked inside the unit of work by Inventory itself.
+  // The legacy source-hash replay (same sheet, any key) answers replayed: true.
+  'procurement.cost-sheet.preview': {
+    authorize: (sql, scope, { body }) => procurementAuthority.require(scope, normalizeEnvelope(body).envelope.businessId, 'costSheet').id,
+    execute: (sql, scope, { body }, ctx) => previewSupplierCostSheet(sql, scope, body, ctx),
+  },
+  'procurement.cost-sheet.commit': {
+    authorize: (sql, scope, { body }) => commitBusiness(scope, body).id,
+    execute: (sql, scope, { body }, ctx) => commitSupplierCostSheet(sql, scope, body, ctx),
   },
   'commerce.pos.checkout': {
     // Authorization needs the parsed businessId; a malformed body is a 422 before any lookup.
@@ -148,7 +160,8 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
       hashOf()
       const outcome = command.execute(sql, scope, { targetId, body, prepared }, { now, requestId: idempotencyKey, faults: faults[action] ?? {} })
       const operation = writeReceipt(sql, { ...key, hash: hashOf(), targetId, response: outcome.response, affected: outcome.affected, now })
-      return { ...outcome.response, replayed: false, operation }
+      // A use case may itself report a domain replay (e.g. a cost sheet found by its source hash).
+      return { replayed: false, ...outcome.response, operation }
     })
   }
 
@@ -176,6 +189,8 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     orders: (scope, query) => store.read((sql) => listOrders(sql, scope, query)),
     revenue: (scope, query) => store.read((sql) => getRevenueSummary(sql, scope, query)),
     orderPayments: (scope, orderId) => store.read((sql) => listPayments(sql, scope, orderId)),
+    costSheet: (scope, id) => store.read((sql) => ({ sheet: getSupplierCostSheet(sql, scope, id) })),
+    costSheets: (scope, query) => store.read((sql) => listSupplierCostSheets(sql, scope, query)),
     pricingRules: (scope, query) => store.read((sql) => listPricingRules(sql, scope, query, clock().toISOString())),
     activePricingRule: (scope, businessId) => store.read((sql) => getActivePricingRuleSet(sql, scope, businessId, clock().toISOString())),
     // Read-only evaluation (no key, nothing stored): the same evaluator as calculate.

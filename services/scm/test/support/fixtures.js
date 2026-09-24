@@ -21,7 +21,7 @@ export function tempDbPath(label = 'scm') {
 }
 
 /** Create schema + seed Inventory catalogue rows directly (catalogue writers are not in this slice). */
-export function seedDatabase(path, { products = [], locations = [], billingProfiles = [], lots = [], stock = [] } = {}) {
+export function seedDatabase(path, { products = [], locations = [], billingProfiles = [], lots = [], stock = [], identifiers = [] } = {}) {
   const db = new DatabaseSync(path)
   db.exec('PRAGMA journal_mode = WAL;')
   db.exec(DDL)
@@ -30,6 +30,10 @@ export function seedDatabase(path, { products = [], locations = [], billingProfi
   for (const p of products) {
     db.prepare(`INSERT INTO Product (id, code, tenantId, businessId, productMasterId, name, unit, stockPolicy, trackingMode, safetyStock, status, itemKind, dedicatedCustomerId, dedicatedSalesOrderId, maxStorageDays, createdAt, updatedAt, version)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)`).run(p.id, p.code, p.tenantId ?? TENANT, p.businessId ?? BIZ, `pm-${p.id}`, p.name ?? p.code, p.unit ?? 'EA', p.stockPolicy ?? 'TRACKED', p.trackingMode ?? 'NONE', p.safetyStock ?? 0, p.status ?? 'ACTIVE', 'RAW_COMPONENT', p.dedicatedCustomerId ?? null, p.dedicatedSalesOrderId ?? null, p.maxStorageDays ?? null, now, now)
+  }
+  for (const i of identifiers) {
+    db.prepare('INSERT INTO ProductIdentifier (id, tenantId, businessId, productId, kind, value, status, createdAt, updatedAt, version) VALUES (?,?,?,?,?,?,?,?,?,1)')
+      .run(i.id ?? randomUUID(), i.tenantId ?? TENANT, i.businessId ?? BIZ, i.productId, i.kind ?? 'BARCODE', i.value, i.status ?? 'ACTIVE', now, now)
   }
   for (const l of locations) {
     db.prepare('INSERT INTO WarehouseLocation (id, code, tenantId, businessId, name, type, isVirtual, status, createdAt, updatedAt, version) VALUES (?,?,?,?,?,?,?,?,?,?,1)')
