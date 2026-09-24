@@ -47,6 +47,10 @@ import {
   assertCandidateProseZeroPii,
   CANDIDATE_ZERO_PII_POLICY,
 } from '@/modules/knowledge/knowledge-candidate-zero-pii'
+import {
+  assertDocumentProseZeroPii,
+  DOCUMENT_ZERO_PII_POLICY,
+} from '@/modules/knowledge/knowledge-document-zero-pii'
 import { createConfiguredKnowledgeObjectStoragePort } from '@/platform/storage/s3-object-storage'
 import {
   createKnowledgeStorageBindingFromEnvironment,
@@ -69,6 +73,13 @@ import {
 // contact/quotation, which an approved, ordinary FAQ answer legitimately
 // contains as free text. See `ZERO_PII_POLICY_BY_PROVIDER` below; FR-187
 // itself is unchanged for SMARTGIFT_CATALOG.
+// @req FR-173 — a KNOWLEDGE_ADMISSION source (an OWNER-admitted TEXT/FILE
+// document; `knowledge-runtime.js` `processJob` sets this provider for every
+// ordinary source with no structured descriptor) runs its own document
+// prose policy (`knowledge-document-zero-pii.js`) at this same Stage 5 gate
+// (ADR-072 Amendment, 2026-09-24): the identifier rules only (LINE user id,
+// phone, e-mail), never the candidate policy's name/quoted-wording rules —
+// see that module's header for why.
 // @req FR-188 — a SMARTGIFT_CATALOG source is parsed by genesisrag17-parser-2
 // and recognized by genesisrag17-structured-recognizer-1; its batch carries
 // the rendered parsed content so every chunk stays an exact substring of it.
@@ -79,17 +90,26 @@ const RAW_SOURCE_TYPE = 'TEXT'
 const RAW_CONTENT_TYPE = 'text/plain'
 const RAW_ENTITY_TYPE = 'KNOWLEDGE_DOCUMENT'
 
-// @req FR-187, FR-236 — Stage 5 classify's Zero-PII gate, explicit per
-// provider (ADR-090 D6, revised 2026-09-14, owner decision). Two different
-// rules for two different payload shapes: SMARTGIFT_CATALOG is a structured
-// record (locator fields, category words), LINE_FAQ_CANDIDATE is free-text
-// prose (names, phone numbers, LINE ids, quoted wording) — sharing one
-// function between them denied ordinary approved FAQs containing "ลูกค้า" or
-// "ใบเสนอราคา". A provider absent from this map carries no Stage 5 Zero-PII
-// gate at all, exactly as before this map existed.
+// @req FR-187, FR-236, FR-173 — Stage 5 classify's Zero-PII gate, explicit
+// per provider (ADR-090 D6, revised 2026-09-14, owner decision; ADR-072
+// Amendment, 2026-09-24). Three different rules for three different payload
+// shapes: SMARTGIFT_CATALOG is a structured record (locator fields, category
+// words), LINE_FAQ_CANDIDATE is free-text FAQ prose (names, phone numbers,
+// LINE ids, quoted wording), KNOWLEDGE_ADMISSION is a free-form owner
+// document (identifiers only: LINE ids, phone numbers, e-mail — never a name
+// or quoted wording, which an ordinary document legitimately contains) —
+// sharing one function across all of them denied ordinary approved content
+// each shape legitimately contains. A provider absent from this map carries
+// no Stage 5 Zero-PII gate at all.
 const ZERO_PII_POLICY_BY_PROVIDER = Object.freeze({
   SMARTGIFT_CATALOG: { assert: assertZeroPii, policy: STRUCTURED_RECORD_DENY_POLICY },
   LINE_FAQ_CANDIDATE: { assert: assertCandidateProseZeroPii, policy: CANDIDATE_ZERO_PII_POLICY },
+  // FR-173, ADR-072 Amendment (2026-09-24) — an OWNER-admitted TEXT/FILE
+  // document (KNOWLEDGE_ADMISSION provider) was previously absent from this
+  // map and so reached GKS/GenesisBlockDB with no Stage 5 Zero-PII gate at
+  // all; see knowledge-document-zero-pii.js for the identifier-only rule set
+  // and why the candidate policy's name/quoted-wording rules are excluded.
+  KNOWLEDGE_ADMISSION: { assert: assertDocumentProseZeroPii, policy: DOCUMENT_ZERO_PII_POLICY },
 })
 
 function serviceError(status, message, code = null) {

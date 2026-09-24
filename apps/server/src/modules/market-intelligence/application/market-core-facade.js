@@ -33,7 +33,7 @@ import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
 //     and the Business's tenant/business scope columns.
 // @req FR-092, FR-061
 // @spec BR-001, SEC-001, SEC-017, SDD-049, ADR-108
-// @tested tests/unit/market-intelligence/market-core-facade.test.js
+// @tested tests/unit/market-intelligence/market-core-facade.test.js, tests/integration/market-core-facade-http.test.js
 
 export const MARKET_CORE_CONTRACT_VERSION = 'market-core.v1'
 export const MARKET_CORE_OPERATIONS = Object.freeze({
