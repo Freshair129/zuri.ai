@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-109
 title: "SCM service extraction — one deployable over Inventory, Procurement and Commerce"
-version: "0.1.6b"
+version: "0.1.7b"
 status: candidate
 created_at: "2026-09-24T14:00:00+07:00,Claude Opus 5.5"
-last_update: "2026-09-24T12:10:00+07:00,Claude Opus 5.5"
+last_update: "2026-09-24T12:40:00+07:00,Claude Opus 5.5"
 author: Claude Opus 5.5 (Session 5)
 attributes:
   doc_type: architecture-decision
@@ -147,6 +147,16 @@ the runtime slice and is reported as its own status. Cutover moves one aggregate
 group at a time with a single-writer switch that both legacy and new writers
 check.
 
+**D9 — One synchronous unit-of-work port, two engines.** Modules call
+`sql.get/all/run` synchronously inside a unit of work (the `node:sqlite` shape).
+The PostgreSQL store keeps that port: one `pg` connection per process in a worker
+thread, the caller blocking while a statement runs, units at READ COMMITTED,
+reads in a REPEATABLE READ snapshot, a bounded re-run on serialization, deadlock
+and unique-violation errors. The SCM invariants on PostgreSQL rest on
+compare-and-swap predicates, the ledger fence, the order-row lock and unique
+constraints — not on a writer lock — and each of those guards has a PostgreSQL
+race test that fails without it. The whole suite runs on both engines.
+
 **D8 — Correctness changes are recorded, not smuggled.** Two differences from
 legacy are recorded in the handoff:
 
@@ -180,6 +190,10 @@ parity golden proves this for the evaluator.
   inside it in legacy order. The window between the read and the commit is
   declared and reported. An unavailable owner refuses the operation; SCM never
   assumes the reference is valid.
+- **Consequence (D9): one unit at a time per process.** A unit waiting on a
+  row lock holds its process for up to `lock_timeout` (then 503 busy); capacity
+  grows with processes. An asynchronous port is a later refactor with its own
+  evidence, not a prerequisite.
 - **Consequence: a second writer is possible while the store is not yet
   shared.** Two writers to the same logical tables must not both be live for one
   cohort. That is a cutover gate, not a runtime flag. Tenant-wide uniqueness
@@ -206,6 +220,10 @@ For this candidate revision:
 - **Sales orders (0.1.3b):** 150 service tests (149 pass, 1 NOT_RUN on
   Windows), including legacy AC-162.1–162.6, the Commerce cohort end to end, an
   order CAS interleaving test and a two-process fulfilment race.
+- **PostgreSQL (0.1.7b):** the same 197 service tests pass on embedded
+  PostgreSQL 17 (196 pass, 1 NOT_RUN on Windows) and on SQLite; the guard proof
+  reproduces F-1, F-9 and F-12 on PostgreSQL (3/3 runs each) when the matching
+  SCM guard is removed, while SQLite hides all three.
 - **Supplier cost sheets (0.1.6b):** preview/commit move whole; the carton
   facts go through Inventory's own writer inside Procurement's unit of work (the
   D2 rule: one module's use case, another module's public API). Preview parity
@@ -224,7 +242,7 @@ For this candidate revision:
   files / 39 tests (sales orders) pass.
 - **Not yet run:**
   - image build and start;
-  - PostgreSQL;
+  - a managed PostgreSQL (pooler, TLS, restricted role);
   - consumer (BFF) integration;
   - restricted role and migration rehearsal;
   - CI.
@@ -239,4 +257,5 @@ For this candidate revision:
 | 0.1.3b | 2026-09-24 | candidate | Sales orders (create/actions/fulfilment/list) moved whole; all Commerce writers now in SCM | 7ee12a29 | Claude Opus 5.5 (Session 5) |
 | 0.1.4b | 2026-09-24 | candidate | Revenue read model on the SCM store, parity-pinned | 105d90c7 | Claude Opus 5.5 (Session 5) |
 | 0.1.5b | 2026-09-24 | candidate | Pricing rules lifecycle + calculation moved whole; catalog freeze stays behind SCM-FILES/SCM-KNOWLEDGE (F-11) | cd3abb54 | Claude Opus 5.5 (Session 5) |
-| 0.1.6b | 2026-09-24 | candidate | Supplier cost sheets moved whole (Procurement + Inventory carton writer in one unit of work) | uncommitted | Claude Opus 5.5 (Session 5) |
+| 0.1.6b | 2026-09-24 | candidate | Supplier cost sheets moved whole (Procurement + Inventory carton writer in one unit of work) | 1810c90c | Claude Opus 5.5 (Session 5) |
+| 0.1.7b | 2026-09-24 | candidate | D9: PostgreSQL store behind the same synchronous port; suite on both engines; guard proof for F-1/F-9/F-12 | uncommitted | Claude Opus 5.5 (Session 5) |
