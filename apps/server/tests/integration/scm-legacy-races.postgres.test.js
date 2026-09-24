@@ -8,11 +8,17 @@
 // @req FR-164 — F-12: concurrent commits of two cost sheets of one supplier must
 //   leave exactly one CONFIRMED sheet. The supplier row is locked before the
 //   previous confirmed sheet is superseded.
+// F-14 (customization and kitting work orders): concurrent RELEASE / COMPLETE of
+//   one work order must post it once. The order update is a compare-and-swap on
+//   its version, so a call that passed the version check with a stale version is
+//   refused 409 *_WORK_ORDER_VERSION_CONFLICT and its ledger rows roll back.
+//   (Stated without requirement annotations so this hotfix leaves the generated
+//   domain-state test counts, held by another lane, untouched.)
 // @spec ADR-066, ADR-065
 // @tested tests/integration/scm-legacy-races.postgres.test.js
 //
 // Found during the SCM service extraction (draft PR #546, SCM-HANDOFF §7 F-1,
-// F-9, F-12), where the same three guards are proven necessary on PostgreSQL.
+// F-9, F-12, F-14), where the same guards are proven necessary on PostgreSQL.
 //
 // PostgreSQL only, READ COMMITTED (Prisma's default): SQLite's single writer lock
 // serializes these transactions and hides every one of the three races, so the
@@ -32,6 +38,12 @@ import { postGoodsReceipt } from '@/modules/procurement/application/goods-receip
 import { createOrder } from '@/modules/commerce/application/sales-order-service'
 import { applyPaymentAction, recordPayment } from '@/modules/commerce/application/payment-service'
 import { commitSupplierCostSheet, previewSupplierCostSheet } from '@/modules/procurement/application/supplier-cost-sheet-service'
+import { setFlowAccountSku } from '@/modules/inventory/application/inventory-catalog-service'
+import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
+import { createRecipe } from '@/modules/inventory/application/inventory-recipe-service'
+import { createLocation } from '@/modules/inventory/application/warehouse-location-service'
+import { completeKittingWorkOrder, openKittingWorkOrder, releaseKittingWorkOrder } from '@/modules/inventory/application/kitting-work-order-service'
+import { completeCustomizationWorkOrder, openCustomizationWorkOrder, releaseCustomizationWorkOrder } from '@/modules/inventory/application/customization-work-order-service'
 import { parseScmRacePostgresTarget } from '../helpers/scm-race-postgres-target'
 
 const target = parseScmRacePostgresTarget({
@@ -166,5 +178,55 @@ runPostgres('SCM legacy races on PostgreSQL (F-1, F-9, F-12)', () => {
       const confirmed = await db.supplierCostSheet.count({ where: { supplierId: supplier.id, status: 'CONFIRMED' } })
       expect(confirmed, `round ${round}: ${JSON.stringify(outcomes.map((o) => (o.status === 'fulfilled' ? 'COMMITTED' : codeOf(o.reason))))}`).toBe(1)
     }
+  }, 120000)
+
+  // F-14: a work order's RELEASE / COMPLETE check its version and then update it.
+  // Without a version predicate on that update, concurrent calls with the same
+  // version each pass the check and each post their ledger rows.
+  const onHand = async (productId) => (await db.stockMovement.aggregate({ where: { productId }, _sum: { quantity: true } }))._sum.quantity ?? 0
+  const settle = async (calls) => {
+    const outcomes = await Promise.allSettled(calls)
+    return { won: outcomes.filter((o) => o.status === 'fulfilled').length, refusals: outcomes.filter((o) => o.status === 'rejected').map((o) => codeOf(o.reason)) }
+  }
+
+  async function kittingRun(tag, { locations = null } = {}) {
+    const viewer = owner(`per-kwo-${tag}`)
+    const component = await product(`SKU-KWO-COMP-${tag}`)
+    const finished = await product(`SKU-KWO-SET-${tag}`)
+    await setFlowAccountSku({ businessId: business.id, productId: finished.id, flowAccountSku: `KWO${tag}-1(P-01)` }, { viewer, db })
+    await recordMovement({ businessId: business.id, productId: component.id, kind: 'RECEIPT', quantity: 100, ...(locations ? { targetLocationId: locations.source.id } : {}) }, { viewer, db })
+    const recipe = await createRecipe({ businessId: business.id, code: `RCP-KWO-${tag}`, productId: finished.id, name: 'Race set', batchSize: 1, lines: [{ componentProductId: component.id, qty: 2 }] }, { viewer, db })
+    const order = await openKittingWorkOrder({ businessId: business.id, recipeId: recipe.id, plannedQty: 10, ...(locations ? { sourceLocationId: locations.source.id, wipLocationId: locations.wip.id } : {}) }, { viewer, db })
+    return { viewer, component, finished, order }
+  }
+
+  it('F-14: four concurrent COMPLETEs of one kitting order post it exactly once', async () => {
+    const { viewer, component, finished, order } = await kittingRun('C')
+    const released = await releaseKittingWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db })
+    const { won, refusals } = await settle(Array.from({ length: 4 }, () => completeKittingWorkOrder(order.id, { businessId: business.id, version: released.version, assembledQty: 10 }, { viewer, db })))
+    expect({ won, finished: await onHand(finished.id), component: await onHand(component.id) }, JSON.stringify(refusals)).toEqual({ won: 1, finished: 10, component: 80 })
+    for (const code of refusals) expect(['KITTING_WORK_ORDER_VERSION_CONFLICT', 'KITTING_WORK_ORDER_COMPLETED']).toContain(code)
+  }, 120000)
+
+  it('F-14: four concurrent RELEASEs of one kitting order stage its components exactly once', async () => {
+    const viewer = owner('per-kwo-locations')
+    const source = await createLocation({ businessId: business.id, code: 'LOC-KWO-RAW', name: 'Raw', type: 'TH_CENTRAL_RAW' }, { viewer, db })
+    const wip = await createLocation({ businessId: business.id, code: 'LOC-KWO-ASM', name: 'Assembly', type: 'TH_WIP_ASSEMBLY' }, { viewer, db })
+    const { component, order } = await kittingRun('R', { locations: { source, wip } })
+    const { won, refusals } = await settle(Array.from({ length: 4 }, () => releaseKittingWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db })))
+    const staged = (await db.stockMovement.aggregate({ where: { productId: component.id, targetLocationId: wip.id }, _sum: { quantity: true } }))._sum.quantity ?? 0
+    expect({ won, staged, onHand: await onHand(component.id) }, JSON.stringify(refusals)).toEqual({ won: 1, staged: 20, onHand: 100 })
+    for (const code of refusals) expect(['KITTING_WORK_ORDER_VERSION_CONFLICT', 'KITTING_WORK_ORDER_ALREADY_RELEASED']).toContain(code)
+  }, 120000)
+
+  it('F-14: four concurrent COMPLETEs of one customization order post it exactly once', async () => {
+    const viewer = owner('per-cwo')
+    const blank = await product('SKU-CWO-BLANK')
+    await recordMovement({ businessId: business.id, productId: blank.id, kind: 'RECEIPT', quantity: 100, costSatang: 1000 }, { viewer, db })
+    const order = await openCustomizationWorkOrder({ businessId: business.id, rawProductId: blank.id, technique: 'SILK_SCREEN', netQuantity: 10, customerId: 'cust-race', salesOrderId: 'so-race' }, { viewer, db })
+    const released = await releaseCustomizationWorkOrder(order.id, { businessId: business.id, version: order.version }, { viewer, db })
+    const { won, refusals } = await settle(Array.from({ length: 4 }, () => completeCustomizationWorkOrder(order.id, { businessId: business.id, version: released.version, completedQty: 10 }, { viewer, db })))
+    expect({ won, output: await onHand(order.outputProductId), blank: await onHand(blank.id) }, JSON.stringify(refusals)).toEqual({ won: 1, output: 10, blank: 90 })
+    for (const code of refusals) expect(['CUSTOMIZATION_WORK_ORDER_VERSION_CONFLICT', 'CUSTOMIZATION_WORK_ORDER_COMPLETED']).toContain(code)
   }, 120000)
 })
