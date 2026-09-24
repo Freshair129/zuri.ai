@@ -4,6 +4,7 @@ module: src/modules/market-intelligence
 owns_routes:
   - src/app/(pm)/market/**
   - src/app/api/market/**
+  - src/app/api/internal/market-intelligence/**
 owns_models:
   - MarketObservation
 owns_code:
