@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.8.0"
+version: "0.9.0"
 status: candidate
-last_update: "2026-09-25T00:15:00+07:00,Claude"
+last_update: "2026-09-25T01:50:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -265,8 +265,15 @@ P2 findings (Mission Control REVIEW_RESULT, 2026-09-24). Fixed in #556 (merged
    Business's `tenantId`/`businessId` columns. The human actor on a service-written row is
    still M4 proposal P1.
 
-Evidence gap S1 named, still open: no committed consumer-to-actual-Next-façade HTTP test;
-the only end-to-end proof is the local conformance run.
+Evidence gap S1 named, closed after deploy (2026-09-25):
+`apps/server/tests/integration/market-core-facade-http.test.js` drives the service's own
+`CoreClient` and `createMarketHttpServer` over real HTTP against the real
+`/api/internal/market-intelligence/v1/{operation}` route handler and the test database
+(only the session port is swapped, as in the translation-run integration test). Six
+cases: health/ownership/credential, authorize decisions, projected raw candidates under
+the consumer's strict schema, a withheld oversized payload, attributed audit, and a full
+service translation → feed → replay → refusal run. A mutation that leaks one extra
+field from the façade fails three of them.
 
 ## M4 proposals for other owners
 
@@ -289,7 +296,7 @@ another commit.
 | Boundary build | PASS | `npm --prefix services/market-intelligence run build`: 15 source files, no violation |
 | Legacy parity | PASS | apps/server `service-core-parity.test.js` 10/10; service `parity-vectors` and HTTP-level parity (service-translated rows equal the v1 vectors) |
 | Legacy Market suite | PASS | at M3(a): 182/182 with `MARKET_EXECUTOR` unset and 182/182 with `legacy` (includes executor, domain-visibility and FR-072 disclosure suites), `npm run build` clean; at #556: Market unit + `fr072-refusal-disclosure` + `openapi-docs` 179/179 locally, and repository CI green |
-| CONTRACT_VERIFIED | PARTIAL | consumer proven against the fake core; provider **LOCAL PASS** 12/12 parity against legacy; S1 post-merge review PASS for the façade fixes (#556, read-only). Stays PARTIAL: no committed consumer-to-real-Next-façade HTTP test |
+| CONTRACT_VERIFIED | PASS (local; CI pending on the PR that adds the test) | consumer against the fake core and, since 2026-09-25, against the real façade over HTTP in `tests/integration/market-core-facade-http.test.js` (6/6); provider LOCAL PASS 12/12 parity against legacy; S1 post-merge review PASS for the façade fixes (#556) |
 | CONSUMER_INTEGRATION_VERIFIED | PARTIAL | BFF → service → façade proven end-to-end locally (12/12 parity); default `legacy`; no deployed stack |
 | DATA_OWNERSHIP_ENFORCED | PARTIAL | the service writes only `"MarketObservation"` through its own adapter; the restricted role is **not applied**, and legacy still writes the same table |
 | IMAGE_BUILD_VERIFIED | PASS | `docker compose -f services/market-intelligence/compose.rehearsal.yml up -d --build --wait` |
@@ -301,7 +308,7 @@ another commit.
 
 | Contract | Provider owner | Consumer | Revision | State |
 |---|---|---|---|---|
-| `market-core.v1` façade: authorize / raw-candidates / audit / execution-ownership / health | core integrator (Session 1) with Identity, Integration, audit owners | Session 4 | `src/adapters/core-client.js` + `test/support/fake-core.js` on `main` | On `main` (#544 + #556); consumer proven against the fake; provider LOCAL PASS 12/12; S1 post-merge review PASS (#556, read-only); no committed consumer-to-real-façade HTTP test |
+| `market-core.v1` façade: authorize / raw-candidates / audit / execution-ownership / health | core integrator (Session 1) with Identity, Integration, audit owners | Session 4 | `src/adapters/core-client.js` + `test/support/fake-core.js` on `main` | On `main` (#544 + #556); consumer proven against the fake; provider LOCAL PASS 12/12; S1 post-merge review PASS (#556, read-only); committed consumer-to-real-façade HTTP test (`market-core-facade-http.test.js`) |
 | Market service API v1 (`/v1/observations`, `/v1/translations`) | Session 4 | console BFF (M3, `market-executor.js`) | `src/http/server.js` on `main` | provider tested; BFF proxy unit-tested and proven locally in the 12/12 conformance run; no deployed consumer |
 | ObservationStore | Session 4 | Market core | `test/store-conformance.js` | PASS on sqlite and postgres |
 | translation-vectors v1 | Session 4 | apps/server legacy module | `contracts/v1/translation-vectors.json` | PASS on both sides and at the HTTP level |
@@ -309,13 +316,6 @@ another commit.
 ## Blockers
 
 ```yaml
-- dependency: committed consumer-to-real-façade HTTP test (market-core.v1)
-  kind: EVIDENCE
-  phase_blocked: CONTRACT_VERIFIED = PASS (M3 itself is DONE: façade on main via #544/#556, S1 post-merge PASS for #556 at f8571132)
-  owner_to_unblock: Session 4 (post-deploy work)
-  condition_to_unblock: a committed test that drives services/market-intelligence core-client against the real Next route /api/internal/market-intelligence/v1/{operation}, covering the scenarios test/support/fake-core.js encodes (refusal statuses, subject re-check on raw-candidates, envelope shape, byte caps)
-  evidence: [services/market-intelligence/conformance/ (local run, 12/12), services/market-intelligence/test/http-api.test.js (fake core only)]
-  safe_work_now: [M4 durable-audit design]
 - dependency: restricted DB role zuri_market_service + RLS policy
   kind: HARD_START
   phase_blocked: cutover (and M4 rehearsal on production-like data)
@@ -356,12 +356,12 @@ The board stays at snapshot 0.1 in this pack because it belongs to the integrato
 Replacement row for §1:
 
 ```text
-| **Market Intelligence — Session 4** | **PARTIAL / M3 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; on main via #544 (85d8fd06) and #556 (b936d41e), both merged on owner instruction before integrator review (see Merge audit); S1 post-merge PASS for #556 at f8571132 | No production deployment routes to the service (MARKET_EXECUTOR default legacy; service mode run only locally for the conformance harness); no committed consumer-to-real-façade HTTP test; restricted DB role not applied; CI not wired | Session 4: CI/scanner wiring as COMMON_RESOURCES item (b) after S1 (a); owners: M4 P1/P2; operator: restricted role. Any later finding is fixed forward in a new PR (merge needs S1 PASS for the head SHA + owner instruction) |
+| **Market Intelligence — Session 4** | **PARTIAL / M3 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; on main via #544 (85d8fd06) and #556 (b936d41e), both merged on owner instruction before integrator review (see Merge audit); S1 post-merge PASS for #556 at f8571132 | No production deployment routes to the service (MARKET_EXECUTOR default legacy; service mode run only locally for the conformance harness); consumer-to-real-façade HTTP test committed (2026-09-25); restricted DB role not applied; service package not in CI | Session 4: CI/scanner wiring as COMMON_RESOURCES item (b) after S1 (a); owners: M4 P1/P2; operator: restricted role. Any later finding is fixed forward in a new PR (merge needs S1 PASS for the head SHA + owner instruction) |
 ```
 
 Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 DONE
 (M3(a) flag and M3(b) façade on `main`; S1 post-merge review PASS for #556 at `f8571132`,
-read-only; no committed consumer-to-real-façade HTTP test), M4 PROPOSED (docs only), M5 NOT_STARTED.
+read-only; consumer-to-real-façade HTTP test committed 2026-09-25), M4 PROPOSED (docs only), M5 NOT_STARTED.
 
 ## Next exact action
 
@@ -377,7 +377,7 @@ read-only; no committed consumer-to-real-façade HTTP test), M4 PROPOSED (docs o
 ```yaml
 session: S4
 workstream: market-intelligence
-observed_at: "2026-09-25T00:15:00+07:00"   # after S1 post-merge PASS for #556; main 9e25aa1f has no later Market change
+observed_at: "2026-09-25T01:50:00+07:00"   # production deployed caabd8a7 (MC0, 2026-09-24T18:09Z) incl. #556/#559; Market still legacy
 base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
 m1_commit: d40a3329
 code_head_sha: b936d41edc652e606ac58f7354a3b1c59706f8ea   # main after #556
