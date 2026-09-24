@@ -2,7 +2,7 @@
 id: ZAI:SCM-HANDOFF
 version: "0.1.0b"
 status: candidate
-last_update: "2026-09-24T14:20:00+07:00,Claude Opus 5.5 (Session 5)"
+last_update: "2026-09-25T01:20:00+07:00,Claude Opus 5.5 (Session 5)"
 attributes:
   domain: inventory
   scope: session-5-scm-service-extraction-handoff
@@ -37,7 +37,7 @@ fragment and checks pg's own parse. After the fix the guard cases pass with no
 database, the race suite passes 5/5 on embedded PostgreSQL 17, and govern exits 0.
 S1 re-reviewed head `00dff8b3` and returned PASS (static review). **MERGED**
 into `main` at `7363c931` (2026-09-24T10:26:26Z). MC0 merged it on the user's
-instruction, with CI green on `00dff8b3`. It is not deployed. Merge rule (all lanes,
+instruction, with CI green on `00dff8b3`. It was deployed to production by MC0 (not S5) at 2026-09-24T18:09Z in `release-caabd8a7-ki17-overlay`. Merge rule (all lanes,
 2026-09-24): no merge until S1 sends REVIEW_RESULT = PASS for the PR's latest
 head SHA (a new push needs a new review), and even then merging is the user's
 decision in the S5 chat.
@@ -52,7 +52,7 @@ CANCEL of both work-order types. On the original code all 6 fail deterministical
 (`won: 2`); on #561 they pass 11/11, 3 of 3 runs. S1 returned PASS at `be171333`
 (static review; the opt-in PostgreSQL suite is my local evidence). CI was green.
 **MERGED** into `main` at `9e25aa1f` (2026-09-24T16:25:12Z) by MC0 under the user's
-merge authority. Not deployed.
+merge authority. It was deployed to production by MC0 (not S5) at 2026-09-24T18:09Z in `release-caabd8a7-ki17-overlay`.
 **Legacy hotfix F-15/F-16/F-17:** [#564](https://github.com/Freshair129/zuri.ai/pull/564) — branch
 `fix/legacy-reservation-races`, head `e63ac8d5`, **stacked on #561's first head
 `dd689c39`**. Built by a subagent in worktree
@@ -78,8 +78,9 @@ merge authority. Not deployed.
   a unique-code collision). F-16 asserts the single CREATED audit.
 - Race suite 14/14, 3 of 3 runs; `npm test` 804 files / 6810 tests; build clean;
   govern exit 0.
-- S1 **PASS** at `812b21f0` (static review; the PostgreSQL / full-suite evidence is local). Hosted CI is green on that head (tests, build, govern, verify, edge-verify). OPEN / DRAFT; merging is the owner's / MC0's; S5 does not push again.
-**Production:** NOT_RUN. Nothing routes to the SCM process; no data, stock,
+- S1 **PASS** at `812b21f0` (static review; the PostgreSQL / full-suite evidence is local). Hosted CI is green on that head (tests, build, govern, verify, edge-verify).
+- **MERGED** into `main` at `caabd8a7` (2026-09-24T17:48:56Z, head `812b21f0`) by MC0 under the user's merge authority. It was deployed to production by MC0 (not S5) at 2026-09-24T18:09Z in `release-caabd8a7-ki17-overlay` (MC0 verified health, LINE server and workers; rollback target `release-c4c4c562`). S5 neither merged nor deployed.
+**Production:** the SCM service is NOT_RUN in production. The legacy fixes #557, #561 and #564 run there since MC0's deploy of `caabd8a7`. Nothing routes to the SCM process; no data, stock,
 price or credential was touched.
 
 The coordination board (`REFACTOR-STATUS.md`) and its protocol exist only on
@@ -727,7 +728,7 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 
 | Id | Finding | Evidence | Status | Proposed handling |
 |---|---|---|---|---|
-| F-1 | Legacy `postGoodsReceipt` plans against the PO read at the start and updates `version: {increment: 1}` with no predicate. On PostgreSQL READ COMMITTED, concurrent receipts each pass the outstanding check → **over-receipt** | **Reproduced on the legacy code itself** (PR #557, `scm-legacy-races.postgres.test.js`, PostgreSQL 17.10): 12 received on a line of 5, 3/3 runs; also the SCM port without its CAS (§4.7) | **CONFIRMED** — **fixed in #557 (merged `7363c931`)** (PO `updateMany({where:{id,version}})` → 409 `PURCHASE_ORDER_VERSION_CONFLICT`); green 3/3 | Merged in #557 (`7363c931`), not deployed; not mixed into the extraction |
+| F-1 | Legacy `postGoodsReceipt` plans against the PO read at the start and updates `version: {increment: 1}` with no predicate. On PostgreSQL READ COMMITTED, concurrent receipts each pass the outstanding check → **over-receipt** | **Reproduced on the legacy code itself** (PR #557, `scm-legacy-races.postgres.test.js`, PostgreSQL 17.10): 12 received on a line of 5, 3/3 runs; also the SCM port without its CAS (§4.7) | **CONFIRMED** — **fixed in #557 (merged `7363c931`)** (PO `updateMany({where:{id,version}})` → 409 `PURCHASE_ORDER_VERSION_CONFLICT`); green 3/3 | Merged in #557 (`7363c931`), deployed in `caabd8a7` by MC0; not mixed into the extraction |
 | F-2 | `GOODS_RECEIPT_SELF_POST_FORBIDDEN` had no legacy test | grep of apps/server/tests | **Test added in #557** (`fr165-goods-receipt.test.js`): refusal, attested post audited `selfVerified: true`, another receiver `false`; removing the guard or the audit field fails it | Review with #557 |
 | F-3 | Receipts, POS checkout, order create and payment record take no idempotency key. A timed-out client retry creates a second GRN/order and stock effect | Code | CONFIRMED gap | SCM API requires keys; legacy transition needs a contract review (prompt §11.2) |
 | F-4 | GRN/PO/order codes are count-then-probe; a race gives a non-retried unique violation | Code | CONFIRMED (legacy) | SCM runs code generation inside the writer lock / CAS |
@@ -737,14 +738,14 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 | F-8 | While both stores exist, three tenant-wide uniqueness rules cannot hold across them: `Payment.bankReference`, `ORD-…` and `PAY-…` codes | By construction (two databases) | CONFIRMED (design). **SCM capability complete** for the Commerce cohort: all writers (ce304e84) and the revenue read (d160acaf) exist in SCM. Open: consumer routing and the cohort data transfer | Cutover gate: per Tenant, one single-writer switch moves POS, payments, sales orders and the revenue read together, after a transfer of that Tenant's orders/payments/codes; no dual-write period |
 | F-10 | Legacy fulfilment (`issueStockForOrder`) issues without `customerId`/`salesOrderId`, so a SKU dedicated to another customer or order leaves stock on COMPLETE; POS passes both and refuses | `sales-order-service.js:208`; SCM parity test | **OWNER RULING 2026-09-24: unintended** (proposed via Mission Control, confirmed by the owner in the S5 chat) | Not changed during extraction: parity kept in legacy and SCM until a separate FR is implemented (pass the order and its customer on the fulfilment issue, with its own test). The FR id is declared by S1 (PRD registry owner) when the COMMON_RESOURCES queue reaches item (d); S1 then informs S5 |
 | F-11 | `pricing-catalog-service` (catalog freeze) **also inserts PricingCalculation** rows (key prefix per freeze) and reads the active policy; `pricing-publication`, `pricing-inventory-service` (F-5) and Knowledge `assertPricingCatalogCurrent` read PricingRuleSet/PricingCalculation directly | `pricing-catalog-service.js:82/93`, `pricing-publication.js:15/19`, `pricing-inventory-service.js:25` | CONFIRMED (design) | These tables have one owner only after the catalog group moves with them (behind SCM-FILES/SCM-KNOWLEDGE) or reads them through the SCM API; until then SCM pricing serves no consumer, and the per-Business key space is shared with catalog keys at transfer |
-| F-12 | Legacy commit supersedes the supplier's other CONFIRMED sheets with an unguarded `updateMany` before its own CAS, and no constraint holds "one CONFIRMED per supplier". On PostgreSQL READ COMMITTED two commits can each supersede before the other confirms → two CONFIRMED sheets | **Reproduced on the legacy code itself** (#557): 2 CONFIRMED, 3/3 runs (sheets without carton facts — with them the Product CAS happens to serialize the commits) | **CONFIRMED** — **fixed in #557 (merged `7363c931`)** (lock-only touch of the supplier row before the supersession; no migration); green 3/3. SCM additionally keeps the partial unique index (D-13) | Merged in #557 (`7363c931`), not deployed; a DB-level index in legacy would need a migration (schema owner) |
+| F-12 | Legacy commit supersedes the supplier's other CONFIRMED sheets with an unguarded `updateMany` before its own CAS, and no constraint holds "one CONFIRMED per supplier". On PostgreSQL READ COMMITTED two commits can each supersede before the other confirms → two CONFIRMED sheets | **Reproduced on the legacy code itself** (#557): 2 CONFIRMED, 3/3 runs (sheets without carton facts — with them the Product CAS happens to serialize the commits) | **CONFIRMED** — **fixed in #557 (merged `7363c931`)** (lock-only touch of the supplier row before the supersession; no migration); green 3/3. SCM additionally keeps the partial unique index (D-13) | Merged in #557 (`7363c931`), deployed in `caabd8a7` by MC0; a DB-level index in legacy would need a migration (schema owner) |
 | F-13 | SCM read Inventory tables whose writers had not moved (`ProductIdentifier`, `ProductMaster`, `InventoryCategory`) | Design | **Writers moved** (`8f9a23db`, `61cf0a26`); recipes, work orders and product ARCHIVE / MERGE moved in `75e6e830`. Open: StockReservation is read in SCM but written in legacy (D-21), and the cutover transfer of catalogue rows | Move the reservation writers (ATP group) before kitting OPEN / ARCHIVE / MERGE cut over; transfer catalogue rows per Tenant at cutover under the single-writer switch |
-| F-14 | Legacy work-order RELEASE / COMPLETE / CANCEL (`kitting-work-order-service`, `customization-work-order-service`) check `order.version` and then `update({where:{id}})` with no version predicate. On PostgreSQL READ COMMITTED two concurrent COMPLETEs of one order can both pass the check → components consumed twice and the output received twice | **The legacy shape reproduced in SCM's copy**: without the SCM compare-and-swap, two processes complete one kitting order twice on PostgreSQL 3/3 (W-1, §4.10); SQLite hides it. Not yet run against the legacy code itself | **CONFIRMED on the legacy code** (#561, PostgreSQL 17): 4 × COMPLETE of a 10-set kitting order → 40 sets; 4 × RELEASE staged 80 instead of 20; 4 × customization COMPLETE → 40 from 10; with the round-2 barrier all 6 RELEASE / COMPLETE / CANCEL races give two winners on the original code | **Fix proposed in #561** (`casUpdate`: `updateMany({id, version})`, 409 on 0 rows); deterministic race suite 11/11, 3 of 3 runs (`be171333`); full `npm test` 803 files / 6766 tests; build clean. S1 round 1 REQUEST_CHANGES (test evidence) addressed; re-review requested; MC0 merges on PASS plus green CI |
-| F-16 | Legacy `createReservation` reads on-hand and the ACTIVE holds with no lock, then inserts. Under PostgreSQL READ COMMITTED concurrent holds (or a hold and a stock issue) can each pass the ATP check → promised > on-hand | **The legacy shape reproduced in SCM's copy**: without the fence, 4 holds of 3 on 10 units (R-1, 1/3 runs); SQLite hides it. Not yet run against the legacy code itself | **CONFIRMED on the legacy code** (#564): 8 × 3 on 10 → all 8 held (24); deterministic 2 × 6 on 10 → both held | **Fix in #564** (`acquireLedgerFence` before the ATP read); review requested at `3436417e` |
-| F-17 | Legacy `applyReservationAction` checks the version and then updates the hold by id alone; two concurrent CONVERTs of one quote each place an ORDER hold → the same units committed twice | **The legacy shape reproduced in SCM's copy**: two ORDER holds 3/3 (R-2); SQLite hides it. Not yet run against the legacy code | **CONFIRMED on the legacy code** (#564): 4 CONVERTs → 4 ORDER holds | **Fix in #564** (CAS on (id, version, ACTIVE); expiry stamps only ACTIVE rows) |
+| F-14 | Legacy work-order RELEASE / COMPLETE / CANCEL (`kitting-work-order-service`, `customization-work-order-service`) check `order.version` and then `update({where:{id}})` with no version predicate. On PostgreSQL READ COMMITTED two concurrent COMPLETEs of one order can both pass the check → components consumed twice and the output received twice | **The legacy shape reproduced in SCM's copy**: without the SCM compare-and-swap, two processes complete one kitting order twice on PostgreSQL 3/3 (W-1, §4.10); SQLite hides it. Not yet run against the legacy code itself | **CONFIRMED on the legacy code** (#561, PostgreSQL 17): 4 × COMPLETE of a 10-set kitting order → 40 sets; 4 × RELEASE staged 80 instead of 20; 4 × customization COMPLETE → 40 from 10; with the round-2 barrier all 6 RELEASE / COMPLETE / CANCEL races give two winners on the original code | **Fix proposed in #561** (`casUpdate`: `updateMany({id, version})`, 409 on 0 rows); deterministic race suite 11/11, 3 of 3 runs (`be171333`); full `npm test` 803 files / 6766 tests; build clean. S1 PASS at `be171333`; **MERGED** `9e25aa1f`; deployed in `caabd8a7` by MC0 |
+| F-16 | Legacy `createReservation` reads on-hand and the ACTIVE holds with no lock, then inserts. Under PostgreSQL READ COMMITTED concurrent holds (or a hold and a stock issue) can each pass the ATP check → promised > on-hand | **The legacy shape reproduced in SCM's copy**: without the fence, 4 holds of 3 on 10 units (R-1, 1/3 runs); SQLite hides it. Not yet run against the legacy code itself | **CONFIRMED on the legacy code** (#564): 8 × 3 on 10 → all 8 held (24); deterministic 2 × 6 on 10 → both held | **Fixed in #564** (`acquireLedgerFence` before the ATP read); MERGED `caabd8a7`, deployed by MC0 |
+| F-17 | Legacy `applyReservationAction` checks the version and then updates the hold by id alone; two concurrent CONVERTs of one quote each place an ORDER hold → the same units committed twice | **The legacy shape reproduced in SCM's copy**: two ORDER holds 3/3 (R-2); SQLite hides it. Not yet run against the legacy code | **CONFIRMED on the legacy code** (#564): 4 CONVERTs → 4 ORDER holds | **Fixed in #564** (CAS on (id, version, ACTIVE) before the ORDER code is allocated; expiry stamps only ACTIVE rows); MERGED `caabd8a7`, deployed by MC0 |
 | F-18 | Intermittent: `test/recovery/cost-sheet-concurrency.test.js` "two processes: one sheet…" failed once in a full PostgreSQL run (after `e285c4f4`), passed 5/5 alone and in the next full run; the failing code was not captured | Test output | OPEN (intermittent, not reproduced) | Capture the outcome codes on the next occurrence; the likely candidate is a same-sheet loser answering a code other than `SCM_STORE_BUSY` under load. Do not loosen the assertion blindly |
-| F-15 | Legacy MERGE's blocker check ignores an ARCHIVED survivor recipe at the batch size of the duplicate's recipe, but `@@unique([productId, batchSize])` covers archived rows, so the re-point dies with an unhandled Prisma P2002 | **Reproduced on the legacy code** (scratch vitest, not committed): P2002 on `productRecipe.updateMany`, transaction rolled back | CONFIRMED (legacy) — nothing is corrupted, the refusal is unexplained | SCM names it as a blocker (D-22). **Fix in #564** (the user said "fix it all" on 2026-09-24, overriding the earlier backlog decision): `mergeBlockers` names every same-batch survivor recipe |
-| F-9 | Legacy `applyPaymentAction` reads the verified net for a REFUND and updates the payment by CAS on the payment row only. On PostgreSQL READ COMMITTED, concurrent refund verifications can each pass the ceiling → refunded > paid | **Reproduced on the legacy code itself** (#557): 4 × 400 verified on 1000 paid, 3/3 runs; also the SCM port without its lock (§4.7) | **CONFIRMED** — **fixed in #557 (merged `7363c931`)** (lock-only touch of the order row before the read); green 3/3 | Merged in #557 (`7363c931`); not deployed |
+| F-15 | Legacy MERGE's blocker check ignores an ARCHIVED survivor recipe at the batch size of the duplicate's recipe, but `@@unique([productId, batchSize])` covers archived rows, so the re-point dies with an unhandled Prisma P2002 | **Reproduced on the legacy code** (scratch vitest, not committed): P2002 on `productRecipe.updateMany`, transaction rolled back | CONFIRMED (legacy) — nothing is corrupted, the refusal is unexplained | SCM names it as a blocker (D-22). **Fixed in #564, MERGED `caabd8a7`, deployed by MC0** (the user said "fix it all" on 2026-09-24, overriding the earlier backlog decision): `mergeBlockers` names every same-batch survivor recipe |
+| F-9 | Legacy `applyPaymentAction` reads the verified net for a REFUND and updates the payment by CAS on the payment row only. On PostgreSQL READ COMMITTED, concurrent refund verifications can each pass the ceiling → refunded > paid | **Reproduced on the legacy code itself** (#557): 4 × 400 verified on 1000 paid, 3/3 runs; also the SCM port without its lock (§4.7) | **CONFIRMED** — **fixed in #557 (merged `7363c931`)** (lock-only touch of the order row before the read); green 3/3 | Merged in #557 (`7363c931`); deployed in `caabd8a7` by MC0 |
 
 ## 8. Dependencies, blockers and shared changes requested
 
@@ -777,7 +778,7 @@ code_head_sha: e285c4f4
 handoff_source_commit: "the doc commit after e285c4f4 on feat/scm-service-extraction"
 branch: feat/scm-service-extraction
 pr_number: 546
-current_tranche: WRAP-UP (MC0, user instruction 2026-09-24, no new groups). S5.4 through stocktake/transfers/locations done (e285c4f4). #561 MERGED 9e25aa1f. #564 S1 PASS at 812b21f0, CI green, awaiting owner/MC0 merge. #546 stays draft, not for merge
+current_tranche: WRAP-UP (MC0, user instruction 2026-09-24, no new groups). S5.4 through stocktake/transfers/locations done (e285c4f4). #561 MERGED 9e25aa1f. #564 MERGED caabd8a7. Production runs caabd8a7 (MC0's deploy, 2026-09-24T18:09Z; S5 did not deploy). #546 stays draft, not for merge
 execution_status: IN_PROGRESS
 merge_status: NOT_MERGED
 production_status: NOT_RUN
@@ -852,7 +853,6 @@ verified:
 remaining:
   - "S5.4 remaining: pricing catalog freeze/admission/publication (behind SCM-FILES/SCM-KNOWLEDGE; F-11), billing (behind an Identity command path for LegalEntity/Branch), shelf-life maintenance, hygiene report, replenishment, catalogue intake — each as a whole group"
   - "F-18 intermittent cost-sheet two-process test on PostgreSQL: capture the code on the next occurrence"
-  - "#561 (F-14) S1 review and owner merge decision; F-16 / F-17 legacy reservation hotfix (owner / MC0 decision); F-15 in the backlog"
   - "Consumer routing (BFF → SCM) for the Commerce cohort, behind SCM-CORE"
   - "Image build/start smoke; BFF consumer; core delegation issuer; audit outbox relay; a managed PostgreSQL rehearsal (pooler, TLS, restricted role) under SCM-CUTOVER"
   - "F-10 separate FR (declared by the PRD registry owner), then the fulfilment change in legacy and SCM together"
@@ -863,7 +863,7 @@ contracts:
 blockers:
   - { dependency: "scm.delegation.v1 review + core issuer", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + S5", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
   - { dependency: "root CI job for services/scm", kind: INTEGRATION_ORDER, phase_blocked: "CI_VERIFIED/HOSTED_IMAGE_BUILD", owner_to_unblock: integrator, condition_to_unblock: "job merged", safe_work_now: ["local tests"] }
-next_action: "Wrap-up: S1 re-reviews #564 at 812b21f0; merge is the owner's / MC0's. #546 stays draft. Later groups (billing, shelf-life, hygiene, replenishment, catalogue intake) wait for the owner."
+next_action: "Wrap-up complete: legacy fixes #557/#561/#564 merged and deployed by MC0. #546 stays draft. Later groups (billing, shelf-life, hygiene, replenishment, catalogue intake) wait for the owner."
 owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js, apps/server/tests/unit/scm-revenue-parity.test.js, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
 shared_changes_requested: ["FR id for F-10 (fulfilment issue carries salesOrderId/customerId) in docs/PRD-SDD-v1.0.md — PRD registry owner", "docs/.id-ledger.json +ADR-109", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
 board_expected_source_commit: "REFACTOR-STATUS.md 0.1.0b on feat/market-intelligence-service"
@@ -878,12 +878,12 @@ board_update: BOARD_UPDATE_PENDING
    replenishment, catalogue intake). Pricing catalog freeze/admission stays
    behind SCM-FILES / SCM-KNOWLEDGE (F-11). F-18 (intermittent) is open.
 2a. Wrap-up (2026-09-24): no new groups.
-   - #561: MERGED at `9e25aa1f` (S1 PASS at `be171333`, CI green). Not deployed.
-   - #564 (F-15/F-16/F-17): `main` merged in, races made deterministic, review
-     requested at `812b21f0` (round 1 fixed). On REQUEST_CHANGES, fix and re-request; never push
-     after a PASS.
+   - #561: MERGED at `9e25aa1f` (S1 PASS at `be171333`, CI green).
+   - #564 (F-15/F-16/F-17): MERGED at `caabd8a7` (S1 PASS at `812b21f0`, CI green).
+   - Both, with #557, were deployed by MC0 in `release-caabd8a7-ki17-overlay`
+     (2026-09-24T18:09Z). S5 did not deploy.
 3. PR #557 (legacy F-1/F-9/F-12 fixes + F-2 test) was MERGED at `7363c931` after
-   S1 PASS @ `00dff8b3`. It is not deployed. F-10 is ruled unintended; its FR id is requested from the PRD
+   S1 PASS @ `00dff8b3`. MC0 deployed it in `caabd8a7`. F-10 is ruled unintended; its FR id is requested from the PRD
    registry owner.
 4. When SCM-CORE lands: route `/api/commerce/revenue` (S5-owned) to SCM per
    cohort, and hand Marketing's call site to its owner.
