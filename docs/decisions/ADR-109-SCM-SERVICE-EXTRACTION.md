@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-109
 title: "SCM service extraction — one deployable over Inventory, Procurement and Commerce"
-version: "0.1.5b"
+version: "0.1.6b"
 status: candidate
 created_at: "2026-09-24T14:00:00+07:00,Claude Opus 5.5"
-last_update: "2026-09-24T11:55:00+07:00,Claude Opus 5.5"
+last_update: "2026-09-24T12:10:00+07:00,Claude Opus 5.5"
 author: Claude Opus 5.5 (Session 5)
 attributes:
   doc_type: architecture-decision
@@ -206,6 +206,11 @@ For this candidate revision:
 - **Sales orders (0.1.3b):** 150 service tests (149 pass, 1 NOT_RUN on
   Windows), including legacy AC-162.1–162.6, the Commerce cohort end to end, an
   order CAS interleaving test and a two-process fulfilment race.
+- **Supplier cost sheets (0.1.6b):** preview/commit move whole; the carton
+  facts go through Inventory's own writer inside Procurement's unit of work (the
+  D2 rule: one module's use case, another module's public API). Preview parity
+  4/4 against a legacy-recorded golden; 188 service tests (187 pass, 1 NOT_RUN
+  on Windows); legacy procurement regression 22/22.
 - **Pricing rules (0.1.5b):** draft/update/approve/revoke and calculation move
   whole onto the parity-pinned kernel; the seven legacy FR-253 cases are
   mirrored, plus normalized-key, replay-guard, store-immutability, CAS
@@ -233,4 +238,5 @@ For this candidate revision:
 | 0.1.2b | 2026-09-24 | candidate | Payments (record/verify/reject/refund) moved whole | dab82845 | Claude Opus 5.5 (Session 5) |
 | 0.1.3b | 2026-09-24 | candidate | Sales orders (create/actions/fulfilment/list) moved whole; all Commerce writers now in SCM | 7ee12a29 | Claude Opus 5.5 (Session 5) |
 | 0.1.4b | 2026-09-24 | candidate | Revenue read model on the SCM store, parity-pinned | 105d90c7 | Claude Opus 5.5 (Session 5) |
-| 0.1.5b | 2026-09-24 | candidate | Pricing rules lifecycle + calculation moved whole; catalog freeze stays behind SCM-FILES/SCM-KNOWLEDGE (F-11) | uncommitted | Claude Opus 5.5 (Session 5) |
+| 0.1.5b | 2026-09-24 | candidate | Pricing rules lifecycle + calculation moved whole; catalog freeze stays behind SCM-FILES/SCM-KNOWLEDGE (F-11) | cd3abb54 | Claude Opus 5.5 (Session 5) |
+| 0.1.6b | 2026-09-24 | candidate | Supplier cost sheets moved whole (Procurement + Inventory carton writer in one unit of work) | uncommitted | Claude Opus 5.5 (Session 5) |

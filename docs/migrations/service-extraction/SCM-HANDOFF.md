@@ -2,7 +2,7 @@
 id: ZAI:SCM-HANDOFF
 version: "0.1.0b"
 status: candidate
-last_update: "2026-09-24T11:55:00+07:00,Claude Opus 5.5 (Session 5)"
+last_update: "2026-09-24T12:10:00+07:00,Claude Opus 5.5 (Session 5)"
 attributes:
   domain: inventory
   scope: session-5-scm-service-extraction-handoff
@@ -19,8 +19,9 @@ relations:
 `.claude/worktrees/scm-service-extraction`. **Base:** `main` @ `fad8ec62`.
 **Tested implementation SHAs:** `7726b99b` (S5.1 + receipt slice),
 `f60fceb6` (S5.4 POS checkout), `3b522a9d` (S5.4 payments), `ce304e84`
-(S5.4 sales orders), `d160acaf` (S5.4 revenue read model) and `c3edef61`
-(S5.4 pricing rules lifecycle + calculation). This file is updated in doc-only commits after
+(S5.4 sales orders), `d160acaf` (S5.4 revenue read model), `c3edef61`
+(S5.4 pricing rules lifecycle + calculation) and `17b542b9` (S5.4 supplier
+cost sheets). This file is updated in doc-only commits after
 each of them. **PR:** [#546](https://github.com/Freshair129/zuri.ai/pull/546) — OPEN / DRAFT, not for merge. **Merge:** NOT_MERGED.
 **Production:** NOT_RUN. Nothing routes to the SCM process; no data, stock,
 price or credential was touched.
@@ -34,10 +35,10 @@ default).
 
 | Axis | Result | Evidence |
 |---|---|---|
-| CODE_IMPLEMENTED | PARTIAL | S5.1 pricing kernel; S5.3 PO → GRN → stock → PO slice; S5.4 POS checkout, payments (record / verify / reject / refund), sales orders (create / actions / fulfilment / list), the revenue read model and pricing rules lifecycle + calculation. Cost sheet, pricing catalog freeze/admission, billing and the POS terminal catalogue are not moved |
-| PRICING_PARITY_VERIFIED | PASS | 64 pinned cases (47 priced, 17 refused). The legacy recorder and the SCM kernel reproduce the same golden (§6). Revenue parity: 7 pinned queries, legacy-recorded golden, SCM reproduces it from its own store (§4.4) |
-| TRANSACTION_INVARIANTS_VERIFIED | PARTIAL | Receipt, POS, payment, sales-order and pricing groups: injected-fault rollback, CAS interleaving (receipt, payment, order, pricing rule), two-process SQLite contention (receipt, POS oversell, refund ceiling, fulfilment over scarce stock, one approval + one calculation key) |
-| ISOLATED_TESTS_VERIFIED | PASS | 173 service tests (172 pass, 1 NOT_RUN on Windows), no Next.js/DB/global setup, about 6 s |
+| CODE_IMPLEMENTED | PARTIAL | S5.1 pricing kernel; S5.3 PO → GRN → stock → PO slice; S5.4 POS checkout, payments (record / verify / reject / refund), sales orders (create / actions / fulfilment / list), the revenue read model, pricing rules lifecycle + calculation and supplier cost-sheet preview/commit. Pricing catalog freeze/admission, billing and the POS terminal catalogue are not moved |
+| PRICING_PARITY_VERIFIED | PASS | 64 pinned cases (47 priced, 17 refused). The legacy recorder and the SCM kernel reproduce the same golden (§6). Revenue parity: 7 pinned queries (§4.4). Cost-sheet parity: 4 pinned previews — code, preview hash, source hash, SKU-match suggestions, locked-FX costs (§4.6). Each golden is recorded by legacy and reproduced by SCM from its own store |
+| TRANSACTION_INVARIANTS_VERIFIED | PARTIAL | Receipt, POS, payment, sales-order, pricing and cost-sheet groups: injected-fault rollback, CAS interleaving (receipt, payment, order, pricing rule, cost sheet), two-process SQLite contention (receipt, POS oversell, refund ceiling, fulfilment over scarce stock, one approval + one calculation key, one sheet + one supplier's sheets) |
+| ISOLATED_TESTS_VERIFIED | PASS | 188 service tests (187 pass, 1 NOT_RUN on Windows), no Next.js/DB/global setup, about 7 s |
 | CORE_CONTRACT_VERIFIED | NOT_RUN | `scm.delegation.v1` and the ReferenceAuthority port are PROPOSED; the issuer and the reference owners are synthetic in tests |
 | CONSUMER_INTEGRATION_VERIFIED | NOT_RUN | No BFF/route calls SCM; legacy routes are unchanged |
 | DATA_OWNERSHIP_ENFORCED | NOT_RUN | Service-local disposable SQLite only; no restricted role; no transfer |
@@ -66,7 +67,9 @@ default).
 | POS checkout | MOVE_SCM (slice) | Commerce (+ Inventory writer) | `pos-cashier-service.checkoutPosSale` → `workflows/pos-checkout.js` | SalesOrder + lines + PENDING Payment + ISSUE movements + fence + audit | Whole group in one unit of work. Branch/Customer/slip as ReferenceAuthority facts; WarehouseLocation (Inventory) and BusinessBillingProfile (Commerce) read in-store |
 | POS terminal catalogue (`getPosTerminalCatalogue`) | SHARED_TRANSITION | Commerce (reads Inventory, Branch) | legacy | read | Reads ProductMaster/InventoryCategory and Branch lists; moves with the catalogue read model |
 | Sales order create / UPDATE / CONFIRM / COMPLETE (+ issueStock) / CANCEL / list | MOVE_SCM (slice) | Commerce (+ Inventory writer) | `sales-order-service` → `modules/commerce/application/sales-orders.js` | order + lines (+ ISSUE movements + fence) + audit | Customer / Conversation as CRM facts; legacy visibility rule kept (D-10) |
-| Supplier cost-sheet preview/commit | SHARED_TRANSITION | Procurement (+ Inventory carton facts) | `supplier-cost-sheet-service` → `setProductCartonAttributes` | sheet + lines + Product carton + supersession + audit | S5.4 |
+| Supplier cost-sheet preview / commit / get / list | MOVE_SCM (slice) | Procurement (+ Inventory carton writer) | `supplier-cost-sheet-service` → `modules/procurement/application/supplier-cost-sheets.js`; carton → Inventory `application/product-carton.js` | sheet + lines + Product carton (Inventory authority, CAS, audit) + supersession + CAS confirm + audit | Whole group in one unit of work; §4.6 |
+| Cost-sheet `.xlsx` upload + template | KEEP_EXTERNAL (converter) | Procurement route (BFF) | `supplier-cost-workbook` | none | Converts a workbook into the same JSON envelope before preview (BR-009: a new surface adds a converter, never a second write path) |
+| Readers of cost lines / carton facts / identifiers: Product page `supplierCostPriceBreaks`, catalogue hygiene `CARTON_DATA_MISSING`; writers of ProductIdentifier | SHARED_TRANSITION | Inventory | `inventory-catalog-service.getProduct`, `inventory-hygiene-service`, `inventory-identity-service` | read / identifier writes | Legacy readers still read legacy tables; the SCM SKU matcher reads identifiers from the SCM store only (F-13) |
 | Pricing rules draft / update / approve / revoke, list, active policy, preview, calculate | MOVE_SCM (slice) | Commerce | `pricing-rules-service` → `modules/commerce/application/pricing-rules.js`, `/v1/commerce/pricing-rules/**` | rule CAS + audit; calculation snapshot + audit | OWNER only; same kernel evaluator; §4.5 |
 | Pricing catalog freeze / admission / publication, `priceLandedInventoryQuote`, Knowledge currency check | SHARED_TRANSITION | Commerce (+ Files, Knowledge) | `pricing-catalog-service`, `pricing-publication`, `pricing-inventory-service` | catalog freeze **also writes PricingCalculation**; then Files + Knowledge outside the tx | Second writer / readers of the moved tables (F-11); gates SCM-FILES, SCM-KNOWLEDGE, SCM-AGENT (F-5) |
 | Billing profile / documents | SHARED_TRANSITION | Commerce | `billing-invoice-service` | profile **+ LegalEntity/Branch writes**; sequence + document | Identity-owned rows are written: needs an owner command path before moving |
@@ -116,7 +119,7 @@ services/scm/
                                  delegation (scm.delegation.v1 + ladder), evidence (receipt/audit/outbox)
   src/kernel/**                  GENERATED mirror of apps/server pure domain code (12 files)
   src/modules/inventory/         adapters (only writer of 5 Inventory tables), application/stock-ledger, index
-  src/modules/procurement/       adapters (only writer of 5 Procurement tables), application/purchase-orders
+  src/modules/procurement/       adapters (only writer of 7 Procurement tables), application/purchase-orders, supplier-cost-sheets
   src/modules/commerce/pricing/  public pricing API over the kernel
   src/workflows/post-goods-receipt.js  the cross-module atomic receipt (owner: Procurement)
   src/workflows/pos-checkout.js        the cross-module atomic POS sale (owner: Commerce)
@@ -188,6 +191,36 @@ Every case of legacy `fr183-pos.test.js` is mirrored, marked `[legacy]`:
 
 Mutation check (run once, not committed): making the payment `VERIFIED` fails 2
 tests; removing the dedication check fails 1 test.
+
+### 4.6 Supplier cost sheets (`test/component/supplier-cost-sheets.test.js`, `test/recovery/cost-sheet-concurrency.test.js`, `test/unit/cost-sheet-parity.test.js`, `apps/server/tests/unit/scm-cost-sheet-parity.test.js`)
+
+The three cases of legacy `task-zai-053-supplier-cost-sheet.test.js` are
+mirrored with the same envelope, marked `[legacy]`. Four previews are pinned in
+`contracts/v1/cost-sheet-parity-cases.json` (explicit and derived source hash;
+product-code, identifier, ambiguous and unmatched SKUs; an archived SKU and a
+RETIRED identifier that must not match; two refusals). The golden — sheet code,
+preview hash, source hash, source ref, line count and every suggestion with its
+locked-FX cost — is **recorded by the legacy `previewSupplierCostSheet`** (db
+stub, factory viewer); the SCM preview reproduces it from its own store, 4/4.
+Hand check: 0.333 USD × 34 = 11.322 THB → ceiled once to 1133 satang.
+
+| Invariant | Result |
+|---|---|
+| Preview stores the source and suggestions only (no lines); `SCS-` code; supplier `{id, code, name}`; the same source under a new key → `replayed: true`; a changed payload under a reused hash → `PROCUREMENT_COST_SHEET_SOURCE_HASH_REUSED` | PASS |
+| Commit needs the preview hash (`PREVIEW_STALE`) and a confirmed mapping per SKU (`MAPPING_UNCONFIRMED`); duplicate mapping, foreign SKU (`PRODUCT_NOT_FOUND`), archived SKU, and conflicting carton facts for one product (`CARTON_CONFLICT` with details) are refused with **nothing** written | PASS |
+| Two ladders: a buyer (po.write) previews, but commits only with Inventory write authority; without it → 404 and no carton, line, audit, outbox or receipt; view-only / inventory-only / no procurement domain → 404 | PASS |
+| Commit writes carton facts through Inventory's writer (`PRODUCT_CARTON_ATTRIBUTES_SET`, Product version +1), lines with locked-FX costs (42.5 / 37.4), confirms by CAS (version 2); a second commit replays | PASS |
+| A newer confirmed sheet supersedes the supplier's previous one; a superseded sheet cannot be committed; commit by `sourceSha256` works | PASS |
+| Store: one CONFIRMED sheet per supplier (partial unique index), immutable source (FX, hashes, preview) and immutable lines | PASS |
+| Fault after the carton write / after the lines / after the audit → nothing persists; the same key then commits once and replays | PASS |
+| Sheet version moved between read and confirm → 409 `PROCUREMENT_COST_SHEET_VERSION_CONFLICT`; the carton facts and lines of that unit roll back | PASS |
+| Two processes: 4 commits of one sheet → 1 committed + 3 replays, 2 lines; two sheets of one supplier at once → exactly one CONFIRMED | PASS (SQLite) |
+
+Mutation check (run once, not committed): dropping Inventory's write check, the
+confirmed-mapping rule, the preview-hash check, the source-hash reuse check,
+the foreign-product check, the carton-conflict check, the supersession, the
+superseded refusal, the version predicate of the confirm, or identifier
+matching — each of the 10 fails at least one test.
 
 ### 4.5 Pricing rules lifecycle + calculation (`test/component/pricing-rules.test.js`, `test/recovery/pricing-concurrency.test.js`, contract HTTP round trip)
 
@@ -302,6 +335,8 @@ the PostgreSQL-shaped interleaving instead.
 | D-9 | Concurrency hardening, no value change | Before a REFUND's ceiling read, the order row is touched with a lock-only UPDATE (`updatedAt = updatedAt`) | Serializes two refund verifications of one order on PostgreSQL; see F-9 |
 | D-11 | Transport contract | Pricing: the calculation key is the `Idempotency-Key` header (8–200 of `[A-Za-z0-9._:-]`), not a body `idempotencyKey` (1–200, any text); responses are wrapped (`{ruleSet}`, `{calculation}`) and a replay adds `replayed`/`operation`; a lookup of a calculation whose policy was withdrawn answers 409 like a replay | One key convention for every SCM mutation; legacy key semantics (per Business, normalized request, conflict code, replay re-check) are kept inside it |
 | D-12 | Hardening, no behaviour change on legal paths | Store triggers: approved rule content (rules, hash, name, scope, source) and every calculation are immutable; neither can be deleted | Legacy enforced this only in the service |
+| D-13 | Hardening, no behaviour change on legal paths | Cost sheets: a partial unique index keeps at most one CONFIRMED sheet per supplier; triggers keep a sheet's source (FX, hashes, preview) and its lines immutable | Makes the legacy intent hold on any engine; see F-12 |
+| D-14 | Transport contract | Cost-sheet preview/commit need an `Idempotency-Key` like every SCM mutation; the legacy source-hash replay (`replayed: true`) is kept inside it and answers 200 | One key convention; legacy replay semantics unchanged |
 | D-7 | Consistency window | Branch/Customer/slip are read as facts **before** the unit of work (a remote read must not hold the writer lock). A reference revoked between that read and the commit is not seen; the window is bounded by the request deadline and reported | Legacy read them inside its transaction (same DB); no legacy precedence changes, because the facts are judged inside the unit of work in legacy order |
 
 ## 6. Verification log
@@ -333,6 +368,16 @@ S5.4 payments (code SHA `3b522a9d`, same environment):
 | SCM all | `node services/scm/scripts/run-tests.mjs` | 136 / 135 pass / 1 skipped (graceful SIGTERM, Windows) | 0 | 4.7 s |
 | Payments component | `node --test test/component/payments.test.js` | 8 / 8 / 0 | 0 | — |
 | Server regression (payments) | `vitest` fr163-payment, fr196-segregation-of-duties, fr183-pos, fr166-sales-order, commerce-domain | 5 files / 30 / 0 | 0 | — |
+
+S5.4 supplier cost sheets (code SHA `17b542b9`):
+
+| Level | Command | Discovered / executed / skipped | Exit | Duration |
+|---|---|---|---|---|
+| SCM all | `node services/scm/scripts/run-tests.mjs` | 188 / 187 pass / 1 skipped (graceful SIGTERM, Windows) | 0 | ~7 s |
+| Cost-sheet parity, legacy recorder | `vitest tests/unit/scm-cost-sheet-parity.test.js` | 5 / 5 / 0 | 0 | — |
+| Legacy procurement regression | `vitest` task-zai-053, scm-cost-sheet-parity, supplier-cost-sheet-routes, fr164-procurement, fr165-goods-receipt | 5 files / 22 / 0 | 0 | 11.3 s |
+| Kernel drift | `sync-kernel.mjs --check` | 14 files | 0 | <1 s |
+| Governance | `npm --prefix apps/server run govern` | — | 0 (no CRITICAL; `domain-state.json` +1 test, stable on a second graph run) | — |
 
 S5.4 pricing rules (code SHA `c3edef61`):
 
@@ -376,6 +421,8 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 | F-8 | While both stores exist, three tenant-wide uniqueness rules cannot hold across them: `Payment.bankReference`, `ORD-…` and `PAY-…` codes | By construction (two databases) | CONFIRMED (design). **SCM capability complete** for the Commerce cohort: all writers (ce304e84) and the revenue read (d160acaf) exist in SCM. Open: consumer routing and the cohort data transfer | Cutover gate: per Tenant, one single-writer switch moves POS, payments, sales orders and the revenue read together, after a transfer of that Tenant's orders/payments/codes; no dual-write period |
 | F-10 | Legacy fulfilment (`issueStockForOrder`) issues without `customerId`/`salesOrderId`, so a SKU dedicated to another customer or order leaves stock on COMPLETE; POS passes both and refuses | `sales-order-service.js:208`; SCM parity test | CONFIRMED (behaviour); intent UNKNOWN | Owner decision: if unintended, pass the order and its customer on the fulfilment issue (a behaviour change with its own FR/test) — not changed during extraction |
 | F-11 | `pricing-catalog-service` (catalog freeze) **also inserts PricingCalculation** rows (key prefix per freeze) and reads the active policy; `pricing-publication`, `pricing-inventory-service` (F-5) and Knowledge `assertPricingCatalogCurrent` read PricingRuleSet/PricingCalculation directly | `pricing-catalog-service.js:82/93`, `pricing-publication.js:15/19`, `pricing-inventory-service.js:25` | CONFIRMED (design) | These tables have one owner only after the catalog group moves with them (behind SCM-FILES/SCM-KNOWLEDGE) or reads them through the SCM API; until then SCM pricing serves no consumer, and the per-Business key space is shared with catalog keys at transfer |
+| F-12 | Legacy commit supersedes the supplier's other CONFIRMED sheets with an unguarded `updateMany` before its own CAS, and no constraint holds "one CONFIRMED per supplier". On PostgreSQL READ COMMITTED, two commits of different sheets of one supplier can each supersede before the other confirms → two CONFIRMED sheets | Code reading `supplier-cost-sheet-service.js:351–359` | PLAUSIBLE — not reproduced (no PostgreSQL here) | Same hotfix PR as F-1/F-9: a PostgreSQL race test first, then a partial unique index (as D-13) |
+| F-13 | The SCM SKU matcher reads `ProductIdentifier` from the SCM store, whose writers (`inventory-identity-service`) have not moved; until identifiers are transferred or their writer moves, SCM suggestions can miss an identifier match legacy would find | Design | CONFIRMED (design); impact bounded — suggestions only, a person confirms every mapping | Move or transfer identifiers with the catalogue group before routing cost-sheet intake to SCM |
 | F-9 | Legacy `applyPaymentAction` reads the verified net for a REFUND and updates the payment by CAS on the payment row only. On PostgreSQL READ COMMITTED, two refunds of one order verified concurrently can both pass the ceiling → refunded > paid | Code reading `payment-service.js:135–145`; SCM two-process test + D-9 | PLAUSIBLE — not reproduced (no PostgreSQL here) | Same hotfix PR as F-1: a PostgreSQL race test first, then an order-row lock before the read |
 
 ## 8. Dependencies, blockers and shared changes requested
@@ -403,13 +450,13 @@ PRD/FEATURES/ROADMAP or tracker change.
 session: S5
 workstream: scm
 owner: Session 5 implementation owner
-observed_at: "2026-09-24T11:55:00+07:00"
+observed_at: "2026-09-24T12:10:00+07:00"
 base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
-code_head_sha: c3edef61
-handoff_source_commit: "the doc commit after c3edef61 on feat/scm-service-extraction"
+code_head_sha: 17b542b9
+handoff_source_commit: "the doc commit after 17b542b9 on feat/scm-service-extraction"
 branch: feat/scm-service-extraction
 pr_number: 546
-current_tranche: S5.4 (Commerce cohort + pricing rules/calculation in SCM) → supplier cost-sheet commit or PostgreSQL adapter next (owner's choice)
+current_tranche: S5.4 (Commerce cohort + pricing rules/calculation + supplier cost sheets in SCM) → PostgreSQL adapter or POS terminal catalogue next (owner's choice)
 execution_status: IN_PROGRESS
 merge_status: NOT_MERGED
 production_status: NOT_RUN
@@ -430,6 +477,8 @@ completed:
     code_paths: [services/scm/src/modules/commerce/application/revenue.js, services/scm/contracts/v1/revenue-parity-cases.json, services/scm/contracts/v1/revenue-parity-golden.json, apps/server/tests/unit/scm-revenue-parity.test.js]
   - claim: "S5.4 pricing rules draft/update/approve/revoke + calculate/preview/active (FR-253) as SCM units of work on the parity-pinned kernel"
     code_paths: [services/scm/src/modules/commerce/application/pricing-rules.js, services/scm/src/modules/commerce/adapters/pricing-repo.js]
+  - claim: "S5.4 supplier cost-sheet preview/commit/get/list (TASK-ZAI-053) as SCM units of work, carton facts via Inventory's writer, legacy-recorded preview parity"
+    code_paths: [services/scm/src/modules/procurement/application/supplier-cost-sheets.js, services/scm/src/modules/inventory/application/product-carton.js, services/scm/contracts/v1/cost-sheet-parity-cases.json, services/scm/contracts/v1/cost-sheet-parity-golden.json, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
 verified:
   - { level: ISOLATED_TESTS, result: PASS, verified_code_sha: 7726b99b, command: "node services/scm/scripts/run-tests.mjs", discovered: 103, executed: 102, skipped: 1, exit_code: 0, duration_seconds: 2.2, environment: "win32, node 24.19.0" }
   - { level: PRICING_PARITY, result: PASS, verified_code_sha: 7726b99b, command: "vitest scm-pricing-parity + pricing-engine", discovered: 157, executed: 157, skipped: 0, exit_code: 0, duration_seconds: 7.2 }
@@ -444,23 +493,26 @@ verified:
   - { level: REVENUE_PARITY, result: PASS, verified_code_sha: d160acaf, command: "vitest scm-revenue-parity (legacy recorder) + node --test revenue-parity (SCM)", discovered: 16, executed: 16, skipped: 0, exit_code: 0 }
   - { level: ISOLATED_TESTS, result: PASS, verified_code_sha: c3edef61, command: "node services/scm/scripts/run-tests.mjs", discovered: 173, executed: 172, skipped: 1, exit_code: 0, environment: "win32, node 24.19.0" }
   - { level: SERVER_REGRESSION_PRICING, result: PASS, verified_code_sha: c3edef61, command: "vitest fr253-pricing-rules/fr253-pricing-routes/pricing-engine/scm-pricing-parity", discovered: 173, executed: 173, skipped: 0, exit_code: 0, duration_seconds: 8.8 }
+  - { level: ISOLATED_TESTS, result: PASS, verified_code_sha: 17b542b9, command: "node services/scm/scripts/run-tests.mjs", discovered: 188, executed: 187, skipped: 1, exit_code: 0, environment: "win32, node 24.19.0" }
+  - { level: COST_SHEET_PARITY, result: PASS, verified_code_sha: 17b542b9, command: "vitest scm-cost-sheet-parity (legacy recorder) + node --test cost-sheet-parity (SCM)", discovered: 9, executed: 9, skipped: 0, exit_code: 0 }
+  - { level: SERVER_REGRESSION_PROCUREMENT, result: PASS, verified_code_sha: 17b542b9, command: "vitest task-zai-053/scm-cost-sheet-parity/supplier-cost-sheet-routes/fr164/fr165", discovered: 22, executed: 22, skipped: 0, exit_code: 0, duration_seconds: 11.3 }
   - { level: LOCAL_IMAGE_BUILD, result: NOT_RUN, reason: "docker daemon down; not started because host Docker serves production" }
   - { level: POSTGRES, result: NOT_RUN }
   - { level: CI, result: NOT_RUN }
 remaining:
-  - "S5.4 remaining: pricing catalog freeze/admission/publication (behind SCM-FILES/SCM-KNOWLEDGE; F-11), supplier cost-sheet commit, billing (behind an Identity command path for LegalEntity/Branch), POS terminal catalogue — each as a whole group"
+  - "S5.4 remaining: pricing catalog freeze/admission/publication (behind SCM-FILES/SCM-KNOWLEDGE; F-11), billing (behind an Identity command path for LegalEntity/Branch), POS terminal catalogue, Inventory catalogue/identifier writers (F-13) — each as a whole group"
   - "Consumer routing (BFF → SCM) for the Commerce cohort, behind SCM-CORE"
   - "PostgreSQL adapter + concurrency proof; image build/start smoke; BFF consumer; core delegation issuer; audit outbox relay"
-  - "Legacy hotfix for F-1/F-2 as a separate PR"
+  - "Legacy hotfix for F-1/F-2/F-9/F-12 as a separate PR"
 contracts:
-  - { name: scm-api, revision: v1-draft.6, provider_owner: S5, consumer_owner: "BFF (unassigned)", review_status: PROPOSED, provider_conformance: "LOCAL PASS", consumer_conformance: NOT_RUN }
+  - { name: scm-api, revision: v1-draft.7, provider_owner: S5, consumer_owner: "BFF (unassigned)", review_status: PROPOSED, provider_conformance: "LOCAL PASS", consumer_conformance: NOT_RUN }
   - { name: scm.delegation.v1, provider_owner: "Identity/Core", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (synthetic issuer)" }
   - { name: ReferenceAuthority (branch/customer/fileAsset facts), provider_owner: "Core + CRM + Files (S3)", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (fixture provider)" }
 blockers:
   - { dependency: "scm.delegation.v1 review + core issuer", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + S5", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
   - { dependency: "root CI job for services/scm", kind: INTEGRATION_ORDER, phase_blocked: "CI_VERIFIED/HOSTED_IMAGE_BUILD", owner_to_unblock: integrator, condition_to_unblock: "job merged", safe_work_now: ["local tests"] }
-next_action: "Owner picks the next tranche: supplier cost-sheet commit (Procurement + Inventory carton facts) or the PostgreSQL adapter; owner decision on F-10 pending."
-owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js]
+next_action: "Owner picks the next tranche: the PostgreSQL adapter (turns F-1/F-9/F-12 shapes into PostgreSQL proofs) or the POS terminal catalogue read; owner decision on F-10 pending."
+owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js, apps/server/tests/unit/scm-revenue-parity.test.js, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
 shared_changes_requested: ["docs/.id-ledger.json +ADR-109", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
 board_expected_source_commit: "REFACTOR-STATUS.md 0.1.0b on feat/market-intelligence-service"
 board_update: BOARD_UPDATE_PENDING
@@ -469,13 +521,12 @@ board_update: BOARD_UPDATE_PENDING
 ## 10. Next exact action
 
 1. Read the hosted check results on PR #546 and record them here (CI_VERIFIED is NOT_RUN until then).
-2. Next tranche (owner's choice): the supplier cost-sheet commit
-   (`supplier-cost-sheet-service`, Procurement + Inventory carton facts, one
-   unit of work), or the PostgreSQL adapter that turns the SQLite concurrency
-   proofs (F-1, F-9 shapes) into PostgreSQL ones. Pricing catalog
-   freeze/admission stays behind SCM-FILES / SCM-KNOWLEDGE (F-11).
+2. Next tranche (owner's choice): the PostgreSQL adapter that turns the SQLite
+   concurrency proofs (F-1, F-9, F-12 shapes) into PostgreSQL ones, or the POS
+   terminal catalogue read. Pricing catalog freeze/admission stays behind
+   SCM-FILES / SCM-KNOWLEDGE (F-11); identifiers move with the catalogue (F-13).
 3. Owner decision on F-10 (dedication on fulfilment) — recorded, not changed.
 4. When SCM-CORE lands: route `/api/commerce/revenue` (S5-owned) to SCM per
    cohort, and hand Marketing's call site to its owner.
-4. Separately, a legacy hotfix PR for F-1, F-2 and F-9, each with a failing
+4. Separately, a legacy hotfix PR for F-1, F-2, F-9 and F-12, each with a failing
    PostgreSQL race test first.
