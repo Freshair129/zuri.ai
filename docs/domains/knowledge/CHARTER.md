@@ -1,6 +1,6 @@
 ---
 domain: knowledge
-version: "1.8.3b"
+version: "1.8.4b"
 status: beta
 last_update: "2026-09-25T00:00:00+07:00,Claude Sonnet 5"
 module: src/modules/knowledge
@@ -297,6 +297,21 @@ historical splitter, instead of failing with
 `GENESISRAG17_PARSER_CONFIG_UNSUPPORTED` / `_CHUNKER_CONFIG_UNSUPPORTED` on
 its first resume or replay attempt after the remediation shipped
 (`isHistoricalParserIdentity`, `genesisrag17-executor.js` `inputValue`).
+Avoiding that 400 was not sufficient on its own: `ensureParsedArtifact`
+(same file) separately compares a freshly-computed
+`parsedArtifactContentHash` against the existing row's stored `contentHash`,
+and that hash is computed over `parsed.metadata` — so a legacy request whose
+`parseGenesisRag17Document` output added `maxChars: null, overlapChars: null`
+to `metadata` (a shape no pre-2026-09-24 row ever had) still 409'd with
+`GENESISRAG17_PARSED_IDENTITY_CONFLICT` at Stage 2 on the very same
+resume/replay this paragraph describes. A second 2026-09-25 follow-up fixed
+this by omitting both keys for a legacy request instead of setting them to
+`null`, making the metadata (and therefore the hash) byte-identical to what
+`genesisrag17-parser-1` produced before this whole remediation existed
+(`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.4b). Proven end to end by
+`tests/integration/genesisrag17-tier1.test.js` ("replays a historical
+parser-1 legacy TEXT intent through Stage 2 without a parsed-identity
+conflict").
 `ensureParsedArtifact` and `ensureChunks` both read `parsedAndChunks.chunks` from that single call;
 neither imports `./chunking` or `./parsing`. **FR-112's `chunkDocument`
 (`chunking.js`: 400 tokens, 10% overlap, parent-child) and FR-115's
@@ -428,6 +443,7 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.8.3b → 1.8.4b (2026-09-25) | Correction: 1.8.3b's "resumes/replays unchanged instead of 400/409ing" was only true of the input-value 400 (`GENESISRAG17_PARSER_CONFIG_UNSUPPORTED`/`_CHUNKER_CONFIG_UNSUPPORTED`) — a Stage 2 409 (`GENESISRAG17_PARSED_IDENTITY_CONFLICT`) still fired on the same resume/replay, because the legacy parse path added `maxChars: null, overlapChars: null` to `metadata` (a shape no pre-2026-09-24 row ever had), and `ensureParsedArtifact` hashes `metadata`. Fixed by omitting both keys for a legacy request instead of nulling them, restoring the pre-remediation metadata shape exactly; a `splitRange` overlap corner case on malformed input (a paragraph break directly followed by a combining mark could re-emit a chunk fully contained in the previous one) also closed with an explicit forward-progress guard. Proven by a real ingest -> FR-071 replay -> Stage 2 integration test and a pinned-hash regression unit test (`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.4b) | `genesisrag17-source.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows |
 | 1.8.2b → 1.8.3b (2026-09-25) | Fixes to the 1.8.2b remediation, and names the affected providers: the overlap step could stall on a near boundary and emit long runs of near-duplicate/whitespace-only slivers (fixed by skipping the overlap when the chunk is not longer than it, and otherwise moving to a boundary-aligned overlap start that guarantees forward progress); the overlap start is now actually boundary-searched, not only grapheme-nudged; a persisted `genesisrag17-parser-1`/`-chunker-1` intent now resumes/replays unchanged instead of 400/409ing. Both live TEXT-profile LINE OA providers, `LINE_FAQ_CANDIDATE` (FR-236) and `LINE_STUDIO_DESCRIPTION` (FR-238), get new chunk ids/boundaries for any new admission | `genesisrag17-source.js` and `genesisrag17-executor.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows |
 | 1.8.1b → 1.8.2b (2026-09-24) | Records the Thai-safe prose chunker remediation: the live `genesisrag17-source.js` TEXT profile now also bounds every window by a 480-character budget alongside the 80-whitespace-token one, cuts at a boundary, keeps a small overlap, and never splits a combining mark or surrogate pair (identity `genesisrag17-parser-3` / `genesisrag17-chunker-2`; `genesisrag17-parser-1` / `genesisrag17-chunker-1` are historical only). Closes the Thai-truncation gap this file's 1.8.1b revision recorded; `parser-2` (SMARTGIFT_CATALOG) is unaffected | `apps/server/src/modules/knowledge/genesisrag17-source.js` changed for new TEXT-profile ingestions; no model, route or requirement statement touched; no re-ingestion of existing `parser-1` rows |
 | 1.8.0b → 1.8.1b (2026-09-24) | Remediation-board checklist C4: state which chunker/parser production actually runs (`genesisrag17-executor.js` → `genesisrag17-source.js`'s `parseGenesisRag17Document`, Stage 2/7/8) and that FR-112 `chunking.js` / FR-115 `parsing.js` are composition-tested via `stage-runner.js` but not on that live path; unifying them is left open (C4/C1), no decision taken | Documentation only; no model, route or requirement statement touched |

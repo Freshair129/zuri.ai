@@ -7,6 +7,7 @@ import {
   GENESIS_RAG17_PARSER_VERSION_3,
   isHistoricalParserIdentity,
   parseGenesisRag17Document,
+  parsedArtifactContentHash,
 } from '@/modules/knowledge/genesisrag17-source'
 
 // @req FR-109 — a persisted GenesisRag17IngestionIntent's requestJson is
@@ -65,9 +66,15 @@ describe('parseGenesisRag17Document resuming/replaying a historical (pre-2026-09
     })
     expect(parsed.parserVersion).toBe(GENESIS_RAG17_PARSER_VERSION)
     expect(parsed.metadata.chunkerVersion).toBe(GENESIS_RAG17_CHUNKER_VERSION)
-    // The historical splitter never overlaps and never windows by characters.
-    expect(parsed.metadata.maxChars).toBeNull()
-    expect(parsed.metadata.overlapChars).toBeNull()
+    // The historical splitter never overlaps and never windows by
+    // characters — and, critically, pre-remediation metadata never HAD
+    // these keys at all. A legacy request must omit them entirely rather
+    // than set them to null, because `parsedArtifactContentHash` hashes
+    // `metadata` and an added `null`-valued key changes the hash relative
+    // to every parser-1 row already persisted before this fix (see the
+    // pinned-hash test below).
+    expect(parsed.metadata).not.toHaveProperty('maxChars')
+    expect(parsed.metadata).not.toHaveProperty('overlapChars')
     expect(chunks.length).toBeGreaterThan(0)
     for (const chunk of chunks) {
       expect(fixture.text.slice(chunk.startOffset, chunk.endOffset)).toBe(chunk.text)
@@ -103,6 +110,44 @@ describe('parseGenesisRag17Document resuming/replaying a historical (pre-2026-09
     expect(current.chunks.length).toBeGreaterThan(1)
   })
 
+  it('matches the exact pre-remediation metadata and parsedArtifactContentHash for a parser-1 request (pinned)', () => {
+    // Pinned against main@1e96cb71 (the commit this branch forked from),
+    // bundled with esbuild and run standalone: the same
+    // documentId/rawArtifactId/parsedArtifactId/content, run through
+    // main's genesisrag17-source.js, produced:
+    //   metadata: {"extractorVersion":"genesisrag17-parser-1",
+    //     "chunkerVersion":"genesisrag17-chunker-1","maxTokens":80,
+    //     "headingCount":0,"textBlockCount":1,"chunkCount":1}
+    //   contentHash:            c4b1dd6f...bcf3c5
+    //   parsedArtifactContentHash: 9f192e78...f8ebca
+    // If this test ever fails, the branch has regressed the legacy-replay
+    // fix: any already-persisted parser-1 parsed row would now content-hash
+    // differently, and `ensureParsedArtifact`
+    // (genesisrag17-executor.js) would 409 on resume/replay of that row.
+    const documentId = 'doc-legacy-thai'
+    const rawArtifactId = 'raw-legacy-thai'
+    const parsedArtifactId = 'parsed-legacy-thai'
+    const content = 'สวัสดีครับผมชื่อธนากรและผมทำงานที่บริษัทซูริเอไอในกรุงเทพมหานครประเทศไทย'.repeat(60)
+    const { parsed, chunks } = parseGenesisRag17Document({
+      documentId,
+      rawArtifactId,
+      parsedArtifactId,
+      content,
+      parserVersion: GENESIS_RAG17_PARSER_VERSION,
+    })
+    expect(parsed.metadata).toEqual({
+      extractorVersion: GENESIS_RAG17_PARSER_VERSION,
+      chunkerVersion: GENESIS_RAG17_CHUNKER_VERSION,
+      maxTokens: 80,
+      headingCount: 0,
+      textBlockCount: 1,
+      chunkCount: 1,
+    })
+    expect(parsed.contentHash).toBe('c4b1dd6fc897b315123c79d1f241473c9856578fa6836d54ba964b5061bcf3c5')
+    expect(chunks).toHaveLength(1)
+    expect(parsedArtifactContentHash(parsed)).toBe('9f192e789624288fcaaf77818465796ca36cfa4ea8b7cf799b014d7891f8ebca')
+  })
+
   it('still refuses a bare parser-1 identity paired with a non-default maxTokens', () => {
     // Guards against over-widening the legacy acceptance: this exact case is
     // also asserted in genesisrag17-source.test.js and must keep failing.
@@ -126,7 +171,8 @@ describe('parseGenesisRag17Document resuming/replaying a historical (pre-2026-09
     })
     expect(parsed.parserVersion).toBe(composite)
     expect(parsed.metadata.chunkerVersion).toBe(GENESIS_RAG17_CHUNKER_VERSION)
-    expect(parsed.metadata.maxChars).toBeNull()
+    expect(parsed.metadata).not.toHaveProperty('maxChars')
+    expect(parsed.metadata).not.toHaveProperty('overlapChars')
   })
 
   it('never selects a historical identity for a new (parserVersion-less) request', () => {

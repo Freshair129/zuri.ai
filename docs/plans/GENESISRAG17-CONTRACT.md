@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-CONTRACT
 title: GenesisRAG17 isolated execution wire contract
-version: "1.4.3b"
+version: "1.4.4b"
 status: active
 created_at: "2026-09-07T23:00:00+07:00,RWANG"
-last_update: "2026-09-24T00:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-25T00:00:00+07:00,Claude Sonnet 5"
 attributes:
   domain: knowledge
   scope: isolated seventeen-stage acceptance implementation
@@ -74,7 +74,18 @@ versions, and zuri-ai sends parser-2 batches (step 3).
   check accepts that exact pair verbatim instead of re-deriving parser-3/chunker-2
   and refusing the mismatch (2026-09-25 follow-up; a RUNNING or replayable TEXT
   intent recorded before this remediation would otherwise 400/409 on its first
-  resume or replay attempt). Implementation:
+  resume or replay attempt). This holds at Stage 2 specifically because a legacy
+  request's `parsed.metadata` OMITS `maxChars`/`overlapChars` entirely rather than
+  setting them to `null` (a second 2026-09-25 follow-up): the metadata object a
+  legacy request produces is therefore byte-identical to what
+  `genesisrag17-parser-1` produced before this whole remediation existed, so
+  `parsedArtifactContentHash` (which hashes `metadata`) matches an already-persisted
+  parser-1 row and `ensureParsedArtifact` (genesisrag17-executor.js) does not treat
+  the resumed/replayed request as a parsed-identity conflict. Proven by
+  `tests/integration/genesisrag17-tier1.test.js` ("replays a historical parser-1
+  legacy TEXT intent through Stage 2 without a parsed-identity conflict") and the
+  pinned-metadata regression gate in
+  `tests/unit/genesisrag17-executor-legacy-resume.test.js`. Implementation:
   `apps/server/src/modules/knowledge/genesisrag17-source.js`
   (`parseGenesisRag17Document`, `genesisRag17ParserIdentity`,
   `isHistoricalParserIdentity`, `splitRangeLegacy`),
@@ -200,6 +211,7 @@ engine/model revisions.
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 1.4.4b | 2026-09-25 | active | Correction to the 1.4.3b claim: a persisted parser-1/chunker-1 intent's resume/replay did NOT in fact avoid a Stage 2 conflict, because `ensureParsedArtifact` (genesisrag17-executor.js) hashes `parsed.metadata`, and 1.4.3b's legacy code path set `metadata.maxChars`/`metadata.overlapChars` to `null` instead of omitting them — a shape no pre-1.4.2b row ever had, so `parsedArtifactContentHash` mismatched every already-persisted parser-1 row and Stage 2 still 409'd (`GENESISRAG17_PARSED_IDENTITY_CONFLICT`) on any resume/replay that re-runs it. Fixed by omitting both keys for a legacy request, restoring metadata byte-identical to the pre-remediation shape; a `splitRange` overlap corner case (a paragraph break immediately followed by a combining mark could re-emit a chunk fully contained in the previous one on malformed input) is also closed with an explicit forward-progress guard. Proven by a real ingest -> FR-071 replay -> Stage 2 integration test (`tests/integration/genesisrag17-tier1.test.js`) and a pinned-metadata/hash regression unit test (`tests/unit/genesisrag17-executor-legacy-resume.test.js`). No wire field, pin value, parser-2 output or new-ingestion parser-3 output changed | Claude Sonnet 5 |
 | 1.4.3b | 2026-09-25 | active | Fixes to the 1.4.2b remediation: (1) the overlap step could stall near a paragraph/sentence boundary, moving `cursor` forward by only 1 character and re-finding the same cut repeatedly, emitting long runs of near-duplicate or whitespace-only slivers — fixed by skipping the overlap entirely whenever the chunk just cut is not longer than the overlap budget, and otherwise moving directly to a boundary-aligned overlap start strictly between the previous cursor and the cut, guaranteeing forward progress; (2) the overlap start is now actually searched for the same paragraph/sentence/whitespace boundary preference as the cut itself, not only nudged for grapheme safety, matching what this doc already claimed; (3) a persisted parser-1/chunker-1 intent (recorded before 1.4.2b) now resumes and replays through the historical splitter unchanged instead of 400/409ing on `resumeGenesisRag17Worker` or the FR-071 replay path — see the Tier 1 Stage 2/7/8 profiles section. No wire field, pin value, parser-2 or new-ingestion parser-3 output changed | Claude Sonnet 5 |
 | 1.4.2b | 2026-09-24 | active | TEXT-profile Tier 1-internal identity becomes `genesisrag17-parser-3` / `genesisrag17-chunker-2` — adds a 480-character budget (arithmetic in the profile bullet) alongside the existing 80-whitespace-token budget so a spaceless-script (Thai) prose source cannot silently exceed the pinned e5 embedder's 512-token window; boundary-preferred cuts, ≤60-character overlap, never splits a combining mark or surrogate pair. `genesisrag17-parser-1`/`-chunker-1` recorded as historical-only. No wire field, pin value or SMARTGIFT_CATALOG parser-2 behavior changed; verified no GKS/MSP/worker code validates the parser-identity string (Tier 1-internal, confirmed unchanged) | Claude Sonnet 5 |
 | 1.4.1b | 2026-09-24 | active | Wording only, D5 remediation: record that the `ontology_v2` / `genesisrag17-parser-2` pins from 1.4.0b are in effect on the production edge deployment since 2026-09-21, not still conditional on a future merge; no wire field, pin value or stage identity changed | Claude Sonnet 5 |

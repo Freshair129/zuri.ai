@@ -272,6 +272,17 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
   if (end <= start) return []
   const ranges = []
   let cursor = start
+  // Tracks the `end` of the last emitted chunk so the boundary-nudge below
+  // can never emit a chunk fully contained in the previous one. That shape
+  // is otherwise reachable: when a paragraph break is immediately followed
+  // by a combining mark, `safeChunkBoundary` nudges the cut back to land
+  // between the two newlines, and the NEXT window's overlap start (searched
+  // from that same nudged cut) can re-find the identical boundary, emitting
+  // `cutEnd <= previousCutEnd`. It never affects correctness on well-formed
+  // text (offsets stay exact, chunks stay <= maxChars, forward progress
+  // still holds) — it only surfaces on malformed input with a combining
+  // mark straight after a paragraph break — but it is cheap to close.
+  let previousCutEnd = start - 1
   while (cursor < end) {
     const charBudgetEnd = Math.min(end, cursor + maxChars)
     const tokens = [...content.slice(cursor, charBudgetEnd).matchAll(/\S+/gu)]
@@ -289,6 +300,14 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       if (cutEnd <= cursor) cutEnd = safeChunkBoundary(content, windowEnd, cursor, end)
       if (cutEnd <= cursor) cutEnd = Math.min(end, cursor + 1)
     }
+    if (cutEnd <= previousCutEnd) {
+      // Force strictly-forward progress past the previous chunk's end.
+      // `safeChunkBoundary`'s lower bound is `previousCutEnd`, so its
+      // backward nudge can reach no further than `previousCutEnd` itself
+      // (never below it) before falling through to its forward search.
+      cutEnd = safeChunkBoundary(content, Math.min(end, previousCutEnd + 1), previousCutEnd, end)
+    }
+    previousCutEnd = cutEnd
     if (content.slice(cursor, cutEnd).trim()) ranges.push({ start: cursor, end: cutEnd })
     if (cutEnd >= end) break
     const chunkLength = cutEnd - cursor
@@ -442,6 +461,30 @@ export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArt
       ordinal += 1
     }
   }
+  // The character budget and overlap that bound every chunk alongside
+  // maxTokens below (whichever limit a section hits first). A legacy
+  // request must produce metadata BYTE-IDENTICAL to the pre-remediation
+  // shape — not merely "these two fields are null" — because
+  // `parsedArtifactContentHash` hashes this object (source.js
+  // `hashGenesisRag17Text(JSON.stringify(metadata))`-style below) and any
+  // difference from an already-persisted parser-1 row makes
+  // `ensureParsedArtifact` in genesisrag17-executor.js see a content-hash
+  // mismatch and throw GENESISRAG17_PARSED_IDENTITY_CONFLICT (409) on
+  // resume/replay of that historical row. The pre-remediation shape has
+  // NEITHER key present (not `null`), so they are omitted entirely for a
+  // legacy request rather than set to `null`.
+  const metadata = {
+    extractorVersion: resolvedParserVersion,
+    chunkerVersion: isLegacyRequest ? GENESIS_RAG17_CHUNKER_VERSION : GENESIS_RAG17_CHUNKER_VERSION_2,
+    maxTokens: boundedMaxTokens,
+  }
+  if (!isLegacyRequest) {
+    metadata.maxChars = GENESIS_RAG17_DEFAULT_MAX_CHARS
+    metadata.overlapChars = GENESIS_RAG17_DEFAULT_OVERLAP_CHARS
+  }
+  metadata.headingCount = (text.match(/^#{1,6}\s+/gmu) || []).length
+  metadata.textBlockCount = textBlocks.length
+  metadata.chunkCount = chunks.length
   const parsed = {
     schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
     documentId,
@@ -452,20 +495,7 @@ export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArt
     structure,
     textBlocks,
     tables: [],
-    metadata: {
-      extractorVersion: resolvedParserVersion,
-      chunkerVersion: isLegacyRequest ? GENESIS_RAG17_CHUNKER_VERSION : GENESIS_RAG17_CHUNKER_VERSION_2,
-      maxTokens: boundedMaxTokens,
-      // The character budget and overlap that bound every chunk alongside
-      // maxTokens above (whichever limit a section hits first). Historical
-      // (legacy) requests never had either, so both are recorded as null —
-      // matching the pre-remediation metadata shape exactly.
-      maxChars: isLegacyRequest ? null : GENESIS_RAG17_DEFAULT_MAX_CHARS,
-      overlapChars: isLegacyRequest ? null : GENESIS_RAG17_DEFAULT_OVERLAP_CHARS,
-      headingCount: (text.match(/^#{1,6}\s+/gmu) || []).length,
-      textBlockCount: textBlocks.length,
-      chunkCount: chunks.length,
-    },
+    metadata,
   }
   return { parsed, chunks }
 }
