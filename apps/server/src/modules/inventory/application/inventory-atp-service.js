@@ -237,8 +237,7 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
     // Compare-and-swap on (id, version, ACTIVE): the check above reads a
     // snapshot, and under PostgreSQL READ COMMITTED two concurrent calls with
     // the same version both pass it. Only the one whose update still matches
-    // wins; the other is refused and rolls back whatever it wrote before
-    // (for CONVERT, its committed ORDER hold).
+    // wins; the other is refused before it writes anything else.
     const casUpdate = async (fields) => {
       const result = await tx.stockReservation.updateMany({
         where: { id: row.id, version: row.version, status: 'ACTIVE' },
@@ -255,10 +254,15 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
       if (row.purpose === 'ORDER') throw failure(409, 'STOCK_RESERVATION_ALREADY_COMMITTED')
       const salesOrderId = data.salesOrderId ?? row.salesOrderId
       if (!salesOrderId) throw failure(422, 'STOCK_RESERVATION_ORDER_REQUIRES_SALES_ORDER')
-      // The quote hold ends CONVERTED and a committed one takes its place, so
-      // the stock is never briefly free between the two.
+      // The quote hold ends CONVERTED and a committed one takes its place in the
+      // same transaction, so the stock is never briefly free between the two.
+      // The compare-and-swap comes FIRST: a concurrent CONVERT of the same hold
+      // waits on the row, finds it no longer at its version and is refused here,
+      // before it allocates a day-keyed ORDER code (two same-day CONVERTs would
+      // otherwise collide on that code before either reached the version check).
       change.status = 'CONVERTED'
       change.convertedAt = now
+      await casUpdate(change)
       const code = await nextCode(tx, business, now)
       const committed = await tx.stockReservation.create({
         data: {
@@ -268,7 +272,6 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
         },
         select: RESERVATION_SELECT,
       })
-      await casUpdate(change)
       await recordAudit(tx, {
         entityType: STOCK_RESERVATION_ENTITY, entityId: row.id, action: ACTIONS.CONVERT, actorId: actor(viewer),
         payload: { businessId: business.id, code: row.code, committedCode: committed.code, salesOrderId, quantity: row.quantity, version: row.version + 1 },

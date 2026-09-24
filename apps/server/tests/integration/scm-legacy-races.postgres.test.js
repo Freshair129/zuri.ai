@@ -346,7 +346,10 @@ runPostgres('SCM legacy races on PostgreSQL (F-1, F-9, F-12)', () => {
     const result = await race('product', (client, i) => createReservation({ businessId: business.id, productId: item.id, quantity: 6, purpose: 'QUOTE', holdDays: 30, quoteReference: `Q-RACE-${i}` }, { viewer, db: client, now: new Date(Date.UTC(2026, 1, 1 + i, 3)) }))
     expect(result).toEqual({ reached: 2, won: 1, refusals: ['STOCK_RESERVATION_INSUFFICIENT_ATP'] })
     const held = (await db.stockReservation.aggregate({ where: { productId: item.id, status: 'ACTIVE' }, _sum: { quantity: true } }))._sum.quantity ?? 0
-    expect({ held, holds: await db.stockReservation.count({ where: { productId: item.id } }) }).toEqual({ held: 6, holds: 1 })
+    const holds = await db.stockReservation.findMany({ where: { productId: item.id }, select: { id: true } })
+    // The loser left no hold and no audit record: exactly one CREATED audit, and it names the one hold that exists.
+    const created = await db.auditEvent.findMany({ where: { action: 'STOCK_RESERVATION_CREATED', payloadJson: { contains: item.id } }, select: { entityId: true } })
+    expect({ held, holds: holds.map((h) => h.id), created: created.map((a) => a.entityId) }).toEqual({ held: 6, holds: [holds[0].id], created: [holds[0].id] })
   }, 120000)
 
   // F-17: RELEASE / CONVERT check the hold's version and then update it. Both
@@ -363,5 +366,21 @@ runPostgres('SCM legacy races on PostgreSQL (F-1, F-9, F-12)', () => {
     const orders = await db.stockReservation.count({ where: { productId: item.id, purpose: 'ORDER', salesOrderId: 'so-rsv-race' } })
     const quoteAfter = await db.stockReservation.findUnique({ where: { id: quote.id }, select: { status: true, version: true } })
     expect({ orders, quoteAfter, converted: await audits(quote.id, 'STOCK_RESERVATION_CONVERTED') }).toEqual({ orders: 1, quoteAfter: { status: 'CONVERTED', version: quote.version + 1 }, converted: 1 })
+  }, 120000)
+
+  // F-17, same day: the two CONVERTs share one clock day, so they would draw the
+  // same day-keyed ORDER code. The compare-and-swap runs before the code is
+  // allocated, so the loser must still be refused with the version conflict —
+  // never with a unique-code collision — and allocate nothing.
+  it('F-17: two same-day CONVERTs that read the same version are decided by the version check, not a code collision', async () => {
+    const viewer = owner('per-rsv-convert-day')
+    const item = await product('SKU-RSV-CONVERT-DAY')
+    await recordMovement({ businessId: business.id, productId: item.id, kind: 'RECEIPT', quantity: 10 }, { viewer, db })
+    const quote = await createReservation({ businessId: business.id, productId: item.id, quantity: 4, purpose: 'QUOTE' }, { viewer, db })
+    const day = new Date(Date.UTC(2026, 3, 1, 3))
+    const result = await race('stockReservation', (client) => applyReservationAction(quote.id, { businessId: business.id, action: 'CONVERT', version: quote.version, salesOrderId: 'so-rsv-day' }, { viewer, db: client, now: day }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['STOCK_RESERVATION_VERSION_CONFLICT'] })
+    const orders = await db.stockReservation.count({ where: { productId: item.id, purpose: 'ORDER', salesOrderId: 'so-rsv-day' } })
+    expect({ orders, converted: await audits(quote.id, 'STOCK_RESERVATION_CONVERTED') }).toEqual({ orders: 1, converted: 1 })
   }, 120000)
 })
