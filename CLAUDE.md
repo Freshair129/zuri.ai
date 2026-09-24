@@ -142,29 +142,33 @@ docker compose up -d --build web
 ```
 
 **That command includes the ADR-061 LINE server overlay only because `apps/server/.env`
-says so.** `.env` sets `COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml`
-and `COMPOSE_PROFILES=line-server`; without them `web` comes up with no
-`ZURI_LINE_SERVER_ENABLED`, no worker token and no credential mount, and answers every
-LINE delivery and every edge job claim with 503. That happened on 2026-09-10/11 and
-lasted about eleven hours ([RCA](.brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md)).
-An explicit `-f` on the command line **replaces** `COMPOSE_FILE`, so a deploy that
-passes `-f` (the deploy-override pattern) must list both files and
-`--profile line-server` itself. After any deploy, check that the web container's
-`com.docker.compose.project.config_files` label names both files and that
-`docker exec zuri-ai-web-1 sh -c 'printf %s "$ZURI_LINE_SERVER_ENABLED"'` prints `true`.
-
-**(2026-09-24) `COMPOSE_FILE` now lists four files, not two.** The live value is
-`docker-compose.yml;docker-compose.line-server.yml;docker-compose.cold-archive.yml;docker-compose.ki17-web.yml`.
-The added `docker-compose.ki17-web.yml` overlay selects the `runner-ki17` build
-target the GenesisRAG17 knowledge pipeline needs — it is not optional bolt-on,
-`web` is built from that target in production. The knowledge/MSP/GKS/worker
-variables (`ZURI_KNOWLEDGE_ENABLED`, `ZURI_KNOWLEDGE_STORAGE_ENABLED`,
-`ZURI_KNOWLEDGE_BINDINGS`, `MSP_PIPELINE_PRINCIPALS`, …) are **not** in this
-`.env`; they live in a second `env_file`, `apps/server/.env.knowledge`. A deploy
-that recreates `web` must therefore keep both env files in place, and must
-recreate `genesis-worker` afterwards — recreating `web` alone leaves the worker
-on a stale image/namespace
-([RCA](.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)).
+says so.** As of 2026-09-24 `.env` sets
+`COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.cold-archive.yml;docker-compose.ki17-web.yml`
+(four files — cold-archive and ki17-web joined line-server later) and
+`COMPOSE_PROFILES=line-server`; without every one of those files `web` comes up with no
+`ZURI_LINE_SERVER_ENABLED`, no worker token, no credential mount, no `/archive` mount, and
+none of `docker-compose.ki17-web.yml`'s `runner-ki17` build target — that overlay is
+opt-in in this repo (its own header calls it that) but required on the production host,
+because without it `web` silently rebuilds from the base `runner` target with no
+`/opt/ki17`, and every GenesisRAG17 Stage 9 batch stays PENDING behind a green
+healthcheck. `web` answers every LINE delivery and every edge job claim with 503 when
+line-server is missing too; that happened on 2026-09-10/11 and lasted about eleven hours
+([RCA](.brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md)). The
+knowledge/MSP/GKS/worker variables the ki17-web overlay's pipeline needs
+(`ZURI_KNOWLEDGE_ENABLED`, `ZURI_KNOWLEDGE_STORAGE_ENABLED`, `ZURI_KNOWLEDGE_BINDINGS`,
+`MSP_PIPELINE_PRINCIPALS`, …) are **not** in this `.env` — they live in a second
+`env_file`, `apps/server/.env.knowledge`, that a web recreate must keep in place
+alongside it. An explicit `-f` on the command line **replaces** `COMPOSE_FILE`, so a
+deploy that passes `-f` (the deploy-override pattern) must list all four files itself,
+and both `--profile line-server` **and** `--profile knowledge` — the latter is also
+required to recreate `genesis-worker`, which must happen after every `web` recreate:
+`genesis-worker` runs in `network_mode: service:web`, so its loopback namespace belongs
+to the `web` container instance and goes dead (its own pinned image is untouched) when
+`web` is replaced without it also being recreated
+([RCA](.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)). After any deploy, check
+that the web container's `com.docker.compose.project.config_files` label names all four
+files and that `docker exec zuri-ai-web-1 sh -c 'printf %s "$ZURI_LINE_SERVER_ENABLED"'`
+prints `true`.
 
 **`.env` has to be at `apps/server/.env`.** It is the one file `env_file` marks
 `required: true`, and compose looks for it beside the compose file, not at the
