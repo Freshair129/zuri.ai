@@ -37,6 +37,16 @@ texts come from the Phase 2 test corpus. Checked with `--check` against the two 
 `IN_CATEGORY eco-friendly` claim text is byte-equal to a test gold text, so the worker would
 score them on that one query. Neither outcome is usable for real records.
 
+The id query, run with `node` and `pg` over `DATABASE_URL` inside `zuri-ai-web-1`
+(read-only; it returns keys and statuses only):
+
+```sql
+select s."sourceKey", s.kind,
+       (select i.status from "KnowledgeIngestion" i
+         where i."sourceId" = s.id order by i."createdAt" desc limit 1) as latest_status
+from "KnowledgeSource" s order by s."createdAt";
+```
+
 ## Where the file came from
 
 The same bytes sit in the SmartGift data-pipeline repository

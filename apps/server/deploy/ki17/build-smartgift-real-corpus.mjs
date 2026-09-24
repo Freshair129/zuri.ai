@@ -4,7 +4,7 @@
 //
 // Why: the worker scores exact chunk text (`relevantTexts`), and scopes each
 // benchmark to the candidate generation. A benchmark derived from the test corpus
-// does not match real records' chunks: checked on 2026-09-24, 20 of the 22 real
+// does not cover real records' chunks: checked on 2026-09-24, 20 of the 22 real
 // records have no applicable query and the other 2 share only one category claim
 // with it, so a real upload cannot be judged by it. Here every gold text is produced by the same code path
 // production uses: splitSmartGiftCatalogRecords -> renderStructuredCatalogDocument,
