@@ -29,7 +29,7 @@ describe('SUBPLAN-ROADMAP-MOBILE canonical evidence presentation', () => {
     expect(html).toContain('ISOLATED ACCEPTED')
     expect(html).toContain('production-activation-gate')
     expect(html).toContain(productionGate.id)
-    expect(html).toContain('NOT STARTED')
+    expect(html).toContain(productionGate.implementationState.replace(/_/g, ' '))
     expect(html).toContain('proof')
     expect(html).toContain('implementation')
     expect(html).toContain('TASK-ZAI-119')
