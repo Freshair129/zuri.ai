@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-109
 title: "SCM service extraction — one deployable over Inventory, Procurement and Commerce"
-version: "0.1.4b"
+version: "0.1.5b"
 status: candidate
 created_at: "2026-09-24T14:00:00+07:00,Claude Opus 5.5"
-last_update: "2026-09-24T22:30:00+07:00,Claude Opus 5.5"
+last_update: "2026-09-24T11:55:00+07:00,Claude Opus 5.5"
 author: Claude Opus 5.5 (Session 5)
 attributes:
   doc_type: architecture-decision
@@ -206,6 +206,11 @@ For this candidate revision:
 - **Sales orders (0.1.3b):** 150 service tests (149 pass, 1 NOT_RUN on
   Windows), including legacy AC-162.1–162.6, the Commerce cohort end to end, an
   order CAS interleaving test and a two-process fulfilment race.
+- **Pricing rules (0.1.5b):** draft/update/approve/revoke and calculation move
+  whole onto the parity-pinned kernel; the seven legacy FR-253 cases are
+  mirrored, plus normalized-key, replay-guard, store-immutability, CAS
+  interleaving and two-process tests. 173 service tests (172 pass, 1 NOT_RUN on
+  Windows); legacy pricing regression 173/173.
 - **Revenue read model (0.1.4b):** 7 pinned queries with a golden recorded by
   the legacy engine; the SCM read model reproduces it from its own store (8/8
   both sides). 158 service tests (157 pass, 1 NOT_RUN on Windows).
@@ -227,4 +232,5 @@ For this candidate revision:
 | 0.1.1b | 2026-09-24 | candidate | POS checkout moved whole; ReferenceAuthority consequence; POS/payments/sales orders switch together | d2a73275 | Claude Opus 5.5 (Session 5) |
 | 0.1.2b | 2026-09-24 | candidate | Payments (record/verify/reject/refund) moved whole | dab82845 | Claude Opus 5.5 (Session 5) |
 | 0.1.3b | 2026-09-24 | candidate | Sales orders (create/actions/fulfilment/list) moved whole; all Commerce writers now in SCM | 7ee12a29 | Claude Opus 5.5 (Session 5) |
-| 0.1.4b | 2026-09-24 | candidate | Revenue read model on the SCM store, parity-pinned | uncommitted | Claude Opus 5.5 (Session 5) |
+| 0.1.4b | 2026-09-24 | candidate | Revenue read model on the SCM store, parity-pinned | 105d90c7 | Claude Opus 5.5 (Session 5) |
+| 0.1.5b | 2026-09-24 | candidate | Pricing rules lifecycle + calculation moved whole; catalog freeze stays behind SCM-FILES/SCM-KNOWLEDGE (F-11) | uncommitted | Claude Opus 5.5 (Session 5) |
