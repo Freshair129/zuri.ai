@@ -18,7 +18,7 @@ relations:
 **Owner:** Session 5. **Branch:** `feat/scm-service-extraction`, worktree
 `.claude/worktrees/scm-service-extraction`. **Base:** `main` @ `fad8ec62`.
 **Tested implementation SHA:** `7726b99b`. This file and ADR-109 are a later
-doc-only commit on top. **PR:** none yet. **Merge:** NOT_MERGED.
+doc-only commit on top. **PR:** [#546](https://github.com/Freshair129/zuri.ai/pull/546) — OPEN / DRAFT, not for merge. **Merge:** NOT_MERGED.
 **Production:** NOT_RUN. Nothing routes to the SCM process; no data, stock,
 price or credential was touched.
 
@@ -230,7 +230,7 @@ base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
 code_head_sha: 7726b99b3df5f349360afe375395945d3a93156d
 handoff_source_commit: "the doc commit after 7726b99b on feat/scm-service-extraction"
 branch: feat/scm-service-extraction
-pr_number: null
+pr_number: 546
 current_tranche: S5.3 (slice done) → S5.4 next
 execution_status: IN_PROGRESS
 merge_status: NOT_MERGED
@@ -268,7 +268,7 @@ board_update: BOARD_UPDATE_PENDING
 
 ## 10. Next exact action
 
-1. Open a draft PR (not for merge) so hosted checks run on `feat/scm-service-extraction`.
+1. Read the hosted check results on PR #546 and record them here (CI_VERIFIED is NOT_RUN until then).
 2. S5.4 first group: characterize `checkoutPosSale`, then move it whole:
    - SalesOrder + PENDING Payment + ISSUE with FEFO/dedication/shelf life + audit;
    - stays PENDING (never VERIFIED);
