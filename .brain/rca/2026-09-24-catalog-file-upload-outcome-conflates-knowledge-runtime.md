@@ -39,7 +39,7 @@ stored.
   original bytes"` from `apps/server`; one targeted test failed, nine were
   skipped by the test-name filter.
 - After the change, the focused uploader/UI/A-B command completed with 3 test
-  files and 32 tests passed, zero skipped, exit 0. The B fixture now observes a
+  files and 33 tests passed, zero skipped, exit 0. The B fixture now observes a
   stored original and an explicit `UNAVAILABLE` Knowledge outcome.
 
 ## Root Cause
