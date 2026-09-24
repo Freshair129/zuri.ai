@@ -50,7 +50,10 @@ let facadeServer, facadeUrl, core
 const savedEnv = { token: process.env.MARKET_CORE_TOKEN, executor: process.env.MARKET_EXECUTOR }
 
 // A minimal Node HTTP bridge in front of the Next route handler, so the consumer
-// crosses a real socket exactly as it would in production.
+// crosses a real socket exactly as it would in production. It buffers the request
+// body before building the Request, so it does NOT prove the route's pre-buffer
+// 16 KiB cap; readBoundedBody's streaming behaviour is proven in
+// tests/unit/market-intelligence/market-core-facade.test.js.
 function startFacade() {
   const server = createServer(async (req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1')
@@ -70,12 +73,36 @@ function startFacade() {
       headers,
       body: req.method === 'GET' || req.method === 'HEAD' ? undefined : Buffer.concat(chunks),
     })
-    const handler = req.method === 'GET' ? GET : POST
-    const response = await handler(request, { params: Promise.resolve({ operation: decodeURIComponent(match[1]) }) })
-    res.writeHead(response.status, Object.fromEntries(response.headers))
-    res.end(Buffer.from(await response.arrayBuffer()))
+    try {
+      const handler = req.method === 'GET' ? GET : POST
+      const response = await handler(request, { params: Promise.resolve({ operation: decodeURIComponent(match[1]) }) })
+      res.writeHead(response.status, Object.fromEntries(response.headers))
+      res.end(Buffer.from(await response.arrayBuffer()))
+    } catch {
+      // A thrown handler must answer, not leave the consumer waiting for its timeout.
+      if (!res.headersSent) res.writeHead(500, { 'content-type': 'application/json' })
+      res.end('{"error":"bridge: handler threw"}')
+    }
   })
-  return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(server)))
+  return new Promise((resolve, reject) => {
+    server.once('error', reject)
+    server.listen(0, '127.0.0.1', () => {
+      server.off('error', reject)
+      resolve(server)
+    })
+  })
+}
+
+// Settles whether or not the server ever started, so a failed beforeAll cannot hang
+// the teardown or skip the env restore that follows it.
+function closeServer(server) {
+  if (!server?.listening) return Promise.resolve()
+  return new Promise((resolve) => server.close(() => resolve()))
+}
+
+function restoreEnv(name, value) {
+  if (value === undefined) delete process.env[name]
+  else process.env[name] = value
 }
 
 function memoryStoreFactory() {
@@ -167,11 +194,12 @@ describe('market-core.v1: Market service consumer against the real façade over 
   })
 
   afterAll(async () => {
-    await new Promise((resolve) => facadeServer?.close(resolve))
-    if (savedEnv.token === undefined) delete process.env.MARKET_CORE_TOKEN
-    else process.env.MARKET_CORE_TOKEN = savedEnv.token
-    if (savedEnv.executor === undefined) delete process.env.MARKET_EXECUTOR
-    else process.env.MARKET_EXECUTOR = savedEnv.executor
+    try {
+      await closeServer(facadeServer)
+    } finally {
+      restoreEnv('MARKET_CORE_TOKEN', savedEnv.token)
+      restoreEnv('MARKET_EXECUTOR', savedEnv.executor)
+    }
   })
 
   it('health, execution ownership and the service credential', async () => {
