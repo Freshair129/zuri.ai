@@ -2,7 +2,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { parse } from 'pg-connection-string'
-import { resolveLoopbackPostgresTarget, verifyClusterLevelMarker } from '../helpers/loopback-postgres-target.js'
+import {
+  disposableSentinelDatabase,
+  resolveLoopbackPostgresTarget,
+  verifyDisposableClusterSentinel,
+} from '../helpers/loopback-postgres-target.js'
 
 // @req FR-054 — the runtime isolation probe's destructive suite may only reach a dedicated loopback database.
 // @req FR-055 — the LINE activation destructive suites may only reach a dedicated loopback database.
@@ -81,39 +85,52 @@ describe('loopback PostgreSQL test-target resolver', () => {
   })
 })
 
-describe('cluster-level disposable marker', () => {
-  const MARKER = 'guard-disposable:1'
-  const options = { setting: 'zuri.guard_disposable_cluster', expectedMarker: MARKER, markerPattern: /^guard-disposable:\d$/, errorPrefix: 'GUARD_TEST' }
+describe('disposable-cluster sentinel database', () => {
+  const MARKER = 'guard-disposable:11111111-2222-4333-8444-555555555555'
+  const SENTINEL = 'zuri_guard_disposable_11111111222243338444555555555555'
+  const options = { expectedMarker: MARKER, markerPattern: /^guard-disposable:[0-9a-f-]{36}$/, sentinelPrefix: 'zuri_guard_disposable', errorPrefix: 'GUARD_TEST' }
   const client = (row) => ({ query: vi.fn(async () => ({ rows: [row] })) })
-  const good = { effective: MARKER, file_value: MARKER, has_db_role_override: false }
 
-  it('accepts a marker set in postgresql.conf / ALTER SYSTEM, in force, with no database or role entry', async () => {
-    const c = client(good)
-    await expect(verifyClusterLevelMarker(c, options)).resolves.toBeUndefined()
-    expect(c.query).toHaveBeenCalledWith(expect.stringContaining('pg_file_settings'), ['zuri.guard_disposable_cluster'])
-    expect(c.query.mock.calls[0][0]).toContain('pg_db_role_setting')
+  it('derives the sentinel name from the marker uuid, within the 63-byte identifier limit', () => {
+    expect(disposableSentinelDatabase(MARKER, 'zuri_guard_disposable')).toBe(SENTINEL)
+    expect(disposableSentinelDatabase('x:AAAAAAAA-BBBB-4CCC-8DDD-EEEEEEEEEEEE', 'zuri_fr055_disposable'))
+      .toBe('zuri_fr055_disposable_aaaaaaaabbbb4ccc8dddeeeeeeeeeeee')
+    expect('zuri_fr055_disposable_aaaaaaaabbbb4ccc8dddeeeeeeeeeeee'.length).toBeLessThanOrEqual(63)
+    expect(() => disposableSentinelDatabase('no-uuid', 'p')).toThrow('DISPOSABLE_SENTINEL_MARKER_INVALID')
+  })
+
+  it('accepts the marker only when exactly its sentinel database exists on the connected cluster', async () => {
+    const c = client({ matches: 1 })
+    await expect(verifyDisposableClusterSentinel(c, options)).resolves.toBeUndefined()
+    expect(c.query).toHaveBeenCalledWith(expect.stringContaining('pg_catalog.pg_database'), [SENTINEL])
+  })
+
+  it('reads only the shared catalog, fully schema-qualified, and never a setting', async () => {
+    const c = client({ matches: 1 })
+    await verifyDisposableClusterSentinel(c, options)
+    const sql = c.query.mock.calls[0][0]
+    expect(sql).toContain('OPERATOR(pg_catalog.=)')
+    expect(sql).toContain('pg_catalog.count(')
+    expect(sql).not.toMatch(/current_setting|pg_settings|pg_file_settings|pg_db_role_setting/)
   })
 
   it.each([
-    ['absent everywhere', { effective: null, file_value: null, has_db_role_override: false }, 'MISMATCH'],
-    ['a different value in force', { ...good, effective: 'guard-disposable:2' }, 'MISMATCH'],
-    ['set by ALTER DATABASE / ALTER ROLE / SET only (not in the file)', { ...good, file_value: null }, 'NOT_CLUSTER_LEVEL'],
-    ['in the file but also set in pg_db_role_setting', { ...good, has_db_role_override: true }, 'NOT_CLUSTER_LEVEL'],
-    ['in the file with another value, the marker supplied by a higher-priority source', { ...good, file_value: 'guard-disposable:2' }, 'NOT_CLUSTER_LEVEL'],
-    ['an unreadable override flag', { ...good, has_db_role_override: null }, 'NOT_CLUSTER_LEVEL'],
-  ])('fails closed when the marker is %s', async (_label, row, reason) => {
-    await expect(verifyClusterLevelMarker(client(row), options)).rejects.toThrow(`GUARD_TEST_CLUSTER_MARKER_${reason}`)
+    ['absent', { matches: 0 }],
+    ['an unexpected row shape', {}],
+    ['a string count', { matches: '1' }],
+  ])('fails closed when the sentinel is %s', async (_label, row) => {
+    await expect(verifyDisposableClusterSentinel(client(row), options)).rejects.toThrow('GUARD_TEST_CLUSTER_MARKER_MISMATCH')
   })
 
   it('fails closed without querying when the expected marker is malformed', async () => {
-    const c = client(good)
-    await expect(verifyClusterLevelMarker(c, { ...options, expectedMarker: 'x' })).rejects.toThrow('GUARD_TEST_CLUSTER_MARKER_MISMATCH')
+    const c = client({ matches: 1 })
+    await expect(verifyDisposableClusterSentinel(c, { ...options, expectedMarker: 'x' })).rejects.toThrow('GUARD_TEST_CLUSTER_MARKER_MISMATCH')
     expect(c.query).not.toHaveBeenCalled()
   })
 
-  it('propagates a query failure such as an unreadable pg_file_settings', async () => {
-    const c = { query: vi.fn(async () => { throw new Error('permission denied for view pg_file_settings') }) }
-    await expect(verifyClusterLevelMarker(c, options)).rejects.toThrow('permission denied')
+  it('propagates a query failure', async () => {
+    const c = { query: vi.fn(async () => { throw new Error('connection terminated') }) }
+    await expect(verifyDisposableClusterSentinel(c, options)).rejects.toThrow('connection terminated')
   })
 })
 

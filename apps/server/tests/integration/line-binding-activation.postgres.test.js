@@ -421,3 +421,48 @@ runPostgres('FR-055 composed LINE binding activation on PostgreSQL 17', () => {
     }
   })
 })
+
+// The disposable-cluster proof is a sentinel database, not a setting: a
+// written-but-unreloaded ALTER SYSTEM value plus a startup option (client
+// `options`, or PGOPTIONS, which node-postgres forwards) makes current_setting()
+// report any marker, and must not satisfy the guard. Runs only after the real
+// sentinel has proven this cluster disposable, and resets what it writes.
+runPostgres('FR-055 disposable-cluster guard is not satisfiable by settings on PostgreSQL 17', () => {
+  it('refuses a marker with no sentinel even when a stale ALTER SYSTEM file and startup options make current_setting match', async () => {
+    const admin = new Client({ connectionString: adminUrl })
+    const spoofMarker = `fr055-w4-disposable:${crypto.randomUUID()}`
+    const spoofOptions = `-c zuri.fr055_disposable_cluster=${spoofMarker}`
+    let fileWritten = false
+    await admin.connect()
+    try {
+      await verifyDisposableClusterMarker(admin, target.clusterMarker)
+      await admin.query(`alter system set zuri.fr055_disposable_cluster = '${spoofMarker}'`)
+      fileWritten = true // deliberately no pg_reload_conf(): the file is stale
+
+      const viaOptions = new Client({ connectionString: adminUrl, options: spoofOptions })
+      const previousPgOptions = process.env.PGOPTIONS
+      process.env.PGOPTIONS = spoofOptions
+      const viaEnv = new Client({ connectionString: adminUrl })
+      if (previousPgOptions === undefined) delete process.env.PGOPTIONS
+      else process.env.PGOPTIONS = previousPgOptions
+
+      for (const spoofed of [viaOptions, viaEnv]) {
+        await spoofed.connect()
+        try {
+          const { rows: [row] } = await spoofed.query(
+            "select current_setting('zuri.fr055_disposable_cluster', true) as marker",
+          )
+          expect(row.marker).toBe(spoofMarker)
+          await expect(verifyDisposableClusterMarker(spoofed, spoofMarker))
+            .rejects.toThrow('LINE_ACTIVATION_TEST_CLUSTER_MARKER_MISMATCH')
+          await expect(verifyDisposableClusterMarker(spoofed, target.clusterMarker)).resolves.toBeUndefined()
+        } finally {
+          await spoofed.end()
+        }
+      }
+    } finally {
+      if (fileWritten) await admin.query('alter system reset zuri.fr055_disposable_cluster')
+      await admin.end()
+    }
+  })
+})

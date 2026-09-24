@@ -1,7 +1,7 @@
 // @req FR-055 — guard cluster-global test DDL with target, intent and disposable-cluster proof.
 // @spec NFR-013, BR-014, SDD-028, SEC-012 — fail closed before any role mutation.
 // @tested tests/unit/fr055-postgres-target-guard.test.js, tests/integration/line-binding-activation.postgres.test.js, tests/integration/controlled-line-activation.postgres.test.js
-import { resolveLoopbackPostgresTarget, verifyClusterLevelMarker } from './loopback-postgres-target.js'
+import { resolveLoopbackPostgresTarget, verifyDisposableClusterSentinel } from './loopback-postgres-target.js'
 
 export const DESTRUCTIVE_OPT_IN = 'YES_DROP_FR055_TEST_ROLES'
 export const FR055_FIXED_TEST_ROLES = Object.freeze([
@@ -35,14 +35,18 @@ export function parseFr055PostgresTarget({ databaseUrl, destructiveOptIn, cluste
   return { enabled: true, databaseUrl: target.databaseUrl, clusterMarker }
 }
 
-// The marker must be set at cluster level (postgresql.conf or ALTER SYSTEM) on
-// the connection that will run the DDL; a database, role or session value does
-// not qualify — see verifyClusterLevelMarker.
+// The per-run marker is proven by a sentinel database on the connected cluster,
+// read on the connection that will run the DDL, before any of it — see
+// verifyDisposableClusterSentinel. On the disposable cluster:
+//   create database zuri_fr055_disposable_<uuid v4 without dashes>
+//   ZURI_FR055_TEST_CLUSTER_MARKER=fr055-w4-disposable:<the same uuid, with dashes>
+export const FR055_SENTINEL_PREFIX = 'zuri_fr055_disposable'
+
 export async function verifyDisposableClusterMarker(client, expectedMarker) {
-  await verifyClusterLevelMarker(client, {
-    setting: 'zuri.fr055_disposable_cluster',
+  await verifyDisposableClusterSentinel(client, {
     expectedMarker,
     markerPattern: MARKER_PATTERN,
+    sentinelPrefix: FR055_SENTINEL_PREFIX,
     errorPrefix: 'LINE_ACTIVATION_TEST',
   })
 }

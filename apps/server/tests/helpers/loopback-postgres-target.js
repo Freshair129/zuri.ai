@@ -65,41 +65,39 @@ export function resolveLoopbackPostgresTarget(databaseUrl, { database, errorPref
   }
 }
 
-// A per-run cluster marker proves the connected cluster is the disposable one
-// only if it is set at CLUSTER level. current_setting() alone is not enough:
-// PostgreSQL also takes a value from ALTER DATABASE ... SET, ALTER ROLE ... SET,
-// connection options or SET, so a database on a shared cluster could satisfy it
-// while the suite drops cluster-global roles. Custom (placeholder) settings are
-// not listed in pg_settings, so their source cannot be read there. Instead:
-//   - the marker must be the applied value in pg_file_settings, i.e. set in
-//     postgresql.conf or by ALTER SYSTEM (a server-start `-c` is not listed there
-//     and does not qualify);
-//   - the effective value must equal it, so no other source overrides it;
-//   - pg_db_role_setting may hold no entry for the setting at all.
-// pg_file_settings is readable only by superusers or pg_read_all_settings; an
-// unreadable view throws, which also fails closed. Everything is read on the
-// connection that will run the DDL.
-const CLUSTER_MARKER_SQL = `
-  select
-    current_setting($1, true) as effective,
-    (
-      select f.setting from pg_file_settings f
-      where lower(f.name) = lower($1) and f.applied and f.error is null
-      order by f.seqno desc limit 1
-    ) as file_value,
-    exists (
-      select 1 from pg_db_role_setting s
-      cross join lateral unnest(s.setconfig) as c(entry)
-      where lower(split_part(c.entry, '=', 1)) = lower($1)
-    ) as has_db_role_override
+// A per-run marker proves the connected cluster is the disposable one only if
+// nothing but a deliberate, cluster-level act on that cluster can produce it.
+// A GUC cannot give that proof. Its effective value can come from ALTER DATABASE
+// or ALTER ROLE ... SET, SET, or a startup option (PGOPTIONS, which node-postgres
+// forwards). And pg_file_settings shows the file, not what the server loaded, so
+// a written-but-unreloaded ALTER SYSTEM plus a startup option also passes a
+// GUC-based check.
+//
+// So the marker is a SENTINEL DATABASE whose name carries the per-run uuid,
+// e.g. `create database zuri_fr054_disposable_<uuid without dashes>`.
+// pg_database is a shared catalog: a row exists there only because someone
+// created that database on this cluster, and no session, startup, database, role
+// or configuration-file value can make one appear. The lookup is
+// schema-qualified down to the operator, so a search_path from PGOPTIONS cannot
+// shadow pg_database, count or `=`. It runs on the connection that will run the
+// DDL, before any of it; GUCs are not consulted at all.
+const UUID_V4 = /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+const SENTINEL_SQL = `
+  select pg_catalog.count(*)::pg_catalog.int4 as matches
+  from pg_catalog.pg_database d
+  where d.datname OPERATOR(pg_catalog.=) $1::pg_catalog.name
 `
 
-export async function verifyClusterLevelMarker(client, { setting, expectedMarker, markerPattern, errorPrefix }) {
+export function disposableSentinelDatabase(marker, sentinelPrefix) {
+  const uuid = String(marker ?? '').match(UUID_V4)?.[0]
+  if (!uuid) throw new Error('DISPOSABLE_SENTINEL_MARKER_INVALID')
+  return `${sentinelPrefix}_${uuid.replaceAll('-', '').toLowerCase()}`
+}
+
+export async function verifyDisposableClusterSentinel(client, { expectedMarker, markerPattern, sentinelPrefix, errorPrefix }) {
   if (!markerPattern.test(expectedMarker ?? '')) throw new Error(`${errorPrefix}_CLUSTER_MARKER_MISMATCH`)
-  const { rows } = await client.query(CLUSTER_MARKER_SQL, [setting])
-  const row = rows?.[0] ?? {}
-  if (row.effective !== expectedMarker) throw new Error(`${errorPrefix}_CLUSTER_MARKER_MISMATCH`)
-  if (row.file_value !== expectedMarker || row.has_db_role_override !== false) {
-    throw new Error(`${errorPrefix}_CLUSTER_MARKER_NOT_CLUSTER_LEVEL`)
-  }
+  const database = disposableSentinelDatabase(expectedMarker, sentinelPrefix)
+  const { rows } = await client.query(SENTINEL_SQL, [database])
+  if (rows?.[0]?.matches !== 1) throw new Error(`${errorPrefix}_CLUSTER_MARKER_MISMATCH`)
 }
