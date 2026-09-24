@@ -29,6 +29,7 @@ import {
 import {
   extractGenesisRag17Mentions,
   GENESIS_RAG17_CHUNKER_VERSION,
+  GENESIS_RAG17_CHUNKER_VERSION_2,
   GENESIS_RAG17_DEFAULT_MAX_TOKENS,
   GENESIS_RAG17_PARSER_VERSION,
   GENESIS_RAG17_PARSER_PROFILES,
@@ -36,6 +37,7 @@ import {
   genesisRag17ParserIdentity,
   genesisRag17ParserProfileForProvider,
   genesisRag17RecognizerIdentity,
+  isHistoricalParserIdentity,
   parseGenesisRag17Document,
   parsedArtifactContentHash,
 } from '@/modules/knowledge/genesisrag17-source'
@@ -84,7 +86,8 @@ import {
 // and recognized by genesisrag17-structured-recognizer-1; its batch carries
 // the rendered parsed content so every chunk stays an exact substring of it.
 // @spec ADR-050, ADR-063, ADR-067, ADR-068, ADR-075, NFR-020, docs/plans/GENESISRAG17-CONTRACT.md
-// @tested tests/integration/genesisrag17-tier1.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/genesisrag17-parser-2.test.js
+// @tested tests/integration/genesisrag17-tier1.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/genesisrag17-parser-2.test.js,
+//         tests/unit/genesisrag17-executor-legacy-resume.test.js
 
 const RAW_SOURCE_TYPE = 'TEXT'
 const RAW_CONTENT_TYPE = 'text/plain'
@@ -178,24 +181,47 @@ function inputValue(input) {
   if (input?.parserVersion !== undefined && source?.parserVersion !== undefined && input.parserVersion !== source.parserVersion) {
     throw serviceError(400, 'GenesisRAG17 parser configuration identity is inconsistent between input and source', 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED')
   }
-  const parserVersion = input?.parserVersion ?? source?.parserVersion
-  let expectedParserVersion
-  try {
-    expectedParserVersion = genesisRag17ParserIdentity({ maxTokens, profile: parserProfile })
-  } catch {
-    throw serviceError(400, 'GenesisRAG17 parser configuration identity is unsupported', 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED')
-  }
-  if (parserVersion !== undefined && parserVersion !== expectedParserVersion) {
-    throw serviceError(400, 'GenesisRAG17 parser configuration identity is unsupported', 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED')
-  }
   if (input?.chunkerVersion !== undefined && source?.chunkerVersion !== undefined && input.chunkerVersion !== source.chunkerVersion) {
     throw serviceError(400, 'GenesisRAG17 chunker configuration identity is inconsistent between input and source', 'GENESISRAG17_CHUNKER_CONFIG_UNSUPPORTED')
   }
+  const parserVersion = input?.parserVersion ?? source?.parserVersion
   const structuredProfile = parserProfile === GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD
-  const chunkerVersion = input?.chunkerVersion ?? source?.chunkerVersion
-  // Parser-2 chunks by rendered section, so no token chunker identity applies.
-  if (chunkerVersion !== undefined && (structuredProfile || chunkerVersion !== GENESIS_RAG17_CHUNKER_VERSION)) {
-    throw serviceError(400, 'GenesisRAG17 chunker configuration identity is unsupported', 'GENESISRAG17_CHUNKER_CONFIG_UNSUPPORTED')
+  const requestedChunkerVersion = input?.chunkerVersion ?? source?.chunkerVersion
+  // Historical resume/replay: a TEXT-profile intent persisted before the
+  // 2026-09-24 FR-109 remediation carries `genesisrag17-parser-1` /
+  // `genesisrag17-chunker-1` verbatim in its stored requestJson. Accepting
+  // that pair unchanged here — instead of re-deriving the current
+  // parser-3/chunker-2 identity and refusing the mismatch — is what lets
+  // `resumeGenesisRag17Worker` (genesisrag17-worker.js) and the FR-071 replay
+  // path (`loadReplayRun` below) keep working for a RUNNING or replayed
+  // intent recorded under the old identity (a historical example: the
+  // 2026-09-24 production probe found run 1db6810c, a TEXT source, still at
+  // nextStageNumber 9 — the same day's deploy record shows the #549 sweep
+  // then closed that run FAILED, so it is no longer live). A NEW ingestion
+  // never supplies this pair —
+  // `genesisRag17ParserIdentity` no longer returns it — so this path is
+  // unreachable for anything but a historical request.
+  const isLegacyTextRequest = !structuredProfile && parserVersion !== undefined && isHistoricalParserIdentity(parserVersion, maxTokens) &&
+    (requestedChunkerVersion === undefined || requestedChunkerVersion === GENESIS_RAG17_CHUNKER_VERSION)
+  let expectedParserVersion
+  let chunkerVersion
+  if (isLegacyTextRequest) {
+    expectedParserVersion = parserVersion
+    chunkerVersion = GENESIS_RAG17_CHUNKER_VERSION
+  } else {
+    try {
+      expectedParserVersion = genesisRag17ParserIdentity({ maxTokens, profile: parserProfile })
+    } catch {
+      throw serviceError(400, 'GenesisRAG17 parser configuration identity is unsupported', 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED')
+    }
+    if (parserVersion !== undefined && parserVersion !== expectedParserVersion) {
+      throw serviceError(400, 'GenesisRAG17 parser configuration identity is unsupported', 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED')
+    }
+    // Parser-2 chunks by rendered section, so no token chunker identity applies.
+    if (requestedChunkerVersion !== undefined && (structuredProfile || requestedChunkerVersion !== GENESIS_RAG17_CHUNKER_VERSION_2)) {
+      throw serviceError(400, 'GenesisRAG17 chunker configuration identity is unsupported', 'GENESISRAG17_CHUNKER_CONFIG_UNSUPPORTED')
+    }
+    chunkerVersion = structuredProfile ? null : GENESIS_RAG17_CHUNKER_VERSION_2
   }
   const temporalFields = ['temporal', 'temporalMetadata', 'temporal_metadata', 'validFrom', 'validTo', 'valid_from', 'valid_to']
   if (temporalFields.some((key) => input?.[key] !== undefined || source?.[key] !== undefined)) {
@@ -215,7 +241,7 @@ function inputValue(input) {
     maxTokens,
     parserProfile,
     parserVersion: expectedParserVersion,
-    chunkerVersion: structuredProfile ? null : GENESIS_RAG17_CHUNKER_VERSION,
+    chunkerVersion,
     recognizerVersion: recognizerIdentity.recognizerVersion,
     recognizerProvenance: recognizerIdentity.recognizerProvenance,
     rawExternalRecordId: source?.rawExternalRecordId ?? null,
@@ -257,9 +283,15 @@ function isStructuredProfile(value) {
   return value.parserProfile === GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD
 }
 
-// The text-profile derivation is byte-identical to the pre-FR-188 shape, so
-// every existing intent replays unchanged. A structured intent records the
-// parser-2 / structured-recognizer-1 identity and no token budget.
+// `value.parserVersion`/`value.chunkerVersion` are already resolved by
+// `inputValue` above: parser-3/chunker-2 for a new TEXT ingestion, or the
+// historical parser-1/chunker-1 pair verbatim when `isLegacyTextRequest`
+// accepted a resumed/replayed intent recorded under the old identity — so
+// this derivation, and the replay-derivation comparison at
+// `loadReplayRun`/GENESISRAG17_REPLAY_DERIVATION_MISMATCH below, agree with
+// whichever identity the intent was actually recorded under. A structured
+// intent records the parser-2 / structured-recognizer-1 identity and no
+// token budget.
 function intentDerivation(value) {
   return {
     parserVersion: value.parserVersion,

@@ -21,7 +21,8 @@ import {
 // artifact holds the rendered sections, the Stage 9 batch carries that parsed
 // content so every chunk is an exact substring, the same raw reuses one parsed
 // artifact, a malformed record fails Stage 2 with no chunks, and prose
-// sources keep genesisrag17-parser-1.
+// sources keep genesisrag17-parser-3 (2026-09-24 remediation; genesisrag17-parser-1 is a
+// historical identity, never produced by a new ingestion).
 // @spec ADR-075, ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/integration/genesisrag17-parser-2.test.js
 
@@ -165,7 +166,7 @@ describe('GenesisRAG17 parser-2 Tier 1 execution (FR-188)', () => {
     expect(await prisma.genesisRag17Batch.count({ where: { executionRunId: intent.executionRunId } })).toBe(0)
   })
 
-  it('keeps prose sources on parser-1 and rule_v1 through the same executor', async () => {
+  it('keeps prose sources on parser-3 and rule_v1 through the same executor', async () => {
     const content = '# Purchase\n\nAlice purchased Atlas.'
     const result = await ingestGenesisRag17Raw({
       scope: scope(),
@@ -178,7 +179,7 @@ describe('GenesisRAG17 parser-2 Tier 1 execution (FR-188)', () => {
       policy: { allowEmbedding: true, allowPublication: true },
     }, { db: prisma, viewer, now, transport, credential: 'test-source' })
     const parsed = await prisma.knowledgeParsedArtifact.findUnique({ where: { id: result.source.parsedArtifactId } })
-    expect(parsed).toMatchObject({ parserVersion: 'genesisrag17-parser-1', content })
+    expect(parsed).toMatchObject({ parserVersion: 'genesisrag17-parser-3', content })
     expect(result.source).toMatchObject({ content, contentHash: hashGenesisRag17Text(content) })
     const rows = await prisma.genesisRag17SourceMention.findMany({ where: { executionRunId: result.run.executionRunId } })
     expect(rows.length).toBeGreaterThan(0)
