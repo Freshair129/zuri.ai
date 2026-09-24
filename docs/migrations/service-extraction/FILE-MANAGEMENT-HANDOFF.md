@@ -1,9 +1,9 @@
 ---
 id: ZAI:FILE-MANAGEMENT-HANDOFF
 title: File Management service extraction handoff
-version: "0.1.1b"
+version: "0.1.2b"
 created_at: "2026-09-24T10:57:59+07:00,Codex, base fad8ec6"
-last_update: "2026-09-24T23:10:00+07:00,Codex"
+last_update: "2026-09-24T23:15:00+07:00,Codex"
 status: beta
 superseded_by: null
 attributes:
@@ -24,7 +24,7 @@ production migration, provider activation, or business-content publication.
 
 | Tranche | Status | Evidence and boundary |
 | --- | --- | --- |
-| T0 catalog upload outcome | READY_FOR_REVIEW | Root cause was the upload path treating a missing Business Knowledge binding as failure of the already-saved Business catalog FileAsset. Fix commit 3263ddf is on PR #543, now marked ready for review. S1 received a REVIEW_REQUEST for head 3263ddf42e16ca1b6736af25e73e9c987e843593 and confirmed a read-only review; no review result is available yet. File and Knowledge outcomes are now reported separately; no fallback to another Business. |
+| T0 catalog upload outcome | BLOCKED | Root cause was the upload path treating a missing Business Knowledge binding as failure of the already-saved Business catalog FileAsset. Fix commit 3263ddf is on PR #543, now marked ready for review. S1 received a REVIEW_REQUEST for head 3263ddf42e16ca1b6736af25e73e9c987e843593, but the delegated reviewer automatic review block rejected it as outside the authorized review queue. S1 will not route around the block and requires direct user authorization before review proceeds; no review result exists. File and Knowledge outcomes are now reported separately; no fallback to another Business. |
 | T1 independent FilePort service | LOCAL PASS | Standalone Node ESM service, Postgres repository, S3-compatible exact-version adapter, HTTP API, authority client, migration, contracts and isolated tests are present under services/file-management/. The operation intent is persisted before the HTTP body stream. |
 | T2 LINE and CRM handoff | PARTIAL | LINE_CAPTURE has strict channel binding, message id, attachment ordinal and provider type. Only synthetic authority and byte fixtures were exercised. No LINE webhook/media request or CRM attachment integration ran. |
 | T3 Knowledge and pipeline lineage | NOT STARTED | Owner references and state projection remain contracts; no Knowledge or Integration runtime was changed or contacted. |
@@ -87,7 +87,7 @@ At the time of this handoff, #545 is still an open draft at 19f8ee41.
 
 ## Release boundary
 
-T0 is ready for S1 review and awaits the review result. T1 remains an isolated handoff branch pending the runtime and integration gates. Neither state authorizes merge or deployment. T2 requires
+T0 PR #543 is marked ready, but its S1 review request is blocked by the automatic review gate pending direct user authorization. No review result exists. T1 remains an isolated handoff branch pending the runtime and integration gates. Neither state authorizes merge or deployment. T2 requires
 LINE and CRM owner approval before integration. External owner changes require
 their own repository and authority. No production database migration, live
 LINE fetch/send, MinIO volume/configuration change, business document publish,
@@ -98,3 +98,5 @@ service deployment, merge, or cutover was performed by this work.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 | --- | --- | --- | --- | --- | --- |
 | 0.1.0b | 2026-09-24 | beta | Record File Management implementation status, evidence boundaries, and shared serial-window inputs | working-tree | Codex |
+| 0.1.1b | 2026-09-24 | beta | Record Docker image build proof and PR #543 review state | working-tree | Codex |
+| 0.1.2b | 2026-09-24 | beta | Record automatic review gate blocking PR #543 | working-tree | Codex |
