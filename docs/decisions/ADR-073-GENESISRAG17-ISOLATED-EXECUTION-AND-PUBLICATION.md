@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-073
 title: GenesisRAG17 isolated execution and publication
-version: "1.4.0b"
+version: "1.5.0b"
 status: beta
 created_at: "2026-09-07T22:19:00+07:00,RWANG,base b17e7258"
-last_update: "2026-09-11T19:15:00+07:00,Claude Opus 5"
+last_update: "2026-09-24T13:10:00+07:00,Claude Opus 5.5"
 author: RWANG
 attributes:
   doc_type: architecture-decision
@@ -23,6 +23,10 @@ relations:
 ---
 
 # ADR-073 — GenesisRAG17 isolated execution and publication
+
+Version 1.5.0b adds the dated Amendment (2026-09-24) below. It records the owner's ruling
+that the Stage 16/17 retrieval benchmark stays a per-record publish condition for the
+SmartGift profile, and points at the operator step that adds a record. Nothing else changes.
 
 Version 1.4.0b adds the dated Amendment (2026-09-11) below. It lifts the "no production
 deployment" statement for the SmartGift structured-record profile on the edge device only,
@@ -143,10 +147,86 @@ Everything else in this ADR stands. In particular:
   [`GENESISRAG17-CONTRACT.md`](../plans/GENESISRAG17-CONTRACT.md) ("No deployment") is read
   through this amendment for this profile only.
 
+## Amendment (2026-09-24) — the Stage 16/17 retrieval benchmark stays a per-record publish condition
+
+**Decided by:** Owner, 2026-09-24. The instruction, verbatim: "ตัดสิน B1: คง fixture ต่อ
+record ทำ B2 เลย" ("Ruling on B1: keep the per-record fixture; do B2 now"). B1 and B2 are
+items of the 2026-09-24 GenesisRAG17 review's remediation board. The question came from
+that review's production probe,
+[`.brain/reports/2026-09-24-genesisrag17-production-probe.md`](../../.brain/reports/2026-09-24-genesisrag17-production-probe.md),
+which found one Stage 16 `BENCHMARK_NO_APPLICABLE_QUERIES` failure for a text source on
+2026-09-21.
+
+**What was open.** Verification above calls the thresholds test-corpus results. In
+production the benchmark does more than that. Since 2026-09-21 the worker has booted
+with a fixture of real catalog records on the `ki17-state` volume, not the image-baked
+Phase 2 fixture
+([`.brain/reports/2026-09-24-genesisrag17-b2-fixture-rehearsal.md`](../../.brain/reports/2026-09-24-genesisrag17-b2-fixture-rehearsal.md),
+"Which fixture production's worker reads"), and it scores each
+candidate only on the queries whose gold texts are byte-equal to that candidate's own
+chunks (`scopedBenchmarkFixture`, GenesisBlock worker at the pinned `5156f412`). A
+candidate generation holds only the record being published. So a record with no entry
+fails Stage 16 with `BENCHMARK_NO_APPLICABLE_QUERIES`, and the benchmark is in effect a
+per-record publish condition. There were two ways to read that:
+
+| Option | What it means | Cost |
+|---|---|---|
+| **A. Keep it** | A record publishes only once the fixture holds its entry. Adding or changing a record is an operator step before the upload | One operator step and one worker restart per catalog change set |
+| B. Replace the retrieval dimension | Gold identified by chunk id, queries built from record fields with a tolerance, no byte-equal texts (board item B3) | A four-repository contract revision under ADR-075 D6: worker, GKS, MSP and zuri-ai |
+
+**Decision: option A.**
+
+1. For the SmartGift structured-record profile, the Stage 16 retrieval benchmark, judged
+   at the Stage 17 gate, stays a per-record publish condition. Every record that
+   publishes has an entry in the worker's fixture whose gold texts equal the sections
+   production renders for it: the FR-187 adapter split, then the FR-188 renderer. The
+   thresholds are unchanged: Recall@5 ≥ .80, MRR ≥ .65, citation correctness 1.00,
+   cross-tenant leakage 0.
+2. A new record, or a record whose rendered text changed, gets its entry **before** it is
+   uploaded. That is an owner-triggered operator step,
+   [`GENESISRAG17-EDGE-DEPLOYMENT.md` §10.1](../plans/GENESISRAG17-EDGE-DEPLOYMENT.md#101-adding-or-changing-a-catalog-record-the-per-record-benchmark-step).
+   It installs one file on the `ki17-state` volume and restarts only the worker. It
+   rebuilds no image.
+3. The fixture is cumulative, since the worker boots with exactly one file. Each record
+   carries its own `fixtureVersion`, and a change set that adds or replaces a record takes
+   a new one. An unchanged record keeps the version it was first judged under.
+4. Entries are derived mechanically by `apps/server/deploy/ki17/build-smartgift-real-corpus.mjs`
+   through the production render path. Queries are natural phrasings from record fields
+   and claim triples, never the chunk text itself, so the benchmark measures retrieval
+   rather than an echo.
+5. Option B is not pursued. Re-opening it is a new owner decision and a contract revision,
+   not a change to this procedure.
+
+**What passing still does not claim.** The queries are generated from the record under
+test. A pass proves that the record's own chunks are retrievable by its own descriptive
+words, that citations resolve, and that no other scope leaks in. It is not a claim about
+production answer quality, which is still measured by ADR-075 Phase 4's shadow comparison.
+
+**Consequences.**
+
+- **Free text cannot publish on this profile.** Text and Markdown sources admitted
+  through FR-173 are still outside the 2026-09-11 amendment's production scope, and under
+  this decision a text chunk could not pass Stage 16 without a benchmark entry anyway. The
+  2026-09-21 Stage 16 failure of run `774b95f7`, a `TEXT` source (probe report, "`GenesisRag17StageEvidence` per stage (SUCCEEDED /
+  FAILED)"), is the expected outcome, not a defect. A future
+  profile must say how its per-record benchmark is produced before its production
+  deployment is lifted.
+- **TASK-ZAI-051 cannot publish new or changed records on its own.** A scheduler or
+  replay surface over FR-081 can re-run a record the deployed fixture already covers. A
+  new or changed record waits for the §10.1 step. So TASK-ZAI-051 needs a "needs
+  benchmark" stopping state that the operator step clears, or a later decision that
+  re-opens option B. The dependency is recorded here, and the roadmap row is left as it
+  is.
+- **No pin, wire field or threshold moves.** The worker, GKS, MSP and the contract are
+  unchanged.
+
+Everything else in this ADR and in its 2026-09-11 amendment stands.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.5.0b | 2026-09-24 | beta | Amendment: owner ruled (remediation item B1) that the Stage 16/17 retrieval benchmark stays a per-record publish condition for the SmartGift profile; new or changed records get their entry through the owner-triggered EDGE-DEPLOYMENT §10.1 step before upload; option B (fixture-independent retrieval dimension) not pursued; consequences for free text and TASK-ZAI-051 recorded; no pin, wire field or threshold moves | — | Claude Opus 5.5 |
 | 1.4.0b | 2026-09-11 | beta | Amendment: "no production deployment" lifted for the SmartGift structured-record profile on the edge device, only after ADR-075 Phase 2 acceptance and as an owner-triggered operator step; everything else stands | — | Claude Opus 5 |
 | 1.3.0b | 2026-09-08 | beta | ADR-071 abandoned by this unmerged branch in favor of ADR-073 because main published CRM first; runtime unchanged | main d36f9a61 | RWANG |
 | 1.2.0b | 2026-09-08 | beta | ADR-070 abandoned by this unmerged branch in favor of ADR-071 because main published execution trace/replay first | main bd385c1d | RWANG |
