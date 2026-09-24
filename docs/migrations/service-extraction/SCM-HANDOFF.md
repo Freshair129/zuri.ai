@@ -23,7 +23,8 @@ relations:
 (S5.4 pricing rules lifecycle + calculation), `17b542b9` (S5.4 supplier
 cost sheets), `2db0b1e9` (S5.5 PostgreSQL store adapter), `27dbf55e` (S5.4
 POS terminal catalogue), `8f9a23db` (S5.4 Inventory catalogue writers), `61cf0a26` (S5.4 SKU identity)
-and `75e6e830` (S5.4 recipes, work orders, de-kitting, product ARCHIVE/MERGE). This file is updated in doc-only commits after
+`75e6e830` (S5.4 recipes, work orders, de-kitting, product ARCHIVE/MERGE) and
+`e2afcc5f` (S5.4 reservation writers + public ATP reads). This file is updated in doc-only commits after
 each of them. **PR:** [#546](https://github.com/Freshair129/zuri.ai/pull/546) — OPEN / DRAFT, not for merge. **Merge:** NOT_MERGED.
 **Legacy hotfix (separate lane):** [#557](https://github.com/Freshair129/zuri.ai/pull/557) — branch
 `fix/scm-legacy-pg-races` from `main` @ `85d8fd06`, worktree
@@ -39,6 +40,11 @@ instruction, with CI green on `00dff8b3`. It is not deployed. Merge rule (all la
 2026-09-24): no merge until S1 sends REVIEW_RESULT = PASS for the PR's latest
 head SHA (a new push needs a new review), and even then merging is the user's
 decision in the S5 chat.
+**Legacy hotfix F-14:** [#561](https://github.com/Freshair129/zuri.ai/pull/561) — branch
+`fix/legacy-work-order-cas` from `main` @ `93f5cc06`, worktree
+`.claude/worktrees/legacy-work-order-cas`, head `dd689c39`. OPEN / DRAFT; REVIEW_REQUEST
+sent to S1. Done in the order the user approved on 2026-09-24 (F-14 hotfix, then
+the reservation writers; F-15 to the backlog).
 **Production:** NOT_RUN. Nothing routes to the SCM process; no data, stock,
 price or credential was touched.
 
@@ -51,10 +57,10 @@ default).
 
 | Axis | Result | Evidence |
 |---|---|---|
-| CODE_IMPLEMENTED | PARTIAL | S5.1 pricing kernel; S5.3 PO → GRN → stock → PO slice; S5.4 POS checkout, payments (record / verify / reject / refund), sales orders (create / actions / fulfilment / list), the revenue read model, pricing rules lifecycle + calculation and supplier cost-sheet preview/commit. the POS terminal catalogue read, the Inventory catalogue writers + SKU identity (F-13), and recipes, customization / kitting work orders, de-kitting, the transfer core, an ATP read and product ARCHIVE / MERGE (§4.10). S5.5 PostgreSQL store adapter behind the same port (both engines run the whole suite). Pricing catalog freeze/admission, billing, the reservation writers + public ATP reads, standalone transfers, locations and stocktake are not moved |
+| CODE_IMPLEMENTED | PARTIAL | S5.1 pricing kernel; S5.3 PO → GRN → stock → PO slice; S5.4 POS checkout, payments (record / verify / reject / refund), sales orders (create / actions / fulfilment / list), the revenue read model, pricing rules lifecycle + calculation and supplier cost-sheet preview/commit. the POS terminal catalogue read, the Inventory catalogue writers + SKU identity (F-13), recipes, customization / kitting work orders, de-kitting, the transfer core and product ARCHIVE / MERGE (§4.10), and the reservation writers + public ATP reads (§4.11). S5.5 PostgreSQL store adapter behind the same port (both engines run the whole suite). Pricing catalog freeze/admission, billing, standalone transfers, locations and stocktake are not moved |
 | PRICING_PARITY_VERIFIED | PASS | 64 pinned cases (47 priced, 17 refused). The legacy recorder and the SCM kernel reproduce the same golden (§6). Revenue parity: 7 pinned queries (§4.4). Cost-sheet parity: 4 pinned previews — code, preview hash, source hash, SKU-match suggestions, locked-FX costs (§4.6). POS catalogue parity: 2 pinned catalogues (§4.8). Each golden is recorded by legacy and reproduced by SCM from its own store |
-| TRANSACTION_INVARIANTS_VERIFIED | PARTIAL | Every moved group on **both engines**: injected-fault rollback, CAS interleaving (receipt, payment, order, pricing rule, cost sheet, kitting work order), and two-process contention on SQLite **and on PostgreSQL 17 at READ COMMITTED with real interleaving** (receipt, POS oversell, refund ceiling, fulfilment, approval + calculation key, cost sheets, kitting completion). The guard proof shows the F-1/F-9/F-12 and W-1 races break on PostgreSQL without each SCM guard (§4.7, §4.10). Not yet: a managed PostgreSQL / production-sized load |
-| ISOLATED_TESTS_VERIFIED | PASS | 252 service tests on SQLite (251 pass, 1 NOT_RUN on Windows) and the same 252 on a disposable PostgreSQL 17 (251 pass, 1 NOT_RUN); no Next.js/app DB/global setup |
+| TRANSACTION_INVARIANTS_VERIFIED | PARTIAL | Every moved group on **both engines**: injected-fault rollback, CAS interleaving (receipt, payment, order, pricing rule, cost sheet, kitting work order), and two-process contention on SQLite **and on PostgreSQL 17 at READ COMMITTED with real interleaving** (receipt, POS oversell, refund ceiling, fulfilment, approval + calculation key, cost sheets, kitting completion). The guard proof shows the F-1/F-9/F-12, W-1, R-1 and R-2 races break on PostgreSQL without each SCM guard (§4.7, §4.10, §4.11). Not yet: a managed PostgreSQL / production-sized load |
+| ISOLATED_TESTS_VERIFIED | PASS | 261 service tests on SQLite (260 pass, 1 NOT_RUN on Windows) and the same 261 on a disposable PostgreSQL 17 (260 pass, 1 NOT_RUN); no Next.js/app DB/global setup |
 | CORE_CONTRACT_VERIFIED | NOT_RUN | `scm.delegation.v1` and the ReferenceAuthority port are PROPOSED; the issuer and the reference owners are synthetic in tests |
 | CONSUMER_INTEGRATION_VERIFIED | NOT_RUN | No BFF/route calls SCM; legacy routes are unchanged |
 | DATA_OWNERSHIP_ENFORCED | NOT_RUN | Service-local disposable SQLite only; no restricted role; no transfer |
@@ -94,9 +100,10 @@ default).
 | Revenue consumers (`/api/commerce/revenue`, Marketing insights `marketing-insights-service.js:79/134`) | SHARED_TRANSITION (consumer) | Commerce route (S5) / Marketing | still call legacy `getRevenueSummary` | read | Routing a cohort to SCM needs the core delegation issuer (gate SCM-CORE); Marketing's call site is Marketing-owned |
 | Inventory catalogue writers: category, family, factory, master, product create; bundles; product UPDATE / PHASE_OUT / REACTIVATE; lists; product page | MOVE_SCM (slice) | Inventory (+ Procurement price breaks on the page) | `inventory-catalog-service` → `modules/inventory/application/catalog.js` | row + audit; product CAS | §4.9; the page composes Procurement's CONFIRMED-sheet price breaks in the query layer |
 | SKU identity: identifiers, unit conversions, resolve, FlowAccount SKU; ledger unit conversion | MOVE_SCM (slice) | Inventory | `inventory-identity-service`, `setFlowAccountSku` → `modules/inventory/application/identity.js`; `appendMovement` unit path → `stock-ledger.js` | row + audit; CAS | §4.9 |
-| Product ARCHIVE and MERGE | MOVE_SCM (slice) | Inventory | legacy `applyProductAction` → `modules/inventory/application/catalog.js` | product CAS + (MERGE) ISSUE/RECEIPT + re-pointed identifiers, conversions, bundle items, recipe lines, recipes + survivor bump + audit | §4.10. The ARCHIVE / MERGE reservation guard reads SCM's own StockReservation: cut over only with the reservation writers (D-21) |
-| Recipes (create / actions / explosion / build), customization and kitting work orders, de-kitting, the transfer core, the ATP read | MOVE_SCM (slice) | Inventory | `inventory-recipe-service`, `customization-work-order-service`, `kitting-work-order-service`, `de-kitting-service`, `location-transfer-service.transferInTransaction`, `inventory-atp-service.availableToPromiseFor` → `modules/inventory/application/{recipes,customization,kitting,de-kitting,transfers,atp}.js`, `/v1/inventory/{recipes,de-kitting,customization-work-orders,kitting-work-orders}/**` | one unit of work each (order CAS + ledger rows + audit) | §4.10; kitting OPEN's ATP reads SCM-local reservations (D-21) |
-| Reservation writers (create / RELEASE / CONVERT / expiry stamping) + public ATP and max-buildable reads, standalone transfers, locations, stocktake, shelf-life maintenance, hygiene report, replenishment, catalogue intake (FR-208) | SHARED_TRANSITION | Inventory | `modules/inventory/application/*` | as listed in §2.2 | Not in this checkpoint; catalogue intake calls the catalogue writers in one transaction and moves with them as a consumer |
+| Product ARCHIVE and MERGE | MOVE_SCM (slice) | Inventory | legacy `applyProductAction` → `modules/inventory/application/catalog.js` | product CAS + (MERGE) ISSUE/RECEIPT + re-pointed identifiers, conversions, bundle items, recipe lines, recipes + survivor bump + audit | §4.10; the reservation guard reads SCM's StockReservation, written by SCM since `e2afcc5f` |
+| Recipes (create / actions / explosion / build), customization and kitting work orders, de-kitting, the transfer core, the ATP read | MOVE_SCM (slice) | Inventory | `inventory-recipe-service`, `customization-work-order-service`, `kitting-work-order-service`, `de-kitting-service`, `location-transfer-service.transferInTransaction`, `inventory-atp-service.availableToPromiseFor` → `modules/inventory/application/{recipes,customization,kitting,de-kitting,transfers,atp}.js`, `/v1/inventory/{recipes,de-kitting,customization-work-orders,kitting-work-orders}/**` | one unit of work each (order CAS + ledger rows + audit) | §4.10 |
+| Reservations create / list / RELEASE / CONVERT / expiry stamping; public ATP and max-buildable reads | MOVE_SCM (slice) | Inventory | `inventory-atp-service` → `modules/inventory/application/atp.js`, `/v1/inventory/reservations/**`, `GET /v1/inventory/atp` | hold (+ ledger fence) + audit; CAS on the hold | §4.11 (D-23) |
+| Standalone transfers, locations, stocktake, shelf-life maintenance, hygiene report, replenishment, catalogue intake (FR-208) | SHARED_TRANSITION | Inventory | `modules/inventory/application/*` | as listed in §2.2 | Not in this checkpoint; catalogue intake calls the catalogue writers in one transaction and moves with them as a consumer |
 | Agent tools (`smartgift-inventory-tools.js`) | KEEP_EXTERNAL (consumer) | Agent / S1 | — | — | **Only a test imports it** (not wired). Direct Prisma reads of Product/Recipe/StockMovement/WarehouseLocation — must use the SCM API when wired (gate SCM-AGENT) |
 | LINE `#sku` intake (`line-catalog-command.js`) | KEEP_EXTERNAL (consumer) | Agent / S1 | — | via Inventory services | Gate SCM-AGENT |
 | Knowledge `assertPricingCatalogCurrent` | ADAPTER needed | Knowledge | reads PricingCalculation/RuleSet directly | read | Gate SCM-KNOWLEDGE |
@@ -212,6 +219,29 @@ Every case of legacy `fr183-pos.test.js` is mirrored, marked `[legacy]`:
 
 Mutation check (run once, not committed): making the payment `VERIFIED` fails 2
 tests; removing the dedication check fails 1 test.
+
+### 4.11 Reservations and Available-to-Promise (`test/component/inventory-reservations.test.js`, `test/recovery/two-process-reservation.test.js`, `reservation-version-cas.test.js`)
+
+Legacy `fr180-atp-reservations.test.js` (AC-180.1–180.6) is mirrored with the same
+inputs and expectations, marked `[legacy]`; its injected `now` is the harness clock.
+The lifecycle and work-order suites now place and release holds with the real
+command (they inserted rows before this tranche).
+
+| Invariant | Result |
+|---|---|
+| A QUOTE hold expires after 7 days; ATP drops by exactly what it holds; no ledger row is written | PASS |
+| The same stock cannot be promised twice (details name requested / available); an uncounted SKU cannot be promised; an ORDER hold needs a sales order; 404 without write authority | PASS |
+| A hold whose clock ran out is already spent before any sweep; the sweep stamps EXPIRED and changes no ATP figure | PASS |
+| CONVERT ends the quote CONVERTED and places a non-expiring ORDER hold in the same unit of work; a committed hold cannot be converted; a stale version → 409 | PASS |
+| No hold is ever deleted; `live` is computed on read | PASS |
+| Max buildable sets come from ATP (a 900-unit quote squeezes 500 sets to 300, naming the short component) | PASS |
+| A replayed key places no second hold; a released hold cannot be released again; an unknown recipe → 404 | PASS |
+| CONVERT with the version moving between check and update → 409, the ORDER hold it inserted rolls back | PASS on SQLite and PostgreSQL |
+| Two processes, 8 holds of 3 over 10 units → at most 3 held; 2 CONVERTs of one hold → exactly 1 ORDER hold | PASS on SQLite and PostgreSQL |
+| R-1 guard proof: without the ledger fence, 4 holds of 3 were placed on 10 units (1/3 runs); SQLite passes | PASS (the race is real) |
+| R-2 guard proof: without the hold compare-and-swap, both CONVERTs commit and two ORDER holds exist (3/3; codes made collision-free in both arms, as F-1's proof does); SQLite passes | PASS (the race is real) |
+
+Mutation check (run once, not committed): 9 reservation guards removed in turn — all 9 caught.
 
 ### 4.10 Recipes, work orders, de-kitting, product ARCHIVE / MERGE (`test/component/inventory-recipes.test.js`, `inventory-work-orders.test.js`, `inventory-lifecycle.test.js`, `test/recovery/work-order-version-cas.test.js`, `two-process-kitting.test.js`)
 
@@ -499,7 +529,8 @@ the PostgreSQL-shaped interleaving instead.
 | D-18 | Ordering | SKUs, categories, locations and Branches are ordered by `code` in **binary** order (SQLite BINARY; the test PostgreSQL uses the C locale), so `SKU-A` sorts before `sku-lower`. A legacy production PostgreSQL with a linguistic collation may order mixed-case codes differently | The SCM database must be created with `LC_COLLATE = C` (a SCM-CUTOVER rehearsal item) for identical ordering on every engine |
 | D-19 | Coded refusal instead of a database error | Creating a SKU with a `flowAccountSku` already used in the Tenant answers 409 `INVENTORY_FLOWACCOUNT_SKU_TAKEN` with `{flowAccountSku, takenBy}` (legacy create surfaced the unique-index violation) | The same code `setFlowAccountSku` already uses |
 | D-20 | Concurrency hardening, no value change | Work-order RELEASE / COMPLETE / CANCEL update the order by compare-and-swap on version in the same unit of work as their ledger rows; the loser gets 409 `*_WORK_ORDER_VERSION_CONFLICT` and nothing it moved persists | Legacy updates by id after its version check; see F-14 (W-1 proof) |
-| D-21 | Transitional ownership | StockReservation is an Inventory table in the SCM store, READ by kitting OPEN's ATP and by the ARCHIVE / MERGE guards; its writers (create / RELEASE / CONVERT / expiry) have not moved. So kitting OPEN, ARCHIVE and MERGE must cut over together with the reservation writers, never before them — otherwise SCM would promise stock a legacy quote already holds | The reads are complete and tested against inserted holds; the writers are the ATP group |
+| D-21 | Transitional ownership — **retired in `e2afcc5f`** | StockReservation was read in SCM (kitting OPEN's ATP, the ARCHIVE / MERGE guards) before its writers moved; kitting OPEN, ARCHIVE and MERGE could not cut over before them | The writers moved in `e2afcc5f`; one cutover unit remains per Tenant (reservations with the work orders and the catalogue) |
+| D-23 | Concurrency hardening, no value change | A new hold takes the Business's ledger fence before it reads on-hand and the live holds (serializing it with every other hold and every stock movement of the Business); RELEASE / CONVERT / EXPIRE compare-and-swap the hold (`version` and still ACTIVE) | Legacy takes neither: see F-16, F-17 (R-1 / R-2 proofs) |
 | D-22 | Coded refusal instead of a database error | MERGE names a same-batch survivor recipe as a `RECIPE_BATCH_SIZE_EXISTS` blocker even when either recipe is ARCHIVED (the entry then adds `recipeStatus` / `survivorRecipeStatus`); legacy only checked a live pair and died on UNIQUE (productId, batchSize) | Same outcome (nothing merged), explained; see F-15 |
 | D-7 | Consistency window | Branch/Customer/slip are read as facts **before** the unit of work (a remote read must not hold the writer lock). A reference revoked between that read and the commit is not seen; the window is bounded by the request deadline and reported | Legacy read them inside its transaction (same DB); no legacy precedence changes, because the facts are judged inside the unit of work in legacy order |
 
@@ -532,6 +563,24 @@ S5.4 payments (code SHA `3b522a9d`, same environment):
 | SCM all | `node services/scm/scripts/run-tests.mjs` | 136 / 135 pass / 1 skipped (graceful SIGTERM, Windows) | 0 | 4.7 s |
 | Payments component | `node --test test/component/payments.test.js` | 8 / 8 / 0 | 0 | — |
 | Server regression (payments) | `vitest` fr163-payment, fr196-segregation-of-duties, fr183-pos, fr166-sales-order, commerce-domain | 5 files / 30 / 0 | 0 | — |
+
+S5.4 reservation writers + public ATP reads (code SHA `e2afcc5f`):
+
+| Level | Command | Discovered / executed / skipped | Exit | Duration |
+|---|---|---|---|---|
+| SCM all, SQLite | `node services/scm/scripts/run-tests.mjs` | 261 / 260 pass / 1 skipped (graceful SIGTERM, Windows) | 0 | ~30 s |
+| SCM all, PostgreSQL 17.10 | `node services/scm/scripts/run-tests.mjs --engine=postgres` | 261 / 260 pass / 1 skipped | 0 | ~2 min |
+| Guard proof | `prove-guards-on-postgres.mjs --only=R-1,R-2,W-1 --runs=3` | R-1 1/3, R-2 3/3 (collision-free codes), W-1 2/3 fail without the guard; controls PASS; SQLite passes | 0 | ~6 min |
+| Governance | `npm run govern` | — | 0 (no CRITICAL) | — |
+
+Legacy hotfix F-14 (#561, head `dd689c39`, branch `fix/legacy-work-order-cas`):
+
+| Level | Command | Discovered / executed / skipped | Exit | Duration |
+|---|---|---|---|---|
+| Race suite, original code | `vitest tests/integration/scm-legacy-races.postgres.test.js` (opt-in loopback DB) | F-14 × 3 FAIL (40 sets; 80 staged; 40 branded) | 1 | — |
+| Race suite, fixed | same, 3 runs | 8 / 8 each run | 0 | ~12 s |
+| Full suite + build | `npm test` + `npm run build` (apps/server) | 809 files: 803 pass / 6 skipped (opt-in); 6766 tests | 0 | — |
+| Governance | `npm run govern` | `domain-state.json` untouched (S1's lease) | 0 | — |
 
 S5.4 recipes, work orders, de-kitting, product ARCHIVE / MERGE (code SHA `75e6e830`):
 
@@ -616,8 +665,10 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 | F-11 | `pricing-catalog-service` (catalog freeze) **also inserts PricingCalculation** rows (key prefix per freeze) and reads the active policy; `pricing-publication`, `pricing-inventory-service` (F-5) and Knowledge `assertPricingCatalogCurrent` read PricingRuleSet/PricingCalculation directly | `pricing-catalog-service.js:82/93`, `pricing-publication.js:15/19`, `pricing-inventory-service.js:25` | CONFIRMED (design) | These tables have one owner only after the catalog group moves with them (behind SCM-FILES/SCM-KNOWLEDGE) or reads them through the SCM API; until then SCM pricing serves no consumer, and the per-Business key space is shared with catalog keys at transfer |
 | F-12 | Legacy commit supersedes the supplier's other CONFIRMED sheets with an unguarded `updateMany` before its own CAS, and no constraint holds "one CONFIRMED per supplier". On PostgreSQL READ COMMITTED two commits can each supersede before the other confirms → two CONFIRMED sheets | **Reproduced on the legacy code itself** (#557): 2 CONFIRMED, 3/3 runs (sheets without carton facts — with them the Product CAS happens to serialize the commits) | **CONFIRMED** — **fixed in #557 (merged `7363c931`)** (lock-only touch of the supplier row before the supersession; no migration); green 3/3. SCM additionally keeps the partial unique index (D-13) | Merged in #557 (`7363c931`), not deployed; a DB-level index in legacy would need a migration (schema owner) |
 | F-13 | SCM read Inventory tables whose writers had not moved (`ProductIdentifier`, `ProductMaster`, `InventoryCategory`) | Design | **Writers moved** (`8f9a23db`, `61cf0a26`); recipes, work orders and product ARCHIVE / MERGE moved in `75e6e830`. Open: StockReservation is read in SCM but written in legacy (D-21), and the cutover transfer of catalogue rows | Move the reservation writers (ATP group) before kitting OPEN / ARCHIVE / MERGE cut over; transfer catalogue rows per Tenant at cutover under the single-writer switch |
-| F-14 | Legacy work-order RELEASE / COMPLETE / CANCEL (`kitting-work-order-service`, `customization-work-order-service`) check `order.version` and then `update({where:{id}})` with no version predicate. On PostgreSQL READ COMMITTED two concurrent COMPLETEs of one order can both pass the check → components consumed twice and the output received twice | **The legacy shape reproduced in SCM's copy**: without the SCM compare-and-swap, two processes complete one kitting order twice on PostgreSQL 3/3 (W-1, §4.10); SQLite hides it. Not yet run against the legacy code itself | LIKELY (same shape as F-1, proven on the copy) | A legacy hotfix like #557 (version predicate on the order update, 409 on 0 rows, an opt-in PostgreSQL race test) — **needs the owner's go-ahead**; SCM already guards it (D-20) |
-| F-15 | Legacy MERGE's blocker check ignores an ARCHIVED survivor recipe at the batch size of the duplicate's recipe, but `@@unique([productId, batchSize])` covers archived rows, so the re-point dies with an unhandled Prisma P2002 | **Reproduced on the legacy code** (scratch vitest, not committed): P2002 on `productRecipe.updateMany`, transaction rolled back | CONFIRMED (legacy) — nothing is corrupted, the refusal is unexplained | SCM names it as a blocker (D-22); legacy fix = the same check in `mergeBlockers` (owner's call) |
+| F-14 | Legacy work-order RELEASE / COMPLETE / CANCEL (`kitting-work-order-service`, `customization-work-order-service`) check `order.version` and then `update({where:{id}})` with no version predicate. On PostgreSQL READ COMMITTED two concurrent COMPLETEs of one order can both pass the check → components consumed twice and the output received twice | **The legacy shape reproduced in SCM's copy**: without the SCM compare-and-swap, two processes complete one kitting order twice on PostgreSQL 3/3 (W-1, §4.10); SQLite hides it. Not yet run against the legacy code itself | **CONFIRMED on the legacy code** (#561, PostgreSQL 17): 4 × COMPLETE of a 10-set kitting order → 40 sets; 4 × RELEASE staged 80 instead of 20; 4 × customization COMPLETE → 40 from 10 | **Fix proposed in #561** (`casUpdate`: `updateMany({id, version})`, 409 on 0 rows); race suite green 3/3; full `npm test` 803 files / 6766 tests; build clean. Awaits S1 review; merge is the owner's decision |
+| F-16 | Legacy `createReservation` reads on-hand and the ACTIVE holds with no lock, then inserts. Under PostgreSQL READ COMMITTED concurrent holds (or a hold and a stock issue) can each pass the ATP check → promised > on-hand | **The legacy shape reproduced in SCM's copy**: without the fence, 4 holds of 3 on 10 units (R-1, 1/3 runs); SQLite hides it. Not yet run against the legacy code itself | LIKELY (proven on the copy) | A legacy hotfix (lock the Business fence / product row before the ATP read) — owner / MC0 decision; SCM guards it (D-23) |
+| F-17 | Legacy `applyReservationAction` checks the version and then updates the hold by id alone; two concurrent CONVERTs of one quote each place an ORDER hold → the same units committed twice | **The legacy shape reproduced in SCM's copy**: two ORDER holds 3/3 (R-2); SQLite hides it. Not yet run against the legacy code | LIKELY (proven on the copy) | Same hotfix pattern as F-14 (version predicate, 409 on 0 rows) — owner / MC0 decision; SCM guards it (D-23) |
+| F-15 | Legacy MERGE's blocker check ignores an ARCHIVED survivor recipe at the batch size of the duplicate's recipe, but `@@unique([productId, batchSize])` covers archived rows, so the re-point dies with an unhandled Prisma P2002 | **Reproduced on the legacy code** (scratch vitest, not committed): P2002 on `productRecipe.updateMany`, transaction rolled back | CONFIRMED (legacy) — nothing is corrupted, the refusal is unexplained | SCM names it as a blocker (D-22). **Deferred to the backlog** (MC0 decision, user-approved order 2026-09-24): legacy fix = the same check in `mergeBlockers` |
 | F-9 | Legacy `applyPaymentAction` reads the verified net for a REFUND and updates the payment by CAS on the payment row only. On PostgreSQL READ COMMITTED, concurrent refund verifications can each pass the ceiling → refunded > paid | **Reproduced on the legacy code itself** (#557): 4 × 400 verified on 1000 paid, 3/3 runs; also the SCM port without its lock (§4.7) | **CONFIRMED** — **fixed in #557 (merged `7363c931`)** (lock-only touch of the order row before the read); green 3/3 | Merged in #557 (`7363c931`); not deployed |
 
 ## 8. Dependencies, blockers and shared changes requested
@@ -645,13 +696,13 @@ PRD/FEATURES/ROADMAP or tracker change.
 session: S5
 workstream: scm
 owner: Session 5 implementation owner
-observed_at: "2026-09-24T19:30:00+07:00"
+observed_at: "2026-09-24T22:30:00+07:00"
 base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
-code_head_sha: 75e6e830
-handoff_source_commit: "the doc commit after 75e6e830 on feat/scm-service-extraction"
+code_head_sha: e2afcc5f
+handoff_source_commit: "the doc commit after e2afcc5f on feat/scm-service-extraction"
 branch: feat/scm-service-extraction
 pr_number: 546
-current_tranche: S5.4 recipes + work orders + de-kitting + product ARCHIVE/MERGE done (75e6e830; reservation writers still legacy, D-21) → owner picks next (recommended: ATP/reservation writers, which completes the cutover unit for kitting OPEN / ARCHIVE / MERGE)
+current_tranche: S5.4 reservation writers + public ATP reads done (e2afcc5f; D-21 retired); F-14 legacy hotfix #561 awaiting S1 review → owner picks next (stocktake + transfers + locations, or billing via an Identity command path)
 execution_status: IN_PROGRESS
 merge_status: NOT_MERGED
 production_status: NOT_RUN
@@ -680,9 +731,17 @@ completed:
     code_paths: [services/scm/src/infrastructure/pg-store.js, services/scm/src/infrastructure/pg-connection.js, services/scm/src/infrastructure/pg-worker.js, services/scm/src/infrastructure/sql-dialect.js, services/scm/scripts/prove-guards-on-postgres.mjs, services/scm/test/unit/pg-store.test.js]
   - claim: "S5.4 POS terminal catalogue read (FR-183) on the SCM store + Branch facts, legacy-recorded parity"
     code_paths: [services/scm/src/modules/commerce/application/pos-catalogue.js, services/scm/src/modules/inventory/application/catalogue.js, services/scm/contracts/v1/pos-catalogue-parity-cases.json, services/scm/contracts/v1/pos-catalogue-parity-golden.json, apps/server/tests/unit/scm-pos-catalogue-parity.test.js]
+  - claim: "S5.4 reservation writers and public ATP / max-buildable reads (FR-180) as SCM units of work; ledger fence + hold CAS proven necessary on PostgreSQL (R-1, R-2)"
+    code_paths: [services/scm/src/modules/inventory/application/atp.js, services/scm/src/modules/inventory/adapters/wip-repo.js]
+  - claim: "Legacy hotfix F-14 (work-order CAS), reproduced on legacy code and fixed: draft PR #561"
+    code_paths: [apps/server/src/modules/inventory/application/kitting-work-order-service.js, apps/server/src/modules/inventory/application/customization-work-order-service.js, apps/server/tests/integration/scm-legacy-races.postgres.test.js]
   - claim: "S5.4 recipes (FR-156), customization (FR-176) and kitting (FR-177) work orders, de-kitting (FR-178), the transfer core (FR-174), the ATP read (FR-180) and product ARCHIVE/MERGE (FR-205) as SCM units of work; work-order CAS proven necessary on PostgreSQL (W-1)"
     code_paths: [services/scm/src/modules/inventory/application/recipes.js, services/scm/src/modules/inventory/application/customization.js, services/scm/src/modules/inventory/application/kitting.js, services/scm/src/modules/inventory/application/de-kitting.js, services/scm/src/modules/inventory/application/transfers.js, services/scm/src/modules/inventory/application/atp.js, services/scm/src/modules/inventory/application/catalog.js, services/scm/src/modules/inventory/adapters/wip-repo.js]
 verified:
+  - { level: ISOLATED_TESTS, result: PASS, verified_code_sha: e2afcc5f, command: "node services/scm/scripts/run-tests.mjs (sqlite) and --engine=postgres", discovered: 261, executed: 260, skipped: 1, exit_code: 0, environment: "win32, node 24.19.0, sqlite + embedded PostgreSQL 17.10" }
+  - { level: POSTGRES_GUARD_PROOF, result: PASS, verified_code_sha: e2afcc5f, command: "prove-guards-on-postgres.mjs --only=R-1,R-2,W-1 --runs=3", findings: "R-1 over-promise 1/3, R-2 double CONVERT 3/3, W-1 double completion 2/3 without each guard; controls PASS; SQLite passes", exit_code: 0 }
+  - { level: LEGACY_RACE_POSTGRES, result: PASS, verified_code_sha: dd689c39, branch: fix/legacy-work-order-cas, command: "vitest scm-legacy-races.postgres.test.js (opt-in loopback DB)", evidence: "original code F-14 FAIL (40 of 10 sets; 80 staged of 20; 40 of 10 branded); fixed 8/8 x3" }
+  - { level: LEGACY_FULL_SUITE, result: PASS, verified_code_sha: dd689c39, branch: fix/legacy-work-order-cas, command: "npm test && npm run build (apps/server)", discovered: "809 files", executed: "803 files / 6766 tests", skipped: "6 files (opt-in)", exit_code: 0 }
   - { level: ISOLATED_TESTS, result: PASS, verified_code_sha: 7726b99b, command: "node services/scm/scripts/run-tests.mjs", discovered: 103, executed: 102, skipped: 1, exit_code: 0, duration_seconds: 2.2, environment: "win32, node 24.19.0" }
   - { level: PRICING_PARITY, result: PASS, verified_code_sha: 7726b99b, command: "vitest scm-pricing-parity + pricing-engine", discovered: 157, executed: 157, skipped: 0, exit_code: 0, duration_seconds: 7.2 }
   - { level: SERVER_REGRESSION_SCM, result: PASS, verified_code_sha: 7726b99b, command: "vitest 12 SCM files", discovered: 222, executed: 222, skipped: 0, exit_code: 0, duration_seconds: 33.1 }
@@ -712,19 +771,19 @@ verified:
   - { level: POSTGRES_GUARD_PROOF, result: PASS, verified_code_sha: 75e6e830, command: "node services/scm/scripts/prove-guards-on-postgres.mjs --only=W-1 --runs=3", findings: "W-1 (work-order CAS): double completion 3/3 without the guard; intact control PASS; SQLite passes without it", exit_code: 0 }
   - { level: CI, result: NOT_RUN }
 remaining:
-  - "S5.4 remaining: pricing catalog freeze/admission/publication (behind SCM-FILES/SCM-KNOWLEDGE; F-11), billing (behind an Identity command path for LegalEntity/Branch), reservation writers + public ATP reads (the cutover unit with kitting OPEN / ARCHIVE / MERGE, D-21), standalone transfers + locations, stocktake — each as a whole group"
-  - "F-14 legacy work-order hotfix (owner's go-ahead) and F-15 legacy MERGE blocker (owner's call)"
+  - "S5.4 remaining: pricing catalog freeze/admission/publication (behind SCM-FILES/SCM-KNOWLEDGE; F-11), billing (behind an Identity command path for LegalEntity/Branch), standalone transfers + locations, stocktake — each as a whole group"
+  - "#561 (F-14) S1 review and owner merge decision; F-16 / F-17 legacy reservation hotfix (owner / MC0 decision); F-15 in the backlog"
   - "Consumer routing (BFF → SCM) for the Commerce cohort, behind SCM-CORE"
   - "Image build/start smoke; BFF consumer; core delegation issuer; audit outbox relay; a managed PostgreSQL rehearsal (pooler, TLS, restricted role) under SCM-CUTOVER"
   - "F-10 separate FR (declared by the PRD registry owner), then the fulfilment change in legacy and SCM together"
 contracts:
-  - { name: scm-api, revision: v1-draft.11, provider_owner: S5, consumer_owner: "BFF (unassigned)", review_status: PROPOSED, provider_conformance: "LOCAL PASS", consumer_conformance: NOT_RUN }
+  - { name: scm-api, revision: v1-draft.12, provider_owner: S5, consumer_owner: "BFF (unassigned)", review_status: PROPOSED, provider_conformance: "LOCAL PASS", consumer_conformance: NOT_RUN }
   - { name: scm.delegation.v1, provider_owner: "Identity/Core", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (synthetic issuer)" }
   - { name: ReferenceAuthority (branch/branches/customer/conversation/fileAsset facts), provider_owner: "Core + CRM + Files (S3)", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (fixture provider)" }
 blockers:
   - { dependency: "scm.delegation.v1 review + core issuer", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + S5", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
   - { dependency: "root CI job for services/scm", kind: INTEGRATION_ORDER, phase_blocked: "CI_VERIFIED/HOSTED_IMAGE_BUILD", owner_to_unblock: integrator, condition_to_unblock: "job merged", safe_work_now: ["local tests"] }
-next_action: "Owner picks the next group (recommended: reservation writers + public ATP reads, which completes the kitting OPEN / ARCHIVE / MERGE cutover unit), and decides on the F-14 legacy hotfix."
+next_action: "S1 reviews #561 (F-14); owner / MC0 decide on an F-16 / F-17 legacy reservation hotfix and pick the next group (stocktake + transfers + locations, or billing via an Identity command path)."
 owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js, apps/server/tests/unit/scm-revenue-parity.test.js, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
 shared_changes_requested: ["FR id for F-10 (fulfilment issue carries salesOrderId/customerId) in docs/PRD-SDD-v1.0.md — PRD registry owner", "docs/.id-ledger.json +ADR-109", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
 board_expected_source_commit: "REFACTOR-STATUS.md 0.1.0b on feat/market-intelligence-service"
@@ -734,15 +793,13 @@ board_update: BOARD_UPDATE_PENDING
 ## 10. Next exact action
 
 1. Read the hosted check results on PR #546 and record them here (CI_VERIFIED is NOT_RUN until then).
-2. Next group (owner's choice). Recommended: the reservation writers + public
-   ATP / max-buildable reads — kitting OPEN, ARCHIVE and MERGE already read
-   SCM's StockReservation and can cut over only with them (D-21). Otherwise:
-   stocktake + standalone transfers + locations (retire the rest of D-3), or
-   billing behind an Identity command path. Pricing catalog freeze/admission
-   stays behind SCM-FILES / SCM-KNOWLEDGE (F-11).
-2a. F-14 (legacy work-order double completion, proven on SCM's copy) needs the
-   owner's go-ahead for a #557-style legacy hotfix; F-15 (legacy MERGE dies on
-   the recipe unique index) is the owner's call.
+2. Next group (owner's choice): stocktake + standalone transfers + locations
+   (retire the rest of D-3), or billing behind an Identity command path.
+   Pricing catalog freeze/admission stays behind SCM-FILES / SCM-KNOWLEDGE (F-11).
+2a. #561 (F-14, reproduced on legacy: 40 sets from a 10-set order) awaits S1's
+   review; merge is the owner's decision. F-16 / F-17 (legacy reservation
+   over-promise and double CONVERT, proven on SCM's copy) need an owner / MC0
+   decision on a legacy hotfix. F-15 is in the backlog.
 3. PR #557 (legacy F-1/F-9/F-12 fixes + F-2 test) was MERGED at `7363c931` after
    S1 PASS @ `00dff8b3`. It is not deployed. F-10 is ruled unintended; its FR id is requested from the PRD
    registry owner.
