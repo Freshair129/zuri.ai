@@ -120,6 +120,78 @@ describe('knowledge durable queue', () => {
     expect((await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })).status).toBe('WITHDRAWN')
   })
 
+  // @req FR-173 — a job resumed after restart may already own a real FR-071
+  // PipelineRun; discovering the job SUPERSEDED or WITHDRAWN must close that
+  // run, not just the KnowledgeIngestion row, or it is orphaned forever
+  // (production found exactly this: run 1db6810c-eb86-4e96-9f4c-e9c89c8ba0d3,
+  // RUNNING since 2026-09-21 with a PENDING batch and a RUNNING intent).
+  async function pendingBatchRun(fixture) {
+    // Tier 1 completes locally and the run is left waiting on the first
+    // external stage (Stage 9), acknowledged PENDING — the same shape as the
+    // stuck production run — without ever touching that batch's own request.
+    const transport = vi.fn(async (name, request) => {
+      if (name === 'msp_pipeline_submit') return { schemaVersion: 'genesisrag17.v1', scope: request.scope, batchId: request.batch.batchId, decisionId: null, status: 'PENDING' }
+      throw new Error('No remote evidence in this focused test')
+    })
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport })
+    await runtime.runOnce()
+    const stuck = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(stuck.executionRunId).toEqual(expect.any(String))
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
+    const pendingBatch = await prisma.genesisRag17Batch.findFirst({ where: { executionRunId: stuck.executionRunId } })
+    expect(pendingBatch.status).toBe('PENDING')
+    return { stuck, transport, pendingBatch }
+  }
+
+  it('closes the orphaned PipelineRun when a job is discovered superseded after its run was created', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport, pendingBatch } = await pendingBatchRun(fixture)
+
+    await prisma.knowledgeSource.update({ where: { id: fixture.source.id }, data: { desiredRevision: 2 } })
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport }).runOnce()
+
+    const closed = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(closed.status).toBe('SUPERSEDED')
+    expect(closed.failureCode).toBe('KNOWLEDGE_SOURCE_SUPERSEDED')
+
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(['QUEUED', 'RUNNING']).not.toContain(run.status)
+    expect(run.status).toBe('FAILED')
+
+    const intent = await prisma.genesisRag17IngestionIntent.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(intent.status).toBe('FAILED')
+    expect(JSON.parse(intent.lastErrorJson).code).toBe('KNOWLEDGE_SOURCE_SUPERSEDED')
+
+    // The outstanding Stage 9 request itself is never touched.
+    const batchAfter = await prisma.genesisRag17Batch.findUnique({ where: { id: pendingBatch.id } })
+    expect(batchAfter.status).toBe('PENDING')
+    expect(batchAfter.responseJson).toBe(pendingBatch.responseJson)
+  })
+
+  it('closes the orphaned PipelineRun when a job is discovered withdrawn after its run was created', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport, pendingBatch } = await pendingBatchRun(fixture)
+
+    await prisma.knowledgeSource.update({ where: { id: fixture.source.id }, data: { revokedAt: new Date() } })
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport }).runOnce()
+
+    const closed = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(closed.status).toBe('WITHDRAWN')
+    expect(closed.failureCode).toBe('KNOWLEDGE_SOURCE_WITHDRAWN')
+
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(['QUEUED', 'RUNNING']).not.toContain(run.status)
+    expect(run.status).toBe('FAILED')
+
+    const intent = await prisma.genesisRag17IngestionIntent.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(intent.status).toBe('FAILED')
+    expect(JSON.parse(intent.lastErrorJson).code).toBe('KNOWLEDGE_SOURCE_WITHDRAWN')
+
+    const batchAfter = await prisma.genesisRag17Batch.findUnique({ where: { id: pendingBatch.id } })
+    expect(batchAfter.status).toBe('PENDING')
+    expect(batchAfter.responseJson).toBe(pendingBatch.responseJson)
+  })
+
   it('preserves a FileAsset MIME when creating the Stage 1 request', async () => {
     const fixture = await durableJob({
       sourceKind: 'FILE',

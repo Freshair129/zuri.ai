@@ -4,8 +4,11 @@ import prisma from '@/lib/db'
 import { parseGenesisRag17Scope } from './genesisrag17-contract'
 import { createKnowledgeRepository } from './knowledge-repository'
 import { createKnowledgeExecutionAuthority } from './knowledge-execution-authority'
+import { createGenesisRag17LineageRepository } from './genesisrag17-lineage-repository'
 import { ingestGenesisRag17Raw, resolveRuntimeCredential } from '@/platform/integrations/core/genesisrag17-executor'
 import { createGenesisRag17SourceWorker, queryGenesisRag17 } from '@/platform/integrations/core/genesisrag17-worker'
+import { finishKnowledgeIngestionRun, recordKnowledgeStageReport } from '@/platform/integrations/core/knowledge-ingestion-executor'
+import { KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
 
 // @req FR-173 — process-owned admission queue resumes immutable jobs after restart.
@@ -84,6 +87,95 @@ export async function queryKnowledgeSnapshot({ scope, query, topK, snapshotId },
   return queryGenesisRag17({ scope, query, topK, snapshotId, env, transport, viewer: createKnowledgeExecutionAuthority(scope, 'query') })
 }
 
+/**
+ * Whether a claimed job's admission is still valid, checked fresh against the
+ * corpus/source rows every time it matters (both at claim time and again if
+ * an unrelated error interrupts processing — the source can move on while a
+ * job is mid-flight). Pure: callers own the read.
+ */
+function admissionVerdict(corpus, source, job) {
+  if (!corpus || !source || corpus.deletedAt || corpus.status !== 'ACTIVE' || source.revokedAt || source.deletedAt) {
+    return { status: 'WITHDRAWN', code: 'KNOWLEDGE_SOURCE_WITHDRAWN' }
+  }
+  if (source.desiredRevision !== job.revision) {
+    return { status: 'SUPERSEDED', code: 'KNOWLEDGE_SOURCE_SUPERSEDED' }
+  }
+  return null
+}
+
+/**
+ * A job discovered SUPERSEDED or WITHDRAWN may already own a real FR-071
+ * PipelineRun (FR-173: the durable admission queue resumes immutable jobs
+ * after restart, so a crash between "run created" and "run finished" is
+ * ordinary). Nothing else ever revisits that run once this admission stops
+ * claiming its job, so leaving it QUEUED/RUNNING orphans it forever — the
+ * exact shape production found (a PipelineRun stuck RUNNING with a PENDING
+ * batch and a RUNNING intent, its KnowledgeIngestion already SUPERSEDED).
+ *
+ * This closes the run honestly. The intent's own recovery field records why
+ * (KNOWLEDGE_SOURCE_SUPERSEDED / KNOWLEDGE_SOURCE_WITHDRAWN); if Tier 1 has
+ * already finished and the run is only waiting on an external Stage 9-16
+ * report, the one stage it is waiting on is told — through the same reporter
+ * interface GKS/GenesisBlockDB use — that it will never complete, so
+ * `finishKnowledgeIngestionRun` can derive FAILED from real ledger evidence
+ * rather than a status invented here. It never fabricates a SUCCEEDED stage
+ * and it never acknowledges or replaces the outstanding GenesisRag17Batch
+ * request — that row is left exactly as it was. When no stage evidence can
+ * yet be derived (the run is still inside Tier 1), closing is refused by
+ * `finishKnowledgeIngestionRun` itself and this function leaves the run
+ * exactly as it found it for a later pass or an operator to resolve.
+ */
+async function closeOrphanedExecutionRun({ db, now, corpus, executionRunId, failureCode }) {
+  if (!executionRunId || !corpus?.scopeJson) return
+  let scope
+  try { scope = parseGenesisRag17Scope(JSON.parse(corpus.scopeJson)) } catch { return }
+  const lineageRepository = createGenesisRag17LineageRepository(db, scope)
+  let intent = null
+  try { intent = await lineageRepository.findIntentByExecutionRunId(executionRunId) } catch { intent = null }
+  if (intent && !['FAILED', 'SUCCEEDED'].includes(intent.status)) {
+    try {
+      await lineageRepository.updateIntent(intent.id, {
+        status: 'FAILED',
+        lastErrorJson: JSON.stringify({ code: failureCode, message: `Knowledge admission stopped resuming this run: ${failureCode}` }),
+      })
+    } catch { /* best effort — the ingestion's own status still moves on below */ }
+  }
+  const run = await db.pipelineRun.findUnique({ where: { executionRunId } })
+  if (!run || !['QUEUED', 'RUNNING'].includes(run.status)) return
+  const viewer = createKnowledgeExecutionAuthority(scope, 'execute', executionRunId)
+  const at = date(now)
+  try {
+    const steps = await db.pipelineStep.findMany({ where: { runId: run.id } })
+    const target = steps
+      .filter((step) => KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS.includes(step.pipelineStageId) && !['SUCCEEDED', 'FAILED'].includes(step.status))
+      .sort((left, right) => left.sequence - right.sequence)[0]
+    if (target) {
+      const startedAt = target.startedAt && target.startedAt < at ? target.startedAt : at
+      await recordKnowledgeStageReport({
+        dataPipelineDefinitionId: run.dataPipelineDefinitionId,
+        executionContractId: run.executionContractId,
+        executionRunId,
+        pipelineStageId: target.pipelineStageId,
+        executionStepId: target.executionStepId,
+        attemptId: target.attemptId,
+        scope: { tenantId: run.tenantId, businessId: run.businessId },
+        outcome: 'FAILED',
+        failure: { failureCode, errorRef: `ki-knowledge-runtime://${executionRunId}/${target.pipelineStageId}`, retryable: false },
+        startedAt: startedAt.toISOString(),
+        finishedAt: at.toISOString(),
+        metrics: { records_in: 0, records_out: 0, records_failed: 1, records_quarantined: 0, processing_time: Math.max(0, at.getTime() - startedAt.getTime()), retry_count: 0 },
+      }, { db, viewer })
+    }
+    await finishKnowledgeIngestionRun({
+      dataPipelineDefinitionId: run.dataPipelineDefinitionId,
+      executionContractId: run.executionContractId,
+      executionRunId,
+      scope: { tenantId: run.tenantId, businessId: run.businessId },
+      finishedAt: at.toISOString(),
+    }, { db, viewer })
+  } catch { /* best effort — without derivable stage evidence the run stays honestly open */ }
+}
+
 /** The canonical MANUAL/FILE adapter has no external credentials or URL fetching. */
 async function ensureAdmissionConnection(db, scope) {
   const provider = await db.integrationProvider.upsert({ where: { code: 'KNOWLEDGE_ADMISSION' }, create: { code: 'KNOWLEDGE_ADMISSION', name: 'Knowledge admission', capabilitiesJson: '{"text":true,"markdown":true}' }, update: {} })
@@ -108,11 +200,13 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
     try {
       const corpus = await repository.getCorpus(job.corpusId)
       const source = await repository.getSource(job.sourceId)
-      if (!corpus || !source || corpus.deletedAt || corpus.status !== 'ACTIVE' || source.revokedAt || source.deletedAt) {
-        await repository.updateIngestion(job.id, { status: 'WITHDRAWN', claimToken: null, leaseExpiresAt: null }, { claimToken: token }); return
-      }
-      if (source.desiredRevision !== job.revision) {
-        await repository.updateIngestion(job.id, { status: 'SUPERSEDED', claimToken: null, leaseExpiresAt: null }, { claimToken: token }); return
+      const verdict = admissionVerdict(corpus, source, job)
+      if (verdict) {
+        // FR-173: a job resumed after restart may already own a real
+        // PipelineRun. Close it before this admission stops claiming the
+        // job, or nothing else ever revisits it (see closeOrphanedExecutionRun).
+        if (job.executionRunId) await closeOrphanedExecutionRun({ db, now, corpus, executionRunId: job.executionRunId, failureCode: verdict.code })
+        await repository.updateIngestion(job.id, { status: verdict.status, failureCode: verdict.code, claimToken: null, leaseExpiresAt: null }, { claimToken: token }); return
       }
       const binding = await resolveKnowledgeRuntimeBinding(corpus, { db, env })
       if (!isDeepStrictEqual(JSON.parse(corpus.scopeJson), binding.scope) || !isDeepStrictEqual(JSON.parse(corpus.policyJson), binding.policy)) throw unavailable()
@@ -141,9 +235,22 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
         await repository.updateIngestion(job.id, { status: 'FAILED', failureCode: 'KNOWLEDGE_PIPELINE_FAILED' }, { claimToken: token })
       }
     } catch (error) {
+      const interrupted = await repository.getIngestion(row.id)
+      // The source can move on while this job is mid-flight, independent of
+      // whatever error above interrupted it. That takes precedence over the
+      // error: retrying — or permanently failing — a job whose source has
+      // already been superseded or withdrawn would be wrong either way.
+      const laterCorpus = await repository.getCorpus(job.corpusId)
+      const laterSource = await repository.getSource(job.sourceId)
+      const laterVerdict = admissionVerdict(laterCorpus, laterSource, job)
+      if (laterVerdict) {
+        if (interrupted?.executionRunId) await closeOrphanedExecutionRun({ db, now, corpus: laterCorpus, executionRunId: interrupted.executionRunId, failureCode: laterVerdict.code })
+        await repository.updateIngestion(row.id, { status: laterVerdict.status, failureCode: laterVerdict.code }, { claimToken: token })
+        onError?.({ ingestionId: row.id, code: laterVerdict.code })
+        return
+      }
       // Retrying a transport loss re-enters the exact immutable source request; it never creates a replay attempt.
       let permanent = error?.retryable !== true && [400, 403, 404, 409, 422].includes(error?.status)
-      const interrupted = await repository.getIngestion(row.id)
       if (executionOptions && interrupted?.executionRunId) {
         const intent = await repository.getIntentForRun(interrupted.executionRunId)
         if (intent?.status === 'FAILED') {
