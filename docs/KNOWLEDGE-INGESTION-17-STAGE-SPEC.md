@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-SPEC
 title: Zuri 17-Stage Knowledge Ingestion and GraphRAG Preparation Pipeline Specification
-version: "1.4.2b"
+version: "1.4.3b"
 status: beta
 created_at: "2026-08-27T00:00:00+07:00,Boss"
-last_update: "2026-09-24T00:00:00+07:00,Claude Fable 5.1"
+last_update: "2026-09-24T00:00:00+07:00,Claude Sonnet 5"
 relations:
   - type: references
     target: ZAI:ADR-050
@@ -724,7 +724,17 @@ DUPLICATE_OF
 
 **Current isolated profile:** heading sections + whitespace-token limit (default 80),
 persist exact source substrings/hash/ordinal/UTF-16 offsets. Token count นี้ไม่ใช่ E5
-tokenizer count. เพิ่ม structural chunker ที่นี่และตรวจ mention offsets/benchmark downstream.
+tokenizer count. **FR-109 remediation (2026-09-24):** TEXT profile (`genesisrag17-parser-3` /
+`genesisrag17-chunker-2`) also bounds every window by a 480-character budget —
+whichever of the two budgets a section hits first — cuts at a paragraph, then
+sentence-punctuation/Thai-run-space, then any-whitespace boundary before a hard
+character cut, keeps up to 60 characters of overlap between consecutive windows
+of the same section, and never opens a chunk on a combining mark or inside a
+surrogate pair. `genesisrag17-parser-1` / `genesisrag17-chunker-1` remain defined
+as historical identities for rows already parsed under them; no new ingestion
+produces them. See [the contract](plans/GENESISRAG17-CONTRACT.md) and Stage 15
+below for why (the pinned e5 embedder's 512-token window). เพิ่ม structural
+chunker ที่นี่และตรวจ mention offsets/benchmark downstream.
 
 ## Objective
 
@@ -1153,12 +1163,27 @@ pipeline_version
 Tokenizer window จริงคือ `MAX_LENGTH = 512` token **รวม** prefix `"passage: "`/`"query: "`
 ที่ต่อหน้า text ก่อน encode (`embedder.py`); `tokenizer.enable_truncation(max_length=512)`
 ตัดปลาย token ที่เกินแบบเงียบ (silent truncation) — ไม่มี path ปฏิเสธ/reject chunk ที่ยาวเกิน,
-มีแต่ truncate แล้ว embed ต่อไปเสมอ. Stage 7 chunker นับ size เป็น whitespace token
-(`\S+`, default 80 คำ, ไม่มี overlap) ซึ่งไม่ผูกกับจำนวน tokenizer token ของโมเดลนี้เลย —
-โดยเฉพาะข้อความไทยที่ไม่มีช่องว่างระหว่างคำ นับเป็น whitespace-token ได้น้อยกว่าจำนวน
-subword token จริงมาก — ผลคือ chunk เดียวสามารถเกิน 512 tokenizer token ได้จริง แล้วส่วนท้าย
-ไม่ถูก embed เลย ทั้งที่ chunk เดิมทั้งก้อนยังถูก serve เป็น citation text เดิม (ดู checklist C1
-สำหรับ design ของ fix ที่แก้ปัญหานี้ — ไม่ได้เสนอ fix ที่นี่).
+มีแต่ truncate แล้ว embed ต่อไปเสมอ. Stage 7 chunker (เดิม, `genesisrag17-parser-1` /
+`genesisrag17-chunker-1`) นับ size เป็น whitespace token (`\S+`, default 80 คำ,
+ไม่มี overlap) ซึ่งไม่ผูกกับจำนวน tokenizer token ของโมเดลนี้เลย — โดยเฉพาะข้อความไทยที่
+ไม่มีช่องว่างระหว่างคำ นับเป็น whitespace-token ได้น้อยกว่าจำนวน subword token จริงมาก —
+ผลคือ chunk เดียวสามารถเกิน 512 tokenizer token ได้จริง แล้วส่วนท้ายไม่ถูก embed เลย
+ทั้งที่ chunk เดิมทั้งก้อนยังถูก serve เป็น citation text เดิม.
+
+**Gap ปิดแล้วสำหรับการ ingest ใหม่ (2026-09-24):** TEXT profile default
+เปลี่ยนเป็น `genesisrag17-parser-3` / `genesisrag17-chunker-2`
+(`apps/server/src/modules/knowledge/genesisrag17-source.js`) — เพิ่ม character
+budget 480 ตัวอักษรควบคู่กับ whitespace-token budget 80 คำ (ตัดตามอันไหนถึงก่อน);
+480 = 512 (MAX_LENGTH) − 2 (special token) − 9 (worst case หนึ่ง tokenizer token
+ต่อหนึ่งตัวอักษรของ prefix `"passage: "` 9 ตัวอักษร) = 501, เผื่อ margin 21 token
+เหลือ 480. ตัดที่ boundary ตามลำดับ paragraph → sentence punctuation/Thai-run
+space → whitespace ใดก็ได้ → hard cut เป็นทางเลือกสุดท้าย, ไม่ตัดกลาง combining
+mark หรือ surrogate pair, และมี overlap สูงสุด 60 ตัวอักษรระหว่าง window ที่ติดกัน
+ใน section เดียวกัน. `genesisrag17-parser-1` ยังอยู่เป็น historical identity
+สำหรับ row เก่าที่ parse ไปแล้วเท่านั้น — ไม่มี re-ingest อัตโนมัติ, generation เดิม
+ที่เป็น parser-1 ยังคงเหมือนเดิมจนกว่าจะถูก ingest ใหม่. ดู
+[GENESISRAG17-CONTRACT.md](plans/GENESISRAG17-CONTRACT.md) ส่วน "Tier 1 Stage
+2/7/8 profiles" สำหรับ contract เต็ม.
 เพิ่ม model/object selection ที่นี่พร้อม generation/index schema และ fixed benchmark ใหม่.
 
 ## Objective
@@ -2031,6 +2056,7 @@ Zuri
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.4.2b → 1.4.3b (2026-09-24) | TEXT-profile default becomes `genesisrag17-parser-3` / `genesisrag17-chunker-2` — a 480-character budget (arithmetic in Stage 15's note) alongside the existing 80-whitespace-token budget, boundary-preferred cuts, up to 60-character overlap, never splitting a combining mark or surrogate pair. Closes the gap this file recorded in 1.4.2b for new ingestions; `genesisrag17-parser-1` rows are unchanged and unaffected | No stage ownership or IDs changed; Stage 7 chunking behavior changed for new TEXT-profile ingestions only (`apps/server/src/modules/knowledge/genesisrag17-source.js`) |
 | 1.4.1b → 1.4.2b (2026-09-24) | Record Stage 15 embedder token window (`MAX_LENGTH=512` incl. `passage:`/`query:` prefix, silent truncation, no reject path) and that Stage 7's whitespace-token chunker (default 80, no overlap) does not bound it — especially Thai text without spaces — so a chunk's tail can go unembedded while still served as citation text; fix design deferred to checklist C1 | No stage ownership or IDs changed; documentation only |
 | 1.4.0b → 1.4.1b | Record actual Business UI/session HTTP/MCP native acceptance and explicit evidence limits | No stage ownership or IDs changed |
 | 1.3.0b → 1.4.0b | Adopt ADR-072 admission and corpus serving around unchanged 17-stage ownership | Authorized phases 0–4 implementation; surface/native acceptance tracked separately |

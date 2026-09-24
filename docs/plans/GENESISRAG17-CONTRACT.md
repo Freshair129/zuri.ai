@@ -1,7 +1,7 @@
 ---
 id: ZAI:GENESISRAG17-CONTRACT
 title: GenesisRAG17 isolated execution wire contract
-version: "1.4.1b"
+version: "1.4.2b"
 status: active
 created_at: "2026-09-07T23:00:00+07:00,RWANG"
 last_update: "2026-09-24T00:00:00+07:00,Claude Sonnet 5"
@@ -51,7 +51,26 @@ Tier 1-internal identities; none crosses the wire as a field. **In effect since
 GenesisBlock worker (rollout step 1) and GKS (step 2) accept both ontology
 versions, and zuri-ai sends parser-2 batches (step 3).
 
-- `genesisrag17-parser-1` + recognizer `rule_v1`: every prose source. Unchanged.
+- `genesisrag17-parser-3` + recognizer `rule_v1`: every prose (TEXT-profile) source
+  (2026-09-24 remediation). Bounds each window by whichever of the 80-whitespace-token
+  budget or a 480-character budget is hit first — a Thai paragraph has no spaces, so
+  it is one whitespace token, and only the character budget bounds it. 480 chars
+  keeps every chunk under the pinned e5 embedder's 512-token `MAX_LENGTH` even in
+  the worst case of one tokenizer token per character: `512 − 2` (special tokens)
+  `− 9` (one token per character of the 9-character `"passage: "` prefix) `= 501`,
+  and 480 keeps a 21-token margin under that. Cuts prefer, in order, a paragraph
+  break, then sentence punctuation (`. ! ?`) or a plain space between two Thai runs
+  (Thai's usual sentence break), then any whitespace, and only as a last resort a
+  hard character cut; a cut never opens on a combining mark (Thai vowel/tone marks
+  U+0E31, U+0E34-U+0E3A, U+0E47-U+0E4E, and more generally any Unicode combining
+  mark) or inside a surrogate pair. Consecutive windows of the same section keep up
+  to 60 characters of overlap, itself boundary-aligned where possible. `genesisrag17-
+  chunker-2` records this behavior; `genesisrag17-parser-1` / `genesisrag17-chunker-1`
+  remain defined as historical identities for rows already parsed under them — no
+  new ingestion produces them, and no re-ingestion of existing parser-1 generations
+  is triggered by this change. Implementation:
+  `apps/server/src/modules/knowledge/genesisrag17-source.js`
+  (`parseGenesisRag17Document`, `genesisRag17ParserIdentity`).
 - `genesisrag17-parser-2` + recognizer `genesisrag17-structured-recognizer-1`: sources
   whose provider is `SMARTGIFT_CATALOG` only, selected by provider, never by a caller
   option. The parsed content is the rendered record text: per record, one DESCRIPTIVE
@@ -173,6 +192,7 @@ engine/model revisions.
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 1.4.2b | 2026-09-24 | active | TEXT-profile Tier 1-internal identity becomes `genesisrag17-parser-3` / `genesisrag17-chunker-2` — adds a 480-character budget (arithmetic in the profile bullet) alongside the existing 80-whitespace-token budget so a spaceless-script (Thai) prose source cannot silently exceed the pinned e5 embedder's 512-token window; boundary-preferred cuts, ≤60-character overlap, never splits a combining mark or surrogate pair. `genesisrag17-parser-1`/`-chunker-1` recorded as historical-only. No wire field, pin value or SMARTGIFT_CATALOG parser-2 behavior changed; verified no GKS/MSP/worker code validates the parser-identity string (Tier 1-internal, confirmed unchanged) | Claude Sonnet 5 |
 | 1.4.1b | 2026-09-24 | active | Wording only, D5 remediation: record that the `ontology_v2` / `genesisrag17-parser-2` pins from 1.4.0b are in effect on the production edge deployment since 2026-09-21, not still conditional on a future merge; no wire field, pin value or stage identity changed | Claude Sonnet 5 |
 | 1.3.0b | 2026-09-08 | active | User-approved audit repairs: semantic correctness, durable recovery, measured evidence and PASS-only atomic publication | RWANG |
 | 1.2.1b | 2026-09-08 | active | Consolidate current nine-operation authority, graph receipt ordering and extension navigation; wire unchanged | RWANG |

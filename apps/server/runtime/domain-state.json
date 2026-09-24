@@ -2520,7 +2520,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-110",
@@ -3282,7 +3282,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-110",
@@ -5700,7 +5700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-110",
@@ -7978,7 +7978,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-110",
@@ -8126,6 +8126,7 @@
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
+        "apps/server/tests/unit/genesisrag17-thai-safe-chunker.test.js",
         "apps/server/tests/unit/genesisrag17-worker.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/ki17-acceptance-harness.test.js",

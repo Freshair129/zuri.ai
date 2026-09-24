@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.8.1b"
+version: "1.8.2b"
 status: beta
-last_update: "2026-09-17T22:40:00+07:00,RWANG"
+last_update: "2026-09-24T00:00:00+07:00,Claude Sonnet 5"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -266,9 +266,20 @@ is the ADR-073 production executor. Its Stage 2 (`DPS-KI-PARSE`), Stage 7
 (`DPS-KI-CHUNK`) and Stage 8 (`DPS-KI-ENTITY-EXTRACT`) all derive from one
 call to `parseGenesisRag17Document`
 (`src/modules/knowledge/genesisrag17-source.js`) — a heading split into
-80-whitespace-token windows with no overlap (identity
-`genesisrag17-parser-1` / `genesisrag17-chunker-1`; the `parser-2` profile
-emits one section per chunk for `SMARTGIFT_CATALOG`). `ensureParsedArtifact`
+windows bounded by whichever of an 80-whitespace-token budget or (2026-09-24
+remediation) a 480-character budget is hit first, cut at a boundary
+(paragraph, then sentence/Thai-run-space, then any whitespace, then a hard
+cut) with up to 60 characters of overlap and never a split inside a
+combining mark or surrogate pair (identity `genesisrag17-parser-3` /
+`genesisrag17-chunker-2`; `genesisrag17-parser-1` / `genesisrag17-chunker-1`
+are historical identities kept only for rows already parsed under them —
+no new ingestion produces them; the `parser-2` profile is unaffected and
+still emits one section per chunk for `SMARTGIFT_CATALOG`). This closes
+the gap this file's 1.8.1b revision recorded below: a spaceless-script
+(Thai) paragraph was one whitespace token and so one unbounded chunk whose
+tail the pinned e5 embedder silently truncated past its 512-token window;
+new ingestions now stay within it (docs/plans/GENESISRAG17-CONTRACT.md,
+docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md Stage 15). `ensureParsedArtifact`
 and `ensureChunks` both read `parsedAndChunks.chunks` from that single call;
 neither imports `./chunking` or `./parsing`. **FR-112's `chunkDocument`
 (`chunking.js`: 400 tokens, 10% overlap, parent-child) and FR-115's
@@ -400,6 +411,7 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.8.1b → 1.8.2b (2026-09-24) | Records the Thai-safe prose chunker remediation: the live `genesisrag17-source.js` TEXT profile now also bounds every window by a 480-character budget alongside the 80-whitespace-token one, cuts at a boundary, keeps a small overlap, and never splits a combining mark or surrogate pair (identity `genesisrag17-parser-3` / `genesisrag17-chunker-2`; `genesisrag17-parser-1` / `genesisrag17-chunker-1` are historical only). Closes the Thai-truncation gap this file's 1.8.1b revision recorded; `parser-2` (SMARTGIFT_CATALOG) is unaffected | `apps/server/src/modules/knowledge/genesisrag17-source.js` changed for new TEXT-profile ingestions; no model, route or requirement statement touched; no re-ingestion of existing `parser-1` rows |
 | 1.8.0b → 1.8.1b (2026-09-24) | Remediation-board checklist C4: state which chunker/parser production actually runs (`genesisrag17-executor.js` → `genesisrag17-source.js`'s `parseGenesisRag17Document`, Stage 2/7/8) and that FR-112 `chunking.js` / FR-115 `parsing.js` are composition-tested via `stage-runner.js` but not on that live path; unifying them is left open (C4/C1), no decision taken | Documentation only; no model, route or requirement statement touched |
 | 1.7.1 → 1.8.0b (2026-09-16) | FR-215 implemented locally through four owning-domain read ports with Business-scoped authorization and unavailable/null failure states; the Knowledge Documents surface is bounded to Text/Markdown admission | No model or migration; no GKS/MSP runtime or production activation |
 | 1.6.0b → 1.7.0b (2026-09-14) | Owner decision (TASK-ZAI-096 review): ADR-090 D6 revised — the candidate creation/edit/decision Zero-PII check AND Stage 5 classify both run the candidate prose policy (`line-faq-candidate-zero-pii-1`), never FR-187's structured-record policy; `LINE_FAQ_CANDIDATE` removed from `structured-record-policy.js`'s `STRUCTURED_RECORD_PROVIDERS`; `genesisrag17-executor.js` gains an explicit provider→policy map (FR-187 unchanged for `SMARTGIFT_CATALOG`) | No schema change; corrects Stage 5 behavior so an approved FAQ containing "ลูกค้า"/"ใบเสนอราคา" is not denied |

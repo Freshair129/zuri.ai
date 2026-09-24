@@ -28,7 +28,7 @@ import {
 } from '@/modules/knowledge/genesisrag17-contract'
 import {
   extractGenesisRag17Mentions,
-  GENESIS_RAG17_CHUNKER_VERSION,
+  GENESIS_RAG17_CHUNKER_VERSION_2,
   GENESIS_RAG17_DEFAULT_MAX_TOKENS,
   GENESIS_RAG17_PARSER_VERSION,
   GENESIS_RAG17_PARSER_PROFILES,
@@ -174,7 +174,7 @@ function inputValue(input) {
   const structuredProfile = parserProfile === GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD
   const chunkerVersion = input?.chunkerVersion ?? source?.chunkerVersion
   // Parser-2 chunks by rendered section, so no token chunker identity applies.
-  if (chunkerVersion !== undefined && (structuredProfile || chunkerVersion !== GENESIS_RAG17_CHUNKER_VERSION)) {
+  if (chunkerVersion !== undefined && (structuredProfile || chunkerVersion !== GENESIS_RAG17_CHUNKER_VERSION_2)) {
     throw serviceError(400, 'GenesisRAG17 chunker configuration identity is unsupported', 'GENESISRAG17_CHUNKER_CONFIG_UNSUPPORTED')
   }
   const temporalFields = ['temporal', 'temporalMetadata', 'temporal_metadata', 'validFrom', 'validTo', 'valid_from', 'valid_to']
@@ -195,7 +195,7 @@ function inputValue(input) {
     maxTokens,
     parserProfile,
     parserVersion: expectedParserVersion,
-    chunkerVersion: structuredProfile ? null : GENESIS_RAG17_CHUNKER_VERSION,
+    chunkerVersion: structuredProfile ? null : GENESIS_RAG17_CHUNKER_VERSION_2,
     recognizerVersion: recognizerIdentity.recognizerVersion,
     recognizerProvenance: recognizerIdentity.recognizerProvenance,
     rawExternalRecordId: source?.rawExternalRecordId ?? null,

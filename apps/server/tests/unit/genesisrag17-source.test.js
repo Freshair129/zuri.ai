@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   GENESIS_RAG17_PARSER_VERSION,
+  GENESIS_RAG17_PARSER_VERSION_3,
   extractGenesisRag17Mentions,
   genesisRag17ParserIdentity,
   parseGenesisRag17Document,
@@ -24,7 +25,10 @@ describe('GenesisRAG17 source parser', () => {
       content: fixture.text,
     })
 
-    expect(parsed.parserVersion).toBe(GENESIS_RAG17_PARSER_VERSION)
+    // parser-3 is now the default TEXT-profile identity; parser-1 is
+    // historical only (unused import kept to document that constant exists).
+    expect(parsed.parserVersion).toBe(GENESIS_RAG17_PARSER_VERSION_3)
+    expect(GENESIS_RAG17_PARSER_VERSION).toBe('genesisrag17-parser-1')
     expect(parsed.content).toBe(fixture.text)
     expect(parsed.contentHash).toBe(hashGenesisRag17Text(fixture.text))
     expect(chunks).toHaveLength(8)

@@ -4,6 +4,7 @@ import {
   GENESIS_RAG17_PARSER_PROFILES,
   GENESIS_RAG17_PARSER_VERSION,
   GENESIS_RAG17_PARSER_VERSION_2,
+  GENESIS_RAG17_PARSER_VERSION_3,
   GENESIS_RAG17_STRUCTURED_RECOGNIZER_VERSION,
   extractGenesisRag17Mentions,
   genesisRag17ParserIdentity,
@@ -71,7 +72,10 @@ describe('genesisrag17-parser-2 identity and selection', () => {
     }
     expect(genesisRag17ParserIdentity({ profile: STRUCTURED })).toBe(GENESIS_RAG17_PARSER_VERSION_2)
     expect(GENESIS_RAG17_PARSER_VERSION_2).toBe('genesisrag17-parser-2')
-    expect(genesisRag17ParserIdentity()).toBe(GENESIS_RAG17_PARSER_VERSION)
+    // parser-3 is now the default TEXT-profile identity; parser-1
+    // remains defined only as a historical constant for old rows.
+    expect(genesisRag17ParserIdentity()).toBe(GENESIS_RAG17_PARSER_VERSION_3)
+    expect(GENESIS_RAG17_PARSER_VERSION).toBe('genesisrag17-parser-1')
     expect(genesisRag17RecognizerIdentity(STRUCTURED).recognizerVersion).toBe('genesisrag17-structured-recognizer-1')
     expect(genesisRag17RecognizerIdentity(STRUCTURED).recognizerVersion).toBe(GENESIS_RAG17_STRUCTURED_RECOGNIZER_VERSION)
     expect(genesisRag17RecognizerIdentity().recognizerVersion).toBe('rule_v1')
@@ -318,14 +322,17 @@ describe('genesisrag17-parser-2 negative and idempotency cases', () => {
   })
 })
 
-describe('genesisrag17-parser-1 prose regression', () => {
-  it('parses prose exactly as before when no profile is named', () => {
+describe('genesisrag17-parser-3 prose regression (formerly parser-1)', () => {
+  it('parses prose the same shape as before, now under the character-safe parser-3 identity', () => {
     const implicit = parseGenesisRag17Document({ documentId: 'doc-corpus', rawArtifactId: 'raw-v1', parsedArtifactId: 'parsed-v1', content: corpus.text })
     const explicit = parseGenesisRag17Document({ documentId: 'doc-corpus', rawArtifactId: 'raw-v1', parsedArtifactId: 'parsed-v1', content: corpus.text, profile: GENESIS_RAG17_PARSER_PROFILES.TEXT })
     expect(explicit).toEqual(implicit)
-    expect(implicit.parsed.parserVersion).toBe('genesisrag17-parser-1')
+    expect(implicit.parsed.parserVersion).toBe('genesisrag17-parser-3')
     expect(implicit.parsed.content).toBe(corpus.text)
-    expect(implicit.parsed.metadata).toMatchObject({ chunkerVersion: 'genesisrag17-chunker-1', maxTokens: 80 })
+    expect(implicit.parsed.metadata).toMatchObject({ chunkerVersion: 'genesisrag17-chunker-2', maxTokens: 80, maxChars: 480, overlapChars: 60 })
+    // The corpus fixture's sections are far under the 480-char budget, so the
+    // new character/boundary/overlap logic changes no chunk here: still one
+    // chunk per heading section, same as the pre-remediation shape.
     expect(implicit.chunks).toHaveLength(8)
     const mentions = extractGenesisRag17Mentions(implicit.chunks)
     expect(mentions.filter((mention) => mention.semanticType === 'Person')).toHaveLength(8)
