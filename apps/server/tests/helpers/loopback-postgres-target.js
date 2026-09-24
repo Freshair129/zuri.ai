@@ -64,3 +64,42 @@ export function resolveLoopbackPostgresTarget(databaseUrl, { database, errorPref
     database,
   }
 }
+
+// A per-run cluster marker proves the connected cluster is the disposable one
+// only if it is set at CLUSTER level. current_setting() alone is not enough:
+// PostgreSQL also takes a value from ALTER DATABASE ... SET, ALTER ROLE ... SET,
+// connection options or SET, so a database on a shared cluster could satisfy it
+// while the suite drops cluster-global roles. Custom (placeholder) settings are
+// not listed in pg_settings, so their source cannot be read there. Instead:
+//   - the marker must be the applied value in pg_file_settings, i.e. set in
+//     postgresql.conf or by ALTER SYSTEM (a server-start `-c` is not listed there
+//     and does not qualify);
+//   - the effective value must equal it, so no other source overrides it;
+//   - pg_db_role_setting may hold no entry for the setting at all.
+// pg_file_settings is readable only by superusers or pg_read_all_settings; an
+// unreadable view throws, which also fails closed. Everything is read on the
+// connection that will run the DDL.
+const CLUSTER_MARKER_SQL = `
+  select
+    current_setting($1, true) as effective,
+    (
+      select f.setting from pg_file_settings f
+      where lower(f.name) = lower($1) and f.applied and f.error is null
+      order by f.seqno desc limit 1
+    ) as file_value,
+    exists (
+      select 1 from pg_db_role_setting s
+      cross join lateral unnest(s.setconfig) as c(entry)
+      where lower(split_part(c.entry, '=', 1)) = lower($1)
+    ) as has_db_role_override
+`
+
+export async function verifyClusterLevelMarker(client, { setting, expectedMarker, markerPattern, errorPrefix }) {
+  if (!markerPattern.test(expectedMarker ?? '')) throw new Error(`${errorPrefix}_CLUSTER_MARKER_MISMATCH`)
+  const { rows } = await client.query(CLUSTER_MARKER_SQL, [setting])
+  const row = rows?.[0] ?? {}
+  if (row.effective !== expectedMarker) throw new Error(`${errorPrefix}_CLUSTER_MARKER_MISMATCH`)
+  if (row.file_value !== expectedMarker || row.has_db_role_override !== false) {
+    throw new Error(`${errorPrefix}_CLUSTER_MARKER_NOT_CLUSTER_LEVEL`)
+  }
+}

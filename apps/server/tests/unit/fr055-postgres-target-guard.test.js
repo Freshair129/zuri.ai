@@ -66,20 +66,20 @@ describe('FR-055 disposable PostgreSQL target guard', () => {
     })).toEqual({ enabled: true, databaseUrl: canonical, clusterMarker: marker })
   })
 
-  it('verifies the exact marker from the connected cluster before DDL', async () => {
-    const query = vi.fn(async () => ({ rows: [{ marker }] }))
+  it('verifies the exact cluster-level marker on the connection before DDL', async () => {
+    const query = vi.fn(async () => ({ rows: [{ effective: marker, file_value: marker, has_db_role_override: false }] }))
     await expect(verifyDisposableClusterMarker({ query }, marker)).resolves.toBeUndefined()
-    expect(query).toHaveBeenCalledWith("select current_setting('zuri.fr055_disposable_cluster', true) as marker")
+    expect(query).toHaveBeenCalledWith(expect.stringContaining('pg_file_settings'), ['zuri.fr055_disposable_cluster'])
   })
 
-  it('fails closed when the connected cluster marker is absent or different', async () => {
-    await expect(verifyDisposableClusterMarker({
-      query: vi.fn(async () => ({ rows: [{ marker: null }] })),
-    }, marker)).rejects.toThrow('LINE_ACTIVATION_TEST_CLUSTER_MARKER_MISMATCH')
-
-    await expect(verifyDisposableClusterMarker({
-      query: vi.fn(async () => ({ rows: [{ marker: `${marker}-other` }] })),
-    }, marker)).rejects.toThrow('LINE_ACTIVATION_TEST_CLUSTER_MARKER_MISMATCH')
+  it.each([
+    ['absent', { effective: null, file_value: null, has_db_role_override: false }, 'MISMATCH'],
+    ['different', { effective: `${marker}-other`, file_value: `${marker}-other`, has_db_role_override: false }, 'MISMATCH'],
+    ['set only per database, role or session', { effective: marker, file_value: null, has_db_role_override: false }, 'NOT_CLUSTER_LEVEL'],
+    ['also overridden in pg_db_role_setting', { effective: marker, file_value: marker, has_db_role_override: true }, 'NOT_CLUSTER_LEVEL'],
+  ])('fails closed when the connected cluster marker is %s', async (_label, row, reason) => {
+    await expect(verifyDisposableClusterMarker({ query: vi.fn(async () => ({ rows: [row] })) }, marker))
+      .rejects.toThrow(`LINE_ACTIVATION_TEST_CLUSTER_MARKER_${reason}`)
   })
 
   it('identifies only roles absent from the pre-test baseline as test-created', () => {

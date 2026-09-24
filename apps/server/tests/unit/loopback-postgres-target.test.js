@@ -1,8 +1,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { parse } from 'pg-connection-string'
-import { resolveLoopbackPostgresTarget } from '../helpers/loopback-postgres-target.js'
+import { resolveLoopbackPostgresTarget, verifyClusterLevelMarker } from '../helpers/loopback-postgres-target.js'
 
 // @req FR-054 — the runtime isolation probe's destructive suite may only reach a dedicated loopback database.
 // @req FR-055 — the LINE activation destructive suites may only reach a dedicated loopback database.
@@ -78,6 +78,42 @@ describe('loopback PostgreSQL test-target resolver', () => {
     ['port out of range', `postgresql://postgres@127.0.0.1:99999/${DATABASE}`],
   ])('refuses an unparseable or non-PostgreSQL URL: %s', (_label, databaseUrl) => {
     expect(() => resolve(databaseUrl)).toThrow('GUARD_TEST_DATABASE_URL_INVALID')
+  })
+})
+
+describe('cluster-level disposable marker', () => {
+  const MARKER = 'guard-disposable:1'
+  const options = { setting: 'zuri.guard_disposable_cluster', expectedMarker: MARKER, markerPattern: /^guard-disposable:\d$/, errorPrefix: 'GUARD_TEST' }
+  const client = (row) => ({ query: vi.fn(async () => ({ rows: [row] })) })
+  const good = { effective: MARKER, file_value: MARKER, has_db_role_override: false }
+
+  it('accepts a marker set in postgresql.conf / ALTER SYSTEM, in force, with no database or role entry', async () => {
+    const c = client(good)
+    await expect(verifyClusterLevelMarker(c, options)).resolves.toBeUndefined()
+    expect(c.query).toHaveBeenCalledWith(expect.stringContaining('pg_file_settings'), ['zuri.guard_disposable_cluster'])
+    expect(c.query.mock.calls[0][0]).toContain('pg_db_role_setting')
+  })
+
+  it.each([
+    ['absent everywhere', { effective: null, file_value: null, has_db_role_override: false }, 'MISMATCH'],
+    ['a different value in force', { ...good, effective: 'guard-disposable:2' }, 'MISMATCH'],
+    ['set by ALTER DATABASE / ALTER ROLE / SET only (not in the file)', { ...good, file_value: null }, 'NOT_CLUSTER_LEVEL'],
+    ['in the file but also set in pg_db_role_setting', { ...good, has_db_role_override: true }, 'NOT_CLUSTER_LEVEL'],
+    ['in the file with another value, the marker supplied by a higher-priority source', { ...good, file_value: 'guard-disposable:2' }, 'NOT_CLUSTER_LEVEL'],
+    ['an unreadable override flag', { ...good, has_db_role_override: null }, 'NOT_CLUSTER_LEVEL'],
+  ])('fails closed when the marker is %s', async (_label, row, reason) => {
+    await expect(verifyClusterLevelMarker(client(row), options)).rejects.toThrow(`GUARD_TEST_CLUSTER_MARKER_${reason}`)
+  })
+
+  it('fails closed without querying when the expected marker is malformed', async () => {
+    const c = client(good)
+    await expect(verifyClusterLevelMarker(c, { ...options, expectedMarker: 'x' })).rejects.toThrow('GUARD_TEST_CLUSTER_MARKER_MISMATCH')
+    expect(c.query).not.toHaveBeenCalled()
+  })
+
+  it('propagates a query failure such as an unreadable pg_file_settings', async () => {
+    const c = { query: vi.fn(async () => { throw new Error('permission denied for view pg_file_settings') }) }
+    await expect(verifyClusterLevelMarker(c, options)).rejects.toThrow('permission denied')
   })
 })
 

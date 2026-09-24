@@ -72,20 +72,22 @@ describe('FR-054 runtime isolation PostgreSQL target guard', () => {
       .toThrow('RUNTIME_ISOLATION_TEST_DATABASE_URL_OVERRIDES_REFUSED')
   })
 
-  it('verifies the exact marker from the connected cluster before DDL', async () => {
-    const query = vi.fn(async () => ({ rows: [{ marker }] }))
+  it('verifies the exact cluster-level marker on the connection before DDL', async () => {
+    const query = vi.fn(async () => ({ rows: [{ effective: marker, file_value: marker, has_db_role_override: false }] }))
     await expect(verifyFr054DisposableClusterMarker({ query }, marker)).resolves.toBeUndefined()
-    expect(query).toHaveBeenCalledWith("select current_setting('zuri.fr054_disposable_cluster', true) as marker")
+    expect(query).toHaveBeenCalledWith(expect.stringContaining('pg_file_settings'), ['zuri.fr054_disposable_cluster'])
   })
 
   it.each([
-    ['absent on the cluster', null, marker],
-    ['different on the cluster', `${marker}-other`, marker],
-    ['expected marker missing', null, undefined],
-    ['expected marker malformed, cluster agrees', 'x', 'x'],
-  ])('fails closed when the connected cluster marker is %s', async (_label, clusterValue, expected) => {
-    const query = vi.fn(async () => ({ rows: [{ marker: clusterValue }] }))
+    ['absent on the cluster', { effective: null, file_value: null, has_db_role_override: false }, marker, 'MISMATCH'],
+    ['different on the cluster', { effective: `${marker}-other`, file_value: `${marker}-other`, has_db_role_override: false }, marker, 'MISMATCH'],
+    ['expected marker missing', { effective: null, file_value: null, has_db_role_override: false }, undefined, 'MISMATCH'],
+    ['expected marker malformed, cluster agrees', { effective: 'x', file_value: 'x', has_db_role_override: false }, 'x', 'MISMATCH'],
+    ['set only per database, role or session', { effective: marker, file_value: null, has_db_role_override: false }, marker, 'NOT_CLUSTER_LEVEL'],
+    ['also overridden in pg_db_role_setting', { effective: marker, file_value: marker, has_db_role_override: true }, marker, 'NOT_CLUSTER_LEVEL'],
+  ])('fails closed when the connected cluster marker is %s', async (_label, row, expected, reason) => {
+    const query = vi.fn(async () => ({ rows: [row] }))
     await expect(verifyFr054DisposableClusterMarker({ query }, expected))
-      .rejects.toThrow('RUNTIME_ISOLATION_TEST_CLUSTER_MARKER_MISMATCH')
+      .rejects.toThrow(`RUNTIME_ISOLATION_TEST_CLUSTER_MARKER_${reason}`)
   })
 })
