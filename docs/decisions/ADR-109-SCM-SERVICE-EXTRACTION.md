@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-109
 title: "SCM service extraction — one deployable over Inventory, Procurement and Commerce"
-version: "0.1.0b"
+version: "0.1.1b"
 status: candidate
 created_at: "2026-09-24T14:00:00+07:00,Claude Opus 5.5"
-last_update: "2026-09-24T14:00:00+07:00,Claude Opus 5.5"
+last_update: "2026-09-24T17:30:00+07:00,Claude Opus 5.5"
 author: Claude Opus 5.5 (Session 5)
 attributes:
   doc_type: architecture-decision
@@ -168,13 +168,23 @@ parity golden proves this for the evaluator.
 - **Rejected: move the code and keep the monolith DB credential.** That is a
   relocation, not an extraction. It is allowed only as a labelled transition
   (`DATA_OWNERSHIP_ENFORCED = NOT_RUN`).
-- **Consequence: POS, fulfilment, recipe, transfer, stocktake and work-order
-  paths keep running in legacy.** They append ISSUE and ADJUSTMENT movements and
-  share the same fence, until each group moves whole. The SCM writer refuses
-  those kinds explicitly (`SCM_MOVEMENT_KIND_NOT_MIGRATED`).
+- **Consequence: fulfilment, recipe, transfer, stocktake and work-order paths
+  keep running in legacy** until each group moves whole. They append ISSUE and
+  ADJUSTMENT movements through the legacy writer. The SCM writer already takes
+  RECEIPT and ISSUE (POS moved whole) and refuses the rest explicitly
+  (`SCM_MOVEMENT_KIND_NOT_MIGRATED`, `SCM_SERIAL_ISSUE_NOT_MIGRATED`,
+  `SCM_UNIT_CONVERSION_NOT_MIGRATED`).
+- **Consequence: references to masters SCM does not own are facts, not copies.**
+  Branch (core), Customer (CRM) and payment slips (Files) come through a
+  ReferenceAuthority port. The facts are read before the unit of work and judged
+  inside it in legacy order. The window between the read and the commit is
+  declared and reported. An unavailable owner refuses the operation; SCM never
+  assumes the reference is valid.
 - **Consequence: a second writer is possible while the store is not yet
   shared.** Two writers to the same logical tables must not both be live for one
-  cohort. That is a cutover gate, not a runtime flag.
+  cohort. That is a cutover gate, not a runtime flag. Tenant-wide uniqueness
+  (bank reference, order and payment codes) and payment verification span POS,
+  payments and sales orders, so those three switch together per Tenant.
 
 ## Verification
 
@@ -187,7 +197,11 @@ For this candidate revision:
   include two-process SQLite contention, rollback at four injected faults, a CAS
   interleaving test, crash after commit with restart and lookup, contract
   checks, module-boundary scans and image-context checks.
-- **Server regression:** 12 files / 222 tests pass.
+- **POS checkout (0.1.1b):** 126 service tests (125 pass, 1 NOT_RUN on
+  Windows), including every legacy FR-183 case, FEFO, dedication, rollback at
+  four faults and a two-process oversell test.
+- **Server regression:** 12 files / 222 tests (receipt slice) and 10 files / 121
+  tests (commerce/inventory, POS slice) pass.
 - **Not yet run:**
   - image build and start;
   - PostgreSQL;
@@ -199,4 +213,5 @@ For this candidate revision:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 0.1.0b | 2026-09-24 | candidate | Initial proposal with the first vertical slice | uncommitted | Claude Opus 5.5 (Session 5) |
+| 0.1.0b | 2026-09-24 | candidate | Initial proposal with the first vertical slice | 45092b78 | Claude Opus 5.5 (Session 5) |
+| 0.1.1b | 2026-09-24 | candidate | POS checkout moved whole; ReferenceAuthority consequence; POS/payments/sales orders switch together | uncommitted | Claude Opus 5.5 (Session 5) |
