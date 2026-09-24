@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.3.0b"
+version: "0.4.0b"
 status: candidate
-last_update: "2026-09-24T11:00:00+07:00,Claude"
+last_update: "2026-09-24T13:00:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -82,6 +82,11 @@ Findings for owners (no semantics were changed):
    records would be skipped instead of re-translated under the new version. Not a
    bug today, but a trap for any M4 replay/version work. It is covered by the note
    in `write-vectors.mjs`: bump the version whenever vectors change.
+   **Fixed in the service only (delegated Q12a):** a failing test in `4d50a31d`, then the
+   fix in `3f3fb808`. The run now filters by the lineage key of the *current* version.
+   Legacy and service **diverge on this behaviour after a version bump**; while the
+   version stays `market-observation.v1` the divergence is invisible, and the v1
+   vectors are byte-identical.
 3. **An audit failure after writes returns 500 while the observations stay committed.**
    A retry is idempotent through `lineageKey`, so no data is duplicated, but the audit
    event for that run is lost. This is an M4 durable-audit item and is pinned by a test.
@@ -182,6 +187,33 @@ Behaviour differences from legacy, all deliberate:
   `fr072-refusal-disclosure`) run with the flag **unset and with `legacy`**: 182/182
   both times. `npm run build` is clean.
 
+## Local provider conformance (delegated Q11) — LOCAL PASS, not integrator-reviewed
+
+Run on the #545 branch: a real session → BFF → Market service (sqlite store) → core
+façade → disposable SQLite. It was compared against the legacy path on a copy of the
+same seeded database, with `MARKET_EXECUTOR=service` set only in the dev server's
+process environment. Seeded Business: `Business 01` (id printed by
+`conformance/setup-raw.mjs`; `5d2ddc34-c2a8-4449-a8a7-86c170b3bd2b` in the recorded run).
+The harness and replay steps are in `services/market-intelligence/conformance/`
+(#545 branch).
+
+- **First run:** 9/10 identical; 1 mismatch (the no-session body). A targeted probe then
+  found that an invalid or expired session made the façade return **500** and the
+  service **503**, where legacy answers 401 `AUTH_REQUIRED`.
+- **Fixes:** `83914071` (lane: `AUTH_REQUIRED` body, and the authority port accepts
+  401) and `b726b596` (façade: an invalid session becomes a 401 decision), each in its
+  own commit (Q13).
+- **Re-run:** **12/12 identical**, including invalid-session feed and translation.
+  `service.db` `MarketObservation` rows 0 and service store rows 3, which proves the
+  service executed. The two runs wrote identical `MARKET_TRANSLATION_RUN` audit
+  payloads, read directly from the core DB's `AuditEvent` table.
+
+## M4 proposals for other owners
+
+[MARKET-INTELLIGENCE-M4-PROPOSALS.md](MARKET-INTELLIGENCE-M4-PROPOSALS.md): P1 durable
+audit handoff (to project-manager) and P2 source revoke/redaction (to Integration).
+These are proposals only, with no code and no port changes.
+
 ## Verification
 
 Environment: Windows 11 Pro, Node 24.19.0 (host), `node:22-alpine` (image), Docker
@@ -192,13 +224,13 @@ this handoff are committed together).
 |---|---|---|
 | CODE_IMPLEMENTED | PARTIAL | M2 complete; M3 façades/BFF flag, M4 not started |
 | ISOLATED_TESTS_VERIFIED | PASS | `npm --prefix services/market-intelligence test`: 95 tests, 94 pass, 0 fail, 1 skipped (the Postgres suite, reported `NOT_RUN: MARKET_TEST_PG_URL is unset`, because it runs separately below) |
-| Postgres conformance | PASS | `npm --prefix services/market-intelligence run test:pg`: disposable `postgres:16-alpine` container, 10/10 including the 8-connection lineage race; container removed afterwards |
+| Postgres conformance | PASS at M2 (`084e6ba0`); **NOT_RUN for `3f3fb808`** (`findExistingLineageKeys` added to both stores; SQLite PASS) because the local Docker engine returned 500 and was left for the owner to handle; `npm --prefix services/market-intelligence run test:pg`: disposable `postgres:16-alpine` container, 10/10 including the 8-connection lineage race; container removed afterwards |
 | SQLite conformance | PASS | included above: 10/10 including the 8-thread race |
 | Boundary build | PASS | `npm --prefix services/market-intelligence run build`: 15 source files, no violation |
 | Legacy parity | PASS | apps/server `service-core-parity.test.js` 10/10; service `parity-vectors` and HTTP-level parity (service-translated rows equal the v1 vectors) |
 | Legacy Market suite | PASS | 182/182 with `MARKET_EXECUTOR` unset and 182/182 with `legacy` (includes executor, domain-visibility and FR-072 disclosure suites); `npm run build` clean |
-| CONTRACT_VERIFIED | PARTIAL | consumer side proven against a conformant **fake** core over real HTTP; no real provider exists until M3 |
-| CONSUMER_INTEGRATION_VERIFIED | PARTIAL | BFF switch built and unit-proven against a stubbed service; default `legacy`; no real service + core façade end-to-end yet |
+| CONTRACT_VERIFIED | PARTIAL | consumer proven against the fake core; provider (the #545 façade) **LOCAL PASS** 12/12 parity against legacy (not integrator-reviewed, so the row stays PARTIAL) |
+| CONSUMER_INTEGRATION_VERIFIED | PARTIAL | BFF → service → façade proven end-to-end locally (12/12 parity); default `legacy`; no deployed stack |
 | DATA_OWNERSHIP_ENFORCED | PARTIAL | the service writes only `"MarketObservation"` through its own adapter; the restricted role is **not applied**, and legacy still writes the same table |
 | IMAGE_BUILD_VERIFIED | PASS | `docker compose -f services/market-intelligence/compose.rehearsal.yml up -d --build --wait` |
 | IMAGE_START_VERIFIED | PASS | through the started container: `/readyz` → `{"ready":true,"deps":{"store":"postgres","core":"fake"}}`; POST translation → `{"translated":1}`, replay → `{"translated":0}`; feed returned the row; `psql` showed 1 row `raw-rehearsal-1`; SIGTERM logged draining → stopped, exit 0; stack removed; the live `zuri-ai` containers were untouched |
@@ -260,20 +292,21 @@ The board stays at snapshot 0.1 on this branch because it belongs to the integra
 Replacement row for §1:
 
 ```text
-| **Market Intelligence — Session 4** | **PARTIAL / M2 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; branch feat/market-intelligence-service, draft PR | Nothing routes to the service; core façade /api/internal/market-intelligence/v1/* absent; MARKET_EXECUTOR flag DONE (default legacy); restricted DB role not applied; CI not wired | M3a on branch; M3b façade offered to integrator as a separate draft PR; Gate MARKET = façade review + provider conformance |
+| **Market Intelligence — Session 4** | **PARTIAL / M2 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; branch feat/market-intelligence-service, draft PR | Nothing routes to the service; core façade /api/internal/market-intelligence/v1/* absent; MARKET_EXECUTOR flag DONE (default legacy); local end-to-end parity 12/12 via #545; restricted DB role not applied; CI not wired | M3a on branch; M3b façade offered to integrator as a separate draft PR; Gate MARKET = façade review + provider conformance |
 ```
 
 Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 IN_PROGRESS
-(M3(a) flag DONE on this branch; M3(b) façade drafted for the integrator), M4 NOT_STARTED, M5 NOT_STARTED.
+(M3(a) flag DONE; M3(b) façade drafted in #545 and LOCAL PASS 12/12; completion waits on integrator review), M4 NOT_STARTED, M5 NOT_STARTED.
 
 ## Next exact action
 
 1. Integrator: land the scanner/CI wiring, and adopt, rewrite or decline the core
    façade draft PR [#545](https://github.com/Freshair129/zuri.ai/pull/545).
-2. Session 4, after the façade is reviewed: a provider conformance run (real core
-   façade ↔ Market service ↔ BFF) on a disposable stack, which completes M3.
-3. Session 4, M4: a durable audit handoff (with the audit owner's review), a replay
-   and schema-version rehearsal (see finding 2), and a revoke/redaction path.
+2. Session 4, once Docker is healthy: re-run `npm run test:pg` for `3f3fb808`.
+3. Integrator: review #545 (the local conformance result and the harness are in the PR).
+   Adopting it completes M3.
+4. Owners: review the M4 proposals (P1 audit, P2 revoke/redaction).
+
 
 ```yaml
 session: S4
