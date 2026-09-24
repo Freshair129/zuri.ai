@@ -332,6 +332,22 @@ function findChunkBoundary(content, lowerBound, hardEnd) {
 }
 
 /**
+ * The one definition of a window's bounds from `start`: the character
+ * budget (raw, then NFKC-bounded — see `nfkcBoundedCharBudgetEnd`) and the
+ * whitespace-token budget, whichever is hit first. `splitRange` builds each
+ * window with it and also uses it to decide whether an overlap can be kept,
+ * so the two can never disagree about where the next window ends.
+ */
+function windowBounds(content, start, end, maxChars, maxTokens) {
+  const charBudgetEnd = nfkcBoundedCharBudgetEnd(content, start, Math.min(end, start + maxChars), maxChars)
+  const tokens = [...content.slice(start, charBudgetEnd).matchAll(/\S+/gu)]
+  const windowEnd = tokens.length > maxTokens
+    ? start + tokens[maxTokens - 1].index + tokens[maxTokens - 1][0].length
+    : charBudgetEnd
+  return { charBudgetEnd, windowEnd }
+}
+
+/**
  * Bounds one section's ranges by whichever of the whitespace-token
  * budget or the character budget is hit first (a Thai paragraph with no
  * spaces is one whitespace token, so the character budget is what actually
@@ -365,18 +381,11 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
   // only as a backstop for input with no safe boundary at all.
   let previousCutEnd = start - 1
   while (cursor < end) {
-    const rawCharBudgetEnd = Math.min(end, cursor + maxChars)
     // Also bound the window by NFKC-normalized length (see the arithmetic
     // note on `GENESIS_RAG17_DEFAULT_MAX_CHARS`): this can only shrink
     // `rawCharBudgetEnd`, never grow it, so it is safe to apply before the
     // whitespace-token count below (which only shrinks it further too).
-    const charBudgetEnd = nfkcBoundedCharBudgetEnd(content, cursor, rawCharBudgetEnd, maxChars)
-    const tokens = [...content.slice(cursor, charBudgetEnd).matchAll(/\S+/gu)]
-    let windowEnd = charBudgetEnd
-    if (tokens.length > maxTokens) {
-      const last = tokens[maxTokens - 1]
-      windowEnd = cursor + last.index + last[0].length
-    }
+    const { charBudgetEnd, windowEnd } = windowBounds(content, cursor, end, maxChars, maxTokens)
     // The true hard stop for THIS window's forward grapheme-safety nudge.
     // Bounding it to `charBudgetEnd` — the NFKC-safe budget end, not the
     // raw one, and not the section's whole `end` — is what stops a run of
@@ -462,10 +471,9 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       // `maxTokens` the overlap alone can hold that many tokens, and the next
       // window's token-bounded end would sit at or before this cut.
       if (next < cutEnd) {
-        const nfkcReach = nfkcBoundedCharBudgetEnd(content, next, Math.min(end, next + maxChars), maxChars)
-        const nextTokens = [...content.slice(next, nfkcReach).matchAll(/\S+/gu)]
-        const reach = nextTokens.length > maxTokens ? next + nextTokens[maxTokens - 1].index + nextTokens[maxTokens - 1][0].length : nfkcReach
-        if (reach <= cutEnd + overlapChars) next = cutEnd
+        // Same function the window itself is built with, so the reach this
+        // check trusts is exactly the next window's `windowEnd`.
+        if (windowBounds(content, next, end, maxChars, maxTokens).windowEnd <= cutEnd + overlapChars) next = cutEnd
       }
       cursor = next
     } else {
