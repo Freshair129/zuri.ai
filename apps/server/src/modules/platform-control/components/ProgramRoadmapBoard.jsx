@@ -520,7 +520,7 @@ function RoadmapEvidence() {
           <span className={styles.sotSummary}>separate gate</span>
         </div>
         <p className={styles.sotSeparation}>
-          Isolated acceptance is not production activation. This planned gate stays visible so the board never upgrades the proof scope by implication.
+          Isolated acceptance is not production activation. This gate stays visible separately so the board never upgrades the proof scope by implication.
         </p>
         <SotTags item={PRODUCTION_ACTIVATION} testId="production-activation-status" />
         <p className="mt-3 text-xs text-muted">{PRODUCTION_ACTIVATION?.evidence || 'No production activation claim.'}</p>

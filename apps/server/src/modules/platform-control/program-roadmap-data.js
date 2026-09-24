@@ -187,7 +187,7 @@ const PROGRAMME_TASK_DEFINITIONS = [
   ['TASK-ZAI-047', 'SPR-ZAI-03', 'Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-048', 'SPR-ZAI-03', 'Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-049', 'SPR-ZAI-03', 'Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1)', 'NFR', 'C-3', 'H4', 'planned'],
-  ['TASK-ZAI-050', 'SPR-ZAI-03', 'Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published', 'NFR', 'C-3', 'H4', 'planned'],
+  ['TASK-ZAI-050', 'SPR-ZAI-03', 'Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published', 'NFR', 'C-3', 'H4', 'in-progress'],
   ['TASK-ZAI-051', 'SPR-ZAI-03', 'Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-052', 'SPR-ZAI-02', 'Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner\'s nine decisions', 'NFR', 'C-2', 'H2', 'in-progress'],
   ['TASK-ZAI-053', 'SPR-ZAI-02', 'Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory)', 'FR', 'C-3', 'H3', 'planned'],
