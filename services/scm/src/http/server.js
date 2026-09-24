@@ -24,6 +24,7 @@ const ROUTES = [
   route('POST', '/v1/commerce/pos/checkout', 'pos.checkout'),
   route('POST', '/v1/commerce/orders', 'order.create'),
   route('GET', '/v1/commerce/orders', 'order.list'),
+  route('GET', '/v1/commerce/revenue', 'revenue'),
   route('POST', '/v1/commerce/orders/:id/actions', 'order.action'),
   route('GET', '/v1/commerce/orders/:id', 'order.get'),
   route('GET', '/v1/commerce/orders/:id/payments', 'order.payments'),
@@ -94,7 +95,10 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
       let result
       if (name === 'po.get') result = await bus.queries.purchaseOrder(scope, params.id)
       else if (name === 'order.get') result = await bus.queries.salesOrder(scope, params.id)
-      else if (name === 'order.list') {
+      else if (name === 'revenue') {
+        const p = url.searchParams
+        result = await bus.queries.revenue(scope, { businessId: p.get('businessId'), ...(p.get('from') ? { from: p.get('from') } : {}), ...(p.get('to') ? { to: p.get('to') } : {}) })
+      } else if (name === 'order.list') {
         const p = url.searchParams
         const bool = (v) => (v === null ? undefined : v === 'true')
         result = await bus.queries.orders(scope, Object.fromEntries(Object.entries({ businessId: p.get('businessId'), status: p.get('status') ?? undefined, includeClosed: bool(p.get('includeClosed')), origin: p.get('origin') ?? undefined, customerId: p.get('customerId') ?? undefined, conversationId: p.get('conversationId') ?? undefined, limit: p.get('limit') ? Number(p.get('limit')) : undefined }).filter(([, v]) => v !== undefined)))

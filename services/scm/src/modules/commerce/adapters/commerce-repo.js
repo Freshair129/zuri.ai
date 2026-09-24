@@ -110,3 +110,13 @@ export function orderIdsOf(sql, { businessId, status, includeClosed, origin, cus
   if (conversationId) { where.push('conversationId = ?'); params.push(conversationId) }
   return sql.all(`SELECT id FROM SalesOrder WHERE ${where.join(' AND ')} ORDER BY orderedAt DESC, createdAt DESC LIMIT ?`, ...params, limit).map((r) => r.id)
 }
+
+// ── Revenue read (FR-163) ────────────────────────────────────────────────────
+/** Every order of the Business with the payment facts the revenue calculator reads. */
+export function ordersForRevenue(sql, businessId) {
+  const orders = sql.all('SELECT id, origin, status FROM SalesOrder WHERE businessId = ?', businessId)
+  const payments = sql.all('SELECT orderId, kind, status, amountSatang, paidAt, createdAt FROM Payment WHERE businessId = ?', businessId)
+  const byOrder = new Map(orders.map((o) => [o.id, { ...o, payments: [] }]))
+  for (const { orderId, ...p } of payments) byOrder.get(orderId)?.payments.push(p)
+  return [...byOrder.values()]
+}

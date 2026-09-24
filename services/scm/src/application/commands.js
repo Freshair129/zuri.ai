@@ -10,6 +10,7 @@ import { applyPaymentAction, getPayment, listPayments, loadOrderForPayment, prep
 import * as commerceRepo from '../modules/commerce/adapters/commerce-repo.js'
 import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSalesOrderInScope, prepareCreateOrder, prepareOrderAction } from '../modules/commerce/application/sales-orders.js'
 import { zCreateOrder } from '../kernel/commerce/commerce.js'
+import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
 
 // SCM business commands — the external API's only mutation entry points. A
 // client sends ONE business command (e.g. "post this receipt"); it never opens a
@@ -139,6 +140,7 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     salesOrder: (scope, id) => store.read((sql) => ({ order: getOrder(sql, scope, id) })),
     payment: (scope, id) => store.read((sql) => ({ payment: getPayment(sql, scope, id) })),
     orders: (scope, query) => store.read((sql) => listOrders(sql, scope, query)),
+    revenue: (scope, query) => store.read((sql) => getRevenueSummary(sql, scope, query)),
     orderPayments: (scope, orderId) => store.read((sql) => listPayments(sql, scope, orderId)),
   }
 

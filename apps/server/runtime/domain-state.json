@@ -1274,7 +1274,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-166",
@@ -2055,7 +2055,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-164",
@@ -5924,7 +5924,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-164",
@@ -9374,7 +9374,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-166",
@@ -9436,7 +9436,8 @@
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
-        "apps/server/tests/unit/scm-group-navigation.test.js"
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/scm-revenue-parity.test.js"
       ]
     },
     {

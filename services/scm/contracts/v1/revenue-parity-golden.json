@@ -1,0 +1,211 @@
+{
+  "schema": "scm.revenue-parity-golden.v1",
+  "outputs": {
+    "all": {
+      "ok": true,
+      "result": {
+        "businessId": "biz-synthetic-a1",
+        "from": null,
+        "to": null,
+        "verifiedNet": 1223.45,
+        "refunded": 300,
+        "byOrigin": {
+          "CHAT": 800,
+          "WALK_IN": 300,
+          "ONLINE": 123.45
+        },
+        "byDay": [
+          {
+            "day": "2026-09-04",
+            "net": 200
+          },
+          {
+            "day": "2026-09-05",
+            "net": 900
+          },
+          {
+            "day": "2026-09-06",
+            "net": 123.45
+          },
+          {
+            "day": "2026-09-07",
+            "net": 200
+          },
+          {
+            "day": "2026-09-08",
+            "net": -200
+          }
+        ],
+        "pending": {
+          "count": 1,
+          "amount": 50
+        },
+        "orders": {
+          "open": 3,
+          "completed": 1
+        }
+      }
+    },
+    "one-bangkok-day": {
+      "ok": true,
+      "result": {
+        "businessId": "biz-synthetic-a1",
+        "from": "2026-09-07",
+        "to": "2026-09-07",
+        "verifiedNet": 200,
+        "refunded": 100,
+        "byOrigin": {
+          "CHAT": -100,
+          "WALK_IN": 300,
+          "ONLINE": 0
+        },
+        "byDay": [
+          {
+            "day": "2026-09-07",
+            "net": 200
+          }
+        ],
+        "pending": {
+          "count": 1,
+          "amount": 50
+        },
+        "orders": {
+          "open": 3,
+          "completed": 1
+        }
+      }
+    },
+    "utc-evening-is-next-bangkok-day": {
+      "ok": true,
+      "result": {
+        "businessId": "biz-synthetic-a1",
+        "from": "2026-09-06",
+        "to": "2026-09-06",
+        "verifiedNet": 123.45,
+        "refunded": 0,
+        "byOrigin": {
+          "CHAT": 0,
+          "WALK_IN": 0,
+          "ONLINE": 123.45
+        },
+        "byDay": [
+          {
+            "day": "2026-09-06",
+            "net": 123.45
+          }
+        ],
+        "pending": {
+          "count": 0,
+          "amount": 0
+        },
+        "orders": {
+          "open": 3,
+          "completed": 1
+        }
+      }
+    },
+    "from-only": {
+      "ok": true,
+      "result": {
+        "businessId": "biz-synthetic-a1",
+        "from": "2026-09-06",
+        "to": null,
+        "verifiedNet": 123.45,
+        "refunded": 300,
+        "byOrigin": {
+          "CHAT": -100,
+          "WALK_IN": 100,
+          "ONLINE": 123.45
+        },
+        "byDay": [
+          {
+            "day": "2026-09-06",
+            "net": 123.45
+          },
+          {
+            "day": "2026-09-07",
+            "net": 200
+          },
+          {
+            "day": "2026-09-08",
+            "net": -200
+          }
+        ],
+        "pending": {
+          "count": 1,
+          "amount": 50
+        },
+        "orders": {
+          "open": 3,
+          "completed": 1
+        }
+      }
+    },
+    "to-only": {
+      "ok": true,
+      "result": {
+        "businessId": "biz-synthetic-a1",
+        "from": null,
+        "to": "2026-09-05",
+        "verifiedNet": 1100,
+        "refunded": 0,
+        "byOrigin": {
+          "CHAT": 900,
+          "WALK_IN": 200,
+          "ONLINE": 0
+        },
+        "byDay": [
+          {
+            "day": "2026-09-04",
+            "net": 200
+          },
+          {
+            "day": "2026-09-05",
+            "net": 900
+          }
+        ],
+        "pending": {
+          "count": 0,
+          "amount": 0
+        },
+        "orders": {
+          "open": 3,
+          "completed": 1
+        }
+      }
+    },
+    "empty-range": {
+      "ok": true,
+      "result": {
+        "businessId": "biz-synthetic-a1",
+        "from": "2027-01-01",
+        "to": "2027-01-31",
+        "verifiedNet": 0,
+        "refunded": 0,
+        "byOrigin": {
+          "CHAT": 0,
+          "WALK_IN": 0,
+          "ONLINE": 0
+        },
+        "byDay": [],
+        "pending": {
+          "count": 0,
+          "amount": 0
+        },
+        "orders": {
+          "open": 3,
+          "completed": 1
+        }
+      }
+    },
+    "refuse-bad-day": {
+      "ok": false,
+      "error": {
+        "name": "ZodError",
+        "paths": [
+          "from"
+        ]
+      }
+    }
+  }
+}
