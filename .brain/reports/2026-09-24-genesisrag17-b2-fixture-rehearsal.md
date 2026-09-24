@@ -19,7 +19,7 @@ No payloads, credentials or environment values other than the one fixture path a
 | File sha256 | `d2d40084a375e719c76a1da0d08680d4eef6cf5e7998fca0060920b22a3d0457` | `sha256sum` in the container |
 | `fixtureVersion` | `smartgift-real-catalog-v1` | file content |
 | `derivedFrom.sha256` (the corpus it was built from) | `8224d9f71c787e9d28a2d5e094fe77a1a384e3aa93ee9812d9759bf3e9e63eb9` | file content |
-| Benchmarks / queries | 22 records (16 `ProductMaster`, 6 `BundleOffer`) / 61 queries; the same 22 external ids as the 22 published ingestions | file content, and the probe's published-ingestion count |
+| Benchmarks / queries | 22 records (16 `ProductMaster`, 6 `BundleOffer`) / 61 queries; the same 22 external ids as the 22 sources whose latest ingestion is `PUBLISHED` | file content; the ids from a read-only query of `KnowledgeSource.sourceKey` (suffix after `#`) joined to each source's latest `KnowledgeIngestion.status`, run in the web container on 2026-09-24. The probe report records only the count, 22 |
 | `derivedFrom.generatedFrom` | absent: the file predates the field | file content |
 | Worker process | started 2026-09-24 05:23:17 UTC, image `zuri-ai-genesis-worker:release-fad8ec62-msp-68e6169-genesis-5156f41` | `docker inspect` |
 
@@ -31,7 +31,11 @@ record's own (`lexicalRows` built from `decision.chunks`, lines 1222–1240 and 
 
 The image-baked `/opt/ki17/fixtures/genesisrag17-smartgift-benchmark-v1.json`, which
 `apps/server/.env.knowledge.example` names, is **not** what production reads. Its gold
-texts come from the Phase 2 test corpus, so no real record could match them.
+texts come from the Phase 2 test corpus. Checked with `--check` against the two real exports:
+20 of the 22 records are `missing`, so Stage 16 would fail them with
+`BENCHMARK_NO_APPLICABLE_QUERIES`. `PM-BOTTLE-LED` and `PM-TMB` are `partial`: their
+`IN_CATEGORY eco-friendly` claim text is byte-equal to a test gold text, so the worker would
+score them on that one query. Neither outcome is usable for real records.
 
 ## Where the file came from
 
@@ -55,7 +59,9 @@ dependable copy.
 Re-running both SmartGift exporters (`pipeline/export_genesisrag17_productmaster.py` and
 `…_bundleoffer.py`, `--out` to a scratch directory) produced files byte-identical to the
 two tracked exports. The canonical catalog has not changed since 2026-09-21. Every record in
-it (16 products, 6 offers) is already published, and the exporter commit's own message says
+it (16 products, 6 offers) is already published (same `sourceKey` query as above: all 22 ids have
+a source whose latest ingestion is `PUBLISHED`; the other 32 catalog sources are the earlier
+2026-09-18 v1/v2 uploads of the same 16 products, all `FAILED`), and the exporter commit's own message says
 the remaining 427 product and 1,110 offer rows are unpromoted supplier rows, "a catalog-owner
 decision, not a transform". **No real record outside the fixture exists today.** That is why
 B2's final proof, one new record publishing on production, is not in this record.

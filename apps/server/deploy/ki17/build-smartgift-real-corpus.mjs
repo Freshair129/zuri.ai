@@ -4,8 +4,9 @@
 //
 // Why: the worker scores exact chunk text (`relevantTexts`), and scopes each
 // benchmark to the candidate generation. A benchmark derived from the test corpus
-// never matches a real record's chunks, so a real upload can never pass the
-// retrieval dimension. Here every gold text is produced by the same code path
+// does not match real records' chunks: checked on 2026-09-24, 20 of the 22 real
+// records have no applicable query and the other 2 share only one category claim
+// with it, so a real upload cannot be judged by it. Here every gold text is produced by the same code path
 // production uses: splitSmartGiftCatalogRecords -> renderStructuredCatalogDocument,
 // one record per source, sections joined by one blank line.
 //
@@ -194,6 +195,9 @@ export function deriveRealCorpus(files, { fixtureVersion, base = null, baseSha25
     // unchanged record keeps the version it was first judged under, so a base
     // at v3 can still hold `v1:X`. Re-using v1 would recreate `v1:X` with
     // different gold texts — the unattributable verdict this guard prevents.
+    // Its limit: a version whose every record was since replaced is no longer
+    // in the base, so the guard cannot see it. That is why §10.1 only ever moves
+    // to v<N+1> and step 8 records each version used.
     const usedVersions = new Set([prior.fixtureVersion])
     for (const benchmark of prior.benchmarks) {
       const suffix = `:${benchmark.externalId}`

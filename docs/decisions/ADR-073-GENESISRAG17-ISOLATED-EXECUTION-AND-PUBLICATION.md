@@ -207,8 +207,8 @@ production answer quality, which is still measured by ADR-075 Phase 4's shadow c
 - **Free text cannot publish on this profile.** Text and Markdown sources admitted
   through FR-173 are still outside the 2026-09-11 amendment's production scope, and under
   this decision a text chunk could not pass Stage 16 without a benchmark entry anyway. The
-  2026-09-21 Stage 16 failure of run `774b95f7`, a `TEXT` source (probe report, "Stage
-  evidence"), is the expected outcome, not a defect. A future
+  2026-09-21 Stage 16 failure of run `774b95f7`, a `TEXT` source (probe report, "`GenesisRag17StageEvidence` per stage (SUCCEEDED /
+  FAILED)"), is the expected outcome, not a defect. A future
   profile must say how its per-record benchmark is produced before its production
   deployment is lifted.
 - **TASK-ZAI-051 cannot publish new or changed records on its own.** A scheduler or
