@@ -64,7 +64,7 @@ export function postGoodsReceipt(sql, scope, orderId, input, { now, requestId, f
   for (const [index, line] of stocked.entries()) {
     const orderLine = byId.get(line.purchaseOrderLineId)
     const costBasis = orderLine.unitCostSatang != null ? orderLine.unitCostSatang + batchCostPerUnit : null
-    const movement = inventory.appendReceipt(sql, scope, {
+    const movement = inventory.appendMovement(sql, scope, {
       businessId: business.id, productId: orderLine.productId, kind: 'RECEIPT', quantity: line.qty, costSatang: costBasis,
       ...(line.lotCode ? { lotCode: line.lotCode } : {}), ...(line.serialNos?.length ? { serialNos: line.serialNos } : {}),
       reason: 'GOODS_RECEIPT', reference, occurredAt: receivedAt, requestId,

@@ -38,6 +38,18 @@
       "kernelSha256": "462bba53f1cd0250935dcd55a751bba39dcff8a7941f33543848353394d8316d"
     },
     {
+      "source": "apps/server/src/modules/commerce/domain/commerce.js",
+      "kernel": "src/kernel/commerce/commerce.js",
+      "sourceSha256": "83f50fba84671c1ee26d7177fa206a4833285d7f1cefea28831a6b76b3bcf1af",
+      "kernelSha256": "40c0f0483e8791aa6509f7a483fb1224d850ad1805b5a72c001c91b41970b548"
+    },
+    {
+      "source": "apps/server/src/modules/commerce/domain/billing.js",
+      "kernel": "src/kernel/commerce/billing.js",
+      "sourceSha256": "29838394ebbd079a380bf0f8b851116e6b601d2366174a75c18376fafcefe699",
+      "kernelSha256": "06f94c6d516839741ae66d363c36e5a4b54d99cb5224b2b0d369a59dc879c270"
+    },
+    {
       "source": "apps/server/src/modules/procurement/domain/procurement.js",
       "kernel": "src/kernel/procurement/procurement.js",
       "sourceSha256": "c3947a428af24f236b8a71c12cf9ff7f02b886e9d99d3866df07782584174b20",

@@ -12,12 +12,16 @@
 // delegated scope (ReferenceAuthority), never joined here.
 
 export const OWNERS = Object.freeze({
-  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence'],
+  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation'],
   procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine'],
+  commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile'],
   scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
 })
 
-export const SCHEMA_VERSION = 1
+// v2 (S5.4 POS checkout): WarehouseLocation, SalesOrder(+Line), Payment,
+// BusinessBillingProfile; Product.maintenanceIntervalDays, ProductLot.lastMaintainedAt.
+// Disposable stores only — there is no v1→v2 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 2
 
 export const DDL = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
@@ -28,7 +32,7 @@ CREATE TABLE IF NOT EXISTS Product (
   stockPolicy TEXT NOT NULL DEFAULT 'TRACKED', trackingMode TEXT NOT NULL DEFAULT 'NONE',
   safetyStock INTEGER NOT NULL DEFAULT 10, status TEXT NOT NULL DEFAULT 'ACTIVE',
   itemKind TEXT NOT NULL DEFAULT 'RAW_COMPONENT', dedicatedCustomerId TEXT, dedicatedSalesOrderId TEXT,
-  maxStorageDays INTEGER, reorderPoint INTEGER,
+  maintenanceIntervalDays INTEGER, maxStorageDays INTEGER, reorderPoint INTEGER,
   createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
   UNIQUE (tenantId, code)
 );
@@ -37,7 +41,7 @@ CREATE INDEX IF NOT EXISTS Product_business ON Product (businessId, status);
 CREATE TABLE IF NOT EXISTS ProductLot (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
   productId TEXT NOT NULL REFERENCES Product(id), manufacturedAt TEXT, expiresAt TEXT,
-  receivedQty INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'OPEN',
+  receivedQty INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'OPEN', lastMaintainedAt TEXT,
   createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
   UNIQUE (productId, code)
 );
@@ -112,6 +116,50 @@ CREATE TRIGGER IF NOT EXISTS GoodsReceipt_immutable BEFORE UPDATE ON GoodsReceip
   BEGIN SELECT RAISE(ABORT, 'GOODS_RECEIPT_IMMUTABLE'); END;
 CREATE TRIGGER IF NOT EXISTS GoodsReceiptLine_immutable BEFORE UPDATE ON GoodsReceiptLine
   BEGIN SELECT RAISE(ABORT, 'GOODS_RECEIPT_IMMUTABLE'); END;
+
+CREATE TABLE IF NOT EXISTS WarehouseLocation (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, name TEXT NOT NULL,
+  type TEXT NOT NULL, isVirtual INTEGER NOT NULL DEFAULT 0, address TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+-- Commerce. customerId / conversationId / slipFileAssetId are opaque references to
+-- CRM and Files owners (verified through ReferenceAuthority, never joined here).
+CREATE TABLE IF NOT EXISTS SalesOrder (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  customerId TEXT, conversationId TEXT, origin TEXT NOT NULL DEFAULT 'WALK_IN', status TEXT NOT NULL DEFAULT 'DRAFT',
+  currency TEXT NOT NULL DEFAULT 'THB', discountSatang INTEGER NOT NULL DEFAULT 0, notes TEXT,
+  orderedAt TEXT NOT NULL, confirmedAt TEXT, completedAt TEXT, cancelledAt TEXT, cancelReason TEXT, stockIssuedAt TEXT,
+  closedByPersonId TEXT, createdByPersonId TEXT, createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS SalesOrderLine (
+  id TEXT PRIMARY KEY, orderId TEXT NOT NULL REFERENCES SalesOrder(id), productId TEXT REFERENCES Product(id),
+  description TEXT NOT NULL, qty INTEGER NOT NULL, unitPriceSatang INTEGER NOT NULL,
+  discountSatang INTEGER NOT NULL DEFAULT 0, sortOrder INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS SalesOrderLine_order ON SalesOrderLine (orderId);
+
+CREATE TABLE IF NOT EXISTS Payment (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  orderId TEXT NOT NULL REFERENCES SalesOrder(id), kind TEXT NOT NULL DEFAULT 'PAYMENT', method TEXT NOT NULL,
+  amountSatang INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'PENDING', bankReference TEXT, slipFileAssetId TEXT, note TEXT,
+  paidAt TEXT NOT NULL, verifiedAt TEXT, verifiedByPersonId TEXT, rejectReason TEXT, createdByPersonId TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code),
+  UNIQUE (tenantId, bankReference)
+);
+
+-- PromptPay configuration read by POS. Its writer (billing profile update, which also
+-- writes Identity-owned LegalEntity/Branch rows) has NOT moved: SHARED_TRANSITION.
+CREATE TABLE IF NOT EXISTS BusinessBillingProfile (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL UNIQUE,
+  promptPayProvider TEXT, promptPayTargetType TEXT, promptPayTarget TEXT, promptPayActive INTEGER NOT NULL DEFAULT 0,
+  promptPayVerifiedAt TEXT, active INTEGER NOT NULL DEFAULT 1,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1
+);
 
 -- Durable mutation identity: one row per (scope, idempotency key), committed in
 -- the SAME transaction as the effect, so "committed" and "has a receipt" are one fact.

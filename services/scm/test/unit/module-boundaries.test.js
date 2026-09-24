@@ -18,7 +18,9 @@ const code = (text) => text.replace(/^\s*\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*
 const written = (text) => [...code(text).matchAll(/\b(?:INSERT\s+(?:OR\s+\w+\s+)?INTO|(?<!DO\s)UPDATE|DELETE\s+FROM)\s+(\w+)/g)].map((m) => m[1]) // SQL is upper-case; prose is not
 
 test('each adapter writes only its owner\'s tables', () => {
-  for (const [owner, tables] of Object.entries({ inventory: OWNERS.inventory, procurement: OWNERS.procurement })) {
+  const modules = Object.entries(OWNERS).filter(([owner]) => owner !== 'scm')
+  assert.deepEqual(modules.map(([m]) => m).sort(), ['commerce', 'inventory', 'procurement'])
+  for (const [owner, tables] of modules) {
     for (const f of files.filter((x) => x.rel.startsWith(`modules/${owner}/adapters/`))) {
       for (const table of written(f.text)) assert.ok(tables.includes(table), `${f.rel} writes ${table}, owned elsewhere`)
     }
@@ -33,14 +35,17 @@ test('each adapter writes only its owner\'s tables', () => {
   }
 })
 
+// A workflow is ONE module's use case: it may use that module's internals and
+// only the public index of every other module. Every workflow must be listed.
+const WORKFLOW_OWNER = { 'workflows/post-goods-receipt.js': 'procurement', 'workflows/pos-checkout.js': 'commerce' }
+
 test('cross-module calls go through the other module\'s public index', () => {
   for (const f of files.filter((x) => x.rel.startsWith('modules/') || x.rel.startsWith('workflows/'))) {
-    const own = f.rel.startsWith('modules/') ? f.rel.split('/')[1] : null
+    const own = f.rel.startsWith('modules/') ? f.rel.split('/')[1] : WORKFLOW_OWNER[f.rel]
+    assert.ok(own, `${f.rel} has no declared owning module`)
     for (const spec of imports(f.text)) {
       const m = /modules\/(\w+)\/(adapters|application|domain)\//.exec(spec)
       if (!m || m[1] === own) continue
-      // The receipt workflow is Procurement's use case and may use Procurement internals.
-      if (f.rel === 'workflows/post-goods-receipt.js' && m[1] === 'procurement') continue
       assert.fail(`${f.rel} imports ${spec}: use modules/${m[1]}/index.js`)
     }
   }

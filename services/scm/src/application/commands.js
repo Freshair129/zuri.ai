@@ -1,8 +1,11 @@
 import { assertIdempotencyKey, findReceipt, operationDto, replayOrConflict, requestHash, writeReceipt } from '../infrastructure/evidence.js'
-import { denied, inventoryAuthority, procurementAuthority } from '../infrastructure/delegation.js'
+import { commerceAuthority, denied, inventoryAuthority, procurementAuthority } from '../infrastructure/delegation.js'
+import { createUnavailableReferenceAuthority } from '../infrastructure/reference-authority.js'
 import { applyPurchaseOrderAction, createPurchaseOrder, createSupplier, getPurchaseOrder, loadOrderInScope } from '../modules/procurement/application/purchase-orders.js'
 import { listMovements, stockSummary } from '../modules/inventory/index.js'
 import { postGoodsReceipt } from '../workflows/post-goods-receipt.js'
+import { checkoutPosSale, parseCheckout, prepareCheckout } from '../workflows/pos-checkout.js'
+import { getOrder } from '../modules/commerce/application/orders.js'
 
 // SCM business commands — the external API's only mutation entry points. A
 // client sends ONE business command (e.g. "post this receipt"); it never opens a
@@ -10,7 +13,9 @@ import { postGoodsReceipt } from '../workflows/post-goods-receipt.js'
 //   1. authorizes against the CURRENT delegated scope (also on replay — a key is
 //      never a read capability),
 //   2. looks up (scope, key): same payload → the stored outcome, different → 409,
-//   3. otherwise executes the use case and writes the receipt in the SAME unit
+//   3. optionally `prepare`s OUTSIDE the unit of work (remote reference facts —
+//      never while holding the writer lock), only when no receipt exists yet,
+//   4. otherwise executes the use case and writes the receipt in the SAME unit
 //      of work, so "committed" and "has a receipt" cannot diverge.
 
 const COMMANDS = {
@@ -32,27 +37,46 @@ const COMMANDS = {
     replayGuard: (scope, businessId, stored) => { if (stored.posted?.length && !inventoryAuthority.mayView(scope, businessId)) throw denied() },
     execute: (sql, scope, { targetId, body }, ctx) => postGoodsReceipt(sql, scope, targetId, body, ctx),
   },
+  'commerce.pos.checkout': {
+    // Authorization needs the parsed businessId; a malformed body is a 422 before any lookup.
+    authorize: (sql, scope, { body }) => commerceAuthority.require(scope, parseCheckout(body).businessId, 'order').id,
+    // Replay discloses on-hand figures when stock was issued.
+    replayGuard: (scope, businessId, stored) => { if (stored.stockDeductions?.length && !inventoryAuthority.mayView(scope, businessId)) throw denied() },
+    prepare: (scope, { body }, deps) => prepareCheckout(scope, body, deps),
+    execute: (sql, scope, { prepared }, ctx) => checkoutPosSale(sql, scope, prepared, ctx),
+  },
 }
+
+const LOOKUP_VIEW = { commerce: commerceAuthority, procurement: procurementAuthority }
 
 export const COMMAND_NAMES = Object.freeze(Object.keys(COMMANDS))
 
-export function createCommandBus({ store, clock = () => new Date(), faults = {} }) {
+export function createCommandBus({ store, clock = () => new Date(), faults = {}, references = createUnavailableReferenceAuthority() }) {
   async function run(scope, action, { idempotencyKey, targetId = null, body }) {
     const command = COMMANDS[action]
     if (!command) throw Object.assign(new Error('unknown command'), { status: 404, code: 'SCM_COMMAND_UNKNOWN' })
     assertIdempotencyKey(idempotencyKey)
     const hash = requestHash({ action, targetId, body: body ?? null })
-    return store.transaction(async (sql) => {
+    const replayIfCommitted = (sql) => {
       const businessId = command.authorize(sql, scope, { targetId, body })
       const key = { tenantId: scope.tenantId, businessId, action, actorId: scope.actorId, idempotencyKey }
       const existing = findReceipt(sql, key)
-      if (existing) {
-        const replay = replayOrConflict(existing, hash, targetId)
-        command.replayGuard?.(scope, businessId, replay)
-        return replay
-      }
+      if (!existing) return { key, businessId, replay: null }
+      const replay = replayOrConflict(existing, hash, targetId)
+      command.replayGuard?.(scope, businessId, replay)
+      return { key, businessId, replay }
+    }
+    let prepared
+    if (command.prepare) {
+      const early = await store.read(replayIfCommitted)
+      if (early.replay) return early.replay
+      prepared = await command.prepare(scope, { targetId, body }, { references })
+    }
+    return store.transaction(async (sql) => {
+      const { key, replay } = replayIfCommitted(sql)
+      if (replay) return replay
       const now = clock().toISOString()
-      const outcome = command.execute(sql, scope, { targetId, body }, { now, requestId: idempotencyKey, faults: faults[action] ?? {} })
+      const outcome = command.execute(sql, scope, { targetId, body, prepared }, { now, requestId: idempotencyKey, faults: faults[action] ?? {} })
       const operation = writeReceipt(sql, { ...key, hash, targetId, response: outcome.response, affected: outcome.affected, now })
       return { ...outcome.response, replayed: false, operation }
     })
@@ -63,7 +87,7 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {} 
     const command = COMMANDS[action]
     if (!command) throw Object.assign(new Error('unknown command'), { status: 404, code: 'SCM_COMMAND_UNKNOWN' })
     assertIdempotencyKey(idempotencyKey)
-    if (!procurementAuthority.mayView(scope, businessId)) throw denied()
+    if (!LOOKUP_VIEW[action.split('.')[0]]?.mayView(scope, businessId)) throw denied()
     return store.read((sql) => {
       const row = findReceipt(sql, { tenantId: scope.tenantId, businessId, action, actorId: scope.actorId, idempotencyKey })
       if (!row) throw Object.assign(new Error('no committed operation for this key'), { status: 404, code: 'SCM_OPERATION_NOT_FOUND', retryable: false })
@@ -77,6 +101,7 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {} 
     purchaseOrder: (scope, id) => store.read((sql) => ({ order: getPurchaseOrder(sql, scope, id) })),
     stock: (scope, businessId) => store.read((sql) => stockSummary(sql, scope, { businessId })),
     movements: (scope, q) => store.read((sql) => ({ movements: listMovements(sql, scope, q) })),
+    salesOrder: (scope, id) => store.read((sql) => ({ order: getOrder(sql, scope, id) })),
   }
 
   return { run, lookup, queries }

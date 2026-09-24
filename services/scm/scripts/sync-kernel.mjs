@@ -33,6 +33,8 @@ export const KERNEL_FILES = Object.freeze({
   'modules/commerce/domain/pricing-source.js': 'commerce/pricing-source.js',
   'modules/commerce/domain/pricing-engine.js': 'commerce/pricing-engine.js',
   'modules/commerce/domain/pricing-catalog-projection.js': 'commerce/pricing-catalog-projection.js',
+  'modules/commerce/domain/commerce.js': 'commerce/commerce.js',
+  'modules/commerce/domain/billing.js': 'commerce/billing.js',
   'modules/procurement/domain/procurement.js': 'procurement/procurement.js',
   'modules/inventory/domain/inventory.js': 'inventory/inventory.js',
   'modules/inventory/domain/inventory-costing.js': 'inventory/inventory-costing.js',

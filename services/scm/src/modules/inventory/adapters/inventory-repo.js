@@ -5,8 +5,8 @@ import { INT32_MAX } from '../../../kernel/inventory/inventory-stocktake.js'
 // SerialUnit, StockMovement and InventoryLedgerFence (module-boundaries test).
 // Every function takes the unit-of-work handle, never opens its own transaction.
 
-const PRODUCT_COLUMNS = 'id, code, tenantId, businessId, name, unit, stockPolicy, trackingMode, safetyStock, status, itemKind, dedicatedCustomerId, dedicatedSalesOrderId, maxStorageDays, reorderPoint'
-const LOT_COLUMNS = 'id, code, tenantId, businessId, productId, manufacturedAt, expiresAt, receivedQty, status, createdAt, updatedAt, version'
+const PRODUCT_COLUMNS = 'id, code, tenantId, businessId, name, unit, stockPolicy, trackingMode, safetyStock, status, itemKind, dedicatedCustomerId, dedicatedSalesOrderId, maintenanceIntervalDays, maxStorageDays, reorderPoint'
+const LOT_COLUMNS = 'id, code, tenantId, businessId, productId, manufacturedAt, expiresAt, receivedQty, status, lastMaintainedAt, createdAt, updatedAt, version'
 const SERIAL_COLUMNS = 'id, serialNo, tenantId, businessId, productId, lotId, status, createdAt, updatedAt, version'
 export const MOVEMENT_COLUMNS = 'id, tenantId, businessId, productId, lotId, serialUnitId, kind, quantity, reason, reference, actorId, occurredAt, createdAt, sourceLocationId, targetLocationId, costSatang, customerId, salesOrderId, workOrderId'
 
@@ -16,6 +16,11 @@ export const productsOfBusiness = (sql, businessId) => sql.all(`SELECT ${PRODUCT
 
 export const onHandOf = (sql, productId) => sql.get('SELECT COALESCE(SUM(quantity), 0) AS q FROM StockMovement WHERE productId = ?', productId).q
 export const onHandByProduct = (sql, businessId) => new Map(sql.all('SELECT productId, SUM(quantity) AS q FROM StockMovement WHERE businessId = ? GROUP BY productId', businessId).map((r) => [r.productId, r.q]))
+
+/** On-hand per lot of one product, from the ledger; lot-less rows sum under `null`. */
+export const onHandByLot = (sql, productId) => new Map(sql.all('SELECT lotId, SUM(quantity) AS q FROM StockMovement WHERE productId = ? GROUP BY lotId', productId).map((r) => [r.lotId ?? null, r.q]))
+export const openLotsOf = (sql, productId) => sql.all(`SELECT ${LOT_COLUMNS} FROM ProductLot WHERE productId = ? AND status = 'OPEN'`, productId)
+export const locationById = (sql, id) => sql.get('SELECT id, code, tenantId, businessId, name, type, isVirtual, status FROM WarehouseLocation WHERE id = ?', id) ?? null
 
 export function acquireFence(sql, { tenantId, businessId, now }) {
   // An UPDATE even when nothing changes: the writer reservation on SQLite and the

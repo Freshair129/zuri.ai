@@ -1,23 +1,24 @@
 import { openSqliteStore } from '../../src/infrastructure/sqlite-store.js'
 import { createDelegationVerifier } from '../../src/infrastructure/delegation.js'
 import { createCommandBus } from '../../src/application/commands.js'
-import { BIZ, PRODUCTS, TEST_KEY, delegation, idem, seedDatabase, tempDbPath } from './fixtures.js'
+import { createFixtureReferenceAuthority } from '../../src/infrastructure/reference-authority.js'
+import { BIZ, PRODUCTS, REFERENCE_FIXTURE, TEST_KEY, delegation, idem, seedDatabase, tempDbPath } from './fixtures.js'
 
 // In-process component harness: REAL store (SQLite file), REAL use cases, REAL
 // delegation verification — only the core issuer is synthetic.
-export function createHarness({ faults, products = Object.values(PRODUCTS) } = {}) {
+export function createHarness({ faults, products = Object.values(PRODUCTS), seed = {}, references = createFixtureReferenceAuthority(REFERENCE_FIXTURE) } = {}) {
   const db = tempDbPath('component')
-  seedDatabase(db.path, { products })
+  seedDatabase(db.path, { products, ...seed })
   let store = openSqliteStore({ location: db.path })
   const verify = createDelegationVerifier({ key: TEST_KEY })
-  let bus = createCommandBus({ store, faults })
+  let bus = createCommandBus({ store, faults, references })
   const as = (options) => verify(delegation(options))
   const h = {
     db, get store() { return store }, get bus() { return bus }, as,
     run: (scope, action, input) => bus.run(scope, action, { idempotencyKey: idem(action), ...input }),
-    async reopen() { await store.close(); store = openSqliteStore({ location: db.path }); bus = createCommandBus({ store, faults }) },
+    async reopen() { await store.close(); store = openSqliteStore({ location: db.path }); bus = createCommandBus({ store, faults, references }) },
     count: (table) => store.read((sql) => sql.get(`SELECT COUNT(*) AS n FROM ${table}`).n),
-    snapshot: () => store.read((sql) => Object.fromEntries(['GoodsReceipt', 'GoodsReceiptLine', 'StockMovement', 'ProductLot', 'SerialUnit', 'ScmAuditEvent', 'ScmOutbox', 'ScmOperationReceipt'].map((t) => [t, sql.get(`SELECT COUNT(*) AS n FROM ${t}`).n]).concat([
+    snapshot: () => store.read((sql) => Object.fromEntries(['GoodsReceipt', 'GoodsReceiptLine', 'StockMovement', 'ProductLot', 'SerialUnit', 'SalesOrder', 'SalesOrderLine', 'Payment', 'ScmAuditEvent', 'ScmOutbox', 'ScmOperationReceipt'].map((t) => [t, sql.get(`SELECT COUNT(*) AS n FROM ${t}`).n]).concat([
       ['fence', sql.get('SELECT COALESCE(MAX(mutationRevision), -1) AS r FROM InventoryLedgerFence').r],
       ['poVersions', sql.all('SELECT id, version, status FROM PurchaseOrder ORDER BY id')],
     ]))),

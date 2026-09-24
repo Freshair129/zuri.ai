@@ -111,3 +111,21 @@ export const inventoryAuthority = {
     return { id: businessId, tenantId: scope.tenantId }
   },
 }
+
+// Commerce (commerce-authority.js parity): view = domain 'commerce'; orders and
+// payment recording = owner | 'commerce.order.write'; verify/reject = owner |
+// 'commerce.payment.verify'.
+export const COMMERCE_PERMISSIONS = Object.freeze({ ORDER_WRITE: 'commerce.order.write', PAYMENT_VERIFY: 'commerce.payment.verify' })
+
+export const commerceAuthority = {
+  mayView: (scope, businessId) => scope.sees(businessId, 'commerce'),
+  mayWriteOrders: (scope, businessId) => scope.owns(businessId) || scope.has(businessId, COMMERCE_PERMISSIONS.ORDER_WRITE),
+  mayVerifyPayments: (scope, businessId) => scope.owns(businessId) || scope.has(businessId, COMMERCE_PERMISSIONS.PAYMENT_VERIFY),
+  require(scope, businessId, capability = 'read') {
+    const id = typeof businessId === 'string' ? businessId.trim() : ''
+    if (!id || !this.mayView(scope, id)) throw denied()
+    if (capability === 'order' && !this.mayWriteOrders(scope, id)) throw denied()
+    if (capability === 'verify' && !this.mayVerifyPayments(scope, id)) throw denied()
+    return { id, tenantId: scope.tenantId }
+  },
+}

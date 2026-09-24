@@ -14,6 +14,8 @@ const zConfig = z.object({
   SCM_DELEGATION_MAX_LIFETIME_S: z.coerce.number().int().min(10).max(900).default(120),
   SCM_MAX_BODY_BYTES: z.coerce.number().int().min(1024).max(4 * 1024 * 1024).default(256 * 1024),
   SCM_REQUEST_TIMEOUT_MS: z.coerce.number().int().min(1000).max(120000).default(15000),
+  // Test/rehearsal only: a synthetic ReferenceAuthority fixture file. Refused outside SCM_ENV=test.
+  SCM_TEST_REFERENCE_FIXTURE: z.string().min(1).optional(),
 })
 
 export function loadConfig(env) {
@@ -27,9 +29,11 @@ export function loadConfig(env) {
   // A production process never creates its own schema: migration ordering belongs
   // to the integrator (one owner), not to every service start.
   if (c.SCM_ENV === 'production' && c.SCM_ENSURE_SCHEMA === '1') throw Object.assign(new Error('SCM_ENSURE_SCHEMA is refused in production'), { code: 'SCM_CONFIG_INVALID' })
+  if (c.SCM_TEST_REFERENCE_FIXTURE && c.SCM_ENV !== 'test') throw Object.assign(new Error('SCM_TEST_REFERENCE_FIXTURE is only allowed with SCM_ENV=test'), { code: 'SCM_CONFIG_INVALID' })
   return {
     env: c.SCM_ENV, port: c.SCM_PORT, host: c.SCM_HOST, store: c.SCM_STORE, sqlitePath: c.SCM_SQLITE_PATH,
     ensureSchema: c.SCM_ENSURE_SCHEMA === '1', delegationKey: c.SCM_DELEGATION_KEY, delegationIssuer: c.SCM_DELEGATION_ISSUER,
     delegationMaxLifetimeSeconds: c.SCM_DELEGATION_MAX_LIFETIME_S, maxBodyBytes: c.SCM_MAX_BODY_BYTES, requestTimeoutMs: c.SCM_REQUEST_TIMEOUT_MS,
+    testReferenceFixture: c.SCM_TEST_REFERENCE_FIXTURE ?? null,
   }
 }
