@@ -320,5 +320,10 @@ current_tranche: M3
 execution_status: PARTIAL
 merge_status: NOT_MERGED
 production_status: NOT_RUN
-board_update: DELTA_SENT   # 2026-09-24, comment on #542: https://github.com/Freshair129/zuri.ai/pull/542#issuecomment-5806819890 — integrator has not merged it into the board yet
+board_update: DELTA_ACKNOWLEDGED   # 2026-09-24, comment on #542: https://github.com/Freshair129/zuri.ai/pull/542#issuecomment-5806819890
+# Session 1 reply (relayed by the owner, 2026-09-24): #542 stays Conversation Runtime-only;
+# #545 is recorded as a shared-file dependency to compose after the integrator decides scope.
+# #542 also edits openapi.js and the API appendix, so the route counters will conflict:
+# whichever lands second recomputes pathCount/operationCount and the appendix count.
+# Board not yet merged.
 ```
