@@ -195,7 +195,7 @@ adds the opt-in overlay, which selects `runner-ki17` and supplies the three pinn
 contexts with the same `KI17_*_CONTEXT` variables as the genesis-worker build:
 
 ```text
-COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.ki17-web.yml
+COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.cold-archive.yml;docker-compose.ki17-web.yml
 ```
 
 Without it the web image has no `/opt/ki17`: web cannot spawn the MSP/GKS stdio
