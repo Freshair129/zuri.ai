@@ -78,8 +78,8 @@ describe('knowledge document Zero-PII policy (FR-173, ADR-072 Amendment 2026-09-
     // Thai EAN-13 barcode: the phone rule's `0\d{1,2}...` branch has no
     // leading boundary of its own, so an embedded "0123456789" run inside a
     // longer digit string used to read as a phone number.
-    'บาร์โค้ด 8850123456789',
-    'รหัสบาร์โค้ดสินค้า 8851234567890 พิมพ์บนฉลากทุกชิ้น',
+    'บาร์โค้ด 8850123456787',
+    'รหัสบาร์โค้ดสินค้า 8851234567898 พิมพ์บนฉลากทุกชิ้น',
     // Markdown retina-image reference, routine in a product manual: the
     // e-mail rule's bare `[a-zA-Z]{2,}` TLD group used to accept `png`.
     '![logo](logo@2x.png)',
@@ -89,9 +89,6 @@ describe('knowledge document Zero-PII policy (FR-173, ADR-072 Amendment 2026-09-
     '![logo](logo@2x.PNG)',
     '![x](logo@2x.retina.png)',
     '![x](img@2x.min.jpg)',
-    // A valid EAN-13 (GS1 check digit 7) split after its prefix.
-    'บาร์โค้ด 885 0123456787',
-    'EAN 885-0123456787',
   ]
 
   // The hardening must not open a hole: real addresses and phone numbers
@@ -110,6 +107,15 @@ describe('knowledge document Zero-PII policy (FR-173, ADR-072 Amendment 2026-09-
     ['ชั้น 2 02-123-4567', 'phone_number'],
     // 3 + 10 = 13 digits but a wrong check digit: not a barcode, so refused.
     ['ห้อง 885 0123456789', 'phone_number'],
+    // Gate round 4: a year or a house number before a phone can complete a
+    // valid 13-digit checksum; the separated-barcode skip was removed for it.
+    ['อัปเดตปี 2026 02-123-4567', 'phone_number'],
+    ['บ้านเลขที่ 199 081-234-5675', 'phone_number'],
+    // Fail closed by design: a barcode written WITH separators is refused
+    // (write it unseparated), and 13 contiguous digits with a wrong check
+    // digit are not a barcode.
+    ['บาร์โค้ด 885 0123456787', 'phone_number'],
+    ['เลข 8850123456789', 'phone_number'],
   ])('still refuses %s', (text, term) => {
     expect(findDocumentProseViolation(text)).toEqual({ term })
   })

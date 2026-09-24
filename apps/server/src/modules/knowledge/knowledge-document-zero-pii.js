@@ -91,21 +91,23 @@ function hasThaiPhoneMatch(content) {
   const withGlobalFlag = new RegExp(THAI_PHONE_PATTERN.source, THAI_PHONE_PATTERN.flags.includes('g') ? THAI_PHONE_PATTERN.flags : `${THAI_PHONE_PATTERN.flags}g`)
   let match
   while ((match = withGlobalFlag.exec(content))) {
-    // Not a phone number when it is really the tail of a barcode:
-    //  - glued to a preceding digit ("8850123456787"), or
-    //  - after ONE space/dash, only when the digit group before the
-    //    separator plus the match's own digits form a valid EAN-13 (13
-    //    digits AND a correct GS1 check digit): "885 0123456787". A phone
-    //    number written after an ordinary number ("สาขา 3 081-234-5678",
-    //    "1 0812345678", "ชั้น 2 02-123-4567") is not 13 digits, and a
-    //    3-digit number before a 10-digit phone passes the check digit only
-    //    one time in ten, so it stays refused nine times in ten (residual
-    //    risk recorded in ADR-072). EAN-8 is not checked: a phone match has
-    //    at least 8 digits of its own, so a separated prefix can never make 8.
+    // Fail closed. The one thing skipped is a match that lies inside a
+    // single run of exactly 13 contiguous digits forming a valid EAN-13
+    // (GS1 check digit): "8850123456787". Anything else phone-shaped is
+    // refused, including a barcode written with separators
+    // ("885 0123456787") — the owner can write it unseparated — because a
+    // separated-prefix rule also passed real phone numbers written after a
+    // year or a house number ("อัปเดตปี 2026 02-123-4567",
+    // "บ้านเลขที่ 199 081-234-5675"). A false refusal can be fixed by the
+    // owner; a leak cannot.
     const advance = () => { if (withGlobalFlag.lastIndex === match.index) withGlobalFlag.lastIndex += 1 }
-    if (/[0-9]$/.test(content.slice(0, match.index))) { advance(); continue }
-    const separated = /([0-9]+)[ -]$/.exec(content.slice(Math.max(0, match.index - 16), match.index))
-    if (separated && isValidEan13(separated[1] + match[0].replace(/[^0-9]/g, ''))) { advance(); continue }
+    if (/^[0-9]+$/.test(match[0])) {
+      let runStart = match.index
+      let runEnd = match.index + match[0].length
+      while (runStart > 0 && /[0-9]/.test(content[runStart - 1])) runStart -= 1
+      while (runEnd < content.length && /[0-9]/.test(content[runEnd])) runEnd += 1
+      if (isValidEan13(content.slice(runStart, runEnd))) { advance(); continue }
+    }
     return true
   }
   return false
