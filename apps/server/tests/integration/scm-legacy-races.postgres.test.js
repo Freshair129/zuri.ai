@@ -39,6 +39,28 @@ const target = parseScmRacePostgresTarget({
   optIn: process.env.ZURI_SCM_RACE_TEST_DESTRUCTIVE_OPT_IN,
 })
 const runPostgres = target.enabled ? describe : describe.skip
+
+// Always runs (no database): the destructive suite may only ever reach a dedicated
+// loopback database, judged as the driver resolves the URL.
+describe('SCM race suite target guard', () => {
+  const OPT_IN = 'YES_RESET_ZURI_SCM_RACE_TEST_DATABASE'
+  const guard = (databaseUrl, optIn = OPT_IN) => () => parseScmRacePostgresTarget({ databaseUrl, optIn })
+  it('accepts only a dedicated loopback database with the explicit opt-in', () => {
+    expect(parseScmRacePostgresTarget({ databaseUrl: undefined, optIn: OPT_IN })).toEqual({ enabled: false })
+    expect(guard('postgresql://u@127.0.0.1:55434/zuri_scm_race_test')()).toEqual({ enabled: true, databaseUrl: 'postgresql://u@127.0.0.1:55434/zuri_scm_race_test' })
+    expect(guard('postgres://u@[::1]:5432/zuri_scm_race_test')().enabled).toBe(true)
+    expect(guard('postgresql://u@127.0.0.1/zuri_scm_race_test', 'yes')).toThrow('SCM_RACE_TEST_DESTRUCTIVE_OPT_IN_REQUIRED')
+    expect(guard('postgresql://u@db.example.com/zuri_scm_race_test')).toThrow('SCM_RACE_TEST_DATABASE_MUST_BE_DEDICATED_LOOPBACK')
+    expect(guard('postgresql://u@127.0.0.1/postgres')).toThrow('SCM_RACE_TEST_DATABASE_MUST_BE_DEDICATED_LOOPBACK')
+    expect(guard('not a url')).toThrow('SCM_RACE_TEST_DATABASE_URL_INVALID')
+    expect(guard('mysql://u@127.0.0.1/zuri_scm_race_test')).toThrow('SCM_RACE_TEST_DATABASE_URL_INVALID')
+  })
+  it('refuses any query override: pg lets ?host / ?hostaddr / ?port replace the loopback authority', () => {
+    for (const query of ['?host=db.example.com', '?hostaddr=10.0.0.5', '?port=6543', '?host=%2Fvar%2Frun%2Fpostgresql', '?sslmode=disable', '?options=-csearch_path%3Dother'])
+      expect(guard(`postgresql://u@127.0.0.1:55434/zuri_scm_race_test${query}`)).toThrow('SCM_RACE_TEST_DATABASE_URL_OVERRIDES_REFUSED')
+    expect(guard('postgresql://u@127.0.0.1/zuri_scm_race_test#x')).toThrow('SCM_RACE_TEST_DATABASE_URL_OVERRIDES_REFUSED')
+  })
+})
 const DOMAINS = ['projects', 'platform', 'procurement', 'inventory', 'commerce']
 
 function schemaSql() {
