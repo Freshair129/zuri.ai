@@ -12,13 +12,25 @@
 //   one work order must post it once. The order update is a compare-and-swap on
 //   its version, so a call that passed the version check with a stale version is
 //   refused 409 *_WORK_ORDER_VERSION_CONFLICT and its ledger rows roll back.
-//   (Stated without requirement annotations so this hotfix leaves the generated
-//   domain-state test counts, held by another lane, untouched.)
+// F-16 (stock reservations): concurrent holds on one product must never promise
+//   more than is on hand. A hold takes the per-Business ledger fence before it
+//   reads on-hand and the live holds, so holds serialize with each other and
+//   with stock movements; the loser reads the winner's hold and is refused 409
+//   STOCK_RESERVATION_INSUFFICIENT_ATP.
+// F-17 (stock reservations): concurrent CONVERTs of one quote hold must commit
+//   exactly one ORDER hold. The hold update is a compare-and-swap on its version
+//   and ACTIVE status, so a call that passed the version check with a stale
+//   version is refused 409 STOCK_RESERVATION_VERSION_CONFLICT and its ORDER hold
+//   rolls back.
+//   (F-14, F-16 and F-17 are stated without requirement annotations so these
+//   hotfixes leave the generated domain-state test counts, held by another
+//   lane, untouched.)
 // @spec ADR-066, ADR-065
 // @tested tests/integration/scm-legacy-races.postgres.test.js
 //
 // Found during the SCM service extraction (draft PR #546, SCM-HANDOFF §7 F-1,
-// F-9, F-12, F-14), where the same guards are proven necessary on PostgreSQL.
+// F-9, F-12, F-14, F-16, F-17), where the same guards are proven necessary on
+// PostgreSQL.
 //
 // PostgreSQL only, READ COMMITTED (Prisma's default): SQLite's single writer lock
 // serializes these transactions and hides every one of the three races, so the
@@ -44,6 +56,7 @@ import { createRecipe } from '@/modules/inventory/application/inventory-recipe-s
 import { createLocation } from '@/modules/inventory/application/warehouse-location-service'
 import { completeKittingWorkOrder, openKittingWorkOrder, releaseKittingWorkOrder } from '@/modules/inventory/application/kitting-work-order-service'
 import { completeCustomizationWorkOrder, openCustomizationWorkOrder, releaseCustomizationWorkOrder } from '@/modules/inventory/application/customization-work-order-service'
+import { applyReservationAction, createReservation } from '@/modules/inventory/application/inventory-atp-service'
 import { parseScmRacePostgresTarget } from '../helpers/scm-race-postgres-target'
 
 const target = parseScmRacePostgresTarget({
@@ -228,5 +241,38 @@ runPostgres('SCM legacy races on PostgreSQL (F-1, F-9, F-12)', () => {
     const { won, refusals } = await settle(Array.from({ length: 4 }, () => completeCustomizationWorkOrder(order.id, { businessId: business.id, version: released.version, completedQty: 10 }, { viewer, db })))
     expect({ won, output: await onHand(order.outputProductId), blank: await onHand(blank.id) }, JSON.stringify(refusals)).toEqual({ won: 1, output: 10, blank: 90 })
     for (const code of refusals) expect(['CUSTOMIZATION_WORK_ORDER_VERSION_CONFLICT', 'CUSTOMIZATION_WORK_ORDER_COMPLETED']).toContain(code)
+  }, 120000)
+
+  // F-16: a hold reads on-hand and the live holds, then inserts. Without the
+  // per-Business ledger fence, concurrent holds each read the same free stock.
+  it('F-16: eight concurrent holds of three on ten on hand promise at most ten', async () => {
+    const viewer = owner('per-rsv-hold')
+    const item = await product('SKU-RSV-HOLD')
+    await recordMovement({ businessId: business.id, productId: item.id, kind: 'RECEIPT', quantity: 10 }, { viewer, db })
+    // A different day per hold so the day-keyed RSV codes never collide: a code
+    // collision would fail the loser for an unrelated reason and hide the
+    // over-promise this test is about. A 30-day hold keeps every one of them live.
+    const { won, refusals } = await settle(Array.from({ length: 8 }, (_, i) => createReservation({ businessId: business.id, productId: item.id, quantity: 3, purpose: 'QUOTE', holdDays: 30, quoteReference: `Q-RACE-${i}` }, { viewer, db, now: new Date(Date.UTC(2026, 1, 1 + i, 3)) })))
+    const held = (await db.stockReservation.aggregate({ where: { productId: item.id, status: 'ACTIVE' }, _sum: { quantity: true } }))._sum.quantity ?? 0
+    expect({ won, held }, JSON.stringify(refusals)).toEqual({ won: 3, held: 9 })
+    for (const code of refusals) expect(code).toBe('STOCK_RESERVATION_INSUFFICIENT_ATP')
+  }, 120000)
+
+  // F-17: RELEASE / CONVERT check the hold's version and then update it. Without
+  // a version predicate on that update, concurrent CONVERTs each commit a hold.
+  it('F-17: four concurrent CONVERTs of one quote hold commit exactly one ORDER hold', async () => {
+    const viewer = owner('per-rsv-convert')
+    const item = await product('SKU-RSV-CONVERT')
+    await recordMovement({ businessId: business.id, productId: item.id, kind: 'RECEIPT', quantity: 10 }, { viewer, db })
+    const quote = await createReservation({ businessId: business.id, productId: item.id, quantity: 4, purpose: 'QUOTE' }, { viewer, db })
+    // A different day per call, as above, so the version guard alone decides.
+    const { won, refusals } = await settle(Array.from({ length: 4 }, (_, i) => applyReservationAction(quote.id, { businessId: business.id, action: 'CONVERT', version: quote.version, salesOrderId: 'so-rsv-race' }, { viewer, db, now: new Date(Date.UTC(2026, 2, 1 + i, 3)) })))
+    const orders = await db.stockReservation.count({ where: { productId: item.id, purpose: 'ORDER', salesOrderId: 'so-rsv-race' } })
+    const quoteAfter = await db.stockReservation.findUnique({ where: { id: quote.id }, select: { status: true, version: true } })
+    expect({ won, orders, quoteAfter }, JSON.stringify(refusals)).toEqual({ won: 1, orders: 1, quoteAfter: { status: 'CONVERTED', version: quote.version + 1 } })
+    // Two CONVERTs on one day may draw the same RSV code (count-then-probe); the
+    // loser of that tie fails on the unique code index instead of the version
+    // check, which still leaves one ORDER hold, so it is an accepted refusal.
+    for (const code of refusals) expect(code).toMatch(/^(STOCK_RESERVATION_VERSION_CONFLICT|STOCK_RESERVATION_NOT_ACTIVE)$|Unique constraint failed on the fields: \(`tenantId`,`code`\)/)
   }, 120000)
 })

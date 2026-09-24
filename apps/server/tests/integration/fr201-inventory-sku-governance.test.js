@@ -31,6 +31,7 @@ import {
 } from '@/modules/inventory/application/inventory-identity-service'
 import { catalogHygiene, replenishment } from '@/modules/inventory/application/inventory-hygiene-service'
 import { applyReservationAction, createReservation } from '@/modules/inventory/application/inventory-atp-service'
+import { applyRecipeAction, createRecipe } from '@/modules/inventory/application/inventory-recipe-service'
 
 const DOMAINS = ['projects', 'platform', 'inventory']
 let tenant, business, owner, manager, member, category, goodMaster, serviceMaster, axesMaster
@@ -280,5 +281,25 @@ describe('FR-201..FR-207 SKU governance (ADR-083)', () => {
     const updated = await applyProductAction(declared.id, { action: 'UPDATE', version: 1, fields: { reorderPoint: 4, reorderQty: null } }, { viewer: owner })
     expect(updated).toMatchObject({ reorderPoint: 4, reorderQty: null, version: 2 })
     expect((await replenishment({ businessId: b(), viewer: member })).rows.map((r) => r.code)).not.toContain('RP-DECLARED')
+  })
+
+  it('AC-205.2 — MERGE names a survivor recipe at the same batch size even when it is ARCHIVED, instead of failing on the unique index', async () => {
+    // The unique (product, batch size) index covers archived recipes too, so a
+    // merge that re-pointed the duplicate's recipe onto the survivor would
+    // collide with the survivor's archived one.
+    const component = await sku('MG-RCP-COMP', { name: 'Recipe component', safetyStock: 0 })
+    const keep = await sku('MG-RCP-KEEP', { name: 'Recipe keeper', safetyStock: 0 })
+    const dup = await sku('MG-RCP-DUP', { name: 'Recipe duplicate', safetyStock: 0 })
+    const old = await createRecipe({ businessId: b(), code: 'RCP-MG-KEEP-1', productId: keep.id, name: 'Keeper set', batchSize: 1, lines: [{ componentProductId: component.id, qty: 1 }] }, { viewer: owner })
+    await applyRecipeAction(old.id, { action: 'ARCHIVE', version: old.version }, { viewer: owner })
+    const live = await createRecipe({ businessId: b(), code: 'RCP-MG-DUP-1', productId: dup.id, name: 'Duplicate set', batchSize: 1, lines: [{ componentProductId: component.id, qty: 1 }] }, { viewer: owner })
+
+    await expect(applyProductAction(dup.id, { action: 'MERGE', version: 1, into: keep.id }, { viewer: owner })).rejects.toMatchObject({
+      status: 409,
+      message: 'INVENTORY_MERGE_BLOCKED_BY_REFERENCES',
+      details: [{ kind: 'RECIPE_BATCH_SIZE_EXISTS', recipeId: live.id, code: 'RCP-MG-DUP-1', batchSize: 1, recipeStatus: 'ACTIVE', survivorRecipeStatus: 'ARCHIVED' }],
+    })
+    expect(await prisma.product.findUnique({ where: { id: dup.id }, select: { status: true, mergedIntoProductId: true, version: true } })).toEqual({ status: 'ACTIVE', mergedIntoProductId: null, version: 1 })
+    expect(await prisma.productRecipe.findUnique({ where: { id: live.id }, select: { productId: true } })).toEqual({ productId: dup.id })
   })
 })
