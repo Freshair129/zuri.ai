@@ -458,7 +458,15 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       // later window would then advance one character at a time past the
       // budget. Dropping the overlap there is what makes
       // `hardLimit > previousCutEnd` hold on the next pass.
-      if (next < cutEnd && nfkcBoundedCharBudgetEnd(content, next, Math.min(end, next + maxChars), maxChars) <= cutEnd + overlapChars) next = cutEnd
+      // The same holds for the whitespace-token budget: with a small custom
+      // `maxTokens` the overlap alone can hold that many tokens, and the next
+      // window's token-bounded end would sit at or before this cut.
+      if (next < cutEnd) {
+        const nfkcReach = nfkcBoundedCharBudgetEnd(content, next, Math.min(end, next + maxChars), maxChars)
+        const nextTokens = [...content.slice(next, nfkcReach).matchAll(/\S+/gu)]
+        const reach = nextTokens.length > maxTokens ? next + nextTokens[maxTokens - 1].index + nextTokens[maxTokens - 1][0].length : nfkcReach
+        if (reach <= cutEnd + overlapChars) next = cutEnd
+      }
       cursor = next
     } else {
       cursor = cutEnd

@@ -223,6 +223,21 @@ describe('GenesisRAG17 prose chunker: no sliver after a paragraph cut', () => {
     }
   })
 
+  // Gate round 8 repro: with a custom maxTokens smaller than what a 60-char
+  // overlap holds, the next window's token end fell at or before the cut and
+  // the fallback cut one character past it, mid-word and over budget.
+  it('a small custom maxTokens never cuts mid-word or over its token budget', () => {
+    const cases = ['x'.repeat(300) + ' ipsum dolor sit amet. '.repeat(30), 'สินค้า'.repeat(50) + ' ' + 'lorem '.repeat(80)]
+    for (const content of cases) {
+      for (const maxTokens of [1, 2, 3, 5, 8]) {
+        const { chunks } = parseGenesisRag17Document({ documentId: 'd', rawArtifactId: 'r', content, maxTokens })
+        assertOffsetsExact(content, chunks)
+        for (const chunk of chunks) expect([...chunk.text.matchAll(/\S+/gu)].length).toBeLessThanOrEqual(maxTokens)
+        for (let index = 1; index < chunks.length; index += 1) expect(chunks[index].endOffset).toBeGreaterThan(chunks[index - 1].endOffset + 1)
+      }
+    }
+  })
+
   it('mixed Thai/English paragraphs', () => {
     const chunks = assertNoSliver(`${englishSentence.repeat(3)}\n\nย่อหน้าที่สอง ${thaiClause.repeat(10)}\n\n${englishSentence.repeat(6)}`)
     expect(chunks.length).toBeGreaterThanOrEqual(3)
