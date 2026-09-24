@@ -46,12 +46,17 @@ export function composeCandidateContent({ question, answer }) {
 }
 
 // A LINE user id, exactly as LINE issues it: "U" + 32 lowercase hex chars.
-const LINE_USER_ID_PATTERN = /\bU[0-9a-f]{32}\b/i
+// Exported (2026-09-24, lane C2/FR-173, ADR-072 Amendment) so
+// `knowledge-document-zero-pii.js` shares this SAME identifier pattern rather
+// than copying it — the two policies must never silently disagree on what a
+// LINE user id looks like.
+export const LINE_USER_ID_PATTERN = /\bU[0-9a-f]{32}\b/i
 
 // Thai mobile/landline (0-prefixed or +66) and a generic international run of
-// digits long enough to be a phone number rather than, say, a SKU.
-const THAI_PHONE_PATTERN = /(?:\+66[-.\s]?\d{1,2}|0\d{1,2})[-.\s]?\d{3}[-.\s]?\d{3,4}\b/
-const INTERNATIONAL_PHONE_PATTERN = /\+\d[\d\s-]{7,}\d\b/
+// digits long enough to be a phone number rather than, say, a SKU. Exported
+// for the same reuse reason as LINE_USER_ID_PATTERN above.
+export const THAI_PHONE_PATTERN = /(?:\+66[-.\s]?\d{1,2}|0\d{1,2})[-.\s]?\d{3}[-.\s]?\d{3,4}\b/
+export const INTERNATIONAL_PHONE_PATTERN = /\+\d[\d\s-]{7,}\d\b/
 
 // A canonical Q/A never needs to wrap a run of words in quotation marks —
 // doing so is exactly what "quoted customer wording" looks like in text.

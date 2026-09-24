@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-072
 title: Knowledge admission and corpus publication
-version: "1.0.3b"
+version: "1.0.4b"
 status: beta
 created_at: "2026-09-08T16:30:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-16T22:45:00+07:00,RWANG"
+last_update: "2026-09-24T23:00:00+07:00,Claude Sonnet 5"
 relations:
   - type: references
     target: ZAI:ADR-073
@@ -53,6 +53,74 @@ isolated evidence; they do not claim production activation.
 
 The atomic corpus manifest is a Tier 1 read set of independently gated document snapshots, not one FR-110 native knowledge_snapshot_id. This phase proves multi-document retrieval and membership, not corpus-wide graph deduplication, cross-document traversal or one aggregate native quality gate. All selected snapshots use the same configured scope/store; cross-store routing is a later phase.
 
+## Amendment (2026-09-24)
+
+Owner approval: the owner approved remediation item C2 of the 2026-09-24 gap
+board with the single word **"approve"**, after being told "start C1 and C2 in
+parallel". C2's definition of done: "a TEXT containing a phone number or a LINE
+user id fails Stage 5 with terminal evidence"; board detail: "at least use the
+candidate prose policy or the FR-111 lattice for documents an OWNER admits, and
+record the policy identity in Stage 5 evidence as done for SMARTGIFT_CATALOG".
+
+**Gap closed:** an OWNER-admitted TEXT/FILE document (Decision 1's
+"text/Markdown and existing readable FileAsset text/Markdown" path) carries
+provider `KNOWLEDGE_ADMISSION` into `genesisrag17-executor.js`
+(`apps/server/src/modules/knowledge/knowledge-runtime.js:358`). Before this
+amendment, `ZERO_PII_POLICY_BY_PROVIDER`
+(`apps/server/src/platform/integrations/core/genesisrag17-executor.js:90`)
+named only `SMARTGIFT_CATALOG` (FR-187) and `LINE_FAQ_CANDIDATE` (FR-236); a
+provider absent from that map "carries no Stage 5 Zero-PII gate at all" (the
+map's own comment), so an owner document containing a phone number or a LINE
+user id reached GKS/GenesisBlockDB with no check.
+
+**Rule set adopted — reused, not copied:** `KNOWLEDGE_ADMISSION` now runs a new
+provider-scoped policy, identity `knowledge-document-zero-pii-1`
+(`apps/server/src/modules/knowledge/knowledge-document-zero-pii.js`), checking
+only four identifier-shaped rules: LINE user id, Thai phone number
+(0-prefixed/+66), international phone number, and e-mail address. The first
+three are the exact same patterns FR-236's candidate prose policy
+(`knowledge-candidate-zero-pii.js`) already exports and uses — imported, never
+re-typed, so the two policies cannot silently disagree on what a phone number
+or LINE id looks like. E-mail address is this policy's own addition; FR-236's
+policy has no e-mail rule because a LINE FAQ candidate answer is not the shape
+that carries one.
+
+**Rule set deliberately NOT extended to owner documents:** the Thai-honorific
+personal-name heuristic and the quoted-wording rule, both from FR-236's
+candidate prose policy, are excluded here on purpose. An owner's own admitted
+document (a policy page, a procedure, a product manual) legitimately quotes
+wording and legitimately names staff, roles or brands by honorific far more
+often than a two-sentence FAQ answer does — ADR-090 D6's reasoning that a rule
+shaped for one payload denies ordinary, approved content of a different shape
+applies at least as strongly here. See the module header for the full
+argument.
+
+**Wiring:** `KNOWLEDGE_ADMISSION: { assert: assertDocumentProseZeroPii, policy:
+DOCUMENT_ZERO_PII_POLICY }` is added to `ZERO_PII_POLICY_BY_PROVIDER`. A
+violation stops the run at Stage 5 with terminal `STEP_FAILED` evidence, the
+same failure code family as `SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE`
+(`KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED`, status 422), the policy identity
+recorded in Stage 5 evidence (`zeroPiiPolicy: 'knowledge-document-zero-pii-1'`,
+matching how `smartgift-zero-pii-1` is already recorded for
+`SMARTGIFT_CATALOG`), and the violated rule named — **never the matched value
+itself**, so evidence cannot leak the PII it caught. Both a TEXT source and a
+FILE source admitted as `KNOWLEDGE_ADMISSION` reach Stage 5 through the same
+`value.content` field and are covered by the same path.
+`SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE` behaviour is byte-identical to before
+this amendment; their existing tests are unchanged and still pass.
+
+**Production note:** SmartGift production sources use provider
+`SMARTGIFT_CATALOG`, so this changes no published record. The one production
+`KNOWLEDGE_ADMISSION` TEXT source already failed at Stage 16 for an unrelated
+reason, so no live corpus content is affected by this gate's addition.
+
+**No new FR/NFR/BR/SEC/SDD/ADR id is declared.** This amendment cites existing
+FR-173 (KNOWLEDGE_ADMISSION provider), FR-187, FR-236, ADR-072 (this
+document), ADR-073, ADR-075 and ADR-090.
+
+@tested tests/unit/knowledge-document-zero-pii.test.js,
+tests/integration/genesisrag17-tier1-knowledge-admission-zero-pii.test.js
+
 ## Public operations
 
 | Operation | Purpose |
@@ -93,6 +161,7 @@ flowchart TB
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.0.4b | 2026-09-24 | beta | Amendment: KNOWLEDGE_ADMISSION (owner-admitted TEXT/FILE documents) gets its own Stage 5 Zero-PII gate, identity `knowledge-document-zero-pii-1` (identifier rules only — LINE id, phone, e-mail; no name/quote rules); owner approved remediation item C2 2026-09-24 ("approve") | working-tree | Claude Sonnet 5 |
 | 1.0.3b | 2026-09-16 | beta | Bound `/knowledge/documents` to the existing Text/Markdown admission path and removed unsupported direct JSON/catalog and binary intake claims; local/isolated evidence only | working-tree | RWANG |
 | 1.0.2b | 2026-09-14 | beta | Pointer only: D1 gains the `LINE_FAQ_CANDIDATE` and `LINE_STUDIO_DESCRIPTION` TEXT source kinds under ADR-090 | working-tree | Claude Opus 5 |
 | 1.0.1b | 2026-09-08 | beta | Record isolated Business surface/native acceptance and distinguish Project/API-grant test evidence | 03256b74 + integration | RWANG |

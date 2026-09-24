@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.8.1b"
+version: "1.8.2b"
 status: beta
-last_update: "2026-09-17T22:40:00+07:00,RWANG"
+last_update: "2026-09-24T23:00:00+07:00,Claude Sonnet 5"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -396,10 +396,41 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
   (ADR-085 Consequence 2), replacing the single placeholder edge from `s.crm`
   straight to `in.knowledge-admission` with the real hop through review.
 
+## Owner-admitted document Zero-PII gate (FR-173, ADR-072 Amendment 2026-09-24)
+
+Remediation item C2, owner-approved 2026-09-24 ("approve"). An OWNER-admitted
+TEXT/FILE document (`KNOWLEDGE_ADMISSION` provider — `knowledge-runtime.js`'s
+`processJob` sets this for every ordinary admitted source with no structured
+descriptor) now runs its own Stage 5 Zero-PII gate, identity
+`knowledge-document-zero-pii-1` (`knowledge-document-zero-pii.js`). Before this
+change, `KNOWLEDGE_ADMISSION` was absent from `genesisrag17-executor.js`'s
+`ZERO_PII_POLICY_BY_PROVIDER` and so carried no Stage 5 Zero-PII check at all —
+a document containing a phone number or a LINE user id reached
+GKS/GenesisBlockDB unchecked.
+
+The rule set is the **identifier rules only** — LINE user id, Thai phone
+(0-prefixed/+66), international phone and e-mail address — the first three
+imported from FR-236's `knowledge-candidate-zero-pii.js` (now exported) rather
+than re-typed, so the two policies cannot silently disagree. It deliberately
+excludes FR-236's Thai-honorific personal-name heuristic and quoted-wording
+rule: an owner's own admitted document legitimately quotes wording and names
+staff/brands by honorific far more often than a two-sentence FAQ answer does,
+so applying those two rules here would refuse ordinary, approved document
+content (ADR-090 D6's reasoning, applied one level further). A violation stops
+Stage 5 with terminal evidence in the same failure-code family as
+`SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE`
+(`KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED`, 422), the policy identity recorded in
+Stage 5 evidence, and the violated rule named — never the matched value. Both
+TEXT and FILE sources admitted as `KNOWLEDGE_ADMISSION` share the same
+`value.content` path and are covered identically.
+`SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE` behaviour is unchanged; their existing
+tests pass byte-identical.
+
 ## Documentation version diff — 2026-09-16
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.8.1b → 1.8.2b (2026-09-24) | Remediation item C2, owner-approved ("approve"): `KNOWLEDGE_ADMISSION` (owner-admitted TEXT/FILE documents) gains its own Stage 5 Zero-PII gate (`knowledge-document-zero-pii.js`, identity `knowledge-document-zero-pii-1`) — identifier rules only (LINE id, phone, e-mail), reusing FR-236's exported patterns; name/quote rules deliberately excluded | No schema change; a `KNOWLEDGE_ADMISSION` document with an identifier now denies at Stage 5 instead of reaching GKS/GenesisBlockDB unchecked |
 | 1.8.0b → 1.8.1b (2026-09-24) | Remediation-board checklist C4: state which chunker/parser production actually runs (`genesisrag17-executor.js` → `genesisrag17-source.js`'s `parseGenesisRag17Document`, Stage 2/7/8) and that FR-112 `chunking.js` / FR-115 `parsing.js` are composition-tested via `stage-runner.js` but not on that live path; unifying them is left open (C4/C1), no decision taken | Documentation only; no model, route or requirement statement touched |
 | 1.7.1 → 1.8.0b (2026-09-16) | FR-215 implemented locally through four owning-domain read ports with Business-scoped authorization and unavailable/null failure states; the Knowledge Documents surface is bounded to Text/Markdown admission | No model or migration; no GKS/MSP runtime or production activation |
 | 1.6.0b → 1.7.0b (2026-09-14) | Owner decision (TASK-ZAI-096 review): ADR-090 D6 revised — the candidate creation/edit/decision Zero-PII check AND Stage 5 classify both run the candidate prose policy (`line-faq-candidate-zero-pii-1`), never FR-187's structured-record policy; `LINE_FAQ_CANDIDATE` removed from `structured-record-policy.js`'s `STRUCTURED_RECORD_PROVIDERS`; `genesisrag17-executor.js` gains an explicit provider→policy map (FR-187 unchanged for `SMARTGIFT_CATALOG`) | No schema change; corrects Stage 5 behavior so an approved FAQ containing "ลูกค้า"/"ใบเสนอราคา" is not denied |

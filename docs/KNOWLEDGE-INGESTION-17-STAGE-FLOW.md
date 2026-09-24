@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-FLOW
 title: GenesisRAG17 execution flow and extension map
-version: "1.4.2b"
+version: "1.4.3b"
 status: beta
 created_at: "2026-09-08T00:51:36+07:00,RWANG,base b64b46df"
-last_update: "2026-09-24T00:00:00+07:00,Claude Fable 5.1"
+last_update: "2026-09-24T23:00:00+07:00,Claude Sonnet 5"
 relations:
   - type: references
     target: ZAI:ADR-073
@@ -149,7 +149,7 @@ sequenceDiagram
 | 2 `DPS-KI-PARSE` | persisted raw → versioned parsed text/structure | เก็บ exact text และ parser version; ไม่มี binary/OCR parser ใน profile นี้. `SMARTGIFT_CATALOG` ใช้ `genesisrag17-parser-2` (FR-188): parsed content คือ record ที่ render เป็น descriptive + claim sections — มีผลบน production edge deployment ตั้งแต่ 2026-09-21 (GKS `ecf1e4de`, GenesisBlock `5156f412`, MSP `68e6169d` ตาม `apps/server/deploy/ki17/pins.json`) | Z-source `parseGenesisRag17Document`, Z-structured `renderStructuredCatalogDocument`, Z-executor `ensureParsedArtifact` |
 | 3 `DPS-KI-PROVENANCE` | raw + parsed → checked provenance digest/source references | ต้องมี parent จริง; lineage resolver ตรวจ chain และ hashes หลัง restart | Z-executor Stage 3, Z-lineage, `provenance.js` |
 | 4 `DPS-KI-NORMALIZE` | original text → canonical text hash + retained raw hash | วัด normalization แต่ไม่ได้แทน raw/chunk text ด้วย canonical text | Z-executor Stage 4, `normalization.js` |
-| 5 `DPS-KI-CLASSIFY` | run scope + policy → indexable/publishable evidence | scope exact; flags `allowEmbedding`/`allowPublication` มีผลที่ 15/17; Stage 5 ผ่านได้แม้ flag false | Z-executor Stage 5 + Z-contract; MSP grants |
+| 5 `DPS-KI-CLASSIFY` | run scope + policy → indexable/publishable evidence | scope exact; flags `allowEmbedding`/`allowPublication` มีผลที่ 15/17; Stage 5 ผ่านได้แม้ flag false. Zero-PII gate, explicit per provider (`ZERO_PII_POLICY_BY_PROVIDER`): `SMARTGIFT_CATALOG` → `smartgift-zero-pii-1` (FR-187); `LINE_FAQ_CANDIDATE` → `line-faq-candidate-zero-pii-1` (FR-236); `KNOWLEDGE_ADMISSION` → `knowledge-document-zero-pii-1` (FR-173, ADR-072 Amendment 2026-09-24, identifier rules only — LINE id/phone/e-mail, no name/quote rules); a provider absent from the map carries no gate. A violation stops at Stage 5 with terminal evidence naming the rule, never the matched value | Z-executor Stage 5 + Z-contract (`genesisrag17-executor.js:90`); MSP grants; `knowledge-document-zero-pii.js` |
 | 6 `DPS-KI-DEDUPE` | immutable current raw + same-scope prior versions → relationship evidence | version/content identity conflict ปฏิเสธ; comparison ไม่ลบหรือ rewrite ต้นฉบับ | Z-executor Stage 6 + dedup classifier |
 | 7 `DPS-KI-CHUNK` | parsed text/heading sections → persisted exact-substring chunks | hash/UTF-16 offsets/ordinal ตรง parent; default 80 whitespace tokens (`\S+`, ไม่มี overlap) ไม่ใช่ model tokenizer — ไม่ผูกกับจำนวน tokenizer token ของ Stage 15 embedder (window 512) เลย โดยเฉพาะข้อความไทยไร้ช่องว่างที่นับ whitespace-token ได้น้อยกว่า subword token จริงมาก (ดู Stage 15). parser-2: หนึ่ง section = หนึ่ง chunk ไม่ตัดตาม token | Z-source parser/chunk helper, Z-executor `ensureChunks` |
 | 8 `DPS-KI-ENTITY-EXTRACT` | chunks → typed source occurrences | แยก `sourceMentionId` จาก `resolutionKey`; ส่งทั้งหมดในหนึ่ง Stage 9 batch. parser-2 ใช้ recognizer ที่ pin ไว้ `genesisrag17-structured-recognizer-1` (ข้อยกเว้นเดียวของ guard) → `Product`/`PACKAGE`/`CATEGORY`/`PRICE_TIER`, `resolutionKey` = SmartGift code ตรงตัว | Z-source `extractGenesisRag17Mentions`, recognizer option, Z-structured `genesisRag17StructuredRecognizer` |
@@ -227,6 +227,7 @@ Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/mu
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.3b | 2026-09-24 | beta | Remediation item C2, owner-approved ("approve"): Stage 5 row records the third `ZERO_PII_POLICY_BY_PROVIDER` entry, `KNOWLEDGE_ADMISSION` → `knowledge-document-zero-pii-1` (FR-173, ADR-072 Amendment 2026-09-24) — identifier rules only (LINE id, phone, e-mail), reusing FR-236's exported patterns, never the name/quote rules | working-tree | Claude Sonnet 5 |
 | 1.4.2b | 2026-09-24 | beta | Wording only, D5 remediation: record that the 1.4.0b `ontology_v2` / `genesisrag17-parser-2` pins (Stage 2, Stage 11 rows and the version-boundary paragraph) are in effect on the production edge deployment since 2026-09-21, not still conditional on a future merge; no wire field, pin value or stage identity changed | working-tree | Claude Fable 5.1 |
 | 1.4.1b | 2026-09-24 | beta | Record Stage 15 embedder token window (`MAX_LENGTH=512` incl. `passage:`/`query:` prefix, silent truncation via `enable_truncation`, no reject path) and cross-reference it from Stage 7's whitespace-token chunker (default 80, no overlap), which does not bound tokenizer tokens — especially for Thai text without spaces — so a chunk's tail can go unembedded while still served as citation text; fix design deferred to checklist C1 | working-tree | Claude Fable 5.1 |
 | 1.4.0b | 2026-09-11 | beta | ADR-075 D6 / FR-188 rollout-step-2 pins: `genesisrag17-parser-2` + `genesisrag17-structured-recognizer-1` for `SMARTGIFT_CATALOG` sources and `{ontology_v1, ontology_v2}` (v2 superset), all marked effective when the GKS `ontology_v2` PR is merged; parser-1/`rule_v1` prose unchanged | working-tree | Claude Opus 5 |
