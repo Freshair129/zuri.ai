@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKETING-INSIGHTS-HANDOFF
-version: "0.1.0"
+version: "0.2.0"
 status: candidate
-last_update: "2026-09-24T13:30:00+07:00,Claude"
+last_update: "2026-09-24T14:10:00+07:00,Claude"
 attributes:
   domain: marketing
   scope: marketing-insights-feature-checkpoint
@@ -15,8 +15,10 @@ relations:
 
 **Checkpoint state:** I0 (target discovery and reconciliation) and I1 (pure metric
 core, ports, scoped query service, synthetic fixtures, unit tests) are done at
-code level. **Not done:** routes and UI, persistence and migrations, any Meta
-provider read, n8n, alerts, live data. None of these can be claimed yet. S6 is a
+code level. The I3 UI components (contract §7) are also built and render-tested
+against the service DTOs, but **they are not mounted on any page**, because the
+routes are gated (B1). **Not done:** routes and page, browser proof, persistence
+and migrations, any Meta provider read, n8n, alerts, live data. None of these can be claimed yet. S6 is a
 reporting module inside Marketing. It is not a Marketing extraction and not an
 Insights microservice.
 
@@ -44,9 +46,10 @@ Insights microservice.
 |---|---|---|
 | domain | `apps/server/src/modules/marketing/insights/domain/` | `metric-catalog` (10 daily metrics, aggregation class, contract fields, Meta deprecation status, Conversions placeholder); `report-window` (Asia/Bangkok, inclusive, 28+28, partial day, ≤93 days); `metric-series` (revisions, distributions, coverage, unique rules, net follows, safe sums, period change); `content-report` (type filter, publish cohort, ranking, by-format, URL allow-list); `csv` (RFC 4180, BOM, CRLF, formula guard); `brand-scope` (slug → binding ∩ authority, one 404 shape) |
 | ports | `…/insights/ports/insights-ports.js` | Zod DTOs for bindings, observations, aggregates, snapshots and content items; typed `InsightsError`; scope-mismatch refusal; the Meta read, sync, sync-status and notification ports as honest UNAVAILABLE adapters |
+| ui | `…/insights/ui/` | `InsightsLayout` (brand/asset selector, 7/28/90 presets + date inputs, tabs, freshness note; URL state through `onSelectionChange`; stale-response guard; loader injected), `InsightsOverview` + `MetricCard` + `Sparkline`, `InsightsResults` + `MetricChart` (organic/paid/total, dash patterns, table fallback, CSV link pinned to the snapshot), `InsightsContent` + `ContentTypeFilter` + `OrganicPaidChart` + `TopContentList` + `FormatBreakdown`; Thai copy for every reason code; hand-drawn SVG, no chart library, no Boost/Edit/Publish controls |
 | application | `…/insights/application/` | `insights-query-service` (summary, metric series, CSV export with snapshot pin, content), which reads only through `InsightsRepository`; `insight-scope-authority` (`seesBusiness` + `growth` gate, no new role) |
 | fixtures | `apps/server/tests/fixtures/marketing-insights/` | synthetic (`fx-`) bindings for all three brands, an in-memory repository and binding port |
-| tests | `apps/server/tests/unit/marketing/insights/` (9 files) | see Verification |
+| tests | `apps/server/tests/unit/marketing/insights/` (10 files) | see Verification |
 | docs | this folder | [reconciliation + TARGET_APP_BINDING](INSIGHTS-CONTRACT-RECONCILIATION.md), [metric compatibility](INSIGHTS-METRIC-COMPATIBILITY.md) |
 
 **S6 owned paths:** `apps/server/src/modules/marketing/insights/**`,
@@ -59,11 +62,11 @@ Insights microservice.
 
 | Level | Result | Code SHA | Command | Numbers |
 |---|---|---|---|---|
-| Unit (no Next/DB/Meta/n8n runtime) | **PASS** | this commit | `npx vitest run tests/unit/marketing/insights` (in `apps/server`) | 9 files, 66 tests, 66 passed, 0 skipped, exit 0, 33.6 s wall (92 ms in tests) |
+| Unit + render (no Next/DB/Meta/n8n runtime) | **PASS** | this commit | `npx vitest run tests/unit/marketing/insights` (in `apps/server`) | 10 files, 78 tests, 78 passed, 0 skipped, exit 0 |
 | Governance | **PASS** | this commit | `npm run govern` (repo root) | exit 0; no CRITICAL. The `untracked-docs` warning cleared once the files were committed (re-run recorded in the commit message) |
 | Full server suite / build / e2e | NOT_RUN | — | `npm run verify` | not run at this checkpoint |
 | Component (Postgres/Supabase, RLS, concurrency) | NOT_RUN | — | — | no disposable Postgres test harness is set up; SQLite would prove nothing here |
-| Browser / performance | NOT_RUN | — | — | no route or UI yet |
+| Browser / performance | NOT_RUN | — | — | components are render-tested only; no page mounts them until B1 |
 | Provider / n8n / LINE / live | NOT_RUN | — | — | blocked (see below) |
 
 Behaviour these tests pin down (master prompt §13A): views ≠ viewers; unique metrics never
@@ -97,10 +100,10 @@ source_contract_sha256: 693f92f04315e68044043d5d8c9cc4be90ca2845fb38e6b498f4fe9a
 TARGET_APP_VERIFIED: PARTIAL        # Zuri Marketing chosen; Ads Dashboard + Meta client + n8n NOT FOUND
 CONTRACT_RECONCILED: PARTIAL        # 18 rows recorded; every delta PROPOSED, none reviewed
 METRIC_MAPPING_VERIFIED: FAIL       # 5 contract fields deprecated by Meta; others UNVERIFIED; no pinned version
-CODE_IMPLEMENTED: PARTIAL           # I1 core/ports/query service only; no routes/UI/persistence/sync
-UNIT_COMPONENT_VERIFIED: PARTIAL    # unit PASS (66/66); component NOT_RUN
+CODE_IMPLEMENTED: PARTIAL           # I1 core/ports/query service + unmounted UI components; no routes/page/persistence/sync
+UNIT_COMPONENT_VERIFIED: PARTIAL    # unit+render PASS (78/78); Postgres component NOT_RUN
 SCOPE_RLS_VERIFIED: NOT_RUN         # app-layer scope unit-tested; RLS needs Postgres + roles
-UI_VERIFIED: NOT_RUN
+UI_VERIFIED: PARTIAL                # server-render tests only; no browser proof
 N8N_TEST_RUN_VERIFIED: NOT_RUN
 META_LIVE_READ_VERIFIED: NOT_RUN
 REAL_DATA_ALL_BRANDS_VERIFIED: NOT_RUN
@@ -129,7 +132,7 @@ mc0_registration: NOT_VERIFIED      # no MC0 broker/tools discovered in this ses
 ## Remaining acceptance (contract §9, each separate from mocks)
 
 1. Overview/Results/Content render for all three brands with real synced data: NOT_RUN (B1–B3, B6)
-2. Date range picker updates all views: NOT_RUN (UI not built; window semantics unit-tested)
+2. Date range picker updates all views: PARTIAL (component + window semantics + stale-response guard tested; no browser proof)
 3. CSV matches the chart: PARTIAL (unit-proven against the same points; no route or browser proof)
 4. Content type filter narrows topContent and byFormat: PARTIAL (unit-proven)
 5. Sync runs on schedule and on manual trigger; failures alert through LINE: NOT_RUN (B3–B5)
@@ -167,8 +170,7 @@ forward.
 ## Next exact action
 
 1. Open a draft PR `[S6 draft, not for merge] Marketing Insights I0+I1`, read CI, and record the result here.
-2. While B1 and B2 are pending, build the UI components (`InsightsLayout`, `MetricCard`,
-   `Sparkline`, `MetricChart`, `ContentTypeFilter`, `OrganicPaidChart`, `TopContentList`,
-   `FormatBreakdown`) as hand-drawn SVG, following repo convention, with render tests over the
-   service DTOs covering every state (loading, empty, not-synced, unsupported, denied, partial, stale).
-3. Write the persistence proposal (B2) as a reviewable document and send it to the migration owner.
+2. Write the persistence proposal (B2) as a reviewable document and send it to the migration owner.
+3. Once FR ids exist (B1): add the four GET routes plus `/growth/insights/page.jsx` (the page
+   injects `load` and the router), then do browser proof and a network audit showing no Graph
+   call on any GET, render or export.

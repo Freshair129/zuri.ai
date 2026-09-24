@@ -10,7 +10,7 @@ const INSIGHTS_ROOT = path.resolve(__dirname, '../../../../src/modules/marketing
 function sources(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name)
-    return entry.isDirectory() ? sources(full) : entry.name.endsWith('.js') ? [full] : []
+    return entry.isDirectory() ? sources(full) : /\.jsx?$/.test(entry.name) ? [full] : []
   })
 }
 
