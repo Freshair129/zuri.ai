@@ -194,27 +194,61 @@ async function closeOrphanedExecutionRun({ db, now, corpus, executionRunId, fail
  * claiming, which is exactly what closes production's already-SUPERSEDED run
  * 1db6810c-eb86-4e96-9f4c-e9c89c8ba0d3.
  *
- * Bounded (one page per pass, oldest first) and idempotent: closing a run
- * moves it out of QUEUED/RUNNING, so a row this pass already closed is a
+ * It starts from the *run* side, not the ingestion side: `listOpenKnowledgeRuns`
+ * takes the oldest still-open (QUEUED/RUNNING) knowledge-ingestion PipelineRuns,
+ * and only then looks up each run's KnowledgeIngestion by its unique
+ * executionRunId (no Prisma relation joins the two models) to see whether that
+ * ingestion is SUPERSEDED/WITHDRAWN. Querying from KnowledgeIngestion first (the
+ * original approach) took the oldest SUPERSEDED/WITHDRAWN rows regardless of
+ * their run's status — every published-then-withdrawn source leaves a run that
+ * finished normally (SUCCEEDED), so those rows never age out of a bounded
+ * "oldest first" window and a genuine orphan behind them is never reached.
+ * Runs that are still legitimately in flight (the ingestion itself is
+ * QUEUED/RUNNING) are left alone here.
+ *
+ * Bounded (one page of runs per pass, oldest first) and idempotent: closing a
+ * run moves it out of QUEUED/RUNNING, so a row this pass already closed is a
  * cheap no-op on the next one (closeOrphanedExecutionRun re-checks the run's
  * live status before doing anything). Each row is closed with its own
  * corpus's scope — never a cross-tenant/business bypass — exactly as
  * `processJob`'s own call does.
+ *
+ * A row whose KnowledgeIngestion lease (`leaseExpiresAt`) is still in the
+ * future is skipped: another process may be mid-flight on it right now (a
+ * live `processJob` heartbeat, or a caller that just flipped the status but
+ * has not yet run its own close), and closing underneath that would race it.
+ *
+ * `closeOrphanedExecutionRun` can decline or fail to close a run (it is still
+ * inside Tier 1, its corpus is gone, or a stage report is rejected) and
+ * leaves the run open on purpose rather than fabricate evidence. Those are
+ * real, needs-attention states, not silent no-ops: the sweep re-reads the
+ * run's status after the attempt and counts it as `open`, not `closed`, and
+ * reports it once per pass through `onError` with `KNOWLEDGE_ORPHAN_RUN_OPEN`.
  */
-async function sweepOrphanedExecutionRuns({ db, now, limit = 20 } = {}) {
+async function sweepOrphanedExecutionRuns({ db, now, limit = 50, onError } = {}) {
   const repository = createKnowledgeRepository(db)
-  const rows = await repository.listOrphanableIngestions({ limit })
-  let closed = 0
-  for (const row of rows) {
-    const run = await db.pipelineRun.findUnique({ where: { executionRunId: row.executionRunId } })
-    if (!run || !['QUEUED', 'RUNNING'].includes(run.status)) continue
-    const corpus = await repository.getCorpus(row.corpusId)
+  const runs = await repository.listOpenKnowledgeRuns({ limit })
+  let closed = 0, open = 0
+  for (const run of runs) {
+    const ingestion = await repository.findIngestionByExecutionRunId(run.executionRunId)
+    if (!ingestion || !['SUPERSEDED', 'WITHDRAWN'].includes(ingestion.status)) continue
+    // Another process may be mid-flight on this exact row right now (a live
+    // processJob heartbeat, or a caller that just wrote the status and has
+    // not yet reached its own close) — leave it for that process/next pass.
+    if (ingestion.leaseExpiresAt && ingestion.leaseExpiresAt > date(now)) continue
+    const corpus = await repository.getCorpus(ingestion.corpusId)
     if (!corpus) continue
-    const failureCode = row.failureCode || (row.status === 'WITHDRAWN' ? 'KNOWLEDGE_SOURCE_WITHDRAWN' : 'KNOWLEDGE_SOURCE_SUPERSEDED')
-    await closeOrphanedExecutionRun({ db, now, corpus, executionRunId: row.executionRunId, failureCode })
-    closed += 1
+    const failureCode = ingestion.failureCode || (ingestion.status === 'WITHDRAWN' ? 'KNOWLEDGE_SOURCE_WITHDRAWN' : 'KNOWLEDGE_SOURCE_SUPERSEDED')
+    await closeOrphanedExecutionRun({ db, now, corpus, executionRunId: run.executionRunId, failureCode })
+    const after = await repository.getPipelineRun(run.executionRunId)
+    if (after && ['QUEUED', 'RUNNING'].includes(after.status)) {
+      open += 1
+      onError?.({ code: 'KNOWLEDGE_ORPHAN_RUN_OPEN', executionRunId: run.executionRunId })
+    } else {
+      closed += 1
+    }
   }
-  return { examined: rows.length, closed }
+  return { examined: runs.length, closed, open }
 }
 
 /** The canonical MANUAL/FILE adapter has no external credentials or URL fetching. */
@@ -316,7 +350,7 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
       // can never again be one `listPending` would have claimed anyway
       // (SUPERSEDED/WITHDRAWN is not QUEUED/RUNNING), so the order between
       // the two never changes which jobs get processed.
-      const sweep = await sweepOrphanedExecutionRuns({ db, now, limit: 20 }).catch(() => { onError?.({ code: 'KNOWLEDGE_SWEEP_FAILED' }); return { examined: 0, closed: 0 } })
+      const sweep = await sweepOrphanedExecutionRuns({ db, now, limit: 20, onError }).catch(() => { onError?.({ code: 'KNOWLEDGE_SWEEP_FAILED' }); return { examined: 0, closed: 0, open: 0 } })
       const rows = await repository.listPending({ now: date(now), limit: 20 })
       for (const row of rows) await processJob(row)
       return { examined: rows.length, sweep }

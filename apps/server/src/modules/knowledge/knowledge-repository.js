@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { KNOWLEDGE_INGESTION_DEFINITION_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 
 // @req FR-173 — one persistence adapter for durable admission and immutable corpus manifests.
 // @spec ADR-072, SEC-001
@@ -54,15 +55,26 @@ export function createKnowledgeRepository(db = prisma) {
       return db.knowledgeIngestion.findMany({ where: { status: { in: ['QUEUED', 'RUNNING'] }, OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }] }, orderBy: { createdAt: 'asc' }, take: limit })
     },
     // FR-173: a job stopped being resumed the moment its status left
-    // QUEUED/RUNNING (listPending never claims it again), so a row that
-    // already carries SUPERSEDED/WITHDRAWN plus an attached run is exactly
-    // the shape the runtime-side reconciliation sweep has to find — whether
-    // that status was written here (processJob) or by a caller outside the
-    // runtime entirely (withdrawKnowledgeSource, publishInTransaction's
-    // stale-revision/revoked-source branches).
-    listOrphanableIngestions({ limit = 20 } = {}) {
-      return db.knowledgeIngestion.findMany({ where: { status: { in: ['SUPERSEDED', 'WITHDRAWN'] }, executionRunId: { not: null } }, orderBy: { updatedAt: 'asc' }, take: limit })
+    // QUEUED/RUNNING (listPending never claims it again), so the runtime-side
+    // reconciliation sweep has to find any such orphan itself — whether that
+    // status was written here (processJob) or by a caller outside the runtime
+    // entirely (withdrawKnowledgeSource, publishInTransaction's
+    // stale-revision/revoked-source branches). It starts from the PipelineRun
+    // side (still QUEUED/RUNNING), not from KnowledgeIngestion: taking the
+    // oldest SUPERSEDED/WITHDRAWN rows first fills this bounded window forever
+    // once every published-then-withdrawn source's run has already finished
+    // (SUCCEEDED/FAILED) — those rows never age out, so a real orphan sitting
+    // behind them is never reached. There is no Prisma relation between the
+    // two models, so the caller resolves each run's KnowledgeIngestion with a
+    // second query (findIngestionByExecutionRunId) and decides there.
+    listOpenKnowledgeRuns({ limit = 50 } = {}) {
+      return db.pipelineRun.findMany({
+        where: { dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID, status: { in: ['QUEUED', 'RUNNING'] } },
+        orderBy: [{ startedAt: 'asc' }, { createdAt: 'asc' }],
+        take: limit,
+      })
     },
+    findIngestionByExecutionRunId: (executionRunId) => db.knowledgeIngestion.findUnique({ where: { executionRunId } }),
     async claimIngestion(id, { claimToken, now = new Date(), leaseMs = 120000 } = {}) {
       const result = await db.knowledgeIngestion.updateMany({
         where: { id, status: { in: ['QUEUED', 'RUNNING'] }, OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }] },
