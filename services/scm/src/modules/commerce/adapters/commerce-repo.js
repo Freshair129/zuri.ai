@@ -78,3 +78,35 @@ export function casUpdatePayment(sql, { id, version, change, now }) {
   )
   return Number(result.changes)
 }
+
+// ── Sales orders (FR-166) ────────────────────────────────────────────────────
+/**
+ * Compare-and-swap on (id, version), optionally replacing the lines (UPDATE while
+ * DRAFT). Returns the number of order rows changed (0 → someone else won).
+ */
+export function casUpdateOrder(sql, { id, version, change, lines = null, now }) {
+  const keys = Object.keys(change)
+  const result = sql.run(
+    `UPDATE SalesOrder SET ${keys.map((k) => `${k} = ?`).join(', ')}${keys.length ? ', ' : ''}version = version + 1, updatedAt = ? WHERE id = ? AND version = ?`,
+    ...keys.map((k) => change[k]), now, id, version,
+  )
+  const changed = Number(result.changes)
+  if (changed === 1 && lines) {
+    sql.run('DELETE FROM SalesOrderLine WHERE orderId = ?', id)
+    for (const line of lines) {
+      sql.run(`INSERT INTO SalesOrderLine (orderId, ${LINE_COLUMNS}) VALUES (?,?,?,?,?,?,?,?)`, id, randomUUID(), line.productId ?? null, line.description, line.qty, line.unitPriceSatang, line.discountSatang, line.sortOrder)
+    }
+  }
+  return changed
+}
+
+/** Order ids for the list read, newest first; closed orders only when asked (legacy default). */
+export function orderIdsOf(sql, { businessId, status, includeClosed, origin, customerId, conversationId, limit }) {
+  const where = ['businessId = ?']
+  const params = [businessId]
+  if (status) { where.push('status = ?'); params.push(status) } else if (!includeClosed) where.push("status IN ('DRAFT', 'CONFIRMED')")
+  if (origin) { where.push('origin = ?'); params.push(origin) }
+  if (customerId) { where.push('customerId = ?'); params.push(customerId) }
+  if (conversationId) { where.push('conversationId = ?'); params.push(conversationId) }
+  return sql.all(`SELECT id FROM SalesOrder WHERE ${where.join(' AND ')} ORDER BY orderedAt DESC, createdAt DESC LIMIT ?`, ...params, limit).map((r) => r.id)
+}

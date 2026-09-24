@@ -10,6 +10,7 @@
 //   branch(scope, {businessId, branchId})      → {id, code, name, tenantId, businessId, status} | null
 //   customer(scope, {businessId, customerId})  → {id, code, tenantId, businessId|null, deletedAt|null} | null
 //   fileAsset(scope, {businessId, fileAssetId})→ {id, businessId, deletedAt|null} | null
+//   conversation(scope, {businessId, conversationId}) → {id, tenantId, businessId|null, customerId|null} | null
 //
 // Facts are fetched BEFORE the unit of work opens (a remote call must not hold
 // the writer lock). Consistency window: a reference revoked between the fact
@@ -26,6 +27,7 @@ export function createUnavailableReferenceAuthority() {
     branch: async () => { throw unavailable('branch') },
     customer: async () => { throw unavailable('customer') },
     fileAsset: async () => { throw unavailable('fileAsset') },
+    conversation: async () => { throw unavailable('conversation') },
   }
 }
 
@@ -43,6 +45,10 @@ export function createFixtureReferenceAuthority(fixture = {}) {
     fileAsset: async (scope, { fileAssetId }) => {
       const row = find(fixture.fileAssets, fileAssetId, scope.tenantId)
       return row ? { id: row.id, businessId: row.businessId, deletedAt: row.deletedAt ?? null } : null
+    },
+    conversation: async (scope, { conversationId }) => {
+      const row = find(fixture.conversations, conversationId, scope.tenantId)
+      return row ? { id: row.id, tenantId: row.tenantId, businessId: row.businessId ?? null, customerId: row.customerId ?? null } : null
     },
   }
 }

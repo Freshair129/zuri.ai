@@ -14,6 +14,9 @@ import { z } from 'zod'
 //   post goods receipt   : owner | 'procurement.receipt.post'
 //   inventory manage     : domain 'inventory' + (owner | 'inventory.catalog.write')
 // A refusal of scope is the same 404 an unknown Business gets (FR-072).
+// `visible(businessId)` = the legacy seesBusiness: a grant exists for that Business
+// (any domain). The core therefore issues a grant for every Business the actor can
+// see that a request may touch (a customer's or conversation's home Business too).
 // Revocation window = token lifetime (maxLifetimeSeconds, default 120s): a
 // membership revoked in core stops working at the next token, not mid-request.
 // The service identity that transports the token is NOT a business authority.
@@ -75,6 +78,7 @@ function scopeFrom(claims) {
     actorId: claims.sub,
     tenantId: claims.tenantId,
     delegationId: claims.jti,
+    visible: (businessId) => Boolean(grant(businessId)),
     sees: (businessId, domain) => { const g = grant(businessId); return Boolean(g && g.domains.includes(domain)) },
     owns: (businessId) => Boolean(grant(businessId)?.owner),
     has: (businessId, permission) => Boolean(grant(businessId)?.permissions.includes(permission)),

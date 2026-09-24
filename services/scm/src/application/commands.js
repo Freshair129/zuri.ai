@@ -8,6 +8,8 @@ import { checkoutPosSale, parseCheckout, prepareCheckout } from '../workflows/po
 import { getOrder } from '../modules/commerce/application/orders.js'
 import { applyPaymentAction, getPayment, listPayments, loadOrderForPayment, prepareRecordPayment, recordPayment } from '../modules/commerce/application/payments.js'
 import * as commerceRepo from '../modules/commerce/adapters/commerce-repo.js'
+import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSalesOrderInScope, prepareCreateOrder, prepareOrderAction } from '../modules/commerce/application/sales-orders.js'
+import { zCreateOrder } from '../kernel/commerce/commerce.js'
 
 // SCM business commands — the external API's only mutation entry points. A
 // client sends ONE business command (e.g. "post this receipt"); it never opens a
@@ -46,6 +48,21 @@ const COMMANDS = {
     replayGuard: (scope, businessId, stored) => { if (stored.stockDeductions?.length && !inventoryAuthority.mayView(scope, businessId)) throw denied() },
     prepare: (scope, { body }, deps) => prepareCheckout(scope, body, deps),
     execute: (sql, scope, { prepared }, ctx) => checkoutPosSale(sql, scope, prepared, ctx),
+  },
+  'commerce.sales-order.create': {
+    authorize: (sql, scope, { body }) => commerceAuthority.require(scope, zCreateOrder.parse(body).businessId, 'order').id,
+    prepare: (scope, { body }, deps) => prepareCreateOrder(scope, body, deps),
+    execute: (sql, scope, { prepared }, ctx) => createOrder(sql, scope, prepared, ctx),
+  },
+  'commerce.sales-order.action': {
+    authorize: (sql, scope, { targetId }) => loadSalesOrderInScope(sql, scope, targetId, 'order').businessId,
+    // A replay of a fulfilment discloses on-hand figures.
+    replayGuard: (scope, businessId, stored) => { if (stored.issued?.length && !inventoryAuthority.mayView(scope, businessId)) throw denied() },
+    prepare: (scope, { targetId, body }, deps) => prepareOrderAction(scope, { orderId: targetId, body }, {
+      references: deps.references,
+      readOrder: (id) => deps.read((sql) => loadSalesOrderInScope(sql, scope, id, 'order')),
+    }),
+    execute: (sql, scope, { targetId, prepared }, ctx) => applyOrderAction(sql, scope, targetId, prepared, ctx),
   },
   'commerce.payment.record': {
     authorize: (sql, scope, { targetId }) => loadOrderForPayment(sql, scope, targetId).businessId,
@@ -121,6 +138,7 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     movements: (scope, q) => store.read((sql) => ({ movements: listMovements(sql, scope, q) })),
     salesOrder: (scope, id) => store.read((sql) => ({ order: getOrder(sql, scope, id) })),
     payment: (scope, id) => store.read((sql) => ({ payment: getPayment(sql, scope, id) })),
+    orders: (scope, query) => store.read((sql) => listOrders(sql, scope, query)),
     orderPayments: (scope, orderId) => store.read((sql) => listPayments(sql, scope, orderId)),
   }
 

@@ -22,6 +22,9 @@ const ROUTES = [
   route('POST', '/v1/procurement/purchase-orders/:id/actions', 'po.action'),
   route('POST', '/v1/procurement/purchase-orders/:id/receipts', 'grn.post'),
   route('POST', '/v1/commerce/pos/checkout', 'pos.checkout'),
+  route('POST', '/v1/commerce/orders', 'order.create'),
+  route('GET', '/v1/commerce/orders', 'order.list'),
+  route('POST', '/v1/commerce/orders/:id/actions', 'order.action'),
   route('GET', '/v1/commerce/orders/:id', 'order.get'),
   route('GET', '/v1/commerce/orders/:id/payments', 'order.payments'),
   route('POST', '/v1/commerce/orders/:id/payments', 'payment.record'),
@@ -31,7 +34,7 @@ const ROUTES = [
   route('GET', '/v1/inventory/movements', 'movements'),
   route('GET', '/v1/operations/:action/:key', 'operation'),
 ]
-const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'pos.checkout': 'commerce.pos.checkout', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action' }
+const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'pos.checkout': 'commerce.pos.checkout', 'order.create': 'commerce.sales-order.create', 'order.action': 'commerce.sales-order.action', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action' }
 
 function send(res, status, body) {
   const text = JSON.stringify(body)
@@ -91,6 +94,11 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
       let result
       if (name === 'po.get') result = await bus.queries.purchaseOrder(scope, params.id)
       else if (name === 'order.get') result = await bus.queries.salesOrder(scope, params.id)
+      else if (name === 'order.list') {
+        const p = url.searchParams
+        const bool = (v) => (v === null ? undefined : v === 'true')
+        result = await bus.queries.orders(scope, Object.fromEntries(Object.entries({ businessId: p.get('businessId'), status: p.get('status') ?? undefined, includeClosed: bool(p.get('includeClosed')), origin: p.get('origin') ?? undefined, customerId: p.get('customerId') ?? undefined, conversationId: p.get('conversationId') ?? undefined, limit: p.get('limit') ? Number(p.get('limit')) : undefined }).filter(([, v]) => v !== undefined)))
+      }
       else if (name === 'order.payments') result = await bus.queries.orderPayments(scope, params.id)
       else if (name === 'payment.get') result = await bus.queries.payment(scope, params.id)
       else if (name === 'stock') result = await bus.queries.stock(scope, url.searchParams.get('businessId'))

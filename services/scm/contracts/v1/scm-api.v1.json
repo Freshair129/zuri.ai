@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.3",
+  "revision": "v1-draft.4",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -73,6 +73,28 @@
       "capability": "commerce domain + (commerce.order.write | owner) + (inventory.catalog.write | owner); counted lines also inventory domain",
       "references": "branch (core), customer (CRM), slip fileAsset (Files) via ReferenceAuthority; owner unavailable → 503 SCM_REFERENCE_AUTHORITY_UNAVAILABLE",
       "invariant": "payment is always PENDING; price is manual"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/orders",
+      "command": "commerce.sales-order.create",
+      "capability": "commerce.order.write | owner",
+      "references": "customer + conversation (CRM) via ReferenceAuthority; a Business-bound reference must be VISIBLE to the actor (legacy seesBusiness)",
+      "invariant": "DRAFT; conversation makes origin CHAT and supplies its customer; mismatch → 422"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/orders?businessId=&status=&includeClosed=&origin=&customerId=&conversationId=&limit=",
+      "capability": "commerce domain",
+      "note": "open orders by default + summary {open, unpaid, pendingPayments}"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/orders/{id}/actions",
+      "command": "commerce.sales-order.action",
+      "capability": "commerce.order.write | owner; COMPLETE+issueStock also (inventory.catalog.write | owner) and inventory domain",
+      "body": "{action: UPDATE|CONFIRM|COMPLETE|CANCEL, version, fields?, issueStock?, reason?}",
+      "invariant": "lines editable only in DRAFT; whole-order shortage refused before any issue; serial lines refused; CAS on version"
     },
     {
       "method": "GET",

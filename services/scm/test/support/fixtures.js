@@ -69,6 +69,13 @@ export const REFERENCE_FIXTURE = {
     { id: 'cust-shared', code: 'CUS-SHARED', tenantId: TENANT, businessId: null, deletedAt: null },
     { id: 'cust-deleted', code: 'CUS-DEL', tenantId: TENANT, businessId: BIZ, deletedAt: '2026-01-01T00:00:00.000Z' },
     { id: 'cust-foreign', code: 'CUS-FOREIGN', tenantId: TENANT, businessId: OTHER_BIZ, deletedAt: null },
+    { id: 'cust-hidden', code: 'CUS-HIDDEN', tenantId: TENANT, businessId: 'biz-invisible', deletedAt: null },
+    { id: 'cust-other-tenant', code: 'CUS-OTHER-T', tenantId: OTHER_TENANT, businessId: null, deletedAt: null },
+  ],
+  conversations: [
+    { id: 'conv-own', tenantId: TENANT, businessId: BIZ, customerId: 'cust-own' },
+    { id: 'conv-shared', tenantId: TENANT, businessId: null, customerId: 'cust-shared' },
+    { id: 'conv-hidden', tenantId: TENANT, businessId: 'biz-invisible', customerId: null },
   ],
   fileAssets: [
     { id: 'slip-own', tenantId: TENANT, businessId: BIZ, deletedAt: null },
