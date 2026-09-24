@@ -28,7 +28,7 @@ Insights microservice.
 - Worktree: `.claude/worktrees/marketing-insights-s6`. Branch: `feat/marketing-insights-s6`
 - Base SHA: `77204097a16afb0b9b26392636a411456c5a9442` (`origin/main`, 2026-09-24)
 - Commits: I0+I1 `d3ce2bfa`; UI + persistence proposal `e01532c8` (= **tested code SHA**). The handoff-only commit that records these results comes after it and changes no code.
-- PR: none yet (a draft PR is next, not for merge)
+- PR: [#554](https://github.com/Freshair129/zuri.ai/pull/554), draft, not for merge
 - Source contract: [insights-source/contract.md](insights-source/contract.md). Its SHA-256 is
   `693f92f0…4b63`, which matches the master prompt (verified). The master prompt is stored
   verbatim alongside it (SHA-256 `baa3b330…e5b2`).
@@ -65,7 +65,7 @@ Insights microservice.
 | Unit + render (no Next/DB/Meta/n8n runtime) | **PASS** | `e01532c8` | `npx vitest run tests/unit/marketing/insights` (in `apps/server`) | 10 files, 78 tests, 78 passed, 0 skipped, exit 0 (plus `api-path-reachability`: 11 files, 92 passed) |
 | Governance | **PASS** | `e01532c8` | `npm run govern` (repo root) | exit 0; no CRITICAL; 10 dangling doc-graph edges, all pre-existing (`program-task-evidence`, `project-approval-gateway` tests), none from S6 |
 | Full server unit+integration | **PASS** | `e01532c8` | `npm test` (in `apps/server`, wrapped by `assert-tests-ran`) | 815 files: 809 passed, 6 skipped; 6,828 tests: 6,796 passed, 32 skipped; exit 0; 584 s. An earlier run caught `api-path-reachability` flagging the hard-coded `/api/insights/*` paths; this was fixed by injecting the API base, not by editing the allowlist |
-| Build / e2e | NOT_RUN | — | `npm run build`, `npm run test:e2e` | no route or page changed, so e2e has nothing new to exercise; build not run at this checkpoint |
+| Hosted CI (PR #554) | **PASS** | `6914b226` (code identical to `e01532c8`) | GitHub Actions | `govern` pass (2m33s), `build` pass (2m43s), `tests` pass (19m47s), `verify` pass, `edge-verify` pass, `changes` pass ×2; `e2e` and `desktop` **skipped by the workflow's path filter**, so e2e was not run |
 | Component (Postgres/Supabase, RLS, concurrency) | NOT_RUN | — | — | no disposable Postgres test harness is set up; SQLite would prove nothing here |
 | Browser / performance | NOT_RUN | — | — | components are render-tested only; no page mounts them until B1 |
 | Provider / n8n / LINE / live | NOT_RUN | — | — | blocked (see below) |
@@ -94,7 +94,7 @@ branch: feat/marketing-insights-s6
 base_sha: 77204097a16afb0b9b26392636a411456c5a9442
 code_head_sha: e01532c8
 tested_code_sha: e01532c8
-pr_number: null
+pr_number: 554
 tranche: I1
 execution_status: CHECKPOINT_I1_CODE_COMPLETE
 source_contract_sha256: 693f92f04315e68044043d5d8c9cc4be90ca2845fb38e6b498f4fe9a79e14b63
@@ -110,7 +110,7 @@ META_LIVE_READ_VERIFIED: NOT_RUN
 REAL_DATA_ALL_BRANDS_VERIFIED: NOT_RUN
 LINE_ALERT_VERIFIED: NOT_RUN        # LINE Notify ended 2025-03-31; no replacement chosen
 PERFORMANCE_VERIFIED: NOT_RUN
-CI_VERIFIED: NOT_RUN                # no PR yet
+CI_VERIFIED: PASS                   # PR #554 at 6914b226: govern/build/tests/verify/edge-verify pass; e2e skipped by path filter
 REVIEW_STATUS: NOT_REQUESTED
 MERGE_STATUS: NOT_MERGED
 PRODUCTION_ACTIVATION: NOT_RUN
@@ -170,8 +170,9 @@ forward.
 
 ## Next exact action
 
-1. Open a draft PR `[S6 draft, not for merge] Marketing Insights I0+I1`, read CI, and record the result here.
-2. Write the persistence proposal (B2) as a reviewable document and send it to the migration owner.
+1. Done: draft PR #554 is open and CI is green (see Verification).
+2. Done as a document: [INSIGHTS-PERSISTENCE-PROPOSAL.md](INSIGHTS-PERSISTENCE-PROPOSAL.md). It still has to
+   be forwarded to the migration owner for review (B2); S6 has not sent it anywhere.
 3. Once FR ids exist (B1): add the four GET routes plus `/growth/insights/page.jsx` (the page
    injects `load` and the router), then do browser proof and a network audit showing no Graph
    call on any GET, render or export.
