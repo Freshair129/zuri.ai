@@ -1274,7 +1274,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-166",
@@ -1322,7 +1322,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-253",
@@ -2055,7 +2055,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-164",
@@ -2063,7 +2063,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-166",
@@ -2111,7 +2111,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-197",
@@ -4923,7 +4923,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-165",
@@ -4931,7 +4931,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-168",
@@ -4955,7 +4955,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         }
       ],
       "checks": {
@@ -5924,7 +5924,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-164",
@@ -5932,7 +5932,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-165",
@@ -5940,7 +5940,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-166",
@@ -9374,7 +9374,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-166",
@@ -9419,6 +9419,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/scm-legacy-races.postgres.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
@@ -9468,7 +9469,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-165",
@@ -9476,7 +9477,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 33
+          "testCount": 34
         }
       ],
       "evidence": [
@@ -9523,6 +9524,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/scm-legacy-races.postgres.test.js",
         "apps/server/tests/integration/task-zai-053-supplier-cost-sheet.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
@@ -10092,7 +10094,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-197",
@@ -10149,6 +10151,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/release-safety-backup.test.js",
+        "apps/server/tests/integration/scm-legacy-races.postgres.test.js",
         "apps/server/tests/integration/superadmin-access.test.js",
         "apps/server/tests/integration/workspace-collaboration-roster.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",

@@ -133,6 +133,13 @@ export async function applyPaymentAction(id, input, { viewer, db = prisma, now =
       // does not answer for.
       if (selfVerified && !data.selfVerifyAttested) throw failure(409, 'PAYMENT_SELF_VERIFY_FORBIDDEN')
       if (row.kind === 'REFUND') {
+        // @req FR-163 — lock the order row before reading the verified net. The
+        // payment CAS below guards only this payment; without a lock on what the
+        // ceiling is computed from, PostgreSQL READ COMMITTED let concurrent
+        // refund verifications each read the same net and together refund more
+        // than was paid (SCM-HANDOFF F-9, tests/integration/scm-legacy-races.postgres.test.js).
+        // A lock-only touch: no value changes, on either engine.
+        await tx.$executeRaw`UPDATE "SalesOrder" SET "updatedAt" = "updatedAt" WHERE "id" = ${row.orderId}`
         const others = await tx.payment.findMany({ where: { orderId: row.orderId, status: 'VERIFIED' }, select: { kind: true, amountSatang: true, status: true } })
         if (paymentSummary(others).net < row.amountSatang) throw failure(409, 'PAYMENT_REFUND_EXCEEDS_PAID')
       }
