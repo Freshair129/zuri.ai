@@ -71,6 +71,12 @@ export function createObservationTable() {
           .sort((a, b) => b.observedAt - a.observedAt || b.createdAt - a.createdAt)
           .slice(0, Math.min(limit, 200))
       },
+      async findExistingLineageKeys(keys) {
+        return keys.filter((key) => {
+          const row = rows.get(key)
+          return row && row.tenantId === scope.tenantId && row.businessId === scope.businessId
+        })
+      },
       async findTranslatedRawRecordIds(ids) {
         return [...rows.values()]
           .filter((row) => row.tenantId === scope.tenantId && row.businessId === scope.businessId && ids.includes(row.rawRecordId))

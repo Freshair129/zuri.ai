@@ -96,6 +96,25 @@ export function runObservationStoreConformance(name, setup) {
     assert.deepEqual(await a.findTranslatedRawRecordIds([]), [])
   })
 
+  test(`${name}: findExistingLineageKeys is per schema version and scope-only`, async () => {
+    const { factory } = await fresh()
+    const a = await factory.open(scopeA)
+    const b = await factory.open({ tenantId: TENANT_T, businessId: BUSINESS_B })
+    const v1 = await draftFor({ id: 'versioned' })
+    await a.insertIfAbsent(v1)
+    const { buildMarketObservationLineageKey } = await import('../src/index.js')
+    const v2Key = buildMarketObservationLineageKey({
+      rawRecordId: v1.rawRecordId,
+      payloadHash: v1.sourcePayloadHash,
+      translationSchemaVersion: 'market-observation.test-v2',
+      observationType: v1.observationType,
+    })
+    // v1 rows present, v2 run: the v2 key is new work; the v1 key is found.
+    assert.deepEqual(await a.findExistingLineageKeys([v1.lineageKey, v2Key]), [v1.lineageKey])
+    assert.deepEqual(await b.findExistingLineageKeys([v1.lineageKey]), [])
+    assert.deepEqual(await a.findExistingLineageKeys([]), [])
+  })
+
   test(`${name}: a lineage key owned by another scope is a collision fault, not a replay`, async () => {
     const { factory } = await fresh()
     const a = await factory.open(scopeA)

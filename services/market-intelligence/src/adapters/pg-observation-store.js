@@ -79,6 +79,14 @@ export function createPgObservationStoreFactory({ connectionString, pool: inject
         for (const row of result.rows) assertRowInStoreScope(row, scope)
         return result.rows
       },
+      async findExistingLineageKeys(lineageKeys) {
+        if (!Array.isArray(lineageKeys) || lineageKeys.length === 0) return []
+        const result = await pool.query(
+          `SELECT "lineageKey" FROM "MarketObservation" WHERE "tenantId" = $1 AND ${business} AND "lineageKey" = ANY($${next}::text[])`,
+          [...scopeParams, lineageKeys],
+        )
+        return result.rows.map((row) => row.lineageKey)
+      },
       async findTranslatedRawRecordIds(rawRecordIds) {
         if (!Array.isArray(rawRecordIds) || rawRecordIds.length === 0) return []
         const result = await pool.query(

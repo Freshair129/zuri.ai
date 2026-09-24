@@ -25,7 +25,10 @@
 //   openObservationStore(scope) -> ObservationStore
 //     insertIfAbsent(draft)              atomic on lineageKey; CREATED | UNCHANGED
 //     listRecent({ limit })              newest observedAt first, scope-only
-//     findTranslatedRawRecordIds(ids)    ids already translated in this scope
+//     findExistingLineageKeys(keys)      keys already present in this scope; the run's
+//                                        candidate filter (per translationSchemaVersion)
+//     findTranslatedRawRecordIds(ids)    ids translated under ANY version (legacy shape,
+//                                        kept for parity; not used by the run)
 //
 //   AuditPort.record({ entityType, entityId, action, payload })
 //     One event per run. Never receives raw payloads or candidates.
