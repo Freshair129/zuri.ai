@@ -97,3 +97,37 @@ reproduced the check and the merge independently.
 Because the deployed file has no `generatedFrom`, the first `--base` merge will list only the
 new catalog files. The step 8 record of that install should copy the two tracked export
 hashes above as the sources of `smartgift-real-catalog-v1`.
+
+## Addendum (2026-09-24, after PR #555 merged) — how B2 closes
+
+**Decided by:** the owner delegated the choice on 2026-09-24. The instruction, verbatim:
+"ตัดสินใจเเทนผมเลย" ("decide on my behalf"). It answered the open question of how to meet
+B2's last definition-of-done line, "one new record publishes through Stage 17 on production,
+with its receipt", when no real record outside the fixture exists.
+
+**Options rejected, and why.**
+
+| Option | Why not |
+|---|---|
+| Publish a made-up test record on production, then withdraw it | Withdrawing drops the source from zuri-ai's corpus manifest (`withdrawInTransaction`, `knowledge-corpus-service.js`), but ADR-073 makes published snapshots in the GenesisBlock store immutable. The fake product's chunks would stay in Tier 4, which ADR-075 Phase 4 routes the edge to read and TASK-ZAI-095 will ground LINE answers on |
+| Have the agent promote one of the 427 supplier product rows | Every one is `contract_validation=incomplete`, with no `PM-` code and no Thai name; supplying them means inventing catalog data. The exporter commit (`40c9909`) calls promotion "a catalog-owner decision, not a transform" |
+
+**Decision: close B2 on the production evidence that already exists, and move the one
+untested path to its first real use.** The production evidence for "a fixture built by this
+derivation lets a real record publish through Stage 17" is already on the host:
+
+| Evidence | Value | How it was read |
+|---|---|---|
+| GKS `pipeline_receipts` rows whose receipt names `smartgift-real-catalog-v1:<id>` | 22, one per published record, all dated 2026-09-21 | read-only `better-sqlite3` open of `/var/lib/zuri-ki17/state/gks.sqlite` in `zuri-ai-genesis-worker-1` |
+| Stage 16 metrics across those 22 receipts | 61 queries; minimum Recall@5 1.00, minimum MRR 1.00, citation correctness 1.00, maximum cross-tenant leaks 0 | the same receipts |
+| zuri-ai stage evidence for the 22 published runs | Stage 16 `SUCCEEDED` 22/22; Stage 17 `SUCCEEDED`, verdict `PASS`, 22/22 | read-only query of `GenesisRag17StageEvidence` in `zuri-ai-web-1` |
+| The fixture those receipts were judged by | byte-identical to the deployed file, which the merged builder reproduces with identical scoring content (rehearsal table above) | this record |
+
+So every production publication so far passed Stage 16/17 under a fixture this builder
+produces. What production has **not** yet run is the part PR #555 added: a `--base` merge
+that reports `added`, and the §10.1 install and restart around it. That path is covered by
+unit tests (`tests/unit/ki17-real-corpus.test.js`) and the install dry-run above. It gets its
+production proof the first time the catalog really changes: that run's §10.1 step 8 record is
+the acceptance for it. Remediation item B4 (the four-process acceptance re-run) should also
+admit one record through a `--base`-merged fixture, so the `added` path has a full-stack
+pass before that first real change.
