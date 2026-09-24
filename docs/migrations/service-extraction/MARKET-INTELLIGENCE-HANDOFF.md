@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.7.2"
+version: "0.7.3"
 status: candidate
-last_update: "2026-09-24T23:05:00+07:00,Claude"
+last_update: "2026-09-24T23:30:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -66,8 +66,8 @@ D8 blocked a separately running Market service without an operational trigger. O
 2026-09-24 the owner chose **ownership** and delegated the remaining decisions for
 this lane to Claude Fable 5.1. The rulings are recorded in
 [ADR-108](../../decisions/ADR-108-MARKET-INTELLIGENCE-SERVICE-EXTRACTION.md), which is
-pinned in `docs/.id-ledger.json`. When this branch and Session 1's PR (which pins
-ADR-106) both land, the ledger needs a trivial merge: two independent additions.
+pinned in `docs/.id-ledger.json` and on `main` since #544. When Session 1's PR (which
+pins ADR-106) lands, the ledger needs a trivial merge: two independent additions.
 
 ## M0 — capability inventory at `fad8ec62`
 
@@ -164,6 +164,8 @@ Findings for owners (no semantics were changed):
   `/api/internal/market-intelligence/v1/*` (`market-core.v1` envelope). It sends the
   service bearer token plus the opaque `x-zuri-subject` header, fails closed with 503
   `CORE_UNAVAILABLE`, retries only reads (bounded and jittered), and never retries audit.
+  Since #556 it reads every response under a byte cap and validates each raw record
+  with a strict schema (see "S1 façade review" below).
 - `src/http/server.js`: `/healthz`, `/readyz` (deps named, and never ready on a fake
   core in production), `GET /v1/observations`, `POST /v1/translations` (64 KiB cap,
   strict schema, 409 `MARKET_NOT_EXECUTION_OWNER` unless core grants execution). The
@@ -198,9 +200,9 @@ Behaviour differences from legacy, all deliberate:
   other value is MISCONFIGURED: 503 `MARKET_SERVICE_MISCONFIGURED`, **never a fallback
   to legacy**.
 - The BFF forwards the `zuri_session` token opaquely as `x-zuri-subject` and resolves
-  no viewer itself. It passes the service's status and body through, answers 401 when
-  there is no session (legacy would answer 403/404 through the anonymous viewer; only
-  in service mode), refuses bodies over 64 KiB, and fails closed (503
+  no viewer itself. It passes the service's status and body through, answers 401
+  `{ error: 'AUTH_REQUIRED' }` when there is no session (the body legacy returns; aligned
+  in `83914071` after Q11), refuses bodies over 64 KiB, and fails closed (503
   unreachable, 502 garbled). It imports nothing from `services/`.
 - `observations/route.js` and `translations/route.js`: one import and one early
   branch each; the legacy body is unchanged.
@@ -211,13 +213,13 @@ Behaviour differences from legacy, all deliberate:
 
 ## Local provider conformance (delegated Q11) — LOCAL PASS, not integrator-reviewed
 
-Run on the #545 branch: a real session → BFF → Market service (sqlite store) → core
+Run on the #545 branch before it merged (the harness is now on `main`): a real session → BFF → Market service (sqlite store) → core
 façade → disposable SQLite. It was compared against the legacy path on a copy of the
 same seeded database, with `MARKET_EXECUTOR=service` set only in the dev server's
 process environment. Seeded Business: `Business 01` (id printed by
 `conformance/setup-raw.mjs`; `5d2ddc34-c2a8-4449-a8a7-86c170b3bd2b` in the recorded run).
 The harness and replay steps are in `services/market-intelligence/conformance/`
-(merged into this branch with #545).
+(on `main` since #544).
 
 - **First run:** 9/10 identical; 1 mismatch (the no-session body). A targeted probe then
   found that an invalid or expired session made the façade return **500** and the
@@ -264,13 +266,13 @@ These are proposals only, with no code and no port changes.
 ## Verification
 
 Environment: Windows 11 Pro, Node 24.19.0 (host), `node:22-alpine` (image), Docker
-29.8.0, `postgres:16-alpine`. Source: the commit that adds this revision (M2 code and
-this handoff are committed together).
+29.8.0, `postgres:16-alpine`. Source: `main` at `b936d41e` (after #556) unless a row names
+another commit.
 
 | Axis | Result | Evidence |
 |---|---|---|
-| CODE_IMPLEMENTED | PARTIAL | M2 complete; M3 BFF flag and core façade both on this branch (façade merged from #545 at `ee47f4c6`); M4 not started |
-| ISOLATED_TESTS_VERIFIED | PASS | `npm --prefix services/market-intelligence test`: 95 tests, 94 pass, 0 fail, 1 skipped (the Postgres suite, reported `NOT_RUN: MARKET_TEST_PG_URL is unset`, because it runs separately below) |
+| CODE_IMPLEMENTED | PARTIAL | M2 and M3 complete on `main`: BFF flag and core façade via #544 (`85d8fd06`), façade bounds via #556 (`b936d41e`); M4 not started (proposals only) |
+| ISOLATED_TESTS_VERIFIED | PASS | `npm --prefix services/market-intelligence test` at #556 head `f8571132`: 100 tests, 99 pass, 0 fail, 1 skipped (the Postgres suite, reported `NOT_RUN: MARKET_TEST_PG_URL is unset`, because it runs separately below); local only |
 | Postgres conformance | PASS: 11/11 at `9379c9e8` (includes the `findExistingLineageKeys` case added in `3f3fb808`), after the owner restored the local Docker engine; `npm --prefix services/market-intelligence run test:pg`: disposable `postgres:16-alpine` container, 10/10 including the 8-connection lineage race; container removed afterwards |
 | SQLite conformance | PASS | included above: 10/10 including the 8-thread race |
 | Boundary build | PASS | `npm --prefix services/market-intelligence run build`: 15 source files, no violation |
@@ -281,15 +283,15 @@ this handoff are committed together).
 | DATA_OWNERSHIP_ENFORCED | PARTIAL | the service writes only `"MarketObservation"` through its own adapter; the restricted role is **not applied**, and legacy still writes the same table |
 | IMAGE_BUILD_VERIFIED | PASS | `docker compose -f services/market-intelligence/compose.rehearsal.yml up -d --build --wait` |
 | IMAGE_START_VERIFIED | PASS | through the started container: `/readyz` → `{"ready":true,"deps":{"store":"postgres","core":"fake"}}`; POST translation → `{"translated":1}`, replay → `{"translated":0}`; feed returned the row; `psql` showed 1 row `raw-rehearsal-1`; SIGTERM logged draining → stopped, exit 0; stack removed; the live `zuri-ai` containers were untouched |
-| CI_VERIFIED | PARTIAL | repository CI passed on #544 at `55bf7108` and on #545 at `19f8ee41`; the merged head `ee47f4c6` is being re-run; CI does not run the service package yet (shared patch requested) |
+| CI_VERIFIED | PARTIAL | repository CI (governance, docker-image, edge-ci) passed on `main` at `85d8fd06` and `b936d41e`, and on #556 at `f8571132`; e2e runs only nightly or on dispatch; a manual e2e dispatch on `85d8fd06` failed two non-Market tests (fr241 roadmap member view, marketing campaigns 429). Stays PARTIAL: CI does not run the service package yet (COMMON_RESOURCES item (b), post-deploy) |
 | PRODUCTION_CUTOVER | NOT_RUN | not authorized |
 
 ## Contracts
 
 | Contract | Provider owner | Consumer | Revision | State |
 |---|---|---|---|---|
-| `market-core.v1` façade: authorize / raw-candidates / audit / execution-ownership / health | core integrator (Session 1) with Identity, Integration, audit owners | Session 4 | `src/adapters/core-client.js` + `test/support/fake-core.js` at this commit | On `main` (#544 + #556); consumer proven against the fake; provider LOCAL PASS 12/12; S1 post-merge review PASS (#556, read-only); no committed consumer-to-real-façade HTTP test |
-| Market service API v1 (`/v1/observations`, `/v1/translations`) | Session 4 | console BFF (M3) | `src/http/server.js` at this commit | provider tested; consumer NOT_RUN |
+| `market-core.v1` façade: authorize / raw-candidates / audit / execution-ownership / health | core integrator (Session 1) with Identity, Integration, audit owners | Session 4 | `src/adapters/core-client.js` + `test/support/fake-core.js` on `main` | On `main` (#544 + #556); consumer proven against the fake; provider LOCAL PASS 12/12; S1 post-merge review PASS (#556, read-only); no committed consumer-to-real-façade HTTP test |
+| Market service API v1 (`/v1/observations`, `/v1/translations`) | Session 4 | console BFF (M3, `market-executor.js`) | `src/http/server.js` on `main` | provider tested; BFF proxy unit-tested and proven locally in the 12/12 conformance run; no deployed consumer |
 | ObservationStore | Session 4 | Market core | `test/store-conformance.js` | PASS on sqlite and postgres |
 | translation-vectors v1 | Session 4 | apps/server legacy module | `contracts/v1/translation-vectors.json` | PASS on both sides and at the HTTP level |
 
@@ -319,7 +321,11 @@ this handoff are committed together).
   safe_work_now: [local test/build/test:pg/rehearsal]
 ```
 
-## Shared changes requested from the integrator (not made on this branch)
+## Shared changes still needed (COMMON_RESOURCES item (b), post-deploy)
+
+Session 1 confirmed its item (a) stays Conversation Runtime-only, so Session 4 makes
+these changes itself as item (b), under a lease, after S1 releases (a). None is on
+`main` yet.
 
 - `apps/server/scripts/doc-graph.mjs` and `doc-preflight.mjs`: scan
   `services/market-intelligence/{src,test,contracts}` as #542 does for
@@ -330,12 +336,12 @@ this handoff are committed together).
   `npm run build`, `npm run test:pg` (Docker is available on ubuntu-latest) and
   `docker build -f services/market-intelligence/Dockerfile .`.
 - Root `package.json`: `market-intelligence:test` / `market-intelligence:build`.
-- `docs/.id-ledger.json`: merge ADR-106 (Session 1) and ADR-108 (this branch), which
+- `docs/.id-ledger.json`: merge ADR-106 (Session 1) and ADR-108 (on `main`), which
   are independent additions.
 
 ## Board delta (for the integrator to paste into REFACTOR-STATUS.md)
 
-The board stays at snapshot 0.1 on this branch because it belongs to the integrator.
+The board stays at snapshot 0.1 in this pack because it belongs to the integrator.
 Replacement row for §1:
 
 ```text
@@ -360,7 +366,7 @@ read-only; no committed consumer-to-real-façade HTTP test), M4 PROPOSED (docs o
 ```yaml
 session: S4
 workstream: market-intelligence
-observed_at: "2026-09-24T23:05:00+07:00"   # after S1 post-merge PASS for #556
+observed_at: "2026-09-24T23:30:00+07:00"   # after S1 post-merge PASS for #556
 base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
 m1_commit: d40a3329
 code_head_sha: b936d41edc652e606ac58f7354a3b1c59706f8ea   # main after #556
