@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { recordAudit } from '@/modules/project-manager/application/audit'
-import { handleMarketCoreRequest } from '@/modules/market-intelligence/application/market-core-facade'
+import { handleMarketCoreRequest, readBoundedBody } from '@/modules/market-intelligence/application/market-core-facade'
 import { listMarketLaneRawRecordCandidates } from '@/modules/market-intelligence/infrastructure/market-raw-record-repository'
 
 // @req FR-092 — core's private market-core.v1 façade for the separately running Market
@@ -19,19 +19,13 @@ import { listMarketLaneRawRecordCandidates } from '@/modules/market-intelligence
 
 export const dynamic = 'force-dynamic'
 
-const MAX_BODY_BYTES = 16 * 1024
-
 async function respond(request, params, method) {
   const { operation } = await params
   let body
   if (method === 'POST') {
-    const text = await request.text()
-    if (Buffer.byteLength(text, 'utf8') > MAX_BODY_BYTES) return NextResponse.json({ error: 'Request body too large' }, { status: 413 })
-    try {
-      body = text ? JSON.parse(text) : {}
-    } catch {
-      return NextResponse.json({ error: 'Validation failed' }, { status: 400 })
-    }
+    const read = await readBoundedBody(request)
+    if (!read.ok) return NextResponse.json({ error: read.error }, { status: read.status })
+    body = read.body
   }
   const result = await handleMarketCoreRequest(
     {

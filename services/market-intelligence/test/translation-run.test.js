@@ -88,6 +88,13 @@ test('raw evidence from another Business or lane is refused, not translated', as
   assert.deepEqual([...d.table.rows.values()].map((row) => row.rawRecordId), ['ok'])
 })
 
+test('a payload core withheld as too large is a per-record failure, not a translation', async () => {
+  const d = deps({ records: [rawRecord({ id: 'big', payloadJson: null, omitted: 'PAYLOAD_TOO_LARGE' }), rawRecord({ id: 'ok' })] })
+  const result = await runMarketTranslationForBusiness({ actor: owner, businessId: BUSINESS_A }, d)
+  assert.equal(result.translated, 1)
+  assert.deepEqual(result.failed, [{ rawRecordId: 'big', reason: 'RAW_PAYLOAD_TOO_LARGE' }])
+})
+
 test('one audit event per run with counts only, never payloads', async () => {
   const d = deps({ records: [rawRecord({ id: 'r1', payloadJson: JSON.stringify({ title: 'secret-title' }) })] })
   await runMarketTranslationForBusiness({ actor: owner, businessId: BUSINESS_A }, d)
