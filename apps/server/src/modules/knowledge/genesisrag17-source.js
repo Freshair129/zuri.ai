@@ -358,10 +358,11 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
   // by a combining mark, `safeChunkBoundary` nudges the cut back to land
   // between the two newlines, and the NEXT window's overlap start (searched
   // from that same nudged cut) can re-find the identical boundary, emitting
-  // `cutEnd <= previousCutEnd`. It never affects correctness on well-formed
-  // text (offsets stay exact, chunks stay <= maxChars, forward progress
-  // still holds) — it only surfaces on malformed input with a combining
-  // mark straight after a paragraph break — but it is cheap to close.
+  // `cutEnd <= previousCutEnd`. The cut search itself now starts at
+  // `previousCutEnd` (see `searchFloor` below), which is what stops ordinary
+  // prose — a short paragraph followed by one longer than a window — from
+  // re-finding the previous cut; the forced-progress branch below remains
+  // only as a backstop for input with no safe boundary at all.
   let previousCutEnd = start - 1
   while (cursor < end) {
     const rawCharBudgetEnd = Math.min(end, cursor + maxChars)
@@ -388,10 +389,19 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
     if (windowEnd >= end) {
       cutEnd = end
     } else {
-      const boundary = findChunkBoundary(content, cursor, windowEnd)
-      cutEnd = safeChunkBoundary(content, boundary ?? windowEnd, cursor, hardLimit)
-      if (cutEnd <= cursor) cutEnd = safeChunkBoundary(content, windowEnd, cursor, hardLimit)
-      if (cutEnd <= cursor) cutEnd = Math.min(end, cursor + 1)
+      // Search for the cut only ABOVE the previous chunk's end. A window
+      // that starts at an overlap start lies partly inside the previous
+      // chunk, so the boundary that produced the previous cut is still in
+      // it — searching from `cursor` re-finds it (most often a paragraph
+      // break: the last one in the window), `cutEnd === previousCutEnd`,
+      // and the forced-progress branch below then emitted an overlap-plus-
+      // one-character sliver and cut the next chunk mid-word. Starting the
+      // search at `previousCutEnd` makes every cut a real new boundary.
+      const searchFloor = Math.max(cursor, previousCutEnd)
+      const boundary = findChunkBoundary(content, searchFloor, windowEnd)
+      cutEnd = safeChunkBoundary(content, boundary ?? windowEnd, searchFloor, hardLimit)
+      if (cutEnd <= searchFloor) cutEnd = safeChunkBoundary(content, windowEnd, searchFloor, hardLimit)
+      if (cutEnd <= searchFloor) cutEnd = Math.min(end, searchFloor + 1)
       // Advance past any whitespace the cut landed just before, so the next
       // chunk (and this chunk's own trailing edge) never carries a leading
       // separator into the citation text — parser-1 always started a chunk
@@ -403,7 +413,7 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       // `safeChunkBoundary`'s lower bound is `previousCutEnd`, so its
       // backward nudge can reach no further than `previousCutEnd` itself
       // (never below it) before falling through to its forward search.
-      cutEnd = safeChunkBoundary(content, Math.min(end, previousCutEnd + 1), previousCutEnd, Math.min(end, previousCutEnd + 1 + maxChars))
+      cutEnd = safeChunkBoundary(content, Math.min(end, previousCutEnd + 1), previousCutEnd, Math.min(end, Math.max(hardLimit, previousCutEnd + 1)))
     }
     previousCutEnd = cutEnd
     if (content.slice(cursor, cutEnd).trim()) ranges.push({ start: cursor, end: cutEnd })

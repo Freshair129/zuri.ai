@@ -141,3 +141,52 @@ describe('GenesisRAG17 prose chunker safety fixes (2026-09-25)', () => {
     }
   })
 })
+
+// Opus gate round 4 (2026-09-25): a window that starts at an overlap start
+// lies partly inside the previous chunk, so searching for the next cut from
+// `cursor` re-found the paragraph break that produced the previous cut. The
+// forced-progress fallback then emitted an overlap-plus-one-character sliver
+// ("today.\n\nT") and cut the next chunk mid-word ("he quick brown fox").
+describe('GenesisRAG17 prose chunker: no sliver after a paragraph cut', () => {
+  const englishSentence = 'The quick brown fox jumps over the lazy dog near the quiet river bank today. '
+  const thaiClause = 'สินค้าของเราผลิตจากวัสดุคุณภาพสูงและผ่านการตรวจสอบอย่างละเอียดทุกชิ้น '
+
+  function assertNoSliver(content) {
+    const parsed = parseGenesisRag17Document({ documentId: 'd', rawArtifactId: 'r', content })
+    const chunks = parsed.chunks
+    assertOffsetsExact(content, chunks)
+    for (let index = 0; index < chunks.length - 1; index += 1) {
+      // Every chunk but the last is a real window, never an overlap sliver.
+      expect(chunks[index].text.length).toBeGreaterThan(61)
+      expect(chunks[index + 1].endOffset).toBeGreaterThan(chunks[index].endOffset)
+    }
+    for (const chunk of chunks) {
+      expect(chunk.text.length).toBeLessThanOrEqual(GENESIS_RAG17_DEFAULT_MAX_CHARS)
+      // Every CUT lands on a word, sentence or paragraph boundary, never
+      // mid-word. (A chunk may START mid-word only at its overlap start,
+      // when no boundary exists inside the overlap budget — the documented
+      // overlap fallback; the gate asked for cuts, not overlap starts.)
+      if (chunk.endOffset < content.length) expect(/[\s.!?]/u.test(content[chunk.endOffset - 1])).toBe(true)
+    }
+    return chunks
+  }
+
+  it('English: a short paragraph followed by one longer than a window', () => {
+    const p1 = englishSentence.repeat(4).trim()
+    const p2 = englishSentence.repeat(12).trim()
+    const chunks = assertNoSliver(`${p1}\n\n${p2}`)
+    expect(chunks.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('Thai: five clauses, a blank line, then fifteen clauses', () => {
+    const p1 = thaiClause.repeat(5).trim()
+    const p2 = thaiClause.repeat(15).trim()
+    const chunks = assertNoSliver(`${p1}\n\n${p2}`)
+    expect(chunks.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('mixed Thai/English paragraphs', () => {
+    const chunks = assertNoSliver(`${englishSentence.repeat(3)}\n\nย่อหน้าที่สอง ${thaiClause.repeat(10)}\n\n${englishSentence.repeat(6)}`)
+    expect(chunks.length).toBeGreaterThanOrEqual(3)
+  })
+})
