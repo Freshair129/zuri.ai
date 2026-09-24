@@ -207,6 +207,22 @@ describe('GenesisRAG17 prose chunker: no sliver after a paragraph cut', () => {
     for (const gap of ['\n'.repeat(457), ' '.repeat(457), '\n \n'.repeat(433), '\n'.repeat(700)]) assertNoSliver(`${p1}${gap}${p2}`)
   })
 
+  // Gate round 7 repro: a space-free run of NFKC-expanding characters at a
+  // window edge shrank the next window's budget below the previous cut;
+  // 58 one-character-advance chunks followed, normalizing up to 1,098.
+  it('NFKC-expanding characters at a window edge keep every chunk within the budget', () => {
+    for (const expanding of ['\uFDFA', '\u3231', '\u33FF', '\uFB2C']) {
+      for (const lead of [340, 380, 420, 460]) {
+        const content = 'x'.repeat(lead) + expanding.repeat(40) + 'y'.repeat(600)
+        const { chunks } = parseGenesisRag17Document({ documentId: 'd', rawArtifactId: 'r', content })
+        assertOffsetsExact(content, chunks)
+        for (const chunk of chunks) expect(chunk.text.normalize('NFKC').length).toBeLessThanOrEqual(GENESIS_RAG17_DEFAULT_MAX_CHARS)
+        for (let index = 1; index < chunks.length; index += 1) expect(chunks[index].endOffset - chunks[index - 1].endOffset).toBeGreaterThan(1)
+        expect(chunks.length).toBeLessThan(20)
+      }
+    }
+  })
+
   it('mixed Thai/English paragraphs', () => {
     const chunks = assertNoSliver(`${englishSentence.repeat(3)}\n\nย่อหน้าที่สอง ${thaiClause.repeat(10)}\n\n${englishSentence.repeat(6)}`)
     expect(chunks.length).toBeGreaterThanOrEqual(3)

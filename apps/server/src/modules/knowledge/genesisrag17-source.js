@@ -410,8 +410,10 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       // The whitespace skip above can carry `searchFloor` up to `windowEnd`
       // when the rest of the window is blank, and `searchFloor + 1` would
       // then land one past the budget. Never cut past the window's hard
-      // limit; `hardLimit > previousCutEnd` always (the overlap is at most
-      // `overlapChars` < `maxChars`), so forward progress still holds.
+      // limit. `hardLimit > previousCutEnd` holds because the overlap step
+      // below keeps an overlap only when the next window's NFKC-bounded
+      // budget reaches more than `overlapChars` past the cut, and a window
+      // starting AT a cut always admits at least one character.
       if (cutEnd > hardLimit) cutEnd = hardLimit
       // Advance past any whitespace the cut landed just before, so the next
       // chunk (and this chunk's own trailing edge) never carries a leading
@@ -448,7 +450,16 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       const boundary = findOverlapStart(content, desiredOverlapStart, cutEnd)
       let overlapStart = boundary ?? desiredOverlapStart
       while (overlapStart < cutEnd && isUnsafeChunkStart(content, overlapStart)) overlapStart += 1
-      cursor = overlapStart > cursor && overlapStart < cutEnd ? overlapStart : cutEnd
+      let next = overlapStart > cursor && overlapStart < cutEnd ? overlapStart : cutEnd
+      // Keep the overlap only if the next window, measured after NFKC, can
+      // still reach well past this cut (more than `overlapChars` of new
+      // text). A space-free run of NFKC-expanding characters can otherwise
+      // shrink the next window's budget to at or below `cutEnd`, and every
+      // later window would then advance one character at a time past the
+      // budget. Dropping the overlap there is what makes
+      // `hardLimit > previousCutEnd` hold on the next pass.
+      if (next < cutEnd && nfkcBoundedCharBudgetEnd(content, next, Math.min(end, next + maxChars), maxChars) <= cutEnd + overlapChars) next = cutEnd
+      cursor = next
     } else {
       cursor = cutEnd
     }
