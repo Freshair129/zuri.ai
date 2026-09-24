@@ -76,13 +76,26 @@ describe('market-core.v1 façade', () => {
 
   it('identity comes only from the session token; smuggled fields are refused', async () => {
     const d = deps()
-    expect((await call(d, { operation: 'authorize', subject: undefined, body: { businessId: 'b-1', action: 'market.feed.read' } })).status).toBe(401)
-    expect((await call(d, { operation: 'authorize', subject: 'owner; zuri_session=x', body: { businessId: 'b-1', action: 'market.feed.read' } })).status).toBe(401)
+    const unauthenticated = { allowed: false, status: 401, message: 'AUTH_REQUIRED' }
+    expect((await call(d, { operation: 'authorize', subject: undefined, body: { businessId: 'b-1', action: 'market.feed.read' } })).body.data).toEqual(unauthenticated)
+    expect((await call(d, { operation: 'authorize', subject: 'owner; zuri_session=x', body: { businessId: 'b-1', action: 'market.feed.read' } })).body.data).toEqual(unauthenticated)
     expect((await call(d, { operation: 'authorize', subject: 'owner', body: { businessId: 'b-1', action: 'market.feed.read', viewer: { role: 'OWNER' } } })).status).toBe(400)
     // Nothing above reached the resolver: bad subjects and bad bodies stop first.
     expect(d.resolveRequestViewer).not.toHaveBeenCalled()
     await call(d, { operation: 'authorize', subject: 'owner', body: { businessId: 'b-1', action: 'market.feed.read' } })
     expect(d.resolveRequestViewer.mock.calls[0][0].headers.get('cookie')).toBe('zuri_session=owner')
+  })
+
+  // Q11 evidence: an invalid session made the façade throw (500) and the service answer
+  // 503; legacy answers 401 AUTH_REQUIRED.
+  it('an expired or invalid session is a 401 decision, not a fault', async () => {
+    const httpError = Object.assign(new Error('AUTH_REQUIRED'), { status: 401 })
+    const d = deps({ resolveRequestViewer: vi.fn(async () => { throw httpError }) })
+    const response = await call(d, { operation: 'authorize', subject: 'expired', body: { businessId: 'b-1', action: 'market.feed.read' } })
+    expect(response.status).toBe(200)
+    expect(response.body.data).toEqual({ allowed: false, status: 401, message: 'AUTH_REQUIRED' })
+    const broken = deps({ resolveRequestViewer: vi.fn(async () => { throw new Error('SESSION_STORE_UNAVAILABLE') }) })
+    await expect(call(broken, { operation: 'authorize', subject: 's', body: { businessId: 'b-1', action: 'market.feed.read' } })).rejects.toThrow('SESSION_STORE_UNAVAILABLE')
   })
 
   it('raw candidates re-authorize the subject and refuse a mismatched tenant', async () => {

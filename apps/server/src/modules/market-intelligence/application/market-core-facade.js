@@ -59,11 +59,22 @@ function tokenMatches(header, secret) {
   return supplied.length === expected.length && timingSafeEqual(supplied, expected)
 }
 
-/** Re-resolve the user from their own session token, exactly as a browser request would be. */
+/**
+ * Re-resolve the user from their own session token, exactly as a browser request would be.
+ * `null` means "not a live session". resolveRequestViewer signals that by throwing a 401
+ * (missing, expired, revoked, malformed); Q11 found that uncaught, it surfaced as a 500
+ * and the service answered 503 where legacy answers 401 AUTH_REQUIRED. Any other failure
+ * is still a fault and propagates.
+ */
 async function viewerForSubject(subject, resolveRequestViewer) {
   if (typeof subject !== 'string' || !subject || subject.length > 8192 || /[;\r\n]/.test(subject)) return null
   const request = new Request('http://market-core.internal/', { headers: { cookie: `${AUTH_SESSION_COOKIE}=${subject}` } })
-  return resolveRequestViewer(request)
+  try {
+    return await resolveRequestViewer(request)
+  } catch (error) {
+    if (Number(error?.status) === 401) return null
+    throw error
+  }
 }
 
 async function decide({ viewer, businessId, action, db }) {
@@ -125,7 +136,11 @@ export async function handleMarketCoreRequest(
   }
 
   const viewer = await viewerForSubject(subject, resolveRequestViewer)
-  if (!viewer) return fail(401, 'Authentication required')
+  if (!viewer) {
+    // A decision, not a transport error: the service maps it to legacy's 401 body.
+    if (operation === 'authorize') return ok({ allowed: false, status: 401, message: 'AUTH_REQUIRED' })
+    return fail(403, 'Raw evidence scope refused')
+  }
 
   if (operation === 'authorize') return ok(await decide({ viewer, businessId: input.businessId, action: input.action, db }))
 
