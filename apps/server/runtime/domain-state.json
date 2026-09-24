@@ -2480,7 +2480,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-099",
@@ -4114,8 +4114,8 @@
           "title": "Market translation core",
           "declared": "done",
           "status": "verified",
-          "codeCount": 20,
-          "testCount": 35
+          "codeCount": 21,
+          "testCount": 36
         }
       ],
       "checks": {
@@ -5604,7 +5604,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-094",
@@ -15404,8 +15404,8 @@
           "title": "Market translation core",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 24,
-          "testCount": 35
+          "codeCount": 25,
+          "testCount": 36
         }
       ],
       "evidence": [
@@ -15429,6 +15429,7 @@
         "apps/server/src/modules/market-intelligence/domain/supplier-candidate.js",
         "apps/server/src/modules/market-intelligence/domain/watch-rule.js",
         "apps/server/src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+        "apps/server/src/modules/market-intelligence/infrastructure/market-executor.js",
         "apps/server/src/modules/market-intelligence/infrastructure/market-observation-repository.js",
         "apps/server/src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -15452,6 +15453,7 @@
         "apps/server/tests/unit/market-intelligence/generic-candidate-extractor.test.js",
         "apps/server/tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
         "apps/server/tests/unit/market-intelligence/market-dashboard-render.test.js",
+        "apps/server/tests/unit/market-intelligence/market-executor.test.js",
         "apps/server/tests/unit/market-intelligence/market-observation-domain.test.js",
         "apps/server/tests/unit/market-intelligence/market-observation-feed.test.js",
         "apps/server/tests/unit/market-intelligence/market-observation-repository.test.js",

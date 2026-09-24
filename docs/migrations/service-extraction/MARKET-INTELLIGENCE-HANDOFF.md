@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.2.0b"
+version: "0.3.0b"
 status: candidate
-last_update: "2026-09-24T10:00:00+07:00,Claude"
+last_update: "2026-09-24T11:00:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -17,11 +17,12 @@ relations:
 
 # Market Intelligence extraction handoff (Session 4)
 
-**Checkpoint state:** M2 service-local runtime done (2026-09-24). The Market service
-runs as its own process with an owned Postgres/SQLite store, and a real workflow
-through its started image is proven. **Nothing routes to it yet:** `apps/server`
-still executes every production Market request, and core's façade routes (M3) do not
-exist. No extraction-complete, integration or release claim is made.
+**Checkpoint state:** M2 done; M3(a) done (2026-09-24). The Market service runs as
+its own process with an owned store and a proven image start. The two Market routes
+now carry the `MARKET_EXECUTOR` switch. **It defaults to `legacy`, so production
+behaviour is unchanged.** Core's façade routes (M3(b)) are offered to the integrator
+on a separate draft branch, and until they exist `service` mode has no real
+authority provider. Draft PR: [#544](https://github.com/Freshair129/zuri.ai/pull/544).
 
 ## Provenance
 
@@ -29,7 +30,7 @@ exist. No extraction-complete, integration or release claim is made.
 - Branch: `feat/market-intelligence-service` (worktree `.claude/worktrees/market-intelligence-service`)
 - Base SHA: `fad8ec6252941ca3de01afdb3116484f86b366c3` (`origin/main` on 2026-09-24)
 - Commits: M1 `d40a3329`; M2 is the commit that adds this revision (see `git log`)
-- PR: none yet
+- PR: [#544](https://github.com/Freshair129/zuri.ai/pull/544), draft, not for merge
 - Existing work checked first: no Market branch, PR or handoff existed. Session 1
   (`codex/conversation-runtime-service`, PR #542) and Session 3 (local worktree
   `codex/file-management-service`, uncommitted ADR-107) were read, not modified.
@@ -161,6 +162,26 @@ Behaviour differences from legacy, all deliberate:
 3. Raw candidates outside the authorized scope or lane are refused per record
    (introduced in M1).
 
+## M3(a) — executor switch in the Market-owned routes (ADR-108 D6)
+
+- `apps/server/src/modules/market-intelligence/infrastructure/market-executor.js`
+  reads `MARKET_EXECUTOR` **once at module load**. Unset, empty or `legacy` means the
+  in-process path, unchanged. `service` plus a valid `MARKET_SERVICE_URL` and a
+  `MARKET_SERVICE_TOKEN` of at least 32 characters makes the route a thin BFF. Any
+  other value is MISCONFIGURED: 503 `MARKET_SERVICE_MISCONFIGURED`, **never a fallback
+  to legacy**.
+- The BFF forwards the `zuri_session` token opaquely as `x-zuri-subject` and resolves
+  no viewer itself. It passes the service's status and body through, answers 401 when
+  there is no session (legacy would answer 403/404 through the anonymous viewer; only
+  in service mode), refuses bodies over 64 KiB, and fails closed (503
+  unreachable, 502 garbled). It imports nothing from `services/`.
+- `observations/route.js` and `translations/route.js`: one import and one early
+  branch each; the legacy body is unchanged.
+- Proof: `tests/unit/market-intelligence/market-executor.test.js` (10), plus the
+  Market suite (Market unit and integration, parity, `domain-visibility-server`,
+  `fr072-refusal-disclosure`) run with the flag **unset and with `legacy`**: 182/182
+  both times. `npm run build` is clean.
+
 ## Verification
 
 Environment: Windows 11 Pro, Node 24.19.0 (host), `node:22-alpine` (image), Docker
@@ -175,9 +196,9 @@ this handoff are committed together).
 | SQLite conformance | PASS | included above: 10/10 including the 8-thread race |
 | Boundary build | PASS | `npm --prefix services/market-intelligence run build`: 15 source files, no violation |
 | Legacy parity | PASS | apps/server `service-core-parity.test.js` 10/10; service `parity-vectors` and HTTP-level parity (service-translated rows equal the v1 vectors) |
-| Legacy Market suite | PASS | apps/server Market unit + integration + parity: 140 tests (M1 run; no apps/server code changed in M2) |
+| Legacy Market suite | PASS | 182/182 with `MARKET_EXECUTOR` unset and 182/182 with `legacy` (includes executor, domain-visibility and FR-072 disclosure suites); `npm run build` clean |
 | CONTRACT_VERIFIED | PARTIAL | consumer side proven against a conformant **fake** core over real HTTP; no real provider exists until M3 |
-| CONSUMER_INTEGRATION_VERIFIED | NOT_RUN | the Next routes still call the legacy module (flag is M3) |
+| CONSUMER_INTEGRATION_VERIFIED | PARTIAL | BFF switch built and unit-proven against a stubbed service; default `legacy`; no real service + core façade end-to-end yet |
 | DATA_OWNERSHIP_ENFORCED | PARTIAL | the service writes only `"MarketObservation"` through its own adapter; the restricted role is **not applied**, and legacy still writes the same table |
 | IMAGE_BUILD_VERIFIED | PASS | `docker compose -f services/market-intelligence/compose.rehearsal.yml up -d --build --wait` |
 | IMAGE_START_VERIFIED | PASS | through the started container: `/readyz` → `{"ready":true,"deps":{"store":"postgres","core":"fake"}}`; POST translation → `{"translated":1}`, replay → `{"translated":0}`; feed returned the row; `psql` showed 1 row `raw-rehearsal-1`; SIGTERM logged draining → stopped, exit 0; stack removed; the live `zuri-ai` containers were untouched |
@@ -198,8 +219,8 @@ this handoff are committed together).
 ```yaml
 - dependency: core façade routes /api/internal/market-intelligence/v1/* (market-core.v1)
   kind: CONTRACT
-  phase_blocked: M3
-  owner_to_unblock: integrator (Session 1) + Identity/Integration/audit owners; Session 4 can draft the routes as a separate shared-patch PR on request
+  phase_blocked: M3 completion (real end-to-end)
+  owner_to_unblock: integrator (Session 1) + Identity/Integration/audit owners; Session 4 drafted them on branch feat/market-intelligence-core-facade as a separate draft PR for the integrator to adopt, rewrite or decline
   condition_to_unblock: reviewed routes passing the same scenarios test/support/fake-core.js encodes (refusal statuses, subject re-check on raw-candidates, envelope shape)
   evidence: [services/market-intelligence/src/adapters/core-client.js, services/market-intelligence/test/http-api.test.js]
   safe_work_now: [M4 durable-audit design, BFF flag patch on the two Market-owned routes]
@@ -239,19 +260,18 @@ The board stays at snapshot 0.1 on this branch because it belongs to the integra
 Replacement row for §1:
 
 ```text
-| **Market Intelligence — Session 4** | **PARTIAL / M2 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; branch feat/market-intelligence-service, draft PR | Nothing routes to the service; core façade /api/internal/market-intelligence/v1/* absent; MARKET_EXECUTOR flag (M3a) in progress; restricted DB role not applied; CI not wired | M3a on branch; M3b façade offered to integrator as a separate draft PR; Gate MARKET = façade review + provider conformance |
+| **Market Intelligence — Session 4** | **PARTIAL / M2 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; branch feat/market-intelligence-service, draft PR | Nothing routes to the service; core façade /api/internal/market-intelligence/v1/* absent; MARKET_EXECUTOR flag DONE (default legacy); restricted DB role not applied; CI not wired | M3a on branch; M3b façade offered to integrator as a separate draft PR; Gate MARKET = façade review + provider conformance |
 ```
 
 Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 IN_PROGRESS
-(flag on this branch; façade waiting on the integrator), M4 NOT_STARTED, M5 NOT_STARTED.
+(M3(a) flag DONE on this branch; M3(b) façade drafted for the integrator), M4 NOT_STARTED, M5 NOT_STARTED.
 
 ## Next exact action
 
-1. Integrator: land the scanner/CI wiring and decide who writes the core façade
-   routes (Session 4 can draft them as a separate shared-patch PR).
-2. Session 4, M3: the `MARKET_EXECUTOR` flag in `apps/server/src/app/api/market/*`
-   (Market-owned routes), a BFF client for the service API, and provider conformance
-   once the façade exists.
+1. Integrator: land the scanner/CI wiring, and adopt, rewrite or decline the core
+   façade draft PR (branch `feat/market-intelligence-core-facade`).
+2. Session 4, after the façade is reviewed: a provider conformance run (real core
+   façade ↔ Market service ↔ BFF) on a disposable stack, which completes M3.
 3. Session 4, M4: a durable audit handoff (with the audit owner's review), a replay
    and schema-version rehearsal (see finding 2), and a revoke/redaction path.
 
@@ -264,7 +284,7 @@ m1_commit: d40a3329
 code_head_sha: null   # the commit adding this revision; see git log
 branch: feat/market-intelligence-service
 pr_number: null
-current_tranche: M2
+current_tranche: M3
 execution_status: PARTIAL
 merge_status: NOT_MERGED
 production_status: NOT_RUN
