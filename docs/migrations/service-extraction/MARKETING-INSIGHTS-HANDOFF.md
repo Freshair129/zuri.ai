@@ -76,7 +76,7 @@ not an Insights microservice.
 | Unit + render (no Next/DB/Meta/live-transport runtime) | **PASS** | this commit | `npx vitest run tests/unit/marketing/insights tests/unit/api-path-reachability.test.js` (in `apps/server`) | 18 files, 143 tests, 143 passed, 0 skipped, exit 0 (marketing insights alone: 17 files, 129 tests, all new B4/B5 files included) |
 | Governance | **PASS** | this commit | `npm run govern` (repo root) | exit 0; critical 0, warning 21, info 34, all pre-existing and unrelated to S6 (one CRITICAL table-cell-count defect from an unescaped `\|` in this doc's own R-16 row was introduced and fixed within this session before commit) |
 | Full server unit+integration | **PASS** | this commit | `npm test` (in `apps/server`, wrapped by `assert-tests-ran`) | 822 files: 816 passed, 6 skipped (both unchanged from the prior checkpoint's skip count); 6,879 tests: 6,847 passed, 32 skipped; exit 0; 579 s. The 7 new test files and 51 new tests are exactly this session's B4/B5 additions; nothing regressed |
-| Hosted CI (PR #554) | **PASS** (prior checkpoint) | `6914b226` (code identical to `e01532c8`) | GitHub Actions | `govern` pass (2m33s), `build` pass (2m43s), `tests` pass (19m47s), `verify` pass, `edge-verify` pass, `changes` pass ×2; `e2e` and `desktop` **skipped by the workflow's path filter**, so e2e was not run. Not re-run for this session's B4/B5 delta — that needs a fresh push to PR #554. |
+| Hosted CI (PR #554) | **PASS** | `3990491a` (B4/B5 + per-recipient retry-key fix) | GitHub Actions | `govern` pass (2m15s), `build` pass (2m39s), `tests` pass (19m52s), `verify` pass, `edge-verify` pass, `changes` pass ×2; `e2e` and `desktop` **skipped by the workflow's path filter**, so e2e was not run. Earlier run at `6914b226` (code = `e01532c8`) also passed. |
 | Component (Postgres/Supabase, RLS, concurrency) | NOT_RUN | — | — | no disposable Postgres test harness is set up; SQLite would prove nothing here |
 | Browser / performance | NOT_RUN | — | — | components are render-tested only; no page mounts them until B1 |
 | Provider / workflow-engine / LINE / live | NOT_RUN | — | — | blocked (see below); `LINE_ALERT_VERIFIED` stays NOT_RUN — the B5 notifier is proven only against a stub transport in unit tests, never a real LINE send |
@@ -135,7 +135,7 @@ META_LIVE_READ_VERIFIED: NOT_RUN
 REAL_DATA_ALL_BRANDS_VERIFIED: NOT_RUN
 LINE_ALERT_VERIFIED: NOT_RUN        # stub only — adapter unit-tested against an injected fake transport; no real LINE send, no real transport/credentialRef binding
 PERFORMANCE_VERIFIED: NOT_RUN
-CI_VERIFIED: PASS                   # PR #554 at 6914b226: govern/build/tests/verify/edge-verify pass; e2e skipped by path filter; not re-run for this session's B4/B5 delta
+CI_VERIFIED: PASS                   # PR #554 at 3990491a: govern/build/tests/verify/edge-verify pass; e2e skipped by path filter
 REVIEW_STATUS: NOT_REQUESTED
 MERGE_STATUS: NOT_MERGED
 PRODUCTION_ACTIVATION: NOT_RUN
