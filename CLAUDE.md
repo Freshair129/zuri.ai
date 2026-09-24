@@ -167,7 +167,9 @@ to the `web` container instance and goes dead (its own pinned image is untouched
 `web` is replaced without it also being recreated
 ([RCA](.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)). Outside the `-f`
 deploy-override pattern, from `apps/server` the non-`-f` recreate-and-verify pair is
-`docker compose --profile knowledge up -d genesis-worker` followed by
+`docker compose --profile knowledge up -d --force-recreate genesis-worker` (Compose only
+recreates on a config or image change, and neither changed, so the flag is what actually
+replaces the worker) followed by
 `docker compose exec web node scripts/ki17-smoke.mjs`. After any deploy, check
 that the web container's `com.docker.compose.project.config_files` label names all four
 files and that `docker exec zuri-ai-web-1 sh -c 'printf %s "$ZURI_LINE_SERVER_ENABLED"'`
