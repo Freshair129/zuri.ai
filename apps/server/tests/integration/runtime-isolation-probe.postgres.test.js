@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import pg from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { runRuntimeIsolationProbe } from '@/modules/knowledge/runtime-isolation-probe'
@@ -31,6 +32,25 @@ function runtimeUrl() {
   url.password = localPassword
   return url.toString()
 }
+
+// The probe runs every assertion through the `client` it is handed; `databaseUrl`
+// only names the target it reports on, and parseDedicatedRuntimeDatabaseUrl
+// refuses any target but the dedicated production login (host, :5432, /postgres).
+// So `client` connects to the disposable loopback database above, and the probe
+// is told the production-shaped target it would examine in real use — for the
+// report's fingerprints only. This URL is never connected to and carries no
+// password, the same pattern tests/unit/runtime-isolation-probe.test.js uses.
+const DECLARED_TARGET_HOST = 'db.qcnmhyglarzcpudjorzc.supabase.co'
+
+function declaredTargetUrl() {
+  const url = new URL('postgresql://placeholder.invalid/postgres')
+  url.username = loginRole
+  url.hostname = DECLARED_TARGET_HOST
+  url.port = '5432'
+  return url.toString()
+}
+
+const fingerprint = (value) => `sha256:${createHash('sha256').update(value).digest('hex').slice(0, 12)}`
 
 runPostgres('runtime isolation probe PostgreSQL contract (FR-054)', () => {
   const admin = new Client({ connectionString: adminUrl })
@@ -85,13 +105,17 @@ runPostgres('runtime isolation probe PostgreSQL contract (FR-054)', () => {
     try {
       const report = await runRuntimeIsolationProbe({
         client: runtime,
-        databaseUrl: runtimeUrl(),
+        databaseUrl: declaredTargetUrl(),
         scope,
         now: () => new Date('2026-08-14T02:00:00.000Z'),
       })
 
       expect(report).toMatchObject({
         status: 'PASS',
+        target: {
+          hostFingerprint: fingerprint(DECLARED_TARGET_HOST),
+          roleFingerprint: fingerprint(loginRole),
+        },
         assertions: {
           exactPositiveScope: { passed: true, visibleCount: 1, outOfScopeCount: 0 },
           crossTenantDenied: { passed: true, visibleCount: 0 },
@@ -99,6 +123,27 @@ runPostgres('runtime isolation probe PostgreSQL contract (FR-054)', () => {
           mutationDeniedAndRolledBack: { passed: true, rolledBack: true },
         },
       })
+      expect(report).not.toHaveProperty('reason')
+      // SEC-011: the report carries fingerprints, never a host, role, URL or password.
+      const serialized = JSON.stringify(report)
+      for (const needle of [DECLARED_TARGET_HOST, loginRole, localPassword, new URL(adminUrl).host]) {
+        expect(serialized).not.toContain(needle)
+      }
+    } finally {
+      await runtime.end()
+    }
+  })
+
+  it('still refuses a non-production target before opening a transaction', async () => {
+    const runtime = new Client({ connectionString: runtimeUrl() })
+    await runtime.connect()
+    try {
+      await expect(runRuntimeIsolationProbe({ client: runtime, databaseUrl: runtimeUrl(), scope }))
+        .rejects.toThrow('RUNTIME_ISOLATION_DATABASE_ROLE_FORBIDDEN')
+      const { rows: [state] } = await runtime.query(
+        "select current_user as login_role, pg_current_xact_id_if_assigned() is null as no_open_write, now() = statement_timestamp() as no_open_transaction",
+      )
+      expect(state).toEqual({ login_role: loginRole, no_open_write: true, no_open_transaction: true })
     } finally {
       await runtime.end()
     }
