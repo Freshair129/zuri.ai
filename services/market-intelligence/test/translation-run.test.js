@@ -118,6 +118,28 @@ test('concurrent runs over the same backlog create each observation once', async
   assert.equal(results.reduce((sum, r) => sum + r.translated, 0), 3)
 })
 
+// Handoff finding 2: the candidate filter keyed on rawRecordId treats "translated under
+// ANY schema version" as "translated". After a translationSchemaVersion bump the new
+// version must re-translate, producing new lineage identities next to the old rows.
+// The version below is test-local; the shipped vectors stay at market-observation.v1.
+test('a new translation schema version re-translates already-translated raw records', async () => {
+  const table = createObservationTable()
+  const records = [rawRecord({ id: 'r1' }), rawRecord({ id: 'r2' })]
+  const v1 = await runMarketTranslationForBusiness({ actor: owner, businessId: BUSINESS_A }, deps({ table, records }))
+  assert.equal(v1.translated, 2)
+  const v2 = await runMarketTranslationForBusiness(
+    { actor: owner, businessId: BUSINESS_A },
+    deps({ table, records, translationSchemaVersion: 'market-observation.test-v2' }),
+  )
+  assert.deepEqual(v2, { translated: 2, unchanged: 0, failed: [] })
+  assert.equal(table.rows.size, 4)
+  const again = await runMarketTranslationForBusiness(
+    { actor: owner, businessId: BUSINESS_A },
+    deps({ table, records, translationSchemaVersion: 'market-observation.test-v2' }),
+  )
+  assert.deepEqual(again, { translated: 0, unchanged: 0, failed: [] })
+})
+
 test('input parsing keeps the legacy default and maximum', () => {
   assert.deepEqual(parseMarketTranslationRunInput({ businessId: 'b' }), { businessId: 'b', limit: MARKET_TRANSLATION_RUN_DEFAULT_LIMIT })
   assert.equal(parseMarketTranslationRunInput({ businessId: 'b', limit: 1000 }).limit, 100)
