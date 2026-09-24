@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.7.4"
+version: "0.8.0"
 status: candidate
-last_update: "2026-09-24T23:50:00+07:00,Claude"
+last_update: "2026-09-25T00:15:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -20,9 +20,11 @@ relations:
 **Checkpoint state:** M2 done; M3(a) and M3(b) are on `main` (#544 at `85d8fd06`,
 façade fixes #556 at `b936d41e`), merged at the owner's instruction **before**
 integrator review. S1's post-merge read-only review returned **PASS** for #556 at head
-`f8571132` / `main` `b936d41e` (2026-09-24), which closes the three façade findings. **`MARKET_EXECUTOR` defaults to
-`legacy` and nothing is deployed, so production behaviour is unchanged.** See
-"Merge audit" below for who ordered each merge.
+`f8571132` / `main` `b936d41e` (2026-09-24), which closes the three façade findings.
+`MARKET_EXECUTOR` unset or `legacy` (the default) runs the **retained legacy path**; no
+legacy code has been deleted, and the service is not deployed anywhere, so production
+behaviour is unchanged. Nothing merged to `main` after `b936d41e` (through `9e25aa1f`,
+2026-09-24) touches Market. See "Merge audit" below for who ordered each merge.
 
 ## Merge audit
 
@@ -38,20 +40,25 @@ chat; times are GitHub `mergedAt` (UTC) with the Bangkok time in brackets.
 
 None of the three had an integrator REVIEW_RESULT = PASS for its head SHA. S1's first
 review (NOT PASS, three P2 findings) came after #544 merged; #556 fixed them and merged
-before S1's re-review. Neither merge is being reverted.
+before S1's re-review. None of the three is being reverted.
 
 **Merge rule from 2026-09-24 (owner via MC0, approval `apr_11cab31b3590`):** a PR merges
 into `main` only after S1 sends REVIEW_RESULT = PASS for its latest head SHA. A new
 commit after review needs a new review. A PASS still does not authorize the merge: the
-merge needs a direct owner instruction in the Session 4 chat. Findings from S1's
-post-merge check of #556 are fixed forward in a new PR under this rule.
+merge needs a direct owner instruction in the Session 4 chat. During the 2026-09-24
+wrap-up the owner delegated merge control to MC0 (approval `apr_e191c28d2927`): MC0
+merges a PR once S1 has passed its head SHA and CI is green, and the lane does not
+merge or push after a PASS. S1's post-merge check of #556 returned PASS; any later
+finding is fixed forward in a new PR under this rule.
 
 ## Provenance
 
 - Repository: `Freshair129/zuri.ai`
-- Branch: `feat/market-intelligence-service` (worktree `.claude/worktrees/market-intelligence-service`)
+- Branches: lane `feat/market-intelligence-service` (merged via #544), façade
+  `feat/market-intelligence-core-facade` (#545, merged into the lane), fixes
+  `fix/market-facade-review-findings` (#556); worktree `.claude/worktrees/market-intelligence-service`
 - Base SHA: `fad8ec6252941ca3de01afdb3116484f86b366c3` (`origin/main` on 2026-09-24)
-- Commits: M1 `d40a3329`; M2 is the commit that adds this revision (see `git log`)
+- Commits: M1 `d40a3329`, M2 `084e6ba0`; `main` after #544 `85d8fd06`, after #556 `b936d41e`
 - PR: [#544](https://github.com/Freshair129/zuri.ai/pull/544) merged into `main` `85d8fd06`; [#556](https://github.com/Freshair129/zuri.ai/pull/556) merged `b936d41e` (see Merge audit)
 - Existing work checked first: no Market branch, PR or handoff existed. Session 1
   (`codex/conversation-runtime-service`, PR #542) and Session 3 (local worktree
@@ -97,7 +104,7 @@ for after cutover, which is not authorized.
 | Agent tools `record_market_observation`, `query_market_prices` | only named in `identity/agent-tool-authorizer.js` | — | **no implementation found** | — | UNKNOWN intent; not moved | — |
 | Erasure | no erasure code names `MarketObservation` | — | — | — | UNKNOWN whether tenant erasure covers the table; needs owner check before any data move | — |
 
-Findings for owners (no semantics were changed):
+Findings for owners (M0 itself changed no semantics; later changes are noted per finding):
 
 1. **The GKS resolver never runs in production.** Every translated row is UNRESOLVED
    because the route does not wire a reader. This matches the route's own comment. It
@@ -119,8 +126,8 @@ Findings for owners (no semantics were changed):
 
 ## M1 — what was implemented
 
-`services/market-intelligence/` is a Node ≥22 ESM package. Its only dependency is
-`zod@3.23.8`, the same version apps/server uses.
+`services/market-intelligence/` is a Node ≥22 ESM package. At M1 its only dependency was
+`zod@3.23.8`, the same version apps/server uses; M2 added `pg@8.23.0`.
 
 - `src/domain/market-observation.js`, `src/core/translate-raw-record.js`,
   `src/core/generic-candidate-extractor.js`, `src/core/knowledge-identity-resolver.js`:
@@ -215,7 +222,7 @@ Behaviour differences from legacy, all deliberate:
   `fr072-refusal-disclosure`) run with the flag **unset and with `legacy`**: 182/182
   both times. `npm run build` is clean.
 
-## Local provider conformance (delegated Q11) — LOCAL PASS, not integrator-reviewed
+## Local provider conformance (delegated Q11) — LOCAL PASS (the run itself was not integrator-reviewed; the façade code has S1's post-merge PASS)
 
 Run on the #545 branch before it merged (the harness is now on `main`): a real session → BFF → Market service (sqlite store) → core
 façade → disposable SQLite. It was compared against the legacy path on a copy of the
@@ -239,8 +246,8 @@ The harness and replay steps are in `services/market-intelligence/conformance/`
 ## S1 façade review (post-merge) — findings fixed
 
 S1 reviewed the façade read-only at `main` `85d8fd06` and returned NOT PASS YET with three
-P2 findings (Mission Control REVIEW_RESULT, 2026-09-24). Fixed on branch
-`fix/market-facade-review-findings`:
+P2 findings (Mission Control REVIEW_RESULT, 2026-09-24). Fixed in #556 (merged
+`b936d41e`); S1's post-merge re-review returned PASS at head `f8571132`:
 
 1. **Unbounded raw-candidate response.** The façade now forwards only `RAW_RECORD_FIELDS`
    (the columns the translator reads) through a Prisma `select`; a payload over 256 KiB is
@@ -277,11 +284,11 @@ another commit.
 |---|---|---|
 | CODE_IMPLEMENTED | PARTIAL | M2 and M3 complete on `main`: BFF flag and core façade via #544 (`85d8fd06`), façade bounds via #556 (`b936d41e`); M4 not started (proposals only) |
 | ISOLATED_TESTS_VERIFIED | PASS | `npm --prefix services/market-intelligence test` at #556 head `f8571132`: 100 tests, 99 pass, 0 fail, 1 skipped (the Postgres suite, reported `NOT_RUN: MARKET_TEST_PG_URL is unset`, because it runs separately below); local only |
-| Postgres conformance | PASS: 11/11 at `9379c9e8` (includes the `findExistingLineageKeys` case added in `3f3fb808`), after the owner restored the local Docker engine; `npm --prefix services/market-intelligence run test:pg`: disposable `postgres:16-alpine` container, 10/10 including the 8-connection lineage race; container removed afterwards |
-| SQLite conformance | PASS | included above: 10/10 including the 8-thread race |
+| Postgres conformance | PASS | `npm --prefix services/market-intelligence run test:pg` at `9379c9e8`: 11/11 on a disposable `postgres:16-alpine` container (including the 8-connection lineage race and the `findExistingLineageKeys` case added in `3f3fb808`), after the owner restored the local Docker engine; container removed afterwards. Not re-run after #556, which did not touch the stores |
+| SQLite conformance | PASS | runs inside the `npm test` row above, including the 8-thread race |
 | Boundary build | PASS | `npm --prefix services/market-intelligence run build`: 15 source files, no violation |
 | Legacy parity | PASS | apps/server `service-core-parity.test.js` 10/10; service `parity-vectors` and HTTP-level parity (service-translated rows equal the v1 vectors) |
-| Legacy Market suite | PASS | 182/182 with `MARKET_EXECUTOR` unset and 182/182 with `legacy` (includes executor, domain-visibility and FR-072 disclosure suites); `npm run build` clean |
+| Legacy Market suite | PASS | at M3(a): 182/182 with `MARKET_EXECUTOR` unset and 182/182 with `legacy` (includes executor, domain-visibility and FR-072 disclosure suites), `npm run build` clean; at #556: Market unit + `fr072-refusal-disclosure` + `openapi-docs` 179/179 locally, and repository CI green |
 | CONTRACT_VERIFIED | PARTIAL | consumer proven against the fake core; provider **LOCAL PASS** 12/12 parity against legacy; S1 post-merge review PASS for the façade fixes (#556, read-only). Stays PARTIAL: no committed consumer-to-real-Next-façade HTTP test |
 | CONSUMER_INTEGRATION_VERIFIED | PARTIAL | BFF → service → façade proven end-to-end locally (12/12 parity); default `legacy`; no deployed stack |
 | DATA_OWNERSHIP_ENFORCED | PARTIAL | the service writes only `"MarketObservation"` through its own adapter; the restricted role is **not applied**, and legacy still writes the same table |
@@ -319,9 +326,9 @@ another commit.
 - dependency: governance scanners, CI job and root scripts include services/market-intelligence
   kind: INTEGRATION_ORDER
   phase_blocked: CI_VERIFIED
-  owner_to_unblock: integrator (Session 1 by default)
-  condition_to_unblock: shared patch merged (see below)
-  evidence: [PR #542 adds the same wiring for services/conversation-runtime only]
+  owner_to_unblock: Session 4, as COMMON_RESOURCES item (b) after S1 releases item (a); post-deploy
+  condition_to_unblock: S4 holds the lease, lands the shared patch (see below) through S1 PASS + merge
+  evidence: [PR #542 adds the same wiring for services/conversation-runtime only; S1 confirmed item (a) stays Conversation Runtime-only]
   safe_work_now: [local test/build/test:pg/rehearsal]
 ```
 
@@ -334,7 +341,7 @@ these changes itself as item (b), under a lease, after S1 releases (a). None is 
 - `apps/server/scripts/doc-graph.mjs` and `doc-preflight.mjs`: scan
   `services/market-intelligence/{src,test,contracts}` as #542 does for
   `services/conversation-runtime`. Generalizing to every `services/*` is preferable.
-- `apps/server/scripts/workspace-path.mjs`: `services` as a shared root (already in #542).
+- `apps/server/scripts/workspace-path.mjs`: `services` as a shared root (#542, still open, also adds it).
 - `.github/workflows/governance.yml`: a `market-intelligence` job that feeds `verify`.
   It should run `npm ci --prefix services/market-intelligence`, `npm test`,
   `npm run build`, `npm run test:pg` (Docker is available on ubuntu-latest) and
@@ -370,7 +377,7 @@ read-only; no committed consumer-to-real-façade HTTP test), M4 PROPOSED (docs o
 ```yaml
 session: S4
 workstream: market-intelligence
-observed_at: "2026-09-24T23:30:00+07:00"   # after S1 post-merge PASS for #556
+observed_at: "2026-09-25T00:15:00+07:00"   # after S1 post-merge PASS for #556; main 9e25aa1f has no later Market change
 base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
 m1_commit: d40a3329
 code_head_sha: b936d41edc652e606ac58f7354a3b1c59706f8ea   # main after #556
@@ -381,9 +388,7 @@ execution_status: PARTIAL
 merge_status: MERGED   # without integrator PASS, on owner instruction
 production_status: NOT_RUN
 board_update: DELTA_ACKNOWLEDGED   # 2026-09-24, comment on #542: https://github.com/Freshair129/zuri.ai/pull/542#issuecomment-5806819890
-# Session 1 reply (relayed by the owner, 2026-09-24): #542 stays Conversation Runtime-only;
-# #545 is recorded as a shared-file dependency to compose after the integrator decides scope.
-# #542 also edits openapi.js and the API appendix, so the route counters will conflict:
-# whichever lands second recomputes pathCount/operationCount and the appendix count.
-# Board not yet merged. S1 was told of each merge via Mission Control (2026-09-24).
+# Session 1 (2026-09-24): #542 stays Conversation Runtime-only and is still open. #544 landed
+# first, so #542 recomputes pathCount/operationCount and the API appendix count when it merges main.
+# Board not yet merged by the integrator. S1 was told of each merge via Mission Control (2026-09-24).
 ```
