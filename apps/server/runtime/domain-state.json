@@ -583,7 +583,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-055",
@@ -591,7 +591,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-057",
@@ -3266,7 +3266,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-071",
@@ -14244,7 +14244,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 12
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -14262,7 +14262,9 @@
         "apps/server/tests/unit/activation-readiness-contract.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/fr054-postgres-target-guard.test.js",
         "apps/server/tests/unit/line-canary-preflight.test.js",
+        "apps/server/tests/unit/loopback-postgres-target.test.js",
         "apps/server/tests/unit/role-memory-partition.test.js",
         "apps/server/tests/unit/runtime-isolation-probe.test.js",
         "apps/server/tests/unit/runtime-postgres-config.test.js"
@@ -14292,7 +14294,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -14308,6 +14310,7 @@
         "apps/server/tests/unit/line-activation-contract.test.js",
         "apps/server/tests/unit/line-binding-activation-cli.test.js",
         "apps/server/tests/unit/line-binding-activation.test.js",
+        "apps/server/tests/unit/loopback-postgres-target.test.js",
         "apps/server/tests/unit/zuri-cli-canary-receipt.test.js"
       ]
     },

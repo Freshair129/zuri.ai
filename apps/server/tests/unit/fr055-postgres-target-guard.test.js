@@ -31,15 +31,39 @@ describe('FR-055 disposable PostgreSQL target guard', () => {
   })
 
   it.each([
-    'postgresql://postgres:test@127.0.0.1/zuri_fr055_test',
-    'postgresql://postgres:test@localhost/zuri_fr055_test',
-    'postgresql://postgres:test@[::1]/zuri_fr055_test',
-  ])('accepts exact loopback target only with explicit intent and a per-run marker: %s', (databaseUrl) => {
+    ['?host= remote', 'postgresql://postgres:test@127.0.0.1/zuri_fr055_test?host=db.example.com'],
+    ['?hostaddr=', 'postgresql://postgres:test@127.0.0.1/zuri_fr055_test?hostaddr=203.0.113.10'],
+    ['?port=', 'postgresql://postgres:test@127.0.0.1/zuri_fr055_test?port=5432'],
+    ['?dbname=', 'postgresql://postgres:test@127.0.0.1/zuri_fr055_test?dbname=postgres'],
+    ['?options=', 'postgresql://postgres:test@127.0.0.1/zuri_fr055_test?options=-c%20role%3Dpostgres'],
+    ['?service=', 'postgresql://postgres:test@127.0.0.1/zuri_fr055_test?service=prod'],
+    ['fragment', 'postgresql://postgres:test@127.0.0.1/zuri_fr055_test#x'],
+  ])('refuses a connection-string override even with opt-in and marker: %s', (_label, databaseUrl) => {
+    expect(() => parseFr055PostgresTarget({ databaseUrl, destructiveOptIn: DESTRUCTIVE_OPT_IN, clusterMarker: marker }))
+      .toThrow('LINE_ACTIVATION_TEST_DATABASE_URL_OVERRIDES_REFUSED')
+  })
+
+  it.each([
+    ['loopback in userinfo, remote host', 'postgresql://127.0.0.1:5432@db.example.com/zuri_fr055_test'],
+    ['multi-host list', 'postgresql://postgres@127.0.0.1,db.example.com/zuri_fr055_test'],
+    ['percent-encoded loopback host', 'postgresql://postgres@%31%32%37.0.0.1/zuri_fr055_test'],
+    ['non-loopback IPv6', 'postgresql://postgres@[2001:db8::1]/zuri_fr055_test'],
+  ])('refuses a disguised non-loopback target: %s', (_label, databaseUrl) => {
+    expect(() => parseFr055PostgresTarget({ databaseUrl, destructiveOptIn: DESTRUCTIVE_OPT_IN, clusterMarker: marker }))
+      .toThrow('LINE_ACTIVATION_TEST_DATABASE_MUST_BE_DEDICATED_LOOPBACK')
+  })
+
+  it.each([
+    ['postgresql://postgres:test@127.0.0.1/zuri_fr055_test', 'postgresql://postgres:test@127.0.0.1:5432/zuri_fr055_test'],
+    ['postgresql://postgres:test@localhost/zuri_fr055_test', 'postgresql://postgres:test@localhost:5432/zuri_fr055_test'],
+    ['postgresql://postgres:test@[::1]/zuri_fr055_test', 'postgresql://postgres:test@[::1]:5432/zuri_fr055_test'],
+    ['postgresql://postgres:test@127.0.0.1:56584/zuri_fr055_test', 'postgresql://postgres:test@127.0.0.1:56584/zuri_fr055_test'],
+  ])('accepts exact loopback target only with explicit intent and a per-run marker: %s', (databaseUrl, canonical) => {
     expect(parseFr055PostgresTarget({
       databaseUrl,
       destructiveOptIn: DESTRUCTIVE_OPT_IN,
       clusterMarker: marker,
-    })).toEqual({ enabled: true, databaseUrl, clusterMarker: marker })
+    })).toEqual({ enabled: true, databaseUrl: canonical, clusterMarker: marker })
   })
 
   it('verifies the exact marker from the connected cluster before DDL', async () => {
