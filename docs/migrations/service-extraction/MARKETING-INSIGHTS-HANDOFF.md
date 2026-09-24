@@ -156,7 +156,7 @@ mc0_registration: ACTIVE            # Mission Control binding bnd_e0961dc12fe4a2
 | # | Blocked | Phase | Owner to unblock | Condition to unblock | Safe work now |
 |---|---|---|---|---|---|
 | B1 | Routes `/api/insights/*` and page `/growth/insights` | I2/I3 | Registry owner / integrator | Candidate FR ids allocated for the Insights read routes and the refresh routes (preflight rejects a route without a declared FR, and S6 may not allocate numbers). Marketing charter gains `src/app/api/insights/**` (R-11). | UI components with render tests against the query-service DTOs |
-| B2 | Persistence: binding, observation, content and snapshot tables | I2 | Migration owner (integrator) + Marketing owner | Review of the schema proposal (R-04/05/06/09/14): UUID keys, namespaced provider ids, nullable values with quality, revision per grain, snapshot. Then `schema.prisma` + a Supabase migration in one change. | Write the proposal as SQL/Prisma text in this folder; repository adapter contract tests against the fixture |
+| B2 | Persistence: binding, observation, content and snapshot tables | I2 | S1 (migration owner/integrator) + Marketing owner | S1 reviews [INSIGHTS-PERSISTENCE-PROPOSAL.md](INSIGHTS-PERSISTENCE-PROPOSAL.md). It was sent to S1 through Mission Control as REVIEW_REQUEST `msg_b63054e8-7834-4776-b883-066fbba3ae15`; S1 replied DEFER (`msg_a4a6bcfd…`) because S6 is queued after S1 in COMMON_RESOURCES. After review: `schema.prisma` + a Supabase migration in one change, under a lease. | Repository adapter contract tests against the fixture |
 | B3 | Any Meta read (`MetaInsightsReadPort`) | I2 provider, I5 | Integration owner (no session owner identified) | A Meta adapter inside `src/platform/integrations/providers/meta/`, owned by Integration: pinned API version, replacement fields for the deprecated metrics, permissions, 200/hour cap shared across workers, sanitized fixture. **S6 will not build a second client.** | Metric matrix upkeep; sync-writer projection written against the port with fixtures |
 | B4 | Workflow-engine-backed schedule / manual refresh / retry adapter (narrowed this session — everything that needs no engine is now built: `SyncOrchestratorPort`, refresh coalescing/conflict, retry-once policy, the shared rate budget, the 02:00 Bangkok tick, all unit-tested against an in-memory fake) | I4 | Integration/workflow-engine owner | A workflow engine instance exists (none on this machine; the coordination context intends n8n) and an orchestration owner is assigned; the refresh-route deltas (R-12) are accepted | Done this session: the pure policies and the port interface, with tests. Remaining safe work: wire the routes once B1 lands, and write the engine adapter against `SyncOrchestratorPort` once an owner and instance exist |
 | B5 | Real LINE send (DECIDED this session via MC0 `apr_7b17e9cff91f`: LINE Messaging API push through the existing Zuri OA — see R-16). What remains blocked is narrower: the real `transport` binding + `credentialRef`, and the approved `recipients` list | I4 | LINE OA Studio + Integration owners (transport/credentialRef); user (recipients) | The transport binding, a credentialRef and an approved recipients list are supplied. No LINE account is opened and nothing is sent by S6. | Done this session: `createLinePushReportNotifier` (adapter), `report-notification.js` (alert text + retry key), unit-tested against a stub transport. Keep the port unavailable (`CREDENTIAL_REF_NOT_CONFIGURED` / `RECIPIENT_NOT_CONFIGURED`) until both inputs exist |
@@ -197,15 +197,26 @@ blocks_other_lanes: none
 shared_files_touched: none (docs added only under docs/migrations/service-extraction/ with S6-prefixed names)
 ```
 
-This delta has **not** been delivered to S1 or MC0. No broker or MC0 tool was
-found in this session. It sits in this file for the user or integrator to
-forward.
+S6 has been registered with Mission Control (MC0) since 2026-09-24 (binding `bnd_e0961dc12fe4a20d`).
+Its status reaches MC0 as `mc checkpoint` records, the last one sent at wrap-up. This YAML block itself was not
+posted to the central board: `REFACTOR-STATUS.md` lives on unmerged #544 and belongs to S1.
 
 ## Next exact action
 
-1. Done: draft PR #554 is open and CI is green (see Verification).
-2. Done as a document: [INSIGHTS-PERSISTENCE-PROPOSAL.md](INSIGHTS-PERSISTENCE-PROPOSAL.md). It still has to
-   be forwarded to the migration owner for review (B2); S6 has not sent it anywhere.
+**Wrap-up state (2026-09-24, user instruction via MC0 `apr_e191c28d2927`):** the lane is closed for this
+round with no new work started. #554 stays a draft, not for merge, and nothing is deployed. Every remaining item waits on a named owner
+(B1/B2 on S1, B3/B4 on Integration, B5 on LINE OA Studio + Integration plus user recipients, B6 on the user).
+
+**Resume from disk:** worktree `C:/Users/pc/workspace/zuri-ai/.claude/worktrees/marketing-insights-s6`, branch
+`feat/marketing-insights-s6` (pushed; see `git log -1` for its head). Check first by running
+`npx vitest run tests/unit/marketing/insights tests/unit/api-path-reachability.test.js` in `apps/server`
+(expect 18 files / 144 tests), then `npm run govern` from the worktree root. Whichever blocker is lifted first
+decides the next step below. Merging follows the Merge rule above.
+
+1. Done: draft PR #554 is open. The last CI run that finished green was at `3990491a` (see Verification); later
+   commits change only docs.
+2. Done: [INSIGHTS-PERSISTENCE-PROPOSAL.md](INSIGHTS-PERSISTENCE-PROPOSAL.md) was sent to S1 for review
+   (B2); S1 deferred it by queue order. Wait for S1's REVIEW_RESULT.
 3. Once FR ids exist (B1): add the four GET routes plus `/growth/insights/page.jsx` (the page
    injects `load` and the router), then do browser proof and a network audit showing no Graph
    call on any GET, render or export.
