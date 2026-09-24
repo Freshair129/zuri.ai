@@ -136,12 +136,20 @@ REAL_DATA_ALL_BRANDS_VERIFIED: NOT_RUN
 LINE_ALERT_VERIFIED: NOT_RUN        # stub only — adapter unit-tested against an injected fake transport; no real LINE send, no real transport/credentialRef binding
 PERFORMANCE_VERIFIED: NOT_RUN
 CI_VERIFIED: PASS                   # PR #554 at 3990491a: govern/build/tests/verify/edge-verify pass; e2e skipped by path filter
-REVIEW_STATUS: NOT_REQUESTED
+REVIEW_STATUS: NOT_REQUESTED       # S1 REVIEW_RESULT=PASS on the latest PR head is required before any merge (see Merge rule)
 MERGE_STATUS: NOT_MERGED
 PRODUCTION_ACTIVATION: NOT_RUN
 board_update: BOARD_UPDATE_PENDING  # REFACTOR-STATUS.md lives only on unmerged #544; S6 does not write it
-mc0_registration: NOT_VERIFIED      # no MC0 broker/tools discovered in this session
+mc0_registration: ACTIVE            # Mission Control binding bnd_e0961dc12fe4a20d, epoch 1, SESSION_CONFIRMED; checkpoints sent with mc checkpoint
 ```
+
+## Merge rule (all lanes; user instruction via MC0, approval `apr_11cab31b3590`)
+
+- No PR merges into `main`, **including draft PR #554**, until S1 (the integrator) sends
+  `REVIEW_RESULT = PASS` for **that PR's latest head SHA**.
+- Any commit pushed after a review invalidates it, and a new review must be requested for the new head.
+- A PASS review does not by itself allow a merge. Merging is the user's decision and needs a direct
+  instruction from the user in this session's chat. S6 never merges or enables auto-merge on its own.
 
 ## Blockers (what is blocked, in which phase, who unblocks it, what can proceed meanwhile)
 
