@@ -12,15 +12,28 @@
 //   CANCEL of one work order must post it once. The order update is a
 //   compare-and-swap on its version, so a call that passed the version check with
 //   a stale version is refused 409 *_WORK_ORDER_VERSION_CONFLICT and its ledger
-//   rows roll back. The races are made deterministic with an in-test barrier that
-//   holds each transaction after its first read of the order until both have read.
-//   (Stated without requirement annotations so this hotfix leaves the generated
-//   domain-state test counts, held by another lane, untouched.)
+//   rows roll back.
+// F-16 (stock reservations): concurrent holds on one product must never promise
+//   more than is on hand. A hold takes the per-Business ledger fence before it
+//   reads on-hand and the live holds, so holds serialize with each other and
+//   with stock movements; the loser reads the winner's hold and is refused 409
+//   STOCK_RESERVATION_INSUFFICIENT_ATP.
+// F-17 (stock reservations): concurrent CONVERTs of one quote hold must commit
+//   exactly one ORDER hold. The hold update is a compare-and-swap on its version
+//   and ACTIVE status, so a call that passed the version check with a stale
+//   version is refused 409 STOCK_RESERVATION_VERSION_CONFLICT and its ORDER hold
+//   rolls back.
+//   The F-14 and F-17 races are made deterministic with an in-test barrier that
+//   holds each transaction after its first read of the row under test until both
+//   have read it. (F-14, F-16 and F-17 are stated without requirement
+//   annotations so these hotfixes leave the generated domain-state test counts,
+//   held by another lane, untouched.)
 // @spec ADR-066, ADR-065
 // @tested tests/integration/scm-legacy-races.postgres.test.js
 //
 // Found during the SCM service extraction (draft PR #546, SCM-HANDOFF §7 F-1,
-// F-9, F-12, F-14), where the same guards are proven necessary on PostgreSQL.
+// F-9, F-12, F-14, F-16, F-17), where the same guards are proven necessary on
+// PostgreSQL.
 //
 // PostgreSQL only, READ COMMITTED (Prisma's default): SQLite's single writer lock
 // serializes these transactions and hides every one of the three races, so the
@@ -46,6 +59,7 @@ import { createRecipe } from '@/modules/inventory/application/inventory-recipe-s
 import { createLocation } from '@/modules/inventory/application/warehouse-location-service'
 import { cancelKittingWorkOrder, completeKittingWorkOrder, openKittingWorkOrder, releaseKittingWorkOrder } from '@/modules/inventory/application/kitting-work-order-service'
 import { cancelCustomizationWorkOrder, completeCustomizationWorkOrder, openCustomizationWorkOrder, releaseCustomizationWorkOrder } from '@/modules/inventory/application/customization-work-order-service'
+import { applyReservationAction, createReservation } from '@/modules/inventory/application/inventory-atp-service'
 import { parseScmRacePostgresTarget } from '../helpers/scm-race-postgres-target'
 
 const target = parseScmRacePostgresTarget({
@@ -237,7 +251,7 @@ runPostgres('SCM legacy races on PostgreSQL (F-1, F-9, F-12)', () => {
   async function race(model, call) {
     const gate = barrier(2)
     const client = gatedClient(model, gate)
-    const outcomes = await Promise.allSettled([call(client), call(client)])
+    const outcomes = await Promise.allSettled([call(client, 0), call(client, 1)])
     return { reached: gate.arrived, won: outcomes.filter((o) => o.status === 'fulfilled').length, refusals: outcomes.filter((o) => o.status === 'rejected').map((o) => codeOf(o.reason)) }
   }
 
@@ -317,5 +331,56 @@ runPostgres('SCM legacy races on PostgreSQL (F-1, F-9, F-12)', () => {
     const result = await race('customizationWorkOrder', (client) => cancelCustomizationWorkOrder(order.id, { businessId: business.id, version: released.version }, { viewer, db: client }))
     expect(result).toEqual({ reached: 2, won: 1, refusals: ['CUSTOMIZATION_WORK_ORDER_VERSION_CONFLICT'] })
     expect({ workshop: await atLocation(blank.id, at.wip.id), source: await atLocation(blank.id, at.source.id), cancelled: await audits(order.id, 'CUSTOMIZATION_WORK_ORDER_CANCELLED') }).toEqual({ workshop: 0, source: 100, cancelled: 1 })
+  }, 120000)
+
+  // F-16: a hold reads on-hand and the live holds, then inserts. Both holds pause
+  // after their product read — before the per-Business ledger fence — until both
+  // have read it; with the fence the second then waits for the first to commit
+  // and reads its hold. Each racer uses its own day so the day-keyed RSV codes
+  // never collide (a collision would refuse the loser for an unrelated reason),
+  // and a 30-day hold keeps both live.
+  it('F-16: two holds of six on ten on hand that race past the product read promise at most ten', async () => {
+    const viewer = owner('per-rsv-hold')
+    const item = await product('SKU-RSV-HOLD')
+    await recordMovement({ businessId: business.id, productId: item.id, kind: 'RECEIPT', quantity: 10 }, { viewer, db })
+    const result = await race('product', (client, i) => createReservation({ businessId: business.id, productId: item.id, quantity: 6, purpose: 'QUOTE', holdDays: 30, quoteReference: `Q-RACE-${i}` }, { viewer, db: client, now: new Date(Date.UTC(2026, 1, 1 + i, 3)) }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['STOCK_RESERVATION_INSUFFICIENT_ATP'] })
+    const held = (await db.stockReservation.aggregate({ where: { productId: item.id, status: 'ACTIVE' }, _sum: { quantity: true } }))._sum.quantity ?? 0
+    const holds = await db.stockReservation.findMany({ where: { productId: item.id }, select: { id: true } })
+    // The loser left no hold and no audit record: exactly one CREATED audit, and it names the one hold that exists.
+    const created = await db.auditEvent.findMany({ where: { action: 'STOCK_RESERVATION_CREATED', payloadJson: { contains: item.id } }, select: { entityId: true } })
+    expect({ held, holds: holds.map((h) => h.id), created: created.map((a) => a.entityId) }).toEqual({ held: 6, holds: [holds[0].id], created: [holds[0].id] })
+  }, 120000)
+
+  // F-17: RELEASE / CONVERT check the hold's version and then update it. Both
+  // CONVERTs pause after their first read of the hold until both have read it,
+  // so both hold the same version; exactly one may commit its ORDER hold, and the
+  // other must be refused with the version conflict and leave no hold or audit.
+  it('F-17: two CONVERTs that read the same version commit exactly one ORDER hold', async () => {
+    const viewer = owner('per-rsv-convert')
+    const item = await product('SKU-RSV-CONVERT')
+    await recordMovement({ businessId: business.id, productId: item.id, kind: 'RECEIPT', quantity: 10 }, { viewer, db })
+    const quote = await createReservation({ businessId: business.id, productId: item.id, quantity: 4, purpose: 'QUOTE' }, { viewer, db })
+    const result = await race('stockReservation', (client, i) => applyReservationAction(quote.id, { businessId: business.id, action: 'CONVERT', version: quote.version, salesOrderId: 'so-rsv-race' }, { viewer, db: client, now: new Date(Date.UTC(2026, 2, 1 + i, 3)) }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['STOCK_RESERVATION_VERSION_CONFLICT'] })
+    const orders = await db.stockReservation.count({ where: { productId: item.id, purpose: 'ORDER', salesOrderId: 'so-rsv-race' } })
+    const quoteAfter = await db.stockReservation.findUnique({ where: { id: quote.id }, select: { status: true, version: true } })
+    expect({ orders, quoteAfter, converted: await audits(quote.id, 'STOCK_RESERVATION_CONVERTED') }).toEqual({ orders: 1, quoteAfter: { status: 'CONVERTED', version: quote.version + 1 }, converted: 1 })
+  }, 120000)
+
+  // F-17, same day: the two CONVERTs share one clock day, so they would draw the
+  // same day-keyed ORDER code. The compare-and-swap runs before the code is
+  // allocated, so the loser must still be refused with the version conflict —
+  // never with a unique-code collision — and allocate nothing.
+  it('F-17: two same-day CONVERTs that read the same version are decided by the version check, not a code collision', async () => {
+    const viewer = owner('per-rsv-convert-day')
+    const item = await product('SKU-RSV-CONVERT-DAY')
+    await recordMovement({ businessId: business.id, productId: item.id, kind: 'RECEIPT', quantity: 10 }, { viewer, db })
+    const quote = await createReservation({ businessId: business.id, productId: item.id, quantity: 4, purpose: 'QUOTE' }, { viewer, db })
+    const day = new Date(Date.UTC(2026, 3, 1, 3))
+    const result = await race('stockReservation', (client) => applyReservationAction(quote.id, { businessId: business.id, action: 'CONVERT', version: quote.version, salesOrderId: 'so-rsv-day' }, { viewer, db: client, now: day }))
+    expect(result).toEqual({ reached: 2, won: 1, refusals: ['STOCK_RESERVATION_VERSION_CONFLICT'] })
+    const orders = await db.stockReservation.count({ where: { productId: item.id, purpose: 'ORDER', salesOrderId: 'so-rsv-day' } })
+    expect({ orders, converted: await audits(quote.id, 'STOCK_RESERVATION_CONVERTED') }).toEqual({ orders: 1, converted: 1 })
   }, 120000)
 })

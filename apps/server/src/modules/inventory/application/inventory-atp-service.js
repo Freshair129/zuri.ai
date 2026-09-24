@@ -14,6 +14,7 @@ import {
   zReservationAction,
 } from '../domain/inventory-wip'
 import { loadBusiness, notFound } from './inventory-authority'
+import { acquireLedgerFence } from './inventory-stock-service'
 
 // @req FR-180 — the only writer of `StockReservation`, and the reader that
 //   turns the ledger plus the live reservations into Available-to-Promise.
@@ -169,6 +170,12 @@ export async function createReservation(input, { viewer, db = prisma, now = new 
     const purpose = data.purpose ?? 'QUOTE'
     if (purpose === 'ORDER' && !data.salesOrderId) throw failure(422, 'STOCK_RESERVATION_ORDER_REQUIRES_SALES_ORDER')
 
+    // Take the per-Business ledger fence the stock writer takes before any
+    // ledger read, so holds serialize with each other and with stock movements:
+    // under PostgreSQL READ COMMITTED two concurrent holds would otherwise each
+    // read the same free stock and promise it twice. Lock only — a hold is not
+    // a ledger movement, so the fence revision is not advanced.
+    await acquireLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
     const movements = await tx.stockMovement.findMany({ where: { productId: product.id }, select: { quantity: true } })
     const existing = await tx.stockReservation.findMany({
       where: { businessId: business.id, productId: product.id, status: 'ACTIVE' },
@@ -227,7 +234,19 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
     if (row.version !== data.version) throw failure(409, 'STOCK_RESERVATION_VERSION_CONFLICT')
     if (row.status !== 'ACTIVE') throw failure(409, 'STOCK_RESERVATION_NOT_ACTIVE')
 
-    const change = { version: { increment: 1 } }
+    // Compare-and-swap on (id, version, ACTIVE): the check above reads a
+    // snapshot, and under PostgreSQL READ COMMITTED two concurrent calls with
+    // the same version both pass it. Only the one whose update still matches
+    // wins; the other is refused before it writes anything else.
+    const casUpdate = async (fields) => {
+      const result = await tx.stockReservation.updateMany({
+        where: { id: row.id, version: row.version, status: 'ACTIVE' },
+        data: { ...fields, version: { increment: 1 } },
+      })
+      if (result.count !== 1) throw failure(409, 'STOCK_RESERVATION_VERSION_CONFLICT')
+    }
+
+    const change = {}
     if (data.action === 'RELEASE') {
       change.status = 'RELEASED'
       change.releasedAt = now
@@ -235,10 +254,15 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
       if (row.purpose === 'ORDER') throw failure(409, 'STOCK_RESERVATION_ALREADY_COMMITTED')
       const salesOrderId = data.salesOrderId ?? row.salesOrderId
       if (!salesOrderId) throw failure(422, 'STOCK_RESERVATION_ORDER_REQUIRES_SALES_ORDER')
-      // The quote hold ends CONVERTED and a committed one takes its place, so
-      // the stock is never briefly free between the two.
+      // The quote hold ends CONVERTED and a committed one takes its place in the
+      // same transaction, so the stock is never briefly free between the two.
+      // The compare-and-swap comes FIRST: a concurrent CONVERT of the same hold
+      // waits on the row, finds it no longer at its version and is refused here,
+      // before it allocates a day-keyed ORDER code (two same-day CONVERTs would
+      // otherwise collide on that code before either reached the version check).
       change.status = 'CONVERTED'
       change.convertedAt = now
+      await casUpdate(change)
       const code = await nextCode(tx, business, now)
       const committed = await tx.stockReservation.create({
         data: {
@@ -248,14 +272,13 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
         },
         select: RESERVATION_SELECT,
       })
-      await tx.stockReservation.update({ where: { id: row.id }, data: change })
       await recordAudit(tx, {
         entityType: STOCK_RESERVATION_ENTITY, entityId: row.id, action: ACTIONS.CONVERT, actorId: actor(viewer),
         payload: { businessId: business.id, code: row.code, committedCode: committed.code, salesOrderId, quantity: row.quantity, version: row.version + 1 },
       })
       return { released: await tx.stockReservation.findUnique({ where: { id: row.id }, select: RESERVATION_SELECT }), committed }
     }
-    await tx.stockReservation.update({ where: { id: row.id }, data: change })
+    await casUpdate(change)
     await recordAudit(tx, {
       entityType: STOCK_RESERVATION_ENTITY, entityId: row.id, action: ACTIONS.RELEASE, actorId: actor(viewer),
       payload: { businessId: business.id, code: row.code, quantity: row.quantity, reason: data.reason ?? null, version: row.version + 1 },
@@ -277,14 +300,20 @@ export async function expireDueReservations({ businessId, viewer, db = prisma, n
     select: { id: true, code: true, quantity: true, productId: true },
   })
   if (!due.length) return { businessId: business.id, expired: 0, codes: [] }
-  await inTx(db, async (tx) => {
+  const expired = await inTx(db, async (tx) => {
+    const changed = []
     for (const row of due) {
-      await tx.stockReservation.update({ where: { id: row.id }, data: { status: 'EXPIRED', version: { increment: 1 } } })
+      // Conditional on ACTIVE: a hold released or converted since the read
+      // above keeps its ending, and is neither stamped, audited nor counted.
+      const result = await tx.stockReservation.updateMany({ where: { id: row.id, status: 'ACTIVE' }, data: { status: 'EXPIRED', version: { increment: 1 } } })
+      if (result.count !== 1) continue
       await recordAudit(tx, {
         entityType: STOCK_RESERVATION_ENTITY, entityId: row.id, action: 'STOCK_RESERVATION_EXPIRED', actorId: actor(viewer),
         payload: { businessId: business.id, code: row.code, productId: row.productId, quantity: row.quantity },
       })
+      changed.push(row)
     }
+    return changed
   })
-  return { businessId: business.id, expired: due.length, codes: due.map((r) => r.code) }
+  return { businessId: business.id, expired: expired.length, codes: expired.map((r) => r.code) }
 }
