@@ -78,7 +78,7 @@ merge authority. Not deployed.
   a unique-code collision). F-16 asserts the single CREATED audit.
 - Race suite 14/14, 3 of 3 runs; `npm test` 804 files / 6810 tests; build clean;
   govern exit 0.
-- OPEN / DRAFT; REVIEW_REQUEST for `812b21f0` sent to S1.
+- S1 **PASS** at `812b21f0` (static review; the PostgreSQL / full-suite evidence is local). Hosted CI is green on that head (tests, build, govern, verify, edge-verify). OPEN / DRAFT; merging is the owner's / MC0's; S5 does not push again.
 **Production:** NOT_RUN. Nothing routes to the SCM process; no data, stock,
 price or credential was touched.
 
@@ -777,7 +777,7 @@ code_head_sha: e285c4f4
 handoff_source_commit: "the doc commit after e285c4f4 on feat/scm-service-extraction"
 branch: feat/scm-service-extraction
 pr_number: 546
-current_tranche: WRAP-UP (MC0, user instruction 2026-09-24, no new groups). S5.4 through stocktake/transfers/locations done (e285c4f4). #561 MERGED 9e25aa1f. #564 re-review requested at 812b21f0 (round-1 findings fixed). #546 stays draft, not for merge
+current_tranche: WRAP-UP (MC0, user instruction 2026-09-24, no new groups). S5.4 through stocktake/transfers/locations done (e285c4f4). #561 MERGED 9e25aa1f. #564 S1 PASS at 812b21f0, CI green, awaiting owner/MC0 merge. #546 stays draft, not for merge
 execution_status: IN_PROGRESS
 merge_status: NOT_MERGED
 production_status: NOT_RUN
