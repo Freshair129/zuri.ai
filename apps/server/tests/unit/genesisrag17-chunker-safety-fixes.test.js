@@ -160,6 +160,10 @@ describe('GenesisRAG17 prose chunker: no sliver after a paragraph cut', () => {
       expect(chunks[index].text.length).toBeGreaterThan(61)
       expect(chunks[index + 1].endOffset).toBeGreaterThan(chunks[index].endOffset)
     }
+    for (let index = 1; index < chunks.length; index += 1) {
+      // Every chunk adds non-whitespace text beyond the previous chunk's end.
+      expect(content.slice(chunks[index - 1].endOffset, chunks[index].endOffset).trim().length).toBeGreaterThan(0)
+    }
     for (const chunk of chunks) {
       expect(chunk.text.length).toBeLessThanOrEqual(GENESIS_RAG17_DEFAULT_MAX_CHARS)
       // Every CUT lands on a word, sentence or paragraph boundary, never
@@ -183,6 +187,15 @@ describe('GenesisRAG17 prose chunker: no sliver after a paragraph cut', () => {
     const p2 = thaiClause.repeat(15).trim()
     const chunks = assertNoSliver(`${p1}\n\n${p2}`)
     expect(chunks.length).toBeGreaterThanOrEqual(3)
+  })
+
+  // Gate round 5 repro: the budget edge lands inside a run of blank lines,
+  // and the old floor re-read the remaining newlines as a paragraph break,
+  // emitting "Certified again, today." plus four newlines (no new content).
+  it('a run of blank lines straddling the budget edge adds no content-free chunk', () => {
+    const p1 = `${'Maintenance inspection certificates remain available everywhere. '.repeat(7).trim()} Certified again, today.`
+    const p2 = englishSentence.repeat(12).trim()
+    for (const gap of ['\n\n\n\n', '\n\n\n', '\n\n\n\n\n', '\n \n\t\n\n']) assertNoSliver(`${p1}${gap}${p2}`)
   })
 
   it('mixed Thai/English paragraphs', () => {

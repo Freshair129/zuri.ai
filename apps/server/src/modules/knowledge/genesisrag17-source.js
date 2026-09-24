@@ -397,7 +397,12 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       // and the forced-progress branch below then emitted an overlap-plus-
       // one-character sliver and cut the next chunk mid-word. Starting the
       // search at `previousCutEnd` makes every cut a real new boundary.
-      const searchFloor = Math.max(cursor, previousCutEnd)
+      // Skip whitespace at the floor too: when the previous cut stopped at
+      // the budget edge inside a run of blank lines, the remaining newlines
+      // would otherwise read as a fresh paragraph break and cut a chunk that
+      // adds nothing but whitespace to the previous one.
+      let searchFloor = Math.max(cursor, previousCutEnd)
+      while (searchFloor < windowEnd && /\s/u.test(content[searchFloor] || '')) searchFloor += 1
       const boundary = findChunkBoundary(content, searchFloor, windowEnd)
       cutEnd = safeChunkBoundary(content, boundary ?? windowEnd, searchFloor, hardLimit)
       if (cutEnd <= searchFloor) cutEnd = safeChunkBoundary(content, windowEnd, searchFloor, hardLimit)
@@ -415,8 +420,12 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       // (never below it) before falling through to its forward search.
       cutEnd = safeChunkBoundary(content, Math.min(end, previousCutEnd + 1), previousCutEnd, Math.min(end, Math.max(hardLimit, previousCutEnd + 1)))
     }
+    // A chunk must add non-whitespace text beyond the previous chunk's end;
+    // one that only repeats the overlap tail plus separators is not emitted
+    // (backstop for the blank-line straddle the floor skip above prevents).
+    const addsContent = ranges.length === 0 || Boolean(content.slice(Math.max(cursor, previousCutEnd), cutEnd).trim())
     previousCutEnd = cutEnd
-    if (content.slice(cursor, cutEnd).trim()) ranges.push({ start: cursor, end: cutEnd })
+    if (addsContent && content.slice(cursor, cutEnd).trim()) ranges.push({ start: cursor, end: cutEnd })
     if (cutEnd >= end) break
     const chunkLength = cutEnd - cursor
     if (chunkLength > overlapChars) {
