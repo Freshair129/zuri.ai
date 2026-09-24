@@ -2,7 +2,7 @@ import { randomUUID, createHash } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import prisma from '@/lib/db'
 import { parseGenesisRag17Scope } from './genesisrag17-contract'
-import { createKnowledgeRepository, KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE } from './knowledge-repository'
+import { createKnowledgeRepository, ORPHAN_RETRY_BACKOFF_MS } from './knowledge-repository'
 import { createKnowledgeExecutionAuthority } from './knowledge-execution-authority'
 import { createGenesisRag17LineageRepository } from './genesisrag17-lineage-repository'
 import { ingestGenesisRag17Raw, resolveRuntimeCredential } from '@/platform/integrations/core/genesisrag17-executor'
@@ -229,13 +229,23 @@ async function closeOrphanedExecutionRun({ db, now, corpus, executionRunId, fail
  * `updatedAt` would never move — it would sit at the front of the
  * oldest-`updatedAt` page (`listOrphanedIngestionsForRuns`) on every single
  * pass forever, and 20+ of them ahead of a genuine orphan would starve it
- * permanently (round 4's exact gap). So a refused close is marked on the
- * ingestion row itself — status unchanged, `failureCode` set to
- * `KNOWLEDGE_ORPHAN_RUN_OPEN` via the repository's ordinary update method,
- * which also advances `updatedAt` as a side effect. `listOrphanedIngestionsForRuns`
- * then excludes a row marked this way until `ORPHAN_RETRY_BACKOFF_MS` (an
- * hour) has passed, so a refused row is retried hourly, never on every pass,
- * and can never again hold a page slot indefinitely.
+ * permanently (round 4's exact gap). So a refused close writes a retry time
+ * onto the ingestion row itself — status and `failureCode` unchanged,
+ * `leaseExpiresAt` set to now + `ORPHAN_RETRY_BACKOFF_MS` (an hour) via the
+ * repository's ordinary update method, which also advances `updatedAt` as a
+ * side effect. `listOrphanedIngestionsForRuns` already excludes any row whose
+ * lease is live, so a refused row is retried hourly, never on every pass, and
+ * can never again hold a page slot indefinitely. The lease is the right slot
+ * for this and `failureCode` was the wrong one: an earlier cut wrote
+ * `KNOWLEDGE_ORPHAN_RUN_OPEN` over the row's `failureCode`, which destroyed
+ * the reason the ingestion actually ended (KNOWLEDGE_SOURCE_REVOKED,
+ * KNOWLEDGE_SOURCE_REVISION_SUPERSEDED, …) — the admission projection kept
+ * saying "orphan run open" after the retry had closed the run, and the retry
+ * itself could only fall back to a status-derived code (REVOKED became
+ * WITHDRAWN in the intent's lastErrorJson). A terminal row's lease is read by
+ * nothing else (`listPending`/`claimIngestion` filter on QUEUED/RUNNING
+ * first), so nothing is lost by using it, and `failureCode` stays exactly
+ * what the withdraw/supersede path wrote.
  *
  * Because a single page can now be fully "drained" (every row on it either
  * closed or backed off) without the underlying candidate set becoming empty,
@@ -272,19 +282,18 @@ async function sweepOrphanedExecutionRuns({ db, now, limit = 20, onError, report
       for (const ingestion of orphans) {
         const corpus = await repository.getCorpus(ingestion.corpusId)
         if (!corpus) continue
-        // A row already carrying our own backoff marker never reaches this
-        // pass again while it is honoring the backoff window (excluded by the
-        // query itself), so seeing the marker here means its window just
-        // elapsed and this is a retry — fall back to the status-derived code
-        // rather than re-using the marker as the close reason.
-        const failureCode = ingestion.failureCode && ingestion.failureCode !== KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE
-          ? ingestion.failureCode
-          : (ingestion.status === 'WITHDRAWN' ? 'KNOWLEDGE_SOURCE_WITHDRAWN' : 'KNOWLEDGE_SOURCE_SUPERSEDED')
+        // The row's own failureCode is the reason the ingestion ended (what
+        // withdraw/supersede wrote) and is the close reason too — a refused
+        // close never touches it, so a retry after the backoff carries the
+        // same code as a first attempt would. Only a row written by a
+        // pre-sweep runtime with no code at all falls back to its status.
+        const failureCode = ingestion.failureCode
+          || (ingestion.status === 'WITHDRAWN' ? 'KNOWLEDGE_SOURCE_WITHDRAWN' : 'KNOWLEDGE_SOURCE_SUPERSEDED')
         await closeOrphanedExecutionRun({ db, now, corpus, executionRunId: ingestion.executionRunId, failureCode })
         const after = await repository.getPipelineRun(ingestion.executionRunId)
         if (after && ['QUEUED', 'RUNNING'].includes(after.status)) {
           open += 1
-          await repository.updateIngestion(ingestion.id, { failureCode: KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE })
+          await repository.updateIngestion(ingestion.id, { leaseExpiresAt: new Date(date(now).getTime() + ORPHAN_RETRY_BACKOFF_MS) })
           if (!reportedOpenRunIds.has(ingestion.executionRunId)) {
             reportedOpenRunIds.add(ingestion.executionRunId)
             onError?.({ code: 'KNOWLEDGE_ORPHAN_RUN_OPEN', executionRunId: ingestion.executionRunId })

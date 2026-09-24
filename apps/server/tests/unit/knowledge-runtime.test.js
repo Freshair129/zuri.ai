@@ -7,6 +7,7 @@ import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 import { createKnowledgeExecutionAuthority, hasKnowledgeScopeAuthority, hasKnowledgeRunAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import { resolveKnowledgeRuntimeBinding, createKnowledgeAdmissionRuntime } from '@/modules/knowledge/knowledge-runtime'
 import { withdrawKnowledgeSource } from '@/modules/knowledge/knowledge-corpus-service'
+import { ORPHAN_RETRY_BACKOFF_MS } from '@/modules/knowledge/knowledge-repository'
 import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17-executor'
 import { createPipelineRun, requestPipelineReplay, getPipelineMonitor } from '@/platform/integrations/core/pipeline-tracking-service'
 import { KNOWLEDGE_INGESTION_DEFINITION_ID, KNOWLEDGE_INGESTION_CONTRACT_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
@@ -654,12 +655,12 @@ describe('knowledge durable queue', () => {
     expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
   })
 
-  // Round 5 gate: a refused close now marks its own ingestion row with
-  // `KNOWLEDGE_ORPHAN_RUN_OPEN` so it stops sitting at the front of
+  // Round 5 gate: a refused close now writes an hour-long retry lease onto its
+  // own ingestion row so it stops sitting at the front of
   // `listOrphanedIngestionsForRuns`'s oldest-`updatedAt` page forever — but
   // that page is still bounded (`limit` per query, `MAX_SWEEP_PAGES` queries
   // per pass), so 20+ refused rows ahead of a genuine orphan must not starve
-  // it within that same bound, and once marked they must back off rather
+  // it within that same bound, and once leased they must back off rather
   // than being retried on every subsequent pass.
   it('closes the real orphan in one runOnce() despite 25 older refused-close rows, then backs every one of them off on the very next pass', async () => {
     const fixture = await durableJob()
@@ -696,12 +697,14 @@ describe('knowledge durable queue', () => {
     expect(['QUEUED', 'RUNNING']).not.toContain(run.status)
     expect(run.status).toBe('FAILED')
 
-    // All 25 refused rows are left exactly as refused, but now carry the
-    // backoff marker and a fresh `updatedAt`.
+    // All 25 refused rows are left exactly as refused — status and the reason
+    // they ended untouched — but now carry a live retry lease (and so a fresh
+    // `updatedAt`).
     for (const { executionRunId } of refusedRuns) {
       const ingestion = await prisma.knowledgeIngestion.findUnique({ where: { executionRunId } })
       expect(ingestion.status).toBe('SUPERSEDED')
-      expect(ingestion.failureCode).toBe('KNOWLEDGE_ORPHAN_RUN_OPEN')
+      expect(ingestion.failureCode).toBe('KNOWLEDGE_SOURCE_REVISION_SUPERSEDED')
+      expect(ingestion.leaseExpiresAt.getTime()).toBeGreaterThan(Date.now() + ORPHAN_RETRY_BACKOFF_MS - 60000)
       expect((await prisma.pipelineRun.findUnique({ where: { executionRunId } })).status).toBe('RUNNING')
     }
 
@@ -710,5 +713,66 @@ describe('knowledge durable queue', () => {
     // is already closed, so nothing actionable remains at all.
     const secondPass = await runtime.runOnce()
     expect(secondPass.sweep).toMatchObject({ closed: 0, open: 0 })
+  })
+
+  // The should-fix the round-5 gate left open: the first cut of the backoff
+  // wrote `KNOWLEDGE_ORPHAN_RUN_OPEN` over the row's `failureCode` and nothing
+  // ever put the original back, so the admission projection
+  // (knowledge-admission-service.js) kept saying "orphan run open" about a
+  // run the retry had since closed, and the retry itself could only close
+  // with a status-derived code — a REVOKED source came out as WITHDRAWN in
+  // the intent's lastErrorJson. The backoff now lives in `leaseExpiresAt`, so
+  // the reason the ingestion ended survives the refusal and is what the
+  // successful retry closes the run with.
+  it('keeps KNOWLEDGE_SOURCE_REVOKED on the row through a refused close and closes the run with that same code once the hourly retry succeeds', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport } = await pendingBatchRun(fixture)
+    // Real time, not a fixed date: the refused rows earlier tests in this
+    // file leave behind carry real-time leases, and a clock set elsewhere
+    // would either wake them or never let this row's own hour elapse. Their
+    // closes stay refused (unparsable corpora) so `closed` counts are still
+    // exact; `open` is asserted on this row and run, never as a total.
+    const clock = new Date()
+    const { scopeJson } = await prisma.knowledgeCorpus.findUnique({ where: { id: fixture.corpus.id } })
+
+    await prisma.knowledgeIngestion.update({
+      where: { id: fixture.job.id },
+      data: { status: 'WITHDRAWN', failureCode: 'KNOWLEDGE_SOURCE_REVOKED', claimToken: null, leaseExpiresAt: null },
+    })
+    // Force the refusal exactly as "surfaces a refused close" above does.
+    await prisma.knowledgeCorpus.update({ where: { id: fixture.corpus.id }, data: { scopeJson: 'not-json' } })
+
+    const onError = vi.fn()
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError, now: () => clock })
+    expect((await runtime.runOnce()).sweep).toMatchObject({ closed: 0 })
+
+    const refused = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(refused.status).toBe('WITHDRAWN')
+    expect(refused.failureCode).toBe('KNOWLEDGE_SOURCE_REVOKED')
+    const retryDueAt = clock.getTime() + ORPHAN_RETRY_BACKOFF_MS
+    expect(refused.leaseExpiresAt.getTime()).toBe(retryDueAt)
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
+
+    // The corpus is repaired, but the retry is not due yet: still backed off
+    // (the lease is untouched — a re-refusal would have pushed it later), the
+    // run still honestly open.
+    await prisma.knowledgeCorpus.update({ where: { id: fixture.corpus.id }, data: { scopeJson } })
+    clock.setTime(retryDueAt - 1000)
+    expect((await runtime.runOnce()).sweep).toMatchObject({ closed: 0 })
+    expect((await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })).leaseExpiresAt.getTime()).toBe(retryDueAt)
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
+
+    clock.setTime(retryDueAt + 1000)
+    expect((await runtime.runOnce()).sweep).toMatchObject({ closed: 1 })
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('FAILED')
+
+    const intent = await prisma.genesisRag17IngestionIntent.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(intent.status).toBe('FAILED')
+    expect(JSON.parse(intent.lastErrorJson).code).toBe('KNOWLEDGE_SOURCE_REVOKED')
+
+    const closed = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(closed.status).toBe('WITHDRAWN')
+    expect(closed.failureCode).toBe('KNOWLEDGE_SOURCE_REVOKED')
+    expect(onError.mock.calls.filter(([event]) => event.code === 'KNOWLEDGE_ORPHAN_RUN_OPEN' && event.executionRunId === stuck.executionRunId)).toHaveLength(1)
   })
 })

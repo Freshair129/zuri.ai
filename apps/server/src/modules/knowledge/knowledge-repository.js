@@ -9,14 +9,20 @@ function mutable(data, allowed) {
   if (Object.keys(data).some((key) => !allowed.includes(key))) throw new Error('Knowledge repository refuses immutable field mutation')
 }
 
-// A refused close (closeOrphanedExecutionRun declined or failed) gets this
-// failureCode written back onto the KnowledgeIngestion row — status
-// unchanged, but the write advances `updatedAt` (see knowledge-runtime.js's
-// sweep). Without that write nothing ever moves the row, so an oldest-first
-// page fills forever with rows nothing can act on. `ORPHAN_RETRY_BACKOFF_MS`
-// is how long `listOrphanedIngestionsForRuns` excludes a row after that: a
-// refused close is retried hourly, never on every single pass.
-export const KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE = 'KNOWLEDGE_ORPHAN_RUN_OPEN'
+// A refused close (closeOrphanedExecutionRun declined or failed) gets a
+// `leaseExpiresAt` this far in the future written onto the KnowledgeIngestion
+// row — status and `failureCode` unchanged, `updatedAt` advanced as a side
+// effect (see knowledge-runtime.js's sweep). Without some write nothing ever
+// moves the row, so an oldest-first page fills forever with rows nothing can
+// act on; `listOrphanedIngestionsForRuns` already excludes a row whose lease
+// is live, so the same lease is what makes a refused close retry hourly,
+// never on every single pass. An earlier cut used `failureCode` itself as the
+// backoff marker (`KNOWLEDGE_ORPHAN_RUN_OPEN`), which overwrote the reason the
+// ingestion ended (KNOWLEDGE_SOURCE_REVOKED, …) and never put it back — the
+// admission projection then said "orphan run open" about a run that had since
+// closed. The lease carries no meaning on a SUPERSEDED/WITHDRAWN row otherwise
+// (`listPending`/`claimIngestion` only read it for QUEUED/RUNNING), so it is
+// free to hold the retry time.
 export const ORPHAN_RETRY_BACKOFF_MS = 60 * 60 * 1000
 
 export function createKnowledgeRepository(db = prisma) {
@@ -94,13 +100,19 @@ export function createKnowledgeRepository(db = prisma) {
     // SUPERSEDED/WITHDRAWN, and already filtered to an expired-or-absent
     // lease. Nothing the sweep does after this can skip a returned row for a
     // reason baked into the query itself — a page can never be filled by rows
-    // the sweep goes on to ignore. `executionRunIds` is chunked in slices of
-    // 100 to stay under Prisma/SQL parameter limits; results are merged and
-    // re-sorted (oldest `updatedAt` first) before the final `limit`, since a
-    // per-chunk `take` could not enforce a single global ordering.
+    // the sweep goes on to ignore. The lease clause does double duty: a live
+    // lease on a row that is still being written by `processJob` keeps the
+    // sweep off it, and the lease a refused close writes (`now` +
+    // ORPHAN_RETRY_BACKOFF_MS, see knowledge-runtime.js) keeps that row off
+    // this oldest-first page until its retry is due — otherwise a refused-close
+    // row nothing else ever writes to would sit at the front of the page on
+    // every single pass, forever, and a genuine orphan behind it would never
+    // be reached. `executionRunIds` is chunked in slices of 100 to stay under
+    // Prisma/SQL parameter limits; results are merged and re-sorted (oldest
+    // `updatedAt` first) before the final `limit`, since a per-chunk `take`
+    // could not enforce a single global ordering.
     async listOrphanedIngestionsForRuns({ executionRunIds, now = new Date(), limit = 20 } = {}) {
       if (!Array.isArray(executionRunIds) || executionRunIds.length === 0) return []
-      const backoffThreshold = new Date(now.getTime() - ORPHAN_RETRY_BACKOFF_MS)
       const rows = []
       for (let start = 0; start < executionRunIds.length; start += 100) {
         const chunk = executionRunIds.slice(start, start + 100)
@@ -109,15 +121,6 @@ export function createKnowledgeRepository(db = prisma) {
             executionRunId: { in: chunk },
             status: { in: ['SUPERSEDED', 'WITHDRAWN'] },
             OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }],
-            // A row already marked KNOWLEDGE_ORPHAN_RUN_OPEN by a prior refused
-            // close is excluded until its backoff window elapses — otherwise a
-            // refused-close row nothing else ever writes to would sit at the
-            // front of this oldest-first page on every single pass, forever,
-            // and a genuine orphan behind it would never be reached.
-            // `not` is SQL `<>`, which is never true against NULL: a row with no
-            // failureCode at all (written by a pre-sweep runtime) has never been
-            // marked and must stay actionable, so it is listed explicitly.
-            AND: { OR: [{ failureCode: null }, { failureCode: { not: KNOWLEDGE_ORPHAN_RUN_OPEN_FAILURE_CODE } }, { updatedAt: { lte: backoffThreshold } }] },
           },
         }))
       }
