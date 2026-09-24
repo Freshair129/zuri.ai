@@ -18,21 +18,31 @@ import {
 // @req FR-109 — Tier 1 preserves raw content, parsed structure, exact chunk
 // substrings and every source-mention occurrence for the GenesisRAG17 batch.
 // @req FR-188 — a SMARTGIFT_CATALOG source selects `genesisrag17-parser-2` and
-// the pinned `genesisrag17-structured-recognizer-1`; every other source keeps
-// `genesisrag17-parser-1` and `rule_v1` exactly as before.
+// the pinned `genesisrag17-structured-recognizer-1`; parser-2's own chunks,
+// rendered text and identity are unaffected by the FR-109 remediation below
+// (tests/unit/genesisrag17-parser-2.test.js proves byte-identical output).
 // FR-109 remediation (2026-09-24, docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md
 // Stage 15 note): a TEXT-profile (prose) source is now also windowed by a
 // conservative CHARACTER budget alongside the whitespace-token budget, so a
 // spaceless script such as Thai — where one paragraph can be one whitespace
 // token — still yields several chunks, none of which can exceed the pinned e5
 // embedder's 512-token truncation window (still one Stage 9 batch, exact
-// substrings and offsets per FR-109). Selected as `genesisrag17-parser-3`;
-// `genesisrag17-parser-1` is unchanged as a historical identity for rows
-// already parsed under it (never produced by new ingestions). No new
-// requirement id is declared for this remediation.
+// substrings and offsets per FR-109). Selected as `genesisrag17-parser-3` for
+// every new TEXT-profile ingestion — including the two live LINE OA
+// providers on that profile, LINE_FAQ_CANDIDATE (FR-236) and
+// LINE_STUDIO_DESCRIPTION (FR-238) (knowledge-admission-service.js:427,:786)
+// — so their chunk ids and boundaries also change from this point on;
+// `genesisrag17-parser-1`/`genesisrag17-chunker-1` are historical identities,
+// never selected by a new ingestion but still honoured verbatim (old
+// splitter, no character budget, no overlap) when a persisted intent from
+// before this remediation is resumed or replayed
+// (`isHistoricalParserIdentity`, genesisrag17-executor.js `inputValue`). No
+// new requirement id is declared for this remediation.
 // @spec ADR-050, ADR-073, ADR-075, SDD-059, SDD-063, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/unit/genesisrag17-source.test.js, tests/unit/genesisrag17-parser-2.test.js,
-//         tests/unit/genesisrag17-thai-safe-chunker.test.js
+//         tests/unit/genesisrag17-thai-safe-chunker.test.js,
+//         tests/unit/genesisrag17-chunker-overlap-regression.test.js,
+//         tests/unit/genesisrag17-executor-legacy-resume.test.js
 
 export const GENESIS_RAG17_PARSER_VERSION = 'genesisrag17-parser-1'
 // Current TEXT-profile identity. Bumping the identity (not just the
@@ -73,7 +83,32 @@ export const GENESIS_RAG17_DEFAULT_MAX_CHARS = 480
 // push a chunk over the character budget.
 export const GENESIS_RAG17_DEFAULT_OVERLAP_CHARS = 60
 
-/** Stage 2 profiles. `text` is parser-1 (prose); `structured-record` is parser-2. */
+/**
+ * Whether `parserVersion` is the historical (pre-2026-09-24) TEXT-profile
+ * identity for the given (bounded) `maxTokens` — the bare constant for the
+ * default 80-token profile, or the old composite form for a custom token
+ * budget (see the historical `genesisRag17ParserIdentity`, git 8b0…cb35d3ea).
+ * This is the ONLY thing that makes `parseGenesisRag17Document` dispatch to
+ * `splitRangeLegacy` instead of the character-safe windower: a persisted
+ * `KnowledgeIngestionIntent.requestJson` from before this remediation still
+ * carries one of these two exact strings, and `resumeGenesisRag17Worker` /
+ * the FR-071 replay path (genesisrag17-executor.js) replay that request
+ * unchanged. A NEW ingestion never produces either string — the current
+ * `genesisRag17ParserIdentity` returns `genesisrag17-parser-3` (or its own
+ * composite) — so this path is unreachable except for a historical replay.
+ */
+export function isHistoricalParserIdentity(parserVersion, maxTokens = GENESIS_RAG17_DEFAULT_MAX_TOKENS) {
+  const boundedMaxTokens = Math.max(1, Math.floor(maxTokens))
+  if (boundedMaxTokens === GENESIS_RAG17_DEFAULT_MAX_TOKENS) return parserVersion === GENESIS_RAG17_PARSER_VERSION
+  return parserVersion === `${GENESIS_RAG17_PARSER_VERSION};chunker=${GENESIS_RAG17_CHUNKER_VERSION};maxTokens=${boundedMaxTokens}`
+}
+
+/**
+ * Stage 2 profiles. `text` selects `genesisrag17-parser-3` for a new
+ * ingestion (parser-1 is the historical TEXT identity, replayed unchanged for
+ * a pre-remediation intent — see `isHistoricalParserIdentity`);
+ * `structured-record` is parser-2.
+ */
 export const GENESIS_RAG17_PARSER_PROFILES = Object.freeze({
   TEXT: 'text',
   STRUCTURED_RECORD: 'structured-record',
@@ -148,10 +183,21 @@ function trimRange(content, start, end) {
 // and enclosing marks) is a superset of the Thai combining vowels/tone marks
 // named in the task (U+0E31, U+0E34-U+0E3A, U+0E47-U+0E4E all fall in it), so
 // this also protects every other script's combining diacritics for free.
+const THAI_LEADING_VOWEL = /[เแโใไ]/u
+
 function isUnsafeChunkStart(content, pos) {
   const ch = content[pos]
   if (ch === undefined) return false
   if (/\p{M}/u.test(ch)) return true
+  // U+200D ZERO WIDTH JOINER: category Cf, not Mark, but splitting before it
+  // (or right after it, which is what leaving it as the LAST character of the
+  // previous chunk amounts to) breaks an emoji/ligature sequence the same way
+  // a combining mark would.
+  if (ch === '\u200D') return true
+  // A Thai leading vowel (เ แ โ ใ ไ) is written BEFORE the consonant it
+  // modifies. A cut right after one — starting the new chunk on the bare
+  // consonant — strands the vowel alone at the end of the previous chunk.
+  if (THAI_LEADING_VOWEL.test(content[pos - 1] || '')) return true
   const code = content.charCodeAt(pos)
   const prevCode = content.charCodeAt(pos - 1)
   return code >= 0xdc00 && code <= 0xdfff && prevCode >= 0xd800 && prevCode <= 0xdbff
@@ -212,6 +258,14 @@ function findChunkBoundary(content, lowerBound, hardEnd) {
  * bounds it), cuts at the best available boundary, keeps a small overlap
  * between consecutive windows of the section, and never opens a chunk on an
  * unsafe grapheme boundary.
+ *
+ * The overlap step must guarantee forward progress on its own: `cursor` is
+ * only ever moved to a point strictly between the current `cursor` and
+ * `cutEnd` (never re-emitting the same `cutEnd`), and the overlap is skipped
+ * entirely — jumping straight to `cutEnd` — whenever the chunk just cut is
+ * not longer than `overlapChars`, so a run of short chunks can never regress
+ * into a near-duplicate sliver (or a whitespace-only one; those are dropped
+ * outright below).
  */
 function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_MAX_CHARS, overlapChars = GENESIS_RAG17_DEFAULT_OVERLAP_CHARS) {
   const { start, end } = trimRange(content, range.start, range.end)
@@ -235,10 +289,49 @@ function splitRange(content, range, maxTokens, maxChars = GENESIS_RAG17_DEFAULT_
       if (cutEnd <= cursor) cutEnd = safeChunkBoundary(content, windowEnd, cursor, end)
       if (cutEnd <= cursor) cutEnd = Math.min(end, cursor + 1)
     }
-    ranges.push({ start: cursor, end: cutEnd })
+    if (content.slice(cursor, cutEnd).trim()) ranges.push({ start: cursor, end: cutEnd })
     if (cutEnd >= end) break
-    const overlapStart = safeChunkBoundary(content, Math.max(cursor + 1, cutEnd - overlapChars), cursor, cutEnd)
-    cursor = overlapStart > cursor ? overlapStart : cutEnd
+    const chunkLength = cutEnd - cursor
+    if (chunkLength > overlapChars) {
+      // Align the overlap start to the same boundary preference as the cut
+      // itself (paragraph > sentence/Thai-run-space > whitespace), searched
+      // in the narrow window the overlap budget actually allows — not a
+      // grapheme-only nudge of the raw arithmetic offset. The grapheme-safety
+      // nudge here is forward-ONLY (never `safeChunkBoundary`'s bidirectional
+      // nudge): `findChunkBoundary` already guarantees its result is >=
+      // `desiredOverlapStart`, and nudging it earlier to dodge a combining
+      // mark would silently grow the overlap past `overlapChars` — nudging
+      // later only ever shrinks it, which stays within budget.
+      const desiredOverlapStart = cutEnd - overlapChars
+      const boundary = findChunkBoundary(content, desiredOverlapStart, cutEnd)
+      let overlapStart = boundary ?? desiredOverlapStart
+      while (overlapStart < cutEnd && isUnsafeChunkStart(content, overlapStart)) overlapStart += 1
+      cursor = overlapStart > cursor && overlapStart < cutEnd ? overlapStart : cutEnd
+    } else {
+      cursor = cutEnd
+    }
+  }
+  return ranges
+}
+
+/**
+ * `genesisrag17-parser-1` (historical): whitespace-token windowing only, no
+ * character budget, no boundary preference, no overlap. Reproduced verbatim
+ * (git cb35d3ea) so a resumed or replayed intent recorded under the
+ * historical identity gets back the exact chunks it was recorded with,
+ * rather than 400/409ing on a configuration mismatch (see
+ * `isHistoricalParserIdentity`).
+ */
+function splitRangeLegacy(content, range, maxTokens) {
+  const { start, end } = trimRange(content, range.start, range.end)
+  if (end <= start) return []
+  const tokens = [...content.slice(start, end).matchAll(/\S+/gu)]
+  if (tokens.length <= maxTokens) return [{ start, end }]
+  const ranges = []
+  for (let index = 0; index < tokens.length; index += maxTokens) {
+    const first = tokens[index]
+    const last = tokens[Math.min(index + maxTokens, tokens.length) - 1]
+    ranges.push({ start: start + first.index, end: start + last.index + last[0].length })
   }
   return ranges
 }
@@ -295,12 +388,23 @@ export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArt
   if (!documentId || !rawArtifactId) throw new Error('GenesisRAG17 parser requires documentId and rawArtifactId')
   const text = String(content ?? '')
   const boundedMaxTokens = Math.max(1, Math.floor(maxTokens))
-  const expectedParserVersion = genesisRag17ParserIdentity({ maxTokens: boundedMaxTokens, profile })
-  const resolvedParserVersion = parserVersion ?? expectedParserVersion
-  if (resolvedParserVersion !== expectedParserVersion) {
-    const error = new Error('GenesisRAG17 parser configuration identity does not match chunking configuration')
-    error.code = 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED'
-    throw error
+  // A historical (pre-2026-09-24) TEXT-profile request replays through the
+  // old token-only splitter, unchanged, instead of being refused or silently
+  // re-windowed under the current character-safe one (see
+  // `isHistoricalParserIdentity`). A NEW ingestion never supplies this
+  // identity, so this only ever fires for a resumed or replayed intent.
+  const isLegacyRequest = profile === GENESIS_RAG17_PARSER_PROFILES.TEXT && parserVersion !== undefined && isHistoricalParserIdentity(parserVersion, boundedMaxTokens)
+  let resolvedParserVersion
+  if (isLegacyRequest) {
+    resolvedParserVersion = parserVersion
+  } else {
+    const expectedParserVersion = genesisRag17ParserIdentity({ maxTokens: boundedMaxTokens, profile })
+    resolvedParserVersion = parserVersion ?? expectedParserVersion
+    if (resolvedParserVersion !== expectedParserVersion) {
+      const error = new Error('GenesisRAG17 parser configuration identity does not match chunking configuration')
+      error.code = 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED'
+      throw error
+    }
   }
   if (profile === GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD) {
     return parseStructuredRecordDocument({ documentId, rawArtifactId, parsedArtifactId, content: text, parserVersion: resolvedParserVersion })
@@ -319,7 +423,10 @@ export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArt
   const chunks = []
   let ordinal = 0
   for (const section of sections) {
-    for (const range of splitRange(text, section, boundedMaxTokens, GENESIS_RAG17_DEFAULT_MAX_CHARS, GENESIS_RAG17_DEFAULT_OVERLAP_CHARS)) {
+    const ranges = isLegacyRequest
+      ? splitRangeLegacy(text, section, boundedMaxTokens)
+      : splitRange(text, section, boundedMaxTokens, GENESIS_RAG17_DEFAULT_MAX_CHARS, GENESIS_RAG17_DEFAULT_OVERLAP_CHARS)
+    for (const range of ranges) {
       const chunkText = text.slice(range.start, range.end)
       chunks.push({
         chunkId: `${parsedArtifactId}:chunk:${ordinal}`,
@@ -347,12 +454,14 @@ export function parseGenesisRag17Document({ documentId, rawArtifactId, parsedArt
     tables: [],
     metadata: {
       extractorVersion: resolvedParserVersion,
-      chunkerVersion: GENESIS_RAG17_CHUNKER_VERSION_2,
+      chunkerVersion: isLegacyRequest ? GENESIS_RAG17_CHUNKER_VERSION : GENESIS_RAG17_CHUNKER_VERSION_2,
       maxTokens: boundedMaxTokens,
-      // The character budget and overlap that bound every chunk
-      // alongside maxTokens above (whichever limit a section hits first).
-      maxChars: GENESIS_RAG17_DEFAULT_MAX_CHARS,
-      overlapChars: GENESIS_RAG17_DEFAULT_OVERLAP_CHARS,
+      // The character budget and overlap that bound every chunk alongside
+      // maxTokens above (whichever limit a section hits first). Historical
+      // (legacy) requests never had either, so both are recorded as null —
+      // matching the pre-remediation metadata shape exactly.
+      maxChars: isLegacyRequest ? null : GENESIS_RAG17_DEFAULT_MAX_CHARS,
+      overlapChars: isLegacyRequest ? null : GENESIS_RAG17_DEFAULT_OVERLAP_CHARS,
       headingCount: (text.match(/^#{1,6}\s+/gmu) || []).length,
       textBlockCount: textBlocks.length,
       chunkCount: chunks.length,

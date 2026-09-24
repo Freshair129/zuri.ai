@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-SPEC
 title: Zuri 17-Stage Knowledge Ingestion and GraphRAG Preparation Pipeline Specification
-version: "1.4.3b"
+version: "1.4.4b"
 status: beta
 created_at: "2026-08-27T00:00:00+07:00,Boss"
-last_update: "2026-09-24T00:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-25T00:00:00+07:00,Claude Sonnet 5"
 relations:
   - type: references
     target: ZAI:ADR-050
@@ -732,7 +732,14 @@ character cut, keeps up to 60 characters of overlap between consecutive windows
 of the same section, and never opens a chunk on a combining mark or inside a
 surrogate pair. `genesisrag17-parser-1` / `genesisrag17-chunker-1` remain defined
 as historical identities for rows already parsed under them; no new ingestion
-produces them. See [the contract](plans/GENESISRAG17-CONTRACT.md) and Stage 15
+produces them, but a persisted intent recorded under them still resumes and
+replays through the historical splitter unchanged (2026-09-25 follow-up —
+`isHistoricalParserIdentity`, `genesisrag17-executor.js` `inputValue`; without
+it, resuming or replaying such an intent 400/409ed). The same follow-up fixed
+the overlap step, which could stall near a boundary and emit long runs of
+near-duplicate or whitespace-only slivers instead of making forward progress,
+and made the overlap start actually boundary-searched rather than only
+grapheme-nudged. See [the contract](plans/GENESISRAG17-CONTRACT.md) and Stage 15
 below for why (the pinned e5 embedder's 512-token window). เพิ่ม structural
 chunker ที่นี่และตรวจ mention offsets/benchmark downstream.
 
@@ -2056,6 +2063,7 @@ Zuri
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.4.3b → 1.4.4b (2026-09-25) | Fixes to the 1.4.3b remediation: the overlap step could stall near a boundary and emit long runs of near-duplicate/whitespace-only slivers instead of making forward progress (fixed); the overlap start is now actually boundary-searched, not only grapheme-nudged; a persisted `genesisrag17-parser-1`/`-chunker-1` intent now resumes/replays through the historical splitter unchanged instead of 400/409ing | No stage ownership or IDs changed; Stage 7 chunking behavior for new TEXT-profile ingestions unaffected — only the overlap step and historical resume/replay changed (`apps/server/src/modules/knowledge/genesisrag17-source.js`, `genesisrag17-executor.js`) |
 | 1.4.2b → 1.4.3b (2026-09-24) | TEXT-profile default becomes `genesisrag17-parser-3` / `genesisrag17-chunker-2` — a 480-character budget (arithmetic in Stage 15's note) alongside the existing 80-whitespace-token budget, boundary-preferred cuts, up to 60-character overlap, never splitting a combining mark or surrogate pair. Closes the gap this file recorded in 1.4.2b for new ingestions; `genesisrag17-parser-1` rows are unchanged and unaffected | No stage ownership or IDs changed; Stage 7 chunking behavior changed for new TEXT-profile ingestions only (`apps/server/src/modules/knowledge/genesisrag17-source.js`) |
 | 1.4.1b → 1.4.2b (2026-09-24) | Record Stage 15 embedder token window (`MAX_LENGTH=512` incl. `passage:`/`query:` prefix, silent truncation, no reject path) and that Stage 7's whitespace-token chunker (default 80, no overlap) does not bound it — especially Thai text without spaces — so a chunk's tail can go unembedded while still served as citation text; fix design deferred to checklist C1 | No stage ownership or IDs changed; documentation only |
 | 1.4.0b → 1.4.1b | Record actual Business UI/session HTTP/MCP native acceptance and explicit evidence limits | No stage ownership or IDs changed |

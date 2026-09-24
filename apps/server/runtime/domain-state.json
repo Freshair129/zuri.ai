@@ -2448,7 +2448,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-079",
@@ -2520,7 +2520,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 51
+          "testCount": 53
         },
         {
           "id": "FR-110",
@@ -3274,7 +3274,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-109",
@@ -3282,7 +3282,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 51
+          "testCount": 53
         },
         {
           "id": "FR-110",
@@ -5484,7 +5484,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-072",
@@ -5700,7 +5700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 51
+          "testCount": 53
         },
         {
           "id": "FR-110",
@@ -7978,7 +7978,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 51
+          "testCount": 53
         },
         {
           "id": "FR-110",
@@ -8121,7 +8121,9 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
         "apps/server/tests/unit/fr254-knowledge-console-routes.test.js",
+        "apps/server/tests/unit/genesisrag17-chunker-overlap-regression.test.js",
         "apps/server/tests/unit/genesisrag17-contract.test.js",
+        "apps/server/tests/unit/genesisrag17-executor-legacy-resume.test.js",
         "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
@@ -14864,7 +14866,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 27
+          "testCount": 28
         }
       ],
       "evidence": [
@@ -14892,6 +14894,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/document-intake-ui.test.js",
+        "apps/server/tests/unit/genesisrag17-executor-legacy-resume.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",

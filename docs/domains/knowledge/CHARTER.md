@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.8.2b"
+version: "1.8.3b"
 status: beta
-last_update: "2026-09-24T00:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-25T00:00:00+07:00,Claude Sonnet 5"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -274,13 +274,30 @@ combining mark or surrogate pair (identity `genesisrag17-parser-3` /
 `genesisrag17-chunker-2`; `genesisrag17-parser-1` / `genesisrag17-chunker-1`
 are historical identities kept only for rows already parsed under them —
 no new ingestion produces them; the `parser-2` profile is unaffected and
-still emits one section per chunk for `SMARTGIFT_CATALOG`). This closes
+still emits one section per chunk for `SMARTGIFT_CATALOG`). Every existing
+TEXT-profile (prose) provider is affected, including the two live LINE OA
+ones on that profile — `LINE_FAQ_CANDIDATE` (FR-236) and
+`LINE_STUDIO_DESCRIPTION` (FR-238),
+`knowledge-admission-service.js:427,:786` — whose chunk ids and boundaries
+change for any new admission from this point on. This closes
 the gap this file's 1.8.1b revision recorded below: a spaceless-script
 (Thai) paragraph was one whitespace token and so one unbounded chunk whose
 tail the pinned e5 embedder silently truncated past its 512-token window;
 new ingestions now stay within it (docs/plans/GENESISRAG17-CONTRACT.md,
-docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md Stage 15). `ensureParsedArtifact`
-and `ensureChunks` both read `parsedAndChunks.chunks` from that single call;
+docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md Stage 15). A 2026-09-25 follow-up
+fixed two defects the first cut of this remediation shipped with: the
+overlap step could stall and re-emit near-duplicate or whitespace-only
+slivers instead of making forward progress, and the overlap start was only
+grapheme-nudged, not actually boundary-searched as this file already
+claimed; both are now true of the shipped code
+(`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.3b). The same follow-up lets a
+parser-1/chunker-1 intent persisted before 2026-09-24 resume
+(`resumeGenesisRag17Worker`) and replay (FR-071) unchanged, through the
+historical splitter, instead of failing with
+`GENESISRAG17_PARSER_CONFIG_UNSUPPORTED` / `_CHUNKER_CONFIG_UNSUPPORTED` on
+its first resume or replay attempt after the remediation shipped
+(`isHistoricalParserIdentity`, `genesisrag17-executor.js` `inputValue`).
+`ensureParsedArtifact` and `ensureChunks` both read `parsedAndChunks.chunks` from that single call;
 neither imports `./chunking` or `./parsing`. **FR-112's `chunkDocument`
 (`chunking.js`: 400 tokens, 10% overlap, parent-child) and FR-115's
 `parseDocument` (`parsing.js`) are real, composition-tested pure
@@ -411,6 +428,7 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.8.2b → 1.8.3b (2026-09-25) | Fixes to the 1.8.2b remediation, and names the affected providers: the overlap step could stall on a near boundary and emit long runs of near-duplicate/whitespace-only slivers (fixed by skipping the overlap when the chunk is not longer than it, and otherwise moving to a boundary-aligned overlap start that guarantees forward progress); the overlap start is now actually boundary-searched, not only grapheme-nudged; a persisted `genesisrag17-parser-1`/`-chunker-1` intent now resumes/replays unchanged instead of 400/409ing. Both live TEXT-profile LINE OA providers, `LINE_FAQ_CANDIDATE` (FR-236) and `LINE_STUDIO_DESCRIPTION` (FR-238), get new chunk ids/boundaries for any new admission | `genesisrag17-source.js` and `genesisrag17-executor.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows |
 | 1.8.1b → 1.8.2b (2026-09-24) | Records the Thai-safe prose chunker remediation: the live `genesisrag17-source.js` TEXT profile now also bounds every window by a 480-character budget alongside the 80-whitespace-token one, cuts at a boundary, keeps a small overlap, and never splits a combining mark or surrogate pair (identity `genesisrag17-parser-3` / `genesisrag17-chunker-2`; `genesisrag17-parser-1` / `genesisrag17-chunker-1` are historical only). Closes the Thai-truncation gap this file's 1.8.1b revision recorded; `parser-2` (SMARTGIFT_CATALOG) is unaffected | `apps/server/src/modules/knowledge/genesisrag17-source.js` changed for new TEXT-profile ingestions; no model, route or requirement statement touched; no re-ingestion of existing `parser-1` rows |
 | 1.8.0b → 1.8.1b (2026-09-24) | Remediation-board checklist C4: state which chunker/parser production actually runs (`genesisrag17-executor.js` → `genesisrag17-source.js`'s `parseGenesisRag17Document`, Stage 2/7/8) and that FR-112 `chunking.js` / FR-115 `parsing.js` are composition-tested via `stage-runner.js` but not on that live path; unifying them is left open (C4/C1), no decision taken | Documentation only; no model, route or requirement statement touched |
 | 1.7.1 → 1.8.0b (2026-09-16) | FR-215 implemented locally through four owning-domain read ports with Business-scoped authorization and unavailable/null failure states; the Knowledge Documents surface is bounded to Text/Markdown admission | No model or migration; no GKS/MSP runtime or production activation |
