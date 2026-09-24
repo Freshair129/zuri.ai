@@ -55,6 +55,16 @@ export const confirmedLinesOfProduct = (sql, productId) => sql.all(
    FROM SupplierCostLine l JOIN SupplierCostSheet s ON s.id = l.sheetId
    WHERE l.productId = ? AND s.status = 'CONFIRMED' ORDER BY l.minQty ASC, l.sourceSku ASC`, productId).map((row) => ({ ...row, supplier: supplierOf(sql, row.supplierId) }))
 
+/**
+ * A lock-only touch of the sheet row (no value changes, no version bump): the
+ * portable row lock that serializes two commits of ONE sheet on PostgreSQL
+ * before either decides from the sheet's status (F-18). Under READ COMMITTED a
+ * loser that read DRAFT before the winner committed would otherwise go on to the
+ * Product carton CAS and answer 409 PRODUCT_VERSION_CONFLICT instead of the
+ * contract's replay. SQLite's writer lock already serializes them.
+ */
+export const lockSheetRow = (sql, id) => Number(sql.run('UPDATE SupplierCostSheet SET updatedAt = updatedAt WHERE id = ?', id).changes)
+
 /** DRAFT → CONFIRMED by compare-and-swap on (id, version, DRAFT). */
 export const confirmSheet = (sql, { id, version, actorId, now }) => Number(sql.run(
   "UPDATE SupplierCostSheet SET status = 'CONFIRMED', confirmedByPersonId = ?, confirmedAt = ?, version = version + 1, updatedAt = ? WHERE id = ? AND version = ? AND status = 'DRAFT'",

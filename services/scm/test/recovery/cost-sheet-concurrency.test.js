@@ -17,7 +17,7 @@ import { createCommandBus } from '../../src/application/commands.js'
 import { createFixtureReferenceAuthority } from '../../src/infrastructure/reference-authority.js'
 import { createHarness, rejects } from '../support/harness.js'
 import { startScmProcess } from '../support/scm-process.js'
-import { BIZ, REFERENCE_FIXTURE, delegation, idem, openRaw, openTestStore, seedDatabase, tempDbPath } from '../support/fixtures.js'
+import { BIZ, REFERENCE_FIXTURE, TEST_ENGINE, delegation, idem, openRaw, openTestStore, seedDatabase, tempDbPath } from '../support/fixtures.js'
 
 const OWNER = { [BIZ]: { owner: true, domains: ['procurement', 'inventory'], permissions: [] } }
 const BOX = { id: 'prod-box', code: 'SG-BOX-RACE' }
@@ -88,4 +88,54 @@ test('two processes: one sheet gets its lines once; one supplier ends with exact
       assert.equal(check.prepare("SELECT COUNT(*) AS n FROM ScmAuditEvent WHERE action = 'SUPPLIER_COST_SHEET_COMMITTED'").get().n, 1 + racers.filter((r) => r.status === 201).length)
     } finally { check.close() }
   } finally { await Promise.all([a.kill(), b.kill()]) }
+})
+
+// F-18: the test above races on wall-clock timing, and on an idle machine the
+// second process usually arrives after the first has committed (a replay). Under
+// load the two commits of the one sheet overlapped and the loser, having read
+// DRAFT before the winner committed, reached the Product carton CAS and answered
+// 409 PRODUCT_VERSION_CONFLICT instead of the contract's replay. This forces the
+// overlap: a third connection holds the Product row lock, both commits are sent,
+// and the lock is released only once BOTH are waiting inside PostgreSQL. A row
+// lock is a PostgreSQL shape — SQLite's writer lock admits one writer, so the
+// overlap cannot exist there.
+test('two processes committing one sheet that are both in flight: one commits, the other replays', { skip: TEST_ENGINE !== 'postgres' && 'row-lock barrier: PostgreSQL only' }, async (t) => {
+  const race = tempDbPath('cost-sheet-overlap')
+  seedDatabase(race, { products: [BOX] })
+  const a = await startScmProcess({ db: race })
+  const b = await startScmProcess({ db: race })
+  const owner = (n) => delegation({ sub: `per-owner-${n}`, grants: OWNER })
+  const post = (p, path, body, n = 1) => p.request('POST', path, { token: owner(n), key: idem('k'), body })
+  const holder = openRaw(race)
+  const probe = openRaw(race)
+  let holding = false
+  try {
+    const supplier = (await post(a, '/v1/procurement/suppliers', { businessId: BIZ, code: 'SUP-RACE-3', name: 'Race Supplier' })).body.supplier
+    const sheet = (await post(a, '/v1/procurement/cost-sheets/preview', envelope(supplier.id, 'e'.repeat(64)))).body.sheet
+    holder.exec('BEGIN')
+    holding = true
+    holder.prepare('SELECT id FROM Product WHERE id = ? FOR UPDATE').get(BOX.id)
+    const commit = { businessId: BIZ, sheetId: sheet.id, previewHash: sheet.preview.hash, mappings }
+    const pending = [a, b].map((p, i) => post(p, '/v1/procurement/cost-sheets/commit', commit, i))
+    const waiting = () => Number(probe.prepare("SELECT COUNT(*) AS n FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'").get().n)
+    const deadline = Date.now() + 10000
+    while (waiting() < 2) {
+      assert.ok(Date.now() < deadline, 'both commits must reach a lock wait before the barrier opens')
+      await new Promise((resolve) => setTimeout(resolve, 10))
+    }
+    holder.exec('COMMIT')
+    holding = false
+    const results = await Promise.all(pending)
+    t.diagnostic(`both in flight: ${JSON.stringify(results.map((r) => (r.body.error ? r.body.error.code : r.body.replayed ? 'replayed' : 'committed')))}`)
+    assert.deepEqual(results.map((r) => r.status === 201 && r.body.replayed === false ? 'committed' : r.body.replayed === true ? 'replayed' : r.body.error?.code).sort(), ['committed', 'replayed'])
+    assert.equal(probe.prepare('SELECT COUNT(*) AS n FROM SupplierCostLine WHERE sheetId = ?').get(sheet.id).n, 2)
+    assert.deepEqual({ ...probe.prepare('SELECT unitsPerCarton, version FROM Product WHERE id = ?').get(BOX.id) }, { unitsPerCarton: 24, version: 2 })
+    assert.equal(probe.prepare("SELECT COUNT(*) AS n FROM ScmAuditEvent WHERE action = 'SUPPLIER_COST_SHEET_COMMITTED'").get().n, 1)
+  } finally {
+    if (holding) holder.exec('ROLLBACK')
+    holder.close()
+    probe.close()
+    await Promise.all([a.kill(), b.kill()])
+    race.cleanup()
+  }
 })
