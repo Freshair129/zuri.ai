@@ -353,7 +353,12 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
       const viewer = createKnowledgeExecutionAuthority(binding.scope, 'execute', job.executionRunId)
       executionOptions = { db, viewer, env, transport, now, scope: binding.scope }
       if (!job.executionRunId) {
+        // FR-238 studio descriptions keep their own provider (absent from
+        // Stage 5's Zero-PII map, ADR-090 D7). The admission service writes
+        // that descriptor into sourceMetaJson, but an ingestion admitted
+        // before it did so has none, so the source kind is the fallback key.
         const structured = structuredSourceDescriptor(job.sourceMetaJson)
+          || (source.kind === 'LINE_STUDIO_DESCRIPTION' ? { provider: 'LINE_STUDIO_DESCRIPTION', entityType: 'KNOWLEDGE_DOCUMENT', contentType: 'text/plain' } : null)
         const contentType = admittedSourceContentType(job.sourceMetaJson, structured)
         const result = await ingest({ scope: binding.scope, policy: binding.policy, source: { sourceId: source.id, documentId: source.id, version: job.sourceVersion, content: job.content, connectionId, provider: structured?.provider || 'KNOWLEDGE_ADMISSION', entityType: structured?.entityType || 'KNOWLEDGE_DOCUMENT', contentType, sourceType: source.kind === 'FILE' ? 'FILE' : 'MANUAL', sourceUri: `knowledge-source:${source.id}`, externalId: `${source.id}:${job.sourceVersion}` } }, { db, viewer, env, transport, now,
           onRunCreated: async ({ db: tx, run: createdRun, rawArtifactId, parsedArtifactId }) => {

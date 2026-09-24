@@ -460,8 +460,9 @@ const activeReservationsOf = (tx, productId) => tx.stockReservation.count({ wher
  * Everything that would still point at the duplicate after a merge and that a
  * merge cannot re-point on its own: a bundle or recipe already holding the
  * survivor (a quantity sum would change the BOM's meaning), a recipe whose
- * output is the survivor at a batch size the survivor already has, a recipe
- * of the duplicate that names the survivor as a component (or the reverse),
+ * output is the survivor at a batch size the survivor already has (live or
+ * archived — the unique index covers both), a recipe of the duplicate that
+ * names the survivor as a component (or the reverse),
  * and any work order that is not finished.
  */
 async function mergeBlockers(tx, duplicate, survivor) {
@@ -481,9 +482,15 @@ async function mergeBlockers(tx, duplicate, survivor) {
   for (const recipe of recipes) {
     const names = await tx.productRecipeLine.findFirst({ where: { recipeId: recipe.id, componentProductId: survivor.id }, select: { id: true } })
     if (names) { blockers.push({ kind: 'RECIPE_COMPONENT_IS_SURVIVOR', recipeId: recipe.id, code: recipe.code }); continue }
-    if (recipe.status !== 'ARCHIVED') {
-      const clash = await tx.productRecipe.findFirst({ where: { productId: survivor.id, batchSize: recipe.batchSize, status: { not: 'ARCHIVED' } }, select: { id: true } })
-      if (clash) blockers.push({ kind: 'RECIPE_BATCH_SIZE_EXISTS', recipeId: recipe.id, code: recipe.code, batchSize: recipe.batchSize })
+    // The unique (product, batch size) index covers ARCHIVED recipes too, so a
+    // survivor recipe at this batch size blocks the re-point whatever either
+    // recipe's status is. The statuses are named only when one of them is
+    // archived, which is the case a person would otherwise not guess.
+    const clash = await tx.productRecipe.findUnique({ where: { productId_batchSize: { productId: survivor.id, batchSize: recipe.batchSize } }, select: { id: true, status: true } })
+    if (clash) {
+      const blocker = { kind: 'RECIPE_BATCH_SIZE_EXISTS', recipeId: recipe.id, code: recipe.code, batchSize: recipe.batchSize }
+      if (recipe.status === 'ARCHIVED' || clash.status === 'ARCHIVED') Object.assign(blocker, { recipeStatus: recipe.status, survivorRecipeStatus: clash.status })
+      blockers.push(blocker)
     }
   }
   const openStatus = { notIn: TERMINAL_WORK_ORDER_STATUSES }
