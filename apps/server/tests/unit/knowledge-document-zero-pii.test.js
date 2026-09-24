@@ -89,8 +89,9 @@ describe('knowledge document Zero-PII policy (FR-173, ADR-072 Amendment 2026-09-
     '![logo](logo@2x.PNG)',
     '![x](logo@2x.retina.png)',
     '![x](img@2x.min.jpg)',
-    'บาร์โค้ด 885 0123456789',
-    'EAN 885-0123456789',
+    // A valid EAN-13 (GS1 check digit 7) split after its prefix.
+    'บาร์โค้ด 885 0123456787',
+    'EAN 885-0123456787',
   ]
 
   // The hardening must not open a hole: real addresses and phone numbers
@@ -100,6 +101,15 @@ describe('knowledge document Zero-PII policy (FR-173, ADR-072 Amendment 2026-09-
     ['Contact SALES@EXAMPLE.COM today', 'email_address'],
     ['โทร 081 234 5678', 'phone_number'],
     ['สาขา 2 โทร 0812345678', 'phone_number'],
+    // Gate round 3: a phone number written right after an ordinary number
+    // must never read as a barcode tail.
+    ['สาขา 3 081-234-5678', 'phone_number'],
+    ['1 0812345678', 'phone_number'],
+    ['10:30 081-234-5678', 'phone_number'],
+    ['เปิด 24/7 0812345678', 'phone_number'],
+    ['ชั้น 2 02-123-4567', 'phone_number'],
+    // 3 + 10 = 13 digits but a wrong check digit: not a barcode, so refused.
+    ['ห้อง 885 0123456789', 'phone_number'],
   ])('still refuses %s', (text, term) => {
     expect(findDocumentProseViolation(text)).toEqual({ term })
   })

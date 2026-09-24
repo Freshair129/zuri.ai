@@ -108,10 +108,15 @@ policy has no e-mail rule because a LINE FAQ candidate answer is not the shape
 that carries one. Two document-only guards keep ordinary catalogue content from
 being refused, without changing the shared patterns: a match whose last
 dot-label is a common image/file extension (case-insensitive: `logo@2x.PNG`,
-`logo@2x.retina.png`) is not an e-mail address, and a phone match directly
-preceded by a digit, or by a digit and one space or dash, is part of a barcode
-(`8850123456789`, `885 0123456789`). Real addresses and phone numbers next to
-those shapes are still refused (`tests/unit/knowledge-document-zero-pii.test.js`).
+`logo@2x.retina.png`) is not an e-mail address; and a phone match glued to a
+preceding digit, or preceded by one digit group and a single space or dash that
+together with it forms a valid EAN-13 (13 digits and a correct GS1 check digit,
+for example `885 0123456787`), is a barcode. A phone number written after an
+ordinary number (`สาขา 3 081-234-5678`, `1 0812345678`, `ชั้น 2 02-123-4567`) is
+still refused; `tests/unit/knowledge-document-zero-pii.test.js` pins those
+cases. Residual risk, accepted: a 3-digit number followed by a space and a
+10-digit phone number passes as a barcode when the 13 digits happen to satisfy
+the check digit, one time in ten.
 
 **Rule set deliberately NOT extended to owner documents:** the Thai-honorific
 personal-name heuristic and the quoted-wording rule, both from FR-236's
@@ -201,7 +206,7 @@ flowchart TB
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.0.6b | 2026-09-25 | beta | Gate round 2: the production note now cites the probe (run `774b95f7`, Stage 16, never published); e-mail and barcode guards hardened (case-insensitive last-label extension check, digit plus one separator before a phone match) with tests that real addresses and phone numbers are still refused; FR-238 exclusion also keyed on the source kind for descriptions admitted before their descriptor existed, tested through the real executor; version renumbered from the out-of-convention 1.0.4c to 1.0.5b | working-tree | Claude Opus 5.5 |
+| 1.0.6b | 2026-09-25 | beta | Gate round 2: the production note now cites the probe (run `774b95f7`, Stage 16, never published); e-mail and barcode guards hardened (case-insensitive last-label extension check, digit plus one separator before a phone match) with tests that real addresses and phone numbers are still refused (gate round 3 narrowed the barcode skip to a valid EAN-13 after a phone leak was found); FR-238 exclusion also keyed on the source kind for descriptions admitted before their descriptor existed, tested through the real executor; version renumbered from the out-of-convention 1.0.4c to 1.0.5b | working-tree | Claude Opus 5.5 |
 | 1.0.5b | 2026-09-24 | beta | Fixes after gate review: FR-238 (`LINE_STUDIO_DESCRIPTION`) explicitly excluded from the new gate (its own provider descriptor, not the shared `KNOWLEDGE_ADMISSION` fallback), so ADR-090 D7's no-gate decision is unaffected; corrected the Wiring paragraph — a Stage 5 denial's persisted evidence carries only `errorCode`, never the policy identity or rule name (those live on the thrown error only, same as `SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE` today); corrected the `ZERO_PII_POLICY_BY_PROVIDER` line reference | working-tree | Claude Sonnet 5 |
 | 1.0.4b | 2026-09-24 | beta | Amendment: KNOWLEDGE_ADMISSION (owner-admitted TEXT/FILE documents) gets its own Stage 5 Zero-PII gate, identity `knowledge-document-zero-pii-1` (identifier rules only — LINE id, phone, e-mail; no name/quote rules); owner approved remediation item C2 2026-09-24 ("approve") | working-tree | Claude Sonnet 5 |
 | 1.0.3b | 2026-09-16 | beta | Bound `/knowledge/documents` to the existing Text/Markdown admission path and removed unsupported direct JSON/catalog and binary intake claims; local/isolated evidence only | working-tree | RWANG |

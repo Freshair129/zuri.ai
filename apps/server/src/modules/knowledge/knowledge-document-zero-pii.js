@@ -78,16 +78,35 @@ function hasEmailMatch(content) {
 // barcode such as "8850123456789" (routine in a product manual or catalogue
 // document) contains an embedded "0123456789" run that the phone pattern's
 // `0\d{1,2}` branch matches with no leading boundary of its own.
+// GS1 EAN-13: 13 digits whose last digit is the check digit over the first
+// twelve, weighted 1,3,1,3,... from the left.
+function isValidEan13(digits) {
+  if (!/^[0-9]{13}$/.test(digits)) return false
+  let sum = 0
+  for (let index = 0; index < 12; index += 1) sum += Number(digits[index]) * (index % 2 === 0 ? 1 : 3)
+  return (10 - (sum % 10)) % 10 === Number(digits[12])
+}
+
 function hasThaiPhoneMatch(content) {
   const withGlobalFlag = new RegExp(THAI_PHONE_PATTERN.source, THAI_PHONE_PATTERN.flags.includes('g') ? THAI_PHONE_PATTERN.flags : `${THAI_PHONE_PATTERN.flags}g`)
   let match
   while ((match = withGlobalFlag.exec(content))) {
-    // Not a phone number when a digit precedes it directly, or across one
-    // space/dash: "8850123456789" and "885 0123456789" / "885-0123456789"
-    // are one barcode, not a phone number after a digit group.
-    const before = content.slice(Math.max(0, match.index - 2), match.index)
-    if (!/[0-9]$/.test(before) && !/[0-9][\s-]$/.test(before)) return true
-    if (withGlobalFlag.lastIndex === match.index) withGlobalFlag.lastIndex += 1 // guard against a zero-length match looping forever
+    // Not a phone number when it is really the tail of a barcode:
+    //  - glued to a preceding digit ("8850123456787"), or
+    //  - after ONE space/dash, only when the digit group before the
+    //    separator plus the match's own digits form a valid EAN-13 (13
+    //    digits AND a correct GS1 check digit): "885 0123456787". A phone
+    //    number written after an ordinary number ("สาขา 3 081-234-5678",
+    //    "1 0812345678", "ชั้น 2 02-123-4567") is not 13 digits, and a
+    //    3-digit number before a 10-digit phone passes the check digit only
+    //    one time in ten, so it stays refused nine times in ten (residual
+    //    risk recorded in ADR-072). EAN-8 is not checked: a phone match has
+    //    at least 8 digits of its own, so a separated prefix can never make 8.
+    const advance = () => { if (withGlobalFlag.lastIndex === match.index) withGlobalFlag.lastIndex += 1 }
+    if (/[0-9]$/.test(content.slice(0, match.index))) { advance(); continue }
+    const separated = /([0-9]+)[ -]$/.exec(content.slice(Math.max(0, match.index - 16), match.index))
+    if (separated && isValidEan13(separated[1] + match[0].replace(/[^0-9]/g, ''))) { advance(); continue }
+    return true
   }
   return false
 }
