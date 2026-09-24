@@ -1,6 +1,6 @@
 ---
 id: ZAI:MARKETING-INSIGHTS-HANDOFF
-version: "0.2.0"
+version: "0.2.1"
 status: candidate
 last_update: "2026-09-24T14:10:00+07:00,Claude"
 attributes:
@@ -27,7 +27,7 @@ Insights microservice.
 - Repository: `Freshair129/zuri.ai`
 - Worktree: `.claude/worktrees/marketing-insights-s6`. Branch: `feat/marketing-insights-s6`
 - Base SHA: `77204097a16afb0b9b26392636a411456c5a9442` (`origin/main`, 2026-09-24)
-- Code/test SHA: the commit that adds this revision (`git log -1 feat/marketing-insights-s6`)
+- Commits: I0+I1 `d3ce2bfa`; UI + persistence proposal `e01532c8` (= **tested code SHA**). The handoff-only commit that records these results comes after it and changes no code.
 - PR: none yet (a draft PR is next, not for merge)
 - Source contract: [insights-source/contract.md](insights-source/contract.md). Its SHA-256 is
   `693f92f0…4b63`, which matches the master prompt (verified). The master prompt is stored
@@ -62,9 +62,10 @@ Insights microservice.
 
 | Level | Result | Code SHA | Command | Numbers |
 |---|---|---|---|---|
-| Unit + render (no Next/DB/Meta/n8n runtime) | **PASS** | this commit | `npx vitest run tests/unit/marketing/insights` (in `apps/server`) | 10 files, 78 tests, 78 passed, 0 skipped, exit 0 |
-| Governance | **PASS** | this commit | `npm run govern` (repo root) | exit 0; no CRITICAL. The `untracked-docs` warning cleared once the files were committed (re-run recorded in the commit message) |
-| Full server suite / build / e2e | NOT_RUN | — | `npm run verify` | not run at this checkpoint |
+| Unit + render (no Next/DB/Meta/n8n runtime) | **PASS** | `e01532c8` | `npx vitest run tests/unit/marketing/insights` (in `apps/server`) | 10 files, 78 tests, 78 passed, 0 skipped, exit 0 (plus `api-path-reachability`: 11 files, 92 passed) |
+| Governance | **PASS** | `e01532c8` | `npm run govern` (repo root) | exit 0; no CRITICAL; 10 dangling doc-graph edges, all pre-existing (`program-task-evidence`, `project-approval-gateway` tests), none from S6 |
+| Full server unit+integration | **PASS** | `e01532c8` | `npm test` (in `apps/server`, wrapped by `assert-tests-ran`) | 815 files: 809 passed, 6 skipped; 6,828 tests: 6,796 passed, 32 skipped; exit 0; 584 s. An earlier run caught `api-path-reachability` flagging the hard-coded `/api/insights/*` paths; this was fixed by injecting the API base, not by editing the allowlist |
+| Build / e2e | NOT_RUN | — | `npm run build`, `npm run test:e2e` | no route or page changed, so e2e has nothing new to exercise; build not run at this checkpoint |
 | Component (Postgres/Supabase, RLS, concurrency) | NOT_RUN | — | — | no disposable Postgres test harness is set up; SQLite would prove nothing here |
 | Browser / performance | NOT_RUN | — | — | components are render-tested only; no page mounts them until B1 |
 | Provider / n8n / LINE / live | NOT_RUN | — | — | blocked (see below) |
@@ -91,8 +92,8 @@ app_root: apps/server
 worktree: .claude/worktrees/marketing-insights-s6
 branch: feat/marketing-insights-s6
 base_sha: 77204097a16afb0b9b26392636a411456c5a9442
-code_head_sha: "<commit adding handoff v0.1.0>"
-tested_code_sha: "<same commit>"
+code_head_sha: e01532c8
+tested_code_sha: e01532c8
 pr_number: null
 tranche: I1
 execution_status: CHECKPOINT_I1_CODE_COMPLETE
@@ -101,7 +102,7 @@ TARGET_APP_VERIFIED: PARTIAL        # Zuri Marketing chosen; Ads Dashboard + Met
 CONTRACT_RECONCILED: PARTIAL        # 18 rows recorded; every delta PROPOSED, none reviewed
 METRIC_MAPPING_VERIFIED: FAIL       # 5 contract fields deprecated by Meta; others UNVERIFIED; no pinned version
 CODE_IMPLEMENTED: PARTIAL           # I1 core/ports/query service + unmounted UI components; no routes/page/persistence/sync
-UNIT_COMPONENT_VERIFIED: PARTIAL    # unit+render PASS (78/78); Postgres component NOT_RUN
+UNIT_COMPONENT_VERIFIED: PARTIAL    # unit+render PASS (78/78), full suite PASS; Postgres component NOT_RUN
 SCOPE_RLS_VERIFIED: NOT_RUN         # app-layer scope unit-tested; RLS needs Postgres + roles
 UI_VERIFIED: PARTIAL                # server-render tests only; no browser proof
 N8N_TEST_RUN_VERIFIED: NOT_RUN
