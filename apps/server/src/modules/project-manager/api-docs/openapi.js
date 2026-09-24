@@ -252,6 +252,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // production translation run below.
   ['/api/market/observations', ['GET']],
   ['/api/market/translations', ['POST']],
+  // ADR-108 D4 draft — private market-core.v1 façade for the Market service.
+  ['/api/internal/market-intelligence/v1/{operation}', ['GET', 'POST']],
   ['/api/dependencies', ['GET', 'POST']], ['/api/dependencies/{id}', ['DELETE']], ['/api/docs', ['GET']], ['/api/entry', ['GET']], ['/api/files', ['GET', 'POST']], ['/api/files/{id}', ['DELETE']],
   ['/api/files/{id}/content', ['GET']], ['/api/files/{id}/relink', ['POST']], ['/api/files/{id}/reveal', ['POST']], ['/api/files/cache/rebuild', ['POST']], ['/api/files/migrate', ['POST']], ['/api/files/mounts', ['GET', 'POST']], ['/api/files/reconcile', ['POST']],
   ['/api/gates', ['POST']], ['/api/gates/{id}', ['PATCH']], ['/api/health', ['GET']], ['/api/import/bundle/commit', ['POST']], ['/api/import/bundle/dry-run', ['POST']], ['/api/import/commit', ['POST']], ['/api/import/dry-run', ['POST']], ['/api/import/template', ['GET']], ['/api/import/xlsx', ['POST']], ['/api/ingest/documents', ['GET', 'POST']], ['/api/mcp', ['POST']],
