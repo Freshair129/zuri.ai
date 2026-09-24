@@ -20,6 +20,17 @@ import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
 //   translation : unknown Business, domain hidden or not owner → identical 404
 // raw-candidates re-authorizes the subject for translation and checks the tenant, so a
 // service token alone can never read another Business's raw evidence.
+//
+// Bounds (S1 review of 85d8fd06, findings 1-3):
+//   - raw-candidates returns only the fields the translator reads (RAW_RECORD_FIELDS),
+//     never idempotency keys, processing state or artifact links. A payload over
+//     MAX_RAW_PAYLOAD_BYTES is withheld and marked `omitted`, and the response stops
+//     adding records at MAX_RAW_RESPONSE_BYTES and says `truncated: true`.
+//   - request bodies are read through readBoundedBody, which stops at the cap
+//     instead of buffering first.
+//   - an audit event must name one Business in entityId and payload.businessId, that
+//     Business must exist, and the row is written with explicit service attribution
+//     and the Business's tenant/business scope columns.
 // @req FR-092, FR-061
 // @spec BR-001, SEC-001, SEC-017, SDD-049, ADR-108
 // @tested tests/unit/market-intelligence/market-core-facade.test.js
@@ -31,6 +42,17 @@ export const MARKET_CORE_OPERATIONS = Object.freeze({
 })
 const ACTIONS = ['market.feed.read', 'market.translation.run']
 const MAX_SCAN_LIMIT = 500
+export const MAX_REQUEST_BODY_BYTES = 16 * 1024
+export const MAX_RAW_PAYLOAD_BYTES = 256 * 1024
+export const MAX_RAW_RESPONSE_BYTES = 8 * 1024 * 1024
+export const MARKET_SERVICE_AUDIT_ACTOR = Object.freeze({ actorType: 'MARKET_SERVICE', actorId: 'market-intelligence' })
+// Exactly what services/market-intelligence reads from a raw record (translate-raw-record.js,
+// translation-run.js). Adding a field here widens the contract; the consumer rejects
+// any field it does not expect.
+export const RAW_RECORD_FIELDS = Object.freeze([
+  'id', 'tenantId', 'businessId', 'connectionId', 'provider', 'lane', 'entityType', 'externalId',
+  'sourceType', 'sourceUri', 'schemaVersion', 'payloadJson', 'payloadHash', 'receivedAt',
+])
 
 const zAuthorize = z.object({ businessId: z.string().min(1).max(200), action: z.enum(ACTIONS) }).strict()
 const zRawCandidates = z.object({
@@ -97,10 +119,60 @@ async function decide({ viewer, businessId, action, db }) {
 }
 
 function serializeRaw(row) {
-  return {
-    ...row,
-    receivedAt: row.receivedAt ? new Date(row.receivedAt).toISOString() : null,
-    createdAt: row.createdAt ? new Date(row.createdAt).toISOString() : undefined,
+  const record = {}
+  for (const field of RAW_RECORD_FIELDS) record[field] = row[field] ?? null
+  record.receivedAt = row.receivedAt ? new Date(row.receivedAt).toISOString() : null
+  if (typeof record.payloadJson === 'string' && Buffer.byteLength(record.payloadJson, 'utf8') > MAX_RAW_PAYLOAD_BYTES) {
+    record.payloadJson = null
+    record.omitted = 'PAYLOAD_TOO_LARGE'
+  }
+  return record
+}
+
+/** Oldest-first prefix of the candidates that fits in MAX_RAW_RESPONSE_BYTES. */
+function boundRawRecords(rows) {
+  const records = []
+  let bytes = 0
+  for (const row of rows) {
+    const record = serializeRaw(row)
+    const size = Buffer.byteLength(JSON.stringify(record), 'utf8') + 1
+    if (bytes + size > MAX_RAW_RESPONSE_BYTES) return { records, truncated: true }
+    records.push(record)
+    bytes += size
+  }
+  return { records, truncated: false }
+}
+
+/**
+ * Read a request body without buffering past `maxBytes`: a declared Content-Length over
+ * the cap is refused before reading, and the stream is cancelled as soon as the running
+ * total passes it.
+ * @returns {Promise<{ok: true, body: object} | {ok: false, status: number, error: string}>}
+ */
+export async function readBoundedBody(request, maxBytes = MAX_REQUEST_BODY_BYTES) {
+  const tooLarge = { ok: false, status: 413, error: 'Request body too large' }
+  const declared = Number(request.headers.get('content-length'))
+  if (Number.isFinite(declared) && declared > maxBytes) return tooLarge
+  const chunks = []
+  let total = 0
+  if (request.body) {
+    const reader = request.body.getReader()
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      total += value.byteLength
+      if (total > maxBytes) {
+        await reader.cancel().catch(() => {})
+        return tooLarge
+      }
+      chunks.push(value)
+    }
+  }
+  const text = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk))).toString('utf8')
+  try {
+    return { ok: true, body: text ? JSON.parse(text) : {} }
+  } catch {
+    return { ok: false, status: 400, error: 'Validation failed' }
   }
 }
 
@@ -130,8 +202,17 @@ export async function handleMarketCoreRequest(
 
   if (operation === 'audit') {
     // No subject needed: the event carries counts only, and the service can only
-    // report runs it performed. The audit owner's durable-intake contract is M4.
-    await recordAudit(db, input)
+    // report runs it performed. The row names one existing Business in both places
+    // and says the service wrote it; the durable-intake contract is M4 (proposal P1).
+    if (input.entityId !== input.payload.businessId) return fail(400, 'Validation failed')
+    const business = await db.business.findUnique({ where: { id: input.entityId }, select: { id: true, tenantId: true } })
+    if (!business) return fail(404, 'Business not found')
+    await recordAudit(db, {
+      ...input,
+      ...MARKET_SERVICE_AUDIT_ACTOR,
+      tenantId: business.tenantId,
+      businessId: business.id,
+    })
     return ok({ recorded: true })
   }
 
@@ -150,6 +231,7 @@ export async function handleMarketCoreRequest(
     tenantId: decision.scope.tenantId,
     businessId: decision.scope.businessId,
     scanLimit: input.scanLimit,
+    fields: RAW_RECORD_FIELDS,
   })
-  return ok({ records: records.map(serializeRaw) })
+  return ok(boundRawRecords(records))
 }

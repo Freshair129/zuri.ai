@@ -59,12 +59,43 @@ test('core rejecting the service itself is a 502 fault, not a user refusal', asy
   await assert.rejects(core.health(), { status: 502, code: 'CORE_REJECTED' })
 })
 
+const RAW = {
+  id: 'r', tenantId: 't', businessId: 'b', connectionId: 'c', provider: 'p', lane: 'MARKET_INTELLIGENCE', entityType: 'listing',
+  externalId: 'x', sourceType: 'API', sourceUri: null, schemaVersion: 'v1', payloadJson: '{}', payloadHash: 'h',
+  receivedAt: '2026-09-01T00:00:00.000Z',
+}
+const listRaw = (core) => core.rawEvidence.listMarketCandidates({ tenantId: 't', businessId: 'b', scanLimit: 5, subject: 's' })
+
 test('raw candidates come back with dates revived and must be an array', async () => {
-  const good = client(async () => jsonResponse(200, envelope({ records: [{ id: 'r', receivedAt: '2026-09-01T00:00:00.000Z' }] })))
-  const [record] = await good.rawEvidence.listMarketCandidates({ tenantId: 't', businessId: 'b', scanLimit: 5, subject: 's' })
+  const [record] = await listRaw(client(async () => jsonResponse(200, envelope({ records: [RAW], truncated: false }))))
   assert.ok(record.receivedAt instanceof Date)
-  const bad = client(async () => jsonResponse(200, envelope({ records: 'nope' })))
-  await assert.rejects(bad.rawEvidence.listMarketCandidates({ tenantId: 't', businessId: 'b', scanLimit: 5, subject: 's' }), CoreUnavailable)
+  await assert.rejects(listRaw(client(async () => jsonResponse(200, envelope({ records: 'nope' })))), CoreUnavailable)
+})
+
+// S1 review of 85d8fd06, finding 1: the consumer validates every record and caps bytes.
+test('raw candidates with unknown fields or wrong types are refused, not trusted', async () => {
+  await assert.rejects(listRaw(client(async () => jsonResponse(200, envelope({ records: [{ ...RAW, idempotencyKey: 'k' }] })))), { reason: 'RESPONSE_INVALID' })
+  await assert.rejects(listRaw(client(async () => jsonResponse(200, envelope({ records: [{ ...RAW, tenantId: 7 }] })))), { reason: 'RESPONSE_INVALID' })
+  const [withheld] = await listRaw(client(async () => jsonResponse(200, envelope({ records: [{ ...RAW, payloadJson: null, omitted: 'PAYLOAD_TOO_LARGE' }] }))))
+  assert.equal(withheld.omitted, 'PAYLOAD_TOO_LARGE')
+})
+
+test('a response over the byte cap is refused while streaming', async () => {
+  let pulls = 0
+  let fetches = 0
+  const endless = () => new ReadableStream({
+    pull(controller) {
+      pulls += 1
+      if (pulls > 100000) throw new Error('kept reading past the cap')
+      controller.enqueue(new TextEncoder().encode('x'.repeat(64 * 1024)))
+    },
+  })
+  const core = client(async () => { fetches += 1; return new Response(endless(), { status: 200 }) })
+  await assert.rejects(listRaw(core), { reason: 'RESPONSE_TOO_LARGE' })
+  assert.ok(pulls < 200, `read ${pulls} chunks`)
+  assert.equal(fetches, 1, 'an oversized answer is not retried')
+  const declared = client(async () => new Response('{}', { status: 200, headers: { 'content-length': String(64 * 1024 + 1) } }))
+  await assert.rejects(declared.health(), { reason: 'RESPONSE_TOO_LARGE' })
 })
 
 test('execution ownership is true only when core says exactly true', async () => {

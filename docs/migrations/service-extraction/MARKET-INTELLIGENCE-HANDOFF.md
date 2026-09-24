@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.5.0"
+version: "0.6.0"
 status: candidate
-last_update: "2026-09-24T12:00:00+07:00,Claude"
+last_update: "2026-09-24T13:30:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -210,6 +210,31 @@ The harness and replay steps are in `services/market-intelligence/conformance/`
   `service.db` `MarketObservation` rows 0 and service store rows 3, which proves the
   service executed. The two runs wrote identical `MARKET_TRANSLATION_RUN` audit
   payloads, read directly from the core DB's `AuditEvent` table.
+
+## S1 façade review (post-merge) — findings fixed
+
+S1 reviewed the façade read-only at `main` `85d8fd06` and returned NOT PASS YET with three
+P2 findings (Mission Control REVIEW_RESULT, 2026-09-24). Fixed on branch
+`fix/market-facade-review-findings`:
+
+1. **Unbounded raw-candidate response.** The façade now forwards only `RAW_RECORD_FIELDS`
+   (the columns the translator reads) through a Prisma `select`; a payload over 256 KiB is
+   withheld as `omitted: 'PAYLOAD_TOO_LARGE'`; the response stops adding records at 8 MiB
+   and says `truncated: true`. The service reads every core response under a byte cap
+   (9 MiB for raw candidates, 64 KiB otherwise), validates each record with a strict zod
+   schema, does not retry an oversized answer, and reports a withheld payload as the
+   per-record failure `RAW_PAYLOAD_TOO_LARGE`. Legacy has no payload cap, so parity
+   diverges only for records over 256 KiB.
+2. **Request size enforced after buffering.** `readBoundedBody` refuses an oversize
+   `Content-Length` before reading and cancels the stream as soon as it passes 16 KiB.
+3. **Audit attribution.** An audit event must carry the same Business in `entityId` and
+   `payload.businessId` (else 400), that Business must exist (else 404), and the row is
+   written with `actorType: 'MARKET_SERVICE'`, `actorId: 'market-intelligence'` and the
+   Business's `tenantId`/`businessId` columns. The human actor on a service-written row is
+   still M4 proposal P1.
+
+Evidence gap S1 named, still open: no committed consumer-to-actual-Next-façade HTTP test;
+the only end-to-end proof is the local conformance run.
 
 ## M4 proposals for other owners
 

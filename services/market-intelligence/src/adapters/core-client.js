@@ -10,16 +10,70 @@
 // (authorize, raw candidates, ownership, health) retry, with a small jittered
 // backoff; the audit append is not retried here.
 //
-// The /api/internal/market-intelligence/v1/* routes on core do not exist yet; they
-// are the M3 façade. Until then this adapter is proven against a fake core.
+// Every response is read under a byte cap (RESPONSE_LIMITS) and every raw record is
+// validated field by field before the core sees it: a core that returns more bytes,
+// unknown fields or wrong types is RESPONSE_INVALID / RESPONSE_TOO_LARGE, never a
+// partially trusted list (S1 review of 85d8fd06, finding 1).
 // @req FR-092, NFR-018
 // @spec BR-001, SEC-001, SEC-017, SDD-049, ADR-108
 // @tested services/market-intelligence/test/core-client.test.js,
 //   services/market-intelligence/test/http-api.test.js
 
+import { z } from 'zod'
+
 export const CORE_CONTRACT_VERSION = 'market-core.v1'
 export const SUBJECT_HEADER = 'x-zuri-subject'
 const BASE_PATH = '/api/internal/market-intelligence/v1'
+// Core caps a raw-candidates body at 8 MiB and a single payload at 256 KiB; the
+// consumer allows envelope overhead on top and nothing more.
+export const RAW_PAYLOAD_MAX_BYTES = 256 * 1024
+export const RESPONSE_LIMITS = Object.freeze({ rawCandidates: 9 * 1024 * 1024, default: 64 * 1024 })
+
+const id = z.string().min(1).max(200)
+const text = z.string().max(2048)
+const zRawRecord = z.object({
+  id,
+  tenantId: id,
+  businessId: id.nullable(),
+  connectionId: id.nullable().optional(),
+  provider: text.nullable().optional(),
+  lane: text.nullable().optional(),
+  entityType: text.nullable().optional(),
+  externalId: text.nullable().optional(),
+  sourceType: text.nullable().optional(),
+  sourceUri: text.nullable().optional(),
+  schemaVersion: text.nullable().optional(),
+  payloadJson: z.string().max(RAW_PAYLOAD_MAX_BYTES).nullable(),
+  payloadHash: text,
+  receivedAt: z.string().max(64).nullable().optional(),
+  omitted: z.literal('PAYLOAD_TOO_LARGE').optional(),
+}).strict()
+const zRawCandidates = z.object({ records: z.array(zRawRecord).max(500), truncated: z.boolean().optional() }).strict()
+
+async function readJsonBounded(response, maxBytes) {
+  const declared = Number(response.headers?.get?.('content-length'))
+  if (Number.isFinite(declared) && declared > maxBytes) throw new CoreUnavailable('RESPONSE_TOO_LARGE')
+  const chunks = []
+  let total = 0
+  if (response.body) {
+    const reader = response.body.getReader()
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      total += value.byteLength
+      if (total > maxBytes) {
+        await reader.cancel().catch(() => {})
+        throw new CoreUnavailable('RESPONSE_TOO_LARGE')
+      }
+      chunks.push(Buffer.from(value))
+    }
+  }
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString('utf8'))
+  } catch {
+    throw new CoreUnavailable('RESPONSE_INVALID')
+  }
+}
 
 export class CoreUnavailable extends Error {
   constructor(reason) {
@@ -60,7 +114,7 @@ export function createCoreClient({
     throw new Error('MARKET_CORE_URL is invalid')
   }
 
-  async function once(method, path, { subject, body } = {}) {
+  async function once(method, path, { subject, body, maxBytes = RESPONSE_LIMITS.default } = {}) {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), timeoutMs)
     try {
@@ -80,7 +134,7 @@ export function createCoreClient({
         // unrecognized subject). That is a fault to surface, not a user refusal.
         throw Object.assign(new Error(`Core rejected the Market service request (${response.status})`), { status: 502, code: 'CORE_REJECTED' })
       }
-      const envelope = await response.json()
+      const envelope = await readJsonBounded(response, maxBytes)
       if (envelope?.contractVersion !== CORE_CONTRACT_VERSION || envelope.ok !== true || !Object.hasOwn(envelope, 'data')) {
         throw new CoreUnavailable('RESPONSE_INVALID')
       }
@@ -100,7 +154,8 @@ export function createCoreClient({
         return await call()
       } catch (error) {
         lastError = error
-        if (!(error instanceof CoreUnavailable) || attempt === retries) break
+        // An oversized answer is deterministic: fetching it again only costs another 9 MiB.
+        if (!(error instanceof CoreUnavailable) || error.reason === 'RESPONSE_TOO_LARGE' || attempt === retries) break
         await sleep(Math.round(backoffMs * (attempt + 1) * (0.5 + random())))
       }
     }
@@ -118,9 +173,14 @@ export function createCoreClient({
     // Called only after authorize() returned this exact scope. Core re-checks the
     // subject against it; the service still re-checks every returned row.
     async listMarketCandidates({ tenantId, businessId, scanLimit, subject }) {
-      const data = await withRetry(() => once('POST', '/raw-candidates', { subject, body: { tenantId, businessId, scanLimit } }))
-      if (!Array.isArray(data?.records)) throw new CoreUnavailable('RESPONSE_INVALID')
-      return data.records.map(reviveRawRecord)
+      const data = await withRetry(() => once('POST', '/raw-candidates', {
+        subject,
+        body: { tenantId, businessId, scanLimit },
+        maxBytes: RESPONSE_LIMITS.rawCandidates,
+      }))
+      const parsed = zRawCandidates.safeParse(data)
+      if (!parsed.success) throw new CoreUnavailable('RESPONSE_INVALID')
+      return parsed.data.records.map(reviveRawRecord)
     },
   }
 

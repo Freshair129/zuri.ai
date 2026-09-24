@@ -125,6 +125,11 @@ export async function runMarketTranslationForBusiness(
       failed.push({ rawRecordId: rawRecord?.id ?? null, reason: 'RAW_EVIDENCE_SCOPE_MISMATCH' })
       continue
     }
+    // Core withholds a payload over its per-record cap instead of shipping it.
+    if (rawRecord?.omitted === 'PAYLOAD_TOO_LARGE') {
+      failed.push({ rawRecordId: rawRecord.id, reason: 'RAW_PAYLOAD_TOO_LARGE' })
+      continue
+    }
     try {
       const draft = await translateRawRecordToMarketObservation(rawRecord, {
         extractCandidate,
