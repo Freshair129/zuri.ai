@@ -3470,7 +3470,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-253",
@@ -3872,7 +3872,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-243",
@@ -11155,7 +11155,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -11254,6 +11254,7 @@
         "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-gap-report-service.test.js",
         "apps/server/tests/unit/knowledge-gap-report-ui.test.js",
+        "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/line-knowledge-grounding.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
