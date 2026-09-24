@@ -1,6 +1,6 @@
 ---
 domain: knowledge
-version: "1.8.0b"
+version: "1.8.1b"
 status: beta
 last_update: "2026-09-17T22:40:00+07:00,RWANG"
 module: src/modules/knowledge
@@ -260,6 +260,31 @@ not deleted for lack of a current trigger. `errorRef` stays a redacted
 reference on the FR-071 ledger; the raw failure message lives only in the
 envelope this executor returns to its own caller.
 
+**Which chunker production runs (2026-09-24, remediation board checklist
+C4).** `apps/server/src/platform/integrations/core/genesisrag17-executor.js`
+is the ADR-073 production executor. Its Stage 2 (`DPS-KI-PARSE`), Stage 7
+(`DPS-KI-CHUNK`) and Stage 8 (`DPS-KI-ENTITY-EXTRACT`) all derive from one
+call to `parseGenesisRag17Document`
+(`src/modules/knowledge/genesisrag17-source.js`) — a heading split into
+80-whitespace-token windows with no overlap (identity
+`genesisrag17-parser-1` / `genesisrag17-chunker-1`; the `parser-2` profile
+emits one section per chunk for `SMARTGIFT_CATALOG`). `ensureParsedArtifact`
+and `ensureChunks` both read `parsedAndChunks.chunks` from that single call;
+neither imports `./chunking` or `./parsing`. **FR-112's `chunkDocument`
+(`chunking.js`: 400 tokens, 10% overlap, parent-child) and FR-115's
+`parseDocument` (`parsing.js`) are real, composition-tested pure
+calculators — they are exactly what FR-118's `runKnowledgeIngestionStages`
+composes, proven by the fifteen-test suite referenced above — but that
+composition is reached only through `stage-runner.js`, whose sole callers
+are `knowledge-ingestion-executor.js` (the FR-110 receiver) and this
+domain's own tests; the ADR-073 production executor never calls it.** So
+today there are two working, independently tested implementations of
+"parse and chunk a document" in this lane, and production traffic runs the
+`genesisrag17-source.js` one. Whether to unify them onto a single chunker —
+and if so, which — is an open item on the 2026-09-24 remediation board
+(checklist C4, this note; C1, the broader convergence question) and is
+**not decided here**.
+
 ### Partially implemented — FR-110 (🟠)
 
 `src/modules/knowledge/published-snapshot-contract.js` (154 lines) carries a
@@ -375,6 +400,7 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.8.0b → 1.8.1b (2026-09-24) | Remediation-board checklist C4: state which chunker/parser production actually runs (`genesisrag17-executor.js` → `genesisrag17-source.js`'s `parseGenesisRag17Document`, Stage 2/7/8) and that FR-112 `chunking.js` / FR-115 `parsing.js` are composition-tested via `stage-runner.js` but not on that live path; unifying them is left open (C4/C1), no decision taken | Documentation only; no model, route or requirement statement touched |
 | 1.7.1 → 1.8.0b (2026-09-16) | FR-215 implemented locally through four owning-domain read ports with Business-scoped authorization and unavailable/null failure states; the Knowledge Documents surface is bounded to Text/Markdown admission | No model or migration; no GKS/MSP runtime or production activation |
 | 1.6.0b → 1.7.0b (2026-09-14) | Owner decision (TASK-ZAI-096 review): ADR-090 D6 revised — the candidate creation/edit/decision Zero-PII check AND Stage 5 classify both run the candidate prose policy (`line-faq-candidate-zero-pii-1`), never FR-187's structured-record policy; `LINE_FAQ_CANDIDATE` removed from `structured-record-policy.js`'s `STRUCTURED_RECORD_PROVIDERS`; `genesisrag17-executor.js` gains an explicit provider→policy map (FR-187 unchanged for `SMARTGIFT_CATALOG`) | No schema change; corrects Stage 5 behavior so an approved FAQ containing "ลูกค้า"/"ใบเสนอราคา" is not denied |
 | 1.5.0b → 1.6.0b (2026-09-14) | TASK-ZAI-096/FR-236 built: `KnowledgeCandidate` (the one exception to this domain's pre-ADR-072 "owns no Prisma models" boundary, per ADR-090 D6), the candidate service (`application/knowledge-candidate-service.js`), the Zero-PII prose scan (`knowledge-candidate-zero-pii.js`), `LINE_FAQ_CANDIDATE` added to the admission service and to Stage 5's structured-provider list, the `/knowledge/candidates` review UI, and the `p.knowledge-candidate-review` / `s.knowledge-candidates` pipeline-map nodes wiring CH-22 for real | Additive migration (not applied to any real database by this change — ADR-057); no other domain's model or route touched |
