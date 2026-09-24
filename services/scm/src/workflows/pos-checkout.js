@@ -1,4 +1,5 @@
-import { PAYMENT_ENTITY, SALES_ORDER_ENTITY, dayKey, fromSatang, orderCode, orderTotals, paymentCode, toSatang } from '../kernel/commerce/commerce.js'
+import { PAYMENT_ENTITY, SALES_ORDER_ENTITY, fromSatang, orderTotals, toSatang } from '../kernel/commerce/commerce.js'
+import { nextCommerceCode } from '../modules/commerce/application/codes.js'
 import { assertNonNegativeInt32, promptPayPayloadForProfile, zPosCheckout } from '../kernel/commerce/billing.js'
 import { commerceAuthority } from '../infrastructure/delegation.js'
 import { enqueueOutbox, recordAudit } from '../infrastructure/evidence.js'
@@ -51,16 +52,6 @@ export async function prepareCheckout(scope, body, { references }) {
   return { data, facts: { branch, customer, slip, verifiedAt: new Date().toISOString(), authority: references.kind } }
 }
 
-function nextCode(sql, kind, business, now, codeFor, exhausted) {
-  const prefix = `${kind === 'Payment' ? 'PAY' : 'ORD'}-${dayKey(now).replace(/-/g, '')}-`
-  const count = commerceRepo.countCodesWithPrefix(sql, kind, business.tenantId, prefix)
-  for (let seq = count + 1; seq < count + 50; seq += 1) {
-    const code = codeFor(now, seq)
-    if (!commerceRepo.codeTaken(sql, kind, business.tenantId, code)) return code
-  }
-  throw failure(409, exhausted)
-}
-
 function paymentInput(payment, totalSatang) {
   const receivedSatang = safeSatang(payment.receivedAmount ?? payment.amount ?? fromSatang(totalSatang))
   if (payment.method === 'CASH') {
@@ -104,8 +95,7 @@ export function checkoutPosSale(sql, scope, prepared, { now, requestId, faults =
     try { promptPay = promptPayPayloadForProfile(profile, totals.total) } catch (error) { throw failure(error.status ?? 422, error.message) }
   }
 
-  const nowDate = new Date(now)
-  const code = nextCode(sql, 'SalesOrder', business, nowDate, orderCode, 'SALES_ORDER_CODE_EXHAUSTED')
+  const code = nextCommerceCode(sql, 'SalesOrder', business, now)
   const orderId = commerceRepo.insertOrder(sql, {
     code, tenantId: business.tenantId, businessId: business.id, customerId: customer?.id ?? null, origin: 'WALK_IN', status: 'COMPLETED', currency: 'THB',
     discountSatang: totals.orderDiscount, notes: data.terminalLabel ?? null, orderedAt: now, confirmedAt: now, completedAt: now,
@@ -133,7 +123,7 @@ export function checkoutPosSale(sql, scope, prepared, { now, requestId, faults =
   }
   faults.beforePayment?.()
   const paymentRow = commerceRepo.insertPayment(sql, {
-    code: nextCode(sql, 'Payment', business, nowDate, paymentCode, 'PAYMENT_CODE_EXHAUSTED'), tenantId: business.tenantId, businessId: business.id, orderId,
+    code: nextCommerceCode(sql, 'Payment', business, now), tenantId: business.tenantId, businessId: business.id, orderId,
     kind: 'PAYMENT', method: data.payment.method, amountSatang: totals.total, status: 'PENDING', bankReference,
     slipFileAssetId: data.payment.slipFileAssetId ?? null, note: data.payment.note ?? null, paidAt: now, createdByPersonId: scope.actorId, now,
   })

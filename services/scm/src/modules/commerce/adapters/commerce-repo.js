@@ -53,3 +53,28 @@ export function billingProfileOf(sql, businessId) {
   const row = sql.get('SELECT promptPayProvider, promptPayTargetType, promptPayTarget, promptPayActive, promptPayVerifiedAt, active FROM BusinessBillingProfile WHERE businessId = ?', businessId)
   return row ? { ...row, promptPayActive: row.promptPayActive === 1, active: row.active === 1 } : null
 }
+
+// ── Payments (FR-163) ────────────────────────────────────────────────────────
+const PAYMENT_ROW = `${PAYMENT_COLUMNS}, tenantId, businessId, orderId, createdByPersonId, updatedAt`
+export const orderHeader = (sql, id) => sql.get('SELECT id, code, tenantId, businessId, status FROM SalesOrder WHERE id = ?', id) ?? null
+export const paymentById = (sql, id) => sql.get(`SELECT ${PAYMENT_ROW} FROM Payment WHERE id = ?`, id) ?? null
+export const paymentsOfOrder = (sql, orderId) => sql.all(`SELECT ${PAYMENT_ROW} FROM Payment WHERE orderId = ? ORDER BY paidAt, createdAt`, orderId)
+export const verifiedPaymentsOfOrder = (sql, orderId) => sql.all("SELECT kind, amountSatang, status FROM Payment WHERE orderId = ? AND status = 'VERIFIED'", orderId)
+
+/**
+ * A lock-only touch of the order row (no value changes, no version bump): the
+ * portable row lock that serializes two refund verifications of one order on
+ * PostgreSQL before either reads the verified net. SQLite's writer lock already
+ * serializes them; this keeps the rule true on the next engine too (D-9).
+ */
+export const lockOrderRow = (sql, orderId) => Number(sql.run('UPDATE SalesOrder SET updatedAt = updatedAt WHERE id = ?', orderId).changes)
+
+/** Compare-and-swap on (id, version): the only way a Payment row changes. */
+export function casUpdatePayment(sql, { id, version, change, now }) {
+  const keys = Object.keys(change)
+  const result = sql.run(
+    `UPDATE Payment SET ${keys.map((k) => `${k} = ?`).join(', ')}, version = version + 1, updatedAt = ? WHERE id = ? AND version = ?`,
+    ...keys.map((k) => change[k]), now, id, version,
+  )
+  return Number(result.changes)
+}

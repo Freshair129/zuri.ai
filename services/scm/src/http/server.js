@@ -23,11 +23,15 @@ const ROUTES = [
   route('POST', '/v1/procurement/purchase-orders/:id/receipts', 'grn.post'),
   route('POST', '/v1/commerce/pos/checkout', 'pos.checkout'),
   route('GET', '/v1/commerce/orders/:id', 'order.get'),
+  route('GET', '/v1/commerce/orders/:id/payments', 'order.payments'),
+  route('POST', '/v1/commerce/orders/:id/payments', 'payment.record'),
+  route('GET', '/v1/commerce/payments/:id', 'payment.get'),
+  route('POST', '/v1/commerce/payments/:id/actions', 'payment.action'),
   route('GET', '/v1/inventory/stock', 'stock'),
   route('GET', '/v1/inventory/movements', 'movements'),
   route('GET', '/v1/operations/:action/:key', 'operation'),
 ]
-const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'pos.checkout': 'commerce.pos.checkout' }
+const COMMAND_OF = { 'supplier.create': 'procurement.supplier.create', 'po.create': 'procurement.purchase-order.create', 'po.action': 'procurement.purchase-order.action', 'grn.post': 'procurement.goods-receipt.post', 'pos.checkout': 'commerce.pos.checkout', 'payment.record': 'commerce.payment.record', 'payment.action': 'commerce.payment.action' }
 
 function send(res, status, body) {
   const text = JSON.stringify(body)
@@ -87,6 +91,8 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
       let result
       if (name === 'po.get') result = await bus.queries.purchaseOrder(scope, params.id)
       else if (name === 'order.get') result = await bus.queries.salesOrder(scope, params.id)
+      else if (name === 'order.payments') result = await bus.queries.orderPayments(scope, params.id)
+      else if (name === 'payment.get') result = await bus.queries.payment(scope, params.id)
       else if (name === 'stock') result = await bus.queries.stock(scope, url.searchParams.get('businessId'))
       else if (name === 'movements') result = await bus.queries.movements(scope, { businessId: url.searchParams.get('businessId'), productId: url.searchParams.get('productId') || undefined, limit: url.searchParams.get('limit') })
       else if (name === 'operation') result = await bus.lookup(scope, { action: decodeURIComponent(params.action), businessId: url.searchParams.get('businessId'), idempotencyKey: decodeURIComponent(params.key) })

@@ -6,6 +6,8 @@ import { listMovements, stockSummary } from '../modules/inventory/index.js'
 import { postGoodsReceipt } from '../workflows/post-goods-receipt.js'
 import { checkoutPosSale, parseCheckout, prepareCheckout } from '../workflows/pos-checkout.js'
 import { getOrder } from '../modules/commerce/application/orders.js'
+import { applyPaymentAction, getPayment, listPayments, loadOrderForPayment, prepareRecordPayment, recordPayment } from '../modules/commerce/application/payments.js'
+import * as commerceRepo from '../modules/commerce/adapters/commerce-repo.js'
 
 // SCM business commands — the external API's only mutation entry points. A
 // client sends ONE business command (e.g. "post this receipt"); it never opens a
@@ -45,6 +47,22 @@ const COMMANDS = {
     prepare: (scope, { body }, deps) => prepareCheckout(scope, body, deps),
     execute: (sql, scope, { prepared }, ctx) => checkoutPosSale(sql, scope, prepared, ctx),
   },
+  'commerce.payment.record': {
+    authorize: (sql, scope, { targetId }) => loadOrderForPayment(sql, scope, targetId).businessId,
+    prepare: (scope, { targetId, body }, deps) => prepareRecordPayment(scope, { orderId: targetId, body }, {
+      references: deps.references,
+      readOrder: (id) => deps.read((sql) => loadOrderForPayment(sql, scope, id)),
+    }),
+    execute: (sql, scope, { targetId, prepared }, ctx) => recordPayment(sql, scope, targetId, prepared, ctx),
+  },
+  'commerce.payment.action': {
+    authorize: (sql, scope, { targetId }) => {
+      const row = commerceRepo.paymentById(sql, typeof targetId === 'string' ? targetId.trim() : '')
+      if (!row || row.tenantId !== scope.tenantId) throw denied()
+      return commerceAuthority.require(scope, row.businessId, 'verify').id
+    },
+    execute: (sql, scope, { targetId, body }, ctx) => applyPaymentAction(sql, scope, targetId, body, ctx),
+  },
 }
 
 const LOOKUP_VIEW = { commerce: commerceAuthority, procurement: procurementAuthority }
@@ -70,7 +88,7 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     if (command.prepare) {
       const early = await store.read(replayIfCommitted)
       if (early.replay) return early.replay
-      prepared = await command.prepare(scope, { targetId, body }, { references })
+      prepared = await command.prepare(scope, { targetId, body }, { references, read: (fn) => store.read(fn) })
     }
     return store.transaction(async (sql) => {
       const { key, replay } = replayIfCommitted(sql)
@@ -102,6 +120,8 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     stock: (scope, businessId) => store.read((sql) => stockSummary(sql, scope, { businessId })),
     movements: (scope, q) => store.read((sql) => ({ movements: listMovements(sql, scope, q) })),
     salesOrder: (scope, id) => store.read((sql) => ({ order: getOrder(sql, scope, id) })),
+    payment: (scope, id) => store.read((sql) => ({ payment: getPayment(sql, scope, id) })),
+    orderPayments: (scope, orderId) => store.read((sql) => listPayments(sql, scope, orderId)),
   }
 
   return { run, lookup, queries }

@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.2",
+  "revision": "v1-draft.3",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -79,6 +79,33 @@
       "path": "/v1/commerce/orders/{id}",
       "capability": "commerce domain",
       "note": "customer is an id reference (+code when known); display fields stay with CRM"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/orders/{id}/payments",
+      "capability": "commerce domain",
+      "note": "payments + summary (paid/refunded/net/pending from VERIFIED money)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/orders/{id}/payments",
+      "command": "commerce.payment.record",
+      "capability": "commerce.order.write | owner",
+      "references": "slip fileAsset (Files) via ReferenceAuthority when slipFileAssetId is given",
+      "invariant": "recorded PENDING; bank reference unique per Tenant; no PAYMENT on a CANCELLED order (REFUND allowed)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/payments/{id}",
+      "capability": "commerce domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/payments/{id}/actions",
+      "command": "commerce.payment.action",
+      "capability": "commerce.payment.verify | owner",
+      "body": "{action: VERIFY|REJECT, version, reason?, selfVerifyAttested?}",
+      "invariant": "FR-196: recorder cannot verify own payment (owner included) without selfVerifyAttested; REFUND verify ≤ verified net; CAS on version"
     },
     {
       "method": "GET",
