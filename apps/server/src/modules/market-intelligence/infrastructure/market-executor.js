@@ -59,7 +59,8 @@ export function resolveMarketExecutor(env = {}) {
 export function createMarketServiceProxy({ baseUrl, token, fetchFn = fetch }) {
   async function forward(request, { method, path, search = '', timeoutMs }) {
     const subject = readRequestCookie(request, AUTH_SESSION_COOKIE)
-    if (!subject) return json(401, { error: 'Authentication required' })
+    // Same body legacy's resolveRequestViewer produces (found by the Q11 parity run).
+    if (!subject) return json(401, { error: 'AUTH_REQUIRED' })
 
     let body
     if (method === 'POST') {

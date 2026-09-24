@@ -34,7 +34,7 @@ export class CoreUnavailable extends Error {
 function requireSubject(actor) {
   const subject = actor?.subject
   if (typeof subject !== 'string' || !subject || subject.length > 8192) {
-    throw Object.assign(new Error('Authentication required'), { status: 401 })
+    throw Object.assign(new Error('AUTH_REQUIRED'), { status: 401 })
   }
   return subject
 }

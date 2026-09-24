@@ -132,7 +132,8 @@ export function createMarketHttpServer({ config, storeFactory, core, now, log = 
       return send(response, 401, { error: 'Authentication required' })
     }
     const subject = request.headers[SUBJECT_HEADER]
-    if (typeof subject !== 'string' || !subject) return send(response, 401, { error: 'Authentication required' })
+    // Same body legacy's resolveRequestViewer produces for a request with no session.
+    if (typeof subject !== 'string' || !subject) return send(response, 401, { error: 'AUTH_REQUIRED' })
     const actor = { subject }
 
     if (request.method === 'GET' && url.pathname === '/v1/observations') {

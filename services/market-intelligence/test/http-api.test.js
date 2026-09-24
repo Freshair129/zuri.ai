@@ -116,8 +116,12 @@ test('refusals keep the legacy statuses and bodies', async () => {
   const notOwner = await app.call('POST', '/v1/translations', { subject: VIEWER, body: { businessId: 'business-a' } })
   assert.equal(notOwner.status, 404)
   assert.deepEqual(await notOwner.json(), { error: 'Business not found' })
+  // Q11 finding: an expired/invalid session must be legacy's 401 AUTH_REQUIRED, not 503.
   const unknownSubject = await app.call('GET', '/v1/observations?businessId=business-a', { subject: 'nobody' })
-  assert.equal(unknownSubject.status, 403)
+  assert.equal(unknownSubject.status, 401)
+  assert.deepEqual(await unknownSubject.json(), { error: 'AUTH_REQUIRED' })
+  const noSubject = await app.call('GET', '/v1/observations?businessId=business-a', { subject: null })
+  assert.deepEqual(await noSubject.json(), { error: 'AUTH_REQUIRED' })
 })
 
 test('strict input: unknown keys, bad JSON and oversized bodies are refused', async () => {
