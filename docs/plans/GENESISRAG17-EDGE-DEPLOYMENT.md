@@ -266,6 +266,31 @@ C11 is therefore discharged for the worker: a Linux run of the pinned commit is 
 record. G-7 is not — this run verified the model against the worker's own five SHA-256
 values from a host cache, not from the `ki17-model` volume the deploy will populate.
 
+### 9.2 Current state (2026-09-24)
+
+A read-only 2026-09-24 production check (part of the GenesisRAG17 remediation-board
+review) found the runtime this section describes **already running**, not merely
+gated: the web container runs `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay` with
+`ZURI_KNOWLEDGE_ENABLED=1` and `ZURI_KNOWLEDGE_STORAGE_ENABLED=1` set, `genesis-worker`
+is healthy, and one `KnowledgeCorpus` (SmartGift Business, generation 22) has 22
+published ingestions. The knowledge/MSP/GKS/worker variables named in §7 and §10 live
+in `apps/server/.env.knowledge`, a second `env_file` beside `apps/server/.env`; a web
+recreate that keeps `.env.knowledge` but skips recreating `genesis-worker` leaves the
+worker in a dead namespace (CLAUDE.md, "The primary checkout is not a working lane";
+[RCA](../../.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)). `scripts/ki17-smoke.mjs`
+is step 4 of §10 and the post-recreate check §10's health-check table calls for "after
+every web recreate."
+
+What is **not yet true**: no record of the operator activation step itself (who ran
+§10, when, against which image digest and pin manifest, per §10 step 7) exists in
+`.brain/reports/`, and [`docs/roadmap/ROADMAP.md`](../roadmap/ROADMAP.md)'s
+`TASK-ZAI-050` row still reads `planned / UNKNOWN / NOT_STARTED`. This document's own
+status blockquote above ("None of it has been deployed") and
+`apps/server/deploy/ki17/README.md` ("Nothing here has been deployed") are the same gap
+restated: the runtime is live, the paper trail for when and how it went live is not
+written yet. Writing that record is tracked as separate follow-up work, not done in
+this note.
+
 ## 10. Start order (operator procedure, not executed)
 
 Rollout is accept-before-produce (ADR-075 D6, revision 2): the worker accepts

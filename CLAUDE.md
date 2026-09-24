@@ -153,6 +153,19 @@ passes `-f` (the deploy-override pattern) must list both files and
 `com.docker.compose.project.config_files` label names both files and that
 `docker exec zuri-ai-web-1 sh -c 'printf %s "$ZURI_LINE_SERVER_ENABLED"'` prints `true`.
 
+**(2026-09-24) `COMPOSE_FILE` now lists four files, not two.** The live value is
+`docker-compose.yml;docker-compose.line-server.yml;docker-compose.cold-archive.yml;docker-compose.ki17-web.yml`.
+The added `docker-compose.ki17-web.yml` overlay selects the `runner-ki17` build
+target the GenesisRAG17 knowledge pipeline needs — it is not optional bolt-on,
+`web` is built from that target in production. The knowledge/MSP/GKS/worker
+variables (`ZURI_KNOWLEDGE_ENABLED`, `ZURI_KNOWLEDGE_STORAGE_ENABLED`,
+`ZURI_KNOWLEDGE_BINDINGS`, `MSP_PIPELINE_PRINCIPALS`, …) are **not** in this
+`.env`; they live in a second `env_file`, `apps/server/.env.knowledge`. A deploy
+that recreates `web` must therefore keep both env files in place, and must
+recreate `genesis-worker` afterwards — recreating `web` alone leaves the worker
+on a stale image/namespace
+([RCA](.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)).
+
 **`.env` has to be at `apps/server/.env`.** It is the one file `env_file` marks
 `required: true`, and compose looks for it beside the compose file, not at the
 repo root. A root `.env` left over from the old layout is invisible to it — and
