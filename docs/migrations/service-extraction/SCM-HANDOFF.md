@@ -69,7 +69,16 @@ merge authority. Not deployed.
   first read (the product for F-16, the hold for F-17) until both have read.
   main's unfixed service fails both, 3/3 (`won: 2`); the fix passes 13/13, 3 of 3.
 - Full `npm test`: 804 files / 6810 tests. Build clean. govern exit 0.
-- OPEN / DRAFT; REVIEW_REQUEST for `3436417e` sent to S1.
+- Review round 1 (head `3436417e`): S1 REQUEST_CHANGES, two P2 findings.
+  (a) Same-day order-code race: CONVERT inserted the ORDER hold before its
+  compare-and-swap. (b) The PR body claimed an F-16 audit assertion the test did
+  not make.
+- Fixed in `812b21f0`: CONVERT now runs the compare-and-swap before allocating the
+  code, and a new same-day race case covers it (the reviewed head fails it 3/3 with
+  a unique-code collision). F-16 asserts the single CREATED audit.
+- Race suite 14/14, 3 of 3 runs; `npm test` 804 files / 6810 tests; build clean;
+  govern exit 0.
+- OPEN / DRAFT; REVIEW_REQUEST for `812b21f0` sent to S1.
 **Production:** NOT_RUN. Nothing routes to the SCM process; no data, stock,
 price or credential was touched.
 
@@ -768,7 +777,7 @@ code_head_sha: e285c4f4
 handoff_source_commit: "the doc commit after e285c4f4 on feat/scm-service-extraction"
 branch: feat/scm-service-extraction
 pr_number: 546
-current_tranche: WRAP-UP (MC0, user instruction 2026-09-24, no new groups). S5.4 through stocktake/transfers/locations done (e285c4f4). #561 MERGED 9e25aa1f. #564 review requested at 3436417e. #546 stays draft, not for merge
+current_tranche: WRAP-UP (MC0, user instruction 2026-09-24, no new groups). S5.4 through stocktake/transfers/locations done (e285c4f4). #561 MERGED 9e25aa1f. #564 re-review requested at 812b21f0 (round-1 findings fixed). #546 stays draft, not for merge
 execution_status: IN_PROGRESS
 merge_status: NOT_MERGED
 production_status: NOT_RUN
@@ -854,7 +863,7 @@ contracts:
 blockers:
   - { dependency: "scm.delegation.v1 review + core issuer", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + S5", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
   - { dependency: "root CI job for services/scm", kind: INTEGRATION_ORDER, phase_blocked: "CI_VERIFIED/HOSTED_IMAGE_BUILD", owner_to_unblock: integrator, condition_to_unblock: "job merged", safe_work_now: ["local tests"] }
-next_action: "Wrap-up: S1 reviews #564 at 3436417e; merge is the owner's / MC0's. #546 stays draft. Later groups (billing, shelf-life, hygiene, replenishment, catalogue intake) wait for the owner."
+next_action: "Wrap-up: S1 re-reviews #564 at 812b21f0; merge is the owner's / MC0's. #546 stays draft. Later groups (billing, shelf-life, hygiene, replenishment, catalogue intake) wait for the owner."
 owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js, apps/server/tests/unit/scm-revenue-parity.test.js, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
 shared_changes_requested: ["FR id for F-10 (fulfilment issue carries salesOrderId/customerId) in docs/PRD-SDD-v1.0.md — PRD registry owner", "docs/.id-ledger.json +ADR-109", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
 board_expected_source_commit: "REFACTOR-STATUS.md 0.1.0b on feat/market-intelligence-service"
@@ -871,7 +880,7 @@ board_update: BOARD_UPDATE_PENDING
 2a. Wrap-up (2026-09-24): no new groups.
    - #561: MERGED at `9e25aa1f` (S1 PASS at `be171333`, CI green). Not deployed.
    - #564 (F-15/F-16/F-17): `main` merged in, races made deterministic, review
-     requested at `3436417e`. On REQUEST_CHANGES, fix and re-request; never push
+     requested at `812b21f0` (round 1 fixed). On REQUEST_CHANGES, fix and re-request; never push
      after a PASS.
 3. PR #557 (legacy F-1/F-9/F-12 fixes + F-2 test) was MERGED at `7363c931` after
    S1 PASS @ `00dff8b3`. It is not deployed. F-10 is ruled unintended; its FR id is requested from the PRD
