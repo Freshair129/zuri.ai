@@ -84,6 +84,15 @@ export const movementsOf = (sql, { businessId, productId, limit }) => sql.all(
   ...[businessId, ...(productId ? [productId] : []), limit],
 )
 
+// ── POS terminal catalogue read (FR-183) ─────────────────────────────────────
+/** ACTIVE SKUs of a Business with their master's category and Thai name, by code. */
+export const activeProductsWithMaster = (sql, businessId) => sql.all(
+  `SELECT p.id, p.code, p.name, p.unit, p.stockPolicy, p.trackingMode, m.categoryId AS masterCategoryId, m.nameTh AS masterNameTh
+   FROM Product p LEFT JOIN ProductMaster m ON m.id = p.productMasterId
+   WHERE p.businessId = ? AND p.status = 'ACTIVE' ORDER BY p.code`, businessId)
+export const activeCategories = (sql, businessId) => sql.all("SELECT id, code, nameTh, nameEn FROM InventoryCategory WHERE businessId = ? AND status = 'ACTIVE' ORDER BY code", businessId)
+export const sellingLocations = (sql, businessId) => sql.all("SELECT id, code, name, type, isVirtual, status FROM WarehouseLocation WHERE businessId = ? AND status = 'ACTIVE' AND isVirtual = 0 ORDER BY code", businessId)
+
 // ── Product carton facts (TASK-ZAI-053) ──────────────────────────────────────
 const CARTON_COLUMNS = 'id, code, tenantId, businessId, status, unitsPerCarton, cartonCbm, cartonKg, freightGoodsType, leadTimeDays, version'
 export const productCartonRow = (sql, id) => sql.get(`SELECT ${CARTON_COLUMNS} FROM Product WHERE id = ?`, id) ?? null

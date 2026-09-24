@@ -26,6 +26,7 @@ const ROUTES = [
   route('GET', '/v1/procurement/cost-sheets', 'costsheet.list'),
   route('GET', '/v1/procurement/cost-sheets/:id', 'costsheet.get'),
   route('POST', '/v1/commerce/pos/checkout', 'pos.checkout'),
+  route('GET', '/v1/commerce/pos/catalogue', 'pos.catalogue'),
   route('POST', '/v1/commerce/orders', 'order.create'),
   route('GET', '/v1/commerce/orders', 'order.list'),
   route('GET', '/v1/commerce/revenue', 'revenue'),
@@ -121,6 +122,7 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
       }
       else if (name === 'order.payments') result = await bus.queries.orderPayments(scope, params.id)
       else if (name === 'payment.get') result = await bus.queries.payment(scope, params.id)
+      else if (name === 'pos.catalogue') result = await bus.queries.posCatalogue(scope, { businessId: url.searchParams.get('businessId') })
       else if (name === 'costsheet.get') result = await bus.queries.costSheet(scope, params.id)
       else if (name === 'costsheet.list') {
         const p = url.searchParams

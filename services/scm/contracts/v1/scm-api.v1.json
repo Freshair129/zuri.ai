@@ -1,6 +1,6 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.7",
+  "revision": "v1-draft.8",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "header": "Authorization: Delegation <token>",
@@ -99,6 +99,12 @@
       "capability": "commerce domain + (commerce.order.write | owner) + (inventory.catalog.write | owner); counted lines also inventory domain",
       "references": "branch (core), customer (CRM), slip fileAsset (Files) via ReferenceAuthority; owner unavailable → 503 SCM_REFERENCE_AUTHORITY_UNAVAILABLE",
       "invariant": "payment is always PENDING; price is manual"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/pos/catalogue?businessId=",
+      "capability": "commerce domain + inventory domain",
+      "note": "ACTIVE SKUs by code with recomputed on-hand (null unless TRACKED), availability, master name fallback and ACTIVE category; ACTIVE non-virtual locations; ACTIVE categories; ACTIVE Branches from the core owner (503 SCM_REFERENCE_AUTHORITY_UNAVAILABLE while it is unavailable); unitPrice always null (sale prices are manual); parity-pinned by contracts/v1/pos-catalogue-parity-*.json"
     },
     {
       "method": "POST",

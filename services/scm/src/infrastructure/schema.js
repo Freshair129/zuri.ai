@@ -14,7 +14,7 @@
 import { toPostgres } from './sql-dialect.js'
 
 export const OWNERS = Object.freeze({
-  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier'],
+  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory'],
   procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine', 'SupplierCostSheet', 'SupplierCostLine'],
   commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile', 'PricingRuleSet', 'PricingCalculation'],
   scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
@@ -27,8 +27,10 @@ export const OWNERS = Object.freeze({
 // v4 (S5.4 supplier cost sheets): SupplierCostSheet, SupplierCostLine; Product carton
 // facts (unitsPerCarton, cartonCbm, cartonKg, freightGoodsType, leadTimeDays);
 // ProductIdentifier (Inventory-owned; read for SKU matching, its writers have not moved).
-// Disposable stores only — there is no v1→…→v4 migration (the migration owner writes one).
-export const SCHEMA_VERSION = 4
+// v5 (S5.4 POS terminal catalogue): ProductMaster, InventoryCategory (Inventory-owned;
+// read by the catalogue, their writers — the catalogue service — have not moved).
+// Disposable stores only — there is no v1→…→v5 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 5
 
 const TABLES = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
@@ -55,6 +57,24 @@ CREATE TABLE IF NOT EXISTS ProductIdentifier (
   UNIQUE (tenantId, kind, value)
 );
 CREATE INDEX IF NOT EXISTS ProductIdentifier_business ON ProductIdentifier (businessId, value);
+
+-- The catalogue above a SKU (FR-154): a master names the product family member and
+-- sits in one category. Read here by the POS terminal catalogue; written by the
+-- Inventory catalogue service, which has not moved.
+CREATE TABLE IF NOT EXISTS InventoryCategory (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  nameTh TEXT NOT NULL, nameEn TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS InventoryCategory_business ON InventoryCategory (businessId, status);
+
+CREATE TABLE IF NOT EXISTS ProductMaster (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  categoryId TEXT NOT NULL, nameTh TEXT NOT NULL, nameEn TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
 CREATE INDEX IF NOT EXISTS Product_business ON Product (businessId, status);
 
 CREATE TABLE IF NOT EXISTS ProductLot (

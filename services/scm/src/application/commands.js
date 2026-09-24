@@ -12,6 +12,7 @@ import * as commerceRepo from '../modules/commerce/adapters/commerce-repo.js'
 import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSalesOrderInScope, prepareCreateOrder, prepareOrderAction } from '../modules/commerce/application/sales-orders.js'
 import { zCreateOrder } from '../kernel/commerce/commerce.js'
 import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
+import { authorizeCatalogue, getPosTerminalCatalogue } from '../modules/commerce/application/pos-catalogue.js'
 import { applyPricingRuleAction, calculatePricing, calculationRequest, createPricingRuleSet, getActivePricingRuleSet, guardCalculationReplay, listPricingRules, loadRuleInScope, ownerBusiness, previewPricingRules, updatePricingRuleSet, zCalculatePricing, zCreatePricingRule } from '../modules/commerce/application/pricing-rules.js'
 
 // SCM business commands — the external API's only mutation entry points. A
@@ -189,6 +190,12 @@ export function createCommandBus({ store, clock = () => new Date(), faults = {},
     orders: (scope, query) => store.read((sql) => listOrders(sql, scope, query)),
     revenue: (scope, query) => store.read((sql) => getRevenueSummary(sql, scope, query)),
     orderPayments: (scope, orderId) => store.read((sql) => listPayments(sql, scope, orderId)),
+    // Authorize, then read Branch facts from their owner (outside the store), then the store.
+    posCatalogue: async (scope, query) => {
+      const business = authorizeCatalogue(scope, query)
+      const branches = await references.branches(scope, { businessId: business.id })
+      return store.read((sql) => getPosTerminalCatalogue(sql, business, branches))
+    },
     costSheet: (scope, id) => store.read((sql) => ({ sheet: getSupplierCostSheet(sql, scope, id) })),
     costSheets: (scope, query) => store.read((sql) => listSupplierCostSheets(sql, scope, query)),
     pricingRules: (scope, query) => store.read((sql) => listPricingRules(sql, scope, query, clock().toISOString())),

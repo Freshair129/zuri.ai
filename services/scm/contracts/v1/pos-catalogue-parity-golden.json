@@ -1,0 +1,184 @@
+{
+  "schema": "scm.pos-catalogue-parity-golden.v1",
+  "outputs": {
+    "full-catalogue": {
+      "ok": true,
+      "result": {
+        "businessId": "biz-synthetic-a1",
+        "branches": [
+          {
+            "id": "br-1",
+            "code": "BR-1",
+            "name": "Warehouse",
+            "address": null,
+            "kind": "WAREHOUSE",
+            "status": "ACTIVE"
+          },
+          {
+            "id": "br-2",
+            "code": "BR-2",
+            "name": "Siam branch",
+            "address": "1 Synthetic Rd",
+            "kind": "SITE",
+            "status": "ACTIVE"
+          }
+        ],
+        "warehouseLocations": [
+          {
+            "id": "loc-a",
+            "code": "LOC-A",
+            "name": "Back store",
+            "type": "TH_WAREHOUSE",
+            "isVirtual": false,
+            "status": "ACTIVE"
+          },
+          {
+            "id": "loc-b",
+            "code": "LOC-B",
+            "name": "Shop floor",
+            "type": "TH_FINISHED_GOODS",
+            "isVirtual": false,
+            "status": "ACTIVE"
+          }
+        ],
+        "categories": [
+          {
+            "id": "cat-a",
+            "code": "CAT-A",
+            "nameTh": "ของขวัญ",
+            "nameEn": "Gifts"
+          }
+        ],
+        "items": [
+          {
+            "productId": "p-box",
+            "code": "SKU-A",
+            "name": "กล่องของขวัญ",
+            "unit": "BOX",
+            "stockPolicy": "TRACKED",
+            "trackingMode": "LOT",
+            "onHand": 0,
+            "isAvailable": false,
+            "categoryId": "cat-a",
+            "categoryName": "ของขวัญ",
+            "unitPrice": null
+          },
+          {
+            "productId": "p-wrap",
+            "code": "SKU-B",
+            "name": "Wrap",
+            "unit": "ROLL",
+            "stockPolicy": "UNTRACKED",
+            "trackingMode": "NONE",
+            "onHand": null,
+            "isAvailable": true,
+            "categoryId": "cat-a",
+            "categoryName": "ของขวัญ",
+            "unitPrice": null
+          },
+          {
+            "productId": "p-mug",
+            "code": "SKU-C",
+            "name": "Mug",
+            "unit": "EA",
+            "stockPolicy": "TRACKED",
+            "trackingMode": "NONE",
+            "onHand": 7,
+            "isAvailable": true,
+            "categoryId": null,
+            "categoryName": null,
+            "unitPrice": null
+          },
+          {
+            "productId": "p-engrave",
+            "code": "SKU-D",
+            "name": "Engraving",
+            "unit": "EA",
+            "stockPolicy": "SERVICE",
+            "trackingMode": "NONE",
+            "onHand": null,
+            "isAvailable": true,
+            "categoryId": "cat-a",
+            "categoryName": "ของขวัญ",
+            "unitPrice": null
+          },
+          {
+            "productId": "p-serial",
+            "code": "SKU-E",
+            "name": "Serial speaker",
+            "unit": "EA",
+            "stockPolicy": "TRACKED",
+            "trackingMode": "SERIAL",
+            "onHand": 2,
+            "isAvailable": true,
+            "categoryId": "cat-a",
+            "categoryName": "ของขวัญ",
+            "unitPrice": null
+          },
+          {
+            "productId": "p-lower",
+            "code": "sku-lower",
+            "name": "Lower-case code",
+            "unit": "EA",
+            "stockPolicy": "TRACKED",
+            "trackingMode": "NONE",
+            "onHand": 0,
+            "isAvailable": false,
+            "categoryId": "cat-a",
+            "categoryName": "ของขวัญ",
+            "unitPrice": null
+          }
+        ]
+      }
+    },
+    "other-business": {
+      "ok": true,
+      "result": {
+        "businessId": "biz-synthetic-a2",
+        "branches": [
+          {
+            "id": "br-other",
+            "code": "BR-OTHER",
+            "name": "Other",
+            "address": null,
+            "kind": "SITE",
+            "status": "ACTIVE"
+          }
+        ],
+        "warehouseLocations": [
+          {
+            "id": "loc-other",
+            "code": "LOC-OTHER",
+            "name": "Other",
+            "type": "TH_WAREHOUSE",
+            "isVirtual": false,
+            "status": "ACTIVE"
+          }
+        ],
+        "categories": [
+          {
+            "id": "cat-other",
+            "code": "CAT-OTHER",
+            "nameTh": "อื่น",
+            "nameEn": "Other"
+          }
+        ],
+        "items": [
+          {
+            "productId": "p-other",
+            "code": "SKU-OTHER",
+            "name": "Other business",
+            "unit": "EA",
+            "stockPolicy": "TRACKED",
+            "trackingMode": "NONE",
+            "onHand": 9,
+            "isAvailable": true,
+            "categoryId": "cat-other",
+            "categoryName": "อื่น",
+            "unitPrice": null
+          }
+        ]
+      }
+    }
+  }
+}

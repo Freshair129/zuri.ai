@@ -8,6 +8,8 @@
 // monolith, while the owner stays the only reader of its table.
 //
 //   branch(scope, {businessId, branchId})      → {id, code, name, tenantId, businessId, status} | null
+//   branches(scope, {businessId})              → [{id, code, name, address|null, kind, status, tenantId, businessId}]
+//                                                every Branch of that Business (any status); SCM filters
 //   customer(scope, {businessId, customerId})  → {id, code, tenantId, businessId|null, deletedAt|null} | null
 //   fileAsset(scope, {businessId, fileAssetId})→ {id, businessId, deletedAt|null} | null
 //   conversation(scope, {businessId, conversationId}) → {id, tenantId, businessId|null, customerId|null} | null
@@ -25,6 +27,7 @@ export function createUnavailableReferenceAuthority() {
   return {
     kind: 'unavailable',
     branch: async () => { throw unavailable('branch') },
+    branches: async () => { throw unavailable('branches') },
     customer: async () => { throw unavailable('customer') },
     fileAsset: async () => { throw unavailable('fileAsset') },
     conversation: async () => { throw unavailable('conversation') },
@@ -41,6 +44,9 @@ export function createFixtureReferenceAuthority(fixture = {}) {
   return {
     kind: 'fixture',
     branch: async (scope, { branchId }) => find(fixture.branches, branchId, scope.tenantId),
+    branches: async (scope, { businessId }) => (fixture.branches ?? [])
+      .filter((row) => (row.tenantId ?? scope.tenantId) === scope.tenantId && row.businessId === businessId)
+      .map((row) => ({ id: row.id, code: row.code, name: row.name, address: row.address ?? null, kind: row.kind ?? 'SITE', status: row.status, tenantId: row.tenantId ?? scope.tenantId, businessId: row.businessId })),
     customer: async (scope, { customerId }) => find(fixture.customers, customerId, scope.tenantId),
     fileAsset: async (scope, { fileAssetId }) => {
       const row = find(fixture.fileAssets, fileAssetId, scope.tenantId)

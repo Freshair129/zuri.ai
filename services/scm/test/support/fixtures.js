@@ -75,7 +75,7 @@ export function openRaw(db) {
 export const openTestStore = (db, options = {}) => openStore({ ...db.storeOptions, ...options })
 
 /** Create schema + seed Inventory catalogue rows directly (catalogue writers are not in this slice). */
-export function seedDatabase(target, { products = [], locations = [], billingProfiles = [], lots = [], stock = [], identifiers = [] } = {}) {
+export function seedDatabase(target, { products = [], locations = [], billingProfiles = [], lots = [], stock = [], identifiers = [], categories = [], masters = [] } = {}) {
   const engine = typeof target === 'string' ? 'sqlite' : target.engine
   const db = openRaw(target)
   if (engine === 'sqlite') db.exec('PRAGMA journal_mode = WAL;')
@@ -84,7 +84,15 @@ export function seedDatabase(target, { products = [], locations = [], billingPro
   const now = new Date().toISOString()
   for (const p of products) {
     db.prepare(`INSERT INTO Product (id, code, tenantId, businessId, productMasterId, name, unit, stockPolicy, trackingMode, safetyStock, status, itemKind, dedicatedCustomerId, dedicatedSalesOrderId, maxStorageDays, createdAt, updatedAt, version)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)`).run(p.id, p.code, p.tenantId ?? TENANT, p.businessId ?? BIZ, `pm-${p.id}`, p.name ?? p.code, p.unit ?? 'EA', p.stockPolicy ?? 'TRACKED', p.trackingMode ?? 'NONE', p.safetyStock ?? 0, p.status ?? 'ACTIVE', 'RAW_COMPONENT', p.dedicatedCustomerId ?? null, p.dedicatedSalesOrderId ?? null, p.maxStorageDays ?? null, now, now)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)`).run(p.id, p.code, p.tenantId ?? TENANT, p.businessId ?? BIZ, p.productMasterId ?? `pm-${p.id}`, 'name' in p ? p.name : p.code, p.unit ?? 'EA', p.stockPolicy ?? 'TRACKED', p.trackingMode ?? 'NONE', p.safetyStock ?? 0, p.status ?? 'ACTIVE', 'RAW_COMPONENT', p.dedicatedCustomerId ?? null, p.dedicatedSalesOrderId ?? null, p.maxStorageDays ?? null, now, now)
+  }
+  for (const c of categories) {
+    db.prepare('INSERT INTO InventoryCategory (id, code, tenantId, businessId, nameTh, nameEn, status, createdAt, updatedAt, version) VALUES (?,?,?,?,?,?,?,?,?,1)')
+      .run(c.id, c.code, c.tenantId ?? TENANT, c.businessId ?? BIZ, c.nameTh, c.nameEn ?? c.nameTh, c.status ?? 'ACTIVE', now, now)
+  }
+  for (const m of masters) {
+    db.prepare('INSERT INTO ProductMaster (id, code, tenantId, businessId, categoryId, nameTh, nameEn, status, createdAt, updatedAt, version) VALUES (?,?,?,?,?,?,?,?,?,?,1)')
+      .run(m.id, m.code, m.tenantId ?? TENANT, m.businessId ?? BIZ, m.categoryId, m.nameTh, m.nameEn ?? m.nameTh, m.status ?? 'ACTIVE', now, now)
   }
   for (const i of identifiers) {
     db.prepare('INSERT INTO ProductIdentifier (id, tenantId, businessId, productId, kind, value, status, createdAt, updatedAt, version) VALUES (?,?,?,?,?,?,?,?,?,1)')

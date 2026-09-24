@@ -1,0 +1,53 @@
+{
+  "schema": "scm.pos-catalogue-parity-cases.v1",
+  "note": "Synthetic catalogue. The golden is recorded by the legacy getPosTerminalCatalogue; SCM must reproduce it from its own store (products, masters, categories, ledger, locations) plus Branch facts from the core owner.",
+  "tenantId": "tenant-synthetic-a",
+  "categories": [
+    { "id": "cat-a", "code": "CAT-A", "businessId": "biz-synthetic-a1", "nameTh": "ของขวัญ", "nameEn": "Gifts", "status": "ACTIVE" },
+    { "id": "cat-z", "code": "CAT-Z", "businessId": "biz-synthetic-a1", "nameTh": "เลิกใช้", "nameEn": "Retired", "status": "INACTIVE" },
+    { "id": "cat-other", "code": "CAT-OTHER", "businessId": "biz-synthetic-a2", "nameTh": "อื่น", "nameEn": "Other", "status": "ACTIVE" }
+  ],
+  "masters": [
+    { "id": "pm-box", "code": "PM-BOX", "businessId": "biz-synthetic-a1", "categoryId": "cat-a", "nameTh": "กล่องของขวัญ", "status": "ACTIVE" },
+    { "id": "pm-mug", "code": "PM-MUG", "businessId": "biz-synthetic-a1", "categoryId": "cat-z", "nameTh": "แก้วมัค", "status": "ACTIVE" },
+    { "id": "pm-wrap", "code": "PM-WRAP", "businessId": "biz-synthetic-a1", "categoryId": "cat-a", "nameTh": "กระดาษห่อ", "status": "INACTIVE" },
+    { "id": "pm-other", "code": "PM-OTHER", "businessId": "biz-synthetic-a2", "categoryId": "cat-other", "nameTh": "สินค้าอื่น", "status": "ACTIVE" }
+  ],
+  "products": [
+    { "id": "p-mug", "code": "SKU-C", "businessId": "biz-synthetic-a1", "productMasterId": "pm-mug", "name": "Mug", "unit": "EA", "stockPolicy": "TRACKED", "trackingMode": "NONE", "status": "ACTIVE" },
+    { "id": "p-box", "code": "SKU-A", "businessId": "biz-synthetic-a1", "productMasterId": "pm-box", "name": null, "unit": "BOX", "stockPolicy": "TRACKED", "trackingMode": "LOT", "status": "ACTIVE" },
+    { "id": "p-wrap", "code": "SKU-B", "businessId": "biz-synthetic-a1", "productMasterId": "pm-wrap", "name": "Wrap", "unit": "ROLL", "stockPolicy": "UNTRACKED", "trackingMode": "NONE", "status": "ACTIVE" },
+    { "id": "p-engrave", "code": "SKU-D", "businessId": "biz-synthetic-a1", "productMasterId": "pm-wrap", "name": "Engraving", "unit": "EA", "stockPolicy": "SERVICE", "trackingMode": "NONE", "status": "ACTIVE" },
+    { "id": "p-serial", "code": "SKU-E", "businessId": "biz-synthetic-a1", "productMasterId": "pm-box", "name": "Serial speaker", "unit": "EA", "stockPolicy": "TRACKED", "trackingMode": "SERIAL", "status": "ACTIVE" },
+    { "id": "p-archived", "code": "SKU-0", "businessId": "biz-synthetic-a1", "productMasterId": "pm-box", "name": "Archived", "unit": "EA", "stockPolicy": "TRACKED", "trackingMode": "NONE", "status": "ARCHIVED" },
+    { "id": "p-phased", "code": "SKU-1", "businessId": "biz-synthetic-a1", "productMasterId": "pm-box", "name": "Phased out", "unit": "EA", "stockPolicy": "TRACKED", "trackingMode": "NONE", "status": "PHASED_OUT" },
+    { "id": "p-lower", "code": "sku-lower", "businessId": "biz-synthetic-a1", "productMasterId": "pm-box", "name": "Lower-case code", "unit": "EA", "stockPolicy": "TRACKED", "trackingMode": "NONE", "status": "ACTIVE" },
+    { "id": "p-other", "code": "SKU-OTHER", "businessId": "biz-synthetic-a2", "productMasterId": "pm-other", "name": "Other business", "unit": "EA", "stockPolicy": "TRACKED", "trackingMode": "NONE", "status": "ACTIVE" }
+  ],
+  "movements": [
+    { "productId": "p-mug", "businessId": "biz-synthetic-a1", "quantity": 10 },
+    { "productId": "p-mug", "businessId": "biz-synthetic-a1", "quantity": -3 },
+    { "productId": "p-serial", "businessId": "biz-synthetic-a1", "quantity": 2 },
+    { "productId": "p-wrap", "businessId": "biz-synthetic-a1", "quantity": 5 },
+    { "productId": "p-lower", "businessId": "biz-synthetic-a1", "quantity": 4 },
+    { "productId": "p-lower", "businessId": "biz-synthetic-a1", "quantity": -4 },
+    { "productId": "p-other", "businessId": "biz-synthetic-a2", "quantity": 9 }
+  ],
+  "locations": [
+    { "id": "loc-b", "code": "LOC-B", "businessId": "biz-synthetic-a1", "name": "Shop floor", "type": "TH_FINISHED_GOODS", "isVirtual": false, "status": "ACTIVE" },
+    { "id": "loc-a", "code": "LOC-A", "businessId": "biz-synthetic-a1", "name": "Back store", "type": "TH_WAREHOUSE", "isVirtual": false, "status": "ACTIVE" },
+    { "id": "loc-v", "code": "LOC-V", "businessId": "biz-synthetic-a1", "name": "In transit", "type": "IN_TRANSIT", "isVirtual": true, "status": "ACTIVE" },
+    { "id": "loc-x", "code": "LOC-X", "businessId": "biz-synthetic-a1", "name": "Closed store", "type": "TH_WAREHOUSE", "isVirtual": false, "status": "INACTIVE" },
+    { "id": "loc-other", "code": "LOC-OTHER", "businessId": "biz-synthetic-a2", "name": "Other", "type": "TH_WAREHOUSE", "isVirtual": false, "status": "ACTIVE" }
+  ],
+  "branches": [
+    { "id": "br-2", "code": "BR-2", "businessId": "biz-synthetic-a1", "name": "Siam branch", "address": "1 Synthetic Rd", "kind": "SITE", "status": "ACTIVE" },
+    { "id": "br-1", "code": "BR-1", "businessId": "biz-synthetic-a1", "name": "Warehouse", "address": null, "kind": "WAREHOUSE", "status": "ACTIVE" },
+    { "id": "br-9", "code": "BR-9", "businessId": "biz-synthetic-a1", "name": "Closed", "address": null, "kind": "SITE", "status": "INACTIVE" },
+    { "id": "br-other", "code": "BR-OTHER", "businessId": "biz-synthetic-a2", "name": "Other", "address": null, "kind": "SITE", "status": "ACTIVE" }
+  ],
+  "cases": [
+    { "id": "full-catalogue", "businessId": "biz-synthetic-a1" },
+    { "id": "other-business", "businessId": "biz-synthetic-a2" }
+  ]
+}

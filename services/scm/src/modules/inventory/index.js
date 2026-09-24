@@ -4,6 +4,8 @@
 export { appendMovement, requireIssuableLocation, setLotExpiryIfUnset, stockSummary, listMovements } from './application/stock-ledger.js'
 export { inventoryAuthority } from '../../infrastructure/delegation.js'
 export { productsByIds } from './adapters/inventory-repo.js'
+/** POS terminal catalogue read port: ACTIVE SKUs with master facts, on-hand per SKU, categories, selling locations. */
+export { catalogueFacts } from './application/catalogue.js'
 /** Product carton facts: Inventory's own writer (with Inventory authority) and the SKU-matching read port. */
 export { setProductCartonAttributes, productCandidates, productFacts } from './application/product-carton.js'
 /** On-hand from the ledger (read port for a pre-issue shortage report; the writer re-checks). */

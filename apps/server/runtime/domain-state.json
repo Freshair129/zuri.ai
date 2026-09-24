@@ -1298,7 +1298,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-186",
@@ -6028,7 +6028,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-184",
@@ -16923,7 +16923,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -16938,7 +16938,8 @@
         "apps/server/tests/integration/fr183-pos.test.js",
         "apps/server/tests/integration/fr186-billing.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
-        "apps/server/tests/unit/commerce-billing-domain.test.js"
+        "apps/server/tests/unit/commerce-billing-domain.test.js",
+        "apps/server/tests/unit/scm-pos-catalogue-parity.test.js"
       ]
     },
     {
