@@ -160,7 +160,7 @@ describe('SCM additions', () => {
     const b = (await preview(envelope({ sourceSha256: 'e'.repeat(64) }))).sheet
     await commit({ sheetId: a.id, previewHash: a.preview.hash, mappings: confirmBox })
     for (const [statement, args, pattern] of [
-      ["UPDATE SupplierCostSheet SET status = 'CONFIRMED' WHERE id = ?", [b.id], /UNIQUE/],
+      ["UPDATE SupplierCostSheet SET status = 'CONFIRMED' WHERE id = ?", [b.id], /UNIQUE|unique constraint/],
       ['UPDATE SupplierCostSheet SET fxRateLocked = 35 WHERE id = ?', [a.id], /PROCUREMENT_COST_SHEET_SOURCE_IMMUTABLE/],
       ['UPDATE SupplierCostSheet SET previewJson = ? WHERE id = ?', ['{}', b.id], /PROCUREMENT_COST_SHEET_SOURCE_IMMUTABLE/],
       ['UPDATE SupplierCostLine SET unitCostForeign = 0.01 WHERE sheetId = ?', [a.id], /PROCUREMENT_COST_LINE_IMMUTABLE/],

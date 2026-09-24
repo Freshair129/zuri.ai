@@ -3,8 +3,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { DatabaseSync } from 'node:sqlite'
-import { DDL, SCHEMA_VERSION } from '../../src/infrastructure/schema.js'
+import { DDL, POSTGRES_DDL, SCHEMA_VERSION } from '../../src/infrastructure/schema.js'
 import { signDelegation } from '../../src/infrastructure/delegation.js'
+import { openPgConnection } from '../../src/infrastructure/pg-connection.js'
+import { toPostgres } from '../../src/infrastructure/sql-dialect.js'
+import { openStore } from '../../src/infrastructure/store.js'
 
 // Synthetic, disposable fixtures only: invented tenants, SKUs and people. Never
 // a copy of the primary database, never a real supplier price.
@@ -15,17 +18,69 @@ export const OTHER_TENANT = 'tenant-synthetic-b'
 export const BIZ = 'biz-synthetic-a1'
 export const OTHER_BIZ = 'biz-synthetic-a2'
 
-export function tempDbPath(label = 'scm') {
-  const dir = mkdtempSync(join(tmpdir(), `zuri-s5-${label}-`))
-  return { path: join(dir, 'scm.sqlite'), cleanup: () => rmSync(dir, { recursive: true, force: true }) }
+// The engine every test in this run uses: SQLite files by default, or one fresh
+// database per test store on the disposable PostgreSQL that scripts/run-tests.mjs
+// starts when SCM_TEST_ENGINE=postgres (its admin URL arrives in the env).
+export const TEST_ENGINE = process.env.SCM_TEST_ENGINE === 'postgres' ? 'postgres' : 'sqlite'
+let admin = null
+const pgAdmin = () => {
+  const url = process.env.SCM_TEST_PG_ADMIN_URL
+  if (!url) throw new Error('SCM_TEST_ENGINE=postgres needs SCM_TEST_PG_ADMIN_URL (run via scripts/run-tests.mjs)')
+  admin ??= openPgConnection(url)
+  return { url, conn: admin }
 }
 
+/** A disposable SCM database for one test store: a SQLite file, or a fresh PostgreSQL database. */
+export function tempDbPath(label = 'scm') {
+  if (TEST_ENGINE === 'postgres') {
+    const { url, conn } = pgAdmin()
+    const name = `scm_${label.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${randomUUID().replace(/-/g, '').slice(0, 12)}`
+    conn.query(`CREATE DATABASE ${name}`)
+    const dbUrl = url.replace(/\/[^/]*$/, `/${name}`)
+    return {
+      engine: 'postgres', url: dbUrl, path: dbUrl,
+      storeOptions: { store: 'postgres', pgUrl: dbUrl },
+      env: { SCM_STORE: 'postgres', SCM_PG_URL: dbUrl },
+      cleanup: () => { try { conn.query(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`) } catch { /* server already stopped */ } },
+    }
+  }
+  const dir = mkdtempSync(join(tmpdir(), `zuri-s5-${label}-`))
+  const path = join(dir, 'scm.sqlite')
+  return {
+    engine: 'sqlite', path,
+    storeOptions: { store: 'sqlite', sqlitePath: path },
+    env: { SCM_STORE: 'sqlite', SCM_SQLITE_PATH: path },
+    cleanup: () => rmSync(dir, { recursive: true, force: true }),
+  }
+}
+
+/** A raw, synchronous handle on a test database (DatabaseSync's shape on both engines) — for seeding and checks. */
+export function openRaw(db) {
+  const target = typeof db === 'string' ? { engine: 'sqlite', path: db } : db
+  if (target.engine !== 'postgres') return new DatabaseSync(target.path)
+  const conn = openPgConnection(target.url)
+  const q = (text, params) => { const t = toPostgres(text); return conn.query(t.text, params) }
+  return {
+    exec: (text) => { conn.query(text) },
+    prepare: (text) => ({
+      get: (...params) => q(text, params).rows[0],
+      all: (...params) => q(text, params).rows,
+      run: (...params) => ({ changes: q(text, params).rowCount }),
+    }),
+    close: () => { conn.close() },
+  }
+}
+
+/** The SCM store of a test database, on its engine. */
+export const openTestStore = (db, options = {}) => openStore({ ...db.storeOptions, ...options })
+
 /** Create schema + seed Inventory catalogue rows directly (catalogue writers are not in this slice). */
-export function seedDatabase(path, { products = [], locations = [], billingProfiles = [], lots = [], stock = [], identifiers = [] } = {}) {
-  const db = new DatabaseSync(path)
-  db.exec('PRAGMA journal_mode = WAL;')
-  db.exec(DDL)
-  db.prepare('INSERT OR IGNORE INTO ScmSchemaVersion (version, appliedAt) VALUES (?, ?)').run(SCHEMA_VERSION, new Date().toISOString())
+export function seedDatabase(target, { products = [], locations = [], billingProfiles = [], lots = [], stock = [], identifiers = [] } = {}) {
+  const engine = typeof target === 'string' ? 'sqlite' : target.engine
+  const db = openRaw(target)
+  if (engine === 'sqlite') db.exec('PRAGMA journal_mode = WAL;')
+  db.exec(engine === 'postgres' ? POSTGRES_DDL : DDL)
+  db.prepare('INSERT INTO ScmSchemaVersion (version, appliedAt) VALUES (?, ?) ON CONFLICT DO NOTHING').run(SCHEMA_VERSION, new Date().toISOString())
   const now = new Date().toISOString()
   for (const p of products) {
     db.prepare(`INSERT INTO Product (id, code, tenantId, businessId, productMasterId, name, unit, stockPolicy, trackingMode, safetyStock, status, itemKind, dedicatedCustomerId, dedicatedSalesOrderId, maxStorageDays, createdAt, updatedAt, version)

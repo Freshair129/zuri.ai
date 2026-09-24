@@ -1,8 +1,8 @@
 import { DatabaseSync } from 'node:sqlite'
 import { DDL, SCHEMA_VERSION } from './schema.js'
 
-// The SCM transactional store on SQLite (dev/test engine; PostgreSQL adapter is
-// an outstanding gate). One connection per process; every operation — reads
+// The SCM transactional store on SQLite (dev/test engine; the PostgreSQL store
+// with the same port is pg-store.js). One connection per process; every operation — reads
 // included — runs through one FIFO queue, so an awaited step inside a
 // transaction can never interleave another request's statements on the same
 // connection (no dirty read of an in-flight transaction). Cross-PROCESS

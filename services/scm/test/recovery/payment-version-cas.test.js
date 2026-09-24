@@ -6,11 +6,10 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
-import { openSqliteStore } from '../../src/infrastructure/sqlite-store.js'
 import { createCommandBus } from '../../src/application/commands.js'
 import { createFixtureReferenceAuthority } from '../../src/infrastructure/reference-authority.js'
 import { createHarness, rejects } from '../support/harness.js'
-import { BIZ, REFERENCE_FIXTURE, TENANT, idem } from '../support/fixtures.js'
+import { BIZ, REFERENCE_FIXTURE, TENANT, idem, openTestStore } from '../support/fixtures.js'
 
 test('a Payment version change between check and update is refused and rolled back', async () => {
   const h = createHarness()
@@ -23,7 +22,7 @@ test('a Payment version change between check and update is refused and rolled ba
   const before = await h.snapshot()
   await h.store.close()
 
-  const store = openSqliteStore({ location: h.db.path })
+  const store = openTestStore(h.db)
   let current = null
   const transaction = store.transaction
   store.transaction = (fn) => transaction((sql) => { current = sql; return fn(sql) })

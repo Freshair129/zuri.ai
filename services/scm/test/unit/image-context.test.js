@@ -4,7 +4,7 @@
 // a separate LOCAL/HOSTED proof recorded in SCM-HANDOFF.md.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -28,5 +28,10 @@ test('runtime dependencies are exactly what the lockfile pins', () => {
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
   const lock = JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8'))
   for (const [name, version] of Object.entries(pkg.dependencies)) assert.equal(lock.packages[`node_modules/${name}`]?.version, version, name)
-  assert.equal(pkg.devDependencies, undefined, 'tests use node:test only')
+  // The one dev dependency is the disposable test PostgreSQL. It never reaches the
+  // image (npm ci --omit=dev) and no runtime file imports it.
+  assert.deepEqual(Object.keys(pkg.devDependencies ?? {}), ['embedded-postgres'])
+  assert.match(dockerfile, /npm ci --omit=dev/)
+  const walk = (dir) => readdirSync(dir).flatMap((f) => { const p = join(dir, f); return statSync(p).isDirectory() ? walk(p) : p.endsWith('.js') ? [p] : [] })
+  for (const file of walk(join(root, 'src'))) assert.doesNotMatch(readFileSync(file, 'utf8'), /from ['"]embedded-postgres['"]/, file)
 })

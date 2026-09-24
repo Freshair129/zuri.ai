@@ -1,22 +1,22 @@
-// Acceptance B10 (receipt half) on SQLite: two SEPARATE SCM processes, two DB
-// connections, one PO line of 5 units, 12 concurrent single-unit receipts split
-// across both processes. Exactly 5 commit; every other request is refused with a
-// safe, retryable-or-final code and leaves no trace; the ledger, receipt lines and
-// PO agree. This is the SQLite engine proof only — PostgreSQL isolation is an
-// outstanding gate (SCM-HANDOFF.md), not implied by this test.
+// Acceptance B10 (receipt half): two SEPARATE SCM processes, two DB connections,
+// one PO line of 5 units, 12 concurrent single-unit receipts split across both
+// processes. Exactly 5 commit; every other request is refused with a safe,
+// retryable-or-final code and leaves no trace; the ledger, receipt lines and PO
+// agree. Runs on the suite's engine; on PostgreSQL (--engine=postgres) the commits
+// really interleave, and scripts/prove-guards-on-postgres.mjs shows this test fails
+// there without the PurchaseOrder compare-and-swap (F-1).
 import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { DatabaseSync } from 'node:sqlite'
 import { startScmProcess } from '../support/scm-process.js'
-import { BIZ, PRODUCTS, ROLES, delegation, idem, seedDatabase, tempDbPath } from '../support/fixtures.js'
+import { BIZ, PRODUCTS, ROLES, delegation, idem, openRaw, seedDatabase, tempDbPath } from '../support/fixtures.js'
 
 const db = tempDbPath('race')
 after(() => db.cleanup())
-seedDatabase(db.path, { products: [PRODUCTS.plain] })
+seedDatabase(db, { products: [PRODUCTS.plain] })
 
 test('concurrent receipts across two processes never over-receive', async (t) => {
-  const a = await startScmProcess({ sqlitePath: db.path })
-  const b = await startScmProcess({ sqlitePath: db.path })
+  const a = await startScmProcess({ db })
+  const b = await startScmProcess({ db })
   try {
     const buyer = delegation({ sub: 'person-buyer', grants: { [BIZ]: ROLES.receiverFull } })
     const supplier = await a.request('POST', '/v1/procurement/suppliers', { token: buyer, key: idem('s'), body: { businessId: BIZ, code: 'SUP-RACE', name: 'Race Supplier' } })
@@ -37,7 +37,7 @@ test('concurrent receipts across two processes never over-receive', async (t) =>
     t.diagnostic(`outcomes: ${JSON.stringify(byProcess)}`)
     assert.equal(new Set(committed.map((r) => r.body.operation.id)).size, 5)
 
-    const check = new DatabaseSync(db.path)
+    const check = openRaw(db)
     try {
       assert.equal(check.prepare('SELECT SUM(quantity) AS q FROM StockMovement').get().q, 5)
       assert.equal(check.prepare('SELECT SUM(qty) AS q FROM GoodsReceiptLine').get().q, 5)

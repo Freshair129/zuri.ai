@@ -20,7 +20,7 @@ export function loadSheet(sql, where) {
 /** Summaries (no preview, no lines), newest first. */
 export function listSheets(sql, { businessId, supplierId, status, take }) {
   const rows = sql.all(
-    `SELECT ${SHEET_COLUMNS.replace(', previewJson', '')} FROM SupplierCostSheet WHERE businessId = ? ${supplierId ? 'AND supplierId = ?' : ''} ${status ? 'AND status = ?' : ''} ORDER BY createdAt DESC, rowid DESC LIMIT ?`,
+    `SELECT ${SHEET_COLUMNS.replace(', previewJson', '')} FROM SupplierCostSheet WHERE businessId = ? ${supplierId ? 'AND supplierId = ?' : ''} ${status ? 'AND status = ?' : ''} ORDER BY createdAt DESC, id DESC LIMIT ?`,
     ...[businessId, ...(supplierId ? [supplierId] : []), ...(status ? [status] : []), take],
   )
   return rows.map((row) => withSupplier(sql, row))

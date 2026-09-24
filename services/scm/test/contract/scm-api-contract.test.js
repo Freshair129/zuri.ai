@@ -7,19 +7,18 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { openSqliteStore } from '../../src/infrastructure/sqlite-store.js'
 import { createDelegationVerifier } from '../../src/infrastructure/delegation.js'
 import { createCommandBus } from '../../src/application/commands.js'
 import { createScmHttpServer } from '../../src/http/server.js'
-import { BIZ, PRODUCTS, ROLES, TEST_KEY, delegation, idem, seedDatabase, tempDbPath } from '../support/fixtures.js'
+import { BIZ, PRODUCTS, ROLES, TEST_KEY, delegation, idem, openTestStore, seedDatabase, tempDbPath } from '../support/fixtures.js'
 import { defaultPricingRules } from '../../src/modules/commerce/pricing/index.js'
 
 const contract = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'contracts', 'v1', 'scm-api.v1.json'), 'utf8'))
 const db = tempDbPath('contract')
 let http, store, base
 before(async () => {
-  seedDatabase(db.path, { products: Object.values(PRODUCTS) })
-  store = openSqliteStore({ location: db.path })
+  seedDatabase(db, { products: Object.values(PRODUCTS) })
+  store = openTestStore(db)
   const config = { maxBodyBytes: 16384, requestTimeoutMs: 5000, port: 0, host: '127.0.0.1' }
   http = createScmHttpServer({ config, store, bus: createCommandBus({ store }), verify: createDelegationVerifier({ key: TEST_KEY }) })
   base = `http://127.0.0.1:${(await http.listen(0)).port}`

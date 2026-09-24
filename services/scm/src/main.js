@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url'
 import { loadConfig } from './config.js'
-import { openSqliteStore } from './infrastructure/sqlite-store.js'
+import { openStore } from './infrastructure/store.js'
 import { createDelegationVerifier } from './infrastructure/delegation.js'
 import { createCommandBus } from './application/commands.js'
 import { createScmHttpServer } from './http/server.js'
@@ -18,7 +18,7 @@ function log(level, message, fields = {}) {
 
 export async function start(env = process.env) {
   const config = loadConfig(env)
-  const store = openSqliteStore({ location: config.sqlitePath, ensureSchema: config.ensureSchema })
+  const store = openStore({ store: config.store, sqlitePath: config.sqlitePath, pgUrl: config.pgUrl, ensureSchema: config.ensureSchema })
   const verify = createDelegationVerifier({ key: config.delegationKey, issuer: config.delegationIssuer, maxLifetimeSeconds: config.delegationMaxLifetimeSeconds })
   // No core/Files reference façade exists yet (gates SCM-CORE, SCM-FILES): a real
   // process refuses reference-dependent commands (503) rather than assume validity.

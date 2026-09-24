@@ -11,6 +11,8 @@
 // NOT copied: their ids are opaque references verified by the caller's
 // delegated scope (ReferenceAuthority), never joined here.
 
+import { toPostgres } from './sql-dialect.js'
+
 export const OWNERS = Object.freeze({
   inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier'],
   procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine', 'SupplierCostSheet', 'SupplierCostLine'],
@@ -28,7 +30,7 @@ export const OWNERS = Object.freeze({
 // Disposable stores only — there is no v1→…→v4 migration (the migration owner writes one).
 export const SCHEMA_VERSION = 4
 
-export const DDL = `
+const TABLES = `
 CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
 
 CREATE TABLE IF NOT EXISTS Product (
@@ -79,11 +81,6 @@ CREATE TABLE IF NOT EXISTS StockMovement (
   customerId TEXT, salesOrderId TEXT, workOrderId TEXT
 );
 CREATE INDEX IF NOT EXISTS StockMovement_product ON StockMovement (productId, occurredAt);
--- Append-only ledger: the store refuses UPDATE and DELETE outright (ADR-054 D3).
-CREATE TRIGGER IF NOT EXISTS StockMovement_no_update BEFORE UPDATE ON StockMovement
-  BEGIN SELECT RAISE(ABORT, 'INVENTORY_LEDGER_APPEND_ONLY'); END;
-CREATE TRIGGER IF NOT EXISTS StockMovement_no_delete BEFORE DELETE ON StockMovement
-  BEGIN SELECT RAISE(ABORT, 'INVENTORY_LEDGER_APPEND_ONLY'); END;
 
 CREATE TABLE IF NOT EXISTS InventoryLedgerFence (
   id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
@@ -128,11 +125,6 @@ CREATE TABLE IF NOT EXISTS GoodsReceiptLine (
   lotCode TEXT, expiresAt TEXT, serialNosJson TEXT
 );
 CREATE INDEX IF NOT EXISTS GoodsReceiptLine_orderLine ON GoodsReceiptLine (purchaseOrderLineId);
--- A receipt is never edited or deleted (FR-165): corrections are Inventory ADJUSTMENTs.
-CREATE TRIGGER IF NOT EXISTS GoodsReceipt_immutable BEFORE UPDATE ON GoodsReceipt
-  BEGIN SELECT RAISE(ABORT, 'GOODS_RECEIPT_IMMUTABLE'); END;
-CREATE TRIGGER IF NOT EXISTS GoodsReceiptLine_immutable BEFORE UPDATE ON GoodsReceiptLine
-  BEGIN SELECT RAISE(ABORT, 'GOODS_RECEIPT_IMMUTABLE'); END;
 
 -- Supplier cost sheets (TASK-ZAI-053). A sheet holds one immutable source version
 -- (locked FX + normalized preview) until a person confirms every SKU mapping; lines
@@ -149,8 +141,6 @@ CREATE TABLE IF NOT EXISTS SupplierCostSheet (
 );
 CREATE INDEX IF NOT EXISTS SupplierCostSheet_business ON SupplierCostSheet (businessId, status, createdAt);
 CREATE UNIQUE INDEX IF NOT EXISTS SupplierCostSheet_one_confirmed ON SupplierCostSheet (businessId, supplierId) WHERE status = 'CONFIRMED';
-CREATE TRIGGER IF NOT EXISTS SupplierCostSheet_source_immutable BEFORE UPDATE OF currency, fxRateLocked, sourceSha256, previewHash, previewJson, supplierId, businessId, tenantId ON SupplierCostSheet
-  BEGIN SELECT RAISE(ABORT, 'PROCUREMENT_COST_SHEET_SOURCE_IMMUTABLE'); END;
 
 CREATE TABLE IF NOT EXISTS SupplierCostLine (
   id TEXT PRIMARY KEY, sheetId TEXT NOT NULL REFERENCES SupplierCostSheet(id), productId TEXT NOT NULL REFERENCES Product(id),
@@ -161,8 +151,6 @@ CREATE TABLE IF NOT EXISTS SupplierCostLine (
   UNIQUE (sheetId, sourceSku, minQty)
 );
 CREATE INDEX IF NOT EXISTS SupplierCostLine_product ON SupplierCostLine (productId, minQty);
-CREATE TRIGGER IF NOT EXISTS SupplierCostLine_immutable BEFORE UPDATE ON SupplierCostLine
-  BEGIN SELECT RAISE(ABORT, 'PROCUREMENT_COST_LINE_IMMUTABLE'); END;
 
 CREATE TABLE IF NOT EXISTS WarehouseLocation (
   id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, name TEXT NOT NULL,
@@ -221,10 +209,6 @@ CREATE TABLE IF NOT EXISTS PricingRuleSet (
 );
 CREATE INDEX IF NOT EXISTS PricingRuleSet_scope ON PricingRuleSet (tenantId, businessId);
 CREATE INDEX IF NOT EXISTS PricingRuleSet_effective ON PricingRuleSet (businessId, effectiveFrom, approvedAt);
-CREATE TRIGGER IF NOT EXISTS PricingRuleSet_content_immutable BEFORE UPDATE OF rulesJson, rulesHash, name, tenantId, businessId, sourceRuleSetId ON PricingRuleSet
-  WHEN OLD.status <> 'DRAFT' BEGIN SELECT RAISE(ABORT, 'PRICING_RULE_IMMUTABLE'); END;
-CREATE TRIGGER IF NOT EXISTS PricingRuleSet_no_delete BEFORE DELETE ON PricingRuleSet
-  BEGIN SELECT RAISE(ABORT, 'PRICING_RULE_IMMUTABLE'); END;
 
 CREATE TABLE IF NOT EXISTS PricingCalculation (
   id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
@@ -236,10 +220,6 @@ CREATE TABLE IF NOT EXISTS PricingCalculation (
   UNIQUE (businessId, idempotencyKey)
 );
 CREATE INDEX IF NOT EXISTS PricingCalculation_ruleSet ON PricingCalculation (ruleSetId);
-CREATE TRIGGER IF NOT EXISTS PricingCalculation_no_update BEFORE UPDATE ON PricingCalculation
-  BEGIN SELECT RAISE(ABORT, 'PRICING_CALCULATION_IMMUTABLE'); END;
-CREATE TRIGGER IF NOT EXISTS PricingCalculation_no_delete BEFORE DELETE ON PricingCalculation
-  BEGIN SELECT RAISE(ABORT, 'PRICING_CALCULATION_IMMUTABLE'); END;
 
 -- Durable mutation identity: one row per (scope, idempotency key), committed in
 -- the SAME transaction as the effect, so "committed" and "has a receipt" are one fact.
@@ -265,3 +245,39 @@ CREATE TABLE IF NOT EXISTS ScmOutbox (
   aggregateVersion INTEGER, payloadJson TEXT NOT NULL, createdAt TEXT NOT NULL, deliveredAt TEXT
 );
 `
+
+// Store-level refusals, declared once and emitted per engine. Each fires BEFORE the
+// statement and aborts it with the message the services and tests look for.
+export const TRIGGERS = Object.freeze([
+  // Append-only ledger: the store refuses UPDATE and DELETE outright (ADR-054 D3).
+  { name: 'StockMovement_no_update', table: 'StockMovement', event: 'UPDATE', message: 'INVENTORY_LEDGER_APPEND_ONLY' },
+  { name: 'StockMovement_no_delete', table: 'StockMovement', event: 'DELETE', message: 'INVENTORY_LEDGER_APPEND_ONLY' },
+  // A receipt is never edited (FR-165): corrections are Inventory ADJUSTMENTs.
+  { name: 'GoodsReceipt_immutable', table: 'GoodsReceipt', event: 'UPDATE', message: 'GOODS_RECEIPT_IMMUTABLE' },
+  { name: 'GoodsReceiptLine_immutable', table: 'GoodsReceiptLine', event: 'UPDATE', message: 'GOODS_RECEIPT_IMMUTABLE' },
+  { name: 'SupplierCostSheet_source_immutable', table: 'SupplierCostSheet', event: 'UPDATE', columns: ['currency', 'fxRateLocked', 'sourceSha256', 'previewHash', 'previewJson', 'supplierId', 'businessId', 'tenantId'], message: 'PROCUREMENT_COST_SHEET_SOURCE_IMMUTABLE' },
+  { name: 'SupplierCostLine_immutable', table: 'SupplierCostLine', event: 'UPDATE', message: 'PROCUREMENT_COST_LINE_IMMUTABLE' },
+  { name: 'PricingRuleSet_content_immutable', table: 'PricingRuleSet', event: 'UPDATE', columns: ['rulesJson', 'rulesHash', 'name', 'tenantId', 'businessId', 'sourceRuleSetId'], when: "OLD.status <> 'DRAFT'", message: 'PRICING_RULE_IMMUTABLE' },
+  { name: 'PricingRuleSet_no_delete', table: 'PricingRuleSet', event: 'DELETE', message: 'PRICING_RULE_IMMUTABLE' },
+  { name: 'PricingCalculation_no_update', table: 'PricingCalculation', event: 'UPDATE', message: 'PRICING_CALCULATION_IMMUTABLE' },
+  { name: 'PricingCalculation_no_delete', table: 'PricingCalculation', event: 'DELETE', message: 'PRICING_CALCULATION_IMMUTABLE' },
+])
+
+const sqliteTrigger = (t) => `CREATE TRIGGER IF NOT EXISTS ${t.name} BEFORE ${t.event}${t.columns ? ` OF ${t.columns.join(', ')}` : ''} ON ${t.table}${t.when ? `\n  WHEN ${t.when}` : ''}\n  BEGIN SELECT RAISE(ABORT, '${t.message}'); END;`
+
+const q = (name) => `"${name}"`
+const postgresTrigger = (t) => [
+  `CREATE OR REPLACE FUNCTION ${q(`scm_refuse_${t.name}`)}() RETURNS trigger LANGUAGE plpgsql AS $fn$ BEGIN RAISE EXCEPTION '${t.message}' USING ERRCODE = 'P0001'; END $fn$;`,
+  `DROP TRIGGER IF EXISTS ${q(t.name)} ON ${q(t.table)};`,
+  `CREATE TRIGGER ${q(t.name)} BEFORE ${t.event}${t.columns ? ` OF ${t.columns.map(q).join(', ')}` : ''} ON ${q(t.table)} FOR EACH ROW${t.when ? ` WHEN (${t.when})` : ''} EXECUTE FUNCTION ${q(`scm_refuse_${t.name}`)}();`,
+].join('\n')
+
+/** SQLite DDL (the dev/test engine and the original spelling). */
+export const DDL = `${TABLES}\n${TRIGGERS.map(sqliteTrigger).join('\n')}\n`
+
+/**
+ * PostgreSQL DDL from the same table text: mixed-case names quoted, REAL widened
+ * to DOUBLE PRECISION (REAL is 4-byte there, 8-byte in SQLite), timestamps kept as
+ * ISO-8601 TEXT so comparisons and ordering are identical on both engines.
+ */
+export const POSTGRES_DDL = `${toPostgres(TABLES.replace(/\bREAL\b/g, 'DOUBLE PRECISION')).text}\n${TRIGGERS.map(postgresTrigger).join('\n')}\n`

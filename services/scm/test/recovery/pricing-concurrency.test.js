@@ -7,14 +7,12 @@
 //     exactly one approval wins, and every successful calculation is ONE snapshot.
 import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { DatabaseSync } from 'node:sqlite'
-import { openSqliteStore } from '../../src/infrastructure/sqlite-store.js'
 import { createCommandBus } from '../../src/application/commands.js'
 import { createFixtureReferenceAuthority } from '../../src/infrastructure/reference-authority.js'
 import { defaultPricingRules } from '../../src/modules/commerce/pricing/index.js'
 import { createHarness, rejects } from '../support/harness.js'
 import { startScmProcess } from '../support/scm-process.js'
-import { BIZ, REFERENCE_FIXTURE, delegation, idem, seedDatabase, tempDbPath } from '../support/fixtures.js'
+import { BIZ, REFERENCE_FIXTURE, delegation, idem, openRaw, openTestStore, seedDatabase, tempDbPath } from '../support/fixtures.js'
 
 const OWNER = { [BIZ]: { owner: true, domains: ['commerce'], permissions: [] } }
 const input = { costBasis: 'landed', landedUnitCostThb: '123.45', quantity: 100, kind: 'set', profile: 'corporate', orderCostThb: '0', sourceRefs: [] }
@@ -27,7 +25,7 @@ test('a PricingRuleSet version change between check and update is refused and ro
   const before = await h.store.read((sql) => ({ audit: count(sql, 'ScmAuditEvent'), outbox: count(sql, 'ScmOutbox'), receipts: count(sql, 'ScmOperationReceipt') }))
   await h.store.close()
 
-  const store = openSqliteStore({ location: h.db.path })
+  const store = openTestStore(h.db)
   let current = null
   const transaction = store.transaction
   store.transaction = (fn) => transaction((sql) => { current = sql; return fn(sql) })
@@ -54,11 +52,11 @@ test('a PricingRuleSet version change between check and update is refused and ro
 
 const db = tempDbPath('pricing-race')
 after(() => db.cleanup())
-seedDatabase(db.path, {})
+seedDatabase(db, {})
 
 test('two processes: one approval wins; one calculation key yields one snapshot across two owners', async (t) => {
-  const a = await startScmProcess({ sqlitePath: db.path })
-  const b = await startScmProcess({ sqlitePath: db.path })
+  const a = await startScmProcess({ db })
+  const b = await startScmProcess({ db })
   const owner = (n) => delegation({ sub: `per-owner-${n}`, grants: OWNER })
   try {
     const created = await a.request('POST', '/v1/commerce/pricing-rules', { token: owner(1), key: idem('draft'), body: { businessId: BIZ, name: 'Race fixture', rules: defaultPricingRules() } })
@@ -76,7 +74,7 @@ test('two processes: one approval wins; one calculation key yields one snapshot 
     assert.ok(ok.length >= 1)
     for (const r of results.filter((x) => !ok.includes(x))) assert.equal(r.body.error.code, 'SCM_STORE_BUSY')
     assert.equal(new Set(ok.map((r) => r.body.calculation.id)).size, 1)
-    const check = new DatabaseSync(db.path)
+    const check = openRaw(db)
     try {
       assert.equal(check.prepare('SELECT COUNT(*) AS n FROM PricingCalculation').get().n, 1)
       assert.equal(check.prepare("SELECT COUNT(*) AS n FROM ScmAuditEvent WHERE action = 'PRICING_CALCULATED'").get().n, 1)

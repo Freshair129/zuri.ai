@@ -27,7 +27,7 @@ export function acquireFence(sql, { tenantId, businessId, now }) {
   // row lock on PostgreSQL — the same portable fence the legacy writer takes.
   sql.run(
     `INSERT INTO InventoryLedgerFence (id, tenantId, businessId, mutationRevision, createdAt, updatedAt) VALUES (?,?,?,0,?,?)
-     ON CONFLICT (tenantId, businessId) DO UPDATE SET mutationRevision = mutationRevision + 0, updatedAt = excluded.updatedAt`,
+     ON CONFLICT (tenantId, businessId) DO UPDATE SET mutationRevision = InventoryLedgerFence.mutationRevision + 0, updatedAt = excluded.updatedAt`,
     randomUUID(), tenantId, businessId, now, now,
   )
   return sql.get('SELECT mutationRevision FROM InventoryLedgerFence WHERE tenantId = ? AND businessId = ?', tenantId, businessId).mutationRevision

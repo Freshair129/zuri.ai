@@ -4,8 +4,9 @@
 # Next build, Prisma client or .git can reach the image, and nothing is mounted at
 # runtime. src/kernel/** is the committed generated mirror (scripts/sync-kernel.mjs),
 # so the image never needs apps/server to build.
-# node:sqlite is stable enough on Node 22.13+ for the dev/test store; PostgreSQL is
-# an outstanding adapter gate.
+# Store: SCM_STORE=sqlite (node:sqlite, Node 22.13+, dev/test) or SCM_STORE=postgres
+# with SCM_PG_URL (the `pg` driver in a worker thread). Dev dependencies (the
+# disposable test PostgreSQL) are never installed here.
 FROM node:22-alpine
 ENV NODE_ENV=production
 WORKDIR /opt/scm

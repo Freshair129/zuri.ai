@@ -6,13 +6,11 @@
 //     exactly one fulfils; the other is refused whole and stays CONFIRMED.
 import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { DatabaseSync } from 'node:sqlite'
-import { openSqliteStore } from '../../src/infrastructure/sqlite-store.js'
 import { createCommandBus } from '../../src/application/commands.js'
 import { createFixtureReferenceAuthority } from '../../src/infrastructure/reference-authority.js'
 import { createHarness, rejects } from '../support/harness.js'
 import { startScmProcess } from '../support/scm-process.js'
-import { BIZ, PRODUCTS, REFERENCE_FIXTURE, delegation, idem, seedDatabase, tempDbPath } from '../support/fixtures.js'
+import { BIZ, PRODUCTS, REFERENCE_FIXTURE, delegation, idem, openRaw, openTestStore, seedDatabase, tempDbPath } from '../support/fixtures.js'
 
 const OWNER = { [BIZ]: { owner: true, domains: ['commerce', 'inventory'], permissions: [] } }
 const ACTION = 'commerce.sales-order.action'
@@ -24,7 +22,7 @@ test('a SalesOrder version change during fulfilment is refused and the issue rol
   await h.run(owner, ACTION, { targetId: order.id, body: { action: 'CONFIRM', version: 1 } })
   const before = await h.snapshot()
   await h.store.close()
-  const store = openSqliteStore({ location: h.db.path })
+  const store = openTestStore(h.db)
   let current = null
   const transaction = store.transaction
   store.transaction = (fn) => transaction((sql) => { current = sql; return fn(sql) })
@@ -48,9 +46,9 @@ const db = tempDbPath('fulfil-race')
 after(() => db.cleanup())
 
 test('two processes fulfilling two orders over scarce stock: exactly one wins, the other is refused whole', async (t) => {
-  seedDatabase(db.path, { products: [PRODUCTS.plain], stock: [{ productId: PRODUCTS.plain.id, quantity: 5 }] })
-  const a = await startScmProcess({ sqlitePath: db.path })
-  const b = await startScmProcess({ sqlitePath: db.path })
+  seedDatabase(db, { products: [PRODUCTS.plain], stock: [{ productId: PRODUCTS.plain.id, quantity: 5 }] })
+  const a = await startScmProcess({ db })
+  const b = await startScmProcess({ db })
   try {
     const token = () => delegation({ sub: 'per-owner', grants: OWNER })
     const orders = []
@@ -64,8 +62,13 @@ test('two processes fulfilling two orders over scarce stock: exactly one wins, t
     t.diagnostic(`outcomes: ${JSON.stringify(results.map((r, i) => [i ? 'B' : 'A', r.status === 201 ? 'COMPLETED' : r.body.error.code]))}`)
     assert.equal(results.filter((r) => r.status === 201).length, 1)
     const loser = results.find((r) => r.status !== 201)
-    assert.ok(['COMMERCE_STOCK_SHORTAGE', 'SCM_STORE_BUSY'].includes(loser.body.error.code), loser.body.error.code)
-    const check = new DatabaseSync(db.path)
+    // Serialized (SQLite), the loser's whole-order pre-check sees the winner's issue:
+    // COMMERCE_STOCK_SHORTAGE. Truly interleaved (PostgreSQL READ COMMITTED), its
+    // pre-check can read before the winner commits; the Inventory writer then
+    // re-checks under the ledger fence and refuses: INVENTORY_INSUFFICIENT_STOCK.
+    // Either way the order is refused whole and nothing moves (asserted below).
+    assert.ok(['COMMERCE_STOCK_SHORTAGE', 'INVENTORY_INSUFFICIENT_STOCK', 'SCM_STORE_BUSY'].includes(loser.body.error.code), loser.body.error.code)
+    const check = openRaw(db)
     try {
       assert.equal(check.prepare('SELECT SUM(quantity) AS q FROM StockMovement').get().q, 2)
       assert.deepEqual(check.prepare('SELECT status FROM SalesOrder ORDER BY status').all().map((r) => r.status), ['COMPLETED', 'CONFIRMED'])

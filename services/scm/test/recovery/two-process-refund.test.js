@@ -1,21 +1,21 @@
-// Refund ceiling under concurrency (acceptance B15, SQLite engine): 1000 baht
+// Refund ceiling under concurrency (acceptance B15, either engine): 1000 baht
 // verified, four PENDING refunds of 400, all verified at once across two SCM
 // processes by two verifiers. Exactly two may pass (800 ≤ 1000 < 1200); the rest
 // are refused PAYMENT_REFUND_EXCEEDS_PAID and stay PENDING. The order-row lock
-// (D-9) is what keeps this true on PostgreSQL; on SQLite the writer lock does.
+// (D-9) is what keeps this true on PostgreSQL (scripts/prove-guards-on-postgres.mjs
+// shows the test fails there without it — F-9); on SQLite the writer lock does.
 import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
-import { DatabaseSync } from 'node:sqlite'
 import { startScmProcess } from '../support/scm-process.js'
-import { BIZ, TENANT, delegation, idem, seedDatabase, tempDbPath } from '../support/fixtures.js'
+import { BIZ, TENANT, delegation, idem, openRaw, seedDatabase, tempDbPath } from '../support/fixtures.js'
 
 const db = tempDbPath('refund-race')
 after(() => db.cleanup())
-seedDatabase(db.path, {})
+seedDatabase(db, {})
 const orderId = randomUUID()
 {
-  const raw = new DatabaseSync(db.path)
+  const raw = openRaw(db)
   const now = new Date().toISOString()
   raw.prepare("INSERT INTO SalesOrder (id, code, tenantId, businessId, origin, status, currency, discountSatang, orderedAt, createdAt, updatedAt, version) VALUES (?,?,?,?,'WALK_IN','CONFIRMED','THB',0,?,?,?,1)").run(orderId, 'ORD-RACE-1', TENANT, BIZ, now, now, now)
   raw.prepare("INSERT INTO SalesOrderLine (id, orderId, description, qty, unitPriceSatang, discountSatang, sortOrder) VALUES (?,?,'Synthetic',1,100000,0,0)").run(randomUUID(), orderId)
@@ -25,8 +25,8 @@ const rep = () => delegation({ sub: 'per-rep', grants: { [BIZ]: { owner: false, 
 const verifier = (n) => delegation({ sub: `per-ver-${n}`, grants: { [BIZ]: { owner: false, domains: ['commerce'], permissions: ['commerce.payment.verify'] } } })
 
 test('four concurrent refund verifications never exceed the verified net', async (t) => {
-  const a = await startScmProcess({ sqlitePath: db.path })
-  const b = await startScmProcess({ sqlitePath: db.path })
+  const a = await startScmProcess({ db })
+  const b = await startScmProcess({ db })
   try {
     const paid = await a.request('POST', `/v1/commerce/orders/${orderId}/payments`, { token: rep(), key: idem('pay'), body: { method: 'TRANSFER', amount: 1000 } })
     assert.equal(paid.status, 201)
@@ -39,7 +39,7 @@ test('four concurrent refund verifications never exceed the verified net', async
     for (const r of results.filter((x) => x.status !== 201)) assert.ok(['PAYMENT_REFUND_EXCEEDS_PAID', 'SCM_STORE_BUSY'].includes(r.body.error.code), r.body.error.code)
     const view = await a.request('GET', `/v1/commerce/orders/${orderId}`, { token: rep() })
     assert.deepEqual([view.body.order.paid, view.body.order.refunded, view.body.order.net], [1000, 800, 200])
-    const check = new DatabaseSync(db.path)
+    const check = openRaw(db)
     try {
       assert.equal(check.prepare("SELECT COUNT(*) AS n FROM Payment WHERE kind = 'REFUND' AND status = 'PENDING'").get().n, 2)
     } finally { check.close() }

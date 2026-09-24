@@ -10,12 +10,12 @@ import { BIZ, PRODUCTS, ROLES, delegation, idem, seedDatabase, tempDbPath } from
 
 const db = tempDbPath('workflow')
 after(() => db.cleanup())
-seedDatabase(db.path, { products: Object.values(PRODUCTS) })
+seedDatabase(db, { products: Object.values(PRODUCTS) })
 const buyer = () => delegation({ sub: 'person-buyer', grants: { [BIZ]: ROLES.receiverFull } })
 const receiver = () => delegation({ sub: 'person-receiver', grants: { [BIZ]: ROLES.receiverFull } })
 
 test('PO → SEND → GRN → stock → PO state over HTTP; crash after commit; restart; lookup; no duplicate', async () => {
-  let scm = await startScmProcess({ sqlitePath: db.path })
+  let scm = await startScmProcess({ db })
   try {
     assert.equal((await scm.request('GET', '/healthz')).status, 200)
     const ready = await scm.request('GET', '/readyz')
@@ -40,7 +40,7 @@ test('PO → SEND → GRN → stock → PO state over HTTP; crash after commit; 
 
     // Crash immediately after the commit — as if the response had been lost in flight.
     await scm.kill()
-    scm = await startScmProcess({ sqlitePath: db.path })
+    scm = await startScmProcess({ db })
     const lookup = await scm.request('GET', `/v1/operations/procurement.goods-receipt.post/${key}?businessId=${BIZ}`, { token: receiver() })
     assert.equal(lookup.status, 200)
     assert.equal(lookup.body.operation.affected.goodsReceiptId, posted.body.receipt.id)
@@ -66,14 +66,14 @@ test('PO → SEND → GRN → stock → PO state over HTTP; crash after commit; 
 test('a process refuses to start on a missing schema, a short key or production self-migration', async () => {
   const empty = tempDbPath('noschema')
   try {
-    await assert.rejects(startScmProcess({ sqlitePath: empty.path }), (e) => e.exitCode === 1 && e.logs.some((l) => l.code === 'SCM_SCHEMA_MISMATCH'))
-    await assert.rejects(startScmProcess({ sqlitePath: empty.path, env: { SCM_DELEGATION_KEY: 'short' } }), (e) => e.exitCode === 1 && e.logs.some((l) => l.code === 'SCM_CONFIG_INVALID' && !JSON.stringify(l).includes('short')))
-    await assert.rejects(startScmProcess({ sqlitePath: empty.path, env: { SCM_ENV: 'production', SCM_ENSURE_SCHEMA: '1' } }), (e) => e.exitCode === 1)
+    await assert.rejects(startScmProcess({ db: empty }), (e) => e.exitCode === 1 && e.logs.some((l) => l.code === 'SCM_SCHEMA_MISMATCH'))
+    await assert.rejects(startScmProcess({ db: empty, env: { SCM_DELEGATION_KEY: 'short' } }), (e) => e.exitCode === 1 && e.logs.some((l) => l.code === 'SCM_CONFIG_INVALID' && !JSON.stringify(l).includes('short')))
+    await assert.rejects(startScmProcess({ db: empty, env: { SCM_ENV: 'production', SCM_ENSURE_SCHEMA: '1' } }), (e) => e.exitCode === 1)
   } finally { empty.cleanup() }
 })
 
 test('graceful SIGTERM drains and exits 0', { skip: process.platform === 'win32' ? 'NOT_RUN on Windows: child.kill(SIGTERM) is a hard kill there; proven in the Linux image smoke' : false }, async () => {
-  const scm = await startScmProcess({ sqlitePath: db.path })
+  const scm = await startScmProcess({ db })
   const { code } = await scm.stop()
   assert.equal(code, 0)
   assert.ok(scm.logs.some((l) => l.message === 'stopped'))

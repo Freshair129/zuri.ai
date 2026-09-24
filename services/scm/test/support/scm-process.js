@@ -4,12 +4,13 @@ import { fileURLToPath } from 'node:url'
 import { TEST_KEY } from './fixtures.js'
 
 // Starts the REAL SCM entrypoint (src/main.js) as a separate OS process on a
-// disposable SQLite file and an ephemeral port; returns an HTTP client.
+// disposable test database (SQLite file or PostgreSQL database, see
+// fixtures.tempDbPath) and an ephemeral port; returns an HTTP client.
 const main = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'main.js')
 
-export async function startScmProcess({ sqlitePath, env = {} }) {
+export async function startScmProcess({ db, env = {} }) {
   const child = spawn(process.execPath, [main], {
-    env: { PATH: process.env.PATH, SystemRoot: process.env.SystemRoot, SCM_ENV: 'test', SCM_PORT: '0', SCM_SQLITE_PATH: sqlitePath, SCM_DELEGATION_KEY: TEST_KEY, ...env },
+    env: { PATH: process.env.PATH, SystemRoot: process.env.SystemRoot, SCM_ENV: 'test', SCM_PORT: '0', ...db.env, SCM_DELEGATION_KEY: TEST_KEY, ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   const lines = []
