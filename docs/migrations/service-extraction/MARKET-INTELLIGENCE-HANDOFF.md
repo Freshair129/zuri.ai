@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.7.1"
+version: "0.7.2"
 status: candidate
-last_update: "2026-09-24T22:20:00+07:00,Claude"
+last_update: "2026-09-24T23:05:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -296,12 +296,12 @@ this handoff are committed together).
 ## Blockers
 
 ```yaml
-- dependency: core façade routes /api/internal/market-intelligence/v1/* (market-core.v1)
-  kind: CONTRACT
-  phase_blocked: M3 completion (real end-to-end)
-  owner_to_unblock: integrator (Session 1) + Identity/Integration/audit owners; Session 4 drafted them in PR #545, which the owner merged into this lane branch on 2026-09-24 (`ee47f4c6`) without integrator review; the integrator reviews them as part of #544 and may keep, rewrite or strip them
-  condition_to_unblock: reviewed routes passing the same scenarios test/support/fake-core.js encodes (refusal statuses, subject re-check on raw-candidates, envelope shape)
-  evidence: [services/market-intelligence/src/adapters/core-client.js, services/market-intelligence/test/http-api.test.js]
+- dependency: committed consumer-to-real-façade HTTP test (market-core.v1)
+  kind: EVIDENCE
+  phase_blocked: CONTRACT_VERIFIED = PASS (M3 itself is DONE: façade on main via #544/#556, S1 post-merge PASS for #556 at f8571132)
+  owner_to_unblock: Session 4 (post-deploy work)
+  condition_to_unblock: a committed test that drives services/market-intelligence core-client against the real Next route /api/internal/market-intelligence/v1/{operation}, covering the scenarios test/support/fake-core.js encodes (refusal statuses, subject re-check on raw-candidates, envelope shape, byte caps)
+  evidence: [services/market-intelligence/conformance/ (local run, 12/12), services/market-intelligence/test/http-api.test.js (fake core only)]
   safe_work_now: [M4 durable-audit design]
 - dependency: restricted DB role zuri_market_service + RLS policy
   kind: HARD_START
@@ -339,7 +339,7 @@ The board stays at snapshot 0.1 on this branch because it belongs to the integra
 Replacement row for §1:
 
 ```text
-| **Market Intelligence — Session 4** | **PARTIAL / M3 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; on main via #544 (85d8fd06) and #556 (b936d41e), both merged on owner instruction before integrator review (see Merge audit); S1 post-merge PASS for #556 at f8571132 | Nothing routes to the service in any deployment; MARKET_EXECUTOR default legacy; no committed consumer-to-real-façade HTTP test; restricted DB role not applied; CI not wired | Session 4: CI/scanner wiring as COMMON_RESOURCES item (b) after S1 (a); owners: M4 P1/P2; operator: restricted role. Any later finding is fixed forward in a new PR (merge needs S1 PASS for the head SHA + owner instruction) |
+| **Market Intelligence — Session 4** | **PARTIAL / M3 DONE**; ADR-108 (ownership trigger); standalone process + pg/sqlite stores (shared conformance, 8-connection race) + image-start rehearsal PASS; on main via #544 (85d8fd06) and #556 (b936d41e), both merged on owner instruction before integrator review (see Merge audit); S1 post-merge PASS for #556 at f8571132 | No production deployment routes to the service (MARKET_EXECUTOR default legacy; service mode run only locally for the conformance harness); no committed consumer-to-real-façade HTTP test; restricted DB role not applied; CI not wired | Session 4: CI/scanner wiring as COMMON_RESOURCES item (b) after S1 (a); owners: M4 P1/P2; operator: restricted role. Any later finding is fixed forward in a new PR (merge needs S1 PASS for the head SHA + owner instruction) |
 ```
 
 Replacement §3 Session 4 tranche statuses: M0 DONE, M1 DONE, M2 DONE, M3 DONE
@@ -360,7 +360,7 @@ read-only; no committed consumer-to-real-façade HTTP test), M4 PROPOSED (docs o
 ```yaml
 session: S4
 workstream: market-intelligence
-observed_at: "2026-09-24T14:15:00+07:00"
+observed_at: "2026-09-24T23:05:00+07:00"   # after S1 post-merge PASS for #556
 base_sha: fad8ec6252941ca3de01afdb3116484f86b366c3
 m1_commit: d40a3329
 code_head_sha: b936d41edc652e606ac58f7354a3b1c59706f8ea   # main after #556
