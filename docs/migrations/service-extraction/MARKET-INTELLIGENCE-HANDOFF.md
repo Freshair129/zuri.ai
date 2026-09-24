@@ -1,8 +1,8 @@
 ---
 id: ZAI:MARKET-INTELLIGENCE-HANDOFF
-version: "0.7.3"
+version: "0.7.4"
 status: candidate
-last_update: "2026-09-24T23:30:00+07:00,Claude"
+last_update: "2026-09-24T23:50:00+07:00,Claude"
 attributes:
   domain: market-intelligence
   scope: market-intelligence-extraction-checkpoint
@@ -72,19 +72,23 @@ pins ADR-106) lands, the ledger needs a trivial merge: two independent additions
 ## M0 — capability inventory at `fad8ec62`
 
 "Runtime caller" was established by searching `src/` and `scripts/`, not from folder
-names.
+names. The table is the M0 snapshot: "Decision" is the plan made then, and where the
+plan has since been carried out or not, the cell says so as of `main` `b936d41e`.
+**No legacy code has been deleted.** Every legacy Market path is retained and is what
+runs whenever `MARKET_EXECUTOR` is unset or `legacy` (the default); deletion is planned
+for after cutover, which is not authorized.
 
 | Capability | Current executor | Data owner | Runtime consumers | Target | Decision | Proof |
 |---|---|---|---|---|---|---|
-| Raw → observation draft (`translate-raw-record.js`) | apps/server, via `POST /api/market/translations` | Market (logic) | translation run | service core | MOVE — copied in M1; legacy copy deleted at M3 | vectors pass in both copies |
+| Raw → observation draft (`translate-raw-record.js`) | apps/server, via `POST /api/market/translations` | Market (logic) | translation run | service core | MOVE — copied in M1. Legacy copy **retained** behind the legacy flag (`market-executor.js` selects it when the flag is unset or `legacy`; `translations/route.js` still calls `market-observation-service.js`); deletion planned after cutover, not done | vectors pass in both copies |
 | Generic candidate extractor | apps/server | Market | translation route | service core | MOVE — copied | vectors |
 | `MarketObservation` draft schema | apps/server | Market | translator, repository | service core | MOVE — copied | `test/domain.test.js` + vectors |
-| Observation feed (`GET /api/market/observations`) | Next route → service fn | Market | `MarketDashboard` (`/market`) | service core behind a BFF | MOVE core (M1); route becomes a thin ADAPTER at M3 | `test/observation-feed.test.js` + feed-row vectors |
-| Translation run (`POST /api/market/translations`) | Next route → service fn | writes Market; reads Integration; appends PM audit | `MarketDashboard` button | service core | MOVE core (M1); route becomes an ADAPTER at M3 | `test/translation-run.test.js` |
-| Persistence (`insertIfAbsent` / `listRecent` / `findTranslatedRawRecordIds`) | apps/server Prisma adapter | Market (`MarketObservation`, unique `lineageKey`, **no FK relations**) | feed, run | service-owned adapter | MOVE — M2 pg + sqlite adapters (ADR-108 D2/D3); legacy Prisma writer remains until the M3 flag | shared conformance suite on both engines |
-| Scope authority (`seesBusiness`, `ownsBusiness`, `assertDomainVisible`, Business lookup) | Identity, in-process | Identity | feed, run | `ScopeAuthorityPort` → core façade | KEEP in core; ADAPTER | fake conformance only |
-| Raw candidate read (`listMarketLaneRawRecordCandidates` reads `rawExternalRecord` directly) | Market infra reading Integration's table | Integration | run | `RawEvidenceReadPort` → Integration façade | SHARED-TRANSITION | none yet |
-| Audit (`recordAudit`, project-manager) | PM, in-process | PM audit | run | `AuditPort` | KEEP owner; ADAPTER | fake only |
+| Observation feed (`GET /api/market/observations`) | Next route → service fn | Market | `MarketDashboard` (`/market`) | service core behind a BFF | MOVE core (M1); route becomes a thin ADAPTER at M3 — done behind the flag, in-process legacy by default | `test/observation-feed.test.js` + feed-row vectors |
+| Translation run (`POST /api/market/translations`) | Next route → service fn | writes Market; reads Integration; appends PM audit | `MarketDashboard` button | service core | MOVE core (M1); route becomes an ADAPTER at M3 — done behind the flag, in-process legacy by default | `test/translation-run.test.js` |
+| Persistence (`insertIfAbsent` / `listRecent` / `findTranslatedRawRecordIds`) | apps/server Prisma adapter | Market (`MarketObservation`, unique `lineageKey`, **no FK relations**) | feed, run | service-owned adapter | MOVE — M2 pg + sqlite adapters (ADR-108 D2/D3); the M3 flag exists, and the legacy Prisma writer stays the default writer until cutover | shared conformance suite on both engines |
+| Scope authority (`seesBusiness`, `ownsBusiness`, `assertDomainVisible`, Business lookup) | Identity, in-process | Identity | feed, run | `ScopeAuthorityPort` → core façade | KEEP in core; ADAPTER (façade on `main` via #544/#556) | fake conformance; local real-façade run 12/12; S1 post-merge PASS (#556) |
+| Raw candidate read (`listMarketLaneRawRecordCandidates` reads `rawExternalRecord` directly) | Market infra reading Integration's table | Integration | run | `RawEvidenceReadPort` → Integration façade | SHARED-TRANSITION: served by core's `market-core.v1` raw-candidates (bounded, projected since #556) until Integration owns a façade | local real-façade run 12/12; S1 post-merge PASS (#556) |
+| Audit (`recordAudit`, project-manager) | PM, in-process | PM audit | run | `AuditPort` | KEEP owner; ADAPTER (façade audit with Business match + `MARKET_SERVICE` attribution since #556; durable intake is M4 P1) | fake; local real-façade run wrote identical audit payloads |
 | Knowledge identity resolver (`gks-market-identity-resolver.js`) | **no runtime caller**: the route leaves `knowledgeResolver` unset, so every production row is UNRESOLVED | Knowledge | none | optional `KnowledgeIdentityReadPort` | copied as `knowledge-identity-resolver.js`; OPTIONAL | resolver tests |
 | `createMarketRawRecordRepository`, `loadTranslateAndPersistRawMarketRecord` | **no runtime caller** (tests only) | — | none | — | not moved; recorded as unused | — |
 | `market-research`, `price-intelligence`, `procurement-recommendation`, `supplier-intelligence` services and the `market-signals`, `market-research`, `price-observation`, `supplier-candidate`, `watch-rule` domain files | **no runtime caller** (tests only) | — | none | — | NOT MOVED: planned concepts, not delivered features | — |
