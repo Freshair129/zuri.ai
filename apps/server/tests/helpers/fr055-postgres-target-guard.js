@@ -1,6 +1,7 @@
 // @req FR-055 — guard cluster-global test DDL with target, intent and disposable-cluster proof.
 // @spec NFR-013, BR-014, SDD-028, SEC-012 — fail closed before any role mutation.
-// @tested tests/unit/fr055-postgres-target-guard.test.js, tests/integration/line-binding-activation.postgres.test.js
+// @tested tests/unit/fr055-postgres-target-guard.test.js, tests/integration/line-binding-activation.postgres.test.js, tests/integration/controlled-line-activation.postgres.test.js
+import { resolveLoopbackPostgresTarget, verifyDisposableClusterSentinel } from './loopback-postgres-target.js'
 
 export const DESTRUCTIVE_OPT_IN = 'YES_DROP_FR055_TEST_ROLES'
 export const FR055_FIXED_TEST_ROLES = Object.freeze([
@@ -14,42 +15,40 @@ export const FR055_API_ROLES = Object.freeze(['anon', 'authenticated', 'service_
 export const FR055_TOUCHED_ROLES = Object.freeze([...FR055_FIXED_TEST_ROLES, ...FR055_API_ROLES])
 const MARKER_PATTERN = /^fr055-w4-disposable:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-function normalizedHostname(hostname) {
-  return hostname.startsWith('[') && hostname.endsWith(']')
-    ? hostname.slice(1, -1)
-    : hostname
-}
-
+// The target itself is resolved by the shared loopback resolver: any query string
+// or fragment is refused (pg lets ?host= / ?hostaddr= / ?port= / ?dbname= /
+// ?options= override the authority), host, port and database are checked on pg's
+// own parse, and the suite is handed the canonical URL, never the input.
 export function parseFr055PostgresTarget({ databaseUrl, destructiveOptIn, clusterMarker }) {
   if (!databaseUrl) return { enabled: false }
 
-  let target
-  try {
-    target = new URL(databaseUrl)
-  } catch {
-    throw new Error('LINE_ACTIVATION_TEST_DATABASE_URL_INVALID')
-  }
-  const hostname = normalizedHostname(target.hostname)
-  const isLoopback = ['127.0.0.1', 'localhost', '::1'].includes(hostname)
-  if (!isLoopback || target.pathname !== '/zuri_fr055_test') {
-    throw new Error('LINE_ACTIVATION_TEST_DATABASE_MUST_BE_DEDICATED_LOOPBACK')
-  }
+  const target = resolveLoopbackPostgresTarget(databaseUrl, {
+    database: 'zuri_fr055_test',
+    errorPrefix: 'LINE_ACTIVATION_TEST',
+  })
   if (destructiveOptIn !== DESTRUCTIVE_OPT_IN) {
     throw new Error('LINE_ACTIVATION_TEST_DESTRUCTIVE_OPT_IN_REQUIRED')
   }
   if (!MARKER_PATTERN.test(clusterMarker ?? '')) {
     throw new Error('LINE_ACTIVATION_TEST_CLUSTER_MARKER_REQUIRED')
   }
-  return { enabled: true, databaseUrl, clusterMarker }
+  return { enabled: true, databaseUrl: target.databaseUrl, clusterMarker }
 }
 
+// The per-run marker is proven by a sentinel database on the connected cluster,
+// read on the connection that will run the DDL, before any of it — see
+// verifyDisposableClusterSentinel. On the disposable cluster:
+//   create database zuri_fr055_disposable_<uuid v4 without dashes>
+//   ZURI_FR055_TEST_CLUSTER_MARKER=fr055-w4-disposable:<the same uuid, with dashes>
+export const FR055_SENTINEL_PREFIX = 'zuri_fr055_disposable'
+
 export async function verifyDisposableClusterMarker(client, expectedMarker) {
-  const { rows } = await client.query(
-    "select current_setting('zuri.fr055_disposable_cluster', true) as marker",
-  )
-  if (rows?.[0]?.marker !== expectedMarker) {
-    throw new Error('LINE_ACTIVATION_TEST_CLUSTER_MARKER_MISMATCH')
-  }
+  await verifyDisposableClusterSentinel(client, {
+    expectedMarker,
+    markerPattern: MARKER_PATTERN,
+    sentinelPrefix: FR055_SENTINEL_PREFIX,
+    errorPrefix: 'LINE_ACTIVATION_TEST',
+  })
 }
 
 export function rolesCreatedByTest(preexistingRoles, currentRoles) {

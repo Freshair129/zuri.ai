@@ -3,22 +3,26 @@ import path from 'node:path'
 import crypto from 'node:crypto'
 import pg from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { parseFr055PostgresTarget, verifyDisposableClusterMarker } from '../helpers/fr055-postgres-target-guard.js'
 
 // @req FR-055 — prove controlled activation against PostgreSQL role, RLS and constraint semantics.
 // @spec NFR-013, SDD-028, SEC-012 — one mutation per correlation and append-only receipt history.
 // @tested tests/integration/controlled-line-activation.postgres.test.js
+//
+// This suite drops and recreates the same cluster-global roles as
+// line-binding-activation.postgres.test.js, so it takes the same three gates:
+// the canonical loopback target, the destructive opt-in and the per-run
+// disposable-cluster marker, verified on the connection before any DDL.
 
 const { Client } = pg
-const adminUrl = process.env.ZURI_FR055_TEST_POSTGRES_URL
-if (adminUrl) {
-  const target = new URL(adminUrl)
-  const isLoopback = ['127.0.0.1', 'localhost', '::1'].includes(target.hostname)
-  if (!isLoopback || target.pathname !== '/zuri_fr055_test') {
-    throw new Error('CONTROLLED_ACTIVATION_TEST_DATABASE_MUST_BE_DEDICATED_LOOPBACK')
-  }
-}
+const target = parseFr055PostgresTarget({
+  databaseUrl: process.env.ZURI_FR055_TEST_POSTGRES_URL,
+  destructiveOptIn: process.env.ZURI_FR055_TEST_DESTRUCTIVE_OPT_IN,
+  clusterMarker: process.env.ZURI_FR055_TEST_CLUSTER_MARKER,
+})
+const adminUrl = target.enabled ? target.databaseUrl : undefined
 
-const runPostgres = adminUrl ? describe : describe.skip
+const runPostgres = target.enabled ? describe : describe.skip
 const loginRole = 'zuri_line_activation_login'
 const operatorRole = 'zuri_line_activation_operator'
 const localPassword = crypto.randomBytes(24).toString('base64url')
@@ -82,9 +86,14 @@ const insertEventSql = `
 
 runPostgres('controlled LINE activation PostgreSQL contract (FR-055)', () => {
   const admin = new Client({ connectionString: adminUrl })
+  // afterAll runs even when beforeAll throws, so role cleanup is gated on the
+  // marker having been proven on this connection.
+  let disposableClusterVerified = false
 
   beforeAll(async () => {
     await admin.connect()
+    await verifyDisposableClusterMarker(admin, target.clusterMarker)
+    disposableClusterVerified = true
     await admin.query(`
       drop schema if exists zuri_core cascade;
       do $cleanup$
@@ -114,16 +123,21 @@ runPostgres('controlled LINE activation PostgreSQL contract (FR-055)', () => {
   }, 30_000)
 
   afterAll(async () => {
-    await admin.query(`
-      drop schema if exists zuri_core cascade;
-      revoke ${operatorRole} from ${loginRole};
-      drop role if exists ${loginRole};
-      drop role if exists ${operatorRole};
-      drop role if exists zuri_line_smartgift_login;
-      drop role if exists zuri_line_smartgift_ro;
-      drop role if exists zuri_app_runtime;
-    `)
-    await admin.end()
+    try {
+      if (disposableClusterVerified) {
+        await admin.query(`
+          drop schema if exists zuri_core cascade;
+          revoke ${operatorRole} from ${loginRole};
+          drop role if exists ${loginRole};
+          drop role if exists ${operatorRole};
+          drop role if exists zuri_line_smartgift_login;
+          drop role if exists zuri_line_smartgift_ro;
+          drop role if exists zuri_app_runtime;
+        `)
+      }
+    } finally {
+      await admin.end()
+    }
   })
 
   it('enforces role attributes, grants and forced RLS', async () => {
