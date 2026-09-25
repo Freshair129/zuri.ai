@@ -735,6 +735,44 @@ describe('knowledge durable queue', () => {
     expect(secondPass.sweep).toMatchObject({ closed: 0, open: 0 })
   })
 
+  // F-20: `listOrphanedIngestionsForRuns` filters on the ingestion's own
+  // status + lease only, and closing a row's PipelineRun changes neither —
+  // only a refused close's new backoff lease excludes a row from a later
+  // page. `executionRunIds` and `now` are both fixed for every page of one
+  // `sweepOrphanedExecutionRuns()` call, so with exactly `limit` (20)
+  // candidates — 19 refused fillers plus the 1 real orphan — page 1 comes
+  // back full, the sweep re-queries page 2 within the SAME call, and (before
+  // this test's fix) the real orphan — untouched by its own successful close
+  // — reappeared unchanged and was closed and counted a second time:
+  // `{ examined: 21, closed: 2 }` for one real orphan, reproduced verbatim
+  // from a hosted CI failure (run 36112626313) on knowledge-runtime.test.js's
+  // "keeps KNOWLEDGE_SOURCE_REVOKED…" test, which hit the same shape by
+  // accident from an earlier test's leftover real-time leases.
+  it('closes the real orphan exactly once even when it refills a full page within its own sweep call', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport } = await pendingBatchRun(fixture)
+
+    // Exactly `limit` (20) total candidates once the real orphan below is
+    // marked SUPERSEDED: page 1 is completely full, forcing the second-page
+    // re-query that is this bug's precondition.
+    for (let index = 0; index < 19; index += 1) await refusedCloseOrphan(fixture, `f20-${index}`)
+
+    await prisma.knowledgeIngestion.update({
+      where: { id: fixture.job.id },
+      data: { status: 'SUPERSEDED', failureCode: 'KNOWLEDGE_SOURCE_REVISION_SUPERSEDED', claimToken: null, leaseExpiresAt: null },
+    })
+
+    const onError = vi.fn()
+    const result = await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError }).runOnce()
+
+    // 20 distinct rows examined once each — never the real orphan's page-1
+    // and page-2 sightings counted as two — and exactly one of them closed.
+    expect(result.sweep).toMatchObject({ examined: 20, closed: 1 })
+
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(run.status).toBe('FAILED')
+  })
+
   // The should-fix the round-5 gate left open: the first cut of the backoff
   // wrote `KNOWLEDGE_ORPHAN_RUN_OPEN` over the row's `failureCode` and nothing
   // ever put the original back, so the admission projection
