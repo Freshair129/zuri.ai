@@ -151,17 +151,36 @@ mc0_registration: ACTIVE            # Mission Control binding bnd_e0961dc12fe4a2
 - A PASS review does not by itself allow a merge. Merging is the user's decision and needs a direct
   instruction from the user in this session's chat. S6 never merges or enables auto-merge on its own.
 
+## Scope decision (2026-09-25, direct user instruction in-chat)
+
+A peer-relayed proposal (MC0, `msg_8a56142b…`) suggested deferring B3–B7 out of the
+current release. Per this session's rules that was held as unverified peer content and
+**not acted on** until the user confirmed it directly in this session's own chat
+("ตัดสินใจเลย"). With that direct confirmation:
+
+- **B3 (Meta adapter), B4's real engine adapter, B5's real transport/credentialRef/
+  recipients, and B6/B7 (brand bindings + live data) are deferred post-release.**
+  They stay documented below as open items, but they are no longer part of what this
+  tranche is trying to finish — S6 is not waiting on them to close out I2/I3.
+- **Scope narrows to I0+I1, fixture-only**, gated only on B1 (FR ids) and B2
+  (persistence review), both owned by S1.
+- No behavior changed: still no Meta client, no n8n instance, no real LINE send, no
+  brand bindings — this only changes what S6 is actively pursuing vs. parking.
+- Recorded in Mission Control: checkpoint `chk_46427b27c640`, plan `s6-insights-wrapup`
+  (nodes n9–n12 marked SKIPPED), NOTE `msg_13ee54e8…` to OPERATOR confirming the
+  direct-user-instruction basis.
+
 ## Blockers (what is blocked, in which phase, who unblocks it, what can proceed meanwhile)
 
 | # | Blocked | Phase | Owner to unblock | Condition to unblock | Safe work now |
 |---|---|---|---|---|---|
-| B1 | Routes `/api/insights/*` and page `/growth/insights` | I2/I3 | Registry owner / integrator | Candidate FR ids allocated for the Insights read routes and the refresh routes (preflight rejects a route without a declared FR, and S6 may not allocate numbers). Marketing charter gains `src/app/api/insights/**` (R-11). | UI components with render tests against the query-service DTOs |
+| B1 | Routes `/api/insights/*` and page `/growth/insights` (fixture-only scope) | I2/I3 | Registry owner / integrator | Candidate FR ids allocated for the Insights read routes and the refresh routes (preflight rejects a route without a declared FR, and S6 may not allocate numbers). Marketing charter gains `src/app/api/insights/**` (R-11). | UI components with render tests against the query-service DTOs |
 | B2 | Persistence: binding, observation, content and snapshot tables | I2 | S1 (migration owner/integrator) + Marketing owner | S1 reviews [INSIGHTS-PERSISTENCE-PROPOSAL.md](INSIGHTS-PERSISTENCE-PROPOSAL.md). It was sent to S1 through Mission Control as REVIEW_REQUEST `msg_b63054e8-7834-4776-b883-066fbba3ae15`; S1 replied DEFER (`msg_a4a6bcfd…`) because S6 is queued after S1 in COMMON_RESOURCES. After review: `schema.prisma` + a Supabase migration in one change, under a lease. | Repository adapter contract tests against the fixture |
-| B3 | Any Meta read (`MetaInsightsReadPort`) | I2 provider, I5 | Integration owner (no session owner identified) | A Meta adapter inside `src/platform/integrations/providers/meta/`, owned by Integration: pinned API version, replacement fields for the deprecated metrics, permissions, 200/hour cap shared across workers, sanitized fixture. **S6 will not build a second client.** | Metric matrix upkeep; sync-writer projection written against the port with fixtures |
-| B4 | Workflow-engine-backed schedule / manual refresh / retry adapter (narrowed this session — everything that needs no engine is now built: `SyncOrchestratorPort`, refresh coalescing/conflict, retry-once policy, the shared rate budget, the 02:00 Bangkok tick, all unit-tested against an in-memory fake) | I4 | Integration/workflow-engine owner | A workflow engine instance exists (none on this machine; the coordination context intends n8n) and an orchestration owner is assigned; the refresh-route deltas (R-12) are accepted | Done this session: the pure policies and the port interface, with tests. Remaining safe work: wire the routes once B1 lands, and write the engine adapter against `SyncOrchestratorPort` once an owner and instance exist |
-| B5 | Real LINE send (DECIDED this session via MC0 `apr_7b17e9cff91f`: LINE Messaging API push through the existing Zuri OA — see R-16). What remains blocked is narrower: the real `transport` binding + `credentialRef`, and the approved `recipients` list | I4 | LINE OA Studio + Integration owners (transport/credentialRef); user (recipients) | The transport binding, a credentialRef and an approved recipients list are supplied. No LINE account is opened and nothing is sent by S6. | Done this session: `createLinePushReportNotifier` (adapter), `report-notification.js` (alert text + retry key), unit-tested against a stub transport. Keep the port unavailable (`CREDENTIAL_REF_NOT_CONFIGURED` / `RECIPIENT_NOT_CONFIGURED`) until both inputs exist |
-| B6 | Brand bindings for INFRESH / Glowcea / 056 Laos | I5 | Business owner (user) | Which Tenant/Business each brand belongs to, and which Pages and ad accounts are authorized. None of this exists in the repo today. | Synthetic `fx-` bindings only |
-| B7 | Live acceptance (real data for all brands, schedule, LINE) | I5/I6 | User + Integration owner | Explicit test connection, assets, window and budget approval | — |
+| B3 | **DEFERRED POST-RELEASE (2026-09-25)** — any Meta read (`MetaInsightsReadPort`) | I2 provider, I5 | Integration owner (no session owner identified) | A Meta adapter inside `src/platform/integrations/providers/meta/`, owned by Integration: pinned API version, replacement fields for the deprecated metrics, permissions, 200/hour cap shared across workers, sanitized fixture. **S6 will not build a second client.** | Metric matrix upkeep; sync-writer projection written against the port with fixtures |
+| B4 | **DEFERRED POST-RELEASE (2026-09-25)** for the real engine adapter — workflow-engine-backed schedule / manual refresh / retry adapter (narrowed this session — everything that needs no engine is now built: `SyncOrchestratorPort`, refresh coalescing/conflict, retry-once policy, the shared rate budget, the 02:00 Bangkok tick, all unit-tested against an in-memory fake) | I4 | Integration/workflow-engine owner | A workflow engine instance exists (none on this machine; the coordination context intends n8n) and an orchestration owner is assigned; the refresh-route deltas (R-12) are accepted | Done this session: the pure policies and the port interface, with tests. Remaining safe work: wire the routes once B1 lands, and write the engine adapter against `SyncOrchestratorPort` once an owner and instance exist |
+| B5 | **DEFERRED POST-RELEASE (2026-09-25)** for the real send — LINE send design DECIDED this session via MC0 `apr_7b17e9cff91f` (LINE Messaging API push through the existing Zuri OA — see R-16). What remains blocked is the real `transport` binding + `credentialRef`, and the approved `recipients` list | I4 | LINE OA Studio + Integration owners (transport/credentialRef); user (recipients) | The transport binding, a credentialRef and an approved recipients list are supplied. No LINE account is opened and nothing is sent by S6. | Done this session: `createLinePushReportNotifier` (adapter), `report-notification.js` (alert text + retry key), unit-tested against a stub transport. Keep the port unavailable (`CREDENTIAL_REF_NOT_CONFIGURED` / `RECIPIENT_NOT_CONFIGURED`) until both inputs exist |
+| B6 | **DEFERRED POST-RELEASE (2026-09-25)** — brand bindings for INFRESH / Glowcea / 056 Laos | I5 | Business owner (user) | Which Tenant/Business each brand belongs to, and which Pages and ad accounts are authorized. None of this exists in the repo today. | Synthetic `fx-` bindings only |
+| B7 | **DEFERRED POST-RELEASE (2026-09-25)** — live acceptance (real data for all brands, schedule, LINE) | I5/I6 | User + Integration owner | Explicit test connection, assets, window and budget approval | — |
 
 ## Remaining acceptance (contract §9, each separate from mocks)
 
@@ -204,8 +223,11 @@ posted to the central board: `REFACTOR-STATUS.md` lives on unmerged #544 and bel
 ## Next exact action
 
 **Wrap-up state (2026-09-24, user instruction via MC0 `apr_e191c28d2927`):** the lane is closed for this
-round with no new work started. #554 stays a draft, not for merge, and nothing is deployed. Every remaining item waits on a named owner
-(B1/B2 on S1, B3/B4 on Integration, B5 on LINE OA Studio + Integration plus user recipients, B6 on the user).
+round with no new work started. #554 stays a draft, not for merge, and nothing is deployed.
+
+**Descoped (2026-09-25, direct user instruction in-chat):** B3–B7 moved to deferred
+post-release (see Scope decision above). The only active blockers left for this
+tranche are B1 and B2, both owned by S1 and queued after #542.
 
 **Resume from disk:** worktree `C:/Users/pc/workspace/zuri-ai/.claude/worktrees/marketing-insights-s6`, branch
 `feat/marketing-insights-s6` (pushed; see `git log -1` for its head). Check first by running
