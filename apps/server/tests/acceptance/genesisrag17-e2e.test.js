@@ -658,12 +658,27 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
     // tests/unit/phase1-business-agent-runtime.test.js.
     lineEnv.ZURI_LINE_DB_URL = 'postgresql://zuri_line_smartgift_login:password@db.qcnmhyglarzcpudjorzc.supabase.co:5432/postgres'
     lineEnv.ZURI_MODEL_PROVIDER = 'ollama'
-    lineEnv.ZURI_MODEL_NAME = 'qwen3.5:9b'
+    // A small, non-reasoning model, not a general chat/"thinking" model: those
+    // (tried first) emit a variable-length internal reasoning pass before their
+    // final answer — 5s on one call, 25s+ on another for the exact same short
+    // prompt — which occasionally exceeded the model port's own 25s ceiling for
+    // a local/eval provider (model-provider.js) and made this test a coin flip.
+    // qwen2.5:0.5b answers directly and, once warmed (below), reliably in well
+    // under a second.
+    lineEnv.ZURI_MODEL_NAME = 'qwen2.5:0.5b'
     lineEnv.ZURI_OLLAMA_BASE_URL = 'http://127.0.0.1:11434'
-    // 25000 is the model port's own hard ceiling for a local/eval provider
-    // (model-provider.js); this local model's real generation time over a short
-    // evidence packet runs well under it, but above the port's 10s default.
+    // 25000 is the model port's own hard ceiling for a local/eval provider; this
+    // model's real generation time is well under it once loaded (see the warm-up
+    // call below), but above the port's 10s default.
     lineEnv.ZURI_MODEL_TIMEOUT_MS = '25000'
+    // Ollama loads a model into VRAM on its first call and unloads it after a
+    // keep-alive window; without this, the one timed call in 'answers a real
+    // LINE job...' would pay that load cost (~20s here) inline and could still
+    // brush the port's ceiling. Warm it here, well before any assertion times
+    // anything, and hold it loaded past this describe block's own runtime.
+    await fetch(`${lineEnv.ZURI_OLLAMA_BASE_URL}/api/generate`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: lineEnv.ZURI_MODEL_NAME, prompt: '', stream: false, keep_alive: '10m' }) })
     lineProvider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE OA' })
     lineAccount = await createLineAccount({ tenantId: tenant.id, businessId: business.id, code: 'task-zai-094-line', externalAccountId: 'task-zai-094-line' })
     foreignAccount = await createLineAccount({ tenantId: foreignTenant.id, businessId: foreignBusiness.id, code: 'task-zai-094-line-x', externalAccountId: 'task-zai-094-line-x' })
@@ -752,7 +767,7 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
     // against the local Ollama model this suite configured, not a stub.
     const modelEvents = trace.events.filter((event) => String(event.kind).startsWith('MODEL_'))
     expect(modelEvents).toHaveLength(1)
-    expect(modelEvents[0]).toMatchObject({ kind: 'MODEL_COMPLETED', payload: { provider: 'ollama', model: 'qwen3.5:9b' } })
+    expect(modelEvents[0]).toMatchObject({ kind: 'MODEL_COMPLETED', payload: { provider: 'ollama', model: 'qwen2.5:0.5b' } })
   })
 
   it('measures MSP spawn cost inside a four-wide worker tick against the grounding budget', async () => {
