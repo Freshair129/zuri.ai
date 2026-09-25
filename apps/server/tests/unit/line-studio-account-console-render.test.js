@@ -1,6 +1,6 @@
-// @req FR-144, FR-146 — the Edge Connection page renders the real device-pairing
-//   flow (FR-144 mint/list/revoke), never the mock telemetry it used to show.
-// @spec SDD-060
+// @req FR-146, FR-149 — the LINE OA account console has no Edge controls and retains
+//   the browser-provisioned model-provider key card.
+// @spec ADR-109 D1, D2; SDD-060
 // @tested tests/unit/line-studio-account-console-render.test.js
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -18,17 +18,15 @@ vi.mock('@/context/ScopeContext', async () => {
   return createScopeContextDouble()
 })
 
-describe('LINE OA Edge Connection rendering', () => {
-  it('renders the real pairing form and never the removed mock telemetry', () => {
+describe('LINE OA account console rendering', () => {
+  it('keeps device pairing and heartbeat telemetry out of the account surface', () => {
     const html = renderToStaticMarkup(createElement(
       ScopeProvider,
       { inventory: sampleInventory(), selection: { businessId: 'biz-1' } },
       createElement(LineStudioAccountConsole),
     ))
-    // The real FR-144 pairing form is present.
-    expect(html).toContain('จับคู่ Edge Device ใหม่')
-    expect(html).toContain('สร้างไฟล์จับคู่ใหม่')
-    // The removed mock telemetry never appears again.
+    expect(html).not.toMatch(/Edge Device|จับคู่ Edge|ไฟล์จับคู่/)
+    expect(html).not.toMatch(/heartbeat|telemetry/i)
     expect(html).not.toContain('edg-node-01')
     expect(html).not.toContain('edgk_live_8921a7f0e812d4')
     expect(html).not.toContain('99.98%')
@@ -47,22 +45,13 @@ describe('LINE OA Edge Connection rendering', () => {
 // Client components render under a node environment with no DOM and no fetch, so a control that
 // only appears once credentials have loaded cannot be asserted from the markup. The shipped source
 // is the checkable surface — the same approach integrations-page-claims.test.js takes.
-describe('the one surface that governs device keys offers all three operations', () => {
+describe('the LINE account console keeps PRP model key configuration', () => {
   const page = readFileSync(resolve(process.cwd(), 'src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx'), 'utf8')
 
-  it('can revoke, not only mint and list', () => {
-    // Consolidating the pairing UI here (PR #304) removed the Integrations page's revoke button
-    // and did not replace it, so for a while nothing in the product could withdraw a device key —
-    // a retired device's credential stayed ACTIVE with no way to say otherwise.
-    expect(page).toMatch(/["']DELETE["']/)
-    expect(page).toMatch(/api\/platform\/edge-devices\/credentials\/\$\{encodeURIComponent\(credential\.id\)\}/)
-    expect(page).toContain('เพิกถอน')
-  })
-
-  it('warns that revocation is immediate and unrecoverable before doing it', () => {
-    // FR-144 has no grace window: the next request with that key is 401.
-    expect(page).toMatch(/window\.confirm\(/)
-    expect(page).toMatch(/รับงานไม่ได้ทันที/)
+  it('retains the model provider key card while removing device credential calls', () => {
+    expect(page).toContain('LineOaModelKeyCard')
+    expect(page).toContain('/api/integration/model-providers?businessId=')
+    expect(page).not.toMatch(/api\/platform\/edge-devices|จับคู่ Edge|edge-pairing/i)
   })
 
   // @req FR-235 — the publisher's grounding-mode control (ADR-090 D1). The

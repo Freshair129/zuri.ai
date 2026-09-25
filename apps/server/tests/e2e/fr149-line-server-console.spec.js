@@ -86,7 +86,7 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await expect(delayedPush).not.toBeChecked()
   await delayedPush.check()
   const saved = page.waitForResponse(response => response.request().method() === 'PATCH' && response.url().includes('/api/line-oa/accounts/'))
-  await panel.getByRole('button', { name: 'บันทึกนโยบายการส่ง', exact: true }).click()
+  await panel.getByRole('button', { name: 'บันทึกนโยบายและ cohort', exact: true }).click()
   expect((await saved).ok()).toBe(true)
   await expect(page.locator('p[role="alert"]')).toHaveCount(0)
   // This flaked before the console's `refresh()` guarded against an

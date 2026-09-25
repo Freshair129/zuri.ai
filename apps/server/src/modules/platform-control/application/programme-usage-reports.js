@@ -6,14 +6,12 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 //   per key: the same payload again is a replay, an unknown task is refused by
 //   name. The board reads the rows back and merges them with the meter's figures
 //   without counting a session twice (program-delivery-metrics).
-// @req FR-221 — the key is (source, sessionId, branch); a harness report carries
-//   the credential's person and installation, never the body's; a resumed
-//   session's report from the same installation extends when every count and the
-//   end time only grow; the deployment bearer's reports carry no person.
+// @req FR-221 — historical harness attribution remains in stored reports and is
+//   never rewritten by the deployment-only writer.
 // @req FR-239 — an optional, strictly validated usage detail (names and numbers only)
 //   is stored as headline columns plus canonical JSON, digested, and must also grow
 //   for a resumed session to extend.
-// @spec ADR-086 D5, D7; ADR-087 D4-D6; SDD-008 (Zod at the boundary)
+// @spec ADR-086 D5, D7; ADR-109 D1, D3; SDD-008 (Zod at the boundary)
 // @tested tests/unit/programme-usage-reports.test.js
 
 /** The deployment bearer, compared in constant time; a secret under 32 characters admits nothing. */
@@ -112,9 +110,9 @@ const storedDetail = (row) => {
   }
 }
 
-/** A resumed session: same installation, same start, and nothing got smaller — detail included (ADR-087 D5, ADR-086 D7). */
-function growsFrom(row, report, reporter) {
-  if ((row.installationId || null) !== (reporter.installationId || null)) return false
+/** A deployment report can extend an unattributed session only; historical paired rows stay immutable. */
+function growsFrom(row, report) {
+  if (row.personId || row.installationId) return false
   // A session/branch keeps its task binding for its entire lifetime. A
   // branch-only report (null) cannot later be rebound to a task, and a task
   // report cannot be reassigned to another task on extension.
@@ -128,14 +126,14 @@ function growsFrom(row, report, reporter) {
   return DETAIL_HEADLINE.every((key) => (after[key] || 0) >= (before[key] || 0))
 }
 
-const rowData = (report, payloadSha256, reporter) => ({
+const rowData = (report, payloadSha256) => ({
   source: report.source,
   sessionId: report.sessionId,
   branch: report.branch ?? '',
   taskCode: report.taskCode ?? null,
   repository: report.repository ?? null,
-  personId: reporter.personId ?? null,
-  installationId: reporter.installationId ?? null,
+  personId: null,
+  installationId: null,
   aiAccountLabel: report.aiAccount ?? null,
   model: report.model ?? null,
   inputTokens: report.inputTokens,
@@ -156,12 +154,10 @@ const rowData = (report, payloadSha256, reporter) => ({
 })
 
 /**
- * @param reporter `{ kind: 'harness', personId, installationId }` from an active
- *   harness credential, or `{ kind: 'deployment' }` for the deployment bearer.
  * @returns {Promise<{ status: number, body: object }>} never throws for a caller
  *   mistake; a database failure propagates to the route, which answers 503.
  */
-export async function recordProgrammeUsageReport(db, input, { knownTaskCodes, reporter = { kind: 'deployment' } }) {
+export async function recordProgrammeUsageReport(db, input, { knownTaskCodes }) {
   const parsed = ProgrammeUsageReportSchema.safeParse(input)
   if (!parsed.success) {
     return { status: 400, body: { error: 'USAGE_REPORT_INVALID', issues: parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })) } }
@@ -176,20 +172,19 @@ export async function recordProgrammeUsageReport(db, input, { knownTaskCodes, re
   const payloadSha256 = usageReportDigest(report)
   const key = { source_sessionId_branch: { source: report.source, sessionId: report.sessionId, branch: report.branch ?? '' } }
   const existing = await db.programmeUsageReport.findUnique({ where: key })
-  if (existing) return settleExisting(db, existing, report, payloadSha256, reporter)
+  if (existing) return settleExisting(db, existing, report, payloadSha256)
 
   try {
     const created = await db.$transaction(async (tx) => {
-      const row = await tx.programmeUsageReport.create({ data: rowData(report, payloadSha256, reporter) })
+      const row = await tx.programmeUsageReport.create({ data: rowData(report, payloadSha256) })
       await recordAudit(tx, {
         entityType: 'PROGRAMME_USAGE_REPORT',
         entityId: row.id,
         action: 'REPORTED',
         actorType: 'AGENT',
-        actorId: reporter.personId || `${report.source}:${report.sessionId}`,
+        actorId: `${report.source}:${report.sessionId}`,
         payload: {
-          reporter: reporter.kind,
-          installationId: reporter.installationId || null,
+          reporter: 'deployment',
           branch: row.branch,
           taskCode: row.taskCode,
           requestCount: report.requestCount,
@@ -205,28 +200,27 @@ export async function recordProgrammeUsageReport(db, input, { knownTaskCodes, re
     // Two deliveries of one key raced; the loser settles against the winner.
     const winner = await db.programmeUsageReport.findUnique({ where: key })
     if (!winner) throw error
-    return settleExisting(db, winner, report, payloadSha256, reporter)
+    return settleExisting(db, winner, report, payloadSha256)
   }
 }
 
-async function settleExisting(db, row, report, payloadSha256, reporter) {
-  if (row.payloadSha256 === payloadSha256 && (row.installationId || null) === (reporter.installationId || null)) {
+async function settleExisting(db, row, report, payloadSha256) {
+  if (row.payloadSha256 === payloadSha256) {
     return { status: 200, body: { report: view(row), replayed: true, extended: false } }
   }
-  if (!growsFrom(row, report, reporter)) return { status: 409, body: { error: 'USAGE_REPORT_CONFLICT', report: view(row) } }
+  if (!growsFrom(row, report)) return { status: 409, body: { error: 'USAGE_REPORT_CONFLICT', report: view(row) } }
   const updated = await db.$transaction(async (tx) => {
     const next = await tx.programmeUsageReport.update({
       where: { id: row.id },
-      data: { ...rowData(report, payloadSha256, reporter), extendedAt: new Date() },
+      data: { ...rowData(report, payloadSha256), extendedAt: new Date() },
     })
     await recordAudit(tx, {
       entityType: 'PROGRAMME_USAGE_REPORT',
       entityId: row.id,
       action: 'EXTENDED',
       actorType: 'AGENT',
-      actorId: reporter.personId || `${report.source}:${report.sessionId}`,
+      actorId: `${report.source}:${report.sessionId}`,
       payload: {
-        installationId: reporter.installationId || null,
         requestCount: { from: row.requestCount, to: report.requestCount },
         tokensUsed: {
           from: row.inputTokens + row.cacheWriteTokens + row.outputTokens,

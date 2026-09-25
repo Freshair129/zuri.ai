@@ -207,11 +207,8 @@ async function defaultResolveWebhookCredential(row, { db }) {
  *      straggler by trusting a registration that just happened.
  *
  * Caveat honestly recorded here, not only in the report: `RawExternalRecord`
- * does not carry a field naming which ingress seam captured it (the legacy
- * `/api/agent/line-webhook` route and the native
- * `/api/line-oa/accounts/{id}/webhook` route write through the identical
- * recorder). Fact 2 is therefore "no evidence at all in the pre-registration
- * window", stricter than "no *legacy* evidence" there — but bounded to
+ * does not carry a field naming which ingress seam captured it. Fact 2 is
+ * therefore "no evidence at all in the pre-registration window", bounded to
  * before the cutover, so it no longer double-counts the account's own later
  * success as a reason to refuse it.
  */
@@ -297,6 +294,7 @@ const SELECT = {
   bindingCode: true, displayName: true, basicId: true, status: true, transportMode: true,
   isDefaultForBusiness: true, botProfileJson: true, archivedAt: true, createdAt: true,
   updatedAt: true, version: true, serverEnabled: true, executionMode: true,
+  runtimeOwner: true,
   modelAccess: true, allowDelayedPush: true, transportEpoch: true, knowledgeGrounding: true,
   webhookStateJson: true, sessionIdleTimeoutMinutes: true,
   businessHoursOpen: true, businessHoursClose: true, outOfHoursReplyText: true,
@@ -357,6 +355,7 @@ function toDto(row, health) {
     transportMode: row.transportMode,
     serverEnabled: row.serverEnabled,
     executionMode: row.executionMode,
+    runtimeOwner: row.runtimeOwner,
     modelAccess: row.modelAccess,
     allowDelayedPush: row.allowDelayedPush,
     knowledgeGrounding: row.knowledgeGrounding,
@@ -531,6 +530,11 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
   const data = zLineOaAccountAction.parse(input)
 
   const updated = await db.$transaction(async (tx) => {
+    // Serialize owner changes with reply admission so the quiescence count
+    // cannot miss a job whose transaction read the previous owner.
+    if (data.action === 'CONFIGURE_EXECUTION' && data.runtimeOwner !== undefined) {
+      await tx.$executeRaw`UPDATE "LineOaAccount" SET "id" = "id" WHERE "id" = ${accountId}`
+    }
     const row = await tx.lineOaAccount.findUnique({ where: { id: accountId }, select: SELECT })
     if (!row) throw notFound()
     assertMayPublish(viewer, row.businessId)
@@ -564,16 +568,23 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       }
       // @req FR-265 — `SWITCH_TRANSPORT_MODE` is withdrawn (ADR-100 D1); the
       // action no longer exists in the vocabulary, so there is no case for it.
-      // @req FR-265 — `CONFIGURE_EXECUTION` writes only the delivery choice now.
-      // It still fences queued work, exactly as it did when it also carried the
-      // execution placement: `allowDelayedPush` decides whether a job whose reply
-      // token died may still be pushed, so a job already waiting on the old
-      // answer must not be completed under the new policy.
+      // @req FR-265 — executionMode remains SERVER. CONFIGURE_EXECUTION may
+      // select the separate Core-owned runtime cohort, while the job snapshots
+      // that owner at admission. Owner-only changes require a quiescent queue
+      // and serialize with admission; only delivery-policy changes fence work.
       case 'CONFIGURE_EXECUTION': {
         if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
         change.allowDelayedPush = data.allowDelayedPush
         payload.from.allowDelayedPush = row.allowDelayedPush
         payload.to.allowDelayedPush = data.allowDelayedPush
+        if (data.runtimeOwner !== undefined && data.runtimeOwner !== row.runtimeOwner) {
+          const pending = await tx.lineConversationJob.count({ where: { accountId: row.id,
+            status: { in: ['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'ACCEPTED', 'UNKNOWN'] } } })
+          if (pending) throw failure(409, 'LINE_OA_RUNTIME_OWNER_NOT_QUIESCED')
+          change.runtimeOwner = data.runtimeOwner
+          payload.from.runtimeOwner = row.runtimeOwner
+          payload.to.runtimeOwner = data.runtimeOwner
+        }
         break
       }
       // @req FR-235 — the publisher's grounding-mode switch (ADR-090 D1).
@@ -619,10 +630,8 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       case 'ENABLE_SERVER': {
         if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
         // @req FR-265 — the `transportMode !== 'CLOUD'` half of this guard can no
-        // longer be false through any supported path (ADR-100 D1). It is kept
-        // rather than deleted because a row restored from a pre-ADR-100 snapshot
-        // or a hand-edited database can still carry EDGE, and activation is the
-        // one place that must refuse it rather than assume it away.
+        // longer be false through any supported path. It stays fail-closed for
+        // restored or hand-edited rows that still carry legacy transport metadata.
         if (!LINE_OA_ACCOUNT_STATUSES.filter(status => status !== 'ARCHIVED').includes(row.status) || row.transportMode !== 'CLOUD') throw failure(409, 'LINE_OA_SERVER_ACTIVATION_INVALID')
 
         // @req FR-228 — whether the legacy handoff is typed or derived depends on
@@ -710,6 +719,7 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
     // execution policy, so fencing it would cancel replies customers are
     // already waiting for every time a publisher re-checks webhook health.
     const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT' && action !== 'CONFIGURE_BUSINESS_HOURS').includes(data.action)
+      && (data.action !== 'CONFIGURE_EXECUTION' || data.allowDelayedPush !== row.allowDelayedPush)
     if (fencesWork) {
       change.transportEpoch = { increment: 1 }
       if (data.action === 'ARCHIVE') change.serverEnabled = false

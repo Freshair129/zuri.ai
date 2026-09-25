@@ -127,14 +127,15 @@ jobs:
   #             is half done.
   #   tests   — the full unit + integration suite. The long job; unchanged.
   #   build   — the production build, no longer queued behind the tests.
+  #   conversation-runtime — isolated service tests, boundary build and image build.
   #   market-intelligence — the ADR-108 service package: isolated tests,
   #             boundary build, Postgres store conformance and image build.
-  #   verify  — an aggregate that fails if any of them did. Branch
+  #   verify  — an aggregate that fails if any of the five did. Branch
   #             protection requires a check literally named `verify`
   #             (`changes`, `verify`, `edge-verify`), and a required check that
   #             only covered one of the three would let a red suite merge.
   #
-  # The three run in PARALLEL rather than govern-first-then-the-rest: gating the
+  # The server's three long checks run in PARALLEL rather than govern-first-then-the-rest: gating the
   # 11-minute suite on a 3-minute job would add 3 minutes to every green run to
   # save runner minutes on the red ones, and time-to-signal — not runner cost —
   # is what this split is for. `gh run rerun --failed` now re-runs only the job
@@ -294,6 +295,111 @@ jobs:
       - name: Production build
         run: npm run build
 
+  conversation-runtime:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: services/conversation-runtime/package-lock.json
+
+      - name: Install isolated service package
+        run: npm ci --prefix services/conversation-runtime
+
+      - name: Conversation Runtime tests
+        run: npm --prefix services/conversation-runtime test
+
+      - name: Conversation Runtime build and boundary scan
+        run: npm --prefix services/conversation-runtime run build
+
+      - name: Verify resolved Compose build paths
+        run: node services/conversation-runtime/scripts/verify-compose-paths.mjs
+
+      - name: Create disposable Compose interpolation file
+        shell: bash
+        run: touch apps/server/.env
+
+      - name: Verify Docker Compose resolved build paths
+        run: node services/conversation-runtime/scripts/verify-compose-paths.mjs --compose
+        env:
+          CONVERSATION_RUNTIME_TOKEN: ci-only-conversation-runtime-token-not-a-secret-000000
+          ZURI_CONVERSATION_RUNTIME_IMAGE: zuri-conversation-runtime:ci
+
+      - name: Build standalone service image through the deployment Compose overlay
+        run: docker compose --project-directory apps/server -f apps/server/docker-compose.yml -f apps/server/docker-compose.conversation-runtime.yml build conversation-runtime
+        env:
+          CONVERSATION_RUNTIME_TOKEN: ci-only-conversation-runtime-token-not-a-secret-000000
+          ZURI_CONVERSATION_RUNTIME_IMAGE: zuri-conversation-runtime:ci
+
+      - name: Record hosted image build
+        run: echo "HOSTED_IMAGE_BUILD=PASS image=zuri-conversation-runtime:ci"
+
+      - name: Drain and stop the image in a disposable project
+        shell: bash
+        run: |
+          set -euo pipefail
+          project="conversation-runtime-smoke-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          compose=(docker compose --project-name "$project" -f services/conversation-runtime/docker-compose.smoke.yml)
+          cleanup() { "${compose[@]}" down --remove-orphans >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          "${compose[@]}" up -d --build
+          container="$("${compose[@]}" ps -q conversation-runtime)"
+          test -n "$container"
+          mapping="$("${compose[@]}" port conversation-runtime 3081)"
+          port="${mapping##*:}"
+          for attempt in $(seq 1 30); do
+            live="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:${port}/healthz" || true)"
+            if [ "$live" = "200" ]; then break; fi
+            sleep 1
+          done
+          test "$live" = "200"
+          ready="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:${port}/readyz" || true)"
+          test "$ready" = "200"
+          for attempt in $(seq 1 15); do
+            health="$(docker inspect --format '{{.State.Health.Status}}' "$container")"
+            if [ "$health" = "healthy" ]; then break; fi
+            sleep 1
+          done
+          test "$health" = "healthy"
+          smoke_core_state() {
+            "${compose[@]}" exec -T smoke-core node -e "fetch('http://127.0.0.1:4010/test/state').then(r=>r.json()).then(v=>process.stdout.write(JSON.stringify(v))).catch(()=>process.exit(1))"
+          }
+          for attempt in $(seq 1 30); do
+            state="$(smoke_core_state || true)"
+            if [[ "$state" == *'"prepareEntered":true'* ]]; then break; fi
+            sleep 1
+          done
+          test -n "$state"
+          [[ "$state" == *'"prepareEntered":true'* ]]
+          docker stop --time 10 "$container" >/dev/null 2>&1 &
+          stop_pid=$!
+          ready_during_drain="200"
+          for attempt in $(seq 1 30); do
+            ready_during_drain="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:${port}/readyz" || true)"
+            if [ "$ready_during_drain" = "503" ]; then break; fi
+            sleep 0.2
+          done
+          test "$ready_during_drain" = "503"
+          "${compose[@]}" exec -T smoke-core node -e "fetch('http://127.0.0.1:4010/test/release',{method:'POST'}).then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"
+          wait "$stop_pid"
+          state="$(docker inspect --format '{{.State.Status}}' "$container")"
+          exit_code="$(docker inspect --format '{{.State.ExitCode}}' "$container")"
+          test "$state" = "exited"
+          test "$exit_code" = "0"
+          state="$(smoke_core_state)"
+          node -e 'const state=JSON.parse(process.argv[1]); const ok=state.prepareEntered && state.claimCalls===1 && state.providerCalls===1 && state.completeCalls===1 && state.sendCalls===1 && state.traceKinds.includes("MODEL_STARTED") && state.traceKinds.includes("MODEL_COMPLETED"); if (!ok) { process.stderr.write(JSON.stringify(state)+"\\n"); process.exit(1) }' "$state"
+          echo "IMAGE_START_SMOKE=PASS healthz=$live readyz_before_drain=$ready readyz_during_drain=$ready_during_drain container_health=$health providerCalls=1 completeCalls=1 sendCalls=1 shutdown_exit=$exit_code project=$project"
+        env:
+          CR_SMOKE_IMAGE: zuri-conversation-runtime:ci
+          CR_SMOKE_CORE_IMAGE: zuri-conversation-runtime-core:ci
+          CR_SMOKE_PORT: '0'
+          CR_SMOKE_BIND: 127.0.0.1
+          CR_SMOKE_TOKEN: ci-only-conversation-runtime-token-not-a-secret-000000
+
   market-intelligence:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
@@ -326,17 +432,18 @@ jobs:
   # visible in one explicit result instead of leaving the aggregate ambiguous.
   verify:
     if: always() && github.event_name != 'schedule'
-    needs: [govern, tests, build, market-intelligence]
+    needs: [govern, tests, build, conversation-runtime, market-intelligence]
     runs-on: ubuntu-latest
     steps:
-      - name: All verification jobs passed
+      - name: All five verification jobs passed
         shell: bash
         run: |
           echo "govern: ${{ needs.govern.result }}"
           echo "tests:  ${{ needs.tests.result }}"
           echo "build:  ${{ needs.build.result }}"
+          echo "conversation-runtime: ${{ needs.conversation-runtime.result }}"
           echo "market-intelligence: ${{ needs.market-intelligence.result }}"
-          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}" "${{ needs.market-intelligence.result }}"; do
+          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}" "${{ needs.conversation-runtime.result }}" "${{ needs.market-intelligence.result }}"; do
             if [ "$r" != "success" ]; then
               echo "::error::a verification job did not succeed (see the job results above)"
               exit 1

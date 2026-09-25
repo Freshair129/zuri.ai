@@ -1,13 +1,15 @@
 ---
 id: ZAI:ZURI-HARNESS-PLUGIN-SPEC
-title: Zuri harness plugin — specification
-version: "1.1.0b"
-status: beta
+title: Retired Zuri harness plugin — historical specification
+version: "2.0.0"
+status: superseded
 created_at: "2026-09-14T12:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-18T05:25:00+07:00,RWANG"
+last_update: "2026-09-24T14:22:33+07:00,Codex"
 relations:
   - type: references
     target: ZAI:ADR-087
+  - type: relates_to
+    target: ZAI:ADR-109
   - type: references
     target: ZAI:ADR-086
   - type: relates_to
@@ -20,7 +22,13 @@ relations:
     target: ZAI:FR-239
 ---
 
-# Zuri harness plugin — specification
+# Retired Zuri harness plugin — historical specification
+
+> **Superseded by ADR-109 on 2026-09-24.** The `plugins/zuri-harness` pairing, UI,
+> and reporting-authentication surfaces are removed from the active product. This
+> document remains only as a historical contract record; do not install or use the
+> retired plugin. Existing usage reports and credential records are preserved, and
+> no production data operation is included.
 
 `plugins/zuri-harness/` reports what a Claude Code or Codex session really used — tokens and usage detail — to zuri-ai. It reports as a paired device of one person. The plugin never reports the content of the work.
 
@@ -317,4 +325,5 @@ One implementation, `lib/detail.mjs`, is used by the plugin and by `apps/server/
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 2.0.0 | 2026-09-24 | superseded | Mark the harness plugin contract historical after ADR-109 retires pairing, device UI and harness authentication surfaces; preserve stored records | working-tree | Codex |
 | 1.1.0b | 2026-09-18 | beta | Add explicit caller-owned task-code handoff and no branch inference | pending | RWANG |

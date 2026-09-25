@@ -20,7 +20,7 @@
     "test:integration": "npm --prefix apps/server run test:integration",
     "test:genesisrag17": "npm --prefix apps/server run test:genesisrag17",
     "test:e2e": "npm --prefix apps/server run test:e2e",
-    "verify": "npm --prefix apps/server run verify",
+    "verify": "npm run conversation-runtime:test && npm run conversation-runtime:build && npm --prefix apps/server run verify",
     "docs:graph": "npm --prefix apps/server run docs:graph",
     "docs:check": "npm --prefix apps/server run docs:check",
     "docs:preflight": "npm --prefix apps/server run docs:preflight",
@@ -38,6 +38,8 @@
     "edge:build": "npm --prefix apps/edge run build",
     "edge:test": "npm --prefix apps/edge test",
     "edge:typecheck": "npm --prefix apps/edge run typecheck",
+    "conversation-runtime:build": "npm --prefix services/conversation-runtime run build",
+    "conversation-runtime:test": "npm --prefix services/conversation-runtime test",
     "market-intelligence:build": "npm --prefix services/market-intelligence run build",
     "market-intelligence:test": "npm --prefix services/market-intelligence test"
   }

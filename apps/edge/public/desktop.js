@@ -1,22 +1,11 @@
-// @spec FR-150, FR-144, FR-141 — sidebar Desktop UI, no mock native success, and truthful worker/provider states.
+// @spec FR-150 — local provider and hardware settings without an Edge Device worker surface.
 const $ = id => document.getElementById(id);
 const native = Boolean(window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
 const panelWidth = () => $('appMain').clientWidth;
-const TAB_ORDER = ['overview', 'connect', 'ai', 'settings'];
-const HOME_PAGE = { overview: 'overviewHome', connect: 'connectHome', ai: 'aiHome', settings: 'settingsHome' };
+const TAB_ORDER = ['overview', 'ai', 'settings'];
+const HOME_PAGE = { overview: 'overviewHome', ai: 'aiHome', settings: 'settingsHome' };
 const PROVIDERS = ['ollama', 'codex', 'claude'];
 const PROVIDER_LABELS = { ollama: 'Ollama', codex: 'Codex', claude: 'Claude' };
-const WORKER_LABELS = {
-  UNKNOWN: 'ยังยืนยันสถานะไม่ได้',
-  UNVERIFIED: 'ยังไม่ได้ตรวจจากแอปนี้',
-  STOPPED: 'หยุดรับงานแล้ว',
-  STARTING: 'กำลังเริ่มตัวประมวลผล…',
-  RUNNING: 'กำลังรับงานจาก Zuri',
-  DEGRADED: 'ติดต่อรับงานไม่สำเร็จ กำลังลองเชื่อมต่อใหม่',
-  STOPPING: 'กำลังหยุด รอให้งานปัจจุบันสิ้นสุด…',
-  FAILED: 'ตัวประมวลผลหยุดด้วยข้อผิดพลาด',
-  EXTERNAL_UNVERIFIED: 'พบตัวประมวลผลอื่น กรุณาตรวจสอบก่อนเริ่ม',
-};
 const PROVIDER_STATE_LABELS = {
   MISSING: 'ไม่พบโปรแกรม',
   LOGGED_OUT: 'ยังไม่ได้ Login',
@@ -26,38 +15,16 @@ const PROVIDER_STATE_LABELS = {
   BLOCKED: 'ยังไม่พร้อม',
 };
 
-function savedWorkerLogCursor() {
-  try { return window.localStorage.getItem('worker-console-cursor.v1'); } catch { return null; }
-}
-
 const state = {
   activeTab: 'overview',
-  activePage: { overview: 'overviewHome', connect: 'connectHome', ai: 'aiHome', settings: 'settingsHome' },
+  activePage: { overview: 'overviewHome', ai: 'aiHome', settings: 'settingsHome' },
   userNavigated: false,
   initialRoutePending: true,
   status: null,
-  statusAvailable: false,
   inventory: null,
   inventoryError: null,
   inventoryBusy: false,
   inventoryPage: 0,
-  worker: null,
-  workerReadError: null,
-  workerBusy: false,
-  workerPollBusy: false,
-  workerLog: [],
-  workerLogPage: 0,
-  workerLogCursor: savedWorkerLogCursor(),
-  workerLogInitialized: false,
-  workerLogGap: null,
-  workerLogStorage: null,
-  workerLogBusy: false,
-  pairingActive: false,
-  pairingBusy: false,
-  pairingState: 'IDLE',
-  pairingExpiresAt: 0,
-  pairingTimer: null,
-  pairingView: null,
   providerSettings: null,
   provider: 'ollama',
   drafts: {},
@@ -76,7 +43,7 @@ const state = {
   updateResult: null,
 };
 
-const compactPageState = { connect: 0, ai: 0, advanced: 0, cli: 0, about: 0 };
+const compactPageState = { ai: 0, cli: 0, about: 0 };
 
 function text(value, fallback = '—') {
   if (value === null || value === undefined || String(value).trim() === '') return fallback;
@@ -161,48 +128,12 @@ function formatPercent(free, total) {
   return Math.round((freeNumber / totalNumber) * 100) + '% ว่าง';
 }
 
-function isValidOrigin(value) {
-  const candidate = String(value || '').trim();
-  if (!candidate || candidate.length > 256) return false;
-  try {
-    const url = new URL(candidate);
-    return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password && !url.search && !url.hash && (url.pathname === '' || url.pathname === '/');
-  } catch { return false; }
-}
-
 async function invoke(command, args = {}) {
   if (!native) throw new Error('หน้าตัวอย่างในเบราว์เซอร์ยังเชื่อมต่อ Desktop IPC ไม่ได้');
   return window.__TAURI__.core.invoke(command, args);
 }
 
 function focusElement(id) { window.requestAnimationFrame(() => { const element = $(id); if (element) element.focus(); }); }
-function workerState() { return state.workerReadError ? 'UNKNOWN' : state.worker && state.worker.state || 'UNKNOWN'; }
-function canStartWorker() {
-  return native && state.statusAvailable && !state.workerReadError
-    && Boolean(state.status && state.status.configured)
-    && ['STOPPED', 'FAILED'].includes(workerState()) && savedProviderReady()
-    && !activeWorkerOwned() && !state.workerBusy && !state.pairingActive;
-}
-function activeWorkerOwned() {
-  const worker = state.worker;
-  if (!worker) return false;
-  if (typeof worker.active === 'boolean') return worker.active;
-  return ['STARTING', 'RUNNING', 'STOPPING', 'FAILED'].includes(worker.state);
-}
-
-function connectionLabel(status = state.status) {
-  if (!state.statusAvailable) return ['อ่านสถานะไม่ได้', 'error'];
-  if (!status || !status.configured) return ['ยังไม่ได้เชื่อมต่อ', 'warning'];
-  if (status.server_verified) return ['Zuri ยืนยันการจับคู่แล้ว', 'success'];
-  return ['จับคู่แล้ว · รอตรวจการเชื่อมต่อ', 'warning'];
-}
-
-function workerTone(value) {
-  if (value === 'RUNNING') return 'success';
-  if (['STARTING', 'STOPPING', 'DEGRADED', 'EXTERNAL_UNVERIFIED', 'UNVERIFIED', 'UNKNOWN'].includes(value)) return 'warning';
-  if (value === 'FAILED') return 'error';
-  return '';
-}
 
 function providerStateTone(value) {
   if (value === 'READY') return 'success';
@@ -219,9 +150,8 @@ function updateTabBadge(id, visible, tone = 'warning') {
 }
 
 function renderTabBadges() {
-  updateTabBadge('connectTabBadge', state.pairingActive);
   updateTabBadge('aiTabBadge', Object.values(state.dirty).some(Boolean));
-  updateTabBadge('settingsTabBadge', !state.statusAvailable || Boolean(state.cliResult && state.cliResult.error), 'error');
+  updateTabBadge('settingsTabBadge', Boolean(state.cliResult && state.cliResult.error), 'error');
 }
 
 function renderCompactOverview() {
@@ -252,11 +182,7 @@ function renderCompactPage(key, pageId, selector, navId, labelId, previousId, ne
   const page = $(pageId);
   if (!page) return;
   const blocks = Array.from(page.querySelectorAll(selector));
-  const textZoomConnect = key === 'connect' && document.body.dataset.textZoom === 'true';
-  // At 640x480 with text-only zoom, expose each connection summary row as
-  // its own step so the status card never has to compress several 28px rows
-  // into the shell's small content area.
-  const total = textZoomConnect ? 5 : blocks.length;
+  const total = blocks.length;
   // Keep the two short release cards together at 800x560; the one-card
   // stepper remains for the genuinely compact 640x480 tier.
   const compact = state.compact && !(key === 'about' && panelWidth() >= 680 && window.innerHeight >= 500);
@@ -265,30 +191,12 @@ function renderCompactPage(key, pageId, selector, navId, labelId, previousId, ne
   if (!compact) {
     delete page.dataset.compactStep;
     for (const block of blocks) block.hidden = false;
-    if (key === 'connect') {
-      for (const row of page.querySelectorAll('.connect-block[data-connect-page="0"] .summary-list > div')) row.hidden = false;
-      const actions = page.querySelector('.connect-block[data-connect-page="0"] .inline-actions');
-      if (actions) actions.hidden = false;
-    }
     return;
   }
   if (!blocks.length) return;
   compactPageState[key] = Math.max(0, Math.min(compactPageState[key], total - 1));
   page.dataset.compactStep = String(compactPageState[key]);
-  const visibleBlock = textZoomConnect
-    ? (compactPageState[key] >= blocks.length ? blocks.length - 1 : 0)
-    : compactPageState[key];
-  for (const [index, block] of blocks.entries()) block.hidden = index !== visibleBlock;
-  if (textZoomConnect) {
-    const rows = Array.from(page.querySelectorAll('.connect-block[data-connect-page="0"] .summary-list > div'));
-    rows.forEach((row, index) => { row.hidden = compactPageState[key] >= blocks.length || index !== compactPageState[key]; });
-    const actions = page.querySelector('.connect-block[data-connect-page="0"] .inline-actions');
-    if (actions) actions.hidden = compactPageState[key] !== rows.length - 1;
-  } else if (key === 'connect') {
-    for (const row of page.querySelectorAll('.connect-block[data-connect-page="0"] .summary-list > div')) row.hidden = false;
-    const actions = page.querySelector('.connect-block[data-connect-page="0"] .inline-actions');
-    if (actions) actions.hidden = false;
-  }
+  for (const [index, block] of blocks.entries()) block.hidden = index !== compactPageState[key];
   setText(labelId, 'ส่วนที่ ' + (compactPageState[key] + 1) + ' / ' + total);
   $(previousId).disabled = compactPageState[key] <= 0;
   $(nextId).disabled = compactPageState[key] >= total - 1;
@@ -328,9 +236,7 @@ function renderAiCompactPage() {
 }
 
 function renderCompactPages() {
-  renderCompactPage('connect', 'connectHome', '.connect-block', 'connectCompactNav', 'connectCompactLabel', 'connectCompactPrev', 'connectCompactNext');
   renderAiCompactPage();
-  renderCompactPage('advanced', 'advancedPage', '.settings-form-block', 'advancedCompactNav', 'advancedCompactLabel', 'advancedCompactPrev', 'advancedCompactNext');
   renderCompactPage('cli', 'cliPage', '.settings-form-block', 'cliCompactNav', 'cliCompactLabel', 'cliCompactPrev', 'cliCompactNext');
   renderCompactPage('about', 'aboutPage', '.settings-form-block', 'aboutCompactNav', 'aboutCompactLabel', 'aboutCompactPrev', 'aboutCompactNext');
 }
@@ -490,76 +396,26 @@ function setPrerequisite(id, tone, detail) {
 }
 
 function renderOverview() {
-  const status = state.statusAvailable ? (state.status || {}) : {};
-  const configured = Boolean(status.configured);
-  const verified = Boolean(status.server_verified);
-  const worker = workerState();
-  const connection = connectionLabel(status);
-  setText('statusBadge', native ? connection[0] : 'Browser preview · IPC unavailable');
-  setTone('statusBadge', native ? connection[1] : 'warning');
-  setSummaryValue('business', status.business_name, configured ? 'ยังไม่มีชื่อธุรกิจ' : 'ยังไม่ได้จับคู่', 'ชื่อธุรกิจ');
-  setText('headerBusiness', status.business_name, configured ? 'ยังไม่มีชื่อธุรกิจ' : 'ยังไม่ได้จับคู่');
-  setSummaryValue('device', status.device_id, configured ? 'ยังไม่มี Device ID' : '—', 'Device ID');
-  setSummaryValue('server', status.cloud_base_url, 'ยังไม่ได้ตั้งค่า', 'Zuri Server');
-  setText('heartbeat', status.last_heartbeat_at ? formatDate(status.last_heartbeat_at) : null);
-  setText('workerState', WORKER_LABELS[worker] || 'ไม่สามารถยืนยันสถานะตัวประมวลผล');
-  setText('overviewWorkerStateLarge', state.statusAvailable ? (WORKER_LABELS[worker] || worker) : 'อ่านสถานะไม่ได้');
-  setText('overviewWorkerHeartbeat', 'ยืนยันล่าสุด ' + (status.last_heartbeat_at ? formatDate(status.last_heartbeat_at) : 'ยังไม่ได้ตรวจ'));
   const savedProvider = state.providerSettings && state.providerSettings.provider;
   const savedModel = savedProvider && text(state.providerSettings[savedProvider === 'ollama' ? 'ollama_model' : savedProvider + '_model'], '');
   setSummaryValue('providerModelSummary', savedProvider ? PROVIDER_LABELS[savedProvider] + ' · ' + (savedModel || 'ยังไม่ได้เลือกโมเดล') : '', savedProvider ? 'ยังไม่ได้เลือกโมเดล' : 'ยังไม่ได้อ่านการตั้งค่า', 'ตัวช่วยและโมเดล');
-  setText('overviewState', state.statusAvailable ? (WORKER_LABELS[worker] || worker) : 'อ่านสถานะไม่ได้');
-  const overviewReason = worker === 'FAILED' || worker === 'DEGRADED' ? text(state.worker && (state.worker.message || state.worker.reason || state.worker.failure), '') : '';
-  setMessage('overviewReason', overviewReason);
-  setVisible('overviewReason', Boolean(overviewReason));
-  setTone('overviewWorkerTone', workerTone(worker));
-  setMessage('overviewFeedback', state.statusAvailable ? '' : 'อ่านสถานะเครื่องไม่สำเร็จ กรุณาตรวจอีกครั้ง', state.statusAvailable ? '' : 'error');
-  if (state.workerReadError) setMessage('overviewFeedback', 'อ่านสถานะตัวประมวลผลไม่ได้: ' + state.workerReadError, 'error');
+  const ready = Boolean(state.providerSettings && savedProviderReady());
+  const configurationError = state.status && state.status.configuration_error;
+  setText('statusBadge', native ? 'ตั้งค่าในเครื่อง' : 'Browser preview · IPC unavailable');
+  setTone('statusBadge', native ? 'info' : 'warning');
+  setText('providerStateSummary', savedProvider ? PROVIDER_LABELS[savedProvider] : 'ยังไม่ได้ตั้งค่า');
+  setText('overviewProviderStateLarge', savedProvider ? (ready ? 'พร้อมใช้งาน' : 'ต้องตรวจการตั้งค่า') : 'ยังไม่ได้ตั้งค่า');
+  setText('overviewProviderHint', savedProvider ? 'ตั้งค่าผู้ให้บริการในเครื่องแล้ว' : 'เลือกผู้ให้บริการและโมเดล');
+  setText('overviewState', configurationError ? 'ตรวจการตั้งค่าไม่สำเร็จ' : ready ? 'ผู้ให้บริการพร้อมใช้' : 'ตั้งค่าผู้ให้บริการ');
+  setMessage('overviewProviderReason', configurationError || '');
+  setVisible('overviewProviderReason', Boolean(configurationError));
+  setTone('overviewProviderTone', configurationError ? 'error' : ready ? 'success' : 'warning');
+  setMessage('overviewFeedback', native ? '' : 'เปิดแอป Desktop เพื่ออ่านสถานะและแก้การตั้งค่าในเครื่อง', native ? '' : 'warning');
 
-  setPrerequisite('overviewPairing', configured ? 'success' : 'warning', configured ? 'จับคู่แล้ว' : 'ยังไม่ได้จับคู่');
-  setPrerequisite('overviewServer', configured && verified ? 'success' : configured ? 'warning' : '', configured ? (verified ? 'Zuri ยืนยันแล้ว' : 'รอตรวจการเชื่อมต่อ') : 'รอการจับคู่');
-  setPrerequisite('overviewProvider', state.providerSettings && savedProviderReady() ? 'success' : state.providerSettings ? 'warning' : '', state.providerSettings ? (savedProviderReady() ? 'บันทึกและพร้อมเริ่ม' : 'ต้องบันทึก/ตรวจบัญชี') : 'ยังไม่ได้ตั้งค่า');
-  const ready = [configured, configured && verified, Boolean(state.providerSettings && savedProviderReady())].filter(Boolean).length;
-  setText('prerequisiteCount', ready + ' / 3 พร้อม');
-
-  setVisible('overviewConnect', !configured);
-  setVisible('overviewConfigure', configured && (!state.providerSettings || !savedProviderReady()));
-  setVisible('overviewVerify', configured && !verified);
-  setVisible('overviewStart', configured && verified && savedProviderReady() && !activeWorkerOwned());
-  $('overviewStart').disabled = !canStartWorker();
-
-  setText('connectState', connection[0]);
-  setTone('connectState', connection[1]);
-  setText('connectionStateLabel', connection[0]);
-  setTone('connectionStateLabel', connection[1]);
-  setSummaryValue('connectBusiness', status.business_name, configured ? 'ยังไม่มีชื่อธุรกิจ' : 'ยังไม่ได้จับคู่', 'ชื่อธุรกิจ');
-  setSummaryValue('connectDevice', status.device_id, configured ? 'ยังไม่มี Device ID' : '—', 'Device ID');
-  setSummaryValue('connectServer', status.cloud_base_url, 'ยังไม่ได้ตั้งค่า', 'Zuri Server');
-  setText('connectHeartbeat', status.last_heartbeat_at ? formatDate(status.last_heartbeat_at) : null);
-  setText('connectOriginPreview', $('baseUrl') && $('baseUrl').value || 'ยังไม่ได้ตั้ง Server origin');
-  const canConnect = native && state.statusAvailable && !state.pairingActive && !activeWorkerOwned() && isValidOrigin($('baseUrl') && $('baseUrl').value);
-  $('connect').disabled = !canConnect;
-  $('verify').disabled = !native || !configured || state.pairingActive || state.workerBusy;
-  setVisible('resumePairing', state.pairingActive);
-  setVisible('connect', !state.pairingActive);
+  setPrerequisite('overviewProvider', ready ? 'success' : state.providerSettings ? 'warning' : '', state.providerSettings ? (ready ? 'บันทึกและตรวจพร้อมแล้ว' : 'ต้องบันทึกหรือตรวจบัญชี') : 'ยังไม่ได้ตั้งค่า');
+  setText('prerequisiteCount', ready ? '1 / 1 พร้อม' : '0 / 1 ต้องตั้งค่า');
+  setVisible('overviewConfigure', !ready);
   renderCompactOverview();
-}
-
-function renderWorker() {
-  const worker = workerState();
-  const label = WORKER_LABELS[worker] || 'ไม่สามารถยืนยันสถานะตัวประมวลผล';
-  setText('workerState', label);
-  setText('overviewWorkerStateLarge', state.statusAvailable ? label : 'อ่านสถานะไม่ได้');
-  setText('overviewWorkerHeartbeat', 'ยืนยันล่าสุด ' + (state.status && state.status.last_heartbeat_at ? formatDate(state.status.last_heartbeat_at) : 'ยังไม่ได้ตรวจ'));
-  setText('overviewState', state.statusAvailable ? label : 'อ่านสถานะไม่ได้');
-  const overviewReason = state.workerReadError || (worker === 'FAILED' || worker === 'DEGRADED' ? text(state.worker && (state.worker.message || state.worker.reason || state.worker.failure), '') : '');
-  setMessage('overviewReason', overviewReason);
-  setVisible('overviewReason', Boolean(overviewReason));
-  setTone('overviewWorkerTone', workerTone(worker));
-  const canStart = canStartWorker();
-  $('overviewStart').disabled = !canStart;
-  $('startWorker').disabled = !canStart;
-  $('globalStop').disabled = !native || !activeWorkerOwned() || state.workerBusy;
 }
 
 function updateComputerName() {
@@ -751,24 +607,20 @@ async function loadInventory() {
   }
 }
 
-async function loadStatus() {
+async function loadDesktopStatus() {
   try {
-    const status = await invoke('get_edge_status');
+    const status = await invoke('get_desktop_status');
     state.status = status || {};
-    state.statusAvailable = true;
-    if ($('baseUrl') && !$('baseUrl').value && !state.pairingActive) $('baseUrl').value = status.cloud_base_url || '';
     renderOverview();
-    renderWorker();
     if (state.initialRoutePending && !state.userNavigated) {
       state.initialRoutePending = false;
-      setTab(status.configured ? 'overview' : 'connect', { focus: false });
+      setTab('overview', { focus: false });
     }
     clearGlobalError();
   } catch (failure) {
-    state.statusAvailable = false;
     showGlobalError(errorMessage(failure));
+    state.status = { configuration_error: errorMessage(failure) };
     renderOverview();
-    renderWorker();
     if (state.initialRoutePending) { state.initialRoutePending = false; setTab('overview', { focus: false }); }
   }
 }
@@ -826,12 +678,12 @@ function renderProvider() {
   setVisible('cancelLogin', Boolean(state.providerStates[state.provider] && state.providerStates[state.provider].state === 'AUTHENTICATING'));
   setVisible('providerDirty', anyDirty());
   setText('providerSaveState', anyDirty() ? 'มีการตั้งค่าที่ยังไม่บันทึก' : state.providerSettings ? 'บันทึกแล้ว' : 'ยังไม่ได้อ่านการตั้งค่า');
-  const mutationLocked = !native || state.pairingActive || activeWorkerOwned() || state.providerBusy || state.workerBusy;
+  const mutationLocked = !native || state.providerBusy;
   for (const id of ['providerOllama', 'providerCodex', 'providerClaude', 'ollamaUrl', 'providerModel', 'allowCloud', 'saveProvider', 'providerLogin']) $(id).disabled = mutationLocked;
-  $('discoverModels').disabled = !native || state.pairingActive || activeWorkerOwned() || state.providerBusy || state.workerBusy;
-  $('openModelPicker').disabled = !native || state.provider !== 'ollama' || state.pairingActive || activeWorkerOwned() || state.providerBusy || state.workerBusy;
-  $('providerCheck').disabled = !native || state.providerBusy || state.workerBusy || state.pairingActive || activeWorkerOwned();
-  $('cancelLogin').disabled = !native || state.providerBusy || state.workerBusy || state.pairingActive || activeWorkerOwned();
+  $('discoverModels').disabled = !native || state.providerBusy;
+  $('openModelPicker').disabled = !native || state.provider !== 'ollama' || state.providerBusy;
+  $('providerCheck').disabled = !native || state.providerBusy;
+  $('cancelLogin').disabled = !native || state.providerBusy;
   renderTabBadges();
 }
 
@@ -860,7 +712,7 @@ function scheduleProviderPoll(provider) {
 }
 
 async function checkProvider(provider = state.provider, { silent = false } = {}) {
-  if (!native || state.workerBusy || !PROVIDERS.includes(provider) || provider === 'ollama') {
+  if (!native || !PROVIDERS.includes(provider) || provider === 'ollama') {
     if (provider === 'ollama') {
       state.ollamaDiscovery = state.ollamaDiscovery || { state: 'BLOCKED', message: 'Ollama ใช้การค้นหาโมเดลแทนสถานะ Login' };
       renderProvider();
@@ -886,7 +738,7 @@ async function checkProvider(provider = state.provider, { silent = false } = {})
 
 async function startProviderLogin() {
   const provider = state.provider;
-  if (provider === 'ollama' || !native || state.providerBusy || state.workerBusy || state.pairingActive || activeWorkerOwned()) return;
+  if (provider === 'ollama' || !native || state.providerBusy) return;
   state.providerBusy = true;
   clearGlobalError();
   renderProvider();
@@ -901,7 +753,7 @@ async function startProviderLogin() {
 
 async function cancelProviderLogin() {
   const provider = state.provider;
-  if (provider === 'ollama' || !native || state.providerBusy || state.workerBusy || state.pairingActive || activeWorkerOwned()) return;
+  if (provider === 'ollama' || !native || state.providerBusy) return;
   state.providerBusy = true;
   renderProvider();
   try {
@@ -985,10 +837,10 @@ function renderModels() {
       const select = document.createElement('button');
       select.type = 'button';
       select.className = 'button secondary model-result-select';
-      select.disabled = !native || state.pairingActive || activeWorkerOwned() || state.providerBusy || state.workerBusy;
+      select.disabled = !native || state.providerBusy;
       select.textContent = selected ? 'เลือกอยู่' : 'เลือก';
       select.addEventListener('click', () => {
-        if (!native || state.pairingActive || activeWorkerOwned() || state.providerBusy || state.workerBusy) return;
+        if (!native || state.providerBusy) return;
         state.drafts.ollama.model = fullName;
         state.selectedOllamaModel = fullName;
         state.dirty.ollama = true;
@@ -1006,12 +858,12 @@ function renderModels() {
   setText('modelPageLabel', 'หน้า ' + (state.modelPage + 1) + ' / ' + pages);
   $('modelPrev').disabled = state.modelPage <= 0;
   $('modelNext').disabled = state.modelPage >= pages - 1;
-  $('modelRefresh').disabled = !native || state.pairingActive || activeWorkerOwned() || state.providerBusy || state.workerBusy;
+  $('modelRefresh').disabled = !native || state.providerBusy;
   setMessage('modelStatus', state.ollamaDiscovery && state.ollamaDiscovery.message || '');
 }
 
 async function discoverModels() {
-  if (!native || state.pairingActive || activeWorkerOwned() || state.providerBusy || state.workerBusy) return;
+  if (!native || state.providerBusy) return;
   const baseUrl = String(state.drafts.ollama && state.drafts.ollama.baseUrl || $('ollamaUrl').value || '').trim();
   state.drafts.ollama.baseUrl = baseUrl;
   state.providerBusy = true;
@@ -1032,7 +884,7 @@ async function discoverModels() {
 }
 
 async function saveProvider() {
-  if (!native || activeWorkerOwned() || state.pairingActive || state.providerBusy || state.workerBusy) return;
+  if (!native || state.providerBusy) return;
   syncDraftFromForm();
   const selectedProvider = state.provider;
   if (!String(currentDraft().model || '').trim()) { setMessage('providerMessage', 'กรุณาเลือกโมเดลของตัวช่วยนี้ก่อนบันทึก', 'error'); return; }
@@ -1059,309 +911,11 @@ async function saveProvider() {
       if (provider !== selectedProvider && previousDrafts[provider]) state.drafts[provider] = previousDrafts[provider];
     }
     state.dirty[selectedProvider] = false;
-    setMessage('providerMessage', 'บันทึกแล้ว กดเริ่มรับงานเมื่อพร้อม', 'success');
+    setMessage('providerMessage', 'บันทึกผู้ให้บริการแล้ว', 'success');
     renderProvider();
     renderOverview();
   } catch (failure) { setMessage('providerMessage', errorMessage(failure), 'error'); }
   finally { state.providerBusy = false; renderProvider(); }
-}
-
-function logTime(at) {
-  const parsed = Date.parse(at || '');
-  if (!parsed) return '—';
-  const stamp = new Date(parsed);
-  return String(stamp.getHours()).padStart(2, '0') + ':' + String(stamp.getMinutes()).padStart(2, '0')
-    + ':' + String(stamp.getSeconds()).padStart(2, '0');
-}
-
-// Lines per page of the log subpage.
-//
-// The Overview cannot host this: its no-scroll budget is already spent on three cards, and a fourth
-// clipped its neighbours at every supported viewport. So the log lives on its own page and paginates,
-// which is the same answer the hardware details page gives — this app never scrolls, it pages.
-const WORKER_LOG_PER_PAGE = 8;
-
-function workerLogPages() {
-  const entries = Array.isArray(state.workerLog) ? state.workerLog : [];
-  // Newest first: a log is read from the end, and page 1 should be what just happened.
-  const ordered = entries.slice().reverse();
-  const pages = [];
-  for (let index = 0; index < ordered.length; index += WORKER_LOG_PER_PAGE) {
-    pages.push(ordered.slice(index, index + WORKER_LOG_PER_PAGE));
-  }
-  return pages.length ? pages : [[]];
-}
-
-function renderWorkerLog() {
-  const list = $('workerLog');
-  if (!list) return;
-  const entries = Array.isArray(state.workerLog) ? state.workerLog : [];
-  const pages = workerLogPages();
-  state.workerLogPage = Math.max(0, Math.min(state.workerLogPage, pages.length - 1));
-  const shown = pages[state.workerLogPage];
-  const warning = (state.workerLogGap ? ' · บันทึกไม่ครบ' : '') + (state.workerLogStorage === 'UNAVAILABLE' ? ' · จัดเก็บไม่ได้' : state.workerLogStorage === 'PENDING' ? ' · กำลังบันทึก' : '');
-  setText('workerLogCount', (entries.length ? entries.length + ' รายการ' : 'ยังไม่มีบันทึก') + warning);
-  $('workerLogCount').title = state.workerLogGap ? 'มีช่วงบันทึกขาดหาย หมดอายุ หรือแอปเริ่มใหม่ ไม่สามารถยืนยันว่าบันทึกครบได้' : '';
-  setText('workerLogPageLabel', 'หน้า ' + (state.workerLogPage + 1) + ' / ' + pages.length);
-  $('workerLogPrev').disabled = state.workerLogPage <= 0;
-  $('workerLogNext').disabled = state.workerLogPage >= pages.length - 1;
-  setVisible('workerLogEmpty', entries.length === 0);
-  // Rebuilt rather than appended: the native buffer is bounded and drops its oldest lines, so the
-  // list here has to be able to shrink from the front as well as grow at the end.
-  list.replaceChildren(...shown.map((entry) => {
-    const row = document.createElement('li');
-    const level = entry && entry.level;
-    if (level === 'warn' || level === 'error') row.className = level;
-    const time = document.createElement('time');
-    time.textContent = logTime(entry && entry.at);
-    if (entry && entry.at) time.dateTime = entry.at;
-    const message = document.createElement('span');
-    // textContent, never innerHTML: these lines come from the worker process. The row is one line
-    // high and clipped with an ellipsis, so the full text lives in the title and in the copy.
-    message.textContent = text(entry && entry.message, '');
-    message.title = message.textContent;
-    row.append(time, message);
-    return row;
-  }));
-}
-
-async function refreshWorkerLog() {
-  if (!native || state.workerLogBusy) return;
-  state.workerLogBusy = true;
-  try {
-    let result = await invoke('get_worker_log_page', { cursor: state.workerLogCursor });
-    if (!result || !Array.isArray(result.entries) || typeof result.cursor !== 'string') throw new Error('INVALID_LOG_PAGE');
-    // Only the content-free cursor persists in WebView storage. Rebuild the bounded history
-    // after a window reload; a native epoch change already returns history with a visible gap.
-    if (!state.workerLogInitialized && state.workerLogCursor && !result.gap) {
-      result = await invoke('get_worker_log_page', { cursor: null });
-      if (!result || !Array.isArray(result.entries) || typeof result.cursor !== 'string') throw new Error('INVALID_LOG_PAGE');
-    }
-    if (result.gap) { state.workerLog = []; state.workerLogGap = result.gap; }
-    const entries = new Map(state.workerLog.map((entry) => [entry.id, entry]));
-    for (const entry of result.entries) if (entry && typeof entry.id === 'string') entries.set(entry.id, entry);
-    state.workerLog = Array.from(entries.values()).filter((entry) => Date.parse(entry.at) >= Date.now() - 7 * 86400000).slice(-200);
-    state.workerLogCursor = result.cursor;
-    state.workerLogInitialized = true;
-    try { window.localStorage.setItem('worker-console-cursor.v1', result.cursor); } catch { /* native buffer remains authoritative */ }
-    state.workerLogStorage = result.storage;
-    renderWorkerLog();
-  } catch (failure) {
-    // The log is a diagnostic panel; failing to read it must not raise an error over the page the
-    // operator is using. The count going stale is the signal, and the status panel still reports.
-    state.workerLog = state.workerLog || [];
-    state.workerLogStorage = 'UNAVAILABLE';
-    renderWorkerLog();
-  } finally {
-    state.workerLogBusy = false;
-  }
-}
-
-async function refreshWorker({ silent = false } = {}) {
-  if (state.workerPollBusy || !native) return;
-  state.workerPollBusy = true;
-  try {
-    state.worker = await invoke('get_worker_status');
-    state.workerReadError = null;
-    renderWorker();
-    renderOverview();
-  } catch (failure) {
-    state.workerReadError = errorMessage(failure);
-    if (!silent) setMessage('overviewFeedback', 'อ่านสถานะตัวประมวลผลไม่ได้: ' + errorMessage(failure), 'error');
-    if (!state.worker) state.worker = { state: 'UNKNOWN', active: false, message: errorMessage(failure) };
-    renderWorker();
-    renderOverview();
-  } finally {
-    state.workerPollBusy = false;
-    renderProvider();
-    await refreshWorkerLog();
-  }
-}
-
-async function runWorker(command) {
-  if (!native || state.workerBusy || (command === 'start_worker' && !canStartWorker())) return;
-  state.workerBusy = true;
-  clearGlobalError();
-  renderProvider();
-  renderWorker();
-  try {
-    await invoke(command);
-    showGlobalMessage(command === 'start_worker' ? 'ส่งคำสั่งเริ่มรับงานแล้ว' : 'ส่งคำสั่งหยุดรับงานแล้ว');
-  } catch (failure) { showGlobalError(errorMessage(failure)); }
-  finally {
-    state.workerBusy = false;
-    await refreshWorker();
-    await loadStatus();
-    renderProvider();
-    renderWorker();
-  }
-}
-
-function setPairingState(value, tone = '') {
-  state.pairingState = value;
-  const labels = { WAITING: 'รอยืนยันใน Browser', EXPIRED: 'คำขอหมดอายุ', FAILED: 'เชื่อมต่อไม่สำเร็จ', DENIED: 'คำขอถูกปฏิเสธ', CANCELLED: 'ยกเลิกคำขอแล้ว', PAIRED: 'จับคู่แล้ว · รอตรวจ Server', POLLING_ERROR: 'ตรวจผลไม่ได้ชั่วคราว' };
-  setText('pairingState', labels[value] || value);
-  const stateTone = tone || (value === 'PAIRED' ? 'success' : ['WAITING', 'POLLING_ERROR'].includes(value) ? 'warning' : ['EXPIRED', 'FAILED', 'DENIED', 'CANCELLED'].includes(value) ? 'error' : '');
-  setTone('pairingState', stateTone);
-}
-
-function encodeSvg(svg) {
-  try { return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg))); }
-  catch { return 'data:image/svg+xml,' + encodeURIComponent(svg); }
-}
-
-function setPairingQr(svg) {
-  const source = svg ? encodeSvg(svg) : '';
-  $('qr').src = source;
-  $('qrLarge').src = source;
-  $('qr').hidden = !source;
-  $('qrLarge').hidden = !source;
-}
-
-function showPairingPage(page = 'pending') {
-  showPage('connect', page);
-  renderPairingActions();
-}
-
-function renderPairingActions() {
-  const waiting = state.pairingState === 'WAITING' || state.pairingState === 'POLLING_ERROR';
-  const paired = state.pairingState === 'PAIRED';
-  setVisible('retryPair', state.pairingState === 'POLLING_ERROR');
-  setVisible('restartPair', ['EXPIRED', 'FAILED', 'DENIED', 'CANCELLED'].includes(state.pairingState));
-  setVisible('pairingToAi', paired);
-  $('cancel').disabled = !waiting || state.pairingBusy;
-  $('openBrowser').disabled = !waiting;
-  $('showQr').disabled = !waiting || !$('qr').src;
-  if (!waiting && !paired) setPairingQr('');
-}
-
-function finishPairing(value, messageText, tone = '') {
-  clearTimeout(state.pairingTimer);
-  state.pairingActive = false;
-  state.pairingBusy = false;
-  setPairingState(value, tone);
-  setMessage('pairingMessage', messageText, tone);
-  if (value !== 'PAIRED') setPairingQr('');
-  renderPairingActions();
-  renderProvider();
-  renderOverview();
-  renderWorker();
-  renderTabBadges();
-}
-
-async function pollPairing() {
-  if (!state.pairingActive || state.pairingBusy || !native) return;
-  state.pairingBusy = true;
-  try {
-    const result = await invoke('poll_pairing', { cancel: false });
-    if (!state.pairingActive) return;
-    if (result && result.state === 'PAIRED') {
-      finishPairing('PAIRED', 'จับคู่แล้ว กดตรวจการเชื่อมต่อเพื่อยืนยันกับ Server', 'success');
-      await loadStatus();
-      return;
-    }
-    if (result && result.state === 'FAILED') { finishPairing('FAILED', result.message || 'กรุณาเริ่มคำขอใหม่', 'error'); await loadStatus(); return; }
-    if (result && ['DENIED', 'CANCELLED'].includes(result.state)) { finishPairing(result.state, result.message || 'คำขอถูกยกเลิกแล้ว', 'error'); await loadStatus(); return; }
-    if (state.pairingExpiresAt && Date.now() >= state.pairingExpiresAt) { finishPairing('EXPIRED', 'คำขอหมดอายุแล้ว เริ่มคำขอใหม่เพื่อสร้าง QR และรหัสใหม่', 'error'); return; }
-    setPairingState('WAITING');
-    const seconds = Math.max(0, Math.ceil((state.pairingExpiresAt - Date.now()) / 1000));
-    setText('expiry', seconds ? 'หมดอายุใน ' + Math.ceil(seconds / 60) + ' นาที' : 'กำลังตรวจว่าคำขอหมดอายุหรือไม่…');
-    state.pairingTimer = setTimeout(pollPairing, 2000);
-  } catch (failure) {
-    if (!state.pairingActive) return;
-    const reason = errorMessage(failure);
-    // A poll that cannot succeed must not leave the app in pairing mode. `pairingActive` gates the
-    // whole window — it hides Connect, shows Resume in its place, locks the AI settings and
-    // disables Start — so parking here on an error left the device "waiting to connect" forever,
-    // with no way out except a button the operator had no reason to suspect. Two cases end it:
-    // the native side has already dropped the request (it clears the slot on every terminal
-    // outcome, and then answers "ไม่มีคำขอที่กำลังรอ"), or the five-minute window has passed.
-    // Anything else is transient, so keep polling rather than making a blip look like a dead request.
-    const gone = reason.includes('ไม่มีคำขอที่กำลังรอ');
-    const expired = state.pairingExpiresAt && Date.now() >= state.pairingExpiresAt;
-    if (gone || expired) {
-      finishPairing('EXPIRED', 'คำขอหมดอายุแล้ว เริ่มคำขอใหม่เพื่อสร้าง QR และรหัสใหม่', 'error');
-      await loadStatus();
-      return;
-    }
-    setPairingState('POLLING_ERROR', 'warning');
-    setMessage('pairingMessage', reason, 'error');
-    setVisible('retryPair', true);
-    state.pairingTimer = setTimeout(pollPairing, 5000);
-  } finally { state.pairingBusy = false; renderPairingActions(); }
-}
-
-async function startPairing() {
-  const baseUrl = String($('baseUrl').value || '').trim();
-  if (!isValidOrigin(baseUrl)) {
-    setMessage('originValidation', 'กรุณาใส่ Server origin ที่ถูกต้องก่อนเริ่มเชื่อมต่อ', 'error');
-    compactPageState.advanced = 0;
-    setTab('settings', { user: true });
-    showPage('settings', 'advancedPage');
-    focusElement('baseUrl');
-    return;
-  }
-  if (!native) { showGlobalError('หน้าตัวอย่างใน Browser ยังเชื่อมต่อ Desktop IPC ไม่ได้'); return; }
-  clearGlobalError();
-  setMessage('connectMessage', 'กำลังสร้างคำขอจับคู่…', 'warning');
-  $('connect').disabled = true;
-  try {
-    const view = await invoke('connect_zuri', { baseUrl });
-    state.pairingActive = true;
-    state.pairingView = view;
-    state.pairingExpiresAt = Date.parse(view && (view.expires_at || view.expiresAt) || '') || Date.now() + 5 * 60 * 1000;
-    setText('checkCode', view && (view.check_code || view.checkCode));
-    setPairingQr(view && (view.qr_svg || view.qrSvg));
-    setText('expiry', 'หมดอายุใน ' + Math.max(1, Math.ceil((state.pairingExpiresAt - Date.now()) / 60000)) + ' นาที');
-    setPairingState('WAITING');
-    renderProvider();
-    setMessage('pairingMessage', view && view.browser_opened === false ? 'กดเปิด Browser อีกครั้ง หรือใช้มือถือสแกน QR' : '');
-    showPairingPage('pending');
-    renderOverview();
-    await pollPairing();
-  } catch (failure) {
-    setMessage('connectMessage', errorMessage(failure), 'error');
-    showGlobalError(errorMessage(failure));
-    renderOverview();
-  } finally { $('connect').disabled = false; renderPairingActions(); }
-}
-
-async function cancelPairing() {
-  if (!state.pairingActive || !native) return;
-  state.pairingBusy = true;
-  renderPairingActions();
-  try {
-    await invoke('poll_pairing', { cancel: true });
-    finishPairing('CANCELLED', 'ยกเลิกคำขอแล้ว', 'warning');
-    await loadStatus();
-  } catch (failure) {
-    setPairingState('POLLING_ERROR', 'warning');
-    setMessage('pairingMessage', errorMessage(failure), 'error');
-    setVisible('retryPair', true);
-  }
-  finally { state.pairingBusy = false; renderPairingActions(); }
-}
-
-async function verifyConnection() {
-  if (!native) return;
-  $('verify').disabled = true;
-  try { const result = await invoke('send_heartbeat_now'); showGlobalMessage(result && result.message || 'ตรวจการเชื่อมต่อแล้ว'); await loadStatus(); }
-  catch (failure) { showGlobalError(errorMessage(failure)); }
-  finally { renderOverview(); }
-}
-
-async function importPairing(event) {
-  const file = event.target.files && event.target.files[0];
-  event.target.value = '';
-  if (!file) return;
-  try {
-    if (file.size > 16384) throw new Error('ไฟล์จับคู่มีขนาดเกินกำหนด');
-    setMessage('importStatus', 'กำลังตรวจและบันทึกไฟล์จับคู่…', 'warning');
-    const result = await invoke('import_pairing_payload', { jsonStr: await file.text() });
-    setMessage('importStatus', result && result.message || 'บันทึกการจับคู่แล้ว กรุณาตรวจการเชื่อมต่อ', 'success');
-    showGlobalMessage(result && result.message || 'บันทึกการจับคู่แล้ว');
-    await loadStatus();
-  } catch (failure) { setMessage('importStatus', errorMessage(failure), 'error'); }
 }
 
 async function checkCli() {
@@ -1435,10 +989,7 @@ function bindTabs() {
 }
 
 function bindNavigation() {
-  $('overviewConnect').addEventListener('click', () => { setTab('connect', { user: true }); showHome('connect'); });
   $('overviewConfigure').addEventListener('click', () => { compactPageState.ai = 0; setTab('ai', { user: true }); showHome('ai'); focusElement('providerOllama'); });
-  $('overviewVerify').addEventListener('click', verifyConnection);
-  $('overviewStart').addEventListener('click', () => runWorker('start_worker'));
   $('hardwareOpen').addEventListener('click', () => { state.inventoryPage = 0; showPage('overview', 'hardwarePage'); renderHardwarePage(); });
   $('hardwareBack').addEventListener('click', () => { showHome('overview'); focusElement('hardwareOpen'); });
   $('hardwareRefresh').addEventListener('click', loadInventory);
@@ -1447,58 +998,16 @@ function bindNavigation() {
   $('hardwareNext').addEventListener('click', () => { state.inventoryPage += 1; renderHardwarePage(); });
   $('overviewCompactPrev').addEventListener('click', () => { state.overviewPage -= 1; renderCompactOverview(); });
   $('overviewCompactNext').addEventListener('click', () => { state.overviewPage += 1; renderCompactOverview(); });
-  $('workerLogOpen').addEventListener('click', () => { state.workerLogPage = 0; showPage('overview', 'workerLogPage'); renderWorkerLog(); });
-  $('workerLogBack').addEventListener('click', () => { showHome('overview'); focusElement('workerLogOpen'); });
-  $('workerLogPrev').addEventListener('click', () => { state.workerLogPage -= 1; renderWorkerLog(); });
-  $('workerLogNext').addEventListener('click', () => { state.workerLogPage += 1; renderWorkerLog(); });
-  $('workerLogCopy').addEventListener('click', async () => {
-    const lines = (state.workerLog || []).map((entry) => logTime(entry && entry.at) + '  ' + text(entry && entry.message, ''));
-    if (!lines.length) { setMessage('workerLogEmpty', 'ยังไม่มีบันทึกให้คัดลอก', 'warning'); return; }
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setMessage('workerLogEmpty', 'คัดลอกบันทึก ' + lines.length + ' รายการแล้ว', 'success');
-    } catch (failure) {
-      setMessage('workerLogEmpty', 'คัดลอกไม่สำเร็จ: ' + errorMessage(failure), 'error');
-    }
-  });
   for (const [key, previousId, nextId] of [
-    ['connect', 'connectCompactPrev', 'connectCompactNext'],
     ['ai', 'aiCompactPrev', 'aiCompactNext'],
-    ['advanced', 'advancedCompactPrev', 'advancedCompactNext'],
     ['cli', 'cliCompactPrev', 'cliCompactNext'],
     ['about', 'aboutCompactPrev', 'aboutCompactNext'],
   ]) {
     $(previousId).addEventListener('click', () => { compactPageState[key] -= 1; renderCompactPages(); });
     $(nextId).addEventListener('click', () => { compactPageState[key] += 1; renderCompactPages(); });
   }
-  $('openAdvancedFromConnect').addEventListener('click', () => { compactPageState.advanced = 0; setTab('settings', { user: true }); showPage('settings', 'advancedPage'); focusElement('baseUrl'); });
-  $('resumePairing').addEventListener('click', () => { setTab('connect', { user: true }); showPairingPage('pending'); });
-  $('pairingBack').addEventListener('click', () => { showHome('connect'); focusElement('resumePairing'); });
-  $('qrBack').addEventListener('click', () => { showPairingPage('pending'); focusElement('showQr'); });
-  $('showQr').addEventListener('click', () => { $('qrLarge').src = $('qr').src; $('qrPageMessage').textContent = state.pairingState === 'WAITING' ? 'สแกนด้วยกล้องมือถือ แล้วล็อกอิน Zuri' : 'คำขอนี้ไม่สามารถใช้ QR เดิมได้แล้ว'; showPairingPage('qrPage'); });
-  $('openBrowser').addEventListener('click', async () => {
-    if (!native || !state.pairingActive || !['WAITING', 'POLLING_ERROR'].includes(state.pairingState)) return;
-    $('openBrowser').disabled = true;
-    try {
-      const result = await invoke('open_pairing_browser');
-      setMessage('pairingMessage', result && result.message || 'เปิด Browser แล้ว รอยืนยันต่อไป', 'success');
-    } catch (failure) {
-      setMessage('pairingMessage', errorMessage(failure), 'error');
-    } finally { renderPairingActions(); }
-  });
-  $('pairingToAi').addEventListener('click', () => { compactPageState.ai = 0; setTab('ai', { user: true }); showHome('ai'); focusElement('providerOllama'); });
-  $('restartPair').addEventListener('click', () => { showHome('connect'); startPairing(); });
-  $('retryPair').addEventListener('click', pollPairing);
-  $('cancel').addEventListener('click', cancelPairing);
-  $('connect').addEventListener('click', startPairing);
-  $('verify').addEventListener('click', verifyConnection);
-  $('retryStatus').addEventListener('click', () => { clearGlobalError(); loadStatus(); });
-  $('pairingFile').addEventListener('change', importPairing);
-  $('baseUrl').addEventListener('input', () => { const valid = isValidOrigin($('baseUrl').value); setMessage('originValidation', valid ? 'รูปแบบ Server origin ใช้ได้ ระบบจะใช้เมื่อเริ่มคำขอจับคู่' : 'ยังไม่ใช่ Server origin ที่ถูกต้อง', valid ? 'success' : 'warning'); renderOverview(); });
-  $('globalStop').addEventListener('click', () => runWorker('stop_worker'));
-  $('startWorker').addEventListener('click', () => runWorker('start_worker'));
   $('openModelPicker').addEventListener('click', () => {
-    if (!native || state.pairingActive || activeWorkerOwned() || state.providerBusy || state.workerBusy) return;
+  if (!native || state.providerBusy) return;
     state.modelPage = 0;
     showPage('ai', 'modelPage');
     renderModels();
@@ -1531,10 +1040,8 @@ function bindNavigation() {
   $('ollamaUrl').addEventListener('input', markProviderDirty);
   $('providerModel').addEventListener('input', markProviderDirty);
   $('allowCloud').addEventListener('change', markProviderDirty);
-  $('openAdvanced').addEventListener('click', () => { showPage('settings', 'advancedPage'); focusElement('advancedBack'); });
   $('openCli').addEventListener('click', () => { showPage('settings', 'cliPage'); focusElement('cliBack'); });
   $('openAbout').addEventListener('click', () => { showPage('settings', 'aboutPage'); focusElement('aboutBack'); });
-  $('advancedBack').addEventListener('click', () => { showHome('settings'); focusElement('openAdvanced'); });
   $('cliBack').addEventListener('click', () => { showHome('settings'); focusElement('openCli'); });
   $('aboutBack').addEventListener('click', () => { showHome('settings'); focusElement('openAbout'); });
   $('checkCli').addEventListener('click', checkCli);
@@ -1550,10 +1057,7 @@ function renderInitialUnavailable() {
   if (native) return;
   setText('statusBadge', 'Browser preview · IPC unavailable');
   setTone('statusBadge', 'warning');
-  setMessage('overviewFeedback', 'เปิดแอป Zuri Edge Device เพื่ออ่านสถานะจริงและใช้คำสั่ง Desktop', 'warning');
-  $('connect').disabled = true;
-  $('verify').disabled = true;
-  $('globalStop').disabled = true;
+  setMessage('overviewFeedback', 'เปิดแอป Zuri Local Runtime เพื่ออ่านสถานะและแก้การตั้งค่าในเครื่อง', 'warning');
   $('checkCli').disabled = true;
   $('checkUpdate').disabled = true;
   $('hardwareRefresh').disabled = true;
@@ -1574,17 +1078,13 @@ async function startup() {
   renderHardwareSummary();
   renderHardwarePage();
   if (!native) {
-    state.statusAvailable = false;
     renderOverview();
-    renderWorker();
     return;
   }
-  const workerPromise = refreshWorker({ silent: true });
   await Promise.allSettled([
-    loadStatus(),
+    loadDesktopStatus(),
     loadProviderSettings(),
     loadInventory(),
-    workerPromise,
     (async () => {
       try {
         const raw = await invoke('get_app_version');
@@ -1599,7 +1099,6 @@ async function startup() {
   renderOverview();
   renderProvider();
   renderHardwareSummary();
-  setInterval(() => refreshWorker({ silent: true }), 3000);
 }
 
 startup();

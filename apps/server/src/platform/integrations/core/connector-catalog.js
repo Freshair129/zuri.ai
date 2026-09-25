@@ -143,7 +143,7 @@ export const CONNECTOR_CATALOG = Object.freeze([
     category: 'TOOLS',
     iconColor: '#000000',
     providerCodes: [],
-    note: 'ไม่มี endpoint รับ webhook จาก Vercel ในระบบนี้ — `/api/agent/line-webhook` เป็นตัวรับ webhook เพียงตัวเดียวที่มีอยู่จริง',
+    note: 'LINE OA ใช้ signed webhook ของ account ที่ `/api/line-oa/accounts/{id}/webhook`',
   },
   {
     id: 'gmail-alerts',

@@ -105,15 +105,6 @@ export interface EvidencePacket {
   cardViewModel: CardViewModel;
 }
 
-export interface HeartbeatPayload {
-  contractVersion: ContractVersion;
-  deviceId: string;
-  status: 'healthy' | 'degraded' | 'unavailable';
-  registeredQueries: string[];
-  approvedTemplates: string[];
-  timestamp: string;
-}
-
 export interface ReleasePayload {
   commandId: string;
   leaseId: string;

@@ -1,27 +1,29 @@
 ---
 id: ZAI:PRODUCT
-version: "1.2.0b"
+version: "1.3.0b"
 status: draft
-last_update: "2026-09-06T13:29:04+07:00,RWANG"
+last_update: "2026-09-24T14:22:33+07:00,Codex"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:ADR-109
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
 ---
 
 # Zuri V2 — Product Definition
 
-> Current authority (2026-09-06): Zuri is a standalone product under [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs server-owned LINE and optional Edge computation. [FEAT-019 phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) is a candidate repository decision, not the current layout.
+> Current authority (2026-09-24): Zuri is a standalone product under [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs Server LINE ingress; [ADR-106](decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md) defines the Conversation Runtime boundary; [ADR-109](decisions/ADR-109-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) retires Edge Device and harness surfaces while keeping the PRP LocalWorker model-key flow. [FEAT-019 phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) is a candidate repository decision, not the current layout.
 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.2.0b |
+| **Version** | 1.3.0b |
 | **Status** | Draft |
 | **Author** | Owen + Claude |
 | **Created** | 2026-08-12 |
-| **Last Updated** | 2026-09-06 |
+| **Last Updated** | 2026-09-24 |
 | **Layer** | 0 — product (above the per-module PRD/SDD) |
 
 Layer 0: what Zuri V2 *is*. Module-level requirements live one layer down
@@ -157,5 +159,7 @@ Project Manager module: FR-001…FR-020 shipped, 129 Vitest + 28 Playwright gree
 four intake surfaces live (UI wizard, Excel, agent JSON, enterprise API).
 Everything else — identity, LINE/AI, the lifted V1 modules — is `PHASE-V2-REPLACE`,
 not started. Nothing in V1 has been cut over yet.
+
+Version diff 1.2.0b → 1.3.0b (2026-09-24): Record ADR-109 as current authority: Edge Device and harness connection surfaces are retired, while Server LINE ingress, Conversation Runtime, PRP LocalWorker keys, stored records and Knowledge/RAG remain. No production migration or deployment is claimed.
 
 Version diff 1.1.0 → 1.2.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.

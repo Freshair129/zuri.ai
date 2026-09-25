@@ -1,19 +1,25 @@
 ---
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-04T09:40:00+07:00,Claude"
-last_update: "2026-09-04T09:40:00+07:00,Claude"
-status: "beta"
+last_update: "2026-09-25T15:35:00+07:00,RWANG"
+status: "deprecated"
 superseded_by: null
 attributes:
   domain: "edge-extraction"
   scope: "Device-side runtime for edge-executed asset evidence extraction: the worker loop, the local extractor, the CLI, and what this device can and cannot actually read"
 ---
 
-# Edge-executed evidence extraction — the device side
+# Retired: Edge-executed evidence extraction — historical device-side record
 
-This is the runtime that pulls asset-evidence extraction jobs from Zuri Cloud, reads each
-document with the model running on this machine, and posts a candidate back. It implements
-the device half of a contract the cloud owns — **FR-143** (the extraction job lane) and
+> **Retired; do not use as an operator procedure.** The device extraction worker, cloud
+> credential, claim/evidence/complete/fail API calls, and `extraction` CLI commands described
+> here are no longer supported. This file is preserved as historical implementation evidence.
+> Local worker/Core conversation behavior and the local Knowledge/RAG runtime remain separate;
+> this retired extraction flow is not part of them.
+
+Historically, this runtime pulled asset-evidence extraction jobs from Zuri Cloud, read each
+document with the model running on this machine, and posted a candidate back. It implemented
+the device half of a contract the cloud owned — **FR-143** (the extraction job lane) and
 **FR-144** (the edge device credential) in the zuri-ai repository, decided in its ADR-059.
 
 The cloud never calls this device. Every call is outbound, which is what lets a device sit

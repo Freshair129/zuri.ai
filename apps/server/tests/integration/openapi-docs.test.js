@@ -244,18 +244,59 @@ describe('OpenAPI document', () => {
       // (archive is a status patch, never a DELETE) and weekly check-in —
       // three paths, three operations (one method each). 331 + 3 = 334;
       // 437 + 3 = 440.
-      // FR-272 adds the scoped approval inbox and reviewer decision path:
-      // two paths and two operations. 334 + 2 = 336; 440 + 2 = 442.
-      // ADR-108 D4 (draft for the integrator) adds the Market service's private
-      // core façade: one dynamic path, GET + POST. 336 + 1 = 337; 442 + 2 = 444.
-      pathCount: 337,
-      operationCount: 444,
+      // Merged main includes the Market Intelligence façade at 337 paths / 444 operations.
+      // ADR-109 retires 20 Edge, harness, and legacy paths (23 operations), and
+      // ADR-106/SDD-108 adds the Conversation Runtime Core path with GET + POST:
+      // 337 - 20 + 1 = 318 paths; 444 - 23 + 2 = 423 operations.
+      pathCount: 318,
+      operationCount: 423,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
     expect(doc.paths['/api/import/dry-run'].post['x-zuri-contract']).toBeUndefined()
     expect(doc.paths['/api/assets/intakes/validate'].post.requestBody).toBeTruthy()
     expect(doc.paths['/api/assets/intakes/validate'].post['x-zuri-contract']).toBeUndefined()
+  })
+
+  it('documents the private Conversation Runtime adapter with process-only bearer auth', () => {
+    const path = doc.paths['/api/internal/conversation-runtime/v1/{operation}']
+    expect(path.get.parameters[0]).toMatchObject({ name: 'operation', required: true, schema: { type: 'string', enum: ['health'] } })
+    expect(path.post.parameters[0].schema.enum).toEqual(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status'])
+    for (const operation of [path.get, path.post]) {
+      expect(operation.security).toEqual([{ ConversationRuntimeService: [] }])
+      expect(operation['x-zuri-contract']).toBe('conversation-runtime.v1')
+    }
+    expect(path.post.requestBody.required).toBe(true)
+    expect(path.post.responses[413].description).toContain('64 KiB')
+    expect(doc.components.securitySchemes.ConversationRuntimeService).toMatchObject({ type: 'http', scheme: 'bearer' })
+  })
+
+  it('retires Edge and harness routes while keeping signed LINE ingress and PRP model credentials', () => {
+    const retiredPaths = [
+      '/api/agent/heartbeat',
+      '/api/agent/line-asset-handoff',
+      '/api/agent/line-delivery',
+      '/api/agent/line-webhook',
+      '/api/assets/evidence/{id}/extraction-job',
+      '/api/edge/extraction-jobs/claim',
+      '/api/edge/extraction-jobs/{id}/evidence',
+      '/api/edge/extraction-jobs/{id}/complete',
+      '/api/edge/extraction-jobs/{id}/fail',
+      '/api/edge/pairing/start',
+      '/api/edge/pairing/approve',
+      '/api/edge/pairing/poll',
+      '/api/platform/edge-devices/credentials',
+      '/api/platform/edge-devices/credentials/{id}',
+      '/api/platform/harness-pairing/start',
+      '/api/platform/harness-pairing/approve',
+      '/api/platform/harness-pairing/poll',
+      '/api/platform/harness-devices',
+      '/api/platform/harness-devices/{id}',
+      '/api/platform/programme-usage-reports/whoami',
+    ]
+    for (const route of retiredPaths) expect(doc.paths[route], route).toBeUndefined()
+    expect(doc.paths['/api/line-oa/accounts/{id}/webhook'].post).toBeTruthy()
+    expect(doc.paths['/api/integration/model-providers'].post).toBeTruthy()
   })
 
   it('keeps every operation structurally valid and declares path parameters', () => {

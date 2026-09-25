@@ -1,50 +1,55 @@
 ---
 id: "EDGE-DESKTOP-TAURI-RUNTIME"
-version: "1.4.2b"
-status: "beta"
+version: "1.4.3b"
+status: "deprecated"
 owner: "zuri-edge-device"
-scope: "Desktop pairing, truthful status and supervised optional conversation runtime"
+scope: "Historical Desktop pairing and supervised optional conversation runtime evidence"
 created_at: "2026-09-07T03:00:00+07:00,ATHER"
-last_update: "2026-09-09T12:30:00+07:00,RWANG"
+last_update: "2026-09-25T15:35:00+07:00,RWANG"
 approval: "Owner approved completing provider login, Ollama setup and managed worker in parallel with Luna max on 2026-09-08"
 ---
 
-# Zuri Edge Device — Native Desktop Runtime & Multi-Lane Intelligent Node
+# Zuri Edge Device Desktop — historical implementation record
 
-## 1. Purpose, authority and evidence
+> **Retired surfaces:** Desktop device pairing/import, Edge-device identity and credentials,
+> cloud heartbeat, and device-side extraction described below are no longer supported. This file
+> preserves historical implementation and verification evidence; do not treat its old pairing,
+> API, or release procedures as current. Conversation Runtime and local Knowledge/RAG are separate
+> capabilities. PRP owns the Localworker API-key contract; this file does not establish that a
+> Localworker integration is implemented or verified.
 
-Owner-approved update: the primary pairing flow is **Connect Zuri -> browser or
-QR -> login -> select Business -> confirm -> automatic Desktop handover**.
-See the [FR-144 browser/QR contract](../../../docs/domains/identity/features/FR-144-edge-device-credential.md#browser-and-qr-pairing--owner-approved-2026-09-08).
-JSON import below is an advanced compatibility path. The next owner instruction,
-"จัดการทั้งหมดแบบขนาน ใช้ luna max เป็นworker", approves completing browser login
-for model providers, Ollama configuration and the supervised worker/package in
-sections 6-10. Implementation approval is distinct from installed-device or
-production acceptance; the 0.2.1 evidence below covers the earlier pairing slice.
+## 1. Historical purpose, authority and evidence (2026-09-08)
 
-The Desktop window is a Tauri application backed by Rust. The older local web
-console at `:8787/gui` belongs to the explicitly selected legacy webhook process.
-Neither a visible window nor a saved pairing file establishes worker readiness.
+The owner-approved pairing flow at the time was **Connect Zuri -> browser or QR -> login -> select
+Business -> confirm -> automatic Desktop handover**. See the historical [FR-144 browser/QR
+contract](../../../docs/domains/identity/features/FR-144-edge-device-credential.md#browser-and-qr-pairing--owner-approved-2026-09-08).
+JSON import was an advanced compatibility path. The later owner instruction approved browser login
+for model providers, Ollama configuration and a supervised worker/package. Those device surfaces
+are now retired; the approval and implementation evidence below remain historical only.
 
-This revision replaces ambiguous present-tense capability claims with an observed
+The former Desktop window was a Tauri application backed by Rust. The older local web console at
+`:8787/gui` belonged to the legacy webhook process. Neither its visible window nor a saved pairing
+file established worker readiness.
+
+That historical revision replaced ambiguous present-tense capability claims with an observed
 baseline and implemented contracts. Review baseline: `b17e7258`,
 2026-09-08. The earlier pairing slice was implemented locally as Desktop 0.2.1;
 [verification and limits](../../../docs/domains/identity/features/FR-144-edge-device-credential.md#local-implementation-evidence--2026-09-08)
-record that historical Windows build and its tests. Desktop 0.3.0 adds the provider
-and worker flow below. Production activation remains a separate acceptance gate.
+record that historical Windows build and its tests. Desktop 0.3.0 added the provider
+and worker flow described below. No current product activation is implied by that old evidence.
 
-Parent decisions: [ADR-041](../../../docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md),
+Parent decisions at the time: [ADR-041](../../../docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md),
 [ADR-061](../../../docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) and
 [ADR-062](../../../docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md).
-ADR-061 owns current LINE transport; Desktop never starts legacy ingress as a
-side effect of pairing. Root global requirement IDs retain their subjects.
+These decisions are cited as historical context, not as current Edge enrollment or transport
+instructions. Root global requirement IDs retain their subjects.
 
 Peer contracts:
 [optional execution](SERVER-LINE-OPTIONAL-EDGE.md),
 [FR-150-P2](../../../docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md),
 [heartbeat registry](../../../docs/domains/agent/features/FR-141-edge-device-heartbeat-registry.md).
-The heartbeat note includes historical limitations; the current device-authenticated
-route is the wire authority. Preserve existing device credentials and Business isolation.
+These peer contracts document the former device flow. Do not use old device credentials or
+reactivate the pairing path; preserve existing records under the approved data-retention boundary.
 
 [RCA and source evidence](../../../.brain/rca/2026-09-08-edge-desktop-runtime-contract-gap.md).
 
@@ -487,6 +492,7 @@ not inferred from the source commit or the isolated acceptance above.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.3b | 2026-09-25 | deprecated | Mark retired pairing, worker and transport material as historical; PRP integration is not evidenced here | uncommitted | RWANG |
 | 1.4.2b | 2026-09-09 | beta | Integrate current Server contracts and separate local artifact evidence from release status | 853fe6f0 implementation | RWANG |
 | 1.4.1b | 2026-09-09 | beta | Follow-up approved UI repair and explicit unconfigured updater contract | uncommitted | RWANG |
 | 1.4.0b | 2026-09-08 | beta | Owner approved tabbed Desktop UI and automatic local hardware diagnostics; acceptance recorded separately | uncommitted | RWANG |

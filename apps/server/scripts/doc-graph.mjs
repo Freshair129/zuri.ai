@@ -402,6 +402,7 @@ function build() {
   const testFiles = [
     ...walk(workspacePath(ROOT, 'tests'), ['.test.js', '.spec.js']),
     ...walk(workspacePath(ROOT, 'apps', 'edge', 'tests'), ['.test.ts', '.test.js', '.spec.ts', '.spec.js']),
+    ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'test'), ['.test.js', '.spec.js']),
     ...walk(workspacePath(ROOT, 'services', 'market-intelligence', 'test'), ['.test.js', '.spec.js']),
   ]
   const edgeTestRoot = workspacePath(ROOT, 'apps', 'edge', 'tests')
@@ -442,6 +443,7 @@ function build() {
   // tree. Unscanned, its FR would read as having no code, the same blindness the
   // Edge note above describes.
   const pluginCodeFiles = walk(workspacePath(ROOT, 'plugins'), ['.mjs', '.js'])
+  const serviceCodeFiles = walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'src'), ['.mjs', '.js'])
   // ADR-108: the Market Intelligence service runs as its own package under
   // services/. Unscanned, FR-092's service-side code and tests would be invisible.
   const marketServiceCodeFiles = walk(workspacePath(ROOT, 'services', 'market-intelligence', 'src'), ['.mjs', '.js'])
@@ -450,6 +452,7 @@ function build() {
     ...walk(workspacePath(ROOT, 'prisma'), ['.js']),
     ...edgeCodeFiles,
     ...pluginCodeFiles,
+    ...serviceCodeFiles,
     ...marketServiceCodeFiles,
   ]
   const isEdgeFile = new Set(edgeCodeFiles.map((f) => f))
@@ -539,7 +542,9 @@ function coverage(nodes, edges) {
 
   // A registry FR marked 🔜 (declared === 'planned') is expected to have no code
   // yet — it is not a coverage defect. Only "built" FRs (✅) must have code+tests.
-  const fr = reqs.filter((r) => r.family === 'FR' && r.declared !== 'planned')
+  const allFr = reqs.filter((r) => r.family === 'FR')
+  const frSuperseded = allFr.filter((r) => r.status === 'superseded').map((r) => r.id.slice(4))
+  const fr = allFr.filter((r) => r.declared !== 'planned' && r.status !== 'superseded')
   const frPlanned = reqs.filter((r) => r.family === 'FR' && r.declared === 'planned').map((r) => r.id.slice(4))
   const frImpl = fr.filter((r) => linked(r, ['implements']))
   const frTest = fr.filter((r) => linked(r, ['verifies']))
@@ -561,6 +566,7 @@ function coverage(nodes, edges) {
     nfr_evidence_based: `${nfr.length} (verified by the acceptance matrix, not code-linked)`,
     annotated_code_files: nodes.filter((n) => n.type === 'code_file').length,
     fr_planned: frPlanned,
+    fr_superseded: frSuperseded,
     fr_without_code: fr.filter((r) => !frImpl.includes(r)).map((r) => r.id.slice(4)),
     fr_without_tests: fr.filter((r) => !frTest.includes(r)).map((r) => r.id.slice(4)),
     rules_without_anchor: rules.filter((r) => !rulesLinked.includes(r)).map((r) => r.id.slice(4)),

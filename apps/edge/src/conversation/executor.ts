@@ -14,7 +14,6 @@ import { ConversationError, type ConversationAnswer, type ConversationJob, isLoo
 import { remainingConversationBudget, withinConversationBudget } from './deadline.js';
 import type { InvocationReceipt } from '../answer/context-injection.js';
 import type { ConversationClient } from './client.js';
-import { projectWorkTools } from './project-work-tools.js';
 import { createProgressReporter, type ExecutionProgress } from './progress.js';
 
 // @spec ADR-061 — the local-computation boundary: a job may not name an executable, URL, query,
@@ -118,7 +117,6 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
         timeoutMs: Math.min(timeoutMs, budget === null ? Math.max(config.llmTimeoutMs || 0, JOB_MODEL_BUDGET_MS) : 24000),
         maxIterations: budget === null ? config.llmMaxIterations || 4 : Math.min(config.llmMaxIterations || 3, 3),
         signal,
-        additionalTools: projectWorkTools(job, options.client),
         onProgress: progress,
         ...(budget === null ? {} : { context: {
           authorized: true, threadId: memory?.threadId, audienceKind: memory?.audienceKind,

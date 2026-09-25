@@ -1,4 +1,4 @@
-// @req FR-146, FR-149, FR-151, FR-152, FR-153 — LINE Studio Edge & Transport Console
+// @req FR-146, FR-149, FR-151, FR-152, FR-153 — LINE OA account and runtime console
 // @req FR-225 — the connect form below is the Thai self-serve wizard
 //   (`LineOaConnectWizard`); it no longer asks for a `deployment-secret:`
 //   reference (that field is FR-149's operator-only path, still reachable from
@@ -27,29 +27,20 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Server,
-  Cpu,
   ShieldCheck,
   Radio,
   RefreshCw,
   Sliders,
-  Terminal,
   Activity,
   CheckCircle2,
   AlertTriangle,
-  ExternalLink,
-  Layers,
-  Database,
   Lock,
   Zap,
   HelpCircle,
-  Copy,
-  Check,
   ArrowRight
 } from "lucide-react";
 import { Card, SectionTitle, StatusPill } from "@/components/ui";
 import { useScope } from "@/context/ScopeContext";
-import { edgePairingDownload } from "@/modules/identity/edge-pairing-download";
-import { resolveBrowserOrigin, resolvePublicBaseUrl } from "@/lib/public-base-url";
 import LineOaConnectWizard from "./LineOaConnectWizard";
 import LineOaCredentialMigrationCard from "./LineOaCredentialMigrationCard";
 import { lineTraceSummary } from "../domain/line-trace-summary";
@@ -76,36 +67,10 @@ export default function LineStudioAccountConsole() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [copiedKey, setCopiedKey] = useState(false);
 
-  // Static architecture reference (ADR-043) — not live telemetry, no per-device
-  // endpoint reports these tiers individually today. The pairing section below
-  // this is real: FR-144's mint/list API, no mock data.
-  const cognitiveTiers = [
-    { tier: "Tier 1", name: "Edge Runtime Daemon", desc: "Local Background Worker & Webhook Forwarder" },
-    { tier: "Tier 2", name: "MSP Memory Policy", desc: "Token Budget & Ephemeral Scratchpad Gate" },
-    { tier: "Tier 3", name: "GKS Knowledge Authority", desc: "Canonical Entity Identity & RAG (Radius R0-R3)" },
-    { tier: "Tier 4", name: "GenesisBlockDB", desc: "6-Lane Substrate (Vector + Graph + Lexical)" }
-  ];
-
-  // FR-144: real Edge Device credentials for this Business. `keyPrefix`/`status`/
-  // `lastUsedAt` are metadata only — the raw key exists exactly once, in a mint
-  // response, never again (mintEdgeDeviceCredential's own contract).
-  const [credentials, setCredentials] = useState([]);
-  const [credentialsLoading, setCredentialsLoading] = useState(false);
   // @req FR-266 — the Business's model provider key status (ADR-100 D4). Status
   // only: provider, model id and validation time, never material.
   const [modelStatus, setModelStatus] = useState(null);
-  const [mintDeviceId, setMintDeviceId] = useState("");
-  const [mintLabel, setMintLabel] = useState("");
-  const [minting, setMinting] = useState(false);
-  const [mintError, setMintError] = useState("");
-  const [minted, setMinted] = useState(null); // edgePairingDownload() shape — shown once
-  const [revokingId, setRevokingId] = useState("");
-  const [publicOrigin, setPublicOrigin] = useState(() => resolvePublicBaseUrl());
-  useEffect(() => {
-    setPublicOrigin(resolveBrowserOrigin({ location: window.location }));
-  }, []);
 
   const loadModelStatus = useCallback(async () => {
     if (!business?.id) {
@@ -121,86 +86,6 @@ export default function LineStudioAccountConsole() {
       setModelStatus(null);
     }
   }, [business?.id]);
-
-  const loadCredentials = useCallback(async () => {
-    if (!business?.id) {
-      setCredentials([]);
-      return;
-    }
-    setCredentialsLoading(true);
-    try {
-      const result = await api(`/api/platform/edge-devices/credentials?businessId=${encodeURIComponent(business.id)}`);
-      setCredentials(result.credentials || []);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setCredentialsLoading(false);
-    }
-  }, [business?.id]);
-
-  /**
-   * Withdraw one device's key (FR-144 DELETE).
-   *
-   * A retired device whose credential is left ACTIVE is the failure this exists to prevent: the
-   * process is gone, so nothing looks wrong, while the key still claims jobs for anyone holding a
-   * copy of it. Revocation takes effect on the next request — there is no grace window, which is
-   * why the confirmation names the device rather than asking "are you sure?".
-   */
-  async function revokeCredential(credential) {
-    if (!credential?.id || revokingId) return;
-    if (!window.confirm(`เพิกถอนกุญแจของ ${credential.deviceId}?\n\nอุปกรณ์นี้จะรับงานไม่ได้ทันที และกุญแจเดิมกู้คืนไม่ได้ — ต้องจับคู่ใหม่เท่านั้น`)) return;
-    setRevokingId(credential.id);
-    setError("");
-    try {
-      await api(`/api/platform/edge-devices/credentials/${encodeURIComponent(credential.id)}`, "DELETE");
-      await loadCredentials();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setRevokingId("");
-    }
-  }
-
-  async function mintPairing(event) {
-    event.preventDefault();
-    if (!business?.id) return;
-    const deviceId = mintDeviceId.trim();
-    const label = mintLabel.trim();
-    if (!deviceId || !label) return;
-    setMinting(true);
-    setMintError("");
-    try {
-      const result = await api("/api/platform/edge-devices/credentials", "POST", { businessId: business.id, deviceId, label });
-      setMinted(edgePairingDownload({
-        credential: result.credential,
-        key: result.key,
-        businessId: business.id,
-        businessCode: business?.code,
-        businessName: business?.name,
-        origin: publicOrigin
-      }));
-      setMintDeviceId("");
-      setMintLabel("");
-      await loadCredentials();
-    } catch (err) {
-      setMintError(err.message);
-    } finally {
-      setMinting(false);
-    }
-  }
-
-  function downloadPairingFile() {
-    if (!minted) return;
-    const blob = new Blob([JSON.stringify(minted, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `zuri-edge-pairing-${minted.deviceId}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
 
   // `refresh` runs both on mount and after every account action; the mount
   // call and an action's call can be in flight together (e.g. React 18's dev
@@ -229,14 +114,12 @@ export default function LineStudioAccountConsole() {
     setAccounts([]);
     setMessage("");
     setError("");
-    setMinted(null);
     refresh().catch((err) => setError(err.message));
-    loadCredentials().catch((err) => setError(err.message));
     // @req FR-266 — the model key status is swallowed rather than surfaced as a
     // page error: `loadModelStatus` already leaves `modelStatus` null on failure,
     // and the card reads that as "no key yet", which is the honest rendering.
     loadModelStatus();
-  }, [refresh, loadCredentials, loadModelStatus]);
+  }, [refresh, loadModelStatus]);
 
   async function run(task) {
     setBusy(true);
@@ -257,24 +140,15 @@ export default function LineStudioAccountConsole() {
   }
 
   // FR-225: the wizard below (`LineOaConnectWizard`) creates the connection and
-  // the DRAFT account itself; this page only needs to know when to refresh the
-  // list and show its own confirmation. Creating an account deliberately does
-  // NOT enable server transport — the account card's "เปิด Server Transport"
-  // button is where a person says the legacy consumer has stopped.
+  // the DRAFT account itself; this page refreshes the list after the wizard.
   async function handleWizardConnected(account) {
-    setMessage(`เชื่อมต่อบัญชี ${account?.displayName ?? ""} แล้ว — กด "เปิด Server Transport (Live)" ที่การ์ดบัญชีเมื่อหยุด transport เดิมเรียบร้อย`);
+    setMessage(`เชื่อมต่อบัญชี ${account?.displayName ?? ""} แล้ว — ตรวจสอบสถานะบัญชีและการตั้งค่าการตอบข้อความ`);
     await refresh();
   }
 
-  const copyToken = (text) => {
-    navigator.clipboard?.writeText(text);
-    setCopiedKey(true);
-    setTimeout(() => setCopiedKey(false), 2000);
-  };
-
   return (
     <div className="space-y-6 font-thai">
-      {/* Top Banner: Hybrid Cloud Server & Edge Topology Overview */}
+      {/* Server-owned LINE execution */}
       <div className="rounded-2xl p-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-md relative overflow-hidden border border-slate-800">
         <div className="absolute right-0 top-0 w-96 h-96 bg-brand-amber/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -282,26 +156,21 @@ export default function LineStudioAccountConsole() {
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                ADR-041 & ADR-061 HYBRID RUNTIME
+                SERVER-OWNED LINE RUNTIME
               </span>
               <span className="text-xs text-slate-400">Zero Secret Exposure Architecture</span>
             </div>
-            {/* FR-265 — this said the architecture could dispatch an answer to a
-                Zuri Edge Device. It cannot any more (ADR-100 D1), and a page that
-                advertises a capability the server refuses is worse than one that
-                says nothing. The device keeps its pairing and its extraction work,
-                which is what the section below is actually about. */}
             <h2 className="text-lg font-bold text-white tracking-tight">
-              Server Transport & Zuri Edge Device Topology
+              LINE OA และ Conversation Runtime
             </h2>
             <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              <strong>Zuri Cloud Server</strong> รับ Ingress Webhook ตลอด 24/7 และประมวลผลคำตอบทุกข้อความเอง โดยเรียกโมเดลด้วย API key ของธุรกิจ · <strong>Zuri Edge Device</strong> ที่จับคู่ไว้ใช้สำหรับงานสกัดหลักฐานในองค์กรแบบ Zero-Trust ไม่ใช่การตอบแชท
+              Zuri รับ LINE webhook และประมวลผลบทสนทนาผ่าน runtime ของเซิร์ฟเวอร์ ใช้ model provider key ของ Business ที่ตั้งค่าไว้ด้านล่าง
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => run(async () => { await refresh(); await loadCredentials(); })}
+              onClick={() => run(async () => { await refresh(); await loadModelStatus(); })}
               disabled={busy || !business}
               className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 transition-all border border-white/10"
             >
@@ -326,164 +195,8 @@ export default function LineStudioAccountConsole() {
         </div>
       )}
 
-      {/* Grid: Left = Edge Device Node & Cognitive Stack, Right = Server-Owned Accounts & Webhook */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Zuri Edge Device Status & 4-Tier Cognitive Stack */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="rounded-2xl p-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                  <Cpu className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-xs text-slate-900 dark:text-white">Zuri Edge Device</h3>
-                  <p className="text-[10px] text-slate-500">On-Premise Hardware Node</p>
-                </div>
-              </div>
-              <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px] font-bold">
-                {credentials.filter((c) => c.status === "ACTIVE").length} paired
-              </span>
-            </div>
-
-            {/* Real Edge Device credentials — FR-144, no mock data. keyPrefix/lastUsedAt
-                are the only things this page can ever show once minting is done: the
-                raw key is never stored, so it cannot be redisplayed later. */}
-            <div className="space-y-2 text-xs">
-              {credentialsLoading ? (
-                <p className="text-slate-400 text-[11px]">กำลังโหลด...</p>
-              ) : credentials.length === 0 ? (
-                <p className="text-slate-400 text-[11px]">ยังไม่มี Edge Device ที่จับคู่กับ Business นี้</p>
-              ) : (
-                credentials.map((c) => (
-                  <div key={c.id} className="flex justify-between items-center py-1.5 px-2 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800">
-                    <div className="min-w-0">
-                      <p className="font-mono font-bold text-slate-800 dark:text-slate-200 text-[11px] truncate">{c.deviceId}</p>
-                      <p className="text-[10px] text-slate-500 truncate">{c.label} · {c.keyPrefix}…</p>
-                    </div>
-                    <div className="shrink-0 flex items-center gap-2">
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${c.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
-                        {c.status}
-                      </span>
-                      {c.status === "ACTIVE" && (
-                        <button
-                          type="button"
-                          onClick={() => revokeCredential(c)}
-                          disabled={revokingId === c.id}
-                          className="text-[10px] font-bold text-rose-600 hover:underline disabled:opacity-40"
-                        >
-                          {revokingId === c.id ? "กำลังเพิกถอน..." : "เพิกถอน"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Mint a new pairing file — FR-144 POST, raw key returned exactly once */}
-            <form id="line-edge-pairing" onSubmit={mintPairing} className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
-              <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400">จับคู่ Edge Device ใหม่</p>
-              <input
-                value={mintDeviceId}
-                onChange={(e) => setMintDeviceId(e.target.value)}
-                placeholder="Device ID เช่น workstation-01"
-                className={fieldClass}
-                disabled={minting || !business}
-                required
-              />
-              <input
-                value={mintLabel}
-                onChange={(e) => setMintLabel(e.target.value)}
-                placeholder="ชื่ออ้างอิง เช่น เครื่องหน้าร้าน"
-                className={fieldClass}
-                disabled={minting || !business}
-                required
-              />
-              <button
-                type="submit"
-                disabled={minting || !business}
-                className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold disabled:opacity-50"
-              >
-                {minting ? "กำลังสร้าง..." : "สร้างไฟล์จับคู่ใหม่"}
-              </button>
-              {mintError && <p className="text-[11px] text-rose-600">{mintError}</p>}
-            </form>
-
-            {minted && (
-              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 space-y-2">
-                <p className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
-                  บันทึกไฟล์นี้ตอนนี้ — คีย์จะไม่แสดงอีกครั้ง
-                </p>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => copyToken(minted.key)}
-                    className="flex-1 font-mono text-[10px] bg-white dark:bg-slate-900 px-2 py-1 rounded text-slate-700 dark:text-slate-300 flex items-center justify-between gap-1 hover:bg-slate-100 border border-amber-200 dark:border-amber-800 truncate"
-                  >
-                    <span className="truncate">{minted.key}</span>
-                    {copiedKey ? <Check className="w-3 h-3 text-emerald-500 shrink-0" /> : <Copy className="w-3 h-3 text-slate-400 shrink-0" />}
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={downloadPairingFile}
-                  className="w-full py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold"
-                >
-                  ดาวน์โหลดไฟล์จับคู่ (.json) — ลากเข้าแอป Zuri Edge Device
-                </button>
-              </div>
-            )}
-
-            {/* Deep Links to Local Edge Web GUI */}
-            <div className="pt-2 flex flex-col gap-2">
-              <a
-                href="http://localhost:8787/gui"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-between transition-colors shadow-xs"
-              >
-                <div className="flex items-center gap-2">
-                  <Terminal className="w-3.5 h-3.5 text-brand-amber" />
-                  <span>เปิด Edge Web GUI (:8787/gui)</span>
-                </div>
-                <ExternalLink className="w-3 h-3 text-slate-400" />
-              </a>
-
-              <a
-                href="http://localhost:8787/graph"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-between transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Database className="w-3.5 h-3.5 text-blue-500" />
-                  <span>เปิด Knowledge Graph (:8787/graph)</span>
-                </div>
-                <ExternalLink className="w-3 h-3 text-slate-400" />
-              </a>
-            </div>
-
-            {/* 4-Tier Cognitive Stack Architecture Mini Matrix */}
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-              <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-brand-amber" />
-                <span>4-Tier Cognitive Architecture (ADR-043)</span>
-              </h4>
-              <div className="space-y-2">
-                {cognitiveTiers.map((t, idx) => (
-                  <div key={idx} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 text-[11px]">
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{t.tier}: {t.name}</span>
-                    <p className="text-[10px] text-slate-500 mt-0.5">{t.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Center & Right Column: LINE OA Accounts, Server Transport & Provisioning */}
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 gap-6">
+        <div className="space-y-6">
           {/* Active LINE Accounts List */}
           <div className="rounded-2xl p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -539,6 +252,7 @@ export default function LineStudioAccountConsole() {
 
 function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
   const [push, setPush] = useState(account.allowDelayedPush);
+  const [runtimeOwner, setRuntimeOwner] = useState(account.runtimeOwner ?? "SERVER");
   const [grounding, setGrounding] = useState(account.knowledgeGrounding);
   const [sessionTimeout, setSessionTimeout] = useState(String(account.sessionIdleTimeoutMinutes ?? 30));
   const [quiesced, setQuiesced] = useState(false);
@@ -552,6 +266,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
 
   useEffect(() => {
     setPush(account.allowDelayedPush);
+    setRuntimeOwner(account.runtimeOwner ?? "SERVER");
     setGrounding(account.knowledgeGrounding);
     setSessionTimeout(String(account.sessionIdleTimeoutMinutes ?? 30));
   }, [account]);
@@ -612,7 +327,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
             <span className="text-xs text-slate-500 font-mono">({account.basicId || account.code})</span>
           </h2>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            LINE Transport: <strong className="text-slate-800 dark:text-slate-200">{account.serverEnabled ? "Zuri Server" : account.transportMode === "EDGE" ? "Edge (เลิกใช้แล้ว - ต้องย้าย)" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-emerald-600">{account.health?.connection?.status || "UNKNOWN"}</span>
+            LINE Transport: <strong className="text-slate-800 dark:text-slate-200">{account.serverEnabled ? "Zuri Server" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-emerald-600">{account.health?.connection?.status || "UNKNOWN"}</span>
           </p>
         </div>
         <StatusPill status={account.effectiveStatus} />
@@ -635,9 +350,27 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
         onAction={onAction} onLoadJobs={() => loadJobs()} busy={busy} />
 
       <fieldset disabled={busy || account.status === "ARCHIVED"} className="grid gap-3 pt-1">
-        {/* FR-265 — the execution-placement and model-access selects are gone
-            (ADR-100 D1, D3). Answers run on the server and call the Business's own
-            model key; neither was a choice the owner could act on any more. */}
+        {/* FR-265 — executionMode remains SERVER. This separate Core-owned cohort
+            sends only eligible direct conversations to the independent runtime. */}
+        <div>
+          <label htmlFor={`runtime-owner-${account.id}`} className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+            ตัวประมวลผลบทสนทนา
+          </label>
+          <select
+            id={`runtime-owner-${account.id}`}
+            aria-label="ตัวประมวลผลบทสนทนา"
+            className={fieldClass}
+            value={runtimeOwner}
+            onChange={(e) => setRuntimeOwner(e.target.value)}
+          >
+            <option value="SERVER">Zuri Server (ค่าเริ่มต้น)</option>
+            <option value="CONVERSATION_RUNTIME">Conversation Runtime</option>
+          </select>
+          <p className="text-[10px] text-slate-500 mt-1">
+            เลือก cohort ที่ Core บันทึกลงในแต่ละงาน การเปลี่ยนต้องไม่มีงานค้างหรือกำลังทำงานอยู่
+          </p>
+        </div>
+
         <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
           <input
             type="checkbox"
@@ -694,10 +427,10 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
           <button
             type="button"
             className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold"
-            disabled={push === account.allowDelayedPush}
-            onClick={() => onAction(account, { action: "CONFIGURE_EXECUTION", allowDelayedPush: push })}
+            disabled={push === account.allowDelayedPush && runtimeOwner === (account.runtimeOwner ?? "SERVER")}
+            onClick={() => onAction(account, { action: "CONFIGURE_EXECUTION", allowDelayedPush: push, runtimeOwner })}
           >
-            บันทึกนโยบายการส่ง
+            บันทึกนโยบายและ cohort
           </button>
 
           <button
@@ -742,12 +475,8 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
               </button>
             </div>
           ) : (
-            /* FR-265 — this branch used to offer SWITCH_TRANSPORT_MODE back to
-               CLOUD. The action is withdrawn (ADR-100 D1), so a row still reading
-               EDGE is a pre-migration leftover the owner cannot fix from here; it
-               says so rather than offering a button that would 400. */
             <p className="rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[11px] text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
-              บัญชีนี้ยังบันทึกเป็น transport แบบ Edge ซึ่งเลิกใช้แล้ว ต้องให้ผู้ดูแลระบบย้ายข้อมูลเป็น CLOUD ก่อนจึงจะเปิด Server transport ได้
+              บัญชีนี้ต้องตรวจสอบการตั้งค่าก่อนเปิด Server transport กรุณาติดต่อผู้ดูแลระบบ
             </p>
           )}
 

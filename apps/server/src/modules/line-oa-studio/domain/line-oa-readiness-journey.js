@@ -1,11 +1,6 @@
 // @req FR-225, FR-227, FR-228, FR-150, FR-235 — resumable SaaS OA journey from persisted evidence.
-// @req FR-265, FR-266 — step 5 was "เลือก Edge และโมเดล": pick EDGE execution with
-//   LOCAL_ONLY model access, and count how many devices hold a pairing credential.
-//   ADR-100 D1 retires that choice and ADR-100 D4 replaces it with the one thing a
-//   server answer now actually needs — a validated model provider API key for this
-//   Business. The step reads the credential's own persisted evidence, not a
-//   configuration flag, for the same reason every other step here does: a saved
-//   selection is not a working connection.
+// @req FR-265, FR-266 — the model step reads the Business's validated provider
+//   API key evidence. A saved selection alone is not a working connection.
 // @spec ADR-089, ADR-090, ADR-061, ADR-100 — configured transport is not full runtime qualification.
 // @tested tests/unit/line-oa-readiness-journey.test.js
 

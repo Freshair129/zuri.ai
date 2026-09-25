@@ -173,9 +173,9 @@ describe('extractApiPathReferences', () => {
     // The exact shape that broke a naive "match to the next backtick" scan:
     // the literal prefix is still all that matters, so this must resolve
     // identically to the plain dynamic case above.
-    const src = "fetch(`/api/agent/heartbeat${x ? `?d=${x}` : ''}`)"
+    const src = "fetch(`/api/line-oa/accounts/${id}/webhook${x ? `?d=${x}` : ''}`)"
     expect(extractApiPathReferences(src)).toEqual([
-      { raw: '/api/agent/heartbeat', dynamic: true },
+      { raw: '/api/line-oa/accounts/', dynamic: true },
     ])
   })
 })

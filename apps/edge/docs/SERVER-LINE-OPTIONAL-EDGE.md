@@ -1,17 +1,35 @@
-# Server-owned LINE and optional Edge computation
+# Retired: Server-owned LINE and optional Edge computation
 
-Status: implemented for review, 2026-09-06. Activation is separate.
+> **Historical record only.** The optional paired Edge-device worker, `edgk_` device
+> credentials, cloud heartbeat, device-side extraction, `LEGACY_EDGE` mode, and local Edge LINE
+> ingress/delivery described below are retired. Do not use this page to enroll a device, configure
+> a worker, change a LINE webhook, or perform a transport cutover.
+>
+> The retained local Knowledge/RAG pipeline is documented in
+> [the GenesisRAG runbook](GENESIS-RAG-V4-PIPELINE-RUNBOOK.md); archive, outbox, and LINE identity
+> records remain preserved. The Localworker API-key contract is owned by the external Private
+> Runtime Platform (PRP). The Conversation Runtime has its own current boundary in the
+> [handoff](../../../docs/migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md). This
+> historical page does not establish that PRP integration is implemented or verified.
 
-Containment implemented (2026-09-06): stateless Codex MCP configuration isolation failed an
+Status: superseded for current operations on 2026-09-25; retained as migration and implementation evidence.
+
+## Historical design and verification record (2026-09-06)
+
+The content below records the former implementation and migration proposal. Its code paths and
+operational steps are not current instructions.
+
+Historical containment result (2026-09-06): stateless Codex MCP configuration isolation failed an
 isolated CLI reproduction. See the [RCA](../.brain/rca/2026-09-06-codex-stateless-mcp-isolation.md)
-and [approved containment specification](CODEX-STATELESS-ISOLATION-PROPOSAL.md).
-Stateless Codex jobs now fail before answer execution or process creation with `LOCAL_POLICY_UNAVAILABLE`, without provider fallback. Re-enablement requires verified config isolation; legacy execution retains its existing contract.
+and [containment specification](CODEX-STATELESS-ISOLATION-PROPOSAL.md). The former stateless
+Codex jobs were configured to fail before answer execution or process creation with
+`LOCAL_POLICY_UNAVAILABLE`; this paragraph is not current runtime evidence.
 
 Canonical decision: [zuri.ai ADR-061](https://github.com/Freshair129/zuri.ai/blob/main/docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md).
 Canonical wire contract: [conversation execution v1](https://github.com/Freshair129/zuri.ai/blob/main/contracts/line-conversation-execution.schema.json).
-This implements the Edge half of upstream FR-150; it does not fork that requirement.
+This formerly implemented the Edge half of upstream FR-150; it did not fork that requirement.
 
-## Ownership
+## Former ownership model (historical)
 
 Zuri Server owns native LINE ingress, signature/destination validation, account-scoped CRM,
 admission policy, durable jobs, final LINE delivery and outbound recording. A cloud-only account
@@ -24,7 +42,7 @@ tunnel, an inbound port, a LINE user identifier, or a direct connection to the C
 Model/CLI settings stay local operator configuration; a job cannot name an executable, URL,
 query, recipient, filesystem location or business scope.
 
-## Run compute-only
+## Retired compute-only instructions — do not run
 
 Build with `npm ci` and `npm run build`. Set `ZURI_CLOUD_BASE_URL` to the deployment origin and
 install `ZURI_EDGE_DEVICE_KEY` through the existing device-secret mechanism. HTTPS is required
@@ -46,7 +64,7 @@ It reports process start separately from health; verify actual claim/heartbeat i
 Extraction remains separately available as `extraction once|serve`. Run only the capabilities
 needed on the device; coordinate GPU capacity before running two model workers together.
 
-## Claim and completion
+## Historical claim and completion contract
 
 1. POST `{}` to `/api/edge/conversation-jobs/claim` with the device bearer.
 2. Accept HTTP 204 or the strict version-1 envelope. Extra fields are rejected, including raw
@@ -71,7 +89,7 @@ reports its own expired lease this way, in which case the server has already mov
 device's report is simply swallowed; 401/403/404 stop the loop. Other failures back off to at most
 30 seconds. Restart requires no local queue recovery and no LINE resend.
 
-## Model access and retention
+## Historical model access and retention
 
 `LOCAL_ONLY` permits deterministic rules or an explicitly configured loopback model endpoint.
 It refuses all headless coding agents, remote model URLs, and implicit hosted fallbacks.
@@ -95,7 +113,7 @@ Flag references: [Codex CLI](https://developers.openai.com/codex/cli/reference/)
 [Codex configuration](https://developers.openai.com/codex/config-reference/),
 [Claude CLI](https://code.claude.com/docs/en/cli-reference).
 
-## Explicit legacy cutover
+## Retired legacy cutover proposal — do not follow
 
 `ZURI_LINE_TRANSPORT_OWNER` defaults to `SERVER`. Legacy webhook and POC CLI entry points fail
 closed unless the operator explicitly sets `LEGACY_EDGE`. The webhook library also requires
@@ -120,7 +138,7 @@ Rollback is also a quiescent ownership transfer: pause server admission/delivery
 in-flight sends, disable server ownership, then restore the legacy webhook. Never overlap two
 transport owners for an account.
 
-## Verification evidence
+## Historical verification evidence
 
 Baseline at upstream `96706d91`: 837 tests, 832 passed, 5 optional native-store tests skipped.
 Implementation adds strict contract, ownership, local-policy, no-retention, credential rejection,

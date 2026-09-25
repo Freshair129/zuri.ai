@@ -3,7 +3,6 @@
 //   Data only: the GenesisBlockDB seeder that once consumed it was retired by ADR-063; today it
 //   feeds the PUBLIC business-knowledge fixture (tests/factories/smartgift-knowledge.js) and the
 //   pipeline-evidence seed script.
-// @tested tests/integration/smartgift-webhook-e2e.test.js
 
 export const SMARTGIFT_CATEGORIES = [
   {

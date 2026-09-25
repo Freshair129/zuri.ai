@@ -285,47 +285,6 @@
   <div class="grid">
     <!-- Main Content Column -->
     <div>
-      <!-- 🎙️ ZURI LIVE COMMAND CONSOLE & MONITOR -->
-      <div class="card" style="border: 2px solid var(--brand); background: var(--brand-surface);">
-        <h2 class="card-title" style="color: var(--brand); font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-          <span>🎙️ Live Command Console (Zuri Dispatcher)</span>
-          <span style="font-size: 0.7rem; font-weight: normal; background: var(--brand-tint); color: #7C2D12; padding: 0.2rem 0.5rem; border-radius: 4px;">Tone Transformer Active</span>
-        </h2>
-        <p class="card-subtitle" style="color: #7C2D12; opacity: 0.85; margin-bottom: 1rem;">พิมพ์คำสั่งภาษาคนหรือกดพูดด้วยเสียง ระบบจะแปลเป็นคำพูดซูริและ Push เข้ากลุ่ม LINE ทันที</p>
-
-        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
-          <div class="field" style="margin-bottom: 0;">
-            <label for="dispatchTarget" style="color: #7C2D12;">🎯 เลือกกลุ่มเป้าหมายหรือลูกค้า (Target Channel)</label>
-            <select id="dispatchTarget" class="input font-semibold" style="border-color: var(--brand-tint); background: #FFFFFF;">
-              <option value="">กำลังโหลดช่องทางการติดต่อ...</option>
-            </select>
-          </div>
-          
-          <div class="field" style="margin-bottom: 0;">
-            <label for="commandText" style="color: #7C2D12; display: flex; justify-content: space-between; align-items: center;">
-              <span>📝 คำสั่งที่ต้องการสั่ง Zuri</span>
-              <button type="button" id="voiceBtn" class="btn-secondary" style="width: auto; padding: 0.2rem 0.6rem; font-size: 0.7rem; border-radius: 6px; display: flex; align-items: center; gap: 0.35rem; border-color: var(--brand);">
-                🎙️ กดพูดด้วยเสียง (Speech)
-              </button>
-            </label>
-            <textarea id="commandText" class="input" rows="3" style="border-color: var(--brand-tint); background: #FFFFFF; font-family: inherit; font-size: 0.85rem;" placeholder="เช่น 'บอกกลุ่มทีมน้องว่าปรับปรุงระบบคำนวณราคาเสร็จแล้วจ้า'"></textarea>
-          </div>
-        </div>
-
-        <div id="tonePreviewBox" style="display: none; background: #FFFFFF; border: 1px dashed var(--brand); border-radius: 0.75rem; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.85rem; line-height: 1.5; color: var(--text);">
-          <div style="font-weight: 700; color: var(--brand); margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center;">
-            <span>✨ ข้อความซูริหลังแปลงโทน (Tone Preview)</span>
-            <span style="font-size: 0.7rem; font-weight: normal; background: #FFF1F2; color: #E11D48; padding: 0.1rem 0.4rem; border-radius: 4px;">รออนุมัติ</span>
-          </div>
-          <p id="tonePreviewText" style="margin: 0; white-space: pre-wrap; font-style: italic;"></p>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-          <button type="button" id="previewBtn" class="btn btn-secondary" style="border-color: var(--brand); color: var(--brand); font-weight: 600;">✨ ทดลองแปลงโทนซูริ (Preview)</button>
-          <button type="button" id="dispatchBtn" class="btn" style="box-shadow: 0 4px 10px rgba(232, 130, 12, 0.2);">🚀 อนุมัติและยิงข้อความดิสแพตช์</button>
-        </div>
-      </div>
-
       <div class="card">
         <h2 class="card-title">🧠 Local Intelligence &amp; Model Engine</h2>
         <p class="card-subtitle">เลือกรูปแบบการประมวลผลสมองกล (Local Ollama หรือ Subscription Plan Bridge)</p>
@@ -416,34 +375,8 @@
 
           <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
 
-          <h2 class="card-title">📲 LINE Messaging API &amp; Webhook Credentials</h2>
-          <p class="card-subtitle">ความลับเหล่านี้จะถูกเก็บรักษาไว้เฉพาะบน Local Hard Disk เครื่องนี้เท่านั้น (No Cloud Leak)</p>
-
-          <div class="field">
-            <label for="lineSecret">LINE Channel Secret</label>
-            <input type="password" id="lineSecret" class="input input-mono" placeholder="เช่น f2a1db2e501a5f09075378df64fdd59a" required />
-          </div>
-
-          <div class="field">
-            <label for="lineAccessToken">LINE Channel Access Token (Long-Lived)</label>
-            <input type="password" id="lineAccessToken" class="input input-mono" placeholder="tFvkQCW0kqv/bHpxz0rvgnWrBxW5gVuG..." required />
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="field">
-              <label for="lineGroupTeam">ทีมงาน Group ID (Team Alias)</label>
-              <input type="text" id="lineGroupTeam" class="input input-mono" placeholder="Cc7cfa4c501da9b430abc5ec09a8894ea" />
-            </div>
-            <div class="field">
-              <label for="lineGroupTest">ทดสอบ Group ID (Test Alias)</label>
-              <input type="text" id="lineGroupTest" class="input input-mono" placeholder="C423a5c290822a200bf061623aeb2c713" />
-            </div>
-          </div>
-
-          <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
-
-          <h2 class="card-title">💾 Disk Storage &amp; History Archive</h2>
-          <p class="card-subtitle">ตั้งค่าตำแหน่งจัดเก็บประวัติการแชทลูกค้าลงใน Local Hard Disk และรอบเวลาหมุนเวียนลบ</p>
+          <h2 class="card-title">💾 Disk Storage &amp; Chat History Archive</h2>
+          <p class="card-subtitle">ตั้งค่าตำแหน่งจัดเก็บประวัติการสนทนาลงใน Local Hard Disk และรอบเวลาหมุนเวียนลบ</p>
 
           <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
             <div class="field">
@@ -602,184 +535,6 @@
     reader.readAsText(file);
   }
 
-  // 🎙️ --- Zuri Dispatcher GUI Logic ---
-  const dispatchTarget = document.getElementById('dispatchTarget');
-  const commandText = document.getElementById('commandText');
-  const voiceBtn = document.getElementById('voiceBtn');
-  const previewBtn = document.getElementById('previewBtn');
-  const dispatchBtn = document.getElementById('dispatchBtn');
-  const tonePreviewBox = document.getElementById('tonePreviewBox');
-  const tonePreviewText = document.getElementById('tonePreviewText');
-
-  let activeChannelsList = { groups: [], users: [] };
-  let transformedZuriMessage = '';
-
-  async function loadDispatchChannels() {
-    try {
-      const res = await fetch('/api/monitor/channels');
-      if (res.ok) {
-        const data = await res.json();
-        activeChannelsList = data;
-        dispatchTarget.innerHTML = '';
-
-        if (data.groups.length === 0 && data.users.length === 0) {
-          dispatchTarget.innerHTML = '<option value="">❌ ไม่พบกลุ่มหรือแชทส่วนตัวที่ใช้งาน</option>';
-          return;
-        }
-
-        // Add groups
-        if (data.groups.length > 0) {
-          const optGroup = document.createElement('optgroup');
-          optGroup.label = '👥 LINE Groups';
-          data.groups.forEach(g => {
-            const opt = document.createElement('option');
-            opt.value = g.id;
-            opt.textContent = `${g.name} (${g.alias})`;
-            optGroup.appendChild(opt);
-          });
-          dispatchTarget.appendChild(optGroup);
-        }
-
-        // Add users
-        if (data.users.length > 0) {
-          const optUser = document.createElement('optgroup');
-          optUser.label = '👤 1:1 Direct Users (Approved)';
-          data.users.forEach(u => {
-            const opt = document.createElement('option');
-            opt.value = u.id; // hash id lookup on server
-            opt.textContent = `${u.displayName} (${u.role})`;
-            optUser.appendChild(opt);
-          });
-          dispatchTarget.appendChild(optUser);
-        }
-      }
-    } catch (err) {
-      console.warn('Failed to load dispatch targets:', err);
-      dispatchTarget.innerHTML = '<option value="">❌ โหลดเป้าหมายล้มเหลว</option>';
-    }
-  }
-
-  // 🎙️ HTML5 Web Speech API integration
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (SpeechRecognition) {
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'th-TH';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    voiceBtn.addEventListener('click', () => {
-      voiceBtn.disabled = true;
-      voiceBtn.textContent = '🔴 กำลังฟังเสียง (พูดได้เลย)...';
-      voiceBtn.style.background = '#FEE2E2';
-      voiceBtn.style.color = '#EF4444';
-      voiceBtn.style.borderColor = '#EF4444';
-      recognition.start();
-    });
-
-    recognition.onresult = (event) => {
-      const speechToText = event.results[0][0].transcript;
-      commandText.value = (commandText.value + ' ' + speechToText).trim();
-    };
-
-    recognition.onend = () => {
-      voiceBtn.disabled = false;
-      voiceBtn.textContent = '🎙️ กดพูดด้วยเสียง (Speech)';
-      voiceBtn.style.background = '';
-      voiceBtn.style.color = '';
-      voiceBtn.style.borderColor = '';
-    };
-
-    recognition.onerror = (e) => {
-      console.error('Speech recognition error:', e);
-      alert('เกิดข้อผิดพลาดในการฟังเสียง: ' + e.error);
-    };
-  } else {
-    voiceBtn.style.display = 'none'; // Hide if browser not supported
-  }
-
-  // Preview / Transform tone logic
-  previewBtn.addEventListener('click', async () => {
-    const target = dispatchTarget.value;
-    const rawCommand = commandText.value.trim();
-    if (!target || !rawCommand) {
-      alert('กรุณาเลือกช่องทางเป้าหมายและกรอกคำสั่งเสียง/พิมพ์คำสั่งก่อนค่ะ');
-      return;
-    }
-
-    previewBtn.disabled = true;
-    previewBtn.textContent = '✨ กำลังแปลงโทนซูริ...';
-    tonePreviewBox.style.display = 'none';
-
-    try {
-      // We simulate dispatcher with temporary text translation
-      // To run model check without pushing, we use standard fetch dispatch API with preview option (or run local LLM prompt)
-      // Since dispatch is POST, we run a prompt on server, we get text
-      const prompt = `[คำสั่งด่วนจาก Boss/Owner]: ให้ซูริแจ้งผู้ใช้ในกลุ่มแชท/ลูกค้าตามข้อความนี้:\n"${rawCommand}"\n\nจงเปลี่ยนคำสั่งข้างต้นให้กลายเป็นประกาศหรือคำตอบที่ส่งจาก "ซูริ" โดยใช้โทนเสียงที่สุภาพ อบอุ่น นอบน้อม และเป็นมิตร ห้ามเกริ่นอธิบายตัวคุณเอง ห้ามพ่นขั้นตอนการทำงาน ให้เขียนคำตอบของซูริที่จะส่งให้ลูกค้าตรง ๆ เท่านั้น`;
-      
-      const configRes = await fetch('/api/config');
-      const configData = await configRes.json();
-
-      // We call the server answer endpoint via internal direct query for instant preview!
-      // Send raw payload
-      const previewRes = await fetch('/api/command/dispatch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target, rawCommand: `[PREVIEW_ONLY_DO_NOT_SEND]: ${rawCommand}` }) // We will detect PREVIEW key or process directly
-      });
-
-      if (previewRes.ok) {
-        const result = await previewRes.json();
-        transformedZuriMessage = result.text;
-        tonePreviewText.textContent = transformedZuriMessage;
-        tonePreviewBox.style.display = 'block';
-      } else {
-        const error = await previewRes.json();
-        alert('แปลงโทนไม่สำเร็จ: ' + (error.error || 'Unknown error'));
-      }
-    } catch (err) {
-      alert('Error: ' + err.message);
-    } finally {
-      previewBtn.disabled = false;
-      previewBtn.textContent = '✨ ทดลองแปลงโทนซูริ (Preview)';
-    }
-  });
-
-  // Approved & Dispatch logic
-  dispatchBtn.addEventListener('click', async () => {
-    const target = dispatchTarget.value;
-    const rawCommand = commandText.value.trim();
-    if (!target || !rawCommand) {
-      alert('กรุณากรอกข้อมูลและเป้าหมายให้ครบถ้วนก่อนส่งค่ะ');
-      return;
-    }
-
-    dispatchBtn.disabled = true;
-    dispatchBtn.textContent = '🚀 กำลังส่งไปยัง LINE...';
-
-    try {
-      const res = await fetch('/api/command/dispatch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target, rawCommand })
-      });
-
-      if (res.ok) {
-        const result = await res.json();
-        alert(`✅ ส่งคำสั่งดิสแพตช์ผ่าน LINE สำเร็จเรียบร้อยแล้ว!\n\nข้อความที่ส่ง:\n"${result.text}"`);
-        commandText.value = '';
-        tonePreviewBox.style.display = 'none';
-      } else {
-        const error = await res.json();
-        alert('❌ ไม่สามารถยิงข้อความได้: ' + (error.error || 'Server error'));
-      }
-    } catch (err) {
-      alert('Error: ' + err.message);
-    } finally {
-      dispatchBtn.disabled = false;
-      dispatchBtn.textContent = '🚀 อนุมัติและยิงข้อความดิสแพตช์';
-    }
-  });
-
   async function loadConfig() {
     await fetchOllamaModels();
     try {
@@ -789,12 +544,8 @@
         if (data.deviceId) document.getElementById('edgeDeviceId').value = data.deviceId;
         if (data.deviceToken) document.getElementById('edgeDeviceToken').value = data.deviceToken;
         if (data.deviceSecret) document.getElementById('edgeDeviceSecret').value = data.deviceSecret;
-        if (data.lineChannelSecret) document.getElementById('lineSecret').value = data.lineChannelSecret;
-        if (data.lineChannelAccessToken) document.getElementById('lineAccessToken').value = data.lineChannelAccessToken;
         if (data.historyRoot) document.getElementById('historyRoot').value = data.historyRoot;
         if (data.retentionDays) document.getElementById('retentionDays').value = data.retentionDays;
-        if (data.lineGroupTeam) document.getElementById('lineGroupTeam').value = data.lineGroupTeam;
-        if (data.lineGroupTest) document.getElementById('lineGroupTest').value = data.lineGroupTest;
         // Options come from the device's own .agents/ folder, so the list is what it can load.
         const personaSelect = document.getElementById('activePersona');
         if (Array.isArray(data.availablePersonas) && data.availablePersonas.length) {
@@ -863,10 +614,6 @@
       deviceSecret: document.getElementById('edgeDeviceSecret').value.trim(),
       engineMode: currentEngineMode,
       modelName: document.getElementById('activeModelDisplay').value.trim(),
-      lineChannelSecret: document.getElementById('lineSecret').value.trim(),
-      lineChannelAccessToken: document.getElementById('lineAccessToken').value.trim(),
-      lineGroupTeam: document.getElementById('lineGroupTeam').value.trim(),
-      lineGroupTest: document.getElementById('lineGroupTest').value.trim(),
       historyRoot: document.getElementById('historyRoot').value.trim(),
       retentionDays: document.getElementById('retentionDays').value.trim(),
       activePersona: document.getElementById('activePersona').value,
@@ -902,7 +649,6 @@
           lines.push('', 'ℹ️ ไม่มีค่าใดเปลี่ยนแปลง — ที่บันทึกลงไปเหมือนเดิมทุกช่อง');
         }
         alert(lines.join(String.fromCharCode(10)));
-        await loadDispatchChannels(); // Reload targets since groups changed
       } else if (res.status === 401) {
         alert('🔒 เซสชันหมดอายุ — กรุณาเข้าสู่ระบบใหม่');
         location.reload();
@@ -964,7 +710,6 @@
   }
 
   loadConfig();
-  loadDispatchChannels();
   loadLiveLogs();
 
   // Auto-poll logs every 5 seconds for live monitor feed

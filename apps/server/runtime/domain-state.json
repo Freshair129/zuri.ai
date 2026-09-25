@@ -37,11 +37,11 @@
     "status": "partial",
     "domainCount": 14,
     "featureCount": 159,
-    "readyFeatureCount": 119,
+    "readyFeatureCount": 116,
     "requirementCount": 272,
-    "verifiedRequirementCount": 247,
-    "progressPercent": 93.6,
-    "gapCount": 48,
+    "verifiedRequirementCount": 241,
+    "progressPercent": 92.6,
+    "gapCount": 47,
     "gaps": [
       {
         "domain": "agent",
@@ -80,6 +80,18 @@
       },
       {
         "domain": "agent",
+        "id": "REQ-FR-141",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-141 is not_implemented",
+        "evidence": [
+          "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+          "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+          "apps/server/tests/unit/integrations-page-claims.test.js"
+        ]
+      },
+      {
+        "domain": "agent",
         "id": "REQ-FR-232",
         "severity": "medium",
         "check": "requirements",
@@ -105,20 +117,6 @@
         "check": "requirements",
         "summary": "FR-257 is planned",
         "evidence": []
-      },
-      {
-        "domain": "asset-management",
-        "id": "AUTH-001",
-        "severity": "high",
-        "check": "authorization",
-        "summary": "At least one mutating route lacks a recognizable request viewer seam"
-      },
-      {
-        "domain": "asset-management",
-        "id": "AUTH-002",
-        "severity": "medium",
-        "check": "authorization",
-        "summary": "At least one read route lacks a recognizable request viewer seam"
       },
       {
         "domain": "identity",
@@ -165,6 +163,23 @@
         "check": "requirements",
         "summary": "FR-121 is planned",
         "evidence": []
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-144",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-144 is not_implemented",
+        "evidence": [
+          "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+          "apps/server/tests/integration/fr146-line-oa-account.test.js",
+          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+          "apps/server/tests/unit/integrations-page-claims.test.js"
+        ]
       },
       {
         "domain": "integration",
@@ -302,13 +317,6 @@
         "severity": "high",
         "check": "authorization",
         "summary": "At least one mutating route lacks a recognizable request viewer seam"
-      },
-      {
-        "domain": "platform-control",
-        "id": "AUTH-002",
-        "severity": "medium",
-        "check": "authorization",
-        "summary": "At least one read route lacks a recognizable request viewer seam"
       },
       {
         "domain": "platform-control",
@@ -489,7 +497,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 8
         },
         {
           "id": "FR-027",
@@ -498,14 +506,6 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 7
-        },
-        {
-          "id": "FR-028",
-          "title": "LINE webhook API route (ADR-007 P7 wiring)",
-          "declared": "done",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 9
         },
         {
           "id": "FR-029",
@@ -529,7 +529,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-049",
@@ -537,15 +537,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 7
-        },
-        {
-          "id": "FR-050",
-          "title": "Single-reply LINE delivery",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 8
+          "testCount": 6
         },
         {
           "id": "FR-051",
@@ -566,8 +558,8 @@
           "title": "Server-owned LINE scope binding",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 18
+          "codeCount": 3,
+          "testCount": 11
         },
         {
           "id": "FR-053",
@@ -607,7 +599,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 70
+          "testCount": 69
         },
         {
           "id": "FR-079",
@@ -623,23 +615,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
-        },
-        {
-          "id": "FR-081",
-          "title": "Raw external ingestion boundary",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 25
+          "testCount": 20
         },
         {
           "id": "FR-093",
           "title": "LINE reply delivery receipt",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 11
+          "codeCount": 1,
+          "testCount": 5
         },
         {
           "id": "FR-096",
@@ -654,8 +638,8 @@
           "title": "Verified channel onboarding",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 22
+          "codeCount": 5,
+          "testCount": 20
         },
         {
           "id": "FR-098",
@@ -674,28 +658,17 @@
           "testCount": 0
         },
         {
-          "id": "FR-140",
-          "title": "Trusted LINE Asset handoff",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 3
-        },
-        {
           "id": "FR-141",
           "title": "Edge Device heartbeat registry",
           "declared": "n/a",
-          "status": "verified",
-          "codeCount": 2,
-          "testCount": 4
-        },
-        {
-          "id": "FR-144",
-          "title": "Edge device credential",
-          "declared": "done",
-          "status": "verified",
-          "codeCount": 2,
-          "testCount": 21
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 3,
+          "evidence": [
+            "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+            "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+            "apps/server/tests/unit/integrations-page-claims.test.js"
+          ]
         },
         {
           "id": "FR-147",
@@ -711,15 +684,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 15
         },
         {
           "id": "FR-149",
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 49
+          "codeCount": 4,
+          "testCount": 52
         },
         {
           "id": "FR-150",
@@ -727,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 18
+          "testCount": 14
         },
         {
           "id": "FR-171",
@@ -735,7 +708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 26
+          "testCount": 29
         },
         {
           "id": "FR-181",
@@ -772,7 +745,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-235",
@@ -780,15 +753,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 29
-        },
-        {
-          "id": "FR-243",
-          "title": "Conversation sessions",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 35
+          "testCount": 30
         },
         {
           "id": "FR-253",
@@ -820,7 +785,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 26
         },
         {
           "id": "FR-266",
@@ -828,7 +793,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "checks": {
@@ -838,18 +803,9 @@
           "gaps": []
         },
         "httpApi": {
-          "status": "verified",
-          "evidence": [
-            "docs/appendices/A-api-spec.md",
-            "src/modules/project-manager/api-docs/openapi.js"
-          ],
-          "gaps": [],
-          "details": {
-            "routes": 4,
-            "inventoried": 4,
-            "openApiPaths": 337,
-            "missingFromOpenApi": 0
-          }
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
         },
         "mcp": {
           "status": "verified",
@@ -896,17 +852,9 @@
           }
         },
         "authorization": {
-          "status": "verified",
-          "evidence": [
-            "docs/appendices/A-api-spec.md"
-          ],
-          "gaps": [],
-          "details": {
-            "mutations": 2,
-            "guardedMutations": 2,
-            "reads": 1,
-            "unguardedReads": 0
-          }
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
         },
         "tests": {
           "status": "partial",
@@ -925,7 +873,6 @@
       "evidence": [
         "contracts/plan-envelope.schema.json",
         "docs/TRACE.md",
-        "docs/appendices/A-api-spec.md",
         "docs/domains/agent/CHARTER.md",
         "docs/domains/agent/features/FR-026-line-project-work-confirmation.md",
         "docs/domains/agent/features/FR-051-production-supabase-tenant-isolation.md",
@@ -948,7 +895,6 @@
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
-        "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/knowledge-admission-mcp.test.js",
@@ -988,6 +934,17 @@
           "evidence": []
         },
         {
+          "id": "REQ-FR-141",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-141 is not_implemented",
+          "evidence": [
+            "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+            "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+            "apps/server/tests/unit/integrations-page-claims.test.js"
+          ]
+        },
+        {
           "id": "REQ-FR-232",
           "severity": "medium",
           "check": "requirements",
@@ -1014,8 +971,8 @@
         }
       ],
       "details": {
-        "routes": 4,
-        "apiRoutes": 4,
+        "routes": 0,
+        "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 1,
         "featureNotes": 18
@@ -1040,11 +997,11 @@
         "FR-171"
       ],
       "featureCount": 17,
-      "readyFeatureCount": 15,
-      "progressPercent": 71.4
+      "readyFeatureCount": 13,
+      "progressPercent": 66.7
     },
     "asset-management": {
-      "status": "partial",
+      "status": "verified",
       "requirements": [
         {
           "id": "FR-133",
@@ -1092,7 +1049,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 7
+          "testCount": 6
         },
         {
           "id": "FR-139",
@@ -1103,28 +1060,12 @@
           "testCount": 3
         },
         {
-          "id": "FR-140",
-          "title": "Trusted LINE Asset handoff",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 3
-        },
-        {
           "id": "FR-143",
           "title": "Edge-executed asset evidence extraction (ADR-059",
           "declared": "done",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 8
-        },
-        {
-          "id": "FR-144",
-          "title": "Edge device credential",
-          "declared": "done",
-          "status": "verified",
-          "codeCount": 4,
-          "testCount": 21
+          "codeCount": 2,
+          "testCount": 4
         }
       ],
       "checks": {
@@ -1134,18 +1075,9 @@
           "gaps": []
         },
         "httpApi": {
-          "status": "verified",
-          "evidence": [
-            "docs/appendices/A-api-spec.md",
-            "src/modules/project-manager/api-docs/openapi.js"
-          ],
-          "gaps": [],
-          "details": {
-            "routes": 4,
-            "inventoried": 4,
-            "openApiPaths": 337,
-            "missingFromOpenApi": 0
-          }
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
         },
         "mcp": {
           "status": "verified",
@@ -1186,28 +1118,9 @@
           }
         },
         "authorization": {
-          "status": "partial",
-          "evidence": [
-            "docs/appendices/A-api-spec.md"
-          ],
-          "gaps": [
-            {
-              "id": "AUTH-001",
-              "severity": "high",
-              "summary": "At least one mutating route lacks a recognizable request viewer seam"
-            },
-            {
-              "id": "AUTH-002",
-              "severity": "medium",
-              "summary": "At least one read route lacks a recognizable request viewer seam"
-            }
-          ],
-          "details": {
-            "mutations": 3,
-            "guardedMutations": 0,
-            "reads": 1,
-            "unguardedReads": 1
-          }
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
         },
         "tests": {
           "status": "verified",
@@ -1220,7 +1133,6 @@
       "evidence": [
         "contracts/plan-envelope.schema.json",
         "docs/TRACE.md",
-        "docs/appendices/A-api-spec.md",
         "docs/domains/asset-management/CHARTER.md",
         "docs/domains/asset-management/features/FR-133-asset-management-foundation.md",
         "docs/domains/asset-management/features/FR-137-asset-evidence-intake-execution.md",
@@ -1228,30 +1140,16 @@
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
-        "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/knowledge-admission-mcp.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [
-        {
-          "id": "AUTH-001",
-          "severity": "high",
-          "check": "authorization",
-          "summary": "At least one mutating route lacks a recognizable request viewer seam"
-        },
-        {
-          "id": "AUTH-002",
-          "severity": "medium",
-          "check": "authorization",
-          "summary": "At least one read route lacks a recognizable request viewer seam"
-        }
-      ],
+      "gaps": [],
       "details": {
-        "routes": 4,
-        "apiRoutes": 4,
+        "routes": 0,
+        "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 10,
         "featureNotes": 3
@@ -1263,7 +1161,7 @@
       ],
       "featureCount": 3,
       "readyFeatureCount": 0,
-      "progressPercent": 100
+      "progressPercent": 90
     },
     "commerce": {
       "status": "partial",
@@ -1356,7 +1254,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 337,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -1478,7 +1376,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 51
+          "testCount": 50
         },
         {
           "id": "FR-078",
@@ -1494,7 +1392,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-093",
@@ -1502,7 +1400,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 5
         },
         {
           "id": "FR-097",
@@ -1510,7 +1408,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 20
         },
         {
           "id": "FR-103",
@@ -1550,7 +1448,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 16
+          "testCount": 15
         },
         {
           "id": "FR-151",
@@ -1606,7 +1504,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-236",
@@ -1622,7 +1520,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 35
+          "testCount": 31
         },
         {
           "id": "FR-245",
@@ -1638,7 +1536,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 5
         },
         {
           "id": "FR-265",
@@ -1646,7 +1544,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 26
         }
       ],
       "checks": {
@@ -1783,7 +1681,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 8
         },
         {
           "id": "FR-031",
@@ -1839,7 +1737,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 51
+          "testCount": 50
         },
         {
           "id": "FR-062",
@@ -1927,7 +1825,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 22
+          "testCount": 20
         },
         {
           "id": "FR-098",
@@ -2013,9 +1911,19 @@
           "id": "FR-144",
           "title": "Edge device credential",
           "declared": "done",
-          "status": "verified",
-          "codeCount": 8,
-          "testCount": 21
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 8,
+          "evidence": [
+            "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+            "apps/server/tests/unit/integrations-page-claims.test.js"
+          ]
         },
         {
           "id": "FR-146",
@@ -2031,7 +1939,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 15
         },
         {
           "id": "FR-154",
@@ -2146,14 +2054,6 @@
           "testCount": 12
         },
         {
-          "id": "FR-220",
-          "title": "Harness device pairing and report-only credential",
-          "declared": "done",
-          "status": "verified",
-          "codeCount": 9,
-          "testCount": 6
-        },
-        {
           "id": "FR-224",
           "title": "Credential-write step-up gate",
           "declared": "n/a",
@@ -2172,14 +2072,14 @@
       ],
       "checks": {
         "ui": {
-          "status": "unknown",
+          "status": "verified",
           "evidence": [
             "docs/INTERFACE-INVENTORY.md"
           ],
           "gaps": [],
           "details": {
-            "routes": 9,
-            "inventoried": 9,
+            "routes": 8,
+            "inventoried": 8,
             "missing": 0
           }
         },
@@ -2200,9 +2100,9 @@
             }
           ],
           "details": {
-            "routes": 34,
-            "inventoried": 33,
-            "openApiPaths": 337,
+            "routes": 27,
+            "inventoried": 26,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -2266,9 +2166,9 @@
             }
           ],
           "details": {
-            "mutations": 29,
-            "guardedMutations": 23,
-            "reads": 9,
+            "mutations": 23,
+            "guardedMutations": 19,
+            "reads": 7,
             "unguardedReads": 1
           }
         },
@@ -2368,12 +2268,28 @@
           "check": "requirements",
           "summary": "FR-121 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-144",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-144 is not_implemented",
+          "evidence": [
+            "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+            "apps/server/tests/unit/integrations-page-claims.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 43,
-        "apiRoutes": 34,
-        "pageRoutes": 9,
+        "routes": 35,
+        "apiRoutes": 27,
+        "pageRoutes": 8,
         "ownedModels": 22,
         "featureNotes": 27
       },
@@ -2404,8 +2320,8 @@
         "FR-123"
       ],
       "featureCount": 24,
-      "readyFeatureCount": 19,
-      "progressPercent": 97.1
+      "readyFeatureCount": 18,
+      "progressPercent": 94.9
     },
     "integration": {
       "status": "partial",
@@ -2424,7 +2340,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 2
         },
         {
           "id": "FR-048",
@@ -2432,7 +2348,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-052",
@@ -2440,7 +2356,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 18
+          "testCount": 11
         },
         {
           "id": "FR-071",
@@ -2464,7 +2380,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 22
+          "testCount": 20
         },
         {
           "id": "FR-081",
@@ -2472,7 +2388,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 25
+          "testCount": 23
         },
         {
           "id": "FR-092",
@@ -2592,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 49
+          "testCount": 52
         },
         {
           "id": "FR-152",
@@ -2704,7 +2620,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-267",
@@ -2712,7 +2628,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "checks": {
@@ -2738,7 +2654,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 337,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -3110,7 +3026,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 337,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -3234,7 +3150,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 6
+          "testCount": 5
         },
         {
           "id": "FR-047",
@@ -3258,7 +3174,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 11
         },
         {
           "id": "FR-054",
@@ -3446,7 +3362,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-236",
@@ -3704,7 +3620,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 51
+          "testCount": 50
         },
         {
           "id": "FR-080",
@@ -3712,7 +3628,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 20
         },
         {
           "id": "FR-091",
@@ -3720,7 +3636,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-093",
@@ -3728,7 +3644,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 5
         },
         {
           "id": "FR-146",
@@ -3743,8 +3659,8 @@
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 21,
-          "testCount": 49
+          "codeCount": 22,
+          "testCount": 52
         },
         {
           "id": "FR-150",
@@ -3752,7 +3668,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 18
+          "testCount": 14
         },
         {
           "id": "FR-151",
@@ -3783,8 +3699,8 @@
           "title": "Execution Trace & Replay v0.3",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 26
+          "codeCount": 6,
+          "testCount": 29
         },
         {
           "id": "FR-190",
@@ -3864,7 +3780,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-238",
@@ -3880,7 +3796,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 35
+          "testCount": 31
         },
         {
           "id": "FR-244",
@@ -3888,7 +3804,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 10
         },
         {
           "id": "FR-259",
@@ -3903,8 +3819,8 @@
           "title": "LINE OA Studio conversation work is server-executed only",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 27
+          "codeCount": 5,
+          "testCount": 26
         },
         {
           "id": "FR-266",
@@ -3912,7 +3828,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-267",
@@ -3920,7 +3836,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "checks": {
@@ -3946,7 +3862,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 337,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -4107,7 +4023,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 51
+          "testCount": 50
         },
         {
           "id": "FR-092",
@@ -4141,7 +4057,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 337,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -4308,7 +4224,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 337,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -4472,7 +4388,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 3
         },
         {
           "id": "FR-218",
@@ -4491,20 +4407,12 @@
           "testCount": 8
         },
         {
-          "id": "FR-220",
-          "title": "Harness device pairing and report-only credential",
-          "declared": "done",
+          "id": "FR-221",
+          "title": "~~Usage reports attributed to person, device and lane",
+          "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 6
-        },
-        {
-          "id": "FR-221",
-          "title": "Usage reports attributed to person, device and lane",
-          "declared": "done",
-          "status": "verified",
-          "codeCount": 4,
-          "testCount": 8
+          "testCount": 7
         },
         {
           "id": "FR-239",
@@ -4512,7 +4420,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 3
         },
         {
           "id": "FR-240",
@@ -4528,7 +4436,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 8
+          "testCount": 7
         },
         {
           "id": "FR-247",
@@ -4671,9 +4579,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 7,
-            "inventoried": 7,
-            "openApiPaths": 337,
+            "routes": 6,
+            "inventoried": 6,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -4729,18 +4637,13 @@
               "id": "AUTH-001",
               "severity": "high",
               "summary": "At least one mutating route lacks a recognizable request viewer seam"
-            },
-            {
-              "id": "AUTH-002",
-              "severity": "medium",
-              "summary": "At least one read route lacks a recognizable request viewer seam"
             }
           ],
           "details": {
             "mutations": 4,
             "guardedMutations": 2,
-            "reads": 3,
-            "unguardedReads": 1
+            "reads": 2,
+            "unguardedReads": 0
           }
         },
         "tests": {
@@ -4795,12 +4698,6 @@
           "severity": "high",
           "check": "authorization",
           "summary": "At least one mutating route lacks a recognizable request viewer seam"
-        },
-        {
-          "id": "AUTH-002",
-          "severity": "medium",
-          "check": "authorization",
-          "summary": "At least one read route lacks a recognizable request viewer seam"
         },
         {
           "id": "TEST-001",
@@ -4885,8 +4782,8 @@
         }
       ],
       "details": {
-        "routes": 11,
-        "apiRoutes": 7,
+        "routes": 10,
+        "apiRoutes": 6,
         "pageRoutes": 4,
         "ownedModels": 4,
         "featureNotes": 2
@@ -4981,7 +4878,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 337,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -5412,7 +5309,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 51
+          "testCount": 50
         },
         {
           "id": "FR-062",
@@ -5492,7 +5389,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 70
+          "testCount": 69
         },
         {
           "id": "FR-073",
@@ -5540,7 +5437,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 23
         },
         {
           "id": "FR-082",
@@ -5596,7 +5493,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-092",
@@ -5628,7 +5525,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 22
+          "testCount": 20
         },
         {
           "id": "FR-100",
@@ -5780,7 +5677,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 6
         },
         {
           "id": "FR-139",
@@ -5795,16 +5692,8 @@
           "title": "Edge-executed asset evidence extraction (ADR-059",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 8
-        },
-        {
-          "id": "FR-144",
-          "title": "Edge device credential",
-          "declared": "done",
-          "status": "verified",
-          "codeCount": 4,
-          "testCount": 21
+          "codeCount": 1,
+          "testCount": 4
         },
         {
           "id": "FR-146",
@@ -5819,8 +5708,8 @@
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 49
+          "codeCount": 3,
+          "testCount": 52
         },
         {
           "id": "FR-150",
@@ -5828,7 +5717,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 14
         },
         {
           "id": "FR-151",
@@ -6244,7 +6133,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-236",
@@ -6268,7 +6157,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 7
         },
         {
           "id": "FR-243",
@@ -6276,7 +6165,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 35
+          "testCount": 31
         },
         {
           "id": "FR-245",
@@ -6292,7 +6181,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 8
+          "testCount": 5
         },
         {
           "id": "FR-247",
@@ -6359,20 +6248,12 @@
           "testCount": 20
         },
         {
-          "id": "FR-265",
-          "title": "LINE OA Studio conversation work is server-executed only",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 27
-        },
-        {
           "id": "FR-266",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-268",
@@ -6456,9 +6337,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 170,
-            "inventoried": 170,
-            "openApiPaths": 337,
+            "routes": 167,
+            "inventoried": 167,
+            "openApiPaths": 318,
             "missingFromOpenApi": 0
           }
         },
@@ -6524,9 +6405,9 @@
             }
           ],
           "details": {
-            "mutations": 129,
-            "guardedMutations": 126,
-            "reads": 82,
+            "mutations": 126,
+            "guardedMutations": 125,
+            "reads": 81,
             "unguardedReads": 9
           }
         },
@@ -6671,8 +6552,8 @@
         }
       ],
       "details": {
-        "routes": 217,
-        "apiRoutes": 170,
+        "routes": 214,
+        "apiRoutes": 167,
         "pageRoutes": 47,
         "ownedModels": 42,
         "featureNotes": 45
@@ -7155,8 +7036,8 @@
           "title": "Provider selection contract",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 12
+          "codeCount": 7,
+          "testCount": 14
         },
         {
           "id": "FR-079",
@@ -7172,7 +7053,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 22
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -7199,11 +7080,11 @@
         "apps/server/tests/e2e/fr080-integration-scope-switch.spec.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-context.test.js",
+        "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-        "apps/server/tests/integration/line-oa-connection-health.test.js",
         "apps/server/tests/integration/line-oa-provider-migration.test.js",
         "apps/server/tests/integration/line-registry-scope.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
@@ -7219,7 +7100,6 @@
         "apps/server/tests/unit/fr080-runtime-wiring.test.js",
         "apps/server/tests/unit/fr080-supabase-vault.test.js",
         "apps/server/tests/unit/fr080-ui-contract.test.js",
-        "apps/server/tests/unit/fr141-edge-device-heartbeat.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/integrations-page-claims.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
@@ -7230,7 +7110,9 @@
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/platform/connector-catalog.test.js",
         "apps/server/tests/unit/private-runtime-model-port.test.js",
-        "apps/server/tests/unit/role-memory-partition.test.js"
+        "apps/server/tests/unit/role-memory-partition.test.js",
+        "services/conversation-runtime/src/model-port.js",
+        "services/conversation-runtime/test/model-port.test.js"
       ]
     },
     {
@@ -7560,25 +7442,21 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-093",
           "title": "LINE reply delivery receipt",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 11
+          "codeCount": 4,
+          "testCount": 5
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/delivery.test.ts",
-        "apps/edge/tests/unit/line-delivery-receipt.test.ts",
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
         "apps/server/src/app/(pm)/customer/line-crm/page.jsx",
         "apps/server/src/app/(pm)/customer/page.jsx",
-        "apps/server/src/app/api/agent/line-delivery/route.js",
-        "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/app/api/crm/conversations/[id]/route.js",
         "apps/server/src/app/api/crm/conversations/route.js",
         "apps/server/src/config/domains.js",
@@ -7598,17 +7476,13 @@
         "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr060-business-home.spec.js",
-        "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
-        "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-customer-consent.test.js",
+        "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
-        "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
-        "apps/server/tests/integration/line-reply-record.test.js",
-        "apps/server/tests/integration/line-webhook-transport-contract.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
@@ -7684,8 +7558,8 @@
           "title": "Verified channel onboarding",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 15,
-          "testCount": 22
+          "codeCount": 14,
+          "testCount": 20
         },
         {
           "id": "FR-098",
@@ -7697,7 +7571,6 @@
         }
       ],
       "evidence": [
-        "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/app/api/auth/logout/route.js",
         "apps/server/src/app/api/auth/mfa/factors/route.js",
         "apps/server/src/app/api/auth/mfa/totp/enroll/route.js",
@@ -7753,7 +7626,6 @@
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/agent-tools.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
-        "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-identity.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
@@ -7770,7 +7642,6 @@
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
-        "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -8398,16 +8269,16 @@
       ],
       "primaryDomain": "asset-management",
       "contributorDomains": [
-        "agent",
         "asset-management",
         "project-manager"
       ],
       "useCase": "เจ้าหน้าที่อัปโหลดรูปหรือ PDF หลักฐาน ให้ OCR/Vision เสนอข้อมูล ตรวจแก้โดยมนุษย์ และนำเข้าหรือส่งออก Excel/Google Sheets/LINE ผ่าน intake เดียวกันจนพร้อมขึ้นทะเบียน",
-      "progressPercent": 100,
+      "progressPercent": 85,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-016 registry status is live (configuration-gated)"
+        "FEAT-016 registry status is live (configuration-gated)",
+        "FR-140 is planned"
       ],
       "requirements": [
         {
@@ -8424,7 +8295,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 7
+          "testCount": 6
         },
         {
           "id": "FR-139",
@@ -8437,15 +8308,14 @@
         {
           "id": "FR-140",
           "title": "Trusted LINE Asset handoff",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 2,
+          "status": "planned",
+          "progressPercent": 40,
+          "codeCount": 0,
           "testCount": 3
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/assets/receiving/page.jsx",
-        "apps/server/src/app/api/agent/line-asset-handoff/route.js",
         "apps/server/src/app/api/assets/evidence/[id]/extract/route.js",
         "apps/server/src/app/api/assets/evidence/[id]/review/route.js",
         "apps/server/src/app/api/assets/evidence/route.js",
@@ -8461,7 +8331,6 @@
         "apps/server/src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
         "apps/server/src/modules/asset-management/domain/evidence-policy.js",
         "apps/server/src/modules/asset-management/import/asset-row-adapter.js",
-        "apps/server/src/modules/asset-management/import/line-asset-handoff.js",
         "apps/server/src/modules/asset-management/import/sheet-snapshot.js",
         "apps/server/src/modules/asset-management/import/xlsx-convert.js",
         "apps/server/src/modules/asset-management/import/xlsx-template.js",
@@ -8474,34 +8343,34 @@
         "apps/server/tests/unit/asset-evidence-intake-service-contract.test.js",
         "apps/server/tests/unit/asset-evidence-route-schema-contract.test.js",
         "apps/server/tests/unit/asset-evidence-storage-contract.test.js",
-        "apps/server/tests/unit/asset-extraction-provider.test.js",
         "apps/server/tests/unit/asset-intake-adapters-contract.test.js",
         "apps/server/tests/unit/asset-production-activation-contract.test.js",
-        "apps/server/tests/unit/asset-receiving-evidence-ui.test.js"
+        "apps/server/tests/unit/asset-receiving-evidence-ui.test.js",
+        "apps/server/tests/unit/doc-graph-retired-rules.test.js"
       ]
     },
     {
       "id": "FEAT-017",
       "title": "Edge-Executed Evidence Extraction — asset evidence OCR/Vision runs on the customer-premise Zuri Edge Device through a cloud-queued pull job, authenticated by a Business-scoped device credential the cloud keeps only as a hash",
       "kind": "bundle",
-      "registryStatus": "building",
+      "registryStatus": "building — retirement deferred by ADR-109 D5 pending removal of the apps/edge extraction client",
       "requirementIds": [
         "FR-143",
         "FR-144"
       ],
       "primaryDomain": "asset-management",
       "contributorDomains": [
-        "agent",
         "asset-management",
         "identity",
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจออกกุญแจให้ Zuri Edge Device ของตนเองหนึ่งครั้ง แล้วอุปกรณ์ที่หน้างานดึงงานอ่านหลักฐานทรัพย์สินไปประมวลผลด้วยโมเดลในเครื่องตนเอง ส่งผลกลับมาให้คนตรวจในหน้าเดิม โดยคลาวด์ไม่เก็บ API key ของผู้ให้บริการและไม่เก็บความลับของอุปกรณ์",
-      "progressPercent": 100,
+      "progressPercent": 80,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-017 registry status is building"
+        "FEAT-017 registry status is building — retirement deferred by ADR-109 D5 pending removal of the apps/edge extraction client",
+        "FR-144 is not_implemented"
       ],
       "requirements": [
         {
@@ -8509,75 +8378,38 @@
           "title": "Edge-executed asset evidence extraction (ADR-059",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 8
+          "codeCount": 3,
+          "testCount": 4
         },
         {
           "id": "FR-144",
           "title": "Edge device credential",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 19,
-          "testCount": 21
+          "status": "not_implemented",
+          "progressPercent": 60,
+          "codeCount": 0,
+          "testCount": 8
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/edge-extraction-secrecy.test.ts",
-        "apps/server/src/app/api/agent/heartbeat/route.js",
         "apps/server/src/app/api/assets/evidence/[id]/extract/route.js",
-        "apps/server/src/app/api/assets/evidence/[id]/extraction-job/route.js",
-        "apps/server/src/app/api/edge/extraction-jobs/[id]/complete/route.js",
-        "apps/server/src/app/api/edge/extraction-jobs/[id]/evidence/route.js",
-        "apps/server/src/app/api/edge/extraction-jobs/[id]/fail/route.js",
-        "apps/server/src/app/api/edge/extraction-jobs/claim/route.js",
-        "apps/server/src/app/api/edge/pairing/approve/route.js",
-        "apps/server/src/app/api/edge/pairing/poll/route.js",
-        "apps/server/src/app/api/edge/pairing/start/route.js",
-        "apps/server/src/app/api/platform/edge-devices/credentials/[id]/route.js",
-        "apps/server/src/app/api/platform/edge-devices/credentials/route.js",
-        "apps/server/src/app/edge/pair/page.jsx",
-        "apps/server/src/modules/agent/edge-device-registry.js",
         "apps/server/src/modules/asset-management/application/asset-extraction-job-service.js",
-        "apps/server/src/modules/asset-management/application/asset-extraction-job-view.js",
-        "apps/server/src/modules/asset-management/application/asset-extraction-provider.js",
         "apps/server/src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
-        "apps/server/src/modules/identity/edge-device-credential.js",
-        "apps/server/src/modules/identity/edge-pairing-download.js",
-        "apps/server/src/modules/identity/edge-pairing-http.js",
-        "apps/server/src/modules/identity/edge-pairing-runtime.js",
-        "apps/server/src/modules/identity/edge-pairing.js",
-        "apps/server/src/modules/identity/login-destination.js",
-        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-        "apps/server/tests/e2e/edge-pairing.spec.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-        "apps/server/tests/integration/edge-pairing.test.js",
-        "apps/server/tests/integration/fr143-asset-extraction-job.test.js",
-        "apps/server/tests/integration/fr144-edge-device-credential.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-evidence-extractor-contract.test.js",
         "apps/server/tests/unit/asset-evidence-route-schema-contract.test.js",
-        "apps/server/tests/unit/asset-extraction-job-view.test.js",
-        "apps/server/tests/unit/asset-extraction-provider.test.js",
-        "apps/server/tests/unit/edge-device-credential-routes.test.js",
-        "apps/server/tests/unit/edge-device-credential.test.js",
-        "apps/server/tests/unit/edge-extraction-job-contract.test.js",
-        "apps/server/tests/unit/edge-extraction-poller.test.js",
-        "apps/server/tests/unit/edge-pairing-download.test.js",
-        "apps/server/tests/unit/edge-pairing-routes.test.js",
-        "apps/server/tests/unit/edge-pairing.test.js",
-        "apps/server/tests/unit/fr141-edge-device-heartbeat.test.js",
-        "apps/server/tests/unit/harness-pairing.test.js",
+        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
         "apps/server/tests/unit/integrations-page-claims.test.js",
-        "apps/server/tests/unit/line-studio-account-console-render.test.js"
+        "apps/server/tests/unit/pipeline-health-service.test.js"
       ]
     },
     {
       "id": "FEAT-018",
-      "title": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer, its server-owned publish jobs and the LIFF app registry (ADR-060, ADR-061)",
+      "title": "LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with server-owned transport for every account, publisher-only writes, the rich menu designer, its server-owned publish jobs and the LIFF app registry (ADR-060, ADR-061, ADR-100, ADR-109 D1)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -8596,7 +8428,7 @@
         "line-oa-studio",
         "project-manager"
       ],
-      "useCase": "เจ้าของธุรกิจเชื่อมบัญชี LINE Official Account หลายบัญชีเข้ากับ Business เดียว เห็นสถานะการเชื่อมต่อ binding และ webhook ล่าสุดของแต่ละบัญชีในที่เดียว และกำหนดว่าบัญชีไหนส่งผ่าน Zuri Edge Device ของตนเองหรือผ่านคลาวด์ โดยไม่เห็นความลับของ LINE",
+      "useCase": "เจ้าของธุรกิจเชื่อมบัญชี LINE Official Account หลายบัญชีเข้ากับ Business เดียว เห็นสถานะการเชื่อมต่อ binding และ webhook ล่าสุดของแต่ละบัญชีในที่เดียว และใช้ transport ที่ server เป็นเจ้าของกับทุกบัญชี โดยไม่เห็นความลับของ LINE",
       "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
@@ -8757,7 +8589,7 @@
     },
     {
       "id": "FEAT-019",
-      "title": "Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute",
+      "title": "Server LINE with optional Edge — optional Edge compute was retired by ADR-109 D1; centrally recorded conversations and server-owned messaging continue with server-side model/provider selection",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -8788,15 +8620,15 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 16
+          "testCount": 15
         },
         {
           "id": "FR-149",
           "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 34,
-          "testCount": 49
+          "codeCount": 39,
+          "testCount": 52
         },
         {
           "id": "FR-150",
@@ -8804,7 +8636,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 18
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -8812,11 +8644,7 @@
         "apps/edge/src/conversation/progress.ts",
         "apps/edge/tests/unit/conversation-deadline.test.ts",
         "apps/edge/tests/unit/conversation-progress.test.ts",
-        "apps/edge/tests/unit/conversation-worker.test.ts",
-        "apps/edge/tests/unit/desktop-log.test.ts",
-        "apps/edge/tests/unit/desktop-package.test.ts",
         "apps/edge/tests/unit/genesisrag17-edge.test.ts",
-        "apps/edge/tests/unit/project-work-tools.test.ts",
         "apps/server/src/app/(pm)/line-oa/connections/page.jsx",
         "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
         "apps/server/src/app/(pm)/line-oa/page.jsx",
@@ -8824,8 +8652,7 @@
         "apps/server/src/app/(pm)/line-oa/settings/page.jsx",
         "apps/server/src/app/(pm)/line-oa/team/page.jsx",
         "apps/server/src/app/api/_helpers.js",
-        "apps/server/src/app/api/agent/line-delivery/route.js",
-        "apps/server/src/app/api/agent/line-webhook/route.js",
+        "apps/server/src/app/api/internal/conversation-runtime/v1/[operation]/route.js",
         "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
         "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
         "apps/server/src/app/api/line-oa/connections/route.js",
@@ -8834,7 +8661,6 @@
         "apps/server/src/app/api/line-oa/worker/route.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
-        "apps/server/src/modules/agent/legacy-line-transport-ownership.js",
         "apps/server/src/modules/agent/line-project-work-tools.js",
         "apps/server/src/modules/agent/msp-thread-memory-port.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
@@ -8845,6 +8671,7 @@
         "apps/server/src/modules/identity/resolve-line-identity.js",
         "apps/server/src/modules/integration/application/line-server-provisioning-service.js",
         "apps/server/src/modules/line-crm/LineCrmCampaigns.jsx",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/src/modules/line-oa-studio/application/line-admission-reconciler.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
@@ -8861,12 +8688,12 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/providers/line/server-line-transport.js",
-        "apps/server/tests/e2e/edge-desktop-ui.spec.js",
         "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
-        "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
@@ -8885,9 +8712,7 @@
         "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
-        "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-project-work-tools.test.js",
-        "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -8906,7 +8731,6 @@
         "apps/server/tests/unit/doc-links.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
-        "apps/server/tests/unit/legacy-line-transport-ownership.test.js",
         "apps/server/tests/unit/line-admission-after-ack.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
         "apps/server/tests/unit/line-job-failures-route.test.js",
@@ -8914,6 +8738,7 @@
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-readiness-journey.test.js",
         "apps/server/tests/unit/line-oa-worker-route-reconciler.test.js",
+        "apps/server/tests/unit/line-studio-account-console-render.test.js",
         "apps/server/tests/unit/line-studio-job-failures.test.js",
         "apps/server/tests/unit/line-trace-summary.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
@@ -8924,7 +8749,17 @@
         "apps/server/tests/unit/server-line-answer.test.js",
         "apps/server/tests/unit/server-line-runtime.test.js",
         "apps/server/tests/unit/server-line-worker-cadence.test.js",
-        "apps/server/tests/unit/server-line-worker-routes.test.js"
+        "apps/server/tests/unit/server-line-worker-routes.test.js",
+        "services/conversation-runtime/src/contracts.js",
+        "services/conversation-runtime/src/core-client.js",
+        "services/conversation-runtime/src/health-server.js",
+        "services/conversation-runtime/src/main.js",
+        "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/src/worker-loop.js",
+        "services/conversation-runtime/test/contracts.test.js",
+        "services/conversation-runtime/test/health-server.test.js",
+        "services/conversation-runtime/test/turn-runtime.test.js",
+        "services/conversation-runtime/test/worker-loop.test.js"
       ]
     },
     {
@@ -10639,7 +10474,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 3
         },
         {
           "id": "FR-218",
@@ -10692,15 +10527,14 @@
         "apps/server/tests/unit/programme-usage-meter.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
         "apps/server/tests/unit/task-usage-ledger-export.test.js",
-        "apps/server/tests/unit/task-usage-ledger.test.js",
-        "apps/server/tests/unit/zuri-harness-plugin.test.js"
+        "apps/server/tests/unit/task-usage-ledger.test.js"
       ]
     },
     {
       "id": "FEAT-035",
-      "title": "Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`)",
+      "title": "~~Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`)~~",
       "kind": "bundle",
-      "registryStatus": "live",
+      "registryStatus": "superseded by ADR-109 D5 — pairing/plugin surfaces are removed; historical usage rows remain and deployment-bearer reports remain under FR-218",
       "requirementIds": [
         "FR-220",
         "FR-221",
@@ -10708,73 +10542,54 @@
       ],
       "primaryDomain": "identity",
       "contributorDomains": [
-        "identity",
         "platform-control"
       ],
-      "useCase": "นักพัฒนาติดตั้ง plugin ของ Zuri ใน Claude Code หรือ Codex บนเครื่องตัวเอง กดจับคู่แล้วยืนยันใน browser ที่ login zuri-ai ค้างไว้ครั้งเดียว หลังจากนั้นทุก session ที่จบจะส่งยอด token จริงขึ้น zuri-ai เอง operator เห็นบน /control/roadmap ว่าใครใช้ไปเท่าไรจากเครื่องไหนใน lane ไหน และเพิกถอนเครื่องที่ไม่ใช้แล้วได้",
-      "progressPercent": 100,
-      "ready": true,
-      "readiness": "ready",
-      "blockers": [],
+      "useCase": "Retired by ADR-109 D5. Historical behavior: a Zuri plugin paired Claude Code or Codex installations through browser approval and attributed session usage to a person, device and lane; existing report rows remain historical.",
+      "progressPercent": 73.3,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-035 registry status is superseded by ADR-109 D5 — pairing/plugin surfaces are removed; historical usage rows remain and deployment-bearer reports remain under FR-218",
+        "FR-220 is not_implemented",
+        "FR-222 is not_implemented"
+      ],
       "requirements": [
         {
           "id": "FR-220",
-          "title": "Harness device pairing and report-only credential",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 6
+          "title": "~~Harness device pairing and report-only credential",
+          "status": "not_implemented",
+          "progressPercent": 60,
+          "codeCount": 0,
+          "testCount": 2
         },
         {
           "id": "FR-221",
-          "title": "Usage reports attributed to person, device and lane",
+          "title": "~~Usage reports attributed to person, device and lane",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 8
+          "codeCount": 3,
+          "testCount": 7
         },
         {
           "id": "FR-222",
-          "title": "Zuri harness plugin",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 6,
+          "title": "~~Zuri harness plugin",
+          "status": "not_implemented",
+          "progressPercent": 60,
+          "codeCount": 0,
           "testCount": 1
         }
       ],
       "evidence": [
         "apps/server/src/app/(control)/control/roadmap/page.jsx",
-        "apps/server/src/app/api/platform/harness-devices/[id]/route.js",
-        "apps/server/src/app/api/platform/harness-devices/route.js",
-        "apps/server/src/app/api/platform/harness-pairing/approve/route.js",
-        "apps/server/src/app/api/platform/harness-pairing/poll/route.js",
-        "apps/server/src/app/api/platform/harness-pairing/start/route.js",
-        "apps/server/src/app/api/platform/programme-usage-reports/route.js",
-        "apps/server/src/app/api/platform/programme-usage-reports/whoami/route.js",
-        "apps/server/src/app/harness/pair/page.jsx",
-        "apps/server/src/modules/identity/harness-credential.js",
-        "apps/server/src/modules/identity/harness-pairing-runtime.js",
-        "apps/server/src/modules/identity/harness-pairing.js",
         "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
         "apps/server/src/modules/platform-control/application/task-usage-ledger.js",
-        "apps/server/src/modules/platform-control/components/HarnessDevicesView.jsx",
-        "apps/server/tests/e2e/fr220-harness-pairing.spec.js",
         "apps/server/tests/integration/openapi-docs.test.js",
-        "apps/server/tests/unit/harness-credential.test.js",
-        "apps/server/tests/unit/harness-devices-view.test.js",
-        "apps/server/tests/unit/harness-pairing.test.js",
+        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
         "apps/server/tests/unit/platform-control-domain-map.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
-        "apps/server/tests/unit/task-usage-ledger.test.js",
-        "apps/server/tests/unit/zuri-harness-plugin.test.js",
-        "plugins/zuri-harness/bin/zuri-harness.mjs",
-        "plugins/zuri-harness/lib/client.mjs",
-        "plugins/zuri-harness/lib/config.mjs",
-        "plugins/zuri-harness/lib/queue.mjs",
-        "plugins/zuri-harness/lib/report.mjs",
-        "plugins/zuri-harness/lib/usage.mjs"
+        "apps/server/tests/unit/task-usage-ledger.test.js"
       ]
     },
     {
@@ -11020,15 +10835,15 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-234",
           "title": "Context Composer",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 15
+          "codeCount": 10,
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -11074,7 +10889,6 @@
         "apps/server/tests/integration/line-gks-grounding.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
-        "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -11099,7 +10913,9 @@
         "apps/server/tests/unit/reply-record-service.test.js",
         "apps/server/tests/unit/retention-sweep-worker-run.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
-        "apps/server/tests/unit/server-retention-sweep-worker-script.test.js"
+        "apps/server/tests/unit/server-retention-sweep-worker-script.test.js",
+        "services/conversation-runtime/src/context.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {
@@ -11135,8 +10951,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 29
+          "codeCount": 13,
+          "testCount": 30
         },
         {
           "id": "FR-236",
@@ -11274,12 +11090,14 @@
         "apps/server/tests/unit/runtime-isolation-probe.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
-        "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
+        "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
+        "services/conversation-runtime/src/context.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {
       "id": "FEAT-039",
-      "title": "Agent usage detail — for every measured lane, person and device, the programme board shows how the tokens split into input, output, thinking and cache, which tools the agents called and how often they failed or were denied, and how many prompts and compactions a session took, counted from agent logs by the meter and the harness plugin with names and numbers only (ADR-086 D7, `DOM-PLATFORM-CONTROL`)",
+      "title": "Agent usage detail — for every measured lane and available report, the programme board shows how tokens split into input, output, thinking and cache, which tools the agents called and how often they failed or were denied, and how many prompts and compactions a session took, counted from operator-local logs and deployment-bearer reports with names and numbers only; historical person/device attribution remains readable, but the Zuri harness plugin is retired (ADR-086 D7, ADR-109 D1, `DOM-PLATFORM-CONTROL`)",
       "kind": "bundle",
       "registryStatus": "live",
       "requirementIds": [
@@ -11290,7 +11108,7 @@
       "contributorDomains": [
         "platform-control"
       ],
-      "useCase": "installation operator เปิดการ์ด phase บน /control/roadmap แล้วเห็นว่า token ที่ใช้แยกเป็น input, output, thinking และ cache อย่างละเท่าไร agent เรียก tool อะไรบ่อยที่สุด พลาดหรือถูกปฏิเสธกี่ครั้ง ใช้กี่ prompt และ compact กี่รอบ แยกตาม lane คน และเครื่อง โดยไม่มีข้อความของงานถูกเก็บ",
+      "useCase": "installation operator เปิดการ์ด phase บน /control/roadmap แล้วเห็น token แยกเป็น input, output, thinking และ cache, tool ที่เรียกและ error, จำนวน prompt และ compaction จาก operator-local logs และ deployment-bearer reports โดยไม่เก็บข้อความของงาน; person/device attribution ของ report เก่ายังอ่านได้ แต่ไม่มี Zuri harness plugin สำหรับส่งข้อมูลใหม่",
       "progressPercent": 100,
       "ready": true,
       "readiness": "ready",
@@ -11301,8 +11119,8 @@
           "title": "Agent usage detail capture",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 5
+          "codeCount": 2,
+          "testCount": 3
         },
         {
           "id": "FR-240",
@@ -11324,14 +11142,9 @@
         "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
         "apps/server/tests/unit/programme-member-view.test.js",
-        "apps/server/tests/unit/programme-usage-meter.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
         "apps/server/tests/unit/task-usage-ledger.test.js",
-        "apps/server/tests/unit/usage-detail.test.js",
-        "apps/server/tests/unit/zuri-harness-plugin.test.js",
-        "plugins/zuri-harness/lib/detail.mjs",
-        "plugins/zuri-harness/lib/report.mjs",
-        "plugins/zuri-harness/lib/usage.mjs"
+        "apps/server/tests/unit/usage-detail.test.js"
       ]
     },
     {
@@ -11345,7 +11158,6 @@
       ],
       "primaryDomain": "crm",
       "contributorDomains": [
-        "agent",
         "crm",
         "line-oa-studio",
         "project-manager"
@@ -11363,25 +11175,21 @@
           "title": "Conversation sessions",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 35
+          "codeCount": 13,
+          "testCount": 31
         },
         {
           "id": "FR-244",
           "title": "Local model residency follows business hours",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 11
+          "codeCount": 3,
+          "testCount": 10
         }
       ],
       "evidence": [
-        "apps/edge/src/conversation/residency-client.ts",
-        "apps/edge/src/desktop-worker.ts",
         "apps/edge/tests/unit/model-residency-schedule.test.ts",
-        "apps/edge/tests/unit/residency-client.test.ts",
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
-        "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
         "apps/server/src/lib/validation/entities.js",
         "apps/server/src/modules/crm/conversation-read-model.js",
@@ -11394,9 +11202,6 @@
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
-        "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
-        "apps/server/tests/e2e/fr243-conversation-sessions.spec.js",
-        "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
@@ -11404,6 +11209,7 @@
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-conversation-session-surfaces.test.js",
         "apps/server/tests/integration/crm-conversation-sessions.test.js",
+        "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
@@ -11413,8 +11219,6 @@
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
-        "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
-        "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -11468,7 +11272,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 8
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -11482,8 +11286,6 @@
         "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
-        "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
-        "apps/server/tests/e2e/fr246-staff-reply.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
@@ -11493,7 +11295,6 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
-        "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -11762,7 +11563,7 @@
     },
     {
       "id": "FEAT-045",
-      "title": "LINE OA on API keys only — the Studio's EDGE execution mode, its edge conversation-job claim surface and the LOCAL_ONLY deterministic-answer branch are retired, and the model provider API key every server answer needs is entered by the Business owner in the browser, write-only, through the same credential vault that already holds the LINE channel secret (ADR-100, amending ADR-061 D2/D3 for LINE OA; ADR-041 pairing and ADR-059 asset extraction are untouched)",
+      "title": "LINE OA on API keys only — the Studio's EDGE execution mode, its edge conversation-job claim surface and the LOCAL_ONLY deterministic-answer branch are retired, and the model provider API key every server answer needs is entered by the Business owner in the browser, write-only, through the same credential vault that already holds the LINE channel secret (ADR-100, amending ADR-061 D2/D3 for LINE OA; ADR-109 D1 retires Zuri-owned pairing and Edge extraction surfaces, while D3 preserves existing records and schema)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -11791,24 +11592,24 @@
           "title": "LINE OA Studio conversation work is server-executed only",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 27
+          "codeCount": 8,
+          "testCount": 26
         },
         {
           "id": "FR-266",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 15
+          "codeCount": 15,
+          "testCount": 16
         },
         {
           "id": "FR-267",
           "title": "A Business owner may choose the operator's Private Runtime Platform (PRP) as the model provider for its LINE answers, so a customer's…",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 5
+          "codeCount": 5,
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -11828,8 +11629,6 @@
         "apps/server/src/modules/line-oa-studio/ui/LineOaModelKeyCard.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
-        "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
-        "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
         "apps/server/src/modules/line-oa-studio/ui/credential-input-props.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
@@ -11867,7 +11666,9 @@
         "apps/server/tests/unit/platform/private-runtime-config.test.js",
         "apps/server/tests/unit/private-runtime-model-port.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
-        "apps/server/tests/unit/server-line-worker-routes.test.js"
+        "apps/server/tests/unit/server-line-worker-routes.test.js",
+        "services/conversation-runtime/src/model-port.js",
+        "services/conversation-runtime/test/model-port.test.js"
       ]
     },
     {
@@ -12851,12 +12652,12 @@
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/platform/integrations/core/raw-record-redaction.js",
-        "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
+        "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
         "apps/server/tests/integration/identity-classify.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
@@ -12931,7 +12732,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 6
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -12945,7 +12746,6 @@
         "apps/server/tests/integration/agent-runtime.test.js",
         "apps/server/tests/integration/knowledge-project.test.js",
         "apps/server/tests/integration/knowledge-query.test.js",
-        "apps/server/tests/integration/smartgift-webhook-e2e.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/runtime-isolation-probe.test.js"
       ]
@@ -13023,11 +12823,10 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 8
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/project-work-tools.test.ts",
         "apps/server/src/modules/agent/action-gate.js",
         "apps/server/src/modules/agent/index.js",
         "apps/server/src/modules/agent/line-project-work-tools.js",
@@ -13093,7 +12892,6 @@
       ],
       "primaryDomain": "agent",
       "contributorDomains": [
-        "agent",
         "integration"
       ],
       "useCase": "zuri-cli ส่ง normalized LINE event เข้า webhook ที่ปฏิเสธ scope ซึ่งไม่ได้ resolve จาก server",
@@ -13107,21 +12905,13 @@
           "title": "LINE webhook API route (ADR-007 P7 wiring)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 2,
-          "testCount": 9
+          "codeCount": 1,
+          "testCount": 2
         }
       ],
       "evidence": [
-        "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/platform/integrations/providers/line/line-oa-evidence.js",
-        "apps/server/tests/integration/agent-webhook-route.test.js",
-        "apps/server/tests/integration/line-oa-cross-repo-round-trip.test.js",
-        "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
-        "apps/server/tests/integration/line-oa-failure-paths.test.js",
-        "apps/server/tests/integration/line-oa-golden-path.test.js",
-        "apps/server/tests/integration/line-webhook-transport-contract.test.js",
-        "apps/server/tests/integration/line-webhook-unbound-production.test.js",
-        "apps/server/tests/integration/smartgift-webhook-e2e.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/unit/doc-views.test.js"
       ]
     },
@@ -14044,7 +13834,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 7
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -14052,7 +13842,6 @@
         "apps/server/src/modules/agent/index.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-context.test.js",
-        "apps/server/tests/integration/smartgift-webhook-e2e.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
@@ -14063,39 +13852,32 @@
       "id": "FR-050",
       "title": "Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics.",
       "kind": "requirement",
-      "registryStatus": "live",
+      "registryStatus": "planned",
       "requirementIds": [
         "FR-050"
       ],
       "primaryDomain": "agent",
-      "contributorDomains": [
-        "agent"
-      ],
+      "contributorDomains": [],
       "useCase": "LINE event หนึ่งรายการเรียก model และส่ง reply ได้ไม่เกินหนึ่งครั้งแม้มี retry",
-      "progressPercent": 100,
-      "ready": true,
-      "readiness": "ready",
-      "blockers": [],
+      "progressPercent": 40,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-050 is planned"
+      ],
       "requirements": [
         {
           "id": "FR-050",
           "title": "Single-reply LINE delivery",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 1,
-          "testCount": 8
+          "status": "planned",
+          "progressPercent": 40,
+          "codeCount": 0,
+          "testCount": 2
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/stack.test.ts",
-        "apps/server/src/app/api/agent/line-webhook/route.js",
-        "apps/server/tests/integration/agent-webhook-route.test.js",
-        "apps/server/tests/integration/line-oa-cross-repo-round-trip.test.js",
-        "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
-        "apps/server/tests/integration/line-oa-failure-paths.test.js",
-        "apps/server/tests/integration/line-oa-golden-path.test.js",
-        "apps/server/tests/integration/line-webhook-transport-contract.test.js",
-        "apps/server/tests/integration/smartgift-webhook-e2e.test.js"
+        "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/unit/doc-graph-retired-rules.test.js"
       ]
     },
     {
@@ -14159,27 +13941,19 @@
           "title": "Server-owned LINE scope binding",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 18
+          "codeCount": 6,
+          "testCount": 11
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/stack.test.ts",
-        "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/modules/agent/line-binding-resolver.js",
         "apps/server/src/modules/agent/line-channel-binding.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
         "apps/server/src/modules/knowledge/runtime-postgres-config.js",
         "apps/server/src/platform/integrations/providers/line/line-oa-evidence.js",
         "apps/server/src/platform/integrations/providers/line/line-oa-webhook.js",
-        "apps/server/tests/integration/agent-webhook-route.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
-        "apps/server/tests/integration/line-oa-cross-repo-round-trip.test.js",
-        "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
-        "apps/server/tests/integration/line-oa-golden-path.test.js",
-        "apps/server/tests/integration/line-reply-record.test.js",
-        "apps/server/tests/integration/line-webhook-unbound-production.test.js",
-        "apps/server/tests/integration/smartgift-webhook-e2e.test.js",
         "apps/server/tests/unit/business-model-credential-resolution.test.js",
         "apps/server/tests/unit/line-binding-resolver.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
@@ -14457,7 +14231,7 @@
         "apps/server/src/modules/project-manager/components/StrategyEditModals.jsx",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr059-strategy-edit.spec.js",
-        "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
+        "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
         "apps/server/tests/integration/fr193-remove-controls.test.js",
@@ -14502,7 +14276,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 51
+          "testCount": 50
         }
       ],
       "evidence": [
@@ -14532,7 +14306,6 @@
         "apps/server/tests/integration/fr161-sales-task.test.js",
         "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
         "apps/server/tests/integration/fr193-remove-controls.test.js",
-        "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/market-core-facade-http.test.js",
         "apps/server/tests/integration/market-intelligence-observation-feed.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
@@ -14953,11 +14726,10 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 70
+          "testCount": 69
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/project-work-tools.test.ts",
         "apps/server/src/app/api/containers/[id]/route.js",
         "apps/server/src/app/api/containers/route.js",
         "apps/server/src/app/api/dependencies/[id]/route.js",
@@ -15304,7 +15076,6 @@
       ],
       "primaryDomain": "integration",
       "contributorDomains": [
-        "agent",
         "integration",
         "project-manager"
       ],
@@ -15319,12 +15090,11 @@
           "title": "Raw external ingestion boundary",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 25
+          "codeCount": 11,
+          "testCount": 23
         }
       ],
       "evidence": [
-        "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/modules/integration/adapters/marketplace-listing-adapter.js",
         "apps/server/src/modules/integration/adapters/retail-price-adapter.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -15336,15 +15106,13 @@
         "apps/server/src/platform/integrations/core/raw-record-repository.js",
         "apps/server/src/platform/integrations/providers/line/line-oa-evidence.js",
         "apps/server/src/platform/integrations/providers/line/line-oa-webhook.js",
-        "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr109-knowledge-ingestion-executor.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
-        "apps/server/tests/integration/line-oa-connection-health.test.js",
-        "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/market-intelligence-translation-run.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -15617,10 +15385,10 @@
         "apps/server/src/modules/crm/customer-consent-service.js",
         "apps/server/src/modules/identity/erase-customer-principal.js",
         "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
-        "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-customer-consent.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
+        "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/marketing-broadcast-intent.test.js",
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/unit/conversation-read-model.test.js",
@@ -16566,26 +16334,25 @@
         "agent"
       ],
       "useCase": "เจ้าของธุรกิจเปิดหน้า Platform Integrations แล้วเห็นว่า Edge Device ของธุรกิจตนออนไลน์อยู่หรือไม่จากสัญญาณ heartbeat ล่าสุด และถอดอุปกรณ์ออกได้เฉพาะของธุรกิจที่ตนเป็นเจ้าของ ผู้ที่ไม่มี session ถูกปฏิเสธทุกคำขอ และ token ของอุปกรณ์ไม่ถูกเก็บไว้บนคลาวด์",
-      "progressPercent": 100,
-      "ready": true,
-      "readiness": "ready",
-      "blockers": [],
+      "progressPercent": 60,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-141 is not_implemented"
+      ],
       "requirements": [
         {
           "id": "FR-141",
           "title": "Edge Device heartbeat registry",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 2,
-          "testCount": 4
+          "status": "not_implemented",
+          "progressPercent": 60,
+          "codeCount": 0,
+          "testCount": 3
         }
       ],
       "evidence": [
-        "apps/server/src/app/api/agent/heartbeat/route.js",
-        "apps/server/src/modules/agent/edge-device-registry.js",
         "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-        "apps/server/tests/integration/agent-heartbeat-route.test.js",
-        "apps/server/tests/unit/fr141-edge-device-heartbeat.test.js",
+        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
         "apps/server/tests/unit/integrations-page-claims.test.js"
       ]
     },
@@ -16863,14 +16630,13 @@
           "title": "Execution Trace & Replay v0.3",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 15,
-          "testCount": 26
+          "codeCount": 18,
+          "testCount": 29
         }
       ],
       "evidence": [
         "apps/edge/src/conversation/progress.ts",
         "apps/edge/tests/unit/conversation-progress.test.ts",
-        "apps/edge/tests/unit/desktop-log.test.ts",
         "apps/server/src/app/api/line-oa/jobs/[id]/trace/route.js",
         "apps/server/src/modules/agent/context.js",
         "apps/server/src/modules/agent/execution-trace.js",
@@ -16881,6 +16647,7 @@
         "apps/server/src/modules/agent/msp-memory-evidence.js",
         "apps/server/src/modules/agent/msp-memory-port.js",
         "apps/server/src/modules/agent/server-line-answer.js",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/line-oa-studio/application/line-memory-delivery.js",
@@ -16889,6 +16656,8 @@
         "apps/server/tests/integration/agent-msp-port.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
+        "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
@@ -16908,7 +16677,11 @@
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/msp-memory-evidence.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
-        "apps/server/tests/unit/server-line-runtime.test.js"
+        "apps/server/tests/unit/server-line-runtime.test.js",
+        "services/conversation-runtime/src/contracts.js",
+        "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/test/contracts.test.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {
@@ -17170,7 +16943,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 8
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -17178,7 +16951,6 @@
         "apps/server/src/components/layouts/PlatformControlShell.jsx",
         "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "apps/server/src/modules/platform-control/programme-member-view.js",
-        "apps/server/tests/e2e/fr216-programme-delivery-telemetry.spec.js",
         "apps/server/tests/e2e/fr241-roadmap-member-view.spec.js",
         "apps/server/tests/unit/platform-control-domain-map.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
@@ -17619,8 +17391,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 15,
-      "testCount": 24,
+      "codeCount": 14,
+      "testCount": 23,
       "domains": [
         "knowledge",
         "platform-control",
@@ -17699,10 +17471,9 @@
       "id": "NFR-017",
       "title": "The LINE ingress is traceable end to end from one correlation id",
       "status": "verified",
-      "codeCount": 6,
-      "testCount": 10,
+      "codeCount": 3,
+      "testCount": 4,
       "domains": [
-        "agent",
         "crm"
       ]
     },
@@ -17752,10 +17523,9 @@
       "id": "NFR-022",
       "title": "Evidence execution is bounded, recoverable and provider-failure safe",
       "status": "verified",
-      "codeCount": 17,
+      "codeCount": 15,
       "testCount": 6,
       "domains": [
-        "agent",
         "asset-management",
         "project-manager"
       ]

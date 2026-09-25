@@ -75,6 +75,7 @@ CREATE TABLE "Business" (
     "name" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "capabilitiesJson" TEXT NOT NULL DEFAULT '{}',
+    "knowledgeCandidatesEnabled" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 1,
@@ -124,6 +125,9 @@ CREATE TABLE "PlatformGrant" (
     "capability" TEXT NOT NULL DEFAULT 'OPERATOR',
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "grantedByPersonId" TEXT,
+    "grantReason" TEXT,
+    "expiresAt" TIMESTAMP(3),
+    "standing" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "revokedAt" TIMESTAMP(3),
     "revokeReason" TEXT,
@@ -147,23 +151,31 @@ CREATE TABLE "WorkspaceMembership" (
 );
 
 -- CreateTable
-CREATE TABLE "WorkspaceInvite" (
+CREATE TABLE "AccessInvite" (
     "id" TEXT NOT NULL,
-    "portfolioId" TEXT NOT NULL,
+    "scopeType" TEXT NOT NULL DEFAULT 'PORTFOLIO',
+    "portfolioId" TEXT,
+    "tenantId" TEXT,
+    "businessId" TEXT,
     "invitedByPersonId" TEXT NOT NULL,
     "targetPersonId" TEXT,
     "invitedEmail" TEXT,
+    "invitedLineUserId" TEXT,
     "role" TEXT NOT NULL DEFAULT 'MEMBER',
+    "domainKeysJson" TEXT NOT NULL DEFAULT '[]',
+    "reason" TEXT,
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "tokenHash" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "acceptedByPersonId" TEXT,
     "acceptedAt" TIMESTAMP(3),
+    "acceptedMembershipId" TEXT,
     "revokedAt" TIMESTAMP(3),
+    "revokedByPersonId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "WorkspaceInvite_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "AccessInvite_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -288,6 +300,8 @@ CREATE TABLE "Session" (
     "tokenHash" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "assurance" TEXT NOT NULL DEFAULT 'PASSWORD',
+    "assuranceLevel" TEXT NOT NULL DEFAULT 'AAL1',
+    "elevatedUntil" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "lastSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -297,6 +311,54 @@ CREATE TABLE "Session" (
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MfaFactor" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "secret" TEXT NOT NULL,
+    "label" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "verifiedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "MfaFactor_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RateLimitBucket" (
+    "id" TEXT NOT NULL,
+    "key" TEXT NOT NULL,
+    "windowStart" TIMESTAMP(3) NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 0,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "RateLimitBucket_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PasskeyCredential" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "credentialId" TEXT NOT NULL,
+    "publicKey" TEXT NOT NULL,
+    "counter" INTEGER NOT NULL DEFAULT 0,
+    "deviceLabel" TEXT,
+    "aaguid" TEXT,
+    "transports" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "lastUsedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "PasskeyCredential_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -323,10 +385,11 @@ CREATE TABLE "RoleBinding" (
     "id" TEXT NOT NULL,
     "personId" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
-    "businessId" TEXT NOT NULL,
+    "businessId" TEXT,
     "roleKey" TEXT NOT NULL,
     "scopeType" TEXT NOT NULL DEFAULT 'BUSINESS',
     "cascadeOfMembershipId" TEXT,
+    "sodOverrideReason" TEXT,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "assignedBy" TEXT,
     "version" INTEGER NOT NULL DEFAULT 1,
@@ -453,6 +516,8 @@ CREATE TABLE "BusinessGoal" (
     "status" TEXT NOT NULL DEFAULT 'PLANNED',
     "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
     "progress" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "perspective" TEXT,
+    "isWig" BOOLEAN NOT NULL DEFAULT false,
     "startAt" TIMESTAMP(3),
     "targetAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -460,6 +525,44 @@ CREATE TABLE "BusinessGoal" (
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "BusinessGoal_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessKeyResult" (
+    "id" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "goalId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "metric" TEXT NOT NULL,
+    "unit" TEXT NOT NULL,
+    "baseline" DOUBLE PRECISION NOT NULL,
+    "target" DOUBLE PRECISION NOT NULL,
+    "direction" TEXT NOT NULL DEFAULT 'UP',
+    "dueAt" TIMESTAMP(3),
+    "ownerPersonId" TEXT,
+    "confidence" INTEGER NOT NULL DEFAULT 3,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "BusinessKeyResult_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessKeyResultCheckIn" (
+    "id" TEXT NOT NULL,
+    "keyResultId" TEXT NOT NULL,
+    "weekStartAt" TIMESTAMP(3) NOT NULL,
+    "value" DOUBLE PRECISION NOT NULL,
+    "confidence" INTEGER NOT NULL,
+    "note" TEXT,
+    "source" TEXT,
+    "actorPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "BusinessKeyResultCheckIn_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -517,6 +620,117 @@ CREATE TABLE "PlanImportReceipt" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "PlanImportReceipt_pkey" PRIMARY KEY ("idempotencyKey")
+);
+
+-- CreateTable
+CREATE TABLE "ProjectExecutionRun" (
+    "id" TEXT NOT NULL,
+    "executionRunId" TEXT NOT NULL,
+    "executionContractId" TEXT NOT NULL,
+    "contractVersion" TEXT NOT NULL,
+    "sourceKind" TEXT NOT NULL,
+    "tenantId" TEXT,
+    "businessId" TEXT,
+    "workspaceId" TEXT,
+    "projectId" TEXT,
+    "projectIdsJson" TEXT NOT NULL DEFAULT '[]',
+    "planId" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'RUNNING',
+    "correlationId" TEXT NOT NULL,
+    "idempotencyKey" TEXT,
+    "requestHash" TEXT NOT NULL,
+    "inputSnapshotJson" TEXT NOT NULL,
+    "snapshotState" TEXT NOT NULL DEFAULT 'RETAINED',
+    "tagIdsJson" TEXT NOT NULL DEFAULT '[]',
+    "identityRefsJson" TEXT NOT NULL DEFAULT '{}',
+    "failureCode" TEXT,
+    "errorRef" TEXT,
+    "retryable" BOOLEAN,
+    "auditEventId" TEXT,
+    "replayOfExecutionRunId" TEXT,
+    "replayOfExecutionStepId" TEXT,
+    "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "finishedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ProjectExecutionRun_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProjectExecutionStep" (
+    "id" TEXT NOT NULL,
+    "executionStepId" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "executionContractId" TEXT NOT NULL,
+    "stepKey" TEXT NOT NULL,
+    "sequence" INTEGER NOT NULL,
+    "attemptId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'NOT_STARTED',
+    "tenantId" TEXT,
+    "businessId" TEXT,
+    "workspaceId" TEXT,
+    "projectId" TEXT,
+    "planId" TEXT,
+    "containerId" TEXT,
+    "workItemId" TEXT,
+    "inputHash" TEXT,
+    "outputHash" TEXT,
+    "tagIdsJson" TEXT NOT NULL DEFAULT '[]',
+    "identityRefsJson" TEXT NOT NULL DEFAULT '{}',
+    "failureCode" TEXT,
+    "errorRef" TEXT,
+    "retryable" BOOLEAN,
+    "skippedReason" TEXT,
+    "auditEventId" TEXT,
+    "replayOfExecutionStepId" TEXT,
+    "startedAt" TIMESTAMP(3),
+    "finishedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ProjectExecutionStep_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProjectApprovalRequest" (
+    "id" TEXT NOT NULL,
+    "approvalRequestId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT,
+    "projectId" TEXT NOT NULL,
+    "executionRunDbId" TEXT NOT NULL,
+    "executionStepDbId" TEXT NOT NULL,
+    "executionRunId" TEXT NOT NULL,
+    "executionStepId" TEXT NOT NULL,
+    "actionClass" TEXT NOT NULL,
+    "effectKey" TEXT NOT NULL,
+    "manifestHash" TEXT,
+    "inputHash" TEXT,
+    "artifactHashesJson" TEXT NOT NULL DEFAULT '[]',
+    "commitSha" TEXT,
+    "payloadSummaryJson" TEXT NOT NULL DEFAULT '{}',
+    "expectedEffectsJson" TEXT NOT NULL DEFAULT '{}',
+    "eligibleReviewerCapability" TEXT NOT NULL,
+    "policyVersion" TEXT NOT NULL,
+    "requestedByPersonId" TEXT NOT NULL,
+    "requestedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "requestDigest" TEXT NOT NULL,
+    "state" TEXT NOT NULL DEFAULT 'PENDING',
+    "decidedByPersonId" TEXT,
+    "decidedAt" TIMESTAMP(3),
+    "decisionReason" TEXT,
+    "admissionLeaseEpoch" TEXT,
+    "admissionReceiptHash" TEXT,
+    "admissionExpiresAt" TIMESTAMP(3),
+    "consumedAt" TIMESTAMP(3),
+    "auditEventId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ProjectApprovalRequest_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1077,6 +1291,9 @@ CREATE TABLE "Conversation" (
     "channelAccountId" TEXT NOT NULL DEFAULT 'LEGACY:LINE',
     "externalThreadId" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "lastMessageAt" TIMESTAMP(3),
+    "lastMessagePreview" TEXT,
+    "retentionClass" TEXT NOT NULL DEFAULT 'MESSAGE_BODY_AND_ATTACHMENTS',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -1090,9 +1307,117 @@ CREATE TABLE "Message" (
     "direction" TEXT NOT NULL,
     "body" TEXT NOT NULL,
     "externalMessageId" TEXT,
+    "contentKind" TEXT NOT NULL DEFAULT 'TEXT',
+    "sessionId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MessageAttachment" (
+    "id" TEXT NOT NULL,
+    "messageId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "providerContentId" TEXT,
+    "fileAssetId" TEXT,
+    "fetchState" TEXT NOT NULL DEFAULT 'PENDING',
+    "mimeType" TEXT,
+    "sizeBytes" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MessageAttachment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ConversationEvent" (
+    "id" TEXT NOT NULL,
+    "conversationId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "externalEventId" TEXT NOT NULL,
+    "payloadJson" TEXT NOT NULL DEFAULT '{}',
+    "occurredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "sessionId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ConversationEvent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ConversationSession" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "conversationId" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
+    "channelAccountId" TEXT NOT NULL,
+    "openedAt" TIMESTAMP(3) NOT NULL,
+    "lastMessageAt" TIMESTAMP(3) NOT NULL,
+    "closedAt" TIMESTAMP(3),
+    "idleTimeoutMinutes" INTEGER NOT NULL,
+    "inboundCount" INTEGER NOT NULL DEFAULT 0,
+    "outboundCount" INTEGER NOT NULL DEFAULT 0,
+    "mspSessionId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ConversationSession_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TenantRetentionOverride" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "dataClass" TEXT NOT NULL,
+    "windowDays" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "TenantRetentionOverride_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CustomerArchiveKey" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
+    "kekId" TEXT NOT NULL,
+    "wrappedDek" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "CustomerArchiveKey_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ArchiveManifest" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "filePath" TEXT NOT NULL,
+    "fileSha256" TEXT NOT NULL,
+    "messageCount" INTEGER NOT NULL,
+    "messageIdListHash" TEXT NOT NULL,
+    "previousManifestId" TEXT,
+    "previousManifestHash" TEXT,
+    "manifestHash" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ArchiveManifest_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CustomerLegalHold" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
+    "reason" TEXT NOT NULL,
+    "endDate" TIMESTAMP(3) NOT NULL,
+    "recordedByPersonId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "CustomerLegalHold_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1123,6 +1448,13 @@ CREATE TABLE "AuditEvent" (
     "actorType" TEXT NOT NULL DEFAULT 'LOCAL_USER',
     "actorId" TEXT,
     "occurredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "tenantId" TEXT,
+    "businessId" TEXT,
+    "reason" TEXT,
+    "beforeJson" TEXT,
+    "afterJson" TEXT,
+    "requestId" TEXT,
+    "sessionId" TEXT,
 
     CONSTRAINT "AuditEvent_pkey" PRIMARY KEY ("id")
 );
@@ -1354,6 +1686,59 @@ CREATE TABLE "KnowledgeRawArtifact" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "KnowledgeRawArtifact_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeArtifactStorage" (
+    "id" TEXT NOT NULL,
+    "rawArtifactId" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "agentId" TEXT NOT NULL,
+    "visibility" TEXT NOT NULL,
+    "bindingId" TEXT NOT NULL,
+    "bindingRevision" INTEGER NOT NULL,
+    "bucket" TEXT NOT NULL,
+    "objectKey" TEXT NOT NULL,
+    "objectVersionId" TEXT,
+    "sha256" TEXT NOT NULL,
+    "byteLength" INTEGER NOT NULL,
+    "contentType" TEXT NOT NULL,
+    "policyJson" TEXT NOT NULL,
+    "retentionUntil" TIMESTAMP(3),
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "KnowledgeArtifactStorage_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeArtifactOperation" (
+    "id" TEXT NOT NULL,
+    "storageId" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "agentId" TEXT NOT NULL,
+    "visibility" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "operation" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "actorId" TEXT,
+    "reason" TEXT,
+    "evidenceHash" TEXT,
+    "errorCode" TEXT,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "KnowledgeArtifactOperation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1634,6 +2019,34 @@ CREATE TABLE "KnowledgeCorpusGeneration" (
 );
 
 -- CreateTable
+CREATE TABLE "KnowledgeCandidate" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "conversationId" TEXT,
+    "sourceRefJson" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING_REVIEW',
+    "question" TEXT NOT NULL,
+    "answer" TEXT NOT NULL,
+    "contentHash" TEXT NOT NULL,
+    "consentStatusAtDraft" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "requestHash" TEXT NOT NULL,
+    "createdByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "decidedByPersonId" TEXT,
+    "decidedAt" TIMESTAMP(3),
+    "decisionReason" TEXT,
+    "admittedSourceId" TEXT,
+    "admittedIngestionId" TEXT,
+    "tombstonedAt" TIMESTAMP(3),
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "KnowledgeCandidate_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "IntegrationProvider" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -1674,16 +2087,78 @@ CREATE TABLE "IntegrationCredential" (
     "id" TEXT NOT NULL,
     "connectionId" TEXT NOT NULL,
     "secretRef" TEXT NOT NULL,
+    "secretStore" TEXT NOT NULL DEFAULT 'DEPLOYMENT_MOUNT',
+    "secretKind" TEXT NOT NULL DEFAULT 'LINE_CHANNEL',
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "displayHint" TEXT,
     "expiresAt" TIMESTAMP(3),
     "accessTokenExpiresAt" TIMESTAMP(3),
     "refreshTokenExpiresAt" TIMESTAMP(3),
+    "lastValidatedAt" TIMESTAMP(3),
+    "lastValidationCode" TEXT,
     "rotatedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "revokeReason" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "IntegrationCredential_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "IntegrationCredentialVersion" (
+    "id" TEXT NOT NULL,
+    "credentialId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "versionNumber" INTEGER NOT NULL,
+    "secretRef" TEXT NOT NULL,
+    "secretStore" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "displayHint" TEXT,
+    "createdById" TEXT,
+    "createdVia" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "activatedAt" TIMESTAMP(3),
+    "supersededAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "purgedAt" TIMESTAMP(3),
+    "reason" TEXT,
+
+    CONSTRAINT "IntegrationCredentialVersion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "IntegrationSecretEnvelope" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "connectionId" TEXT NOT NULL,
+    "kekId" TEXT NOT NULL,
+    "wrappedDek" TEXT NOT NULL,
+    "iv" TEXT NOT NULL,
+    "tag" TEXT NOT NULL,
+    "ciphertext" TEXT NOT NULL,
+    "aadVersion" INTEGER NOT NULL,
+    "expiresAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "IntegrationSecretEnvelope_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ChannelAccountClaim" (
+    "id" TEXT NOT NULL,
+    "provider" TEXT NOT NULL,
+    "externalAccountHash" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "connectionId" TEXT NOT NULL,
+    "claimedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "releasedAt" TIMESTAMP(3),
+
+    CONSTRAINT "ChannelAccountClaim_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1943,11 +2418,18 @@ CREATE TABLE "LineOaAccount" (
     "transportMode" TEXT NOT NULL DEFAULT 'CLOUD',
     "serverEnabled" BOOLEAN NOT NULL DEFAULT false,
     "executionMode" TEXT NOT NULL DEFAULT 'SERVER',
+    "runtimeOwner" TEXT NOT NULL DEFAULT 'SERVER',
     "modelAccess" TEXT NOT NULL DEFAULT 'LOCAL_ONLY',
+    "knowledgeGrounding" TEXT NOT NULL DEFAULT 'BUSINESS_KNOWLEDGE',
     "allowDelayedPush" BOOLEAN NOT NULL DEFAULT false,
     "transportEpoch" INTEGER NOT NULL DEFAULT 1,
+    "webhookStateJson" TEXT,
     "isDefaultForBusiness" BOOLEAN NOT NULL DEFAULT false,
     "botProfileJson" TEXT NOT NULL DEFAULT '{}',
+    "sessionIdleTimeoutMinutes" INTEGER NOT NULL DEFAULT 30,
+    "businessHoursOpen" TEXT,
+    "businessHoursClose" TEXT,
+    "outOfHoursReplyText" TEXT,
     "archivedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -2024,6 +2506,21 @@ CREATE TABLE "LineOaLiffApp" (
 );
 
 -- CreateTable
+CREATE TABLE "LineOaWorkerCheckpoint" (
+    "id" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "lastCompletedAt" TIMESTAMP(3),
+    "nextDueAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "claimantId" TEXT,
+    "leaseExpiresAt" TIMESTAMP(3),
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "LineOaWorkerCheckpoint_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "LineOaRichMenuJob" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -2063,6 +2560,7 @@ CREATE TABLE "LineConversationJob" (
     "channelAccountId" TEXT NOT NULL,
     "transportEpoch" INTEGER NOT NULL,
     "executionMode" TEXT NOT NULL,
+    "runtimeOwner" TEXT NOT NULL DEFAULT 'SERVER',
     "modelAccess" TEXT NOT NULL,
     "audienceKind" TEXT NOT NULL DEFAULT 'DIRECT',
     "allowDelayedPush" BOOLEAN NOT NULL DEFAULT false,
@@ -2089,6 +2587,7 @@ CREATE TABLE "LineConversationJob" (
     "memoryDeliveryAttempts" INTEGER NOT NULL DEFAULT 0,
     "memoryDeliveryNextAttemptAt" TIMESTAMP(3),
     "memoryDeliveryLeaseUntil" TIMESTAMP(3),
+    "sessionId" TEXT,
     "correlationId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -2380,6 +2879,9 @@ CREATE TABLE "ProductMaster" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 1,
+    "nature" TEXT NOT NULL DEFAULT 'GOOD',
+    "defaultStockPolicy" TEXT NOT NULL DEFAULT 'TRACKED',
+    "variantAxesJson" TEXT NOT NULL DEFAULT '[]',
 
     CONSTRAINT "ProductMaster_pkey" PRIMARY KEY ("id")
 );
@@ -2409,8 +2911,81 @@ CREATE TABLE "Product" (
     "flowAccountSku" TEXT,
     "maintenanceIntervalDays" INTEGER,
     "maxStorageDays" INTEGER,
+    "variantJson" TEXT NOT NULL DEFAULT '{}',
+    "variantKey" TEXT,
+    "mergedIntoProductId" TEXT,
+    "reorderPoint" INTEGER,
+    "reorderQty" INTEGER,
+    "leadTimeDays" INTEGER,
+    "unitsPerCarton" INTEGER,
+    "cartonCbm" DOUBLE PRECISION,
+    "cartonKg" DOUBLE PRECISION,
+    "freightGoodsType" TEXT,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductIdentifier" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "issuer" TEXT,
+    "unit" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ProductIdentifier_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductUnitConversion" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "unit" TEXT NOT NULL,
+    "name" TEXT,
+    "factor" INTEGER NOT NULL,
+    "usage" TEXT NOT NULL DEFAULT 'ANY',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ProductUnitConversion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "InventoryCatalogIntake" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "sourceChannel" TEXT NOT NULL,
+    "sourceCorrelationId" TEXT NOT NULL,
+    "payloadSha256" TEXT NOT NULL,
+    "normalizedEnvelopeJson" TEXT NOT NULL,
+    "planJson" TEXT NOT NULL,
+    "planHash" TEXT NOT NULL,
+    "committable" BOOLEAN NOT NULL DEFAULT false,
+    "itemCount" INTEGER NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'PREVIEWED',
+    "requestedById" TEXT,
+    "resultJson" TEXT,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "committedAt" TIMESTAMP(3),
+    "cancelledAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "InventoryCatalogIntake_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -2942,6 +3517,329 @@ CREATE TABLE "GoodsReceiptLine" (
     CONSTRAINT "GoodsReceiptLine_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "SupplierCostSheet" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "supplierId" TEXT NOT NULL,
+    "currency" TEXT NOT NULL,
+    "fxRateLocked" DOUBLE PRECISION NOT NULL,
+    "sourceRef" TEXT,
+    "sourceSha256" TEXT NOT NULL,
+    "previewHash" TEXT NOT NULL,
+    "previewJson" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "lineCount" INTEGER NOT NULL DEFAULT 0,
+    "createdByPersonId" TEXT,
+    "confirmedByPersonId" TEXT,
+    "confirmedAt" TIMESTAMP(3),
+    "supersededAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "SupplierCostSheet_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SupplierCostLine" (
+    "id" TEXT NOT NULL,
+    "sheetId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "sourceSku" TEXT NOT NULL,
+    "minQty" INTEGER NOT NULL,
+    "unitCostForeign" DOUBLE PRECISION NOT NULL,
+    "unitsPerCarton" INTEGER,
+    "cartonCbm" DOUBLE PRECISION,
+    "cartonKg" DOUBLE PRECISION,
+    "freightGoodsType" TEXT,
+    "leadTimeDays" INTEGER,
+    "mappingConfidence" TEXT NOT NULL,
+    "mappingConfirmedByPersonId" TEXT,
+    "mappingConfirmedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SupplierCostLine_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProgrammeUsageReport" (
+    "id" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "sessionId" TEXT NOT NULL,
+    "branch" TEXT NOT NULL DEFAULT '',
+    "taskCode" TEXT,
+    "repository" TEXT,
+    "personId" TEXT,
+    "installationId" TEXT,
+    "aiAccountLabel" TEXT,
+    "model" TEXT,
+    "inputTokens" INTEGER NOT NULL,
+    "cacheWriteTokens" INTEGER NOT NULL,
+    "cacheReadTokens" INTEGER NOT NULL,
+    "outputTokens" INTEGER NOT NULL,
+    "requestCount" INTEGER NOT NULL,
+    "activeMinutes" INTEGER NOT NULL,
+    "startedAt" TIMESTAMP(3) NOT NULL,
+    "endedAt" TIMESTAMP(3) NOT NULL,
+    "payloadSha256" TEXT NOT NULL,
+    "reportedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "extendedAt" TIMESTAMP(3),
+    "reasoningTokens" INTEGER NOT NULL DEFAULT 0,
+    "toolCallCount" INTEGER NOT NULL DEFAULT 0,
+    "toolErrorCount" INTEGER NOT NULL DEFAULT 0,
+    "promptCount" INTEGER NOT NULL DEFAULT 0,
+    "detailJson" TEXT,
+
+    CONSTRAINT "ProgrammeUsageReport_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "HarnessCredential" (
+    "id" TEXT NOT NULL,
+    "installationId" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "harness" TEXT NOT NULL,
+    "deviceLabel" TEXT NOT NULL,
+    "osUser" TEXT,
+    "keyHash" TEXT NOT NULL,
+    "keyPrefix" TEXT NOT NULL,
+    "scope" TEXT NOT NULL DEFAULT 'PROGRAMME_USAGE_REPORT',
+    "status" TEXT NOT NULL DEFAULT 'PENDING_ACTIVATION',
+    "activatedAt" TIMESTAMP(3),
+    "activatedByPersonId" TEXT,
+    "lastUsedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "revokedByPersonId" TEXT,
+    "revokeReason" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "HarnessCredential_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ErrorEvent" (
+    "id" TEXT NOT NULL,
+    "fingerprint" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "stackFramesJson" TEXT NOT NULL DEFAULT '[]',
+    "occurrenceCount" INTEGER NOT NULL DEFAULT 1,
+    "firstSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "correlationId" TEXT,
+    "route" TEXT,
+    "resolvedAt" TIMESTAMP(3),
+    "resolvedByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ErrorEvent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UsageEvent" (
+    "id" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "route" TEXT,
+    "actionName" TEXT,
+    "personId" TEXT NOT NULL,
+    "sessionId" TEXT,
+    "occurredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "UsageEvent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UsageEventRollup" (
+    "id" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "kind" TEXT NOT NULL,
+    "target" TEXT NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UsageEventRollup_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GovernanceSnapshot" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "repositoryId" TEXT NOT NULL,
+    "projectRepositoryId" TEXT NOT NULL,
+    "checkoutBindingId" TEXT NOT NULL,
+    "commitSha" TEXT NOT NULL,
+    "manifestHash" TEXT NOT NULL,
+    "capturedAt" TIMESTAMP(3) NOT NULL,
+    "verifiedAt" TIMESTAMP(3) NOT NULL,
+    "verifierId" TEXT NOT NULL,
+    "verifierVersion" TEXT NOT NULL,
+    "proofId" TEXT NOT NULL,
+    "verificationProof" TEXT NOT NULL,
+    "validationStatus" TEXT NOT NULL,
+    "sourceManifest" TEXT NOT NULL,
+
+    CONSTRAINT "GovernanceSnapshot_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProjectFeature" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "problem" TEXT NOT NULL,
+    "outcome" TEXT NOT NULL,
+    "primaryDomainId" TEXT NOT NULL,
+    "canonicalFeatureKey" TEXT,
+    "governanceSnapshotId" TEXT,
+    "lifecycle" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "deletedAt" TIMESTAMP(3),
+    "deleteBatchId" TEXT,
+
+    CONSTRAINT "ProjectFeature_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "FeatureContribution" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "featureId" TEXT NOT NULL,
+    "domainId" TEXT NOT NULL,
+    "responsibility" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "deletedAt" TIMESTAMP(3),
+    "deleteBatchId" TEXT,
+
+    CONSTRAINT "FeatureContribution_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "FeatureWorkLink" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "featureId" TEXT NOT NULL,
+    "workItemId" TEXT NOT NULL,
+    "allocationBps" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "deletedAt" TIMESTAMP(3),
+    "deleteBatchId" TEXT,
+
+    CONSTRAINT "FeatureWorkLink_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RequirementBinding" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "featureId" TEXT NOT NULL,
+    "governanceSnapshotId" TEXT NOT NULL,
+    "sourceNamespace" TEXT NOT NULL,
+    "requirementKey" TEXT NOT NULL,
+    "revisionHash" TEXT NOT NULL,
+    "acceptanceRef" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "deletedAt" TIMESTAMP(3),
+    "deleteBatchId" TEXT,
+
+    CONSTRAINT "RequirementBinding_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProjectFeatureMutationReceipt" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "featureId" TEXT,
+    "targetId" TEXT NOT NULL,
+    "targetType" TEXT NOT NULL,
+    "httpMethod" TEXT NOT NULL,
+    "principalId" TEXT NOT NULL,
+    "operation" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "resourceId" TEXT NOT NULL,
+    "resourceType" TEXT NOT NULL,
+    "version" INTEGER,
+    "etag" TEXT NOT NULL,
+    "auditEventId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'COMMITTED',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ProjectFeatureMutationReceipt_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PricingRuleSet" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "rulesJson" TEXT NOT NULL,
+    "rulesHash" TEXT NOT NULL,
+    "sourceRuleSetId" TEXT,
+    "createdByPersonId" TEXT,
+    "approvedByPersonId" TEXT,
+    "approvedAt" TIMESTAMP(3),
+    "effectiveFrom" TIMESTAMP(3),
+    "expiresAt" TIMESTAMP(3),
+    "approvalReason" TEXT,
+    "revokedByPersonId" TEXT,
+    "revokedAt" TIMESTAMP(3),
+    "revocationReason" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "PricingRuleSet_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PricingCalculation" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "ruleSetId" TEXT NOT NULL,
+    "ruleVersion" INTEGER NOT NULL,
+    "rulesHash" TEXT NOT NULL,
+    "rulesJson" TEXT NOT NULL,
+    "evaluatorVersion" TEXT NOT NULL,
+    "inputHash" TEXT NOT NULL,
+    "inputJson" TEXT NOT NULL,
+    "resultJson" TEXT NOT NULL,
+    "inputProvenance" TEXT NOT NULL DEFAULT 'USER_ENTERED',
+    "requestHash" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "createdByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PricingCalculation_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_code_key" ON "Portfolio"("code");
 
@@ -2994,7 +3892,7 @@ CREATE UNIQUE INDEX "Person_code_key" ON "Person"("code");
 CREATE INDEX "PlatformGrant_capability_status_idx" ON "PlatformGrant"("capability", "status");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "PlatformGrant_personId_capability_key" ON "PlatformGrant"("personId", "capability");
+CREATE INDEX "PlatformGrant_personId_capability_status_idx" ON "PlatformGrant"("personId", "capability", "status");
 
 -- CreateIndex
 CREATE INDEX "WorkspaceMembership_personId_status_idx" ON "WorkspaceMembership"("personId", "status");
@@ -3006,16 +3904,22 @@ CREATE INDEX "WorkspaceMembership_portfolioId_status_idx" ON "WorkspaceMembershi
 CREATE UNIQUE INDEX "WorkspaceMembership_portfolioId_personId_key" ON "WorkspaceMembership"("portfolioId", "personId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "WorkspaceInvite_tokenHash_key" ON "WorkspaceInvite"("tokenHash");
+CREATE UNIQUE INDEX "AccessInvite_tokenHash_key" ON "AccessInvite"("tokenHash");
 
 -- CreateIndex
-CREATE INDEX "WorkspaceInvite_portfolioId_status_idx" ON "WorkspaceInvite"("portfolioId", "status");
+CREATE INDEX "AccessInvite_portfolioId_status_idx" ON "AccessInvite"("portfolioId", "status");
 
 -- CreateIndex
-CREATE INDEX "WorkspaceInvite_targetPersonId_status_idx" ON "WorkspaceInvite"("targetPersonId", "status");
+CREATE INDEX "AccessInvite_tenantId_status_idx" ON "AccessInvite"("tenantId", "status");
 
 -- CreateIndex
-CREATE INDEX "WorkspaceInvite_invitedEmail_status_idx" ON "WorkspaceInvite"("invitedEmail", "status");
+CREATE INDEX "AccessInvite_businessId_status_idx" ON "AccessInvite"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "AccessInvite_targetPersonId_status_idx" ON "AccessInvite"("targetPersonId", "status");
+
+-- CreateIndex
+CREATE INDEX "AccessInvite_invitedEmail_status_idx" ON "AccessInvite"("invitedEmail", "status");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PersonCredential_personId_key" ON "PersonCredential"("personId");
@@ -3096,6 +4000,21 @@ CREATE INDEX "Session_personId_status_idx" ON "Session"("personId", "status");
 CREATE INDEX "Session_expiresAt_status_idx" ON "Session"("expiresAt", "status");
 
 -- CreateIndex
+CREATE INDEX "MfaFactor_personId_status_idx" ON "MfaFactor"("personId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RateLimitBucket_key_key" ON "RateLimitBucket"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PasskeyCredential_credentialId_key" ON "PasskeyCredential"("credentialId");
+
+-- CreateIndex
+CREATE INDEX "PasskeyCredential_personId_status_idx" ON "PasskeyCredential"("personId", "status");
+
+-- CreateIndex
+CREATE INDEX "PasskeyCredential_credentialId_idx" ON "PasskeyCredential"("credentialId");
+
+-- CreateIndex
 CREATE INDEX "ChannelIdentity_personId_status_idx" ON "ChannelIdentity"("personId", "status");
 
 -- CreateIndex
@@ -3112,9 +4031,6 @@ CREATE INDEX "RoleBinding_personId_status_idx" ON "RoleBinding"("personId", "sta
 
 -- CreateIndex
 CREATE INDEX "RoleBinding_roleKey_status_idx" ON "RoleBinding"("roleKey", "status");
-
--- CreateIndex
-CREATE UNIQUE INDEX "RoleBinding_personId_businessId_roleKey_key" ON "RoleBinding"("personId", "businessId", "roleKey");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Workspace_code_key" ON "Workspace"("code");
@@ -3198,6 +4114,21 @@ CREATE INDEX "BusinessGoal_roadmapId_idx" ON "BusinessGoal"("roadmapId");
 CREATE INDEX "BusinessGoal_horizonId_idx" ON "BusinessGoal"("horizonId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "BusinessKeyResult_code_key" ON "BusinessKeyResult"("code");
+
+-- CreateIndex
+CREATE INDEX "BusinessKeyResult_businessId_status_idx" ON "BusinessKeyResult"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "BusinessKeyResult_goalId_idx" ON "BusinessKeyResult"("goalId");
+
+-- CreateIndex
+CREATE INDEX "BusinessKeyResultCheckIn_keyResultId_idx" ON "BusinessKeyResultCheckIn"("keyResultId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BusinessKeyResultCheckIn_keyResultId_weekStartAt_key" ON "BusinessKeyResultCheckIn"("keyResultId", "weekStartAt");
+
+-- CreateIndex
 CREATE INDEX "ProjectGoal_goalId_idx" ON "ProjectGoal"("goalId");
 
 -- CreateIndex
@@ -3226,6 +4157,57 @@ CREATE INDEX "PlanImportReceipt_correlationId_idx" ON "PlanImportReceipt"("corre
 
 -- CreateIndex
 CREATE INDEX "PlanImportReceipt_replayOfExecutionRunId_idx" ON "PlanImportReceipt"("replayOfExecutionRunId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProjectExecutionRun_executionRunId_key" ON "ProjectExecutionRun"("executionRunId");
+
+-- CreateIndex
+CREATE INDEX "ProjectExecutionRun_tenantId_businessId_status_createdAt_idx" ON "ProjectExecutionRun"("tenantId", "businessId", "status", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "ProjectExecutionRun_projectId_createdAt_idx" ON "ProjectExecutionRun"("projectId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "ProjectExecutionRun_correlationId_idx" ON "ProjectExecutionRun"("correlationId");
+
+-- CreateIndex
+CREATE INDEX "ProjectExecutionRun_replayOfExecutionRunId_idx" ON "ProjectExecutionRun"("replayOfExecutionRunId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProjectExecutionRun_business_idempotency_key" ON "ProjectExecutionRun"("businessId", "idempotencyKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProjectExecutionStep_executionStepId_key" ON "ProjectExecutionStep"("executionStepId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProjectExecutionStep_attemptId_key" ON "ProjectExecutionStep"("attemptId");
+
+-- CreateIndex
+CREATE INDEX "ProjectExecutionStep_runId_sequence_idx" ON "ProjectExecutionStep"("runId", "sequence");
+
+-- CreateIndex
+CREATE INDEX "ProjectExecutionStep_runId_status_idx" ON "ProjectExecutionStep"("runId", "status");
+
+-- CreateIndex
+CREATE INDEX "ProjectExecutionStep_tenantId_businessId_projectId_status_idx" ON "ProjectExecutionStep"("tenantId", "businessId", "projectId", "status");
+
+-- CreateIndex
+CREATE INDEX "ProjectExecutionStep_replayOfExecutionStepId_idx" ON "ProjectExecutionStep"("replayOfExecutionStepId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProjectApprovalRequest_approvalRequestId_key" ON "ProjectApprovalRequest"("approvalRequestId");
+
+-- CreateIndex
+CREATE INDEX "ProjectApprovalRequest_tenantId_businessId_projectId_state__idx" ON "ProjectApprovalRequest"("tenantId", "businessId", "projectId", "state", "expiresAt");
+
+-- CreateIndex
+CREATE INDEX "ProjectApprovalRequest_executionRunId_executionStepId_state_idx" ON "ProjectApprovalRequest"("executionRunId", "executionStepId", "state");
+
+-- CreateIndex
+CREATE INDEX "ProjectApprovalRequest_requestedByPersonId_idx" ON "ProjectApprovalRequest"("requestedByPersonId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProjectApprovalRequest_run_step_digest" ON "ProjectApprovalRequest"("executionRunId", "executionStepId", "requestDigest");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "WorkContainer_code_key" ON "WorkContainer"("code");
@@ -3513,7 +4495,58 @@ CREATE UNIQUE INDEX "Conversation_account_thread_key" ON "Conversation"("tenantI
 CREATE INDEX "Message_conversationId_idx" ON "Message"("conversationId");
 
 -- CreateIndex
+CREATE INDEX "Message_sessionId_idx" ON "Message"("sessionId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Message_conversationId_externalMessageId_key" ON "Message"("conversationId", "externalMessageId");
+
+-- CreateIndex
+CREATE INDEX "MessageAttachment_messageId_idx" ON "MessageAttachment"("messageId");
+
+-- CreateIndex
+CREATE INDEX "MessageAttachment_fileAssetId_idx" ON "MessageAttachment"("fileAssetId");
+
+-- CreateIndex
+CREATE INDEX "ConversationEvent_conversationId_idx" ON "ConversationEvent"("conversationId");
+
+-- CreateIndex
+CREATE INDEX "ConversationEvent_sessionId_idx" ON "ConversationEvent"("sessionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ConversationEvent_conversationId_externalEventId_key" ON "ConversationEvent"("conversationId", "externalEventId");
+
+-- CreateIndex
+CREATE INDEX "ConversationSession_conversationId_openedAt_idx" ON "ConversationSession"("conversationId", "openedAt");
+
+-- CreateIndex
+CREATE INDEX "ConversationSession_tenantId_businessId_openedAt_idx" ON "ConversationSession"("tenantId", "businessId", "openedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ConversationSession_tenantId_code_key" ON "ConversationSession"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "TenantRetentionOverride_tenantId_idx" ON "TenantRetentionOverride"("tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TenantRetentionOverride_tenantId_dataClass_key" ON "TenantRetentionOverride"("tenantId", "dataClass");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CustomerArchiveKey_customerId_key" ON "CustomerArchiveKey"("customerId");
+
+-- CreateIndex
+CREATE INDEX "CustomerArchiveKey_tenantId_idx" ON "CustomerArchiveKey"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "ArchiveManifest_tenantId_createdAt_idx" ON "ArchiveManifest"("tenantId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ArchiveManifest_tenantId_runId_key" ON "ArchiveManifest"("tenantId", "runId");
+
+-- CreateIndex
+CREATE INDEX "CustomerLegalHold_tenantId_idx" ON "CustomerLegalHold"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "CustomerLegalHold_customerId_endDate_idx" ON "CustomerLegalHold"("customerId", "endDate");
 
 -- CreateIndex
 CREATE INDEX "ConversationAnalysis_conversationId_analyzedDate_idx" ON "ConversationAnalysis"("conversationId", "analyzedDate");
@@ -3532,6 +4565,15 @@ CREATE INDEX "AuditEvent_entityType_entityId_idx" ON "AuditEvent"("entityType", 
 
 -- CreateIndex
 CREATE INDEX "AuditEvent_occurredAt_idx" ON "AuditEvent"("occurredAt");
+
+-- CreateIndex
+CREATE INDEX "AuditEvent_tenantId_occurredAt_idx" ON "AuditEvent"("tenantId", "occurredAt");
+
+-- CreateIndex
+CREATE INDEX "AuditEvent_businessId_occurredAt_idx" ON "AuditEvent"("businessId", "occurredAt");
+
+-- CreateIndex
+CREATE INDEX "AuditEvent_actorId_occurredAt_idx" ON "AuditEvent"("actorId", "occurredAt");
 
 -- CreateIndex
 CREATE INDEX "AgentTraceEvent_tenantId_businessId_turnId_occurredAt_idx" ON "AgentTraceEvent"("tenantId", "businessId", "turnId", "occurredAt");
@@ -3625,6 +4667,24 @@ CREATE INDEX "KnowledgeRawArtifact_tenantId_contentHash_idx" ON "KnowledgeRawArt
 
 -- CreateIndex
 CREATE UNIQUE INDEX "KnowledgeRawArtifact_portfolioId_tenantId_businessId_worksp_key" ON "KnowledgeRawArtifact"("portfolioId", "tenantId", "businessId", "workspaceId", "agentId", "visibility", "sourceId", "version", "contentHash", "pipelineVersion");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeArtifactStorage_rawArtifactId_key" ON "KnowledgeArtifactStorage"("rawArtifactId");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeArtifactStorage_tenantId_businessId_status_idx" ON "KnowledgeArtifactStorage"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeArtifactStorage_retentionUntil_status_idx" ON "KnowledgeArtifactStorage"("retentionUntil", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeArtifactOperation_idempotencyKey_key" ON "KnowledgeArtifactOperation"("idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeArtifactOperation_storageId_createdAt_idx" ON "KnowledgeArtifactOperation"("storageId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeArtifactOperation_tenantId_businessId_operation_st_idx" ON "KnowledgeArtifactOperation"("tenantId", "businessId", "operation", "status");
 
 -- CreateIndex
 CREATE INDEX "KnowledgeParsedArtifact_tenantId_documentId_idx" ON "KnowledgeParsedArtifact"("tenantId", "documentId");
@@ -3729,6 +4789,15 @@ CREATE UNIQUE INDEX "KnowledgeIngestion_sourceId_sourceVersion_key" ON "Knowledg
 CREATE UNIQUE INDEX "KnowledgeCorpusGeneration_corpusId_number_key" ON "KnowledgeCorpusGeneration"("corpusId", "number");
 
 -- CreateIndex
+CREATE INDEX "KnowledgeCandidate_businessId_status_idx" ON "KnowledgeCandidate"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeCandidate_conversationId_idx" ON "KnowledgeCandidate"("conversationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeCandidate_businessId_idempotencyKey_key" ON "KnowledgeCandidate"("businessId", "idempotencyKey");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "IntegrationProvider_code_key" ON "IntegrationProvider"("code");
 
 -- CreateIndex
@@ -3739,6 +4808,27 @@ CREATE UNIQUE INDEX "IntegrationConnection_tenantId_providerId_externalAccountId
 
 -- CreateIndex
 CREATE UNIQUE INDEX "IntegrationCredential_connectionId_key" ON "IntegrationCredential"("connectionId");
+
+-- CreateIndex
+CREATE INDEX "IntegrationCredentialVersion_tenantId_businessId_status_idx" ON "IntegrationCredentialVersion"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "IntegrationCredentialVersion_secretRef_idx" ON "IntegrationCredentialVersion"("secretRef");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "IntegrationCredentialVersion_credentialId_versionNumber_key" ON "IntegrationCredentialVersion"("credentialId", "versionNumber");
+
+-- CreateIndex
+CREATE INDEX "IntegrationSecretEnvelope_tenantId_businessId_connectionId_idx" ON "IntegrationSecretEnvelope"("tenantId", "businessId", "connectionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ChannelAccountClaim_connectionId_key" ON "ChannelAccountClaim"("connectionId");
+
+-- CreateIndex
+CREATE INDEX "ChannelAccountClaim_tenantId_businessId_idx" ON "ChannelAccountClaim"("tenantId", "businessId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ChannelAccountClaim_provider_externalAccountHash_key" ON "ChannelAccountClaim"("provider", "externalAccountHash");
 
 -- CreateIndex
 CREATE INDEX "IngestionRun_tenantId_status_idx" ON "IngestionRun"("tenantId", "status");
@@ -3903,6 +4993,12 @@ CREATE UNIQUE INDEX "LineOaLiffApp_tenantId_code_key" ON "LineOaLiffApp"("tenant
 CREATE UNIQUE INDEX "LineOaLiffApp_lineOaAccountId_externalLiffId_key" ON "LineOaLiffApp"("lineOaAccountId", "externalLiffId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "LineOaWorkerCheckpoint_kind_key" ON "LineOaWorkerCheckpoint"("kind");
+
+-- CreateIndex
+CREATE INDEX "LineOaWorkerCheckpoint_kind_nextDueAt_leaseExpiresAt_idx" ON "LineOaWorkerCheckpoint"("kind", "nextDueAt", "leaseExpiresAt");
+
+-- CreateIndex
 CREATE INDEX "LineOaRichMenuJob_status_availableAt_idx" ON "LineOaRichMenuJob"("status", "availableAt");
 
 -- CreateIndex
@@ -3925,6 +5021,9 @@ CREATE INDEX "LineConversationJob_tenantId_businessId_status_idx" ON "LineConver
 
 -- CreateIndex
 CREATE INDEX "LineConversationJob_memoryDeliveryState_memoryDeliveryNextA_idx" ON "LineConversationJob"("memoryDeliveryState", "memoryDeliveryNextAttemptAt", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "LineConversationJob_sessionId_idx" ON "LineConversationJob"("sessionId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "LineConversationJob_accountId_eventId_key" ON "LineConversationJob"("accountId", "eventId");
@@ -4038,10 +5137,40 @@ CREATE INDEX "Product_businessId_status_idx" ON "Product"("businessId", "status"
 CREATE INDEX "Product_productMasterId_idx" ON "Product"("productMasterId");
 
 -- CreateIndex
+CREATE INDEX "Product_mergedIntoProductId_idx" ON "Product"("mergedIntoProductId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Product_tenantId_code_key" ON "Product"("tenantId", "code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_tenantId_flowAccountSku_key" ON "Product"("tenantId", "flowAccountSku");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Product_productMasterId_variantKey_key" ON "Product"("productMasterId", "variantKey");
+
+-- CreateIndex
+CREATE INDEX "ProductIdentifier_productId_status_idx" ON "ProductIdentifier"("productId", "status");
+
+-- CreateIndex
+CREATE INDEX "ProductIdentifier_businessId_value_idx" ON "ProductIdentifier"("businessId", "value");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductIdentifier_tenantId_kind_value_key" ON "ProductIdentifier"("tenantId", "kind", "value");
+
+-- CreateIndex
+CREATE INDEX "ProductUnitConversion_businessId_status_idx" ON "ProductUnitConversion"("businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductUnitConversion_productId_unit_key" ON "ProductUnitConversion"("productId", "unit");
+
+-- CreateIndex
+CREATE INDEX "InventoryCatalogIntake_businessId_status_createdAt_idx" ON "InventoryCatalogIntake"("businessId", "status", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "InventoryCatalogIntake_businessId_sourceChannel_sourceCorre_key" ON "InventoryCatalogIntake"("businessId", "sourceChannel", "sourceCorrelationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "InventoryCatalogIntake_tenantId_code_key" ON "InventoryCatalogIntake"("tenantId", "code");
 
 -- CreateIndex
 CREATE INDEX "ProductLot_businessId_status_idx" ON "ProductLot"("businessId", "status");
@@ -4277,6 +5406,117 @@ CREATE INDEX "GoodsReceiptLine_receiptId_idx" ON "GoodsReceiptLine"("receiptId")
 -- CreateIndex
 CREATE INDEX "GoodsReceiptLine_purchaseOrderLineId_idx" ON "GoodsReceiptLine"("purchaseOrderLineId");
 
+-- CreateIndex
+CREATE INDEX "SupplierCostSheet_businessId_status_createdAt_idx" ON "SupplierCostSheet"("businessId", "status", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "SupplierCostSheet_supplierId_status_idx" ON "SupplierCostSheet"("supplierId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SupplierCostSheet_tenantId_code_key" ON "SupplierCostSheet"("tenantId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SupplierCostSheet_businessId_sourceSha256_key" ON "SupplierCostSheet"("businessId", "sourceSha256");
+
+-- CreateIndex
+CREATE INDEX "SupplierCostLine_productId_minQty_idx" ON "SupplierCostLine"("productId", "minQty");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SupplierCostLine_sheetId_sourceSku_minQty_key" ON "SupplierCostLine"("sheetId", "sourceSku", "minQty");
+
+-- CreateIndex
+CREATE INDEX "ProgrammeUsageReport_taskCode_idx" ON "ProgrammeUsageReport"("taskCode");
+
+-- CreateIndex
+CREATE INDEX "ProgrammeUsageReport_installationId_idx" ON "ProgrammeUsageReport"("installationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProgrammeUsageReport_source_sessionId_branch_key" ON "ProgrammeUsageReport"("source", "sessionId", "branch");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "HarnessCredential_installationId_key" ON "HarnessCredential"("installationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "HarnessCredential_keyHash_key" ON "HarnessCredential"("keyHash");
+
+-- CreateIndex
+CREATE INDEX "HarnessCredential_personId_status_idx" ON "HarnessCredential"("personId", "status");
+
+-- CreateIndex
+CREATE INDEX "HarnessCredential_status_createdAt_idx" ON "HarnessCredential"("status", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ErrorEvent_fingerprint_key" ON "ErrorEvent"("fingerprint");
+
+-- CreateIndex
+CREATE INDEX "ErrorEvent_resolvedAt_lastSeenAt_idx" ON "ErrorEvent"("resolvedAt", "lastSeenAt");
+
+-- CreateIndex
+CREATE INDEX "ErrorEvent_lastSeenAt_idx" ON "ErrorEvent"("lastSeenAt");
+
+-- CreateIndex
+CREATE INDEX "UsageEvent_personId_occurredAt_idx" ON "UsageEvent"("personId", "occurredAt");
+
+-- CreateIndex
+CREATE INDEX "UsageEvent_kind_route_occurredAt_idx" ON "UsageEvent"("kind", "route", "occurredAt");
+
+-- CreateIndex
+CREATE INDEX "UsageEvent_kind_actionName_occurredAt_idx" ON "UsageEvent"("kind", "actionName", "occurredAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UsageEventRollup_date_kind_target_key" ON "UsageEventRollup"("date", "kind", "target");
+
+-- CreateIndex
+CREATE INDEX "GovernanceSnapshot_business_repository_capturedAt_idx" ON "GovernanceSnapshot"("businessId", "repositoryId", "capturedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GovernanceSnapshot_business_repository_commit_manifest_key" ON "GovernanceSnapshot"("businessId", "repositoryId", "commitSha", "manifestHash");
+
+-- CreateIndex
+CREATE INDEX "ProjectFeature_business_project_lifecycle_idx" ON "ProjectFeature"("businessId", "projectId", "lifecycle");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProjectFeature_project_code_key" ON "ProjectFeature"("projectId", "code");
+
+-- CreateIndex
+CREATE INDEX "FeatureContribution_business_domain_idx" ON "FeatureContribution"("businessId", "domainId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "FeatureContribution_feature_domain_key" ON "FeatureContribution"("featureId", "domainId");
+
+-- CreateIndex
+CREATE INDEX "FeatureWorkLink_business_work_item_idx" ON "FeatureWorkLink"("businessId", "workItemId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "FeatureWorkLink_feature_work_item_key" ON "FeatureWorkLink"("featureId", "workItemId");
+
+-- CreateIndex
+CREATE INDEX "RequirementBinding_business_requirement_idx" ON "RequirementBinding"("businessId", "requirementKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RequirementBinding_feature_snapshot_namespace_requirement_key" ON "RequirementBinding"("featureId", "governanceSnapshotId", "sourceNamespace", "requirementKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProjectFeatureMutationReceipt_scope_idempotency_key" ON "ProjectFeatureMutationReceipt"("tenantId", "businessId", "principalId", "operation", "targetId", "idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "PricingRuleSet_tenantId_businessId_idx" ON "PricingRuleSet"("tenantId", "businessId");
+
+-- CreateIndex
+CREATE INDEX "PricingRuleSet_businessId_effectiveFrom_approvedAt_idx" ON "PricingRuleSet"("businessId", "effectiveFrom", "approvedAt");
+
+-- CreateIndex
+CREATE INDEX "PricingRuleSet_sourceRuleSetId_idx" ON "PricingRuleSet"("sourceRuleSetId");
+
+-- CreateIndex
+CREATE INDEX "PricingCalculation_tenantId_businessId_idx" ON "PricingCalculation"("tenantId", "businessId");
+
+-- CreateIndex
+CREATE INDEX "PricingCalculation_ruleSetId_idx" ON "PricingCalculation"("ruleSetId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PricingCalculation_businessId_idempotencyKey_key" ON "PricingCalculation"("businessId", "idempotencyKey");
+
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -4314,10 +5554,16 @@ ALTER TABLE "WorkspaceMembership" ADD CONSTRAINT "WorkspaceMembership_portfolioI
 ALTER TABLE "WorkspaceMembership" ADD CONSTRAINT "WorkspaceMembership_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "WorkspaceInvite" ADD CONSTRAINT "WorkspaceInvite_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "AccessInvite" ADD CONSTRAINT "AccessInvite_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "WorkspaceInvite" ADD CONSTRAINT "WorkspaceInvite_invitedByPersonId_fkey" FOREIGN KEY ("invitedByPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "AccessInvite" ADD CONSTRAINT "AccessInvite_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AccessInvite" ADD CONSTRAINT "AccessInvite_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AccessInvite" ADD CONSTRAINT "AccessInvite_invitedByPersonId_fkey" FOREIGN KEY ("invitedByPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PersonCredential" ADD CONSTRAINT "PersonCredential_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -4368,6 +5614,12 @@ ALTER TABLE "Employment" ADD CONSTRAINT "Employment_branchId_fkey" FOREIGN KEY (
 ALTER TABLE "Session" ADD CONSTRAINT "Session_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "MfaFactor" ADD CONSTRAINT "MfaFactor_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PasskeyCredential" ADD CONSTRAINT "PasskeyCredential_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ChannelIdentity" ADD CONSTRAINT "ChannelIdentity_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -4380,7 +5632,7 @@ ALTER TABLE "RoleBinding" ADD CONSTRAINT "RoleBinding_personId_fkey" FOREIGN KEY
 ALTER TABLE "RoleBinding" ADD CONSTRAINT "RoleBinding_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "RoleBinding" ADD CONSTRAINT "RoleBinding_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "RoleBinding" ADD CONSTRAINT "RoleBinding_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -4431,6 +5683,21 @@ ALTER TABLE "BusinessGoal" ADD CONSTRAINT "BusinessGoal_roadmapId_fkey" FOREIGN 
 ALTER TABLE "BusinessGoal" ADD CONSTRAINT "BusinessGoal_horizonId_fkey" FOREIGN KEY ("horizonId") REFERENCES "BusinessRoadmapHorizon"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "BusinessKeyResult" ADD CONSTRAINT "BusinessKeyResult_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessKeyResult" ADD CONSTRAINT "BusinessKeyResult_goalId_fkey" FOREIGN KEY ("goalId") REFERENCES "BusinessGoal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessKeyResult" ADD CONSTRAINT "BusinessKeyResult_ownerPersonId_fkey" FOREIGN KEY ("ownerPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessKeyResultCheckIn" ADD CONSTRAINT "BusinessKeyResultCheckIn_keyResultId_fkey" FOREIGN KEY ("keyResultId") REFERENCES "BusinessKeyResult"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessKeyResultCheckIn" ADD CONSTRAINT "BusinessKeyResultCheckIn_actorPersonId_fkey" FOREIGN KEY ("actorPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ProjectGoal" ADD CONSTRAINT "ProjectGoal_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -4441,6 +5708,15 @@ ALTER TABLE "Workstream" ADD CONSTRAINT "Workstream_projectId_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "PlanImportReceipt" ADD CONSTRAINT "PlanImportReceipt_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectExecutionStep" ADD CONSTRAINT "ProjectExecutionStep_runId_fkey" FOREIGN KEY ("runId") REFERENCES "ProjectExecutionRun"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectApprovalRequest" ADD CONSTRAINT "ProjectApprovalRequest_executionRunDbId_fkey" FOREIGN KEY ("executionRunDbId") REFERENCES "ProjectExecutionRun"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectApprovalRequest" ADD CONSTRAINT "ProjectApprovalRequest_executionStepDbId_fkey" FOREIGN KEY ("executionStepDbId") REFERENCES "ProjectExecutionStep"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "WorkContainer" ADD CONSTRAINT "WorkContainer_workstreamId_fkey" FOREIGN KEY ("workstreamId") REFERENCES "Workstream"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -4641,6 +5917,36 @@ ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_customerId_fkey" FOREIGN
 ALTER TABLE "Message" ADD CONSTRAINT "Message_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Message" ADD CONSTRAINT "Message_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "ConversationSession"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MessageAttachment" ADD CONSTRAINT "MessageAttachment_messageId_fkey" FOREIGN KEY ("messageId") REFERENCES "Message"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ConversationEvent" ADD CONSTRAINT "ConversationEvent_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ConversationEvent" ADD CONSTRAINT "ConversationEvent_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "ConversationSession"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ConversationSession" ADD CONSTRAINT "ConversationSession_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TenantRetentionOverride" ADD CONSTRAINT "TenantRetentionOverride_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ArchiveManifest" ADD CONSTRAINT "ArchiveManifest_previousManifestId_fkey" FOREIGN KEY ("previousManifestId") REFERENCES "ArchiveManifest"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerLegalHold" ADD CONSTRAINT "CustomerLegalHold_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerLegalHold" ADD CONSTRAINT "CustomerLegalHold_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerLegalHold" ADD CONSTRAINT "CustomerLegalHold_recordedByPersonId_fkey" FOREIGN KEY ("recordedByPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ConversationAnalysis" ADD CONSTRAINT "ConversationAnalysis_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -4674,6 +5980,12 @@ ALTER TABLE "PipelineGateDecision" ADD CONSTRAINT "PipelineGateDecision_runId_fk
 ALTER TABLE "KnowledgeRawArtifact" ADD CONSTRAINT "KnowledgeRawArtifact_rawExternalRecordId_fkey" FOREIGN KEY ("rawExternalRecordId") REFERENCES "RawExternalRecord"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "KnowledgeArtifactStorage" ADD CONSTRAINT "KnowledgeArtifactStorage_rawArtifactId_fkey" FOREIGN KEY ("rawArtifactId") REFERENCES "KnowledgeRawArtifact"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnowledgeArtifactOperation" ADD CONSTRAINT "KnowledgeArtifactOperation_storageId_fkey" FOREIGN KEY ("storageId") REFERENCES "KnowledgeArtifactStorage"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "KnowledgeParsedArtifact" ADD CONSTRAINT "KnowledgeParsedArtifact_rawArtifactId_fkey" FOREIGN KEY ("rawArtifactId") REFERENCES "KnowledgeRawArtifact"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -4692,6 +6004,15 @@ ALTER TABLE "KnowledgeIngestion" ADD CONSTRAINT "KnowledgeIngestion_sourceId_fke
 ALTER TABLE "KnowledgeCorpusGeneration" ADD CONSTRAINT "KnowledgeCorpusGeneration_corpusId_fkey" FOREIGN KEY ("corpusId") REFERENCES "KnowledgeCorpus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "KnowledgeCandidate" ADD CONSTRAINT "KnowledgeCandidate_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnowledgeCandidate" ADD CONSTRAINT "KnowledgeCandidate_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnowledgeCandidate" ADD CONSTRAINT "KnowledgeCandidate_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "IntegrationConnection" ADD CONSTRAINT "IntegrationConnection_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -4702,6 +6023,9 @@ ALTER TABLE "IntegrationConnection" ADD CONSTRAINT "IntegrationConnection_provid
 
 -- AddForeignKey
 ALTER TABLE "IntegrationCredential" ADD CONSTRAINT "IntegrationCredential_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "IntegrationConnection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "IntegrationCredentialVersion" ADD CONSTRAINT "IntegrationCredentialVersion_credentialId_fkey" FOREIGN KEY ("credentialId") REFERENCES "IntegrationCredential"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "IngestionRun" ADD CONSTRAINT "IngestionRun_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -4833,6 +6157,9 @@ ALTER TABLE "LineConversationJob" ADD CONSTRAINT "LineConversationJob_accountId_
 ALTER TABLE "LineConversationJob" ADD CONSTRAINT "LineConversationJob_inboundMessageId_fkey" FOREIGN KEY ("inboundMessageId") REFERENCES "Message"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "LineConversationJob" ADD CONSTRAINT "LineConversationJob_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "ConversationSession"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "MarketingPlan" ADD CONSTRAINT "MarketingPlan_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -4960,6 +6287,30 @@ ALTER TABLE "Product" ADD CONSTRAINT "Product_businessId_fkey" FOREIGN KEY ("bus
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_productMasterId_fkey" FOREIGN KEY ("productMasterId") REFERENCES "ProductMaster"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductIdentifier" ADD CONSTRAINT "ProductIdentifier_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductIdentifier" ADD CONSTRAINT "ProductIdentifier_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductIdentifier" ADD CONSTRAINT "ProductIdentifier_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductUnitConversion" ADD CONSTRAINT "ProductUnitConversion_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductUnitConversion" ADD CONSTRAINT "ProductUnitConversion_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductUnitConversion" ADD CONSTRAINT "ProductUnitConversion_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryCatalogIntake" ADD CONSTRAINT "InventoryCatalogIntake_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryCatalogIntake" ADD CONSTRAINT "InventoryCatalogIntake_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProductLot" ADD CONSTRAINT "ProductLot_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -5188,4 +6539,115 @@ ALTER TABLE "GoodsReceiptLine" ADD CONSTRAINT "GoodsReceiptLine_receiptId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "GoodsReceiptLine" ADD CONSTRAINT "GoodsReceiptLine_purchaseOrderLineId_fkey" FOREIGN KEY ("purchaseOrderLineId") REFERENCES "PurchaseOrderLine"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SupplierCostSheet" ADD CONSTRAINT "SupplierCostSheet_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SupplierCostSheet" ADD CONSTRAINT "SupplierCostSheet_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SupplierCostSheet" ADD CONSTRAINT "SupplierCostSheet_supplierId_fkey" FOREIGN KEY ("supplierId") REFERENCES "Supplier"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SupplierCostLine" ADD CONSTRAINT "SupplierCostLine_sheetId_fkey" FOREIGN KEY ("sheetId") REFERENCES "SupplierCostSheet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SupplierCostLine" ADD CONSTRAINT "SupplierCostLine_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HarnessCredential" ADD CONSTRAINT "HarnessCredential_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UsageEvent" ADD CONSTRAINT "UsageEvent_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GovernanceSnapshot" ADD CONSTRAINT "GovernanceSnapshot_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GovernanceSnapshot" ADD CONSTRAINT "GovernanceSnapshot_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GovernanceSnapshot" ADD CONSTRAINT "GovernanceSnapshot_repositoryId_fkey" FOREIGN KEY ("repositoryId") REFERENCES "Repository"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GovernanceSnapshot" ADD CONSTRAINT "GovernanceSnapshot_projectRepositoryId_fkey" FOREIGN KEY ("projectRepositoryId") REFERENCES "ProjectRepository"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFeature" ADD CONSTRAINT "ProjectFeature_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFeature" ADD CONSTRAINT "ProjectFeature_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFeature" ADD CONSTRAINT "ProjectFeature_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFeature" ADD CONSTRAINT "ProjectFeature_governanceSnapshotId_fkey" FOREIGN KEY ("governanceSnapshotId") REFERENCES "GovernanceSnapshot"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FeatureContribution" ADD CONSTRAINT "FeatureContribution_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FeatureContribution" ADD CONSTRAINT "FeatureContribution_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FeatureContribution" ADD CONSTRAINT "FeatureContribution_featureId_fkey" FOREIGN KEY ("featureId") REFERENCES "ProjectFeature"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FeatureWorkLink" ADD CONSTRAINT "FeatureWorkLink_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FeatureWorkLink" ADD CONSTRAINT "FeatureWorkLink_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FeatureWorkLink" ADD CONSTRAINT "FeatureWorkLink_featureId_fkey" FOREIGN KEY ("featureId") REFERENCES "ProjectFeature"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FeatureWorkLink" ADD CONSTRAINT "FeatureWorkLink_workItemId_fkey" FOREIGN KEY ("workItemId") REFERENCES "WorkItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequirementBinding" ADD CONSTRAINT "RequirementBinding_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequirementBinding" ADD CONSTRAINT "RequirementBinding_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequirementBinding" ADD CONSTRAINT "RequirementBinding_featureId_fkey" FOREIGN KEY ("featureId") REFERENCES "ProjectFeature"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RequirementBinding" ADD CONSTRAINT "RequirementBinding_governanceSnapshotId_fkey" FOREIGN KEY ("governanceSnapshotId") REFERENCES "GovernanceSnapshot"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFeatureMutationReceipt" ADD CONSTRAINT "ProjectFeatureMutationReceipt_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFeatureMutationReceipt" ADD CONSTRAINT "ProjectFeatureMutationReceipt_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFeatureMutationReceipt" ADD CONSTRAINT "ProjectFeatureMutationReceipt_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFeatureMutationReceipt" ADD CONSTRAINT "ProjectFeatureMutationReceipt_featureId_fkey" FOREIGN KEY ("featureId") REFERENCES "ProjectFeature"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFeatureMutationReceipt" ADD CONSTRAINT "ProjectFeatureMutationReceipt_auditEventId_fkey" FOREIGN KEY ("auditEventId") REFERENCES "AuditEvent"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PricingRuleSet" ADD CONSTRAINT "PricingRuleSet_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PricingRuleSet" ADD CONSTRAINT "PricingRuleSet_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PricingRuleSet" ADD CONSTRAINT "PricingRuleSet_sourceRuleSetId_fkey" FOREIGN KEY ("sourceRuleSetId") REFERENCES "PricingRuleSet"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PricingCalculation" ADD CONSTRAINT "PricingCalculation_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PricingCalculation" ADD CONSTRAINT "PricingCalculation_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PricingCalculation" ADD CONSTRAINT "PricingCalculation_ruleSetId_fkey" FOREIGN KEY ("ruleSetId") REFERENCES "PricingRuleSet"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 

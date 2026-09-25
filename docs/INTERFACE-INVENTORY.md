@@ -1,7 +1,7 @@
 ---
-version: "1.37.0b"
+version: "1.38.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-19T19:39:25+07:00,RWANG"
+last_update: "2026-09-24T20:46:40+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -12,18 +12,18 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
-Version diff 1.36.0b -> 1.37.0b: add the operator-only Mission Control observability surface for the programme DAG; 116 page routes and 59 operational subdomain entries.
+Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describe the PRP LocalWorker API-key flow, and reconcile the inventory to 114 page routes; 59 operational subdomain entries remain.
 
 | Field | Value |
 |---|---|
-| **Version** | 1.37.0b |
+| **Version** | 1.38.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-17 |
+| **Last Updated** | 2026-09-24 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=116; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=114; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -80,8 +80,6 @@ mean production identity, external providers or cutover gates are complete.
 |---|---|---|---|---|---|
 | 1.17.0b | 2026-09-11 | candidate | Reconcile SCM, Goods Receipts, Billing/POS and the canonical LINE OA navigation; 95 pages and 50 operational entries | working-tree | RWANG |
 | `/` | Landing | EntryShell | product entry, continue to login/demo boundary | initial, loading, local/offline-safe | implemented; `src/app/(entry)/page.jsx` |
-| `/edge/pair` | Desktop browser/QR pairing | EntryShell | sign in, compare device code, choose an owned Business and approve; the initiating Desktop receives its key once | loading, auth required, pending, approved, denied, expired, unavailable | FR-144; browser/QR slice implemented locally, production activation separate |
-| `/harness/pair` | Agent harness pairing | EntryShell | sign in, compare the check code with the terminal, confirm harness and device label, approve for yourself or deny; the harness receives its report-only key once | loading, auth required, not allowed (bare signup), pending, approved, denied, cancelled, expired | FR-220; ADR-087 D1-D2 |
 | `/login` | Credential Login | EntryShell | email/account-code and password authentication with password reveal and an opt-in persistent session, then Business Routing; two links out — reset, and self-serve signup (FR-120) | ready, invalid credentials, unavailable session, error | implemented beta; `src/app/login/page.jsx`, `/api/auth/login`, FR-046 |
 | `/reset-password` | Password Reset Redemption (ตั้งรหัสผ่านใหม่) | EntryShell | consume a single-use reset token handed over out of band — typed by hand or carried in the link — set a new credential, and report that every active session was revoked | unauthenticated, prefilled token, invalid/used/expired token (one generic message), password too short, confirmation mismatch, done | implemented; `src/app/reset-password/page.jsx`, `/api/auth/reset-password`, FR-104 |
 | `/signup` | Self-Serve Signup (สมัครสมาชิก) | EntryShell | create your own `Person` + `PersonCredential` with no invite and no operator, be signed in, and continue into FR-066 at its `PROFILE` step — grants no scope, capability or membership | unauthenticated, confirmation mismatch (caught before any request), password below the minimum, address already taken (named plainly — no mail transport means nothing to hide it behind), rate-limited (429) | implemented; `src/app/signup/page.jsx`, `/api/auth/signup`, FR-120 |
@@ -145,9 +143,7 @@ receipt lines — never from the page.
 The `customer` domain key stopped being a reserved slot on 2026-08-20 (FR-091).
 `Customer`, `Conversation` and `Message` had been written by the LINE ingest
 seam since FR-023 while the domain advertised no page at all, so the product
-received messages it could not show anyone. Both interfaces are read-only: the
-reply belongs to the edge runtime that holds the channel (BR-011), and neither
-page can issue a write.
+received messages it could not show anyone. Both interfaces are read-only: LINE delivery remains under the account's server-owned transport (BR-011), and neither page can issue a write.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
@@ -279,7 +275,7 @@ and does not require an active Business selection.
 | `/control/mission-control` | Mission Control | PlatformControlShell → programme observability | read-only 119-node / 133-edge / 21-wave programme DAG, candidate-parallel merge gates, blocker families, and PORL observation boundary; no run, dispatch, approval, or deployment action | forbidden (404), auth required, ready; `isOperator` only; no Business scope; unknown/unavailable observations remain explicit | implemented locally; `src/app/(control)/control/mission-control/page.jsx`, FR-260–FR-264 / ADR-086 / ADR-092 |
 | `/control/errors` | Error events | PlatformControlShell → deduplicated error list | operator reads errors grouped by fingerprint with occurrence count and first/last seen, resolves one; no request/response content, only name/message/parsed stack frames | forbidden (404), auth required, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/errors/page.jsx`, FR-247 / ADR-095 |
 | `/control/usage` | Feature usage | PlatformControlShell → route/action usage breakdown | operator reads route and action counts, total and last-90-days-per-person; older than 90 days survives only as an aggregate (no person) | forbidden (404), auth required, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/usage/page.jsx`, FR-248 / FR-249 / ADR-095 |
-| `/roadmap` | Programme Roadmap — signed-in preview | PlatformControlShell (title "Programme Roadmap") → programme plan snapshot, `audience="member"` | read-only programme plan and Domain map tabs for any signed-in person until 2026-10-15 00:00 Asia/Bangkok; no Agent devices tab, no usage by person or device, no tool or model names (removed on the server); no navigation entry — the link is shared by the owner | closed (404 for everyone after the window), session unavailable, auth required, ready; any authenticated session; no Business scope | implemented locally; `src/app/roadmap/page.jsx`, FR-241 / ADR-092 |
+| `/roadmap` | Programme Roadmap — signed-in preview | PlatformControlShell (title "Programme Roadmap") → programme plan snapshot, `audience="member"` | read-only programme plan and Domain map tabs for any signed-in person until 2026-10-15 00:00 Asia/Bangkok; no personal usage or tool/model detail (removed on the server); no navigation entry — the link is shared by the owner | closed (404 for everyone after the window), session unavailable, auth required, ready; any authenticated session; no Business scope | implemented locally; `src/app/roadmap/page.jsx`, FR-241 / ADR-092 |
 
 ### Marketing Strategy first slice
 
@@ -348,7 +344,7 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Operational sub-domain entries | 55 | excludes Business Home Dashboard |
 | Projects & Work sub-domain entries | 8 | includes Files and excludes Business Home |
 | Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Scanner |
-| LINE OA Studio navigation entries | 8 | Dashboard, Projects & Accounts, Design Studio, Live CRM, Edge connection, Templates, Team and Settings; LINE registry editing lives in Projects (main 2a1b6a81) |
+| LINE OA Studio navigation entries | 8 | Dashboard, Projects & Accounts, Design Studio, Live CRM, Connections, Templates, Team and Settings; LINE registry editing lives in Projects (main 2a1b6a81) |
 | Marketing (`growth`) navigation entries | 5 | Dashboard, Strategy, Campaigns, Content & Creative and Operations (FR-157..162); the three FR-185 routes remain direct planning/read surfaces |
 | Warehouse (`inventory`) navigation entries | 1 | Dashboard (FR-154, FR-155) |
 | Commerce navigation entries | 2 | Dashboard and Orders (FR-162, FR-163) |
@@ -414,6 +410,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.38.0b | 2026-09-24 | candidate | Retire Edge and harness pairing routes, describe the PRP LocalWorker API-key flow, and reconcile to 114 page routes | working-tree | RWANG |
 | 1.36.0b | 2026-09-19 | candidate | Reconcile Documents & Intake with the FR-254 Knowledge Console route and navigation; 115 page routes and 59 operational subdomain entries | working-tree | RWANG |
 | 1.35.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console route and navigation with the newer PM inventory baseline; retain 114 page routes and record 58 operational subdomain entries | 2bd61b49 | RWANG |
 | 1.34.0b | 2026-09-17 | candidate | Describe implemented owner forms, scoped pickers, review/reconciliation and modal/refusal states; retain 113 page routes and separate hosted release evidence | 052821a7 + 892f23f3 | RWANG |
@@ -452,16 +449,16 @@ The current route evidence is:
 
 | Route | Surface | Scope | Behavior |
 |---|---|---|---|
-| `/line-oa` | Account setup, execution policy and jobs | Business visibility; publishing requires owner/publisher | CLOUD default, optional Edge compute, explicit external model consent, credential readiness, enable/disable, job status and uncertain-send acknowledgement. |
-| `/line-oa/projects` | LINE OA Projects & Accounts | Business visibility | View/manage LINE OA accounts plus the Business-scoped Group/User registry; account connection writes stay in the Edge & Connection flow. |
+| `/line-oa` | Account setup, execution policy and jobs | Business visibility; publishing requires owner/publisher | CLOUD default or Private Runtime (PRP LocalWorker) using the Business API key, explicit external model consent, credential readiness, enable/disable, job status and uncertain-send acknowledgement. |
+| `/line-oa/projects` | LINE OA Projects & Accounts | Business visibility | View/manage LINE OA accounts plus the Business-scoped Group/User registry; account connection writes stay in the Connections flow. |
 | `/line-oa/design-studio` | LINE OA Design Studio | Business visibility | Visual designer for Rich Menus, LIFF Apps, Flex Messages, and quick reply templates with live mobile preview. |
 | `/line-oa/rich-menus` | Rich Menu compatibility entry (FR-151, FR-152) | Business visibility | Redirects to the canonical `/line-oa/design-studio?tool=rich-menu` workspace; the versioned menu editor and publish-job ledger have one Studio owner. |
 | `/line-oa/live-crm` | LINE OA Live CRM & Chat | Business visibility | Real-time chat workspace, multi-agent inbox, customer profiling, and conversation threading. |
-| `/line-oa/connections` | LINE OA Connections & API key | Business visibility | The account and its webhook, device pairing keys (still used by ADR-059 extraction), and the Business's own model provider API key (FR-266). Renamed from `/line-oa/edge-connection` by FR-265; the old path redirects. |
+| `/line-oa/connections` | LINE OA Connections & API key | Business visibility | Manage LINE OA channel credentials, webhook registration and connection readiness. Configure the Business's model-provider API key, including PRP LocalWorker, under `/line-oa` (FR-266). The former `/line-oa/edge-connection` path redirects here. |
 | `/line-oa/integrations` | Compatibility entry | Business visibility | Redirects to Platform Integrations; LINE account, webhook and registry editing is owned by LINE OA Studio. |
 | `/line-oa/templates` | LINE Message & Component Templates | Business visibility | Pre-built templates library for flex bubble, carousel, card, and rich menu configurations. |
 | `/line-oa/team` | LINE Studio Team & RBAC | Business visibility | Member permissions, publisher roles, access policies, and operator audit trail. |
-| `/line-oa/settings` | LINE Studio Settings | Business visibility | Read-only account status and links to the owning Edge transport and Platform model metadata surfaces; no duplicate credential/webhook writer. |
+| `/line-oa/settings` | LINE Studio Settings | Business visibility | Read-only account status and links to the account's Connections page and Platform model metadata surfaces; no duplicate credential/webhook writer. |
 
 Version diff 1.5.0b → 1.6.0b: add the two Marketing routes and distinguish implemented Strategy from the full approved mockup inventory.
 

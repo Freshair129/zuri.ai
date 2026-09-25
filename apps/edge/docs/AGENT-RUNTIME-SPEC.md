@@ -1,40 +1,50 @@
 ---
 id: "ZURI-AGENT-RUNTIME"
-version: "0.5.0b"
-status: "candidate"
+version: "0.5.1b"
+status: "deprecated"
 owner: "zuri-command-agent"
 upstream_contract: "zuri-command-agent-api-v1@0.1.0b"
 created_at: "2026-08-10T15:20:00+07:00, ATHER"
-last_update: "2026-09-06T11:51:02+07:00,RWANG"
+last_update: "2026-09-25T15:35:00+07:00,RWANG"
 ---
 
-# Zuri Command Agent Runtime Specification
+# Zuri Command Agent Runtime Specification — historical
 
-> Current transport decision: [Server-owned LINE and optional Edge](SERVER-LINE-OPTIONAL-EDGE.md)
-> implements upstream ADR-061. New runtimes are compute-only; the transport behavior below
-> applies only to explicitly selected `LEGACY_EDGE` installations during migration.
+> **Deprecated as an operational specification on 2026-09-25.** The paired Edge worker,
+> `edgk_` authentication, heartbeat, device extraction, `LEGACY_EDGE` mode, and local LINE
+> ingress/delivery in this document are retired. Do not use its pairing, deployment, or
+> cutover procedures. The retained GenesisRAG/Knowledge pipeline remains documented in
+> [its runbook](GENESIS-RAG-V4-PIPELINE-RUNBOOK.md); existing archive, outbox, and LINE identity
+> records remain preserved.
+>
+> The Localworker API-key contract is owned by the external Private Runtime Platform (PRP).
+> Conversation Runtime is tracked separately in the
+> [zuri.ai handoff](../../../docs/migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md).
+> This retired specification does not claim that the PRP integration is implemented or verified.
+> All sections below preserve the former Command Agent and Edge-worker design; they are not current
+> setup, deployment, or authorization instructions.
 
-## Candidate central monorepo and execution contract
+## Historical migration proposal and execution contract (2026-09-06)
 
-The owner requested complete migration documentation on 2026-09-06. In the central Freshair129/zuri.ai documentation branch, ZAI:ADR-062 proposes apps/edge in the monorepo with a separately installed/released runtime; ZAI:ADR-061 and ZAI:FR-148-P4 define the optional executor behavior. These qualified citations refer to the central repository, not this repository's local ADR/FR registry. They do not grant production activation or retire this runtime's existing reply-owner rule.
+The owner requested complete migration documentation on 2026-09-06. In the central Freshair129/zuri.ai documentation branch, ZAI:ADR-062 proposed apps/edge in the monorepo with a separately installed/released runtime; ZAI:ADR-061 and ZAI:FR-148-P4 defined the then-proposed optional executor behavior. These qualified citations refer to the central repository, not this repository's local ADR/FR registry. They are preserved as historical context and do not describe the current supported boundary.
 
-Target: Edge claims compatible jobs over outbound HTTPS, executes only allowed local capabilities, and returns bounded evidence/results under a current Business-scoped lease. Server owns migrated-account LINE credentials, send intents and provider calls. Edge receives no LINE reply token or Server database access; local-only jobs never silently use cloud inference. Device upgrade compatibility is checked against released protocol ranges, not assumed from a common checkout.
+Former target (retired): Edge claimed compatible jobs over outbound HTTPS, executed allowed local capabilities, and returned bounded evidence/results under a Business-scoped lease. The old text below describes that design, not a supported device worker.
 
-Migration first preserves current behavior while moving source; transport cutover follows separately per account. Existing Stack/local sending paths below remain legacy until the central cutover gate pauses/fences them. Do not remove current device configuration, copy .env/customer files into Git, delete the old repo/workspace, or reinstall device data merely because the source is moving. Root global documentation becomes authoritative after reviewed ID/path mapping; old local requirement IDs keep repository-qualified provenance.
+The former migration proposal preserved device configuration while moving source, then planned a per-account transport cutover. That proposal is retired. Do not copy `.env` or customer data into Git, and preserve existing local archive, outbox, and identity records; device pairing and Edge worker setup are not current procedures.
 
 
-> This document remains the detailed source of record for runtime topology and lifecycle rules.
-> [`PRD-SDD-v1.0.md`](PRD-SDD-v1.0.md) §2.1 cross-references it rather than duplicating it — update
-> this file first on any change.
+> The sections below preserve the former Command Agent topology and lifecycle rules for audit history.
+> The old PRD cross-reference is retained for provenance; it is not an instruction to update this
+> retired specification for current behavior.
 
-## Role
+## Former runtime role (historical)
 
 The agent runs locally (normally Docker on the SmartGift workstation). It claims compatible
 commands from Zuri, executes only registered read-only DuckDB queries, and returns a typed,
 evidence-labelled result. It never owns tenant policy, customer/group authority, Zuri database
 credentials, or LINE credentials.
 
-## Runtime components
+## Former runtime components (historical)
 
 ```text
 operator adapters (Codex / Claude Code / Antigravity)
@@ -48,7 +58,7 @@ local bridge
   -> Zuri Command API
 ```
 
-## Local state rules
+## Historical local state rules
 
 - Durable command/run/checkpoint/outbox state lives in Zuri PostgreSQL, not local files.
 - Local state is limited to an encrypted device identity, bounded transient job cache, and
@@ -57,7 +67,7 @@ local bridge
 - DuckDB is opened read-only. The runtime accepts query IDs and validated parameters, never SQL
   text supplied by an operator, model, LINE event, or another agent.
 
-## Adapter rules
+## Historical adapter rules
 
 All three adapters create the same versioned command envelope. An adapter may request a preview;
 it may request `line_reply` or `line_push` delivery, but cannot bypass Zuri policy to cause it.
@@ -66,7 +76,7 @@ Zuri validates the evidence and sends through its own outbox without a per-messa
 Interactive Codex/Claude/Antigravity sessions are clients of the operator CLI and are never
 exposed as an unattended public responder.
 
-## Required local capabilities
+## Former local capabilities (historical)
 
 - `bridge.health`: reports registered contract/query/template versions and last successful poll.
 - `bridge.claim`: claims exactly one leased compatible job.

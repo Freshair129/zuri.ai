@@ -32,9 +32,16 @@ describe('Selective impact-driven e2e target selection', () => {
     const result = selectE2ETargets(crmChanges, { serverRoot })
     expect(result.skip).toBe(false)
     expect(result.runAll).toBe(false)
-    expect(result.specs).toContain('tests/e2e/fr091-conversation-inbox.spec.js')
     expect(result.specs).toContain('tests/e2e/fr149-line-server-console.spec.js')
+    expect(result.specs).not.toContain('tests/e2e/fr091-conversation-inbox.spec.js')
     expect(result.specs).not.toContain('tests/e2e/fr164-procurement.spec.js')
+  })
+
+  it('selects the remaining Edge desktop suite without the retired pairing spec', () => {
+    const result = selectE2ETargets(['apps/edge/src-tauri/src/main.rs'], { serverRoot })
+    expect(result.skip).toBe(false)
+    expect(result.specs).toContain('tests/e2e/edge-desktop-ui.spec.js')
+    expect(result.specs).not.toContain('tests/e2e/edge-pairing.spec.js')
   })
 
   it('selects only Marketing specs when Growth/Marketing code is modified', () => {
