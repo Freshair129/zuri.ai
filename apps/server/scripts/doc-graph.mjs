@@ -402,6 +402,7 @@ function build() {
   const testFiles = [
     ...walk(workspacePath(ROOT, 'tests'), ['.test.js', '.spec.js']),
     ...walk(workspacePath(ROOT, 'apps', 'edge', 'tests'), ['.test.ts', '.test.js', '.spec.ts', '.spec.js']),
+    ...walk(workspacePath(ROOT, 'services', 'market-intelligence', 'test'), ['.test.js', '.spec.js']),
   ]
   const edgeTestRoot = workspacePath(ROOT, 'apps', 'edge', 'tests')
   for (const file of testFiles) {
@@ -441,11 +442,15 @@ function build() {
   // tree. Unscanned, its FR would read as having no code, the same blindness the
   // Edge note above describes.
   const pluginCodeFiles = walk(workspacePath(ROOT, 'plugins'), ['.mjs', '.js'])
+  // ADR-108: the Market Intelligence service runs as its own package under
+  // services/. Unscanned, FR-092's service-side code and tests would be invisible.
+  const marketServiceCodeFiles = walk(workspacePath(ROOT, 'services', 'market-intelligence', 'src'), ['.mjs', '.js'])
   const codeFiles = [
     ...walk(workspacePath(ROOT, 'src'), ['.js', '.jsx']),
     ...walk(workspacePath(ROOT, 'prisma'), ['.js']),
     ...edgeCodeFiles,
     ...pluginCodeFiles,
+    ...marketServiceCodeFiles,
   ]
   const isEdgeFile = new Set(edgeCodeFiles.map((f) => f))
   for (const file of codeFiles) {

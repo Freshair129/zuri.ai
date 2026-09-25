@@ -37,6 +37,8 @@
     "self:plan": "npm --prefix apps/server run self:plan",
     "edge:build": "npm --prefix apps/edge run build",
     "edge:test": "npm --prefix apps/edge test",
-    "edge:typecheck": "npm --prefix apps/edge run typecheck"
+    "edge:typecheck": "npm --prefix apps/edge run typecheck",
+    "market-intelligence:build": "npm --prefix services/market-intelligence run build",
+    "market-intelligence:test": "npm --prefix services/market-intelligence test"
   }
 }
