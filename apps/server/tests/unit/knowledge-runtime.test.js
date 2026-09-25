@@ -770,12 +770,31 @@ describe('knowledge durable queue', () => {
     // reproduces) could already be due by the time this one runs — a count of
     // "exactly this test's own 20" would then be as timing-dependent as the
     // bug it is proving fixed. Drain whatever is currently eligible first,
-    // unmeasured, looping to `examined === 0` rather than a single pass —
-    // one pass is bounded to `MAX_SWEEP_PAGES * limit` (60) rows and could
-    // leave leftovers from a large enough accumulation behind — so the
-    // assertion below counts only the 20 rows this test is about to create,
-    // never any residue from earlier tests in this file.
-    for (let drained = await runtime.runOnce(); drained.sweep.examined > 0; drained = await runtime.runOnce()) { /* draining */ }
+    // unmeasured, looping rather than trusting a single pass — one pass is
+    // bounded to `MAX_SWEEP_PAGES * limit` (60) rows and could leave
+    // leftovers from a large enough accumulation behind.
+    //
+    // Bounded and progress-checked, not a bare "loop until examined === 0":
+    // a leftover row this sweep cannot verify (no matching KnowledgeCorpus)
+    // is examined every pass but neither closes nor gets a new lease
+    // (knowledge-runtime.js's own `if (!corpus) continue`), which would spin
+    // forever under this test's frozen clock; a caught sweep exception also
+    // reports `examined: 0` (runOnce()'s own `.catch`), which would read as
+    // "already drained" rather than a masked failure. Fail loudly on either
+    // instead of silently trusting a baseline this test cannot verify.
+    const MAX_DRAIN_PASSES = 25
+    for (let pass = 1; ; pass += 1) {
+      if (pass > MAX_DRAIN_PASSES) throw new Error(`F-20 test setup: drain did not settle after ${MAX_DRAIN_PASSES} passes`)
+      const drained = await runtime.runOnce()
+      if (onError.mock.calls.some(([event]) => event.code === 'KNOWLEDGE_SWEEP_FAILED')) {
+        throw new Error('F-20 test setup: drain pass reported KNOWLEDGE_SWEEP_FAILED')
+      }
+      if (drained.sweep.examined === 0) break
+      if (drained.sweep.closed === 0 && drained.sweep.open === 0) {
+        throw new Error(`F-20 test setup: drain made no progress — examined ${drained.sweep.examined} row(s) that neither closed nor backed off (a leftover row with no matching KnowledgeCorpus?)`)
+      }
+    }
+    onError.mockClear()
 
     // Exactly `limit` (20) total candidates once the real orphan below is
     // marked SUPERSEDED: page 1 is completely full, forcing the second-page
