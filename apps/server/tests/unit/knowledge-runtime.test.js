@@ -756,18 +756,26 @@ describe('knowledge durable queue', () => {
     const fixture = await durableJob()
     const { stuck, transport } = await pendingBatchRun(fixture)
     const onError = vi.fn()
-    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError })
+    // One frozen instant for this test's whole runtime instance — never
+    // `() => new Date()` — so no row already in this shared database can
+    // have a lease that expires into eligibility between the drain below and
+    // the measured pass: every internal `now()` call reads the exact same
+    // Date, not a live clock.
+    const clock = new Date()
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError, now: () => clock })
 
     // This suite shares one un-reset-between-tests database and
     // `listOpenKnowledgeRunIds` has no tenant/business scope, so an earlier
-    // test's own leftover refused rows (real leases, per the CI failure this
-    // test reproduces) could already be due by the time this one runs — a
-    // count of "exactly this test's own 20" would then be as timing-dependent
-    // as the bug it is proving fixed. Settle whatever is currently eligible
-    // first, unmeasured, so the assertion below counts only the 20 rows this
-    // test is about to create, never how much wall-clock time has passed
-    // since some earlier test in this file ran.
-    await runtime.runOnce()
+    // test's own leftover rows (real leases, per the CI failure this test
+    // reproduces) could already be due by the time this one runs — a count of
+    // "exactly this test's own 20" would then be as timing-dependent as the
+    // bug it is proving fixed. Drain whatever is currently eligible first,
+    // unmeasured, looping to `examined === 0` rather than a single pass —
+    // one pass is bounded to `MAX_SWEEP_PAGES * limit` (60) rows and could
+    // leave leftovers from a large enough accumulation behind — so the
+    // assertion below counts only the 20 rows this test is about to create,
+    // never any residue from earlier tests in this file.
+    for (let drained = await runtime.runOnce(); drained.sweep.examined > 0; drained = await runtime.runOnce()) { /* draining */ }
 
     // Exactly `limit` (20) total candidates once the real orphan below is
     // marked SUPERSEDED: page 1 is completely full, forcing the second-page
