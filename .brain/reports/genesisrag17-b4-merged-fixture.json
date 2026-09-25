@@ -1,0 +1,26 @@
+{
+  "phase": "B4 remediation — added-path full-stack proof (ADR-073 amendment 2026-09-24, EDGE-DEPLOYMENT §10.1)",
+  "schemaVersion": "genesisrag17.v1",
+  "mergedFixtureVersion": "b4-merged-fixture-v1",
+  "recordCount": 5,
+  "newRecordExternalId": "PM-B4-MERGED-FIXTURE",
+  "thresholds": {
+    "recallAt5": 0.8,
+    "mrr": 0.65,
+    "citationCorrectness": 1,
+    "crossTenantLeaks": 0
+  },
+  "published": {
+    "runId": "99dca29e-a538-4897-a377-469cd7c3e6dd",
+    "snapshotId": "snap-4f7aaf72d7948ba759a709f2d91ffaa1",
+    "generation": "g17-43b53ee376316af61f85d687b7e4e3c6",
+    "benchmark": {
+      "fixtureVersion": "b4-merged-fixture-v1:PM-B4-MERGED-FIXTURE",
+      "queryCount": 2,
+      "recallAt5": 1,
+      "mrr": 1,
+      "citationCorrectness": 1,
+      "crossTenantLeaks": 0
+    }
+  }
+}
