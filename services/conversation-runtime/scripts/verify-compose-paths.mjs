@@ -76,6 +76,7 @@ for (const line of smokeCoreDockerfile.split(/\r?\n/)) {
 let composeResolvedPaths = null
 if (process.argv.includes('--compose')) {
   const config = JSON.parse(execFileSync('docker', ['compose', '--project-directory', 'apps/server',
+    '--profile', 'conversation-runtime',
     '-f', 'apps/server/docker-compose.yml', '-f', 'apps/server/docker-compose.conversation-runtime.yml',
     'config', '--format', 'json'], { cwd: repositoryRoot, env: process.env, encoding: 'utf8' }))
   const web = config.services?.web?.build

@@ -4985,7 +4985,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "fc971569fedac5fad46569f088779253220272ee39f8adb7ab9e5a0a4b793f1c",
+      "statement_digest": "340c460ae7f045f07a83f712267b91dcc1b2b64291c05a6ad6342cc39a019139",
       "history": [
         {
           "anchor": "line oa studio conversation work is server executed only",
@@ -4994,7 +4994,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-25",
-      "statement_digest_reason": "Adds ADR-109 D1 retirement scope while preserving the same server-executed LINE behavior."
+      "statement_digest_reason": "Clarify that runtimeOwner selects and snapshots the Conversation Runtime cohort while executionMode stays SERVER and Core retains claims, receipts, and authoritative state writes."
     },
     "FR-266": {
       "family": "FR",
@@ -6835,14 +6835,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "8507401e631ba17cd13cebb1f9968408f71272b7cb9d4baf0aaf98673caa7648",
+      "statement_digest": "bcf1552f9b5d6700f579240b3d94cb03d161a92f53738a94c71b64faab612ef8",
       "history": [
         {
           "anchor": "conversation runtime is an independent node process over",
           "since": "2026-09-23",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-25",
+      "statement_digest_reason": "Clarify the strict Conversation Runtime process boundary, Core-owned authority and receipts, and durable runtimeOwner cohort selection while preserving executionMode SERVER."
     },
     "SEC-001": {
       "family": "SEC",

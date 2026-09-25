@@ -223,6 +223,7 @@ describe('replyExpiresAt is anchored to the event, not to now', () => {
       allowDelayedPush: false, serverEnabled: true, transportMode: 'CLOUD', status: 'CONNECTED',
     }
     const tx = {
+      $executeRaw: vi.fn(async () => 1),
       lineOaAccount: { findUnique: vi.fn(async () => oaAccount) },
       lineConversationJob: {
         findUnique: vi.fn(async () => null),
@@ -245,6 +246,10 @@ describe('replyExpiresAt is anchored to the event, not to now', () => {
     })
 
     expect(createdReplyExpiresAt(tx)).toEqual(new Date(ingressReceivedAt.getTime() + 45_000))
+    expect(tx.$executeRaw).toHaveBeenCalledTimes(1)
+    const [statement, accountId] = tx.$executeRaw.mock.calls[0]
+    expect(statement.join('?')).toBe('UPDATE "LineOaAccount" SET "id" = "id" WHERE "id" = ?')
+    expect(accountId).toBe(account.id)
   })
 
   it('records the same deadline no matter how late now is across repeated retries', async () => {

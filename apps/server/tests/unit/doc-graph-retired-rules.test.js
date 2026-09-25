@@ -41,11 +41,16 @@ describe('retired rules are excluded honestly', () => {
     }
   })
 
-  it('keeps active LINE requirements in the coverage gaps', () => {
+  it('keeps LINE requirement coverage aligned with registry status', () => {
     const coverage = cov()
-    for (const id of ['FR-050', 'FR-140', 'FR-141', 'FR-144']) {
+    for (const id of ['FR-050', 'FR-140']) {
       expect(coverage.fr_superseded).not.toContain(id)
-      expect(coverage.fr_without_code).toContain(id)
+      expect(coverage.fr_planned).toContain(id)
+      expect(coverage.fr_without_code).not.toContain(id)
+    }
+    for (const id of ['FR-141', 'FR-144']) {
+      expect(coverage.fr_superseded).toContain(id)
+      expect(coverage.fr_without_code).not.toContain(id)
     }
   })
 
