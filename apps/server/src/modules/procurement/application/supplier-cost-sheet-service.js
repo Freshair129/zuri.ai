@@ -291,16 +291,10 @@ export async function commitSupplierCostSheet(input, { viewer, db = prisma, now 
   const data = zSupplierCostSheetCommit.parse(input)
   return inTx(db, async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { capability: 'costSheet' })
-    const row = data.sheetId
+    const found = data.sheetId
       ? await tx.supplierCostSheet.findFirst({ where: { id: data.sheetId, businessId: business.id }, select: SHEET_SELECT })
       : await tx.supplierCostSheet.findUnique({ where: { businessId_sourceSha256: { businessId: business.id, sourceSha256: data.sourceSha256 } }, select: SHEET_SELECT })
-    if (!row) throw notFound()
-    if (row.status === 'CONFIRMED') {
-      if (data.previewHash && data.previewHash !== row.previewHash) throw failure(409, 'PROCUREMENT_COST_SHEET_PREVIEW_STALE')
-      return { replayed: true, sheet: sheetDto(row) }
-    }
-    if (row.status === 'SUPERSEDED') throw failure(409, 'PROCUREMENT_COST_SHEET_SUPERSEDED')
-    if (!data.previewHash || data.previewHash !== row.previewHash) throw failure(409, 'PROCUREMENT_COST_SHEET_PREVIEW_STALE')
+    if (!found) throw notFound()
     // @req FR-164 — one CONFIRMED sheet per supplier: commits of that supplier's
     // sheets take the supplier row lock first, so the supersession below sees
     // any sheet a concurrent commit confirmed. Without it, PostgreSQL READ
@@ -308,7 +302,23 @@ export async function commitSupplierCostSheet(input, { viewer, db = prisma, now 
     // leave two CONFIRMED sheets (SCM-HANDOFF F-12,
     // tests/integration/scm-legacy-races.postgres.test.js). Lock-only: no value changes.
     // (`inTx` also accepts a transaction-less db double; it has no concurrency to guard.)
-    if (typeof tx.$executeRaw === 'function') await tx.$executeRaw`UPDATE "Supplier" SET "updatedAt" = "updatedAt" WHERE "id" = ${row.supplierId}`
+    if (typeof tx.$executeRaw === 'function') await tx.$executeRaw`UPDATE "Supplier" SET "updatedAt" = "updatedAt" WHERE "id" = ${found.supplierId}`
+    // The sheet's status is decided on a re-read under that lock, never on the
+    // first read. Two commits of the SAME sheet can both read DRAFT before either
+    // commits; the loser then waits on the supplier lock and, acting on its stale
+    // DRAFT read, collided with the winner's lines instead of answering the replay
+    // a later commit gets (SCM-HANDOFF F-18, same test file). The first read only
+    // names the supplier to lock.
+    const row = typeof tx.$executeRaw === 'function'
+      ? await tx.supplierCostSheet.findUnique({ where: { id: found.id }, select: SHEET_SELECT })
+      : found
+    if (!row) throw notFound()
+    if (row.status === 'CONFIRMED') {
+      if (data.previewHash && data.previewHash !== row.previewHash) throw failure(409, 'PROCUREMENT_COST_SHEET_PREVIEW_STALE')
+      return { replayed: true, sheet: sheetDto(row) }
+    }
+    if (row.status === 'SUPERSEDED') throw failure(409, 'PROCUREMENT_COST_SHEET_SUPERSEDED')
+    if (!data.previewHash || data.previewHash !== row.previewHash) throw failure(409, 'PROCUREMENT_COST_SHEET_PREVIEW_STALE')
 
     const preview = parsePreview(row)
     const envelope = preview.envelope
