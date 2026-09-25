@@ -72,7 +72,8 @@ describe('FR-146 LineOaAccount', () => {
 
     expect(account).toMatchObject({
       code: 'oa-cloud-main', businessId: business.id, tenantId: tenant.id, integrationConnectionId: connection.id,
-      status: 'DRAFT', effectiveStatus: 'DRAFT', transportMode: 'CLOUD', isDefaultForBusiness: true, version: 1, bindingCode: null,
+      status: 'DRAFT', effectiveStatus: 'DRAFT', transportMode: 'CLOUD', runtimeOwner: 'SERVER', executionMode: 'SERVER',
+      isDefaultForBusiness: true, version: 1, bindingCode: null,
     })
     // Health names its sources and reports what is not wired instead of guessing.
     expect(account.health.connection).toMatchObject({ status: 'ACTIVE', secretConfigured: false, secretStatus: 'MISSING', lastWebhookAt: null })
@@ -193,12 +194,15 @@ describe('FR-146 LineOaAccount', () => {
     expect((await prisma.lineOaAccount.findUnique({ where: { id: connected.id } })).transportMode).toBe('CLOUD')
     expect(await prisma.auditEvent.findFirst({ where: { entityId: connected.id, action: 'LINE_OA_ACCOUNT_TRANSPORT_MODE_SWITCHED' } })).toBeNull()
 
-    // The delivery policy is the one thing CONFIGURE_EXECUTION still carries, and
-    // it takes the place of the switch as this trail's versioned middle step.
-    const configured = await applyLineOaAccountAction(connected.id, { action: 'CONFIGURE_EXECUTION', version: resumed.version, allowDelayedPush: true }, { viewer: owner })
-    expect(configured.allowDelayedPush).toBe(true)
+    // Delivery policy and the separate Core-owned cohort share this versioned action.
+    const configured = await applyLineOaAccountAction(connected.id, { action: 'CONFIGURE_EXECUTION', version: resumed.version,
+      allowDelayedPush: true, runtimeOwner: 'CONVERSATION_RUNTIME' }, { viewer: owner })
+    expect(configured).toMatchObject({ allowDelayedPush: true, runtimeOwner: 'CONVERSATION_RUNTIME', executionMode: 'SERVER' })
     const configureAudit = await prisma.auditEvent.findFirst({ where: { entityId: connected.id, action: 'LINE_OA_EXECUTION_CONFIGURED' } })
-    expect(JSON.parse(configureAudit.payloadJson)).toMatchObject({ from: { allowDelayedPush: false }, to: { allowDelayedPush: true } })
+    expect(JSON.parse(configureAudit.payloadJson)).toMatchObject({
+      from: { allowDelayedPush: false, runtimeOwner: 'SERVER' },
+      to: { allowDelayedPush: true, runtimeOwner: 'CONVERSATION_RUNTIME' },
+    })
 
     const archived = await applyLineOaAccountAction(connected.id, { action: 'ARCHIVE', version: configured.version }, { viewer: owner })
     expect(archived).toMatchObject({ status: 'ARCHIVED', isDefaultForBusiness: false })

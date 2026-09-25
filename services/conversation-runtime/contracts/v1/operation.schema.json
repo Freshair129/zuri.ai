@@ -29,10 +29,10 @@
       "type": "object", "additionalProperties": false,
       "required": ["jobId", "executionId", "claimantId", "version", "tenantId", "businessId", "accountId"],
       "properties": {
-        "jobId": { "type": "string", "maxLength": 128 }, "executionId": { "type": "string", "maxLength": 128 },
-        "claimantId": { "type": "string", "maxLength": 128 }, "version": { "type": "integer", "minimum": 1 },
-        "tenantId": { "type": "string", "maxLength": 128 }, "businessId": { "type": "string", "maxLength": 128 },
-        "accountId": { "type": "string", "maxLength": 128 }
+        "jobId": { "type": "string", "minLength": 1, "maxLength": 128 }, "executionId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "claimantId": { "type": "string", "minLength": 1, "maxLength": 128 }, "version": { "type": "integer", "minimum": 1 },
+        "tenantId": { "type": "string", "minLength": 1, "maxLength": 128 }, "businessId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "accountId": { "type": "string", "minLength": 1, "maxLength": 128 }
       }
     },
     "claim": { "type": "object", "additionalProperties": false, "required": ["claimantId"], "properties": { "claimantId": { "type": "string", "maxLength": 128 } } },
@@ -40,9 +40,14 @@
     "send": { "type": "object", "additionalProperties": false, "required": ["claim", "operationId"], "properties": { "claim": { "$ref": "#/$defs/claimRef" }, "operationId": { "type": "string", "maxLength": 200 } } },
     "status": { "type": "object", "additionalProperties": false, "required": ["claim", "operationId"], "properties": { "claim": { "$ref": "#/$defs/claimRef" }, "operationId": { "type": "string", "maxLength": 200 } } },
     "prepare": { "type": "object", "additionalProperties": false, "required": ["claim", "authorityVersion"], "properties": { "claim": { "$ref": "#/$defs/claimRef" }, "authorityVersion": { "type": "integer", "minimum": 1 } } },
-    "workTool": { "type": "object", "additionalProperties": false, "required": ["claim", "operation", "operationId", "input"], "properties": { "claim": { "$ref": "#/$defs/claimRef" }, "operation": { "enum": ["read", "propose", "confirm-execute", "status"] }, "operationId": { "type": "string", "maxLength": 200 }, "input": { "type": "object", "maxProperties": 32 } } },
+    "workTool": { "type": "object", "additionalProperties": false, "required": ["claim", "operation", "operationId", "input"], "properties": { "claim": { "$ref": "#/$defs/claimRef" }, "operation": { "enum": ["read", "propose", "confirm-execute", "status"] }, "operationId": { "type": "string", "minLength": 1, "maxLength": 200 }, "input": { "type": "object" } }, "allOf": [{ "if": { "properties": { "operation": { "const": "read" } } }, "then": { "properties": { "input": { "$ref": "#/$defs/workRead" } } } }, { "if": { "properties": { "operation": { "const": "propose" } } }, "then": { "properties": { "input": { "$ref": "#/$defs/workPropose" } } } }, { "if": { "properties": { "operation": { "const": "confirm-execute" } } }, "then": { "properties": { "input": { "$ref": "#/$defs/workConfirm" } } } }, { "if": { "properties": { "operation": { "const": "status" } } }, "then": { "properties": { "input": { "$ref": "#/$defs/workStatus" } } } }] },
     "complete": { "type": "object", "additionalProperties": false, "required": ["claim", "text", "operationId"], "properties": { "claim": { "$ref": "#/$defs/claimRef" }, "text": { "type": "string", "maxLength": 5000 }, "operationId": { "type": "string", "maxLength": 200 } } },
     "fail": { "type": "object", "additionalProperties": false, "required": ["claim", "code", "outcome"], "properties": { "claim": { "$ref": "#/$defs/claimRef" }, "code": { "type": "string", "maxLength": 80 }, "outcome": { "enum": ["FAILED", "UNKNOWN"] } } },
-    "trace": { "type": "object", "additionalProperties": false, "required": ["claim", "kind", "payload"], "properties": { "claim": { "$ref": "#/$defs/claimRef" }, "kind": { "type": "string", "maxLength": 80 }, "payload": { "type": "object", "maxProperties": 32 } } }
+    "trace": { "type": "object", "additionalProperties": false, "required": ["claim", "kind", "payload"], "properties": { "claim": { "$ref": "#/$defs/claimRef" }, "kind": { "type": "string", "minLength": 1, "maxLength": 80 }, "payload": { "type": "object", "additionalProperties": { "$ref": "#/$defs/boundedJson" } } } },
+    "workRead": { "type": "object", "additionalProperties": false, "properties": { "kind": { "enum": ["projects", "work"] }, "query": { "type": "string", "maxLength": 120 } } },
+    "workPropose": { "type": "object", "additionalProperties": false, "required": ["action", "targetId", "args"], "properties": { "action": { "enum": ["create_work", "update_work"] }, "targetId": { "type": "string", "format": "uuid" }, "args": { "type": "object", "additionalProperties": { "$ref": "#/$defs/boundedJson" } } } },
+    "workConfirm": { "type": "object", "additionalProperties": false, "required": ["proposalId"], "properties": { "proposalId": { "type": "string", "format": "uuid" } } },
+    "workStatus": { "type": "object", "additionalProperties": false, "properties": { "proposalId": { "type": "string", "format": "uuid" } } },
+    "boundedJson": { "oneOf": [{ "type": "null" }, { "type": "boolean" }, { "type": "number" }, { "type": "string", "maxLength": 16384 }, { "type": "array", "maxItems": 4096, "items": { "$ref": "#/$defs/boundedJson" } }, { "type": "object", "maxProperties": 4096, "additionalProperties": { "$ref": "#/$defs/boundedJson" } }] }
   }
 }

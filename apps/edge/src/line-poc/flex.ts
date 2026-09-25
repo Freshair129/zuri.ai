@@ -17,62 +17,6 @@ function text(value: string, options: Record<string, unknown> = {}): FlexCompone
   return { type: 'text', text: value.slice(0, 500), wrap: true, color: ZURI.ink, ...options };
 }
 
-/** Convert a bounded, already validated ViewModel into a conservative LINE Flex bubble. */
-export function cardViewModelToFlex(card: CardViewModel): Record<string, unknown> {
-  const body: FlexComponent[] = [
-    // LINE Flex `text` has no `letterSpacing` property; sending it returns 400 "unknown field".
-    text('ZURI REPORT', { size: 'xs', weight: 'bold', color: ZURI.amberDark }),
-    text(card.title, { size: 'lg', weight: 'bold', margin: 'md' }),
-  ];
-  if (card.subtitle) body.push(text(card.subtitle, { size: 'sm', color: '#6B6258', margin: 'sm' }));
-
-  for (const kpi of (card.kpis || []).slice(0, 3)) {
-    body.push({
-      type: 'box',
-      layout: 'baseline',
-      margin: 'md',
-      contents: [
-        text(kpi.label, { size: 'sm', color: '#6B6258', flex: 3 }),
-        text(kpi.value, { size: 'sm', weight: 'bold', align: 'end', flex: 2 }),
-      ],
-    });
-  }
-
-  for (const item of (card.items || []).slice(0, 5)) {
-    body.push({
-      type: 'box',
-      layout: 'vertical',
-      margin: 'md',
-      contents: [
-        text(item.title, { size: 'sm', weight: 'bold' }),
-        ...(item.subtitle ? [text(item.subtitle, { size: 'xs', color: '#6B6258', margin: 'xs' })] : []),
-        ...(item.value ? [text(item.value, { size: 'sm', color: item.badge === 'MISSING' ? '#B3261E' : ZURI.ink, margin: 'xs' })] : []),
-      ],
-    });
-  }
-
-  for (const risk of (card.riskFlags || []).slice(0, 2)) {
-    body.push(text(risk, { size: 'xs', color: '#B3261E', margin: 'md' }));
-  }
-
-  body.push(text(`แหล่งข้อมูล: ${card.sourceLabel} · ${new Date(card.asOf).toLocaleString('th-TH')}`, {
-    size: 'xxs', color: '#6B6258', margin: 'lg',
-  }));
-
-  const footerButtons = card.ctaButtons.slice(0, 2).map((cta) => ({
-    type: 'button', style: 'primary', color: ZURI.amber, height: 'sm',
-    action: { type: 'uri', label: cta.label.slice(0, 20), uri: cta.uri },
-  }));
-
-  return {
-    type: 'bubble',
-    size: 'mega',
-    header: { type: 'box', layout: 'vertical', backgroundColor: ZURI.cream, paddingAll: '16px', contents: [text('ซูริอยู่ข้างทีมเสมอ', { size: 'xs', color: ZURI.amberDark })] },
-    body: { type: 'box', layout: 'vertical', paddingAll: '18px', contents: body },
-    footer: { type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px', contents: footerButtons },
-  };
-}
-
 /** Where a `modelCard` preview's "ดูตัวเลือก" button points — one of `ALLOWED_CTA_DOMAINS`, so the
  * governance check in `src/cards/validator.ts` (built for the report-card verticals, not this
  * one) still has something real to enforce rather than being bypassed by construction. */

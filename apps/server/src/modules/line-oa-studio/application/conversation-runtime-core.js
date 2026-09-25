@@ -25,7 +25,8 @@ const claimSchema = z.object({
 }).strict()
 const envelopeSchema = z.object({
   contractVersion: z.literal(VERSION), operation: z.enum(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status']),
-  correlationId: z.string().trim().min(1).max(128), idempotencyKey: z.string().trim().min(1).max(200),
+  correlationId: z.string().min(1).max(128).regex(/^[A-Za-z0-9._:-]+$/),
+  idempotencyKey: z.string().min(1).max(200).regex(/^[A-Za-z0-9._:-]+$/),
   deadlineAt: z.string().datetime({ offset: true }), payload: z.record(z.unknown()).refine(value => Object.keys(value).length <= 32),
 }).strict()
 const fields = Object.freeze({ claim: ['claimantId'], renew: ['claim'], resolve: ['claim'], prepare: ['claim', 'authorityVersion'],
@@ -34,6 +35,28 @@ const fields = Object.freeze({ claim: ['claimantId'], renew: ['claim'], resolve:
   trace: ['claim', 'kind', 'payload'], status: ['claim', 'operationId'] })
 const error = (code, status = 400) => Object.assign(new Error(code), { code, status })
 const present = (value, max = 128) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
+
+function boundedJsonWithin(value, maxBytes) {
+  const pending = [{ value, depth: 0 }]
+  const seen = new WeakSet()
+  while (pending.length) {
+    const current = pending.pop()
+    if (current.depth > 64) return false
+    if (current.value === null || typeof current.value === 'string' || typeof current.value === 'boolean') continue
+    if (typeof current.value === 'number') {
+      if (!Number.isFinite(current.value)) return false
+      continue
+    }
+    if (!current.value || typeof current.value !== 'object') return false
+    if (seen.has(current.value)) return false
+    seen.add(current.value)
+    for (const child of Object.values(current.value)) pending.push({ value: child, depth: current.depth + 1 })
+  }
+  try {
+    const serialized = JSON.stringify(value)
+    return typeof serialized === 'string' && Buffer.byteLength(serialized, 'utf8') <= maxBytes
+  } catch { return false }
+}
 
 async function readBoundedJson(request) {
   const declared = Number(request.headers.get('content-length'))
@@ -70,13 +93,13 @@ function exactPayload(payload, operation) {
   if (!claim.success) throw error('CLAIM_REFERENCE_INVALID')
   payload.claim = claim.data
   if (['send', 'status'].includes(operation) && !present(payload.operationId, 200)) throw error('OPERATION_ID_INVALID')
-  if (operation === 'prepare' && !Number.isInteger(payload.authorityVersion)) throw error('AUTHORITY_VERSION_INVALID')
+  if (operation === 'prepare' && (!Number.isInteger(payload.authorityVersion) || payload.authorityVersion < 1)) throw error('AUTHORITY_VERSION_INVALID')
   if (operation === 'complete' && (!present(payload.text, 5000) || !present(payload.operationId, 200))) throw error('COMPLETION_INVALID')
   if (operation === 'fail' && (!present(payload.code, 80) || !['FAILED', 'UNKNOWN'].includes(payload.outcome))) throw error('FAILURE_INVALID')
   if (operation === 'work-tool') {
     if (!['read', 'propose', 'confirm-execute', 'status'].includes(payload.operation)
       || !present(payload.operationId, 200) || !payload.input || typeof payload.input !== 'object' || Array.isArray(payload.input)
-      || Buffer.byteLength(JSON.stringify(payload.input), 'utf8') > 16 * 1024) throw error('WORK_TOOL_REQUEST_INVALID')
+      || !boundedJsonWithin(payload.input, 16 * 1024)) throw error('WORK_TOOL_REQUEST_INVALID')
     const inputSchema = payload.operation === 'read'
       ? z.object({ kind: z.enum(['projects', 'work']).optional(), query: z.string().max(120).optional() }).strict()
       : payload.operation === 'propose'
@@ -89,7 +112,7 @@ function exactPayload(payload, operation) {
     payload.input = parsedInput.data
   }
   if (operation === 'trace' && (!present(payload.kind, 80) || !payload.payload || typeof payload.payload !== 'object'
-    || Array.isArray(payload.payload) || Buffer.byteLength(JSON.stringify(payload.payload), 'utf8') > 8 * 1024)) throw error('TRACE_PAYLOAD_INVALID')
+    || Array.isArray(payload.payload) || !boundedJsonWithin(payload.payload, 8 * 1024))) throw error('TRACE_PAYLOAD_INVALID')
 }
 
 function safeResponse(data) {
@@ -101,6 +124,7 @@ function safeResponse(data) {
 
 function validateResult(operation, data) {
   const invalid = () => { throw error('CONTRACT_RESPONSE_INVALID', 500) }
+  if (!boundedJsonWithin(data, MAX_RESPONSE_BYTES)) invalid()
   const exact = (value, allowed) => value && typeof value === 'object' && !Array.isArray(value)
     && !Object.keys(value).some(key => !allowed.includes(key))
   if (operation === 'claim') {
@@ -119,14 +143,14 @@ function validateResult(operation, data) {
       || (data.threadId !== null && !present(data.threadId, 128))
       || !Number.isInteger(data.maxBudgetChars) || data.maxBudgetChars < 0 || data.maxBudgetChars > 32_000
       || (data.workCommand != null && JSON.stringify(parseLineProjectWorkCommand(data.question)) !== JSON.stringify(data.workCommand))
-      || Buffer.byteLength(JSON.stringify(data), 'utf8') > 32 * 1024) invalid()
+      || !boundedJsonWithin(data, 32 * 1024)) invalid()
     return
   }
   if (operation === 'resolve') {
-    if (!exact(data, ['authorized', 'version', 'scope']) || typeof data.authorized !== 'boolean' || !Number.isInteger(data.version)
+    if (!exact(data, ['authorized', 'version', 'scope']) || typeof data.authorized !== 'boolean' || !Number.isInteger(data.version) || data.version < 1
       || !exact(data.scope, ['tenantId', 'businessId', 'accountId', 'identityId', 'identityVersion'])
       || !['tenantId', 'businessId', 'accountId', 'identityId'].every(key => present(data.scope[key], 128))
-      || !Number.isInteger(data.scope.identityVersion)) invalid()
+      || !Number.isInteger(data.scope.identityVersion) || data.scope.identityVersion < 1) invalid()
     return
   }
   if (operation === 'credential') {
@@ -136,24 +160,25 @@ function validateResult(operation, data) {
     return
   }
   if (operation === 'renew') {
-    if (!exact(data, ['version', 'leaseExpiresAt']) || !Number.isInteger(data.version)
+    if (!exact(data, ['version', 'leaseExpiresAt']) || !Number.isInteger(data.version) || data.version < 1
       || !Number.isFinite(Date.parse(data.leaseExpiresAt))) invalid()
     return
   }
   if (operation === 'send') {
     if (!exact(data, ['id', 'status', 'acceptance']) || !present(data.id, 128)
       || !['RECORDED', 'ACCEPTED', 'UNKNOWN', 'FAILED', 'CANCELLED', 'CONTENDED', 'FENCED', 'STOPPED', 'READY', 'SENDING'].includes(data.status)
-      || (data.acceptance !== undefined && (!data.acceptance || typeof data.acceptance !== 'object' || Array.isArray(data.acceptance)))) invalid()
+      || (data.acceptance !== undefined && (!data.acceptance || typeof data.acceptance !== 'object' || Array.isArray(data.acceptance)
+        || !boundedJsonWithin(data.acceptance, 8 * 1024)))) invalid()
     return
   }
   if (operation === 'status') {
     if (!exact(data, ['status', 'operationId', 'version', 'errorCode', 'executionId', 'text'])
       || !present(data?.status, 32) || !present(data?.operationId, 200)
-      || (data.version !== undefined && !Number.isInteger(data.version))
+      || (data.version !== undefined && (!Number.isInteger(data.version) || data.version < 1))
       || (data.errorCode !== undefined && data.errorCode !== null && !present(data.errorCode, 80))
       || (data.executionId !== undefined && !present(data.executionId, 128))
       || (data.text !== undefined && !present(data.text, 5000))
-      || Buffer.byteLength(JSON.stringify(data), 'utf8') > MAX_RESPONSE_BYTES) invalid()
+      || !boundedJsonWithin(data, MAX_RESPONSE_BYTES)) invalid()
     return
   }
   if (operation === 'work-tool') {
@@ -162,11 +187,12 @@ function validateResult(operation, data) {
     if (data.status === 'COMPLETED' && (!exact(data, ['status', 'result'])
       || !exact(data.result, ['text', 'receipt']) || !present(data.result.text, 5000)
       || !data.result.receipt || typeof data.result.receipt !== 'object' || Array.isArray(data.result.receipt)
-      || Object.keys(data.result.receipt).length > 12)) invalid()
+      || Object.keys(data.result.receipt).length > 12 || !boundedJsonWithin(data.result, 32 * 1024))) invalid()
     if (data.status === 'NOT_FOUND' && (!exact(data, ['status', 'operationId', 'proposalId', 'receipt'])
       || (data.operationId !== undefined && !present(data.operationId, 200))
       || (data.proposalId !== undefined && !present(data.proposalId, 128))
-      || (data.receipt !== undefined && (!data.receipt || typeof data.receipt !== 'object' || Array.isArray(data.receipt))))) invalid()
+      || (data.receipt !== undefined && (!data.receipt || typeof data.receipt !== 'object' || Array.isArray(data.receipt)
+        || Object.keys(data.receipt).length > 12 || !boundedJsonWithin(data.receipt, 32 * 1024))))) invalid()
     return
   }
   if (operation === 'trace') {
@@ -175,13 +201,13 @@ function validateResult(operation, data) {
   }
   if (operation === 'complete' || operation === 'fail') {
     const fields = operation === 'complete' ? ['id', 'status', 'version', 'operationId'] : ['id', 'status', 'version']
-    if (!exact(data, fields) || !present(data.status, 32) || !Number.isInteger(data.version)
+    if (!exact(data, fields) || !present(data.status, 32) || !Number.isInteger(data.version) || data.version < 1
       || (data.id !== undefined && !present(data.id, 128))
       || (data.operationId !== undefined && !present(data.operationId, 200))) invalid()
     return
   }
   if (!data || typeof data !== 'object' || Array.isArray(data)
-    || Buffer.byteLength(JSON.stringify(data), 'utf8') > MAX_RESPONSE_BYTES) invalid()
+    || !boundedJsonWithin(data, MAX_RESPONSE_BYTES)) invalid()
 }
 
 function reply(status, body) {
@@ -228,7 +254,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   async function ownedClaim(ref, { status = 'CLAIMED', checkLease = true } = {}) {
     const job = await db.lineConversationJob.findUnique({ where: { id: ref.jobId },
       include: { account: true, inbound: { include: { conversation: true } } } })
-    if (!job || job.executionMode !== 'CONVERSATION_RUNTIME' || job.executionId !== ref.executionId
+    if (!job || job.executionMode !== 'SERVER' || job.runtimeOwner !== 'CONVERSATION_RUNTIME'
+      || job.executionId !== ref.executionId
       || job.tenantId !== ref.tenantId || job.businessId !== ref.businessId || job.accountId !== ref.accountId
       || !['CLAIMED', 'READY'].includes(status) || job.status !== status
       || (status === 'CLAIMED' && (job.version !== ref.version || job.claimantId !== ref.claimantId))
@@ -238,7 +265,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       || job.inbound.conversation.businessId !== job.businessId
       || job.account.tenantId !== job.tenantId || job.account.businessId !== job.businessId
       || (job.account.bindingCode || job.account.id) !== job.channelAccountId
-      || job.account.serverEnabled !== true || job.account.transportMode !== 'CLOUD'
+      || job.account.serverEnabled !== true || job.account.runtimeOwner !== 'CONVERSATION_RUNTIME'
+      || job.account.transportMode !== 'CLOUD'
       || job.account.status !== 'CONNECTED' || job.account.transportEpoch !== job.transportEpoch
       || (checkLease && (!job.leaseExpiresAt || job.leaseExpiresAt <= now())) || job.expiresAt <= now()) {
       throw error('CONVERSATION_JOB_AUTHORITY_REVOKED', 409)
@@ -251,7 +279,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
 
   async function workOperation(ref, request) {
     const { job } = await ownedClaim(ref)
-    const expectedClaim = { ...ref, executionMode: 'CONVERSATION_RUNTIME' }
+    const expectedClaim = { ...ref, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' }
     const input = request.input
     if (request.operation === 'read') {
       const result = await workSearch(job.id, input, { db, now, expectedClaim })
@@ -337,15 +365,18 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         const result = await operationStatus(claimRef, payload.operationId, { db })
         if (payload.operationId.endsWith(':delivery')) {
           const job = await db.lineConversationJob.findUnique({ where: { id: claimRef.jobId }, select: { status: true,
-            executionMode: true, executionId: true, tenantId: true, businessId: true, accountId: true } })
-          if (!job || job.executionMode !== 'CONVERSATION_RUNTIME' || job.executionId !== claimRef.executionId
+            executionMode: true, runtimeOwner: true, executionId: true, tenantId: true, businessId: true, accountId: true,
+            account: { select: { runtimeOwner: true } } } })
+          if (!job || job.executionMode !== 'SERVER' || job.runtimeOwner !== 'CONVERSATION_RUNTIME'
+            || job.account.runtimeOwner !== 'CONVERSATION_RUNTIME' || job.executionId !== claimRef.executionId
             || job.tenantId !== claimRef.tenantId || job.businessId !== claimRef.businessId || job.accountId !== claimRef.accountId) throw error('CONVERSATION_JOB_LEASE_CONFLICT', 409)
           return { status: job.status, operationId: payload.operationId }
         }
         if (result.status === 'UNKNOWN_OPERATION') {
-          const job = await db.lineConversationJob.findUnique({ where: { id: claimRef.jobId }, select: { status: true, version: true, executionMode: true, executionId: true,
-            tenantId: true, businessId: true, accountId: true } })
-          if (!job || job.executionMode !== 'CONVERSATION_RUNTIME' || job.executionId !== claimRef.executionId
+          const job = await db.lineConversationJob.findUnique({ where: { id: claimRef.jobId }, select: { status: true, version: true, executionMode: true, runtimeOwner: true, executionId: true,
+            tenantId: true, businessId: true, accountId: true, account: { select: { runtimeOwner: true } } } })
+          if (!job || job.executionMode !== 'SERVER' || job.runtimeOwner !== 'CONVERSATION_RUNTIME'
+            || job.account.runtimeOwner !== 'CONVERSATION_RUNTIME' || job.executionId !== claimRef.executionId
             || job.tenantId !== claimRef.tenantId || job.businessId !== claimRef.businessId || job.accountId !== claimRef.accountId) throw error('CONVERSATION_JOB_LEASE_CONFLICT', 409)
           return { status: job.status, version: job.version, operationId: payload.operationId }
         }

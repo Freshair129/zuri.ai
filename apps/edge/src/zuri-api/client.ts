@@ -6,7 +6,6 @@ import {
   CommandJob,
   Lease,
   EvidencePacket,
-  HeartbeatPayload,
   ReleasePayload,
 } from './types.js';
 import { logDiagnostic } from '../safety/redact.js';
@@ -15,15 +14,11 @@ import { logDiagnostic } from '../safety/redact.js';
 
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
-/** Comfortably inside the 40s heartbeat interval, which is itself clamped to at most 60s. */
-const HEARTBEAT_TIMEOUT_MS = 15_000;
-
 export interface IZuriApiClient {
   admitCommand(envelope: CommandEnvelope): Promise<CommandJob>;
   claimJob(deviceId: string): Promise<{ job: CommandJob; lease: Lease } | null>;
   submitEvidence(leaseId: string, evidence: EvidencePacket): Promise<{ success: boolean; commandId: string }>;
   releaseJob(payload: ReleasePayload): Promise<{ success: boolean }>;
-  sendHeartbeat(payload: HeartbeatPayload): Promise<{ acknowledged: boolean }>;
   getCommandStatus(commandId: string): Promise<CommandJob | null>;
 }
 
@@ -39,42 +34,9 @@ export class HttpZuriApiClient implements IZuriApiClient {
       baseUrl: string;
       deviceId: string;
       deviceToken: string;
-      /**
-       * The `edgk_`-prefixed credential minted per device in the console (ZURI_EDGE_DEVICE_KEY).
-       *
-       * Separate from `deviceToken` because zuri-ai accepts exactly one machine credential and it
-       * is this one: `resolveRequestViewer` reads a session cookie and nothing else, so a bearer
-       * that is not an `edgk_` key cannot authenticate as a viewer either — it falls through and
-       * gets 401 AUTH_REQUIRED regardless of its value. Optional, and falls back to `deviceToken`,
-       * so a deployment that already put the minted key there keeps working.
-       */
-      deviceKey?: string;
-      /**
-       * Origin for device-authenticated calls (ZURI_CLOUD_BASE_URL), the partner of `deviceKey`.
-       *
-       * Kept apart from `baseUrl` so the two contracts stop borrowing each other's settings:
-       * cloudBaseUrl + deviceKey is the device talking to the cloud as itself, which is what the
-       * heartbeat and the extraction worker both do, while baseUrl + deviceToken belongs to the
-       * command endpoints, which are unbuilt upstream. Config already refuses cloudBaseUrl and
-       * deviceKey unless both are set, so in practice they arrive together or not at all.
-       *
-       * Falls back to `baseUrl` when unset, so a deployment that never configured the pair keeps
-       * reaching the same origin it always did.
-       */
-      cloudBaseUrl?: string;
       fetchFn?: FetchLike;
     }
   ) {}
-
-  /** The credential zuri-ai will actually accept from a machine, preferring the minted key. */
-  private deviceCredential(): string {
-    return this.options.deviceKey?.trim() || this.options.deviceToken;
-  }
-
-  /** Where device-authenticated calls go, preferring the cloud origin that pairs with the key. */
-  private deviceOrigin(): string {
-    return this.options.cloudBaseUrl?.trim() || this.options.baseUrl;
-  }
 
   // Still unimplemented upstream. `/api/agent-commands` is not a route zuri-ai has ever
   // served — as of 5393f99 (PR #221) there is no reference to it anywhere in that repo — so this
@@ -105,33 +67,6 @@ export class HttpZuriApiClient implements IZuriApiClient {
     throw new Error('Lease release is unavailable until the Zuri API exposes a commandId-scoped lease endpoint.');
   }
 
-  // zuri-ai serves this at /api/agent/heartbeat (src/app/api/agent/heartbeat/route.ts, FR-141 and
-  // FR-144). The old `/api/agent-bridges/heartbeat` returned a Next.js 404 — silently, because the
-  // launcher fired it and never read the result, and `zuri-agent health` only validates config.
-  //
-  // Deliberately no businessId in the payload: the route resolves the device credential first and
-  // injects the Business from it, and refuses (403) a body that names a different one. Sending one
-  // could only ever hurt. The credential must be an `edgk_`-prefixed key minted per device via
-  // /api/platform/edge-devices/credentials — a Bearer token of any other shape falls through to
-  // human-session auth and gets a 401.
-  async sendHeartbeat(payload: HeartbeatPayload): Promise<{ acknowledged: boolean }> {
-    return this.request<{ acknowledged: boolean }>(
-      '/api/agent/heartbeat',
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: { Authorization: `Bearer ${this.deviceCredential()}` },
-        // Bounded well inside the beat interval. Without it, a cloud that accepts the connection
-        // and never answers holds the request for undici's default header timeout — around five
-        // minutes — during which the device reports nothing at all, having already been marked
-        // offline at two. A liveness signal that can hang for longer than the liveness window is
-        // not a liveness signal.
-        signal: AbortSignal.timeout(HEARTBEAT_TIMEOUT_MS),
-      },
-      this.deviceOrigin(),
-    );
-  }
-
   async getCommandStatus(commandId: string): Promise<CommandJob | null> {
     try {
       return await this.request<CommandJob>(`/api/agent-commands/${encodeURIComponent(commandId)}`, {
@@ -143,9 +78,9 @@ export class HttpZuriApiClient implements IZuriApiClient {
     }
   }
 
-  private async request<T>(pathName: string, init: RequestInit, origin?: string): Promise<T> {
+  private async request<T>(pathName: string, init: RequestInit): Promise<T> {
     const fetchFn = this.options.fetchFn || fetch;
-    const url = new URL(pathName, origin || this.options.baseUrl).toString();
+    const url = new URL(pathName, this.options.baseUrl).toString();
     let response: Response;
     try {
       response = await fetchFn(url, {
@@ -393,10 +328,6 @@ export class MockZuriApiClient implements IZuriApiClient {
     }
     this.save();
     return { success: true };
-  }
-
-  async sendHeartbeat(_payload: HeartbeatPayload): Promise<{ acknowledged: boolean }> {
-    return { acknowledged: true };
   }
 
   async getCommandStatus(commandId: string): Promise<CommandJob | null> {

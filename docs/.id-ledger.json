@@ -3247,15 +3247,23 @@
     "FR-141": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "c772db1e9a688b809166bd09ed6441513d8cbe370569a3e96974140c0964d6e8",
       "history": [
         {
           "anchor": "edge device heartbeat registry",
           "since": "2026-09-02",
           "reason": "declared"
+        },
+        {
+          "anchor": "edge device heartbeat registry",
+          "since": "2026-09-25",
+          "reason": "ADR-109 D5 retires the Edge Device heartbeat registry after its Server and Edge heartbeat surfaces were removed from this branch.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-25",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
     },
     "FR-142": {
       "family": "FR",
@@ -3286,17 +3294,25 @@
     "FR-144": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "d15b15881faf1dcffc1fc886202bd27234c2521bb6b7e6ce1b891219b08eaf8b",
       "history": [
         {
           "anchor": "edge device credential",
           "since": "2026-09-03",
           "reason": "declared"
+        },
+        {
+          "anchor": "edge device credential",
+          "since": "2026-09-25",
+          "reason": "ADR-109 D5 retires the EdgeDeviceCredential and pairing requirement after the in-repository Edge Device credential and pairing surfaces were removed from this branch.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
       ],
       "statement_digest_reviewed_at": "2026-09-09",
-      "statement_digest_reason": "Reworded to name LINE OA Studio's Edge Connection page as the mint UI, replacing /platform/integrations, which now carries no pairing UI of its own; the subject (Edge device credential) is unchanged."
+      "statement_digest_reason": "Reworded to name LINE OA Studio's Edge Connection page as the mint UI, replacing /platform/integrations, which now carries no pairing UI of its own; the subject (Edge device credential) is unchanged.",
+      "retired_at": "2026-09-25",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
     },
     "FR-145": {
       "family": "FR",

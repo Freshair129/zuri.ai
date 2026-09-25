@@ -20,7 +20,6 @@ import { createMspStdioTransport, mspChildEnvironment, MSP_RUNTIME_ENV_NAMES, MS
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { ConversationError } from '../../src/conversation/contract.js';
-import { runConversationOnce } from '../../src/conversation/worker.js';
 
 // @req FR-189 — off unchanged, shadow never changes the answer, primary reads the published
 //   generation and falls back to v4 only before the configured sunset, report aggregation.
@@ -484,44 +483,6 @@ test('per-turn abort terminates an MSP child during initialize or tools/call; pr
  const cannotSpawn = createMspStdioTransport({ command: path.join(root, 'missing.exe'), args: [], timeoutMs: 15000 });
  await assert.rejects(cannotSpawn('msp_pipeline_query', {}, stopped.signal),
   error => error instanceof MspTransportError && error.code === 'MSP_REQUEST_ABORTED');
-});
-
-test('expired published turn stops its child and queued reads; next worker claim uses a clean signal', async () => {
- const root = tmp(), script = path.join(root, 'cancellable.mjs'), marker = path.join(root, 'worker.pid');
- fs.writeFileSync(script, CANCELLABLE_MSP);
- const runtime = createGenesisRag17Runtime(env('primary', { ZURI_MSP_ARGS: JSON.stringify([script, marker, 'tools/call']),
-  ZURI_EDGE_GENESISRAG17_FALLBACK_UNTIL: '2027-03-31' }), { store: memoryStore().store });
- const turn = new AbortController(), nextTurn = new AbortController(), v4 = fakeV4();
- const jobs = [{ ...job(), question: 'slow' }, { ...job(), question: 'fast' }];
- const failed: string[] = [], completed: string[] = [];
- const deps = {
-  client: { claim: async () => jobs.shift() ?? null, complete: async (_job: ConversationJob, text: string) => { completed.push(text); },
-   fail: async (_job: ConversationJob, code: string) => { failed.push(code); } },
-  answer: async (claimed: ConversationJob) => {
-   const rag = wrapAnswerRag(v4.rag, runtime, undefined, claimed.question === 'slow' ? turn.signal : nextTurn.signal);
-   const first = rag.searchProducts(claimed.question);
-   if (claimed.question === 'slow') {
-    const queued = rag.searchProducts('never-start-this-read');
-    const failedReads = Promise.allSettled([first, queued]);
-    await waitUntil(() => fs.existsSync(marker));
-    turn.abort(new ConversationError('REPLY_DEADLINE_MISSED'));
-    const outcomes = await failedReads;
-    assert.ok(outcomes.every(outcome => outcome.status === 'rejected'));
-   }
-   const result = await first;
-   assert.equal(result.published?.snapshotId, 'snap-next');
-   return { text: 'next claim completed', source: 'model' as const };
-  },
- };
- try {
-  assert.equal((await runConversationOnce(deps)).outcome, 'deadline_missed');
-  const pid = Number(fs.readFileSync(marker, 'utf8'));
-  await waitUntil(() => !processAlive(pid));
-  assert.equal((await runConversationOnce(deps)).outcome, 'completed');
-  assert.deepEqual(failed, ['REPLY_DEADLINE_MISSED']); assert.deepEqual(completed, ['next claim completed']);
-  assert.deepEqual(v4.calls, [], 'aborted primary reads must not fall back to v4');
-  assert.deepEqual(fs.readFileSync(marker + '.calls', 'utf8').trim().split('\n'), ['slow', 'fast']);
- } finally { turn.abort(); nextTurn.abort(); }
 });
 
 test('the MSP stdio transport speaks initialize then tools/call, and keeps edge secrets from the child', async () => {

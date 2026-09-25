@@ -9,8 +9,7 @@ import { ASSET_EVIDENCE_DOCUMENT_TYPES, zAssetEvidenceDocumentType } from '@/lib
 //   other refuses, and the difference would show up as a stored candidate no
 //   reviewer could explain.
 // @spec SDD-085, SDD-082, BR-025, ADR-059
-// @tested tests/unit/asset-evidence-extractor-contract.test.js,
-//   tests/unit/edge-extraction-job-contract.test.js
+// @tested tests/unit/asset-evidence-extractor-contract.test.js
 
 /** The strict candidate a provider (cloud or edge) may return. */
 export const zCandidate = z.object({

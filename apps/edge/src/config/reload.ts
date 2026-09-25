@@ -8,26 +8,14 @@ import { loadConfig, type AgentConfig } from './index.js';
 type LoadedConfig = Partial<AgentConfig>;
 
 /**
- * Re-reading configuration after the settings page has written it.
+ * Re-reading configuration after the local settings page has written it.
  *
- * The page is the product's configuration surface — an operator sets the LINE credentials there,
- * not by editing `.env` on a warehouse PC. Until this existed, saving wrote the file and answered
- * `{success:true}` while the running process kept every value it had read at startup. Rotating the
- * channel token through the page therefore appeared to work and changed nothing, which is a worse
- * failure than an error: the operator has no reason to look further.
- *
- * Not everything can come back this way, and pretending otherwise would recreate the same problem
- * one layer down. A value is hot-reloadable here only because something reads it per request or
- * builds a client per call; the rest is captured at startup by things that own state — the HTTP
- * listener, the reply-dedupe store, the outbox worker, the heartbeat's API client — and moving
- * those under a live config is a much larger change than it looks. So they are named instead.
+ * A value is hot-reloadable here only because the local conversation layer reads it per request;
+ * filesystem roots and retention settings remain restart-only because they configure owned state.
  */
 
 /** Read per request or rebuilt per call, so assigning a new value is enough. */
 export const HOT_RELOADABLE = [
-  'lineChannelSecret',
-  'linePocChannelAccessToken',
-  'linePocGroupAliases',
   'lineHistoryAllowedGroupAliases',
   'llmEnabled',
   'llmModel',
@@ -37,14 +25,10 @@ export const HOT_RELOADABLE = [
 
 /** Captured at startup by something that holds state. Changing these needs the process restarted. */
 export const REQUIRES_RESTART = [
-  'lineWebhookPort',
-  'lineWebhookBindHost',
   'lineHistoryRoot',
   'lineHistoryHashKey',
   'lineHistoryRetentionDays',
   'outboxRoot',
-  'cloudBaseUrl',
-  'edgeDeviceKey',
 ] as const;
 
 type Field = (typeof HOT_RELOADABLE)[number] | (typeof REQUIRES_RESTART)[number];
@@ -89,32 +73,18 @@ export function diffConfig(
   };
 }
 
-/** The subset of server options that the request handler reads fresh on every message. */
-export interface LiveServerOptions {
-  channelSecret: string;
-  groupAliases: Record<string, string>;
-  allowedGroupAliases: string[];
-}
-
 /**
  * Bring a running process up to date with what is on disk.
  *
- * `current` is mutated in place rather than replaced because it is the object every closure in the
- * webhook already holds — `dmClient(config)` builds a LINE client from it per call, so assigning
- * into it is what makes a rotated token take effect on the next push. Same for the server options,
- * whose fields are read per request.
+ * `current` is mutated in place rather than replaced because callers may already hold that object.
  */
 export function applySavedConfig(
   current: LoadedConfig,
-  serverOptions: LiveServerOptions,
   next: LoadedConfig = readConfigFromDisk(),
 ): { reloaded: string[]; requiresRestart: string[] } {
   const { reloaded, requiresRestart } = diffConfig(current, next);
 
   Object.assign(current, next);
-  serverOptions.channelSecret = next.lineChannelSecret || '';
-  serverOptions.groupAliases = next.linePocGroupAliases || {};
-  serverOptions.allowedGroupAliases = next.lineHistoryAllowedGroupAliases || [];
 
   return { reloaded: [...reloaded], requiresRestart: [...requiresRestart] };
 }
@@ -122,8 +92,7 @@ export function applySavedConfig(
 /**
  * Write one key into `.env`, replacing it if present.
  *
- * Quoted on the way out because a LINE token or a hash can contain characters `dotenv` would
- * otherwise read as the start of a comment.
+ * Quoted on the way out so values containing `#` remain intact when parsed by `dotenv`.
  */
 export function upsertEnvValue(key: string, value: string, envPath = path.resolve('.env')): void {
   const existing = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';

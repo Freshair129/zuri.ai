@@ -1,21 +1,28 @@
-# Architecture Decision Records — Zuri Command Agent
+# Architecture Decision Records — Zuri Command Agent (historical)
 
-> Current transport decision: [Server-owned LINE and optional Edge](SERVER-LINE-OPTIONAL-EDGE.md)
-> implements upstream ADR-061. New runtimes are compute-only; the transport behavior below
-> applies only to explicitly selected `LEGACY_EDGE` installations during migration.
+> **Current status (2026-09-25):** The decisions below preserve their original rationale and
+> dates. The paired Edge-device worker, device credentials, cloud heartbeat, extraction, and
+> `LEGACY_EDGE`/local LINE transport paths have since been retired; do not follow their old setup
+> or cutover steps. The retained GenesisRAG/Knowledge pipeline remains governed by its current
+> runbook, and existing archive, outbox, and LINE identity records remain preserved.
+>
+> The Localworker API-key contract belongs to the external Private Runtime Platform (PRP). The
+> Conversation Runtime boundary is documented in the
+> [zuri.ai handoff](../../../docs/migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md).
+> This archive does not establish that the PRP integration is implemented or verified.
 
-## Candidate central monorepo and execution contract
+## Historical migration proposal and execution contract (2026-09-06)
 
-The owner requested complete migration documentation on 2026-09-06. In the central Freshair129/zuri.ai documentation branch, ZAI:ADR-062 proposes apps/edge in the monorepo with a separately installed/released runtime; ZAI:ADR-061 and ZAI:FR-148-P4 define the optional executor behavior. These qualified citations refer to the central repository, not this repository's local ADR/FR registry. They do not grant production activation or retire this runtime's existing reply-owner rule.
+The owner requested complete migration documentation on 2026-09-06. In the central Freshair129/zuri.ai documentation branch, ZAI:ADR-062 proposed apps/edge in the monorepo with a separately installed/released runtime; ZAI:ADR-061 and ZAI:FR-148-P4 defined the then-proposed optional executor behavior. These qualified citations refer to the central repository, not this repository's local ADR/FR registry. They are historical context, not the current product boundary.
 
-Target: Edge claims compatible jobs over outbound HTTPS, executes only allowed local capabilities, and returns bounded evidence/results under a current Business-scoped lease. Server owns migrated-account LINE credentials, send intents and provider calls. Edge receives no LINE reply token or Server database access; local-only jobs never silently use cloud inference. Device upgrade compatibility is checked against released protocol ranges, not assumed from a common checkout.
+Former target (retired): Edge claimed compatible jobs over outbound HTTPS, executed allowed local capabilities, and returned bounded evidence/results under a Business-scoped lease. This describes the former design only.
 
-Migration first preserves current behavior while moving source; transport cutover follows separately per account. Existing Stack/local sending paths below remain legacy until the central cutover gate pauses/fences them. Do not remove current device configuration, copy .env/customer files into Git, delete the old repo/workspace, or reinstall device data merely because the source is moving. Root global documentation becomes authoritative after reviewed ID/path mapping; old local requirement IDs keep repository-qualified provenance.
+The former proposal preserved device configuration while moving source, then planned a per-account transport cutover. That proposal is retired. Do not copy `.env` or customer data into Git; preserve existing local archive, outbox, and identity records. Device pairing and Edge worker setup are not current procedures.
 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.3.0b |
+| **Version** | 1.4.0b |
 | **Status** | Draft |
 | **Author** | Boss |
 | **Created** | 2026-08-10 |
@@ -26,6 +33,7 @@ Migration first preserves current behavior while moving source; transport cutove
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.4.0b | 2026-09-25 | RWANG | Marked paired Edge execution and local LINE transport as retired historical decisions; retained Knowledge/RAG and stored-data boundaries |
 | 1.0.0 | 2026-08-10 | Boss | Initial creation via RWANG doc-architect; extracts the decision already recorded in `docs/COMMAND-AGENT-SPEC.md` §3 into ADR form |
 | 1.1.0 | 2026-08-10 | Boss | Added ADR-005 (local mock-client persistence) |
 | 1.1.1 | 2026-08-23 | (unrecorded) | ADR-006 (GenesisBlock catalog graph v4) was added to the body without a matching entry here — backfilled 2026-08-31 for an accurate version table, not rewritten |
@@ -302,7 +310,7 @@ first answer — a deliberate trade given what the register decides access to.
 
 ## ADR-010: The LINE transport verifies and forwards; the stack decides
 
-**Status:** Accepted (2026-08-14, revised from the 2026-08-14 binding-contract-drift RCA)
+**Status:** Superseded for current Edge/local transport on 2026-09-25; preserved as historical decision evidence.
 
 **Context:** FR-050 first let this repository forward a signed LINE batch to the Zuri V2 stack for
 an answer, using client-supplied `tenantId`/`businessId` scope. FR-052 then moved Zuri V2 to

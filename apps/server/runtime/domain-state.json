@@ -40,7 +40,7 @@
     "readyFeatureCount": 116,
     "requirementCount": 272,
     "verifiedRequirementCount": 241,
-    "progressPercent": 92.7,
+    "progressPercent": 92.6,
     "gapCount": 47,
     "gaps": [
       {
@@ -171,7 +171,6 @@
         "check": "requirements",
         "summary": "FR-144 is not_implemented",
         "evidence": [
-          "apps/edge/tests/unit/edge-extraction-secrecy.test.ts",
           "apps/server/tests/e2e/edge-desktop-ui.spec.js",
           "apps/server/tests/integration/credential-vault-lifecycle.test.js",
           "apps/server/tests/integration/fr146-line-oa-account.test.js",
@@ -179,7 +178,6 @@
           "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-          "apps/server/tests/unit/edge-extraction-job-contract.test.js",
           "apps/server/tests/unit/integrations-page-claims.test.js"
         ]
       },
@@ -499,7 +497,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 8
         },
         {
           "id": "FR-027",
@@ -561,7 +559,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 11
         },
         {
           "id": "FR-053",
@@ -601,7 +599,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 70
+          "testCount": 69
         },
         {
           "id": "FR-079",
@@ -625,7 +623,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 5
         },
         {
           "id": "FR-096",
@@ -702,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 15
         },
         {
           "id": "FR-171",
@@ -710,7 +708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 30
+          "testCount": 29
         },
         {
           "id": "FR-181",
@@ -1000,7 +998,7 @@
       ],
       "featureCount": 17,
       "readyFeatureCount": 13,
-      "progressPercent": 67.6
+      "progressPercent": 66.7
     },
     "asset-management": {
       "status": "verified",
@@ -1067,7 +1065,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 4
         }
       ],
       "checks": {
@@ -1163,7 +1161,7 @@
       ],
       "featureCount": 3,
       "readyFeatureCount": 0,
-      "progressPercent": 92
+      "progressPercent": 90
     },
     "commerce": {
       "status": "partial",
@@ -1402,7 +1400,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 7
+          "testCount": 5
         },
         {
           "id": "FR-097",
@@ -1683,7 +1681,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 8
         },
         {
           "id": "FR-031",
@@ -1915,9 +1913,8 @@
           "declared": "done",
           "status": "not_implemented",
           "codeCount": 0,
-          "testCount": 10,
+          "testCount": 8,
           "evidence": [
-            "apps/edge/tests/unit/edge-extraction-secrecy.test.ts",
             "apps/server/tests/e2e/edge-desktop-ui.spec.js",
             "apps/server/tests/integration/credential-vault-lifecycle.test.js",
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
@@ -1925,7 +1922,6 @@
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-            "apps/server/tests/unit/edge-extraction-job-contract.test.js",
             "apps/server/tests/unit/integrations-page-claims.test.js"
           ]
         },
@@ -2279,7 +2275,6 @@
           "check": "requirements",
           "summary": "FR-144 is not_implemented",
           "evidence": [
-            "apps/edge/tests/unit/edge-extraction-secrecy.test.ts",
             "apps/server/tests/e2e/edge-desktop-ui.spec.js",
             "apps/server/tests/integration/credential-vault-lifecycle.test.js",
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
@@ -2287,7 +2282,6 @@
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-            "apps/server/tests/unit/edge-extraction-job-contract.test.js",
             "apps/server/tests/unit/integrations-page-claims.test.js"
           ]
         }
@@ -2362,7 +2356,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 11
         },
         {
           "id": "FR-071",
@@ -3180,7 +3174,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 11
         },
         {
           "id": "FR-054",
@@ -3650,7 +3644,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 5
         },
         {
           "id": "FR-146",
@@ -3674,7 +3668,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 19
+          "testCount": 15
         },
         {
           "id": "FR-151",
@@ -3706,7 +3700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 30
+          "testCount": 29
         },
         {
           "id": "FR-190",
@@ -3810,7 +3804,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 10
         },
         {
           "id": "FR-259",
@@ -5395,7 +5389,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 70
+          "testCount": 69
         },
         {
           "id": "FR-073",
@@ -5699,7 +5693,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 4
         },
         {
           "id": "FR-146",
@@ -5723,7 +5717,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 15
         },
         {
           "id": "FR-151",
@@ -7456,12 +7450,10 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 5
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/delivery.test.ts",
-        "apps/edge/tests/unit/line-delivery-receipt.test.ts",
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
         "apps/server/src/app/(pm)/customer/line-crm/page.jsx",
         "apps/server/src/app/(pm)/customer/page.jsx",
@@ -8281,12 +8273,12 @@
         "project-manager"
       ],
       "useCase": "เจ้าหน้าที่อัปโหลดรูปหรือ PDF หลักฐาน ให้ OCR/Vision เสนอข้อมูล ตรวจแก้โดยมนุษย์ และนำเข้าหรือส่งออก Excel/Google Sheets/LINE ผ่าน intake เดียวกันจนพร้อมขึ้นทะเบียน",
-      "progressPercent": 90,
+      "progressPercent": 85,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-016 registry status is live (configuration-gated)",
-        "FR-140 is not_implemented"
+        "FR-140 is planned"
       ],
       "requirements": [
         {
@@ -8316,8 +8308,8 @@
         {
           "id": "FR-140",
           "title": "Trusted LINE Asset handoff",
-          "status": "not_implemented",
-          "progressPercent": 60,
+          "status": "planned",
+          "progressPercent": 40,
           "codeCount": 0,
           "testCount": 3
         }
@@ -8387,7 +8379,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 4
         },
         {
           "id": "FR-144",
@@ -8395,11 +8387,10 @@
           "status": "not_implemented",
           "progressPercent": 60,
           "codeCount": 0,
-          "testCount": 10
+          "testCount": 8
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/edge-extraction-secrecy.test.ts",
         "apps/server/src/app/api/assets/evidence/[id]/extract/route.js",
         "apps/server/src/modules/asset-management/application/asset-extraction-job-service.js",
         "apps/server/src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
@@ -8412,7 +8403,6 @@
         "apps/server/tests/unit/asset-evidence-extractor-contract.test.js",
         "apps/server/tests/unit/asset-evidence-route-schema-contract.test.js",
         "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-        "apps/server/tests/unit/edge-extraction-job-contract.test.js",
         "apps/server/tests/unit/integrations-page-claims.test.js",
         "apps/server/tests/unit/pipeline-health-service.test.js"
       ]
@@ -8646,7 +8636,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 19
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -8654,11 +8644,7 @@
         "apps/edge/src/conversation/progress.ts",
         "apps/edge/tests/unit/conversation-deadline.test.ts",
         "apps/edge/tests/unit/conversation-progress.test.ts",
-        "apps/edge/tests/unit/conversation-worker.test.ts",
-        "apps/edge/tests/unit/desktop-log.test.ts",
-        "apps/edge/tests/unit/desktop-package.test.ts",
         "apps/edge/tests/unit/genesisrag17-edge.test.ts",
-        "apps/edge/tests/unit/project-work-tools.test.ts",
         "apps/server/src/app/(pm)/line-oa/connections/page.jsx",
         "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
         "apps/server/src/app/(pm)/line-oa/page.jsx",
@@ -11198,15 +11184,12 @@
           "title": "Local model residency follows business hours",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 11
+          "codeCount": 3,
+          "testCount": 10
         }
       ],
       "evidence": [
-        "apps/edge/src/conversation/residency-client.ts",
-        "apps/edge/src/desktop-worker.ts",
         "apps/edge/tests/unit/model-residency-schedule.test.ts",
-        "apps/edge/tests/unit/residency-client.test.ts",
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
         "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
         "apps/server/src/lib/validation/entities.js",
@@ -12841,11 +12824,10 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 8
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/project-work-tools.test.ts",
         "apps/server/src/modules/agent/action-gate.js",
         "apps/server/src/modules/agent/index.js",
         "apps/server/src/modules/agent/line-project-work-tools.js",
@@ -13871,31 +13853,31 @@
       "id": "FR-050",
       "title": "Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics.",
       "kind": "requirement",
-      "registryStatus": "live",
+      "registryStatus": "planned",
       "requirementIds": [
         "FR-050"
       ],
       "primaryDomain": "agent",
       "contributorDomains": [],
       "useCase": "LINE event หนึ่งรายการเรียก model และส่ง reply ได้ไม่เกินหนึ่งครั้งแม้มี retry",
-      "progressPercent": 60,
+      "progressPercent": 40,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FR-050 is not_implemented"
+        "FR-050 is planned"
       ],
       "requirements": [
         {
           "id": "FR-050",
           "title": "Single-reply LINE delivery",
-          "status": "not_implemented",
-          "progressPercent": 60,
+          "status": "planned",
+          "progressPercent": 40,
           "codeCount": 0,
           "testCount": 2
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/stack.test.ts",
+        "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/doc-graph-retired-rules.test.js"
       ]
     },
@@ -13961,11 +13943,10 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 12
+          "testCount": 11
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/stack.test.ts",
         "apps/server/src/modules/agent/line-binding-resolver.js",
         "apps/server/src/modules/agent/line-channel-binding.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
@@ -14746,11 +14727,10 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 70
+          "testCount": 69
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/project-work-tools.test.ts",
         "apps/server/src/app/api/containers/[id]/route.js",
         "apps/server/src/app/api/containers/route.js",
         "apps/server/src/app/api/dependencies/[id]/route.js",
@@ -16652,13 +16632,12 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 30
+          "testCount": 29
         }
       ],
       "evidence": [
         "apps/edge/src/conversation/progress.ts",
         "apps/edge/tests/unit/conversation-progress.test.ts",
-        "apps/edge/tests/unit/desktop-log.test.ts",
         "apps/server/src/app/api/line-oa/jobs/[id]/trace/route.js",
         "apps/server/src/modules/agent/context.js",
         "apps/server/src/modules/agent/execution-trace.js",
@@ -17493,8 +17472,8 @@
       "id": "NFR-017",
       "title": "The LINE ingress is traceable end to end from one correlation id",
       "status": "verified",
-      "codeCount": 4,
-      "testCount": 5,
+      "codeCount": 3,
+      "testCount": 4,
       "domains": [
         "crm"
       ]

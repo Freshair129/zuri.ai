@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-106
 title: "Conversation Runtime service extraction"
-version: "1.0.0"
+version: "1.0.1"
 status: approved
 created_at: "2026-09-24T00:00:00+07:00,Codex"
-last_update: "2026-09-24T00:00:00+07:00,Codex"
+last_update: "2026-09-25T21:08:16+07:00,Codex"
 author: Codex (implementation owner)
 approved_on: "2026-09-24"
 approved_by: "User instruction in Session 1"
@@ -76,7 +76,7 @@ version. Its port operations are:
 
 | Port | v1 operations | Authority / durable owner |
 |---|---|---|
-| Job / Admission | `claim`, `renew`, `complete`, `fail`, `status` | Core owns the existing LINE job and durable ingress outbox |
+| Job / Admission | `claim`, `renew`, `complete`, `fail`, `status` | Core owns the job, executor cohort, authoritative claims/leases and receipts; CR requests these operations through the port |
 | Authority / Context | `resolve`, `prepare` | Core derives account, tenant, business, actor, binding, epoch, consent and memory policy from authoritative records |
 | WorkTool | `read`, `propose`, `confirm-execute`, `status` | Core façade revalidates authority; confirmation, canonical mutation and receipt remain in the existing transaction |
 | Model | `credential`, `invoke` | Integration SecretStore remains credential authority; a credential grant is claim-bound, short-lived, memory-only and excluded from logs/traces |
@@ -99,12 +99,19 @@ returns non-2xx for LINE retry. The existing reconciler is the restart mechanism
 core admission remains idempotent; a process-local post-ack continuation is only a
 wake-up hint, never the sole handoff.
 
-Core remains the only owner of `LineConversationJob` writes. For each job cohort,
-exactly one executor is active: either the Conversation Runtime or the legacy core
-worker. Cutover is gated by an authoritative routing state and a quiescence check,
-not conflicting local environment flags. The legacy `/api/line-oa/worker` route
-remains as a bounded maintenance/compatibility route and no longer executes turns
-when CR owns the cohort.
+Core remains the only owner of `LineConversationJob` writes and claim/lease state.
+`LineOaAccount.executionMode` and `LineConversationJob.executionMode` remain
+`SERVER`; the separately persisted `LineOaAccount.runtimeOwner` defaults to
+`SERVER` and is snapshotted onto each job at admission. Thus each job has exactly
+one durable executor cohort: `SERVER` for the legacy core worker or
+`CONVERSATION_RUNTIME` for the independent runtime. An owner may opt an account
+into the runtime through the versioned `CONFIGURE_EXECUTION` action. Admission
+captures `CONVERSATION_RUNTIME` only for verified direct conversations that meet
+the runtime's eligibility rules; ineligible work remains in the `SERVER` cohort.
+Changing the account owner requires all of its outstanding jobs to be quiescent.
+Environment flags, service readiness and the public base URL do not select or
+grant ownership. The legacy `/api/line-oa/worker` route remains as a bounded
+maintenance/compatibility route and only executes `SERVER`-owned jobs.
 
 ### D4 — Leases, fencing and side effects
 
@@ -163,4 +170,5 @@ reported separately. Production cutover is not inferred from local proof.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.0.1 | 2026-09-25 | approved | Clarify option B: keep executionMode SERVER and persist a separate account/job runtimeOwner cohort; Core remains authoritative for claim, lease, receipt and state writes | uncommitted | Codex |
 | 1.0.0 | 2026-09-24 | approved | Approve first independent Conversation Runtime extraction ahead of Work Management; keep existing domain data owners behind conversation-runtime.v1 ports | uncommitted | Codex |

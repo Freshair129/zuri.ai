@@ -252,6 +252,7 @@ export default function LineStudioAccountConsole() {
 
 function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
   const [push, setPush] = useState(account.allowDelayedPush);
+  const [runtimeOwner, setRuntimeOwner] = useState(account.runtimeOwner ?? "SERVER");
   const [grounding, setGrounding] = useState(account.knowledgeGrounding);
   const [sessionTimeout, setSessionTimeout] = useState(String(account.sessionIdleTimeoutMinutes ?? 30));
   const [quiesced, setQuiesced] = useState(false);
@@ -265,6 +266,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
 
   useEffect(() => {
     setPush(account.allowDelayedPush);
+    setRuntimeOwner(account.runtimeOwner ?? "SERVER");
     setGrounding(account.knowledgeGrounding);
     setSessionTimeout(String(account.sessionIdleTimeoutMinutes ?? 30));
   }, [account]);
@@ -348,9 +350,27 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
         onAction={onAction} onLoadJobs={() => loadJobs()} busy={busy} />
 
       <fieldset disabled={busy || account.status === "ARCHIVED"} className="grid gap-3 pt-1">
-        {/* FR-265 — the execution-placement and model-access selects are gone
-            (ADR-100 D1, D3). Answers run on the server and call the Business's own
-            model key; neither was a choice the owner could act on any more. */}
+        {/* FR-265 — executionMode remains SERVER. This separate Core-owned cohort
+            sends only eligible direct conversations to the independent runtime. */}
+        <div>
+          <label htmlFor={`runtime-owner-${account.id}`} className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+            ตัวประมวลผลบทสนทนา
+          </label>
+          <select
+            id={`runtime-owner-${account.id}`}
+            aria-label="ตัวประมวลผลบทสนทนา"
+            className={fieldClass}
+            value={runtimeOwner}
+            onChange={(e) => setRuntimeOwner(e.target.value)}
+          >
+            <option value="SERVER">Zuri Server (ค่าเริ่มต้น)</option>
+            <option value="CONVERSATION_RUNTIME">Conversation Runtime</option>
+          </select>
+          <p className="text-[10px] text-slate-500 mt-1">
+            เลือก cohort ที่ Core บันทึกลงในแต่ละงาน การเปลี่ยนต้องไม่มีงานค้างหรือกำลังทำงานอยู่
+          </p>
+        </div>
+
         <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
           <input
             type="checkbox"
@@ -407,10 +427,10 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
           <button
             type="button"
             className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold"
-            disabled={push === account.allowDelayedPush}
-            onClick={() => onAction(account, { action: "CONFIGURE_EXECUTION", allowDelayedPush: push })}
+            disabled={push === account.allowDelayedPush && runtimeOwner === (account.runtimeOwner ?? "SERVER")}
+            onClick={() => onAction(account, { action: "CONFIGURE_EXECUTION", allowDelayedPush: push, runtimeOwner })}
           >
-            บันทึกนโยบายการส่ง
+            บันทึกนโยบายและ cohort
           </button>
 
           <button

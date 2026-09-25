@@ -114,81 +114,12 @@ describe('Zuri API Contract Client (HTTP)', () => {
     assert.strictEqual(headers['Idempotency-Key'], 'idem_1');
   });
 
-  // The route this posts to was `/api/agent-bridges/heartbeat` and had been 404ing against
-  // zuri-ai — invisibly, because the launcher fires it and discards the result. Pinning the path
-  // is the only thing that catches a rename here, since nothing downstream reads the response.
-  it('posts liveness to the route zuri-ai actually serves', async () => {
-    let request: { url: string; init?: RequestInit } | undefined;
-    const client = new HttpZuriApiClient({
-      baseUrl: 'https://zuri.example',
-      deviceId: 'bridge-01',
-      deviceToken: 'edgk_test',
-      fetchFn: async (url, init) => {
-        request = { url, init };
-        return new Response(JSON.stringify({ acknowledged: true }));
-      },
-    });
-    // No cloudBaseUrl configured here, so this also pins the fallback to baseUrl.
-    const res = await client.sendHeartbeat({
-      contractVersion: '0.1.0b',
-      deviceId: 'bridge-01',
-      status: 'healthy',
-      registeredQueries: [],
-      approvedTemplates: [],
-      timestamp: '2026-09-04T00:00:00.000Z',
-    });
-    assert.strictEqual(res.acknowledged, true);
-    assert.strictEqual(request?.url, 'https://zuri.example/api/agent/heartbeat');
-    assert.strictEqual(request?.init?.method, 'POST');
-  });
-
-  // zuri-ai accepts exactly one machine credential: the `edgk_` key minted per device. Its viewer
-  // resolver reads a session cookie and nothing else, so ZURI_AGENT_DEVICE_TOKEN holding anything
-  // else cannot authenticate by any path — it is 401 AUTH_REQUIRED whatever its value. Minting a
-  // key is therefore only useful if the heartbeat actually presents it.
-  it('presents the minted edge device key rather than the agent token', async () => {
-    let headers: Record<string, string> | undefined;
-    const client = new HttpZuriApiClient({
-      baseUrl: 'https://zuri.example',
-      deviceId: 'bridge-01',
-      deviceToken: 'CHANGEME',
-      deviceKey: 'edgk_minted',
-      fetchFn: async (_url, init) => {
-        headers = init?.headers as Record<string, string>;
-        return new Response(JSON.stringify({ acknowledged: true }));
-      },
-    });
-    await client.sendHeartbeat({ contractVersion: '0.1.0b', deviceId: 'bridge-01', status: 'healthy', registeredQueries: [], approvedTemplates: [], timestamp: '2026-09-04T00:00:00.000Z' });
-    assert.strictEqual(headers?.Authorization, 'Bearer edgk_minted');
-  });
-
-  // The heartbeat is the device talking to the cloud as itself, so it uses the device pair —
-  // ZURI_CLOUD_BASE_URL with ZURI_EDGE_DEVICE_KEY — instead of borrowing the command endpoints'
-  // origin. The two happen to be the same host today, which is exactly why this needs pinning.
-  it('sends liveness to the cloud origin, not the command origin', async () => {
-    let url: string | undefined;
-    const client = new HttpZuriApiClient({
-      baseUrl: 'https://commands.example',
-      cloudBaseUrl: 'https://cloud.example',
-      deviceId: 'bridge-01',
-      deviceToken: 'agent_token',
-      deviceKey: 'edgk_minted',
-      fetchFn: async (u) => {
-        url = u;
-        return new Response(JSON.stringify({ acknowledged: true }));
-      },
-    });
-    await client.sendHeartbeat({ contractVersion: '0.1.0b', deviceId: 'bridge-01', status: 'healthy', registeredQueries: [], approvedTemplates: [], timestamp: '2026-09-04T00:00:00.000Z' });
-    assert.strictEqual(url, 'https://cloud.example/api/agent/heartbeat');
-  });
-
-  // The command endpoints keep their own origin; the device pair must not leak into them.
+  // Command requests use only the command API origin and its agent token.
   it('leaves the command endpoints on the command origin', async () => {
     let url: string | undefined;
     const client = new HttpZuriApiClient({
       baseUrl: 'https://commands.example',
-      cloudBaseUrl: 'https://cloud.example',
-      deviceId: 'bridge-01', deviceToken: 'agent_token', deviceKey: 'edgk_minted',
+      deviceId: 'bridge-01', deviceToken: 'agent_token',
       fetchFn: async (u) => {
         url = u;
         return new Response(JSON.stringify({ commandId: 'cmd_1', tenantId: 't', policySnapshotId: 'p', contractVersion: '0.1.0b', source: 'codex', command: 'executive_summary', arguments: {}, deliveryIntent: 'preview', lifecycle: 'ADMITTED', idempotencyKey: 'i', traceId: 'tr', createdAt: '2026-08-11T00:00:00.000Z', updatedAt: '2026-08-11T00:00:00.000Z' }));
@@ -198,27 +129,11 @@ describe('Zuri API Contract Client (HTTP)', () => {
     assert.strictEqual(url, 'https://commands.example/api/agent-commands');
   });
 
-  // A deployment that already put the minted key in ZURI_AGENT_DEVICE_TOKEN must keep working.
-  it('falls back to the agent token when no edge device key is configured', async () => {
-    let headers: Record<string, string> | undefined;
-    const client = new HttpZuriApiClient({
-      baseUrl: 'https://zuri.example',
-      deviceId: 'bridge-01',
-      deviceToken: 'edgk_in_the_old_slot',
-      fetchFn: async (_url, init) => {
-        headers = init?.headers as Record<string, string>;
-        return new Response(JSON.stringify({ acknowledged: true }));
-      },
-    });
-    await client.sendHeartbeat({ contractVersion: '0.1.0b', deviceId: 'bridge-01', status: 'healthy', registeredQueries: [], approvedTemplates: [], timestamp: '2026-09-04T00:00:00.000Z' });
-    assert.strictEqual(headers?.Authorization, 'Bearer edgk_in_the_old_slot');
-  });
-
   // The command endpoints are a different, unbuilt contract; the key must not silently change hands.
   it('leaves the command endpoints on the agent token', async () => {
     let headers: Record<string, string> | undefined;
     const client = new HttpZuriApiClient({
-      baseUrl: 'https://zuri.example', deviceId: 'bridge-01', deviceToken: 'agent_token', deviceKey: 'edgk_minted',
+      baseUrl: 'https://zuri.example', deviceId: 'bridge-01', deviceToken: 'agent_token',
       fetchFn: async (_url, init) => {
         headers = init?.headers as Record<string, string>;
         return new Response(JSON.stringify({ commandId: 'cmd_1', tenantId: 't', policySnapshotId: 'p', contractVersion: '0.1.0b', source: 'codex', command: 'executive_summary', arguments: {}, deliveryIntent: 'preview', lifecycle: 'ADMITTED', idempotencyKey: 'i', traceId: 'tr', createdAt: '2026-08-11T00:00:00.000Z', updatedAt: '2026-08-11T00:00:00.000Z' }));
@@ -226,31 +141,6 @@ describe('Zuri API Contract Client (HTTP)', () => {
     });
     await client.admitCommand({ contractVersion: '0.1.0b', source: 'codex', command: 'executive_summary', arguments: {}, delivery: 'preview', idempotencyKey: 'i' });
     assert.strictEqual(headers?.Authorization, 'Bearer agent_token');
-  });
-
-  // The route takes the Business from the device credential and 403s a body that names a
-  // different one, so sending one can only ever turn a working heartbeat into a refused one.
-  it('leaves businessId out of the heartbeat body for the credential to supply', async () => {
-    let sent: string | undefined;
-    const client = new HttpZuriApiClient({
-      baseUrl: 'https://zuri.example',
-      deviceId: 'bridge-01',
-      deviceToken: 'edgk_test',
-      fetchFn: async (_url, init) => {
-        sent = init?.body as string;
-        return new Response(JSON.stringify({ acknowledged: true }));
-      },
-    });
-    await client.sendHeartbeat({
-      contractVersion: '0.1.0b',
-      deviceId: 'bridge-01',
-      status: 'healthy',
-      registeredQueries: [],
-      approvedTemplates: [],
-      timestamp: '2026-09-04T00:00:00.000Z',
-    });
-    assert.ok(sent, 'a body was sent');
-    assert.ok(!Object.hasOwn(JSON.parse(sent!) as object, 'businessId'));
   });
 
   // A wrong route returns Next.js's 404 *page*: ~4KB of HTML that buried the status code at the
@@ -274,15 +164,14 @@ describe('Zuri API Contract Client (HTTP)', () => {
     );
   });
 
-  // zuri-ai's own error shape is `{ error: "..." }` and is worth quoting exactly.
-  it('quotes a JSON error body verbatim', async () => {
+  it('quotes a JSON API error body verbatim', async () => {
     const client = new HttpZuriApiClient({
-      baseUrl: 'https://zuri.example', deviceId: 'bridge-01', deviceToken: 'edgk_test',
-      fetchFn: async () => new Response(JSON.stringify({ error: 'This credential is paired with a different Business' }), { status: 403 }),
+      baseUrl: 'https://zuri.example', deviceId: 'bridge-01', deviceToken: 'test-device-token',
+      fetchFn: async () => new Response(JSON.stringify({ error: 'Command admission is forbidden' }), { status: 403 }),
     });
     await assert.rejects(
-      () => client.sendHeartbeat({ contractVersion: '0.1.0b', deviceId: 'bridge-01', status: 'healthy', registeredQueries: [], approvedTemplates: [], timestamp: '2026-09-04T00:00:00.000Z' }),
-      /This credential is paired with a different Business/,
+      () => client.admitCommand({ contractVersion: '0.1.0b', source: 'codex', command: 'executive_summary', arguments: {}, delivery: 'preview', idempotencyKey: 'idem_1' }),
+      /Command admission is forbidden/,
     );
   });
 

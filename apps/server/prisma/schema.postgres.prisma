@@ -3920,6 +3920,9 @@ model LineOaAccount {
   // @req FR-149, FR-150 — transport ownership and compute placement are independent.
   serverEnabled           Boolean               @default(false)
   executionMode           String                @default("SERVER")
+  // @spec ADR-106 D3, SDD-108 — the Core-owned executor cohort is independent
+  // from executionMode, which remains SERVER for every new conversation job.
+  runtimeOwner            String                @default("SERVER")
   modelAccess             String                @default("LOCAL_ONLY")
   // @req FR-235 — publisher-set grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE
   // (default, every existing account, unchanged behaviour) | GKS_CORPUS |
@@ -4131,6 +4134,9 @@ model LineConversationJob {
   channelAccountId            String
   transportEpoch              Int
   executionMode               String
+  // Immutable admission-time consumer cohort; executionMode records SERVER
+  // compute placement for both Core and Conversation Runtime consumers.
+  runtimeOwner                String    @default("SERVER")
   modelAccess                 String
   audienceKind                String    @default("DIRECT")
   allowDelayedPush            Boolean   @default(false)

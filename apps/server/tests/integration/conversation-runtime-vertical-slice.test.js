@@ -9,6 +9,7 @@ import { createPortfolio, createTenant, createBusiness, createWorkspace } from '
 import { makeViewer } from '../factories/viewer'
 import { createProject, createWorkstream } from '@/modules/project-manager/application/project-service'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
+import { applyLineOaAccountAction } from '@/modules/line-oa-studio/application/line-oa-account-service'
 import { createServerLineWebhookPost } from '@/app/api/line-oa/accounts/[id]/webhook/route'
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { markLineAdmissionIntent, admitCapturedLineEvents, admitLineConversation, claimRuntimeConversationJob,
@@ -97,7 +98,7 @@ async function wrapCoreRequest(incoming, outgoing, port, core) {
   }
 }
 
-let tenant, business, account, actor, provider, workstream
+let tenant, business, account, actor, provider, workstream, ownerViewer
 let runtimeChild, coreServer, modelServer, pendingAdmissions = []
 let coreRequests = []
 let deliveryCalls = [], modelCalls = []
@@ -114,17 +115,17 @@ beforeAll(async () => {
   business = await createBusiness({ tenantId: tenant.id, name: 'Conversation Runtime business', code: 'BUS-CR-VERTICAL' })
   actor = await prisma.person.create({ data: { code: 'PER-CR-VERTICAL', displayName: 'Synthetic LINE actor' } })
   await prisma.membership.create({ data: { personId: actor.id, tenantId: tenant.id, businessId: business.id, role: 'OWNER' } })
-  const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+  ownerViewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id],
+    visibleDomains: ['projects', 'people', 'platform', 'line-oa'] })
   const workspace = await createWorkspace({ name: 'Conversation Runtime workspace', code: 'WS-CR-VERTICAL', scopeType: 'BUSINESS', businessId: business.id })
-  const project = await createProject({ workspaceId: workspace.id, name: 'Conversation Runtime project', code: 'PRJ-CR-VERTICAL' }, { viewer: owner })
-  workstream = await createWorkstream({ projectId: project.id, name: 'Conversation Runtime stream', code: 'WST-CR-VERTICAL', executionMode: 'SOFTWARE_SPRINT' }, { viewer: owner })
+  const project = await createProject({ workspaceId: workspace.id, name: 'Conversation Runtime project', code: 'PRJ-CR-VERTICAL' }, { viewer: ownerViewer })
+  workstream = await createWorkstream({ projectId: project.id, name: 'Conversation Runtime stream', code: 'WST-CR-VERTICAL', executionMode: 'SOFTWARE_SPRINT' }, { viewer: ownerViewer })
   provider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE OA' })
   const connection = await createIntegrationConnection({ tenantId: tenant.id, businessId: business.id,
     providerId: provider.id, name: 'Synthetic LINE connection', externalAccountId: 'synthetic-line-destination', status: 'ACTIVE' })
   account = await prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id,
     integrationConnectionId: connection.id, code: 'cr-vertical-account', displayName: 'Synthetic LINE OA',
-    bindingCode: 'cr-vertical-binding', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD',
-    executionMode: 'CONVERSATION_RUNTIME' } })
+    bindingCode: 'cr-vertical-binding', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD' } })
   const linkedAt = new Date()
   await prisma.externalIdentity.create({ data: { tenantId: tenant.id, personId: actor.id, provider: 'LINE',
     providerSubject: 'synthetic-line-user', verifiedAt: linkedAt, linkedAt } })
@@ -148,6 +149,112 @@ describe('Conversation Runtime durable vertical slice', () => {
     env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey }, correlationId: eventId, now: new Date(),
     event: { type: 'message', webhookEventId: eventId, replyToken: `synthetic-reply-${eventId}`, timestamp: Date.now(),
       source: { type: 'user', userId: 'synthetic-line-user' }, message: { type: 'text', id: `synthetic-message-${eventId}`, text: 'ถามสถานะสินค้า' } },
+  })
+
+  it('keeps default admissions in the SERVER cohort and opts in only after the queue is quiescent', async () => {
+    expect(account).toMatchObject({ executionMode: 'SERVER', runtimeOwner: 'SERVER' })
+    const eventId = 'synthetic-default-server-cohort'
+    const { jobId } = await admitDirect(eventId)
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId },
+      select: { executionMode: true, runtimeOwner: true, status: true } }))
+      .toEqual({ executionMode: 'SERVER', runtimeOwner: 'SERVER', status: 'QUEUED' })
+    expect(await claimRuntimeConversationJob({ db: prisma, claimantId: 'runtime-cannot-claim-server', now: () => new Date() })).toBeNull()
+
+    await expect(applyLineOaAccountAction(account.id, { action: 'CONFIGURE_EXECUTION', version: account.version,
+      allowDelayedPush: account.allowDelayedPush, runtimeOwner: 'CONVERSATION_RUNTIME' }, { viewer: ownerViewer }))
+      .rejects.toMatchObject({ status: 409, message: 'LINE_OA_RUNTIME_OWNER_NOT_QUIESCED' })
+
+    await runLineConversationWorker({ db: prisma, env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey }, workerId: 'legacy-default-cohort',
+      answer: async () => 'Answer from the default SERVER cohort',
+      resolveAccount: async id => prisma.lineOaAccount.findUnique({ where: { id } }),
+      replyTransport: { send: async () => ({ status: 'ACCEPTED_BY_LINE', requestId: 'synthetic-server-acceptance' }) },
+      pushTransport: { send: async () => ({ status: 'ACCEPTED_BY_LINE', requestId: 'synthetic-server-push' }) } })
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId }, select: { status: true, runtimeOwner: true } }))
+      .toEqual({ status: 'RECORDED', runtimeOwner: 'SERVER' })
+
+    account = await prisma.lineOaAccount.findUnique({ where: { id: account.id } })
+    account = await applyLineOaAccountAction(account.id, { action: 'CONFIGURE_EXECUTION', version: account.version,
+      allowDelayedPush: account.allowDelayedPush, runtimeOwner: 'CONVERSATION_RUNTIME' }, { viewer: ownerViewer })
+    expect(account).toMatchObject({ executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' })
+    account = await prisma.lineOaAccount.findUnique({ where: { id: account.id } })
+  })
+
+  it('keeps acknowledged admission across owner-only reconfiguration and still fences a changed transport epoch', async () => {
+    const raceDestination = 'synthetic-line-owner-race-destination'
+    const connection = await createIntegrationConnection({ tenantId: tenant.id, businessId: business.id,
+      providerId: provider.id, name: 'Synthetic LINE owner-race connection', externalAccountId: raceDestination, status: 'ACTIVE' })
+    const raceAccount = await prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id,
+      integrationConnectionId: connection.id, code: 'cr-owner-race-account', displayName: 'Synthetic owner-race OA',
+      bindingCode: 'cr-owner-race-binding', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD' } })
+    await prisma.channelIdentity.create({ data: { tenantId: tenant.id, personId: actor.id, channel: 'LINE',
+      channelAccountId: raceAccount.bindingCode, providerSubject: 'synthetic-line-user', status: 'ACTIVE',
+      verifiedAt: new Date(), linkedAt: new Date() } })
+
+    const releases = []
+    const admissions = []
+    const webhookPost = createServerLineWebhookPost({ db: prisma,
+      ports: () => ({ resolveAccount: async id => {
+        const current = await prisma.lineOaAccount.findUnique({ where: { id } })
+        return { ...current, channelSecret, destination: raceDestination, connectionId: current.integrationConnectionId }
+      } }),
+      evidenceFactory: createLineOaEvidenceRecorder,
+      admitCaptured: args => {
+        let release
+        const held = new Promise(resolve => { release = resolve })
+        releases.push(release)
+        const task = held.then(() => admitCapturedLineEvents({ ...args, db: prisma,
+          env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey }, delays: [], nudge: () => {} }))
+        admissions.push(task)
+        return task
+      },
+      markAdmissionIntent: args => markLineAdmissionIntent({ ...args, db: prisma }),
+    })
+    const postEvent = (eventId) => {
+      const raw = JSON.stringify({ destination: raceDestination, events: [{
+        type: 'message', webhookEventId: eventId, timestamp: Date.now(), replyToken: `synthetic-reply-${eventId}`,
+        source: { type: 'user', userId: 'synthetic-line-user' },
+        message: { id: `synthetic-line-message-${eventId}`, type: 'text', text: 'owner race question' },
+      }] })
+      const request = new Request(`http://local/api/line-oa/accounts/${raceAccount.id}/webhook`, { method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-line-signature': createHmac('sha256', channelSecret).update(Buffer.from(raw)).digest('base64') },
+        body: raw })
+      return webhookPost(request, { params: { id: raceAccount.id } })
+    }
+
+    const initial = await prisma.lineOaAccount.findUnique({ where: { id: raceAccount.id } })
+    const firstEventId = 'synthetic-owner-switch-after-ack'
+    const firstResponse = await postEvent(firstEventId)
+    expect(firstResponse.status).toBe(200)
+    const firstRaw = await prisma.rawExternalRecord.findFirst({ where: { connectionId: connection.id, externalId: firstEventId } })
+    expect(firstRaw.processingStatus).toBe('ADMITTING')
+
+    const ownerChanged = await applyLineOaAccountAction(raceAccount.id, { action: 'CONFIGURE_EXECUTION', version: initial.version,
+      allowDelayedPush: initial.allowDelayedPush, runtimeOwner: 'CONVERSATION_RUNTIME' }, { viewer: ownerViewer })
+    expect(ownerChanged).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', transportEpoch: initial.transportEpoch })
+    releases[0]()
+    await admissions[0]
+    expect((await prisma.rawExternalRecord.findUnique({ where: { id: firstRaw.id } })).processingStatus).toBe('ADMITTED')
+    const firstJob = await prisma.lineConversationJob.findUnique({ where: { accountId_eventId: {
+      accountId: raceAccount.id, eventId: firstEventId,
+    } } })
+    expect(firstJob).toMatchObject({ executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME',
+      transportEpoch: initial.transportEpoch, status: 'QUEUED' })
+
+    const secondEventId = 'synthetic-transport-epoch-after-ack'
+    const secondResponse = await postEvent(secondEventId)
+    expect(secondResponse.status).toBe(200)
+    const secondRaw = await prisma.rawExternalRecord.findFirst({ where: { connectionId: connection.id, externalId: secondEventId } })
+    expect(secondRaw.processingStatus).toBe('ADMITTING')
+    const policyBefore = await prisma.lineOaAccount.findUnique({ where: { id: raceAccount.id } })
+    const policyChanged = await applyLineOaAccountAction(raceAccount.id, { action: 'CONFIGURE_EXECUTION', version: policyBefore.version,
+      allowDelayedPush: !policyBefore.allowDelayedPush, runtimeOwner: policyBefore.runtimeOwner }, { viewer: ownerViewer })
+    expect(policyChanged.transportEpoch).toBe(policyBefore.transportEpoch + 1)
+    releases[1]()
+    await admissions[1]
+    expect((await prisma.rawExternalRecord.findUnique({ where: { id: secondRaw.id } })).processingStatus).toBe('SKIPPED')
+    expect(await prisma.lineConversationJob.findUnique({ where: { accountId_eventId: {
+      accountId: raceAccount.id, eventId: secondEventId,
+    } } })).toBeNull()
   })
 
   it('admits a fake signed webhook once, runs a separate runtime process, and records the accepted fake delivery', async () => {
@@ -223,8 +330,8 @@ describe('Conversation Runtime durable vertical slice', () => {
       const first = await webhookPost(signedRequest(), { params: { id: account.id } })
       expect(first.status).toBe(200)
       await Promise.all(pendingAdmissions)
-      const admitted = await prisma.lineConversationJob.findFirst({ where: { accountId: account.id }, include: { inbound: true } })
-      expect(admitted).toMatchObject({ executionMode: 'CONVERSATION_RUNTIME', status: 'QUEUED', inbound: { body: 'ถามข้อมูลสินค้า' } })
+      const admitted = await prisma.lineConversationJob.findFirst({ where: { accountId: account.id, eventId: token }, include: { inbound: true } })
+      expect(admitted).toMatchObject({ executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME', status: 'QUEUED', inbound: { body: 'ถามข้อมูลสินค้า' } })
       const duplicate = await webhookPost(signedRequest(), { params: { id: account.id } })
       expect(duplicate.status).toBe(200)
       await Promise.all(pendingAdmissions)
@@ -239,7 +346,7 @@ describe('Conversation Runtime durable vertical slice', () => {
       }
       expect(current?.status, JSON.stringify({ childOutput, coreRequests,
         job: { status: current?.status, errorCode: current?.errorCode, version: current?.version }, modelCallCount: modelCalls.length })).toBe('RECORDED')
-      expect(await prisma.lineConversationJob.count({ where: { accountId: account.id } })).toBe(1)
+      expect(await prisma.lineConversationJob.count({ where: { accountId: account.id, eventId: token } })).toBe(1)
       expect(modelCalls).toHaveLength(1)
       expect(modelCalls[0]).toMatchObject({ path: '/v1/chat/completions', authorization: 'Bearer synthetic-provider-key' })
       expect(modelCalls[0].body.messages[0].content).toContain(preparedContext)
@@ -330,7 +437,7 @@ describe('Conversation Runtime durable vertical slice', () => {
     try {
       const before = await prisma.workItem.count()
       const proposalJob = await admit('synthetic-work-proposal-event', `/work-create ${workstream.id} Runtime receipt task`)
-      expect(proposalJob).toMatchObject({ executionMode: 'CONVERSATION_RUNTIME', status: 'QUEUED' })
+      expect(proposalJob).toMatchObject({ executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME', status: 'QUEUED' })
       const proposalUntil = Date.now() + 10_000
       let proposalResult
       while (Date.now() < proposalUntil) {
@@ -345,7 +452,7 @@ describe('Conversation Runtime durable vertical slice', () => {
       expect(await prisma.workItem.count()).toBe(before)
 
       const confirmationJob = await admit('synthetic-work-confirm-event', `ยืนยันงาน ${proposalJob.id}`)
-      expect(confirmationJob).toMatchObject({ executionMode: 'CONVERSATION_RUNTIME', status: 'QUEUED' })
+      expect(confirmationJob).toMatchObject({ executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME', status: 'QUEUED' })
     const deliveryCountBeforeCrash = deliveryCalls.length
     const crashedRuntime = runtimeChild
     await waitForChildExit(crashedRuntime)
@@ -354,7 +461,7 @@ describe('Conversation Runtime durable vertical slice', () => {
     expect(await prisma.workItem.count()).toBe(before + 1)
     expect(await prisma.auditEvent.findUnique({ where: { id: `line-work-result:${proposalJob.id}` } })).not.toBeNull()
     const interrupted = await prisma.lineConversationJob.findUnique({ where: { id: confirmationJob.id } })
-    expect(interrupted).toMatchObject({ status: 'CLAIMED', executionMode: 'CONVERSATION_RUNTIME' })
+    expect(interrupted).toMatchObject({ status: 'CLAIMED', executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' })
     await prisma.lineConversationJob.update({ where: { id: confirmationJob.id },
       data: { leaseExpiresAt: new Date(Date.now() - 1) } })
 
@@ -495,6 +602,9 @@ describe('Conversation Runtime durable vertical slice', () => {
     const [first] = claims.filter(Boolean)
     expect(claims.filter(Boolean)).toHaveLength(1)
     expect(first.jobId).toBe(jobId)
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId },
+      select: { executionMode: true, runtimeOwner: true } }))
+      .toEqual({ executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' })
     await runLineConversationWorker({ db: prisma, now: () => now, env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey },
       workerId: 'legacy-worker-probe', answer: async () => { throw new Error('LEGACY_MUST_NOT_RUN') },
       resolveAccount: async id => prisma.lineOaAccount.findUnique({ where: { id } }),
@@ -510,12 +620,74 @@ describe('Conversation Runtime durable vertical slice', () => {
     await expect(completeRuntimeConversationJob(first, { text: 'stale completion', operationId: `${jobId}:turn-answer` },
       { db: prisma, now: () => reclaimedAt })).rejects.toThrow('CONVERSATION_JOB_LEASE_CONFLICT')
 
-    await prisma.lineOaAccount.update({ where: { id: account.id }, data: { transportEpoch: { increment: 1 } } })
-    await expect(completeRuntimeConversationJob(reclaimed, { text: 'after account revoke', operationId: `${jobId}:turn-answer` },
+    await prisma.lineOaAccount.update({ where: { id: account.id }, data: {
+      runtimeOwner: 'SERVER', transportEpoch: { increment: 1 },
+    } })
+    await expect(completeRuntimeConversationJob(reclaimed, { text: 'after owner revoke', operationId: `${jobId}:turn-answer` },
       { db: prisma, now: () => reclaimedAt })).rejects.toThrow('CONVERSATION_JOB_AUTHORITY_REVOKED')
     await prisma.lineConversationJob.updateMany({ where: { id: jobId, status: 'CLAIMED' },
       data: { status: 'CANCELLED', errorCode: 'TEST_FENCE_COMPLETE', version: { increment: 1 } } })
-    account = await prisma.lineOaAccount.findUnique({ where: { id: account.id } })
+    account = await prisma.lineOaAccount.update({ where: { id: account.id }, data: {
+      runtimeOwner: 'CONVERSATION_RUNTIME', transportEpoch: { increment: 1 },
+    } })
+  })
+
+  it('keeps legacy maintenance inside the SERVER executor cohort', async () => {
+    const { jobId } = await admitDirect('synthetic-legacy-maintenance-fence')
+    const initialAt = new Date()
+    const first = await claimRuntimeConversationJob({ db: prisma, claimantId: 'runtime-maintenance-first', now: () => initialAt })
+    expect(first?.jobId).toBe(jobId)
+
+    const runLegacyTick = now => runLineConversationWorker({ db: prisma, now: () => now,
+      env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey }, workerId: `legacy-maintenance-${now.getTime()}`,
+      answer: async () => { throw new Error('LEGACY_MUST_NOT_RUN') },
+      resolveAccount: async id => prisma.lineOaAccount.findUnique({ where: { id } }),
+      replyTransport: { send: async () => { throw new Error('LEGACY_MUST_NOT_SEND') } },
+      pushTransport: { send: async () => { throw new Error('LEGACY_MUST_NOT_SEND') } } })
+
+    const expiredLeaseAt = new Date(Date.parse(first.leaseExpiresAt) + 1)
+    await prisma.lineConversationJob.update({ where: { id: jobId }, data: { leaseExpiresAt: new Date(expiredLeaseAt.getTime() - 1) } })
+    const claimedBeforeLegacy = await prisma.lineConversationJob.findUnique({ where: { id: jobId },
+      select: { status: true, version: true, executionId: true, claimantId: true } })
+    await runLegacyTick(expiredLeaseAt)
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId },
+      select: { status: true, version: true, executionId: true, claimantId: true } })).toEqual(claimedBeforeLegacy)
+    const reclaimed = await claimRuntimeConversationJob({ db: prisma, claimantId: 'runtime-maintenance-reclaimed', now: () => expiredLeaseAt })
+    expect(reclaimed).toMatchObject({ jobId, claimantId: 'runtime-maintenance-reclaimed' })
+    expect(reclaimed.executionId).not.toBe(first.executionId)
+
+    const expiredReadyAt = new Date(expiredLeaseAt.getTime() + 1)
+    await prisma.lineConversationJob.update({ where: { id: jobId }, data: { status: 'READY', answerText: 'expired-ready',
+      firstSendAt: null, claimantId: null, leaseExpiresAt: null, expiresAt: new Date(expiredReadyAt.getTime() - 1) } })
+    const readyBeforeLegacy = await prisma.lineConversationJob.findUnique({ where: { id: jobId },
+      select: { status: true, version: true, answerText: true, expiresAt: true } })
+    await runLegacyTick(expiredReadyAt)
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId },
+      select: { status: true, version: true, answerText: true, expiresAt: true } })).toEqual(readyBeforeLegacy)
+    await claimRuntimeConversationJob({ db: prisma, claimantId: 'runtime-maintenance-ready-expired', now: () => expiredReadyAt })
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId }, select: { status: true, errorCode: true } }))
+      .toMatchObject({ status: 'FAILED', errorCode: 'EXECUTION_EXPIRED' })
+
+    const sendingAt = new Date(expiredReadyAt.getTime() + 1)
+    for (const scenario of [
+      { sendMethod: 'REPLY', runtimeStatus: 'UNKNOWN', runtimeError: 'REPLY_OUTCOME_UNKNOWN' },
+      { sendMethod: 'PUSH', runtimeStatus: 'READY', runtimeError: null },
+    ]) {
+      await prisma.lineConversationJob.update({ where: { id: jobId }, data: { status: 'SENDING', sendMethod: scenario.sendMethod,
+        firstSendAt: sendingAt, leaseExpiresAt: new Date(sendingAt.getTime() - 1), expiresAt: new Date(sendingAt.getTime() + 60_000),
+        errorCode: null } })
+      const sendingBeforeLegacy = await prisma.lineConversationJob.findUnique({ where: { id: jobId },
+        select: { status: true, version: true, sendMethod: true, leaseExpiresAt: true } })
+      await runLegacyTick(sendingAt)
+      expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId },
+        select: { status: true, version: true, sendMethod: true, leaseExpiresAt: true } })).toEqual(sendingBeforeLegacy)
+      await claimRuntimeConversationJob({ db: prisma, claimantId: `runtime-maintenance-${scenario.sendMethod.toLowerCase()}`, now: () => sendingAt })
+      expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId }, select: { status: true, errorCode: true } }))
+        .toMatchObject({ status: scenario.runtimeStatus, errorCode: scenario.runtimeError })
+    }
+
+    await prisma.lineConversationJob.update({ where: { id: jobId }, data: { status: 'CANCELLED', claimantId: null,
+      leaseExpiresAt: null, version: { increment: 1 } } })
   })
 
   it('rejects completion after channel identity revocation', async () => {
@@ -559,6 +731,73 @@ describe('Conversation Runtime durable vertical slice', () => {
       data: { status: 'CANCELLED', errorCode: 'PDPA_ERASURE', claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
   })
 
+  it('revalidates the claim before returning a model credential after identity, transport or lease changes', async () => {
+    const credentialReads = []
+    const env = { CONVERSATION_RUNTIME_TOKEN: serviceToken }
+    const core = createConversationRuntimeCore({ db: prisma, env,
+      credentialResolver: async job => {
+        credentialReads.push(job.id)
+        return { provider: 'prp', model: 'controlled-model', apiKey: 'synthetic-provider-key' }
+      } })
+    const scenarios = [
+      { name: 'identity-revoked', status: 403, code: 'CONVERSATION_IDENTITY_REVOKED' },
+      { name: 'transport-epoch-changed', status: 409, code: 'CONVERSATION_JOB_AUTHORITY_REVOKED' },
+      { name: 'runtime-owner-revoked', status: 409, code: 'CONVERSATION_JOB_AUTHORITY_REVOKED' },
+      { name: 'lease-expired', status: 409, code: 'CONVERSATION_JOB_AUTHORITY_REVOKED' },
+    ]
+    for (const scenario of scenarios) {
+      const { jobId } = await admitDirect(`synthetic-credential-fence-${scenario.name}`)
+      const claim = await claimRuntimeConversationJob({ db: prisma, claimantId: `runtime-credential-${scenario.name}`, now: () => new Date() })
+      expect(claim?.jobId).toBe(jobId)
+      const payload = { claim: { jobId: claim.jobId, executionId: claim.executionId, claimantId: claim.claimantId,
+        version: claim.version, tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId } }
+      const credentialRequest = () => new Request('http://local/api/internal/conversation-runtime/v1/credential', {
+        method: 'POST', headers: { authorization: `Bearer ${serviceToken}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ contractVersion: 'conversation-runtime.v1', operation: 'credential',
+          correlationId: `synthetic-credential-${scenario.name}`, idempotencyKey: `credential:${jobId}`,
+          deadlineAt: new Date(Date.now() + 30_000).toISOString(), payload }),
+      })
+      try {
+        const granted = await core.handle(credentialRequest(), { operation: 'credential' })
+        expect(granted.status).toBe(200)
+        expect((await granted.json()).data.apiKey).toBe('synthetic-provider-key')
+
+        if (scenario.name === 'identity-revoked') {
+          await prisma.channelIdentity.update({ where: { tenantId_channel_channelAccountId_providerSubject: {
+            tenantId: tenant.id, channel: 'LINE', channelAccountId: account.bindingCode, providerSubject: 'synthetic-line-user',
+          } }, data: { status: 'REVOKED', revokedAt: new Date() } })
+        } else if (scenario.name === 'transport-epoch-changed') {
+          account = await prisma.lineOaAccount.update({ where: { id: account.id }, data: { transportEpoch: { increment: 1 } } })
+        } else if (scenario.name === 'runtime-owner-revoked') {
+          account = await prisma.lineOaAccount.update({ where: { id: account.id }, data: {
+            runtimeOwner: 'SERVER', transportEpoch: { increment: 1 },
+          } })
+        } else {
+          await prisma.lineConversationJob.update({ where: { id: jobId }, data: { leaseExpiresAt: new Date(Date.now() - 1) } })
+        }
+
+        const rejected = await core.handle(credentialRequest(), { operation: 'credential' })
+        expect(rejected.status).toBe(scenario.status)
+        expect((await rejected.json()).error.code).toBe(scenario.code)
+      } finally {
+        await prisma.lineConversationJob.updateMany({ where: { id: jobId, status: 'CLAIMED' },
+          data: { status: 'CANCELLED', errorCode: `TEST_${scenario.name.toUpperCase()}`,
+            claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
+        if (scenario.name === 'identity-revoked') {
+          await prisma.channelIdentity.update({ where: { tenantId_channel_channelAccountId_providerSubject: {
+            tenantId: tenant.id, channel: 'LINE', channelAccountId: account.bindingCode, providerSubject: 'synthetic-line-user',
+          } }, data: { status: 'ACTIVE', revokedAt: null, verifiedAt: new Date(), linkedAt: new Date() } })
+        }
+        account = scenario.name === 'runtime-owner-revoked'
+          ? await prisma.lineOaAccount.update({ where: { id: account.id }, data: {
+            runtimeOwner: 'CONVERSATION_RUNTIME', transportEpoch: { increment: 1 },
+          } })
+          : await prisma.lineOaAccount.findUnique({ where: { id: account.id } })
+      }
+    }
+    expect(credentialReads).toHaveLength(scenarios.length)
+  })
+
   it('bounds authenticated Core requests and responses and derives claim scope from durable state', async () => {
     const env = { CONVERSATION_RUNTIME_TOKEN: serviceToken }
     const makeRequest = (operation, payload, tokenValue = serviceToken, bodyOverride = null) => {
@@ -579,6 +818,19 @@ describe('Conversation Runtime durable vertical slice', () => {
     const oversized = await core.handle(makeRequest('claim', {}, serviceToken, 'x'.repeat(70 * 1024)), { operation: 'claim' })
     expect(oversized.status).toBe(413)
 
+    const invalidToolPayload = await core.handle(makeRequest('work-tool', {
+      claim, operation: 'read', operationId: 'synthetic-work-read', input: { shell: 'id' },
+    }), { operation: 'work-tool' })
+    expect(invalidToolPayload.status).toBe(400)
+    expect((await invalidToolPayload.json()).error.code).toBe('WORK_TOOL_INPUT_INVALID')
+    let nestedPayload = { value: 'x' }
+    for (let depth = 0; depth < 66; depth += 1) nestedPayload = { nested: nestedPayload }
+    const deeplyNestedTrace = await core.handle(makeRequest('trace', {
+      claim, kind: 'synthetic-test', payload: nestedPayload,
+    }), { operation: 'trace' })
+    expect(deeplyNestedTrace.status).toBe(400)
+    expect((await deeplyNestedTrace.json()).error.code).toBe('TRACE_PAYLOAD_INVALID')
+
     const oversizedResponseCore = createConversationRuntimeCore({ db: prisma, env,
       readStatus: async claimRef => ({ status: 'READY', operationId: `${claimRef.jobId}:turn-answer`, version: 1,
         errorCode: null, executionId: 'synthetic-execution', text: 'x'.repeat(70 * 1024) }) })
@@ -586,5 +838,15 @@ describe('Conversation Runtime durable vertical slice', () => {
       makeRequest('status', { claim, operationId: `${claim.jobId}:turn-answer` }), { operation: 'status' })
     expect(oversizedResponse.status).toBe(500)
     expect((await oversizedResponse.json()).error.code).toBe('CONTRACT_RESPONSE_INVALID')
+
+    let nestedResponse = { value: 'x' }
+    for (let depth = 0; depth < 66; depth += 1) nestedResponse = { nested: nestedResponse }
+    const deeplyNestedResponseCore = createConversationRuntimeCore({ db: prisma, env,
+      readStatus: async claimRef => ({ status: 'READY', operationId: `${claimRef.jobId}:turn-answer`, version: 1,
+        errorCode: null, executionId: 'synthetic-execution', text: 'answer', evidence: nestedResponse }) })
+    const deeplyNestedResponse = await deeplyNestedResponseCore.handle(
+      makeRequest('status', { claim, operationId: `${claim.jobId}:turn-answer` }), { operation: 'status' })
+    expect(deeplyNestedResponse.status).toBe(500)
+    expect((await deeplyNestedResponse.json()).error.code).toBe('CONTRACT_RESPONSE_INVALID')
   })
 })

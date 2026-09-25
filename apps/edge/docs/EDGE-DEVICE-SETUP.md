@@ -1,27 +1,36 @@
 ---
 id: "EDGE-DEVICE-SETUP"
-version: "0.1.0b"
-status: "candidate"
+version: "0.1.1b"
+status: "deprecated"
 owner: "zuri-edge-device"
-scope: "First-run setup of the Zuri Edge Device runtime on a new machine"
+scope: "Historical first-run setup of the retired Zuri Edge Device runtime"
 created_at: "2026-09-03T02:30:00+07:00, ATHER"
-last_update: "2026-09-03T02:30:00+07:00, ATHER"
+last_update: "2026-09-25T15:35:00+07:00,RWANG"
 approval: "operational setup guide; no new architectural decisions"
 ---
 
-# Edge Device Setup
+# Edge Device Setup — retired historical record
 
-> Current transport decision: [Server-owned LINE and optional Edge](SERVER-LINE-OPTIONAL-EDGE.md)
-> implements upstream ADR-061. New runtimes are compute-only; the transport behavior below
-> applies only to explicitly selected `LEGACY_EDGE` installations during migration.
+> **Retired; do not use for device enrollment or LINE transport.** Edge-device pairing,
+> `edgk_` credentials, cloud heartbeat, the Edge LINE webhook/UI, and device extraction in this
+> guide are historical evidence only. No current worker should be paired through these steps.
+> Conversation Runtime and local Knowledge/RAG are separate capabilities; the local GenesisRAG
+> component notes below do not restore the retired device or LINE integration. PRP owns the
+> Localworker API-key contract; this setup guide does not establish that integration is implemented
+> or verified.
 
 
-Everything below was executed on a clean machine, not transcribed from the specs. Where the
-observed behaviour differs from `CLAUDE.md`, this file records what the code actually does.
+The device enrollment, Edge HTTP/LINE, and cloud operations below record what the former Edge setup
+did on a clean machine. They are preserved as historical evidence, not current operating
+instructions. The local GenesisRAG service, embedding sidecar, model, and store are retained as
+independent components; their current runbook is
+[`GENESIS-RAG-V4-PIPELINE-RUNBOOK.md`](GENESIS-RAG-V4-PIPELINE-RUNBOOK.md). Do not mint,
+install, or test an Edge-device credential from this page.
 
-## 0. The shape of it
+## 0. Former Edge stack (historical composition)
 
-Four processes. Only the first is strictly required; each one adds a capability.
+The former Edge runtime composed these processes. The webhook row and its LINE path are retired;
+the GenesisRAG, embedding, and local model rows describe separate local components.
 
 | Process | Port | Start with | Without it |
 | --- | --- | --- | --- |
@@ -30,8 +39,8 @@ Four processes. Only the first is strictly required; each one adds a capability.
 | GenesisRAG service | 8888 | `npm run rag:serve` | the agent cannot see the catalog |
 | A model (Ollama, or the hosted Anthropic API) | 11434 | `ollama serve` | answers come from the pattern reader |
 
-They are deliberately independent. The runtime answers with a degraded but correct reply when the
-model or the catalog is missing — it never fails the customer to protect its own dependencies.
+The local Knowledge/RAG components are deliberately independent. The old Edge webhook's reply
+behavior shown below is historical and is not a current LINE transport path.
 
 ```mermaid
 flowchart TD
@@ -53,13 +62,13 @@ flowchart TD
   class d1,d2,d3,d4 loss;
 ```
 
-Read the dashed edges as the cost of each absence. Only the runtime's own absence is fatal; every
-other gap degrades the answer rather than withholding it. §5 states the same thing as a table.
+This diagram is a historical composition. The RAG and embedding dependency edges remain local
+component guidance; the retired Edge runtime and its customer-reply behavior are not current.
 
 The full picture — trust boundaries, the message path, liveness — is in
 [SYSTEM-DIAGRAMS.md](SYSTEM-DIAGRAMS.md).
 
-## 1. Install
+## 1. Former Edge installation (historical)
 
 ```bash
 npm install
@@ -71,7 +80,10 @@ npm run build
 `github:` URL — the git package pins its platform binaries to a version that was never published
 and fails at require time.
 
-## 2. Configure
+## 2. Former Edge configuration (device settings retired)
+
+> The device id/token and cloud-pairing settings in this section are historical. They do not
+> configure the retained Localworker integration; use the Localworker API key contract from PRP.
 
 Copy `.env.example` to `.env`. **Exactly two values are hard requirements**; everything else warns
 and keeps going:
@@ -90,7 +102,12 @@ node dist/cli/index.js config check
 `valid: true` with warnings is a healthy local dev state. Every `warn` is an off-by-default
 capability, not a problem. The command exits non-zero and names the missing key when it is not.
 
-### Pairing this device with the cloud
+### Retired: historical device pairing and cloud heartbeat
+
+> The procedure and endpoint details in this section are archived evidence. Device pairing,
+> `edgk_` credentials, `/api/agent/heartbeat`, and the Edge console enrollment path are retired.
+> Do not execute the commands below. For the retained Localworker integration, use the PRP
+> Localworker API key contract; it is not an Edge-device pairing flow.
 
 zuri-ai accepts exactly one machine credential: an `edgk_`-prefixed key minted per device. Mint it
 in the console at **/platform/integrations → Edge** (a Business OWNER or the installation operator;
@@ -145,7 +162,7 @@ curl -s -o /dev/null -w "%{http_code}
 `200` is paired. `401` means the key is not a live minted credential. `404` means the base URL is
 wrong.
 
-### Turning the webhook on
+### Retired: turning on the Edge LINE webhook
 
 `webhook serve` refuses to start until the LINE archive is fully configured. It fails in three
 stages, one message at a time, so work through them in order:
@@ -161,7 +178,12 @@ That last one is easy to miss: with no `LINE_HISTORY_GROUP_<ALIAS>=true` anywher
 with `At least one LINE_HISTORY_GROUP_<ALIAS>=true setting is required`. The allow-list is
 positive by design — a group nobody named is a group this device will not archive.
 
-### Turning the conversational layer on
+### Local model and RAG settings retained as component reference
+
+> The settings below record the former local model configuration. They do not restore Edge-device
+> pairing, Edge LINE ingress, cloud heartbeat, or the removed LINE reply-token delivery path. PRP
+> owns the Localworker API-key and worker contract; this historical guide does not establish that
+> integration is implemented or verified.
 
 Off by default, and off is a working state: the deterministic pattern reader answers instead. What
 the model changes is how well a question is *understood*, not whether there is a reply.
@@ -183,32 +205,36 @@ ZURI_LLM_TIMEOUT_MS=25000
 GENESIS_RAG_API_URL=http://localhost:8888
 ```
 
-**`ZURI_LLM_TIMEOUT_MS` is capped at 25000 and `config check` rejects anything higher** — a LINE
-reply token expires after about 30 seconds, so a slower model would produce an answer nobody can
-receive. That cap is the single most important constraint on model choice.
+The old runtime capped `ZURI_LLM_TIMEOUT_MS` at 25000 to fit a LINE reply-token deadline. That
+Edge-specific cap is historical and should not be used as a current Localworker requirement.
 
 `qwen3.5:9b` is not a preference, it is a measurement: 8/8 correct at p95 21.7s, against a 4B that
 took 39.7s and several models Ollama refuses to give tools at all. See
-`docs/LOCAL-MODEL-SELECTION.md` before substituting anything.
+`LOCAL-MODEL-SELECTION.md` before substituting anything.
 
-## 3. Run
+## 3. Retained local Knowledge/RAG components
 
 ```bash
 npm run embed:serve                        # 1. sidecar (:8891) — leave running
 npm run catalog:pipeline                   # 2. build the catalog store (once, ~22s)
 npm run rag:serve                          # 3. catalog service (:8888)
-node dist/cli/index.js webhook serve       # 4. edge runtime (:8787)
 ```
 
-Steps 1–3 are the GenesisRAG pipeline; `docs/GENESIS-RAG-V4-PIPELINE-RUNBOOK.md` covers them in
-depth. Step 2 is a one-off — it skips on every later run whose inputs are unchanged.
+Steps 1–3 are the GenesisRAG pipeline; `GENESIS-RAG-V4-PIPELINE-RUNBOOK.md` covers them in
+depth. Step 2 is a one-off — it skips on every later run whose inputs are unchanged. These are
+local Knowledge/RAG component commands; they do not start a LINE webhook or enroll a device.
+
+### Retired: Edge webhook startup
+
+The former `webhook serve` command and its `:8787` endpoint are historical Edge/LINE operations.
+They are not part of the retained local Knowledge/RAG runtime and must not be started from this
+guide.
 
 ### Verify
 
 ```bash
 curl http://127.0.0.1:8891/health          # {"model":"intfloat/multilingual-e5-small",...}
 curl http://127.0.0.1:8888/health          # {"ok":true,"dbReady":true,"staleRun":false,...}
-curl http://127.0.0.1:8787/                # {"status":"ok","service":"zuri-edge-webhook",...}
 node dist/cli/index.js chat say --text "อยากได้ชุดของขวัญมีกระบอกน้ำ 100 ชุด งบ 1200 บาท" --role sales
 ```
 
@@ -224,7 +250,10 @@ tool calling. `reason: ...aborted due to timeout` means it is too slow for the 2
 model-selection problems, not configuration errors — and in both cases the customer still got a
 correct, if plainer, answer.
 
-### Auto-start
+### Retired: Edge stack auto-start and LINE tunnel
+
+> The following scheduled-task, Funnel, and webhook behavior is archived. Do not install or run
+> the former Edge stack launcher as a current Localworker or LINE setup.
 
 Nothing above survives a reboot on its own. Tailscale does — its service is Automatic, so the Funnel
 URL comes back — which makes the failure quiet in the worst way: LINE keeps delivering to
@@ -255,7 +284,10 @@ come back after an unattended reboot with nobody signing in, that is a Windows s
 `C:\Users\freshair\...` and `D:\workspace\...`, and force-kills every `node` process on the machine.
 Do not run it here.
 
-## 4. Pages
+## 4. Retired Edge HTTP pages and LINE ingress
+
+> The routes, GUI, operator key, and Tailscale Funnel described below belonged to the retired Edge
+> HTTP/LINE surface. They are retained as historical security evidence, not as current endpoints.
 
 ### Reaching them
 
@@ -353,16 +385,19 @@ the preferred set matches nothing that arrived.
 The force layout still clumps at a few hundred nodes — that is the viewer's own simulation, not the
 data. Use the per-label checkboxes to narrow it, or `?limit=` for a smaller graph.
 
-## 5. What runs without what
+## 5. Local Knowledge/RAG component dependencies
 
 | Missing | Consequence |
 | --- | --- |
-| model (`ZURI_LLM_ENABLED=false`, or unreachable) | pattern reader answers; `source: rules` |
-| RAG service (:8888 down) | the agent cannot search the catalog; answers lose product evidence |
+| model unavailable | the local chat path may fall back to the pattern reader; `source: rules` |
+| RAG service (:8888 down) | a configured local caller cannot search the catalog; answers lose product evidence |
 | embed sidecar (:8891 down) | catalog search fails; ingest exits `2` before touching the store |
 | `data/` store | `rag:serve` refuses to start with `RAG_STORE_EMPTY` |
 
-## 6. Troubleshooting
+## 6. Historical Edge troubleshooting and retained local RAG observations
+
+> Device-id/token, LINE webhook, reply-token, and Edge GUI rows below are historical only. The
+> GenesisRAG, embedding, store, and model observations describe local components independently.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |

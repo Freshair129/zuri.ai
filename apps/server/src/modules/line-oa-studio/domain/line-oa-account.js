@@ -26,8 +26,8 @@ import {
 //   Business; LIVE is derived from the account binding and never stored; new
 //   account transport is CLOUD only, while old execution rows remain historical.
 // @req FR-265 — the account action contract no longer carries a transport mode,
-//   an execution mode or a model-access policy. `CONFIGURE_EXECUTION` keeps its
-//   name and carries the one field that is still a choice, `allowDelayedPush`.
+//   executionMode or model-access policy. `CONFIGURE_EXECUTION` keeps its name
+//   for the delivery choice and the separate Core-owned runtime cohort.
 // @spec BR-002 — LINE identifiers (basic id, channel id, bot user id) are
 //   attributes here, never keys.
 // @tested tests/unit/line-oa-account-domain.test.js, tests/integration/fr227-line-oa-webhook-registration.test.js,
@@ -78,6 +78,7 @@ export const zLineOaAccountAction = z.object({
   // version is a conflict, never a silent last-writer-wins (ADR-060 D5, D11).
   version: z.number().int().positive(),
   allowDelayedPush: z.boolean().optional(),
+  runtimeOwner: z.enum(['SERVER', 'CONVERSATION_RUNTIME']).optional(),
   legacyQuiesced: z.literal(true).optional(),
   // @req FR-235 — publisher-set grounding mode (ADR-090 D1).
   knowledgeGrounding: z.enum(KNOWLEDGE_GROUNDING_MODES).optional(),
@@ -92,13 +93,14 @@ export const zLineOaAccountAction = z.object({
   outOfHoursReplyText: z.string().trim().min(1).max(1000).optional(),
   clearBusinessHours: z.literal(true).optional(),
 }).strict().superRefine((value, ctx) => {
-  // @req FR-265 — `CONFIGURE_EXECUTION` once required an execution mode and a
-  // model-access policy alongside the delivery choice. Both are retired (ADR-100
-  // D1, D3), so the delivery choice is the whole payload — and it is still
-  // required, because "absent" and "false" must not mean the same thing for a
-  // setting that decides whether a late answer reaches the customer at all.
+  // @req FR-265 — `executionMode` and `modelAccess` are retired choices. The
+  // delivery choice is still required because absent and false differ; runtimeOwner
+  // is optional so existing delivery-only callers preserve the current cohort.
   if (value.action === 'CONFIGURE_EXECUTION' && typeof value.allowDelayedPush !== 'boolean') {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['allowDelayedPush'], message: 'allowDelayedPush is required for CONFIGURE_EXECUTION' })
+  }
+  if (value.runtimeOwner !== undefined && value.action !== 'CONFIGURE_EXECUTION') {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['runtimeOwner'], message: 'runtimeOwner is only configurable through CONFIGURE_EXECUTION' })
   }
   // @req FR-228 — whether ENABLE_SERVER needs the typed `legacyQuiesced` literal
   // depends on the account's credential store (mount-backed keeps it; a

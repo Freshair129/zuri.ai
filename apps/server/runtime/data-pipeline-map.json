@@ -343,7 +343,7 @@
       "requirements": [
         {
           "id": "FR-140",
-          "status": "not_implemented",
+          "status": "planned",
           "title": "Trusted LINE Asset handoff"
         }
       ],
