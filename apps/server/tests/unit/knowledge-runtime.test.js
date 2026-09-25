@@ -735,6 +735,87 @@ describe('knowledge durable queue', () => {
     expect(secondPass.sweep).toMatchObject({ closed: 0, open: 0 })
   })
 
+  // F-20: `listOrphanedIngestionsForRuns` filters on the ingestion's own
+  // status + lease only, and closing a row's PipelineRun changes neither —
+  // only a refused close's new backoff lease excludes a row from a later
+  // page. `executionRunIds` is fixed for every page of one
+  // `sweepOrphanedExecutionRuns()` call — `now` is NOT: `date(now)` calls the
+  // runtime's live clock callback fresh on every page, so real time (and
+  // whatever else became eligible since) can differ page to page. With
+  // exactly `limit` (20) candidates — 19 refused fillers plus the 1 real
+  // orphan — page 1 comes back full, the sweep re-queries page 2 within the
+  // SAME call, and (before this test's fix) the real orphan — untouched by
+  // its own successful close — reappeared unchanged and was closed and
+  // counted a second time: `{ examined: 21, closed: 2 }` for one real orphan,
+  // reproduced verbatim from a hosted CI failure (run 36112626313) on
+  // knowledge-runtime.test.js's "keeps KNOWLEDGE_SOURCE_REVOKED…" test, which
+  // hit the same shape by accident — a page 1 this file's *own* earlier test
+  // filled with 25 leftover refused rows whose hour-long leases (assigned
+  // against real time, in that earlier test) happened to have just expired.
+  it('closes the real orphan exactly once even when it refills a full page within its own sweep call', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport } = await pendingBatchRun(fixture)
+    const onError = vi.fn()
+    // One frozen instant for this test's whole runtime instance — never
+    // `() => new Date()` — so no row already in this shared database can
+    // have a lease that expires into eligibility between the drain below and
+    // the measured pass: every internal `now()` call reads the exact same
+    // Date, not a live clock.
+    const clock = new Date()
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError, now: () => clock })
+
+    // This suite shares one un-reset-between-tests database and
+    // `listOpenKnowledgeRunIds` has no tenant/business scope, so an earlier
+    // test's own leftover rows (real leases, per the CI failure this test
+    // reproduces) could already be due by the time this one runs — a count of
+    // "exactly this test's own 20" would then be as timing-dependent as the
+    // bug it is proving fixed. Drain whatever is currently eligible first,
+    // unmeasured, looping rather than trusting a single pass — one pass is
+    // bounded to `MAX_SWEEP_PAGES * limit` (60) rows and could leave
+    // leftovers from a large enough accumulation behind.
+    //
+    // Bounded and progress-checked, not a bare "loop until examined === 0":
+    // a leftover row this sweep cannot verify (no matching KnowledgeCorpus)
+    // is examined every pass but neither closes nor gets a new lease
+    // (knowledge-runtime.js's own `if (!corpus) continue`), which would spin
+    // forever under this test's frozen clock; a caught sweep exception also
+    // reports `examined: 0` (runOnce()'s own `.catch`), which would read as
+    // "already drained" rather than a masked failure. Fail loudly on either
+    // instead of silently trusting a baseline this test cannot verify.
+    const MAX_DRAIN_PASSES = 25
+    for (let pass = 1; ; pass += 1) {
+      if (pass > MAX_DRAIN_PASSES) throw new Error(`F-20 test setup: drain did not settle after ${MAX_DRAIN_PASSES} passes`)
+      const drained = await runtime.runOnce()
+      if (onError.mock.calls.some(([event]) => event.code === 'KNOWLEDGE_SWEEP_FAILED')) {
+        throw new Error('F-20 test setup: drain pass reported KNOWLEDGE_SWEEP_FAILED')
+      }
+      if (drained.sweep.examined === 0) break
+      if (drained.sweep.closed === 0 && drained.sweep.open === 0) {
+        throw new Error(`F-20 test setup: drain made no progress — examined ${drained.sweep.examined} row(s) that neither closed nor backed off (a leftover row with no matching KnowledgeCorpus?)`)
+      }
+    }
+    onError.mockClear()
+
+    // Exactly `limit` (20) total candidates once the real orphan below is
+    // marked SUPERSEDED: page 1 is completely full, forcing the second-page
+    // re-query that is this bug's precondition.
+    for (let index = 0; index < 19; index += 1) await refusedCloseOrphan(fixture, `f20-${index}`)
+
+    await prisma.knowledgeIngestion.update({
+      where: { id: fixture.job.id },
+      data: { status: 'SUPERSEDED', failureCode: 'KNOWLEDGE_SOURCE_REVISION_SUPERSEDED', claimToken: null, leaseExpiresAt: null },
+    })
+
+    const result = await runtime.runOnce()
+
+    // 20 distinct rows examined once each — never the real orphan's page-1
+    // and page-2 sightings counted as two — and exactly one of them closed.
+    expect(result.sweep).toMatchObject({ examined: 20, closed: 1 })
+
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(run.status).toBe('FAILED')
+  })
+
   // The should-fix the round-5 gate left open: the first cut of the backoff
   // wrote `KNOWLEDGE_ORPHAN_RUN_OPEN` over the row's `failureCode` and nothing
   // ever put the original back, so the admission projection
