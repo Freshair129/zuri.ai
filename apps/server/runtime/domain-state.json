@@ -1478,7 +1478,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-078",
@@ -1839,7 +1839,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-062",
@@ -2480,7 +2480,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 38
+          "testCount": 51
         },
         {
           "id": "FR-099",
@@ -3704,7 +3704,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-080",
@@ -4107,7 +4107,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-092",
@@ -4115,7 +4115,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 23,
-          "testCount": 38
+          "testCount": 51
         }
       ],
       "checks": {
@@ -5412,7 +5412,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-062",
@@ -5604,7 +5604,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 38
+          "testCount": 51
         },
         {
           "id": "FR-094",
@@ -14500,8 +14500,8 @@
           "title": "Per-Business domain visibility",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 50
+          "codeCount": 14,
+          "testCount": 51
         }
       ],
       "evidence": [
@@ -14567,7 +14567,9 @@
         "apps/server/tests/unit/profile-permission-service.test.js",
         "apps/server/tests/unit/sales-task-routes.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
-        "apps/server/tests/unit/viewer-gate.test.js"
+        "apps/server/tests/unit/viewer-gate.test.js",
+        "services/market-intelligence/src/core/observation-feed.js",
+        "services/market-intelligence/test/observation-feed.test.js"
       ]
     },
     {
@@ -15426,8 +15428,8 @@
           "title": "Market translation core",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 27,
-          "testCount": 38
+          "codeCount": 41,
+          "testCount": 51
         }
       ],
       "evidence": [
@@ -15495,7 +15497,34 @@
         "apps/server/tests/unit/market-intelligence/procurement-recommendation.test.js",
         "apps/server/tests/unit/market-intelligence/supplier-candidate-domain.test.js",
         "apps/server/tests/unit/market-intelligence/translate-raw-record.test.js",
-        "apps/server/tests/unit/pricing-backup.test.js"
+        "apps/server/tests/unit/pricing-backup.test.js",
+        "services/market-intelligence/src/adapters/core-client.js",
+        "services/market-intelligence/src/adapters/observation-schema.js",
+        "services/market-intelligence/src/adapters/pg-observation-store.js",
+        "services/market-intelligence/src/adapters/sqlite-observation-store.js",
+        "services/market-intelligence/src/core/generic-candidate-extractor.js",
+        "services/market-intelligence/src/core/knowledge-identity-resolver.js",
+        "services/market-intelligence/src/core/observation-feed.js",
+        "services/market-intelligence/src/core/translate-raw-record.js",
+        "services/market-intelligence/src/core/translation-run.js",
+        "services/market-intelligence/src/domain/market-observation.js",
+        "services/market-intelligence/src/http/server.js",
+        "services/market-intelligence/src/index.js",
+        "services/market-intelligence/src/main.js",
+        "services/market-intelligence/src/ports/contracts.js",
+        "services/market-intelligence/test/core-client.test.js",
+        "services/market-intelligence/test/ddl-parity.test.js",
+        "services/market-intelligence/test/domain.test.js",
+        "services/market-intelligence/test/http-api.test.js",
+        "services/market-intelligence/test/knowledge-identity-resolver.test.js",
+        "services/market-intelligence/test/observation-feed.test.js",
+        "services/market-intelligence/test/parity-vectors.test.js",
+        "services/market-intelligence/test/pg-store.test.js",
+        "services/market-intelligence/test/ports.test.js",
+        "services/market-intelligence/test/process-start.test.js",
+        "services/market-intelligence/test/sqlite-store.test.js",
+        "services/market-intelligence/test/translate-raw-record.test.js",
+        "services/market-intelligence/test/translation-run.test.js"
       ]
     },
     {
@@ -17680,8 +17709,8 @@
       "id": "NFR-018",
       "title": "Market translation is deterministic and replay-safe",
       "status": "verified",
-      "codeCount": 4,
-      "testCount": 6,
+      "codeCount": 14,
+      "testCount": 16,
       "domains": [
         "knowledge",
         "market-intelligence"
