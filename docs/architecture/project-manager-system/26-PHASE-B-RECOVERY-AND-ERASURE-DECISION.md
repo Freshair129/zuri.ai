@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.7b"
+version: "0.3.9b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-23T00:37:41+07:00,RWANG"
+last_update: "2026-09-26T04:30:11+07:00,RWANG"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -203,12 +203,40 @@ inventory binding has `targetSchemaSha256`
 `a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115`.
 The 187-table binding remains historical and refuses cross-schema recovery.
 
+Conversation Runtime adds `runtimeOwner` to the existing `LineOaAccount` and
+`LineConversationJob` models. It adds no application model, so the 188-entry
+table mapping is unchanged. For this user-directed S1 rebind, the exact schema
+and 188-table mapping were recomputed and independently read-only checked; this
+does not imply S2 or contract-owner approval. The resulting binding is
+`schemaSha256`
+`ffa2c121e08891b4de556480130d5a6e116979f151133a58fd0f23a98ba61f2d` with
+`targetSchemaSha256`
+`51b45ae26066775435adef2b983616835d6c09a940ec884f9de0e4cacf8d2899`.
+The prior 188-table binding remains historical and is refused against this
+schema. Both models remain in snapshot coverage: restore preserves
+`runtimeOwner`, disables a restored LINE account and increments its transport
+epoch, and clears reply-token/claim-lease capabilities while quarantining
+queued or uncertain jobs. This rebind changes neither the table-empty proof nor
+the recovery/erasure algorithm; it accepts only this exact schema and does not
+authorize automatic rewriting or recovery of artifacts bound to older hashes.
+
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.7b → 0.3.8b: rebind the frozen recovery inventory to the
+188-table schema after adding the operational LINE OA worker checkpoint; keep
+the historical 187-table binding fail-closed.
+
+Version diff 0.3.8b → 0.3.9b: record the user-directed S1 rebind after
+Conversation Runtime added `runtimeOwner` to the existing LINE account and
+conversation-job models. The exact schema and 188-table mapping were recomputed
+and independently read-only checked; focused tests passed 13/13. Preserve the
+fail-closed behavior and refusal of snapshots using the previous schema
+binding. This does not imply S2 or contract-owner approval.
 
 Version diff 0.3.6b → 0.3.7b: rebind the frozen recovery inventory to the
 composed 187-table schema after FR-268's `BusinessKeyResult`/
@@ -421,6 +449,7 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.9b | 2026-09-26 | beta | User-directed S1 rebind to the exact runtime-owner schema; recompute and independently read-only check the 188-table mapping, preserve historical-binding refusal; no S2 or contract-owner approval implied | working-tree | RWANG |
 | 0.3.8b | 2026-09-24 | beta | Rebind Phase B recovery to the 188-table schema after adding the operational LINE OA worker checkpoint; preserve the historical 187-table binding | working-tree | RWANG |
 | 0.3.7b | 2026-09-23 | beta | Rebind Phase B recovery to the composed 187-table schema after FR-268 and PM approval gateway models landed; preserve the historical 186-table binding | working-tree | RWANG |
 | 0.3.6b | 2026-09-22 | beta | Rebind Phase B recovery to the composed 186-model schema after the FR-268 Business Key Result models landed; preserve the historical 179-model binding | origin/main | RWANG |

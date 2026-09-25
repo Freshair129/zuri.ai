@@ -86,12 +86,28 @@ function fakeAdapter(sourceInventory = inventory) {
 describe('Phase B offline recovery runners', () => {
   it('loads the committed pinned 188-table inventory', () => {
     expect(inventory.applicationTables).toHaveLength(188)
-    expect(inventory.schemaSha256).toBe('9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a')
-    expect(inventory.targetSchemaSha256).toBe('a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115')
+    expect(inventory.schemaSha256).toBe('ffa2c121e08891b4de556480130d5a6e116979f151133a58fd0f23a98ba61f2d')
+    expect(inventory.targetSchemaSha256).toBe('51b45ae26066775435adef2b983616835d6c09a940ec884f9de0e4cacf8d2899')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet', 'BusinessKeyResult', 'BusinessKeyResultCheckIn'])
     )
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining(['ProjectApprovalRequest']))
+  })
+
+  it('refuses the previous 188-table binding against the runtime-owner schema', async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-old-binding-'))
+    const tempInventory = path.join(tempDir, 'previous-inventory.json')
+    try {
+      await writeFile(tempInventory, JSON.stringify({
+        ...inventory,
+        schemaSha256: '9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a',
+        targetSchemaSha256: 'a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115',
+      }))
+      await expect(loadFrozenSchemaInventory({ modulePath: tempInventory }))
+        .rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
   })
 
   it('rejects a CRLF-mutated schema even with the approved inventory', async () => {
