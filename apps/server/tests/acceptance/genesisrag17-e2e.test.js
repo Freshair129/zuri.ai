@@ -591,9 +591,22 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
     } })
   }
 
-  async function runLineJob(workerId, { executionConcurrency } = {}) {
+  async function runLineJob(workerId, { executionConcurrency, fetchFn } = {}) {
     const sent = []
-    const answer = createServerLineAnswer({ env: lineEnv, knowledge: { query: async () => ({ records: [] }) } })
+    const answer = createServerLineAnswer({
+      env: lineEnv,
+      knowledge: { query: async () => ({ records: [] }) },
+      // `resolveModel` always tries the Business's own vault-backed connection
+      // first (ADR-100 D5); it finds none for these test businesses and falls
+      // through cleanly (resolveBusinessModelCredential returns null, not a
+      // throw). `queryFn`/`connectionResolver` are the documented compatibility
+      // seam (phase1-runtime.js) that then skips the Phase-1 `zuri_core` lookup
+      // — never reachable from this isolated suite's fake ZURI_LINE_DB_URL — and
+      // lands `resolveModel` on the env-configured local Ollama model instead.
+      queryFn: async () => { throw new Error('TASK_ZAI_094_RUNTIME_QUERY_NOT_EXPECTED') },
+      connectionResolver: async () => { throw new Error('PHASE1_CONNECTION_NOT_FOUND') },
+      ...(fetchFn ? { fetchFn } : {}),
+    })
     // The production corpus reader resolves its transport from process.env; this
     // allowlisted overlay keeps the canonical answer path on this suite's isolated
     // stores without exposing or replacing the host process configuration.
@@ -632,6 +645,25 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
     lineEnv.ZURI_LINE_KNOWLEDGE_TOP_K = '5'
     lineEnv.ZURI_LINE_KNOWLEDGE_MAX_PACKET_BYTES = '8192'
     lineEnv.ZURI_LINE_REPLY_SEAL_KEY = 'a7'.repeat(32)
+    // @spec ADR-100 D3 — `modelAccess: 'LOCAL_ONLY'` no longer skips the model:
+    // every SERVER-executed answer resolves a real provider (FR-266). This
+    // isolated suite gives `resolveModel` its own safe, non-production model —
+    // a local Ollama instance already running on this machine, never a real
+    // credential or production DB. `ZURI_LINE_DB_URL` is never dialled (GKS_CORPUS
+    // grounding never falls back to the Postgres-backed business-knowledge reader,
+    // and `runLineJob` overrides `connectionResolver`/`queryFn` below so the
+    // Phase-1 `zuri_core` lookup and its pool are never reached either); its
+    // value only has to satisfy `parseDedicatedRuntimeDatabaseUrl`'s shape check,
+    // and reuses the exact same fake-password convention already committed in
+    // tests/unit/phase1-business-agent-runtime.test.js.
+    lineEnv.ZURI_LINE_DB_URL = 'postgresql://zuri_line_smartgift_login:password@db.qcnmhyglarzcpudjorzc.supabase.co:5432/postgres'
+    lineEnv.ZURI_MODEL_PROVIDER = 'ollama'
+    lineEnv.ZURI_MODEL_NAME = 'qwen3.5:9b'
+    lineEnv.ZURI_OLLAMA_BASE_URL = 'http://127.0.0.1:11434'
+    // 25000 is the model port's own hard ceiling for a local/eval provider
+    // (model-provider.js); this local model's real generation time over a short
+    // evidence packet runs well under it, but above the port's 10s default.
+    lineEnv.ZURI_MODEL_TIMEOUT_MS = '25000'
     lineProvider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE OA' })
     lineAccount = await createLineAccount({ tenantId: tenant.id, businessId: business.id, code: 'task-zai-094-line', externalAccountId: 'task-zai-094-line' })
     foreignAccount = await createLineAccount({ tenantId: foreignTenant.id, businessId: foreignBusiness.id, code: 'task-zai-094-line-x', externalAccountId: 'task-zai-094-line-x' })
@@ -689,9 +721,21 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
     const { result, sent } = await runLineJob('task-zai-094-server-grounded')
     expect(result).toMatchObject({ id: admitted.jobId, status: 'RECORDED', executed: 1, sent: 1 })
     const job = await prisma.lineConversationJob.findUnique({ where: { id: admitted.jobId } })
-    expect(job).toMatchObject({ status: 'RECORDED', executionMode: 'SERVER', modelAccess: 'LOCAL_ONLY' })
-    expect(job.answerText).toBe(expectedCorpus.results[0].text)
-    expect(sent[0].messages).toEqual([{ type: 'text', text: expectedCorpus.results[0].text }])
+    // @spec FR-265 — `LineConversationJob.modelAccess` is written as the retired
+    // constant on every job now, independent of the account's own (also legacy)
+    // field, so this no longer round-trips the account's 'LOCAL_ONLY' value.
+    expect(job).toMatchObject({ status: 'RECORDED', executionMode: 'SERVER', modelAccess: 'EXTERNAL_MODEL_ALLOWED' })
+    // @spec ADR-100 D3 — `modelAccess: 'LOCAL_ONLY'` no longer means "no model call";
+    // this account's field is legacy data, not a live switch (FR-265). The answer is
+    // now a real, verified model generation over the same corpus evidence: never
+    // empty, never the account's no-evidence sentinel, and self-consistent with what
+    // was actually sent to the customer. It is not asserted byte-equal to the corpus
+    // chunk — `verifyCandidate` (grounded-business-answer.js) accepts a generated
+    // answer that introduces no unsupported number/code/claim, so a faithful
+    // paraphrase is a correct outcome, not a flake.
+    expect(job.answerText).toBeTruthy()
+    expect(job.answerText).not.toBe(NO_EVIDENCE_REPLY)
+    expect(sent[0].messages).toEqual([{ type: 'text', text: job.answerText }])
 
     const trace = await readLineConversationTrace(admitted.jobId, { viewer: lineViewer })
     const evidence = trace.events.filter((event) => event.kind === 'EVIDENCE_SELECTED')
@@ -701,7 +745,14 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
       retrievalRefs: expect.arrayContaining([expectedRef]),
     })
     expect(evidence[0].payload.budgetMs).toBeLessThanOrEqual(Number(lineEnv.ZURI_LINE_KNOWLEDGE_BUDGET_MS))
-    expect(trace.events.some((event) => String(event.kind).startsWith('MODEL_'))).toBe(false)
+    // @spec ADR-100 D3, FR-266 — the opposite of this suite's pre-ADR-100 assertion:
+    // every SERVER-executed answer with evidence now DOES call a real model
+    // (line-execution-trace.js records MODEL_COMPLETED/MODEL_FAILED around every
+    // provider invocation, on or off the MSP-memory path), and this proves it ran
+    // against the local Ollama model this suite configured, not a stub.
+    const modelEvents = trace.events.filter((event) => String(event.kind).startsWith('MODEL_'))
+    expect(modelEvents).toHaveLength(1)
+    expect(modelEvents[0]).toMatchObject({ kind: 'MODEL_COMPLETED', payload: { provider: 'ollama', model: 'qwen3.5:9b' } })
   })
 
   it('measures MSP spawn cost inside a four-wide worker tick against the grounding budget', async () => {
@@ -713,7 +764,19 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
       env: lineEnv,
     })))
     const startedAt = performance.now()
-    const { result, sent } = await runLineJob('task-zai-094-four-wide', { executionConcurrency: 4 })
+    // This test measures the MSP/GKS grounding hop's spawn cost under real
+    // four-wide concurrency (`hopBudgetMs` below, recorded before `resolveModel`
+    // is even reached) — never model generation latency, which the account's
+    // now-legacy `modelAccess: 'LOCAL_ONLY'` no longer makes free (ADR-100 D3).
+    // A real local Ollama instance serializes concurrent /api/generate calls, so
+    // four genuine calls here would make this a model-throughput test by
+    // accident and risk the model port's own 25s ceiling on a slow queue, not a
+    // MSP-spawn-cost test. `fetchFn` keeps every call on the same resolveModel →
+    // createModelProviderPort → generate() path this suite verified for real in
+    // 'answers a real LINE job...', with an instant stub transport instead of a
+    // live inference queue.
+    const stubOllamaFetch = async () => ({ ok: true, status: 200, json: async () => ({ response: expectedCorpus.results[0].text }) })
+    const { result, sent } = await runLineJob('task-zai-094-four-wide', { executionConcurrency: 4, fetchFn: stubOllamaFetch })
     const tickElapsedMs = Math.round(performance.now() - startedAt)
     expect(result).toMatchObject({ status: 'RECORDED', executed: 4, sent: 4 })
     expect(sent).toHaveLength(4)
