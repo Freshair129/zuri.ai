@@ -2624,7 +2624,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-223",
@@ -3394,7 +3394,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-189",
@@ -9807,7 +9807,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-189",
@@ -9841,6 +9841,7 @@
         "apps/server/src/modules/knowledge/structured-record-policy.js",
         "apps/server/src/modules/project-manager/mcp/transport.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+        "apps/server/tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js",
         "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
         "apps/server/tests/acceptance/knowledge-admission-native.test.js",
         "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
