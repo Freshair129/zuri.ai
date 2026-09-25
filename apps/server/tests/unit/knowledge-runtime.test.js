@@ -738,19 +738,36 @@ describe('knowledge durable queue', () => {
   // F-20: `listOrphanedIngestionsForRuns` filters on the ingestion's own
   // status + lease only, and closing a row's PipelineRun changes neither —
   // only a refused close's new backoff lease excludes a row from a later
-  // page. `executionRunIds` and `now` are both fixed for every page of one
-  // `sweepOrphanedExecutionRuns()` call, so with exactly `limit` (20)
-  // candidates — 19 refused fillers plus the 1 real orphan — page 1 comes
-  // back full, the sweep re-queries page 2 within the SAME call, and (before
-  // this test's fix) the real orphan — untouched by its own successful close
-  // — reappeared unchanged and was closed and counted a second time:
-  // `{ examined: 21, closed: 2 }` for one real orphan, reproduced verbatim
-  // from a hosted CI failure (run 36112626313) on knowledge-runtime.test.js's
-  // "keeps KNOWLEDGE_SOURCE_REVOKED…" test, which hit the same shape by
-  // accident from an earlier test's leftover real-time leases.
+  // page. `executionRunIds` is fixed for every page of one
+  // `sweepOrphanedExecutionRuns()` call — `now` is NOT: `date(now)` calls the
+  // runtime's live clock callback fresh on every page, so real time (and
+  // whatever else became eligible since) can differ page to page. With
+  // exactly `limit` (20) candidates — 19 refused fillers plus the 1 real
+  // orphan — page 1 comes back full, the sweep re-queries page 2 within the
+  // SAME call, and (before this test's fix) the real orphan — untouched by
+  // its own successful close — reappeared unchanged and was closed and
+  // counted a second time: `{ examined: 21, closed: 2 }` for one real orphan,
+  // reproduced verbatim from a hosted CI failure (run 36112626313) on
+  // knowledge-runtime.test.js's "keeps KNOWLEDGE_SOURCE_REVOKED…" test, which
+  // hit the same shape by accident — a page 1 this file's *own* earlier test
+  // filled with 25 leftover refused rows whose hour-long leases (assigned
+  // against real time, in that earlier test) happened to have just expired.
   it('closes the real orphan exactly once even when it refills a full page within its own sweep call', async () => {
     const fixture = await durableJob()
     const { stuck, transport } = await pendingBatchRun(fixture)
+    const onError = vi.fn()
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError })
+
+    // This suite shares one un-reset-between-tests database and
+    // `listOpenKnowledgeRunIds` has no tenant/business scope, so an earlier
+    // test's own leftover refused rows (real leases, per the CI failure this
+    // test reproduces) could already be due by the time this one runs — a
+    // count of "exactly this test's own 20" would then be as timing-dependent
+    // as the bug it is proving fixed. Settle whatever is currently eligible
+    // first, unmeasured, so the assertion below counts only the 20 rows this
+    // test is about to create, never how much wall-clock time has passed
+    // since some earlier test in this file ran.
+    await runtime.runOnce()
 
     // Exactly `limit` (20) total candidates once the real orphan below is
     // marked SUPERSEDED: page 1 is completely full, forcing the second-page
@@ -762,8 +779,7 @@ describe('knowledge durable queue', () => {
       data: { status: 'SUPERSEDED', failureCode: 'KNOWLEDGE_SOURCE_REVISION_SUPERSEDED', claimToken: null, leaseExpiresAt: null },
     })
 
-    const onError = vi.fn()
-    const result = await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError }).runOnce()
+    const result = await runtime.runOnce()
 
     // 20 distinct rows examined once each — never the real orphan's page-1
     // and page-2 sightings counted as two — and exactly one of them closed.
