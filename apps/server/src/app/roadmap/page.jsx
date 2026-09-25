@@ -56,7 +56,7 @@ export default async function ProgrammeRoadmapMemberPage({ searchParams }) {
   // Reporters (person and device names) are deliberately not resolved: the member
   // projection drops every breakdown they would feed (ADR-092 D3).
   const { available, reports } = await listProgrammeUsageReports(prisma)
-  const laneUsage = projectMemberLaneUsage(mergeLaneUsage({ lanes: PROGRAMME_LANES, usage: PROGRAMME_USAGE, reports, reporters: {} }))
+  const laneUsage = projectMemberLaneUsage(mergeLaneUsage({ lanes: PROGRAMME_LANES, usage: PROGRAMME_USAGE, reports }))
   const taskUsageLedger = projectTaskUsageLedger({
     knownTasks: PROGRAMME_TASKS,
     containers: PROGRAMME_CONTAINERS,

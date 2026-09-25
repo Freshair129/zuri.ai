@@ -9,7 +9,7 @@ services:
   conversation-runtime:
     profiles: ["conversation-runtime"]
     build:
-      context: ..
+      context: ../..
       dockerfile: services/conversation-runtime/Dockerfile
     image: ${ZURI_CONVERSATION_RUNTIME_IMAGE:-zuri-conversation-runtime:local}
     restart: unless-stopped

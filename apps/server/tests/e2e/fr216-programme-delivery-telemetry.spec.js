@@ -9,7 +9,6 @@ const { E2E_PASSWORD } = require('./e2e-auth')
 // @req FR-219 — task cards show evidence badges and a subtask progress bar.
 // @req FR-218 — a report posted without the deployment bearer is refused.
 // @req FR-240 — the phase card's detail row shows the token split and tool calls.
-// @req FR-241 — the operator route keeps its Agent devices control usable at mobile width.
 // @spec ADR-086 D1, D5, D6; ADR-048 D2
 // @tested tests/e2e/fr216-programme-delivery-telemetry.spec.js
 const prisma = new PrismaClient({ datasources: { db: { url: e2eTarget().databaseUrl } } })
@@ -65,9 +64,7 @@ test('an operator reads phase delivery metrics, task badges and subtask progress
   await expect(page.getByTestId('task-telemetry-TASK-ZAI-066')).toContainText('LANE-DELIVERY-TELEMETRY')
 
   await page.setViewportSize({ width: 390, height: 844 })
-  const devicesTab = page.getByRole('tab', { name: 'Agent devices' })
-  await expect(devicesTab).toBeVisible()
-  await expect(devicesTab).toHaveAttribute('aria-controls', 'roadmap-panel-devices')
+  await expect(page.getByRole('tab', { name: 'Agent devices' })).toHaveCount(0)
   expect(await page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - window.innerWidth)).toBeLessThanOrEqual(1)
 
   await testInfo.attach('programme-telemetry', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })

@@ -22,7 +22,7 @@ import {
   codexRequestExtras,
   maxExtras,
   toolNameIndex,
-} from '../../../plugins/zuri-harness/lib/detail.mjs'
+} from './programme-usage-detail.mjs'
 
 // @req FR-217 — the programme usage meter: real tokens and active time per work
 //   lane, measured from the Claude Code and Codex session logs on the operator's
@@ -30,7 +30,7 @@ import {
 //   declares, and written back into the programme document with provenance.
 // @req FR-239 — and its usage detail (thinking tokens, cache lifetimes, web search and
 //   fetch, tool calls with errors and denials, prompts, compactions, API errors,
-//   models) per lane, by the rules the Zuri harness plugin shares (lib/detail.mjs).
+//   models) per lane, using the server-owned pure detail rules.
 // @spec ADR-086 D3, D4, D7
 // @tested tests/unit/programme-usage-meter.test.js
 //

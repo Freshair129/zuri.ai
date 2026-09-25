@@ -3,7 +3,7 @@
 // @tested services/conversation-runtime/test/contracts.test.js
 export const CONTRACT_VERSION = 'conversation-runtime.v1'
 export const CORE_OPERATIONS = Object.freeze([
-  'claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace',
+  'claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status',
 ])
 export const WORK_TOOL_OPERATIONS = Object.freeze(['read', 'propose', 'confirm-execute', 'status'])
 export const MAX_REQUEST_BYTES = 64 * 1024
@@ -35,7 +35,8 @@ export function validateCoreEnvelope(value, expectedOperation = null) {
 const PAYLOAD_FIELDS = Object.freeze({
   claim: ['claimantId'], renew: ['claim'], resolve: ['claim'], prepare: ['claim', 'authorityVersion'],
   'work-tool': ['claim', 'operation', 'operationId', 'input'], credential: ['claim'],
-  complete: ['claim', 'text', 'operationId'], fail: ['claim', 'code', 'outcome'], send: ['claim'], trace: ['claim', 'kind', 'payload'],
+  complete: ['claim', 'text', 'operationId'], fail: ['claim', 'code', 'outcome'], send: ['claim', 'operationId'],
+  trace: ['claim', 'kind', 'payload'], status: ['claim', 'operationId'],
 })
 const CLAIM_REF_FIELDS = ['jobId', 'executionId', 'claimantId', 'version', 'tenantId', 'businessId', 'accountId']
 
@@ -44,7 +45,7 @@ export function validateOperationPayload(operation, payload) {
   if (!allowed || Object.keys(payload).some(key => !allowed.includes(key))) throw fail('CONTRACT_PAYLOAD_FIELD_INVALID')
   for (const field of allowed) if (!Object.hasOwn(payload, field)) throw fail('CONTRACT_PAYLOAD_FIELD_REQUIRED')
   if (operation === 'claim') boundedText(payload.claimantId, 128, 'CLAIMANT_ID_INVALID')
-  if (['renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace'].includes(operation)) {
+  if (['renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status'].includes(operation)) {
     const ref = payload.claim
     if (!ref || typeof ref !== 'object' || Array.isArray(ref) || Object.keys(ref).some(key => !CLAIM_REF_FIELDS.includes(key))
       || CLAIM_REF_FIELDS.some(key => !Object.hasOwn(ref, key)) || !Number.isInteger(ref.version) || ref.version < 1) {
@@ -58,6 +59,7 @@ export function validateOperationPayload(operation, payload) {
     boundedText(payload.text, 5000, 'COMPLETION_TEXT_INVALID')
     boundedText(payload.operationId, 200, 'COMPLETION_IDEMPOTENCY_REQUIRED')
   }
+  if (operation === 'send' || operation === 'status') boundedText(payload.operationId, 200, 'OPERATION_ID_INVALID')
   if (operation === 'fail') {
     boundedText(payload.code, 80, 'FAILURE_CODE_INVALID')
     if (!['FAILED', 'UNKNOWN'].includes(payload.outcome)) throw fail('FAILURE_OUTCOME_INVALID')
@@ -79,6 +81,8 @@ export function validateClaim(value) {
   if (!Number.isFinite(Date.parse(value.leaseExpiresAt)) || !Number.isFinite(Date.parse(value.deadlineAt))) {
     throw fail('CLAIM_DEADLINE_INVALID')
   }
+  if (value.phase != null && !['EXECUTION', 'DELIVERY'].includes(value.phase)) throw fail('CLAIM_PHASE_INVALID')
+  if (value.correlationId != null) boundedText(value.correlationId, 128, 'CLAIM_CORRELATION_INVALID')
   return value
 }
 
@@ -97,8 +101,11 @@ export function validateTurnContext(value) {
   const allowed = new Set(['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])
   if (Object.keys(value).some(key => !allowed.has(key))) throw fail('TURN_CONTEXT_UNKNOWN_FIELD')
   boundedText(value.question, 8000, 'TURN_QUESTION_INVALID')
-  if (!Array.isArray(value.evidence) || value.evidence.length > 64) throw fail('TURN_EVIDENCE_INVALID')
-  if (!Array.isArray(value.slices) || value.slices.length > 64) throw fail('TURN_SLICES_INVALID')
+  const records = Array.isArray(value.evidence) ? value.evidence : value.evidence?.records
+  if (!Array.isArray(records) || records.length > 64
+    || Buffer.byteLength(JSON.stringify(value.evidence), 'utf8') > 32 * 1024) throw fail('TURN_EVIDENCE_INVALID')
+  if (!Array.isArray(value.slices) || value.slices.length > 64
+    || Buffer.byteLength(JSON.stringify(value.slices), 'utf8') > 32 * 1024) throw fail('TURN_SLICES_INVALID')
   if (typeof value.authorized !== 'boolean') throw fail('TURN_AUTHORITY_REQUIRED')
   if (!Number.isInteger(value.maxBudgetChars) || value.maxBudgetChars < 0 || value.maxBudgetChars > 32_000) {
     throw fail('TURN_BUDGET_INVALID')

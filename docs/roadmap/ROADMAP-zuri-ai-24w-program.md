@@ -2178,7 +2178,7 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/asset-management/application/asset-extraction-job-service.js
   doc: docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md
-  test: apps/server/tests/integration/fr143-asset-extraction-job.test.js
+  test: apps/server/tests/unit/edge-surface-retirement.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given evidence uploaded for an Asset, when extraction is requested, then a cloud-queued job is claimed and executed by a paired Edge Device presenting its Business-scoped credential, and the result is reviewed by a human before it becomes the record
@@ -3779,7 +3779,7 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/identity/harness-credential.js
   doc: docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md
-  test: apps/server/tests/e2e/fr220-harness-pairing.spec.js
+  test: apps/server/tests/unit/edge-surface-retirement.test.js
 delivers: [FR-220, FEAT-035]
 subtasks:
   - id: P0
@@ -5603,7 +5603,7 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/crm/conversation-preview-service.js
   doc: docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md
-  test: apps/server/tests/e2e/fr243-conversation-sessions.spec.js
+  test: apps/server/tests/integration/crm-conversation-sessions.test.js
 delivers: [FR-243]
 subtasks:
   - id: P0

@@ -1568,7 +1568,7 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/asset-management/application/asset-extraction-job-service.js",
       "doc": "docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md",
-      "test": "apps/server/tests/integration/fr143-asset-extraction-job.test.js"
+      "test": "apps/server/tests/unit/edge-surface-retirement.test.js"
     },
     "linkState": {
       "code": "present",
@@ -3324,10 +3324,10 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/identity/harness-credential.js",
       "doc": "docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md",
-      "test": "apps/server/tests/e2e/fr220-harness-pairing.spec.js"
+      "test": "apps/server/tests/unit/edge-surface-retirement.test.js"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "present"
     },
@@ -3455,9 +3455,9 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/server/tests/unit/zuri-harness-plugin.test.js"
     },
     "linkState": {
-      "code": "present",
-      "doc": "present",
-      "test": "present"
+      "code": "missing",
+      "doc": "missing",
+      "test": "missing"
     },
     "delivers": [
       "FR-222",
@@ -3520,7 +3520,7 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/server/tests/unit/usage-detail.test.js"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "present"
     },
@@ -3565,7 +3565,7 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/server/tests/unit/usage-detail.test.js"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "present"
     },
@@ -5308,7 +5308,7 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/crm/conversation-preview-service.js",
       "doc": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
-      "test": "apps/server/tests/e2e/fr243-conversation-sessions.spec.js"
+      "test": "apps/server/tests/integration/crm-conversation-sessions.test.js"
     },
     "linkState": {
       "code": "present",

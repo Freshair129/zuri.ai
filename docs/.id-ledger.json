@@ -811,6 +811,7 @@
     "ADR-105",
     "ADR-106",
     "ADR-108",
+    "ADR-109",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4356,41 +4357,65 @@
     "FR-220": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "95dcd10498b8ff10c0b06eeaa04e491976fb74d8dd46af9ebd2bc9bb352dacce",
       "history": [
         {
           "anchor": "harness device pairing and report only credential",
           "since": "2026-09-13",
           "reason": "declared"
+        },
+        {
+          "anchor": "harness device pairing and report only credential",
+          "since": "2026-09-24",
+          "reason": "ADR-109 D5 retires Zuri browser-paired harness credentials and pairing endpoints; preserve stored reports and deployment-bearer reporting under FR-218.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-24",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
     },
     "FR-221": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "35b96df310c75fbf5a4a07d263987330cfe5a530e9dc87f4b2a46357304f6192",
       "history": [
         {
           "anchor": "usage reports attributed to person device and lane",
           "since": "2026-09-13",
           "reason": "declared"
+        },
+        {
+          "anchor": "usage reports attributed to person device and lane",
+          "since": "2026-09-24",
+          "reason": "ADR-109 D5 retires new harness-derived person/device attribution; preserve historical report fields and keep deployment-bearer reporting under FR-218.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-24",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
     },
     "FR-222": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "1ab6c8fdb81a042f4bfde95399f8b75a58ca277df85ca00e542bdaf3dc72095f",
       "history": [
         {
           "anchor": "zuri harness plugin",
           "since": "2026-09-13",
           "reason": "declared"
+        },
+        {
+          "anchor": "zuri harness plugin",
+          "since": "2026-09-24",
+          "reason": "ADR-109 D5 removes the in-repository Zuri harness plugin and marketplace source; do not delete any user-local files or historical report rows.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-24",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
     },
     "FR-223": {
       "family": "FR",
@@ -4944,14 +4969,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "cff5e1e1e7039544d820d4b825db9f639f4c0f51b26158484540b30f29435741",
+      "statement_digest": "fc971569fedac5fad46569f088779253220272ee39f8adb7ab9e5a0a4b793f1c",
       "history": [
         {
           "anchor": "line oa studio conversation work is server executed only",
           "since": "2026-09-20",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-25",
+      "statement_digest_reason": "Adds ADR-109 D1 retirement scope while preserving the same server-executed LINE behavior."
     },
     "FR-266": {
       "family": "FR",
@@ -7510,7 +7537,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "4ed5de3cdb8b500831a64ec94cf78175e0caffbe80d729af4d592132d084019f",
+      "statement_digest": "d6bb03b67c56749ef23a508a4f42f580818b0c3bdea8fdf4c5cdc011247f5b80",
       "history": [
         {
           "anchor": "line oa studio",
@@ -7518,21 +7545,23 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-06",
-      "statement_digest_reason": "FEAT-018 statement extended to name the LIFF app registry as FR-153 joins the bundle; the feature's subject is unchanged"
+      "statement_digest_reviewed_at": "2026-09-25",
+      "statement_digest_reason": "States server-owned transport after ADR-109 D1 retires the Edge transport option."
     },
     "FEAT-019": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "6392fd967db7af7aa21bba1cecf0d6a977df152b02844037daf03c8dcfae0c9c",
+      "statement_digest": "bf0854b7f51705d8575a3a1539876c6d4e82075e2163f419485b1b9997f1ed4a",
       "history": [
         {
           "anchor": "server line with optional edge",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-25",
+      "statement_digest_reason": "Removes optional Edge compute while keeping central conversations and server-owned messaging."
     },
     "FEAT-020": {
       "family": "FEAT",
@@ -7755,15 +7784,23 @@
     "FEAT-035": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "2568ecb01270663ee2ead6fbe4226178acf55da2f4b04428a4df728b7439943f",
       "history": [
         {
           "anchor": "zuri harness usage plugin",
           "since": "2026-09-13",
           "reason": "declared"
+        },
+        {
+          "anchor": "zuri harness usage plugin",
+          "since": "2026-09-24",
+          "reason": "ADR-109 D5 retires the Zuri harness pairing/plugin surfaces; preserve historical reports and continue deployment-bearer usage under FR-218.",
+          "declared_in": "docs/FEATURES.md#1.64.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-24",
+      "declared_in": "docs/FEATURES.md#1.64.0b"
     },
     "FEAT-036": {
       "family": "FEAT",
@@ -7808,14 +7845,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "3dbad1da583d45672467ec3e02dac34442b6cc4cb760c5c614b1475b88434182",
+      "statement_digest": "b22f2e597ffa814d7b6e4cd7d540ddc401833df2fff3752f105f4c82b7f3c65f",
       "history": [
         {
           "anchor": "agent usage detail",
           "since": "2026-09-13",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-25",
+      "statement_digest_reason": "Preserves historical person and device attribution while retiring new harness plugin reporting."
     },
     "FEAT-040": {
       "family": "FEAT",
@@ -7886,14 +7925,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "a8b0fdf589c99e877a38ba1d017f7f6b1cf3dfec22ab7471f5e5e796ce7bbe60",
+      "statement_digest": "36f10366c7558cdce849b0f7714f4e1edfc9701c8dad21612b5b72585312f364",
       "history": [
         {
           "anchor": "line oa on api keys only",
           "since": "2026-09-20",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-25",
+      "statement_digest_reason": "Adds ADR-109 D1 retirement scope while preserving the Business-owned provider API key flow."
     },
     "RSK-001": {
       "family": "RSK",
@@ -10451,6 +10492,19 @@
       "history": [
         {
           "anchor": "market intelligence service extraction on the ownership",
+          "since": "2026-09-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-109": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-109-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
+      "status": "current",
+      "statement_digest": "a7e286f1c5c07b6ec98ed320c18c1c020ac258cf7aa88f4dc8379aef58264bc6",
+      "history": [
+        {
+          "anchor": "retire edge device and harness surfaces keep prp",
           "since": "2026-09-24",
           "reason": "declared"
         }

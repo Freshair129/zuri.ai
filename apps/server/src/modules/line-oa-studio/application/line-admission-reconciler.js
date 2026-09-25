@@ -13,9 +13,9 @@ import { admitLineConversation } from './line-conversation-jobs'
 //   module is that retry: a polled sweep of rows another fleet's work labels
 //   `ADMITTING` before the first admission attempt, so a row stuck there past
 //   a stale threshold is evidence of exactly this crash, not of work in flight.
-// @spec ADR-061, SEC-001 — a device never sends; admission still owns the
-//   queue and the CRM write, and this reconciler changes neither rule — it
-//   only calls the same `admitLineConversation` the live path calls.
+// @spec ADR-061, SEC-001 — the signed account webhook admits events; admission
+//   still owns the queue and CRM write, and this reconciler changes neither rule —
+//   it only calls the same `admitLineConversation` the live path calls.
 // @tested tests/integration/line-admission-reconciler.test.js
 //
 // VOCABULARY — do not add a sixth value.

@@ -34,16 +34,26 @@ function createPorts(client, model) {
       renew: claim => call('renew', { claim: ref(claim) }, `renew:${claim.jobId}:${claim.executionId}:${Date.now()}`, claim),
       complete: (claim, result) => call('complete', { claim: ref(claim), ...result }, `complete:${claim.jobId}:${claim.executionId}`, claim),
       fail: (claim, result) => call('fail', { claim: ref(claim), ...result }, `fail:${claim.jobId}:${claim.executionId}`, claim),
+      status: (claim, operationId) => call('status', { claim: ref(claim), operationId }, `status:${operationId}`, claim),
     },
     authority: { resolve: claim => call('resolve', { claim: ref(claim) }, `authority:${claim.jobId}:${claim.executionId}`, claim) },
     context: { prepare: (claim, authority) => call('prepare', { claim: ref(claim), authorityVersion: authority.version }, `context:${claim.jobId}:${claim.executionId}`, claim) },
-    workTool: { execute: (claim, _authority, request) => call('work-tool', { claim: ref(claim), ...request }, request.operationId, claim) },
+    workTool: {
+      execute: (claim, _authority, request) => call('work-tool', { claim: ref(claim), ...request }, request.operationId, claim),
+      status: (claim, operationId) => call('work-tool', { claim: ref(claim), operation: 'status', operationId, input: {} }, `work-status:${operationId}`, claim),
+    },
     model: {
       credential: claim => call('credential', { claim: ref(claim) }, `credential:${claim.jobId}:${claim.executionId}`, claim),
       generate: input => model.generate(input),
     },
-    delivery: { send: claim => call('send', { claim: ref(claim) }, `delivery:${claim.jobId}:${claim.executionId}`, claim) },
-    trace: { append: (claim, event) => call('trace', { claim: ref(claim), ...event }, `trace:${claim.jobId}:${claim.executionId}:${event.kind}`, claim) },
+    delivery: {
+      send: claim => call('send', { claim: ref(claim), operationId: `${claim.jobId}:${claim.executionId}:delivery` }, `delivery:${claim.jobId}:${claim.executionId}`, claim),
+      status: claim => call('status', { claim: ref(claim), operationId: `${claim.jobId}:delivery` }, `delivery-status:${claim.jobId}:${claim.executionId}`, claim),
+    },
+    trace: {
+      append: (claim, event) => call('trace', { claim: ref(claim), ...event }, `trace:${claim.jobId}:${event.payload?.operationId ?? claim.executionId}:${event.kind}`, claim),
+      status: (claim, operationId) => call('status', { claim: ref(claim), operationId }, `operation-status:${operationId}`, claim),
+    },
   }
 }
 

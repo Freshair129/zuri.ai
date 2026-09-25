@@ -39,6 +39,8 @@
     "edge:test": "npm --prefix apps/edge test",
     "edge:typecheck": "npm --prefix apps/edge run typecheck",
     "conversation-runtime:build": "npm --prefix services/conversation-runtime run build",
-    "conversation-runtime:test": "npm --prefix services/conversation-runtime test"
+    "conversation-runtime:test": "npm --prefix services/conversation-runtime test",
+    "market-intelligence:build": "npm --prefix services/market-intelligence run build",
+    "market-intelligence:test": "npm --prefix services/market-intelligence test"
   }
 }

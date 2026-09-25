@@ -1,5 +1,5 @@
-// @req FR-137, FR-138, FR-139, FR-140 — runtime routes and additive persistence exist.
-// @spec SDD-081, SDD-082, SDD-083, SDD-084, SEC-024, ADR-056
+// @req FR-137, FR-138, FR-139 — runtime routes and additive persistence exist.
+// @spec SDD-081, SDD-082, SDD-083, SEC-024, ADR-056, ADR-109 D1
 // @tested tests/unit/asset-evidence-route-schema-contract.test.js
 import fs from 'node:fs'
 import { describe, expect, it } from 'vitest'
@@ -16,8 +16,13 @@ describe('Asset evidence route and schema spine', () => {
     'src/app/api/assets/import/xlsx/route.js',
     'src/app/api/assets/import/sheets/route.js',
     'src/app/api/assets/intakes/export/route.js',
-    'src/app/api/agent/line-asset-handoff/route.js',
   ])('adds %s', (file) => expect(fs.existsSync(file), file).toBe(true))
+
+  it('retains ordinary extraction without the retired Edge enqueue API', () => {
+    const route = read('src/app/api/assets/evidence/[id]/extract/route.js')
+    expect(route).toContain('openai')
+    expect(fs.existsSync('src/app/api/assets/evidence/[id]/extraction-job/route.js')).toBe(false)
+  })
 
   it('adds only additive intake snapshots and indexes their replay hash', () => {
     const schema = read('prisma/schema.prisma')

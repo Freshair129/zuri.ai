@@ -8,9 +8,6 @@
 
 export const DEFAULT_PUBLIC_BASE_URL = 'http://localhost:3100'
 
-/** The zuri-cli forwarding seam; account-scoped Server webhooks have their own route. */
-export const LINE_WEBHOOK_PATH = '/api/agent/line-webhook'
-
 function normalizeOrigin(value) {
   if (typeof value !== 'string') return null
   const trimmed = value.trim()
@@ -49,11 +46,6 @@ export function resolvePublicBaseUrl(env = process.env) {
  */
 export function resolveBrowserOrigin({ location, env = process.env } = {}) {
   return normalizeOrigin(location?.origin) || resolvePublicBaseUrl(env)
-}
-
-/** The absolute LINE webhook URL for a given origin (never invents a path). */
-export function lineWebhookUrl(origin) {
-  return `${normalizeOrigin(origin) || DEFAULT_PUBLIC_BASE_URL}${LINE_WEBHOOK_PATH}`
 }
 
 /**

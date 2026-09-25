@@ -38,24 +38,24 @@
     },
     "chainsByStatus": {
       "BLOCKED": 0,
-      "DECLARED": 4,
+      "DECLARED": 5,
       "PARTIAL": 1,
-      "CODE_TESTS": 15,
+      "CODE_TESTS": 14,
       "PRODUCTION": 2
     },
     "internalByStatus": {
       "BLOCKED": 1,
-      "DECLARED": 1,
+      "DECLARED": 3,
       "PARTIAL": 2,
-      "CODE_TESTS": 38,
+      "CODE_TESTS": 36,
       "PRODUCTION": 20
     },
     "internalBySurface": {
-      "NONE": 7,
+      "NONE": 11,
       "WORKER": 12,
       "MCP": 0,
-      "ENDPOINT": 10,
-      "UI": 33
+      "ENDPOINT": 7,
+      "UI": 32
     }
   },
   "nodes": [
@@ -327,17 +327,8 @@
         "FR-081"
       ],
       "decisions": [],
-      "surfaces": [
-        {
-          "type": "ENDPOINT",
-          "ref": "/api/agent/line-webhook"
-        },
-        {
-          "type": "ENDPOINT",
-          "ref": "/api/agent/line-delivery"
-        }
-      ],
-      "surfaceLevel": "ENDPOINT",
+      "surfaces": [],
+      "surfaceLevel": "NONE",
       "buildStatus": "CODE_TESTS",
       "evidence": null,
       "blocked": null
@@ -352,7 +343,7 @@
       "requirements": [
         {
           "id": "FR-140",
-          "status": "verified",
+          "status": "not_implemented",
           "title": "Trusted LINE Asset handoff"
         }
       ],
@@ -360,14 +351,9 @@
         "FEAT-016"
       ],
       "decisions": [],
-      "surfaces": [
-        {
-          "type": "ENDPOINT",
-          "ref": "/api/agent/line-asset-handoff"
-        }
-      ],
-      "surfaceLevel": "ENDPOINT",
-      "buildStatus": "CODE_TESTS",
+      "surfaces": [],
+      "surfaceLevel": "NONE",
+      "buildStatus": "DECLARED",
       "evidence": null,
       "blocked": null
     },
@@ -381,12 +367,12 @@
       "requirements": [
         {
           "id": "FR-141",
-          "status": "verified",
+          "status": "not_implemented",
           "title": "Edge Device heartbeat registry"
         },
         {
           "id": "FR-144",
-          "status": "verified",
+          "status": "not_implemented",
           "title": "Edge device credential"
         }
       ],
@@ -397,22 +383,9 @@
       "decisions": [
         "ADR-041"
       ],
-      "surfaces": [
-        {
-          "type": "ENDPOINT",
-          "ref": "/api/agent/heartbeat"
-        },
-        {
-          "type": "ENDPOINT",
-          "ref": "/api/edge/pairing/start"
-        },
-        {
-          "type": "UI",
-          "ref": "/edge/pair"
-        }
-      ],
-      "surfaceLevel": "UI",
-      "buildStatus": "CODE_TESTS",
+      "surfaces": [],
+      "surfaceLevel": "NONE",
+      "buildStatus": "DECLARED",
       "evidence": null,
       "blocked": null
     },
@@ -472,21 +445,8 @@
       "decisions": [
         "ADR-059"
       ],
-      "surfaces": [
-        {
-          "type": "ENDPOINT",
-          "ref": "/api/edge/extraction-jobs/claim"
-        },
-        {
-          "type": "ENDPOINT",
-          "ref": "/api/edge/extraction-jobs/[id]/evidence"
-        },
-        {
-          "type": "ENDPOINT",
-          "ref": "/api/edge/extraction-jobs/[id]/complete"
-        }
-      ],
-      "surfaceLevel": "ENDPOINT",
+      "surfaces": [],
+      "surfaceLevel": "NONE",
       "buildStatus": "CODE_TESTS",
       "evidence": null,
       "blocked": null
@@ -2718,7 +2678,7 @@
       "to": "in.line-asset-handoff",
       "label": "FileAsset id จาก LINE",
       "wired": true,
-      "status": "CODE_TESTS"
+      "status": "DECLARED"
     },
     {
       "id": "e.webhook-to-jobs",
@@ -2886,7 +2846,7 @@
       "to": "p.asset-extraction",
       "label": "evidence intake จาก LINE",
       "wired": true,
-      "status": "CODE_TESTS"
+      "status": "DECLARED"
     },
     {
       "id": "e.device-heartbeat",
@@ -2894,7 +2854,7 @@
       "to": "in.edge-heartbeat",
       "label": "heartbeat · pairing request",
       "wired": true,
-      "status": "CODE_TESTS"
+      "status": "DECLARED"
     },
     {
       "id": "e.staff-to-plan",
@@ -3840,7 +3800,7 @@
         "src.staff",
         "src.suppliers"
       ],
-      "status": "CODE_TESTS",
+      "status": "DECLARED",
       "domains": [
         "agent",
         "asset-management"

@@ -23,6 +23,32 @@ function rowFor(id) {
 describe('retired rules are excluded honestly', () => {
   const cov = () => graph().stats.coverage
 
+  it('keeps superseded FRs visible while excluding them from active coverage', () => {
+    const g = graph()
+    const coverage = cov()
+    const supersededFrIds = g.nodes
+      .filter((n) => n.type === 'requirement' && n.family === 'FR' && n.status === 'superseded')
+      .map((n) => n.id.slice(4))
+
+    expect(new Set(coverage.fr_superseded)).toEqual(new Set(supersededFrIds))
+    expect(coverage.fr_superseded).toContain('FR-220')
+    expect(coverage.fr_superseded).toContain('FR-221')
+    expect(coverage.fr_superseded).toContain('FR-222')
+    for (const id of coverage.fr_superseded) {
+      expect(g.nodes.some((n) => n.id === `req:${id}`), `${id} must remain in the graph`).toBe(true)
+      expect(coverage.fr_without_code).not.toContain(id)
+      expect(coverage.fr_without_tests).not.toContain(id)
+    }
+  })
+
+  it('keeps active LINE requirements in the coverage gaps', () => {
+    const coverage = cov()
+    for (const id of ['FR-050', 'FR-140', 'FR-141', 'FR-144']) {
+      expect(coverage.fr_superseded).not.toContain(id)
+      expect(coverage.fr_without_code).toContain(id)
+    }
+  })
+
   it('excludes only rules the registry itself struck out or marked retired', () => {
     for (const id of cov().rules_superseded) {
       const { statement, status } = rowFor(id)

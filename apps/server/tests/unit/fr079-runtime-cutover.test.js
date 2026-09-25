@@ -16,7 +16,6 @@ import {
   createModelProviderPort,
 } from '@/modules/agent/model-provider'
 import { createPhase1BusinessAgentPortsFromEnv } from '@/modules/agent/phase1-runtime'
-import { createLineWebhookPost } from '@/app/api/agent/line-webhook/route'
 import { answerBusinessQuestion } from '@/modules/agent/grounded-business-answer'
 
 // @req FR-079 — binding-scoped connection selection, production secret resolution and local Ollama boundary.
@@ -219,39 +218,4 @@ describe('FR-079 real runtime selection path', () => {
     })).toThrow(/legacy|raw|production/i)
   })
 
-  it('resolves the model after binding scope and passes it into the turn', async () => {
-    const order = []
-    let dependencies
-    const selectedModel = { provider: 'openai', model: 'gpt-test', generate: vi.fn() }
-    const handler = createLineWebhookPost({
-      runtimeFactory: async () => ({
-        bindingResolver: {
-          resolve: async () => {
-            order.push('binding')
-            return { id: 'binding-1', tenantId: 'tenant-a', businessId: 'business-a' }
-          },
-        },
-        resolveModel: async (scope) => {
-          order.push(`model:${scope.businessId}`)
-          return selectedModel
-        },
-      }),
-      turnHandler: async (_input, ports) => {
-        dependencies = ports
-        return { identity: { principalType: 'CUSTOMER' }, response: { skipReply: false } }
-      },
-    })
-    const response = await handler(new Request('http://local/api/agent/line-webhook', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', authorization: `Bearer ${'x'.repeat(32)}` },
-      body: JSON.stringify({
-        bindingId: '84ed2c90-ab44-46f3-9618-1f24df0744b9',
-        destination: 'U-test',
-        events: [{ type: 'message', source: { userId: 'U-test' }, message: { type: 'text', id: 'M-test', text: 'hello' } }],
-      }),
-    }))
-    expect(response.status).toBe(200)
-    expect(order).toEqual(['binding', 'model:business-a'])
-    expect(dependencies.model).toBe(selectedModel)
-  })
 })

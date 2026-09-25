@@ -104,7 +104,7 @@ export function describeLineOaLegacyTransportActive({ lastLegacyReceiptAt } = {}
   const ago = typeof lastLegacyReceiptAt === 'string' && lastLegacyReceiptAt ? lastLegacyReceiptAt : 'ไม่ทราบเวลา'
   return {
     code: 'LINE_LEGACY_TRANSPORT_ACTIVE',
-    message: `ยังมี transport เดิมรับข้อความอยู่ (ล่าสุด ${ago}) — หยุด Edge/CLI เดิมก่อน หรือกด "ตั้งค่า Webhook" อีกครั้ง`,
+    message: `ยังมี transport เดิมรับข้อความอยู่ (ล่าสุด ${ago}) — หยุดการรับข้อความผ่าน transport อื่นก่อน หรือกด "ตั้งค่า Webhook" อีกครั้ง`,
     nextStep: 'STOP_LEGACY_OR_RETEST',
   }
 }

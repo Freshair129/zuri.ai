@@ -101,12 +101,7 @@ export default function LineStudioSettings() {
             bad: 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300',
             muted: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
           }[chip.tone]
-          const transport = account.serverEnabled
-            ? 'Zuri Server'
-            // @req FR-265 — see LineCrmMultiOa.jsx: EDGE is a leftover, not a mode.
-            : account.transportMode === 'EDGE'
-              ? 'Edge (เลิกใช้แล้ว)'
-              : 'ยังไม่เปิด Server'
+          const transport = account.serverEnabled ? 'Conversation Runtime' : 'ยังไม่เปิด Server'
           return (
             <div key={account.id} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex flex-wrap items-start justify-between gap-3">

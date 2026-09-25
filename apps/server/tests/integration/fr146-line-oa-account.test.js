@@ -12,7 +12,6 @@ import {
   createIntegrationConnection,
   registerIntegrationProvider,
 } from '@/platform/integrations/core/integration-registry'
-import { mintEdgeDeviceCredential } from '@/modules/identity/edge-device-credential'
 import { ROLE_LINE_OA_PUBLISHER } from '@/modules/identity/rbac'
 import { createLineBindingStatusReaderFromEnv, readLineBindingStatusLabel } from '@/modules/agent/line-binding-status'
 import {
@@ -24,9 +23,8 @@ import {
 
 const DOMAINS_WITH_STUDIO = ['projects', 'people', 'platform', 'line-oa']
 
-let tenant, business, otherBusiness, edgeBusiness, provider
+let tenant, business, otherBusiness, provider
 let owner, publisher, member, blindMember, foreignOwner
-let edgeKey
 let seq = 0
 
 async function lineConnection(target, label = `line-${++seq}`) {
@@ -47,12 +45,11 @@ describe('FR-146 LineOaAccount', () => {
     tenant = await createTenant({ portfolioId: portfolio.id, code: 'TNT-LINE-OA', name: 'LINE OA Tenant' })
     business = await createBusiness({ tenantId: tenant.id, code: 'BUS-LINE-OA', name: 'Cloud Business' })
     otherBusiness = await createBusiness({ tenantId: tenant.id, code: 'BUS-LINE-OA-2', name: 'Other Business' })
-    edgeBusiness = await createBusiness({ tenantId: tenant.id, code: 'BUS-LINE-OA-EDGE', name: 'Edge Business' })
     provider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE Official Account' })
 
     owner = makeViewer({
-      visibleBusinessIds: [business.id, edgeBusiness.id],
-      ownedBusinessIds: [business.id, edgeBusiness.id],
+      visibleBusinessIds: [business.id],
+      ownedBusinessIds: [business.id],
       visibleDomains: DOMAINS_WITH_STUDIO,
     })
     publisher = makeViewer({
@@ -65,9 +62,6 @@ describe('FR-146 LineOaAccount', () => {
     blindMember = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [], visibleDomains: ['projects'] })
     foreignOwner = ownsElsewhere({ owns: otherBusiness.id, sees: business.id, seesDomains: DOMAINS_WITH_STUDIO, visibleDomains: DOMAINS_WITH_STUDIO })
 
-    // A paired worker no longer changes LINE transport ownership (ADR-061).
-    const minted = await mintEdgeDeviceCredential({ businessId: edgeBusiness.id, deviceId: 'DEV-LINE', label: 'Shop node', viewer: owner })
-    edgeKey = minted.key
   })
 
   it('AC-146.1 — connects an existing LINE_OA connection as the Business\'s first, default, cloud account', async () => {
@@ -93,22 +87,19 @@ describe('FR-146 LineOaAccount', () => {
     expect(JSON.parse(audit[0].payloadJson)).toMatchObject({ transportMode: 'CLOUD', transportModeSource: 'SERVER_DEFAULT', status: 'DRAFT' })
   })
 
-  it('AC-146.2 — defaults to CLOUD even where the Business holds an ACTIVE edge credential, and a publisher may override at connect time', async () => {
+  it('AC-146.2 — defaults to CLOUD and a publisher may explicitly select CLOUD at connect time', async () => {
     const first = await connectLineOaAccount({
-      businessId: edgeBusiness.id, integrationConnectionId: (await lineConnection(edgeBusiness)).id, code: 'oa-edge-main', displayName: 'Edge Main',
+      businessId: business.id, integrationConnectionId: (await lineConnection(business)).id, code: 'oa-cloud-second', displayName: 'Second Cloud',
     }, { viewer: owner })
     expect(first.transportMode).toBe('CLOUD')
 
     const overridden = await connectLineOaAccount({
-      businessId: edgeBusiness.id, integrationConnectionId: (await lineConnection(edgeBusiness)).id, code: 'oa-edge-cloud', displayName: 'Edge but cloud', transportMode: 'CLOUD',
+      businessId: business.id, integrationConnectionId: (await lineConnection(business)).id, code: 'oa-cloud-explicit', displayName: 'Explicit Cloud', transportMode: 'CLOUD',
     }, { viewer: owner })
     expect(overridden.transportMode).toBe('CLOUD')
     expect(overridden.isDefaultForBusiness).toBe(false)
     const audit = await prisma.auditEvent.findFirst({ where: { entityId: overridden.id, action: 'LINE_OA_ACCOUNT_CONNECTED' } })
     expect(JSON.parse(audit.payloadJson).transportModeSource).toBe('OVERRIDE')
-    // No audit row anywhere carries the device key that made this Business "edge".
-    const all = await prisma.auditEvent.findMany({ where: { entityType: 'LINE_OA_ACCOUNT' } })
-    expect(all.every((row) => !row.payloadJson.includes(edgeKey))).toBe(true)
   })
 
   it('AC-146.3 — a binding code makes the account CONNECTED, and only one account is default per Business', async () => {

@@ -23,9 +23,8 @@ import {
 //   status and the transport-mode default. Nothing here opens a database; the
 //   service in application/ is the only writer and calls these.
 // @spec ADR-060 D2, D3, D5, D11 — one Business per account, many accounts per
-//   Business; LIVE is derived from the agent lane's binding and never stored;
-//   transportMode was EDGE or CLOUD and ADR-061 made CLOUD the unconditional
-//   default; ADR-100 D1 makes it the only value.
+//   Business; LIVE is derived from the account binding and never stored; new
+//   account transport is CLOUD only, while old execution rows remain historical.
 // @req FR-265 — the account action contract no longer carries a transport mode,
 //   an execution mode or a model-access policy. `CONFIGURE_EXECUTION` keeps its
 //   name and carries the one field that is still a choice, `allowDelayedPush`.

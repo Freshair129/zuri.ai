@@ -39,9 +39,9 @@ product's** repository: the legacy zuri project, discontinued as far as this pro
 concerned ([ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)). Reading it
 as prior art is fine. Writing to it never is.
 
-`Freshair129/zuri-edge-device` is the on-premise Zuri Edge Device runtime (ADR-041)
-this product talks to. **Never read or copy its `.env`** — it holds on-premise secrets
-and pairing keys. On the current machine that checkout is
+`Freshair129/zuri-edge-device` is the historical on-premise runtime named by
+ADR-041; ADR-109 retires its worker connection to this product. **Never read or
+copy its `.env`** — it holds local credentials and pairing keys. On the current machine that checkout is
 `C:\Users\pc\workspace\zuri-edge-device`; it was documented as
 `D:\workspace\zuri-edge-device` until 2026-09-04, and that path no longer exists.
 The rule follows the repository, not the drive letter — a secret does not stop being one
@@ -572,9 +572,9 @@ rather than asserting it
 
 ### 22. Knowledge & Retrieval Architecture: Four-Tier Cognitive Stack
 
-Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), [ADR-043](docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md), and [ADR-044](docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md).
+The four-tier model originated in [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), [ADR-043](docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md), and [ADR-044](docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md). [ADR-109](docs/decisions/ADR-109-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) retires the Edge Device and harness execution surfaces while preserving Knowledge/RAG.
 
-1. **Tier 1 (Zuri-AI & Edge Device)**: Business Execution Client, Live Monitor & Command Console (LINE, FB, Webhook, Prompt-to-Zuri Voice Dispatcher).
+1. **Tier 1 (Zuri-AI server)**: Business Execution Client and Live Monitor & Command Console. LINE OA uses signed Server ingress and the Conversation Runtime path; model inference uses the Business-provisioned PRP LocalWorker key when configured. No Edge Device worker or harness connection is active.
 2. **Tier 2 (MSP — remote: [Memory-and-Soul-Passport](https://github.com/Freshair129/Memory-and-Soul-Passport))**: Agent Session Control, Unified Thread ID Authority & Memory Policy (Episodic scratchpads, token budget, vault gates, H0-H4 access ceilings).
 3. **Tier 3 (GKS — remote: [Genesis-Knowledge-System](https://github.com/Freshair129/Genesis-Knowledge-System))**: Canonical Knowledge Authority & RAG Orchestrator (Entity identity, ontology, deduplication, scoped search, R0-R6 radius).
 4. **Tier 4 (GenesisBlockDB)**: 6-lane hybrid retrieval substrate only (Vector, Lexical, Graph, SQLite, Bitemporal, Provenance via `query-ir.v1`).

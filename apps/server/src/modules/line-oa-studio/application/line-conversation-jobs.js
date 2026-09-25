@@ -8,10 +8,11 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { appendTraceEvent, readExecutionTrace, playbackTrace, sha256 } from '@/modules/agent/execution-trace'
 import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
 import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 import { lineExecutionBudget } from '../domain/line-execution-budget'
-import { isLineProjectWorkCommand, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
+import { isLineProjectWorkCommand, parseLineProjectWorkCommand, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
 import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
@@ -227,23 +228,32 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // path. `isAccountWithinBusinessHours` returns true for an account with no
     // declared hours, so this branch is a no-op for every account that never opted in.
     const outOfHours = !isAccountWithinBusinessHours(current, now) && Boolean(current.outOfHoursReplyText)
+    const memorySyncOptIn = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+    const workCommand = parseLineProjectWorkCommand(text)
+    const legacyOnlyWorkCommand = isLineProjectWorkCommand(text) && !workCommand
+    const runtimeEligible = current.executionMode === 'CONVERSATION_RUNTIME' && audienceKind === 'DIRECT'
+      && !memorySyncOptIn && !outOfHours && !legacyOnlyWorkCommand
+    const identity = runtimeEligible
+      ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
+      : null
+    // Core-owned account routing is snapshotted on the job. Complex/legacy-only
+    // paths remain SERVER until their ports are moved; a later account change
+    // cannot transfer a job already admitted to another executor.
+    const executionMode = runtimeEligible && channelIdentityIsVerified(identity)
+      ? 'CONVERSATION_RUNTIME' : 'SERVER'
     const job = await tx.lineConversationJob.create({ data: {
       accountId: current.id, inboundMessageId: inbound.messageId, eventId,
       // @req FR-243 — the session the inbound message was just assigned (ADR-094 D4).
       sessionId: inbound.sessionId ?? null,
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
       transportEpoch: current.transportEpoch,
-      // @req FR-265 — one execution placement remains (ADR-100 D1). This read the
-      // account's `executionMode` and forced SERVER for work commands; there is
-      // nothing left to force. `modelAccess` is written as the retired constant
-      // rather than copied from the account, because the account no longer
-      // carries a policy and nothing reads the job's copy.
-      executionMode: 'SERVER',
+      // @req FR-149 — pin the core-authoritative executor cohort on admission.
+      executionMode,
       modelAccess: RETIRED_MODEL_ACCESS, allowDelayedPush: current.allowDelayedPush,
       // This is immutable trusted LINE admission provenance. The opt-in flag is
       // a per-job decision captured at the same boundary; later env changes do
       // not enroll or silently drop an already admitted job.
-      audienceKind, memorySyncOptIn: env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true',
+      audienceKind, memorySyncOptIn,
       recipientId: threadId, sourceUserId: userId, sealedReplyToken: sealed,
       replyExpiresAt: sealed ? new Date(replyDeadlineAnchorMs + 45_000) : null,
       availableAt: now, expiresAt: new Date(now.getTime() + JOB_TTL_MS), correlationId,
@@ -396,14 +406,10 @@ async function maintenance(db, now, scope = {}) {
     data: { status: 'READY', availableAt: now, claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
 }
 
-// @req FR-265 — the server is the only claimant (ADR-100 D2), so the device scope
-// and the execution-mode selector are gone. The `executionMode: 'SERVER'` filter
-// stays in the query: a job admitted before this change may still be QUEUED with
-// EDGE, and the server must not pick up work it was never meant to run — that job
-// expires through `maintenance` and is visible as a terminal failure, which is a
-// truthful outcome, where a silent takeover would not be.
-async function claimExecution({ db, claimantId, now }) {
-  const rows = await db.lineConversationJob.findMany({ where: { executionMode: 'SERVER', status: 'QUEUED', availableAt: { lte: now }, expiresAt: { gt: now } },
+// @req FR-149 — ownership is pinned per admitted job; each executor claims only
+// its own cohort. Runtime jobs are never candidates for the legacy worker.
+async function claimExecution({ db, claimantId, now, executionMode = 'SERVER' }) {
+  const rows = await db.lineConversationJob.findMany({ where: { executionMode, status: 'QUEUED', availableAt: { lte: now }, expiresAt: { gt: now } },
     include: { account: true, inbound: { include: { conversation: true } } }, orderBy: { createdAt: 'asc' }, take: 20 })
   for (const row of rows) {
     if (!activeAccount(row.account, row)) {
@@ -413,11 +419,19 @@ async function claimExecution({ db, claimantId, now }) {
     const leaseExpiresAt = new Date(now.getTime() + LINE_JOB_LEASE_MS)
     const executionId = randomUUID()
     const claimed = await atomic(db, async tx => {
-      const result = await tx.lineConversationJob.updateMany({ where: { id: row.id, version: row.version, status: 'QUEUED' },
+      if (executionMode === 'CONVERSATION_RUNTIME') {
+        const current = await tx.lineConversationJob.findUnique({ where: { id: row.id }, include: { account: true } })
+        const identity = current && await findChannelIdentity({ db: tx, tenantId: current.tenantId,
+          channelAccountId: current.channelAccountId, providerSubject: current.sourceUserId })
+        if (!current || current.executionMode !== executionMode || current.memorySyncOptIn
+          || current.errorCode === 'PDPA_ERASURE' || !activeAccount(current.account, current)
+          || !channelIdentityIsVerified(identity)) return { count: 0 }
+      }
+      const result = await tx.lineConversationJob.updateMany({ where: { id: row.id, executionMode, version: row.version, status: 'QUEUED' },
         data: { status: 'CLAIMED', claimantId, executionId, leaseExpiresAt, version: { increment: 1 } } })
       if (result.count) await traceEvent(tx, { ...row, executionId }, 'EXECUTION_STARTED', `execution:${executionId}`, {
         instanceId: runtimeInstanceId,
-        claimantRef: claimantId, executionMode: 'SERVER', claimedAt: now.toISOString(),
+        claimantRef: claimantId, executionMode, claimedAt: now.toISOString(),
         conversationId: row.inbound.conversationId, inboundMessageId: row.inboundMessageId,
         sessionId: null, sessionDisposition: 'NOT_RESOLVED',
       }, now)
@@ -426,6 +440,78 @@ async function claimExecution({ db, claimantId, now }) {
     if (claimed.count) return { ...row, executionId, status: 'CLAIMED', claimantId, leaseExpiresAt, version: row.version + 1 }
   }
   return null
+}
+
+function runtimeClaim(job, claimantId, now, phase = 'EXECUTION') {
+  const leaseExpiresAt = job.leaseExpiresAt ?? new Date(Math.min(job.expiresAt.getTime(), now.getTime() + LINE_JOB_LEASE_MS))
+  return { jobId: job.id, executionId: job.executionId, claimantId, version: job.version,
+    tenantId: job.tenantId, businessId: job.businessId, accountId: job.accountId,
+    leaseExpiresAt: leaseExpiresAt.toISOString(), deadlineAt: job.expiresAt.toISOString(),
+    correlationId: job.correlationId, phase }
+}
+
+/** Core-owned claim and READY recovery for the Conversation Runtime cohort. */
+export async function claimRuntimeConversationJob({ db = prisma, claimantId, now = () => new Date() } = {}) {
+  if (typeof claimantId !== 'string' || !claimantId.trim()) throw failure(400, 'CLAIMANT_ID_INVALID')
+  const at = new Date(typeof now === 'function' ? now() : now)
+  const owner = { executionMode: 'CONVERSATION_RUNTIME' }
+  await maintenance(db, at, owner)
+  const accepted = await db.lineConversationJob.findFirst({ where: { ...owner, status: 'ACCEPTED' }, orderBy: { createdAt: 'asc' } })
+  if (accepted) await reconcileAccepted(db, accepted)
+  const claimed = await claimExecution({ db, claimantId, now: at, executionMode: owner.executionMode })
+  if (claimed) return runtimeClaim(claimed, claimantId, at)
+  // READY recovery is safe to offer to multiple runtime replicas: sendRuntime
+  // owns the READY -> SENDING compare-and-set and will admit exactly one send.
+  const ready = await db.lineConversationJob.findFirst({ where: { ...owner, status: 'READY', executionId: { not: null },
+    availableAt: { lte: at }, expiresAt: { gt: at } }, include: { account: true }, orderBy: { createdAt: 'asc' } })
+  if (!ready || !activeAccount(ready.account, ready) || ready.errorCode === 'PDPA_ERASURE') return null
+  return runtimeClaim(ready, claimantId, at, 'DELIVERY')
+}
+
+export async function renewRuntimeConversationJob(claim, { db = prisma, now = () => new Date() } = {}) {
+  const at = new Date(typeof now === 'function' ? now() : now)
+  return atomic(db, async tx => {
+    const job = await tx.lineConversationJob.findUnique({ where: { id: claim.jobId }, include: { account: true } })
+    const identity = job && await findChannelIdentity({ db: tx, tenantId: job.tenantId,
+      channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
+    if (!job || job.executionMode !== 'CONVERSATION_RUNTIME' || job.status !== 'CLAIMED'
+      || job.version !== claim.version || job.executionId !== claim.executionId || job.claimantId !== claim.claimantId
+      || job.tenantId !== claim.tenantId || job.businessId !== claim.businessId || job.accountId !== claim.accountId
+      || !activeAccount(job.account, job) || job.memorySyncOptIn || job.errorCode === 'PDPA_ERASURE'
+      || !channelIdentityIsVerified(identity) || job.leaseExpiresAt <= at || job.expiresAt <= at) {
+      throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    }
+    const leaseExpiresAt = new Date(Math.min(job.expiresAt.getTime(), at.getTime() + LINE_JOB_LEASE_MS))
+    const changed = await tx.lineConversationJob.updateMany({ where: { id: job.id, executionMode: 'CONVERSATION_RUNTIME',
+      status: 'CLAIMED', version: job.version, executionId: job.executionId, claimantId: job.claimantId },
+      data: { leaseExpiresAt, version: { increment: 1 } } })
+    if (!changed.count) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    return { version: job.version + 1, leaseExpiresAt: leaseExpiresAt.toISOString() }
+  })
+}
+
+export async function completeRuntimeConversationJob(claim, { text, operationId }, { db = prisma, now = () => new Date() } = {}) {
+  if (operationId !== `${claim.jobId}:turn-answer`) throw failure(400, 'COMPLETION_IDEMPOTENCY_INVALID')
+  return settleExecution(claim.jobId, { version: claim.version, text, executionId: claim.executionId },
+    { db, claimantId: claim.claimantId, now: new Date(typeof now === 'function' ? now() : now), executionMode: 'CONVERSATION_RUNTIME' })
+}
+
+export async function failRuntimeConversationJob(claim, { code, outcome }, { db = prisma, now = () => new Date() } = {}) {
+  const current = await db.lineConversationJob.findUnique({ where: { id: claim.jobId }, select: { status: true, executionId: true, version: true } })
+  if (current?.executionId === claim.executionId && current.status !== 'CLAIMED') return { status: current.status, version: current.version }
+  return settleExecution(claim.jobId, { version: claim.version, code, executionId: claim.executionId, outcome },
+    { db, claimantId: claim.claimantId, now: new Date(typeof now === 'function' ? now() : now), executionMode: 'CONVERSATION_RUNTIME' })
+}
+
+export async function runtimeConversationStatus(claim, { db = prisma } = {}) {
+  const job = await db.lineConversationJob.findUnique({ where: { id: claim.jobId },
+    select: { id: true, executionMode: true, executionId: true, status: true, version: true, answerText: true,
+      errorCode: true, tenantId: true, businessId: true, accountId: true, correlationId: true } })
+  if (!job || job.executionMode !== 'CONVERSATION_RUNTIME' || job.executionId !== claim.executionId
+    || job.tenantId !== claim.tenantId || job.businessId !== claim.businessId || job.accountId !== claim.accountId) {
+    throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+  }
+  return { status: job.status, version: job.version, operationId: `${job.id}:turn-answer`, errorCode: job.errorCode }
 }
 
 // Statuses that mean "this event will fail the same way on every attempt".
@@ -541,11 +627,25 @@ export async function admitCapturedLineEvents({
 // @req FR-265 — the only settler is the server worker (ADR-100 D2). `deviceContext`
 // scoping, the `EDGE_REPORTED` context-receipt source and the published-corpus
 // re-check a device's claim needed are gone with the claim that produced them.
-async function settleExecution(id, { version, text, code, executionId, contextReceipts, traceFailureCode, outcome }, { db, claimantId, now }) {
+async function settleExecution(id, { version, text, code, executionId, contextReceipts, traceFailureCode, outcome }, { db, claimantId, now, executionMode = 'SERVER' }) {
   const startedAt = performance.now()
   return db.$transaction(async tx => {
-    const job = await tx.lineConversationJob.findFirst({ where: { id, executionMode: 'SERVER' }, include: { account: true } })
+    const job = await tx.lineConversationJob.findFirst({ where: { id, executionMode }, include: { account: true } })
     if (!job) throw failure(404, 'CONVERSATION_JOB_NOT_FOUND')
+    if (executionMode === 'CONVERSATION_RUNTIME') {
+      const identity = await findChannelIdentity({ db: tx, tenantId: job.tenantId,
+        channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
+      if (!activeAccount(job.account, job) || job.memorySyncOptIn || job.errorCode === 'PDPA_ERASURE'
+        || job.audienceKind !== 'DIRECT' || job.recipientId !== job.sourceUserId
+        || (job.account.bindingCode || job.account.id) !== job.channelAccountId
+        || !channelIdentityIsVerified(identity)) throw failure(409, 'CONVERSATION_JOB_AUTHORITY_REVOKED')
+    }
+    // A completion retry after a lost HTTP response is reconciled from the
+    // committed row. Do not turn READY into FAILED or invoke model again.
+    if (executionMode === 'CONVERSATION_RUNTIME' && job.status === 'READY'
+      && job.executionId === executionId && job.answerText === text && !code) {
+      return { id, status: 'READY', version: job.version, operationId: `${id}:turn-answer` }
+    }
     if (!activeAccount(job.account, job) || job.status !== 'CLAIMED' || job.version !== version
       || job.claimantId !== claimantId || !job.leaseExpiresAt || job.leaseExpiresAt <= now || job.expiresAt <= now) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
     if (executionId && executionId !== job.executionId) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
@@ -565,7 +665,7 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       text = undefined
     }
     const finalStatus = outcome === 'UNKNOWN' ? 'UNKNOWN' : code ? 'FAILED' : 'READY'
-    const update = await tx.lineConversationJob.updateMany({ where: { id, version, status: 'CLAIMED', claimantId },
+    const update = await tx.lineConversationJob.updateMany({ where: { id, executionMode, version, status: 'CLAIMED', claimantId, executionId },
       data: { status: finalStatus, answerText: finalStatus === 'UNKNOWN' ? null : text ?? null, errorCode: code ?? null,
         ...(code ? { sealedReplyToken: null } : {}),
         ...(!code && deadline?.deliveryMode === 'DELAYED_PUSH' ? { sendMethod: 'PUSH' } : {}),
@@ -713,7 +813,7 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
       batchSize: memoryDeliveryBatch, leaseMs: memoryDeliveryLeaseMs })
     : null
   await scanMemory()
-  const accepted = await db.lineConversationJob.findFirst({ where: { status: 'ACCEPTED' }, orderBy: { createdAt: 'asc' } })
+  const accepted = await db.lineConversationJob.findFirst({ where: { executionMode: 'SERVER', status: 'ACCEPTED' }, orderBy: { createdAt: 'asc' } })
   if (accepted) {
     const result = await reconcileAccepted(db, accepted)
     await scanMemory()
@@ -738,7 +838,7 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
     if (rejected) throw rejected.reason
     last = settled.map(outcome => outcome.value).filter(Boolean).pop() ?? null
   }
-  const ready = await db.lineConversationJob.findMany({ where: { status: 'READY', availableAt: { lte: now() } },
+  const ready = await db.lineConversationJob.findMany({ where: { executionMode: 'SERVER', status: 'READY', availableAt: { lte: now() } },
     include: { account: true }, orderBy: { createdAt: 'asc' }, take: sendBatch })
   if (!ready.length) {
     await scanMemory()
@@ -754,9 +854,15 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
 }
 
 /** Send one READY job and record the outcome. Split out of the tick when it became a batch. */
-async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now }) {
+async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now,
+  requiredExecutionMode = 'SERVER', expectedExecutionId = job.executionId }) {
+  if (job.executionMode !== requiredExecutionMode || (expectedExecutionId && job.executionId !== expectedExecutionId)) {
+    return { id: job.id, status: 'FENCED' }
+  }
   if (!activeAccount(job.account, job)) {
-    await db.lineConversationJob.updateMany({ where: { id: job.id, version: job.version }, data: { status: 'CANCELLED', sealedReplyToken: null, version: { increment: 1 } } })
+    await db.lineConversationJob.updateMany({ where: { id: job.id, executionMode: requiredExecutionMode,
+      executionId: expectedExecutionId, version: job.version, status: 'READY' },
+      data: { status: 'CANCELLED', sealedReplyToken: null, version: { increment: 1 } } })
     return { id: job.id, status: 'CANCELLED' }
   }
   let at = now()
@@ -800,12 +906,24 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
   }
   const sendAttemptId = randomUUID()
   const claimed = await atomic(db, async tx => {
+    const current = await tx.lineConversationJob.findUnique({ where: { id: job.id }, include: { account: true } })
+    if (!current || current.executionMode !== requiredExecutionMode || current.executionId !== expectedExecutionId
+      || current.version !== job.version || current.status !== 'READY' || !activeAccount(current.account, current)) return { count: 0 }
+    if (requiredExecutionMode === 'CONVERSATION_RUNTIME') {
+      const identity = await findChannelIdentity({ db: tx, tenantId: current.tenantId,
+        channelAccountId: current.channelAccountId, providerSubject: current.sourceUserId })
+      if (current.errorCode === 'PDPA_ERASURE' || !channelIdentityIsVerified(identity)
+        || current.memorySyncOptIn || current.audienceKind !== 'DIRECT'
+        || current.recipientId !== current.sourceUserId
+        || (current.account.bindingCode || current.account.id) !== current.channelAccountId) return { count: 0 }
+    }
     // Serialize with account actions before either side checks active sends.
     const fence = await tx.lineOaAccount.updateMany({ where: { id: job.accountId,
       version: account.version, serverEnabled: true, transportMode: 'CLOUD', status: 'CONNECTED', transportEpoch: job.transportEpoch },
       data: { version: { increment: 1 } } })
     if (!fence.count) return { count: 0 }
-    const result = await tx.lineConversationJob.updateMany({ where: { id: job.id, version: job.version, status: 'READY' },
+    const result = await tx.lineConversationJob.updateMany({ where: { id: job.id, executionMode: requiredExecutionMode,
+      executionId: expectedExecutionId, version: job.version, status: 'READY' },
       data: { status: 'SENDING', sendMethod: method, firstSendAt: job.firstSendAt ?? at,
         attempts: { increment: 1 }, claimantId: workerId, leaseExpiresAt: new Date(at.getTime() + 30_000), version: { increment: 1 } } })
     if (result.count) await traceEvent(tx, job, 'SEND_STARTED', `send:${sendAttemptId}`, {
@@ -845,7 +963,8 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
       : methodFallbackTo || (result.status === 'RETRYABLE_FAILURE' && method === 'PUSH') ? 'READY' : 'FAILED'
   const responseObservedAt = now()
   const changed = await atomic(db, async tx => {
-    const updated = await tx.lineConversationJob.updateMany({ where: { id: job.id, status: 'SENDING', claimantId: workerId, version: job.version + 1 },
+    const updated = await tx.lineConversationJob.updateMany({ where: { id: job.id, executionMode: requiredExecutionMode,
+      executionId: expectedExecutionId, status: 'SENDING', claimantId: workerId, version: job.version + 1 },
     data: { status, acceptedAt: status === 'ACCEPTED' ? now() : null,
       providerRequestId: result.requestId ?? null, providerMessageId: result.messageId ?? null,
       errorCode: result.code ?? null, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
@@ -867,6 +986,68 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     return { ...reconciled, acceptance: 'ACCEPTED_BY_LINE' }
   }
   return { id: job.id, status: changed.count ? status : 'FENCED' }
+}
+
+/** Core-owned sender used only for an exact CR-owned job and its last execution id. */
+export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAccount, replyTransport, pushTransport,
+  env = process.env, now = () => new Date() } = {}) {
+  const job = await db.lineConversationJob.findUnique({ where: { id: claim.jobId },
+    include: { account: true, inbound: { include: { conversation: true } } } })
+  if (!job || job.executionMode !== 'CONVERSATION_RUNTIME' || job.executionId !== claim.executionId
+    || job.tenantId !== claim.tenantId || job.businessId !== claim.businessId || job.accountId !== claim.accountId) {
+    throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+  }
+  if (job.status === 'ACCEPTED') return reconcileAccepted(db, job)
+  if (job.status === 'RECORDED' || job.status === 'UNKNOWN' || job.status === 'FAILED' || job.status === 'CANCELLED') {
+    return { id: job.id, status: job.status }
+  }
+  if (job.status === 'SENDING') return { id: job.id, status: 'UNKNOWN' }
+  if (job.status !== 'READY') return { id: job.id, status: job.status }
+  const identity = await findChannelIdentity({ db, tenantId: job.tenantId,
+    channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
+  if (!channelIdentityIsVerified(identity) || job.memorySyncOptIn || job.audienceKind !== 'DIRECT'
+    || job.recipientId !== job.sourceUserId || job.errorCode === 'PDPA_ERASURE'
+    || !activeAccount(job.account, job) || (job.account.bindingCode || job.account.id) !== job.channelAccountId) {
+    await db.lineConversationJob.updateMany({ where: { id: job.id, executionMode: 'CONVERSATION_RUNTIME',
+      executionId: claim.executionId, version: job.version, status: 'READY' },
+      data: { status: 'CANCELLED', answerText: null, errorCode: 'CONVERSATION_JOB_AUTHORITY_REVOKED',
+        sealedReplyToken: null, version: { increment: 1 } } })
+    return { id: job.id, status: 'CANCELLED' }
+  }
+  return sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env,
+    workerId: claim.claimantId, now, requiredExecutionMode: 'CONVERSATION_RUNTIME', expectedExecutionId: claim.executionId })
+}
+
+export async function appendRuntimeConversationTrace(claim, { kind, payload }, { db = prisma, now = () => new Date() } = {}) {
+  const job = await db.lineConversationJob.findUnique({ where: { id: claim.jobId } })
+  if (!job || job.executionMode !== 'CONVERSATION_RUNTIME' || job.executionId !== claim.executionId
+    || job.tenantId !== claim.tenantId || job.businessId !== claim.businessId || job.accountId !== claim.accountId) {
+    throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+  }
+  const operationId = typeof payload?.operationId === 'string' ? payload.operationId : `${job.id}:turn`
+  await traceEvent(db, job, kind, `runtime:${operationId}:${kind}`, payload,
+    new Date(typeof now === 'function' ? now() : now))
+  return { recorded: true }
+}
+
+export async function runtimeOperationStatus(claim, operationId, { db = prisma } = {}) {
+  if (operationId === `${claim.jobId}:turn-answer`) return runtimeConversationStatus(claim, { db })
+  const job = await db.lineConversationJob.findUnique({ where: { id: claim.jobId },
+    select: { id: true, executionMode: true, executionId: true, tenantId: true, businessId: true, accountId: true } })
+  if (!job || job.executionMode !== 'CONVERSATION_RUNTIME' || job.executionId !== claim.executionId
+    || job.tenantId !== claim.tenantId || job.businessId !== claim.businessId || job.accountId !== claim.accountId) {
+    throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+  }
+  const base = `${job.id}:runtime:${operationId}`
+  const traceWhere = { tenantId: job.tenantId, businessId: job.businessId }
+  const completed = await db.agentTraceEvent.findFirst({ where: { ...traceWhere, idempotencyKey: `${base}:MODEL_COMPLETED` } })
+  if (completed) {
+    const payload = JSON.parse(completed.payloadJson)
+    return { status: 'COMPLETED', operationId, executionId: completed.executionId,
+      ...(typeof payload.text === 'string' ? { text: payload.text } : {}) }
+  }
+  const started = await db.agentTraceEvent.findFirst({ where: { ...traceWhere, idempotencyKey: `${base}:MODEL_STARTED` } })
+  return { status: started ? 'STARTED' : 'NOT_FOUND', operationId, ...(started ? { executionId: started.executionId } : {}) }
 }
 
 /** `S-YYYYMMDD-XXXXXX`, the ConversationSession human code (FR-243). */

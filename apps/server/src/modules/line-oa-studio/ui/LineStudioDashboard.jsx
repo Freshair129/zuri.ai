@@ -14,10 +14,8 @@ import {
   Activity,
   Bot,
   ChevronRight,
-  ShieldCheck,
   CheckCircle2,
   RefreshCw,
-  Cpu
 } from "lucide-react";
 
 export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
@@ -97,7 +95,7 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
       statusLabel: acc.effectiveStatus || acc.status || "สถานะไม่ทราบ",
       category: "line-oa",
       icon: "💬",
-      transport: acc.serverEnabled ? "Zuri Server" : "Edge Worker",
+      transport: acc.serverEnabled ? "Conversation Runtime" : "ยังไม่ได้เปิด Server",
     }))
   ];
 
@@ -138,14 +136,14 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
               onClick={() => onNavigate("connections")}
               className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-all flex items-center gap-2"
             >
-              <span>⚙️ ตั้งค่า Server & Edge</span>
+              <span>⚙️ ตั้งค่าการเชื่อมต่อ</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* KPI 4 Cards Grid - Live Data */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Metric 1: Total Accounts */}
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
@@ -206,25 +204,6 @@ export default function LineStudioDashboard({ onSelectProject, onNavigate }) {
           </div>
         </div>
 
-        {/* Metric 4: Edge Device Runtime */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">สถานะ Edge Device</span>
-            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
-              <Cpu className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
-              UNKNOWN
-            </span>
-            <span className="text-xs text-slate-500">ยังไม่มี telemetry จาก Edge Device</span>
-          </div>
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span>สถานะจะอัปเดตเมื่อมี heartbeat</span>
-          </div>
-        </div>
       </div>
 
       {/* Directory Section */}

@@ -207,11 +207,8 @@ async function defaultResolveWebhookCredential(row, { db }) {
  *      straggler by trusting a registration that just happened.
  *
  * Caveat honestly recorded here, not only in the report: `RawExternalRecord`
- * does not carry a field naming which ingress seam captured it (the legacy
- * `/api/agent/line-webhook` route and the native
- * `/api/line-oa/accounts/{id}/webhook` route write through the identical
- * recorder). Fact 2 is therefore "no evidence at all in the pre-registration
- * window", stricter than "no *legacy* evidence" there — but bounded to
+ * does not carry a field naming which ingress seam captured it. Fact 2 is
+ * therefore "no evidence at all in the pre-registration window", bounded to
  * before the cutover, so it no longer double-counts the account's own later
  * success as a reason to refuse it.
  */
@@ -619,10 +616,8 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       case 'ENABLE_SERVER': {
         if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
         // @req FR-265 — the `transportMode !== 'CLOUD'` half of this guard can no
-        // longer be false through any supported path (ADR-100 D1). It is kept
-        // rather than deleted because a row restored from a pre-ADR-100 snapshot
-        // or a hand-edited database can still carry EDGE, and activation is the
-        // one place that must refuse it rather than assume it away.
+        // longer be false through any supported path. It stays fail-closed for
+        // restored or hand-edited rows that still carry legacy transport metadata.
         if (!LINE_OA_ACCOUNT_STATUSES.filter(status => status !== 'ARCHIVED').includes(row.status) || row.transportMode !== 'CLOUD') throw failure(409, 'LINE_OA_SERVER_ACTIVATION_INVALID')
 
         // @req FR-228 — whether the legacy handoff is typed or derived depends on
