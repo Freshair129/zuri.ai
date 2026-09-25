@@ -820,7 +820,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-266",
@@ -828,7 +828,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "checks": {
@@ -1646,7 +1646,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         }
       ],
       "checks": {
@@ -2704,7 +2704,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-267",
@@ -3904,7 +3904,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-266",
@@ -3912,7 +3912,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-267",
@@ -6364,7 +6364,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-266",
@@ -6372,7 +6372,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-268",
@@ -11792,7 +11792,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-266",
@@ -11800,7 +11800,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-267",
@@ -11834,6 +11834,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js",
         "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
+        "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
         "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
