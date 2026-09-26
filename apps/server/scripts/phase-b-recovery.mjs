@@ -23,9 +23,9 @@ const THIS_DIR = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_INVENTORY_PATH = path.resolve(THIS_DIR, '../../../docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json')
 const DEFAULT_SCHEMA_PATH = path.resolve(THIS_DIR, '../prisma/schema.prisma')
 const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
-const FROZEN_SCHEMA_SHA256 = '9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a'
-const FROZEN_TARGET_SCHEMA_SHA256 = 'a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115'
-const FROZEN_APPLICATION_TABLE_COUNT = 188
+const FROZEN_SCHEMA_SHA256 = 'ca3e8247e50eb95980561e3ce8aa882ed7b11010d0b2167582e5f37b448132c8'
+const FROZEN_TARGET_SCHEMA_SHA256 = 'c45dd4b70079decbd1d415a392221bf1a4a71970cd807140d832549ff5481d55'
+const FROZEN_APPLICATION_TABLE_COUNT = 191
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0
@@ -80,7 +80,7 @@ function normalizeInventory(inventory) {
     }
   }
   if (!pinned || modelNames.size !== FROZEN_APPLICATION_TABLE_COUNT || tableNames.size !== FROZEN_APPLICATION_TABLE_COUNT) {
-    throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Frozen application table inventory is not the approved 188-table inventory')
+    throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Frozen application table inventory is not the approved 191-table inventory')
   }
   return normalized
 }

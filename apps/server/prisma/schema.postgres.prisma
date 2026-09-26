@@ -3389,6 +3389,59 @@ model KnowledgeCandidate {
 // @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret references only;
 // the production partial active-primary invariant is an additive Postgres DDL gate.
 // @tested tests/unit/fr079-schema-contract.test.js
+// @req FR-273 — expiring single-use OAuth CSRF state contains no provider code
+//   and is never included in installation snapshots.
+// @spec ADR-109 D1; SEC-037
+// @tested tests/integration/notion-oauth-webhook.test.js
+model NotionOAuthState {
+  id          String    @id @default(uuid())
+  stateHash   String    @unique
+  tenantId    String
+  businessId  String
+  actorId     String
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  version     Int       @default(1)
+
+  @@index([expiresAt])
+  @@index([tenantId, businessId, actorId])
+}
+
+// @req FR-274 — encrypted app-level Notion webhook verification material; excluded
+//   from backups and revealed once so a restore cannot resurrect a stale token.
+// @spec ADR-109 D2, D3; SEC-037
+// @tested tests/integration/notion-oauth-webhook.test.js
+model NotionWebhookVerificationToken {
+  id          String   @id
+  kekId       String
+  wrappedDek  String
+  iv          String
+  tag         String
+  ciphertext  String
+  revealedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  version     Int      @default(1)
+}
+
+// @req FR-274 — minimal immutable event receipt for Notion webhook idempotency;
+//   no payload, entity, page or comment content is stored.
+// @spec ADR-109 D2, D3; SEC-037
+// @tested tests/integration/notion-oauth-webhook.test.js
+model NotionWebhookReceipt {
+  eventId     String   @id
+  eventType   String
+  workspaceId String
+  occurredAt  DateTime
+  receivedAt  DateTime @default(now())
+  version     Int      @default(1)
+
+  @@index([workspaceId, receivedAt])
+  @@index([occurredAt])
+}
+
 model IntegrationProvider {
   id               String   @id @default(uuid())
   code             String   @unique

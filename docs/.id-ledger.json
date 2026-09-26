@@ -402,6 +402,8 @@
     "FR-270",
     "FR-271",
     "FR-272",
+    "FR-273",
+    "FR-274",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -534,6 +536,8 @@
     "SDD-105",
     "SDD-106",
     "SDD-107",
+    "SDD-108",
+    "SDD-109",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -570,6 +574,7 @@
     "SEC-034",
     "SEC-035",
     "SEC-036",
+    "SEC-037",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -615,6 +620,7 @@
     "FEAT-043",
     "FEAT-044",
     "FEAT-045",
+    "FEAT-046",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -809,6 +815,7 @@
     "ADR-104",
     "ADR-105",
     "ADR-108",
+    "ADR-109",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -5042,6 +5049,34 @@
         }
       ]
     },
+    "FR-273": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f0df59b5846029c84a13b325213166409dcdc66c456ee9001ca747a56744a236",
+      "history": [
+        {
+          "anchor": "a business owner connects a notion public connection",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-274": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1a7ac5a19fc3ae71d7918dda55c34d2166159c93fa04ed5457335ad0a6f2eea6",
+      "history": [
+        {
+          "anchor": "the integration lane receives notion s post api",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Clarify identical setup challenge retries acknowledge receipt without replacing the pinned verification token."
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6786,6 +6821,34 @@
         }
       ]
     },
+    "SDD-108": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "30c9c15ed881face088d8bef736011a34c561f3aabaa2b48d565065497b73350",
+      "history": [
+        {
+          "anchor": "notion oauth state is random short lived and stored hash",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-109": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ae98c9ea537532bb8a09e8377ce5af6ceafe5ed39d9a77303d5d9734c766a5ea",
+      "history": [
+        {
+          "anchor": "the notion webhook verification token has app level scope",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Specify that identical verification challenge retries are idempotent and do not replace the encrypted token."
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -7265,6 +7328,21 @@
           "reason": "declared"
         }
       ]
+    },
+    "SEC-037": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4d17a8697d01314be69e2294038515fcbd35c29a0cf93a43fa38d399fdedfa3f",
+      "history": [
+        {
+          "anchor": "notion oauth state is unpredictable actor scope bound hash",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Bind the retry rule so an identical webhook setup challenge cannot replace the encrypted verification token."
     },
     "FEAT-001": {
       "family": "FEAT",
@@ -7876,6 +7954,19 @@
         {
           "anchor": "line oa on api keys only",
           "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-046": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "68c7559bc3815cc55dad6e5cf661b37261c391a29c6afbf428bf705204399b14",
+      "history": [
+        {
+          "anchor": "notion connection",
+          "since": "2026-09-26",
           "reason": "declared"
         }
       ]
@@ -10424,6 +10515,19 @@
         {
           "anchor": "market intelligence service extraction on the ownership",
           "since": "2026-09-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-109": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "8c135c8b79cc19f32d10e9c4f0837cf95275b60e4eb25f4e6ede90fac21f763b",
+      "history": [
+        {
+          "anchor": "notion oauth installation and signed webhook boundary",
+          "since": "2026-09-26",
           "reason": "declared"
         }
       ]

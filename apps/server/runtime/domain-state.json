@@ -36,10 +36,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 159,
+    "featureCount": 160,
     "readyFeatureCount": 119,
-    "requirementCount": 272,
-    "verifiedRequirementCount": 247,
+    "requirementCount": 274,
+    "verifiedRequirementCount": 249,
     "progressPercent": 93.6,
     "gapCount": 48,
     "gaps": [
@@ -111,7 +111,7 @@
         "id": "AUTH-001",
         "severity": "high",
         "check": "authorization",
-        "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
       },
       {
         "domain": "asset-management",
@@ -142,7 +142,7 @@
         "id": "AUTH-001",
         "severity": "high",
         "check": "authorization",
-        "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
       },
       {
         "domain": "identity",
@@ -262,7 +262,7 @@
         "id": "AUTH-001",
         "severity": "high",
         "check": "authorization",
-        "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
       },
       {
         "domain": "line-oa-studio",
@@ -301,7 +301,7 @@
         "id": "AUTH-001",
         "severity": "high",
         "check": "authorization",
-        "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
       },
       {
         "domain": "platform-control",
@@ -421,7 +421,7 @@
         "id": "AUTH-001",
         "severity": "high",
         "check": "authorization",
-        "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
       },
       {
         "domain": "project-manager",
@@ -847,7 +847,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -1143,7 +1143,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -1194,7 +1194,7 @@
             {
               "id": "AUTH-001",
               "severity": "high",
-              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+              "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
             },
             {
               "id": "AUTH-002",
@@ -1240,7 +1240,7 @@
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
-          "summary": "At least one mutating route lacks a recognizable request viewer seam"
+          "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
         },
         {
           "id": "AUTH-002",
@@ -1356,7 +1356,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -2202,7 +2202,7 @@
           "details": {
             "routes": 34,
             "inventoried": 33,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -2257,7 +2257,7 @@
             {
               "id": "AUTH-001",
               "severity": "high",
-              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+              "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
             },
             {
               "id": "AUTH-002",
@@ -2348,7 +2348,7 @@
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
-          "summary": "At least one mutating route lacks a recognizable request viewer seam"
+          "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
         },
         {
           "id": "AUTH-002",
@@ -2713,6 +2713,22 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 5
+        },
+        {
+          "id": "FR-273",
+          "title": "A Business OWNER connects a Notion public connection through the Integration lane",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 12
+        },
+        {
+          "id": "FR-274",
+          "title": "The Integration lane receives Notion's POST /api/integrations/notion/webhook, captures the initial verification token encrypted for…",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 2
         }
       ],
       "checks": {
@@ -2736,9 +2752,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 13,
-            "inventoried": 13,
-            "openApiPaths": 337,
+            "routes": 18,
+            "inventoried": 18,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -2780,8 +2796,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 19,
-            "present": 19
+            "models": 22,
+            "present": 22
           }
         },
         "authorization": {
@@ -2791,9 +2807,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 11,
-            "guardedMutations": 11,
-            "reads": 6,
+            "mutations": 14,
+            "guardedMutations": 14,
+            "reads": 8,
             "unguardedReads": 0
           }
         },
@@ -2826,6 +2842,7 @@
         "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
         "docs/domains/integration/features/FR-130-github-repository-projection.md",
         "docs/domains/integration/features/FR-255-inference-node-registration-and-trust.md",
+        "docs/domains/integration/features/FR-273-notion-oauth-and-webhook.md",
         "docs/domains/integration/features/PHASE-FR-149-P1-server-line-transport.md",
         "docs/domains/integration/features/PHASE-FR-149-P4-server-line-transport.md",
         "docs/domains/integration/features/PHASE-FR-256-P2-server-owned-self-hosted-model-execution.md",
@@ -2868,15 +2885,16 @@
         }
       ],
       "details": {
-        "routes": 17,
-        "apiRoutes": 13,
+        "routes": 22,
+        "apiRoutes": 18,
         "pageRoutes": 4,
-        "ownedModels": 19,
-        "featureNotes": 13
+        "ownedModels": 22,
+        "featureNotes": 14
       },
       "featureIds": [
         "FEAT-004",
         "FEAT-036",
+        "FEAT-046",
         "FR-030",
         "FR-081",
         "FR-102",
@@ -2886,9 +2904,9 @@
         "FR-130",
         "FR-242"
       ],
-      "featureCount": 10,
+      "featureCount": 11,
       "readyFeatureCount": 7,
-      "progressPercent": 94.1
+      "progressPercent": 94.7
     },
     "inventory": {
       "status": "partial",
@@ -3110,7 +3128,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -3946,7 +3964,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -4001,7 +4019,7 @@
             {
               "id": "AUTH-001",
               "severity": "high",
-              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+              "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
             }
           ],
           "details": {
@@ -4065,7 +4083,7 @@
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
-          "summary": "At least one mutating route lacks a recognizable request viewer seam"
+          "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
         },
         {
           "id": "TEST-001",
@@ -4141,7 +4159,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -4308,7 +4326,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -4673,7 +4691,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -4728,7 +4746,7 @@
             {
               "id": "AUTH-001",
               "severity": "high",
-              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+              "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
             },
             {
               "id": "AUTH-002",
@@ -4794,7 +4812,7 @@
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
-          "summary": "At least one mutating route lacks a recognizable request viewer seam"
+          "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
         },
         {
           "id": "AUTH-002",
@@ -4981,7 +4999,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -6423,6 +6441,22 @@
           "status": "verified",
           "codeCount": 4,
           "testCount": 3
+        },
+        {
+          "id": "FR-273",
+          "title": "A Business OWNER connects a Notion public connection through the Integration lane",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 12
+        },
+        {
+          "id": "FR-274",
+          "title": "The Integration lane receives Notion's POST /api/integrations/notion/webhook, captures the initial verification token encrypted for…",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 2
         }
       ],
       "checks": {
@@ -6458,7 +6492,7 @@
           "details": {
             "routes": 170,
             "inventoried": 170,
-            "openApiPaths": 337,
+            "openApiPaths": 342,
             "missingFromOpenApi": 0
           }
         },
@@ -6515,7 +6549,7 @@
             {
               "id": "AUTH-001",
               "severity": "high",
-              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+              "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
             },
             {
               "id": "AUTH-002",
@@ -6626,7 +6660,7 @@
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
-          "summary": "At least one mutating route lacks a recognizable request viewer seam"
+          "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
         },
         {
           "id": "AUTH-002",
@@ -11868,6 +11902,72 @@
         "apps/server/tests/unit/private-runtime-model-port.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
         "apps/server/tests/unit/server-line-worker-routes.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-046",
+      "title": "Notion connection — a Business owner installs a Notion public connection through server-side OAuth token custody, while signed webhooks create only minimal idempotent receipts and never copy Notion content into business domains (ADR-109)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-273",
+        "FR-274"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [
+        "integration",
+        "project-manager"
+      ],
+      "useCase": "Business owner connects a Notion public connection through server-side OAuth token custody, while signed Notion webhooks record only minimal idempotent receipts and never copy workspace content into business domains",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-046 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-273",
+          "title": "A Business OWNER connects a Notion public connection through the Integration lane",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 12
+        },
+        {
+          "id": "FR-274",
+          "title": "The Integration lane receives Notion's POST /api/integrations/notion/webhook, captures the initial verification token encrypted for…",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/integrations/notion/connect/route.js",
+        "apps/server/src/app/api/integrations/notion/webhook/route.js",
+        "apps/server/src/app/api/platform/integrations/notion/webhook-verification/reset/route.js",
+        "apps/server/src/app/api/platform/integrations/notion/webhook-verification/reveal/route.js",
+        "apps/server/src/app/oauth/notion/callback/route.js",
+        "apps/server/src/lib/validation/enums.js",
+        "apps/server/src/modules/integration/application/notion-oauth-service.js",
+        "apps/server/src/modules/integration/application/notion-webhook-service.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/platform/integrations/core/secret-store/envelope-secret-store.js",
+        "apps/server/src/platform/integrations/core/secret-store/secret-store-port.js",
+        "apps/server/src/platform/integrations/core/secret-store/supabase-vault-secret-store.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+        "apps/server/tests/integration/credential-vault.postgres.test.js",
+        "apps/server/tests/integration/notion-oauth-webhook.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
+        "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/integration/envelope-secret-store.test.js",
+        "apps/server/tests/unit/integration/notion-vault-migration.test.js",
+        "apps/server/tests/unit/integration/secret-store-port.test.js",
+        "apps/server/tests/unit/integration/supabase-vault-secret-store.test.js",
+        "apps/server/tests/unit/plan-schema.test.js"
       ]
     },
     {

@@ -106,6 +106,18 @@ describe('domain state projection', () => {
     expect(state.domains['project-manager'].checks.mcp.status).toBe('unknown')
   })
 
+  it('recognizes unprefixed OAuth callbacks and signed provider webhooks as governed endpoints', () => {
+    const state = JSON.parse(readFileSync(workspacePath(process.cwd(), 'docs/.domain-state.json'), 'utf8'))
+    const integration = state.domains.integration
+
+    expect(integration.checks.httpApi).toEqual(expect.objectContaining({
+      status: 'verified',
+      details: expect.objectContaining({ missingFromOpenApi: 0 }),
+      gaps: [],
+    }))
+    expect(integration.checks.authorization.status).toBe('verified')
+  })
+
   it('keeps evidence and gaps attached to the check that produced them', () => {
     const state = buildDomainState({
       nodes,

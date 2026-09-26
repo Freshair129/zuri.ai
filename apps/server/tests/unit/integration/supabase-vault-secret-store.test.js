@@ -14,6 +14,7 @@ import {
   errorTrace,
   generateLineChannelBundle,
   generateModelProviderKeyBundle,
+  generateNotionOauthTokenBundle,
   generateOauthClientBundle,
 } from '../../helpers/credential-vault-fixtures'
 
@@ -145,6 +146,33 @@ describe('OAUTH_CLIENT and MODEL_PROVIDER_KEY dispatch to the provider_secret_* 
       const error = await createSupabaseVaultSecretStore({ sql: failing }).write({ ...scope, kind, bundle, createdVia: 'BROWSER_MFA' }).catch(e => e)
       expect(error).toMatchObject({ code: 'CREDENTIAL_KIND_MISMATCH', status: 409 })
     }
+  })
+})
+
+describe('NOTION_OAUTH_TOKEN uses dedicated Vault functions', () => {
+  it('writes and resolves through notion_secret_* without passing a kind the function can widen', async () => {
+    const bundle = generateNotionOauthTokenBundle()
+    const writer = recorder([{ secret_ref: `supabase-vault:${randomUUID()}`, version_number: 1 }])
+    const store = createSupabaseVaultSecretStore({ sql: writer })
+    await store.write({ ...scope, kind: 'NOTION_OAUTH_TOKEN', bundle, createdVia: 'BROWSER_MFA', actorPersonId: 'p1' })
+    expect(writer.calls[0].text).toBe(CHANNEL_SECRET_SQL.writeNotion)
+    expect(writer.calls[0].params).toEqual(['c1', 't1', 'b1', JSON.stringify(bundle), null, 'p1', 'BROWSER_MFA'])
+    expect(writer.calls[0].text).not.toContain(bundle.accessToken)
+
+    const material = JSON.stringify(bundle)
+    const reader = recorder([{ secret_material: material, version: 'credential-v1', expires_at: new Date(Date.now() + 60_000) }])
+    const resolved = await createSupabaseVaultSecretStore({ sql: reader }).resolve(`supabase-vault:${randomUUID()}`, { ...scope, kind: 'NOTION_OAUTH_TOKEN' })
+    expect(reader.calls[0].text).toBe(CHANNEL_SECRET_SQL.resolveNotion)
+    expect(reader.calls[0].params).toEqual([expect.any(String), 't1', 'b1', 'c1'])
+    expect(resolved.material).toBe(material)
+  })
+
+  it('maps the dedicated write function cross-kind refusal to a 409', async () => {
+    const failing = { run: async () => { throw new Error('P0001: CREDENTIAL_KIND_MISMATCH') } }
+    const error = await createSupabaseVaultSecretStore({ sql: failing }).write({
+      ...scope, kind: 'NOTION_OAUTH_TOKEN', bundle: generateNotionOauthTokenBundle(), createdVia: 'BROWSER_MFA',
+    }).catch(e => e)
+    expect(error).toMatchObject({ code: 'CREDENTIAL_KIND_MISMATCH', status: 409 })
   })
 })
 

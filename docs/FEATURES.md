@@ -1,18 +1,22 @@
 ---
 id: ZAI:FEATURES
-version: "1.63.0b"
+version: "1.64.0b"
 status: active
-last_update: "2026-09-22T00:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-26T00:00:00+07:00,Codex GPT-6"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
   - type: relates_to
     target: ZAI:ADR-101
   - type: relates_to
+    target: ZAI:ADR-109
+  - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.63.0b -> 1.64.0b (2026-09-26): FEAT-046 declares Business-scoped Notion OAuth token custody and signed receipt-only webhook ingress under ADR-109; implementation and production gates remain separate.
 
 Version diff 1.62.0b -> 1.63.0b (2026-09-22): FEAT-002's "Goals & KPIs" sub-page — FR-268 and FR-271 — moves from declared to Phase 1 implemented under ADR-101 D6: `BusinessKeyResult`(+`CheckIn`) model, write-through progress (SDD-107, BR-044), SMART checklist, StrategyCard UI, attention-queue row. FR-269/FR-270 (KPIs, 4DX) remain declared, Phase 2/3. FEAT-002 stays `building` — see ADR-101's own consequence note. Implementation on `feat/task-zai-122-goal-service-phase1-key-results`; PR pending merge.
 
@@ -31,7 +35,7 @@ Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-o
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.60.0b |
+| **Version** | 1.64.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -94,6 +98,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-043 | Server-owned self-hosted inference pool | FR-255, FR-256, FR-257, FR-258, FR-259 | approved design — repository declaration pending |
 | FEAT-044 | Mission Control DAG orchestration observability — an installation-operator-only, read-only projection that joins the canonical roadmap DAG and its 21 waves with provenance-bound Programme Orchestration Run Ledger observations for workers, threads, branches, worktrees, commits, checks and evidence; same-wave work is only candidate-parallel until dependency, owner, lane, shared-file, revision and capability gates pass; missing or stale records stay UNKNOWN/NOT_RUN; /roadmap remains server-redacted and mobile uses the same SOT (ADR-048, ADR-086, ADR-092) | FR-260, FR-261, FR-262, FR-263, FR-264 | building |
 | FEAT-045 | LINE OA on API keys only — the Studio's EDGE execution mode, its edge conversation-job claim surface and the LOCAL_ONLY deterministic-answer branch are retired, and the model provider API key every server answer needs is entered by the Business owner in the browser, write-only, through the same credential vault that already holds the LINE channel secret (ADR-100, amending ADR-061 D2/D3 for LINE OA; ADR-041 pairing and ADR-059 asset extraction are untouched) | FR-265, FR-266, FR-267 | building |
+| FEAT-046 | Notion connection — a Business owner installs a Notion public connection through server-side OAuth token custody, while signed webhooks create only minimal idempotent receipts and never copy Notion content into business domains (ADR-109) | FR-273, FR-274 | building |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -948,6 +953,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-045",
     "primaryDomain": "line-oa-studio",
     "useCase": "Business OWNER ใส่ API key ของโมเดลเองจากหน้าเว็บ แบบเขียนอย่างเดียว ตรวจกับผู้ให้บริการก่อนบันทึก แล้ว LINE OA ตอบลูกค้าโดยเรียกโมเดลด้วยคีย์นั้นบนเซิร์ฟเวอร์ของ Zuri โดยไม่ต้องมี Edge device อีกต่อไป"
+  },
+  {
+    "id": "FEAT-046",
+    "primaryDomain": "integration",
+    "useCase": "Business owner connects a Notion public connection through server-side OAuth token custody, while signed Notion webhooks record only minimal idempotent receipts and never copy workspace content into business domains"
   },
   {
     "id": "FR-253",

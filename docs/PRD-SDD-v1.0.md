@@ -1,11 +1,13 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.240.0b"
+version: "1.249.1b"
 status: draft
-last_update: "2026-09-19T00:00:00+07:00,Luna Max"
+last_update: "2026-09-26T00:00:00+07:00,Codex GPT-6"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:ADR-109
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
 ---
@@ -19,17 +21,19 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.238.0b |
+| **Version** | 1.249.1b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-17 |
+| **Last Updated** | 2026-09-26 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Version History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.249.1b | 2026-09-26 | Codex GPT-6 | Clarify FR-273/274 operator authority, idempotent challenge retries and Notion's use of the per-Person/Business gate without consuming the LINE-only call limit (ADR-109). |
+| 1.249.0b | 2026-09-26 | Codex GPT-6 | Declare FR-273/274, SDD-108/109 and SEC-037 for Business-scoped Notion OAuth installation, server-side token storage and signed webhook receipt under ADR-109; implementation is local to the delivery branch and production remains unchanged. |
 | 1.248.0b | 2026-09-22 | Claude Sonnet 5 | FR-268 and FR-271 implemented (ADR-101 D6 Phase 1): `BusinessGoal.perspective`/`isWig` fields, `BusinessKeyResult`(+`CheckIn`) models, the pure `keyResultProgress`/`expectedProgress`/`keyResultStatus`/`rollupGoal`/`smartChecks`/`weekStartFor` calculators, the OWNER-only write-through mutation service (SDD-107, BR-044), the FR-041 read extension, the Key Result list/modals/SMART checklist UI on StrategyCard, a Key-Result-off-track attention-queue row (FR-060), both migration trees (not production-applied — ADR-057), `SNAPSHOT_MODELS`, seed data and tests. FR-269, FR-270, BR-043 remain declared only (Phase 2/3). Implementation on `feat/task-zai-122-goal-service-phase1-key-results`; PR pending merge. |
 | 1.247.0b | 2026-09-22 | Claude Sonnet 5 | Declare FR-268, FR-269, FR-270 and FR-271, SDD-107, BR-043 and BR-044 under ADR-101 and FEAT-002's reserved "Goals & KPIs" sub-page (`docs/domains/project-manager/features/FR-060-business-home.md`, "Out, and each needs its own FR when built"): Key Results and weekly check-ins roll up into `BusinessGoal.progress` as a write-through cache (SDD-107, BR-044); a Business-scoped Balanced Scorecard (`BusinessKpi`/`BusinessKpiObservation`, FR-269); 4DX weekly execution — at most two WIG goals per Business (BR-043), lead measures, commitments, a weekly session ritual (FR-270); and a SMART validation contract that returns Achievable/Relevant as `null` rather than a fabricated score (FR-271). Declaration only, on `feat/task-zai-122-goal-service-phase0-docs`; no schema, route or UI change is claimed by this revision — see ADR-101 for the phased plan. |
 | 1.246.0b | 2026-09-22 | Claude Sonnet 5 | Reword FR-060's status cell (statement unchanged): `attentionQueue` read `strategy?.goals`, a key the real FR-041 payload never sends — goals nest under `roadmaps[].horizons[].goals[]` — so every goal-based attention row ("Goal past target", "Goal has no linked Project") was dead code in production. Fixed in `business-home-read-model.js`; the prior unit test only passed because it hand-fed the wrong shape, now corrected to the real nested shape plus a new empty-roadmap case. Local only, on `feat/task-zai-122-goal-service-phase0-docs`; not merged. |
@@ -640,6 +644,9 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 > while choosing a Business, but it never enters a Group Overview; `/overview` requires
 > a selected Business. Portfolio progress remains a reporting API.
 
+| FR-273 | A Business OWNER connects a Notion public connection through the Integration lane. The server creates short-lived single-use OAuth state bound to the trusted Tenant, Business and actor, exchanges the callback code at Notion's `/v1/oauth/token` with the configured redirect URI, and stores the returned access/refresh token in the typed credential vault; the callback never returns token material to the browser. | 🟠 implementation in progress — ADR-109; no production migration or provider activity is claimed |
+| FR-274 | The Integration lane receives Notion's `POST /api/integrations/notion/webhook`, captures the initial verification token encrypted for one-time AAL2 installation-operator reveal, acknowledges only identical challenge retries, validates later `X-Notion-Signature` values over the exact raw request body, and records only idempotent event receipt metadata. Webhook payload content is not persisted or written into a business domain. | 🟠 implementation in progress — ADR-109; no production webhook subscription is claimed |
+
 ## 1.4 Non-functional requirements
 
 | ID | Requirement | หลักฐาน |
@@ -854,6 +861,8 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-105 | Atomic inference reservation and uncertain-capacity discipline: reserve each invocation atomically by canonical engine identity across processes using a bounded database lease; distinguish pre-dispatch expiry from uncertain post-dispatch work and never recycle disputed remote capacity without a verified recovery boundary. | 🔜 approved design — not registered, not implemented, not deployed |
 | SDD-106 | Model credential resolution order for a server LINE answer: `resolveModel` first reads the Business-scoped `IntegrationConnection` with purpose MODEL_PROVIDER, status ACTIVE and role PRIMARY from the application database and resolves its `MODEL_PROVIDER_KEY` through the `SecretStorePort`; only when that connection does not exist does it fall back to the Phase-1 `zuri_core` resolver. The fallback is a declared, traced transition state, not a permanent second path — it exists so that, on an installation whose Phase-1 resolver is provisioned, a deploy of FR-266 cannot silence a Business that has not yet entered a key (on this installation it is not: `zuri_core.integration_connection` is empty, so a Business with no key of its own cannot answer — ADR-100 D5 correction), and retiring it is a separate evidence-gated step once every live Business holds a vault-backed key. Neither path ever falls back to the other on a resolution *failure*: a present-but-broken credential fails closed, because a silent downgrade to a different key is exactly the ambiguity ADR-061 D6 refuses elsewhere. | 🚧 deployed 2026-09-21 (production main `5c5f12d3`; TASK-ZAI-120, ADR-100 D5) |
 | SDD-107 | `BusinessGoal.progress` becomes a write-through cache, never a second source of truth: `recordKeyResultCheckIn` recomputes it from the goal's non-archived Key Results inside the same transaction as the check-in, through a pure `rollupGoal(keyResults)` calculator mirroring `rollupProject`'s `{ percent, formula, warnings }` shape, and persists the result with the goal's `version` incremented. `updateGoal` refuses a manual `progress` patch once the goal holds a non-archived Key Result (BR-044), and the FR-041 strategy DTO exposes `progressSource: 'MANUAL' \| 'KEY_RESULTS'` per goal so the UI labels the number honestly instead of implying every goal is measured the same way. | ✅ Phase 1 implemented — `recomputeGoalProgress`/`rollupGoal`, `updateGoal`'s BR-044 refusal, `progressSource` on the FR-041 DTO (ADR-101 D6, TASK-ZAI-122; local branch, PR pending merge) |
+| SDD-108 | Notion OAuth state is random, short-lived and stored hash-only with trusted Tenant, Business and actor scope; callback consumes it once before exchanging the code. OAuth client credentials come from deployment configuration; the code, access token and refresh token stay server-side, the returned token bundle uses its own `NOTION_OAUTH_TOKEN` vault kind, and only workspace identity metadata enters `IntegrationConnection`. | FR-273; ADR-109; SEC-037 |
+| SDD-109 | The Notion webhook verification token has app-level scope because Notion sends its initial challenge without a workspace identifier. The challenge is stored encrypted and revealed once to an installation operator at AAL2; an identical challenge retry is acknowledged without replacing it and reset is an audited AAL2 operation. Event signatures are checked in constant time against the exact raw body before JSON parsing or writes, and idempotent receipts contain only event ID/type/workspace ID/time. | FR-274; ADR-109; SEC-037 |
 
 ## 2.3 Security requirements
 
@@ -895,6 +904,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SEC-034 | The chat evidence archive (FR-245) is encrypted at rest with AES-256-GCM under a data key per Customer, and the data keys are wrapped under `ZURI_ARCHIVE_KEK`, which is never `ZURI_SECRET_KEK`, is never stored in the database or the repository, and has an offline backup the owner holds. Each archive file has a manifest row holding its SHA-256, message count, archived id-list hash and the previous manifest's hash, chained per Tenant, and the sweep's audit event carries the manifest hash. Retrieval is allowed only to an OWNER at AAL2 with a case reference and writes an `ARCHIVE_RETRIEVED` audit event naming the Customer, the range and the case reference; no agent, model, GKS corpus, MSP memory or Context Composer reads the archive. A Customer's data key is destroyed when their last archived line expires or on a PDPA erasure, unless an OWNER has recorded a legal hold on that Customer with a dispute reason and an end date; the erasure status then shows the hold, and the key is destroyed when the hold ends. | 🚧 encryption merged (PR #431, TASK-ZAI-111) and retrieval built locally (TASK-ZAI-112) 2026-09-16 — ADR-093 D4, D7; the legal hold (D6) is a later phase (TASK-ZAI-113) and awaits counsel's confirmation of its basis |
 | SEC-035 | Inference destination and credential confinement: private inference destinations must be operator-allowlisted and connection-time validated with authenticated transport, no redirects or SSRF to unrelated services, and credentials must remain within the approved write-only secret and transport boundary. | 🔜 approved design — not registered, not implemented, not deployed |
 | SEC-036 | Inference processing-scope and cache isolation: processing permission and trusted Tenant/Business/conversation authority must constrain each prompt and cache-reuse boundary; self-hosted selection never implies cloud consent, customer-premise residency, shared private memory or an unauthorized provider fallback. | 🔜 approved design — not registered, not implemented, not deployed |
+| SEC-037 | Notion OAuth state is unpredictable, actor/scope-bound, hash-only, expiring and consumed once; OAuth codes and access/refresh tokens never appear in logs, URLs after callback, browser responses or ordinary metadata. The initial Notion webhook verification token is encrypted at rest, accepted only when no token is configured, revealed once behind installation-operator AAL2, and replaceable only through an audited AAL2 reset; an identical setup challenge retry is acknowledged but cannot replace the token; event webhooks fail closed unless the signature is a constant-time match for HMAC-SHA256 over the original bounded request bytes. | FR-273, FR-274; SDD-108, SDD-109; ADR-109 |
 
 ## 2.4 API / DB / Testing / Deployment
 
