@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.9b"
+version: "0.3.10b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-26T00:00:00+07:00,Codex GPT-6"
+last_update: "2026-09-27T00:00:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -205,7 +205,7 @@ The 187-table binding remains historical and refuses cross-schema recovery.
 
 The Notion integration adds `NotionOAuthState`,
 `NotionWebhookVerificationToken` and `NotionWebhookReceipt`, rebinding the
-current frozen inventory to **191 application tables**. The exact canonical LF
+frozen inventory to **191 application tables**. That binding's canonical LF
 schema hash is `ca3e8247e50eb95980561e3ce8aa882ed7b11010d0b2167582e5f37b448132c8`;
 the target inventory hash is
 `c45dd4b70079decbd1d415a392221bf1a4a71970cd807140d832549ff5481d55`.
@@ -214,12 +214,37 @@ contents; minimal webhook receipts are included. The former 188-table binding
 remains historical and refuses cross-schema recovery. No production migration
 or recovery operation is claimed.
 
+Conversation Runtime (ADR-106 / SDD-110) adds `runtimeOwner` to the existing
+`LineOaAccount` and `LineConversationJob` models. It adds no application model,
+so the 191-entry table mapping is unchanged, but the schema bytes change. The
+**current** binding for the merged Notion + Conversation Runtime schema is
+`schemaSha256`
+`f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078` with
+`targetSchemaSha256`
+`a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1`, recomputed
+with `computeTargetSchemaSha256` over the unchanged 191-table mapping. The
+Notion-only binding above and the interim runtimeOwner-only 188-table binding
+(`ffa2c121e08891b4de556480130d5a6e116979f151133a58fd0f23a98ba61f2d` /
+`51b45ae26066775435adef2b983616835d6c09a940ec884f9de0e4cacf8d2899`) are both
+historical and refused against this schema. Both models remain in snapshot
+coverage: restore preserves `runtimeOwner`, disables a restored LINE account and
+increments its transport epoch, and clears reply-token/claim-lease capabilities
+while quarantining queued or uncertain jobs. This rebind changes neither the
+table-empty proof nor the recovery/erasure algorithm; it accepts only this exact
+schema and does not authorize automatic rewriting or recovery of artifacts bound
+to older hashes.
+
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.9b → 0.3.10b: rebind the frozen recovery inventory to the merged
+Notion + Conversation Runtime schema (191 tables, `runtimeOwner` on the LINE
+account and conversation-job models). The table mapping is unchanged; the
+Notion-only and runtimeOwner-only bindings stay historical and are refused.
 
 Version diff 0.3.8b → 0.3.9b: rebind the frozen recovery inventory to the 191-table
 schema after adding the Notion OAuth state, encrypted webhook verification-token
@@ -438,6 +463,7 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.10b | 2026-09-27 | beta | Rebind Phase B recovery to the merged Notion + Conversation Runtime schema (191 tables, runtimeOwner fields); refuse both the Notion-only and runtimeOwner-only bindings; document runtimeOwner restore handling | working-tree | Claude Opus 5.5 (MC0) |
 | 0.3.9b | 2026-09-26 | beta | Rebind Phase B recovery to the 191-table Notion schema; exclude OAuth state and encrypted webhook verification material from backups, include minimal receipts, and preserve refusal of the historical 188-table binding | working-tree | Codex GPT-6 |
 | 0.3.8b | 2026-09-24 | beta | Rebind Phase B recovery to the 188-table schema after adding the operational LINE OA worker checkpoint; preserve the historical 187-table binding | working-tree | RWANG |
 | 0.3.7b | 2026-09-23 | beta | Rebind Phase B recovery to the composed 187-table schema after FR-268 and PM approval gateway models landed; preserve the historical 186-table binding | working-tree | RWANG |
