@@ -1982,7 +1982,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "LOCAL",
     "dependsOn": "TASK-ZAI-078",
     "authority": "ROADMAP.md",
-    "evidence": "Isolated worktree implementation; governance passed; Vitest passed 815 files and 6,993 tests (6 files and 46 tests skipped); production build passed; Playwright completed 220 passed, 4 skipped, 2 failed and 1 flaky under fail-on-flaky. Failures were fr241 roadmap-state expectation (NOT STARTED versus current PRODUCTION / IN_PROGRESS) and marketing-campaigns signup 429; project-feature-mutations passed on retry. Notion-focused integration tests passed; provider setup, production migrations and deployment remain unclaimed."
+    "evidence": "Rebased on current origin/main d302eb08; governance passed (0 critical, 1 existing warning); Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Notion-focused integration tests passed; provider setup, production migrations and deployment remain unclaimed."
   }
 ]
 

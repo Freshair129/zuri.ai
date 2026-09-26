@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.24"
-updated: "2026-09-26"
+version: "0.4.25"
+updated: "2026-09-27"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -36,7 +36,7 @@ related_docs:
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
 
-Version diff 0.4.23 → 0.4.24 (2026-09-26): Record TASK-ZAI-123 local verification — governance, 6,993 Vitest tests and production build passed; Playwright had 220 passed, 4 skipped, 2 failed and 1 flaky (roadmap activation-state expectation, marketing signup 429, and one retry-only snapshot-dialog failure). The Notion-focused integration tests passed; provider setup, production migration and deployment remain unclaimed.
+Version diff 0.4.24 → 0.4.25 (2026-09-27): Re-run TASK-ZAI-123 verification after rebasing onto current origin/main d302eb08 — governance passed with 0 critical and 1 existing warning; Vitest passed 6,995 tests (47 skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Provider setup, production migration and deployment remain unclaimed.
 
 Version diff 0.4.22 → 0.4.23 (2026-09-26): Add TASK-ZAI-123 and its Task Container for FEAT-046 / FR-273/274 under ADR-109. Local implementation and focused tests are in progress; provider setup, production migration and deployment remain unclaimed.
 
@@ -6333,7 +6333,7 @@ requirement_type: FEAT
 complexity: C-3
 access_scope: H3
 status: in-progress
-version: 0.1.1b
+version: 0.1.2b
 pic: Codex
 executor: Codex
 approver: Owen
@@ -6354,7 +6354,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the owner-authorized release process, when the Notion provider is configured and the additive migrations are applied, then a real OAuth callback and webhook verification receipt are recorded without exposing credentials
       checked: false
-changelog: Opened 2026-09-26 under ADR-109 after owner approval. The isolated implementation and focused SQLite integration tests are local evidence only. Governance passed; Vitest passed 815 files and 6,993 tests (6 files and 46 tests skipped); production build passed. Playwright completed with 220 passed, 4 skipped, 2 failed and 1 flaky under fail-on-flaky. The failures were the existing fr241 production-gate text expectation and marketing-campaigns signup 429; project-feature-mutations passed on retry. Provider setup, production migrations and deployment are not performed by this task.
+changelog: Opened 2026-09-26 under ADR-109 after owner approval. Rebased on current origin/main d302eb08 and locally verified: governance passed with 0 critical and 1 existing warning; Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Provider setup, production migrations and deployment are not performed by this task.
 created_at: 2026-09-26T00:00:00Z,Codex,pending
 token_telemetry:
   model_name: gpt-6

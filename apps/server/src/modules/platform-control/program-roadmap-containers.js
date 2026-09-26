@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.24, 2026-09-26) so the board can open a task the way the html board
+// (v0.4.25, 2026-09-27) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -6121,7 +6121,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-123",
     "phase": "PHASE-ZAI-05",
     "sprint": "SPR-ZAI-10",
-    "version": "0.1.1b",
+    "version": "0.1.2b",
     "priority": "P1",
     "pic": "Codex",
     "executor": "Codex",
@@ -6157,7 +6157,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-26 under ADR-109 after owner approval. The isolated implementation and focused SQLite integration tests are local evidence only. Governance passed; Vitest passed 815 files and 6,993 tests (6 files and 46 tests skipped); production build passed. Playwright completed with 220 passed, 4 skipped, 2 failed and 1 flaky under fail-on-flaky. The failures were the existing fr241 production-gate text expectation and marketing-campaigns signup 429; project-feature-mutations passed on retry. Provider setup, production migrations and deployment are not performed by this task.",
+    "changelog": "Opened 2026-09-26 under ADR-109 after owner approval. Rebased on current origin/main d302eb08 and locally verified: governance passed with 0 critical and 1 existing warning; Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Provider setup, production migrations and deployment are not performed by this task.",
     "created": "2026-09-26T00:00:00Z,Codex,pending",
     "predictedTokens": 45000,
     "totalTokens": 0,
