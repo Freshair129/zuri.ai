@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.94.0b → 1.95.0b (2026-09-26): add the Business-scoped Notion OAuth connect/callback and signed receipt-only webhook endpoints (ADR-109); 341 API route handlers, 342 OpenAPI paths and 449 operations. Local implementation and migrations are not production-applied; provider setup remains an operator gate.
+
 Version diff 1.93.0b → 1.94.0b (2026-09-24): DRAFT for the integrator — add the Market Intelligence service's private core façade (ADR-108 D4), one dynamic path; current inventory is 337 route-handler paths. Not reachable with a browser session; no production route switch is claimed.
 
 Version diff 1.92.0b → 1.93.0b (2026-09-23): compose the three FR-268 Business Key Result paths with the two FR-272 PM approval gateway paths; current inventory is 336 route-handler paths. Executor admission remains an internal service boundary and production migration/deployment are not claimed.
@@ -24,9 +26,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.93.0b |
+| **Version** | 1.95.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-23 |
+| **Last Updated** | 2026-09-26 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -45,7 +47,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=337 -->
+<!-- api-spec-counts: route_handlers=341 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -444,6 +446,24 @@ until their separate CAS/provisioner contracts, tests and production manager
 evidence exist. There is intentionally no read-secret endpoint. The UI is owner-only under the
 trusted viewer/Business ownership boundary and cannot activate a LINE binding or
 replace FR-053/054/055 canary evidence.
+
+## Notion OAuth and webhook ingress (FR-273 / FR-274 / ADR-109)
+
+The Business OWNER starts OAuth at AAL2. The callback consumes one actor-bound
+state and exchanges the authorization code server-to-server; the token remains in
+SecretStorePort. Notion event delivery is signature-checked over bounded raw bytes
+and stores only an idempotent receipt. The app-level verification token can be
+revealed once by an installation operator at AAL2; reset is also AAL2-gated.
+Webhook ciphertext and OAuth state are not exported in snapshots; event receipts
+are retained for idempotency.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/integrations/notion/connect` | FR-273: authenticated Business OWNER at AAL2; `businessId` selects only a Business they own; redirects to Notion with short-lived one-use state. |
+| GET | `/oauth/notion/callback` | FR-273: same actor and Business scope; consumes state once, exchanges `code` at Notion's fixed token endpoint, stores the token through SecretStorePort, and redirects without returning code or token. |
+| POST | `/api/integrations/notion/webhook` | FR-274: public bounded JSON challenge or `X-Notion-Signature` HMAC over exact raw bytes; stores challenge ciphertext or a minimal event receipt only. |
+| POST | `/api/platform/integrations/notion/webhook-verification/reveal` | FR-274: installation operator at AAL2; atomically returns the challenge token once, with no-store response. |
+| POST | `/api/platform/integrations/notion/webhook-verification/reset` | FR-274: installation operator at AAL2; audited removal allows a new challenge to be captured. |
 
 ## CRM conversation reader (FR-091 / SDD-049)
 

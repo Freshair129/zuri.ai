@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a",
+  "schemaSha256": "ca3e8247e50eb95980561e3ce8aa882ed7b11010d0b2167582e5f37b448132c8",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -572,6 +572,21 @@
       "tableName": "Milestone"
     },
     {
+      "modelName": "NotionOAuthState",
+      "schemaName": "public",
+      "tableName": "NotionOAuthState"
+    },
+    {
+      "modelName": "NotionWebhookReceipt",
+      "schemaName": "public",
+      "tableName": "NotionWebhookReceipt"
+    },
+    {
+      "modelName": "NotionWebhookVerificationToken",
+      "schemaName": "public",
+      "tableName": "NotionWebhookVerificationToken"
+    },
+    {
       "modelName": "PasskeyCredential",
       "schemaName": "public",
       "tableName": "PasskeyCredential"
@@ -946,5 +961,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115"
+  "targetSchemaSha256": "c45dd4b70079decbd1d415a392221bf1a4a71970cd807140d832549ff5481d55"
 }

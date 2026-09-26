@@ -1,13 +1,19 @@
 ---
-version: "0.5.0b"
+version: "0.6.0b"
 status: active
-last_update: "2026-09-21T00:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-26T00:00:00+07:00,Codex GPT-6"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
     target: ZAI:ADR-061
   - type: relates_to
     target: ZAI:ADR-100
+  - type: relates_to
+    target: ZAI:ADR-109
+  - type: relates_to
+    target: ZAI:FR-273
+  - type: relates_to
+    target: ZAI:FR-274
   - type: relates_to
     target: ZAI:FR-266
   - type: relates_to
@@ -24,6 +30,9 @@ owns_routes:
   - src/app/api/platform/integrations/**
   - src/app/api/line-oa/connections/**
   - src/app/api/integration/model-providers/**
+  - src/app/api/integrations/notion/**
+  - src/app/api/platform/integrations/notion/webhook-verification/**
+  - src/app/oauth/notion/callback/**
   - src/app/api/platform/sot/**
 owns_models:
   - IntegrationProvider
@@ -45,6 +54,9 @@ owns_models:
   - PipelineReconciliation
   - PipelineGateDecision
   - KnowledgeEvidenceCursor
+  - NotionOAuthState
+  - NotionWebhookVerificationToken
+  - NotionWebhookReceipt
 owns_code:
   - src/platform/integrations/**
 ---

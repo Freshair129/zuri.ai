@@ -25,7 +25,7 @@ function listFiles(directory) {
 
 function currentRouteInventory() {
   const root = path.resolve(__dirname, '../../src/app/api')
-  return listFiles(root)
+  const apiRoutes = listFiles(root)
     .filter((file) => path.basename(file) === 'route.js')
     .map((file) => {
       const relative = path.relative(root, path.dirname(file)).split(path.sep).join('/')
@@ -38,6 +38,8 @@ function currentRouteInventory() {
         methods,
       }
     })
+  // OAuth providers require an exact unprefixed callback URL, outside /api.
+  return [...apiRoutes, { path: '/oauth/notion/callback', methods: ['GET'] }]
     .sort((left, right) => left.path.localeCompare(right.path))
 }
 
@@ -69,7 +71,7 @@ describe('OpenAPI document', () => {
 
   it('labels generic inventory coverage without overwriting detailed intake contracts', () => {
     expect(doc['x-zuri-route-inventory']).toMatchObject({
-      source: 'src/app/api/**/route.js',
+      source: 'src/app/api/**/route.js plus explicit OAuth callbacks',
       // FR-066/067's seven onboarding/invite routes — eight operations over
       // those seven paths since the owner roster GET joined the removal DELETE
       // on /api/workspace-memberships — plus FR-106's two
@@ -246,10 +248,10 @@ describe('OpenAPI document', () => {
       // 437 + 3 = 440.
       // FR-272 adds the scoped approval inbox and reviewer decision path:
       // two paths and two operations. 334 + 2 = 336; 440 + 2 = 442.
-      // ADR-108 D4 (draft for the integrator) adds the Market service's private
-      // core façade: one dynamic path, GET + POST. 336 + 1 = 337; 442 + 2 = 444.
-      pathCount: 337,
-      operationCount: 444,
+      // ADR-108 D4 adds the Market façade (337 paths / 444 operations).
+      // ADR-109 adds five Notion paths and five single-method operations.
+      pathCount: 342,
+      operationCount: 449,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

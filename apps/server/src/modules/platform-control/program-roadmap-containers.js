@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.22, 2026-09-23) so the board can open a task the way the html board
+// (v0.4.24, 2026-09-26) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -6116,6 +6116,55 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-103"
     ],
     "evidence": "PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103"
+  },
+  "TASK-ZAI-123": {
+    "container": "TC-TASK-ZAI-123",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.1b",
+    "priority": "P1",
+    "pic": "Codex",
+    "executor": "Codex",
+    "approver": "Owen",
+    "auditor": "pending",
+    "links": {
+      "code": "apps/server/src/modules/integration/application/notion-oauth-service.js",
+      "doc": "docs/decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md",
+      "test": "apps/server/tests/integration/notion-oauth-webhook.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FEAT-046",
+      "FR-273",
+      "FR-274"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a Business owner at AAL2 and a configured Notion connection, when the callback returns a code with matching state, then the server stores the token through SecretStorePort and redirects without credential material",
+        "checked": true
+      },
+      "success": {
+        "text": "Given Notion webhook events, when the exact raw body signature is invalid or absent, then no receipt is written, and valid duplicate event ids create one minimal receipt",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the owner-authorized release process, when the Notion provider is configured and the additive migrations are applied, then a real OAuth callback and webhook verification receipt are recorded without exposing credentials",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-26 under ADR-109 after owner approval. The isolated implementation and focused SQLite integration tests are local evidence only. Governance passed; Vitest passed 815 files and 6,993 tests (6 files and 46 tests skipped); production build passed. Playwright completed with 220 passed, 4 skipped, 2 failed and 1 flaky under fail-on-flaky. The failures were the existing fr241 production-gate text expectation and marketing-campaigns signup 429; project-feature-mutations passed on retry. Provider setup, production migrations and deployment are not performed by this task.",
+    "created": "2026-09-26T00:00:00Z,Codex,pending",
+    "predictedTokens": 45000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-078"
+    ],
+    "evidence": "../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md"
   },
   "TASK-ZAI-121": {
     "container": "TC-TASK-ZAI-121",

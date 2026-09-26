@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.7b"
+version: "0.3.9b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-23T00:37:41+07:00,RWANG"
+last_update: "2026-09-26T00:00:00+07:00,Codex GPT-6"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -203,12 +203,29 @@ inventory binding has `targetSchemaSha256`
 `a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115`.
 The 187-table binding remains historical and refuses cross-schema recovery.
 
+The Notion integration adds `NotionOAuthState`,
+`NotionWebhookVerificationToken` and `NotionWebhookReceipt`, rebinding the
+current frozen inventory to **191 application tables**. The exact canonical LF
+schema hash is `ca3e8247e50eb95980561e3ce8aa882ed7b11010d0b2167582e5f37b448132c8`;
+the target inventory hash is
+`c45dd4b70079decbd1d415a392221bf1a4a71970cd807140d832549ff5481d55`.
+OAuth state and encrypted verification-token rows remain excluded from backup
+contents; minimal webhook receipts are included. The former 188-table binding
+remains historical and refuses cross-schema recovery. No production migration
+or recovery operation is claimed.
+
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.8b → 0.3.9b: rebind the frozen recovery inventory to the 191-table
+schema after adding the Notion OAuth state, encrypted webhook verification-token
+and receipt models. OAuth state and verification-token material stay out of
+snapshots; minimal receipts remain recoverable. The 188-table binding remains
+historical and refuses cross-schema recovery.
 
 Version diff 0.3.6b → 0.3.7b: rebind the frozen recovery inventory to the
 composed 187-table schema after FR-268's `BusinessKeyResult`/
@@ -421,6 +438,7 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.9b | 2026-09-26 | beta | Rebind Phase B recovery to the 191-table Notion schema; exclude OAuth state and encrypted webhook verification material from backups, include minimal receipts, and preserve refusal of the historical 188-table binding | working-tree | Codex GPT-6 |
 | 0.3.8b | 2026-09-24 | beta | Rebind Phase B recovery to the 188-table schema after adding the operational LINE OA worker checkpoint; preserve the historical 187-table binding | working-tree | RWANG |
 | 0.3.7b | 2026-09-23 | beta | Rebind Phase B recovery to the composed 187-table schema after FR-268 and PM approval gateway models landed; preserve the historical 186-table binding | working-tree | RWANG |
 | 0.3.6b | 2026-09-22 | beta | Rebind Phase B recovery to the composed 186-model schema after the FR-268 Business Key Result models landed; preserve the historical 179-model binding | origin/main | RWANG |

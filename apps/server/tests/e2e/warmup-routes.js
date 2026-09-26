@@ -48,6 +48,8 @@ const path = require('node:path')
 // pins both choices.
 const ROUTES = [
   '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
+  // @req FR-273 — Notion requires the exact unprefixed OAuth callback URL.
+  '/oauth/notion/callback',
   // @req FR-166 — Commerce has pages now: the dashboard and the orders console.
   '/commerce', '/commerce/orders', '/commerce/pricing-rules', '/customer', '/customer/conversations',
   '/market',

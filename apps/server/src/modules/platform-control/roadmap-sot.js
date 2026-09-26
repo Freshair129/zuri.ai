@@ -113,8 +113,8 @@ export const ROADMAP_SOT = {
   },
   "dag": {
     "algorithm": "kahn-topological-layers",
-    "nodeCount": 121,
-    "edgeCount": 135,
+    "nodeCount": 122,
+    "edgeCount": 136,
     "waveCount": 21,
     "missingDependencies": [],
     "cycles": [],
@@ -261,7 +261,8 @@ export const ROADMAP_SOT = {
           "TASK-ZAI-080",
           "TASK-ZAI-089",
           "TASK-ZAI-090",
-          "TASK-ZAI-092"
+          "TASK-ZAI-092",
+          "TASK-ZAI-123"
         ]
       },
       {
@@ -1971,6 +1972,17 @@ export const ROADMAP_TASK_LEDGER = [
     "dependsOn": "TASK-ZAI-120",
     "authority": "ROADMAP.md",
     "evidence": "PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open"
+  },
+  {
+    "id": "TASK-ZAI-123",
+    "sprint": "SPR-ZAI-10",
+    "title": "Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274, ADR-109",
+    "status": "in-progress",
+    "proofScope": "LOCAL",
+    "implementationState": "LOCAL",
+    "dependsOn": "TASK-ZAI-078",
+    "authority": "ROADMAP.md",
+    "evidence": "Isolated worktree implementation; governance passed; Vitest passed 815 files and 6,993 tests (6 files and 46 tests skipped); production build passed; Playwright completed 220 passed, 4 skipped, 2 failed and 1 flaky under fail-on-flaky. Failures were fr241 roadmap-state expectation (NOT STARTED versus current PRODUCTION / IN_PROGRESS) and marketing-campaigns signup 429; project-feature-mutations passed on retry. Notion-focused integration tests passed; provider setup, production migrations and deployment remain unclaimed."
   }
 ]
 

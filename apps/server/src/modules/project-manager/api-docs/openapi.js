@@ -108,6 +108,12 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/integration/model-providers', ['GET', 'POST']],
   ['/api/integration/model-providers/{id}/revoke', ['POST']],
   ['/api/integration/model-providers/{id}/validate', ['POST']],
+  // @req FR-273 — Business-scoped Notion OAuth, including its exact unprefixed callback.
+  ['/api/integrations/notion/connect', ['GET']], ['/oauth/notion/callback', ['GET']],
+  // @req FR-274 — signed, receipt-only Notion webhook and operator challenge controls.
+  ['/api/integrations/notion/webhook', ['POST']],
+  ['/api/platform/integrations/notion/webhook-verification/reveal', ['POST']],
+  ['/api/platform/integrations/notion/webhook-verification/reset', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/line-oa/jobs/failures', ['GET']],
@@ -844,7 +850,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],
     'x-zuri-route-inventory': {
-      source: 'src/app/api/**/route.js',
+      source: 'src/app/api/**/route.js plus explicit OAuth callbacks',
       pathCount: CURRENT_API_ROUTE_INVENTORY.length,
       operationCount: CURRENT_API_ROUTE_INVENTORY.reduce((count, [, methods]) => count + methods.length, 0),
     },
