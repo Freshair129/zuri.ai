@@ -3265,7 +3265,7 @@
         {
           "anchor": "edge device heartbeat registry",
           "since": "2026-09-25",
-          "reason": "ADR-109 D5 retires the Edge Device heartbeat registry after its Server and Edge heartbeat surfaces were removed from this branch.",
+          "reason": "ADR-110 D5 retires the Edge Device heartbeat registry after its Server and Edge heartbeat surfaces were removed from this branch.",
           "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
         }
       ],
@@ -3312,7 +3312,7 @@
         {
           "anchor": "edge device credential",
           "since": "2026-09-25",
-          "reason": "ADR-109 D5 retires the EdgeDeviceCredential and pairing requirement after the in-repository Edge Device credential and pairing surfaces were removed from this branch.",
+          "reason": "ADR-110 D5 retires the EdgeDeviceCredential and pairing requirement after the in-repository Edge Device credential and pairing surfaces were removed from this branch.",
           "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
         }
       ],
@@ -4391,7 +4391,7 @@
         {
           "anchor": "harness device pairing and report only credential",
           "since": "2026-09-24",
-          "reason": "ADR-109 D5 retires Zuri browser-paired harness credentials and pairing endpoints; preserve stored reports and deployment-bearer reporting under FR-218.",
+          "reason": "ADR-110 D5 retires Zuri browser-paired harness credentials and pairing endpoints; preserve stored reports and deployment-bearer reporting under FR-218.",
           "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
       ],
@@ -4412,7 +4412,7 @@
         {
           "anchor": "usage reports attributed to person device and lane",
           "since": "2026-09-24",
-          "reason": "ADR-109 D5 retires new harness-derived person/device attribution; preserve historical report fields and keep deployment-bearer reporting under FR-218.",
+          "reason": "ADR-110 D5 retires new harness-derived person/device attribution; preserve historical report fields and keep deployment-bearer reporting under FR-218.",
           "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
       ],
@@ -4433,7 +4433,7 @@
         {
           "anchor": "zuri harness plugin",
           "since": "2026-09-24",
-          "reason": "ADR-109 D5 removes the in-repository Zuri harness plugin and marketplace source; do not delete any user-local files or historical report rows.",
+          "reason": "ADR-110 D5 removes the in-repository Zuri harness plugin and marketplace source; do not delete any user-local files or historical report rows.",
           "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
       ],
@@ -7889,12 +7889,12 @@
         {
           "anchor": "zuri harness usage plugin",
           "since": "2026-09-24",
-          "reason": "ADR-109 D5 retires the Zuri harness pairing/plugin surfaces; preserve historical reports and continue deployment-bearer usage under FR-218.",
-          "declared_in": "docs/FEATURES.md#1.64.0b"
+          "reason": "ADR-110 D5 retires the Zuri harness pairing/plugin surfaces; preserve historical reports and continue deployment-bearer usage under FR-218.",
+          "declared_in": "docs/FEATURES.md#1.65.0b"
         }
       ],
       "retired_at": "2026-09-24",
-      "declared_in": "docs/FEATURES.md#1.64.0b"
+      "declared_in": "docs/FEATURES.md#1.65.0b"
     },
     "FEAT-036": {
       "family": "FEAT",
