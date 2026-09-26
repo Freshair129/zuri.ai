@@ -238,8 +238,8 @@ export default function KnowledgeDocumentsView({ initialTab = 'intake' }) {
         <IntakeTabPanel
           businessId={businessId}
           businessFiles={businessFiles}
-          onSuccess={(jobId, text) => {
-            notify(text || `ส่งเอกสารเข้าคิวเรียบร้อย (Job ID: ${jobId})`, 'success')
+          onSuccess={(jobId, text, type = 'success') => {
+            notify(text || `ส่งเอกสารเข้าคิวเรียบร้อย (Job ID: ${jobId})`, type)
             reloadAdmissions()
           }}
           onError={(err) => notify(err, 'error')}
@@ -292,6 +292,15 @@ export function catalogAdmissionMessage(admission) {
   return `SmartGift catalog: เข้าคิว ${admission.admittedCount}/${admission.recordCount} record · ไม่เปลี่ยน ${admission.unchangedCount} · ถูกปฏิเสธ ${admission.deniedCount}`
 }
 
+export function catalogUploadMessage(result) {
+  if (result.knowledgeStatus && result.knowledgeStatus !== 'ADMITTED') {
+    const status = result.knowledgeStatus === 'UNAVAILABLE' ? 'ยังไม่พร้อม' : 'ไม่สำเร็จ'
+    const code = result.knowledgeCode ? ` (${result.knowledgeCode})` : ''
+    return `${result.fileName} · บันทึกไฟล์ต้นฉบับแล้ว · Knowledge ${status}${code}`
+  }
+  return `${result.fileName}${result.reused ? ' (ไฟล์เดิม)' : ''} · ${catalogAdmissionMessage(result.admission)}`
+}
+
 export function catalogUploadBody({ businessId, fileName, contentBase64 }) {
   return { businessId, projectId: null, name: fileName, contentBase64 }
 }
@@ -321,7 +330,7 @@ function CatalogUploadCard({ businessId, onSuccess, onError, onUploaded }) {
       })
       setFile(null)
       onUploaded?.()
-      onSuccess(null, `${res.fileName}${res.reused ? ' (ไฟล์เดิม)' : ''} · ${catalogAdmissionMessage(res.admission)}`)
+      onSuccess(null, catalogUploadMessage(res), res.knowledgeStatus === 'ADMITTED' ? 'success' : 'info')
     } catch (err) {
       onError(err.message)
     } finally {

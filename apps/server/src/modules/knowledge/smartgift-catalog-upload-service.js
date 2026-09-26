@@ -2,7 +2,7 @@
 // validated, stored on the private knowledge store and admitted as a structured
 // projection in one step.
 // @spec ADR-075 D2, ADR-075 D3
-// @tested tests/unit/smartgift-catalog-upload-service.test.js
+// @tested tests/unit/smartgift-catalog-upload-service.test.js, tests/integration/smartgift-catalog-admission.test.js
 //
 // Why this exists: the admission API only reads a FILE source from a FileAsset,
 // and in the Docker deployment the Files page can create neither a LOCAL_FILE
@@ -108,18 +108,27 @@ export async function uploadSmartGiftCatalogFile(input, {
     }
   }
 
-  const admission = await admit({
-    businessId: value.businessId,
-    projectId: value.projectId ?? null,
-    idempotencyKey: `smartgift-catalog-upload:${asset.id}`,
-    source: { kind: 'FILE', fileAssetId: asset.id, format: SMARTGIFT_CATALOG_FORMAT },
-  }, {
-    viewer,
-    db,
-    env,
-    now,
-    ...(objectStoragePort ? { fileContentResolver: (fileId, options) => resolveFileAssetContent(fileId, { ...options, db, objectStoragePort }) } : {}),
-  })
+  let admission = null
+  let knowledgeStatus = 'ADMITTED'
+  let knowledgeCode = null
+  try {
+    admission = await admit({
+      businessId: value.businessId,
+      projectId: value.projectId ?? null,
+      idempotencyKey: `smartgift-catalog-upload:${asset.id}`,
+      source: { kind: 'FILE', fileAssetId: asset.id, format: SMARTGIFT_CATALOG_FORMAT },
+    }, {
+      viewer,
+      db,
+      env,
+      now,
+      ...(objectStoragePort ? { fileContentResolver: (fileId, options) => resolveFileAssetContent(fileId, { ...options, db, objectStoragePort }) } : {}),
+    })
+  } catch (error) {
+    if (!Number.isInteger(error?.status) || typeof error?.code !== 'string' || !error.code.startsWith('KNOWLEDGE_')) throw error
+    knowledgeStatus = error.code === 'KNOWLEDGE_RUNTIME_UNAVAILABLE' ? 'UNAVAILABLE' : 'FAILED'
+    knowledgeCode = error.code
+  }
 
   return {
     fileAssetId: asset.id,
@@ -127,6 +136,9 @@ export async function uploadSmartGiftCatalogFile(input, {
     sha256,
     recordCount: records.length,
     reused,
-    admission,
+    fileStatus: reused ? 'REUSED' : 'STORED',
+    knowledgeStatus,
+    ...(knowledgeCode ? { knowledgeCode } : {}),
+    ...(admission ? { admission } : {}),
   }
 }
