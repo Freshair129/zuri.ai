@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.9b"
+version: "0.3.10b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-26T04:30:11+07:00,RWANG"
+last_update: "2026-09-26T05:36:00+07:00,RWANG"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -238,6 +238,9 @@ and independently read-only checked; focused tests passed 13/13. Preserve the
 fail-closed behavior and refusal of snapshots using the previous schema
 binding. This does not imply S2 or contract-owner approval.
 
+Version diff 0.3.9b → 0.3.10b: record the exact-schema runtime-owner rebind at
+commit `2557bb32`; no recovery behavior or approval scope changed.
+
 Version diff 0.3.6b → 0.3.7b: rebind the frozen recovery inventory to the
 composed 187-table schema after FR-268's `BusinessKeyResult`/
 `BusinessKeyResultCheckIn` models and the PM approval gateway's
@@ -449,7 +452,8 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 0.3.9b | 2026-09-26 | beta | User-directed S1 rebind to the exact runtime-owner schema; recompute and independently read-only check the 188-table mapping, preserve historical-binding refusal; no S2 or contract-owner approval implied | working-tree | RWANG |
+| 0.3.10b | 2026-09-26 | beta | Record the committed provenance of the 0.3.9b runtime-owner schema rebind; no recovery behavior or approval scope changed | working-tree | RWANG |
+| 0.3.9b | 2026-09-26 | beta | User-directed S1 rebind to the exact runtime-owner schema; recompute and independently read-only check the 188-table mapping, preserve historical-binding refusal; no S2 or contract-owner approval implied | 2557bb32 | RWANG |
 | 0.3.8b | 2026-09-24 | beta | Rebind Phase B recovery to the 188-table schema after adding the operational LINE OA worker checkpoint; preserve the historical 187-table binding | working-tree | RWANG |
 | 0.3.7b | 2026-09-23 | beta | Rebind Phase B recovery to the composed 187-table schema after FR-268 and PM approval gateway models landed; preserve the historical 186-table binding | working-tree | RWANG |
 | 0.3.6b | 2026-09-22 | beta | Rebind Phase B recovery to the composed 186-model schema after the FR-268 Business Key Result models landed; preserve the historical 179-model binding | origin/main | RWANG |

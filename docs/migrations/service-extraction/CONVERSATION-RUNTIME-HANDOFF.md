@@ -1,8 +1,8 @@
 ---
 id: ZAI:CONVERSATION-RUNTIME-HANDOFF
-version: "0.3.11b"
+version: "0.3.12b"
 status: candidate
-last_update: "2026-09-26T05:09:17+07:00,Codex"
+last_update: "2026-09-26T05:36:00+07:00,Codex"
 attributes:
   domain: agent
   scope: conversation-runtime-extraction-checkpoint
@@ -26,7 +26,7 @@ relations:
 - Repository: `Freshair129/zuri.ai`
 - Branch: `codex/conversation-runtime-service`
 - Worktree: `C:\Users\pc\workspace\zuri-ai\.worktrees\conversation-runtime-session1`
-- Current published source snapshot: OPERATOR confirmed PR #542 branch fast-forwarded from `70f8cee8` to `2e2154def4ede0a382f672bbf807eb4221f4fa92`; PR base is `d302eb0849b00b3c85934eeda6763d7dd4941443`. This handoff records a subsequent local Phase-B binding/test/documentation patch; its commit and push are pending. No reset or force-push was performed.
+- Current published source snapshot: OPERATOR confirmed PR #542 branch fast-forwarded from `70f8cee8` to `2e2154def4ede0a382f672bbf807eb4221f4fa92`; PR base is `d302eb0849b00b3c85934eeda6763d7dd4941443`. The Phase-B binding/test/RCA patch is committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`; this status refresh and the branch tip are not pushed. The PR body now records the local commit and separates its evidence from the published head. No reset or force-push was performed.
 - Reviewed PR baseline: head `189c60766323655149b84928e5db4c16c5e6afb8`, base `fad8ec6252941ca3de01afdb3116484f86b366c3`.
 - PR #573's merge is included in the current base; its older review result is historical, not a pending S1 gate.
 - Draft PR: [#542](https://github.com/Freshair129/zuri.ai/pull/542). The PR remains open and draft. No PR merge or production deployment was performed.
@@ -37,13 +37,13 @@ relations:
 
 ## Latest checkpoint after the PR head check
 
-The published PR #542 head is `2e2154def4ede0a382f672bbf807eb4221f4fa92`. The Compose-profile, retirement-test, Edge workflow and ID-ledger corrections below are included in that published head. The later Phase-B exact-schema rebind and its test/RCA/handoff updates exist only in the local worktree: they are uncommitted and are not on the PR head.
+The published PR #542 head is `2e2154def4ede0a382f672bbf807eb4221f4fa92`. The Compose-profile, retirement-test, Edge workflow and ID-ledger corrections below are included in that published head. The later Phase-B exact-schema rebind and its test/RCA updates are committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`; this handoff refresh is local and neither is on the PR head yet.
 
 - `services/conversation-runtime/scripts/verify-compose-paths.mjs` now enables the `conversation-runtime` Compose profile before checking resolved service paths. The hosted failure was caused by omitting the profile, which made Compose omit the runtime service from `config`; the base web context resolving to `apps/server` was expected.
 - The retired-rule coverage test now expects FR-050/FR-140 in `fr_planned` and FR-141/FR-144 in `fr_superseded`, matching the approved registry statuses. `docs/.id-ledger.json` was updated only through the sanctioned `--review` writer for same-subject FR-265 and SDD-108 digest changes; their pinned subjects and IDs remain unchanged.
 - `.github/workflows/edge-ci.yml` no longer runs the packaged Edge Device worker lifecycle step, and the Edge Device-only `.github/workflows/release-edge.yml` workflow is removed. The regular Edge verify job remains for the retained Knowledge/RAG runtime.
 
-Latest local evidence: `npm run govern` passed with 0 critical, 1 warning and 32 info; `docs:check` is current. The Phase-B exact-schema rebind passed its focused tests (2 files, 13/13) and remains uncommitted and absent from PR #542. The local candidate also passed full Server Vitest (787 files passed, 5 skipped; 6,819 tests passed, 42 skipped). The latest `npm run verify` passed governance, Server Vitest, Server build, and Conversation Runtime unit/build (33/33 tests; 8 source files). Its E2E leg did not start because port 3100 was already occupied; that process was left untouched. Separately, the full `npm run test:e2e` at `E2E_PORT=31920` completed with 207 passed and 4 skipped (211 executed). This standalone E2E pass does not change the prior `npm run verify` outcome into an aggregate pass. At published PR head `2e2154def4ede0a382f672bbf807eb4221f4fa92`, hosted conversation-runtime, governance, edge-ci, image build, and disposable startup/drain/shutdown smoke passed; the Server tests job failed only while loading the stale Phase-B inventory/schema binding. Hosted CI for the local re-pin candidate remains **NOT_RUN**. Provider/consumer conformance remains **NOT_RUN**. Docker is unavailable locally. No production activity is claimed.
+Latest local evidence: `npm run govern` passed with 0 critical, 1 warning and 32 info; `docs:check` is current. The Phase-B exact-schema rebind passed its focused tests (2 files, 13/13) and is committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`, but remains absent from the published PR head. The local candidate also passed full Server Vitest (787 files passed, 5 skipped; 6,819 tests passed, 42 skipped). The latest `npm run verify` passed governance, Server Vitest, Server build, and Conversation Runtime unit/build (33/33 tests; 8 source files). Its E2E leg did not start because port 3100 was already occupied; that process was left untouched. Separately, the full `npm run test:e2e` at `E2E_PORT=31920` completed with 207 passed and 4 skipped (211 executed). This standalone E2E pass does not change the prior `npm run verify` outcome into an aggregate pass. At published PR head `2e2154def4ede0a382f672bbf807eb4221f4fa92`, hosted conversation-runtime, governance, edge-ci, image build, and disposable startup/drain/shutdown smoke passed; the Server tests job failed only while loading the stale Phase-B inventory/schema binding. Hosted CI for the local re-pin candidate remains **NOT_RUN**. Provider/consumer conformance remains **NOT_RUN**. Docker is unavailable locally. No production activity is claimed.
 
 Latest published-head CI evidence: workflow run `36182888167` at PR head `2e2154def4ede0a382f672bbf807eb4221f4fa92` passed Conversation Runtime, including Compose path verification, hosted standalone image build, image-build recording, and disposable drain/stop smoke; its governance job passed. Edge CI run `36182888222` passed. The Server tests job failed only while loading the published Phase-B inventory because its pinned schema hash did not match. The local re-pin candidate passes Server Vitest (787 files passed, 5 skipped; 6,819 tests passed, 42 skipped), but no corrected-head hosted run has occurred. Earlier failed workflow runs listed below are historical.
 
@@ -111,8 +111,8 @@ All commands below ran in the Session 1 worktree on Windows. Server integration 
 | Prior Server `npm test` attempt | **BLOCKED — 0 tests** | Server Vitest did not discover or execute tests because esbuild could not access `../../../../../..` while resolving the isolated Vitest config. The same path denial was reproduced in a TEMP/workspace snapshot. This prior attempt is not current-head verification and is not a pass. |
 | Latest `npm run verify` | **PARTIAL — E2E port conflict** | Governance passed; Server Vitest passed (787 files passed, 5 skipped; 6,819 tests passed, 42 skipped); Server build passed; Conversation Runtime unit/build passed (33/33 tests, 8 source files). The E2E leg could not start because port 3100 was occupied. This invocation did not pass as an aggregate. |
 | Standalone full E2E | **PASS — local** | `E2E_PORT=31920 npm run test:e2e`: 211 tests executed, 207 passed, 4 skipped. This is a separate run and does not change the `npm run verify` result above. |
-| Current Phase-B focused tests | **PASS — local only** | The exact-schema rebind passed 2 files / 13 tests. Its changes are uncommitted and are not on PR #542. |
-| Commit, push and PR update | **LOCAL PATCH UNCOMMITTED — NOT ON PR** | The Phase-B schema/test/RCA/handoff patch is uncommitted on `codex/conversation-runtime-service`. PR #542 remains at published head `2e2154def4ede0a382f672bbf807eb4221f4fa92`. No push or PR update has been made for this patch. |
+| Current Phase-B focused tests | **PASS — local only** | The exact-schema rebind passed 2 files / 13 tests and is committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`; it is not on the published PR head. |
+| Commit, push and PR update | **COMMITTED LOCALLY — PUSH PENDING** | Phase-B schema/test/RCA patch is committed at `2557bb32346ef300329f828a0c5dc3f207cf52ba`. PR #542 body is updated, but its published head remains `2e2154def4ede0a382f672bbf807eb4221f4fa92`; the branch tip and handoff status refresh still need pushing. Corrected-head CI has not run. |
 | Prior full Server Vitest suite | **PASS — historical local run** | `npx vitest run --root . --config ./vitest.config.js` from `apps/server`: 793 files total, 788 passed and 5 skipped; 6,825 tests total, 6,784 passed and 41 skipped; exit code 0, duration 574.21s. Skipped tests include opt-in PostgreSQL suites. `id-anchor-stability` passed 70/70 after sanctioned ID-ledger digest review. The latest Server Vitest result is recorded in the current `npm run verify` row above. |
 | Server production build | **PASS — latest `npm run verify` stage** | `npm run build` from `apps/server` passed in the latest verify invocation; the invocation later stopped at E2E startup because port 3100 was occupied. |
 | Current model-key card unit | **PASS — focused follow-up** | `npx vitest run --root . --config ./vitest.config.js tests/unit/line-oa-model-key-card-render.test.js` from `apps/server`: 14/14; checks current child-owned copy in rendered markup and that the parent console does not advertise dispatching to a paired device. |
@@ -122,9 +122,9 @@ All commands below ran in the Session 1 worktree on Windows. Server integration 
 | One-shot E2E selector | **PASS — focused at source HEAD 4d06bff** | `npx vitest run --root . --config ./vitest.config.js tests/unit/ci-select-e2e.test.js` from `apps/server`: 14/14. This checks the selector only; the separate full Playwright result is recorded below. |
 | Current affected unit batch | **PASS — focused** | From `apps/server`, `npx vitest run --root . --config ./vitest.config.js tests/unit/edge-surface-retirement.test.js tests/unit/line-studio-account-console-render.test.js tests/unit/doc-views.test.js tests/unit/programme-member-view.test.js tests/unit/programme-usage-reports.test.js tests/unit/api-path-reachability.test.js tests/unit/asset-intake-adapters-contract.test.js tests/unit/public-base-url.test.js`: 8 files, 79/79. |
 | Earlier closeout focused units | **PASS — prior local result** | From `apps/server`, `npx vitest run --root . --config ./vitest.config.js tests/unit/line-admission-after-ack.test.js tests/unit/profile-identity-fields-migration.test.js`: 2 files, 25/25. This predates the current Phase-B patch. |
-| Current Phase-B focused tests | **PASS — local only** | 2 files, 13/13 for the exact-schema rebind. The patch is uncommitted and not on PR #542. |
+| Current Phase-B focused tests | **PASS — local only** | 2 files, 13/13 for the exact-schema rebind committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`; it is not on the published PR head. |
 | FR-149 E2E and Edge desktop E2E | **PASS — standalone full suite** | The standalone full `npm run test:e2e` at `E2E_PORT=31920` completed with 207 passed and 4 skipped (211 executed). This later full-suite result supersedes the earlier post-fix locator and filtered Edge E2E runs that were not verified. |
-| Phase-B schema contract | **PASS — focused local rebind** | The inventory now binds the exact current schema, retaining the 188 table mappings and fail-closed restore checks. The focused proof passed 2 files / 13 tests. This patch is uncommitted and not on PR #542; full `npm run verify` and hosted CI remain **NOT_RUN**. |
+| Phase-B schema contract | **PASS — focused local rebind** | The inventory now binds the exact current schema, retaining the 188 table mappings and fail-closed restore checks. The focused proof passed 2 files / 13 tests. The patch is committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`, not on the published PR head; corrected-head hosted CI remains **NOT_RUN**. |
 | Retired-FR coverage regression | **PASS — focused, prior scope** | `npx vitest run --root . --config ./vitest.config.js tests/unit/doc-graph-retired-rules.test.js` from `apps/server`: 1 file, 6/6 tests, exit 0. Retired FR-220/221/222 remain visible in the graph but no longer inflate active gaps. Its earlier FR-050/140/141/144 gap snapshot predates the approved status decisions recorded below. RCA: `.brain/rca/2026-09-25-retired-fr-coverage-counted-as-active.md`. |
 | Prior generator checks | **PASS — local** | `npm run docs:llms:check`, `node apps/server/scripts/programme-containers.mjs --check`, and the prior S1(a) governance run exited 0 with 0 critical, 22 warnings and 33 info. Edge doc-graph was explicitly skipped per approved scope. |
 
@@ -153,8 +153,8 @@ The first mandatory `npm run verify` after the initial runtime tranche exposed f
 ## Cutover and rollback gates
 
 - [x] Sync the S1 branch with the current PR base `d302eb0849b00b3c85934eeda6763d7dd4941443`; PR #573's merge is part of this base.
-- [ ] Commit the Phase-B rebind, tests, RCA and handoff update; send the exact SHA to OPERATOR for branch push; do not push directly from this environment.
-- [ ] Update the PR body and re-run hosted CI on the corrected head, including actual Compose resolution, hosted image build and disposable startup smoke.
+- [x] Commit the Phase-B rebind, tests, and RCA at `2557bb32346ef300329f828a0c5dc3f207cf52ba`; update the PR body with local-vs-hosted evidence.
+- [ ] Send the exact current branch tip to OPERATOR for push; do not push directly from this environment. Re-run hosted CI on that exact head, including Compose resolution, hosted image build and disposable startup smoke.
 - [ ] Run full `npm run verify`, current-head provider/consumer conformance, and full Playwright regression without overwriting retained unrelated artifacts.
 - [ ] Complete and review the original extraction acceptance scope, including the remaining Server-owned flows.
 - [ ] Confirm hosted `HOSTED_IMAGE_BUILD=PASS`, `IMAGE_START_SMOKE=PASS`, and aggregate CI `verify=PASS`; the local Server `npm test` zero-test attempt must be rerun outside the sandbox first.
@@ -164,6 +164,8 @@ The first mandatory `npm run verify` after the initial runtime tranche exposed f
 - [ ] Production deployment, production migration, live LINE traffic and real model calls require separate authorization; none are part of this checkpoint.
 
 ## Version diff
+
+`0.3.11b → 0.3.12b`: corrects the handoff to record commit `2557bb32346ef300329f828a0c5dc3f207cf52ba` and the completed PR-body update; branch push and corrected-head CI remain pending. The Phase-B rebind, test counts, and acceptance limitations are unchanged.
 
 `0.3.10b → 0.3.11b`: records focused Phase-B evidence (2 files / 13 passed), current governance (0 critical / 1 warning / 32 info; `docs:check` current), the incomplete `npm run verify` caused by port 3100 being occupied at E2E startup, and the separate passing full E2E run at port 31920 (207 passed, 4 skipped). It distinguishes published-head hosted Compose/image/smoke PASS from the still-unhosted local re-pin candidate. Provider/consumer conformance remains unverified; no production activity is claimed.
 
