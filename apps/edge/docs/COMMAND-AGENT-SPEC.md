@@ -1,15 +1,24 @@
 ---
 id: "ZURI-COMMAND-AGENT-SPEC"
-version: "0.1.1b"
+version: "0.1.2b"
 status: "candidate"
 owner: "zuri-command-agent"
 upstream_feature: "FEAT36-ZURI-COMMAND-AGENT"
 upstream_contract: "zuri-command-agent-api-v1@0.1.0b"
 created_at: "2026-08-10T16:00:00+07:00, ATHER"
-last_update: "2026-08-31T00:00:00+07:00, Claude"
+last_update: "2026-09-27T00:00:00+07:00, Claude Opus 5.5 (MC0)"
 ---
 
 # Zuri Command Agent — Implementation Specification
+
+> **Retired surfaces (upstream ADR-110 D5, 2026-09-27):** the `health`, `preview <template>`,
+> `send` and `status` commands, the bridge `worker`, the `zuri-api` command client, the evidence
+> builder, and the `ZURI_COMMAND_API_BASE_URL` / `ZURI_AGENT_DEVICE_ID` /
+> `ZURI_AGENT_DEVICE_TOKEN` configuration are removed from `apps/edge`. The sections below that
+> describe them are a historical record only. `config check`, the DuckDB query registry, card
+> builders, pricing, identity, chat and the local Knowledge/RAG runtime remain. The matching
+> requirement rows (FR-002..FR-006, AC-002..AC-008, SDD-002/003/005) are marked retired in
+> [`PRD-SDD-v1.0.md`](PRD-SDD-v1.0.md) and [Appendix D](appendices/D-traceability.md).
 
 > This document remains the detailed source of record for the CLI surface, components, and
 > acceptance criteria. [`PRD-SDD-v1.0.md`](PRD-SDD-v1.0.md) synthesizes it into the 3-Layer +

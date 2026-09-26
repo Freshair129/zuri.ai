@@ -87,14 +87,10 @@ sends `Authorization: Bearer zadm_...`. See `docs/EDGE-DEVICE-SETUP.md` section 
 
 - **LINE Webhook**: `POST /webhook/line` (Instant 200 OK ACK with non-blocking AI answer). Open —
   authenticated by LINE's request signature, not the operator key. The only path the Funnel publishes.
-- **Device liveness**: `POST $ZURI_CLOUD_BASE_URL/api/agent/heartbeat` every 40s from `webhook serve`,
-  presenting the minted `edgk_` device key. Reports `healthy` / `degraded` / `unavailable` from a real
-  probe; the cloud drops a device from "online" after 120s without one. Silent when the device pair is
-  not configured.
 - **Live Knowledge Graph Viewer**: `GET /graph` or `GET /graph-viewer`
 - **Live Graph API**: `GET /api/graph[?limit=N]` (Proxies the RAG service on :8888, which builds a bounded `{ nodes, edges }` sample of the GenesisBlock store. The webhook server cannot open the store itself — the engine locks it exclusively, even readOnly.)
-- **Cloud Heartbeat**: `POST $ZURI_CLOUD_HEARTBEAT_URL` on launcher startup, skipped when unset. zuri-ai moved
-  to a per-deployment origin (Docker Compose + ngrok, ADR-058), so there is no fixed platform URL any
-  more — the old `zuri-ai-woad.vercel.app` address is retired. Set `ZURI_CLOUD_HEARTBEAT_URL` in `.env`
-  to your own deployment's origin (see `.env.example`). The GUI's Cloud Console link (`ZURI_CLOUD_CONSOLE_URL`)
-  follows the same rule.
+- **Retired (upstream ADR-110 D5)**: device liveness (`/api/agent/heartbeat` with the `edgk_` device key),
+  the launcher cloud heartbeat (`ZURI_CLOUD_HEARTBEAT_URL`), the GUI Cloud Console link
+  (`ZURI_CLOUD_CONSOLE_URL`), device pairing and the `zuri-api` command client are removed. Nothing in this
+  app reads those variables or calls those endpoints; remove any leftover values from `.env` and revoke old
+  device keys on the server. `tests/contract/edge-device-retirement.test.ts` keeps these surfaces gone.
