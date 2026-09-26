@@ -5419,9 +5419,9 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/edge/tests/unit/model-residency-schedule.test.ts"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
-      "test": "present"
+      "test": "missing"
     },
     "delivers": [
       "FR-244"
