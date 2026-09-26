@@ -9,7 +9,7 @@ relations:
   - type: references
     target: ZAI:ADR-087
   - type: relates_to
-    target: ZAI:ADR-109
+    target: ZAI:ADR-110
   - type: references
     target: ZAI:ADR-086
   - type: relates_to
@@ -24,7 +24,7 @@ relations:
 
 # Retired Zuri harness plugin — historical specification
 
-> **Superseded by ADR-109 on 2026-09-24.** The `plugins/zuri-harness` pairing, UI,
+> **Superseded by ADR-110 on 2026-09-24.** The `plugins/zuri-harness` pairing, UI,
 > and reporting-authentication surfaces are removed from the active product. This
 > document remains only as a historical contract record; do not install or use the
 > retired plugin. Existing usage reports and credential records are preserved, and
@@ -325,5 +325,5 @@ One implementation, `lib/detail.mjs`, is used by the plugin and by `apps/server/
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 2.0.0 | 2026-09-24 | superseded | Mark the harness plugin contract historical after ADR-109 retires pairing, device UI and harness authentication surfaces; preserve stored records | working-tree | Codex |
+| 2.0.0 | 2026-09-24 | superseded | Mark the harness plugin contract historical after ADR-110 retires pairing, device UI and harness authentication surfaces; preserve stored records | working-tree | Codex |
 | 1.1.0b | 2026-09-18 | beta | Add explicit caller-owned task-code handoff and no branch inference | pending | RWANG |

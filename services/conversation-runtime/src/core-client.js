@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { CONTRACT_VERSION, CORE_OPERATIONS, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, validateCoreEnvelope, validateClaim, validateTurnContext } from './contracts.js'
 
 // @req FR-149 — private core adapter for the independently running runtime.
-// @spec ADR-106 D2-D4, SDD-108 — bearer-authenticated bounded operations.
+// @spec ADR-106 D2-D4, SDD-110 — bearer-authenticated bounded operations.
 // @tested services/conversation-runtime/test/contracts.test.js
 const text = (value, max, code) => {
   if (typeof value !== 'string' || !value.trim() || value.length > max) throw Object.assign(new Error(code), { code })

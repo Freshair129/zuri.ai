@@ -1,5 +1,5 @@
 // @req FR-149 — durable job polling is owned by the Conversation Runtime process.
-// @spec ADR-106 D1/D4, SDD-108 — idle backoff, no process-local queue authority.
+// @spec ADR-106 D1/D4, SDD-110 — idle backoff, no process-local queue authority.
 // @tested services/conversation-runtime/test/worker-loop.test.js
 export function createWorkerLoop({ runtime, logger = () => {}, idleStartMs = 500, idleMaxMs = 10_000 } = {}) {
   if (!runtime || typeof runtime.runOne !== 'function') throw new Error('WORKER_RUNTIME_REQUIRED')

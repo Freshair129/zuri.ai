@@ -1,5 +1,5 @@
 // @req FR-149, FR-171 — versioned, bounded core/runtime operations.
-// @spec ADR-106, SDD-108 — strict fields, correlation, deadlines and idempotency.
+// @spec ADR-106, SDD-110 — strict fields, correlation, deadlines and idempotency.
 // @tested services/conversation-runtime/test/contracts.test.js
 export const CONTRACT_VERSION = 'conversation-runtime.v1'
 export const CORE_OPERATIONS = Object.freeze([

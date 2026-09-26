@@ -10,7 +10,7 @@ relations:
   - type: relates_to
     target: ZAI:ADR-106
   - type: relates_to
-    target: ZAI:SDD-108
+    target: ZAI:SDD-110
   - type: relates_to
     target: ZAI:FR-149
   - type: relates_to
@@ -30,7 +30,7 @@ relations:
 - Reviewed PR baseline: head `189c60766323655149b84928e5db4c16c5e6afb8`, base `fad8ec6252941ca3de01afdb3116484f86b366c3`.
 - PR #573's merge is included in the current base; its older review result is historical, not a pending S1 gate.
 - Draft PR: [#542](https://github.com/Freshair129/zuri.ai/pull/542). The PR remains open and draft. No PR merge or production deployment was performed.
-- Governing documents: ADR-106 and SDD-108; contract: `conversation-runtime.v1`.
+- Governing documents: ADR-106 and SDD-110; contract: `conversation-runtime.v1`.
 - Risk: **HIGH** — queue ownership and a private Core API boundary change with additive account/job schema fields. SQLite and Postgres migration artifacts are listed below; neither was applied to production.
 - Session 2 remains read-only preparation. Session 3 may continue in Files-owned scope. This tranche did not change Files storage, shared Files contracts, MSP/GKS, MinIO, or the Knowledge 17-stage pipeline.
 - Production deployment, production migration, live LINE send and real model call: **NOT_RUN**. All credentials, provider endpoints, webhook signatures and delivery adapters used for tests are synthetic or local controlled fixtures.
@@ -40,7 +40,7 @@ relations:
 The published PR #542 head is `2e2154def4ede0a382f672bbf807eb4221f4fa92`. The Compose-profile, retirement-test, Edge workflow and ID-ledger corrections below are included in that published head. The later Phase-B exact-schema rebind and its test/RCA updates are committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`; this handoff refresh is local and neither is on the PR head yet.
 
 - `services/conversation-runtime/scripts/verify-compose-paths.mjs` now enables the `conversation-runtime` Compose profile before checking resolved service paths. The hosted failure was caused by omitting the profile, which made Compose omit the runtime service from `config`; the base web context resolving to `apps/server` was expected.
-- The retired-rule coverage test now expects FR-050/FR-140 in `fr_planned` and FR-141/FR-144 in `fr_superseded`, matching the approved registry statuses. `docs/.id-ledger.json` was updated only through the sanctioned `--review` writer for same-subject FR-265 and SDD-108 digest changes; their pinned subjects and IDs remain unchanged.
+- The retired-rule coverage test now expects FR-050/FR-140 in `fr_planned` and FR-141/FR-144 in `fr_superseded`, matching the approved registry statuses. `docs/.id-ledger.json` was updated only through the sanctioned `--review` writer for same-subject FR-265 and SDD-110 digest changes; their pinned subjects and IDs remain unchanged.
 - `.github/workflows/edge-ci.yml` no longer runs the packaged Edge Device worker lifecycle step, and the Edge Device-only `.github/workflows/release-edge.yml` workflow is removed. The regular Edge verify job remains for the retained Knowledge/RAG runtime.
 
 Latest local evidence: `npm run govern` passed with 0 critical, 1 warning and 32 info; `docs:check` is current. The Phase-B exact-schema rebind passed its focused tests (2 files, 13/13) and is committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`, but remains absent from the published PR head. The local candidate also passed full Server Vitest (787 files passed, 5 skipped; 6,819 tests passed, 42 skipped). The latest `npm run verify` passed governance, Server Vitest, Server build, and Conversation Runtime unit/build (33/33 tests; 8 source files). Its E2E leg did not start because port 3100 was already occupied; that process was left untouched. Separately, the full `npm run test:e2e` at `E2E_PORT=31920` completed with 207 passed and 4 skipped (211 executed). This standalone E2E pass does not change the prior `npm run verify` outcome into an aggregate pass. At published PR head `2e2154def4ede0a382f672bbf807eb4221f4fa92`, hosted conversation-runtime, governance, edge-ci, image build, and disposable startup/drain/shutdown smoke passed; the Server tests job failed only while loading the stale Phase-B inventory/schema binding. Hosted CI for the local re-pin candidate remains **NOT_RUN**. Provider/consumer conformance remains **NOT_RUN**. Docker is unavailable locally. No production activity is claimed.
@@ -146,7 +146,7 @@ The first mandatory `npm run verify` after the initial runtime tranche exposed f
 
 - S1(a) removes the Server-owned Edge Device and harness pairing, credential, heartbeat and extraction surfaces, plus the Edge callers and Edge extraction contract. Historical records are retained. Signed LINE webhook ingress, the PRP LocalWorker API-key flow, and Knowledge/RAG runtime remain in scope and are preserved. The public `baseUrl` remains as a legacy follow-up.
 - The composed Server route inventory is **318 paths / 423 operations**, verified by the actual route-tree integration test (18/18).
-- ADR-109 D5 per-ID review is partial: FR-220, FR-221 and FR-222 plus FEAT-035 are retired in the Server surface registry; FR-221 historical report data remains readable, while new usage writes use the deployment-bearer FR-218 path. Per the approved scope, FR-141 and FR-144 are superseded; FR-050 and FR-140 remain planned. Their rationale remains in `docs/PRD-SDD-v1.0.md`; the ID ledger is current but has no per-ID reason-note field.
+- ADR-110 D5 per-ID review is partial: FR-220, FR-221 and FR-222 plus FEAT-035 are retired in the Server surface registry; FR-221 historical report data remains readable, while new usage writes use the deployment-bearer FR-218 path. Per the approved scope, FR-141 and FR-144 are superseded; FR-050 and FR-140 remain planned. Their rationale remains in `docs/PRD-SDD-v1.0.md`; the ID ledger is current but has no per-ID reason-note field.
 - FR-143, SEC-025, SDD-085 and FEAT-017 retain their existing active/deferred status pending owner reconciliation. The prior mismatch from Edge callers targeting removed Server routes is addressed by removing those callers and the Edge extraction contract in S1(a); this does not establish production behavior or resolve unrelated requirements. The Edge doc-graph was explicitly **SKIPPED** per approved scope; no Edge graph freshness is claimed.
 - The current closeout Server governance run exited 0 with 0 critical, 1 warning and 32 info; the graph reports 10 known dangling edges. The Edge doc-graph remains skipped. FR-050/140 remain planned, FR-141/144 are superseded, and the prior retired-FR coverage correction remains in effect; no requirement anchors or meanings were invented to suppress findings.
 

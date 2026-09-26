@@ -3,7 +3,7 @@ import { createModelProviderPort, PRIVATE_RUNTIME_PROVIDERS, PUBLIC_LINE_PROVIDE
 import { createModelPort } from '../../../../services/conversation-runtime/src/model-port.js'
 
 // @req FR-048, FR-149, FR-171 — the extracted provider adapter preserves LINE provider behavior.
-// @spec ADR-106 D2, SDD-108 — compare the deployed Server consumer and isolated Runtime consumer.
+// @spec ADR-106 D2, SDD-110 — compare the deployed Server consumer and isolated Runtime consumer.
 // @tested tests/integration/conversation-runtime-model-conformance.test.js
 const question = 'ราคาเท่าไร'
 const evidence = { records: [{ product_code: 'A1', name: 'สินค้าทดสอบ', sell_price: 12 }] }

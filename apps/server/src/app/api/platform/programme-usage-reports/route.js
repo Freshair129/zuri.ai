@@ -5,7 +5,7 @@ import { bearerMatches, recordProgrammeUsageReport } from '@/modules/platform-co
 
 // @req FR-218 — an automation job reports usage with the deployment bearer,
 //   checked before the body is read. Historical harness-attributed rows remain read-only.
-// @spec ADR-086 D5; SEC-001; ADR-109 D1, D3
+// @spec ADR-086 D5; SEC-001; ADR-110 D1, D3
 // @tested tests/unit/programme-usage-reports.test.js
 
 export const dynamic = 'force-dynamic'

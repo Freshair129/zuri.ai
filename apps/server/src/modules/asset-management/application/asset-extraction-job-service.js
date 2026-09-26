@@ -3,7 +3,7 @@ import { seesBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 
 // @req FR-143 — bounded status projection for preserved historical extraction rows.
-// @spec ADR-059 D5, ADR-109 D3
+// @spec ADR-059 D5, ADR-110 D3
 // @tested tests/unit/pipeline-health-service.test.js
 
 function jobError(message, status = 404) {

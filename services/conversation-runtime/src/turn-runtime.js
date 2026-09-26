@@ -3,7 +3,7 @@ import { validateClaim, validateTurnContext, validateWorkToolRequest } from './c
 import { composeTurnContext } from './context.js'
 
 // @req FR-149, FR-171 — claimed LINE turn orchestration and delivery coordination.
-// @spec ADR-106, SDD-108 — no direct DB/provider/table authority; use bounded ports.
+// @spec ADR-106, SDD-110 — no direct DB/provider/table authority; use bounded ports.
 // @tested services/conversation-runtime/test/turn-runtime.test.js
 const safeCode = error => typeof error?.code === 'string' && /^[A-Z0-9_:-]{1,80}$/.test(error.code) ? error.code : 'RUNTIME_OPERATION_FAILED'
 const evidenceRecords = value => Array.isArray(value) ? value : value?.records ?? []

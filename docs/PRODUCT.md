@@ -7,14 +7,14 @@ relations:
   - type: relates_to
     target: ZAI:ADR-061
   - type: relates_to
-    target: ZAI:ADR-109
+    target: ZAI:ADR-110
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
 ---
 
 # Zuri V2 — Product Definition
 
-> Current authority (2026-09-24): Zuri is a standalone product under [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs Server LINE ingress; [ADR-106](decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md) defines the Conversation Runtime boundary; [ADR-109](decisions/ADR-109-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) retires Edge Device and harness surfaces while keeping the PRP LocalWorker model-key flow. [FEAT-019 phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) is a candidate repository decision, not the current layout.
+> Current authority (2026-09-24): Zuri is a standalone product under [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs Server LINE ingress; [ADR-106](decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md) defines the Conversation Runtime boundary; [ADR-110](decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) retires Edge Device and harness surfaces while keeping the PRP LocalWorker model-key flow. [FEAT-019 phase map](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) is a candidate repository decision, not the current layout.
 
 
 | Field | Value |
@@ -160,6 +160,6 @@ four intake surfaces live (UI wizard, Excel, agent JSON, enterprise API).
 Everything else — identity, LINE/AI, the lifted V1 modules — is `PHASE-V2-REPLACE`,
 not started. Nothing in V1 has been cut over yet.
 
-Version diff 1.2.0b → 1.3.0b (2026-09-24): Record ADR-109 as current authority: Edge Device and harness connection surfaces are retired, while Server LINE ingress, Conversation Runtime, PRP LocalWorker keys, stored records and Knowledge/RAG remain. No production migration or deployment is claimed.
+Version diff 1.2.0b → 1.3.0b (2026-09-24): Record ADR-110 as current authority: Edge Device and harness connection surfaces are retired, while Server LINE ingress, Conversation Runtime, PRP LocalWorker keys, stored records and Knowledge/RAG remain. No production migration or deployment is claimed.
 
 Version diff 1.1.0 → 1.2.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.

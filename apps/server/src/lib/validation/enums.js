@@ -305,11 +305,11 @@ export const ASSET_PROCUREMENT_REF_TYPES = ['PR', 'PR_LINE', 'PO', 'PO_LINE', 'G
 export const ASSET_RESPONSIBILITY_ROLES = ['ACCOUNTABLE', 'CUSTODIAN', 'USER']
 export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
 
-// @req FR-223 — Integration credential vault vocabulary (ADR-089 D1, D5; SDD-097).
+// @req FR-223, FR-273 — Integration credential vault vocabulary (ADR-089 D1, D5; ADR-109 D1; SDD-097).
 // A store is named by the reference prefix it answers (`supabase-vault:`,
 // `envelope:`, `deployment-secret:`); a version is PURGED once its material is gone.
 export const SECRET_STORES = ['DEPLOYMENT_MOUNT', 'SUPABASE_VAULT', 'ENVELOPE']
-export const SECRET_KINDS = ['LINE_CHANNEL', 'OAUTH_CLIENT', 'API_KEY', 'MODEL_PROVIDER_KEY']
+export const SECRET_KINDS = ['LINE_CHANNEL', 'OAUTH_CLIENT', 'API_KEY', 'MODEL_PROVIDER_KEY', 'NOTION_OAUTH_TOKEN']
 export const INTEGRATION_CREDENTIAL_STATUSES = ['PENDING_VALIDATION', 'ACTIVE', 'ROTATING', 'EXPIRED', 'REVOKED', 'REENTRY_REQUIRED']
 // ROTATING still resolves: the previous version stays live until the new one validates.
 export const INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES = INTEGRATION_CREDENTIAL_STATUSES.filter(status => status === 'ACTIVE' || status === 'ROTATING')

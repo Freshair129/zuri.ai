@@ -16,13 +16,13 @@ attributes:
 
 After the S1 Edge surface retirement, `npm run govern` still reported FR-220 and
 FR-222 as having no code anchor, and reported FR-222 as having no test path,
-even though ADR-109 D5 retires those requirements and their former surfaces.
+even though ADR-110 D5 retires those requirements and their former surfaces.
 
 ## Evidence
 
 The composed S1 tree's generated graph listed FR-220 and FR-222 in
 `stats.coverage.fr_without_code`, and FR-222 in `fr_without_tests`. The registry
-marks FR-220, FR-221, and FR-222 superseded by ADR-109 D5. The graph parser
+marks FR-220, FR-221, and FR-222 superseded by ADR-110 D5. The graph parser
 records that status as `superseded`; the coverage function filtered planned FRs
 but did not filter superseded FRs. The same function already excludes
 superseded BR/SEC/SDD rows from their active denominator.

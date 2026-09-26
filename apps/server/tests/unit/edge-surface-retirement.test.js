@@ -1,4 +1,4 @@
-// @req ADR-109 D1-D3 — retired Edge Device and harness routes stay absent while
+// @req ADR-110 D1-D3 — retired Edge Device and harness routes stay absent while
 //   the signed LINE ingress, PRP key flow and historical records remain.
 // @tested tests/unit/edge-surface-retirement.test.js
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
@@ -17,7 +17,7 @@ function pluginFiles(dir) {
   })
 }
 
-describe('ADR-109 Edge Device and harness retirement', () => {
+describe('ADR-110 Edge Device and harness retirement', () => {
   it.each([
     'src/app/api/agent/heartbeat/route.js',
     'src/app/api/agent/line-webhook/route.js',

@@ -1,6 +1,6 @@
 // @req FR-146, FR-149 — the LINE OA account console has no Edge controls and retains
 //   the browser-provisioned model-provider key card.
-// @spec ADR-109 D1, D2; SDD-060
+// @spec ADR-110 D1, D2; SDD-060
 // @tested tests/unit/line-studio-account-console-render.test.js
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'

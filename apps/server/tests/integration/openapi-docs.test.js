@@ -25,7 +25,7 @@ function listFiles(directory) {
 
 function currentRouteInventory() {
   const root = path.resolve(__dirname, '../../src/app/api')
-  return listFiles(root)
+  const apiRoutes = listFiles(root)
     .filter((file) => path.basename(file) === 'route.js')
     .map((file) => {
       const relative = path.relative(root, path.dirname(file)).split(path.sep).join('/')
@@ -38,6 +38,8 @@ function currentRouteInventory() {
         methods,
       }
     })
+  // OAuth providers require an exact unprefixed callback URL, outside /api.
+  return [...apiRoutes, { path: '/oauth/notion/callback', methods: ['GET'] }]
     .sort((left, right) => left.path.localeCompare(right.path))
 }
 
@@ -69,7 +71,7 @@ describe('OpenAPI document', () => {
 
   it('labels generic inventory coverage without overwriting detailed intake contracts', () => {
     expect(doc['x-zuri-route-inventory']).toMatchObject({
-      source: 'src/app/api/**/route.js',
+      source: 'src/app/api/**/route.js plus explicit OAuth callbacks',
       // FR-066/067's seven onboarding/invite routes — eight operations over
       // those seven paths since the owner roster GET joined the removal DELETE
       // on /api/workspace-memberships — plus FR-106's two
@@ -244,12 +246,15 @@ describe('OpenAPI document', () => {
       // (archive is a status patch, never a DELETE) and weekly check-in —
       // three paths, three operations (one method each). 331 + 3 = 334;
       // 437 + 3 = 440.
-      // Merged main includes the Market Intelligence façade at 337 paths / 444 operations.
-      // ADR-109 retires 20 Edge, harness, and legacy paths (23 operations), and
-      // ADR-106/SDD-108 adds the Conversation Runtime Core path with GET + POST:
-      // 337 - 20 + 1 = 318 paths; 444 - 23 + 2 = 423 operations.
-      pathCount: 318,
-      operationCount: 423,
+      // FR-272 adds the scoped approval inbox and reviewer decision path:
+      // two paths and two operations. 334 + 2 = 336; 440 + 2 = 442.
+      // ADR-108 D4 adds the Market façade (337 paths / 444 operations).
+      // ADR-109 adds five Notion paths and five single-method operations (342 / 449).
+      // ADR-110 retires 20 Edge, harness, and legacy paths (23 operations), and
+      // ADR-106/SDD-110 adds the Conversation Runtime Core path with GET + POST:
+      // 342 - 20 + 1 = 323 paths; 449 - 23 + 2 = 428 operations.
+      pathCount: 323,
+      operationCount: 428,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

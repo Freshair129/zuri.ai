@@ -5,7 +5,7 @@ import { createConversationRuntime } from './turn-runtime.js'
 import { createWorkerLoop } from './worker-loop.js'
 
 // @req FR-149 — service-owned health, readiness and graceful process lifecycle.
-// @spec ADR-106 D5, SDD-108 — standalone Node composition root.
+// @spec ADR-106 D5, SDD-110 — standalone Node composition root.
 const portNumber = Number(process.env.CONVERSATION_RUNTIME_PORT ?? 3081)
 if (!Number.isInteger(portNumber) || portNumber < 1 || portNumber > 65535) throw new Error('CONVERSATION_RUNTIME_PORT_INVALID')
 let coreReady = false

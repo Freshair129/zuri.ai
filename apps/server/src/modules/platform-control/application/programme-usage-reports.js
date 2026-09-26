@@ -11,7 +11,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 // @req FR-239 — an optional, strictly validated usage detail (names and numbers only)
 //   is stored as headline columns plus canonical JSON, digested, and must also grow
 //   for a resumed session to extend.
-// @spec ADR-086 D5, D7; ADR-109 D1, D3; SDD-008 (Zod at the boundary)
+// @spec ADR-086 D5, D7; ADR-110 D1, D3; SDD-008 (Zod at the boundary)
 // @tested tests/unit/programme-usage-reports.test.js
 
 /** The deployment bearer, compared in constant time; a secret under 32 characters admits nothing. */

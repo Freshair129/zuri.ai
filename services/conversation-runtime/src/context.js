@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 
 // @req FR-234, FR-235 — compose one authorized, bounded turn packet.
-// @spec ADR-091 D7, ADR-106 D1, SDD-108 — source precedence and thread isolation.
+// @spec ADR-091 D7, ADR-106 D1, SDD-110 — source precedence and thread isolation.
 // @tested services/conversation-runtime/test/turn-runtime.test.js
 const PRIORITY = Object.freeze({ RECORD: 0, KNOWLEDGE: 1, MSP: 2 })
 

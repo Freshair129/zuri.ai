@@ -1,6 +1,6 @@
 // @req FR-138 — provider extraction creates a candidate, never approval.
 // @req FR-138 — provider extraction creates a candidate, never approval.
-// @req FR-143 — the retired Edge queue is no longer an extraction option (ADR-109 D3).
+// @req FR-143 — the retired Edge queue is no longer an extraction option (ADR-110 D3).
 // @spec SDD-082, SDD-085, BR-025, NFR-022, SEC-024, ADR-056, ADR-059
 // @tested tests/unit/asset-evidence-route-schema-contract.test.js,
 //   tests/integration/fr143-asset-extraction-job.test.js

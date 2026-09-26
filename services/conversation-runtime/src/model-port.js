@@ -1,5 +1,5 @@
 // @req FR-048, FR-266, FR-267 — invoke an approved Business-selected provider in CR.
-// @spec ADR-100 D5/D7, ADR-106 D2, SDD-108 — provider URL is fixed/server-provided; key stays in memory.
+// @spec ADR-100 D5/D7, ADR-106 D2, SDD-110 — provider URL is fixed/server-provided; key stays in memory.
 // @tested services/conversation-runtime/test/model-port.test.js
 const OPENAI_COMPATIBLE = Object.freeze({
   openrouter: 'https://openrouter.ai/api/v1/chat/completions',

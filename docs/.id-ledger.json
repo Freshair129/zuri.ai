@@ -402,6 +402,8 @@
     "FR-270",
     "FR-271",
     "FR-272",
+    "FR-273",
+    "FR-274",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -535,6 +537,8 @@
     "SDD-106",
     "SDD-107",
     "SDD-108",
+    "SDD-109",
+    "SDD-110",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -571,6 +575,7 @@
     "SEC-034",
     "SEC-035",
     "SEC-036",
+    "SEC-037",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -616,6 +621,7 @@
     "FEAT-043",
     "FEAT-044",
     "FEAT-045",
+    "FEAT-046",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -812,6 +818,7 @@
     "ADR-106",
     "ADR-108",
     "ADR-109",
+    "ADR-110",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3259,11 +3266,11 @@
           "anchor": "edge device heartbeat registry",
           "since": "2026-09-25",
           "reason": "ADR-109 D5 retires the Edge Device heartbeat registry after its Server and Edge heartbeat surfaces were removed from this branch.",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
         }
       ],
       "retired_at": "2026-09-25",
-      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
     },
     "FR-142": {
       "family": "FR",
@@ -3306,13 +3313,13 @@
           "anchor": "edge device credential",
           "since": "2026-09-25",
           "reason": "ADR-109 D5 retires the EdgeDeviceCredential and pairing requirement after the in-repository Edge Device credential and pairing surfaces were removed from this branch.",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
         }
       ],
       "statement_digest_reviewed_at": "2026-09-09",
       "statement_digest_reason": "Reworded to name LINE OA Studio's Edge Connection page as the mint UI, replacing /platform/integrations, which now carries no pairing UI of its own; the subject (Edge device credential) is unchanged.",
       "retired_at": "2026-09-25",
-      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
     },
     "FR-145": {
       "family": "FR",
@@ -4385,11 +4392,11 @@
           "anchor": "harness device pairing and report only credential",
           "since": "2026-09-24",
           "reason": "ADR-109 D5 retires Zuri browser-paired harness credentials and pairing endpoints; preserve stored reports and deployment-bearer reporting under FR-218.",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
       ],
       "retired_at": "2026-09-24",
-      "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
     },
     "FR-221": {
       "family": "FR",
@@ -4406,11 +4413,11 @@
           "anchor": "usage reports attributed to person device and lane",
           "since": "2026-09-24",
           "reason": "ADR-109 D5 retires new harness-derived person/device attribution; preserve historical report fields and keep deployment-bearer reporting under FR-218.",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
       ],
       "retired_at": "2026-09-24",
-      "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
     },
     "FR-222": {
       "family": "FR",
@@ -4427,11 +4434,11 @@
           "anchor": "zuri harness plugin",
           "since": "2026-09-24",
           "reason": "ADR-109 D5 removes the in-repository Zuri harness plugin and marketplace source; do not delete any user-local files or historical report rows.",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
       ],
       "retired_at": "2026-09-24",
-      "declared_in": "docs/PRD-SDD-v1.0.md#1.250.0b"
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
     },
     "FR-223": {
       "family": "FR",
@@ -4985,7 +4992,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "340c460ae7f045f07a83f712267b91dcc1b2b64291c05a6ad6342cc39a019139",
+      "statement_digest": "a4050180c088c3a40ec699f3d17935104d8ae6f7735bf331ffa2aa2bda6119f8",
       "history": [
         {
           "anchor": "line oa studio conversation work is server executed only",
@@ -4993,8 +5000,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-25",
-      "statement_digest_reason": "Clarify that runtimeOwner selects and snapshots the Conversation Runtime cohort while executionMode stays SERVER and Core retains claims, receipts, and authoritative state writes."
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
     },
     "FR-266": {
       "family": "FR",
@@ -5086,6 +5093,34 @@
           "reason": "declared"
         }
       ]
+    },
+    "FR-273": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f0df59b5846029c84a13b325213166409dcdc66c456ee9001ca747a56744a236",
+      "history": [
+        {
+          "anchor": "a business owner connects a notion public connection",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-274": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1a7ac5a19fc3ae71d7918dda55c34d2166159c93fa04ed5457335ad0a6f2eea6",
+      "history": [
+        {
+          "anchor": "the integration lane receives notion s post api",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Clarify identical setup challenge retries acknowledge receipt without replacing the pinned verification token."
     },
     "NFR-001": {
       "family": "NFR",
@@ -6835,16 +6870,42 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
+      "statement_digest": "30c9c15ed881face088d8bef736011a34c561f3aabaa2b48d565065497b73350",
+      "history": [
+        {
+          "anchor": "notion oauth state is random short lived and stored hash",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-109": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ae98c9ea537532bb8a09e8377ce5af6ceafe5ed39d9a77303d5d9734c766a5ea",
+      "history": [
+        {
+          "anchor": "the notion webhook verification token has app level scope",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Specify that identical verification challenge retries are idempotent and do not replace the encrypted token."
+    },
+    "SDD-110": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
       "statement_digest": "bcf1552f9b5d6700f579240b3d94cb03d161a92f53738a94c71b64faab612ef8",
       "history": [
         {
           "anchor": "conversation runtime is an independent node process over",
-          "since": "2026-09-23",
+          "since": "2026-09-26",
           "reason": "declared"
         }
-      ],
-      "statement_digest_reviewed_at": "2026-09-25",
-      "statement_digest_reason": "Clarify the strict Conversation Runtime process boundary, Core-owned authority and receipts, and durable runtimeOwner cohort selection while preserving executionMode SERVER."
+      ]
     },
     "SEC-001": {
       "family": "SEC",
@@ -7326,6 +7387,21 @@
         }
       ]
     },
+    "SEC-037": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4d17a8697d01314be69e2294038515fcbd35c29a0cf93a43fa38d399fdedfa3f",
+      "history": [
+        {
+          "anchor": "notion oauth state is unpredictable actor scope bound hash",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Bind the retry rule so an identical webhook setup challenge cannot replace the encrypted verification token."
+    },
     "FEAT-001": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
@@ -7555,7 +7631,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "d6bb03b67c56749ef23a508a4f42f580818b0c3bdea8fdf4c5cdc011247f5b80",
+      "statement_digest": "afa4eb2c95d440e870eac7e14f26af6a501ba154acc42d32e39e6c5bf79c730c",
       "history": [
         {
           "anchor": "line oa studio",
@@ -7563,14 +7639,14 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-25",
-      "statement_digest_reason": "States server-owned transport after ADR-109 D1 retires the Edge transport option."
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
     },
     "FEAT-019": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "bf0854b7f51705d8575a3a1539876c6d4e82075e2163f419485b1b9997f1ed4a",
+      "statement_digest": "5d83bda0d87a94c97cc1b91115461fbde8348de0dfc0d8d295f8402ea6b5eeb4",
       "history": [
         {
           "anchor": "server line with optional edge",
@@ -7578,8 +7654,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-25",
-      "statement_digest_reason": "Removes optional Edge compute while keeping central conversations and server-owned messaging."
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
     },
     "FEAT-020": {
       "family": "FEAT",
@@ -7863,7 +7939,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "b22f2e597ffa814d7b6e4cd7d540ddc401833df2fff3752f105f4c82b7f3c65f",
+      "statement_digest": "a2a40a797688854f2739864fbe831cab0ea5fc024c8bf7007909f6be1b9551d2",
       "history": [
         {
           "anchor": "agent usage detail",
@@ -7871,8 +7947,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-25",
-      "statement_digest_reason": "Preserves historical person and device attribution while retiring new harness plugin reporting."
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
     },
     "FEAT-040": {
       "family": "FEAT",
@@ -7943,7 +8019,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "36f10366c7558cdce849b0f7714f4e1edfc9701c8dad21612b5b72585312f364",
+      "statement_digest": "ccb35591f0c11ef62a99adc82291653015dff0f41695062174eb01e4f22e9aec",
       "history": [
         {
           "anchor": "line oa on api keys only",
@@ -7951,8 +8027,21 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-25",
-      "statement_digest_reason": "Adds ADR-109 D1 retirement scope while preserving the Business-owned provider API key flow."
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
+    },
+    "FEAT-046": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "68c7559bc3815cc55dad6e5cf661b37261c391a29c6afbf428bf705204399b14",
+      "history": [
+        {
+          "anchor": "notion connection",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
     },
     "RSK-001": {
       "family": "RSK",
@@ -10517,13 +10606,26 @@
     },
     "ADR-109": {
       "family": "ADR",
-      "source": "docs/decisions/ADR-109-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
+      "source": "docs/decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "8c135c8b79cc19f32d10e9c4f0837cf95275b60e4eb25f4e6ede90fac21f763b",
+      "history": [
+        {
+          "anchor": "notion oauth installation and signed webhook boundary",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-110": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
       "status": "current",
       "statement_digest": "a7e286f1c5c07b6ec98ed320c18c1c020ac258cf7aa88f4dc8379aef58264bc6",
       "history": [
         {
           "anchor": "retire edge device and harness surfaces keep prp",
-          "since": "2026-09-24",
+          "since": "2026-09-26",
           "reason": "declared"
         }
       ]

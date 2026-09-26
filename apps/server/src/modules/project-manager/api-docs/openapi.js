@@ -97,7 +97,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/accounts/{id}/transport-health', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
-  // @req FR-149 — private ADR-106/SDD-108 runtime adapter; Core remains authoritative.
+  // @req FR-149 — private ADR-106/SDD-110 runtime adapter; Core remains authoritative.
   ['/api/internal/conversation-runtime/v1/{operation}', ['GET', 'POST']],
   // @req FR-223, FR-224 — write-only credential rotation, revocation and live
   // validation (ADR-089); nothing they answer carries material.
@@ -110,10 +110,16 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/integration/model-providers', ['GET', 'POST']],
   ['/api/integration/model-providers/{id}/revoke', ['POST']],
   ['/api/integration/model-providers/{id}/validate', ['POST']],
+  // @req FR-273 — Business-scoped Notion OAuth, including its exact unprefixed callback.
+  ['/api/integrations/notion/connect', ['GET']], ['/oauth/notion/callback', ['GET']],
+  // @req FR-274 — signed, receipt-only Notion webhook and operator challenge controls.
+  ['/api/integrations/notion/webhook', ['POST']],
+  ['/api/platform/integrations/notion/webhook-verification/reveal', ['POST']],
+  ['/api/platform/integrations/notion/webhook-verification/reset', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/line-oa/jobs/failures', ['GET']],
-  // @req ADR-109 — retired Edge Device and harness routes are absent from the
+  // @req ADR-110 — retired Edge Device and harness routes are absent from the
   // active inventory; historical rows and Prisma records remain preserved.
   // @req FR-146 — LINE OA Studio accounts: list/connect on the collection,
   // read and versioned actions (pause, resume, archive, set default, switch
@@ -413,7 +419,7 @@ function registerInventoryOperations(registry) {
         path,
         summary: conversationRuntime ? `Private Conversation Runtime ${method} adapter` : `Route inventory: ${method} ${path}`,
         description: conversationRuntime
-          ? `Private ADR-106/SDD-108 service boundary. GET permits only health; POST accepts only the fixed conversation-runtime.v1 operation enum. Core revalidates identity, Tenant/Business, account binding, consent/erasure, transport epoch, lease and ownership from authoritative state. Request and response bodies are bounded to 64 KiB. Operation payload fields: services/conversation-runtime/contracts/v1/operation.schema.json.`
+          ? `Private ADR-106/SDD-110 service boundary. GET permits only health; POST accepts only the fixed conversation-runtime.v1 operation enum. Core revalidates identity, Tenant/Business, account binding, consent/erasure, transport epoch, lease and ownership from authoritative state. Request and response bodies are bounded to 64 KiB. Operation payload fields: services/conversation-runtime/contracts/v1/operation.schema.json.`
           : `Current handler inventory coverage for ${method} ${path}. This generic operation is deliberately transparent: handler-specific request and response fields are not claimed here; use Appendix A and live route validation for the detailed contract.`,
         tags: conversationRuntime ? ['Internal service'] : ['Route inventory'],
         parameters: conversationRuntime
@@ -888,7 +894,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],
     'x-zuri-route-inventory': {
-      source: 'src/app/api/**/route.js',
+      source: 'src/app/api/**/route.js plus explicit OAuth callbacks',
       pathCount: CURRENT_API_ROUTE_INVENTORY.length,
       operationCount: CURRENT_API_ROUTE_INVENTORY.reduce((count, [, methods]) => count + methods.length, 0),
     },

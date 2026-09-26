@@ -13,7 +13,7 @@ import {
 } from './line-conversation-jobs'
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
-// @spec ADR-106 D2-D4, SDD-108 — server-derived authority, strict bounded v1 operations.
+// @spec ADR-106 D2-D4, SDD-110 — server-derived authority, strict bounded v1 operations.
 // @tested tests/integration/conversation-runtime-vertical-slice.test.js
 const VERSION = 'conversation-runtime.v1'
 const MAX_BODY_BYTES = 64 * 1024

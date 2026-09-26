@@ -1,5 +1,5 @@
 ---
-id: ZAI:ADR-109
+id: ZAI:ADR-110
 title: "Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow"
 version: "1.0.0"
 status: approved
@@ -38,7 +38,7 @@ relations:
     target: ZAI:FR-222
 ---
 
-# ADR-109 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow
+# ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow
 
 **Status:** Approved for local implementation on 2026-09-24. Removal from a running
 deployment, credential revocation, and any production data operation remain separate

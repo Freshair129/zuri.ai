@@ -4,7 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // @req FR-149 — the Conversation Runtime image resolves against the monorepo root.
-// @spec ADR-106 D5, SDD-108 — Compose build paths stay independent of apps/server.
+// @spec ADR-106 D5, SDD-110 — Compose build paths stay independent of apps/server.
 // @tested .github/workflows/governance.yml
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url))
 const serviceRoot = path.resolve(scriptDirectory, '..')

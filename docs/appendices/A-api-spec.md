@@ -1,6 +1,8 @@
 # Appendix A — API Specification
 
-Version diff 1.94.0b → 1.95.0b (2026-09-24): ADR-109 retires 20 Edge Device, harness and legacy executor paths (23 operations) from the merged 337-path / 444-operation main baseline. ADR-106 / SDD-108 adds one Conversation Runtime Core path with GET + POST; the composed inventory is 318 paths / 423 operations. Native signed LINE ingress, PRP model-provider credentials, historical records and Knowledge/RAG remain; no migration or deployment is included.
+Version diff 1.95.0b → 1.96.0b (2026-09-27): ADR-110 retires 20 Edge Device, harness and legacy executor paths (23 operations) from the 342-path / 449-operation Notion baseline. ADR-106 / SDD-110 adds one Conversation Runtime Core path with GET + POST; the composed inventory is 322 API route handlers, 323 OpenAPI paths and 428 operations. Native signed LINE ingress, PRP model-provider credentials, historical records and Knowledge/RAG remain; no migration or deployment is included.
+
+Version diff 1.94.0b → 1.95.0b (2026-09-26): add the Business-scoped Notion OAuth connect/callback and signed receipt-only webhook endpoints (ADR-109); 341 API route handlers, 342 OpenAPI paths and 449 operations. Local implementation and migrations are not production-applied; provider setup remains an operator gate.
 
 Version diff 1.93.0b → 1.94.0b (2026-09-24): DRAFT for the integrator — add the Market Intelligence service's private core façade (ADR-108 D4), one dynamic path; current inventory is 337 route-handler paths. Not reachable with a browser session; no production route switch is claimed.
 
@@ -26,9 +28,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.95.0b |
+| **Version** | 1.96.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-24 |
+| **Last Updated** | 2026-09-27 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -47,7 +49,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-### Internal Conversation Runtime Core adapter (ADR-106 / SDD-108)
+### Internal Conversation Runtime Core adapter (ADR-106 / SDD-110)
 
 Private, versioned service boundary for the independent Conversation Runtime process.
 GET is health-only; POST accepts the fixed operation enum in
@@ -64,11 +66,11 @@ operation-specific payload fields.
 |---|---|---|
 | GET, POST | `/api/internal/conversation-runtime/v1/[operation]` | GET allows only `health`; POST allows only the fixed v1 operations. Strict bounded request/response envelopes, service bearer, deadline and idempotency/correlation fields. Core owns queue claim/lease/fencing, canonical Work writes and receipts, LINE sender and durable trace. Runtime owns turn orchestration and delivery coordination. |
 
-### Retired Edge Device and harness API surfaces (ADR-109)
+### Retired Edge Device and harness API surfaces (ADR-110)
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=318 -->
+<!-- api-spec-counts: route_handlers=322 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -162,7 +164,7 @@ ADR-094 D6 option A. The compute-owned edge worker polls this to decide whether 
 
 | Method | Route | Contract | Failure |
 |---|---|---|---|
-| POST | `/api/edge/model-residency` | **withdrawn (FR-265, ADR-100 D2; ADR-109 D1)** the residency poll existed so a compute-owned edge worker could decide whether to hold a local model in VRAM. No Edge Device worker remains in the current product path; FR-244's declared business hours are unchanged and still shed the model answer for the out-of-hours reply. |
+| POST | `/api/edge/model-residency` | **withdrawn (FR-265, ADR-100 D2; ADR-110 D1)** the residency poll existed so a compute-owned edge worker could decide whether to hold a local model in VRAM. No Edge Device worker remains in the current product path; FR-244's declared business hours are unchanged and still shed the model answer for the out-of-hours reply. |
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -172,9 +174,9 @@ ADR-086 D5. An agent without local session logs reports one session's usage for 
 |---|---|---|---|
 | POST | `/api/platform/programme-usage-reports` | implemented (FR-218): under `Authorization: Bearer $ZURI_PROGRAMME_USAGE_TOKEN` (at least 32 characters), `{ source, sessionId, taskCode, model?, inputTokens, cacheWriteTokens, cacheReadTokens, outputTokens, requestCount, activeMinutes, startedAt, endedAt }` (strict — no other field, so no prompt or response content) is stored once per `(source, sessionId)` in `ProgrammeUsageReport`; `201 { report, replayed: false }` on create (audited `PROGRAMME_USAGE_REPORT` / `REPORTED`), `200 { report, replayed: true }` when the same payload arrives again. `/control/roadmap` merges the rows with the meter's figures, skipping a session the meter already counted | `401 USAGE_REPORT_CREDENTIAL_REQUIRED`; `400 USAGE_REPORT_INVALID` with `issues`; `404 PROGRAMME_TASK_UNKNOWN`; `409 USAGE_REPORT_CONFLICT` (same session, different payload); `503 USAGE_REPORT_UNAVAILABLE` (database, including a migration not yet applied) |
 
-### Platform telemetry; harness attribution retired (ADR-109)
+### Platform telemetry; harness attribution retired (ADR-110)
 
-ADR-109 retires the FR-220/FR-221 harness pairing, device-management and `whoami` routes. Harness credentials are no longer accepted for usage reports. Existing credentials and reports remain stored; no data cleanup occurs here. The unrelated Platform telemetry endpoints below remain active.
+ADR-110 retires the FR-220/FR-221 harness pairing, device-management and `whoami` routes. Harness credentials are no longer accepted for usage reports. Existing credentials and reports remain stored; no data cleanup occurs here. The unrelated Platform telemetry endpoints below remain active.
 
 | Method | Route | Contract | Failure |
 |---|---|---|---|
@@ -185,12 +187,12 @@ ADR-109 retires the FR-220/FR-221 harness pairing, device-management and `whoami
 | POST | `/api/platform/usage-events/rollup` | implemented (FR-249, NFR-023): deployment-bearer-authenticated (`ZURI_USAGE_ROLLUP_TOKEN`), once-a-day idempotency guard; moves every `UsageEvent` row past its 90-day window into a person-free daily rollup and deletes the rows moved, one audit event per run (same shape as `/api/crm/retention-sweep`) | `401` missing/wrong bearer; `503` on an unhandled failure |
 | GET | `/api/platform/task-usage-ledger?taskCode=` | implemented locally (TaskUsageLedger v1): deployment-bearer-authenticated, read-only redacted projection over explicit taskCode reports; plan prediction and measured actual remain separate, lane-only usage is never allocated, optional taskCode filters one known programme task | `401 TASK_USAGE_LEDGER_CREDENTIAL_REQUIRED`; `404 PROGRAMME_TASK_UNKNOWN`; `503 TASK_USAGE_LEDGER_UNAVAILABLE` |
 
-`POST /api/platform/programme-usage-reports` accepts only the deployment bearer after ADR-109; the old harness attribution path is retired. Existing report rows retain their historical person/installation attribution and are not rewritten.
+`POST /api/platform/programme-usage-reports` accepts only the deployment bearer after ADR-110; the old harness attribution path is retired. Existing report rows retain their historical person/installation attribution and are not rewritten.
 
 FR-239 (ADR-086 D7): the active report body may carry an optional, strict `detail` object — `reasoningTokens`, `cacheWrite5mTokens`, `cacheWrite1hTokens`, `webSearchRequests`, `webFetchRequests`, `prompts`, `toolCalls`, `toolErrors`, `toolDenials`, `compactions`, `apiErrors` (integers), `tools` (≤ 300 names matching `^[\w.:@/-]{1,120}$`, each `{ calls, errors }`) and `models` (≤ 30 names, each a request count); any other key is `400 USAGE_REPORT_INVALID`, so no text can be stored. The detail is part of the replay digest; the former plugin parser contract remains in [retired Zuri harness plugin specification](../ZURI-HARNESS-PLUGIN-SPEC.md) §6–7 as historical detail.
 
 
-### Historical Edge Device browser/QR pairing (FR-144; retired by ADR-109)
+### Historical Edge Device browser/QR pairing (FR-144; retired by ADR-110)
 
 The `/api/edge/pairing/*` handlers and pairing page are retired. Historical credentials and pairing records remain stored; no automatic revocation or production data operation is included.
 
@@ -457,6 +459,24 @@ until their separate CAS/provisioner contracts, tests and production manager
 evidence exist. There is intentionally no read-secret endpoint. The UI is owner-only under the
 trusted viewer/Business ownership boundary and cannot activate a LINE binding or
 replace FR-053/054/055 canary evidence.
+
+## Notion OAuth and webhook ingress (FR-273 / FR-274 / ADR-109)
+
+The Business OWNER starts OAuth at AAL2. The callback consumes one actor-bound
+state and exchanges the authorization code server-to-server; the token remains in
+SecretStorePort. Notion event delivery is signature-checked over bounded raw bytes
+and stores only an idempotent receipt. The app-level verification token can be
+revealed once by an installation operator at AAL2; reset is also AAL2-gated.
+Webhook ciphertext and OAuth state are not exported in snapshots; event receipts
+are retained for idempotency.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/integrations/notion/connect` | FR-273: authenticated Business OWNER at AAL2; `businessId` selects only a Business they own; redirects to Notion with short-lived one-use state. |
+| GET | `/oauth/notion/callback` | FR-273: same actor and Business scope; consumes state once, exchanges `code` at Notion's fixed token endpoint, stores the token through SecretStorePort, and redirects without returning code or token. |
+| POST | `/api/integrations/notion/webhook` | FR-274: public bounded JSON challenge or `X-Notion-Signature` HMAC over exact raw bytes; stores challenge ciphertext or a minimal event receipt only. |
+| POST | `/api/platform/integrations/notion/webhook-verification/reveal` | FR-274: installation operator at AAL2; atomically returns the challenge token once, with no-store response. |
+| POST | `/api/platform/integrations/notion/webhook-verification/reset` | FR-274: installation operator at AAL2; audited removal allows a new challenge to be captured. |
 
 ## CRM conversation reader (FR-091 / SDD-049)
 
@@ -987,7 +1007,7 @@ Tenant/authority server-side. All collection/workbook surfaces are capped; no ro
 returns an object-store credential, raw blob reference or public evidence URL.
 
 The standard Server/OpenAI extraction route remains active. Edge extraction-job
-claim, evidence, completion and failure routes were retired by ADR-109; existing
+claim, evidence, completion and failure routes were retired by ADR-110; existing
 `AssetExtractionJob` records remain historical and are not resumed or deleted.
 
 | Method | Path | Contract and side effects |
@@ -1089,7 +1109,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.95.0b | 2026-09-24 | candidate | ADR-109 retires 20 Edge Device, harness and legacy paths (23 operations) from merged 1.94; ADR-106 / SDD-108 adds one Conversation Runtime Core path with GET + POST. Composed inventory: 337 - 20 + 1 = 318 paths; 444 - 23 + 2 = 423 operations. Stored records/schema, signed LINE ingress, PRP key flow and Knowledge/RAG remain; no migration or deployment | working-tree | Codex |
+| 1.96.0b | 2026-09-27 | candidate | ADR-110 retires 20 Edge Device, harness and legacy paths (23 operations) from the 1.95 Notion baseline; ADR-106 / SDD-110 adds one Conversation Runtime Core path with GET + POST. Composed inventory: 342 - 20 + 1 = 323 paths; 449 - 23 + 2 = 428 operations. Stored records/schema, signed LINE ingress, PRP key flow and Knowledge/RAG remain; no migration or deployment | working-tree | Codex |
 | 1.94.0b | 2026-09-24 | candidate | ADR-108 D4 adds the Market Intelligence private core façade at `/api/internal/market-intelligence/v1/[operation]` (one path, GET + POST); inventory 336 -> 337 paths / 442 -> 444 operations; no production route switch claimed | working-tree | Codex |
 | 1.92.0b | 2026-09-22 | candidate | FR-268 (ADR-101 D6 Phase 1): three handler files under `/api/business/goals/[id]/key-results` and `/api/business/key-results/[id]`(`/check-ins`) — create/patch a Key Result and record a weekly check-in, OWNER-only, write-through recompute of the parent Goal's progress (SDD-107, BR-044). Route handler count 331 -> 334 | working-tree | Claude Sonnet 5 |
 | 1.90.0b | 2026-09-22 | candidate | FR-069: add owner-attested FUNG/Lalin AI meeting identity binding plus strict meeting-action dry-run/commit handoff into the PM PlanEnvelope single-writer path; route handler inventory 326 -> 329 | working-tree | Codex |
@@ -1182,7 +1202,7 @@ canary evidence; those remain owner-gated release criteria.
 | GET | `/api/line-oa/jobs/failures?businessId=` | Studio Business visibility (same 404 for unknown, invisible or ungranted); read model only, never a retry or acknowledgement. `{ businessId, total, byErrorCode[], failures[] }` — the honest unwindowed count of `FAILED` conversation jobs for the Business, a per-`errorCode` breakdown (a null code is reported as `null`, never relabelled) and the 20 most recently updated rows in the same DTO shape as the per-account list. `400 LINE_OA_BUSINESS_REQUIRED`. |
 | POST | `/api/line-oa/jobs/[id]/acknowledge-unknown` | Studio publisher; `{version,acknowledgePossibleDelivery:true}` terminal audited closure without resend or delivery claim. |
 | GET | `/api/line-oa/jobs/[id]/trace` | Business owner plus Studio visibility; exact persisted execution evidence and read-only playback. Derives Tenant/Business from the job; no model, tool or transport calls. Missing or erased evidence returns `REPLAY_INCOMPLETE`. |
-| POST | `/api/edge/conversation-jobs/*` | **withdrawn (FR-265, ADR-100 D2)** claim, context, tools, complete and fail. ADR-109 later retired the remaining Edge extraction and pairing paths; no Edge Device executor remains in the current product. |
+| POST | `/api/edge/conversation-jobs/*` | **withdrawn (FR-265, ADR-100 D2)** claim, context, tools, complete and fail. ADR-110 later retired the remaining Edge extraction and pairing paths; no Edge Device executor remains in the current product. |
 | POST | `/api/line-oa/connections` | Business owner. Body `{businessId,name,destination,secretRef:"deployment-secret:…"}` registers connection metadata for a mounted secret (FR-149). Body `{businessId,name,channelId,channelSecret,channelAccessToken?}` connects write-only (FR-223, FR-224, FR-226, ADR-089): ACTIVE TOTP factor and live AAL2 step-up (403 `MFA_FACTOR_REQUIRED` with `details[0].enrolmentPath`, 403 `ASSURANCE_LEVEL_INSUFFICIENT`), rate limit (429 `CREDENTIAL_RATE_LIMITED` + `retryAfterSeconds` and `Retry-After`), writable store required (503 `CHANNEL_SECRET_STORE_UNAVAILABLE`), live LINE validation (422 `LINE_CREDENTIALS_REJECTED` for a wrong Channel ID or secret alike, 422 `LINE_TOKEN_REJECTED`, 503 `LINE_UNAVAILABLE`), claim (409 `LINE_CHANNEL_ALREADY_CONNECTED` / `LINE_CHANNEL_CLAIMED_ELSEWHERE`, Thai sentence in `details`), then vault write (500 `CREDENTIAL_ORPHAN_PURGED` after compensation). Response `{connection,credential:{status,version,secretStore,displayHint,lastValidatedAt,expiresAt},bot,claim}` — never material. Body ≤ 16 KiB (413 `CREDENTIAL_INPUT_TOO_LARGE`), generic 400 `CREDENTIAL_INPUT_INVALID`, `Cache-Control: no-store`. |
 | POST | `/api/line-oa/connections/[id]/credential` | Business owner; FR-223/FR-224 rotation `{channelId,channelSecret,channelAccessToken?}` with the same gate, limit and validation; 422 `LINE_CHANNEL_MISMATCH` when the pair belongs to another bot; 409 `LINE_CONNECTION_NOT_ACTIVE`. The previous version resolves until the new one validates; no epoch bump. Response `{credential,bot}`; `no-store`. |
 | POST | `/api/line-oa/connections/[id]/credential/revoke` | Business owner; FR-223/FR-224 `{reason,confirmation:"REVOKE"}` with the gate and limit; fences the LINE OA account (server ownership off, epoch +1, queued jobs cancelled) before every version's material is purged. Response `{credential:{status,version}}`; `no-store`. |

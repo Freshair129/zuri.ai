@@ -6,7 +6,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
-import { SNAPSHOT_EXCLUDED_MODELS } from '@/modules/project-manager/application/backup-service'
+import { SNAPSHOT_EXCLUDED_MODELS, SNAPSHOT_MODELS } from '@/modules/project-manager/application/backup-service'
 import { INTEGRATION_CREDENTIAL_STATUSES, INTEGRATION_CREDENTIAL_VERSION_STATUSES, SECRET_STORES } from '@/lib/validation/enums'
 
 vi.mock('@/lib/db', () => ({ default: {} }))
@@ -24,7 +24,7 @@ describe('vault models', () => {
   const postgres = schema('schema.postgres.prisma')
 
   it('are byte-identical in both provider schemas', () => {
-    for (const name of ['IntegrationCredential', 'IntegrationCredentialVersion', 'IntegrationSecretEnvelope']) {
+    for (const name of ['IntegrationCredential', 'IntegrationCredentialVersion', 'IntegrationSecretEnvelope', 'NotionOAuthState', 'NotionWebhookVerificationToken', 'NotionWebhookReceipt']) {
       expect(model(postgres, name)).toBe(model(sqlite, name))
     }
   })
@@ -48,5 +48,11 @@ describe('vault models', () => {
     // tests/integration/credential-vault-lifecycle.test.js.
     expect(SNAPSHOT_EXCLUDED_MODELS.integrationSecretEnvelope).toMatch(/never exported/)
     expect(SNAPSHOT_EXCLUDED_MODELS.integrationCredentialVersion).toBeUndefined()
+  })
+
+  it('keeps Notion ciphertext and short-lived state out of backups but exports receipt idempotency', () => {
+    expect(SNAPSHOT_EXCLUDED_MODELS.notionWebhookVerificationToken).toMatch(/never exported/)
+    expect(SNAPSHOT_EXCLUDED_MODELS.notionOAuthState).toMatch(/never exported/)
+    expect(SNAPSHOT_MODELS).toContain('notionWebhookReceipt')
   })
 })

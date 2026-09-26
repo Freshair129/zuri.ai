@@ -24,7 +24,7 @@ relations:
   - type: relates_to
     target: ZAI:FR-171
   - type: relates_to
-    target: ZAI:SDD-108
+    target: ZAI:SDD-110
 ---
 
 # ADR-106 — Conversation Runtime service extraction

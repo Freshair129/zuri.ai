@@ -4,7 +4,7 @@
 //   schemas, both migration trees and the route inventory.
 // @req FR-221 — historical harness attribution stays readable and cannot be rewritten
 //   by the retained deployment report path.
-// @spec ADR-086 D5; ADR-109 D1, D3; SEC-001; SDD-008
+// @spec ADR-086 D5; ADR-110 D1, D3; SEC-001; SDD-008
 // @tested tests/unit/programme-usage-reports.test.js
 import fs from 'node:fs'
 import path from 'node:path'

@@ -1,7 +1,7 @@
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
 
 // @req FR-149 — private, versioned Conversation Runtime adapter.
-// @spec ADR-106 D2-D4, SDD-108 — no public identity/scope input.
+// @spec ADR-106 D2-D4, SDD-110 — no public identity/scope input.
 // @tested tests/integration/conversation-runtime-vertical-slice.test.js
 export const dynamic = 'force-dynamic'
 

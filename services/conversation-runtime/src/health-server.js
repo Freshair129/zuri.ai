@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
 
 // @req FR-149 — independent liveness and dependency readiness endpoints.
-// @spec ADR-106 D5, SDD-108 — readiness is false until the authenticated core port responds.
+// @spec ADR-106 D5, SDD-110 — readiness is false until the authenticated core port responds.
 // @tested services/conversation-runtime/test/health-server.test.js
 export function createHealthServer({ isReady = () => false } = {}) {
   return createServer((request, response) => {

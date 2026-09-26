@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 
-// @spec ADR-106 D5, SDD-108 — build is limited to this independent Node process.
+// @spec ADR-106 D5, SDD-110 — build is limited to this independent Node process.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 async function walk(dir) {
   const output = []

@@ -19,7 +19,7 @@ import { createConversationRuntimeCore } from '@/modules/line-oa-studio/applicat
 import { confirmLineWork, parseLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
 
 // @req FR-149, FR-150, FR-171 — signed durable admission through the real independent runtime and Core owners.
-// @spec ADR-106 D1-D4, SDD-108 — separate process, server-derived scope and durable receipts.
+// @spec ADR-106 D1-D4, SDD-110 — separate process, server-derived scope and durable receipts.
 // @tested tests/integration/conversation-runtime-vertical-slice.test.js
 const channelSecret = 'synthetic-line-channel-secret'
 const serviceToken = 'synthetic-conversation-runtime-core-token-0001'
