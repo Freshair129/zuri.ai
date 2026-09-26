@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zuri Edge Device — Control Center & Configuration</title>
+  <title>Zuri Local Runtime — Control Center & Configuration</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -272,8 +272,8 @@
     <div class="logo-group">
       <div class="logo-badge">Z</div>
       <div class="title">
-        <h1>Zuri Edge Device — Control Center</h1>
-        <p>Local Zero-Trust Intelligence Hub &amp; GenesisBlock Knowledge Graph Manager</p>
+        <h1>Zuri Local Runtime — Control Center</h1>
+        <p>Local Knowledge Runtime &amp; GenesisBlock Graph Manager</p>
       </div>
     </div>
     <div class="status-badge">
@@ -348,33 +348,6 @@
 
           <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-            <h2 class="card-title" style="margin: 0;">🔐 Cloud Pairing Tokens (Zero-Trust Security)</h2>
-            <label class="btn-secondary" style="width: auto; padding: 0.2rem 0.6rem; font-size: 0.7rem; border-radius: 6px; cursor: pointer;">
-              📂 นำเข้า Pairing .json
-              <input type="file" accept=".json" style="display: none;" onchange="importPairingJson(event)" />
-            </label>
-          </div>
-          <p class="card-subtitle">นำรหัสจาก Zuri Cloud Console มาใส่ที่นี่ หรือกดปุ่มนำเข้าไฟล์ .json ด้านบน</p>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="field">
-              <label for="edgeDeviceId">Zuri Device ID</label>
-              <input type="text" id="edgeDeviceId" class="input input-mono" placeholder="DEV-SMARTGIFT-PRIMARY" required />
-            </div>
-            <div class="field">
-              <label for="edgeDeviceToken">Zuri Edge Token (Public Key)</label>
-              <input type="text" id="edgeDeviceToken" class="input input-mono" placeholder="tok_edge_..." required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="edgeDeviceSecret">Zuri Edge Secret (Private Signing Key)</label>
-            <input type="password" id="edgeDeviceSecret" class="input input-mono" placeholder="sec_edge_..." required />
-          </div>
-
-          <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
-
           <h2 class="card-title">💾 Disk Storage &amp; Chat History Archive</h2>
           <p class="card-subtitle">ตั้งค่าตำแหน่งจัดเก็บประวัติการสนทนาลงใน Local Hard Disk และรอบเวลาหมุนเวียนลบ</p>
 
@@ -412,28 +385,13 @@
           <span>📊 Graph API (JSON)</span>
           <span style="font-size: 0.8rem;">↗</span>
         </a>
-        <a id="cloudConsoleLink" href="#" target="_blank" class="nav-link" style="display: none;">
-          <span>☁️ Zuri Cloud Console</span>
-          <span style="font-size: 0.8rem;">↗</span>
-        </a>
-        <p id="cloudConsoleUnset" class="card-subtitle" style="margin: 0.5rem 0 0;">
-          ☁️ ยังไม่ได้ตั้งค่า Cloud Console (ตั้งค่า ZURI_CLOUD_CONSOLE_URL ใน .env — ที่อยู่นี้เป็นรายเครื่องตั้งแต่ ADR-058)
-        </p>
       </div>
 
       <div class="card">
-        <h3 class="card-title">🛡️ Security &amp; Pairing</h3>
-        <p class="card-subtitle">สถานะการจับคู่กับ Cloud Console</p>
+        <h3 class="card-title">🛡️ Local Runtime</h3>
+        <p class="card-subtitle">สถานะของ Knowledge/RAG runtime ในเครื่อง</p>
 
         <ul class="meta-list">
-          <li>
-            <span style="color: var(--text-muted);">Device ID:</span>
-            <span class="tag" id="pairingDeviceId">—</span>
-          </li>
-          <li>
-            <span style="color: var(--text-muted);">Pairing Status:</span>
-            <span id="pairingStatus" style="font-weight: 700;">—</span>
-          </li>
           <li>
             <span style="color: var(--text-muted);">RAG Engine:</span>
             <span style="font-weight: 600;">GenesisBlock DB</span>
@@ -517,36 +475,15 @@
     dropdown.innerHTML = '<option value="qwen3.5:9b">qwen3.5:9b (Default Local)</option><option value="lfm2.5:8b">lfm2.5:8b</option>';
   }
 
-  function importPairingJson(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const json = JSON.parse(e.target.result);
-        if (json.deviceId) document.getElementById('edgeDeviceId').value = json.deviceId;
-        if (json.token) document.getElementById('edgeDeviceToken').value = json.token;
-        if (json.secret) document.getElementById('edgeDeviceSecret').value = json.secret;
-        alert(`✅ นำเข้าข้อมูล Pairing เรียบร้อยแล้ว:\n- Device ID: ${json.deviceId}\n- Token: ${json.token.slice(0, 16)}...`);
-      } catch (err) {
-        alert('❌ ไฟล์ JSON ไม่ถูกต้อง: ' + err.message);
-      }
-    };
-    reader.readAsText(file);
-  }
-
   async function loadConfig() {
     await fetchOllamaModels();
     try {
       const res = await fetch('/api/config');
       if (res.ok) {
         const data = await res.json();
-        if (data.deviceId) document.getElementById('edgeDeviceId').value = data.deviceId;
-        if (data.deviceToken) document.getElementById('edgeDeviceToken').value = data.deviceToken;
-        if (data.deviceSecret) document.getElementById('edgeDeviceSecret').value = data.deviceSecret;
         if (data.historyRoot) document.getElementById('historyRoot').value = data.historyRoot;
         if (data.retentionDays) document.getElementById('retentionDays').value = data.retentionDays;
-        // Options come from the device's own .agents/ folder, so the list is what it can load.
+        // Options come from this runtime's own .agents/ folder, so the list is what it can load.
         const personaSelect = document.getElementById('activePersona');
         if (Array.isArray(data.availablePersonas) && data.availablePersonas.length) {
           personaSelect.innerHTML = '';
@@ -558,30 +495,6 @@
           }
         }
         if (data.activePersona) personaSelect.value = data.activePersona;
-
-        // The panel above used to print a hardcoded device id next to a hardcoded "Paired".
-        const pairId = document.getElementById('pairingDeviceId');
-        const pairStatus = document.getElementById('pairingStatus');
-        if (pairId) pairId.textContent = data.deviceId || '—';
-        if (pairStatus) {
-          const paired = Boolean(data.pairing && data.pairing.configured);
-          pairStatus.textContent = paired ? '● Paired' : '○ Not paired';
-          pairStatus.style.color = paired ? 'var(--success)' : 'var(--text-muted)';
-          pairStatus.title = paired
-            ? 'A device credential and a cloud address are both configured.'
-            : 'Set ZURI_EDGE_DEVICE_KEY and ZURI_CLOUD_BASE_URL to pair this device.';
-        }
-
-        const cloudLink = document.getElementById('cloudConsoleLink');
-        const cloudUnset = document.getElementById('cloudConsoleUnset');
-        if (data.cloudConsoleUrl) {
-          cloudLink.href = data.cloudConsoleUrl;
-          cloudLink.style.display = '';
-          cloudUnset.style.display = 'none';
-        } else {
-          cloudLink.style.display = 'none';
-          cloudUnset.style.display = '';
-        }
 
         if (data.engineMode === 'OLLAMA_LOCAL') {
           switchEngineMode('OLLAMA_LOCAL');
@@ -609,9 +522,6 @@
     saveBtn.textContent = 'กำลังบันทึก...';
 
     const payload = {
-      deviceId: document.getElementById('edgeDeviceId').value.trim(),
-      deviceToken: document.getElementById('edgeDeviceToken').value.trim(),
-      deviceSecret: document.getElementById('edgeDeviceSecret').value.trim(),
       engineMode: currentEngineMode,
       modelName: document.getElementById('activeModelDisplay').value.trim(),
       historyRoot: document.getElementById('historyRoot').value.trim(),
@@ -630,8 +540,8 @@
          * Say what the save actually did.
          *
          * This used to alert "saved" whatever happened, which is true of the file and says nothing
-         * about the device — and it hid a real case: a token rotation where the field still held
-         * the old value wrote the same bytes back and looked exactly like success. The response
+         * about the runtime — and it hid a real case: a config change was accepted by the file but
+         * was not applied by the process. The response
          * already names what the running process picked up and what it could not; showing it is
          * the difference between a confirmation and a reassurance.
          */

@@ -1,13 +1,7 @@
 pub mod commands;
 mod desktop;
-#[cfg(test)]
-mod durable_log;
 mod machine;
-#[cfg(test)]
-mod packaged_runtime_tests;
 pub mod providers;
-#[cfg(test)]
-pub mod supervisor;
 mod window_layout;
 
 use desktop::{

@@ -5,8 +5,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { createConversationExecutor, headlessProviderHome, validateExecutionPolicy } from '../../src/conversation/executor.js';
 import { ConversationError, type ConversationJob } from '../../src/conversation/contract.js';
-import { runConversationOnce, runConversationLoop, EDGE_CONVERSATION_WORKER_REMOVED } from '../../src/conversation/worker.js';
-import { runConversationCommand } from '../../src/cli/conversation.js';
 import { buildArgs, saveSession, loadSessionId, type HeadlessOptions } from '../../src/answer/headless.js';
 import { GenesisLocalRag } from '../../src/rag/genesis-rag.js';
 
@@ -16,10 +14,9 @@ const job = (): ConversationJob => ({
   policy: { modelAccess: 'LOCAL_ONLY', role: 'sales', retainHistory: false },
 });
 
-test('retired Edge CLI and queue worker fail closed', async () => {
-  await assert.rejects(runConversationCommand('serve'), /EDGE_CONVERSATION_WORKER_REMOVED/);
-  await assert.rejects(runConversationOnce(), new RegExp(EDGE_CONVERSATION_WORKER_REMOVED));
-  await assert.rejects(runConversationLoop(), new RegExp(EDGE_CONVERSATION_WORKER_REMOVED));
+test('retired Edge CLI and queue worker entrypoints are absent', () => {
+  assert.equal(fs.existsSync(new URL('../../src/conversation/worker.ts', import.meta.url)), false);
+  assert.equal(fs.existsSync(new URL('../../src/cli/conversation.ts', import.meta.url)), false);
 });
 
 test('local RAG launcher never starts the retired dist conversation worker', () => {

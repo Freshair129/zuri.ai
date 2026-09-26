@@ -3822,7 +3822,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 9
         },
         {
           "id": "FR-259",
@@ -11218,11 +11218,10 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 9
         }
       ],
       "evidence": [
-        "apps/edge/tests/unit/model-residency-schedule.test.ts",
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
         "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
         "apps/server/src/lib/validation/entities.js",

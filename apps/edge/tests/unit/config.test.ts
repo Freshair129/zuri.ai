@@ -8,13 +8,11 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { loadConfig, validateConfig } from '../../src/config/index.js';
 import { resolveSecret } from '../../src/config/secret.js';
-import { buildHealthReport } from '../../src/cli/index.js';
 
-// @tested FR-001 — `config check` validates local configuration and device identity.
-// @tested FR-002 — `health` reports registration and contract compatibility.
+// @tested FR-001 — `config check` validates local runtime configuration.
 // @tested SEC-005 — a credential resolves from a secret file rather than plaintext.
 // @tested SDD-007 — the configuration module: environment loading and the `${NAME}_FILE` adapter.
-// @tested AC-001 — config check fails on an invalid transport, device identity or binding, and reports a credential as configured or not rather than echoing it. The exit code itself is exercised by the CLI, not here.
+// @tested AC-001 — config check validates local runtime settings without requiring retired device credentials.
 
 /*
  * `validateConfig`/`loadConfig` take an injectable env object precisely so these tests never
@@ -24,38 +22,24 @@ import { buildHealthReport } from '../../src/cli/index.js';
  */
 
 describe('config check (FR-001)', () => {
-  it('passes a fully configured zuri-api transport', () => {
-    const result = validateConfig({
+  it('does not require or load retired Edge Device transport credentials', () => {
+    const legacySettings = {
       ZURI_COMMAND_TRANSPORT: 'zuri-api',
-      ZURI_COMMAND_API_BASE_URL: 'https://zuri.example',
+      ZURI_COMMAND_API_BASE_URL: 'https://retired.example',
       ZURI_AGENT_DEVICE_ID: 'device-1',
-      ZURI_AGENT_DEVICE_TOKEN: 'device-token',
-    });
+      ZURI_AGENT_DEVICE_TOKEN: 'synthetic-device-token',
+    } as NodeJS.ProcessEnv;
+    const config = loadConfig(legacySettings);
+    const result = validateConfig(legacySettings);
+
     assert.strictEqual(result.valid, true);
-    assert.strictEqual(result.checks.transport.status, 'pass');
-    assert.strictEqual(result.checks.deviceId.status, 'pass');
-    assert.strictEqual(result.checks.deviceTokenConfigured.status, 'pass');
-  });
-
-  it('fails a zuri-api transport missing its device credentials', () => {
-    const result = validateConfig({ ZURI_COMMAND_TRANSPORT: 'zuri-api' });
-    assert.strictEqual(result.valid, false);
-    assert.strictEqual(result.checks.deviceId.status, 'fail');
-    assert.strictEqual(result.checks.deviceTokenConfigured.status, 'fail');
-    assert.ok(result.errors.some((e) => e.includes('ZURI_AGENT_DEVICE_ID')));
-    assert.ok(result.errors.some((e) => e.includes('ZURI_AGENT_DEVICE_TOKEN')));
-  });
-
-  it('does not require device credentials for the mock transport', () => {
-    const result = validateConfig({ ZURI_COMMAND_TRANSPORT: 'mock' });
-    assert.strictEqual(result.checks.deviceId.status, 'pass');
-    assert.strictEqual(result.checks.deviceTokenConfigured.status, 'pass');
-  });
-
-  it('does not accept the retired local LINE transport', () => {
-    const result = validateConfig({ ZURI_COMMAND_TRANSPORT: 'line-poc' });
-    assert.strictEqual(result.checks.transport.value, 'zuri-api');
-    assert.strictEqual(result.valid, false);
+    assert.strictEqual('transport' in config, false);
+    assert.strictEqual('apiBaseUrl' in config, false);
+    assert.strictEqual('deviceId' in config, false);
+    assert.strictEqual('deviceToken' in config, false);
+    assert.strictEqual('transport' in result.checks, false);
+    assert.strictEqual('deviceId' in result.checks, false);
+    assert.strictEqual('deviceTokenConfigured' in result.checks, false);
   });
 
   it('validates retained outbox configuration when enabled', () => {
@@ -97,28 +81,6 @@ describe('retired Edge Device worker configuration', () => {
   });
 });
 
-describe('health (FR-002)', () => {
-  it('reports configured once every required field is present', () => {
-    const report = buildHealthReport({
-      ZURI_COMMAND_TRANSPORT: 'zuri-api',
-      ZURI_COMMAND_API_BASE_URL: 'https://zuri.example',
-      ZURI_AGENT_DEVICE_ID: 'device-1',
-      ZURI_AGENT_DEVICE_TOKEN: 'device-token',
-    });
-    assert.strictEqual(report.status, 'configured');
-    assert.strictEqual(report.agentId, 'zuri.command-agent');
-    assert.strictEqual(report.transport, 'zuri-api');
-    assert.ok(report.capabilities.includes('bridge.claim'));
-    assert.ok(report.approvedTemplates.includes('executive-summary.v1'));
-  });
-
-  it('degrades rather than pretending, when config is invalid', () => {
-    const report = buildHealthReport({ ZURI_COMMAND_TRANSPORT: 'zuri-api' });
-    assert.strictEqual(report.status, 'degraded');
-    assert.strictEqual(report.configStatus.valid, false);
-  });
-});
-
 describe('Secret resolution (SEC-005)', () => {
   let dir = '';
   afterEach(() => {
@@ -149,19 +111,6 @@ describe('Secret resolution (SEC-005)', () => {
     );
   });
 
-  it('lets a device token be supplied as a file instead of a plaintext value', () => {
-    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-secret-'));
-    const file = path.join(dir, 'device-token');
-    fs.writeFileSync(file, 'secret-from-disk');
-
-    const result = validateConfig({
-      ZURI_COMMAND_TRANSPORT: 'zuri-api',
-      ZURI_COMMAND_API_BASE_URL: 'https://zuri.example',
-      ZURI_AGENT_DEVICE_ID: 'device-1',
-      ZURI_AGENT_DEVICE_TOKEN_FILE: file,
-    });
-    assert.strictEqual(result.checks.deviceTokenConfigured.status, 'pass');
-  });
 });
 
 // ADR-031 0.3.0b permits an EDGE account a local model but no cloud fallback. The risk was never
@@ -170,9 +119,6 @@ describe('Secret resolution (SEC-005)', () => {
 // would have started answering customers through the hosted API without anyone deciding to.
 describe('Reaching a hosted model API is a decision, not a fallback', () => {
   const base = {
-    ZURI_COMMAND_TRANSPORT: 'zuri-api',
-    ZURI_AGENT_DEVICE_ID: 'DEV-01',
-    ZURI_AGENT_DEVICE_TOKEN: 'tok',
     ZURI_LLM_ENABLED: 'true',
     ANTHROPIC_API_KEY: 'sk-parked-for-a-future-policy-change',
   } as NodeJS.ProcessEnv;
@@ -238,7 +184,6 @@ describe('managed Desktop provider configuration', () => {
 
 describe('direct-message retention', () => {
   const base = (over: Record<string, string> = {}) => ({
-    ZURI_COMMAND_TRANSPORT: 'mock',
     LINE_HISTORY_HASH_KEY: 'k',
     LINE_HISTORY_GROUP_TEST: 'true',
     LINE_GROUP_TEST: 'Cffffffffffffffffffffffffffffffff',

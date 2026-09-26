@@ -1,4 +1,4 @@
-import { SensitivityClass } from '../zuri-api/types.js';
+import { SensitivityClass } from '../contracts.js';
 
 export interface QueryParameterSchema {
   period?: 'today' | 'yesterday' | 'this_week' | 'this_month';

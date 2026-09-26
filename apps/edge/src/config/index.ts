@@ -5,21 +5,12 @@ import path from 'path';
 import { resolveSecret } from './secret.js';
 
 // @req SDD-007 — the configuration module: environment loading and the Docker-secret `_FILE` adapter.
-// @req SEC-005 — device identity and token may live in a secret file rather than in plaintext.
 
-// The managed Desktop worker supplies every setting over its private initialization channel.
-// Keep standalone CLI behavior unchanged while preventing a developer checkout's `.env` from
-// overriding that explicit worker contract.
+// Callers with an already-managed process environment can opt out of loading a checkout `.env`.
 if (process.env.ZURI_CONFIG_SKIP_DOTENV !== '1') dotenv.config();
 
 export interface AgentConfig {
-  transport: 'zuri-api' | 'mock';
-  apiBaseUrl: string;
-  deviceId: string;
-  deviceToken: string;
   duckdbPath: string;
-  pollIntervalSeconds: number;
-  maxConcurrentJobs: number;
   lineHistoryHashKey: string;
   lineHistoryRoot: string;
   /** Directory holding the 1:1 identity register. */
@@ -103,10 +94,6 @@ export interface ConfigCheckResult {
    */
   warnings?: string[];
   checks: {
-    transport: { status: 'pass' | 'fail'; value?: string };
-    apiBaseUrl: { status: 'pass' | 'fail'; value?: string };
-    deviceId: { status: 'pass' | 'fail'; value?: string };
-    deviceTokenConfigured: { status: 'pass' | 'fail' };
     duckdbPath: { status: 'pass' | 'fail' | 'warn'; path?: string; readable?: boolean };
     outbox?: {
       status: 'pass' | 'fail' | 'warn';
@@ -141,7 +128,6 @@ export interface ConfigCheckResult {
  * Defaults to `process.env`, so every existing call site is unaffected.
  */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Partial<AgentConfig> {
-  const transport = env.ZURI_COMMAND_TRANSPORT || 'zuri-api';
   const lineHistoryAllowedGroupAliases = Object.entries(env)
     .filter(([name, value]) => (name.startsWith('LINE_HISTORY_GROUP_') || name.startsWith('LINE_GROUP_')) && Boolean(value))
     .map(([name]) => {
@@ -151,15 +137,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Partial<AgentC
     .sort();
 
   return {
-    transport: transport === 'mock' ? transport : 'zuri-api',
-    apiBaseUrl: env.ZURI_COMMAND_API_BASE_URL || 'http://localhost:3000',
-    deviceId: env.ZURI_AGENT_DEVICE_ID || '',
-    // SEC-005 / SDD-007: each honors an optional `${NAME}_FILE` pointing at a Docker secret or
-    // an ACL-protected file, so a deployment need not keep the raw value in the process env.
-    deviceToken: resolveSecret(env, 'ZURI_AGENT_DEVICE_TOKEN'),
     duckdbPath: env.SMARTGIFT_DUCKDB_PATH || '',
-    pollIntervalSeconds: parseInt(env.BRIDGE_POLL_INTERVAL_SECONDS || '15', 10),
-    maxConcurrentJobs: parseInt(env.BRIDGE_MAX_CONCURRENT_JOBS || '1', 10),
     lineHistoryHashKey: resolveSecret(env, 'LINE_HISTORY_HASH_KEY'),
     lineHistoryRoot: env.LINE_HISTORY_ROOT || 'state/line-history',
     lineIdentityRoot: env.LINE_IDENTITY_ROOT || 'state/line-identity',
@@ -226,39 +204,6 @@ export function validateConfig(env: NodeJS.ProcessEnv = process.env): ConfigChec
   const config = loadConfig(env);
   const errors: string[] = [];
   const warnings: string[] = [];
-
-  const transportCheck: { status: 'pass' | 'fail'; value?: string } =
-    config.transport === 'zuri-api' || config.transport === 'mock'
-      ? { status: 'pass', value: config.transport }
-      : { status: 'fail' };
-
-  if (transportCheck.status === 'fail') {
-    errors.push('ZURI_COMMAND_TRANSPORT must be zuri-api or mock');
-  }
-
-  const apiBaseUrlCheck: { status: 'pass' | 'fail'; value?: string } = config.transport !== 'zuri-api' || config.apiBaseUrl
-    ? { status: 'pass', value: config.apiBaseUrl }
-    : { status: 'fail' };
-
-  if (config.transport === 'zuri-api' && apiBaseUrlCheck.status === 'fail') {
-    errors.push('ZURI_COMMAND_API_BASE_URL is required');
-  }
-
-  const deviceIdCheck: { status: 'pass' | 'fail'; value?: string } = config.transport !== 'zuri-api' || config.deviceId
-    ? { status: 'pass', value: config.deviceId }
-    : { status: 'fail' };
-
-  if (config.transport === 'zuri-api' && deviceIdCheck.status === 'fail') {
-    errors.push('ZURI_AGENT_DEVICE_ID is missing');
-  }
-
-  const deviceTokenCheck: { status: 'pass' | 'fail' } = config.transport !== 'zuri-api' || config.deviceToken
-    ? { status: 'pass' }
-    : { status: 'fail' };
-
-  if (config.transport === 'zuri-api' && deviceTokenCheck.status === 'fail') {
-    errors.push('ZURI_AGENT_DEVICE_TOKEN is missing');
-  }
 
   let duckdbCheck: { status: 'pass' | 'fail' | 'warn'; path?: string; readable?: boolean } = {
     status: 'warn',
@@ -370,10 +315,6 @@ export function validateConfig(env: NodeJS.ProcessEnv = process.env): ConfigChec
     contractVersion: '0.1.0b',
     ...(warnings.length ? { warnings } : {}),
     checks: {
-      transport: transportCheck,
-      apiBaseUrl: apiBaseUrlCheck,
-      deviceId: deviceIdCheck,
-      deviceTokenConfigured: deviceTokenCheck,
       duckdbPath: duckdbCheck,
       llm,
       outbox,

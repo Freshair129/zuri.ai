@@ -1,5 +1,5 @@
 import { getRegisteredQuery } from './registry.js';
-import { SensitivityClass } from '../zuri-api/types.js';
+import { SensitivityClass } from '../contracts.js';
 import { logDiagnostic } from '../safety/redact.js';
 
 // @req BR-001 — DuckDB is opened read-only and accepts only registered query ids; raw SQL from an

@@ -1,4 +1,4 @@
-import { CardViewModel } from '../zuri-api/types.js';
+import { CardViewModel } from '../contracts.js';
 import { validateCardViewModel } from '../cards/validator.js';
 import { ALLOWED_CTA_DOMAINS } from '../cards/types.js';
 import type { CardPayload } from '../answer/format-cards.js';
@@ -116,7 +116,7 @@ export function modelCard(c: CardPayload): Record<string, unknown> {
 
   // The rendered "ดูตัวเลือก" button is a LINE `postback` (`data: v4:<id>`), not the `uri` CTA
   // `toCardViewModel` carries for `src/cards/validator.ts`'s governance check — `CardCtaAction` in
-  // `src/zuri-api/types.ts` only models `{ type: 'uri' }`, so that shared shape stays a validation
+  // The shared CardViewModel contract only models `{ type: 'uri' }`, so that shape stays a validation
   // stand-in and is never what actually reaches the LINE bubble.
   return {
     type: 'bubble',

@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 
 import { fileURLToPath } from 'url';
-import { AgentConfig, ConfigCheckResult, loadConfig, validateConfig } from '../config/index.js';
+import { loadConfig, validateConfig } from '../config/index.js';
 import { printJsonSuccess, printJsonError } from './output.js';
 import { logDiagnostic } from '../safety/redact.js';
-import { HttpZuriApiClient, IZuriApiClient, MockZuriApiClient, defaultMockStatePath } from '../zuri-api/client.js';
-import { runPreview, runSend, runStatus, SUPPORTED_TEMPLATES } from './commands.js';
 import { PRICE_QUOTE_USAGE, runPriceQuote } from './price.js';
 import { answerConversation } from '../answer/respond.js';
 import { LlmOptions } from '../answer/llm.js';
@@ -30,25 +28,10 @@ import {
 } from '../rag/taxonomy-serving.js';
 import { GenesisLocalRag } from '../rag/genesis-rag.js';
 
-// @req FR-001 — `config check` validates local configuration, device identity and contract version.
-// @req FR-002 — `health` reports registration, contract compatibility and last heartbeat.
+// @req FR-001 — `config check` validates local runtime configuration.
 // @req SDD-001 — the CLI entry point: command parsing, stdout/stderr and exit codes.
-// @req AC-001 — config check exits non-zero on invalid config, identity, contract version or DuckDB access, and reports whether a secret is configured rather than what it is.
-// @spec FR-093, FR-143, ADR-031 — zuri-ai's, referenced but not owned here.
-
-/**
- * Production/default calls use the canonical Zuri HTTP contract. The persisted mock is available
- * only when explicitly selected with ZURI_COMMAND_TRANSPORT=mock.
- */
-function getZuriApiClient(): IZuriApiClient {
-  const config = loadConfig();
-  if (config.transport === 'mock') return new MockZuriApiClient(defaultMockStatePath());
-  return new HttpZuriApiClient({
-    baseUrl: config.apiBaseUrl || '',
-    deviceId: config.deviceId || '',
-    deviceToken: config.deviceToken || '',
-  });
-}
+// @req AC-001 — config check exits non-zero on invalid local config or DuckDB access, and reports whether a secret is configured rather than what it is.
+// @spec FR-093, ADR-031 — zuri-ai's, referenced but not owned here.
 
 interface ParsedFlags {
   positional: string[];
@@ -79,71 +62,6 @@ function parseFlags(args: string[]): ParsedFlags {
   }
 
   return { positional, flags };
-}
-
-async function handlePreview(template: string | undefined, rest: string[]): Promise<void> {
-  if (!template) {
-    printJsonError(
-      'MISSING_TEMPLATE',
-      `A <template> argument is required. Supported: ${SUPPORTED_TEMPLATES.join(', ')}`,
-      undefined,
-      1
-    );
-    return;
-  }
-
-  const { flags } = parseFlags(rest);
-  logDiagnostic(`Running zuri-agent preview ${template}`);
-
-  try {
-    const client = getZuriApiClient();
-    const job = await runPreview(client, template, {
-      period: typeof flags.period === 'string' ? flags.period : undefined,
-      limit: typeof flags.limit === 'string' ? parseInt(flags.limit, 10) : undefined,
-    });
-    printJsonSuccess(job);
-  } catch (err) {
-    printJsonError('PREVIEW_FAILED', err instanceof Error ? err.message : String(err), undefined, 1);
-  }
-}
-
-async function handleSend(template: string | undefined, rest: string[]): Promise<void> {
-  if (!template) {
-    printJsonError(
-      'MISSING_TEMPLATE',
-      `A <template> argument is required. Supported: ${SUPPORTED_TEMPLATES.join(', ')}`,
-      undefined,
-      1
-    );
-    return;
-  }
-
-  const { flags } = parseFlags(rest);
-  logDiagnostic(`Running zuri-agent send ${template}`);
-
-  try {
-    const client = getZuriApiClient();
-    const job = await runSend(client, template, {
-      group: typeof flags.group === 'string' ? flags.group : '',
-      period: typeof flags.period === 'string' ? flags.period : undefined,
-      limit: typeof flags.limit === 'string' ? parseInt(flags.limit, 10) : undefined,
-    });
-    printJsonSuccess(job);
-  } catch (err) {
-    printJsonError('SEND_FAILED', err instanceof Error ? err.message : String(err), undefined, 1);
-  }
-}
-
-async function handleStatus(commandId: string | undefined): Promise<void> {
-  logDiagnostic('Running zuri-agent status');
-
-  try {
-    const client = getZuriApiClient();
-    const job = await runStatus(client, commandId || '');
-    printJsonSuccess(job);
-  } catch (err) {
-    printJsonError('STATUS_FAILED', err instanceof Error ? err.message : String(err), undefined, 1);
-  }
 }
 
 function handlePrice(subcommand: string | undefined, rest: string[]): void {
@@ -180,63 +98,6 @@ function handleConfigCheck(): void {
   } else {
     printJsonError('CONFIG_INVALID', 'Local configuration or environment check failed', result, 1);
   }
-}
-
-export interface HealthReport {
-  agentId: string;
-  contractVersion: string;
-  status: 'configured' | 'degraded';
-  transport: AgentConfig['transport'] | undefined;
-  capabilities: string[];
-  registeredQueries: string[];
-  approvedTemplates: string[];
-  lastHeartbeat: string;
-  configStatus: ConfigCheckResult;
-}
-
-/**
- * The decision logic behind `health`, separated from printing it.
- *
- * `handleHealth` exists to be run as a CLI subcommand — it writes to stdout and, on the CLI's
- * general error path, can exit the process. Neither is safe to trigger from inside a shared test
- * run, which is exactly why FR-002 had no test at this level before: there was no way to reach
- * the decision (`configured` vs `degraded`, which capabilities are reported) without also
- * reaching the side effect. Split apart, this half is a pure function of the environment.
- */
-export function buildHealthReport(env?: NodeJS.ProcessEnv): HealthReport {
-  const configResult = validateConfig(env);
-  return {
-    agentId: 'zuri.command-agent',
-    contractVersion: '0.1.0b',
-    status: configResult.valid ? 'configured' : 'degraded',
-    transport: loadConfig(env).transport,
-    capabilities: [
-      'bridge.health',
-      'bridge.claim',
-      'duckdb.execute',
-      'evidence.submit',
-      'preview.open',
-    ],
-    registeredQueries: [
-      'executive_summary.v1',
-      'channel_performance.v1',
-      'campaign_breakdown.v1',
-      'approval_queue.v1',
-    ],
-    approvedTemplates: [
-      'executive-summary.v1',
-      'channel-performance.v1',
-      'campaign-breakdown.v1',
-      'actions-approval-queue.v1',
-    ],
-    lastHeartbeat: new Date().toISOString(),
-    configStatus: configResult,
-  };
-}
-
-function handleHealth(): void {
-  logDiagnostic('Running zuri-agent health check');
-  printJsonSuccess(buildHealthReport());
 }
 
 type LoadedConfig = ReturnType<typeof loadConfig>;
@@ -581,26 +442,6 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (command === 'health') {
-    handleHealth();
-    return;
-  }
-
-  if (command === 'preview') {
-    await handlePreview(subcommand, args.slice(2));
-    return;
-  }
-
-  if (command === 'send') {
-    await handleSend(subcommand, args.slice(2));
-    return;
-  }
-
-  if (command === 'status') {
-    await handleStatus(subcommand);
-    return;
-  }
-
   if (command === 'price') {
     handlePrice(subcommand, args.slice(2));
     return;
@@ -635,10 +476,6 @@ async function main(): Promise<void> {
       usage: 'zuri-agent <command> [subcommand] [options]',
       availableCommands: [
         'config check',
-        'health',
-        'preview <template> [--period <p>] [--limit <n>]',
-        'send <template> --group <alias> [--period <p>] [--limit <n>]',
-        'status <command-id>',
         PRICE_QUOTE_USAGE.usage,
         'chat say --text "<message>" [--role owner|sales] [--who <label>]',
         'chat prune',
@@ -648,10 +485,8 @@ async function main(): Promise<void> {
         'identity approve --hash <h> --role <owner|sales> --email <address>',
         'identity revoke --hash <h>',
       ],
-      supportedTemplates: SUPPORTED_TEMPLATES,
       priceQuoteFlags: { required: PRICE_QUOTE_USAGE.required, optional: PRICE_QUOTE_USAGE.optional },
       notes: [
-        'preview/send/status use the canonical Zuri HTTP client by default. Set ZURI_COMMAND_TRANSPORT=mock only for local contract tests.',
         'price quote is a local calculation from supplied cost and carton figures. It reads no ' +
           'tenant data and creates no Zuri command.',
       ],
@@ -669,7 +504,7 @@ async function main(): Promise<void> {
 
 /*
  * Run only when this file is the process entry point — not when a test imports it to reach
- * `validateConfig`/`buildHealthReport`. Without this guard, importing the module at all would
+ * `validateConfig`. Without this guard, importing the module at all would
  * run `main()` against whatever argv the importer happened to have (a test runner's own flags,
  * not a zuri-agent command), fall through to the unknown-command branch, and call
  * `process.exit(1)` — silently killing the entire test run, including every file after this one.
