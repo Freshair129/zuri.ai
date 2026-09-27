@@ -49,7 +49,9 @@ export const TRACE_EVENT_KINDS = Object.freeze([
   // from a LINE group or room MSP thread (line-memory-erasure.js).
   'MEMORY_THREAD_ERASURE_PENDING',
   'MEMORY_THREAD_ERASURE_ATTEMPT',
+  'MEMORY_THREAD_ERASURE_DEFERRED',
   'MEMORY_THREAD_ERASURE_ACKNOWLEDGED',
+  'MEMORY_THREAD_ERASURE_FAILED',
   // @req FR-149 — Core's admission-time record that a Conversation Runtime job's
   // LINE sender was unverified, so the job runs with no person (ADR-106 D3).
   'CHANNEL_IDENTITY_ADMITTED',

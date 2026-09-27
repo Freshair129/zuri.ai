@@ -21,9 +21,24 @@ import { appendTraceEvent, redactTraceTurn } from '@/modules/agent/execution-tra
 export const MEMORY_ERASURE_KINDS = Object.freeze({
   pending: 'MEMORY_THREAD_ERASURE_PENDING',
   attempt: 'MEMORY_THREAD_ERASURE_ATTEMPT',
+  // Its `occurredAt` is the time the next attempt is scheduled for, so which
+  // records are due is decided in the query, never by scanning a fixed batch.
+  deferred: 'MEMORY_THREAD_ERASURE_DEFERRED',
   acknowledged: 'MEMORY_THREAD_ERASURE_ACKNOWLEDGED',
+  // Terminal: the attempts are spent. Alerted, never retried silently, never dropped.
+  failed: 'MEMORY_THREAD_ERASURE_FAILED',
 })
-export const MEMORY_ERASURE_BACKOFF_MS = Object.freeze([1_000, 5_000, 30_000, 60_000, 300_000])
+// Retries after the first failed attempt; the attempt after the last one is final.
+export const MEMORY_ERASURE_BACKOFF_MS = Object.freeze([60_000, 300_000, 900_000, 3_600_000, 21_600_000, 86_400_000, 86_400_000])
+export const MEMORY_ERASURE_MAX_ATTEMPTS = MEMORY_ERASURE_BACKOFF_MS.length + 1
+// An attempt in flight holds its record this long; a scanner that dies mid-call
+// frees it for the next scan after that, and MSP deduplicates by the idempotency key.
+export const MEMORY_ERASURE_CLAIM_MS = 60_000
+// @req FR-022 — a turn of the erased speaker may already be past its last fence and
+// about to append to the thread when the erasure commits. No first attempt is made
+// until any such turn's claim (LINE_JOB_LEASE_MS, 5 minutes) must have ended, plus
+// a margin, so a late append cannot land after the acknowledged erasure.
+export const MEMORY_ERASURE_GRACE_MS = 330_000
 const SHARED_AUDIENCES = new Set(['GROUP', 'ROOM'])
 const REDACTED = '{"redacted":true}'
 // The Core erasure authority MSP sees. It acts for the data subject, never as them.
@@ -68,8 +83,17 @@ export async function recordMemoryThreadErasures(tx, { tenantId, principalId, jo
   return { pendingThreads: recorded }
 }
 
-function backoff(attempts) {
-  return MEMORY_ERASURE_BACKOFF_MS[Math.max(0, Math.min(MEMORY_ERASURE_BACKOFF_MS.length - 1, attempts - 1))]
+function backoff(attemptNumber) {
+  return MEMORY_ERASURE_BACKOFF_MS[Math.max(0, Math.min(MEMORY_ERASURE_BACKOFF_MS.length - 1, attemptNumber - 1))]
+}
+
+const safeCode = error => {
+  const code = error?.code ?? error?.message
+  return typeof code === 'string' && /^[A-Z0-9_:-]{1,80}$/.test(code) ? code : 'MSP_ERASURE_FAILED'
+}
+
+function defaultAlert(entry) {
+  process.stderr.write(`${JSON.stringify(entry)}\n`)
 }
 
 /** Core's data-subject authority over one thread: MSP-scoped to the route, no private read or write. */
@@ -83,31 +107,44 @@ function erasureAuthorization(route) {
 }
 
 /**
- * Fair, bounded scanner. Each pending erasure is claimed by appending the next
- * ATTEMPT row with a nonce (a concurrent scanner loses on the idempotency key),
- * then MSP is asked to erase the principal from the thread. On success the
- * ACKNOWLEDGED row is appended and the record's turn is redacted.
+ * Bounded scanner over DUE records only. A record is due when its grace period has
+ * passed and nothing holds it: no attempt in flight (claimed within
+ * MEMORY_ERASURE_CLAIM_MS), no retry scheduled for later, not FAILED. That is
+ * decided in the query, so records in backoff or spent never occupy a batch and a
+ * fresh erasure in any tenant is always reached. Each due record is claimed by
+ * appending the next ATTEMPT row with a nonce (a concurrent scanner loses on the
+ * idempotency key); MSP is then asked to erase the principal from the thread. On
+ * success: ACKNOWLEDGED, then the record's trace is redacted. On failure: a DEFERRED
+ * row scheduled after the backoff, or, when the attempts are spent, a FAILED row and
+ * an alert. Nothing is ever dropped.
  */
-export async function reconcileLineMemoryErasures({ db = prisma, threadMemory, now = () => new Date(), batchSize = 10 } = {}) {
-  const result = { scanned: 0, acknowledged: 0, pending: 0 }
+export async function reconcileLineMemoryErasures({ db = prisma, threadMemory, now = () => new Date(), batchSize = 10,
+  alert = defaultAlert } = {}) {
+  const result = { scanned: 0, acknowledged: 0, pending: 0, failed: 0 }
   if (typeof threadMemory?.erasePrincipal !== 'function' || typeof threadMemory?.resolveThread !== 'function') return result
   const at = typeof now === 'function' ? now() : now
+  const held = await db.agentTraceEvent.findMany({
+    where: { OR: [
+      { kind: MEMORY_ERASURE_KINDS.failed },
+      { kind: MEMORY_ERASURE_KINDS.deferred, occurredAt: { gt: at } },
+      { kind: MEMORY_ERASURE_KINDS.attempt, occurredAt: { gt: new Date(at.getTime() - MEMORY_ERASURE_CLAIM_MS) } },
+    ] },
+    select: { turnId: true }, distinct: ['turnId'],
+  })
   const rows = await db.agentTraceEvent.findMany({
-    where: { kind: MEMORY_ERASURE_KINDS.pending, payloadJson: { not: REDACTED } },
+    where: { kind: MEMORY_ERASURE_KINDS.pending, payloadJson: { not: REDACTED },
+      occurredAt: { lte: new Date(at.getTime() - MEMORY_ERASURE_GRACE_MS) },
+      ...(held.length ? { turnId: { notIn: held.map(row => row.turnId) } } : {}) },
     orderBy: [{ occurredAt: 'asc' }, { id: 'asc' }], take: Number.isInteger(batchSize) && batchSize > 0 && batchSize <= 50 ? batchSize : 10,
   })
   for (const row of rows) {
     const scope = { tenantId: row.tenantId, businessId: row.businessId }
     const events = await db.agentTraceEvent.findMany({ where: { ...scope, turnId: row.turnId } })
-    const acknowledged = events.find(event => event.kind === MEMORY_ERASURE_KINDS.acknowledged)
-    if (acknowledged) {
+    if (events.some(event => event.kind === MEMORY_ERASURE_KINDS.acknowledged)) {
       await redactTraceTurn(db, { scope, turnId: row.turnId, now: at })
       continue
     }
-    const attempts = events.filter(event => event.kind === MEMORY_ERASURE_KINDS.attempt)
-    const last = attempts.reduce((latest, event) => (!latest || event.occurredAt > latest ? event.occurredAt : latest), null)
-    if (last && at.getTime() - new Date(last).getTime() < backoff(attempts.length)) continue
-    const attemptNumber = attempts.length + 1
+    const attemptNumber = events.filter(event => event.kind === MEMORY_ERASURE_KINDS.attempt).length + 1
     try {
       await appendTraceEvent(db, { scope, turnId: row.turnId, executionId: null, kind: MEMORY_ERASURE_KINDS.attempt,
         idempotencyKey: `${row.turnId}:attempt:${attemptNumber}`, payload: { attemptNumber, claim: randomUUID() }, occurredAt: at })
@@ -119,16 +156,29 @@ export async function reconcileLineMemoryErasures({ db = prisma, threadMemory, n
         channelType: 'LINE', channelAccountId: route.channelAccountId, externalRoomRef: route.externalRoomRef,
         tenantId: route.tenantId, businessId: route.businessId })
       const threadId = resolved?.thread?.threadId
-      if (!threadId) throw new Error('MSP_THREAD_UNRESOLVED')
+      if (!threadId) throw Object.assign(new Error('MSP_THREAD_UNRESOLVED'), { code: 'MSP_THREAD_UNRESOLVED' })
       const erased = await threadMemory.erasePrincipal({ threadId, principalId, idempotencyKey, authorization: erasureAuthorization(route) })
-      if (!erased || typeof erased !== 'object') throw new Error('MSP_ERASURE_UNACKNOWLEDGED')
+      if (!erased || typeof erased !== 'object') throw Object.assign(new Error('MSP_ERASURE_UNACKNOWLEDGED'), { code: 'MSP_ERASURE_UNACKNOWLEDGED' })
       await appendTraceEvent(db, { scope, turnId: row.turnId, executionId: null, kind: MEMORY_ERASURE_KINDS.acknowledged,
         idempotencyKey: `${row.turnId}:acknowledged`, payload: { acknowledgedAt: at.toISOString(), attemptNumber }, occurredAt: at })
       await redactTraceTurn(db, { scope, turnId: row.turnId, now: at })
       result.acknowledged += 1
-    } catch {
-      // Unknown or refused: the record stays PENDING and is retried after backoff.
-      result.pending += 1
+    } catch (error) {
+      const code = safeCode(error)
+      if (attemptNumber >= MEMORY_ERASURE_MAX_ATTEMPTS) {
+        await appendTraceEvent(db, { scope, turnId: row.turnId, executionId: null, kind: MEMORY_ERASURE_KINDS.failed,
+          idempotencyKey: `${row.turnId}:failed`, payload: { attemptNumber, code }, occurredAt: at })
+        // Operator signal: an erasure MSP never acknowledged. The record keeps the
+        // route and principal it needs for a manual erasure; the log names neither.
+        alert({ event: 'line-memory-erasure.failed', severity: 'error', recordTurnId: row.turnId,
+          tenantId: row.tenantId, attempts: attemptNumber, code })
+        result.failed += 1
+      } else {
+        await appendTraceEvent(db, { scope, turnId: row.turnId, executionId: null, kind: MEMORY_ERASURE_KINDS.deferred,
+          idempotencyKey: `${row.turnId}:deferred:${attemptNumber}`, payload: { attemptNumber, code },
+          occurredAt: new Date(at.getTime() + backoff(attemptNumber)) })
+        result.pending += 1
+      }
     }
   }
   return result

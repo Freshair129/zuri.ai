@@ -26,6 +26,8 @@ export const MEMORY_OPERATIONS = Object.freeze(['read', 'append', 'receipt'])
 export const MEMORY_INJECTION_STATES = Object.freeze(['RESOLVED', 'SUBMITTED', 'COMPLETED', 'FAILED'])
 export const MAX_MEMORY_PACKET_BYTES = 32 * 1024
 export const MAX_MEMORY_EVIDENCE_BYTES = 32 * 1024
+// Evidence plus packet, leaving room under the 60 KiB `memory` result bound for the envelope.
+const MAX_MEMORY_RESULT_BYTES = 56 * 1024
 
 export { memoryOperationIds }
 
@@ -207,8 +209,17 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     const { composed, injectedPacket } = composeLineMemoryPacket({ memoryContext, route, authorizedForMemory,
       groundingMode, knowledgeSliceInputs })
     const knowledgeRecords = groundingMode === 'BUSINESS_KNOWLEDGE' ? null : composedKnowledgeRecords(composed, knowledgeRecordById)
+    // The composer budgets characters, not bytes (Thai is three bytes a character),
+    // so composed evidence can outgrow the evidence bound or, with the packet, the
+    // response cap. As `prepare` does (fitPreparedTurn), the lowest-ranked records
+    // are dropped until it fits, so the runtime answers where the legacy path does.
+    const packetBytes = injectedPacket ? Buffer.byteLength(JSON.stringify(injectedPacket), 'utf8') : 0
+    const fits = records => {
+      const bytes = Buffer.byteLength(JSON.stringify({ records }), 'utf8')
+      return bytes <= MAX_MEMORY_EVIDENCE_BYTES && bytes + packetBytes <= MAX_MEMORY_RESULT_BYTES
+    }
+    while (knowledgeRecords && knowledgeRecords.length && !fits(knowledgeRecords)) knowledgeRecords.pop()
     const evidenceJson = knowledgeRecords ? JSON.stringify({ records: knowledgeRecords }) : null
-    if (evidenceJson && Buffer.byteLength(evidenceJson, 'utf8') > MAX_MEMORY_EVIDENCE_BYTES) throw error('TURN_EVIDENCE_TOO_LARGE', 413)
     // One ContextReceipt per model invocation and none when no model will run:
     // under a corpus mode that is exactly when composed knowledge survived.
     const recordsContextReceipt = !knowledgeRecords || knowledgeRecords.length > 0

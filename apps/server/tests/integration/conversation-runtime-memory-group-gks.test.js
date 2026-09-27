@@ -4,7 +4,8 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { admitLineConversation, runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
-import { MEMORY_ERASURE_ACTOR, MEMORY_ERASURE_KINDS, reconcileLineMemoryErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
+import { MEMORY_ERASURE_ACTOR, MEMORY_ERASURE_GRACE_MS, MEMORY_ERASURE_KINDS, MEMORY_ERASURE_MAX_ATTEMPTS, MEMORY_ERASURE_BACKOFF_MS,
+  reconcileLineMemoryErasures, recordMemoryThreadErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
@@ -185,12 +186,13 @@ function inProcessFetch(handlers) {
   }
 }
 
-function buildRuntime({ msp, records } = {}) {
+function buildRuntime({ msp, records, corpusReaderFactory } = {}) {
   const core = createConversationRuntimeCore({ db: prisma,
     env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey, ...knowledgeEnv },
     credentialResolver: async () => ({ provider: 'openrouter', model: 'test-model', apiKey: providerKey }),
     businessPorts: { businessKnowledge: businessKnowledge(records) },
     threadMemoryFactory: () => mspPort(msp),
+    ...(corpusReaderFactory ? { corpusReaderFactory } : {}),
     linePorts: () => ({ resolveAccount: async id => prisma.lineOaAccount.findUnique({ where: { id } }),
       replyTransport: { send: async ({ messages }) => { deliveries.push(messages); return { status: 'ACCEPTED_BY_LINE', requestId: `runtime-${deliveries.length}` } } },
       pushTransport: { send: async ({ messages }) => { deliveries.push(messages); return { status: 'ACCEPTED_BY_LINE', requestId: `runtime-${deliveries.length}` } } } }) })
@@ -515,6 +517,26 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     expectSameProvider(side)
   })
 
+
+  it('composed evidence over the evidence bound is trimmed from the lowest rank, not refused', async () => {
+    await setGrounding('GKS_CORPUS')
+    await setOwner('CONVERSATION_RUNTIME')
+    const msp = createFakeMsp()
+    // Tiny `text` (what the composer counts), large other fields: the composer keeps
+    // all three, but together they exceed the 32 KiB evidence bound in bytes.
+    const records = ['r1', 'r2', 'r3'].map((id, index) => ({ kind: 'CORPUS_CHUNK', citationId: `cit-${id}`, text: `AB-1 ${id}`,
+      detail: 'ข'.repeat(index === 2 ? 10 : 7_000) }))
+    const corpusReaderFactory = () => ({ query: async () => ({ records: records.map(record => ({ ...record })) }) })
+    await admit('runtime', 0, { audience: 'DIRECT', speaker: 'A' })
+    const built = buildRuntime({ msp, corpusReaderFactory })
+    expect((await runRuntime(built)).map(outcome => outcome.status)).toEqual(['RECORDED'])
+    const prompt = JSON.parse(built.providerCalls[0].body).messages[0].content
+    // r1 + r2 alone are ~42 KB: the lowest-ranked go first (r3, then r2).
+    expect(prompt).toContain('cit-r1')
+    expect(prompt).not.toContain('cit-r2')
+    expect(prompt).not.toContain('cit-r3')
+  })
+
   it('MSP down under a corpus mode fails before any corpus read or model call', async () => {
     await setGrounding('GKS_CORPUS')
     corpusMock.fn = async () => pressure()
@@ -633,7 +655,7 @@ describe('W12 — erasing one speaker removes only their contributions from a gr
       await runLineConversationWorker({ db: prisma, answer: async () => { throw new Error('no turn is queued') },
         env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey }, resolveAccount: id => prisma.lineOaAccount.findUnique({ where: { id } }),
         replyTransport: { send: async () => ({ status: 'ACCEPTED_BY_LINE' }) }, pushTransport: { send: async () => ({ status: 'ACCEPTED_BY_LINE' }) },
-        threadMemory: mspPort(msp), workerId: 'w12-erasure-tick' })
+        threadMemory: mspPort(msp), workerId: 'w12-erasure-tick', now: () => new Date(Date.now() + MEMORY_ERASURE_GRACE_MS + 60_000) })
       // (The tick is global: it may also carry another test's pending erasure.)
       const ours = msp.erasures.filter(item => item.grant.externalRoomRef === group)
       expect(ours).toHaveLength(1)
@@ -669,6 +691,66 @@ describe('W12 — erasing one speaker removes only their contributions from a gr
     })
   }
 
+
+  describe('the erasure scanner is never blocked by records it cannot finish', () => {
+    const stuckJobs = (prefix, count) => Array.from({ length: count }, (_, index) => ({ memorySyncOptIn: true, audienceKind: 'GROUP',
+      channelAccountId: account.bindingCode, businessId: business.id, sourceUserId: `${prefix}-user-${index}`, recipientId: `${prefix}-room-${index}` }))
+    async function seed(prefix, count, occurredAt) {
+      const jobs = stuckJobs(prefix, count)
+      for (const job of jobs) {
+        await recordMemoryThreadErasures(prisma, { tenantId: tenant.id, principalId: `${prefix}-principal-${job.recipientId}`, jobs: [job],
+          speakers: [{ channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId }], now: occurredAt })
+      }
+      return jobs
+    }
+    const refusing = prefix => (name, input) => {
+      if (name === 'msp_thread_principal_erase' && String(input.access?.grant?.externalRoomRef).startsWith(prefix)) {
+        throw Object.assign(new Error('vault_scope_denied'), { code: 'MSP_REFUSED' })
+      }
+    }
+
+    it('twelve records MSP keeps refusing do not keep a fresh erasure from being sent', async () => {
+      const base = Date.now()
+      await seed('stuck', 12, new Date(base - 3_600_000))
+      await seed('fresh', 1, new Date(base - 1_800_000))
+      const msp = createFakeMsp({ history: false })
+      msp.hooks.before = refusing('stuck')
+      const sent = () => msp.calls.filter(call => call.name === 'msp_thread_principal_erase').map(call => call.input.access.grant.externalRoomRef)
+      // Scan 1 reaches the ten oldest (all refused, now deferred); scan 2, a second
+      // later, is not handed them again and reaches the fresh record.
+      await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => new Date(base) })
+      expect(sent().filter(room => room.startsWith('stuck'))).toHaveLength(10)
+      expect(sent().filter(room => room.startsWith('fresh'))).toEqual([])
+      const second = await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => new Date(base + 1_000) })
+      expect(second).toMatchObject({ acknowledged: 1 })
+      expect(sent().filter(room => room.startsWith('fresh'))).toEqual(['fresh-room-0'])
+      expect(sent().filter(room => room.startsWith('stuck'))).toHaveLength(12)
+    })
+
+    it('spent attempts end FAILED with one alert and no further MSP call; the record is kept for manual erasure', async () => {
+      await seed('spent', 1, new Date(Date.now() - 3_600_000))
+      const msp = createFakeMsp({ history: false })
+      msp.hooks.before = refusing('spent')
+      const alerts = []
+      let clock = Date.now()
+      for (let attempt = 1; attempt <= MEMORY_ERASURE_MAX_ATTEMPTS + 2; attempt += 1) {
+        await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => new Date(clock), alert: entry => alerts.push(entry) })
+        clock += 2 * 86_400_000
+      }
+      const calls = msp.calls.filter(call => call.name === 'msp_thread_principal_erase' && call.input.access.grant.externalRoomRef === 'spent-room-0')
+      expect(calls).toHaveLength(MEMORY_ERASURE_MAX_ATTEMPTS)
+      expect(new Set(calls.map(call => call.input.idempotency_key)).size).toBe(1)
+      expect(alerts).toHaveLength(1)
+      expect(alerts[0]).toMatchObject({ event: 'line-memory-erasure.failed', severity: 'error', attempts: MEMORY_ERASURE_MAX_ATTEMPTS, code: 'MSP_REFUSED' })
+      expect(JSON.stringify(alerts[0])).not.toContain('spent-principal')
+      expect(JSON.stringify(alerts[0])).not.toContain('spent-room')
+      const [pending] = (await prisma.agentTraceEvent.findMany({ where: { kind: MEMORY_ERASURE_KINDS.pending } }))
+        .filter(row => row.payloadJson.includes('spent-room-0'))
+      expect(JSON.parse(pending.payloadJson)).toMatchObject({ principalId: 'spent-principal-spent-room-0' })
+      expect(await prisma.agentTraceEvent.count({ where: { turnId: pending.turnId, kind: MEMORY_ERASURE_KINDS.failed } })).toBe(1)
+    })
+  })
+
   it('is idempotent: a failed attempt retries under the same key, a repeat scan or a repeat erasure sends nothing more', async () => {
     const group = `${eraseGroup}-idempotent`
     const msp = createFakeMsp({ history: false })
@@ -693,14 +775,17 @@ describe('W12 — erasing one speaker removes only their contributions from a gr
 
     // MSP down: the record stays PENDING with one attempt; nothing is lost.
     msp.hooks.before = name => { if (name === 'msp_thread_principal_erase') throw transportError() }
-    const t0 = new Date()
+    // Within the grace period (a late append may still be in flight) nothing is sent.
+    expect(await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp) })).toMatchObject({ scanned: 0 })
+    expect(msp.calls.filter(call => call.name === 'msp_thread_principal_erase')).toEqual([])
+    const t0 = new Date(Date.now() + MEMORY_ERASURE_GRACE_MS + 1_000)
     expect(await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => t0 })).toMatchObject({ acknowledged: 0 })
     expect(speakerLines(msp, persons.E2.id)).toHaveLength(1)
     // Within the backoff nothing is retried.
     expect(await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => new Date(t0.getTime() + 100) }))
       .toMatchObject({ scanned: 0 })
     msp.hooks.before = null
-    const t1 = new Date(t0.getTime() + 2_000)
+    const t1 = new Date(t0.getTime() + MEMORY_ERASURE_BACKOFF_MS[0] + 1_000)
     expect(await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => t1 })).toMatchObject({ acknowledged: 1 })
     // The acknowledging scan itself redacts the record.
     const record = await prisma.agentTraceEvent.findMany({ where: { turnId: pending.turnId } })
