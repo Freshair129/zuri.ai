@@ -406,6 +406,7 @@
     "FR-274",
     "FR-275",
     "FR-276",
+    "FR-277",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5147,6 +5148,19 @@
       "history": [
         {
           "anchor": "marketing insights refresh",
+          "since": "2026-09-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-277": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8e5c56cf6f00d0771b6c4e443430e2e62db1f513cd1c01d1718cf0c6221bc9dc",
+      "history": [
+        {
+          "anchor": "line grounding shadow compare harness",
           "since": "2026-09-27",
           "reason": "declared"
         }

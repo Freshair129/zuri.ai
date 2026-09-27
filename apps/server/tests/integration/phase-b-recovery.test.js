@@ -84,10 +84,14 @@ function fakeAdapter(sourceInventory = inventory) {
 }
 
 describe('Phase B offline recovery runners', () => {
-  it('loads the committed pinned 191-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(191)
-    expect(inventory.schemaSha256).toBe('26a67720bdc418d9e1de1b06849ccc685b111d0810d3d04dc03952bcb6d268f8')
-    expect(inventory.targetSchemaSha256).toBe('53119b5c3d73c1acdaebdf16cc7c1d8b34d97bfb8877b36df2fc9cbfe0db751d')
+  // @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) rebinds the
+  // frozen inventory from 191 to 192 application tables, on top of the
+  // Message author-channel-identity rebind (main e7afa528); see the decision
+  // doc's binding ladder for the historical entries this one continues.
+  it('loads the committed pinned 192-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(192)
+    expect(inventory.schemaSha256).toBe('94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d')
+    expect(inventory.targetSchemaSha256).toBe('372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet', 'BusinessKeyResult', 'BusinessKeyResultCheckIn'])
     )
@@ -243,19 +247,29 @@ describe('Phase B offline recovery runners', () => {
   it('rejects smaller or rehashed inventories at every executable boundary', async () => {
     const snapshot = completeSnapshot()
     const bytes = Buffer.from(JSON.stringify(snapshot), 'utf8')
+    // @req FR-277 — `LineGroundingShadowComparison` is the one application
+    // model this change adds, so every historical reconstruction below (each
+    // built by filtering the CURRENT, live `inventory.applicationTables`)
+    // must exclude it first — otherwise "current minus Notion" etc. counts
+    // one model too many for a binding that predates FR-277 entirely, which
+    // is exactly what broke this test the first time a model was added after
+    // it was written. `beforeFr277` is the 191-entry Notion+runtimeOwner
+    // mapping this PR's own binding was rebound from.
+    const beforeFr277 = inventory.applicationTables.filter(({ modelName }) => modelName !== 'LineGroundingShadowComparison')
     const smaller = inventoryVariant({ applicationTables: inventory.applicationTables.slice(0, -1) })
     const rehashed = inventoryVariant({ schemaSha256: '0'.repeat(64) })
     const historical = inventoryVariant({
-      applicationTables: inventory.applicationTables.filter(({ modelName }) => !modelName.startsWith('Notion')),
+      applicationTables: beforeFr277.filter(({ modelName }) => !modelName.startsWith('Notion')),
       schemaSha256: '9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a',
     })
     expect(historical.targetSchemaSha256).toBe('a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115')
     const notionWithoutRuntimeOwner = inventoryVariant({
+      applicationTables: beforeFr277,
       schemaSha256: 'ca3e8247e50eb95980561e3ce8aa882ed7b11010d0b2167582e5f37b448132c8',
     })
     expect(notionWithoutRuntimeOwner.targetSchemaSha256).toBe('c45dd4b70079decbd1d415a392221bf1a4a71970cd807140d832549ff5481d55')
     const runtimeOwnerWithoutNotion = inventoryVariant({
-      applicationTables: inventory.applicationTables.filter(({ modelName }) => !modelName.startsWith('Notion')),
+      applicationTables: beforeFr277.filter(({ modelName }) => !modelName.startsWith('Notion')),
       schemaSha256: 'ffa2c121e08891b4de556480130d5a6e116979f151133a58fd0f23a98ba61f2d',
     })
     expect(runtimeOwnerWithoutNotion.targetSchemaSha256).toBe('51b45ae26066775435adef2b983616835d6c09a940ec884f9de0e4cacf8d2899')
@@ -284,8 +298,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 191-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 191-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 192-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 192-table inventory/)
     }
   })
 

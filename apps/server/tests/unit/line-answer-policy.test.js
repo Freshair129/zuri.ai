@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { asciiDigits, checkModelAnswer, verifyCandidate } from '@/modules/agent/line-answer-policy'
+import { asciiDigits, checkModelAnswer, ungroupedNumbers, verifyCandidate } from '@/modules/agent/line-answer-policy'
 
 // @req FR-049 — the grounding check cannot be passed by writing an ungrounded
 // number in another digit script, by echoing a figure the customer typed as a
@@ -144,6 +144,69 @@ describe('verifyCandidate keeps these rejected', () => {
     ['an echoed date', 'ขอ 500 ชิ้น ส่งภายในวันที่ 20 ได้ไหม', { records: [tumbler] }, 'ส่วนวันที่ 20 ขอเช็กกับทีมก่อนนะคะ'],
   ])('%s', (_name, asked, records, candidate) => {
     expect(verifyCandidate(asked, records, candidate).supported).toBe(false)
+  })
+})
+
+// Thousands separators: a grouped figure is the same number as the ungrouped one
+// in the evidence, the question and the answer. Before this, the 250 of 1,250 was
+// read as a code the evidence lacked, and 10000mAh did not match 10,000mAh.
+const pricey = { product_code: 'SG-BAG-01', name: 'กระเป๋าหนัง', unit: 'ชิ้น', sell_price: 1250, currency: 'THB', moq: 1000,
+  specification: {}, as_of: '2026-09-06T00:00:00.000Z' }
+const pricedDecimal = { ...pricey, sell_price: 1250.5 }
+const bank = { ...powerBank, sell_price: 12500 }
+const bankPlain = { ...bank, name: 'Power Bank 10000mAh' }
+
+describe('verifyCandidate reads thousands separators as the same number', () => {
+  it.each([
+    ['a grouped price', 'SG-BAG-01 ราคาเท่าไร', { records: [pricey] }, 'ราคา 1,250 บาทค่ะ'],
+    ['a grouped price and MOQ', 'SG-BAG-01 ราคาเท่าไร', { records: [pricey] }, 'ราคา 1,250 บาท/ชิ้น ขั้นต่ำ 1,000 ชิ้นค่ะ'],
+    ['a grouped price in Thai digits', 'SG-BAG-01 ราคาเท่าไร', { records: [pricey] }, 'ราคา ๑,๒๕๐ บาทค่ะ'],
+    ['a grouped price in fullwidth digits and comma', 'SG-BAG-01 ราคาเท่าไร', { records: [pricey] }, 'ราคา １，２５０ บาทค่ะ'],
+    ['a grouped decimal price', 'SG-BAG-01 ราคาเท่าไร', { records: [pricedDecimal] }, 'ราคา 1,250.50 บาทค่ะ'],
+    ['a grouped decimal of a whole price', 'SG-BAG-01 ราคาเท่าไร', { records: [pricey] }, 'ราคา 1,250.00 บาทค่ะ'],
+    ['an ungrouped spec against grouped evidence', 'พาวเวอร์แบงก์', { records: [bank] }, 'Power Bank 10000mAh ราคา 12,500 บาทค่ะ'],
+    ['a grouped spec against ungrouped evidence', 'พาวเวอร์แบงก์', { records: [bankPlain] }, 'Power Bank 10,000mAh ราคา 12500 บาทค่ะ'],
+    ['a grouped quantity the customer typed', 'SG-BAG-01 สั่ง 2,000 ชิ้น', { records: [pricey] }, 'สั่ง 2000 ชิ้นได้ค่ะ ราคา 1,250 บาท'],
+    ['a grouped budget the customer set', 'งบ 1500 บาท', { records: [pricey] }, 'งบ 1,500 บาท แนะนำ SG-BAG-01 ราคา 1,250 บาทค่ะ'],
+    ['a corpus chunk with grouped figures', 'ราคาเท่าไร', withText('กระเป๋าหนัง ราคา 1,250 บาท ขั้นต่ำ 1,000 ชิ้น'),
+      'ราคา 1250 บาท ขั้นต่ำ 1000 ชิ้นค่ะ'],
+  ])('%s', (_name, asked, records, candidate) => {
+    expect(verifyCandidate(asked, records, candidate)).toStrictEqual(
+      { supported: true, unsupportedNumbers: [], unsupportedCodes: [], riskyClaim: false })
+  })
+
+  it.each([
+    ['a grouped price the evidence lacks', 'SG-BAG-01 ราคาเท่าไร', { records: [pricey] }, 'ราคา 1,300 บาทค่ะ',
+      { unsupportedNumbers: ['1300'], unsupportedCodes: ['1300'] }],
+    ['a grouped price in Thai digits the evidence lacks', 'SG-BAG-01 ราคาเท่าไร', { records: [pricey] }, 'ราคา ๑,๓๐๐ บาทค่ะ',
+      { unsupportedNumbers: ['1300'] }],
+    ['a grouped decimal that is not the evidence price', 'SG-BAG-01 ราคาเท่าไร', { records: [pricey] }, 'ราคา 1,250.50 บาทค่ะ',
+      { unsupportedNumbers: ['1250.5'], unsupportedCodes: ['1250.5'] }],
+    ['a grouped price the customer typed', 'SG-BAG-01 ลดเหลือ 1,100 ได้ไหม', { records: [pricey] }, 'ได้ค่ะ ราคา 1,100 บาท',
+      { unsupportedNumbers: ['1100'] }],
+    ['a grouped capacity the evidence lacks', 'พาวเวอร์แบงก์', { records: [bank] }, 'Power Bank 20,000mAh ค่ะ',
+      { unsupportedNumbers: ['20000'], unsupportedCodes: ['20000MAH'] }],
+    ['a number array in the evidence is two numbers', 'ราคาเท่าไร', { records: [{ ...pricey, sell_price: null, tiers: [1, 250] }] },
+      'ราคา 1,250 บาทค่ะ', { unsupportedNumbers: ['1250'], unsupportedCodes: ['1250'] }],
+  ])('%s', (_name, asked, records, candidate, expected) => {
+    const result = verifyCandidate(asked, records, candidate)
+    expect(result.supported).toBe(false)
+    expect(result).toMatchObject(expected)
+  })
+})
+
+describe('ungroupedNumbers', () => {
+  it.each([
+    ['1,250', '1250'],
+    ['10,000mAh', '10000mAh'],
+    ['12,345,678 บาท', '12345678 บาท'],
+    ['1,250.50', '1250.50'],
+    ['1，250', '1250'],
+    ['1,25 and 12,3456 and 1,2,345 and 1,234,56', '1,25 and 12,3456 and 1,2,345 and 1,234,56'],
+    ['0.123,456', '0.123,456'],
+    ['สี 1,2 หรือ 3', 'สี 1,2 หรือ 3'],
+  ])('%s', (written, read) => {
+    expect(ungroupedNumbers(written)).toBe(read)
   })
 })
 
