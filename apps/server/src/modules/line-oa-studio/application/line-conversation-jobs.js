@@ -29,7 +29,7 @@ import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
 // @spec ADR-061, SEC-001, FR-148 — queue and CRM share a transaction; devices cannot send.
 // @spec ADR-091 D5; ADR-094 D6
 // @tested tests/integration/server-line-jobs.test.js, tests/integration/line-non-text-admission.test.js,
-//   tests/integration/fr244-line-oa-business-hours.test.js
+//   tests/integration/fr244-line-oa-business-hours.test.js, tests/integration/conversation-runtime-group-room.test.js
 
 export const LINE_JOB_LEASE_MS = 300_000
 
@@ -91,6 +91,35 @@ export function unsealLineReplyToken(value, accountId, env = process.env) {
 function activeAccount(account, job) {
   return account?.serverEnabled === true && account.transportMode === 'CLOUD'
     && account.status === 'CONNECTED' && (!job || account.transportEpoch === job.transportEpoch)
+}
+
+// @req FR-149 — audiences the Conversation Runtime cohort may carry (ADR-106 D3).
+export const RUNTIME_AUDIENCES = Object.freeze(['DIRECT', 'GROUP', 'ROOM'])
+
+/**
+ * Core-owned audience and reply-target binding for a runtime-cohort job.
+ *
+ * Admission writes `audienceKind`, `recipientId` (the thread: the user for a 1:1
+ * chat, the groupId/roomId otherwise) and `sourceUserId` (the speaker) from the
+ * same signed event, and records the CRM Conversation under that thread. The
+ * runtime never names a recipient, so this is what keeps a reply on the audience
+ * it was admitted for. The target must be the inbound Conversation's own external
+ * thread on this channel account. A DIRECT reply then goes to its speaker, as
+ * before; a GROUP or ROOM reply goes to the group or room that admission derived
+ * from `source.groupId`/`source.roomId`, and never to the speaker. Anything else
+ * — an unknown audience, an erased row, a target or audience that no longer
+ * matches the thread record — is not bound, and every protected transition
+ * refuses it.
+ */
+export function runtimeAudienceBound(job, conversation = job?.inbound?.conversation) {
+  if (!job || !RUNTIME_AUDIENCES.includes(job.audienceKind)
+    || typeof job.recipientId !== 'string' || !job.recipientId
+    || typeof job.sourceUserId !== 'string' || !job.sourceUserId
+    || !conversation || conversation.externalThreadId !== job.recipientId
+    || conversation.channelAccountId !== job.channelAccountId) return false
+  return job.audienceKind === 'DIRECT'
+    ? job.recipientId === job.sourceUserId
+    : job.recipientId !== job.sourceUserId
 }
 
 // FR-229 — LINE message.type values that are media (recorded with a
@@ -233,7 +262,11 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     const memorySyncOptIn = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
     const workCommand = parseLineProjectWorkCommand(text)
     const legacyOnlyWorkCommand = isLineProjectWorkCommand(text) && !workCommand
-    const runtimeEligible = current.runtimeOwner === 'CONVERSATION_RUNTIME' && audienceKind === 'DIRECT'
+    // @req FR-149 — GROUP and ROOM turns join the runtime cohort on the same terms
+    // as DIRECT: `shouldReply` above already decided which group/room messages get a
+    // job at all, identically for both cohorts, and the identity checked below is
+    // the speaker's (`source.userId`), never the thread's.
+    const runtimeEligible = current.runtimeOwner === 'CONVERSATION_RUNTIME' && RUNTIME_AUDIENCES.includes(audienceKind)
       && !memorySyncOptIn && !outOfHours && !legacyOnlyWorkCommand
     const identity = runtimeEligible
       ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
@@ -424,13 +457,14 @@ async function claimExecution({ db, claimantId, now, runtimeOwner = 'SERVER' }) 
     const executionId = randomUUID()
     const claimed = await atomic(db, async tx => {
       if (runtimeOwner === 'CONVERSATION_RUNTIME') {
-        const current = await tx.lineConversationJob.findUnique({ where: { id: row.id }, include: { account: true } })
+        const current = await tx.lineConversationJob.findUnique({ where: { id: row.id },
+          include: { account: true, inbound: { include: { conversation: true } } } })
         const identity = current && await findChannelIdentity({ db: tx, tenantId: current.tenantId,
           channelAccountId: current.channelAccountId, providerSubject: current.sourceUserId })
         if (!current || current.executionMode !== 'SERVER' || current.runtimeOwner !== runtimeOwner
           || current.account.runtimeOwner !== runtimeOwner || current.memorySyncOptIn
           || current.errorCode === 'PDPA_ERASURE' || !activeAccount(current.account, current)
-          || !channelIdentityIsVerified(identity)) return { count: 0 }
+          || !runtimeAudienceBound(current) || !channelIdentityIsVerified(identity)) return { count: 0 }
       }
       const result = await tx.lineConversationJob.updateMany({ where: { id: row.id, executionMode, runtimeOwner, version: row.version, status: 'QUEUED' },
         data: { status: 'CLAIMED', claimantId, executionId, leaseExpiresAt, version: { increment: 1 } } })
@@ -647,14 +681,15 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
   { db, claimantId, now, executionMode = 'SERVER', runtimeOwner = 'SERVER' }) {
   const startedAt = performance.now()
   return db.$transaction(async tx => {
-    const job = await tx.lineConversationJob.findFirst({ where: { id, executionMode, runtimeOwner }, include: { account: true } })
+    const job = await tx.lineConversationJob.findFirst({ where: { id, executionMode, runtimeOwner },
+      include: runtimeOwner === 'CONVERSATION_RUNTIME' ? { account: true, inbound: { include: { conversation: true } } } : { account: true } })
     if (!job) throw failure(404, 'CONVERSATION_JOB_NOT_FOUND')
     if (runtimeOwner === 'CONVERSATION_RUNTIME') {
       const identity = await findChannelIdentity({ db: tx, tenantId: job.tenantId,
         channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
       if (job.executionMode !== 'SERVER' || job.account.runtimeOwner !== runtimeOwner
         || !activeAccount(job.account, job) || job.memorySyncOptIn || job.errorCode === 'PDPA_ERASURE'
-        || job.audienceKind !== 'DIRECT' || job.recipientId !== job.sourceUserId
+        || !runtimeAudienceBound(job)
         || (job.account.bindingCode || job.account.id) !== job.channelAccountId
         || !channelIdentityIsVerified(identity)) throw failure(409, 'CONVERSATION_JOB_AUTHORITY_REVOKED')
     }
@@ -932,7 +967,8 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
   }
   const sendAttemptId = randomUUID()
   const claimed = await atomic(db, async tx => {
-    const current = await tx.lineConversationJob.findUnique({ where: { id: job.id }, include: { account: true } })
+    const current = await tx.lineConversationJob.findUnique({ where: { id: job.id },
+      include: requiredRuntimeOwner === 'CONVERSATION_RUNTIME' ? { account: true, inbound: { include: { conversation: true } } } : { account: true } })
     if (!current || current.executionMode !== 'SERVER' || current.runtimeOwner !== requiredRuntimeOwner
       || current.executionId !== expectedExecutionId
       || current.version !== job.version || current.status !== 'READY' || !activeAccount(current.account, current)) return { count: 0 }
@@ -940,8 +976,9 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
       const identity = await findChannelIdentity({ db: tx, tenantId: current.tenantId,
         channelAccountId: current.channelAccountId, providerSubject: current.sourceUserId })
       if (current.account.runtimeOwner !== requiredRuntimeOwner || current.errorCode === 'PDPA_ERASURE' || !channelIdentityIsVerified(identity)
-        || current.memorySyncOptIn || current.audienceKind !== 'DIRECT'
-        || current.recipientId !== current.sourceUserId
+        || current.memorySyncOptIn || !runtimeAudienceBound(current)
+        // The send below targets the pre-read row's recipient; it must still be the bound one.
+        || current.recipientId !== job.recipientId
         || (current.account.bindingCode || current.account.id) !== current.channelAccountId) return { count: 0 }
     }
     // Serialize with account actions before either side checks active sends.
@@ -1033,8 +1070,8 @@ export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAc
   if (job.status !== 'READY') return { id: job.id, status: job.status }
   const identity = await findChannelIdentity({ db, tenantId: job.tenantId,
     channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
-  if (!channelIdentityIsVerified(identity) || job.memorySyncOptIn || job.audienceKind !== 'DIRECT'
-    || job.recipientId !== job.sourceUserId || job.errorCode === 'PDPA_ERASURE'
+  if (!channelIdentityIsVerified(identity) || job.memorySyncOptIn
+    || !runtimeAudienceBound(job) || job.errorCode === 'PDPA_ERASURE'
     || !activeAccount(job.account, job) || (job.account.bindingCode || job.account.id) !== job.channelAccountId) {
     await db.lineConversationJob.updateMany({ where: { id: job.id, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME',
       executionId: claim.executionId, version: job.version, status: 'READY' },

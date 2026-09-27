@@ -692,7 +692,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-171",
@@ -708,7 +708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-181",
@@ -2508,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-152",
@@ -3678,15 +3678,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
           "title": "Optional Edge conversation execution",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 15
+          "codeCount": 6,
+          "testCount": 16
         },
         {
           "id": "FR-151",
@@ -3718,7 +3718,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-190",
@@ -5737,7 +5737,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -5745,7 +5745,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-151",
@@ -8681,15 +8681,15 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 40,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
           "title": "Optional Edge conversation execution",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 15
+          "codeCount": 11,
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -8745,6 +8745,7 @@
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-group-room.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
@@ -16755,7 +16756,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 29
+          "testCount": 30
         }
       ],
       "evidence": [
@@ -16780,6 +16781,7 @@
         "apps/server/tests/integration/agent-msp-port.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
+        "apps/server/tests/integration/conversation-runtime-group-room.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
