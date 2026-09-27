@@ -1,6 +1,8 @@
 # Appendix A — API Specification
 
-Version diff 1.98.0b → 1.99.0b (2026-09-27): add the SCM service's private core façade (ADR-111 D5, the ADR-108 D4 pattern), one dynamic path with POST only; 328 API route handlers, 329 OpenAPI paths and 434 operations. Not reachable with a browser session; no production route switch is claimed.
+Version diff 1.99.0b → 1.100.0b (2026-09-27): add the SCM service's private core façade (ADR-111 D5, the ADR-108 D4 pattern), one dynamic path with POST only; 328 API route handlers, 329 OpenAPI paths and 434 operations. Not reachable with a browser session; no production route switch is claimed.
+
+Version diff 1.98.0b → 1.99.0b (2026-09-27): add the `memory` operation (ADR-106 D2 Memory/Knowledge `read`/`append`/`receipt`) to the Conversation Runtime Core v1 enum. No route is added or removed; inventory unchanged.
 
 Version diff 1.97.0b → 1.98.0b (2026-09-27): add the five FR-275 Marketing Insights GET routes (brands, summary, metric series, CSV export, content); they answer 503 INSIGHTS_NOT_CONFIGURED until a reporting source exists. Inventory: 327 route handlers, 328 OpenAPI paths, 433 operations.
 
@@ -67,6 +69,16 @@ generic execute endpoint. Both sides validate the v1 envelope and operation
 results; request and response bodies are each capped at 64 KiB. The route inventory's
 OpenAPI entry documents the bearer and envelope while the JSON Schema above owns
 operation-specific payload fields.
+
+The `memory` operation carries memory-sync opt-in turns (ADR-106 D2
+Memory/Knowledge). `read` returns the Core-composed MSP thread context for the
+claimed turn, `append` queues the completed exchange's answer, and `receipt`
+either looks up the durable read/append receipt or records one MSP injection
+receipt state around the runtime's model call. Every operation id is the job's
+stable `${jobId}:memory-read`, `${jobId}:memory-append` or
+`${jobId}:memory-injection`; Core remains the only MSP caller, applies the
+legacy job, erasure and private-memory policy fences, and refuses `complete` for
+a memory turn whose appended text differs from the committed answer.
 
 | Method | Path | Contract |
 |---|---|---|
@@ -633,7 +645,7 @@ in `health.sources.binding`; `effectiveStatus` is `LIVE` only on `ACTIVE`.
 | GET | `/api/line-oa/accounts?businessId=&includeArchived=` | implemented (FR-146): `{ businessId, accounts[] }` — the Business's accounts (archived ones only with `includeArchived=true`), default first, each with `status`, derived `effectiveStatus`, `transportMode`, `version` and computed `health` (connection status/secret readiness/last webhook receipt, binding status, `transportJobs: null`, `quota: null`, `sources`) | `404 Business not found` (unknown, invisible, or without the `line-oa` grant); `400 LINE_OA_BUSINESS_REQUIRED` |
 | POST | `/api/line-oa/accounts` | implemented (FR-146): `{ businessId, integrationConnectionId, code, displayName, basicId?, bindingCode?, transportMode?, isDefaultForBusiness?, botProfile? }` connects an existing same-Business `LINE_OA` connection as an account — `code` unique per Tenant, one account per connection, one binding code per Tenant; `transportMode` defaults to `EDGE` when the Business holds an ACTIVE `EdgeDeviceCredential` (FR-144) and `CLOUD` otherwise; the Business's first account becomes its default; status `CONNECTED` when a binding code is given, else `DRAFT`. Audited as `LINE_OA_ACCOUNT_CONNECTED` with the transport-mode source | `404 Business not found` (also a viewer without publish authority); `404 Integration connection not found` (unknown, foreign-Tenant or non-LINE connection); `409 LINE_OA_CONNECTION_OUTSIDE_BUSINESS \| LINE_OA_CONNECTION_ALREADY_BOUND \| LINE_OA_ACCOUNT_CODE_TAKEN \| LINE_OA_BINDING_CODE_TAKEN`; `400` validation (strict schema: no status, tenant or unknown field rides in) |
 | GET | `/api/line-oa/accounts/[id]` | implemented (FR-146): one account with computed `health`; `effectiveStatus` is `LIVE` only when the stored status is `CONNECTED` and the binding reader reports `ACTIVE` | `404 Business not found` — an unknown id and an account in a Business the viewer may not see answer identically |
-| PATCH | `/api/line-oa/accounts/[id]` | implemented (FR-146): `{ action, version, transportMode? }` applies one versioned action under publisher authority — `PAUSE` (CONNECTED → PAUSED), `RESUME` (PAUSED → CONNECTED), `ARCHIVE` (any non-terminal → ARCHIVED, clears the default), `SET_DEFAULT` (moves the Business's single default), `CONFIGURE_EXECUTION` (the delivery policy `allowDelayedPush`; it fences queued work). `SWITCH_TRANSPORT_MODE` is **withdrawn** (FR-265, ADR-100 D1) — CLOUD is the only transport owner, so there is nothing to switch between. The update is a compare-and-swap on `(id, version)`; each action writes one audit row without secrets or customer content. There is no DELETE: archiving keeps the row | `404 Business not found`; `409 LINE_OA_ACCOUNT_VERSION_CONFLICT \| LINE_OA_ACCOUNT_TRANSITION_INVALID \| LINE_OA_ACCOUNT_ARCHIVED \| LINE_OA_ACCOUNT_ALREADY_DEFAULT`; `400` validation (`version` required; `allowDelayedPush` required for `CONFIGURE_EXECUTION`; a withdrawn action is refused by the enum) |
+| PATCH | `/api/line-oa/accounts/[id]` | implemented (FR-146): `{ action, version, transportMode? }` applies one versioned action under publisher authority — `PAUSE` (CONNECTED → PAUSED), `RESUME` (PAUSED → CONNECTED), `ARCHIVE` (any non-terminal → ARCHIVED, clears the default), `SET_DEFAULT` (moves the Business's single default), `CONFIGURE_EXECUTION` (the delivery policy `allowDelayedPush`; it fences queued work). `SWITCH_TRANSPORT_MODE` is **withdrawn** (FR-265, ADR-100 D1) — CLOUD is the only transport owner, so there is nothing to switch between. The update is a compare-and-swap on `(id, version)`; each action writes one audit row without secrets or customer content. There is no DELETE: archiving keeps the row | `404 Business not found`; `409 LINE_OA_ACCOUNT_VERSION_CONFLICT \| LINE_OA_ACCOUNT_TRANSITION_INVALID \| LINE_OA_ACCOUNT_ARCHIVED \| LINE_OA_ACCOUNT_ALREADY_DEFAULT \| LINE_OA_RUNTIME_GROUNDING_MODE_UNSUPPORTED` (the last: opting into, or switching a runtime-owned account to, a stored grounding mode the Conversation Runtime cannot serve, FR-149); `400` validation (`version` required; `allowDelayedPush` required for `CONFIGURE_EXECUTION`; a withdrawn action is refused by the enum) |
 
 ## LINE OA Studio rich menus (FR-151 / ADR-060)
 
@@ -1116,7 +1128,8 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.99.0b | 2026-09-27 | candidate | ADR-111 D5 adds the SCM service's private core façade at `/api/internal/scm/v1/[operation]` (one path, POST only: `resolve-scope`, `branch`, `branches`, `customer`, `conversation`); inventory 327 -> 328 route handlers, 328 -> 329 paths / 433 -> 434 operations; no production route switch claimed | working-tree | Claude Opus 5.5 |
+| 1.100.0b | 2026-09-27 | candidate | ADR-111 D5 adds the SCM service's private core façade at `/api/internal/scm/v1/[operation]` (one path, POST only: `resolve-scope`, `branch`, `branches`, `customer`, `conversation`); inventory 327 -> 328 route handlers, 328 -> 329 paths / 433 -> 434 operations; no production route switch claimed | working-tree | Claude Opus 5.5 |
+| 1.99.0b | 2026-09-27 | candidate | Conversation Runtime v1 `memory` operation for memory-sync opt-in turns; Core stays the only MSP caller. Route inventory unchanged | working-tree | Claude Opus 5.5 (MC0 W5) |
 | 1.98.0b | 2026-09-27 | candidate | FR-275 Marketing Insights reads: `/api/insights/brands`, `/summary`, `/metric/[metricKey]`, `/metric/[metricKey]/export`, `/content`; 503 INSIGHTS_NOT_CONFIGURED in this release. 322 + 5 = 327 handlers; 323 + 5 = 328 paths; 428 + 5 = 433 operations | working-tree | Claude Opus 5.5 (MC0) |
 | 1.97.0b | 2026-09-27 | candidate | `POST /api/knowledge/catalog-files` returns `fileStatus`/`knowledgeStatus`/`knowledgeCode?`/`admission?` so a stored file with a failed Knowledge admission is a 200 partial outcome (#543) | working-tree | Claude Opus 5.5 (MC0) |
 | 1.96.0b | 2026-09-27 | candidate | ADR-110 retires 20 Edge Device, harness and legacy paths (23 operations) from the 1.95 Notion baseline; ADR-106 / SDD-110 adds one Conversation Runtime Core path with GET + POST. Composed inventory: 342 - 20 + 1 = 323 paths; 449 - 23 + 2 = 428 operations. Stored records/schema, signed LINE ingress, PRP key flow and Knowledge/RAG remain; no migration or deployment | working-tree | Codex |

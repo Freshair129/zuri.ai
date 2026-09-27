@@ -98,3 +98,128 @@ test('core client validates typed Core errors and nested credential responses', 
     { status: 200, headers: { 'content-type': 'application/json' } }) })
   await assert.rejects(invalidCredential.call('credential', credentialPayload), { code: 'CORE_RESPONSE_INVALID' })
 })
+
+test('core client accepts only the exact v1 WorkTool receipt shape for the request it sent', async () => {
+  const claim = { jobId: 'job-1', executionId: 'e', claimantId: 'c', version: 1, tenantId: 't', businessId: 'b', accountId: 'a' }
+  const proposalId = '6f1c1a52-6a55-4b8e-9d7c-2f1b8e3c9a10'
+  const clientReturning = data => createCoreClient({ baseUrl: 'http://core:3000', token: 't'.repeat(40), fetchFn: async () =>
+    new Response(JSON.stringify({ contractVersion: 'conversation-runtime.v1', ok: true, data }), { status: 200, headers: { 'content-type': 'application/json' } }) })
+  const call = (request, data) => clientReturning(data).call('work-tool', { claim, ...request })
+  const read = { operation: 'read', operationId: 'job-1:work-read', input: { kind: 'projects', query: '' } }
+  const propose = { operation: 'propose', operationId: 'job-1:work-proposal', input: { action: 'create_work', targetId: proposalId, args: { title: 'Task' } } }
+  const confirm = { operation: 'confirm-execute', operationId: proposalId, input: { proposalId } }
+  const status = operationId => ({ operation: 'status', operationId, input: {} })
+  const completed = receipt => ({ status: 'COMPLETED', result: { text: 'ok', receipt } })
+  const readReceipt = { source: 'PROJECT_MANAGER', observedAt: '2026-09-27T00:00:00.000Z' }
+  const proposalReceipt = { proposalId: 'job-1', status: 'AWAITING_CONFIRMATION' }
+  const executed = { proposalId, action: 'create_work', itemId: 'item-1', code: 'WI-0001', status: 'TODO', version: 1 }
+
+  // The shapes Core emits pass.
+  const accepted = [
+    [read, completed(readReceipt)],
+    [propose, completed(proposalReceipt)],
+    [confirm, completed(executed)],
+    [confirm, completed({ ...executed, duplicate: true })],
+    [status('job-1:work-proposal'), completed(proposalReceipt)],
+    [status(proposalId), completed(executed)],
+    [status('job-1:work-read'), { status: 'NOT_FOUND', operationId: 'job-1:work-read' }],
+    [status(proposalId), { status: 'NOT_FOUND', proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } }],
+  ]
+  for (const [request, data] of accepted) assert.deepEqual(await call(request, data), data)
+
+  // Anything else is a drifted Core and fails in the client, including the
+  // "any object with at most 12 keys" receipts the previous check let through.
+  const rejected = [
+    ['read receipt with an extra key', read, completed({ ...readReceipt, extra: 1 })],
+    ['read receipt from another source', read, completed({ ...readReceipt, source: 'MODEL' })],
+    ['read receipt with an unparseable time', read, completed({ ...readReceipt, observedAt: 'yesterday' })],
+    ['read answered with a proposal receipt', read, completed(proposalReceipt)],
+    ['arbitrary small receipt', read, completed({ a: 1, b: 2 })],
+    ['empty receipt', confirm, completed({})],
+    ['proposal naming another job', propose, completed({ ...proposalReceipt, proposalId: 'job-2' })],
+    ['proposal with another status', propose, completed({ ...proposalReceipt, status: 'CONFIRMED' })],
+    ['execution for another proposal', confirm, completed({ ...executed, proposalId: 'other-proposal' })],
+    ['execution missing its version', confirm, completed({ ...executed, version: undefined })],
+    ['execution with a fractional version', confirm, completed({ ...executed, version: 1.5 })],
+    ['execution with an unknown action', confirm, completed({ ...executed, action: 'delete_work' })],
+    ['execution with a lower-case status', confirm, completed({ ...executed, status: 'done' })],
+    ['execution with duplicate: false', confirm, completed({ ...executed, duplicate: false })],
+    ['execution with an extra key', confirm, completed({ ...executed, actor: 'forged' })],
+    ['status replay marked duplicate', status(proposalId), completed({ ...executed, duplicate: true })],
+    ['status replay for another proposal', status(proposalId), completed({ ...executed, proposalId: 'job-1' })],
+    ['empty completion text', read, { status: 'COMPLETED', result: { text: '', receipt: readReceipt } }],
+    ['NOT_FOUND for an execute', confirm, { status: 'NOT_FOUND', operationId: proposalId }],
+    ['NOT_FOUND naming another operation', status('job-1:work-read'), { status: 'NOT_FOUND', operationId: 'job-2:work-read' }],
+    ['NOT_FOUND with an unexpected receipt', status(proposalId), { status: 'NOT_FOUND', proposalId, receipt: { status: 'EXECUTED' } }],
+    ['NOT_FOUND with both identities', status(proposalId), { status: 'NOT_FOUND', operationId: proposalId, proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } }],
+    ['unknown status', read, { status: 'PENDING' }],
+  ]
+  for (const [label, request, data] of rejected)
+    await assert.rejects(call(request, data), { code: 'CORE_RESPONSE_INVALID' }, label)
+})
+
+test('WorkTool REJECTED outcomes and prepare workReply are typed, bounded and closed', async () => {
+  const claim = { jobId: 'j', executionId: 'e', claimantId: 'c', version: 1, tenantId: 't', businessId: 'b', accountId: 'a' }
+  const request = { claim, operation: 'confirm-execute', operationId: '00000000-0000-4000-8000-000000000009',
+    input: { proposalId: '00000000-0000-4000-8000-000000000009' } }
+  const replying = data => createCoreClient({ baseUrl: 'http://core:3000', token: 't'.repeat(40), fetchFn: async () =>
+    new Response(JSON.stringify({ contractVersion: 'conversation-runtime.v1', ok: true, data }),
+      { status: 200, headers: { 'content-type': 'application/json' } }) })
+  const rejected = { status: 'REJECTED', code: 'WORK_CONFIRMATION_EXPIRED', result: { text: 'expired' } }
+  assert.deepEqual(await replying(rejected).call('work-tool', request), rejected)
+  for (const invalid of [
+    { ...rejected, code: 'WORK_SCOPE_DENIED' },
+    { ...rejected, result: { text: 'expired', receipt: {} } },
+    { ...rejected, result: { text: '' } },
+    { ...rejected, result: { text: 'x'.repeat(5001) } },
+    { ...rejected, retryable: false },
+  ]) await assert.rejects(replying(invalid).call('work-tool', request), { code: 'CORE_RESPONSE_INVALID' })
+
+  const turn = { question: '/work-create', evidence: { records: [] }, slices: [], authorized: true, audienceKind: 'DIRECT',
+    threadId: null, maxBudgetChars: 0, workCommand: null }
+  assert.equal(validateTurnContext({ ...turn, workReply: { code: 'WORK_COMMAND_USAGE', text: 'usage' } }).workReply.text, 'usage')
+  assert.equal(validateTurnContext({ ...turn, workReply: null }).workReply, null)
+  for (const workReply of [
+    { code: 'WORK_VERSION_CONFLICT', text: 'usage' },
+    { code: 'WORK_COMMAND_USAGE', text: '' },
+    { code: 'WORK_COMMAND_USAGE', text: 'x'.repeat(5001) },
+    { code: 'WORK_COMMAND_USAGE', text: 'usage', extra: true },
+  ]) assert.throws(() => validateTurnContext({ ...turn, workReply }), { code: 'TURN_WORK_REPLY_INVALID' })
+  assert.throws(() => validateTurnContext({ ...turn, workCommand: { operation: 'read', input: {} },
+    workReply: { code: 'WORK_COMMAND_USAGE', text: 'usage' } }), { code: 'TURN_WORK_REPLY_INVALID' })
+})
+
+test('an OUT_OF_HOURS turn carries only a bounded fixed reply and nothing to execute', () => {
+  const base = { question: 'q', evidence: { records: [] }, slices: [], authorized: true, audienceKind: 'DIRECT',
+    threadId: null, maxBudgetChars: 0, workCommand: null }
+  assert.doesNotThrow(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: 'closed' }))
+  assert.doesNotThrow(() => validateTurnContext(base))
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'ANYTHING', replyText: 'closed' }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS' }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: '   ' }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: 'x'.repeat(5001) }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, replyText: 'closed' }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: 'closed',
+    workCommand: { operation: 'read', input: {} } }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: 'closed',
+    evidence: { records: [{ sku: 1 }] } }), /TURN_KIND_INVALID/)
+})
+
+// @req FR-210 — a CATALOG_COMMAND turn: Core's fixed `#sku` reply and nothing to execute.
+test('a CATALOG_COMMAND turn carries only a bounded fixed reply and nothing to execute', () => {
+  const base = { question: '#sku', evidence: { records: [] }, slices: [], authorized: true, audienceKind: 'DIRECT',
+    threadId: null, maxBudgetChars: 0, workCommand: null }
+  assert.doesNotThrow(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'help' }))
+  assert.doesNotThrow(() => validateTurnContext(base))
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'ANYTHING', replyText: 'help' }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND' }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: '  ' }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'x'.repeat(5001) }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, replyText: 'help' }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'help',
+    workCommand: { operation: 'read', input: {} } }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'help',
+    evidence: { records: [{ sku: 1 }] } }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'help',
+    slices: [{ source: 'KNOWLEDGE', text: 'x' }] }), /TURN_KIND_INVALID/)
+})

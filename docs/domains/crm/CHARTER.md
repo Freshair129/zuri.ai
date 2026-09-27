@@ -105,7 +105,7 @@ turn flows through before any agent work happens.
   (never a Member grant), and resolves the Customer through the caller's owned
   Business's tenant — the same BR-001 scope `getConversationInbox` reads
   through — so a Customer id alone can never widen the write past it.
-- `redactConversationContentForCustomers` — the PDPA erasure writer (FR-022). A
+- `redactConversationContent` — the PDPA erasure writer (FR-022). A
   fourth narrow writer, and the only one that is called by another domain: erasure
   belongs to identity ("the only flow allowed to do so", identity's charter), but
   `Message` is owned here, so identity asks through this export inside its own
@@ -120,6 +120,16 @@ turn flows through before any agent work happens.
   writer here, and idempotent — a message or attachment already redacted is
   neither counted nor rewritten. If a denormalised preview/snippet column is ever
   added to `Conversation`, it must be redacted in this same call.
+  It is keyed by conversation ids, and erasure uses it only for a thread that is
+  the erased person's alone (a direct chat). A LINE group or room thread is shared — it belongs to its first speaker's
+  Customer while every member writes in it — so it is never erased whole:
+  `redactSpeakerContentInSharedThreads` tombstones one speaker's own inbound lines
+  (selected by `Message.authorChannelIdentityId`, recorded at ingest, or by the
+  inbound id of that speaker's answer job, or, for a row with neither, the
+  speaker's Customer on its MESSAGE_INGESTED audit row, which is then written back
+  as the author) and the stack reply to each of them, in
+  any thread whoever owns it, leaving every other member's lines and staff messages
+  untouched (FR-022).
 - `recordConversationAnalysis` / `getConversationAnalyses` — the FR-127 derived
   CRM record boundary. A run is keyed by an internal `Conversation.id` and its
   generated analysis id; writes require ownership of the exact bound Business
@@ -167,7 +177,7 @@ turn flows through before any agent work happens.
   one data class: `MESSAGE_BODY_AND_ATTACHMENTS` (`Message.body` /
   `MessageAttachment`, 24-month installation default). It tombstones content
   past its effective per-Tenant window, keeps envelope columns (the same shape
-  `redactConversationContentForCustomers` already keeps), skips a row a
+  `redactConversationContent` already keeps), skips a row a
   non-terminal `LineConversationJob` still references
   (`LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES`), refreshes
   `Conversation.lastMessageAt`/`lastMessagePreview` for every conversation it

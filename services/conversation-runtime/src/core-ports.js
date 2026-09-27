@@ -21,6 +21,8 @@ export function createCorePorts({ client, model, isCoreReady = () => true, signa
       deadlineAt: claim?.deadlineAt ?? new Date(Date.now() + 10_000).toISOString(), signal,
     })
   }
+  const memoryIds = claim => ({ read: `${claim.jobId}:memory-read`, append: `${claim.jobId}:memory-append`,
+    injection: `${claim.jobId}:memory-injection` })
   return {
     job: {
       claim: ({ claimantId }) => call('claim', { claimantId }, `claim:${claimantId}:${randomNonce()}`),
@@ -42,6 +44,20 @@ export function createCorePorts({ client, model, isCoreReady = () => true, signa
     delivery: {
       send: claim => call('send', { claim: ref(claim), operationId: `${claim.jobId}:${claim.executionId}:delivery` }, `delivery:${claim.jobId}:${claim.executionId}`, claim),
       status: claim => call('status', { claim: ref(claim), operationId: `${claim.jobId}:delivery` }, `delivery-status:${claim.jobId}:${claim.executionId}`, claim),
+    },
+    // @req FR-149 — ADR-106 D2 Memory/Knowledge. Every id is the job's stable
+    // identity, so a reclaimed runtime replays Core's durable memory receipts.
+    memory: {
+      read: claim => call('memory', { claim: ref(claim), operation: 'read', operationId: memoryIds(claim).read, input: {} },
+        memoryIds(claim).read, claim),
+      append: (claim, text) => call('memory', { claim: ref(claim), operation: 'append', operationId: memoryIds(claim).append,
+        input: { text } }, memoryIds(claim).append, claim),
+      receipt: (claim, name, input = {}) => {
+        const operationId = memoryIds(claim)[name]
+        if (!operationId) throw Object.assign(new Error('MEMORY_OPERATION_ID_INVALID'), { code: 'MEMORY_OPERATION_ID_INVALID' })
+        return call('memory', { claim: ref(claim), operation: 'receipt', operationId, input },
+          input.state ? `${operationId}:${input.state}` : `memory-status:${operationId}`, claim)
+      },
     },
     trace: {
       append: (claim, event) => call('trace', { claim: ref(claim), ...event }, `trace:${claim.jobId}:${event.payload?.operationId ?? claim.executionId}:${event.kind}`, claim),

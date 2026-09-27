@@ -269,7 +269,7 @@ describe('OpenAPI document', () => {
   it('documents the private Conversation Runtime adapter with process-only bearer auth', () => {
     const path = doc.paths['/api/internal/conversation-runtime/v1/{operation}']
     expect(path.get.parameters[0]).toMatchObject({ name: 'operation', required: true, schema: { type: 'string', enum: ['health'] } })
-    expect(path.post.parameters[0].schema.enum).toEqual(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status'])
+    expect(path.post.parameters[0].schema.enum).toEqual(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory'])
     for (const operation of [path.get, path.post]) {
       expect(operation.security).toEqual([{ ConversationRuntimeService: [] }])
       expect(operation['x-zuri-contract']).toBe('conversation-runtime.v1')

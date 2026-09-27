@@ -326,7 +326,7 @@ const zRouteInventoryResponse = z.any().openapi({
 })
 
 const CONVERSATION_RUNTIME_PATH = '/api/internal/conversation-runtime/v1/{operation}'
-const CONVERSATION_RUNTIME_OPERATIONS = ['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status']
+const CONVERSATION_RUNTIME_OPERATIONS = ['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory']
 const zConversationRuntimeEnvelope = z.object({
   contractVersion: z.literal('conversation-runtime.v1'),
   operation: z.enum(CONVERSATION_RUNTIME_OPERATIONS),

@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-106
 title: "Conversation Runtime service extraction"
-version: "1.0.1"
+version: "1.1.0"
 status: approved
 created_at: "2026-09-24T00:00:00+07:00,Codex"
-last_update: "2026-09-25T21:08:16+07:00,Codex"
+last_update: "2026-09-27T20:00:00+07:00,Claude Opus 5.5 (MC0 W10)"
 author: Codex (implementation owner)
 approved_on: "2026-09-24"
 approved_by: "User instruction in Session 1"
@@ -106,8 +106,10 @@ Core remains the only owner of `LineConversationJob` writes and claim/lease stat
 one durable executor cohort: `SERVER` for the legacy core worker or
 `CONVERSATION_RUNTIME` for the independent runtime. An owner may opt an account
 into the runtime through the versioned `CONFIGURE_EXECUTION` action. Admission
-captures `CONVERSATION_RUNTIME` only for verified direct conversations that meet
-the runtime's eligibility rules; ineligible work remains in the `SERVER` cohort.
+captures `CONVERSATION_RUNTIME` only for conversations that meet the runtime's
+eligibility rules; ineligible work remains in the `SERVER` cohort. (1.0.x said
+"verified direct conversations"; see *Amendment 2026-09-27* for the current
+audience and sender rules.)
 Changing the account owner requires all of its outstanding jobs to be quiescent.
 Environment flags, service readiness and the public base URL do not select or
 grant ownership. The legacy `/api/line-oa/worker` route remains as a bounded
@@ -134,6 +136,44 @@ Next.js or Edge. Its production artifact contains only the service and declared
 contracts; Compose does not bind-mount `apps/server` into the runtime. The service
 uses only authenticated core ports for shared authority. Production deployment is
 outside this ADR's implementation scope.
+
+## Amendment 2026-09-27 — unverified LINE senders join the runtime cohort
+
+**Owner ruling (2026-09-27):** LINE messages from an unverified channel identity
+move into the runtime cohort. The goal is exact parity with what the legacy
+Server path gives an unverified sender; the runtime never gets more authority or
+data than that. Group and room audiences already joined the cohort on the same
+terms as direct chats (PR #585), so D3's eligibility is now: an opted-in account,
+an audience and thread the runtime can bind, a served grounding mode, and the
+existing memory-sync and malformed-Work exceptions; the sender may be verified or
+not.
+
+- **Core decides, once, at admission.** An unverified sender's job carries an
+  immutable `CHANNEL_IDENTITY_ADMITTED` record (assurance `UNVERIFIED` and the
+  sender id's hash) written in the job's own admission transaction. A verified
+  sender's job carries none and keeps D4's fence unchanged: every protected
+  transition re-reads the ChannelIdentity and refuses a job whose identity is no
+  longer verified. The runtime cannot write or change the record.
+- **An unverified job has no person.** `resolve` returns the account and Business
+  scope with `identityId: null` and `identityState: UNVERIFIED`. Every Work call is
+  answered with the legacy handler's refusal as a final `REJECTED` outcome before
+  any Work reader or writer; `#sku` is an ordinary question and the catalogue
+  command never runs; no memory operation exists. Grounding, the model credential
+  (the Business's own key), out-of-hours and delivery are the ones the Server path
+  uses for every sender.
+- **Its fence** is the account, the transport epoch, erasure and the admitted
+  sender id. Its identity is never re-read, so a sender verified, revoked or erased
+  mid-turn cannot change what the job may do; erasure ends it through the existing
+  `PDPA_ERASURE` fence and the changed sender id.
+- **Verified mid-turn:** the job keeps the unverified decision for its whole life,
+  including reclaims. It never gains person scope. The legacy worker reads the
+  identity once, when its execution starts, so the two differ only for a sender
+  verified in the seconds between admission and claim; the runtime then refuses
+  where legacy would serve.
+- **Exception:** a memory-sync opt-in turn from an unverified sender stays in the
+  `SERVER` cohort. The legacy worker records such a turn in the MSP thread with
+  `PENDING` assurance (no private recall); the runtime cohort does not reproduce
+  that write.
 
 ## Migration and rollback
 
@@ -170,5 +210,6 @@ reported separately. Production cutover is not inferred from local proof.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-27 | approved | Amendment 2026-09-27: unverified LINE senders join the runtime cohort by owner ruling, with Core's admission-time UNVERIFIED record, no person scope, the legacy Work refusal, no `#sku` command and no memory; unverified memory-sync turns stay SERVER. D3's eligibility sentence points to the amendment | uncommitted | Claude Opus 5.5 (MC0 W10) |
 | 1.0.1 | 2026-09-25 | approved | Clarify option B: keep executionMode SERVER and persist a separate account/job runtimeOwner cohort; Core remains authoritative for claim, lease, receipt and state writes | uncommitted | Codex |
 | 1.0.0 | 2026-09-24 | approved | Approve first independent Conversation Runtime extraction ahead of Work Management; keep existing domain data owners behind conversation-runtime.v1 ports | uncommitted | Codex |
