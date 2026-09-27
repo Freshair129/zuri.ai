@@ -42,14 +42,20 @@ function unknownOutcome(code, cause) {
   return Object.assign(new Error(code), { code, outcome: 'UNKNOWN', ...(cause ? { cause } : {}) })
 }
 
+// @req FR-149 — Core names the sender's identity for a verified sender, or says the
+// sender is UNVERIFIED and names no person. Either is accepted; the runtime never
+// asserts or upgrades it, and a change between two resolves of one turn ends the turn.
 function assertAuthority(authority, claim, prior = null) {
   const scope = authority?.scope
+  const unverified = scope?.identityState === 'UNVERIFIED'
   if (authority?.authorized !== true || !Number.isInteger(authority.version) || authority.version < 1
     || scope?.tenantId !== claim.tenantId || scope?.businessId !== claim.businessId || scope?.accountId !== claim.accountId
-    || typeof scope.identityId !== 'string' || !scope.identityId || !Number.isInteger(scope.identityVersion)) {
+    || (unverified ? scope.identityId !== null || scope.identityVersion !== null
+      : scope?.identityState !== undefined || typeof scope.identityId !== 'string' || !scope.identityId || !Number.isInteger(scope.identityVersion))) {
     throw Object.assign(new Error('AUTHORITY_DENIED'), { code: 'AUTHORITY_DENIED', status: 403 })
   }
-  if (prior && (scope.identityId !== prior.scope.identityId || scope.identityVersion !== prior.scope.identityVersion)) {
+  if (prior && (scope.identityId !== prior.scope.identityId || scope.identityVersion !== prior.scope.identityVersion
+    || scope.identityState !== prior.scope.identityState)) {
     throw Object.assign(new Error('CONVERSATION_IDENTITY_CHANGED'), { code: 'CONVERSATION_IDENTITY_CHANGED', status: 403 })
   }
 }

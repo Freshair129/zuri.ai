@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 67
+          "testCount": 69
         },
         {
           "id": "FR-150",
@@ -708,7 +708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-171",
@@ -732,7 +732,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-232",
@@ -2516,7 +2516,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 67
+          "testCount": 69
         },
         {
           "id": "FR-152",
@@ -3017,7 +3017,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "checks": {
@@ -3694,7 +3694,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 24,
-          "testCount": 67
+          "testCount": 69
         },
         {
           "id": "FR-150",
@@ -3702,7 +3702,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-151",
@@ -3750,7 +3750,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-223",
@@ -3838,7 +3838,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-259",
@@ -5753,7 +5753,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 67
+          "testCount": 69
         },
         {
           "id": "FR-150",
@@ -5761,7 +5761,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-151",
@@ -8697,7 +8697,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 47,
-          "testCount": 67
+          "testCount": 69
         },
         {
           "id": "FR-150",
@@ -8705,7 +8705,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -8774,6 +8774,7 @@
         "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
+        "apps/server/tests/integration/conversation-runtime-unverified.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
@@ -8847,6 +8848,7 @@
         "services/conversation-runtime/test/health-server.test.js",
         "services/conversation-runtime/test/memory-turn.test.js",
         "services/conversation-runtime/test/turn-runtime.test.js",
+        "services/conversation-runtime/test/unverified-authority.test.js",
         "services/conversation-runtime/test/worker-loop.test.js"
       ]
     },
@@ -10369,7 +10371,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -10399,6 +10401,7 @@
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/conversation-runtime-catalog-command.test.js",
+        "apps/server/tests/integration/conversation-runtime-unverified.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -11290,7 +11293,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -11310,6 +11313,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
+        "apps/server/tests/integration/conversation-runtime-unverified.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
