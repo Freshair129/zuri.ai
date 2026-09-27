@@ -8,6 +8,10 @@ export const CORE_OPERATIONS = Object.freeze([
 export const WORK_TOOL_OPERATIONS = Object.freeze(['read', 'propose', 'confirm-execute', 'status'])
 export const MAX_REQUEST_BYTES = 64 * 1024
 export const MAX_RESPONSE_BYTES = 64 * 1024
+// Core admits LINE text up to LINE_TEXT_MAX_CHARS (apps/server line-conversation-jobs.js) and the legacy
+// Server answer path accepts all of it, so a prepared turn's question has the same bound. A parity test
+// in apps/server pins the two numbers equal.
+export const MAX_TURN_QUESTION_CHARS = 10_000
 
 const fail = code => Object.assign(new Error(code), { code })
 const boundedText = (value, max, code) => {
@@ -153,7 +157,7 @@ export function validateTurnContext(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw fail('TURN_CONTEXT_INVALID')
   const allowed = new Set(['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])
   if (Object.keys(value).some(key => !allowed.has(key))) throw fail('TURN_CONTEXT_UNKNOWN_FIELD')
-  boundedText(value.question, 8000, 'TURN_QUESTION_INVALID')
+  boundedText(value.question, MAX_TURN_QUESTION_CHARS, 'TURN_QUESTION_INVALID')
   const records = Array.isArray(value.evidence) ? value.evidence : value.evidence?.records
   if (!Array.isArray(records) || records.length > 64) throw fail('TURN_EVIDENCE_INVALID')
   boundedJsonWithin(value.evidence, 32 * 1024, 'TURN_EVIDENCE_INVALID')

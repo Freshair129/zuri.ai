@@ -76,6 +76,7 @@ async function wrapCoreRequest(incoming, outgoing, port, core) {
     if (envelope.operation === 'work-tool') coreRequests.push(`WORK ${envelope.payload.operation} ${envelope.payload.operationId}`)
     if (envelope.operation === 'trace') detail = `${envelope.payload.kind} ${envelope.payload.claim?.jobId} ${envelope.payload.claim?.executionId}`
     if (envelope.operation === 'claim') detail = `claimant=${envelope.payload.claimantId}`
+    if (envelope.operation === 'status') detail = `${envelope.payload.operationId}`
   }
   const headers = {}
   for (const name of ['authorization', 'content-type', 'accept']) if (incoming.headers[name]) headers[name] = incoming.headers[name]
@@ -89,6 +90,8 @@ async function wrapCoreRequest(incoming, outgoing, port, core) {
   const bodyText = await response.text()
   try {
     const parsed = JSON.parse(bodyText)
+    if (operation === 'send') sendResponses.push({ status: response.status, body: parsed })
+    if (operation === 'status') coreRequests.push(`STATUS ${detail}`)
     if (response.status >= 400) coreRequests.push(`CORE_RESPONSE ${operation} ${detail} ${response.status} ${parsed.error?.code ?? 'UNKNOWN'}`)
     else if (parsed?.ok === false) coreRequests.push(`CORE_ERROR ${operation} ${parsed.error?.code ?? 'UNKNOWN'}`)
   } catch { if (response.status >= 400) coreRequests.push(`CORE_RESPONSE ${operation} ${response.status} INVALID_JSON`) }
@@ -101,6 +104,7 @@ async function wrapCoreRequest(incoming, outgoing, port, core) {
 let tenant, business, account, actor, provider, workstream, ownerViewer
 let runtimeChild, coreServer, modelServer, pendingAdmissions = []
 let coreRequests = []
+let sendResponses = []
 let deliveryCalls = [], modelCalls = []
 let token = 'event-not-set'
 const requestBody = (eventToken = token, messageText = 'ถามข้อมูลสินค้า') => JSON.stringify({ destination: 'synthetic-line-destination', events: [{
@@ -283,6 +287,7 @@ describe('Conversation Runtime durable vertical slice', () => {
         pushTransport: { send: async ({ messages }) => { deliveryCalls.push(messages); return { status: 'ACCEPTED_BY_LINE', requestId: 'synthetic-line-acceptance' } } } }),
     })
     coreRequests = []
+    sendResponses = []
     coreServer = createServer((request, response) => {
       coreRequests.push(`${request.method} ${request.url}`)
       void wrapCoreRequest(request, response, coreServer.address().port, core).catch(cause => {
@@ -351,6 +356,12 @@ describe('Conversation Runtime durable vertical slice', () => {
       expect(modelCalls[0]).toMatchObject({ path: '/v1/chat/completions', authorization: 'Bearer synthetic-provider-key' })
       expect(modelCalls[0].body.messages[0].content).toContain(preparedContext)
       expect(deliveryCalls).toEqual([[{ type: 'text', text: 'คำตอบทดสอบจาก provider ที่ควบคุมได้' }]])
+      // The accepted send answers 200 with a body both Core's and the runtime's validators accept, so the
+      // runtime never has to recover the outcome through a delivery status read.
+      expect(sendResponses).toEqual([{ status: 200, body: { contractVersion: 'conversation-runtime.v1', ok: true,
+        data: { id: admitted.id, status: 'RECORDED', acceptance: { provider: 'LINE', outcome: 'ACCEPTED_BY_LINE' } } } }])
+      expect(coreRequests.filter(entry => entry.startsWith('STATUS ') && entry.endsWith(':delivery'))).toEqual([])
+      expect(coreRequests.filter(entry => entry.startsWith('CORE_RESPONSE send'))).toEqual([])
       const trace = await prisma.agentTraceEvent.findMany({ where: { turnId: admitted.id }, orderBy: { occurredAt: 'asc' } })
       expect(trace.map(row => row.kind)).toEqual(expect.arrayContaining([
         'TURN_RECEIVED', 'EXECUTION_STARTED', 'MODEL_STARTED', 'MODEL_COMPLETED', 'CONTEXT_COMMITTED',

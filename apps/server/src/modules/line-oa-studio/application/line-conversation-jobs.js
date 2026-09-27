@@ -32,6 +32,11 @@ import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
 //   tests/integration/fr244-line-oa-business-hours.test.js
 
 export const LINE_JOB_LEASE_MS = 300_000
+// The longest LINE text a turn may carry, in UTF-16 code units. Admission refuses anything longer, and
+// every later stage (the legacy answer, Core's v1 `prepare` result) accepts anything admitted: one number,
+// so admission and `prepare` can never disagree. The Conversation Runtime mirrors it as
+// MAX_TURN_QUESTION_CHARS (services/conversation-runtime/src/contracts.js), pinned equal by a parity test.
+export const LINE_TEXT_MAX_CHARS = 10_000
 
 // @req FR-265 — `LineConversationJob.modelAccess` recorded whether a turn was
 // allowed to reach an external provider. ADR-100 D3 retires the policy: every
@@ -195,7 +200,7 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
   const eventId = event.webhookEventId || event.message?.id
   const text = event.message?.text
   if (!userId || !threadId || !eventId || !event.message?.id || typeof text !== 'string' || !text.trim()) return { skipped: true }
-  if (text.length > 10000) throw failure(400, 'LINE_TEXT_TOO_LONG')
+  if (text.length > LINE_TEXT_MAX_CHARS) throw failure(400, 'LINE_TEXT_TOO_LONG')
   const shouldReply = event.source?.type === 'user' || /ซูริ|zuri/i.test(text)
   const sealed = shouldReply ? sealLineReplyToken(event.replyToken, account.id, env) : null
   // The reply-token deadline is anchored to when LINE issued the event, not to `now`: this
@@ -1042,10 +1047,15 @@ export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAc
         sealedReplyToken: null, version: { increment: 1 } } })
     return { id: job.id, status: 'CANCELLED' }
   }
-  return sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env,
+  const sent = await sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env,
     workerId: claim.claimantId, now, requiredExecutionMode: 'SERVER', requiredRuntimeOwner: 'CONVERSATION_RUNTIME',
     expectedExecutionId: claim.executionId })
+  // The v1 `send` answer carries `acceptance` as a bounded object: Core's response validator and the runtime's
+  // core client both require one. The shared sender's bare string stays the legacy worker's own result.
+  return sent.acceptance === undefined ? sent : { ...sent, acceptance: runtimeSendAcceptance(sent.acceptance) }
 }
+
+const runtimeSendAcceptance = outcome => ({ provider: 'LINE', outcome })
 
 export async function appendRuntimeConversationTrace(claim, { kind, payload }, { db = prisma, now = () => new Date() } = {}) {
   const job = await db.lineConversationJob.findUnique({ where: { id: claim.jobId }, include: { account: true } })

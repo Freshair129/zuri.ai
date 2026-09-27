@@ -9,7 +9,7 @@ import { serverLinePorts } from './server-line-runtime'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
   failRuntimeConversationJob, renewRuntimeConversationJob, runtimeConversationStatus,
-  runtimeOperationStatus, sendRuntimeConversationJob,
+  runtimeOperationStatus, sendRuntimeConversationJob, LINE_TEXT_MAX_CHARS,
 } from './line-conversation-jobs'
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
@@ -137,13 +137,13 @@ function validateResult(operation, data) {
   }
   if (operation === 'prepare') {
     if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])
-      || !present(data.question, 8000) || !exact(data.evidence, ['records']) || !Array.isArray(data.evidence.records)
+      || !present(data.question, LINE_TEXT_MAX_CHARS) || !exact(data.evidence, ['records']) || !Array.isArray(data.evidence.records)
       || data.evidence.records.length > 64 || !Array.isArray(data.slices) || data.slices.length > 64
       || typeof data.authorized !== 'boolean' || !['DIRECT', 'GROUP', 'ROOM'].includes(data.audienceKind)
       || (data.threadId !== null && !present(data.threadId, 128))
       || !Number.isInteger(data.maxBudgetChars) || data.maxBudgetChars < 0 || data.maxBudgetChars > 32_000
       || (data.workCommand != null && JSON.stringify(parseLineProjectWorkCommand(data.question)) !== JSON.stringify(data.workCommand))
-      || !boundedJsonWithin(data, 32 * 1024)) invalid()
+      || !boundedJsonWithin(data.evidence, 32 * 1024) || !boundedJsonWithin(data.slices, 32 * 1024)) invalid()
     return
   }
   if (operation === 'resolve') {
