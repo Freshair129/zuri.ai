@@ -144,7 +144,7 @@ tenant arrives.
 
 This ADR is the only new id. Annotations reuse FR-092, NFR-018, SDD-049 and SEC-017:
 the service changes where FR-092 executes, not what it does. Any SDD for the service
-contract is declared after the parallel lanes (ADR-106, SDD-108) land, by whichever
+contract is declared after the parallel lanes (ADR-106, SDD-110) land, by whichever
 lane merges second.
 
 ## Operator runbook — restricted role (NOT applied by this lane)

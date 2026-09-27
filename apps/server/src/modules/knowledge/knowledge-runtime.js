@@ -216,11 +216,18 @@ async function closeOrphanedExecutionRun({ db, now, corpus, executionRunId, fail
  * legitimately still QUEUED/RUNNING) and could fill the page with runs the
  * sweep then had to skip one by one.
  *
- * Idempotent: closing a run moves it out of QUEUED/RUNNING, so a row this
- * pass already closed no longer matches `listOpenKnowledgeRunIds` on the next
- * one (closeOrphanedExecutionRun also re-checks the run's live status before
- * doing anything). Each row is closed with its own corpus's scope — never a
- * cross-tenant/business bypass — exactly as `processJob`'s own call does.
+ * Idempotent across calls: closing a run moves it out of QUEUED/RUNNING, so a
+ * row a previous call already closed no longer matches `listOpenKnowledgeRunIds`
+ * on the next one (closeOrphanedExecutionRun also re-checks the run's live
+ * status before doing anything). That does NOT cover a later page of the SAME
+ * call, though: `executionRunIds` above is fixed for all `MAX_SWEEP_PAGES`
+ * pages, closing a row touches neither its `status` nor its lease, and
+ * `listOrphanedIngestionsForRuns` filters on exactly those two fields — so a
+ * row closed on page 1 can still come back on page 2. `processedIngestionIds`
+ * below is what keeps that from re-closing (harmless; `closeOrphanedExecutionRun`
+ * itself is idempotent) and re-counting it into `closed` a second time. Each
+ * row is closed with its own corpus's scope — never a cross-tenant/business
+ * bypass — exactly as `processJob`'s own call does.
  *
  * `closeOrphanedExecutionRun` can decline or fail to close a run (it is still
  * inside Tier 1, its corpus is gone, or a stage report is rejected) and
@@ -274,12 +281,24 @@ async function sweepOrphanedExecutionRuns({ db, now, limit = 20, onError, report
   }
   const executionRunIds = openRuns.map((run) => run.executionRunId)
   let examined = 0, closed = 0, open = 0
+  // A row this same call already closed keeps whatever `leaseExpiresAt` it
+  // had before closing — only a refused row's lease moves, below — and its
+  // own `status` (SUPERSEDED/WITHDRAWN) never changes either, so it can still
+  // match `listOrphanedIngestionsForRuns`'s status+lease filter on a later
+  // page of this same call even though its PipelineRun is no longer
+  // QUEUED/RUNNING. `closeOrphanedExecutionRun`'s own re-check and the next
+  // *call*'s `listOpenKnowledgeRunIds` no longer naming it (see the docblock
+  // above) only cover cross-call idempotency; this set is what keeps one
+  // call's own later page from re-closing and re-counting the same row.
+  const processedIngestionIds = new Set()
   if (executionRunIds.length) {
     for (let page = 0; page < MAX_SWEEP_PAGES; page += 1) {
-      const orphans = await repository.listOrphanedIngestionsForRuns({ executionRunIds, now: date(now), limit })
-      if (orphans.length === 0) break
+      const fetched = await repository.listOrphanedIngestionsForRuns({ executionRunIds, now: date(now), limit })
+      if (fetched.length === 0) break
+      const orphans = fetched.filter((ingestion) => !processedIngestionIds.has(ingestion.id))
       examined += orphans.length
       for (const ingestion of orphans) {
+        processedIngestionIds.add(ingestion.id)
         const corpus = await repository.getCorpus(ingestion.corpusId)
         if (!corpus) continue
         // The row's own failureCode is the reason the ingestion ended (what
@@ -302,7 +321,7 @@ async function sweepOrphanedExecutionRuns({ db, now, limit = 20, onError, report
           closed += 1
         }
       }
-      if (orphans.length < limit) break
+      if (fetched.length < limit) break
     }
   }
   return { examined, closed, open }

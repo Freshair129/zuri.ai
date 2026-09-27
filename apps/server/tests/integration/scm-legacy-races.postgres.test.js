@@ -23,16 +23,22 @@
 //   and ACTIVE status, so a call that passed the version check with a stale
 //   version is refused 409 STOCK_RESERVATION_VERSION_CONFLICT and its ORDER hold
 //   rolls back.
-//   The F-14 and F-17 races are made deterministic with an in-test barrier that
-//   holds each transaction after its first read of the row under test until both
-//   have read it. (F-14, F-16 and F-17 are stated without requirement
+// F-18 (supplier cost sheets): two concurrent commits of the SAME draft sheet
+//   must confirm it once and answer the loser with the replay, exactly as a
+//   commit that arrives after the first one does. The sheet status is decided
+//   after the supplier row lock, on a re-read of the sheet, so the loser sees
+//   the winner's CONFIRMED sheet instead of acting on its stale DRAFT read and
+//   answering 409.
+//   The F-14, F-17 and F-18 races are made deterministic with an in-test barrier
+//   that holds each transaction after its first read of the row under test until
+//   both have read it. (F-14, F-16, F-17 and F-18 are stated without requirement
 //   annotations so these hotfixes leave the generated domain-state test counts,
 //   held by another lane, untouched.)
 // @spec ADR-066, ADR-065
 // @tested tests/integration/scm-legacy-races.postgres.test.js
 //
 // Found during the SCM service extraction (draft PR #546, SCM-HANDOFF §7 F-1,
-// F-9, F-12, F-14, F-16, F-17), where the same guards are proven necessary on
+// F-9, F-12, F-14, F-16, F-17, F-18), where the same guards are proven necessary on
 // PostgreSQL.
 //
 // PostgreSQL only, READ COMMITTED (Prisma's default): SQLite's single writer lock
@@ -382,5 +388,41 @@ runPostgres('SCM legacy races on PostgreSQL (F-1, F-9, F-12)', () => {
     expect(result).toEqual({ reached: 2, won: 1, refusals: ['STOCK_RESERVATION_VERSION_CONFLICT'] })
     const orders = await db.stockReservation.count({ where: { productId: item.id, purpose: 'ORDER', salesOrderId: 'so-rsv-day' } })
     expect({ orders, converted: await audits(quote.id, 'STOCK_RESERVATION_CONVERTED') }).toEqual({ orders: 1, converted: 1 })
+  }, 120000)
+
+  // F-18: a commit reads the sheet, decides replay / refusal from its status, and
+  // only then takes the supplier row lock. Both commits of ONE draft sheet pause
+  // after their read of the sheet until both have read DRAFT; the loser then waits
+  // on the supplier lock. It must answer the replay once the winner has confirmed
+  // — never 409 (a Product carton version conflict or a sheet version conflict,
+  // which would mean it acted on its stale DRAFT read) — and write nothing. The
+  // line carries carton facts so the Product carton compare-and-swap is on the
+  // path. The commit names the sheet by its source hash, the read the gate holds.
+  it('F-18: two commits of one draft sheet that both read DRAFT confirm it once and replay the loser', async () => {
+    const item = await product('SKU-RACE-SAME-SHEET')
+    const buyer = owner('per-same-sheet-buyer')
+    const supplier = await createSupplier({ businessId: business.id, code: 'SUP-RACE-SAME-SHEET', name: 'Same-sheet supplier' }, { viewer: buyer, db })
+    const mappings = [{ sourceSku: item.code, productId: item.id, confirmed: true }]
+    const sourceSha256 = '9'.repeat(64)
+    const carton = { unitsPerCarton: 24, cartonCbm: 0.018, cartonKg: 4.2, freightGoodsType: 'GENERAL', leadTimeDays: 14 }
+    const { sheet } = await previewSupplierCostSheet({ businessId: business.id, supplierId: supplier.id, currency: 'USD', fxRateLocked: 34, sourceSha256, lines: [{ sku: item.code, minQty: 1, unitCostForeign: 1.25, ...carton }] }, { viewer: buyer, db })
+    const before = await db.product.findUnique({ where: { id: item.id }, select: { version: true } })
+    const gate = barrier(2)
+    const client = gatedClient('supplierCostSheet', gate)
+    const outcomes = await Promise.allSettled([0, 1].map(() => commitSupplierCostSheet({ businessId: business.id, sourceSha256, previewHash: sheet.preview.hash, mappings }, { viewer: buyer, db: client })))
+    const answers = outcomes.map((o) => (o.status === 'fulfilled' ? (o.value.replayed ? 'REPLAYED' : 'COMMITTED') : codeOf(o.reason))).sort()
+    expect({ reached: gate.arrived, answers }).toEqual({ reached: 2, answers: ['COMMITTED', 'REPLAYED'] })
+    for (const o of outcomes) expect(o.value.sheet).toMatchObject({ id: sheet.id, status: 'CONFIRMED' })
+    const confirmed = await db.supplierCostSheet.findMany({ where: { supplierId: supplier.id, status: 'CONFIRMED' }, select: { id: true } })
+    const lines = await db.supplierCostLine.count({ where: { sheetId: sheet.id } })
+    const after = await db.product.findUnique({ where: { id: item.id }, select: { version: true, unitsPerCarton: true, cartonKg: true } })
+    expect({
+      confirmed: confirmed.map((s) => s.id),
+      lines,
+      committed: await audits(sheet.id, 'SUPPLIER_COST_SHEET_COMMITTED'),
+      cartonSet: await audits(item.id, 'PRODUCT_CARTON_ATTRIBUTES_SET'),
+      productVersion: after.version - before.version,
+      carton: { unitsPerCarton: after.unitsPerCarton, cartonKg: after.cartonKg },
+    }).toEqual({ confirmed: [sheet.id], lines: 1, committed: 1, cartonSet: 1, productVersion: 1, carton: { unitsPerCarton: 24, cartonKg: 4.2 } })
   }, 120000)
 })

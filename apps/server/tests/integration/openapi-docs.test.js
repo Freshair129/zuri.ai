@@ -25,7 +25,7 @@ function listFiles(directory) {
 
 function currentRouteInventory() {
   const root = path.resolve(__dirname, '../../src/app/api')
-  return listFiles(root)
+  const apiRoutes = listFiles(root)
     .filter((file) => path.basename(file) === 'route.js')
     .map((file) => {
       const relative = path.relative(root, path.dirname(file)).split(path.sep).join('/')
@@ -38,6 +38,8 @@ function currentRouteInventory() {
         methods,
       }
     })
+  // OAuth providers require an exact unprefixed callback URL, outside /api.
+  return [...apiRoutes, { path: '/oauth/notion/callback', methods: ['GET'] }]
     .sort((left, right) => left.path.localeCompare(right.path))
 }
 
@@ -69,7 +71,7 @@ describe('OpenAPI document', () => {
 
   it('labels generic inventory coverage without overwriting detailed intake contracts', () => {
     expect(doc['x-zuri-route-inventory']).toMatchObject({
-      source: 'src/app/api/**/route.js',
+      source: 'src/app/api/**/route.js plus explicit OAuth callbacks',
       // FR-066/067's seven onboarding/invite routes — eight operations over
       // those seven paths since the owner roster GET joined the removal DELETE
       // on /api/workspace-memberships — plus FR-106's two
@@ -246,16 +248,60 @@ describe('OpenAPI document', () => {
       // 437 + 3 = 440.
       // FR-272 adds the scoped approval inbox and reviewer decision path:
       // two paths and two operations. 334 + 2 = 336; 440 + 2 = 442.
-      // ADR-108 D4 (draft for the integrator) adds the Market service's private
-      // core façade: one dynamic path, GET + POST. 336 + 1 = 337; 442 + 2 = 444.
-      pathCount: 337,
-      operationCount: 444,
+      // ADR-108 D4 adds the Market façade (337 paths / 444 operations).
+      // ADR-109 adds five Notion paths and five single-method operations (342 / 449).
+      // ADR-110 retires 20 Edge, harness, and legacy paths (23 operations), and
+      // ADR-106/SDD-110 adds the Conversation Runtime Core path with GET + POST:
+      // 342 - 20 + 1 = 323 paths; 449 - 23 + 2 = 428 operations.
+      pathCount: 323,
+      operationCount: 428,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
     expect(doc.paths['/api/import/dry-run'].post['x-zuri-contract']).toBeUndefined()
     expect(doc.paths['/api/assets/intakes/validate'].post.requestBody).toBeTruthy()
     expect(doc.paths['/api/assets/intakes/validate'].post['x-zuri-contract']).toBeUndefined()
+  })
+
+  it('documents the private Conversation Runtime adapter with process-only bearer auth', () => {
+    const path = doc.paths['/api/internal/conversation-runtime/v1/{operation}']
+    expect(path.get.parameters[0]).toMatchObject({ name: 'operation', required: true, schema: { type: 'string', enum: ['health'] } })
+    expect(path.post.parameters[0].schema.enum).toEqual(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status'])
+    for (const operation of [path.get, path.post]) {
+      expect(operation.security).toEqual([{ ConversationRuntimeService: [] }])
+      expect(operation['x-zuri-contract']).toBe('conversation-runtime.v1')
+    }
+    expect(path.post.requestBody.required).toBe(true)
+    expect(path.post.responses[413].description).toContain('64 KiB')
+    expect(doc.components.securitySchemes.ConversationRuntimeService).toMatchObject({ type: 'http', scheme: 'bearer' })
+  })
+
+  it('retires Edge and harness routes while keeping signed LINE ingress and PRP model credentials', () => {
+    const retiredPaths = [
+      '/api/agent/heartbeat',
+      '/api/agent/line-asset-handoff',
+      '/api/agent/line-delivery',
+      '/api/agent/line-webhook',
+      '/api/assets/evidence/{id}/extraction-job',
+      '/api/edge/extraction-jobs/claim',
+      '/api/edge/extraction-jobs/{id}/evidence',
+      '/api/edge/extraction-jobs/{id}/complete',
+      '/api/edge/extraction-jobs/{id}/fail',
+      '/api/edge/pairing/start',
+      '/api/edge/pairing/approve',
+      '/api/edge/pairing/poll',
+      '/api/platform/edge-devices/credentials',
+      '/api/platform/edge-devices/credentials/{id}',
+      '/api/platform/harness-pairing/start',
+      '/api/platform/harness-pairing/approve',
+      '/api/platform/harness-pairing/poll',
+      '/api/platform/harness-devices',
+      '/api/platform/harness-devices/{id}',
+      '/api/platform/programme-usage-reports/whoami',
+    ]
+    for (const route of retiredPaths) expect(doc.paths[route], route).toBeUndefined()
+    expect(doc.paths['/api/line-oa/accounts/{id}/webhook'].post).toBeTruthy()
+    expect(doc.paths['/api/integration/model-providers'].post).toBeTruthy()
   })
 
   it('keeps every operation structurally valid and declares path parameters', () => {

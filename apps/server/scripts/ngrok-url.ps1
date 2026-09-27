@@ -25,7 +25,7 @@ for ($i = 1; $i -le $Attempts; $i++) {
     if ($https.Count -gt 0) {
       $url = $https[0].public_url
       Write-Host "[zuri] public URL : $url"
-      Write-Host "[zuri] LINE webhook: $url/api/agent/line-webhook"
+      Write-Host "[zuri] LINE webhook: $url/api/line-oa/accounts/<account-id>/webhook (configure per account)"
       Write-Host "[zuri] health      : $url/api/health"
       exit 0
     }
