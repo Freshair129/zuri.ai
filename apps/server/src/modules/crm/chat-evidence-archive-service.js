@@ -34,9 +34,38 @@
 // ----------------------
 // `<baseDir>/<tenantId>/<yyyy>/<runId>.zca`, UTF-8, newline-delimited JSON:
 //   line 1   header — { v, tenantId, runId, kekId, createdAt }
-//   line 2.. one sealed segment per Customer — { customerId, iv, tag, ciphertext }
+//   line 2.. one sealed segment per key Customer — { customerId, iv, tag, ciphertext }
 // A segment's ciphertext is AES-256-GCM over gzip(JSON Lines), one line per
-// archived message (see `buildArchiveLine`). The writer creates the file under
+// archived message (see `buildArchiveLine`).
+//
+// @req FR-022, SEC-034 — WHOSE KEY SEALS A LINE (header v2). A LINE group or room
+//   Conversation belongs to its first speaker's Customer, yet every member writes
+//   in it. A v1 file sealed every line under the thread owner's key, so erasing
+//   the owner shredded the other members' lines and erasing another member never
+//   reached theirs. From v2 a line is sealed under its SPEAKER's Customer key
+//   (`resolveArchiveKeyCustomers`): an inbound line under the Customer of its
+//   `authorChannelIdentityId`, the stack reply to it (`reply:<inboundId>`, which
+//   repeats the answer to that speaker) under the same key, and every other line
+//   (staff and push messages, unattributed rows) under the thread owner's key as
+//   before. In a direct chat speaker and owner are one Customer, so its segments
+//   are exactly what v1 wrote. A v1 file is still read as it was written; see
+//   ADR-093 §"Group archives written before format 2" for its migration path.
+// @tested tests/integration/crm-archive-group-speakers.test.js
+//
+// @req FR-022, SEC-034 — THE SWEEP NEVER OUTLIVES AN ERASURE. The sweep reads its
+//   candidates, seals them, then tombstones in its own transaction; an erasure can
+//   commit in between. Three guards keep an erased person's words out of the archive:
+//   (1) a row with no author is attributed first (`attributeInboundMessageAuthors`,
+//   written back), so it is sealed under its speaker's key and not the owner's;
+//   (2) no key is ever minted for an erased Customer (`deletedAt` set) — a line whose
+//   key Customer is erased and keyless is deferred, left untouched in the database;
+//   (3) the tombstone transaction updates only rows whose content still exists and
+//   rolls back unless it updated every archived row, and the file it just wrote is
+//   then deleted — so a row erased (or unsent) after the read is neither sealed into
+//   a committed archive nor has its erasure tombstone overwritten.
+// @tested tests/integration/crm-archive-group-speakers.test.js
+//
+// The writer creates the file under
 // a temporary name in the same directory, fsyncs it, renames it into place,
 // reads it back and compares SHA-256 against what was written — verification
 // is against the bytes actually on disk after the rename, not against the
@@ -56,6 +85,14 @@ import {
   sealArchiveSegment,
 } from './chat-evidence-archive-crypto'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
+import { CUSTOMER_ERASURE_TOMBSTONE, attributeInboundMessageAuthors } from './conversation-redaction-service'
+import { LINE_UNSEND_TOMBSTONE } from './line-unsend-tombstone'
+
+// Every body a row carries once its content is gone. A candidate that reaches one of
+// these between the sweep's read and its tombstone transaction (an erasure, an
+// unsend, another sweep) was sealed from content that no longer exists — see
+// `archiveAndTombstoneTenantMessages`.
+const CONTENT_GONE_TOMBSTONES = [CUSTOMER_ERASURE_TOMBSTONE, LINE_UNSEND_TOMBSTONE, RETENTION_SWEEP_TOMBSTONE]
 
 export class ChatEvidenceArchiveWriteError extends Error {
   constructor(code, cause) {
@@ -89,6 +126,9 @@ export class ChatEvidenceArchiveTransactionError extends Error {
 const PRODUCTION_ARCHIVE_ROOT = '/archive'
 
 const REPLY_AUDIT_ACTIONS = ['REPLY_DELIVERED', 'OUTBOUND_ACCEPTED', 'STAFF_REPLY_DELIVERED']
+
+/** v1: every line under its thread owner's key. v2: under its speaker's (FR-022). */
+export const ARCHIVE_FORMAT_VERSION = 2
 
 /**
  * The archive's base directory. Local/test calls retain the per-machine temp
@@ -285,21 +325,123 @@ export async function getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerI
     if (existing.tenantId !== tenantId) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_SCOPE_MISMATCH')
     return openCustomerArchiveKey(existing, { customerId, tenantId }, env)
   }
-  const { row, dek } = mintCustomerArchiveKey({ customerId, tenantId }, env)
+  // @req FR-022, SEC-034 — an erased Customer's key is never re-created: a new key
+  //   would seal content the erasure just destroyed, or open nothing at all. The
+  //   check and the insert run under the same Customer lock erasure's key
+  //   destruction takes (`withLockedCustomer`), so an erasure cannot commit between
+  //   them and leave an orphan key behind.
+  let dek = null
   try {
-    await db.customerArchiveKey.create({ data: row })
-    return dek
+    return await withLockedCustomer(db, { tenantId, customerId }, async (tx) => {
+      const customer = await tx.customer.findFirst({ where: { id: customerId, tenantId }, select: { deletedAt: true } })
+      if (!customer || customer.deletedAt) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_CUSTOMER_ERASED')
+      const raced = await tx.customerArchiveKey.findUnique({ where: { customerId } })
+      if (raced) {
+        if (raced.tenantId !== tenantId) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_SCOPE_MISMATCH')
+        return openCustomerArchiveKey(raced, { customerId, tenantId }, env)
+      }
+      const minted = mintCustomerArchiveKey({ customerId, tenantId }, env)
+      dek = minted.dek
+      await tx.customerArchiveKey.create({ data: minted.row })
+      return dek
+    })
   } catch (error) {
+    if (error?.status === 404) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_CUSTOMER_ERASED')
     // Another concurrent sweep (or a retry) minted this Customer's key first —
     // the unique constraint on customerId is the tiebreaker; the loser opens
     // the winner's row instead of erroring the whole run over a race that has
     // exactly one correct outcome either way.
-    if (error?.code !== 'P2002') throw error
-    dek.fill(0)
+    if (dek) dek.fill(0)
+    if (error?.code !== 'P2002' && error?.cause?.code !== 'P2002') throw error
     const winner = await db.customerArchiveKey.findUnique({ where: { customerId } })
     if (!winner) throw error
     return openCustomerArchiveKey(winner, { customerId, tenantId }, env)
   }
+}
+
+/**
+ * This Customer's data key, only if one already exists — never minted. For a
+ * reader opening a segment sealed under someone else's key (a group member's
+ * line in a thread another Customer owns): an absent key means that Customer's
+ * lines were destroyed (erasure, expiry) or never archived, and minting one would
+ * only create a key that opens nothing. Returns null in that case.
+ */
+export async function openExistingCustomerArchiveKeyDek(db, { tenantId, customerId }, env = process.env) {
+  const existing = await db.customerArchiveKey.findUnique({ where: { customerId } })
+  if (!existing || existing.tenantId !== tenantId) return null
+  return openCustomerArchiveKey(existing, { customerId, tenantId }, env)
+}
+
+// `reply:<inboundId>` is recordLineReply's key (reply-record-service.js
+// replyExternalId), spelled here for the same reason conversation-redaction-service.js
+// spells it: importing it would pull the LINE runtime into this module.
+const REPLY_EXTERNAL_PREFIX = 'reply:'
+
+/**
+ * @req FR-022, SEC-034 — whose archive key seals each message (see the module
+ * header). `messages` need `id`, `direction`, `externalMessageId`,
+ * `authorChannelIdentityId` and `conversation: { id, customerId }`.
+ *
+ * `attribute: true` (the writer) first attributes and writes back every inbound row
+ * with no author (`attributeInboundMessageAuthors`); a reader never writes.
+ *
+ * Tenant-bound throughout: an author identity, a reply's inbound or a Customer
+ * from another Tenant is never followed, and anything that does not resolve
+ * falls back to the thread owner — the v1 behaviour — rather than failing a run.
+ *
+ * @returns {Promise<Map<string, string>>} message id → key Customer id
+ */
+export async function resolveArchiveKeyCustomers(db, { tenantId, messages, attribute = false }) {
+  const conversationOf = (message) => message.conversation?.id ?? message.conversationId
+  const replyTargets = new Map()
+  for (const message of messages) {
+    if (message.direction === 'OUTBOUND' && typeof message.externalMessageId === 'string'
+      && message.externalMessageId.startsWith(REPLY_EXTERNAL_PREFIX)) {
+      replyTargets.set(message.id, message.externalMessageId.slice(REPLY_EXTERNAL_PREFIX.length))
+    }
+  }
+  const inbound = new Map(messages.filter((message) => message.direction === 'INBOUND')
+    .map((message) => [message.id, { conversationId: conversationOf(message), authorChannelIdentityId: message.authorChannelIdentityId ?? null }]))
+  const outside = [...new Set(replyTargets.values())].filter((id) => !inbound.has(id))
+  if (outside.length) {
+    const rows = await db.message.findMany({
+      where: { id: { in: outside }, direction: 'INBOUND', conversation: { tenantId } },
+      select: { id: true, conversationId: true, authorChannelIdentityId: true },
+    })
+    for (const row of rows) inbound.set(row.id, { conversationId: row.conversationId, authorChannelIdentityId: row.authorChannelIdentityId })
+  }
+  if (attribute) {
+    // The writer only: attribute (and write back) every inbound row it is about to
+    // key that has no author, by the evidence erasure itself uses.
+    const unattributed = [...inbound.entries()].filter(([, row]) => !row.authorChannelIdentityId).map(([id]) => id)
+    const attributed = unattributed.length ? await attributeInboundMessageAuthors(db, { tenantId, messageIds: unattributed }) : new Map()
+    for (const [id, identityId] of attributed) inbound.get(id).authorChannelIdentityId = identityId
+  }
+  const identityIds = [...new Set([...inbound.values()].map((row) => row.authorChannelIdentityId).filter(Boolean))]
+  const identities = identityIds.length
+    ? await db.channelIdentity.findMany({ where: { tenantId, id: { in: identityIds } }, select: { id: true, personId: true } })
+    : []
+  const personIds = [...new Set(identities.map((row) => row.personId).filter(Boolean))]
+  const customers = personIds.length
+    ? await db.customer.findMany({ where: { tenantId, personId: { in: personIds } }, select: { id: true, personId: true } })
+    : []
+  const customerByPerson = new Map(customers.map((row) => [row.personId, row.id]))
+  const customerByIdentity = new Map(identities.map((row) => [row.id, customerByPerson.get(row.personId) ?? null]))
+  const speakerOf = (row) => (row?.authorChannelIdentityId ? customerByIdentity.get(row.authorChannelIdentityId) ?? null : null)
+
+  const keys = new Map()
+  for (const message of messages) {
+    let speaker = null
+    if (message.direction === 'INBOUND') {
+      speaker = speakerOf(inbound.get(message.id))
+    } else if (replyTargets.has(message.id)) {
+      const target = inbound.get(replyTargets.get(message.id))
+      // A reply is keyed to its inbound only inside the same thread.
+      if (target && target.conversationId === conversationOf(message)) speaker = speakerOf(target)
+    }
+    keys.set(message.id, speaker ?? message.conversation.customerId)
+  }
+  return keys
 }
 
 async function resolveReplySources(db, conversationIds) {
@@ -434,10 +576,30 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   const runId = runIdOverride ?? buildRunId(now)
   const conversationIds = [...new Set(candidates.map((message) => message.conversation.id))]
   const replySourceByMessageId = await resolveReplySources(db, conversationIds)
+  // @req FR-022 — one segment per SPEAKER's Customer, not per thread owner (v2).
+  const keyCustomerByMessageId = await resolveArchiveKeyCustomers(db, { tenantId, messages: candidates, attribute: true })
+
+  // @req FR-022, SEC-034 — a line whose key Customer is erased and has no key is
+  //   deferred: never sealed under a new key, never tombstoned by this run.
+  const keyIds = [...new Set(keyCustomerByMessageId.values())]
+  const [keyCustomers, existingKeys] = await Promise.all([
+    db.customer.findMany({ where: { tenantId, id: { in: keyIds } }, select: { id: true, deletedAt: true } }),
+    db.customerArchiveKey.findMany({ where: { customerId: { in: keyIds } }, select: { customerId: true } }),
+  ])
+  const live = new Set(keyCustomers.filter((customer) => !customer.deletedAt).map((customer) => customer.id))
+  const keyed = new Set(existingKeys.map((key) => key.customerId))
+  const sealable = candidates.filter((message) => {
+    const key = keyCustomerByMessageId.get(message.id)
+    return live.has(key) || keyed.has(key)
+  })
+  const deferredMessages = candidates.length - sealable.length
+  if (sealable.length === 0) {
+    return { archived: false, manifest: null, redactedMessages: 0, redactedAttachments: 0, deferredMessages }
+  }
 
   const byCustomer = new Map()
-  for (const message of candidates) {
-    const customerId = message.conversation.customerId
+  for (const message of sealable) {
+    const customerId = keyCustomerByMessageId.get(message.id)
     if (!byCustomer.has(customerId)) byCustomer.set(customerId, [])
     byCustomer.get(customerId).push(message)
   }
@@ -456,10 +618,10 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
     }
   }
 
-  const header = { v: 1, tenantId, runId, kekId: resolveArchiveKeyring(env).current.label, createdAt: now.toISOString() }
+  const header = { v: ARCHIVE_FORMAT_VERSION, tenantId, runId, kekId: resolveArchiveKeyring(env).current.label, createdAt: now.toISOString() }
   const { relativePath, fileSha256 } = await writeArchiveFile({ baseDir: resolvedBaseDir, tenantId, runId, now, header, segments })
 
-  const messageIds = candidates.map((message) => message.id)
+  const messageIds = sealable.map((message) => message.id)
   const messageIdListHash = hashMessageIdList(messageIds)
   const previous = await db.archiveManifest.findFirst({ where: { tenantId }, orderBy: { createdAt: 'desc' } })
   const previousManifestHash = previous?.manifestHash ?? null
@@ -472,20 +634,47 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   // file and a computed chain hash — this is the fail-closed boundary D2
   // requires, made structural rather than conventional: the tombstone
   // updateMany calls are unreachable except from here.
-  return db.$transaction(async (tx) => {
-    const manifest = await tx.archiveManifest.create({
-      data: { tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestId: previous?.id ?? null, previousManifestHash, manifestHash },
+  try {
+    return await db.$transaction(async (tx) => {
+      const manifest = await tx.archiveManifest.create({
+        data: { tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestId: previous?.id ?? null, previousManifestHash, manifestHash },
+      })
+      // Only rows whose content still exists; every archived row, or nothing.
+      const redacted = await tx.message.updateMany({
+        where: { id: { in: messageIds }, body: { notIn: CONTENT_GONE_TOMBSTONES } },
+        data: { body: RETENTION_SWEEP_TOMBSTONE },
+      })
+      if (redacted.count !== messageIds.length) throw new ChatEvidenceArchiveWriteError('ARCHIVE_CANDIDATES_CHANGED')
+      const redactedAttachments = await tx.messageAttachment.updateMany({
+        where: { messageId: { in: messageIds }, fetchState: { not: 'ERASED' } },
+        data: { fetchState: 'ERASED', providerContentId: null },
+      })
+      return { archived: true, manifest, redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count, messageIds, deferredMessages }
     })
-    const redacted = await tx.message.updateMany({
-      where: { id: { in: messageIds } },
-      data: { body: RETENTION_SWEEP_TOMBSTONE },
-    })
-    const redactedAttachments = await tx.messageAttachment.updateMany({
-      where: { messageId: { in: messageIds }, fetchState: { not: 'ERASED' } },
-      data: { fetchState: 'ERASED', providerContentId: null },
-    })
-    return { archived: true, manifest, redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count, messageIds }
-  })
+  } catch (error) {
+    // The file is deleted only when nothing references it: the transaction refused
+    // its own write (ARCHIVE_CANDIDATES_CHANGED — the file may hold content an
+    // erasure has since destroyed), or no manifest for this run exists. Any other
+    // error may be a commit whose outcome is unknown (the connection dropped after
+    // COMMIT); if its manifest is there, the file is the only copy and stays.
+    let unreferenced = error?.code === 'ARCHIVE_CANDIDATES_CHANGED'
+    if (!unreferenced) {
+      try {
+        unreferenced = !(await db.archiveManifest.findFirst({ where: { tenantId, runId }, select: { id: true } }))
+      } catch {
+        unreferenced = false // cannot tell: keep the file
+      }
+    }
+    if (unreferenced) {
+      try {
+        await fs.rm(path.join(resolvedBaseDir, relativePath))
+      } catch {
+        // Already gone (ENOENT) or not removable: either way the caller gets the
+        // original error, never this one.
+      }
+    }
+    throw error
+  }
 }
 
 // @req SEC-034 — key destruction and the legal hold (ADR-093 D5, D6; TASK-ZAI-113).

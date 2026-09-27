@@ -54,6 +54,21 @@
 // this. The live row is still what tells this service WHICH message ids are
 // archived-and-in-range in the first place (a tombstoned `body` is the one
 // signal that a message left the live table for the archive).
+//
+// @req FR-022 — A GROUP THREAD HOLDS MORE THAN ONE CUSTOMER'S KEY
+// ----------------------------------------------------------------
+// From archive format v2 a line in a LINE group or room thread is sealed under
+// its speaker's Customer key, not the thread owner's (chat-evidence-archive-service.js).
+// So a Customer's archived messages are the lines of their own threads AND the
+// lines they wrote (and the replies to them) in threads another Customer owns,
+// and recovering them opens every segment sealed for one of those messages'
+// key Customers — the retrieved Customer's key as before, plus any other
+// member's key that still exists. Another member's key is only ever opened,
+// never minted: a missing key means that member's lines were destroyed (erasure
+// or expiry), and they are reported in `missingMessageIds` like any other
+// unrecoverable line. A v1 file's lines all sit in the thread owner's segment,
+// which is opened too, so both formats read through the same path.
+// @tested tests/integration/crm-archive-group-speakers.test.js
 
 import { z } from 'zod'
 import path from 'node:path'
@@ -64,7 +79,10 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { assertCredentialWriteAssurance } from '@/modules/identity/credential-write-gate'
-import { assertArchiveStorageReady, getOrCreateCustomerArchiveKeyDek, computeManifestHash, resolveArchiveBaseDir, verifyManifestChain } from './chat-evidence-archive-service'
+import {
+  assertArchiveStorageReady, openExistingCustomerArchiveKeyDek, computeManifestHash,
+  resolveArchiveBaseDir, resolveArchiveKeyCustomers, verifyManifestChain,
+} from './chat-evidence-archive-service'
 import { openArchiveSegment, ChatEvidenceArchiveCryptoError } from './chat-evidence-archive-crypto'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 
@@ -89,6 +107,46 @@ function failure(status, message) {
 
 function utcDayRange(startDate, endDate) {
   return { start: new Date(`${startDate}T00:00:00.000Z`), end: new Date(`${endDate}T23:59:59.999Z`) }
+}
+
+/**
+ * @req FR-022 — the archived (retention-swept) messages that are this Customer's
+ * in the date range: every line of the threads they own, plus the lines they
+ * wrote in any other thread of the Tenant (by `Message.authorChannelIdentityId`)
+ * and the stack replies to those lines (`reply:<inboundId>`). Rows carry what
+ * `resolveArchiveKeyCustomers` needs to name the key each line was sealed under.
+ */
+async function findArchivedMessagesForCustomer(db, { customer, start, end }) {
+  const select = {
+    id: true, body: true, direction: true, externalMessageId: true, authorChannelIdentityId: true,
+    conversation: { select: { id: true, customerId: true } },
+  }
+  const range = { gte: start, lte: end }
+  const owned = await db.message.findMany({ where: { conversation: { customerId: customer.id }, createdAt: range }, select })
+  const person = await db.customer.findUnique({ where: { id: customer.id }, select: { personId: true } })
+  const identities = person?.personId
+    ? await db.channelIdentity.findMany({ where: { tenantId: customer.tenantId, personId: person.personId }, select: { id: true } })
+    : []
+  const authored = identities.length
+    ? await db.message.findMany({
+      where: {
+        direction: 'INBOUND', authorChannelIdentityId: { in: identities.map((row) => row.id) },
+        conversation: { tenantId: customer.tenantId, customerId: { not: customer.id } }, createdAt: range,
+      },
+      select,
+    })
+    : []
+  const replies = authored.length
+    ? await db.message.findMany({
+      where: {
+        direction: 'OUTBOUND', conversationId: { in: [...new Set(authored.map((m) => m.conversation.id))] },
+        externalMessageId: { in: authored.map((m) => `reply:${m.id}`) }, createdAt: range,
+      },
+      select,
+    })
+    : []
+  const byId = new Map([...owned, ...authored, ...replies].map((m) => [m.id, m]))
+  return [...byId.values()].filter((m) => m.body === RETENTION_SWEEP_TOMBSTONE)
 }
 
 /** A manifest is trusted only once its own stored fields reproduce its own hash. */
@@ -146,11 +204,8 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
   await assertArchiveStorageReady(resolvedBaseDir, env)
 
   const { start, end } = utcDayRange(data.startDate, data.endDate)
-  const rangeMessages = await db.message.findMany({
-    where: { conversation: { customerId: customer.id }, createdAt: { gte: start, lte: end } },
-    select: { id: true, body: true },
-  })
-  const wanted = new Set(rangeMessages.filter((m) => m.body === RETENTION_SWEEP_TOMBSTONE).map((m) => m.id))
+  const archivedRows = await findArchivedMessagesForCustomer(db, { customer, start, end })
+  const wanted = new Set(archivedRows.map((m) => m.id))
 
   let sessions = []
   let manifestsUsed = []
@@ -171,8 +226,27 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
   }
 
   if (wanted.size > 0 && chainIntegrity.valid) {
-    const dek = await getOrCreateCustomerArchiveKeyDek(db, { tenantId: customer.tenantId, customerId: customer.id }, env, { baseDir: resolvedBaseDir })
+    const deks = new Map()
     try {
+      // Every Customer whose segment may hold one of these lines: the retrieved
+      // Customer, the key each line was sealed under (v2) and the thread owner's
+      // (v1). Every key — the retrieved Customer's included — is only opened,
+      // never minted: reading is not a reason to create a key, and an erased
+      // Customer's destroyed key must stay destroyed (FR-022, SEC-034).
+      const keyCustomers = await resolveArchiveKeyCustomers(db, { tenantId: customer.tenantId, messages: archivedRows })
+      const holders = new Set([customer.id, ...keyCustomers.values(), ...archivedRows.map((m) => m.conversation.customerId)])
+      for (const holder of holders) {
+        let dek = null
+        try {
+          dek = await openExistingCustomerArchiveKeyDek(db, { tenantId: customer.tenantId, customerId: holder }, env)
+        } catch (err) {
+          // The retrieved Customer's own key failing to open is a hard error, as it
+          // always was; another member's is reported through missingMessageIds.
+          if (holder === customer.id || !(err instanceof ChatEvidenceArchiveCryptoError)) throw err
+        }
+        if (dek) deks.set(holder, dek)
+      }
+
       const found = new Map()
       const manifests = await db.archiveManifest.findMany({ where: { tenantId: customer.tenantId }, orderBy: { createdAt: 'asc' } })
       for (const manifest of manifests) {
@@ -194,33 +268,34 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
         } catch {
           continue
         }
-        const segmentLine = lines.slice(1).find((line) => {
-          try {
-            return JSON.parse(line).customerId === customer.id
-          } catch {
-            return false
-          }
-        })
-        if (!segmentLine) continue // this file has no segment for this Customer
-
-        let plaintext
-        try {
-          const segment = JSON.parse(segmentLine)
-          const gzipped = openArchiveSegment(segment, { dek, tenantId: customer.tenantId, customerId: customer.id, runId: header.runId })
-          const { gunzipSync } = await import('node:zlib')
-          plaintext = gunzipSync(gzipped).toString('utf8')
-        } catch (err) {
-          if (err instanceof ChatEvidenceArchiveCryptoError) continue // wrong key epoch or tampered segment — unrecoverable here
-          throw err
-        }
-
         let matchedAny = false
-        for (const line of plaintext.trim().split('\n')) {
-          if (!line) continue
-          const archivedLine = JSON.parse(line)
-          if (wanted.has(archivedLine.messageId) && !found.has(archivedLine.messageId)) {
-            found.set(archivedLine.messageId, archivedLine)
-            matchedAny = true
+        for (const segmentLine of lines.slice(1)) {
+          let segment
+          try {
+            segment = JSON.parse(segmentLine)
+          } catch {
+            continue
+          }
+          const dek = deks.get(segment?.customerId)
+          if (!dek) continue // not a key this retrieval needs, or one that no longer exists
+
+          let plaintext
+          try {
+            const gzipped = openArchiveSegment(segment, { dek, tenantId: customer.tenantId, customerId: segment.customerId, runId: header.runId })
+            const { gunzipSync } = await import('node:zlib')
+            plaintext = gunzipSync(gzipped).toString('utf8')
+          } catch (err) {
+            if (err instanceof ChatEvidenceArchiveCryptoError) continue // wrong key epoch or tampered segment — unrecoverable here
+            throw err
+          }
+
+          for (const line of plaintext.trim().split('\n')) {
+            if (!line) continue
+            const archivedLine = JSON.parse(line)
+            if (wanted.has(archivedLine.messageId) && !found.has(archivedLine.messageId)) {
+              found.set(archivedLine.messageId, archivedLine)
+              matchedAny = true
+            }
           }
         }
         if (matchedAny) manifestsUsed.push({ manifestId: manifest.id, runId: manifest.runId, filePath: manifest.filePath, fileSha256: manifest.fileSha256, manifestHash: manifest.manifestHash })
@@ -239,7 +314,7 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
       missingMessageIds = [...wanted].filter((id) => !found.has(id))
       messageCount = found.size
     } finally {
-      dek.fill(0)
+      for (const dek of deks.values()) dek.fill(0)
     }
   } else if (wanted.size > 0) {
     // Chain broken: every wanted id stays unrecovered, honestly, rather than
