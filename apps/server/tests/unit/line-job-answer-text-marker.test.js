@@ -59,6 +59,10 @@ describe('LineConversationJob.answerText writers (FR-244 marker invariant)', () 
       "modules/line-oa-studio/application/line-conversation-jobs.js :: finalStatus === 'UNKNOWN' ? null : text ?? null",
       // PDPA erasure: cleared.
       'modules/line-oa-studio/application/line-job-erasure.js :: null',
+      // Not a column write: the exchange text handed to the shared MSP append
+      // (`appendLineMemoryAnswer`) for a memory-sync turn (W5). The scan matches it
+      // because the module also reads LineConversationJob.
+      'modules/line-oa-studio/application/conversation-runtime-memory.js :: text',
     ].sort())
   })
 

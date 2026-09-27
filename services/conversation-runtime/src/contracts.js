@@ -3,7 +3,7 @@
 // @tested services/conversation-runtime/test/contracts.test.js
 export const CONTRACT_VERSION = 'conversation-runtime.v1'
 export const CORE_OPERATIONS = Object.freeze([
-  'claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status',
+  'claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory',
 ])
 export const WORK_TOOL_OPERATIONS = Object.freeze(['read', 'propose', 'confirm-execute', 'status'])
 // Final Work refusals Core returns as a typed `REJECTED` outcome with the legacy reply text.
@@ -14,6 +14,12 @@ export const WORK_REPLY_CODES = Object.freeze(['WORK_COMMAND_USAGE', 'WORK_ACTIO
 // OUT_OF_HOURS (FR-244): Core's admission-time out-of-hours reply.
 // CATALOG_COMMAND (FR-210): Core ran the `#sku` catalogue command and hands over its reply.
 export const TURN_KINDS = Object.freeze(['OUT_OF_HOURS', 'CATALOG_COMMAND'])
+// @req FR-149 — ADR-106 D2 Memory/Knowledge: `read` the thread context for this turn,
+// `append` the completed exchange, and `receipt` (look up a durable receipt, or record
+// the MSP injection receipt state around the model call). Core is the only MSP caller.
+export const MEMORY_OPERATIONS = Object.freeze(['read', 'append', 'receipt'])
+export const MEMORY_INJECTION_STATES = Object.freeze(['RESOLVED', 'SUBMITTED', 'COMPLETED', 'FAILED'])
+export const MAX_MEMORY_PACKET_BYTES = 32 * 1024
 export const MAX_REQUEST_BYTES = 64 * 1024
 export const MAX_RESPONSE_BYTES = 64 * 1024
 // Core admits LINE text up to LINE_TEXT_MAX_CHARS (apps/server line-conversation-jobs.js) and the legacy
@@ -86,6 +92,7 @@ const PAYLOAD_FIELDS = Object.freeze({
   'work-tool': ['claim', 'operation', 'operationId', 'input'], credential: ['claim'],
   complete: ['claim', 'text', 'operationId'], fail: ['claim', 'code', 'outcome'], send: ['claim', 'operationId'],
   trace: ['claim', 'kind', 'payload'], status: ['claim', 'operationId'],
+  memory: ['claim', 'operation', 'operationId', 'input'],
 })
 const CLAIM_REF_FIELDS = ['jobId', 'executionId', 'claimantId', 'version', 'tenantId', 'businessId', 'accountId']
 
@@ -94,7 +101,7 @@ export function validateOperationPayload(operation, payload) {
   if (!allowed || Object.keys(payload).some(key => !allowed.includes(key))) throw fail('CONTRACT_PAYLOAD_FIELD_INVALID')
   for (const field of allowed) if (!Object.hasOwn(payload, field)) throw fail('CONTRACT_PAYLOAD_FIELD_REQUIRED')
   if (operation === 'claim') boundedText(payload.claimantId, 128, 'CLAIMANT_ID_INVALID')
-  if (['renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status'].includes(operation)) {
+  if (['renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory'].includes(operation)) {
     const ref = payload.claim
     if (!ref || typeof ref !== 'object' || Array.isArray(ref) || Object.keys(ref).some(key => !CLAIM_REF_FIELDS.includes(key))
       || CLAIM_REF_FIELDS.some(key => !Object.hasOwn(ref, key)) || !Number.isInteger(ref.version) || ref.version < 1) {
@@ -104,6 +111,7 @@ export function validateOperationPayload(operation, payload) {
   }
   if (operation === 'prepare' && (!Number.isInteger(payload.authorityVersion) || payload.authorityVersion < 1)) throw fail('AUTHORITY_VERSION_INVALID')
   if (operation === 'work-tool') validateWorkToolRequest({ operation: payload.operation, operationId: payload.operationId, input: payload.input })
+  if (operation === 'memory') validateMemoryRequest({ operation: payload.operation, operationId: payload.operationId, input: payload.input })
   if (operation === 'complete') {
     boundedText(payload.text, 5000, 'COMPLETION_TEXT_INVALID')
     boundedText(payload.operationId, 200, 'COMPLETION_IDEMPOTENCY_REQUIRED')
@@ -161,10 +169,30 @@ export function validateWorkToolRequest(value) {
   return value
 }
 
+export function validateMemoryRequest(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw fail('MEMORY_REQUEST_INVALID')
+  if (Object.keys(value).some(key => !['operation', 'operationId', 'input'].includes(key))) throw fail('MEMORY_UNKNOWN_FIELD')
+  if (!MEMORY_OPERATIONS.includes(value.operation)) throw fail('MEMORY_OPERATION_INVALID')
+  boundedToken(value.operationId, 200, 'MEMORY_IDEMPOTENCY_REQUIRED')
+  if (!value.input || typeof value.input !== 'object' || Array.isArray(value.input)) throw fail('MEMORY_INPUT_INVALID')
+  boundedJsonWithin(value.input, 16 * 1024, 'MEMORY_INPUT_INVALID')
+  const fields = Object.keys(value.input)
+  if (value.operation === 'read') {
+    if (fields.length) throw fail('MEMORY_INPUT_INVALID')
+  } else if (value.operation === 'append') {
+    if (fields.length !== 1 || fields[0] !== 'text') throw fail('MEMORY_INPUT_INVALID')
+    boundedText(value.input.text, 5000, 'MEMORY_INPUT_INVALID')
+  } else if (fields.some(field => field !== 'state')
+    || (value.input.state !== undefined && !MEMORY_INJECTION_STATES.includes(value.input.state))) {
+    throw fail('MEMORY_INPUT_INVALID')
+  }
+  return value
+}
+
 export function validateTurnContext(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw fail('TURN_CONTEXT_INVALID')
   const allowed = new Set(['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply',
-    'turnKind', 'replyText'])
+    'turnKind', 'replyText', 'memorySync'])
   if (Object.keys(value).some(key => !allowed.has(key))) throw fail('TURN_CONTEXT_UNKNOWN_FIELD')
   boundedText(value.question, MAX_TURN_QUESTION_CHARS, 'TURN_QUESTION_INVALID')
   const records = Array.isArray(value.evidence) ? value.evidence : value.evidence?.records
@@ -191,7 +219,9 @@ export function validateTurnContext(value) {
   if (value.turnKind !== undefined) {
     if (!TURN_KINDS.includes(value.turnKind)) throw fail('TURN_KIND_INVALID')
     boundedText(value.replyText, 5000, 'TURN_REPLY_TEXT_INVALID')
-    if (value.workCommand != null || value.workReply != null || records.length || value.slices.length) throw fail('TURN_KIND_INVALID')
+    if (value.workCommand != null || value.workReply != null || value.memorySync !== undefined || records.length || value.slices.length) throw fail('TURN_KIND_INVALID')
   } else if (value.replyText !== undefined) throw fail('TURN_KIND_INVALID')
+  // Core flags an opted-in turn; a Work command or a fixed Work reply never carries memory.
+  if (value.memorySync !== undefined && (value.memorySync !== true || value.workCommand != null || value.workReply != null)) throw fail('TURN_MEMORY_SYNC_INVALID')
   return value
 }

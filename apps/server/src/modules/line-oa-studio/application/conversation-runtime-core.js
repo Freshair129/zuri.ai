@@ -19,9 +19,10 @@ import { lineCatalogCommandReply, lineCatalogViewer } from '@/modules/agent/line
 import { parseLineCatalogCommand } from '@/modules/inventory'
 import { appendTraceEvent, sha256 } from '@/modules/agent/execution-trace'
 import { serverLinePorts } from './server-line-runtime'
+import { createConversationRuntimeMemory, MEMORY_INJECTION_STATES, MEMORY_OPERATIONS, MAX_MEMORY_PACKET_BYTES } from './conversation-runtime-memory'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
-  failRuntimeConversationJob, renewRuntimeConversationJob, runtimeAudienceBound, runtimeConversationStatus,
+  failRuntimeConversationJob, renewRuntimeConversationJob, runtimeAudienceBound, runtimeConversationStatus, assertRuntimeTraceEvent,
   runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply, LINE_TEXT_MAX_CHARS,
 } from './line-conversation-jobs'
 
@@ -35,12 +36,15 @@ import {
 //   Inventory authority from the resolved viewer) and hands the runtime its reply
 //   as a CATALOG_COMMAND turn, exactly the reply the Server worker sends. No model
 //   credential or Work tool is handed out for such a turn.
+// @req FR-149 — the `memory` operation carries memory-sync opt-in turns (ADR-106 D2
+//   Memory/Knowledge read/append/receipt); Core remains the only MSP caller.
 // @tested tests/integration/conversation-runtime-vertical-slice.test.js,
 //   tests/integration/conversation-runtime-grounding.test.js,
 //   tests/integration/conversation-runtime-grounding-parity.test.js,
 //   tests/integration/conversation-runtime-out-of-hours.test.js,
 //   tests/integration/conversation-runtime-group-room.test.js,
-//   tests/integration/conversation-runtime-catalog-command.test.js
+//   tests/integration/conversation-runtime-catalog-command.test.js,
+//   tests/integration/conversation-runtime-memory.test.js
 const VERSION = 'conversation-runtime.v1'
 const MAX_BODY_BYTES = 64 * 1024
 const MAX_RESPONSE_BYTES = 64 * 1024
@@ -50,7 +54,7 @@ const claimSchema = z.object({
   version: z.number().int().positive(), tenantId: identifier, businessId: identifier, accountId: identifier,
 }).strict()
 const envelopeSchema = z.object({
-  contractVersion: z.literal(VERSION), operation: z.enum(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status']),
+  contractVersion: z.literal(VERSION), operation: z.enum(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory']),
   correlationId: z.string().min(1).max(128).regex(/^[A-Za-z0-9._:-]+$/),
   idempotencyKey: z.string().min(1).max(200).regex(/^[A-Za-z0-9._:-]+$/),
   deadlineAt: z.string().datetime({ offset: true }), payload: z.record(z.unknown()).refine(value => Object.keys(value).length <= 32),
@@ -58,7 +62,14 @@ const envelopeSchema = z.object({
 const fields = Object.freeze({ claim: ['claimantId'], renew: ['claim'], resolve: ['claim'], prepare: ['claim', 'authorityVersion'],
   'work-tool': ['claim', 'operation', 'operationId', 'input'], credential: ['claim'],
   complete: ['claim', 'text', 'operationId'], fail: ['claim', 'code', 'outcome'], send: ['claim', 'operationId'],
-  trace: ['claim', 'kind', 'payload'], status: ['claim', 'operationId'] })
+  trace: ['claim', 'kind', 'payload'], status: ['claim', 'operationId'],
+  memory: ['claim', 'operation', 'operationId', 'input'] })
+const memoryInputSchemas = Object.freeze({
+  read: z.object({}).strict(),
+  append: z.object({ text: z.string().max(5000).refine(value => value.trim().length > 0) }).strict(),
+  // The model reference is Core's own, from the claim-bound credential.
+  receipt: z.object({ state: z.enum(MEMORY_INJECTION_STATES).optional() }).strict(),
+})
 // The legacy handler's fixed reply when a Work command is refused (handleLineProjectWorkCommand).
 const WORK_AUDIENCE_REFUSAL_TEXT = 'ไม่สามารถดำเนินการคำสั่งงานนี้ได้ กรุณาตรวจสอบรูปแบบคำสั่ง การเชื่อมตัวตน และสิทธิ์ของคุณ'
 const error = (code, status = 400) => Object.assign(new Error(code), { code, status })
@@ -158,6 +169,15 @@ function exactPayload(payload, operation) {
     if (!parsedInput.success) throw error('WORK_TOOL_INPUT_INVALID')
     payload.input = parsedInput.data
   }
+  if (operation === 'memory') {
+    if (!MEMORY_OPERATIONS.includes(payload.operation) || !present(payload.operationId, 200)
+      || !/^[A-Za-z0-9._:-]+$/.test(payload.operationId)
+      || !payload.input || typeof payload.input !== 'object' || Array.isArray(payload.input)
+      || !boundedJsonWithin(payload.input, 16 * 1024)) throw error('MEMORY_REQUEST_INVALID')
+    const parsedInput = memoryInputSchemas[payload.operation].safeParse(payload.input)
+    if (!parsedInput.success) throw error('MEMORY_INPUT_INVALID')
+    payload.input = parsedInput.data
+  }
   if (operation === 'trace' && (!present(payload.kind, 80) || !payload.payload || typeof payload.payload !== 'object'
     || Array.isArray(payload.payload) || !boundedJsonWithin(payload.payload, 8 * 1024))) throw error('TRACE_PAYLOAD_INVALID')
 }
@@ -204,7 +224,9 @@ function validateResult(operation, data) {
       || (data.turnKind === 'CATALOG_COMMAND' && !parseLineCatalogCommand(data.question)))) invalid()
     if (data?.turnKind === undefined && data?.replyText !== undefined) invalid()
     if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply',
-      'turnKind', 'replyText'])
+      'turnKind', 'replyText', 'memorySync'])
+      || (data.memorySync !== undefined && (data.memorySync !== true || data.workCommand != null || data.workReply != null
+        || data.turnKind !== undefined))
       || !present(data.question, LINE_TEXT_MAX_CHARS) || !exact(data.evidence, ['records']) || !Array.isArray(data.evidence.records)
       || data.evidence.records.length > 64 || !Array.isArray(data.slices) || data.slices.length > 64
       || typeof data.authorized !== 'boolean' || !['DIRECT', 'GROUP', 'ROOM'].includes(data.audienceKind)
@@ -270,6 +292,19 @@ function validateResult(operation, data) {
   }
   if (operation === 'trace') {
     if (!exact(data, ['recorded']) || data.recorded !== true) invalid()
+    return
+  }
+  if (operation === 'memory') {
+    if (!['COMPLETED', 'NOT_FOUND'].includes(data?.status) || !present(data.operationId, 200)
+      || !boundedJsonWithin(data, 48 * 1024)) invalid()
+    if (data.status === 'NOT_FOUND' && !exact(data, ['status', 'operationId'])) invalid()
+    if (data.status === 'COMPLETED' && (!exact(data, ['status', 'operationId', 'result'])
+      || !exact(data.result, ['contextPacket', 'receipt']) || !data.result.receipt || typeof data.result.receipt !== 'object'
+      || Array.isArray(data.result.receipt) || Object.keys(data.result.receipt).length > 12
+      || (data.result.contextPacket !== undefined && data.result.contextPacket !== null
+        && (typeof data.result.contextPacket !== 'object' || Array.isArray(data.result.contextPacket)
+          || data.result.contextPacket.policyDecision !== 'ALLOW'
+          || !boundedJsonWithin(data.result.contextPacket, MAX_MEMORY_PACKET_BYTES))))) invalid()
     return
   }
   if (operation === 'complete' || operation === 'fail') {
@@ -370,7 +405,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   readStatus = runtimeConversationStatus, operationStatus = runtimeOperationStatus,
   send = sendRuntimeConversationJob, appendTrace = appendRuntimeConversationTrace,
   workSearch = searchLineProjectWork, workPropose = proposeLineWork, workConfirm = confirmLineWork,
-  catalogViewer = lineCatalogViewer, catalogCommand = lineCatalogCommandReply } = {}) {
+  catalogViewer = lineCatalogViewer, catalogCommand = lineCatalogCommandReply,
+  threadMemoryFactory = null, memoryContextAssembler, memoryAuthorizationResolver } = {}) {
   let businessPortsPromise
   // `businessPorts` may be the ports object itself (tests) or a function returning it.
   const getBusinessPorts = typeof businessPorts === 'function' ? businessPorts : (async () => {
@@ -450,7 +486,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       turnKind: 'CATALOG_COMMAND', replyText: decision.replyText }
   }
 
-  async function ownedClaim(ref, { status = 'CLAIMED', checkLease = true } = {}) {
+  async function ownedClaim(ref, { status = 'CLAIMED', checkLease = true, checkIdentity = true } = {}) {
     const job = await db.lineConversationJob.findUnique({ where: { id: ref.jobId },
       include: { account: true, inbound: { include: { conversation: true } } } })
     if (!job || job.executionMode !== 'SERVER' || job.runtimeOwner !== 'CONVERSATION_RUNTIME'
@@ -458,7 +494,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       || job.tenantId !== ref.tenantId || job.businessId !== ref.businessId || job.accountId !== ref.accountId
       || !['CLAIMED', 'READY'].includes(status) || job.status !== status
       || (status === 'CLAIMED' && (job.version !== ref.version || job.claimantId !== ref.claimantId))
-      || job.memorySyncOptIn || job.errorCode === 'PDPA_ERASURE'
+      || job.errorCode === 'PDPA_ERASURE'
       || !job.inbound?.conversation || !runtimeAudienceBound(job)
       || job.inbound.conversation.channel !== 'LINE' || job.inbound.conversation.tenantId !== job.tenantId
       || job.inbound.conversation.businessId !== job.businessId
@@ -470,11 +506,19 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       || (checkLease && (!job.leaseExpiresAt || job.leaseExpiresAt <= now())) || job.expiresAt <= now()) {
       throw error('CONVERSATION_JOB_AUTHORITY_REVOKED', 409)
     }
+    if (!checkIdentity) return { job, identity: null }
     const identity = await findChannelIdentity({ db, tenantId: job.tenantId,
       channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
     if (!channelIdentityIsVerified(identity)) throw error('CONVERSATION_IDENTITY_REVOKED', 403)
     return { job, identity }
   }
+  const memory = createConversationRuntimeMemory({ db, env, now, ownedClaim, threadMemoryFactory,
+    modelResolver: async job => {
+      const credential = await resolveCredential(job)
+      return { provider: credential.provider, model: credential.model }
+    },
+    ...(memoryContextAssembler ? { contextAssembler: memoryContextAssembler } : {}),
+    ...(memoryAuthorizationResolver ? { authorizationResolver: memoryAuthorizationResolver } : {}) })
 
   // Renders with the legacy handler's own text functions, so the reply is the same
   // whichever executor cohort owns the job.
@@ -598,7 +642,10 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         // Server worker's answer port checks `#sku` before its model answer.
         const catalogTurn = await catalogCommandTurn(job)
         if (catalogTurn) return catalogTurn
-        return fitPreparedTurn(await prepare(job, { deadlineAt: envelope.deadlineAt }))
+        const turn = fitPreparedTurn(await prepare(job, { deadlineAt: envelope.deadlineAt }))
+        // An opted-in turn tells the runtime to run the memory phases; a Work
+        // command (or its fixed reply) never touches memory, as in the legacy worker.
+        return job.memorySyncOptIn === true && turn?.workCommand == null && turn?.workReply == null ? { ...turn, memorySync: true } : turn
       }
       case 'credential': {
         const { job } = await ownedClaim(claimRef)
@@ -609,6 +656,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         return resolveCredential(job)
       }
       case 'work-tool': return workOperation(claimRef, payload)
+      case 'memory': return memory.operate(claimRef, payload)
       case 'complete': {
         const { job } = await ownedClaim(claimRef)
         // @req FR-210 — Core, not the runtime, owns a `#sku` reply: READY is committed
@@ -630,7 +678,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         return send(claimRef, { db, ...ports, env, now })
       }
       case 'trace': {
-        await ownedClaim(claimRef, { status: payload.kind === 'ANSWER_READY' ? 'READY' : 'CLAIMED', checkLease: false })
+        assertRuntimeTraceEvent(claimRef, payload)
+        await ownedClaim(claimRef, { status: 'CLAIMED', checkLease: false })
         return appendTrace(claimRef, payload, { db, now })
       }
       case 'status': {

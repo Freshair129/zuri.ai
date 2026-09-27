@@ -219,8 +219,9 @@ describe('FR-244 out-of-hours replies in the Conversation Runtime cohort', () =>
     // (A trailing delivery `status` read may follow `send`: see the PR's handoff notes on
     // the send response's `acceptance` shape. It is a read and sends nothing.)
     const operations = wire.map(call => call.operation)
-    expect(operations.slice(0, 6)).toEqual(['claim', 'resolve', 'prepare', 'complete', 'trace', 'send'])
-    expect(operations.slice(6).every(operation => operation === 'status')).toBe(true)
+    // No runtime ANSWER_READY trace: Core's settle writes the authoritative one (W5).
+    expect(operations.slice(0, 5)).toEqual(['claim', 'resolve', 'prepare', 'complete', 'send'])
+    expect(operations.slice(5).every(operation => operation === 'status')).toBe(true)
     expect(operations).not.toContain('credential')
     expect(operations).not.toContain('work-tool')
     expect((await traceOf(runtimeJob.id)).map(event => event.kind))
@@ -242,6 +243,28 @@ describe('FR-244 out-of-hours replies in the Conversation Runtime cohort', () =>
     expect(runtimeDeliveries).toEqual(serverDeliveries)
     expect(runtimeDeliveries[0].messages).toEqual([{ type: 'text', text: replyText }])
     expect(wire.map(call => call.operation)).not.toContain('work-tool')
+    expect(wire.map(call => call.operation)).not.toContain('credential')
+  })
+
+  // Integration of W3 (#583) with W9 (#591): an out-of-hours `#sku` message is answered
+  // by the out-of-hours reply before any catalogue decision is stored, so `complete`
+  // must not demand one (CATALOG_COMMAND_NOT_PREPARED) and no import runs.
+  it('answers a #sku catalogue command out of hours with the fixed reply and runs no catalogue command', async () => {
+    const at = bangkok('22:20:00')
+    clock = new Date(at.getTime() + 1000)
+    const { runtime } = buildRuntime()
+    const text = ['#sku', 'รหัส: SYNTH-OOH-1', 'ชื่อ: สินค้าทดสอบ'].join('\n')
+    const serverJob = await admit(serverAccount, { at, text, tag: 'server-sku' })
+    const runtimeJob = await admit(runtimeAccount, { at, text, tag: 'runtime-sku' })
+    expect(serverJob.status).toBe('READY')
+    expect(runtimeJob).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', status: 'QUEUED', answerText: replyText })
+
+    await runServerWorker()
+    const outcome = await runtime('runtime-ooh-sku').runOne()
+    expect(outcome).toMatchObject({ jobId: runtimeJob.id, status: 'RECORDED' })
+    expect(runtimeDeliveries).toEqual(serverDeliveries)
+    expect(runtimeDeliveries[0].messages).toEqual([{ type: 'text', text: replyText }])
+    expect(await prisma.agentTraceEvent.count({ where: { turnId: runtimeJob.id, idempotencyKey: `${runtimeJob.id}:catalog-command` } })).toBe(0)
     expect(wire.map(call => call.operation)).not.toContain('credential')
   })
 

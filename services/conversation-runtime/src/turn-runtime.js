@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { validateClaim, validateTurnContext, validateWorkToolRequest } from './contracts.js'
 import { composeTurnContext } from './context.js'
 import { NO_EVIDENCE_REPLY, boundLineText, checkModelAnswer, deterministicFallback } from './line-answer-policy.js'
@@ -26,9 +26,16 @@ const MODEL_CONFIGURATION_CODES = new Set(['MODEL_CONFIG_INVALID', 'MODEL_PRIVAT
 // outcome UNKNOWN, as the Server path rethrows MSP_INJECTION_RECEIPT_UNKNOWN; and
 // this process's own abort, which is a shutdown, not a provider answer.
 function answersFromEvidence(error, signal) {
-  if (signal?.aborted || error?.outcome === 'UNKNOWN') return false
+  if (signal?.aborted || error?.outcome === 'UNKNOWN' || error?.beforeProvider === true) return false
   if (['MSP_INJECTION_RECEIPT_UNKNOWN', 'MODEL_OUTCOME_UNKNOWN'].includes(error?.code)) return false
   return !MODEL_CONFIGURATION_CODES.has(error?.code)
+}
+
+const MEMORY_METHODS = ['read', 'append', 'receipt']
+
+function injectionReceiptUnknown(cause) {
+  return Object.assign(new Error('MSP_INJECTION_RECEIPT_UNKNOWN'),
+    { code: 'MSP_INJECTION_RECEIPT_UNKNOWN', outcome: 'UNKNOWN', ...(cause ? { cause } : {}) })
 }
 
 function unknownOutcome(code, cause) {
@@ -101,13 +108,13 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       } catch (error) { return { jobId: claim.jobId, status: 'UNKNOWN', code: safeCode(error) } }
     }
 
-    const startedAt = now()
     let stage = 'authority'
     let renewalError = null
     let renewalInFlight = null
+    let exclusiveOperations = 0
     const leaseMs = Math.max(1000, Date.parse(claim.leaseExpiresAt) - now().getTime())
     const renewTimer = setInterval(() => {
-      if (renewalInFlight || renewalError) return
+      if (renewalInFlight || renewalError || exclusiveOperations) return
       renewalInFlight = ports.job.renew(claim, { signal }).then(renewed => {
         if (Number.isInteger(renewed?.version) && renewed.version >= claim.version) claim.version = renewed.version
         if (typeof renewed?.leaseExpiresAt === 'string') claim.leaseExpiresAt = renewed.leaseExpiresAt
@@ -118,6 +125,86 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       if (renewalInFlight) await renewalInFlight
       if (renewalError || Date.parse(claim.leaseExpiresAt) <= now().getTime()) {
         throw Object.assign(new Error('CONVERSATION_JOB_LEASE_LOST'), { code: 'CONVERSATION_JOB_LEASE_LOST', status: 409 })
+      }
+    }
+    // Core's memory fences compare the claimed job version, exactly as the legacy
+    // worker's memory-state reader does; a renewal must not land inside one.
+    const exclusive = async work => {
+      if (renewalInFlight) await renewalInFlight
+      exclusiveOperations += 1
+      try { return await work() } finally { exclusiveOperations -= 1 }
+    }
+    const requireMemoryPort = () => {
+      if (!MEMORY_METHODS.every(method => typeof ports.memory?.[method] === 'function')) {
+        throw Object.assign(new Error('MEMORY_PORT_UNAVAILABLE'), { code: 'MEMORY_PORT_UNAVAILABLE' })
+      }
+    }
+    const recordInjection = async state => {
+      try {
+        const recorded = await exclusive(() => ports.memory.receipt(claim, 'injection', { state }, { signal }))
+        return recorded?.status === 'COMPLETED' ? { ok: true } : { ok: false, error: new Error('MEMORY_RECEIPT_RESPONSE_INVALID') }
+      } catch (error) { return { ok: false, error } }
+    }
+    // The legacy worker's MSP injection-receipt wrapper, driven through Core one
+    // state at a time: RESOLVED before the provider starts, SUBMITTED while it
+    // runs, then COMPLETED or FAILED. A receipt that cannot be established after
+    // the provider may have run is UNKNOWN, never a retryable failure.
+    const invokeWithInjectionReceipt = async generate => {
+      const resolved = await recordInjection('RESOLVED')
+      // Nothing has run yet: a typed Core fence refusal is an ordinary failure, as
+      // the legacy worker's pre-model fence is; only an unestablished MSP write is UNKNOWN.
+      // Marked so the evidence fallback (W8) never mistakes it for a provider failure.
+      if (!resolved.ok) {
+        throw Object.assign(resolved.error?.retryable === false ? resolved.error : injectionReceiptUnknown(resolved.error), { beforeProvider: true })
+      }
+      let pending
+      try { pending = Promise.resolve(generate()) } catch (error) { pending = Promise.reject(error) }
+      const settled = pending.then(value => ({ value }), error => ({ error }))
+      const submitted = await recordInjection('SUBMITTED')
+      const result = await settled
+      if (!submitted.ok) {
+        if (result.error) {
+          const terminal = await recordInjection('FAILED')
+          if (!terminal.ok) throw injectionReceiptUnknown(submitted.error)
+          throw result.error
+        }
+        throw injectionReceiptUnknown(submitted.error)
+      }
+      if (result.error) {
+        const failed = await recordInjection('FAILED')
+        if (!failed.ok) throw injectionReceiptUnknown(failed.error)
+        throw result.error
+      }
+      const terminal = await recordInjection('COMPLETED')
+      if (!terminal.ok) throw injectionReceiptUnknown(terminal.error)
+      return result.value
+    }
+    // Append the completed exchange under the job's stable memory-append id, the
+    // way Work receipts are handled: look up the durable receipt first, and after
+    // an ambiguous failure look again before a single retry.
+    const appendMemory = async answer => {
+      const textSha256 = createHash('sha256').update(answer, 'utf8').digest('hex')
+      const lookup = () => exclusive(() => ports.memory.receipt(claim, 'append', {}, { signal }))
+      const accept = receipt => {
+        if (receipt?.status !== 'COMPLETED') return false
+        if (receipt.result?.receipt?.textSha256 !== textSha256) {
+          throw Object.assign(new Error('MEMORY_APPEND_CONFLICT'), { code: 'MEMORY_APPEND_CONFLICT' })
+        }
+        return true
+      }
+      if (accept(await lookup())) return
+      for (let attempt = 0; ; attempt += 1) {
+        let appendError
+        try {
+          if (accept(await exclusive(() => ports.memory.append(claim, answer, { signal })))) return
+          appendError = Object.assign(new Error('MEMORY_APPEND_RESPONSE_INVALID'), { code: 'MEMORY_APPEND_RESPONSE_INVALID' })
+        } catch (error) { appendError = error }
+        // A typed Core refusal (fence, revoked policy, conflict) is final.
+        if (appendError?.retryable === false || appendError?.code === 'MEMORY_APPEND_CONFLICT') throw appendError
+        const after = await lookup()
+        if (accept(after)) return
+        if (after?.status === 'NOT_FOUND' && attempt === 0) continue
+        throw appendError
       }
     }
     const stableAnswerId = answerOperation(claim.jobId)
@@ -179,72 +266,100 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         // COMPLETED and a typed REJECTED refusal both carry the user-facing reply;
         // a refusal is final, so it is answered and completed rather than retried.
         text = result?.result?.text ?? result?.text
-      } else if (evidenceRecords(turn.evidence).length === 0) {
-        text = NO_EVIDENCE_REPLY
       } else {
-        composed = composeTurnContext({ authorized: turn.authorized, slices: turn.slices,
-          threadId: turn.threadId, audienceKind: turn.audienceKind, maxBudgetChars: turn.maxBudgetChars })
-        await ensureLease()
-        stage = 'model'
-        const prior = await ports.trace.status(claim, stableModelId, { signal })
-        if (prior?.status === 'COMPLETED' && typeof prior.text === 'string') text = prior.text
-        else if (prior?.status === 'STARTED' && prior.executionId !== claim.executionId) {
-          throw Object.assign(new Error('MODEL_OUTCOME_UNKNOWN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
-        } else {
-          if (prior?.status === 'NOT_FOUND') {
-            try {
-              await ports.trace.append(claim, { kind: 'MODEL_STARTED', payload: { operationId: stableModelId } }, { signal })
-            } catch {
-              const recorded = await ports.trace.status(claim, stableModelId, { signal })
-              if (recorded?.status !== 'STARTED' || recorded.executionId !== claim.executionId) throw Object.assign(new Error('MODEL_START_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
-            }
-          } else if (prior?.status !== 'STARTED') {
-            throw Object.assign(new Error('MODEL_OPERATION_STATUS_INVALID'), { code: 'MODEL_OPERATION_STATUS_INVALID' })
+        // @req FR-149 — a memory-sync opt-in turn reads its thread context through
+        // Core before anything is answered, as the legacy worker does even when the
+        // evidence is empty and no model will run.
+        let memoryPacket = null
+        if (turn.memorySync === true) {
+          requireMemoryPort()
+          await ensureLease()
+          stage = 'memory'
+          const memory = await exclusive(() => ports.memory.read(claim, { signal }))
+          if (memory?.status !== 'COMPLETED' || !memory.result) {
+            throw Object.assign(new Error('MEMORY_READ_RESPONSE_INVALID'), { code: 'MEMORY_READ_RESPONSE_INVALID' })
           }
+          memoryPacket = memory.result.contextPacket ?? null
+        }
+        if (evidenceRecords(turn.evidence).length === 0) {
+          text = NO_EVIDENCE_REPLY
+        } else {
+          composed = composeTurnContext({ authorized: turn.authorized, slices: turn.slices,
+            threadId: turn.threadId, audienceKind: turn.audienceKind, maxBudgetChars: turn.maxBudgetChars })
           await ensureLease()
-          const credential = await ports.model.credential(claim, authority, { signal })
-          // Credential resolution is a point-in-time grant. Revalidate the durable
-          // claim and identity after receiving it, immediately before the provider
-          // side effect, so a revoke or transport/lease change during that request
-          // cannot start a model invocation with stale authority.
-          await ensureLease()
-          const currentAuthority = await ports.authority.resolve(claim, { signal })
-          assertAuthority(currentAuthority, claim, authority)
-          await ensureLease()
-          // @req FR-049, FR-149 — the Server answer path's post-model rules, from
-          // the same policy source: a provider failure answers from evidence, and a
-          // candidate carrying a number, code or delivery claim the evidence does
-          // not carry is replaced by the evidence fallback.
-          const checkedEvidence = { records: evidenceRecords(turn.evidence) }
-          let generated
-          let answer = null
-          try {
-            generated = await ports.model.generate({ question: turn.question, evidence: turn.evidence,
-              contextPacket: composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null,
+          stage = 'model'
+          const prior = await ports.trace.status(claim, stableModelId, { signal })
+          if (prior?.status === 'COMPLETED' && typeof prior.text === 'string') text = prior.text
+          else if (prior?.status === 'STARTED' && prior.executionId !== claim.executionId) {
+            throw Object.assign(new Error('MODEL_OUTCOME_UNKNOWN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+          } else {
+            if (prior?.status === 'NOT_FOUND') {
+              try {
+                await ports.trace.append(claim, { kind: 'MODEL_STARTED', payload: { operationId: stableModelId } }, { signal })
+              } catch {
+                const recorded = await ports.trace.status(claim, stableModelId, { signal })
+                if (recorded?.status !== 'STARTED' || recorded.executionId !== claim.executionId) throw Object.assign(new Error('MODEL_START_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+              }
+            } else if (prior?.status !== 'STARTED') {
+              throw Object.assign(new Error('MODEL_OPERATION_STATUS_INVALID'), { code: 'MODEL_OPERATION_STATUS_INVALID' })
+            }
+            await ensureLease()
+            const credential = await ports.model.credential(claim, authority, { signal })
+            // Credential resolution is a point-in-time grant. Revalidate the durable
+            // claim and identity after receiving it, immediately before the provider
+            // side effect, so a revoke or transport/lease change during that request
+            // cannot start a model invocation with stale authority.
+            await ensureLease()
+            const currentAuthority = await ports.authority.resolve(claim, { signal })
+            assertAuthority(currentAuthority, claim, authority)
+            await ensureLease()
+            // @req FR-049, FR-149 — the Server answer path's post-model rules, from
+            // the same policy source: a provider failure answers from evidence, and a
+            // candidate carrying a number, code or delivery claim the evidence does
+            // not carry is replaced by the evidence fallback.
+            const checkedEvidence = { records: evidenceRecords(turn.evidence) }
+            // The memory packet is Core's composed MSP context, byte-identical to the
+            // one the legacy worker hands its provider.
+            const generate = () => ports.model.generate({ question: turn.question, evidence: turn.evidence,
+              contextPacket: memoryPacket ?? (composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null),
               contextReceipt: composed.receipt, credential,
               deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
-          } catch (error) {
-            if (!answersFromEvidence(error, signal)) throw error
-            answer = { text: deterministicFallback(checkedEvidence), status: 'fallback', code: safeCode(error) }
+            let generated
+            let answer = null
+            try {
+              generated = memoryPacket ? await invokeWithInjectionReceipt(generate) : await generate()
+            } catch (error) {
+              if (!answersFromEvidence(error, signal)) throw error
+              answer = { text: deterministicFallback(checkedEvidence), status: 'fallback', code: safeCode(error) }
+            }
+            if (!answer) {
+              if (typeof generated !== 'string' || !generated.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
+              answer = checkModelAnswer(turn.question, checkedEvidence, generated)
+            }
+            // The Server worker bounds the answer and then trims it (zCompletion), in
+            // that order. The recorded text is the final reply, so a replay after a
+            // reclaim reuses it as is and never calls the provider a second time.
+            text = boundLineText(answer.text).trim()
+            try {
+              await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: stableModelId, text,
+                answerStatus: answer.status, ...(answer.code ? { code: answer.code } : {}) } }, { signal })
+            } catch {
+              const recorded = await ports.trace.status(claim, stableModelId, { signal })
+              if (recorded?.status === 'COMPLETED' && typeof recorded.text === 'string') text = recorded.text
+              else throw Object.assign(new Error('MODEL_RESULT_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+            }
           }
-          if (!answer) {
-            if (typeof generated !== 'string' || !generated.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
-            answer = checkModelAnswer(turn.question, checkedEvidence, generated)
-          }
-          // The Server worker bounds the answer and then trims it (zCompletion), in
-          // that order. The recorded text is the final reply, so a replay after a
-          // reclaim reuses it as is and never calls the provider a second time.
-          text = boundLineText(answer.text).trim()
-          try {
-            await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: stableModelId, text,
-              answerStatus: answer.status, ...(answer.code ? { code: answer.code } : {}) } }, { signal })
-          } catch {
-            const recorded = await ports.trace.status(claim, stableModelId, { signal })
-            if (recorded?.status === 'COMPLETED' && typeof recorded.text === 'string') text = recorded.text
-            else throw Object.assign(new Error('MODEL_RESULT_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
-          }
+          await ports.trace.append(claim, { kind: 'CONTEXT_COMMITTED', payload: composed.receipt }, { signal })
         }
-        await ports.trace.append(claim, { kind: 'CONTEXT_COMMITTED', payload: composed.receipt }, { signal })
+        if (turn.memorySync === true) {
+          if (typeof text !== 'string' || !text.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
+          text = text.trim().slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
+          // The answer is committed only after the same text is in the thread;
+          // Core refuses the completion otherwise.
+          await ensureLease()
+          stage = 'memory-append'
+          await appendMemory(text)
+        }
       }
       if (typeof text !== 'string' || !text.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
       // The fixed reply is sent byte for byte, as the Server path sends it; Core
@@ -274,8 +389,7 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         throw unknownOutcome('COMPLETION_OUTCOME_UNKNOWN', completionError)
       }
       if (completed?.status !== 'READY') throw unknownOutcome('COMPLETION_OUTCOME_UNKNOWN')
-      try { await ports.trace.append(claim, { kind: 'ANSWER_READY', payload: { operationId: stableAnswerId,
-        status: completed?.status ?? 'READY', elapsedMs: Math.max(0, now() - startedAt) } }, { signal }) } catch { /* the durable completion row is authoritative */ }
+      // Core's settle writes the authoritative ANSWER_READY with the committed row.
       stage = 'delivery'
       let delivery
       delivery = await sendWithReconciliation(claim, { signal })

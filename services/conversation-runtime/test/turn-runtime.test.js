@@ -39,7 +39,7 @@ test('real turn runner claims, checks authority, composes, invokes the model and
   }
   const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
   assert.equal(result.status, 'RECORDED')
-  assert.deepEqual(order, ['claim', 'authority', 'context', 'MODEL_STARTED', 'credential', 'authority', 'model', 'MODEL_COMPLETED', 'CONTEXT_COMMITTED', 'complete', 'ANSWER_READY', 'delivery'])
+  assert.deepEqual(order, ['claim', 'authority', 'context', 'MODEL_STARTED', 'credential', 'authority', 'model', 'MODEL_COMPLETED', 'CONTEXT_COMMITTED', 'complete', 'delivery'])
 })
 
 test('revalidates identity, transport and lease after credential grant before starting the provider', async () => {
@@ -548,7 +548,7 @@ test('out-of-hours turn completes with Core\'s fixed reply byte for byte and nev
   const order = []
   const result = await createConversationRuntime({ ports: outOfHoursPorts(order), now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
   assert.equal(result.status, 'RECORDED')
-  assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${outOfHoursTurn.replyText}`, 'ANSWER_READY', 'delivery'])
+  assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${outOfHoursTurn.replyText}`, 'delivery'])
 })
 
 test('out-of-hours completion reconciles a lost response from Core status and sends once', async () => {
@@ -624,5 +624,5 @@ test('a CATALOG_COMMAND turn completes with Core\'s reply, bounded as the Server
   }
   const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
   assert.equal(result.status, 'RECORDED')
-  assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${replyText.trim()}`, 'ANSWER_READY', 'delivery'])
+  assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${replyText.trim()}`, 'delivery'])
 })
