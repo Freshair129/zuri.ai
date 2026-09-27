@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.11b"
+version: "0.3.12b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-27T19:45:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-27T21:20:00+07:00,Claude Sonnet 5"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -266,10 +266,20 @@ and the 191-table Message rebind — is historical and refuses cross-schema
 recovery against this schema. The new model is included in `SNAPSHOT_MODELS`
 (backup-service.js) with no declared relation, matching `AgentTraceEvent`'s own
 convention in the same domain — it restores without ordering constraints.
-Unlike the mechanically-verified rebinds above, this one has not yet had the
-independent hash/mapping review the doc's earlier entries record; the CLI
-proof and that review remain a separate gate this change does not claim to
-close.
+This binding has now had the same independent hash/mapping check as the
+rebinds above: `schemaSha256` was recomputed directly from the bytes of the
+committed `apps/server/prisma/schema.prisma` (matches exactly) and
+`targetSchemaSha256` was recomputed by calling the repo's own
+`computeTargetSchemaSha256` against the committed inventory's 192-entry
+`applicationTables` (matches exactly); both values above are therefore
+independently confirmed, not merely asserted by the commit that introduced
+them. This is a mechanical hash/count recheck, the same kind every prior
+rebind above records — it does not re-review whether every model's family,
+snapshot inclusion or RLS visibility assignment is itself correct beyond
+noting that `LineGroundingShadowComparison` follows an existing precedent
+(`AgentTraceEvent`'s no-declared-relation convention); a deeper design review
+of the mapping, if wanted, is still a separate, undone step. The CLI proof
+this paragraph's predecessor also deferred remains separately undone.
 
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
@@ -505,6 +515,8 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.12b | 2026-09-27 | beta | Independently recompute and confirm the FR-277 rebind (191→192 tables, `LineGroundingShadowComparison`): `schemaSha256` matches the committed `prisma/schema.prisma` bytes exactly; `targetSchemaSha256` recomputes correctly via the repo's own `computeTargetSchemaSha256` over the committed 192-entry mapping. Mechanical hash/count check only — does not re-review family/RLS mapping design beyond noting the model follows `AgentTraceEvent`'s existing no-relation precedent; a deeper design review and the CLI proof remain separately undone | working-tree | Claude Sonnet 5 |
+| 0.3.11b | 2026-09-27 | beta | Rebind Phase B recovery to the 191-table Message `authorChannelIdentityId` schema (FR-022 PDPA erasure column); table mapping unchanged, schema bytes change; refuse the merged Notion + Conversation Runtime binding | ffede2f9 | Claude Opus 5.5 |
 | 0.3.10b | 2026-09-27 | beta | Rebind Phase B recovery to the merged Notion + Conversation Runtime schema (191 tables, runtimeOwner fields); refuse both the Notion-only and runtimeOwner-only bindings; document runtimeOwner restore handling | working-tree | Claude Opus 5.5 (MC0) |
 | 0.3.9b | 2026-09-26 | beta | Rebind Phase B recovery to the 191-table Notion schema; exclude OAuth state and encrypted webhook verification material from backups, include minimal receipts, and preserve refusal of the historical 188-table binding | working-tree | Codex GPT-6 |
 | 0.3.8b | 2026-09-24 | beta | Rebind Phase B recovery to the 188-table schema after adding the operational LINE OA worker checkpoint; preserve the historical 187-table binding | working-tree | RWANG |
