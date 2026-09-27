@@ -27,6 +27,10 @@ const ALLOWLIST = new Set([
   // from GET /api/crm/conversations); the string only ever appears inside a
   // `//` comment, never in an executable fetch.
   '/api/crm/summary',
+  // src/app/(pm)/growth/insights/page.jsx — the `apiBase` handed to
+  // <InsightsLayout>, which appends /summary, /metric/{key}, /metric/{key}/export
+  // and /content (all real routes, FR-275). There is no route at the bare base.
+  '/api/insights',
 ])
 
 /**

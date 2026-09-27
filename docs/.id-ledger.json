@@ -5128,14 +5128,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "f1132a8598472fa3169a05081ee3f5a972db52795600183298091c893f498065",
+      "statement_digest": "e3c5a53e335bed7dbb48c8e582dcda3ed96f818ebc645c8b4d4ecad9dd2c9ca9",
       "history": [
         {
           "anchor": "marketing insights read surface",
           "since": "2026-09-27",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-27",
+      "statement_digest_reason": "Name the brands route and the implemented-but-disabled state; the subject, the Marketing Insights read surface, is unchanged."
     },
     "FR-276": {
       "family": "FR",

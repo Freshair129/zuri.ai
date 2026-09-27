@@ -1,5 +1,5 @@
 ---
-version: "1.38.0b"
+version: "1.39.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
 last_update: "2026-09-24T20:46:40+07:00,RWANG"
 status: "candidate"
@@ -12,18 +12,20 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
+Version diff 1.38.0b -> 1.39.0b: add the FR-275 `/growth/insights` page (Marketing Insights); 115 page routes.
+
 Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describe the PRP LocalWorker API-key flow, and reconcile the inventory to 114 page routes; 59 operational subdomain entries remain.
 
 | Field | Value |
 |---|---|
-| **Version** | 1.38.0b |
+| **Version** | 1.39.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-24 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=114; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=115; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -286,6 +288,7 @@ and does not require an active Business selection.
 | `/growth/paid-media` | Marketing Paid Media | BusinessShell → Marketing / Paid Media | Owner projections for campaign, operations, integration and verified Commerce revenue; paid provider metrics remain null and unavailable | Business growth visibility; loading, empty, failure, unavailable and unknown source states; no provider or CRM audience call | FR-185; `src/app/(pm)/growth/paid-media/page.jsx`; locally verified beta; [FR-185 contract](domains/marketing/features/FR-185-broadcast-planning-intent.md) |
 | `/growth/broadcast` | Marketing Broadcast Planning | BusinessShell → Marketing / Broadcast | Backend/current-UI milestone for durable PLANNING intents with strict content, LINE account, consent and unavailable audience references; append-only revisions and archive | API owner create/revise/archive with Business scope and CAS; picker/detail UI follow-up remains; stale references, unavailable audience and dispatch stay visible | FR-185; `src/app/(pm)/growth/broadcast/page.jsx`; API locally verified beta, picker/detail UI pending; [FR-185 contract](domains/marketing/features/FR-185-broadcast-planning-intent.md) |
 | `/growth/ask-marketing` | Ask Marketing | BusinessShell → Marketing / Ask Marketing | Deterministic read-only overview, ROAS and fatigue question states over owner DTOs; unsupported questions return unavailable | Business growth visibility; loading, error, unknown and unavailable; no LLM, provider, CRM audience or send action | FR-185; `src/app/(pm)/growth/ask-marketing/page.jsx`; locally verified beta; [FR-185 contract](domains/marketing/features/FR-185-broadcast-planning-intent.md) |
+| `/growth/insights` | Marketing Insights | BusinessShell → Marketing / Insights | FR-275 brand metric summary, daily series, CSV export and content performance from one snapshot; answers "not available in this release" while `/api/insights/*` return 503 INSIGHTS_NOT_CONFIGURED |
 
 The [approved 100-screen inventory](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 is a design inventory. These native routes implement the Strategy and FR-185
@@ -410,6 +413,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.39.0b | 2026-09-27 | candidate | Add the FR-275 `/growth/insights` page; 115 page routes | working-tree | Claude Opus 5.5 (MC0) |
 | 1.38.0b | 2026-09-24 | candidate | Retire Edge and harness pairing routes, describe the PRP LocalWorker API-key flow, and reconcile to 114 page routes | working-tree | RWANG |
 | 1.36.0b | 2026-09-19 | candidate | Reconcile Documents & Intake with the FR-254 Knowledge Console route and navigation; 115 page routes and 59 operational subdomain entries | working-tree | RWANG |
 | 1.35.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console route and navigation with the newer PM inventory baseline; retain 114 page routes and record 58 operational subdomain entries | 2bd61b49 | RWANG |

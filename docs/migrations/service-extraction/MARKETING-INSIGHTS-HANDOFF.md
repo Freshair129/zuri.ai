@@ -239,7 +239,7 @@ decides the next step below. Merging follows the Merge rule above.
    commits change only docs.
 2. Done: [INSIGHTS-PERSISTENCE-PROPOSAL.md](INSIGHTS-PERSISTENCE-PROPOSAL.md) was sent to S1 for review
    (B2); S1 deferred it by queue order. Wait for S1's REVIEW_RESULT.
-3. Once FR ids exist (B1): add the four GET routes plus `/growth/insights/page.jsx` (the page
+3. **Done 2026-09-27 by MC0 (TASK-ZAI-124):** five GET routes (`/api/insights/brands`, `/summary`, `/metric/[metricKey]`, `/metric/[metricKey]/export`, `/content`) and `/growth/insights/page.jsx`. The HTTP helper lives in `src/app/api/insights/_insights-http.js` so the module keeps no Next import. `getInsightsQueryService()` returns null until the I2 repository, so every route answers 503 `INSIGHTS_NOT_CONFIGURED` and the page says Insights is not available; route tests inject the synthetic fixture repository. Browser proof with data and the network audit wait for I2. Original step: add the four GET routes plus `/growth/insights/page.jsx` (the page
    injects `load` and the router), then do browser proof and a network audit showing no Graph
    call on any GET, render or export.
 4. New this session: `SyncOrchestratorPort` + pure sync policies (B4) and `createLinePushReportNotifier`

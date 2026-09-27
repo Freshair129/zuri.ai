@@ -85,6 +85,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // read-only handoff detail.
   ['/api/growth/operations', ['GET', 'POST']], ['/api/growth/operations/intake/{intakeId}', ['GET', 'PATCH']],
   ['/api/growth/operations/handoffs/{handoffId}', ['GET']],
+  // @req FR-275 — Marketing Insights reads; 503 INSIGHTS_NOT_CONFIGURED until a reporting source exists.
+  ['/api/insights/brands', ['GET']], ['/api/insights/summary', ['GET']], ['/api/insights/content', ['GET']],
+  ['/api/insights/metric/{metricKey}', ['GET']], ['/api/insights/metric/{metricKey}/export', ['GET']],
   // @req FR-157 — scoped Content lifecycle and owner reference choices.
   ['/api/growth/content', ['GET', 'POST']], ['/api/growth/content/briefs/{id}', ['GET', 'PATCH']],
   ['/api/growth/content/assets/{id}', ['GET']], ['/api/growth/content/references', ['GET']],
