@@ -489,7 +489,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-025",
@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 70
+          "testCount": 71
         },
         {
           "id": "FR-150",
@@ -1368,7 +1368,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-023",
@@ -1681,7 +1681,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-026",
@@ -2340,7 +2340,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-028",
@@ -2516,7 +2516,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 70
+          "testCount": 71
         },
         {
           "id": "FR-152",
@@ -3637,8 +3637,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 20
+          "codeCount": 3,
+          "testCount": 22
         },
         {
           "id": "FR-026",
@@ -3693,8 +3693,8 @@
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 24,
-          "testCount": 70
+          "codeCount": 25,
+          "testCount": 71
         },
         {
           "id": "FR-150",
@@ -5185,7 +5185,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-031",
@@ -5753,7 +5753,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 70
+          "testCount": 71
         },
         {
           "id": "FR-150",
@@ -8697,8 +8697,8 @@
           "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 47,
-          "testCount": 70
+          "codeCount": 48,
+          "testCount": 71
         },
         {
           "id": "FR-150",
@@ -8750,6 +8750,7 @@
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-failures.js",
         "apps/server/src/modules/line-oa-studio/application/line-memory-delivery.js",
+        "apps/server/src/modules/line-oa-studio/application/line-memory-erasure.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/runtime-memory-receipts.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
@@ -12829,8 +12830,8 @@
           "title": "LINE as an identity provider end-to-end",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 16,
-          "testCount": 20
+          "codeCount": 18,
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -12847,11 +12848,14 @@
         "apps/server/src/modules/identity/gate.js",
         "apps/server/src/modules/identity/link-line-identity.js",
         "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
+        "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
+        "apps/server/src/modules/line-oa-studio/application/line-memory-erasure.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/platform/integrations/core/raw-record-redaction.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
+        "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
@@ -12865,6 +12869,7 @@
         "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",

@@ -4,6 +4,7 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { admitLineConversation, runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
+import { MEMORY_ERASURE_ACTOR, MEMORY_ERASURE_KINDS, reconcileLineMemoryErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
@@ -44,7 +45,9 @@ const providerKey = 'synthetic-w12-provider-key'
 const sealKey = '7e'.repeat(32)
 const groupId = 'synthetic-w12-group'
 const roomId = 'synthetic-w12-room'
-const speakers = { A: 'synthetic-w12-speaker-a', B: 'synthetic-w12-speaker-b', C: 'synthetic-w12-speaker-c' }
+const speakers = { A: 'synthetic-w12-speaker-a', B: 'synthetic-w12-speaker-b', C: 'synthetic-w12-speaker-c',
+  D: 'synthetic-w12-speaker-d', E: 'synthetic-w12-speaker-e', F: 'synthetic-w12-speaker-f', G: 'synthetic-w12-speaker-g',
+  H: 'synthetic-w12-speaker-h' }
 const erasureGroupId = 'synthetic-w12-erasure-group'
 const providerReply = { choices: [{ message: { content: 'รับทราบค่ะ' } }] }
 const productRecord = { name: 'แก้ว', product_code: 'AB-1', sell_price: 50, currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: '2026-09-01T00:00:00Z' }
@@ -65,6 +68,7 @@ function createFakeMsp({ history = true } = {}) {
   const threads = new Map()
   const messages = []
   const hooks = { before: null }
+  const erasures = []
   let counter = 0
   const next = prefix => `${prefix}-${++counter}`
   function handle(name, input) {
@@ -111,6 +115,22 @@ function createFakeMsp({ history = true } = {}) {
         recentExchanges: exchanges.slice(-input.recent_exchange_count), protectedRecords: [], threadSummaries: [], coverageGap: null }
     }
     if (name === 'msp_thread_injection_record') return { recorded: true, state: input.state }
+    if (name === 'msp_thread_principal_erase') {
+      // The thread is the one the signed route claims name; the principal's own
+      // exchanges (their turn and the reply to it) are removed, nobody else's.
+      const grant = input.access?.grant ?? {}
+      const thread = threads.get([grant.tenantId, grant.channelAccountId, grant.externalRoomRef].join('|'))
+      const seen = erasures.find(item => item.idempotencyKey === input.idempotency_key)
+      if (seen) return { erased: 0, deduplicated: true }
+      const theirs = new Set(messages.filter(message => message.threadId === thread?.threadId && message.speakerId === input.principal_id)
+        .map(message => message.exchangeId))
+      const before = messages.length
+      for (let index = messages.length - 1; index >= 0; index -= 1) {
+        if (messages[index].threadId === thread?.threadId && theirs.has(messages[index].exchangeId)) messages.splice(index, 1)
+      }
+      erasures.push({ idempotencyKey: input.idempotency_key, principalId: input.principal_id, threadId: thread?.threadId, grant })
+      return { erased: before - messages.length, deduplicated: false }
+    }
     return {}
   }
   async function transport(name, input) {
@@ -119,7 +139,7 @@ function createFakeMsp({ history = true } = {}) {
     if (hooks.before) await hooks.before(name, input)
     return handle(name, input)
   }
-  return { transport, calls, messages, hooks }
+  return { transport, calls, messages, hooks, erasures }
 }
 
 const mspPort = msp => createMspThreadMemoryPort({ transport: msp.transport, serviceKey: mspServiceKey, workspaceId: 'w12-workspace' })
@@ -274,6 +294,7 @@ beforeAll(async () => {
   persons.B = await linkSpeaker('B')
   // A customer with no staff grant, so a PDPA erasure may run for them.
   persons.C = await linkSpeaker('C', { member: false })
+  for (const key of ['D', 'E', 'F', 'G', 'H']) persons[key] = await linkSpeaker(key, { member: false })
 })
 
 afterEach(async () => {
@@ -379,7 +400,7 @@ describe('W12 — GROUP and ROOM memory-sync turns', () => {
     } finally { await restore() }
   })
 
-  it('erasing the speaker who opened a group erases every queued turn of that group in both cohorts; no MSP call follows', async () => {
+  it('erasing the speaker who opened a group erases only their queued turn, in both cohorts; the other speaker\'s turn matches the legacy tick', async () => {
     const turns = [{ speaker: 'C', group: erasureGroupId }, { speaker: 'B', group: erasureGroupId }]
     await setOwner('SERVER')
     const legacyJobs = []
@@ -389,20 +410,29 @@ describe('W12 — GROUP and ROOM memory-sync turns', () => {
     for (const [index, turn] of turns.entries()) runtimeJobs.push(await admit('runtime', index, turn))
     expect(legacyJobs.map(job => job.runtimeOwner)).toEqual(['SERVER', 'SERVER'])
     expect(runtimeJobs.map(job => job.runtimeOwner)).toEqual(['CONVERSATION_RUNTIME', 'CONVERSATION_RUNTIME'])
+    // #596: erasure follows the speaker, so C's turns are erased and B's are not.
     await erasePrincipal({ tenantId: tenant.id, personId: persons.C.id, reason: 'TEST' })
-    const erased = await prisma.lineConversationJob.findMany({ where: { id: { in: [...legacyJobs, ...runtimeJobs].map(job => job.id) } } })
-    expect(erased.every(job => job.errorCode === 'PDPA_ERASURE')).toBe(true)
+    const rows = await prisma.lineConversationJob.findMany({ where: { id: { in: [...legacyJobs, ...runtimeJobs].map(job => job.id) } } })
+    const byId = new Map(rows.map(row => [row.id, row]))
+    expect([legacyJobs[0], runtimeJobs[0]].map(job => byId.get(job.id).errorCode)).toEqual(['PDPA_ERASURE', 'PDPA_ERASURE'])
+    expect([legacyJobs[1], runtimeJobs[1]].map(job => byId.get(job.id).errorCode)).toEqual([null, null])
     await setOwner('SERVER')
     const legacyMsp = createFakeMsp()
-    await runLegacy({ msp: legacyMsp })
+    const legacy = await runLegacy({ msp: legacyMsp })
+    const legacyDeliveries = deliveries
+    deliveries = []
     await setOwner('CONVERSATION_RUNTIME')
     const runtimeMsp = createFakeMsp()
     const built = buildRuntime({ msp: runtimeMsp })
-    expect(await runRuntime(built)).toEqual([])
-    expect(legacyMsp.calls).toEqual([])
-    expect(runtimeMsp.calls).toEqual([])
-    expect(built.providerCalls).toEqual([])
-    expect(deliveries).toEqual([])
+    expect((await runRuntime(built)).map(outcome => outcome.status)).toEqual(['RECORDED'])
+    const touchesC = call => call.input.access?.grant?.principalId === persons.C.id || JSON.stringify(call.input).includes('(C)')
+    expect(legacyMsp.calls.filter(touchesC)).toEqual([])
+    expect(runtimeMsp.calls.filter(touchesC)).toEqual([])
+    expect(normalize(comparableCalls(runtimeMsp.calls), [runtimeJobs[1]])).toBe(normalize(comparableCalls(legacyMsp.calls), [legacyJobs[1]]))
+    expect(built.providerCalls.map(call => normalize(call.body, [runtimeJobs[1]])))
+      .toEqual(legacy.providerCalls.map(call => normalize(call.body, [legacyJobs[1]])))
+    expect(deliveries).toEqual(legacyDeliveries)
+    expect(deliveries).toHaveLength(1)
   })
 
   it('a kill after the read, then reclaim, repeats no MSP write and still matches the legacy tick', async () => {
@@ -551,4 +581,146 @@ describe('W12 — the runtime cannot redirect memory or read another speaker\'s 
     expect(resolves.every(call => call.input.external_room_ref === groupId)).toBe(true)
     expect(msp.calls.filter(call => call.name === 'msp_thread_message_append').map(call => call.input.speaker_id)).toEqual([persons.A.id])
   })
+})
+
+describe('W12 — erasing one speaker removes only their contributions from a group\'s MSP thread memory', () => {
+  const eraseGroup = 'synthetic-w12-erasure-memory-group'
+  const speakerLines = (msp, personId) => msp.messages.filter(message => message.speakerId === personId)
+  const pendingRows = () => prisma.agentTraceEvent.findMany({ where: { kind: MEMORY_ERASURE_KINDS.pending } })
+
+  /** Turns from two speakers in one group, first in the SERVER cohort, then in the runtime cohort. */
+  async function bothCohorts({ first, second, group }) {
+    const msp = createFakeMsp({ history: false })
+    await setOwner('SERVER')
+    await admit('legacy', 0, { speaker: first, group })
+    await admit('legacy', 1, { speaker: second, group })
+    await runLegacy({ msp })
+    await setOwner('CONVERSATION_RUNTIME')
+    await admit('runtime', 0, { speaker: first, group })
+    await admit('runtime', 1, { speaker: second, group })
+    const built = buildRuntime({ msp })
+    expect((await runRuntime(built)).map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])
+    expect(speakerLines(msp, persons[first].id)).toHaveLength(2)
+    expect(speakerLines(msp, persons[second].id)).toHaveLength(2)
+    expect(threadMessagesOf(msp)).toHaveLength(8)
+    return { msp, built }
+  }
+  const threadMessagesOf = msp => msp.messages.filter(message => message.sourceEventId)
+
+  for (const [erased, kept, label] of [['E', 'D', 'erase B'], ['F', 'G', 'erase A (the speaker who opened the group)']]) {
+    it(`${label}: only that speaker's exchanges leave the group thread, in both cohorts; the other speaker and the thread still work`, async () => {
+      const group = `${eraseGroup}-${erased}`
+      const opener = erased === 'F' ? erased : kept
+      const other = opener === erased ? kept : erased
+      const { msp } = await bothCohorts({ first: opener, second: other, group })
+      // The erased speaker also has a DIRECT memory thread; it keeps today's
+      // erasure behaviour (its delivery receipt closes; no MSP thread erasure).
+      await admit('runtime', 9, { audience: 'DIRECT', speaker: erased })
+      expect((await runRuntime(buildRuntime({ msp }))).map(outcome => outcome.status)).toEqual(['RECORDED'])
+      const keptLines = speakerLines(msp, persons[kept].id).map(message => message.text)
+      const callsBefore = msp.calls.length
+
+      await erasePrincipal({ tenantId: tenant.id, personId: persons[erased].id, reason: 'TEST' })
+      // Nothing reached MSP inside the erasure transaction: one pending record.
+      expect(msp.calls.length).toBe(callsBefore)
+      const pending = (await pendingRows()).filter(row => row.payloadJson.includes(persons[erased].id))
+      // Exactly one: the group thread (both cohorts' turns share it), never the DIRECT thread.
+      expect(pending).toHaveLength(1)
+      expect(JSON.parse(pending[0].payloadJson)).toMatchObject({ principalId: persons[erased].id,
+        route: { externalRoomRef: group, audienceKind: 'GROUP', channelAccountId: account.bindingCode } })
+
+      // Core's Server tick carries the erasure; Core is the only MSP caller.
+      await runLineConversationWorker({ db: prisma, answer: async () => { throw new Error('no turn is queued') },
+        env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey }, resolveAccount: id => prisma.lineOaAccount.findUnique({ where: { id } }),
+        replyTransport: { send: async () => ({ status: 'ACCEPTED_BY_LINE' }) }, pushTransport: { send: async () => ({ status: 'ACCEPTED_BY_LINE' }) },
+        threadMemory: mspPort(msp), workerId: 'w12-erasure-tick' })
+      // (The tick is global: it may also carry another test's pending erasure.)
+      const ours = msp.erasures.filter(item => item.grant.externalRoomRef === group)
+      expect(ours).toHaveLength(1)
+      expect(ours[0]).toMatchObject({ principalId: persons[erased].id })
+      expect(ours[0].grant).toMatchObject({ principalId: MEMORY_ERASURE_ACTOR, externalRoomRef: group,
+        dataSubjectAccess: true, dataSubjectAdmin: true })
+      expect(ours[0].grant.readPrivate).not.toBe(true)
+      expect(ours[0].grant.writePrivate).not.toBe(true)
+      const groupThread = msp.calls.find(call => call.name === 'msp_thread_resolve' && call.input.external_room_ref === group)
+      expect(speakerLines(msp, persons[erased].id).map(message => message.text)).toEqual(['AB-1 ราคาเท่าไร'])
+      expect(speakerLines(msp, persons[kept].id).map(message => message.text)).toEqual(keptLines)
+      expect(groupThread).toBeDefined()
+      // Per thread: the group keeps the other speaker's two exchanges (4 lines); the
+      // erased speaker's DIRECT thread (turn + reply) is untouched by this erasure.
+      const groupThreadId = speakerLines(msp, persons[kept].id)[0].threadId
+      const directThreadId = speakerLines(msp, persons[erased].id)[0].threadId
+      expect(groupThreadId).not.toBe(directThreadId)
+      expect(threadMessagesOf(msp).filter(message => message.threadId === groupThreadId)).toHaveLength(4)
+      expect(threadMessagesOf(msp).filter(message => message.threadId === directThreadId)).toHaveLength(2)
+      // The acknowledged record is redacted: Core keeps no list of the erased person's groups.
+      const after = await prisma.agentTraceEvent.findMany({ where: { turnId: pending[0].turnId } })
+      expect(after.every(row => row.kind === 'RETENTION_TOMBSTONE' || row.payloadJson === '{"redacted":true}')).toBe(true)
+      expect(JSON.stringify(after)).not.toContain(persons[erased].id)
+      expect(JSON.stringify(after)).not.toContain(group)
+
+      // The group thread still works for the remaining speaker, in the runtime cohort.
+      await setOwner('CONVERSATION_RUNTIME')
+      await admit('runtime', 2, { speaker: kept, group })
+      const built = buildRuntime({ msp })
+      expect((await runRuntime(built)).map(outcome => outcome.status)).toEqual(['RECORDED'])
+      expect(speakerLines(msp, persons[kept].id)).toHaveLength(3)
+      expect(speakerLines(msp, persons[erased].id).filter(message => message.text.includes('ซูริ'))).toEqual([])
+    })
+  }
+
+  it('is idempotent: a failed attempt retries under the same key, a repeat scan or a repeat erasure sends nothing more', async () => {
+    const group = `${eraseGroup}-idempotent`
+    const msp = createFakeMsp({ history: false })
+    await setOwner('CONVERSATION_RUNTIME')
+    // Re-create E's identity for this test: an earlier test erased E.
+    const subject = 'synthetic-w12-speaker-e2'
+    speakers.E2 = subject
+    persons.E2 = await (async () => {
+      const person = await prisma.person.create({ data: { code: 'PER-W12-E2', displayName: 'Synthetic W12 speaker E2' } })
+      const linkedAt = new Date()
+      await prisma.externalIdentity.create({ data: { tenantId: tenant.id, personId: person.id, provider: 'LINE', providerSubject: subject, verifiedAt: linkedAt, linkedAt } })
+      await prisma.channelIdentity.create({ data: { tenantId: tenant.id, personId: person.id, channel: 'LINE', channelAccountId: account.bindingCode,
+        providerSubject: subject, status: 'ACTIVE', verifiedAt: linkedAt, linkedAt } })
+      return person
+    })()
+    await admit('runtime', 0, { speaker: 'G', group })
+    await admit('runtime', 1, { speaker: 'E2', group })
+    expect((await runRuntime(buildRuntime({ msp }))).map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])
+    await erasePrincipal({ tenantId: tenant.id, personId: persons.E2.id, reason: 'TEST' })
+    const [pending] = (await pendingRows()).filter(row => row.payloadJson.includes(group))
+    expect(pending).toBeDefined()
+
+    // MSP down: the record stays PENDING with one attempt; nothing is lost.
+    msp.hooks.before = name => { if (name === 'msp_thread_principal_erase') throw transportError() }
+    const t0 = new Date()
+    expect(await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => t0 })).toMatchObject({ acknowledged: 0 })
+    expect(speakerLines(msp, persons.E2.id)).toHaveLength(1)
+    // Within the backoff nothing is retried.
+    expect(await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => new Date(t0.getTime() + 100) }))
+      .toMatchObject({ scanned: 0 })
+    msp.hooks.before = null
+    const t1 = new Date(t0.getTime() + 2_000)
+    expect(await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => t1 })).toMatchObject({ acknowledged: 1 })
+    // The acknowledging scan itself redacts the record.
+    const record = await prisma.agentTraceEvent.findMany({ where: { turnId: pending.turnId } })
+    expect(record.some(row => row.kind === 'RETENTION_TOMBSTONE')).toBe(true)
+    expect(JSON.stringify(record)).not.toContain(persons.E2.id)
+    const eraseCalls = msp.calls.filter(call => call.name === 'msp_thread_principal_erase'
+      && call.input.access.grant.externalRoomRef === group)
+    // One failed attempt, then one acknowledged attempt, both under one key.
+    expect(eraseCalls).toHaveLength(2)
+    expect(new Set(eraseCalls.map(call => call.input.idempotency_key)).size).toBe(1)
+    expect(speakerLines(msp, persons.E2.id)).toEqual([])
+    expect(speakerLines(msp, persons.G.id)).toHaveLength(1)
+
+    // Nothing more: a repeat scan, and a repeat erasure of the same person.
+    const callsAfter = msp.calls.length
+    await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => new Date(t1.getTime() + 600_000) })
+    try { await erasePrincipal({ tenantId: tenant.id, personId: persons.E2.id, reason: 'TEST' }) } catch { /* an already-erased person may be refused */ }
+    await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => new Date(t1.getTime() + 1_200_000) })
+    expect(msp.calls.length).toBe(callsAfter)
+    expect((await pendingRows()).filter(row => row.payloadJson.includes(group))).toEqual([])
+  })
+
 })

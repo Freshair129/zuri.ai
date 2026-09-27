@@ -11,6 +11,7 @@ import { conversationRuntimeServesGroundingMode } from '@/modules/agent/line-kno
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
+import { reconcileLineMemoryErasures } from './line-memory-erasure'
 import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 import { lineExecutionBudget } from '../domain/line-execution-budget'
 import { isLineProjectWorkCommand, handleLineProjectWorkCommand, parseLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
@@ -1001,10 +1002,14 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
   sendBatch = boundedCount(env.ZURI_LINE_WORKER_SEND_BATCH, SEND_BATCH) }) {
   const owner = { executionMode: 'SERVER', runtimeOwner: 'SERVER' }
   await maintenance(db, now(), owner)
-  const scanMemory = () => threadMemory?.recordDelivery
-    ? reconcileLineMemoryDeliveries({ db, threadMemory, now, workerId: `${workerId}:memory`,
+  // @req FR-022 — the same Core tick also carries pending MSP principal erasures
+  // (line-memory-erasure.js); a failed erasure sweep never fails the tick.
+  const scanMemory = async () => {
+    if (!threadMemory?.recordDelivery) return null
+    try { await reconcileLineMemoryErasures({ db, threadMemory, now }) } catch { /* stays PENDING, retried next tick */ }
+    return reconcileLineMemoryDeliveries({ db, threadMemory, now, workerId: `${workerId}:memory`,
       batchSize: memoryDeliveryBatch, leaseMs: memoryDeliveryLeaseMs })
-    : null
+  }
   await scanMemory()
   const accepted = await db.lineConversationJob.findFirst({ where: { ...owner, status: 'ACCEPTED' }, orderBy: { createdAt: 'asc' } })
   if (accepted) {
