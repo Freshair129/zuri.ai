@@ -9,7 +9,8 @@
 // rejected for its grouping; a grouped number the evidence lacks still is.
 // Every other way of writing a figure is read as the figure too, or refused: a
 // numeral whose compatibility form is digits (superscript ¹²⁵⁰, circled ①) is
-// those digits unless it is glued to a letter or digit (m², 10⁵, a footnote ¹),
+// those digits when it stands alone; glued to a letter or digit it is dropped
+// if it is a lone ¹, ² or ³ (m², a footnote ³) and otherwise read literally,
 // any other numeral (½, Ⅻ) must appear as written in the evidence, a minus sign
 // is part of the value (ราคา -500 is not 500; a bullet or discount dash is read as
 // a dash when the evidence has no negative figure), only valid thousands grouping
@@ -90,10 +91,13 @@ const DISCOUNT_BEFORE = /(?:ส่วนลด|ลด|discount|off|save)\s*:?\s*
 const DISCOUNT_REACH = 24
 const INLINE_SPACE = /[^\S\n]/
 const ASCII_DIGIT = /\d/
-// A superscript or subscript digit run glued to a letter or a digit (m², 10⁵,
-// บาท¹, H₂O) is a unit power, an exponent, a footnote mark or a formula index,
-// not a figure: the number check ignores it rather than read 10⁵ as 105.
-const ATTACHED_SCRIPT = /(?<=[\p{L}\p{M}\p{Nd}])[\u00B2\u00B3\u00B9\u2070\u2074-\u2079\u2080-\u2089]+/gu
+// A superscript or subscript digit run, with the letter, mark or digit it is
+// glued to if any (see numeralDigits). Only a lone ¹, ² or ³ glued to a letter
+// (m², บาท³) is a unit power or a footnote mark and is dropped.
+const SCRIPT_RUN = /([\p{L}\p{M}\p{Nd}])?([\u00B2\u00B3\u00B9\u2070\u2074-\u2079\u2080-\u2089]+)/gu
+const SCRIPT_DIGIT = /[\u00B2\u00B3\u00B9\u2070\u2074-\u2079\u2080-\u2089]/u
+const FOOTNOTE_SCRIPT = /^[\u00B2\u00B3\u00B9]$/u
+const LETTER_OR_MARK = /[\p{L}\p{M}]/u
 // Any non-ASCII character; numeralDigits and leftoverNumerals look at each one.
 const NON_ASCII = /[^\x00-\x7F]/gu
 const NUMERAL = /\p{N}/u
@@ -153,12 +157,20 @@ export function asciiDigits(value) {
  * decimal digits, as those digits: superscript ¹²⁵⁰ is 1250, circled ① is 1 and
  * ⑳ is 20. A numeral with any other form (½ is 1⁄2, Ⅻ is XII) is left as written
  * for the leftover check. Characters are normalised one at a time, never the
- * whole text: NFKC would also rewrite Thai (ำ) and the fullwidth comma. A
- * superscript or subscript run glued to a letter or a digit (m², 10⁵, บาท¹) is
- * dropped first: it is a power, an exponent or a footnote mark, not a figure.
+ * whole text: NFKC would also rewrite Thai (ำ) and the fullwidth comma.
+ * A superscript or subscript run is read as digits only when it stands alone
+ * (ราคา ¹²⁵⁰). Glued to a letter, a single ¹, ² or ³ is a unit power or a
+ * footnote mark (m², บาท³) and is dropped. Any other glued run (5⁰⁰, 10⁵,
+ * ราคา¹²⁵⁰, H₂O) is left as written, so the leftover check requires it to appear
+ * literally in the evidence: reading it as digits or dropping it would let an
+ * answer write a figure the evidence does not hold.
  */
 export function numeralDigits(value) {
-  return String(value).replace(ATTACHED_SCRIPT, '').replace(NON_ASCII, (character) => {
+  return String(value).replace(SCRIPT_RUN, (_match, glued, run) => {
+    if (!glued) return run.normalize('NFKC')
+    return FOOTNOTE_SCRIPT.test(run) && LETTER_OR_MARK.test(glued) ? glued : `${glued}${run}`
+  }).replace(NON_ASCII, (character) => {
+    if (SCRIPT_DIGIT.test(character)) return character
     const compatible = character.normalize('NFKC')
     return compatible !== character && ALL_DECIMAL_DIGITS.test(compatible) ? compatible : character
   })
@@ -280,6 +292,7 @@ function numbersIn(text) {
       value: numberValue(match[0], Boolean(sign)),
       magnitude: numberValue(match[0]),
       start: sign ? match.index - 1 : match.index,
+      index: match.index,
       end,
       loose: Boolean(sign?.loose),
     }
@@ -303,10 +316,8 @@ function spaceRuns(text, numbers) {
     while (next < numbers.length && numbers[next].end <= end) parts.push(numbers[next++])
     if (parts.length < 2) continue
     const negative = parts[0].value.startsWith('-')
-    runs.push({
-      merged: { value: numberValue(match[0].replace(SPACE_SEPARATOR, ''), negative), start: parts[0].start, end },
-      parts,
-    })
+    const digits = match[0].replace(SPACE_SEPARATOR, '')
+    runs.push({ merged: { value: numberValue(digits, negative), start: parts[0].start, end }, digits, parts })
   }
   return runs
 }
@@ -364,7 +375,8 @@ export function verifyCandidate(question, evidence, candidate) {
   // "งบ 300 500 ชิ้น" can each be echoed, and so can 1250 of "1 250 ชิ้น".
   const askedNumbers = normalizedNumbers(asked)
   const askedFigures = numbersIn(asked)
-  const askedBudgets = new Set([...askedFigures, ...spaceRuns(asked, askedFigures).map(({ merged }) => merged)]
+  const askedRuns = spaceRuns(asked, askedFigures)
+  const askedBudgets = new Set([...askedFigures, ...askedRuns.map(({ merged }) => merged)]
     .filter(({ start }) => budgetAt(asked, start))
     .map(({ value }) => value))
   const units = [...QUANTITY_UNITS, ...(evidence.records ?? []).map((record) => record?.unit)
@@ -402,26 +414,36 @@ export function verifyCandidate(question, evidence, candidate) {
     ...[...leftovers].filter((numeral) => !evidenceLeftovers.has(numeral)),
   ])]
 
-  const allowedCodes = new Set([...normalizedCodes(`${asked}\n${records}`)].map(codeKey))
+  // The question's space-grouped chains are allowed codes merged too, so the
+  // 1250 of "ขอ 1 250 ชิ้น" may be written 1250 or 1,250 in the answer.
+  const allowedCodes = new Set([...normalizedCodes(`${asked}\n${records}`), ...askedRuns.map(({ digits }) => digits)]
+    .map(codeKey))
   const families = new Set([...CODE_FAMILIES, ...(evidence.records ?? [])
     .map((record) => record?.product_code)
     .filter((code) => typeof code === 'string')
     .map((code) => code.split(CODE_SEPARATOR)[0].toLocaleUpperCase())])
-  // A code of digits only inside a supported space-grouped chain (the 250 of
-  // 1 250) is part of that number, which the number check has already allowed.
-  // Codes and chains are both in text order, so one pointer walks the chains.
-  const supportedRuns = runs.filter(({ merged, parts }) => supported(merged) || parts.every(supported))
-  let run = 0
-  const inSupportedRun = (start, end) => {
-    while (run < supportedRuns.length && supportedRuns[run].merged.end < end) run += 1
-    return run < supportedRuns.length && start >= supportedRuns[run].merged.start
-  }
+  // A code that starts at a part of a supported space-grouped chain belongs to
+  // that number, which the number check has already allowed: a code of digits
+  // only inside it (the 250 of 1 250) is not checked again, and a code glued to
+  // its last part (the 000mAh of 10 000mAh) is allowed as written or with the
+  // chain merged into it (10000MAH).
+  const chainAt = new Map(runs
+    .filter(({ merged, parts }) => supported(merged) || parts.every(supported))
+    .flatMap((chain) => chain.parts.map((part) => [part.index, chain])))
   const unsupportedCodes = [...new Set([...text.matchAll(PRODUCT_CODE)]
-    .filter((match) => !(/^[\d.]+$/.test(match[0]) && inSupportedRun(match.index, match.index + match[0].length)))
-    .map((match) => match[0])
-    .filter((code) => /\d/.test(code) || (LETTER_CODE.test(code) && families.has(code.split(CODE_SEPARATOR)[0])))
-    .map(codeKey)
-    .filter((code) => !allowedCodes.has(code)))]
+    .filter((match) => /\d/.test(match[0])
+      || (LETTER_CODE.test(match[0]) && families.has(match[0].split(CODE_SEPARATOR)[0])))
+    .flatMap((match) => {
+      const code = match[0]
+      const key = codeKey(code)
+      const chain = chainAt.get(match.index)
+      const end = match.index + code.length
+      if (chain && /^[\d.]+$/.test(code) && end <= chain.merged.end) return []
+      const last = chain?.parts.at(-1)
+      if (last?.index === match.index && end > chain.merged.end
+        && allowedCodes.has(codeKey(`${chain.digits}${code.slice(last.end - last.index)}`))) return []
+      return allowedCodes.has(key) ? [] : [key]
+    }))]
 
   const evidenceDays = [...deliveryDays(records),
     ...[...records.matchAll(LEAD_TIME_DAYS)].map((match) => [Number(match[1]), Number(match[1])])]
