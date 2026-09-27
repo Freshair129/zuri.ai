@@ -254,10 +254,12 @@ describe('OpenAPI document', () => {
       // ADR-106/SDD-110 adds the Conversation Runtime Core path with GET + POST:
       // 342 - 20 + 1 = 323 paths; 449 - 23 + 2 = 428 operations.
       // FR-275 adds five Marketing Insights GET paths: 323 + 5 = 328; 428 + 5 = 433.
+      // ADR-111 D5 adds the SCM service's private core façade: one dynamic
+      // path, POST only. 328 + 1 = 329 paths; 433 + 1 = 434 operations.
       // FR-022 (ADR-093 1.2.0) adds the retention-consent record and revoke
-      // paths, POST each: 328 + 2 = 330; 433 + 2 = 435.
-      pathCount: 330,
-      operationCount: 435,
+      // paths, POST each: 329 + 2 = 331; 434 + 2 = 436.
+      pathCount: 331,
+      operationCount: 436,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

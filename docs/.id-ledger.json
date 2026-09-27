@@ -822,6 +822,7 @@
     "ADR-108",
     "ADR-109",
     "ADR-110",
+    "ADR-111",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -10672,6 +10673,19 @@
         {
           "anchor": "retire edge device and harness surfaces keep prp",
           "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-111": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-111-SCM-SERVICE-EXTRACTION.md",
+      "status": "current",
+      "statement_digest": "d0e2d8bece7b6ee9f7eca35ad3ea42cd9743bf644b6c8ec1001f9f9f93d8dffc",
+      "history": [
+        {
+          "anchor": "scm service extraction",
+          "since": "2026-09-27",
           "reason": "declared"
         }
       ]

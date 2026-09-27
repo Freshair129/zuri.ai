@@ -1,0 +1,297 @@
+import { assertIdempotencyKey, findReceipt, operationDto, replayOrConflict, requestHash, writeReceipt } from '../infrastructure/evidence.js'
+import { commerceAuthority, denied, inventoryAuthority, procurementAuthority } from '../infrastructure/delegation.js'
+import { createUnavailableReferenceAuthority } from '../infrastructure/reference-authority.js'
+import { applyPurchaseOrderAction, createPurchaseOrder, createSupplier, getPurchaseOrder, loadOrderInScope } from '../modules/procurement/application/purchase-orders.js'
+import { listMovements, stockSummary } from '../modules/inventory/index.js'
+import { postGoodsReceipt } from '../workflows/post-goods-receipt.js'
+import { commitBusiness, commitSupplierCostSheet, getSupplierCostSheet, listSupplierCostSheets, normalizeEnvelope, previewSupplierCostSheet } from '../modules/procurement/application/supplier-cost-sheets.js'
+import { checkoutPosSale, parseCheckout, prepareCheckout } from '../workflows/pos-checkout.js'
+import { getOrder } from '../modules/commerce/application/orders.js'
+import { applyPaymentAction, getPayment, listPayments, loadOrderForPayment, prepareRecordPayment, recordPayment } from '../modules/commerce/application/payments.js'
+import * as commerceRepo from '../modules/commerce/adapters/commerce-repo.js'
+import { applyOrderAction, createOrder, listOrders, loadOrderInScope as loadSalesOrderInScope, prepareCreateOrder, prepareOrderAction } from '../modules/commerce/application/sales-orders.js'
+import { zCreateOrder } from '../kernel/commerce/commerce.js'
+import { getRevenueSummary } from '../modules/commerce/application/revenue.js'
+import { authorizeCatalogue, getPosTerminalCatalogue } from '../modules/commerce/application/pos-catalogue.js'
+import { atp, catalog, catalogIntake, customization, deKitting, hygiene, identity, kitting, locations, recipes, shelfLife, stock, stocktake } from '../modules/inventory/index.js'
+import { supplierCostPriceBreaks } from '../modules/procurement/application/supplier-cost-sheets.js'
+import { applyPricingRuleAction, calculatePricing, calculationRequest, createPricingRuleSet, getActivePricingRuleSet, guardCalculationReplay, listPricingRules, loadRuleInScope, ownerBusiness, previewPricingRules, updatePricingRuleSet, zCalculatePricing, zCreatePricingRule } from '../modules/commerce/application/pricing-rules.js'
+
+// SCM business commands — the external API's only mutation entry points. A
+// client sends ONE business command (e.g. "post this receipt"); it never opens a
+// remote transaction or issues sub-writes. Each command:
+//   1. authorizes against the CURRENT delegated scope (also on replay — a key is
+//      never a read capability),
+//   2. looks up (scope, key): same payload → the stored outcome, different → 409,
+//   3. optionally `prepare`s OUTSIDE the unit of work (remote reference facts —
+//      never while holding the writer lock), only when no receipt exists yet,
+//   4. otherwise executes the use case and writes the receipt in the SAME unit
+//      of work, so "committed" and "has a receipt" cannot diverge.
+
+/** Catalogue create: Inventory write authority on the Business the parsed body names (legacy order: parse, then scope). */
+const catalogWriter = (scope, data) => inventoryAuthority.require(scope, data.businessId, { write: true }).id
+
+const PRICING_VIEW = { mayView: (scope, businessId) => commerceAuthority.mayView(scope, businessId) && scope.owns(businessId) }
+
+const COMMANDS = {
+  'procurement.supplier.create': {
+    authorize: (sql, scope, { body }) => procurementAuthority.require(scope, body?.businessId, 'po').id,
+    execute: (sql, scope, { body }, ctx) => { const supplier = createSupplier(sql, scope, body, ctx); return { response: { supplier }, affected: { supplierId: supplier.id, supplierVersion: supplier.version } } },
+  },
+  'procurement.purchase-order.create': {
+    authorize: (sql, scope, { body }) => procurementAuthority.require(scope, body?.businessId, 'po').id,
+    execute: (sql, scope, { body }, ctx) => { const order = createPurchaseOrder(sql, scope, body, ctx); return { response: { order }, affected: { purchaseOrderId: order.id, purchaseOrderVersion: order.version } } },
+  },
+  'procurement.purchase-order.action': {
+    authorize: (sql, scope, { targetId }) => loadOrderInScope(sql, scope, targetId, 'po').businessId,
+    execute: (sql, scope, { targetId, body }, ctx) => { const order = applyPurchaseOrderAction(sql, scope, targetId, body, ctx); return { response: { order }, affected: { purchaseOrderId: order.id, purchaseOrderVersion: order.version, status: order.status } } },
+  },
+  'procurement.goods-receipt.post': {
+    authorize: (sql, scope, { targetId }) => loadOrderInScope(sql, scope, targetId, 'receipt').businessId,
+    // A replayed receipt discloses on-hand figures: Inventory visibility is re-checked.
+    replayGuard: (scope, businessId, stored) => { if (stored.posted?.length && !inventoryAuthority.mayView(scope, businessId)) throw denied() },
+    execute: (sql, scope, { targetId, body }, ctx) => postGoodsReceipt(sql, scope, targetId, body, ctx),
+  },
+  // Supplier cost sheets (TASK-ZAI-053): buyer capability; the commit also needs
+  // Inventory write authority, checked inside the unit of work by Inventory itself.
+  // The legacy source-hash replay (same sheet, any key) answers replayed: true.
+  'procurement.cost-sheet.preview': {
+    authorize: (sql, scope, { body }) => procurementAuthority.require(scope, normalizeEnvelope(body).envelope.businessId, 'costSheet').id,
+    execute: (sql, scope, { body }, ctx) => previewSupplierCostSheet(sql, scope, body, ctx),
+  },
+  'procurement.cost-sheet.commit': {
+    authorize: (sql, scope, { body }) => commitBusiness(scope, body).id,
+    execute: (sql, scope, { body }, ctx) => commitSupplierCostSheet(sql, scope, body, ctx),
+  },
+  // Inventory catalogue (FR-154 …): OWNER or inventory.catalog.write; the SKU's own
+  // Business for an action. ARCHIVE/MERGE are refused as not migrated (F-13).
+  'inventory.category.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.category.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createCategory(sql, scope, body, ctx) },
+  'inventory.family.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.family.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createFamily(sql, scope, body, ctx) },
+  'inventory.factory.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.factory.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createFactory(sql, scope, body, ctx) },
+  'inventory.product-master.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.master.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createProductMaster(sql, scope, body, ctx) },
+  'inventory.product.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.product.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createProduct(sql, scope, body, ctx) },
+  'inventory.bundle.create': { authorize: (sql, scope, { body }) => catalogWriter(scope, catalog.CREATE_SCHEMAS.bundle.parse(body)), execute: (sql, scope, { body }, ctx) => catalog.createBundle(sql, scope, body, ctx) },
+  'inventory.product.action': {
+    authorize: (sql, scope, { targetId }) => catalog.loadProductForWrite(sql, scope, targetId).businessId,
+    execute: (sql, scope, { targetId, body }, ctx) => catalog.applyProductAction(sql, scope, targetId, body, ctx),
+  },
+  // SKU identity (FR-203/204/177): the path names the SKU; the body names the Business.
+  'inventory.identifier.add': { authorize: (sql, scope, { body }) => identity.writerOf(scope, identity.SCHEMAS.identifier, body), execute: (sql, scope, { targetId, body }, ctx) => identity.addIdentifier(sql, scope, targetId, body, ctx) },
+  'inventory.identifier.action': { authorize: (sql, scope, { targetId, body }) => identity.identifierInScope(sql, scope, targetId, body?.identifierId).businessId, execute: (sql, scope, { targetId, body }, ctx) => identity.applyIdentifierAction(sql, scope, targetId, body, ctx) },
+  'inventory.unit-conversion.add': { authorize: (sql, scope, { body }) => identity.writerOf(scope, identity.SCHEMAS.conversion, body), execute: (sql, scope, { targetId, body }, ctx) => identity.addUnitConversion(sql, scope, targetId, body, ctx) },
+  'inventory.unit-conversion.action': { authorize: (sql, scope, { targetId, body }) => identity.conversionInScope(sql, scope, targetId, body?.conversionId).businessId, execute: (sql, scope, { targetId, body }, ctx) => identity.applyUnitConversionAction(sql, scope, targetId, body, ctx) },
+  'inventory.product.flowaccount-sku': { authorize: (sql, scope, { body }) => identity.flowAccountWriter(scope, body), execute: (sql, scope, { targetId, body }, ctx) => identity.setFlowAccountSku(sql, scope, targetId, body, ctx) },
+  // Recipes and work orders (FR-156, FR-176..178): Inventory write on the Business the
+  // body names (create / build / open / action) or the recipe's own (recipe action).
+  'inventory.recipe.create': { authorize: (sql, scope, { body }) => recipes.creatorOf(scope, body), execute: (sql, scope, { body }, ctx) => recipes.createRecipe(sql, scope, body, ctx) },
+  'inventory.recipe.action': { authorize: (sql, scope, { targetId }) => recipes.recipeForWrite(sql, scope, targetId).businessId, execute: (sql, scope, { targetId, body }, ctx) => recipes.applyRecipeAction(sql, scope, targetId, body, ctx) },
+  'inventory.recipe.build': { authorize: (sql, scope, { targetId, body }) => recipes.builderOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => recipes.buildRecipe(sql, scope, targetId, body, ctx) },
+  'inventory.de-kit': { authorize: (sql, scope, { body }) => deKitting.deKitterOf(scope, body), execute: (sql, scope, { body }, ctx) => deKitting.deKitFinishedSets(sql, scope, body, ctx) },
+  'inventory.customization-work-order.open': { authorize: (sql, scope, { body }) => customization.openerOf(scope, body), execute: (sql, scope, { body }, ctx) => customization.openCustomizationWorkOrder(sql, scope, body, ctx) },
+  'inventory.customization-work-order.action': { authorize: (sql, scope, { targetId, body }) => customization.actorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => customization.applyCustomizationWorkOrderAction(sql, scope, targetId, body, ctx) },
+  'inventory.kitting-work-order.open': { authorize: (sql, scope, { body }) => kitting.openerOf(scope, body), execute: (sql, scope, { body }, ctx) => kitting.openKittingWorkOrder(sql, scope, body, ctx) },
+  // Stock core, locations, transfers, stocktake (FR-155, FR-174, FR-184): Inventory write on the named Business.
+  'inventory.movement.record': { authorize: (sql, scope, { body }) => stock.movementWriterOf(scope, body), execute: (sql, scope, { body }, ctx) => stock.recordMovement(sql, scope, body, ctx) },
+  'inventory.lot.create': { authorize: (sql, scope, { body }) => stock.lotWriterOf(scope, body), execute: (sql, scope, { body }, ctx) => stock.createLot(sql, scope, body, ctx) },
+  'inventory.location.create': { authorize: (sql, scope, { body }) => locations.creatorOf(scope, body), execute: (sql, scope, { body }, ctx) => locations.createLocation(sql, scope, body, ctx) },
+  'inventory.location.action': { authorize: (sql, scope, { targetId }) => locations.locationForWrite(sql, scope, targetId).businessId, execute: (sql, scope, { targetId, body }, ctx) => locations.applyLocationAction(sql, scope, targetId, body, ctx) },
+  'inventory.transfer': { authorize: (sql, scope, { body }) => locations.transferrerOf(scope, body), execute: (sql, scope, { body }, ctx) => locations.transferStock(sql, scope, body, ctx) },
+  'inventory.stocktake.preview': { authorize: (sql, scope, { body }) => stocktake.previewerOf(scope, body), execute: (sql, scope, { body }, ctx) => stocktake.previewStocktake(sql, scope, body, ctx) },
+  'inventory.stocktake.commit': { authorize: (sql, scope, { body }) => stocktake.committerOf(scope, body), execute: (sql, scope, { body }, ctx) => stocktake.commitStocktake(sql, scope, body, ctx) },
+  // Reservations (FR-180): Inventory write on the Business the body names; a hold takes the ledger fence (D-23).
+  'inventory.reservation.create': { authorize: (sql, scope, { body }) => atp.reserverOf(scope, body), execute: (sql, scope, { body }, ctx) => atp.createReservation(sql, scope, body, ctx) },
+  'inventory.reservation.action': { authorize: (sql, scope, { targetId, body }) => atp.reservationActorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => atp.applyReservationAction(sql, scope, targetId, body, ctx) },
+  'inventory.reservation.expire': { authorize: (sql, scope, { body }) => atp.sweeperOf(scope, body), execute: (sql, scope, { body }, ctx) => atp.expireDueReservations(sql, scope, body ?? {}, ctx) },
+  // Shelf-life maintenance (FR-179) and catalogue intake (FR-208): Inventory write on the named
+  // Business (an intake action: the intake's own); intake commit/cancel lock the intake first (D-27).
+  'inventory.lot.maintain': { authorize: (sql, scope, { body }) => shelfLife.maintainerOf(scope, body), execute: (sql, scope, { body }, ctx) => shelfLife.recordLotMaintenance(sql, scope, body, ctx) },
+  'inventory.catalog-intake.preview': { authorize: (sql, scope, { body }) => catalogIntake.previewerOf(scope, body), execute: (sql, scope, { body }, ctx) => catalogIntake.previewCatalogIntake(sql, scope, body, ctx) },
+  'inventory.catalog-intake.commit': { authorize: (sql, scope, { body }) => catalogIntake.committerOf(scope, body), execute: (sql, scope, { body }, ctx) => catalogIntake.commitCatalogIntake(sql, scope, body, ctx) },
+  'inventory.catalog-intake.action': { authorize: (sql, scope, { targetId, body }) => catalogIntake.cancellerOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => catalogIntake.applyCatalogIntakeAction(sql, scope, targetId, body, ctx) },
+  'inventory.kitting-work-order.action': { authorize: (sql, scope, { targetId, body }) => kitting.actorOf(sql, scope, targetId, body), execute: (sql, scope, { targetId, body }, ctx) => kitting.applyKittingWorkOrderAction(sql, scope, targetId, body, ctx) },
+  'commerce.pos.checkout': {
+    // Authorization needs the parsed businessId; a malformed body is a 422 before any lookup.
+    authorize: (sql, scope, { body }) => commerceAuthority.require(scope, parseCheckout(body).businessId, 'order').id,
+    // Replay discloses on-hand figures when stock was issued.
+    replayGuard: (scope, businessId, stored) => { if (stored.stockDeductions?.length && !inventoryAuthority.mayView(scope, businessId)) throw denied() },
+    prepare: (scope, { body }, deps) => prepareCheckout(scope, body, deps),
+    execute: (sql, scope, { prepared }, ctx) => checkoutPosSale(sql, scope, prepared, ctx),
+  },
+  'commerce.sales-order.create': {
+    authorize: (sql, scope, { body }) => commerceAuthority.require(scope, zCreateOrder.parse(body).businessId, 'order').id,
+    prepare: (scope, { body }, deps) => prepareCreateOrder(scope, body, deps),
+    execute: (sql, scope, { prepared }, ctx) => createOrder(sql, scope, prepared, ctx),
+  },
+  'commerce.sales-order.action': {
+    authorize: (sql, scope, { targetId }) => loadSalesOrderInScope(sql, scope, targetId, 'order').businessId,
+    // A replay of a fulfilment discloses on-hand figures.
+    replayGuard: (scope, businessId, stored) => { if (stored.issued?.length && !inventoryAuthority.mayView(scope, businessId)) throw denied() },
+    prepare: (scope, { targetId, body }, deps) => prepareOrderAction(scope, { orderId: targetId, body }, {
+      references: deps.references,
+      readOrder: (id) => deps.read((sql) => loadSalesOrderInScope(sql, scope, id, 'order')),
+    }),
+    execute: (sql, scope, { targetId, prepared }, ctx) => applyOrderAction(sql, scope, targetId, prepared, ctx),
+  },
+  'commerce.payment.record': {
+    authorize: (sql, scope, { targetId }) => loadOrderForPayment(sql, scope, targetId).businessId,
+    prepare: (scope, { targetId, body }, deps) => prepareRecordPayment(scope, { orderId: targetId, body }, {
+      references: deps.references,
+      readOrder: (id) => deps.read((sql) => loadOrderForPayment(sql, scope, id)),
+    }),
+    execute: (sql, scope, { targetId, prepared }, ctx) => recordPayment(sql, scope, targetId, prepared, ctx),
+  },
+  'commerce.payment.action': {
+    authorize: (sql, scope, { targetId }) => {
+      const row = commerceRepo.paymentById(sql, typeof targetId === 'string' ? targetId.trim() : '')
+      if (!row || row.tenantId !== scope.tenantId) throw denied()
+      return commerceAuthority.require(scope, row.businessId, 'verify').id
+    },
+    execute: (sql, scope, { targetId, body }, ctx) => applyPaymentAction(sql, scope, targetId, body, ctx),
+  },
+  // Pricing (FR-253): OWNER only — also for an outcome lookup (lookupView). Rule content is validated by the one kernel evaluator.
+  'commerce.pricing-rule.create': {
+    lookupView: PRICING_VIEW,
+    authorize: (sql, scope, { body }) => ownerBusiness(scope, zCreatePricingRule.parse(body).businessId).id,
+    execute: (sql, scope, { body }, ctx) => createPricingRuleSet(sql, scope, body, ctx),
+  },
+  'commerce.pricing-rule.update': {
+    lookupView: PRICING_VIEW,
+    authorize: (sql, scope, { targetId, body }) => loadRuleInScope(sql, scope, targetId, body?.businessId).businessId,
+    execute: (sql, scope, { targetId, body }, ctx) => updatePricingRuleSet(sql, scope, targetId, body, ctx),
+  },
+  'commerce.pricing-rule.action': {
+    lookupView: PRICING_VIEW,
+    authorize: (sql, scope, { targetId, body }) => loadRuleInScope(sql, scope, targetId, body?.businessId).businessId,
+    execute: (sql, scope, { targetId, body }, ctx) => applyPricingRuleAction(sql, scope, targetId, body, ctx),
+  },
+  'commerce.pricing.calculate': {
+    lookupView: PRICING_VIEW,
+    authorize: (sql, scope, { body }) => ownerBusiness(scope, zCalculatePricing.parse(body).businessId).id,
+    // The key is bound to the NORMALIZED request (legacy requestHash), so "12.5"
+    // and "12.50" are one request, and a reuse gets the legacy conflict code.
+    hashBody: (body) => calculationRequest(body),
+    conflictCode: 'PRICING_CALCULATION_IDEMPOTENCY_CONFLICT',
+    // A replay must not offer a price whose policy was since withdrawn or superseded.
+    replayGuard: (scope, businessId, stored, { sql, now }) => guardCalculationReplay(sql, scope, businessId, stored, now),
+    execute: (sql, scope, { body }, ctx) => calculatePricing(sql, scope, body, ctx),
+  },
+}
+
+const LOOKUP_VIEW = { commerce: commerceAuthority, procurement: procurementAuthority, inventory: inventoryAuthority }
+
+export const COMMAND_NAMES = Object.freeze(Object.keys(COMMANDS))
+
+export function createCommandBus({ store, clock = () => new Date(), faults = {}, references = createUnavailableReferenceAuthority() }) {
+  async function run(scope, action, { idempotencyKey, targetId = null, body }) {
+    const command = COMMANDS[action]
+    if (!command) throw Object.assign(new Error('unknown command'), { status: 404, code: 'SCM_COMMAND_UNKNOWN' })
+    assertIdempotencyKey(idempotencyKey)
+    // Hashed only after authorization, so a caller without the capability learns
+    // nothing from a normalization refusal (legacy order: parse, scope, engine).
+    let hash
+    const hashOf = () => (hash ??= requestHash({ action, targetId, body: command.hashBody ? command.hashBody(body) : body ?? null }))
+    const replayIfCommitted = (sql) => {
+      const businessId = command.authorize(sql, scope, { targetId, body })
+      const key = { tenantId: scope.tenantId, businessId, action, actorId: scope.actorId, idempotencyKey }
+      const existing = findReceipt(sql, key)
+      if (!existing) return { key, businessId, replay: null }
+      const replay = replayOrConflict(existing, hashOf(), targetId, command.conflictCode)
+      command.replayGuard?.(scope, businessId, replay, { sql, now: clock().toISOString() })
+      return { key, businessId, replay }
+    }
+    let prepared
+    if (command.prepare) {
+      const early = await store.read(replayIfCommitted)
+      if (early.replay) return early.replay
+      prepared = await command.prepare(scope, { targetId, body }, { references, read: (fn) => store.read(fn) })
+    }
+    return store.transaction(async (sql) => {
+      const { key, replay } = replayIfCommitted(sql)
+      if (replay) return replay
+      const now = clock().toISOString()
+      hashOf()
+      const outcome = command.execute(sql, scope, { targetId, body, prepared }, { now, requestId: idempotencyKey, faults: faults[action] ?? {} })
+      const operation = writeReceipt(sql, { ...key, hash: hashOf(), targetId, response: outcome.response, affected: outcome.affected, now })
+      // A use case may itself report a domain replay (e.g. a cost sheet found by its source hash).
+      return { replayed: false, ...outcome.response, operation }
+    })
+  }
+
+  /** Outcome lookup after a lost response: the exact receipt, or 404 (never re-executes). */
+  async function lookup(scope, { action, businessId, idempotencyKey }) {
+    const command = COMMANDS[action]
+    if (!command) throw Object.assign(new Error('unknown command'), { status: 404, code: 'SCM_COMMAND_UNKNOWN' })
+    assertIdempotencyKey(idempotencyKey)
+    if (!(command.lookupView ?? LOOKUP_VIEW[action.split('.')[0]])?.mayView(scope, businessId)) throw denied()
+    return store.read((sql) => {
+      const row = findReceipt(sql, { tenantId: scope.tenantId, businessId, action, actorId: scope.actorId, idempotencyKey })
+      if (!row) throw Object.assign(new Error('no committed operation for this key'), { status: 404, code: 'SCM_OPERATION_NOT_FOUND', retryable: false })
+      const response = JSON.parse(row.responseJson)
+      command.replayGuard?.(scope, businessId, response, { sql, now: clock().toISOString() })
+      return { operation: operationDto(row), response }
+    })
+  }
+
+  const queries = {
+    purchaseOrder: (scope, id) => store.read((sql) => ({ order: getPurchaseOrder(sql, scope, id) })),
+    stock: (scope, businessId, options = {}) => store.read((sql) => stockSummary(sql, scope, { businessId, ...options })),
+    movements: (scope, q) => store.read((sql) => ({ movements: listMovements(sql, scope, q) })),
+    salesOrder: (scope, id) => store.read((sql) => ({ order: getOrder(sql, scope, id) })),
+    payment: (scope, id) => store.read((sql) => ({ payment: getPayment(sql, scope, id) })),
+    orders: (scope, query) => store.read((sql) => listOrders(sql, scope, query)),
+    revenue: (scope, query) => store.read((sql) => getRevenueSummary(sql, scope, query)),
+    orderPayments: (scope, orderId) => store.read((sql) => listPayments(sql, scope, orderId)),
+    // Authorize, then read Branch facts from their owner (outside the store), then the store.
+    posCatalogue: async (scope, query) => {
+      const business = authorizeCatalogue(scope, query)
+      const branches = await references.branches(scope, { businessId: business.id })
+      return store.read((sql) => getPosTerminalCatalogue(sql, business, branches))
+    },
+    categories: (scope, query) => store.read((sql) => catalog.listCategories(sql, scope, query)),
+    families: (scope, query) => store.read((sql) => catalog.listFamilies(sql, scope, query)),
+    factories: (scope, query) => store.read((sql) => catalog.listFactories(sql, scope, query)),
+    productMasters: (scope, query) => store.read((sql) => catalog.listProductMasters(sql, scope, query)),
+    products: (scope, query) => store.read((sql) => catalog.listProducts(sql, scope, query)),
+    bundles: (scope, query) => store.read((sql) => catalog.listBundles(sql, scope, query)),
+    // The product page: Inventory's half (product, on-hand, costing) and Procurement's
+    // confirmed-sheet price breaks, in one snapshot.
+    product: (scope, id) => store.read((sql) => {
+      const product = catalog.getProduct(sql, scope, id)
+      const supplierCostPriceBreaksOfProduct = supplierCostPriceBreaks(sql, product.id)
+      return { product: { ...product, costing: { ...product.costing, supplierCostPriceBreaks: supplierCostPriceBreaksOfProduct }, supplierCostPriceBreaks: supplierCostPriceBreaksOfProduct } }
+    }),
+    identifiers: (scope, productId, options) => store.read((sql) => ({ identifiers: identity.listIdentifiers(sql, scope, productId, options) })),
+    unitConversions: (scope, productId, options) => store.read((sql) => identity.listUnitConversions(sql, scope, productId, options)),
+    resolve: (scope, query) => store.read((sql) => identity.resolveProduct(sql, scope, query)),
+    recipes: (scope, query) => store.read((sql) => ({ recipes: recipes.listRecipes(sql, scope, query) })),
+    recipe: (scope, id, query) => store.read((sql) => ({ recipe: recipes.getRecipe(sql, scope, id, query) })),
+    customizationWorkOrders: (scope, query) => store.read((sql) => ({ orders: customization.listCustomizationWorkOrders(sql, scope, query) })),
+    customizationWorkOrder: (scope, id) => store.read((sql) => ({ order: customization.getCustomizationWorkOrder(sql, scope, id) })),
+    kittingWorkOrders: (scope, query) => store.read((sql) => ({ orders: kitting.listKittingWorkOrders(sql, scope, query) })),
+    kittingWorkOrder: (scope, id) => store.read((sql) => ({ order: kitting.getKittingWorkOrder(sql, scope, id) })),
+    lots: (scope, query) => store.read((sql) => ({ lots: stock.listLots(sql, scope, query) })),
+    serialUnits: (scope, query) => store.read((sql) => ({ serialUnits: stock.listSerialUnits(sql, scope, query) })),
+    locations: (scope, query) => store.read((sql) => ({ locations: locations.listLocations(sql, scope, query) })),
+    location: (scope, id) => store.read((sql) => ({ location: locations.getLocation(sql, scope, id) })),
+    locationStock: (scope, query) => store.read((sql) => locations.locationStock(sql, scope, query)),
+    shelfLife: (scope, query) => store.read((sql) => shelfLife.shelfLifeAudit(sql, scope, { ...query, now: clock().toISOString() })),
+    catalogHygiene: (scope, query) => store.read((sql) => hygiene.catalogHygiene(sql, scope, { ...query, now: clock().toISOString() })),
+    replenishment: (scope, query) => store.read((sql) => hygiene.replenishment(sql, scope, query)),
+    catalogIntakes: (scope, query) => store.read((sql) => ({ intakes: catalogIntake.listCatalogIntakes(sql, scope, query) })),
+    catalogIntake: (scope, id) => store.read((sql) => ({ intake: catalogIntake.getCatalogIntake(sql, scope, id) })),
+    catalogIntakeByCode: (scope, query) => store.read((sql) => ({ intake: catalogIntake.findCatalogIntakeByCode(sql, scope, query) })),
+    stocktake: (scope, id, query) => store.read((sql) => ({ stocktake: stocktake.getStocktake(sql, scope, id, query) })),
+    reservations: (scope, query) => store.read((sql) => ({ reservations: atp.listReservations(sql, scope, { ...query, now: clock().toISOString() }) })),
+    atp: (scope, query) => store.read((sql) => (query.recipeId
+      ? atp.maxBuildableSets(sql, scope, { ...query, now: clock().toISOString() })
+      : atp.availableToPromiseFor(sql, scope, { ...query, now: clock().toISOString() }))),
+    costSheet: (scope, id) => store.read((sql) => ({ sheet: getSupplierCostSheet(sql, scope, id) })),
+    costSheets: (scope, query) => store.read((sql) => listSupplierCostSheets(sql, scope, query)),
+    pricingRules: (scope, query) => store.read((sql) => listPricingRules(sql, scope, query, clock().toISOString())),
+    activePricingRule: (scope, businessId) => store.read((sql) => getActivePricingRuleSet(sql, scope, businessId, clock().toISOString())),
+    // Read-only evaluation (no key, nothing stored): the same evaluator as calculate.
+    pricingPreview: (scope, body) => store.read((sql) => previewPricingRules(sql, scope, body)),
+  }
+
+  return { run, lookup, queries }
+}

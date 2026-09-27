@@ -1,0 +1,686 @@
+{
+  "contract": "scm-api",
+  "revision": "v1-draft.17",
+  "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
+  "auth": {
+    "modes": "SCM_AUTH_MODE selects ONE inbound scheme per process: `core` (required in production; the default there) or `delegation` (tests / non-production only; the default outside production; refused in production). Both produce the same scope; scopeDenial is identical in both.",
+    "core": {
+      "headers": [
+        "Authorization: Bearer <SCM_API_TOKEN> — the BFF's static service token (>= 32 chars, differs from SCM_CORE_TOKEN); proves the caller is the BFF, never a business authority",
+        "x-zuri-subject: <end user's session credential> — passed to core unchanged, never logged, stored or echoed; 1..4096 chars",
+        "x-zuri-business-id: <the user's active Business id> — a SELECTOR, never an authority: it only tells core which Tenant's scope to resolve; 1..200 chars, no control characters, not whitespace-only; forwarded unchanged (never trimmed). Required in core mode; ignored in delegation mode"
+      ],
+      "resolution": "SCM asks core to resolve (subject, selected Business) into scope over contracts/v1/scm-core.v1.json (resolve-scope {businessId}); the scope is the selected Business's Tenant and grants for the Businesses the subject sees in THAT Tenant only. A request may address any Business of that scope (the selector need not equal the request's businessId); a Business outside it is 404 SCM_SCOPE_NOT_FOUND. A viewer, role, owner flag or tenant sent by the BFF is never read",
+      "scopeCache": "successful resolutions only are cached in the SCM process for SCM_CORE_SCOPE_CACHE_TTL_MS (default 15000, max 60000, 0 = off; LRU bounded by SCM_CORE_SCOPE_CACHE_MAX_ENTRIES, default 1000), keyed by a sha256 of (subject, selected Business, core credential id). A revoked session or changed grant can keep acting for up to the TTL. Refusals, errors and outages are never cached; facts are never cached",
+      "order": "service token → subject → selector → core resolve-scope; everything refused before the last step never reaches core",
+      "errors": {
+        "401 SCM_SERVICE_TOKEN_INVALID": "missing / wrong bearer (or a Delegation header) — checked first, core is not called",
+        "401 SCM_SUBJECT_REQUIRED": "missing, empty or > 4096-char x-zuri-subject — core is not called",
+        "400 SCM_BUSINESS_SELECTOR_REQUIRED": "missing or invalid x-zuri-business-id (empty, > 200 chars, a control character, whitespace only) — retryable:false; checked after the token and subject, core is not called",
+        "401 SCM_SUBJECT_UNAUTHENTICATED": "core says the subject is not (or no longer) authenticated — the BFF re-authenticates the user",
+        "404 SCM_SCOPE_NOT_FOUND": "core says the selected Business is not visible to the subject, does not exist, or the subject sees no Business at all — the same body as scopeDenial ('Business not found', retryable:false); core does not disclose which",
+        "502 SCM_CORE_REJECTED": "core refused the SCM service itself (bad SCM_CORE_TOKEN, 403, out-of-contract 4xx, a scope over its bound) — operator fault, retryable:false, no effect",
+        "503 SCM_CORE_UNAVAILABLE": "core unreachable / timed out / 5xx / malformed / oversized answer, or a scope without a grant for the selected Business — retryable:true, no effect"
+      }
+    },
+    "header": "Authorization: Delegation <token> (delegation mode)",
+    "token": "scm.delegation.v1 (HMAC-SHA256 over base64url JSON claims; see src/infrastructure/delegation.js)",
+    "claims": [
+      "v",
+      "iss",
+      "aud=zuri-scm",
+      "sub (actor person id)",
+      "tenantId",
+      "iat",
+      "exp (lifetime <= 120s default)",
+      "jti",
+      "grants{businessId:{owner,domains[],permissions[]}}"
+    ],
+    "issuer": "core Identity owner (gate SCM-CORE); tests use a synthetic issuer",
+    "scopeDenial": "404 SCM_SCOPE_NOT_FOUND — identical for unknown and forbidden (FR-072 non-enumeration)"
+  },
+  "mutations": {
+    "idempotency": "Idempotency-Key header required (8-200 of [A-Za-z0-9._:-]); scoped by tenant+business+action+actor; same key+same payload → 200 replayed:true with the stored outcome; same key+different payload/target → 409 SCM_IDEMPOTENCY_KEY_CONFLICT; replay re-checks current authority; commerce.pricing.calculate binds the key per Business (any owner) to the NORMALIZED request and answers a reuse with 409 PRICING_CALCULATION_IDEMPOTENCY_CONFLICT, and its replay/lookup re-checks that the policy is still the usable latest one (409 PRICING_RULE_NOT_ACTIVE)",
+    "unknownOutcome": "on network loss or 5xx, GET /v1/operations/{action}/{key}?businessId= — never resend with a new key",
+    "created": 201,
+    "replayed": 200
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/healthz",
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/readyz",
+      "auth": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/suppliers",
+      "command": "procurement.supplier.create",
+      "capability": "procurement.po.write | owner"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/purchase-orders",
+      "command": "procurement.purchase-order.create",
+      "capability": "procurement.po.write | owner"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/procurement/purchase-orders/{id}",
+      "capability": "procurement domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/purchase-orders/{id}/actions",
+      "command": "procurement.purchase-order.action",
+      "capability": "procurement.po.write | owner",
+      "body": "{action: UPDATE|SEND|CLOSE|CANCEL, version, fields?, reason?}"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/purchase-orders/{id}/receipts",
+      "command": "procurement.goods-receipt.post",
+      "capability": "procurement.receipt.post | owner; counted lines additionally inventory domain + (inventory.catalog.write | owner)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/cost-sheets/preview",
+      "capability": "procurement domain + (OWNER or procurement.po.write)",
+      "command": "procurement.cost-sheet.preview",
+      "note": "stores the normalized source + SKU-match suggestions only (no lines); sourceSha256 unique per Business: same payload → replayed:true (200) under any key, changed payload → 409 PROCUREMENT_COST_SHEET_SOURCE_HASH_REUSED; parity-pinned by contracts/v1/cost-sheet-parity-*.json; an .xlsx upload is converted to this JSON envelope at the edge"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/procurement/cost-sheets/commit",
+      "capability": "procurement domain + (OWNER or procurement.po.write) — and Inventory write authority (OWNER or inventory.catalog.write) for the carton facts, else 404 and nothing written",
+      "command": "procurement.cost-sheet.commit",
+      "note": "sheetId or sourceSha256 + previewHash + a confirmed mapping per SKU; one unit of work: Product carton facts (Inventory writer) + lines + supersede the supplier's previous CONFIRMED sheet + CAS confirm; a CONFIRMED sheet replays (replayed:true)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/procurement/cost-sheets?businessId=&supplierId=&status=&limit=",
+      "capability": "procurement domain",
+      "note": "summaries newest first (no preview, no lines); limit 1-100, default 20"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/procurement/cost-sheets/{id}",
+      "capability": "procurement domain",
+      "note": "sheet + supplier {id, code, name} + preview + lines with locked-FX unitCostSatang/unitCostBaht"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pos/checkout",
+      "command": "commerce.pos.checkout",
+      "capability": "commerce domain + (commerce.order.write | owner) + (inventory.catalog.write | owner); counted lines also inventory domain",
+      "references": "branch (core), customer (CRM), slip fileAsset (Files) via ReferenceAuthority; owner unavailable → 503 SCM_REFERENCE_AUTHORITY_UNAVAILABLE",
+      "invariant": "payment is always PENDING; price is manual"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/pos/catalogue?businessId=",
+      "capability": "commerce domain + inventory domain",
+      "note": "ACTIVE SKUs by code with recomputed on-hand (null unless TRACKED), availability, master name fallback and ACTIVE category; ACTIVE non-virtual locations; ACTIVE categories; ACTIVE Branches from the core owner (503 SCM_REFERENCE_AUTHORITY_UNAVAILABLE while it is unavailable); unitPrice always null (sale prices are manual); parity-pinned by contracts/v1/pos-catalogue-parity-*.json"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/orders",
+      "command": "commerce.sales-order.create",
+      "capability": "commerce.order.write | owner",
+      "references": "customer + conversation (CRM) via ReferenceAuthority; a Business-bound reference must be VISIBLE to the actor (legacy seesBusiness)",
+      "invariant": "DRAFT; conversation makes origin CHAT and supplies its customer; mismatch → 422"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/orders?businessId=&status=&includeClosed=&origin=&customerId=&conversationId=&limit=",
+      "capability": "commerce domain",
+      "note": "open orders by default + summary {open, unpaid, pendingPayments}"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/orders/{id}/actions",
+      "command": "commerce.sales-order.action",
+      "capability": "commerce.order.write | owner; COMPLETE+issueStock also (inventory.catalog.write | owner) and inventory domain",
+      "body": "{action: UPDATE|CONFIRM|COMPLETE|CANCEL, version, fields?, issueStock?, reason?}",
+      "invariant": "lines editable only in DRAFT; whole-order shortage refused before any issue; serial lines refused; CAS on version"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/orders/{id}",
+      "capability": "commerce domain",
+      "note": "customer is an id reference (+code when known); display fields stay with CRM"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/orders/{id}/payments",
+      "capability": "commerce domain",
+      "note": "payments + summary (paid/refunded/net/pending from VERIFIED money)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/orders/{id}/payments",
+      "command": "commerce.payment.record",
+      "capability": "commerce.order.write | owner",
+      "references": "slip fileAsset (Files) via ReferenceAuthority when slipFileAssetId is given",
+      "invariant": "recorded PENDING; bank reference unique per Tenant; no PAYMENT on a CANCELLED order (REFUND allowed)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/payments/{id}",
+      "capability": "commerce domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/payments/{id}/actions",
+      "command": "commerce.payment.action",
+      "capability": "commerce.payment.verify | owner",
+      "body": "{action: VERIFY|REJECT, version, reason?, selfVerifyAttested?}",
+      "invariant": "FR-196: recorder cannot verify own payment (owner included) without selfVerifyAttested; REFUND verify ≤ verified net; CAS on version"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/revenue?businessId=&from=&to=",
+      "capability": "commerce domain",
+      "note": "VERIFIED net of VERIFIED refunds by origin and Asia/Bangkok day of payment; pending PAYMENTs beside it; rejected never counted; from/to are YYYY-MM-DD Bangkok days; parity-pinned by contracts/v1/revenue-parity-*.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/pricing-rules?businessId=",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "note": "all rule sets of the Business, newest first, with isActive for the usable latest policy only; template = the reviewed default rules"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing-rule.create",
+      "note": "DRAFT only; rules validated by the kernel evaluator (422 with details); sourceRuleSetId must be in the same Business"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/commerce/pricing-rules/active?businessId=",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "note": "the usable latest effective policy or 409 PRICING_RULE_NOT_ACTIVE — never an older one, never the template"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules/preview",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "note": "a query: evaluates caller rules (optionally against a stored rule set) with the same evaluator; stores nothing; no Idempotency-Key"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules/calculate",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing.calculate",
+      "note": "immutable snapshot against the usable latest policy (an explicit ruleSetId must be it); publishable is always false; body has no idempotencyKey — the header is the key"
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/commerce/pricing-rules/{id}",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing-rule.update",
+      "note": "DRAFT only; compare-and-swap on version; reason required"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/commerce/pricing-rules/{id}/actions",
+      "capability": "commerce domain + Business OWNER (no permission grants it)",
+      "command": "commerce.pricing-rule.action",
+      "note": "APPROVE (DRAFT → APPROVED, effectiveFrom not in the past, expiresAt after it) or REVOKE (APPROVED → REVOKED, no dates); compare-and-swap on version"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/categories",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.category.create",
+      "note": "code unique per Tenant, slug unique per Business"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/categories?businessId=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/families",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.family.create",
+      "note": "code unique per Tenant"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/families?businessId=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/factories",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.factory.create",
+      "note": "code unique per Tenant"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/factories?businessId=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/product-masters",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.product-master.create",
+      "note": "category/family/factory of the same Business; nature, default stock policy and variant axes fixed here"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/product-masters?businessId=&categoryId=&nature=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.product.create",
+      "note": "the master decides the nature (INVENTORY_NATURE_MISMATCH); variant key unique per master (INVENTORY_PRODUCT_VARIANT_EXISTS); lookalike guard unless allowLookalike (audited); flowAccountSku unique per Tenant (INVENTORY_FLOWACCOUNT_SKU_TAKEN)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/products?businessId=&productMasterId=&stockPolicy=&status=&nature=&includeArchived=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/bundles",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.bundle.create",
+      "note": "same-Business, non-archived SKUs with quantities"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/bundles?businessId=",
+      "capability": "inventory domain",
+      "note": "by code; availableSets from the ledger"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/products/{id}",
+      "capability": "inventory domain",
+      "note": "product + recomputed on-hand + receipt costing + price breaks of CONFIRMED supplier cost sheets"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.product.action",
+      "note": "UPDATE (re-keys a corrected description), PHASE_OUT, REACTIVATE, ARCHIVE (BR-040: no stock, no ACTIVE reservation) and MERGE (plain stock moves through the ledger; identifiers, pack sizes, bundle items and recipes follow the survivor; blocked by BOMs that would change meaning and open work orders — every same-batch survivor recipe named, archived or not, D-22) by compare-and-swap on version"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/identifiers",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.identifier.add",
+      "note": "kind/value unique per Tenant, scannable kinds (GTIN, BARCODE) share one value space; GTIN check digit; a pack barcode's unit must be the base unit or an ACTIVE conversion"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/identifiers/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.identifier.action",
+      "note": "RETIRE by CAS; the row stays and the value stays taken"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/products/{id}/identifiers?includeRetired=",
+      "capability": "inventory domain",
+      "note": "by kind, value"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/unit-conversions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.unit-conversion.add",
+      "note": "integer factor; never the base unit (INVENTORY_UNIT_IS_BASE), a serial product (INVENTORY_UNIT_NOT_FOR_SERIAL) or a service"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/unit-conversions/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.unit-conversion.action",
+      "note": "UPDATE (name, factor, usage) or RETIRE by CAS"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/products/{id}/unit-conversions?includeRetired=",
+      "capability": "inventory domain",
+      "note": "{baseUnit, conversions} by factor"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/products/{id}/flowaccount-sku",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.product.flowaccount-sku",
+      "note": "finished-set SKU pattern (INVENTORY_FINISHED_SET_SKU_INVALID), unique per Tenant (INVENTORY_FLOWACCOUNT_SKU_TAKEN)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/resolve?businessId=&identifier=",
+      "capability": "inventory domain",
+      "note": "code, then FlowAccount code, then an ACTIVE identifier (with the pack factor); a merged duplicate is followed to its survivor; a miss is 200 with product null"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/recipes",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.recipe.create",
+      "note": "FR-156: one output SKU at one batch size; same-Business components, never the output; code unique per Tenant, (product, batchSize) unique"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/recipes?businessId=&productId=&includeArchived=",
+      "capability": "inventory domain",
+      "note": "by product, batch size; archived hidden unless includeArchived"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/recipes/{id}?quantity=",
+      "capability": "inventory domain",
+      "note": "exploded to quantity (default: batch size) against on-hand from the ledger; maxBuildableQuantity"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/recipes/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.recipe.action",
+      "note": "UPDATE (fields and, when given, the whole line set) / ARCHIVE by compare-and-swap on version"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/recipes/{id}/build",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.recipe.build",
+      "note": "issues every counted component (FEFO) and receives the output in one unit of work; refused whole on shortage (details name the short lines) or a SERIAL component/output"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/de-kitting",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.de-kit",
+      "note": "FR-178: issues finished sets, receives surviving components at the stated location with their landed cost; destroyed lines written off; a CUSTOM_COMPONENT never returns to generic stock; LOT components refused"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/customization-work-orders",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.customization-work-order.open",
+      "note": "FR-176: gross issue = net + scrap buffer; creates the dedicated CUSTOM_COMPONENT output SKU unless one is named"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/customization-work-orders?businessId=&status=&salesOrderId=",
+      "capability": "inventory domain",
+      "note": "newest first"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/customization-work-orders/{id}",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/customization-work-orders/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.customization-work-order.action",
+      "note": "RELEASE (transfer to the workshop, or an on-hand proof) / COMPLETE (worked and scrapped issued separately; output at landed + setup + run cost; buffer returned; short → BLOCKED_SHORTAGE) / CANCEL; compare-and-swap on version"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/kitting-work-orders",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.kitting-work-order.open",
+      "note": "FR-177: output must carry a FlowAccount finished-set SKU; BOM exploded with the scrap allowance and frozen; components checked against ATP"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/kitting-work-orders?businessId=&status=&salesOrderId=",
+      "capability": "inventory domain",
+      "note": "newest first"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/kitting-work-orders/{id}",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/kitting-work-orders/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.kitting-work-order.action",
+      "note": "RELEASE (stage gross at the line) / COMPLETE (per-set × attempts consumed; sets received at blended landed cost; buffer returned; short → BLOCKED_SHORTAGE) / CANCEL; compare-and-swap on version (W-1)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/reservations",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.reservation.create",
+      "note": "FR-180: QUOTE (expires, 7 days by default) or ORDER (needs salesOrderId, no expiry); refused 409 STOCK_RESERVATION_INSUFFICIENT_ATP beyond ATP; takes the Business ledger fence first (D-23); never writes the ledger"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/reservations?businessId=&productId=&status=",
+      "capability": "inventory domain",
+      "note": "newest first; `live` computed against the clock (BR-031), never stored"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/reservations/expire",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.reservation.expire",
+      "note": "stamps EXPIRED on ACTIVE holds whose clock ran out — reporting only, no ATP figure changes"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/reservations/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.reservation.action",
+      "note": "RELEASE / CONVERT (a quote hold ends CONVERTED and an ORDER hold replaces it in the same unit of work) by compare-and-swap on version (D-23)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/atp?businessId=&productId=&recipeId=&quantity=",
+      "capability": "inventory domain",
+      "note": "productId repeatable: on-hand − live holds per SKU (uncounted → available null); with recipeId: max buildable sets from ATP with the per-component picture"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/stock-movements",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.movement.record",
+      "note": "FR-155: one RECEIPT / ISSUE / ADJUSTMENT (signed) through the ledger writer; serial units received and issued one per quantity; a serial ADJUSTMENT is refused"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/lots",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.lot.create",
+      "note": "an explicit lot with optional factory and dates; code unique per SKU"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/lots?businessId=&productId=",
+      "capability": "inventory domain",
+      "note": "oldest first, with on-hand per lot from the ledger"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/serial-units?businessId=&productId=&lotId=&status=",
+      "capability": "inventory domain",
+      "note": "by serial number"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/locations",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.location.create",
+      "note": "FR-174: Business-scoped, typed, code unique per Tenant"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/locations?businessId=&type=&includeArchived=",
+      "capability": "inventory domain",
+      "note": "by code"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/locations/{id}",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/locations/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.location.action",
+      "note": "UPDATE (name, address, isVirtual) / ARCHIVE (refused while the location holds stock) by compare-and-swap on version"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/location-stock?businessId=&productId=",
+      "capability": "inventory domain",
+      "note": "on-hand per location from the located ledger; the unlocated remainder beside the total (BR-026)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/transfers",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.transfer",
+      "note": "one ISSUE at the source + one RECEIPT per lot at the target in one unit of work; branded stock never into a generic-stock location (BR-028)"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/stocktakes/preview",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.stocktake.preview",
+      "note": "FR-184: durable preview under the ledger fence; UUID ids; NONE / LOT only; no movement"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/stocktakes/commit",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.stocktake.commit",
+      "note": "takes the ledger fence first; body idempotencyKey replays a committed result (409 on a different payload); stale / incomplete / mismatched refused; one signed ADJUSTMENT per variance"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/stocktakes/{id}?businessId=",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/shelf-life?businessId=&thresholdDays=&includeEmpty=",
+      "capability": "inventory domain",
+      "note": "FR-179: every lot of every live SKU that declares a storage limit with its standing (OK / DUE / EXPIRED); on-hand from the ledger; empty lots only with includeEmpty=true"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/shelf-life",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.lot.maintain",
+      "note": "FR-179: records a maintenance, which resets the lot's clock; audited; no ledger movement; the lot is locked before it is read (D-27)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/catalog-hygiene?businessId=&dormantDays=",
+      "capability": "inventory domain",
+      "note": "FR-206: read-only findings from the kernel hygieneReport; dormantDays clamped to 1..3650 (default 180)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/replenishment?businessId=",
+      "capability": "inventory domain",
+      "note": "FR-207: counted ACTIVE SKUs below their reorder point (or safety stock) with the quantity to order; a suggestion, never a purchase order"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/catalog-intakes/preview",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.catalog-intake.preview",
+      "note": "FR-208: the JSON envelope every surface converges on (the Excel workbook converter and template stay at the edge, D-26); plan persisted with its hash, idempotent on (Business, channel, correlationId); a different payload under one correlation is 409 INVENTORY_CATALOG_INTAKE_CORRELATION_REUSED"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/catalog-intakes/commit",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.catalog-intake.commit",
+      "note": "FR-208: re-plans in one unit of work and runs every action through the catalogue and identity writers; a stale plan, an expired, cancelled or uncommittable intake is refused; the intake is locked first, so a concurrent second commit replays (D-27); requesterOnly: true refuses (404) anyone but the actor who previewed"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/catalog-intakes?businessId=&limit=",
+      "capability": "inventory domain",
+      "note": "newest first, without plans; limit 1..100 (default 20)"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/catalog-intakes/by-code?businessId=&code=",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "note": "the intake a LINE confirmation names by its human code"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/catalog-intakes/{id}",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/inventory/catalog-intakes/{id}/actions",
+      "capability": "inventory domain + (OWNER or inventory.catalog.write)",
+      "command": "inventory.catalog-intake.action",
+      "note": "CANCEL {version, businessId?, requesterOnly?}: PREVIEWED only, compare-and-swap on version"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/stock?businessId=&includeArchived=",
+      "capability": "inventory domain",
+      "note": "every SKU with on-hand recomputed from the ledger (uncounted → null) and the legacy counts block"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/inventory/movements?businessId=&productId=&limit=",
+      "capability": "inventory domain"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/operations/{action}/{key}?businessId=",
+      "capability": "the action's own domain (procurement.* → procurement, commerce.* → commerce, inventory.* → inventory); same actor; a replay that discloses on-hand (goods receipt, POS with stock) also needs the inventory domain; commerce.pricing-* also needs Business OWNER"
+    }
+  ],
+  "errorShape": {
+    "error": {
+      "code": "string",
+      "message": "string",
+      "retryable": "boolean",
+      "details": "optional",
+      "issues": "optional (422 validation)",
+      "outcome": "UNKNOWN (500 only)"
+    }
+  },
+  "retryableCodes": [
+    "PURCHASE_ORDER_VERSION_CONFLICT (receipt race only)",
+    "SCM_STORE_BUSY",
+    "SCM_CONCURRENT_CONFLICT (409: the unit lost a serialization / deadlock / unique race on every bounded re-run and was rolled back whole, receipt included; no effect, resend with the SAME key)",
+    "SCM_DRAINING",
+    "SCM_STORE_CLOSED",
+    "SCM_REFERENCE_AUTHORITY_UNAVAILABLE",
+    "SCM_CORE_UNAVAILABLE (503, core mode: scope or a Branch/Customer/Conversation fact could not be read from core; no effect)"
+  ],
+  "notMigrated": []
+}
