@@ -110,7 +110,7 @@ function createFakeMsp({ history = true } = {}) {
     if (name === 'msp_thread_context') {
       const thread = [...threads.values()].find(item => item.threadId === input.thread_id)
       const exchanges = []
-      for (const message of messages.filter(item => item.threadId === input.thread_id)) {
+      for (const message of messages.filter(item => item.threadId === input.thread_id && item.redactionState !== 'tombstoned')) {
         let exchange = exchanges.find(item => item.exchangeId === message.exchangeId)
         if (!exchange) exchanges.push(exchange = { exchangeId: message.exchangeId, messages: [] })
         exchange.messages.push({ sequence: message.sequence, speakerId: message.speakerId, speakerKind: message.speakerKind,
@@ -121,20 +121,32 @@ function createFakeMsp({ history = true } = {}) {
     }
     if (name === 'msp_thread_injection_record') return { recorded: true, state: input.state }
     if (name === 'msp_thread_principal_erase') {
-      // The thread is the one the signed route claims name; the principal's own
-      // exchanges (their turn and the reply to it) are removed, nobody else's.
+      // The contract at the deployed MSP pin (API-011; msp-core thread-memory.mjs
+      // `erasePrincipal`): NOT thread-bound. It spans every thread of the grant's
+      // tenant the principal ever spoke in: their own HUMAN messages are tombstoned
+      // (text blanked, row kept), their participant rows closed, and session
+      // summaries and delivery receipts tombstoned only in threads where they are
+      // the sole human. AGENT replies are kept, in every thread. Idempotent by
+      // (tenant, idempotency_key): a replay changes nothing and says so.
       const grant = input.access?.grant ?? {}
-      const thread = threads.get([grant.tenantId, grant.channelAccountId, grant.externalRoomRef].join('|'))
-      const seen = erasures.find(item => item.idempotencyKey === input.idempotency_key)
-      if (seen) return { erased: 0, deduplicated: true }
-      const theirs = new Set(messages.filter(message => message.threadId === thread?.threadId && message.speakerId === input.principal_id)
-        .map(message => message.exchangeId))
-      const before = messages.length
-      for (let index = messages.length - 1; index >= 0; index -= 1) {
-        if (messages[index].threadId === thread?.threadId && theirs.has(messages[index].exchangeId)) messages.splice(index, 1)
+      const seen = erasures.find(item => item.tenantId === grant.tenantId && item.idempotencyKey === input.idempotency_key)
+      if (seen) return { erasureReceiptId: seen.erasureReceiptId, tablesAffected: seen.tablesAffected, replay: true }
+      const tenantThreads = new Set([...threads.entries()].filter(([key]) => key.startsWith(`${grant.tenantId}|`))
+        .map(([, thread]) => thread.threadId))
+      let tombstoned = 0
+      for (const message of messages) {
+        if (tenantThreads.has(message.threadId) && message.speakerId === input.principal_id && message.speakerKind === 'HUMAN'
+          && message.redactionState !== 'tombstoned') {
+          message.text = ''
+          message.redactionState = 'tombstoned'
+          tombstoned += 1
+        }
       }
-      erasures.push({ idempotencyKey: input.idempotency_key, principalId: input.principal_id, threadId: thread?.threadId, grant })
-      return { erased: before - messages.length, deduplicated: false }
+      const erasureReceiptId = next('erasure-receipt')
+      const tablesAffected = { threadMessages: tombstoned, protectedMemoryRecords: 0, sessionSummaries: 0, threadDeliveryReceipts: 0, threadParticipants: 0 }
+      erasures.push({ idempotencyKey: input.idempotency_key, principalId: input.principal_id, tenantId: grant.tenantId, grant,
+        erasureReceiptId, tablesAffected })
+      return { erasureReceiptId, tablesAffected, replay: false, principalId: input.principal_id, tenantId: grant.tenantId }
     }
     return {}
   }
@@ -725,7 +737,8 @@ describe('W12 — the runtime cannot redirect memory or read another speaker\'s 
 
 describe('W12 — erasing one speaker removes only their contributions from a group\'s MSP thread memory', () => {
   const eraseGroup = 'synthetic-w12-erasure-memory-group'
-  const speakerLines = (msp, personId) => msp.messages.filter(message => message.speakerId === personId)
+  // What MSP still holds of a speaker: tombstoned rows (text blanked by an erasure) are gone.
+  const speakerLines = (msp, personId) => msp.messages.filter(message => message.speakerId === personId && message.redactionState !== 'tombstoned')
   const pendingRows = () => prisma.agentTraceEvent.findMany({ where: { kind: MEMORY_ERASURE_KINDS.pending } })
 
   /** Turns from two speakers in one group, first in the SERVER cohort, then in the runtime cohort. */
@@ -753,8 +766,9 @@ describe('W12 — erasing one speaker removes only their contributions from a gr
       const opener = erased === 'F' ? erased : kept
       const other = opener === erased ? kept : erased
       const { msp } = await bothCohorts({ first: opener, second: other, group })
-      // The erased speaker also has a DIRECT memory thread; it keeps today's
-      // erasure behaviour (its delivery receipt closes; no MSP thread erasure).
+      // The erased speaker also has a DIRECT memory thread. Core sends no MSP call
+      // for it (unchanged; owner decision pending), but the MSP erase Core sends for
+      // the group is tenant-wide, so it tombstones this DIRECT line too (below).
       await admit('runtime', 9, { audience: 'DIRECT', speaker: erased })
       expect((await runRuntime(buildRuntime({ msp }))).map(outcome => outcome.status)).toEqual(['RECORDED'])
       const keptLines = speakerLines(msp, persons[kept].id).map(message => message.text)
@@ -783,16 +797,24 @@ describe('W12 — erasing one speaker removes only their contributions from a gr
       expect(ours[0].grant.readPrivate).not.toBe(true)
       expect(ours[0].grant.writePrivate).not.toBe(true)
       const groupThread = msp.calls.find(call => call.name === 'msp_thread_resolve' && call.input.external_room_ref === group)
-      expect(speakerLines(msp, persons[erased].id).map(message => message.text)).toEqual(['AB-1 ราคาเท่าไร'])
+      // MSP's contract: every line the erased speaker wrote in the tenant is
+      // tombstoned, the group's two and the DIRECT one; nobody else's line is.
+      expect(speakerLines(msp, persons[erased].id)).toEqual([])
       expect(speakerLines(msp, persons[kept].id).map(message => message.text)).toEqual(keptLines)
       expect(groupThread).toBeDefined()
-      // Per thread: the group keeps the other speaker's two exchanges (4 lines); the
-      // erased speaker's DIRECT thread (turn + reply) is untouched by this erasure.
+      const tombstoned = msp.messages.filter(message => message.redactionState === 'tombstoned')
+      expect(tombstoned.every(message => message.speakerId === persons[erased].id && message.text === '')).toBe(true)
+      expect(tombstoned).toHaveLength(3)
       const groupThreadId = speakerLines(msp, persons[kept].id)[0].threadId
-      const directThreadId = speakerLines(msp, persons[erased].id)[0].threadId
+      const directThreadId = tombstoned.find(message => message.threadId !== groupThreadId).threadId
       expect(groupThreadId).not.toBe(directThreadId)
-      expect(threadMessagesOf(msp).filter(message => message.threadId === groupThreadId)).toHaveLength(4)
-      expect(threadMessagesOf(msp).filter(message => message.threadId === directThreadId)).toHaveLength(2)
+      // AGENT replies are not the principal's content and stay, in both threads:
+      // the group keeps its 8 rows (2 tombstoned), the DIRECT thread its 2 (1 tombstoned).
+      const live = threadId => threadMessagesOf(msp).filter(message => message.threadId === threadId && message.redactionState !== 'tombstoned')
+      expect(threadMessagesOf(msp).filter(message => message.threadId === groupThreadId)).toHaveLength(8)
+      expect(live(groupThreadId)).toHaveLength(6)
+      expect(live(groupThreadId).filter(message => message.direction === 'OUTBOUND')).toHaveLength(4)
+      expect(live(directThreadId).map(message => message.direction)).toEqual(['OUTBOUND'])
       // The acknowledged record is redacted: Core keeps no list of the erased person's groups.
       const after = await prisma.agentTraceEvent.findMany({ where: { turnId: pending[0].turnId } })
       expect(after.every(row => row.kind === 'RETENTION_TOMBSTONE' || row.payloadJson === '{"redacted":true}')).toBe(true)

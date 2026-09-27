@@ -14,8 +14,18 @@ import { appendTraceEvent, redactTraceTurn } from '@/modules/agent/execution-tra
 //   (docs/plans/LINE-TO-GKS-GROUNDING-AND-CANDIDATE-PIPELINE-DESIGN.md, D-8 and the
 //   MSP row: "never silently dropped"). On acknowledgement the record's own trace is
 //   redacted, so Core keeps no list of the groups an erased person was in.
-// @spec ADR-061, ADR-091, SEC-001, SEC-005 — a DIRECT thread keeps today's behaviour
-//   (its pending delivery receipt is closed by the job erasure).
+//   What MSP does with the call (API-011 at the deployed MSP pin): the erase is NOT
+//   thread-bound. It tombstones the principal's own HUMAN messages in every thread
+//   of the tenant (text blanked), closes their participant rows, and tombstones
+//   session summaries and delivery receipts only in threads where they are the sole
+//   human; AGENT replies and shared-thread summaries are kept. The per-thread record
+//   is therefore the trigger, not the scope: the first acknowledged call does the
+//   whole tenant, later ones for the same person find nothing left.
+// @spec ADR-061, ADR-091, SEC-001, SEC-005 — Core sends no MSP call for a DIRECT
+//   thread (its pending delivery receipt is closed by the job erasure). A person who
+//   also spoke in a group with memory sync has their DIRECT human lines tombstoned
+//   too, by the tenant-wide MSP erase above; whether Core should call MSP for a
+//   DIRECT-only person is an open owner decision.
 // @tested tests/integration/conversation-runtime-memory-group-gks.test.js,
 //   tests/integration/line-memory-erasure-due-query.test.js
 
