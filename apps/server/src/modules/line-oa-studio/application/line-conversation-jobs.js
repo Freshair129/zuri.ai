@@ -17,7 +17,7 @@ import { isLineProjectWorkCommand, handleLineProjectWorkCommand, parseLineProjec
 import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
 import { resolveLineKnowledgeGroundingMode } from '@/modules/agent/line-knowledge-grounding'
 import { zContextSliceSource } from '@/lib/validation/enums'
-import { assertMemoryAnswerAppended } from './runtime-memory-receipts'
+import { assertMemoryAnswerAppended, loadMemoryReceipt } from './runtime-memory-receipts'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
@@ -173,6 +173,7 @@ export async function runtimeSenderAuthority(db, job) {
       && payload?.identityAssurance === 'UNVERIFIED' && typeof payload.senderSha256 === 'string'
       && /^[0-9a-f]{64}$/.test(payload.senderSha256)
     return { identityState: 'UNVERIFIED', identity: null,
+      admittedPrincipalId: valid && typeof payload.principalId === 'string' && payload.principalId ? payload.principalId : null,
       authorized: valid && typeof job.sourceUserId === 'string' && job.sourceUserId.length > 0
         && sha256(job.sourceUserId) === payload.senderSha256 }
   }
@@ -407,8 +408,11 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // transaction as the job (see `runtimeSenderAuthority`). Same turn-guard note
     // as above: the job was created in this transaction.
     if (runtimeOwner === 'CONVERSATION_RUNTIME' && !senderVerified) {
+      // `principalId` is the CRM principal this admission resolved the sender to (it
+      // names the speaker in an MSP thread; it is not a verified person). Core's
+      // PENDING memory mode refuses a turn whose sender resolves to anyone else later.
       await traceEvent(tx, job, RUNTIME_IDENTITY_ADMISSION_KIND, 'identity-admission', {
-        identityAssurance: 'UNVERIFIED', senderSha256: sha256(userId),
+        identityAssurance: 'UNVERIFIED', senderSha256: sha256(userId), principalId: inbound.personId ?? null,
       }, now, { bypassTurnGuard: true })
     }
     // @req FR-244 — mirrors settleExecution's own ANSWER_READY shape (the normal
@@ -812,7 +816,9 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       // @req FR-244 — an out-of-hours turn never touches memory on either path (the
       // legacy one is READY at admission); its only reply is Core's admission
       // snapshot, which the out-of-hours check below pins READY to.
-      if (!code && runtimeOutOfHoursReply(job) === null
+      // A read receipt means memory ran for the turn after all; it then commits only
+      // with its append, out of hours or not (#600 review, MEDIUM).
+      if (!code && (runtimeOutOfHoursReply(job) === null || await loadMemoryReceipt(tx, job, 'read'))
         && !(job.status === 'READY' && job.executionId === executionId && job.answerText === text)) {
         const inbound = job.memorySyncOptIn
           ? await tx.message.findUnique({ where: { id: job.inboundMessageId }, select: { body: true } }) : null

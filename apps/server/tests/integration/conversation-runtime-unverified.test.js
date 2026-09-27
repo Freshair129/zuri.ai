@@ -132,7 +132,7 @@ async function bothPaths(text, { source = null, user = stranger, env = {} } = {}
   expect(runtimeJob.runtimeOwner).toBe('CONVERSATION_RUNTIME')
   // Core recorded, at admission, that this job's sender is unverified.
   expect(JSON.parse((await identityRecord(runtimeJob)).payloadJson))
-    .toEqual({ identityAssurance: 'UNVERIFIED', senderSha256: sha256(runtimeJob.sourceUserId) })
+    .toEqual({ identityAssurance: 'UNVERIFIED', senderSha256: sha256(runtimeJob.sourceUserId), principalId: expect.any(String) })
   clock = new Date(at.getTime() + 1000)
   const legacyDeliveries = []
   await legacyTick(legacyDeliveries)

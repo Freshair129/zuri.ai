@@ -524,12 +524,13 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     // The sender authority comes from Core's admission-time record and its own
     // ChannelIdentity row, never from the runtime (see `runtimeSenderAuthority`).
     const sender = await runtimeSenderAuthority(db, job)
-    if (!checkIdentity) return { job, identity: null, identityState: sender.identityState }
+    const admitted = sender.identityState === 'UNVERIFIED' ? { admittedPrincipalId: sender.admittedPrincipalId } : {}
+    if (!checkIdentity) return { job, identity: null, identityState: sender.identityState, ...admitted }
     if (!sender.authorized) {
       throw sender.identityState === 'UNVERIFIED' ? error('CONVERSATION_JOB_AUTHORITY_REVOKED', 409)
         : error('CONVERSATION_IDENTITY_REVOKED', 403)
     }
-    return { job, identity: sender.identity, identityState: sender.identityState }
+    return { job, identity: sender.identity, identityState: sender.identityState, ...admitted }
   }
   // @req FR-149 — the memory façade sees the job exactly as Core's claim check read
   // it, plus Core's own sender decision: a job admitted for an unverified sender is
@@ -538,7 +539,9 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   // `memory` request has no field that could name or change it.
   const memoryClaim = async (ref, options) => {
     const owned = await ownedClaim(ref, options)
-    return owned.identityState === 'UNVERIFIED' ? { ...owned, job: { ...owned.job, senderIdentityState: 'UNVERIFIED' } } : owned
+    return owned.identityState === 'UNVERIFIED'
+      ? { ...owned, job: { ...owned.job, senderIdentityState: 'UNVERIFIED', senderPrincipalId: owned.admittedPrincipalId ?? null } }
+      : owned
   }
   const memory = createConversationRuntimeMemory({ db, env, now, ownedClaim: memoryClaim, threadMemoryFactory,
     modelResolver: async job => {

@@ -3837,8 +3837,8 @@
           "title": "Local model residency follows business hours",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 15
+          "codeCount": 5,
+          "testCount": 16
         },
         {
           "id": "FR-259",
@@ -11300,8 +11300,8 @@
           "title": "Local model residency follows business hours",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 15
+          "codeCount": 7,
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -11314,12 +11314,14 @@
         "apps/server/src/modules/crm/line-ingest-service.js",
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-memory.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
         "apps/server/tests/integration/conversation-runtime-unverified.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",

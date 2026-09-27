@@ -10,6 +10,9 @@ import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-por
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 import { sha256 } from '@/modules/agent/execution-trace'
 import { memoryReceiptKey } from '@/modules/line-oa-studio/application/runtime-memory-receipts'
+import { appendTraceEvent } from '@/modules/agent/execution-trace'
+import { assembleAgentContext } from '@/modules/agent/context'
+import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { createCoreClient } from '../../../../services/conversation-runtime/src/core-client.js'
 import { createCorePorts } from '../../../../services/conversation-runtime/src/core-ports.js'
 import { createConversationRuntime } from '../../../../services/conversation-runtime/src/turn-runtime.js'
@@ -159,14 +162,14 @@ async function legacyTick(msp, { sink, inputs, hooks = {} }) {
     now, answer, executionConcurrency: 1, ...transport(sink) })
 }
 
-function buildRuntime(msp, { sink, inputs, hooks = {} }) {
+function buildRuntime(msp, { sink, inputs, hooks = {}, coreOptions = {} }) {
   const wire = []
   const core = createConversationRuntimeCore({ db: prisma, now,
     env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey },
     businessPorts: async () => ({ businessKnowledge: { query: async () => evidence } }),
     credentialResolver: async () => ({ provider: 'prp', model: 'synthetic-w11-model', apiKey: 'synthetic-provider-key' }),
     threadMemoryFactory: () => mspPort(msp),
-    linePorts: () => transport(sink) })
+    linePorts: () => transport(sink), ...coreOptions })
   const handlers = createConversationRuntimeRouteHandlers(core)
   const client = createCoreClient({ baseUrl: 'http://core.invalid', token: serviceToken, fetchFn: async (url, init = {}) => {
     const operation = new URL(url).pathname.split('/').pop()
@@ -401,6 +404,125 @@ describe('out of hours with memory sync, verified sender', () => {
     expect(result.runtime.sink).toEqual(result.legacy.sink)
     expect(result.runtimeMsp.calls).toEqual([])
     expect(result.runtimeJob.status).toBe('RECORDED')
+  })
+})
+
+describe('#600 review: out-of-hours turns never touch memory', () => {
+  const openHours = async () => {
+    await prisma.lineOaAccount.update({ where: { id: account.id },
+      data: { businessHoursOpen: '09:00', businessHoursClose: '18:00', outOfHoursReplyText: outOfHoursText } })
+  }
+  it('refuses every memory operation for a verified, opted-in out-of-hours job, and it still completes (MEDIUM probe)', async () => {
+    await openHours()
+    const saved = minute
+    minute = 22 * 60
+    tick()
+    minute = saved
+    const job = await admit('CONVERSATION_RUNTIME', 'ยังเปิดอยู่ไหมคะ', { user: verifiedCustomer })
+    const msp = createFakeMsp()
+    const built = buildRuntime(msp, { sink: [], inputs: [] })
+    const claim = await built.ports.job.claim({ claimantId: 'runtime-w11-ooh-probe' })
+    expect(claim.jobId).toBe(job.id)
+    const authority = await built.ports.authority.resolve(claim)
+    expect((await built.ports.context.prepare(claim, authority)).turnKind).toBe('OUT_OF_HOURS')
+    await expect(built.ports.memory.read(claim)).rejects.toMatchObject({ code: 'MEMORY_NOT_APPLICABLE' })
+    await expect(built.ports.memory.append(claim, outOfHoursText)).rejects.toMatchObject({ code: 'MEMORY_NOT_APPLICABLE' })
+    await expect(built.ports.memory.receipt(claim, 'injection', { state: 'RESOLVED' })).rejects.toMatchObject({ code: 'MEMORY_NOT_APPLICABLE' })
+    expect(msp.calls).toEqual([])
+    expect(await built.ports.job.complete(claim, { text: outOfHoursText, operationId: `${job.id}:turn-answer` }))
+      .toMatchObject({ status: 'READY' })
+  })
+
+  it('settle refuses an out-of-hours completion once a memory read receipt exists for the job', async () => {
+    await openHours()
+    const saved = minute
+    minute = 22 * 60 + 30
+    tick()
+    minute = saved
+    const job = await admit('CONVERSATION_RUNTIME', 'ยังเปิดอยู่ไหมคะ', { user: verifiedCustomer })
+    const built = buildRuntime(createFakeMsp(), { sink: [], inputs: [] })
+    const claim = await built.ports.job.claim({ claimantId: 'runtime-w11-ooh-receipt' })
+    expect(claim.jobId).toBe(job.id)
+    // A read receipt as an earlier (pre-fix) memory read would have left it.
+    await appendTraceEvent(prisma, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: job.id,
+      executionId: claim.executionId, kind: 'MEMORY_THREAD_READ', idempotencyKey: memoryReceiptKey(job.id, 'read'),
+      payload: { operationId: `${job.id}:memory-read`, policyDecision: 'ALLOW', contextPacketJson: null }, occurredAt: now() })
+    await expect(built.ports.job.complete(claim, { text: outOfHoursText, operationId: `${job.id}:turn-answer` }))
+      .rejects.toMatchObject({ code: 'MEMORY_APPEND_REQUIRED' })
+    expect((await jobRow(job.id)).status).toBe('CLAIMED')
+  })
+})
+
+describe('#600 review: PENDING mode binds the speaker to the admitted principal', () => {
+  it('a sender who links to a different Person mid-turn: the read is refused before any append names that Person', async () => {
+    tick()
+    const linker = `Usynthetic-w11-linker-${sequence}`
+    const job = await admit('CONVERSATION_RUNTIME', 'จำได้ไหมคะ', { user: linker })
+    const admitted = JSON.parse((await prisma.agentTraceEvent.findUnique({ where: { tenantId_businessId_idempotencyKey: {
+      tenantId: job.tenantId, businessId: job.businessId, idempotencyKey: `${job.id}:identity-admission` } } })).payloadJson).principalId
+    expect(admitted).toEqual(expect.any(String))
+    const other = await prisma.person.create({ data: { code: `PER-CR-UMEM-OTHER-${sequence}`, displayName: 'Synthetic other person' } })
+    const { token } = await issueLinkToken({ tenantId: tenant.id, personId: other.id, ttlSeconds: 600 })
+    await redeemLinkToken({ tenantId: tenant.id, token, channelAccountId: account.bindingCode, lineUserId: linker, merge: true })
+    const msp = createFakeMsp()
+    const built = buildRuntime(msp, { sink: [], inputs: [] })
+    const claim = await built.ports.job.claim({ claimantId: 'runtime-w11-linker' })
+    expect(claim.jobId).toBe(job.id)
+    await expect(built.ports.memory.read(claim)).rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
+    expect(msp.calls.filter(call => call.name === 'msp_thread_message_append')).toEqual([])
+    expect(JSON.stringify(msp.calls)).not.toContain(other.id)
+  })
+
+  it('a sender who links after the read: the reply is not appended under the other Person', async () => {
+    tick()
+    const linker = `Usynthetic-w11-late-linker-${sequence}`
+    const job = await admit('CONVERSATION_RUNTIME', 'จำได้ไหมคะ', { user: linker })
+    const msp = createFakeMsp()
+    const built = buildRuntime(msp, { sink: [], inputs: [] })
+    const claim = await built.ports.job.claim({ claimantId: 'runtime-w11-late-linker' })
+    expect(claim.jobId).toBe(job.id)
+    await built.ports.memory.read(claim)
+    const other = await prisma.person.create({ data: { code: `PER-CR-UMEM-LATE-${sequence}`, displayName: 'Synthetic later person' } })
+    const { token } = await issueLinkToken({ tenantId: tenant.id, personId: other.id, ttlSeconds: 600 })
+    await redeemLinkToken({ tenantId: tenant.id, token, channelAccountId: account.bindingCode, lineUserId: linker, merge: true })
+    await expect(built.ports.memory.append(claim, answerText)).rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
+    expect(appended(msp, 'OUTBOUND')).toEqual([])
+    expect(JSON.stringify(msp.calls)).not.toContain(other.id)
+  })
+})
+
+describe('#600 review: PENDING mode fails closed on a context that claims more', () => {
+  /** A context assembler that tampers with the Nth call's result, below Core's pin. */
+  const tampering = (callNumber, tamper) => {
+    let calls = 0
+    return async input => {
+      const context = await assembleAgentContext(input)
+      calls += 1
+      return calls === callNumber ? tamper(context) : context
+    }
+  }
+  async function pendingRead(assembler) {
+    tick()
+    const job = await admit('CONVERSATION_RUNTIME', 'จำได้ไหมคะ', { user: `Usynthetic-w11-tamper-${sequence}` })
+    const msp = createFakeMsp()
+    const built = buildRuntime(msp, { sink: [], inputs: [], coreOptions: { memoryContextAssembler: assembler } })
+    const claim = await built.ports.job.claim({ claimantId: `runtime-w11-tamper-${sequence}` })
+    expect(claim.jobId).toBe(job.id)
+    return { job, msp, read: built.ports.memory.read(claim) }
+  }
+
+  it('a context that claims a verified identity is refused before the question is appended', async () => {
+    const { msp, read } = await pendingRead(tampering(1, context => ({ ...context, identity: { ...context.identity, verified: true } })))
+    await expect(read).rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
+    expect(msp.calls.filter(call => call.name === 'msp_thread_message_append')).toEqual([])
+  })
+
+  it('a thread packet that claims private memory is refused and never stored or returned', async () => {
+    const { job, read } = await pendingRead(tampering(2, context => ({ ...context, threadMemory: { ...context.threadMemory,
+      policyDecision: 'ALLOW', memory: { participants: [], protectedMemory: [], summaries: [],
+        recentExchanges: [{ exchangeId: 'private-exchange', messages: [{ direction: 'INBOUND', text: 'ข้อความส่วนตัว' }] }] } } })))
+    await expect(read).rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
+    expect(await prisma.agentTraceEvent.findFirst({ where: { turnId: job.id, idempotencyKey: memoryReceiptKey(job.id, 'read') } })).toBeNull()
   })
 })
 
