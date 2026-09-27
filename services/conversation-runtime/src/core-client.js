@@ -92,7 +92,7 @@ export function createCoreClient({ baseUrl, token, fetchFn = fetch, timeoutMs = 
       }
       if (Object.hasOwn(result, 'error')) throw new Error('CORE_RESPONSE_INVALID')
       if (!Object.hasOwn(result, 'data')) throw new Error('CORE_RESPONSE_INVALID')
-      validateOperationResult(operation, result.data)
+      validateOperationResult(operation, result.data, envelope.payload)
       return result.data
     } catch (error) {
       if (error?.name === 'AbortError') throw Object.assign(new Error('CORE_OPERATION_TIMEOUT'), { code: 'CORE_OPERATION_TIMEOUT', retryable: true })
@@ -131,7 +131,7 @@ export function createCoreClient({ baseUrl, token, fetchFn = fetch, timeoutMs = 
   return Object.freeze({ call, health })
 }
 
-function validateOperationResult(operation, data) {
+function validateOperationResult(operation, data, payload) {
   const invalid = () => { throw Object.assign(new Error('CORE_RESPONSE_INVALID'), { code: 'CORE_RESPONSE_INVALID' }) }
   const exact = (value, allowed) => value && typeof value === 'object' && !Array.isArray(value)
     && !Object.keys(value).some(key => !allowed.includes(key))
@@ -187,19 +187,61 @@ function validateOperationResult(operation, data) {
         || (data.id !== undefined && (typeof data.id !== 'string' || !data.id.trim() || data.id.length > 128))
         || (data.operationId !== undefined && (typeof data.operationId !== 'string' || !data.operationId.trim() || data.operationId.length > 200))) invalid()
     }
-    if (operation === 'work-tool') {
-      if (!['COMPLETED', 'NOT_FOUND'].includes(data.status)) invalid()
-      if (data.status === 'COMPLETED') {
-        if (!exact(data, ['status', 'result']) || !exact(data.result, ['text', 'receipt'])
-          || typeof data.result.text !== 'string' || data.result.text.length > 5000
-          || !data.result.receipt || typeof data.result.receipt !== 'object' || Array.isArray(data.result.receipt)
-          || Object.keys(data.result.receipt).length > 12
-          || !boundedJsonWithin(data.result, 32 * 1024)) invalid()
-      } else if (!exact(data, ['status', 'operationId', 'proposalId', 'receipt'])
-        || (data.operationId !== undefined && (typeof data.operationId !== 'string' || !data.operationId.trim() || data.operationId.length > 200))
-        || (data.proposalId !== undefined && (typeof data.proposalId !== 'string' || !data.proposalId.trim() || data.proposalId.length > 128))
-        || (data.receipt !== undefined && (!data.receipt || typeof data.receipt !== 'object' || Array.isArray(data.receipt)
-          || Object.keys(data.receipt).length > 12 || !boundedJsonWithin(data.receipt, 32 * 1024)))) invalid()
-    }
+    if (operation === 'work-tool') validateWorkToolResult(payload, data, invalid)
   }
+}
+
+// @req FR-150 — a WorkTool response is accepted only in the exact v1 shape Core
+// emits for the request that was sent: each operation has one receipt shape, and
+// the receipt must name the proposal or job the request named. A drifted Core
+// then fails here, in the runtime, rather than a malformed receipt reaching the
+// turn (and its durable replay) unnoticed.
+//   read            COMPLETED  { source: 'PROJECT_MANAGER', observedAt }
+//   propose         COMPLETED  { proposalId: <claim job>, status: 'AWAITING_CONFIRMATION' }
+//   confirm-execute COMPLETED  { proposalId, action, itemId, code, status, version, duplicate?: true }
+//   status          COMPLETED  the propose receipt (for `<job>:work-proposal`) or the
+//                              confirm-execute receipt without `duplicate`
+//                   NOT_FOUND  { operationId } | { proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } }
+const bounded = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
+const exactKeys = (value, keys) => value && typeof value === 'object' && !Array.isArray(value)
+  && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key))
+
+function validateWorkToolResult(request, data, invalid) {
+  const claimJobId = request?.claim?.jobId
+  const proposalReceipt = receipt => exactKeys(receipt, ['proposalId', 'status'])
+    && receipt.status === 'AWAITING_CONFIRMATION' && bounded(receipt.proposalId, 128) && receipt.proposalId === claimJobId
+  const executionReceipt = (receipt, proposalId, { duplicateAllowed }) => {
+    const keys = ['proposalId', 'action', 'itemId', 'code', 'status', 'version']
+    if (duplicateAllowed && receipt && Object.hasOwn(receipt, 'duplicate')) {
+      if (receipt.duplicate !== true) return false
+      keys.push('duplicate')
+    }
+    return exactKeys(receipt, keys) && receipt.proposalId === proposalId && bounded(receipt.proposalId, 128)
+      && ['create_work', 'update_work'].includes(receipt.action) && bounded(receipt.itemId, 128) && bounded(receipt.code, 64)
+      && typeof receipt.status === 'string' && /^[A-Z][A-Z_]{0,31}$/.test(receipt.status)
+      && Number.isInteger(receipt.version) && receipt.version >= 1
+  }
+  const readReceipt = receipt => exactKeys(receipt, ['source', 'observedAt']) && receipt.source === 'PROJECT_MANAGER'
+    && typeof receipt.observedAt === 'string' && receipt.observedAt.length <= 40 && Number.isFinite(Date.parse(receipt.observedAt))
+  if (!data || typeof data !== 'object' || Array.isArray(data) || !boundedJsonWithin(data, 32 * 1024)) invalid()
+  const operation = request?.operation
+  if (data.status === 'COMPLETED') {
+    if (!exactKeys(data, ['status', 'result']) || !exactKeys(data.result, ['text', 'receipt']) || !bounded(data.result.text, 5000)) invalid()
+    const receipt = data.result.receipt
+    const valid = operation === 'read' ? readReceipt(receipt)
+      : operation === 'propose' ? proposalReceipt(receipt)
+        : operation === 'confirm-execute' ? executionReceipt(receipt, request.input?.proposalId, { duplicateAllowed: true })
+          : operation === 'status'
+            ? (request.operationId === `${claimJobId}:work-proposal` ? proposalReceipt(receipt)
+              : executionReceipt(receipt, request.input?.proposalId ?? request.operationId, { duplicateAllowed: false }))
+            : false
+    if (!valid) invalid()
+    return
+  }
+  // Only a status probe can find nothing; every other operation either completes or fails.
+  if (data.status !== 'NOT_FOUND' || operation !== 'status') invalid()
+  const probed = request.input?.proposalId ?? request.operationId
+  if (!(exactKeys(data, ['status', 'operationId']) && data.operationId === request.operationId)
+    && !(exactKeys(data, ['status', 'proposalId', 'receipt']) && data.proposalId === probed && bounded(data.proposalId, 128)
+      && exactKeys(data.receipt, ['status']) && data.receipt.status === 'AWAITING_CONFIRMATION')) invalid()
 }
