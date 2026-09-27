@@ -62,6 +62,23 @@ const HTTP_SECRET_FILES = Object.freeze([
   ['MSP_GKS_PIPELINE_CREDENTIAL_FILE', 'MSP_GKS_PIPELINE_CREDENTIAL'],
 ])
 
+/**
+ * The `code` of the error raised when the MSP child environment cannot be built
+ * from this deployment's configuration (an HTTP-mode secret file unreadable or
+ * empty). It carries `status: 503`, the same "unavailable" status as an absent
+ * or failing transport, so a route's error mapper answers 503 rather than 500,
+ * and an optional consumer can degrade as it does when MSP is not configured.
+ * The message names the variable only, never the file path or its contents.
+ */
+export const MSP_TRANSPORT_MISCONFIGURED = 'MSP_TRANSPORT_MISCONFIGURED'
+
+function misconfigured(message) {
+  const error = new Error(message)
+  error.code = MSP_TRANSPORT_MISCONFIGURED
+  error.status = 503
+  return error
+}
+
 function readHttpSecret(env, fileVariable, childVariable, child) {
   const file = typeof env?.[fileVariable] === 'string' ? env[fileVariable].trim() : ''
   if (!file) return
@@ -69,9 +86,9 @@ function readHttpSecret(env, fileVariable, childVariable, child) {
   try {
     value = readFileSync(file, 'utf8').trim()
   } catch {
-    throw new Error(`${fileVariable} could not be read`)
+    throw misconfigured(`${fileVariable} could not be read`)
   }
-  if (!value) throw new Error(`${fileVariable} is empty`)
+  if (!value) throw misconfigured(`${fileVariable} is empty`)
   child[childVariable] = value
 }
 
