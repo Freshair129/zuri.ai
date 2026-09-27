@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 70
+          "testCount": 71
         },
         {
           "id": "FR-150",
@@ -2516,7 +2516,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 70
+          "testCount": 71
         },
         {
           "id": "FR-152",
@@ -3694,7 +3694,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 24,
-          "testCount": 70
+          "testCount": 71
         },
         {
           "id": "FR-150",
@@ -5753,7 +5753,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 70
+          "testCount": 71
         },
         {
           "id": "FR-150",
@@ -8703,7 +8703,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 47,
-          "testCount": 70
+          "testCount": 71
         },
         {
           "id": "FR-150",
