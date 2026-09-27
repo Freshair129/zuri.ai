@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto'
 import { z } from 'zod'
-import { zGrant } from './delegation.js'
+import { denied, zGrant } from './delegation.js'
 
 // HTTP adapter for the core-owned façade SCM consumes (contracts/v1/scm-core.v1.json,
 // PROPOSED; mirrors the Market service's market-core.v1, ADR-108). Core stays the
@@ -9,14 +10,21 @@ import { zGrant } from './delegation.js'
 // stored, echoed in an error or sent anywhere but core.
 //
 // Operations (all POST + JSON body + subject header, all idempotent reads):
-//   resolve-scope  {}                              → {actorId, tenantId, grants{businessId:{owner,domains,permissions}}}
+//   resolve-scope  {businessId}                    → {actorId, tenantId, grants{businessId:{owner,domains,permissions}}}
 //   branch         {businessId, branchId}          → {fact: Branch | null}
 //   branches       {businessId}                    → {branches: Branch+[]}
 //   customer       {businessId, customerId}        → {fact: Customer | null}
 //   conversation   {businessId, conversationId}    → {fact: Conversation | null}
 // Fact shapes are exactly the ReferenceAuthority port's (reference-authority.js);
 // core re-resolves the subject on EVERY call and answers null for a Business the
-// subject cannot see (non-enumeration), and SCM still applies its own predicate.
+// subject has no commerce view of (non-enumeration), and SCM still applies its own
+// predicate.
+//
+// resolve-scope's `businessId` is the user's active Business, forwarded from the
+// BFF's `x-zuri-business-id` header. It is a SELECTOR, never an authority: core
+// answers the Tenant of that Business and grants for the Businesses the subject
+// sees WITHIN THAT TENANT ONLY (the selected one included). SCM additionally
+// refuses a scope that holds no grant for the selected Business (RESPONSE_INVALID).
 //
 // Failure is closed: an unreachable, timed-out, 5xx, malformed, unknown-field or
 // oversized answer is 503 SCM_CORE_UNAVAILABLE (retryable, no effect), never an
@@ -25,12 +33,18 @@ import { zGrant } from './delegation.js'
 // deterministic. Core's refusals are NOT retried:
 //   401 {error:{code:'SUBJECT_UNAUTHENTICATED'}} → 401 SCM_SUBJECT_UNAUTHENTICATED (the user's
 //        session is missing/expired/revoked: a user-facing refusal, the BFF re-authenticates)
-//   any other 401 (e.g. SERVICE_TOKEN_INVALID), 403 or 4xx → 502 SCM_CORE_REJECTED (the
-//        SERVICE is misconfigured or out of contract: an operator fault, not a user refusal)
+//   resolve-scope 404 {error:{code:'BUSINESS_NOT_FOUND' | 'NO_VISIBLE_BUSINESS'}} → 404
+//        SCM_SCOPE_NOT_FOUND 'Business not found' (exactly delegation.js denied(): the
+//        legacy non-enumeration body; core does not say which of unknown/forbidden)
+//   any other 401 (e.g. SERVICE_TOKEN_INVALID), 403 or 4xx (another 404, a 409 such as
+//        SCOPE_TOO_LARGE) → 502 SCM_CORE_REJECTED (the SERVICE is misconfigured or out of
+//        contract, or the scope is beyond the bound: an operator fault, not a user refusal)
 
 export const CORE_CONTRACT_VERSION = 'scm-core.v1'
 export const SUBJECT_HEADER = 'x-zuri-subject'
 export const SUBJECT_MAX_LENGTH = 4096
+export const BUSINESS_SELECTOR_HEADER = 'x-zuri-business-id'
+export const BUSINESS_SELECTOR_MAX_LENGTH = 200
 const BASE_PATH = '/api/internal/scm/v1'
 export const RESPONSE_LIMITS = Object.freeze({ 'resolve-scope': 1024 * 1024, branches: 1024 * 1024, default: 16 * 1024, refusal: 4 * 1024 })
 export const MAX_GRANTS = 500
@@ -75,9 +89,18 @@ export class CoreUnavailable extends Error {
 const rejected = (httpStatus) => Object.assign(new Error('core rejected the SCM service request'), { status: 502, code: 'SCM_CORE_REJECTED', retryable: false, reason: `HTTP_${httpStatus}` })
 const unauthenticated = () => Object.assign(new Error('subject is not authenticated'), { status: 401, code: 'SCM_SUBJECT_UNAUTHENTICATED', retryable: false })
 export const subjectRequired = () => Object.assign(new Error('subject required'), { status: 401, code: 'SCM_SUBJECT_REQUIRED', retryable: false })
+export const businessSelectorRequired = () => Object.assign(new Error('business selector required'), { status: 400, code: 'SCM_BUSINESS_SELECTOR_REQUIRED', retryable: false })
+/** Core's two resolve-scope 404s, both answered as the legacy "Business not found". */
+const SCOPE_NOT_FOUND_CODES = new Set(['BUSINESS_NOT_FOUND', 'NO_VISIBLE_BUSINESS'])
+const PASS_THROUGH = new Set(['SCM_CORE_REJECTED', 'SCM_SUBJECT_UNAUTHENTICATED', 'SCM_SCOPE_NOT_FOUND'])
 
 export function validSubject(subject) {
   return typeof subject === 'string' && subject.length > 0 && subject.length <= SUBJECT_MAX_LENGTH
+}
+
+/** 1..200 chars, no control character, not whitespace only. Checked, never trimmed. */
+export function validBusinessSelector(value) {
+  return typeof value === 'string' && value.length > 0 && value.length <= BUSINESS_SELECTOR_MAX_LENGTH && !/\p{Cc}/u.test(value) && value.trim() !== ''
 }
 
 async function readJsonBounded(response, maxBytes) {
@@ -108,15 +131,24 @@ async function readJsonBounded(response, maxBytes) {
   }
 }
 
-/** A core 401 is the subject's refusal only when core says so in its error body. */
-async function refusalOf(response) {
-  if (response.status !== 401) return rejected(response.status)
-  try {
-    const body = await readJsonBounded(response, RESPONSE_LIMITS.refusal)
-    return body?.error?.code === 'SUBJECT_UNAUTHENTICATED' ? unauthenticated() : rejected(401)
-  } catch {
-    return rejected(401)
+/**
+ * A core 401 is the subject's refusal only when core says so in its error body; a
+ * resolve-scope 404 is "Business not found" only for core's two named codes.
+ */
+async function refusalOf(response, operation) {
+  const scopeMiss = response.status === 404 && operation === 'resolve-scope'
+  if (response.status !== 401 && !scopeMiss) {
+    await response.body?.cancel?.().catch(() => {})
+    return rejected(response.status)
   }
+  let errorCode
+  try {
+    errorCode = (await readJsonBounded(response, RESPONSE_LIMITS.refusal))?.error?.code
+  } catch {
+    return rejected(response.status)
+  }
+  if (response.status === 401) return errorCode === 'SUBJECT_UNAUTHENTICATED' ? unauthenticated() : rejected(401)
+  return SCOPE_NOT_FOUND_CODES.has(errorCode) ? denied() : rejected(404)
 }
 
 export function createScmCoreClient({
@@ -153,16 +185,18 @@ export function createScmCoreClient({
         await response.body?.cancel?.().catch(() => {})
         throw new CoreUnavailable(`HTTP_${response.status}`)
       }
-      if (!response.ok) throw await refusalOf(response)
+      if (!response.ok) throw await refusalOf(response, operation)
       const envelope = await readJsonBounded(response, RESPONSE_LIMITS[operation] ?? RESPONSE_LIMITS.default)
       if (!envelope || typeof envelope !== 'object' || envelope.contractVersion !== CORE_CONTRACT_VERSION || envelope.ok !== true || !Object.hasOwn(envelope, 'data')) {
         throw new CoreUnavailable('RESPONSE_INVALID')
       }
       const parsed = OPERATIONS[operation].safeParse(envelope.data)
       if (!parsed.success) throw new CoreUnavailable('RESPONSE_INVALID')
+      // A scope without the Business it was selected by is out of contract.
+      if (operation === 'resolve-scope' && !Object.hasOwn(parsed.data.grants, body.businessId)) throw new CoreUnavailable('RESPONSE_INVALID')
       return parsed.data
     } catch (error) {
-      if (error instanceof CoreUnavailable || error?.code === 'SCM_CORE_REJECTED' || error?.code === 'SCM_SUBJECT_UNAUTHENTICATED') throw error
+      if (error instanceof CoreUnavailable || PASS_THROUGH.has(error?.code)) throw error
       // Anything else — a refused redirect, DNS, reset, abort — is an unreachable core.
       throw new CoreUnavailable(error?.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK')
     } finally {
@@ -187,7 +221,14 @@ export function createScmCoreClient({
 
   return {
     contractVersion: CORE_CONTRACT_VERSION,
-    resolveScope: (subject) => call('resolve-scope', subject, {}),
+    // A non-reversible id of the credential this client presents (sha256 of
+    // SCM_CORE_TOKEN), for binding cached scope to it — never the token itself.
+    credentialId: createHash('sha256').update(token, 'utf8').digest('hex'),
+    resolveScope: async (subject, businessId) => {
+      if (!validSubject(subject)) throw subjectRequired()
+      if (!validBusinessSelector(businessId)) throw businessSelectorRequired()
+      return call('resolve-scope', subject, { businessId })
+    },
     branch: (subject, { businessId, branchId }) => call('branch', subject, { businessId, branchId }).then((d) => d.fact),
     branches: (subject, { businessId }) => call('branches', subject, { businessId }).then((d) => d.branches),
     customer: (subject, { businessId, customerId }) => call('customer', subject, { businessId, customerId }).then((d) => d.fact),

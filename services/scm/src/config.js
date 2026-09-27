@@ -29,6 +29,10 @@ const zConfig = z.object({
   }).optional(),
   SCM_CORE_TOKEN: z.string().min(32, 'SCM_CORE_TOKEN must be at least 32 characters').optional(),
   SCM_CORE_TIMEOUT_MS: z.coerce.number().int().min(100).max(30000).default(3000),
+  // Success-only resolve-scope cache (scope-cache.js): a revoked session or a
+  // changed grant can keep acting for up to the TTL, so it is capped at 60 s; 0 = off.
+  SCM_CORE_SCOPE_CACHE_TTL_MS: z.coerce.number().int().min(0).max(60000).default(15000),
+  SCM_CORE_SCOPE_CACHE_MAX_ENTRIES: z.coerce.number().int().min(1).max(100000).default(1000),
   SCM_DELEGATION_ISSUER: z.string().min(1).default('zuri-core'),
   SCM_DELEGATION_MAX_LIFETIME_S: z.coerce.number().int().min(10).max(900).default(120),
   SCM_MAX_BODY_BYTES: z.coerce.number().int().min(1024).max(4 * 1024 * 1024).default(256 * 1024),
@@ -58,10 +62,17 @@ export function loadConfig(env) {
   const missing = (authMode === 'core' ? ['SCM_API_TOKEN', 'SCM_CORE_URL', 'SCM_CORE_TOKEN'] : ['SCM_DELEGATION_KEY']).filter((field) => !c[field])
   if (missing.length) throw Object.assign(new Error(`invalid SCM configuration: ${missing.join(', ')}`), { code: 'SCM_CONFIG_INVALID' })
   if (authMode === 'core' && c.SCM_API_TOKEN === c.SCM_CORE_TOKEN) throw Object.assign(new Error('invalid SCM configuration: SCM_API_TOKEN and SCM_CORE_TOKEN must differ'), { code: 'SCM_CONFIG_INVALID' })
+  // The Market service's rule (ADR-108 D6), verbatim: in production the core URL is
+  // https, or plain http only to a single-label private service name (e.g.
+  // http://web:3000 on the compose network) — never plain http to a routable host.
+  if (c.SCM_ENV === 'production' && authMode === 'core' && new URL(c.SCM_CORE_URL).protocol !== 'https:' && !/^http:\/\/[a-z0-9-]+(:\d+)?$/i.test(c.SCM_CORE_URL.replace(/\/$/, ''))) {
+    throw Object.assign(new Error('invalid SCM configuration: SCM_CORE_URL must be https or a private service name in production'), { code: 'SCM_CONFIG_INVALID' })
+  }
   return {
     env: c.SCM_ENV, port: c.SCM_PORT, host: c.SCM_HOST, store: c.SCM_STORE, sqlitePath: c.SCM_SQLITE_PATH ?? null, pgUrl: c.SCM_PG_URL ?? null,
     authMode, apiToken: authMode === 'core' ? c.SCM_API_TOKEN : null, coreUrl: authMode === 'core' ? c.SCM_CORE_URL : null,
     coreToken: authMode === 'core' ? c.SCM_CORE_TOKEN : null, coreTimeoutMs: c.SCM_CORE_TIMEOUT_MS,
+    coreScopeCacheTtlMs: c.SCM_CORE_SCOPE_CACHE_TTL_MS, coreScopeCacheMaxEntries: c.SCM_CORE_SCOPE_CACHE_MAX_ENTRIES,
     ensureSchema: c.SCM_ENSURE_SCHEMA === '1', delegationKey: authMode === 'delegation' ? c.SCM_DELEGATION_KEY : null, delegationIssuer: c.SCM_DELEGATION_ISSUER,
     delegationMaxLifetimeSeconds: c.SCM_DELEGATION_MAX_LIFETIME_S, maxBodyBytes: c.SCM_MAX_BODY_BYTES, requestTimeoutMs: c.SCM_REQUEST_TIMEOUT_MS,
     testReferenceFixture: c.SCM_TEST_REFERENCE_FIXTURE ?? null,

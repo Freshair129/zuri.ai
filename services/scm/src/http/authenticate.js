@@ -1,5 +1,5 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
-import { SUBJECT_HEADER, subjectRequired, validSubject } from '../infrastructure/core-client.js'
+import { BUSINESS_SELECTOR_HEADER, SUBJECT_HEADER, businessSelectorRequired, subjectRequired, validBusinessSelector, validSubject } from '../infrastructure/core-client.js'
 
 // Inbound authenticators: `authenticate(req) → scope`, chosen once in main.js by
 // SCM_AUTH_MODE. Neither ever reads role, owner, tenant or viewer from the request
@@ -11,10 +11,15 @@ import { SUBJECT_HEADER, subjectRequired, validSubject } from '../infrastructure
 //               (a service identity, never a business authority), and
 //               `x-zuri-subject: <end user's session credential>` is passed to core
 //               unchanged; core alone resolves it into scope (contract scm-core.v1).
+//               `x-zuri-business-id: <the user's active Business>` is a SELECTOR,
+//               never an authority: it only tells core which Tenant's scope to answer.
 //               Order: service token (401 SCM_SERVICE_TOKEN_INVALID) → subject
-//               present and ≤4096 chars (401 SCM_SUBJECT_REQUIRED) → core resolve
-//               (401 SCM_SUBJECT_UNAUTHENTICATED | 502 SCM_CORE_REJECTED |
-//               503 SCM_CORE_UNAVAILABLE). A bad service token never reaches core.
+//               present and ≤4096 chars (401 SCM_SUBJECT_REQUIRED) → selector
+//               1..200 chars, no control character, not blank (400
+//               SCM_BUSINESS_SELECTOR_REQUIRED) → core resolve (401
+//               SCM_SUBJECT_UNAUTHENTICATED | 404 SCM_SCOPE_NOT_FOUND |
+//               502 SCM_CORE_REJECTED | 503 SCM_CORE_UNAVAILABLE). Nothing refused
+//               before the resolve reaches core. Delegation mode ignores the selector.
 // Neither token nor subject is ever logged or echoed in an error body.
 
 const unauthorized = (code, message) => Object.assign(new Error(message), { status: 401, code, retryable: false })
@@ -41,6 +46,8 @@ export function coreAuthenticator({ apiToken, resolveScope }) {
     if (given === null || !timingSafeEqual(digest(given), wanted)) throw unauthorized('SCM_SERVICE_TOKEN_INVALID', 'service token rejected')
     const subject = req.headers[SUBJECT_HEADER]
     if (!validSubject(subject)) throw subjectRequired()
-    return resolveScope(subject)
+    const businessId = req.headers[BUSINESS_SELECTOR_HEADER]
+    if (!validBusinessSelector(businessId)) throw businessSelectorRequired()
+    return resolveScope(subject, businessId)
   }
 }

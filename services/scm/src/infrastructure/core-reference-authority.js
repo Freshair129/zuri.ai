@@ -1,14 +1,18 @@
 import { randomUUID } from 'node:crypto'
 import { scopeFromGrants } from './delegation.js'
 import { createUnavailableReferenceAuthority } from './reference-authority.js'
+import { createScopeCache, scopeCacheKey } from './scope-cache.js'
 
 // Core mode (contract scm-core.v1, PROPOSED; ADR-108 pattern): the scope and the
 // Branch / Customer / Conversation facts both come from core's private façade,
 // asked with the end user's own subject — never from anything the BFF asserts.
 //
-// Scope: `resolve-scope` → the SAME frozen scope object the delegation path builds
-// (scopeFromGrants), so every authority ladder is unchanged. Its `delegationId` is
-// a synthetic per-request id (`core-<uuid>`): there is no signed statement to name.
+// Scope: `resolve-scope` (subject + the BFF's Business selector) → the SAME frozen
+// scope object the delegation path builds (scopeFromGrants), so every authority
+// ladder is unchanged. Its `delegationId` is a synthetic per-request id
+// (`core-<uuid>`): there is no signed statement to name. Successful resolutions
+// may be served from a short in-process cache (scope-cache.js — read its header
+// for the revocation tradeoff); a cache hit still builds a fresh scope object.
 //
 // The subject has to travel with the scope to the fact calls made later in the
 // same request, but must never be serialized, logged, audited or enumerated. It
@@ -31,10 +35,27 @@ function subjectOf(scope) {
   return subject
 }
 
-/** subject → scope, via core. Refusals and outages propagate with their own status. */
-export function createCoreScopeResolver(coreClient) {
-  return async function resolveScope(subject) {
-    const resolved = await coreClient.resolveScope(subject)
+/**
+ * (subject, businessId) → scope, via core (or the success-only cache). Refusals and
+ * outages propagate with their own status and are never cached. `cacheTtlMs` 0
+ * (the default here; main.js passes the configured value) disables the cache.
+ */
+export function createCoreScopeResolver(coreClient, { cacheTtlMs = 0, cacheMaxEntries = 1000, now = Date.now } = {}) {
+  const cache = createScopeCache({ ttlMs: cacheTtlMs, maxEntries: cacheMaxEntries, now })
+  if (cache.enabled && (typeof coreClient.credentialId !== 'string' || !coreClient.credentialId)) {
+    throw Object.assign(new Error('a cached core scope resolver needs the core credential id'), { code: 'SCM_CONFIG_INVALID' })
+  }
+  async function resolve(subject, businessId) {
+    if (!cache.enabled) return coreClient.resolveScope(subject, businessId)
+    const key = scopeCacheKey({ subject, businessId, credentialId: coreClient.credentialId })
+    const hit = cache.get(key)
+    if (hit) return hit
+    const resolved = await coreClient.resolveScope(subject, businessId)
+    cache.set(key, resolved)
+    return resolved
+  }
+  return async function resolveScope(subject, businessId) {
+    const resolved = await resolve(subject, businessId)
     const scope = scopeFromGrants({ actorId: resolved.actorId, tenantId: resolved.tenantId, delegationId: `core-${randomUUID()}`, grants: resolved.grants })
     subjects.set(scope, subject)
     return scope

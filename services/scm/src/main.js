@@ -23,8 +23,10 @@ export async function start(env = process.env) {
   const config = loadConfig(env)
   // Inbound auth (SCM_AUTH_MODE). core: the BFF's static bearer + the user's
   // subject, resolved into scope by core (scm-core.v1); Branch/Customer/Conversation
-  // facts come from the same façade. delegation (tests / non-production): the
-  // HMAC-signed scope, and no reference owner. Either way the Files façade (gate
+  // facts come from the same façade; the BFF's x-zuri-business-id selects which
+  // Tenant's scope core answers, and successful resolutions are cached for at most
+  // SCM_CORE_SCOPE_CACHE_TTL_MS (scope-cache.js). delegation (tests /
+  // non-production): the HMAC-signed scope, and no reference owner. Either way the Files façade (gate
   // SCM-FILES) does not exist yet, so slip references refuse (503) rather than
   // assume validity. SCM_TEST_REFERENCE_FIXTURE (SCM_ENV=test only) overrides the
   // reference owner in both modes.
@@ -32,7 +34,7 @@ export async function start(env = process.env) {
     ? createScmCoreClient({ baseUrl: config.coreUrl, token: config.coreToken, timeoutMs: config.coreTimeoutMs })
     : null
   const authenticate = core
-    ? coreAuthenticator({ apiToken: config.apiToken, resolveScope: createCoreScopeResolver(core) })
+    ? coreAuthenticator({ apiToken: config.apiToken, resolveScope: createCoreScopeResolver(core, { cacheTtlMs: config.coreScopeCacheTtlMs, cacheMaxEntries: config.coreScopeCacheMaxEntries }) })
     : delegationAuthenticator(createDelegationVerifier({ key: config.delegationKey, issuer: config.delegationIssuer, maxLifetimeSeconds: config.delegationMaxLifetimeSeconds }))
   const references = config.testReferenceFixture
     ? createFixtureReferenceAuthority(JSON.parse(readFileSync(config.testReferenceFixture, 'utf8')))

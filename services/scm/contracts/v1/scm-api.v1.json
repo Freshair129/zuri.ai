@@ -1,21 +1,26 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.16",
+  "revision": "v1-draft.17",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
     "modes": "SCM_AUTH_MODE selects ONE inbound scheme per process: `core` (required in production; the default there) or `delegation` (tests / non-production only; the default outside production; refused in production). Both produce the same scope; scopeDenial is identical in both.",
     "core": {
       "headers": [
         "Authorization: Bearer <SCM_API_TOKEN> — the BFF's static service token (>= 32 chars, differs from SCM_CORE_TOKEN); proves the caller is the BFF, never a business authority",
-        "x-zuri-subject: <end user's session credential> — passed to core unchanged, never logged, stored or echoed; 1..4096 chars"
+        "x-zuri-subject: <end user's session credential> — passed to core unchanged, never logged, stored or echoed; 1..4096 chars",
+        "x-zuri-business-id: <the user's active Business id> — a SELECTOR, never an authority: it only tells core which Tenant's scope to resolve; 1..200 chars, no control characters, not whitespace-only; forwarded unchanged (never trimmed). Required in core mode; ignored in delegation mode"
       ],
-      "resolution": "SCM asks core to resolve the subject into scope over contracts/v1/scm-core.v1.json (resolve-scope) on every request; a viewer, role, owner flag or tenant sent by the BFF is never read",
+      "resolution": "SCM asks core to resolve (subject, selected Business) into scope over contracts/v1/scm-core.v1.json (resolve-scope {businessId}); the scope is the selected Business's Tenant and grants for the Businesses the subject sees in THAT Tenant only. A request may address any Business of that scope (the selector need not equal the request's businessId); a Business outside it is 404 SCM_SCOPE_NOT_FOUND. A viewer, role, owner flag or tenant sent by the BFF is never read",
+      "scopeCache": "successful resolutions only are cached in the SCM process for SCM_CORE_SCOPE_CACHE_TTL_MS (default 15000, max 60000, 0 = off; LRU bounded by SCM_CORE_SCOPE_CACHE_MAX_ENTRIES, default 1000), keyed by a sha256 of (subject, selected Business, core credential id). A revoked session or changed grant can keep acting for up to the TTL. Refusals, errors and outages are never cached; facts are never cached",
+      "order": "service token → subject → selector → core resolve-scope; everything refused before the last step never reaches core",
       "errors": {
         "401 SCM_SERVICE_TOKEN_INVALID": "missing / wrong bearer (or a Delegation header) — checked first, core is not called",
         "401 SCM_SUBJECT_REQUIRED": "missing, empty or > 4096-char x-zuri-subject — core is not called",
+        "400 SCM_BUSINESS_SELECTOR_REQUIRED": "missing or invalid x-zuri-business-id (empty, > 200 chars, a control character, whitespace only) — retryable:false; checked after the token and subject, core is not called",
         "401 SCM_SUBJECT_UNAUTHENTICATED": "core says the subject is not (or no longer) authenticated — the BFF re-authenticates the user",
-        "502 SCM_CORE_REJECTED": "core refused the SCM service itself (bad SCM_CORE_TOKEN, 403, out-of-contract 4xx) — operator fault, retryable:false, no effect",
-        "503 SCM_CORE_UNAVAILABLE": "core unreachable / timed out / 5xx / malformed / oversized answer — retryable:true, no effect"
+        "404 SCM_SCOPE_NOT_FOUND": "core says the selected Business is not visible to the subject, does not exist, or the subject sees no Business at all — the same body as scopeDenial ('Business not found', retryable:false); core does not disclose which",
+        "502 SCM_CORE_REJECTED": "core refused the SCM service itself (bad SCM_CORE_TOKEN, 403, out-of-contract 4xx, a scope over its bound) — operator fault, retryable:false, no effect",
+        "503 SCM_CORE_UNAVAILABLE": "core unreachable / timed out / 5xx / malformed / oversized answer, or a scope without a grant for the selected Business — retryable:true, no effect"
       }
     },
     "header": "Authorization: Delegation <token> (delegation mode)",
