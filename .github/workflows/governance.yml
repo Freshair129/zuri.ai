@@ -9,6 +9,10 @@ name: governance
 
 on:
   pull_request:
+    # `labeled` so that adding the `ci:full` label (see `changes`) re-runs the
+    # checks with the full suite; re-running an old run replays its payload,
+    # which does not carry the new label.
+    types: [opened, synchronize, reopened, labeled]
   push:
     branches: [main]
   # 02:00 Asia/Bangkok. A full e2e run on `main`, on a clock rather than on a
@@ -57,6 +61,17 @@ jobs:
   # and also runs `contracts` — the apps/server tests that import that service's
   # code. Every other diff, every push to `main` and every classification
   # failure is `server=true`, the full suite, so `main` stays fully verified.
+  #
+  # `test_mode` (2026-09-27, owner instruction: "narrow, per FR"): a pull request
+  # whose diff is apps/server source/tests (plus docs) runs only the RELATED
+  # tests — importers of the changed files by vitest's own module graph, every
+  # test naming a requirement id the changed files declare with `@req`, and the
+  # changed tests. `scripts/ci-change-scope.mjs --related` decides it and falls
+  # back to `full` for prisma, lockfiles, vitest config/setup, tests/helpers and
+  # fixtures, .github, scripts, src/lib, the answer-policy mirror, env and config
+  # files, a deleted source, a fan-out above 40% of the suite, or any failure.
+  # Pushes to `main`, the schedule and workflow_dispatch never enter related
+  # mode, and the `ci:full` pull request label forces the full suite.
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -64,6 +79,12 @@ jobs:
       server: ${{ steps.filter.outputs.server }}
       services: ${{ steps.filter.outputs.services }}
       contracts: ${{ steps.filter.outputs.contracts }}
+      test_mode: ${{ steps.related.outputs.test_mode }}
+      test_reason: ${{ steps.related.outputs.test_reason }}
+      related: ${{ steps.related.outputs.related }}
+      postgres: ${{ steps.related.outputs.postgres }}
+      test_shards: ${{ steps.related.outputs.test_shards }}
+      test_shard_total: ${{ steps.related.outputs.test_shard_total }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -111,6 +132,7 @@ jobs:
           fi
 
           echo "changed files:"; echo "$changed"
+          printf '%s\n' "$changed" > "$RUNNER_TEMP/changed.txt"
 
           # Root documentation files are enumerated, never matched by a `*.md`
           # wildcard. A wildcard would also skip a README dropped into `src/`
@@ -135,6 +157,46 @@ jobs:
           fi
           echo "scope:"; echo "$scope"
           printf '%s\n' "$scope" >> "$GITHUB_OUTPUT"
+
+      # Related mode, pull requests only. The cheap path check runs first, so a
+      # diff that must run the full suite never pays for the install below.
+      - id: eligible
+        if: github.event_name == 'pull_request' && steps.filter.outputs.server == 'true' && !contains(github.event.pull_request.labels.*.name, 'ci:full')
+        shell: bash
+        run: |
+          set -uo pipefail
+          if ! verdict=$(node scripts/ci-change-scope.mjs --related-eligible < "$RUNNER_TEMP/changed.txt"); then
+            echo "eligibility check failed — full server suite"
+            echo "candidate=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "$verdict"
+          printf '%s\n' "$verdict" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: steps.eligible.outputs.candidate == 'true'
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+
+      # vitest only transforms modules to read their imports; nothing executes,
+      # so the prisma client that `postinstall` generates is not needed here.
+      - name: Install apps/server for the module graph
+        if: steps.eligible.outputs.candidate == 'true'
+        working-directory: apps/server
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - id: related
+        if: steps.eligible.outputs.candidate == 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          if ! out=$(node scripts/ci-change-scope.mjs --related < "$RUNNER_TEMP/changed.txt"); then
+            echo "related computation failed — full server suite"
+            echo "test_mode=full" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          printf '%s\n' "$out"
+          printf '%s\n' "$out" >> "$GITHUB_OUTPUT"
 
   # ---------------------------------------------------------------------------
   # `verify` used to be one job: install → govern → tests → build, ~14.5 min in
@@ -290,14 +352,19 @@ jobs:
   # Four shards on four runners, each with its own disposable database, divide
   # that wall time. `verify` reads the matrix as one result: success only when
   # every shard succeeded. Skipped for a service-scoped pull request (`changes`).
+  #
+  # Related mode (`changes` emitted test_mode=related; pull requests only): the
+  # same job runs only the computed list through vitest.related.config.js, in
+  # 1-4 shards sized by the list (45 files per shard, scripts/ci-change-scope.mjs),
+  # and the PostgreSQL step only when the change reaches the WorkToolPort paths.
   tests:
     needs: changes
     if: github.event_name != 'schedule' && needs.changes.outputs.server != 'false'
-    name: tests (${{ matrix.shard }}/4)
+    name: ${{ needs.changes.outputs.test_mode == 'related' && format('tests (related {0}/{1})', matrix.shard, needs.changes.outputs.test_shard_total) || format('tests ({0}/4)', matrix.shard) }}
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: ${{ fromJSON(needs.changes.outputs.test_mode == 'related' && needs.changes.outputs.test_shards || '[1, 2, 3, 4]') }}
     runs-on: windows-latest
     defaults:
       run:
@@ -331,14 +398,29 @@ jobs:
         run: npm run docs:graph
 
       - name: Unit and integration tests
+        if: needs.changes.outputs.test_mode != 'related'
         run: npm test -- --shard=${{ matrix.shard }}/4
+
+      - name: Related unit and integration tests (pull request)
+        if: needs.changes.outputs.test_mode == 'related'
+        shell: bash
+        env:
+          RELATED_TESTS: ${{ needs.changes.outputs.related }}
+          TEST_REASON: ${{ needs.changes.outputs.test_reason }}
+        run: |
+          set -euo pipefail
+          echo "related mode: $TEST_REASON"
+          list="$RUNNER_TEMP/related-tests.txt"
+          printf '%s\n' $RELATED_TESTS > "$list"
+          test -s "$list"
+          ZURI_RELATED_TESTS_FILE="$list" npm test -- --config vitest.related.config.js --shard=${{ matrix.shard }}/${{ needs.changes.outputs.test_shard_total }}
 
       # The WorkToolPort suite again on PostgreSQL, the production engine
       # (vitest.postgres.config.js): a disposable embedded PostgreSQL 17 on
       # 127.0.0.1, started and deleted by the run; it reads no database URL, so it
       # can never reach a shared database. Once per run, on the first shard.
       - name: WorkToolPort on PostgreSQL
-        if: matrix.shard == 1
+        if: matrix.shard == 1 && (needs.changes.outputs.test_mode != 'related' || needs.changes.outputs.postgres == 'true')
         run: npm run test:postgres
 
   build:
@@ -511,6 +593,10 @@ jobs:
           CHANGES: ${{ needs.changes.result }}
           SERVER: ${{ needs.changes.outputs.server }}
           SERVICES: ${{ needs.changes.outputs.services }}
+          EVENT: ${{ github.event_name }}
+          TEST_MODE: ${{ needs.changes.outputs.test_mode }}
+          TEST_REASON: ${{ needs.changes.outputs.test_reason }}
+          RELATED: ${{ needs.changes.outputs.related }}
           GOVERN: ${{ needs.govern.result }}
           TESTS: ${{ needs.tests.result }}
           BUILD: ${{ needs.build.result }}
@@ -518,6 +604,7 @@ jobs:
           MARKET_INTELLIGENCE: ${{ needs.market-intelligence.result }}
         run: |
           echo "changes: $CHANGES (server=$SERVER services=$SERVICES)"
+          echo "test mode: ${TEST_MODE:-full} $TEST_REASON"
           echo "govern: $GOVERN"
           echo "tests:  $TESTS"
           echo "build:  $BUILD"
@@ -525,6 +612,15 @@ jobs:
           echo "market-intelligence: $MARKET_INTELLIGENCE"
           fail() { echo "::error::$1"; exit 1; }
           [ "$CHANGES" = "success" ] || fail "changes did not succeed"
+          # A narrowed `tests` counts only when `changes` itself emitted related
+          # mode, for a pull request, with a non-empty list. `main` is always full.
+          case "$TEST_MODE" in
+            ''|full) ;;
+            related)
+              [ "$EVENT" = "pull_request" ] || fail "related test mode outside a pull request"
+              [ -n "$RELATED" ] || fail "related test mode with an empty test list" ;;
+            *) fail "unknown test mode: $TEST_MODE" ;;
+          esac
           for r in "$GOVERN" "$CONVERSATION_RUNTIME" "$MARKET_INTELLIGENCE"; do
             [ "$r" = "success" ] || fail "a verification job did not succeed (see the job results above)"
           done
