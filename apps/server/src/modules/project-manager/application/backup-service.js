@@ -356,6 +356,10 @@ export const SNAPSHOT_MODELS = [
   // a dispute reason and an end date, no key and no file reference — unlike
   // CustomerArchiveKey/ArchiveManifest below, which stay excluded.
   'customerLegalHold',
+  // @req FR-022 — a Customer's retention consents hang off Customer and the
+  // recording Person, same position and reasoning as customerLegalHold: a
+  // business record (who agreed, who recorded it, when, revoked when), no key.
+  'customerRetentionConsent',
   'conversation',
   // @req FR-243 — a session hangs off Conversation and Message/ConversationEvent
   // point at it, so it restores between them. Ids, counts and times, no content.
@@ -384,6 +388,10 @@ export const SNAPSHOT_MODELS = [
   // not a constraint the database enforces — this position (after `customer`,
   // `conversation` and `message`, above) keeps it truthful anyway.
   'customerArchiveKey', 'archiveManifest',
+  // @req FR-022, SEC-034 — a legal hold's re-seal key (ADR-093 1.2.0): included
+  // for exactly customerArchiveKey's reason — wrapped ciphertext whose KEK is
+  // never in a snapshot, and a random data key with no re-entry path.
+  'legalHoldArchiveKey',
   // @req FR-161 — a sales task hangs off Business, Person (assignee) and
   // optionally Customer and Conversation, so it restores after all of them.
   // Operating data, no secret: exported whole.

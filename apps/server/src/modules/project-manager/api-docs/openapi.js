@@ -213,6 +213,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // retrieval rows above: this appends a new history row, never replaces or
   // previews one, and every recording is independently audited.
   ['/api/crm/customers/{customerId}/legal-hold', ['POST']],
+  // @req FR-022 — a sales user records / revokes a Customer's retention consent
+  // (ADR-093 1.2.0). POST only: each is an audited history write.
+  ['/api/crm/customers/{customerId}/retention-consent', ['POST']],
+  ['/api/crm/customers/{customerId}/retention-consent/revoke', ['POST']],
   // @req FR-230 — the nightly retention sweep's scheduled entry point (ADR-091 D1,
   // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
   // /api/line-oa/worker and /api/platform/programme-usage-reports below.

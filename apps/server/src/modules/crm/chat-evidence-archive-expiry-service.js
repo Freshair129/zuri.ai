@@ -68,10 +68,38 @@ import {
   verifyManifestChain,
   findActiveLegalHold,
   destroyCustomerArchiveKey,
+  destroyLegalHoldArchiveKeys,
 } from './chat-evidence-archive-service'
+import { customersWithActiveRetentionConsent } from './retention-consent-reader'
 import { openCustomerArchiveKey, openArchiveSegment, ChatEvidenceArchiveCryptoError } from './chat-evidence-archive-crypto'
 
 export const CHAT_EVIDENCE_ARCHIVE_RETENTION_YEARS = 10
+
+/**
+ * @req FR-022, SEC-034 — end the legal-hold re-seal keys whose reason to exist is
+ * gone (ADR-093 1.2.0): the hold has ended (`endDate` passed, or the hold row no
+ * longer exists), or the held Customer no longer has an active retention consent
+ * (a defensive re-check: revocation already destroys them in its own transaction).
+ * Runs before, and independently of, the chain check: it reads no archive file and
+ * infers no age, it only lets a lapsed hold stop protecting what it protected.
+ *
+ * @returns {Promise<string[]>} the hold ids whose key was destroyed
+ */
+export async function expireLegalHoldArchiveKeys(db, { tenantId, now = new Date() }) {
+  const keys = await db.legalHoldArchiveKey.findMany({ where: { tenantId }, select: { legalHoldId: true, heldCustomerId: true } })
+  if (keys.length === 0) return []
+  const [holds, consenting] = await Promise.all([
+    db.customerLegalHold.findMany({ where: { tenantId, id: { in: keys.map((k) => k.legalHoldId) } }, select: { id: true, customerId: true, endDate: true } }),
+    customersWithActiveRetentionConsent(db, { tenantId, customerIds: keys.map((k) => k.heldCustomerId) }),
+  ])
+  const holdById = new Map(holds.map((hold) => [hold.id, hold]))
+  const lapsed = keys.filter((key) => {
+    const hold = holdById.get(key.legalHoldId)
+    return !hold || hold.customerId !== key.heldCustomerId || !(hold.endDate > now) || !consenting.has(key.heldCustomerId)
+  }).map((key) => key.legalHoldId)
+  if (lapsed.length === 0) return []
+  return destroyLegalHoldArchiveKeys(db, { tenantId, legalHoldIds: lapsed })
+}
 
 function cutoffDate(now, retentionYears) {
   const cutoff = new Date(now.getTime())
@@ -160,6 +188,8 @@ export async function expireChatEvidenceArchive(db, {
   const cutoff = cutoffDate(now, retentionYears)
   const readManifest = manifestReader(baseDir)
 
+  const destroyedHoldKeys = await expireLegalHoldArchiveKeys(db, { tenantId, now })
+
   const chainIntegrity = await verifyManifestChain(db, tenantId, { baseDir, checkFiles: true })
   if (!chainIntegrity.valid) {
     const audit = await recordAudit(db, {
@@ -168,9 +198,9 @@ export async function expireChatEvidenceArchive(db, {
       action: 'ARCHIVE_EXPIRY_COMPLETED',
       actorType: 'SYSTEM',
       tenantId,
-      payload: { tenantId, ranAt: now.toISOString(), skipped: true, chainIntegrity, destroyedKeys: [], deletedFiles: [] },
+      payload: { tenantId, ranAt: now.toISOString(), skipped: true, chainIntegrity, destroyedKeys: [], deletedFiles: [], destroyedHoldKeys },
     })
-    return { tenantId, ranAt: now, skipped: true, chainIntegrity, destroyedKeys: [], deletedFiles: [], auditEventId: audit.id }
+    return { tenantId, ranAt: now, skipped: true, chainIntegrity, destroyedKeys: [], deletedFiles: [], destroyedHoldKeys, auditEventId: audit.id }
   }
 
   const manifests = await db.archiveManifest.findMany({ where: { tenantId }, orderBy: { createdAt: 'asc' } })
@@ -257,25 +287,37 @@ export async function expireChatEvidenceArchive(db, {
   }
 
   const keyExistedAtStart = new Set(keysAtStart.map((k) => k.customerId))
+  // @req FR-022 — a legal-hold segment (ADR-093 1.2.0) names a hold, not a
+  //   Customer; it counts as expired exactly when its hold key is gone.
+  const liveHoldKeys = new Set((await db.legalHoldArchiveKey.findMany({ where: { tenantId }, select: { legalHoldId: true } }))
+    .map((row) => row.legalHoldId))
   const deletedFiles = []
   for (const manifest of manifests) {
     const parsed = await readManifest(manifest)
     if (!parsed) continue // cannot positively account for this file's own contents — never delete it
 
     const customerIdsInFile = new Set()
+    let heldSegmentAlive = false
     for (const line of parsed.segmentLines) {
       try {
-        const customerId = JSON.parse(line).customerId
+        const segment = JSON.parse(line)
+        const customerId = segment.customerId
         if (customerId) customerIdsInFile.add(customerId)
+        else if (segment.keyScope === 'LEGAL_HOLD' && typeof segment.legalHoldId === 'string') {
+          if (liveHoldKeys.has(segment.legalHoldId)) heldSegmentAlive = true
+          customerIdsInFile.add(`hold:${segment.legalHoldId}`)
+        } else customerIdsInFile.add(Symbol('unparsable'))
       } catch {
         // an unparsable segment line: leave the whole file alone below
         customerIdsInFile.add(Symbol('unparsable'))
       }
     }
 
-    let allExpired = customerIdsInFile.size > 0
+    let allExpired = customerIdsInFile.size > 0 && !heldSegmentAlive
     for (const customerId of customerIdsInFile) {
+      if (!allExpired) break
       if (typeof customerId !== 'string') { allExpired = false; break }
+      if (customerId.startsWith('hold:')) continue // its hold key is gone (checked above) — permanently unreadable
       if (!keyExistedAtStart.has(customerId)) continue // key already gone (any reason, any prior run) — permanently unreadable, counts as expired
 
       // A key existed at the start of this run. Either it is still alive
@@ -311,9 +353,9 @@ export async function expireChatEvidenceArchive(db, {
     tenantId,
     payload: {
       tenantId, ranAt: now.toISOString(), skipped: false, chainIntegrity,
-      destroyedKeys, deletedFiles, retentionYears,
+      destroyedKeys, deletedFiles, retentionYears, destroyedHoldKeys,
     },
   })
 
-  return { tenantId, ranAt: now, skipped: false, chainIntegrity, destroyedKeys, deletedFiles, auditEventId: audit.id }
+  return { tenantId, ranAt: now, skipped: false, chainIntegrity, destroyedKeys, deletedFiles, destroyedHoldKeys, auditEventId: audit.id }
 }

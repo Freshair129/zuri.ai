@@ -69,6 +69,20 @@
 // unrecoverable line. A v1 file's lines all sit in the thread owner's segment,
 // which is opened too, so both formats read through the same path.
 // @tested tests/integration/crm-archive-group-speakers.test.js
+//
+// @req FR-022, SEC-034 — EVIDENCE KEPT FOR THIS CUSTOMER (ADR-093 1.2.0)
+// -----------------------------------------------------------------------
+// Two kinds of line are readable for this Customer without being "theirs" by
+// thread or by speaker, because they were kept on the strength of this
+// Customer's retention consent:
+//   - lines re-sealed under one of this Customer's legal holds when another
+//     member of a shared thread was erased (a `LEGAL_HOLD` segment). The hold's
+//     key is opened only while the hold is active AND this Customer's retention
+//     consent is active — checked here, at read time;
+//   - staff/push/unknown-author lines of an erased Customer's thread that the
+//     retention sweep archived under THIS Customer's key because they consented.
+// Both are returned when their `createdAt` falls in the requested range.
+// @tested tests/integration/crm-retention-consent.test.js
 
 import { z } from 'zod'
 import path from 'node:path'
@@ -80,10 +94,11 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { assertCredentialWriteAssurance } from '@/modules/identity/credential-write-gate'
 import {
-  assertArchiveStorageReady, openExistingCustomerArchiveKeyDek, computeManifestHash,
+  assertArchiveStorageReady, openExistingCustomerArchiveKeyDek, openExistingLegalHoldArchiveKeyDek, computeManifestHash,
   resolveArchiveBaseDir, resolveArchiveKeyCustomers, verifyManifestChain,
 } from './chat-evidence-archive-service'
-import { openArchiveSegment, ChatEvidenceArchiveCryptoError } from './chat-evidence-archive-crypto'
+import { openArchiveSegment, openHoldArchiveSegment, ChatEvidenceArchiveCryptoError } from './chat-evidence-archive-crypto'
+import { findActiveRetentionConsent } from './retention-consent-reader'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 
 export const zRetrieveChatEvidence = z.object({
@@ -149,6 +164,26 @@ async function findArchivedMessagesForCustomer(db, { customer, start, end }) {
   return [...byId.values()].filter((m) => m.body === RETENTION_SWEEP_TOMBSTONE)
 }
 
+/**
+ * @req FR-022 — the legal holds whose re-sealed evidence this Customer may read
+ * now: their unexpired holds that still have a re-seal key, and only while their
+ * retention consent is active (ADR-093 1.2.0).
+ */
+async function readableHoldIds(db, { customer, now }) {
+  const consent = await findActiveRetentionConsent(db, { tenantId: customer.tenantId, customerId: customer.id })
+  if (!consent) return []
+  const holds = await db.customerLegalHold.findMany({
+    where: { tenantId: customer.tenantId, customerId: customer.id, endDate: { gt: now } },
+    select: { id: true },
+  })
+  if (holds.length === 0) return []
+  const keys = await db.legalHoldArchiveKey.findMany({
+    where: { tenantId: customer.tenantId, heldCustomerId: customer.id, legalHoldId: { in: holds.map((h) => h.id) } },
+    select: { legalHoldId: true },
+  })
+  return keys.map((k) => k.legalHoldId)
+}
+
 /** A manifest is trusted only once its own stored fields reproduce its own hash. */
 function manifestSelfConsistent(manifest) {
   return computeManifestHash(manifest) === manifest.manifestHash
@@ -170,7 +205,7 @@ function manifestSelfConsistent(manifest) {
  */
 export async function retrieveArchivedChatEvidence(customerId, input, {
   viewer, request = null, session = undefined, db = prisma,
-  baseDir, env = process.env,
+  baseDir, env = process.env, now = new Date(),
 } = {}) {
   if (!customerId) throw failure(400, 'CUSTOMER_ID_REQUIRED')
   const data = zRetrieveChatEvidence.parse(input)
@@ -206,6 +241,14 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
   const { start, end } = utcDayRange(data.startDate, data.endDate)
   const archivedRows = await findArchivedMessagesForCustomer(db, { customer, start, end })
   const wanted = new Set(archivedRows.map((m) => m.id))
+  // @req FR-022 — evidence kept on this Customer's consent (see the module header).
+  const holdIds = await readableHoldIds(db, { customer, now })
+  const ownKey = await db.customerArchiveKey.findUnique({ where: { customerId: customer.id }, select: { tenantId: true } })
+  const keptForCustomer = holdIds.length > 0 || ownKey?.tenantId === customer.tenantId
+  const inRange = (line) => {
+    const at = new Date(line.createdAt)
+    return at >= start && at <= end
+  }
 
   let sessions = []
   let manifestsUsed = []
@@ -216,7 +259,7 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
   // broken by default; only a real, checked failure sets `valid: false`.
   let chainIntegrity = { valid: true }
 
-  if (wanted.size > 0) {
+  if (wanted.size > 0 || keptForCustomer) {
     // The whole-Tenant chain must check out, files included, before ANY
     // per-manifest partial recovery is attempted — see the module docstring.
     // A broken chain refuses the whole retrieval: every wanted id stays in
@@ -225,9 +268,14 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
     chainIntegrity = await verifyManifestChain(db, customer.tenantId, { baseDir: resolvedBaseDir, checkFiles: true })
   }
 
-  if (wanted.size > 0 && chainIntegrity.valid) {
+  if ((wanted.size > 0 || keptForCustomer) && chainIntegrity.valid) {
     const deks = new Map()
+    const holdDeks = new Map()
     try {
+      for (const legalHoldId of holdIds) {
+        const dek = await openExistingLegalHoldArchiveKeyDek(db, { tenantId: customer.tenantId, legalHoldId }, env)
+        if (dek) holdDeks.set(legalHoldId, dek)
+      }
       // Every Customer whose segment may hold one of these lines: the retrieved
       // Customer, the key each line was sealed under (v2) and the thread owner's
       // (v1). Every key — the retrieved Customer's included — is only opened,
@@ -250,7 +298,7 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
       const found = new Map()
       const manifests = await db.archiveManifest.findMany({ where: { tenantId: customer.tenantId }, orderBy: { createdAt: 'asc' } })
       for (const manifest of manifests) {
-        if (found.size === wanted.size) break // every wanted message already recovered
+        if (!keptForCustomer && found.size === wanted.size) break // every wanted message already recovered
         if (!manifestSelfConsistent(manifest)) continue // the row itself doesn't reproduce its own hash — never trust its file claim
 
         let raw
@@ -276,12 +324,18 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
           } catch {
             continue
           }
-          const dek = deks.get(segment?.customerId)
+          const held = segment?.keyScope === 'LEGAL_HOLD'
+          const dek = held ? holdDeks.get(segment.legalHoldId) : deks.get(segment?.customerId)
           if (!dek) continue // not a key this retrieval needs, or one that no longer exists
+          // Lines taken whole from this segment when in range, not only the wanted ids:
+          // a hold segment of this Customer's, or this Customer's own-key segment.
+          const takeInRange = held || segment.customerId === customer.id
 
           let plaintext
           try {
-            const gzipped = openArchiveSegment(segment, { dek, tenantId: customer.tenantId, customerId: segment.customerId, runId: header.runId })
+            const gzipped = held
+              ? openHoldArchiveSegment(segment, { dek, tenantId: customer.tenantId, legalHoldId: segment.legalHoldId, runId: header.runId })
+              : openArchiveSegment(segment, { dek, tenantId: customer.tenantId, customerId: segment.customerId, runId: header.runId })
             const { gunzipSync } = await import('node:zlib')
             plaintext = gunzipSync(gzipped).toString('utf8')
           } catch (err) {
@@ -292,7 +346,8 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
           for (const line of plaintext.trim().split('\n')) {
             if (!line) continue
             const archivedLine = JSON.parse(line)
-            if (wanted.has(archivedLine.messageId) && !found.has(archivedLine.messageId)) {
+            const want = wanted.has(archivedLine.messageId) || (takeInRange && inRange(archivedLine))
+            if (want && !found.has(archivedLine.messageId)) {
               found.set(archivedLine.messageId, archivedLine)
               matchedAny = true
             }
@@ -315,6 +370,7 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
       messageCount = found.size
     } finally {
       for (const dek of deks.values()) dek.fill(0)
+      for (const dek of holdDeks.values()) dek.fill(0)
     }
   } else if (wanted.size > 0) {
     // Chain broken: every wanted id stays unrecovered, honestly, rather than
