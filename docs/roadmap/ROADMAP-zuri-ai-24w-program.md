@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.26"
+version: "0.4.27"
 updated: "2026-09-27"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.26 → 0.4.27 (2026-09-27): TASK-ZAI-124 is done; #554 merged to main as 1e224d5b with hosted CI green. The routes and page stay off until the I2 repository.
 
 Version diff 0.4.25 → 0.4.26 (2026-09-27): Add TASK-ZAI-124 and its Task Container for FR-275 (Marketing Insights read surface): routes and page off by default until the I2 repository.
 
@@ -610,7 +612,7 @@ locates the week.
 | TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | P1 | Claude | review | TASK-ZAI-103 | PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103 |
 | TASK-ZAI-121 | SPR-ZAI-10 | task | LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099 | P1 | Claude | review | TASK-ZAI-120 | PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open |
 | TASK-ZAI-123 | SPR-ZAI-10 | task | Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274; Business-scoped OAuth callback and vault custody, one-time AAL2 operator reveal, raw-body signature verification and receipt-only idempotent webhook | P1 | Codex | in-progress | TASK-ZAI-078 | ../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md |
-| TASK-ZAI-124 | SPR-ZAI-10 | task | Marketing Insights read surface — FR-275; five /api/insights GET routes and the /growth/insights page over the S6 query service, answering 503 INSIGHTS_NOT_CONFIGURED until the I2 persistent repository | P2 | MC0 | in-progress | TASK-ZAI-078 | ../migrations/service-extraction/MARKETING-INSIGHTS-HANDOFF.md |
+| TASK-ZAI-124 | SPR-ZAI-10 | task | Marketing Insights read surface — FR-275; five /api/insights GET routes and the /growth/insights page over the S6 query service, answering 503 INSIGHTS_NOT_CONFIGURED until the I2 persistent repository | P2 | MC0 | done | TASK-ZAI-078 | ../migrations/service-extraction/MARKETING-INSIGHTS-HANDOFF.md |
 
 ## Assignments
 

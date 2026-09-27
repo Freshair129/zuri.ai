@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.136.0b"
+version: "2.136.1b"
 updated: "2026-09-27"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.136.1b (2026-09-27): TASK-ZAI-124 (FR-275 Marketing Insights read surface) is done: #554 merged to main as 1e224d5b with hosted CI green. The routes and page stay off (503 INSIGHTS_NOT_CONFIGURED) until the I2 persistent repository; no data, persistence or deployment is claimed.
 
 > Revision 2.135.2b (2026-09-27): Re-run TASK-ZAI-123 verification after rebasing onto current origin/main d302eb08. Governance passed (0 critical, 1 existing warning); Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); the production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Provider setup, production migrations and deployment remain unclaimed.
 
@@ -835,7 +837,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 | TASK-ZAI-120 | SPR-ZAI-10 | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | review | HOSTED_CI | DEPLOYED | TASK-ZAI-103 | ROADMAP.md | PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103 |
 | TASK-ZAI-121 | SPR-ZAI-10 | LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099 | review | HOSTED_CI | DEPLOYED | TASK-ZAI-120 | ROADMAP.md | PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open |
 | TASK-ZAI-123 | SPR-ZAI-10 | Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274, ADR-109 | in-progress | LOCAL | LOCAL | TASK-ZAI-078 | ROADMAP.md | Rebased on current origin/main d302eb08; governance passed (0 critical, 1 existing warning); Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Notion-focused integration tests passed; provider setup, production migrations and deployment remain unclaimed. |
-| TASK-ZAI-124 | SPR-ZAI-10 | Marketing Insights read surface — FR-275, routes and page off by default | in-progress | LOCAL | LOCAL | TASK-ZAI-078 | ROADMAP.md | Route tests pass against the synthetic fixture repository; every route answers 503 INSIGHTS_NOT_CONFIGURED in this release. No browser proof with data, persistence or deployment is claimed. |
+| TASK-ZAI-124 | SPR-ZAI-10 | Marketing Insights read surface — FR-275, routes and page off by default | done | HOSTED_CI | MERGED | TASK-ZAI-078 | ROADMAP.md | Merged in #554 (1e224d5b, 2026-09-27); hosted CI green on the PR head and on main. Route tests pass against the synthetic fixture repository; every route answers 503 INSIGHTS_NOT_CONFIGURED in this release. No browser proof with data, persistence or deployment is claimed. |
 <!-- roadmap-task-ledger:end -->
 
 ### Subplans and implementation coverage

@@ -260,7 +260,7 @@ const PROGRAMME_TASK_DEFINITIONS = [
   ['TASK-ZAI-120', 'SPR-ZAI-10', 'LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback', 'FEAT', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-121', 'SPR-ZAI-10', "LINE OA on the operator's Private Runtime Platform — FR-267 adds provider prp (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099", 'FEAT', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-123', 'SPR-ZAI-10', 'Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274, ADR-109', 'FEAT', 'C-3', 'H3', 'in-progress'],
-  ['TASK-ZAI-124', 'SPR-ZAI-10', 'Marketing Insights read surface — FR-275, routes and page off by default', 'FR', 'C-2', 'H2', 'in-progress'],
+  ['TASK-ZAI-124', 'SPR-ZAI-10', 'Marketing Insights read surface — FR-275, routes and page off by default', 'FR', 'C-2', 'H2', 'done'],
 ]
 
 // Task completion is always read from the canonical ROADMAP.md ledger.

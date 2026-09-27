@@ -1,13 +1,13 @@
 ---
-version: "1.3.1b"
+version: "1.4.2"
 created_at: "2026-09-11T04:40:00+07:00,Claude Sonnet 5"
-last_update: "2026-09-17T03:00:00+07:00,RWANG"
-status: "approved"
+last_update: "2026-09-23T20:59:00+07:00,RWANG"
+status: "beta"
 superseded_by: null
 attributes:
   domain: "knowledge"
   doc_type: "architecture-decision"
-  scope: "the single entry path for SmartGift product-catalog data into GenesisBlockDB — a structured-record source adapter before Stage 1 of the 17-stage pipeline, SmartGift's own 5-stage ETL recast as a source producer keyed by its SHA-256 registry, Zero-PII enforcement at Stage 5 classify, SKU/FlowAccount binding through the existing per-Tenant Product column, and edge's transition from a direct file reader to a published-generation reader through MSP"
+  scope: "the single entry path for SmartGift product-catalog data into GenesisBlockDB — a structured-record source adapter before Stage 1 of the 17-stage pipeline, SmartGift's own 5-stage ETL recast as a source producer keyed by its SHA-256 registry, Zero-PII enforcement at Stage 5 classify, SKU/FlowAccount binding through the existing per-Tenant Product column, edge's transition from a direct file reader to a published-generation reader through MSP, and the separately gated private MSP-to-GKS HTTP canary"
 ---
 
 # ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter
@@ -222,7 +222,9 @@ and nothing beyond it.
   triggers.** Neither this ADR nor any merged PR performs it.
 - **Phase 3 does not authorize** any of the following:
   - a deployment for any other source, profile or Business;
-  - a server-host topology or a network transport between the tiers (none exists);
+  - a production server-host topology or a production network transport between tiers.
+    The narrowly scoped, isolated canary exception approved on 2026-09-23 is D10 below;
+    it does not amend production deployment authority;
   - applying a migration, which stays an owner-instructed operator step under ADR-057;
   - any change to edge query traffic, which belongs to Phase 4.
 - **Phase 4 authorizes FR-189.** Edge shadow-queries both v4 and the published generation,
@@ -242,6 +244,39 @@ and nothing beyond it.
   season's ship and cut-off dates. Both campaign windows need written start and end dates
   before the Christmas 2026 window opens, because a zero-mismatch claim over an undated
   window cannot be checked.
+
+### D10 — A private authenticated GKS HTTP service is canary-only until separately released
+
+**Approved by the owner on 2026-09-23** for implementation and an isolated local canary.
+This is a narrow exception to D8's previous exclusion of any inter-tier network transport;
+it does not change the SmartGift source contract, Phase 2 acceptance criteria, or D8's
+production/operator gates.
+
+- Zuri Tier 1 continues to call MSP over stdio. MSP remains the sole GKS caller. The
+  transport between MSP and GKS is explicit: `MSP_GKS_TRANSPORT=http` plus the private
+  origin `MSP_GKS_HTTP_URL=http://gks-http:8787`. The existing stdio provider remains the
+  default and the operator rollback path; there is no implicit HTTP-to-stdio fallback.
+- The canary GKS service is built from the GKS source commit in `pins.json`, joins only an
+  internal Compose network shared with `web`, has no host-published port and no ngrok
+  route, and listens on port 8787. The GKS process alone opens `gks.sqlite` in HTTP mode;
+  that database stays on the existing named `ki17-state` volume. The Zuri Knowledge (GKS)
+  UI and `/knowledge` route remain Tier 1 surfaces, not GKS API endpoints.
+- Both the MSP bearer and pipeline credential files are Compose secrets mounted into
+  `web`, `genesis-worker` and `gks-http`. A shared environment builder reads them in the
+  trusted parent and passes their values to MSP under `GKS_MSP_RELAY_CREDENTIAL` and
+  `MSP_GKS_PIPELINE_CREDENTIAL`; the same pipeline material is required by the MSP
+  caller contract. The equal `GKS_PIPELINE_RELAY_CREDENTIAL` verifier alias is not
+  forwarded to MSP. The worker launcher applies the same allowlist because its pinned
+  GenesisBlock spawn inherits the worker environment. Parent containers remain trusted
+  principals; this is containment, not process isolation.
+- The HTTP overlay is omitted from the default Compose stack. The canary uses a distinct
+  Compose project, dedicated runtime env files, fresh canary volumes, and the
+  canary-only override that leaves ngrok inactive. It must not open the production SQLite
+  volume, use production application secrets, start the production project, or route
+  customer traffic. Base env-file defaults and ngrok behavior remain unchanged.
+- Production service activation, production credentials/database, knowledge activation,
+  and any query/pipeline cutover remain unapproved by this amendment. They require the
+  applicable release gates and a separately triggered operator step.
 
 ### D9 — Non-goals
 
@@ -359,6 +394,9 @@ citable published generation once Phase 4 lands.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.2 | 2026-09-23 | beta | Extends D10 credential handling to the inherited worker spawn and required MSP pipeline caller secret | working-tree | RWANG |
+| 1.4.1 | 2026-09-23 | beta | Requires file-backed bearer propagation to trusted parents and isolated canary env files with ngrok disabled | working-tree | RWANG |
+| 1.4.0 | 2026-09-23 | beta | Owner-approved private authenticated MSP-to-GKS HTTP transport for implementation and isolated local canary only; production remains separately gated | working-tree | RWANG |
 | 1.3.1b | 2026-09-17 | approved | ADR-098 narrowly supersedes D9 engine ownership; pre-Stage-1 source boundary and existing cutover gates retained | uncommitted | RWANG |
 | 1.3.0 | 2026-09-11 | approved | Owner approved Phases 3–5. Phase 3 (edge-device deployment for the SmartGift structured-record profile) deploys only after Phase 2 acceptance passes, as a separate owner-triggered operator step. Phase 4 is FR-189 shadow-then-cutover with the 120-day fallback window. Phase 5 is conditional on the window elapsing and zero shadow mismatches over Christmas 2026 and New Year 2027. The New Year 2027 dates still need owner confirmation. ADR-073 amended; deployment design added | — | Claude Opus 5 |
 | 1.2.0 | 2026-09-11 | approved | Owner answered questions 2–4 (edge device, 120-day v4 fallback window, `FileAsset`) and opened the Phase 2 gate: Option A chosen, Option B deferred as a future option, contract revision 2 recorded (worker changes too, `ontology_v2` superset with accept-before-produce rollout, one claim chunk per relation) | — | Claude Opus 5 |
