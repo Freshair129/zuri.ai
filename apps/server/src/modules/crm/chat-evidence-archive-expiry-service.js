@@ -287,37 +287,36 @@ export async function expireChatEvidenceArchive(db, {
   }
 
   const keyExistedAtStart = new Set(keysAtStart.map((k) => k.customerId))
-  // @req FR-022 — a legal-hold segment (ADR-093 1.2.0) names a hold, not a
-  //   Customer; it counts as expired exactly when its hold key is gone.
-  const liveHoldKeys = new Set((await db.legalHoldArchiveKey.findMany({ where: { tenantId }, select: { legalHoldId: true } }))
-    .map((row) => row.legalHoldId))
+  // @req FR-022, SEC-034 — H1 of the #610 review: a file carrying a legal-hold
+  //   re-seal segment (ADR-093 1.2.0) is NEVER deleted. Deleting it would leave
+  //   its manifest row naming a missing file, and `verifyManifestChain(checkFiles)`
+  //   would then fail for the whole Tenant forever — refusing every later expiry
+  //   run and retrieval. Destroying the hold key (`expireLegalHoldArchiveKeys`) is
+  //   the crypto-shred; the ciphertext left on disk is unreadable.
   const deletedFiles = []
   for (const manifest of manifests) {
     const parsed = await readManifest(manifest)
     if (!parsed) continue // cannot positively account for this file's own contents — never delete it
 
     const customerIdsInFile = new Set()
-    let heldSegmentAlive = false
+    let hasHoldSegment = false
     for (const line of parsed.segmentLines) {
       try {
         const segment = JSON.parse(line)
         const customerId = segment.customerId
         if (customerId) customerIdsInFile.add(customerId)
-        else if (segment.keyScope === 'LEGAL_HOLD' && typeof segment.legalHoldId === 'string') {
-          if (liveHoldKeys.has(segment.legalHoldId)) heldSegmentAlive = true
-          customerIdsInFile.add(`hold:${segment.legalHoldId}`)
-        } else customerIdsInFile.add(Symbol('unparsable'))
+        else if (segment.keyScope === 'LEGAL_HOLD') hasHoldSegment = true
+        else customerIdsInFile.add(Symbol('unparsable'))
       } catch {
         // an unparsable segment line: leave the whole file alone below
         customerIdsInFile.add(Symbol('unparsable'))
       }
     }
 
-    let allExpired = customerIdsInFile.size > 0 && !heldSegmentAlive
+    let allExpired = customerIdsInFile.size > 0 && !hasHoldSegment
     for (const customerId of customerIdsInFile) {
       if (!allExpired) break
       if (typeof customerId !== 'string') { allExpired = false; break }
-      if (customerId.startsWith('hold:')) continue // its hold key is gone (checked above) — permanently unreadable
       if (!keyExistedAtStart.has(customerId)) continue // key already gone (any reason, any prior run) — permanently unreadable, counts as expired
 
       // A key existed at the start of this run. Either it is still alive

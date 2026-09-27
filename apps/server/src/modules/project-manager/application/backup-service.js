@@ -514,7 +514,11 @@ const KNOWLEDGE_ADMISSION_TABLES = ['knowledgeCorpus', 'knowledgeSource', 'knowl
 // copy of the whole snapshot list: a same-version legacy snapshot may predate
 // these arrays, but treating their absence as an intentional empty table can
 // permanently strand archive files or erase retained usage totals.
-const ARCHIVE_RECOVERY_TABLES = Object.freeze(['customerArchiveKey', 'archiveManifest'])
+// @req FR-022, SEC-034 — `legalHoldArchiveKey` (ADR-093 1.2.0) joins the family:
+// a restore from a snapshot without it would silently delete every live hold key,
+// i.e. crypto-shred retained dispute evidence. It is optional for a snapshot
+// that predates it only while the installation holds no hold key.
+const ARCHIVE_RECOVERY_TABLES = Object.freeze(['customerArchiveKey', 'archiveManifest', 'legalHoldArchiveKey'])
 const USAGE_ROLLUP_RECOVERY_TABLE = 'usageEventRollup'
 const PRICING_RECOVERY_TABLES = Object.freeze(['pricingRuleSet', 'pricingCalculation'])
 export const PRICING_RECOVERY_MANIFEST_VERSION = 'pricing-recovery.v1'
@@ -758,8 +762,21 @@ function archiveRecovery(snapshot) {
     if (manifestState === 'MALFORMED') result.errors.push('Archive recovery snapshot archiveManifest must be an array')
     return result
   }
+  const holdKeyState = snapshotTableState(tables, ARCHIVE_RECOVERY_TABLES[2])
+  if (holdKeyState === 'MALFORMED') {
+    result.status = 'INVALID'
+    result.errors.push('Archive recovery snapshot legalHoldArchiveKey must be an array')
+    return result
+  }
   const keyPresent = keyState === 'PRESENT'
   const manifestPresent = manifestState === 'PRESENT'
+  // An empty hold-key array carries no evidence, so it never makes a family partial.
+  if (holdKeyState === 'PRESENT' && tables.legalHoldArchiveKey.length > 0 && !(keyPresent && manifestPresent)) {
+    result.status = 'INVALID'
+    result.errors.push('Archive recovery snapshot has a partial archive family; legalHoldArchiveKey requires customerArchiveKey and archiveManifest')
+    return result
+  }
+  result.holdKeysMissing = holdKeyState === 'MISSING'
   if (keyPresent !== manifestPresent) {
     result.status = 'INVALID'
     result.errors.push('Archive recovery snapshot has a partial archive family; customerArchiveKey and archiveManifest must be present together')
@@ -782,6 +799,23 @@ function archiveRecovery(snapshot) {
     }
     if (archiveKeyCustomers.has(row.customerId)) result.errors.push(`Archive keys reuse customerId ${row.customerId}`)
     archiveKeyCustomers.add(row.customerId)
+  }
+  if (holdKeyState === 'PRESENT') {
+    const holds = new Set()
+    for (const row of tables.legalHoldArchiveKey) {
+      const label = row?.id || '<unknown>'
+      if (!isSnapshotObject(row)) {
+        result.errors.push(`Legal hold archive key ${label} is not an object`)
+        continue
+      }
+      for (const field of ['id', 'tenantId', 'legalHoldId', 'heldCustomerId', 'kekId', 'wrappedDek']) {
+        if (typeof row[field] !== 'string' || !row[field].trim()) result.errors.push(`Legal hold archive key ${label} has no valid ${field}`)
+      }
+      if (holds.has(row.legalHoldId)) result.errors.push(`Legal hold archive keys reuse legalHoldId ${row.legalHoldId}`)
+      holds.add(row.legalHoldId)
+    }
+  } else {
+    result.warnings.push('LEGAL_HOLD_ARCHIVE_KEY_RECOVERY_UNAVAILABLE: snapshot has no legalHoldArchiveKey array')
   }
   result.manifestRows = archiveManifestRestoreRows(tables.archiveManifest, result)
   if (result.errors.length) result.status = 'INVALID'
@@ -1709,6 +1743,10 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
     archive.errors.push('Chat evidence archive recovery is unavailable while the installation contains archive keys or manifests; refusing a restore that would erase evidence')
     archive.status = 'INVALID'
   }
+  if (archive.status === 'AVAILABLE' && archive.holdKeysMissing && current.legalHoldArchiveKey > 0) {
+    archive.errors.push('Legal hold archive key recovery is unavailable while the installation contains legal hold keys; refusing a restore that would erase retained evidence')
+    archive.status = 'INVALID'
+  }
   if (usageRollup.status === 'UNAVAILABLE' && current[USAGE_ROLLUP_RECOVERY_TABLE] > 0) {
     usageRollup.errors.push('Usage event rollup recovery is unavailable while the installation contains rollup rows; refusing a restore that would erase aggregate evidence')
     usageRollup.status = 'INVALID'
@@ -1764,6 +1802,13 @@ async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
   }
   const pricing = pricingRecovery(snapshot)
   if (pricing.errors.length) throw new BackupRestoreSafetyError('BACKUP_PRICING_RECOVERY_INVALID', pricing.errors.join('; '))
+  const holdKeysMissing = preview.archiveRecovery?.status === 'AVAILABLE' && preview.archiveRecovery?.holdKeysMissing
+  if (holdKeysMissing && await tx.legalHoldArchiveKey.count() > 0) {
+    throw new BackupRestoreSafetyError(
+      'BACKUP_ARCHIVE_RECOVERY_LIVE_DATA_APPEARED',
+      'Legal hold archive key recovery is unavailable while legalHoldArchiveKey gained live rows; refusing to erase evidence',
+    )
+  }
   if (preview.archiveRecovery?.status === 'UNAVAILABLE') {
     for (const model of ARCHIVE_RECOVERY_TABLES) {
       const count = await tx[model].count()

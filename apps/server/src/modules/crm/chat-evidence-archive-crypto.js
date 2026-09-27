@@ -240,15 +240,17 @@ export function openLegalHoldArchiveKey(row, { legalHoldId, tenantId }, env = pr
 
 /**
  * Seal one legal hold's re-sealed lines (already gzipped). The segment names the
- * hold, never a `customerId` — every reader that walks segments by Customer
+ * hold only — never a `customerId`, and not the held Customer either (L4 of the
+ * #610 review: anything in the cleartext envelope is either bound by the AAD or
+ * absent; the hold id is bound, and the held Customer is found through the hold
+ * row). Every reader that walks segments by Customer
  * (retrieval, expiry, the v2 writer's tests) passes over it untouched.
  */
-export function sealHoldArchiveSegment({ dek, tenantId, legalHoldId, heldCustomerId, runId, plaintext }) {
+export function sealHoldArchiveSegment({ dek, tenantId, legalHoldId, runId, plaintext }) {
   const sealed = gcmSeal(dek, plaintext, holdSegmentAad({ tenantId, legalHoldId, runId }))
   return {
     keyScope: 'LEGAL_HOLD',
     legalHoldId,
-    heldCustomerId,
     iv: sealed.nonce.toString('base64'),
     tag: sealed.tag.toString('base64'),
     ciphertext: sealed.ciphertext.toString('base64'),

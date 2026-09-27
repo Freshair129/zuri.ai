@@ -20,7 +20,7 @@ import { makeViewer } from '../factories/viewer'
 import { ROLE_SALES_REP } from '@/modules/identity/rbac'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { runRetentionSweep } from '@/modules/crm/retention-sweep-service'
-import { verifyManifestChain } from '@/modules/crm/chat-evidence-archive-service'
+import { archiveAndTombstoneTenantMessages, verifyManifestChain } from '@/modules/crm/chat-evidence-archive-service'
 import {
   openArchiveSegment, openCustomerArchiveKey, openHoldArchiveSegment, openLegalHoldArchiveKey,
 } from '@/modules/crm/chat-evidence-archive-crypto'
@@ -99,30 +99,35 @@ async function say({ scope, speaker, thread, text, at = old() }) {
 }
 
 /**
- * A group thread A owns (A speaks first), B also speaks, staff post a note; all
- * past retention. A also has one recent line the sweep will not reach yet.
+ * A group thread A owns (A speaks first), then B speaks, then A again, then staff
+ * post a note — all past retention, a minute apart. A also has one recent line the
+ * sweep will not reach yet.
  */
 async function scene(scope) {
   const suffix = randomUUID().slice(0, 8)
   const A = `U-rc-a-${suffix}`
   const B = `U-rc-b-${suffix}`
   const group = `C-rc-${suffix}`
-  const aLine = await say({ scope, speaker: A, thread: group, text: 'A line kept for B' })
-  const bLine = await say({ scope, speaker: B, thread: group, text: 'B own line' })
+  const base = old().getTime()
+  const at = (minutes) => new Date(base + minutes * 60_000)
+  const aFirst = await say({ scope, speaker: A, thread: group, text: 'A first line, before B joined', at: at(0) })
+  const bLine = await say({ scope, speaker: B, thread: group, text: 'B own line', at: at(1) })
+  const aLine = await say({ scope, speaker: A, thread: group, text: 'A line kept for B', at: at(2) })
   const staff = await prisma.message.create({ data: { conversationId: aLine.conversationId, direction: 'OUTBOUND',
-    body: 'Staff note in A\'s group', createdAt: old() } })
+    body: "Staff note in A's group", createdAt: at(3) } })
   const aRecent = await say({ scope, speaker: A, thread: group, text: 'A recent line, not yet swept', at: new Date(Date.now() - DAY_MS) })
   const customerOf = async (subject) => {
     const identity = await prisma.channelIdentity.findFirst({ where: { tenantId: scope.tenant.id, providerSubject: subject } })
     return prisma.customer.findFirst({ where: { tenantId: scope.tenant.id, personId: identity.personId } })
   }
   return {
-    customerA: await customerOf(A), customerB: await customerOf(B), B,
-    groupConversationId: aLine.conversationId,
-    aArchived: { [aLine.messageId]: 'A line kept for B', [staff.id]: 'Staff note in A\'s group' },
+    customerA: await customerOf(A), customerB: await customerOf(B), B, customerOf, at,
+    groupConversationId: aLine.conversationId, groupExternalId: group,
+    aBeforeB: { [aFirst.messageId]: 'A first line, before B joined' },
+    aArchived: { [aLine.messageId]: 'A line kept for B', [staff.id]: "Staff note in A's group" },
     aRecent: { [aRecent.messageId]: 'A recent line, not yet swept' },
     b: { [bLine.messageId]: 'B own line' },
-    ids: { aLine: aLine.messageId, staff: staff.id, aRecent: aRecent.messageId, bLine: bLine.messageId },
+    ids: { aFirst: aFirst.messageId, aLine: aLine.messageId, staff: staff.id, aRecent: aRecent.messageId, bLine: bLine.messageId },
   }
 }
 
@@ -225,6 +230,18 @@ describe('retention consent — who records it (FR-022, ADR-093 1.2.0)', () => {
     expect([...await customersWithActiveRetentionConsent(prisma, { tenantId: other.tenant.id, customerIds: [s.customerB.id] })]).toEqual([])
   })
 
+  it('I1: a SALES_REP of one Business records consent for a Customer another Business of the same tenant brought in', async () => {
+    const scope = await freshScope('same-tenant')
+    const s = await scene(scope)
+    const second = await createBusiness({ tenantId: scope.tenant.id, name: 'ร้านสาขาสอง', code: `BUS-RC2-${randomUUID().slice(0, 8)}` })
+    const rep = await salesRepFor(second)
+    await expect(recordCustomerRetentionConsent(s.customerB.id, { businessId: second.id }, { viewer: rep }))
+      .resolves.toMatchObject({ customerId: s.customerB.id, businessId: second.id })
+    const foreign = await freshScope('same-tenant-foreign')
+    await expect(recordCustomerRetentionConsent(s.customerB.id, { businessId: foreign.business.id }, { viewer: await salesRepFor(foreign.business) }))
+      .rejects.toMatchObject({ status: 404 })
+  })
+
   it('revoking is audited and ends the consent', async () => {
     const scope = await freshScope('revoke')
     const s = await scene(scope)
@@ -241,7 +258,7 @@ describe('retention consent — who records it (FR-022, ADR-093 1.2.0)', () => {
 })
 
 describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1.2.0)', () => {
-  it('with hold + consent: A\'s lines and the staff note in A\'s thread are re-sealed under B\'s hold key before A\'s key is destroyed', async () => {
+  it('with hold + consent: A\'s lines after B joined and the staff note are re-sealed under B\'s hold key before A\'s key is destroyed', async () => {
     const scope = await freshScope('q1-keep')
     const { viewer, session } = await ownerFor(scope.business)
     const s = await scene(scope)
@@ -260,6 +277,12 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
     for (const id of [...Object.keys(s.aArchived), ...Object.keys(s.aRecent)]) {
       expect(lines.get(id)).toMatchObject({ scope: 'LEGAL_HOLD', key: hold.legalHoldId, v: 3 })
     }
+    // M2: A's line from before B ever spoke is not B's evidence and is shredded.
+    expectGone(lines, s.aBeforeB)
+    // L4: the hold segment's cleartext envelope carries only AAD-bound fields.
+    const reseal = (await prisma.archiveManifest.findMany({ where: { tenantId: scope.tenant.id }, orderBy: { createdAt: 'desc' } }))[0]
+    const segment = JSON.parse((await fs.readFile(path.join(baseDir, reseal.filePath), 'utf8')).trim().split('\n')[1])
+    expect(Object.keys(segment).sort()).toEqual(['ciphertext', 'iv', 'keyScope', 'legalHoldId', 'tag'])
     // One appended manifest; the chain and every earlier file still verify.
     expect(await prisma.archiveManifest.count({ where: { tenantId: scope.tenant.id } })).toBe(manifestsBefore + 1)
     await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true })).resolves.toEqual({ valid: true })
@@ -290,8 +313,8 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
     const s = await scene(scope)
     await runRetentionSweep({ now: new Date(), baseDir })
     await holdB(scope, s)
-    const rep = await salesRepFor(scope.business)
-    await revokeCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id }, { viewer: rep })
+    const { viewer } = await ownerFor(scope.business)
+    await revokeCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id, reason: 'ลูกค้าถอนความยินยอม' }, { viewer })
 
     const erased = await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' }, { archiveBaseDir: baseDir })
 
@@ -322,7 +345,26 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
     expectGone(await recoverable(scope.tenant.id), s.aArchived)
   })
 
-  it('revoking B\'s consent destroys the hold key in the same transaction; B\'s retrieval no longer returns A\'s lines', async () => {
+  it('M4: a qualifying hold with a broken chain aborts the erasure with a typed error and an alert; nothing is shredded', async () => {
+    const scope = await freshScope('q1-broken-chain')
+    const s = await scene(scope)
+    await runRetentionSweep({ now: new Date(), baseDir })
+    await holdB(scope, s)
+    const manifest = await prisma.archiveManifest.findFirst({ where: { tenantId: scope.tenant.id } })
+    await fs.appendFile(path.join(baseDir, manifest.filePath), 'tampered\n')
+    const alerts = []
+
+    await expect(erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' },
+      { archiveBaseDir: baseDir, alert: (entry) => alerts.push(entry) }))
+      .rejects.toMatchObject({ code: 'ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID', status: 409 })
+
+    expect(alerts).toEqual([expect.objectContaining({ code: 'ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID', severity: 'critical', tenantId: scope.tenant.id })])
+    expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: s.customerA.id } })).toBeTruthy()
+    expect((await prisma.customer.findUnique({ where: { id: s.customerA.id } })).deletedAt).toBeNull()
+    expect(await prisma.legalHoldArchiveKey.count({ where: { tenantId: scope.tenant.id } })).toBe(0)
+  })
+
+  it('revoking B\'s consent (owner, with a reason) destroys the hold key in the same transaction; the chain stays valid and B\'s retrieval no longer returns A\'s lines', async () => {
     const scope = await freshScope('q1-revoke-after')
     const { viewer, session } = await ownerFor(scope.business)
     const s = await scene(scope)
@@ -331,31 +373,71 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
     await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' }, { archiveBaseDir: baseDir })
     expect(await prisma.legalHoldArchiveKey.findUnique({ where: { legalHoldId: hold.legalHoldId } })).toBeTruthy()
 
-    const rep = await salesRepFor(scope.business)
-    const revoked = await revokeCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id }, { viewer: rep })
+    const revoked = await revokeCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id, reason: 'คำสั่งเจ้าของ' }, { viewer })
 
     expect(revoked.destroyedHoldKeys).toEqual([hold.legalHoldId])
     expect(await prisma.legalHoldArchiveKey.findUnique({ where: { legalHoldId: hold.legalHoldId } })).toBeNull()
     expectGone(await recoverable(scope.tenant.id), { ...s.aArchived, ...s.aRecent })
+    await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true })).resolves.toEqual({ valid: true })
     const forB = await retrieveArchivedChatEvidence(s.customerB.id, { businessId: scope.business.id, ...range(), caseReference: 'DSP-B2' }, { viewer, session, baseDir })
+    expect(forB.chainIntegrity).toEqual({ valid: true })
     expect(bodiesOf(forB)).toEqual(s.b)
   })
 
-  it('the hold ending destroys the hold key at the next expiry run, and the re-seal file can then go', async () => {
+  it('M3: while B is held, a SALES_REP cannot revoke (403), an OWNER must give a reason (400); without a hold a SALES_REP can', async () => {
+    const scope = await freshScope('q1-revoke-authority')
+    const s = await scene(scope)
+    await holdB(scope, s)
+    const rep = await salesRepFor(scope.business)
+    const { viewer: owner } = await ownerFor(scope.business)
+
+    await expect(revokeCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id, reason: 'ขอยกเลิก' }, { viewer: rep }))
+      .rejects.toMatchObject({ status: 403, code: 'RETENTION_CONSENT_REVOKE_REQUIRES_OWNER' })
+    await expect(revokeCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id }, { viewer: owner }))
+      .rejects.toMatchObject({ status: 400, code: 'RETENTION_CONSENT_REVOKE_REASON_REQUIRED' })
+    expect(await customersWithActiveRetentionConsent(prisma, { tenantId: scope.tenant.id, customerIds: [s.customerB.id] })).toEqual(new Set([s.customerB.id]))
+    await expect(revokeCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id, reason: 'คดีจบแล้ว' }, { viewer: owner }))
+      .resolves.toMatchObject({ revoked: 1 })
+
+    // The same SALES_REP may revoke for a Customer with no hold.
+    await recordCustomerRetentionConsent(s.customerA.id, { businessId: scope.business.id }, { viewer: rep })
+    await expect(revokeCustomerRetentionConsent(s.customerA.id, { businessId: scope.business.id }, { viewer: rep }))
+      .resolves.toMatchObject({ revoked: 1 })
+  })
+
+  it('H1: after the hold ends the expiry run destroys the hold key but keeps the file; the chain stays valid, later expiry runs are not skipped and a later re-seal still works', async () => {
     const scope = await freshScope('q1-expiry')
+    const { viewer, session } = await ownerFor(scope.business)
     const s = await scene(scope)
     await runRetentionSweep({ now: new Date(), baseDir })
     const hold = await holdB(scope, s)
     await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' }, { archiveBaseDir: baseDir })
+    const reseal = (await prisma.archiveManifest.findMany({ where: { tenantId: scope.tenant.id }, orderBy: { createdAt: 'desc' } }))[0]
 
     const stillHeld = await expireChatEvidenceArchive(prisma, { tenantId: scope.tenant.id, now: new Date(), baseDir })
     expect(stillHeld.destroyedHoldKeys).toEqual([])
-    const afterHold = await expireChatEvidenceArchive(prisma, { tenantId: scope.tenant.id, now: new Date(Date.now() + 500 * DAY_MS), baseDir })
+    const later = new Date(Date.now() + 500 * DAY_MS)
+    const afterHold = await expireChatEvidenceArchive(prisma, { tenantId: scope.tenant.id, now: later, baseDir })
 
     expect(afterHold.destroyedHoldKeys).toEqual([hold.legalHoldId])
+    expect(afterHold.deletedFiles).not.toContain(reseal.id)
     expect(await prisma.legalHoldArchiveKey.count({ where: { tenantId: scope.tenant.id } })).toBe(0)
-    const reseal = (await prisma.archiveManifest.findMany({ where: { tenantId: scope.tenant.id }, orderBy: { createdAt: 'desc' } }))[0]
-    expect(afterHold.deletedFiles).toContain(reseal.id)
+    expectGone(await recoverable(scope.tenant.id), s.aArchived)
+    await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true })).resolves.toEqual({ valid: true })
+    const again = await expireChatEvidenceArchive(prisma, { tenantId: scope.tenant.id, now: later, baseDir })
+    expect(again.skipped).toBe(false)
+
+    // A new hold on B, and another member C erased: the re-seal still reads and writes.
+    const hold2 = await recordCustomerLegalHold(s.customerB.id, { businessId: scope.business.id, reason: 'คดีใหม่', endDate: futureDateOnly(700) }, { viewer })
+    const C = `U-rc-c-${randomUUID().slice(0, 8)}`
+    const cLine = await say({ scope, speaker: C, thread: s.groupExternalId, text: 'C line after B joined', at: s.at(10) })
+    const customerC = await s.customerOf(C)
+    await runRetentionSweep({ now: new Date(), baseDir })
+    const erasedC = await erasePrincipal({ tenantId: scope.tenant.id, personId: customerC.personId, reason: 'TEST_ERASURE' }, { archiveBaseDir: baseDir })
+    expect(erasedC.retainedForLegalHolds).toEqual([{ legalHoldId: hold2.legalHoldId, messageCount: 1 }])
+    expect((await recoverable(scope.tenant.id)).get(cLine.messageId)).toMatchObject({ scope: 'LEGAL_HOLD', key: hold2.legalHoldId })
+    const forB = await retrieveArchivedChatEvidence(s.customerB.id, { businessId: scope.business.id, ...range(), caseReference: 'DSP-B3' }, { viewer, session, baseDir })
+    expect(forB.chainIntegrity).toEqual({ valid: true })
   })
 
   it('erasing B afterwards destroys the hold key too', async () => {
@@ -376,26 +458,34 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
 
 describe('Q2 — a line past retention whose key Customer is erased (ADR-093 1.2.0)', () => {
   /** A erased before anything was swept: the staff note in A's thread is now keyless. */
-  async function erasedBeforeSweep(label, { consentB }) {
+  async function erasedBeforeSweep(label, { consentB, bJoinsAfterStaff = false }) {
     const scope = await freshScope(label)
     const s = await scene(scope)
+    if (bJoinsAfterStaff) {
+      const staff = await prisma.message.findUnique({ where: { id: s.ids.staff } })
+      await prisma.message.update({ where: { id: s.ids.bLine }, data: { createdAt: new Date(staff.createdAt.getTime() + 60_000) } })
+    }
     if (consentB) await recordCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id }, { viewer: await salesRepFor(scope.business) })
     await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' }, { archiveBaseDir: baseDir })
     return { scope, s }
   }
 
-  it('a staff line is archived under a consenting live member\'s key', async () => {
+  it('M1: a staff line kept on a member\'s consent stays deferred, never archived; once the consent is revoked the next sweep blanks it', async () => {
     const { scope, s } = await erasedBeforeSweep('q2-staff-keep', { consentB: true })
-    const { viewer, session } = await ownerFor(scope.business)
 
-    const sweep = await runRetentionSweep({ now: new Date(), baseDir })
+    const first = await runRetentionSweep({ now: new Date(), baseDir })
+
+    expect((await prisma.message.findUnique({ where: { id: s.ids.staff } })).body).toBe('Staff note in A\'s group')
+    expect(first.countsByClass.MESSAGE_BODY_AND_ATTACHMENTS.deferredErasedKey).toBeGreaterThanOrEqual(1)
+    expect((await recoverable(scope.tenant.id)).has(s.ids.staff)).toBe(false)
+
+    await revokeCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id }, { viewer: await salesRepFor(scope.business) })
+    await runRetentionSweep({ now: new Date(), baseDir })
 
     expect((await prisma.message.findUnique({ where: { id: s.ids.staff } })).body).toBe(RETENTION_SWEEP_TOMBSTONE)
-    expect(sweep.countsByClass.MESSAGE_BODY_AND_ATTACHMENTS.blankedWithoutArchive).toBeUndefined()
     const lines = await recoverable(scope.tenant.id)
-    expect(lines.get(s.ids.staff)).toMatchObject({ body: 'Staff note in A\'s group', key: s.customerB.id })
-    const forB = await retrieveArchivedChatEvidence(s.customerB.id, { businessId: scope.business.id, ...range(), caseReference: 'DSP-Q2' }, { viewer, session, baseDir })
-    expect(bodiesOf(forB)).toEqual({ ...s.b, [s.ids.staff]: 'Staff note in A\'s group' })
+    expect(lines.has(s.ids.staff)).toBe(false)
+    expect([...lines.values()].filter((line) => line.key === s.customerB.id).map((line) => line.body)).toEqual(['B own line'])
   })
 
   it('without any consenting member, the staff line is blanked and never archived', async () => {
@@ -404,14 +494,12 @@ describe('Q2 — a line past retention whose key Customer is erased (ADR-093 1.2
     const sweep = await runRetentionSweep({ now: new Date(), baseDir })
 
     expect((await prisma.message.findUnique({ where: { id: s.ids.staff } })).body).toBe(RETENTION_SWEEP_TOMBSTONE)
-    expect(sweep.countsByClass.MESSAGE_BODY_AND_ATTACHMENTS).toMatchObject({ blankedWithoutArchive: 1 })
-    expect(sweep.countsByClass.MESSAGE_BODY_AND_ATTACHMENTS.deferredErasedKey).toBeUndefined()
+    expect(sweep.countsByClass.MESSAGE_BODY_AND_ATTACHMENTS.blankedWithoutArchive).toBeGreaterThanOrEqual(1)
     expect((await recoverable(scope.tenant.id)).has(s.ids.staff)).toBe(false)
   })
 
-  it('a consent that was revoked does not keep it', async () => {
-    const { scope, s } = await erasedBeforeSweep('q2-staff-revoked', { consentB: true })
-    await revokeCustomerRetentionConsent(s.customerB.id, { businessId: scope.business.id }, { viewer: await salesRepFor(scope.business) })
+  it('M2: a member who first spoke after the staff line does not keep it', async () => {
+    const { scope, s } = await erasedBeforeSweep('q2-late-member', { consentB: true, bJoinsAfterStaff: true })
 
     await runRetentionSweep({ now: new Date(), baseDir })
 
@@ -419,30 +507,47 @@ describe('Q2 — a line past retention whose key Customer is erased (ADR-093 1.2
     expect((await recoverable(scope.tenant.id)).has(s.ids.staff)).toBe(false)
   })
 
-  it('a customer-authored line is kept (left deferred) only while its speaker has an active consent, else blanked', async () => {
-    for (const consented of [false, true]) {
-      const { scope, s } = await erasedBeforeSweep(`q2-speaker-${consented}`, { consentB: false })
-      // A line A wrote that the erasure did not reach (e.g. written by a lagging
-      // ingest): keyed to A, who is erased and keyless.
+  it('L2: consent is read inside the blanking transaction — a revoke landing after the sweep read still blanks', async () => {
+    const { scope, s } = await erasedBeforeSweep('q2-race', { consentB: true })
+    // Only the orphaned staff line, so the blanking transaction is the one boundary.
+    const candidates = await prisma.message.findMany({
+      where: { id: s.ids.staff },
+      select: { id: true, conversationId: true, direction: true, body: true, contentKind: true, sessionId: true, createdAt: true,
+        externalMessageId: true, authorChannelIdentityId: true,
+        conversation: { select: { id: true, customerId: true, businessId: true } },
+        attachments: { select: { id: true, kind: true, providerContentId: true, fileAssetId: true, fetchState: true, mimeType: true, sizeBytes: true } } },
+    })
+    const raced = new Proxy(prisma, { get(target, prop) {
+      if (prop !== '$transaction') return Reflect.get(target, prop)
+      return async (fn, options) => {
+        await prisma.customerRetentionConsent.updateMany({ where: { customerId: s.customerB.id, revokedAt: null }, data: { revokedAt: new Date() } })
+        return target.$transaction(fn, options)
+      }
+    } })
+
+    const result = await archiveAndTombstoneTenantMessages(raced, { tenantId: scope.tenant.id, candidates, now: new Date(), baseDir })
+
+    // Read before the transaction, the consent would still have kept (deferred) it.
+    expect((await prisma.message.findUnique({ where: { id: s.ids.staff } })).body).toBe(RETENTION_SWEEP_TOMBSTONE)
+    expect(result).toMatchObject({ deferredMessages: 0, blankedMessages: 1 })
+    expect((await recoverable(scope.tenant.id)).has(s.ids.staff)).toBe(false)
+  })
+
+  it('I2: a customer-authored line of the erased key Customer is blanked, even if a stray consent row for them survived', async () => {
+    for (const strayConsent of [false, true]) {
+      const { scope, s } = await erasedBeforeSweep(`q2-speaker-${strayConsent}`, { consentB: false })
+      // A line A wrote that the erasure did not reach (e.g. a lagging ingest).
       const identity = await prisma.channelIdentity.findFirst({ where: { tenantId: scope.tenant.id, personId: s.customerA.personId } })
       const late = await prisma.message.create({ data: { conversationId: s.groupConversationId, direction: 'INBOUND',
         body: 'A late line', authorChannelIdentityId: identity.id, createdAt: old() } })
-      if (consented) {
+      if (strayConsent) {
         const recorder = await person('Recorder')
         await prisma.customerRetentionConsent.create({ data: { tenantId: scope.tenant.id, customerId: s.customerA.id, businessId: scope.business.id, recordedByPersonId: recorder.id } })
       }
 
-      const sweep = await runRetentionSweep({ now: new Date(), baseDir })
+      await runRetentionSweep({ now: new Date(), baseDir })
 
-      const counts = sweep.countsByClass.MESSAGE_BODY_AND_ATTACHMENTS
-      if (consented) {
-        expect((await prisma.message.findUnique({ where: { id: late.id } })).body).toBe('A late line')
-        expect(counts.deferredErasedKey).toBeGreaterThanOrEqual(1)
-      } else {
-        // The sweep spans every tenant; only this run's own tenant can have a deferral yet.
-        expect((await prisma.message.findUnique({ where: { id: late.id } })).body).toBe(RETENTION_SWEEP_TOMBSTONE)
-        expect(counts.deferredErasedKey).toBeUndefined()
-      }
+      expect((await prisma.message.findUnique({ where: { id: late.id } })).body).toBe(RETENTION_SWEEP_TOMBSTONE)
       expect((await recoverable(scope.tenant.id)).has(late.id)).toBe(false)
     }
   })
@@ -467,5 +572,22 @@ describe('erasure clears consent details (FR-103 side finding, FR-022)', () => {
     const audit = await prisma.auditEvent.findFirst({ where: { entityId: s.customerA.id, action: 'CUSTOMER_RETENTION_CONSENT_REVOKED' } })
     expect(audit).toMatchObject({ actorType: 'SYSTEM', reason: 'CUSTOMER_ERASED' })
     expect(erased.retainedForLegalHolds).toEqual([])
+  })
+
+  it('L1: scrubs the free text of earlier consent revokes from the audit trail, keeping the events', async () => {
+    const scope = await freshScope('scrub')
+    const s = await scene(scope)
+    const rep = await salesRepFor(scope.business)
+    const secret = 'ลูกค้าคุณเอโทรมาจากเบอร์ 081-000-0000'
+    await recordCustomerRetentionConsent(s.customerA.id, { businessId: scope.business.id }, { viewer: rep })
+    const revoked = await revokeCustomerRetentionConsent(s.customerA.id, { businessId: scope.business.id, reason: secret }, { viewer: rep })
+    expect((await prisma.auditEvent.findUnique({ where: { id: revoked.auditEventId } })).reason).toBe(secret)
+
+    await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' }, { archiveBaseDir: baseDir })
+
+    const event = await prisma.auditEvent.findUnique({ where: { id: revoked.auditEventId } })
+    expect(event).toMatchObject({ action: 'CUSTOMER_RETENTION_CONSENT_REVOKED', reason: null })
+    expect(event.payloadJson).not.toContain(secret)
+    expect(JSON.parse(event.payloadJson)).toMatchObject({ customerId: s.customerA.id, revoked: 1 })
   })
 })

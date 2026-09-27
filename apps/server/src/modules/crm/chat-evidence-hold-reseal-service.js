@@ -12,6 +12,7 @@ import {
   findThreadCustomerMembers,
   getOrCreateLegalHoldArchiveKeyDek,
   hashMessageIdList,
+  isMemberForLine,
   openExistingCustomerArchiveKeyDek,
   resolveArchiveBaseDir,
   resolveReplySources,
@@ -64,11 +65,34 @@ import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 // Nothing here runs unless the Tenant has at least one active retention consent,
 // so an erasure in a Tenant that never recorded one does no extra file I/O.
 //
+// FAIL CLOSED (M4 of the #610 review): when a qualifying hold exists but the
+// Tenant's manifest chain does not verify with files, the erasure is ABORTED with
+// ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID and an operator alert — shredding A's key
+// then would silently destroy evidence B relies on. Without a qualifying hold the
+// chain is never consulted and the erasure proceeds exactly as before.
+//
+// MEMBERSHIP IS PER LINE (M2): B keeps a line only if B owns its thread or spoke
+// inbound there strictly before the line was written (`isMemberForLine`).
+//
 // FILE ON ROLLBACK: the file is written before the manifest row is inserted in
 // the caller's transaction. If that transaction rolls back, the caller removes
 // the file (`removeUnreferencedArchiveFile`) unless a manifest names its run.
 
 const CONTENT_GONE = new Set([CUSTOMER_ERASURE_TOMBSTONE, LINE_UNSEND_TOMBSTONE, RETENTION_SWEEP_TOMBSTONE])
+
+export class ErasureBlockedError extends Error {
+  constructor(code, details = {}) {
+    super(code)
+    this.name = 'ErasureBlockedError'
+    this.code = code
+    this.status = 409
+    this.details = details
+  }
+}
+
+function defaultAlert(entry) {
+  process.stderr.write(`${JSON.stringify(entry)}\n`)
+}
 
 /** The select a captured database line needs to become an archive line. */
 export const HOLD_RESEAL_MESSAGE_SELECT = Object.freeze({
@@ -94,12 +118,12 @@ export async function captureLinesBeforeErasure(tx, { tenantId, messageIds }) {
  * live member other than the erased Customers, an active hold plus an active
  * retention consent, each read under that member's lock.
  *
- * @returns {Promise<Map<string, {legalHoldId: string, heldCustomerId: string, conversationIds: Set<string>}>>}
+ * @returns {Promise<{holds: Map<string, {legalHoldId: string, heldCustomerId: string, conversationIds: Set<string>}>, members: Map}>}
  */
 async function findQualifyingHolds(tx, { tenantId, conversationIds, erasedCustomerIds, now }) {
   const erased = new Set(erasedCustomerIds)
   const members = await findThreadCustomerMembers(tx, { tenantId, conversationIds })
-  const candidates = [...new Set([...members.values()].flatMap((set) => [...set]))].filter((id) => !erased.has(id)).sort()
+  const candidates = [...new Set([...members.values()].flatMap((thread) => [...thread.keys()]))].filter((id) => !erased.has(id)).sort()
   const holdByCustomer = new Map()
   for (const customerId of candidates) {
     const customer = await tx.customer.findFirst({ where: { id: customerId, tenantId }, select: { deletedAt: true } })
@@ -113,18 +137,18 @@ async function findQualifyingHolds(tx, { tenantId, conversationIds, erasedCustom
     if (hold) holdByCustomer.set(customerId, hold)
   }
   const holds = new Map()
-  for (const [conversationId, set] of members) {
-    for (const customerId of set) {
+  for (const [conversationId, thread] of members) {
+    for (const customerId of thread.keys()) {
       const hold = holdByCustomer.get(customerId)
       if (!hold) continue
       if (!holds.has(hold.id)) holds.set(hold.id, { legalHoldId: hold.id, heldCustomerId: customerId, conversationIds: new Set() })
       holds.get(hold.id).conversationIds.add(conversationId)
     }
   }
-  return holds
+  return { holds, members }
 }
 
-/** Every archived line sealed under one of these Customers' keys, from verified files only. */
+/** Every archived line sealed under one of these Customers' keys, from verified files only (the caller verified the chain). */
 async function readArchivedLinesUnderKeys(tx, { tenantId, customerIds, baseDir, env }) {
   const lines = new Map()
   const deks = new Map()
@@ -133,9 +157,7 @@ async function readArchivedLinesUnderKeys(tx, { tenantId, customerIds, baseDir, 
       const dek = await openExistingCustomerArchiveKeyDek(tx, { tenantId, customerId }, env)
       if (dek) deks.set(customerId, dek)
     }
-    if (deks.size === 0) return { lines, chainIntegrity: { valid: true } }
-    const chainIntegrity = await verifyManifestChain(tx, tenantId, { baseDir, checkFiles: true })
-    if (!chainIntegrity.valid) return { lines, chainIntegrity }
+    if (deks.size === 0) return lines
     const manifests = await tx.archiveManifest.findMany({ where: { tenantId }, orderBy: { createdAt: 'asc' } })
     for (const manifest of manifests) {
       const raw = await fs.readFile(path.join(baseDir, manifest.filePath))
@@ -160,7 +182,7 @@ async function readArchivedLinesUnderKeys(tx, { tenantId, customerIds, baseDir, 
         }
       }
     }
-    return { lines, chainIntegrity }
+    return lines
   } finally {
     for (const dek of deks.values()) dek.fill(0)
   }
@@ -180,6 +202,7 @@ async function readArchivedLinesUnderKeys(tx, { tenantId, customerIds, baseDir, 
  */
 export async function resealErasedEvidenceUnderLegalHolds(tx, {
   tenantId, erasedCustomerIds, speakerChannelIdentityIds = [], capturedLines = [], now = new Date(), env = process.env, baseDir,
+  alert = defaultAlert,
 }) {
   const none = { holds: [], file: null, manifestId: null, chainIntegrity: { valid: true } }
   const erased = [...new Set((erasedCustomerIds ?? []).filter(Boolean))]
@@ -194,13 +217,19 @@ export async function resealErasedEvidenceUnderLegalHolds(tx, {
       : [],
   ])
   const conversationIds = [...new Set([...owned.map((c) => c.id), ...spoken.map((m) => m.conversationId), ...capturedLines.map((m) => m.conversation.id)])]
-  const holds = await findQualifyingHolds(tx, { tenantId, conversationIds, erasedCustomerIds: erased, now })
+  const { holds, members } = await findQualifyingHolds(tx, { tenantId, conversationIds, erasedCustomerIds: erased, now })
   if (holds.size === 0) return none
 
   const resolvedBaseDir = baseDir ?? resolveArchiveBaseDir(env)
   await assertArchiveStorageReady(resolvedBaseDir, env)
 
-  const { lines: archived, chainIntegrity } = await readArchivedLinesUnderKeys(tx, { tenantId, customerIds: erased, baseDir: resolvedBaseDir, env })
+  const chainIntegrity = await verifyManifestChain(tx, tenantId, { baseDir: resolvedBaseDir, checkFiles: true })
+  if (!chainIntegrity.valid) {
+    const details = { tenantId, legalHoldIds: [...holds.keys()], reason: chainIntegrity.reason, brokenAtManifestId: chainIntegrity.brokenAtManifestId ?? null }
+    alert({ event: 'crm.erasure.blocked', severity: 'critical', code: 'ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID', ...details })
+    throw new ErasureBlockedError('ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID', details)
+  }
+  const archived = await readArchivedLinesUnderKeys(tx, { tenantId, customerIds: erased, baseDir: resolvedBaseDir, env })
   const replySources = await resolveReplySources(tx, [...new Set(capturedLines.map((m) => m.conversation.id))])
   const allLines = new Map(archived)
   for (const message of capturedLines) {
@@ -214,13 +243,15 @@ export async function resealErasedEvidenceUnderLegalHolds(tx, {
   const messageIds = new Set()
   for (const hold of [...holds.values()].sort((a, b) => a.legalHoldId.localeCompare(b.legalHoldId))) {
     const kept = [...allLines.values()]
-      .filter((line) => hold.conversationIds.has(line.conversationId))
+      .filter((line) => hold.conversationIds.has(line.conversationId) && isMemberForLine(members, {
+        conversationId: line.conversationId, customerId: hold.heldCustomerId, createdAt: line.createdAt,
+      }))
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.messageId.localeCompare(b.messageId))
     if (kept.length === 0) continue
     const dek = await getOrCreateLegalHoldArchiveKeyDek(tx, { tenantId, legalHoldId: hold.legalHoldId, heldCustomerId: hold.heldCustomerId }, env)
     try {
       const plaintext = gzipSync(Buffer.from(`${kept.map((line) => JSON.stringify(line)).join('\n')}\n`, 'utf8'))
-      segments.push(sealHoldArchiveSegment({ dek, tenantId, legalHoldId: hold.legalHoldId, heldCustomerId: hold.heldCustomerId, runId, plaintext }))
+      segments.push(sealHoldArchiveSegment({ dek, tenantId, legalHoldId: hold.legalHoldId, runId, plaintext }))
     } finally {
       dek.fill(0)
     }

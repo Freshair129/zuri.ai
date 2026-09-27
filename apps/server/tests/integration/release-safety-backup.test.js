@@ -275,6 +275,21 @@ describe('release safety: protected backup evidence', () => {
       expected: /customerArchiveKey must be an array/i,
     },
     {
+      // @req FR-022 — L3 of the #610 review: the hold-key member is checked too.
+      name: 'malformed legal-hold key member',
+      mutate: (snapshot) => { snapshot.tables.legalHoldArchiveKey = { rows: [] } },
+      expected: /legalHoldArchiveKey must be an array/i,
+    },
+    {
+      name: 'legal-hold keys without the rest of the archive family',
+      mutate: (snapshot) => {
+        delete snapshot.tables.customerArchiveKey
+        delete snapshot.tables.archiveManifest
+        snapshot.tables.legalHoldArchiveKey = [{ id: 'lhk-orphan', tenantId: 't', legalHoldId: 'h', heldCustomerId: 'c', kekId: 'v1', wrappedDek: 'a.b.c' }]
+      },
+      expected: /legalHoldArchiveKey requires customerArchiveKey and archiveManifest/i,
+    },
+    {
       name: 'malformed rollup member',
       mutate: (snapshot) => { snapshot.tables.usageEventRollup = { rows: [] } },
       expected: /usageEventRollup must be an array/i,
@@ -291,6 +306,25 @@ describe('release safety: protected backup evidence', () => {
       expect(result.errors.join(' ')).toMatch(expected)
       expect(await prisma.project.findUnique({ where: { id: protectedFixtureProject.id } })).toBeTruthy()
     })
+  })
+
+  // @req FR-022, SEC-034 — L3 of the #610 review: a snapshot that predates
+  // legalHoldArchiveKey must not silently delete live hold keys (retained
+  // dispute evidence) when it replaces the installation.
+  it('refuses a snapshot without legalHoldArchiveKey while the installation holds a legal-hold key', async () => {
+    const legalHoldId = `hold-release-safety-${randomUUID().slice(0, 8)}`
+    await prisma.legalHoldArchiveKey.create({ data: { tenantId: 'tenant-release-safety-hold', legalHoldId, heldCustomerId: 'customer-held', kekId: 'v1', wrappedDek: 'a.b.c' } })
+    try {
+      const snapshot = await exportSnapshot()
+      delete snapshot.tables.legalHoldArchiveKey
+      const result = await importSnapshot(snapshot, { confirm: true, viewer: operator() })
+      expect(result.restored).toBe(false)
+      expect(result.valid).toBe(false)
+      expect(result.errors.join(' ')).toMatch(/legal hold archive key recovery is unavailable/i)
+      expect(await prisma.legalHoldArchiveKey.findUnique({ where: { legalHoldId } })).toBeTruthy()
+    } finally {
+      await prisma.legalHoldArchiveKey.deleteMany({ where: { legalHoldId } })
+    }
   })
 
   it('refuses a row inserted after an unavailable archive preview inside the real transaction boundary', async () => {

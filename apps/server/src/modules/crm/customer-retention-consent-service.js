@@ -35,6 +35,15 @@ export { customersWithActiveRetentionConsent, findActiveRetentionConsent }
 // the held Customer's legal-hold re-seal keys happen in one transaction, under
 // the same Customer lock an erasure takes before it re-seals under that hold, so
 // a re-seal can never commit against a consent that was already revoked.
+//
+// REVOKING WHILE HELD (M3 of the #610 review)
+// --------------------------------------------
+// Revoking destroys the Customer's legal-hold re-seal keys, i.e. evidence kept
+// for their open dispute. So while the Customer has an active legal hold or any
+// LegalHoldArchiveKey, a revocation needs Business OWNER authority and a
+// mandatory non-empty `reason` — the same authority that records the hold. A
+// SALES_REP is refused 403 RETENTION_CONSENT_REVOKE_REQUIRES_OWNER. Without a
+// hold, revoking stays a SALES_REP/OWNER write like recording.
 
 const MAX_NOTE = 1000
 
@@ -43,10 +52,55 @@ export const zRetentionConsentInput = z.object({
   note: z.string().trim().min(1).max(MAX_NOTE).optional(),
 }).strict()
 
+export const zRevokeRetentionConsentInput = z.object({
+  businessId: z.string().min(1),
+  reason: z.string().trim().min(1).max(MAX_NOTE).optional(),
+}).strict()
+
+const GRANTED = 'CUSTOMER_RETENTION_CONSENT_GRANTED'
+const REVOKED = 'CUSTOMER_RETENTION_CONSENT_REVOKED'
+
 function failure(status, message) {
   const error = new Error(message)
   error.status = status
+  error.code = message
   return error
+}
+
+/**
+ * @req FR-022 — L1 of the #610 review: remove the free text a user typed when
+ * recording or revoking these Customers' retention consent (the audit `reason`
+ * column and the payload's `reason`/`note`) from the audit trail, inside the
+ * erasure transaction. The events themselves stay: who acted, when, and what.
+ */
+export async function scrubRetentionConsentAuditText(tx, { tenantId, customerIds }) {
+  const ids = [...new Set((customerIds ?? []).filter(Boolean))]
+  if (!tenantId || ids.length === 0) return 0
+  const events = await tx.auditEvent.findMany({
+    where: { entityType: 'CUSTOMER', entityId: { in: ids }, action: { in: [GRANTED, REVOKED] } },
+    select: { id: true, payloadJson: true, reason: true, tenantId: true },
+  })
+  let scrubbed = 0
+  for (const event of events) {
+    let payload = {}
+    try { payload = JSON.parse(event.payloadJson || '{}') } catch { payload = {} }
+    if (event.tenantId && event.tenantId !== tenantId) continue
+    if (payload?.tenantId && payload.tenantId !== tenantId) continue
+    const { reason, note, ...rest } = payload ?? {}
+    if (event.reason === null && reason === undefined && note === undefined) continue
+    await tx.auditEvent.update({ where: { id: event.id }, data: { reason: null, payloadJson: JSON.stringify(rest) } })
+    scrubbed += 1
+  }
+  return scrubbed
+}
+
+/** Whether this Customer's evidence is currently kept for a legal hold (M3). */
+async function customerIsHeld(tx, { tenantId, customerId, now }) {
+  const [keys, hold] = await Promise.all([
+    tx.legalHoldArchiveKey.count({ where: { tenantId, heldCustomerId: customerId } }),
+    tx.customerLegalHold.findFirst({ where: { tenantId, customerId, endDate: { gt: now } }, select: { id: true } }),
+  ])
+  return keys > 0 || Boolean(hold)
 }
 
 function summary(row) {
@@ -97,13 +151,15 @@ export async function revokeRetentionConsentInTransaction(tx, {
   return { revoked: revoked.count, destroyedHoldKeys, auditEventId: audit.id }
 }
 
-async function resolveWriteScope(db, viewer, customerId, businessId) {
+async function resolveWriteScope(db, viewer, customerId, businessId, verb = 'Recording') {
   if (!customerId) throw failure(400, 'CUSTOMER_ID_REQUIRED')
   // FR-061 — domain visibility before authority, so a principal never granted
   // the CRM here learns nothing about whether the Business exists.
   assertDomainVisible(viewer, businessId, 'customer')
   if (!(ownsBusiness(viewer, businessId) || hasPermission(viewer, businessId, RETENTION_CONSENT_WRITE_PERMISSION))) {
-    throw failure(403, 'Recording retention consent requires owner or SALES_REP authority over this Business')
+    const error = failure(403, `${verb} retention consent requires owner or SALES_REP authority over this Business`)
+    error.code = 'RETENTION_CONSENT_WRITE_FORBIDDEN'
+    throw error
   }
   const business = await db.business.findUnique({ where: { id: businessId }, select: { id: true, tenantId: true } })
   if (!business) throw failure(404, 'BUSINESS_NOT_FOUND')
@@ -162,19 +218,28 @@ export async function recordCustomerRetentionConsent(customerId, input, { viewer
 }
 
 /**
- * Revoke this Customer's retention consent, on the same authority that records
- * it. In the same transaction every legal-hold re-seal key held for this
- * Customer is destroyed: evidence kept because this Customer consented is kept
- * no longer than that consent.
+ * Revoke this Customer's retention consent. In the same transaction every
+ * legal-hold re-seal key held for this Customer is destroyed: evidence kept
+ * because this Customer consented is kept no longer than that consent. While the
+ * Customer is held (an active hold, or any re-seal key) this needs Business
+ * OWNER authority and a non-empty `reason` (see the module header); otherwise the
+ * recording authority (SALES_REP or OWNER) suffices.
+ *
+ * @param {string} customerId
+ * @param {{businessId: string, reason?: string}} input
  */
 export async function revokeCustomerRetentionConsent(customerId, input, { viewer, db = prisma, now = new Date() } = {}) {
-  const data = zRetentionConsentInput.parse(input)
-  const { business, customer, actorId } = await resolveWriteScope(db, viewer, customerId, data.businessId)
+  const data = zRevokeRetentionConsentInput.parse(input)
+  const { business, customer, actorId } = await resolveWriteScope(db, viewer, customerId, data.businessId, 'Revoking')
 
   return withLockedCustomer(db, { tenantId: customer.tenantId, customerId: customer.id, now }, async (tx) => {
+    if (await customerIsHeld(tx, { tenantId: customer.tenantId, customerId: customer.id, now })) {
+      if (!ownsBusiness(viewer, business.id)) throw failure(403, 'RETENTION_CONSENT_REVOKE_REQUIRES_OWNER')
+      if (!data.reason) throw failure(400, 'RETENTION_CONSENT_REVOKE_REASON_REQUIRED')
+    }
     const result = await revokeRetentionConsentInTransaction(tx, {
       tenantId: customer.tenantId, customerId: customer.id, now, actorId,
-      businessId: business.id, reason: data.note ?? 'REVOKED_BY_SALES', alwaysAudit: true,
+      businessId: business.id, reason: data.reason ?? 'REVOKED_BY_SALES', alwaysAudit: true,
     })
     return { customerId: customer.id, ...result }
   })

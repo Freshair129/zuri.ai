@@ -9,7 +9,7 @@ import { redactLineConversationJobs } from '@/modules/line-oa-studio/application
 import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
 import { destroyCustomerArchiveKey, removeUnreferencedArchiveFile } from '@/modules/crm/chat-evidence-archive-service'
 import { captureLinesBeforeErasure, resealErasedEvidenceUnderLegalHolds } from '@/modules/crm/chat-evidence-hold-reseal-service'
-import { revokeRetentionConsentInTransaction } from '@/modules/crm/customer-retention-consent-service'
+import { revokeRetentionConsentInTransaction, scrubRetentionConsentAuditText } from '@/modules/crm/customer-retention-consent-service'
 import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/application/project-feature-erasure'
 
 // @req FR-252 — reviewed PM text shares the Identity erasure transaction.
@@ -70,7 +70,7 @@ const REDACTED = '[erased]'
  * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, erasedAnalyses, invalidatedTokens, revokedSessions, personRedacted, redactedMessages, tombstonedRawRecords, archiveKeys }}
  */
 export async function erasePrincipal(input, {
-  db = prisma, reviewedPmContext = null, archiveBaseDir = undefined, env = process.env,
+  db = prisma, reviewedPmContext = null, archiveBaseDir = undefined, env = process.env, alert = undefined,
 } = {}) {
   const { tenantId, personId, reason } = zErasePrincipalInput.parse(input)
   const now = new Date()
@@ -309,6 +309,7 @@ export async function erasePrincipal(input, {
         now,
         env,
         baseDir: archiveBaseDir,
+        ...(alert ? { alert } : {}),
       })
     } catch (error) {
       if (error?.archiveFile) resealFile = error.archiveFile
@@ -318,6 +319,10 @@ export async function erasePrincipal(input, {
 
     // @req FR-022 — an erasure ends this person's own retention consent, and with
     //   it every legal-hold re-seal key kept on the strength of it.
+    // @req FR-022 — L1 of the #610 review: the free text a sales user or owner
+    //   typed when recording or revoking this person's retention consent may
+    //   describe them; it leaves the audit trail with them (the events stay).
+    await scrubRetentionConsentAuditText(tx, { tenantId, customerIds })
     const retentionConsent = []
     for (const id of customerIds) {
       const result = await revokeRetentionConsentInTransaction(tx, {
@@ -393,7 +398,6 @@ export async function erasePrincipal(input, {
         // @req FR-022 — hold ids and counts only (ADR-093 1.2.0); naming the held
         //   Customer here would tie them to this person's threads.
         retainedForLegalHolds: resealed.holds,
-        ...(resealed.chainIntegrity.valid ? {} : { retainedChainIntegrity: { valid: false, reason: resealed.chainIntegrity.reason } }),
         retentionConsent,
         personRedacted,
         pmErasure: pmResult.audit ?? pmErasure,

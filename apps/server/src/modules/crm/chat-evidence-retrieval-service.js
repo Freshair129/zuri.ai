@@ -72,16 +72,13 @@
 //
 // @req FR-022, SEC-034 — EVIDENCE KEPT FOR THIS CUSTOMER (ADR-093 1.2.0)
 // -----------------------------------------------------------------------
-// Two kinds of line are readable for this Customer without being "theirs" by
-// thread or by speaker, because they were kept on the strength of this
-// Customer's retention consent:
-//   - lines re-sealed under one of this Customer's legal holds when another
-//     member of a shared thread was erased (a `LEGAL_HOLD` segment). The hold's
-//     key is opened only while the hold is active AND this Customer's retention
-//     consent is active — checked here, at read time;
-//   - staff/push/unknown-author lines of an erased Customer's thread that the
-//     retention sweep archived under THIS Customer's key because they consented.
-// Both are returned when their `createdAt` falls in the requested range.
+// Lines re-sealed under one of this Customer's legal holds when another member
+// of a shared thread was erased (a `LEGAL_HOLD` segment) are readable for this
+// Customer without being "theirs" by thread or by speaker. The hold's key is
+// opened only while the hold is active AND this Customer's retention consent is
+// active — checked here, at read time — and a line is returned when its
+// `createdAt` falls in the requested range. (Lines the retention sweep keeps on
+// a consent are never archived; they stay deferred in the database.)
 // @tested tests/integration/crm-retention-consent.test.js
 
 import { z } from 'zod'
@@ -243,8 +240,7 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
   const wanted = new Set(archivedRows.map((m) => m.id))
   // @req FR-022 — evidence kept on this Customer's consent (see the module header).
   const holdIds = await readableHoldIds(db, { customer, now })
-  const ownKey = await db.customerArchiveKey.findUnique({ where: { customerId: customer.id }, select: { tenantId: true } })
-  const keptForCustomer = holdIds.length > 0 || ownKey?.tenantId === customer.tenantId
+  const keptForCustomer = holdIds.length > 0
   const inRange = (line) => {
     const at = new Date(line.createdAt)
     return at >= start && at <= end
@@ -327,9 +323,8 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
           const held = segment?.keyScope === 'LEGAL_HOLD'
           const dek = held ? holdDeks.get(segment.legalHoldId) : deks.get(segment?.customerId)
           if (!dek) continue // not a key this retrieval needs, or one that no longer exists
-          // Lines taken whole from this segment when in range, not only the wanted ids:
-          // a hold segment of this Customer's, or this Customer's own-key segment.
-          const takeInRange = held || segment.customerId === customer.id
+          // A hold segment of this Customer's is taken whole within the range.
+          const takeInRange = held
 
           let plaintext
           try {
