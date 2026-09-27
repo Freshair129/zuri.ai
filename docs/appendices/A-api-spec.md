@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.96.0b → 1.97.0b (2026-09-27): document the catalog-upload response as a separate stored-file and Knowledge-admission outcome (`fileStatus`, `knowledgeStatus`, optional `knowledgeCode`, `admission` omitted on a typed admission failure, HTTP 200 partial outcome). No route is added or removed.
+
 Version diff 1.95.0b → 1.96.0b (2026-09-27): ADR-110 retires 20 Edge Device, harness and legacy executor paths (23 operations) from the 342-path / 449-operation Notion baseline. ADR-106 / SDD-110 adds one Conversation Runtime Core path with GET + POST; the composed inventory is 322 API route handlers, 323 OpenAPI paths and 428 operations. Native signed LINE ingress, PRP model-provider credentials, historical records and Knowledge/RAG remain; no migration or deployment is included.
 
 Version diff 1.94.0b → 1.95.0b (2026-09-26): add the Business-scoped Notion OAuth connect/callback and signed receipt-only webhook endpoints (ADR-109); 341 API route handlers, 342 OpenAPI paths and 449 operations. Local implementation and migrations are not production-applied; provider setup remains an operator gate.
@@ -28,7 +30,7 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.96.0b |
+| **Version** | 1.97.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-27 |
 
@@ -1109,6 +1111,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.97.0b | 2026-09-27 | candidate | `POST /api/knowledge/catalog-files` returns `fileStatus`/`knowledgeStatus`/`knowledgeCode?`/`admission?` so a stored file with a failed Knowledge admission is a 200 partial outcome (#543) | working-tree | Claude Opus 5.5 (MC0) |
 | 1.96.0b | 2026-09-27 | candidate | ADR-110 retires 20 Edge Device, harness and legacy paths (23 operations) from the 1.95 Notion baseline; ADR-106 / SDD-110 adds one Conversation Runtime Core path with GET + POST. Composed inventory: 342 - 20 + 1 = 323 paths; 449 - 23 + 2 = 428 operations. Stored records/schema, signed LINE ingress, PRP key flow and Knowledge/RAG remain; no migration or deployment | working-tree | Codex |
 | 1.94.0b | 2026-09-24 | candidate | ADR-108 D4 adds the Market Intelligence private core façade at `/api/internal/market-intelligence/v1/[operation]` (one path, GET + POST); inventory 336 -> 337 paths / 442 -> 444 operations; no production route switch claimed | working-tree | Codex |
 | 1.92.0b | 2026-09-22 | candidate | FR-268 (ADR-101 D6 Phase 1): three handler files under `/api/business/goals/[id]/key-results` and `/api/business/key-results/[id]`(`/check-ins`) — create/patch a Key Result and record a weekly check-in, OWNER-only, write-through recompute of the parent Goal's progress (SDD-107, BR-044). Route handler count 331 -> 334 | working-tree | Claude Sonnet 5 |
@@ -1287,7 +1290,7 @@ Five paths / six operations share the [admission contract](../plans/KNOWLEDGE-AD
 | POST | `/api/knowledge/ingestions` | `{businessId,projectId?,idempotencyKey,source}`; TEXT contains sourceKey/version/content and optional title; FILE names an existing readable text/Markdown fileAssetId. Returns durable QUEUED identity, never synthetic stage success. |
 | GET | `/api/knowledge/ingestions` | Business/optional Project list with limit; job/source/publication metadata, no raw content. |
 | GET | `/api/knowledge/ingestions/[runId]` | Authorized admission state and separate executionRunId when attached. |
-| POST | `/api/knowledge/catalog-files` | `{businessId,projectId?,name,contentBase64}`; `name` must end in `.json`. Validates the bytes as a SmartGift catalog before storing anything, stores them on the private knowledge store (MinIO) at `knowledge/raw/<tenant>/<business>/catalog-files/<sha256>/<uuid>.json` as a `MANAGED_BLOB` FileAsset (identical bytes reuse the existing asset), then admits it with `format: SMARTGIFT_CATALOG_V1`. Returns `{fileAssetId,fileName,sha256,recordCount,reused,admission}`; 422 for a non-catalog file, 503 when the private store is not enabled. |
+| POST | `/api/knowledge/catalog-files` | `{businessId,projectId?,name,contentBase64}`; `name` must end in `.json`. Validates the bytes as a SmartGift catalog before storing anything, stores them on the private knowledge store (MinIO) at `knowledge/raw/<tenant>/<business>/catalog-files/<sha256>/<uuid>.json` as a `MANAGED_BLOB` FileAsset (identical bytes reuse the existing asset), then admits it with `format: SMARTGIFT_CATALOG_V1`. Returns HTTP 200 `{fileAssetId,fileName,sha256,recordCount,reused,fileStatus,knowledgeStatus,knowledgeCode?,admission?}`, reporting the stored file and the Knowledge admission separately: `fileStatus` is `STORED` or `REUSED`; `knowledgeStatus` is `ADMITTED` (with `admission`), `UNAVAILABLE` (typed `KNOWLEDGE_RUNTIME_UNAVAILABLE`) or `FAILED` (any other typed `KNOWLEDGE_*` error except a 401/403/404 authorization or scope refusal, which still fails the request), with the code in `knowledgeCode` and `admission` omitted. A stored file whose admission failed is therefore a 200 partial outcome, not an error; callers must read `knowledgeStatus`. 422 for a non-catalog file and 503 when the private store is not enabled (both before anything is stored); an untyped admission error still fails the request. |
 | POST | `/api/knowledge/queries` | `{businessId,projectId?,query,topK?}`; pins one corpus manifest, queries explicit native snapshots through MSP, checks lineage and current access, returns ranked results and citationId. |
 | GET | `/api/knowledge/citations/[citationId]` | Resolves a historical source/version/chunk only while current corpus/source/file/project access permits it. |
 | DELETE | `/api/knowledge/sources/[sourceId]` | `{expectedVersion}`; corpus writer atomically withdraws membership, retaining immutable history. This does not modify the FileAsset, and remains available to clean up membership after a file is deleted. |

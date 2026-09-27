@@ -13,6 +13,7 @@ import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 import { makeOperatorViewer, makeViewer } from '../factories/viewer'
 import { admitKnowledge } from '@/modules/knowledge/knowledge-admission-service'
+import { uploadSmartGiftCatalogFile } from '@/modules/knowledge/smartgift-catalog-upload-service'
 import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17-executor'
 import {
   canonicalGenesisRag17Json,
@@ -205,6 +206,53 @@ describe('SmartGift structured-record admission (FR-187)', () => {
     // Two assets claiming one catalog file is an ambiguity the adapter must not
     // resolve silently: the derived source key already belongs to another asset.
     await expect(admit(twin, productsText)).rejects.toMatchObject({ status: 409, code: 'KNOWLEDGE_SOURCE_CONFLICT' })
+  })
+
+  it('stores Business B original bytes when the Knowledge runtime is bound only to Business A', async () => {
+    const businessB = await createBusiness({
+      tenantId: tenant.id,
+      name: `SmartGift business B ${randomUUID().slice(0, 8)}`,
+      code: `SG-BU-B-${randomUUID().slice(0, 8)}`,
+    })
+    const businessBViewer = makeViewer({
+      role: 'OWNER',
+      visibleBusinessIds: [businessB.id],
+      ownedBusinessIds: [businessB.id],
+    })
+    const objects = new Map()
+    const objectStoragePort = {
+      put: async ({ key, content }) => {
+        const ref = `memory://catalog/${key}?versionId=${randomUUID()}`
+        objects.set(ref, Buffer.from(content))
+        return { ref }
+      },
+      get: async ({ ref }) => objects.get(ref),
+      remove: async ({ ref }) => { objects.delete(ref) },
+    }
+
+    let result
+    let uploadError
+    try {
+      result = await uploadSmartGiftCatalogFile({
+        businessId: businessB.id,
+        name: 'products-b.json',
+        contentBase64: Buffer.from(productsText, 'utf8').toString('base64'),
+      }, { db: prisma, viewer: businessBViewer, objectStoragePort })
+    } catch (error) {
+      uploadError = error
+    }
+
+    const stored = await prisma.fileAsset.findFirst({ where: { businessId: businessB.id, name: 'products-b.json' } })
+    expect(stored).toMatchObject({ businessId: businessB.id, status: 'ACTIVE', sha256: sha256(productsText) })
+    expect(Buffer.compare(objects.get(stored.blobRef), Buffer.from(productsText, 'utf8'))).toBe(0)
+    expect(await prisma.knowledgeSource.count({ where: { fileAssetId: stored.id } })).toBe(0)
+    expect(uploadError).toBeUndefined()
+    expect(result).toMatchObject({
+      fileAssetId: stored.id,
+      fileStatus: 'STORED',
+      knowledgeStatus: 'UNAVAILABLE',
+      knowledgeCode: 'KNOWLEDGE_RUNTIME_UNAVAILABLE',
+    })
   })
 
   it('leaves a bare .json upload at 415 when no structured format is named', async () => {
