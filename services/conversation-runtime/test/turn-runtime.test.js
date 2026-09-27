@@ -39,7 +39,7 @@ test('real turn runner claims, checks authority, composes, invokes the model and
   }
   const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
   assert.equal(result.status, 'RECORDED')
-  assert.deepEqual(order, ['claim', 'authority', 'context', 'MODEL_STARTED', 'credential', 'authority', 'model', 'MODEL_COMPLETED', 'CONTEXT_COMMITTED', 'complete', 'ANSWER_READY', 'delivery'])
+  assert.deepEqual(order, ['claim', 'authority', 'context', 'MODEL_STARTED', 'credential', 'authority', 'model', 'MODEL_COMPLETED', 'CONTEXT_COMMITTED', 'complete', 'delivery'])
 })
 
 test('revalidates identity, transport and lease after credential grant before starting the provider', async () => {
@@ -453,4 +453,176 @@ test('does not re-run a provider call with a started receipt after process recla
 
 test('runtime construction requires every versioned side-effect port', () => {
   assert.throws(() => createConversationRuntime({ ports: {} }), /RUNTIME_PORTS_REQUIRED/)
+})
+
+function workPorts({ prepare, execute, status = async () => ({ status: 'NOT_FOUND' }), record }) {
+  return {
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async (_claim, value) => { record.completed = value.text; return { status: 'READY' } },
+      status: async () => ({ status: 'CLAIMED' }), fail: async (_claim, value) => { record.failed = value } },
+    authority: { resolve: async () => ({ authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare },
+    workTool: { execute, status },
+    model: { credential: async () => assert.fail('a Work turn must not resolve a model credential'),
+      generate: async () => assert.fail('a Work turn must not call the model') },
+    delivery: { send: async () => { record.delivered = (record.delivered ?? 0) + 1; return { status: 'RECORDED' } }, status: async () => ({ status: 'READY' }) },
+    trace: { append: async (_claim, event) => { (record.traces ??= []).push(event.kind) }, status: async () => ({ status: 'NOT_FOUND' }) },
+  }
+}
+
+test('answers malformed Work syntax with the Core-derived workReply and calls no tool', async () => {
+  const record = {}
+  const ports = workPorts({ record,
+    prepare: async () => ({ ...turn, question: '/work-create', workReply: { code: 'WORK_COMMAND_USAGE', text: 'usage text' } }),
+    execute: async () => assert.fail('a fixed Work reply must not call the WorkToolPort'),
+    status: async () => assert.fail('a fixed Work reply must not probe the WorkToolPort') })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.equal(record.completed, 'usage text')
+  assert.equal(record.delivered, 1)
+})
+
+test('answers a typed REJECTED Work refusal once, with its reply, instead of retrying into UNKNOWN', async () => {
+  const proposalId = '00000000-0000-4000-8000-000000000007'
+  const record = {}
+  let executions = 0
+  const ports = workPorts({ record,
+    prepare: async () => ({ ...turn, workCommand: { operation: 'confirm-execute', input: { proposalId } } }),
+    execute: async () => { executions += 1; return { status: 'REJECTED', code: 'WORK_CONFIRMATION_EXPIRED', result: { text: 'expired reply' } } } })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.equal(executions, 1)
+  assert.equal(record.completed, 'expired reply')
+  assert.equal(record.failed, undefined)
+})
+
+test('a final Core refusal with nothing recorded fails the Work turn without a retry; a retryable one still ends UNKNOWN', async () => {
+  const final = {}
+  let finalExecutions = 0
+  const finalPorts = workPorts({ record: final,
+    prepare: async () => ({ ...turn, workCommand: { operation: 'read', input: { kind: 'projects', query: '' } } }),
+    execute: async () => { finalExecutions += 1; throw Object.assign(new Error('WORK_TOOL_TEXT_TOO_LONG'), { code: 'WORK_TOOL_TEXT_TOO_LONG', retryable: false }) } })
+  const failed = await createConversationRuntime({ ports: finalPorts, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.deepEqual(failed, { jobId: claim.jobId, status: 'FAILED', code: 'WORK_TOOL_TEXT_TOO_LONG' })
+  assert.equal(finalExecutions, 1)
+  assert.deepEqual(final.failed, { code: 'WORK_TOOL_TEXT_TOO_LONG', outcome: 'FAILED' })
+  assert.equal(final.delivered, undefined)
+
+  const transient = {}
+  let transientExecutions = 0
+  const transientPorts = workPorts({ record: transient,
+    prepare: async () => ({ ...turn, workCommand: { operation: 'read', input: { kind: 'projects', query: '' } } }),
+    execute: async () => { transientExecutions += 1; throw Object.assign(new Error('CORE_OPERATION_UNAVAILABLE'), { code: 'CORE_OPERATION_UNAVAILABLE', retryable: true }) } })
+  const unknown = await createConversationRuntime({ ports: transientPorts, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.deepEqual(unknown, { jobId: claim.jobId, status: 'UNKNOWN', code: 'WORK_TOOL_OUTCOME_UNKNOWN' })
+  assert.equal(transientExecutions, 2)
+  assert.ok(transient.traces.includes('WORK_TOOL_OUTCOME_UNKNOWN'))
+})
+
+// @req FR-244 — an out-of-hours turn handed over by Core (ADR-094 D6, ADR-106).
+const outOfHoursTurn = { question: 'สั่งของได้ไหม', evidence: { records: [] }, slices: [], authorized: true,
+  audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null,
+  turnKind: 'OUT_OF_HOURS', replyText: '  ขณะนี้ปิดทำการ กรุณาติดต่อใหม่ในเวลาทำการ  ' }
+
+function outOfHoursPorts(order, overrides = {}) {
+  return {
+    job: { claim: async () => (order.push('claim'), claim), renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async (_claim, result) => (order.push(`complete:${result.text}`), { status: 'READY', operationId: result.operationId }),
+      status: async (_claim, operationId) => ({ status: 'CLAIMED', operationId }), fail: async () => order.push('fail') },
+    authority: { resolve: async () => (order.push('authority'), { authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare: async () => (order.push('context'), outOfHoursTurn) },
+    workTool: { execute: async () => assert.fail('out-of-hours turn must not call WorkToolPort'),
+      status: async () => assert.fail('out-of-hours turn must not read a Work receipt') },
+    model: { credential: async () => assert.fail('out-of-hours turn must not resolve a model credential'),
+      generate: async () => assert.fail('out-of-hours turn must not call the model') },
+    delivery: { send: async () => (order.push('delivery'), { status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
+    trace: { append: async (_claim, event) => order.push(event.kind),
+      status: async () => assert.fail('out-of-hours turn has no model operation to reconcile') },
+    ...overrides,
+  }
+}
+
+test('out-of-hours turn completes with Core\'s fixed reply byte for byte and never touches Work, credential or model', async () => {
+  const order = []
+  const result = await createConversationRuntime({ ports: outOfHoursPorts(order), now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${outOfHoursTurn.replyText}`, 'delivery'])
+})
+
+test('out-of-hours completion reconciles a lost response from Core status and sends once', async () => {
+  const order = []
+  let completeCalls = 0
+  let committed = false
+  const ports = outOfHoursPorts(order, {
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async () => { completeCalls += 1; committed = true; throw Object.assign(new Error('lost'), { code: 'CORE_RESPONSE_LOST' }) },
+      status: async (_claim, operationId) => ({ status: committed ? 'READY' : 'CLAIMED', operationId }),
+      fail: async () => assert.fail('a possibly committed READY must not be failed') },
+  })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.equal(completeCalls, 1)
+  assert.equal(order.filter(step => step === 'delivery').length, 1)
+})
+
+test('out-of-hours turn is left for lease reclaim, not failed, when the lease is lost after prepare', async () => {
+  const order = []
+  const expiredClaim = { ...claim, leaseExpiresAt: '2026-09-23T23:59:59.000Z' }
+  const ports = outOfHoursPorts(order, {
+    job: { claim: async () => expiredClaim, renew: async () => ({ version: claim.version, leaseExpiresAt: expiredClaim.leaseExpiresAt }),
+      complete: async () => assert.fail('a lost lease must not complete'), status: async () => assert.fail('nothing to reconcile'),
+      fail: async () => assert.fail('an out-of-hours turn must not be failed on a transient error') },
+    trace: { append: async (_claim, event) => assert.fail(`no failure trace for a deferred turn: ${event.kind}`),
+      status: async () => assert.fail('no model operation') },
+  })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.deepEqual(result, { jobId: claim.jobId, status: 'DEFERRED', code: 'CONVERSATION_JOB_LEASE_LOST' })
+})
+
+test('a transient error before the turn kind is known defers when Core refuses the fail for an out-of-hours job', async () => {
+  const order = []
+  let failCalls = 0
+  const ports = outOfHoursPorts(order, {
+    context: { prepare: async () => { throw Object.assign(new Error('timeout'), { code: 'CORE_OPERATION_TIMEOUT', retryable: true }) } },
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async () => assert.fail('must not complete'), status: async () => assert.fail('nothing to reconcile'),
+      fail: async (_claim, value) => {
+        failCalls += 1
+        assert.deepEqual(value, { code: 'CORE_OPERATION_TIMEOUT', outcome: 'FAILED' })
+        throw Object.assign(new Error('deferred'), { code: 'OUT_OF_HOURS_FAILURE_DEFERRED', retryable: false })
+      } },
+    trace: { append: async (_claim, event) => assert.fail(`no failure trace for a deferred turn: ${event.kind}`),
+      status: async () => assert.fail('no model operation') },
+  })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.deepEqual(result, { jobId: claim.jobId, status: 'DEFERRED', code: 'CORE_OPERATION_TIMEOUT' })
+  assert.equal(failCalls, 1)
+})
+
+// @req FR-210 — a `#sku` turn handed over by Core (ADR-084 D4, ADR-106).
+test('a CATALOG_COMMAND turn completes with Core\'s reply, bounded as the Server worker bounds it, and never touches Work, credential or model', async () => {
+  const order = []
+  const replyText = '  ผลตรวจรายการสินค้า CIT-ABCDEF12 (1 รายการ)\n\nพิมพ์ "#sku ยืนยัน CIT-ABCDEF12"  '
+  const ports = {
+    job: { claim: async () => (order.push('claim'), claim), renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async (_claim, result) => (order.push(`complete:${result.text}`), { status: 'READY', operationId: result.operationId }),
+      status: async (_claim, operationId) => ({ status: 'CLAIMED', operationId }), fail: async () => order.push('fail') },
+    authority: { resolve: async () => (order.push('authority'), { authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare: async () => (order.push('context'), { question: '#sku\nรหัส: A', evidence: { records: [] }, slices: [],
+      authorized: true, audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null,
+      turnKind: 'CATALOG_COMMAND', replyText }) },
+    workTool: { execute: async () => assert.fail('a catalogue command turn must not call WorkToolPort'),
+      status: async () => assert.fail('a catalogue command turn must not read a Work receipt') },
+    model: { credential: async () => assert.fail('a catalogue command turn must not resolve a model credential'),
+      generate: async () => assert.fail('a catalogue command turn must not call the model') },
+    delivery: { send: async () => (order.push('delivery'), { status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
+    trace: { append: async (_claim, event) => order.push(event.kind),
+      status: async () => assert.fail('a catalogue command turn has no model operation to reconcile') },
+  }
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${replyText.trim()}`, 'delivery'])
 })
