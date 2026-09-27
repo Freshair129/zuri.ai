@@ -15,6 +15,9 @@ import {
   lineProjectWorkSyntaxReply, lineWorkConfirmText, lineWorkErrorReply, lineWorkProposalText, lineWorkReadText,
   LINE_WORK_DUPLICATE_TEXT,
 } from '@/modules/agent/line-project-work-tools'
+import { lineCatalogCommandReply, lineCatalogViewer } from '@/modules/agent/line-catalog-command'
+import { parseLineCatalogCommand } from '@/modules/inventory'
+import { appendTraceEvent, sha256 } from '@/modules/agent/execution-trace'
 import { serverLinePorts } from './server-line-runtime'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
@@ -27,11 +30,17 @@ import {
 //   grounding-mode reader the Server answer path uses; the runtime receives evidence only.
 // @spec ADR-106 D2-D4, SDD-110 — server-derived authority, strict bounded v1 operations.
 // @spec ADR-090 D1-D3, SEC-032 — mode-gated, time-budgeted GKS read with one traced hop each.
+// @req FR-210 — the `#sku` catalogue command in the runtime cohort: Core runs it
+//   (scope from the claimed job, the person from the verified channel identity,
+//   Inventory authority from the resolved viewer) and hands the runtime its reply
+//   as a CATALOG_COMMAND turn, exactly the reply the Server worker sends. No model
+//   credential or Work tool is handed out for such a turn.
 // @tested tests/integration/conversation-runtime-vertical-slice.test.js,
 //   tests/integration/conversation-runtime-grounding.test.js,
 //   tests/integration/conversation-runtime-grounding-parity.test.js,
 //   tests/integration/conversation-runtime-out-of-hours.test.js,
-//   tests/integration/conversation-runtime-group-room.test.js
+//   tests/integration/conversation-runtime-group-room.test.js,
+//   tests/integration/conversation-runtime-catalog-command.test.js
 const VERSION = 'conversation-runtime.v1'
 const MAX_BODY_BYTES = 64 * 1024
 const MAX_RESPONSE_BYTES = 64 * 1024
@@ -188,9 +197,11 @@ function validateResult(operation, data) {
     return
   }
   if (operation === 'prepare') {
-    // FR-244 — an OUT_OF_HOURS turn carries Core's fixed reply and nothing to execute.
-    if (data?.turnKind !== undefined && (data.turnKind !== 'OUT_OF_HOURS' || !present(data.replyText, 5000)
-      || data.workCommand != null || data.workReply != null || data.evidence?.records?.length || data.slices?.length)) invalid()
+    // FR-244 / FR-210 — an OUT_OF_HOURS or CATALOG_COMMAND turn carries Core's fixed
+    // reply and nothing to execute; a CATALOG_COMMAND turn's question is a `#sku` command.
+    if (data?.turnKind !== undefined && (!['OUT_OF_HOURS', 'CATALOG_COMMAND'].includes(data.turnKind) || !present(data.replyText, 5000)
+      || data.workCommand != null || data.workReply != null || data.evidence?.records?.length || data.slices?.length
+      || (data.turnKind === 'CATALOG_COMMAND' && !parseLineCatalogCommand(data.question)))) invalid()
     if (data?.turnKind === undefined && data?.replyText !== undefined) invalid()
     if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply',
       'turnKind', 'replyText'])
@@ -358,7 +369,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   renew = renewRuntimeConversationJob, complete = completeRuntimeConversationJob, fail = failRuntimeConversationJob,
   readStatus = runtimeConversationStatus, operationStatus = runtimeOperationStatus,
   send = sendRuntimeConversationJob, appendTrace = appendRuntimeConversationTrace,
-  workSearch = searchLineProjectWork, workPropose = proposeLineWork, workConfirm = confirmLineWork } = {}) {
+  workSearch = searchLineProjectWork, workPropose = proposeLineWork, workConfirm = confirmLineWork,
+  catalogViewer = lineCatalogViewer, catalogCommand = lineCatalogCommandReply } = {}) {
   let businessPortsPromise
   // `businessPorts` may be the ports object itself (tests) or a function returning it.
   const getBusinessPorts = typeof businessPorts === 'function' ? businessPorts : (async () => {
@@ -377,6 +389,66 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       ...(credential.baseUrl ? { baseUrl: credential.baseUrl } : {}) }
   })
   const prepare = prepareTurn ?? createCorePrepareTurn({ db, env, now, businessPorts: getBusinessPorts })
+
+  // @req FR-210 — the `#sku` decision is made once per job and stored by Core.
+  // Only a message that parses as `#sku` has one. The first `prepare` authorizes
+  // the sender exactly as the Server worker's answer port does, runs the command
+  // when they may, and records the outcome as an immutable trace row under a
+  // Core-only key (the runtime's own trace keys are all `<job>:runtime:…`):
+  // `{ decision: 'COMMAND', replyText }` or `{ decision: 'ORDINARY' }`. A reclaim
+  // or a duplicate `prepare` replays the stored decision and never runs the
+  // command again; `credential`, `work-tool` and `complete` read the same row, so
+  // they can never disagree with what `prepare` handed out.
+  const catalogKey = job => `${job.id}:catalog-command`
+  const catalogAuthorize = job => catalogViewer(job, { db })
+  const isCatalogMessage = job => Boolean(parseLineCatalogCommand(job.inbound?.body))
+  async function storedCatalogDecision(job) {
+    const row = await db.agentTraceEvent.findUnique({ where: { tenantId_businessId_idempotencyKey: {
+      tenantId: job.tenantId, businessId: job.businessId, idempotencyKey: catalogKey(job) } } })
+    if (!row || row.turnId !== job.id || row.kind !== 'TOOL_RESULT') return null
+    const payload = JSON.parse(row.payloadJson)
+    if (payload?.tool !== 'LINE_CATALOG_COMMAND' || !['COMMAND', 'ORDINARY'].includes(payload.decision)
+      || (payload.decision === 'COMMAND' && (!present(payload.replyText, 5000) || payload.replySha256 !== sha256(payload.replyText)))) {
+      throw error('CATALOG_COMMAND_DECISION_INVALID', 500)
+    }
+    return payload
+  }
+  async function decideCatalogCommand(job) {
+    const stored = await storedCatalogDecision(job)
+    if (stored) return stored
+    const reply = await catalogCommand(job, { db, now, authorize: catalogAuthorize })
+    const decision = reply ? { tool: 'LINE_CATALOG_COMMAND', decision: 'COMMAND', replyText: reply.text, replySha256: sha256(reply.text) }
+      : { tool: 'LINE_CATALOG_COMMAND', decision: 'ORDINARY' }
+    try {
+      await appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: job.id,
+        executionId: job.executionId ?? null, kind: 'TOOL_RESULT', idempotencyKey: catalogKey(job), payload: decision, occurredAt: now() })
+    } catch (cause) {
+      // A concurrent prepare of the same job recorded first: its decision stands,
+      // and this one's reply is discarded. The command's own writes are safe to
+      // race (a preview is keyed by the LINE event; a commit is a version CAS).
+      const winner = await storedCatalogDecision(job)
+      if (!winner) throw cause
+      return winner
+    }
+    return decision
+  }
+  /** The stored decision for a `#sku` message; refuses a later operation that arrives before `prepare` made one. */
+  async function requiredCatalogDecision(job) {
+    if (!isCatalogMessage(job)) return null
+    const stored = await storedCatalogDecision(job)
+    if (!stored) throw error('CATALOG_COMMAND_NOT_PREPARED', 409)
+    return stored
+  }
+  async function catalogCommandTurn(job) {
+    if (!isCatalogMessage(job)) return null
+    const decision = await decideCatalogCommand(job)
+    if (decision.decision !== 'COMMAND') return null
+    // The question is informational only; admission and the turn contract share the
+    // LINE_TEXT_MAX_CHARS bound (W7), so a long `#sku` batch still gets its reply.
+    return { question: job.inbound.body.slice(0, LINE_TEXT_MAX_CHARS), evidence: { records: [] }, slices: [], authorized: true,
+      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null,
+      turnKind: 'CATALOG_COMMAND', replyText: decision.replyText }
+  }
 
   async function ownedClaim(ref, { status = 'CLAIMED', checkLease = true } = {}) {
     const job = await db.lineConversationJob.findUnique({ where: { id: ref.jobId },
@@ -444,6 +516,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     }
     // @req FR-244 — an out-of-hours turn never runs a Work command (Server parity).
     if (runtimeOutOfHoursReply(job) !== null) throw error('OUT_OF_HOURS_TURN_HAS_NO_WORK', 409)
+    // @req FR-210 — a `#sku` turn is answered by the catalogue command alone.
+    if ((await requiredCatalogDecision(job))?.decision === 'COMMAND') throw error('CATALOG_COMMAND_TURN_HAS_NO_WORK', 409)
     const expectedClaim = { ...ref, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' }
     const input = request.input
     if (request.operation === 'confirm-execute'
@@ -513,24 +587,37 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         if (payload.authorityVersion !== job.version) throw error('CONVERSATION_AUTHORITY_STALE', 409)
         // @req FR-244 — Core decided out-of-hours at admission and owns the reply.
         // Checked before any injected or default preparer, so no grounding mode,
-        // Work command or knowledge read applies to this turn, as on the Server path.
-        // The question is informational only here; admission already bounds it to
-        // LINE_TEXT_MAX_CHARS, the same bound the turn contract checks (W7).
+        // Work command, catalogue command or knowledge read applies to this turn, as on
+        // the Server path. The question is informational only here; admission already
+        // bounds it to LINE_TEXT_MAX_CHARS, the same bound the turn contract checks (W7).
         const outOfHoursReply = runtimeOutOfHoursReply(job)
         if (outOfHoursReply !== null) return { question: job.inbound.body.slice(0, LINE_TEXT_MAX_CHARS), evidence: { records: [] }, slices: [],
           authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null,
           turnKind: 'OUT_OF_HOURS', replyText: outOfHoursReply }
+        // @req FR-210 — checked before any injected or default preparer, as the
+        // Server worker's answer port checks `#sku` before its model answer.
+        const catalogTurn = await catalogCommandTurn(job)
+        if (catalogTurn) return catalogTurn
         return fitPreparedTurn(await prepare(job, { deadlineAt: envelope.deadlineAt }))
       }
       case 'credential': {
         const { job } = await ownedClaim(claimRef)
         // @req FR-244 — no model runs for an out-of-hours turn; Core does not hand one out.
         if (runtimeOutOfHoursReply(job) !== null) throw error('OUT_OF_HOURS_TURN_HAS_NO_MODEL', 409)
+        // @req FR-210 — no model runs for a `#sku` turn; Core does not hand one out.
+        if ((await requiredCatalogDecision(job))?.decision === 'COMMAND') throw error('CATALOG_COMMAND_TURN_HAS_NO_MODEL', 409)
         return resolveCredential(job)
       }
       case 'work-tool': return workOperation(claimRef, payload)
       case 'complete': {
-        await ownedClaim(claimRef)
+        const { job } = await ownedClaim(claimRef)
+        // @req FR-210 — Core, not the runtime, owns a `#sku` reply: READY is committed
+        // only for the stored reply, bounded as the runtime (and the Server worker)
+        // bound an answer, so a runtime cannot report an import that did not happen.
+        // An out-of-hours turn was answered before any catalogue decision was stored;
+        // its own pin is Core's admission snapshot, checked when READY is committed.
+        const catalog = runtimeOutOfHoursReply(job) !== null ? null : await requiredCatalogDecision(job)
+        if (catalog?.decision === 'COMMAND' && payload.text !== catalog.replyText.trim()) throw error('CATALOG_COMMAND_REPLY_MISMATCH', 409)
         return complete(claimRef, payload, { db, now })
       }
       case 'fail': {

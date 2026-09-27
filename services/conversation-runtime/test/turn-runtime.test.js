@@ -600,3 +600,29 @@ test('a transient error before the turn kind is known defers when Core refuses t
   assert.deepEqual(result, { jobId: claim.jobId, status: 'DEFERRED', code: 'CORE_OPERATION_TIMEOUT' })
   assert.equal(failCalls, 1)
 })
+
+// @req FR-210 — a `#sku` turn handed over by Core (ADR-084 D4, ADR-106).
+test('a CATALOG_COMMAND turn completes with Core\'s reply, bounded as the Server worker bounds it, and never touches Work, credential or model', async () => {
+  const order = []
+  const replyText = '  ผลตรวจรายการสินค้า CIT-ABCDEF12 (1 รายการ)\n\nพิมพ์ "#sku ยืนยัน CIT-ABCDEF12"  '
+  const ports = {
+    job: { claim: async () => (order.push('claim'), claim), renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async (_claim, result) => (order.push(`complete:${result.text}`), { status: 'READY', operationId: result.operationId }),
+      status: async (_claim, operationId) => ({ status: 'CLAIMED', operationId }), fail: async () => order.push('fail') },
+    authority: { resolve: async () => (order.push('authority'), { authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare: async () => (order.push('context'), { question: '#sku\nรหัส: A', evidence: { records: [] }, slices: [],
+      authorized: true, audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null,
+      turnKind: 'CATALOG_COMMAND', replyText }) },
+    workTool: { execute: async () => assert.fail('a catalogue command turn must not call WorkToolPort'),
+      status: async () => assert.fail('a catalogue command turn must not read a Work receipt') },
+    model: { credential: async () => assert.fail('a catalogue command turn must not resolve a model credential'),
+      generate: async () => assert.fail('a catalogue command turn must not call the model') },
+    delivery: { send: async () => (order.push('delivery'), { status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
+    trace: { append: async (_claim, event) => order.push(event.kind),
+      status: async () => assert.fail('a catalogue command turn has no model operation to reconcile') },
+  }
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${replyText.trim()}`, 'ANSWER_READY', 'delivery'])
+})

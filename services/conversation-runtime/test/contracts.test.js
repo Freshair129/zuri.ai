@@ -204,3 +204,22 @@ test('an OUT_OF_HOURS turn carries only a bounded fixed reply and nothing to exe
   assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: 'closed',
     evidence: { records: [{ sku: 1 }] } }), /TURN_KIND_INVALID/)
 })
+
+// @req FR-210 — a CATALOG_COMMAND turn: Core's fixed `#sku` reply and nothing to execute.
+test('a CATALOG_COMMAND turn carries only a bounded fixed reply and nothing to execute', () => {
+  const base = { question: '#sku', evidence: { records: [] }, slices: [], authorized: true, audienceKind: 'DIRECT',
+    threadId: null, maxBudgetChars: 0, workCommand: null }
+  assert.doesNotThrow(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'help' }))
+  assert.doesNotThrow(() => validateTurnContext(base))
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'ANYTHING', replyText: 'help' }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND' }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: '  ' }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'x'.repeat(5001) }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, replyText: 'help' }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'help',
+    workCommand: { operation: 'read', input: {} } }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'help',
+    evidence: { records: [{ sku: 1 }] } }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'CATALOG_COMMAND', replyText: 'help',
+    slices: [{ source: 'KNOWLEDGE', text: 'x' }] }), /TURN_KIND_INVALID/)
+})

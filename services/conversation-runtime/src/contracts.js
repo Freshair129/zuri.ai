@@ -11,7 +11,9 @@ export const WORK_REJECTION_CODES = Object.freeze(['WORK_CONFIRMATION_EXPIRED', 
 // Fixed replies Core derives from malformed Work command text (`prepare` `workReply`).
 export const WORK_REPLY_CODES = Object.freeze(['WORK_COMMAND_USAGE', 'WORK_ACTION_UNAVAILABLE'])
 // Turn kinds Core may hand out from `prepare`; absent means an ordinary turn.
-export const TURN_KINDS = Object.freeze(['OUT_OF_HOURS'])
+// OUT_OF_HOURS (FR-244): Core's admission-time out-of-hours reply.
+// CATALOG_COMMAND (FR-210): Core ran the `#sku` catalogue command and hands over its reply.
+export const TURN_KINDS = Object.freeze(['OUT_OF_HOURS', 'CATALOG_COMMAND'])
 export const MAX_REQUEST_BYTES = 64 * 1024
 export const MAX_RESPONSE_BYTES = 64 * 1024
 // Core admits LINE text up to LINE_TEXT_MAX_CHARS (apps/server line-conversation-jobs.js) and the legacy
@@ -183,8 +185,9 @@ export function validateTurnContext(value) {
       || Object.keys(reply).some(key => !['code', 'text'].includes(key)) || !WORK_REPLY_CODES.includes(reply.code)) throw fail('TURN_WORK_REPLY_INVALID')
     boundedText(reply.text, 5000, 'TURN_WORK_REPLY_INVALID')
   }
-  // @req FR-244 — Core's admission-time OUT_OF_HOURS decision: a fixed reply and
-  // nothing to execute (no evidence, context, Work command, Work reply or model).
+  // @req FR-244, FR-210 — a fixed-reply turn (Core's OUT_OF_HOURS reply or its `#sku`
+  // catalogue reply): only that bounded text and nothing to execute (no evidence,
+  // context, Work command, Work reply or model).
   if (value.turnKind !== undefined) {
     if (!TURN_KINDS.includes(value.turnKind)) throw fail('TURN_KIND_INVALID')
     boundedText(value.replyText, 5000, 'TURN_REPLY_TEXT_INVALID')

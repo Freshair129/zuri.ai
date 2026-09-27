@@ -139,6 +139,12 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       } else if (turn.workReply) {
         // Core derived a fixed reply from malformed Work command text; no tool runs.
         text = turn.workReply.text
+      } else if (turn.turnKind === 'CATALOG_COMMAND') {
+        // @req FR-210 — Core ran the `#sku` catalogue command for an authorized
+        // direct-chat sender and handed over its reply. As on the Server path, no
+        // model, context or Work tool runs; the text is bounded below exactly as the
+        // Server worker bounds its answer (trimmed, at most 5,000 characters).
+        text = turn.replyText
       } else if (turn.workCommand) {
         const operationId = turn.workCommand.operation === 'confirm-execute' ? turn.workCommand.input?.proposalId
           : turn.workCommand.operation === 'propose' ? `${claim.jobId}:work-proposal` : `${claim.jobId}:work-read`

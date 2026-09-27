@@ -724,7 +724,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 11
         },
         {
           "id": "FR-232",
@@ -3009,7 +3009,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 7
+          "testCount": 11
         }
       ],
       "checks": {
@@ -3733,8 +3733,8 @@
           "title": "A verified staff sender adds or matches SKUs from LINE with a deterministic #sku command that previews before it writes",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 7
+          "codeCount": 2,
+          "testCount": 11
         },
         {
           "id": "FR-223",
@@ -8745,7 +8745,7 @@
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
-        "apps/server/tests/integration/conversation-runtime-legacy-parity.test.js",
+        "apps/server/tests/integration/conversation-runtime-catalog-command.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
@@ -10337,8 +10337,8 @@
           "title": "A verified staff sender adds or matches SKUs from LINE with a deterministic #sku command that previews before it writes",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 7
+          "codeCount": 7,
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -10360,12 +10360,15 @@
         "apps/server/src/modules/inventory/import/catalog-line-command.js",
         "apps/server/src/modules/inventory/import/catalog-workbook.js",
         "apps/server/src/modules/inventory/index.js",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr209-catalog-intake.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-catalog-command.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr154-inventory-catalog.test.js",
@@ -10401,7 +10404,11 @@
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
-        "apps/server/tests/unit/server-line-worker-routes.test.js"
+        "apps/server/tests/unit/server-line-worker-routes.test.js",
+        "services/conversation-runtime/src/contracts.js",
+        "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/test/contracts.test.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {
@@ -16781,7 +16788,7 @@
         "apps/server/tests/integration/agent-msp-port.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
-        "apps/server/tests/integration/conversation-runtime-legacy-parity.test.js",
+        "apps/server/tests/integration/conversation-runtime-catalog-command.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
