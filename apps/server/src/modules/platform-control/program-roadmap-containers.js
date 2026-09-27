@@ -2345,7 +2345,7 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given the production database, when the knowledge migrations (genesisrag17_tier1 20260907160000, audit remediation 20260908040000, knowledge_admission 20260908100000, knowledge_evidence_cursor 20260907120000) are checked, then each is recorded applied — the 2026-09-11 gap map found the tables present and the migrations unrecorded, which is not the same thing",
-        "checked": true
+        "checked": false
       },
       "success": {
         "text": "Given the web container, when ZURI_MSP_* is set and MSP, GKS and the GenesisBlock worker are reachable on the edge host per the ADR-073 amendment, then a run started from the raw entrypoint reaches Stage 17 with a publication receipt and the query path answers with citations",

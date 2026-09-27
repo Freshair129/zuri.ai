@@ -36,7 +36,7 @@ related_docs:
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
 
-Version diff 0.4.27 → 0.4.28 (2026-09-27): TASK-ZAI-050 DoD review (read-only, no production action; `.brain/reports/2026-09-27-task-zai-050-dod-review.md`, ROADMAP.md Revision 2.137.0b). TC-TASK-ZAI-050's `status` corrected to `in-progress` to match the ROADMAP.md task row (never mirrored since Revision 2.134.0b); its acceptance criterion (the four named knowledge migrations) is now `checked: true`, traced by exclusion from ADR-104's 2026-09-23 full migration-ledger preflight (105 files vs 96 ledger rows, ten named gaps, none of the four). success_criteria and exit_criteria stay unchecked. The task remains `in-progress`, not `done`: a documented operator activation record is still genuinely open per `docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md` §9.2 and needs an operator with production access to write.
+Version diff 0.4.27 → 0.4.28 (2026-09-27): TASK-ZAI-050 DoD review (read-only, no production action; `.brain/reports/2026-09-27-task-zai-050-dod-review.md`, ROADMAP.md Revision 2.137.0b). TC-TASK-ZAI-050's `status` corrected to `in-progress` to match the ROADMAP.md task row (never mirrored since Revision 2.134.0b); its acceptance criterion (the four named knowledge migrations) stays `checked: false` after MC0 review — only inferred by exclusion from ADR-104's 2026-09-23 full migration-ledger preflight (105 files vs 96 ledger rows, ten named gaps, none of the four; one ledger row matches no committed file), pending a committed row-level ledger check. success_criteria and exit_criteria stay unchecked. The task remains `in-progress`, not `done`: a documented operator activation record is still genuinely open per `docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md` §9.2 and needs an operator with production access to write.
 
 Version diff 0.4.26 → 0.4.27 (2026-09-27): TASK-ZAI-124 is done; #554 merged to main as 1e224d5b with hosted CI green. The routes and page stay off until the I2 repository.
 
@@ -2862,7 +2862,7 @@ symbol_links:
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the production database, when the knowledge migrations (genesisrag17_tier1 20260907160000, audit remediation 20260908040000, knowledge_admission 20260908100000, knowledge_evidence_cursor 20260907120000) are checked, then each is recorded applied — the 2026-09-11 gap map found the tables present and the migrations unrecorded, which is not the same thing
-      checked: true
+      checked: false
   success_criteria:
     - criterion: Given the web container, when ZURI_MSP_* is set and MSP, GKS and the GenesisBlock worker are reachable on the edge host per the ADR-073 amendment, then a run started from the raw entrypoint reaches Stage 17 with a publication receipt and the query path answers with citations
       checked: false

@@ -380,7 +380,7 @@ export const ROADMAP_SOT = {
       "proofScope": "PRODUCTION",
       "implementationState": "IN_PROGRESS",
       "authority": "docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
-      "evidence": "ADR-075 Phase 2 gate; production observation 2026-09-24 (Revision 2.134.0b): the ki17 overlay and genesis-worker have run on production since 2026-09-21 with 22 published generations; 2026-09-27 DoD review (Revision 2.137.0b, .brain/reports/2026-09-27-task-zai-050-dod-review.md): knowledge migrations recorded resolved via ADR-104's 2026-09-23 full migration-ledger preflight; a documented operator activation record remains the one open DoD item, needing an operator with production access",
+      "evidence": "ADR-075 Phase 2 gate; production observation 2026-09-24 (Revision 2.134.0b): the ki17 overlay and genesis-worker have run on production since 2026-09-21 with 22 published generations; 2026-09-27 DoD review (Revision 2.137.0b, .brain/reports/2026-09-27-task-zai-050-dod-review.md): knowledge migrations recorded inferred (not verified row-by-row; DoD item kept unchecked) from ADR-104's 2026-09-23 full migration-ledger preflight; a documented operator activation record remains the one open DoD item, needing an operator with production access",
       "duplicateKey": "KI-PRODUCTION-ACTIVATION",
       "relation": "gate; production observation reconciled 2026-09-24, still short of the done DoD"
     },
