@@ -131,7 +131,7 @@ flowchart LR
     CHANGES["changes: code / server scope (scripts/ci-change-scope.mjs)"] --> GOVERN["govern + contract tests ของ service ที่แก้"]
     CHANGES --> TESTS["tests ×4 shards (ข้ามเมื่อแก้เฉพาะ service)"]
     CHANGES --> BUILD["build (ข้ามเมื่อแก้เฉพาะ service)"]
-    SERVICES["conversation-runtime · market-intelligence jobs"]
+    SERVICES["conversation-runtime · market-intelligence · scm jobs"]
     GOVERN --> VERIFY["verify (required)"]
     TESTS --> VERIFY
     BUILD --> VERIFY

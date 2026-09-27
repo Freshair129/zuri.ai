@@ -156,8 +156,9 @@ jobs:
   #   conversation-runtime — isolated service tests, boundary build and image build.
   #   market-intelligence — the ADR-108 service package: isolated tests,
   #             boundary build, Postgres store conformance and image build.
-  #   scm     — the ADR-111 service package: kernel mirror drift check, the
-  #             suite on SQLite and on an embedded PostgreSQL 17, image build.
+  #   scm     — the ADR-111 service package: kernel mirror drift check, boundary
+  #             build, the suite on SQLite and on an embedded PostgreSQL 17,
+  #             image build.
   #   verify  — an aggregate that fails if any of the six did. Branch
   #             protection requires a check literally named `verify`
   #             (`changes`, `verify`, `edge-verify`), and a required check that
@@ -500,6 +501,11 @@ jobs:
       # mirror fails here rather than drifting silently.
       - name: Kernel mirror in sync
         run: npm --prefix services/scm run kernel:check
+
+      # Boundary scan + declared dependencies + syntax check (scripts/build.mjs),
+      # the same meaning `build` has for the other isolated services.
+      - name: SCM build and boundary scan
+        run: npm --prefix services/scm run build
 
       - name: SCM tests (SQLite)
         run: npm --prefix services/scm test

@@ -14,6 +14,7 @@
   "scripts": {
     "kernel:sync": "node scripts/sync-kernel.mjs",
     "kernel:check": "node scripts/sync-kernel.mjs --check",
+    "build": "node scripts/build.mjs",
     "test": "node scripts/run-tests.mjs",
     "test:postgres": "node scripts/run-tests.mjs --engine=postgres",
     "prove:guards": "node scripts/prove-guards-on-postgres.mjs",
