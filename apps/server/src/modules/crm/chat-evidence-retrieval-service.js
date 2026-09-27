@@ -80,7 +80,7 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { assertCredentialWriteAssurance } from '@/modules/identity/credential-write-gate'
 import {
-  assertArchiveStorageReady, getOrCreateCustomerArchiveKeyDek, openExistingCustomerArchiveKeyDek, computeManifestHash,
+  assertArchiveStorageReady, openExistingCustomerArchiveKeyDek, computeManifestHash,
   resolveArchiveBaseDir, resolveArchiveKeyCustomers, verifyManifestChain,
 } from './chat-evidence-archive-service'
 import { openArchiveSegment, ChatEvidenceArchiveCryptoError } from './chat-evidence-archive-crypto'
@@ -227,19 +227,22 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
 
   if (wanted.size > 0 && chainIntegrity.valid) {
     const deks = new Map()
-    deks.set(customer.id, await getOrCreateCustomerArchiveKeyDek(db, { tenantId: customer.tenantId, customerId: customer.id }, env, { baseDir: resolvedBaseDir }))
     try {
-      // Every Customer whose segment may hold one of these lines: the key each
-      // line was sealed under (v2) and the thread owner's (v1).
+      // Every Customer whose segment may hold one of these lines: the retrieved
+      // Customer, the key each line was sealed under (v2) and the thread owner's
+      // (v1). Every key — the retrieved Customer's included — is only opened,
+      // never minted: reading is not a reason to create a key, and an erased
+      // Customer's destroyed key must stay destroyed (FR-022, SEC-034).
       const keyCustomers = await resolveArchiveKeyCustomers(db, { tenantId: customer.tenantId, messages: archivedRows })
-      const holders = new Set([...keyCustomers.values(), ...archivedRows.map((m) => m.conversation.customerId)])
+      const holders = new Set([customer.id, ...keyCustomers.values(), ...archivedRows.map((m) => m.conversation.customerId)])
       for (const holder of holders) {
-        if (deks.has(holder)) continue
         let dek = null
         try {
           dek = await openExistingCustomerArchiveKeyDek(db, { tenantId: customer.tenantId, customerId: holder }, env)
         } catch (err) {
-          if (!(err instanceof ChatEvidenceArchiveCryptoError)) throw err
+          // The retrieved Customer's own key failing to open is a hard error, as it
+          // always was; another member's is reported through missingMessageIds.
+          if (holder === customer.id || !(err instanceof ChatEvidenceArchiveCryptoError)) throw err
         }
         if (dek) deks.set(holder, dek)
       }

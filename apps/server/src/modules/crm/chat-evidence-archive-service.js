@@ -52,6 +52,19 @@
 //   ADR-093 §"Group archives written before format 2" for its migration path.
 // @tested tests/integration/crm-archive-group-speakers.test.js
 //
+// @req FR-022, SEC-034 — THE SWEEP NEVER OUTLIVES AN ERASURE. The sweep reads its
+//   candidates, seals them, then tombstones in its own transaction; an erasure can
+//   commit in between. Three guards keep an erased person's words out of the archive:
+//   (1) a row with no author is attributed first (`attributeInboundMessageAuthors`,
+//   written back), so it is sealed under its speaker's key and not the owner's;
+//   (2) no key is ever minted for an erased Customer (`deletedAt` set) — a line whose
+//   key Customer is erased and keyless is deferred, left untouched in the database;
+//   (3) the tombstone transaction updates only rows whose content still exists and
+//   rolls back unless it updated every archived row, and the file it just wrote is
+//   then deleted — so a row erased (or unsent) after the read is neither sealed into
+//   a committed archive nor has its erasure tombstone overwritten.
+// @tested tests/integration/crm-archive-group-speakers.test.js
+//
 // The writer creates the file under
 // a temporary name in the same directory, fsyncs it, renames it into place,
 // reads it back and compares SHA-256 against what was written — verification
@@ -72,6 +85,14 @@ import {
   sealArchiveSegment,
 } from './chat-evidence-archive-crypto'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
+import { CUSTOMER_ERASURE_TOMBSTONE, attributeInboundMessageAuthors } from './conversation-redaction-service'
+import { LINE_UNSEND_TOMBSTONE } from './line-ingest-service'
+
+// Every body a row carries once its content is gone. A candidate that reaches one of
+// these between the sweep's read and its tombstone transaction (an erasure, an
+// unsend, another sweep) was sealed from content that no longer exists — see
+// `archiveAndTombstoneTenantMessages`.
+const CONTENT_GONE_TOMBSTONES = [CUSTOMER_ERASURE_TOMBSTONE, LINE_UNSEND_TOMBSTONE, RETENTION_SWEEP_TOMBSTONE]
 
 export class ChatEvidenceArchiveWriteError extends Error {
   constructor(code, cause) {
@@ -304,6 +325,10 @@ export async function getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerI
     if (existing.tenantId !== tenantId) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_SCOPE_MISMATCH')
     return openCustomerArchiveKey(existing, { customerId, tenantId }, env)
   }
+  // @req FR-022, SEC-034 — an erased Customer's key is never re-created: a new key
+  //   would seal content the erasure just destroyed, or open nothing at all.
+  const customer = await db.customer.findFirst({ where: { id: customerId, tenantId }, select: { deletedAt: true } })
+  if (!customer || customer.deletedAt) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_CUSTOMER_ERASED')
   const { row, dek } = mintCustomerArchiveKey({ customerId, tenantId }, env)
   try {
     await db.customerArchiveKey.create({ data: row })
@@ -344,13 +369,16 @@ const REPLY_EXTERNAL_PREFIX = 'reply:'
  * header). `messages` need `id`, `direction`, `externalMessageId`,
  * `authorChannelIdentityId` and `conversation: { id, customerId }`.
  *
+ * `attribute: true` (the writer) first attributes and writes back every inbound row
+ * with no author (`attributeInboundMessageAuthors`); a reader never writes.
+ *
  * Tenant-bound throughout: an author identity, a reply's inbound or a Customer
  * from another Tenant is never followed, and anything that does not resolve
  * falls back to the thread owner — the v1 behaviour — rather than failing a run.
  *
  * @returns {Promise<Map<string, string>>} message id → key Customer id
  */
-export async function resolveArchiveKeyCustomers(db, { tenantId, messages }) {
+export async function resolveArchiveKeyCustomers(db, { tenantId, messages, attribute = false }) {
   const conversationOf = (message) => message.conversation?.id ?? message.conversationId
   const replyTargets = new Map()
   for (const message of messages) {
@@ -368,6 +396,13 @@ export async function resolveArchiveKeyCustomers(db, { tenantId, messages }) {
       select: { id: true, conversationId: true, authorChannelIdentityId: true },
     })
     for (const row of rows) inbound.set(row.id, { conversationId: row.conversationId, authorChannelIdentityId: row.authorChannelIdentityId })
+  }
+  if (attribute) {
+    // The writer only: attribute (and write back) every inbound row it is about to
+    // key that has no author, by the evidence erasure itself uses.
+    const unattributed = [...inbound.entries()].filter(([, row]) => !row.authorChannelIdentityId).map(([id]) => id)
+    const attributed = unattributed.length ? await attributeInboundMessageAuthors(db, { tenantId, messageIds: unattributed }) : new Map()
+    for (const [id, identityId] of attributed) inbound.get(id).authorChannelIdentityId = identityId
   }
   const identityIds = [...new Set([...inbound.values()].map((row) => row.authorChannelIdentityId).filter(Boolean))]
   const identities = identityIds.length
@@ -529,10 +564,28 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   const conversationIds = [...new Set(candidates.map((message) => message.conversation.id))]
   const replySourceByMessageId = await resolveReplySources(db, conversationIds)
   // @req FR-022 — one segment per SPEAKER's Customer, not per thread owner (v2).
-  const keyCustomerByMessageId = await resolveArchiveKeyCustomers(db, { tenantId, messages: candidates })
+  const keyCustomerByMessageId = await resolveArchiveKeyCustomers(db, { tenantId, messages: candidates, attribute: true })
+
+  // @req FR-022, SEC-034 — a line whose key Customer is erased and has no key is
+  //   deferred: never sealed under a new key, never tombstoned by this run.
+  const keyIds = [...new Set(keyCustomerByMessageId.values())]
+  const [keyCustomers, existingKeys] = await Promise.all([
+    db.customer.findMany({ where: { tenantId, id: { in: keyIds } }, select: { id: true, deletedAt: true } }),
+    db.customerArchiveKey.findMany({ where: { customerId: { in: keyIds } }, select: { customerId: true } }),
+  ])
+  const live = new Set(keyCustomers.filter((customer) => !customer.deletedAt).map((customer) => customer.id))
+  const keyed = new Set(existingKeys.map((key) => key.customerId))
+  const sealable = candidates.filter((message) => {
+    const key = keyCustomerByMessageId.get(message.id)
+    return live.has(key) || keyed.has(key)
+  })
+  const deferredMessages = candidates.length - sealable.length
+  if (sealable.length === 0) {
+    return { archived: false, manifest: null, redactedMessages: 0, redactedAttachments: 0, deferredMessages }
+  }
 
   const byCustomer = new Map()
-  for (const message of candidates) {
+  for (const message of sealable) {
     const customerId = keyCustomerByMessageId.get(message.id)
     if (!byCustomer.has(customerId)) byCustomer.set(customerId, [])
     byCustomer.get(customerId).push(message)
@@ -555,7 +608,7 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   const header = { v: ARCHIVE_FORMAT_VERSION, tenantId, runId, kekId: resolveArchiveKeyring(env).current.label, createdAt: now.toISOString() }
   const { relativePath, fileSha256 } = await writeArchiveFile({ baseDir: resolvedBaseDir, tenantId, runId, now, header, segments })
 
-  const messageIds = candidates.map((message) => message.id)
+  const messageIds = sealable.map((message) => message.id)
   const messageIdListHash = hashMessageIdList(messageIds)
   const previous = await db.archiveManifest.findFirst({ where: { tenantId }, orderBy: { createdAt: 'desc' } })
   const previousManifestHash = previous?.manifestHash ?? null
@@ -568,20 +621,29 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   // file and a computed chain hash — this is the fail-closed boundary D2
   // requires, made structural rather than conventional: the tombstone
   // updateMany calls are unreachable except from here.
-  return db.$transaction(async (tx) => {
-    const manifest = await tx.archiveManifest.create({
-      data: { tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestId: previous?.id ?? null, previousManifestHash, manifestHash },
+  try {
+    return await db.$transaction(async (tx) => {
+      const manifest = await tx.archiveManifest.create({
+        data: { tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestId: previous?.id ?? null, previousManifestHash, manifestHash },
+      })
+      // Only rows whose content still exists; every archived row, or nothing.
+      const redacted = await tx.message.updateMany({
+        where: { id: { in: messageIds }, body: { notIn: CONTENT_GONE_TOMBSTONES } },
+        data: { body: RETENTION_SWEEP_TOMBSTONE },
+      })
+      if (redacted.count !== messageIds.length) throw new ChatEvidenceArchiveWriteError('ARCHIVE_CANDIDATES_CHANGED')
+      const redactedAttachments = await tx.messageAttachment.updateMany({
+        where: { messageId: { in: messageIds }, fetchState: { not: 'ERASED' } },
+        data: { fetchState: 'ERASED', providerContentId: null },
+      })
+      return { archived: true, manifest, redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count, messageIds, deferredMessages }
     })
-    const redacted = await tx.message.updateMany({
-      where: { id: { in: messageIds } },
-      data: { body: RETENTION_SWEEP_TOMBSTONE },
-    })
-    const redactedAttachments = await tx.messageAttachment.updateMany({
-      where: { messageId: { in: messageIds }, fetchState: { not: 'ERASED' } },
-      data: { fetchState: 'ERASED', providerContentId: null },
-    })
-    return { archived: true, manifest, redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count, messageIds }
-  })
+  } catch (error) {
+    // Nothing committed: the file this run wrote is recorded by no manifest and may
+    // hold content an erasure has since destroyed, so it does not stay on disk.
+    await fs.rm(path.join(resolvedBaseDir, relativePath), { force: true })
+    throw error
+  }
 }
 
 // @req SEC-034 — key destruction and the legal hold (ADR-093 D5, D6; TASK-ZAI-113).

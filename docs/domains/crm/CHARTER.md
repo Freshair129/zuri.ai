@@ -374,7 +374,12 @@ same key for the stack reply to that line, the thread owner's key for everything
 else), so key destruction and the legal hold act on exactly one member's lines.
 Retrieval of a Customer opens every still-existing member key a thread needs
 (`openExistingCustomerArchiveKeyDek`, never minting) and also returns the lines that
-Customer wrote in threads another Customer owns. Format-1 files keep owner keying;
+Customer wrote in threads another Customer owns. The writer first attributes (and
+writes back) unauthored inbound rows through `attributeInboundMessageAuthors` (answer
+job sender, else MESSAGE_INGESTED audit), never mints a key for an erased Customer
+(such lines are deferred, `deferredErasedKey`), and its tombstone transaction touches
+only rows whose content still exists, rolling back and deleting its file otherwise.
+Format-1 files keep owner keying;
 their migration path is ADR-093 §"Group archives written before format 2".
 
 **FR-246 built (2026-09-16, TASK-ZAI-110, branch `feat/crm-staff-reply`, not

@@ -49,6 +49,9 @@ import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/ap
 //   thread that is theirs alone, and their own events in any shared thread — and
 //   their keys join the raw-record tombstone below. Another member's events stay.
 // @tested tests/integration/identity-erase-speaker-events.test.js
+// @req FR-022 — a LINE message event's raw record is keyed by its webhookEventId, so
+//   the erased person's own message payloads are also found by the message id inside
+//   the payload (see the raw-record family list below).
 
 const REDACTED = '[erased]'
 
@@ -210,22 +213,28 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
       ? await tx.conversationAnalysis.deleteMany({ where: { conversationId: { in: analysedIds } } })
       : { count: 0 }
 
-    // Which raw records belong to this person. Two families, and nothing else:
+    // Which raw records belong to this person, and nothing else:
     //   - the provider subjects this person is known by (profile/customer-lane records
-    //     keyed by the subject itself), and
-    //   - the provider message ids of their own messages, which is what the LINE
-    //     normalizer uses as `externalId` for a message event, and
+    //     keyed by the subject itself);
+    //   - the provider message ids of their own messages — both as a record key (the
+    //     LINE normalizer keys an event with no `webhookEventId` by its message id)
+    //     and, because it keys every event that HAS one by that `webhookEventId`
+    //     (line-oa-webhook.js `externalEventId`), which no business row stores, as
+    //     the message id inside a LINE payload (`event.message.id`,
+    //     `tombstoneRawRecordsForExternalIds`'s `lineMessageIds`); and
     //   - the webhook event ids of their own conversation events (postback, follow,
-    //     unfollow; every event of a thread that is theirs alone): the normalizer
-    //     keys a raw record by `webhookEventId` whenever LINE sends one
-    //     (line-oa-webhook.js `externalEventId`), and a ConversationEvent stores
-    //     that same id as its `externalEventId`.
-    // Known gap (not closed here): by that same rule a MESSAGE event that carries a
-    // webhookEventId is keyed by it rather than by the message id, and `Message`
-    // does not store it — see "Which keys reach it" in the integration charter.
+    //     unfollow; every event of a thread that is theirs alone), which a
+    //     ConversationEvent stores as its `externalEventId`.
+    // The message ids are exactly the rows redacted above — their own thread's and
+    // their own lines elsewhere, by the same attribution — so another member's
+    // payload is never matched.
     // `ChannelIdentity.channelAccountId` is deliberately NOT included: it names the
     // OA account, shared by every customer of that channel, so matching on it would
     // tombstone other people's evidence.
+    const lineMessageIds = [
+      ...messageKeys.map((row) => row.externalMessageId),
+      ...shared.externalMessageIds,
+    ].filter((id) => typeof id === 'string' && !id.startsWith('reply:'))
     const externalIds = [
       ...ownSubjects,
       ...messageKeys.map((row) => row.externalMessageId),
@@ -235,6 +244,7 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
     const { tombstonedRawRecords } = await tombstoneRawRecordsForExternalIds(tx, {
       tenantId,
       externalIds,
+      lineMessageIds,
       now,
     })
 

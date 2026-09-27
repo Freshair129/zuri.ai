@@ -13,6 +13,9 @@ import { erasePrincipal } from '@/modules/identity/erase-principal'
 // id the ConversationEvent stores — which no message id or provider subject matches,
 // so before this change every such payload (postback `data`, the sender's LINE user
 // id) survived the erasure. Another member's events are never touched.
+// The same keying hides a MESSAGE event's raw record from a match by message id: LINE
+// sends a webhookEventId with every event, and the record is keyed by it. Erasure also
+// finds those records by the message id inside the payload.
 // @spec SEC-001, SEC-005, FR-081
 // @tested tests/integration/identity-erase-speaker-events.test.js
 
@@ -64,13 +67,13 @@ async function scene(type = 'group') {
   const A = next(`Usynthetic-erase-evt-a-${type}`)
   const B = next(`Usynthetic-erase-evt-b-${type}`)
   const thread = next(type === 'group' ? 'Csynthetic-erase-evt-grp' : 'Rsynthetic-erase-evt-room')
-  await say({ type, thread, speaker: A, text: 'A opens the thread' })
-  await say({ type, thread, speaker: B, text: 'B joins in' })
+  const aSay = await say({ type, thread, speaker: A, text: 'A opens the thread' })
+  const bSay = await say({ type, thread, speaker: B, text: 'B joins in' })
   const aPostback = await postback({ type, thread, speaker: A, data: 'action=track&order=A-1' })
   const bPostback = await postback({ type, thread, speaker: B, data: 'action=track&order=B-1' })
   const bFollow = await follow({ speaker: B })
   const bDirectPostback = await postback({ type: 'user', thread: B, speaker: B, data: 'action=address&home=B-house' })
-  return { A, B, thread, aPostback, bPostback, bFollow, bDirectPostback, personA: await personOf(A), personB: await personOf(B) }
+  return { A, B, thread, aSay, bSay, aPostback, bPostback, bFollow, bDirectPostback, personA: await personOf(A), personB: await personOf(B) }
 }
 
 async function expectTombstoned(rawRecordId) {
@@ -109,7 +112,14 @@ describe('PDPA erasure of a speaker\'s own LINE postback payloads (FR-022)', () 
       expect(await payloadOf(s.aPostback.rawRecordId)).toContain('order=A-1')
       // The event rows stay as the envelope (they hold ids only).
       expect(await prisma.conversationEvent.findUnique({ where: { id: s.bPostback.eventId } })).toMatchObject({ kind: 'POSTBACK' })
-      expect(result.tombstonedRawRecords).toBeGreaterThanOrEqual(3)
+      // B's own group message, keyed by its webhook event id like every real LINE event.
+      expect(s.bSay.externalId).not.toBe((await prisma.message.findUnique({ where: { id: s.bSay.inboundMessageId } })).externalMessageId)
+      await expectTombstoned(s.bSay.rawRecordId)
+      expect(await payloadOf(s.aSay.rawRecordId)).toContain('A opens the thread')
+      // Exactly B's four records: the group message, the two postbacks and the follow.
+      expect(result.tombstonedRawRecords).toBe(4)
+      const audit = await prisma.auditEvent.findFirst({ where: { entityType: 'PRINCIPAL', entityId: s.personB, action: 'ERASED' } })
+      expect(JSON.parse(audit.payloadJson).tombstonedRawRecords).toBe(4)
     })
   }
 
@@ -119,6 +129,8 @@ describe('PDPA erasure of a speaker\'s own LINE postback payloads (FR-022)', () 
     await erasePrincipal({ tenantId: tenant.id, personId: s.personA, reason: 'TEST_ERASURE' })
 
     await expectTombstoned(s.aPostback.rawRecordId)
+    await expectTombstoned(s.aSay.rawRecordId)
+    expect(await payloadOf(s.bSay.rawRecordId)).toContain('B joins in')
     expect(await payloadOf(s.bPostback.rawRecordId)).toContain('order=B-1')
     expect(await payloadOf(s.bDirectPostback.rawRecordId)).toContain('home=B-house')
     expect(await payloadOf(s.bFollow.rawRecordId)).toContain(s.B)
@@ -142,7 +154,7 @@ describe('PDPA erasure of a speaker\'s own LINE postback payloads (FR-022)', () 
   it('is idempotent: a second erasure changes no raw record', async () => {
     const s = await scene('group')
     await erasePrincipal({ tenantId: tenant.id, personId: s.personB, reason: 'TEST_ERASURE' })
-    const ids = [s.aPostback, s.bPostback, s.bFollow, s.bDirectPostback].map((row) => row.rawRecordId)
+    const ids = [s.aSay, s.bSay, s.aPostback, s.bPostback, s.bFollow, s.bDirectPostback].map((row) => row.rawRecordId)
     const before = await prisma.rawExternalRecord.findMany({ where: { id: { in: ids } }, orderBy: { id: 'asc' } })
 
     const second = await erasePrincipal({ tenantId: tenant.id, personId: s.personB, reason: 'TEST_ERASURE' })
@@ -150,6 +162,8 @@ describe('PDPA erasure of a speaker\'s own LINE postback payloads (FR-022)', () 
     expect(second.tombstonedRawRecords).toBe(0)
     expect(await prisma.rawExternalRecord.findMany({ where: { id: { in: ids } }, orderBy: { id: 'asc' } })).toEqual(before)
     await expectTombstoned(s.bPostback.rawRecordId)
+    await expectTombstoned(s.bSay.rawRecordId)
+    expect(await payloadOf(s.aSay.rawRecordId)).toContain('A opens the thread')
     expect(await payloadOf(s.aPostback.rawRecordId)).toContain('order=A-1')
   })
 })

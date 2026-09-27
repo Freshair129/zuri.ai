@@ -5,6 +5,11 @@
 // Boundary: docs/domains/integration/CHARTER.md — "PDPA erasure wins over
 //   replayability; the tombstone keeps the envelope".
 // @tested tests/integration/crm-customer-erasure.test.js
+// @req FR-022 — a LINE message event is keyed by its `webhookEventId` whenever LINE
+//   sends one (line-oa-webhook.js `externalEventId`), and no business row stores that
+//   id, so an erased message's raw payload is also found by the message id INSIDE the
+//   payload (`event.message.id`), for this tenant's LINE records only.
+// @tested tests/integration/identity-erase-speaker-events.test.js
 //
 // PDPA WINS OVER REPLAYABILITY; THE TOMBSTONE KEEPS THE ENVELOPE
 // --------------------------------------------------------------
@@ -22,6 +27,8 @@
 // replaced. The hash deliberately still describes the payload that WAS there: it is
 // the evidence that this row is a redaction of a specific delivery, not a fabricated
 // one, and recomputing it would erase that link too.
+
+import { LINE_OA_PROVIDER_CODE } from './integration-registry'
 
 export const RAW_RECORD_ERASURE_REASON = 'PDPA_ERASURE'
 
@@ -45,25 +52,60 @@ function isTombstoned(payloadJson) {
 }
 
 /**
+ * The LINE raw records of this tenant whose payload is the webhook event of one of
+ * `lineMessageIds`. The payload is stored canonically (`stableStringify`: sorted
+ * keys, no whitespace), so `"id":"<messageId>"` narrows the read by text; the row
+ * is taken only when its parsed `event.message.id` is exactly that id — the text
+ * match never decides. Bounded per call by the ids given (chunked).
+ */
+async function findLineMessageRawRecords(tx, { tenantId, lineMessageIds }) {
+  const ids = Array.from(new Set(lineMessageIds.filter((id) => typeof id === 'string' && id)))
+  const wanted = new Set(ids)
+  const rows = []
+  for (let offset = 0; offset < ids.length; offset += 50) {
+    const chunk = ids.slice(offset, offset + 50)
+    const found = await tx.rawExternalRecord.findMany({
+      where: { tenantId, provider: LINE_OA_PROVIDER_CODE,
+        OR: chunk.map((id) => ({ payloadJson: { contains: `"id":${JSON.stringify(id)}` } })) },
+      select: { id: true, payloadJson: true },
+    })
+    for (const row of found) {
+      let parsed = null
+      try { parsed = JSON.parse(row.payloadJson) } catch { parsed = null }
+      const messageId = parsed?.event?.message?.id
+      if (typeof messageId === 'string' && wanted.has(messageId)) rows.push(row)
+    }
+  }
+  return rows
+}
+
+/**
  * Replace the stored payload of every raw record in this tenant whose `externalId`
- * is one of `externalIds` with the erasure tombstone.
+ * is one of `externalIds`, and every LINE raw record whose webhook event is one of
+ * `lineMessageIds` (see `findLineMessageRawRecords`), with the erasure tombstone.
+ * A row reached both ways is tombstoned and counted once.
  *
  * Idempotent: a row already tombstoned is left byte-for-byte alone, so a second
  * erasure neither counts it again nor moves its `erasedAt`.
  *
  * @param {object} tx prisma client or transaction client — the caller owns the transaction
- * @param {{tenantId: string, externalIds: string[], now?: Date}} scope
+ * @param {{tenantId: string, externalIds: string[], lineMessageIds?: string[], now?: Date}} scope
  * @returns {Promise<{tombstonedRawRecords: number}>}
  */
-export async function tombstoneRawRecordsForExternalIds(tx, { tenantId, externalIds, now } = {}) {
+export async function tombstoneRawRecordsForExternalIds(tx, { tenantId, externalIds, lineMessageIds, now } = {}) {
   if (!tenantId) throw new Error('tombstoneRawRecordsForExternalIds requires tenantId')
   const ids = Array.from(new Set((Array.isArray(externalIds) ? externalIds : []).filter(Boolean)))
-  if (ids.length === 0) return { tombstonedRawRecords: 0 }
+  const messageIds = Array.isArray(lineMessageIds) ? lineMessageIds : []
+  if (ids.length === 0 && messageIds.length === 0) return { tombstonedRawRecords: 0 }
 
-  const rows = await tx.rawExternalRecord.findMany({
-    where: { tenantId, externalId: { in: ids } },
-    select: { id: true, payloadJson: true },
-  })
+  const byKey = ids.length
+    ? await tx.rawExternalRecord.findMany({
+      where: { tenantId, externalId: { in: ids } },
+      select: { id: true, payloadJson: true },
+    })
+    : []
+  const byPayload = messageIds.length ? await findLineMessageRawRecords(tx, { tenantId, lineMessageIds: messageIds }) : []
+  const rows = [...new Map([...byKey, ...byPayload].map((row) => [row.id, row])).values()]
 
   const tombstone = rawRecordErasureTombstone(now ?? new Date())
   let tombstonedRawRecords = 0

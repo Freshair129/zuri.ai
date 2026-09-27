@@ -4,6 +4,9 @@
 //   speaker (B) reaches B's lines in the thread the first speaker's (A's) Customer
 //   owns, and erasing A no longer shreds B's. The legal hold keeps protecting exactly
 //   the held Customer's lines, and a direct chat is sealed exactly as before.
+//   The sweep never outlives an erasure: a row erased between its read and the
+//   tombstone transaction is never sealed under a new key nor re-tombstoned, and a
+//   row with no author is attributed (and written back) before it is sealed.
 // @spec ADR-093 D4, D6, D7; SEC-034; SDD-103
 // @tested tests/integration/crm-archive-group-speakers.test.js
 import { randomUUID } from 'node:crypto'
@@ -23,6 +26,8 @@ import { openArchiveSegment, openCustomerArchiveKey } from '@/modules/crm/chat-e
 import { recordCustomerLegalHold } from '@/modules/crm/chat-evidence-legal-hold-service'
 import { retrieveArchivedChatEvidence } from '@/modules/crm/chat-evidence-retrieval-service'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
+import { CUSTOMER_ERASURE_TOMBSTONE } from '@/modules/crm/conversation-redaction-service'
+import { LINE_UNSEND_TOMBSTONE } from '@/modules/crm/line-ingest-service'
 import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -98,7 +103,32 @@ async function scene(scope) {
     b: { [bLine.messageId]: 'B archived group line', [bAsk.messageId]: 'B asks about order B-1',
       [bReply]: 'Reply to B about order B-1' },
     bDirect: { [bDirect.messageId]: 'B direct archived line', [bDirectReply]: 'Direct reply to B' },
+    ids: { aLine: aLine.messageId, bLine: bLine.messageId, staff: staff.id },
   }
+}
+
+/** The retention sweep's own candidate read (retention-sweep-service.js), for a stale-read race. */
+function readCandidates(tenantId) {
+  return prisma.message.findMany({
+    where: { conversation: { tenantId } },
+    select: { id: true, conversationId: true, direction: true, body: true, contentKind: true, sessionId: true, createdAt: true,
+      externalMessageId: true, authorChannelIdentityId: true,
+      conversation: { select: { id: true, customerId: true, businessId: true } },
+      attachments: { select: { id: true, kind: true, providerContentId: true, fileAssetId: true, fetchState: true, mimeType: true, sizeBytes: true } } },
+  })
+}
+
+async function archiveFiles() {
+  const files = []
+  const walk = async (dir) => {
+    for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) await walk(full)
+      else files.push(full)
+    }
+  }
+  await walk(baseDir)
+  return files
 }
 
 /**
@@ -256,6 +286,72 @@ describe('chat evidence archive in a shared LINE group thread (FR-022, SEC-034)'
     expect(forB.missingMessageIds).toEqual([])
     expect(Object.fromEntries(forB.sessions.flatMap((row) => row.messages).map((line) => [line.messageId, line.body])))
       .toEqual({ ...s.b, ...s.bDirect })
+  })
+
+  it('never seals or re-tombstones a speaker erased between the sweep read and its seal', async () => {
+    const scope = await freshScope('race-erasure')
+    const s = await scene(scope)
+    const stale = await readCandidates(scope.tenant.id)
+
+    await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerB.personId, reason: 'TEST_ERASURE' })
+    const result = await archiveAndTombstoneTenantMessages(prisma, { tenantId: scope.tenant.id, candidates: stale, now: new Date(), baseDir })
+
+    // B's five lines are deferred: no key minted for the erased Customer, nothing sealed.
+    expect(result).toMatchObject({ archived: true, deferredMessages: 5 })
+    expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: s.customerB.id } })).toBeNull()
+    for (const id of Object.keys({ ...s.b, ...s.bDirect })) {
+      expect((await prisma.message.findUnique({ where: { id } })).body, id).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+    }
+    const lines = await recoverable(scope.tenant.id)
+    expectGone(lines, { ...s.b, ...s.bDirect })
+    expectReadable(lines, s.a)
+  })
+
+  it('rolls back and deletes its file when a candidate loses its content before the tombstone commits', async () => {
+    const scope = await freshScope('race-unsend')
+    const s = await scene(scope)
+    const stale = await readCandidates(scope.tenant.id)
+    await prisma.message.update({ where: { id: s.ids.aLine }, data: { body: LINE_UNSEND_TOMBSTONE } })
+
+    await expect(archiveAndTombstoneTenantMessages(prisma, { tenantId: scope.tenant.id, candidates: stale, now: new Date(), baseDir }))
+      .rejects.toMatchObject({ code: 'ARCHIVE_CANDIDATES_CHANGED' })
+
+    expect(await prisma.archiveManifest.count({ where: { tenantId: scope.tenant.id } })).toBe(0)
+    expect((await archiveFiles()).filter((file) => file.endsWith('.zca'))).toEqual([])
+    expect((await prisma.message.findUnique({ where: { id: s.ids.aLine } })).body).toBe(LINE_UNSEND_TOMBSTONE)
+    expect((await prisma.message.findUnique({ where: { id: s.ids.bLine } })).body).toBe('B archived group line')
+  })
+
+  it('attributes a group line with no author before sealing it, so it follows its speaker', async () => {
+    const scope = await freshScope('null-author')
+    const s = await scene(scope)
+    await prisma.message.update({ where: { id: s.ids.bLine }, data: { authorChannelIdentityId: null } })
+    const bIdentity = await prisma.channelIdentity.findFirst({ where: { tenantId: scope.tenant.id, personId: s.customerB.personId } })
+
+    await runRetentionSweep({ now: new Date(), baseDir })
+
+    expect((await prisma.message.findUnique({ where: { id: s.ids.bLine } })).authorChannelIdentityId).toBe(bIdentity.id)
+    expect((await recoverable(scope.tenant.id)).get(s.ids.bLine)).toMatchObject({ keyCustomerId: s.customerB.id })
+
+    await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' })
+    expectReadable(await recoverable(scope.tenant.id), { [s.ids.bLine]: 'B archived group line' })
+    await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerB.personId, reason: 'TEST_ERASURE' })
+    expectGone(await recoverable(scope.tenant.id), { [s.ids.bLine]: true })
+  })
+
+  it('retrieval never mints a key for an erased Customer, and still returns the other members lines', async () => {
+    const scope = await freshScope('retrieve-erased')
+    const { viewer, session } = await ownerFor(scope.business)
+    const s = await scene(scope)
+    await runRetentionSweep({ now: new Date(), baseDir })
+    await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' })
+
+    const forA = await retrieveArchivedChatEvidence(s.customerA.id, { businessId: scope.business.id, ...range(), caseReference: 'DSP-GRP-ERASED' }, { viewer, session, baseDir })
+
+    expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: s.customerA.id } })).toBeNull()
+    expect(Object.fromEntries(forA.sessions.flatMap((row) => row.messages).map((line) => [line.messageId, line.body]))).toEqual(s.b)
+    // The staff note was sealed under A's destroyed key.
+    expect(forA.missingMessageIds).toEqual([s.ids.staff])
   })
 
   it('is idempotent: erasing B again changes no key and no recoverable line', async () => {

@@ -240,6 +240,99 @@ async function attributeFromIngestAudit(tx, { tenantId, customerIds, channelIden
   return attributed
 }
 
+/**
+ * @req FR-022, SEC-034 — attribute INBOUND rows that carry no author, by the same
+ * evidence erasure uses, and write the attribution back. The chat evidence archive
+ * calls this before it seals a batch, so a row the author backfill never reached is
+ * sealed under its speaker's key, not the thread owner's — otherwise erasing that
+ * speaker would leave the line readable, and erasing the owner would shred it.
+ *
+ * For each unattributed INBOUND row of this tenant among `messageIds`:
+ *   1. the answer job admitted for it (`inboundMessageId`): its `sourceUserId` on the
+ *      job's own channel account, which must be the message's Conversation's, names
+ *      the speaker's ChannelIdentity; else
+ *   2. its MESSAGE_INGESTED audit row (read per Conversation, the audit's entity):
+ *      the speaker's Customer, on the Conversation's channel account, and that
+ *      Customer's Person's ChannelIdentity on exactly that channel and account.
+ * A row neither can attribute stays unattributed. Written only where the column is
+ * still null, so it never overwrites an existing author.
+ *
+ * @param {object} db prisma client or transaction client
+ * @param {{tenantId: string, messageIds: string[]}} scope
+ * @returns {Promise<Map<string, string>>} message id → ChannelIdentity id, for the rows written
+ */
+export async function attributeInboundMessageAuthors(db, { tenantId, messageIds } = {}) {
+  if (!tenantId) throw new Error('attributeInboundMessageAuthors requires tenantId')
+  const written = new Map()
+  const ids = [...new Set((messageIds ?? []).filter(Boolean))]
+  if (ids.length === 0) return written
+  const rows = await db.message.findMany({
+    where: { id: { in: ids }, direction: 'INBOUND', authorChannelIdentityId: null, conversation: { tenantId } },
+    select: { id: true, conversationId: true, conversation: { select: { channel: true, channelAccountId: true } } },
+  })
+  if (rows.length === 0) return written
+  const byId = new Map(rows.map((row) => [row.id, row]))
+  const found = new Map()
+
+  const jobs = await db.lineConversationJob.findMany({
+    where: { tenantId, inboundMessageId: { in: rows.map((row) => row.id) } },
+    select: { inboundMessageId: true, channelAccountId: true, sourceUserId: true },
+  })
+  for (const job of jobs) {
+    const row = byId.get(job.inboundMessageId)
+    if (!row || row.conversation.channel !== 'LINE' || job.channelAccountId !== row.conversation.channelAccountId
+      || typeof job.sourceUserId !== 'string' || !job.sourceUserId) continue
+    const identity = await db.channelIdentity.findFirst({
+      where: { tenantId, channel: 'LINE', channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId },
+      select: { id: true },
+    })
+    if (identity) found.set(row.id, identity.id)
+  }
+
+  const pending = rows.filter((row) => !found.has(row.id))
+  if (pending.length) {
+    const audits = await db.auditEvent.findMany({
+      where: { entityType: 'CONVERSATION', action: 'MESSAGE_INGESTED',
+        entityId: { in: [...new Set(pending.map((row) => row.conversationId))] } },
+      select: { entityId: true, payloadJson: true },
+    })
+    const speakerCustomer = new Map()
+    const wanted = new Set(pending.map((row) => row.id))
+    for (const audit of audits) {
+      let payload = null
+      try { payload = JSON.parse(audit.payloadJson) } catch { payload = null }
+      if (payload?.tenantId !== tenantId || !wanted.has(payload.messageId) || typeof payload.customerId !== 'string'
+        || (payload.direction ?? 'INBOUND') !== 'INBOUND') continue
+      const row = byId.get(payload.messageId)
+      if (audit.entityId !== row.conversationId || payload.channelAccountId !== row.conversation.channelAccountId) continue
+      speakerCustomer.set(row.id, payload.customerId)
+    }
+    const customers = speakerCustomer.size
+      ? await db.customer.findMany({ where: { tenantId, id: { in: [...new Set(speakerCustomer.values())] } }, select: { id: true, personId: true } })
+      : []
+    const personOf = new Map(customers.map((customer) => [customer.id, customer.personId]))
+    for (const [messageId, customerId] of speakerCustomer) {
+      const row = byId.get(messageId)
+      const personId = personOf.get(customerId)
+      if (!personId) continue
+      const identity = await db.channelIdentity.findFirst({
+        where: { tenantId, personId, channel: row.conversation.channel, channelAccountId: row.conversation.channelAccountId },
+        select: { id: true },
+      })
+      if (identity) found.set(messageId, identity.id)
+    }
+  }
+
+  for (const [messageId, identityId] of found) {
+    const updated = await db.message.updateMany({
+      where: { id: messageId, authorChannelIdentityId: null },
+      data: { authorChannelIdentityId: identityId },
+    })
+    if (updated.count === 1) written.set(messageId, identityId)
+  }
+  return written
+}
+
 // Which events name a speaker: only `ingestLineConversationEvent` (line-ingest-service.js)
 // writes a CONVERSATION_EVENT_RECORDED audit row carrying a `customerId` — the one
 // writer for the event kinds whose LINE payload names one individual in
