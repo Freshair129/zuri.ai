@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+
 import { describe, expect, it, vi } from 'vitest'
 
 import { makeDevViewer, makeViewer, ownsElsewhere } from '../factories/viewer'
@@ -7,6 +9,7 @@ import {
   SCM_PERMISSIONS,
   handleScmCoreRequest,
   readBoundedBody,
+  tokenMatches,
 } from '@/modules/inventory/application/scm-core-facade'
 import * as legacyInventory from '@/modules/inventory/application/inventory-authority'
 import * as legacyProcurement from '@/modules/procurement/application/procurement-authority'
@@ -36,7 +39,9 @@ const BUSINESSES = {
   'b-2': { id: 'b-2', tenantId: 't-1' },
   'b-3': { id: 'b-3', tenantId: 't-1' },
   'b-x': { id: 'b-x', tenantId: 't-2' },
+  'b-y': { id: 'b-y', tenantId: 't-2' },
 }
+// 'b-gone' is in some viewers' visibleBusinessIds but has no row: a deleted Business.
 const BRANCHES = [
   { id: 'br-1', code: 'BR-1', name: 'Main', address: null, kind: 'SITE', status: 'ACTIVE', tenantId: 't-1', businessId: 'b-1' },
   { id: 'br-2', code: 'BR-2', name: 'Closed', address: 'Road 2', kind: 'SITE', status: 'INACTIVE', tenantId: 't-1', businessId: 'b-1' },
@@ -51,6 +56,7 @@ const CUSTOMERS = [
 ]
 const CONVERSATIONS = [
   { id: 'cv-1', tenantId: 't-1', businessId: 'b-1', customerId: 'c-1' },
+  { id: 'cv-3', tenantId: 't-1', businessId: 'b-3', customerId: 'c-3' },
   { id: 'cv-x', tenantId: 't-2', businessId: 'b-x', customerId: 'c-x' },
 ]
 
@@ -61,7 +67,11 @@ function fakeDb() {
   return {
     business: {
       findUnique: vi.fn(async ({ where }) => BUSINESSES[where.id] ?? null),
-      findMany: vi.fn(async ({ where }) => where.id.in.map((key) => BUSINESSES[key]).filter(Boolean)),
+      findMany: vi.fn(async ({ where, take }) => where.id.in
+        .map((key) => BUSINESSES[key])
+        .filter((row) => row && (where.tenantId === undefined || row.tenantId === where.tenantId))
+        .slice(0, take)
+        .map((row) => ({ id: row.id }))),
     },
     branch: {
       findUnique: byId(BRANCHES),
@@ -100,7 +110,12 @@ const viewers = {
   }),
   outsider: makeViewer({ visibleBusinessIds: ['b-3'], visibleDomains: ['projects'] }),
   dev: makeDevViewer({ visibleBusinessIds: ['b-1', 'b-2', 'b-3'], visibleDomains: ALL }),
-  crossTenant: makeViewer({ visibleBusinessIds: ['b-1', 'b-x'], visibleDomains: SCM }),
+  crossTenant: ownsElsewhere({
+    owns: 'b-x', sees: 'b-1', visibleDomains: ALL, seesDomains: ['inventory', 'commerce'],
+    rolesByBusinessId: { 'b-1': ['SALES_REP'] },
+  }),
+  // Sees a Business whose row has since been deleted, next to a live one.
+  stale: makeViewer({ visibleBusinessIds: ['b-1', 'b-gone'], ownedBusinessIds: ['b-gone'], visibleDomains: SCM }),
   nobody: makeViewer({ visibleBusinessIds: [], visibleDomains: SCM }),
 }
 
@@ -118,8 +133,10 @@ function deps(overrides = {}) {
   }
 }
 
-const call = (d, { method = 'POST', operation, subject = 'owner', body = {}, auth = `Bearer ${TOKEN}` }) =>
+// resolve-scope names its Business (owner ruling (a)); b-1 unless a test says otherwise.
+const call = (d, { method = 'POST', operation, subject = 'owner', body = operation === 'resolve-scope' ? { businessId: 'b-1' } : {}, auth = `Bearer ${TOKEN}` }) =>
   handleScmCoreRequest({ method, operation, authorization: auth, subject, body }, d)
+const scopeOf = (subject, businessId) => call(deps(), { operation: 'resolve-scope', subject, body: { businessId } })
 
 describe('scm-core.v1 façade: refusals', () => {
   it('requires the service token, refusing every caller when it is unset or short', async () => {
@@ -134,6 +151,13 @@ describe('scm-core.v1 façade: refusals', () => {
     expect(await call(deps(), { operation: 'drop-table', auth: null })).toEqual(refusal)
   })
 
+  it('compares digests, so a supplied header of any length is answered without throwing', () => {
+    expect(tokenMatches(`Bearer ${TOKEN}`, TOKEN)).toBe(true)
+    for (const header of [undefined, null, '', 'Bearer', `Bearer ${TOKEN}x`, `Bearer ${TOKEN.slice(1)}`, 'x'.repeat(10000), `bearer ${TOKEN}`]) {
+      expect(tokenMatches(header, TOKEN)).toBe(false)
+    }
+  })
+
   it('unknown operation 404, wrong method 405, bad body 400 — all before the subject is resolved', async () => {
     const d = deps()
     expect(await call(d, { operation: 'drop-table' })).toEqual({ status: 404, body: { error: { code: 'OPERATION_NOT_FOUND' } } })
@@ -142,8 +166,14 @@ describe('scm-core.v1 façade: refusals', () => {
     expect(await call(d, { operation: 'branch', body: { businessId: 'b-1' } })).toEqual(invalid)
     expect(await call(d, { operation: 'branch', body: { businessId: 'b-1', branchId: '' } })).toEqual(invalid)
     expect(await call(d, { operation: 'branch', body: { businessId: 'b-1', branchId: 'x'.repeat(201) } })).toEqual(invalid)
+    // resolve-scope must name its Business, and only that.
+    expect(await call(d, { operation: 'resolve-scope', body: {} })).toEqual(invalid)
+    expect(await call(d, { operation: 'resolve-scope', body: { businessId: '' } })).toEqual(invalid)
+    expect(await call(d, { operation: 'resolve-scope', body: { businessId: 'x'.repeat(201) } })).toEqual(invalid)
+    expect(await call(d, { operation: 'resolve-scope', body: { businessId: 7 } })).toEqual(invalid)
     // Smuggled identity is not ignored — it is refused.
     expect(await call(d, { operation: 'resolve-scope', body: { viewer: { role: 'OWNER' } } })).toEqual(invalid)
+    expect(await call(d, { operation: 'resolve-scope', body: { businessId: 'b-1', tenantId: 't-1' } })).toEqual(invalid)
     expect(await call(d, { operation: 'customer', body: { businessId: 'b-1', customerId: 'c-1', tenantId: 't-1' } })).toEqual(invalid)
     expect(d.resolveRequestViewer).not.toHaveBeenCalled()
   })
@@ -193,7 +223,7 @@ describe('scm-core.v1 façade: bounded body', () => {
 
 describe('scm-core.v1 façade: resolve-scope', () => {
   it('answers actor, Tenant and one grant per visible Business, from the legacy predicates', async () => {
-    const response = await call(deps(), { operation: 'resolve-scope', subject: 'buyer' })
+    const response = await scopeOf('buyer', 'b-2')
     expect(response).toEqual({
       status: 200,
       body: {
@@ -220,22 +250,66 @@ describe('scm-core.v1 façade: resolve-scope', () => {
   })
 
   it('a visible Business with no SCM domain still has a grant (SCM visible = seesBusiness)', async () => {
-    const { data } = (await call(deps(), { operation: 'resolve-scope', subject: 'outsider' })).body
+    const { data } = (await scopeOf('outsider', 'b-3')).body
     expect(data.grants).toEqual({ 'b-3': { owner: false, domains: [], permissions: [] } })
   })
 
-  it('refuses a scope it cannot state with one Tenant, instead of guessing one', async () => {
-    const notSingle = { status: 409, body: { error: { code: 'SCOPE_NOT_SINGLE_TENANT' } } }
-    expect(await call(deps(), { operation: 'resolve-scope', subject: 'crossTenant' })).toEqual(notSingle)
-    expect(await call(deps(), { operation: 'resolve-scope', subject: 'nobody' })).toEqual(notSingle)
+  it('the selected Business picks the Tenant; grants cover only that Tenant', async () => {
+    const one = await scopeOf('crossTenant', 'b-1')
+    expect(one.status).toBe(200)
+    expect(one.body.data).toEqual({
+      actorId: 'per-1',
+      tenantId: 't-1',
+      grants: { 'b-1': { owner: false, domains: ['inventory', 'commerce'], permissions: ['commerce.order.write'] } },
+    })
+    const two = await scopeOf('crossTenant', 'b-x')
+    expect(two.status).toBe(200)
+    expect(two.body.data).toEqual({ actorId: 'per-1', tenantId: 't-2', grants: { 'b-x': { owner: true, domains: SCM, permissions: [] } } })
+    // Every visible Business of the selected Tenant, not only the selected one.
+    expect(Object.keys((await scopeOf('member', 'b-2')).body.data.grants).sort()).toEqual(['b-1', 'b-2'])
   })
 
-  it('refuses a scope over the contract bound', async () => {
-    const many = Array.from({ length: MAX_GRANTS + 1 }, (_, i) => `b-${i}`)
-    const big = makeViewer({ visibleBusinessIds: many, visibleDomains: SCM })
-    const d = deps({ resolveRequestViewer: vi.fn(async () => big) })
-    expect(await call(d, { operation: 'resolve-scope', subject: 'big' })).toEqual({ status: 409, body: { error: { code: 'SCOPE_TOO_LARGE' } } })
-    expect(d.db.business.findMany).not.toHaveBeenCalled()
+  it('an invisible, missing or deleted selected Business is one 404, BUSINESS_NOT_FOUND', async () => {
+    const notFound = { status: 404, body: { error: { code: 'BUSINESS_NOT_FOUND' } } }
+    expect(await scopeOf('owner', 'b-3')).toEqual(notFound) // exists, same Tenant, not visible
+    expect(await scopeOf('owner', 'b-x')).toEqual(notFound) // exists, other Tenant, not visible
+    expect(await scopeOf('owner', 'missing')).toEqual(notFound)
+    expect(await scopeOf('stale', 'b-gone')).toEqual(notFound) // visible, but deleted
+    // The deleted Business never earns a grant when a live one is selected.
+    expect((await scopeOf('stale', 'b-1')).body.data.grants).toEqual({ 'b-1': { owner: false, domains: SCM, permissions: [] } })
+  })
+
+  it('a viewer with no visible Business is NO_VISIBLE_BUSINESS, whatever it selects', async () => {
+    const d = deps()
+    const none = { status: 404, body: { error: { code: 'NO_VISIBLE_BUSINESS' } } }
+    expect(await call(d, { operation: 'resolve-scope', subject: 'nobody', body: { businessId: 'b-1' } })).toEqual(none)
+    expect(await call(d, { operation: 'resolve-scope', subject: 'nobody', body: { businessId: 'missing' } })).toEqual(none)
+    expect(d.db.business.findUnique).not.toHaveBeenCalled()
+  })
+
+  it('refuses a scope over the contract bound within the selected Tenant', async () => {
+    const many = Array.from({ length: MAX_GRANTS + 1 }, (_, i) => `big-${i}`)
+    const big = makeViewer({ visibleBusinessIds: [...many, 'b-x'], visibleDomains: SCM })
+    const rows = Object.fromEntries([...many.map((key) => [key, { id: key, tenantId: 't-big' }]), ['b-x', BUSINESSES['b-x']]])
+    const db = {
+      business: {
+        findUnique: vi.fn(async ({ where }) => rows[where.id] ?? null),
+        findMany: vi.fn(async ({ where, take }) => where.id.in
+          .map((key) => rows[key])
+          .filter((row) => row && row.tenantId === where.tenantId)
+          .slice(0, take)
+          .map((row) => ({ id: row.id }))),
+      },
+    }
+    const d = deps({ db, resolveRequestViewer: vi.fn(async () => big) })
+    expect(await call(d, { operation: 'resolve-scope', subject: 'big', body: { businessId: 'big-0' } }))
+      .toEqual({ status: 409, body: { error: { code: 'SCOPE_TOO_LARGE' } } })
+    // The bound is read with a limit, never in full.
+    expect(db.business.findMany.mock.calls[0][0].take).toBe(MAX_GRANTS + 1)
+    // The same viewer selecting its small Tenant is within the bound.
+    const small = await call(d, { operation: 'resolve-scope', subject: 'big', body: { businessId: 'b-x' } })
+    expect(small.body.data).toMatchObject({ tenantId: 't-2', grants: { 'b-x': expect.any(Object) } })
+    expect(Object.keys(small.body.data.grants)).toEqual(['b-x'])
   })
 })
 
@@ -282,6 +356,31 @@ describe('scm-core.v1 façade: facts', () => {
   it('a row of another visible Business in the same Tenant is returned raw: SCM applies its own predicate', async () => {
     expect((await fact('branch', 'member', { businessId: 'b-2', branchId: 'br-1' })).fact).toMatchObject({ id: 'br-1', businessId: 'b-1' })
   })
+
+  it('facts need the COMMERCE view of the named Business, not bare visibility', async () => {
+    // outsider sees b-3 with the projects domain only: every fact is withheld.
+    expect(await fact('branch', 'outsider', { businessId: 'b-3', branchId: 'br-3' })).toEqual({ fact: null })
+    expect(await fact('branches', 'outsider', { businessId: 'b-3' })).toEqual({ branches: [] })
+    expect(await fact('customer', 'outsider', { businessId: 'b-3', customerId: 'c-3' })).toEqual({ fact: null })
+    expect(await fact('conversation', 'outsider', { businessId: 'b-3', conversationId: 'cv-3' })).toEqual({ fact: null })
+    // Holding the commerce roles without the domain is not enough either (FR-061).
+    expect(await fact('branches', 'roleNoDomain', { businessId: 'b-2' })).toEqual({ branches: [] })
+    // crossTenant holds commerce on b-1 only through its per-Business grant.
+    expect((await fact('customer', 'crossTenant', { businessId: 'b-1', customerId: 'c-1' })).fact).toMatchObject({ id: 'c-1' })
+    // buyer sees b-2 with procurement only.
+    expect(await fact('branches', 'buyer', { businessId: 'b-2' })).toEqual({ branches: [] })
+    // The commerce-only cashier is answered.
+    expect(await fact('branches', 'cashier', { businessId: 'b-2' })).toEqual({ branches: [] })
+    expect((await fact('customer', 'cashier', { businessId: 'b-2', customerId: 'c-shared' })).fact).toMatchObject({ id: 'c-shared', businessId: null })
+    // ...but not a Customer homed in b-1, which it cannot see (legacy requireCustomer).
+    expect(await fact('customer', 'cashier', { businessId: 'b-2', customerId: 'c-1' })).toEqual({ fact: null })
+  })
+
+  it('Customer and Conversation are read through CRM\'s port, never from crm\'s models directly', async () => {
+    const source = readFileSync(new URL('../../src/modules/inventory/application/scm-core-facade.js', import.meta.url), 'utf8')
+    expect(source).not.toMatch(/\.customer\.|\.conversation\./)
+    expect(source).toMatch(/from '@\/modules\/crm\/scm-reference-reader'/)
+  })
 })
 
 // PARITY: for every synthetic viewer and every capability, SCM's ladder applied to the
@@ -307,15 +406,26 @@ describe('scm-core.v1 façade: legacy parity of the SCM ladder', () => {
       (s, b) => commerceAuthority.require(s, b, 'pricing'),
     ],
   }
-  const TARGETS = ['b-1', 'b-2', 'b-3', 'missing']
-  const SINGLE_TENANT = ['owner', 'member', 'clerk', 'buyer', 'cashier', 'roleNoDomain', 'outsider', 'dev']
+  // 'b-gone' is visible to `stale` but deleted: legacy loadBusiness 404s it after
+  // the gate, and SCM has no grant for it.
+  const TARGETS = ['b-1', 'b-2', 'b-3', 'b-x', 'b-y', 'b-gone', 'missing']
+  const PARITY_VIEWERS = ['owner', 'member', 'clerk', 'buyer', 'cashier', 'roleNoDomain', 'outsider', 'dev', 'crossTenant', 'stale']
+  // Every (viewer, selected Business) pair the viewer can resolve a scope for.
+  const SELECTIONS = PARITY_VIEWERS.flatMap((name) => viewers[name].visibleBusinessIds
+    .filter((businessId) => BUSINESSES[businessId])
+    .map((businessId) => [name, businessId]))
+  // A scope answers for one Tenant: a request about another Tenant's Business is
+  // resolved with THAT Business selected, so it is compared under that selection.
+  const tenantOf = (businessId) => BUSINESSES[businessId]?.tenantId ?? null
+  const comparable = (selected, target) => tenantOf(target) === null || tenantOf(target) === tenantOf(selected)
 
-  it.each(SINGLE_TENANT)('%s: every capability on every Business matches legacy', async (name) => {
-    const response = await call(deps(), { operation: 'resolve-scope', subject: name })
+  it.each(SELECTIONS)('%s selecting %s: every capability on every Business of its Tenant matches legacy', async (name, selected) => {
+    const response = await scopeOf(name, selected)
     expect(response.status).toBe(200)
+    expect(response.body.data.tenantId).toBe(tenantOf(selected))
     const scope = scopeFromGrants({ ...response.body.data, delegationId: 'parity' })
     const matrix = []
-    for (const businessId of TARGETS) {
+    for (const businessId of TARGETS.filter((target) => comparable(selected, target))) {
       for (const [capability, [legacy, scm]] of Object.entries(CAPABILITIES)) {
         matrix.push({ businessId, capability, legacy: await allows(() => legacy(viewers[name], businessId)), scm: scmAllows(() => scm(scope, businessId)) })
       }
@@ -323,12 +433,20 @@ describe('scm-core.v1 façade: legacy parity of the SCM ladder', () => {
     expect(matrix.filter((row) => row.legacy !== row.scm)).toEqual([])
     // The matrix is not vacuous across the viewers: each one exercises at least one refusal.
     expect(matrix.some((row) => !row.legacy)).toBe(true)
+    // Another Tenant's Business never has a grant in this scope.
+    for (const businessId of Object.keys(response.body.data.grants)) expect(tenantOf(businessId)).toBe(tenantOf(selected))
+  })
+
+  it('the deleted Business is exercised: legacy passes its gate, then 404s it like SCM', async () => {
+    expect(legacyCommerce.mayView(viewers.stale, 'b-gone')).toBe(true)
+    await expect(legacyCommerce.loadBusiness(legacyDb, viewers.stale, 'b-gone')).rejects.toMatchObject({ status: 404 })
+    expect(SELECTIONS).toContainEqual(['stale', 'b-1'])
   })
 
   it('the viewer set exercises every capability in both directions', async () => {
     const seen = new Map()
-    for (const name of SINGLE_TENANT) {
-      const scope = scopeFromGrants({ ...(await call(deps(), { operation: 'resolve-scope', subject: name })).body.data, delegationId: 'parity' })
+    for (const [name, selected] of SELECTIONS) {
+      const scope = scopeFromGrants({ ...(await scopeOf(name, selected)).body.data, delegationId: 'parity' })
       for (const businessId of TARGETS) {
         for (const [capability, [, scm]] of Object.entries(CAPABILITIES)) {
           const entry = seen.get(capability) ?? new Set()

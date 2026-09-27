@@ -37,11 +37,14 @@ const CORE_TOKEN = 'c'.repeat(48)
 const OWNER = 'subject-owner'
 const CLERK = 'subject-clerk'
 const CROSS = 'subject-cross-tenant'
+const PROJECTS_ONLY = 'subject-projects-only'
+const NOBODY = 'subject-no-business'
+const STALE = 'subject-deleted-business'
 const BASE = 'http://core.internal'
 const suffix = () => randomUUID().slice(0, 8).toUpperCase()
 const savedToken = process.env.SCM_CORE_TOKEN
 
-let tenant, business, hidden, otherTenant, foreign
+let tenant, business, hidden, otherTenant, foreign, foreignSibling
 let branch, closedBranch, hiddenBranch, foreignBranch
 let customer, sharedCustomer, hiddenCustomer, foreignCustomer, conversation, foreignConversation
 
@@ -77,6 +80,7 @@ describe('scm-core.v1: SCM consumer client against the real façade', () => {
     business = await createBusiness({ tenantId: tenant.id, name: 'SCM façade shop', code: `BUS-SCMF-${token}` })
     hidden = await createBusiness({ tenantId: tenant.id, name: 'SCM façade hidden', code: `BUS-SCMFH-${token}` })
     foreign = await createBusiness({ tenantId: otherTenant.id, name: 'SCM façade foreign', code: `BUS-SCMFX-${token}` })
+    foreignSibling = await createBusiness({ tenantId: otherTenant.id, name: 'SCM façade foreign 2', code: `BUS-SCMFY-${token}` })
 
     branch = await createBranch({ tenantId: tenant.id, businessId: business.id, name: 'Front', code: `BR-SCMF-A-${token}` })
     closedBranch = await createBranch({ tenantId: tenant.id, businessId: business.id, name: 'Closed', code: `BR-SCMF-B-${token}` })
@@ -101,7 +105,11 @@ describe('scm-core.v1: SCM consumer client against the real façade', () => {
       visibleBusinessIds: [business.id],
       rolesByBusinessId: { [business.id]: ['INVENTORY_MANAGER', 'SALES_REP'] },
     }))
-    subjects.set(CROSS, makeViewer({ visibleDomains: [...VIEWER_DOMAINS], visibleBusinessIds: [business.id, foreign.id] }))
+    subjects.set(CROSS, makeViewer({ visibleDomains: [...VIEWER_DOMAINS], visibleBusinessIds: [business.id, foreign.id, foreignSibling.id] }))
+    subjects.set(PROJECTS_ONLY, makeViewer({ visibleDomains: ['projects'], visibleBusinessIds: [business.id] }))
+    subjects.set(NOBODY, makeViewer({ visibleDomains: [...VIEWER_DOMAINS], visibleBusinessIds: [] }))
+    // A Business id the session still lists whose row no longer exists (deleted).
+    subjects.set(STALE, makeViewer({ visibleDomains: [...VIEWER_DOMAINS], visibleBusinessIds: [business.id, randomUUID()] }))
   })
 
   afterAll(() => {
@@ -111,14 +119,14 @@ describe('scm-core.v1: SCM consumer client against the real façade', () => {
 
   it('resolve-scope passes the consumer schema and drives the unchanged SCM ladder', async () => {
     const core = client()
-    const owner = await core.resolveScope(OWNER)
+    const owner = await core.resolveScope(OWNER, business.id)
     expect(owner).toEqual({
       actorId: 'per-1',
       tenantId: tenant.id,
       grants: { [business.id]: { owner: true, domains: ['inventory', 'procurement', 'commerce'], permissions: [] } },
     })
 
-    const scope = await createCoreScopeResolver(core)(CLERK)
+    const scope = await createCoreScopeResolver(core)(CLERK, business.id)
     expect(scope.tenantId).toBe(tenant.id)
     expect(inventoryAuthority.require(scope, business.id, { write: true })).toEqual({ id: business.id, tenantId: tenant.id })
     expect(commerceAuthority.require(scope, business.id, 'order')).toEqual({ id: business.id, tenantId: tenant.id })
@@ -141,7 +149,7 @@ describe('scm-core.v1: SCM consumer client against the real façade', () => {
 
   it('customer / conversation facts pass the consumer schema through the reference authority', async () => {
     const core = client()
-    const scope = await createCoreScopeResolver(core)(OWNER)
+    const scope = await createCoreScopeResolver(core)(OWNER, business.id)
     const references = createCoreReferenceAuthority(core)
     expect(await references.customer(scope, { businessId: business.id, customerId: customer.id })).toEqual({
       id: customer.id, code: customer.code, tenantId: tenant.id, businessId: business.id, deletedAt: null,
@@ -152,6 +160,35 @@ describe('scm-core.v1: SCM consumer client against the real façade', () => {
     expect(await references.conversation(scope, { businessId: business.id, conversationId: conversation.id })).toEqual({
       id: conversation.id, tenantId: tenant.id, businessId: business.id, customerId: customer.id,
     })
+  })
+
+  it('resolve-scope: the selected Business picks the Tenant; grants stay inside it', async () => {
+    const core = client()
+    const home = await core.resolveScope(CROSS, business.id)
+    expect(home.tenantId).toBe(tenant.id)
+    expect(Object.keys(home.grants)).toEqual([business.id])
+    const away = await core.resolveScope(CROSS, foreign.id)
+    expect(away.tenantId).toBe(otherTenant.id)
+    expect(Object.keys(away.grants).sort()).toEqual([foreign.id, foreignSibling.id].sort())
+    // The deleted Business never earns a grant.
+    expect(Object.keys((await core.resolveScope(STALE, business.id)).grants)).toEqual([business.id])
+  })
+
+  it('resolve-scope: an invisible, unknown or deleted selection and a Business-less subject are the legacy 404', async () => {
+    const notFound = { status: 404, code: 'SCM_SCOPE_NOT_FOUND' }
+    await expect(client().resolveScope(OWNER, hidden.id)).rejects.toMatchObject(notFound)
+    await expect(client().resolveScope(OWNER, foreign.id)).rejects.toMatchObject(notFound)
+    await expect(client().resolveScope(OWNER, randomUUID())).rejects.toMatchObject(notFound)
+    await expect(client().resolveScope(STALE, subjects.get(STALE).visibleBusinessIds[1])).rejects.toMatchObject(notFound)
+    await expect(client().resolveScope(NOBODY, business.id)).rejects.toMatchObject(notFound)
+  })
+
+  it('facts need the commerce view of the named Business', async () => {
+    const core = client()
+    expect(await core.branch(PROJECTS_ONLY, { businessId: business.id, branchId: branch.id })).toBeNull()
+    expect(await core.branches(PROJECTS_ONLY, { businessId: business.id })).toEqual([])
+    expect(await core.customer(PROJECTS_ONLY, { businessId: business.id, customerId: customer.id })).toBeNull()
+    expect(await core.conversation(PROJECTS_ONLY, { businessId: business.id, conversationId: conversation.id })).toBeNull()
   })
 
   it('disclosure: nothing outside the subject\'s visible Businesses and Tenant', async () => {
@@ -174,12 +211,10 @@ describe('scm-core.v1: SCM consumer client against the real façade', () => {
   })
 
   it('refusals map to the consumer\'s codes', async () => {
-    await expect(client().resolveScope('not-a-session')).rejects.toMatchObject({ status: 401, code: 'SCM_SUBJECT_UNAUTHENTICATED' })
+    await expect(client().resolveScope('not-a-session', business.id)).rejects.toMatchObject({ status: 401, code: 'SCM_SUBJECT_UNAUTHENTICATED' })
     await expect(client().branch('not-a-session', { businessId: business.id, branchId: branch.id }))
       .rejects.toMatchObject({ status: 401, code: 'SCM_SUBJECT_UNAUTHENTICATED' })
-    await expect(client('w'.repeat(48)).resolveScope(OWNER)).rejects.toMatchObject({ status: 502, code: 'SCM_CORE_REJECTED' })
-    // A scope that cannot be stated with one Tenant is refused, never guessed.
-    await expect(client().resolveScope(CROSS)).rejects.toMatchObject({ status: 502, code: 'SCM_CORE_REJECTED' })
+    await expect(client('w'.repeat(48)).resolveScope(OWNER, business.id)).rejects.toMatchObject({ status: 502, code: 'SCM_CORE_REJECTED' })
   })
 
   it('the route refuses before reading, bounds the body and never caches', async () => {
@@ -200,7 +235,12 @@ describe('scm-core.v1: SCM consumer client against the real façade', () => {
     expect(large.status).toBe(413)
     expect(await large.json()).toEqual({ error: { code: 'REQUEST_TOO_LARGE' } })
 
-    const ok = await post('resolve-scope')
+    // resolve-scope must name its Business.
+    const unnamed = await post('resolve-scope')
+    expect(unnamed.status).toBe(400)
+    expect(await unnamed.json()).toEqual({ error: { code: 'VALIDATION_FAILED' } })
+
+    const ok = await post('resolve-scope', { body: JSON.stringify({ businessId: business.id }) })
     expect(ok.status).toBe(200)
     expect(ok.headers.get('cache-control')).toBe('no-store')
   })

@@ -1180,7 +1180,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-181",
@@ -1481,6 +1481,14 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 29
+        },
+        {
+          "id": "FR-166",
+          "title": "Sales orders (commerce)",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 36
         },
         {
           "id": "FR-229",
@@ -1979,7 +1987,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-191",
@@ -2889,7 +2897,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-168",
@@ -5913,7 +5921,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-167",
@@ -9303,6 +9311,7 @@
       "primaryDomain": "commerce",
       "contributorDomains": [
         "commerce",
+        "crm",
         "identity",
         "inventory",
         "project-manager"
@@ -9328,8 +9337,8 @@
           "title": "Sales orders (commerce)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 35
+          "codeCount": 15,
+          "testCount": 36
         }
       ],
       "evidence": [
@@ -9348,6 +9357,7 @@
         "apps/server/src/modules/commerce/application/sales-order-service.js",
         "apps/server/src/modules/commerce/domain/commerce.js",
         "apps/server/src/modules/commerce/index.js",
+        "apps/server/src/modules/crm/scm-reference-reader.js",
         "apps/server/src/modules/identity/rbac.js",
         "apps/server/src/modules/inventory/application/scm-core-facade.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -9376,6 +9386,7 @@
         "apps/server/tests/unit/commerce-domain.test.js",
         "apps/server/tests/unit/commerce-routes.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
+        "apps/server/tests/unit/crm/scm-reference-reader.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
