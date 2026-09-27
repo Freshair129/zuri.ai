@@ -61,6 +61,8 @@ model Tenant {
   tenantRetentionOverrides   TenantRetentionOverride[]
   // @req SEC-034 — this Tenant's Customers' chat evidence archive legal holds (ADR-093 D6).
   customerLegalHolds         CustomerLegalHold[]
+  // @req FR-022 — this Tenant's Customers' retention consents (ADR-093 1.2.0).
+  customerRetentionConsents  CustomerRetentionConsent[]
   roleBindings               RoleBinding[]
   customerImportBatches      CustomerImportBatch[]
   customerImportReviewCases  CustomerImportReviewCase[]
@@ -436,6 +438,8 @@ model Person {
   mfaFactors                    MfaFactor[]
   // @req SEC-034 — legal holds this OWNER recorded on a Customer's chat evidence archive (ADR-093 D6).
   customerLegalHoldsRecorded    CustomerLegalHold[]             @relation("CustomerLegalHoldRecordedBy")
+  // @req FR-022 — retention consents this sales user collected from a Customer (ADR-093 1.2.0).
+  customerRetentionConsentsRecorded CustomerRetentionConsent[]   @relation("CustomerRetentionConsentRecordedBy")
   passkeyCredentials            PasskeyCredential[]
   // @req FR-268, ADR-101 — Key Results this Person owns, and check-ins this
   // Person recorded (distinct: an OWNER can check in a Key Result owned by
@@ -2126,6 +2130,9 @@ model Customer {
   // reference, so it is a normal relation that travels with the Customer like
   // any other CRM child row.
   legalHolds            CustomerLegalHold[]
+  // @req FR-022 — the retention consents a sales user collected from this
+  //   Customer (ADR-093 1.2.0); history rows, active while `revokedAt` is null.
+  retentionConsents     CustomerRetentionConsent[]
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -2563,6 +2570,67 @@ model CustomerLegalHold {
 
   @@index([tenantId])
   @@index([customerId, endDate])
+}
+
+// @req FR-022 — "consent to retain = keep" (owner ruling 2026-09-27, ADR-093
+//   1.2.0). A sales user (SALES_REP, or the Business OWNER) records, in advance,
+//   that this Customer agreed to have their chat evidence retained. A history,
+//   not a mutable status: recording writes a row, revoking stamps `revokedAt` on
+//   the active row(s), and "active" is `revokedAt IS NULL` — read at erasure and
+//   sweep time, never cached. Deliberately separate from Customer.consentStatus
+//   (FR-103), which is the Business's PDPA processing attestation that also gates
+//   marketing broadcasts: retaining evidence is a different purpose with a
+//   different writer. Business data (no key, no file reference), so it is a
+//   normal member of the backup snapshot with real foreign keys, like
+//   CustomerLegalHold above. `businessId` names the Business whose authority the
+//   recording user acted under; `revokedByPersonId` is null when an erasure
+//   revoked it (the erased Customer's own consent ends with their erasure).
+// @spec ADR-093 1.2.0, FR-022, BR-001
+// @tested tests/integration/crm-retention-consent.test.js
+model CustomerRetentionConsent {
+  id                 String    @id @default(uuid())
+  tenantId           String
+  customerId         String
+  businessId         String
+  recordedByPersonId String
+  recordedAt         DateTime  @default(now())
+  note               String?
+  revokedAt          DateTime?
+  revokedByPersonId  String?
+
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  recordedBy Person   @relation("CustomerRetentionConsentRecordedBy", fields: [recordedByPersonId], references: [id])
+
+  @@index([tenantId])
+  @@index([customerId, revokedAt])
+}
+
+// @req FR-022, SEC-034 — the data key a legal hold's re-sealed evidence lives
+//   under (ADR-093 1.2.0). When a Customer A is erased while another member B of
+//   one of A's shared threads is under an active legal hold AND has an active
+//   retention consent, the lines A's key would otherwise shred in that thread
+//   (A's own lines, and the staff/push/unknown-author lines sealed under A's key)
+//   are re-sealed, before A's key is destroyed, into a NEW archive file under
+//   this per-hold key. Destroyed when the hold ends (the archive expiry run), when
+//   B's retention consent is revoked (same transaction), or when B is erased —
+//   which makes every re-sealed line unreadable without touching a file.
+//   Same shape and backup treatment as CustomerArchiveKey: wrapped under
+//   ZURI_ARCHIVE_KEK, no `@relation` (a plain scope column), included in the
+//   backup snapshot because a random data key has no re-entry path.
+// @spec ADR-093 1.2.0, SEC-034
+// @tested tests/integration/crm-retention-consent.test.js
+model LegalHoldArchiveKey {
+  id             String   @id @default(uuid())
+  tenantId       String
+  legalHoldId    String   @unique
+  heldCustomerId String
+  kekId          String
+  wrappedDek     String
+  createdAt      DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([heldCustomerId])
 }
 
 // @req FR-127 — each recomputable, advisory analysis run belongs to an internal

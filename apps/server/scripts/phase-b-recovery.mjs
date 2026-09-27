@@ -23,14 +23,16 @@ const THIS_DIR = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_INVENTORY_PATH = path.resolve(THIS_DIR, '../../../docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json')
 const DEFAULT_SCHEMA_PATH = path.resolve(THIS_DIR, '../prisma/schema.prisma')
 const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
-// @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) adds one
+// @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) added one
 // application model on top of the Message author-channel-identity rebind
-// (main e7afa528), bringing this frozen inventory to 192 tables. See
+// (main e7afa528), bringing this frozen inventory to 192 tables.
+// @req FR-022 — CustomerRetentionConsent and LegalHoldArchiveKey (ADR-093
+// 1.2.0, "consent to retain = keep") add two more, bringing it to 194. See
 // docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
 // for the historical binding ladder this entry continues.
-const FROZEN_SCHEMA_SHA256 = '94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d'
-const FROZEN_TARGET_SCHEMA_SHA256 = '372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885'
-const FROZEN_APPLICATION_TABLE_COUNT = 192
+const FROZEN_SCHEMA_SHA256 = '1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206'
+const FROZEN_TARGET_SCHEMA_SHA256 = '3b0841c3771ae0fafb4147c9622e86b6d1827cbb656d070113f22bd7e94b8c79'
+const FROZEN_APPLICATION_TABLE_COUNT = 194
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0

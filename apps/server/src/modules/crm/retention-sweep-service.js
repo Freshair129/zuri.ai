@@ -152,8 +152,11 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
     redactedAttachments: archiveResult.redactedAttachments,
     skippedNonTerminalJob,
     archiveFailed: false,
-    // @req FR-022 — lines whose key Customer is erased and keyless: left untouched.
+    // @req FR-022 — lines whose key Customer is erased and keyless (ADR-093 1.2.0):
+    //   left untouched only when their speaker consented to retention, otherwise
+    //   blanked with the retention tombstone and never archived.
     deferredErasedKey: archiveResult.deferredMessages ?? 0,
+    blankedWithoutArchive: archiveResult.blankedMessages ?? 0,
     manifest: archiveResult.manifest
       ? { manifestId: archiveResult.manifest.id, runId: archiveResult.manifest.runId, manifestHash: archiveResult.manifest.manifestHash }
       : null,
@@ -177,6 +180,7 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
   const manifests = []
   const archiveFailures = []
   let deferredErasedKey = 0
+  let blankedWithoutArchive = 0
 
   // CRM_OWNED_RETENTION_CLASSES has exactly one member today (MESSAGE_BODY_AND_ATTACHMENTS);
   // looping over it rather than hard-coding the call keeps this function's shape
@@ -190,6 +194,7 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
       totals.redactedAttachments += result.redactedAttachments
       totals.skippedNonTerminalJob += result.skippedNonTerminalJob
       deferredErasedKey += result.deferredErasedKey ?? 0
+      blankedWithoutArchive += result.blankedWithoutArchive ?? 0
       if (result.archiveFailed) {
         archiveFailures.push({ tenantId: tenant.id, reason: result.archiveFailureReason })
       } else if (result.manifest) {
@@ -207,6 +212,7 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
       ...(archiveFailures.length > 0 ? { archiveFailures } : {}),
       ...(manifests.length > 0 ? { manifests } : {}),
       ...(deferredErasedKey > 0 ? { deferredErasedKey } : {}),
+      ...(blankedWithoutArchive > 0 ? { blankedWithoutArchive } : {}),
     },
   }
   const event = await recordAudit(db, {

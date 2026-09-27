@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.12b"
+version: "0.3.13b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-27T21:20:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-27T23:30:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -250,7 +250,7 @@ algorithm, and it does not authorize recovery of artifacts bound to older hashes
 FR-277 (ADR-090 Phase 3, TASK-ZAI-095) adds one application model,
 `LineGroundingShadowComparison` — the diagnostic-only LINE grounding
 shadow-compare row — on top of the Message rebind above, bringing the frozen
-inventory to **192 application tables**. The **current** binding has
+inventory to **192 application tables**. That binding had
 `schemaSha256`
 `94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d` and
 `targetSchemaSha256`
@@ -281,12 +281,41 @@ noting that `LineGroundingShadowComparison` follows an existing precedent
 of the mapping, if wanted, is still a separate, undone step. The CLI proof
 this paragraph's predecessor also deferred remains separately undone.
 
+FR-022 "consent to retain = keep" (owner ruling 2026-09-27, ADR-093 1.2.0) adds
+two application models on top of the FR-277 binding: `CustomerRetentionConsent`
+(the retention consent a sales user collects in advance from a Customer — a
+history with real foreign keys to Tenant, Customer and the recording Person) and
+`LegalHoldArchiveKey` (the wrapped per-legal-hold data key re-sealed chat
+evidence lives under — no `@relation`, same shape as `CustomerArchiveKey`),
+bringing the frozen inventory to **194 application tables**. The **current**
+binding has `schemaSha256`
+`1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206` and
+`targetSchemaSha256`
+`3b0841c3771ae0fafb4147c9622e86b6d1827cbb656d070113f22bd7e94b8c79`, computed
+the same way: `schemaSha256` over the raw `prisma/schema.prisma` bytes,
+`targetSchemaSha256` via `computeTargetSchemaSha256` over the full,
+alphabetically sorted 194-model mapping (`schemaName: 'public'`, `tableName`
+equal to `modelName`, no `@@map`). The 192-table FR-277 binding and every
+binding before it are historical and refuse cross-schema recovery against this
+schema. Both new models are in `SNAPSHOT_MODELS` (backup-service.js):
+`customerRetentionConsent` right after `customerLegalHold` (a Customer child row,
+same reasoning), `legalHoldArchiveKey` right after `customerArchiveKey` (wrapped
+ciphertext whose KEK is never in a snapshot, and a random data key with no
+re-entry path). This rebind changes neither the table-empty proof nor the
+recovery/erasure algorithm, and it does not authorize recovery of artifacts
+bound to older hashes. The migrations are written, not applied to any database.
+
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.12b → 0.3.13b: rebind the frozen recovery inventory to the
+194-table schema with `CustomerRetentionConsent` and `LegalHoldArchiveKey`
+(FR-022, ADR-093 1.2.0). This supersedes the FR-277 192-table binding that
+0.3.12b independently confirmed; that binding stays historical and is refused.
 
 Version diff 0.3.10b → 0.3.11b: rebind the frozen recovery inventory to the
 schema with `Message.authorChannelIdentityId` (FR-022 group-speaker erasure).
@@ -515,6 +544,7 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.13b | 2026-09-27 | beta | Rebind Phase B recovery to the 194-table schema adding `CustomerRetentionConsent` and `LegalHoldArchiveKey` (FR-022, ADR-093 1.2.0): `schemaSha256` `1f7fa962…1206`, `targetSchemaSha256` `3b0841c3…8c79` via `computeTargetSchemaSha256`; both new models in `SNAPSHOT_MODELS`; the 192-table binding confirmed in 0.3.12b is superseded and refused | working-tree | Claude Opus 5.5 (MC0) |
 | 0.3.12b | 2026-09-27 | beta | Independently recompute and confirm the FR-277 rebind (191→192 tables, `LineGroundingShadowComparison`): `schemaSha256` matches the committed `prisma/schema.prisma` bytes exactly; `targetSchemaSha256` recomputes correctly via the repo's own `computeTargetSchemaSha256` over the committed 192-entry mapping. Mechanical hash/count check only — does not re-review family/RLS mapping design beyond noting the model follows `AgentTraceEvent`'s existing no-relation precedent; a deeper design review and the CLI proof remain separately undone | working-tree | Claude Sonnet 5 |
 | 0.3.11b | 2026-09-27 | beta | Rebind Phase B recovery to the 191-table Message `authorChannelIdentityId` schema (FR-022 PDPA erasure column); table mapping unchanged, schema bytes change; refuse the merged Notion + Conversation Runtime binding | ffede2f9 | Claude Opus 5.5 |
 | 0.3.10b | 2026-09-27 | beta | Rebind Phase B recovery to the merged Notion + Conversation Runtime schema (191 tables, runtimeOwner fields); refuse both the Notion-only and runtimeOwner-only bindings; document runtimeOwner restore handling | working-tree | Claude Opus 5.5 (MC0) |

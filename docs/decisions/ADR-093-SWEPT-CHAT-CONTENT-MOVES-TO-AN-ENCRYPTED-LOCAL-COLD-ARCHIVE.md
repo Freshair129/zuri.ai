@@ -1,7 +1,7 @@
 ---
-version: "1.1.0"
+version: "1.2.0"
 created_at: "2026-09-15T23:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-27T21:00:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-27T23:30:00+07:00,Claude Opus 5.5 (MC0)"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -101,6 +101,46 @@ A format-1 file cannot be re-keyed in place: its bytes are fixed by `fileSha256`
 - **Population.** Expected to be empty. No message is eligible before 2028-09-08 at the installation default, and the sweep had never run on 2026-09-15; only a shortened Tenant override could have produced a file. Before this change is deployed, the operator confirms it read-only: `SELECT count(*) FROM "ArchiveManifest"`. Zero means there is nothing to migrate and this section closes.
 - **If it is not zero** (not implemented, because it retires tamper-evident evidence files and needs `ZURI_ARCHIVE_KEK` in an operator process): an operator command, run under ADR-057 before any affected thread owner is erased, (1) verifies the whole chain with files, (2) for each format-1 manifest whose owner segments hold a line with an attributed author other than the owner, writes a new format-2 run holding exactly that manifest's message ids re-sealed per speaker, appended to the chain with the same `messageIdListHash`, and (3) retires the format-1 file. Step 3 needs a further amendment here so that chain verification accepts a missing file retired by a later manifest re-archiving exactly its id list. Until then, an erasure of a non-owner member cannot claim that their format-1 group lines were crypto-shredded.
 
+### D6 amendment (1.2.0) — consent to retain = keep
+
+The owner ruled on 2026-09-27, answering the two questions the 1.1.0 amendment left open: "Consent to retain = keep. Sales asks the customer for consent first; the customer agrees to retention." Evidence that an erasure or the retention sweep would otherwise destroy is kept only when a **retention consent** exists that a sales user collected from that customer in advance.
+
+**The consent record.** `CustomerRetentionConsent` is a history: a sales user records one (the `SALES_REP` role's new `crm.retention-consent.write` permission; a Business OWNER holds it implicitly), and revoking stamps `revokedAt` on the active row. "Active" is `revokedAt IS NULL`, and every rule below reads it at the moment it acts, never from a cache. It is tenant-bound, and both recording and revoking are audited (`CUSTOMER_RETENTION_CONSENT_GRANTED`, `CUSTOMER_RETENTION_CONSENT_REVOKED`). It is separate from FR-103's `Customer.consentStatus`, which records the Business's PDPA processing attestation and also gates marketing broadcasts. Retention is a different purpose, and a different role records it.
+
+Revoking destroys evidence kept for a dispute, so it is gated. While the Customer is held (an unexpired legal hold, or any `LegalHoldArchiveKey` kept for them), revoking needs Business OWNER authority and a non-empty reason, the same authority that records the hold. A SALES_REP is refused with 403 `RETENTION_CONSENT_REVOKE_REQUIRES_OWNER`. Without a hold, revoking stays a SALES_REP or OWNER write.
+
+Erasing a Customer revokes their own retention consent and clears its note in the same transaction. It also removes the free text typed when that consent was recorded or revoked from the audit events' `reason` and payload; the events themselves stay. The erasure also clears the FR-103 consent note and the recorder's person id.
+
+**Who is a member, for a given line.** There is no membership table. A Customer is a member of a thread **for a given line** only if they own the thread, or if they spoke inbound in it before that line was written. A member who joined later never keeps an earlier line. Both Q1 and Q2 below use this rule.
+
+**Q1 — a legal hold on another member of a shared thread.** Erasing Customer A destroys A's archive key and, with it, A's lines everywhere and the staff, push and unknown-author lines of the shared threads A owns. When another member B of one of A's threads is live, is under an active legal hold, **and** has an active retention consent, the lines for which B is a member are B's evidence and are kept:
+
+1. Inside the erasure transaction, before A's key is destroyed, each candidate B is checked under B's Customer lock. This is the same lock B's consent revocation takes.
+2. The lines A's erasure would destroy in the threads B belongs to are collected. These are every line in A's archived segments, read only after the whole Tenant chain verifies with files, and A's database lines that the erasure is about to tombstone. The lines are sealed under that hold's own data key (`LegalHoldArchiveKey`, one per hold, wrapped under `ZURI_ARCHIVE_KEK` with its own AAD labels) into **one new archive file** (header `v: 3`, segments `keyScope: "LEGAL_HOLD"` with the hold id and no `customerId`), and **one manifest row** is appended to the Tenant's chain.
+3. No existing file or manifest row is touched, so every earlier `fileSha256` and the whole hash chain stay as they were, and the new file is covered by the chain like any other. Then A's key is destroyed as before.
+
+The hold key is destroyed, and every re-sealed line becomes unreadable without touching a file, in three cases:
+- the hold ends: the archive expiry run destroys keys whose hold is past its end date;
+- B's retention consent is revoked: in the same transaction as the revocation;
+- B is erased: B's erasure revokes B's consent.
+
+A re-seal file is **never deleted**. Its manifest row stays in the chain, and a missing file would fail chain verification with files for the whole Tenant, which would refuse every later expiry run and retrieval. Destroying the hold key is the crypto-shred, and the ciphertext left on disk is unreadable. D7 retrieval for B opens B's hold keys only while the hold is unexpired and B's consent is active, and returns the re-sealed lines whose time falls in the requested range. Without such a B, including when B has a hold but no consent or a revoked one, the erasure behaves exactly as in 1.1.0.
+
+**Fail closed.** If a qualifying hold exists but the Tenant's manifest chain does not verify with files, the erasure is aborted with `ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID` (409), and a critical alert is emitted. Nothing is shredded, because destroying A's key then would silently destroy evidence B relies on. An operator repairs the chain before the erasure is retried. Without a qualifying hold the chain is not consulted.
+
+**Q2 — lines whose key Customer is erased.** Under 1.1.0 a line past retention whose key Customer is erased and has no key was deferred: left untouched and in plaintext, forever. Now the sweep decides:
+- **A customer-authored line** (an inbound line, or the stack reply to it) is blanked. Its speaker is the erased key Customer, and erasure revokes that Customer's retention consent in the erasure transaction itself. The ruling's "kept if its speaker consented" can therefore never hold for such a line, and the sweep does not special-case it.
+- **A staff, push or unknown-author line** stays **deferred**, meaning untouched in the database and never archived, while at least one live Customer who is a member for that line has an active retention consent. The sweep counts it as `deferredErasedKey`. It is never sealed under that member's key, because the line would then outlive a later revocation.
+- **Every other such line** is blanked with the retention tombstone, and its attachments are marked `ERASED`. It is **not** archived. The sweep audit counts these lines as `blankedWithoutArchive`.
+
+Every sweep decides again. Consent is read inside the transaction that blanks, under the members' Customer locks (the lock revocation takes), so a line kept on a consent is blanked by the first sweep after that consent is revoked.
+
+**Schema and recovery binding.** The ruling added two application models, `CustomerRetentionConsent` and `LegalHoldArchiveKey`. Both are in the backup snapshot, and `legalHoldArchiveKey` joins the archive recovery family. A restore from a snapshot without it is refused while the installation holds any hold key. The Phase B frozen inventory was rebound from 192 to 194 tables. The migrations are written and not applied to any database (ADR-057).
+
+**Known limits, recorded rather than fixed here.**
+- A restore brings back keys destroyed after the snapshot was taken. This is true for `legalHoldArchiveKey` and was already true for `customerArchiveKey`.
+- The 10-year expiry still deletes a Customer-key file whose lines have all expired while its manifest row stays. That breaks chain verification with files in the same way the re-seal file deletion did, and is a follow-up.
+
 ## Owner decisions (2026-09-16)
 
 The owner accepted every proposed default.
@@ -150,6 +190,7 @@ No message is eligible before 2028-09-08, so these phases can follow the evidenc
 
 | Version | Date | Status | Change |
 |---|---|---|---|
+| 1.2.0 | 2026-09-27 | accepted | D6 amendment on the owner's ruling "consent to retain = keep": a sales-recorded, revocable, tenant-bound retention consent (`CustomerRetentionConsent`, `crm.retention-consent.write` on SALES_REP). (Q1) Erasing a member of a shared thread re-seals, under the held member's per-hold key (`LegalHoldArchiveKey`, format 3, one appended manifest), the lines that key would shred, only while that member has an active hold and an active consent. The hold key dies with the hold, the consent or the member. Re-seal files are never deleted, and a broken chain blocks the erasure. Revoking while held needs OWNER and a reason. Membership is per line. (Q2) A line past retention whose key Customer is erased is never archived: a staff, push or unknown-author line stays deferred while a member for it consents, and every other such line is blanked. Erasure revokes the erased Customer's consent and clears the FR-103 note and recorder |
 | 1.1.0 | 2026-09-27 | accepted | D4 amendment: a shared LINE group or room thread's archived lines are sealed per speaker (format 2), so erasure and the legal hold act on exactly one member's lines (FR-022); format-1 group files and their migration path recorded, not implemented |
 | 1.0.0 | 2026-09-16 | accepted | Owner accepted every proposed default; FR-245, FR-246, SEC-034, SDD-103 and FEAT-041 declared, SEC-031 re-worded; counsel confirmation of D5 and D6 recorded as pending |
 | 0.1.0 | 2026-09-15 | proposed | First draft at the owner's request, with production facts, the three evidence gaps, eight proposed decisions and the open decisions table |

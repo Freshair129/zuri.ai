@@ -84,20 +84,40 @@ function fakeAdapter(sourceInventory = inventory) {
 }
 
 describe('Phase B offline recovery runners', () => {
-  // @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) rebinds the
-  // frozen inventory from 191 to 192 application tables, on top of the
-  // Message author-channel-identity rebind (main e7afa528); see the decision
+  // @req FR-022 — CustomerRetentionConsent and LegalHoldArchiveKey (ADR-093
+  // 1.2.0) rebind the frozen inventory from 192 to 194 application tables, on
+  // top of the FR-277 LineGroundingShadowComparison rebind; see the decision
   // doc's binding ladder for the historical entries this one continues.
-  it('loads the committed pinned 192-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(192)
-    expect(inventory.schemaSha256).toBe('94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d')
-    expect(inventory.targetSchemaSha256).toBe('372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885')
+  it('loads the committed pinned 194-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(194)
+    expect(inventory.schemaSha256).toBe('1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206')
+    expect(inventory.targetSchemaSha256).toBe('3b0841c3771ae0fafb4147c9622e86b6d1827cbb656d070113f22bd7e94b8c79')
+    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
+      expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
+    )
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet', 'BusinessKeyResult', 'BusinessKeyResultCheckIn'])
     )
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining([
       'ProjectApprovalRequest', 'NotionOAuthState', 'NotionWebhookReceipt', 'NotionWebhookVerificationToken',
     ]))
+  })
+
+  it('refuses the previous 192-table binding against the retention-consent schema', async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-old-binding-192-'))
+    const tempInventory = path.join(tempDir, 'previous-inventory.json')
+    try {
+      await writeFile(tempInventory, JSON.stringify({
+        ...inventory,
+        applicationTables: inventory.applicationTables.filter(({ modelName }) => !['CustomerRetentionConsent', 'LegalHoldArchiveKey'].includes(modelName)),
+        schemaSha256: '94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d',
+        targetSchemaSha256: '372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885',
+      }))
+      await expect(loadFrozenSchemaInventory({ modulePath: tempInventory }))
+        .rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
   })
 
   it('refuses the previous 191-table binding against the Message author schema', async () => {
@@ -255,7 +275,9 @@ describe('Phase B offline recovery runners', () => {
     // is exactly what broke this test the first time a model was added after
     // it was written. `beforeFr277` is the 191-entry Notion+runtimeOwner
     // mapping this PR's own binding was rebound from.
-    const beforeFr277 = inventory.applicationTables.filter(({ modelName }) => modelName !== 'LineGroundingShadowComparison')
+    // @req FR-022 — likewise excludes the two ADR-093 1.2.0 models added after FR-277.
+    const AFTER_FR277 = ['LineGroundingShadowComparison', 'CustomerRetentionConsent', 'LegalHoldArchiveKey']
+    const beforeFr277 = inventory.applicationTables.filter(({ modelName }) => !AFTER_FR277.includes(modelName))
     const smaller = inventoryVariant({ applicationTables: inventory.applicationTables.slice(0, -1) })
     const rehashed = inventoryVariant({ schemaSha256: '0'.repeat(64) })
     const historical = inventoryVariant({
@@ -298,8 +320,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 192-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 192-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 194-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 194-table inventory/)
     }
   })
 

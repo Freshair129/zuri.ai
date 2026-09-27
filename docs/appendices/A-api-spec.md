@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.100.0b → 1.101.0b (2026-09-27): add the two FR-022 retention-consent routes (ADR-093 1.2.0, "consent to retain = keep"): record and revoke, POST each. Inventory: 330 route handlers, 331 OpenAPI paths, 436 operations.
+
 Version diff 1.99.0b → 1.100.0b (2026-09-27): add the SCM service's private core façade (ADR-111 D5, the ADR-108 D4 pattern), one dynamic path with POST only; 328 API route handlers, 329 OpenAPI paths and 434 operations. Not reachable with a browser session; no production route switch is claimed.
 
 Version diff 1.98.0b → 1.99.0b (2026-09-27): add the `memory` operation (ADR-106 D2 Memory/Knowledge `read`/`append`/`receipt`) to the Conversation Runtime Core v1 enum. No route is added or removed; inventory unchanged.
@@ -36,7 +38,7 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.98.0b |
+| **Version** | 1.101.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-27 |
 
@@ -88,7 +90,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=328 -->
+<!-- api-spec-counts: route_handlers=330 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -517,6 +519,8 @@ conversations owned by no Business or by one already in the viewer's scope.
 | POST | `/api/crm/customers/[customerId]/erasure` | implemented: FR-022 PDPA erasure — the production trigger for `erasePrincipal`, which until now had no route, UI or script. Same authority as the consent row above (per-Business **owner** over a Business in the Customer's tenant, BR-001) or the installation operator. Body `{ businessId, confirmation: 'ERASE' }`; any other confirmation is **400** and is checked before any lookup. Every authority refusal is **404**, indistinguishable from a fabricated id (FR-072) — an irreversible action must not double as an existence oracle. Revokes identities/sessions/link tokens, soft-deletes and redacts the Customer, deletes ConversationAnalysis, tombstones `Message.body` and the matching `RawExternalRecord` payloads in one transaction. The response carries counts only, never personal data |
 | POST | `/api/crm/customers/[customerId]/chat-evidence/retrieve` | implemented: FR-245 chat evidence archive retrieval (ADR-093 D7, TASK-ZAI-112) — a per-Business **owner** over a Business in the Customer's tenant (BR-001), stepped up to **AAL2** through the same FR-224 gate credential rotation uses. Body `{ businessId, startDate, endDate, caseReference }` (both dates `YYYY-MM-DD`, `caseReference` required and free text). Recovers exactly the Customer's already-**archived** (retention-swept) messages in range, grouped by the `sessionId` `chat-evidence-archive-service.js` already writes into every archived line. Every manifest is re-checked against its own `manifestHash` and its file re-hashed against `fileSha256` before any line is trusted; a missing, unreadable or hash-mismatched manifest or file is reported in `missingMessageIds` rather than failing the whole retrieval. Every call — including an empty result — writes one `ARCHIVE_RETRIEVED` audit event naming the Customer, the range and the case reference. `403 ASSURANCE_LEVEL_INSUFFICIENT` below AAL2; `403` for a Business seen but not owned; `404` for an unknown Business or a Customer outside its tenant |
 | POST | `/api/crm/customers/[customerId]/legal-hold` | implemented: SEC-034 legal hold on a Customer's chat evidence archive (ADR-093 D6, TASK-ZAI-113) — a per-Business **owner** over a Business in the Customer's tenant (BR-001); no AAL2 step-up, unlike retrieval above, because this writes a reason and a date rather than reading any archived content, and the erasure it defers has never required one either. Body `{ businessId, reason, endDate }` (`reason` non-empty free text, `endDate` a future `YYYY-MM-DD`); a past or same-day `endDate` is **400** before any lookup. Appends one new `CustomerLegalHold` row — a history, never an update — and writes one `LEGAL_HOLD_RECORDED` audit event. While unexpired (`now < endDate`), a later PDPA erasure of this Customer leaves their archive data key alone instead of destroying it, and the erasure's own response and audit event name the hold. `404` for a Business seen but not owned or for an unknown Business/Customer, same shape as the erasure and retrieval rows above |
+| POST | `/api/crm/customers/[customerId]/retention-consent` | implemented: FR-022 retention consent (ADR-093 1.2.0, "consent to retain = keep"). A sales user records that a Customer agreed in advance to have their chat evidence retained. Callers are a Business **owner** or a member holding the `SALES_REP` binding (`crm.retention-consent.write`) over a Business in the Customer's tenant (BR-001). The `customer` domain gate runs first (404), then authority (403). Body `{ businessId, note? }`. The route appends one `CustomerRetentionConsent` row and writes one `CUSTOMER_RETENTION_CONSENT_GRANTED` audit event. An already-active consent is returned unchanged (`alreadyActive: true`). An erased Customer is **409** |
+| POST | `/api/crm/customers/[customerId]/retention-consent/revoke` | implemented: FR-022, same authority as recording, body `{ businessId, reason? }`. While the Customer is held (an unexpired legal hold or any `LegalHoldArchiveKey`), revoking needs Business **owner** authority and a non-empty `reason`: a SALES_REP gets **403** `RETENTION_CONSENT_REVOKE_REQUIRES_OWNER`, and an owner without a reason gets **400** `RETENTION_CONSENT_REVOKE_REASON_REQUIRED`. The route stamps `revokedAt` on the active consent and, in the same transaction, destroys every `LegalHoldArchiveKey` held for that Customer, which makes evidence re-sealed on the strength of that consent unreadable. It writes one `CUSTOMER_RETENTION_CONSENT_REVOKED` audit event |
 
 ### CRM retention sweep worker (FR-230, ADR-091 D1/D2, 2026-09-15)
 
@@ -1128,6 +1132,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.101.0b | 2026-09-27 | candidate | FR-022 (ADR-093 1.2.0): `POST /api/crm/customers/[customerId]/retention-consent` and `.../retention-consent/revoke`. Route handler count 328 -> 330 | working-tree | Claude Opus 5.5 (MC0) |
 | 1.100.0b | 2026-09-27 | candidate | ADR-111 D5 adds the SCM service's private core façade at `/api/internal/scm/v1/[operation]` (one path, POST only: `resolve-scope`, `branch`, `branches`, `customer`, `conversation`); inventory 327 -> 328 route handlers, 328 -> 329 paths / 433 -> 434 operations; no production route switch claimed | working-tree | Claude Opus 5.5 |
 | 1.99.0b | 2026-09-27 | candidate | Conversation Runtime v1 `memory` operation for memory-sync opt-in turns; Core stays the only MSP caller. Route inventory unchanged | working-tree | Claude Opus 5.5 (MC0 W5) |
 | 1.98.0b | 2026-09-27 | candidate | FR-275 Marketing Insights reads: `/api/insights/brands`, `/summary`, `/metric/[metricKey]`, `/metric/[metricKey]/export`, `/content`; 503 INSIGHTS_NOT_CONFIGURED in this release. 322 + 5 = 327 handlers; 323 + 5 = 328 paths; 428 + 5 = 433 operations | working-tree | Claude Opus 5.5 (MC0) |

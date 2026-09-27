@@ -1,7 +1,7 @@
 ---
-version: "0.11.0b"
+version: "0.12.0b"
 status: active
-last_update: "2026-09-27T21:00:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-27T23:30:00+07:00,Claude Opus 5.5 (MC0)"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -34,6 +34,8 @@ owns_models:
   - CustomerArchiveKey
   - ArchiveManifest
   - CustomerLegalHold
+  - CustomerRetentionConsent
+  - LegalHoldArchiveKey
 ---
 
 # Domain charter — crm
@@ -105,6 +107,17 @@ turn flows through before any agent work happens.
   (never a Member grant), and resolves the Customer through the caller's owned
   Business's tenant — the same BR-001 scope `getConversationInbox` reads
   through — so a Customer id alone can never widen the write past it.
+- `recordCustomerRetentionConsent` / `revokeCustomerRetentionConsent` — FR-022's
+  retention consent (ADR-093 1.2.0, "consent to retain = keep"). This is the only
+  writer of `CustomerRetentionConsent`. It is a history, and it is separate from
+  FR-103: a sales user records the Customer's advance agreement that their chat
+  evidence may be kept. `SALES_REP` holds `crm.retention-consent.write`, and a
+  Business OWNER holds it implicitly. The write is tenant-bound like
+  `recordCustomerConsent`, and both writes are audited. Revoking destroys the
+  Customer's `LegalHoldArchiveKey` rows in the same transaction. While the
+  Customer is held, revoking therefore needs Business OWNER authority and a
+  reason. Readers
+  (`retention-consent-reader.js`) query it at erasure, sweep and retrieval time.
 - `redactConversationContent` — the PDPA erasure writer (FR-022). A
   fourth narrow writer, and the only one that is called by another domain: erasure
   belongs to identity ("the only flow allowed to do so", identity's charter), but
@@ -348,6 +361,25 @@ before it tombstones a message body, a manifest model chains the files per Tenan
 and a legal-hold record on a Customer is the one thing that defers destroying their
 archive key on erasure.
 
+**ADR-093 1.2.0 (2026-09-27): consent to retain = keep.** `owns_models` +=
+`CustomerRetentionConsent`, `LegalHoldArchiveKey`.
+- **Erasure of a member of a shared thread.** Suppose another live member of the
+  thread is under an active legal hold and has an active retention consent. Before
+  the erased member's key is destroyed, `chat-evidence-hold-reseal-service.js`
+  re-seals the lines that key would shred, plus the erased member's unswept lines,
+  under that hold's key. It writes one new format-3 file and appends one manifest.
+  The hold key is destroyed when the hold ends (expiry run), when the consent is
+  revoked, or when the held Customer is erased.
+- **The retention sweep.** A past-window line whose key Customer is erased is never
+  archived. A staff, push or unknown-author line stays deferred while a live
+  member for it (the owner, or someone who spoke before it) has an active
+  consent. Every other such line is blanked. Every sweep re-checks consent inside
+  the blanking transaction.
+- **Retrieval.** Retrieval returns re-sealed lines to the held Customer while the
+  hold and the consent are active.
+- **Safety.** Re-seal files are never deleted. A qualifying hold with a broken
+  chain blocks the erasure.
+
 **FR-245 slice 1 built (2026-09-16, TASK-ZAI-111, not merged):** `owns_models` +=
 `CustomerArchiveKey`, `ArchiveManifest`. `chat-evidence-archive-crypto.js` mirrors
 `envelope-secret-store.js`'s AES-256-GCM AAD-bound construction under a dedicated
@@ -412,6 +444,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.12.0b | 2026-09-27 | FR-022 / ADR-093 1.2.0, the owner's ruling "consent to retain = keep". `owns_models` += `CustomerRetentionConsent`, `LegalHoldArchiveKey`. New writer `customer-retention-consent-service.js` (SALES_REP `crm.retention-consent.write`, OWNER implicit, audited, revocable, tenant-bound). Erasure re-seals a held, consenting member's evidence under a per-hold key into one appended format-3 file before the erased key is destroyed, then revokes the erased Customer's consent and clears the FR-103 note and recorder. The sweep blanks, without archiving, past-window lines whose erased key Customer nobody consented for. The expiry run destroys lapsed hold keys. Retrieval opens active hold keys. Migrations `20260927230000` written, not applied; Phase B inventory rebound to 194 tables | Claude Opus 5.5 (MC0) |
 | 0.11.0b | 2026-09-27 | Added `readCustomerFact` / `readConversationFact` (`scm-reference-reader.js`, ADR-111 D5): a narrow, internal, Tenant-bounded read port for the scm-core.v1 façade's Customer / Conversation facts, so core's façade no longer reads crm's models directly; read-only, field allow-list, no `owns_models` change | Claude Opus 5.5 |
 | 0.10.1b | 2026-09-27 | FR-022: archive format 2 seals a shared thread's lines per speaker and retrieval opens each member's existing key (ADR-093 1.1.0); `findSpeakerConversationEventKeys` names a person's own event keys so erasure tombstones their postback raw payloads | Claude Opus 5.5 (MC0) |
 | 0.10.0b | 2026-09-16 | FR-245 slice 1 built (TASK-ZAI-111, not merged): `owns_models` += `CustomerArchiveKey`, `ArchiveManifest`; `chat-evidence-archive-crypto.js` (AES-256-GCM under a dedicated `ZURI_ARCHIVE_KEK`, AAD binds Tenant/Customer/run) and `chat-evidence-archive-service.js` (per-Customer segment write, verify-then-rename, chained manifest, structurally-inseparable tombstone) called from `retention-sweep-service.js`, which now catches per Tenant and reports archive failures/manifests in the audit payload instead of tombstoning without a verified archive; migration `20260916150000` written, not applied; retrieval and key destruction are separate tasks (TASK-ZAI-112, TASK-ZAI-113) | Claude Sonnet 5 |

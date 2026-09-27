@@ -296,8 +296,10 @@ describe('chat evidence archive in a shared LINE group thread (FR-022, SEC-034)'
     await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerB.personId, reason: 'TEST_ERASURE' })
     const result = await archiveAndTombstoneTenantMessages(prisma, { tenantId: scope.tenant.id, candidates: stale, now: new Date(), baseDir })
 
-    // B's five lines are deferred: no key minted for the erased Customer, nothing sealed.
-    expect(result).toMatchObject({ archived: true, deferredMessages: 5 })
+    // B's five lines are never sealed: no key minted for the erased Customer. B never
+    // consented to retention, so they are not deferred either (ADR-093 1.2.0) — the
+    // blank finds the erasure tombstone already there and leaves it (0 rows).
+    expect(result).toMatchObject({ archived: true, deferredMessages: 0, blankedMessages: 0 })
     expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: s.customerB.id } })).toBeNull()
     for (const id of Object.keys({ ...s.b, ...s.bDirect })) {
       expect((await prisma.message.findUnique({ where: { id } })).body, id).toBe(CUSTOMER_ERASURE_TOMBSTONE)

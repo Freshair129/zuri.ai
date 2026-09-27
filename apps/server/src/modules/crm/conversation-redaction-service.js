@@ -118,7 +118,9 @@ export async function redactConversationContent(tx, { tenantId, conversationIds 
  *
  * @param {object} tx prisma client or transaction client — the caller owns the transaction
  * @param {{tenantId: string, channelIdentities?: {id: string, channel: string, channelAccountId: string}[],
- *   customerIds?: string[], inboundMessageIds?: string[], excludeConversationIds?: string[]}} scope
+ *   customerIds?: string[], inboundMessageIds?: string[], excludeConversationIds?: string[],
+ *   beforeRedact?: (rows: {messageIds: string[]}) => Promise<void>}} scope — `beforeRedact` runs inside the
+ *   caller's transaction just before the selected rows are tombstoned
  * `inboundMessages` are the inbound rows it redacted, with the provider message id
  * and the time each was written (the raw-payload lookup's window).
  *
@@ -127,7 +129,7 @@ export async function redactConversationContent(tx, { tenantId, conversationIds 
  *   redactedAttachments: number, attributedMessages: number}>}
  */
 export async function redactSpeakerContentInSharedThreads(tx, {
-  tenantId, channelIdentities, customerIds, inboundMessageIds, excludeConversationIds,
+  tenantId, channelIdentities, customerIds, inboundMessageIds, excludeConversationIds, beforeRedact = null,
 } = {}) {
   if (!tenantId) throw new Error('redactSpeakerContentInSharedThreads requires tenantId')
   const speakerIdentities = (channelIdentities ?? []).filter((row) => row?.id && row.channel && row.channelAccountId)
@@ -168,6 +170,9 @@ export async function redactSpeakerContentInSharedThreads(tx, {
   })
   const touched = [...authored, ...replies]
   const messageIds = touched.map((message) => message.id)
+  // @req FR-022 — ADR-093 1.2.0: the erasure reads these rows' content first, to
+  //   re-seal the lines a held, consenting member of the thread relies on.
+  if (typeof beforeRedact === 'function') await beforeRedact({ messageIds })
   const redacted = await tx.message.updateMany({
     where: { id: { in: messageIds }, body: { not: CUSTOMER_ERASURE_TOMBSTONE } },
     data: { body: CUSTOMER_ERASURE_TOMBSTONE },
