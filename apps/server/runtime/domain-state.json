@@ -761,7 +761,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-253",
@@ -3388,7 +3388,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-236",
@@ -3814,7 +3814,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-238",
@@ -11048,7 +11048,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-236",
@@ -11170,6 +11170,8 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/ki17-line-grounding-inspect-lib.test.js",
+        "apps/server/tests/unit/ki17-line-grounding-inspect-script.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",
         "apps/server/tests/unit/knowledge-candidate-migration.test.js",
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
