@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.65.0b"
+version: "1.66.0b"
 status: active
 last_update: "2026-09-27T00:00:00+07:00,Claude Opus 5.5 (MC0)"
 relations:
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.65.0b → 1.66.0b (2026-09-27): readiness metadata gains **FR-275** and **FR-276** (primary domain `marketing`), the Marketing Insights read surface and refresh declared for #554. Each is a feature of one for now; no FEAT row is added.
 
 Version diff 1.64.0b → 1.65.0b (2026-09-27): ADR-110 D1 retires the harness pairing/plugin bundle and Edge-specific LINE transport; historical usage/device records and the server-side PRP key path are preserved. FEAT-018, FEAT-019, FEAT-035, FEAT-039 and FEAT-045 reflect the current boundary; FEAT-017 retirement remains deferred until the residual apps/edge extraction client is removed.
 
@@ -39,7 +41,7 @@ Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-o
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.65.0b |
+| **Version** | 1.66.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -972,6 +974,16 @@ writing one sentence here, or the governance chain stops.
     "id": "FR-272",
     "primaryDomain": "project-manager",
     "useCase": "ผู้จัดการโครงการตรวจและอนุมัติผลกระทบของ Agent/Fleet ต่อ Project จาก digest เดียวกัน โดยระบบตรวจ scope, สิทธิ์ reviewer, expiry, input hash และ lease ซ้ำก่อนเปิดทางให้ executor"
+  },
+  {
+    "id": "FR-275",
+    "primaryDomain": "marketing",
+    "useCase": "ทีมการตลาดเปิดหน้า /growth/insights ดูสรุปตัวชี้วัด กราฟรายวัน ผลงานคอนเทนต์ และ export CSV ของแบรนด์ จาก snapshot เดียวกัน โดยทุกค่ามีสถานะคุณภาพ ค่าที่ไม่รู้ไม่แสดงเป็น 0 และการอ่านไม่เรียก provider"
+  },
+  {
+    "id": "FR-276",
+    "primaryDomain": "marketing",
+    "useCase": "ทีมการตลาดสั่ง refresh ข้อมูล Insights และติดตามสถานะรอบ sync ได้ คำขอซ้ำในช่วงเดียวกันถูกรวมเป็นรอบเดียว และรอบที่ล้มหรือได้ข้อมูลไม่ครบไม่แทนที่ snapshot ที่สมบูรณ์ล่าสุด"
   }
 ]
 ```

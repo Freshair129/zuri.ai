@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.25, 2026-09-27) so the board can open a task the way the html board
+// (v0.4.26, 2026-09-27) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -6165,6 +6165,53 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-078"
     ],
     "evidence": "../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md"
+  },
+  "TASK-ZAI-124": {
+    "container": "TC-TASK-ZAI-124",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.0b",
+    "priority": "P2",
+    "pic": "MC0",
+    "executor": "MC0",
+    "approver": "Owen",
+    "auditor": "pending",
+    "links": {
+      "code": "apps/server/src/app/api/insights/_insights-http.js",
+      "doc": "docs/migrations/service-extraction/MARKETING-INSIGHTS-HANDOFF.md",
+      "test": "apps/server/tests/unit/marketing/insights/insights-routes.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FR-275"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a signed-in viewer, when any /api/insights route is called in this release, then it answers 503 INSIGHTS_NOT_CONFIGURED after authentication and never calls a provider",
+        "checked": true
+      },
+      "success": {
+        "text": "Given the synthetic fixture repository injected in tests, when a viewer reads summary, metric, export and content, then only brands whose Business they see with the growth domain are returned and refusals keep their typed code",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the I2 persistent repository and an owner-approved brand binding, when a member opens /growth/insights, then the page shows real snapshot data and the CSV matches the chart",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-27 by MC0 for S6 after the B1/B2 integrator decisions. Five GET routes, the /growth/insights page and route tests on draft #554; no reporting source, provider call, migration or deployment.",
+    "created": "2026-09-27T00:00:00Z,MC0,pending",
+    "predictedTokens": 30000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-078"
+    ],
+    "evidence": "../migrations/service-extraction/MARKETING-INSIGHTS-HANDOFF.md"
   },
   "TASK-ZAI-121": {
     "container": "TC-TASK-ZAI-121",

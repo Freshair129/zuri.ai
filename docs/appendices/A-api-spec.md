@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.97.0b → 1.98.0b (2026-09-27): add the five FR-275 Marketing Insights GET routes (brands, summary, metric series, CSV export, content); they answer 503 INSIGHTS_NOT_CONFIGURED until a reporting source exists. Inventory: 327 route handlers, 328 OpenAPI paths, 433 operations.
+
 Version diff 1.96.0b → 1.97.0b (2026-09-27): document the catalog-upload response as a separate stored-file and Knowledge-admission outcome (`fileStatus`, `knowledgeStatus`, optional `knowledgeCode`, `admission` omitted on a typed admission failure, HTTP 200 partial outcome). No route is added or removed.
 
 Version diff 1.95.0b → 1.96.0b (2026-09-27): ADR-110 retires 20 Edge Device, harness and legacy executor paths (23 operations) from the 342-path / 449-operation Notion baseline. ADR-106 / SDD-110 adds one Conversation Runtime Core path with GET + POST; the composed inventory is 322 API route handlers, 323 OpenAPI paths and 428 operations. Native signed LINE ingress, PRP model-provider credentials, historical records and Knowledge/RAG remain; no migration or deployment is included.
@@ -30,7 +32,7 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.97.0b |
+| **Version** | 1.98.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-27 |
 
@@ -72,7 +74,7 @@ operation-specific payload fields.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=322 -->
+<!-- api-spec-counts: route_handlers=327 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -1111,6 +1113,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.98.0b | 2026-09-27 | candidate | FR-275 Marketing Insights reads: `/api/insights/brands`, `/summary`, `/metric/[metricKey]`, `/metric/[metricKey]/export`, `/content`; 503 INSIGHTS_NOT_CONFIGURED in this release. 322 + 5 = 327 handlers; 323 + 5 = 328 paths; 428 + 5 = 433 operations | working-tree | Claude Opus 5.5 (MC0) |
 | 1.97.0b | 2026-09-27 | candidate | `POST /api/knowledge/catalog-files` returns `fileStatus`/`knowledgeStatus`/`knowledgeCode?`/`admission?` so a stored file with a failed Knowledge admission is a 200 partial outcome (#543) | working-tree | Claude Opus 5.5 (MC0) |
 | 1.96.0b | 2026-09-27 | candidate | ADR-110 retires 20 Edge Device, harness and legacy paths (23 operations) from the 1.95 Notion baseline; ADR-106 / SDD-110 adds one Conversation Runtime Core path with GET + POST. Composed inventory: 342 - 20 + 1 = 323 paths; 449 - 23 + 2 = 428 operations. Stored records/schema, signed LINE ingress, PRP key flow and Knowledge/RAG remain; no migration or deployment | working-tree | Codex |
 | 1.94.0b | 2026-09-24 | candidate | ADR-108 D4 adds the Market Intelligence private core façade at `/api/internal/market-intelligence/v1/[operation]` (one path, GET + POST); inventory 336 -> 337 paths / 442 -> 444 operations; no production route switch claimed | working-tree | Codex |
@@ -1259,6 +1262,26 @@ approved source remain unavailable. Campaign addition: two paths, four operation
 | GET | `/api/growth/operations/handoffs/[handoffId]` | Read-only validated owner receipt and PM roadmap projection; invalid or unavailable source remains explicit. |
 
 [Operations contract](../domains/marketing/features/FR-162-operations-coordination.md). The aggregate is bounded and source-aware; it does not create PM tasks, CRM conversations, Commerce stock or provider actions.
+
+## Marketing Insights reads (FR-275)
+
+Signed-in GET reads for the `/growth/insights` page. Every request re-authorizes each server-owned
+asset binding (Business visibility plus the `growth` domain); the Business never comes from the
+client. Reads go through the Insights query service only and never call a provider. **No reporting
+source exists in this release** (persistence is deferred to I2), so each route answers `503`
+`{error, code: "INSIGHTS_NOT_CONFIGURED"}` after authentication. Typed refusals keep their code:
+`400 INVALID_QUERY`, `404 SCOPE_NOT_FOUND` (one shape for an unknown brand, a brand the viewer may
+not read and an asset outside the brand), `409 SNAPSHOT_EXPIRED`, `503 SOURCE_UNAVAILABLE`.
+Query: `brand`, optional `asset`, `from`/`to` (Asia/Bangkok dates, inclusive), `snapshot`, and
+`type` on content.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/insights/brands` | `{data: brandSlug[]}` — brands the viewer may open; a denied brand is absent. |
+| GET | `/api/insights/summary` | `{data, meta}` — one item per metric: total, previous total, change and series; unknown values are `null` with a reason, never 0. |
+| GET | `/api/insights/metric/[metricKey]` | `{data, meta}` — one metric's daily organic/paid series for the window. |
+| GET | `/api/insights/metric/[metricKey]/export` | The same series as `text/csv` attachment from the same snapshot as the chart; `cache-control: no-store`. |
+| GET | `/api/insights/content` | `{data, meta}` — content summary, top content and format breakdown. |
 
 ## Marketing broadcast planning and read projections (FR-185)
 
