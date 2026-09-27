@@ -10,7 +10,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import InsightsLayout from '@/modules/marketing/insights/ui/InsightsLayout'
 import { insightsSearch, readInsightsSelection } from '@/modules/marketing/insights/ui/insights-format'
-import { loadInsightsJson } from '@/modules/marketing/insights/ui/insights-page-loader'
+import { loadInsightsJson } from './load-insights-json'
 import { bangkokDate } from '@/modules/marketing/insights/domain/report-window'
 
 const API_BASE = '/api/insights'

@@ -1,4 +1,4 @@
-// Marketing Insights — the `load` function the page injects into <InsightsLayout>: JSON GET,
+// Marketing Insights page — the `load` function this page injects into <InsightsLayout>: JSON GET,
 // abortable, and a refusal keeps the typed code the route returned so the UI can explain it.
 //
 // @req FR-275

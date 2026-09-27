@@ -40,10 +40,11 @@ export function insightsGet(read, { getService = getInsightsQueryService, resolv
 }
 
 export function csvResponse({ body, contentType, filename }) {
+  const safeName = String(filename).replace(/[^A-Za-z0-9._-]/g, '') || 'insights.csv'
   return new Response(body, {
     headers: {
       'content-type': contentType,
-      'content-disposition': `attachment; filename="${filename}"`,
+      'content-disposition': `attachment; filename="${safeName}"`,
       'cache-control': 'no-store',
     },
   })

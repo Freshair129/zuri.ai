@@ -4223,7 +4223,7 @@
           "title": "Marketing Insights read surface",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 8,
+          "codeCount": 7,
           "testCount": 3
         }
       ],
@@ -17474,6 +17474,7 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/growth/insights/load-insights-json.js",
         "apps/server/src/app/(pm)/growth/insights/page.jsx",
         "apps/server/src/app/api/insights/_insights-http.js",
         "apps/server/src/app/api/insights/brands/route.js",
@@ -17482,7 +17483,6 @@
         "apps/server/src/app/api/insights/metric/[metricKey]/route.js",
         "apps/server/src/app/api/insights/summary/route.js",
         "apps/server/src/modules/marketing/insights/application/insights-runtime.js",
-        "apps/server/src/modules/marketing/insights/ui/insights-page-loader.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/api-path-reachability.test.js",
