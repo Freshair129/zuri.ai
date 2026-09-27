@@ -24,11 +24,12 @@ const DEFAULT_INVENTORY_PATH = path.resolve(THIS_DIR, '../../../docs/architectur
 const DEFAULT_SCHEMA_PATH = path.resolve(THIS_DIR, '../prisma/schema.prisma')
 const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) adds one
-// application model, rebinding this frozen inventory to 192 tables. See
+// application model on top of the Message author-channel-identity rebind
+// (main e7afa528), bringing this frozen inventory to 192 tables. See
 // docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
 // for the historical binding ladder this entry continues.
-const FROZEN_SCHEMA_SHA256 = '1c48859ad4d0a3edea09a83555af1d48906b031d7f4629033d6ffee334d485fd'
-const FROZEN_TARGET_SCHEMA_SHA256 = '67a4db3a62c4d5f8c2d444ff5b6799c348ad8ae10b9a7c0a11411a63a967c80a'
+const FROZEN_SCHEMA_SHA256 = '94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d'
+const FROZEN_TARGET_SCHEMA_SHA256 = '372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885'
 const FROZEN_APPLICATION_TABLE_COUNT = 192
 
 function ordinalCompare(a, b) {

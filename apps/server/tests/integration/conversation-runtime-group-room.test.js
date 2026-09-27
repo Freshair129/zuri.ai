@@ -231,11 +231,14 @@ describe('Conversation Runtime group and room audiences', () => {
     const messages = await prisma.message.count({ where: { conversationId: pair.CONVERSATION_RUNTIME.inbound.conversationId } })
     expect(messages).toBe(2)
 
-    // Rule 2 — the cohort follows the speaker's identity, not the thread's: an unverified
-    // speaker in the same room stays on SERVER.
+    // Rule 2 — the identity checked is the speaker's, not the thread's. Since the owner
+    // ruling of 2026-09-27 an unverified speaker joins the runtime cohort too, as a job
+    // with no person (conversation-runtime-unverified.test.js covers what it may do).
     const unverified = await admit(runtimeAccount, eventFor({ audience, thread, speaker: unverifiedSpeaker, text: 'ซูริ ช่วยด้วย' }))
-    expect(await prisma.lineConversationJob.findUnique({ where: { id: unverified.jobId } }))
-      .toMatchObject({ runtimeOwner: 'SERVER', audienceKind: audience, recipientId: thread, sourceUserId: unverifiedSpeaker })
+    const unverifiedJob = await prisma.lineConversationJob.findUnique({ where: { id: unverified.jobId } })
+    expect(unverifiedJob)
+      .toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', audienceKind: audience, recipientId: thread, sourceUserId: unverifiedSpeaker })
+    expect(await prisma.agentTraceEvent.count({ where: { turnId: unverifiedJob.id, kind: 'CHANNEL_IDENTITY_ADMITTED' } })).toBe(1)
 
     // Existing SERVER-only sub-cases apply to groups unchanged.
     const memory = await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text: 'ซูริ จำได้ไหม' }),

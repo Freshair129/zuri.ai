@@ -2294,6 +2294,13 @@ model Message {
   // @req FR-243 — the sitting this message belongs to (ADR-094 D2, SDD-102). Null only
   //   for a row written before sessions existed and not yet backfilled.
   sessionId         String?
+  // @req FR-022 — the ChannelIdentity of the speaker who wrote an INBOUND message.
+  //   A LINE group or room Conversation is owned by its first speaker's Customer, so
+  //   the owner cannot say who wrote a given line; PDPA erasure selects a speaker's
+  //   own messages by this id in every thread, whoever owns it. A plain reference,
+  //   not a relation: identity owns ChannelIdentity. Null for OUTBOUND rows and for
+  //   inbound rows the backfill could not attribute.
+  authorChannelIdentityId String?
   createdAt         DateTime @default(now())
 
   conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
@@ -2309,6 +2316,7 @@ model Message {
   @@unique([conversationId, externalMessageId])
   @@index([conversationId])
   @@index([sessionId])
+  @@index([authorChannelIdentityId])
 }
 
 // @req FR-229 — a media message (image, video, audio, file) is recorded without

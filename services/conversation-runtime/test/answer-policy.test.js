@@ -49,8 +49,17 @@ test('a supported model answer is the reply as written', async () => {
   assert.equal(modelCompleted(seen).answerStatus, 'ok')
 })
 
+test('a supported answer in Thai digits is the reply as written, digits unchanged', async () => {
+  const { seen, run } = harness({ generate: async () => 'แฟลชไดรฟ์ไม้ ราคา ๑๒๐ บาท ขั้นต่ำ ๑๐๐ ชิ้นค่ะ' })
+  await run()
+  assert.equal(seen.completed, 'แฟลชไดรฟ์ไม้ ราคา ๑๒๐ บาท ขั้นต่ำ ๑๐๐ ชิ้นค่ะ')
+  assert.equal(modelCompleted(seen).answerStatus, 'ok')
+})
+
 test('an unsupported number, code or delivery claim is replaced by the evidence fallback', async () => {
-  for (const candidate of ['ราคา 99 บาทค่ะ', 'รุ่น USB-777 ดีกว่าค่ะ', 'มีสินค้าพร้อมส่งค่ะ']) {
+  // Thai and fullwidth digits are checked as the ASCII number they write.
+  for (const candidate of ['ราคา 99 บาทค่ะ', 'รุ่น USB-777 ดีกว่าค่ะ', 'มีสินค้าพร้อมส่งค่ะ',
+    'ราคา ๙๙ บาทค่ะ', 'ราคา ９９ บาท', 'รุ่น USB-๗๗๗ ดีกว่าค่ะ']) {
     const { seen, run } = harness({ generate: async () => candidate })
     await run()
     assert.equal(seen.completed, productFallback, candidate)

@@ -4995,7 +4995,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "a4050180c088c3a40ec699f3d17935104d8ae6f7735bf331ffa2aa2bda6119f8",
+      "statement_digest": "d752905293c17842683d9d980421a2db1ed6dc46f4dcd39267dca5f47cd5a056",
       "history": [
         {
           "anchor": "line oa studio conversation work is server executed only",
@@ -5003,8 +5003,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-26",
-      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
+      "statement_digest_reviewed_at": "2026-09-27",
+      "statement_digest_reason": "Admission eligibility follows the ADR-106 amendment of 2026-09-27: any audience, verified or unverified sender; subject and meaning of FR-265 unchanged."
     },
     "FR-266": {
       "family": "FR",
@@ -6942,14 +6942,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "bcf1552f9b5d6700f579240b3d94cb03d161a92f53738a94c71b64faab612ef8",
+      "statement_digest": "2633edac731937909734012a99d58c7763ad2b0a40ac3f2fafb8799fdf898467",
       "history": [
         {
           "anchor": "conversation runtime is an independent node process over",
           "since": "2026-09-26",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-27",
+      "statement_digest_reason": "Runtime cohort eligibility follows the ADR-106 amendment of 2026-09-27; an unverified sender's job runs with no person. Subject unchanged."
     },
     "SEC-001": {
       "family": "SEC",

@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.10b"
+version: "0.3.11b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-27T00:00:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-27T19:45:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -217,7 +217,8 @@ or recovery operation is claimed.
 Conversation Runtime (ADR-106 / SDD-110) adds `runtimeOwner` to the existing
 `LineOaAccount` and `LineConversationJob` models. It adds no application model,
 so the 191-entry table mapping is unchanged, but the schema bytes change. The
-binding for the merged Notion + Conversation Runtime schema was `schemaSha256`
+binding for the merged Notion + Conversation Runtime schema was
+`schemaSha256`
 `f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078` with
 `targetSchemaSha256`
 `a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1`, recomputed
@@ -233,25 +234,42 @@ table-empty proof nor the recovery/erasure algorithm; it accepts only this exact
 schema and does not authorize automatic rewriting or recovery of artifacts bound
 to older hashes.
 
+PDPA erasure of one speaker in a shared LINE group or room thread (FR-022) adds
+the nullable `authorChannelIdentityId` column (and its index) to the existing
+`Message` model. It adds no application model, so the 191-entry table mapping is
+unchanged; only the schema bytes change. This binding has `schemaSha256`
+`26a67720bdc418d9e1de1b06849ccc685b111d0810d3d04dc03952bcb6d268f8` with
+`targetSchemaSha256`
+`53119b5c3d73c1acdaebdf16cc7c1d8b34d97bfb8877b36df2fc9cbfe0db751d`, recomputed
+with `computeTargetSchemaSha256` over the unchanged mapping. The merged Notion +
+Conversation Runtime binding above is historical and refused against this schema.
+`Message` stays in snapshot coverage and a restore carries the column as data;
+this rebind changes neither the table-empty proof nor the recovery/erasure
+algorithm, and it does not authorize recovery of artifacts bound to older hashes.
+
 FR-277 (ADR-090 Phase 3, TASK-ZAI-095) adds one application model,
 `LineGroundingShadowComparison` — the diagnostic-only LINE grounding
-shadow-compare row — rebinding the frozen inventory to **192 application
-tables**. The **current** binding has `schemaSha256`
-`1c48859ad4d0a3edea09a83555af1d48906b031d7f4629033d6ffee334d485fd` and
+shadow-compare row — on top of the Message rebind above, bringing the frozen
+inventory to **192 application tables**. The **current** binding has
+`schemaSha256`
+`94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d` and
 `targetSchemaSha256`
-`67a4db3a62c4d5f8c2d444ff5b6799c348ad8ae10b9a7c0a11411a63a967c80a`, computed
+`372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885`, computed
 the same way as every binding above: `schemaSha256` over the raw
-`prisma/schema.prisma` bytes, `targetSchemaSha256` via
+`prisma/schema.prisma` bytes (now carrying both the Message
+`authorChannelIdentityId` column and the new model), `targetSchemaSha256` via
 `computeTargetSchemaSha256` over the full, alphabetically sorted 192-model
 mapping (every model gets `schemaName: 'public'`, `tableName` equal to its
-`modelName`; none of this schema's models use `@@map`). The 191-table binding
-above remains historical and refuses cross-schema recovery. The new model is
-included in `SNAPSHOT_MODELS` (backup-service.js) with no declared relation,
-matching `AgentTraceEvent`'s own convention in the same domain — it restores
-without ordering constraints. Unlike the mechanically-verified rebinds above,
-this one has not yet had the independent hash/mapping review the doc's earlier
-entries record; the CLI proof and that review remain a separate gate this
-change does not claim to close.
+`modelName`; none of this schema's models use `@@map`). Every binding above —
+the Notion + Conversation Runtime merge, the interim runtimeOwner-only binding,
+and the 191-table Message rebind — is historical and refuses cross-schema
+recovery against this schema. The new model is included in `SNAPSHOT_MODELS`
+(backup-service.js) with no declared relation, matching `AgentTraceEvent`'s own
+convention in the same domain — it restores without ordering constraints.
+Unlike the mechanically-verified rebinds above, this one has not yet had the
+independent hash/mapping review the doc's earlier entries record; the CLI
+proof and that review remain a separate gate this change does not claim to
+close.
 
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
@@ -259,6 +277,11 @@ the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.10b → 0.3.11b: rebind the frozen recovery inventory to the
+schema with `Message.authorChannelIdentityId` (FR-022 group-speaker erasure).
+The 191-table mapping is unchanged; the 0.3.10b binding stays historical and is
+refused.
 
 Version diff 0.3.9b → 0.3.10b: rebind the frozen recovery inventory to the merged
 Notion + Conversation Runtime schema (191 tables, `runtimeOwner` on the LINE

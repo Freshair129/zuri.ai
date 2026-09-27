@@ -85,18 +85,35 @@ function fakeAdapter(sourceInventory = inventory) {
 
 describe('Phase B offline recovery runners', () => {
   // @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) rebinds the
-  // frozen inventory from 191 to 192 application tables; see the decision
+  // frozen inventory from 191 to 192 application tables, on top of the
+  // Message author-channel-identity rebind (main e7afa528); see the decision
   // doc's binding ladder for the historical entries this one continues.
   it('loads the committed pinned 192-table inventory', () => {
     expect(inventory.applicationTables).toHaveLength(192)
-    expect(inventory.schemaSha256).toBe('1c48859ad4d0a3edea09a83555af1d48906b031d7f4629033d6ffee334d485fd')
-    expect(inventory.targetSchemaSha256).toBe('67a4db3a62c4d5f8c2d444ff5b6799c348ad8ae10b9a7c0a11411a63a967c80a')
+    expect(inventory.schemaSha256).toBe('94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d')
+    expect(inventory.targetSchemaSha256).toBe('372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet', 'BusinessKeyResult', 'BusinessKeyResultCheckIn'])
     )
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining([
       'ProjectApprovalRequest', 'NotionOAuthState', 'NotionWebhookReceipt', 'NotionWebhookVerificationToken',
     ]))
+  })
+
+  it('refuses the previous 191-table binding against the Message author schema', async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-old-binding-'))
+    const tempInventory = path.join(tempDir, 'previous-inventory.json')
+    try {
+      await writeFile(tempInventory, JSON.stringify({
+        ...inventory,
+        schemaSha256: 'f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078',
+        targetSchemaSha256: 'a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1',
+      }))
+      await expect(loadFrozenSchemaInventory({ modulePath: tempInventory }))
+        .rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
   })
 
   it('rejects a CRLF-mutated schema even with the approved inventory', async () => {
