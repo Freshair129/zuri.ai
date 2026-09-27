@@ -170,16 +170,9 @@ export function validateMemoryRequest(value) {
   } else if (value.operation === 'append') {
     if (fields.length !== 1 || fields[0] !== 'text') throw fail('MEMORY_INPUT_INVALID')
     boundedText(value.input.text, 5000, 'MEMORY_INPUT_INVALID')
-  } else {
-    if (fields.some(field => !['state', 'model'].includes(field))
-      || (value.input.state === undefined) !== (value.input.model === undefined)) throw fail('MEMORY_INPUT_INVALID')
-    if (value.input.state !== undefined) {
-      const model = value.input.model
-      if (!MEMORY_INJECTION_STATES.includes(value.input.state) || !model || typeof model !== 'object' || Array.isArray(model)
-        || Object.keys(model).some(key => !['provider', 'model'].includes(key))) throw fail('MEMORY_INPUT_INVALID')
-      boundedText(model.provider, 32, 'MEMORY_INPUT_INVALID')
-      boundedText(model.model, 200, 'MEMORY_INPUT_INVALID')
-    }
+  } else if (fields.some(field => field !== 'state')
+    || (value.input.state !== undefined && !MEMORY_INJECTION_STATES.includes(value.input.state))) {
+    throw fail('MEMORY_INPUT_INVALID')
   }
   return value
 }

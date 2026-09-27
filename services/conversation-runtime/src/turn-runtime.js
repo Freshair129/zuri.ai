@@ -119,9 +119,9 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         throw Object.assign(new Error('MEMORY_PORT_UNAVAILABLE'), { code: 'MEMORY_PORT_UNAVAILABLE' })
       }
     }
-    const recordInjection = async (state, model) => {
+    const recordInjection = async state => {
       try {
-        const recorded = await exclusive(() => ports.memory.receipt(claim, 'injection', { state, model }, { signal }))
+        const recorded = await exclusive(() => ports.memory.receipt(claim, 'injection', { state }, { signal }))
         return recorded?.status === 'COMPLETED' ? { ok: true } : { ok: false, error: new Error('MEMORY_RECEIPT_RESPONSE_INVALID') }
       } catch (error) { return { ok: false, error } }
     }
@@ -129,32 +129,30 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
     // state at a time: RESOLVED before the provider starts, SUBMITTED while it
     // runs, then COMPLETED or FAILED. A receipt that cannot be established after
     // the provider may have run is UNKNOWN, never a retryable failure.
-    const invokeWithInjectionReceipt = async (credential, generate) => {
-      const model = { provider: String(credential?.provider ?? 'configured').slice(0, 32),
-        model: String(credential?.model ?? 'configured').slice(0, 200) }
-      const resolved = await recordInjection('RESOLVED', model)
+    const invokeWithInjectionReceipt = async generate => {
+      const resolved = await recordInjection('RESOLVED')
       // Nothing has run yet: a typed Core fence refusal is an ordinary failure, as
       // the legacy worker's pre-model fence is; only an unestablished MSP write is UNKNOWN.
       if (!resolved.ok) throw resolved.error?.retryable === false ? resolved.error : injectionReceiptUnknown(resolved.error)
       let pending
       try { pending = Promise.resolve(generate()) } catch (error) { pending = Promise.reject(error) }
       const settled = pending.then(value => ({ value }), error => ({ error }))
-      const submitted = await recordInjection('SUBMITTED', model)
+      const submitted = await recordInjection('SUBMITTED')
       const result = await settled
       if (!submitted.ok) {
         if (result.error) {
-          const terminal = await recordInjection('FAILED', model)
+          const terminal = await recordInjection('FAILED')
           if (!terminal.ok) throw injectionReceiptUnknown(submitted.error)
           throw result.error
         }
         throw injectionReceiptUnknown(submitted.error)
       }
       if (result.error) {
-        const failed = await recordInjection('FAILED', model)
+        const failed = await recordInjection('FAILED')
         if (!failed.ok) throw injectionReceiptUnknown(failed.error)
         throw result.error
       }
-      const terminal = await recordInjection('COMPLETED', model)
+      const terminal = await recordInjection('COMPLETED')
       if (!terminal.ok) throw injectionReceiptUnknown(terminal.error)
       return result.value
     }
@@ -276,7 +274,7 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
               contextPacket: memoryPacket ?? (composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null),
               contextReceipt: composed.receipt, credential,
               deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
-            const generated = memoryPacket ? await invokeWithInjectionReceipt(credential, generate) : await generate()
+            const generated = memoryPacket ? await invokeWithInjectionReceipt(generate) : await generate()
             if (typeof generated !== 'string' || !generated.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
             text = generated.trim().slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
             try {

@@ -42,7 +42,7 @@ function fakePorts({ order, memory = {}, generate } = {}) {
         return { status: 'COMPLETED', operationId: 'job-1:memory-append', result: { receipt: { textSha256: sha(text), duplicate: false } } }
       }),
       receipt: memory.receipt ?? (async (_claim, name, input) => {
-        if (name === 'injection') { order.push(`receipt ${input.state} ${input.model.provider}:${input.model.model}`); return { status: 'COMPLETED', operationId: 'job-1:memory-injection', result: { receipt: { state: input.state } } } }
+        if (name === 'injection') { order.push(`receipt ${input.state}`); return { status: 'COMPLETED', operationId: 'job-1:memory-injection', result: { receipt: { state: input.state } } } }
         order.push(`receipt ${name}`)
         return appended ? { status: 'COMPLETED', operationId: 'job-1:memory-append', result: { receipt: { textSha256: sha(appended), duplicate: true } } }
           : { status: 'NOT_FOUND', operationId: 'job-1:memory-append' }
@@ -55,8 +55,8 @@ test('a memory turn reads, records RESOLVED/SUBMITTED/COMPLETED around the model
   const order = []
   const result = await createConversationRuntime({ ports: fakePorts({ order }), now }).runOne()
   assert.equal(result.status, 'RECORDED')
-  assert.deepEqual(order, ['claim', 'memory read', 'receipt RESOLVED openrouter:test-model', 'model injection_1',
-    'receipt SUBMITTED openrouter:test-model', 'receipt COMPLETED openrouter:test-model', 'receipt append',
+  assert.deepEqual(order, ['claim', 'memory read', 'receipt RESOLVED', 'model injection_1',
+    'receipt SUBMITTED', 'receipt COMPLETED', 'receipt append',
     'memory append คำตอบ', 'complete คำตอบ', 'delivery'])
 })
 
@@ -126,8 +126,8 @@ test('RESOLVED gates the provider: a fence refusal FAILS, an unestablished write
   const failedPorts = fakePorts({ order: failedOrder, generate: async () => { throw Object.assign(new Error('MODEL_PROVIDER_HTTP_503'), { code: 'MODEL_PROVIDER_HTTP_503' }) } })
   const failed = await createConversationRuntime({ ports: failedPorts, now }).runOne()
   assert.deepEqual(failed, { jobId: 'job-1', status: 'FAILED', code: 'MODEL_PROVIDER_HTTP_503' })
-  assert.ok(failedOrder.includes('receipt FAILED openrouter:test-model'))
-  assert.ok(!failedOrder.includes('receipt COMPLETED openrouter:test-model'))
+  assert.ok(failedOrder.includes('receipt FAILED'))
+  assert.ok(!failedOrder.includes('receipt COMPLETED'))
 })
 
 test('append: a typed refusal is final; an ambiguous failure is reconciled from the receipt and retried once', async () => {
@@ -171,13 +171,13 @@ test('memory ports address the fixed memory operation with stable per-job identi
   await ports.memory.read(claim)
   await ports.memory.append(claim, 'answer')
   await ports.memory.receipt(claim, 'append')
-  await ports.memory.receipt(claim, 'injection', { state: 'SUBMITTED', model: { provider: 'openrouter', model: 'm' } })
+  await ports.memory.receipt(claim, 'injection', { state: 'SUBMITTED' })
   assert.throws(() => ports.memory.receipt(claim, 'erase'), /MEMORY_OPERATION_ID_INVALID/)
   assert.deepEqual(calls.map(({ operation, payload, options }) => [operation, payload, options.idempotencyKey]), [
     ['memory', { claim: ref, operation: 'read', operationId: 'job-1:memory-read', input: {} }, 'job-1:memory-read'],
     ['memory', { claim: ref, operation: 'append', operationId: 'job-1:memory-append', input: { text: 'answer' } }, 'job-1:memory-append'],
     ['memory', { claim: ref, operation: 'receipt', operationId: 'job-1:memory-append', input: {} }, 'memory-status:job-1:memory-append'],
-    ['memory', { claim: ref, operation: 'receipt', operationId: 'job-1:memory-injection', input: { state: 'SUBMITTED', model: { provider: 'openrouter', model: 'm' } } }, 'job-1:memory-injection:SUBMITTED'],
+    ['memory', { claim: ref, operation: 'receipt', operationId: 'job-1:memory-injection', input: { state: 'SUBMITTED' } }, 'job-1:memory-injection:SUBMITTED'],
   ])
 })
 
@@ -187,8 +187,9 @@ test('the memory contract rejects forged scope, unknown states and oversized tex
     { operation: 'read', operationId: 'job-1:memory-read', input: { threadId: 'forged' } },
     { operation: 'append', operationId: 'job-1:memory-append', input: { text: 'x'.repeat(5001) } },
     { operation: 'append', operationId: 'job-1:memory-append', input: { text: 'a', tenantId: 'forged' } },
-    { operation: 'receipt', operationId: 'job-1:memory-injection', input: { state: 'DELETED', model: { provider: 'p', model: 'm' } } },
-    { operation: 'receipt', operationId: 'job-1:memory-injection', input: { state: 'RESOLVED' } },
+    { operation: 'receipt', operationId: 'job-1:memory-injection', input: { state: 'DELETED' } },
+    // The model reference is Core's, from the claim-bound credential; the runtime cannot name one.
+    { operation: 'receipt', operationId: 'job-1:memory-injection', input: { state: 'RESOLVED', model: { provider: 'p', model: 'm' } } },
     { operation: 'erase', operationId: 'job-1:memory-erase', input: {} },
   ]) assert.throws(() => validateMemoryRequest(bad), /MEMORY_/)
   assert.throws(() => validateCoreEnvelope({ contractVersion: 'conversation-runtime.v1', operation: 'memory', correlationId: 'c',

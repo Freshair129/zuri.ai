@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
 import { resolveAgentAuthorization } from '@/modules/agent/auth-context'
 import { assembleAgentContext } from '@/modules/agent/context'
@@ -8,7 +9,7 @@ import {
 } from '@/modules/agent/server-line-answer'
 import { createServerLineThreadMemory } from './server-line-runtime'
 import {
-  isMemoryTurn, MEMORY_RECEIPT_KINDS, memoryOperationIds, memoryReceiptKey, memoryTextSha256,
+  coreMemoryKey, isMemoryTurn, loadMemoryReceipt, MEMORY_RECEIPT_KINDS, memoryOperationIds, memoryReceiptKey, memoryTextSha256,
 } from './runtime-memory-receipts'
 
 // @req FR-149, FR-171 — Core side of the Conversation Runtime v1 `memory` operation
@@ -60,16 +61,18 @@ function durableAuthContext(authContext) {
       privateMemoryAllowed: authContext?.policy?.privateMemoryAllowed === true,
       mspAuthorization: {
         read: authContext?.policy?.mspAuthorization?.read === true,
-        writePrivate: authContext?.policy?.mspAuthorization?.writePrivate === true,
+        // Legacy never grants a private write to the LINE agent (memoryServerScope).
+        writePrivate: false,
       },
     },
   }
 }
 
-export function createConversationRuntimeMemory({ db, env, now = () => new Date(), ownedClaim,
+export function createConversationRuntimeMemory({ db, env, now = () => new Date(), ownedClaim, modelResolver,
   threadMemoryFactory = null, contextAssembler = assembleAgentContext,
   authorizationResolver = resolveAgentAuthorization } = {}) {
   if (typeof ownedClaim !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_CLAIM_REQUIRED')
+  if (typeof modelResolver !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_MODEL_REQUIRED')
 
   // The legacy worker falls back to building the port from the Phase 1 runtime
   // when the deployment port is absent, and that constructor throws for a missing
@@ -95,14 +98,30 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true } } },
   })
 
-  async function loadReceipt(job, name) {
-    const row = await db.agentTraceEvent.findFirst({ where: { tenantId: job.tenantId, businessId: job.businessId,
-      idempotencyKey: memoryReceiptKey(job.id, name) } })
-    if (!row) return null
-    const payload = JSON.parse(row.payloadJson)
-    // An erased turn's trace is a tombstone; nothing in it may be replayed.
-    if (payload?.redacted === true) throw error('LINE_MEMORY_JOB_ERASED', 409)
-    return payload
+  const loadReceipt = (job, name) => loadMemoryReceipt(db, job, name)
+  // The route the persisted job names, fingerprinted into the read receipt: a
+  // receipt is only ever used for the route it was read for.
+  const routeKey = route => createHash('sha256').update(JSON.stringify([route.tenantId, route.businessId,
+    route.channelAccountId, route.externalRoomRef, route.audienceKind])).digest('hex')
+
+  async function storedRead(job, route) {
+    const stored = await loadReceipt(job, 'read')
+    if (stored && stored.routeKey !== routeKey(route)) throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
+    return stored
+  }
+
+  /** Core's own authorization for this job's LINE subject, never a stored or runtime value. */
+  async function currentAuthorization(job, route) {
+    const current = await authorizationResolver({ tenantId: job.tenantId, businessId: job.businessId,
+      lineUserId: job.sourceUserId, threadId: route.externalRoomRef, eventId: job.eventId,
+      serverScope: memoryServerScope(job, route) })
+    if (current?.authContext?.scope?.tenantId !== job.tenantId || current.authContext.scope.businessId !== job.businessId
+      || typeof current.authContext.actor?.principalId !== 'string') throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
+    return current
+  }
+
+  function samePrincipal(current, stored) {
+    if (current.authContext.actor.principalId !== stored.principalId) throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
   }
 
   async function saveReceipt(job, name, payload) {
@@ -114,7 +133,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
   async function traceNote(job, kind, key, payload) {
     await appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId },
       turnId: job.id, executionId: job.executionId ?? null, kind,
-      idempotencyKey: `${job.id}:runtime:${key}:${kind}`, payload, occurredAt: new Date(now().getTime()) })
+      idempotencyKey: coreMemoryKey(job.id, key, kind), payload, occurredAt: new Date(now().getTime()) })
   }
 
   /** A memory operation exists only for an opted-in, non-command, business-knowledge turn. */
@@ -127,13 +146,9 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     return memoryRoute(job)
   }
 
-  async function assertPolicyStillAllows(job, route) {
-    const current = await authorizationResolver({ tenantId: job.tenantId, businessId: job.businessId,
-      lineUserId: job.sourceUserId, threadId: route.externalRoomRef, eventId: job.eventId,
-      serverScope: memoryServerScope(job, route) })
-    if (current?.authContext?.scope?.tenantId !== job.tenantId || current.authContext.scope.businessId !== job.businessId) {
-      throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
-    }
+  async function assertPolicyStillAllows(job, route, stored) {
+    const current = await currentAuthorization(job, route)
+    samePrincipal(current, stored)
     if (!current?.policy?.privateMemoryAllowed || current.policy?.mspAuthorization?.read !== true) {
       throw error('LINE_MEMORY_POLICY_REVOKED', 409)
     }
@@ -154,14 +169,14 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     const { job } = await ownedClaim(ref)
     const route = memoryTurn(job)
     const operationId = memoryOperationIds(job.id).read
-    const stored = await loadReceipt(job, 'read')
+    const stored = await storedRead(job, route)
     if (stored) {
       // A reclaimed runtime replays the context this job already read, so MSP is
       // not asked twice and the injection receipt keeps one packet identity. The
       // job fence and, for private context, the current policy are rechecked first:
       // an erasure, revocation or withdrawal since the first read wins.
       await assertMemoryJobLive(job, memoryStateReader)
-      if (stored.privateMemoryAllowed) await assertPolicyStillAllows(job, route)
+      if (stored.privateMemoryAllowed) await assertPolicyStillAllows(job, route, stored)
       return readResult(stored)
     }
     const port = threadMemory()
@@ -175,9 +190,8 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     if (contextPacketJson && Buffer.byteLength(contextPacketJson, 'utf8') > MAX_MEMORY_PACKET_BYTES) {
       throw error('MEMORY_CONTEXT_TOO_LARGE', 413)
     }
-    const receipt = { operationId, ...lineMemoryHandle(memoryContext, memoryInbound),
+    const receipt = { operationId, routeKey: routeKey(route), ...lineMemoryHandle(memoryContext, memoryInbound),
       policyDecision: memoryContext.threadMemory.policyDecision,
-      authContext: durableAuthContext(memoryContext.authContext),
       contextReceiptId: composed.receipt?.receiptId ?? null, contextPacketJson }
     await assertMemoryJobLive(job, memoryStateReader)
     await saveReceipt(job, 'read', receipt)
@@ -190,7 +204,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
   async function append(ref, text) {
     const { job } = await ownedClaim(ref)
     const route = memoryTurn(job)
-    const stored = await loadReceipt(job, 'read')
+    const stored = await storedRead(job, route)
     if (!stored) throw error('MEMORY_READ_REQUIRED', 409)
     const textSha256 = memoryTextSha256(text)
     const prior = await loadReceipt(job, 'append')
@@ -198,6 +212,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       if (prior.textSha256 !== textSha256) throw error('MEMORY_APPEND_CONFLICT', 409)
       return appendResult(prior, true)
     }
+    samePrincipal(await currentAuthorization(job, route), stored)
     const port = threadMemory()
     port.bindTrustedRoute(stored.threadId, route)
     // A crash after MSP accepted this append but before the receipt below is
@@ -222,7 +237,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       : appendResult(stored, true)
   }
 
-  async function injection(ref, { state, model }) {
+  async function injection(ref, { state }) {
     // RESOLVED is recorded before the model starts, so it carries every fence the
     // legacy worker applies before its model call. The later states describe a
     // call that has already happened: like the legacy wrapper they are recorded
@@ -232,13 +247,19 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     const route = memoryTurn(job)
     if (state === 'RESOLVED') await assertMemoryJobLive(job, memoryStateReader)
     else if (job.errorCode === 'PDPA_ERASURE') throw error('LINE_MEMORY_JOB_ERASED', 409)
-    const stored = await loadReceipt(job, 'read')
+    const stored = await storedRead(job, route)
     if (!stored?.contextPacketJson) throw error('MEMORY_INJECTION_NOT_APPLICABLE', 409)
+    // The principal and the grant come from Core's own authorization for this job,
+    // with no private write; the model reference from the claim-bound credential.
+    const current = await currentAuthorization(job, route)
+    samePrincipal(current, stored)
+    const model = await modelResolver(job)
     const port = threadMemory()
     port.bindTrustedRoute(stored.threadId, route)
     const recorder = port.injectionReceipt({ model, contextPacket: JSON.parse(stored.contextPacketJson),
-      threadId: stored.threadId, exchangeId: stored.exchangeId, authorization: { authContext: stored.authContext },
-      requesterId: stored.principalId, contextReceiptId: stored.contextReceiptId ?? null })
+      threadId: stored.threadId, exchangeId: stored.exchangeId,
+      authorization: { authContext: durableAuthContext(current.authContext) },
+      requesterId: current.authContext.actor.principalId, contextReceiptId: stored.contextReceiptId ?? null })
     const outcome = await recorder.recordWithRetry(state)
     if (!outcome.ok) throw error('MSP_INJECTION_RECEIPT_UNKNOWN', 503)
     const operationId = memoryOperationIds(job.id).injection

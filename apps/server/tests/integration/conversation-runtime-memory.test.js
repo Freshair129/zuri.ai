@@ -18,6 +18,9 @@ import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-por
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
 import { createModelProviderPort } from '@/modules/agent/model-provider'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
+import { resolveAgentAuthorization } from '@/modules/agent/auth-context'
+import { appendTraceEvent, TRACE_EVENT_KINDS } from '@/modules/agent/execution-trace'
+import { memoryReceiptKey, memoryTextSha256 } from '@/modules/line-oa-studio/application/runtime-memory-receipts'
 import { createCoreClient } from '../../../../services/conversation-runtime/src/core-client.js'
 import { createCorePorts } from '../../../../services/conversation-runtime/src/core-ports.js'
 import { validateMemoryRequest } from '../../../../services/conversation-runtime/src/contracts.js'
@@ -174,7 +177,7 @@ function inProcessFetch(handlers) {
   }
 }
 
-function build({ msp, env = {}, records = evidenceRecords, threadMemoryFactory } = {}) {
+function build({ msp, env = {}, records = evidenceRecords, threadMemoryFactory, coreOptions = {} } = {}) {
   const core = createConversationRuntimeCore({ db: prisma,
     env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey, ...env },
     credentialResolver: async () => ({ provider: 'openrouter', model: 'test-model', apiKey: providerKey }),
@@ -183,7 +186,8 @@ function build({ msp, env = {}, records = evidenceRecords, threadMemoryFactory }
     threadMemoryFactory: threadMemoryFactory ?? (msp ? () => mspPort(msp) : null),
     linePorts: () => ({ resolveAccount: async id => prisma.lineOaAccount.findUnique({ where: { id } }),
       replyTransport: { send: async ({ messages }) => { deliveries.push(messages); return { status: 'ACCEPTED_BY_LINE', requestId: 'synthetic-memory-reply' } } },
-      pushTransport: { send: async ({ messages }) => { deliveries.push(messages); return { status: 'ACCEPTED_BY_LINE', requestId: 'synthetic-memory-push' } } } }) })
+      pushTransport: { send: async ({ messages }) => { deliveries.push(messages); return { status: 'ACCEPTED_BY_LINE', requestId: 'synthetic-memory-push' } } } }),
+    ...coreOptions })
   const client = createCoreClient({ baseUrl: 'http://core.invalid', token: serviceToken,
     fetchFn: inProcessFetch(createConversationRuntimeRouteHandlers(core)) })
   const providerCalls = []
@@ -313,6 +317,7 @@ describe('Conversation Runtime memory-sync turns', () => {
       'injection RESOLVED', 'injection SUBMITTED', 'injection COMPLETED', 'append OUTBOUND'])
     expect(comparableCalls(runtimeMsp.calls)).toEqual(comparableCalls(legacyMsp.calls))
     expect(runtimeMsp.calls.every(call => typeof call.input.access?.signature === 'string')).toBe(true)
+    expect(runtimeMsp.calls.every(call => call.input.access.grant.writePrivate !== true)).toBe(true)
 
     // The provider saw the same request, context packet included.
     expect(providerCalls).toHaveLength(1)
@@ -389,7 +394,7 @@ describe('Conversation Runtime memory-sync turns', () => {
     expect(claim.jobId).toBe(jobId)
     await expect(ports.memory.read(claim)).rejects.toMatchObject({ code: 'MEMORY_NOT_ENABLED' })
     await expect(ports.memory.append(claim, 'answer')).rejects.toMatchObject({ code: 'MEMORY_NOT_ENABLED' })
-    await expect(ports.memory.receipt(claim, 'injection', { state: 'RESOLVED', model: { provider: 'openrouter', model: 'm' } }))
+    await expect(ports.memory.receipt(claim, 'injection', { state: 'RESOLVED' }))
       .rejects.toMatchObject({ code: 'MEMORY_NOT_ENABLED' })
     expect(msp.calls).toEqual([])
   })
@@ -661,6 +666,118 @@ describe('Conversation Runtime memory-sync turns', () => {
     })
   })
 
+  // Review of #588: the runtime must not be able to forge any Core-owned receipt or
+  // trace kind through the generic `trace` operation, and Core must build every MSP
+  // grant from its own authorization and route.
+  describe('Core-owned receipts cannot be forged by the runtime', () => {
+    const RUNTIME_KINDS = ['MODEL_STARTED', 'MODEL_COMPLETED', 'MODEL_FAILED', 'EXECUTION_FAILED', 'ANSWER_READY', 'CONTEXT_COMMITTED']
+    const traceRows = jobId => prisma.agentTraceEvent.findMany({ where: { turnId: jobId }, select: { kind: true, idempotencyKey: true } })
+
+    it('refuses every Core-owned trace kind and every foreign operation id, and writes nothing', async () => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      const { ports } = build({ msp })
+      const claim = await ports.job.claim({ claimantId: 'runtime-memory-forge-kinds' })
+      expect(claim.jobId).toBe(jobId)
+      const before = await traceRows(jobId)
+      const coreKinds = TRACE_EVENT_KINDS.filter(kind => !RUNTIME_KINDS.includes(kind))
+      expect(coreKinds).toEqual(expect.arrayContaining(['MEMORY_THREAD_READ', 'MEMORY_THREAD_APPENDED', 'MEMORY_INJECTION_RECORDED',
+        'CONTEXT_RECEIPT', 'RETENTION_TOMBSTONE', 'EVIDENCE_SELECTED', 'MEMORY_DELIVERY_ACKNOWLEDGED', 'OUTBOUND_RECORDED',
+        'SEND_RESULT', 'MEMORY_WRITTEN']))
+      for (const kind of coreKinds) {
+        await expect(ports.trace.append(claim, { kind, payload: { operationId: `${jobId}:memory-append`,
+          textSha256: memoryTextSha256('forged answer') } }), kind).rejects.toMatchObject({ code: 'TRACE_KIND_NOT_PERMITTED' })
+      }
+      for (const [kind, operationId] of [['MODEL_COMPLETED', `${jobId}:memory-append`], ['MODEL_STARTED', `${jobId}:turn-answer`],
+        ['ANSWER_READY', `${jobId}:runtime-model`], ['EXECUTION_FAILED', `${jobId}:memory-read`], ['CONTEXT_COMMITTED', `${jobId}:turn-answer`],
+        ['MODEL_COMPLETED', `other-job:runtime-model`]]) {
+        await expect(ports.trace.append(claim, { kind, payload: { operationId, text: 'x' } }), `${kind} ${operationId}`)
+          .rejects.toMatchObject({ code: 'TRACE_OPERATION_ID_INVALID' })
+      }
+      expect(await traceRows(jobId)).toEqual(before)
+      expect(msp.calls).toEqual([])
+    })
+
+    it('a forged append receipt cannot complete a memory turn with no MSP append', async () => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      const { ports } = build({ msp })
+      const claim = await ports.job.claim({ claimantId: 'runtime-memory-forge-append' })
+      const forged = { operationId: `${jobId}:memory-append`, textSha256: memoryTextSha256('forged answer') }
+      await expect(ports.trace.append(claim, { kind: 'MEMORY_THREAD_APPENDED', payload: forged })).rejects.toMatchObject({ code: 'TRACE_KIND_NOT_PERMITTED' })
+      // The runtime's own allowed events carry nothing Core reads as a memory receipt.
+      await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: `${jobId}:runtime-model`, text: 'forged answer', textSha256: forged.textSha256 } })
+      // A row at the runtime key namespace, however it got there, is not Core's receipt.
+      const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
+      await appendTraceEvent(prisma, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: jobId,
+        executionId: job.executionId, kind: 'MEMORY_THREAD_APPENDED', payload: forged,
+        idempotencyKey: `${jobId}:runtime:${jobId}:memory-append:MEMORY_THREAD_APPENDED` })
+      await expect(ports.job.complete(claim, { text: 'forged answer', operationId: `${jobId}:turn-answer` }))
+        .rejects.toMatchObject({ code: 'MEMORY_APPEND_REQUIRED' })
+      expect(msp.calls).toEqual([])
+      expect((await prisma.lineConversationJob.findUnique({ where: { id: jobId } })).status).toBe('CLAIMED')
+    })
+
+    it('a forged read receipt cannot make Core sign an injection grant', async () => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      const { ports } = build({ msp })
+      const claim = await ports.job.claim({ claimantId: 'runtime-memory-forge-read' })
+      const forged = { operationId: `${jobId}:memory-read`, threadId: 'attacker-thread', principalId: 'attacker-principal',
+        exchangeId: 'x', privateMemoryAllowed: true, policyDecision: 'ALLOW', contextReceiptId: null,
+        contextPacketJson: JSON.stringify({ policyDecision: 'ALLOW', injectionId: 'i' }),
+        authContext: { actor: { principalId: 'attacker-principal' }, scope: { tenantId: tenant.id, businessId: business.id },
+          policy: { decision: 'ALLOW', version: 'v', privateMemoryAllowed: true, mspAuthorization: { read: true, writePrivate: true } } } }
+      await expect(ports.trace.append(claim, { kind: 'MEMORY_THREAD_READ', payload: forged })).rejects.toMatchObject({ code: 'TRACE_KIND_NOT_PERMITTED' })
+      const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
+      await appendTraceEvent(prisma, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: jobId,
+        executionId: job.executionId, kind: 'MEMORY_THREAD_READ', payload: forged,
+        idempotencyKey: `${jobId}:runtime:${jobId}:memory-read:MEMORY_THREAD_READ` })
+      await expect(ports.memory.receipt(claim, 'injection', { state: 'RESOLVED' })).rejects.toMatchObject({ code: 'MEMORY_INJECTION_NOT_APPLICABLE' })
+      await expect(ports.memory.append(claim, 'answer')).rejects.toMatchObject({ code: 'MEMORY_READ_REQUIRED' })
+      expect(msp.calls).toEqual([])
+    })
+
+    it('takes the principal from Core authorization, never from a stored receipt, and never grants a private write', async () => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      // Even an authorization that would allow a private write is signed read-only.
+      const memoryAuthorizationResolver = async input => {
+        const resolved = await resolveAgentAuthorization(input)
+        const policy = { ...resolved.authContext.policy, mspAuthorization: { ...resolved.authContext.policy.mspAuthorization, writePrivate: true } }
+        return { ...resolved, policy, authContext: { ...resolved.authContext, policy } }
+      }
+      const { ports } = build({ msp, coreOptions: { memoryAuthorizationResolver } })
+      const claim = await ports.job.claim({ claimantId: 'runtime-memory-grant' })
+      await ports.memory.read(claim)
+      await ports.memory.receipt(claim, 'injection', { state: 'RESOLVED' })
+      const grant = msp.calls.find(call => call.name === 'msp_thread_injection_record').input.access.grant
+      expect(grant).toMatchObject({ principalId: actor.id, writePrivate: false, readPrivate: true })
+      expect(msp.injections[0].modelRef).toBe('openrouter:test-model')
+
+      // A read receipt naming another principal is refused before MSP.
+      const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
+      const row = await prisma.agentTraceEvent.findFirst({ where: { turnId: jobId, idempotencyKey: memoryReceiptKey(jobId, 'read') } })
+      await prisma.agentTraceEvent.update({ where: { id: row.id }, data: { payloadJson: JSON.stringify({ ...JSON.parse(row.payloadJson), principalId: 'someone-else' }) } })
+      const calls = msp.calls.length
+      await expect(ports.memory.receipt(claim, 'injection', { state: 'SUBMITTED' })).rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
+      await expect(ports.memory.append(claim, 'answer')).rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
+      expect(msp.calls.length).toBe(calls)
+      expect(job.id).toBe(jobId)
+    })
+
+    it('still requires the real append once memory was read, even if the job no longer reads as opted in', async () => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      const { ports } = build({ msp })
+      const claim = await ports.job.claim({ claimantId: 'runtime-memory-read-bound' })
+      await ports.memory.read(claim)
+      await prisma.lineConversationJob.update({ where: { id: jobId }, data: { memorySyncOptIn: false } })
+      await expect(ports.job.complete(claim, { text: 'answer', operationId: `${jobId}:turn-answer` }))
+        .rejects.toMatchObject({ code: 'MEMORY_APPEND_REQUIRED' })
+    })
+  })
+
   it('agrees with Core and the published v1 schema on which memory requests are valid', async () => {
     const { core } = build({ msp: createFakeMsp() })
     const ajv = new Ajv2020({ allErrors: true, strict: false })
@@ -668,7 +785,6 @@ describe('Conversation Runtime memory-sync turns', () => {
     const validateEnvelope = ajv.compile(schema)
     const claim = { jobId: 'synthetic-memory-parity-job', executionId: 'execution', claimantId: 'claimant', version: 1,
       tenantId: 'tenant', businessId: 'business', accountId: 'account' }
-    const model = { provider: 'openrouter', model: 'test-model' }
     const cases = [
       ['read, empty input', 'read', 'synthetic-memory-parity-job:memory-read', {}, true],
       ['read, any field', 'read', 'synthetic-memory-parity-job:memory-read', { threadId: 'forged' }, false],
@@ -679,12 +795,9 @@ describe('Conversation Runtime memory-sync turns', () => {
       ['append, missing text', 'append', 'synthetic-memory-parity-job:memory-append', {}, false],
       ['append, forged thread', 'append', 'synthetic-memory-parity-job:memory-append', { text: 'answer', threadId: 'forged' }, false],
       ['receipt, lookup', 'receipt', 'synthetic-memory-parity-job:memory-append', {}, true],
-      ['receipt, injection state', 'receipt', 'synthetic-memory-parity-job:memory-injection', { state: 'SUBMITTED', model }, true],
-      ['receipt, state without model', 'receipt', 'synthetic-memory-parity-job:memory-injection', { state: 'COMPLETED' }, false],
-      ['receipt, model without state', 'receipt', 'synthetic-memory-parity-job:memory-injection', { model }, false],
-      ['receipt, unknown state', 'receipt', 'synthetic-memory-parity-job:memory-injection', { state: 'DELETED', model }, false],
-      ['receipt, extra model field', 'receipt', 'synthetic-memory-parity-job:memory-injection', { state: 'RESOLVED', model: { ...model, apiKey: 'x' } }, false],
-      ['receipt, provider over 32', 'receipt', 'synthetic-memory-parity-job:memory-injection', { state: 'RESOLVED', model: { provider: 'p'.repeat(33), model: 'm' } }, false],
+      ['receipt, injection state', 'receipt', 'synthetic-memory-parity-job:memory-injection', { state: 'SUBMITTED' }, true],
+      ['receipt, runtime-named model', 'receipt', 'synthetic-memory-parity-job:memory-injection', { state: 'COMPLETED', model: { provider: 'openrouter', model: 'forged' } }, false],
+      ['receipt, unknown state', 'receipt', 'synthetic-memory-parity-job:memory-injection', { state: 'DELETED' }, false],
       ['receipt, actor field', 'receipt', 'synthetic-memory-parity-job:memory-append', { actor: 'forged' }, false],
       ['operation id with space', 'read', 'synthetic-memory-parity-job memory-read', {}, false],
       ['unknown operation', 'erase', 'synthetic-memory-parity-job:memory-erase', {}, false],

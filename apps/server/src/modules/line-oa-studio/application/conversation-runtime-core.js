@@ -9,7 +9,7 @@ import { serverLinePorts } from './server-line-runtime'
 import { createConversationRuntimeMemory, MEMORY_INJECTION_STATES, MEMORY_OPERATIONS, MAX_MEMORY_PACKET_BYTES } from './conversation-runtime-memory'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
-  failRuntimeConversationJob, renewRuntimeConversationJob, runtimeConversationStatus,
+  failRuntimeConversationJob, renewRuntimeConversationJob, runtimeConversationStatus, assertRuntimeTraceEvent,
   runtimeOperationStatus, sendRuntimeConversationJob,
 } from './line-conversation-jobs'
 
@@ -40,10 +40,8 @@ const fields = Object.freeze({ claim: ['claimantId'], renew: ['claim'], resolve:
 const memoryInputSchemas = Object.freeze({
   read: z.object({}).strict(),
   append: z.object({ text: z.string().max(5000).refine(value => value.trim().length > 0) }).strict(),
-  receipt: z.object({ state: z.enum(MEMORY_INJECTION_STATES).optional(),
-    model: z.object({ provider: z.string().max(32).refine(value => value.trim().length > 0),
-      model: z.string().max(200).refine(value => value.trim().length > 0) }).strict().optional() })
-    .strict().refine(value => (value.state === undefined) === (value.model === undefined)),
+  // The model reference is Core's own, from the claim-bound credential.
+  receipt: z.object({ state: z.enum(MEMORY_INJECTION_STATES).optional() }).strict(),
 })
 const error = (code, status = 400) => Object.assign(new Error(code), { code, status })
 const present = (value, max = 128) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
@@ -314,6 +312,10 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     return { job, identity }
   }
   const memory = createConversationRuntimeMemory({ db, env, now, ownedClaim, threadMemoryFactory,
+    modelResolver: async job => {
+      const credential = await resolveCredential(job)
+      return { provider: credential.provider, model: credential.model }
+    },
     ...(memoryContextAssembler ? { contextAssembler: memoryContextAssembler } : {}),
     ...(memoryAuthorizationResolver ? { authorizationResolver: memoryAuthorizationResolver } : {}) })
 
@@ -399,6 +401,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         return send(claimRef, { db, ...ports, env, now })
       }
       case 'trace': {
+        assertRuntimeTraceEvent(claimRef, payload)
         await ownedClaim(claimRef, { status: payload.kind === 'ANSWER_READY' ? 'READY' : 'CLAIMED', checkLease: false })
         return appendTrace(claimRef, payload, { db, now })
       }

@@ -668,11 +668,11 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       // @req FR-149 — a memory-sync opt-in answer commits only when Core has
       // appended exactly this text to the MSP thread, as the legacy worker's
       // append precedes its READY settle.
-      if (!code && job.memorySyncOptIn) {
-        const inbound = await tx.message.findUnique({ where: { id: job.inboundMessageId }, select: { body: true } })
-        if (!(job.status === 'READY' && job.executionId === executionId && job.answerText === text)) {
-          await assertMemoryAnswerAppended(tx, { ...job, inbound }, text)
-        }
+      // Bound to the job's Core memory receipts too, not only to the opt-in flag.
+      if (!code && !(job.status === 'READY' && job.executionId === executionId && job.answerText === text)) {
+        const inbound = job.memorySyncOptIn
+          ? await tx.message.findUnique({ where: { id: job.inboundMessageId }, select: { body: true } }) : null
+        await assertMemoryAnswerAppended(tx, { ...job, inbound }, text)
       }
     }
     // A completion retry after a lost HTTP response is reconciled from the
@@ -1064,7 +1064,26 @@ export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAc
     expectedExecutionId: claim.executionId })
 }
 
+// @req FR-149 — the only trace kinds the runtime may report, each with the one
+// operation id it must carry (`null`: none). Every other kind — Core receipts,
+// delivery, memory, evidence, retention tombstones — is written by Core alone, and
+// a runtime event is always keyed under `${jobId}:runtime:`, never a Core key.
+const RUNTIME_TRACE_KINDS = Object.freeze({
+  MODEL_STARTED: 'runtime-model', MODEL_COMPLETED: 'runtime-model',
+  MODEL_FAILED: 'turn-answer', EXECUTION_FAILED: 'turn-answer', ANSWER_READY: 'turn-answer',
+  CONTEXT_COMMITTED: null,
+})
+
+/** Throws unless the runtime may report this kind under this operation id. */
+export function assertRuntimeTraceEvent(claim, { kind, payload } = {}) {
+  if (!Object.hasOwn(RUNTIME_TRACE_KINDS, kind)) throw failure(400, 'TRACE_KIND_NOT_PERMITTED')
+  const expectedOperation = RUNTIME_TRACE_KINDS[kind]
+  if (expectedOperation === null ? payload?.operationId !== undefined
+    : payload?.operationId !== `${claim.jobId}:${expectedOperation}`) throw failure(400, 'TRACE_OPERATION_ID_INVALID')
+}
+
 export async function appendRuntimeConversationTrace(claim, { kind, payload }, { db = prisma, now = () => new Date() } = {}) {
+  assertRuntimeTraceEvent(claim, { kind, payload })
   const job = await db.lineConversationJob.findUnique({ where: { id: claim.jobId }, include: { account: true } })
   if (!job || job.executionMode !== 'SERVER' || job.runtimeOwner !== 'CONVERSATION_RUNTIME'
     || job.account.runtimeOwner !== 'CONVERSATION_RUNTIME' || !activeAccount(job.account, job)
