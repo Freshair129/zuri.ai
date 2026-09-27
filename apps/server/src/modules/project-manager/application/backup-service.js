@@ -417,6 +417,11 @@ export const SNAPSHOT_MODELS = [
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
   'agentTraceEvent',
+  // @req FR-277 — diagnostic-only shadow-compare rows (ADR-090 Phase 3,
+  // TASK-ZAI-095). No relation is declared (matching agentTraceEvent's own
+  // convention), so ordering relative to it is not load-bearing; exported
+  // whole, no secret — the same answer text the primary path already sent.
+  'lineGroundingShadowComparison',
   // @req FR-127 — analyses are derived children of Conversation and must travel
   // with it so an export/import round trip does not silently lose CRM context.
   'conversationAnalysis', 'auditEvent',

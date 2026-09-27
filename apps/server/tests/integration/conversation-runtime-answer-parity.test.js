@@ -51,6 +51,11 @@ const modelOutputs = {
   ungrounded: reply('ราคา 999 บาท รหัส USB-999 ส่งฟรีภายใน 3 วันค่ะ'),
   // The same kind of ungrounded price, written in Thai and fullwidth digits.
   'unicode-digit': reply('ราคา ๙๙๙ บาท หรือ ９９９ บาทค่ะ'),
+  // The product price written with a thousands separator: grounded for the product
+  // row, not for the corpus chunk.
+  'grouped price': reply('ราคา 1,250.50 บาท ขั้นต่ำ 100 ชิ้นค่ะ'),
+  // A grouped price none of the evidence sets carry.
+  'grouped ungrounded': reply('ราคา 1,300 บาท ขั้นต่ำ 100 ชิ้นค่ะ'),
   'model error': () => new Response('upstream private detail', { status: 503 }),
 }
 
@@ -134,6 +139,9 @@ describe('Conversation Runtime answer parity with the Server answer path', () =>
     expect(await replies(legacyReply, modelOutputs['over-long'])).toStrictEqual({ none: noEvidence, some: overLong, gks: overLong })
     expect(await replies(legacyReply, modelOutputs.ungrounded)).toStrictEqual({ none: noEvidence, some: productFallback, gks: chunkFallback })
     expect(await replies(legacyReply, modelOutputs['unicode-digit'])).toStrictEqual({ none: noEvidence, some: productFallback, gks: chunkFallback })
+    expect(await replies(legacyReply, modelOutputs['grouped price'])).toStrictEqual(
+      { none: noEvidence, some: 'ราคา 1,250.50 บาท ขั้นต่ำ 100 ชิ้นค่ะ', gks: chunkFallback })
+    expect(await replies(legacyReply, modelOutputs['grouped ungrounded'])).toStrictEqual({ none: noEvidence, some: productFallback, gks: chunkFallback })
     expect(await replies(legacyReply, modelOutputs['model error'])).toStrictEqual({ none: noEvidence, some: productFallback, gks: chunkFallback })
   })
 })
