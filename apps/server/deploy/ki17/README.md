@@ -4,10 +4,14 @@ Operator notes for ADR-075 Phase 3 prerequisites P-3 to P-6. The design is
 [`docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md`](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md);
 where this file and that one disagree, the design wins.
 
-> **Status (2026-09-24): the overlay is deployed on the production host.** The
-> `runner-ki17` web image and the `genesis-worker` sidecar have run there since
-> 2026-09-21 (currently `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay`, with the
-> `genesis-worker` container healthy). The enabling variables —
+> **Status (2026-09-28): the overlay is deployed on the production host.** The
+> ki17 web image and the `genesis-worker` sidecar have run there since 2026-09-21.
+> Production now runs `zuri-ai-web-ki17:release-05f3567d-ki17-overlay` (main
+> `05f3567d`, deployed 2026-09-28; web healthy and `ki17-smoke` PASS on both hops;
+> rollback target `release-fad8ec62-ki17-overlay`), with the `genesis-worker`
+> container healthy. Web releases are cut with the procedure in
+> [Cutting a release with the overlay](#cutting-a-release-with-the-overlay), which
+> carries the running `/opt/ki17` forward instead of rebuilding it. The enabling variables —
 > `ZURI_KNOWLEDGE_ENABLED`, `ZURI_KNOWLEDGE_STORAGE_ENABLED`, `ZURI_KNOWLEDGE_BINDINGS`
 > and `MSP_PIPELINE_PRINCIPALS` — live in `apps/server/.env.knowledge`, not in
 > `apps/server/.env`; `apps/server/.env` only selects the Compose overlay files and
@@ -94,8 +98,11 @@ activation.
 
 | File | What it is |
 |---|---|
-| `pins.json` | The four commits this cycle targets, the Node/Python/model versions and the worker port |
-| `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit |
+| `pins.json` | **Default manifest (profile `stdio`).** The stdio tuple production runs (MSP `68e6169d`, GKS `ecf1e4de`, GenesisBlock `5156f412`), plus the Node/Python/model versions and the worker port. Every ki17 target verifies against it unless told otherwise |
+| `pins.gks-http.json` | **Opt-in manifest (profile `gks-http`)** for the private HTTP canary only: MSP `a65914de` (HTTP GKS provider), GKS `1ebcff09` (HTTP runtime). Its GKS entrypoints include `gks-http-server.mjs` and `deploy/docker/entrypoint.mjs`, so the pin gate refuses a GKS context without them. Selected by the `KI17_PINS_MANIFEST` build argument, which only `docker-compose.ki17-gks-http.yml` sets |
+| `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit. Its receipt records the manifest `profile`; `--profile <name>` fails unless the manifest declares it |
+| `overlay/Dockerfile` | The production release overlay: a fresh `runner` (`BASE`) plus the running image's `/opt/ki17` (`KI17_FROM`) and the three app files `runner-ki17` adds. Driven by `scripts/build-ki17-overlay-release.mjs` |
+| `overlay/check-ki17-from.mjs` | Runs inside the overlay build: every repository `pins.json` verifies must appear in `KI17_FROM`'s `/opt/ki17/pins/resolved.json` at exactly the pinned commit, or the build fails (`KI17_OVERLAY_TUPLE_MISMATCH`). Covers receipts written before manifests carried a `profile` |
 | `docker-compose.ki17-gks-http.yml` | Opt-in private MSP-to-GKS HTTP overlay; the default transport remains stdio |
 | `docker-compose.ki17-gks-http-canary.yml` | Local-canary-only overlay that disables the ngrok profile |
 | `build-smartgift-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the SmartGift acceptance corpus. Read its header before changing it |
@@ -147,16 +154,23 @@ than attested. Prefer it.
 
 ### Building
 
+The pin manifest decides which tuple a build accepts. The default,
+`deploy/ki17/pins.json`, is the stdio production tuple and requires no GKS HTTP
+file. The HTTP canary tuple is selected with
+`--build-arg KI17_PINS_MANIFEST=deploy/ki17/pins.gks-http.json`; the `gks-http`
+target refuses to build without it (`KI17_GKS_HTTP_PROFILE_REQUIRED`).
+
 ```bash
-# The web image: runner + /opt/ki17/{node,msp,gks} + the P-5 smoke script
+# The web image: runner + /opt/ki17/{node,msp,gks} + the P-5 smoke script (stdio tuple)
 docker buildx build --target runner-ki17 -t zuri-ai-web-ki17:<tag> \
-  --build-context msp=<Memory-and-Soul-Passport at a65914defd5918ad7e44173ec1cdccf379eca7fe> \
-  --build-context gks=<Genesis-Knowledge-System at 1ebcff09ce5f19b0bd219433d376670a44be0278> \
+  --build-context msp=<Memory-and-Soul-Passport at 68e6169dbb371dac2f0debf0bf731b553f7dc26d> \
+  --build-context gks=<Genesis-Knowledge-System at ecf1e4de269e949406a6a5f791f9ff8fe30c9578> \
   --build-context genesisblock=<GenesisBlock at 5156f412da73905a23d74775a82cc14d1f6d04d0> \
   apps/server
 
-# The isolated GKS HTTP canary service image. No port is published by this build.
+# The isolated GKS HTTP canary service image (HTTP tuple). No port is published.
 docker buildx build --target gks-http -t zuri-ai-gks-http:<tag> \
+  --build-arg KI17_PINS_MANIFEST=deploy/ki17/pins.gks-http.json \
   --build-context msp=<Memory-and-Soul-Passport at a65914defd5918ad7e44173ec1cdccf379eca7fe> \
   --build-context gks=<Genesis-Knowledge-System at 1ebcff09ce5f19b0bd219433d376670a44be0278> \
   --build-context genesisblock=<GenesisBlock at 5156f412da73905a23d74775a82cc14d1f6d04d0> \
@@ -199,12 +213,13 @@ untouched, so no routine web build can be broken by a missing knowledge context.
 KI17_GENESISBLOCK_LINUX_ADDON_MISSING: .../npm/linux-x64-gnu/index.linux-x64-gnu.node
 ```
 
-That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. The current
-release tuple in `pins.json` pins `genesisblock` to
-`5156f412da73905a23d74775a82cc14d1f6d04d0`; the current candidate tuple also pins
-MSP `a65914defd5918ad7e44173ec1cdccf379eca7fe` and GKS
-`1ebcff09ce5f19b0bd219433d376670a44be0278`. The older G-3 run used its own
-recorded tuple (`68e6169d` / `ecf1e4de`) and does not qualify these newer builds.
+That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. Both
+manifests pin `genesisblock` to `5156f412da73905a23d74775a82cc14d1f6d04d0`. The
+default `pins.json` pins the stdio production tuple, MSP
+`68e6169dbb371dac2f0debf0bf731b553f7dc26d` / GKS
+`ecf1e4de269e949406a6a5f791f9ff8fe30c9578`: the tuple G-3 and the running images
+were verified against. The HTTP canary candidate (MSP `a65914de`, GKS `1ebcff09`)
+lives only in `pins.gks-http.json`; G-3 does not qualify it.
 `5e75c4a8` and `7c9261c4` remain historical references only.
 `--target runner-ki17` and `--target ki17` do not use its files, but the
 `ki17-pins` stage they build on verifies every context it is given, so a build of
@@ -227,7 +242,10 @@ After a build, `docker run --rm --entrypoint ls <web-image> /opt/ki17` must list
 `gks msp node pins`.
 
 The private HTTP canary uses a **separate, uniquely named Compose project** and the
-`docker-compose.ki17-gks-http.yml` plus canary-only overlay. It builds/starts `gks-http` on an
+`docker-compose.ki17-gks-http.yml` plus canary-only overlay. That overlay sets
+`KI17_PINS_MANIFEST=deploy/ki17/pins.gks-http.json` on the `web`, `genesis-worker`
+and `gks-http` builds, so its `KI17_*_CONTEXT` checkouts must sit at the HTTP tuple's
+commits, not the production ones. It builds/starts `gks-http` on an
 `internal: true` network, without a host `ports` mapping. Provide two protected host
 secret files through `ZURI_GKS_MSP_RELAY_CREDENTIAL_FILE_HOST` and
 `ZURI_GKS_PIPELINE_RELAY_CREDENTIAL_FILE_HOST`; use fresh, non-production credentials
@@ -266,6 +284,62 @@ Only after checking that command succeeds, run it with `config --quiet` replaced
 enable that profile or `line-server`. After startup, inspect `docker compose ps` and
 confirm ngrok is not running. The render-only Compose configuration check passed
 with example paths; this local canary has **not** been run.
+
+### Cutting a release with the overlay
+
+Production web releases do not rebuild `/opt/ki17`. Since 2026-09-21 each release
+has been the new SHA's plain `runner` image with the running image's `/opt/ki17`
+layered on top; `release-05f3567d-ki17-overlay` (2026-09-28) is the procedure this
+section commits. The runtime tree does not change between web releases, the host's
+sibling checkouts need not sit at the pins, and no MSP/GKS `npm ci` runs.
+`deploy/ki17/overlay/Dockerfile` is the image; `scripts/build-ki17-overlay-release.mjs`
+drives it. From `apps/server`, on the primary checkout at merged `main`:
+
+~~~powershell
+node scripts/build-ki17-overlay-release.mjs            # build, then print the plan
+node scripts/build-ki17-overlay-release.mjs --deploy   # build, switch, verify, auto-rollback
+~~~
+
+The script:
+
+1. refuses uncommitted changes to tracked files under `apps/server` (`KI17_OVERLAY_DIRTY_TREE`), since the tag names the commit. The check is
+   `git status --porcelain --untracked-files=no -- . ':(exclude)output'` run from
+   `apps/server`: untracked files (agent worktrees, `.deploy-worktree-*/`, Playwright
+   output) never fail it, and `.worktrees/` and `.deploy-worktree-*/` are gitignored;
+2. reads **only** `ZURI_WEB_IMAGE` from `.env`, as `KI17_FROM` and as the rollback
+   target (`--ki17-from <image>` overrides it), and refuses when it is unset or the
+   image is not present locally;
+3. builds `docker build --target runner -t zuri-ai-web:main-<sha8> .`
+   (`--skip-runner-build` reuses an existing one and refuses if it is missing);
+4. builds `-f deploy/ki17/overlay/Dockerfile --build-arg BASE=zuri-ai-web:main-<sha8> --build-arg KI17_FROM=<current>`
+   as `zuri-ai-web-ki17:release-<sha8>-ki17-overlay`. The overlay asserts the carried
+   Node, MSP and GKS entrypoints and the pin receipt, and refuses a `KI17_FROM` whose
+   receipt is not the `pins.json` stdio tuple commit for commit (`check-ki17-from.mjs`)
+   or is labelled `gks-http`;
+5. without `--deploy`, prints the switch, recreate, verify and rollback commands (with
+   a real UTC backup timestamp) and stops. `--deploy` refuses when `ZURI_WEB_IMAGE` is
+   set in the shell (Compose would let it override `.env`) or absent from `.env`. It
+   then backs up `.env` to `.env.bak-ki17-overlay-<UTC stamp>`, sets `ZURI_WEB_IMAGE`,
+   runs `docker compose up -d --no-build web line-worker` and
+   `docker compose up -d --no-build --force-recreate genesis-worker`
+   ([RCA 2026-09-22](../../../../.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)),
+   asserts that `web` and `line-worker` run the release image (`.Config.Image`), waits
+   for `web` and `genesis-worker` to be healthy, and runs `ki17-smoke.mjs` (up to three
+   attempts, 10 s apart). A failed recreate, image check, health check or smoke
+   restores the backup and recreates the previous image, asserting the containers run
+   it. SIGINT/SIGTERM during `--deploy` restores `.env`, says so, and exits 130; the
+   containers may then be mid-recreate, so run the rollback below.
+
+It never prints a `.env` value other than the image name.
+
+**Rollback by hand:** restore the `.env` backup (or set `ZURI_WEB_IMAGE` back to the
+previous `release-<sha8>-ki17-overlay` tag), run the same two `docker compose up`
+lines, then `docker compose exec -T web node scripts/ki17-smoke.mjs`. Keep the
+previous tag on the host until the next release is verified.
+
+Changing `/opt/ki17` itself (a new MSP, GKS or Node pin) is a `runner-ki17` build
+against `pins.json` as above, plus an acceptance re-run; the overlay then carries the
+new tree forward from the release that ships it.
 
 ### Running the acceptance inside the images (gate G-3)
 

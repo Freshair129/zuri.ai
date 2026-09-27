@@ -17,14 +17,18 @@
 #                  official SHASUMS256.txt. Used ONLY by the MSP/GKS/worker child
 #                  processes; Next.js stays on Node 22 (Prisma 5.22 does not list 24)
 #   ki17-pins    → the pin gate: every supplied build context's HEAD must equal
-#                  deploy/ki17/pins.json, or the build stops here
+#                  the selected manifest (KI17_PINS_MANIFEST, default
+#                  deploy/ki17/pins.json — the stdio production tuple), or the
+#                  build stops here
 #   ki17         → /opt/ki17/{node,msp,gks} — MSP and GKS at their pins with
 #                  `npm ci` run INSIDE Linux, so better-sqlite3 gets a Linux binding
 #   ki17-venv    → /opt/ki17/venv — Python 3.12 from the worker's requirements.txt
 #   ki17-fixtures→ /opt/ki17/fixtures — the SmartGift benchmark fixture (P-6)
 #   runner-ki17  → the web image for the knowledge deployment: `runner` plus
 #                  /opt/ki17/{node,msp,gks} and the P-5 operator smoke script
-#   gks-http     → dedicated pinned GKS HTTP service image; no MSP or Tier 1 app
+#   gks-http     → dedicated pinned GKS HTTP service image; no MSP or Tier 1 app.
+#                  Builds only from the gks-http manifest (KI17_PINS_MANIFEST=
+#                  deploy/ki17/pins.gks-http.json, set by docker-compose.ki17-gks-http.yml)
 #   genesis-worker → the Tier 4 sidecar: the above plus the GenesisBlock worker,
 #                  its linux-x64-gnu addon and the Python venv
 #   ki17-acceptance→ TEST ONLY (gate G-3). genesis-worker's /opt/ki17 plus this
@@ -42,6 +46,13 @@ ARG NODE_VERSION=22
 # what G-2/G-3 certified, so it belongs in pins.json and in an acceptance re-run.
 ARG KI17_NODE_VERSION=24.18.0
 ARG KI17_PYTHON_IMAGE=python:3.12-slim-bookworm
+# Which pin manifest the ki17-pins gate verifies against. The default is the stdio
+# tuple production runs (MSP 68e6169d / GKS ecf1e4de), which carries no GKS HTTP
+# files. Only the opt-in private HTTP overlay (docker-compose.ki17-gks-http.yml)
+# selects deploy/ki17/pins.gks-http.json, whose GKS entrypoints include the HTTP
+# server and its secret-file entrypoint, so the pin gate itself refuses a GKS
+# context that lacks them.
+ARG KI17_PINS_MANIFEST=deploy/ki17/pins.json
 
 # ---------------------------------------------------------------- base
 FROM node:${NODE_VERSION}-bookworm-slim AS base
@@ -199,7 +210,11 @@ RUN set -eu; \
 # shipped images, so `docker run ... cat /opt/ki17/pins/resolved.json` answers
 # "which four commits is this image?" without archaeology (§10 step 7).
 FROM base AS ki17-pins
-COPY deploy/ki17/pins.json deploy/ki17/verify-ki17-pins.mjs /opt/ki17/pins/
+ARG KI17_PINS_MANIFEST
+# Whichever manifest is selected lands as /opt/ki17/pins/pins.json; the receipt's
+# `profile` field says which one it was (stdio | gks-http).
+COPY ${KI17_PINS_MANIFEST} /opt/ki17/pins/pins.json
+COPY deploy/ki17/verify-ki17-pins.mjs /opt/ki17/pins/
 COPY --from=msp / /ki17-ctx/msp/
 COPY --from=gks / /ki17-ctx/gks/
 COPY --from=genesisblock / /ki17-ctx/genesisblock/
@@ -245,8 +260,6 @@ RUN set -eu; \
 RUN set -eu; \
     test -f /opt/ki17/msp/apps/msp-server/bin/msp-server.mjs || { echo "KI17_MSP_ENTRYPOINT_MISSING: /opt/ki17/msp/apps/msp-server/bin/msp-server.mjs" >&2; exit 1; }; \
     test -f /opt/ki17/gks/apps/gks-server/bin/gks-server.mjs || { echo "KI17_GKS_ENTRYPOINT_MISSING: /opt/ki17/gks/apps/gks-server/bin/gks-server.mjs" >&2; exit 1; }; \
-    test -f /opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs || { echo "KI17_GKS_HTTP_ENTRYPOINT_MISSING: /opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs" >&2; exit 1; }; \
-    test -f /opt/ki17/gks/deploy/docker/entrypoint.mjs || { echo "KI17_GKS_SECRET_ENTRYPOINT_MISSING: /opt/ki17/gks/deploy/docker/entrypoint.mjs" >&2; exit 1; }; \
     test -s /opt/ki17/pins/resolved.json || { echo "KI17_PIN_RECEIPT_MISSING: /opt/ki17/pins/resolved.json" >&2; exit 1; }
 
 # ---------------------------------------------------------------- ki17-venv
@@ -288,6 +301,16 @@ RUN set -eu; \
 # The web image for the knowledge deployment: `runner` plus /opt/ki17/{node,msp,gks}
 # and the P-5 smoke script. Rollback R3 is "point ZURI_WEB_IMAGE back at the plain
 # `runner` tag", and that works because nothing else differs.
+#
+# It uses GKS over stdio only, so it asserts no GKS HTTP file: the default pin
+# manifest (the production stdio tuple, GKS ecf1e4de) carries none. The HTTP files
+# are asserted by the pin gate when pins.gks-http.json is selected, and again by
+# the gks-http stage below, which is the only image that runs them.
+#
+# Production releases between main merges can also be cut WITHOUT rebuilding
+# /opt/ki17: deploy/ki17/overlay/Dockerfile layers the running image's /opt/ki17
+# onto a fresh `runner` (scripts/build-ki17-overlay-release.mjs). Both paths
+# produce the same file set this stage asserts below.
 FROM runner AS runner-ki17
 USER root
 COPY --from=ki17 --chown=node:node /opt/ki17 /opt/ki17
@@ -306,7 +329,6 @@ RUN set -eu; \
     test -x /opt/ki17/node/bin/node || { echo "KI17_NODE_BINARY_MISSING" >&2; exit 1; }; \
     test -f /opt/ki17/msp/apps/msp-server/bin/msp-server.mjs || { echo "KI17_MSP_ENTRYPOINT_MISSING" >&2; exit 1; }; \
     test -f /opt/ki17/gks/apps/gks-server/bin/gks-server.mjs || { echo "KI17_GKS_ENTRYPOINT_MISSING" >&2; exit 1; }; \
-    test -f /opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs || { echo "KI17_GKS_HTTP_ENTRYPOINT_MISSING" >&2; exit 1; }; \
     test -f /app/scripts/ki17-smoke.mjs || { echo "KI17_SMOKE_SCRIPT_MISSING" >&2; exit 1; }; \
     test -f /app/src/modules/agent/msp-stdio-transport.js || { echo "KI17_SMOKE_IMPORT_MISSING: msp-stdio-transport.js" >&2; exit 1; }; \
     test -f /app/src/modules/agent/msp-child-environment.mjs || { echo "KI17_MSP_ENVIRONMENT_HELPER_MISSING" >&2; exit 1; }
@@ -315,6 +337,9 @@ RUN set -eu; \
 # D10: a separate, least-scope GKS service for the opt-in private HTTP overlay.
 # The Node 24 runtime and GKS tree come from the same pin-checked Linux install used
 # by runner-ki17; this image contains neither MSP nor the Tier 1 application.
+# It refuses to build from any manifest but the gks-http profile, so a default
+# (stdio-tuple) build of this target fails with a named cause instead of shipping
+# a GKS without its HTTP server.
 FROM base AS gks-http
 ENV NODE_ENV=production \
     PATH=/opt/ki17/node/bin:$PATH \
@@ -326,11 +351,13 @@ ENV NODE_ENV=production \
     GKS_PIPELINE_RELAY_CREDENTIAL_FILE=/run/secrets/gks_pipeline_relay_credential
 COPY --from=ki17 --chown=node:node /opt/ki17/node /opt/ki17/node
 COPY --from=ki17 --chown=node:node /opt/ki17/gks /opt/ki17/gks
+COPY --from=ki17 --chown=node:node /opt/ki17/pins /opt/ki17/pins
 RUN mkdir -p /var/lib/zuri-ki17/state \
  && chown -R node:node /var/lib/zuri-ki17
 USER node
 WORKDIR /opt/ki17/gks
 RUN set -eu; \
+    node -e "const r=require('/opt/ki17/pins/resolved.json'); if (r.profile !== 'gks-http') { console.error('KI17_GKS_HTTP_PROFILE_REQUIRED: this target needs --build-arg KI17_PINS_MANIFEST=deploy/ki17/pins.gks-http.json (docker-compose.ki17-gks-http.yml sets it); the pin receipt profile is ' + JSON.stringify(r.profile ?? null)); process.exit(1) }"; \
     test -x /opt/ki17/node/bin/node || { echo "KI17_NODE_BINARY_MISSING" >&2; exit 1; }; \
     test -f /opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs || { echo "KI17_GKS_HTTP_ENTRYPOINT_MISSING" >&2; exit 1; }; \
     test -f /opt/ki17/gks/deploy/docker/entrypoint.mjs || { echo "KI17_GKS_SECRET_ENTRYPOINT_MISSING" >&2; exit 1; }; \

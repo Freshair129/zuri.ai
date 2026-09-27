@@ -1,11 +1,11 @@
 {
   "manifestVersion": 1,
-  "id": "ZAI:KI17-DEPLOYMENT-PINS",
-  "profile": "stdio",
-  "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment, stdio transport (the production tuple)",
+  "id": "ZAI:KI17-DEPLOYMENT-PINS-GKS-HTTP",
+  "profile": "gks-http",
+  "cycle": "ADR-075 D10 — private MSP-to-GKS HTTP canary (opt-in)",
   "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
-  "recordedAt": "2026-09-28",
-  "note": "Default manifest for every ki17 target: the proven stdio tuple the production images run (release-05f3567d-ki17-overlay, 2026-09-28): GenesisBlock 5156f412 (PR #178 stale-lock recovery + PR #179 benchmark fixture compatibility), MSP 68e6169d (v0.2.8), GKS ecf1e4de. G-3 passed 36/36 on this tuple on 2026-09-20. The private GKS HTTP canary tuple lives in pins.gks-http.json and is opt-in.",
+  "recordedAt": "2026-09-23",
+  "note": "Candidate tuple for the private GKS HTTP canary ONLY, selected by docker-compose.ki17-gks-http.yml through the KI17_PINS_MANIFEST build argument: Zuri main baseline 49d1808b, GenesisBlock 5156f412, MSP a65914de (HTTP GKS provider), GKS 1ebcff09 (HTTP runtime). The historic G-3 result applies to the stdio tuple in pins.json only; this HTTP container canary is NOT_RUN.",
   "runtime": {
     "node": "24.18.0",
     "nodePlatform": "linux-x64",
@@ -19,7 +19,7 @@
   "repositories": {
     "zuri-ai": {
       "repository": "Freshair129/zuri.ai",
-      "commit": "05f3567d35398fc1705489c249210fc4b3660d50",
+      "commit": "49d1808b805c5a9720edeaed8c8a8b0235e3016e",
       "buildContext": null,
       "verifiedInBuild": false,
       "note": "This repository is the build's own main context, and .dockerignore excludes .git from it, so the build cannot read its own HEAD. Recorded for the G-4 gate and verified by the operator on the host before the build (`git rev-parse HEAD`).",
@@ -27,7 +27,7 @@
     },
     "msp": {
       "repository": "Freshair129/Memory-and-Soul-Passport",
-      "commit": "68e6169dbb371dac2f0debf0bf731b553f7dc26d",
+      "commit": "a65914defd5918ad7e44173ec1cdccf379eca7fe",
       "buildContext": "msp",
       "verifiedInBuild": true,
       "installRoot": "/opt/ki17/msp",
@@ -39,12 +39,14 @@
     },
     "gks": {
       "repository": "Freshair129/Genesis-Knowledge-System",
-      "commit": "ecf1e4de269e949406a6a5f791f9ff8fe30c9578",
+      "commit": "1ebcff09ce5f19b0bd219433d376670a44be0278",
       "buildContext": "gks",
       "verifiedInBuild": true,
       "installRoot": "/opt/ki17/gks",
       "entrypoints": [
         "apps/gks-server/bin/gks-server.mjs",
+        "apps/gks-server/bin/gks-http-server.mjs",
+        "deploy/docker/entrypoint.mjs",
         "package.json",
         "package-lock.json"
       ]

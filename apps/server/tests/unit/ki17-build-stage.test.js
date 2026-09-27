@@ -16,6 +16,7 @@ const compose = read('docker-compose.yml')
 const gksHttpCompose = read('docker-compose.ki17-gks-http.yml')
 const gksHttpCanaryCompose = read('docker-compose.ki17-gks-http-canary.yml')
 const pins = JSON.parse(read('deploy/ki17/pins.json'))
+const httpPins = JSON.parse(read('deploy/ki17/pins.gks-http.json'))
 const example = read('.env.knowledge.example')
 const smoke = read('scripts/ki17-smoke.mjs')
 const workerMspLauncher = read('scripts/ki17-worker-msp-launcher.mjs')
@@ -46,6 +47,56 @@ describe('the pin manifest', () => {
     for (const name of ['msp', 'gks', 'genesisblock']) {
       expect(pins.repositories[name].verifiedInBuild, name).toBe(true)
     }
+  })
+})
+
+describe('the two pin manifests (stdio default, gks-http opt-in)', () => {
+  const PROVEN_STDIO = {
+    msp: '68e6169dbb371dac2f0debf0bf731b553f7dc26d',
+    gks: 'ecf1e4de269e949406a6a5f791f9ff8fe30c9578',
+    genesisblock: '5156f412da73905a23d74775a82cc14d1f6d04d0',
+  }
+  const HTTP_FILES = ['apps/gks-server/bin/gks-http-server.mjs', 'deploy/docker/entrypoint.mjs']
+
+  it('pins the default manifest to the stdio tuple production runs', () => {
+    // 2026-09-28: pins.json had moved to the HTTP canary tuple, so the default
+    // runner-ki17 build could not be reproduced on the production host.
+    expect(pins.profile).toBe('stdio')
+    for (const [name, commit] of Object.entries(PROVEN_STDIO)) expect(pins.repositories[name].commit, name).toBe(commit)
+    for (const file of HTTP_FILES) expect(pins.repositories.gks.entrypoints).not.toContain(file)
+  })
+
+  it('keeps the HTTP canary tuple in its own manifest, which demands the HTTP entrypoints', () => {
+    expect(httpPins.profile).toBe('gks-http')
+    expect(httpPins.repositories.msp.commit).toBe('a65914defd5918ad7e44173ec1cdccf379eca7fe')
+    expect(httpPins.repositories.gks.commit).toBe('1ebcff09ce5f19b0bd219433d376670a44be0278')
+    for (const file of HTTP_FILES) expect(httpPins.repositories.gks.entrypoints).toContain(file)
+    expect(Object.keys(httpPins.repositories).sort()).toEqual(Object.keys(pins.repositories).sort())
+    expect(httpPins.runtime).toEqual(pins.runtime)
+  })
+
+  it('selects the manifest with one build argument whose default is the stdio manifest', () => {
+    expect(dockerfile).toContain('ARG KI17_PINS_MANIFEST=deploy/ki17/pins.json')
+    const gate = dockerfileStage(dockerfile, 'ki17-pins')
+    expect(gate).toContain('COPY ${KI17_PINS_MANIFEST} /opt/ki17/pins/pins.json')
+    expect(gate).toContain('--manifest /opt/ki17/pins/pins.json')
+  })
+
+  it('does not require GKS HTTP files in the stdio images', () => {
+    for (const stage of ['ki17', 'runner-ki17', 'genesis-worker']) {
+      const body = dockerfileStage(dockerfile, stage).split(/\r?\n/).filter((line) => !line.trimStart().startsWith('#')).join(' ')
+      expect(body, stage).not.toContain('gks-http-server.mjs')
+      expect(body, stage).not.toContain('deploy/docker/entrypoint.mjs')
+    }
+  })
+
+  it('builds gks-http only from the gks-http manifest, and the HTTP overlay selects it for every image it builds', () => {
+    const stage = dockerfileStage(dockerfile, 'gks-http')
+    expect(stage).toContain("r.profile !== 'gks-http'")
+    expect(stage).toContain('KI17_GKS_HTTP_PROFILE_REQUIRED')
+    expect(gksHttpCompose.match(/KI17_PINS_MANIFEST: deploy\/ki17\/pins\.gks-http\.json/g)).toHaveLength(3)
+    expect(read('docker-compose.ki17-web.yml')).not.toContain('pins.gks-http.json')
+    expect(compose).not.toContain('pins.gks-http.json')
   })
 })
 
@@ -85,6 +136,18 @@ describe('the pin gate', () => {
   it('records an attested pin as attested, never as verified', () => {
     const receipt = run({ commit: 'a'.repeat(40), provenance: 'attested', detail: '/ctx/msp/.ki17-pin' })
     expect(receipt.contexts[0].provenance).toBe('attested')
+  })
+
+  it('records the manifest profile in the receipt and fails closed when a required profile differs', () => {
+    const profiled = { ...manifest, profile: 'stdio' }
+    const good = { commit: 'a'.repeat(40), provenance: 'git', detail: 'x' }
+    const base = { manifest: 'pins.json', contexts, readManifest: () => profiled, resolve: () => good, exists: () => true }
+    expect(verifyPins(base).profile).toBe('stdio')
+    expect(verifyPins({ ...base, profile: 'stdio' }).profile).toBe('stdio')
+    expect(() => verifyPins({ ...base, profile: 'gks-http' })).toThrow(/KI17_PIN_PROFILE_MISMATCH/)
+    expect(() => verifyPins({ ...base, readManifest: () => manifest, profile: 'stdio' })).toThrow(/KI17_PIN_PROFILE_MISMATCH/)
+    expect(parseArguments(['--manifest', 'p.json', '--context', 'msp=/x', '--profile', 'gks-http']).profile).toBe('gks-http')
+    expect(() => parseArguments(['--manifest', 'p.json', '--context', 'msp=/x', '--profile'])).toThrow(/--profile expects/)
   })
 
   it('refuses arguments it does not understand instead of checking nothing', () => {

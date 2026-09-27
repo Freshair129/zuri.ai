@@ -4,11 +4,20 @@
 # base compose stack and docker-compose.ki17-web.yml retain stdio when this file
 # is absent. The GKS service has no host port and joins only gks-private.
 #
+# Pins: the HTTP provider needs a newer MSP/GKS pair than the stdio production
+# tuple, so every image this overlay builds (web, genesis-worker, gks-http) selects
+# deploy/ki17/pins.gks-http.json through KI17_PINS_MANIFEST, and the KI17_*_CONTEXT
+# checkouts must sit at THAT manifest's commits. Without this overlay the default
+# deploy/ki17/pins.json (stdio tuple) applies.
+#
 # Required host .env file paths (the file contents are Docker secrets):
 #   ZURI_GKS_MSP_RELAY_CREDENTIAL_FILE_HOST
 #   ZURI_GKS_PIPELINE_RELAY_CREDENTIAL_FILE_HOST
 services:
   web:
+    build:
+      args:
+        KI17_PINS_MANIFEST: deploy/ki17/pins.gks-http.json
     environment:
       MSP_GKS_TRANSPORT: http
       MSP_GKS_HTTP_URL: http://gks-http:8787
@@ -24,6 +33,9 @@ services:
       - gks-private
 
   genesis-worker:
+    build:
+      args:
+        KI17_PINS_MANIFEST: deploy/ki17/pins.gks-http.json
     environment:
       MSP_GKS_TRANSPORT: http
       MSP_GKS_HTTP_URL: http://gks-http:8787
@@ -44,6 +56,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: gks-http
+      args:
+        KI17_PINS_MANIFEST: deploy/ki17/pins.gks-http.json
       additional_contexts:
         msp: ${KI17_MSP_CONTEXT:-../../../Memory-and-Soul-Passport}
         gks: ${KI17_GKS_CONTEXT:-../../../Genesis-Knowledge-System}
