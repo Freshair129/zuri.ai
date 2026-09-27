@@ -120,6 +120,15 @@ turn flows through before any agent work happens.
   writer here, and idempotent — a message or attachment already redacted is
   neither counted nor rewritten. If a denormalised preview/snippet column is ever
   added to `Conversation`, it must be redacted in this same call.
+  `redactConversationContent` is the same writer keyed by conversation ids, and
+  erasure uses it only for a thread that is the erased person's alone (a direct
+  chat). A LINE group or room thread is shared — it belongs to its first speaker's
+  Customer while every member writes in it — so it is never erased whole:
+  `redactSpeakerContentInSharedThreads` tombstones one speaker's own inbound lines
+  (selected by `Message.authorChannelIdentityId`, recorded at ingest, or by the
+  inbound id of that speaker's answer job) and the stack reply to each of them, in
+  any thread whoever owns it, leaving every other member's lines and staff messages
+  untouched (FR-022).
 - `recordConversationAnalysis` / `getConversationAnalyses` — the FR-127 derived
   CRM record boundary. A run is keyed by an internal `Conversation.id` and its
   generated analysis id; writes require ownership of the exact bound Business
