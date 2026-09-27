@@ -9,7 +9,7 @@ import { provisionLineServerConnection } from '@/modules/integration/application
 import { connectLineOaAccount } from '@/modules/line-oa-studio/application/line-oa-account-service'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { exportSnapshot, importSnapshot, LINE_WORKER_MEMORY_TRACE_KINDS, previewImport } from '@/modules/project-manager/application/backup-service'
-import { MEMORY_ERASURE_KINDS, recordMemoryThreadErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
+import { MEMORY_ERASURE_KINDS, recordMemoryPrincipalErasure } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/application/line-memory-delivery'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
 
@@ -150,7 +150,7 @@ describe('LINE server snapshot recovery', () => {
     expect(before.lineWorkerMemoryRecovery.errors.join(' ')).not.toMatch(/enrolled jobs or memory evidence/)
 
     const subject = 'backup-erasure-speaker'
-    await recordMemoryThreadErasures(prisma, { tenantId: tenant.id, principalId: 'backup-erasure-principal',
+    await recordMemoryPrincipalErasure(prisma, { tenantId: tenant.id, principalId: 'backup-erasure-principal',
       jobs: [{ memorySyncOptIn: true, audienceKind: 'GROUP', channelAccountId: 'backup-erasure-oa', businessId: business.id,
         sourceUserId: subject, recipientId: 'backup-erasure-group' }],
       speakers: [{ channelAccountId: 'backup-erasure-oa', providerSubject: subject }] })

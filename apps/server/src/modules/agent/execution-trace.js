@@ -45,8 +45,9 @@ export const TRACE_EVENT_KINDS = Object.freeze([
   'MEMORY_THREAD_READ',
   'MEMORY_THREAD_APPENDED',
   'MEMORY_INJECTION_RECORDED',
-  // @req FR-022 — Core's pending, attempted and acknowledged erasure of one speaker
-  // from a LINE group or room MSP thread (line-memory-erasure.js).
+  // @req FR-022 — Core's pending, attempted and acknowledged tenant-wide erasure of
+  // one person from MSP thread memory (line-memory-erasure.js). The kind names
+  // predate the owner decision of 2026-09-28 and are kept for existing records.
   'MEMORY_THREAD_ERASURE_PENDING',
   'MEMORY_THREAD_ERASURE_ATTEMPT',
   'MEMORY_THREAD_ERASURE_DEFERRED',

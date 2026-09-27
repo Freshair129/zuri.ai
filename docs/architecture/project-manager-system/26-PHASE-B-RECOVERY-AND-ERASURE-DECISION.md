@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.13b"
+version: "0.3.14b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-27T23:30:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-28T12:00:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -287,8 +287,8 @@ two application models on top of the FR-277 binding: `CustomerRetentionConsent`
 history with real foreign keys to Tenant, Customer and the recording Person) and
 `LegalHoldArchiveKey` (the wrapped per-legal-hold data key re-sealed chat
 evidence lives under — no `@relation`, same shape as `CustomerArchiveKey`),
-bringing the frozen inventory to **194 application tables**. The **current**
-binding has `schemaSha256`
+bringing the frozen inventory to **194 application tables**. That binding had
+`schemaSha256`
 `1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206` and
 `targetSchemaSha256`
 `3b0841c3771ae0fafb4147c9622e86b6d1827cbb656d070113f22bd7e94b8c79`, computed
@@ -305,12 +305,28 @@ re-entry path). This rebind changes neither the table-empty proof nor the
 recovery/erasure algorithm, and it does not authorize recovery of artifacts
 bound to older hashes. The migrations are written, not applied to any database.
 
+FR-022 MSP memory erasure (owner decision 2026-09-28, option A) adds the index
+`AgentTraceEvent (kind, occurredAt, id)` for the erasure scanner's keyset page.
+No model is added or renamed, so the 194-table mapping is unchanged; only the
+schema bytes move. The **current** binding has `schemaSha256`
+`32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4` and `targetSchemaSha256`
+`9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0`, computed the same way. The previous
+194-table binding (`schemaSha256` `1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206`) is historical and refuses
+cross-schema recovery against this schema. This rebind changes neither the
+table-empty proof nor the recovery/erasure algorithm. The index migration is
+written, not applied to any database.
+
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.13b → 0.3.14b: rebind the frozen recovery inventory to the schema
+with the `AgentTraceEvent (kind, occurredAt, id)` index (FR-022 MSP memory
+erasure scan). The 194-table mapping is unchanged; the 0.3.13b binding stays
+historical and is refused.
 
 Version diff 0.3.12b → 0.3.13b: rebind the frozen recovery inventory to the
 194-table schema with `CustomerRetentionConsent` and `LegalHoldArchiveKey`

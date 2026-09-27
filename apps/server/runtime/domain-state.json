@@ -488,8 +488,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 44
+          "codeCount": 2,
+          "testCount": 46
         },
         {
           "id": "FR-025",
@@ -1377,7 +1377,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 44
+          "testCount": 46
         },
         {
           "id": "FR-023",
@@ -1698,7 +1698,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 44
+          "testCount": 46
         },
         {
           "id": "FR-026",
@@ -2357,7 +2357,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 44
+          "testCount": 46
         },
         {
           "id": "FR-028",
@@ -3703,7 +3703,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 44
+          "testCount": 46
         },
         {
           "id": "FR-026",
@@ -5258,7 +5258,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 44
+          "testCount": 46
         },
         {
           "id": "FR-031",
@@ -12955,8 +12955,8 @@
           "title": "LINE as an identity provider end-to-end",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 30,
-          "testCount": 44
+          "codeCount": 31,
+          "testCount": 46
         }
       ],
       "evidence": [
@@ -12967,6 +12967,7 @@
         "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
         "apps/server/src/app/api/identity/link-tokens/route.js",
         "apps/server/src/modules/agent/execution-trace.js",
+        "apps/server/src/modules/agent/msp-thread-memory-port.js",
         "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
         "apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js",
         "apps/server/src/modules/crm/chat-evidence-archive-service.js",
@@ -12991,6 +12992,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/core/raw-record-redaction.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
+        "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
@@ -13017,6 +13019,7 @@
         "apps/server/tests/integration/line-memory-erasure-due-query.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",

@@ -99,6 +99,32 @@ describe('Zuri API-010 thread memory adapter', () => {
       scope: { tenantId: 'other', businessId: THREAD.businessId } } } })).rejects.toThrow(/SCOPE_MISMATCH/)
   })
 
+  // @req FR-022 — the tenant-wide PDPA erase needs no thread: nothing is resolved,
+  // the grant names the tenant and the data-subject claims and no room, and the
+  // authority must allow data-subject access for exactly that tenant.
+  it('erases a principal in a tenant with a data-subject grant and no thread', async () => {
+    const transport = transportFor()
+    const port = createMspThreadMemoryPort({ transport, serviceKey: 'synthetic-service-key-over-32-bytes', workspaceId: 'test-workspace' })
+    const authorization = { authContext: { actor: { principalId: 'core-erasure' }, scope: { tenantId: 'tenant', businessId: null },
+      policy: { decision: 'ALLOW', version: 'pdpa-v1', privateMemoryAllowed: false,
+        mspAuthorization: { read: false, writePrivate: false, dataSubjectAccess: true, dataSubjectAdmin: true } } } }
+    await port.erasePrincipalInTenant({ tenantId: 'tenant', principalId: 'person', idempotencyKey: 'erase-1', authorization })
+    expect(transport.calls.map(call => call.name)).toEqual(['msp_thread_principal_erase'])
+    const { input } = transport.calls[0]
+    expect(input).toMatchObject({ principal_id: 'person', idempotency_key: 'erase-1' })
+    expect(input.access.grant).toMatchObject({ tenantId: 'tenant', businessId: null, principalId: 'core-erasure', policyRevision: 'pdpa-v1',
+      readPrivate: false, writePrivate: false, dataSubjectAccess: true, dataSubjectAdmin: true, operation: 'msp_thread_principal_erase' })
+    expect(input.access.grant.externalRoomRef).toBeUndefined()
+    expect(input.access.grant.channelAccountId).toBeUndefined()
+    const withoutAdmin = { authContext: { ...authorization.authContext, policy: { ...authorization.authContext.policy,
+      mspAuthorization: { dataSubjectAccess: true } } } }
+    await expect(port.erasePrincipalInTenant({ tenantId: 'tenant', principalId: 'person', idempotencyKey: 'erase-2', authorization: withoutAdmin }))
+      .rejects.toThrow(/SCOPE_DENIED/)
+    await expect(port.erasePrincipalInTenant({ tenantId: 'other', principalId: 'person', idempotencyKey: 'erase-3', authorization }))
+      .rejects.toThrow(/SCOPE_MISMATCH/)
+    expect(transport.calls).toHaveLength(1)
+  })
+
   it('resolves an opaque route and appends a speaker-labelled inbound message', async () => {
     const transport = transportFor()
     const port = createMspThreadMemoryPort({ transport })

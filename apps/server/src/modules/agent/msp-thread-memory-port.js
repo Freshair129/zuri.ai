@@ -494,6 +494,28 @@ export function createMspThreadMemoryPort({
     }, lifecycleClaims(threadId, authorization, permissions)))
   }
 
+  // @req FR-022 — the PDPA erasure of one principal across the whole tenant.
+  // `msp_thread_principal_erase` is tenant/principal-scoped at API-011 (not
+  // thread-bound): its grant needs the tenant, the acting principal and the
+  // data-subject claims, never a room, so no thread is resolved (and none is
+  // minted) to send it. Private read and write stay false.
+  async function erasePrincipalInTenant({ tenantId, principalId, idempotencyKey, authorization }) {
+    const tenant = required(tenantId, 'tenantId')
+    const auth = authorization?.authContext
+    const policy = auth?.policy
+    const caller = auth?.actor?.principalId
+    const permissions = principalId && principalId !== caller ? ['dataSubjectAccess', 'dataSubjectAdmin'] : ['dataSubjectAccess']
+    if (policy?.decision !== 'ALLOW' || permissions.some(name => policy.mspAuthorization?.[name] !== true)) {
+      throw new Error('MSP_LIFECYCLE_SCOPE_DENIED')
+    }
+    if (auth?.scope?.tenantId !== tenant) throw new Error('MSP_AUTHORIZATION_SCOPE_MISMATCH')
+    return unwrap(await callTool('msp_thread_principal_erase', {
+      ...(principalId ? { principal_id: principalId } : {}), idempotency_key: required(idempotencyKey, 'idempotencyKey'),
+    }, { tenantId: tenant, businessId: null, principalId: required(caller, 'actor principalId'),
+      policyRevision: policy.version ?? 'default', readPrivate: false, writePrivate: false,
+      ...Object.fromEntries(permissions.map(name => [name, true])) }))
+  }
+
   return {
     resolveThread,
     appendMessage,
@@ -504,6 +526,7 @@ export function createMspThreadMemoryPort({
     recordInjection,
     participantLifecycle,
     erasePrincipal,
+    erasePrincipalInTenant,
     withInjectionReceipt,
     injectionReceipt,
     bindTrustedRoute,
