@@ -163,7 +163,7 @@ const INERT = /^(docs\/|\.brain\/|AGENTS\.md$|CLAUDE\.md$|README\.md$|apps\/serv
 const DOCUMENT = /^(docs\/|\.brain\/|AGENTS\.md$|CLAUDE\.md$|README\.md$)/
 const ANNOTATION = /@(req|tested)\s+([^\n]*)/g
 const ID_LIST = /(?:FR|NFR|BR|SEC|SDD)-\d{3}/g
-const POSTGRES_PATHS = /conversation-runtime|work-tool|line-conversation-jobs|line-project-work/
+const POSTGRES_PATHS = /conversation-runtime|work-tool|line-conversation-jobs|line-project-work|line-memory-erasure/
 
 /**
  * Whether a diff is eligible for related mode, before anything is installed.

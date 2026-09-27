@@ -5,8 +5,9 @@ import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVI
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { admitLineConversation, runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { MEMORY_ERASURE_ACTOR, MEMORY_ERASURE_GRACE_MS, MEMORY_ERASURE_KINDS, MEMORY_ERASURE_MAX_ATTEMPTS, MEMORY_ERASURE_BACKOFF_MS,
-  reconcileLineMemoryErasures, recordMemoryThreadErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
+  MEMORY_ERASURE_SCAN_MAX_PAGES, MEMORY_ERASURE_SCAN_PAGE, reconcileLineMemoryErasures, recordMemoryThreadErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
+import { appendTraceEvent } from '@/modules/agent/execution-trace'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
 import { createModelProviderPort } from '@/modules/agent/model-provider'
@@ -773,6 +774,54 @@ describe('W12 — erasing one speaker removes only their contributions from a gr
         .filter(row => row.payloadJson.includes('spent-room-0'))
       expect(JSON.parse(pending.payloadJson)).toMatchObject({ principalId: 'spent-principal-spent-room-0' })
       expect(await prisma.agentTraceEvent.count({ where: { turnId: pending.turnId, kind: MEMORY_ERASURE_KINDS.failed } })).toBe(1)
+    })
+
+    it('FAILED records never grow what a tick reads: each query is bounded and a fresh erasure behind them is sent', async () => {
+      // More FAILED records than one candidate page holds, all older than the fresh one.
+      const failedCount = MEMORY_ERASURE_SCAN_PAGE + 20
+      const base = Date.now()
+      await seed('failedmass', failedCount, new Date(base - 7_200_000))
+      const failedRows = (await pendingRows()).filter(row => row.payloadJson.includes('failedmass-room-'))
+      expect(failedRows).toHaveLength(failedCount)
+      for (const row of failedRows) {
+        await appendTraceEvent(prisma, { scope: { tenantId: row.tenantId, businessId: row.businessId }, turnId: row.turnId, executionId: null,
+          kind: MEMORY_ERASURE_KINDS.failed, idempotencyKey: `${row.turnId}:failed`, payload: { attemptNumber: MEMORY_ERASURE_MAX_ATTEMPTS, code: 'MSP_REFUSED' },
+          occurredAt: new Date(base - 3_600_000) })
+      }
+      await seed('behindfailed', 1, new Date(base - 1_800_000))
+      const reads = []
+      const traceModel = new Proxy(prisma.agentTraceEvent, { get(target, prop) {
+        const value = Reflect.get(target, prop)
+        if (prop !== 'findMany') return typeof value === 'function' ? value.bind(target) : value
+        return args => { reads.push(args); return target.findMany(args) }
+      } })
+      let pages = 0
+      const observedDb = new Proxy(prisma, { get(target, prop) {
+        if (prop === 'agentTraceEvent') return traceModel
+        if (prop === '$queryRaw') return (...args) => { pages += 1; return target.$queryRaw(...args) }
+        const value = Reflect.get(target, prop)
+        return typeof value === 'function' ? value.bind(target) : value
+      } })
+      const msp = createFakeMsp({ history: false })
+      const result = await reconcileLineMemoryErasures({ db: observedDb, threadMemory: mspPort(msp), now: () => new Date(base) })
+      const sent = msp.calls.filter(call => call.name === 'msp_thread_principal_erase').map(call => call.input.access.grant.externalRoomRef)
+      expect(sent).toContain('behindfailed-room-0')
+      expect(sent.filter(room => room.startsWith('failedmass'))).toEqual([])
+      expect(result.acknowledged).toBeGreaterThanOrEqual(1)
+      // The FAILED records occupied no candidate page, and no read carried a
+      // list of held or failed turns: the old unbounded `notIn` filter is gone.
+      expect(pages).toBeLessThanOrEqual(MEMORY_ERASURE_SCAN_MAX_PAGES)
+      for (const args of reads) {
+        const text = JSON.stringify(args?.where ?? {})
+        expect(text).not.toContain('notIn')
+        for (const list of [args?.where?.id?.in, args?.where?.turnId?.in].filter(Boolean)) {
+          expect(list.length).toBeLessThanOrEqual(MEMORY_ERASURE_SCAN_PAGE)
+        }
+      }
+      // A record whose attempts are spent is still never retried.
+      await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => new Date(base + 86_400_000) })
+      expect(msp.calls.filter(call => call.name === 'msp_thread_principal_erase'
+        && String(call.input.access.grant.externalRoomRef).startsWith('failedmass'))).toEqual([])
     })
   })
 
