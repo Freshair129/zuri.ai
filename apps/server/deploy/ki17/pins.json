@@ -1,10 +1,10 @@
 {
   "manifestVersion": 1,
   "id": "ZAI:KI17-DEPLOYMENT-PINS",
-  "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment (SmartGift structured-record profile)",
+  "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment and private GKS HTTP canary",
   "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
-  "recordedAt": "2026-09-20",
-  "note": "TASK-ZAI-050 local production-like tuple: zuri a9039dcc, GenesisBlock 5156f412 (PR #178 stale-lock recovery + PR #179 benchmark fixture compatibility), MSP 68e6169d (v0.2.8), GKS ecf1e4de. G-3 passed 36/36 and post-cutover health/smoke passed on 2026-09-20.",
+  "recordedAt": "2026-09-23",
+  "note": "Candidate tuple for the private GKS HTTP canary: Zuri main baseline 49d1808b (update to the merged Zuri SHA before a release), GenesisBlock 5156f412, MSP a65914de (HTTP GKS provider), GKS 1ebcff09 (HTTP runtime). The historic G-3 result applies to its recorded pins only; this HTTP container canary is NOT_RUN.",
   "runtime": {
     "node": "24.18.0",
     "nodePlatform": "linux-x64",
@@ -17,8 +17,8 @@
   },
   "repositories": {
     "zuri-ai": {
-      "repository": "Freshair129/zuri.ai",
-      "commit": "a9039dcc1c78745c595571da66c3935eda6dbebb",
+    "repository": "Freshair129/zuri.ai",
+    "commit": "49d1808b805c5a9720edeaed8c8a8b0235e3016e",
       "buildContext": null,
       "verifiedInBuild": false,
       "note": "This repository is the build's own main context, and .dockerignore excludes .git from it, so the build cannot read its own HEAD. Recorded for the G-4 gate and verified by the operator on the host before the build (`git rev-parse HEAD`).",
@@ -26,7 +26,7 @@
     },
     "msp": {
       "repository": "Freshair129/Memory-and-Soul-Passport",
-      "commit": "68e6169dbb371dac2f0debf0bf731b553f7dc26d",
+      "commit": "a65914defd5918ad7e44173ec1cdccf379eca7fe",
       "buildContext": "msp",
       "verifiedInBuild": true,
       "installRoot": "/opt/ki17/msp",
@@ -38,7 +38,7 @@
     },
     "gks": {
       "repository": "Freshair129/Genesis-Knowledge-System",
-      "commit": "ecf1e4de269e949406a6a5f791f9ff8fe30c9578",
+      "commit": "1ebcff09ce5f19b0bd219433d376670a44be0278",
       "buildContext": "gks",
       "verifiedInBuild": true,
       "installRoot": "/opt/ki17/gks",

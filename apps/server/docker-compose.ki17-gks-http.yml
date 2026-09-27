@@ -1,0 +1,98 @@
+# ADR-075 D10 — opt-in MSP -> private GKS HTTP transport.
+#
+# Include this overlay only when intentionally selecting the HTTP provider. The
+# base compose stack and docker-compose.ki17-web.yml retain stdio when this file
+# is absent. The GKS service has no host port and joins only gks-private.
+#
+# Required host .env file paths (the file contents are Docker secrets):
+#   ZURI_GKS_MSP_RELAY_CREDENTIAL_FILE_HOST
+#   ZURI_GKS_PIPELINE_RELAY_CREDENTIAL_FILE_HOST
+services:
+  web:
+    environment:
+      MSP_GKS_TRANSPORT: http
+      MSP_GKS_HTTP_URL: http://gks-http:8787
+      GKS_MSP_RELAY_CREDENTIAL_FILE: /run/secrets/gks_msp_relay_credential
+      MSP_GKS_PIPELINE_CREDENTIAL_FILE: /run/secrets/gks_pipeline_relay_credential
+    depends_on:
+      gks-http:
+        condition: service_healthy
+    secrets:
+      - gks_msp_relay_credential
+      - gks_pipeline_relay_credential
+    networks:
+      - gks-private
+
+  genesis-worker:
+    environment:
+      MSP_GKS_TRANSPORT: http
+      MSP_GKS_HTTP_URL: http://gks-http:8787
+      GKS_MSP_RELAY_CREDENTIAL_FILE: /run/secrets/gks_msp_relay_credential
+      MSP_GKS_PIPELINE_CREDENTIAL_FILE: /run/secrets/gks_pipeline_relay_credential
+      GENESIS_WORKER_MSP_COMMAND: /opt/ki17/node/bin/node
+      GENESIS_WORKER_MSP_ARGS: '["/opt/ki17/tools/ki17-worker-msp-launcher.mjs"]'
+      GENESIS_WORKER_MSP_CWD: /opt/ki17/msp
+    depends_on:
+      gks-http:
+        condition: service_healthy
+    secrets:
+      - gks_msp_relay_credential
+      - gks_pipeline_relay_credential
+
+  gks-http:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: gks-http
+      additional_contexts:
+        msp: ${KI17_MSP_CONTEXT:-../../../Memory-and-Soul-Passport}
+        gks: ${KI17_GKS_CONTEXT:-../../../Genesis-Knowledge-System}
+        genesisblock: ${KI17_GENESISBLOCK_CONTEXT:-../../../GenesisBlock-ki17}
+    image: ${ZURI_GKS_HTTP_IMAGE:-zuri-ai-gks-http:local}
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    environment:
+      GKS_DB_PATH: /var/lib/zuri-ki17/state/gks.sqlite
+      GKS_HTTP_HOST: 0.0.0.0
+      GKS_HTTP_PORT: "8787"
+      GKS_MSP_AUTH_REQUIRED: "1"
+      GKS_MSP_RELAY_CREDENTIAL_FILE: /run/secrets/gks_msp_relay_credential
+      GKS_PIPELINE_RELAY_CREDENTIAL_FILE: /run/secrets/gks_pipeline_relay_credential
+    secrets:
+      - gks_msp_relay_credential
+      - gks_pipeline_relay_credential
+    volumes:
+      - ki17-state:/var/lib/zuri-ki17/state
+    expose:
+      - "8787"
+    networks:
+      - gks-private
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/healthz').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+networks:
+  gks-private:
+    internal: true
+
+secrets:
+  gks_msp_relay_credential:
+    file: ${ZURI_GKS_MSP_RELAY_CREDENTIAL_FILE_HOST:?Set a protected GKS MSP relay credential file path}
+  gks_pipeline_relay_credential:
+    file: ${ZURI_GKS_PIPELINE_RELAY_CREDENTIAL_FILE_HOST:?Set a protected GKS pipeline relay credential file path}

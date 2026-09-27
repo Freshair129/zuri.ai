@@ -24,6 +24,7 @@
 #   ki17-fixtures→ /opt/ki17/fixtures — the SmartGift benchmark fixture (P-6)
 #   runner-ki17  → the web image for the knowledge deployment: `runner` plus
 #                  /opt/ki17/{node,msp,gks} and the P-5 operator smoke script
+#   gks-http     → dedicated pinned GKS HTTP service image; no MSP or Tier 1 app
 #   genesis-worker → the Tier 4 sidecar: the above plus the GenesisBlock worker,
 #                  its linux-x64-gnu addon and the Python venv
 #   ki17-acceptance→ TEST ONLY (gate G-3). genesis-worker's /opt/ki17 plus this
@@ -244,6 +245,8 @@ RUN set -eu; \
 RUN set -eu; \
     test -f /opt/ki17/msp/apps/msp-server/bin/msp-server.mjs || { echo "KI17_MSP_ENTRYPOINT_MISSING: /opt/ki17/msp/apps/msp-server/bin/msp-server.mjs" >&2; exit 1; }; \
     test -f /opt/ki17/gks/apps/gks-server/bin/gks-server.mjs || { echo "KI17_GKS_ENTRYPOINT_MISSING: /opt/ki17/gks/apps/gks-server/bin/gks-server.mjs" >&2; exit 1; }; \
+    test -f /opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs || { echo "KI17_GKS_HTTP_ENTRYPOINT_MISSING: /opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs" >&2; exit 1; }; \
+    test -f /opt/ki17/gks/deploy/docker/entrypoint.mjs || { echo "KI17_GKS_SECRET_ENTRYPOINT_MISSING: /opt/ki17/gks/deploy/docker/entrypoint.mjs" >&2; exit 1; }; \
     test -s /opt/ki17/pins/resolved.json || { echo "KI17_PIN_RECEIPT_MISSING: /opt/ki17/pins/resolved.json" >&2; exit 1; }
 
 # ---------------------------------------------------------------- ki17-venv
@@ -294,6 +297,7 @@ COPY --from=ki17 --chown=node:node /opt/ki17 /opt/ki17
 # transport — and tests/unit/ki17-build-stage.test.js fails if that stops being true.
 COPY --from=builder --chown=node:node /app/scripts/ki17-smoke.mjs ./scripts/
 COPY --from=builder --chown=node:node /app/src/modules/agent/msp-stdio-transport.js ./src/modules/agent/
+COPY --from=builder --chown=node:node /app/src/modules/agent/msp-child-environment.mjs ./src/modules/agent/
 # The ki17-state volume mounts here (§6). Creating it owned by `node` means the
 # named volume is seeded with the right ownership instead of root's.
 RUN mkdir -p /var/lib/zuri-ki17/state && chown -R node:node /var/lib/zuri-ki17
@@ -302,8 +306,37 @@ RUN set -eu; \
     test -x /opt/ki17/node/bin/node || { echo "KI17_NODE_BINARY_MISSING" >&2; exit 1; }; \
     test -f /opt/ki17/msp/apps/msp-server/bin/msp-server.mjs || { echo "KI17_MSP_ENTRYPOINT_MISSING" >&2; exit 1; }; \
     test -f /opt/ki17/gks/apps/gks-server/bin/gks-server.mjs || { echo "KI17_GKS_ENTRYPOINT_MISSING" >&2; exit 1; }; \
+    test -f /opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs || { echo "KI17_GKS_HTTP_ENTRYPOINT_MISSING" >&2; exit 1; }; \
     test -f /app/scripts/ki17-smoke.mjs || { echo "KI17_SMOKE_SCRIPT_MISSING" >&2; exit 1; }; \
-    test -f /app/src/modules/agent/msp-stdio-transport.js || { echo "KI17_SMOKE_IMPORT_MISSING: msp-stdio-transport.js" >&2; exit 1; }
+    test -f /app/src/modules/agent/msp-stdio-transport.js || { echo "KI17_SMOKE_IMPORT_MISSING: msp-stdio-transport.js" >&2; exit 1; }; \
+    test -f /app/src/modules/agent/msp-child-environment.mjs || { echo "KI17_MSP_ENVIRONMENT_HELPER_MISSING" >&2; exit 1; }
+
+# ---------------------------------------------------------------- gks-http
+# D10: a separate, least-scope GKS service for the opt-in private HTTP overlay.
+# The Node 24 runtime and GKS tree come from the same pin-checked Linux install used
+# by runner-ki17; this image contains neither MSP nor the Tier 1 application.
+FROM base AS gks-http
+ENV NODE_ENV=production \
+    PATH=/opt/ki17/node/bin:$PATH \
+    GKS_DB_PATH=/var/lib/zuri-ki17/state/gks.sqlite \
+    GKS_HTTP_HOST=0.0.0.0 \
+    GKS_HTTP_PORT=8787 \
+    GKS_MSP_AUTH_REQUIRED=1 \
+    GKS_MSP_RELAY_CREDENTIAL_FILE=/run/secrets/gks_msp_relay_credential \
+    GKS_PIPELINE_RELAY_CREDENTIAL_FILE=/run/secrets/gks_pipeline_relay_credential
+COPY --from=ki17 --chown=node:node /opt/ki17/node /opt/ki17/node
+COPY --from=ki17 --chown=node:node /opt/ki17/gks /opt/ki17/gks
+RUN mkdir -p /var/lib/zuri-ki17/state \
+ && chown -R node:node /var/lib/zuri-ki17
+USER node
+WORKDIR /opt/ki17/gks
+RUN set -eu; \
+    test -x /opt/ki17/node/bin/node || { echo "KI17_NODE_BINARY_MISSING" >&2; exit 1; }; \
+    test -f /opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs || { echo "KI17_GKS_HTTP_ENTRYPOINT_MISSING" >&2; exit 1; }; \
+    test -f /opt/ki17/gks/deploy/docker/entrypoint.mjs || { echo "KI17_GKS_SECRET_ENTRYPOINT_MISSING" >&2; exit 1; }; \
+    /opt/ki17/node/bin/node -e "require('/opt/ki17/gks/node_modules/better-sqlite3')(':memory:').close()"
+EXPOSE 8787
+CMD ["/opt/ki17/node/bin/node", "/opt/ki17/gks/deploy/docker/entrypoint.mjs", "/opt/ki17/node/bin/node", "/opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs"]
 
 # ---------------------------------------------------------------- genesis-worker
 # The Tier 4 sidecar (§5). It carries no Next.js build and no zuri-ai secret: it runs
@@ -327,6 +360,8 @@ COPY --from=ki17 --chown=node:node /opt/ki17/gks /opt/ki17/gks
 COPY --from=ki17 --chown=node:node /opt/ki17/pins /opt/ki17/pins
 COPY --from=ki17-venv --chown=node:node /opt/ki17/venv /opt/ki17/venv
 COPY --from=ki17-fixtures --chown=node:node /opt/ki17/fixtures /opt/ki17/fixtures
+COPY --from=builder --chown=node:node /app/scripts/ki17-worker-msp-launcher.mjs /opt/ki17/tools/
+COPY --from=builder --chown=node:node /app/src/modules/agent/msp-child-environment.mjs /opt/ki17/src/modules/agent/
 # The worker resolves the native binding as `require('../../index.js')`, so the napi
 # loader, its types and the package manifest all sit at the GenesisBlock package root.
 COPY --from=genesisblock --chown=node:node index.js index.d.ts package.json /opt/ki17/genesisblock/
@@ -360,6 +395,8 @@ RUN set -eu; \
     test -f /opt/ki17/genesisblock/index.linux-x64-gnu.node || { echo "KI17_GENESISBLOCK_LINUX_ADDON_MISSING: index.linux-x64-gnu.node" >&2; exit 1; }; \
     test -x /opt/ki17/venv/bin/python || { echo "KI17_VENV_PYTHON_MISSING: /opt/ki17/venv/bin/python" >&2; exit 1; }; \
     test -f /opt/ki17/msp/apps/msp-server/bin/msp-server.mjs || { echo "KI17_MSP_ENTRYPOINT_MISSING" >&2; exit 1; }; \
+    test -f /opt/ki17/tools/ki17-worker-msp-launcher.mjs || { echo "KI17_WORKER_MSP_LAUNCHER_MISSING" >&2; exit 1; }; \
+    test -f /opt/ki17/src/modules/agent/msp-child-environment.mjs || { echo "KI17_MSP_ENVIRONMENT_HELPER_MISSING" >&2; exit 1; }; \
     test -f /opt/ki17/gks/apps/gks-server/bin/gks-server.mjs || { echo "KI17_GKS_ENTRYPOINT_MISSING" >&2; exit 1; }; \
     test -s /opt/ki17/fixtures/genesisrag17-smartgift-benchmark-v1.json || { echo "KI17_FIXTURE_MISSING: SmartGift benchmark" >&2; exit 1; }; \
     test -x /usr/bin/which || { echo "KI17_WHICH_MISSING: GenesisBlock's addon loader shells out to \`which ldd\`" >&2; exit 1; }
