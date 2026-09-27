@@ -1,7 +1,7 @@
 ---
-version: "1.4.2"
+version: "1.4.3"
 created_at: "2026-09-11T04:40:00+07:00,Claude Sonnet 5"
-last_update: "2026-09-23T20:59:00+07:00,RWANG"
+last_update: "2026-09-28T04:00:00+07:00,MC0 (Claude Opus 5.5)"
 status: "beta"
 superseded_by: null
 attributes:
@@ -256,7 +256,8 @@ production/operator gates.
   transport between MSP and GKS is explicit: `MSP_GKS_TRANSPORT=http` plus the private
   origin `MSP_GKS_HTTP_URL=http://gks-http:8787`. The existing stdio provider remains the
   default and the operator rollback path; there is no implicit HTTP-to-stdio fallback.
-- The canary GKS service is built from the GKS source commit in `pins.json`, joins only an
+- The canary GKS service is built from the GKS source commit in `pins.gks-http.json` (the
+  opt-in HTTP manifest; the default `pins.json` keeps the stdio production tuple), joins only an
   internal Compose network shared with `web`, has no host-published port and no ngrok
   route, and listens on port 8787. The GKS process alone opens `gks.sqlite` in HTTP mode;
   that database stays on the existing named `ki17-state` volume. The Zuri Knowledge (GKS)
@@ -394,6 +395,7 @@ citable published generation once Phase 4 lands.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.3 | 2026-09-28 | beta | D10: the HTTP canary builds from the separate `pins.gks-http.json` manifest; the default `pins.json` is the stdio production tuple | working-tree | MC0 (Claude Opus 5.5) |
 | 1.4.2 | 2026-09-23 | beta | Extends D10 credential handling to the inherited worker spawn and required MSP pipeline caller secret | working-tree | RWANG |
 | 1.4.1 | 2026-09-23 | beta | Requires file-backed bearer propagation to trusted parents and isolated canary env files with ngrok disabled | working-tree | RWANG |
 | 1.4.0 | 2026-09-23 | beta | Owner-approved private authenticated MSP-to-GKS HTTP transport for implementation and isolated local canary only; production remains separately gated | working-tree | RWANG |

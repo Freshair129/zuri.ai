@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-EDGE-DEPLOYMENT
 title: GenesisRAG17 edge-device deployment design (SmartGift structured-record profile)
-version: "0.7.3"
+version: "0.7.4"
 status: beta
 created_at: "2026-09-11T19:15:00+07:00,Claude Opus 5"
-last_update: "2026-09-27T18:00:00+07:00,MC0 (Claude Opus 5.5)"
+last_update: "2026-09-28T04:00:00+07:00,MC0 (Claude Opus 5.5)"
 attributes:
   domain: knowledge
   doc_type: deployment-design
@@ -285,7 +285,7 @@ principals for these credentials.
 |---|---|---|
 | P-1 | **Apply the shared MSP child environment allowlist to both callers (C2),** then narrow by transport: web/worker parents read the mounted HTTP bearer and pipeline caller files; pass the two required MSP aliases and always set `GKS_MSP_AUTH_REQUIRED=1`; withhold GKS stdio-only settings and the server verifier alias. Wrap the GenesisBlock worker spawn, which otherwise inherits the full parent env. An unreadable or empty secret file raises `MSP_TRANSPORT_MISCONFIGURED` (status 503, message names the variable only) | zuri-ai — implemented; 50 focused unit tests pass; the worker launcher is executed against a fake MSP child in `tests/unit/ki17-worker-msp-launcher.test.js` (env filter, exit code, SIGTERM forwarding; OS-delivered SIGTERM case skipped on Windows); image/canary check NOT_RUN |
 | P-2 | **Build the worker for Linux at the pin.** A `napi build` for `x86_64-unknown-linux-gnu` from the pinned GenesisBlock commit, run inside the image build. GenesisBlock owns the recipe | GenesisBlock |
-| P-3 | **Pinned Linux build stages** for `runner-ki17`, `genesis-worker` and the separate `gks-http` service image, with pin and entrypoint assertions; ordinary `runner` remains independent of KI17 contexts | zuri-ai — `gks-http` target added in this change; verification pending |
+| P-3 | **Pinned Linux build stages** for `runner-ki17`, `genesis-worker` and the separate `gks-http` service image, with pin and entrypoint assertions; ordinary `runner` remains independent of KI17 contexts | zuri-ai — two pin manifests since 2026-09-28: `deploy/ki17/pins.json` (profile `stdio`, the production tuple MSP `68e6169d` / GKS `ecf1e4de` / GenesisBlock `5156f412`) is the default, and `runner-ki17` / `genesis-worker` assert no GKS HTTP file; `deploy/ki17/pins.gks-http.json` (profile `gks-http`, MSP `a65914de` / GKS `1ebcff09`) is selected by the `KI17_PINS_MANIFEST` build argument only in the HTTP overlay, and the `gks-http` target refuses any other profile. Production web releases are cut as an overlay (`deploy/ki17/overlay/Dockerfile`, `scripts/build-ki17-overlay-release.mjs`); `gks-http` image build NOT_RUN |
 | P-4 | **Compose changes.** Preserve existing defaults, worker and volumes; add the opt-in HTTP overlay, internal-only network, secret-file mounts, health dependency, explicit MSP HTTP selection, and a canary-only env-file selector/ngrok-suppression overlay | zuri-ai — YAML parse, static tests and render-only config pass with example paths; actual canary NOT_RUN because dedicated canary env and secret files are absent |
 | P-5 | **A read-only operator smoke script,** run in the web container. First, `msp_pipeline_evidence` for a run id that does not exist, as the source role: an empty page proves MSP → GKS works. Second, `msp_pipeline_query`: either a published generation or a typed `pipeline_worker_*` or no-published-generation result proves MSP → worker over loopback. It prints outcome codes only, never payloads or credentials | zuri-ai |
 | P-6 | **The SmartGift benchmark fixture** that the Phase 2 acceptance uses, baked into the worker image | zuri-ai + GenesisBlock (Phase 2) |
@@ -378,6 +378,19 @@ prove"). This document's own status blockquote above (updated to point here) and
 gap before this probe existed: the runtime is live, the paper trail for when and how it
 went live is not written yet. Writing that activation record is tracked as separate
 follow-up work, not done in this note.
+
+**2026-09-28 release.** Production web moved to
+`zuri-ai-web-ki17:release-05f3567d-ki17-overlay` (main `05f3567d`); web healthy,
+`genesis-worker` force-recreated, `ki17-smoke` PASS on both hops; rollback target
+`release-fad8ec62-ki17-overlay`. A `runner-ki17` build from main failed on the host
+because `pins.json` then pinned the HTTP canary tuple (MSP `a65914de`, GKS
+`1ebcff09`) and asserted GKS HTTP files the stdio tuple does not carry. The release
+was therefore cut as an overlay: main's plain `runner` plus the running image's
+`/opt/ki17`. That overlay is now committed (`apps/server/deploy/ki17/overlay/`,
+`apps/server/scripts/build-ki17-overlay-release.mjs`), and the pins are split so the
+default `pins.json` is the stdio production tuple again and the HTTP tuple lives in
+`pins.gks-http.json` (P-3 row). Procedure and rollback:
+`apps/server/deploy/ki17/README.md`, "Cutting a release with the overlay".
 
 ## 10. Start order (operator procedure, not executed)
 
@@ -591,4 +604,5 @@ cutover.
 | 0.4.0 | 2026-09-24 | proposed | New §10.1, the per-record benchmark step ADR-073's 2026-09-24 amendment requires: check, merge onto the deployed fixture with `--base`, install atomically as the worker's user, recreate only the worker, upload, record. §6 now names the production fixture on the `ki17-state` volume, which the worker has read since 2026-09-21 (evidence: `.brain/reports/2026-09-24-genesisrag17-b2-fixture-rehearsal.md`), and warns that the image-baked Phase 2 fixture, the `.env.knowledge.example` default, is unusable for real records (20 of 22 fail Stage 16, 2 are scored on one test query). No image rebuild is part of the step | — | Claude Opus 5.5 |
 | 0.7.1 | 2026-09-27 | beta | Merge of main into PR #537. The branch's 0.3.0–0.5.0 rows, written on 2026-09-23 before main's 0.3.0/0.4.0 landed, are renumbered 0.5.0–0.7.0. The top status keeps main's pointer to §9.2 and adds that the HTTP canary is NOT_RUN and outside the running stdio runtime. §6 keeps main's two fixture rows and the branch's gks-http runtime row | — | MC0 (Claude Opus 5.5) |
 | 0.7.2 | 2026-09-27 | beta | §5.1 and P-1: HTTP mode now always passes `GKS_MSP_AUTH_REQUIRED=1` and keeps `GKS_DEFAULT_PORTFOLIO_ID`. MSP a65914de's `gks-http-provider.mjs` refuses to start without the flag and reads the portfolio id, so the 0.7.0 allowlist could never start the HTTP transport | — | MC0 (Claude Opus 5.5) |
+| 0.7.4 | 2026-09-28 | beta | P-3 and §9.2: records the 2026-09-28 `release-05f3567d-ki17-overlay` deploy; splits the pins into the default stdio manifest (`pins.json`, the production tuple) and the opt-in `pins.gks-http.json` selected by `KI17_PINS_MANIFEST` in the HTTP overlay; `runner-ki17` no longer asserts GKS HTTP files; the release overlay Dockerfile and build script are committed | working-tree | MC0 (Claude Opus 5.5) |
 | 0.7.3 | 2026-09-27 | beta | P-1 and R-4, from the #578 review: an unreadable or empty HTTP-mode secret file now raises the typed `MSP_TRANSPORT_MISCONFIGURED` error (status 503) instead of a plain `Error`, so the evidence-pull route answers 503 rather than 500 and LINE runtime startup no longer aborts (thread memory stays absent). The worker launcher gains an argv-only test seam and is now executed in tests | — | MC0 (Claude Opus 5.5) |

@@ -10,14 +10,16 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.137.0b"
-updated: "2026-09-27"
+version: "2.137.1b"
+updated: "2026-09-28"
 owner: "Owen"
 source_of_truth: true
 live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.137.1b (2026-09-28): Release record, no status change. MC0 deployed main `05f3567d` to production as `zuri-ai-web-ki17:release-05f3567d-ki17-overlay` (web healthy, `genesis-worker` force-recreated per the 2026-09-22 namespace RCA, `ki17-smoke` PASS on both hops; rollback target `release-fad8ec62-ki17-overlay`). The in-repo `runner-ki17` build could not reproduce it because `apps/server/deploy/ki17/pins.json` pinned the NOT_RUN GKS HTTP canary tuple; the follow-up PR splits the pins (default stdio production tuple in `pins.json`, opt-in `pins.gks-http.json`) and commits the release overlay (`apps/server/deploy/ki17/overlay/Dockerfile`, `apps/server/scripts/build-ki17-overlay-release.mjs`). TASK-ZAI-050 stays `in-progress`: this is not the operator activation record its DoD asks for.
 
 > Revision 2.137.0b (2026-09-27): TASK-ZAI-050 DoD review, read-only, no production action. Of the two items Revision 2.134.0b left unverified — knowledge migrations recorded, and a documented operator activation record — the first is supported, but only by inference, by tracing existing evidence: `TC-TASK-ZAI-050`'s acceptance criterion names four exact migrations (`20260907120000`, `20260907160000`, `20260908040000`, `20260908100000`) that the 2026-09-11 gap map found present-but-unrecorded; [ADR-104](../decisions/ADR-104-PRODUCTION-MIGRATION-LINEAGE-RECONCILIATION.md)'s 2026-09-23 read-only preflight diffed the full 105-file migration tree against the live ledger and named exactly ten missing versions, none of the four knowledge ones among them, and the post-apply ledger reached 107 rows ([runbook](../runbooks/production-migration-reconciliation.md)); by exclusion, the four knowledge migrations were most likely already recorded by 2026-09-23. MC0 integration review (2026-09-27) keeps this DoD item **unchecked**: an exclusion from a hand-maintained missing-version list is not a row-level ledger check (the acceptance criterion's own warning), the 2026-09-23 preflight's ledger dump is not committed, and 105 files minus 10 missing leaves 95 while the ledger held 96 rows, so one ledger row matches no committed file and is unexplained. It is checked once someone with production access runs the report's four-row query and commits the redacted result. This session had no live production DB access to confirm it directly (the connected Supabase management tool returned zero projects) so the conclusion rests on that documented gap analysis, not a fresh query — see [`.brain/reports/2026-09-27-task-zai-050-dod-review.md`](../../.brain/reports/2026-09-27-task-zai-050-dod-review.md) for the full trace and the direct-confirmation query for anyone with production access. The second item, the operator activation record, is **not** resolved: `docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md` §9.2 and `apps/server/deploy/ki17/README.md` both currently and explicitly say it does not exist, and the 2026-09-24 production probe is an observation of row counts, not the event-level record (image digests, four pinned commits, run id, receipt hash) that §10 step 7 requires — that cannot be reconstructed from the repository and needs an operator with production/Docker access. TASK-ZAI-050 stays `in-progress / PRODUCTION / IN_PROGRESS`, not `done`.
 
