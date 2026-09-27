@@ -2,7 +2,9 @@ import prisma from '@/lib/db'
 import { LIVE_ACCESS_STATUSES as LIVE_GRANT_STATUSES } from '@/lib/validation/enums'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { zErasePrincipalInput } from '@/lib/validation/entities'
-import { redactConversationContent, redactSpeakerContentInSharedThreads } from '@/modules/crm/conversation-redaction-service'
+import {
+  findSpeakerConversationEventKeys, redactConversationContent, redactSpeakerContentInSharedThreads,
+} from '@/modules/crm/conversation-redaction-service'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
 import { destroyCustomerArchiveKey } from '@/modules/crm/chat-evidence-archive-service'
@@ -40,6 +42,13 @@ import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/ap
 //   spoke), the replies to them and their own jobs (sourceUserId on the job's channel
 //   account) are erased there; other members' content and in-flight turns are left alone.
 // @tested tests/integration/identity-erase-group-speakers.test.js
+// @req FR-022 — the raw webhook payload of a person's own postback (and follow /
+//   unfollow) is theirs too: it carries the postback `data` and their LINE user id,
+//   keyed by LINE's webhookEventId, which no message id or provider subject matches.
+//   `findSpeakerConversationEventKeys` (crm) names those events — every event of a
+//   thread that is theirs alone, and their own events in any shared thread — and
+//   their keys join the raw-record tombstone below. Another member's events stay.
+// @tested tests/integration/identity-erase-speaker-events.test.js
 
 const REDACTED = '[erased]'
 
@@ -187,6 +196,12 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
       excludeConversationIds: personalIds,
     })
     const redactedMessages = personal.redactedMessages + shared.redactedMessages
+    const speakerEvents = await findSpeakerConversationEventKeys(tx, {
+      tenantId,
+      customerIds,
+      channelIdentities: subjectChannels,
+      personalConversationIds: personalIds,
+    })
     // Analyses are derived from a whole thread, so any thread that held this
     // person's words loses its analysis: their own, and every shared one they
     // spoke in. Recomputable; nothing another member wrote is changed.
@@ -199,7 +214,15 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
     //   - the provider subjects this person is known by (profile/customer-lane records
     //     keyed by the subject itself), and
     //   - the provider message ids of their own messages, which is what the LINE
-    //     normalizer uses as `externalId` for a message event.
+    //     normalizer uses as `externalId` for a message event, and
+    //   - the webhook event ids of their own conversation events (postback, follow,
+    //     unfollow; every event of a thread that is theirs alone): the normalizer
+    //     keys a raw record by `webhookEventId` whenever LINE sends one
+    //     (line-oa-webhook.js `externalEventId`), and a ConversationEvent stores
+    //     that same id as its `externalEventId`.
+    // Known gap (not closed here): by that same rule a MESSAGE event that carries a
+    // webhookEventId is keyed by it rather than by the message id, and `Message`
+    // does not store it — see "Which keys reach it" in the integration charter.
     // `ChannelIdentity.channelAccountId` is deliberately NOT included: it names the
     // OA account, shared by every customer of that channel, so matching on it would
     // tombstone other people's evidence.
@@ -207,6 +230,7 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
       ...ownSubjects,
       ...messageKeys.map((row) => row.externalMessageId),
       ...shared.externalMessageIds,
+      ...speakerEvents.externalEventIds,
     ]
     const { tombstonedRawRecords } = await tombstoneRawRecordsForExternalIds(tx, {
       tenantId,

@@ -489,7 +489,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 26
         },
         {
           "id": "FR-025",
@@ -1367,8 +1367,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 20
+          "codeCount": 6,
+          "testCount": 26
         },
         {
           "id": "FR-023",
@@ -1496,7 +1496,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-230",
@@ -1512,7 +1512,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-236",
@@ -1536,7 +1536,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-246",
@@ -1681,7 +1681,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 20
+          "testCount": 26
         },
         {
           "id": "FR-026",
@@ -1817,7 +1817,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 25,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-096",
@@ -1995,7 +1995,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-192",
@@ -2075,7 +2075,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 44
+          "testCount": 45
         }
       ],
       "checks": {
@@ -2340,7 +2340,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 26
         },
         {
           "id": "FR-028",
@@ -2396,7 +2396,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-092",
@@ -3638,7 +3638,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 26
         },
         {
           "id": "FR-026",
@@ -3806,7 +3806,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-235",
@@ -4392,7 +4392,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-105",
@@ -5185,7 +5185,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 20
+          "testCount": 26
         },
         {
           "id": "FR-031",
@@ -5481,7 +5481,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-082",
@@ -5561,7 +5561,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-097",
@@ -6001,7 +6001,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-193",
@@ -6161,7 +6161,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-230",
@@ -6177,7 +6177,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-236",
@@ -6217,7 +6217,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-246",
@@ -6273,7 +6273,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 23,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-253",
@@ -7611,7 +7611,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 30,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-096",
@@ -7705,6 +7705,7 @@
         "apps/server/tests/integration/fr210-line-catalog-command.test.js",
         "apps/server/tests/integration/iam-authorization.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+        "apps/server/tests/integration/identity-erase-speaker-events.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/identity-resolve.test.js",
@@ -9827,7 +9828,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-192",
@@ -9867,6 +9868,7 @@
         "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
         "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+        "apps/server/tests/integration/identity-erase-speaker-events.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
@@ -10905,7 +10907,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-230",
@@ -10937,7 +10939,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-234",
@@ -10987,6 +10989,7 @@
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+        "apps/server/tests/integration/identity-erase-speaker-events.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -11385,7 +11388,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-246",
@@ -11408,6 +11411,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -12822,8 +12826,8 @@
           "title": "LINE as an identity provider end-to-end",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 16,
-          "testCount": 20
+          "codeCount": 19,
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -12832,8 +12836,11 @@
         "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
         "apps/server/src/app/api/identity/link-tokens/route.js",
         "apps/server/src/modules/agent/execution-trace.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-service.js",
+        "apps/server/src/modules/crm/chat-evidence-retrieval-service.js",
         "apps/server/src/modules/crm/conversation-redaction-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
+        "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/identity/classify-principal.js",
         "apps/server/src/modules/identity/erase-customer-principal.js",
         "apps/server/src/modules/identity/erase-principal.js",
@@ -12845,14 +12852,19 @@
         "apps/server/src/platform/integrations/core/raw-record-redaction.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
+        "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+        "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
+        "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
+        "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
         "apps/server/tests/integration/identity-classify.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+        "apps/server/tests/integration/identity-erase-speaker-events.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/identity-gate.test.js",
         "apps/server/tests/integration/identity-link.test.js",
@@ -12861,6 +12873,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
         "apps/server/tests/unit/customer-erasure-confirmation.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js"
       ]
@@ -15298,7 +15311,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 23
+          "testCount": 24
         }
       ],
       "evidence": [
@@ -15319,6 +15332,7 @@
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr109-knowledge-ingestion-executor.test.js",
+        "apps/server/tests/integration/identity-erase-speaker-events.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/market-intelligence-translation-run.test.js",
@@ -17333,7 +17347,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 44
+          "testCount": 45
         }
       ],
       "evidence": [
@@ -17377,6 +17391,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/governance-snapshot-capture.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+        "apps/server/tests/integration/identity-erase-speaker-events.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",

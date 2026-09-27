@@ -1,7 +1,7 @@
 ---
-version: "0.6.0b"
+version: "0.6.1b"
 status: active
-last_update: "2026-09-26T00:00:00+07:00,Codex GPT-6"
+last_update: "2026-09-27T21:00:00+07:00,Claude Opus 5.5 (MC0)"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
@@ -105,6 +105,17 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   what proves this row is the redaction of a specific delivery rather than a
   fabricated one. Called by identity's `erasePrincipal` inside its transaction, and
   by nothing else; this lane still writes no business truth.
+  **Which keys reach it (FR-022).** The LINE normalizer keys a raw record by the
+  event's `webhookEventId` whenever LINE sends one, and by the message id only
+  otherwise (`line-oa-webhook.js` `externalEventId`). Erasure passes the person's
+  provider subjects, their message ids and, since 2026-09-27, the webhook event ids
+  of their own conversation events (postback, follow, unfollow — crm's
+  `findSpeakerConversationEventKeys`, which reads `ConversationEvent.externalEventId`,
+  the same id). **Known gap, not closed:** a *message* event that carries a
+  `webhookEventId` is keyed by it, and `Message` does not store that id, so a message
+  payload is matched only when its record was keyed by the message id; closing it
+  needs the webhook event id recorded on the Message (a schema change) or a
+  payload-side lookup.
 - Ingestion identity is derived from tenant, connection, entity type, external id
   and a canonical payload hash. External identifiers are mapped through
   `ExternalEntityRef` and never become primary keys (BR-002).
@@ -349,6 +360,7 @@ material in any response (`line-channel-credential-service.js` for the last thre
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.6.1b | 2026-09-27 | FR-022: erasure now also tombstones the raw payloads of a person's own postback/follow/unfollow events (keyed by webhook event id); the message-event keying gap is recorded, not closed | Claude Opus 5.5 (MC0) |
 | 0.4.2b | 2026-09-14 | Migrations 20260914140000..140400 applied on production on the owner's instruction (ADR-057; ADR-089 proof 10 waived); the Phase 1 section says so; nothing deployed | Claude Opus 5 |
 | 0.4.1b | 2026-09-14 | TASK-ZAI-078..080 merged in #398 (main 2aef8caa): the Phase 1 section now says merged instead of built on a branch; migrations 20260914140000..140400 still not applied, nothing deployed | Claude Opus 5 |
 | 0.4.0b | 2026-09-14 | TASK-ZAI-079 built on the same branch: `owns_models` += `ChannelAccountClaim`; claim service, LINE channel-admin port with the stateless token cache, and the connect-with-secret service listed; migration 20260914140100 written, not applied | Claude Opus 5 |

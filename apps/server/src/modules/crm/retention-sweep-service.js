@@ -107,6 +107,8 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       sessionId: true,
       createdAt: true,
       externalMessageId: true,
+      // @req FR-022 — the archive seals a group line under its speaker's key.
+      authorChannelIdentityId: true,
       conversation: { select: { id: true, customerId: true, businessId: true } },
       attachments: {
         select: { id: true, kind: true, providerContentId: true, fileAssetId: true, fetchState: true, mimeType: true, sizeBytes: true },

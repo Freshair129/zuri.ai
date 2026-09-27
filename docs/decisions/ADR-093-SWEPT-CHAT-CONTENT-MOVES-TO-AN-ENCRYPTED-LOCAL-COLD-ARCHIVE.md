@@ -1,7 +1,7 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-15T23:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-27T21:00:00+07:00,Claude Opus 5.5 (MC0)"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -86,6 +86,19 @@ Nobody browses the archive. An OWNER at AAL2, through the FR-224 step-up gate, r
 
 One local disk is a single point of failure for evidence. Proposed: once a month, new archive files are copied to an external drive the owner keeps offline, and the copy is verified against the manifest hashes. The archive key needs its own offline backup, because losing `ZURI_ARCHIVE_KEK` makes the whole archive unreadable.
 
+### D4 amendment (1.1.0) — a shared thread's lines are sealed per speaker
+
+"Each Customer's lines" was read as "the lines of each Customer's conversations". A LINE group or room Conversation belongs to the Customer of its first speaker, so a format-1 file sealed every member's lines under that one Customer's key: erasing the first speaker destroyed every other member's archived lines, and erasing any other member left theirs readable under the first speaker's key. From archive format 2 (the file header's `v`) a line is sealed under its **speaker's** Customer key: an inbound line under the Customer of its `Message.authorChannelIdentityId` (FR-022), the stack reply to it (`reply:<inboundId>`) under the same key, and every other line (staff and push messages, a row with no attributed author) under the thread owner's key as before. The archived line still names the thread's Customer; only the key moved. A direct chat has one speaker, so it is sealed exactly as format 1 sealed it.
+
+D6 and the legal hold are unchanged and now land on exactly the right lines: destroying a Customer's key destroys the lines they wrote, in every thread, and a hold on a Customer keeps exactly those lines. D7 retrieval of one Customer returns the lines of the threads they own (opening every member's still-existing key for a shared thread, never minting one) and the lines they wrote, with the replies to them, in threads another Customer owns. A line whose key is gone is reported missing, as before.
+
+#### Group archives written before format 2
+
+A format-1 file cannot be re-keyed in place: its bytes are fixed by `fileSha256`, which every later manifest hash in the Tenant's chain covers, and D2/D4 forbid rewriting a file. So format-1 group lines keep the format-1 behaviour — erasing the thread owner shreds them (fail-safe, but it loses other members' evidence) and erasing another member does not reach them.
+
+- **Population.** Expected to be empty. No message is eligible before 2028-09-08 at the installation default, and the sweep had never run on 2026-09-15; only a shortened Tenant override could have produced a file. Before this change is deployed, the operator confirms it read-only: `SELECT count(*) FROM "ArchiveManifest"`. Zero means there is nothing to migrate and this section closes.
+- **If it is not zero** (not implemented, because it retires tamper-evident evidence files and needs `ZURI_ARCHIVE_KEK` in an operator process): an operator command, run under ADR-057 before any affected thread owner is erased, (1) verifies the whole chain with files, (2) for each format-1 manifest whose owner segments hold a line with an attributed author other than the owner, writes a new format-2 run holding exactly that manifest's message ids re-sealed per speaker, appended to the chain with the same `messageIdListHash`, and (3) retires the format-1 file. Step 3 needs a further amendment here so that chain verification accepts a missing file retired by a later manifest re-archiving exactly its id list. Until then, an erasure of a non-owner member cannot claim that their format-1 group lines were crypto-shredded.
+
 ## Owner decisions (2026-09-16)
 
 The owner accepted every proposed default.
@@ -135,5 +148,6 @@ No message is eligible before 2028-09-08, so these phases can follow the evidenc
 
 | Version | Date | Status | Change |
 |---|---|---|---|
+| 1.1.0 | 2026-09-27 | accepted | D4 amendment: a shared LINE group or room thread's archived lines are sealed per speaker (format 2), so erasure and the legal hold act on exactly one member's lines (FR-022); format-1 group files and their migration path recorded, not implemented |
 | 1.0.0 | 2026-09-16 | accepted | Owner accepted every proposed default; FR-245, FR-246, SEC-034, SDD-103 and FEAT-041 declared, SEC-031 re-worded; counsel confirmation of D5 and D6 recorded as pending |
 | 0.1.0 | 2026-09-15 | proposed | First draft at the owner's request, with production facts, the three evidence gaps, eight proposed decisions and the open decisions table |

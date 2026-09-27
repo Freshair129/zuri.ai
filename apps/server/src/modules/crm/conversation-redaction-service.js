@@ -18,6 +18,10 @@ import { refreshConversationPreview } from './conversation-preview-service'
 //   wholesale; `redactSpeakerContentInSharedThreads` redacts one speaker's own lines
 //   and the replies to them, in any thread, whoever owns it.
 // @tested tests/integration/identity-erase-group-speakers.test.js
+// @req FR-022 — `findSpeakerConversationEventKeys` names one person's own
+//   conversation events (a postback, follow or unfollow they sent, in any thread)
+//   so identity can tombstone their raw webhook payloads.
+// @tested tests/integration/identity-erase-speaker-events.test.js
 //
 // WHY A TOMBSTONE AND NOT A DELETE
 // --------------------------------
@@ -234,4 +238,95 @@ async function attributeFromIngestAudit(tx, { tenantId, customerIds, channelIden
     attributed += updated.count
   }
   return attributed
+}
+
+// Which events name a speaker: only `ingestLineConversationEvent` (line-ingest-service.js)
+// writes a CONVERSATION_EVENT_RECORDED audit row carrying a `customerId` — the one
+// writer for the event kinds whose LINE payload names one individual in
+// `event.source.userId` (postback, follow, unfollow). Join/leave/member events and
+// unsend resolve no identity and record no Customer, so they are never attributed.
+
+/**
+ * @req FR-022 — the provider event ids of one person's own conversation events,
+ * so identity can tombstone their raw webhook payloads (the postback `data`, the
+ * speaker's LINE user id) through the integration writer in the same transaction.
+ *
+ * A `ConversationEvent` row keeps ids only (FR-229: a postback's `data` string is
+ * never stored on it), and its `externalEventId` is LINE's `webhookEventId` — the
+ * same key the LINE normalizer gives the raw record. So the row stays as the
+ * envelope, exactly as a tombstoned message keeps its envelope, and only its key
+ * is returned. Two families:
+ *   - every event in `personalConversationIds` (a thread that is this person's
+ *     alone, erased whole — the direct-chat rule), and
+ *   - in any other thread of the tenant, a POSTBACK / FOLLOW / UNFOLLOW this person
+ *     sent, attributed through its CONVERSATION_EVENT_RECORDED audit row. Ingest
+ *     writes that row in the event's own transaction and names the SPEAKER's
+ *     Customer, not the thread owner's; an event is taken only when the audit
+ *     row's tenant, conversation, channel account and kind all agree with the
+ *     event and its Conversation, and the person has a ChannelIdentity on exactly
+ *     that channel and account (the same checks `attributeFromIngestAudit` makes).
+ * Every other member's events are never selected.
+ *
+ * Read-only: it writes nothing, so it is idempotent by construction.
+ *
+ * @param {object} tx prisma client or transaction client
+ * @param {{tenantId: string, customerIds?: string[], channelIdentities?: {channel: string, channelAccountId: string}[],
+ *   personalConversationIds?: string[]}} scope
+ * @returns {Promise<{externalEventIds: string[], sharedEvents: number}>}
+ */
+export async function findSpeakerConversationEventKeys(tx, {
+  tenantId, customerIds, channelIdentities, personalConversationIds,
+} = {}) {
+  if (!tenantId) throw new Error('findSpeakerConversationEventKeys requires tenantId')
+  const personal = [...new Set((personalConversationIds ?? []).filter(Boolean))]
+  const owners = new Set((customerIds ?? []).filter(Boolean))
+  const identities = (channelIdentities ?? []).filter((row) => row?.channel && row.channelAccountId)
+  const keys = new Set()
+
+  if (personal.length) {
+    const rows = await tx.conversationEvent.findMany({
+      where: { conversationId: { in: personal }, conversation: { tenantId } },
+      select: { externalEventId: true },
+    })
+    for (const row of rows) keys.add(row.externalEventId)
+  }
+
+  let sharedEvents = 0
+  if (owners.size && identities.length) {
+    const claims = new Map()
+    for (const customerId of owners) {
+      // Matched by text first (`"customerId":"<id>"`, the exact shape `recordAudit`
+      // stringifies), then parsed and checked; the text match only narrows the read.
+      const rows = await tx.auditEvent.findMany({
+        where: { entityType: 'CONVERSATION', action: 'CONVERSATION_EVENT_RECORDED',
+          payloadJson: { contains: `"customerId":${JSON.stringify(customerId)}` } },
+        select: { entityId: true, payloadJson: true },
+      })
+      for (const row of rows) {
+        let payload = null
+        try { payload = JSON.parse(row.payloadJson) } catch { payload = null }
+        if (payload?.tenantId !== tenantId || !owners.has(payload.customerId)
+          || typeof payload.eventId !== 'string' || typeof payload.kind !== 'string') continue
+        claims.set(payload.eventId, { conversationId: row.entityId, channelAccountId: payload.channelAccountId, kind: payload.kind })
+      }
+    }
+    if (claims.size) {
+      const events = await tx.conversationEvent.findMany({
+        where: { id: { in: [...claims.keys()] }, conversation: { tenantId } },
+        select: { id: true, kind: true, externalEventId: true, conversationId: true,
+          conversation: { select: { channel: true, channelAccountId: true } } },
+      })
+      for (const event of events) {
+        const claim = claims.get(event.id)
+        if (claim.conversationId !== event.conversationId || claim.kind !== event.kind
+          || claim.channelAccountId !== event.conversation.channelAccountId) continue
+        const speaks = identities.some((row) => row.channel === event.conversation.channel
+          && row.channelAccountId === event.conversation.channelAccountId)
+        if (!speaks) continue
+        if (!keys.has(event.externalEventId)) sharedEvents += 1
+        keys.add(event.externalEventId)
+      }
+    }
+  }
+  return { externalEventIds: [...keys], sharedEvents }
 }

@@ -34,9 +34,25 @@
 // ----------------------
 // `<baseDir>/<tenantId>/<yyyy>/<runId>.zca`, UTF-8, newline-delimited JSON:
 //   line 1   header — { v, tenantId, runId, kekId, createdAt }
-//   line 2.. one sealed segment per Customer — { customerId, iv, tag, ciphertext }
+//   line 2.. one sealed segment per key Customer — { customerId, iv, tag, ciphertext }
 // A segment's ciphertext is AES-256-GCM over gzip(JSON Lines), one line per
-// archived message (see `buildArchiveLine`). The writer creates the file under
+// archived message (see `buildArchiveLine`).
+//
+// @req FR-022, SEC-034 — WHOSE KEY SEALS A LINE (header v2). A LINE group or room
+//   Conversation belongs to its first speaker's Customer, yet every member writes
+//   in it. A v1 file sealed every line under the thread owner's key, so erasing
+//   the owner shredded the other members' lines and erasing another member never
+//   reached theirs. From v2 a line is sealed under its SPEAKER's Customer key
+//   (`resolveArchiveKeyCustomers`): an inbound line under the Customer of its
+//   `authorChannelIdentityId`, the stack reply to it (`reply:<inboundId>`, which
+//   repeats the answer to that speaker) under the same key, and every other line
+//   (staff and push messages, unattributed rows) under the thread owner's key as
+//   before. In a direct chat speaker and owner are one Customer, so its segments
+//   are exactly what v1 wrote. A v1 file is still read as it was written; see
+//   ADR-093 §"Group archives written before format 2" for its migration path.
+// @tested tests/integration/crm-archive-group-speakers.test.js
+//
+// The writer creates the file under
 // a temporary name in the same directory, fsyncs it, renames it into place,
 // reads it back and compares SHA-256 against what was written — verification
 // is against the bytes actually on disk after the rename, not against the
@@ -89,6 +105,9 @@ export class ChatEvidenceArchiveTransactionError extends Error {
 const PRODUCTION_ARCHIVE_ROOT = '/archive'
 
 const REPLY_AUDIT_ACTIONS = ['REPLY_DELIVERED', 'OUTBOUND_ACCEPTED', 'STAFF_REPLY_DELIVERED']
+
+/** v1: every line under its thread owner's key. v2: under its speaker's (FR-022). */
+export const ARCHIVE_FORMAT_VERSION = 2
 
 /**
  * The archive's base directory. Local/test calls retain the per-machine temp
@@ -302,6 +321,81 @@ export async function getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerI
   }
 }
 
+/**
+ * This Customer's data key, only if one already exists — never minted. For a
+ * reader opening a segment sealed under someone else's key (a group member's
+ * line in a thread another Customer owns): an absent key means that Customer's
+ * lines were destroyed (erasure, expiry) or never archived, and minting one would
+ * only create a key that opens nothing. Returns null in that case.
+ */
+export async function openExistingCustomerArchiveKeyDek(db, { tenantId, customerId }, env = process.env) {
+  const existing = await db.customerArchiveKey.findUnique({ where: { customerId } })
+  if (!existing || existing.tenantId !== tenantId) return null
+  return openCustomerArchiveKey(existing, { customerId, tenantId }, env)
+}
+
+// `reply:<inboundId>` is recordLineReply's key (reply-record-service.js
+// replyExternalId), spelled here for the same reason conversation-redaction-service.js
+// spells it: importing it would pull the LINE runtime into this module.
+const REPLY_EXTERNAL_PREFIX = 'reply:'
+
+/**
+ * @req FR-022, SEC-034 — whose archive key seals each message (see the module
+ * header). `messages` need `id`, `direction`, `externalMessageId`,
+ * `authorChannelIdentityId` and `conversation: { id, customerId }`.
+ *
+ * Tenant-bound throughout: an author identity, a reply's inbound or a Customer
+ * from another Tenant is never followed, and anything that does not resolve
+ * falls back to the thread owner — the v1 behaviour — rather than failing a run.
+ *
+ * @returns {Promise<Map<string, string>>} message id → key Customer id
+ */
+export async function resolveArchiveKeyCustomers(db, { tenantId, messages }) {
+  const conversationOf = (message) => message.conversation?.id ?? message.conversationId
+  const replyTargets = new Map()
+  for (const message of messages) {
+    if (message.direction === 'OUTBOUND' && typeof message.externalMessageId === 'string'
+      && message.externalMessageId.startsWith(REPLY_EXTERNAL_PREFIX)) {
+      replyTargets.set(message.id, message.externalMessageId.slice(REPLY_EXTERNAL_PREFIX.length))
+    }
+  }
+  const inbound = new Map(messages.filter((message) => message.direction === 'INBOUND')
+    .map((message) => [message.id, { conversationId: conversationOf(message), authorChannelIdentityId: message.authorChannelIdentityId ?? null }]))
+  const outside = [...new Set(replyTargets.values())].filter((id) => !inbound.has(id))
+  if (outside.length) {
+    const rows = await db.message.findMany({
+      where: { id: { in: outside }, direction: 'INBOUND', conversation: { tenantId } },
+      select: { id: true, conversationId: true, authorChannelIdentityId: true },
+    })
+    for (const row of rows) inbound.set(row.id, { conversationId: row.conversationId, authorChannelIdentityId: row.authorChannelIdentityId })
+  }
+  const identityIds = [...new Set([...inbound.values()].map((row) => row.authorChannelIdentityId).filter(Boolean))]
+  const identities = identityIds.length
+    ? await db.channelIdentity.findMany({ where: { tenantId, id: { in: identityIds } }, select: { id: true, personId: true } })
+    : []
+  const personIds = [...new Set(identities.map((row) => row.personId).filter(Boolean))]
+  const customers = personIds.length
+    ? await db.customer.findMany({ where: { tenantId, personId: { in: personIds } }, select: { id: true, personId: true } })
+    : []
+  const customerByPerson = new Map(customers.map((row) => [row.personId, row.id]))
+  const customerByIdentity = new Map(identities.map((row) => [row.id, customerByPerson.get(row.personId) ?? null]))
+  const speakerOf = (row) => (row?.authorChannelIdentityId ? customerByIdentity.get(row.authorChannelIdentityId) ?? null : null)
+
+  const keys = new Map()
+  for (const message of messages) {
+    let speaker = null
+    if (message.direction === 'INBOUND') {
+      speaker = speakerOf(inbound.get(message.id))
+    } else if (replyTargets.has(message.id)) {
+      const target = inbound.get(replyTargets.get(message.id))
+      // A reply is keyed to its inbound only inside the same thread.
+      if (target && target.conversationId === conversationOf(message)) speaker = speakerOf(target)
+    }
+    keys.set(message.id, speaker ?? message.conversation.customerId)
+  }
+  return keys
+}
+
 async function resolveReplySources(db, conversationIds) {
   if (conversationIds.length === 0) return new Map()
   // The exact STACK/TRANSPORT_FALLBACK/STAFF distinction is recorded only in
@@ -434,10 +528,12 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   const runId = runIdOverride ?? buildRunId(now)
   const conversationIds = [...new Set(candidates.map((message) => message.conversation.id))]
   const replySourceByMessageId = await resolveReplySources(db, conversationIds)
+  // @req FR-022 — one segment per SPEAKER's Customer, not per thread owner (v2).
+  const keyCustomerByMessageId = await resolveArchiveKeyCustomers(db, { tenantId, messages: candidates })
 
   const byCustomer = new Map()
   for (const message of candidates) {
-    const customerId = message.conversation.customerId
+    const customerId = keyCustomerByMessageId.get(message.id)
     if (!byCustomer.has(customerId)) byCustomer.set(customerId, [])
     byCustomer.get(customerId).push(message)
   }
@@ -456,7 +552,7 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
     }
   }
 
-  const header = { v: 1, tenantId, runId, kekId: resolveArchiveKeyring(env).current.label, createdAt: now.toISOString() }
+  const header = { v: ARCHIVE_FORMAT_VERSION, tenantId, runId, kekId: resolveArchiveKeyring(env).current.label, createdAt: now.toISOString() }
   const { relativePath, fileSha256 } = await writeArchiveFile({ baseDir: resolvedBaseDir, tenantId, runId, now, header, segments })
 
   const messageIds = candidates.map((message) => message.id)
