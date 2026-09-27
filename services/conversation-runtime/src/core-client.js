@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { CONTRACT_VERSION, CORE_OPERATIONS, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, validateCoreEnvelope, validateClaim, validateTurnContext } from './contracts.js'
+import { CONTRACT_VERSION, CORE_OPERATIONS, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, WORK_REJECTION_CODES, validateCoreEnvelope, validateClaim, validateTurnContext } from './contracts.js'
 
 // @req FR-149 — private core adapter for the independently running runtime.
 // @spec ADR-106 D2-D4, SDD-110 — bearer-authenticated bounded operations.
@@ -151,7 +151,7 @@ function validateOperationResult(operation, data) {
       || !Number.isInteger(data.scope.identityVersion) || data.scope.identityVersion < 1
       || !Number.isInteger(data.version) || data.version < 1) invalid()
   } else if (operation === 'prepare') {
-    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])) invalid()
+    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply'])) invalid()
     try { validateTurnContext(data) } catch { invalid() }
   } else if (operation === 'credential') {
     if (!data || typeof data.provider !== 'string' || !data.provider.trim() || data.provider.length > 32
@@ -188,8 +188,11 @@ function validateOperationResult(operation, data) {
         || (data.operationId !== undefined && (typeof data.operationId !== 'string' || !data.operationId.trim() || data.operationId.length > 200))) invalid()
     }
     if (operation === 'work-tool') {
-      if (!['COMPLETED', 'NOT_FOUND'].includes(data.status)) invalid()
-      if (data.status === 'COMPLETED') {
+      if (!['COMPLETED', 'NOT_FOUND', 'REJECTED'].includes(data.status)) invalid()
+      if (data.status === 'REJECTED') {
+        if (!exact(data, ['status', 'code', 'result']) || !WORK_REJECTION_CODES.includes(data.code) || !exact(data.result, ['text'])
+          || typeof data.result.text !== 'string' || !data.result.text.trim() || data.result.text.length > 5000) invalid()
+      } else if (data.status === 'COMPLETED') {
         if (!exact(data, ['status', 'result']) || !exact(data.result, ['text', 'receipt'])
           || typeof data.result.text !== 'string' || data.result.text.length > 5000
           || !data.result.receipt || typeof data.result.receipt !== 'object' || Array.isArray(data.result.receipt)

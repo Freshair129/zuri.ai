@@ -10,6 +10,8 @@ import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVI
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
+import { handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
+import { updateItem } from '@/modules/project-manager/application/work-service'
 import { createCoreClient } from '../../../../services/conversation-runtime/src/core-client.js'
 import { createCorePorts } from '../../../../services/conversation-runtime/src/core-ports.js'
 import { validateWorkToolRequest } from '../../../../services/conversation-runtime/src/contracts.js'
@@ -32,7 +34,7 @@ const lineUser = 'synthetic-wtp-line-user'
 const schema = JSON.parse(readFileSync(new URL(
   '../../../../services/conversation-runtime/contracts/v1/operation.schema.json', import.meta.url), 'utf8'))
 
-let tenant, business, account, workstream, project
+let tenant, business, account, workstream, project, actor, ownerViewer
 let wire = []
 let deliveries = []
 let openJobs = []
@@ -80,6 +82,31 @@ async function admit(eventId, text) {
   return jobId
 }
 
+const LEGACY_ORACLE_ROLLBACK = Symbol('legacy-oracle-rollback')
+
+/**
+ * The legacy Server handler's own reply for this job, on the current database state:
+ * `handleLineProjectWorkCommand` runs for real inside one transaction that is then
+ * rolled back, so nothing it writes (proposal, receipt, WorkItem, code counter)
+ * survives and the runtime path afterwards starts from the identical state. The
+ * handler opens its own transactions; they run inside the outer one here.
+ */
+async function legacyReply(jobId, now) {
+  let reply
+  try {
+    await prisma.$transaction(async tx => {
+      const db = new Proxy(tx, { get: (target, key) => key === '$transaction' ? (work => work(target)) : target[key] })
+      const job = await tx.lineConversationJob.findUnique({ where: { id: jobId }, include: { inbound: true } })
+      reply = await handleLineProjectWorkCommand(job, { db, now })
+      throw LEGACY_ORACLE_ROLLBACK
+    }, { timeout: 30_000 })
+  } catch (error) {
+    if (error !== LEGACY_ORACLE_ROLLBACK) throw error
+  }
+  expect(reply?.text, 'the legacy handler must answer every Work command').toEqual(expect.any(String))
+  return reply
+}
+
 /** Claim through the runtime's own port, then resolve authority and prepare the turn through Core. */
 async function claimTurn(ports, jobId, claimantId) {
   const claim = await ports.job.claim({ claimantId })
@@ -96,9 +123,9 @@ beforeAll(async () => {
   const portfolio = await createPortfolio({ name: 'WorkToolPort fixture', code: 'PF-CR-WTP' })
   tenant = await createTenant({ portfolioId: portfolio.id, name: 'WorkToolPort tenant', code: 'TNT-CR-WTP' })
   business = await createBusiness({ tenantId: tenant.id, name: 'WorkToolPort business', code: 'BUS-CR-WTP' })
-  const actor = await prisma.person.create({ data: { code: 'PER-CR-WTP', displayName: 'Synthetic WorkToolPort actor' } })
+  actor = await prisma.person.create({ data: { code: 'PER-CR-WTP', displayName: 'Synthetic WorkToolPort actor' } })
   await prisma.membership.create({ data: { personId: actor.id, tenantId: tenant.id, businessId: business.id, role: 'OWNER' } })
-  const ownerViewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id],
+  ownerViewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id],
     visibleDomains: ['projects', 'people', 'platform', 'line-oa'] })
   const workspace = await createWorkspace({ name: 'WorkToolPort workspace', code: 'WS-CR-WTP', scopeType: 'BUSINESS', businessId: business.id })
   project = await createProject({ workspaceId: workspace.id, name: 'WorkToolPort project', code: 'PRJ-CR-WTP' }, { viewer: ownerViewer })
@@ -143,7 +170,9 @@ describe('Conversation Runtime WorkToolPort against the real Core provider', () 
     expect(Object.keys(result).sort()).toEqual(['result', 'status'])
     expect(result.status).toBe('COMPLETED')
     expect(Object.keys(result.result).sort()).toEqual(['receipt', 'text'])
-    expect(result.result.text).toBe(`PRJ-CR-WTP: WorkToolPort project — ${project.status}`)
+    // Byte-for-byte the legacy Server reply, with the item and workstream ids that /work-create needs.
+    expect(result.result.text).toBe((await legacyReply(jobId)).text)
+    expect(result.result.text).toBe(`PRJ-CR-WTP: WorkToolPort project — ${project.status}\n${project.id}\nWorkToolPort stream: ${workstream.id}`)
     expect(Object.keys(result.result.receipt).sort()).toEqual(['observedAt', 'source'])
     expect(result.result.receipt.source).toBe('PROJECT_MANAGER')
     expect(Number.isFinite(Date.parse(result.result.receipt.observedAt))).toBe(true)
@@ -327,10 +356,244 @@ describe('Conversation Runtime WorkToolPort against the real Core provider', () 
     expect(outcome).toMatchObject({ jobId })
     const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
     expect(job, JSON.stringify({ outcome, wire: wire.map(call => call.operation) })).toMatchObject({ status: 'RECORDED' })
-    expect(job.answerText).toBe(`PRJ-CR-WTP: WorkToolPort project — ${project.status}`)
+    expect(job.answerText).toBe(`PRJ-CR-WTP: WorkToolPort project — ${project.status}\n${project.id}\nWorkToolPort stream: ${workstream.id}`)
     expect(deliveries).toHaveLength(1)
     expect(JSON.stringify(deliveries[0])).toContain('PRJ-CR-WTP')
     expect(workToolCalls()).toEqual([`status ${jobId}:work-read`, `read ${jobId}:work-read`])
     expect(wire.map(call => call.operation)).not.toContain('credential')
+  })
+})
+
+
+// @req FR-026, FR-149 — answer and error parity with the legacy Server Work handler.
+// Every case drives the same signed inbound text through both paths on the same
+// database state: the legacy `handleLineProjectWorkCommand` (its writes rolled back,
+// see `legacyReply`) and a full runtime turn (`runOne`) over the real Core provider.
+// The reply the runtime commits and delivers must equal the legacy reply byte for
+// byte. Core and the legacy handler share one clock here, so proposal expiry
+// timestamps are comparable.
+describe('Conversation Runtime Work replies match the legacy Server handler byte for byte', () => {
+  const clock = { at: new Date() }
+  const uuid = '6f1c1a52-6a55-4b8e-9d7c-2f1b8e3c9a10'
+  let parityProjects = []
+
+  function paritySetup(coreOptions = {}) {
+    const built = build({ coreOptions: { now: () => clock.at, ...coreOptions } })
+    const claimThroughPort = built.ports.job.claim
+    const legacy = new Map()
+    // Compute the legacy reply for the job the runtime just claimed, before the
+    // runtime takes any other step; the legacy handler requires a CLAIMED job.
+    built.ports.job.claim = async args => {
+      clock.at = new Date()
+      const claim = await claimThroughPort(args)
+      if (claim) legacy.set(claim.jobId, await legacyReply(claim.jobId, () => clock.at))
+      return claim
+    }
+    return { ...built, legacy }
+  }
+
+  async function bothPaths(eventId, text, setup = paritySetup()) {
+    const jobId = await admit(eventId, text)
+    const deliveredBefore = deliveries.length
+    const wireBefore = wire.length
+    const outcome = await createConversationRuntime({ ports: setup.ports, claimantId: `runtime-${eventId}` }).runOne()
+    const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
+    const calls = wire.slice(wireBefore).filter(call => call.operation === 'work-tool').map(call => call.payload.operation)
+    return { jobId, outcome, job, legacy: setup.legacy.get(jobId), delivered: deliveries.length - deliveredBefore, calls }
+  }
+
+  function expectSameReply(run) {
+    expect(run.job, JSON.stringify({ outcome: run.outcome, legacy: run.legacy })).toMatchObject({ status: 'RECORDED' })
+    // The Server worker commits `zCompletion.shape.text.parse(reply.text)`, a trim;
+    // none of these replies has surrounding whitespace, so it is the text itself.
+    expect(run.legacy.text.trim()).toBe(run.legacy.text)
+    expect(run.job.answerText).toBe(run.legacy.text)
+    expect(run.delivered).toBe(1)
+  }
+
+  afterEach(async () => {
+    if (parityProjects.length) {
+      await prisma.project.updateMany({ where: { id: { in: parityProjects } }, data: { deletedAt: new Date() } })
+      parityProjects = []
+    }
+  })
+
+  it('reads: item ids, workstream ids, the empty answer and the truncation note', async () => {
+    for (const [eventId, text] of [
+      ['parity-read-projects', '/projects'],
+      ['parity-read-projects-query', '/projects WorkToolPort'],
+      ['parity-read-work', '/work'],
+      ['parity-read-none', '/projects nothing-matches-this-query'],
+    ]) {
+      const run = await bothPaths(eventId, text)
+      expectSameReply(run)
+      expect(run.calls).toEqual(['status', 'read'])
+    }
+    const workspace = await prisma.workspace.findFirst({ where: { code: 'WS-CR-WTP' } })
+    for (let index = 0; index < 11; index += 1) {
+      const created = await createProject({ workspaceId: workspace.id, name: `Parity truncation ${index}`,
+        code: `PRJ-CR-WTP-T${String(index).padStart(2, '0')}` }, { viewer: ownerViewer })
+      parityProjects.push(created.id)
+    }
+    const truncated = await bothPaths('parity-read-truncated', '/projects Parity truncation')
+    expectSameReply(truncated)
+    expect(truncated.job.answerText).toContain('\nมีรายการเพิ่มเติม โปรดระบุคำค้น')
+    expect(truncated.job.answerText).toContain(parityProjects[10])
+  })
+
+  it('propose, confirm-execute and a second confirmation: the same headers, receipts and duplicate answer', async () => {
+    const create = await bothPaths('parity-propose-create', `/work-create ${workstream.id} Parity created task`)
+    expectSameReply(create)
+    expect(create.job.answerText.split('\n')[0]).toBe('รอยืนยัน สร้างงาน')
+    expect(create.calls).toEqual(['status', 'propose'])
+
+    const confirm = await bothPaths('parity-confirm-create', `ยืนยันงาน ${create.jobId}`)
+    expectSameReply(confirm)
+    const item = await prisma.workItem.findFirst({ where: { workstreamId: workstream.id, title: 'Parity created task' } })
+    expect(confirm.job.answerText).toBe(`บันทึกงาน ${item.code} แล้ว สถานะ ${item.status}`)
+    expect(confirm.calls).toEqual(['status', 'confirm-execute'])
+
+    // A second confirming message is another job: Core does not replay the first
+    // job's receipt to it; confirm-execute answers it exactly as the Server path does.
+    const again = await bothPaths('parity-confirm-again', `ยืนยันงาน ${create.jobId}`)
+    expectSameReply(again)
+    expect(again.job.answerText).toBe('คำสั่งนี้ยืนยันและดำเนินการแล้ว ไม่มีการทำซ้ำ')
+    expect(again.calls).toEqual(['status', 'confirm-execute'])
+    expect(await prisma.workItem.count({ where: { workstreamId: workstream.id, title: 'Parity created task' } })).toBe(1)
+
+    const update = await bothPaths('parity-propose-update', `/work-update ${item.id} {"status":"DONE"}`)
+    expectSameReply(update)
+    expect(update.job.answerText.split('\n')[0]).toBe('รอยืนยัน แก้ไขงาน')
+  })
+
+  it('Work refusals: expired confirmation, version conflict, scope denied and a confirmation Core cannot match', async () => {
+    const expiring = await bothPaths('parity-propose-expiring', `/work-create ${workstream.id} Parity expiring task`)
+    const proposal = await prisma.auditEvent.findUnique({ where: { id: expiring.jobId } })
+    await prisma.auditEvent.update({ where: { id: expiring.jobId }, data: { payloadJson: JSON.stringify({
+      ...JSON.parse(proposal.payloadJson), expiresAt: new Date(Date.now() - 1000).toISOString() }) } })
+    const expired = await bothPaths('parity-confirm-expired', `ยืนยันงาน ${expiring.jobId}`)
+    expectSameReply(expired)
+    expect(expired.legacy.errorCode).toBe('WORK_CONFIRMATION_EXPIRED')
+
+    const target = await prisma.workItem.findFirst({ where: { workstreamId: workstream.id, title: 'Parity created task' } })
+    const updating = await bothPaths('parity-propose-conflict', `/work-update ${target.id} {"title":"Parity renamed task"}`)
+    await updateItem(target.id, { status: 'IN_PROGRESS' }, { viewer: ownerViewer })
+    const conflict = await bothPaths('parity-confirm-conflict', `ยืนยันงาน ${updating.jobId}`)
+    expectSameReply(conflict)
+    expect(conflict.legacy.errorCode).toBe('WORK_VERSION_CONFLICT')
+
+    const unknown = await bothPaths('parity-confirm-unknown', `ยืนยันงาน ${uuid}`)
+    expectSameReply(unknown)
+    expect(unknown.legacy.errorCode).toBe('WORK_ACTION_UNAVAILABLE')
+    // Extra spaces pass the syntax but not the exact-confirmation check.
+    const spaced = await bothPaths('parity-confirm-spaced', `ยืนยันงาน   ${updating.jobId}`)
+    expectSameReply(spaced)
+    expect(spaced.calls).toEqual(['status', 'confirm-execute'])
+
+    await prisma.membership.updateMany({ where: { personId: actor.id, businessId: business.id }, data: { role: 'MEMBER' } })
+    try {
+      const denied = await bothPaths('parity-propose-denied', `/work-create ${workstream.id} Parity denied task`)
+      expectSameReply(denied)
+      expect(denied.legacy.errorCode).toBe('WORK_ACTION_UNAVAILABLE')
+      expect(await prisma.auditEvent.findUnique({ where: { id: denied.jobId } })).toBeNull()
+    } finally {
+      await prisma.membership.updateMany({ where: { personId: actor.id, businessId: business.id }, data: { role: 'OWNER' } })
+    }
+    expect(await prisma.workItem.findFirst({ where: { title: { in: ['Parity renamed task', 'Parity expiring task', 'Parity denied task'] } } })).toBeNull()
+  })
+
+  it('malformed legacy /work syntax is runtime-owned and answered with the legacy usage or refusal text', async () => {
+    const cases = [
+      ['/work-create', 'WORK_COMMAND_USAGE'],
+      ['/work-update', 'WORK_COMMAND_USAGE'],
+      ['/work-create only-one-token', 'WORK_COMMAND_USAGE'],
+      ['ยืนยันงาน', 'WORK_COMMAND_USAGE'],
+      [`ยืนยันงาน\t${uuid}`, 'WORK_COMMAND_USAGE'],
+      ['/work-create not-a-uuid Some task', 'WORK_ACTION_UNAVAILABLE'],
+      [`/work-create ${workstream.id} ${'x'.repeat(241)}`, 'WORK_ACTION_UNAVAILABLE'],
+      [`/work-update ${uuid} not-json`, 'WORK_ACTION_UNAVAILABLE'],
+      [`/work-update ${uuid} {"status":"NOT_A_STATUS"}`, 'WORK_ACTION_UNAVAILABLE'],
+      [`/work ${'q'.repeat(121)}`, 'WORK_ACTION_UNAVAILABLE'],
+      ['ยืนยันงาน not-a-uuid', 'WORK_ACTION_UNAVAILABLE'],
+      [`ยืนยันงาน ${uuid} extra`, 'WORK_ACTION_UNAVAILABLE'],
+    ]
+    for (const [index, [text, code]] of cases.entries()) {
+      // admit() also asserts the job was admitted to the CONVERSATION_RUNTIME cohort.
+      const run = await bothPaths(`parity-malformed-${index}`, text)
+      expectSameReply(run)
+      expect(run.legacy.errorCode ?? 'WORK_COMMAND_USAGE', text).toBe(code)
+      // The reply is derived from the text alone; no Work call runs on either side.
+      expect(run.calls, text).toEqual([])
+      expect(await prisma.auditEvent.findUnique({ where: { id: run.jobId } })).toBeNull()
+    }
+  })
+
+  it('keeps the legacy 5,000-character bound: an over-long Work answer fails without a reply, as on the Server path', async () => {
+    const workspace = await prisma.workspace.findFirst({ where: { code: 'WS-CR-WTP' } })
+    const long = await createProject({ workspaceId: workspace.id, name: `Parity overflow ${'y'.repeat(5000)}`,
+      code: 'PRJ-CR-WTP-OVERFLOW' }, { viewer: ownerViewer })
+    parityProjects.push(long.id)
+    const run = await bothPaths('parity-read-overflow', '/projects Parity overflow')
+    // The legacy worker's `zCompletion` text bound rejects this reply and fails the job.
+    expect(run.legacy.text.trim().length).toBeGreaterThan(5000)
+    expect(run.outcome).toEqual({ jobId: run.jobId, status: 'FAILED', code: 'WORK_TOOL_TEXT_TOO_LONG' })
+    expect(run.job.answerText).toBeNull()
+    expect(run.delivered).toBe(0)
+    // Final, not retried: one read, then the status probe that found nothing recorded.
+    expect(run.calls).toEqual(['status', 'read', 'status'])
+  })
+
+  it('returns refusals as typed REJECTED outcomes, fences them, and keeps availability failures retryable', async () => {
+    const ajv = new Ajv2020({ allErrors: true, strict: false })
+    addFormats(ajv)
+    ajv.addSchema(schema)
+    const validateResult = ajv.compile({ $ref: `${schema.$id}#/$defs/workToolResult` })
+
+    // Invalid arguments reach the Work writer only through a direct port call; the
+    // refusal carries the same text the legacy handler gives invalid arguments.
+    const setup = paritySetup()
+    const jobId = await admit('parity-port-invalid-args', `/work-create ${workstream.id} Parity port task`)
+    const { claim, authority } = await claimTurn(setup.ports, jobId, 'runtime-parity-port')
+    const request = validateWorkToolRequest({ operation: 'propose', operationId: `${jobId}:work-proposal`,
+      input: { action: 'create_work', targetId: workstream.id, args: { title: '   ' } } })
+    const rejected = await setup.ports.workTool.execute(claim, authority, request)
+    // The legacy handler refuses these arguments before any database access.
+    const oracleJobId = await admit('parity-port-invalid-args-legacy', `/work-update ${uuid} {"status":"NOT_A_STATUS"}`)
+    const invalidArgs = await legacyReply(oracleJobId)
+    await prisma.lineConversationJob.update({ where: { id: oracleJobId }, data: { status: 'CANCELLED', errorCode: 'TEST_LEGACY_ORACLE_ONLY' } })
+    expect(rejected).toEqual({ status: 'REJECTED', code: 'WORK_ACTION_UNAVAILABLE', result: { text: invalidArgs.text } })
+    expect(validateResult(rejected), JSON.stringify(validateResult.errors)).toBe(true)
+    expect(await setup.ports.workTool.status(claim, request.operationId)).toEqual({ status: 'NOT_FOUND', operationId: request.operationId })
+    expect(await prisma.auditEvent.findUnique({ where: { id: jobId } })).toBeNull()
+    for (const response of [
+      { status: 'COMPLETED', result: { text: 'x', receipt: {} } },
+      { status: 'NOT_FOUND', operationId: 'op' },
+    ]) expect(validateResult(response)).toBe(true)
+    for (const response of [
+      { status: 'REJECTED', code: 'WORK_SCOPE_DENIED', result: { text: 'x' } },
+      { status: 'REJECTED', code: 'WORK_ACTION_UNAVAILABLE', result: { text: 'x' }, retryable: false },
+    ]) expect(validateResult(response)).toBe(false)
+
+    // A refusal from a claim that stopped being this runtime's is fenced, never answered.
+    const fencedSetup = paritySetup({ workPropose: async () => {
+      await prisma.lineConversationJob.update({ where: { id: fencedJobId }, data: { leaseExpiresAt: new Date(clock.at.getTime() - 1) } })
+      throw Object.assign(new Error('WORK_SCOPE_DENIED'), { code: 'WORK_SCOPE_DENIED' })
+    } })
+    const fencedJobId = await admit('parity-port-fenced', `/work-create ${workstream.id} Parity fenced task`)
+    const fenced = await claimTurn(fencedSetup.ports, fencedJobId, 'runtime-parity-fenced')
+    const fencedRequest = validateWorkToolRequest({ ...fenced.turn.workCommand, operationId: `${fencedJobId}:work-proposal` })
+    await expect(fencedSetup.ports.workTool.execute(fenced.claim, fenced.authority, fencedRequest))
+      .rejects.toMatchObject({ code: 'CONVERSATION_JOB_AUTHORITY_REVOKED', retryable: false })
+    expect(await prisma.auditEvent.findUnique({ where: { id: fencedJobId } })).toBeNull()
+    // Its expired lease would make it the next claim; take it out of the queue.
+    await prisma.lineConversationJob.update({ where: { id: fencedJobId }, data: { status: 'CANCELLED', errorCode: 'TEST_WORK_TOOL_PORT_FENCED' } })
+
+    // A database or transport failure is not a refusal: it stays a retryable error.
+    const outageSetup = paritySetup({ workSearch: async () => { throw Object.assign(new Error('database unreachable'), { code: 'P1001' }) } })
+    const outageJobId = await admit('parity-port-outage', '/projects')
+    const outage = await claimTurn(outageSetup.ports, outageJobId, 'runtime-parity-outage')
+    const outageRequest = validateWorkToolRequest({ ...outage.turn.workCommand, operationId: `${outageJobId}:work-read` })
+    await expect(outageSetup.ports.workTool.execute(outage.claim, outage.authority, outageRequest))
+      .rejects.toMatchObject({ code: 'P1001', retryable: true })
   })
 })

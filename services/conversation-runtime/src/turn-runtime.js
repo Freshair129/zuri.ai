@@ -108,7 +108,10 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       const authority = await ports.authority.resolve(claim, { signal })
       assertAuthority(authority, claim)
       const turn = validateTurnContext(await ports.context.prepare(claim, authority, { signal }))
-      if (turn.workCommand) {
+      if (turn.workReply) {
+        // Core derived a fixed reply from malformed Work command text; no tool runs.
+        text = turn.workReply.text
+      } else if (turn.workCommand) {
         const operationId = turn.workCommand.operation === 'confirm-execute' ? turn.workCommand.input?.proposalId
           : turn.workCommand.operation === 'propose' ? `${claim.jobId}:work-proposal` : `${claim.jobId}:work-read`
         if (turn.workCommand.operationId && turn.workCommand.operationId !== operationId) {
@@ -131,11 +134,16 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
             try { status = await ports.workTool.status(claim, request.operationId, { signal }) }
             catch (statusError) { throw unknownOutcome('WORK_TOOL_OUTCOME_UNKNOWN', statusError) }
             if (status?.status === 'COMPLETED' && status.result) result = status.result
+            // Core refused the call as final and nothing was recorded: retrying cannot
+            // change the answer, and the outcome is known rather than UNKNOWN.
+            else if (status?.status === 'NOT_FOUND' && executionError?.retryable === false) throw executionError
             else if (status?.status === 'NOT_FOUND' && attempt === 0) continue
             else throw unknownOutcome('WORK_TOOL_OUTCOME_UNKNOWN', executionError)
           }
         }
         if (!result) throw unknownOutcome('WORK_TOOL_OUTCOME_UNKNOWN')
+        // COMPLETED and a typed REJECTED refusal both carry the user-facing reply;
+        // a refusal is final, so it is answered and completed rather than retried.
         text = result?.result?.text ?? result?.text
       } else if (evidenceRecords(turn.evidence).length === 0) {
         text = 'ยังไม่พบข้อมูลที่ตรงกับคำถามนี้ ลองระบุรายละเอียดเพิ่มอีกหนึ่งอย่างได้ไหมคะ'

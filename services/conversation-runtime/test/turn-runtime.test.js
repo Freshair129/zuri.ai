@@ -454,3 +454,68 @@ test('does not re-run a provider call with a started receipt after process recla
 test('runtime construction requires every versioned side-effect port', () => {
   assert.throws(() => createConversationRuntime({ ports: {} }), /RUNTIME_PORTS_REQUIRED/)
 })
+
+function workPorts({ prepare, execute, status = async () => ({ status: 'NOT_FOUND' }), record }) {
+  return {
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async (_claim, value) => { record.completed = value.text; return { status: 'READY' } },
+      status: async () => ({ status: 'CLAIMED' }), fail: async (_claim, value) => { record.failed = value } },
+    authority: { resolve: async () => ({ authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare },
+    workTool: { execute, status },
+    model: { credential: async () => assert.fail('a Work turn must not resolve a model credential'),
+      generate: async () => assert.fail('a Work turn must not call the model') },
+    delivery: { send: async () => { record.delivered = (record.delivered ?? 0) + 1; return { status: 'RECORDED' } }, status: async () => ({ status: 'READY' }) },
+    trace: { append: async (_claim, event) => { (record.traces ??= []).push(event.kind) }, status: async () => ({ status: 'NOT_FOUND' }) },
+  }
+}
+
+test('answers malformed Work syntax with the Core-derived workReply and calls no tool', async () => {
+  const record = {}
+  const ports = workPorts({ record,
+    prepare: async () => ({ ...turn, question: '/work-create', workReply: { code: 'WORK_COMMAND_USAGE', text: 'usage text' } }),
+    execute: async () => assert.fail('a fixed Work reply must not call the WorkToolPort'),
+    status: async () => assert.fail('a fixed Work reply must not probe the WorkToolPort') })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.equal(record.completed, 'usage text')
+  assert.equal(record.delivered, 1)
+})
+
+test('answers a typed REJECTED Work refusal once, with its reply, instead of retrying into UNKNOWN', async () => {
+  const proposalId = '00000000-0000-4000-8000-000000000007'
+  const record = {}
+  let executions = 0
+  const ports = workPorts({ record,
+    prepare: async () => ({ ...turn, workCommand: { operation: 'confirm-execute', input: { proposalId } } }),
+    execute: async () => { executions += 1; return { status: 'REJECTED', code: 'WORK_CONFIRMATION_EXPIRED', result: { text: 'expired reply' } } } })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.equal(executions, 1)
+  assert.equal(record.completed, 'expired reply')
+  assert.equal(record.failed, undefined)
+})
+
+test('a final Core refusal with nothing recorded fails the Work turn without a retry; a retryable one still ends UNKNOWN', async () => {
+  const final = {}
+  let finalExecutions = 0
+  const finalPorts = workPorts({ record: final,
+    prepare: async () => ({ ...turn, workCommand: { operation: 'read', input: { kind: 'projects', query: '' } } }),
+    execute: async () => { finalExecutions += 1; throw Object.assign(new Error('WORK_TOOL_TEXT_TOO_LONG'), { code: 'WORK_TOOL_TEXT_TOO_LONG', retryable: false }) } })
+  const failed = await createConversationRuntime({ ports: finalPorts, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.deepEqual(failed, { jobId: claim.jobId, status: 'FAILED', code: 'WORK_TOOL_TEXT_TOO_LONG' })
+  assert.equal(finalExecutions, 1)
+  assert.deepEqual(final.failed, { code: 'WORK_TOOL_TEXT_TOO_LONG', outcome: 'FAILED' })
+  assert.equal(final.delivered, undefined)
+
+  const transient = {}
+  let transientExecutions = 0
+  const transientPorts = workPorts({ record: transient,
+    prepare: async () => ({ ...turn, workCommand: { operation: 'read', input: { kind: 'projects', query: '' } } }),
+    execute: async () => { transientExecutions += 1; throw Object.assign(new Error('CORE_OPERATION_UNAVAILABLE'), { code: 'CORE_OPERATION_UNAVAILABLE', retryable: true }) } })
+  const unknown = await createConversationRuntime({ ports: transientPorts, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.deepEqual(unknown, { jobId: claim.jobId, status: 'UNKNOWN', code: 'WORK_TOOL_OUTCOME_UNKNOWN' })
+  assert.equal(transientExecutions, 2)
+  assert.ok(transient.traces.includes('WORK_TOOL_OUTCOME_UNKNOWN'))
+})

@@ -497,7 +497,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-027",
@@ -691,8 +691,8 @@
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 54
+          "codeCount": 5,
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -1681,7 +1681,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-031",
@@ -2508,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-152",
@@ -3633,6 +3633,14 @@
           "testCount": 16
         },
         {
+          "id": "FR-026",
+          "title": "Agent write/action gate (ADR-007 P7, Gate F)",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 10
+        },
+        {
           "id": "FR-061",
           "title": "Per-Business domain visibility",
           "declared": "done",
@@ -3678,7 +3686,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -5737,7 +5745,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -8680,8 +8688,8 @@
           "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 40,
-          "testCount": 54
+          "codeCount": 41,
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -12932,7 +12940,8 @@
       "primaryDomain": "agent",
       "contributorDomains": [
         "agent",
-        "identity"
+        "identity",
+        "line-oa-studio"
       ],
       "useCase": "Agent ขอทำ action ที่มีความเสี่ยงสูงและระบบบังคับ step-up token ก่อน execute และ audit",
       "progressPercent": 100,
@@ -12945,8 +12954,8 @@
           "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -12956,9 +12965,12 @@
         "apps/server/src/modules/agent/step-up.js",
         "apps/server/src/modules/agent/write-tools.js",
         "apps/server/src/modules/identity/link-line-identity.js",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
+        "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/line-project-work-tools.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",

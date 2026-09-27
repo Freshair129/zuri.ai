@@ -12,7 +12,7 @@ import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identi
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
 import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 import { lineExecutionBudget } from '../domain/line-execution-budget'
-import { isLineProjectWorkCommand, parseLineProjectWorkCommand, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
+import { isLineProjectWorkCommand, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
 import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
@@ -231,10 +231,10 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // declared hours, so this branch is a no-op for every account that never opted in.
     const outOfHours = !isAccountWithinBusinessHours(current, now) && Boolean(current.outOfHoursReplyText)
     const memorySyncOptIn = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
-    const workCommand = parseLineProjectWorkCommand(text)
-    const legacyOnlyWorkCommand = isLineProjectWorkCommand(text) && !workCommand
+    // @req FR-149 — every Work command, including malformed legacy syntax, is
+    // runtime-eligible: Core answers malformed syntax with the Server's own reply.
     const runtimeEligible = current.runtimeOwner === 'CONVERSATION_RUNTIME' && audienceKind === 'DIRECT'
-      && !memorySyncOptIn && !outOfHours && !legacyOnlyWorkCommand
+      && !memorySyncOptIn && !outOfHours
     const identity = runtimeEligible
       ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
       : null
