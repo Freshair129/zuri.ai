@@ -941,8 +941,12 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // initiating Desktop secret and a consumed owner approval with fresh
       // Business authority. approve MUST keep its browser viewer check.
       // Proven by edge-pairing-routes.test.js and edge-pairing.test.js.
-      rel(file) === 'src/app/api/edge/pairing/start/route.js' ||
-      rel(file) === 'src/app/api/edge/pairing/poll/route.js') continue
+    rel(file) === 'src/app/api/edge/pairing/start/route.js' ||
+    rel(file) === 'src/app/api/edge/pairing/poll/route.js' ||
+    // @req FR-274 — Notion's initial challenge and signed event protocol has no
+    // browser viewer. This one exact public receiver authenticates later events
+    // with raw-body HMAC (ADR-109 D2); never exempt the integrations namespace.
+    rel(file) === 'src/app/api/integrations/notion/webhook/route.js') continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
     if (RESOLVES.test(body)) continue
@@ -1107,6 +1111,12 @@ const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
         ...walk(workspacePath(ROOT, 'src'), '.js'),
         ...walk(workspacePath(ROOT, 'src'), '.jsx'),
         ...walk(workspacePath(ROOT, 'tests'), '.js'),
+        ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'src'), '.js'),
+        ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'test'), '.js'),
+        ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'contracts'), '.json'),
+        ...walk(workspacePath(ROOT, 'services', 'market-intelligence', 'src'), '.js'),
+        ...walk(workspacePath(ROOT, 'services', 'market-intelligence', 'test'), '.js'),
+        ...walk(workspacePath(ROOT, 'services', 'market-intelligence', 'contracts'), '.json'),
         ...walk(workspacePath(ROOT, 'prisma'), '.prisma'),
         ...walk(workspacePath(ROOT, 'supabase'), '.sql'),
         ...walk(workspacePath(ROOT, 'contracts'), '.json'),
@@ -1121,6 +1131,12 @@ const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
     ...walk(workspacePath(ROOT, 'src'), '.js'),
     ...walk(workspacePath(ROOT, 'src'), '.jsx'),
     ...walk(workspacePath(ROOT, 'tests'), '.js'),
+    ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'src'), '.js'),
+    ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'test'), '.js'),
+    ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'contracts'), '.json'),
+    ...walk(workspacePath(ROOT, 'services', 'market-intelligence', 'src'), '.js'),
+    ...walk(workspacePath(ROOT, 'services', 'market-intelligence', 'test'), '.js'),
+    ...walk(workspacePath(ROOT, 'services', 'market-intelligence', 'contracts'), '.json'),
     ...allDocs,
   ].map((f) => ({ path: rel(f), body: read(f) }))
 

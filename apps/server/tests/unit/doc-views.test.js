@@ -11,15 +11,15 @@ const nodes = [
   { id: 'req:FR-023', type: 'requirement', family: 'FR', label: 'LINE ingest', declared: 'done' },
   { id: 'req:FR-028', type: 'requirement', family: 'FR', label: 'Webhook seam', declared: 'done' },
   { id: 'code:src/modules/crm/line-ingest-service.js', type: 'code_file', path: 'src/modules/crm/line-ingest-service.js', annotations: { '@spec': ['BR-002'] } },
-  { id: 'code:src/app/api/agent/line-webhook/route.js', type: 'code_file', path: 'src/app/api/agent/line-webhook/route.js', annotations: {} },
-  { id: 'route:api:/api/agent/line-webhook', type: 'route', kind: 'api', route: '/api/agent/line-webhook', path: 'src/app/api/agent/line-webhook/route.js' },
+  { id: 'code:src/app/api/line-oa/accounts/[id]/webhook/route.js', type: 'code_file', path: 'src/app/api/line-oa/accounts/[id]/webhook/route.js', annotations: {} },
+  { id: 'route:api:/api/line-oa/accounts/{id}/webhook', type: 'route', kind: 'api', route: '/api/line-oa/accounts/{id}/webhook', path: 'src/app/api/line-oa/accounts/[id]/webhook/route.js' },
   { id: 'test:tests/integration/line-ingest.test.js', type: 'test', path: 'tests/integration/line-ingest.test.js' },
   { id: 'feat:FEAT-001', type: 'feature', label: 'File Manager', declared: 'live' },
 ]
 const edges = [
   { from: 'code:src/modules/crm/line-ingest-service.js', to: 'req:FR-023', type: 'implements' },
-  { from: 'code:src/app/api/agent/line-webhook/route.js', to: 'req:FR-028', type: 'implements' },
-  { from: 'route:api:/api/agent/line-webhook', to: 'domain:agent', type: 'owned_by' },
+  { from: 'code:src/app/api/line-oa/accounts/[id]/webhook/route.js', to: 'req:FR-028', type: 'implements' },
+  { from: 'route:api:/api/line-oa/accounts/{id}/webhook', to: 'domain:agent', type: 'owned_by' },
   { from: 'test:tests/integration/line-ingest.test.js', to: 'req:FR-023', type: 'verifies' },
   { from: 'feat:FEAT-001', to: 'req:FR-028', type: 'bundles' },
 ]
@@ -59,7 +59,7 @@ describe('traceView', () => {
   })
 
   it('joins the chain: surface from route nodes, rules from @spec, tests from verifies', () => {
-    expect(out).toMatch(/### FR-028[\s\S]*\*\*Surface:\*\* `\/api\/agent\/line-webhook` \(api\)/)
+    expect(out).toMatch(/### FR-028[\s\S]*\*\*Surface:\*\* `\/api\/line-oa\/accounts\/\{id\}\/webhook` \(api\)/)
     expect(out).toMatch(/### FR-023[\s\S]*\*\*Follows:\*\* BR-002/)
     expect(out).toMatch(/### FR-023[\s\S]*\*\*Tests:\*\* `tests\/integration\/line-ingest\.test\.js`/)
   })

@@ -41,8 +41,10 @@ async function contextFor(jobId, db, now, expectedClaim) {
     || (job.account.bindingCode || job.account.id) !== job.channelAccountId || job.status !== 'CLAIMED' || !job.leaseExpiresAt || new Date(job.leaseExpiresAt).getTime() <= now.getTime()
     || new Date(job.expiresAt).getTime() <= now.getTime()
     || job.account.transportEpoch !== job.transportEpoch || job.errorCode === 'PDPA_ERASURE') fail('WORK_SCOPE_DENIED')
-  if (expectedClaim && (job.executionMode !== 'EDGE' || job.version !== expectedClaim.version
-    || job.executionId !== expectedClaim.executionId || job.claimantId !== expectedClaim.credentialId
+  const expectedMode = expectedClaim?.executionMode ?? (expectedClaim?.credentialId ? 'EDGE' : 'CONVERSATION_RUNTIME')
+  const expectedClaimant = expectedClaim?.claimantId ?? expectedClaim?.credentialId
+  if (expectedClaim && (job.executionMode !== expectedMode || job.version !== expectedClaim.version
+    || job.executionId !== expectedClaim.executionId || job.claimantId !== expectedClaimant
     || job.tenantId !== expectedClaim.tenantId || job.businessId !== expectedClaim.businessId)) fail('WORK_CLAIM_STALE')
   const identity = await findChannelIdentity({ db, tenantId: job.tenantId,
     channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
@@ -173,6 +175,25 @@ export async function confirmLineWork(jobId, proposalId, { db = prisma, now, exp
 
 export function isLineProjectWorkCommand(text) {
   return typeof text === 'string' && /^(?:\/projects|\/work(?:-create|-update)?|ยืนยันงาน)(?:\s|$)/u.test(text.trim())
+}
+
+export function parseLineProjectWorkCommand(text) {
+  if (typeof text !== 'string') return null
+  const value = text.trim()
+  const confirmation = value.match(/^ยืนยันงาน\s+(\S+)$/u)
+  if (confirmation && idSchema.safeParse(confirmation[1]).success) return { operation: 'confirm-execute', input: { proposalId: confirmation[1] } }
+  const mutation = value.match(/^\/work-(create|update)\s+(\S+)\s+([\s\S]+)$/u)
+  if (mutation) {
+    if (!idSchema.safeParse(mutation[2]).success) return null
+    let args
+    try { args = mutation[1] === 'create' ? { title: mutation[3] } : JSON.parse(mutation[3]) }
+    catch { return null }
+    if (!(mutation[1] === 'create' ? createSchema : patchSchema).safeParse(args).success) return null
+    return { operation: 'propose', input: { action: `${mutation[1]}_work`, targetId: mutation[2], args } }
+  }
+  const read = value.match(/^\/(projects|work)(?:\s+([\s\S]*))?$/u)
+  if (read && (read[2] ?? '').length <= 120) return { operation: 'read', input: { kind: read[1], query: read[2] ?? '' } }
+  return null
 }
 
 export async function handleLineProjectWorkCommand(job, { db = prisma, now, expectedClaim } = {}) {

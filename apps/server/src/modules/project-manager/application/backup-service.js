@@ -198,7 +198,7 @@ export const SNAPSHOT_MODELS = [
   // it and delete before the Tenant/Business they reference. The three integration
   // metadata models were absent from this list entirely; a restore silently dropped
   // them, which the new foreign keys turn from invisible data loss into a hard error.
-  'integrationConnection', 'integrationCredential',
+  'integrationConnection', 'integrationCredential', 'notionWebhookReceipt',
   // @req FR-223 — a credential's version history hangs off the credential; it holds
   // references and lifecycle metadata, never material (SEC-030), so it is exported
   // whole. The material itself (IntegrationSecretEnvelope) is excluded below.
@@ -474,6 +474,12 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
     'FR-223 envelope-store ciphertext is credential material (SEC-030, ADR-089 D1). It is never exported: a ' +
     'snapshot carries credential references and version history only, a restored credential must be entered ' +
     'again (REENTRY_REQUIRED), and the key-encryption key that could open it is never part of any export.',
+  notionOAuthState:
+    'FR-273 OAuth state is a short-lived anti-forgery capability. It is never exported or restored, so a ' +
+    'recovery cannot reopen an already-used authorization callback.',
+  notionWebhookVerificationToken:
+    'FR-274 webhook verification material is encrypted credential material. It is never exported or restored; ' +
+    'a recovered installation must recreate and verify its Notion webhook subscription (ADR-109 D3).',
   localWorkspaceMount:
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +

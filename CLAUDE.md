@@ -4,12 +4,17 @@
 
 Canonical governance remains in root `docs/`. Server source, tests, Prisma,
 scripts and lockfile live in `apps/server/`; Edge has its own complete dependency
-tree in `apps/edge/`. Run app-specific commands from that application's directory.
-Root npm commands delegate to Server; `edge:test`, `edge:build` and `edge:typecheck`
-select Edge. Root `npm run govern` regenerates and validates both graph scopes.
-Install each app independently (`npm --prefix apps/server ci` and
-`npm --prefix apps/edge ci`). Server installation does not install Edge dependencies.
-Cross-app contract tests additionally need the Edge consumer dependencies.
+tree in `apps/edge/`; the Conversation Runtime is independently buildable in
+`services/conversation-runtime/`. Run app-specific commands from that application's
+directory. Root npm commands delegate to Server; `edge:test`, `edge:build` and
+`edge:typecheck` select Edge, while `conversation-runtime:test` and
+`conversation-runtime:build` select the independent Node service. Root
+`npm run govern` regenerates and validates both document graph scopes and discovers
+the service's source/tests. Install each app independently (`npm --prefix
+apps/server ci` and `npm --prefix apps/edge ci`); the service has no third-party
+runtime dependencies and its package lock is scoped to its directory. Server
+installation does not install Edge dependencies. Cross-app contract tests
+additionally need the Edge consumer dependencies.
 
 Historical `src/`, `tests/`, `prisma/` and `scripts/` references below are
 Server-relative; canonical IDs and subject anchors are unchanged. Edge historical
@@ -57,7 +62,7 @@ work from them. Id strings keep their historical letters (`ZV2-CR-007` stays
 | Rule | Why |
 |---|---|
 | **Never modify the legacy `Freshair129/zuri` repository** (historically checked out at `G:\zuri`) | It is a different product's repository. Reading it as prior art is fine (ADR-024 D7); writing to it never is. The rule keys on the **repository**, not the drive letter: `G:\` is not mounted on the current machine, so the path names nothing — and a rule that points at a path nobody has is a rule nobody applies |
-| **Never read the `.env` of the `Freshair129/zuri-edge-device` checkout** — currently `C:\Users\pc\workspace\zuri-edge-device\.env` | It holds local on-premise secrets and pairing keys (ADR-041). This rule said `D:\workspace\zuri-edge-device\.env` until 2026-09-04; that path does not exist, while the real file does — so the rule named an empty location and left the secret it protects unnamed. Wherever that repository is checked out, its `.env` is the thing not to read |
+| **Never read the `.env` of the `Freshair129/zuri-edge-device` checkout** — currently `C:\Users\pc\workspace\zuri-edge-device\.env` | It holds local credentials and pairing keys for the historical ADR-041 runtime, which ADR-110 retires from zuri.ai's worker path. This rule said `D:\workspace\zuri-edge-device\.env` until 2026-09-04; that path does not exist, while the real file does — so the rule named an empty location and left the secret it protects unnamed. Wherever that repository is checked out, its `.env` is the thing not to read |
 | **External ids are never primary keys** | Internal UUID + human `code` + `ExternalRef` mapping (BR-002) |
 | **Never execute anything that arrives in a plan/envelope** | Plans are data (BR-007, SEC-002) |
 | **The primary checkout is not a working lane** | Several sessions share this one working copy, so its branch, index and tree are global mutable state — true of whichever directory holds the primary checkout on a given machine (`D:\zuri-ai` on one, `C:\Users\pc\workspace\zuri-ai` on another; confirmed directly 2026-09-04, see below). It stays on a detached HEAD at `origin/main` **on purpose** — do not check out a branch "to fix it". See below |
@@ -142,16 +147,38 @@ docker compose up -d --build web
 ```
 
 **That command includes the ADR-061 LINE server overlay only because `apps/server/.env`
-says so.** `.env` sets `COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml`
-and `COMPOSE_PROFILES=line-server`; without them `web` comes up with no
-`ZURI_LINE_SERVER_ENABLED`, no worker token and no credential mount, and answers every
-LINE delivery and every edge job claim with 503. That happened on 2026-09-10/11 and
-lasted about eleven hours ([RCA](.brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md)).
-An explicit `-f` on the command line **replaces** `COMPOSE_FILE`, so a deploy that
-passes `-f` (the deploy-override pattern) must list both files and
-`--profile line-server` itself. After any deploy, check that the web container's
-`com.docker.compose.project.config_files` label names both files and that
-`docker exec zuri-ai-web-1 sh -c 'printf %s "$ZURI_LINE_SERVER_ENABLED"'` prints `true`.
+says so.** As of 2026-09-24 `.env` sets
+`COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.cold-archive.yml;docker-compose.ki17-web.yml`
+(four files — cold-archive and ki17-web joined line-server later) and
+`COMPOSE_PROFILES=line-server`; without every one of those files `web` comes up with no
+`ZURI_LINE_SERVER_ENABLED`, no worker token, no credential mount, no `/archive` mount, and
+none of `docker-compose.ki17-web.yml`'s `runner-ki17` build target — that overlay is
+opt-in in this repo (its own header calls it that) but required on the production host,
+because without it `web` silently rebuilds from the base `runner` target with no
+`/opt/ki17`, and every GenesisRAG17 Stage 9 batch stays PENDING behind a green
+healthcheck. `web` answers every LINE delivery and every edge job claim with 503 when
+line-server is missing too; that happened on 2026-09-10/11 and lasted about eleven hours
+([RCA](.brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md)). The
+knowledge/MSP/GKS/worker variables the ki17-web overlay's pipeline needs
+(`ZURI_KNOWLEDGE_ENABLED`, `ZURI_KNOWLEDGE_STORAGE_ENABLED`, `ZURI_KNOWLEDGE_BINDINGS`,
+`MSP_PIPELINE_PRINCIPALS`, …) are **not** in this `.env` — they live in a second
+`env_file`, `apps/server/.env.knowledge`, that a web recreate must keep in place
+alongside it. An explicit `-f` on the command line **replaces** `COMPOSE_FILE`, so a
+deploy that passes `-f` (the deploy-override pattern) must list all four files itself,
+and both `--profile line-server` **and** `--profile knowledge` — the latter is also
+required to recreate `genesis-worker`, which must happen after every `web` recreate:
+`genesis-worker` runs in `network_mode: service:web`, so its loopback namespace belongs
+to the `web` container instance and goes dead (its own pinned image is untouched) when
+`web` is replaced without it also being recreated
+([RCA](.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)). Outside the `-f`
+deploy-override pattern, from `apps/server` the non-`-f` recreate-and-verify pair is
+`docker compose --profile knowledge up -d --force-recreate genesis-worker` (Compose only
+recreates on a config or image change, and neither changed, so the flag is what actually
+replaces the worker) followed by
+`docker compose exec web node scripts/ki17-smoke.mjs`. After any deploy, check
+that the web container's `com.docker.compose.project.config_files` label names all four
+files and that `docker exec zuri-ai-web-1 sh -c 'printf %s "$ZURI_LINE_SERVER_ENABLED"'`
+prints `true`.
 
 **`.env` has to be at `apps/server/.env`.** It is the one file `env_file` marks
 `required: true`, and compose looks for it beside the compose file, not at the

@@ -1,7 +1,7 @@
-// @req FR-239 — agent usage detail: the shared rules count thinking tokens, cache
+// @req FR-239 — programme usage detail: the shared rules count thinking tokens, cache
 //   lifetimes, web search and fetch, tool calls with errors and denials, prompts,
-//   compactions, API errors and models once each, keep no text, agree between the
-//   meter and the plugin, validate strictly at the endpoint and extend only when
+//   compactions, API errors and models once each, keep no text, validate strictly
+//   at the endpoint and extend only when
 //   every count grows.
 // @req FR-240 — the board aggregates detail across lanes and reports and shows the
 //   token split, tool calls, prompts and compactions, or says no detail exists.
@@ -10,8 +10,7 @@
 import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { buildDetail, claudeActivity, codexActivity, toolNameIndex } from '../../../../plugins/zuri-harness/lib/detail.mjs'
-import { parseClaudeLine as pluginClaudeLine, summariseByBranch } from '../../../../plugins/zuri-harness/lib/usage.mjs'
+import { buildDetail, claudeActivity, codexActivity, toolNameIndex } from '../../scripts/programme-usage-detail.mjs'
 import { measureUsage, parseClaudeEntry, parseCodexActivity, parseCodexLines } from '../../scripts/programme-usage-meter.mjs'
 import {
   ProgrammeUsageReportSchema,
@@ -63,10 +62,10 @@ const expected = {
 describe('FR-239 detail rules', () => {
   it('counts each kind once from Claude Code lines and keeps no text', () => {
     const events = lines.flatMap((l) => claudeActivity(JSON.parse(l)))
-    const requests = lines.map(pluginClaudeLine).filter(Boolean)
-    const [summary] = summariseByBranch(requests, { events })
-    expect(summary.detail).toEqual(expected)
-    expect(JSON.stringify(summary)).not.toContain('SECRET')
+    const requests = lines.map(parseClaudeEntry).map(({ request }) => request).filter(Boolean).slice(0, 1)
+    const detail = buildDetail({ requests, events })
+    expect(detail).toEqual(expected)
+    expect(JSON.stringify(detail)).not.toContain('SECRET')
   })
 
   it('agrees field for field with the meter over the same lines', () => {
@@ -137,7 +136,7 @@ describe('FR-240 board detail', () => {
   }
 
   it('adds the meter and report detail once per lane and into the phase', () => {
-    const merged = mergeLaneUsage({ lanes, usage: meterUsage, reports: [report, { ...report, sessionId: 'no-detail', detail: null }], reporters: { 'inst-1': { personDisplayName: 'Ploy', deviceLabel: 'A' } } })
+    const merged = mergeLaneUsage({ lanes, usage: meterUsage, reports: [report, { ...report, sessionId: 'no-detail', detail: null }] })
     const lane = merged.get('LANE-D')
     expect(lane.detail.toolCalls).toBe(7)
     expect(lane.detail.prompts).toBe(3)

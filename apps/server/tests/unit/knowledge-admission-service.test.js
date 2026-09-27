@@ -189,6 +189,24 @@ describe('knowledge admission service', () => {
     expect(fileContentResolver).toHaveBeenCalledWith('file-1', expect.objectContaining({ visibleBusinessIds: ['b-1'] }))
   })
 
+  // @req FR-238, ADR-090 D7 — a LINE_STUDIO_DESCRIPTION source records its own
+  // `structured.provider` descriptor, distinct from the `KNOWLEDGE_ADMISSION`
+  // fallback plain TEXT/FILE sources fall through to (which now runs the
+  // FR-173 document Zero-PII gate, ADR-072 Amendment 2026-09-24). Without its
+  // own descriptor, this source would take that same fallback and be swept
+  // into a gate ADR-090 D7 deliberately keeps it out of.
+  it('records LINE_STUDIO_DESCRIPTION under its own provider descriptor, never the KNOWLEDGE_ADMISSION fallback', async () => {
+    await admitKnowledge({
+      businessId: 'b-1',
+      idempotencyKey: 'studio-request-1',
+      source: { kind: 'LINE_STUDIO_DESCRIPTION', sourceKey: 'line-studio-description:bot-profile:acct-1', version: 'v1', content: 'สวัสดีค่ะ ติดต่อที่ 081-234-5678' },
+    }, options(repository))
+
+    const metadata = JSON.parse(repository.state.ingestions[0].sourceMetaJson)
+    expect(metadata.structured).toEqual({ provider: 'LINE_STUDIO_DESCRIPTION', entityType: 'KNOWLEDGE_DOCUMENT', contentType: 'text/plain' })
+    expect(metadata.structured.provider).not.toBe('KNOWLEDGE_ADMISSION')
+  })
+
   it('lists and reads status without exposing queued content or lease internals', async () => {
     await admitKnowledge({ businessId: 'b-1', idempotencyKey: 'request-1', source: { kind: 'TEXT', sourceKey: 'policy', version: 'v1', content: 'one' } }, options(repository))
     repository.state.ingestions[0].executionRunId = 'native-1'

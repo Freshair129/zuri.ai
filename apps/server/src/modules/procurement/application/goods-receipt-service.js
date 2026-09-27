@@ -174,7 +174,15 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
       change.status = 'RECEIVED'
       change.receivedAt = receivedAt
     }
-    await tx.purchaseOrder.update({ where: { id: order.id }, data: change })
+    // @req FR-165 — compare-and-swap on the version read at the start. The plan
+    // above (outstanding quantities, completesOrder) was made against that
+    // version; a receipt committed by someone else since then invalidates it.
+    // Without the predicate, PostgreSQL READ COMMITTED let concurrent receipts
+    // each pass the outstanding check and over-receive (SCM-HANDOFF F-1,
+    // tests/integration/scm-legacy-races.postgres.test.js). The loser writes
+    // nothing: its receipt, movements and lot rows roll back with this error.
+    const advanced = await tx.purchaseOrder.updateMany({ where: { id: order.id, version: order.version }, data: change })
+    if (advanced.count !== 1) throw failure(409, 'PURCHASE_ORDER_VERSION_CONFLICT')
     await recordAudit(tx, {
       entityType: GOODS_RECEIPT_ENTITY, entityId: receipt.id, action: 'GOODS_RECEIPT_POSTED', actorId: actor(viewer),
       payload: {

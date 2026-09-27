@@ -1,21 +1,41 @@
-# System & activity diagrams
+# Knowledge/RAG diagrams
 
-> Current transport decision: [Server-owned LINE and optional Edge](SERVER-LINE-OPTIONAL-EDGE.md)
-> implements upstream ADR-061. New runtimes are compute-only; the transport behavior below
-> applies only to explicitly selected `LEGACY_EDGE` installations during migration.
+> **Current scope:** Edge-device pairing, cloud heartbeat, Edge-owned LINE ingress/delivery, and
+> device extraction are retired. The historical diagrams below preserve evidence of the former
+> flows and are not current runtime or setup instructions. The active diagram documents only the
+> retained local Knowledge/RAG component boundary; it does not imply device enrollment or LINE
+> transport ownership.
 
+The historical diagrams were drawn from code at `95a5f82`. They remain below as an archival record;
+their old cloud/device/LINE paths must not be read as current behavior.
 
-Drawn from the code as it stands at `95a5f82`, not from intent. Where a diagram shows something
-that does not work yet, it says so on the arrow rather than omitting it — an architecture picture
-that quietly leaves out the broken edge is how the gap survives.
+## Current retained local Knowledge/RAG boundary
 
-Every element here is traceable: ports and paths from `.env` and `src/history/webhook-server.ts`,
-the answer path from `src/answer/`, the queue from `src/delivery/`, liveness from
-`src/zuri-api/heartbeat.ts`.
+The local Knowledge/RAG service and its embedding sidecar remain independent components. This
+diagram shows their retained data flow only; it does not assert an active worker caller or define
+worker authentication, Core conversation-job admission, or LINE delivery. Preserve existing local
+Knowledge, archive, outbox, and identity data when removing the retired device surfaces.
+
+```mermaid
+flowchart LR
+  caller["Local Knowledge/RAG client (if configured)"]
+  rag["GenesisRAG service :8888"]
+  emb["Embedding sidecar :8891"]
+  store[("GenesisBlock store")]
+
+  caller -->|"local Knowledge/RAG query"| rag
+  rag -->|"embed/search"| emb
+  rag --- store
+```
+
+## Historical diagrams — not current runtime paths
+
+The sections below preserve the former Edge webhook, pairing, cloud heartbeat and LINE flow for
+audit history. Their diagrams describe retired behavior only.
 
 ---
 
-## 1. Deployment and trust boundaries
+### 1. Historical deployment and trust boundaries
 
 The question this answers: **what can reach what, and with which credential.**
 
@@ -85,7 +105,7 @@ instead.
 
 ---
 
-## 2. Answering a customer
+### 2. Historical Edge customer-answer flow
 
 The question this answers: **why the customer gets an acknowledgement before an answer.**
 
@@ -138,7 +158,7 @@ is in flight.
 
 ---
 
-## 3. Bringing the stack up
+### 3. Historical Edge stack startup
 
 The question this answers: **why the webhook starts last.**
 
@@ -176,7 +196,7 @@ store or embedder is still loading.
 
 ---
 
-## 4. Liveness
+### 4. Historical cloud device liveness
 
 The question this answers: **what the cloud's Edge tab is actually telling you.**
 
@@ -211,7 +231,7 @@ just less well, and calling that unavailable teaches whoever reads the tab to ig
 
 ---
 
-## 5. Changing configuration
+### 5. Historical Edge Desktop configuration
 
 The question this answers: **why some settings take effect on save and others do not.**
 

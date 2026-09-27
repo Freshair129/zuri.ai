@@ -19,7 +19,7 @@ import { serverLinePorts } from '@/modules/line-oa-studio/application/server-lin
 //   pushes it through the account's LINE transport and records it the same way, with
 //   reply source STAFF naming the person (ADR-093 evidence gap, FEAT-041).
 // @spec SDD-051, BR-011, SEC-001, SDD-048
-// @tested tests/integration/line-reply-record.test.js, tests/unit/reply-record-service.test.js, tests/integration/line-account-isolation.test.js,
+// @tested tests/unit/reply-record-service.test.js, tests/integration/line-account-isolation.test.js,
 //   tests/integration/crm-staff-reply.test.js
 //
 // WHY THIS IS NOT `ingestLineMessage({ direction: 'OUTBOUND' })`

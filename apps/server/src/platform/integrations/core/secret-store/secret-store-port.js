@@ -1,11 +1,11 @@
 // @req FR-223 — the SecretStorePort contract: write, activate, revoke and resolve a
 //   provider credential through one port whatever store holds it; the vocabulary,
 //   the reference grammar and the one bundle schema both stores validate against.
-// @req FR-242 — generalise the bundle schema and display-hint rule to OAUTH_CLIENT
-//   and MODEL_PROVIDER_KEY, dispatched by an explicit map keyed by kind (never a
-//   boolean flag or an `if` chain), so an unmapped kind is refused rather than
-//   silently accepted (ADR-089 §4.8 phase 7).
-// @spec ADR-089 D1, D2, D5; SDD-097; SDD-101; SEC-030; SEC-033
+// @req FR-242, FR-273 — generalise the bundle schema and display-hint rule to
+//   OAUTH_CLIENT, MODEL_PROVIDER_KEY and NOTION_OAUTH_TOKEN, dispatched by an
+//   explicit map keyed by kind (never a boolean flag or an `if` chain), so an
+//   unmapped kind is refused rather than silently accepted.
+// @spec ADR-089 D1, D2, D5; ADR-109 D1; SDD-097; SDD-101; SEC-030; SEC-033; SEC-037
 // @tested tests/unit/integration/secret-store-port.test.js
 //
 // A reference names its store by prefix, and that is the only way a caller learns
@@ -116,6 +116,7 @@ export const LINE_CHANNEL_ACCESS_TOKEN_PATTERN = /^[A-Za-z0-9+/=_-]{40,4096}$/
 export const OAUTH_CLIENT_ID_PATTERN = /^[!-~]{1,200}$/
 export const OAUTH_CLIENT_SECRET_PATTERN = /^[!-~]{16,4096}$/
 export const MODEL_PROVIDER_API_KEY_PATTERN = /^[!-~]{20,4096}$/
+export const NOTION_OAUTH_TOKEN_PATTERN = /^[!-~]{1,4096}$/
 
 const zLineChannelBundle = z.object({
   channelId: z.string().regex(LINE_CHANNEL_ID_PATTERN),
@@ -136,6 +137,11 @@ const zModelProviderKeyBundle = z.object({
   apiKey: z.string().regex(MODEL_PROVIDER_API_KEY_PATTERN),
 }).strict()
 
+const zNotionOauthTokenBundle = z.object({
+  accessToken: z.string().regex(NOTION_OAUTH_TOKEN_PATTERN),
+  refreshToken: z.union([z.string().regex(NOTION_OAUTH_TOKEN_PATTERN), z.null()]),
+}).strict()
+
 // Explicit map keyed by kind (the ZERO_PII_POLICY_BY_PROVIDER style this repo
 // already uses elsewhere), never a boolean flag or an `if` chain: a kind absent
 // from this map has no bundle schema and is refused, not silently accepted.
@@ -143,6 +149,7 @@ const BUNDLE_SCHEMA_BY_KIND = Object.freeze({
   LINE_CHANNEL: zLineChannelBundle,
   OAUTH_CLIENT: zOauthClientBundle,
   MODEL_PROVIDER_KEY: zModelProviderKeyBundle,
+  NOTION_OAUTH_TOKEN: zNotionOauthTokenBundle,
 })
 
 // The field order `serializeSecretBundle` and the sealed copy in
@@ -152,6 +159,7 @@ const BUNDLE_FIELDS_BY_KIND = Object.freeze({
   LINE_CHANNEL: ['channelId', 'channelSecret', 'channelAccessToken'],
   OAUTH_CLIENT: ['clientId', 'clientSecret'],
   MODEL_PROVIDER_KEY: ['apiKey'],
+  NOTION_OAUTH_TOKEN: ['accessToken', 'refreshToken'],
 })
 
 // The kinds a SecretStorePort implementation (envelope or Supabase Vault) can
