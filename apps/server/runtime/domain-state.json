@@ -545,7 +545,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-051",
@@ -14025,7 +14025,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -14038,6 +14038,7 @@
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
+        "apps/server/tests/unit/line-answer-policy.test.js",
         "apps/server/tests/unit/role-memory-partition.test.js",
         "services/conversation-runtime/src/line-answer-policy.js",
         "services/conversation-runtime/src/turn-runtime.js",

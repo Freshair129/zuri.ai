@@ -49,6 +49,8 @@ const modelOutputs = {
   'over-long': reply(`${'ก'.repeat(4999)}😀${'ข'.repeat(200)}`),
   // A price, a code and a delivery promise none of the evidence sets carry.
   ungrounded: reply('ราคา 999 บาท รหัส USB-999 ส่งฟรีภายใน 3 วันค่ะ'),
+  // The same kind of ungrounded price, written in Thai and fullwidth digits.
+  'unicode-digit': reply('ราคา ๙๙๙ บาท หรือ ９９９ บาทค่ะ'),
   'model error': () => new Response('upstream private detail', { status: 503 }),
 }
 
@@ -131,6 +133,7 @@ describe('Conversation Runtime answer parity with the Server answer path', () =>
     expect(await replies(legacyReply, modelOutputs.empty)).toStrictEqual({ none: noEvidence, some: productFallback, gks: chunkFallback })
     expect(await replies(legacyReply, modelOutputs['over-long'])).toStrictEqual({ none: noEvidence, some: overLong, gks: overLong })
     expect(await replies(legacyReply, modelOutputs.ungrounded)).toStrictEqual({ none: noEvidence, some: productFallback, gks: chunkFallback })
+    expect(await replies(legacyReply, modelOutputs['unicode-digit'])).toStrictEqual({ none: noEvidence, some: productFallback, gks: chunkFallback })
     expect(await replies(legacyReply, modelOutputs['model error'])).toStrictEqual({ none: noEvidence, some: productFallback, gks: chunkFallback })
   })
 })
