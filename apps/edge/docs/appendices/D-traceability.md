@@ -38,11 +38,11 @@ against real code (`src/cli/commands.ts`, `src/cli/index.ts`) and tests
 | ID | Code | Test | Status |
 |---|---|---|---|
 | FR-001 | `src/cli/index.ts` (`handleConfigCheck`), `src/config/index.ts` (`validateConfig`) | `tests/unit/config.test.ts` (2026-08-31) | **Implemented, tested** — exercises `validateConfig`'s decision logic directly via an injectable `env` param; `handleConfigCheck`'s thin print/exit wrapper is not itself under test |
-| FR-002 | `src/cli/index.ts` (`handleHealth`, `buildHealthReport`) | `tests/unit/config.test.ts` (2026-08-31) | **Implemented, tested** — `buildHealthReport` was extracted as a pure function specifically so this could be tested without triggering `handleHealth`'s `process.exit` path; see `src/cli/index.ts`'s entry-point guard |
-| FR-003 | `src/cli/commands.ts` (`runPreview`), `src/cli/index.ts` (`handlePreview`) | `tests/unit/commands.test.ts` | **Implemented, tested** — against `MockZuriApiClient` only (ADR-005), not a real Zuri endpoint |
-| FR-004 | `src/cli/commands.ts` (`runSend`), `src/cli/index.ts` (`handleSend`) | `tests/unit/commands.test.ts` | **Implemented, tested** — against `MockZuriApiClient` only; real delivery still gated (S7 entry gates, see [PRD-SDD-v1.0.md §2.8](../PRD-SDD-v1.0.md)) |
-| FR-005 | `src/cli/commands.ts` (`runStatus`), `src/cli/index.ts` (`handleStatus`) | `tests/unit/commands.test.ts` | **Implemented, tested** |
-| FR-006 | `src/zuri-api/client.ts` (`claimJob`/`sendHeartbeat`/`submitEvidence` interface + mock); no `src/bridge/` directory yet | `tests/contract/zuri-api.test.ts` (interface/mock only) | Interface + mock only, worker not implemented (S6) |
+| FR-002 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `src/cli/index.ts` (`handleHealth`, `buildHealthReport`) | `tests/unit/config.test.ts` (2026-08-31) | **Implemented, tested** — `buildHealthReport` was extracted as a pure function specifically so this could be tested without triggering `handleHealth`'s `process.exit` path; see `src/cli/index.ts`'s entry-point guard |
+| FR-003 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `src/cli/commands.ts` (`runPreview`), `src/cli/index.ts` (`handlePreview`) | `tests/unit/commands.test.ts` | **Implemented, tested** — against `MockZuriApiClient` only (ADR-005), not a real Zuri endpoint |
+| FR-004 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `src/cli/commands.ts` (`runSend`), `src/cli/index.ts` (`handleSend`) | `tests/unit/commands.test.ts` | **Implemented, tested** — against `MockZuriApiClient` only; real delivery still gated (S7 entry gates, see [PRD-SDD-v1.0.md §2.8](../PRD-SDD-v1.0.md)) |
+| FR-005 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `src/cli/commands.ts` (`runStatus`), `src/cli/index.ts` (`handleStatus`) | `tests/unit/commands.test.ts` | **Implemented, tested** |
+| FR-006 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `src/zuri-api/client.ts` (`claimJob`/`sendHeartbeat`/`submitEvidence` interface + mock); no `src/bridge/` directory yet | `tests/contract/zuri-api.test.ts` (interface/mock only) | Interface + mock only, worker not implemented (S6) |
 | FR-007 | `src/cards/builders/*.ts` | `tests/unit/cards.test.ts` | Implemented, tested |
 | FR-008 | `src/cli/commands.ts` (`runSend` group validation + `isRawLineId` guard) | `tests/unit/commands.test.ts`, `tests/unit/redact.test.ts` | **Implemented, tested** |
 
@@ -61,13 +61,13 @@ against real code (`src/cli/commands.ts`, `src/cli/index.ts`) and tests
 | ID | Verifying test / gate | Status |
 |---|---|---|
 | AC-001 | S8 operational verification (planned) | Pending |
-| AC-002 | `tests/unit/commands.test.ts` (`runPreview` never calls a delivery path; `deliveryIntent: 'preview'` asserted) | **Implemented against the mock**; S8 end-to-end verification against real Zuri still pending |
-| AC-003 | `tests/unit/commands.test.ts` (`runSend` requests `line_push` delivery intent; group-alias validation asserted); real send-vs-review decision requires a real Zuri policy snapshot, gated on Zuri Phase 2, G0, CR-003, CR-004 | **Command-request path implemented against the mock**; policy decision itself is out of this repo's control and still pending |
-| AC-004 | S8 "stale lease" test (planned) | Pending (worker not yet implemented) |
-| AC-005 | `tests/unit/queries.test.ts`, `tests/fixtures/duckdb.fixture.ts` cover schema/row-cap; evidence submission itself is pending S6 | Partial |
-| AC-006 | S8 "offline bridge" test (planned) | Pending |
-| AC-007 | `tests/unit/commands.test.ts` (`runStatus` returns `CommandJob` with no credential/PII fields, since `CommandJob` itself carries none) | **Implemented against the mock** |
-| AC-008 | S8 operational verification (planned) | Pending |
+| AC-002 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `tests/unit/commands.test.ts` (`runPreview` never calls a delivery path; `deliveryIntent: 'preview'` asserted) | **Implemented against the mock**; S8 end-to-end verification against real Zuri still pending |
+| AC-003 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `tests/unit/commands.test.ts` (`runSend` requests `line_push` delivery intent; group-alias validation asserted); real send-vs-review decision requires a real Zuri policy snapshot, gated on Zuri Phase 2, G0, CR-003, CR-004 | **Command-request path implemented against the mock**; policy decision itself is out of this repo's control and still pending |
+| AC-004 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** S8 "stale lease" test (planned) | Pending (worker not yet implemented) |
+| AC-005 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `tests/unit/queries.test.ts`, `tests/fixtures/duckdb.fixture.ts` cover schema/row-cap; evidence submission itself is pending S6 | Partial |
+| AC-006 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** S8 "offline bridge" test (planned) | Pending |
+| AC-007 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `tests/unit/commands.test.ts` (`runStatus` returns `CommandJob` with no credential/PII fields, since `CommandJob` itself carries none) | **Implemented against the mock** |
+| AC-008 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** S8 operational verification (planned) | Pending |
 
 ## D.4 Business rules → enforcement point
 
