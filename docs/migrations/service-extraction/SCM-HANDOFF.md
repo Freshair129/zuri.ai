@@ -984,6 +984,10 @@ board_update: BOARD_UPDATE_PENDING
      (b) Customer and Conversation facts come through
      `apps/server/src/modules/crm/scm-reference-reader.js`, now listed in the CRM
      charter.
+     Branch facts likewise come through
+     `apps/server/src/modules/project-manager/application/branch-reference-reader.js`
+     (owner instruction, 2026-09-27), listed in the project-manager charter. The
+     façade reads no owner's model directly, and source tests assert it.
      (c) A success-only scope cache in SCM (`scope-cache.js`, TTL 15 s by default,
      at most 60 s), with the tradeoff recorded in ADR-111 D5.
    - Tests: SCM SQLite 341/343 (2 skipped), PostgreSQL 342/343 (1 skipped). The

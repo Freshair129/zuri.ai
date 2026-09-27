@@ -13,6 +13,7 @@ import {
 import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 import { mayView as commerceMayView } from '@/modules/commerce/application/commerce-authority'
 import { readConversationFact, readCustomerFact } from '@/modules/crm/scm-reference-reader'
+import { listBusinessBranchFacts, readBranchFact } from '@/modules/project-manager/application/branch-reference-reader'
 import { mayView as procurementMayView } from '@/modules/procurement/application/procurement-authority'
 import { mayView as inventoryMayView } from './inventory-authority'
 
@@ -52,11 +53,12 @@ import { mayView as inventoryMayView } from './inventory-authority'
 // missing row, a row of another Tenant, or a row homed in a Business the subject
 // cannot see, the answer is `null` (branches: []) — never 403/404, so existence is
 // not disclosed. Otherwise the raw columns are returned and SCM applies the legacy
-// predicates (status, deletedAt, Business). Branch is read here as the legacy
-// pos-cashier-service reads it (project-manager, its owner, exports no reader);
-// Customer and Conversation come through CRM's read port
-// (crm/scm-reference-reader.js), never from crm's models directly — the same
-// columns legacy sales-order-service requireCustomer / requireConversation read.
+// predicates (status, deletedAt, Business). No owner's model is read here:
+// Branch comes through project-manager's read port
+// (project-manager/application/branch-reference-reader.js, the columns legacy
+// pos-cashier-service reads), Customer and Conversation through CRM's
+// (crm/scm-reference-reader.js, the columns legacy sales-order-service
+// requireCustomer / requireConversation read).
 //
 // Refusals use the contract's `{error:{code}}` body. Nothing here logs the subject
 // or the token.
@@ -217,24 +219,16 @@ async function answerFact(operation, input, viewer, db) {
 
   if (operation === 'branches') {
     if (!business) return ok({ branches: [] })
-    const rows = await db.branch.findMany({
-      where: { tenantId: business.tenantId, businessId: business.id },
-      orderBy: [{ code: 'asc' }],
-      take: MAX_BRANCHES + 1,
-      select: { id: true, code: true, name: true, address: true, kind: true, status: true, tenantId: true, businessId: true },
-    })
+    const rows = await listBusinessBranchFacts({ tenantId: business.tenantId, businessId: business.id, limit: MAX_BRANCHES + 1 }, { db })
     // Truncating would silently drop a Branch; the bound is the contract's, so refuse.
     if (rows.length > MAX_BRANCHES) return fail(409, 'BRANCHES_TOO_MANY')
-    return ok({ branches: rows.map((row) => ({ ...row, address: row.address ?? null })) })
+    return ok({ branches: rows })
   }
 
   if (!business) return ok({ fact: null })
 
   if (operation === 'branch') {
-    const row = await db.branch.findUnique({
-      where: { id: input.branchId },
-      select: { id: true, code: true, name: true, tenantId: true, businessId: true, status: true },
-    })
+    const row = await readBranchFact({ tenantId: business.tenantId, branchId: input.branchId }, { db })
     return ok({ fact: disclosed(viewer, business, row) ? row : null })
   }
 

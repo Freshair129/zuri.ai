@@ -1196,7 +1196,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-186",
@@ -1212,7 +1212,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-196",
@@ -2977,7 +2977,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-184",
@@ -6000,8 +6000,8 @@
           "title": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 8
+          "codeCount": 2,
+          "testCount": 9
         },
         {
           "id": "FR-184",
@@ -6056,8 +6056,8 @@
           "title": "LegalEntity moves from portfolioId to tenantId (ADR-078 D2)",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 24
+          "codeCount": 3,
+          "testCount": 25
         },
         {
           "id": "FR-195",
@@ -9972,8 +9972,8 @@
           "title": "LegalEntity moves from portfolioId to tenantId (ADR-078 D2)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 24
+          "codeCount": 10,
+          "testCount": 25
         }
       ],
       "evidence": [
@@ -9991,6 +9991,7 @@
         "apps/server/src/modules/people/application/people-service.js",
         "apps/server/src/modules/people/components/PeopleDirectory.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/modules/project-manager/application/branch-reference-reader.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr186-billing-pos.spec.js",
@@ -10026,7 +10027,8 @@
         "apps/server/tests/unit/people-directory.test.js",
         "apps/server/tests/unit/people-service.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
-        "apps/server/tests/unit/pricing-backup.test.js"
+        "apps/server/tests/unit/pricing-backup.test.js",
+        "apps/server/tests/unit/project-manager/branch-reference-reader.test.js"
       ]
     },
     {
@@ -16957,8 +16959,8 @@
           "title": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 8
+          "codeCount": 10,
+          "testCount": 9
         }
       ],
       "evidence": [
@@ -16971,12 +16973,14 @@
         "apps/server/src/modules/commerce/components/PosWorkspace.jsx",
         "apps/server/src/modules/inventory/application/scm-core-facade.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/branch-reference-reader.js",
         "apps/server/tests/e2e/fr186-billing-pos.spec.js",
         "apps/server/tests/integration/fr183-pos.test.js",
         "apps/server/tests/integration/fr186-billing.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/scm-core-facade-http.test.js",
         "apps/server/tests/unit/commerce-billing-domain.test.js",
+        "apps/server/tests/unit/project-manager/branch-reference-reader.test.js",
         "apps/server/tests/unit/scm-core-facade.test.js",
         "apps/server/tests/unit/scm-pos-catalogue-parity.test.js"
       ]

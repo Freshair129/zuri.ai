@@ -381,6 +381,12 @@ describe('scm-core.v1 façade: facts', () => {
     expect(source).not.toMatch(/\.customer\.|\.conversation\./)
     expect(source).toMatch(/from '@\/modules\/crm\/scm-reference-reader'/)
   })
+
+  it('Branch is read through project-manager\'s port, never from the Branch model directly', async () => {
+    const source = readFileSync(new URL('../../src/modules/inventory/application/scm-core-facade.js', import.meta.url), 'utf8')
+    expect(source).not.toMatch(/\.branch\./)
+    expect(source).toMatch(/from '@\/modules\/project-manager\/application\/branch-reference-reader'/)
+  })
 })
 
 // PARITY: for every synthetic viewer and every capability, SCM's ladder applied to the
