@@ -49,7 +49,7 @@ port="${NGROK_INSPECT_PORT:-4040}"
 for _ in $(seq 1 20); do
   if url="$(curl -fsS "http://127.0.0.1:${port}/api/tunnels" 2>/dev/null | sed -n 's/.*"public_url":"\(https:[^"]*\)".*/\1/p' | head -n1)" && [ -n "$url" ]; then
     echo "[zuri] public URL : $url"
-    echo "[zuri] LINE webhook: $url/api/agent/line-webhook"
+    echo "[zuri] LINE webhook: $url/api/line-oa/accounts/<account-id>/webhook (configure per account)"
     echo "[zuri] health      : $url/api/health"
     exit 0
   fi

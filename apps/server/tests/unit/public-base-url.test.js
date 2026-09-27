@@ -6,9 +6,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   DEFAULT_PUBLIC_BASE_URL,
-  LINE_WEBHOOK_PATH,
   isPublicBaseUrlConfigured,
-  lineWebhookUrl,
   resolveBrowserOrigin,
   resolvePublicBaseUrl,
 } from '@/lib/public-base-url'
@@ -66,14 +64,5 @@ describe('isPublicBaseUrlConfigured', () => {
     expect(isPublicBaseUrlConfigured({ PUBLIC_BASE_URL: '' })).toBe(false)
     expect(isPublicBaseUrlConfigured({ PUBLIC_BASE_URL: 'not-a-url' })).toBe(false)
     expect(isPublicBaseUrlConfigured({ PUBLIC_BASE_URL: 'ftp://files.example' })).toBe(false)
-  })
-})
-
-describe('lineWebhookUrl', () => {
-  it('appends the one real webhook path to the origin', () => {
-    expect(LINE_WEBHOOK_PATH).toBe('/api/agent/line-webhook')
-    expect(lineWebhookUrl('https://my-zuri.ngrok-free.app')).toBe('https://my-zuri.ngrok-free.app/api/agent/line-webhook')
-    expect(lineWebhookUrl('https://my-zuri.ngrok-free.app/')).toBe('https://my-zuri.ngrok-free.app/api/agent/line-webhook')
-    expect(lineWebhookUrl(undefined)).toBe(`${DEFAULT_PUBLIC_BASE_URL}/api/agent/line-webhook`)
   })
 })

@@ -1,4 +1,4 @@
-import { CardViewModel } from '../zuri-api/types.js';
+import { CardViewModel } from '../contracts.js';
 import { isCtaUriAllowed } from './types.js';
 
 export const APPROVED_TEMPLATES = [

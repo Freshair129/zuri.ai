@@ -2,13 +2,13 @@
 id: ZAI:SCM-HANDOFF
 version: "0.1.0b"
 status: candidate
-last_update: "2026-09-25T06:30:00+07:00,Claude Opus 5.5 (Session 5)"
+last_update: "2026-09-27T10:20:00+07:00,Claude Opus 5.5 (Session 5)"
 attributes:
   domain: inventory
   scope: session-5-scm-service-extraction-handoff
 relations:
   - type: relates_to
-    target: ZAI:ADR-109
+    target: ZAI:ADR-111
   - type: relates_to
     target: ZAI:ADR-069
 ---
@@ -114,7 +114,7 @@ default).
 
 | Capability / flow | Status | Owner | Old executor → new | Transaction group | Notes |
 |---|---|---|---|---|---|
-| Pricing evaluator (`calculatePrice`, customization, rules validation/import) | MOVE_SCM (kernel) | Commerce | `commerce/domain/pricing-*.js` → generated `services/scm/src/kernel/commerce/*` | pure | One hand-edited source (ADR-109 D3) |
+| Pricing evaluator (`calculatePrice`, customization, rules validation/import) | MOVE_SCM (kernel) | Commerce | `commerce/domain/pricing-*.js` → generated `services/scm/src/kernel/commerce/*` | pure | One hand-edited source (ADR-111 D3) |
 | Sell-side catalog projection | MOVE_SCM (kernel) | Commerce | `pricing-catalog-projection.js` → kernel | pure | Existing allowlist; no second DTO |
 | Supplier create | MOVE_SCM (slice) | Procurement | `supplier-service.createSupplier` → `modules/procurement/application/purchase-orders.js` | Supplier + audit | Legacy route still live |
 | PO create / UPDATE / SEND / CLOSE / CANCEL | MOVE_SCM (slice) | Procurement | `purchase-order-service` → same file | PO + lines + audit | CAS on version kept |
@@ -147,7 +147,7 @@ default).
 | Knowledge `assertPricingCatalogCurrent` | ADAPTER needed | Knowledge | reads PricingCalculation/RuleSet directly | read | Gate SCM-KNOWLEDGE |
 | Marketing revenue summary | ADAPTER needed | Marketing | reads SalesOrder | read | — |
 | Backup/restore/phase-b/migrate scripts | SHARED_TRANSITION | Integrator | generic SNAPSHOT_MODELS over every SCM table | R/W all | **Would be a second writer after cutover** — gate SCM-CUTOVER |
-| Core AuditEvent writer (`recordAudit`) | KEEP_EXTERNAL | Core | inside every SCM tx | — | SCM writes a local envelope + outbox instead (ADR-109 D6); relay not built |
+| Core AuditEvent writer (`recordAudit`) | KEEP_EXTERNAL | Core | inside every SCM tx | — | SCM writes a local envelope + outbox instead (ADR-111 D6); relay not built |
 | Warehouse bins/picking, purchase returns, quote lifecycle | PLANNED_NOT_IMPLEMENTED | — | — | — | Not added |
 
 ### 2.2 Transaction inventory (legacy, `$transaction` sites)
@@ -640,7 +640,7 @@ Environment: Windows 11, Node v24.19.0, `node:sqlite`. Code SHA `7726b99b`.
 | Pricing parity, legacy recorder | `npx vitest run tests/unit/scm-pricing-parity.test.js tests/unit/pricing-engine.test.js` (apps/server) | 157 / 157 / 0 | 0 | 7.2 s |
 | Server SCM regression | `npx vitest run` fr164, fr165, fr155, task-zai-053, fr253-pricing-rules, fr253-pricing-catalog, fr183-pos, fr166, fr184-stocktake, procurement-domain, pricing-engine, scm-pricing-parity | 12 files / 222 / 0 | 0 | 33.1 s |
 | Kernel drift | `node services/scm/scripts/sync-kernel.mjs --check` | 12 files | 0 | <1 s |
-| Governance | `npm --prefix apps/server run govern` | one CRITICAL before pinning (ADR-109 unpinned) → pinned with `docs:ids -- --write`; rerun in §6.1 | — | 46.8 s |
+| Governance | `npm --prefix apps/server run govern` | one CRITICAL before pinning (ADR-111 unpinned) → pinned with `docs:ids -- --write`; rerun in §6.1 | — | 46.8 s |
 | Setup | `npm --prefix apps/server ci` | — | 0 | 29.9 s |
 
 S5.4 POS (code SHA `f60fceb6`, same environment):
@@ -761,7 +761,7 @@ S5.4 shelf-life, hygiene, replenishment, catalogue intake (code SHA `8fd4d4a9`):
 
 ### 6.1 Governance after pinning
 
-`npm --prefix apps/server run govern` with ADR-109, this handoff, the ledger pin
+`npm --prefix apps/server run govern` with ADR-111, this handoff, the ledger pin
 and the regenerated `domain-state.json` staged: **exit 0, no CRITICAL**. The
 remaining WARNING/INFO lines are the pre-existing baseline (broken
 `llms-full.txt` links, accepted-debt baselines).
@@ -795,7 +795,7 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 
 | Gate | Waiting phase | Waiting for | From | Unblocks when | Safe now |
 |---|---|---|---|---|---|
-| SCM-ARCH | Any move beyond this slice's owned code | Review of ADR-109 + this matrix | Owner + reviewers | ADR-109 accepted | Pricing/receipt tests, S5.4 characterization |
+| SCM-ARCH | Any move beyond this slice's owned code | Review of ADR-111 + this matrix | Owner + reviewers | ADR-111 accepted | Pricing/receipt tests, S5.4 characterization |
 | SCM-CORE | Real BFF → SCM calls; POS in a real process | Identity owner signs off `scm.delegation.v1` (issuer, key distribution, lifetime, revocation), the audit relay mapping, a Branch + Customer + Conversation reference façade (facts: tenant, business, status/deletedAt, customerId, code; **and the Branch list of a Business for the POS catalogue**) for ReferenceAuthority, and grants for every visible Business (D-10) | Identity/Core owner + CRM owner + S5 | Reviewed contract SHA + provider tests; a façade the real process can call | Everything service-local |
 | COMMON | CI for services/scm | A workflow job `node services/scm/scripts/run-tests.mjs` + `docker build -f services/scm/Dockerfile .` + disposable start smoke | Integrator (root CI owner) | Job merged | Local tests |
 | SCM-AGENT | S5.4 agent/LINE tools | Read/mutation/confirmation/receipt contract | S1 + S5 | Reviewed contract | POS/fulfilment moves |
@@ -804,8 +804,10 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 | SCM-CUTOVER | Any production routing | Migration/restore/rollback rehearsal + backup scripts through SCM + operator approval; POS + payments + sales orders switch together per Tenant (F-8) | Integrator/operator + S5 | Rehearsal evidence + authorization | Disposable rehearsal |
 | (engine) | PostgreSQL claim | — | S5 | **Met locally**: whole suite + adapter tests + guard proof on PostgreSQL 17 (§4.7) | A managed/production-like PostgreSQL run (pooler, TLS, the real role) belongs to SCM-CUTOVER rehearsal |
 
-**Shared files touched in this branch:** `docs/.id-ledger.json` (+ADR-109 only,
-the same pattern as ADR-108 on the Market branch) and
+**Shared files touched in this branch:** `docs/.id-ledger.json` (+ADR-111 only,
+the same pattern as ADR-108 on the Market branch; this ADR was drafted as ADR-109
+and renumbered to ADR-111 on 2026-09-27, because main assigned ADR-109 to the
+Notion boundary first and MC0 allocated 111) and
 `apps/server/runtime/domain-state.json` (regenerated: commerce test count +1).
 Both are integrator-reconciled on merge. No schema, migration, root CI, Compose,
 PRD/FEATURES/ROADMAP or tracker change.
@@ -916,8 +918,8 @@ blockers:
   - { dependency: "scm.delegation.v1 review + core issuer", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + S5", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
   - { dependency: "root CI job for services/scm", kind: INTEGRATION_ORDER, phase_blocked: "CI_VERIFIED/HOSTED_IMAGE_BUILD", owner_to_unblock: integrator, condition_to_unblock: "job merged", safe_work_now: ["local tests"] }
 next_action: "Inventory group complete; F-18 (bc24e5bb) and F-19 (cba3f79a) fixed. #546 stays draft, not for merge. Billing and the pricing catalog wait for their gates."
-owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-109-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js, apps/server/tests/unit/scm-revenue-parity.test.js, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
-shared_changes_requested: ["FR id for F-10 (fulfilment issue carries salesOrderId/customerId) in docs/PRD-SDD-v1.0.md — PRD registry owner", "docs/.id-ledger.json +ADR-109", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
+owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-111-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js, apps/server/tests/unit/scm-revenue-parity.test.js, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
+shared_changes_requested: ["FR id for F-10 (fulfilment issue carries salesOrderId/customerId) in docs/PRD-SDD-v1.0.md — PRD registry owner", "docs/.id-ledger.json +ADR-111", "root CI job for services/scm", "board row: Commerce+Inventory+Procurement DEFERRED_AS_GROUP → SCM / Session 5 IN_PROGRESS (evidence above)", "Branch/Customer fact façade (core, CRM) and fileAsset fact lookup (S3) for ReferenceAuthority"]
 board_expected_source_commit: "REFACTOR-STATUS.md 0.1.0b on feat/market-intelligence-service"
 board_update: BOARD_UPDATE_PENDING
 ```
@@ -928,6 +930,14 @@ board_update: BOARD_UPDATE_PENDING
 2. The Inventory group is complete (`8fd4d4a9`, §4.13). Billing waits for an Identity
    command path; pricing catalog freeze/admission stays behind SCM-FILES /
    SCM-KNOWLEDGE (F-11). F-18 is fixed (`bc24e5bb`, D-28); F-19 is fixed (`cba3f79a`).
+2b. Main sync (2026-09-27): #546 went CONFLICTING after #542/#571/#575/#576 merged.
+   The only conflict was `docs/.id-ledger.json`, from an ADR-109 collision (main
+   gave ADR-109 to Notion). On MC0's allocation this ADR became ADR-111, the ledger
+   was taken from main and re-pinned with `docs:ids -- --write`, and `origin/main`
+   was merged. No Phase-B inventory or schema file overlapped this branch; the only
+   kernel source main changed was `enums.js` (a Notion secret kind), regenerated by
+   `sync-kernel`. MC0 approved the root CI job for services/scm, and it is added
+   in #546 under a lease.
 2a. Wrap-up (2026-09-24): no new groups.
    - #561: MERGED at `9e25aa1f` (S1 PASS at `be171333`, CI green).
    - #564 (F-15/F-16/F-17): MERGED at `caabd8a7` (S1 PASS at `812b21f0`, CI green).

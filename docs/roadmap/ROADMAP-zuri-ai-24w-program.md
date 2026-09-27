@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.22"
-updated: "2026-09-23"
+version: "0.4.25"
+updated: "2026-09-27"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -35,6 +35,10 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.24 → 0.4.25 (2026-09-27): Re-run TASK-ZAI-123 verification after rebasing onto current origin/main d302eb08 — governance passed with 0 critical and 1 existing warning; Vitest passed 6,995 tests (47 skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Provider setup, production migration and deployment remain unclaimed.
+
+Version diff 0.4.22 → 0.4.23 (2026-09-26): Add TASK-ZAI-123 and its Task Container for FEAT-046 / FR-273/274 under ADR-109. Local implementation and focused tests are in progress; provider setup, production migration and deployment remain unclaimed.
 
 Version diff 0.4.21 → 0.4.22 (2026-09-23): Reconcile TASK-ZAI-113 after PR #536 merged as main `bf68979b`. Its backlog row, phase summary and Task Container now agree on the `done / HOSTED_CI / MERGED` implementation boundary; post-merge Governance #35888132371, Edge #35888132365 and Docker #35888132360 passed. Production archive migration/apply, archive mount/KEK/live behavior, owner/legal receipt, deployment and rollback remain under TASK-ZAI-114 and are not claimed here.
 
@@ -531,7 +535,7 @@ locates the week.
 | TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | review | TASK-ZAI-045 | frozen production-base branch; isolated implementation/native acceptance; runtime activation under TASK-ZAI-050; not deployed; Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110 |
 | TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | planned | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
 | TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | review | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
-| TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | planned | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
+| TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | in-progress | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
 | TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | done | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
 | TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | done | TASK-ZAI-052; TASK-ZAI-034 | PR #483 merged at `68d27022` after the strict Phase-B inventory fix; hosted checks passed; production migration/activation NOT_RUN |
@@ -603,6 +607,7 @@ locates the week.
 | TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
 | TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | P1 | Claude | review | TASK-ZAI-103 | PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103 |
 | TASK-ZAI-121 | SPR-ZAI-10 | task | LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099 | P1 | Claude | review | TASK-ZAI-120 | PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open |
+| TASK-ZAI-123 | SPR-ZAI-10 | task | Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274; Business-scoped OAuth callback and vault custody, one-time AAL2 operator reveal, raw-body signature verification and receipt-only idempotent webhook | P1 | Codex | in-progress | TASK-ZAI-078 | ../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md |
 
 ## Assignments
 
@@ -2178,7 +2183,7 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/asset-management/application/asset-extraction-job-service.js
   doc: docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md
-  test: apps/server/tests/integration/fr143-asset-extraction-job.test.js
+  test: apps/server/tests/unit/edge-surface-retirement.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given evidence uploaded for an Asset, when extraction is requested, then a cloud-queued job is claimed and executed by a paired Edge Device presenting its Business-scoped credential, and the result is reviewed by a human before it becomes the record
@@ -3779,7 +3784,7 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/identity/harness-credential.js
   doc: docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md
-  test: apps/server/tests/e2e/fr220-harness-pairing.spec.js
+  test: apps/server/tests/unit/edge-surface-retirement.test.js
 delivers: [FR-220, FEAT-035]
 subtasks:
   - id: P0
@@ -5603,7 +5608,7 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/crm/conversation-preview-service.js
   doc: docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md
-  test: apps/server/tests/e2e/fr243-conversation-sessions.spec.js
+  test: apps/server/tests/integration/crm-conversation-sessions.test.js
 delivers: [FR-243]
 subtasks:
   - id: P0
@@ -6309,6 +6314,52 @@ token_telemetry:
   model_name: claude-opus-5
   context_length: 200k
   predicted_token_usage: 50000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-123
+
+```yaml
+task_container_id: TC-TASK-ZAI-123
+task_id: TASK-ZAI-123
+parent_phase_id: PHASE-ZAI-05
+parent_sprint_id: SPR-ZAI-10
+title: Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274, ADR-109
+requirement_type: FEAT
+complexity: C-3
+access_scope: H3
+status: in-progress
+version: 0.1.2b
+pic: Codex
+executor: Codex
+approver: Owen
+auditor: pending
+symbol_links:
+  code: apps/server/src/modules/integration/application/notion-oauth-service.js
+  doc: docs/decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md
+  test: apps/server/tests/integration/notion-oauth-webhook.test.js
+delivers: [FEAT-046, FR-273, FR-274]
+subtasks: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Business owner at AAL2 and a configured Notion connection, when the callback returns a code with matching state, then the server stores the token through SecretStorePort and redirects without credential material
+      checked: true
+  success_criteria:
+    - criterion: Given Notion webhook events, when the exact raw body signature is invalid or absent, then no receipt is written, and valid duplicate event ids create one minimal receipt
+      checked: true
+  exit_criteria:
+    - criterion: Given the owner-authorized release process, when the Notion provider is configured and the additive migrations are applied, then a real OAuth callback and webhook verification receipt are recorded without exposing credentials
+      checked: false
+changelog: Opened 2026-09-26 under ADR-109 after owner approval. Rebased on current origin/main d302eb08 and locally verified: governance passed with 0 critical and 1 existing warning; Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Provider setup, production migrations and deployment are not performed by this task.
+created_at: 2026-09-26T00:00:00Z,Codex,pending
+token_telemetry:
+  model_name: gpt-6
+  context_length: 200k
+  predicted_token_usage: 45000
   total_token_usage: 0
 ui_state:
   dropdown_default: collapsed

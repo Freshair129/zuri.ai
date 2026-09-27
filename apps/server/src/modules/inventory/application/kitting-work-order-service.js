@@ -77,6 +77,18 @@ const parseLines = (json) => {
   }
 }
 
+/**
+ * Compare-and-swap the order on (id, version). The version check above reads
+ * before this transaction's ledger writes; under PostgreSQL READ COMMITTED two
+ * calls with the same version both pass it, so the update itself must carry the
+ * predicate. The loser gets 409 and its ledger rows roll back with it (F-14).
+ */
+async function casUpdate(tx, order, data) {
+  const result = await tx.kittingWorkOrder.updateMany({ where: { id: order.id, version: order.version }, data: { ...data, version: { increment: 1 } } })
+  if (result.count !== 1) throw failure(409, 'KITTING_WORK_ORDER_VERSION_CONFLICT')
+  return tx.kittingWorkOrder.findUnique({ where: { id: order.id }, select: KWO_SELECT })
+}
+
 export const kittingDto = (row) => ({ ...row, plannedLines: parseLines(row.plannedLinesJson), plannedLinesJson: undefined })
 
 async function nextCode(tx, business, now) {
@@ -216,7 +228,7 @@ export async function releaseKittingWorkOrder(id, input, { viewer, db = prisma, 
       staged.push({ componentProductId: line.componentProductId, quantity: line.grossQty })
     }
 
-    const updated = await tx.kittingWorkOrder.update({ where: { id: order.id }, data: { status: 'IN_PROGRESS', startedAt: occurredAt, version: { increment: 1 } }, select: KWO_SELECT })
+    const updated = await casUpdate(tx, order, { status: 'IN_PROGRESS', startedAt: occurredAt })
     await recordAudit(tx, {
       entityType: KITTING_WORK_ORDER_ENTITY, entityId: order.id, action: 'KITTING_WORK_ORDER_RELEASED', actorId: actor(viewer),
       payload: { businessId: business.id, code: order.code, staged, version: order.version + 1 },
@@ -320,16 +332,11 @@ export async function completeKittingWorkOrder(id, input, { viewer, db = prisma,
     }
 
     const blocked = data.assembledQty < order.plannedQty
-    const updated = await tx.kittingWorkOrder.update({
-      where: { id: order.id },
-      data: {
-        status: blocked ? 'BLOCKED_SHORTAGE' : 'COMPLETED',
-        assembledQty: data.assembledQty, scrapQty,
-        unitCostSatang: blended.complete ? blended.unitCostSatang : null,
-        completedAt: blocked ? null : occurredAt,
-        version: { increment: 1 },
-      },
-      select: KWO_SELECT,
+    const updated = await casUpdate(tx, order, {
+      status: blocked ? 'BLOCKED_SHORTAGE' : 'COMPLETED',
+      assembledQty: data.assembledQty, scrapQty,
+      unitCostSatang: blended.complete ? blended.unitCostSatang : null,
+      completedAt: blocked ? null : occurredAt,
     })
     await recordAudit(tx, {
       entityType: KITTING_WORK_ORDER_ENTITY, entityId: order.id,
@@ -371,7 +378,7 @@ export async function cancelKittingWorkOrder(id, input, { viewer, db = prisma, n
         returned.push({ componentProductId: line.componentProductId, quantity: line.grossQty })
       }
     }
-    const updated = await tx.kittingWorkOrder.update({ where: { id: order.id }, data: { status: 'CANCELLED', cancelledAt: occurredAt, version: { increment: 1 } }, select: KWO_SELECT })
+    const updated = await casUpdate(tx, order, { status: 'CANCELLED', cancelledAt: occurredAt })
     await recordAudit(tx, {
       entityType: KITTING_WORK_ORDER_ENTITY, entityId: order.id, action: 'KITTING_WORK_ORDER_CANCELLED', actorId: actor(viewer),
       payload: { businessId: business.id, code: order.code, returned, reason: data.reason ?? null, version: order.version + 1 },

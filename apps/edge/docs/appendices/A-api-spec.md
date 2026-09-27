@@ -1,13 +1,21 @@
-# Appendix A — API Spec
+# Appendix A — Retired Command Agent API Spec
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
-| **Status** | Draft |
+| **Version** | 1.2.0 |
+| **Status** | Deprecated |
 | **Author** | Boss |
 | **Created** | 2026-08-10 |
-| **Last Updated** | 2026-08-10 |
+| **Last Updated** | 2026-09-25 |
 | **Approved By** | — |
+
+> **Historical contract only.** This appendix describes the former Command Agent CLI, device
+> credential, heartbeat, extraction, and LINE command paths. Those Edge-device surfaces are
+> retired; do not use these commands or endpoint descriptions operationally. The Localworker
+> API-key contract belongs to the external Private Runtime Platform (PRP), and this appendix does
+> not establish that integration is implemented or verified. Conversation Runtime's current
+> boundary is tracked in `docs/migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md`.
+> Local Knowledge/RAG remains a separate component; preserve archive, outbox, and identity data.
 
 ## Version History
 
@@ -15,6 +23,7 @@
 |---------|------|--------|---------|
 | 1.0.0 | 2026-08-10 | Boss | Initial creation via RWANG doc-architect |
 | 1.1.0 | 2026-08-10 | Boss | `preview`/`send`/`status` wired to `MockZuriApiClient` (§A.3); documents the local-persistence design decision (ADR-005) |
+| 1.2.0 | 2026-09-25 | RWANG | Marked the retired Edge-device/Command Agent API paths as historical; PRP Localworker auth and Conversation Runtime are separate contracts |
 
 Parent: [`../PRD-SDD-v1.0.md`](../PRD-SDD-v1.0.md) §2.3. Canonical upstream contract:
 `zuri-command-agent-api-v1@0.1.0b` (`G:\zuri\docs\contracts\zuri-command-agent-api-v1.md`) — this
@@ -82,9 +91,9 @@ invocation and `status` in the next see the same command — this is a local dev
 | *(send intent)* | requests a `line_push` delivery intent | **Implemented against the mock only** — `zuri-agent send <template> --group <alias>` calls `admitCommand`; rejects a raw LINE group ID (FR-008), enforced by `src/safety/redact.ts` `isRawLineId`. No real Zuri policy evaluation or LINE delivery exists behind this yet — the S7 entry gate (Zuri Phase 2, G0/CR-003/CR-004) still applies before this can talk to the real contract endpoint. |
 | *(status read)* | reads a command's lifecycle/result | **Implemented** — `zuri-agent status <command-id>` calls `getCommandStatus` via the local mock client |
 
-## A.3.1 Current transport implementation (supersedes the mock-only status above)
+## A.3.1 Historical transport implementation (2026-09-06)
 
-`HttpZuriApiClient` is now selected by default for CLI `preview`, `send`, and `status`. It calls
+The former CLI selected `HttpZuriApiClient` by default for `preview`, `send`, and `status`. It called
 the candidate contract's admit and status endpoints using the configured bridge credential,
 contract-version header, and idempotency header; malformed, non-JSON, network, and non-2xx
 responses fail closed. `MockZuriApiClient` is selected only by explicit

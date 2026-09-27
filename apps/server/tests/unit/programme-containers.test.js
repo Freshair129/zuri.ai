@@ -163,7 +163,7 @@ describe('FR-105 / FR-219 committed modules', () => {
     expect(PROGRAMME_TASKS.find(([id]) => id === 'TASK-ZAI-052')?.[6]).toBe('done')
     expect(PROGRAMME_TASKS.find(([id]) => id === 'TASK-ZAI-077')?.[6]).toBe('done')
     expect(ROADMAP_SOT.coverage).toHaveLength(17)
-    expect(ROADMAP_SOT.subplans.find((plan) => plan.id === 'SUBPLAN-KI-PRODUCTION-ACTIVATION')).toMatchObject({ status: 'planned', proofScope: 'SPEC' })
+    expect(ROADMAP_SOT.subplans.find((plan) => plan.id === 'SUBPLAN-KI-PRODUCTION-ACTIVATION')).toMatchObject({ status: 'in-progress', proofScope: 'PRODUCTION' })
     expect(ROADMAP_SOT.subplans.filter((plan) => plan.duplicateKey === 'KI-CATALOG-PUBLISH')).toHaveLength(2)
     expect(ROADMAP_SOT.subplans.find((plan) => plan.id === 'SUBPLAN-ROADMAP-MOBILE')).toMatchObject({
       status: 'planned',
@@ -173,7 +173,7 @@ describe('FR-105 / FR-219 committed modules', () => {
     })
     const dag = buildRoadmapDag(new Map(ROADMAP_TASK_LEDGER.map((row) => [row.id, row])))
     expect(dag).toEqual(ROADMAP_SOT.dag)
-    expect(dag).toMatchObject({ nodeCount: PROGRAMME_TASKS.length, edgeCount: 135, waveCount: 21, missingDependencies: [], cycles: [] })
+    expect(dag).toMatchObject({ nodeCount: PROGRAMME_TASKS.length, edgeCount: 136, waveCount: 21, missingDependencies: [], cycles: [] })
     expect(dag.waves[0].taskIds).toContain('TASK-ZAI-001')
     expect(dag.waves[0].taskIds).toContain('TASK-ZAI-116')
     expect(dag.waves.at(-1).taskIds).toEqual(['TASK-ZAI-115'])

@@ -6,31 +6,16 @@ export const DEFAULT_PERSONA_ID = 'zuri-01';
 /**
  * Where the persona folders live.
  *
- * The CLI runs from the checkout, so `.agents/` beside the process is right. The Desktop app's
- * packaged worker runs with cwd = its data root (`%APPDATA%\zuri-edge-device\runtime-data`) and
- * a cleared environment, so `.agents/` was never found there and every answer came from the
- * short built-in fallback. The package now ships `worker/.agents/` and the worker is told its
- * package root, so that is looked at first; `ZURI_AGENTS_ROOT` overrides both for an operator
- * who keeps personas elsewhere.
+ * The CLI runs from the checkout, so `.agents/` beside the process is right. An operator can
+ * point a local runtime at another persona directory with `ZURI_AGENTS_ROOT`.
  */
 export function agentsRoot(): string {
   const explicit = process.env.ZURI_AGENTS_ROOT?.trim();
   if (explicit) return path.resolve(explicit);
-  const packageRoot = process.env.ZURI_DESKTOP_PACKAGE_ROOT?.trim();
-  if (packageRoot) {
-    // The supervisor sets this to the package directory, but desktop-worker.ts then overwrites
-    // it with its own root — `<package>/worker`, the directory holding dist/ — so the value
-    // seen here is the worker directory in the live app. The first deploy looked only under
-    // `<value>/worker/.agents`, found nothing, and every live answer used the fallback string
-    // while the same code, probed with the package directory, loaded the persona fine.
-    for (const candidate of [path.join(packageRoot, '.agents'), path.join(packageRoot, 'worker', '.agents')]) {
-      if (fs.existsSync(candidate)) return candidate;
-    }
-  }
   return path.resolve('.agents');
 }
 
-/** The persona the device answers as: `ZURI_ACTIVE_PERSONA`, read at answer time so a saved change applies without a restart. */
+/** The persona the local runtime answers as: `ZURI_ACTIVE_PERSONA`, read at answer time so a saved change applies without a restart. */
 export function activePersonaId(): string {
   return process.env.ZURI_ACTIVE_PERSONA?.trim() || DEFAULT_PERSONA_ID;
 }
@@ -53,7 +38,6 @@ export function loadPersonaPrompt(personaId: string = DEFAULT_PERSONA_ID, varian
     if (!fs.existsSync(personaPath)) continue;
     try {
       const content = fs.readFileSync(personaPath, 'utf8').trim();
-      // stderr: the Desktop worker's stdout is the supervisor's JSON event pipe.
       console.error(`[Persona] Loaded persona "${personaId}" (${variant}) from ${personaPath}`);
       return content;
     } catch (err) {

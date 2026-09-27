@@ -4,10 +4,21 @@ Operator notes for ADR-075 Phase 3 prerequisites P-3 to P-6. The design is
 [`docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md`](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md);
 where this file and that one disagree, the design wins.
 
-> **Nothing here has been deployed.** No credential has been generated, no service
-> started and no `docker compose` command run. The deployment is a separate operator
-> step the owner triggers, and only after every item in the pre-deploy gate (§9)
-> passes.
+> **Status (2026-09-24): the overlay is deployed on the production host.** The
+> `runner-ki17` web image and the `genesis-worker` sidecar have run there since
+> 2026-09-21 (currently `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay`, with the
+> `genesis-worker` container healthy). The enabling variables —
+> `ZURI_KNOWLEDGE_ENABLED`, `ZURI_KNOWLEDGE_STORAGE_ENABLED`, `ZURI_KNOWLEDGE_BINDINGS`
+> and `MSP_PIPELINE_PRINCIPALS` — live in `apps/server/.env.knowledge`, not in
+> `apps/server/.env`; `apps/server/.env` only selects the Compose overlay files and
+> profile that bring `genesis-worker` up. `node scripts/ki17-smoke.mjs` (see
+> "Verifying the relay after a deploy" below) is the post-deploy check — run it after
+> every web recreate, since recreating web without also recreating `genesis-worker`
+> can leave the worker listening in a dead namespace
+> (`.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md`). This status note
+> records that the overlay is running; it does not itself claim that knowledge
+> migrations are recorded or that a documented operator activation record exists —
+> those remain open under TASK-ZAI-050 (`docs/roadmap/ROADMAP.md`).
 >
 > **Historical G-3 record** (2026-09-16): the Phase 2 acceptance passed 35/35 inside a
 > throwaway `ki17-acceptance` image built from the pinned commits — Linux, MSP/GKS/
@@ -78,7 +89,7 @@ activation.
 | `pins.json` | The four commits this cycle targets, the Node/Python/model versions and the worker port |
 | `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit |
 | `build-smartgift-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the SmartGift acceptance corpus. Read its header before changing it |
-| `build-smartgift-real-corpus.mjs` | Derives a benchmark corpus (the input of `build-smartgift-benchmark.mjs`) from **real** SmartGift catalog files instead of the Phase 2 test corpus. Every gold text comes from the production path (`splitSmartGiftCatalogRecords` → `renderStructuredCatalogDocument`), so a real upload can pass the retrieval dimension; queries are natural phrasings, never the chunk text itself. Regenerate it whenever the catalog changes, or Stage 16 refuses the changed records with `BENCHMARK_NO_APPLICABLE_QUERIES` |
+| `build-smartgift-real-corpus.mjs` | Derives a benchmark corpus (the input of `build-smartgift-benchmark.mjs`) from **real** SmartGift catalog files instead of the Phase 2 test corpus. Every gold text comes from the production path (`splitSmartGiftCatalogRecords` → `renderStructuredCatalogDocument`), so a real upload can pass the retrieval dimension; queries are natural phrasings, never the chunk text itself. Regenerate it whenever the catalog changes, or Stage 16 refuses the changed records with `BENCHMARK_NO_APPLICABLE_QUERIES`. `--base <deployed.json>` merges new or changed records onto the fixture the worker boots with, keeping it cumulative; `--check <benchmark.json> <catalog.json>...` says whether an upload is covered before you make it. The operator procedure is [EDGE-DEPLOYMENT §10.1](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md#101-adding-or-changing-a-catalog-record-the-per-record-benchmark-step); production reads the fixture from the `ki17-state` volume, not from the image |
 
 The `ki17-acceptance` build target (gate G-3) is described under
 [Running the acceptance inside the images](#running-the-acceptance-inside-the-images-gate-g-3).
@@ -184,7 +195,7 @@ adds the opt-in overlay, which selects `runner-ki17` and supplies the three pinn
 contexts with the same `KI17_*_CONTEXT` variables as the genesis-worker build:
 
 ```text
-COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.ki17-web.yml
+COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml;docker-compose.cold-archive.yml;docker-compose.ki17-web.yml
 ```
 
 Without it the web image has no `/opt/ki17`: web cannot spawn the MSP/GKS stdio

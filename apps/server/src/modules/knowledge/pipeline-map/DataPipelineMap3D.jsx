@@ -189,7 +189,7 @@ export default function DataPipelineMap3D({
         // Label sprite beside mesh
         const meta = isInternal
           ? `${node.buildStatus} · ${node.surfaceLevel || 'none'}`
-          : (node.system === 'edge' ? 'Edge Device' : 'ภายนอก')
+          : 'ภายนอก'
         const sprite = createTextSprite(node.label, meta, selectedId === node.id)
         sprite.position.set(x + 46, y, z + 6)
         scene.add(sprite)

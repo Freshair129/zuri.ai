@@ -88,11 +88,11 @@ list mapped from `COMMAND-AGENT-SPEC.md` §2.
 | ID | Requirement | Source |
 |---|---|---|
 | FR-001 | `config check` validates local config, device identity, contract version, and read-only DuckDB access | COMMAND-AGENT-SPEC §4, §8.1 |
-| FR-002 | `health` reports bridge registration/contract compatibility and last heartbeat | COMMAND-AGENT-SPEC §4 |
-| FR-003 | `preview <template>` creates one idempotent preview command; never calls the LINE Messaging API | COMMAND-AGENT-SPEC §4, §8.2 |
-| FR-004 | `send <template> --group <alias>` requests a governed delivery intent; Zuri decides send vs. review | COMMAND-AGENT-SPEC §4, §8.3 |
-| FR-005 | `status <command-id>` returns redacted command lifecycle/result without credentials or PII | COMMAND-AGENT-SPEC §4, §8.7 |
-| FR-006 | `worker` polls/claims compatible leased jobs, queries DuckDB, submits evidence, heartbeats | COMMAND-AGENT-SPEC §4, §8.4 |
+| FR-002 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `health` reports bridge registration/contract compatibility and last heartbeat | COMMAND-AGENT-SPEC §4 |
+| FR-003 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `preview <template>` creates one idempotent preview command; never calls the LINE Messaging API | COMMAND-AGENT-SPEC §4, §8.2 |
+| FR-004 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `send <template> --group <alias>` requests a governed delivery intent; Zuri decides send vs. review | COMMAND-AGENT-SPEC §4, §8.3 |
+| FR-005 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `status <command-id>` returns redacted command lifecycle/result without credentials or PII | COMMAND-AGENT-SPEC §4, §8.7 |
+| FR-006 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** `worker` polls/claims compatible leased jobs, queries DuckDB, submits evidence, heartbeats | COMMAND-AGENT-SPEC §4, §8.4 |
 | FR-007 | Four supported card templates: `executive-summary`, `channel-performance`, `campaign-breakdown`, `actions-approval-queue` | COMMAND-AGENT-SPEC §4; `src/cards/builders/` |
 | FR-008 | Group targeting uses only an owner-configured, server-resolved alias — never a raw LINE group ID | COMMAND-AGENT-SPEC §4 |
 
@@ -129,13 +129,13 @@ Mirrors `COMMAND-AGENT-SPEC.md` §8 verbatim, given requirement IDs for traceabi
 | ID | Criterion |
 |---|---|
 | AC-001 | WHEN an operator runs `config check`, THEN the CLI SHALL return a non-zero exit with a redacted diagnostic if config, device identity, contract version, or read-only DuckDB access is invalid |
-| AC-002 | WHEN an operator runs `preview`, THEN the CLI SHALL create one idempotent preview command and SHALL not call the LINE Messaging API |
-| AC-003 | WHEN an authorized operator runs `send ... --group <alias>`, THEN the CLI SHALL request a governed delivery intent; Zuri SHALL decide send versus review from its policy snapshot |
-| AC-004 | WHEN a bridge claims a job, THEN it SHALL accept only a matching lease, tenant, contract, query version, and expiry |
-| AC-005 | WHEN a query returns evidence, THEN the bridge SHALL include source, `as_of`, query version, sensitivity, and a typed `CardViewModel`; it SHALL not submit raw SQL or unbounded rows |
-| AC-006 | IF Zuri rejects an evidence packet or the bridge is offline, THEN the CLI SHALL return a clear unavailable/failed state and SHALL not retry delivery indefinitely |
-| AC-007 | WHEN a command completes, THEN `status` SHALL show command state and trace ids without credentials, hidden group IDs, raw transcript, or PII |
-| AC-008 | WHEN automatic delivery is not admitted, THEN no LINE message SHALL be sent and the command SHALL remain preview/review-only |
+| AC-002 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** WHEN an operator runs `preview`, THEN the CLI SHALL create one idempotent preview command and SHALL not call the LINE Messaging API |
+| AC-003 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** WHEN an authorized operator runs `send ... --group <alias>`, THEN the CLI SHALL request a governed delivery intent; Zuri SHALL decide send versus review from its policy snapshot |
+| AC-004 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** WHEN a bridge claims a job, THEN it SHALL accept only a matching lease, tenant, contract, query version, and expiry |
+| AC-005 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** WHEN a query returns evidence, THEN the bridge SHALL include source, `as_of`, query version, sensitivity, and a typed `CardViewModel`; it SHALL not submit raw SQL or unbounded rows |
+| AC-006 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** IF Zuri rejects an evidence packet or the bridge is offline, THEN the CLI SHALL return a clear unavailable/failed state and SHALL not retry delivery indefinitely |
+| AC-007 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** WHEN a command completes, THEN `status` SHALL show command state and trace ids without credentials, hidden group IDs, raw transcript, or PII |
+| AC-008 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** WHEN automatic delivery is not admitted, THEN no LINE message SHALL be sent and the command SHALL remain preview/review-only |
 
 ---
 
@@ -165,10 +165,10 @@ duplicated here to avoid drift.
 | ID | Component | Path | Responsibility |
 |---|---|---|---|
 | SDD-001 | CLI entry | `src/cli/` | Command parsing, stdout/stderr, exit codes |
-| SDD-002 | Zuri API client | `src/zuri-api/` | Typed request/response models for the canonical contract |
-| SDD-003 | Bridge | `src/bridge/` *(planned S6)* | Heartbeat, lease claim, retry/release |
+| SDD-002 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** Zuri API client | `src/zuri-api/` | Typed request/response models for the canonical contract |
+| SDD-003 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** Bridge | `src/bridge/` *(planned S6)* | Heartbeat, lease claim, retry/release |
 | SDD-004 | Query registry | `src/queries/` | Registry ids, parameter schemas, read-only DuckDB execution |
-| SDD-005 | Evidence builder | `src/evidence/` | Normalized aggregate facts + source/`as_of`/sensitivity |
+| SDD-005 | **Retired (upstream ADR-110 D5, 2026-09-27) — code removed; historical record only.** Evidence builder | `src/evidence/` | Normalized aggregate facts + source/`as_of`/sensitivity |
 | SDD-006 | Card builders | `src/cards/` | Four `CardViewModel` builders; no raw Flex JSON delivery |
 | SDD-007 | Config | `src/config/` | Env loading, Docker-secret (`${NAME}_FILE`) adapter — see `secret.ts`; an OS-credential-store adapter (Windows Credential Manager) is not yet built |
 | SDD-008 | Safety | `src/safety/` | Redaction, validation, error mapping |

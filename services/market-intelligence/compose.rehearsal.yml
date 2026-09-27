@@ -1,0 +1,54 @@
+# LOCAL IMAGE-START REHEARSAL ONLY (ADR-108 D5). A separate Compose project with its
+# own name, network, volume-less Postgres and a fake core. It never joins the live
+# `zuri-ai` project or its network and must never be layered onto
+# apps/server/docker-compose.yml. test/compose-guard.test.js enforces the name.
+#
+#   docker compose -f services/market-intelligence/compose.rehearsal.yml up -d --build --wait
+#   docker compose -f services/market-intelligence/compose.rehearsal.yml down
+name: zuri-market-rehearsal
+
+services:
+  market-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: rehearsal-only-not-a-secret
+      POSTGRES_DB: market_rehearsal
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "market_rehearsal"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  fake-core:
+    image: node:22-alpine
+    working_dir: /fake
+    command: ["node", "fake-core.js"]
+    environment:
+      MARKET_CORE_TOKEN: rehearsal-core-token-0123456789abcdefghij
+      FAKE_CORE_PORT: "3999"
+    volumes:
+      # The fake core only; the service itself runs from its image with no mounts.
+      - ./test/support/fake-core.js:/fake/fake-core.js:ro
+
+  market-intelligence:
+    build:
+      context: ../..
+      dockerfile: services/market-intelligence/Dockerfile
+    image: zuri-market-intelligence:rehearsal
+    environment:
+      MARKET_ENV: test
+      MARKET_PORT: "3082"
+      MARKET_API_TOKEN: rehearsal-api-token-0123456789abcdefghijk
+      MARKET_CORE_TOKEN: rehearsal-core-token-0123456789abcdefghij
+      MARKET_CORE_URL: http://fake-core:3999
+      MARKET_STORE: postgres
+      MARKET_DATABASE_URL: postgres://postgres:rehearsal-only-not-a-secret@market-postgres:5432/market_rehearsal
+      MARKET_STORE_ENSURE_SCHEMA: "1"
+    ports:
+      - "127.0.0.1:38082:3082"
+    depends_on:
+      market-postgres:
+        condition: service_healthy
+      fake-core:
+        condition: service_started
+    stop_grace_period: 20s

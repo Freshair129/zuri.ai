@@ -43,7 +43,6 @@ export const DOMAIN_E2E_MAPPING = [
   {
     pattern: /apps\/server\/(src\/(modules\/(crm|line-oa)|app\/\(pm\)\/(customer|line-oa)))/,
     specs: [
-      'tests/e2e/fr091-conversation-inbox.spec.js',
       'tests/e2e/fr149-line-server-console.spec.js',
       'tests/e2e/fr151-line-oa-rich-menu-console.spec.js',
       'tests/e2e/fr161-sales-tasks.spec.js',
@@ -83,7 +82,6 @@ export const DOMAIN_E2E_MAPPING = [
     pattern: /(apps\/edge|apps\/server\/src\/app\/\(pm\)\/edge)/,
     specs: [
       'tests/e2e/edge-desktop-ui.spec.js',
-      'tests/e2e/edge-pairing.spec.js',
     ],
   },
 ]
