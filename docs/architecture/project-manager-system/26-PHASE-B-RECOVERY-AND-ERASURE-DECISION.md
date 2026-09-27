@@ -217,8 +217,7 @@ or recovery operation is claimed.
 Conversation Runtime (ADR-106 / SDD-110) adds `runtimeOwner` to the existing
 `LineOaAccount` and `LineConversationJob` models. It adds no application model,
 so the 191-entry table mapping is unchanged, but the schema bytes change. The
-**current** binding for the merged Notion + Conversation Runtime schema is
-`schemaSha256`
+binding for the merged Notion + Conversation Runtime schema was `schemaSha256`
 `f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078` with
 `targetSchemaSha256`
 `a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1`, recomputed
@@ -233,6 +232,26 @@ while quarantining queued or uncertain jobs. This rebind changes neither the
 table-empty proof nor the recovery/erasure algorithm; it accepts only this exact
 schema and does not authorize automatic rewriting or recovery of artifacts bound
 to older hashes.
+
+FR-277 (ADR-090 Phase 3, TASK-ZAI-095) adds one application model,
+`LineGroundingShadowComparison` — the diagnostic-only LINE grounding
+shadow-compare row — rebinding the frozen inventory to **192 application
+tables**. The **current** binding has `schemaSha256`
+`1c48859ad4d0a3edea09a83555af1d48906b031d7f4629033d6ffee334d485fd` and
+`targetSchemaSha256`
+`67a4db3a62c4d5f8c2d444ff5b6799c348ad8ae10b9a7c0a11411a63a967c80a`, computed
+the same way as every binding above: `schemaSha256` over the raw
+`prisma/schema.prisma` bytes, `targetSchemaSha256` via
+`computeTargetSchemaSha256` over the full, alphabetically sorted 192-model
+mapping (every model gets `schemaName: 'public'`, `tableName` equal to its
+`modelName`; none of this schema's models use `@@map`). The 191-table binding
+above remains historical and refuses cross-schema recovery. The new model is
+included in `SNAPSHOT_MODELS` (backup-service.js) with no declared relation,
+matching `AgentTraceEvent`'s own convention in the same domain — it restores
+without ordering constraints. Unlike the mechanically-verified rebinds above,
+this one has not yet had the independent hash/mapping review the doc's earlier
+entries record; the CLI proof and that review remain a separate gate this
+change does not claim to close.
 
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during

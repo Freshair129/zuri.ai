@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078",
+  "schemaSha256": "1c48859ad4d0a3edea09a83555af1d48906b031d7f4629033d6ffee334d485fd",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -442,6 +442,11 @@
       "tableName": "LineConversationJob"
     },
     {
+      "modelName": "LineGroundingShadowComparison",
+      "schemaName": "public",
+      "tableName": "LineGroundingShadowComparison"
+    },
+    {
       "modelName": "LineOaAccount",
       "schemaName": "public",
       "tableName": "LineOaAccount"
@@ -475,6 +480,11 @@
       "modelName": "LocalWorkspaceMount",
       "schemaName": "public",
       "tableName": "LocalWorkspaceMount"
+    },
+    {
+      "modelName": "MarketObservation",
+      "schemaName": "public",
+      "tableName": "MarketObservation"
     },
     {
       "modelName": "MarketingBroadcastIntent",
@@ -540,11 +550,6 @@
       "modelName": "MarketingReview",
       "schemaName": "public",
       "tableName": "MarketingReview"
-    },
-    {
-      "modelName": "MarketObservation",
-      "schemaName": "public",
-      "tableName": "MarketObservation"
     },
     {
       "modelName": "Membership",
@@ -956,10 +961,5 @@
       "schemaName": "public",
       "tableName": "Workstream"
     }
-  ],
-  "migrationTables": [
-    "_prisma_migrations",
-    "schema_migrations"
-  ],
-  "targetSchemaSha256": "a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1"
+  ]
 }

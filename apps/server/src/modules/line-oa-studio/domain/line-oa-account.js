@@ -82,6 +82,9 @@ export const zLineOaAccountAction = z.object({
   legacyQuiesced: z.literal(true).optional(),
   // @req FR-235 — publisher-set grounding mode (ADR-090 D1).
   knowledgeGrounding: z.enum(KNOWLEDGE_GROUNDING_MODES).optional(),
+  // @req FR-277 — shadow-compare flag (ADR-090 Phase 3, TASK-ZAI-095),
+  //   independent of `knowledgeGrounding` itself.
+  knowledgeGroundingShadow: z.boolean().optional(),
   // @req FR-243 — minutes of silence before the next message opens a new conversation
   //   session; 10 to 120 (ADR-094 D3). Out of range is refused, never clamped.
   sessionIdleTimeoutMinutes: z.number().int().min(10).max(120).optional(),
@@ -112,6 +115,9 @@ export const zLineOaAccountAction = z.object({
   }
   if (value.action === 'CONFIGURE_KNOWLEDGE_GROUNDING' && !value.knowledgeGrounding) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['knowledgeGrounding'], message: 'knowledgeGrounding is required for CONFIGURE_KNOWLEDGE_GROUNDING' })
+  }
+  if (value.action === 'CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW' && typeof value.knowledgeGroundingShadow !== 'boolean') {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['knowledgeGroundingShadow'], message: 'knowledgeGroundingShadow is required for CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW' })
   }
   if (value.action === 'CONFIGURE_BUSINESS_HOURS') {
     const declaring = value.businessHoursOpen !== undefined || value.businessHoursClose !== undefined || value.outOfHoursReplyText !== undefined

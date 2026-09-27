@@ -1,13 +1,15 @@
 ---
-version: "0.4.0b"
+version: "0.5.0b"
 status: active
-last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-27T12:00:00+07:00,Claude Sonnet 5"
 id: ZAI:DOMAIN-AGENT
 relations:
   - type: relates_to
     target: ZAI:ADR-061
   - type: relates_to
     target: ZAI:ADR-070
+  - type: relates_to
+    target: ZAI:ADR-090
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
   - type: relates_to
@@ -20,6 +22,7 @@ domain: agent
 module: src/modules/agent
 owns_models:
   - AgentTraceEvent
+  - LineGroundingShadowComparison
 owns_routes:
   - src/app/api/agent/**
 ---

@@ -2666,6 +2666,45 @@ model AgentTraceEvent {
   @@index([tenantId, businessId, turnId, createdAt])
 }
 
+// @req FR-277 — one diagnostic-only row per SERVER LINE job answered while its
+// account carries `LineOaAccount.knowledgeGroundingShadow: true` (ADR-090
+// Phase 3, TASK-ZAI-095): what the account's OTHER grounding mode would have
+// answered, generated best-effort after the primary answer and never sent to
+// the customer. `status` (COMPLETED | FAILED | TIMED_OUT) distinguishes a
+// comparison that ran to completion from one that did not — a shadow failure
+// is data, not a defect, and never touches the primary job's own status or
+// `AgentTraceEvent` trace. `jobId` is unique: a re-claimed job overwrites its
+// own prior attempt rather than accumulating duplicate rows. No relation to
+// LineConversationJob/Tenant/Business is declared, matching AgentTraceEvent's
+// own convention in this domain (scoped columns only, never a cross-domain FK).
+// @spec ADR-090 D1-D3, SEC-032 — carries the same answer text the primary path
+//   already sends the customer, plus evidence source/reason, retrieval
+//   references, latency and outcome only; no new customer content.
+// @tested tests/unit/line-grounding-shadow-compare.test.js,
+//   tests/integration/fr277-line-grounding-shadow-compare.test.js
+model LineGroundingShadowComparison {
+  id                      String    @id @default(uuid())
+  jobId                   String    @unique
+  tenantId                String
+  businessId              String
+  accountId               String?
+  primaryMode             String
+  shadowMode              String
+  status                  String
+  primaryAnswerText       String?
+  shadowAnswerText        String?
+  shadowEvidenceSource    String?
+  shadowEvidenceReason    String?
+  shadowRetrievalRefsJson String?
+  answersDiverge          Boolean?
+  latencyMs               Int?
+  errorCode               String?
+  createdAt               DateTime  @default(now())
+
+  @@index([tenantId, businessId, createdAt])
+  @@index([accountId, createdAt])
+}
+
 // @req FR-071 — server-owned full data-pipeline execution ledger.
 // @spec ADR-030 D2-D6, SDD-042, SEC-003, SEC-008
 // @tested tests/unit/platform/pipeline-tracking-service.test.js, tests/unit/platform/pipeline-tracking-migration.test.js
@@ -3982,6 +4021,14 @@ model LineOaAccount {
   // GKS_THEN_BUSINESS_KNOWLEDGE. Additive, opt-in; nothing reads a corpus until
   // a publisher switches it.
   knowledgeGrounding      String                @default("BUSINESS_KNOWLEDGE")
+  // @req FR-277 — publisher/operator-set shadow-compare flag (ADR-090 Phase 3,
+  // TASK-ZAI-095), independent of `knowledgeGrounding`. Default false: no
+  // account's behaviour changes until an operator turns this on for the one
+  // campaign window. When true, a SERVER job's primary answer is unchanged; a
+  // second, best-effort generation under the account's OTHER grounding mode
+  // runs after it and is recorded in `LineGroundingShadowComparison`, never
+  // sent to the customer (line-grounding-shadow-compare.js).
+  knowledgeGroundingShadow Boolean              @default(false)
   allowDelayedPush        Boolean               @default(false)
   transportEpoch          Int                   @default(1)
   // @req FR-227 — computed webhook health only LINE can report: {endpoint, active,

@@ -84,6 +84,8 @@ const ACTIONS = Object.freeze({
   ARCHIVE: 'LINE_OA_ACCOUNT_ARCHIVED',
   SET_DEFAULT: 'LINE_OA_ACCOUNT_DEFAULT_SET',
   CONFIGURE_KNOWLEDGE_GROUNDING: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED',
+  // @req FR-277 — shadow-compare on/off (ADR-090 Phase 3, TASK-ZAI-095).
+  CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_SHADOW_CONFIGURED',
   REGISTER_WEBHOOK: 'LINE_OA_ACCOUNT_WEBHOOK_REGISTERED',
   // @req FR-243 — the conversation session idle timeout (ADR-094 D3).
   CONFIGURE_SESSION_TIMEOUT: 'LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED',
@@ -297,6 +299,7 @@ const SELECT = {
   updatedAt: true, version: true, serverEnabled: true, executionMode: true,
   runtimeOwner: true,
   modelAccess: true, allowDelayedPush: true, transportEpoch: true, knowledgeGrounding: true,
+  knowledgeGroundingShadow: true,
   webhookStateJson: true, sessionIdleTimeoutMinutes: true,
   businessHoursOpen: true, businessHoursClose: true, outOfHoursReplyText: true,
 }
@@ -360,6 +363,7 @@ function toDto(row, health) {
     modelAccess: row.modelAccess,
     allowDelayedPush: row.allowDelayedPush,
     knowledgeGrounding: row.knowledgeGrounding,
+    knowledgeGroundingShadow: row.knowledgeGroundingShadow,
     sessionIdleTimeoutMinutes: row.sessionIdleTimeoutMinutes,
     // @req FR-244 — null on all three reads as "no declared hours".
     businessHoursOpen: row.businessHoursOpen,
@@ -610,6 +614,18 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
         payload.to.knowledgeGrounding = data.knowledgeGrounding
         break
       }
+      // @req FR-277 — shadow-compare on/off (ADR-090 Phase 3, TASK-ZAI-095).
+      // Independent of CONFIGURE_KNOWLEDGE_GROUNDING: turning shadow-compare on
+      // changes nothing about the customer-facing answer, so — like the mode
+      // switch itself — this never fences queued work.
+      case 'CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW': {
+        if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
+        if (row.knowledgeGroundingShadow === data.knowledgeGroundingShadow) throw failure(409, 'LINE_OA_KNOWLEDGE_GROUNDING_SHADOW_UNCHANGED')
+        change.knowledgeGroundingShadow = data.knowledgeGroundingShadow
+        payload.from.knowledgeGroundingShadow = row.knowledgeGroundingShadow
+        payload.to.knowledgeGroundingShadow = data.knowledgeGroundingShadow
+        break
+      }
       // @req FR-243 — the conversation session idle timeout (ADR-094 D3). It decides
       // only where the next message's session starts, so it is health-only like the
       // grounding switch and never fences queued work.
@@ -730,7 +746,11 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
     // health-only write: it changes no credential, transport owner or
     // execution policy, so fencing it would cancel replies customers are
     // already waiting for every time a publisher re-checks webhook health.
-    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT' && action !== 'CONFIGURE_BUSINESS_HOURS').includes(data.action)
+    // @req FR-277 — CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW joins the same
+    // exception for the same reason, one level removed: it never changes
+    // which evidence the customer-facing answer reads at all — only whether a
+    // second, non-customer-visible comparison generation also runs after it.
+    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT' && action !== 'CONFIGURE_BUSINESS_HOURS').includes(data.action)
       && (data.action !== 'CONFIGURE_EXECUTION' || data.allowDelayedPush !== row.allowDelayedPush)
     if (fencesWork) {
       change.transportEpoch = { increment: 1 }

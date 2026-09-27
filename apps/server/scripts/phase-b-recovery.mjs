@@ -23,9 +23,13 @@ const THIS_DIR = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_INVENTORY_PATH = path.resolve(THIS_DIR, '../../../docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json')
 const DEFAULT_SCHEMA_PATH = path.resolve(THIS_DIR, '../prisma/schema.prisma')
 const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
-const FROZEN_SCHEMA_SHA256 = 'f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078'
-const FROZEN_TARGET_SCHEMA_SHA256 = 'a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1'
-const FROZEN_APPLICATION_TABLE_COUNT = 191
+// @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) adds one
+// application model, rebinding this frozen inventory to 192 tables. See
+// docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
+// for the historical binding ladder this entry continues.
+const FROZEN_SCHEMA_SHA256 = '1c48859ad4d0a3edea09a83555af1d48906b031d7f4629033d6ffee334d485fd'
+const FROZEN_TARGET_SCHEMA_SHA256 = '67a4db3a62c4d5f8c2d444ff5b6799c348ad8ae10b9a7c0a11411a63a967c80a'
+const FROZEN_APPLICATION_TABLE_COUNT = 192
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0
@@ -80,7 +84,7 @@ function normalizeInventory(inventory) {
     }
   }
   if (!pinned || modelNames.size !== FROZEN_APPLICATION_TABLE_COUNT || tableNames.size !== FROZEN_APPLICATION_TABLE_COUNT) {
-    throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Frozen application table inventory is not the approved 191-table inventory')
+    throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, `Frozen application table inventory is not the approved ${FROZEN_APPLICATION_TABLE_COUNT}-table inventory`)
   }
   return normalized
 }

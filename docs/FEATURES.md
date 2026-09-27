@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.66.0b"
+version: "1.67.0b"
 status: active
-last_update: "2026-09-27T00:00:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-27T12:00:00+07:00,Claude Sonnet 5"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.66.0b → 1.67.0b (2026-09-27): readiness metadata gains **FR-277** (primary domain `agent`) — the LINE grounding shadow-compare harness (ADR-090 Phase 3, TASK-ZAI-095): disabled by default, a fire-and-forget comparison generation against the paired grounding mode, never customer-visible. A feature of one for now; no FEAT row is added.
 
 Version diff 1.65.0b → 1.66.0b (2026-09-27): readiness metadata gains **FR-275** and **FR-276** (primary domain `marketing`), the Marketing Insights read surface and refresh declared for #554. Each is a feature of one for now; no FEAT row is added.
 
@@ -984,6 +986,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FR-276",
     "primaryDomain": "marketing",
     "useCase": "ทีมการตลาดสั่ง refresh ข้อมูล Insights และติดตามสถานะรอบ sync ได้ คำขอซ้ำในช่วงเดียวกันถูกรวมเป็นรอบเดียว และรอบที่ล้มหรือได้ข้อมูลไม่ครบไม่แทนที่ snapshot ที่สมบูรณ์ล่าสุด"
+  },
+  {
+    "id": "FR-277",
+    "primaryDomain": "agent",
+    "useCase": "ผู้ดูแล LINE OA เปิด shadow-compare ให้บัญชีหนึ่งบัญชี ระบบตอบลูกค้าตามโหมดเดิมเหมือนทุกครั้ง แล้วสร้างคำตอบเปรียบเทียบจากโหมดคู่ตรงข้ามในพื้นหลังแบบไม่บล็อกและไม่ส่งให้ลูกค้าเห็น เพื่อดูหลักฐานว่าอีกโหมดจะตอบต่างกันแค่ไหนก่อนสั่งสวิตช์จริงในช่วงแคมเปญ"
   }
 ]
 ```
