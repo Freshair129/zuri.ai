@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.27"
+version: "0.4.28"
 updated: "2026-09-27"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.27 → 0.4.28 (2026-09-27): TASK-ZAI-050 DoD review (read-only, no production action; `.brain/reports/2026-09-27-task-zai-050-dod-review.md`, ROADMAP.md Revision 2.137.0b). TC-TASK-ZAI-050's `status` corrected to `in-progress` to match the ROADMAP.md task row (never mirrored since Revision 2.134.0b); its acceptance criterion (the four named knowledge migrations) is now `checked: true`, traced by exclusion from ADR-104's 2026-09-23 full migration-ledger preflight (105 files vs 96 ledger rows, ten named gaps, none of the four). success_criteria and exit_criteria stay unchecked. The task remains `in-progress`, not `done`: a documented operator activation record is still genuinely open per `docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md` §9.2 and needs an operator with production access to write.
 
 Version diff 0.4.26 → 0.4.27 (2026-09-27): TASK-ZAI-124 is done; #554 merged to main as 1e224d5b with hosted CI green. The routes and page stay off until the I2 repository.
 
@@ -2847,8 +2849,8 @@ title: Activate the seventeen-stage runtime on production beyond the isolated pr
 requirement_type: NFR
 complexity: C-3
 access_scope: H4
-status: planned
-version: 0.1.0
+status: in-progress
+version: 0.2.0
 pic: ATHER
 executor: ATHER
 approver: Owen
@@ -2860,14 +2862,14 @@ symbol_links:
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the production database, when the knowledge migrations (genesisrag17_tier1 20260907160000, audit remediation 20260908040000, knowledge_admission 20260908100000, knowledge_evidence_cursor 20260907120000) are checked, then each is recorded applied — the 2026-09-11 gap map found the tables present and the migrations unrecorded, which is not the same thing
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the web container, when ZURI_MSP_* is set and MSP, GKS and the GenesisBlock worker are reachable on the edge host per the ADR-073 amendment, then a run started from the raw entrypoint reaches Stage 17 with a publication receipt and the query path answers with citations
       checked: false
   exit_criteria:
     - criterion: Given one real Business document (not the fixed corpus), when it is admitted, published and queried on production, then the run, receipt and cited answer are recorded with commit and date, and the FR-109/FR-110 PRD rows drop "product-wide partial"
       checked: false
-changelog: Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts "no production deployment" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live.
+changelog: Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts "no production deployment" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live. Status corrected to in-progress 2026-09-27 to match the live ROADMAP.md task row (moved there by Revision 2.134.0b on 2026-09-24 and never mirrored into this container). 2026-09-27 (v0.2.0, .brain/reports/2026-09-27-task-zai-050-dod-review.md): the acceptance criterion's four named migrations are checked true, traced by exclusion from ADR-104's 2026-09-23 full-tree migration-ledger preflight (105 files vs 96 ledger rows, ten named gaps, none of these four) and its post-apply 107-row ledger; this session had no live production DB access to confirm directly. success_criteria and exit_criteria are untouched — MSP/GKS reachability shows partial evidence (2026-09-24 probe: 22/38 Stage 17 PASS, one stuck PipelineRun) and the real-document run/receipt/citation record is separate from this review's two-item scope, so neither is claimed done here.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
