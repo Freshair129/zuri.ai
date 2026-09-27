@@ -43,6 +43,20 @@ export function lineKnowledgeGroundingBudgetFromEnv(env = process.env) {
   }
 }
 
+// @req FR-149 — the grounding modes the Conversation Runtime cohort can serve.
+// Core `prepare` is the only place a runtime turn's evidence is selected, so
+// admission eligibility, CONFIGURE_EXECUTION and CONFIGURE_KNOWLEDGE_GROUNDING
+// all consult this one list: an account whose mode is not listed stays in the
+// SERVER cohort instead of admitting runtime jobs that would fail at `prepare`.
+// The raw stored value is checked, so an unrecognised value is never served by
+// the runtime (it stays with the Server, which resolves it to BUSINESS_KNOWLEDGE).
+// @spec ADR-106 D3 — eligibility is Core-owned and decided at admission.
+export const CONVERSATION_RUNTIME_GROUNDING_MODES = Object.freeze(['BUSINESS_KNOWLEDGE'])
+
+export function conversationRuntimeServesGroundingMode(mode) {
+  return CONVERSATION_RUNTIME_GROUNDING_MODES.includes(mode)
+}
+
 /** A mode this reader was never built to run for a Business fails closed, never permissively. */
 export function resolveLineKnowledgeGroundingMode(rawMode) {
   return KNOWLEDGE_GROUNDING_MODES.includes(rawMode) ? rawMode : 'BUSINESS_KNOWLEDGE'

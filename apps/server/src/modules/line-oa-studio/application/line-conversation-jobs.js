@@ -7,6 +7,7 @@ import { assertMayView, assertMayPublish, notFound } from './line-oa-account-aut
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { appendTraceEvent, readExecutionTrace, playbackTrace, sha256 } from '@/modules/agent/execution-trace'
 import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
+import { conversationRuntimeServesGroundingMode } from '@/modules/agent/line-knowledge-grounding'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
@@ -235,6 +236,7 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     const legacyOnlyWorkCommand = isLineProjectWorkCommand(text) && !workCommand
     const runtimeEligible = current.runtimeOwner === 'CONVERSATION_RUNTIME' && audienceKind === 'DIRECT'
       && !memorySyncOptIn && !outOfHours && !legacyOnlyWorkCommand
+      && conversationRuntimeServesGroundingMode(current.knowledgeGrounding)
     const identity = runtimeEligible
       ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
       : null

@@ -4,6 +4,7 @@ import prisma from '@/lib/db'
 import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 import { resolveBusinessModelCredential } from '@/modules/integration/application/model-provider-credential-service'
 import { selectRegisteredQuery } from '@/modules/agent/grounded-business-answer'
+import { conversationRuntimeServesGroundingMode } from '@/modules/agent/line-knowledge-grounding'
 import { parseLineProjectWorkCommand, searchLineProjectWork, proposeLineWork, confirmLineWork } from '@/modules/agent/line-project-work-tools'
 import { serverLinePorts } from './server-line-runtime'
 import {
@@ -240,7 +241,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     const workCommand = parseLineProjectWorkCommand(question)
     if (workCommand) return { question, evidence: { records: [] }, slices: [], authorized: true,
       audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand }
-    if (job.account.knowledgeGrounding !== 'BUSINESS_KNOWLEDGE') throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
+    if (!conversationRuntimeServesGroundingMode(job.account.knowledgeGrounding)) throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
     const ports = await getBusinessPorts()
     if (!ports?.businessKnowledge?.query) throw error('RUNTIME_KNOWLEDGE_UNAVAILABLE', 503)
     const query = selectRegisteredQuery(question)
