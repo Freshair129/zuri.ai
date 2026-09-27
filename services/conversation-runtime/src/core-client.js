@@ -146,10 +146,15 @@ function validateOperationResult(operation, data, payload) {
     }
   } else if (operation === 'resolve') {
     if (!exact(data, ['authorized', 'scope', 'version']) || typeof data.authorized !== 'boolean'
-      || !exact(data.scope, ['tenantId', 'businessId', 'accountId', 'identityId', 'identityVersion'])
-      || ['tenantId', 'businessId', 'accountId', 'identityId'].some(key => typeof data.scope[key] !== 'string' || !data.scope[key])
-      || !Number.isInteger(data.scope.identityVersion) || data.scope.identityVersion < 1
+      || !exact(data.scope, ['tenantId', 'businessId', 'accountId', 'identityId', 'identityVersion', 'identityState'])
+      || ['tenantId', 'businessId', 'accountId'].some(key => typeof data.scope[key] !== 'string' || !data.scope[key])
       || !Number.isInteger(data.version) || data.version < 1) invalid()
+    // @req FR-149 — a verified sender's scope names its identity; an unverified
+    // sender's (Core's admission-time decision) names no person and says so.
+    if (data.scope.identityState === undefined) {
+      if (typeof data.scope.identityId !== 'string' || !data.scope.identityId
+        || !Number.isInteger(data.scope.identityVersion) || data.scope.identityVersion < 1) invalid()
+    } else if (data.scope.identityState !== 'UNVERIFIED' || data.scope.identityId !== null || data.scope.identityVersion !== null) invalid()
   } else if (operation === 'prepare') {
     if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply',
       'turnKind', 'replyText', 'memorySync'])) invalid()

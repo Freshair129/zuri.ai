@@ -2,7 +2,7 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
-import { admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
+import { admitLineConversation, runtimeSenderAuthority } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { appendOutbound } from '@/modules/crm/reply-record-service'
 import { CUSTOMER_ERASURE_TOMBSTONE } from '@/modules/crm/conversation-redaction-service'
@@ -18,18 +18,18 @@ import { erasePrincipal } from '@/modules/identity/erase-principal'
 // @tested tests/integration/identity-erase-group-speakers.test.js
 
 const sealKey = '6e'.repeat(32)
-let tenant, business, account, connection
+let tenant, business, account, runtimeAccount, connection, provider
 let sequence = 0
 
 const next = label => `${label}-${++sequence}`
 
-async function admit({ thread, speaker, text, type = 'group' }) {
+async function admit({ thread, speaker, text, type = 'group', via = account }) {
   const eventId = next('synthetic-erase-grp-event')
   const source = type === 'group' ? { type: 'group', groupId: thread, userId: speaker }
     : type === 'room' ? { type: 'room', roomId: thread, userId: speaker } : { type: 'user', userId: speaker }
   const event = { type: 'message', webhookEventId: eventId, replyToken: `synthetic-reply-${eventId}`, timestamp: Date.now(),
     source, message: { type: 'text', id: `synthetic-line-msg-${eventId}`, text } }
-  const current = await prisma.lineOaAccount.findUnique({ where: { id: account.id } })
+  const current = await prisma.lineOaAccount.findUnique({ where: { id: via.id } })
   const result = await admitLineConversation({ db: prisma, account: current, env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey },
     correlationId: eventId, now: new Date(), event })
   return { ...result, lineMessageId: event.message.id }
@@ -114,18 +114,24 @@ beforeAll(async () => {
   const portfolio = await createPortfolio({ name: 'Group speaker erasure fixture', code: 'PF-ERASE-GRP' })
   tenant = await createTenant({ portfolioId: portfolio.id, name: 'Group speaker erasure tenant', code: 'TNT-ERASE-GRP' })
   business = await createBusiness({ tenantId: tenant.id, name: 'Group speaker erasure business', code: 'BUS-ERASE-GRP' })
-  const provider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE OA' })
+  provider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE OA' })
   connection = await createIntegrationConnection({ tenantId: tenant.id, businessId: business.id, providerId: provider.id,
     name: 'Synthetic erasure connection', externalAccountId: 'synthetic-erase-grp-destination', status: 'ACTIVE' })
   account = await prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id,
     integrationConnectionId: connection.id, code: 'erase-grp', displayName: 'Synthetic erasure OA',
     bindingCode: 'erase-grp-binding', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD',
     allowDelayedPush: true } })
+  const runtimeConnection = await createIntegrationConnection({ tenantId: tenant.id, businessId: business.id, providerId: provider.id,
+    name: 'Synthetic erasure runtime connection', externalAccountId: 'synthetic-erase-grp-runtime-destination', status: 'ACTIVE' })
+  runtimeAccount = await prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id,
+    integrationConnectionId: runtimeConnection.id, code: 'erase-grp-runtime', displayName: 'Synthetic erasure runtime OA',
+    bindingCode: 'erase-grp-runtime-binding', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD',
+    allowDelayedPush: true, runtimeOwner: 'CONVERSATION_RUNTIME' } })
 })
 
 // Leave nothing claimable for a later suite's worker in the same run.
 afterEach(async () => {
-  await prisma.lineConversationJob.updateMany({ where: { accountId: account.id, status: { in: ['QUEUED', 'CLAIMED', 'READY', 'SENDING'] } },
+  await prisma.lineConversationJob.updateMany({ where: { accountId: { in: [account.id, runtimeAccount.id] }, status: { in: ['QUEUED', 'CLAIMED', 'READY', 'SENDING'] } },
     data: { status: 'CANCELLED', errorCode: 'TEST_ERASE_GROUP_DONE', claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
 })
 
@@ -225,6 +231,41 @@ describe('PDPA erasure in a shared LINE group or room thread (FR-022)', () => {
     expect(await body(s.aAsk.inboundMessageId)).toBe('ซูริ A asks about order A-1')
     expect(await body(s.aReply)).toBe('Reply to A about order A-1')
   })
+
+  // W10: an unverified sender's runtime-cohort job carries Core's CHANNEL_IDENTITY_ADMITTED
+  // record; erasure empties it only for the erased speaker's own jobs.
+  for (const erased of ['A', 'B']) {
+    it(`erasing unverified speaker ${erased} empties only ${erased}'s identity-admission record`, async () => {
+      const A = next('Usynthetic-erase-unv-a')
+      const B = next('Usynthetic-erase-unv-b')
+      const thread = next('Csynthetic-erase-unv-grp')
+      const jobs = {
+        A: await admit({ via: runtimeAccount, thread, speaker: A, text: 'ซูริ unverified A asks' }),
+        B: await admit({ via: runtimeAccount, thread, speaker: B, text: 'ซูริ unverified B asks' }),
+      }
+      const record = async id => {
+        const row = await job(id)
+        return prisma.agentTraceEvent.findUnique({ where: { tenantId_businessId_idempotencyKey: {
+          tenantId: row.tenantId, businessId: row.businessId, idempotencyKey: `${id}:identity-admission` } } })
+      }
+      for (const key of ['A', 'B']) {
+        expect(await job(jobs[key].jobId)).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', status: 'QUEUED' })
+        expect((await record(jobs[key].jobId)).payloadJson).toContain('UNVERIFIED')
+      }
+      const kept = erased === 'A' ? 'B' : 'A'
+      const keptBefore = { job: await job(jobs[kept].jobId), record: await record(jobs[kept].jobId) }
+
+      await erasePrincipal({ tenantId: tenant.id, personId: await personOf(erased === 'A' ? A : B), reason: 'TEST_ERASURE' })
+
+      await expectJobErased(jobs[erased].jobId)
+      expect((await record(jobs[erased].jobId)).payloadJson).toBe('{"redacted":true}')
+      expect(await runtimeSenderAuthority(prisma, await job(jobs[erased].jobId))).toMatchObject({ authorized: false })
+      expect(await job(jobs[kept].jobId)).toEqual(keptBefore.job)
+      expect(await record(jobs[kept].jobId)).toEqual(keptBefore.record)
+      expect(await runtimeSenderAuthority(prisma, await job(jobs[kept].jobId)))
+        .toMatchObject({ identityState: 'UNVERIFIED', authorized: true })
+    })
+  }
 
   it('is idempotent, including after a concurrent thread erasure already tombstoned a job', async () => {
     const s = await scene('group')

@@ -37,7 +37,8 @@ import { assertMemoryAnswerAppended } from './runtime-memory-receipts'
 // @tested tests/integration/server-line-jobs.test.js, tests/integration/line-non-text-admission.test.js,
 //   tests/integration/fr244-line-oa-business-hours.test.js,
 //   tests/integration/conversation-runtime-out-of-hours.test.js,
-//   tests/integration/conversation-runtime-group-room.test.js
+//   tests/integration/conversation-runtime-group-room.test.js,
+//   tests/integration/conversation-runtime-unverified.test.js
 
 export const LINE_JOB_LEASE_MS = 300_000
 // The longest LINE text a turn may carry, in UTF-16 code units. Admission refuses anything longer, and
@@ -133,6 +134,51 @@ export function runtimeAudienceBound(job, conversation = job?.inbound?.conversat
   return job.audienceKind === 'DIRECT'
     ? job.recipientId === job.sourceUserId
     : job.recipientId !== job.sourceUserId
+}
+
+// @req FR-149 — sender authority of a runtime-cohort job (ADR-106 D3, owner ruling
+// 2026-09-27: unverified LINE senders join the runtime cohort).
+//
+// Core decides at admission, once, from its own ChannelIdentity row. A verified
+// sender's job carries no record and keeps today's fence: every protected
+// transition re-reads the ChannelIdentity and refuses the job unless it is still
+// verified. An unverified sender's job carries this immutable record, written by
+// admission in the same transaction as the job. Such a job runs with no person at
+// all, exactly what the legacy Server path gives an unverified sender: no Work
+// reader or writer, no `#sku` command, no memory, no person-scoped read. Its
+// fence is the account, the transport epoch, erasure and the sender id it was
+// admitted for (the record keeps that id's hash). Nothing re-reads the identity
+// for it, so a sender who is verified, revoked or erased mid-turn cannot change
+// what the job may do; erasure ends it through the PDPA_ERASURE fence and the
+// changed sender id. The runtime cannot write this record: every runtime trace key
+// is `<job>:runtime:…` and CHANNEL_IDENTITY_ADMITTED is not a runtime trace kind.
+export const RUNTIME_IDENTITY_ADMISSION_KIND = 'CHANNEL_IDENTITY_ADMITTED'
+const runtimeIdentityAdmissionKey = jobId => `${jobId}:identity-admission`
+
+/**
+ * The sender authority of a runtime-cohort job, from Core's records only:
+ * `{ identityState: 'VERIFIED', identity, authorized }` when admission recorded
+ * nothing (the live ChannelIdentity must be verified), or
+ * `{ identityState: 'UNVERIFIED', identity: null, authorized }` when admission
+ * recorded an unverified sender (the job's sender id must be the admitted one).
+ * An unreadable record (erasure redacts it) is never authorized.
+ */
+export async function runtimeSenderAuthority(db, job) {
+  const record = await db.agentTraceEvent.findUnique({ where: { tenantId_businessId_idempotencyKey: {
+    tenantId: job.tenantId, businessId: job.businessId, idempotencyKey: runtimeIdentityAdmissionKey(job.id) } } })
+  if (record) {
+    let payload = null
+    try { payload = JSON.parse(record.payloadJson) } catch { payload = null }
+    const valid = record.turnId === job.id && record.kind === RUNTIME_IDENTITY_ADMISSION_KIND
+      && payload?.identityAssurance === 'UNVERIFIED' && typeof payload.senderSha256 === 'string'
+      && /^[0-9a-f]{64}$/.test(payload.senderSha256)
+    return { identityState: 'UNVERIFIED', identity: null,
+      authorized: valid && typeof job.sourceUserId === 'string' && job.sourceUserId.length > 0
+        && sha256(job.sourceUserId) === payload.senderSha256 }
+  }
+  const identity = await findChannelIdentity({ db, tenantId: job.tenantId,
+    channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
+  return { identityState: 'VERIFIED', identity, authorized: channelIdentityIsVerified(identity) }
 }
 
 // FR-229 — LINE message.type values that are media (recorded with a
@@ -308,7 +354,13 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // Runtime routing is a separate, Core-owned cohort from executionMode.
     // Ineligible work remains with the default Server consumer; later account
     // changes cannot transfer an already admitted job to another executor.
-    const runtimeOwner = runtimeEligible && channelIdentityIsVerified(identity)
+    // @req FR-149 — an unverified sender joins the cohort on the same terms
+    // (owner ruling 2026-09-27) and runs with no person (see
+    // `runtimeSenderAuthority`). A memory-sync opt-in turn from an unverified
+    // sender stays SERVER: the legacy worker records such a turn in the MSP
+    // thread with PENDING assurance, which the runtime cohort does not reproduce.
+    const senderVerified = runtimeEligible && channelIdentityIsVerified(identity)
+    const runtimeOwner = runtimeEligible && (senderVerified || !memorySyncOptIn)
       ? 'CONVERSATION_RUNTIME' : 'SERVER'
     const executionMode = 'SERVER'
     // @req FR-244 — the Server cohort keeps today's shape: created straight at READY
@@ -353,6 +405,14 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // Every later trace event for this job (EXECUTION_STARTED, SEND_STARTED, ...) runs in
     // its own later transaction and keeps the real guard.
     }, now, { bypassTurnGuard: true })
+    // @req FR-149 — the admission-time record of an unverified sender, in the same
+    // transaction as the job (see `runtimeSenderAuthority`). Same turn-guard note
+    // as above: the job was created in this transaction.
+    if (runtimeOwner === 'CONVERSATION_RUNTIME' && !senderVerified) {
+      await traceEvent(tx, job, RUNTIME_IDENTITY_ADMISSION_KIND, 'identity-admission', {
+        identityAssurance: 'UNVERIFIED', senderSha256: sha256(userId),
+      }, now, { bypassTurnGuard: true })
+    }
     // @req FR-244 — mirrors settleExecution's own ANSWER_READY shape (the normal
     // execution path emits the same kind with the same payload keys) so a trace
     // reader sees one vocabulary for "the answer is ready to send" regardless of
@@ -502,12 +562,11 @@ async function claimExecution({ db, claimantId, now, runtimeOwner = 'SERVER' }) 
       if (runtimeOwner === 'CONVERSATION_RUNTIME') {
         const current = await tx.lineConversationJob.findUnique({ where: { id: row.id },
           include: { account: true, inbound: { include: { conversation: true } } } })
-        const identity = current && await findChannelIdentity({ db: tx, tenantId: current.tenantId,
-          channelAccountId: current.channelAccountId, providerSubject: current.sourceUserId })
+        const sender = current && await runtimeSenderAuthority(tx, current)
         if (!current || current.executionMode !== 'SERVER' || current.runtimeOwner !== runtimeOwner
           || current.account.runtimeOwner !== runtimeOwner
           || current.errorCode === 'PDPA_ERASURE' || !activeAccount(current.account, current)
-          || !runtimeAudienceBound(current) || !channelIdentityIsVerified(identity)) return { count: 0 }
+          || !runtimeAudienceBound(current) || !sender.authorized) return { count: 0 }
       }
       const result = await tx.lineConversationJob.updateMany({ where: { id: row.id, executionMode, runtimeOwner, version: row.version, status: 'QUEUED' },
         data: { status: 'CLAIMED', claimantId, executionId, leaseExpiresAt, version: { increment: 1 } } })
@@ -569,14 +628,13 @@ export async function renewRuntimeConversationJob(claim, { db = prisma, now = ()
   const at = new Date(typeof now === 'function' ? now() : now)
   return atomic(db, async tx => {
     const job = await tx.lineConversationJob.findUnique({ where: { id: claim.jobId }, include: { account: true } })
-    const identity = job && await findChannelIdentity({ db: tx, tenantId: job.tenantId,
-      channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
+    const sender = job && await runtimeSenderAuthority(tx, job)
     if (!job || job.executionMode !== 'SERVER' || job.runtimeOwner !== 'CONVERSATION_RUNTIME'
       || job.account.runtimeOwner !== 'CONVERSATION_RUNTIME' || job.status !== 'CLAIMED'
       || job.version !== claim.version || job.executionId !== claim.executionId || job.claimantId !== claim.claimantId
       || job.tenantId !== claim.tenantId || job.businessId !== claim.businessId || job.accountId !== claim.accountId
       || !activeAccount(job.account, job) || job.errorCode === 'PDPA_ERASURE'
-      || !channelIdentityIsVerified(identity) || job.leaseExpiresAt <= at || job.expiresAt <= at) {
+      || !sender.authorized || job.leaseExpiresAt <= at || job.expiresAt <= at) {
       throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
     }
     const leaseExpiresAt = new Date(Math.min(job.expiresAt.getTime(), at.getTime() + LINE_JOB_LEASE_MS))
@@ -743,13 +801,12 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       include: runtimeOwner === 'CONVERSATION_RUNTIME' ? { account: true, inbound: { include: { conversation: true } } } : { account: true } })
     if (!job) throw failure(404, 'CONVERSATION_JOB_NOT_FOUND')
     if (runtimeOwner === 'CONVERSATION_RUNTIME') {
-      const identity = await findChannelIdentity({ db: tx, tenantId: job.tenantId,
-        channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
+      const sender = await runtimeSenderAuthority(tx, job)
       if (job.executionMode !== 'SERVER' || job.account.runtimeOwner !== runtimeOwner
         || !activeAccount(job.account, job) || job.errorCode === 'PDPA_ERASURE'
         || !runtimeAudienceBound(job)
         || (job.account.bindingCode || job.account.id) !== job.channelAccountId
-        || !channelIdentityIsVerified(identity)) throw failure(409, 'CONVERSATION_JOB_AUTHORITY_REVOKED')
+        || !sender.authorized) throw failure(409, 'CONVERSATION_JOB_AUTHORITY_REVOKED')
       // @req FR-149 — a memory-sync opt-in answer commits only when Core has
       // appended exactly this text to the MSP thread, as the legacy worker's
       // append precedes its READY settle.
@@ -1055,9 +1112,8 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
       || current.executionId !== expectedExecutionId
       || current.version !== job.version || current.status !== 'READY' || !activeAccount(current.account, current)) return { count: 0 }
     if (requiredRuntimeOwner === 'CONVERSATION_RUNTIME') {
-      const identity = await findChannelIdentity({ db: tx, tenantId: current.tenantId,
-        channelAccountId: current.channelAccountId, providerSubject: current.sourceUserId })
-      if (current.account.runtimeOwner !== requiredRuntimeOwner || current.errorCode === 'PDPA_ERASURE' || !channelIdentityIsVerified(identity)
+      const sender = await runtimeSenderAuthority(tx, current)
+      if (current.account.runtimeOwner !== requiredRuntimeOwner || current.errorCode === 'PDPA_ERASURE' || !sender.authorized
         || !runtimeAudienceBound(current)
         // The send below targets the pre-read row's recipient; it must still be the bound one.
         || current.recipientId !== job.recipientId
@@ -1150,9 +1206,8 @@ export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAc
   }
   if (job.status === 'SENDING') return { id: job.id, status: 'UNKNOWN' }
   if (job.status !== 'READY') return { id: job.id, status: job.status }
-  const identity = await findChannelIdentity({ db, tenantId: job.tenantId,
-    channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
-  if (!channelIdentityIsVerified(identity)
+  const sender = await runtimeSenderAuthority(db, job)
+  if (!sender.authorized
     || !runtimeAudienceBound(job) || job.errorCode === 'PDPA_ERASURE'
     || !activeAccount(job.account, job) || (job.account.bindingCode || job.account.id) !== job.channelAccountId) {
     await db.lineConversationJob.updateMany({ where: { id: job.id, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME',

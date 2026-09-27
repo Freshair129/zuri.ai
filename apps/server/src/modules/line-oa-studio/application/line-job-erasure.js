@@ -10,6 +10,9 @@ import { appendMemoryDeliveryCheckpoint } from './line-memory-delivery'
 //   channel account. In a LINE group or room thread every member's turns share one
 //   Conversation, so erasing one speaker there must reach that speaker's jobs and no
 //   other member's — neither redacting nor cancelling another speaker's turn.
+//   The same per-job trace redaction empties an unverified sender's
+//   CHANNEL_IDENTITY_ADMITTED record (FR-149), so only the erased speaker's own
+//   records lose their authority.
 // @tested tests/integration/identity-erase-group-speakers.test.js
 
 /**
