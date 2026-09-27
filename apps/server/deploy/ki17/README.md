@@ -102,6 +102,7 @@ activation.
 | `pins.gks-http.json` | **Opt-in manifest (profile `gks-http`)** for the private HTTP canary only: MSP `a65914de` (HTTP GKS provider), GKS `1ebcff09` (HTTP runtime). Its GKS entrypoints include `gks-http-server.mjs` and `deploy/docker/entrypoint.mjs`, so the pin gate refuses a GKS context without them. Selected by the `KI17_PINS_MANIFEST` build argument, which only `docker-compose.ki17-gks-http.yml` sets |
 | `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit. Its receipt records the manifest `profile`; `--profile <name>` fails unless the manifest declares it |
 | `overlay/Dockerfile` | The production release overlay: a fresh `runner` (`BASE`) plus the running image's `/opt/ki17` (`KI17_FROM`) and the three app files `runner-ki17` adds. Driven by `scripts/build-ki17-overlay-release.mjs` |
+| `overlay/check-ki17-from.mjs` | Runs inside the overlay build: every repository `pins.json` verifies must appear in `KI17_FROM`'s `/opt/ki17/pins/resolved.json` at exactly the pinned commit, or the build fails (`KI17_OVERLAY_TUPLE_MISMATCH`). Covers receipts written before manifests carried a `profile` |
 | `docker-compose.ki17-gks-http.yml` | Opt-in private MSP-to-GKS HTTP overlay; the default transport remains stdio |
 | `docker-compose.ki17-gks-http-canary.yml` | Local-canary-only overlay that disables the ngrok profile |
 | `build-smartgift-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the SmartGift acceptance corpus. Read its header before changing it |
@@ -301,7 +302,10 @@ node scripts/build-ki17-overlay-release.mjs --deploy   # build, switch, verify, 
 
 The script:
 
-1. refuses a dirty tree (`KI17_OVERLAY_DIRTY_TREE`): the tag names the commit;
+1. refuses uncommitted changes to tracked files under `apps/server` (`KI17_OVERLAY_DIRTY_TREE`), since the tag names the commit. The check is
+   `git status --porcelain --untracked-files=no -- . ':(exclude)output'` run from
+   `apps/server`: untracked files (agent worktrees, `.deploy-worktree-*/`, Playwright
+   output) never fail it, and `.worktrees/` and `.deploy-worktree-*/` are gitignored;
 2. reads **only** `ZURI_WEB_IMAGE` from `.env`, as `KI17_FROM` and as the rollback
    target (`--ki17-from <image>` overrides it), and refuses when it is unset or the
    image is not present locally;
@@ -309,15 +313,22 @@ The script:
    (`--skip-runner-build` reuses an existing one and refuses if it is missing);
 4. builds `-f deploy/ki17/overlay/Dockerfile --build-arg BASE=zuri-ai-web:main-<sha8> --build-arg KI17_FROM=<current>`
    as `zuri-ai-web-ki17:release-<sha8>-ki17-overlay`. The overlay asserts the carried
-   Node, MSP and GKS entrypoints and the pin receipt, and refuses a `KI17_FROM` built
-   from the `gks-http` manifest;
-5. without `--deploy`, prints the switch, recreate, verify and rollback commands and
-   stops. With `--deploy` it backs up `.env` to `.env.bak-ki17-overlay-<timestamp>`,
-   sets `ZURI_WEB_IMAGE`, runs `docker compose up -d --no-build web line-worker` and
+   Node, MSP and GKS entrypoints and the pin receipt, and refuses a `KI17_FROM` whose
+   receipt is not the `pins.json` stdio tuple commit for commit (`check-ki17-from.mjs`)
+   or is labelled `gks-http`;
+5. without `--deploy`, prints the switch, recreate, verify and rollback commands (with
+   a real UTC backup timestamp) and stops. `--deploy` refuses when `ZURI_WEB_IMAGE` is
+   set in the shell (Compose would let it override `.env`) or absent from `.env`. It
+   then backs up `.env` to `.env.bak-ki17-overlay-<UTC stamp>`, sets `ZURI_WEB_IMAGE`,
+   runs `docker compose up -d --no-build web line-worker` and
    `docker compose up -d --no-build --force-recreate genesis-worker`
    ([RCA 2026-09-22](../../../../.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md)),
-   waits for web to be healthy and runs `ki17-smoke.mjs`. A failed recreate, health
-   check or smoke restores the backup and recreates the previous image the same way.
+   asserts that `web` and `line-worker` run the release image (`.Config.Image`), waits
+   for `web` and `genesis-worker` to be healthy, and runs `ki17-smoke.mjs` (up to three
+   attempts, 10 s apart). A failed recreate, image check, health check or smoke
+   restores the backup and recreates the previous image, asserting the containers run
+   it. SIGINT/SIGTERM during `--deploy` restores `.env`, says so, and exits 130; the
+   containers may then be mid-recreate, so run the rollback below.
 
 It never prints a `.env` value other than the image name.
 
