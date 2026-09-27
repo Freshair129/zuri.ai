@@ -9,7 +9,10 @@ import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-por
 // @spec ADR-061, SDD-097
 // @tested tests/integration/server-line-jobs.test.js, tests/unit/server-line-runtime.test.js
 
-function createServerLineThreadMemory(env) {
+// @req FR-149 — `strict` is the Conversation Runtime Core memory operation's
+//   mode: an opted-in turn cannot degrade to "no scanner", so the typed
+//   MSP_TRANSPORT_MISCONFIGURED 503 is rethrown instead of being folded into null.
+export function createServerLineThreadMemory(env, { strict = false } = {}) {
   // The admission flag is intentionally absent here. It enrolls new jobs only;
   // an already-enrolled pending receipt remains recoverable after an operator
   // disables admission, provided the independent MSP service configuration is
@@ -24,7 +27,7 @@ function createServerLineThreadMemory(env) {
   try {
     transport = createMspTransportFromEnvironment(env)
   } catch (error) {
-    if (error?.code !== MSP_TRANSPORT_MISCONFIGURED) throw error
+    if (error?.code !== MSP_TRANSPORT_MISCONFIGURED || strict) throw error
     return null
   }
   if (!transport) return null

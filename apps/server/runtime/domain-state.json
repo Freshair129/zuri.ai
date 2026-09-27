@@ -691,8 +691,8 @@
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 54
+          "codeCount": 5,
+          "testCount": 57
         },
         {
           "id": "FR-150",
@@ -708,7 +708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-181",
@@ -753,7 +753,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-253",
@@ -2508,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 54
+          "testCount": 57
         },
         {
           "id": "FR-152",
@@ -3380,7 +3380,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-236",
@@ -3677,8 +3677,8 @@
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 22,
-          "testCount": 54
+          "codeCount": 24,
+          "testCount": 57
         },
         {
           "id": "FR-150",
@@ -3717,8 +3717,8 @@
           "title": "Execution Trace & Replay v0.3",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 29
+          "codeCount": 7,
+          "testCount": 30
         },
         {
           "id": "FR-190",
@@ -3798,7 +3798,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-238",
@@ -5737,7 +5737,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 54
+          "testCount": 57
         },
         {
           "id": "FR-150",
@@ -8680,8 +8680,8 @@
           "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 40,
-          "testCount": 54
+          "codeCount": 43,
+          "testCount": 57
         },
         {
           "id": "FR-150",
@@ -8725,12 +8725,14 @@
         "apps/server/src/modules/integration/application/line-server-provisioning-service.js",
         "apps/server/src/modules/line-crm/LineCrmCampaigns.jsx",
         "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-memory.js",
         "apps/server/src/modules/line-oa-studio/application/line-admission-reconciler.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-failures.js",
         "apps/server/src/modules/line-oa-studio/application/line-memory-delivery.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "apps/server/src/modules/line-oa-studio/application/runtime-memory-receipts.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
         "apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
@@ -8745,6 +8747,7 @@
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
@@ -8814,6 +8817,7 @@
         "services/conversation-runtime/test/contracts.test.js",
         "services/conversation-runtime/test/core-ports.test.js",
         "services/conversation-runtime/test/health-server.test.js",
+        "services/conversation-runtime/test/memory-turn.test.js",
         "services/conversation-runtime/test/turn-runtime.test.js",
         "services/conversation-runtime/test/worker-loop.test.js"
       ]
@@ -11009,7 +11013,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-236",
@@ -11078,6 +11082,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -16754,8 +16759,8 @@
           "title": "Execution Trace & Replay v0.3",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 18,
-          "testCount": 29
+          "codeCount": 19,
+          "testCount": 30
         }
       ],
       "evidence": [
@@ -16772,6 +16777,7 @@
         "apps/server/src/modules/agent/msp-memory-port.js",
         "apps/server/src/modules/agent/server-line-answer.js",
         "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-memory.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/line-oa-studio/application/line-memory-delivery.js",
@@ -16780,6 +16786,7 @@
         "apps/server/tests/integration/agent-msp-port.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
+        "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/execution-trace.test.js",

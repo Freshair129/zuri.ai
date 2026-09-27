@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { CONTRACT_VERSION, CORE_OPERATIONS, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, validateCoreEnvelope, validateClaim, validateTurnContext } from './contracts.js'
+import { CONTRACT_VERSION, CORE_OPERATIONS, MAX_MEMORY_PACKET_BYTES, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, validateCoreEnvelope, validateClaim, validateTurnContext } from './contracts.js'
 
 // @req FR-149 — private core adapter for the independently running runtime.
 // @spec ADR-106 D2-D4, SDD-110 — bearer-authenticated bounded operations.
@@ -151,7 +151,7 @@ function validateOperationResult(operation, data) {
       || !Number.isInteger(data.scope.identityVersion) || data.scope.identityVersion < 1
       || !Number.isInteger(data.version) || data.version < 1) invalid()
   } else if (operation === 'prepare') {
-    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])) invalid()
+    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'memorySync'])) invalid()
     try { validateTurnContext(data) } catch { invalid() }
   } else if (operation === 'credential') {
     if (!data || typeof data.provider !== 'string' || !data.provider.trim() || data.provider.length > 32
@@ -165,6 +165,18 @@ function validateOperationResult(operation, data) {
       || !['RECORDED', 'ACCEPTED', 'UNKNOWN', 'FAILED', 'CANCELLED', 'CONTENDED', 'FENCED', 'STOPPED', 'READY', 'SENDING'].includes(data.status)) invalid()
     if (data.acceptance !== undefined && (!data.acceptance || typeof data.acceptance !== 'object' || Array.isArray(data.acceptance)
       || !boundedJsonWithin(data.acceptance, 8 * 1024))) invalid()
+  } else if (operation === 'memory') {
+    if (!['COMPLETED', 'NOT_FOUND'].includes(data?.status) || typeof data.operationId !== 'string'
+      || !data.operationId.trim() || data.operationId.length > 200 || !boundedJsonWithin(data, 48 * 1024)) invalid()
+    if (data.status === 'NOT_FOUND' && !exact(data, ['status', 'operationId'])) invalid()
+    if (data.status === 'COMPLETED') {
+      const packet = data.result?.contextPacket
+      if (!exact(data, ['status', 'operationId', 'result']) || !exact(data.result, ['contextPacket', 'receipt'])
+        || !data.result.receipt || typeof data.result.receipt !== 'object' || Array.isArray(data.result.receipt)
+        || Object.keys(data.result.receipt).length > 12
+        || (packet !== undefined && packet !== null && (typeof packet !== 'object' || Array.isArray(packet)
+          || packet.policyDecision !== 'ALLOW' || !boundedJsonWithin(packet, MAX_MEMORY_PACKET_BYTES)))) invalid()
+    }
   } else if (operation === 'renew') {
     if (!exact(data, ['version', 'leaseExpiresAt']) || !Number.isInteger(data.version) || data.version < 1
       || typeof data.leaseExpiresAt !== 'string' || !Number.isFinite(Date.parse(data.leaseExpiresAt))) invalid()

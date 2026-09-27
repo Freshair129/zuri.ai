@@ -362,8 +362,10 @@ export function createMspThreadMemoryPort({
     }, claimsFor(threadId, authorization, requesterId)))
   }
 
-  function withInjectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId, contextReceiptId = null }) {
-    if (!contextPacket || contextPacket.policyDecision !== 'ALLOW') return model
+  // @req FR-149 — the one injection-receipt recorder. `withInjectionReceipt`
+  // drives it around an in-process model call; the Conversation Runtime Core
+  // façade drives it state by state when the model runs in the runtime process.
+  function injectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId, contextReceiptId = null }) {
     const packetHash = createHash('sha256').update(JSON.stringify(contextPacket)).digest('hex')
     const receipt = { thread_id: threadId, exchange_id: exchangeId, injection_id: contextPacket.injectionId,
       packet_hash: packetHash, policy_revision: authorization.authContext.policy.version ?? 'default',
@@ -389,6 +391,26 @@ export function createMspThreadMemoryPort({
         }
       }
     }
+    return { record, recordWithRetry }
+  }
+
+  // @req FR-149 — re-attach a route this process did not resolve itself. The
+  // caller is the Core façade restoring a route it resolved in an earlier
+  // request of the same claimed job: every field comes from that persisted job
+  // and the thread id from its own durable MSP receipt, never from the runtime,
+  // the model or message text. MSP still verifies the signed claims.
+  function bindTrustedRoute(threadId, route) {
+    routes.set(required(threadId, 'threadId'), {
+      tenantId: required(route?.tenantId, 'tenantId'), businessId: optional(route?.businessId),
+      channelAccountId: required(route?.channelAccountId, 'channelAccountId'),
+      externalRoomRef: required(route?.externalRoomRef, 'externalRoomRef'),
+      audienceKind: enumValue(route?.audienceKind, THREAD_KINDS, 'audienceKind'),
+    })
+  }
+
+  function withInjectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId, contextReceiptId = null }) {
+    if (!contextPacket || contextPacket.policyDecision !== 'ALLOW') return model
+    const { recordWithRetry } = injectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId, contextReceiptId })
     return { ...model, async generate(input) {
       const resolved = await recordWithRetry('RESOLVED')
       if (!resolved.ok) throw injectionReceiptUnknown(resolved.error)
@@ -483,6 +505,8 @@ export function createMspThreadMemoryPort({
     participantLifecycle,
     erasePrincipal,
     withInjectionReceipt,
+    injectionReceipt,
+    bindTrustedRoute,
     buildContextPacket: (input) => buildThreadContextPacket({ ...input, maxContextBytes }),
     policy: { idleTimeoutMinutes: idleCeiling, recentExchangeCount: recentCeiling },
   }

@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { validateClaim, validateTurnContext, validateWorkToolRequest } from './contracts.js'
 import { composeTurnContext } from './context.js'
 
@@ -10,6 +10,12 @@ const evidenceRecords = value => Array.isArray(value) ? value : value?.records ?
 const answerOperation = jobId => `${jobId}:turn-answer`
 const modelOperation = jobId => `${jobId}:runtime-model`
 const deliveryStatusOperation = jobId => `${jobId}:delivery`
+const MEMORY_METHODS = ['read', 'append', 'receipt']
+
+function injectionReceiptUnknown(cause) {
+  return Object.assign(new Error('MSP_INJECTION_RECEIPT_UNKNOWN'),
+    { code: 'MSP_INJECTION_RECEIPT_UNKNOWN', outcome: 'UNKNOWN', ...(cause ? { cause } : {}) })
+}
 
 function unknownOutcome(code, cause) {
   return Object.assign(new Error(code), { code, outcome: 'UNKNOWN', ...(cause ? { cause } : {}) })
@@ -85,9 +91,10 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
     let stage = 'authority'
     let renewalError = null
     let renewalInFlight = null
+    let exclusiveOperations = 0
     const leaseMs = Math.max(1000, Date.parse(claim.leaseExpiresAt) - now().getTime())
     const renewTimer = setInterval(() => {
-      if (renewalInFlight || renewalError) return
+      if (renewalInFlight || renewalError || exclusiveOperations) return
       renewalInFlight = ports.job.renew(claim, { signal }).then(renewed => {
         if (Number.isInteger(renewed?.version) && renewed.version >= claim.version) claim.version = renewed.version
         if (typeof renewed?.leaseExpiresAt === 'string') claim.leaseExpiresAt = renewed.leaseExpiresAt
@@ -98,6 +105,85 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       if (renewalInFlight) await renewalInFlight
       if (renewalError || Date.parse(claim.leaseExpiresAt) <= now().getTime()) {
         throw Object.assign(new Error('CONVERSATION_JOB_LEASE_LOST'), { code: 'CONVERSATION_JOB_LEASE_LOST', status: 409 })
+      }
+    }
+    // Core's memory fences compare the claimed job version, exactly as the legacy
+    // worker's memory-state reader does; a renewal must not land inside one.
+    const exclusive = async work => {
+      if (renewalInFlight) await renewalInFlight
+      exclusiveOperations += 1
+      try { return await work() } finally { exclusiveOperations -= 1 }
+    }
+    const requireMemoryPort = () => {
+      if (!MEMORY_METHODS.every(method => typeof ports.memory?.[method] === 'function')) {
+        throw Object.assign(new Error('MEMORY_PORT_UNAVAILABLE'), { code: 'MEMORY_PORT_UNAVAILABLE' })
+      }
+    }
+    const recordInjection = async (state, model) => {
+      try {
+        const recorded = await exclusive(() => ports.memory.receipt(claim, 'injection', { state, model }, { signal }))
+        return recorded?.status === 'COMPLETED' ? { ok: true } : { ok: false, error: new Error('MEMORY_RECEIPT_RESPONSE_INVALID') }
+      } catch (error) { return { ok: false, error } }
+    }
+    // The legacy worker's MSP injection-receipt wrapper, driven through Core one
+    // state at a time: RESOLVED before the provider starts, SUBMITTED while it
+    // runs, then COMPLETED or FAILED. A receipt that cannot be established after
+    // the provider may have run is UNKNOWN, never a retryable failure.
+    const invokeWithInjectionReceipt = async (credential, generate) => {
+      const model = { provider: String(credential?.provider ?? 'configured').slice(0, 32),
+        model: String(credential?.model ?? 'configured').slice(0, 200) }
+      const resolved = await recordInjection('RESOLVED', model)
+      // Nothing has run yet: a typed Core fence refusal is an ordinary failure, as
+      // the legacy worker's pre-model fence is; only an unestablished MSP write is UNKNOWN.
+      if (!resolved.ok) throw resolved.error?.retryable === false ? resolved.error : injectionReceiptUnknown(resolved.error)
+      let pending
+      try { pending = Promise.resolve(generate()) } catch (error) { pending = Promise.reject(error) }
+      const settled = pending.then(value => ({ value }), error => ({ error }))
+      const submitted = await recordInjection('SUBMITTED', model)
+      const result = await settled
+      if (!submitted.ok) {
+        if (result.error) {
+          const terminal = await recordInjection('FAILED', model)
+          if (!terminal.ok) throw injectionReceiptUnknown(submitted.error)
+          throw result.error
+        }
+        throw injectionReceiptUnknown(submitted.error)
+      }
+      if (result.error) {
+        const failed = await recordInjection('FAILED', model)
+        if (!failed.ok) throw injectionReceiptUnknown(failed.error)
+        throw result.error
+      }
+      const terminal = await recordInjection('COMPLETED', model)
+      if (!terminal.ok) throw injectionReceiptUnknown(terminal.error)
+      return result.value
+    }
+    // Append the completed exchange under the job's stable memory-append id, the
+    // way Work receipts are handled: look up the durable receipt first, and after
+    // an ambiguous failure look again before a single retry.
+    const appendMemory = async answer => {
+      const textSha256 = createHash('sha256').update(answer, 'utf8').digest('hex')
+      const lookup = () => exclusive(() => ports.memory.receipt(claim, 'append', {}, { signal }))
+      const accept = receipt => {
+        if (receipt?.status !== 'COMPLETED') return false
+        if (receipt.result?.receipt?.textSha256 !== textSha256) {
+          throw Object.assign(new Error('MEMORY_APPEND_CONFLICT'), { code: 'MEMORY_APPEND_CONFLICT' })
+        }
+        return true
+      }
+      if (accept(await lookup())) return
+      for (let attempt = 0; ; attempt += 1) {
+        let appendError
+        try {
+          if (accept(await exclusive(() => ports.memory.append(claim, answer, { signal })))) return
+          appendError = Object.assign(new Error('MEMORY_APPEND_RESPONSE_INVALID'), { code: 'MEMORY_APPEND_RESPONSE_INVALID' })
+        } catch (error) { appendError = error }
+        // A typed Core refusal (fence, revoked policy, conflict) is final.
+        if (appendError?.retryable === false || appendError?.code === 'MEMORY_APPEND_CONFLICT') throw appendError
+        const after = await lookup()
+        if (accept(after)) return
+        if (after?.status === 'NOT_FOUND' && attempt === 0) continue
+        throw appendError
       }
     }
     const stableAnswerId = answerOperation(claim.jobId)
@@ -137,53 +223,81 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         }
         if (!result) throw unknownOutcome('WORK_TOOL_OUTCOME_UNKNOWN')
         text = result?.result?.text ?? result?.text
-      } else if (evidenceRecords(turn.evidence).length === 0) {
-        text = 'ยังไม่พบข้อมูลที่ตรงกับคำถามนี้ ลองระบุรายละเอียดเพิ่มอีกหนึ่งอย่างได้ไหมคะ'
       } else {
-        composed = composeTurnContext({ authorized: turn.authorized, slices: turn.slices,
-          threadId: turn.threadId, audienceKind: turn.audienceKind, maxBudgetChars: turn.maxBudgetChars })
-        await ensureLease()
-        stage = 'model'
-        const prior = await ports.trace.status(claim, stableModelId, { signal })
-        if (prior?.status === 'COMPLETED' && typeof prior.text === 'string') text = prior.text
-        else if (prior?.status === 'STARTED' && prior.executionId !== claim.executionId) {
-          throw Object.assign(new Error('MODEL_OUTCOME_UNKNOWN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+        // @req FR-149 — a memory-sync opt-in turn reads its thread context through
+        // Core before anything is answered, as the legacy worker does even when the
+        // evidence is empty and no model will run.
+        let memoryPacket = null
+        if (turn.memorySync === true) {
+          requireMemoryPort()
+          await ensureLease()
+          stage = 'memory'
+          const memory = await exclusive(() => ports.memory.read(claim, { signal }))
+          if (memory?.status !== 'COMPLETED' || !memory.result) {
+            throw Object.assign(new Error('MEMORY_READ_RESPONSE_INVALID'), { code: 'MEMORY_READ_RESPONSE_INVALID' })
+          }
+          memoryPacket = memory.result.contextPacket ?? null
+        }
+        if (evidenceRecords(turn.evidence).length === 0) {
+          text = 'ยังไม่พบข้อมูลที่ตรงกับคำถามนี้ ลองระบุรายละเอียดเพิ่มอีกหนึ่งอย่างได้ไหมคะ'
         } else {
-          if (prior?.status === 'NOT_FOUND') {
+          composed = composeTurnContext({ authorized: turn.authorized, slices: turn.slices,
+            threadId: turn.threadId, audienceKind: turn.audienceKind, maxBudgetChars: turn.maxBudgetChars })
+          await ensureLease()
+          stage = 'model'
+          const prior = await ports.trace.status(claim, stableModelId, { signal })
+          if (prior?.status === 'COMPLETED' && typeof prior.text === 'string') text = prior.text
+          else if (prior?.status === 'STARTED' && prior.executionId !== claim.executionId) {
+            throw Object.assign(new Error('MODEL_OUTCOME_UNKNOWN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+          } else {
+            if (prior?.status === 'NOT_FOUND') {
+              try {
+                await ports.trace.append(claim, { kind: 'MODEL_STARTED', payload: { operationId: stableModelId } }, { signal })
+              } catch {
+                const recorded = await ports.trace.status(claim, stableModelId, { signal })
+                if (recorded?.status !== 'STARTED' || recorded.executionId !== claim.executionId) throw Object.assign(new Error('MODEL_START_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+              }
+            } else if (prior?.status !== 'STARTED') {
+              throw Object.assign(new Error('MODEL_OPERATION_STATUS_INVALID'), { code: 'MODEL_OPERATION_STATUS_INVALID' })
+            }
+            await ensureLease()
+            const credential = await ports.model.credential(claim, authority, { signal })
+            // Credential resolution is a point-in-time grant. Revalidate the durable
+            // claim and identity after receiving it, immediately before the provider
+            // side effect, so a revoke or transport/lease change during that request
+            // cannot start a model invocation with stale authority.
+            await ensureLease()
+            const currentAuthority = await ports.authority.resolve(claim, { signal })
+            assertAuthority(currentAuthority, claim, authority)
+            await ensureLease()
+            // The memory packet is Core's composed MSP context, byte-identical to the
+            // one the legacy worker hands its provider.
+            const generate = () => ports.model.generate({ question: turn.question, evidence: turn.evidence,
+              contextPacket: memoryPacket ?? (composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null),
+              contextReceipt: composed.receipt, credential,
+              deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
+            const generated = memoryPacket ? await invokeWithInjectionReceipt(credential, generate) : await generate()
+            if (typeof generated !== 'string' || !generated.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
+            text = generated.trim().slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
             try {
-              await ports.trace.append(claim, { kind: 'MODEL_STARTED', payload: { operationId: stableModelId } }, { signal })
+              await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: stableModelId, text } }, { signal })
             } catch {
               const recorded = await ports.trace.status(claim, stableModelId, { signal })
-              if (recorded?.status !== 'STARTED' || recorded.executionId !== claim.executionId) throw Object.assign(new Error('MODEL_START_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+              if (recorded?.status === 'COMPLETED' && typeof recorded.text === 'string') text = recorded.text
+              else throw Object.assign(new Error('MODEL_RESULT_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
             }
-          } else if (prior?.status !== 'STARTED') {
-            throw Object.assign(new Error('MODEL_OPERATION_STATUS_INVALID'), { code: 'MODEL_OPERATION_STATUS_INVALID' })
           }
-          await ensureLease()
-          const credential = await ports.model.credential(claim, authority, { signal })
-          // Credential resolution is a point-in-time grant. Revalidate the durable
-          // claim and identity after receiving it, immediately before the provider
-          // side effect, so a revoke or transport/lease change during that request
-          // cannot start a model invocation with stale authority.
-          await ensureLease()
-          const currentAuthority = await ports.authority.resolve(claim, { signal })
-          assertAuthority(currentAuthority, claim, authority)
-          await ensureLease()
-          const generated = await ports.model.generate({ question: turn.question, evidence: turn.evidence,
-            contextPacket: composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null,
-            contextReceipt: composed.receipt, credential,
-            deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
-          if (typeof generated !== 'string' || !generated.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
-          text = generated.trim().slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
-          try {
-            await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: stableModelId, text } }, { signal })
-          } catch {
-            const recorded = await ports.trace.status(claim, stableModelId, { signal })
-            if (recorded?.status === 'COMPLETED' && typeof recorded.text === 'string') text = recorded.text
-            else throw Object.assign(new Error('MODEL_RESULT_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
-          }
+          await ports.trace.append(claim, { kind: 'CONTEXT_COMMITTED', payload: composed.receipt }, { signal })
         }
-        await ports.trace.append(claim, { kind: 'CONTEXT_COMMITTED', payload: composed.receipt }, { signal })
+        if (turn.memorySync === true) {
+          if (typeof text !== 'string' || !text.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
+          text = text.trim().slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
+          // The answer is committed only after the same text is in the thread;
+          // Core refuses the completion otherwise.
+          await ensureLease()
+          stage = 'memory-append'
+          await appendMemory(text)
+        }
       }
       if (typeof text !== 'string' || !text.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
       text = text.trim().slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')

@@ -14,6 +14,8 @@ import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 import { lineExecutionBudget } from '../domain/line-execution-budget'
 import { isLineProjectWorkCommand, parseLineProjectWorkCommand, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
 import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
+import { resolveLineKnowledgeGroundingMode } from '@/modules/agent/line-knowledge-grounding'
+import { assertMemoryAnswerAppended } from './runtime-memory-receipts'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
@@ -233,8 +235,14 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     const memorySyncOptIn = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
     const workCommand = parseLineProjectWorkCommand(text)
     const legacyOnlyWorkCommand = isLineProjectWorkCommand(text) && !workCommand
+    // @req FR-149 — a memory-sync opt-in turn is runtime-eligible: Core serves its
+    // MSP phases through the v1 `memory` operation. A memory turn under a corpus
+    // grounding mode stays SERVER, because only the legacy worker composes GKS
+    // evidence and thread memory under one budget (FR-235).
+    const memoryRuntimeEligible = !memorySyncOptIn
+      || resolveLineKnowledgeGroundingMode(current.knowledgeGrounding) === 'BUSINESS_KNOWLEDGE'
     const runtimeEligible = current.runtimeOwner === 'CONVERSATION_RUNTIME' && audienceKind === 'DIRECT'
-      && !memorySyncOptIn && !outOfHours && !legacyOnlyWorkCommand
+      && memoryRuntimeEligible && !outOfHours && !legacyOnlyWorkCommand
     const identity = runtimeEligible
       ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
       : null
@@ -428,7 +436,7 @@ async function claimExecution({ db, claimantId, now, runtimeOwner = 'SERVER' }) 
         const identity = current && await findChannelIdentity({ db: tx, tenantId: current.tenantId,
           channelAccountId: current.channelAccountId, providerSubject: current.sourceUserId })
         if (!current || current.executionMode !== 'SERVER' || current.runtimeOwner !== runtimeOwner
-          || current.account.runtimeOwner !== runtimeOwner || current.memorySyncOptIn
+          || current.account.runtimeOwner !== runtimeOwner
           || current.errorCode === 'PDPA_ERASURE' || !activeAccount(current.account, current)
           || !channelIdentityIsVerified(identity)) return { count: 0 }
       }
@@ -483,7 +491,7 @@ export async function renewRuntimeConversationJob(claim, { db = prisma, now = ()
       || job.account.runtimeOwner !== 'CONVERSATION_RUNTIME' || job.status !== 'CLAIMED'
       || job.version !== claim.version || job.executionId !== claim.executionId || job.claimantId !== claim.claimantId
       || job.tenantId !== claim.tenantId || job.businessId !== claim.businessId || job.accountId !== claim.accountId
-      || !activeAccount(job.account, job) || job.memorySyncOptIn || job.errorCode === 'PDPA_ERASURE'
+      || !activeAccount(job.account, job) || job.errorCode === 'PDPA_ERASURE'
       || !channelIdentityIsVerified(identity) || job.leaseExpiresAt <= at || job.expiresAt <= at) {
       throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
     }
@@ -653,10 +661,19 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       const identity = await findChannelIdentity({ db: tx, tenantId: job.tenantId,
         channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
       if (job.executionMode !== 'SERVER' || job.account.runtimeOwner !== runtimeOwner
-        || !activeAccount(job.account, job) || job.memorySyncOptIn || job.errorCode === 'PDPA_ERASURE'
+        || !activeAccount(job.account, job) || job.errorCode === 'PDPA_ERASURE'
         || job.audienceKind !== 'DIRECT' || job.recipientId !== job.sourceUserId
         || (job.account.bindingCode || job.account.id) !== job.channelAccountId
         || !channelIdentityIsVerified(identity)) throw failure(409, 'CONVERSATION_JOB_AUTHORITY_REVOKED')
+      // @req FR-149 — a memory-sync opt-in answer commits only when Core has
+      // appended exactly this text to the MSP thread, as the legacy worker's
+      // append precedes its READY settle.
+      if (!code && job.memorySyncOptIn) {
+        const inbound = await tx.message.findUnique({ where: { id: job.inboundMessageId }, select: { body: true } })
+        if (!(job.status === 'READY' && job.executionId === executionId && job.answerText === text)) {
+          await assertMemoryAnswerAppended(tx, { ...job, inbound }, text)
+        }
+      }
     }
     // A completion retry after a lost HTTP response is reconciled from the
     // committed row. Do not turn READY into FAILED or invoke model again.
@@ -940,7 +957,7 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
       const identity = await findChannelIdentity({ db: tx, tenantId: current.tenantId,
         channelAccountId: current.channelAccountId, providerSubject: current.sourceUserId })
       if (current.account.runtimeOwner !== requiredRuntimeOwner || current.errorCode === 'PDPA_ERASURE' || !channelIdentityIsVerified(identity)
-        || current.memorySyncOptIn || current.audienceKind !== 'DIRECT'
+        || current.audienceKind !== 'DIRECT'
         || current.recipientId !== current.sourceUserId
         || (current.account.bindingCode || current.account.id) !== current.channelAccountId) return { count: 0 }
     }
@@ -1033,7 +1050,7 @@ export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAc
   if (job.status !== 'READY') return { id: job.id, status: job.status }
   const identity = await findChannelIdentity({ db, tenantId: job.tenantId,
     channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
-  if (!channelIdentityIsVerified(identity) || job.memorySyncOptIn || job.audienceKind !== 'DIRECT'
+  if (!channelIdentityIsVerified(identity) || job.audienceKind !== 'DIRECT'
     || job.recipientId !== job.sourceUserId || job.errorCode === 'PDPA_ERASURE'
     || !activeAccount(job.account, job) || (job.account.bindingCode || job.account.id) !== job.channelAccountId) {
     await db.lineConversationJob.updateMany({ where: { id: job.id, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME',
@@ -1055,7 +1072,9 @@ export async function appendRuntimeConversationTrace(claim, { kind, payload }, {
     || job.tenantId !== claim.tenantId || job.businessId !== claim.businessId || job.accountId !== claim.accountId) {
     throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
   }
-  const operationId = typeof payload?.operationId === 'string' ? payload.operationId : `${job.id}:turn`
+  // An event without a stable operation id belongs to this execution: a reclaimed
+  // execution commits its own context rather than colliding with the first one's.
+  const operationId = typeof payload?.operationId === 'string' ? payload.operationId : `${job.id}:${job.executionId}:turn`
   await traceEvent(db, job, kind, `runtime:${operationId}:${kind}`, payload,
     new Date(typeof now === 'function' ? now() : now))
   return { recorded: true }

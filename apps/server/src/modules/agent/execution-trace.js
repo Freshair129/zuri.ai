@@ -39,6 +39,12 @@ export const TRACE_EVENT_KINDS = Object.freeze([
   // @req FR-234 — one Context Composer receipt per model invocation: references,
   // a hash and the budget, never content (ADR-091 D7, SDD-100).
   'CONTEXT_RECEIPT',
+  // @req FR-149 — Core's durable receipts for a Conversation Runtime memory turn
+  // (ADR-106 D2 Memory/Knowledge): the thread context it read, the answer it
+  // appended, and each MSP injection receipt state it recorded.
+  'MEMORY_THREAD_READ',
+  'MEMORY_THREAD_APPENDED',
+  'MEMORY_INJECTION_RECORDED',
 ])
 
 export const zTraceEventKind = z.enum(TRACE_EVENT_KINDS)

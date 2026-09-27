@@ -712,10 +712,13 @@ describe('Conversation Runtime durable vertical slice', () => {
     const consentJob = await admitDirect(consentEvent)
     const consentClaim = await claimRuntimeConversationJob({ db: prisma, claimantId: 'runtime-consent-revoke', now: () => new Date() })
     expect(consentClaim?.jobId).toBe(consentJob.jobId)
+    // A memory-sync job may now run in the runtime (W5), but its answer commits
+    // only after Core appended exactly that text to the MSP thread. A job whose
+    // memory state changed under a claim, with no append receipt, cannot complete.
     await prisma.lineConversationJob.update({ where: { id: consentJob.jobId }, data: { memorySyncOptIn: true } })
     await expect(completeRuntimeConversationJob(consentClaim, {
       text: 'after consent changed', operationId: `${consentJob.jobId}:turn-answer`,
-    }, { db: prisma, now: () => new Date() })).rejects.toThrow('CONVERSATION_JOB_AUTHORITY_REVOKED')
+    }, { db: prisma, now: () => new Date() })).rejects.toThrow('MEMORY_APPEND_REQUIRED')
     await prisma.lineConversationJob.update({ where: { id: consentJob.jobId },
       data: { status: 'CANCELLED', memorySyncOptIn: false, errorCode: 'TEST_CONSENT_FENCE', claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
 
