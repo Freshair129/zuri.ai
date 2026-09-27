@@ -797,7 +797,7 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 |---|---|---|---|---|---|
 | SCM-ARCH | Any move beyond this slice's owned code | Review of ADR-111 + this matrix | Owner + reviewers | ADR-111 accepted | Pricing/receipt tests, S5.4 characterization |
 | SCM-CORE | Real BFF → SCM calls; POS in a real process | Identity owner signs off `scm.delegation.v1` (issuer, key distribution, lifetime, revocation), the audit relay mapping, a Branch + Customer + Conversation reference façade (facts: tenant, business, status/deletedAt, customerId, code; **and the Branch list of a Business for the POS catalogue**) for ReferenceAuthority, and grants for every visible Business (D-10) | Identity/Core owner + CRM owner + S5 | Reviewed contract SHA + provider tests; a façade the real process can call | Everything service-local |
-| COMMON | CI for services/scm | A workflow job `node services/scm/scripts/run-tests.mjs` + `docker build -f services/scm/Dockerfile .` + disposable start smoke | Integrator (root CI owner) | Job merged | Local tests |
+| COMMON | CI for services/scm | Hosted green run of the `scm` job | Integrator (root CI owner) | **Approved by MC0 (2026-09-27) and added in #546**: `scm` job in `.github/workflows/governance.yml` (kernel:check, suite on SQLite and embedded PostgreSQL 17, `docker build -f services/scm/Dockerfile .`), gated by `verify`; no secrets, no deploy. Container start smoke not added | Local tests |
 | SCM-AGENT | S5.4 agent/LINE tools | Read/mutation/confirmation/receipt contract | S1 + S5 | Reviewed contract | POS/fulfilment moves |
 | SCM-FILES | Payment-slip facts (POS, payments), cost-sheet originals, catalog artifacts | FilePort exact-version read + a `fileAsset` fact lookup (businessId, deletedAt) for ReferenceAuthority | S3 + S5 | Reviewed FilePort (ADR-107) + fixtures | Non-file groups; POS without slips |
 | SCM-KNOWLEDGE | Catalog publication | Admission/receipt/revocation contract | Knowledge owner + S5 | Reviewed contract | Calculations without publication |
@@ -809,8 +809,9 @@ the same pattern as ADR-108 on the Market branch; this ADR was drafted as ADR-10
 and renumbered to ADR-111 on 2026-09-27, because main assigned ADR-109 to the
 Notion boundary first and MC0 allocated 111) and
 `apps/server/runtime/domain-state.json` (regenerated: commerce test count +1).
-Both are integrator-reconciled on merge. No schema, migration, root CI, Compose,
-PRD/FEATURES/ROADMAP or tracker change.
+Both are integrator-reconciled on merge. Root CI: one `scm` job in
+`.github/workflows/governance.yml`, approved by MC0 and edited under a Mission
+Control lease. No schema, migration, Compose, PRD/FEATURES/ROADMAP or tracker change.
 
 ## 9. Status delta for the integrator (REFACTOR-STATUS.md)
 

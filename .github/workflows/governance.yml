@@ -130,7 +130,9 @@ jobs:
   #   conversation-runtime — isolated service tests, boundary build and image build.
   #   market-intelligence — the ADR-108 service package: isolated tests,
   #             boundary build, Postgres store conformance and image build.
-  #   verify  — an aggregate that fails if any of the five did. Branch
+  #   scm     — the ADR-111 service package: kernel mirror drift check, the
+  #             suite on SQLite and on an embedded PostgreSQL 17, image build.
+  #   verify  — an aggregate that fails if any of the six did. Branch
   #             protection requires a check literally named `verify`
   #             (`changes`, `verify`, `edge-verify`), and a required check that
   #             only covered one of the three would let a red suite merge.
@@ -428,14 +430,45 @@ jobs:
       - name: Build standalone service image
         run: docker build -f services/market-intelligence/Dockerfile -t zuri-market-intelligence:ci .
 
+  scm:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: services/scm/package-lock.json
+
+      - name: Install isolated service package
+        run: npm ci --prefix services/scm
+
+      # src/kernel/** is generated from apps/server/src; a hand edit or a stale
+      # mirror fails here rather than drifting silently.
+      - name: Kernel mirror in sync
+        run: npm --prefix services/scm run kernel:check
+
+      - name: SCM tests (SQLite)
+        run: npm --prefix services/scm test
+
+      # Embedded PostgreSQL 17 on a random local port, started and removed by
+      # the runner script; no service container, no secrets.
+      - name: SCM tests (PostgreSQL)
+        run: npm --prefix services/scm run test:postgres
+
+      - name: Build standalone service image
+        run: docker build -f services/scm/Dockerfile -t zuri-scm:ci .
+
   # The required aggregate check. `if: always()` makes dependency failures
   # visible in one explicit result instead of leaving the aggregate ambiguous.
   verify:
     if: always() && github.event_name != 'schedule'
-    needs: [govern, tests, build, conversation-runtime, market-intelligence]
+    needs: [govern, tests, build, conversation-runtime, market-intelligence, scm]
     runs-on: ubuntu-latest
     steps:
-      - name: All five verification jobs passed
+      - name: All six verification jobs passed
         shell: bash
         run: |
           echo "govern: ${{ needs.govern.result }}"
@@ -443,7 +476,8 @@ jobs:
           echo "build:  ${{ needs.build.result }}"
           echo "conversation-runtime: ${{ needs.conversation-runtime.result }}"
           echo "market-intelligence: ${{ needs.market-intelligence.result }}"
-          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}" "${{ needs.conversation-runtime.result }}" "${{ needs.market-intelligence.result }}"; do
+          echo "scm: ${{ needs.scm.result }}"
+          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}" "${{ needs.conversation-runtime.result }}" "${{ needs.market-intelligence.result }}" "${{ needs.scm.result }}"; do
             if [ "$r" != "success" ]; then
               echo "::error::a verification job did not succeed (see the job results above)"
               exit 1
