@@ -406,6 +406,7 @@
     "FR-274",
     "FR-275",
     "FR-276",
+    "FR-277",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5153,6 +5154,19 @@
         }
       ]
     },
+    "FR-277": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8e5c56cf6f00d0771b6c4e443430e2e62db1f513cd1c01d1718cf0c6221bc9dc",
+      "history": [
+        {
+          "anchor": "line grounding shadow compare harness",
+          "since": "2026-09-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6929,7 +6943,7 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "2633edac731937909734012a99d58c7763ad2b0a40ac3f2fafb8799fdf898467",
+      "statement_digest": "e2ba09edc0a9682c25f2293c4a6549436821e36a3c1eb27497f576909d5b418b",
       "history": [
         {
           "anchor": "conversation runtime is an independent node process over",
@@ -6938,7 +6952,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-27",
-      "statement_digest_reason": "Runtime cohort eligibility follows the ADR-106 amendment of 2026-09-27; an unverified sender's job runs with no person. Subject unchanged."
+      "statement_digest_reason": "An unverified sender's memory-sync turn now runs in Core's PENDING memory mode in the runtime cohort (ADR-106 1.2.0); subject unchanged."
     },
     "SEC-001": {
       "family": "SEC",

@@ -10,6 +10,7 @@ import {
   lineKnowledgeGroundingBudgetFromEnv,
   resolveLineKnowledgeGroundingMode,
 } from './line-knowledge-grounding'
+import { runLineGroundingShadowCompare } from './line-grounding-shadow-compare'
 
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
@@ -54,8 +55,13 @@ import {
 // @spec ADR-090 D1-D5, SEC-032, SDD-099 — grounding mode, mode-gated fallback,
 // budget, retrievalRefs and Business scoping.
 // @spec ADR-091 D7, SDD-100 — Context Composer placement and receipt shape.
+// @req FR-277 — a shadow-compare generation is started (never awaited) right
+// after `answerText` is final; see line-grounding-shadow-compare.js for the
+// full design constraints (never customer-visible, never blocks dispatch,
+// disabled by default, never throws).
 // @tested tests/unit/server-line-answer.test.js, tests/integration/line-worker-memory.test.js,
-//   tests/unit/line-knowledge-grounding.test.js, tests/integration/line-gks-grounding.test.js
+//   tests/unit/line-knowledge-grounding.test.js, tests/integration/line-gks-grounding.test.js,
+//   tests/unit/line-grounding-shadow-compare.test.js
 
 function failure(code) {
   const error = new Error(code)
@@ -219,6 +225,11 @@ export function memoryServerScope(job, route) {
     audienceKind: route.audienceKind,
     agentId: 'zuri-line-agent',
     mspAuthorization: { read: true, writePrivate: false, writeShared: false },
+    // @req FR-149 — Core's PENDING memory mode: a Conversation Runtime job that Core
+    // admitted for an unverified sender (`CHANNEL_IDENTITY_ADMITTED`) is marked by
+    // Core's own claim check, never by the runtime. The legacy worker's job rows carry
+    // no such mark, so its scope is unchanged.
+    ...(job.senderIdentityState === 'UNVERIFIED' ? { identityState: 'UNVERIFIED' } : {}),
     // These identifiers are copied from the claimed, persisted job only. They
     // are never accepted from the LINE message or model request.
     tenantId: job.tenantId,
@@ -350,6 +361,33 @@ export function composeLineMemoryPacket({ memoryContext, route, authorizedForMem
   return { composed, injectedPacket }
 }
 
+/**
+ * @req FR-235 — a corpus-grounding turn's knowledge records as Context Composer
+ * slices (`knowledge:<index>`, no `sequence`), plus the lookup that rebuilds the
+ * composer-included records. Shared by the legacy worker and Core's memory `read`.
+ */
+export function lineKnowledgeSliceInputs(records) {
+  const knowledgeRecordById = new Map()
+  const knowledgeSliceInputs = (Array.isArray(records) ? records : []).map((record, index) => {
+    const id = `knowledge:${index}`
+    knowledgeRecordById.set(id, record)
+    // No `sequence`: corpus hits are ranked results, not an ordered
+    // conversation. Tagging them into a named sequence would let one
+    // oversized hit close the budget for every lower-ranked hit after
+    // it — exactly the starvation the composer's own doc comment
+    // warns a shared sequence can cause, and exactly why these stay
+    // untagged (each judged, and dropped, on its own fit).
+    return { id, citationId: record.citationId ?? null, text: typeof record.text === 'string' ? record.text : JSON.stringify(record) }
+  })
+  return { knowledgeSliceInputs, knowledgeRecordById }
+}
+
+/** @req FR-235 — the knowledge records the composer included, in its own order. */
+export function composedKnowledgeRecords(composed, knowledgeRecordById) {
+  return composed.slices.filter((slice) => slice.source === 'KNOWLEDGE')
+    .map((slice) => knowledgeRecordById.get(slice.id)).filter(Boolean)
+}
+
 /** The durable identifiers the post-model half needs from the pre-model half. */
 export function lineMemoryHandle(memoryContext, memoryInbound) {
   return {
@@ -469,6 +507,13 @@ export function createServerLineAnswer({
       // field from it, and the corpus reader is built from the job's own
       // verified scope, never from the account row's identity.
       const groundingMode = resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding)
+      // @req FR-277 — kept unwrapped, before the mode-gated wrap below, so a
+      // shadow-compare generation (fired later, only for an account with
+      // `knowledgeGroundingShadow: true`) can build the PAIRED mode's own
+      // reader from the same plain business-knowledge reader the primary path
+      // resolved — never the grounding wrapper, which is already bound to
+      // `groundingMode`, not its pair.
+      const rawBusinessKnowledgeReader = businessKnowledge
       if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
         const corpusReader = createCorpusKnowledgeReader({
           tenantId, businessId,
@@ -501,22 +546,12 @@ export function createServerLineAnswer({
         // tracing (line-knowledge-grounding.js) fires on this call exactly as
         // it does on the non-memory-opt-in path — nothing here traces a hop.
         let knowledgeSliceInputs = []
-        const knowledgeRecordById = new Map()
+        let knowledgeRecordById = new Map()
         if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
           const registeredQuery = selectRegisteredQuery(question)
           const groundingEvidence = await businessKnowledge.query({ tenantId, businessId, ...registeredQuery })
           const groundingRecords = Array.isArray(groundingEvidence?.records) ? groundingEvidence.records : []
-          knowledgeSliceInputs = groundingRecords.map((record, index) => {
-            const id = `knowledge:${index}`
-            knowledgeRecordById.set(id, record)
-            // No `sequence`: corpus hits are ranked results, not an ordered
-            // conversation. Tagging them into a named sequence would let one
-            // oversized hit close the budget for every lower-ranked hit after
-            // it — exactly the starvation the composer's own doc comment
-            // warns a shared sequence can cause, and exactly why these stay
-            // untagged (each judged, and dropped, on its own fit).
-            return { id, citationId: record.citationId ?? null, text: typeof record.text === 'string' ? record.text : JSON.stringify(record) }
-          })
+          ;({ knowledgeSliceInputs, knowledgeRecordById } = lineKnowledgeSliceInputs(groundingRecords))
         }
         // @req FR-234, FR-235 — compose the MSP packet and (for a corpus-
         // grounding mode) this turn's knowledge evidence in ONE call, under
@@ -563,8 +598,7 @@ export function createServerLineAnswer({
           // from ONLY the composer's included KNOWLEDGE slices, so a recorded
           // receipt can never list a citation the model did not receive, and
           // an omitted one can never describe evidence the model did receive.
-          const includedKnowledge = composed.slices.filter((slice) => slice.source === 'KNOWLEDGE')
-          const finalKnowledgeRecords = includedKnowledge.map((slice) => knowledgeRecordById.get(slice.id)).filter(Boolean)
+          const finalKnowledgeRecords = composedKnowledgeRecords(composed, knowledgeRecordById)
           // `answerBusinessQuestion`'s own `knowledge.query` call now returns
           // exactly this — already selected, already composed — evidence; it
           // fetches and traces nothing a second time.
@@ -619,6 +653,22 @@ export function createServerLineAnswer({
       // LINE's text message limit is 5000 UTF-16 code units. Never leave a split
       // surrogate at the boundary when an evidence value contains emoji.
       const answerText = boundLineText(result.text)
+      // @req FR-277 — shadow-compare (ADR-090 Phase 3, TASK-ZAI-095). Started,
+      // never awaited: the customer-facing answer above is already final, and
+      // the worker's own reply/push dispatch happens in the caller after this
+      // function returns — awaiting here would add the paired mode's own
+      // generation latency (and a second model call) to every turn on a
+      // shadow-enabled account, exactly what this harness must not do. A
+      // rejection can only come from a bug in this call's own argument
+      // construction (the function itself never rejects); `.catch` is a
+      // second line of defence, not the primary safety mechanism.
+      if (job.account?.knowledgeGroundingShadow === true) {
+        void runLineGroundingShadowCompare({
+          job, primaryMode: groundingMode, primaryAnswerText: answerText,
+          tenantId, businessId, question, model,
+          businessKnowledgeReader: rawBusinessKnowledgeReader, env,
+        }).catch(() => {})
+      }
       if (memoryOptIn) {
         await appendLineMemoryAnswer({ job, route, threadMemory: selectedThreadMemory,
           memory: lineMemoryHandle(memoryContext, memoryInbound), answerText,

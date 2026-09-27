@@ -4,8 +4,8 @@
     {
       "source": "apps/server/src/lib/validation/enums.js",
       "kernel": "src/kernel/lib/enums.js",
-      "sourceSha256": "23f7edfca0e76f3cc3079695c8a28909e91c1aff505667dd4266570466ab10d0",
-      "kernelSha256": "23f7edfca0e76f3cc3079695c8a28909e91c1aff505667dd4266570466ab10d0"
+      "sourceSha256": "f9b27befd75d3a2736dcbe193111c331cf5a9a0ff989ce30a924b28fce86c62c",
+      "kernelSha256": "f9b27befd75d3a2736dcbe193111c331cf5a9a0ff989ce30a924b28fce86c62c"
     },
     {
       "source": "apps/server/src/modules/commerce/domain/pricing-formula.js",

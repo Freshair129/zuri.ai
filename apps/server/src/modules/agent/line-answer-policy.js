@@ -4,6 +4,9 @@
 // are 99), holds a number the customer typed to a quantity or budget echo, checks
 // each delivery or stock claim against its own kind of evidence, and checks
 // catalogue-family codes with no digit (PM-PEN) as well as codes with one.
+// A number written with thousands separators is read without them in all three
+// texts (1,250 is 1250 and 10,000mAh is 10000mAh), so a grounded price is not
+// rejected for its grouping; a grouped number the evidence lacks still is.
 // @req FR-149, FR-235 — the LINE answer rules after retrieval and after the model:
 // the no-evidence reply, the candidate check, the evidence fallback and the LINE
 // text bound. The Server answer path and the Conversation Runtime apply the same
@@ -35,6 +38,16 @@ const LETTER_CODE = /^[A-Z]{2,}(?:[._-][A-Z]{2,})+$/
 const CODE_FAMILIES = ['PM', 'SG']
 const CODE_SEPARATOR = /[._-]/
 const DECIMAL_DIGIT = /\p{Nd}/gu
+// A number grouped by thousands: one to three digits, then groups of exactly
+// three after a comma (ASCII or fullwidth), not inside a longer digit run and not
+// the fraction of a decimal. 1,250, 10,000,000 and the 1,250 of 1,250.50 qualify;
+// 1,25, 12,3456 and 1,2,345 do not, and keep the reading they always had.
+const GROUPED_NUMBER = /(?<![\d,，]|\d\.)\d{1,3}(?:[,，]\d{3})+(?!\d|[,，]\d)/g
+const GROUP_SEPARATOR = /[,，]/g
+// A code that is only a decimal number (1250.50) is compared by value with a
+// decimal the evidence carries (1250.5); the digits before the point are kept as
+// written, so a leading zero (00123.5) still has to match exactly.
+const DECIMAL_CODE = /^(\d+)\.(\d+)$/
 const ONE_DECIMAL_DIGIT = /^\p{Nd}$/u
 // Each delivery or stock claim needs its own kind of claim in the evidence; one
 // risky word in the evidence does not admit a different one. A delivery time
@@ -81,6 +94,38 @@ export function asciiDigits(value) {
   })
 }
 
+/**
+ * Every number grouped by thousands (1,250, or １，２５０ once its digits are
+ * ASCII) without its separators, so 1,250 reads as 1250 and 10,000mAh as
+ * 10000mAh. Commas that do not group thousands are left alone.
+ */
+export function ungroupedNumbers(value) {
+  return String(value).replace(GROUPED_NUMBER, (number) => number.replace(GROUP_SEPARATOR, ''))
+}
+
+/** A text as the checks read it: ASCII digits, thousands separators removed. */
+function checkedText(value) {
+  return ungroupedNumbers(asciiDigits(value))
+}
+
+/**
+ * The evidence as the checks read it. Only string values are ungrouped, and the
+ * JSON is indented so that a number array ([1, 250]) is written one element per
+ * line: compact JSON would write it as 1,250 and invent a number it never held.
+ */
+function checkedEvidence(records) {
+  return asciiDigits(JSON.stringify(records, (_key, value) => (typeof value === 'string' ? checkedText(value) : value), 1))
+}
+
+/** A code as the code check compares it: in capitals, a plain decimal by value. */
+function codeKey(code) {
+  const upper = code.toLocaleUpperCase()
+  const decimal = DECIMAL_CODE.exec(upper)
+  if (!decimal) return upper
+  const fraction = decimal[2].replace(/0+$/, '')
+  return fraction ? `${decimal[1]}.${fraction}` : decimal[1]
+}
+
 function numberValue(item) {
   const numeric = Number(item.replaceAll(',', ''))
   return Number.isFinite(numeric) ? String(numeric) : item
@@ -114,13 +159,13 @@ function budgetAt(text, start) {
  * every code in it that has a digit, or is a capital-letter code of a catalogue
  * family, is in the question or the evidence, and each delivery or stock claim it
  * makes is one the evidence makes, with any delivery time inside the evidence's.
- * All three texts are checked with their digits as ASCII; the candidate itself
- * is not changed.
+ * All three texts are checked with their digits as ASCII and their thousands
+ * separators removed; the candidate itself is not changed.
  */
 export function verifyCandidate(question, evidence, candidate) {
-  const records = asciiDigits(JSON.stringify(evidence.records))
-  const asked = asciiDigits(question)
-  const text = asciiDigits(candidate)
+  const records = checkedEvidence(evidence.records)
+  const asked = checkedText(question)
+  const text = checkedText(candidate)
 
   const evidenceNumbers = normalizedNumbers(records)
   const askedNumbers = normalizedNumbers(asked)
@@ -149,14 +194,14 @@ export function verifyCandidate(question, evidence, candidate) {
     })
     .map((match) => numberValue(match[0])))]
 
-  const allowedCodes = normalizedCodes(`${asked}\n${records}`)
+  const allowedCodes = new Set([...normalizedCodes(`${asked}\n${records}`)].map(codeKey))
   const families = new Set([...CODE_FAMILIES, ...(evidence.records ?? [])
     .map((record) => record?.product_code)
     .filter((code) => typeof code === 'string')
     .map((code) => code.split(CODE_SEPARATOR)[0].toLocaleUpperCase())])
   const unsupportedCodes = [...new Set((text.match(PRODUCT_CODE) ?? [])
     .filter((code) => /\d/.test(code) || (LETTER_CODE.test(code) && families.has(code.split(CODE_SEPARATOR)[0])))
-    .map((code) => code.toLocaleUpperCase())
+    .map(codeKey)
     .filter((code) => !allowedCodes.has(code)))]
 
   const evidenceDays = [...deliveryDays(records),

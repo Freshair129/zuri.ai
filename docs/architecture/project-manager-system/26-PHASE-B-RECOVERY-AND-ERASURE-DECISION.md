@@ -237,8 +237,7 @@ to older hashes.
 PDPA erasure of one speaker in a shared LINE group or room thread (FR-022) adds
 the nullable `authorChannelIdentityId` column (and its index) to the existing
 `Message` model. It adds no application model, so the 191-entry table mapping is
-unchanged; only the schema bytes change. The **current** binding is
-`schemaSha256`
+unchanged; only the schema bytes change. This binding has `schemaSha256`
 `26a67720bdc418d9e1de1b06849ccc685b111d0810d3d04dc03952bcb6d268f8` with
 `targetSchemaSha256`
 `53119b5c3d73c1acdaebdf16cc7c1d8b34d97bfb8877b36df2fc9cbfe0db751d`, recomputed
@@ -247,6 +246,30 @@ Conversation Runtime binding above is historical and refused against this schema
 `Message` stays in snapshot coverage and a restore carries the column as data;
 this rebind changes neither the table-empty proof nor the recovery/erasure
 algorithm, and it does not authorize recovery of artifacts bound to older hashes.
+
+FR-277 (ADR-090 Phase 3, TASK-ZAI-095) adds one application model,
+`LineGroundingShadowComparison` — the diagnostic-only LINE grounding
+shadow-compare row — on top of the Message rebind above, bringing the frozen
+inventory to **192 application tables**. The **current** binding has
+`schemaSha256`
+`94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d` and
+`targetSchemaSha256`
+`372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885`, computed
+the same way as every binding above: `schemaSha256` over the raw
+`prisma/schema.prisma` bytes (now carrying both the Message
+`authorChannelIdentityId` column and the new model), `targetSchemaSha256` via
+`computeTargetSchemaSha256` over the full, alphabetically sorted 192-model
+mapping (every model gets `schemaName: 'public'`, `tableName` equal to its
+`modelName`; none of this schema's models use `@@map`). Every binding above —
+the Notion + Conversation Runtime merge, the interim runtimeOwner-only binding,
+and the 191-table Message rebind — is historical and refuses cross-schema
+recovery against this schema. The new model is included in `SNAPSHOT_MODELS`
+(backup-service.js) with no declared relation, matching `AgentTraceEvent`'s own
+convention in the same domain — it restores without ordering constraints.
+Unlike the mechanically-verified rebinds above, this one has not yet had the
+independent hash/mapping review the doc's earlier entries record; the CLI
+proof and that review remain a separate gate this change does not claim to
+close.
 
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
