@@ -6942,7 +6942,7 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "2633edac731937909734012a99d58c7763ad2b0a40ac3f2fafb8799fdf898467",
+      "statement_digest": "e2ba09edc0a9682c25f2293c4a6549436821e36a3c1eb27497f576909d5b418b",
       "history": [
         {
           "anchor": "conversation runtime is an independent node process over",
@@ -6951,7 +6951,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-27",
-      "statement_digest_reason": "Runtime cohort eligibility follows the ADR-106 amendment of 2026-09-27; an unverified sender's job runs with no person. Subject unchanged."
+      "statement_digest_reason": "An unverified sender's memory-sync turn now runs in Core's PENDING memory mode in the runtime cohort (ADR-106 1.2.0); subject unchanged."
     },
     "SEC-001": {
       "family": "SEC",

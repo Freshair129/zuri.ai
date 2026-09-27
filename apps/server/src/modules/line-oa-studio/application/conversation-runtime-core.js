@@ -42,8 +42,10 @@ import {
 //   2026-09-27) gets exactly what the legacy Server path gives that sender, from
 //   Core's admission-time record (`runtimeSenderAuthority`), never from the runtime:
 //   `resolve` names no person, every Work call is refused with the legacy handler's
-//   own reply before any Work reader or writer, a `#sku` message is an ordinary
-//   question, and no memory operation exists for it. A verified job is unchanged.
+//   own reply before any Work reader or writer, and a `#sku` message is an ordinary
+//   question. A memory-sync turn runs in Core's PENDING memory mode (W11): no private
+//   recall, the question and reply appended to the MSP thread with PENDING assurance
+//   and no person, as the legacy worker does. A verified job is unchanged.
 // @tested tests/integration/conversation-runtime-vertical-slice.test.js,
 //   tests/integration/conversation-runtime-grounding.test.js,
 //   tests/integration/conversation-runtime-grounding-parity.test.js,
@@ -557,14 +559,26 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     // The sender authority comes from Core's admission-time record and its own
     // ChannelIdentity row, never from the runtime (see `runtimeSenderAuthority`).
     const sender = await runtimeSenderAuthority(db, job)
-    if (!checkIdentity) return { job, identity: null, identityState: sender.identityState }
+    const admitted = sender.identityState === 'UNVERIFIED' ? { admittedPrincipalId: sender.admittedPrincipalId } : {}
+    if (!checkIdentity) return { job, identity: null, identityState: sender.identityState, ...admitted }
     if (!sender.authorized) {
       throw sender.identityState === 'UNVERIFIED' ? error('CONVERSATION_JOB_AUTHORITY_REVOKED', 409)
         : error('CONVERSATION_IDENTITY_REVOKED', 403)
     }
-    return { job, identity: sender.identity, identityState: sender.identityState }
+    return { job, identity: sender.identity, identityState: sender.identityState, ...admitted }
   }
-  const memory = createConversationRuntimeMemory({ db, env, now, ownedClaim, threadMemoryFactory,
+  // @req FR-149 — the memory façade sees the job exactly as Core's claim check read
+  // it, plus Core's own sender decision: a job admitted for an unverified sender is
+  // marked `senderIdentityState: 'UNVERIFIED'`, which selects the PENDING memory mode
+  // (`memoryServerScope`). The mark comes only from the admission record; the v1
+  // `memory` request has no field that could name or change it.
+  const memoryClaim = async (ref, options) => {
+    const owned = await ownedClaim(ref, options)
+    return owned.identityState === 'UNVERIFIED'
+      ? { ...owned, job: { ...owned.job, senderIdentityState: 'UNVERIFIED', senderPrincipalId: owned.admittedPrincipalId ?? null } }
+      : owned
+  }
+  const memory = createConversationRuntimeMemory({ db, env, now, ownedClaim: memoryClaim, threadMemoryFactory,
     groundingQuery: (job, options) => groundingQuery(job, options),
     modelResolver: async job => {
       const credential = await resolveCredential(job)
@@ -713,9 +727,6 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         // Server worker's answer port checks `#sku` before its model answer.
         const catalogTurn = await catalogCommandTurn(job, identityState)
         if (catalogTurn) return catalogTurn
-        // Admission keeps an unverified sender's memory-sync turn on SERVER; a job
-        // that nonetheless carries both is refused rather than given memory.
-        if (identityState === 'UNVERIFIED' && job.memorySyncOptIn === true) throw error('MEMORY_IDENTITY_UNVERIFIED', 409)
         const turn = fitPreparedTurn(await prepare(job, { deadlineAt: envelope.deadlineAt }))
         // An opted-in turn tells the runtime to run the memory phases; a Work
         // command (or its fixed reply) never touches memory, as in the legacy worker.
@@ -730,13 +741,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         return resolveCredential(job)
       }
       case 'work-tool': return workOperation(claimRef, payload)
-      case 'memory': {
-        // @req FR-149 — no memory operation exists for an unverified sender's job,
-        // whatever the runtime asks for (see `prepare`).
-        const { identityState } = await ownedClaim(claimRef, { checkLease: false, checkIdentity: false })
-        if (identityState === 'UNVERIFIED') throw error('MEMORY_IDENTITY_UNVERIFIED', 409)
-        return memory.operate(claimRef, payload, { deadlineAt: envelope.deadlineAt })
-      }
+      case 'memory': return memory.operate(claimRef, payload, { deadlineAt: envelope.deadlineAt })
       case 'complete': {
         const { job } = await ownedClaim(claimRef)
         // @req FR-210 — Core, not the runtime, owns a `#sku` reply: READY is committed

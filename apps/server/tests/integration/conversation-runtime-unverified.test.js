@@ -132,7 +132,7 @@ async function bothPaths(text, { source = null, user = stranger, env = {} } = {}
   expect(runtimeJob.runtimeOwner).toBe('CONVERSATION_RUNTIME')
   // Core recorded, at admission, that this job's sender is unverified.
   expect(JSON.parse((await identityRecord(runtimeJob)).payloadJson))
-    .toEqual({ identityAssurance: 'UNVERIFIED', senderSha256: sha256(runtimeJob.sourceUserId) })
+    .toEqual({ identityAssurance: 'UNVERIFIED', senderSha256: sha256(runtimeJob.sourceUserId), principalId: expect.any(String) })
   clock = new Date(at.getTime() + 1000)
   const legacyDeliveries = []
   await legacyTick(legacyDeliveries)
@@ -299,18 +299,15 @@ describe('unverified sender: the runtime cohort answers byte for byte as the leg
     }
   })
 
-  it('a memory-enabled deployment: an unverified sender\'s memory turn stays with the legacy worker', async () => {
+  it('a memory-enabled deployment: an unverified sender\'s memory turn joins the runtime cohort (W11)', async () => {
     clock = instant()
     const { jobId } = await admit(runtimeAccount, 'จำได้ไหมคะ', { env: { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' } })
     const job = await jobRow(jobId)
-    // Legacy records such a turn in the MSP thread with PENDING assurance; the runtime
-    // cohort does not reproduce that, so Core keeps it on the Server path.
-    expect(job).toMatchObject({ runtimeOwner: 'SERVER', memorySyncOptIn: true, status: 'QUEUED' })
-    expect(await identityRecord(job)).toBeNull()
-    const { runtime, spies } = buildRuntime()
-    expect(await runtime.runOne()).toEqual({ status: 'IDLE' })
-    expect(spies).toMatchObject({ threadMemory: 0, memoryContext: 0 })
-    // Without the memory flag the same sender joins the runtime cohort.
+    // Core runs it in the PENDING memory mode; byte parity with the legacy tick is
+    // conversation-runtime-unverified-memory.test.js.
+    expect(job).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: true, status: 'QUEUED' })
+    expect(JSON.parse((await identityRecord(job)).payloadJson)).toMatchObject({ identityAssurance: 'UNVERIFIED' })
+    // Without the memory flag the same sender joins the runtime cohort too.
     const plain = await jobRow((await admit(runtimeAccount, 'จำได้ไหมคะ')).jobId)
     expect(plain).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: false })
   })
@@ -344,15 +341,15 @@ describe('unverified sender: Core hands the runtime no person, Work, memory or c
       .rejects.toMatchObject({ code: 'WORK_COMMAND_MISMATCH' })
     expect(await core.operate({ operation: 'work-tool', payload: { claim: ref, operation: 'status', operationId: `${work.id}:work-proposal`, input: {} } }))
       .toEqual({ status: 'NOT_FOUND', operationId: `${work.id}:work-proposal` })
-    // No memory operation exists for this job, even when its row claims a memory opt-in.
+    // A Work command never touches memory, even when its row claims a memory opt-in
+    // (W11 moved an unverified sender's memory turns in; W10's blanket refusal is gone).
     await prisma.lineConversationJob.update({ where: { id: work.id }, data: { memorySyncOptIn: true } })
     for (const [operation, operationId, input] of [['read', `${work.id}:memory-read`, {}], ['append', `${work.id}:memory-append`, { text: answerText }],
       ['receipt', `${work.id}:memory-injection`, { state: 'RESOLVED' }], ['receipt', `${work.id}:memory-read`, {}]]) {
       await expect(core.operate({ operation: 'memory', payload: { claim: ref, operation, operationId, input } }))
-        .rejects.toMatchObject({ code: 'MEMORY_IDENTITY_UNVERIFIED', status: 409 })
+        .rejects.toMatchObject({ code: 'MEMORY_NOT_APPLICABLE', status: 409 })
     }
-    await expect(core.operate({ operation: 'prepare', payload: { claim: ref, authorityVersion: ref.version } }))
-      .rejects.toMatchObject({ code: 'MEMORY_IDENTITY_UNVERIFIED' })
+    expect((await core.operate({ operation: 'prepare', payload: { claim: ref, authorityVersion: ref.version } })).memorySync).toBeUndefined()
     expect(spies).toMatchObject({ workSearch: 0, threadMemory: 0, memoryContext: 0 })
     await prisma.lineConversationJob.update({ where: { id: work.id }, data: { memorySyncOptIn: false } })
 
@@ -490,6 +487,35 @@ describe('an unverified job cannot complete or send once its account, transport,
       expect(turn.sink).toEqual([])
       expect((await jobRow(turn.job.id)).status).not.toMatch(/^(ACCEPTED|RECORDED)$/)
     } finally { await restore() }
+  })
+
+  // Review of #597 (Low, B6): Core trusts the admission record only when its turn,
+  // kind and payload are its own. A row under the same Core key that is not exactly
+  // that record fences the job; it never reads as a valid unverified admission.
+  const forgeries = {
+    'a forged record under the same key with the wrong kind': job => ({ kind: 'TOOL_RESULT' }),
+    'a record moved to another turn': job => ({ turnId: job.otherTurnId }),
+    'an emptied record whose sourceUserId is unchanged': job => ({ payloadJson: JSON.stringify({ senderSha256: sha256(job.sourceUserId) }) }),
+  }
+  it.each(Object.keys(forgeries))('%s: Core refuses resolve, completion and send, and nothing is delivered', async forgery => {
+    const other = await unverifiedJob()
+    await prisma.lineConversationJob.update({ where: { id: other.job.id }, data: { status: 'CANCELLED', errorCode: 'TEST_UNVERIFIED_DONE', version: { increment: 1 } } })
+    for (const stage of [undefined, 'READY']) {
+      const turn = await unverifiedJob({ stage })
+      const where = { tenantId_businessId_idempotencyKey: { tenantId: tenant.id, businessId: business.id,
+        idempotencyKey: `${turn.job.id}:identity-admission` } }
+      // The sender id still matches the admitted hash in every case.
+      expect(JSON.parse((await prisma.agentTraceEvent.findUnique({ where })).payloadJson).senderSha256).toBe(sha256(turn.job.sourceUserId))
+      await prisma.agentTraceEvent.update({ where, data: forgeries[forgery]({ ...turn.job, otherTurnId: other.job.id }) })
+      if (stage === 'READY') {
+        expect(await turn.send()).toMatchObject({ status: 'CANCELLED' })
+      } else {
+        await expect(turn.core.operate({ operation: 'resolve', payload: { claim: turn.ref } }))
+          .rejects.toMatchObject({ code: 'CONVERSATION_JOB_AUTHORITY_REVOKED', status: 409 })
+        await expect(turn.complete()).rejects.toMatchObject({ code: 'CONVERSATION_JOB_AUTHORITY_REVOKED', status: 409 })
+      }
+      expect(turn.sink).toEqual([])
+    }
   })
 
   it('a changed speaker in a group, with the thread still bound, fences completion and send', async () => {

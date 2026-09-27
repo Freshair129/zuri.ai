@@ -537,6 +537,31 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     expect(prompt).not.toContain('cit-r3')
   })
 
+
+  it('an out-of-hours GROUP memory turn under a corpus mode: memory read is refused with no MSP call and no corpus read', async () => {
+    await setGrounding('GKS_CORPUS')
+    await setOwner('CONVERSATION_RUNTIME')
+    corpusMock.fn = async () => pressure()
+    // Closed at every minute but 00:00 (Bangkok), so this admission is out of hours.
+    await prisma.lineOaAccount.update({ where: { id: account.id },
+      data: { businessHoursOpen: '00:00', businessHoursClose: '00:00', outOfHoursReplyText: 'ปิดทำการแล้วค่ะ' } })
+    try {
+      const msp = createFakeMsp()
+      const job = await admit('runtime', 0, { speaker: 'A' })
+      expect(job).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: true, audienceKind: 'GROUP', answerText: 'ปิดทำการแล้วค่ะ' })
+      const { ports } = buildRuntime({ msp })
+      const claim = await ports.job.claim({ claimantId: 'runtime-out-of-hours-memory' })
+      expect(claim.jobId).toBe(job.id)
+      await expect(ports.memory.read(claim)).rejects.toMatchObject({ code: 'MEMORY_NOT_APPLICABLE' })
+      await expect(ports.memory.append(claim, 'ปิดทำการแล้วค่ะ')).rejects.toMatchObject({ code: 'MEMORY_NOT_APPLICABLE' })
+      expect(msp.calls).toEqual([])
+      expect(corpusMock.calls).toEqual([])
+    } finally {
+      await prisma.lineOaAccount.update({ where: { id: account.id },
+        data: { businessHoursOpen: null, businessHoursClose: null, outOfHoursReplyText: null } })
+    }
+  })
+
   it('MSP down under a corpus mode fails before any corpus read or model call', async () => {
     await setGrounding('GKS_CORPUS')
     corpusMock.fn = async () => pressure()
