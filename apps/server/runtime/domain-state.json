@@ -489,7 +489,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-025",
@@ -716,7 +716,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-181",
@@ -1377,7 +1377,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-023",
@@ -1698,7 +1698,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-026",
@@ -2357,7 +2357,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-028",
@@ -3703,7 +3703,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-026",
@@ -3766,7 +3766,7 @@
           "title": "Optional Edge conversation execution",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
+          "codeCount": 7,
           "testCount": 19
         },
         {
@@ -3799,7 +3799,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-190",
@@ -5258,7 +5258,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-031",
@@ -8792,7 +8792,7 @@
           "title": "Optional Edge conversation execution",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
+          "codeCount": 14,
           "testCount": 19
         }
       ],
@@ -8846,6 +8846,7 @@
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
         "apps/server/src/modules/line-oa-studio/domain/line-trace-summary.js",
+        "apps/server/src/modules/line-oa-studio/domain/work-tool-receipt.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioJobFailures.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -8937,6 +8938,7 @@
         "services/conversation-runtime/src/line-answer-policy.js",
         "services/conversation-runtime/src/main.js",
         "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/src/work-tool-receipt.js",
         "services/conversation-runtime/src/worker-loop.js",
         "services/conversation-runtime/test/answer-policy.test.js",
         "services/conversation-runtime/test/contracts.test.js",
@@ -12954,7 +12956,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 30,
-          "testCount": 43
+          "testCount": 44
         }
       ],
       "evidence": [
@@ -13012,6 +13014,7 @@
         "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
+        "apps/server/tests/integration/line-memory-erasure-due-query.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -17024,7 +17027,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 36
+          "testCount": 37
         }
       ],
       "evidence": [
@@ -17053,6 +17056,7 @@
         "apps/server/tests/integration/conversation-runtime-catalog-command.test.js",
         "apps/server/tests/integration/conversation-runtime-group-room.test.js",
         "apps/server/tests/integration/conversation-runtime-legacy-parity.test.js",
+        "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
         "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
