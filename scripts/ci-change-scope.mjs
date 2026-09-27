@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url'
 // A service may join ISOLATED_SERVICES only once governance.yml has a job that
 // installs, tests and builds it (pinned by tests/unit/ci-change-scope.test.js).
 
-export const ISOLATED_SERVICES = Object.freeze(['conversation-runtime', 'market-intelligence'])
+export const ISOLATED_SERVICES = Object.freeze(['conversation-runtime', 'market-intelligence', 'scm'])
 
 const servicePath = new RegExp(`^services/(${ISOLATED_SERVICES.map((name) => name.replace(/[-]/g, '\\-')).join('|')})/`)
 
@@ -143,7 +143,11 @@ export const FULL_SUITE_TRIGGERS = Object.freeze([
 ])
 
 // What related mode can reason about. Everything else is the full suite.
-const RELATED_SOURCE = /^(apps\/server\/(src|runtime|tests\/factories)\/|services\/(conversation-runtime|market-intelligence)\/)/
+// Every isolated service counts as source: a diff mixing apps/server with a
+// service runs that service's own job (unconditional on PRs) plus the
+// apps/server tests the graph and @req tags reach — e.g. the Core-side
+// contract tests that import the service's code.
+const RELATED_SOURCE = new RegExp(`^(apps/server/(src|runtime|tests/factories)/|services/(${ISOLATED_SERVICES.map((name) => name.replace(/[-]/g, '\\-')).join('|')})/)`)
 const RELATED_TEST = /^apps\/server\/tests\/(unit|integration)\/.+\.test\.js$/
 const RELATED_TEST_SUPPORT = /^apps\/server\/tests\/(unit|integration)\//
 const INERT = /^(docs\/|\.brain\/|AGENTS\.md$|CLAUDE\.md$|README\.md$|apps\/server\/tests\/e2e\/)/

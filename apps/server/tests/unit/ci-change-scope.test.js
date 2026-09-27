@@ -17,6 +17,8 @@ describe('CI service scope classification', () => {
       .toEqual(['conversation-runtime'])
     expect(isolatedServices('services/market-intelligence/src/a.js\nservices/conversation-runtime/package.json'))
       .toEqual(['conversation-runtime', 'market-intelligence'])
+    expect(isolatedServices('services/scm/src/main.js\nservices/scm/test/unit/core-client.test.js'))
+      .toEqual(['scm'])
   })
 
   it('fails safe to the full suite for anything else', () => {
@@ -24,7 +26,8 @@ describe('CI service scope classification', () => {
       '',
       'services/conversation-runtime/src/a.js\napps/server/src/a.js',
       'services/conversation-runtime/src/a.js\ndocs/migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md',
-      'services/scm/src/a.js',
+      'services/scm/src/a.js\napps/server/src/modules/inventory/application/scm-core-facade.js',
+      'services/scm-evil/src/a.js',
       'services/unknown/src/a.js',
       'services/conversation-runtime',
       'services/conversation-runtime-evil/src/a.js',
@@ -51,6 +54,8 @@ describe('CI service scope classification', () => {
       .toContain('tests/integration/conversation-runtime-model-conformance.test.js')
     expect(scopeOutputs('services/market-intelligence/src/http/server.js', serverRoot).contracts)
       .toContain('tests/integration/market-core-facade-http.test.js')
+    expect(scopeOutputs('services/scm/src/infrastructure/core-client.js', serverRoot).contracts)
+      .toContain('tests/integration/scm-core-facade-http.test.js')
     expect(scopeOutputs('apps/server/src/a.js', serverRoot)).toEqual({ server: 'true', services: '', contracts: '' })
   })
 
@@ -206,6 +211,22 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
     // names a requirement id the module declares with @req, without importing it
     expect(related).toContain('tests/unit/embedded-postgres-cleanup.test.js')
     expect(related.length).toBeLessThanOrEqual(all * FAN_OUT_LIMIT)
+  }, 180000)
+
+  it('treats every isolated service, scm included, as related source; its manifests still force the full suite', () => {
+    for (const name of ISOLATED_SERVICES) {
+      expect(relatedEligibility(`apps/server/src/modules/crm/pipeline.js\nservices/${name}/src/a.js`).eligible, name).toBe(true)
+      expect(relatedEligibility(`apps/server/src/modules/crm/pipeline.js\nservices/${name}/package-lock.json`).eligible, name).toBe(false)
+    }
+    expect(relatedEligibility('apps/server/src/modules/crm/pipeline.js\nservices/scm-evil/src/a.js').eligible).toBe(false)
+    expect(workflow).toMatch(/\n  scm:\n    if: github\.event_name != 'schedule'\n/)
+    const run = spawnSync(process.execPath, [path.join(root, 'scripts/ci-change-scope.mjs'), '--related'], {
+      input: 'apps/server/src/modules/inventory/application/scm-core-facade.js\nservices/scm/src/infrastructure/core-client.js\n', encoding: 'utf8', timeout: 170000,
+    })
+    expect(run.status, run.stderr).toBe(0)
+    const lines = run.stdout.trim().split(/\r?\n/)
+    expect(lines).toContain('test_mode=related')
+    expect(lines.find((line) => line.startsWith('related=')).split(/[= ]/)).toContain('tests/integration/scm-core-facade-http.test.js')
   }, 180000)
 
   it('selects the answer parity suite through the module graph when either answer-policy mirror changes', () => {

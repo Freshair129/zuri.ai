@@ -1,0 +1,123 @@
+{
+  "contract": "scm-core",
+  "contractVersion": "scm-core.v1",
+  "revision": "v1-draft.2",
+  "status": "PROPOSED — consumer (SCM) implemented and tested locally against a synthetic core; provider (apps/server scm-core-facade.js) being aligned to this revision; not integrator-reviewed",
+  "changes": {
+    "v1-draft.2": [
+      "resolve-scope takes a Business selector: request body {businessId} (strict), forwarded from the BFF's x-zuri-business-id; the answer is the selected Business's Tenant and the grants of that Tenant's visible Businesses only",
+      "new resolve-scope refusals 404 BUSINESS_NOT_FOUND and 404 NO_VISIBLE_BUSINESS, both → SCM 404 SCM_SCOPE_NOT_FOUND (legacy body)",
+      "409 SCOPE_NOT_SINGLE_TENANT is removed (the selector makes every scope single-Tenant); 409 SCOPE_TOO_LARGE is kept",
+      "facts (branch, branches, customer, conversation) require the subject's COMMERCE view of the named Business on the provider side",
+      "the consumer may cache successful resolve-scope answers for a bounded TTL (consumerCache)"
+    ]
+  },
+  "pattern": "ADR-108 (market-core.v1): one private core façade, static service bearer, end-user credential forwarded opaquely; core is the only identity authority",
+  "provider": {
+    "owner": "Core (Identity) — resolve-scope, branch, branches, conversation; CRM — customer (served through the same core façade)",
+    "basePath": "/api/internal/scm/v1",
+    "network": "private service network only; never exposed through the public ingress"
+  },
+  "consumer": {
+    "owner": "SCM (services/scm)",
+    "adapter": "src/infrastructure/core-client.js (createScmCoreClient); scope cache src/infrastructure/scope-cache.js",
+    "config": "SCM_AUTH_MODE=core, SCM_CORE_URL (http/https, no credentials/query/hash; in production https, or plain http only to a single-label service name such as http://web:3000), SCM_CORE_TOKEN (>= 32 chars, differs from SCM_API_TOKEN), SCM_CORE_TIMEOUT_MS (default 3000), SCM_CORE_SCOPE_CACHE_TTL_MS (default 15000, max 60000, 0 = off), SCM_CORE_SCOPE_CACHE_MAX_ENTRIES (default 1000, max 100000)"
+  },
+  "auth": {
+    "service": "Authorization: Bearer <SCM_CORE_TOKEN> — authenticates the SCM service; confers no business authority",
+    "subject": "x-zuri-subject: <end user's session credential>, exactly as the BFF received it (1..4096 chars); core resolves it on EVERY call; SCM never parses, logs or stores it; the only thing derived from it that SCM keeps beyond one request is a successful resolve-scope answer, for at most the cache TTL (consumerCache)",
+    "businessSelector": "resolve-scope body `businessId` = the user's active Business, forwarded unchanged from the BFF's x-zuri-business-id (1..200 chars, no control characters, not whitespace-only; SCM refuses anything else with 400 SCM_BUSINESS_SELECTOR_REQUIRED before calling core). A SELECTOR, never an authority: core decides visibility from the subject alone",
+    "coreRefusals": {
+      "401 {error:{code:'SUBJECT_UNAUTHENTICATED'}}": "the subject is missing, expired, revoked or unknown → SCM answers its caller 401 SCM_SUBJECT_UNAUTHENTICATED (retryable:false)",
+      "401 {error:{code:'SERVICE_TOKEN_INVALID'}}": "the SCM service token is wrong → SCM answers 502 SCM_CORE_REJECTED (retryable:false)",
+      "404 {error:{code:'BUSINESS_NOT_FOUND'}} (resolve-scope only)": "the subject cannot see the selected Business, or it does not exist / is deleted — core does not disclose which → SCM answers 404 SCM_SCOPE_NOT_FOUND, message 'Business not found', retryable:false (the legacy non-enumeration body, identical to scm-api.v1.json auth.scopeDenial)",
+      "404 {error:{code:'NO_VISIBLE_BUSINESS'}} (resolve-scope only)": "the subject sees no Business at all → the same SCM 404 SCM_SCOPE_NOT_FOUND",
+      "409 {error:{code:'SCOPE_TOO_LARGE'}} (resolve-scope)": "more than 500 visible Businesses in the selected Tenant → 502 SCM_CORE_REJECTED (retryable:false)",
+      "403 / any other 4xx (another 404 such as OPERATION_NOT_FOUND, any 409) / a 401 without the SUBJECT_UNAUTHENTICATED code": "→ 502 SCM_CORE_REJECTED (retryable:false)"
+    },
+    "removed": {
+      "409 SCOPE_NOT_SINGLE_TENANT": "removed in v1-draft.2 — the selector makes every scope single-Tenant; a 409 of any code is still 502 SCM_CORE_REJECTED"
+    }
+  },
+  "transport": {
+    "method": "POST for every operation; request body application/json; response application/json",
+    "envelope": "{ \"contractVersion\": \"scm-core.v1\", \"ok\": true, \"data\": <operation data> } — any other envelope, version, extra field in data, wrong type or bound violation is RESPONSE_INVALID",
+    "redirects": "refused (redirect:'error') — a redirect is SCM_CORE_UNAVAILABLE",
+    "timeout": "SCM_CORE_TIMEOUT_MS per attempt (AbortController)",
+    "retries": "every operation is an idempotent read: one retry by default with jittered backoff (backoffMs * attempt * (0.5 + random)); never for 401/403/404/4xx and never for RESPONSE_TOO_LARGE",
+    "responseByteLimits": { "resolve-scope": 1048576, "branches": 1048576, "branch|customer|conversation": 16384, "401 / resolve-scope 404 refusal body": 4096 }
+  },
+  "consumerErrors": {
+    "503 SCM_CORE_UNAVAILABLE": "retryable:true, no effect — reason (internal, not echoed): NETWORK | TIMEOUT | HTTP_5xx | RESPONSE_INVALID | RESPONSE_TOO_LARGE; a fact failure carries details.reference",
+    "502 SCM_CORE_REJECTED": "retryable:false, no effect — the service itself was refused",
+    "404 SCM_SCOPE_NOT_FOUND": "retryable:false — core's BUSINESS_NOT_FOUND / NO_VISIBLE_BUSINESS; body identical to the delegation path's denied()",
+    "401 SCM_SUBJECT_UNAUTHENTICATED": "retryable:false — the user must sign in again",
+    "401 SCM_SUBJECT_REQUIRED": "retryable:false — raised by SCM before core is called",
+    "400 SCM_BUSINESS_SELECTOR_REQUIRED": "retryable:false — raised by SCM before core is called (after the subject check)"
+  },
+  "consumerCache": {
+    "what": "successful resolve-scope answers only ({actorId, tenantId, grants}); never a refusal (401/403/404/409), an error or an outage; never a fact",
+    "ttl": "SCM_CORE_SCOPE_CACHE_TTL_MS, default 15000, hard max 60000, 0 disables",
+    "size": "SCM_CORE_SCOPE_CACHE_MAX_ENTRIES, default 1000, least-recently-used eviction",
+    "key": "sha256 over the JSON array ['scm-scope-cache.v1', sha256(SCM_CORE_TOKEN), subject, businessId] — the raw subject is never a key, never stored and never logged, and the cached value holds no subject",
+    "perRequest": "every request, hit or miss, gets a fresh frozen scope with its own delegationId and its own subject binding for the fact calls",
+    "tradeoff": "a session revoked, or a grant changed, in core can keep acting in SCM for up to the TTL"
+  },
+  "disclosure": "Core re-resolves the subject and checks that the subject holds the COMMERCE view of the named Business (the legacy POS / sales-order gate) BEFORE answering a fact. A fact for a Business the subject has no commerce view of, of another Tenant, or that does not exist is { \"fact\": null } (branches: an empty list) — never 403/404, so existence is not disclosed (the same non-enumeration rule as scm-api.v1.json auth.scopeDenial). SCM still applies its own legacy predicate to every non-null fact (tenant, Business, status, deletedAt) inside its unit of work.",
+  "consistency": "Facts are read BEFORE the SCM unit of work opens; a reference revoked between the read and the commit is not seen (bounded by the request deadline; the outcome reports references.verifiedAt and references.authority='core'). Scope may additionally be up to the consumer cache TTL old.",
+  "operations": [
+    {
+      "name": "resolve-scope",
+      "path": "/api/internal/scm/v1/resolve-scope",
+      "request": { "businessId": "string 1..200 — the selected Business (strict: no other field)" },
+      "response": {
+        "actorId": "string 1..200 — the resolved person id",
+        "tenantId": "string 1..200 — the Tenant of the selected Business",
+        "grants": {
+          "<businessId 1..200>": {
+            "owner": "boolean",
+            "domains": "string[] (each 1..64, at most 64)",
+            "permissions": "string[] (each 1..128, at most 128)"
+          }
+        }
+      },
+      "bounds": "at most 500 Businesses (else 409 SCOPE_TOO_LARGE); strict (unknown fields rejected); one grant per Business the subject can see (any domain) IN THE SELECTED BUSINESS'S TENANT ONLY — a grant's presence is SCM's `visible(businessId)`; the selected Business is always included (SCM treats a scope without it as RESPONSE_INVALID)",
+      "refusals": "404 NO_VISIBLE_BUSINESS (the subject sees no Business); 404 BUSINESS_NOT_FOUND (the selected Business is not visible, unknown or deleted); 409 SCOPE_TOO_LARGE",
+      "notes": "SCM builds the same frozen scope the delegation path builds (scopeFromGrants); a Business with no grant is SCM's 404 SCM_SCOPE_NOT_FOUND"
+    },
+    {
+      "name": "branch",
+      "path": "/api/internal/scm/v1/branch",
+      "request": { "businessId": "string", "branchId": "string" },
+      "response": { "fact": { "id": "string 1..200", "code": "string 1..200", "name": "string 0..500", "tenantId": "string 1..200", "businessId": "string 1..200", "status": "string 1..64" } },
+      "nullWhen": "no such Branch, another Tenant, or the subject has no commerce view of businessId"
+    },
+    {
+      "name": "branches",
+      "path": "/api/internal/scm/v1/branches",
+      "request": { "businessId": "string" },
+      "response": { "branches": [ { "id": "string 1..200", "code": "string 1..200", "name": "string 0..500", "address": "string 0..2000 | null", "kind": "string 1..64", "status": "string 1..64", "tenantId": "string 1..200", "businessId": "string 1..200" } ] },
+      "bounds": "at most 1000 rows; every Branch of that Business in any status (SCM filters ACTIVE and sorts)",
+      "emptyWhen": "the subject has no commerce view of businessId"
+    },
+    {
+      "name": "customer",
+      "providerOwner": "CRM",
+      "path": "/api/internal/scm/v1/customer",
+      "request": { "businessId": "string", "customerId": "string" },
+      "response": { "fact": { "id": "string 1..200", "code": "string 1..200", "tenantId": "string 1..200", "businessId": "string 1..200 | null (null = Tenant-shared)", "deletedAt": "ISO-8601 string | null" } },
+      "nullWhen": "no such Customer, another Tenant, or the subject has no commerce view of businessId; a Customer homed in a Business the subject cannot see MAY be returned — SCM refuses it itself (CUSTOMER_NOT_FOUND)"
+    },
+    {
+      "name": "conversation",
+      "path": "/api/internal/scm/v1/conversation",
+      "request": { "businessId": "string", "conversationId": "string" },
+      "response": { "fact": { "id": "string 1..200", "tenantId": "string 1..200", "businessId": "string 1..200 | null", "customerId": "string 1..200 | null" } },
+      "nullWhen": "no such Conversation, another Tenant, or the subject has no commerce view of businessId"
+    }
+  ],
+  "notInThisContract": {
+    "fileAsset": "gate SCM-FILES — a separate Files façade; in core mode SCM keeps refusing slip references with 503 SCM_REFERENCE_AUTHORITY_UNAVAILABLE"
+  },
+  "delegationFallback": "scm.delegation.v1 (HMAC) remains for tests / non-production only (SCM_AUTH_MODE=delegation) until removed; production refuses it at start"
+}

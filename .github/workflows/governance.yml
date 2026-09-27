@@ -63,7 +63,9 @@ jobs:
   # failure is `server=true`, the full suite, so `main` stays fully verified.
   #
   # `test_mode` (2026-09-27, owner instruction: "narrow, per FR"): a pull request
-  # whose diff is apps/server source/tests (plus docs) runs only the RELATED
+  # whose diff is apps/server source/tests (plus docs, and optionally sources of
+  # the isolated services — conversation-runtime, market-intelligence, scm —
+  # whose own jobs run on every PR regardless) runs only the RELATED
   # tests — importers of the changed files by vitest's own module graph, every
   # test naming a requirement id the changed files declare with `@req`, and the
   # changed tests. `scripts/ci-change-scope.mjs --related` decides it and falls
@@ -234,7 +236,10 @@ jobs:
   #   conversation-runtime — isolated service tests, boundary build and image build.
   #   market-intelligence — the ADR-108 service package: isolated tests,
   #             boundary build, Postgres store conformance and image build.
-  #   verify  — an aggregate that fails if any of the five did. Branch
+  #   scm     — the ADR-111 service package: kernel mirror drift check, boundary
+  #             build, the suite on SQLite and on an embedded PostgreSQL 17,
+  #             image build.
+  #   verify  — an aggregate that fails if any of the six did. Branch
   #             protection requires a check literally named `verify`
   #             (`changes`, `verify`, `edge-verify`), and a required check that
   #             only covered one of the three would let a red suite merge.
@@ -637,11 +642,47 @@ jobs:
       - name: Build standalone service image
         run: docker build -f services/market-intelligence/Dockerfile -t zuri-market-intelligence:ci .
 
+  scm:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: services/scm/package-lock.json
+
+      - name: Install isolated service package
+        run: npm ci --prefix services/scm
+
+      # src/kernel/** is generated from apps/server/src; a hand edit or a stale
+      # mirror fails here rather than drifting silently.
+      - name: Kernel mirror in sync
+        run: npm --prefix services/scm run kernel:check
+
+      # Boundary scan + declared dependencies + syntax check (scripts/build.mjs),
+      # the same meaning `build` has for the other isolated services.
+      - name: SCM build and boundary scan
+        run: npm --prefix services/scm run build
+
+      - name: SCM tests (SQLite)
+        run: npm --prefix services/scm test
+
+      # Embedded PostgreSQL 17 on a random local port, started and removed by
+      # the runner script; no service container, no secrets.
+      - name: SCM tests (PostgreSQL)
+        run: npm --prefix services/scm run test:postgres
+
+      - name: Build standalone service image
+        run: docker build -f services/scm/Dockerfile -t zuri-scm:ci .
+
   # The required aggregate check. `if: always()` makes dependency failures
   # visible in one explicit result instead of leaving the aggregate ambiguous.
   verify:
     if: always() && github.event_name != 'schedule'
-    needs: [changes, govern, tests, build, conversation-runtime, market-intelligence]
+    needs: [changes, govern, tests, build, conversation-runtime, market-intelligence, scm]
     runs-on: ubuntu-latest
     steps:
       # `tests` and `build` may be skipped ONLY when `changes` succeeded and
@@ -662,6 +703,7 @@ jobs:
           BUILD: ${{ needs.build.result }}
           CONVERSATION_RUNTIME: ${{ needs.conversation-runtime.result }}
           MARKET_INTELLIGENCE: ${{ needs.market-intelligence.result }}
+          SCM: ${{ needs.scm.result }}
         run: |
           echo "changes: $CHANGES (server=$SERVER services=$SERVICES)"
           echo "test mode: ${TEST_MODE:-full} $TEST_REASON"
@@ -670,6 +712,7 @@ jobs:
           echo "build:  $BUILD"
           echo "conversation-runtime: $CONVERSATION_RUNTIME"
           echo "market-intelligence: $MARKET_INTELLIGENCE"
+          echo "scm: $SCM"
           fail() { echo "::error::$1"; exit 1; }
           [ "$CHANGES" = "success" ] || fail "changes did not succeed"
           # A narrowed `tests` counts only when `changes` itself emitted related
@@ -681,7 +724,7 @@ jobs:
               [ -n "$RELATED" ] || fail "related test mode with an empty test list" ;;
             *) fail "unknown test mode: $TEST_MODE" ;;
           esac
-          for r in "$GOVERN" "$CONVERSATION_RUNTIME" "$MARKET_INTELLIGENCE"; do
+          for r in "$GOVERN" "$CONVERSATION_RUNTIME" "$MARKET_INTELLIGENCE" "$SCM"; do
             [ "$r" = "success" ] || fail "a verification job did not succeed (see the job results above)"
           done
           for r in "$TESTS" "$BUILD"; do

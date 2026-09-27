@@ -1,5 +1,5 @@
 ---
-version: "0.10.1b"
+version: "0.11.0b"
 status: active
 last_update: "2026-09-27T21:00:00+07:00,Claude Opus 5.5 (MC0)"
 id: ZAI:DOMAIN-CRM
@@ -222,6 +222,18 @@ turn flows through before any agent work happens.
   or `LINE_OA_PUBLISHER` deciding a candidate has already proven authority
   over that exact Business through the knowledge domain and must not be
   refused for lacking an unrelated CRM inbox grant. Read-only by construction.
+- `readCustomerFact` / `readConversationFact` (`scm-reference-reader.js`) — the
+  narrow, internal (non-viewer) read port core's `scm-core.v1` façade
+  (`inventory/application/scm-core-facade.js`, ADR-111 D5) calls for the SCM
+  service's `customer` / `conversation` facts, instead of reading `Customer` and
+  `Conversation` itself. Given the Tenant of a Business the caller has already
+  authorized (the façade requires the commerce view of it) and one id, it answers
+  only `{id, code, tenantId, businessId|null, deletedAt|null}` for a Customer and
+  `{id, tenantId, businessId|null, customerId|null}` for a Conversation — never a
+  name, contact, consent or message field — or `null` for a missing id, malformed
+  input or another Tenant's row. The home-Business visibility rule stays with the
+  caller (legacy `sales-order-service` requireCustomer / requireConversation).
+  Read-only by construction; no `owns_models` change.
 - `createSalesTask` / `applySalesTaskAction` / `listSalesTasks` / `getSalesTask`
   — the sales task writer and readers (FR-161, ADR-064). A fifth narrow writer:
   a follow-up a salesperson owes a customer (call, LINE message, email, meeting,
@@ -400,6 +412,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.11.0b | 2026-09-27 | Added `readCustomerFact` / `readConversationFact` (`scm-reference-reader.js`, ADR-111 D5): a narrow, internal, Tenant-bounded read port for the scm-core.v1 façade's Customer / Conversation facts, so core's façade no longer reads crm's models directly; read-only, field allow-list, no `owns_models` change | Claude Opus 5.5 |
 | 0.10.1b | 2026-09-27 | FR-022: archive format 2 seals a shared thread's lines per speaker and retrieval opens each member's existing key (ADR-093 1.1.0); `findSpeakerConversationEventKeys` names a person's own event keys so erasure tombstones their postback raw payloads | Claude Opus 5.5 (MC0) |
 | 0.10.0b | 2026-09-16 | FR-245 slice 1 built (TASK-ZAI-111, not merged): `owns_models` += `CustomerArchiveKey`, `ArchiveManifest`; `chat-evidence-archive-crypto.js` (AES-256-GCM under a dedicated `ZURI_ARCHIVE_KEK`, AAD binds Tenant/Customer/run) and `chat-evidence-archive-service.js` (per-Customer segment write, verify-then-rename, chained manifest, structurally-inseparable tombstone) called from `retention-sweep-service.js`, which now catches per Tenant and reports archive failures/manifests in the audit payload instead of tombstoning without a verified archive; migration `20260916150000` written, not applied; retrieval and key destruction are separate tasks (TASK-ZAI-112, TASK-ZAI-113) | Claude Sonnet 5 |
 | 0.9.0b | 2026-09-16 | FR-246 built (TASK-ZAI-110, not merged): second outbound writer `sendStaffReply` (FR-093's `recordLineReply` is now "the automatic" writer); pushes through line-oa-studio's `serverLinePorts` (a declared cross-domain reach, matching identity's `resolveLineIdentity` precedent), idempotent on `clientRequestId`, refuses before any push for the legacy channel/non-owner/non-server-enabled account; no new model | Claude Sonnet 5 |
