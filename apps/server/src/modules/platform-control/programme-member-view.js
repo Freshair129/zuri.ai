@@ -43,8 +43,8 @@ export function resolveMemberRoadmapDecision({ viewer = null, viewerError = null
 export function projectMemberLaneUsage(laneUsage = {}) {
   const entries = laneUsage instanceof Map ? [...laneUsage.entries()] : Object.entries(laneUsage)
   return Object.fromEntries(entries.map(([laneId, entry]) => {
-    const { byPerson, byDevice, detail, ...rest } = entry
+    const { byPerson, detail, ...rest } = entry
     const { tools, models, ...counts } = detail || {}
-    return [laneId, { ...rest, byPerson: {}, byDevice: {}, detail: { ...counts, tools: {}, models: {} } }]
+    return [laneId, { ...rest, byPerson: {}, detail: { ...counts, tools: {}, models: {} } }]
   }))
 }

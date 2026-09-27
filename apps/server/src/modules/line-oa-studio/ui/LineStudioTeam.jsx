@@ -216,7 +216,7 @@ export default function LineStudioTeam() {
                 >
                   <option value="DEVELOPER">DEVELOPER (ออกแบบ Flow, Flex, Rich Menu)</option>
                   <option value="OPERATOR">OPERATOR (ดูแลแชทสด Live CRM & ตอบลูกค้า)</option>
-                  <option value="ADMIN">ADMIN (จัดการสิทธิ์และกุญแจ Edge Device)</option>
+                  <option value="ADMIN">ADMIN (จัดการบัญชีและสิทธิ์)</option>
                 </select>
               </div>
 

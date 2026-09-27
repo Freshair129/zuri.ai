@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-SPEC
 title: Zuri 17-Stage Knowledge Ingestion and GraphRAG Preparation Pipeline Specification
-version: "1.4.2b"
+version: "1.4.7b"
 status: beta
 created_at: "2026-08-27T00:00:00+07:00,Boss"
-last_update: "2026-09-24T00:00:00+07:00,Claude Fable 5.1"
+last_update: "2026-09-25T12:00:00+07:00,Claude Opus 5.5"
 relations:
   - type: references
     target: ZAI:ADR-050
@@ -724,7 +724,44 @@ DUPLICATE_OF
 
 **Current isolated profile:** heading sections + whitespace-token limit (default 80),
 persist exact source substrings/hash/ordinal/UTF-16 offsets. Token count นี้ไม่ใช่ E5
-tokenizer count. เพิ่ม structural chunker ที่นี่และตรวจ mention offsets/benchmark downstream.
+tokenizer count. **FR-109 remediation (2026-09-24):** TEXT profile (`genesisrag17-parser-3` /
+`genesisrag17-chunker-2`) also bounds every window by a 480-character budget —
+whichever of the two budgets a section hits first — cuts at a paragraph, then
+sentence-punctuation/Thai-run-space, then any-whitespace boundary before a hard
+character cut, keeps up to 60 characters of overlap between consecutive windows
+of the same section, and never opens a chunk on a combining mark or inside a
+surrogate pair. `genesisrag17-parser-1` / `genesisrag17-chunker-1` remain defined
+as historical identities for rows already parsed under them; no new ingestion
+produces them, but a persisted intent recorded under them still resumes and
+replays through the historical splitter unchanged (2026-09-25 follow-up —
+`isHistoricalParserIdentity`, `genesisrag17-executor.js` `inputValue`; without
+it, resuming or replaying such an intent 400/409ed). Avoiding that 400 was not
+enough on its own: Stage 2's `ensureParsedArtifact` separately compares a
+freshly-computed content hash of `parsed.metadata` against the existing row's
+stored hash, and the first cut of this follow-up added `maxChars: null,
+overlapChars: null` to a legacy request's metadata — a shape no pre-2026-09-24
+row ever had — so Stage 2 still 409'd on the same resume/replay. A second
+2026-09-25 follow-up fixed this by omitting both keys for a legacy request
+instead of nulling them, restoring metadata byte-identical to the
+pre-remediation shape (`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.4b). The same
+follow-up fixed the overlap step, which could stall near a boundary and emit
+long runs of near-duplicate or whitespace-only slivers instead of making
+forward progress, and made the overlap start actually boundary-searched rather
+than only grapheme-nudged. A later 2026-09-25 follow-up (`c924e5d1` plus the blank-line fix, gate rounds 4–5) found that sliver fix incomplete for ordinary prose: a window starting at an overlap start re-found the paragraph break that made the previous cut and emitted an overlap-plus-one-character sliver, and a budget edge inside a run of blank lines emitted a chunk adding only whitespace. The cut search now starts past the previous cut and past any whitespace there, and a chunk that adds no non-whitespace text beyond the previous chunk is not emitted (`tests/unit/genesisrag17-chunker-safety-fixes.test.js`). This changes chunk boundaries for ordinary prose too (a short paragraph followed by one longer than a window), so the 1.4.6b statement that ordinary prose output was unchanged no longer holds. A THIRD 2026-09-25 follow-up (1.4.5b) closed three
+more gaps an Opus gate review found: (1) the 480-character budget is now also
+checked against `text.normalize('NFKC').length`, because the pinned tokenizer's
+own NFKC normalization step can expand some Unicode compatibility characters
+well past one token per raw character, which the original arithmetic assumed
+could never happen; (2) the "boundary-searched" overlap start from the second
+follow-up could still land exactly on the boundary that produced the cut and
+so still deliver zero overlap on ordinary sentence/whitespace cuts — fixed by
+requiring the overlap boundary to be strictly earlier than the cut; (3) when no
+safe grapheme boundary existed anywhere before a section's end, the forward
+safety-nudge used to extend a chunk past the character budget with no cap —
+fixed by capping that forward search to the budget and hard-cutting there as
+the documented last resort. See [the contract](plans/GENESISRAG17-CONTRACT.md)
+1.4.5b and Stage 15 below for why (the pinned e5 embedder's 512-token window). เพิ่ม
+structural chunker ที่นี่และตรวจ mention offsets/benchmark downstream.
 
 ## Objective
 
@@ -1153,12 +1190,46 @@ pipeline_version
 Tokenizer window จริงคือ `MAX_LENGTH = 512` token **รวม** prefix `"passage: "`/`"query: "`
 ที่ต่อหน้า text ก่อน encode (`embedder.py`); `tokenizer.enable_truncation(max_length=512)`
 ตัดปลาย token ที่เกินแบบเงียบ (silent truncation) — ไม่มี path ปฏิเสธ/reject chunk ที่ยาวเกิน,
-มีแต่ truncate แล้ว embed ต่อไปเสมอ. Stage 7 chunker นับ size เป็น whitespace token
-(`\S+`, default 80 คำ, ไม่มี overlap) ซึ่งไม่ผูกกับจำนวน tokenizer token ของโมเดลนี้เลย —
-โดยเฉพาะข้อความไทยที่ไม่มีช่องว่างระหว่างคำ นับเป็น whitespace-token ได้น้อยกว่าจำนวน
-subword token จริงมาก — ผลคือ chunk เดียวสามารถเกิน 512 tokenizer token ได้จริง แล้วส่วนท้าย
-ไม่ถูก embed เลย ทั้งที่ chunk เดิมทั้งก้อนยังถูก serve เป็น citation text เดิม (ดู checklist C1
-สำหรับ design ของ fix ที่แก้ปัญหานี้ — ไม่ได้เสนอ fix ที่นี่).
+มีแต่ truncate แล้ว embed ต่อไปเสมอ. Stage 7 chunker (เดิม, `genesisrag17-parser-1` /
+`genesisrag17-chunker-1`) นับ size เป็น whitespace token (`\S+`, default 80 คำ,
+ไม่มี overlap) ซึ่งไม่ผูกกับจำนวน tokenizer token ของโมเดลนี้เลย — โดยเฉพาะข้อความไทยที่
+ไม่มีช่องว่างระหว่างคำ นับเป็น whitespace-token ได้น้อยกว่าจำนวน subword token จริงมาก —
+ผลคือ chunk เดียวสามารถเกิน 512 tokenizer token ได้จริง แล้วส่วนท้ายไม่ถูก embed เลย
+ทั้งที่ chunk เดิมทั้งก้อนยังถูก serve เป็น citation text เดิม.
+
+**Gap ปิดแล้วสำหรับการ ingest ใหม่ (2026-09-24):** TEXT profile default
+เปลี่ยนเป็น `genesisrag17-parser-3` / `genesisrag17-chunker-2`
+(`apps/server/src/modules/knowledge/genesisrag17-source.js`) — เพิ่ม character
+budget 480 ตัวอักษรควบคู่กับ whitespace-token budget 80 คำ (ตัดตามอันไหนถึงก่อน);
+480 = 512 (MAX_LENGTH) − 2 (special token) − 9 (worst case หนึ่ง tokenizer token
+ต่อหนึ่งตัวอักษรของ prefix `"passage: "` 9 ตัวอักษร) = 501, เผื่อ margin 21 token
+เหลือ 480. ตัดที่ boundary ตามลำดับ paragraph → sentence punctuation/Thai-run
+space → whitespace ใดก็ได้ → hard cut เป็นทางเลือกสุดท้าย, ไม่ตัดกลาง combining
+mark หรือ surrogate pair, และมี overlap สูงสุด 60 ตัวอักษรระหว่าง window ที่ติดกัน
+ใน section เดียวกัน. `genesisrag17-parser-1` ยังอยู่เป็น historical identity
+สำหรับ row เก่าที่ parse ไปแล้วเท่านั้น — ไม่มี re-ingest อัตโนมัติ, generation เดิม
+ที่เป็น parser-1 ยังคงเหมือนเดิมจนกว่าจะถูก ingest ใหม่.
+
+**ข้อจำกัดของ arithmetic ด้านบน (2026-09-25 follow-up, 1.4.5b):** สูตร "480
+ตัวอักษร ≤ 501 token เสมอ" ตั้งอยู่บนสมมติฐานว่า 1 ตัวอักษรดิบ ≤ 1 tokenizer token
+เสมอ ซึ่งไม่จริงเสมอไป — tokenizer ที่ pin ไว้ (XLM-R-style) ทำ NFKC normalize
+ก่อน tokenize เสมอ และ NFKC ขยายตัวอักษร Unicode compatibility บางตัวได้มาก
+(วัดจริง: U+FDFA 480 ตัว normalize เป็น 8,640 ตัวอักษร; U+3231 480 ตัว เป็น 1,440
+ตัวอักษร) ซึ่งเกิน 512-token window แน่นอน. ข้อความจริงทุกภาษาที่วัดได้ (เช่น
+ย่อหน้าไทย 3,000 ตัวอักษรใน DoD) อยู่ต่ำกว่า 1 token ต่อตัวอักษรมาก (สูงสุดที่วัดได้
+~142 token ต่อ chunk 480 ตัวอักษร) จึงปลอดภัยในทางปฏิบัติ แต่เพื่อปิดช่องกรณี
+pathological ด้วย ตอนนี้ทุก window ถูก bound เพิ่มด้วย
+`text.normalize('NFKC').length <= 480` เช่นกัน (`nfkcBoundedCharBudgetEnd`).
+เช็คเดียวกันนี้ยังปิดอีกสองช่องที่ Opus gate review เจอ: (1) การหา overlap boundary
+เดิมค้นหาแบบเดียวกับจุดตัดเอง จึงมักเจอ boundary เดิมที่ทำให้ตัดตรงนั้นซ้ำ กลายเป็น
+overlap = 0 ในกรณี sentence/whitespace cut ส่วนใหญ่ (เหลือ overlap จริงเฉพาะ hard cut) —
+แก้โดยบังคับให้ overlap boundary ต้องอยู่ก่อนจุดตัดจริง ๆ (`findOverlapStart`); (2) เมื่อไม่มี
+safe grapheme boundary เลยก่อนถึงจุดจบของ section การ nudge เดิมจะขยาย chunk
+ต่อไปเรื่อย ๆ โดยไม่มีขอบเขต (วัดจริง: chunk เดียวยาว 1,001 และ 1,500 ตัวอักษร) —
+แก้โดย cap การค้นหานี้ไว้ที่ character budget แล้ว hard-cut ตรงนั้นเป็นทางเลือก
+สุดท้ายตามที่ design ตั้งใจไว้. ดู
+[GENESISRAG17-CONTRACT.md](plans/GENESISRAG17-CONTRACT.md) ส่วน "Tier 1 Stage
+2/7/8 profiles" (1.4.5b) สำหรับ contract เต็ม.
 เพิ่ม model/object selection ที่นี่พร้อม generation/index schema และ fixed benchmark ใหม่.
 
 ## Objective
@@ -2031,6 +2102,11 @@ Zuri
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.4.6b → 1.4.7b (2026-09-25) | Corrects the sliver claims of 1.4.4b/1.4.6b: two ordinary-prose sliver paths remained (a window re-finding the previous paragraph-break cut; a budget edge inside a run of blank lines). The cut search now starts past the previous cut and past whitespace, and a chunk adding no non-whitespace text is not emitted. Chunk boundaries change for ordinary prose too, superseding 1.4.6b's 'ordinary prose output is unchanged'. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; fuzz of 24,000 generated documents: 0 slivers, 0 mid-word cuts, 0 chunks over 480 raw/NFKC characters; parser-1 historical and parser-2 unchanged | No stage ownership or IDs changed; Stage 7 boundaries change for new TEXT-profile ingestions (`apps/server/src/modules/knowledge/genesisrag17-source.js`) |
+| 1.4.5b → 1.4.6b (2026-09-25) | Closes three gaps an Opus gate review found in the 1.4.3b Thai-safe-chunker remediation (see `docs/plans/GENESISRAG17-CONTRACT.md` 1.4.5b for the full arithmetic): (1) the 480-character budget arithmetic assumed at most one tokenizer token per raw character, but the pinned tokenizer's NFKC normalization step can expand some Unicode compatibility characters far past that (measured: 480 x U+FDFA -> 8,640 normalized characters) — every window is now also bounded so `text.normalize('NFKC').length <= 480`; (2) the overlap boundary search could still land on the exact boundary that produced the cut, delivering zero overlap on most sentence/whitespace cuts — fixed by requiring it strictly earlier; (3) with no safe grapheme boundary anywhere before a section's end, the forward safety-nudge used to extend a chunk without bound (measured: single 1,001/1,500-character chunks) — fixed by capping it to the character budget. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; parser-2 unaffected | No stage ownership or IDs changed; Stage 7 chunking behavior for new TEXT-profile ingestions tightened only for the pathological cases above — ordinary prose output (including the DoD Thai-paragraph case) is unchanged (`apps/server/src/modules/knowledge/genesisrag17-source.js`) |
+| 1.4.4b → 1.4.5b (2026-09-25) | Correction to 1.4.3b/1.4.4b: "resumes/replays unchanged instead of 400/409ing" was only true of the input-value 400 — Stage 2's `ensureParsedArtifact` separately 409'd (`GENESISRAG17_PARSED_IDENTITY_CONFLICT`) on the same resume/replay, because the legacy parse path nulled rather than omitted `metadata.maxChars`/`overlapChars`, and that field is hashed for the content-identity check. Fixed by omitting both keys for a legacy request, matching the pre-remediation metadata shape exactly (byte-for-byte, pinned by test). A `splitRange` overlap corner case on malformed input (a paragraph break directly followed by a combining mark) also closed. Proven by a real ingest -> FR-071 replay -> Stage 2 integration test and a pinned-hash regression unit test | No stage ownership or IDs changed; Stage 7 chunking behavior for new TEXT-profile ingestions unaffected — only the legacy metadata shape and the overlap corner case changed (`apps/server/src/modules/knowledge/genesisrag17-source.js`) |
+| 1.4.3b → 1.4.4b (2026-09-25) | Fixes to the 1.4.3b remediation: the overlap step could stall near a boundary and emit long runs of near-duplicate/whitespace-only slivers instead of making forward progress (fixed); the overlap start is now actually boundary-searched, not only grapheme-nudged; a persisted `genesisrag17-parser-1`/`-chunker-1` intent now resumes/replays through the historical splitter unchanged instead of 400/409ing | No stage ownership or IDs changed; Stage 7 chunking behavior for new TEXT-profile ingestions unaffected — only the overlap step and historical resume/replay changed (`apps/server/src/modules/knowledge/genesisrag17-source.js`, `genesisrag17-executor.js`) |
+| 1.4.2b → 1.4.3b (2026-09-24) | TEXT-profile default becomes `genesisrag17-parser-3` / `genesisrag17-chunker-2` — a 480-character budget (arithmetic in Stage 15's note) alongside the existing 80-whitespace-token budget, boundary-preferred cuts, up to 60-character overlap, never splitting a combining mark or surrogate pair. Closes the gap this file recorded in 1.4.2b for new ingestions; `genesisrag17-parser-1` rows are unchanged and unaffected | No stage ownership or IDs changed; Stage 7 chunking behavior changed for new TEXT-profile ingestions only (`apps/server/src/modules/knowledge/genesisrag17-source.js`) |
 | 1.4.1b → 1.4.2b (2026-09-24) | Record Stage 15 embedder token window (`MAX_LENGTH=512` incl. `passage:`/`query:` prefix, silent truncation, no reject path) and that Stage 7's whitespace-token chunker (default 80, no overlap) does not bound it — especially Thai text without spaces — so a chunk's tail can go unembedded while still served as citation text; fix design deferred to checklist C1 | No stage ownership or IDs changed; documentation only |
 | 1.4.0b → 1.4.1b | Record actual Business UI/session HTTP/MCP native acceptance and explicit evidence limits | No stage ownership or IDs changed |
 | 1.3.0b → 1.4.0b | Adopt ADR-072 admission and corpus serving around unchanged 17-stage ownership | Authorized phases 0–4 implementation; surface/native acceptance tracked separately |

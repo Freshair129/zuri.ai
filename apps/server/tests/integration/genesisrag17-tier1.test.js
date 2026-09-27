@@ -11,6 +11,7 @@ import {
   hashGenesisRag17Json,
   hashGenesisRag17Text,
 } from '@/modules/knowledge/genesisrag17-contract'
+import { GENESIS_RAG17_CHUNKER_VERSION, GENESIS_RAG17_PARSER_VERSION, parsedArtifactContentHash } from '@/modules/knowledge/genesisrag17-source'
 
 // @req FR-109 — a real raw entry executes and persists ordered Tier 1 stages,
 // canonical RawExternalRecord linkage, immutable versioned lineage and exact
@@ -236,6 +237,92 @@ describe('GenesisRAG17 Tier 1 source execution', () => {
     expect(stage1).toMatchObject({ outcome: 'FAILED', errorCount: 1, recordsQuarantined: 0 })
     const failedStep = await prisma.pipelineStep.findFirst({ where: { runId: run.id, pipelineStageId: 'DPS-KI-INGEST' } })
     expect(failedStep).toMatchObject({ status: 'FAILED', actualCount: 1, insertedCount: 0, failedCount: 1 })
+  })
+
+  // @req FR-109 remediation follow-up (2026-09-25) — a historical
+  // (`genesisrag17-parser-1`) TEXT intent's parsed row must survive an
+  // FR-071 replay without Stage 2 re-throwing
+  // GENESISRAG17_PARSED_IDENTITY_CONFLICT. FR-109's fix (source.js
+  // `parseGenesisRag17Document`) now OMITS `maxChars`/`overlapChars` from
+  // `metadata` for a legacy request rather than setting them to `null`,
+  // which is what makes this parsed row's shape (and therefore its
+  // `parsedArtifactContentHash`) byte-identical to a genuine pre-2026-09-24
+  // production row — see the pinned-hash regression gate in
+  // tests/unit/genesisrag17-executor-legacy-resume.test.js, which is what
+  // actually fails if the `null`-key regression comes back (a same-session
+  // replay like this one cannot detect that regression on its own, because
+  // both the seed and the recompute below run under the same code and are
+  // therefore always self-consistent).
+  it('replays a historical parser-1 legacy TEXT intent through Stage 2 without a parsed-identity conflict', async () => {
+    const legacyInput = input({
+      sourceId: `synthetic://ki17/legacy/${randomUUID()}`,
+      version: `legacy-${randomUUID()}`,
+      parserVersion: GENESIS_RAG17_PARSER_VERSION,
+      maxTokens: 80,
+    })
+    const original = await ingestGenesisRag17Raw(legacyInput, { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' })
+
+    const parsedBefore = await prisma.knowledgeParsedArtifact.findUnique({ where: { id: original.source.parsedArtifactId } })
+    expect(parsedBefore.parserVersion).toBe(GENESIS_RAG17_PARSER_VERSION)
+    const metadataBefore = JSON.parse(parsedBefore.metadataJson)
+    expect(metadataBefore).toEqual({
+      extractorVersion: GENESIS_RAG17_PARSER_VERSION,
+      chunkerVersion: GENESIS_RAG17_CHUNKER_VERSION,
+      maxTokens: 80,
+      headingCount: 3,
+      textBlockCount: 3,
+      chunkCount: 3,
+    })
+    expect(metadataBefore).not.toHaveProperty('maxChars')
+    expect(metadataBefore).not.toHaveProperty('overlapChars')
+
+    const replay = await requestPipelineReplay(original.run.executionRunId, {
+      scope: 'FULL_RUN',
+      correlationId: `ki17-legacy-replay-${randomUUID()}`,
+      idempotencyKey: `ki17-legacy-replay-${randomUUID()}`,
+      sourceSha256: original.source.contentHash,
+      artifactSha256: original.source.contentHash,
+    }, { db: prisma, viewer, now })
+
+    // This is the exact call the FR-071 replay path makes
+    // (genesisrag17-executor.js `loadReplayRun` -> `ensureParsedArtifact`):
+    // a fresh execution run with no successful Stage 2 attempt of its own,
+    // carrying the same legacy parserVersion/maxTokens the original
+    // requestJson recorded. Before the FR-109 remediation follow-up this
+    // threw `GENESISRAG17_PARSED_IDENTITY_CONFLICT` (409) for any row whose
+    // stored metadata already carried `chunkerVersion`/`maxTokens` (i.e.
+    // every row written after the first FR-109 fix, main-era or not).
+    const replayed = await ingestGenesisRag17Raw(
+      { ...legacyInput, replayRunId: replay.run.executionRunId },
+      { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' },
+    )
+    expect(replayed.status).toBe('REPLAYED')
+    expect(replayed.source.parsedArtifactId).toBe(original.source.parsedArtifactId)
+    expect(replayed.source.rawArtifactId).toBe(original.source.rawArtifactId)
+    expect(replayed.chunks).toHaveLength(original.chunks.length)
+
+    const parsedAfter = await prisma.knowledgeParsedArtifact.findUnique({ where: { id: original.source.parsedArtifactId } })
+    expect(parsedAfter.contentHash).toBe(parsedBefore.contentHash)
+    expect(await prisma.knowledgeParsedArtifact.count({ where: { rawArtifactId: original.source.rawArtifactId } })).toBe(1)
+    expect(parsedArtifactContentHash({
+      parserVersion: parsedAfter.parserVersion,
+      documentId: parsedAfter.documentId,
+      rawArtifactId: parsedAfter.rawArtifactId,
+      contentHash: parsedAfter.contentHash,
+      structure: JSON.parse(parsedAfter.structureJson),
+      textBlocks: JSON.parse(parsedAfter.textBlocksJson),
+      tables: JSON.parse(parsedAfter.tablesJson),
+      metadata: JSON.parse(parsedAfter.metadataJson),
+    })).toBe(parsedArtifactContentHash({
+      parserVersion: parsedBefore.parserVersion,
+      documentId: parsedBefore.documentId,
+      rawArtifactId: parsedBefore.rawArtifactId,
+      contentHash: parsedBefore.contentHash,
+      structure: JSON.parse(parsedBefore.structureJson),
+      textBlocks: JSON.parse(parsedBefore.textBlocksJson),
+      tables: JSON.parse(parsedBefore.tablesJson),
+      metadata: metadataBefore,
+    }))
   })
 
   it('rejects changed raw or parsed hashes when resolving a public citation lineage', async () => {

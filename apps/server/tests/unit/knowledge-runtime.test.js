@@ -7,6 +7,7 @@ import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 import { createKnowledgeExecutionAuthority, hasKnowledgeScopeAuthority, hasKnowledgeRunAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import { resolveKnowledgeRuntimeBinding, createKnowledgeAdmissionRuntime } from '@/modules/knowledge/knowledge-runtime'
 import { withdrawKnowledgeSource } from '@/modules/knowledge/knowledge-corpus-service'
+import { ORPHAN_RETRY_BACKOFF_MS } from '@/modules/knowledge/knowledge-repository'
 import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17-executor'
 import { createPipelineRun, requestPipelineReplay, getPipelineMonitor } from '@/platform/integrations/core/pipeline-tracking-service'
 import { KNOWLEDGE_INGESTION_DEFINITION_ID, KNOWLEDGE_INGESTION_CONTRACT_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
@@ -66,6 +67,26 @@ async function durableJob({ sourceKind = 'TEXT', sourceMetaJson = '{}' } = {}) {
 }
 
 describe('knowledge durable queue', () => {
+  // ADR-072 amendment 2026-09-24 / ADR-090 D7: FR-238 studio descriptions are
+  // outside the KNOWLEDGE_ADMISSION Zero-PII gate. One admitted before the
+  // admission service wrote its descriptor has sourceMetaJson '{}', so the
+  // runtime must key on the source kind — or a queued pre-deploy description
+  // quoting the shop's phone number would now fail Stage 5.
+  it('keeps a pre-descriptor LINE_STUDIO_DESCRIPTION out of the document Zero-PII gate', async () => {
+    const fixture = await durableJob({ sourceKind: 'LINE_STUDIO_DESCRIPTION', sourceMetaJson: '{}' })
+    const content = '# Greeting\n\nWelcome to Smart Gift. Call us on 081 234 5678 for bulk orders.'
+    await prisma.knowledgeIngestion.update({ where: { id: fixture.job.id }, data: { content, contentHash: hashGenesisRag17Text(content) } })
+    const seen = []
+    const ingest = vi.fn(async (input, options) => { seen.push(input.source.provider); return ingestGenesisRag17Raw(input, options) })
+    const transport = vi.fn(async () => { throw new Error('simulated reply loss after local work') })
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, ingest }).runOnce()
+    expect(seen).toEqual(['LINE_STUDIO_DESCRIPTION'])
+    const job = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(job.status).toBe('RUNNING')
+    const stage5 = await prisma.genesisRag17StageEvidence.findFirst({ where: { executionRunId: job.executionRunId, stageNumber: 5 } })
+    expect(stage5.outcome).toBe('SUCCEEDED')
+  })
+
   it('atomically attaches its real pipeline run before reply loss and resumes that run after restart', async () => {
     const fixture = await durableJob()
     const publish = vi.fn()
@@ -654,12 +675,12 @@ describe('knowledge durable queue', () => {
     expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
   })
 
-  // Round 5 gate: a refused close now marks its own ingestion row with
-  // `KNOWLEDGE_ORPHAN_RUN_OPEN` so it stops sitting at the front of
+  // Round 5 gate: a refused close now writes an hour-long retry lease onto its
+  // own ingestion row so it stops sitting at the front of
   // `listOrphanedIngestionsForRuns`'s oldest-`updatedAt` page forever — but
   // that page is still bounded (`limit` per query, `MAX_SWEEP_PAGES` queries
   // per pass), so 20+ refused rows ahead of a genuine orphan must not starve
-  // it within that same bound, and once marked they must back off rather
+  // it within that same bound, and once leased they must back off rather
   // than being retried on every subsequent pass.
   it('closes the real orphan in one runOnce() despite 25 older refused-close rows, then backs every one of them off on the very next pass', async () => {
     const fixture = await durableJob()
@@ -696,12 +717,14 @@ describe('knowledge durable queue', () => {
     expect(['QUEUED', 'RUNNING']).not.toContain(run.status)
     expect(run.status).toBe('FAILED')
 
-    // All 25 refused rows are left exactly as refused, but now carry the
-    // backoff marker and a fresh `updatedAt`.
+    // All 25 refused rows are left exactly as refused — status and the reason
+    // they ended untouched — but now carry a live retry lease (and so a fresh
+    // `updatedAt`).
     for (const { executionRunId } of refusedRuns) {
       const ingestion = await prisma.knowledgeIngestion.findUnique({ where: { executionRunId } })
       expect(ingestion.status).toBe('SUPERSEDED')
-      expect(ingestion.failureCode).toBe('KNOWLEDGE_ORPHAN_RUN_OPEN')
+      expect(ingestion.failureCode).toBe('KNOWLEDGE_SOURCE_REVISION_SUPERSEDED')
+      expect(ingestion.leaseExpiresAt.getTime()).toBeGreaterThan(Date.now() + ORPHAN_RETRY_BACKOFF_MS - 60000)
       expect((await prisma.pipelineRun.findUnique({ where: { executionRunId } })).status).toBe('RUNNING')
     }
 
@@ -710,5 +733,147 @@ describe('knowledge durable queue', () => {
     // is already closed, so nothing actionable remains at all.
     const secondPass = await runtime.runOnce()
     expect(secondPass.sweep).toMatchObject({ closed: 0, open: 0 })
+  })
+
+  // F-20: `listOrphanedIngestionsForRuns` filters on the ingestion's own
+  // status + lease only, and closing a row's PipelineRun changes neither —
+  // only a refused close's new backoff lease excludes a row from a later
+  // page. `executionRunIds` is fixed for every page of one
+  // `sweepOrphanedExecutionRuns()` call — `now` is NOT: `date(now)` calls the
+  // runtime's live clock callback fresh on every page, so real time (and
+  // whatever else became eligible since) can differ page to page. With
+  // exactly `limit` (20) candidates — 19 refused fillers plus the 1 real
+  // orphan — page 1 comes back full, the sweep re-queries page 2 within the
+  // SAME call, and (before this test's fix) the real orphan — untouched by
+  // its own successful close — reappeared unchanged and was closed and
+  // counted a second time: `{ examined: 21, closed: 2 }` for one real orphan,
+  // reproduced verbatim from a hosted CI failure (run 36112626313) on
+  // knowledge-runtime.test.js's "keeps KNOWLEDGE_SOURCE_REVOKED…" test, which
+  // hit the same shape by accident — a page 1 this file's *own* earlier test
+  // filled with 25 leftover refused rows whose hour-long leases (assigned
+  // against real time, in that earlier test) happened to have just expired.
+  it('closes the real orphan exactly once even when it refills a full page within its own sweep call', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport } = await pendingBatchRun(fixture)
+    const onError = vi.fn()
+    // One frozen instant for this test's whole runtime instance — never
+    // `() => new Date()` — so no row already in this shared database can
+    // have a lease that expires into eligibility between the drain below and
+    // the measured pass: every internal `now()` call reads the exact same
+    // Date, not a live clock.
+    const clock = new Date()
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError, now: () => clock })
+
+    // This suite shares one un-reset-between-tests database and
+    // `listOpenKnowledgeRunIds` has no tenant/business scope, so an earlier
+    // test's own leftover rows (real leases, per the CI failure this test
+    // reproduces) could already be due by the time this one runs — a count of
+    // "exactly this test's own 20" would then be as timing-dependent as the
+    // bug it is proving fixed. Drain whatever is currently eligible first,
+    // unmeasured, looping rather than trusting a single pass — one pass is
+    // bounded to `MAX_SWEEP_PAGES * limit` (60) rows and could leave
+    // leftovers from a large enough accumulation behind.
+    //
+    // Bounded and progress-checked, not a bare "loop until examined === 0":
+    // a leftover row this sweep cannot verify (no matching KnowledgeCorpus)
+    // is examined every pass but neither closes nor gets a new lease
+    // (knowledge-runtime.js's own `if (!corpus) continue`), which would spin
+    // forever under this test's frozen clock; a caught sweep exception also
+    // reports `examined: 0` (runOnce()'s own `.catch`), which would read as
+    // "already drained" rather than a masked failure. Fail loudly on either
+    // instead of silently trusting a baseline this test cannot verify.
+    const MAX_DRAIN_PASSES = 25
+    for (let pass = 1; ; pass += 1) {
+      if (pass > MAX_DRAIN_PASSES) throw new Error(`F-20 test setup: drain did not settle after ${MAX_DRAIN_PASSES} passes`)
+      const drained = await runtime.runOnce()
+      if (onError.mock.calls.some(([event]) => event.code === 'KNOWLEDGE_SWEEP_FAILED')) {
+        throw new Error('F-20 test setup: drain pass reported KNOWLEDGE_SWEEP_FAILED')
+      }
+      if (drained.sweep.examined === 0) break
+      if (drained.sweep.closed === 0 && drained.sweep.open === 0) {
+        throw new Error(`F-20 test setup: drain made no progress — examined ${drained.sweep.examined} row(s) that neither closed nor backed off (a leftover row with no matching KnowledgeCorpus?)`)
+      }
+    }
+    onError.mockClear()
+
+    // Exactly `limit` (20) total candidates once the real orphan below is
+    // marked SUPERSEDED: page 1 is completely full, forcing the second-page
+    // re-query that is this bug's precondition.
+    for (let index = 0; index < 19; index += 1) await refusedCloseOrphan(fixture, `f20-${index}`)
+
+    await prisma.knowledgeIngestion.update({
+      where: { id: fixture.job.id },
+      data: { status: 'SUPERSEDED', failureCode: 'KNOWLEDGE_SOURCE_REVISION_SUPERSEDED', claimToken: null, leaseExpiresAt: null },
+    })
+
+    const result = await runtime.runOnce()
+
+    // 20 distinct rows examined once each — never the real orphan's page-1
+    // and page-2 sightings counted as two — and exactly one of them closed.
+    expect(result.sweep).toMatchObject({ examined: 20, closed: 1 })
+
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(run.status).toBe('FAILED')
+  })
+
+  // The should-fix the round-5 gate left open: the first cut of the backoff
+  // wrote `KNOWLEDGE_ORPHAN_RUN_OPEN` over the row's `failureCode` and nothing
+  // ever put the original back, so the admission projection
+  // (knowledge-admission-service.js) kept saying "orphan run open" about a
+  // run the retry had since closed, and the retry itself could only close
+  // with a status-derived code — a REVOKED source came out as WITHDRAWN in
+  // the intent's lastErrorJson. The backoff now lives in `leaseExpiresAt`, so
+  // the reason the ingestion ended survives the refusal and is what the
+  // successful retry closes the run with.
+  it('keeps KNOWLEDGE_SOURCE_REVOKED on the row through a refused close and closes the run with that same code once the hourly retry succeeds', async () => {
+    const fixture = await durableJob()
+    const { stuck, transport } = await pendingBatchRun(fixture)
+    // Real time, not a fixed date: the refused rows earlier tests in this
+    // file leave behind carry real-time leases, and a clock set elsewhere
+    // would either wake them or never let this row's own hour elapse. Their
+    // closes stay refused (unparsable corpora) so `closed` counts are still
+    // exact; `open` is asserted on this row and run, never as a total.
+    const clock = new Date()
+    const { scopeJson } = await prisma.knowledgeCorpus.findUnique({ where: { id: fixture.corpus.id } })
+
+    await prisma.knowledgeIngestion.update({
+      where: { id: fixture.job.id },
+      data: { status: 'WITHDRAWN', failureCode: 'KNOWLEDGE_SOURCE_REVOKED', claimToken: null, leaseExpiresAt: null },
+    })
+    // Force the refusal exactly as "surfaces a refused close" above does.
+    await prisma.knowledgeCorpus.update({ where: { id: fixture.corpus.id }, data: { scopeJson: 'not-json' } })
+
+    const onError = vi.fn()
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError, now: () => clock })
+    expect((await runtime.runOnce()).sweep).toMatchObject({ closed: 0 })
+
+    const refused = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(refused.status).toBe('WITHDRAWN')
+    expect(refused.failureCode).toBe('KNOWLEDGE_SOURCE_REVOKED')
+    const retryDueAt = clock.getTime() + ORPHAN_RETRY_BACKOFF_MS
+    expect(refused.leaseExpiresAt.getTime()).toBe(retryDueAt)
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
+
+    // The corpus is repaired, but the retry is not due yet: still backed off
+    // (the lease is untouched — a re-refusal would have pushed it later), the
+    // run still honestly open.
+    await prisma.knowledgeCorpus.update({ where: { id: fixture.corpus.id }, data: { scopeJson } })
+    clock.setTime(retryDueAt - 1000)
+    expect((await runtime.runOnce()).sweep).toMatchObject({ closed: 0 })
+    expect((await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })).leaseExpiresAt.getTime()).toBe(retryDueAt)
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('RUNNING')
+
+    clock.setTime(retryDueAt + 1000)
+    expect((await runtime.runOnce()).sweep).toMatchObject({ closed: 1 })
+    expect((await prisma.pipelineRun.findUnique({ where: { executionRunId: stuck.executionRunId } })).status).toBe('FAILED')
+
+    const intent = await prisma.genesisRag17IngestionIntent.findUnique({ where: { executionRunId: stuck.executionRunId } })
+    expect(intent.status).toBe('FAILED')
+    expect(JSON.parse(intent.lastErrorJson).code).toBe('KNOWLEDGE_SOURCE_REVOKED')
+
+    const closed = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(closed.status).toBe('WITHDRAWN')
+    expect(closed.failureCode).toBe('KNOWLEDGE_SOURCE_REVOKED')
+    expect(onError.mock.calls.filter(([event]) => event.code === 'KNOWLEDGE_ORPHAN_RUN_OPEN' && event.executionRunId === stuck.executionRunId)).toHaveLength(1)
   })
 })

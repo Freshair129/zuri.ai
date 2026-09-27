@@ -108,4 +108,12 @@ describe('listMarketLaneRawRecordCandidates (FR-092)', () => {
     await expect(listMarketLaneRawRecordCandidates(db, { businessId: 'business-a' })).rejects.toThrow(/tenantId/i)
     await expect(listMarketLaneRawRecordCandidates(db, { tenantId: 'tenant-a' })).rejects.toThrow(/businessId/i)
   })
+
+  it('projects only the requested columns when fields are given (market-core façade)', async () => {
+    const db = createRawFindManyDb([])
+    await listMarketLaneRawRecordCandidates(db, { tenantId: 'tenant-a', businessId: 'business-a', fields: ['id', 'payloadJson'] })
+    expect(db.rawExternalRecord.findMany.mock.calls[0][0].select).toEqual({ id: true, payloadJson: true })
+    await listMarketLaneRawRecordCandidates(db, { tenantId: 'tenant-a', businessId: 'business-a' })
+    expect(db.rawExternalRecord.findMany.mock.calls[1][0]).not.toHaveProperty('select')
+  })
 })

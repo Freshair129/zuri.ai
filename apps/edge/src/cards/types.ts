@@ -1,4 +1,4 @@
-import { CardViewModel } from '../zuri-api/types.js';
+import { CardViewModel } from '../contracts.js';
 
 export const ALLOWED_CTA_DOMAINS = [
   'https://zuri.app',

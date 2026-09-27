@@ -1,16 +1,17 @@
 // @req FR-223 — the envelope store: the SecretStorePort for self-host, generic
 //   Postgres and SQLite dev/test, where encryption happens in the app and the
 //   database holds only ciphertext.
-// @req FR-242 — resolve() also serves OAUTH_CLIENT and MODEL_PROVIDER_KEY,
-//   scoped by the credential's stored secretKind (cross-kind refusal) instead
-//   of the LINE-only provider/destination check, which stays exactly as it was
-//   for LINE_CHANNEL (ADR-089 §4.8 phase 7). write() refuses a kind that
+// @req FR-242, FR-273 — resolve() also serves OAUTH_CLIENT, MODEL_PROVIDER_KEY
+//   and NOTION_OAUTH_TOKEN, scoped by the credential's stored secretKind
+//   (cross-kind refusal) instead of the LINE-only provider/destination check,
+//   which stays exactly as it was for LINE_CHANNEL. write() refuses a kind that
 //   disagrees with an existing credential's stored secretKind, live or dead,
 //   before sealing any material — a connectionId's kind cannot be silently
 //   switched by a plain write (CREDENTIAL_KIND_MISMATCH).
-// @spec ADR-089 D1, D5; SDD-097; SDD-101; SEC-030; SEC-033
+// @spec ADR-089 D1, D5; ADR-109 D1; SDD-097; SDD-101; SEC-030; SEC-033; SEC-037
 // @tested tests/unit/integration/envelope-secret-store.test.js, tests/integration/credential-vault-lifecycle.test.js,
-//   tests/integration/credential-vault-provider-kinds-lifecycle.test.js
+//   tests/integration/credential-vault-provider-kinds-lifecycle.test.js,
+//   tests/integration/notion-oauth-webhook.test.js
 //
 // Key hierarchy (ADR-089 D1, design §4.1):
 //
@@ -399,8 +400,9 @@ export function createEnvelopeSecretStore({ db = prisma, env = process.env, now 
     // `kind` defaults to LINE_CHANNEL so every existing caller (the LINE runtime,
     // the dispatching manager, every test that predates FR-242) is unaffected: it
     // gets exactly today's checks — destination required, provider must be
-    // LINE_OA. A caller resolving OAUTH_CLIENT or MODEL_PROVIDER_KEY material
-    // passes its kind explicitly; the credential's stored `secretKind` must
+    // LINE_OA. A caller resolving OAUTH_CLIENT, MODEL_PROVIDER_KEY or
+    // NOTION_OAUTH_TOKEN material passes its kind explicitly; the credential's
+    // stored `secretKind` must
     // equal it, which is the cross-kind refusal (a MODEL_PROVIDER_KEY ref never
     // resolves as LINE_CHANNEL or vice versa) — and neither new kind has a
     // provider-code allow-list, since no fixed provider list exists for them yet

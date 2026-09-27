@@ -5,7 +5,7 @@ import { z } from 'zod'
 // @req FR-097 — the configured binding id is the server-owned channel-account namespace.
 // @spec ADR-018, BR-012, SEC-010
 // @spec ADR-044, ADR-045 D1/D5-D6, BR-020, SEC-018
-// @tested tests/unit/line-channel-binding.test.js, tests/integration/agent-webhook-route.test.js
+// @tested tests/unit/line-channel-binding.test.js
 
 const zBinding = z.object({
   bindingId: z.string().min(1),

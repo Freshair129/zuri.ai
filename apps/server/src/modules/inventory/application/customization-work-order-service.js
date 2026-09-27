@@ -75,6 +75,18 @@ const parsePantone = (json) => {
   }
 }
 
+/**
+ * Compare-and-swap the order on (id, version). The version check above reads
+ * before this transaction's ledger writes; under PostgreSQL READ COMMITTED two
+ * calls with the same version both pass it, so the update itself must carry the
+ * predicate. The loser gets 409 and its ledger rows roll back with it (F-14).
+ */
+async function casUpdate(tx, order, data) {
+  const result = await tx.customizationWorkOrder.updateMany({ where: { id: order.id, version: order.version }, data: { ...data, version: { increment: 1 } } })
+  if (result.count !== 1) throw failure(409, 'CUSTOMIZATION_WORK_ORDER_VERSION_CONFLICT')
+  return tx.customizationWorkOrder.findUnique({ where: { id: order.id }, select: CWO_SELECT })
+}
+
 export const customizationDto = (row) => ({
   ...row,
   pantoneColors: parsePantone(row.pantoneColorsJson),
@@ -240,11 +252,7 @@ export async function releaseCustomizationWorkOrder(id, input, { viewer, db = pr
       if (onHand < grossQty) throw Object.assign(failure(409, 'INVENTORY_INSUFFICIENT_STOCK'), { details: { required: grossQty, onHand } })
     }
 
-    const updated = await tx.customizationWorkOrder.update({
-      where: { id: order.id },
-      data: { status: 'IN_PROGRESS', issuedQty: grossQty, startedAt: occurredAt, version: { increment: 1 } },
-      select: CWO_SELECT,
-    })
+    const updated = await casUpdate(tx, order, { status: 'IN_PROGRESS', issuedQty: grossQty, startedAt: occurredAt })
     await recordAudit(tx, {
       entityType: CUSTOMIZATION_WORK_ORDER_ENTITY, entityId: order.id, action: 'CUSTOMIZATION_WORK_ORDER_RELEASED', actorId: actor(viewer),
       payload: { businessId: business.id, code: order.code, issuedQty: grossQty, plannedQty: order.plannedQty, scrapBufferQty: grossQty - order.plannedQty, transferred: Boolean(transfer), version: order.version + 1 },
@@ -338,16 +346,11 @@ export async function completeCustomizationWorkOrder(id, input, { viewer, db = p
     }
 
     const status = rule.blocked ? 'BLOCKED_SHORTAGE' : 'COMPLETED'
-    const updated = await tx.customizationWorkOrder.update({
-      where: { id: order.id },
-      data: {
-        status,
-        completedQty: rule.run.completedQty,
-        scrapQty: rule.run.scrapQty,
-        completedAt: rule.blocked ? null : occurredAt,
-        version: { increment: 1 },
-      },
-      select: CWO_SELECT,
+    const updated = await casUpdate(tx, order, {
+      status,
+      completedQty: rule.run.completedQty,
+      scrapQty: rule.run.scrapQty,
+      completedAt: rule.blocked ? null : occurredAt,
     })
     await recordAudit(tx, {
       entityType: CUSTOMIZATION_WORK_ORDER_ENTITY, entityId: order.id,
@@ -403,11 +406,7 @@ export async function cancelCustomizationWorkOrder(id, input, { viewer, db = pri
         quantity: unworked, reason: 'CUSTOMIZATION_CANCELLED', reference: `CWO:${order.code}`, occurredAt,
       }, { viewer, business, workOrderId: order.id })
     }
-    const updated = await tx.customizationWorkOrder.update({
-      where: { id: order.id },
-      data: { status: 'CANCELLED', cancelledAt: occurredAt, version: { increment: 1 } },
-      select: CWO_SELECT,
-    })
+    const updated = await casUpdate(tx, order, { status: 'CANCELLED', cancelledAt: occurredAt })
     await recordAudit(tx, {
       entityType: CUSTOMIZATION_WORK_ORDER_ENTITY, entityId: order.id, action: 'CUSTOMIZATION_WORK_ORDER_CANCELLED', actorId: actor(viewer),
       payload: { businessId: business.id, code: order.code, returnedQty: unworked, reason: data.reason ?? null, version: order.version + 1 },

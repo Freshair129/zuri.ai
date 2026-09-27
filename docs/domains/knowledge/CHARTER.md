@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.8.1b"
+version: "1.8.8b"
 status: beta
-last_update: "2026-09-17T22:40:00+07:00,RWANG"
+last_update: "2026-09-26T05:00:00+07:00,Claude Opus 5.5"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -266,10 +266,77 @@ is the ADR-073 production executor. Its Stage 2 (`DPS-KI-PARSE`), Stage 7
 (`DPS-KI-CHUNK`) and Stage 8 (`DPS-KI-ENTITY-EXTRACT`) all derive from one
 call to `parseGenesisRag17Document`
 (`src/modules/knowledge/genesisrag17-source.js`) — a heading split into
-80-whitespace-token windows with no overlap (identity
-`genesisrag17-parser-1` / `genesisrag17-chunker-1`; the `parser-2` profile
-emits one section per chunk for `SMARTGIFT_CATALOG`). `ensureParsedArtifact`
-and `ensureChunks` both read `parsedAndChunks.chunks` from that single call;
+windows bounded by whichever of an 80-whitespace-token budget or (2026-09-24
+remediation) a 480-character budget is hit first, cut at a boundary
+(paragraph, then sentence/Thai-run-space, then any whitespace, then a hard
+cut) with up to 60 characters of overlap and never a split inside a
+combining mark or surrogate pair (identity `genesisrag17-parser-3` /
+`genesisrag17-chunker-2`; `genesisrag17-parser-1` / `genesisrag17-chunker-1`
+are historical identities kept only for rows already parsed under them —
+no new ingestion produces them; the `parser-2` profile is unaffected and
+still emits one section per chunk for `SMARTGIFT_CATALOG`). Every existing
+TEXT-profile (prose) provider is affected, including the two live LINE OA
+ones on that profile — `LINE_FAQ_CANDIDATE` (FR-236) and
+`LINE_STUDIO_DESCRIPTION` (FR-238),
+`knowledge-admission-service.js:427,:786` — whose chunk ids and boundaries
+change for any new admission from this point on. This closes
+the gap this file's 1.8.1b revision recorded below: a spaceless-script
+(Thai) paragraph was one whitespace token and so one unbounded chunk whose
+tail the pinned e5 embedder silently truncated past its 512-token window;
+new ingestions now stay within it (docs/plans/GENESISRAG17-CONTRACT.md,
+docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md Stage 15). A 2026-09-25 follow-up
+fixed two defects the first cut of this remediation shipped with: the
+overlap step could stall and re-emit near-duplicate or whitespace-only
+slivers instead of making forward progress, and the overlap start was only
+grapheme-nudged, not actually boundary-searched as this file already
+claimed; both are now true of the shipped code
+(`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.3b). A later 2026-09-25 follow-up (`c924e5d1` plus the blank-line fix, gate rounds 4–5) found that sliver fix incomplete for ordinary prose: a window starting at an overlap start re-found the paragraph break that made the previous cut and emitted an overlap-plus-one-character sliver, and a budget edge inside a run of blank lines emitted a chunk adding only whitespace. The cut search now starts past the previous cut and past any whitespace there, and a chunk that adds no non-whitespace text beyond the previous chunk is not emitted (`tests/unit/genesisrag17-chunker-safety-fixes.test.js`). This changes chunk boundaries for ordinary prose too (a short paragraph followed by one longer than a window), so the 1.4.6b statement that ordinary prose output was unchanged no longer holds. The same follow-up lets a
+parser-1/chunker-1 intent persisted before 2026-09-24 resume
+(`resumeGenesisRag17Worker`) and replay (FR-071) unchanged, through the
+historical splitter, instead of failing with
+`GENESISRAG17_PARSER_CONFIG_UNSUPPORTED` / `_CHUNKER_CONFIG_UNSUPPORTED` on
+its first resume or replay attempt after the remediation shipped
+(`isHistoricalParserIdentity`, `genesisrag17-executor.js` `inputValue`).
+Avoiding that 400 was not sufficient on its own: `ensureParsedArtifact`
+(same file) separately compares a freshly-computed
+`parsedArtifactContentHash` against the existing row's stored `contentHash`,
+and that hash is computed over `parsed.metadata` — so a legacy request whose
+`parseGenesisRag17Document` output added `maxChars: null, overlapChars: null`
+to `metadata` (a shape no pre-2026-09-24 row ever had) still 409'd with
+`GENESISRAG17_PARSED_IDENTITY_CONFLICT` at Stage 2 on the very same
+resume/replay this paragraph describes. A second 2026-09-25 follow-up fixed
+this by omitting both keys for a legacy request instead of setting them to
+`null`, making the metadata (and therefore the hash) byte-identical to what
+`genesisrag17-parser-1` produced before this whole remediation existed
+(`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.4b). Proven end to end by
+`tests/integration/genesisrag17-tier1.test.js` ("replays a historical
+parser-1 legacy TEXT intent through Stage 2 without a parsed-identity
+conflict"). A THIRD 2026-09-25 follow-up closed three more gaps an Opus gate
+review found: (1) the "480 characters cannot exceed 512 e5 tokens" claim
+assumed at most one tokenizer token per raw character, but the pinned
+tokenizer's own NFKC normalization step can expand some Unicode
+compatibility characters far past that (measured: 480 x U+FDFA normalizes to
+8,640 characters; 480 x U+3231 to 1,440) — real prose in any script measures
+far under one token per character (the DoD's 3,000-character Thai paragraph
+tops out at ~142 tokenizer tokens per 480-character chunk), so this only
+matters for pathological input, but every window is now additionally bounded
+by `text.normalize('NFKC').length <= 480` (`nfkcBoundedCharBudgetEnd`) to
+close it regardless; (2) the overlap start, despite the previous follow-up's
+fix, could still land on the exact boundary that produced the cut and so
+still deliver zero overlap on the majority of ordinary sentence/whitespace
+cuts (only a hard cut ever got the configured overlap before this fix) —
+fixed by requiring the overlap boundary to be strictly earlier than the cut
+(`findOverlapStart`); (3) when no safe grapheme boundary existed anywhere
+before a section's end, the forward safety-nudge extended a chunk without
+bound (measured: single 1,001- and 1,500-character chunks) — fixed by
+capping that forward search to the character budget and hard-cutting there
+as the documented last resort. Proven by
+`tests/unit/genesisrag17-chunker-safety-fixes.test.js`
+(`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.5b). Production note: SmartGift
+production uses `parser-2` only (untouched by any of this — proven
+byte-identical by `tests/unit/genesisrag17-parser-2.test.js`), so none of
+these three fixes changes a published record.
+`ensureParsedArtifact` and `ensureChunks` both read `parsedAndChunks.chunks` from that single call;
 neither imports `./chunking` or `./parsing`. **FR-112's `chunkDocument`
 (`chunking.js`: 400 tokens, 10% overlap, parent-child) and FR-115's
 `parseDocument` (`parsing.js`) are real, composition-tested pure
@@ -388,7 +455,10 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
   and last-seen times of `NO_EVIDENCE` answers per Business; never admitted.
 - **Studio descriptions (FR-238, later) — declared, not built.** Published rich
   menu, LIFF and bot-profile descriptions as `LINE_STUDIO_DESCRIPTION` TEXT
-  sources; never the JSON.
+  sources; never the JSON. It stays absent from `ZERO_PII_POLICY_BY_PROVIDER`
+  by its own explicit provider descriptor (`knowledge-admission-service.js`),
+  deliberately outside the "Owner-admitted document Zero-PII gate" section
+  below — see that section's scope-boundary note.
 - **Registry.** `docs/DATA-PIPELINE-MAP.md`: CH-21 (FR-235) stays an undeclared
   (`"wired": false`) edge; CH-22 (FR-236) is wired for real now — `p.knowledge-
   candidate-review` (the review process) and `s.knowledge-candidates` (the
@@ -396,10 +466,60 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
   (ADR-085 Consequence 2), replacing the single placeholder edge from `s.crm`
   straight to `in.knowledge-admission` with the real hop through review.
 
+## Owner-admitted document Zero-PII gate (FR-173, ADR-072 Amendment 2026-09-24)
+
+Remediation item C2, owner-approved 2026-09-24 ("approve"). An OWNER-admitted
+TEXT/FILE document (`KNOWLEDGE_ADMISSION` provider — `knowledge-runtime.js`'s
+`processJob` sets this for every ordinary admitted source with no structured
+descriptor) now runs its own Stage 5 Zero-PII gate, identity
+`knowledge-document-zero-pii-1` (`knowledge-document-zero-pii.js`). Before this
+change, `KNOWLEDGE_ADMISSION` was absent from `genesisrag17-executor.js`'s
+`ZERO_PII_POLICY_BY_PROVIDER` and so carried no Stage 5 Zero-PII check at all —
+a document containing a phone number or a LINE user id reached
+GKS/GenesisBlockDB unchecked.
+
+The rule set is the **identifier rules only** — LINE user id, Thai phone
+(0-prefixed/+66), international phone and e-mail address — the first three
+imported from FR-236's `knowledge-candidate-zero-pii.js` (now exported) rather
+than re-typed, so the two policies cannot silently disagree. It deliberately
+excludes FR-236's Thai-honorific personal-name heuristic and quoted-wording
+rule: an owner's own admitted document legitimately quotes wording and names
+staff/brands by honorific far more often than a two-sentence FAQ answer does,
+so applying those two rules here would refuse ordinary, approved document
+content (ADR-090 D6's reasoning, applied one level further). A violation stops
+Stage 5 with terminal evidence in the same failure-code family as
+`SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE`
+(`KNOWLEDGE_DOCUMENT_ZERO_PII_DENIED`, 422) — never the matched value. As with
+those two providers today, the *persisted* Stage 5 evidence row carries only
+that `errorCode`; the policy identity and the violated rule name are set on
+the thrown error's own `details` (visible to the caller, not persisted to
+`GenesisRag17StageEvidence`) — `zeroPiiPolicy` is recorded in evidence only on
+the success path. Both TEXT and FILE sources admitted as `KNOWLEDGE_ADMISSION`
+share the same `value.content` path and are covered identically.
+`SMARTGIFT_CATALOG`/`LINE_FAQ_CANDIDATE` behaviour is unchanged; their existing
+tests pass byte-identical.
+
+**Scope boundary — FR-238 excluded.** `LINE_STUDIO_DESCRIPTION` (rich menu /
+LIFF app / bot profile copy, ADR-090 D7) used to fall back to the same
+`KNOWLEDGE_ADMISSION` default when it carried no `structured` descriptor, and
+would otherwise have been swept into this gate too — out of scope for C2
+("documents an OWNER admits") and contrary to D7's own no-gate reasoning
+(operator-authored menu/LIFF/profile copy is not customer conversation
+content). It now gets its own explicit `{ provider: 'LINE_STUDIO_DESCRIPTION'
+}` descriptor instead, so it stays outside `ZERO_PII_POLICY_BY_PROVIDER` on
+its own terms.
+
 ## Documentation version diff — 2026-09-16
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.8.7b → 1.8.8b (2026-09-25) | Corrects the earlier sliver claims (flow 1.4.6b/1.4.8b, spec 1.4.4b/1.4.6b): two ordinary-prose sliver paths remained (a window re-finding the previous paragraph-break cut; a budget edge inside a run of blank lines). The cut search now starts past the previous cut and past whitespace, and a chunk adding no non-whitespace text is not emitted. Chunk boundaries change for ordinary prose too, superseding 1.4.6b's 'ordinary prose output is unchanged'. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; fuzz of 24,000 generated documents: 0 slivers, 0 mid-word cuts, 0 chunks over 480 raw/NFKC characters; parser-1 historical and parser-2 unchanged | `genesisrag17-source.js` changed; no model, route or requirement statement touched |
+| 1.8.6b → 1.8.7b (2026-09-25) | Closes three gaps an Opus gate review found in the 2026-09-24 Thai-safe-chunker remediation: (1) the "480 characters cannot exceed 512 e5 tokens" claim assumed at most one tokenizer token per raw character, but the pinned tokenizer's own NFKC normalization can expand some Unicode compatibility characters far past that (measured: 480 x U+FDFA -> 8,640 normalized characters) — every window is now also bounded by `text.normalize('NFKC').length <= 480`; (2) the overlap start could still land on the exact boundary that produced the cut, delivering zero overlap on most sentence/whitespace cuts — fixed by requiring it strictly earlier (`findOverlapStart`); (3) the forward grapheme-safety nudge used to extend a chunk without bound when no safe boundary existed at all (measured: single 1,001/1,500-character chunks) — fixed by capping it to the character budget. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; parser-2 unaffected (proven byte-identical) | `genesisrag17-source.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows; SmartGift production (parser-2 only) publishes no changed record |
+| 1.8.5b → 1.8.6b (2026-09-25) | Correction: 1.8.5b's "resumes/replays unchanged instead of 400/409ing" was only true of the input-value 400 (`GENESISRAG17_PARSER_CONFIG_UNSUPPORTED`/`_CHUNKER_CONFIG_UNSUPPORTED`) — a Stage 2 409 (`GENESISRAG17_PARSED_IDENTITY_CONFLICT`) still fired on the same resume/replay, because the legacy parse path added `maxChars: null, overlapChars: null` to `metadata` (a shape no pre-2026-09-24 row ever had), and `ensureParsedArtifact` hashes `metadata`. Fixed by omitting both keys for a legacy request instead of nulling them, restoring the pre-remediation metadata shape exactly; a `splitRange` overlap corner case on malformed input (a paragraph break directly followed by a combining mark could re-emit a chunk fully contained in the previous one) also closed with an explicit forward-progress guard. Proven by a real ingest -> FR-071 replay -> Stage 2 integration test and a pinned-hash regression unit test (`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.4b) | `genesisrag17-source.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows |
+| 1.8.4b → 1.8.5b (2026-09-25) | Fixes to the 1.8.4b remediation, and names the affected providers: the overlap step could stall on a near boundary and emit long runs of near-duplicate/whitespace-only slivers (fixed by skipping the overlap when the chunk is not longer than it, and otherwise moving to a boundary-aligned overlap start that guarantees forward progress); the overlap start is now actually boundary-searched, not only grapheme-nudged; a persisted `genesisrag17-parser-1`/`-chunker-1` intent now resumes/replays unchanged instead of 400/409ing. Both live TEXT-profile LINE OA providers, `LINE_FAQ_CANDIDATE` (FR-236) and `LINE_STUDIO_DESCRIPTION` (FR-238), get new chunk ids/boundaries for any new admission | `genesisrag17-source.js` and `genesisrag17-executor.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows |
+| 1.8.3b → 1.8.4b (2026-09-24) | Records the Thai-safe prose chunker remediation: the live `genesisrag17-source.js` TEXT profile now also bounds every window by a 480-character budget alongside the 80-whitespace-token one, cuts at a boundary, keeps a small overlap, and never splits a combining mark or surrogate pair (identity `genesisrag17-parser-3` / `genesisrag17-chunker-2`; `genesisrag17-parser-1` / `genesisrag17-chunker-1` are historical only). Closes the Thai-truncation gap this file's 1.8.3b revision recorded; `parser-2` (SMARTGIFT_CATALOG) is unaffected | `apps/server/src/modules/knowledge/genesisrag17-source.js` changed for new TEXT-profile ingestions; no model, route or requirement statement touched; no re-ingestion of existing `parser-1` rows |
+| 1.8.2b → 1.8.3b (2026-09-24) | Gate-review fixes: FR-238 (`LINE_STUDIO_DESCRIPTION`) explicitly excluded from the new gate via its own provider descriptor, not the shared `KNOWLEDGE_ADMISSION` fallback; corrected the Stage 5 denial evidence claim — persisted evidence carries only `errorCode`, policy identity/rule name live on the thrown error only | No schema change; documentation and scope correction only |
+| 1.8.1b → 1.8.2b (2026-09-24) | Remediation item C2, owner-approved ("approve"): `KNOWLEDGE_ADMISSION` (owner-admitted TEXT/FILE documents) gains its own Stage 5 Zero-PII gate (`knowledge-document-zero-pii.js`, identity `knowledge-document-zero-pii-1`) — identifier rules only (LINE id, phone, e-mail), reusing FR-236's exported patterns; name/quote rules deliberately excluded | No schema change; a `KNOWLEDGE_ADMISSION` document with an identifier now denies at Stage 5 instead of reaching GKS/GenesisBlockDB unchecked |
 | 1.8.0b → 1.8.1b (2026-09-24) | Remediation-board checklist C4: state which chunker/parser production actually runs (`genesisrag17-executor.js` → `genesisrag17-source.js`'s `parseGenesisRag17Document`, Stage 2/7/8) and that FR-112 `chunking.js` / FR-115 `parsing.js` are composition-tested via `stage-runner.js` but not on that live path; unifying them is left open (C4/C1), no decision taken | Documentation only; no model, route or requirement statement touched |
 | 1.7.1 → 1.8.0b (2026-09-16) | FR-215 implemented locally through four owning-domain read ports with Business-scoped authorization and unavailable/null failure states; the Knowledge Documents surface is bounded to Text/Markdown admission | No model or migration; no GKS/MSP runtime or production activation |
 | 1.6.0b → 1.7.0b (2026-09-14) | Owner decision (TASK-ZAI-096 review): ADR-090 D6 revised — the candidate creation/edit/decision Zero-PII check AND Stage 5 classify both run the candidate prose policy (`line-faq-candidate-zero-pii-1`), never FR-187's structured-record policy; `LINE_FAQ_CANDIDATE` removed from `structured-record-policy.js`'s `STRUCTURED_RECORD_PROVIDERS`; `genesisrag17-executor.js` gains an explicit provider→policy map (FR-187 unchanged for `SMARTGIFT_CATALOG`) | No schema change; corrects Stage 5 behavior so an approved FAQ containing "ลูกค้า"/"ใบเสนอราคา" is not denied |

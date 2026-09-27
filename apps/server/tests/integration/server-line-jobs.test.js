@@ -159,6 +159,7 @@ describe('server LINE admission', () => {
 // customer`.
 
 describe('server transport and acceptance recovery', () => {
+  // @req FR-050 — verifies one admitted LINE event produces at most one model request and reply, with accepted receipt semantics.
   it('generates once, replies once, and records inbound + accepted outbound without an Edge', async () => {
     const oa = await account()
     const admitted = await admit(oa, event('server-answer'))
