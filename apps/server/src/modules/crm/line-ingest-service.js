@@ -11,6 +11,7 @@ import {
 } from '@/lib/validation/entities'
 import { refreshConversationPreview } from './conversation-preview-service'
 import { assignMessageSession, openSessionIdAt } from './conversation-session-service'
+import { LINE_UNSEND_TOMBSTONE } from './line-unsend-tombstone'
 
 // @req FR-023 — inbound LINE identity, customer, conversation and message are atomic.
 // @req FR-097 — trusted channel account is carried into identity discovery.
@@ -279,11 +280,8 @@ export async function recordExistingConversationEvent(input, { db = prisma } = {
   return { conversationId: conversation.id, eventId: event.id, created: true }
 }
 
-// FR-229 — the one string an unsent message's body carries, distinct from the PDPA
-// erasure tombstone in conversation-redaction-service.js: the customer withdrew the
-// message themselves, which is a different fact than "erased by legal request", so
-// the two must read differently in the FR-091 inbox.
-export const LINE_UNSEND_TOMBSTONE = '[ข้อความถูกเรียกคืนโดยผู้ส่ง]'
+// FR-229 — the one string an unsent message's body carries (line-unsend-tombstone.js).
+export { LINE_UNSEND_TOMBSTONE }
 
 /**
  * FR-229 — an `unsend` event. Unlike follow/unfollow/postback, this never mints a

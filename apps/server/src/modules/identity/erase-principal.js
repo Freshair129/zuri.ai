@@ -2,7 +2,9 @@ import prisma from '@/lib/db'
 import { LIVE_ACCESS_STATUSES as LIVE_GRANT_STATUSES } from '@/lib/validation/enums'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { zErasePrincipalInput } from '@/lib/validation/entities'
-import { redactConversationContent, redactSpeakerContentInSharedThreads } from '@/modules/crm/conversation-redaction-service'
+import {
+  findSpeakerConversationEventKeys, redactConversationContent, redactSpeakerContentInSharedThreads,
+} from '@/modules/crm/conversation-redaction-service'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
 import { destroyCustomerArchiveKey } from '@/modules/crm/chat-evidence-archive-service'
@@ -40,6 +42,16 @@ import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/ap
 //   spoke), the replies to them and their own jobs (sourceUserId on the job's channel
 //   account) are erased there; other members' content and in-flight turns are left alone.
 // @tested tests/integration/identity-erase-group-speakers.test.js
+// @req FR-022 — the raw webhook payload of a person's own postback (and follow /
+//   unfollow) is theirs too: it carries the postback `data` and their LINE user id,
+//   keyed by LINE's webhookEventId, which no message id or provider subject matches.
+//   `findSpeakerConversationEventKeys` (crm) names those events — every event of a
+//   thread that is theirs alone, and their own events in any shared thread — and
+//   their keys join the raw-record tombstone below. Another member's events stay.
+// @tested tests/integration/identity-erase-speaker-events.test.js
+// @req FR-022 — a LINE message event's raw record is keyed by its webhookEventId, so
+//   the erased person's own message payloads are also found by the message id inside
+//   the payload (see the raw-record family list below).
 
 const REDACTED = '[erased]'
 
@@ -170,7 +182,7 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
           conversationId: { in: conversations.map((conversation) => conversation.id) },
           externalMessageId: { not: null },
         },
-        select: { externalMessageId: true },
+        select: { externalMessageId: true, direction: true, createdAt: true },
       })
       : []
     const { redactedLineJobs, inboundMessageIds } = await redactLineConversationJobs(tx, {
@@ -190,6 +202,12 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
       excludeConversationIds: personalIds,
     })
     const redactedMessages = personal.redactedMessages + shared.redactedMessages
+    const speakerEvents = await findSpeakerConversationEventKeys(tx, {
+      tenantId,
+      customerIds,
+      channelIdentities: subjectChannels,
+      personalConversationIds: personalIds,
+    })
     // Analyses are derived from a whole thread, so any thread that held this
     // person's words loses its analysis: their own, and every shared one they
     // spoke in. Recomputable; nothing another member wrote is changed.
@@ -198,22 +216,42 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
       ? await tx.conversationAnalysis.deleteMany({ where: { conversationId: { in: analysedIds } } })
       : { count: 0 }
 
-    // Which raw records belong to this person. Two families, and nothing else:
+    // Which raw records belong to this person, and nothing else:
     //   - the provider subjects this person is known by (profile/customer-lane records
-    //     keyed by the subject itself), and
-    //   - the provider message ids of their own messages, which is what the LINE
-    //     normalizer uses as `externalId` for a message event.
+    //     keyed by the subject itself);
+    //   - the provider message ids of their own messages — both as a record key (the
+    //     LINE normalizer keys an event with no `webhookEventId` by its message id)
+    //     and, because it keys every event that HAS one by that `webhookEventId`
+    //     (line-oa-webhook.js `externalEventId`), which no business row stores, as
+    //     the message id inside a LINE payload (`event.message.id`,
+    //     `tombstoneRawRecordsForExternalIds`'s `lineMessages`); and
+    //   - the webhook event ids of their own conversation events (postback, follow,
+    //     unfollow; every event of a thread that is theirs alone), which a
+    //     ConversationEvent stores as its `externalEventId`.
+    // The message ids are exactly the rows redacted above — their own thread's and
+    // their own lines elsewhere, by the same attribution — so another member's
+    // payload is never matched.
     // `ChannelIdentity.channelAccountId` is deliberately NOT included: it names the
     // OA account, shared by every customer of that channel, so matching on it would
     // tombstone other people's evidence.
+    // Inbound only (an outbound row has no webhook event), each with the time it was
+    // written: the raw record of its webhook event was received within the hour
+    // around it, which is what bounds the payload lookup (see raw-record-redaction.js).
+    const lineMessages = [
+      ...messageKeys.filter((row) => row.direction === 'INBOUND'),
+      ...shared.inboundMessages,
+    ].filter((row) => typeof row.externalMessageId === 'string' && row.externalMessageId)
+      .map((row) => ({ id: row.externalMessageId, createdAt: row.createdAt }))
     const externalIds = [
       ...ownSubjects,
       ...messageKeys.map((row) => row.externalMessageId),
       ...shared.externalMessageIds,
+      ...speakerEvents.externalEventIds,
     ]
     const { tombstonedRawRecords } = await tombstoneRawRecordsForExternalIds(tx, {
       tenantId,
       externalIds,
+      lineMessages,
       now,
     })
 

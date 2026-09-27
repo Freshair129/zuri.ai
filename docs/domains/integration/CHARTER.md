@@ -1,7 +1,7 @@
 ---
-version: "0.6.0b"
+version: "0.6.1b"
 status: active
-last_update: "2026-09-26T00:00:00+07:00,Codex GPT-6"
+last_update: "2026-09-27T21:00:00+07:00,Claude Opus 5.5 (MC0)"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
@@ -105,6 +105,21 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   what proves this row is the redaction of a specific delivery rather than a
   fabricated one. Called by identity's `erasePrincipal` inside its transaction, and
   by nothing else; this lane still writes no business truth.
+  **Which keys reach it (FR-022).** The LINE normalizer keys a raw record by the
+  event's `webhookEventId` whenever LINE sends one, and by the message id only
+  otherwise (`line-oa-webhook.js` `externalEventId`). Erasure passes the person's
+  provider subjects, their message ids and, since 2026-09-27, the webhook event ids
+  of their own conversation events (postback, follow, unfollow — crm's
+  `findSpeakerConversationEventKeys`, which reads `ConversationEvent.externalEventId`,
+  the same id). A *message* event that carries a `webhookEventId` is keyed by it, and
+  `Message` does not store that id, so erasure also passes the erased inbound
+  messages (provider id and write time) as `lineMessages`: this tenant's `LINE_OA`
+  `LINE_MESSAGE` records received within an hour of those messages are narrowed by
+  the text `"id":"<messageId>"` in the canonically stored payload and taken only when
+  the parsed `event.message.id` is exactly that id. No schema change; a row reached
+  both ways is tombstoned and counted once. Follow-up: an indexed provider-message-id
+  column on the raw record (or a retried post-commit step) replaces this bounded scan
+  inside erasure's transaction.
 - Ingestion identity is derived from tenant, connection, entity type, external id
   and a canonical payload hash. External identifiers are mapped through
   `ExternalEntityRef` and never become primary keys (BR-002).
@@ -349,6 +364,7 @@ material in any response (`line-channel-credential-service.js` for the last thre
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.6.1b | 2026-09-27 | FR-022: erasure now also tombstones the raw payloads of a person's own postback/follow/unfollow events (keyed by webhook event id) and of their own message events, found by `event.message.id` inside the payload since those records are keyed by webhook event id too | Claude Opus 5.5 (MC0) |
 | 0.4.2b | 2026-09-14 | Migrations 20260914140000..140400 applied on production on the owner's instruction (ADR-057; ADR-089 proof 10 waived); the Phase 1 section says so; nothing deployed | Claude Opus 5 |
 | 0.4.1b | 2026-09-14 | TASK-ZAI-078..080 merged in #398 (main 2aef8caa): the Phase 1 section now says merged instead of built on a branch; migrations 20260914140000..140400 still not applied, nothing deployed | Claude Opus 5 |
 | 0.4.0b | 2026-09-14 | TASK-ZAI-079 built on the same branch: `owns_models` += `ChannelAccountClaim`; claim service, LINE channel-admin port with the stateless token cache, and the connect-with-secret service listed; migration 20260914140100 written, not applied | Claude Opus 5 |

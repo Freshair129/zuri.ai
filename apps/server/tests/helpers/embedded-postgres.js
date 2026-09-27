@@ -111,7 +111,9 @@ export async function removeClusterDirectory(root, {
  * Stop the cluster in `data` and delete `root`. The postmaster is stopped with
  * `pg_ctl stop -m fast`, then `-m immediate` if that fails, and `stop` waits for
  * the postmaster process itself to exit; if it is still running, `stop` throws
- * and leaves the directory in place. Only then is `root` removed, leniently.
+ * and leaves the directory in place. When both stops fail and postmaster.pid
+ * names no pid to wait on, `stop` throws too. Only then is `root` removed,
+ * leniently.
  */
 export async function stopCluster({
   root, data, pgCtl, run, alive = processAlive, sleep = pause, exitTimeoutMs = 30_000, remove = removeClusterDirectory,
@@ -120,11 +122,20 @@ export async function stopCluster({
   // A postmaster.pid means a server may be running out of this directory, even
   // when start itself failed or timed out.
   if (pid !== null || existsSync(path.join(data, 'postmaster.pid'))) {
+    let stopped = false
     for (const mode of ['fast', 'immediate']) {
       try {
         run(pgCtl, ['stop', '-D', data, '-m', mode, '-w', '-t', '60'])
+        stopped = true
         break
       } catch { /* try the next mode; the exit check below decides */ }
+    }
+    // With no pid there is no process to wait on, so a failed stop cannot be
+    // shown to be harmless: a server may still be running. Fail rather than
+    // delete its directory out from under it and leak it.
+    if (!stopped && pid === null) {
+      throw new Error(`EMBEDDED_POSTGRES_STOP_FAILED: pg_ctl stop failed in both modes and ${data}/postmaster.pid `
+        + 'names no pid to wait on; the server may still be running')
     }
   }
   if (pid !== null && !(await exited(pid, { alive, sleep, timeoutMs: exitTimeoutMs }))) {
