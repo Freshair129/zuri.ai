@@ -6,6 +6,10 @@ export const CORE_OPERATIONS = Object.freeze([
   'claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status',
 ])
 export const WORK_TOOL_OPERATIONS = Object.freeze(['read', 'propose', 'confirm-execute', 'status'])
+// Final Work refusals Core returns as a typed `REJECTED` outcome with the legacy reply text.
+export const WORK_REJECTION_CODES = Object.freeze(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_ACTION_UNAVAILABLE'])
+// Fixed replies Core derives from malformed Work command text (`prepare` `workReply`).
+export const WORK_REPLY_CODES = Object.freeze(['WORK_COMMAND_USAGE', 'WORK_ACTION_UNAVAILABLE'])
 export const MAX_REQUEST_BYTES = 64 * 1024
 export const MAX_RESPONSE_BYTES = 64 * 1024
 
@@ -151,7 +155,7 @@ export function validateWorkToolRequest(value) {
 
 export function validateTurnContext(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw fail('TURN_CONTEXT_INVALID')
-  const allowed = new Set(['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])
+  const allowed = new Set(['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply'])
   if (Object.keys(value).some(key => !allowed.has(key))) throw fail('TURN_CONTEXT_UNKNOWN_FIELD')
   boundedText(value.question, 8000, 'TURN_QUESTION_INVALID')
   const records = Array.isArray(value.evidence) ? value.evidence : value.evidence?.records
@@ -166,5 +170,11 @@ export function validateTurnContext(value) {
     throw fail('TURN_BUDGET_INVALID')
   }
   if (value.workCommand != null) validateWorkToolRequest({ ...value.workCommand, operationId: value.workCommand.operationId ?? 'pending' })
+  if (value.workReply != null) {
+    const reply = value.workReply
+    if (value.workCommand != null || !reply || typeof reply !== 'object' || Array.isArray(reply)
+      || Object.keys(reply).some(key => !['code', 'text'].includes(key)) || !WORK_REPLY_CODES.includes(reply.code)) throw fail('TURN_WORK_REPLY_INVALID')
+    boundedText(reply.text, 5000, 'TURN_WORK_REPLY_INVALID')
+  }
   return value
 }

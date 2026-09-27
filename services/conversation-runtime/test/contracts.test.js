@@ -157,3 +157,34 @@ test('core client accepts only the exact v1 WorkTool receipt shape for the reque
   for (const [label, request, data] of rejected)
     await assert.rejects(call(request, data), { code: 'CORE_RESPONSE_INVALID' }, label)
 })
+
+test('WorkTool REJECTED outcomes and prepare workReply are typed, bounded and closed', async () => {
+  const claim = { jobId: 'j', executionId: 'e', claimantId: 'c', version: 1, tenantId: 't', businessId: 'b', accountId: 'a' }
+  const request = { claim, operation: 'confirm-execute', operationId: '00000000-0000-4000-8000-000000000009',
+    input: { proposalId: '00000000-0000-4000-8000-000000000009' } }
+  const replying = data => createCoreClient({ baseUrl: 'http://core:3000', token: 't'.repeat(40), fetchFn: async () =>
+    new Response(JSON.stringify({ contractVersion: 'conversation-runtime.v1', ok: true, data }),
+      { status: 200, headers: { 'content-type': 'application/json' } }) })
+  const rejected = { status: 'REJECTED', code: 'WORK_CONFIRMATION_EXPIRED', result: { text: 'expired' } }
+  assert.deepEqual(await replying(rejected).call('work-tool', request), rejected)
+  for (const invalid of [
+    { ...rejected, code: 'WORK_SCOPE_DENIED' },
+    { ...rejected, result: { text: 'expired', receipt: {} } },
+    { ...rejected, result: { text: '' } },
+    { ...rejected, result: { text: 'x'.repeat(5001) } },
+    { ...rejected, retryable: false },
+  ]) await assert.rejects(replying(invalid).call('work-tool', request), { code: 'CORE_RESPONSE_INVALID' })
+
+  const turn = { question: '/work-create', evidence: { records: [] }, slices: [], authorized: true, audienceKind: 'DIRECT',
+    threadId: null, maxBudgetChars: 0, workCommand: null }
+  assert.equal(validateTurnContext({ ...turn, workReply: { code: 'WORK_COMMAND_USAGE', text: 'usage' } }).workReply.text, 'usage')
+  assert.equal(validateTurnContext({ ...turn, workReply: null }).workReply, null)
+  for (const workReply of [
+    { code: 'WORK_VERSION_CONFLICT', text: 'usage' },
+    { code: 'WORK_COMMAND_USAGE', text: '' },
+    { code: 'WORK_COMMAND_USAGE', text: 'x'.repeat(5001) },
+    { code: 'WORK_COMMAND_USAGE', text: 'usage', extra: true },
+  ]) assert.throws(() => validateTurnContext({ ...turn, workReply }), { code: 'TURN_WORK_REPLY_INVALID' })
+  assert.throws(() => validateTurnContext({ ...turn, workCommand: { operation: 'read', input: {} },
+    workReply: { code: 'WORK_COMMAND_USAGE', text: 'usage' } }), { code: 'TURN_WORK_REPLY_INVALID' })
+})

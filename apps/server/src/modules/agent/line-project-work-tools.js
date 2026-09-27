@@ -180,7 +180,9 @@ export function isLineProjectWorkCommand(text) {
 export function parseLineProjectWorkCommand(text) {
   if (typeof text !== 'string') return null
   const value = text.trim()
-  const confirmation = value.match(/^ยืนยันงาน\s+(\S+)$/u)
+  // A literal space after the keyword, as the legacy dispatch in
+  // handleLineProjectWorkCommand requires; a tab or newline there gets the usage text.
+  const confirmation = value.match(/^ยืนยันงาน \s*(\S+)$/u)
   if (confirmation && idSchema.safeParse(confirmation[1]).success) return { operation: 'confirm-execute', input: { proposalId: confirmation[1] } }
   const mutation = value.match(/^\/work-(create|update)\s+(\S+)\s+([\s\S]+)$/u)
   if (mutation) {
@@ -196,29 +198,91 @@ export function parseLineProjectWorkCommand(text) {
   return null
 }
 
+// @req FR-026, FR-149 — the user-facing Work texts have one source. The legacy
+// Server handler below and the Conversation Runtime Core façade
+// (conversation-runtime-core.js) both render replies with these functions, so a
+// Work command answers the same whichever executor cohort owns the job.
+export const LINE_WORK_USAGE_TEXT = 'ใช้ /projects ค้นโครงการ, /work ค้นงาน, /work-create รหัสเวิร์กสตรีม ชื่องาน, /work-update รหัสงาน {"status":"DONE"}'
+export const LINE_WORK_DUPLICATE_TEXT = 'คำสั่งนี้ยืนยันและดำเนินการแล้ว ไม่มีการทำซ้ำ'
+const LINE_WORK_ERROR_TEXT = Object.freeze({
+  WORK_CONFIRMATION_EXPIRED: 'คำยืนยันหมดอายุ กรุณาสร้างคำขอใหม่',
+  WORK_VERSION_CONFLICT: 'งานมีการเปลี่ยนแปลงแล้ว กรุณาตรวจสอบและสร้างคำขอใหม่',
+  WORK_ACTION_UNAVAILABLE: 'ไม่สามารถดำเนินการคำสั่งงานนี้ได้ กรุณาตรวจสอบรูปแบบคำสั่ง การเชื่อมตัวตน และสิทธิ์ของคุณ',
+})
+// Refusals the Work writers raise about the request itself: its scope, identity,
+// target, confirmation or arguments. Anything else (a database, transaction or
+// transport failure, a stale claim, a missing receipt) is not in this set.
+const LINE_WORK_DOMAIN_CODES = new Set(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_SCOPE_DENIED',
+  'WORK_IDENTITY_REQUIRED', 'WORK_TARGET_NOT_FOUND', 'WORK_ACTION_DENIED', 'WORK_PROPOSAL_CONFLICT',
+  'WORK_CONFIRMATION_REQUIRED', 'WORK_CONFIRMATION_INVALID'])
+const LINE_WORK_TARGET_MISSING_MESSAGES = new Set(['Work item not found', 'Workstream not found'])
+
+export function lineWorkReadText(result) {
+  return result.items.length ? result.items.map(item => `${item.code}: ${item.title ?? item.name} — ${item.status}\n${item.id}${item.workstreams ? item.workstreams.map(s => `\n${s.name}: ${s.id}`).join('') : ''}`).join('\n\n') + (result.truncated ? '\nมีรายการเพิ่มเติม โปรดระบุคำค้น' : '') : 'ไม่พบรายการในธุรกิจที่คุณมีสิทธิ์เข้าถึง'
+}
+
+export function lineWorkProposalText(action, preview, proposalId) {
+  return `รอยืนยัน ${action === 'create_work' ? 'สร้าง' : 'แก้ไข'}งาน\nเป้าหมาย: ${preview.target.title}\n${JSON.stringify(preview.args)}\nหมดอายุ ${preview.expiresAt}\nพิมพ์ ยืนยันงาน ${proposalId}`
+}
+
+export function lineWorkConfirmText(result) {
+  return result.duplicate ? LINE_WORK_DUPLICATE_TEXT : `บันทึกงาน ${result.code} แล้ว สถานะ ${result.status}`
+}
+
+/** The legacy reply for a failed Work command. No raw database error or private target detail reaches it. */
+export function lineWorkErrorReply(error) {
+  const code = ['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT'].includes(error?.code ?? error?.message)
+    ? error.code ?? error.message : 'WORK_ACTION_UNAVAILABLE'
+  return { text: LINE_WORK_ERROR_TEXT[code], errorCode: code }
+}
+
+/** True for a refusal of the Work request itself, which the legacy handler answers with a fixed text. */
+export function isLineWorkDomainError(error) {
+  if (error instanceof z.ZodError) return true
+  const code = error?.code ?? error?.message
+  if (typeof code === 'string' && LINE_WORK_DOMAIN_CODES.has(code)) return true
+  // Canonical Project Manager refusals: authorization refusals carry an HTTP status
+  // and no code; work-service reports a missing target with these plain messages,
+  // thrown before any write. Both are answered as WORK_ACTION_UNAVAILABLE.
+  if (error?.code !== undefined) return false
+  return [403, 404].includes(error?.status) || LINE_WORK_TARGET_MISSING_MESSAGES.has(error?.message)
+}
+
+/**
+ * The legacy reply for command text that `parseLineProjectWorkCommand` rejects, or
+ * null. It follows the dispatch of handleLineProjectWorkCommand: a confirmation,
+ * mutation or read shape reaches a Work call that refuses its input, and any other
+ * command text gets the usage text. Pure: no Work call, no database access.
+ */
+export function lineProjectWorkSyntaxReply(text) {
+  if (!isLineProjectWorkCommand(text) || parseLineProjectWorkCommand(text)) return null
+  const value = text.trim()
+  if (value.startsWith('ยืนยันงาน ') || /^\/work-(create|update)\s+(\S+)\s+([\s\S]+)$/u.test(value)
+    || /^\/(projects|work)(?:\s+([\s\S]*))?$/u.test(value)) return lineWorkErrorReply(null)
+  return { text: LINE_WORK_USAGE_TEXT }
+}
+
 export async function handleLineProjectWorkCommand(job, { db = prisma, now, expectedClaim } = {}) {
   const text = job?.inbound?.body?.trim()
   if (!isLineProjectWorkCommand(text)) return null
   try {
     if (text.startsWith('ยืนยันงาน ')) {
       const result = await confirmLineWork(job.id, text.slice('ยืนยันงาน '.length).trim(), { db, now, expectedClaim })
-      return { text: result.duplicate ? 'คำสั่งนี้ยืนยันและดำเนินการแล้ว ไม่มีการทำซ้ำ' : `บันทึกงาน ${result.code} แล้ว สถานะ ${result.status}`, toolReceipt: result }
+      return { text: lineWorkConfirmText(result), toolReceipt: result }
     }
     const mutation = text.match(/^\/work-(create|update)\s+(\S+)\s+([\s\S]+)$/u)
     if (mutation) {
       const args = mutation[1] === 'create' ? { title: mutation[3] } : JSON.parse(mutation[3])
       const result = await proposeLineWork(job.id, { action: `${mutation[1]}_work`, targetId: mutation[2], args }, { db, now, expectedClaim })
-      return { text: `รอยืนยัน ${mutation[1] === 'create' ? 'สร้าง' : 'แก้ไข'}งาน\nเป้าหมาย: ${result.preview.target.title}\n${JSON.stringify(result.preview.args)}\nหมดอายุ ${result.preview.expiresAt}\nพิมพ์ ยืนยันงาน ${result.proposalId}`, toolReceipt: { proposalId: result.proposalId, status: 'AWAITING_CONFIRMATION' } }
+      return { text: lineWorkProposalText(`${mutation[1]}_work`, result.preview, result.proposalId), toolReceipt: { proposalId: result.proposalId, status: 'AWAITING_CONFIRMATION' } }
     }
     const read = text.match(/^\/(projects|work)(?:\s+([\s\S]*))?$/u)
-    if (!read) return { text: 'ใช้ /projects ค้นโครงการ, /work ค้นงาน, /work-create รหัสเวิร์กสตรีม ชื่องาน, /work-update รหัสงาน {"status":"DONE"}' }
+    if (!read) return { text: LINE_WORK_USAGE_TEXT }
     const result = await searchLineProjectWork(job.id, { kind: read[1], query: read[2] ?? '' }, { db, now, expectedClaim })
-    return { text: result.items.length ? result.items.map(item => `${item.code}: ${item.title ?? item.name} — ${item.status}\n${item.id}${item.workstreams ? item.workstreams.map(s => `\n${s.name}: ${s.id}`).join('') : ''}`).join('\n\n') + (result.truncated ? '\nมีรายการเพิ่มเติม โปรดระบุคำค้น' : '') : 'ไม่พบรายการในธุรกิจที่คุณมีสิทธิ์เข้าถึง' }
+    return { text: lineWorkReadText(result) }
   } catch (error) {
     // No raw database error or private target details go into the LINE answer.
-    const code = ['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT'].includes(error.code ?? error.message)
-      ? error.code ?? error.message : 'WORK_ACTION_UNAVAILABLE'
-    return { text: code === 'WORK_CONFIRMATION_EXPIRED' ? 'คำยืนยันหมดอายุ กรุณาสร้างคำขอใหม่' : code === 'WORK_VERSION_CONFLICT' ? 'งานมีการเปลี่ยนแปลงแล้ว กรุณาตรวจสอบและสร้างคำขอใหม่' : 'ไม่สามารถดำเนินการคำสั่งงานนี้ได้ กรุณาตรวจสอบรูปแบบคำสั่ง การเชื่อมตัวตน และสิทธิ์ของคุณ', errorCode: code }
+    return lineWorkErrorReply(error)
   }
 }
 

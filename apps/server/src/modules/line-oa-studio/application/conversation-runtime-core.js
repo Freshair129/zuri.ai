@@ -10,7 +10,11 @@ import {
 } from '@/modules/agent/line-knowledge-grounding'
 import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
 import { createCorpusKnowledgeReader } from '@/modules/knowledge/corpus-knowledge-reader'
-import { parseLineProjectWorkCommand, searchLineProjectWork, proposeLineWork, confirmLineWork } from '@/modules/agent/line-project-work-tools'
+import {
+  parseLineProjectWorkCommand, searchLineProjectWork, proposeLineWork, confirmLineWork, isLineWorkDomainError,
+  lineProjectWorkSyntaxReply, lineWorkConfirmText, lineWorkErrorReply, lineWorkProposalText, lineWorkReadText,
+  LINE_WORK_DUPLICATE_TEXT,
+} from '@/modules/agent/line-project-work-tools'
 import { serverLinePorts } from './server-line-runtime'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
@@ -46,6 +50,25 @@ const fields = Object.freeze({ claim: ['claimantId'], renew: ['claim'], resolve:
   trace: ['claim', 'kind', 'payload'], status: ['claim', 'operationId'] })
 const error = (code, status = 400) => Object.assign(new Error(code), { code, status })
 const present = (value, max = 128) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
+// @req FR-026, FR-149 — Work replies keep the legacy Server bound: the Server worker
+// parses its answer through `zCompletion.shape.text` (trimmed, at most 5,000
+// characters) and fails the job, with no reply, when a Work text is longer.
+const WORK_TEXT_MAX = 5000
+// A Work refusal is a typed, final outcome with the legacy reply text; the codes
+// are the `errorCode` values handleLineProjectWorkCommand returns.
+const WORK_REJECTION_CODES = Object.freeze(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_ACTION_UNAVAILABLE'])
+// Key-order-independent JSON, for comparing a runtime request with the derived command.
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`
+  }
+  return JSON.stringify(value) ?? 'null'
+}
+function workSyntaxReply(question) {
+  const reply = lineProjectWorkSyntaxReply(question)
+  return reply ? { code: reply.errorCode ?? 'WORK_COMMAND_USAGE', text: reply.text } : null
+}
 
 function boundedJsonWithin(value, maxBytes) {
   const pending = [{ value, depth: 0 }]
@@ -147,13 +170,16 @@ function validateResult(operation, data) {
     return
   }
   if (operation === 'prepare') {
-    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])
+    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply'])
       || !present(data.question, 8000) || !exact(data.evidence, ['records']) || !Array.isArray(data.evidence.records)
       || data.evidence.records.length > 64 || !Array.isArray(data.slices) || data.slices.length > 64
       || typeof data.authorized !== 'boolean' || !['DIRECT', 'GROUP', 'ROOM'].includes(data.audienceKind)
       || (data.threadId !== null && !present(data.threadId, 128))
       || !Number.isInteger(data.maxBudgetChars) || data.maxBudgetChars < 0 || data.maxBudgetChars > 32_000
       || (data.workCommand != null && JSON.stringify(parseLineProjectWorkCommand(data.question)) !== JSON.stringify(data.workCommand))
+      // A fixed Work reply is only ever the one the signed inbound text derives.
+      || (data.workReply != null && (data.workCommand != null || !exact(data.workReply, ['code', 'text'])
+        || JSON.stringify(data.workReply) !== JSON.stringify(workSyntaxReply(data.question))))
       || !boundedJsonWithin(data, 32 * 1024)) invalid()
     return
   }
@@ -193,8 +219,10 @@ function validateResult(operation, data) {
     return
   }
   if (operation === 'work-tool') {
-    if (!['COMPLETED', 'NOT_FOUND'].includes(data?.status)
+    if (!['COMPLETED', 'NOT_FOUND', 'REJECTED'].includes(data?.status)
       || Buffer.byteLength(JSON.stringify(data), 'utf8') > 32 * 1024) invalid()
+    if (data.status === 'REJECTED' && (!exact(data, ['status', 'code', 'result']) || !WORK_REJECTION_CODES.includes(data.code)
+      || !exact(data.result, ['text']) || !present(data.result.text, WORK_TEXT_MAX))) invalid()
     if (data.status === 'COMPLETED' && (!exact(data, ['status', 'result'])
       || !exact(data.result, ['text', 'receipt']) || !present(data.result.text, 5000)
       || !data.result.receipt || typeof data.result.receipt !== 'object' || Array.isArray(data.result.receipt)
@@ -264,6 +292,10 @@ export function createCorePrepareTurn({ db = prisma, env = process.env, now = ()
     const workCommand = parseLineProjectWorkCommand(question)
     if (workCommand) return { question, evidence: { records: [] }, slices: [], authorized: true,
       audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand }
+    // Malformed legacy Work syntax: the reply is fixed by the text alone, as on the Server path.
+    const workReply = workSyntaxReply(question)
+    if (workReply) return { question, evidence: { records: [] }, slices: [], authorized: true,
+      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null, workReply }
     if (!conversationRuntimeServesGroundingMode(job.account.knowledgeGrounding)) throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
     const mode = resolveLineKnowledgeGroundingMode(job.account.knowledgeGrounding)
     const ports = await businessPorts()
@@ -347,43 +379,81 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     return { job, identity }
   }
 
+  // Renders with the legacy handler's own text functions, so the reply is the same
+  // whichever executor cohort owns the job.
+  async function executeWork(job, request, expectedClaim) {
+    const input = request.input
+    // The Server worker commits `zCompletion.shape.text.parse(text)`: the trimmed text,
+    // at most 5,000 characters. Return that same trimmed text, so the bound checked
+    // here is the one validateResult checks and padding cannot turn a valid reply into a 500.
+    const bounded = text => {
+      const committed = text.trim()
+      if (committed.length > WORK_TEXT_MAX) throw error('WORK_TOOL_TEXT_TOO_LONG', 422)
+      return committed
+    }
+    if (request.operation === 'read') {
+      const result = await workSearch(job.id, input, { db, now, expectedClaim })
+      return { status: 'COMPLETED', result: { text: bounded(lineWorkReadText(result)),
+        receipt: { source: result.source, observedAt: result.observedAt } } }
+    }
+    if (request.operation === 'propose') {
+      const proposal = await workPropose(job.id, input, { db, now, expectedClaim })
+      return { status: 'COMPLETED', result: { text: bounded(lineWorkProposalText(input.action, proposal.preview, proposal.proposalId)),
+        receipt: { proposalId: proposal.proposalId, status: 'AWAITING_CONFIRMATION' } } }
+    }
+    const result = await workConfirm(job.id, input.proposalId, { db, now, expectedClaim })
+    return { status: 'COMPLETED', result: { text: bounded(lineWorkConfirmText(result)), receipt: result } }
+  }
+
   async function workOperation(ref, request) {
     const { job } = await ownedClaim(ref)
     const expectedClaim = { ...ref, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' }
     const input = request.input
-    if (request.operation === 'read') {
-      const result = await workSearch(job.id, input, { db, now, expectedClaim })
-      const text = result.items.length ? result.items.map(item => `${item.code}: ${item.title ?? item.name} — ${item.status}`).join('\n')
-        : 'ไม่พบรายการในธุรกิจที่คุณมีสิทธิ์เข้าถึง'
-      return { status: 'COMPLETED', result: { text, receipt: { source: result.source, observedAt: result.observedAt } } }
-    }
-    if (request.operation === 'propose') {
-      const proposal = await workPropose(job.id, input, { db, now, expectedClaim })
-      const preview = proposal.preview
-      return { status: 'COMPLETED', result: { text: `รอยืนยันการเปลี่ยนแปลงงาน\nเป้าหมาย: ${preview.target.title}\n${JSON.stringify(preview.args)}\nหมดอายุ ${preview.expiresAt}\nพิมพ์ ยืนยันงาน ${proposal.proposalId}`,
-        receipt: { proposalId: proposal.proposalId, status: 'AWAITING_CONFIRMATION' } } }
-    }
-    if (request.operation === 'confirm-execute') {
-      const proposalId = input.proposalId
-      if (!present(proposalId, 128) || request.operationId !== proposalId) throw error('WORK_CONFIRMATION_IDENTITY_INVALID')
-      const result = await workConfirm(job.id, proposalId, { db, now, expectedClaim })
-      return { status: 'COMPLETED', result: { text: result.duplicate ? 'คำสั่งนี้ยืนยันและดำเนินการแล้ว ไม่มีการทำซ้ำ' : `บันทึกงาน ${result.code} แล้ว สถานะ ${result.status}`,
-        receipt: result } }
+    if (request.operation === 'confirm-execute'
+      && (!present(input.proposalId, 128) || request.operationId !== input.proposalId)) throw error('WORK_CONFIRMATION_IDENTITY_INVALID')
+    if (request.operation !== 'status') {
+      // The operation and its arguments are the ones the user typed: Core derives
+      // them from the job's own signed inbound text. A runtime request that differs
+      // (another target, other arguments, another operation) is refused before any
+      // Work call, and only the derived command is ever executed.
+      const typed = parseLineProjectWorkCommand(job.inbound?.body)
+      if (!typed || typed.operation !== request.operation || canonicalJson(typed.input) !== canonicalJson(input)) {
+        throw error('WORK_COMMAND_MISMATCH', 409)
+      }
+      try { return await executeWork(job, { ...request, input: typed.input }, expectedClaim) } catch (cause) {
+        // Transport, database and fencing failures keep their retryable or fenced
+        // error. A refusal of the request itself (expired confirmation, version
+        // conflict, scope, invalid arguments) is final: its transaction rolled back,
+        // so it is returned as a typed outcome carrying the legacy reply.
+        if (!isLineWorkDomainError(cause)) throw cause
+        // The claim can stop being this runtime's while the Work call runs; a
+        // fenced claim gets the fence error, never a reply.
+        await ownedClaim(ref)
+        const { text, errorCode } = lineWorkErrorReply(cause)
+        return { status: 'REJECTED', code: errorCode, result: { text } }
+      }
     }
     const proposalId = typeof input.proposalId === 'string' ? input.proposalId : request.operationId
     if (request.operationId === `${job.id}:work-proposal`) {
       const proposed = await db.auditEvent.findUnique({ where: { id: job.id } })
       if (proposed?.entityType === 'LINE_WORK_PROPOSAL') {
         const saved = JSON.parse(proposed.payloadJson)
-        return { status: 'COMPLETED', result: { text: `รอยืนยันการเปลี่ยนแปลงงาน\nเป้าหมาย: ${saved.target.title}\n${JSON.stringify(saved.args)}\nหมดอายุ ${saved.expiresAt}\nพิมพ์ ยืนยันงาน ${job.id}`,
+        return { status: 'COMPLETED', result: { text: lineWorkProposalText(saved.action, saved, job.id).trim(),
           receipt: { proposalId: job.id, status: 'AWAITING_CONFIRMATION' } } }
       }
       return { status: 'NOT_FOUND', operationId: request.operationId }
     }
+    const inScope = row => row.tenantId === job.tenantId && row.businessId === job.businessId
     const resultRow = await db.auditEvent.findUnique({ where: { id: `line-work-result:${proposalId}` } })
-    if (resultRow) return { status: 'COMPLETED', result: { text: 'คำสั่งนี้ยืนยันและดำเนินการแล้ว ไม่มีการทำซ้ำ', receipt: JSON.parse(resultRow.payloadJson) } }
+    // Replay a mutation receipt only to the job that executed it (a reclaim of that
+    // job). Any other job re-runs confirm-execute, whose binding checks answer it as
+    // the Server path does and never disclose another conversation's receipt.
+    if (resultRow && resultRow.requestId === job.id && inScope(resultRow)) {
+      return { status: 'COMPLETED', result: { text: LINE_WORK_DUPLICATE_TEXT, receipt: JSON.parse(resultRow.payloadJson) } }
+    }
+    if (resultRow) return { status: 'NOT_FOUND', operationId: request.operationId }
     const proposal = await db.auditEvent.findUnique({ where: { id: proposalId } })
-    if (proposal?.entityType === 'LINE_WORK_PROPOSAL') return { status: 'NOT_FOUND', proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } }
+    if (proposal?.entityType === 'LINE_WORK_PROPOSAL' && inScope(proposal)) return { status: 'NOT_FOUND', proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } }
     return { status: 'NOT_FOUND', operationId: request.operationId }
   }
 

@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs'
+import { randomUUID } from 'node:crypto'
+import { z } from 'zod'
 import { afterEach, beforeAll, describe, expect, inject, it } from 'vitest'
 import Ajv2020 from 'ajv/dist/2020'
 import addFormats from 'ajv-formats'
@@ -10,6 +12,8 @@ import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVI
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
+import { handleLineProjectWorkCommand, lineWorkReadText, LINE_WORK_DUPLICATE_TEXT } from '@/modules/agent/line-project-work-tools'
+import { updateItem } from '@/modules/project-manager/application/work-service'
 import { createCoreClient } from '../../../../services/conversation-runtime/src/core-client.js'
 import { createCorePorts } from '../../../../services/conversation-runtime/src/core-ports.js'
 import { validateWorkToolRequest } from '../../../../services/conversation-runtime/src/contracts.js'
@@ -38,7 +42,7 @@ const schema = JSON.parse(readFileSync(new URL(
 
 // tests/global-setup-postgres.js provides 'postgresql'; tests/global-setup.js provides nothing.
 const engine = inject('testDatabaseEngine') ?? 'sqlite'
-let tenant, business, account, workstream, project
+let tenant, business, account, workstream, project, actor, ownerViewer
 let wire = []
 let deliveries = []
 let openJobs = []
@@ -84,6 +88,31 @@ async function admit(eventId, text) {
   const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
   expect(job).toMatchObject({ executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME', status: 'QUEUED' })
   return jobId
+}
+
+const LEGACY_ORACLE_ROLLBACK = Symbol('legacy-oracle-rollback')
+
+/**
+ * The legacy Server handler's own reply for this job, on the current database state:
+ * `handleLineProjectWorkCommand` runs for real inside one transaction that is then
+ * rolled back, so nothing it writes (proposal, receipt, WorkItem, code counter)
+ * survives and the runtime path afterwards starts from the identical state. The
+ * handler opens its own transactions; they run inside the outer one here.
+ */
+async function legacyReply(jobId, now) {
+  let reply
+  try {
+    await prisma.$transaction(async tx => {
+      const db = new Proxy(tx, { get: (target, key) => key === '$transaction' ? (work => work(target)) : target[key] })
+      const job = await tx.lineConversationJob.findUnique({ where: { id: jobId }, include: { inbound: true } })
+      reply = await handleLineProjectWorkCommand(job, { db, now })
+      throw LEGACY_ORACLE_ROLLBACK
+    }, { timeout: 30_000 })
+  } catch (error) {
+    if (error !== LEGACY_ORACLE_ROLLBACK) throw error
+  }
+  expect(reply?.text, 'the legacy handler must answer every Work command').toEqual(expect.any(String))
+  return reply
 }
 
 /** Claim through the runtime's own port, then resolve authority and prepare the turn through Core. */
@@ -191,9 +220,9 @@ beforeAll(async () => {
   const portfolio = await createPortfolio({ name: 'WorkToolPort fixture', code: 'PF-CR-WTP' })
   tenant = await createTenant({ portfolioId: portfolio.id, name: 'WorkToolPort tenant', code: 'TNT-CR-WTP' })
   business = await createBusiness({ tenantId: tenant.id, name: 'WorkToolPort business', code: 'BUS-CR-WTP' })
-  const actor = await prisma.person.create({ data: { code: 'PER-CR-WTP', displayName: 'Synthetic WorkToolPort actor' } })
+  actor = await prisma.person.create({ data: { code: 'PER-CR-WTP', displayName: 'Synthetic WorkToolPort actor' } })
   await prisma.membership.create({ data: { personId: actor.id, tenantId: tenant.id, businessId: business.id, role: 'OWNER' } })
-  const ownerViewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id],
+  ownerViewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id],
     visibleDomains: ['projects', 'people', 'platform', 'line-oa'] })
   const workspace = await createWorkspace({ name: 'WorkToolPort workspace', code: 'WS-CR-WTP', scopeType: 'BUSINESS', businessId: business.id })
   project = await createProject({ workspaceId: workspace.id, name: 'WorkToolPort project', code: 'PRJ-CR-WTP' }, { viewer: ownerViewer })
@@ -238,7 +267,9 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     expect(Object.keys(result).sort()).toEqual(['result', 'status'])
     expect(result.status).toBe('COMPLETED')
     expect(Object.keys(result.result).sort()).toEqual(['receipt', 'text'])
-    expect(result.result.text).toBe(`PRJ-CR-WTP: WorkToolPort project — ${project.status}`)
+    // Byte-for-byte the legacy Server reply, with the item and workstream ids that /work-create needs.
+    expect(result.result.text).toBe((await legacyReply(jobId)).text)
+    expect(result.result.text).toBe(`PRJ-CR-WTP: WorkToolPort project — ${project.status}\n${project.id}\nWorkToolPort stream: ${workstream.id}`)
     expect(Object.keys(result.result.receipt).sort()).toEqual(['observedAt', 'source'])
     expect(result.result.receipt.source).toBe('PROJECT_MANAGER')
     expect(Number.isFinite(Date.parse(result.result.receipt.observedAt))).toBe(true)
@@ -406,8 +437,10 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
         late = new Date(job.leaseExpiresAt.getTime() + 1)
       } }) } })
     const expired = await confirmationTurn(slow.ports, 'synthetic-wtp-recheck-lease', proposalId)
+    // The canonical writer refuses with WORK_SCOPE_DENIED; because the claim itself no
+    // longer holds, Core answers the fence error rather than a Work refusal reply (W1).
     await expect(slow.ports.workTool.execute(expired.claim, expired.authority, expired.request))
-      .rejects.toMatchObject({ code: 'WORK_SCOPE_DENIED' })
+      .rejects.toMatchObject({ code: 'CONVERSATION_JOB_AUTHORITY_REVOKED' })
     expect(late).not.toBeNull()
     late = null
     expect(await confirmationState(proposalId, title)).toEqual(nothingWritten)
@@ -438,8 +471,9 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     expect(leaseEnd.getTime()).toBeLessThan(proposalExpiresAt)
     expect((await prisma.lineConversationJob.findUnique({ where: { id: leaseOnly.jobId } })).expiresAt.getTime()).toBeGreaterThan(leaseEnd.getTime())
     await expect(finalGuard.ports.workTool.execute(leaseOnly.claim, leaseOnly.authority, leaseOnly.request))
-      .rejects.toMatchObject({ code: 'WORK_SCOPE_DENIED' })
-    expect(clockReadsAfterWrite).toBe(2)
+      .rejects.toMatchObject({ code: 'CONVERSATION_JOB_AUTHORITY_REVOKED' })
+    // Two reads inside confirmLineWork (re-check, final guard), then Core's own fence re-check.
+    expect(clockReadsAfterWrite).toBeGreaterThanOrEqual(2)
     armed = false
     expect(await confirmationState(proposalId, title)).toEqual(nothingWritten)
     await release(leaseOnly.jobId)
@@ -496,16 +530,22 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     for (const outcome of settled.filter(o => o.status === 'rejected')) expect(outcome.reason, JSON.stringify(outcomes)).toMatchObject({ retryable: true })
     if (racing) expect(outcomes.filter(outcome => outcome.startsWith('refused')), JSON.stringify(outcomes)).toHaveLength(3)
     expect(await confirmationState(proposalId, title)).toEqual(writtenOnce)
-    for (const turn of [first, second]) expect(await ports.workTool.status(turn.claim, proposalId))
-      .toEqual({ status: 'COMPLETED', result: { text: replayText, receipt } })
+    // Receipt replay is scoped to the job that executed it (W1): the executing job's
+    // status replays; the other job finds no receipt of its own and re-runs
+    // confirm-execute, which answers as a duplicate without writing.
+    const executor = [first, second, first, second][settled.findIndex(o => o.status === 'fulfilled' && o.value === executed[0])]
+    const other = executor === first ? second : first
+    expect(await ports.workTool.status(executor.claim, proposalId)).toEqual({ status: 'COMPLETED', result: { text: replayText, receipt } })
+    expect(await ports.workTool.status(other.claim, proposalId)).toEqual({ status: 'NOT_FOUND', operationId: proposalId })
 
-    // A second confirmation arriving later, as a new job, replays the receipt.
+    // A second confirmation arriving later, as a new job, gets no replay of another
+    // job's receipt and re-runs confirm-execute: one WorkItem still.
     await release(first.jobId)
     await release(second.jobId)
     const later = await confirmationTurn(ports, 'synthetic-wtp-race-confirm-later', proposalId)
-    expect(await ports.workTool.status(later.claim, proposalId)).toEqual({ status: 'COMPLETED', result: { text: replayText, receipt } })
+    expect(await ports.workTool.status(later.claim, proposalId)).toEqual({ status: 'NOT_FOUND', operationId: proposalId })
     expect(await ports.workTool.execute(later.claim, later.authority, later.request))
-      .toEqual({ status: 'COMPLETED', result: { text: replayText, receipt: { ...receipt, duplicate: true } } })
+      .toEqual({ status: 'COMPLETED', result: { text: LINE_WORK_DUPLICATE_TEXT, receipt: { ...receipt, duplicate: true } } })
     expect(await confirmationState(proposalId, title)).toEqual(writtenOnce)
   })
 
@@ -580,10 +620,357 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     expect(outcome).toMatchObject({ jobId })
     const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
     expect(job, JSON.stringify({ outcome, wire: wire.map(call => call.operation) })).toMatchObject({ status: 'RECORDED' })
-    expect(job.answerText).toBe(`PRJ-CR-WTP: WorkToolPort project — ${project.status}`)
+    expect(job.answerText).toBe(`PRJ-CR-WTP: WorkToolPort project — ${project.status}\n${project.id}\nWorkToolPort stream: ${workstream.id}`)
     expect(deliveries).toHaveLength(1)
     expect(JSON.stringify(deliveries[0])).toContain('PRJ-CR-WTP')
     expect(workToolCalls()).toEqual([`status ${jobId}:work-read`, `read ${jobId}:work-read`])
     expect(wire.map(call => call.operation)).not.toContain('credential')
+  })
+})
+
+
+// @req FR-026, FR-149 — answer and error parity with the legacy Server Work handler.
+// Every case drives the same signed inbound text through both paths on the same
+// database state: the legacy `handleLineProjectWorkCommand` (its writes rolled back,
+// see `legacyReply`) and a full runtime turn (`runOne`) over the real Core provider.
+// The reply the runtime commits and delivers must equal the legacy reply byte for
+// byte. Core and the legacy handler share one clock here, so proposal expiry
+// timestamps are comparable.
+describe('Conversation Runtime Work replies match the legacy Server handler byte for byte', () => {
+  const clock = { at: new Date() }
+  const uuid = '6f1c1a52-6a55-4b8e-9d7c-2f1b8e3c9a10'
+  let parityProjects = []
+
+  function paritySetup(coreOptions = {}) {
+    const built = build({ coreOptions: { now: () => clock.at, ...coreOptions } })
+    const claimThroughPort = built.ports.job.claim
+    const legacy = new Map()
+    // Compute the legacy reply for the job the runtime just claimed, before the
+    // runtime takes any other step; the legacy handler requires a CLAIMED job.
+    built.ports.job.claim = async args => {
+      clock.at = new Date()
+      const claim = await claimThroughPort(args)
+      if (claim) legacy.set(claim.jobId, await legacyReply(claim.jobId, () => clock.at))
+      return claim
+    }
+    return { ...built, legacy }
+  }
+
+  async function bothPaths(eventId, text, setup = paritySetup()) {
+    const jobId = await admit(eventId, text)
+    const deliveredBefore = deliveries.length
+    const wireBefore = wire.length
+    const outcome = await createConversationRuntime({ ports: setup.ports, claimantId: `runtime-${eventId}` }).runOne()
+    const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
+    const calls = wire.slice(wireBefore).filter(call => call.operation === 'work-tool').map(call => call.payload.operation)
+    return { jobId, outcome, job, legacy: setup.legacy.get(jobId), delivered: deliveries.length - deliveredBefore, calls }
+  }
+
+  function expectSameReply(run) {
+    expect(run.job, JSON.stringify({ outcome: run.outcome, legacy: run.legacy })).toMatchObject({ status: 'RECORDED' })
+    // The Server worker commits `zCompletion.shape.text.parse(reply.text)`, a trim;
+    // none of these replies has surrounding whitespace, so it is the text itself.
+    expect(run.legacy.text.trim()).toBe(run.legacy.text)
+    expect(run.job.answerText).toBe(run.legacy.text)
+    expect(run.delivered).toBe(1)
+  }
+
+  afterEach(async () => {
+    if (parityProjects.length) {
+      await prisma.project.updateMany({ where: { id: { in: parityProjects } }, data: { deletedAt: new Date() } })
+      parityProjects = []
+    }
+  })
+
+  it('reads: item ids, workstream ids, the empty answer and the truncation note', async () => {
+    for (const [eventId, text] of [
+      ['parity-read-projects', '/projects'],
+      ['parity-read-projects-query', '/projects WorkToolPort'],
+      ['parity-read-work', '/work'],
+      ['parity-read-none', '/projects nothing-matches-this-query'],
+    ]) {
+      const run = await bothPaths(eventId, text)
+      expectSameReply(run)
+      expect(run.calls).toEqual(['status', 'read'])
+    }
+    const workspace = await prisma.workspace.findFirst({ where: { code: 'WS-CR-WTP' } })
+    for (let index = 0; index < 11; index += 1) {
+      const created = await createProject({ workspaceId: workspace.id, name: `Parity truncation ${index}`,
+        code: `PRJ-CR-WTP-T${String(index).padStart(2, '0')}` }, { viewer: ownerViewer })
+      parityProjects.push(created.id)
+    }
+    const truncated = await bothPaths('parity-read-truncated', '/projects Parity truncation')
+    expectSameReply(truncated)
+    expect(truncated.job.answerText).toContain('\nมีรายการเพิ่มเติม โปรดระบุคำค้น')
+    expect(truncated.job.answerText).toContain(parityProjects[10])
+  })
+
+  it('propose, confirm-execute and a second confirmation: the same headers, receipts and duplicate answer', async () => {
+    const create = await bothPaths('parity-propose-create', `/work-create ${workstream.id} Parity created task`)
+    expectSameReply(create)
+    expect(create.job.answerText.split('\n')[0]).toBe('รอยืนยัน สร้างงาน')
+    expect(create.calls).toEqual(['status', 'propose'])
+
+    const confirm = await bothPaths('parity-confirm-create', `ยืนยันงาน ${create.jobId}`)
+    expectSameReply(confirm)
+    const item = await prisma.workItem.findFirst({ where: { workstreamId: workstream.id, title: 'Parity created task' } })
+    expect(confirm.job.answerText).toBe(`บันทึกงาน ${item.code} แล้ว สถานะ ${item.status}`)
+    expect(confirm.calls).toEqual(['status', 'confirm-execute'])
+
+    // A second confirming message is another job: Core does not replay the first
+    // job's receipt to it; confirm-execute answers it exactly as the Server path does.
+    const again = await bothPaths('parity-confirm-again', `ยืนยันงาน ${create.jobId}`)
+    expectSameReply(again)
+    expect(again.job.answerText).toBe('คำสั่งนี้ยืนยันและดำเนินการแล้ว ไม่มีการทำซ้ำ')
+    expect(again.calls).toEqual(['status', 'confirm-execute'])
+    expect(await prisma.workItem.count({ where: { workstreamId: workstream.id, title: 'Parity created task' } })).toBe(1)
+
+    const update = await bothPaths('parity-propose-update', `/work-update ${item.id} {"status":"DONE"}`)
+    expectSameReply(update)
+    expect(update.job.answerText.split('\n')[0]).toBe('รอยืนยัน แก้ไขงาน')
+  })
+
+  it('Work refusals: expired confirmation, version conflict, scope denied and a confirmation Core cannot match', async () => {
+    const expiring = await bothPaths('parity-propose-expiring', `/work-create ${workstream.id} Parity expiring task`)
+    const proposal = await prisma.auditEvent.findUnique({ where: { id: expiring.jobId } })
+    await prisma.auditEvent.update({ where: { id: expiring.jobId }, data: { payloadJson: JSON.stringify({
+      ...JSON.parse(proposal.payloadJson), expiresAt: new Date(Date.now() - 1000).toISOString() }) } })
+    const expired = await bothPaths('parity-confirm-expired', `ยืนยันงาน ${expiring.jobId}`)
+    expectSameReply(expired)
+    expect(expired.legacy.errorCode).toBe('WORK_CONFIRMATION_EXPIRED')
+
+    const target = await prisma.workItem.findFirst({ where: { workstreamId: workstream.id, title: 'Parity created task' } })
+    const updating = await bothPaths('parity-propose-conflict', `/work-update ${target.id} {"title":"Parity renamed task"}`)
+    await updateItem(target.id, { status: 'IN_PROGRESS' }, { viewer: ownerViewer })
+    const conflict = await bothPaths('parity-confirm-conflict', `ยืนยันงาน ${updating.jobId}`)
+    expectSameReply(conflict)
+    expect(conflict.legacy.errorCode).toBe('WORK_VERSION_CONFLICT')
+
+    const unknown = await bothPaths('parity-confirm-unknown', `ยืนยันงาน ${uuid}`)
+    expectSameReply(unknown)
+    expect(unknown.legacy.errorCode).toBe('WORK_ACTION_UNAVAILABLE')
+    // Extra spaces pass the syntax but not the exact-confirmation check.
+    const spaced = await bothPaths('parity-confirm-spaced', `ยืนยันงาน   ${updating.jobId}`)
+    expectSameReply(spaced)
+    expect(spaced.calls).toEqual(['status', 'confirm-execute'])
+
+    await prisma.membership.updateMany({ where: { personId: actor.id, businessId: business.id }, data: { role: 'MEMBER' } })
+    try {
+      const denied = await bothPaths('parity-propose-denied', `/work-create ${workstream.id} Parity denied task`)
+      expectSameReply(denied)
+      expect(denied.legacy.errorCode).toBe('WORK_ACTION_UNAVAILABLE')
+      expect(await prisma.auditEvent.findUnique({ where: { id: denied.jobId } })).toBeNull()
+    } finally {
+      await prisma.membership.updateMany({ where: { personId: actor.id, businessId: business.id }, data: { role: 'OWNER' } })
+    }
+    expect(await prisma.workItem.findFirst({ where: { title: { in: ['Parity renamed task', 'Parity expiring task', 'Parity denied task'] } } })).toBeNull()
+  })
+
+  it('malformed legacy /work syntax is runtime-owned and answered with the legacy usage or refusal text', async () => {
+    const cases = [
+      ['/work-create', 'WORK_COMMAND_USAGE'],
+      ['/work-update', 'WORK_COMMAND_USAGE'],
+      ['/work-create only-one-token', 'WORK_COMMAND_USAGE'],
+      ['ยืนยันงาน', 'WORK_COMMAND_USAGE'],
+      [`ยืนยันงาน\t${uuid}`, 'WORK_COMMAND_USAGE'],
+      ['/work-create not-a-uuid Some task', 'WORK_ACTION_UNAVAILABLE'],
+      [`/work-create ${workstream.id} ${'x'.repeat(241)}`, 'WORK_ACTION_UNAVAILABLE'],
+      [`/work-update ${uuid} not-json`, 'WORK_ACTION_UNAVAILABLE'],
+      [`/work-update ${uuid} {"status":"NOT_A_STATUS"}`, 'WORK_ACTION_UNAVAILABLE'],
+      [`/work ${'q'.repeat(121)}`, 'WORK_ACTION_UNAVAILABLE'],
+      ['ยืนยันงาน not-a-uuid', 'WORK_ACTION_UNAVAILABLE'],
+      [`ยืนยันงาน ${uuid} extra`, 'WORK_ACTION_UNAVAILABLE'],
+    ]
+    for (const [index, [text, code]] of cases.entries()) {
+      // admit() also asserts the job was admitted to the CONVERSATION_RUNTIME cohort.
+      const run = await bothPaths(`parity-malformed-${index}`, text)
+      expectSameReply(run)
+      expect(run.legacy.errorCode ?? 'WORK_COMMAND_USAGE', text).toBe(code)
+      // The reply is derived from the text alone; no Work call runs on either side.
+      expect(run.calls, text).toEqual([])
+      expect(await prisma.auditEvent.findUnique({ where: { id: run.jobId } })).toBeNull()
+    }
+  })
+
+  it('keeps the legacy 5,000-character bound: an over-long Work answer fails without a reply, as on the Server path', async () => {
+    const workspace = await prisma.workspace.findFirst({ where: { code: 'WS-CR-WTP' } })
+    const long = await createProject({ workspaceId: workspace.id, name: `Parity overflow ${'y'.repeat(5000)}`,
+      code: 'PRJ-CR-WTP-OVERFLOW' }, { viewer: ownerViewer })
+    parityProjects.push(long.id)
+    const run = await bothPaths('parity-read-overflow', '/projects Parity overflow')
+    // The legacy worker's `zCompletion` text bound rejects this reply and fails the job.
+    expect(run.legacy.text.trim().length).toBeGreaterThan(5000)
+    expect(run.outcome).toEqual({ jobId: run.jobId, status: 'FAILED', code: 'WORK_TOOL_TEXT_TOO_LONG' })
+    expect(run.job.answerText).toBeNull()
+    expect(run.delivered).toBe(0)
+    // Final, not retried: one read, then the status probe that found nothing recorded.
+    expect(run.calls).toEqual(['status', 'read', 'status'])
+  })
+
+  it('returns refusals as typed REJECTED outcomes, fences them, and keeps availability failures retryable', async () => {
+    const ajv = new Ajv2020({ allErrors: true, strict: false })
+    addFormats(ajv)
+    ajv.addSchema(schema)
+    const validateResult = ajv.compile({ $ref: `${schema.$id}#/$defs/workToolResult` })
+
+    // A Project Manager refusal (a workstream that does not exist) is final: a typed
+    // REJECTED outcome with the legacy handler's own reply for the same job.
+    const setup = paritySetup()
+    const jobId = await admit('parity-port-missing-target', `/work-create ${uuid} Parity port task`)
+    const { claim, authority, turn } = await claimTurn(setup.ports, jobId, 'runtime-parity-port')
+    const request = validateWorkToolRequest({ ...turn.workCommand, operationId: `${jobId}:work-proposal` })
+    const rejected = await setup.ports.workTool.execute(claim, authority, request)
+    expect(rejected).toEqual({ status: 'REJECTED', code: 'WORK_ACTION_UNAVAILABLE', result: { text: setup.legacy.get(jobId).text } })
+    expect(validateResult(rejected), JSON.stringify(validateResult.errors)).toBe(true)
+    expect(await setup.ports.workTool.status(claim, request.operationId)).toEqual({ status: 'NOT_FOUND', operationId: request.operationId })
+    expect(await prisma.auditEvent.findUnique({ where: { id: jobId } })).toBeNull()
+    await prisma.lineConversationJob.update({ where: { id: jobId }, data: { status: 'CANCELLED', errorCode: 'TEST_WORK_TOOL_PORT_REJECTED' } })
+    for (const response of [
+      { status: 'COMPLETED', result: { text: 'x', receipt: {} } },
+      { status: 'NOT_FOUND', operationId: 'op' },
+    ]) expect(validateResult(response)).toBe(true)
+    for (const response of [
+      { status: 'REJECTED', code: 'WORK_SCOPE_DENIED', result: { text: 'x' } },
+      { status: 'REJECTED', code: 'WORK_ACTION_UNAVAILABLE', result: { text: 'x' }, retryable: false },
+    ]) expect(validateResult(response)).toBe(false)
+
+    // A refusal from a claim that stopped being this runtime's is fenced, never answered.
+    const fencedSetup = paritySetup({ workPropose: async () => {
+      await prisma.lineConversationJob.update({ where: { id: fencedJobId }, data: { leaseExpiresAt: new Date(clock.at.getTime() - 1) } })
+      throw Object.assign(new Error('WORK_SCOPE_DENIED'), { code: 'WORK_SCOPE_DENIED' })
+    } })
+    const fencedJobId = await admit('parity-port-fenced', `/work-create ${workstream.id} Parity fenced task`)
+    const fenced = await claimTurn(fencedSetup.ports, fencedJobId, 'runtime-parity-fenced')
+    const fencedRequest = validateWorkToolRequest({ ...fenced.turn.workCommand, operationId: `${fencedJobId}:work-proposal` })
+    await expect(fencedSetup.ports.workTool.execute(fenced.claim, fenced.authority, fencedRequest))
+      .rejects.toMatchObject({ code: 'CONVERSATION_JOB_AUTHORITY_REVOKED', retryable: false })
+    expect(await prisma.auditEvent.findUnique({ where: { id: fencedJobId } })).toBeNull()
+    // Its expired lease would make it the next claim; take it out of the queue.
+    await prisma.lineConversationJob.update({ where: { id: fencedJobId }, data: { status: 'CANCELLED', errorCode: 'TEST_WORK_TOOL_PORT_FENCED' } })
+
+    // A database or transport failure is not a refusal: it stays a retryable error.
+    const outageSetup = paritySetup({ workSearch: async () => { throw Object.assign(new Error('database unreachable'), { code: 'P1001' }) } })
+    const outageJobId = await admit('parity-port-outage', '/projects')
+    const outage = await claimTurn(outageSetup.ports, outageJobId, 'runtime-parity-outage')
+    const outageRequest = validateWorkToolRequest({ ...outage.turn.workCommand, operationId: `${outageJobId}:work-read` })
+    await expect(outageSetup.ports.workTool.execute(outage.claim, outage.authority, outageRequest))
+      .rejects.toMatchObject({ code: 'P1001', retryable: true })
+  })
+  it('classifies Work writer failures: request refusals are REJECTED, the rest stay retryable (UNKNOWN, no reply)', async () => {
+    const failures = []
+    const setup = paritySetup({ workPropose: async () => { throw failures.shift() } })
+    const jobId = await admit('parity-port-classify', `/work-create ${workstream.id} Parity classify task`)
+    const { claim, authority, turn } = await claimTurn(setup.ports, jobId, 'runtime-parity-classify')
+    const request = validateWorkToolRequest({ ...turn.workCommand, operationId: `${jobId}:work-proposal` })
+    const unavailable = { status: 'REJECTED', code: 'WORK_ACTION_UNAVAILABLE',
+      result: { text: 'ไม่สามารถดำเนินการคำสั่งงานนี้ได้ กรุณาตรวจสอบรูปแบบคำสั่ง การเชื่อมตัวตน และสิทธิ์ของคุณ' } }
+    for (const refusal of [
+      new z.ZodError([]),
+      new Error('Work item not found'),
+      new Error('Workstream not found'),
+      Object.assign(new Error('Work item not found'), { status: 404 }),
+      Object.assign(new Error('WORK_TARGET_NOT_FOUND'), { code: 'WORK_TARGET_NOT_FOUND' }),
+    ]) {
+      failures.push(refusal)
+      expect(await setup.ports.workTool.execute(claim, authority, request), String(refusal.message)).toEqual(unavailable)
+    }
+    // Not refusals of the request: they stay retryable, so a turn that keeps
+    // failing ends WORK_TOOL_OUTCOME_UNKNOWN with no reply (see the PR notes).
+    for (const [failure, code] of [
+      [Object.assign(new Error('unique constraint'), { code: 'P2002' }), 'P2002'],
+      [Object.assign(new Error('serialization failure'), { code: 'P2034' }), 'P2034'],
+      [Object.assign(new Error('WORK_RECEIPT_UNAVAILABLE'), { code: 'WORK_RECEIPT_UNAVAILABLE' }), 'WORK_RECEIPT_UNAVAILABLE'],
+      [Object.assign(new Error('WORK_CLAIM_STALE'), { code: 'WORK_CLAIM_STALE' }), 'WORK_CLAIM_STALE'],
+      [new Error('Container must belong to the same workstream'), 'CORE_OPERATION_UNAVAILABLE'],
+    ]) {
+      failures.push(failure)
+      await expect(setup.ports.workTool.execute(claim, authority, request)).rejects.toMatchObject({ code, retryable: true })
+    }
+  })
+
+  it('executes only the Work command the user typed: a runtime cannot propose, read or confirm anything else', async () => {
+    const setup = paritySetup()
+    const jobId = await admit('parity-port-forged', `/work-create ${workstream.id} Parity typed task`)
+    const { claim, authority, turn } = await claimTurn(setup.ports, jobId, 'runtime-parity-forged')
+    expect(turn.workCommand).toEqual({ operation: 'propose',
+      input: { action: 'create_work', targetId: workstream.id, args: { title: 'Parity typed task' } } })
+    const other = await prisma.workItem.findFirst({ where: { workstreamId: workstream.id, deletedAt: null } })
+    const forgeries = [
+      ['other args', 'propose', `${jobId}:work-proposal`, { action: 'create_work', targetId: workstream.id, args: { title: 'Never typed' } }],
+      ['other target', 'propose', `${jobId}:work-proposal`, { action: 'update_work', targetId: other.id, args: { status: 'DONE' } }],
+      ['other operation', 'read', `${jobId}:work-read`, { kind: 'projects', query: '' }],
+      ['a confirmation never typed', 'confirm-execute', uuid, { proposalId: uuid }],
+    ]
+    for (const [label, operation, operationId, input] of forgeries) {
+      const forged = validateWorkToolRequest({ operation, operationId, input })
+      await expect(setup.ports.workTool.execute(claim, authority, forged), label)
+        .rejects.toMatchObject({ code: 'WORK_COMMAND_MISMATCH', retryable: false })
+    }
+    // Nothing was proposed or changed by the refused requests.
+    expect(await prisma.auditEvent.findUnique({ where: { id: jobId } })).toBeNull()
+    expect(await prisma.workItem.findUnique({ where: { id: other.id } })).toMatchObject({ status: other.status, version: other.version })
+    // The typed command itself still runs, with the typed arguments; key order does not matter.
+    const typed = await setup.ports.workTool.execute(claim, authority, validateWorkToolRequest({ operation: 'propose',
+      operationId: `${jobId}:work-proposal`, input: { args: { title: 'Parity typed task' }, targetId: workstream.id, action: 'create_work' } }))
+    expect(typed.result.text).toBe(setup.legacy.get(jobId).text)
+    expect(JSON.parse((await prisma.auditEvent.findUnique({ where: { id: jobId } })).payloadJson).args).toEqual({ title: 'Parity typed task' })
+    await prisma.lineConversationJob.update({ where: { id: jobId }, data: { status: 'CANCELLED', errorCode: 'TEST_WORK_TOOL_PORT_FORGED' } })
+
+    // Over the full turn the same forgery ends FAILED with no reply and no Work write.
+    const forgedPorts = { ...setup.ports, context: { prepare: async (...args) => {
+      const prepared = await setup.ports.context.prepare(...args)
+      return { ...prepared, workCommand: { ...prepared.workCommand, input: { ...prepared.workCommand.input, args: { title: 'Never typed' } } } }
+    } } }
+    const forgedJobId = await admit('parity-turn-forged', `/work-create ${workstream.id} Parity typed turn task`)
+    const outcome = await createConversationRuntime({ ports: forgedPorts, claimantId: 'runtime-parity-forged-turn' }).runOne()
+    expect(outcome).toEqual({ jobId: forgedJobId, status: 'FAILED', code: 'WORK_COMMAND_MISMATCH' })
+    expect(await prisma.auditEvent.findUnique({ where: { id: forgedJobId } })).toBeNull()
+    expect((await prisma.lineConversationJob.findUnique({ where: { id: forgedJobId } })).answerText).toBeNull()
+  })
+
+  it("status discloses nothing about another Tenant's or Business's proposal or receipt", async () => {
+    const setup = paritySetup()
+    const jobId = await admit('parity-status-scope', `ยืนยันงาน ${uuid}`)
+    const { claim } = await claimTurn(setup.ports, jobId, 'runtime-parity-status-scope')
+    const portfolio = await createPortfolio({ name: 'WorkToolPort other portfolio', code: 'PF-CR-WTP-OTHER' })
+    const otherTenant = await createTenant({ portfolioId: portfolio.id, name: 'WorkToolPort other tenant', code: 'TNT-CR-WTP-OTHER' })
+    const otherTenantBusiness = await createBusiness({ tenantId: otherTenant.id, name: 'WorkToolPort other tenant business', code: 'BUS-CR-WTP-OTHER-T' })
+    const otherBusiness = await createBusiness({ tenantId: tenant.id, name: 'WorkToolPort other business', code: 'BUS-CR-WTP-OTHER-B' })
+    const proposalIn = async scope => {
+      const id = randomUUID()
+      await prisma.auditEvent.create({ data: { id, entityType: 'LINE_WORK_PROPOSAL', entityId: workstream.id, action: 'PROPOSED',
+        actorType: 'AGENT', actorId: actor.id, tenantId: scope.tenantId, businessId: scope.businessId, requestId: id, payloadJson: '{}' } })
+      return id
+    }
+    const nonexistent = randomUUID()
+    expect(await setup.ports.workTool.status(claim, nonexistent)).toEqual({ status: 'NOT_FOUND', operationId: nonexistent })
+    const sameAsNonexistent = async id => expect(await setup.ports.workTool.status(claim, id)).toEqual({ status: 'NOT_FOUND', operationId: id })
+    // Control: a proposal in this job's own Tenant and Business is reported as awaiting.
+    const own = await proposalIn({ tenantId: tenant.id, businessId: business.id })
+    expect(await setup.ports.workTool.status(claim, own)).toEqual({ status: 'NOT_FOUND', proposalId: own, receipt: { status: 'AWAITING_CONFIRMATION' } })
+    await sameAsNonexistent(await proposalIn({ tenantId: otherTenant.id, businessId: otherTenantBusiness.id }))
+    await sameAsNonexistent(await proposalIn({ tenantId: tenant.id, businessId: otherBusiness.id }))
+    // A receipt recorded outside this scope is never replayed, even one naming this job as its executor.
+    for (const scope of [{ tenantId: otherTenant.id, businessId: otherTenantBusiness.id }, { tenantId: tenant.id, businessId: otherBusiness.id }]) {
+      const proposalId = await proposalIn(scope)
+      await prisma.auditEvent.create({ data: { id: `line-work-result:${proposalId}`, entityType: 'AGENT_ACTION', entityId: proposalId,
+        action: 'EXECUTED', actorType: 'AGENT', actorId: actor.id, ...scope, requestId: jobId,
+        payloadJson: JSON.stringify({ proposalId, code: 'SECRET-OTHER-SCOPE' }) } })
+      await sameAsNonexistent(proposalId)
+    }
+  })
+
+  it('checks the 5,000-character bound on the committed (trimmed) text: padding is not a 500', async () => {
+    const padding = ' '.repeat(200)
+    const search = { source: 'PROJECT_MANAGER', observedAt: new Date().toISOString(), truncated: false, limit: 10,
+      items: [{ id: 'padded-item', code: `${padding}PAD`, title: 'x'.repeat(4900), status: 'PLANNED' }] }
+    const setup = paritySetup({ workSearch: async () => search })
+    const jobId = await admit('parity-port-padded', '/work')
+    const { claim, authority, turn } = await claimTurn(setup.ports, jobId, 'runtime-parity-padded')
+    const raw = lineWorkReadText(search)
+    expect(raw.length).toBeGreaterThan(5000)
+    expect(raw.trim().length).toBeLessThanOrEqual(5000)
+    const result = await setup.ports.workTool.execute(claim, authority, validateWorkToolRequest({ ...turn.workCommand, operationId: `${jobId}:work-read` }))
+    expect(result).toMatchObject({ status: 'COMPLETED', result: { text: raw.trim() } })
   })
 })
