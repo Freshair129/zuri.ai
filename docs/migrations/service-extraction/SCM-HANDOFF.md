@@ -97,7 +97,7 @@ default).
 | PRICING_PARITY_VERIFIED | PASS | 64 pinned cases (47 priced, 17 refused). The legacy recorder and the SCM kernel reproduce the same golden (§6). Revenue parity: 7 pinned queries (§4.4). Cost-sheet parity: 4 pinned previews — code, preview hash, source hash, SKU-match suggestions, locked-FX costs (§4.6). POS catalogue parity: 2 pinned catalogues (§4.8). Each golden is recorded by legacy and reproduced by SCM from its own store |
 | TRANSACTION_INVARIANTS_VERIFIED | PARTIAL | Every moved group on **both engines**: injected-fault rollback, CAS interleaving (receipt, payment, order, pricing rule, cost sheet, kitting work order), and two-process contention on SQLite **and on PostgreSQL 17 at READ COMMITTED with real interleaving** (receipt, POS oversell, refund ceiling, fulfilment, approval + calculation key, cost sheets, kitting completion). The guard proof shows the F-1/F-9/F-12, W-1, R-1, R-2, S-1 and I-1 races break on PostgreSQL without each SCM guard (§4.7, §4.10–§4.13). Not yet: a managed PostgreSQL / production-sized load |
 | ISOLATED_TESTS_VERIFIED | PASS | 298 service tests at `cba3f79a` (same counts at `bc24e5bb`): SQLite 296 pass, 2 NOT_RUN (graceful SIGTERM on Windows; the F-18 row-lock barrier case is PostgreSQL-only); a disposable PostgreSQL 17 297 pass, 1 NOT_RUN, in two consecutive full runs. F-18 is fixed (D-28) and F-19 closed (the contract lists `SCM_CONCURRENT_CONFLICT`); no Next.js/app DB/global setup |
-| CORE_CONTRACT_VERIFIED | NOT_RUN | `scm.delegation.v1` and the ReferenceAuthority port are PROPOSED; the issuer and the reference owners are synthetic in tests |
+| CORE_CONTRACT_VERIFIED | NOT_RUN | `scm-core.v1` (owner-approved option 2, ADR-111 D5) is PROPOSED: the consumer is built and tested against a fake core; the apps/server façade does not exist yet |
 | CONSUMER_INTEGRATION_VERIFIED | NOT_RUN | No BFF/route calls SCM; legacy routes are unchanged |
 | DATA_OWNERSHIP_ENFORCED | NOT_RUN | Service-local disposable SQLite only; no restricted role; no transfer |
 | LOCAL_IMAGE_BUILD | NOT_RUN | Docker daemon not running on this host. It was deliberately not started: the same host Docker serves the production Compose project `zuri-ai` |
@@ -205,7 +205,7 @@ API v1: `POST /v1/procurement/suppliers`, `POST /v1/procurement/purchase-orders`
 `GET /v1/operations/{action}/{key}`, `/healthz`, `/readyz`, plus the sales
 order, payment, revenue and `/v1/commerce/pricing-rules/**` routes added in
 S5.4, and every Inventory route since. Contract: `services/scm/contracts/v1/scm-api.v1.json`
-(revision `v1-draft.15`, 96 routes, `notMigrated` empty, PROPOSED).
+(revision `v1-draft.16`, 96 routes, `notMigrated` empty, PROPOSED).
 
 ## 4. Invariants proven in this slice
 
@@ -796,7 +796,7 @@ remaining WARNING/INFO lines are the pre-existing baseline (broken
 | Gate | Waiting phase | Waiting for | From | Unblocks when | Safe now |
 |---|---|---|---|---|---|
 | SCM-ARCH | Any move beyond this slice's owned code | Review of ADR-111 + this matrix | Owner + reviewers | ADR-111 accepted | Pricing/receipt tests, S5.4 characterization |
-| SCM-CORE | Real BFF → SCM calls; POS in a real process | Identity owner signs off `scm.delegation.v1` (issuer, key distribution, lifetime, revocation), the audit relay mapping, a Branch + Customer + Conversation reference façade (facts: tenant, business, status/deletedAt, customerId, code; **and the Branch list of a Business for the POS catalogue**) for ReferenceAuthority, and grants for every visible Business (D-10) | Identity/Core owner + CRM owner + S5 | Reviewed contract SHA + provider tests; a façade the real process can call | Everything service-local |
+| SCM-CORE | Real BFF → SCM calls; POS in a real process | The apps/server façade for `scm-core.v1` (`/api/internal/scm/v1/*`: `resolve-scope`, `branch`, `branches`, `customer`, `conversation`; option 2, owner-approved 2026-09-27), the Core owner's review of `resolve-scope`, the CRM owner's review of `customer`, the audit relay mapping, and a decision on who writes the façade (Core owner, or S5 under a lease) | Identity/Core owner + CRM owner + MC0 + S5 | Reviewed contract SHA + provider tests against `services/scm/contracts/v1/scm-core.v1.json` | Consumer side done (`SCM_AUTH_MODE=core`, 26 tests with a fake core); everything service-local |
 | COMMON | CI for services/scm | Hosted green run of the `scm` job | Integrator (root CI owner) | **Approved by MC0 (2026-09-27) and added in #546**: `scm` job in `.github/workflows/governance.yml` (kernel:check, suite on SQLite and embedded PostgreSQL 17, `docker build -f services/scm/Dockerfile .`), gated by `verify`; no secrets, no deploy. Container start smoke not added | Local tests |
 | SCM-AGENT | S5.4 agent/LINE tools | Read/mutation/confirmation/receipt contract | S1 + S5 | Reviewed contract | POS/fulfilment moves |
 | SCM-FILES | Payment-slip facts (POS, payments), cost-sheet originals, catalog artifacts | FilePort exact-version read + a `fileAsset` fact lookup (businessId, deletedAt) for ReferenceAuthority | S3 + S5 | Reviewed FilePort (ADR-107) + fixtures | Non-file groups; POS without slips |
@@ -912,11 +912,12 @@ remaining:
   - "Image build/start smoke; BFF consumer; core delegation issuer; audit outbox relay; a managed PostgreSQL rehearsal (pooler, TLS, restricted role) under SCM-CUTOVER"
   - "F-10 separate FR (declared by the PRD registry owner), then the fulfilment change in legacy and SCM together"
 contracts:
-  - { name: scm-api, revision: v1-draft.15, provider_owner: S5, consumer_owner: "BFF (unassigned)", review_status: PROPOSED, provider_conformance: "LOCAL PASS", consumer_conformance: NOT_RUN }
-  - { name: scm.delegation.v1, provider_owner: "Identity/Core", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (synthetic issuer)" }
+  - { name: scm-api, revision: v1-draft.16, provider_owner: S5, consumer_owner: "BFF (unassigned)", review_status: PROPOSED, provider_conformance: "LOCAL PASS", consumer_conformance: NOT_RUN }
+  - { name: scm-core.v1, provider_owner: "Core (Identity) + CRM (customer op)", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (fake core)" }
+  - { name: scm.delegation.v1, provider_owner: "none (test / non-production seam only)", consumer_owner: S5, review_status: SUPERSEDED_BY_scm-core.v1, provider_conformance: NOT_APPLICABLE, consumer_conformance: "LOCAL PASS (synthetic issuer)" }
   - { name: ReferenceAuthority (branch/branches/customer/conversation/fileAsset facts), provider_owner: "Core + CRM + Files (S3)", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (fixture provider)" }
 blockers:
-  - { dependency: "scm.delegation.v1 review + core issuer", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + S5", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
+  - { dependency: "scm-core.v1 façade in apps/server + Core/CRM review", kind: CONTRACT, phase_blocked: "real consumer integration", owner_to_unblock: "Identity/Core owner + CRM owner (writer assigned by MC0)", condition_to_unblock: "reviewed contract SHA + provider tests", safe_work_now: ["S5.4 service-local moves", "PostgreSQL adapter"] }
   - { dependency: "root CI job for services/scm", kind: INTEGRATION_ORDER, phase_blocked: "CI_VERIFIED/HOSTED_IMAGE_BUILD", owner_to_unblock: integrator, condition_to_unblock: "job merged", safe_work_now: ["local tests"] }
 next_action: "Inventory group complete; F-18 (bc24e5bb) and F-19 (cba3f79a) fixed. #546 stays draft, not for merge. Billing and the pricing catalog wait for their gates."
 owned_paths: [services/scm/**, docs/migrations/service-extraction/SCM-HANDOFF.md, docs/decisions/ADR-111-SCM-SERVICE-EXTRACTION.md, apps/server/tests/unit/scm-pricing-parity.test.js, apps/server/tests/unit/scm-revenue-parity.test.js, apps/server/tests/unit/scm-cost-sheet-parity.test.js]
@@ -945,6 +946,13 @@ board_update: BOARD_UPDATE_PENDING
    reproduced locally with `log_statement=all` (1/20) and fixed with an async spawn
    (20/20; full PostgreSQL suite 297/298 under the same logging). The test runner is
    the only change; no assertion changed.
+2c. SCM-CORE option 2 (owner-approved 2026-09-27; ADR-111 D5 revised): SCM's
+   consumer side of `scm-core.v1` is done in `services/scm`: core client, core scope
+   resolver, `SCM_AUTH_MODE=core` (required in production; HMAC delegation kept
+   only for tests and non-production), HTTP ReferenceAuthority for branch, branches,
+   customer and conversation, the contract, and 26 tests with a fake core. SQLite
+   322/324 (2 skipped), PostgreSQL 323/324 (1 skipped). Next is the provider
+   façade in apps/server; MC0 decides who writes it.
 2a. Wrap-up (2026-09-24): no new groups.
    - #561: MERGED at `9e25aa1f` (S1 PASS at `be171333`, CI green).
    - #564 (F-15/F-16/F-17): MERGED at `caabd8a7` (S1 PASS at `812b21f0`, CI green).

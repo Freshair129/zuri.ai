@@ -1,7 +1,7 @@
 ---
 id: ZAI:ADR-111
 title: "SCM service extraction — one deployable over Inventory, Procurement and Commerce"
-version: "0.1.10b"
+version: "0.1.11b"
 status: candidate
 created_at: "2026-09-24T14:00:00+07:00,Claude Opus 5.5"
 last_update: "2026-09-27T10:15:00+07:00,Claude Opus 5.5"
@@ -116,19 +116,33 @@ There is no `scm` grant. A Procurement permission never widens Inventory
 (ADR-066 D4). The service identity that carries a request is not a business
 authority.
 
-**D5 — Delegated scope, not a copied viewer.** The core, as the Identity owner
-reached through the BFF, resolves the viewer as it does today and signs a
-short-lived `scm.delegation.v1` statement:
+**D5 — Core resolves the viewer; SCM never trusts an asserted one (revised
+2026-09-27, owner decision: the ADR-108 D4 pattern).** Core stays the only
+identity authority, the same way as for Market Intelligence and Conversation
+Runtime:
 
-- actor;
-- Tenant;
-- per Business: owner flag, domains and permissions.
+- The BFF calls SCM with its own static service token (`SCM_API_TOKEN`) and
+  passes the end user's session credential through unchanged in `x-zuri-subject`.
+  The token proves the caller is the BFF; it is never a business authority.
+- SCM asks core's private façade `/api/internal/scm/v1/resolve-scope` (contract
+  `scm-core.v1`, SCM authenticating with a different token, `SCM_CORE_TOKEN`) to
+  resolve that subject into actor, Tenant and, per visible Business, the owner
+  flag, domains and permissions.
+- The same façade serves the Branch, Customer and Conversation facts (D-10 and
+  the ReferenceAuthority consequence below). It re-resolves the subject on every
+  call and answers `null` for a Business the subject cannot see. Payment-slip
+  files stay behind SCM-FILES.
+- SCM applies its unchanged legacy ladders to that scope. It never accepts role,
+  owner or "verified" flags from a request, and a scope refusal is the same 404
+  as an unknown Business. An unreachable core refuses retryably (503) with no
+  effect; nothing is cached.
 
-SCM verifies issuer, audience, signature and lifetime (default at most 120 s,
-which is also the declared revocation window). It never accepts role, owner or
-"verified" flags from a request body. A scope refusal returns the same 404 as an
-unknown Business. The contract is **PROPOSED** (gate SCM-CORE). The HMAC scheme
-and key distribution need the Identity owner's review.
+The earlier draft had core sign a short-lived HMAC `scm.delegation.v1`
+statement. It is kept only as a test and non-production seam and is refused in
+production, because a signed actor assertion is a second trust root (ADR-108
+D4). The contract is **PROPOSED** (gate SCM-CORE): the consumer side is built
+and tested against a fake core in `services/scm`; the provider façade in
+apps/server and the Core and CRM owners' review are pending.
 
 **D6 — Business commands, durable identity, evidence in the same unit of work.**
 - **Business commands only.** The external API exposes business commands (post
@@ -275,3 +289,4 @@ For this candidate revision:
 | 0.1.8b | 2026-09-24 | candidate | POS terminal catalogue read moved; Branch list as a ReferenceAuthority fact | 14c8e7dd | Claude Opus 5.5 (Session 5) |
 | 0.1.9b | 2026-09-24 | candidate | Inventory catalogue writers + SKU identity moved (F-13 writers); ARCHIVE/MERGE stay legacy | uncommitted | Claude Opus 5.5 (Session 5) |
 | 0.1.10b | 2026-09-27 | candidate | Renumbered from ADR-109 to ADR-111 (ADR-109 went to Notion on main; MC0 allocated 111); no decision text changed | this merge | Claude Opus 5.5 (Session 5) |
+| 0.1.11b | 2026-09-27 | candidate | D5 revised to the owner-approved option 2: core resolves the subject through the private scm-core.v1 facade (ADR-108 D4 pattern); HMAC delegation kept only as a test/non-production seam | this change | Claude Opus 5.5 (Session 5) |
