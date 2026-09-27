@@ -314,7 +314,7 @@ describe('verifyCandidate after the #606 review', () => {
   })
 
   it.each([
-    ['an exponent glued to its base', { records: [{ ...pricey, moq: 105 }] }, 'ความจุ 10⁵ ml', { unsupportedNumbers: ['10'] }],
+    ['an exponent glued to its base', { records: [{ ...pricey, moq: 105 }] }, 'ความจุ 10⁵ ml', { unsupportedNumbers: ['10', '⁵'] }],
     ['a dash bullet when the evidence has a negative figure', { records: [{ ...pricey, sell_price: 500, discount: -100 }] },
       'รายการ\n-500 บาท', { unsupportedNumbers: ['-500'] }],
     ['a phone number the evidence lacks', at1250, 'โทร 081 234 5678', { unsupportedNumbers: ['81', '234', '5678'] }],
@@ -358,8 +358,73 @@ describe('numeralDigits', () => {
     expect(numeralDigits('¹²⁵⁰ ₁₂ ① ⑳ ㉑ ½ Ⅻ ⑴ ทำ ，')).toBe('1250 12 1 20 21 ½ Ⅻ ⑴ ทำ ，')
   })
 
-  it('drops a superscript or subscript glued to a letter or a digit', () => {
-    expect(numeralDigits('50 m² 10⁵ บาท¹ H₂O ๑²')).toBe('50 m 10 บาท HO ๑')
+  it('drops only a lone mark glued to a letter with no digit after it, and leaves every other glued run as written', () => {
+    expect(numeralDigits('50 m² บาท¹ cm³ และ 10⁵ 5⁰⁰ ราคา¹²⁵⁰ H₂O CO₂ และ ๑² m²³ 250¹'))
+      .toBe('50 m บาท cm และ 10⁵ 5⁰⁰ ราคา¹²⁵⁰ HO CO และ ๑² m²³ 250¹')
+  })
+
+  it('reads a lone mark glued to a letter as a digit when a digit follows it', () => {
+    expect(numeralDigits('ราคา¹,250 ราคา¹ 250 ราคา¹ ²⁵⁰ ราคา¹.5 H₂ 2')).toBe('ราคา1,250 ราคา1 250 ราคา1 250 ราคา1.5 H2 2')
+  })
+})
+
+// The #608 review: a dropped mark must not change what a figure after it reads
+// as, and a formula index (CO₂) is a mark like a footnote. A footnote glued to a
+// figure (250¹) stays rejected on purpose: it is read literally and must appear so
+// in the evidence.
+const at250 = { records: [{ kind: 'CORPUS_CHUNK', citationId: 'gks:a', text: 'ขั้นต่ำ 50 ชิ้น ราคา 250 บาท ปล่อย CO2 ต่ำ ใช้ H2O' }] }
+
+describe('verifyCandidate after the #608 review', () => {
+  it.each([
+    ['a mark before a comma-grouped figure', 'ราคา¹,250 บาท', ['1250']],
+    ['a mark before a space-grouped figure', 'ราคา¹ 250 บาท', ['1250']],
+    ['a mark before a superscript figure', 'ราคา¹ ²⁵⁰ บาท', ['1250']],
+    ['a footnote glued to a figure', 'ราคา 250¹ บาท', ['¹']],
+  ])('rejects %s', (_name, candidate, unsupportedNumbers) => {
+    expect(verifyCandidate('ราคาเท่าไร', at250, candidate)).toMatchObject({ supported: false, unsupportedNumbers })
+  })
+
+  it.each([
+    ['a unit power before a figure in words', 'ขั้นต่ำ 50 m² ราคา 250 บาท'],
+    ['a formula index the evidence writes in ASCII', 'ปล่อย CO₂ ต่ำ ใช้ H₂O ค่ะ'],
+  ])('passes %s', (_name, candidate) => {
+    expect(verifyCandidate('ราคาเท่าไร', at250, candidate)).toStrictEqual(
+      { supported: true, unsupportedNumbers: [], unsupportedCodes: [], riskyClaim: false })
+  })
+})
+
+// The #606 re-review: a glued superscript run is not dropped (it was read as the
+// figure before it), and a space-grouped chain in the question, or a code glued
+// to the last group of a supported chain, is an allowed code.
+describe('verifyCandidate after the #606 re-review', () => {
+  it.each([
+    ['trailing superscript zeros', { records: [{ ...pricey, sell_price: 5 }] }, 'ราคา 5⁰⁰ บาท', { unsupportedNumbers: ['⁰⁰'] }],
+    ['a superscript run after a price', { records: [{ ...pricey, sell_price: 99 }] }, 'ราคา 99¹⁰⁰', { unsupportedNumbers: ['¹⁰⁰'] }],
+    ['a superscript price glued to a word', { records: [{ ...pricey, sell_price: 99 }] }, 'ราคา¹²⁵⁰ บาท',
+      { unsupportedNumbers: ['¹²⁵⁰'] }],
+    ['a superscript run after a Thai digit', at1250, 'ราคา ๑²⁵⁰ บาท', { unsupportedNumbers: ['²⁵⁰'] }],
+  ])('rejects %s', (_name, records, candidate, expected) => {
+    const result = verifyCandidate(bagQuestion, records, candidate)
+    expect(result.supported).toBe(false)
+    expect(result).toMatchObject(expected)
+  })
+
+  it.each([
+    ['a unit power', { records: [{ ...pricey, moq: 50 }] }, bagQuestion, 'ขั้นต่ำ 50 m²'],
+    ['a footnote mark', at1250, bagQuestion, 'ราคา 1,250 บาท³'],
+    ['a superscript run the evidence writes', { records: [{ ...pricey, note: 'ทน 10⁵ รอบ' }] }, bagQuestion, 'ทน 10⁵ รอบค่ะ'],
+    ['a quantity the customer space-grouped', { records: [{ ...pricey, sell_price: 25 }] }, 'ขอ 1 250 ชิ้น', '1250 ชิ้น ชิ้นละ 25 บาทค่ะ'],
+    ['a budget the customer space-grouped', { records: [{ ...pricey, sell_price: 250, moq: 50 }] }, 'งบ 1 000 บาท', 'งบ 1,000 บาท มี SG-BAG-01 ราคา 250 บาทค่ะ'],
+    ['a space-grouped capacity with its unit glued', { records: [{ ...pricey, note: 'Power Bank 10,000mAh' }] }, bagQuestion,
+      'Power Bank 10 000mAh ค่ะ'],
+  ])('passes %s', (_name, records, asked, candidate) => {
+    expect(verifyCandidate(asked, records, candidate)).toStrictEqual(
+      { supported: true, unsupportedNumbers: [], unsupportedCodes: [], riskyClaim: false })
+  })
+
+  it('still rejects a glued unit the evidence does not give', () => {
+    const result = verifyCandidate(bagQuestion, { records: [{ ...pricey, note: 'Power Bank 10,000mAh' }] }, 'Power Bank 10 000GB ค่ะ')
+    expect(result).toMatchObject({ supported: false, unsupportedCodes: ['000GB'] })
   })
 })
 
