@@ -1,8 +1,8 @@
 ---
 id: ZAI:CONVERSATION-RUNTIME-HANDOFF
-version: "0.3.12b"
+version: "0.3.13b"
 status: candidate
-last_update: "2026-09-26T05:36:00+07:00,Codex"
+last_update: "2026-09-27T00:00:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: agent
   scope: conversation-runtime-extraction-checkpoint
@@ -19,7 +19,24 @@ relations:
 
 # Conversation Runtime extraction handoff
 
-**Checkpoint state:** partial. One durable LINE direct-message vertical slice now runs through the independent Conversation Runtime process, the authenticated Core façade and Core-owned SQLite queue/receipts. `executionMode` remains `SERVER`; `LineOaAccount.runtimeOwner` defaults to `SERVER` and is snapshotted onto each job to pin the eligible, opted-in runtime cohort. Ineligible and default jobs remain in the Server cohort. PR #542 stays draft; this is not the completion of the extraction.
+**Checkpoint state:** partial. One durable LINE direct-message vertical slice now runs through the independent Conversation Runtime process, the authenticated Core façade and Core-owned SQLite queue/receipts. `executionMode` remains `SERVER`; `LineOaAccount.runtimeOwner` defaults to `SERVER` and is snapshotted onto each job to pin the eligible, opted-in runtime cohort. Ineligible and default jobs remain in the Server cohort. PR #542 was merged on 2026-09-27 (see *Merged state*); this is not the completion of the extraction.
+
+## Merged state — 2026-09-27
+
+PR [#542](https://github.com/Freshair129/zuri.ai/pull/542) merged into `main` on 2026-09-27T01:30:29Z as `4b6d8eb790c718dca67b9da13638fc63b64a8ce3`; the merged PR head is `b21a35529b76f8aa44096c98089e7bbf0c369c3f`. S1 stopped responding on 2026-09-26; on the user's instruction MC0 took over S1's work, carried S1's unpushed commits (`2557bb32`, `26a77dea`) and uncommitted `apps/edge` work into its own worktree, and finished the PR there. The S1 worktree named under Provenance is no longer the writer.
+
+What landed after the published head `2e2154de` described below:
+
+- **Merge with `main` including Notion (#575).** Branch IDs were renumbered because `main` had assigned them to Notion: the Edge retirement ADR is now **ADR-110** (was ADR-109) and the Conversation Runtime SDD is **SDD-110** (was SDD-108). This document's references use the new IDs.
+- **Phase B rebind for the merged schema.** The frozen inventory binds 191 tables (Notion) plus the `runtimeOwner` fields: `schemaSha256` `f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078`, `targetSchemaSha256` `a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1`. The Notion-only and runtimeOwner-only bindings are refused. This supersedes the 188-table rebind recorded below; see `26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md` 0.3.10b.
+- **API inventory:** 322 route handlers, 323 OpenAPI paths, 428 operations.
+- **`apps/edge` Edge Device retirement (ADR-110 D5):** S1's writer output (pairing panel, device configuration, `zuri-api` client, desktop worker, Edge CLI commands, test-only Tauri harnesses) was committed after re-verification; Knowledge/RAG, pricing and catalog are unchanged. Follow-up docs landed in #576.
+
+Evidence at the merged head `b21a3552`: governance run `36277269502` and Edge CI run `36277269622` succeeded, covering governance, Server tests, build, Conversation Runtime, market-intelligence, Edge verify and desktop (E2E skipped by its path filter). Locally, `apps/edge` `npm test` passed 764 of 767 (3 skipped) and `cargo test --lib` passed 25 (3 ignored). Two independent read-only reviews passed the merge resolution and the `apps/edge` diff.
+
+**Extraction status: still partial.** Merging is not completion. Against ADR-106 *Verification*, provider/consumer conformance is **NOT_RUN**, the flows under *Remaining Server-owned or unverified flows* still run in the Server, and production cutover, production migration, live LINE send and real model calls are **NOT_RUN**. The Mission Control gate `CR_TO_WM` (S2's hard start) therefore records `merged_into_base` and `required_checks` only; `accepted_scope_complete`, `reviewed_contracts` (a real WorkToolPort test) and a handoff matching a completed scope remain open.
+
+Everything below this section is the checkpoint as S1 left it at the published head `2e2154de`, kept as history.
 
 ## Provenance and boundaries
 
@@ -29,13 +46,13 @@ relations:
 - Current published source snapshot: OPERATOR confirmed PR #542 branch fast-forwarded from `70f8cee8` to `2e2154def4ede0a382f672bbf807eb4221f4fa92`; PR base is `d302eb0849b00b3c85934eeda6763d7dd4941443`. The Phase-B binding/test/RCA patch is committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`; this status refresh and the branch tip are not pushed. The PR body now records the local commit and separates its evidence from the published head. No reset or force-push was performed.
 - Reviewed PR baseline: head `189c60766323655149b84928e5db4c16c5e6afb8`, base `fad8ec6252941ca3de01afdb3116484f86b366c3`.
 - PR #573's merge is included in the current base; its older review result is historical, not a pending S1 gate.
-- Draft PR: [#542](https://github.com/Freshair129/zuri.ai/pull/542). The PR remains open and draft. No PR merge or production deployment was performed.
+- PR: [#542](https://github.com/Freshair129/zuri.ai/pull/542), merged 2026-09-27 as `4b6d8eb7` (at the time of the history below it was an open draft). No production deployment was performed.
 - Governing documents: ADR-106 and SDD-110; contract: `conversation-runtime.v1`.
 - Risk: **HIGH** — queue ownership and a private Core API boundary change with additive account/job schema fields. SQLite and Postgres migration artifacts are listed below; neither was applied to production.
 - Session 2 remains read-only preparation. Session 3 may continue in Files-owned scope. This tranche did not change Files storage, shared Files contracts, MSP/GKS, MinIO, or the Knowledge 17-stage pipeline.
 - Production deployment, production migration, live LINE send and real model call: **NOT_RUN**. All credentials, provider endpoints, webhook signatures and delivery adapters used for tests are synthetic or local controlled fixtures.
 
-## Latest checkpoint after the PR head check
+## Latest checkpoint after the PR head check (historical, superseded by *Merged state*)
 
 The published PR #542 head is `2e2154def4ede0a382f672bbf807eb4221f4fa92`. The Compose-profile, retirement-test, Edge workflow and ID-ledger corrections below are included in that published head. The later Phase-B exact-schema rebind and its test/RCA updates are committed locally at `2557bb32346ef300329f828a0c5dc3f207cf52ba`; this handoff refresh is local and neither is on the PR head yet.
 
@@ -164,6 +181,8 @@ The first mandatory `npm run verify` after the initial runtime tranche exposed f
 - [ ] Production deployment, production migration, live LINE traffic and real model calls require separate authorization; none are part of this checkpoint.
 
 ## Version diff
+
+`0.3.12b → 0.3.13b`: adds *Merged state* for PR #542 (merged 2026-09-27 as `4b6d8eb7`, head `b21a3552`): MC0 takeover, the ADR-110/SDD-110 renumbering, the 191-table Phase B rebind, the `apps/edge` retirement and hosted evidence at the merged head. The extraction stays partial against ADR-106; earlier sections are kept as history.
 
 `0.3.11b → 0.3.12b`: corrects the handoff to record commit `2557bb32346ef300329f828a0c5dc3f207cf52ba` and the completed PR-body update; branch push and corrected-head CI remain pending. The Phase-B rebind, test counts, and acceptance limitations are unchanged.
 
