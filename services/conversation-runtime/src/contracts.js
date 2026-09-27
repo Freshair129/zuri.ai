@@ -7,7 +7,8 @@ export const CORE_OPERATIONS = Object.freeze([
 ])
 export const WORK_TOOL_OPERATIONS = Object.freeze(['read', 'propose', 'confirm-execute', 'status'])
 // Final Work refusals Core returns as a typed `REJECTED` outcome with the legacy reply text.
-export const WORK_REJECTION_CODES = Object.freeze(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_ACTION_UNAVAILABLE'])
+// One definition, shared byte for byte with Core (see work-tool-receipt.js).
+export { WORK_REJECTION_CODES } from './work-tool-receipt.js'
 // Fixed replies Core derives from malformed Work command text (`prepare` `workReply`).
 export const WORK_REPLY_CODES = Object.freeze(['WORK_COMMAND_USAGE', 'WORK_ACTION_UNAVAILABLE'])
 // Turn kinds Core may hand out from `prepare`; absent means an ordinary turn.

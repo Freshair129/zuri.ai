@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-106
 title: "Conversation Runtime service extraction"
-version: "1.2.0"
+version: "1.2.1"
 status: approved
 created_at: "2026-09-24T00:00:00+07:00,Codex"
-last_update: "2026-09-27T22:00:00+07:00,Claude Opus 5.5 (MC0 W11)"
+last_update: "2026-09-28T06:00:00+07:00,Claude Opus 5.5 (MC0)"
 author: Codex (implementation owner)
 approved_on: "2026-09-24"
 approved_by: "User instruction in Session 1"
@@ -144,9 +144,12 @@ move into the runtime cohort. The goal is exact parity with what the legacy
 Server path gives an unverified sender; the runtime never gets more authority or
 data than that. Group and room audiences already joined the cohort on the same
 terms as direct chats (PR #585), so D3's eligibility is now: an opted-in account,
-an audience and thread the runtime can bind, a served grounding mode, and the
-existing memory-sync and malformed-Work exceptions; the sender may be verified or
-not.
+an audience and thread the runtime can bind, and a served grounding mode; the
+sender may be verified or not. One exception remains: malformed legacy `/work`
+syntax in a GROUP or ROOM stays `SERVER`, where the legacy consumer answers it
+(malformed syntax in a direct chat is runtime-owned). Memory-sync turns are no
+longer an exception: since W12 they join the cohort in every audience and served
+grounding mode, from verified and unverified senders (see below).
 
 - **Core decides, once, at admission.** An unverified sender's job carries an
   immutable `CHANNEL_IDENTITY_ADMITTED` record (assurance `UNVERIFIED` and the
@@ -217,6 +220,7 @@ reported separately. Production cutover is not inferred from local proof.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.1 | 2026-09-28 | approved | Wording fix to the amendment's eligibility sentence: after W12 the only remaining exception is malformed `/work` syntax in a GROUP or ROOM (stays `SERVER`); memory-sync turns are no longer an exception. No decision changed | uncommitted | Claude Opus 5.5 (MC0) |
 | 1.2.0 | 2026-09-27 | approved | Amendment update (owner decision, W11): unverified senders' memory-sync turns join the runtime cohort in Core's PENDING memory mode (no private recall, PENDING appends with no person); the SERVER exception is removed | uncommitted | Claude Opus 5.5 (MC0 W11) |
 | 1.1.0 | 2026-09-27 | approved | Amendment 2026-09-27: unverified LINE senders join the runtime cohort by owner ruling, with Core's admission-time UNVERIFIED record, no person scope, the legacy Work refusal, no `#sku` command and no memory; unverified memory-sync turns stay SERVER. D3's eligibility sentence points to the amendment | uncommitted | Claude Opus 5.5 (MC0 W10) |
 | 1.0.1 | 2026-09-25 | approved | Clarify option B: keep executionMode SERVER and persist a separate account/job runtimeOwner cohort; Core remains authoritative for claim, lease, receipt and state writes | uncommitted | Codex |

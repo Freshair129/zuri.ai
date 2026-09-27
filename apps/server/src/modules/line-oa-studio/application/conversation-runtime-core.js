@@ -18,12 +18,14 @@ import { lineCatalogCommandReply, lineCatalogViewer } from '@/modules/agent/line
 import { parseLineCatalogCommand } from '@/modules/inventory'
 import { appendTraceEvent, sha256 } from '@/modules/agent/execution-trace'
 import { serverLinePorts } from './server-line-runtime'
-import { createConversationRuntimeMemory, MEMORY_INJECTION_STATES, MEMORY_OPERATIONS, MAX_MEMORY_PACKET_BYTES } from './conversation-runtime-memory'
+import { createConversationRuntimeMemory, MEMORY_INJECTION_STATES, MEMORY_OPERATIONS, MAX_MEMORY_PACKET_BYTES, traceEvidenceTrimmed } from './conversation-runtime-memory'
 import { isMemoryTurn } from './runtime-memory-receipts'
+import { isValidWorkToolResult, WORK_TOOL_TEXT_MAX } from '../domain/work-tool-receipt'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
   failRuntimeConversationJob, renewRuntimeConversationJob, runtimeAudienceBound, runtimeConversationStatus, assertRuntimeTraceEvent,
   runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply, LINE_TEXT_MAX_CHARS, runtimeSenderAuthority,
+  runtimeWorkBudgetSpent,
 } from './line-conversation-jobs'
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
@@ -86,10 +88,9 @@ const present = (value, max = 128) => typeof value === 'string' && value.trim().
 // @req FR-026, FR-149 — Work replies keep the legacy Server bound: the Server worker
 // parses its answer through `zCompletion.shape.text` (trimmed, at most 5,000
 // characters) and fails the job, with no reply, when a Work text is longer.
-const WORK_TEXT_MAX = 5000
+const WORK_TEXT_MAX = WORK_TOOL_TEXT_MAX
 // A Work refusal is a typed, final outcome with the legacy reply text; the codes
 // are the `errorCode` values handleLineProjectWorkCommand returns.
-const WORK_REJECTION_CODES = Object.freeze(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_ACTION_UNAVAILABLE'])
 // Key-order-independent JSON, for comparing a runtime request with the derived command.
 function canonicalJson(value) {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
@@ -212,7 +213,7 @@ function fitPreparedTurn(result) {
   return kept.length === records.length ? result : { ...result, evidence: { ...result.evidence, records: kept } }
 }
 
-function validateResult(operation, data) {
+function validateResult(operation, data, request) {
   const invalid = () => { throw error('CONTRACT_RESPONSE_INVALID', 500) }
   if (!boundedJsonWithin(data, MAX_RESPONSE_BYTES)) invalid()
   const exact = (value, allowed) => value && typeof value === 'object' && !Array.isArray(value)
@@ -288,19 +289,10 @@ function validateResult(operation, data) {
     return
   }
   if (operation === 'work-tool') {
-    if (!['COMPLETED', 'NOT_FOUND', 'REJECTED'].includes(data?.status)
-      || Buffer.byteLength(JSON.stringify(data), 'utf8') > 32 * 1024) invalid()
-    if (data.status === 'REJECTED' && (!exact(data, ['status', 'code', 'result']) || !WORK_REJECTION_CODES.includes(data.code)
-      || !exact(data.result, ['text']) || !present(data.result.text, WORK_TEXT_MAX))) invalid()
-    if (data.status === 'COMPLETED' && (!exact(data, ['status', 'result'])
-      || !exact(data.result, ['text', 'receipt']) || !present(data.result.text, 5000)
-      || !data.result.receipt || typeof data.result.receipt !== 'object' || Array.isArray(data.result.receipt)
-      || Object.keys(data.result.receipt).length > 12 || !boundedJsonWithin(data.result, 32 * 1024))) invalid()
-    if (data.status === 'NOT_FOUND' && (!exact(data, ['status', 'operationId', 'proposalId', 'receipt'])
-      || (data.operationId !== undefined && !present(data.operationId, 200))
-      || (data.proposalId !== undefined && !present(data.proposalId, 128))
-      || (data.receipt !== undefined && (!data.receipt || typeof data.receipt !== 'object' || Array.isArray(data.receipt)
-        || Object.keys(data.receipt).length > 12 || !boundedJsonWithin(data.receipt, 32 * 1024))))) invalid()
+    // @req FR-150 — the exact v1 receipt for the request that was sent, by the same
+    // rules the runtime client applies (domain/work-tool-receipt.js, mirrored byte
+    // for byte into the runtime). Core refuses to send anything else.
+    if (!isValidWorkToolResult(request, data)) invalid()
     return
   }
   if (operation === 'trace') {
@@ -615,6 +607,15 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
 
   async function workOperation(ref, request) {
     const { job, identityState } = await ownedClaim(ref)
+    // @req FR-150 — the legacy worker refuses a Work command whose turn budget is
+    // already spent, before any Work call (`executeClaimed`: REPLY_DEADLINE_MISSED).
+    // Core does the same for every call that could reach Work or answer with a
+    // refusal, against the deadline settle uses, with settle's own code; the call is
+    // final (not retryable), so the runtime fails the turn with that code. `status`
+    // stays open: it reads recorded receipts only, and recovery after a kill needs it.
+    if (request.operation !== 'status' && await runtimeWorkBudgetSpent(db, job, { at: now() })) {
+      throw error('REPLY_DEADLINE_MISSED', 409)
+    }
     // @req FR-149, FR-150 — Work commands are not allowed in a group or room. The
     // legacy handler refuses them there before any Work read or write
     // (line-project-work-tools `contextFor`: WORK_SCOPE_DENIED) and replies with its
@@ -727,7 +728,10 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         // Server worker's answer port checks `#sku` before its model answer.
         const catalogTurn = await catalogCommandTurn(job, identityState)
         if (catalogTurn) return catalogTurn
-        const turn = fitPreparedTurn(await prepare(job, { deadlineAt: envelope.deadlineAt }))
+        const prepared = await prepare(job, { deadlineAt: envelope.deadlineAt })
+        const turn = fitPreparedTurn(prepared)
+        await traceEvidenceTrimmed(db, job, { phase: 'prepare', recordsBefore: prepared?.evidence?.records?.length,
+          recordsKept: turn?.evidence?.records?.length, now })
         // An opted-in turn tells the runtime to run the memory phases; a Work
         // command (or its fixed reply) never touches memory, as in the legacy worker.
         return job.memorySyncOptIn === true && turn?.workCommand == null && turn?.workReply == null ? { ...turn, memorySync: true } : turn
@@ -810,7 +814,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       exactPayload(envelope.payload, envelope.operation)
       if (Date.parse(envelope.deadlineAt) <= now().getTime() && envelope.operation !== 'status') throw error('CONTRACT_DEADLINE_EXPIRED', 408)
       const data = await operate(envelope)
-      validateResult(envelope.operation, data)
+      validateResult(envelope.operation, data, envelope.payload)
       return reply(200, safeResponse(data))
     } catch (cause) {
       const status = Number.isInteger(cause?.status) && cause.status >= 400 && cause.status < 600 ? cause.status : 503

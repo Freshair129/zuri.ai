@@ -33,6 +33,7 @@ import prisma from '@/lib/db'
 import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
 import { recordAudit } from './audit'
 import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
+import { MEMORY_ERASURE_KINDS } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { pricingHash } from '@/modules/commerce/domain/pricing-engine'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
@@ -123,9 +124,14 @@ const KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES = Object.freeze(['knowledgeArti
 const LINE_WORKER_MEMORY_RECOVERY_TABLES = Object.freeze(['lineConversationJob', 'agentTraceEvent'])
 const LINE_WORKER_MEMORY_STATES = Object.freeze(['NONE', 'PENDING', 'ACKNOWLEDGED', 'CLOSED'])
 const LINE_WORKER_MEMORY_AUDIENCES = Object.freeze(['DIRECT', 'GROUP', 'ROOM'])
-const LINE_WORKER_MEMORY_TRACE_KINDS = Object.freeze([
+// @req FR-022 — group-memory erasure records (MEMORY_THREAD_ERASURE_*, W12) are
+// memory evidence too: a PENDING or FAILED one is the only trace of an erasure MSP
+// has not acknowledged. A snapshot that cannot carry them must not replace an
+// installation that holds any, exactly as for the delivery receipts.
+export const LINE_WORKER_MEMORY_TRACE_KINDS = Object.freeze([
   'MEMORY_DELIVERY_PENDING', 'MEMORY_DELIVERY_ATTEMPT',
   'MEMORY_DELIVERY_ACKNOWLEDGED', 'MEMORY_DELIVERY_CLOSED',
+  ...Object.values(MEMORY_ERASURE_KINDS),
 ])
 
 function validSnapshotDate(value) {

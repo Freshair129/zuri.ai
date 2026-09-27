@@ -348,7 +348,20 @@ describe('Conversation Runtime memory-sync turns', () => {
 
     // The provider-accepted reply reaches MSP through the Core-owned receipt
     // scanner, exactly as for a Server-cohort job.
-    const scanned = await reconcileLineMemoryDeliveries({ db: prisma, threadMemory: mspPort(runtimeMsp), workerId: 'memory-scanner-w5' })
+    // The scanner is installation-wide by design and takes a bounded batch; other
+    // suites in this run's shared database leave RECORDED memory jobs of their own
+    // that could fill it. Scope only this test's view of the job table to its tenant
+    // (the same pattern as line-server-backup.test.js).
+    const jobsOfThisTenant = new Proxy(prisma.lineConversationJob, { get(target, prop) {
+      if (prop !== 'findMany') { const value = Reflect.get(target, prop); return typeof value === 'function' ? value.bind(target) : value }
+      return (args = {}) => target.findMany({ ...args, where: { AND: [args.where ?? {}, { tenantId: tenant.id }] } })
+    } })
+    const scopedDb = new Proxy(prisma, { get(target, prop) {
+      if (prop === 'lineConversationJob') return jobsOfThisTenant
+      const value = Reflect.get(target, prop)
+      return typeof value === 'function' ? value.bind(target) : value
+    } })
+    const scanned = await reconcileLineMemoryDeliveries({ db: scopedDb, threadMemory: mspPort(runtimeMsp), workerId: 'memory-scanner-w5' })
     expect(scanned.acknowledged).toBeGreaterThanOrEqual(1)
     expect(runtimeMsp.deliveryReceipts).toHaveLength(1)
     expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } })).toMatchObject({ memoryDeliveryState: 'ACKNOWLEDGED' })

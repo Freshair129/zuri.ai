@@ -1,12 +1,14 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { admitLineConversation, runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { MEMORY_ERASURE_ACTOR, MEMORY_ERASURE_GRACE_MS, MEMORY_ERASURE_KINDS, MEMORY_ERASURE_MAX_ATTEMPTS, MEMORY_ERASURE_BACKOFF_MS,
-  reconcileLineMemoryErasures, recordMemoryThreadErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
+  MEMORY_ERASURE_SCAN_MAX_PAGES, MEMORY_ERASURE_SCAN_PAGE, reconcileLineMemoryErasures, recordMemoryThreadErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
+import { appendTraceEvent } from '@/modules/agent/execution-trace'
+import { memoryReceiptKey } from '@/modules/line-oa-studio/application/runtime-memory-receipts'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
 import { createModelProviderPort } from '@/modules/agent/model-provider'
@@ -48,7 +50,9 @@ const groupId = 'synthetic-w12-group'
 const roomId = 'synthetic-w12-room'
 const speakers = { A: 'synthetic-w12-speaker-a', B: 'synthetic-w12-speaker-b', C: 'synthetic-w12-speaker-c',
   D: 'synthetic-w12-speaker-d', E: 'synthetic-w12-speaker-e', F: 'synthetic-w12-speaker-f', G: 'synthetic-w12-speaker-g',
-  H: 'synthetic-w12-speaker-h' }
+  H: 'synthetic-w12-speaker-h',
+  // W11 x W12: U has no LINE identity at all; P has a Person whose LINE identity is PENDING.
+  U: 'synthetic-w12-speaker-unlinked', P: 'synthetic-w12-speaker-pending' }
 const erasureGroupId = 'synthetic-w12-erasure-group'
 const providerReply = { choices: [{ message: { content: 'รับทราบค่ะ' } }] }
 const productRecord = { name: 'แก้ว', product_code: 'AB-1', sell_price: 50, currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: '2026-09-01T00:00:00Z' }
@@ -106,7 +110,7 @@ function createFakeMsp({ history = true } = {}) {
     if (name === 'msp_thread_context') {
       const thread = [...threads.values()].find(item => item.threadId === input.thread_id)
       const exchanges = []
-      for (const message of messages.filter(item => item.threadId === input.thread_id)) {
+      for (const message of messages.filter(item => item.threadId === input.thread_id && item.redactionState !== 'tombstoned')) {
         let exchange = exchanges.find(item => item.exchangeId === message.exchangeId)
         if (!exchange) exchanges.push(exchange = { exchangeId: message.exchangeId, messages: [] })
         exchange.messages.push({ sequence: message.sequence, speakerId: message.speakerId, speakerKind: message.speakerKind,
@@ -117,20 +121,32 @@ function createFakeMsp({ history = true } = {}) {
     }
     if (name === 'msp_thread_injection_record') return { recorded: true, state: input.state }
     if (name === 'msp_thread_principal_erase') {
-      // The thread is the one the signed route claims name; the principal's own
-      // exchanges (their turn and the reply to it) are removed, nobody else's.
+      // The contract at the deployed MSP pin (API-011; msp-core thread-memory.mjs
+      // `erasePrincipal`): NOT thread-bound. It spans every thread of the grant's
+      // tenant the principal ever spoke in: their own HUMAN messages are tombstoned
+      // (text blanked, row kept), their participant rows closed, and session
+      // summaries and delivery receipts tombstoned only in threads where they are
+      // the sole human. AGENT replies are kept, in every thread. Idempotent by
+      // (tenant, idempotency_key): a replay changes nothing and says so.
       const grant = input.access?.grant ?? {}
-      const thread = threads.get([grant.tenantId, grant.channelAccountId, grant.externalRoomRef].join('|'))
-      const seen = erasures.find(item => item.idempotencyKey === input.idempotency_key)
-      if (seen) return { erased: 0, deduplicated: true }
-      const theirs = new Set(messages.filter(message => message.threadId === thread?.threadId && message.speakerId === input.principal_id)
-        .map(message => message.exchangeId))
-      const before = messages.length
-      for (let index = messages.length - 1; index >= 0; index -= 1) {
-        if (messages[index].threadId === thread?.threadId && theirs.has(messages[index].exchangeId)) messages.splice(index, 1)
+      const seen = erasures.find(item => item.tenantId === grant.tenantId && item.idempotencyKey === input.idempotency_key)
+      if (seen) return { erasureReceiptId: seen.erasureReceiptId, tablesAffected: seen.tablesAffected, replay: true }
+      const tenantThreads = new Set([...threads.entries()].filter(([key]) => key.startsWith(`${grant.tenantId}|`))
+        .map(([, thread]) => thread.threadId))
+      let tombstoned = 0
+      for (const message of messages) {
+        if (tenantThreads.has(message.threadId) && message.speakerId === input.principal_id && message.speakerKind === 'HUMAN'
+          && message.redactionState !== 'tombstoned') {
+          message.text = ''
+          message.redactionState = 'tombstoned'
+          tombstoned += 1
+        }
       }
-      erasures.push({ idempotencyKey: input.idempotency_key, principalId: input.principal_id, threadId: thread?.threadId, grant })
-      return { erased: before - messages.length, deduplicated: false }
+      const erasureReceiptId = next('erasure-receipt')
+      const tablesAffected = { threadMessages: tombstoned, protectedMemoryRecords: 0, sessionSummaries: 0, threadDeliveryReceipts: 0, threadParticipants: 0 }
+      erasures.push({ idempotencyKey: input.idempotency_key, principalId: input.principal_id, tenantId: grant.tenantId, grant,
+        erasureReceiptId, tablesAffected })
+      return { erasureReceiptId, tablesAffected, replay: false, principalId: input.principal_id, tenantId: grant.tenantId }
     }
     return {}
   }
@@ -297,6 +313,12 @@ beforeAll(async () => {
   // A customer with no staff grant, so a PDPA erasure may run for them.
   persons.C = await linkSpeaker('C', { member: false })
   for (const key of ['D', 'E', 'F', 'G', 'H']) persons[key] = await linkSpeaker(key, { member: false })
+  // A member whose LINE identity is PENDING: a verified link would open private memory.
+  persons.P = await prisma.person.create({ data: { code: 'PER-W12-P', displayName: 'Synthetic W12 pending speaker' } })
+  await prisma.membership.create({ data: { personId: persons.P.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
+  await prisma.externalIdentity.create({ data: { tenantId: tenant.id, personId: persons.P.id, provider: 'LINE', providerSubject: speakers.P } })
+  await prisma.channelIdentity.create({ data: { tenantId: tenant.id, personId: persons.P.id, channel: 'LINE',
+    channelAccountId: account.bindingCode, providerSubject: speakers.P, status: 'PENDING' } })
 })
 
 afterEach(async () => {
@@ -309,6 +331,14 @@ afterEach(async () => {
   wire = []
   corpusMock.fn = null
   corpusMock.calls.length = 0
+})
+
+// Hygiene for the rest of the run: this suite's RECORDED memory jobs would sit as
+// PENDING MSP deliveries in the shared database and fill the installation-wide
+// delivery scanner's batch in later suites. Close them; nothing here reads them after.
+afterAll(async () => {
+  await prisma.lineConversationJob.updateMany({ where: { tenantId: tenant.id, memoryDeliveryState: 'PENDING' },
+    data: { memoryDeliveryState: 'CLOSED', memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null } })
 })
 
 /** Play the same turns through the legacy tick, then the runtime; return both sides. */
@@ -527,7 +557,7 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     const records = ['r1', 'r2', 'r3'].map((id, index) => ({ kind: 'CORPUS_CHUNK', citationId: `cit-${id}`, text: `AB-1 ${id}`,
       detail: 'ข'.repeat(index === 2 ? 10 : 7_000) }))
     const corpusReaderFactory = () => ({ query: async () => ({ records: records.map(record => ({ ...record })) }) })
-    await admit('runtime', 0, { audience: 'DIRECT', speaker: 'A' })
+    const job = await admit('runtime', 0, { audience: 'DIRECT', speaker: 'A' })
     const built = buildRuntime({ msp, corpusReaderFactory })
     expect((await runRuntime(built)).map(outcome => outcome.status)).toEqual(['RECORDED'])
     const prompt = JSON.parse(built.providerCalls[0].body).messages[0].content
@@ -535,6 +565,11 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     expect(prompt).toContain('cit-r1')
     expect(prompt).not.toContain('cit-r2')
     expect(prompt).not.toContain('cit-r3')
+    // The drop is traced once, with counts only (no citation, record or text).
+    const trimmed = await prisma.agentTraceEvent.findMany({ where: { turnId: job.id, kind: 'EVIDENCE_TRIMMED' } })
+    expect(trimmed.map(row => JSON.parse(row.payloadJson)))
+      .toEqual([{ phase: 'memory-read', recordsBefore: 3, recordsKept: 1, recordsDropped: 2 }])
+    expect(trimmed[0].payloadJson).not.toMatch(/cit-|AB-1/)
   })
 
 
@@ -574,6 +609,84 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     expect(outcome).toMatchObject({ status: 'FAILED', code: 'MSP_TRANSPORT_UNAVAILABLE' })
     expect(corpusMock.calls).toEqual([])
     expect(built.providerCalls).toEqual([])
+  })
+})
+
+// @req FR-149, FR-171, FR-235 — W11's PENDING memory mode is not DIRECT-only: an
+//   unverified speaker's memory turn in a GROUP or ROOM, and under a corpus grounding
+//   mode, runs in the runtime with the legacy tick's exact MSP calls, claims, prompts
+//   and replies, and Core records the read under PENDING assurance.
+describe('W11 x W12 — unverified speakers\' memory turns in shared audiences and under a corpus mode', () => {
+  const PENDING_TURN = ['resolve', 'append INBOUND', 'resolve', 'append OUTBOUND']
+  const inboundAppends = msp => msp.calls.filter(call => call.name === 'msp_thread_message_append' && call.input.direction === 'INBOUND')
+  async function readReceiptOf(job) {
+    const row = await prisma.agentTraceEvent.findFirst({ where: { turnId: job.id, idempotencyKey: memoryReceiptKey(job.id, 'read') } })
+    return row ? JSON.parse(row.payloadJson) : null
+  }
+  async function expectPendingJobs(jobs) {
+    for (const job of jobs) {
+      expect(await prisma.agentTraceEvent.count({ where: { turnId: job.id, kind: 'CHANNEL_IDENTITY_ADMITTED' } })).toBe(1)
+      expect(await readReceiptOf(job)).toMatchObject({ identityAssurance: 'PENDING', privateMemoryAllowed: false })
+    }
+  }
+
+  for (const audience of ['GROUP', 'ROOM']) {
+    it(`${audience}: verified, unlinked and PENDING speakers make the legacy tick's MSP calls, claims, prompts and replies`, async () => {
+      const side = await playBoth([{ audience, speaker: 'A' }, { audience, speaker: 'U' }, { audience, speaker: 'P' }])
+      expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED', 'RECORDED'])
+      expect(mspNames(side.runtimeMsp)).toEqual(Array(3).fill(PENDING_TURN).flat())
+      expectSameMsp(side)
+      expectSameProvider(side)
+      expect(side.runtimeDeliveries).toEqual(side.legacyDeliveries)
+      for (const msp of [side.legacyMsp, side.runtimeMsp]) {
+        const [verified, unlinked, pending] = inboundAppends(msp)
+        expect(verified.input.identity_assurance).not.toBe('PENDING')
+        expect(unlinked.input.identity_assurance).toBe('PENDING')
+        expect(pending.input.identity_assurance).toBe('PENDING')
+        expect(msp.calls.every(call => call.input.access?.grant?.readPrivate !== true && call.input.access?.grant?.writePrivate !== true)).toBe(true)
+      }
+      await expectPendingJobs(side.runtimeJobs.slice(1))
+      expect((await readReceiptOf(side.runtimeJobs[0]))?.identityAssurance).not.toBe('PENDING')
+    })
+  }
+
+  for (const mode of ['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']) {
+    it(`DIRECT under ${mode}: an unlinked and a PENDING speaker get the composed evidence, no recall, PENDING appends`, async () => {
+      await setGrounding(mode)
+      corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+        results: [{ id: 'a', text: 'AB-1 a', score: 0.9, citationId: 'cit-a', sourceId: 'src-a', snapshotId: 'snap-1', generation: 1 }] })
+      const side = await playBoth([{ audience: 'DIRECT', speaker: 'U' }, { audience: 'DIRECT', speaker: 'P' }])
+      expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])
+      expect(mspNames(side.runtimeMsp)).not.toContain('context')
+      expectSameMsp(side)
+      expectSameProvider(side)
+      expect(side.runtimeDeliveries).toEqual(side.legacyDeliveries)
+      // One corpus read per turn in each cohort, and the evidence reaches the model.
+      expect(corpusMock.calls).toHaveLength(4)
+      expect(side.built.providerCalls).toHaveLength(2)
+      for (const call of side.built.providerCalls) {
+        expect(call.body).toContain('cit-a')
+        expect(call.body).not.toContain('private history')
+        expect(call.body).not.toContain('THREAD CONTEXT PACKET')
+      }
+      for (const msp of [side.legacyMsp, side.runtimeMsp]) {
+        expect(inboundAppends(msp).map(call => call.input.identity_assurance)).toEqual(['PENDING', 'PENDING'])
+      }
+      await expectPendingJobs(side.runtimeJobs)
+    })
+  }
+
+  it('GROUP under GKS_CORPUS: a verified and an unlinked speaker match the legacy tick', async () => {
+    await setGrounding('GKS_CORPUS')
+    corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+      results: [{ id: 'g', text: 'AB-1 g', score: 0.9, citationId: 'cit-g', sourceId: 'src-g', snapshotId: 'snap-1', generation: 1 }] })
+    const side = await playBoth([{ speaker: 'A' }, { speaker: 'U' }])
+    expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])
+    expectSameMsp(side)
+    expectSameProvider(side)
+    expect(side.runtimeDeliveries).toEqual(side.legacyDeliveries)
+    expect(inboundAppends(side.runtimeMsp).map(call => call.input.identity_assurance === 'PENDING')).toEqual([false, true])
+    await expectPendingJobs(side.runtimeJobs.slice(1))
   })
 })
 
@@ -632,7 +745,8 @@ describe('W12 — the runtime cannot redirect memory or read another speaker\'s 
 
 describe('W12 — erasing one speaker removes only their contributions from a group\'s MSP thread memory', () => {
   const eraseGroup = 'synthetic-w12-erasure-memory-group'
-  const speakerLines = (msp, personId) => msp.messages.filter(message => message.speakerId === personId)
+  // What MSP still holds of a speaker: tombstoned rows (text blanked by an erasure) are gone.
+  const speakerLines = (msp, personId) => msp.messages.filter(message => message.speakerId === personId && message.redactionState !== 'tombstoned')
   const pendingRows = () => prisma.agentTraceEvent.findMany({ where: { kind: MEMORY_ERASURE_KINDS.pending } })
 
   /** Turns from two speakers in one group, first in the SERVER cohort, then in the runtime cohort. */
@@ -660,8 +774,9 @@ describe('W12 — erasing one speaker removes only their contributions from a gr
       const opener = erased === 'F' ? erased : kept
       const other = opener === erased ? kept : erased
       const { msp } = await bothCohorts({ first: opener, second: other, group })
-      // The erased speaker also has a DIRECT memory thread; it keeps today's
-      // erasure behaviour (its delivery receipt closes; no MSP thread erasure).
+      // The erased speaker also has a DIRECT memory thread. Core sends no MSP call
+      // for it (unchanged; owner decision pending), but the MSP erase Core sends for
+      // the group is tenant-wide, so it tombstones this DIRECT line too (below).
       await admit('runtime', 9, { audience: 'DIRECT', speaker: erased })
       expect((await runRuntime(buildRuntime({ msp }))).map(outcome => outcome.status)).toEqual(['RECORDED'])
       const keptLines = speakerLines(msp, persons[kept].id).map(message => message.text)
@@ -690,16 +805,24 @@ describe('W12 — erasing one speaker removes only their contributions from a gr
       expect(ours[0].grant.readPrivate).not.toBe(true)
       expect(ours[0].grant.writePrivate).not.toBe(true)
       const groupThread = msp.calls.find(call => call.name === 'msp_thread_resolve' && call.input.external_room_ref === group)
-      expect(speakerLines(msp, persons[erased].id).map(message => message.text)).toEqual(['AB-1 ราคาเท่าไร'])
+      // MSP's contract: every line the erased speaker wrote in the tenant is
+      // tombstoned, the group's two and the DIRECT one; nobody else's line is.
+      expect(speakerLines(msp, persons[erased].id)).toEqual([])
       expect(speakerLines(msp, persons[kept].id).map(message => message.text)).toEqual(keptLines)
       expect(groupThread).toBeDefined()
-      // Per thread: the group keeps the other speaker's two exchanges (4 lines); the
-      // erased speaker's DIRECT thread (turn + reply) is untouched by this erasure.
+      const tombstoned = msp.messages.filter(message => message.redactionState === 'tombstoned')
+      expect(tombstoned.every(message => message.speakerId === persons[erased].id && message.text === '')).toBe(true)
+      expect(tombstoned).toHaveLength(3)
       const groupThreadId = speakerLines(msp, persons[kept].id)[0].threadId
-      const directThreadId = speakerLines(msp, persons[erased].id)[0].threadId
+      const directThreadId = tombstoned.find(message => message.threadId !== groupThreadId).threadId
       expect(groupThreadId).not.toBe(directThreadId)
-      expect(threadMessagesOf(msp).filter(message => message.threadId === groupThreadId)).toHaveLength(4)
-      expect(threadMessagesOf(msp).filter(message => message.threadId === directThreadId)).toHaveLength(2)
+      // AGENT replies are not the principal's content and stay, in both threads:
+      // the group keeps its 8 rows (2 tombstoned), the DIRECT thread its 2 (1 tombstoned).
+      const live = threadId => threadMessagesOf(msp).filter(message => message.threadId === threadId && message.redactionState !== 'tombstoned')
+      expect(threadMessagesOf(msp).filter(message => message.threadId === groupThreadId)).toHaveLength(8)
+      expect(live(groupThreadId)).toHaveLength(6)
+      expect(live(groupThreadId).filter(message => message.direction === 'OUTBOUND')).toHaveLength(4)
+      expect(live(directThreadId).map(message => message.direction)).toEqual(['OUTBOUND'])
       // The acknowledged record is redacted: Core keeps no list of the erased person's groups.
       const after = await prisma.agentTraceEvent.findMany({ where: { turnId: pending[0].turnId } })
       expect(after.every(row => row.kind === 'RETENTION_TOMBSTONE' || row.payloadJson === '{"redacted":true}')).toBe(true)
@@ -773,6 +896,54 @@ describe('W12 — erasing one speaker removes only their contributions from a gr
         .filter(row => row.payloadJson.includes('spent-room-0'))
       expect(JSON.parse(pending.payloadJson)).toMatchObject({ principalId: 'spent-principal-spent-room-0' })
       expect(await prisma.agentTraceEvent.count({ where: { turnId: pending.turnId, kind: MEMORY_ERASURE_KINDS.failed } })).toBe(1)
+    })
+
+    it('FAILED records never grow what a tick reads: each query is bounded and a fresh erasure behind them is sent', async () => {
+      // More FAILED records than one candidate page holds, all older than the fresh one.
+      const failedCount = MEMORY_ERASURE_SCAN_PAGE + 20
+      const base = Date.now()
+      await seed('failedmass', failedCount, new Date(base - 7_200_000))
+      const failedRows = (await pendingRows()).filter(row => row.payloadJson.includes('failedmass-room-'))
+      expect(failedRows).toHaveLength(failedCount)
+      for (const row of failedRows) {
+        await appendTraceEvent(prisma, { scope: { tenantId: row.tenantId, businessId: row.businessId }, turnId: row.turnId, executionId: null,
+          kind: MEMORY_ERASURE_KINDS.failed, idempotencyKey: `${row.turnId}:failed`, payload: { attemptNumber: MEMORY_ERASURE_MAX_ATTEMPTS, code: 'MSP_REFUSED' },
+          occurredAt: new Date(base - 3_600_000) })
+      }
+      await seed('behindfailed', 1, new Date(base - 1_800_000))
+      const reads = []
+      const traceModel = new Proxy(prisma.agentTraceEvent, { get(target, prop) {
+        const value = Reflect.get(target, prop)
+        if (prop !== 'findMany') return typeof value === 'function' ? value.bind(target) : value
+        return args => { reads.push(args); return target.findMany(args) }
+      } })
+      let pages = 0
+      const observedDb = new Proxy(prisma, { get(target, prop) {
+        if (prop === 'agentTraceEvent') return traceModel
+        if (prop === '$queryRaw') return (...args) => { pages += 1; return target.$queryRaw(...args) }
+        const value = Reflect.get(target, prop)
+        return typeof value === 'function' ? value.bind(target) : value
+      } })
+      const msp = createFakeMsp({ history: false })
+      const result = await reconcileLineMemoryErasures({ db: observedDb, threadMemory: mspPort(msp), now: () => new Date(base) })
+      const sent = msp.calls.filter(call => call.name === 'msp_thread_principal_erase').map(call => call.input.access.grant.externalRoomRef)
+      expect(sent).toContain('behindfailed-room-0')
+      expect(sent.filter(room => room.startsWith('failedmass'))).toEqual([])
+      expect(result.acknowledged).toBeGreaterThanOrEqual(1)
+      // The FAILED records occupied no candidate page, and no read carried a
+      // list of held or failed turns: the old unbounded `notIn` filter is gone.
+      expect(pages).toBeLessThanOrEqual(MEMORY_ERASURE_SCAN_MAX_PAGES)
+      for (const args of reads) {
+        const text = JSON.stringify(args?.where ?? {})
+        expect(text).not.toContain('notIn')
+        for (const list of [args?.where?.id?.in, args?.where?.turnId?.in].filter(Boolean)) {
+          expect(list.length).toBeLessThanOrEqual(MEMORY_ERASURE_SCAN_PAGE)
+        }
+      }
+      // A record whose attempts are spent is still never retried.
+      await reconcileLineMemoryErasures({ db: prisma, threadMemory: mspPort(msp), now: () => new Date(base + 86_400_000) })
+      expect(msp.calls.filter(call => call.name === 'msp_thread_principal_erase'
+        && String(call.input.access.grant.externalRoomRef).startsWith('failedmass'))).toEqual([])
     })
   })
 

@@ -55,6 +55,9 @@ export const TRACE_EVENT_KINDS = Object.freeze([
   // @req FR-149 — Core's admission-time record that a Conversation Runtime job's
   // LINE sender was unverified, so the job runs with no person (ADR-106 D3).
   'CHANNEL_IDENTITY_ADMITTED',
+  // @req FR-149 — Core dropped low-ranked evidence records so a Conversation
+  // Runtime answer fits its bounds (`prepare`, `memory read`). Counts only.
+  'EVIDENCE_TRIMMED',
 ])
 
 export const zTraceEventKind = z.enum(TRACE_EVENT_KINDS)

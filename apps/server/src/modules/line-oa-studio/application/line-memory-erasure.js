@@ -14,9 +14,20 @@ import { appendTraceEvent, redactTraceTurn } from '@/modules/agent/execution-tra
 //   (docs/plans/LINE-TO-GKS-GROUNDING-AND-CANDIDATE-PIPELINE-DESIGN.md, D-8 and the
 //   MSP row: "never silently dropped"). On acknowledgement the record's own trace is
 //   redacted, so Core keeps no list of the groups an erased person was in.
-// @spec ADR-061, ADR-091, SEC-001, SEC-005 — a DIRECT thread keeps today's behaviour
-//   (its pending delivery receipt is closed by the job erasure).
-// @tested tests/integration/conversation-runtime-memory-group-gks.test.js
+//   What MSP does with the call (API-011 at the deployed MSP pin): the erase is NOT
+//   thread-bound. It tombstones the principal's own HUMAN messages in every thread
+//   of the tenant (text blanked), closes their participant rows, and tombstones
+//   session summaries and delivery receipts only in threads where they are the sole
+//   human; AGENT replies and shared-thread summaries are kept. The per-thread record
+//   is therefore the trigger, not the scope: the first acknowledged call does the
+//   whole tenant, later ones for the same person find nothing left.
+// @spec ADR-061, ADR-091, SEC-001, SEC-005 — Core sends no MSP call for a DIRECT
+//   thread (its pending delivery receipt is closed by the job erasure). A person who
+//   also spoke in a group with memory sync has their DIRECT human lines tombstoned
+//   too, by the tenant-wide MSP erase above; whether Core should call MSP for a
+//   DIRECT-only person is an open owner decision.
+// @tested tests/integration/conversation-runtime-memory-group-gks.test.js,
+//   tests/integration/line-memory-erasure-due-query.test.js
 
 export const MEMORY_ERASURE_KINDS = Object.freeze({
   pending: 'MEMORY_THREAD_ERASURE_PENDING',
@@ -106,12 +117,70 @@ function erasureAuthorization(route) {
   } }
 }
 
+// Candidate pages read per tick. A page holds at most this many open records; the
+// scan stops at the first page that yields a full batch or at the last page.
+export const MEMORY_ERASURE_SCAN_PAGE = 100
+export const MEMORY_ERASURE_SCAN_MAX_PAGES = 10
+
+/**
+ * The next `take` due records, oldest first, with every query bounded:
+ *  - a page of open records (PENDING, not redacted, no FAILED row for the turn) is
+ *    read with an anti-join, so FAILED records, which are kept for manual erasure
+ *    and never removed, cost nothing however many accumulate;
+ *  - grace, the claim window and DEFERRED scheduling are checked only for that
+ *    page's turns (at most MEMORY_ERASURE_SCAN_PAGE of them).
+ * Only records that are alive (in grace, in backoff or with an attempt in flight)
+ * can stand between the scan and a due record, and at most
+ * MEMORY_ERASURE_SCAN_PAGE * MEMORY_ERASURE_SCAN_MAX_PAGES are looked at per tick.
+ * The anti-join compares no timestamps, so it reads the same on SQLite and
+ * PostgreSQL whatever the session time zone; every time comparison goes through
+ * Prisma.
+ */
+async function dueErasureRecords(db, { at, take }) {
+  const graceCutoff = new Date(at.getTime() - MEMORY_ERASURE_GRACE_MS)
+  const claimCutoff = new Date(at.getTime() - MEMORY_ERASURE_CLAIM_MS)
+  const due = []
+  for (let page = 0; page < MEMORY_ERASURE_SCAN_MAX_PAGES && due.length < take; page += 1) {
+    const open = await db.$queryRaw`
+      SELECT p."id" AS "id" FROM "AgentTraceEvent" p
+      WHERE p."kind" = ${MEMORY_ERASURE_KINDS.pending} AND p."payloadJson" <> ${REDACTED}
+        AND NOT EXISTS (SELECT 1 FROM "AgentTraceEvent" f
+          WHERE f."tenantId" = p."tenantId" AND f."businessId" = p."businessId" AND f."turnId" = p."turnId"
+            AND f."kind" = ${MEMORY_ERASURE_KINDS.failed})
+      ORDER BY p."occurredAt" ASC, p."id" ASC
+      LIMIT ${MEMORY_ERASURE_SCAN_PAGE} OFFSET ${page * MEMORY_ERASURE_SCAN_PAGE}`
+    if (!open.length) break
+    const candidates = await db.agentTraceEvent.findMany({
+      where: { id: { in: open.map(row => row.id) }, kind: MEMORY_ERASURE_KINDS.pending, occurredAt: { lte: graceCutoff } },
+      orderBy: [{ occurredAt: 'asc' }, { id: 'asc' }],
+    })
+    if (candidates.length) {
+      const held = new Set((await db.agentTraceEvent.findMany({
+        where: { turnId: { in: candidates.map(row => row.turnId) }, OR: [
+          { kind: MEMORY_ERASURE_KINDS.deferred, occurredAt: { gt: at } },
+          { kind: MEMORY_ERASURE_KINDS.attempt, occurredAt: { gt: claimCutoff } },
+        ] },
+        select: { tenantId: true, businessId: true, turnId: true },
+      })).map(row => `${row.tenantId}|${row.businessId}|${row.turnId}`))
+      for (const row of candidates) {
+        if (due.length >= take) break
+        if (!held.has(`${row.tenantId}|${row.businessId}|${row.turnId}`)) due.push(row)
+      }
+    }
+    // Records still in grace are the newest: once a page ends inside the grace
+    // period, no later page can hold a due record.
+    if (open.length < MEMORY_ERASURE_SCAN_PAGE || candidates.length < open.length) break
+  }
+  return due
+}
+
 /**
  * Bounded scanner over DUE records only. A record is due when its grace period has
  * passed and nothing holds it: no attempt in flight (claimed within
  * MEMORY_ERASURE_CLAIM_MS), no retry scheduled for later, not FAILED. That is
- * decided in the query, so records in backoff or spent never occupy a batch and a
- * fresh erasure in any tenant is always reached. Each due record is claimed by
+ * decided in bounded queries (`dueErasureRecords`), so records in backoff or spent
+ * never occupy a batch, a fresh erasure in any tenant is reached, and FAILED
+ * records never grow what a tick reads. Each due record is claimed by
  * appending the next ATTEMPT row with a nonce (a concurrent scanner loses on the
  * idempotency key); MSP is then asked to erase the principal from the thread. On
  * success: ACKNOWLEDGED, then the record's trace is redacted. On failure: a DEFERRED
@@ -123,20 +192,8 @@ export async function reconcileLineMemoryErasures({ db = prisma, threadMemory, n
   const result = { scanned: 0, acknowledged: 0, pending: 0, failed: 0 }
   if (typeof threadMemory?.erasePrincipal !== 'function' || typeof threadMemory?.resolveThread !== 'function') return result
   const at = typeof now === 'function' ? now() : now
-  const held = await db.agentTraceEvent.findMany({
-    where: { OR: [
-      { kind: MEMORY_ERASURE_KINDS.failed },
-      { kind: MEMORY_ERASURE_KINDS.deferred, occurredAt: { gt: at } },
-      { kind: MEMORY_ERASURE_KINDS.attempt, occurredAt: { gt: new Date(at.getTime() - MEMORY_ERASURE_CLAIM_MS) } },
-    ] },
-    select: { turnId: true }, distinct: ['turnId'],
-  })
-  const rows = await db.agentTraceEvent.findMany({
-    where: { kind: MEMORY_ERASURE_KINDS.pending, payloadJson: { not: REDACTED },
-      occurredAt: { lte: new Date(at.getTime() - MEMORY_ERASURE_GRACE_MS) },
-      ...(held.length ? { turnId: { notIn: held.map(row => row.turnId) } } : {}) },
-    orderBy: [{ occurredAt: 'asc' }, { id: 'asc' }], take: Number.isInteger(batchSize) && batchSize > 0 && batchSize <= 50 ? batchSize : 10,
-  })
+  const take = Number.isInteger(batchSize) && batchSize > 0 && batchSize <= 50 ? batchSize : 10
+  const rows = await dueErasureRecords(db, { at, take })
   for (const row of rows) {
     const scope = { tenantId: row.tenantId, businessId: row.businessId }
     const events = await db.agentTraceEvent.findMany({ where: { ...scope, turnId: row.turnId } })

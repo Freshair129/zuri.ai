@@ -142,6 +142,7 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
     const withPg = [...all, POSTGRES_TEST]
     expect(selectRelated({ ...base, all: withPg, graph: [POSTGRES_TEST] }).postgres).toBe(true)
     expect(selectRelated({ ...base, all: withPg, changed: ['apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js'] }).postgres).toBe(true)
+    expect(selectRelated({ ...base, all: withPg, changed: ['apps/server/src/modules/line-oa-studio/application/line-memory-erasure.js'] }).postgres).toBe(true)
     expect(selectRelated({ ...base, all: withPg }).postgres).toBe(false)
   })
 

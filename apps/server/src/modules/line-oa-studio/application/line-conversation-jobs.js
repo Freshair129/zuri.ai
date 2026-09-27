@@ -793,6 +793,35 @@ export async function admitCapturedLineEvents({
   return outcome
 }
 
+/**
+ * @req FR-150 — the answer deadline an execution settles against: the budget the
+ * execution contract recorded, else the one issued at claim time (the lease start).
+ * An out-of-hours reply has none (the Server path never applies one to it). Settle
+ * turns an answer that crosses `answerDeadlineAt` into REPLY_DEADLINE_MISSED, and
+ * Core's WorkTool refuses a Work call with the same code once it has passed
+ * (`runtimeWorkBudgetSpent`), so both read the deadline from this one place.
+ */
+export async function executionAnswerDeadline(db, job, { executionId = job.executionId, outOfHours = false } = {}) {
+  const admittedContract = await db.agentTraceEvent.findFirst({ where: { turnId: job.id, executionId: job.executionId,
+    idempotencyKey: `${job.id}:execution:${job.executionId}:contract`, kind: 'CONTEXT_COMMITTED' } })
+  const contract = admittedContract ? JSON.parse(admittedContract.payloadJson) : null
+  const deadline = outOfHours ? null
+    : contract?.executionBudget ?? (executionId && job.leaseExpiresAt
+      ? lineExecutionBudget(job, new Date(job.leaseExpiresAt.getTime() - LINE_JOB_LEASE_MS)) : null)
+  return { contract, deadline }
+}
+
+/**
+ * @req FR-150 — whether a runtime-cohort turn's answer budget is already spent: the
+ * legacy worker refuses a Work command with REPLY_DEADLINE_MISSED before calling
+ * Work once its budget is gone (`executeClaimed`), and settle fails any answer that
+ * crosses the same deadline with that code.
+ */
+export async function runtimeWorkBudgetSpent(db, job, { at }) {
+  const { deadline } = await executionAnswerDeadline(db, job, { outOfHours: runtimeOutOfHoursReply(job) !== null })
+  return Boolean(deadline) && at.getTime() >= Date.parse(deadline.answerDeadlineAt)
+}
+
 // @req FR-265 — the only settler is the server worker (ADR-100 D2). `deviceContext`
 // scoping, the `EDGE_REPORTED` context-receipt source and the published-corpus
 // re-check a device's claim needed are gone with the claim that produced them.
@@ -848,13 +877,9 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
     // (and in `ownedClaim`), and Core's own fences close those jobs — cancel at
     // claim or send, erasure redaction, or the job's TTL.
     if (outOfHoursReply !== null && code) throw failure(409, 'OUT_OF_HOURS_FAILURE_DEFERRED')
-    const admittedContract = await tx.agentTraceEvent.findFirst({ where: { turnId: job.id, executionId: job.executionId,
-      idempotencyKey: `${job.id}:execution:${job.executionId}:contract`, kind: 'CONTEXT_COMMITTED' } })
-    const contract = admittedContract ? JSON.parse(admittedContract.payloadJson) : null
+    const { contract, deadline } = await executionAnswerDeadline(tx, job, { executionId, outOfHours: outOfHoursReply !== null })
     if (contract?.contractVersion === '2' && executionId !== job.executionId) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
     if (contextReceipts?.length && !executionId) throw failure(400, 'CONTEXT_RECEIPT_EXECUTION_REQUIRED')
-    const deadline = outOfHoursReply !== null ? null
-      : contract?.executionBudget ?? (executionId ? lineExecutionBudget(job, new Date(job.leaseExpiresAt.getTime() - LINE_JOB_LEASE_MS)) : null)
     // Charge authorization/corpus validation time too; an expensive manifest read
     // must not turn an answer that crossed the cutoff into READY.
     const checkedAt = now.getTime() + Math.max(0, performance.now() - startedAt)
