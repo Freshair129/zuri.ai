@@ -1050,9 +1050,12 @@ export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAc
   const sent = await sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env,
     workerId: claim.claimantId, now, requiredExecutionMode: 'SERVER', requiredRuntimeOwner: 'CONVERSATION_RUNTIME',
     expectedExecutionId: claim.executionId })
-  // The v1 `send` answer carries `acceptance` as a bounded object: Core's response validator and the runtime's
-  // core client both require one. The shared sender's bare string stays the legacy worker's own result.
-  return sent.acceptance === undefined ? sent : { ...sent, acceptance: runtimeSendAcceptance(sent.acceptance) }
+  // The v1 `send` answer always names its job and carries `acceptance` as a bounded object: Core's response
+  // validator and the runtime's core client both require that. The shared sender's id-less CONTENDED and its
+  // bare acceptance string stay the legacy worker's own result. CONTENDED and MISSING are reported, not
+  // retried here: like the legacy tick, the next delivery claim picks up a job that is still READY.
+  const named = { id: job.id, ...sent }
+  return named.acceptance === undefined ? named : { ...named, acceptance: runtimeSendAcceptance(named.acceptance) }
 }
 
 const runtimeSendAcceptance = outcome => ({ provider: 'LINE', outcome })

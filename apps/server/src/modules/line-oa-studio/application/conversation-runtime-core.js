@@ -122,6 +122,20 @@ function safeResponse(data) {
   return body
 }
 
+// Admission allows LINE_TEXT_MAX_CHARS of any text, and a question that escapes heavily in JSON (control
+// characters take six bytes each) plus full evidence can outgrow the response cap. The legacy path answers
+// such a turn, so `prepare` must too: it drops the lowest-ranked evidence records until the answer fits and
+// never touches the question, which admission already bounded.
+function fitPreparedTurn(result) {
+  const records = result?.evidence?.records
+  if (!Array.isArray(records)) return result
+  const kept = [...records]
+  const bytes = () => Buffer.byteLength(JSON.stringify({ contractVersion: VERSION, ok: true,
+    data: { ...result, evidence: { ...result.evidence, records: kept } } }), 'utf8')
+  while (kept.length && bytes() > MAX_RESPONSE_BYTES) kept.pop()
+  return kept.length === records.length ? result : { ...result, evidence: { ...result.evidence, records: kept } }
+}
+
 function validateResult(operation, data) {
   const invalid = () => { throw error('CONTRACT_RESPONSE_INVALID', 500) }
   if (!boundedJsonWithin(data, MAX_RESPONSE_BYTES)) invalid()
@@ -166,7 +180,7 @@ function validateResult(operation, data) {
   }
   if (operation === 'send') {
     if (!exact(data, ['id', 'status', 'acceptance']) || !present(data.id, 128)
-      || !['RECORDED', 'ACCEPTED', 'UNKNOWN', 'FAILED', 'CANCELLED', 'CONTENDED', 'FENCED', 'STOPPED', 'READY', 'SENDING'].includes(data.status)
+      || !['RECORDED', 'ACCEPTED', 'UNKNOWN', 'FAILED', 'CANCELLED', 'CONTENDED', 'FENCED', 'STOPPED', 'READY', 'SENDING', 'MISSING'].includes(data.status)
       || (data.acceptance !== undefined && (!data.acceptance || typeof data.acceptance !== 'object' || Array.isArray(data.acceptance)
         || !boundedJsonWithin(data.acceptance, 8 * 1024)))) invalid()
     return
@@ -334,7 +348,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       case 'prepare': {
         const { job } = await ownedClaim(claimRef)
         if (payload.authorityVersion !== job.version) throw error('CONVERSATION_AUTHORITY_STALE', 409)
-        return prepare(job)
+        return fitPreparedTurn(await prepare(job))
       }
       case 'credential': {
         const { job } = await ownedClaim(claimRef)
