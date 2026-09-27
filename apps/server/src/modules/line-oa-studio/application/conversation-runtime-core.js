@@ -9,12 +9,13 @@ import { serverLinePorts } from './server-line-runtime'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
   failRuntimeConversationJob, renewRuntimeConversationJob, runtimeConversationStatus,
-  runtimeOperationStatus, sendRuntimeConversationJob,
+  runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply,
 } from './line-conversation-jobs'
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
 // @spec ADR-106 D2-D4, SDD-110 — server-derived authority, strict bounded v1 operations.
-// @tested tests/integration/conversation-runtime-vertical-slice.test.js
+// @tested tests/integration/conversation-runtime-vertical-slice.test.js,
+//   tests/integration/conversation-runtime-out-of-hours.test.js
 const VERSION = 'conversation-runtime.v1'
 const MAX_BODY_BYTES = 64 * 1024
 const MAX_RESPONSE_BYTES = 64 * 1024
@@ -136,7 +137,11 @@ function validateResult(operation, data) {
     return
   }
   if (operation === 'prepare') {
-    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])
+    // FR-244 — an OUT_OF_HOURS turn carries Core's fixed reply and nothing to execute.
+    if (data?.turnKind !== undefined && (data.turnKind !== 'OUT_OF_HOURS' || !present(data.replyText, 5000)
+      || data.workCommand != null || data.evidence?.records?.length || data.slices?.length)) invalid()
+    if (data?.turnKind === undefined && data?.replyText !== undefined) invalid()
+    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'turnKind', 'replyText'])
       || !present(data.question, 8000) || !exact(data.evidence, ['records']) || !Array.isArray(data.evidence.records)
       || data.evidence.records.length > 64 || !Array.isArray(data.slices) || data.slices.length > 64
       || typeof data.authorized !== 'boolean' || !['DIRECT', 'GROUP', 'ROOM'].includes(data.audienceKind)
@@ -279,6 +284,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
 
   async function workOperation(ref, request) {
     const { job } = await ownedClaim(ref)
+    // @req FR-244 — an out-of-hours turn never runs a Work command (Server parity).
+    if (runtimeOutOfHoursReply(job) !== null) throw error('OUT_OF_HOURS_TURN_HAS_NO_WORK', 409)
     const expectedClaim = { ...ref, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' }
     const input = request.input
     if (request.operation === 'read') {
@@ -334,10 +341,22 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       case 'prepare': {
         const { job } = await ownedClaim(claimRef)
         if (payload.authorityVersion !== job.version) throw error('CONVERSATION_AUTHORITY_STALE', 409)
+        // @req FR-244 — Core decided out-of-hours at admission and owns the reply.
+        // Checked before any injected or default preparer, so no grounding mode,
+        // Work command or knowledge read applies to this turn, as on the Server path.
+        // The question is informational only here; it is bounded like any turn's
+        // (admission accepts 10,000 characters, the turn contract 8,000) so a long
+        // message still gets the reply, as it does on the Server path.
+        const outOfHoursReply = runtimeOutOfHoursReply(job)
+        if (outOfHoursReply !== null) return { question: job.inbound.body.slice(0, 8000), evidence: { records: [] }, slices: [],
+          authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null,
+          turnKind: 'OUT_OF_HOURS', replyText: outOfHoursReply }
         return prepare(job)
       }
       case 'credential': {
         const { job } = await ownedClaim(claimRef)
+        // @req FR-244 — no model runs for an out-of-hours turn; Core does not hand one out.
+        if (runtimeOutOfHoursReply(job) !== null) throw error('OUT_OF_HOURS_TURN_HAS_NO_MODEL', 409)
         return resolveCredential(job)
       }
       case 'work-tool': return workOperation(claimRef, payload)

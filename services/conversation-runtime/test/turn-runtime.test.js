@@ -454,3 +454,50 @@ test('does not re-run a provider call with a started receipt after process recla
 test('runtime construction requires every versioned side-effect port', () => {
   assert.throws(() => createConversationRuntime({ ports: {} }), /RUNTIME_PORTS_REQUIRED/)
 })
+
+// @req FR-244 — an out-of-hours turn handed over by Core (ADR-094 D6, ADR-106).
+const outOfHoursTurn = { question: 'สั่งของได้ไหม', evidence: { records: [] }, slices: [], authorized: true,
+  audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null,
+  turnKind: 'OUT_OF_HOURS', replyText: '  ขณะนี้ปิดทำการ กรุณาติดต่อใหม่ในเวลาทำการ  ' }
+
+function outOfHoursPorts(order, overrides = {}) {
+  return {
+    job: { claim: async () => (order.push('claim'), claim), renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async (_claim, result) => (order.push(`complete:${result.text}`), { status: 'READY', operationId: result.operationId }),
+      status: async (_claim, operationId) => ({ status: 'CLAIMED', operationId }), fail: async () => order.push('fail') },
+    authority: { resolve: async () => (order.push('authority'), { authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare: async () => (order.push('context'), outOfHoursTurn) },
+    workTool: { execute: async () => assert.fail('out-of-hours turn must not call WorkToolPort'),
+      status: async () => assert.fail('out-of-hours turn must not read a Work receipt') },
+    model: { credential: async () => assert.fail('out-of-hours turn must not resolve a model credential'),
+      generate: async () => assert.fail('out-of-hours turn must not call the model') },
+    delivery: { send: async () => (order.push('delivery'), { status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
+    trace: { append: async (_claim, event) => order.push(event.kind),
+      status: async () => assert.fail('out-of-hours turn has no model operation to reconcile') },
+    ...overrides,
+  }
+}
+
+test('out-of-hours turn completes with Core\'s fixed reply byte for byte and never touches Work, credential or model', async () => {
+  const order = []
+  const result = await createConversationRuntime({ ports: outOfHoursPorts(order), now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${outOfHoursTurn.replyText}`, 'ANSWER_READY', 'delivery'])
+})
+
+test('out-of-hours completion reconciles a lost response from Core status and sends once', async () => {
+  const order = []
+  let completeCalls = 0
+  let committed = false
+  const ports = outOfHoursPorts(order, {
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async () => { completeCalls += 1; committed = true; throw Object.assign(new Error('lost'), { code: 'CORE_RESPONSE_LOST' }) },
+      status: async (_claim, operationId) => ({ status: committed ? 'READY' : 'CLAIMED', operationId }),
+      fail: async () => assert.fail('a possibly committed READY must not be failed') },
+  })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.equal(completeCalls, 1)
+  assert.equal(order.filter(step => step === 'delivery').length, 1)
+})

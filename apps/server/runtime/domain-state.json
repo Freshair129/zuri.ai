@@ -692,7 +692,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -708,7 +708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-181",
@@ -2508,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-152",
@@ -3678,7 +3678,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -3718,7 +3718,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-190",
@@ -3821,8 +3821,8 @@
           "title": "Local model residency follows business hours",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 9
+          "codeCount": 4,
+          "testCount": 13
         },
         {
           "id": "FR-259",
@@ -5737,7 +5737,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -8681,7 +8681,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 40,
-          "testCount": 54
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -8746,6 +8746,7 @@
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
+        "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
@@ -11240,8 +11241,8 @@
           "title": "Local model residency follows business hours",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 3,
-          "testCount": 9
+          "codeCount": 6,
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -11253,12 +11254,15 @@
         "apps/server/src/modules/crm/conversation-session-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
         "apps/server/src/modules/crm/reply-record-service.js",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -11289,7 +11293,11 @@
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
-        "apps/server/tests/unit/reply-record-service.test.js"
+        "apps/server/tests/unit/reply-record-service.test.js",
+        "services/conversation-runtime/src/contracts.js",
+        "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/test/contracts.test.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {
@@ -16755,7 +16763,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 29
+          "testCount": 30
         }
       ],
       "evidence": [
@@ -16781,6 +16789,7 @@
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
+        "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",

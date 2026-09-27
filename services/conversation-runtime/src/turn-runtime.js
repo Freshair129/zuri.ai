@@ -108,7 +108,14 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       const authority = await ports.authority.resolve(claim, { signal })
       assertAuthority(authority, claim)
       const turn = validateTurnContext(await ports.context.prepare(claim, authority, { signal }))
-      if (turn.workCommand) {
+      // @req FR-244 — Core decided at admission that this message arrived outside the
+      // account's hours and handed over its fixed reply. The runtime produces exactly
+      // that reply: no Work command, context, credential or model call.
+      const fixedReply = turn.turnKind === 'OUT_OF_HOURS'
+      if (fixedReply) {
+        stage = 'out-of-hours'
+        text = turn.replyText
+      } else if (turn.workCommand) {
         const operationId = turn.workCommand.operation === 'confirm-execute' ? turn.workCommand.input?.proposalId
           : turn.workCommand.operation === 'propose' ? `${claim.jobId}:work-proposal` : `${claim.jobId}:work-read`
         if (turn.workCommand.operationId && turn.workCommand.operationId !== operationId) {
@@ -186,7 +193,9 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         await ports.trace.append(claim, { kind: 'CONTEXT_COMMITTED', payload: composed.receipt }, { signal })
       }
       if (typeof text !== 'string' || !text.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
-      text = text.trim().slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
+      // The fixed reply is sent byte for byte, as the Server path sends it; Core
+      // commits READY only for that exact text.
+      if (!fixedReply) text = text.trim().slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
       await ensureLease()
       stage = 'completion'
       let completed
