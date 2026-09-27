@@ -219,6 +219,11 @@ export function memoryServerScope(job, route) {
     audienceKind: route.audienceKind,
     agentId: 'zuri-line-agent',
     mspAuthorization: { read: true, writePrivate: false, writeShared: false },
+    // @req FR-149 — Core's PENDING memory mode: a Conversation Runtime job that Core
+    // admitted for an unverified sender (`CHANNEL_IDENTITY_ADMITTED`) is marked by
+    // Core's own claim check, never by the runtime. The legacy worker's job rows carry
+    // no such mark, so its scope is unchanged.
+    ...(job.senderIdentityState === 'UNVERIFIED' ? { identityState: 'UNVERIFIED' } : {}),
     // These identifiers are copied from the claimed, persisted job only. They
     // are never accepted from the LINE message or model request.
     tenantId: job.tenantId,

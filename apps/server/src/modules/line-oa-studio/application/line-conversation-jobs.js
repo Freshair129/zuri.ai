@@ -356,12 +356,10 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // changes cannot transfer an already admitted job to another executor.
     // @req FR-149 — an unverified sender joins the cohort on the same terms
     // (owner ruling 2026-09-27) and runs with no person (see
-    // `runtimeSenderAuthority`). A memory-sync opt-in turn from an unverified
-    // sender stays SERVER: the legacy worker records such a turn in the MSP
-    // thread with PENDING assurance, which the runtime cohort does not reproduce.
+    // `runtimeSenderAuthority`). Its memory-sync opt-in turn joins too (W11) and
+    // runs in Core's PENDING memory mode, as the legacy worker runs it.
     const senderVerified = runtimeEligible && channelIdentityIsVerified(identity)
-    const runtimeOwner = runtimeEligible && (senderVerified || !memorySyncOptIn)
-      ? 'CONVERSATION_RUNTIME' : 'SERVER'
+    const runtimeOwner = runtimeEligible ? 'CONVERSATION_RUNTIME' : 'SERVER'
     const executionMode = 'SERVER'
     // @req FR-244 — the Server cohort keeps today's shape: created straight at READY
     // and sent by the Server send phase. The runtime cohort is admitted QUEUED with
@@ -811,7 +809,11 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       // appended exactly this text to the MSP thread, as the legacy worker's
       // append precedes its READY settle.
       // Bound to the job's Core memory receipts too, not only to the opt-in flag.
-      if (!code && !(job.status === 'READY' && job.executionId === executionId && job.answerText === text)) {
+      // @req FR-244 — an out-of-hours turn never touches memory on either path (the
+      // legacy one is READY at admission); its only reply is Core's admission
+      // snapshot, which the out-of-hours check below pins READY to.
+      if (!code && runtimeOutOfHoursReply(job) === null
+        && !(job.status === 'READY' && job.executionId === executionId && job.answerText === text)) {
         const inbound = job.memorySyncOptIn
           ? await tx.message.findUnique({ where: { id: job.inboundMessageId }, select: { body: true } }) : null
         await assertMemoryAnswerAppended(tx, { ...job, inbound }, text)
