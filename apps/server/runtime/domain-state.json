@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-150",
@@ -761,7 +761,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 37
+          "testCount": 41
         },
         {
           "id": "FR-253",
@@ -2516,7 +2516,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-152",
@@ -3388,7 +3388,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 37
+          "testCount": 41
         },
         {
           "id": "FR-236",
@@ -3694,7 +3694,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 24,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-150",
@@ -3813,8 +3813,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 37
+          "codeCount": 8,
+          "testCount": 41
         },
         {
           "id": "FR-238",
@@ -5753,7 +5753,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-150",
@@ -8697,7 +8697,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 47,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-150",
@@ -8771,6 +8771,7 @@
         "apps/server/tests/integration/conversation-runtime-grounding.test.js",
         "apps/server/tests/integration/conversation-runtime-group-room.test.js",
         "apps/server/tests/integration/conversation-runtime-legacy-parity.test.js",
+        "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
         "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
@@ -11050,8 +11051,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 16,
-          "testCount": 37
+          "codeCount": 19,
+          "testCount": 41
         },
         {
           "id": "FR-236",
@@ -11106,6 +11107,8 @@
         "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
         "apps/server/src/modules/knowledge/ui/KnowledgeGapReport.jsx",
         "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-memory.js",
+        "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-liff-app-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
@@ -11125,6 +11128,7 @@
         "apps/server/tests/integration/conversation-runtime-answer-parity.test.js",
         "apps/server/tests/integration/conversation-runtime-grounding-parity.test.js",
         "apps/server/tests/integration/conversation-runtime-grounding.test.js",
+        "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
         "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
@@ -11155,6 +11159,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
@@ -11201,6 +11206,8 @@
         "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
         "services/conversation-runtime/src/context.js",
         "services/conversation-runtime/src/line-answer-policy.js",
+        "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/test/memory-turn.test.js",
         "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },

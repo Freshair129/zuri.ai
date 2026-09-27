@@ -2,10 +2,10 @@ import { createHash } from 'node:crypto'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
 import { resolveAgentAuthorization } from '@/modules/agent/auth-context'
 import { assembleAgentContext } from '@/modules/agent/context'
-import { resolveLineKnowledgeGroundingMode } from '@/modules/agent/line-knowledge-grounding'
+import { conversationRuntimeServesGroundingMode, resolveLineKnowledgeGroundingMode } from '@/modules/agent/line-knowledge-grounding'
 import {
-  appendLineMemoryAnswer, assertMemoryJobLive, composeLineMemoryPacket, lineMemoryHandle,
-  memoryRoute, memoryServerScope, prepareLineMemoryContext,
+  appendLineMemoryAnswer, assertMemoryJobLive, composedKnowledgeRecords, composeLineMemoryPacket, lineKnowledgeSliceInputs,
+  lineMemoryHandle, memoryRoute, memoryServerScope, prepareLineMemoryContext,
 } from '@/modules/agent/server-line-answer'
 import { createServerLineThreadMemory } from './server-line-runtime'
 import {
@@ -25,6 +25,7 @@ import {
 export const MEMORY_OPERATIONS = Object.freeze(['read', 'append', 'receipt'])
 export const MEMORY_INJECTION_STATES = Object.freeze(['RESOLVED', 'SUBMITTED', 'COMPLETED', 'FAILED'])
 export const MAX_MEMORY_PACKET_BYTES = 32 * 1024
+export const MAX_MEMORY_EVIDENCE_BYTES = 32 * 1024
 
 export { memoryOperationIds }
 
@@ -68,11 +69,12 @@ function durableAuthContext(authContext) {
   }
 }
 
-export function createConversationRuntimeMemory({ db, env, now = () => new Date(), ownedClaim, modelResolver,
+export function createConversationRuntimeMemory({ db, env, now = () => new Date(), ownedClaim, modelResolver, groundingQuery,
   threadMemoryFactory = null, contextAssembler = assembleAgentContext,
   authorizationResolver = resolveAgentAuthorization } = {}) {
   if (typeof ownedClaim !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_CLAIM_REQUIRED')
   if (typeof modelResolver !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_MODEL_REQUIRED')
+  if (typeof groundingQuery !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_GROUNDING_REQUIRED')
 
   // The legacy worker falls back to building the port from the Phase 1 runtime
   // when the deployment port is absent, and that constructor throws for a missing
@@ -136,11 +138,16 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       idempotencyKey: coreMemoryKey(job.id, key, kind), payload, occurredAt: new Date(now().getTime()) })
   }
 
-  /** A memory operation exists only for an opted-in, non-command, business-knowledge turn. */
+  /**
+   * A memory operation exists only for an opted-in, non-command turn in a
+   * grounding mode Core serves. The route — thread kind, audience, room and
+   * channel — is `memoryRoute(job)`, from the persisted job alone: a DIRECT chat's
+   * own thread, or the one MSP thread of the group or room the job was admitted for.
+   */
   function memoryTurn(job) {
     if (job.memorySyncOptIn !== true) throw error('MEMORY_NOT_ENABLED', 409)
     if (!isMemoryTurn(job)) throw error('MEMORY_NOT_APPLICABLE', 409)
-    if (resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding) !== 'BUSINESS_KNOWLEDGE') {
+    if (!conversationRuntimeServesGroundingMode(job.account?.knowledgeGrounding)) {
       throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
     }
     return memoryRoute(job)
@@ -157,6 +164,9 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
   function readResult(receipt) {
     return { status: 'COMPLETED', operationId: receipt.operationId, result: {
       contextPacket: receipt.contextPacketJson ? JSON.parse(receipt.contextPacketJson) : null,
+      // @req FR-235 — a corpus-mode turn's evidence is the composer-included
+      // knowledge, which replaces what `prepare` handed out (it reads none for it).
+      ...(typeof receipt.evidenceJson === 'string' ? { evidence: JSON.parse(receipt.evidenceJson) } : {}),
       receipt: { contextReceiptId: receipt.contextReceiptId ?? null, policyDecision: receipt.policyDecision } } }
   }
 
@@ -165,7 +175,8 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       result: { receipt: { textSha256: receipt.textSha256, duplicate } } }
   }
 
-  async function read(ref) {
+  async function read(ref, { deadlineAt } = {}) {
+    const startedAt = now().getTime()
     const { job } = await ownedClaim(ref)
     const route = memoryTurn(job)
     const operationId = memoryOperationIds(job.id).read
@@ -182,7 +193,25 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     const port = threadMemory()
     const { memoryContext, memoryInbound, authorizedForMemory } = await prepareLineMemoryContext({ job, route,
       question: job.inbound.body, threadMemory: port, contextAssembler, memoryStateReader })
-    const { composed, injectedPacket } = composeLineMemoryPacket({ memoryContext, route, authorizedForMemory })
+    // @req FR-235 — under a corpus mode, the legacy worker reads this turn's
+    // knowledge here, after the MSP phases, and composes it with the thread in ONE
+    // call under ONE budget. The read is Core's `prepare` read, with W2's budget
+    // clamp counting the time this operation has already spent.
+    const groundingMode = resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding)
+    let knowledgeSliceInputs = []
+    let knowledgeRecordById = new Map()
+    if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
+      const evidence = await groundingQuery(job, { deadlineAt, startedAt })
+      ;({ knowledgeSliceInputs, knowledgeRecordById } = lineKnowledgeSliceInputs(evidence?.records))
+    }
+    const { composed, injectedPacket } = composeLineMemoryPacket({ memoryContext, route, authorizedForMemory,
+      groundingMode, knowledgeSliceInputs })
+    const knowledgeRecords = groundingMode === 'BUSINESS_KNOWLEDGE' ? null : composedKnowledgeRecords(composed, knowledgeRecordById)
+    const evidenceJson = knowledgeRecords ? JSON.stringify({ records: knowledgeRecords }) : null
+    if (evidenceJson && Buffer.byteLength(evidenceJson, 'utf8') > MAX_MEMORY_EVIDENCE_BYTES) throw error('TURN_EVIDENCE_TOO_LARGE', 413)
+    // One ContextReceipt per model invocation and none when no model will run:
+    // under a corpus mode that is exactly when composed knowledge survived.
+    const recordsContextReceipt = !knowledgeRecords || knowledgeRecords.length > 0
     // Trace payloads are stored as canonical JSON. The packet is kept as the exact
     // string the legacy path would hand the model, so the prompt and the MSP
     // injection receipt's packet hash are byte-identical on every replay.
@@ -192,12 +221,13 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     }
     const receipt = { operationId, routeKey: routeKey(route), ...lineMemoryHandle(memoryContext, memoryInbound),
       policyDecision: memoryContext.threadMemory.policyDecision,
-      contextReceiptId: composed.receipt?.receiptId ?? null, contextPacketJson }
+      contextReceiptId: recordsContextReceipt ? composed.receipt?.receiptId ?? null : null, contextPacketJson,
+      ...(evidenceJson ? { evidenceJson } : {}) }
     await assertMemoryJobLive(job, memoryStateReader)
     await saveReceipt(job, 'read', receipt)
     // The legacy worker records the composer's ContextReceipt (references, hash,
     // budget; never content) for every BUSINESS_KNOWLEDGE memory turn.
-    if (composed.receipt?.receiptId) await traceNote(job, 'CONTEXT_RECEIPT', operationId, composed.receipt)
+    if (recordsContextReceipt && composed.receipt?.receiptId) await traceNote(job, 'CONTEXT_RECEIPT', operationId, composed.receipt)
     return readResult(receipt)
   }
 
@@ -267,12 +297,12 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     return { status: 'COMPLETED', operationId, result: { receipt: { state } } }
   }
 
-  async function operate(ref, request) {
+  async function operate(ref, request, { deadlineAt } = {}) {
     const ids = memoryOperationIds(ref.jobId)
     try {
       if (request.operation === 'read') {
         if (request.operationId !== ids.read) throw error('MEMORY_OPERATION_ID_INVALID')
-        return await read(ref)
+        return await read(ref, { deadlineAt })
       }
       if (request.operation === 'append') {
         if (request.operationId !== ids.append) throw error('MEMORY_OPERATION_ID_INVALID')

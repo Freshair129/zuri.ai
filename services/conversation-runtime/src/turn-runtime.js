@@ -277,6 +277,10 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         // Core before anything is answered, as the legacy worker does even when the
         // evidence is empty and no model will run.
         let memoryPacket = null
+        // @req FR-235 — under a corpus grounding mode Core composes this turn's
+        // knowledge with the thread in `memory read`; that composed evidence is the
+        // turn's evidence, exactly as the legacy worker hands it to its provider.
+        let evidence = turn.evidence
         if (turn.memorySync === true) {
           requireMemoryPort()
           await ensureLease()
@@ -286,8 +290,9 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
             throw Object.assign(new Error('MEMORY_READ_RESPONSE_INVALID'), { code: 'MEMORY_READ_RESPONSE_INVALID' })
           }
           memoryPacket = memory.result.contextPacket ?? null
+          if (memory.result.evidence !== undefined) evidence = memory.result.evidence
         }
-        if (evidenceRecords(turn.evidence).length === 0) {
+        if (evidenceRecords(evidence).length === 0) {
           text = NO_EVIDENCE_REPLY
         } else {
           composed = composeTurnContext({ authorized: turn.authorized, slices: turn.slices,
@@ -323,10 +328,10 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
             // the same policy source: a provider failure answers from evidence, and a
             // candidate carrying a number, code or delivery claim the evidence does
             // not carry is replaced by the evidence fallback.
-            const checkedEvidence = { records: evidenceRecords(turn.evidence) }
+            const checkedEvidence = { records: evidenceRecords(evidence) }
             // The memory packet is Core's composed MSP context, byte-identical to the
             // one the legacy worker hands its provider.
-            const generate = () => ports.model.generate({ question: turn.question, evidence: turn.evidence,
+            const generate = () => ports.model.generate({ question: turn.question, evidence,
               contextPacket: memoryPacket ?? (composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null),
               contextReceipt: composed.receipt, credential,
               deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
