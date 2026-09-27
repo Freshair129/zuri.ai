@@ -1,7 +1,7 @@
 ---
 id: ZAI:ADR-111
 title: "SCM service extraction — one deployable over Inventory, Procurement and Commerce"
-version: "0.1.11b"
+version: "0.1.12b"
 status: candidate
 created_at: "2026-09-24T14:00:00+07:00,Claude Opus 5.5"
 last_update: "2026-09-27T10:15:00+07:00,Claude Opus 5.5"
@@ -127,15 +127,30 @@ Runtime:
 - SCM asks core's private façade `/api/internal/scm/v1/resolve-scope` (contract
   `scm-core.v1`, SCM authenticating with a different token, `SCM_CORE_TOKEN`) to
   resolve that subject into actor, Tenant and, per visible Business, the owner
-  flag, domains and permissions.
+  flag, domains and permissions. The BFF also sends the user's active Business
+  in `x-zuri-business-id`. It is a selector, never an authority: core answers
+  the selected Business's Tenant and only the Businesses the subject sees there,
+  and refuses a Business the subject cannot see with the same 404 as an unknown
+  Business. So a viewer with memberships in several Tenants works one Tenant at
+  a time, as the legacy one-active-Business screen does (owner ruling,
+  2026-09-27).
 - The same façade serves the Branch, Customer and Conversation facts (D-10 and
   the ReferenceAuthority consequence below). It re-resolves the subject on every
-  call and answers `null` for a Business the subject cannot see. Payment-slip
-  files stay behind SCM-FILES.
+  call and answers `null` without Commerce view of the named Business. Customer
+  and Conversation facts come through a reader the CRM module exports
+  (`crm/scm-reference-reader.js`); the façade does not read CRM's models
+  itself (owner ruling, 2026-09-27). Payment-slip files stay behind SCM-FILES.
 - SCM applies its unchanged legacy ladders to that scope. It never accepts role,
   owner or "verified" flags from a request, and a scope refusal is the same 404
   as an unknown Business. An unreachable core refuses retryably (503) with no
-  effect; nothing is cached.
+  effect.
+- SCM keeps successful `resolve-scope` answers in a short in-process cache
+  (default 15 s, never above 60 s, 0 turns it off; bounded, least recently used
+  evicted first). The key is a hash of the subject, the selected Business and
+  the core credential, so the raw subject is never stored. Refusals, errors and
+  outages are never cached, and facts are never cached. **Accepted tradeoff
+  (owner ruling, 2026-09-27):** a session revoked or a grant changed in core can
+  keep acting in SCM for up to that TTL.
 
 The earlier draft had core sign a short-lived HMAC `scm.delegation.v1`
 statement. It is kept only as a test and non-production seam and is refused in
@@ -290,3 +305,4 @@ For this candidate revision:
 | 0.1.9b | 2026-09-24 | candidate | Inventory catalogue writers + SKU identity moved (F-13 writers); ARCHIVE/MERGE stay legacy | uncommitted | Claude Opus 5.5 (Session 5) |
 | 0.1.10b | 2026-09-27 | candidate | Renumbered from ADR-109 to ADR-111 (ADR-109 went to Notion on main; MC0 allocated 111); no decision text changed | this merge | Claude Opus 5.5 (Session 5) |
 | 0.1.11b | 2026-09-27 | candidate | D5 revised to the owner-approved option 2: core resolves the subject through the private scm-core.v1 facade (ADR-108 D4 pattern); HMAC delegation kept only as a test/non-production seam | this change | Claude Opus 5.5 (Session 5) |
+| 0.1.12b | 2026-09-27 | candidate | D5 per owner rulings: Business selector on resolve-scope (one Tenant per request), Customer/Conversation through a CRM-exported reader, short success-only scope cache with the revocation tradeoff recorded | this change | Claude Opus 5.5 (Session 5) |

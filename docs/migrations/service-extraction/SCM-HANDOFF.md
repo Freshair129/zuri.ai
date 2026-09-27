@@ -205,7 +205,7 @@ API v1: `POST /v1/procurement/suppliers`, `POST /v1/procurement/purchase-orders`
 `GET /v1/operations/{action}/{key}`, `/healthz`, `/readyz`, plus the sales
 order, payment, revenue and `/v1/commerce/pricing-rules/**` routes added in
 S5.4, and every Inventory route since. Contract: `services/scm/contracts/v1/scm-api.v1.json`
-(revision `v1-draft.16`, 96 routes, `notMigrated` empty, PROPOSED).
+(revision `v1-draft.17`, 96 routes, `notMigrated` empty, PROPOSED).
 
 ## 4. Invariants proven in this slice
 
@@ -912,8 +912,8 @@ remaining:
   - "Image build/start smoke; BFF consumer; core delegation issuer; audit outbox relay; a managed PostgreSQL rehearsal (pooler, TLS, restricted role) under SCM-CUTOVER"
   - "F-10 separate FR (declared by the PRD registry owner), then the fulfilment change in legacy and SCM together"
 contracts:
-  - { name: scm-api, revision: v1-draft.16, provider_owner: S5, consumer_owner: "BFF (unassigned)", review_status: PROPOSED, provider_conformance: "LOCAL PASS", consumer_conformance: NOT_RUN }
-  - { name: scm-core.v1, provider_owner: "Core (Identity) + CRM (customer op)", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (fake core)" }
+  - { name: scm-api, revision: v1-draft.17, provider_owner: S5, consumer_owner: "BFF (unassigned)", review_status: PROPOSED, provider_conformance: "LOCAL PASS", consumer_conformance: NOT_RUN }
+  - { name: scm-core.v1, revision: v1-draft.2, provider_owner: "Core (Identity) + CRM (customer op)", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (fake core)" }
   - { name: scm.delegation.v1, provider_owner: "none (test / non-production seam only)", consumer_owner: S5, review_status: SUPERSEDED_BY_scm-core.v1, provider_conformance: NOT_APPLICABLE, consumer_conformance: "LOCAL PASS (synthetic issuer)" }
   - { name: ReferenceAuthority (branch/branches/customer/conversation/fileAsset facts), provider_owner: "Core + CRM + Files (S3)", consumer_owner: S5, review_status: PROPOSED, provider_conformance: NOT_RUN, consumer_conformance: "LOCAL PASS (fixture provider)" }
 blockers:
@@ -971,16 +971,24 @@ board_update: BOARD_UPDATE_PENDING
        SCM's ladder on the façade's grants equals the legacy authority.
      - A consumer-to-real-façade test: the real `createScmCoreClient` against
        the real route and the test DB.
-   - **Open (Core owner):** `resolve-scope` names ONE Tenant, and SCM stamps
-     every write with it. A viewer whose visible Businesses span several Tenants
-     (a second membership, or DEV), or who has none, is therefore refused with
-     409 `SCOPE_NOT_SINGLE_TENANT` (SCM answers 502, no effect), where legacy
-     would serve them. Fixing it needs a Business or Tenant selector in
-     `resolve-scope`, or a per-Business Tenant in SCM's scope. Both are contract
-     changes.
-   - **Open (CRM owner):** the façade reads `Customer` and `Conversation`
-     through Prisma exactly as legacy `sales-order-service` does; CRM may
-     prefer an exported reader.
+   - MC0 review of `94685580`: PASS with findings, all fixed. The findings were:
+     (1) `SCM_CORE_URL` must be https or a single-label service name in
+     production; (2) facts need Commerce view; (3) a viewer with no Business gets
+     404; (4) the façade hashes both sides of the token compare, and the parity
+     matrix gained a deleted Business.
+   - Owner rulings (2026-09-27), implemented:
+     (a) `resolve-scope {businessId}` with the `x-zuri-business-id` selector. It
+     answers one Tenant per request. `BUSINESS_NOT_FOUND` and
+     `NO_VISIBLE_BUSINESS` become SCM's legacy 404; `SCOPE_NOT_SINGLE_TENANT` is
+     removed.
+     (b) Customer and Conversation facts come through
+     `apps/server/src/modules/crm/scm-reference-reader.js`, now listed in the CRM
+     charter.
+     (c) A success-only scope cache in SCM (`scope-cache.js`, TTL 15 s by default,
+     at most 60 s), with the tradeoff recorded in ADR-111 D5.
+   - Tests: SCM SQLite 341/343 (2 skipped), PostgreSQL 342/343 (1 skipped). The
+     façade, CRM reader and sales-order tests pass 83/83, and the parity test runs
+     per selected Business, including a viewer spanning two Tenants.
 2a. Wrap-up (2026-09-24): no new groups.
    - #561: MERGED at `9e25aa1f` (S1 PASS at `be171333`, CI green).
    - #564 (F-15/F-16/F-17): MERGED at `caabd8a7` (S1 PASS at `812b21f0`, CI green).
