@@ -4,6 +4,7 @@ import { createPhase1BusinessAgentPortsFromEnv } from './phase1-runtime'
 import { assembleAgentContext } from './context'
 import { resolveAgentAuthorization } from './auth-context'
 import { composeContext } from './context-composer'
+import { boundLineText } from './line-answer-policy'
 import {
   createLineGroundingReader,
   lineKnowledgeGroundingBudgetFromEnv,
@@ -520,7 +521,7 @@ export function createServerLineAnswer({
       if (typeof result?.text !== 'string' || !result.text.trim()) throw failure('LINE_ANSWER_EMPTY')
       // LINE's text message limit is 5000 UTF-16 code units. Never leave a split
       // surrogate at the boundary when an evidence value contains emoji.
-      const answerText = result.text.slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
+      const answerText = boundLineText(result.text)
       if (memoryOptIn) {
         await assertMemoryJobLive(job, memoryStateReader)
         const currentAuthorization = await authorizationResolver({
