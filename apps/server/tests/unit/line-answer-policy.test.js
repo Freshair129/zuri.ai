@@ -69,6 +69,84 @@ describe('verifyCandidate still passes grounded answers', () => {
   })
 })
 
+// The PR #593 review's examples: grounded SmartGift answers the first cut rejected
+// (M1 units, M2 budget paraphrases, L1 capitalised words, L3 delivery ranges and
+// lead_time_days) and unit prices that must still be rejected (L2).
+const tumbler = { product_code: 'SG-TM-500', name: 'กระบอกน้ำสุญญากาศสแตนเลส 304 ขนาด 500ml', unit: 'ชิ้น', moq: 50,
+  sell_price: null, specification: { lead_time_days: 7 }, as_of: '2026-09-06T00:00:00.000Z' }
+const ecoSet = { product_code: 'SG-ECO-001', name: 'ชุดสมุดโน้ตปกไม้ไผ่', unit: 'ชิ้น', moq: 50, sell_price: null,
+  specification: { lead_time_days: 5 }, as_of: '2026-09-06T00:00:00.000Z' }
+const powerBank = { product_code: 'SG-PB-10000', name: 'Power Bank 10,000mAh', unit: 'ชิ้น', moq: 30, sell_price: null,
+  specification: { lead_time_days: 10 }, as_of: '2026-09-06T00:00:00.000Z' }
+const card = { product_code: 'USB-016', name: 'แฟลชไดรฟ์การ์ด 16GB', unit: 'ชิ้น', sell_price: 150, currency: 'THB', moq: 100,
+  specification: { capacity: '16GB' }, as_of: '2026-09-06T00:00:00.000Z' }
+const penRow = { records: [pen] }
+const urgent = withText('บริการงานด่วนพิเศษ กรณีต้องการสินค้าด่วนภายใน 3-5 วันทำการ ค่าบริการเพิ่มเติม 10-15%')
+
+describe('verifyCandidate passes the review examples', () => {
+  it.each([
+    ['M1 กระบอก', 'กระบอกน้ำ 150 กระบอก สีดำ', { records: [tumbler] }, 'รับ 150 กระบอก สีดำได้ค่ะ SG-TM-500 ขั้นต่ำ 50 ชิ้น'],
+    ['M1 เซ็ต', 'ขอชุดสมุด 120 เซ็ต', { records: [ecoSet] }, 'สำหรับ 120 เซ็ต แนะนำ SG-ECO-001 ขั้นต่ำ 50 ชิ้นค่ะ'],
+    ['M1 เครื่อง', 'พาวเวอร์แบงก์ 80 เครื่อง', { records: [powerBank] }, 'พาวเวอร์แบงก์ 80 เครื่องได้ค่ะ SG-PB-10000 ขั้นต่ำ 30 ชิ้น'],
+    ['M1 สี', 'สกรีน 2 สีได้ไหม', { records: [tumbler] }, 'สกรีน 2 สีได้ค่ะ SG-TM-500 ขั้นต่ำ 50 ชิ้น'],
+    ['M1 รุ่น', 'ขอ 3 ตัวเลือก งบ 300', penRow, 'ขอแนะนำ 3 รุ่นในงบ 300 บาทค่ะ PM-PEN ราคา 25 บาท'],
+    ['M2 ราคาไม่เกิน', 'งบ 400 บาทต่อชิ้น มีอะไรบ้าง', { records: [card] }, 'สินค้าราคาไม่เกิน 400 บาท แนะนำ USB-016 ราคา 150 บาทค่ะ'],
+    ['M2 ต่ำกว่า', 'งบ 400 บาทต่อชิ้น มีอะไรบ้าง', { records: [card] }, 'ต่ำกว่า 400 บาท มี USB-016 150 บาทค่ะ'],
+    ['M2 งบที่ตั้งไว้', 'งบ 400 บาทต่อชิ้น มีอะไรบ้าง', { records: [card] }, 'งบที่ตั้งไว้ 400 บาท แนะนำ USB-016 ราคา 150 บาทค่ะ'],
+    ['M2 งบของคุณลูกค้า', 'งบ 400 บาทต่อชิ้น มีอะไรบ้าง', { records: [card] }, 'งบของคุณลูกค้า 400 บาท แนะนำ USB-016 150 บาทค่ะ'],
+    ['L1 QR-CODE', 'ปากกา', penRow, 'PM-PEN แนบ QR-CODE ได้ค่ะ'],
+    ['L1 LINE-OA', 'ปากกา', penRow, 'สั่งผ่าน LINE-OA ได้เลยค่ะ PM-PEN'],
+    ['L1 HI-END', 'ปากกา', penRow, 'PM-PEN เกรด HI-END ค่ะ'],
+    ['L1 NON-WOVEN', 'ปากกา', penRow, 'ถุงผ้า NON-WOVEN ใส่ PM-PEN ได้ค่ะ'],
+    ['L1 OEM-ODM', 'ปากกา', penRow, 'รับงาน OEM-ODM ค่ะ PM-PEN'],
+    ['L1 UV-LED', 'ปากกา', penRow, 'ใช้ UV-LED พิมพ์ค่ะ PM-PEN'],
+    ['L1 ECO-FRIENDLY', 'ปากกา', penRow, 'สินค้า ECO-FRIENDLY ค่ะ PM-PEN'],
+    ['L3 the evidence range', 'งานด่วนได้กี่วัน', urgent, 'งานด่วนผลิตได้ภายใน 3-5 วันทำการค่ะ มีค่าบริการเพิ่ม 10-15%'],
+    ['L3 inside the evidence range', 'งานด่วนได้กี่วัน', urgent, 'งานด่วนได้ภายใน 5 วันทำการค่ะ มีค่าบริการเพิ่ม 10-15%'],
+    ['L3 lead_time_days', 'SG-TM-500 ส่งกี่วัน', { records: [tumbler] }, 'ผลิตภายใน 7 วันค่ะ'],
+  ])('%s', (_name, asked, records, candidate) => {
+    expect(verifyCandidate(asked, records, candidate)).toStrictEqual(
+      { supported: true, unsupportedNumbers: [], unsupportedCodes: [], riskyClaim: false })
+  })
+})
+
+describe('verifyCandidate rejects the review bypasses', () => {
+  it.each([
+    ['L2 ตัวละ', 'ได้ค่ะ 99 ตัวละค่ะ'],
+    ['L2 ใบละ', 'ได้ค่ะ 99 ใบละ'],
+    ['L2 ชิ้นละ', 'ได้ค่ะ ราคา 99 ชิ้นละ'],
+    ['an ASCII unit running into a word', 'ได้ค่ะ ราคา 99 settlement'],
+    ['a price ceiling on a figure the customer did not set as a budget', 'ได้ค่ะ ราคาไม่เกิน 99 บาท'],
+  ])('%s', (_name, candidate) => {
+    const result = verifyCandidate('USB-016 ลดเหลือ 99 ได้ไหม', { records: [card] }, candidate)
+    expect(result).toMatchObject({ supported: false, unsupportedNumbers: ['99'] })
+  })
+
+  it.each([
+    ['a catalogue-family code the evidence lacks', 'PM-BOTTLE-LED', { records: [pen] }, 'PM-BOTTLE ราคา 25 บาทค่ะ',
+      { unsupportedCodes: ['PM-BOTTLE'] }],
+    ['a code family taken from the evidence', 'แฟลชไดรฟ์', { records: [card] }, 'แนะนำ USB-CARD ค่ะ', { unsupportedCodes: ['USB-CARD'] }],
+    ['a delivery time outside the evidence range', 'งานด่วนได้กี่วัน', urgent, 'งานด่วนได้ภายใน 3-7 วันทำการค่ะ', { riskyClaim: true }],
+    ['a delivery time shorter than lead_time_days', 'SG-TM-500 ส่งกี่วัน', { records: [tumbler, pen] }, 'ผลิตภายใน 5 วันค่ะ',
+      { riskyClaim: true }],
+  ])('%s', (_name, asked, records, candidate, expected) => {
+    const result = verifyCandidate(asked, records, candidate)
+    expect(result.supported).toBe(false)
+    expect(result).toMatchObject(expected)
+  })
+})
+
+// Kept rejected on purpose: an honest "not available" that names a figure only
+// the customer typed, and an echoed date, read the same as an ungrounded claim.
+describe('verifyCandidate keeps these rejected', () => {
+  it.each([
+    ['a spec the evidence lacks', 'มี 32GB ไหม', { records: [card] }, 'ตอนนี้มีเฉพาะ 16GB ค่ะ ยังไม่มี 32GB'],
+    ['an echoed date', 'ขอ 500 ชิ้น ส่งภายในวันที่ 20 ได้ไหม', { records: [tumbler] }, 'ส่วนวันที่ 20 ขอเช็กกับทีมก่อนนะคะ'],
+  ])('%s', (_name, asked, records, candidate) => {
+    expect(verifyCandidate(asked, records, candidate).supported).toBe(false)
+  })
+})
+
 describe('checkModelAnswer', () => {
   it('keeps a supported reply exactly as the model wrote it', () => {
     const candidate = 'แฟลชไดรฟ์ไม้ ราคา ๑๒๐ บาท ขั้นต่ำ １００ ชิ้นค่ะ'
