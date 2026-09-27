@@ -369,7 +369,11 @@ export const LINE_OA_TRANSPORT_MODES = ['CLOUD']
 // keeps its name and its audit action string although it now carries only
 // `allowDelayedPush` — the string is a key that history already wrote, and
 // renaming it would orphan every event recorded under it (AGENTS.md §18).
-export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER', 'CONFIGURE_KNOWLEDGE_GROUNDING', 'REGISTER_WEBHOOK', 'CONFIGURE_SESSION_TIMEOUT', 'CONFIGURE_BUSINESS_HOURS']
+// @req FR-277 — CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW toggles the shadow-compare
+// flag (ADR-090 Phase 3, TASK-ZAI-095), separate from CONFIGURE_KNOWLEDGE_GROUNDING
+// itself: switching the live mode and switching shadow-compare on/off are
+// independent operator decisions with independent audit rows.
+export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER', 'CONFIGURE_KNOWLEDGE_GROUNDING', 'CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW', 'REGISTER_WEBHOOK', 'CONFIGURE_SESSION_TIMEOUT', 'CONFIGURE_BUSINESS_HOURS']
 // @req FR-235 — per-account grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE is
 // the default and every existing account's unchanged behaviour; GKS_CORPUS and
 // GKS_THEN_BUSINESS_KNOWLEDGE read the Business's published corpus generation
@@ -378,6 +382,10 @@ export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAU
 // BUSINESS_KNOWLEDGE — the least-permissive, already-shipped behaviour — never
 // to a corpus read (fail closed).
 export const KNOWLEDGE_GROUNDING_MODES = ['BUSINESS_KNOWLEDGE', 'GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']
+// @req FR-277 — outcome of one shadow-compare generation (line-grounding-shadow-compare.js).
+// A shadow failure is data, not a defect: FAILED and TIMED_OUT are recorded exactly like
+// COMPLETED, never thrown to the caller.
+export const LINE_GROUNDING_SHADOW_STATUSES = ['COMPLETED', 'FAILED', 'TIMED_OUT']
 // FR-151 — rich menu designer vocabularies (ADR-060 D3, SRS LOS-RQ-040..042).
 export const LINE_OA_RICH_MENU_LAYOUTS = ['1x1', '2x1', '2x2', '2x3', '3x1', '1x2']
 export const LINE_OA_RICH_MENU_STATUSES = ['DRAFT', 'READY', 'ARCHIVED']
@@ -610,6 +618,7 @@ export const zLineOaTransportMode = z.enum(LINE_OA_TRANSPORT_MODES)
 export const zModelProviderCode = z.enum(MODEL_PROVIDER_CODES)
 export const zLineOaAccountAction = z.enum(LINE_OA_ACCOUNT_ACTIONS)
 export const zKnowledgeGroundingMode = z.enum(KNOWLEDGE_GROUNDING_MODES)
+export const zLineGroundingShadowStatus = z.enum(LINE_GROUNDING_SHADOW_STATUSES)
 export const zLineOaRichMenuLayout = z.enum(LINE_OA_RICH_MENU_LAYOUTS)
 export const zLineOaRichMenuStatus = z.enum(LINE_OA_RICH_MENU_STATUSES)
 export const zLineOaRichMenuVersionStatus = z.enum(LINE_OA_RICH_MENU_VERSION_STATUSES)

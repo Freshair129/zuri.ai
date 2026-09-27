@@ -6,10 +6,13 @@
 // @req FR-046 — a work list resolves a trusted viewer and requires a Project
 // or Workstream scope before the unscoped compatibility read runs.
 // @tested tests/unit/authorization-seam-routes.test.js
+// @req FR-005, FR-046 — a `businessId` narrowing must name a Business the viewer can
+// see; another Business answers 404 before any WorkItem is read.
+// @tested tests/unit/work-list-business-scope.test.js
 import { handle, httpError, queryParams } from '../_helpers'
 import { listWork, createItem } from '@/modules/project-manager/application/work-service'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
-import { isInstallationOperator } from '@/modules/identity/viewer-authority'
+import { isInstallationOperator, seesBusiness } from '@/modules/identity/viewer-authority'
 import {
   assertProjectVisibleForWorkRead,
   assertWorkstreamVisibleForWorkRead,
@@ -21,6 +24,9 @@ export async function GET(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
     const q = queryParams(request)
+    if (q.businessId && !isInstallationOperator(viewer) && !seesBusiness(viewer, q.businessId)) {
+      throw httpError(404, 'Business not found')
+    }
     if (q.projectId) await assertProjectVisibleForWorkRead(q.projectId, viewer)
     if (q.workstreamId) await assertWorkstreamVisibleForWorkRead(q.workstreamId, viewer)
     const allowedBusinessIds = q.businessId
