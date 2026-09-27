@@ -43,6 +43,25 @@ export function lineKnowledgeGroundingBudgetFromEnv(env = process.env) {
   }
 }
 
+// @req FR-149 — the grounding modes the Conversation Runtime cohort can serve.
+// Core `prepare` is the only place a runtime turn's evidence is selected, so
+// admission eligibility, CONFIGURE_EXECUTION and CONFIGURE_KNOWLEDGE_GROUNDING
+// all consult this one list: an account whose mode is not listed stays in the
+// SERVER cohort instead of admitting runtime jobs that would fail at `prepare`.
+// The raw stored value is checked, so an unrecognised value is never served by
+// the runtime (it stays with the Server, which resolves it to BUSINESS_KNOWLEDGE).
+// It is derived from KNOWLEDGE_GROUNDING_MODES but limited to the modes a reader
+// exists for (the unwrapped business-knowledge reader, or `createLineGroundingReader`),
+// so a mode added to the enum later stays SERVER-only until Core `prepare` serves it.
+// @spec ADR-106 D3 — eligibility is Core-owned and decided at admission.
+const CORPUS_GROUNDING_MODES = new Set(['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE'])
+export const CONVERSATION_RUNTIME_GROUNDING_MODES = Object.freeze(KNOWLEDGE_GROUNDING_MODES
+  .filter(mode => mode === 'BUSINESS_KNOWLEDGE' || CORPUS_GROUNDING_MODES.has(mode)))
+
+export function conversationRuntimeServesGroundingMode(mode) {
+  return CONVERSATION_RUNTIME_GROUNDING_MODES.includes(mode)
+}
+
 /** A mode this reader was never built to run for a Business fails closed, never permissively. */
 export function resolveLineKnowledgeGroundingMode(rawMode) {
   return KNOWLEDGE_GROUNDING_MODES.includes(rawMode) ? rawMode : 'BUSINESS_KNOWLEDGE'
@@ -100,7 +119,7 @@ export function createLineGroundingReader({
   trace,
   budgetMs = DEFAULT_LINE_KNOWLEDGE_BUDGET_MS,
 } = {}) {
-  if (mode !== 'GKS_CORPUS' && mode !== 'GKS_THEN_BUSINESS_KNOWLEDGE') {
+  if (!CORPUS_GROUNDING_MODES.has(mode)) {
     throw failure('LINE_KNOWLEDGE_GROUNDING_MODE_INVALID')
   }
   if (typeof corpusReader?.query !== 'function') throw failure('LINE_KNOWLEDGE_GROUNDING_CORPUS_READER_REQUIRED')

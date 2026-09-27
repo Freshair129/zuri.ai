@@ -9,6 +9,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { readLineOaConnectionHealth } from '@/modules/integration/application/integration-management-service'
 import { LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { createLineBindingStatusReaderFromEnv, readLineBindingStatusLabel } from '@/modules/agent/line-binding-status'
+import { conversationRuntimeServesGroundingMode } from '@/modules/agent/line-knowledge-grounding'
 import {
   LINE_OA_ACCOUNT_ENTITY,
   defaultTransportMode,
@@ -578,6 +579,11 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
         payload.from.allowDelayedPush = row.allowDelayedPush
         payload.to.allowDelayedPush = data.allowDelayedPush
         if (data.runtimeOwner !== undefined && data.runtimeOwner !== row.runtimeOwner) {
+          // @req FR-149 — never opt an account into a cohort whose Core `prepare`
+          // cannot serve its grounding mode (ADR-106 D3); it stays SERVER-owned.
+          if (data.runtimeOwner === 'CONVERSATION_RUNTIME' && !conversationRuntimeServesGroundingMode(row.knowledgeGrounding)) {
+            throw failure(409, 'LINE_OA_RUNTIME_GROUNDING_MODE_UNSUPPORTED')
+          }
           const pending = await tx.lineConversationJob.count({ where: { accountId: row.id,
             status: { in: ['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'ACCEPTED', 'UNKNOWN'] } } })
           if (pending) throw failure(409, 'LINE_OA_RUNTIME_OWNER_NOT_QUIESCED')
@@ -593,6 +599,12 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       case 'CONFIGURE_KNOWLEDGE_GROUNDING': {
         if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
         if (row.knowledgeGrounding === data.knowledgeGrounding) throw failure(409, 'LINE_OA_KNOWLEDGE_GROUNDING_UNCHANGED')
+        // @req FR-149 — this switch never fences queued work, so a runtime-owned
+        // account may not move to a mode its already admitted runtime jobs cannot
+        // be prepared with. Return the account to SERVER first.
+        if (row.runtimeOwner === 'CONVERSATION_RUNTIME' && !conversationRuntimeServesGroundingMode(data.knowledgeGrounding)) {
+          throw failure(409, 'LINE_OA_RUNTIME_GROUNDING_MODE_UNSUPPORTED')
+        }
         change.knowledgeGrounding = data.knowledgeGrounding
         payload.from.knowledgeGrounding = row.knowledgeGrounding
         payload.to.knowledgeGrounding = data.knowledgeGrounding
