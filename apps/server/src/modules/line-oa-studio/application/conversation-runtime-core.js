@@ -18,7 +18,7 @@ import {
 import { serverLinePorts } from './server-line-runtime'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
-  failRuntimeConversationJob, renewRuntimeConversationJob, runtimeConversationStatus,
+  failRuntimeConversationJob, renewRuntimeConversationJob, runtimeAudienceBound, runtimeConversationStatus,
   runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply,
 } from './line-conversation-jobs'
 
@@ -30,7 +30,8 @@ import {
 // @tested tests/integration/conversation-runtime-vertical-slice.test.js,
 //   tests/integration/conversation-runtime-grounding.test.js,
 //   tests/integration/conversation-runtime-grounding-parity.test.js,
-//   tests/integration/conversation-runtime-out-of-hours.test.js
+//   tests/integration/conversation-runtime-out-of-hours.test.js,
+//   tests/integration/conversation-runtime-group-room.test.js
 const VERSION = 'conversation-runtime.v1'
 const MAX_BODY_BYTES = 64 * 1024
 const MAX_RESPONSE_BYTES = 64 * 1024
@@ -49,6 +50,8 @@ const fields = Object.freeze({ claim: ['claimantId'], renew: ['claim'], resolve:
   'work-tool': ['claim', 'operation', 'operationId', 'input'], credential: ['claim'],
   complete: ['claim', 'text', 'operationId'], fail: ['claim', 'code', 'outcome'], send: ['claim', 'operationId'],
   trace: ['claim', 'kind', 'payload'], status: ['claim', 'operationId'] })
+// The legacy handler's fixed reply when a Work command is refused (handleLineProjectWorkCommand).
+const WORK_AUDIENCE_REFUSAL_TEXT = 'ไม่สามารถดำเนินการคำสั่งงานนี้ได้ กรุณาตรวจสอบรูปแบบคำสั่ง การเชื่อมตัวตน และสิทธิ์ของคุณ'
 const error = (code, status = 400) => Object.assign(new Error(code), { code, status })
 const present = (value, max = 128) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
 // @req FR-026, FR-149 — Work replies keep the legacy Server bound: the Server worker
@@ -343,7 +346,9 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   send = sendRuntimeConversationJob, appendTrace = appendRuntimeConversationTrace,
   workSearch = searchLineProjectWork, workPropose = proposeLineWork, workConfirm = confirmLineWork } = {}) {
   let businessPortsPromise
-  const getBusinessPorts = businessPorts ?? (async () => {
+  // `businessPorts` may be the ports object itself (tests) or a function returning it.
+  const getBusinessPorts = typeof businessPorts === 'function' ? businessPorts : (async () => {
+    if (businessPorts) return businessPorts
     if (!businessPortsPromise) {
       businessPortsPromise = import('@/modules/agent/phase1-runtime').then(({ createPhase1BusinessAgentPortsFromEnv }) =>
         createPhase1BusinessAgentPortsFromEnv(env, { bindingRequired: false }))
@@ -367,8 +372,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       || job.tenantId !== ref.tenantId || job.businessId !== ref.businessId || job.accountId !== ref.accountId
       || !['CLAIMED', 'READY'].includes(status) || job.status !== status
       || (status === 'CLAIMED' && (job.version !== ref.version || job.claimantId !== ref.claimantId))
-      || job.memorySyncOptIn || job.errorCode === 'PDPA_ERASURE' || job.audienceKind !== 'DIRECT'
-      || job.recipientId !== job.sourceUserId || !job.inbound?.conversation
+      || job.memorySyncOptIn || job.errorCode === 'PDPA_ERASURE'
+      || !job.inbound?.conversation || !runtimeAudienceBound(job)
       || job.inbound.conversation.channel !== 'LINE' || job.inbound.conversation.tenantId !== job.tenantId
       || job.inbound.conversation.businessId !== job.businessId
       || job.account.tenantId !== job.tenantId || job.account.businessId !== job.businessId
@@ -413,6 +418,16 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
 
   async function workOperation(ref, request) {
     const { job } = await ownedClaim(ref)
+    // @req FR-149, FR-150 — Work commands are not allowed in a group or room. The
+    // legacy handler refuses them there before any Work read or write
+    // (line-project-work-tools `contextFor`: WORK_SCOPE_DENIED) and replies with its
+    // fixed refusal text. Core answers every WorkTool call for such a job with a final
+    // REJECTED outcome carrying that same text and reaches no Work reader or writer:
+    // `status` finds nothing, so the runtime executes and settles on the refusal.
+    if (job.audienceKind !== 'DIRECT') {
+      if (request.operation === 'status') return { status: 'NOT_FOUND', operationId: request.operationId }
+      return { status: 'REJECTED', code: 'WORK_ACTION_UNAVAILABLE', result: { text: WORK_AUDIENCE_REFUSAL_TEXT } }
+    }
     // @req FR-244 — an out-of-hours turn never runs a Work command (Server parity).
     if (runtimeOutOfHoursReply(job) !== null) throw error('OUT_OF_HOURS_TURN_HAS_NO_WORK', 409)
     const expectedClaim = { ...ref, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' }
