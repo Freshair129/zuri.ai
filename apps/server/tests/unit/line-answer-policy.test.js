@@ -358,9 +358,38 @@ describe('numeralDigits', () => {
     expect(numeralDigits('¹²⁵⁰ ₁₂ ① ⑳ ㉑ ½ Ⅻ ⑴ ทำ ，')).toBe('1250 12 1 20 21 ½ Ⅻ ⑴ ทำ ，')
   })
 
-  it('drops only a lone ¹, ² or ³ glued to a letter, and leaves every other glued run as written', () => {
-    expect(numeralDigits('50 m² บาท¹ cm³ 10⁵ 5⁰⁰ ราคา¹²⁵⁰ H₂O ๑² m²³'))
-      .toBe('50 m บาท cm 10⁵ 5⁰⁰ ราคา¹²⁵⁰ H₂O ๑² m²³')
+  it('drops only a lone mark glued to a letter with no digit after it, and leaves every other glued run as written', () => {
+    expect(numeralDigits('50 m² บาท¹ cm³ และ 10⁵ 5⁰⁰ ราคา¹²⁵⁰ H₂O CO₂ และ ๑² m²³ 250¹'))
+      .toBe('50 m บาท cm และ 10⁵ 5⁰⁰ ราคา¹²⁵⁰ HO CO และ ๑² m²³ 250¹')
+  })
+
+  it('reads a lone mark glued to a letter as a digit when a digit follows it', () => {
+    expect(numeralDigits('ราคา¹,250 ราคา¹ 250 ราคา¹ ²⁵⁰ ราคา¹.5 H₂ 2')).toBe('ราคา1,250 ราคา1 250 ราคา1 250 ราคา1.5 H2 2')
+  })
+})
+
+// The #608 review: a dropped mark must not change what a figure after it reads
+// as, and a formula index (CO₂) is a mark like a footnote. A footnote glued to a
+// figure (250¹) stays rejected on purpose: it is read literally and must appear so
+// in the evidence.
+const at250 = { records: [{ kind: 'CORPUS_CHUNK', citationId: 'gks:a', text: 'ขั้นต่ำ 50 ชิ้น ราคา 250 บาท ปล่อย CO2 ต่ำ ใช้ H2O' }] }
+
+describe('verifyCandidate after the #608 review', () => {
+  it.each([
+    ['a mark before a comma-grouped figure', 'ราคา¹,250 บาท', ['1250']],
+    ['a mark before a space-grouped figure', 'ราคา¹ 250 บาท', ['1250']],
+    ['a mark before a superscript figure', 'ราคา¹ ²⁵⁰ บาท', ['1250']],
+    ['a footnote glued to a figure', 'ราคา 250¹ บาท', ['¹']],
+  ])('rejects %s', (_name, candidate, unsupportedNumbers) => {
+    expect(verifyCandidate('ราคาเท่าไร', at250, candidate)).toMatchObject({ supported: false, unsupportedNumbers })
+  })
+
+  it.each([
+    ['a unit power before a figure in words', 'ขั้นต่ำ 50 m² ราคา 250 บาท'],
+    ['a formula index the evidence writes in ASCII', 'ปล่อย CO₂ ต่ำ ใช้ H₂O ค่ะ'],
+  ])('passes %s', (_name, candidate) => {
+    expect(verifyCandidate('ราคาเท่าไร', at250, candidate)).toStrictEqual(
+      { supported: true, unsupportedNumbers: [], unsupportedCodes: [], riskyClaim: false })
   })
 })
 

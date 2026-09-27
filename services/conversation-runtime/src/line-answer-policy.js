@@ -92,11 +92,14 @@ const DISCOUNT_REACH = 24
 const INLINE_SPACE = /[^\S\n]/
 const ASCII_DIGIT = /\d/
 // A superscript or subscript digit run, with the letter, mark or digit it is
-// glued to if any (see numeralDigits). Only a lone ¹, ² or ³ glued to a letter
-// (m², บาท³) is a unit power or a footnote mark and is dropped.
+// glued to if any (see numeralDigits). Only a lone ¹, ², ³ or subscript digit
+// glued to a letter with no digit after it (m², บาท³, CO₂) is dropped.
 const SCRIPT_RUN = /([\p{L}\p{M}\p{Nd}])?([\u00B2\u00B3\u00B9\u2070\u2074-\u2079\u2080-\u2089]+)/gu
 const SCRIPT_DIGIT = /[\u00B2\u00B3\u00B9\u2070\u2074-\u2079\u2080-\u2089]/u
-const FOOTNOTE_SCRIPT = /^[\u00B2\u00B3\u00B9]$/u
+const FOOTNOTE_SCRIPT = /^[\u00B2\u00B3\u00B9\u2080-\u2089]$/u
+// What must not follow a dropped mark: a digit of any script or a superscript
+// digit, across spaces, commas or points (ราคา¹,250, ราคา¹ 250, ราคา¹ ²⁵⁰).
+const DIGIT_FOLLOWS = /[\s,.\u00A0\u2009\u202F]*[\p{Nd}\u00B2\u00B3\u00B9\u2070\u2074-\u2079\u2080-\u2089]/uy
 const LETTER_OR_MARK = /[\p{L}\p{M}]/u
 // Any non-ASCII character; numeralDigits and leftoverNumerals look at each one.
 const NON_ASCII = /[^\x00-\x7F]/gu
@@ -158,17 +161,22 @@ export function asciiDigits(value) {
  * ⑳ is 20. A numeral with any other form (½ is 1⁄2, Ⅻ is XII) is left as written
  * for the leftover check. Characters are normalised one at a time, never the
  * whole text: NFKC would also rewrite Thai (ำ) and the fullwidth comma.
- * A superscript or subscript run is read as digits only when it stands alone
- * (ราคา ¹²⁵⁰). Glued to a letter, a single ¹, ² or ³ is a unit power or a
- * footnote mark (m², บาท³) and is dropped. Any other glued run (5⁰⁰, 10⁵,
- * ราคา¹²⁵⁰, H₂O) is left as written, so the leftover check requires it to appear
- * literally in the evidence: reading it as digits or dropping it would let an
- * answer write a figure the evidence does not hold.
+ * A superscript or subscript run is read as digits when it stands alone
+ * (ราคา ¹²⁵⁰). Glued to a letter, a single ¹, ², ³ or subscript digit is a unit
+ * power, a footnote mark or a formula index (m², บาท³, CO₂) and is dropped,
+ * unless a digit follows it (across spaces, commas or points): then it is read
+ * as a digit, since ราคา¹,250 reads as 1,250. Any other glued run (5⁰⁰, 10⁵,
+ * ราคา¹²⁵⁰, and a footnote on a figure such as 250¹) is left as written, so the
+ * leftover check requires it to appear literally in the evidence: reading it as
+ * digits or dropping it would let an answer write a figure the evidence does
+ * not hold.
  */
 export function numeralDigits(value) {
-  return String(value).replace(SCRIPT_RUN, (_match, glued, run) => {
+  return String(value).replace(SCRIPT_RUN, (match, glued, run, offset, whole) => {
     if (!glued) return run.normalize('NFKC')
-    return FOOTNOTE_SCRIPT.test(run) && LETTER_OR_MARK.test(glued) ? glued : `${glued}${run}`
+    if (!FOOTNOTE_SCRIPT.test(run) || !LETTER_OR_MARK.test(glued)) return match
+    DIGIT_FOLLOWS.lastIndex = offset + match.length
+    return DIGIT_FOLLOWS.test(whole) ? `${glued}${run.normalize('NFKC')}` : glued
   }).replace(NON_ASCII, (character) => {
     if (SCRIPT_DIGIT.test(character)) return character
     const compatible = character.normalize('NFKC')
