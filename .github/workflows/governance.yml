@@ -48,10 +48,22 @@ jobs:
   #
   # `verify` is deliberately NOT gated on this. It carries the governance chain,
   # which is exactly what a documentation change has to pass.
+  #
+  # `server` (2026-09-27, owner instruction): the reason services are extracted
+  # is that a change confined to one is verified by that service alone. When a
+  # pull request's whole diff sits inside isolated services
+  # (scripts/ci-change-scope.mjs), `server=false`: `tests` and `build` are
+  # skipped, `govern` still runs (the doc graph scans services/*/src and test)
+  # and also runs `contracts` — the apps/server tests that import that service's
+  # code. Every other diff, every push to `main` and every classification
+  # failure is `server=true`, the full suite, so `main` stays fully verified.
   changes:
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.filter.outputs.code }}
+      server: ${{ steps.filter.outputs.server }}
+      services: ${{ steps.filter.outputs.services }}
+      contracts: ${{ steps.filter.outputs.contracts }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,7 +84,7 @@ jobs:
           # decision: say it here so the log states the reason.
           if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "scheduled run — exercising the full suite against main"
-            echo "code=true" >> "$GITHUB_OUTPUT"; exit 0
+            echo "code=true" >> "$GITHUB_OUTPUT"; echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -89,13 +101,13 @@ jobs:
           case "$base" in
             ''|0000000000000000000000000000000000000000)
               echo "no usable base ($base) — running the full suite"
-              echo "code=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+              echo "code=true" >> "$GITHUB_OUTPUT"; echo "server=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
           esac
 
           if ! changed=$(git diff --name-only "$base" "$head" 2>&1); then
             echo "could not diff $base..$head — running the full suite"
             echo "$changed"
-            echo "code=true" >> "$GITHUB_OUTPUT"; exit 0
+            echo "code=true" >> "$GITHUB_OUTPUT"; echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
 
           echo "changed files:"; echo "$changed"
@@ -111,6 +123,19 @@ jobs:
             echo "code=true" >> "$GITHUB_OUTPUT"
           fi
 
+          # A push to `main` always runs the full server suite: it is the
+          # safety net behind every scoped pull request.
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "not a pull request — full server suite"
+            echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if ! scope=$(printf '%s\n' "$changed" | node scripts/ci-change-scope.mjs); then
+            echo "scope classification failed — full server suite"
+            echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "scope:"; echo "$scope"
+          printf '%s\n' "$scope" >> "$GITHUB_OUTPUT"
+
   # ---------------------------------------------------------------------------
   # `verify` used to be one job: install → govern → tests → build, ~14.5 min in
   # sequence, of which the tests were ~11 and the governance chain 22 seconds.
@@ -125,7 +150,8 @@ jobs:
   #             and the governance-facing unit tests. Reports in ~2-3 minutes,
   #             so a documentation or annotation slip is red before the suite
   #             is half done.
-  #   tests   — the full unit + integration suite. The long job; unchanged.
+  #   tests   — the full unit + integration suite, in four shards (2026-09-27).
+  #             Skipped, with `build`, for a service-scoped pull request.
   #   build   — the production build, no longer queued behind the tests.
   #   conversation-runtime — isolated service tests, boundary build and image build.
   #   market-intelligence — the ADR-108 service package: isolated tests,
@@ -152,6 +178,7 @@ jobs:
   # `main` already merged and verified, so nothing here can change.
   # ---------------------------------------------------------------------------
   govern:
+    needs: changes
     if: github.event_name != 'schedule'
     runs-on: windows-latest
     defaults:
@@ -222,6 +249,18 @@ jobs:
           tests/unit/doc-graph-delivery-attribution.test.js
           tests/unit/doc-graph-retired-rules.test.js
 
+      # A service-scoped pull request skips `tests`, so the apps/server tests
+      # that import the changed service's code — the Core-side contract tests —
+      # run here instead. The list is computed from the tree by
+      # scripts/ci-change-scope.mjs, not maintained by hand. On a full run
+      # `tests` covers them and this step is skipped.
+      - name: Service contract tests (service-scoped pull request)
+        if: needs.changes.outputs.server == 'false' && needs.changes.outputs.contracts != ''
+        shell: bash
+        env:
+          CONTRACT_TESTS: ${{ needs.changes.outputs.contracts }}
+        run: npm test -- $CONTRACT_TESTS
+
       # llms-full.txt is built, not compared (ADR-081 D1 as amended): with no
       # committed copy there is nothing to be current against, so what is left
       # is whether the generator RUNS. The corpus is uploaded so an LLM reader
@@ -238,8 +277,19 @@ jobs:
           path: llms-full.txt
           retention-days: 30
 
+  # Sharded (2026-09-27): vitest.config.js runs files serially
+  # (fileParallelism: false, one SQLite writer), so one job took ~18-20 minutes.
+  # Four shards on four runners, each with its own disposable database, divide
+  # that wall time. `verify` reads the matrix as one result: success only when
+  # every shard succeeded. Skipped for a service-scoped pull request (`changes`).
   tests:
-    if: github.event_name != 'schedule'
+    needs: changes
+    if: github.event_name != 'schedule' && needs.changes.outputs.server != 'false'
+    name: tests (${{ matrix.shard }}/4)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     runs-on: windows-latest
     defaults:
       run:
@@ -273,10 +323,11 @@ jobs:
         run: npm run docs:graph
 
       - name: Unit and integration tests
-        run: npm test
+        run: npm test -- --shard=${{ matrix.shard }}/4
 
   build:
-    if: github.event_name != 'schedule'
+    needs: changes
+    if: github.event_name != 'schedule' && needs.changes.outputs.server != 'false'
     runs-on: windows-latest
     defaults:
       run:
@@ -432,22 +483,39 @@ jobs:
   # visible in one explicit result instead of leaving the aggregate ambiguous.
   verify:
     if: always() && github.event_name != 'schedule'
-    needs: [govern, tests, build, conversation-runtime, market-intelligence]
+    needs: [changes, govern, tests, build, conversation-runtime, market-intelligence]
     runs-on: ubuntu-latest
     steps:
-      - name: All five verification jobs passed
+      # `tests` and `build` may be skipped ONLY when `changes` succeeded and
+      # classified the pull request as service-scoped (server=false). Any other
+      # skip — a failed or cancelled `changes`, a missing output — fails here.
+      - name: All verification jobs passed
         shell: bash
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          SERVER: ${{ needs.changes.outputs.server }}
+          SERVICES: ${{ needs.changes.outputs.services }}
+          GOVERN: ${{ needs.govern.result }}
+          TESTS: ${{ needs.tests.result }}
+          BUILD: ${{ needs.build.result }}
+          CONVERSATION_RUNTIME: ${{ needs.conversation-runtime.result }}
+          MARKET_INTELLIGENCE: ${{ needs.market-intelligence.result }}
         run: |
-          echo "govern: ${{ needs.govern.result }}"
-          echo "tests:  ${{ needs.tests.result }}"
-          echo "build:  ${{ needs.build.result }}"
-          echo "conversation-runtime: ${{ needs.conversation-runtime.result }}"
-          echo "market-intelligence: ${{ needs.market-intelligence.result }}"
-          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}" "${{ needs.conversation-runtime.result }}" "${{ needs.market-intelligence.result }}"; do
-            if [ "$r" != "success" ]; then
-              echo "::error::a verification job did not succeed (see the job results above)"
-              exit 1
-            fi
+          echo "changes: $CHANGES (server=$SERVER services=$SERVICES)"
+          echo "govern: $GOVERN"
+          echo "tests:  $TESTS"
+          echo "build:  $BUILD"
+          echo "conversation-runtime: $CONVERSATION_RUNTIME"
+          echo "market-intelligence: $MARKET_INTELLIGENCE"
+          fail() { echo "::error::$1"; exit 1; }
+          [ "$CHANGES" = "success" ] || fail "changes did not succeed"
+          for r in "$GOVERN" "$CONVERSATION_RUNTIME" "$MARKET_INTELLIGENCE"; do
+            [ "$r" = "success" ] || fail "a verification job did not succeed (see the job results above)"
+          done
+          for r in "$TESTS" "$BUILD"; do
+            if [ "$r" = "success" ]; then continue; fi
+            if [ "$r" = "skipped" ] && [ "$SERVER" = "false" ]; then continue; fi
+            fail "tests/build did not succeed and the change was not service-scoped"
           done
 
   e2e:
