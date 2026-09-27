@@ -267,6 +267,51 @@ describe('PDPA erasure in a shared LINE group or room thread (FR-022)', () => {
     })
   }
 
+  // Rows the backfill never reached (NULL author, no job) are attributed at erase time
+  // through their MESSAGE_INGESTED audit row, and the attribution is written back.
+  it('erases a NULL-author, job-less line through its ingest audit row, for its own speaker only', async () => {
+    const s = await scene('group')
+    const unattributed = [s.aLine.inboundMessageId, s.bLine.inboundMessageId]
+    await prisma.message.updateMany({ where: { id: { in: unattributed } }, data: { authorChannelIdentityId: null } })
+    const bIdentity = await prisma.channelIdentity.findFirst({ where: { tenantId: tenant.id, providerSubject: s.B } })
+
+    await erasePrincipal({ tenantId: tenant.id, personId: s.personB, reason: 'TEST_ERASURE' })
+
+    const bLine = await prisma.message.findUnique({ where: { id: s.bLine.inboundMessageId } })
+    expect(bLine).toMatchObject({ body: CUSTOMER_ERASURE_TOMBSTONE, authorChannelIdentityId: bIdentity.id })
+    expect(await payloadOf(s.raw.b.id)).toContain('"redacted":true')
+    expect(await prisma.message.findUnique({ where: { id: s.aLine.inboundMessageId } }))
+      .toMatchObject({ body: 'A private group line', authorChannelIdentityId: null })
+    expect(await payloadOf(s.raw.a.id)).toContain('A private group line')
+  })
+
+  it('erasing the thread owner (A) erases A\'s NULL-author line and leaves B\'s', async () => {
+    const s = await scene('group')
+    await prisma.message.updateMany({ where: { id: { in: [s.aLine.inboundMessageId, s.bLine.inboundMessageId] } },
+      data: { authorChannelIdentityId: null } })
+
+    await erasePrincipal({ tenantId: tenant.id, personId: s.personA, reason: 'TEST_ERASURE' })
+
+    expect(await body(s.aLine.inboundMessageId)).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+    expect(await prisma.message.findUnique({ where: { id: s.bLine.inboundMessageId } }))
+      .toMatchObject({ body: 'B private group line', authorChannelIdentityId: null })
+  })
+
+  it('selects a speaker\'s jobs on their own channel account only', async () => {
+    const S = next('Usynthetic-erase-two-accounts')
+    const onServer = await admit({ thread: next('Csynthetic-erase-two-a'), speaker: S, text: 'ซูริ on the first OA' })
+    const onRuntime = await admit({ via: runtimeAccount, thread: next('Csynthetic-erase-two-b'), speaker: S, text: 'ซูริ on the second OA' })
+    const before = await job(onRuntime.jobId)
+
+    const result = await prisma.$transaction(tx => redactLineConversationJobs(tx, { tenantId: tenant.id,
+      speakers: [{ channelAccountId: account.bindingCode, providerSubject: S }] }))
+
+    expect(result).toMatchObject({ redactedLineJobs: 1, inboundMessageIds: [onServer.inboundMessageId] })
+    await expectJobErased(onServer.jobId)
+    expect(await job(onRuntime.jobId)).toEqual(before)
+    await expectTraceIntact(onRuntime.jobId, 'on the second OA')
+  })
+
   it('is idempotent, including after a concurrent thread erasure already tombstoned a job', async () => {
     const s = await scene('group')
     // A concurrent erasure wins B's job first (the Studio's own thread writer).

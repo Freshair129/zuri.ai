@@ -50,35 +50,13 @@ import { refreshConversationPreview } from './conversation-preview-service'
 export const CUSTOMER_ERASURE_TOMBSTONE = '[ข้อความถูกลบตามคำขอ PDPA]'
 
 /**
- * Replace the content of every message in this tenant's conversations for the
- * given customers with the erasure tombstone. Ids, direction and timestamps are
- * untouched.
+ * Tombstone every message in the given conversations of this tenant — the whole
+ * thread, both directions. For a thread that belongs to the erased person alone
+ * (a direct chat); a shared thread goes through the speaker writer below. Ids,
+ * direction and timestamps are untouched.
  *
  * Idempotent: a message already carrying the tombstone is not counted or rewritten,
  * so a second erasure of the same principal reports zero rather than re-erasing.
- *
- * @param {object} tx prisma client or transaction client — the caller owns the transaction
- * @param {{tenantId: string, customerIds: string[]}} scope
- * @returns {Promise<{conversations: number, redactedMessages: number}>}
- */
-export async function redactConversationContentForCustomers(tx, { tenantId, customerIds } = {}) {
-  if (!tenantId) throw new Error('redactConversationContentForCustomers requires tenantId')
-  const ids = Array.isArray(customerIds) ? customerIds.filter(Boolean) : []
-  if (ids.length === 0) return { conversations: 0, redactedMessages: 0 }
-
-  // Tenant-scoped on purpose: a customer id alone must never reach another tenant's
-  // conversations, exactly as the FR-103 consent writer resolves its Customer.
-  const conversations = await tx.conversation.findMany({
-    where: { tenantId, customerId: { in: ids } },
-    select: { id: true },
-  })
-  return redactConversationContent(tx, { tenantId, conversationIds: conversations.map((conversation) => conversation.id) })
-}
-
-/**
- * Tombstone every message in the given conversations of this tenant — the whole
- * thread, both directions. For a thread that belongs to the erased person alone
- * (a direct chat); a shared thread goes through the speaker writer below.
  *
  * @param {object} tx prisma client or transaction client — the caller owns the transaction
  * @param {{tenantId: string, conversationIds: string[]}} scope
@@ -125,23 +103,33 @@ export async function redactConversationContent(tx, { tenantId, conversationIds 
  * ChannelIdentity recorded at ingest, or by the inbound id of an answer job admitted
  * for the speaker (the job's `sourceUserId`, for rows written before the author
  * column existed) — plus the stack reply to each of them (`reply:<inboundId>`),
- * which repeats the answer text the job erasure clears. Every other member's lines,
- * the replies to them and staff messages stay exactly as they are.
+ * which repeats the answer text the job erasure clears. A row with no author and no
+ * job is first attributed through its MESSAGE_INGESTED audit row (see
+ * `attributeFromIngestAudit`), and that attribution is written back, so rows the
+ * migration backfill never reached (written between the column and the code going
+ * live) close as they are found. Every other member's lines, the replies to them
+ * and staff messages stay exactly as they are.
  *
  * Idempotent in the same way as the whole-thread writer.
  *
  * @param {object} tx prisma client or transaction client — the caller owns the transaction
- * @param {{tenantId: string, channelIdentityIds?: string[], inboundMessageIds?: string[], excludeConversationIds?: string[]}} scope
- * @returns {Promise<{conversationIds: string[], externalMessageIds: string[], redactedMessages: number, redactedAttachments: number}>}
+ * @param {{tenantId: string, channelIdentities?: {id: string, channel: string, channelAccountId: string}[],
+ *   customerIds?: string[], inboundMessageIds?: string[], excludeConversationIds?: string[]}} scope
+ * @returns {Promise<{conversationIds: string[], externalMessageIds: string[], redactedMessages: number,
+ *   redactedAttachments: number, attributedMessages: number}>}
  */
 export async function redactSpeakerContentInSharedThreads(tx, {
-  tenantId, channelIdentityIds, inboundMessageIds, excludeConversationIds,
+  tenantId, channelIdentities, customerIds, inboundMessageIds, excludeConversationIds,
 } = {}) {
   if (!tenantId) throw new Error('redactSpeakerContentInSharedThreads requires tenantId')
-  const identities = [...new Set((channelIdentityIds ?? []).filter(Boolean))]
+  const speakerIdentities = (channelIdentities ?? []).filter((row) => row?.id && row.channel && row.channelAccountId)
+  const attributedMessages = await attributeFromIngestAudit(tx, {
+    tenantId, customerIds: [...new Set((customerIds ?? []).filter(Boolean))], channelIdentities: speakerIdentities,
+  })
+  const identities = [...new Set(speakerIdentities.map((row) => row.id))]
   const inbound = [...new Set((inboundMessageIds ?? []).filter(Boolean))]
   const excluded = [...new Set((excludeConversationIds ?? []).filter(Boolean))]
-  const empty = { conversationIds: [], externalMessageIds: [], redactedMessages: 0, redactedAttachments: 0 }
+  const empty = { conversationIds: [], externalMessageIds: [], redactedMessages: 0, redactedAttachments: 0, attributedMessages }
   const selectors = [
     ...(identities.length ? [{ authorChannelIdentityId: { in: identities } }] : []),
     ...(inbound.length ? [{ id: { in: inbound } }] : []),
@@ -189,5 +177,61 @@ export async function redactSpeakerContentInSharedThreads(tx, {
     externalMessageIds: touched.map((message) => message.externalMessageId).filter(Boolean),
     redactedMessages: redacted.count,
     redactedAttachments: redactedAttachments.count,
+    attributedMessages,
   }
+}
+
+/**
+ * @req FR-022 — erase-time attribution for an INBOUND row with no author.
+ *
+ * `ingestLineMessage` records one MESSAGE_INGESTED audit row per message it writes,
+ * and that payload names the speaker's Customer (not the thread owner's), the
+ * message id and the channel account. For each of the erased person's Customers the
+ * matching rows are read; a message is attributed only when the audit row's tenant,
+ * conversation and channel account all agree with the message's own Conversation,
+ * and the person has a ChannelIdentity on exactly that channel and account. The
+ * author column is then written, so the same row never needs this lookup again.
+ * Returns how many rows it attributed.
+ *
+ * The payload is matched by text first (`"customerId":"<id>"`, the exact shape
+ * `recordAudit` stringifies) and then parsed and checked; the text match only
+ * narrows the read, it never decides.
+ */
+async function attributeFromIngestAudit(tx, { tenantId, customerIds, channelIdentities }) {
+  if (customerIds.length === 0 || channelIdentities.length === 0) return 0
+  const owners = new Set(customerIds)
+  const claims = new Map()
+  for (const customerId of customerIds) {
+    const rows = await tx.auditEvent.findMany({
+      where: { entityType: 'CONVERSATION', action: 'MESSAGE_INGESTED',
+        payloadJson: { contains: `"customerId":${JSON.stringify(customerId)}` } },
+      select: { entityId: true, payloadJson: true },
+    })
+    for (const row of rows) {
+      let payload = null
+      try { payload = JSON.parse(row.payloadJson) } catch { payload = null }
+      if (payload?.tenantId !== tenantId || !owners.has(payload.customerId)
+        || typeof payload.messageId !== 'string' || (payload.direction ?? 'INBOUND') !== 'INBOUND') continue
+      claims.set(payload.messageId, { conversationId: row.entityId, channelAccountId: payload.channelAccountId })
+    }
+  }
+  if (claims.size === 0) return 0
+  const messages = await tx.message.findMany({
+    where: { id: { in: [...claims.keys()] }, direction: 'INBOUND', authorChannelIdentityId: null, conversation: { tenantId } },
+    select: { id: true, conversationId: true, conversation: { select: { channel: true, channelAccountId: true } } },
+  })
+  let attributed = 0
+  for (const message of messages) {
+    const claim = claims.get(message.id)
+    if (claim.conversationId !== message.conversationId || claim.channelAccountId !== message.conversation.channelAccountId) continue
+    const identity = channelIdentities.find((row) => row.channel === message.conversation.channel
+      && row.channelAccountId === message.conversation.channelAccountId)
+    if (!identity) continue
+    const updated = await tx.message.updateMany({
+      where: { id: message.id, authorChannelIdentityId: null },
+      data: { authorChannelIdentityId: identity.id },
+    })
+    attributed += updated.count
+  }
+  return attributed
 }

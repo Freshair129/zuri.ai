@@ -23,7 +23,8 @@ import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/ap
 //   message bodies and the raw provider payloads are the two places the erased person's
 //   words live. Both are other domains' models, so both are reached through those
 //   domains' own contract exports inside this one transaction, never by a direct
-//   prisma write from here: `redactConversationContentForCustomers` (crm) and
+//   prisma write from here: `redactConversationContent` and
+//   `redactSpeakerContentInSharedThreads` (crm) and
 //   `tombstoneRawRecordsForExternalIds` (integration).
 // RCA: .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
 // @tested tests/integration/identity-erase.test.js, tests/integration/crm-conversation-analysis.test.js
@@ -180,7 +181,8 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
     const personal = await redactConversationContent(tx, { tenantId, conversationIds: personalIds })
     const shared = await redactSpeakerContentInSharedThreads(tx, {
       tenantId,
-      channelIdentityIds: subjectChannels.map((row) => row.id),
+      channelIdentities: subjectChannels,
+      customerIds,
       inboundMessageIds,
       excludeConversationIds: personalIds,
     })
@@ -286,6 +288,7 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
         redactedLineJobs,
         // Counts only: which threads they were would name the groups this person was in.
         sharedThreads: shared.conversationIds.length,
+        attributedMessages: shared.attributedMessages,
         tombstonedRawRecords,
         archiveKeys,
         personRedacted,
