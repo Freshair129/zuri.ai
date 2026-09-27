@@ -9,11 +9,15 @@
 // rejected for its grouping; a grouped number the evidence lacks still is.
 // Every other way of writing a figure is read as the figure too, or refused: a
 // numeral whose compatibility form is digits (superscript ¹²⁵⁰, circled ①) is
-// those digits, any other numeral (½, Ⅻ) must appear as written in the evidence,
-// a minus sign is part of the value (-500 is not 500), only valid thousands
-// grouping is ungrouped (12,50 is 12 and 50), a decimal with a fraction of three
-// digits or more keeps its zeros (1.250 is not 1.25), and digit groups of three
-// joined by one space in the answer are one number (1 250 is 1250).
+// those digits unless it is glued to a letter or digit (m², 10⁵, a footnote ¹),
+// any other numeral (½, Ⅻ) must appear as written in the evidence, a minus sign
+// is part of the value (ราคา -500 is not 500; a bullet or discount dash is read as
+// a dash when the evidence has no negative figure), only valid thousands grouping
+// is ungrouped (12,50 is 12 and 50), a decimal with a fraction of three digits or
+// more keeps its zeros (1.250 is not 1.25), and a space-grouped chain that is
+// valid thousands grouping is read both as one number and part by part (1 250 is
+// supported by 1250 or by 1 and 250; a phone number is never merged). An answer
+// longer than LINE_TEXT_LIMIT is rejected unchecked.
 // @req FR-149, FR-235 — the LINE answer rules after retrieval and after the model:
 // the no-evidence reply, the candidate check, the evidence fallback and the LINE
 // text bound. The Server answer path and the Conversation Runtime apply the same
@@ -60,21 +64,36 @@ const DECIMAL_DIGIT = /\p{Nd}/gu
 const GROUPED_NUMBER = /(?<![\d,，]|\d\.)\d{1,3}(?:[,，]\d{3})+(?!\d|[,，]\d)/g
 const ASCII_GROUPED_NUMBER = /(?<![\d,，]|\d\.)\d{1,3}(?:,\d{3})+(?!\d|[,，]\d)/g
 const GROUP_SEPARATOR = /[,，]/g
-// Digit groups of exactly three after one to three digits, each joined by a single
-// space, no-break space, thin space or narrow no-break space (1 250, 10 000 000),
-// not attached to a code or a decimal before it. In the answer and the question
-// such a run is one number, so an answer cannot write 1250 as the 1 and the 250
-// the evidence holds apart. The evidence keeps the separate reading.
-const SPACE_GROUPED_NUMBER = /(?<![A-Za-z0-9_.,-])\d{1,3}(?:[    ]\d{3})+(?!\d)/g
-const SPACE_SEPARATOR = /[    ]/g
+// A chain of digit groups each joined by a single space, no-break space, thin
+// space or narrow no-break space (1 250, 081 234 5678), not attached to a code or
+// a decimal before it. The text is never rewritten for it; the number check reads
+// the chain both ways (see spaceRuns). It is a grouped number only when it is
+// valid thousands grouping: a first group of one to three digits not starting
+// with 0, then groups of exactly three, then an optional fraction. A phone number
+// (081 234 5678, 02 123 4567) never is, nor is a chain with another group (1 2500).
+const SPACE_CHAIN = /(?<![A-Za-z0-9_.,-])\d+(?:[ \u00A0\u2009\u202F]\d+)+(?:\.\d+)?/g
+const SPACE_GROUPED = /^[1-9]\d{0,2}(?:[ \u00A0\u2009\u202F]\d{3})+(?:\.\d+)?$/
+const SPACE_SEPARATOR = /[ \u00A0\u2009\u202F]/g
 // Minus signs other than the ASCII hyphen-minus, read as it: U+2212 MINUS SIGN,
 // U+FE63 SMALL HYPHEN-MINUS and U+FF0D FULLWIDTH HYPHEN-MINUS.
-const MINUS_SIGNS = /[−﹣－]/g
-// A character before a hyphen that joins it to a code or a number, so that it is
-// not a sign: PM-1250, USB-001, 3-5, 1,250-1,300 once ungrouped.
-const JOINS_HYPHEN = /[A-Za-z0-9_.]/
-const SPACE = /\s/
+const MINUS_SIGNS = /[\u2212\uFE63\uFF0D]/g
+// A hyphen is a minus sign only at the start of the text or after whitespace or
+// an opening bracket (ราคา -500, (-500)). Glued to anything else it joins or
+// separates: PM-1250, 3-5, ราคา-500, ราคา:-500, 150บาท-300บาท, ✅-500.
+const OPENS_SIGN = /[\s([{]/
+// A hyphen within this many characters after a number on the same line reads as
+// a range (150 บาท -300 บาท, 1,250 -1,300), not a sign.
+const RANGE_REACH = 12
+// A sign that may be a dash for a discount rather than a negative figure: after a
+// discount word (ส่วนลด -20%, ลด -500) or before a percentage (-20%).
+const DISCOUNT_BEFORE = /(?:ส่วนลด|ลด|discount|off|save)\s*:?\s*$/i
+const DISCOUNT_REACH = 24
+const INLINE_SPACE = /[^\S\n]/
 const ASCII_DIGIT = /\d/
+// A superscript or subscript digit run glued to a letter or a digit (m², 10⁵,
+// บาท¹, H₂O) is a unit power, an exponent, a footnote mark or a formula index,
+// not a figure: the number check ignores it rather than read 10⁵ as 105.
+const ATTACHED_SCRIPT = /(?<=[\p{L}\p{M}\p{Nd}])[\u00B2\u00B3\u00B9\u2070\u2074-\u2079\u2080-\u2089]+/gu
 // Any non-ASCII character; numeralDigits and leftoverNumerals look at each one.
 const NON_ASCII = /[^\x00-\x7F]/gu
 const NUMERAL = /\p{N}/u
@@ -134,10 +153,12 @@ export function asciiDigits(value) {
  * decimal digits, as those digits: superscript ¹²⁵⁰ is 1250, circled ① is 1 and
  * ⑳ is 20. A numeral with any other form (½ is 1⁄2, Ⅻ is XII) is left as written
  * for the leftover check. Characters are normalised one at a time, never the
- * whole text: NFKC would also rewrite Thai (ำ) and the fullwidth comma.
+ * whole text: NFKC would also rewrite Thai (ำ) and the fullwidth comma. A
+ * superscript or subscript run glued to a letter or a digit (m², 10⁵, บาท¹) is
+ * dropped first: it is a power, an exponent or a footnote mark, not a figure.
  */
 export function numeralDigits(value) {
-  return String(value).replace(NON_ASCII, (character) => {
+  return String(value).replace(ATTACHED_SCRIPT, '').replace(NON_ASCII, (character) => {
     const compatible = character.normalize('NFKC')
     return compatible !== character && ALL_DECIMAL_DIGITS.test(compatible) ? compatible : character
   })
@@ -154,19 +175,12 @@ export function ungroupedNumbers(value, { asciiOnly = false } = {}) {
     (number) => number.replace(GROUP_SEPARATOR, ''))
 }
 
-/** Every run of three-digit groups joined by single spaces (1 250) as one number. */
-export function spaceUngroupedNumbers(value) {
-  return String(value).replace(SPACE_GROUPED_NUMBER, (number) => number.replace(SPACE_SEPARATOR, ''))
-}
-
 /**
  * A text as the checks read it: numerals as ASCII digits, every minus sign as
- * '-', thousands separators removed. The answer and the question also read
- * space-grouped digits as one number; the evidence does not.
+ * '-', comma thousands separators removed (only the ASCII comma in the evidence).
  */
 function checkedText(value, { evidence = false } = {}) {
-  const text = ungroupedNumbers(asciiDigits(numeralDigits(value).replace(MINUS_SIGNS, '-')), { asciiOnly: evidence })
-  return evidence ? text : spaceUngroupedNumbers(text)
+  return ungroupedNumbers(asciiDigits(numeralDigits(value).replace(MINUS_SIGNS, '-')), { asciiOnly: evidence })
 }
 
 /**
@@ -231,32 +245,76 @@ function numberValue(written, negative = false) {
 }
 
 /**
- * Whether the number starting at `index` carries a minus sign: a hyphen right
- * before it that is not joined to a code or a number (PM-1250, 3-5) and does not
- * follow a number across spaces, which makes it a range (150 -300).
+ * The minus sign on the number starting at `index`, or null. A hyphen right
+ * before the number is a sign only at the start of the text or after whitespace
+ * or an opening bracket, and not within RANGE_REACH characters after a number on
+ * the same line (a range). The sign is `loose` when it may be a dash rather than
+ * a negative: a bullet (only spaces before it on its line) or a discount (after
+ * a discount word, or before a percentage). verifyCandidate reads a loose sign in
+ * the answer as a dash when the evidence has no negative figure at all.
+ * Every scan is bounded or covers a run only the one hyphen after it scans.
  */
-function signedAt(text, index) {
-  if (text[index - 1] !== '-') return false
-  if (index >= 2 && JOINS_HYPHEN.test(text[index - 2])) return false
+function signAt(text, index, end) {
+  if (text[index - 1] !== '-') return null
+  if (index >= 2 && !OPENS_SIGN.test(text[index - 2])) return null
+  for (let at = index - 2; at >= Math.max(0, index - 2 - RANGE_REACH) && text[at] !== '\n'; at -= 1) {
+    if (ASCII_DIGIT.test(text[at])) return null
+  }
   let at = index - 2
-  while (at >= 0 && SPACE.test(text[at])) at -= 1
-  return !(at >= 0 && ASCII_DIGIT.test(text[at]))
+  while (at >= 0 && INLINE_SPACE.test(text[at])) at -= 1
+  const bullet = at < 0 || text[at] === '\n'
+  const discount = text[end] === '%'
+    || DISCOUNT_BEFORE.test(text.slice(Math.max(0, index - 1 - DISCOUNT_REACH), index - 1))
+  return { loose: bullet || discount }
 }
 
-/** Each number in a checked text: its value, sign included, and its span. */
+/**
+ * Each number in a checked text: its value (sign included), its magnitude, its
+ * span, and whether its sign is loose (see signAt).
+ */
 function numbersIn(text) {
   return [...text.matchAll(NUMBER)].map((match) => {
-    const negative = signedAt(text, match.index)
+    const end = match.index + match[0].length
+    const sign = signAt(text, match.index, end)
     return {
-      value: numberValue(match[0], negative),
-      start: negative ? match.index - 1 : match.index,
-      end: match.index + match[0].length,
+      value: numberValue(match[0], Boolean(sign)),
+      magnitude: numberValue(match[0]),
+      start: sign ? match.index - 1 : match.index,
+      end,
+      loose: Boolean(sign?.loose),
     }
   })
 }
 
+/**
+ * Each chain of digit groups joined by single spaces that is valid thousands
+ * grouping (see SPACE_CHAIN), with its merged number and the numbers it is made
+ * of (from `numbers`, in text order). A chain the evidence or the question reads
+ * either way is checked either way: 1 250 is supported by 1250, or by 1 and 250.
+ */
+function spaceRuns(text, numbers) {
+  const runs = []
+  let next = 0
+  for (const match of text.matchAll(SPACE_CHAIN)) {
+    if (!SPACE_GROUPED.test(match[0])) continue
+    const end = match.index + match[0].length
+    while (next < numbers.length && numbers[next].end <= match.index) next += 1
+    const parts = []
+    while (next < numbers.length && numbers[next].end <= end) parts.push(numbers[next++])
+    if (parts.length < 2) continue
+    const negative = parts[0].value.startsWith('-')
+    runs.push({
+      merged: { value: numberValue(match[0].replace(SPACE_SEPARATOR, ''), negative), start: parts[0].start, end },
+      parts,
+    })
+  }
+  return runs
+}
+
+/** Every number value in a checked text, space-grouped chains read both ways. */
 function normalizedNumbers(text) {
-  return new Set(numbersIn(text).map(({ value }) => value))
+  const numbers = numbersIn(text)
+  return new Set([...numbers.map(({ value }) => value), ...spaceRuns(text, numbers).map(({ merged }) => merged.value)])
 }
 
 export function normalizedCodes(value) {
@@ -288,15 +346,25 @@ function budgetAt(text, start) {
  * that cannot be read as digits must appear as written in the evidence.
  */
 export function verifyCandidate(question, evidence, candidate) {
+  // An answer longer than LINE can send is not checked at all: it could not be
+  // sent as written, and the cap bounds the per-number work below.
+  if (String(candidate).length > LINE_TEXT_LIMIT) {
+    return { supported: false, unsupportedNumbers: [], unsupportedCodes: [], riskyClaim: false, overLimit: true }
+  }
   const records = checkedEvidence(evidence.records)
   const asked = checkedText(question)
   const text = checkedText(candidate)
 
   // A negative figure in the evidence also supports its magnitude (ลด 500 บาท
   // from -500); a positive one never supports a negative (-500 from 500).
-  const evidenceNumbers = new Set(numbersIn(records).flatMap(({ value }) => [value, value.replace(/^-/, '')]))
+  const evidenceFigures = numbersIn(records)
+  const evidenceNumbers = new Set(evidenceFigures.flatMap(({ value, magnitude }) => [value, magnitude]))
+  const evidenceHasNegative = evidenceFigures.some(({ value }) => value.startsWith('-'))
+  // The question's space-grouped chains count both ways, so 300 and 500 of
+  // "งบ 300 500 ชิ้น" can each be echoed, and so can 1250 of "1 250 ชิ้น".
   const askedNumbers = normalizedNumbers(asked)
-  const askedBudgets = new Set(numbersIn(asked)
+  const askedFigures = numbersIn(asked)
+  const askedBudgets = new Set([...askedFigures, ...spaceRuns(asked, askedFigures).map(({ merged }) => merged)]
     .filter(({ start }) => budgetAt(asked, start))
     .map(({ value }) => value))
   const units = [...QUANTITY_UNITS, ...(evidence.records ?? []).map((record) => record?.unit)
@@ -317,11 +385,20 @@ export function verifyCandidate(question, evidence, candidate) {
   // evidence writes the same run of numerals.
   const leftovers = leftoverNumerals(text)
   const evidenceLeftovers = leftovers.size ? leftoverNumerals(records) : leftovers
+  // A loose sign (a bullet or discount dash) is read as a dash when the evidence
+  // has no negative figure; otherwise, and always for ราคา -500, it is a sign, so
+  // -500 is never supported by the evidence's 500.
+  const figures = numbersIn(text).map((figure) => (figure.loose && !evidenceHasNegative
+    ? { ...figure, value: figure.magnitude, start: figure.start + 1 } : figure))
+  const supported = ({ value, start, end }) => evidenceNumbers.has(value)
+    || (askedNumbers.has(value) && echoAllowed(value, start, end))
+  // A space-grouped chain is supported as its merged number or part by part, so
+  // text copied from the evidence (1 250, 10 000 mAh, 150 250 บาท) still passes.
+  const runs = spaceRuns(text, figures)
+  const inRun = new Set(runs.flatMap(({ parts }) => parts))
   const unsupportedNumbers = [...new Set([
-    ...numbersIn(text)
-      .filter(({ value, start, end }) => !evidenceNumbers.has(value)
-        && (!askedNumbers.has(value) || !echoAllowed(value, start, end)))
-      .map(({ value }) => value),
+    ...figures.filter((figure) => !inRun.has(figure) && !supported(figure)).map(({ value }) => value),
+    ...runs.filter(({ merged, parts }) => !supported(merged) && !parts.every(supported)).map(({ merged }) => merged.value),
     ...[...leftovers].filter((numeral) => !evidenceLeftovers.has(numeral)),
   ])]
 
@@ -330,7 +407,18 @@ export function verifyCandidate(question, evidence, candidate) {
     .map((record) => record?.product_code)
     .filter((code) => typeof code === 'string')
     .map((code) => code.split(CODE_SEPARATOR)[0].toLocaleUpperCase())])
-  const unsupportedCodes = [...new Set((text.match(PRODUCT_CODE) ?? [])
+  // A code of digits only inside a supported space-grouped chain (the 250 of
+  // 1 250) is part of that number, which the number check has already allowed.
+  // Codes and chains are both in text order, so one pointer walks the chains.
+  const supportedRuns = runs.filter(({ merged, parts }) => supported(merged) || parts.every(supported))
+  let run = 0
+  const inSupportedRun = (start, end) => {
+    while (run < supportedRuns.length && supportedRuns[run].merged.end < end) run += 1
+    return run < supportedRuns.length && start >= supportedRuns[run].merged.start
+  }
+  const unsupportedCodes = [...new Set([...text.matchAll(PRODUCT_CODE)]
+    .filter((match) => !(/^[\d.]+$/.test(match[0]) && inSupportedRun(match.index, match.index + match[0].length)))
+    .map((match) => match[0])
     .filter((code) => /\d/.test(code) || (LETTER_CODE.test(code) && families.has(code.split(CODE_SEPARATOR)[0])))
     .map(codeKey)
     .filter((code) => !allowedCodes.has(code)))]
