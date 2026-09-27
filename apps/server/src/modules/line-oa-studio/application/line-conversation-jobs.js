@@ -703,6 +703,13 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
     // picks reply, push or expiry).
     const outOfHoursReply = runtimeOwner === 'CONVERSATION_RUNTIME' ? runtimeOutOfHoursReply(job) : null
     if (outOfHoursReply !== null && !code && text !== outOfHoursReply) throw failure(409, 'OUT_OF_HOURS_REPLY_MISMATCH')
+    // The Server path cannot lose this reply to an execution error, so a runtime
+    // failure never closes it either: FAILED would null the snapshot for good. The
+    // turn stays CLAIMED and returns to the queue on lease expiry. Core does not take
+    // the runtime's stated cause on trust: revocation and erasure were refused above
+    // (and in `ownedClaim`), and Core's own fences close those jobs — cancel at
+    // claim or send, erasure redaction, or the job's TTL.
+    if (outOfHoursReply !== null && code) throw failure(409, 'OUT_OF_HOURS_FAILURE_DEFERRED')
     const admittedContract = await tx.agentTraceEvent.findFirst({ where: { turnId: job.id, executionId: job.executionId,
       idempotencyKey: `${job.id}:execution:${job.executionId}:contract`, kind: 'CONTEXT_COMMITTED' } })
     const contract = admittedContract ? JSON.parse(admittedContract.payloadJson) : null

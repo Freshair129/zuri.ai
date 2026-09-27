@@ -51,13 +51,19 @@ const bangkok = hms => {
   return new Date(yesterdayUtc + ((h * 60 + m) * 60 + s) * 1000 - 7 * 3600_000)
 }
 
-function inProcessFetch(handlers) {
+function inProcessFetch(handlers, faults = {}) {
   return async (url, init = {}) => {
     const target = new URL(url)
     const operation = target.pathname.split('/').pop()
     if (init.body) {
       const envelope = JSON.parse(init.body)
       wire.push({ operation: envelope.operation, payload: envelope.payload })
+    }
+    // A transient Core outage for one call: the request never reaches Core.
+    if (faults[operation] > 0) {
+      faults[operation] -= 1
+      return new Response(JSON.stringify({ contractVersion: 'conversation-runtime.v1', ok: false,
+        error: { code: 'CORE_OPERATION_UNAVAILABLE', retryable: true } }), { status: 503, headers: { 'content-type': 'application/json' } })
     }
     const request = new Request(target, init)
     return operation === 'health'
@@ -73,7 +79,7 @@ const transport = sink => ({
   pushTransport: { send: async ({ messages, retryKey }) => { sink.push({ method: 'PUSH', messages, retryKey }); return { status: 'ACCEPTED_BY_LINE', requestId: `push-${sink.length}` } } },
 })
 
-function buildRuntime() {
+function buildRuntime({ faults } = {}) {
   const core = createConversationRuntimeCore({ db: prisma, now,
     env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey },
     credentialResolver: async () => { throw Object.assign(new Error('OUT_OF_HOURS_MUST_NOT_RESOLVE_MODEL_CREDENTIAL'), { status: 500 }) },
@@ -82,7 +88,7 @@ function buildRuntime() {
       audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }),
     linePorts: () => transport(runtimeDeliveries) })
   const client = createCoreClient({ baseUrl: 'http://core.invalid', token: serviceToken,
-    fetchFn: inProcessFetch(createConversationRuntimeRouteHandlers(core)) })
+    fetchFn: inProcessFetch(createConversationRuntimeRouteHandlers(core), faults) })
   const ports = createCorePorts({ client,
     model: { generate: async () => { throw new Error('OUT_OF_HOURS_MUST_NOT_CALL_MODEL') } } })
   return { core, ports, runtime: claimantId => createConversationRuntime({ ports, claimantId, now }) }
@@ -288,6 +294,43 @@ describe('FR-244 out-of-hours replies in the Conversation Runtime cohort', () =>
       .toMatchObject({ status: 'CLAIMED', answerText: replyText })
     expect(await ports.job.complete(claim, { text: replyText, operationId: `${job.id}:turn-answer` }))
       .toMatchObject({ status: 'READY' })
+  })
+
+  it('keeps the reply through a transient prepare failure, then reclaims and sends it exactly once', async () => {
+    const at = bangkok('23:10:00')
+    clock = new Date(at.getTime() + 1000)
+    const faults = { prepare: 1 }
+    const { ports, runtime } = buildRuntime({ faults })
+    const job = await admit(runtimeAccount, { at, tag: 'runtime-transient-prepare' })
+
+    // Core is briefly unavailable for `prepare`: the runtime cannot yet know the turn
+    // kind and asks Core to fail it. Core refuses, so the snapshot survives.
+    const first = await runtime('runtime-ooh-transient').runOne()
+    expect(first).toEqual({ jobId: job.id, status: 'DEFERRED', code: 'CORE_OPERATION_UNAVAILABLE' })
+    expect(faults.prepare).toBe(0)
+    expect(wire.map(call => call.operation)).toEqual(['claim', 'resolve', 'prepare', 'fail'])
+    const held = await prisma.lineConversationJob.findUnique({ where: { id: job.id } })
+    expect(held).toMatchObject({ status: 'CLAIMED', answerText: replyText, errorCode: null })
+    expect((await traceOf(job.id)).map(event => event.kind)).not.toContain('EXECUTION_FAILED')
+
+    // Core refuses a direct `fail` on the out-of-hours turn too, whatever cause is stated.
+    const stale = { jobId: job.id, executionId: held.executionId, claimantId: held.claimantId, version: held.version,
+      tenantId: held.tenantId, businessId: held.businessId, accountId: held.accountId,
+      leaseExpiresAt: held.leaseExpiresAt.toISOString(), deadlineAt: held.expiresAt.toISOString(), correlationId: held.correlationId }
+    for (const code of ['CORE_OPERATION_TIMEOUT', 'CONVERSATION_JOB_AUTHORITY_REVOKED']) {
+      await expect(ports.job.fail(stale, { code, outcome: 'FAILED' })).rejects.toMatchObject({ code: 'OUT_OF_HOURS_FAILURE_DEFERRED' })
+    }
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: job.id } }))
+      .toMatchObject({ status: 'CLAIMED', answerText: replyText })
+
+    // The lease runs out; the next iteration reclaims and delivers once.
+    await prisma.lineConversationJob.update({ where: { id: job.id }, data: { leaseExpiresAt: new Date(clock.getTime() - 1) } })
+    expect(await runtime('runtime-ooh-transient-reclaim').runOne()).toMatchObject({ jobId: job.id, status: 'RECORDED' })
+    expect(runtimeDeliveries).toEqual([{ method: 'REPLY', messages: [{ type: 'text', text: replyText }] }])
+    expect(durable(await prisma.lineConversationJob.findUnique({ where: { id: job.id } })))
+      .toMatchObject({ status: 'RECORDED', answerText: replyText, attempts: 1 })
+    expect(await settledAnswerReady(job.id)).toHaveLength(1)
+    expect(await runtime('runtime-ooh-transient-idle').runOne()).toEqual({ status: 'IDLE' })
   })
 
   it('completes and sends exactly once when a runtime dies after claiming and another reclaims the job', async () => {

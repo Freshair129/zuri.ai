@@ -501,3 +501,37 @@ test('out-of-hours completion reconciles a lost response from Core status and se
   assert.equal(completeCalls, 1)
   assert.equal(order.filter(step => step === 'delivery').length, 1)
 })
+
+test('out-of-hours turn is left for lease reclaim, not failed, when the lease is lost after prepare', async () => {
+  const order = []
+  const expiredClaim = { ...claim, leaseExpiresAt: '2026-09-23T23:59:59.000Z' }
+  const ports = outOfHoursPorts(order, {
+    job: { claim: async () => expiredClaim, renew: async () => ({ version: claim.version, leaseExpiresAt: expiredClaim.leaseExpiresAt }),
+      complete: async () => assert.fail('a lost lease must not complete'), status: async () => assert.fail('nothing to reconcile'),
+      fail: async () => assert.fail('an out-of-hours turn must not be failed on a transient error') },
+    trace: { append: async (_claim, event) => assert.fail(`no failure trace for a deferred turn: ${event.kind}`),
+      status: async () => assert.fail('no model operation') },
+  })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.deepEqual(result, { jobId: claim.jobId, status: 'DEFERRED', code: 'CONVERSATION_JOB_LEASE_LOST' })
+})
+
+test('a transient error before the turn kind is known defers when Core refuses the fail for an out-of-hours job', async () => {
+  const order = []
+  let failCalls = 0
+  const ports = outOfHoursPorts(order, {
+    context: { prepare: async () => { throw Object.assign(new Error('timeout'), { code: 'CORE_OPERATION_TIMEOUT', retryable: true }) } },
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async () => assert.fail('must not complete'), status: async () => assert.fail('nothing to reconcile'),
+      fail: async (_claim, value) => {
+        failCalls += 1
+        assert.deepEqual(value, { code: 'CORE_OPERATION_TIMEOUT', outcome: 'FAILED' })
+        throw Object.assign(new Error('deferred'), { code: 'OUT_OF_HOURS_FAILURE_DEFERRED', retryable: false })
+      } },
+    trace: { append: async (_claim, event) => assert.fail(`no failure trace for a deferred turn: ${event.kind}`),
+      status: async () => assert.fail('no model operation') },
+  })
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.deepEqual(result, { jobId: claim.jobId, status: 'DEFERRED', code: 'CORE_OPERATION_TIMEOUT' })
+  assert.equal(failCalls, 1)
+})

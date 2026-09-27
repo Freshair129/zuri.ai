@@ -10,6 +10,9 @@ const evidenceRecords = value => Array.isArray(value) ? value : value?.records ?
 const answerOperation = jobId => `${jobId}:turn-answer`
 const modelOperation = jobId => `${jobId}:runtime-model`
 const deliveryStatusOperation = jobId => `${jobId}:delivery`
+// Causes that end a turn for good: Core revoked the authority it runs under.
+const AUTHORITY_ENDED = Object.freeze(['AUTHORITY_DENIED', 'CONVERSATION_IDENTITY_CHANGED', 'CONVERSATION_IDENTITY_REVOKED',
+  'CONVERSATION_JOB_AUTHORITY_REVOKED', 'PDPA_ERASURE'])
 
 function unknownOutcome(code, cause) {
   return Object.assign(new Error(code), { code, outcome: 'UNKNOWN', ...(cause ? { cause } : {}) })
@@ -103,6 +106,7 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
     const stableAnswerId = answerOperation(claim.jobId)
     const stableModelId = modelOperation(claim.jobId)
     let text = null
+    let fixedReply = false
     let composed = null
     try {
       const authority = await ports.authority.resolve(claim, { signal })
@@ -111,7 +115,7 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       // @req FR-244 — Core decided at admission that this message arrived outside the
       // account's hours and handed over its fixed reply. The runtime produces exactly
       // that reply: no Work command, context, credential or model call.
-      const fixedReply = turn.turnKind === 'OUT_OF_HOURS'
+      fixedReply = turn.turnKind === 'OUT_OF_HOURS'
       if (fixedReply) {
         stage = 'out-of-hours'
         text = turn.replyText
@@ -234,9 +238,17 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         || error?.code === 'DELIVERY_OUTCOME_UNKNOWN' ? 'UNKNOWN' : 'FAILED'
       // A lost completion response is reconciled on the next process iteration from
       // the same job operation id. Never overwrite a possible READY commit as FAILED.
-      if (stage !== 'completion' && stage !== 'delivery') {
-        try { await ports.job.fail(claim, { code, outcome }, { signal }) } catch { /* core status/lease recovery owns reconciliation */ }
+      // @req FR-244 — an out-of-hours reply must not be lost to a transient error: the
+      // Server path cannot fail it. Only a revoked authority ends the turn; anything
+      // else is left CLAIMED for lease reclaim. Before `prepare` the runtime cannot
+      // know the turn kind, so Core refuses the `fail` itself (OUT_OF_HOURS_FAILURE_DEFERRED).
+      const settles = stage !== 'completion' && stage !== 'delivery'
+      let deferred = settles && fixedReply && !AUTHORITY_ENDED.includes(code)
+      if (!deferred && settles) {
+        try { await ports.job.fail(claim, { code, outcome }, { signal }) }
+        catch (failError) { deferred = failError?.code === 'OUT_OF_HOURS_FAILURE_DEFERRED' /* else core status/lease recovery owns reconciliation */ }
       }
+      if (deferred) return { jobId: claim.jobId, status: 'DEFERRED', code }
       const traceKind = stage === 'completion' ? 'COMPLETION_OUTCOME_UNKNOWN'
         : stage === 'delivery' ? 'DELIVERY_OUTCOME_UNKNOWN'
           : stage === 'work-tool' && outcome === 'UNKNOWN' ? 'WORK_TOOL_OUTCOME_UNKNOWN'
