@@ -7,6 +7,13 @@
 // A number written with thousands separators is read without them in all three
 // texts (1,250 is 1250 and 10,000mAh is 10000mAh), so a grounded price is not
 // rejected for its grouping; a grouped number the evidence lacks still is.
+// Every other way of writing a figure is read as the figure too, or refused: a
+// numeral whose compatibility form is digits (superscript ¹²⁵⁰, circled ①) is
+// those digits, any other numeral (½, Ⅻ) must appear as written in the evidence,
+// a minus sign is part of the value (-500 is not 500), only valid thousands
+// grouping is ungrouped (12,50 is 12 and 50), a decimal with a fraction of three
+// digits or more keeps its zeros (1.250 is not 1.25), and digit groups of three
+// joined by one space in the answer are one number (1 250 is 1250).
 // @req FR-149, FR-235 — the LINE answer rules after retrieval and after the model:
 // the no-evidence reply, the candidate check, the evidence fallback and the LINE
 // text bound. The Server answer path and the Conversation Runtime apply the same
@@ -27,7 +34,10 @@
 //   services/conversation-runtime/test/answer-policy.test.js
 
 const PRODUCT_CODE = /\b[A-Z0-9][A-Z0-9._-]{2,}\b/gi
-const NUMBER = /\d[\d,]*(?:\.\d+)?/g
+// A number as the checks read it once valid thousands grouping is removed: a
+// comma left in the text separates two numbers (12,50 is 12 and 50).
+const NUMBER = /\d+(?:\.\d+)?/g
+const WRITTEN_NUMBER = /^(\d+)(?:\.(\d+))?$/
 // A code with no digit is checked only when it is written in capitals as
 // letters, a separator and letters (PM-PEN, PM-BOTTLE-LED, SG-ECO) AND it starts
 // with a catalogue code family: PM- (ProductMaster rows) or SG- (the SmartGift
@@ -41,9 +51,34 @@ const DECIMAL_DIGIT = /\p{Nd}/gu
 // A number grouped by thousands: one to three digits, then groups of exactly
 // three after a comma (ASCII or fullwidth), not inside a longer digit run and not
 // the fraction of a decimal. 1,250, 10,000,000 and the 1,250 of 1,250.50 qualify;
-// 1,25, 12,3456 and 1,2,345 do not, and keep the reading they always had.
+// 1,25, 12,3456 and 1,2,345 do not, and are read as the separate numbers written.
+// In the evidence only the ASCII comma groups: a fullwidth comma there (รุ่น
+// 12，345) may be a list separator, and reading it as grouping would give the
+// evidence a number it may not hold. Reading fewer numbers from the evidence can
+// only reject an answer, never admit one, so this is the safer of the two rules;
+// an answer that quotes such a figure grouped falls back to the evidence reply.
 const GROUPED_NUMBER = /(?<![\d,，]|\d\.)\d{1,3}(?:[,，]\d{3})+(?!\d|[,，]\d)/g
+const ASCII_GROUPED_NUMBER = /(?<![\d,，]|\d\.)\d{1,3}(?:,\d{3})+(?!\d|[,，]\d)/g
 const GROUP_SEPARATOR = /[,，]/g
+// Digit groups of exactly three after one to three digits, each joined by a single
+// space, no-break space, thin space or narrow no-break space (1 250, 10 000 000),
+// not attached to a code or a decimal before it. In the answer and the question
+// such a run is one number, so an answer cannot write 1250 as the 1 and the 250
+// the evidence holds apart. The evidence keeps the separate reading.
+const SPACE_GROUPED_NUMBER = /(?<![A-Za-z0-9_.,-])\d{1,3}(?:[    ]\d{3})+(?!\d)/g
+const SPACE_SEPARATOR = /[    ]/g
+// Minus signs other than the ASCII hyphen-minus, read as it: U+2212 MINUS SIGN,
+// U+FE63 SMALL HYPHEN-MINUS and U+FF0D FULLWIDTH HYPHEN-MINUS.
+const MINUS_SIGNS = /[−﹣－]/g
+// A character before a hyphen that joins it to a code or a number, so that it is
+// not a sign: PM-1250, USB-001, 3-5, 1,250-1,300 once ungrouped.
+const JOINS_HYPHEN = /[A-Za-z0-9_.]/
+const SPACE = /\s/
+const ASCII_DIGIT = /\d/
+// Any non-ASCII character; numeralDigits and leftoverNumerals look at each one.
+const NON_ASCII = /[^\x00-\x7F]/gu
+const NUMERAL = /\p{N}/u
+const ALL_DECIMAL_DIGITS = /^\p{Nd}+$/u
 // A code that is only a decimal number (1250.50) is compared by value with a
 // decimal the evidence carries (1250.5); the digits before the point are kept as
 // written, so a leading zero (00123.5) still has to match exactly.
@@ -70,7 +105,7 @@ const RISK_CLAIMS = [
 const QUANTITY_UNITS = ['ชิ้น', 'อัน', 'ใบ', 'ตัว', 'ชุด', 'เซ็ต', 'เซต', 'กล่อง', 'แพ็ค', 'แพ็ก', 'แพค', 'โหล', 'ด้าม',
   'เล่ม', 'ขวด', 'แก้ว', 'กระบอก', 'เครื่อง', 'ก้อน', 'คู่', 'ถุง', 'ม้วน', 'แผ่น', 'ผืน', 'ลูก', 'ตลับ', 'หลอด',
   'ซอง', 'แท่ง', 'ห่อ', 'ลัง', 'สี', 'รุ่น', 'แบบ', 'คน', 'ท่าน', 'pcs', 'pieces', 'piece', 'units', 'unit', 'sets', 'set']
-const BUDGET_BEFORE = /(?:งบ(?:(?!ราคา)[^\d\n]){0,20}?|budget|ไม่เกิน|ต่ำกว่า|ไม่ถึง|น้อยกว่า|under|below|up to|max(?:imum)?)\s*:?\s*(?:\d[\d,]*(?:\.\d+)?\s*(?:-|–|~|ถึง)\s*)?$/i
+const BUDGET_BEFORE = /(?:งบ(?:(?!ราคา)[^\d\n]){0,20}?|budget|ไม่เกิน|ต่ำกว่า|ไม่ถึง|น้อยกว่า|under|below|up to|max(?:imum)?)\s*:?\s*(?:\d+(?:\.\d+)?\s*(?:-|–|~|ถึง)\s*)?$/i
 
 /** LINE's text message limit, in UTF-16 code units. */
 export const LINE_TEXT_LIMIT = 5000
@@ -95,17 +130,43 @@ export function asciiDigits(value) {
 }
 
 /**
- * Every number grouped by thousands (1,250, or １，２５０ once its digits are
- * ASCII) without its separators, so 1,250 reads as 1250 and 10,000mAh as
- * 10000mAh. Commas that do not group thousands are left alone.
+ * Every numeral that is not a decimal digit but whose compatibility form is
+ * decimal digits, as those digits: superscript ¹²⁵⁰ is 1250, circled ① is 1 and
+ * ⑳ is 20. A numeral with any other form (½ is 1⁄2, Ⅻ is XII) is left as written
+ * for the leftover check. Characters are normalised one at a time, never the
+ * whole text: NFKC would also rewrite Thai (ำ) and the fullwidth comma.
  */
-export function ungroupedNumbers(value) {
-  return String(value).replace(GROUPED_NUMBER, (number) => number.replace(GROUP_SEPARATOR, ''))
+export function numeralDigits(value) {
+  return String(value).replace(NON_ASCII, (character) => {
+    const compatible = character.normalize('NFKC')
+    return compatible !== character && ALL_DECIMAL_DIGITS.test(compatible) ? compatible : character
+  })
 }
 
-/** A text as the checks read it: ASCII digits, thousands separators removed. */
-function checkedText(value) {
-  return ungroupedNumbers(asciiDigits(value))
+/**
+ * Every number grouped by thousands (1,250, or １，２５０ once its digits are
+ * ASCII) without its separators, so 1,250 reads as 1250 and 10,000mAh as
+ * 10000mAh. Commas that do not group thousands are left alone. With
+ * `{ asciiOnly: true }`, as the evidence is read, only an ASCII comma groups.
+ */
+export function ungroupedNumbers(value, { asciiOnly = false } = {}) {
+  return String(value).replace(asciiOnly ? ASCII_GROUPED_NUMBER : GROUPED_NUMBER,
+    (number) => number.replace(GROUP_SEPARATOR, ''))
+}
+
+/** Every run of three-digit groups joined by single spaces (1 250) as one number. */
+export function spaceUngroupedNumbers(value) {
+  return String(value).replace(SPACE_GROUPED_NUMBER, (number) => number.replace(SPACE_SEPARATOR, ''))
+}
+
+/**
+ * A text as the checks read it: numerals as ASCII digits, every minus sign as
+ * '-', thousands separators removed. The answer and the question also read
+ * space-grouped digits as one number; the evidence does not.
+ */
+function checkedText(value, { evidence = false } = {}) {
+  const text = ungroupedNumbers(asciiDigits(numeralDigits(value).replace(MINUS_SIGNS, '-')), { asciiOnly: evidence })
+  return evidence ? text : spaceUngroupedNumbers(text)
 }
 
 /**
@@ -114,7 +175,36 @@ function checkedText(value) {
  * line: compact JSON would write it as 1,250 and invent a number it never held.
  */
 function checkedEvidence(records) {
-  return asciiDigits(JSON.stringify(records, (_key, value) => (typeof value === 'string' ? checkedText(value) : value), 1))
+  return asciiDigits(JSON.stringify(records,
+    (_key, value) => (typeof value === 'string' ? checkedText(value, { evidence: true }) : value), 1))
+}
+
+/**
+ * Each run of numerals the checks cannot read as digits (½, Ⅻ, ⑴, or a symbol
+ * whose compatibility form holds a digit), as written, in one pass.
+ */
+function leftoverNumerals(text) {
+  const runs = new Set()
+  let run = ''
+  for (const character of text) {
+    if (character > '\x7F' && (NUMERAL.test(character) || NUMERAL.test(character.normalize('NFKC')))) {
+      run += character
+    } else if (run) {
+      runs.add(run)
+      run = ''
+    }
+  }
+  if (run) runs.add(run)
+  return runs
+}
+
+/**
+ * A decimal fraction as compared: trailing zeros are dropped only from a one- or
+ * two-digit fraction (1250.50 is 1250.5, 1250.00 is 1250). A longer fraction
+ * keeps them, so 1.250 (a European 1250) is not the evidence's 1.25.
+ */
+function comparedFraction(fraction) {
+  return fraction.length <= 2 ? fraction.replace(/0+$/, '') : fraction
 }
 
 /** A code as the code check compares it: in capitals, a plain decimal by value. */
@@ -122,17 +212,51 @@ function codeKey(code) {
   const upper = code.toLocaleUpperCase()
   const decimal = DECIMAL_CODE.exec(upper)
   if (!decimal) return upper
-  const fraction = decimal[2].replace(/0+$/, '')
+  const fraction = comparedFraction(decimal[2])
   return fraction ? `${decimal[1]}.${fraction}` : decimal[1]
 }
 
-function numberValue(item) {
-  const numeric = Number(item.replaceAll(',', ''))
-  return Number.isFinite(numeric) ? String(numeric) : item
+/**
+ * A number as compared, from its digits as written and its sign: leading zeros
+ * dropped, the fraction as comparedFraction reads it, and '-' kept unless the
+ * value is zero. It is compared as text, so floating-point rounding never makes
+ * two long digit strings equal.
+ */
+function numberValue(written, negative = false) {
+  const [, whole, fraction = ''] = WRITTEN_NUMBER.exec(written)
+  const digits = whole.replace(/^0+(?=\d)/, '')
+  const kept = comparedFraction(fraction)
+  const value = kept ? `${digits}.${kept}` : digits
+  return negative && /[1-9]/.test(value) ? `-${value}` : value
 }
 
-function normalizedNumbers(value) {
-  return new Set((String(value).match(NUMBER) ?? []).map(numberValue))
+/**
+ * Whether the number starting at `index` carries a minus sign: a hyphen right
+ * before it that is not joined to a code or a number (PM-1250, 3-5) and does not
+ * follow a number across spaces, which makes it a range (150 -300).
+ */
+function signedAt(text, index) {
+  if (text[index - 1] !== '-') return false
+  if (index >= 2 && JOINS_HYPHEN.test(text[index - 2])) return false
+  let at = index - 2
+  while (at >= 0 && SPACE.test(text[at])) at -= 1
+  return !(at >= 0 && ASCII_DIGIT.test(text[at]))
+}
+
+/** Each number in a checked text: its value, sign included, and its span. */
+function numbersIn(text) {
+  return [...text.matchAll(NUMBER)].map((match) => {
+    const negative = signedAt(text, match.index)
+    return {
+      value: numberValue(match[0], negative),
+      start: negative ? match.index - 1 : match.index,
+      end: match.index + match[0].length,
+    }
+  })
+}
+
+function normalizedNumbers(text) {
+  return new Set(numbersIn(text).map(({ value }) => value))
 }
 
 export function normalizedCodes(value) {
@@ -159,19 +283,22 @@ function budgetAt(text, start) {
  * every code in it that has a digit, or is a capital-letter code of a catalogue
  * family, is in the question or the evidence, and each delivery or stock claim it
  * makes is one the evidence makes, with any delivery time inside the evidence's.
- * All three texts are checked with their digits as ASCII and their thousands
- * separators removed; the candidate itself is not changed.
+ * All three texts are checked with their numerals as ASCII digits and their
+ * thousands separators removed; the candidate itself is not changed. A numeral
+ * that cannot be read as digits must appear as written in the evidence.
  */
 export function verifyCandidate(question, evidence, candidate) {
   const records = checkedEvidence(evidence.records)
   const asked = checkedText(question)
   const text = checkedText(candidate)
 
-  const evidenceNumbers = normalizedNumbers(records)
+  // A negative figure in the evidence also supports its magnitude (ลด 500 บาท
+  // from -500); a positive one never supports a negative (-500 from 500).
+  const evidenceNumbers = new Set(numbersIn(records).flatMap(({ value }) => [value, value.replace(/^-/, '')]))
   const askedNumbers = normalizedNumbers(asked)
-  const askedBudgets = new Set([...asked.matchAll(NUMBER)]
-    .filter((match) => budgetAt(asked, match.index))
-    .map((match) => numberValue(match[0])))
+  const askedBudgets = new Set(numbersIn(asked)
+    .filter(({ start }) => budgetAt(asked, start))
+    .map(({ value }) => value))
   const units = [...QUANTITY_UNITS, ...(evidence.records ?? []).map((record) => record?.unit)
     .filter((unit) => typeof unit === 'string' && unit.trim())]
   // The unit must end there: <unit>ละ is a unit price (99 ชิ้นละ), and an ASCII
@@ -186,13 +313,17 @@ export function verifyCandidate(question, evidence, candidate) {
   const echoAllowed = (value, start, end) => codeSpans.some(([from, to]) => start >= from && end <= to)
     || quantityAfter.test(text.slice(end))
     || (askedBudgets.has(value) && budgetAt(text, start))
-  const unsupportedNumbers = [...new Set([...text.matchAll(NUMBER)]
-    .filter((match) => {
-      const value = numberValue(match[0])
-      if (evidenceNumbers.has(value)) return false
-      return !askedNumbers.has(value) || !echoAllowed(value, match.index, match.index + match[0].length)
-    })
-    .map((match) => numberValue(match[0])))]
+  // A numeral the checks cannot read as digits is supported only when the
+  // evidence writes the same run of numerals.
+  const leftovers = leftoverNumerals(text)
+  const evidenceLeftovers = leftovers.size ? leftoverNumerals(records) : leftovers
+  const unsupportedNumbers = [...new Set([
+    ...numbersIn(text)
+      .filter(({ value, start, end }) => !evidenceNumbers.has(value)
+        && (!askedNumbers.has(value) || !echoAllowed(value, start, end)))
+      .map(({ value }) => value),
+    ...[...leftovers].filter((numeral) => !evidenceLeftovers.has(numeral)),
+  ])]
 
   const allowedCodes = new Set([...normalizedCodes(`${asked}\n${records}`)].map(codeKey))
   const families = new Set([...CODE_FAMILIES, ...(evidence.records ?? [])

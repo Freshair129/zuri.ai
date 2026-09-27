@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { asciiDigits, checkModelAnswer, ungroupedNumbers, verifyCandidate } from '@/modules/agent/line-answer-policy'
+import {
+  asciiDigits, checkModelAnswer, numeralDigits, spaceUngroupedNumbers, ungroupedNumbers, verifyCandidate,
+} from '@/modules/agent/line-answer-policy'
 
 // @req FR-049 — the grounding check cannot be passed by writing an ungrounded
 // number in another digit script, by echoing a figure the customer typed as a
@@ -207,6 +209,102 @@ describe('ungroupedNumbers', () => {
     ['สี 1,2 หรือ 3', 'สี 1,2 หรือ 3'],
   ])('%s', (written, read) => {
     expect(ungroupedNumbers(written)).toBe(read)
+  })
+
+  it('groups only by the ASCII comma when reading the evidence', () => {
+    expect(ungroupedNumbers('12，345 and 1,250', { asciiOnly: true })).toBe('12，345 and 1250')
+  })
+})
+
+// The #602 review's gaps: a figure written as a superscript, a circled or another
+// non-decimal numeral, with a minus sign, with commas that do not group
+// thousands, with a fullwidth comma in the evidence, as a three-digit decimal, or
+// with its thousands split by a space must not pass on evidence that holds a
+// different figure. Each rejected case below passed before this change.
+const at1250 = { records: [pricey] }
+const apart = { records: [{ ...pricey, sell_price: 250, moq: 1 }] }
+const bagQuestion = 'SG-BAG-01 ราคาเท่าไร'
+
+describe('verifyCandidate reads every way of writing a figure', () => {
+  it.each([
+    ['superscript digits', { records: [{ ...pricey, sell_price: 120 }] }, 'ราคา ¹²⁵⁰ บาท', { unsupportedNumbers: ['1250'] }],
+    ['a circled number', at1250, 'ราคา ⑳ บาท', { unsupportedNumbers: ['20'] }],
+    ['a vulgar fraction', at1250, 'ราคา ½ บาท', { unsupportedNumbers: ['½'] }],
+    ['a Roman numeral', at1250, 'ราคา Ⅻ บาท', { unsupportedNumbers: ['Ⅻ'] }],
+    ['a parenthesised number', at1250, 'ส่งภายใน ⑼ วัน', { unsupportedNumbers: ['⑼'] }],
+    ['a negative price', { records: [{ ...pricey, sell_price: 500 }] }, 'ราคา -500 บาท', { unsupportedNumbers: ['-500'] }],
+    ['a Unicode minus sign', { records: [{ ...pricey, sell_price: 500 }] }, 'ราคา −500 บาท', { unsupportedNumbers: ['-500'] }],
+    ['a fullwidth minus sign', { records: [{ ...pricey, sell_price: 500 }] }, 'ราคา －500 บาท', { unsupportedNumbers: ['-500'] }],
+    ['a comma that is not grouping', at1250, 'ราคา 12,50 บาท', { unsupportedNumbers: ['12', '50'] }],
+    ['commas between single digits', at1250, 'ราคา 1,2,5,0 บาท', { unsupportedNumbers: ['2', '5'] }],
+    ['a fullwidth comma in the evidence', { records: [{ ...pricey, sell_price: null, note: 'รุ่น 12，345' }] },
+      'ราคา 12,345 บาท', { unsupportedNumbers: ['12345'] }],
+    ['a fullwidth comma between fullwidth digits in the evidence',
+      { records: [{ ...pricey, sell_price: null, note: 'รุ่น １２，３４５' }] }, 'ราคา 12,345 บาท', { unsupportedNumbers: ['12345'] }],
+    ['a three-digit decimal', { records: [{ ...pricey, sell_price: 1.25 }] }, 'ราคา 1.250 บาท',
+      { unsupportedNumbers: ['1.250'], unsupportedCodes: ['1.250'] }],
+    ['a space-grouped number', apart, 'ราคา 1 250 บาท', { unsupportedNumbers: ['1250'] }],
+    ['a no-break-space-grouped number', apart, 'ราคา 1 250 บาท', { unsupportedNumbers: ['1250'] }],
+    ['a thin-space-grouped number', apart, 'ราคา 1 250 บาท', { unsupportedNumbers: ['1250'] }],
+    ['a narrow-no-break-space-grouped number', apart, 'ราคา 1 250 บาท', { unsupportedNumbers: ['1250'] }],
+  ])('rejects %s', (_name, records, candidate, expected) => {
+    const result = verifyCandidate(bagQuestion, records, candidate)
+    expect(result.supported).toBe(false)
+    expect(result).toMatchObject(expected)
+  })
+
+  it.each([
+    ['superscript digits of the evidence price', at1250, 'ราคา ¹²⁵⁰ บาทค่ะ'],
+    ['a circled number the evidence holds', { records: [{ ...pricey, moq: 20 }] }, 'ขั้นต่ำ ⑳ ชิ้นค่ะ'],
+    ['a fraction the evidence writes', { records: [{ ...pricey, note: 'ขนาด ½ นิ้ว' }] }, 'ขนาด ½ นิ้ว ราคา 1,250 บาทค่ะ'],
+    ['a negative figure the evidence gives', { records: [{ ...pricey, discount: -500 }] }, 'ส่วนลด -500 บาทค่ะ'],
+    ['the magnitude of a negative figure', { records: [{ ...pricey, discount: -500 }] }, 'ลด 500 บาทค่ะ'],
+    ['a grouped range', { records: [{ ...pricey, note: 'ราคา 1,250-1,300 บาท' }] }, 'ราคา 1,250-1,300 บาทค่ะ'],
+    ['a range with a space before the hyphen', { records: [{ ...pricey, note: 'ราคา 1,250 - 1,300 บาท' }] }, 'ราคา 1,250 -1,300 บาทค่ะ'],
+    ['a code with a hyphen before its digits', { records: [{ ...pricey, product_code: 'PM-1250' }] }, 'รุ่น PM-1250 ราคา 1,250 บาทค่ะ'],
+    ['a delivery range', { records: [{ ...pricey, note: 'ผลิตภายใน 3-5 วัน' }] }, 'ผลิตภายใน 3-5 วันค่ะ'],
+    ['a grouped decimal of two digits', { records: [{ ...pricey, sell_price: 1250.5 }] }, 'ราคา 1,250.50 บาทค่ะ'],
+    ['a three-digit decimal the evidence writes', { records: [{ ...pricey, note: 'หนัก 1.250 กก.' }] }, 'หนัก 1.250 กก.ค่ะ'],
+    ['a space-grouped evidence price', at1250, 'ราคา 1 250 บาท ขั้นต่ำ 1 000 ชิ้นค่ะ'],
+    ['a space-grouped quantity the customer typed', 'SG-BAG-01 สั่ง 2 000 ชิ้น', 'สั่ง 2 000 ชิ้นได้ค่ะ ราคา 1,250 บาท'],
+    ['a fullwidth grouped evidence price in the answer', at1250, 'ราคา １，２５０ บาทค่ะ'],
+  ])('passes %s', (_name, recordsOrQuestion, candidate) => {
+    const [asked, records] = typeof recordsOrQuestion === 'string' ? [recordsOrQuestion, at1250] : [bagQuestion, recordsOrQuestion]
+    expect(verifyCandidate(asked, records, candidate)).toStrictEqual(
+      { supported: true, unsupportedNumbers: [], unsupportedCodes: [], riskyClaim: false })
+  })
+
+  it('stays linear on long adversarial runs', () => {
+    const long = 20_000
+    const texts = [
+      `1${' 111'.repeat(long)}1`,
+      `1${',111'.repeat(long)}1`,
+      `${'- '.repeat(long)}-1`,
+      `${' '.repeat(long)}-1`,
+      '½'.repeat(long),
+      '1,'.repeat(long),
+    ]
+    const started = performance.now()
+    for (const text of texts) verifyCandidate(bagQuestion, { records: [{ ...pricey, note: text }] }, text)
+    expect(performance.now() - started).toBeLessThan(5_000)
+  })
+})
+
+describe('numeralDigits', () => {
+  it('reads numerals whose compatibility form is digits as those digits, and leaves the rest', () => {
+    expect(numeralDigits('¹²⁵⁰ ₁₂ ① ⑳ ㉑ ½ Ⅻ ⑴ ทำ ，')).toBe('1250 12 1 20 21 ½ Ⅻ ⑴ ทำ ，')
+  })
+})
+
+describe('spaceUngroupedNumbers', () => {
+  it.each([
+    ['1 250', '1250'],
+    ['10 000 000 บาท', '10000000 บาท'],
+    ['1 250.50', '1250.50'],
+    ['1 2500 and 12 34 and 1  250', '1 2500 and 12 34 and 1  250'],
+    ['USB-016 150 and 0.5 250', 'USB-016 150 and 0.5 250'],
+  ])('%s', (written, read) => {
+    expect(spaceUngroupedNumbers(written)).toBe(read)
   })
 })
 
