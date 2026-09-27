@@ -7,7 +7,8 @@ import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
-import { admitLineConversation, runLineConversationWorker, runtimeAudienceBound } from '@/modules/line-oa-studio/application/line-conversation-jobs'
+import { admitLineConversation, completeRuntimeConversationJob, runLineConversationWorker, runtimeAudienceBound,
+  sendRuntimeConversationJob } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
@@ -430,6 +431,84 @@ describe('Conversation Runtime group and room audiences', () => {
     expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } }))
       .toMatchObject({ status: 'CANCELLED', errorCode: 'CONVERSATION_JOB_AUTHORITY_REVOKED', answerText: null })
     expect(deliveries).toEqual([])
+  })
+
+  // Each layer below is exercised by a tamper that only that layer can see: the state is
+  // changed after every earlier check has passed and before the layer under test runs.
+  it.each(AUDIENCES)('%s: layer 1 — claim refuses a queued job whose target left its thread', async audience => {
+    const { ports } = buildRuntime()
+    const thread = threadFor(audience)
+    const jobId = (await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text: 'ซูริ สินค้าทดสอบ' }))).jobId
+    await first(jobId)
+    // Admitted and eligible; the target is then pointed at the speaker before any claim.
+    await prisma.lineConversationJob.update({ where: { id: jobId }, data: { recipientId: speakerA } })
+    const claim = await ports.job.claim({ claimantId: `runtime-grp-layer1-${sequence}` })
+    expect(claim?.jobId).not.toBe(jobId)
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } }))
+      .toMatchObject({ status: 'QUEUED', claimantId: null, executionId: null })
+    expect(deliveries).toEqual([])
+  })
+
+  it.each(AUDIENCES)('%s: layer 2 — settle refuses a completion whose target changed after claim', async audience => {
+    const { ports } = buildRuntime()
+    const thread = threadFor(audience)
+    const jobId = (await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text: 'ซูริ สินค้าทดสอบ' }))).jobId
+    const { claim } = await claimTurn(ports, jobId)
+    // Between claim and settle. The Core façade's own check is bypassed on purpose by
+    // calling the settle writer directly, so only settle's binding can refuse it.
+    await prisma.lineConversationJob.update({ where: { id: jobId }, data: { recipientId: speakerA } })
+    await expect(completeRuntimeConversationJob(claim, { text: modelText, operationId: `${jobId}:turn-answer` }, { db: prisma }))
+      .rejects.toMatchObject({ status: 409, message: 'CONVERSATION_JOB_AUTHORITY_REVOKED' })
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } }))
+      .toMatchObject({ status: 'CLAIMED', answerText: null })
+  })
+
+  it.each(AUDIENCES)('%s: layer 3 — the send compare-and-set refuses an audience or target changed after the pre-send read', async audience => {
+    const { ports } = buildRuntime()
+    const tampers = [
+      // Audience relabelled; the recipient is unchanged, so only the binding check can see it.
+      ['audience', async (job) => prisma.lineConversationJob.update({ where: { id: job.id }, data: { audienceKind: 'DIRECT' } })],
+      // Target and thread record moved together: still bound, but no longer the target the
+      // pre-send read will address, so only the recipient compare can see it.
+      ['recipient', async (job) => {
+        const moved = `${job.recipientId}-moved`
+        await prisma.conversation.update({ where: { id: job.inbound.conversationId }, data: { externalThreadId: moved } })
+        await prisma.lineConversationJob.update({ where: { id: job.id }, data: { recipientId: moved } })
+      }],
+    ]
+    for (const [label, tamper] of tampers) {
+      const thread = threadFor(audience)
+      const jobId = (await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text: 'ซูริ สินค้าทดสอบ' }))).jobId
+      const { claim } = await claimTurn(ports, jobId)
+      expect(await ports.job.complete(claim, { text: modelText, operationId: `${jobId}:turn-answer` })).toMatchObject({ status: 'READY' })
+      const admitted = await jobRow(jobId)
+      // `resolveAccount` runs after the sender's pre-send read and before its compare-and-set.
+      const result = await sendRuntimeConversationJob(claim, { db: prisma, env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey },
+        resolveAccount: async id => { await tamper(admitted); return resolveAccount(id) }, ...transports('runtime') })
+      expect(result, label).toEqual({ status: 'CONTENDED' })
+      expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } }), label)
+        .toMatchObject({ status: 'READY', attempts: 0, firstSendAt: null })
+      expect(deliveries, label).toEqual([])
+    }
+  })
+
+  it.each([['GROUP', 'groupId'], ['ROOM', 'roomId']])('%s event without its %s stays on SERVER and is answered there as before', async (audience, field) => {
+    const pair = {}
+    for (const [cohort, account] of [['SERVER', serverAccount], ['CONVERSATION_RUNTIME', runtimeAccount]]) {
+      const event = eventFor({ audience, thread: threadFor(audience), speaker: speakerA, text: 'ซูริ สินค้าทดสอบ ราคาเท่าไร' })
+      delete event.source[field]
+      pair[cohort] = await jobRow((await admit(account, event)).jobId)
+    }
+    const shape = job => ({ runtimeOwner: job.runtimeOwner, audienceKind: job.audienceKind, recipientId: job.recipientId,
+      sourceUserId: job.sourceUserId, status: job.status, thread: job.inbound.conversation.externalThreadId })
+    // Legacy falls back to the speaker as the thread; the opted-in account keeps it with that consumer.
+    expect(shape(pair.CONVERSATION_RUNTIME)).toEqual(shape(pair.SERVER))
+    expect(shape(pair.SERVER)).toEqual({ runtimeOwner: 'SERVER', audienceKind: audience, recipientId: speakerA,
+      sourceUserId: speakerA, status: 'QUEUED', thread: speakerA })
+    // It is answered by the legacy worker, not left to expire.
+    const answered = await runLegacy(pair.CONVERSATION_RUNTIME.id)
+    expect(answered).toMatchObject({ status: 'RECORDED', answerText: modelText })
+    expect(deliveries.filter(delivery => delivery.label === 'legacy')).toHaveLength(1)
   })
 
   it('binds DIRECT, GROUP and ROOM targets to the thread record and nothing else', () => {

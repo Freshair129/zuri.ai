@@ -265,8 +265,16 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // @req FR-149 — GROUP and ROOM turns join the runtime cohort on the same terms
     // as DIRECT: `shouldReply` above already decided which group/room messages get a
     // job at all, identically for both cohorts, and the identity checked below is
-    // the speaker's (`source.userId`), never the thread's.
+    // the speaker's (`source.userId`), never the thread's. The thread must also be
+    // the one the audience names: a group event without `groupId` (or a room event
+    // without `roomId`) falls back to the speaker's id above, which the runtime's
+    // audience binding would never claim, so it stays with the legacy consumer,
+    // which answers it exactly as before.
+    const audienceThread = audienceKind === 'GROUP' ? event.source?.groupId
+      : audienceKind === 'ROOM' ? event.source?.roomId : userId
     const runtimeEligible = current.runtimeOwner === 'CONVERSATION_RUNTIME' && RUNTIME_AUDIENCES.includes(audienceKind)
+      && typeof audienceThread === 'string' && audienceThread.length > 0 && audienceThread === threadId
+      && (audienceKind === 'DIRECT' || threadId !== userId)
       && !memorySyncOptIn && !outOfHours && !legacyOnlyWorkCommand
     const identity = runtimeEligible
       ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
