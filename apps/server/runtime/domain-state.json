@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-150",
@@ -708,7 +708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-171",
@@ -2516,7 +2516,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-152",
@@ -3694,7 +3694,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 24,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-150",
@@ -3702,7 +3702,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-151",
@@ -5753,7 +5753,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-150",
@@ -5761,7 +5761,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-151",
@@ -8697,7 +8697,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 47,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-150",
@@ -8705,7 +8705,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 18
+          "testCount": 19
         }
       ],
       "evidence": [
@@ -8812,6 +8812,7 @@
         "apps/server/tests/unit/data-pipeline-map.test.js",
         "apps/server/tests/unit/doc-identities.test.js",
         "apps/server/tests/unit/doc-links.test.js",
+        "apps/server/tests/unit/embedded-postgres-cleanup.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/line-admission-after-ack.test.js",
