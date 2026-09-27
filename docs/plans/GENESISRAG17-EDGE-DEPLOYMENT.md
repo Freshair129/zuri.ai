@@ -1,7 +1,7 @@
 ---
 id: ZAI:GENESISRAG17-EDGE-DEPLOYMENT
 title: GenesisRAG17 edge-device deployment design (SmartGift structured-record profile)
-version: "0.7.1"
+version: "0.7.2"
 status: beta
 created_at: "2026-09-11T19:15:00+07:00,Claude Opus 5"
 last_update: "2026-09-27T11:20:00+07:00,MC0 (Claude Opus 5.5)"
@@ -192,9 +192,11 @@ flowchart LR
   the default production runtime files are loaded. The canary-only Compose overlay puts
   `ngrok` behind an inactive profile; the default production service remains unchanged.
 - `gks-http` mounts `ki17-state` and owns `gks.sqlite` in HTTP mode. MSP's allowlist passes
-  the HTTP origin, bearer and required pipeline caller value, but withholds the GKS
-  verifier alias and stdio-only database/command settings. The web and worker remain
-  trusted principals for the mounted credentials.
+  the HTTP origin, bearer, required pipeline caller value and `GKS_DEFAULT_PORTFOLIO_ID`
+  (MSP's HTTP provider reads it), and always sets `GKS_MSP_AUTH_REQUIRED=1`, without
+  which MSP's HTTP provider refuses to start. It withholds the GKS verifier alias and
+  stdio-only database/command settings. The web and worker remain trusted principals for
+  the mounted credentials.
 - A canary must use a unique Compose project name, fresh volumes and non-production
   credentials/data. Do not include the production `.env`/`.env.knowledge`, start project
   `zuri-ai`, or expose GKS through ngrok. A passing canary is not production readiness or
@@ -281,7 +283,7 @@ principals for these credentials.
 
 | # | Work | Owner |
 |---|---|---|
-| P-1 | **Apply the shared MSP child environment allowlist to both callers (C2),** then narrow by transport: web/worker parents read the mounted HTTP bearer and pipeline caller files; pass the two required MSP aliases; withhold GKS stdio-only settings and the server verifier alias. Wrap the GenesisBlock worker spawn, which otherwise inherits the full parent env | zuri-ai — implemented; 50 focused unit tests pass; image/canary check NOT_RUN |
+| P-1 | **Apply the shared MSP child environment allowlist to both callers (C2),** then narrow by transport: web/worker parents read the mounted HTTP bearer and pipeline caller files; pass the two required MSP aliases and always set `GKS_MSP_AUTH_REQUIRED=1`; withhold GKS stdio-only settings and the server verifier alias. Wrap the GenesisBlock worker spawn, which otherwise inherits the full parent env | zuri-ai — implemented; 50 focused unit tests pass; image/canary check NOT_RUN |
 | P-2 | **Build the worker for Linux at the pin.** A `napi build` for `x86_64-unknown-linux-gnu` from the pinned GenesisBlock commit, run inside the image build. GenesisBlock owns the recipe | GenesisBlock |
 | P-3 | **Pinned Linux build stages** for `runner-ki17`, `genesis-worker` and the separate `gks-http` service image, with pin and entrypoint assertions; ordinary `runner` remains independent of KI17 contexts | zuri-ai — `gks-http` target added in this change; verification pending |
 | P-4 | **Compose changes.** Preserve existing defaults, worker and volumes; add the opt-in HTTP overlay, internal-only network, secret-file mounts, health dependency, explicit MSP HTTP selection, and a canary-only env-file selector/ngrok-suppression overlay | zuri-ai — YAML parse, static tests and render-only config pass with example paths; actual canary NOT_RUN because dedicated canary env and secret files are absent |
@@ -588,3 +590,4 @@ cutover.
 | 0.3.0 | 2026-09-24 | proposed | Backs every §9.2 production claim with a citation to the new committed probe record, `.brain/reports/2026-09-24-genesisrag17-production-probe.md`. Amends the top status blockquote to point at §9.2 instead of standing beside it, resolving the "None of it has been deployed" contradiction the round-3 gate named. No new production claim added beyond what the cited report proves | — | Claude Fable 5.1 |
 | 0.4.0 | 2026-09-24 | proposed | New §10.1, the per-record benchmark step ADR-073's 2026-09-24 amendment requires: check, merge onto the deployed fixture with `--base`, install atomically as the worker's user, recreate only the worker, upload, record. §6 now names the production fixture on the `ki17-state` volume, which the worker has read since 2026-09-21 (evidence: `.brain/reports/2026-09-24-genesisrag17-b2-fixture-rehearsal.md`), and warns that the image-baked Phase 2 fixture, the `.env.knowledge.example` default, is unusable for real records (20 of 22 fail Stage 16, 2 are scored on one test query). No image rebuild is part of the step | — | Claude Opus 5.5 |
 | 0.7.1 | 2026-09-27 | beta | Merge of main into PR #537. The branch's 0.3.0–0.5.0 rows, written on 2026-09-23 before main's 0.3.0/0.4.0 landed, are renumbered 0.5.0–0.7.0. The top status keeps main's pointer to §9.2 and adds that the HTTP canary is NOT_RUN and outside the running stdio runtime. §6 keeps main's two fixture rows and the branch's gks-http runtime row | — | MC0 (Claude Opus 5.5) |
+| 0.7.2 | 2026-09-27 | beta | §5.1 and P-1: HTTP mode now always passes `GKS_MSP_AUTH_REQUIRED=1` and keeps `GKS_DEFAULT_PORTFOLIO_ID`. MSP a65914de's `gks-http-provider.mjs` refuses to start without the flag and reads the portfolio id, so the 0.7.0 allowlist could never start the HTTP transport | — | MC0 (Claude Opus 5.5) |

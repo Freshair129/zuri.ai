@@ -111,13 +111,22 @@ describe('the MSP child environment', () => {
     const child = buildMspChildEnvironment({ ...serverShapedEnvironment(), ...HTTP_GKS_CONFIGURATION })
     const stdioOnly = [
       'MSP_GKS_COMMAND', 'MSP_GKS_ARGS', 'MSP_GKS_CWD', 'GKS_DB_PATH',
-      'GKS_PIPELINE_RELAY_CREDENTIAL', 'GKS_DEFAULT_PORTFOLIO_ID', 'GKS_AUTOMERGE_FLOOR',
+      'GKS_PIPELINE_RELAY_CREDENTIAL', 'GKS_AUTOMERGE_FLOOR',
     ]
     for (const name of stdioOnly) expect(child).not.toHaveProperty(name)
     for (const name of Object.keys(DECOY_SECRETS)) expect(child).not.toHaveProperty(name)
     expect(child).toMatchObject(HTTP_GKS_CONFIGURATION)
     expect(child).toHaveProperty('MSP_GKS_PIPELINE_CREDENTIAL', MSP_CONFIGURATION.MSP_GKS_PIPELINE_CREDENTIAL)
     expect(child).toHaveProperty('MSP_PIPELINE_PRINCIPALS', MSP_CONFIGURATION.MSP_PIPELINE_PRINCIPALS)
+    // MSP's HTTP provider reads the default portfolio and refuses to start without the auth flag.
+    expect(child).toHaveProperty('GKS_DEFAULT_PORTFOLIO_ID', MSP_CONFIGURATION.GKS_DEFAULT_PORTFOLIO_ID)
+    expect(child).toHaveProperty('GKS_MSP_AUTH_REQUIRED', '1')
+  })
+
+  it('sets the GKS auth flag in HTTP mode even when the parent leaves it unset or sets it otherwise, and never in stdio mode', () => {
+    expect(buildMspChildEnvironment({ ...HTTP_GKS_CONFIGURATION, GKS_MSP_AUTH_REQUIRED: '0' })).toHaveProperty('GKS_MSP_AUTH_REQUIRED', '1')
+    expect(buildMspChildEnvironment({ ...HTTP_GKS_CONFIGURATION })).toHaveProperty('GKS_MSP_AUTH_REQUIRED', '1')
+    expect(buildMspChildEnvironment({ MSP_DB_PATH: '/x' })).not.toHaveProperty('GKS_MSP_AUTH_REQUIRED')
   })
 
   it('reads HTTP bearer and pipeline caller secrets in the parent and passes only values to MSP', async () => {
@@ -214,17 +223,18 @@ describe('the MSP child environment', () => {
   it('reaches MSP with HTTP settings and without GKS stdio-only values', async () => {
     const env = { ...serverShapedEnvironment(), ...HTTP_GKS_CONFIGURATION }
     const transport = createMspTransportFromEnvironment(env)
-    const names = [...Object.keys(MSP_CONFIGURATION), ...Object.keys(HTTP_GKS_CONFIGURATION)]
+    const names = [...Object.keys(MSP_CONFIGURATION), ...Object.keys(HTTP_GKS_CONFIGURATION), 'GKS_MSP_AUTH_REQUIRED']
     const report = await transport('environment', { names })
     const stdioOnly = [
       'MSP_GKS_COMMAND', 'MSP_GKS_ARGS', 'MSP_GKS_CWD', 'GKS_DB_PATH',
-      'GKS_PIPELINE_RELAY_CREDENTIAL', 'GKS_DEFAULT_PORTFOLIO_ID', 'GKS_AUTOMERGE_FLOOR',
+      'GKS_PIPELINE_RELAY_CREDENTIAL', 'GKS_AUTOMERGE_FLOOR',
     ]
     for (const name of stdioOnly) expect(report.names).not.toContain(name)
     for (const name of Object.keys(DECOY_SECRETS)) expect(report.names).not.toContain(name)
     expect(report.values).toMatchObject({
       ...Object.fromEntries(Object.entries(MSP_CONFIGURATION).filter(([name]) => !stdioOnly.includes(name))),
       ...HTTP_GKS_CONFIGURATION,
+      GKS_MSP_AUTH_REQUIRED: '1',
     })
     for (const name of stdioOnly) expect(report.values[name]).toBeNull()
   })

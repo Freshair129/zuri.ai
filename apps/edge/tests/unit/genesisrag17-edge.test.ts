@@ -576,7 +576,7 @@ test('the edge pipeline allowlist matches shared Server names except Server-only
     'MSP_IDENTITY_HMAC_KEY', 'MSP_GLOBAL_PRIVATE_GRANT_REQUIRED', 'MSP_IDENTITY_HMAC_KEY_VERSION',
     'MSP_IDENTITY_HMAC_KEYRING', 'MSP_THREAD_IDLE_TIMEOUT_MINUTES', 'MSP_THREAD_RETENTION_DAYS',
     'MSP_THREAD_RECENT_EXCHANGES']);
-  const serverHttpOnly = new Set(['MSP_GKS_TRANSPORT', 'MSP_GKS_HTTP_URL', 'GKS_MSP_RELAY_CREDENTIAL']);
+  const serverHttpOnly = new Set(['MSP_GKS_TRANSPORT', 'MSP_GKS_HTTP_URL', 'GKS_MSP_RELAY_CREDENTIAL', 'GKS_MSP_AUTH_REQUIRED']);
   const serverOnly = new Set([...serverMemoryOnly, ...serverHttpOnly]);
   assert.deepEqual([...MSP_RUNTIME_ENV_NAMES].sort(), namesIn('MSP_RUNTIME_ENV_NAMES').filter((name) => !serverOnly.has(name)).sort());
   for (const name of serverMemoryOnly) assert.equal(MSP_RUNTIME_ENV_NAMES.includes(name), false);

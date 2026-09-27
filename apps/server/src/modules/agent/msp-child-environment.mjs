@@ -23,6 +23,7 @@ export const MSP_RUNTIME_ENV_NAMES = Object.freeze([
   'MSP_GKS_TRANSPORT',
   'MSP_GKS_HTTP_URL',
   'GKS_MSP_RELAY_CREDENTIAL',
+  'GKS_MSP_AUTH_REQUIRED',
   'MSP_PIPELINE_PRINCIPALS',
   'MSP_GKS_PIPELINE_CREDENTIAL',
   'MSP_PIPELINE_WORKER_URL',
@@ -40,7 +41,6 @@ const GKS_STDIO_ONLY_ENV_NAMES = new Set([
   'MSP_GKS_CWD',
   'GKS_DB_PATH',
   'GKS_PIPELINE_RELAY_CREDENTIAL',
-  'GKS_DEFAULT_PORTFOLIO_ID',
   'GKS_AUTOMERGE_FLOOR',
 ])
 
@@ -87,6 +87,9 @@ export function buildMspChildEnvironment(env = process.env) {
     child[name] = value
   }
   if (gksTransport === 'http') {
+    // MSP's GKS HTTP provider refuses to start without this flag (MSP a65914de,
+    // gks-http-provider.mjs), so HTTP mode always carries it.
+    child.GKS_MSP_AUTH_REQUIRED = '1'
     for (const [fileVariable, childVariable] of HTTP_SECRET_FILES) {
       readHttpSecret(env, fileVariable, childVariable, child)
     }
