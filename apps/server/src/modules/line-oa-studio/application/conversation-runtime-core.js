@@ -221,6 +221,26 @@ function validateResult(operation, data) {
     || !boundedJsonWithin(data, MAX_RESPONSE_BYTES)) invalid()
 }
 
+// The runtime's Core client aborts every call after 10 s (core-client.js `timeoutMs`),
+// whatever the envelope deadline says. The GKS hop's budget must end well inside
+// that, leaving room for the GKS_THEN_BUSINESS_KNOWLEDGE fallback read, the trace
+// writes and the response, or the runtime abandons an execution Core keeps tracing
+// (and a reclaim traces the same turn's NO_EVIDENCE hops again).
+export const CORE_PREPARE_CALL_TIMEOUT_MS = 10_000
+export const CORE_PREPARE_SAFETY_MARGIN_MS = 2_500
+
+/** The GKS budget Core `prepare` may spend: the configured budget, clamped below
+ * both the runtime's call timeout and the envelope deadline, less a safety margin.
+ * Returns 0 when not even the margin is left, so the caller reads nothing. */
+export function corePrepareKnowledgeBudgetMs(configuredMs, { deadlineAt, now = () => new Date() } = {}) {
+  const ceiling = CORE_PREPARE_CALL_TIMEOUT_MS - CORE_PREPARE_SAFETY_MARGIN_MS
+  const deadlineMs = Date.parse(deadlineAt)
+  const remaining = Number.isFinite(deadlineMs)
+    ? deadlineMs - now().getTime() - CORE_PREPARE_SAFETY_MARGIN_MS : ceiling
+  const budget = Math.min(configuredMs, ceiling, remaining)
+  return Number.isFinite(budget) && budget > 0 ? Math.floor(budget) : 0
+}
+
 /**
  * Core-owned turn preparation for a claimed runtime job (already revalidated by
  * `ownedClaim`). Evidence selection is the legacy Server answer path's, not a
@@ -231,11 +251,16 @@ function validateResult(operation, data) {
  * traced on the job's execution exactly as `createServerLineAnswer` traces it.
  * Core stays the only MSP/GKS caller; the runtime receives `evidence.records` only.
  */
-export function createCorePrepareTurn({ db = prisma, env = process.env, businessPorts,
+export function createCorePrepareTurn({ db = prisma, env = process.env, now = () => new Date(), businessPorts,
   corpusReaderFactory = createCorpusKnowledgeReader, traceFactory = createLineExecutionTrace } = {}) {
   if (typeof businessPorts !== 'function') throw new Error('CORE_PREPARE_BUSINESS_PORTS_REQUIRED')
-  return async job => {
+  return async (job, { deadlineAt } = {}) => {
     const question = job.inbound?.body
+    // The legacy answer path's input check (createServerLineAnswer), before any read.
+    // Non-retryable: the admitted inbound text will not change on a retry.
+    if (![job.tenantId, job.businessId, question].every(value => typeof value === 'string' && value.trim())) {
+      throw error('LINE_ANSWER_INPUT_INVALID', 422)
+    }
     const workCommand = parseLineProjectWorkCommand(question)
     if (workCommand) return { question, evidence: { records: [] }, slices: [], authorized: true,
       audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand }
@@ -255,7 +280,9 @@ export function createCorePrepareTurn({ db = prisma, env = process.env, business
       } }
     } else {
       const budget = lineKnowledgeGroundingBudgetFromEnv(env)
-      knowledge = createLineGroundingReader({ mode, trace, budgetMs: budget.budgetMs,
+      const budgetMs = corePrepareKnowledgeBudgetMs(budget.budgetMs, { deadlineAt, now })
+      if (budgetMs === 0) throw error('CONTRACT_DEADLINE_EXPIRED', 408)
+      knowledge = createLineGroundingReader({ mode, trace, budgetMs,
         corpusReader: corpusReaderFactory({ tenantId: job.tenantId, businessId: job.businessId, ...budget }),
         businessKnowledgeReader: ports.businessKnowledge })
     }
@@ -292,7 +319,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     return { provider: credential.provider, model: credential.model, apiKey: credential.apiKey,
       ...(credential.baseUrl ? { baseUrl: credential.baseUrl } : {}) }
   })
-  const prepare = prepareTurn ?? createCorePrepareTurn({ db, env, businessPorts: getBusinessPorts })
+  const prepare = prepareTurn ?? createCorePrepareTurn({ db, env, now, businessPorts: getBusinessPorts })
 
   async function ownedClaim(ref, { status = 'CLAIMED', checkLease = true } = {}) {
     const job = await db.lineConversationJob.findUnique({ where: { id: ref.jobId },
@@ -377,7 +404,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       case 'prepare': {
         const { job } = await ownedClaim(claimRef)
         if (payload.authorityVersion !== job.version) throw error('CONVERSATION_AUTHORITY_STALE', 409)
-        return prepare(job)
+        return prepare(job, { deadlineAt: envelope.deadlineAt })
       }
       case 'credential': {
         const { job } = await ownedClaim(claimRef)

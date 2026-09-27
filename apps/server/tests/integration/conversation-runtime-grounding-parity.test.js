@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 import { createDeterministicBusinessModel } from '@/modules/agent/grounded-business-answer'
-import { createCorePrepareTurn } from '@/modules/line-oa-studio/application/conversation-runtime-core'
+import { createCorePrepareTurn, corePrepareKnowledgeBudgetMs, CORE_PREPARE_CALL_TIMEOUT_MS,
+  CORE_PREPARE_SAFETY_MARGIN_MS } from '@/modules/line-oa-studio/application/conversation-runtime-core'
 
 // @req FR-149, FR-235 — Core `prepare` selects a runtime turn's evidence exactly as
 // the legacy Server answer path (`createServerLineAnswer`) does, for every grounding
@@ -181,4 +182,87 @@ describe('Core prepare grounding parity with the legacy Server answer path', () 
     }
     expect(queryKnowledgeCorpusMock).not.toHaveBeenCalled()
   })
+})
+
+describe('Core prepare stays inside the runtime prepare call', () => {
+  const at = new Date('2026-09-27T12:00:00.000Z')
+  const inMs = ms => new Date(at.getTime() + ms).toISOString()
+  const job = (mode, ...rest) => ({ id: 'job-1', executionId: 'execution-1', tenantId, businessId, audienceKind: 'DIRECT',
+    inbound: { body: rest.length ? rest[0] : QUESTIONS[0] }, account: { tenantId, businessId, knowledgeGrounding: mode } })
+  const build = ({ budgetMs, business = [productRecord] } = {}) => {
+    const trace = recordingTrace()
+    const businessKnowledge = businessReader(business)
+    const prepare = createCorePrepareTurn({ db: {}, env: { ZURI_LINE_KNOWLEDGE_BUDGET_MS: String(budgetMs) }, now: () => at,
+      businessPorts: async () => ({ businessKnowledge }), traceFactory: () => trace })
+    return { prepare, trace, businessKnowledge }
+  }
+  afterEach(() => { vi.useRealTimers() })
+
+  it('clamps the configured budget below the runtime call timeout and the envelope deadline, less a safety margin', () => {
+    const ceiling = CORE_PREPARE_CALL_TIMEOUT_MS - CORE_PREPARE_SAFETY_MARGIN_MS
+    expect(ceiling).toBe(7_500)
+    const now = () => at
+    expect(corePrepareKnowledgeBudgetMs(2_500, { deadlineAt: inMs(60_000), now })).toBe(2_500) // legacy default untouched
+    expect(corePrepareKnowledgeBudgetMs(60_000, { deadlineAt: inMs(3_600_000), now })).toBe(ceiling)
+    expect(corePrepareKnowledgeBudgetMs(60_000, { now })).toBe(ceiling) // no envelope deadline
+    expect(corePrepareKnowledgeBudgetMs(60_000, { deadlineAt: 'not-a-date', now })).toBe(ceiling)
+    expect(corePrepareKnowledgeBudgetMs(60_000, { deadlineAt: inMs(4_000), now })).toBe(4_000 - CORE_PREPARE_SAFETY_MARGIN_MS)
+    expect(corePrepareKnowledgeBudgetMs(60_000, { deadlineAt: inMs(CORE_PREPARE_SAFETY_MARGIN_MS), now })).toBe(0)
+    expect(corePrepareKnowledgeBudgetMs(60_000, { deadlineAt: inMs(-1), now })).toBe(0)
+  })
+
+  it('GKS_THEN_BUSINESS_KNOWLEDGE with a 60 s configured budget: a hanging corpus hop is abandoned at the clamped budget and falls back', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    queryKnowledgeCorpusMock.mockImplementation(() => new Promise(() => {}))
+    const { prepare, trace } = build({ budgetMs: 60_000 })
+    let settled = null
+    const pending = prepare(job('GKS_THEN_BUSINESS_KNOWLEDGE'), { deadlineAt: inMs(3_600_000) }).then(value => { settled = value })
+    await vi.advanceTimersByTimeAsync(CORE_PREPARE_CALL_TIMEOUT_MS - CORE_PREPARE_SAFETY_MARGIN_MS - 1)
+    expect(settled).toBeNull()
+    await vi.advanceTimersByTimeAsync(1)
+    await pending
+    expect(settled.evidence).toEqual({ records: [productRecord] })
+    expect(trace.hops.map(hop => [hop.meta.source, hop.meta.reason])).toEqual([
+      ['GKS_CORPUS', 'GKS_UNAVAILABLE'], ['BUSINESS_KNOWLEDGE', 'GKS_UNAVAILABLE']])
+  })
+
+  it('a near envelope deadline shortens the GKS hop further', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    queryKnowledgeCorpusMock.mockImplementation(() => new Promise(() => {}))
+    const { prepare } = build({ budgetMs: 60_000 })
+    let settled = null
+    const pending = prepare(job('GKS_CORPUS'), { deadlineAt: inMs(CORE_PREPARE_SAFETY_MARGIN_MS + 300) }).then(value => { settled = value })
+    await vi.advanceTimersByTimeAsync(299)
+    expect(settled).toBeNull()
+    await vi.advanceTimersByTimeAsync(1)
+    await pending
+    expect(settled.evidence).toEqual({ records: [] })
+  })
+
+  it('with no time left before the deadline, a GKS mode reads and traces nothing', async () => {
+    const { prepare, trace, businessKnowledge } = build({ budgetMs: 2_500 })
+    for (const mode of ['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']) {
+      await expect(prepare(job(mode), { deadlineAt: inMs(CORE_PREPARE_SAFETY_MARGIN_MS) }))
+        .rejects.toMatchObject({ code: 'CONTRACT_DEADLINE_EXPIRED', status: 408 })
+    }
+    expect(queryKnowledgeCorpusMock).not.toHaveBeenCalled()
+    expect(businessKnowledge.query).not.toHaveBeenCalled()
+    expect(trace.hops).toEqual([])
+  })
+
+  for (const body of ['', '   ', undefined, null, 42]) {
+    it(`an inbound body of ${JSON.stringify(body) ?? 'undefined'} fails LINE_ANSWER_INPUT_INVALID before any read, as the legacy path does`, async () => {
+      for (const mode of MODES) {
+        const legacy = createServerLineAnswer({ env, runtimeFactory: vi.fn() })
+        await expect(legacy({ tenantId, businessId, inbound: { body }, account: { tenantId, businessId, knowledgeGrounding: mode } }))
+          .rejects.toMatchObject({ code: 'LINE_ANSWER_INPUT_INVALID' })
+        const { prepare, trace, businessKnowledge } = build({ budgetMs: 2_500 })
+        await expect(prepare(job(mode, body), { deadlineAt: inMs(60_000) }))
+          .rejects.toMatchObject({ code: 'LINE_ANSWER_INPUT_INVALID', status: 422 })
+        expect(businessKnowledge.query).not.toHaveBeenCalled()
+        expect(trace.hops).toEqual([])
+      }
+      expect(queryKnowledgeCorpusMock).not.toHaveBeenCalled()
+    })
+  }
 })
