@@ -1,8 +1,8 @@
 ---
 id: ZAI:CONVERSATION-RUNTIME-HANDOFF
-version: "0.3.15b"
+version: "0.3.16b"
 status: candidate
-last_update: "2026-09-27T19:30:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-27T21:20:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: agent
   scope: conversation-runtime-extraction-checkpoint
@@ -19,13 +19,169 @@ relations:
 
 # Conversation Runtime extraction handoff
 
-**Checkpoint state:** partial. The independent Conversation Runtime process answers LINE turns for accounts opted into `runtimeOwner=CONVERSATION_RUNTIME`, through the authenticated Core façade and the Core-owned queue and receipts. `executionMode` remains `SERVER`; `LineOaAccount.runtimeOwner` defaults to `SERVER` and is snapshotted onto each job to pin the eligible, opted-in runtime cohort. Ineligible and default jobs remain in the Server cohort. PR #542 was merged on 2026-09-27 (see *Merged state*), and the workstreams W1–W9 followed on the same day. This is not the completion of the extraction: unverified identities (W10) are still Server-owned. The state at `main` `cc44ab86` against Mission Control gate `CR_TO_WM` is in *Current state* below.
+**Checkpoint state:** accepted scope complete; not in production. The independent Conversation Runtime process answers LINE turns for accounts opted into `runtimeOwner=CONVERSATION_RUNTIME`, through the authenticated Core façade and the Core-owned queue and receipts. `executionMode` remains `SERVER`; `LineOaAccount.runtimeOwner` defaults to `SERVER` and is snapshotted onto each job to pin the opted-in runtime cohort. PR #542 was merged on 2026-09-27 (see *Merged state*), and the workstreams W1–W12 followed on the same day. At `main` `c91db083` the runtime serves every flow the accepted scope names, including unverified senders (W10, W11), group and room memory and memory under a GKS grounding mode (W12). What stays `SERVER` is a short list of fail-safe cases, listed below. A full `npm run verify` with its E2E leg and all live and production work remain open (Gate PRODUCTION). The state at `main` `c91db083` against Mission Control gate `CR_TO_WM` is in *Current state* below.
 
-## Current state — 0.3.15b, base `main` `cc44ab86`
+## Current state — 0.3.16b, base `main` `c91db083`
 
-Written by MC0 on branch `mc0/cr-handoff-0315`, cut from `main` at `cc44ab86452e8ff540f0b1d1472e07ae63829243` (the merge of PR #592). Every statement in this section was checked against the code at that SHA, not copied from a PR body. It supersedes the *Checkpoint 0.3.14b* section below.
+Written by MC0 on branch `mc0/cr-handoff-final`, cut from `main` at `c91db083cdcf5f70e119d78138b408583d31ea9a` (the merge of PR #604). Every statement in this section was checked against the code at that SHA, not copied from a PR body. Where a PR body and the code disagree, this section follows the code (see the note under *Base and PRs*). It supersedes the *Checkpoint 0.3.15b* section below.
 
 ### Base and PRs
+
+Merged before `cc44ab86` (0.3.15b; unchanged):
+
+| PR | Workstream | Head | On `main` as |
+|---|---|---|---|
+| [#542](https://github.com/Freshair129/zuri.ai/pull/542) | Runtime service, durable vertical slice | `b21a3552` | merge `4b6d8eb7` |
+| [#581](https://github.com/Freshair129/zuri.ai/pull/581) | WorkToolPort against the real Core provider (SQLite), handoff 0.3.14b | `552c512f` | merge `9e5b104e` |
+| [#586](https://github.com/Freshair129/zuri.ai/pull/586) | W6: WorkToolPort on PostgreSQL 17 | `7116cf6a` | merge `b96aec1d` |
+| [#592](https://github.com/Freshair129/zuri.ai/pull/592) | Integration of W1–W5 and W7–W9 (#583–#585, #587–#591) | `c0aa58fa` | merge `cc44ab86` |
+
+Merged between `cc44ab86` and `c91db083` (first-parent order on `main`):
+
+| PR | What | Touches the runtime path | Head | On `main` as |
+|---|---|---|---|---|
+| [#598](https://github.com/Freshair129/zuri.ai/pull/598) | Handoff 0.3.15b | no (docs) | `1b7db14d` | merge `ca5ad77a` |
+| [#597](https://github.com/Freshair129/zuri.ai/pull/597) | W10: unverified LINE senders in the runtime cohort; ADR-106 amendment 1.1.0, SDD-110, FR-265 | yes | `5ab32406` | merge `39e7de2b` |
+| [#593](https://github.com/Freshair129/zuri.ai/pull/593) | Answer check over every Unicode digit script (`line-answer-policy.js`, mirrored) | yes (both cohorts) | `f3d3fe98` | merge `0c1dbc37` |
+| [#596](https://github.com/Freshair129/zuri.ai/pull/596) | PDPA erasure follows every speaker of a LINE group or room thread; `Message.authorChannelIdentityId` with 3 migrations | yes (erasure of both cohorts' jobs) | `61c76e5d` | merge `e7afa528` |
+| [#599](https://github.com/Freshair129/zuri.ai/pull/599) | Work-list Business scope, file content headers, asset manage capability | no | `3e93b1dc` | merge `e2d3d753` |
+| [#601](https://github.com/Freshair129/zuri.ai/pull/601) | FR-277 LINE grounding shadow-compare harness | Server path only (see *Deliberate differences*) | `256f8e4e` | merge `92078bc9` |
+| [#602](https://github.com/Freshair129/zuri.ai/pull/602) | Thousands separators in the answer check (mirrored); lenient embedded-Postgres cleanup (`EBUSY`) | yes (both cohorts) | `6dbfa2c2` | merge `d8d4058c` |
+| [#600](https://github.com/Freshair129/zuri.ai/pull/600) | W11: unverified senders' memory-sync turns in the runtime (PENDING mode); ADR-106 1.2.0, SDD-110 | yes | `b8e5b399` | merge `fdb28c1b` |
+| [#604](https://github.com/Freshair129/zuri.ai/pull/604) | W12: GROUP/ROOM memory turns, memory with GKS composition (FR-235), per-speaker MSP group-memory erasure | yes | `223af975` | merge `c91db083` |
+
+#595 (a TASK-ZAI-095 grounding-switch preflight script and runbook, merge `9616221d`) also landed after `cc44ab86`; it does not touch the runtime. #604's head `223af975` already contained `main` with #600, and its tree is identical to `c91db083`, so #604's PR-head CI ran the exact tree on `main`. #604's body says that an unverified sender's memory turn "stays SERVER (W11)"; that was written before #600 merged. At `c91db083` those turns are admitted to the runtime in every audience and grounding mode (see *Runtime cohort*).
+
+Open, not on `main` (not counted anywhere in this section as done):
+
+| PR | What | Head |
+|---|---|---|
+| [#603](https://github.com/Freshair129/zuri.ai/pull/603) | Per-speaker keys in the chat evidence archive; postback and raw LINE message payloads blanked on group erasure (FR-022) | `7a0f1b4a` |
+| [#606](https://github.com/Freshair129/zuri.ai/pull/606) | Numeral gaps in the grounded-answer check | `fe7d319a` |
+
+### What gate `CR_TO_WM` requires, at `c91db083`
+
+The gate is Gate CR in `REFACTOR-STATUS.md` §4: "CR acceptance ครบ, WorkToolPort ทดสอบจริง, review+required checks ผ่าน, merge เข้า base และ handoff ตรง SHA".
+
+| Gate item | State at `c91db083` |
+|---|---|
+| `merged_into_base` | **Done.** #542 → `4b6d8eb7`, #581 → `9e5b104e`, #586 → `b96aec1d`, #592 → `cc44ab86`, #597 → `39e7de2b`, #593 → `0c1dbc37`, #596 → `e7afa528`, #602 → `d8d4058c`, #600 → `fdb28c1b`, #604 → `c91db083`. |
+| `required_checks` | **Done at the PR head; `main`'s push run pending.** #604 at PR head `223af975` (tree identical to `c91db083`): governance run `36324329014`, with `changes`, `conversation-runtime`, `market-intelligence`, `build`, `govern`, `tests (1/4)`–`(4/4)` and `verify` green and `e2e` skipped by its path filter; Edge CI run `36324329049` (`edge-verify` green, `desktop` skipped). In run `36324329014` the four Server shards passed 833 files (5 skipped) and 7,465 tests (43 skipped); the step "WorkToolPort on PostgreSQL" in `tests (1/4)` (job `108634370608`) passed 19/19; the `conversation-runtime` job (`108634052267`) passed 73/73 runtime tests and recorded `HOSTED_IMAGE_BUILD=PASS`. `main` at `c91db083` (push): governance run `36324888801`, Edge CI `36324888794` and docker-image `36324888798` were in progress at the one lookup made for this version; their results are not recorded here. The earlier evidence (#542 run `36277269502`; #592 runs `36317164514` and `36317831755`) is in *Checkpoint 0.3.15b*. |
+| `reviewed_contracts` | **Done**, as recorded in 0.3.15b (#581, #586, #592). W10–W12 changed the `resolve` and `memory` result shapes on both sides of the wire (`identityState`; `memory.result.evidence`, 60 KiB bound); Core's `validateResult` and the runtime's `validateOperationResult` accept the same shapes at `c91db083`. The PostgreSQL WorkToolPort step ran green at #604's head (job `108634370608`, 19/19); on `main` at `c91db083` it is part of the pending push run `36324888801`. The reviews of #597, #600 and #604 were independent agent reviews recorded in their PR bodies (#604: PASS_WITH_FINDINGS, findings answered in the PR); there are no GitHub review objects on them. |
+| `accepted_scope_complete` | **Done, per the code at `c91db083`.** In `admitLineTextMessage` (`line-conversation-jobs.js`): `memoryRuntimeEligible = true` (no DIRECT or grounding-mode condition on memory turns any more, W12); `runtimeOwner = runtimeEligible ? 'CONVERSATION_RUNTIME' : 'SERVER'`, with no sender-verification condition (W10), and an unverified sender's job gets a `CHANNEL_IDENTITY_ADMITTED` record in the same transaction; eligibility is an opted-in account, a DIRECT/GROUP/ROOM audience whose thread id is present and matches the event, malformed `/work` only in DIRECT, and `conversationRuntimeServesGroundingMode`. Core serves those turns: `runtimeSenderAuthority` in every fence, the PENDING memory mode in `conversation-runtime-memory.js` (W11), `memoryRoute` for GROUP/ROOM threads, and the GKS read composed with the thread in Core `memory read` (W12). Every accepted-scope row below is done. What stays `SERVER` is listed under *Kept on `SERVER`*; none of it is an accepted-scope flow. |
+| `matching_handoff` | **This version (0.3.16b) matches `c91db083`.** The PR that carries it changes documentation and generated files only, so it has to be re-read against its merge SHA only for code that lands after `c91db083` (for example #603 or #606). |
+
+### Runtime cohort and trust model at `c91db083`
+
+**Admitted to the runtime** (admission in `line-conversation-jobs.js`; the cohort is chosen per message and never changes after admission). A text turn goes to `CONVERSATION_RUNTIME` when the account is opted in and:
+
+- the audience is DIRECT, GROUP or ROOM (`RUNTIME_AUDIENCES`), and for a group or room the thread id is present and differs from the speaker (#585);
+- the speaker is verified **or unverified** (#597). An unverified speaker's job carries Core's `CHANNEL_IDENTITY_ADMITTED` record (`identityAssurance: 'UNVERIFIED'`, the sender id's SHA-256 and the CRM `principalId` admission resolved), written in the job's admission transaction;
+- out-of-hours turns are included; Core decides at admission and snapshots the reply as `answerText` (#583);
+- malformed legacy `/work` syntax is included in DIRECT; Core `prepare` answers it with the legacy usage text as `workReply` (#587);
+- memory-sync opt-in turns are included in every audience and every served grounding mode, from verified and unverified speakers (#588, #600, #604);
+- all three grounding modes are served (`BUSINESS_KNOWLEDGE`, `GKS_CORPUS`, `GKS_THEN_BUSINESS_KNOWLEDGE`) (#584);
+- `#sku` from an Inventory-authorised verified sender in DIRECT is answered by Core's catalogue command with no model (#591); for anyone else, including every unverified sender, it is an ordinary question, as on the Server path (#597).
+
+**Kept on `SERVER`:** malformed `/work` syntax in GROUP/ROOM (the legacy consumer answers it), group or room events without their thread id, an unrecognised stored grounding mode, and every account not opted in.
+
+**What Core pins or fences.** The runtime never names a recipient, an audience, a model reference, a speaker, a thread or an identity state, and Core does not take its word for any turn decision. The 0.3.15b list still holds (`runtimeAudienceBound`, the Core-only memory receipt namespace, `RUNTIME_TRACE_KINDS`, the catalogue reply pin, the out-of-hours snapshot, `WORK_COMMAND_MISMATCH`, receipt replay scoped to the executing job, group and room Work refusals). Added at `c91db083`:
+
+- **Sender authority from Core's records only (W10).** `runtimeSenderAuthority(db, job)` replaces the direct `channelIdentityIsVerified` checks at claim, renew, settle, the send compare-and-set, `sendRuntimeConversationJob` and `ownedClaim`. With no admission record, the live ChannelIdentity must be verified (the old fence). With a record, the job is authorized only if the record is well formed, has kind `CHANNEL_IDENTITY_ADMITTED` and turn id = job id, and `sha256(job.sourceUserId)` equals the recorded hash; the identity is never re-read, so a sender verified, revoked or erased mid-turn cannot change what the job may do, and an erased job fails through `PDPA_ERASURE` and the overwritten sender id. The record lives at `${jobId}:identity-admission`, outside the runtime's `<job>:runtime:…` keys, and `CHANNEL_IDENTITY_ADMITTED` is not in `RUNTIME_TRACE_KINDS`.
+- **An unverified job has no person (W10).** `resolve` returns `identityId: null, identityVersion: null, identityState: 'UNVERIFIED'`; the runtime's `assertAuthority` accepts that shape only as a whole and ends the turn (`CONVERSATION_IDENTITY_CHANGED`) if the state changes between two resolves. Every Work call gets the legacy `WORK_IDENTITY_REQUIRED` refusal as a final `REJECTED` outcome before any Work reader or writer (`status` answers `NOT_FOUND`; a request that differs from the signed inbound text is still `WORK_COMMAND_MISMATCH`). The catalogue decision is `ORDINARY` without calling the catalogue command.
+- **PENDING memory mode bound to the admitted principal (W11).** Only Core's `memoryClaim` marks a job `senderIdentityState: 'UNVERIFIED'` (from the admission record); `memoryServerScope` turns it into `identityState: 'UNVERIFIED'`, and the v1 `memory` request has no field that can set it. In that mode the context assembler's and the authorization resolver's principal must equal the record's `principalId`, with `verified: false` and no private memory, or the operation fails `LINE_MEMORY_SCOPE_MISMATCH` before any MSP append; the read also fails closed if MSP or the authorization returns private memory, an injected packet or a verified identity. The read receipt records `identityAssurance: 'PENDING'`, and a replay or append under the other mode is refused.
+- **Out-of-hours turns never touch memory (W11 review).** `memoryTurn` refuses every memory operation (`read`, `append`, `receipt`) for a job with an out-of-hours snapshot (`MEMORY_NOT_APPLICABLE`), verified or not. Settle skips the memory-append check for an out-of-hours turn only while it has no memory read receipt; once a read receipt exists, READY commits only with its append.
+- **Group and room memory scope (W12).** `memoryRoute(job)` takes the thread from the persisted job and its inbound Conversation only: one MSP thread per group or room (`externalRoomRef` = the group or room id), speaker-labelled from the job; the shared-audience scope carries `writePrivate: false` and no private recall. `runtimeAudienceBound` still applies on every memory operation through `ownedClaim`.
+- **Memory with GKS composition in Core (W12, FR-235).** For a memory turn under `GKS_CORPUS` or `GKS_THEN_BUSINESS_KNOWLEDGE`, `prepare` reads no knowledge; Core `memory read` runs the MSP phases, then the same grounding read as `prepare` (`createCoreGroundingQuery`, with W2's budget clamp now also counting the time the operation has spent), and composes it with the thread in one `composeLineMemoryPacket` call. Core returns the composer-included records as `result.evidence` (at most 64 records and 32 KiB; evidence plus packet at most 56 KiB), stores them on the read receipt for replay, and records a ContextReceipt only when composed knowledge survived. The runtime answers from that evidence.
+- **Per-speaker MSP group-memory erasure (W12, after #596).** In the erasure transaction, `redactLineConversationJobs` records one `MEMORY_THREAD_ERASURE_PENDING` per (erased person, shared GROUP/ROOM thread with a memory-sync job of theirs), before the jobs are overwritten; nothing is sent to MSP inside the transaction. `reconcileLineMemoryErasures` runs in the Server worker tick (only when the MSP port is configured and exposes `erasePrincipal`/`resolveThread`; a failed sweep never fails the tick). It selects only due records: a 5.5-minute grace (`MEMORY_ERASURE_GRACE_MS`, the 5-minute lease plus 30 s) before the first attempt, none with an attempt claimed in the last 60 s, none with a `DEFERRED` row scheduled later, none `FAILED`. Each attempt is claimed with a nonce'd `ATTEMPT` row, then `msp_thread_principal_erase` is called under the stable key `msp-thread-erasure:${turnId}` with a Core data-subject grant (`read: false`, `writePrivate: false`). On acknowledgement: `ACKNOWLEDGED`, then the record's trace is redacted. On failure: a `DEFERRED` row whose `occurredAt` is the next attempt time (backoff 1 min, 5 min, 15 min, 1 h, 6 h, 24 h, 24 h), and after 8 attempts `FAILED` plus one `line-memory-erasure.failed` alert naming no principal or room. A DIRECT thread gets no MSP call (unchanged).
+- **Answer check (#593, #602).** Both cohorts' post-model check (`line-answer-policy.js`, byte-identical in `services/conversation-runtime/src/` at `c91db083`) normalises every Unicode decimal digit script and reads valid thousands grouping without its separators before the number and code checks.
+
+**Deliberate differences from the Server path** (fail-closed or typed; each recorded in its PR). The 0.3.15b ones still hold (a speaker revoked or erased after admission is fenced; typed memory failure codes; the GKS hop clamp; Work `UNKNOWN` after a persisting failure). Added:
+
+- An unverified sender verified between admission and claim keeps the unverified decision in the runtime (Work refused, no `#sku`, PENDING memory); the legacy worker reads the identity when its execution starts and would serve the now-verified sender (#597; ADR-106 amendment).
+- In PENDING mode, a sender whose CRM principal changes mid-turn (a link to another Person) is refused `LINE_MEMORY_SCOPE_MISMATCH` before any append names that Person (#600 review).
+- A corpus-mode memory turn inherits W2's budget clamp, which the legacy path does not apply; a read whose budget is spent on MSP calls fails 408 `CONTRACT_DEADLINE_EXPIRED`, as `prepare` does (#604, decision 4).
+- `memory read` drops the lowest-ranked composed records until the result fits (#604 review, L6), as `fitPreparedTurn` does for `prepare`; nothing is traced when it does.
+- The FR-277 shadow compare (#601) is started only inside the Server path's `createServerLineAnswer`, for accounts with `knowledgeGroundingShadow: true`. Runtime-cohort turns produce no shadow comparison.
+
+**New stable identities and trace kinds** (in addition to 0.3.15b's): `${jobId}:identity-admission` (kind `CHANNEL_IDENTITY_ADMITTED`, Core-only, #597). Core's memory read receipt may carry `identityAssurance: 'PENDING'` (#600) and `evidenceJson` (#604). Group-memory erasure records use a deterministic synthetic turn id `memoryErasureTurnId(tenant, principal, channel account, room)` with keys `${turnId}:pending`, `:attempt:<n>`, `:deferred:<n>`, `:acknowledged` and `:failed`, and kinds `MEMORY_THREAD_ERASURE_PENDING`, `…_ATTEMPT`, `…_DEFERRED`, `…_ACKNOWLEDGED`, `…_FAILED` (#604). The runtime's own trace allowlist is unchanged.
+
+### What remains
+
+Accepted-scope rows:
+
+| Item | State at `c91db083` | Closed by |
+|---|---|---|
+| Memory-sync opt-in turns | **Done** in DIRECT, GROUP and ROOM, under every served grounding mode, for verified and unverified speakers: v1 `memory` operation (`read`/`append`/`receipt`); Core is the only MSP caller. | #588, #600, #604 |
+| Memory with GKS grounding (FR-235) | **Done.** Core `memory read` composes GKS evidence with the thread under one budget, as the legacy worker does. | #604 |
+| Out-of-hours reply (FR-244) | **Done.** Core decides at admission and snapshots; the runtime sends the snapshot with no model and no memory operation. | #583, #600 |
+| Group and room audiences | **Done**, for verified and unverified speakers, including memory turns. | #585, #597, #604 |
+| Malformed legacy `/work…` syntax | **Done** in DIRECT (`workReply`). GROUP/ROOM stays `SERVER` by design. | #587 |
+| WorkTool answer parity | **Done.** | #587 (exact runtime-side receipts: #586) |
+| Knowledge grounding modes | **Done.** | #584, #604 |
+| `#sku` catalogue command (FR-210) | **Done.** | #591, #597 |
+| Post-model answer parity | **Done**, now including Unicode digit scripts and thousands separators, mirrored byte for byte. | #590, #593, #602 |
+| Send contract | **Done.** | #589 |
+| Length gap | **Done.** | #589 |
+| Unverified identities | **Done.** Admitted with Core's `CHANNEL_IDENTITY_ADMITTED` record; no person, legacy Work refusal, no `#sku` command, PENDING memory. ADR-106 amendment (1.1.0, 1.2.0), SDD-110 and FR-265 carry the wording. | #597, #600 |
+| Group erasure for later speakers (FR-022) | **Done** for messages, jobs, trace inputs and (W12) shared MSP thread memory: erasure follows `Message.authorChannelIdentityId` and each job's speaker, not the thread owner. The raw-payload and archive parts are in open #603 (below). | #596, #604 |
+
+Operator pre-deploy list (**run by an operator only, never from CI or an agent**; none of it has been run against any database):
+
+1. Apply #596's three migrations in order, each on its own: `20260927090000_message_author_channel_identity.sql` (column), `20260927090100_message_author_channel_identity_index.sql` (`CREATE INDEX CONCURRENTLY`, no transaction block; an interrupted build leaves an INVALID index to drop and re-run), then `20260927090200_message_author_channel_identity_backfill.sql`. Re-run the backfill until all three of its UPDATEs report 0 rows (each touches at most 5,000 rows). Erasure does not depend on the backfill finishing: it attributes a still-NULL row through its `MESSAGE_INGESTED` audit row at erase time.
+2. Run the `RETENTION_TOMBSTONE` query below and act on its result.
+3. Before relying on group-memory erasure, confirm that the deployed MSP ships `msp_thread_principal_erase` (TASK-MEMOS-004). Until it does, records stay PENDING and retry with backoff until they end `FAILED` with an alert (8 attempts over about 2.3 days).
+
+Residual gaps recorded by the PRs and their reviews, still true at `c91db083`:
+
+| Gap | Current behaviour | Source |
+|---|---|---|
+| Memory-erasure thread discovery | The shared threads to erase are found only from job rows not already erased and the person's current `personId`. Not covered: data from before #604 (no backfill), principals from before a merge or relink, and MSP writes made through `handleAgentTurn` with no job row. | #604 review, follow-up 4 |
+| DIRECT MSP thread never erased | An erased person's DIRECT MSP thread gets no MSP erase call (unchanged behaviour; only the pending delivery receipt is closed). The same mechanism would cover it by dropping the shared-audience filter; that changes DIRECT behaviour and is an owner decision. | #604 follow-up 5, decision 2 |
+| MSP erase scope unverified | Whether `msp_thread_principal_erase` removes replies, summaries and participants and stays within one thread has not been checked against the MSP contract. The test stand-in removes whole exchanges started by the principal. | #604 follow-up 7 |
+| Pending record holds identifiers | A pending erasure record keeps the principal id and group or room id until MSP acknowledges; it is redacted on acknowledgement. A `FAILED` record keeps them for manual erasure. Accepted in review. | #604 follow-up 8 |
+| Erasure scanner held-set query | Each tick reads, across all tenants and with no limit, every `FAILED` row plus every future-scheduled `DEFERRED` and recently claimed `ATTEMPT` row, and passes their turn ids to a `notIn` filter. `FAILED` rows are never removed, so this grows without bound. | code at `c91db083` (`line-memory-erasure.js`) |
+| Erasure kinds not in restore gating | `backup-service` does not count the five `MEMORY_THREAD_ERASURE_*` kinds for restore gating. | #604 decision 5 |
+| No group parity test for unverified memory | W11's PENDING wrappers apply to GROUP/ROOM and GKS memory turns, but `conversation-runtime-unverified-memory.test.js` has DIRECT cases only and #604's group/GKS suite has no PENDING case. | #604 note after #600 |
+| Raw LINE payloads on erasure | LINE raw records are keyed by `webhookEventId`, which no message id or subject matches, so erasure does not blank the erased speaker's raw message or postback payloads for real LINE traffic, and the chat evidence archive seals a shared thread under the owner's key. Fix open in #603, not on `main`. | #596 review (HIGH), #603 |
+| Answer-check numeral gaps | Numeral forms the grounded-answer check still misses (after #593 and #602). Fix open in #606, not on `main`. | #606 |
+| ADR-106 amendment wording | The amendment's eligibility sentence still names "the existing memory-sync and malformed-Work exceptions"; after W12 only the malformed-Work (GROUP/ROOM) exception exists. Not edited here. | ADR-106 1.2.0 at `c91db083` |
+| `REPLY_DEADLINE_MISSED` pre-check | Core's `work-tool` has no spent-budget check before a Work call; the runtime path checks the deadline only at settle. | code at `c91db083` |
+| Out-of-hours delivery availability | A runtime-cohort out-of-hours reply is sent only if the runtime is up; otherwise the job expires after the 30-minute TTL with no reply. | #583 |
+| Group threads split between executors | In one group, malformed-`/work` turns go to `SERVER` and everything else to the runtime; replies can arrive out of order across the two consumers. Each job still has one executor. (Unverified and memory turns no longer split a group.) | #585, #604 |
+| Deploy order: runtime before Core | Core has no contract-version gate. A runtime older than W9 rejects a `CATALOG_COMMAND` turn after Core has applied a `#sku` confirm or cancel. A runtime older than W10 rejects an unverified job's `resolve` (extra `identityState` key), and one older than W12 rejects a corpus-mode `memory read` result (extra `evidence` key); both end those turns with no reply. Deploy the runtime first. | #591 (F2), code at `c91db083` |
+| Core `validateResult` receipt strictness | Core still accepts any Work receipt of at most 12 keys and 32 KiB; only the runtime client checks the exact v1 receipt shape. | #586 |
+| `P2034` surfaced as a Prisma code | A lost serialization race on `confirm-execute` answers 503 `retryable: true` with the code `P2034`. | #586 |
+| MSP scanners in the Server tick | Runtime jobs' MSP delivery receipts and all group-memory erasures go through the Server worker tick (`scanMemory`: `reconcileLineMemoryErasures`, then `reconcileLineMemoryDeliveries`), which must keep running with MSP configured. | #588, #604 |
+| ADR-106 D2 Knowledge half | There is no v1 Knowledge (GKS) operation; GKS stays inside Core `prepare` and Core `memory read`. | #584, #588, #604 |
+| Silent evidence trimming | When `fitPreparedTurn` or `memory read` drops low-ranked evidence to fit, nothing is traced. | #589, #604 |
+| `RETENTION_TOMBSTONE` operator check | Before #588 the runtime could write a `RETENTION_TOMBSTONE` through `trace`, and erasure then skipped that turn. Existing data needs the operator check below. Not run against any database. | #588 (b) |
+
+`RETENTION_TOMBSTONE` operator query (Postgres; **run by an operator only, never from CI or an agent**):
+
+```sql
+SELECT "id", "tenantId", "businessId", "turnId", "idempotencyKey", "occurredAt"
+FROM "AgentTraceEvent"
+WHERE "kind" = 'RETENTION_TOMBSTONE'
+  AND "idempotencyKey" <> 'retention:' || "turnId";
+```
+
+For each turn it returns, check whether the turn was erased (the job's `errorCode = 'PDPA_ERASURE'`) while its other trace rows still hold readable payloads. If so, run `redactTraceTurn` on the turn again; since #588 it no longer stops at the foreign row.
+
+Upkeep notes: `line-answer-policy.js` is edited in `apps/server` and copied unchanged over `services/conversation-runtime/src/line-answer-policy.js`; `conversation-runtime-answer-parity.test.js` fails on any drift (#590). The PostgreSQL suite pins the prerelease `embedded-postgres@17.10.0-beta.17`; since #602 its teardown tolerates a Windows `EBUSY` on the temp directory.
+
+Still open from *Cutover and rollback gates*, and not claimed by this version:
+
+- a full `npm run verify` with its E2E leg (the hosted `e2e` job was skipped by its path filter on #604, as on #592);
+- live LINE, MSP (including `msp_thread_principal_erase`), GKS and model runs, the operator steps above, production deployment and migration, which belong to Gate PRODUCTION.
+
+## Checkpoint 0.3.15b — base `main` `cc44ab86` (superseded by *Current state*)
+
+Kept as history. Its gate table and *What remains* tables describe the tree before #593–#604; the current ones are in *Current state* above.
+
+Written by MC0 on branch `mc0/cr-handoff-0315`, cut from `main` at `cc44ab86452e8ff540f0b1d1472e07ae63829243` (the merge of PR #592). Every statement in this section was checked against the code at that SHA, not copied from a PR body. At the time, it superseded the *Checkpoint 0.3.14b* section below.
+
+### Base and PRs at 0.3.15b
 
 | PR | Workstream | Head | On `main` as |
 |---|---|---|---|
@@ -44,7 +200,7 @@ Written by MC0 on branch `mc0/cr-handoff-0315`, cut from `main` at `cc44ab86452e
 
 GitHub shows #583–#585 and #587–#591 as merged because each head is an ancestor of `cc44ab86`; their "merge commit" is the integration merge listed. The integration decisions are in #592's body and in each integration merge's commit message. #587's PR body repeats #588's W5 description by mistake; W1's content is in commits `f0ce195b` and `fd52a3ec`, and this document follows those.
 
-### What gate `CR_TO_WM` requires, at `cc44ab86`
+### What gate `CR_TO_WM` required at 0.3.15b (superseded)
 
 The gate is Gate CR in `REFACTOR-STATUS.md` §4: "CR acceptance ครบ, WorkToolPort ทดสอบจริง, review+required checks ผ่าน, merge เข้า base และ handoff ตรง SHA".
 
@@ -84,7 +240,7 @@ The gate is Gate CR in `REFACTOR-STATUS.md` §4: "CR acceptance ครบ, WorkT
 
 **New stable identities** (in addition to *Failure and retry semantics*): `${jobId}:memory-read`, `${jobId}:memory-append`, `${jobId}:memory-injection` (#588); `${jobId}:catalog-command` (#591). `EXECUTION_FAILED` and `MODEL_FAILED` are keyed per execution (`runtime:${jobId}:turn-answer:${executionId}:<kind>`), and so are operation-less events such as `CONTEXT_COMMITTED` (#588).
 
-### What remains
+### What remained at 0.3.15b (superseded)
 
 Accepted-scope rows:
 
@@ -383,6 +539,8 @@ The first mandatory `npm run verify` after the initial runtime tranche exposed f
 - [ ] Production deployment, production migration, live LINE traffic and real model calls require separate authorization; none are part of this checkpoint.
 
 ## Version diff
+
+`0.3.15b → 0.3.16b`: rewrites *Current state* for base `main` `c91db083` (PR #604). Adds the PRs merged since `cc44ab86` with their heads and merge SHAs (#597 W10, #593, #596, #602, #600 W11, #604 W12; #598, #599 and #601 noted as not on the runtime path, #601 as Server-only) and lists the open #603 and #606 as pending. `required_checks` records #604's PR-head governance run `36324329014` (all required jobs green, 19/19 on PostgreSQL, 73/73 runtime tests; tree identical to `c91db083`) and Edge CI `36324329049`; `main`'s push run `36324888801` was still in progress and is recorded as pending. `accepted_scope_complete` is now done, from the admission code (`memoryRuntimeEligible = true`, no sender-verification condition on `runtimeOwner`) and Core's W10–W12 serving paths. Updates the cohort (unverified senders, group/room and GKS memory admitted; only malformed group `/work`, thread-less group events, unknown grounding modes and non-opted-in accounts stay `SERVER`), adds the Core fences (`runtimeSenderAuthority` and the `CHANNEL_IDENTITY_ADMITTED` record, the PENDING principal binding, the out-of-hours memory refusal, group memory scope, GKS composition in `memory read`, the per-speaker MSP erasure scanner) and the new deliberate differences, identities and trace kinds. *What remains*: unverified identities, group/room memory, memory with GKS and group erasure for later speakers are done; adds the operator pre-deploy list (#596's three migrations in order, the backfill re-run until 0 rows, the `RETENTION_TOMBSTONE` query, MSP TASK-MEMOS-004) and the review follow-ups of #600, #602 and #604 as residual gaps. Every claim was checked against the code at `c91db083`. The 0.3.15b section is kept, retitled as superseded; ADR-106, SDD-110, FR-265 and the PRD are unchanged.
 
 `0.3.14b → 0.3.15b`: rewrites *Current state* for base `main` `cc44ab86` (PR #592, which merged W1–W5 and W7–W9 from #583–#585 and #587–#591; W6 #586 was merged as `b96aec1d`). Lists the PRs with their heads and merge SHAs. Records `reviewed_contracts` as done (#581, #586 with its PostgreSQL run and review, and the combined re-run on #592) and adds #592's and `main`'s hosted CI (runs `36317164514` and `36317831755`) to `required_checks`. `accepted_scope_complete` stays open only for W10 (unverified identities, #597). Adds the runtime cohort and the Core pins and fences at that SHA. Replaces *What remains*: memory-sync, out-of-hours, group/room, malformed `/work`, WorkTool parity, grounding modes, `#sku`, post-model parity, the send contract and the length gap are done; the residual gaps the PRs recorded are kept as rows, with the `RETENTION_TOMBSTONE` operator query from #588. Every claim was checked against the code at `cc44ab86`. The 0.3.14b section and older sections are kept and labelled as superseded; ADR-106, SDD-110, FR-265 and the PRD are unchanged (W10 owns those edits).
 
