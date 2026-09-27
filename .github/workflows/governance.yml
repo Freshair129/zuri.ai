@@ -261,6 +261,14 @@ jobs:
           CONTRACT_TESTS: ${{ needs.changes.outputs.contracts }}
         run: npm test -- $CONTRACT_TESTS
 
+      # The same WorkToolPort suite on PostgreSQL (vitest.postgres.config.js):
+      # a disposable embedded PostgreSQL 17 started and deleted by the run, never
+      # a shared database. Here only when the scoped contract tests include it;
+      # on a full run the `tests` job runs it.
+      - name: WorkToolPort on PostgreSQL (service-scoped pull request)
+        if: needs.changes.outputs.server == 'false' && contains(needs.changes.outputs.contracts, 'conversation-runtime-work-tool-port.test.js')
+        run: npm run test:postgres
+
       # llms-full.txt is built, not compared (ADR-081 D1 as amended): with no
       # committed copy there is nothing to be current against, so what is left
       # is whether the generator RUNS. The corpus is uploaded so an LLM reader
@@ -324,6 +332,14 @@ jobs:
 
       - name: Unit and integration tests
         run: npm test -- --shard=${{ matrix.shard }}/4
+
+      # The WorkToolPort suite again on PostgreSQL, the production engine
+      # (vitest.postgres.config.js): a disposable embedded PostgreSQL 17 on
+      # 127.0.0.1, started and deleted by the run; it reads no database URL, so it
+      # can never reach a shared database. Once per run, on the first shard.
+      - name: WorkToolPort on PostgreSQL
+        if: matrix.shard == 1
+        run: npm run test:postgres
 
   build:
     needs: changes

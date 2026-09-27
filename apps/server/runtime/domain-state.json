@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-171",
@@ -3686,7 +3686,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-151",
@@ -5745,7 +5745,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-151",
@@ -8688,8 +8688,8 @@
           "title": "Optional Edge conversation execution",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 15
+          "codeCount": 11,
+          "testCount": 16
         }
       ],
       "evidence": [

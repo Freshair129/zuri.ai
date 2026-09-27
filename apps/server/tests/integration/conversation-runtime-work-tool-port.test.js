@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, inject, it } from 'vitest'
 import Ajv2020 from 'ajv/dist/2020'
 import addFormats from 'ajv-formats'
 import prisma from '@/lib/db'
@@ -25,6 +25,10 @@ import { createConversationRuntime } from '../../../../services/conversation-run
 // the full-turn case. The HTTP socket hop is replaced by an in-process fetch that still
 // serialises every request and response; the socket path itself is covered by
 // conversation-runtime-vertical-slice.test.js.
+// Two engines: the default config runs this file on the per-run SQLite database;
+// `npm run test:postgres` (vitest.postgres.config.js) runs the SAME file on a
+// disposable embedded PostgreSQL 17, the production engine, where the confirm
+// transaction really races (SQLite's single writer serialises it).
 // @tested tests/integration/conversation-runtime-work-tool-port.test.js
 const serviceToken = 'synthetic-work-tool-port-core-token-000001'
 const sealKey = '5c'.repeat(32)
@@ -32,6 +36,8 @@ const lineUser = 'synthetic-wtp-line-user'
 const schema = JSON.parse(readFileSync(new URL(
   '../../../../services/conversation-runtime/contracts/v1/operation.schema.json', import.meta.url), 'utf8'))
 
+// tests/global-setup-postgres.js provides 'postgresql'; tests/global-setup.js provides nothing.
+const engine = inject('testDatabaseEngine') ?? 'sqlite'
 let tenant, business, account, workstream, project
 let wire = []
 let deliveries = []
@@ -92,7 +98,96 @@ async function claimTurn(ports, jobId, claimantId) {
 const workToolCalls = () => wire.filter(call => call.operation === 'work-tool')
   .map(call => `${call.payload.operation} ${call.payload.operationId}`)
 
+/** Propose a create_work change through the port and release the proposal job. */
+async function proposeWork(ports, eventId, title) {
+  const proposalJobId = await admit(eventId, `/work-create ${workstream.id} ${title}`)
+  const { claim, authority, turn } = await claimTurn(ports, proposalJobId, `runtime-${eventId}`)
+  const proposed = await ports.workTool.execute(claim, authority,
+    validateWorkToolRequest({ ...turn.workCommand, operationId: `${proposalJobId}:work-proposal` }))
+  expect(proposed.result.receipt).toEqual({ proposalId: proposalJobId, status: 'AWAITING_CONFIRMATION' })
+  await prisma.lineConversationJob.update({ where: { id: proposalJobId },
+    data: { status: 'CANCELLED', errorCode: 'TEST_WORK_TOOL_PORT_PROPOSED', claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
+  return proposalJobId
+}
+
+/** Admit and claim a new job carrying the human confirmation text for `proposalId`. */
+async function confirmationTurn(ports, eventId, proposalId) {
+  const jobId = await admit(eventId, `ยืนยันงาน ${proposalId}`)
+  const turn = await claimTurn(ports, jobId, `runtime-${eventId}`)
+  expect(turn.turn.workCommand).toEqual({ operation: 'confirm-execute', input: { proposalId } })
+  return { jobId, ...turn, request: validateWorkToolRequest({ ...turn.turn.workCommand, operationId: proposalId }) }
+}
+
+/** Everything one confirmation may leave behind, read straight from the database. */
+async function confirmationState(proposalId, title) {
+  const items = await prisma.workItem.findMany({ where: { workstreamId: workstream.id, title } })
+  return {
+    items: items.length,
+    // The canonical Project Manager writer's audit row for the created WorkItem.
+    workAudits: items.length ? await prisma.auditEvent.count({ where: { entityType: 'WORK_ITEM', action: 'CREATED', entityId: { in: items.map(item => item.id) } } }) : 0,
+    // The unique confirmation receipt (acquired before the write) and the execution result.
+    receipts: await prisma.auditEvent.count({ where: { id: `line-work-executed:${proposalId}` } }),
+    results: await prisma.auditEvent.count({ where: { id: `line-work-result:${proposalId}` } }),
+    agentActions: await prisma.auditEvent.count({ where: { entityType: 'AGENT_ACTION', entityId: proposalId } }),
+  }
+}
+
+/**
+ * The Core database handle with hooks that run INSIDE confirmLineWork's
+ * transaction: `afterReceiptLookup` right after it reads the (absent) confirmation
+ * receipt, `afterResultWrite` right after it writes the execution result — after
+ * the canonical write and before its re-check of authority. Nothing else about
+ * the handle changes, so the transaction, its isolation level and its rollback
+ * are the real ones.
+ */
+function withConfirmHooks({ afterReceiptLookup = null, afterResultWrite = null }) {
+  const hooked = { findUnique: [afterReceiptLookup, 'line-work-executed:'], create: [afterResultWrite, 'line-work-result:'] }
+  const wrapTx = tx => new Proxy(tx, { get(target, key) {
+    const value = Reflect.get(target, key)
+    if (key !== 'auditEvent') return value
+    return new Proxy(value, { get(delegate, method) {
+      const fn = Reflect.get(delegate, method)
+      const [hook, prefix] = hooked[method] ?? []
+      if (!hook) return typeof fn === 'function' ? fn.bind(delegate) : fn
+      return async args => {
+        const row = await fn.call(delegate, args)
+        const id = String(args?.where?.id ?? args?.data?.id ?? '')
+        if (id.startsWith(prefix)) await hook(target, row)
+        return row
+      }
+    } })
+  } })
+  return new Proxy(prisma, { get(target, key) {
+    const value = Reflect.get(target, key)
+    if (key !== '$transaction') return typeof value === 'function' ? value.bind(target) : value
+    return (work, options) => typeof work === 'function'
+      ? target.$transaction(tx => work(wrapTx(tx)), options)
+      : target.$transaction(work, options)
+  } })
+}
+
+/** Hold each caller until `parties` have arrived, or until `timeoutMs` passes. */
+function barrier(parties, timeoutMs = 5000) {
+  let arrived = 0
+  let open
+  const gate = new Promise(resolve => { open = resolve })
+  return async () => {
+    arrived += 1
+    if (arrived >= parties) open()
+    await Promise.race([gate, new Promise(resolve => setTimeout(resolve, timeoutMs))])
+  }
+}
+
 beforeAll(async () => {
+  // The run is on the engine it claims: a PostgreSQL run that silently fell back
+  // to SQLite would prove nothing about PostgreSQL.
+  if (engine === 'postgresql') {
+    const [{ version }] = await prisma.$queryRawUnsafe('SELECT version() AS version')
+    expect(version).toMatch(/^PostgreSQL 17\./)
+  } else {
+    const [{ version }] = await prisma.$queryRawUnsafe('SELECT sqlite_version() AS version')
+    expect(version).toMatch(/^3\./)
+  }
   const portfolio = await createPortfolio({ name: 'WorkToolPort fixture', code: 'PF-CR-WTP' })
   tenant = await createTenant({ portfolioId: portfolio.id, name: 'WorkToolPort tenant', code: 'TNT-CR-WTP' })
   business = await createBusiness({ tenantId: tenant.id, name: 'WorkToolPort business', code: 'BUS-CR-WTP' })
@@ -129,7 +224,7 @@ afterEach(async () => {
   deliveries = []
 })
 
-describe('Conversation Runtime WorkToolPort against the real Core provider', () => {
+describe(`Conversation Runtime WorkToolPort against the real Core provider (${engine})`, () => {
   it('read: returns the canonical Project Manager listing and has no receipt to replay', async () => {
     const { ports } = build()
     const jobId = await admit('synthetic-wtp-read-projects', '/projects')
@@ -254,6 +349,133 @@ describe('Conversation Runtime WorkToolPort against the real Core provider', () 
     // None of the refused calls reached the Project Manager writers.
     expect(await prisma.auditEvent.findUnique({ where: { id: jobId } })).toBeNull()
     expect(await prisma.workItem.findFirst({ where: { title: 'WorkToolPort fenced task' } })).toBeNull()
+  })
+
+  const nothingWritten = { items: 0, workAudits: 0, receipts: 0, results: 0, agentActions: 0 }
+  const writtenOnce = { items: 1, workAudits: 1, receipts: 1, results: 1, agentActions: 2 }
+  const replayText = 'คำสั่งนี้ยืนยันและดำเนินการแล้ว ไม่มีการทำซ้ำ'
+  const release = jobId => prisma.lineConversationJob.update({ where: { id: jobId },
+    data: { status: 'CANCELLED', errorCode: 'TEST_WORK_TOOL_PORT_DONE', claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
+
+  it('confirm-execute: fences stale, forged and expired claims before the write and leaves the proposal confirmable', async () => {
+    const { ports } = build()
+    const title = 'WorkToolPort fenced confirmation'
+    const proposalId = await proposeWork(ports, 'synthetic-wtp-cfence-propose', title)
+    const confirm = await confirmationTurn(ports, 'synthetic-wtp-cfence-confirm', proposalId)
+    const rejectedWith = async (candidate, code) => {
+      await expect(ports.workTool.execute(candidate, confirm.authority, confirm.request)).rejects.toMatchObject({ code, retryable: false })
+      await expect(ports.workTool.status(candidate, proposalId)).rejects.toMatchObject({ code })
+    }
+
+    // Renewal bumps the claim version; the pre-renewal claim is stale from then on.
+    const renewed = await ports.job.renew(confirm.claim)
+    await rejectedWith(confirm.claim, 'CONVERSATION_JOB_AUTHORITY_REVOKED')
+    const current = { ...confirm.claim, version: renewed.version, leaseExpiresAt: renewed.leaseExpiresAt }
+    for (const forged of [{ tenantId: 'forged-tenant' }, { businessId: 'forged-business' }, { accountId: 'forged-account' },
+      { executionId: 'forged-execution' }, { claimantId: 'forged-claimant' }, { version: renewed.version + 1 },
+      // The proposal's own (released) job cannot be borrowed to confirm it.
+      { jobId: proposalId }]) await rejectedWith({ ...current, ...forged }, 'CONVERSATION_JOB_AUTHORITY_REVOKED')
+
+    const lease = (await prisma.lineConversationJob.findUnique({ where: { id: confirm.jobId } })).leaseExpiresAt
+    await prisma.lineConversationJob.update({ where: { id: confirm.jobId }, data: { leaseExpiresAt: new Date(Date.now() - 1) } })
+    await rejectedWith(current, 'CONVERSATION_JOB_AUTHORITY_REVOKED')
+    expect(await confirmationState(proposalId, title)).toEqual(nothingWritten)
+    expect(await prisma.auditEvent.findUnique({ where: { id: proposalId } })).toMatchObject({ entityType: 'LINE_WORK_PROPOSAL' })
+
+    // None of the refusals consumed the proposal: the current claim confirms it, once.
+    await prisma.lineConversationJob.update({ where: { id: confirm.jobId }, data: { leaseExpiresAt: lease } })
+    expect(await ports.workTool.status(current, proposalId))
+      .toEqual({ status: 'NOT_FOUND', proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } })
+    const executed = await ports.workTool.execute(current, confirm.authority, confirm.request)
+    expect(executed.result.receipt).toMatchObject({ proposalId, action: 'create_work' })
+    expect(await confirmationState(proposalId, title)).toEqual(writtenOnce)
+  })
+
+  it('confirm-execute: re-checks authority after the canonical write and rolls the write back when it no longer holds', async () => {
+    const title = 'WorkToolPort rechecked confirmation'
+    const proposalId = await proposeWork(build().ports, 'synthetic-wtp-recheck-propose', title)
+
+    // 1. The lease runs out while the canonical writer works: after the write, the
+    // clock Core reads is past the lease. The whole transaction rolls back.
+    let late = null
+    const slow = build({ coreOptions: { now: () => late ?? new Date(),
+      db: withConfirmHooks({ afterResultWrite: async tx => {
+        const job = await tx.lineConversationJob.findUnique({ where: { id: expired.jobId } })
+        late = new Date(job.leaseExpiresAt.getTime() + 1)
+      } }) } })
+    const expired = await confirmationTurn(slow.ports, 'synthetic-wtp-recheck-lease', proposalId)
+    await expect(slow.ports.workTool.execute(expired.claim, expired.authority, expired.request))
+      .rejects.toMatchObject({ code: 'WORK_SCOPE_DENIED' })
+    expect(late).not.toBeNull()
+    late = null
+    expect(await confirmationState(proposalId, title)).toEqual(nothingWritten)
+    expect(await slow.ports.workTool.status(expired.claim, proposalId))
+      .toEqual({ status: 'NOT_FOUND', proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } })
+    await release(expired.jobId)
+
+    // 2. The job is reclaimed by another runtime between the first authority check
+    // and the end of the write. The re-check sees a stale claim and rolls back:
+    // the unique receipt, the WorkItem, its audit row and the reclaim itself.
+    let fired = 0
+    const reclaiming = build({ coreOptions: { db: withConfirmHooks({ afterResultWrite: async tx => {
+      fired += 1
+      await tx.lineConversationJob.update({ where: { id: reclaimed.jobId },
+        data: { executionId: 'synthetic-wtp-other-execution', claimantId: 'synthetic-wtp-other-runtime', version: { increment: 1 } } })
+    } }) } })
+    const reclaimed = await confirmationTurn(reclaiming.ports, 'synthetic-wtp-recheck-reclaim', proposalId)
+    await expect(reclaiming.ports.workTool.execute(reclaimed.claim, reclaimed.authority, reclaimed.request))
+      .rejects.toMatchObject({ code: 'WORK_CLAIM_STALE' })
+    expect(fired).toBe(1)
+    expect(await confirmationState(proposalId, title)).toEqual(nothingWritten)
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: reclaimed.jobId } })).toMatchObject({ status: 'CLAIMED',
+      version: reclaimed.claim.version, executionId: reclaimed.claim.executionId, claimantId: reclaimed.claim.claimantId })
+
+    // 3. With authority intact the same claim confirms, exactly once.
+    const executed = await build().ports.workTool.execute(reclaimed.claim, reclaimed.authority, reclaimed.request)
+    expect(executed.result.receipt).toMatchObject({ proposalId, action: 'create_work' })
+    expect(await confirmationState(proposalId, title)).toEqual(writtenOnce)
+  })
+
+  it('confirm-execute: concurrent confirms of one proposal write one WorkItem, one receipt and one audit row; a later confirm job replays', async () => {
+    // On PostgreSQL every confirm transaction is held after it has read that no
+    // receipt exists until all four have read it, so all four race to write: only
+    // the unique receipt key can stop the losers. SQLite's single writer lock
+    // serialises the transactions, so there the later ones read the winner's
+    // receipt and replay; a barrier would only deadlock against that lock.
+    const racing = engine === 'postgresql'
+    const { ports } = build(racing ? { coreOptions: { db: withConfirmHooks({ afterReceiptLookup: barrier(4) }) } } : {})
+    const title = 'WorkToolPort concurrent confirmation'
+    const proposalId = await proposeWork(ports, 'synthetic-wtp-race-propose', title)
+    // Two confirmation messages, each claimed by its own runtime, each sent twice
+    // (a retry racing its own first attempt): four confirms in flight at once.
+    const first = await confirmationTurn(ports, 'synthetic-wtp-race-confirm-a', proposalId)
+    const second = await confirmationTurn(ports, 'synthetic-wtp-race-confirm-b', proposalId)
+    const settled = await Promise.allSettled([first, second, first, second]
+      .map(turn => ports.workTool.execute(turn.claim, turn.authority, turn.request)))
+    const outcomes = settled.map(o => o.status === 'fulfilled'
+      ? (o.value.result.receipt.duplicate ? 'replayed' : 'executed') : `refused ${o.reason?.code} retryable=${o.reason?.retryable}`)
+    const fulfilled = settled.filter(o => o.status === 'fulfilled').map(o => o.value)
+    const executed = fulfilled.filter(value => !value.result.receipt.duplicate)
+    expect(executed, JSON.stringify(outcomes)).toHaveLength(1)
+    const receipt = executed[0].result.receipt
+    expect(receipt).toMatchObject({ proposalId, action: 'create_work' })
+    for (const value of fulfilled) expect(value.result.receipt).toEqual(value === executed[0] ? receipt : { ...receipt, duplicate: true })
+    // A loser that raced the winner's commit is refused as retryable (the runtime
+    // then probes status and replays) and never writes.
+    for (const outcome of settled.filter(o => o.status === 'rejected')) expect(outcome.reason, JSON.stringify(outcomes)).toMatchObject({ retryable: true })
+    if (racing) expect(outcomes.filter(outcome => outcome.startsWith('refused')), JSON.stringify(outcomes)).toHaveLength(3)
+    expect(await confirmationState(proposalId, title)).toEqual(writtenOnce)
+    for (const turn of [first, second]) expect(await ports.workTool.status(turn.claim, proposalId))
+      .toEqual({ status: 'COMPLETED', result: { text: replayText, receipt } })
+
+    // A second confirmation arriving later, as a new job, replays the receipt.
+    await release(first.jobId)
+    await release(second.jobId)
+    const later = await confirmationTurn(ports, 'synthetic-wtp-race-confirm-later', proposalId)
+    expect(await ports.workTool.status(later.claim, proposalId)).toEqual({ status: 'COMPLETED', result: { text: replayText, receipt } })
+    expect(await ports.workTool.execute(later.claim, later.authority, later.request))
+      .toEqual({ status: 'COMPLETED', result: { text: replayText, receipt: { ...receipt, duplicate: true } } })
+    expect(await confirmationState(proposalId, title)).toEqual(writtenOnce)
   })
 
   it('refuses an arbitrary tool operation on the runtime side before anything reaches Core', async () => {

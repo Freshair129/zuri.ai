@@ -98,3 +98,62 @@ test('core client validates typed Core errors and nested credential responses', 
     { status: 200, headers: { 'content-type': 'application/json' } }) })
   await assert.rejects(invalidCredential.call('credential', credentialPayload), { code: 'CORE_RESPONSE_INVALID' })
 })
+
+test('core client accepts only the exact v1 WorkTool receipt shape for the request it sent', async () => {
+  const claim = { jobId: 'job-1', executionId: 'e', claimantId: 'c', version: 1, tenantId: 't', businessId: 'b', accountId: 'a' }
+  const proposalId = '6f1c1a52-6a55-4b8e-9d7c-2f1b8e3c9a10'
+  const clientReturning = data => createCoreClient({ baseUrl: 'http://core:3000', token: 't'.repeat(40), fetchFn: async () =>
+    new Response(JSON.stringify({ contractVersion: 'conversation-runtime.v1', ok: true, data }), { status: 200, headers: { 'content-type': 'application/json' } }) })
+  const call = (request, data) => clientReturning(data).call('work-tool', { claim, ...request })
+  const read = { operation: 'read', operationId: 'job-1:work-read', input: { kind: 'projects', query: '' } }
+  const propose = { operation: 'propose', operationId: 'job-1:work-proposal', input: { action: 'create_work', targetId: proposalId, args: { title: 'Task' } } }
+  const confirm = { operation: 'confirm-execute', operationId: proposalId, input: { proposalId } }
+  const status = operationId => ({ operation: 'status', operationId, input: {} })
+  const completed = receipt => ({ status: 'COMPLETED', result: { text: 'ok', receipt } })
+  const readReceipt = { source: 'PROJECT_MANAGER', observedAt: '2026-09-27T00:00:00.000Z' }
+  const proposalReceipt = { proposalId: 'job-1', status: 'AWAITING_CONFIRMATION' }
+  const executed = { proposalId, action: 'create_work', itemId: 'item-1', code: 'WI-0001', status: 'TODO', version: 1 }
+
+  // The shapes Core emits pass.
+  const accepted = [
+    [read, completed(readReceipt)],
+    [propose, completed(proposalReceipt)],
+    [confirm, completed(executed)],
+    [confirm, completed({ ...executed, duplicate: true })],
+    [status('job-1:work-proposal'), completed(proposalReceipt)],
+    [status(proposalId), completed(executed)],
+    [status('job-1:work-read'), { status: 'NOT_FOUND', operationId: 'job-1:work-read' }],
+    [status(proposalId), { status: 'NOT_FOUND', proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } }],
+  ]
+  for (const [request, data] of accepted) assert.deepEqual(await call(request, data), data)
+
+  // Anything else is a drifted Core and fails in the client, including the
+  // "any object with at most 12 keys" receipts the previous check let through.
+  const rejected = [
+    ['read receipt with an extra key', read, completed({ ...readReceipt, extra: 1 })],
+    ['read receipt from another source', read, completed({ ...readReceipt, source: 'MODEL' })],
+    ['read receipt with an unparseable time', read, completed({ ...readReceipt, observedAt: 'yesterday' })],
+    ['read answered with a proposal receipt', read, completed(proposalReceipt)],
+    ['arbitrary small receipt', read, completed({ a: 1, b: 2 })],
+    ['empty receipt', confirm, completed({})],
+    ['proposal naming another job', propose, completed({ ...proposalReceipt, proposalId: 'job-2' })],
+    ['proposal with another status', propose, completed({ ...proposalReceipt, status: 'CONFIRMED' })],
+    ['execution for another proposal', confirm, completed({ ...executed, proposalId: 'other-proposal' })],
+    ['execution missing its version', confirm, completed({ ...executed, version: undefined })],
+    ['execution with a fractional version', confirm, completed({ ...executed, version: 1.5 })],
+    ['execution with an unknown action', confirm, completed({ ...executed, action: 'delete_work' })],
+    ['execution with a lower-case status', confirm, completed({ ...executed, status: 'done' })],
+    ['execution with duplicate: false', confirm, completed({ ...executed, duplicate: false })],
+    ['execution with an extra key', confirm, completed({ ...executed, actor: 'forged' })],
+    ['status replay marked duplicate', status(proposalId), completed({ ...executed, duplicate: true })],
+    ['status replay for another proposal', status(proposalId), completed({ ...executed, proposalId: 'job-1' })],
+    ['empty completion text', read, { status: 'COMPLETED', result: { text: '', receipt: readReceipt } }],
+    ['NOT_FOUND for an execute', confirm, { status: 'NOT_FOUND', operationId: proposalId }],
+    ['NOT_FOUND naming another operation', status('job-1:work-read'), { status: 'NOT_FOUND', operationId: 'job-2:work-read' }],
+    ['NOT_FOUND with an unexpected receipt', status(proposalId), { status: 'NOT_FOUND', proposalId, receipt: { status: 'EXECUTED' } }],
+    ['NOT_FOUND with both identities', status(proposalId), { status: 'NOT_FOUND', operationId: proposalId, proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } }],
+    ['unknown status', read, { status: 'PENDING' }],
+  ]
+  for (const [label, request, data] of rejected)
+    await assert.rejects(call(request, data), { code: 'CORE_RESPONSE_INVALID' }, label)
+})
