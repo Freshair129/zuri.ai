@@ -6,6 +6,7 @@ modules:
 owns_routes:
   - src/app/(pm)/growth/**
   - src/app/api/growth/**
+  - src/app/api/insights/**
 owns_models:
   - MarketingPlan
   - MarketingPlanVersion

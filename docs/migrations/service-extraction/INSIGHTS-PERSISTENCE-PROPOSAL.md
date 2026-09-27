@@ -130,3 +130,40 @@ correction without double count; partial partition not replacing the last good
 snapshot; schedule/manual collision coalescing; stale callback after lease expiry;
 snapshot-pinned export during a concurrent sync; revoked grant after snapshot
 creation; RLS with `anon`/`authenticated`; writer-role limits.
+
+## Integrator review (B2) — 2026-09-27, MC0 on behalf of the user
+
+**Decision: accepted in principle; the schema and migration are deferred to I2.**
+S1 was the migration owner for this review and is no longer running; the user asked
+MC0 to take over S1's work, so this records the integrator decision in S1's place.
+
+Accepted as written: internal UUID keys with `ExternalEntityRef` mapping; server-owned
+`tenantId`/`businessId`; nullable values with `quality`; append-only revisions of the
+natural grain; one writer; raw payloads and sync receipts staying in Integration's
+`IngestionRun`/`RawExternalRecord`/`SyncCursor`/`DeadLetterRecord` (all present on main);
+RLS with no browser-role grants; the Postgres test list above.
+
+Why it is deferred rather than applied now: this release is I0+I1 on synthetic
+fixtures, and every writer the tables need (Meta adapter B3, engine adapter B4, brand
+bindings B6) is deferred post-release. Five tables added now would stay empty while
+still forcing a Phase B inventory rebind of a data-protection guard. The query service
+(`createInsightsQueryService`) takes an injected repository, and the only repository
+today is the test fixture (`tests/fixtures/marketing-insights/`). FR-275/FR-276 routes
+therefore stay off by default in this release; a persistent repository arrives with I2.
+
+Required before the I2 migration is written (the migration PR must show each):
+
+1. **Phase B recovery and erasure coverage.** Every new application table changes the
+   frozen inventory in `apps/server/scripts/phase-b-recovery.mjs` (191 tables on main
+   today). State for each table whether it is inside snapshot contents or excluded,
+   rebind `schemaSha256`/`targetSchemaSha256` with the tested procedure, and record the
+   rebind in `26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md`.
+2. **Revision source.** `revision` is "monotonic per binding" but no counter is defined.
+   Name it (for example a per-binding counter row advanced in the writer's transaction)
+   and show that two concurrent runs for one binding cannot issue the same revision.
+3. **Data classification.** Say whether any column is personal data (content `permalink`
+   and `thumbnailRef` may identify a person) and how Business erasure/retention applies,
+   so the tables join the existing erasure path rather than bypassing it.
+
+Migration owner at I2: whoever holds the integrator role then, writing under a lease on
+`apps/server/prisma/schema.prisma` and the migration directories, with S6's patch as input.

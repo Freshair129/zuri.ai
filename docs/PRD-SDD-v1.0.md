@@ -1,6 +1,6 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.254.0b"
+version: "1.255.0b"
 status: draft
 last_update: "2026-09-27T00:00:00+07:00,Claude Opus 5.5 (MC0)"
 relations:
@@ -21,7 +21,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.254.0b |
+| **Version** | 1.255.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -32,6 +32,7 @@ relations:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.255.0b | 2026-09-27 | Claude Opus 5.5 (MC0) | Declare FR-275 (Marketing Insights read surface) and FR-276 (Insights refresh) for the #554 routes, allocated by the integrator (S6 blocker B1). Declared only: fixture-only and off by default in this release; persistence is deferred to I2. |
 | 1.254.0b | 2026-09-25 | Codex | Clarify FR-265/SDD-110 for option B: keep executionMode SERVER, add durable account runtimeOwner and admission-time job cohort snapshot, and retain Core authority for claims, leases, receipts and all state writes. Owner changes require a quiescent account cohort; no schema migration is applied. |
 | 1.253.0b | 2026-09-25 | Codex | Mark FR-050 and FR-140 planned after their in-repository transport-bound implementations were removed with Edge Device surfaces; preserve both active identifiers and record the owner decision needed to re-implement or retire them. No schema or production change. |
 | 1.252.0b | 2026-09-25 | Codex | ADR-110 D5 retires FR-141 (Edge heartbeat registry) and FR-144 (Edge credential and pairing) from active product scope after removal of those Edge Device surfaces. Keep both identifiers burned. FR-050 and FR-140 remain active; no Localworker API-key integration is claimed here. No schema or production change. |
@@ -651,6 +652,8 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 
 | FR-273 | A Business OWNER connects a Notion public connection through the Integration lane. The server creates short-lived single-use OAuth state bound to the trusted Tenant, Business and actor, exchanges the callback code at Notion's `/v1/oauth/token` with the configured redirect URI, and stores the returned access/refresh token in the typed credential vault; the callback never returns token material to the browser. | 🟠 implementation in progress — ADR-109; no production migration or provider activity is claimed |
 | FR-274 | The Integration lane receives Notion's `POST /api/integrations/notion/webhook`, captures the initial verification token encrypted for one-time AAL2 installation-operator reveal, acknowledges only identical challenge retries, validates later `X-Notion-Signature` values over the exact raw request body, and records only idempotent event receipt metadata. Webhook payload content is not persisted or written into a business domain. | 🟠 implementation in progress — ADR-109; no production webhook subscription is claimed |
+| FR-275 | Marketing Insights read surface: a signed-in member of the Business reads a brand's metric summary (`GET /api/insights/summary`), one metric's daily series (`GET /api/insights/metric/[metricKey]`), that series as CSV (`GET /api/insights/metric/[metricKey]/export`) and content performance (`GET /api/insights/content`) on the `/growth/insights` page. The Business comes from the server-owned asset binding, never from the client; every value carries its quality and an unknown value is never shown as 0; a read, render or export never calls a provider and reads one snapshot so a chart and its CSV agree. | 🔜 declared only — Marketing Insights (#554), fixture-only and off by default in this release; persistence deferred to I2 |
+| FR-276 | Marketing Insights refresh: an authorized member requests a refresh (`POST /api/insights/refresh`) and reads its state (`GET /api/insights/refresh/[syncRunId]`). Requests for the same binding and window coalesce into one run, a conflicting run is refused rather than queued twice, a failed run retries once, and a failed or partial run never replaces the last complete snapshot. | 🔜 declared only — Marketing Insights (#554); the workflow-engine adapter behind `SyncOrchestratorPort` is deferred post-release |
 
 ## 1.4 Non-functional requirements
 

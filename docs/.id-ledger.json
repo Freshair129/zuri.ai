@@ -404,6 +404,8 @@
     "FR-272",
     "FR-273",
     "FR-274",
+    "FR-275",
+    "FR-276",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5121,6 +5123,32 @@
       ],
       "statement_digest_reviewed_at": "2026-09-26",
       "statement_digest_reason": "Clarify identical setup challenge retries acknowledge receipt without replacing the pinned verification token."
+    },
+    "FR-275": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f1132a8598472fa3169a05081ee3f5a972db52795600183298091c893f498065",
+      "history": [
+        {
+          "anchor": "marketing insights read surface",
+          "since": "2026-09-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-276": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "40c6d025c114a126f32986469e5dafe5b523d9f10ed3a8c3998037d2dc9c1c0f",
+      "history": [
+        {
+          "anchor": "marketing insights refresh",
+          "since": "2026-09-27",
+          "reason": "declared"
+        }
+      ]
     },
     "NFR-001": {
       "family": "NFR",
