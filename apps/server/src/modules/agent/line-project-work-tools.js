@@ -215,6 +215,7 @@ const LINE_WORK_ERROR_TEXT = Object.freeze({
 const LINE_WORK_DOMAIN_CODES = new Set(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_SCOPE_DENIED',
   'WORK_IDENTITY_REQUIRED', 'WORK_TARGET_NOT_FOUND', 'WORK_ACTION_DENIED', 'WORK_PROPOSAL_CONFLICT',
   'WORK_CONFIRMATION_REQUIRED', 'WORK_CONFIRMATION_INVALID'])
+const LINE_WORK_TARGET_MISSING_MESSAGES = new Set(['Work item not found', 'Workstream not found'])
 
 export function lineWorkReadText(result) {
   return result.items.length ? result.items.map(item => `${item.code}: ${item.title ?? item.name} — ${item.status}\n${item.id}${item.workstreams ? item.workstreams.map(s => `\n${s.name}: ${s.id}`).join('') : ''}`).join('\n\n') + (result.truncated ? '\nมีรายการเพิ่มเติม โปรดระบุคำค้น' : '') : 'ไม่พบรายการในธุรกิจที่คุณมีสิทธิ์เข้าถึง'
@@ -240,8 +241,11 @@ export function isLineWorkDomainError(error) {
   if (error instanceof z.ZodError) return true
   const code = error?.code ?? error?.message
   if (typeof code === 'string' && LINE_WORK_DOMAIN_CODES.has(code)) return true
-  // Canonical Project Manager authorization refusals carry an HTTP status and no code.
-  return error?.code === undefined && [403, 404].includes(error?.status)
+  // Canonical Project Manager refusals: authorization refusals carry an HTTP status
+  // and no code; work-service reports a missing target with these plain messages,
+  // thrown before any write. Both are answered as WORK_ACTION_UNAVAILABLE.
+  if (error?.code !== undefined) return false
+  return [403, 404].includes(error?.status) || LINE_WORK_TARGET_MISSING_MESSAGES.has(error?.message)
 }
 
 /**

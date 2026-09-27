@@ -46,6 +46,14 @@ const WORK_TEXT_MAX = 5000
 // A Work refusal is a typed, final outcome with the legacy reply text; the codes
 // are the `errorCode` values handleLineProjectWorkCommand returns.
 const WORK_REJECTION_CODES = Object.freeze(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_ACTION_UNAVAILABLE'])
+// Key-order-independent JSON, for comparing a runtime request with the derived command.
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`
+  }
+  return JSON.stringify(value) ?? 'null'
+}
 function workSyntaxReply(question) {
   const reply = lineProjectWorkSyntaxReply(question)
   return reply ? { code: reply.errorCode ?? 'WORK_COMMAND_USAGE', text: reply.text } : null
@@ -305,9 +313,13 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   // whichever executor cohort owns the job.
   async function executeWork(job, request, expectedClaim) {
     const input = request.input
+    // The Server worker commits `zCompletion.shape.text.parse(text)`: the trimmed text,
+    // at most 5,000 characters. Return that same trimmed text, so the bound checked
+    // here is the one validateResult checks and padding cannot turn a valid reply into a 500.
     const bounded = text => {
-      if (text.trim().length > WORK_TEXT_MAX) throw error('WORK_TOOL_TEXT_TOO_LONG', 422)
-      return text
+      const committed = text.trim()
+      if (committed.length > WORK_TEXT_MAX) throw error('WORK_TOOL_TEXT_TOO_LONG', 422)
+      return committed
     }
     if (request.operation === 'read') {
       const result = await workSearch(job.id, input, { db, now, expectedClaim })
@@ -330,7 +342,15 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     if (request.operation === 'confirm-execute'
       && (!present(input.proposalId, 128) || request.operationId !== input.proposalId)) throw error('WORK_CONFIRMATION_IDENTITY_INVALID')
     if (request.operation !== 'status') {
-      try { return await executeWork(job, request, expectedClaim) } catch (cause) {
+      // The operation and its arguments are the ones the user typed: Core derives
+      // them from the job's own signed inbound text. A runtime request that differs
+      // (another target, other arguments, another operation) is refused before any
+      // Work call, and only the derived command is ever executed.
+      const typed = parseLineProjectWorkCommand(job.inbound?.body)
+      if (!typed || typed.operation !== request.operation || canonicalJson(typed.input) !== canonicalJson(input)) {
+        throw error('WORK_COMMAND_MISMATCH', 409)
+      }
+      try { return await executeWork(job, { ...request, input: typed.input }, expectedClaim) } catch (cause) {
         // Transport, database and fencing failures keep their retryable or fenced
         // error. A refusal of the request itself (expired confirmation, version
         // conflict, scope, invalid arguments) is final: its transaction rolled back,
@@ -348,7 +368,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       const proposed = await db.auditEvent.findUnique({ where: { id: job.id } })
       if (proposed?.entityType === 'LINE_WORK_PROPOSAL') {
         const saved = JSON.parse(proposed.payloadJson)
-        return { status: 'COMPLETED', result: { text: lineWorkProposalText(saved.action, saved, job.id),
+        return { status: 'COMPLETED', result: { text: lineWorkProposalText(saved.action, saved, job.id).trim(),
           receipt: { proposalId: job.id, status: 'AWAITING_CONFIRMATION' } } }
       }
       return { status: 'NOT_FOUND', operationId: request.operationId }
