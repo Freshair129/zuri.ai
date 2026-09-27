@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url'
 // A service may join ISOLATED_SERVICES only once governance.yml has a job that
 // installs, tests and builds it (pinned by tests/unit/ci-change-scope.test.js).
 
-export const ISOLATED_SERVICES = Object.freeze(['conversation-runtime', 'market-intelligence'])
+export const ISOLATED_SERVICES = Object.freeze(['conversation-runtime', 'market-intelligence', 'scm'])
 
 const servicePath = new RegExp(`^services/(${ISOLATED_SERVICES.map((name) => name.replace(/[-]/g, '\\-')).join('|')})/`)
 

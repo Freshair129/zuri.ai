@@ -607,7 +607,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 70
+          "testCount": 72
         },
         {
           "id": "FR-079",
@@ -769,7 +769,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-256",
@@ -1189,7 +1189,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 32
+          "testCount": 35
         },
         {
           "id": "FR-166",
@@ -1197,7 +1197,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 33
+          "testCount": 36
         },
         {
           "id": "FR-181",
@@ -1213,7 +1213,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 5
+          "testCount": 9
         },
         {
           "id": "FR-186",
@@ -1229,7 +1229,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-196",
@@ -1245,7 +1245,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 19,
-          "testCount": 37
+          "testCount": 38
         }
       ],
       "checks": {
@@ -1271,7 +1271,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 328,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -1393,7 +1393,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 50
+          "testCount": 52
         },
         {
           "id": "FR-078",
@@ -1498,6 +1498,14 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 29
+        },
+        {
+          "id": "FR-166",
+          "title": "Sales orders (commerce)",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 36
         },
         {
           "id": "FR-229",
@@ -1754,7 +1762,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 50
+          "testCount": 52
         },
         {
           "id": "FR-062",
@@ -1964,7 +1972,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 36
+          "testCount": 38
         },
         {
           "id": "FR-161",
@@ -1980,7 +1988,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 32
+          "testCount": 35
         },
         {
           "id": "FR-164",
@@ -1988,7 +1996,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-166",
@@ -1996,7 +2004,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 33
+          "testCount": 36
         },
         {
           "id": "FR-191",
@@ -2119,7 +2127,7 @@
           "details": {
             "routes": 27,
             "inventoried": 26,
-            "openApiPaths": 328,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -2687,7 +2695,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 328,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -2845,12 +2853,20 @@
       "status": "partial",
       "requirements": [
         {
+          "id": "FR-061",
+          "title": "Per-Business domain visibility",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 52
+        },
+        {
           "id": "FR-154",
           "title": "Inventory catalogue identity (คลังสินค้า)",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 12,
-          "testCount": 36
+          "codeCount": 14,
+          "testCount": 38
         },
         {
           "id": "FR-155",
@@ -2867,6 +2883,38 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 17
+        },
+        {
+          "id": "FR-163",
+          "title": "Payments, verification and revenue (commerce)",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 35
+        },
+        {
+          "id": "FR-164",
+          "title": "Suppliers and purchase orders (procurement)",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 41
+        },
+        {
+          "id": "FR-165",
+          "title": "Goods receipts into the stock ledger (procurement)",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 36
+        },
+        {
+          "id": "FR-166",
+          "title": "Sales orders (commerce)",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 36
         },
         {
           "id": "FR-168",
@@ -2939,6 +2987,14 @@
           "status": "verified",
           "codeCount": 18,
           "testCount": 17
+        },
+        {
+          "id": "FR-183",
+          "title": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 9
         },
         {
           "id": "FR-184",
@@ -3059,9 +3115,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 41,
-            "inventoried": 41,
-            "openApiPaths": 328,
+            "routes": 42,
+            "inventoried": 42,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -3108,8 +3164,8 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 33,
-            "guardedMutations": 33,
+            "mutations": 34,
+            "guardedMutations": 34,
             "reads": 32,
             "unguardedReads": 0
           }
@@ -3157,8 +3213,8 @@
         }
       ],
       "details": {
-        "routes": 49,
-        "apiRoutes": 41,
+        "routes": 50,
+        "apiRoutes": 42,
         "pageRoutes": 8,
         "ownedModels": 21,
         "featureNotes": 8
@@ -3429,7 +3485,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-254",
@@ -3663,7 +3719,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 50
+          "testCount": 52
         },
         {
           "id": "FR-080",
@@ -3913,7 +3969,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 328,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4074,7 +4130,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 50
+          "testCount": 52
         },
         {
           "id": "FR-092",
@@ -4108,7 +4164,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 328,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4283,7 +4339,7 @@
           "details": {
             "routes": 21,
             "inventoried": 21,
-            "openApiPaths": 328,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4642,7 +4698,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 328,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4873,7 +4929,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 36
+          "testCount": 38
         },
         {
           "id": "FR-164",
@@ -4881,7 +4937,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-165",
@@ -4889,7 +4945,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-168",
@@ -4939,7 +4995,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 328,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -5370,7 +5426,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 50
+          "testCount": 52
         },
         {
           "id": "FR-062",
@@ -5450,7 +5506,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 70
+          "testCount": 72
         },
         {
           "id": "FR-073",
@@ -5810,7 +5866,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 36
+          "testCount": 38
         },
         {
           "id": "FR-155",
@@ -5874,7 +5930,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 32
+          "testCount": 35
         },
         {
           "id": "FR-164",
@@ -5882,7 +5938,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-165",
@@ -5890,7 +5946,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-166",
@@ -5898,7 +5954,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 33
+          "testCount": 36
         },
         {
           "id": "FR-167",
@@ -5977,8 +6033,8 @@
           "title": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 5
+          "codeCount": 2,
+          "testCount": 9
         },
         {
           "id": "FR-184",
@@ -6033,8 +6089,8 @@
           "title": "LegalEntity moves from portfolioId to tenantId (ADR-078 D2)",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 24
+          "codeCount": 3,
+          "testCount": 25
         },
         {
           "id": "FR-195",
@@ -6298,7 +6354,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-254",
@@ -6432,7 +6488,7 @@
           "details": {
             "routes": 167,
             "inventoried": 167,
-            "openApiPaths": 328,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -8922,8 +8978,8 @@
           "title": "Inventory catalogue identity (คลังสินค้า)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 23,
-          "testCount": 36
+          "codeCount": 25,
+          "testCount": 38
         },
         {
           "id": "FR-155",
@@ -8944,6 +9000,7 @@
       ],
       "evidence": [
         "apps/server/src/app/(pm)/inventory/page.jsx",
+        "apps/server/src/app/api/internal/scm/v1/[operation]/route.js",
         "apps/server/src/app/api/inventory/bundles/route.js",
         "apps/server/src/app/api/inventory/categories/route.js",
         "apps/server/src/app/api/inventory/factories/route.js",
@@ -8970,6 +9027,7 @@
         "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
         "apps/server/src/modules/inventory/application/inventory-recipe-service.js",
         "apps/server/src/modules/inventory/application/inventory-stock-service.js",
+        "apps/server/src/modules/inventory/application/scm-core-facade.js",
         "apps/server/src/modules/inventory/domain/inventory.js",
         "apps/server/src/modules/inventory/index.js",
         "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js",
@@ -8997,6 +9055,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/scm-core-facade-http.test.js",
         "apps/server/tests/integration/task-zai-053-supplier-cost-sheet.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
@@ -9015,6 +9074,7 @@
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js",
+        "apps/server/tests/unit/scm-core-facade.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/supplier-cost-sheet-routes.test.js"
       ]
@@ -9329,7 +9389,9 @@
       "primaryDomain": "commerce",
       "contributorDomains": [
         "commerce",
+        "crm",
         "identity",
+        "inventory",
         "project-manager"
       ],
       "useCase": "ทีมขายสร้างออเดอร์จากหน้า /commerce/orders (รายการที่ผูก SKU ในคลัง ราคาตอนขาย ผูกบทสนทนาแล้วรู้ว่ามาจากแชท) บันทึกสลิปที่ลูกค้าโอน ให้ผู้ตรวจยืนยัน แล้วเห็นยอดชำระ ยอดคงค้าง และรายได้ที่ตรวจสอบแล้วแยกตามที่มาบนหน้า /commerce โดยตัวเลขทั้งหมดคำนวณจากรายการและการชำระที่ตรวจสอบแล้วทุกครั้ง ปิดออเดอร์แล้วตัดสต๊อกผ่านคลังสินค้าได้",
@@ -9345,16 +9407,16 @@
           "title": "Payments, verification and revenue (commerce)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 32
+          "codeCount": 15,
+          "testCount": 35
         },
         {
           "id": "FR-166",
           "title": "Sales orders (commerce)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 33
+          "codeCount": 15,
+          "testCount": 36
         }
       ],
       "evidence": [
@@ -9365,6 +9427,7 @@
         "apps/server/src/app/api/commerce/orders/route.js",
         "apps/server/src/app/api/commerce/payments/[id]/route.js",
         "apps/server/src/app/api/commerce/revenue/route.js",
+        "apps/server/src/app/api/internal/scm/v1/[operation]/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/modules/commerce/application/commerce-authority.js",
         "apps/server/src/modules/commerce/application/payment-service.js",
@@ -9372,7 +9435,9 @@
         "apps/server/src/modules/commerce/application/sales-order-service.js",
         "apps/server/src/modules/commerce/domain/commerce.js",
         "apps/server/src/modules/commerce/index.js",
+        "apps/server/src/modules/crm/scm-reference-reader.js",
         "apps/server/src/modules/identity/rbac.js",
+        "apps/server/src/modules/inventory/application/scm-core-facade.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -9391,6 +9456,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/scm-core-facade-http.test.js",
         "apps/server/tests/integration/scm-legacy-races.postgres.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
@@ -9398,6 +9464,7 @@
         "apps/server/tests/unit/commerce-domain.test.js",
         "apps/server/tests/unit/commerce-routes.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
+        "apps/server/tests/unit/crm/scm-reference-reader.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
@@ -9409,7 +9476,9 @@
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
-        "apps/server/tests/unit/scm-group-navigation.test.js"
+        "apps/server/tests/unit/scm-core-facade.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/scm-revenue-parity.test.js"
       ]
     },
     {
@@ -9424,6 +9493,7 @@
       "primaryDomain": "procurement",
       "contributorDomains": [
         "identity",
+        "inventory",
         "procurement",
         "project-manager"
       ],
@@ -9440,22 +9510,23 @@
           "title": "Suppliers and purchase orders (procurement)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 23,
-          "testCount": 38
+          "codeCount": 25,
+          "testCount": 41
         },
         {
           "id": "FR-165",
           "title": "Goods receipts into the stock ledger (procurement)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 34
+          "codeCount": 16,
+          "testCount": 36
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/procurement/page.jsx",
         "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
         "apps/server/src/app/(pm)/procurement/receipts/page.jsx",
+        "apps/server/src/app/api/internal/scm/v1/[operation]/route.js",
         "apps/server/src/app/api/procurement/cost-sheets/[id]/route.js",
         "apps/server/src/app/api/procurement/cost-sheets/commit/route.js",
         "apps/server/src/app/api/procurement/cost-sheets/preview/route.js",
@@ -9472,6 +9543,7 @@
         "apps/server/src/config/domains.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/identity/rbac.js",
+        "apps/server/src/modules/inventory/application/scm-core-facade.js",
         "apps/server/src/modules/procurement/application/goods-receipt-service.js",
         "apps/server/src/modules/procurement/application/procurement-authority.js",
         "apps/server/src/modules/procurement/application/purchase-order-service.js",
@@ -9496,6 +9568,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/scm-core-facade-http.test.js",
         "apps/server/tests/integration/scm-legacy-races.postgres.test.js",
         "apps/server/tests/integration/task-zai-053-supplier-cost-sheet.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
@@ -9518,6 +9591,8 @@
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-domain.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-core-facade.test.js",
+        "apps/server/tests/unit/scm-cost-sheet-parity.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/supplier-cost-sheet-routes.test.js"
       ]
@@ -9973,8 +10048,8 @@
           "title": "LegalEntity moves from portfolioId to tenantId (ADR-078 D2)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 24
+          "codeCount": 10,
+          "testCount": 25
         }
       ],
       "evidence": [
@@ -9992,6 +10067,7 @@
         "apps/server/src/modules/people/application/people-service.js",
         "apps/server/src/modules/people/components/PeopleDirectory.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/modules/project-manager/application/branch-reference-reader.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr186-billing-pos.spec.js",
@@ -10027,7 +10103,8 @@
         "apps/server/tests/unit/people-directory.test.js",
         "apps/server/tests/unit/people-service.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
-        "apps/server/tests/unit/pricing-backup.test.js"
+        "apps/server/tests/unit/pricing-backup.test.js",
+        "apps/server/tests/unit/project-manager/branch-reference-reader.test.js"
       ]
     },
     {
@@ -14534,6 +14611,7 @@
       "contributorDomains": [
         "crm",
         "identity",
+        "inventory",
         "line-oa-studio",
         "market-intelligence",
         "project-manager"
@@ -14549,8 +14627,8 @@
           "title": "Per-Business domain visibility",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 50
+          "codeCount": 15,
+          "testCount": 52
         }
       ],
       "evidence": [
@@ -14562,6 +14640,7 @@
         "apps/server/src/modules/crm/customer-consent-service.js",
         "apps/server/src/modules/identity/resolve-viewer.js",
         "apps/server/src/modules/identity/viewer-domains.js",
+        "apps/server/src/modules/inventory/application/scm-core-facade.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioTeam.jsx",
         "apps/server/src/modules/market-intelligence/application/market-core-facade.js",
         "apps/server/src/modules/market-intelligence/application/market-observation-service.js",
@@ -14582,6 +14661,7 @@
         "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/market-core-facade-http.test.js",
         "apps/server/tests/integration/market-intelligence-observation-feed.test.js",
+        "apps/server/tests/integration/scm-core-facade-http.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
@@ -14614,6 +14694,7 @@
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/profile-permission-service.test.js",
         "apps/server/tests/unit/sales-task-routes.test.js",
+        "apps/server/tests/unit/scm-core-facade.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/viewer-gate.test.js",
         "services/market-intelligence/src/core/observation-feed.js",
@@ -15000,7 +15081,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 70
+          "testCount": 72
         }
       ],
       "evidence": [
@@ -15088,6 +15169,7 @@
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
+        "apps/server/tests/integration/scm-core-facade-http.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
@@ -15104,6 +15186,7 @@
         "apps/server/tests/unit/project-file-service.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js",
+        "apps/server/tests/unit/scm-core-facade.test.js",
         "apps/server/tests/unit/warehouse-location.test.js",
         "apps/server/tests/unit/work-list-business-scope.test.js"
       ]
@@ -17022,6 +17105,7 @@
       "primaryDomain": "commerce",
       "contributorDomains": [
         "commerce",
+        "inventory",
         "project-manager"
       ],
       "useCase": "An authorized cashier submits a manually priced walk-in sale for a selected Branch and WarehouseLocation, and one transaction records the order, pending payment, exact change and Inventory ledger issue without claiming verification",
@@ -17035,23 +17119,30 @@
           "title": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 5
+          "codeCount": 10,
+          "testCount": 9
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/commerce/pos/page.jsx",
         "apps/server/src/app/api/commerce/pos/catalogue/route.js",
         "apps/server/src/app/api/commerce/pos/checkout/route.js",
+        "apps/server/src/app/api/internal/scm/v1/[operation]/route.js",
         "apps/server/src/modules/commerce/application/pos-cashier-service.js",
         "apps/server/src/modules/commerce/components/PaymentQR.jsx",
         "apps/server/src/modules/commerce/components/PosWorkspace.jsx",
+        "apps/server/src/modules/inventory/application/scm-core-facade.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/branch-reference-reader.js",
         "apps/server/tests/e2e/fr186-billing-pos.spec.js",
         "apps/server/tests/integration/fr183-pos.test.js",
         "apps/server/tests/integration/fr186-billing.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
-        "apps/server/tests/unit/commerce-billing-domain.test.js"
+        "apps/server/tests/integration/scm-core-facade-http.test.js",
+        "apps/server/tests/unit/commerce-billing-domain.test.js",
+        "apps/server/tests/unit/project-manager/branch-reference-reader.test.js",
+        "apps/server/tests/unit/scm-core-facade.test.js",
+        "apps/server/tests/unit/scm-pos-catalogue-parity.test.js"
       ]
     },
     {
@@ -17509,7 +17600,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 24,
-          "testCount": 37
+          "testCount": 38
         }
       ],
       "evidence": [
@@ -17573,7 +17664,8 @@
         "apps/server/tests/unit/pricing-rules-ui.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-feature-forms.test.js",
-        "apps/server/tests/unit/scm-group-navigation.test.js"
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/scm-pricing-parity.test.js"
       ]
     },
     {

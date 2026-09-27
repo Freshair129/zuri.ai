@@ -16,6 +16,8 @@ describe('CI service scope classification', () => {
       .toEqual(['conversation-runtime'])
     expect(isolatedServices('services/market-intelligence/src/a.js\nservices/conversation-runtime/package.json'))
       .toEqual(['conversation-runtime', 'market-intelligence'])
+    expect(isolatedServices('services/scm/src/main.js\nservices/scm/test/unit/core-client.test.js'))
+      .toEqual(['scm'])
   })
 
   it('fails safe to the full suite for anything else', () => {
@@ -23,7 +25,8 @@ describe('CI service scope classification', () => {
       '',
       'services/conversation-runtime/src/a.js\napps/server/src/a.js',
       'services/conversation-runtime/src/a.js\ndocs/migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md',
-      'services/scm/src/a.js',
+      'services/scm/src/a.js\napps/server/src/modules/inventory/application/scm-core-facade.js',
+      'services/scm-evil/src/a.js',
       'services/unknown/src/a.js',
       'services/conversation-runtime',
       'services/conversation-runtime-evil/src/a.js',
@@ -50,6 +53,8 @@ describe('CI service scope classification', () => {
       .toContain('tests/integration/conversation-runtime-model-conformance.test.js')
     expect(scopeOutputs('services/market-intelligence/src/http/server.js', serverRoot).contracts)
       .toContain('tests/integration/market-core-facade-http.test.js')
+    expect(scopeOutputs('services/scm/src/infrastructure/core-client.js', serverRoot).contracts)
+      .toContain('tests/integration/scm-core-facade-http.test.js')
     expect(scopeOutputs('apps/server/src/a.js', serverRoot)).toEqual({ server: 'true', services: '', contracts: '' })
   })
 
