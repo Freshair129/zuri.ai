@@ -536,8 +536,8 @@
           "title": "Evidence-grounded answer",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 6
+          "codeCount": 3,
+          "testCount": 9
         },
         {
           "id": "FR-051",
@@ -691,8 +691,8 @@
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 55
+          "codeCount": 5,
+          "testCount": 56
         },
         {
           "id": "FR-150",
@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 15
         },
         {
           "id": "FR-171",
@@ -708,7 +708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 30
+          "testCount": 29
         },
         {
           "id": "FR-181",
@@ -752,8 +752,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 30
+          "codeCount": 5,
+          "testCount": 31
         },
         {
           "id": "FR-253",
@@ -2508,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 55
+          "testCount": 56
         },
         {
           "id": "FR-152",
@@ -3380,7 +3380,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-236",
@@ -3678,15 +3678,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 55
+          "testCount": 56
         },
         {
           "id": "FR-150",
           "title": "Optional Edge conversation execution",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 16
+          "codeCount": 5,
+          "testCount": 15
         },
         {
           "id": "FR-151",
@@ -3718,7 +3718,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 30
+          "testCount": 29
         },
         {
           "id": "FR-190",
@@ -3798,7 +3798,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-238",
@@ -3821,8 +3821,8 @@
           "title": "Local model residency follows business hours",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 14
+          "codeCount": 3,
+          "testCount": 9
         },
         {
           "id": "FR-259",
@@ -5737,7 +5737,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 55
+          "testCount": 56
         },
         {
           "id": "FR-150",
@@ -5745,7 +5745,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 15
         },
         {
           "id": "FR-151",
@@ -8680,16 +8680,16 @@
           "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 40,
-          "testCount": 55
+          "codeCount": 42,
+          "testCount": 56
         },
         {
           "id": "FR-150",
           "title": "Optional Edge conversation execution",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 16
+          "codeCount": 10,
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -8714,6 +8714,7 @@
         "apps/server/src/app/api/line-oa/worker/route.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
+        "apps/server/src/modules/agent/line-answer-policy.js",
         "apps/server/src/modules/agent/line-project-work-tools.js",
         "apps/server/src/modules/agent/msp-thread-memory-port.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
@@ -8745,9 +8746,8 @@
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
-        "apps/server/tests/integration/conversation-runtime-group-room.test.js",
+        "apps/server/tests/integration/conversation-runtime-answer-parity.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
-        "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
@@ -8810,9 +8810,11 @@
         "services/conversation-runtime/src/core-client.js",
         "services/conversation-runtime/src/core-ports.js",
         "services/conversation-runtime/src/health-server.js",
+        "services/conversation-runtime/src/line-answer-policy.js",
         "services/conversation-runtime/src/main.js",
         "services/conversation-runtime/src/turn-runtime.js",
         "services/conversation-runtime/src/worker-loop.js",
+        "services/conversation-runtime/test/answer-policy.test.js",
         "services/conversation-runtime/test/contracts.test.js",
         "services/conversation-runtime/test/core-ports.test.js",
         "services/conversation-runtime/test/health-server.test.js",
@@ -11010,8 +11012,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 30
+          "codeCount": 15,
+          "testCount": 31
         },
         {
           "id": "FR-236",
@@ -11050,6 +11052,7 @@
         "apps/server/src/lib/business-knowledge-candidates.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
+        "apps/server/src/modules/agent/line-answer-policy.js",
         "apps/server/src/modules/agent/line-execution-trace.js",
         "apps/server/src/modules/agent/line-knowledge-grounding.js",
         "apps/server/src/modules/agent/server-line-answer.js",
@@ -11080,6 +11083,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-answer-parity.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -11151,6 +11155,7 @@
         "apps/server/tests/unit/server-line-answer.test.js",
         "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
         "services/conversation-runtime/src/context.js",
+        "services/conversation-runtime/src/line-answer-policy.js",
         "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
@@ -11242,8 +11247,8 @@
           "title": "Local model residency follows business hours",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 14
+          "codeCount": 3,
+          "testCount": 9
         }
       ],
       "evidence": [
@@ -11255,15 +11260,12 @@
         "apps/server/src/modules/crm/conversation-session-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
         "apps/server/src/modules/crm/reply-record-service.js",
-        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
-        "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
-        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -11292,14 +11294,9 @@
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
-        "apps/server/tests/unit/line-job-answer-text-marker.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
-        "apps/server/tests/unit/reply-record-service.test.js",
-        "services/conversation-runtime/src/contracts.js",
-        "services/conversation-runtime/src/turn-runtime.js",
-        "services/conversation-runtime/test/contracts.test.js",
-        "services/conversation-runtime/test/turn-runtime.test.js"
+        "apps/server/tests/unit/reply-record-service.test.js"
       ]
     },
     {
@@ -13966,19 +13963,25 @@
           "title": "Evidence-grounded answer",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 2,
-          "testCount": 6
+          "codeCount": 5,
+          "testCount": 9
         }
       ],
       "evidence": [
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/index.js",
+        "apps/server/src/modules/agent/line-answer-policy.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-context.test.js",
+        "apps/server/tests/integration/conversation-runtime-answer-parity.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
-        "apps/server/tests/unit/role-memory-partition.test.js"
+        "apps/server/tests/unit/role-memory-partition.test.js",
+        "services/conversation-runtime/src/line-answer-policy.js",
+        "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/test/answer-policy.test.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {
@@ -16765,7 +16768,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 30
+          "testCount": 29
         }
       ],
       "evidence": [
@@ -16790,9 +16793,7 @@
         "apps/server/tests/integration/agent-msp-port.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
-        "apps/server/tests/integration/conversation-runtime-group-room.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
-        "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",

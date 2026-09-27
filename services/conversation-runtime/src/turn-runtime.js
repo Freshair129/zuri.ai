@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { validateClaim, validateTurnContext, validateWorkToolRequest } from './contracts.js'
 import { composeTurnContext } from './context.js'
+import { NO_EVIDENCE_REPLY, boundLineText, checkModelAnswer, deterministicFallback } from './line-answer-policy.js'
 
 // @req FR-149, FR-171 — claimed LINE turn orchestration and delivery coordination.
 // @spec ADR-106, SDD-110 — no direct DB/provider/table authority; use bounded ports.
@@ -13,6 +14,22 @@ const deliveryStatusOperation = jobId => `${jobId}:delivery`
 // Causes that end a turn for good: Core revoked the authority it runs under.
 const AUTHORITY_ENDED = Object.freeze(['AUTHORITY_DENIED', 'CONVERSATION_IDENTITY_CHANGED', 'CONVERSATION_IDENTITY_REVOKED',
   'CONVERSATION_JOB_AUTHORITY_REVOKED', 'PDPA_ERASURE'])
+
+// The Server path meets a provider configuration error while building its provider
+// port, before any answer exists, and replies with nothing; so does the Runtime.
+const MODEL_CONFIGURATION_CODES = new Set(['MODEL_CONFIG_INVALID', 'MODEL_PRIVATE_RUNTIME_NOT_CONFIGURED',
+  'MODEL_BASE_URL_INVALID', 'MODEL_BASE_URL_NOT_ALLOWED'])
+
+// @req FR-049, FR-149 — the Server answer path replies from evidence when the
+// provider call fails (grounded-business-answer.js). Three failures still fail
+// the turn: a provider configuration error (above); an error that marks its own
+// outcome UNKNOWN, as the Server path rethrows MSP_INJECTION_RECEIPT_UNKNOWN; and
+// this process's own abort, which is a shutdown, not a provider answer.
+function answersFromEvidence(error, signal) {
+  if (signal?.aborted || error?.outcome === 'UNKNOWN') return false
+  if (['MSP_INJECTION_RECEIPT_UNKNOWN', 'MODEL_OUTCOME_UNKNOWN'].includes(error?.code)) return false
+  return !MODEL_CONFIGURATION_CODES.has(error?.code)
+}
 
 function unknownOutcome(code, cause) {
   return Object.assign(new Error(code), { code, outcome: 'UNKNOWN', ...(cause ? { cause } : {}) })
@@ -157,7 +174,7 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         // a refusal is final, so it is answered and completed rather than retried.
         text = result?.result?.text ?? result?.text
       } else if (evidenceRecords(turn.evidence).length === 0) {
-        text = 'ยังไม่พบข้อมูลที่ตรงกับคำถามนี้ ลองระบุรายละเอียดเพิ่มอีกหนึ่งอย่างได้ไหมคะ'
+        text = NO_EVIDENCE_REPLY
       } else {
         composed = composeTurnContext({ authorized: turn.authorized, slices: turn.slices,
           threadId: turn.threadId, audienceKind: turn.audienceKind, maxBudgetChars: turn.maxBudgetChars })
@@ -188,14 +205,33 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
           const currentAuthority = await ports.authority.resolve(claim, { signal })
           assertAuthority(currentAuthority, claim, authority)
           await ensureLease()
-          const generated = await ports.model.generate({ question: turn.question, evidence: turn.evidence,
-            contextPacket: composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null,
-            contextReceipt: composed.receipt, credential,
-            deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
-          if (typeof generated !== 'string' || !generated.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
-          text = generated.trim().slice(0, 5000).replace(/[\uD800-\uDBFF]$/, '')
+          // @req FR-049, FR-149 — the Server answer path's post-model rules, from
+          // the same policy source: a provider failure answers from evidence, and a
+          // candidate carrying a number, code or delivery claim the evidence does
+          // not carry is replaced by the evidence fallback.
+          const checkedEvidence = { records: evidenceRecords(turn.evidence) }
+          let generated
+          let answer = null
           try {
-            await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: stableModelId, text } }, { signal })
+            generated = await ports.model.generate({ question: turn.question, evidence: turn.evidence,
+              contextPacket: composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null,
+              contextReceipt: composed.receipt, credential,
+              deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
+          } catch (error) {
+            if (!answersFromEvidence(error, signal)) throw error
+            answer = { text: deterministicFallback(checkedEvidence), status: 'fallback', code: safeCode(error) }
+          }
+          if (!answer) {
+            if (typeof generated !== 'string' || !generated.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
+            answer = checkModelAnswer(turn.question, checkedEvidence, generated)
+          }
+          // The Server worker bounds the answer and then trims it (zCompletion), in
+          // that order. The recorded text is the final reply, so a replay after a
+          // reclaim reuses it as is and never calls the provider a second time.
+          text = boundLineText(answer.text).trim()
+          try {
+            await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: stableModelId, text,
+              answerStatus: answer.status, ...(answer.code ? { code: answer.code } : {}) } }, { signal })
           } catch {
             const recorded = await ports.trace.status(claim, stableModelId, { signal })
             if (recorded?.status === 'COMPLETED' && typeof recorded.text === 'string') text = recorded.text
