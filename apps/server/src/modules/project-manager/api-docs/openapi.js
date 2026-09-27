@@ -145,6 +145,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // (list + create), item (read exploded to a quantity + versioned action)
   // and the atomic build (POST only).
   ['/api/inventory/recipes', ['GET', 'POST']], ['/api/inventory/recipes/{id}', ['GET', 'PATCH']], ['/api/inventory/recipes/{id}/build', ['POST']],
+  // ADR-111 D5 — private scm-core.v1 façade for the SCM service (POST only).
+  ['/api/internal/scm/v1/{operation}', ['POST']],
   // @req FR-182 — the SCM operations surface (ADR-074): locations and the
   // atomic transfer, both work orders with their versioned action, reservations
   // and ATP, the shelf-life audit and de-kitting. Every one is a thin handler

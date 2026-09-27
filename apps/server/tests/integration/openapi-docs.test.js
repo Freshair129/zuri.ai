@@ -253,8 +253,10 @@ describe('OpenAPI document', () => {
       // ADR-110 retires 20 Edge, harness, and legacy paths (23 operations), and
       // ADR-106/SDD-110 adds the Conversation Runtime Core path with GET + POST:
       // 342 - 20 + 1 = 323 paths; 449 - 23 + 2 = 428 operations.
-      pathCount: 323,
-      operationCount: 428,
+      // ADR-111 D5 adds the SCM service's private core façade: one dynamic
+      // path, POST only. 323 + 1 = 324 paths; 428 + 1 = 429 operations.
+      pathCount: 324,
+      operationCount: 429,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

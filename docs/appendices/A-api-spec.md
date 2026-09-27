@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.97.0b → 1.98.0b (2026-09-27): add the SCM service's private core façade (ADR-111 D5, the ADR-108 D4 pattern), one dynamic path with POST only; 323 API route handlers, 324 OpenAPI paths and 429 operations. Not reachable with a browser session; no production route switch is claimed.
+
 Version diff 1.96.0b → 1.97.0b (2026-09-27): document the catalog-upload response as a separate stored-file and Knowledge-admission outcome (`fileStatus`, `knowledgeStatus`, optional `knowledgeCode`, `admission` omitted on a typed admission failure, HTTP 200 partial outcome). No route is added or removed.
 
 Version diff 1.95.0b → 1.96.0b (2026-09-27): ADR-110 retires 20 Edge Device, harness and legacy executor paths (23 operations) from the 342-path / 449-operation Notion baseline. ADR-106 / SDD-110 adds one Conversation Runtime Core path with GET + POST; the composed inventory is 322 API route handlers, 323 OpenAPI paths and 428 operations. Native signed LINE ingress, PRP model-provider credentials, historical records and Knowledge/RAG remain; no migration or deployment is included.
@@ -30,7 +32,7 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.97.0b |
+| **Version** | 1.98.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-27 |
 
@@ -72,7 +74,7 @@ operation-specific payload fields.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=322 -->
+<!-- api-spec-counts: route_handlers=323 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -769,6 +771,7 @@ Thirteen handlers over the services FR-174…FR-181 already shipped. Each is thi
 | PATCH | `/api/inventory/catalog-intakes/[id]` | implemented (FR-208): `{ action: CANCEL, version }` — compare-and-swap; the row stays. Audited `INVENTORY_CATALOG_INTAKE_CANCELLED`. No DELETE | `404`; `409 INVENTORY_CATALOG_INTAKE_VERSION_CONFLICT \| INVENTORY_CATALOG_INTAKE_ALREADY_COMMITTED \| INVENTORY_CATALOG_INTAKE_CANCELLED`; `400` |
 | GET | `/api/inventory/catalog-intakes/template?businessId=` | implemented (FR-209): `.xlsx` — `Products` (header row 2 is the contract, dropdowns from `enums.js`), `Lookups` (this Business's categories and masters) and a read-me | `404` as JSON |
 | POST | `/api/inventory/catalog-intakes/xlsx` | implemented (FR-209): multipart `businessId` + `file` (`.xlsx`, ≤ 5 MiB); authority before reading; rows become items unjudged and preview under correlation `xlsx:<sha256>` — the preview response above. Never commits | `404`; `400` not multipart / not `.xlsx`; `413`; `422 INVENTORY_CATALOG_WORKBOOK_UNREADABLE \| _SHEET_MISSING \| _HEADER_MISMATCH (details: columns) \| _EMPTY \| _TOO_MANY_ROWS` |
+| POST | `/api/internal/scm/v1/[operation]` | proposed (ADR-111 D5, contract `services/scm/contracts/v1/scm-core.v1.json`): core's private `scm-core.v1` façade for the separately running SCM service. Bearer `SCM_CORE_TOKEN` only (unset or shorter than 32 refuses every caller); the end user is re-resolved from their own session token in `x-zuri-subject`, never from service-sent fields. `resolve-scope` `{}` → `{ actorId, tenantId, grants: { businessId: { owner, domains, permissions } } }` for every visible Business, computed by the legacy `ownsBusiness`, Inventory/Procurement/Commerce `mayView` and `hasPermission` (only `inventory`/`procurement`/`commerce` and the five SCM permission keys); `branch`, `branches`, `customer`, `conversation` → raw facts, `null` / `[]` for a Business the subject cannot see, another Tenant, a row homed out of sight or a missing row. Responses use the `{ contractVersion, ok, data }` envelope, `cache-control: no-store` | `401 SERVICE_TOKEN_INVALID \| SUBJECT_UNAUTHENTICATED`; `404 OPERATION_NOT_FOUND`; `400 VALIDATION_FAILED`; `413 REQUEST_TOO_LARGE` (16 KiB); `409 SCOPE_NOT_SINGLE_TENANT \| SCOPE_TOO_LARGE \| BRANCHES_TOO_MANY`; `405` other methods; `503 CORE_UNAVAILABLE` |
 
 ## CRM sales tasks (FR-161, ADR-064)
 
@@ -1111,6 +1114,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.98.0b | 2026-09-27 | candidate | ADR-111 D5 adds the SCM service's private core façade at `/api/internal/scm/v1/[operation]` (one path, POST only: `resolve-scope`, `branch`, `branches`, `customer`, `conversation`); inventory 322 -> 323 route handlers, 323 -> 324 paths / 428 -> 429 operations; no production route switch claimed | working-tree | Claude Opus 5.5 |
 | 1.97.0b | 2026-09-27 | candidate | `POST /api/knowledge/catalog-files` returns `fileStatus`/`knowledgeStatus`/`knowledgeCode?`/`admission?` so a stored file with a failed Knowledge admission is a 200 partial outcome (#543) | working-tree | Claude Opus 5.5 (MC0) |
 | 1.96.0b | 2026-09-27 | candidate | ADR-110 retires 20 Edge Device, harness and legacy paths (23 operations) from the 1.95 Notion baseline; ADR-106 / SDD-110 adds one Conversation Runtime Core path with GET + POST. Composed inventory: 342 - 20 + 1 = 323 paths; 449 - 23 + 2 = 428 operations. Stored records/schema, signed LINE ingress, PRP key flow and Knowledge/RAG remain; no migration or deployment | working-tree | Codex |
 | 1.94.0b | 2026-09-24 | candidate | ADR-108 D4 adds the Market Intelligence private core façade at `/api/internal/market-intelligence/v1/[operation]` (one path, GET + POST); inventory 336 -> 337 paths / 442 -> 444 operations; no production route switch claimed | working-tree | Codex |

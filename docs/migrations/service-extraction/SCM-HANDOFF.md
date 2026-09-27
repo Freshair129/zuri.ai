@@ -953,6 +953,34 @@ board_update: BOARD_UPDATE_PENDING
    customer and conversation, the contract, and 26 tests with a fake core. SQLite
    322/324 (2 skipped), PostgreSQL 323/324 (1 skipped). Next is the provider
    façade in apps/server; MC0 decides who writes it.
+2d. SCM-CORE provider façade (the owner assigned it to S5 under a lease on 2026-09-27):
+   `apps/server/src/modules/inventory/application/scm-core-facade.js` +
+   `POST /api/internal/scm/v1/[operation]`, the ADR-108 D4 pattern.
+   - `SCM_CORE_TOKEN` is checked first, in constant time, and an unset token
+     refuses every caller.
+   - The subject is re-resolved as the session cookie through
+     `resolveRequestViewer`.
+   - Grants come from the legacy predicates themselves: `seesBusiness`,
+     `ownsBusiness`, each authority's `mayView` and `hasPermission`, restricted
+     to the five SCM keys.
+   - Facts use the legacy reads (`pos-cashier-service` for Branch,
+     `sales-order-service` for Customer and Conversation). A Business the
+     subject cannot see, another Tenant or a missing row answers `null`.
+   - Tests:
+     - A parity test: for 8 factory viewers x 4 Businesses x 10 capabilities,
+       SCM's ladder on the façade's grants equals the legacy authority.
+     - A consumer-to-real-façade test: the real `createScmCoreClient` against
+       the real route and the test DB.
+   - **Open (Core owner):** `resolve-scope` names ONE Tenant, and SCM stamps
+     every write with it. A viewer whose visible Businesses span several Tenants
+     (a second membership, or DEV), or who has none, is therefore refused with
+     409 `SCOPE_NOT_SINGLE_TENANT` (SCM answers 502, no effect), where legacy
+     would serve them. Fixing it needs a Business or Tenant selector in
+     `resolve-scope`, or a per-Business Tenant in SCM's scope. Both are contract
+     changes.
+   - **Open (CRM owner):** the façade reads `Customer` and `Conversation`
+     through Prisma exactly as legacy `sales-order-service` does; CRM may
+     prefer an exported reader.
 2a. Wrap-up (2026-09-24): no new groups.
    - #561: MERGED at `9e25aa1f` (S1 PASS at `be171333`, CI green).
    - #564 (F-15/F-16/F-17): MERGED at `caabd8a7` (S1 PASS at `812b21f0`, CI green).
