@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-106
 title: "Conversation Runtime service extraction"
-version: "1.1.0"
+version: "1.2.0"
 status: approved
 created_at: "2026-09-24T00:00:00+07:00,Codex"
-last_update: "2026-09-27T20:00:00+07:00,Claude Opus 5.5 (MC0 W10)"
+last_update: "2026-09-27T22:00:00+07:00,Claude Opus 5.5 (MC0 W11)"
 author: Codex (implementation owner)
 approved_on: "2026-09-24"
 approved_by: "User instruction in Session 1"
@@ -158,7 +158,8 @@ not.
   scope with `identityId: null` and `identityState: UNVERIFIED`. Every Work call is
   answered with the legacy handler's refusal as a final `REJECTED` outcome before
   any Work reader or writer; `#sku` is an ordinary question and the catalogue
-  command never runs; no memory operation exists. Grounding, the model credential
+  command never runs; a memory-sync turn runs in Core's PENDING memory mode (see
+  below). Grounding, the model credential
   (the Business's own key), out-of-hours and delivery are the ones the Server path
   uses for every sender.
 - **Its fence** is the account, the transport epoch, erasure and the admitted
@@ -170,10 +171,16 @@ not.
   identity once, when its execution starts, so the two differ only for a sender
   verified in the seconds between admission and claim; the runtime then refuses
   where legacy would serve.
-- **Exception:** a memory-sync opt-in turn from an unverified sender stays in the
-  `SERVER` cohort. The legacy worker records such a turn in the MSP thread with
-  `PENDING` assurance (no private recall); the runtime cohort does not reproduce
-  that write.
+- **Memory-sync turns (owner decision 2026-09-27, W11; this replaces the earlier
+  exception that kept them in `SERVER`):** a memory-sync opt-in turn from an
+  unverified sender joins the cohort and runs in Core's PENDING memory mode, with
+  the legacy worker's behaviour: no private recall and no injection receipt; the
+  question and the reply are appended to the MSP thread with `PENDING` assurance
+  and no person. Core selects the mode from the job's `CHANNEL_IDENTITY_ADMITTED`
+  record and pins the authorization's identity unverified for it, so a sender
+  verified mid-turn gains no private memory. The mode is recorded on Core's read
+  receipt (`core-memory` namespace), and a replay or append under the other mode
+  is refused. The v1 `memory` request has no field that can select it.
 
 ## Migration and rollback
 
@@ -210,6 +217,7 @@ reported separately. Production cutover is not inferred from local proof.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0 | 2026-09-27 | approved | Amendment update (owner decision, W11): unverified senders' memory-sync turns join the runtime cohort in Core's PENDING memory mode (no private recall, PENDING appends with no person); the SERVER exception is removed | uncommitted | Claude Opus 5.5 (MC0 W11) |
 | 1.1.0 | 2026-09-27 | approved | Amendment 2026-09-27: unverified LINE senders join the runtime cohort by owner ruling, with Core's admission-time UNVERIFIED record, no person scope, the legacy Work refusal, no `#sku` command and no memory; unverified memory-sync turns stay SERVER. D3's eligibility sentence points to the amendment | uncommitted | Claude Opus 5.5 (MC0 W10) |
 | 1.0.1 | 2026-09-25 | approved | Clarify option B: keep executionMode SERVER and persist a separate account/job runtimeOwner cohort; Core remains authoritative for claim, lease, receipt and state writes | uncommitted | Codex |
 | 1.0.0 | 2026-09-24 | approved | Approve first independent Conversation Runtime extraction ahead of Work Management; keep existing domain data owners behind conversation-runtime.v1 ports | uncommitted | Codex |

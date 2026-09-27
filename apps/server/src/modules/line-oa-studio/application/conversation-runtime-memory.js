@@ -8,6 +8,7 @@ import {
   memoryRoute, memoryServerScope, prepareLineMemoryContext,
 } from '@/modules/agent/server-line-answer'
 import { createServerLineThreadMemory } from './server-line-runtime'
+import { runtimeOutOfHoursReply } from './line-conversation-jobs'
 import {
   coreMemoryKey, isMemoryTurn, loadMemoryReceipt, MEMORY_RECEIPT_KINDS, memoryOperationIds, memoryReceiptKey, memoryTextSha256,
 } from './runtime-memory-receipts'
@@ -20,7 +21,14 @@ import {
 // @spec ADR-106 D2-D4, SDD-110, ADR-061, ADR-070, SEC-001 — the runtime names only the
 //   operation and its stable id; tenant, business, account, identity, thread and route
 //   all come from the claimed, persisted job and Core's own MSP receipts.
-// @tested tests/integration/conversation-runtime-memory.test.js
+// @req FR-149 — PENDING memory mode (W11): a job Core admitted for an unverified LINE
+//   sender (`senderIdentityState: 'UNVERIFIED'`, set by Core's claim check from the
+//   job's CHANNEL_IDENTITY_ADMITTED record) runs the same phases with the identity
+//   pinned unverified: no private recall, no injection receipt, the inbound message
+//   appended with PENDING assurance and no person. The read receipt records the mode,
+//   and a replay or append under the other mode is refused.
+// @tested tests/integration/conversation-runtime-memory.test.js,
+//   tests/integration/conversation-runtime-unverified-memory.test.js
 
 export const MEMORY_OPERATIONS = Object.freeze(['read', 'append', 'receipt'])
 export const MEMORY_INJECTION_STATES = Object.freeze(['RESOLVED', 'SUBMITTED', 'COMPLETED', 'FAILED'])
@@ -104,15 +112,42 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
   const routeKey = route => createHash('sha256').update(JSON.stringify([route.tenantId, route.businessId,
     route.channelAccountId, route.externalRoomRef, route.audienceKind])).digest('hex')
 
+  const pendingMode = job => job.senderIdentityState === 'UNVERIFIED'
+
+  // @req FR-149 — PENDING mode binds every principal the turn resolves to the one
+  // Core's admission record names (#600 review): a sender who links to another
+  // Person mid-turn must not have that Person named as the speaker or requester of
+  // a PENDING append. The same guard refuses, before any MSP append, a context or
+  // authorization that claims a verified identity or private memory.
+  const pendingPrincipal = job => {
+    if (typeof job.senderPrincipalId !== 'string' || !job.senderPrincipalId) throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
+    return job.senderPrincipalId
+  }
+  const assemblerFor = job => !pendingMode(job) ? contextAssembler : async input => {
+    const context = await contextAssembler(input)
+    if (context?.identity?.principalId !== pendingPrincipal(job) || context.identity.verified !== false
+      || context.policy?.privateMemoryAllowed === true) throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
+    return context
+  }
+  const authorizationFor = job => !pendingMode(job) ? authorizationResolver : async input => {
+    const current = await authorizationResolver(input)
+    if (current?.authContext?.actor?.principalId !== pendingPrincipal(job) || current.policy?.privateMemoryAllowed === true) {
+      throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
+    }
+    return current
+  }
+
   async function storedRead(job, route) {
     const stored = await loadReceipt(job, 'read')
     if (stored && stored.routeKey !== routeKey(route)) throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
+    // A receipt is used only under the mode it was read in.
+    if (stored && (stored.identityAssurance === 'PENDING') !== pendingMode(job)) throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
     return stored
   }
 
   /** Core's own authorization for this job's LINE subject, never a stored or runtime value. */
   async function currentAuthorization(job, route) {
-    const current = await authorizationResolver({ tenantId: job.tenantId, businessId: job.businessId,
+    const current = await authorizationFor(job)({ tenantId: job.tenantId, businessId: job.businessId,
       lineUserId: job.sourceUserId, threadId: route.externalRoomRef, eventId: job.eventId,
       serverScope: memoryServerScope(job, route) })
     if (current?.authContext?.scope?.tenantId !== job.tenantId || current.authContext.scope.businessId !== job.businessId
@@ -140,6 +175,9 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
   function memoryTurn(job) {
     if (job.memorySyncOptIn !== true) throw error('MEMORY_NOT_ENABLED', 409)
     if (!isMemoryTurn(job)) throw error('MEMORY_NOT_APPLICABLE', 409)
+    // @req FR-244 — an out-of-hours turn never touches memory, as on the Server path
+    // (#600 review, MEDIUM): every memory operation is refused for it.
+    if (runtimeOutOfHoursReply(job) !== null) throw error('MEMORY_NOT_APPLICABLE', 409)
     if (resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding) !== 'BUSINESS_KNOWLEDGE') {
       throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
     }
@@ -181,7 +219,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     }
     const port = threadMemory()
     const { memoryContext, memoryInbound, authorizedForMemory } = await prepareLineMemoryContext({ job, route,
-      question: job.inbound.body, threadMemory: port, contextAssembler, memoryStateReader })
+      question: job.inbound.body, threadMemory: port, contextAssembler: assemblerFor(job), memoryStateReader })
     const { composed, injectedPacket } = composeLineMemoryPacket({ memoryContext, route, authorizedForMemory })
     // Trace payloads are stored as canonical JSON. The packet is kept as the exact
     // string the legacy path would hand the model, so the prompt and the MSP
@@ -190,9 +228,15 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     if (contextPacketJson && Buffer.byteLength(contextPacketJson, 'utf8') > MAX_MEMORY_PACKET_BYTES) {
       throw error('MEMORY_CONTEXT_TOO_LARGE', 413)
     }
-    const receipt = { operationId, routeKey: routeKey(route), ...lineMemoryHandle(memoryContext, memoryInbound),
+    const handle = lineMemoryHandle(memoryContext, memoryInbound)
+    // PENDING mode fails closed: whatever MSP or the authorization answered, a
+    // pinned-unverified turn never carries private memory or a context packet.
+    if (pendingMode(job) && (handle.privateMemoryAllowed || authorizedForMemory || contextPacketJson
+      || memoryContext.identity?.verified !== false)) throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
+    const receipt = { operationId, routeKey: routeKey(route), ...handle,
       policyDecision: memoryContext.threadMemory.policyDecision,
-      contextReceiptId: composed.receipt?.receiptId ?? null, contextPacketJson }
+      contextReceiptId: composed.receipt?.receiptId ?? null, contextPacketJson,
+      ...(pendingMode(job) ? { identityAssurance: 'PENDING' } : {}) }
     await assertMemoryJobLive(job, memoryStateReader)
     await saveReceipt(job, 'read', receipt)
     // The legacy worker records the composer's ContextReceipt (references, hash,
@@ -219,7 +263,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     // saved repeats the call on reclaim with the same source event id, which MSP
     // deduplicates exactly as it does for a restarted legacy worker.
     const agent = await appendLineMemoryAnswer({ job, route, threadMemory: port, memory: stored,
-      answerText: text, authorizationResolver, memoryStateReader })
+      answerText: text, authorizationResolver: authorizationFor(job), memoryStateReader })
     const receipt = { operationId: memoryOperationIds(job.id).append, threadId: stored.threadId,
       exchangeId: stored.exchangeId, messageId: agent.message.messageId, sessionId: agent.session.sessionId, textSha256 }
     await saveReceipt(job, 'append', receipt)
