@@ -103,6 +103,25 @@ describe('stopCluster', () => {
     expect(remove).not.toHaveBeenCalled()
   })
 
+  it('throws, and leaves the directory, when both stops fail and postmaster.pid names no pid', async () => {
+    const { root, data } = cluster('not-a-pid')
+    const run = vi.fn(() => { throw new Error('pg_ctl: could not send stop signal') })
+    const remove = vi.fn(async () => true)
+    await expect(stopCluster({ root, data, pgCtl: 'pg_ctl', run, alive: () => false, sleep: noSleep, remove }))
+      .rejects.toThrow('EMBEDDED_POSTGRES_STOP_FAILED')
+    expect(run.mock.calls.map(([, args]) => args[4])).toStrictEqual(['fast', 'immediate'])
+    expect(remove).not.toHaveBeenCalled()
+  })
+
+  it('removes the directory when postmaster.pid names no pid but pg_ctl stopped the server', async () => {
+    const { root, data } = cluster('not-a-pid')
+    const run = vi.fn()
+    const remove = vi.fn(async () => true)
+    await stopCluster({ root, data, pgCtl: 'pg_ctl', run, alive: () => true, sleep: noSleep, remove })
+    expect(run).toHaveBeenCalledTimes(1)
+    expect(remove).toHaveBeenCalledWith(root)
+  })
+
   it('skips pg_ctl when no server was started and still removes the directory', async () => {
     const { root, data } = cluster(null)
     const run = vi.fn()
