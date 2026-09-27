@@ -36,11 +36,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 160,
-    "readyFeatureCount": 116,
-    "requirementCount": 274,
-    "verifiedRequirementCount": 243,
-    "progressPercent": 92.6,
+    "featureCount": 162,
+    "readyFeatureCount": 117,
+    "requirementCount": 276,
+    "verifiedRequirementCount": 244,
+    "progressPercent": 92.3,
     "gapCount": 47,
     "gaps": [
       {
@@ -1254,7 +1254,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 324,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -2102,7 +2102,7 @@
           "details": {
             "routes": 27,
             "inventoried": 26,
-            "openApiPaths": 324,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -2670,7 +2670,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 324,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -3092,7 +3092,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 324,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -3928,7 +3928,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 324,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4123,7 +4123,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 324,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4265,6 +4265,14 @@
           "status": "verified",
           "codeCount": 15,
           "testCount": 21
+        },
+        {
+          "id": "FR-275",
+          "title": "Marketing Insights read surface",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 3
         }
       ],
       "checks": {
@@ -4275,8 +4283,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 16,
-            "inventoried": 16,
+            "routes": 17,
+            "inventoried": 17,
             "missing": 0
           }
         },
@@ -4288,9 +4296,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 16,
-            "inventoried": 16,
-            "openApiPaths": 324,
+            "routes": 21,
+            "inventoried": 21,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4376,18 +4384,20 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 32,
-        "apiRoutes": 16,
-        "pageRoutes": 16,
+        "routes": 38,
+        "apiRoutes": 21,
+        "pageRoutes": 17,
         "ownedModels": 13,
         "featureNotes": 5
       },
       "featureIds": [
-        "FEAT-021"
+        "FEAT-021",
+        "FR-275",
+        "FR-276"
       ],
-      "featureCount": 1,
-      "readyFeatureCount": 0,
-      "progressPercent": 100
+      "featureCount": 3,
+      "readyFeatureCount": 1,
+      "progressPercent": 87.5
     },
     "platform-control": {
       "status": "partial",
@@ -4647,7 +4657,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 324,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -4944,7 +4954,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 324,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -6386,6 +6396,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 2
+        },
+        {
+          "id": "FR-275",
+          "title": "Marketing Insights read surface",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
         }
       ],
       "checks": {
@@ -6421,7 +6439,7 @@
           "details": {
             "routes": 167,
             "inventoried": 167,
-            "openApiPaths": 324,
+            "openApiPaths": 329,
             "missingFromOpenApi": 0
           }
         },
@@ -17503,6 +17521,79 @@
         "apps/server/tests/integration/project-approval-gateway.test.js",
         "apps/server/tests/unit/production-migration-reconciliation.test.js"
       ]
+    },
+    {
+      "id": "FR-275",
+      "title": "Marketing Insights read surface: a signed-in member of the Business lists the brands they may open (`GET /api/insights/brands`), then reads a brand's metric summary (`GET /api/insights/summary`), one metric's daily series (`GET /api/insights/metric/[metricKey]`), that series as CSV (`GET /api/insights/metric/[metricKey]/export`) and content performance (`GET /api/insights/content`) on the `/growth/insights` page. The Business comes from the server-owned asset binding, never from the client; every value carries its quality and an unknown value is never shown as 0; a read, render or export never calls a provider and reads one snapshot so a chart and its CSV agree.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-275"
+      ],
+      "primaryDomain": "marketing",
+      "contributorDomains": [
+        "marketing",
+        "project-manager"
+      ],
+      "useCase": "ทีมการตลาดเปิดหน้า /growth/insights ดูสรุปตัวชี้วัด กราฟรายวัน ผลงานคอนเทนต์ และ export CSV ของแบรนด์ จาก snapshot เดียวกัน โดยทุกค่ามีสถานะคุณภาพ ค่าที่ไม่รู้ไม่แสดงเป็น 0 และการอ่านไม่เรียก provider",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-275",
+          "title": "Marketing Insights read surface",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 10,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/growth/insights/load-insights-json.js",
+        "apps/server/src/app/(pm)/growth/insights/page.jsx",
+        "apps/server/src/app/api/insights/_insights-http.js",
+        "apps/server/src/app/api/insights/brands/route.js",
+        "apps/server/src/app/api/insights/content/route.js",
+        "apps/server/src/app/api/insights/metric/[metricKey]/export/route.js",
+        "apps/server/src/app/api/insights/metric/[metricKey]/route.js",
+        "apps/server/src/app/api/insights/summary/route.js",
+        "apps/server/src/modules/marketing/insights/application/insights-runtime.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/api-path-reachability.test.js",
+        "apps/server/tests/unit/marketing/insights/insights-routes.test.js"
+      ]
+    },
+    {
+      "id": "FR-276",
+      "title": "Marketing Insights refresh: an authorized member requests a refresh (`POST /api/insights/refresh`) and reads its state (`GET /api/insights/refresh/[syncRunId]`). Requests for the same binding and window coalesce into one run, a conflicting run is refused rather than queued twice, a failed run retries once, and a failed or partial run never replaces the last complete snapshot.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-276"
+      ],
+      "primaryDomain": "marketing",
+      "contributorDomains": [],
+      "useCase": "ทีมการตลาดสั่ง refresh ข้อมูล Insights และติดตามสถานะรอบ sync ได้ คำขอซ้ำในช่วงเดียวกันถูกรวมเป็นรอบเดียว และรอบที่ล้มหรือได้ข้อมูลไม่ครบไม่แทนที่ snapshot ที่สมบูรณ์ล่าสุด",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-276 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-276",
+          "title": "Marketing Insights refresh",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
     }
   ],
   "nonFunctionalRequirements": [

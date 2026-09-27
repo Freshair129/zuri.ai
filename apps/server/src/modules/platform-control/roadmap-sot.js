@@ -113,8 +113,8 @@ export const ROADMAP_SOT = {
   },
   "dag": {
     "algorithm": "kahn-topological-layers",
-    "nodeCount": 122,
-    "edgeCount": 136,
+    "nodeCount": 123,
+    "edgeCount": 137,
     "waveCount": 21,
     "missingDependencies": [],
     "cycles": [],
@@ -262,7 +262,8 @@ export const ROADMAP_SOT = {
           "TASK-ZAI-089",
           "TASK-ZAI-090",
           "TASK-ZAI-092",
-          "TASK-ZAI-123"
+          "TASK-ZAI-123",
+          "TASK-ZAI-124"
         ]
       },
       {
@@ -1983,6 +1984,17 @@ export const ROADMAP_TASK_LEDGER = [
     "dependsOn": "TASK-ZAI-078",
     "authority": "ROADMAP.md",
     "evidence": "Rebased on current origin/main d302eb08; governance passed (0 critical, 1 existing warning); Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Notion-focused integration tests passed; provider setup, production migrations and deployment remain unclaimed."
+  },
+  {
+    "id": "TASK-ZAI-124",
+    "sprint": "SPR-ZAI-10",
+    "title": "Marketing Insights read surface — FR-275, routes and page off by default",
+    "status": "in-progress",
+    "proofScope": "LOCAL",
+    "implementationState": "LOCAL",
+    "dependsOn": "TASK-ZAI-078",
+    "authority": "ROADMAP.md",
+    "evidence": "Route tests pass against the synthetic fixture repository; every route answers 503 INSIGHTS_NOT_CONFIGURED in this release. No browser proof with data, persistence or deployment is claimed."
   }
 ]
 
