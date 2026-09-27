@@ -362,6 +362,19 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
     expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: s.customerA.id } })).toBeTruthy()
     expect((await prisma.customer.findUnique({ where: { id: s.customerA.id } })).deletedAt).toBeNull()
     expect(await prisma.legalHoldArchiveKey.count({ where: { tenantId: scope.tenant.id } })).toBe(0)
+    // The alert outlives the rolled-back erasure transaction: durable operator rows.
+    const blocked = await prisma.auditEvent.findMany({ where: { action: 'ERASURE_BLOCKED', tenantId: scope.tenant.id } })
+    expect(blocked).toHaveLength(1)
+    expect(blocked[0]).toMatchObject({ entityType: 'ARCHIVE', actorType: 'SYSTEM', reason: 'ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID' })
+    const errorEvent = await prisma.errorEvent.findFirst({ where: { route: 'identity.erasePrincipal', message: { contains: scope.tenant.id } } })
+    expect(errorEvent).toMatchObject({ name: 'ErasureBlockedError', occurrenceCount: 1, resolvedAt: null })
+    expect(errorEvent.message).toContain('ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID')
+
+    // A retry is recorded again: one more audit row, the same deduplicated error event.
+    await expect(erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' },
+      { archiveBaseDir: baseDir, alert: () => {} })).rejects.toMatchObject({ code: 'ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID' })
+    expect(await prisma.auditEvent.count({ where: { action: 'ERASURE_BLOCKED', tenantId: scope.tenant.id } })).toBe(2)
+    expect((await prisma.errorEvent.findUnique({ where: { id: errorEvent.id } })).occurrenceCount).toBe(2)
   })
 
   it('revoking B\'s consent (owner, with a reason) destroys the hold key in the same transaction; the chain stays valid and B\'s retrieval no longer returns A\'s lines', async () => {
@@ -469,6 +482,42 @@ describe('Q2 — a line past retention whose key Customer is erased (ADR-093 1.2
     await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' }, { archiveBaseDir: baseDir })
     return { scope, s }
   }
+
+  it('erasing the consenting member B lets the next sweep blank the staff lines kept on B consent', async () => {
+    const { scope, s } = await erasedBeforeSweep('q2-erase-b', { consentB: true })
+    await runRetentionSweep({ now: new Date(), baseDir })
+    expect((await prisma.message.findUnique({ where: { id: s.ids.staff } })).body).toBe("Staff note in A's group")
+
+    await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerB.personId, reason: 'TEST_ERASURE' }, { archiveBaseDir: baseDir })
+    await runRetentionSweep({ now: new Date(), baseDir })
+
+    expect((await prisma.message.findUnique({ where: { id: s.ids.staff } })).body).toBe(RETENTION_SWEEP_TOMBSTONE)
+    expect((await recoverable(scope.tenant.id)).has(s.ids.staff)).toBe(false)
+  })
+
+  it('a failure deciding the orphaned lines after the archive committed is its own failure and keeps the archive counts', async () => {
+    const { scope, s } = await erasedBeforeSweep('q2-settle-fails', { consentB: true })
+    // Inside any transaction, reading retention consent fails; only the settle step does that.
+    const broken = new Proxy(prisma, { get(target, prop) {
+      if (prop !== '$transaction') { const value = Reflect.get(target, prop); return typeof value === 'function' ? value.bind(target) : value }
+      return (fn, options) => target.$transaction((tx) => fn(new Proxy(tx, { get(inner, key) {
+        if (key === 'customerRetentionConsent') return { findMany: async () => { throw Object.assign(new Error('boom'), { code: 'SETTLE_READ_FAILED' }) } }
+        return Reflect.get(inner, key)
+      } })), options)
+    } })
+
+    const sweep = await runRetentionSweep({ db: broken, now: new Date(), baseDir })
+
+    const counts = sweep.countsByClass.MESSAGE_BODY_AND_ATTACHMENTS
+    expect(counts.archiveFailures).toBeUndefined()
+    expect(counts.settleFailures).toEqual(expect.arrayContaining([{ tenantId: scope.tenant.id, reason: 'SETTLE_READ_FAILED' }]))
+    expect(counts.manifests).toEqual(expect.arrayContaining([expect.objectContaining({ tenantId: scope.tenant.id })]))
+    expect(counts.redactedMessages).toBeGreaterThanOrEqual(1)
+    // B's own line was archived and tombstoned; the staff line was left untouched.
+    expect((await prisma.message.findUnique({ where: { id: s.ids.bLine } })).body).toBe(RETENTION_SWEEP_TOMBSTONE)
+    expect((await recoverable(scope.tenant.id)).get(s.ids.bLine)?.body).toBe('B own line')
+    expect((await prisma.message.findUnique({ where: { id: s.ids.staff } })).body).toBe("Staff note in A's group")
+  })
 
   it('M1: a staff line kept on a member\'s consent stays deferred, never archived; once the consent is revoked the next sweep blanks it', async () => {
     const { scope, s } = await erasedBeforeSweep('q2-staff-keep', { consentB: true })

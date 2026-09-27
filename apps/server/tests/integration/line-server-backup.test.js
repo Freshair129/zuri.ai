@@ -100,7 +100,20 @@ describe('LINE server snapshot recovery', () => {
       if (original.status === 'RECORDED') expect(restored).toMatchObject({ memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2, memoryDeliveryLeaseUntil: null })
     }
     const recordDelivery = vi.fn()
-    const memoryRun = await reconcileLineMemoryDeliveries({ db: prisma, threadMemory: { recordDelivery }, now: () => new Date(), workerId: 'restored-memory-scanner', policyResolver: vi.fn() })
+    // The scanner is an installation-wide worker by design (it has no tenant
+    // parameter), and this file shares one SQLite database with the other LINE
+    // memory suites, whose PENDING jobs would otherwise be scanned here too. Scope
+    // only this test's view of the job table to its own tenant.
+    const jobsOfThisTenant = new Proxy(prisma.lineConversationJob, { get(target, prop) {
+      if (prop !== 'findMany') { const value = Reflect.get(target, prop); return typeof value === 'function' ? value.bind(target) : value }
+      return (args = {}) => target.findMany({ ...args, where: { AND: [args.where ?? {}, { tenantId: tenant.id }] } })
+    } })
+    const scopedDb = new Proxy(prisma, { get(target, prop) {
+      if (prop === 'lineConversationJob') return jobsOfThisTenant
+      const value = Reflect.get(target, prop)
+      return typeof value === 'function' ? value.bind(target) : value
+    } })
+    const memoryRun = await reconcileLineMemoryDeliveries({ db: scopedDb, threadMemory: { recordDelivery }, now: () => new Date(), workerId: 'restored-memory-scanner', policyResolver: vi.fn() })
     expect(memoryRun.closed).toBe(1)
     expect(recordDelivery).not.toHaveBeenCalled()
     expect((await prisma.lineConversationJob.findUnique({ where: { id: jobs.find((job) => job.status === 'RECORDED').id } })).memoryDeliveryState).toBe('CLOSED')

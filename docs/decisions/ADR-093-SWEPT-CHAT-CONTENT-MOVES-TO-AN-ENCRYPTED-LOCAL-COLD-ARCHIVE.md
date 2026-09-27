@@ -1,7 +1,7 @@
 ---
-version: "1.2.0"
+version: "1.2.1"
 created_at: "2026-09-15T23:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-27T23:30:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-28T01:00:00+07:00,Claude Opus 5.5 (MC0)"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -128,6 +128,24 @@ A re-seal file is **never deleted**. Its manifest row stays in the chain, and a 
 
 **Fail closed.** If a qualifying hold exists but the Tenant's manifest chain does not verify with files, the erasure is aborted with `ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID` (409), and a critical alert is emitted. Nothing is shredded, because destroying A's key then would silently destroy evidence B relies on. An operator repairs the chain before the erasure is retried. Without a qualifying hold the chain is not consulted.
 
+#### Runbook: a blocked erasure (1.2.1)
+
+**What the operator sees.** The erasure request fails with **409 `ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID`**. The rolled-back transaction leaves no alert behind, so the erasure writes the alert afterwards, on the root client:
+- one deduplicated **ErrorEvent** in the operator error list (FR-247, route `identity.erasePrincipal`), whose occurrence count grows with each retry;
+- one **`ERASURE_BLOCKED` audit event** per attempt (entity `ARCHIVE`, the Tenant, the blocking hold ids, the chain's failure reason and manifest);
+- a critical line on stderr.
+
+Nothing about the person was erased, and nothing was shredded.
+
+**How to unblock it.** The erasure is blocked only while a held, consenting member of the person's threads needs their evidence **and** the chain cannot be trusted. Any one of these removes the first condition, after which a retry proceeds exactly as an ordinary erasure:
+1. **The hold reaches its end date.** The held Customer then no longer qualifies.
+2. **The Business owner revokes the held Customer's retention consent, with a reason.** This is audited, and it destroys that Customer's hold keys.
+3. **The held Customer is erased.** Their erasure revokes their consent and destroys their hold keys.
+
+Each of these gives up the held Customer's claim to this evidence. That is an owner's decision, not an operator's.
+
+**What is missing.** There is no chain-repair tooling yet. Nothing can re-verify, re-link or retire a tampered or missing archive file and its manifest row, so the second condition cannot currently be cleared. Until such tooling exists (an ADR-057 operator step, built separately), the three routes above are the only way through. The ErrorEvent stays open until an operator resolves it.
+
 **Q2 — lines whose key Customer is erased.** Under 1.1.0 a line past retention whose key Customer is erased and has no key was deferred: left untouched and in plaintext, forever. Now the sweep decides:
 - **A customer-authored line** (an inbound line, or the stack reply to it) is blanked. Its speaker is the erased key Customer, and erasure revokes that Customer's retention consent in the erasure transaction itself. The ruling's "kept if its speaker consented" can therefore never hold for such a line, and the sweep does not special-case it.
 - **A staff, push or unknown-author line** stays **deferred**, meaning untouched in the database and never archived, while at least one live Customer who is a member for that line has an active retention consent. The sweep counts it as `deferredErasedKey`. It is never sealed under that member's key, because the line would then outlive a later revocation.
@@ -190,6 +208,7 @@ No message is eligible before 2028-09-08, so these phases can follow the evidenc
 
 | Version | Date | Status | Change |
 |---|---|---|---|
+| 1.2.1 | 2026-09-28 | accepted | Runbook for a blocked erasure. The 409 `ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID` alert is now written durably after the rollback, as an ErrorEvent plus an `ERASURE_BLOCKED` audit event. The three ways to unblock are recorded, and so is the missing chain-repair tooling. A failure deciding orphaned lines after an archive committed is reported as its own `settleFailures` in the sweep audit, never as an archive failure |
 | 1.2.0 | 2026-09-27 | accepted | D6 amendment on the owner's ruling "consent to retain = keep": a sales-recorded, revocable, tenant-bound retention consent (`CustomerRetentionConsent`, `crm.retention-consent.write` on SALES_REP). (Q1) Erasing a member of a shared thread re-seals, under the held member's per-hold key (`LegalHoldArchiveKey`, format 3, one appended manifest), the lines that key would shred, only while that member has an active hold and an active consent. The hold key dies with the hold, the consent or the member. Re-seal files are never deleted, and a broken chain blocks the erasure. Revoking while held needs OWNER and a reason. Membership is per line. (Q2) A line past retention whose key Customer is erased is never archived: a staff, push or unknown-author line stays deferred while a member for it consents, and every other such line is blanked. Erasure revokes the erased Customer's consent and clears the FR-103 note and recorder |
 | 1.1.0 | 2026-09-27 | accepted | D4 amendment: a shared LINE group or room thread's archived lines are sealed per speaker (format 2), so erasure and the legal hold act on exactly one member's lines (FR-022); format-1 group files and their migration path recorded, not implemented |
 | 1.0.0 | 2026-09-16 | accepted | Owner accepted every proposed default; FR-245, FR-246, SEC-034, SDD-103 and FEAT-041 declared, SEC-031 re-worded; counsel confirmation of D5 and D6 recorded as pending |
