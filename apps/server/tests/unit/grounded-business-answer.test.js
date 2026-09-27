@@ -58,6 +58,27 @@ describe('answerBusinessQuestion (FR-049)', () => {
     expect(result.text).toContain('ข้อมูล ณ')
   })
 
+  it('rejects an ungrounded price written in Thai or fullwidth digits', async () => {
+    for (const text of ['ราคา ๙๙๙ บาทค่ะ', 'ราคา ９９９ บาท']) {
+      const knowledge = { query: vi.fn(async () => evidence) }
+      const model = { provider: 'openai', model: 'test', generate: vi.fn(async () => ({ text })) }
+      const result = await answerBusinessQuestion({ businessId: 'smartgift', question: 'USB-001 ราคาเท่าไร' }, { knowledge, model })
+
+      expect(result.verification).toMatchObject({ supported: false, unsupportedNumbers: ['999'] })
+      expect(result.provider.status).toBe('rejected-output')
+      expect(result.text).toContain('ข้อมูล ณ')
+    }
+  })
+
+  it('accepts a grounded answer in Thai digits and keeps its wording', async () => {
+    const knowledge = { query: vi.fn(async () => evidence) }
+    const model = { provider: 'openai', model: 'test', generate: vi.fn(async () => ({ text: 'ราคา ๑๒๐ บาท สั่ง ๕๐๐ ชิ้นได้ค่ะ' })) }
+    const result = await answerBusinessQuestion({ businessId: 'smartgift', question: 'USB-001 สั่ง 500 ชิ้น ราคาเท่าไร' }, { knowledge, model })
+
+    expect(result.verification.supported).toBe(true)
+    expect(result.text).toBe('ราคา ๑๒๐ บาท สั่ง ๕๐๐ ชิ้นได้ค่ะ')
+  })
+
   it('does not call a provider when evidence is absent', async () => {
     const knowledge = { query: vi.fn(async () => ({ ...evidence, records: [] })) }
     const model = { provider: 'openai', model: 'test', generate: vi.fn() }
