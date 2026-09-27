@@ -50,8 +50,13 @@ export function lineKnowledgeGroundingBudgetFromEnv(env = process.env) {
 // SERVER cohort instead of admitting runtime jobs that would fail at `prepare`.
 // The raw stored value is checked, so an unrecognised value is never served by
 // the runtime (it stays with the Server, which resolves it to BUSINESS_KNOWLEDGE).
+// It is derived from KNOWLEDGE_GROUNDING_MODES but limited to the modes a reader
+// exists for (the unwrapped business-knowledge reader, or `createLineGroundingReader`),
+// so a mode added to the enum later stays SERVER-only until Core `prepare` serves it.
 // @spec ADR-106 D3 — eligibility is Core-owned and decided at admission.
-export const CONVERSATION_RUNTIME_GROUNDING_MODES = Object.freeze(['BUSINESS_KNOWLEDGE'])
+const CORPUS_GROUNDING_MODES = new Set(['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE'])
+export const CONVERSATION_RUNTIME_GROUNDING_MODES = Object.freeze(KNOWLEDGE_GROUNDING_MODES
+  .filter(mode => mode === 'BUSINESS_KNOWLEDGE' || CORPUS_GROUNDING_MODES.has(mode)))
 
 export function conversationRuntimeServesGroundingMode(mode) {
   return CONVERSATION_RUNTIME_GROUNDING_MODES.includes(mode)
@@ -114,7 +119,7 @@ export function createLineGroundingReader({
   trace,
   budgetMs = DEFAULT_LINE_KNOWLEDGE_BUDGET_MS,
 } = {}) {
-  if (mode !== 'GKS_CORPUS' && mode !== 'GKS_THEN_BUSINESS_KNOWLEDGE') {
+  if (!CORPUS_GROUNDING_MODES.has(mode)) {
     throw failure('LINE_KNOWLEDGE_GROUNDING_MODE_INVALID')
   }
   if (typeof corpusReader?.query !== 'function') throw failure('LINE_KNOWLEDGE_GROUNDING_CORPUS_READER_REQUIRED')

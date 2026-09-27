@@ -692,7 +692,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 56
+          "testCount": 57
         },
         {
           "id": "FR-150",
@@ -753,7 +753,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 31
+          "testCount": 33
         },
         {
           "id": "FR-253",
@@ -2508,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 56
+          "testCount": 57
         },
         {
           "id": "FR-152",
@@ -3380,7 +3380,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 31
+          "testCount": 33
         },
         {
           "id": "FR-236",
@@ -3678,7 +3678,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 56
+          "testCount": 57
         },
         {
           "id": "FR-150",
@@ -3797,8 +3797,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 31
+          "codeCount": 6,
+          "testCount": 33
         },
         {
           "id": "FR-238",
@@ -5737,7 +5737,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 56
+          "testCount": 57
         },
         {
           "id": "FR-150",
@@ -8681,7 +8681,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 41,
-          "testCount": 56
+          "testCount": 57
         },
         {
           "id": "FR-150",
@@ -8746,6 +8746,7 @@
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-grounding-parity.test.js",
         "apps/server/tests/integration/conversation-runtime-grounding.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
@@ -11011,8 +11012,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 31
+          "codeCount": 14,
+          "testCount": 33
         },
         {
           "id": "FR-236",
@@ -11065,6 +11066,7 @@
         "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
         "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
         "apps/server/src/modules/knowledge/ui/KnowledgeGapReport.jsx",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-liff-app-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
@@ -11081,7 +11083,9 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-grounding-parity.test.js",
         "apps/server/tests/integration/conversation-runtime-grounding.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",

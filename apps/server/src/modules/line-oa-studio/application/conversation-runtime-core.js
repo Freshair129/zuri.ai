@@ -4,7 +4,12 @@ import prisma from '@/lib/db'
 import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 import { resolveBusinessModelCredential } from '@/modules/integration/application/model-provider-credential-service'
 import { selectRegisteredQuery } from '@/modules/agent/grounded-business-answer'
-import { conversationRuntimeServesGroundingMode } from '@/modules/agent/line-knowledge-grounding'
+import {
+  conversationRuntimeServesGroundingMode, createLineGroundingReader,
+  lineKnowledgeGroundingBudgetFromEnv, resolveLineKnowledgeGroundingMode,
+} from '@/modules/agent/line-knowledge-grounding'
+import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
+import { createCorpusKnowledgeReader } from '@/modules/knowledge/corpus-knowledge-reader'
 import { parseLineProjectWorkCommand, searchLineProjectWork, proposeLineWork, confirmLineWork } from '@/modules/agent/line-project-work-tools'
 import { serverLinePorts } from './server-line-runtime'
 import {
@@ -14,8 +19,13 @@ import {
 } from './line-conversation-jobs'
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
+// @req FR-235 — Core `prepare` selects a runtime turn's evidence with the same
+//   grounding-mode reader the Server answer path uses; the runtime receives evidence only.
 // @spec ADR-106 D2-D4, SDD-110 — server-derived authority, strict bounded v1 operations.
-// @tested tests/integration/conversation-runtime-vertical-slice.test.js
+// @spec ADR-090 D1-D3, SEC-032 — mode-gated, time-budgeted GKS read with one traced hop each.
+// @tested tests/integration/conversation-runtime-vertical-slice.test.js,
+//   tests/integration/conversation-runtime-grounding.test.js,
+//   tests/integration/conversation-runtime-grounding-parity.test.js
 const VERSION = 'conversation-runtime.v1'
 const MAX_BODY_BYTES = 64 * 1024
 const MAX_RESPONSE_BYTES = 64 * 1024
@@ -211,46 +221,78 @@ function validateResult(operation, data) {
     || !boundedJsonWithin(data, MAX_RESPONSE_BYTES)) invalid()
 }
 
+/**
+ * Core-owned turn preparation for a claimed runtime job (already revalidated by
+ * `ownedClaim`). Evidence selection is the legacy Server answer path's, not a
+ * second derivation: the same `selectRegisteredQuery(question)` input, the same
+ * `createLineGroundingReader` for GKS_CORPUS / GKS_THEN_BUSINESS_KNOWLEDGE over an
+ * in-process corpus reader scoped to the job's own tenant and Business, and the
+ * same unwrapped business-knowledge reader for BUSINESS_KNOWLEDGE. Every hop is
+ * traced on the job's execution exactly as `createServerLineAnswer` traces it.
+ * Core stays the only MSP/GKS caller; the runtime receives `evidence.records` only.
+ */
+export function createCorePrepareTurn({ db = prisma, env = process.env, businessPorts,
+  corpusReaderFactory = createCorpusKnowledgeReader, traceFactory = createLineExecutionTrace } = {}) {
+  if (typeof businessPorts !== 'function') throw new Error('CORE_PREPARE_BUSINESS_PORTS_REQUIRED')
+  return async job => {
+    const question = job.inbound?.body
+    const workCommand = parseLineProjectWorkCommand(question)
+    if (workCommand) return { question, evidence: { records: [] }, slices: [], authorized: true,
+      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand }
+    if (!conversationRuntimeServesGroundingMode(job.account.knowledgeGrounding)) throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
+    const mode = resolveLineKnowledgeGroundingMode(job.account.knowledgeGrounding)
+    const ports = await businessPorts()
+    if (!ports?.businessKnowledge?.query) throw error('RUNTIME_KNOWLEDGE_UNAVAILABLE', 503)
+    const trace = traceFactory({ db, job })
+    let knowledge
+    if (mode === 'BUSINESS_KNOWLEDGE') {
+      // The legacy BUSINESS_KNOWLEDGE reader, unwrapped, with its single
+      // pre-FR-235 `recordEvidence(input, evidence)` trace shape.
+      knowledge = { query: async input => {
+        const evidence = await ports.businessKnowledge.query(input)
+        await trace.recordEvidence(input, evidence)
+        return evidence
+      } }
+    } else {
+      const budget = lineKnowledgeGroundingBudgetFromEnv(env)
+      knowledge = createLineGroundingReader({ mode, trace, budgetMs: budget.budgetMs,
+        corpusReader: corpusReaderFactory({ tenantId: job.tenantId, businessId: job.businessId, ...budget }),
+        businessKnowledgeReader: ports.businessKnowledge })
+    }
+    const evidence = await knowledge.query({ tenantId: job.tenantId, businessId: job.businessId, ...selectRegisteredQuery(question) })
+    const result = { question, evidence: { records: Array.isArray(evidence?.records) ? evidence.records : [] },
+      slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }
+    if (Buffer.byteLength(JSON.stringify(result.evidence), 'utf8') > 32 * 1024) throw error('TURN_EVIDENCE_TOO_LARGE', 413)
+    return result
+  }
+}
+
 function reply(status, body) {
   return new Response(body, { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } })
 }
 
 export function createConversationRuntimeCore({ db = prisma, env = process.env, now = () => new Date(),
-  prepareTurn = null, credentialResolver = null, linePorts = serverLinePorts, claim = claimRuntimeConversationJob,
+  prepareTurn = null, businessPorts = null, credentialResolver = null, linePorts = serverLinePorts, claim = claimRuntimeConversationJob,
   renew = renewRuntimeConversationJob, complete = completeRuntimeConversationJob, fail = failRuntimeConversationJob,
   readStatus = runtimeConversationStatus, operationStatus = runtimeOperationStatus,
   send = sendRuntimeConversationJob, appendTrace = appendRuntimeConversationTrace,
   workSearch = searchLineProjectWork, workPropose = proposeLineWork, workConfirm = confirmLineWork } = {}) {
   let businessPortsPromise
-  const getBusinessPorts = async () => {
+  const getBusinessPorts = businessPorts ?? (async () => {
     if (!businessPortsPromise) {
       businessPortsPromise = import('@/modules/agent/phase1-runtime').then(({ createPhase1BusinessAgentPortsFromEnv }) =>
         createPhase1BusinessAgentPortsFromEnv(env, { bindingRequired: false }))
       businessPortsPromise.catch(() => { businessPortsPromise = null })
     }
     return businessPortsPromise
-  }
+  })
   const resolveCredential = credentialResolver ?? (async job => {
     const credential = await resolveBusinessModelCredential({ tenantId: job.tenantId, businessId: job.businessId }, { db, env })
     if (!credential?.apiKey) throw error('MODEL_CREDENTIAL_NOT_RESOLVABLE', 503)
     return { provider: credential.provider, model: credential.model, apiKey: credential.apiKey,
       ...(credential.baseUrl ? { baseUrl: credential.baseUrl } : {}) }
   })
-  const prepare = prepareTurn ?? (async job => {
-    const question = job.inbound?.body
-    const workCommand = parseLineProjectWorkCommand(question)
-    if (workCommand) return { question, evidence: { records: [] }, slices: [], authorized: true,
-      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand }
-    if (!conversationRuntimeServesGroundingMode(job.account.knowledgeGrounding)) throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
-    const ports = await getBusinessPorts()
-    if (!ports?.businessKnowledge?.query) throw error('RUNTIME_KNOWLEDGE_UNAVAILABLE', 503)
-    const query = selectRegisteredQuery(question)
-    const evidence = await ports.businessKnowledge.query({ tenantId: job.tenantId, businessId: job.businessId, ...query })
-    const result = { question, evidence: { records: Array.isArray(evidence?.records) ? evidence.records : [] },
-      slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }
-    if (Buffer.byteLength(JSON.stringify(result.evidence), 'utf8') > 32 * 1024) throw error('TURN_EVIDENCE_TOO_LARGE', 413)
-    return result
-  })
+  const prepare = prepareTurn ?? createCorePrepareTurn({ db, env, businessPorts: getBusinessPorts })
 
   async function ownedClaim(ref, { status = 'CLAIMED', checkLease = true } = {}) {
     const job = await db.lineConversationJob.findUnique({ where: { id: ref.jobId },
