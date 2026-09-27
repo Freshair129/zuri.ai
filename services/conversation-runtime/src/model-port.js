@@ -1,6 +1,7 @@
 // @req FR-048, FR-266, FR-267 — invoke an approved Business-selected provider in CR.
 // @spec ADR-100 D5/D7, ADR-106 D2, SDD-110 — provider URL is fixed/server-provided; key stays in memory.
 // @tested services/conversation-runtime/test/model-port.test.js
+import { MAX_TURN_QUESTION_CHARS } from './contracts.js'
 const OPENAI_COMPATIBLE = Object.freeze({
   openrouter: 'https://openrouter.ai/api/v1/chat/completions',
   openai: 'https://api.openai.com/v1/chat/completions',
@@ -31,7 +32,7 @@ function modelConfig(value) {
 }
 
 function promptInput({ question, evidence, contextPacket }) {
-  if (typeof question !== 'string' || !question.trim() || question.length > 8000) throw fail('MODEL_INPUT_INVALID')
+  if (typeof question !== 'string' || !question.trim() || question.length > MAX_TURN_QUESTION_CHARS) throw fail('MODEL_INPUT_INVALID')
   const records = Array.isArray(evidence) ? evidence : evidence?.records
   if (!Array.isArray(records) || records.length > 64) throw fail('MODEL_EVIDENCE_INVALID')
   const serialized = JSON.stringify(evidence)

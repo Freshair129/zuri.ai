@@ -19,7 +19,7 @@ import { serverLinePorts } from './server-line-runtime'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
   failRuntimeConversationJob, renewRuntimeConversationJob, runtimeAudienceBound, runtimeConversationStatus,
-  runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply,
+  runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply, LINE_TEXT_MAX_CHARS,
 } from './line-conversation-jobs'
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
@@ -160,6 +160,20 @@ function safeResponse(data) {
   return body
 }
 
+// Admission allows LINE_TEXT_MAX_CHARS of any text, and a question that escapes heavily in JSON (control
+// characters take six bytes each) plus full evidence can outgrow the response cap. The legacy path answers
+// such a turn, so `prepare` must too: it drops the lowest-ranked evidence records until the answer fits and
+// never touches the question, which admission already bounded.
+function fitPreparedTurn(result) {
+  const records = result?.evidence?.records
+  if (!Array.isArray(records)) return result
+  const kept = [...records]
+  const bytes = () => Buffer.byteLength(JSON.stringify({ contractVersion: VERSION, ok: true,
+    data: { ...result, evidence: { ...result.evidence, records: kept } } }), 'utf8')
+  while (kept.length && bytes() > MAX_RESPONSE_BYTES) kept.pop()
+  return kept.length === records.length ? result : { ...result, evidence: { ...result.evidence, records: kept } }
+}
+
 function validateResult(operation, data) {
   const invalid = () => { throw error('CONTRACT_RESPONSE_INVALID', 500) }
   if (!boundedJsonWithin(data, MAX_RESPONSE_BYTES)) invalid()
@@ -180,7 +194,7 @@ function validateResult(operation, data) {
     if (data?.turnKind === undefined && data?.replyText !== undefined) invalid()
     if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply',
       'turnKind', 'replyText'])
-      || !present(data.question, 8000) || !exact(data.evidence, ['records']) || !Array.isArray(data.evidence.records)
+      || !present(data.question, LINE_TEXT_MAX_CHARS) || !exact(data.evidence, ['records']) || !Array.isArray(data.evidence.records)
       || data.evidence.records.length > 64 || !Array.isArray(data.slices) || data.slices.length > 64
       || typeof data.authorized !== 'boolean' || !['DIRECT', 'GROUP', 'ROOM'].includes(data.audienceKind)
       || (data.threadId !== null && !present(data.threadId, 128))
@@ -189,7 +203,7 @@ function validateResult(operation, data) {
       // A fixed Work reply is only ever the one the signed inbound text derives.
       || (data.workReply != null && (data.workCommand != null || !exact(data.workReply, ['code', 'text'])
         || JSON.stringify(data.workReply) !== JSON.stringify(workSyntaxReply(data.question))))
-      || !boundedJsonWithin(data, 32 * 1024)) invalid()
+      || !boundedJsonWithin(data.evidence, 32 * 1024) || !boundedJsonWithin(data.slices, 32 * 1024)) invalid()
     return
   }
   if (operation === 'resolve') {
@@ -212,7 +226,7 @@ function validateResult(operation, data) {
   }
   if (operation === 'send') {
     if (!exact(data, ['id', 'status', 'acceptance']) || !present(data.id, 128)
-      || !['RECORDED', 'ACCEPTED', 'UNKNOWN', 'FAILED', 'CANCELLED', 'CONTENDED', 'FENCED', 'STOPPED', 'READY', 'SENDING'].includes(data.status)
+      || !['RECORDED', 'ACCEPTED', 'UNKNOWN', 'FAILED', 'CANCELLED', 'CONTENDED', 'FENCED', 'STOPPED', 'READY', 'SENDING', 'MISSING'].includes(data.status)
       || (data.acceptance !== undefined && (!data.acceptance || typeof data.acceptance !== 'object' || Array.isArray(data.acceptance)
         || !boundedJsonWithin(data.acceptance, 8 * 1024)))) invalid()
     return
@@ -500,14 +514,13 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         // @req FR-244 — Core decided out-of-hours at admission and owns the reply.
         // Checked before any injected or default preparer, so no grounding mode,
         // Work command or knowledge read applies to this turn, as on the Server path.
-        // The question is informational only here; it is bounded like any turn's
-        // (admission accepts 10,000 characters, the turn contract 8,000) so a long
-        // message still gets the reply, as it does on the Server path.
+        // The question is informational only here; admission already bounds it to
+        // LINE_TEXT_MAX_CHARS, the same bound the turn contract checks (W7).
         const outOfHoursReply = runtimeOutOfHoursReply(job)
-        if (outOfHoursReply !== null) return { question: job.inbound.body.slice(0, 8000), evidence: { records: [] }, slices: [],
+        if (outOfHoursReply !== null) return { question: job.inbound.body.slice(0, LINE_TEXT_MAX_CHARS), evidence: { records: [] }, slices: [],
           authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null,
           turnKind: 'OUT_OF_HOURS', replyText: outOfHoursReply }
-        return prepare(job, { deadlineAt: envelope.deadlineAt })
+        return fitPreparedTurn(await prepare(job, { deadlineAt: envelope.deadlineAt }))
       }
       case 'credential': {
         const { job } = await ownedClaim(claimRef)

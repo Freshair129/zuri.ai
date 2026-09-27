@@ -485,7 +485,7 @@ describe('Conversation Runtime group and room audiences', () => {
       // `resolveAccount` runs after the sender's pre-send read and before its compare-and-set.
       const result = await sendRuntimeConversationJob(claim, { db: prisma, env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey },
         resolveAccount: async id => { await tamper(admitted); return resolveAccount(id) }, ...transports('runtime') })
-      expect(result, label).toEqual({ status: 'CONTENDED' })
+      expect(result, label).toEqual({ status: 'CONTENDED', id: jobId })
       expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } }), label)
         .toMatchObject({ status: 'READY', attempts: 0, firstSendAt: null })
       expect(deliveries, label).toEqual([])

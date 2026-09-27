@@ -163,7 +163,7 @@ function validateOperationResult(operation, data, payload) {
   } else if (operation === 'send') {
     if (!exact(data, ['id', 'status', 'acceptance'])
       || typeof data.id !== 'string' || !data.id.trim() || data.id.length > 128
-      || !['RECORDED', 'ACCEPTED', 'UNKNOWN', 'FAILED', 'CANCELLED', 'CONTENDED', 'FENCED', 'STOPPED', 'READY', 'SENDING'].includes(data.status)) invalid()
+      || !['RECORDED', 'ACCEPTED', 'UNKNOWN', 'FAILED', 'CANCELLED', 'CONTENDED', 'FENCED', 'STOPPED', 'READY', 'SENDING', 'MISSING'].includes(data.status)) invalid()
     if (data.acceptance !== undefined && (!data.acceptance || typeof data.acceptance !== 'object' || Array.isArray(data.acceptance)
       || !boundedJsonWithin(data.acceptance, 8 * 1024))) invalid()
   } else if (operation === 'renew') {
