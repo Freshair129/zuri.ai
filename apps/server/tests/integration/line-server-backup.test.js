@@ -8,7 +8,8 @@ import { makeOperatorViewer, makeViewer } from '../factories/viewer'
 import { provisionLineServerConnection } from '@/modules/integration/application/line-server-provisioning-service'
 import { connectLineOaAccount } from '@/modules/line-oa-studio/application/line-oa-account-service'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
-import { exportSnapshot, importSnapshot, previewImport } from '@/modules/project-manager/application/backup-service'
+import { exportSnapshot, importSnapshot, LINE_WORKER_MEMORY_TRACE_KINDS, previewImport } from '@/modules/project-manager/application/backup-service'
+import { MEMORY_ERASURE_KINDS, recordMemoryThreadErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/application/line-memory-delivery'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
 
@@ -117,5 +118,45 @@ describe('LINE server snapshot recovery', () => {
     expect(memoryRun.closed).toBe(1)
     expect(recordDelivery).not.toHaveBeenCalled()
     expect((await prisma.lineConversationJob.findUnique({ where: { id: jobs.find((job) => job.status === 'RECORDED').id } })).memoryDeliveryState).toBe('CLOSED')
+  })
+
+  it('refuses a snapshot without the memory manifest while only a group-memory erasure record is held', async () => {
+    expect(LINE_WORKER_MEMORY_TRACE_KINDS).toEqual(expect.arrayContaining(Object.values(MEMORY_ERASURE_KINDS)))
+    expect(Object.values(MEMORY_ERASURE_KINDS)).toHaveLength(5)
+    const portfolio = await createPortfolio({ code: 'PF-LINE-BAK-ERASE', name: 'LINE Backup erasure' })
+    const tenant = await createTenant({ portfolioId: portfolio.id, code: 'TNT-LINE-BAK-ERASE', name: 'LINE Backup erasure' })
+    const business = await createBusiness({ tenantId: tenant.id, code: 'BUS-LINE-BAK-ERASE', name: 'LINE Backup erasure' })
+    // The rest of this file's database holds enrolled jobs and delivery receipts.
+    // Show the gate only this tenant's rows and no enrolled job, so the erasure
+    // record alone is what it counts.
+    const scoped = (model, extra) => new Proxy(model, { get(target, prop) {
+      if (prop !== 'count') { const value = Reflect.get(target, prop); return typeof value === 'function' ? value.bind(target) : value }
+      return extra
+    } })
+    const gateDb = new Proxy(prisma, { get(target, prop) {
+      if (prop === 'lineConversationJob') return scoped(target.lineConversationJob, async () => 0)
+      if (prop === 'agentTraceEvent') return scoped(target.agentTraceEvent,
+        (args = {}) => target.agentTraceEvent.count({ ...args, where: { AND: [args.where ?? {}, { tenantId: tenant.id }] } }))
+      const value = Reflect.get(target, prop)
+      return typeof value === 'function' ? value.bind(target) : value
+    } })
+    const legacyOf = async () => {
+      const snapshot = await exportSnapshot()
+      delete snapshot.lineWorkerMemoryRecovery
+      return previewImport(snapshot, { db: gateDb, viewer: makeOperatorViewer() })
+    }
+    const before = await legacyOf()
+    expect(before.lineWorkerMemoryRecovery.status).toBe('UNAVAILABLE')
+    expect(before.lineWorkerMemoryRecovery.errors.join(' ')).not.toMatch(/enrolled jobs or memory evidence/)
+
+    const subject = 'backup-erasure-speaker'
+    await recordMemoryThreadErasures(prisma, { tenantId: tenant.id, principalId: 'backup-erasure-principal',
+      jobs: [{ memorySyncOptIn: true, audienceKind: 'GROUP', channelAccountId: 'backup-erasure-oa', businessId: business.id,
+        sourceUserId: subject, recipientId: 'backup-erasure-group' }],
+      speakers: [{ channelAccountId: 'backup-erasure-oa', providerSubject: subject }] })
+    expect(await prisma.agentTraceEvent.count({ where: { tenantId: tenant.id, kind: MEMORY_ERASURE_KINDS.pending } })).toBe(1)
+    const after = await legacyOf()
+    expect(after.valid).toBe(false)
+    expect(after.lineWorkerMemoryRecovery.errors.join(' ')).toMatch(/enrolled jobs or memory evidence/)
   })
 })
