@@ -203,3 +203,27 @@ test('the memory contract rejects forged scope, unknown states and oversized tex
   assert.throws(() => validateTurnContext({ ...turn, memorySync: true, workCommand: { operation: 'read', input: {} } }), /TURN_MEMORY_SYNC_INVALID/)
   assert.throws(() => validateTurnContext({ ...turn, memorySync: false }), /TURN_MEMORY_SYNC_INVALID/)
 })
+
+// @req FR-235 — W12: under a corpus grounding mode Core composes the knowledge with the
+// thread in `memory read`; the runtime answers from that composed evidence only.
+test('composed evidence from the memory read replaces the prepared evidence for the empty check and the model', async () => {
+  const composed = { records: [{ kind: 'CORPUS_CHUNK', citationId: 'cit-a', text: 'AB-1 composed' }] }
+  const read = async () => ({ status: 'COMPLETED', operationId: 'job-1:memory-read',
+    result: { contextPacket: null, evidence: composed, receipt: { policyDecision: 'DENY' } } })
+  const seen = []
+  const order = []
+  const ports = fakePorts({ order, memory: { read }, generate: async input => { seen.push(input.evidence); return 'รับทราบค่ะ' } })
+  ports.context.prepare = async () => ({ ...turn, evidence: { records: [] } })
+  const result = await createConversationRuntime({ ports, now }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.deepEqual(seen, [composed])
+
+  const emptyOrder = []
+  const emptySeen = []
+  const emptied = fakePorts({ order: emptyOrder, memory: { read: async () => ({ status: 'COMPLETED', operationId: 'job-1:memory-read',
+    result: { contextPacket: null, evidence: { records: [] }, receipt: { policyDecision: 'DENY' } } }) },
+  generate: async input => { emptySeen.push(input); return 'x' } })
+  assert.equal((await createConversationRuntime({ ports: emptied, now }).runOne()).status, 'RECORDED')
+  assert.deepEqual(emptySeen, [])
+  assert.ok(emptyOrder.some(entry => entry.startsWith('memory append ')))
+})

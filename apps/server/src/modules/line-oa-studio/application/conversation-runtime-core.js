@@ -19,6 +19,7 @@ import { parseLineCatalogCommand } from '@/modules/inventory'
 import { appendTraceEvent, sha256 } from '@/modules/agent/execution-trace'
 import { serverLinePorts } from './server-line-runtime'
 import { createConversationRuntimeMemory, MEMORY_INJECTION_STATES, MEMORY_OPERATIONS, MAX_MEMORY_PACKET_BYTES } from './conversation-runtime-memory'
+import { isMemoryTurn } from './runtime-memory-receipts'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
   failRuntimeConversationJob, renewRuntimeConversationJob, runtimeAudienceBound, runtimeConversationStatus, assertRuntimeTraceEvent,
@@ -308,10 +309,12 @@ function validateResult(operation, data) {
   }
   if (operation === 'memory') {
     if (!['COMPLETED', 'NOT_FOUND'].includes(data?.status) || !present(data.operationId, 200)
-      || !boundedJsonWithin(data, 48 * 1024)) invalid()
+      || !boundedJsonWithin(data, 60 * 1024)) invalid()
     if (data.status === 'NOT_FOUND' && !exact(data, ['status', 'operationId'])) invalid()
     if (data.status === 'COMPLETED' && (!exact(data, ['status', 'operationId', 'result'])
-      || !exact(data.result, ['contextPacket', 'receipt']) || !data.result.receipt || typeof data.result.receipt !== 'object'
+      || !exact(data.result, ['contextPacket', 'receipt', 'evidence']) || !data.result.receipt || typeof data.result.receipt !== 'object'
+      || (data.result.evidence !== undefined && (!exact(data.result.evidence, ['records']) || !Array.isArray(data.result.evidence.records)
+        || data.result.evidence.records.length > 64 || !boundedJsonWithin(data.result.evidence, 32 * 1024)))
       || Array.isArray(data.result.receipt) || Object.keys(data.result.receipt).length > 12
       || (data.result.contextPacket !== undefined && data.result.contextPacket !== null
         && (typeof data.result.contextPacket !== 'object' || Array.isArray(data.result.contextPacket)
@@ -360,24 +363,19 @@ export function corePrepareKnowledgeBudgetMs(configuredMs, { deadlineAt, now = (
  * traced on the job's execution exactly as `createServerLineAnswer` traces it.
  * Core stays the only MSP/GKS caller; the runtime receives `evidence.records` only.
  */
-export function createCorePrepareTurn({ db = prisma, env = process.env, now = () => new Date(), businessPorts,
+/**
+ * The one knowledge read of a runtime turn, exactly as `createCorePrepareTurn`
+ * has always performed it: the unwrapped, traced business-knowledge reader for
+ * BUSINESS_KNOWLEDGE, or `createLineGroundingReader` for a corpus mode with the
+ * GKS budget clamped by `corePrepareKnowledgeBudgetMs`. `startedAt` is when the
+ * Core operation began: a caller that has already spent part of the runtime's
+ * call timeout (Core `memory read`, after its MSP phases) passes it so the clamp
+ * counts that time too. `prepare` passes nothing and is unchanged.
+ */
+export function createCoreGroundingQuery({ db = prisma, env = process.env, now = () => new Date(), businessPorts,
   corpusReaderFactory = createCorpusKnowledgeReader, traceFactory = createLineExecutionTrace } = {}) {
   if (typeof businessPorts !== 'function') throw new Error('CORE_PREPARE_BUSINESS_PORTS_REQUIRED')
-  return async (job, { deadlineAt } = {}) => {
-    const question = job.inbound?.body
-    // The legacy answer path's input check (createServerLineAnswer), before any read.
-    // Non-retryable: the admitted inbound text will not change on a retry.
-    if (![job.tenantId, job.businessId, question].every(value => typeof value === 'string' && value.trim())) {
-      throw error('LINE_ANSWER_INPUT_INVALID', 422)
-    }
-    const workCommand = parseLineProjectWorkCommand(question)
-    if (workCommand) return { question, evidence: { records: [] }, slices: [], authorized: true,
-      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand }
-    // Malformed legacy Work syntax: the reply is fixed by the text alone, as on the Server path.
-    const workReply = workSyntaxReply(question)
-    if (workReply) return { question, evidence: { records: [] }, slices: [], authorized: true,
-      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null, workReply }
-    if (!conversationRuntimeServesGroundingMode(job.account.knowledgeGrounding)) throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
+  return async (job, { deadlineAt, startedAt } = {}) => {
     const mode = resolveLineKnowledgeGroundingMode(job.account.knowledgeGrounding)
     const ports = await businessPorts()
     if (!ports?.businessKnowledge?.query) throw error('RUNTIME_KNOWLEDGE_UNAVAILABLE', 503)
@@ -393,13 +391,48 @@ export function createCorePrepareTurn({ db = prisma, env = process.env, now = ()
       } }
     } else {
       const budget = lineKnowledgeGroundingBudgetFromEnv(env)
-      const budgetMs = corePrepareKnowledgeBudgetMs(budget.budgetMs, { deadlineAt, now })
+      const callDeadlineMs = Number.isFinite(startedAt) ? startedAt + CORE_PREPARE_CALL_TIMEOUT_MS : NaN
+      const envelopeDeadlineMs = Date.parse(deadlineAt)
+      const effectiveDeadline = Number.isFinite(callDeadlineMs)
+        ? new Date(Number.isFinite(envelopeDeadlineMs) ? Math.min(envelopeDeadlineMs, callDeadlineMs) : callDeadlineMs).toISOString()
+        : deadlineAt
+      const budgetMs = corePrepareKnowledgeBudgetMs(budget.budgetMs, { deadlineAt: effectiveDeadline, now })
       if (budgetMs === 0) throw error('CONTRACT_DEADLINE_EXPIRED', 408)
       knowledge = createLineGroundingReader({ mode, trace, budgetMs,
         corpusReader: corpusReaderFactory({ tenantId: job.tenantId, businessId: job.businessId, ...budget }),
         businessKnowledgeReader: ports.businessKnowledge })
     }
-    const evidence = await knowledge.query({ tenantId: job.tenantId, businessId: job.businessId, ...selectRegisteredQuery(question) })
+    return knowledge.query({ tenantId: job.tenantId, businessId: job.businessId, ...selectRegisteredQuery(job.inbound.body) })
+  }
+}
+
+export function createCorePrepareTurn({ db = prisma, env = process.env, now = () => new Date(), businessPorts,
+  corpusReaderFactory = createCorpusKnowledgeReader, traceFactory = createLineExecutionTrace } = {}) {
+  if (typeof businessPorts !== 'function') throw new Error('CORE_PREPARE_BUSINESS_PORTS_REQUIRED')
+  const groundingQuery = createCoreGroundingQuery({ db, env, now, businessPorts, corpusReaderFactory, traceFactory })
+  return async (job, { deadlineAt } = {}) => {
+    const question = job.inbound?.body
+    // The legacy answer path's input check (createServerLineAnswer), before any read.
+    // Non-retryable: the admitted inbound text will not change on a retry.
+    if (![job.tenantId, job.businessId, question].every(value => typeof value === 'string' && value.trim())) {
+      throw error('LINE_ANSWER_INPUT_INVALID', 422)
+    }
+    const workCommand = parseLineProjectWorkCommand(question)
+    if (workCommand) return { question, evidence: { records: [] }, slices: [], authorized: true,
+      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand }
+    // Malformed legacy Work syntax: the reply is fixed by the text alone, as on the Server path.
+    const workReply = workSyntaxReply(question)
+    if (workReply) return { question, evidence: { records: [] }, slices: [], authorized: true,
+      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null, workReply }
+    if (!conversationRuntimeServesGroundingMode(job.account.knowledgeGrounding)) throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
+    // @req FR-235 — a memory-sync turn under a corpus mode reads its knowledge in
+    // Core `memory read`, after the MSP phases and composed with the thread under
+    // one budget, as the legacy worker does; `prepare` reads nothing for it.
+    if (isMemoryTurn(job) && resolveLineKnowledgeGroundingMode(job.account.knowledgeGrounding) !== 'BUSINESS_KNOWLEDGE') {
+      return { question, evidence: { records: [] }, slices: [], authorized: true, audienceKind: job.audienceKind,
+        threadId: null, maxBudgetChars: 0, workCommand: null }
+    }
+    const evidence = await groundingQuery(job, { deadlineAt })
     const result = { question, evidence: { records: Array.isArray(evidence?.records) ? evidence.records : [] },
       slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }
     if (Buffer.byteLength(JSON.stringify(result.evidence), 'utf8') > 32 * 1024) throw error('TURN_EVIDENCE_TOO_LARGE', 413)
@@ -418,7 +451,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   send = sendRuntimeConversationJob, appendTrace = appendRuntimeConversationTrace,
   workSearch = searchLineProjectWork, workPropose = proposeLineWork, workConfirm = confirmLineWork,
   catalogViewer = lineCatalogViewer, catalogCommand = lineCatalogCommandReply,
-  threadMemoryFactory = null, memoryContextAssembler, memoryAuthorizationResolver } = {}) {
+  threadMemoryFactory = null, memoryContextAssembler, memoryAuthorizationResolver,
+  corpusReaderFactory = createCorpusKnowledgeReader } = {}) {
   let businessPortsPromise
   // `businessPorts` may be the ports object itself (tests) or a function returning it.
   const getBusinessPorts = typeof businessPorts === 'function' ? businessPorts : (async () => {
@@ -436,7 +470,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     return { provider: credential.provider, model: credential.model, apiKey: credential.apiKey,
       ...(credential.baseUrl ? { baseUrl: credential.baseUrl } : {}) }
   })
-  const prepare = prepareTurn ?? createCorePrepareTurn({ db, env, now, businessPorts: getBusinessPorts })
+  const prepare = prepareTurn ?? createCorePrepareTurn({ db, env, now, businessPorts: getBusinessPorts, corpusReaderFactory })
+  const groundingQuery = createCoreGroundingQuery({ db, env, now, businessPorts: getBusinessPorts, corpusReaderFactory })
 
   // @req FR-210 — the `#sku` decision is made once per job and stored by Core.
   // Only a message that parses as `#sku` has one. The first `prepare` authorizes
@@ -544,6 +579,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       : owned
   }
   const memory = createConversationRuntimeMemory({ db, env, now, ownedClaim: memoryClaim, threadMemoryFactory,
+    groundingQuery: (job, options) => groundingQuery(job, options),
     modelResolver: async job => {
       const credential = await resolveCredential(job)
       return { provider: credential.provider, model: credential.model }
@@ -705,7 +741,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         return resolveCredential(job)
       }
       case 'work-tool': return workOperation(claimRef, payload)
-      case 'memory': return memory.operate(claimRef, payload)
+      case 'memory': return memory.operate(claimRef, payload, { deadlineAt: envelope.deadlineAt })
       case 'complete': {
         const { job } = await ownedClaim(claimRef)
         // @req FR-210 — Core, not the runtime, owns a `#sku` reply: READY is committed

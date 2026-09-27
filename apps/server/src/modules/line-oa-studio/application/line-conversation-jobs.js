@@ -11,11 +11,11 @@ import { conversationRuntimeServesGroundingMode } from '@/modules/agent/line-kno
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
+import { reconcileLineMemoryErasures } from './line-memory-erasure'
 import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 import { lineExecutionBudget } from '../domain/line-execution-budget'
 import { isLineProjectWorkCommand, handleLineProjectWorkCommand, parseLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
 import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
-import { resolveLineKnowledgeGroundingMode } from '@/modules/agent/line-knowledge-grounding'
 import { zContextSliceSource } from '@/lib/validation/enums'
 import { assertMemoryAnswerAppended, loadMemoryReceipt } from './runtime-memory-receipts'
 
@@ -320,13 +320,14 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // declared hours, so this branch is a no-op for every account that never opted in.
     const outOfHours = !isAccountWithinBusinessHours(current, now) && Boolean(current.outOfHoursReplyText)
     const memorySyncOptIn = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
-    // @req FR-149 — a memory-sync opt-in turn is runtime-eligible: Core serves its
-    // MSP phases through the v1 `memory` operation. A memory turn under a corpus
-    // grounding mode stays SERVER, because only the legacy worker composes GKS
-    // evidence and thread memory under one budget (FR-235); so does a group or room
-    // memory turn, which has not been proved against the legacy worker (W4 + W5).
-    const memoryRuntimeEligible = !memorySyncOptIn || (audienceKind === 'DIRECT'
-      && resolveLineKnowledgeGroundingMode(current.knowledgeGrounding) === 'BUSINESS_KNOWLEDGE')
+    // @req FR-149, FR-235 — a memory-sync opt-in turn is runtime-eligible on the
+    // same terms as any other turn: Core serves its MSP phases through the v1
+    // `memory` operation for a DIRECT chat and for a group or room (one MSP thread
+    // per group or room, speaker-labelled, private recall denied as on the Server),
+    // and under every grounding mode Core `prepare` serves, composing GKS evidence
+    // with the thread under one budget in `memory read` (W12). The grounding check
+    // below applies to every turn alike.
+    const memoryRuntimeEligible = true
     // @req FR-149 — every well-formed Work command is runtime-eligible, and in a
     // DIRECT chat so is malformed legacy syntax: Core answers it with the Server's own
     // reply. In a group or room malformed syntax stays with the legacy consumer (W4).
@@ -1009,10 +1010,14 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
   sendBatch = boundedCount(env.ZURI_LINE_WORKER_SEND_BATCH, SEND_BATCH) }) {
   const owner = { executionMode: 'SERVER', runtimeOwner: 'SERVER' }
   await maintenance(db, now(), owner)
-  const scanMemory = () => threadMemory?.recordDelivery
-    ? reconcileLineMemoryDeliveries({ db, threadMemory, now, workerId: `${workerId}:memory`,
+  // @req FR-022 — the same Core tick also carries pending MSP principal erasures
+  // (line-memory-erasure.js); a failed erasure sweep never fails the tick.
+  const scanMemory = async () => {
+    if (!threadMemory?.recordDelivery) return null
+    try { await reconcileLineMemoryErasures({ db, threadMemory, now }) } catch { /* stays PENDING, retried next tick */ }
+    return reconcileLineMemoryDeliveries({ db, threadMemory, now, workerId: `${workerId}:memory`,
       batchSize: memoryDeliveryBatch, leaseMs: memoryDeliveryLeaseMs })
-    : null
+  }
   await scanMemory()
   const accepted = await db.lineConversationJob.findFirst({ where: { ...owner, status: 'ACCEPTED' }, orderBy: { createdAt: 'asc' } })
   if (accepted) {

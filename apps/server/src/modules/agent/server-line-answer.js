@@ -361,6 +361,33 @@ export function composeLineMemoryPacket({ memoryContext, route, authorizedForMem
   return { composed, injectedPacket }
 }
 
+/**
+ * @req FR-235 — a corpus-grounding turn's knowledge records as Context Composer
+ * slices (`knowledge:<index>`, no `sequence`), plus the lookup that rebuilds the
+ * composer-included records. Shared by the legacy worker and Core's memory `read`.
+ */
+export function lineKnowledgeSliceInputs(records) {
+  const knowledgeRecordById = new Map()
+  const knowledgeSliceInputs = (Array.isArray(records) ? records : []).map((record, index) => {
+    const id = `knowledge:${index}`
+    knowledgeRecordById.set(id, record)
+    // No `sequence`: corpus hits are ranked results, not an ordered
+    // conversation. Tagging them into a named sequence would let one
+    // oversized hit close the budget for every lower-ranked hit after
+    // it — exactly the starvation the composer's own doc comment
+    // warns a shared sequence can cause, and exactly why these stay
+    // untagged (each judged, and dropped, on its own fit).
+    return { id, citationId: record.citationId ?? null, text: typeof record.text === 'string' ? record.text : JSON.stringify(record) }
+  })
+  return { knowledgeSliceInputs, knowledgeRecordById }
+}
+
+/** @req FR-235 — the knowledge records the composer included, in its own order. */
+export function composedKnowledgeRecords(composed, knowledgeRecordById) {
+  return composed.slices.filter((slice) => slice.source === 'KNOWLEDGE')
+    .map((slice) => knowledgeRecordById.get(slice.id)).filter(Boolean)
+}
+
 /** The durable identifiers the post-model half needs from the pre-model half. */
 export function lineMemoryHandle(memoryContext, memoryInbound) {
   return {
@@ -519,22 +546,12 @@ export function createServerLineAnswer({
         // tracing (line-knowledge-grounding.js) fires on this call exactly as
         // it does on the non-memory-opt-in path — nothing here traces a hop.
         let knowledgeSliceInputs = []
-        const knowledgeRecordById = new Map()
+        let knowledgeRecordById = new Map()
         if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
           const registeredQuery = selectRegisteredQuery(question)
           const groundingEvidence = await businessKnowledge.query({ tenantId, businessId, ...registeredQuery })
           const groundingRecords = Array.isArray(groundingEvidence?.records) ? groundingEvidence.records : []
-          knowledgeSliceInputs = groundingRecords.map((record, index) => {
-            const id = `knowledge:${index}`
-            knowledgeRecordById.set(id, record)
-            // No `sequence`: corpus hits are ranked results, not an ordered
-            // conversation. Tagging them into a named sequence would let one
-            // oversized hit close the budget for every lower-ranked hit after
-            // it — exactly the starvation the composer's own doc comment
-            // warns a shared sequence can cause, and exactly why these stay
-            // untagged (each judged, and dropped, on its own fit).
-            return { id, citationId: record.citationId ?? null, text: typeof record.text === 'string' ? record.text : JSON.stringify(record) }
-          })
+          ;({ knowledgeSliceInputs, knowledgeRecordById } = lineKnowledgeSliceInputs(groundingRecords))
         }
         // @req FR-234, FR-235 — compose the MSP packet and (for a corpus-
         // grounding mode) this turn's knowledge evidence in ONE call, under
@@ -581,8 +598,7 @@ export function createServerLineAnswer({
           // from ONLY the composer's included KNOWLEDGE slices, so a recorded
           // receipt can never list a citation the model did not receive, and
           // an omitted one can never describe evidence the model did receive.
-          const includedKnowledge = composed.slices.filter((slice) => slice.source === 'KNOWLEDGE')
-          const finalKnowledgeRecords = includedKnowledge.map((slice) => knowledgeRecordById.get(slice.id)).filter(Boolean)
+          const finalKnowledgeRecords = composedKnowledgeRecords(composed, knowledgeRecordById)
           // `answerBusinessQuestion`'s own `knowledge.query` call now returns
           // exactly this — already selected, already composed — evidence; it
           // fetches and traces nothing a second time.
