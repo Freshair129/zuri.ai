@@ -8,6 +8,7 @@ import { MEMORY_ERASURE_ACTOR, MEMORY_ERASURE_GRACE_MS, MEMORY_ERASURE_KINDS, ME
   MEMORY_ERASURE_SCAN_MAX_PAGES, MEMORY_ERASURE_SCAN_PAGE, reconcileLineMemoryErasures, recordMemoryThreadErasures } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
+import { memoryReceiptKey } from '@/modules/line-oa-studio/application/runtime-memory-receipts'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
 import { createModelProviderPort } from '@/modules/agent/model-provider'
@@ -49,7 +50,9 @@ const groupId = 'synthetic-w12-group'
 const roomId = 'synthetic-w12-room'
 const speakers = { A: 'synthetic-w12-speaker-a', B: 'synthetic-w12-speaker-b', C: 'synthetic-w12-speaker-c',
   D: 'synthetic-w12-speaker-d', E: 'synthetic-w12-speaker-e', F: 'synthetic-w12-speaker-f', G: 'synthetic-w12-speaker-g',
-  H: 'synthetic-w12-speaker-h' }
+  H: 'synthetic-w12-speaker-h',
+  // W11 x W12: U has no LINE identity at all; P has a Person whose LINE identity is PENDING.
+  U: 'synthetic-w12-speaker-unlinked', P: 'synthetic-w12-speaker-pending' }
 const erasureGroupId = 'synthetic-w12-erasure-group'
 const providerReply = { choices: [{ message: { content: 'รับทราบค่ะ' } }] }
 const productRecord = { name: 'แก้ว', product_code: 'AB-1', sell_price: 50, currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: '2026-09-01T00:00:00Z' }
@@ -298,6 +301,12 @@ beforeAll(async () => {
   // A customer with no staff grant, so a PDPA erasure may run for them.
   persons.C = await linkSpeaker('C', { member: false })
   for (const key of ['D', 'E', 'F', 'G', 'H']) persons[key] = await linkSpeaker(key, { member: false })
+  // A member whose LINE identity is PENDING: a verified link would open private memory.
+  persons.P = await prisma.person.create({ data: { code: 'PER-W12-P', displayName: 'Synthetic W12 pending speaker' } })
+  await prisma.membership.create({ data: { personId: persons.P.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
+  await prisma.externalIdentity.create({ data: { tenantId: tenant.id, personId: persons.P.id, provider: 'LINE', providerSubject: speakers.P } })
+  await prisma.channelIdentity.create({ data: { tenantId: tenant.id, personId: persons.P.id, channel: 'LINE',
+    channelAccountId: account.bindingCode, providerSubject: speakers.P, status: 'PENDING' } })
 })
 
 afterEach(async () => {
@@ -575,6 +584,84 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     expect(outcome).toMatchObject({ status: 'FAILED', code: 'MSP_TRANSPORT_UNAVAILABLE' })
     expect(corpusMock.calls).toEqual([])
     expect(built.providerCalls).toEqual([])
+  })
+})
+
+// @req FR-149, FR-171, FR-235 — W11's PENDING memory mode is not DIRECT-only: an
+//   unverified speaker's memory turn in a GROUP or ROOM, and under a corpus grounding
+//   mode, runs in the runtime with the legacy tick's exact MSP calls, claims, prompts
+//   and replies, and Core records the read under PENDING assurance.
+describe('W11 x W12 — unverified speakers\' memory turns in shared audiences and under a corpus mode', () => {
+  const PENDING_TURN = ['resolve', 'append INBOUND', 'resolve', 'append OUTBOUND']
+  const inboundAppends = msp => msp.calls.filter(call => call.name === 'msp_thread_message_append' && call.input.direction === 'INBOUND')
+  async function readReceiptOf(job) {
+    const row = await prisma.agentTraceEvent.findFirst({ where: { turnId: job.id, idempotencyKey: memoryReceiptKey(job.id, 'read') } })
+    return row ? JSON.parse(row.payloadJson) : null
+  }
+  async function expectPendingJobs(jobs) {
+    for (const job of jobs) {
+      expect(await prisma.agentTraceEvent.count({ where: { turnId: job.id, kind: 'CHANNEL_IDENTITY_ADMITTED' } })).toBe(1)
+      expect(await readReceiptOf(job)).toMatchObject({ identityAssurance: 'PENDING', privateMemoryAllowed: false })
+    }
+  }
+
+  for (const audience of ['GROUP', 'ROOM']) {
+    it(`${audience}: verified, unlinked and PENDING speakers make the legacy tick's MSP calls, claims, prompts and replies`, async () => {
+      const side = await playBoth([{ audience, speaker: 'A' }, { audience, speaker: 'U' }, { audience, speaker: 'P' }])
+      expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED', 'RECORDED'])
+      expect(mspNames(side.runtimeMsp)).toEqual(Array(3).fill(PENDING_TURN).flat())
+      expectSameMsp(side)
+      expectSameProvider(side)
+      expect(side.runtimeDeliveries).toEqual(side.legacyDeliveries)
+      for (const msp of [side.legacyMsp, side.runtimeMsp]) {
+        const [verified, unlinked, pending] = inboundAppends(msp)
+        expect(verified.input.identity_assurance).not.toBe('PENDING')
+        expect(unlinked.input.identity_assurance).toBe('PENDING')
+        expect(pending.input.identity_assurance).toBe('PENDING')
+        expect(msp.calls.every(call => call.input.access?.grant?.readPrivate !== true && call.input.access?.grant?.writePrivate !== true)).toBe(true)
+      }
+      await expectPendingJobs(side.runtimeJobs.slice(1))
+      expect((await readReceiptOf(side.runtimeJobs[0]))?.identityAssurance).not.toBe('PENDING')
+    })
+  }
+
+  for (const mode of ['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']) {
+    it(`DIRECT under ${mode}: an unlinked and a PENDING speaker get the composed evidence, no recall, PENDING appends`, async () => {
+      await setGrounding(mode)
+      corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+        results: [{ id: 'a', text: 'AB-1 a', score: 0.9, citationId: 'cit-a', sourceId: 'src-a', snapshotId: 'snap-1', generation: 1 }] })
+      const side = await playBoth([{ audience: 'DIRECT', speaker: 'U' }, { audience: 'DIRECT', speaker: 'P' }])
+      expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])
+      expect(mspNames(side.runtimeMsp)).not.toContain('context')
+      expectSameMsp(side)
+      expectSameProvider(side)
+      expect(side.runtimeDeliveries).toEqual(side.legacyDeliveries)
+      // One corpus read per turn in each cohort, and the evidence reaches the model.
+      expect(corpusMock.calls).toHaveLength(4)
+      expect(side.built.providerCalls).toHaveLength(2)
+      for (const call of side.built.providerCalls) {
+        expect(call.body).toContain('cit-a')
+        expect(call.body).not.toContain('private history')
+        expect(call.body).not.toContain('THREAD CONTEXT PACKET')
+      }
+      for (const msp of [side.legacyMsp, side.runtimeMsp]) {
+        expect(inboundAppends(msp).map(call => call.input.identity_assurance)).toEqual(['PENDING', 'PENDING'])
+      }
+      await expectPendingJobs(side.runtimeJobs)
+    })
+  }
+
+  it('GROUP under GKS_CORPUS: a verified and an unlinked speaker match the legacy tick', async () => {
+    await setGrounding('GKS_CORPUS')
+    corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+      results: [{ id: 'g', text: 'AB-1 g', score: 0.9, citationId: 'cit-g', sourceId: 'src-g', snapshotId: 'snap-1', generation: 1 }] })
+    const side = await playBoth([{ speaker: 'A' }, { speaker: 'U' }])
+    expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])
+    expectSameMsp(side)
+    expectSameProvider(side)
+    expect(side.runtimeDeliveries).toEqual(side.legacyDeliveries)
+    expect(inboundAppends(side.runtimeMsp).map(call => call.input.identity_assurance === 'PENDING')).toEqual([false, true])
+    await expectPendingJobs(side.runtimeJobs.slice(1))
   })
 })
 
