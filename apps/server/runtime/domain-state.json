@@ -36,10 +36,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 162,
-    "readyFeatureCount": 117,
-    "requirementCount": 276,
-    "verifiedRequirementCount": 244,
+    "featureCount": 163,
+    "readyFeatureCount": 118,
+    "requirementCount": 277,
+    "verifiedRequirementCount": 245,
     "progressPercent": 92.3,
     "gapCount": 47,
     "gaps": [
@@ -802,6 +802,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 17
+        },
+        {
+          "id": "FR-277",
+          "title": "LINE grounding shadow-compare harness",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 25
         }
       ],
       "checks": {
@@ -855,8 +863,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 1,
-            "present": 1
+            "models": 2,
+            "present": 2
           }
         },
         "authorization": {
@@ -982,7 +990,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 1,
+        "ownedModels": 2,
         "featureNotes": 18
       },
       "featureIds": [
@@ -1002,11 +1010,12 @@
         "FR-057",
         "FR-132",
         "FR-141",
-        "FR-171"
+        "FR-171",
+        "FR-277"
       ],
-      "featureCount": 17,
-      "readyFeatureCount": 13,
-      "progressPercent": 66.7
+      "featureCount": 18,
+      "readyFeatureCount": 14,
+      "progressPercent": 68.2
     },
     "asset-management": {
       "status": "verified",
@@ -3871,6 +3880,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 6
+        },
+        {
+          "id": "FR-277",
+          "title": "LINE grounding shadow-compare harness",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 25
         }
       ],
       "checks": {
@@ -6372,6 +6389,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 3
+        },
+        {
+          "id": "FR-277",
+          "title": "LINE grounding shadow-compare harness",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 25
         }
       ],
       "checks": {
@@ -17623,6 +17648,69 @@
         }
       ],
       "evidence": []
+    },
+    {
+      "id": "FR-277",
+      "title": "LINE grounding shadow-compare harness: a LINE OA account carries a publisher/operator-set `knowledgeGroundingShadow` flag, default false and independent of `knowledgeGrounding` itself. When true, a SERVER job's primary answer is unchanged; right after that answer's text is final, a second, best-effort, non-blocking generation runs under the account's PAIRED grounding mode (`BUSINESS_KNOWLEDGE` and `GKS_THEN_BUSINESS_KNOWLEDGE` mirror each other; `GKS_CORPUS` has no defined partner and produces no comparison) using the same resolved model and question but no MSP memory context, and records one `LineGroundingShadowComparison` row per job — evidence source and reason on each side, retrieval references, both (bounded-length) answer texts, a divergence signal, latency and outcome (`COMPLETED`, `FAILED` or `TIMED_OUT`). The shadow answer is recorded only: it is never sent to the customer, never appended to CRM or MSP thread memory, and never traced into the job's own `AgentTraceEvent` journal. A shadow failure of any kind — a thrown reader/model error, a timeout, or the comparison write itself failing — never affects the primary answer, the job's outcome or its trace; every account not explicitly switched on behaves byte-identically to before this requirement. This harness produces the comparison data for TASK-ZAI-095's owner-triggered switch of one SmartGift DIRECT account; the switch/rollback operator runbook itself is separate.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-277"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent",
+        "line-oa-studio",
+        "project-manager"
+      ],
+      "useCase": "ผู้ดูแล LINE OA เปิด shadow-compare ให้บัญชีหนึ่งบัญชี ระบบตอบลูกค้าตามโหมดเดิมเหมือนทุกครั้ง แล้วสร้างคำตอบเปรียบเทียบจากโหมดคู่ตรงข้ามในพื้นหลังแบบไม่บล็อกและไม่ส่งให้ลูกค้าเห็น เพื่อดูหลักฐานว่าอีกโหมดจะตอบต่างกันแค่ไหนก่อนสั่งสวิตช์จริงในช่วงแคมเปญ",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-277",
+          "title": "LINE grounding shadow-compare harness",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 25
+        }
+      ],
+      "evidence": [
+        "apps/server/src/lib/validation/enums.js",
+        "apps/server/src/modules/agent/line-grounding-shadow-compare.js",
+        "apps/server/src/modules/agent/server-line-answer.js",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+        "apps/server/tests/integration/fr277-line-grounding-shadow-compare.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/phase-b-recovery.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
+        "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/line-grounding-shadow-compare.test.js",
+        "apps/server/tests/unit/line-oa-account-domain.test.js",
+        "apps/server/tests/unit/plan-schema.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js",
+        "apps/server/tests/unit/server-line-answer.test.js"
+      ]
     }
   ],
   "nonFunctionalRequirements": [
