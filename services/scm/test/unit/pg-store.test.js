@@ -171,7 +171,7 @@ test('a lost connection fails the unit in flight with a retryable 503 and the ne
 
 test('configuration: postgres needs SCM_PG_URL of the right shape and never echoes it', async () => {
   const { loadConfig } = await import('../../src/config.js')
-  const base = { SCM_DELEGATION_KEY: 'k'.repeat(40) }
+  const base = { SCM_ENV: 'development', SCM_DELEGATION_KEY: 'k'.repeat(40) }
   assert.throws(() => loadConfig({ ...base, SCM_STORE: 'postgres' }), (e) => e.code === 'SCM_CONFIG_INVALID' && /SCM_PG_URL/.test(e.message))
   assert.throws(() => loadConfig({ ...base, SCM_STORE: 'postgres', SCM_PG_URL: 'mysql://u:secret-pw@h/db' }), (e) => e.code === 'SCM_CONFIG_INVALID' && !e.message.includes('secret-pw'))
   assert.throws(() => loadConfig({ ...base }), (e) => /SCM_SQLITE_PATH/.test(e.message))

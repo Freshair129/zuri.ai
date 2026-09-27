@@ -9,13 +9,28 @@ import { loadConfig } from '../../src/config.js'
 const API = 'scm-api-token-synthetic-AAAAAAAAAAAAAAAAAAAA'
 const CORE = 'scm-core-token-synthetic-BBBBBBBBBBBBBBBBBBB'
 const KEY = 'scm-delegation-key-synthetic-CCCCCCCCCCCCCCCC'
-const base = { SCM_SQLITE_PATH: 'synthetic.sqlite' }
+const base = { SCM_ENV: 'development', SCM_SQLITE_PATH: 'synthetic.sqlite' }
 const core = { ...base, SCM_AUTH_MODE: 'core', SCM_API_TOKEN: API, SCM_CORE_URL: 'http://core.internal:3000', SCM_CORE_TOKEN: CORE }
 const refused = (env, field) => assert.throws(() => loadConfig(env), (e) => {
   assert.equal(e.code, 'SCM_CONFIG_INVALID')
   assert.match(e.message, new RegExp(field))
   for (const secret of [API, CORE, KEY, 'short-secret-value', 'user:pw']) assert.ok(!e.message.includes(secret), `message leaks a value: ${e.message}`)
   return true
+})
+
+test('SCM_ENV fails closed: required, unless NODE_ENV=production makes it production', () => {
+  const { SCM_ENV, ...unset } = base
+  assert.equal(SCM_ENV, 'development')
+  // Unset with no NODE_ENV (or a non-production one) refuses to start: no silent development.
+  refused({ ...unset, SCM_DELEGATION_KEY: KEY }, 'SCM_ENV')
+  refused({ ...unset, NODE_ENV: 'development', SCM_DELEGATION_KEY: KEY }, 'SCM_ENV')
+  // Unset under NODE_ENV=production means production: every production rule applies.
+  refused({ ...unset, NODE_ENV: 'production', SCM_AUTH_MODE: 'delegation', SCM_DELEGATION_KEY: KEY }, 'SCM_AUTH_MODE')
+  refused({ ...unset, NODE_ENV: 'production', SCM_AUTH_MODE: 'core', SCM_API_TOKEN: API, SCM_CORE_TOKEN: CORE, SCM_CORE_URL: 'http://core.internal:3000' }, 'SCM_CORE_URL')
+  const prod = loadConfig({ ...unset, NODE_ENV: 'production', SCM_API_TOKEN: API, SCM_CORE_TOKEN: CORE, SCM_CORE_URL: 'http://web:3000' })
+  assert.deepEqual([prod.env, prod.authMode], ['production', 'core'])
+  // An explicit value always wins, even inside the production image.
+  assert.equal(loadConfig({ ...unset, NODE_ENV: 'production', SCM_ENV: 'test', SCM_DELEGATION_KEY: KEY }).env, 'test')
 })
 
 test('delegation is the default outside production and needs its key', () => {

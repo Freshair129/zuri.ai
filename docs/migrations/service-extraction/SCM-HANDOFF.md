@@ -993,6 +993,20 @@ board_update: BOARD_UPDATE_PENDING
    - Tests: SCM SQLite 341/343 (2 skipped), PostgreSQL 342/343 (1 skipped). The
      façade, CRM reader and sales-order tests pass 83/83, and the parity test runs
      per selected Business, including a viewer spanning two Tenants.
+2e. MC0 review of `535627cd`: PASS_WITH_FINDINGS, both fixed.
+   - Finding 1 (LOW): the SCM boundary build missed dynamic `import('…')` and
+     `require('…')`. `scripts/boundary-scan.mjs` now scans static, export-from,
+     dynamic `import()` and `require()` references with comments stripped. It
+     refuses `createRequire`, a non-literal `import()`, and any relative path
+     that leaves `services/scm`, not only `apps/server`.
+     `test/unit/build-boundary.test.js` pins each rule, the look-alikes that
+     must pass, and the real tree. The reviewer's repro now fails the build.
+   - Finding 2 (INFO): `SCM_ENV` no longer defaults to `development`. Unset is
+     accepted only under `NODE_ENV=production`, which the image sets, and then
+     means production; anything else refuses to start. The rule is documented in
+     `services/scm/Dockerfile` (the deployment artifact) and pinned in
+     `config-auth-mode.test.js`.
+   - SCM: SQLite 350/352 (2 skipped), PostgreSQL 351/352 (1 skipped); build ok.
 2a. Wrap-up (2026-09-24): no new groups.
    - #561: MERGED at `9e25aa1f` (S1 PASS at `be171333`, CI green).
    - #564 (F-15/F-16/F-17): MERGED at `caabd8a7` (S1 PASS at `812b21f0`, CI green).

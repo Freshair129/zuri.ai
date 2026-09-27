@@ -3,7 +3,13 @@ import { z } from 'zod'
 // The only reader of process.env (via main.js). Validated once at start; a bad
 // value fails the process before it listens, never at the first request.
 const zConfig = z.object({
-  SCM_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  // Fails closed: there is no silent default. Every production rule (core-only
+  // auth, the core URL rule, no self-migration) keys on this, so a deployment
+  // that forgot it must not quietly run as `development`. Unset is accepted only
+  // when NODE_ENV=production (the image sets it), and then it means production;
+  // anything else refuses to start. An explicit value always wins.
+  SCM_ENV: z.enum(['development', 'test', 'production']).optional(),
+  NODE_ENV: z.string().optional(),
   SCM_PORT: z.coerce.number().int().min(0).max(65535).default(3084),
   SCM_HOST: z.string().default('127.0.0.1'),
   SCM_STORE: z.enum(['sqlite', 'postgres']).default('sqlite'),
@@ -49,6 +55,8 @@ export function loadConfig(env) {
     throw Object.assign(new Error(`invalid SCM configuration: ${fields}`), { code: 'SCM_CONFIG_INVALID' })
   }
   const c = parsed.data
+  c.SCM_ENV ??= c.NODE_ENV === 'production' ? 'production' : undefined
+  if (!c.SCM_ENV) throw Object.assign(new Error('invalid SCM configuration: SCM_ENV (set development, test or production; unset is allowed only with NODE_ENV=production)'), { code: 'SCM_CONFIG_INVALID' })
   if (c.SCM_STORE === 'sqlite' && !c.SCM_SQLITE_PATH) throw Object.assign(new Error('invalid SCM configuration: SCM_SQLITE_PATH'), { code: 'SCM_CONFIG_INVALID' })
   if (c.SCM_STORE === 'postgres' && !c.SCM_PG_URL) throw Object.assign(new Error('invalid SCM configuration: SCM_PG_URL'), { code: 'SCM_CONFIG_INVALID' })
   // A production process never creates its own schema: migration ordering belongs
