@@ -86,7 +86,7 @@ import {
 } from './chat-evidence-archive-crypto'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 import { CUSTOMER_ERASURE_TOMBSTONE, attributeInboundMessageAuthors } from './conversation-redaction-service'
-import { LINE_UNSEND_TOMBSTONE } from './line-ingest-service'
+import { LINE_UNSEND_TOMBSTONE } from './line-unsend-tombstone'
 
 // Every body a row carries once its content is gone. A candidate that reaches one of
 // these between the sweep's read and its tombstone transaction (an erasure, an

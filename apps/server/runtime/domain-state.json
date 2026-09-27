@@ -1504,8 +1504,8 @@
           "title": "Non-text LINE content in the CRM record",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 18
+          "codeCount": 3,
+          "testCount": 19
         },
         {
           "id": "FR-230",
@@ -3815,7 +3815,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-235",
@@ -6178,7 +6178,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-230",
@@ -10937,8 +10937,8 @@
           "title": "Non-text LINE content in the CRM record",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 18
+          "codeCount": 5,
+          "testCount": 19
         },
         {
           "id": "FR-230",
@@ -11001,6 +11001,7 @@
         "apps/server/src/modules/crm/conversation-redaction-service.js",
         "apps/server/src/modules/crm/conversation-search-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
+        "apps/server/src/modules/crm/line-unsend-tombstone.js",
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/crm/retention-override-service.js",
         "apps/server/src/modules/crm/retention-sweep-service.js",
@@ -11010,6 +11011,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
