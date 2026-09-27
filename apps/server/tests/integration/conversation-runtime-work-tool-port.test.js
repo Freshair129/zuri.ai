@@ -626,6 +626,43 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     expect(workToolCalls()).toEqual([`status ${jobId}:work-read`, `read ${jobId}:work-read`])
     expect(wire.map(call => call.operation)).not.toContain('credential')
   })
+
+  // @req FR-150 — the legacy worker refuses a Work command whose budget is spent
+  // before any Work call (REPLY_DEADLINE_MISSED); Core does the same, against the
+  // deadline settle uses. The reply deadline is moved into the past only after the
+  // claim, as a slow turn would find it.
+  const spendBudget = jobId => prisma.lineConversationJob.update({ where: { id: jobId },
+    data: { replyExpiresAt: new Date(Date.now() - 1_000), allowDelayedPush: false } })
+
+  it('refuses a Work call once the turn budget is spent: REPLY_DEADLINE_MISSED, final, before any Work write', async () => {
+    const { ports } = build()
+    const jobId = await admit('synthetic-wtp-budget-propose', `/work-create ${workstream.id} Budget spent`)
+    const { claim, authority, turn } = await claimTurn(ports, jobId, 'runtime-wtp-budget')
+    const request = validateWorkToolRequest({ ...turn.workCommand, operationId: `${jobId}:work-proposal` })
+    await spendBudget(jobId)
+    await expect(ports.workTool.execute(claim, authority, request))
+      .rejects.toMatchObject({ code: 'REPLY_DEADLINE_MISSED', retryable: false })
+    // Nothing reached Work: no proposal, and `status` (recorded receipts only) still answers.
+    expect(await prisma.auditEvent.findUnique({ where: { id: jobId } })).toBeNull()
+    expect(await ports.workTool.status(claim, request.operationId)).toEqual({ status: 'NOT_FOUND', operationId: request.operationId })
+    expect(await prisma.workItem.count({ where: { workstreamId: workstream.id, title: 'Budget spent' } })).toBe(0)
+  })
+
+  it('a full turn whose budget is spent before the Work call fails with the legacy code and sends nothing', async () => {
+    const { ports } = build()
+    const jobId = await admit('synthetic-wtp-budget-turn', '/projects WorkToolPort')
+    let spent = false
+    const slowPorts = { ...ports, workTool: { ...ports.workTool, status: async (...args) => {
+      if (!spent) { spent = true; await spendBudget(jobId) }
+      return ports.workTool.status(...args)
+    } } }
+    const outcome = await createConversationRuntime({ ports: slowPorts, claimantId: 'runtime-wtp-budget-turn' }).runOne()
+    expect(outcome).toMatchObject({ jobId, status: 'FAILED', code: 'REPLY_DEADLINE_MISSED' })
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } }))
+      .toMatchObject({ status: 'FAILED', errorCode: 'REPLY_DEADLINE_MISSED', answerText: null })
+    expect(workToolCalls()).toEqual([`status ${jobId}:work-read`, `read ${jobId}:work-read`, `status ${jobId}:work-read`])
+    expect(deliveries).toEqual([])
+  })
 })
 
 

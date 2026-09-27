@@ -24,6 +24,7 @@ import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
   failRuntimeConversationJob, renewRuntimeConversationJob, runtimeAudienceBound, runtimeConversationStatus, assertRuntimeTraceEvent,
   runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply, LINE_TEXT_MAX_CHARS, runtimeSenderAuthority,
+  runtimeWorkBudgetSpent,
 } from './line-conversation-jobs'
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
@@ -615,6 +616,15 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
 
   async function workOperation(ref, request) {
     const { job, identityState } = await ownedClaim(ref)
+    // @req FR-150 — the legacy worker refuses a Work command whose turn budget is
+    // already spent, before any Work call (`executeClaimed`: REPLY_DEADLINE_MISSED).
+    // Core does the same for every call that could reach Work or answer with a
+    // refusal, against the deadline settle uses, with settle's own code; the call is
+    // final (not retryable), so the runtime fails the turn with that code. `status`
+    // stays open: it reads recorded receipts only, and recovery after a kill needs it.
+    if (request.operation !== 'status' && await runtimeWorkBudgetSpent(db, job, { at: now() })) {
+      throw error('REPLY_DEADLINE_MISSED', 409)
+    }
     // @req FR-149, FR-150 — Work commands are not allowed in a group or room. The
     // legacy handler refuses them there before any Work read or write
     // (line-project-work-tools `contextFor`: WORK_SCOPE_DENIED) and replies with its
