@@ -1989,12 +1989,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-124",
     "sprint": "SPR-ZAI-10",
     "title": "Marketing Insights read surface — FR-275, routes and page off by default",
-    "status": "in-progress",
-    "proofScope": "LOCAL",
-    "implementationState": "LOCAL",
+    "status": "done",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-078",
     "authority": "ROADMAP.md",
-    "evidence": "Route tests pass against the synthetic fixture repository; every route answers 503 INSIGHTS_NOT_CONFIGURED in this release. No browser proof with data, persistence or deployment is claimed."
+    "evidence": "Merged in #554 (1e224d5b, 2026-09-27); hosted CI green on the PR head and on main. Route tests pass against the synthetic fixture repository; every route answers 503 INSIGHTS_NOT_CONFIGURED in this release. No browser proof with data, persistence or deployment is claimed."
   }
 ]
 
