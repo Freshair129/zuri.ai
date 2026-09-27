@@ -699,8 +699,8 @@
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 69
+          "codeCount": 9,
+          "testCount": 72
         },
         {
           "id": "FR-150",
@@ -716,7 +716,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 34
+          "testCount": 35
         },
         {
           "id": "FR-181",
@@ -2516,7 +2516,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 69
+          "testCount": 72
         },
         {
           "id": "FR-152",
@@ -3694,7 +3694,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 24,
-          "testCount": 69
+          "testCount": 72
         },
         {
           "id": "FR-150",
@@ -3734,7 +3734,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 34
+          "testCount": 35
         },
         {
           "id": "FR-190",
@@ -5753,7 +5753,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 69
+          "testCount": 72
         },
         {
           "id": "FR-150",
@@ -8696,8 +8696,8 @@
           "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 47,
-          "testCount": 69
+          "codeCount": 48,
+          "testCount": 72
         },
         {
           "id": "FR-150",
@@ -8728,6 +8728,7 @@
         "apps/server/src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
         "apps/server/src/app/api/line-oa/jobs/failures/route.js",
         "apps/server/src/app/api/line-oa/worker/route.js",
+        "apps/server/src/modules/agent/auth-context.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/line-answer-policy.js",
@@ -8764,6 +8765,8 @@
         "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+        "apps/server/tests/integration/agent-multi-principal.test.js",
+        "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/conversation-runtime-answer-parity.test.js",
         "apps/server/tests/integration/conversation-runtime-catalog-command.test.js",
@@ -8774,6 +8777,7 @@
         "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
+        "apps/server/tests/integration/conversation-runtime-unverified-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-unverified.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
@@ -16829,7 +16833,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 34
+          "testCount": 35
         }
       ],
       "evidence": [
@@ -16861,6 +16865,7 @@
         "apps/server/tests/integration/conversation-runtime-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
+        "apps/server/tests/integration/conversation-runtime-unverified-memory.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",

@@ -1,8 +1,8 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.257.0b"
+version: "1.258.0b"
 status: draft
-last_update: "2026-09-27T20:00:00+07:00,Claude Opus 5.5 (MC0 W10)"
+last_update: "2026-09-27T22:00:00+07:00,Claude Opus 5.5 (MC0 W11)"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -21,7 +21,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.257.0b |
+| **Version** | 1.258.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -32,6 +32,7 @@ relations:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.258.0b | 2026-09-27 | Claude Opus 5.5 (MC0 W11) | SDD-110 follows the ADR-106 1.2.0 amendment update: an unverified sender's memory-sync turn now joins the runtime cohort in Core's PENDING memory mode instead of staying SERVER. Subject and ID unchanged; no schema change |
 | 1.257.0b | 2026-09-27 | Claude Opus 5.5 (MC0 W10) | FR-265 and SDD-110 follow the ADR-106 amendment of 2026-09-27 (owner ruling): an opted-in conversation joins the Conversation Runtime cohort whatever its audience (direct, group, room) or sender verification; an unverified sender's job runs with no person, and Core refuses Work, the `#sku` command, memory and person-scoped reads for it. Subjects and IDs unchanged; no schema change |
 | 1.256.0b | 2026-09-27 | Claude Opus 5.5 (MC0) | FR-275 status: #554 merged to main as 1e224d5b with hosted CI green; the routes and page stay off (503 `INSIGHTS_NOT_CONFIGURED`) until I2. Status only; the requirement text is unchanged |
 | 1.255.0b | 2026-09-27 | Claude Opus 5.5 (MC0) | Declare FR-275 (Marketing Insights read surface) and FR-276 (Insights refresh) for the #554 routes, allocated by the integrator (S6 blocker B1). Declared only: fixture-only and off by default in this release; persistence is deferred to I2. |
@@ -873,7 +874,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-107 | `BusinessGoal.progress` becomes a write-through cache, never a second source of truth: `recordKeyResultCheckIn` recomputes it from the goal's non-archived Key Results inside the same transaction as the check-in, through a pure `rollupGoal(keyResults)` calculator mirroring `rollupProject`'s `{ percent, formula, warnings }` shape, and persists the result with the goal's `version` incremented. `updateGoal` refuses a manual `progress` patch once the goal holds a non-archived Key Result (BR-044), and the FR-041 strategy DTO exposes `progressSource: 'MANUAL' \| 'KEY_RESULTS'` per goal so the UI labels the number honestly instead of implying every goal is measured the same way. | ✅ Phase 1 implemented — `recomputeGoalProgress`/`rollupGoal`, `updateGoal`'s BR-044 refusal, `progressSource` on the FR-041 DTO (ADR-101 D6, TASK-ZAI-122; local branch, PR pending merge) |
 | SDD-108 | Notion OAuth state is random, short-lived and stored hash-only with trusted Tenant, Business and actor scope; callback consumes it once before exchanging the code. OAuth client credentials come from deployment configuration; the code, access token and refresh token stay server-side, the returned token bundle uses its own `NOTION_OAUTH_TOKEN` vault kind, and only workspace identity metadata enters `IntegrationConnection`. | FR-273; ADR-109; SEC-037 |
 | SDD-109 | The Notion webhook verification token has app-level scope because Notion sends its initial challenge without a workspace identifier. The challenge is stored encrypted and revealed once to an installation operator at AAL2; an identical challenge retry is acknowledged without replacing it and reset is an audited AAL2 operation. Event signatures are checked in constant time against the exact raw body before JSON parsing or writes, and idempotent receipts contain only event ID/type/workspace ID/time. | FR-274; ADR-109; SEC-037 |
-| SDD-110 | Conversation Runtime is an independent Node process over strict `conversation-runtime.v1` ports. `executionMode` stays `SERVER`; Core persists `LineOaAccount.runtimeOwner` (default `SERVER`) and snapshots the selected cohort on each admitted job. Core owns admission, routing, authoritative claims and leases, receipts, Identity/account authority, CRM messages, canonical Work transactions, Integration secrets/LINE transport, MSP/GKS calls and trace persistence. The runtime requests claims through Core and owns turn orchestration, context assembly, bounded tool routing, model invocation and delivery coordination. Only opted-in conversations that meet runtime eligibility (ADR-106 D3 and its 2026-09-27 amendment) are captured with `runtimeOwner=CONVERSATION_RUNTIME`; other jobs stay in the SERVER cohort. A job admitted for an unverified LINE sender carries Core's admission-time UNVERIFIED record and runs with no person: `resolve` names no identity, Work gets the Server path's own refusal, `#sku` is an ordinary question, and no memory operation exists for it; an unverified sender's memory-sync turn stays in the SERVER cohort. Changing the account owner requires its outstanding jobs to be quiescent, and environment flags/readiness do not grant ownership. Every side-effect call carries the stored job scope, claimant/execution/version fence, deadline, correlation id and idempotency/receipt key. Provider uncertainty stays `UNKNOWN`; credentials are claim-bound and memory-only; runtime has no Prisma, Next.js or shared-table access. |
+| SDD-110 | Conversation Runtime is an independent Node process over strict `conversation-runtime.v1` ports. `executionMode` stays `SERVER`; Core persists `LineOaAccount.runtimeOwner` (default `SERVER`) and snapshots the selected cohort on each admitted job. Core owns admission, routing, authoritative claims and leases, receipts, Identity/account authority, CRM messages, canonical Work transactions, Integration secrets/LINE transport, MSP/GKS calls and trace persistence. The runtime requests claims through Core and owns turn orchestration, context assembly, bounded tool routing, model invocation and delivery coordination. Only opted-in conversations that meet runtime eligibility (ADR-106 D3 and its 2026-09-27 amendment) are captured with `runtimeOwner=CONVERSATION_RUNTIME`; other jobs stay in the SERVER cohort. A job admitted for an unverified LINE sender carries Core's admission-time UNVERIFIED record and runs with no person: `resolve` names no identity, Work gets the Server path's own refusal, `#sku` is an ordinary question, and a memory-sync turn runs in Core's PENDING memory mode (no private recall; the question and reply appended to the MSP thread with PENDING assurance and no person), as the Server path runs it. Changing the account owner requires its outstanding jobs to be quiescent, and environment flags/readiness do not grant ownership. Every side-effect call carries the stored job scope, claimant/execution/version fence, deadline, correlation id and idempotency/receipt key. Provider uncertainty stays `UNKNOWN`; credentials are claim-bound and memory-only; runtime has no Prisma, Next.js or shared-table access. |
 
 ## 2.3 Security requirements
 
