@@ -177,6 +177,9 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
       tenantId,
       conversationIds: personalIds,
       speakers: subjectChannels.filter((row) => row.channel === 'LINE'),
+      // @req FR-022 — the MSP thread memory of a shared group or room is erased for
+      // this principal only, by Core, after this transaction commits (W12).
+      erasedPrincipalId: personId,
     })
     const personal = await redactConversationContent(tx, { tenantId, conversationIds: personalIds })
     const shared = await redactSpeakerContentInSharedThreads(tx, {
