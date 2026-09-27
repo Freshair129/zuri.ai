@@ -29,12 +29,14 @@ let protectedFixtureProject
 const operator = () => makeDevViewer({ visibleBusinessIds: [], ownedBusinessIds: [] })
 
 async function readProtectedRows() {
-  const [archiveKeys, manifests, rollups] = await Promise.all([
+  const [archiveKeys, manifests, rollups, holdKeys] = await Promise.all([
     prisma.customerArchiveKey.findMany(),
     prisma.archiveManifest.findMany(),
     prisma.usageEventRollup.findMany(),
+    // @req FR-022 — legalHoldArchiveKey is part of the archive family (ADR-093 1.2.0).
+    prisma.legalHoldArchiveKey.findMany(),
   ])
-  return { archiveKeys, manifests, rollups }
+  return { archiveKeys, manifests, rollups, holdKeys }
 }
 
 function stableRows(rows) {
@@ -48,6 +50,7 @@ function stableProtectedState(rows) {
     archiveKeys: stableRows(rows.archiveKeys),
     manifests: stableRows(rows.manifests),
     rollups: stableRows(rows.rollups),
+    holdKeys: stableRows(rows.holdKeys),
   }
 }
 
@@ -76,6 +79,7 @@ async function clearProtectedRows() {
   await clearArchiveManifests()
   await prisma.customerArchiveKey.deleteMany()
   await prisma.usageEventRollup.deleteMany()
+  await prisma.legalHoldArchiveKey.deleteMany()
 }
 
 async function restoreProtectedRows(saved) {
@@ -94,6 +98,7 @@ async function restoreProtectedRows(saved) {
     pending.delete(row.id)
   }
   for (const row of saved.rollups) await prisma.usageEventRollup.create({ data: row })
+  for (const row of saved.holdKeys ?? []) await prisma.legalHoldArchiveKey.create({ data: row })
 }
 
 async function withProtectedRowsEmpty(work) {
@@ -238,6 +243,7 @@ describe('release safety: protected backup evidence', () => {
       delete snapshot.tables.customerArchiveKey
       delete snapshot.tables.archiveManifest
       delete snapshot.tables.usageEventRollup
+      delete snapshot.tables.legalHoldArchiveKey
 
       const result = await importSnapshot(snapshot, { confirm: false, viewer: operator() })
 
@@ -258,7 +264,7 @@ describe('release safety: protected backup evidence', () => {
       expect(confirmed.restored).toBe(true)
       expect(confirmed.archiveRecovery.status).toBe('UNAVAILABLE')
       expect(confirmed.usageEventRollupRecovery.status).toBe('UNAVAILABLE')
-      expect(await readProtectedRows()).toEqual({ archiveKeys: [], manifests: [], rollups: [] })
+      expect(await readProtectedRows()).toEqual({ archiveKeys: [], manifests: [], rollups: [], holdKeys: [] })
       expect(await prisma.project.findUnique({ where: { id: protectedFixtureProject.id } })).toBeTruthy()
     })
   })

@@ -489,7 +489,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 43
         },
         {
           "id": "FR-025",
@@ -1271,7 +1271,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -1376,8 +1376,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 28
+          "codeCount": 11,
+          "testCount": 43
         },
         {
           "id": "FR-023",
@@ -1433,7 +1433,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 17
+          "testCount": 24
         },
         {
           "id": "FR-127",
@@ -1553,7 +1553,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-246",
@@ -1617,8 +1617,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 17,
-            "present": 17
+            "models": 19,
+            "present": 19
           }
         },
         "authorization": {
@@ -1662,7 +1662,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 17,
+        "ownedModels": 19,
         "featureNotes": 10
       },
       "featureIds": [
@@ -1697,8 +1697,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 28
+          "codeCount": 6,
+          "testCount": 43
         },
         {
           "id": "FR-026",
@@ -1873,8 +1873,8 @@
           "title": "SEC-005 PDPA consent, MVP scope",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 17
+          "codeCount": 2,
+          "testCount": 24
         },
         {
           "id": "FR-104",
@@ -2127,7 +2127,7 @@
           "details": {
             "routes": 27,
             "inventoried": 26,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -2357,7 +2357,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 43
         },
         {
           "id": "FR-028",
@@ -2695,7 +2695,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -3117,7 +3117,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -3703,7 +3703,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 43
         },
         {
           "id": "FR-026",
@@ -3969,7 +3969,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -4164,7 +4164,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -4339,7 +4339,7 @@
           "details": {
             "routes": 21,
             "inventoried": 21,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -4698,7 +4698,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -4995,7 +4995,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 329,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -5257,8 +5257,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 28
+          "codeCount": 8,
+          "testCount": 43
         },
         {
           "id": "FR-031",
@@ -5666,7 +5666,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 17
+          "testCount": 24
         },
         {
           "id": "FR-104",
@@ -6290,7 +6290,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-246",
@@ -6486,9 +6486,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 167,
-            "inventoried": 167,
-            "openApiPaths": 329,
+            "routes": 169,
+            "inventoried": 169,
+            "openApiPaths": 331,
             "missingFromOpenApi": 0
           }
         },
@@ -6554,8 +6554,8 @@
             }
           ],
           "details": {
-            "mutations": 126,
-            "guardedMutations": 125,
+            "mutations": 128,
+            "guardedMutations": 127,
             "reads": 81,
             "unguardedReads": 9
           }
@@ -6701,8 +6701,8 @@
         }
       ],
       "details": {
-        "routes": 214,
-        "apiRoutes": 167,
+        "routes": 216,
+        "apiRoutes": 169,
         "pageRoutes": 47,
         "ownedModels": 42,
         "featureNotes": 45
@@ -11512,7 +11512,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-246",
@@ -11539,6 +11539,7 @@
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/crm-retention-consent.test.js",
         "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -12951,34 +12952,44 @@
           "title": "LINE as an identity provider end-to-end",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 21,
-          "testCount": 28
+          "codeCount": 30,
+          "testCount": 43
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
         "apps/server/src/app/api/crm/customers/[customerId]/erasure/route.js",
+        "apps/server/src/app/api/crm/customers/[customerId]/retention-consent/revoke/route.js",
+        "apps/server/src/app/api/crm/customers/[customerId]/retention-consent/route.js",
         "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
         "apps/server/src/app/api/identity/link-tokens/route.js",
         "apps/server/src/modules/agent/execution-trace.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js",
         "apps/server/src/modules/crm/chat-evidence-archive-service.js",
+        "apps/server/src/modules/crm/chat-evidence-hold-reseal-service.js",
         "apps/server/src/modules/crm/chat-evidence-retrieval-service.js",
         "apps/server/src/modules/crm/conversation-redaction-service.js",
+        "apps/server/src/modules/crm/customer-retention-consent-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
+        "apps/server/src/modules/crm/retention-consent-reader.js",
         "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/identity/classify-principal.js",
         "apps/server/src/modules/identity/erase-customer-principal.js",
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/identity/gate.js",
         "apps/server/src/modules/identity/link-line-identity.js",
+        "apps/server/src/modules/identity/rbac.js",
         "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/line-oa-studio/application/line-memory-erasure.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/core/raw-record-redaction.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
+        "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
@@ -12986,9 +12997,11 @@
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
+        "apps/server/tests/integration/crm-retention-consent.test.js",
         "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
         "apps/server/tests/integration/identity-classify.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
@@ -12999,12 +13012,24 @@
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+        "apps/server/tests/integration/phase-b-recovery.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
+        "apps/server/tests/unit/crm-retention-consent-migration.test.js",
+        "apps/server/tests/unit/crm-retention-consent-routes.test.js",
         "apps/server/tests/unit/customer-erasure-confirmation.test.js",
-        "apps/server/tests/unit/fr091-inbox-ui-contract.test.js"
+        "apps/server/tests/unit/customer-import-review-service.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
+        "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js"
       ]
     },
     {
@@ -15732,8 +15757,8 @@
           "title": "SEC-005 PDPA consent, MVP scope",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 17
+          "codeCount": 8,
+          "testCount": 24
         }
       ],
       "evidence": [
@@ -15743,13 +15768,21 @@
         "apps/server/src/modules/crm/conversation-read-model.js",
         "apps/server/src/modules/crm/customer-consent-service.js",
         "apps/server/src/modules/identity/erase-customer-principal.js",
+        "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
+        "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-customer-consent.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
+        "apps/server/tests/integration/crm-retention-consent.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
+        "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+        "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+        "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/marketing-broadcast-intent.test.js",
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+        "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/conversation-read-model.test.js",
         "apps/server/tests/unit/crm-customer-consent-route.test.js",
         "apps/server/tests/unit/customer-consent-migration.test.js",

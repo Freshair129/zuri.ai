@@ -114,7 +114,9 @@ turn flows through before any agent work happens.
   evidence may be kept. `SALES_REP` holds `crm.retention-consent.write`, and a
   Business OWNER holds it implicitly. The write is tenant-bound like
   `recordCustomerConsent`, and both writes are audited. Revoking destroys the
-  Customer's `LegalHoldArchiveKey` rows in the same transaction. Readers
+  Customer's `LegalHoldArchiveKey` rows in the same transaction. While the
+  Customer is held, revoking therefore needs Business OWNER authority and a
+  reason. Readers
   (`retention-consent-reader.js`) query it at erasure, sweep and retrieval time.
 - `redactConversationContent` — the PDPA erasure writer (FR-022). A
   fourth narrow writer, and the only one that is called by another domain: erasure
@@ -368,12 +370,15 @@ archive key on erasure.
   under that hold's key. It writes one new format-3 file and appends one manifest.
   The hold key is destroyed when the hold ends (expiry run), when the consent is
   revoked, or when the held Customer is erased.
-- **The retention sweep.** A past-window line whose key Customer is erased used to
-  stay deferred. It is now kept only on a consent: a staff, push or unknown-author
-  line is archived under a consenting live member's key. Every other such line is
-  blanked without being archived.
-- **Retrieval.** Retrieval returns both kinds of kept line to the Customer whose
-  consent kept them.
+- **The retention sweep.** A past-window line whose key Customer is erased is never
+  archived. A staff, push or unknown-author line stays deferred while a live
+  member for it (the owner, or someone who spoke before it) has an active
+  consent. Every other such line is blanked. Every sweep re-checks consent inside
+  the blanking transaction.
+- **Retrieval.** Retrieval returns re-sealed lines to the held Customer while the
+  hold and the consent are active.
+- **Safety.** Re-seal files are never deleted. A qualifying hold with a broken
+  chain blocks the erasure.
 
 **FR-245 slice 1 built (2026-09-16, TASK-ZAI-111, not merged):** `owns_models` +=
 `CustomerArchiveKey`, `ArchiveManifest`. `chat-evidence-archive-crypto.js` mirrors
