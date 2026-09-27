@@ -1,8 +1,8 @@
 ---
 id: ZAI:CONVERSATION-RUNTIME-HANDOFF
-version: "0.3.13b"
+version: "0.3.14b"
 status: candidate
-last_update: "2026-09-27T00:00:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-27T14:00:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: agent
   scope: conversation-runtime-extraction-checkpoint
@@ -19,7 +19,88 @@ relations:
 
 # Conversation Runtime extraction handoff
 
-**Checkpoint state:** partial. One durable LINE direct-message vertical slice now runs through the independent Conversation Runtime process, the authenticated Core façade and Core-owned SQLite queue/receipts. `executionMode` remains `SERVER`; `LineOaAccount.runtimeOwner` defaults to `SERVER` and is snapshotted onto each job to pin the eligible, opted-in runtime cohort. Ineligible and default jobs remain in the Server cohort. PR #542 was merged on 2026-09-27 (see *Merged state*); this is not the completion of the extraction.
+**Checkpoint state:** partial. One durable LINE direct-message vertical slice now runs through the independent Conversation Runtime process, the authenticated Core façade and Core-owned SQLite queue/receipts. `executionMode` remains `SERVER`; `LineOaAccount.runtimeOwner` defaults to `SERVER` and is snapshotted onto each job to pin the eligible, opted-in runtime cohort. Ineligible and default jobs remain in the Server cohort. PR #542 was merged on 2026-09-27 (see *Merged state*); this is not the completion of the extraction. The current state against Mission Control gate `CR_TO_WM` is in *Current state* below.
+
+## Current state — 0.3.14b, base `main` `3452429f`
+
+Written by MC0 on branch `mc0/cr-to-wm-gate`, cut from `main` at `3452429f6db1c15431a0846ad55be267235a4d7f` (PR #542's merge `4b6d8eb7` plus later merges that do not touch Conversation Runtime code). This section describes the tree at that branch's head. It supersedes what *Merged state* says about conformance and the WorkToolPort. MC0 records gate evidence after review; this document does not record it.
+
+### What gate `CR_TO_WM` requires
+
+The gate is Gate CR in `REFACTOR-STATUS.md` §4: "CR acceptance ครบ, WorkToolPort ทดสอบจริง, review+required checks ผ่าน, merge เข้า base และ handoff ตรง SHA". §3 lists "WorkToolPort provider conformance — UNPROVEN — มี port contract แต่ยังไม่ใช่ end-to-end evidence". ADR-106 D2 defines the WorkTool port as `read`, `propose`, `confirm-execute` and `status`, and ADR-106 *Verification* lists the acceptance evidence levels.
+
+| Gate item | What "done" means | State at this head |
+|---|---|---|
+| `merged_into_base` | CR merged into `main` | Done: #542 → `4b6d8eb7` (see *Merged state*). |
+| `required_checks` | Required CI green | Done for #542: governance run `36277269502` at `b21a3552`, with `verify`, `tests`, `build`, `conversation-runtime`, `govern` and `market-intelligence` all green. |
+| `reviewed_contracts` | The WorkToolPort tested for real against the real provider, plus review | **Test added, review pending.** See *WorkToolPort tested against the real Core provider*. It passes locally. It has not had a hosted run or an independent review yet. |
+| `accepted_scope_complete` | ADR-106 accepted scope implemented and verified; the *Cutover and rollback gates* item "Complete and review the original extraction acceptance scope, including the remaining Server-owned flows" | **Open.** See *What remains*. Whether the scope is ADR-106 option B (the eligible, verified, direct cohort) or every conversation flow is a user decision. |
+| `matching_handoff` | This handoff describes the merged SHA | This version matches the branch head of the PR that carries it. It has to be re-read against that PR's merge SHA. |
+
+### Conformance
+
+- **Model provider/consumer conformance** is `apps/server/tests/integration/conversation-runtime-model-conformance.test.js`. It needs no docker and no credentials; providers are controlled `fetch` fakes, and the same inputs go to the legacy Server port and the Runtime port. It covers six providers (request and response bodies, four error classes, caller deadline, the PRP reasoning filter and the custom-endpoint discrepancy).
+  - **Local, base `3452429f`:** 45/45 passed.
+  - **Hosted, #542 merged head `b21a3552`:** it ran inside the required `tests` job (run `36277269502`, job `108502329867`), where the log shows `conversation-runtime-model-conformance.test.js (45 tests)` passing. The whole job passed 789 files (5 skipped) and 6,830 tests (42 skipped).
+  - The "NOT_RUN" recorded in *Merged state* was therefore stale. The suite did run in the required checks; nobody had read the job log for it.
+- **Durable vertical slice** (`conversation-runtime-vertical-slice.test.js`): 11/11 passed locally at base `3452429f`, and 11/11 in the same hosted job.
+- **WorkTool conformance** did not exist before this version. It is the new suite below.
+
+### WorkToolPort tested against the real Core provider
+
+`apps/server/tests/integration/conversation-runtime-work-tool-port.test.js` passes 6/6 locally. The chain it exercises has no mock of the port on either side:
+
+1. the Runtime's own port object, `createCorePorts` in `services/conversation-runtime/src/core-ports.js` (extracted verbatim from `main.js`);
+2. the Runtime Core client, whose consumer-side response validation runs on every reply;
+3. the Core route handler and `createConversationRuntimeCore`;
+4. `line-project-work-tools.js`, then the canonical Project Manager writers;
+5. the disposable per-run SQLite database.
+
+Two things are replaced. The LINE transport is a local fake, used in the full-turn case only. The socket hop is an in-process `fetch` that still serialises every request and response; the vertical slice covers the socket path with a separate process.
+
+| Case | What it proves |
+|---|---|
+| `read` | Admission produces the runtime-cohort job. Claim, `resolve` and `prepare` go through the ports, and `prepare` derives `{operation:'read'}` from the signed inbound text. `status` is `NOT_FOUND` before and after the read, because a read has no receipt. The exact response shape and keys are asserted. |
+| `propose` → `confirm-execute` | The proposal writes no WorkItem, and `status` then replays the same receipt. A repeated `propose` returns the same proposal. A second signed inbound confirms using the proposal id as the operation id. Exactly one canonical WorkItem is created, and the receipt equals the durable `line-work-result` row. `status` and a repeated `confirm-execute` replay the receipt with `duplicate: true`, with no second write. |
+| Fencing | Core refuses the call before any Work side effect when the claim is stale after renewal, when tenant, execution or claimant is forged, when the lease has expired, or when the channel identity is revoked. No proposal row and no WorkItem are written. |
+| Runtime-side refusal | An arbitrary tool operation fails `WORK_TOOL_OPERATION_INVALID` in the Runtime, and nothing reaches Core. |
+| Request-contract parity | For 21 inputs, the Runtime validator, the Core validator and the published `contracts/v1/operation.schema.json` (Ajv 2020) must reach the same accept or reject verdict. |
+| Full turn | `createConversationRuntime().runOne()` drives a `/projects` read over the same ports to `RECORDED`, with one fake LINE delivery, no model call and no credential request. |
+
+The suite fails when the contract drifts. As a check, Core was changed temporarily in two ways: an extra key was added to the `read` receipt, and the Core `read.query` bound was widened to 200. The `read` case and the parity case both failed, and the change was reverted. `services/conversation-runtime/test/core-ports.test.js` (3 tests) pins the Runtime side of the wire: operation names, the claim reference, idempotency keys, and the Core-readiness gate on `claim`.
+
+**Remaining gap:** the provider store is SQLite (the suite's disposable database), not the production Postgres. No live LINE, model or production database is involved.
+
+### What remains
+
+The first four items are Server-owned **by ADR-106 D3's eligibility rule**. They are in scope only if the accepted scope is "every conversation flow", which needs a user decision. The last three are gaps inside the option-B cohort itself. The sizes are estimates.
+
+| Item | Current behaviour | Size |
+|---|---|---|
+| Memory-sync opt-in turns (`ZURI_MSP_THREAD_MEMORY_ENABLED`) | Admitted to `SERVER`. ADR-106 D2's Memory/Knowledge `read`/`append`/`receipt` ops are not in the v1 operation set. | L, about 3–5 days: new port ops on both sides, consent/erasure fencing, tests |
+| Out-of-hours reply (FR-244, ADR-094 D6) | Admitted straight to `READY` and delivered by the Server send path. No model runs. | S–M, about 0.5–1 day, plus a cohort-semantics decision |
+| Group and room audiences | `SERVER`. The runtime and `ownedClaim` require `DIRECT`. | M–L |
+| Unverified identities | `SERVER`. Core authority requires a verified channel identity. | Probably stays by design; needs a decision |
+| Malformed legacy `/work…` syntax | `SERVER`, which replies with the usage text | S, about 0.5 day |
+| WorkTool answer parity with the Server handler (code reading, not executed) | Three differences from the legacy `handleLineProjectWorkCommand`. (1) The Runtime `read` text drops the item ids, the workstream ids (which `/work-create` needs) and the truncation note. (2) The `propose` header text differs. (3) Work errors (expired confirmation, version conflict, scope denied, invalid args) come back as a retryable 503. The Runtime then records `WORK_TOOL_OUTCOME_UNKNOWN` and sends nothing, where the legacy path replies with a fixed message. | S–M, about 1 day, including a decision on the 5,000-character bound |
+| Knowledge grounding modes (code reading, not executed) | Runtime `prepare` supports only `BUSINESS_KNOWLEDGE` and fails `GKS_CORPUS` and `GKS_THEN_BUSINESS_KNOWLEDGE` with `RUNTIME_GROUNDING_MODE_NOT_SUPPORTED` (409). Neither admission eligibility nor `CONFIGURE_EXECUTION` checks the grounding mode. An opted-in account with a non-default mode would therefore admit runtime jobs that fail at `prepare`. | S for an eligibility guard; M to port GKS grounding |
+
+Also still open from *Cutover and rollback gates*:
+
+- a full `npm run verify` with its E2E leg, which was blocked by port 3100 last time;
+- a hosted image and smoke run on the current `main`.
+
+Production deployment, production migration, live LINE and real model calls belong to Gate PRODUCTION, not this scope.
+
+### Evidence at this head (local, Windows, Node 24.19)
+
+| Check | Result |
+|---|---|
+| `services/conversation-runtime` `npm test` | 36/36 passed (33 existing and 3 new `core-ports`) |
+| `services/conversation-runtime` `npm run build` | passed, 9 source files (`core-ports.js` is new) |
+| Focused Server suites (model conformance, vertical slice, WorkToolPort, line-project-work-tools, fr146 account, line-admission-after-ack) | 6 files, 106/106 passed |
+| Full Server `npm test` | 808 files passed, 5 skipped (813); 7,004 tests passed, 42 skipped (7,046); exit 0, 612 s |
+| `docs:graph` / `docs:check` / `docs:preflight` | graph 3,822 nodes, 16,023 edges, 10 known dangling (none from this change); `docs:check` up to date; preflight 0 critical, 21 warnings, 34 info (20 warnings are broken links to the generated, uncommitted `llms-full.txt`; 1 is the 10 known dangling edges) |
 
 ## Merged state — 2026-09-27
 
@@ -34,7 +115,7 @@ What landed after the published head `2e2154de` described below:
 
 Evidence at the merged head `b21a3552`: governance run `36277269502` and Edge CI run `36277269622` succeeded, covering governance, Server tests, build, Conversation Runtime, market-intelligence, Edge verify and desktop (E2E skipped by its path filter). Locally, `apps/edge` `npm test` passed 764 of 767 (3 skipped) and `cargo test --lib` passed 25 (3 ignored). Two independent read-only reviews passed the merge resolution and the `apps/edge` diff.
 
-**Extraction status: still partial.** Merging is not completion. Against ADR-106 *Verification*, provider/consumer conformance is **NOT_RUN**, the flows under *Remaining Server-owned or unverified flows* still run in the Server, and production cutover, production migration, live LINE send and real model calls are **NOT_RUN**. The Mission Control gate `CR_TO_WM` (S2's hard start) therefore records `merged_into_base` and `required_checks` only; `accepted_scope_complete`, `reviewed_contracts` (a real WorkToolPort test) and a handoff matching a completed scope remain open.
+**Extraction status: still partial.** Merging is not completion. Against ADR-106 *Verification*, provider/consumer conformance is **NOT_RUN**, the flows under *Remaining Server-owned or unverified flows* still run in the Server, and production cutover, production migration, live LINE send and real model calls are **NOT_RUN**. The Mission Control gate `CR_TO_WM` (S2's hard start) therefore records `merged_into_base` and `required_checks` only; `accepted_scope_complete`, `reviewed_contracts` (a real WorkToolPort test) and a handoff matching a completed scope remain open. (0.3.14b: the conformance "NOT_RUN" and the WorkToolPort statement here are superseded by *Current state*. The model conformance suite ran and passed in the required `tests` job at `b21a3552`, and a WorkToolPort suite against the real Core provider now exists.)
 
 Everything below this section is the checkpoint as S1 left it at the published head `2e2154de`, kept as history.
 
@@ -181,6 +262,8 @@ The first mandatory `npm run verify` after the initial runtime tranche exposed f
 - [ ] Production deployment, production migration, live LINE traffic and real model calls require separate authorization; none are part of this checkpoint.
 
 ## Version diff
+
+`0.3.13b → 0.3.14b`: adds *Current state* at base `main` `3452429f`. It maps each `CR_TO_WM` gate item to its source and current state. It records that model provider/consumer conformance (45/45) ran and passed in the required hosted `tests` job at `b21a3552`, so the earlier NOT_RUN was stale. It adds the WorkToolPort suite against the real Core provider (6/6 locally, with a drift check) and extracts the Runtime's `createCorePorts` from `main.js` without changing behaviour (3 new unit tests). It lists the remaining scope with size estimates, including two gaps found by code reading: WorkTool answer and error parity, and unsupported grounding modes on opted-in accounts. Accepted-scope completeness stays open pending a user decision on scope.
 
 `0.3.12b → 0.3.13b`: adds *Merged state* for PR #542 (merged 2026-09-27 as `4b6d8eb7`, head `b21a3552`): MC0 takeover, the ADR-110/SDD-110 renumbering, the 191-table Phase B rebind, the `apps/edge` retirement and hosted evidence at the merged head. The extraction stays partial against ADR-106; earlier sections are kept as history.
 

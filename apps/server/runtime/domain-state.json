@@ -692,7 +692,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 52
+          "testCount": 54
         },
         {
           "id": "FR-150",
@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-171",
@@ -2508,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 52
+          "testCount": 54
         },
         {
           "id": "FR-152",
@@ -3678,7 +3678,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 52
+          "testCount": 54
         },
         {
           "id": "FR-150",
@@ -3686,7 +3686,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-151",
@@ -5737,7 +5737,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 52
+          "testCount": 54
         },
         {
           "id": "FR-150",
@@ -5745,7 +5745,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-151",
@@ -8680,8 +8680,8 @@
           "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 39,
-          "testCount": 52
+          "codeCount": 40,
+          "testCount": 54
         },
         {
           "id": "FR-150",
@@ -8689,7 +8689,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -8747,6 +8747,7 @@
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
+        "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
@@ -8805,11 +8806,13 @@
         "apps/server/tests/unit/server-line-worker-routes.test.js",
         "services/conversation-runtime/src/contracts.js",
         "services/conversation-runtime/src/core-client.js",
+        "services/conversation-runtime/src/core-ports.js",
         "services/conversation-runtime/src/health-server.js",
         "services/conversation-runtime/src/main.js",
         "services/conversation-runtime/src/turn-runtime.js",
         "services/conversation-runtime/src/worker-loop.js",
         "services/conversation-runtime/test/contracts.test.js",
+        "services/conversation-runtime/test/core-ports.test.js",
         "services/conversation-runtime/test/health-server.test.js",
         "services/conversation-runtime/test/turn-runtime.test.js",
         "services/conversation-runtime/test/worker-loop.test.js"
