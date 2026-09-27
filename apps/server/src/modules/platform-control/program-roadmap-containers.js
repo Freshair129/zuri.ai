@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.27, 2026-09-27) so the board can open a task the way the html board
+// (v0.4.28, 2026-09-27) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -2324,7 +2324,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-050",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "ATHER",
@@ -2356,7 +2356,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts \"no production deployment\" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live.",
+    "changelog": "Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts \"no production deployment\" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live. Status corrected to in-progress 2026-09-27 to match the live ROADMAP.md task row (moved there by Revision 2.134.0b on 2026-09-24 and never mirrored into this container). 2026-09-27 (v0.2.0, .brain/reports/2026-09-27-task-zai-050-dod-review.md): the acceptance criterion's four named migrations are checked true, traced by exclusion from ADR-104's 2026-09-23 full-tree migration-ledger preflight (105 files vs 96 ledger rows, ten named gaps, none of these four) and its post-apply 107-row ledger; this session had no live production DB access to confirm directly. success_criteria and exit_criteria are untouched — MSP/GKS reachability shows partial evidence (2026-09-24 probe: 22/38 Stage 17 PASS, one stuck PipelineRun) and the real-document run/receipt/citation record is separate from this review's two-item scope, so neither is claimed done here.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 30000,
     "totalTokens": 0,
