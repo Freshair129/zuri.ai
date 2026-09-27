@@ -12,7 +12,8 @@ import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVI
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
-import { handleLineProjectWorkCommand, lineWorkReadText, LINE_WORK_DUPLICATE_TEXT } from '@/modules/agent/line-project-work-tools'
+import { handleLineProjectWorkCommand, lineWorkReadText, LINE_WORK_DUPLICATE_TEXT, searchLineProjectWork } from '@/modules/agent/line-project-work-tools'
+import { isValidWorkToolResult } from '@/modules/line-oa-studio/domain/work-tool-receipt'
 import { updateItem } from '@/modules/project-manager/application/work-service'
 import { createCoreClient } from '../../../../services/conversation-runtime/src/core-client.js'
 import { createCorePorts } from '../../../../services/conversation-runtime/src/core-ports.js'
@@ -547,6 +548,39 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     expect(await ports.workTool.execute(later.claim, later.authority, later.request))
       .toEqual({ status: 'COMPLETED', result: { text: LINE_WORK_DUPLICATE_TEXT, receipt: { ...receipt, duplicate: true } } })
     expect(await confirmationState(proposalId, title)).toEqual(writtenOnce)
+  })
+
+  // @req FR-150 — Core checks its own WorkTool response with the exact v1 receipt
+  // rules the runtime client applies, from one source mirrored byte for byte.
+  it('Core and the runtime check Work receipts with one source: the mirror is byte-identical', () => {
+    const read = url => readFileSync(url, 'utf8').replace(/\r\n/g, '\n')
+    expect(read(new URL('../../../../services/conversation-runtime/src/work-tool-receipt.js', import.meta.url)),
+      'copy apps/server/src/modules/line-oa-studio/domain/work-tool-receipt.js over the Runtime mirror')
+      .toBe(read(new URL('../../src/modules/line-oa-studio/domain/work-tool-receipt.js', import.meta.url)))
+  })
+
+  it('Core refuses to send a Work receipt outside the exact v1 shape, where it used to pass anything of 12 keys', async () => {
+    // A drifted Work reader: its receipt still has two keys, well inside the old
+    // 12-key bound, but names another source.
+    const { ports } = build({ coreOptions: { workSearch: async (...args) => ({ ...(await searchLineProjectWork(...args)), source: 'SOMEWHERE_ELSE' }) } })
+    const jobId = await admit('synthetic-wtp-receipt-drift', '/projects')
+    const { claim, authority, turn } = await claimTurn(ports, jobId, 'runtime-wtp-receipt-drift')
+    const request = validateWorkToolRequest({ ...turn.workCommand, operationId: `${jobId}:work-read` })
+    await expect(ports.workTool.execute(claim, authority, request)).rejects.toMatchObject({ code: 'CONTRACT_RESPONSE_INVALID', retryable: true })
+    // The shared rules, directly: each operation has exactly one receipt shape.
+    const confirm = { claim: { jobId }, operation: 'confirm-execute', operationId: jobId, input: { proposalId: jobId } }
+    const executed = { proposalId: jobId, action: 'create_work', itemId: 'item-1', code: 'W-1', status: 'TODO', version: 1 }
+    const completed = receipt => ({ status: 'COMPLETED', result: { text: 'ok', receipt } })
+    expect(isValidWorkToolResult(confirm, completed(executed))).toBe(true)
+    expect(isValidWorkToolResult(confirm, completed({ ...executed, duplicate: true }))).toBe(true)
+    expect(isValidWorkToolResult(confirm, completed({ ...executed, extra: 1 }))).toBe(false)
+    expect(isValidWorkToolResult(confirm, completed({ ...executed, action: 'delete_work' }))).toBe(false)
+    expect(isValidWorkToolResult(confirm, completed({ ...executed, proposalId: 'another-proposal' }))).toBe(false)
+    expect(isValidWorkToolResult({ ...confirm, operation: 'status' }, completed({ ...executed, duplicate: true }))).toBe(false)
+    expect(isValidWorkToolResult({ ...confirm, operation: 'propose' }, completed({ proposalId: jobId, status: 'AWAITING_CONFIRMATION' }))).toBe(true)
+    expect(isValidWorkToolResult({ ...confirm, operation: 'propose' }, completed({ proposalId: 'x', status: 'AWAITING_CONFIRMATION' }))).toBe(false)
+    expect(isValidWorkToolResult({ ...confirm, operation: 'read' }, { status: 'NOT_FOUND', operationId: jobId })).toBe(false)
+    expect(isValidWorkToolResult(confirm, { status: 'REJECTED', code: 'WORK_SCOPE_DENIED', result: { text: 'no' } })).toBe(false)
   })
 
   it('refuses an arbitrary tool operation on the runtime side before anything reaches Core', async () => {
