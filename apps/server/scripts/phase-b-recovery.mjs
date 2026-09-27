@@ -23,8 +23,8 @@ const THIS_DIR = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_INVENTORY_PATH = path.resolve(THIS_DIR, '../../../docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json')
 const DEFAULT_SCHEMA_PATH = path.resolve(THIS_DIR, '../prisma/schema.prisma')
 const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
-const FROZEN_SCHEMA_SHA256 = 'f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078'
-const FROZEN_TARGET_SCHEMA_SHA256 = 'a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1'
+const FROZEN_SCHEMA_SHA256 = '26a67720bdc418d9e1de1b06849ccc685b111d0810d3d04dc03952bcb6d268f8'
+const FROZEN_TARGET_SCHEMA_SHA256 = '53119b5c3d73c1acdaebdf16cc7c1d8b34d97bfb8877b36df2fc9cbfe0db751d'
 const FROZEN_APPLICATION_TABLE_COUNT = 191
 
 function ordinalCompare(a, b) {

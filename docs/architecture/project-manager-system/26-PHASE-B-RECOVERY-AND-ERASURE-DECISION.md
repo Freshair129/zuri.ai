@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.10b"
+version: "0.3.11b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-27T00:00:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-27T19:45:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -217,7 +217,7 @@ or recovery operation is claimed.
 Conversation Runtime (ADR-106 / SDD-110) adds `runtimeOwner` to the existing
 `LineOaAccount` and `LineConversationJob` models. It adds no application model,
 so the 191-entry table mapping is unchanged, but the schema bytes change. The
-**current** binding for the merged Notion + Conversation Runtime schema is
+binding for the merged Notion + Conversation Runtime schema was
 `schemaSha256`
 `f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078` with
 `targetSchemaSha256`
@@ -234,12 +234,31 @@ table-empty proof nor the recovery/erasure algorithm; it accepts only this exact
 schema and does not authorize automatic rewriting or recovery of artifacts bound
 to older hashes.
 
+PDPA erasure of one speaker in a shared LINE group or room thread (FR-022) adds
+the nullable `authorChannelIdentityId` column (and its index) to the existing
+`Message` model. It adds no application model, so the 191-entry table mapping is
+unchanged; only the schema bytes change. The **current** binding is
+`schemaSha256`
+`26a67720bdc418d9e1de1b06849ccc685b111d0810d3d04dc03952bcb6d268f8` with
+`targetSchemaSha256`
+`53119b5c3d73c1acdaebdf16cc7c1d8b34d97bfb8877b36df2fc9cbfe0db751d`, recomputed
+with `computeTargetSchemaSha256` over the unchanged mapping. The merged Notion +
+Conversation Runtime binding above is historical and refused against this schema.
+`Message` stays in snapshot coverage and a restore carries the column as data;
+this rebind changes neither the table-empty proof nor the recovery/erasure
+algorithm, and it does not authorize recovery of artifacts bound to older hashes.
+
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.10b → 0.3.11b: rebind the frozen recovery inventory to the
+schema with `Message.authorChannelIdentityId` (FR-022 group-speaker erasure).
+The 191-table mapping is unchanged; the 0.3.10b binding stays historical and is
+refused.
 
 Version diff 0.3.9b → 0.3.10b: rebind the frozen recovery inventory to the merged
 Notion + Conversation Runtime schema (191 tables, `runtimeOwner` on the LINE
