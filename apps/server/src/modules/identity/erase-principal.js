@@ -2,7 +2,7 @@ import prisma from '@/lib/db'
 import { LIVE_ACCESS_STATUSES as LIVE_GRANT_STATUSES } from '@/lib/validation/enums'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { zErasePrincipalInput } from '@/lib/validation/entities'
-import { redactConversationContentForCustomers } from '@/modules/crm/conversation-redaction-service'
+import { redactConversationContent, redactSpeakerContentInSharedThreads } from '@/modules/crm/conversation-redaction-service'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
 import { destroyCustomerArchiveKey } from '@/modules/crm/chat-evidence-archive-service'
@@ -23,12 +23,23 @@ import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/ap
 //   message bodies and the raw provider payloads are the two places the erased person's
 //   words live. Both are other domains' models, so both are reached through those
 //   domains' own contract exports inside this one transaction, never by a direct
-//   prisma write from here: `redactConversationContentForCustomers` (crm) and
+//   prisma write from here: `redactConversationContent` and
+//   `redactSpeakerContentInSharedThreads` (crm) and
 //   `tombstoneRawRecordsForExternalIds` (integration).
 // RCA: .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
 // @tested tests/integration/identity-erase.test.js, tests/integration/crm-conversation-analysis.test.js
 // @tested tests/integration/crm-customer-erasure.test.js, tests/integration/server-line-jobs.test.js
 // @tested tests/integration/crm-archive-legal-hold.test.js
+// @req FR-022 — erasure follows the SPEAKER, not only the thread owner. A LINE group or
+//   room Conversation belongs to the Customer of its first speaker, so selecting by
+//   owner alone left every other speaker's lines, jobs and trace inputs readable after
+//   their erasure, and erasing the first speaker cancelled everyone else's turns.
+//   A thread whose external id is one of this person's own subjects is theirs alone
+//   and is erased whole, exactly as before. Every other thread is shared: only this
+//   person's own lines (Message.authorChannelIdentityId, or the inbound of a job they
+//   spoke), the replies to them and their own jobs (sourceUserId on the job's channel
+//   account) are erased there; other members' content and in-flight turns are left alone.
+// @tested tests/integration/identity-erase-group-speakers.test.js
 
 const REDACTED = '[erased]'
 
@@ -118,14 +129,31 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
     const customers = await tx.customer.findMany({ where: { tenantId, personId }, select: { id: true, deletedAt: true } })
     const customerIds = customers.map((customer) => customer.id)
     const activeCustomers = customers.filter((customer) => customer.deletedAt === null)
-    const conversations = customerIds.length
-      ? await tx.conversation.findMany({ where: { tenantId, customerId: { in: customerIds } }, select: { id: true } })
-      : []
-    const analyses = conversations.length
-      ? await tx.conversationAnalysis.deleteMany({
-        where: { conversationId: { in: conversations.map((conversation) => conversation.id) } },
+    // Who this person is on each channel. Read before any redaction: the job writer
+    // below overwrites `sourceUserId`, and a revoked identity keeps its subject.
+    const [subjectIdentities, subjectChannels] = await Promise.all([
+      tx.externalIdentity.findMany({ where: { tenantId, personId }, select: { providerSubject: true } }),
+      tx.channelIdentity.findMany({
+        where: { tenantId, personId },
+        select: { id: true, channel: true, channelAccountId: true, providerSubject: true },
+      }),
+    ])
+    const ownSubjects = new Set([
+      ...subjectIdentities.map((row) => row.providerSubject),
+      ...subjectChannels.map((row) => row.providerSubject),
+    ])
+    const ownedConversations = customerIds.length
+      ? await tx.conversation.findMany({
+        where: { tenantId, customerId: { in: customerIds } },
+        select: { id: true, channel: true, externalThreadId: true },
       })
-      : { count: 0 }
+      : []
+    // A LINE thread keyed by anything but this person's own subject is a group or
+    // room (admission keys a thread by groupId, else roomId, else the speaker).
+    const isShared = (conversation) => conversation.channel === 'LINE' && !ownSubjects.has(conversation.externalThreadId)
+    const conversations = ownedConversations.filter((conversation) => !isShared(conversation))
+    const ownedSharedIds = ownedConversations.filter(isShared).map((conversation) => conversation.id)
+    const personalIds = conversations.map((conversation) => conversation.id)
     for (const c of activeCustomers) {
       await tx.customer.update({
         where: { id: c.id },
@@ -145,8 +173,27 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
         select: { externalMessageId: true },
       })
       : []
-    const { redactedLineJobs } = await redactLineConversationJobs(tx, { tenantId, conversationIds: conversations.map(conversation => conversation.id) })
-    const { redactedMessages } = await redactConversationContentForCustomers(tx, { tenantId, customerIds })
+    const { redactedLineJobs, inboundMessageIds } = await redactLineConversationJobs(tx, {
+      tenantId,
+      conversationIds: personalIds,
+      speakers: subjectChannels.filter((row) => row.channel === 'LINE'),
+    })
+    const personal = await redactConversationContent(tx, { tenantId, conversationIds: personalIds })
+    const shared = await redactSpeakerContentInSharedThreads(tx, {
+      tenantId,
+      channelIdentities: subjectChannels,
+      customerIds,
+      inboundMessageIds,
+      excludeConversationIds: personalIds,
+    })
+    const redactedMessages = personal.redactedMessages + shared.redactedMessages
+    // Analyses are derived from a whole thread, so any thread that held this
+    // person's words loses its analysis: their own, and every shared one they
+    // spoke in. Recomputable; nothing another member wrote is changed.
+    const analysedIds = [...new Set([...personalIds, ...ownedSharedIds, ...shared.conversationIds])]
+    const analyses = analysedIds.length
+      ? await tx.conversationAnalysis.deleteMany({ where: { conversationId: { in: analysedIds } } })
+      : { count: 0 }
 
     // Which raw records belong to this person. Two families, and nothing else:
     //   - the provider subjects this person is known by (profile/customer-lane records
@@ -156,14 +203,10 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
     // `ChannelIdentity.channelAccountId` is deliberately NOT included: it names the
     // OA account, shared by every customer of that channel, so matching on it would
     // tombstone other people's evidence.
-    const [subjectIdentities, subjectChannels] = await Promise.all([
-      tx.externalIdentity.findMany({ where: { tenantId, personId }, select: { providerSubject: true } }),
-      tx.channelIdentity.findMany({ where: { tenantId, personId }, select: { providerSubject: true } }),
-    ])
     const externalIds = [
-      ...subjectIdentities.map((row) => row.providerSubject),
-      ...subjectChannels.map((row) => row.providerSubject),
+      ...ownSubjects,
       ...messageKeys.map((row) => row.externalMessageId),
+      ...shared.externalMessageIds,
     ]
     const { tombstonedRawRecords } = await tombstoneRawRecordsForExternalIds(tx, {
       tenantId,
@@ -243,6 +286,9 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
         erasedAnalyses: analyses.count,
         redactedMessages,
         redactedLineJobs,
+        // Counts only: which threads they were would name the groups this person was in.
+        sharedThreads: shared.conversationIds.length,
+        attributedMessages: shared.attributedMessages,
         tombstonedRawRecords,
         archiveKeys,
         personRedacted,
