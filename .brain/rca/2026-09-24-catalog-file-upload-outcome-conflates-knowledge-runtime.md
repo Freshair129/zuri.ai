@@ -65,7 +65,10 @@ Return explicit additive file and Knowledge outcome fields. Preserve the
 existing admission payload on success; report typed `KNOWLEDGE_*` admission
 errors as `FAILED`, except the known runtime-unavailable result, which is
 `UNAVAILABLE`. Let untyped failures propagate. Keep authorization, validation,
-storage, and asset-registration errors fail-closed. Show the saved-file state
+storage, and asset-registration errors raised before admission fail-closed, and keep
+typed 401/403/404 refusals raised during admission (access, missing asset or project)
+failing as well; only the remaining typed admission errors become a 200 `FAILED`
+(review follow-up, 2026-09-27). Show the saved-file state
 and Knowledge outcome in the UI, and retain the A/B integration regression
 against the actual services.
 

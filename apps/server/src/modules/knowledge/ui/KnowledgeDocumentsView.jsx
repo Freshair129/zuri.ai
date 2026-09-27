@@ -301,6 +301,11 @@ export function catalogUploadMessage(result) {
   return `${result.fileName}${result.reused ? ' (ไฟล์เดิม)' : ''} · ${catalogAdmissionMessage(result.admission)}`
 }
 
+export function catalogUploadTone(result) {
+  if (!result.knowledgeStatus || result.knowledgeStatus === 'ADMITTED') return 'success'
+  return result.knowledgeStatus === 'FAILED' ? 'error' : 'info'
+}
+
 export function catalogUploadBody({ businessId, fileName, contentBase64 }) {
   return { businessId, projectId: null, name: fileName, contentBase64 }
 }
@@ -330,7 +335,7 @@ function CatalogUploadCard({ businessId, onSuccess, onError, onUploaded }) {
       })
       setFile(null)
       onUploaded?.()
-      onSuccess(null, catalogUploadMessage(res), res.knowledgeStatus === 'ADMITTED' ? 'success' : 'info')
+      onSuccess(null, catalogUploadMessage(res), catalogUploadTone(res))
     } catch (err) {
       onError(err.message)
     } finally {
