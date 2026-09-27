@@ -56,7 +56,7 @@ export default async function globalSetup({ provide }) {
       if (rows[0].n !== 6) throw new Error(`POSTGRES_TEST_SCHEMA_NOT_APPLIED: ${rows[0].n}/6 foundation tables`)
     } finally { await client.end() }
   } catch (error) {
-    server.stop()
+    try { await server.stop() } catch (cleanup) { error.message += ` (cleanup: ${cleanup.message})` }
     throw error
   }
   provide('testDatabaseUrl', server.url)
