@@ -18,7 +18,7 @@ import { lineCatalogCommandReply, lineCatalogViewer } from '@/modules/agent/line
 import { parseLineCatalogCommand } from '@/modules/inventory'
 import { appendTraceEvent, sha256 } from '@/modules/agent/execution-trace'
 import { serverLinePorts } from './server-line-runtime'
-import { createConversationRuntimeMemory, MEMORY_INJECTION_STATES, MEMORY_OPERATIONS, MAX_MEMORY_PACKET_BYTES } from './conversation-runtime-memory'
+import { createConversationRuntimeMemory, MEMORY_INJECTION_STATES, MEMORY_OPERATIONS, MAX_MEMORY_PACKET_BYTES, traceEvidenceTrimmed } from './conversation-runtime-memory'
 import { isMemoryTurn } from './runtime-memory-receipts'
 import { isValidWorkToolResult, WORK_TOOL_TEXT_MAX } from '../domain/work-tool-receipt'
 import {
@@ -728,7 +728,10 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         // Server worker's answer port checks `#sku` before its model answer.
         const catalogTurn = await catalogCommandTurn(job, identityState)
         if (catalogTurn) return catalogTurn
-        const turn = fitPreparedTurn(await prepare(job, { deadlineAt: envelope.deadlineAt }))
+        const prepared = await prepare(job, { deadlineAt: envelope.deadlineAt })
+        const turn = fitPreparedTurn(prepared)
+        await traceEvidenceTrimmed(db, job, { phase: 'prepare', recordsBefore: prepared?.evidence?.records?.length,
+          recordsKept: turn?.evidence?.records?.length, now })
         // An opted-in turn tells the runtime to run the memory phases; a Work
         // command (or its fixed reply) never touches memory, as in the legacy worker.
         return job.memorySyncOptIn === true && turn?.workCommand == null && turn?.workReply == null ? { ...turn, memorySync: true } : turn

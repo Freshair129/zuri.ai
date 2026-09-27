@@ -537,7 +537,7 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     const records = ['r1', 'r2', 'r3'].map((id, index) => ({ kind: 'CORPUS_CHUNK', citationId: `cit-${id}`, text: `AB-1 ${id}`,
       detail: 'ข'.repeat(index === 2 ? 10 : 7_000) }))
     const corpusReaderFactory = () => ({ query: async () => ({ records: records.map(record => ({ ...record })) }) })
-    await admit('runtime', 0, { audience: 'DIRECT', speaker: 'A' })
+    const job = await admit('runtime', 0, { audience: 'DIRECT', speaker: 'A' })
     const built = buildRuntime({ msp, corpusReaderFactory })
     expect((await runRuntime(built)).map(outcome => outcome.status)).toEqual(['RECORDED'])
     const prompt = JSON.parse(built.providerCalls[0].body).messages[0].content
@@ -545,6 +545,11 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     expect(prompt).toContain('cit-r1')
     expect(prompt).not.toContain('cit-r2')
     expect(prompt).not.toContain('cit-r3')
+    // The drop is traced once, with counts only (no citation, record or text).
+    const trimmed = await prisma.agentTraceEvent.findMany({ where: { turnId: job.id, kind: 'EVIDENCE_TRIMMED' } })
+    expect(trimmed.map(row => JSON.parse(row.payloadJson)))
+      .toEqual([{ phase: 'memory-read', recordsBefore: 3, recordsKept: 1, recordsDropped: 2 }])
+    expect(trimmed[0].payloadJson).not.toMatch(/cit-|AB-1/)
   })
 
 

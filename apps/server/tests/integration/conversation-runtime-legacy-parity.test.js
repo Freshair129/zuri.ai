@@ -214,6 +214,12 @@ describe('Conversation Runtime question length parity with the legacy Server ans
     expect(kept.length).toBeLessThan(evidence.records.length)
     expect(kept).toEqual(evidence.records.slice(0, kept.length))
     expect(runtime.deliveries).toEqual([[{ type: 'text', text: legacy.reply }]])
+    // The drop is traced, with counts only: no record, citation or question text.
+    const trimmed = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'EVIDENCE_TRIMMED' } })
+    expect(trimmed).toHaveLength(1)
+    expect(JSON.parse(trimmed[0].payloadJson)).toEqual({ phase: 'prepare', recordsBefore: evidence.records.length,
+      recordsKept: kept.length, recordsDropped: evidence.records.length - kept.length })
+    expect(Object.keys(JSON.parse(trimmed[0].payloadJson)).sort()).toEqual(['phase', 'recordsBefore', 'recordsDropped', 'recordsKept'])
   })
 
   it('refuses one character over the bound at admission, before either path runs', async () => {

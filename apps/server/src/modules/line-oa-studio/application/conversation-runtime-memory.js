@@ -79,6 +79,25 @@ function durableAuthContext(authContext) {
   }
 }
 
+/**
+ * @req FR-149 — when Core drops low-ranked evidence so a runtime answer fits its
+ * bounds (`prepare`: fitPreparedTurn; `memory read`: the evidence and result
+ * bounds), the drop is traced: which phase, how many records there were and how
+ * many were kept. Counts only, never a record, a citation or any text. Best
+ * effort: a diagnostic trace never fails the turn it describes.
+ */
+export async function traceEvidenceTrimmed(db, job, { phase, recordsBefore, recordsKept, now = () => new Date() }) {
+  if (!Number.isInteger(recordsBefore) || !Number.isInteger(recordsKept) || recordsKept >= recordsBefore) return false
+  try {
+    await appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId },
+      turnId: job.id, executionId: job.executionId ?? null, kind: 'EVIDENCE_TRIMMED',
+      idempotencyKey: `${job.id}:core:evidence-trimmed:${phase}:${job.executionId ?? 'none'}:${recordsBefore}:${recordsKept}`,
+      payload: { phase, recordsBefore, recordsKept, recordsDropped: recordsBefore - recordsKept },
+      occurredAt: new Date(now().getTime()) })
+    return true
+  } catch { return false }
+}
+
 export function createConversationRuntimeMemory({ db, env, now = () => new Date(), ownedClaim, modelResolver, groundingQuery,
   threadMemoryFactory = null, contextAssembler = assembleAgentContext,
   authorizationResolver = resolveAgentAuthorization } = {}) {
@@ -256,6 +275,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       const bytes = Buffer.byteLength(JSON.stringify({ records }), 'utf8')
       return bytes <= MAX_MEMORY_EVIDENCE_BYTES && bytes + packetBytes <= MAX_MEMORY_RESULT_BYTES
     }
+    const composedCount = knowledgeRecords?.length ?? 0
     while (knowledgeRecords && knowledgeRecords.length && !fits(knowledgeRecords)) knowledgeRecords.pop()
     const evidenceJson = knowledgeRecords ? JSON.stringify({ records: knowledgeRecords }) : null
     // One ContextReceipt per model invocation and none when no model will run:
@@ -283,6 +303,9 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     // The legacy worker records the composer's ContextReceipt (references, hash,
     // budget; never content) for every BUSINESS_KNOWLEDGE memory turn.
     if (recordsContextReceipt && composed.receipt?.receiptId) await traceNote(job, 'CONTEXT_RECEIPT', operationId, composed.receipt)
+    if (knowledgeRecords) {
+      await traceEvidenceTrimmed(db, job, { phase: 'memory-read', recordsBefore: composedCount, recordsKept: knowledgeRecords.length, now })
+    }
     return readResult(receipt)
   }
 
