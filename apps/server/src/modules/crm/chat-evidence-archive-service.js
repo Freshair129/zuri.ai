@@ -747,10 +747,18 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   //   decides, inside its own transaction, whether it stays deferred in the
   //   database or is blanked.
   const sealable = candidates.filter((message) => keyable(keyCustomerByMessageId.get(message.id)))
-  const settle = () => settleOrphanedLines(db, { tenantId, orphaned, attribution })
+  // A failure here is reported as its own `settleFailed`, never as an archive
+  // failure: it must not hide (or be mistaken for) an archive that committed.
+  const settle = async () => {
+    try {
+      return await settleOrphanedLines(db, { tenantId, orphaned, attribution })
+    } catch (error) {
+      return { deferredMessages: 0, blankedMessages: 0, settleFailed: true, settleFailureReason: error?.code || error?.message || 'SETTLE_FAILED' }
+    }
+  }
   if (sealable.length === 0) {
-    const { deferredMessages, blankedMessages } = await settle()
-    return { archived: false, manifest: null, redactedMessages: 0, redactedAttachments: 0, deferredMessages, blankedMessages }
+    const settled = await settle()
+    return { archived: false, manifest: null, redactedMessages: 0, redactedAttachments: 0, ...settled }
   }
 
   const byCustomer = new Map()
@@ -833,8 +841,8 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
     throw error
   }
   // Settled only once the archive committed, so a failed archive run touches no row.
-  const { deferredMessages, blankedMessages } = await settle()
-  return { ...archivedResult, deferredMessages, blankedMessages }
+  // A settle failure keeps every count of the archive that did commit.
+  return { ...archivedResult, ...(await settle()) }
 }
 
 // @req SEC-034 — key destruction and the legal hold (ADR-093 D5, D6; TASK-ZAI-113).

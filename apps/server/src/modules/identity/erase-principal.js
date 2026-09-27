@@ -8,7 +8,7 @@ import {
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
 import { destroyCustomerArchiveKey, removeUnreferencedArchiveFile } from '@/modules/crm/chat-evidence-archive-service'
-import { captureLinesBeforeErasure, resealErasedEvidenceUnderLegalHolds } from '@/modules/crm/chat-evidence-hold-reseal-service'
+import { captureLinesBeforeErasure, recordErasureBlocked, resealErasedEvidenceUnderLegalHolds } from '@/modules/crm/chat-evidence-hold-reseal-service'
 import { revokeRetentionConsentInTransaction, scrubRetentionConsentAuditText } from '@/modules/crm/customer-retention-consent-service'
 import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/application/project-feature-erasure'
 
@@ -309,7 +309,6 @@ export async function erasePrincipal(input, {
         now,
         env,
         baseDir: archiveBaseDir,
-        ...(alert ? { alert } : {}),
       })
     } catch (error) {
       if (error?.archiveFile) resealFile = error.archiveFile
@@ -434,6 +433,12 @@ export async function erasePrincipal(input, {
   } catch (error) {
     if (resealFile) {
       await removeUnreferencedArchiveFile(db, { tenantId, runId: resealFile.runId, relativePath: resealFile.relativePath, baseDir: resealFile.baseDir })
+    }
+    // @req FR-022 — ADR-093 1.2.0 runbook: a blocked erasure is an operator alert
+    //   that must outlive the transaction it rolled back, so it is written here,
+    //   after the rollback, on the root client.
+    if (error?.code === 'ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID') {
+      await recordErasureBlocked(db, error, alert ? { alert } : {})
     }
     throw error
   }

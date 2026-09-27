@@ -25,6 +25,8 @@ import { findActiveRetentionConsent, tenantHasActiveRetentionConsent } from './r
 import { CUSTOMER_ERASURE_TOMBSTONE } from './conversation-redaction-service'
 import { LINE_UNSEND_TOMBSTONE } from './line-unsend-tombstone'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
+import { recordAudit } from '@/modules/project-manager/application/audit'
+import { recordErrorEvent } from '@/modules/platform-control/application/error-events'
 
 // @req FR-022, SEC-034 — erasing a Customer must not shred evidence a held,
 //   consenting member of the same thread relies on (owner ruling 2026-09-27,
@@ -67,7 +69,7 @@ import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 //
 // FAIL CLOSED (M4 of the #610 review): when a qualifying hold exists but the
 // Tenant's manifest chain does not verify with files, the erasure is ABORTED with
-// ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID and an operator alert — shredding A's key
+// ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID — shredding A's key
 // then would silently destroy evidence B relies on. Without a qualifying hold the
 // chain is never consulted and the erasure proceeds exactly as before.
 //
@@ -80,6 +82,48 @@ import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 
 const CONTENT_GONE = new Set([CUSTOMER_ERASURE_TOMBSTONE, LINE_UNSEND_TOMBSTONE, RETENTION_SWEEP_TOMBSTONE])
 
+/**
+ * @req FR-022, SEC-034 — the durable operator alert for a blocked erasure
+ * (ADR-093 1.2.0 runbook). Called by the erasure AFTER its transaction rolled
+ * back, on the root client, so the record survives: one deduplicated ErrorEvent
+ * per Tenant (the FR-247 operator error list, resolvable once repaired) and one
+ * `ERASURE_BLOCKED` audit event per attempt. Ids and codes only — no content.
+ * Also written to stderr. Never throws: the caller re-throws the original error.
+ */
+export async function recordErasureBlocked(db, error, { alert = defaultAlert, now = new Date() } = {}) {
+  const details = error?.details ?? {}
+  const entry = { event: 'crm.erasure.blocked', severity: 'critical', code: error?.code, ...details, at: now.toISOString() }
+  try { alert(entry) } catch { /* stderr is best-effort */ }
+  const written = { errorEventId: null, auditEventId: null }
+  try {
+    const fingerprint = createHash('sha256').update(`crm.erasure.blocked|${error?.code}|${details.tenantId ?? ''}`).digest('hex')
+    const row = await recordErrorEvent(db, {
+      fingerprint,
+      name: 'ErasureBlockedError',
+      message: `${error?.code}: tenant ${details.tenantId ?? '?'}, chain ${details.reason ?? '?'} at manifest ${details.brokenAtManifestId ?? '?'}`,
+      frames: [],
+    }, { route: 'identity.erasePrincipal' })
+    written.errorEventId = row.id
+  } catch { /* reported below through the audit row, or at least stderr */ }
+  try {
+    const audit = await recordAudit(db, {
+      entityType: 'ARCHIVE',
+      entityId: `erasure-blocked:${details.tenantId ?? 'unknown'}`,
+      action: 'ERASURE_BLOCKED',
+      actorType: 'SYSTEM',
+      tenantId: details.tenantId ?? null,
+      reason: error?.code ?? null,
+      payload: { code: error?.code, ...details },
+    })
+    written.auditEventId = audit.id
+  } catch { /* best-effort; stderr already has it */ }
+  return written
+}
+
+function defaultAlert(entry) {
+  process.stderr.write(`${JSON.stringify(entry)}\n`)
+}
+
 export class ErasureBlockedError extends Error {
   constructor(code, details = {}) {
     super(code)
@@ -90,9 +134,6 @@ export class ErasureBlockedError extends Error {
   }
 }
 
-function defaultAlert(entry) {
-  process.stderr.write(`${JSON.stringify(entry)}\n`)
-}
 
 /** The select a captured database line needs to become an archive line. */
 export const HOLD_RESEAL_MESSAGE_SELECT = Object.freeze({
@@ -202,7 +243,6 @@ async function readArchivedLinesUnderKeys(tx, { tenantId, customerIds, baseDir, 
  */
 export async function resealErasedEvidenceUnderLegalHolds(tx, {
   tenantId, erasedCustomerIds, speakerChannelIdentityIds = [], capturedLines = [], now = new Date(), env = process.env, baseDir,
-  alert = defaultAlert,
 }) {
   const none = { holds: [], file: null, manifestId: null, chainIntegrity: { valid: true } }
   const erased = [...new Set((erasedCustomerIds ?? []).filter(Boolean))]
@@ -226,7 +266,9 @@ export async function resealErasedEvidenceUnderLegalHolds(tx, {
   const chainIntegrity = await verifyManifestChain(tx, tenantId, { baseDir: resolvedBaseDir, checkFiles: true })
   if (!chainIntegrity.valid) {
     const details = { tenantId, legalHoldIds: [...holds.keys()], reason: chainIntegrity.reason, brokenAtManifestId: chainIntegrity.brokenAtManifestId ?? null }
-    alert({ event: 'crm.erasure.blocked', severity: 'critical', code: 'ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID', ...details })
+    // The operator alert is NOT raised here: this runs inside the erasure
+    // transaction, which this throw rolls back. `erasePrincipal` records it
+    // durably after the rollback (`recordErasureBlocked`).
     throw new ErasureBlockedError('ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID', details)
   }
   const archived = await readArchivedLinesUnderKeys(tx, { tenantId, customerIds: erased, baseDir: resolvedBaseDir, env })
