@@ -119,7 +119,11 @@ export async function redactConversationContent(tx, { tenantId, conversationIds 
  * @param {object} tx prisma client or transaction client — the caller owns the transaction
  * @param {{tenantId: string, channelIdentities?: {id: string, channel: string, channelAccountId: string}[],
  *   customerIds?: string[], inboundMessageIds?: string[], excludeConversationIds?: string[]}} scope
- * @returns {Promise<{conversationIds: string[], externalMessageIds: string[], redactedMessages: number,
+ * `inboundMessages` are the inbound rows it redacted, with the provider message id
+ * and the time each was written (the raw-payload lookup's window).
+ *
+ * @returns {Promise<{conversationIds: string[], externalMessageIds: string[],
+ *   inboundMessages: {externalMessageId: string, createdAt: Date}[], redactedMessages: number,
  *   redactedAttachments: number, attributedMessages: number}>}
  */
 export async function redactSpeakerContentInSharedThreads(tx, {
@@ -133,7 +137,7 @@ export async function redactSpeakerContentInSharedThreads(tx, {
   const identities = [...new Set(speakerIdentities.map((row) => row.id))]
   const inbound = [...new Set((inboundMessageIds ?? []).filter(Boolean))]
   const excluded = [...new Set((excludeConversationIds ?? []).filter(Boolean))]
-  const empty = { conversationIds: [], externalMessageIds: [], redactedMessages: 0, redactedAttachments: 0, attributedMessages }
+  const empty = { conversationIds: [], externalMessageIds: [], inboundMessages: [], redactedMessages: 0, redactedAttachments: 0, attributedMessages }
   const selectors = [
     ...(identities.length ? [{ authorChannelIdentityId: { in: identities } }] : []),
     ...(inbound.length ? [{ id: { in: inbound } }] : []),
@@ -146,7 +150,7 @@ export async function redactSpeakerContentInSharedThreads(tx, {
       conversation: { tenantId, ...(excluded.length ? { id: { notIn: excluded } } : {}) },
       OR: selectors,
     },
-    select: { id: true, conversationId: true, externalMessageId: true },
+    select: { id: true, conversationId: true, externalMessageId: true, createdAt: true },
   })
   if (authored.length === 0) return empty
 
@@ -179,6 +183,8 @@ export async function redactSpeakerContentInSharedThreads(tx, {
   return {
     conversationIds,
     externalMessageIds: touched.map((message) => message.externalMessageId).filter(Boolean),
+    inboundMessages: authored.filter((message) => message.externalMessageId)
+      .map((message) => ({ externalMessageId: message.externalMessageId, createdAt: message.createdAt })),
     redactedMessages: redacted.count,
     redactedAttachments: redactedAttachments.count,
     attributedMessages,

@@ -112,11 +112,14 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   of their own conversation events (postback, follow, unfollow — crm's
   `findSpeakerConversationEventKeys`, which reads `ConversationEvent.externalEventId`,
   the same id). A *message* event that carries a `webhookEventId` is keyed by it, and
-  `Message` does not store that id, so erasure also passes the erased messages'
-  provider ids as `lineMessageIds`: this tenant's `LINE_OA` records are narrowed by
+  `Message` does not store that id, so erasure also passes the erased inbound
+  messages (provider id and write time) as `lineMessages`: this tenant's `LINE_OA`
+  `LINE_MESSAGE` records received within an hour of those messages are narrowed by
   the text `"id":"<messageId>"` in the canonically stored payload and taken only when
   the parsed `event.message.id` is exactly that id. No schema change; a row reached
-  both ways is tombstoned and counted once.
+  both ways is tombstoned and counted once. Follow-up: an indexed provider-message-id
+  column on the raw record (or a retried post-commit step) replaces this bounded scan
+  inside erasure's transaction.
 - Ingestion identity is derived from tenant, connection, entity type, external id
   and a canonical payload hash. External identifiers are mapped through
   `ExternalEntityRef` and never become primary keys (BR-002).

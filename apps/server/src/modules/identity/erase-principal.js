@@ -182,7 +182,7 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
           conversationId: { in: conversations.map((conversation) => conversation.id) },
           externalMessageId: { not: null },
         },
-        select: { externalMessageId: true },
+        select: { externalMessageId: true, direction: true, createdAt: true },
       })
       : []
     const { redactedLineJobs, inboundMessageIds } = await redactLineConversationJobs(tx, {
@@ -224,7 +224,7 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
     //     and, because it keys every event that HAS one by that `webhookEventId`
     //     (line-oa-webhook.js `externalEventId`), which no business row stores, as
     //     the message id inside a LINE payload (`event.message.id`,
-    //     `tombstoneRawRecordsForExternalIds`'s `lineMessageIds`); and
+    //     `tombstoneRawRecordsForExternalIds`'s `lineMessages`); and
     //   - the webhook event ids of their own conversation events (postback, follow,
     //     unfollow; every event of a thread that is theirs alone), which a
     //     ConversationEvent stores as its `externalEventId`.
@@ -234,10 +234,14 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
     // `ChannelIdentity.channelAccountId` is deliberately NOT included: it names the
     // OA account, shared by every customer of that channel, so matching on it would
     // tombstone other people's evidence.
-    const lineMessageIds = [
-      ...messageKeys.map((row) => row.externalMessageId),
-      ...shared.externalMessageIds,
-    ].filter((id) => typeof id === 'string' && !id.startsWith('reply:'))
+    // Inbound only (an outbound row has no webhook event), each with the time it was
+    // written: the raw record of its webhook event was received within the hour
+    // around it, which is what bounds the payload lookup (see raw-record-redaction.js).
+    const lineMessages = [
+      ...messageKeys.filter((row) => row.direction === 'INBOUND'),
+      ...shared.inboundMessages,
+    ].filter((row) => typeof row.externalMessageId === 'string' && row.externalMessageId)
+      .map((row) => ({ id: row.externalMessageId, createdAt: row.createdAt }))
     const externalIds = [
       ...ownSubjects,
       ...messageKeys.map((row) => row.externalMessageId),
@@ -247,7 +251,7 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
     const { tombstonedRawRecords } = await tombstoneRawRecordsForExternalIds(tx, {
       tenantId,
       externalIds,
-      lineMessageIds,
+      lineMessages,
       now,
     })
 

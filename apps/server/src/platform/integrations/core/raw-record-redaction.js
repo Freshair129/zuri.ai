@@ -8,7 +8,12 @@
 // @req FR-022 — a LINE message event is keyed by its `webhookEventId` whenever LINE
 //   sends one (line-oa-webhook.js `externalEventId`), and no business row stores that
 //   id, so an erased message's raw payload is also found by the message id INSIDE the
-//   payload (`event.message.id`), for this tenant's LINE records only.
+//   payload (`event.message.id`), for this tenant's LINE message records only.
+//   The lookup is bounded, because it runs inside erasure's Serializable transaction:
+//   only `LINE_MESSAGE` records (the [tenantId, entityType] index), only those
+//   received within an hour of the erased messages' own write times, in chunks of 50
+//   ids sorted by time. Follow-up: an indexed provider-message-id column on the raw
+//   record (or a retried post-commit step) would replace this text scan.
 // @tested tests/integration/identity-erase-speaker-events.test.js
 //
 // PDPA WINS OVER REPLAYABILITY; THE TOMBSTONE KEEPS THE ENVELOPE
@@ -51,22 +56,41 @@ function isTombstoned(payloadJson) {
   }
 }
 
+// The entity type the LINE normalizer gives a `message` event (line-oa-webhook.js
+// `lineEntityType`), and how far a raw record's `receivedAt` (set at ingest) may lie
+// from its Message's `createdAt`: the evidence row is written just before admission.
+const LINE_MESSAGE_ENTITY_TYPE = 'LINE_MESSAGE'
+const RECEIVED_WINDOW_MS = 60 * 60 * 1000
+const CHUNK = 50
+
 /**
- * The LINE raw records of this tenant whose payload is the webhook event of one of
- * `lineMessageIds`. The payload is stored canonically (`stableStringify`: sorted
- * keys, no whitespace), so `"id":"<messageId>"` narrows the read by text; the row
- * is taken only when its parsed `event.message.id` is exactly that id — the text
- * match never decides. Bounded per call by the ids given (chunked).
+ * The LINE message raw records of this tenant whose payload is the webhook event of
+ * one of `lineMessages` (`{id, createdAt}`: the provider message id and when its
+ * Message was written). The payload is stored canonically (`stableStringify`:
+ * sorted keys, no whitespace), so `"id":"<messageId>"` narrows the read by text; the
+ * row is taken only when its parsed `event.message.id` is exactly that id — the text
+ * match never decides. Each read is bounded to `LINE_MESSAGE` records received
+ * within an hour of its chunk's messages; a message with no time is not looked up.
  */
-async function findLineMessageRawRecords(tx, { tenantId, lineMessageIds }) {
-  const ids = Array.from(new Set(lineMessageIds.filter((id) => typeof id === 'string' && id)))
-  const wanted = new Set(ids)
+async function findLineMessageRawRecords(tx, { tenantId, lineMessages }) {
+  const times = new Map()
+  for (const message of lineMessages) {
+    const at = message?.createdAt instanceof Date ? message.createdAt : new Date(message?.createdAt ?? NaN)
+    if (typeof message?.id !== 'string' || !message.id || Number.isNaN(at.getTime())) continue
+    const known = times.get(message.id)
+    times.set(message.id, known ? [Math.min(known[0], at.getTime()), Math.max(known[1], at.getTime())] : [at.getTime(), at.getTime()])
+  }
+  const ordered = [...times.entries()].sort((a, b) => a[1][0] - b[1][0])
   const rows = []
-  for (let offset = 0; offset < ids.length; offset += 50) {
-    const chunk = ids.slice(offset, offset + 50)
+  for (let offset = 0; offset < ordered.length; offset += CHUNK) {
+    const chunk = ordered.slice(offset, offset + CHUNK)
+    const wanted = new Set(chunk.map(([id]) => id))
+    const from = new Date(Math.min(...chunk.map(([, [low]]) => low)) - RECEIVED_WINDOW_MS)
+    const to = new Date(Math.max(...chunk.map(([, [, high]]) => high)) + RECEIVED_WINDOW_MS)
     const found = await tx.rawExternalRecord.findMany({
-      where: { tenantId, provider: LINE_OA_PROVIDER_CODE,
-        OR: chunk.map((id) => ({ payloadJson: { contains: `"id":${JSON.stringify(id)}` } })) },
+      where: { tenantId, entityType: LINE_MESSAGE_ENTITY_TYPE, provider: LINE_OA_PROVIDER_CODE,
+        receivedAt: { gte: from, lte: to },
+        OR: chunk.map(([id]) => ({ payloadJson: { contains: `"id":${JSON.stringify(id)}` } })) },
       select: { id: true, payloadJson: true },
     })
     for (const row of found) {
@@ -81,22 +105,22 @@ async function findLineMessageRawRecords(tx, { tenantId, lineMessageIds }) {
 
 /**
  * Replace the stored payload of every raw record in this tenant whose `externalId`
- * is one of `externalIds`, and every LINE raw record whose webhook event is one of
- * `lineMessageIds` (see `findLineMessageRawRecords`), with the erasure tombstone.
+ * is one of `externalIds`, and every LINE message raw record whose webhook event is
+ * one of `lineMessages` (see `findLineMessageRawRecords`), with the erasure tombstone.
  * A row reached both ways is tombstoned and counted once.
  *
  * Idempotent: a row already tombstoned is left byte-for-byte alone, so a second
  * erasure neither counts it again nor moves its `erasedAt`.
  *
  * @param {object} tx prisma client or transaction client — the caller owns the transaction
- * @param {{tenantId: string, externalIds: string[], lineMessageIds?: string[], now?: Date}} scope
+ * @param {{tenantId: string, externalIds: string[], lineMessages?: {id: string, createdAt: Date}[], now?: Date}} scope
  * @returns {Promise<{tombstonedRawRecords: number}>}
  */
-export async function tombstoneRawRecordsForExternalIds(tx, { tenantId, externalIds, lineMessageIds, now } = {}) {
+export async function tombstoneRawRecordsForExternalIds(tx, { tenantId, externalIds, lineMessages, now } = {}) {
   if (!tenantId) throw new Error('tombstoneRawRecordsForExternalIds requires tenantId')
   const ids = Array.from(new Set((Array.isArray(externalIds) ? externalIds : []).filter(Boolean)))
-  const messageIds = Array.isArray(lineMessageIds) ? lineMessageIds : []
-  if (ids.length === 0 && messageIds.length === 0) return { tombstonedRawRecords: 0 }
+  const messages = Array.isArray(lineMessages) ? lineMessages : []
+  if (ids.length === 0 && messages.length === 0) return { tombstonedRawRecords: 0 }
 
   const byKey = ids.length
     ? await tx.rawExternalRecord.findMany({
@@ -104,7 +128,7 @@ export async function tombstoneRawRecordsForExternalIds(tx, { tenantId, external
       select: { id: true, payloadJson: true },
     })
     : []
-  const byPayload = messageIds.length ? await findLineMessageRawRecords(tx, { tenantId, lineMessageIds: messageIds }) : []
+  const byPayload = messages.length ? await findLineMessageRawRecords(tx, { tenantId, lineMessages: messages }) : []
   const rows = [...new Map([...byKey, ...byPayload].map((row) => [row.id, row])).values()]
 
   const tombstone = rawRecordErasureTombstone(now ?? new Date())

@@ -326,20 +326,33 @@ export async function getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerI
     return openCustomerArchiveKey(existing, { customerId, tenantId }, env)
   }
   // @req FR-022, SEC-034 — an erased Customer's key is never re-created: a new key
-  //   would seal content the erasure just destroyed, or open nothing at all.
-  const customer = await db.customer.findFirst({ where: { id: customerId, tenantId }, select: { deletedAt: true } })
-  if (!customer || customer.deletedAt) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_CUSTOMER_ERASED')
-  const { row, dek } = mintCustomerArchiveKey({ customerId, tenantId }, env)
+  //   would seal content the erasure just destroyed, or open nothing at all. The
+  //   check and the insert run under the same Customer lock erasure's key
+  //   destruction takes (`withLockedCustomer`), so an erasure cannot commit between
+  //   them and leave an orphan key behind.
+  let dek = null
   try {
-    await db.customerArchiveKey.create({ data: row })
-    return dek
+    return await withLockedCustomer(db, { tenantId, customerId }, async (tx) => {
+      const customer = await tx.customer.findFirst({ where: { id: customerId, tenantId }, select: { deletedAt: true } })
+      if (!customer || customer.deletedAt) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_CUSTOMER_ERASED')
+      const raced = await tx.customerArchiveKey.findUnique({ where: { customerId } })
+      if (raced) {
+        if (raced.tenantId !== tenantId) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_SCOPE_MISMATCH')
+        return openCustomerArchiveKey(raced, { customerId, tenantId }, env)
+      }
+      const minted = mintCustomerArchiveKey({ customerId, tenantId }, env)
+      dek = minted.dek
+      await tx.customerArchiveKey.create({ data: minted.row })
+      return dek
+    })
   } catch (error) {
+    if (error?.status === 404) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_CUSTOMER_ERASED')
     // Another concurrent sweep (or a retry) minted this Customer's key first —
     // the unique constraint on customerId is the tiebreaker; the loser opens
     // the winner's row instead of erroring the whole run over a race that has
     // exactly one correct outcome either way.
-    if (error?.code !== 'P2002') throw error
-    dek.fill(0)
+    if (dek) dek.fill(0)
+    if (error?.code !== 'P2002' && error?.cause?.code !== 'P2002') throw error
     const winner = await db.customerArchiveKey.findUnique({ where: { customerId } })
     if (!winner) throw error
     return openCustomerArchiveKey(winner, { customerId, tenantId }, env)
@@ -639,9 +652,27 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
       return { archived: true, manifest, redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count, messageIds, deferredMessages }
     })
   } catch (error) {
-    // Nothing committed: the file this run wrote is recorded by no manifest and may
-    // hold content an erasure has since destroyed, so it does not stay on disk.
-    await fs.rm(path.join(resolvedBaseDir, relativePath), { force: true })
+    // The file is deleted only when nothing references it: the transaction refused
+    // its own write (ARCHIVE_CANDIDATES_CHANGED — the file may hold content an
+    // erasure has since destroyed), or no manifest for this run exists. Any other
+    // error may be a commit whose outcome is unknown (the connection dropped after
+    // COMMIT); if its manifest is there, the file is the only copy and stays.
+    let unreferenced = error?.code === 'ARCHIVE_CANDIDATES_CHANGED'
+    if (!unreferenced) {
+      try {
+        unreferenced = !(await db.archiveManifest.findFirst({ where: { tenantId, runId }, select: { id: true } }))
+      } catch {
+        unreferenced = false // cannot tell: keep the file
+      }
+    }
+    if (unreferenced) {
+      try {
+        await fs.rm(path.join(resolvedBaseDir, relativePath))
+      } catch {
+        // Already gone (ENOENT) or not removable: either way the caller gets the
+        // original error, never this one.
+      }
+    }
     throw error
   }
 }

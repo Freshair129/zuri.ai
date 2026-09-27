@@ -6,6 +6,7 @@ import { createLineOaEvidenceRecorder } from '@/platform/integrations/providers/
 import { admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { findSpeakerConversationEventKeys } from '@/modules/crm/conversation-redaction-service'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
+import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
 
 // @req FR-022 — PDPA erasure reaches the raw webhook payload of the erased person's own
 // postback (and follow/unfollow) events, in a shared LINE group or room thread and in
@@ -21,7 +22,7 @@ import { erasePrincipal } from '@/modules/identity/erase-principal'
 
 const sealKey = '7e'.repeat(32)
 const destination = 'synthetic-erase-evt-destination'
-let tenant, business, account, evidence
+let tenant, business, account, evidence, connectionId
 let sequence = 0
 const next = (label) => `${label}-${++sequence}`
 
@@ -91,6 +92,7 @@ beforeAll(async () => {
     integrationConnectionId: connection.id, code: 'erase-evt', displayName: 'Synthetic event erasure OA',
     bindingCode: 'erase-evt-binding', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD',
     allowDelayedPush: true } })
+  connectionId = connection.id
   evidence = await createLineOaEvidenceRecorder({ db: prisma, tenantId: tenant.id, businessId: business.id, destination })
 })
 
@@ -149,6 +151,42 @@ describe('PDPA erasure of a speaker\'s own LINE postback payloads (FR-022)', () 
     expect(onOwnAccount.externalEventIds).toEqual(expect.arrayContaining([s.bPostback.externalId, s.bFollow.externalId,
       s.bDirectPostback.externalId]))
     expect(onOwnAccount.externalEventIds).not.toContain(s.aPostback.externalId)
+  })
+
+  it('reads only LINE message records received near the erased message, and matches only its exact id', async () => {
+    const s = await scene('group')
+    const message = await prisma.message.findUnique({ where: { id: s.bSay.inboundMessageId } })
+    const lineId = message.externalMessageId
+    const decoy = (label, data) => prisma.rawExternalRecord.create({ data: {
+      tenantId: tenant.id, businessId: business.id, connectionId, provider: LINE_OA_PROVIDER_CODE, lane: 'CUSTOMER',
+      externalId: next(`synthetic-erase-evt-${label}`), sourceType: 'WEBHOOK', schemaVersion: 'line.messaging-api.webhook.v1',
+      payloadJson: JSON.stringify({ destination, event: { message: { id: lineId, text: 'B joins in' }, type: 'message' } }),
+      payloadHash: next('hash'), idempotencyKey: next('idem'), ...data } })
+    const otherType = await decoy('other-type', { entityType: 'LINE_CONVERSATION', receivedAt: message.createdAt })
+    const tooEarly = await decoy('too-early', { entityType: 'LINE_MESSAGE', receivedAt: new Date(message.createdAt.getTime() - 3 * 60 * 60 * 1000) })
+    const tooLate = await decoy('too-late', { entityType: 'LINE_MESSAGE', receivedAt: new Date(message.createdAt.getTime() + 3 * 60 * 60 * 1000) })
+    const read = new Set()
+    const tx = new Proxy(prisma, { get(target, prop) {
+      if (prop !== 'rawExternalRecord') return target[prop]
+      return { ...target.rawExternalRecord,
+        findMany: async (args) => {
+          const rows = await target.rawExternalRecord.findMany(args)
+          for (const row of rows) read.add(row.id)
+          return rows
+        },
+        update: (args) => target.rawExternalRecord.update(args) }
+    } })
+
+    const result = await tombstoneRawRecordsForExternalIds(tx, { tenantId: tenant.id, externalIds: [],
+      lineMessages: [{ id: lineId, createdAt: message.createdAt }] })
+
+    expect(result.tombstonedRawRecords).toBe(1)
+    expect(read.has(s.bSay.rawRecordId)).toBe(true)
+    for (const row of [otherType, tooEarly, tooLate]) {
+      expect(read.has(row.id)).toBe(false)
+      expect(await payloadOf(row.id)).toContain('B joins in')
+    }
+    await expectTombstoned(s.bSay.rawRecordId)
   })
 
   it('is idempotent: a second erasure changes no raw record', async () => {

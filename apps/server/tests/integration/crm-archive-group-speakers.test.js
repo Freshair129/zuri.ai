@@ -307,6 +307,34 @@ describe('chat evidence archive in a shared LINE group thread (FR-022, SEC-034)'
     expectReadable(lines, s.a)
   })
 
+  it('keeps its file when the tombstone transaction committed but reported an error', async () => {
+    const scope = await freshScope('commit-unknown')
+    await scene(scope)
+    const candidates = await readCandidates(scope.tenant.id)
+    // The commit succeeds, then the client loses the connection before it hears so.
+    const lost = Object.assign(new Error('connection lost after commit'), { code: 'P1017' })
+    const flaky = new Proxy(prisma, { get(target, prop) {
+      if (prop !== '$transaction') return target[prop]
+      return async (fn, options) => {
+        let wroteManifest = false
+        const result = await target.$transaction(async (tx) => {
+          const value = await fn(tx)
+          wroteManifest = Boolean(value?.manifest)
+          return value
+        }, options)
+        if (wroteManifest) throw lost
+        return result
+      }
+    } })
+
+    await expect(archiveAndTombstoneTenantMessages(flaky, { tenantId: scope.tenant.id, candidates, now: new Date(), baseDir }))
+      .rejects.toBe(lost)
+
+    const manifest = await prisma.archiveManifest.findFirst({ where: { tenantId: scope.tenant.id } })
+    expect(manifest).toBeTruthy()
+    await expect(fs.stat(path.join(baseDir, manifest.filePath))).resolves.toBeTruthy()
+  })
+
   it('rolls back and deletes its file when a candidate loses its content before the tombstone commits', async () => {
     const scope = await freshScope('race-unsend')
     const s = await scene(scope)
