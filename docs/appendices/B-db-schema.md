@@ -1,5 +1,23 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.61.0b → 1.62.0b (2026-09-26): add `NotionOAuthState`,
+`NotionWebhookVerificationToken` and `NotionWebhookReceipt` (FR-273/FR-274,
+ADR-109); 191 application models. OAuth state and encrypted webhook token are
+excluded from snapshots; minimal receipts are exported for idempotency. Additive
+SQLite and Supabase migrations are authored locally and not production-applied.
+
+Version diff 1.60.0b → 1.61.0b (2026-09-24): rebind the Phase B frozen
+recovery inventory to 188 application tables after adding the operational
+`LineOaWorkerCheckpoint` model. The model remains excluded from backup snapshots;
+the previous 187-table binding remains historical and refuses cross-schema recovery.
+
+Version diff 1.59.0b → 1.60.0b (2026-09-23): add the LINE OA Studio
+`LineOaWorkerCheckpoint` operational model (FR-190, ADR-105) so the hourly
+transport-health sweep uses a durable compare-and-set lease instead of a
+process-local timer. The model is excluded from backup snapshots because it is
+disposable coordination state; migrations are written locally and production
+application remains an ADR-057 operator gate.
+
 Version diff 1.58.0b → 1.59.0b (2026-09-23): compose the FR-268
 `BusinessKeyResult`/`BusinessKeyResultCheckIn` models and goal fields with the
 PM-owned `ProjectApprovalRequest` approval-gateway admission model (FR-272,
@@ -21,9 +39,9 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.59.0b |
+| **Version** | 1.62.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-23 |
+| **Last Updated** | 2026-09-26 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -104,6 +122,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | RateLimitBucket | key unique | FR-224 — fixed-window counter (key from internal ids, windowStart, count) for the credential-write rate limit per Person and Business and installation-wide LINE validations. Excluded from backup as ephemeral |
 | ChannelAccountClaim | connectionId unique; (provider,externalAccountHash) unique — on Postgres only among rows with releasedAt IS NULL | FR-226 — one live claim per external bot across the installation, keyed by sha256(destination), never the raw id; taken before any secret is stored. Exported (no material) |
 | IntegrationSecretEnvelope | id = the uuid of `envelope:<uuid>`; (tenantId,businessId,connectionId) | FR-223 — envelope-store ciphertext (AES-256-GCM, DEK wrapped by the deployment KEK, AAD bound to scope and version). Purge deletes the row. Excluded from backup as credential material |
+| NotionOAuthState | stateHash unique; tenantId, businessId, actorId, expiresAt, consumedAt? | FR-273 / SEC-037 — SHA-256 only, actor/scope-bound one-use OAuth capability; expired rows are pruned and the model is excluded from snapshots. |
+| NotionWebhookVerificationToken | singleton id; kekId, wrappedDek, iv, tag, ciphertext, revealedAt? | FR-274 / SEC-037 — app-level verification secret sealed with AES-256-GCM under `ZURI_SECRET_KEK`; one-time operator reveal. Excluded from snapshots; restore requires webhook reverification. |
+| NotionWebhookReceipt | eventId unique, eventType, workspaceId, occurredAt, receivedAt | FR-274 — minimal event identity receipt for idempotency; no webhook body, page id, comment or content. Exported with the snapshot. |
 | IngestionRun | connectionId, lane, resourceType, status, counts | one acquisition pass; inherits the connection's scope (FR-081) |
 | RawExternalRecord | idempotencyKey unique; (connectionId,entityType,externalId) | verbatim source payload as replayable evidence (FR-081) |
 | SyncCursor | (connectionId,resourceType) unique | incremental watermark per resource (FR-081) |
@@ -135,6 +156,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | LineOaRichMenuVersion | richMenuId + versionNumber (unique), tenantId, businessId, lineOaAccountId, status, layout, chatBarText, selected, imageFileAssetId? → FileAsset (SetNull), imageWidth, imageHeight, areasJson, externalRichMenuId?, frozenAt?, publishedAt? | FR-151 — one numbered body: editable while DRAFT, immutable once FROZEN; PUBLISHED / RETIRED and `externalRichMenuId` are the transport lane's to write (BR-002: an attribute, never a key) |
 | LineOaRichMenuJob | tenantId, businessId, accountId, richMenuId, richMenuVersionId, kind, stage, status, transportEpoch, attempts, availableAt, expiresAt, claimantId?, leaseExpiresAt?, externalRichMenuId?, providerRequestId?, errorCode?, correlationId, version | FR-152 / ADR-061 — server-owned rich menu publish ledger: PUBLISH (CREATE → UPLOAD → DONE) / SET_DEFAULT / SET_ALIAS (APPLY); QUEUED → CLAIMED → ACCEPTED \| FAILED \| UNKNOWN \| CANCELLED; compare-and-set claims and a bounded lease; no token column — the worker resolves the credential per attempt |
 | LineOaLiffApp | code (unique per tenant), tenantId, businessId, lineOaAccountId, name, description?, viewSize, endpointUrl, scopesJson, botPrompt, status, externalLiffId? (unique per account), archivedAt?, version | FR-153 / SRS LOS-RQ-070 — the LIFF app registry of one account: DRAFT until the LINE-issued liffId is recorded, then ACTIVE; a rich menu LIFF action resolves through an ACTIVE row to liff.line.me (BR-002: liffId is an attribute, never a key); no LINE call, no secret |
+| LineOaWorkerCheckpoint | kind (unique), lastCompletedAt?, nextDueAt, claimantId?, leaseExpiresAt?, version, timestamps | FR-190 / ADR-105 — disposable operational coordination for the stateless worker's transport-health sweep; one due checkpoint may be claimed by one live lease, an expired lease is reclaimable after restart, and no account or provider secret is stored; excluded from backup snapshots |
 | MarketingPlan | tenantId, businessId, code (unique per Business), title, status, currentRevision, version, createdBy, timestamps, deletedAt? | FR-159 — Business-scoped Strategy identity; revisions and approval evidence remain separate immutable records |
 | MarketingPlanVersion | planId → MarketingPlan, revision (unique per plan), payloadJson, payloadHash, createdBy, createdAt | FR-159 — immutable canonical title/payload evidence |
 | MarketingReview | planId, planVersionId, payloadHash, verdict, rationale, reviewerId, createdAt | FR-159 — independent review bound to the exact Strategy version |

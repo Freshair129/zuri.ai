@@ -402,6 +402,10 @@
     "FR-270",
     "FR-271",
     "FR-272",
+    "FR-273",
+    "FR-274",
+    "FR-275",
+    "FR-276",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -534,6 +538,9 @@
     "SDD-105",
     "SDD-106",
     "SDD-107",
+    "SDD-108",
+    "SDD-109",
+    "SDD-110",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -570,6 +577,7 @@
     "SEC-034",
     "SEC-035",
     "SEC-036",
+    "SEC-037",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -615,6 +623,7 @@
     "FEAT-043",
     "FEAT-044",
     "FEAT-045",
+    "FEAT-046",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -807,6 +816,11 @@
     "ADR-102",
     "ADR-103",
     "ADR-104",
+    "ADR-105",
+    "ADR-106",
+    "ADR-108",
+    "ADR-109",
+    "ADR-110",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3242,15 +3256,23 @@
     "FR-141": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "c772db1e9a688b809166bd09ed6441513d8cbe370569a3e96974140c0964d6e8",
       "history": [
         {
           "anchor": "edge device heartbeat registry",
           "since": "2026-09-02",
           "reason": "declared"
+        },
+        {
+          "anchor": "edge device heartbeat registry",
+          "since": "2026-09-25",
+          "reason": "ADR-110 D5 retires the Edge Device heartbeat registry after its Server and Edge heartbeat surfaces were removed from this branch.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-25",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
     },
     "FR-142": {
       "family": "FR",
@@ -3281,17 +3303,25 @@
     "FR-144": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "d15b15881faf1dcffc1fc886202bd27234c2521bb6b7e6ce1b891219b08eaf8b",
       "history": [
         {
           "anchor": "edge device credential",
           "since": "2026-09-03",
           "reason": "declared"
+        },
+        {
+          "anchor": "edge device credential",
+          "since": "2026-09-25",
+          "reason": "ADR-110 D5 retires the EdgeDeviceCredential and pairing requirement after the in-repository Edge Device credential and pairing surfaces were removed from this branch.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
         }
       ],
       "statement_digest_reviewed_at": "2026-09-09",
-      "statement_digest_reason": "Reworded to name LINE OA Studio's Edge Connection page as the mint UI, replacing /platform/integrations, which now carries no pairing UI of its own; the subject (Edge device credential) is unchanged."
+      "statement_digest_reason": "Reworded to name LINE OA Studio's Edge Connection page as the mint UI, replacing /platform/integrations, which now carries no pairing UI of its own; the subject (Edge device credential) is unchanged.",
+      "retired_at": "2026-09-25",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.252.0b"
     },
     "FR-145": {
       "family": "FR",
@@ -4352,41 +4382,65 @@
     "FR-220": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "95dcd10498b8ff10c0b06eeaa04e491976fb74d8dd46af9ebd2bc9bb352dacce",
       "history": [
         {
           "anchor": "harness device pairing and report only credential",
           "since": "2026-09-13",
           "reason": "declared"
+        },
+        {
+          "anchor": "harness device pairing and report only credential",
+          "since": "2026-09-24",
+          "reason": "ADR-110 D5 retires Zuri browser-paired harness credentials and pairing endpoints; preserve stored reports and deployment-bearer reporting under FR-218.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-24",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
     },
     "FR-221": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "35b96df310c75fbf5a4a07d263987330cfe5a530e9dc87f4b2a46357304f6192",
       "history": [
         {
           "anchor": "usage reports attributed to person device and lane",
           "since": "2026-09-13",
           "reason": "declared"
+        },
+        {
+          "anchor": "usage reports attributed to person device and lane",
+          "since": "2026-09-24",
+          "reason": "ADR-110 D5 retires new harness-derived person/device attribution; preserve historical report fields and keep deployment-bearer reporting under FR-218.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-24",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
     },
     "FR-222": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "1ab6c8fdb81a042f4bfde95399f8b75a58ca277df85ca00e542bdaf3dc72095f",
       "history": [
         {
           "anchor": "zuri harness plugin",
           "since": "2026-09-13",
           "reason": "declared"
+        },
+        {
+          "anchor": "zuri harness plugin",
+          "since": "2026-09-24",
+          "reason": "ADR-110 D5 removes the in-repository Zuri harness plugin and marketplace source; do not delete any user-local files or historical report rows.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-24",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.251.0b"
     },
     "FR-223": {
       "family": "FR",
@@ -4940,14 +4994,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "cff5e1e1e7039544d820d4b825db9f639f4c0f51b26158484540b30f29435741",
+      "statement_digest": "a4050180c088c3a40ec699f3d17935104d8ae6f7735bf331ffa2aa2bda6119f8",
       "history": [
         {
           "anchor": "line oa studio conversation work is server executed only",
           "since": "2026-09-20",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
     },
     "FR-266": {
       "family": "FR",
@@ -5036,6 +5092,62 @@
         {
           "anchor": "effectful project manager agent fleet steps enter a durable",
           "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-273": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f0df59b5846029c84a13b325213166409dcdc66c456ee9001ca747a56744a236",
+      "history": [
+        {
+          "anchor": "a business owner connects a notion public connection",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-274": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1a7ac5a19fc3ae71d7918dda55c34d2166159c93fa04ed5457335ad0a6f2eea6",
+      "history": [
+        {
+          "anchor": "the integration lane receives notion s post api",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Clarify identical setup challenge retries acknowledge receipt without replacing the pinned verification token."
+    },
+    "FR-275": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e3c5a53e335bed7dbb48c8e582dcda3ed96f818ebc645c8b4d4ecad9dd2c9ca9",
+      "history": [
+        {
+          "anchor": "marketing insights read surface",
+          "since": "2026-09-27",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-27",
+      "statement_digest_reason": "Name the brands route and the implemented-but-disabled state; the subject, the Marketing Insights read surface, is unchanged."
+    },
+    "FR-276": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "40c6d025c114a126f32986469e5dafe5b523d9f10ed3a8c3998037d2dc9c1c0f",
+      "history": [
+        {
+          "anchor": "marketing insights refresh",
+          "since": "2026-09-27",
           "reason": "declared"
         }
       ]
@@ -6784,6 +6896,47 @@
         }
       ]
     },
+    "SDD-108": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "30c9c15ed881face088d8bef736011a34c561f3aabaa2b48d565065497b73350",
+      "history": [
+        {
+          "anchor": "notion oauth state is random short lived and stored hash",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-109": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ae98c9ea537532bb8a09e8377ce5af6ceafe5ed39d9a77303d5d9734c766a5ea",
+      "history": [
+        {
+          "anchor": "the notion webhook verification token has app level scope",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Specify that identical verification challenge retries are idempotent and do not replace the encrypted token."
+    },
+    "SDD-110": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bcf1552f9b5d6700f579240b3d94cb03d161a92f53738a94c71b64faab612ef8",
+      "history": [
+        {
+          "anchor": "conversation runtime is an independent node process over",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -7264,6 +7417,21 @@
         }
       ]
     },
+    "SEC-037": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4d17a8697d01314be69e2294038515fcbd35c29a0cf93a43fa38d399fdedfa3f",
+      "history": [
+        {
+          "anchor": "notion oauth state is unpredictable actor scope bound hash",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Bind the retry rule so an identical webhook setup challenge cannot replace the encrypted verification token."
+    },
     "FEAT-001": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
@@ -7493,7 +7661,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "4ed5de3cdb8b500831a64ec94cf78175e0caffbe80d729af4d592132d084019f",
+      "statement_digest": "afa4eb2c95d440e870eac7e14f26af6a501ba154acc42d32e39e6c5bf79c730c",
       "history": [
         {
           "anchor": "line oa studio",
@@ -7501,21 +7669,23 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-06",
-      "statement_digest_reason": "FEAT-018 statement extended to name the LIFF app registry as FR-153 joins the bundle; the feature's subject is unchanged"
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
     },
     "FEAT-019": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "6392fd967db7af7aa21bba1cecf0d6a977df152b02844037daf03c8dcfae0c9c",
+      "statement_digest": "5d83bda0d87a94c97cc1b91115461fbde8348de0dfc0d8d295f8402ea6b5eeb4",
       "history": [
         {
           "anchor": "server line with optional edge",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
     },
     "FEAT-020": {
       "family": "FEAT",
@@ -7738,15 +7908,23 @@
     "FEAT-035": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "2568ecb01270663ee2ead6fbe4226178acf55da2f4b04428a4df728b7439943f",
       "history": [
         {
           "anchor": "zuri harness usage plugin",
           "since": "2026-09-13",
           "reason": "declared"
+        },
+        {
+          "anchor": "zuri harness usage plugin",
+          "since": "2026-09-24",
+          "reason": "ADR-110 D5 retires the Zuri harness pairing/plugin surfaces; preserve historical reports and continue deployment-bearer usage under FR-218.",
+          "declared_in": "docs/FEATURES.md#1.65.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-09-24",
+      "declared_in": "docs/FEATURES.md#1.65.0b"
     },
     "FEAT-036": {
       "family": "FEAT",
@@ -7791,14 +7969,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "3dbad1da583d45672467ec3e02dac34442b6cc4cb760c5c614b1475b88434182",
+      "statement_digest": "a2a40a797688854f2739864fbe831cab0ea5fc024c8bf7007909f6be1b9551d2",
       "history": [
         {
           "anchor": "agent usage detail",
           "since": "2026-09-13",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
     },
     "FEAT-040": {
       "family": "FEAT",
@@ -7869,11 +8049,26 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "a8b0fdf589c99e877a38ba1d017f7f6b1cf3dfec22ab7471f5e5e796ce7bbe60",
+      "statement_digest": "ccb35591f0c11ef62a99adc82291653015dff0f41695062174eb01e4f22e9aec",
       "history": [
         {
           "anchor": "line oa on api keys only",
           "since": "2026-09-20",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-26",
+      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
+    },
+    "FEAT-046": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "68c7559bc3815cc55dad6e5cf661b37261c391a29c6afbf428bf705204399b14",
+      "history": [
+        {
+          "anchor": "notion connection",
+          "since": "2026-09-26",
           "reason": "declared"
         }
       ]
@@ -10396,6 +10591,71 @@
         {
           "anchor": "production postgresql migration lineage reconciliation and",
           "since": "2026-09-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-105": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md",
+      "status": "current",
+      "statement_digest": "bc73537071af9c64468630e6d53cb40c9d2d5b8127f730fdd2698f292fc95098",
+      "history": [
+        {
+          "anchor": "line oa studio stateless application tier with stateful",
+          "since": "2026-09-23",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-106": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md",
+      "status": "current",
+      "statement_digest": "5ac6baef147ebcbc26ac083f96d62a83738c0d4ae611474cbc08dc3aa1d345b9",
+      "history": [
+        {
+          "anchor": "conversation runtime service extraction",
+          "since": "2026-09-23",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-108": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-108-MARKET-INTELLIGENCE-SERVICE-EXTRACTION.md",
+      "status": "current",
+      "statement_digest": "ecd159d33b5a7506fd5074ab26fcea29f6085289357fa83558c8710731969cdf",
+      "history": [
+        {
+          "anchor": "market intelligence service extraction on the ownership",
+          "since": "2026-09-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-109": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "8c135c8b79cc19f32d10e9c4f0837cf95275b60e4eb25f4e6ede90fac21f763b",
+      "history": [
+        {
+          "anchor": "notion oauth installation and signed webhook boundary",
+          "since": "2026-09-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-110": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
+      "status": "current",
+      "statement_digest": "a7e286f1c5c07b6ec98ed320c18c1c020ac258cf7aa88f4dc8379aef58264bc6",
+      "history": [
+        {
+          "anchor": "retire edge device and harness surfaces keep prp",
+          "since": "2026-09-26",
           "reason": "declared"
         }
       ]

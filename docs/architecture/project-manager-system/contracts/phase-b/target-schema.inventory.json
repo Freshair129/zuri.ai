@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "a265b10cc6366b3d586e9d6a3350fb0dce88add831008aa3f378128429102f33",
+  "schemaSha256": "f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -467,6 +467,11 @@
       "tableName": "LineOaRichMenuVersion"
     },
     {
+      "modelName": "LineOaWorkerCheckpoint",
+      "schemaName": "public",
+      "tableName": "LineOaWorkerCheckpoint"
+    },
+    {
       "modelName": "LocalWorkspaceMount",
       "schemaName": "public",
       "tableName": "LocalWorkspaceMount"
@@ -565,6 +570,21 @@
       "modelName": "Milestone",
       "schemaName": "public",
       "tableName": "Milestone"
+    },
+    {
+      "modelName": "NotionOAuthState",
+      "schemaName": "public",
+      "tableName": "NotionOAuthState"
+    },
+    {
+      "modelName": "NotionWebhookReceipt",
+      "schemaName": "public",
+      "tableName": "NotionWebhookReceipt"
+    },
+    {
+      "modelName": "NotionWebhookVerificationToken",
+      "schemaName": "public",
+      "tableName": "NotionWebhookVerificationToken"
     },
     {
       "modelName": "PasskeyCredential",
@@ -941,5 +961,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "fd36fe16bc94f66605164b131124d1b7a59916e4caff2fc6f964f5a628825c92"
+  "targetSchemaSha256": "a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1"
 }

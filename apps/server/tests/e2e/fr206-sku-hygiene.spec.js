@@ -82,8 +82,14 @@ test('FR-201/FR-205/FR-206 — a service master narrows the SKU form, and the SK
   await expect(page.getByRole('heading', { name: 'SKU Hygiene' })).toBeVisible()
   await expect(page.getByText('ข้อค้นพบทั้งหมด')).toBeVisible()
   await expect(page.getByText('ควรสั่งซื้อ').first()).toBeVisible()
-  // The counted SKU has no barcode yet, so the report names it.
-  await expect(page.getByRole('row').filter({ hasText: goodSku }).first()).toContainText('ไม่มีบาร์โค้ด/รหัสคู่ค้า')
+  // The counted SKU has two independent findings: missing carton attributes
+  // and no barcode/partner code. Assert the finding rows by meaning, not by
+  // their ordering in the report.
+  const findingsTable = page.locator('table').first()
+  const goodSkuFindings = findingsTable.getByRole('row').filter({ hasText: goodSku })
+  await expect(goodSkuFindings).toHaveCount(2)
+  await expect(goodSkuFindings.filter({ hasText: 'ไม่มีบาร์โค้ด/รหัสคู่ค้า' })).toHaveCount(1)
+  await expect(goodSkuFindings.filter({ hasText: 'ยังไม่มีข้อมูลหน่วยต่อกล่อง' })).toHaveCount(1)
 
   // PHASE_OUT from the form: the action lands on the server and the dashboard shows it.
   await page.getByLabel('การกระทำ', { exact: true }).selectOption('PHASE_OUT')

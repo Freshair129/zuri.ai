@@ -27,6 +27,10 @@ const ALLOWLIST = new Set([
   // from GET /api/crm/conversations); the string only ever appears inside a
   // `//` comment, never in an executable fetch.
   '/api/crm/summary',
+  // src/app/(pm)/growth/insights/page.jsx — the `apiBase` handed to
+  // <InsightsLayout>, which appends /summary, /metric/{key}, /metric/{key}/export
+  // and /content (all real routes, FR-275). There is no route at the bare base.
+  '/api/insights',
 ])
 
 /**
@@ -173,9 +177,9 @@ describe('extractApiPathReferences', () => {
     // The exact shape that broke a naive "match to the next backtick" scan:
     // the literal prefix is still all that matters, so this must resolve
     // identically to the plain dynamic case above.
-    const src = "fetch(`/api/agent/heartbeat${x ? `?d=${x}` : ''}`)"
+    const src = "fetch(`/api/line-oa/accounts/${id}/webhook${x ? `?d=${x}` : ''}`)"
     expect(extractApiPathReferences(src)).toEqual([
-      { raw: '/api/agent/heartbeat', dynamic: true },
+      { raw: '/api/line-oa/accounts/', dynamic: true },
     ])
   })
 })

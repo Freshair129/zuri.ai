@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Circle, ExternalLink } from 'lucid
 import { lineOaReadinessJourney } from '../domain/line-oa-readiness-journey';
 
 // @req FR-225, FR-227, FR-228, FR-235 — eight-step evidence-based onboarding.
-// @req FR-265, FR-266 — step 5 is the model API key, not an Edge/local-model choice.
+// @req FR-265, FR-266 — step 5 is the model API key for this Business.
 // @spec ADR-089, ADR-090, ADR-061, ADR-100
 // @tested tests/unit/line-oa-readiness-journey.test.js
 const labels = { COMPLETE: 'มีหลักฐานแล้ว', ACTION_REQUIRED: 'รอดำเนินการ', NOT_RUN: 'ยังไม่ทดสอบ (NOT_RUN)', CONFIGURED: 'ตั้งค่าแล้ว รอตรวจจริง', ACTIVE_UNQUALIFIED: 'เปิดอยู่ รอรับรองครบเส้นทาง' };

@@ -27,14 +27,21 @@ import {
 // @req FR-236 — the same boundary, unmodified, is the ADR-072 admission
 // service an approved LINE FAQ candidate is admitted through as one immutable
 // LINE_FAQ_CANDIDATE TEXT source — never a second write path into the corpus.
-// @req FR-238 — the same boundary, unmodified, admits a rich menu / LIFF app /
-// bot profile's human-readable description as one LINE_STUDIO_DESCRIPTION TEXT
+// @req FR-238 — the same boundary admits a rich menu / LIFF app / bot
+// profile's human-readable description as one LINE_STUDIO_DESCRIPTION TEXT
 // source per publisher action (ADR-090 D7). It shares `textSource`'s shape and
-// `loadTextSource`'s loader byte-for-byte, so it carries no Stage 5 Zero-PII
+// `loadTextSource`'s loader byte-for-byte, and carries no Stage 5 Zero-PII
 // gate — a provider absent from `ZERO_PII_POLICY_BY_PROVIDER`
-// (genesisrag17-executor.js) carries none, exactly like plain TEXT — a
-// deliberate, documented choice (operator-authored menu/LIFF/profile copy is
-// not customer conversation content; see the caller module's own comment).
+// (genesisrag17-executor.js) carries none — a deliberate, documented choice
+// (operator-authored menu/LIFF/profile copy is not customer conversation
+// content; see the caller module's own comment). ADR-072 Amendment
+// (2026-09-24, FR-173 lane C2) gave `KNOWLEDGE_ADMISSION` its own Stage 5
+// Zero-PII gate, which would otherwise have swept LINE_STUDIO_DESCRIPTION in
+// through the runtime's `structured?.provider || 'KNOWLEDGE_ADMISSION'`
+// default; that same change now gives this source its own explicit
+// `LINE_STUDIO_DESCRIPTION` provider descriptor below, so D7's no-gate
+// decision keeps holding on its own terms rather than by accident of a
+// shared fallback.
 // @spec ADR-072, ADR-075, ADR-090 D6, D7, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
 // @tested tests/unit/knowledge-admission-service.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js, tests/integration/fr238-line-studio-description-admission.test.js
 
@@ -783,9 +790,20 @@ export async function admitKnowledge(input, {
     // policy (structuredSourceDescriptor in knowledge-runtime.js): naming the
     // provider is what turns on the Zero-PII gate for this source's Stage 5
     // pass (structured-record-policy.js), the second of ADR-090 D6's two checks.
+    // @req FR-238, ADR-090 D7 — LINE_STUDIO_DESCRIPTION gets its own explicit
+    // provider descriptor here too, for the opposite reason: without one it
+    // falls through knowledge-runtime.js's `structured?.provider ||
+    // 'KNOWLEDGE_ADMISSION'` default and would silently start running the
+    // FR-173 document Zero-PII gate the moment that gate existed. D7's
+    // decision — operator-authored menu/LIFF/profile copy is not customer
+    // conversation content and carries no Stage 5 Zero-PII gate — predates
+    // and is unaffected by that gate's addition, so this source keeps its own
+    // provider name, which stays absent from ZERO_PII_POLICY_BY_PROVIDER.
     const structured = value.source.kind === 'LINE_FAQ_CANDIDATE'
       ? { provider: 'LINE_FAQ_CANDIDATE', entityType: 'LINE_FAQ_CANDIDATE', contentType: 'application/json' }
-      : undefined
+      : value.source.kind === 'LINE_STUDIO_DESCRIPTION'
+        ? { provider: 'LINE_STUDIO_DESCRIPTION', entityType: 'KNOWLEDGE_DOCUMENT', contentType: 'text/plain' }
+        : undefined
     const sourceMetaJson = JSON.stringify(sourceMeta({
       source: value.source,
       asset: source.asset,

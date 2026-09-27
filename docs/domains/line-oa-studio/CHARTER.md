@@ -10,6 +10,8 @@ relations:
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
   - type: relates_to
+    target: ZAI:ADR-105
+  - type: relates_to
     target: ZAI:FR-148-P1
   - type: relates_to
     target: ZAI:FR-149-P2
@@ -27,6 +29,7 @@ owns_models:
   - LineOaRichMenuVersion
   - LineOaRichMenuJob
   - LineOaLiffApp
+  - LineOaWorkerCheckpoint
   - LineConversationJob
 owns_routes:
   - src/app/(pm)/line-oa/**
@@ -35,9 +38,9 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.12.0b"
+version: "0.13.0b"
 created_at: "2026-09-05T00:00:00+07:00"
-updated_at: "2026-09-21T00:00:00+07:00"
+updated_at: "2026-09-23T23:32:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the

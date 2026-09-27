@@ -5,7 +5,7 @@ import { uploadSmartGiftCatalogFile } from '@/modules/knowledge/smartgift-catalo
 // @req FR-187 — upload a SmartGift catalog JSON to the private knowledge store
 // and admit it as a structured projection in the same request.
 // @spec ADR-075
-// @tested tests/unit/smartgift-catalog-upload-service.test.js
+// @tested tests/unit/smartgift-catalog-upload-service.test.js, tests/integration/smartgift-catalog-admission.test.js
 
 export const dynamic = 'force-dynamic'
 

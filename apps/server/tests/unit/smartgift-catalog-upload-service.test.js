@@ -77,7 +77,77 @@ describe('uploadSmartGiftCatalogFile', () => {
       businessId: 'biz-1', projectId: null, idempotencyKey: 'smartgift-catalog-upload:asset-new',
       source: { kind: 'FILE', fileAssetId: 'asset-new', format: 'SMARTGIFT_CATALOG_V1' },
     })
-    expect(result).toMatchObject({ fileAssetId: 'asset-new', sha256: sha, recordCount: 5, reused: false, admission })
+    expect(result).toMatchObject({ fileAssetId: 'asset-new', sha256: sha, recordCount: 5, reused: false, fileStatus: 'STORED', knowledgeStatus: 'ADMITTED', admission })
+  })
+
+  it('reports stored file and unavailable Knowledge as separate outcomes', async () => {
+    const storage = memoryStorage()
+    const runtimeError = Object.assign(new Error('Knowledge runtime unavailable'), { status: 503, code: 'KNOWLEDGE_RUNTIME_UNAVAILABLE' })
+    const result = await uploadSmartGiftCatalogFile(
+      { businessId: 'biz-1', name: 'products.json', contentBase64: base64 },
+      { db: fakeDb(), viewer, objectStoragePort: storage, admit: vi.fn(async () => { throw runtimeError }) },
+    )
+
+    expect(result).toMatchObject({
+      fileAssetId: 'asset-new',
+      fileStatus: 'STORED',
+      knowledgeStatus: 'UNAVAILABLE',
+      knowledgeCode: 'KNOWLEDGE_RUNTIME_UNAVAILABLE',
+    })
+    expect(result).not.toHaveProperty('admission')
+    expect(storage.objects.size).toBe(1)
+  })
+
+  it('reports typed Knowledge admission rejection separately from the stored file', async () => {
+    const storage = memoryStorage()
+    const admissionError = Object.assign(new Error('source conflict'), { status: 409, code: 'KNOWLEDGE_SOURCE_CONFLICT' })
+    const result = await uploadSmartGiftCatalogFile(
+      { businessId: 'biz-1', name: 'products.json', contentBase64: base64 },
+      { db: fakeDb(), viewer, objectStoragePort: storage, admit: vi.fn(async () => { throw admissionError }) },
+    )
+
+    expect(result).toMatchObject({
+      fileStatus: 'STORED',
+      knowledgeStatus: 'FAILED',
+      knowledgeCode: 'KNOWLEDGE_SOURCE_CONFLICT',
+    })
+    expect(result).not.toHaveProperty('admission')
+    expect(storage.objects.size).toBe(1)
+  })
+
+  it.each([
+    [403, 'KNOWLEDGE_ACCESS_DENIED'],
+    [404, 'KNOWLEDGE_FILE_ASSET_NOT_FOUND'],
+    [404, 'KNOWLEDGE_PROJECT_NOT_FOUND'],
+    [401, 'KNOWLEDGE_AUTH_REQUIRED'],
+  ])('keeps an admission authorization or scope refusal (%i %s) as a request failure', async (status, code) => {
+    const storage = memoryStorage()
+    const refusal = Object.assign(new Error('refused'), { status, code })
+    await expect(uploadSmartGiftCatalogFile(
+      { businessId: 'biz-1', name: 'products.json', contentBase64: base64 },
+      { db: fakeDb(), viewer, objectStoragePort: storage, admit: vi.fn(async () => { throw refusal }) },
+    )).rejects.toBe(refusal)
+  })
+
+  it('rethrows a status-bearing error without a Knowledge code, and a Knowledge code without a status', async () => {
+    const noCode = Object.assign(new Error('project refused'), { status: 409 })
+    const noStatus = Object.assign(new Error('odd'), { code: 'KNOWLEDGE_SOURCE_CONFLICT' })
+    for (const failure of [noCode, noStatus]) {
+      await expect(uploadSmartGiftCatalogFile(
+        { businessId: 'biz-1', name: 'products.json', contentBase64: base64 },
+        { db: fakeDb(), viewer, objectStoragePort: memoryStorage(), admit: vi.fn(async () => { throw failure }) },
+      )).rejects.toBe(failure)
+    }
+  })
+
+  it('preserves untyped downstream errors instead of reporting a successful partial outcome', async () => {
+    const storage = memoryStorage()
+    const failure = new Error('connection reset')
+    await expect(uploadSmartGiftCatalogFile(
+      { businessId: 'biz-1', name: 'products.json', contentBase64: base64 },
+      { db: fakeDb(), viewer, objectStoragePort: storage, admit: vi.fn(async () => { throw failure }) },
+    )).rejects.toBe(failure)
+    expect(storage.objects.size).toBe(1)
   })
 
   it('refuses a file that is not a SmartGift catalog before storing anything', async () => {
@@ -109,7 +179,7 @@ describe('uploadSmartGiftCatalogFile', () => {
     )
     expect(storage.put).not.toHaveBeenCalled()
     expect(createManagedBlobFileAsset).not.toHaveBeenCalled()
-    expect(result).toMatchObject({ fileAssetId: 'asset-old', reused: true })
+    expect(result).toMatchObject({ fileAssetId: 'asset-old', reused: true, fileStatus: 'REUSED', knowledgeStatus: 'ADMITTED' })
   })
 
   it('removes the stored object when the FileAsset cannot be created', async () => {

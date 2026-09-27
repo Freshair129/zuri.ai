@@ -1,12 +1,10 @@
 // @req FR-223 — the Supabase Vault store: the SecretStorePort for the hosted
 //   product, where encryption happens in the database and the app never holds a key.
-// @req FR-242 — write/resolve dispatch to zuri_core.provider_secret_write and
-//   zuri_core.provider_secret_resolve (20260915000000) for OAUTH_CLIENT and
-//   MODEL_PROVIDER_KEY, leaving zuri_core.channel_secret_write/resolve — and the
-//   live LINE_CHANNEL traffic that already calls them — completely untouched
-//   (ADR-089 §4.8 phase 7). activate/revoke stay the same LINE functions for
-//   every kind: neither one reads secretKind, so nothing about them is LINE-only.
-// @spec ADR-089 D1, D5; SDD-097; SDD-101; SEC-030; SEC-033
+// @req FR-242, FR-273 — write/resolve dispatch to the provider functions for
+//   OAUTH_CLIENT / MODEL_PROVIDER_KEY and the dedicated Notion functions for
+//   NOTION_OAUTH_TOKEN. LINE_CHANNEL's live functions remain untouched. Activate
+//   and revoke are shared: neither one reads secretKind.
+// @spec ADR-089 D1, D5; ADR-109 D1; SDD-097; SDD-101; SEC-030; SEC-033; SEC-037
 // @tested tests/unit/integration/supabase-vault-secret-store.test.js, tests/integration/credential-vault.postgres.test.js
 //
 // This adapter holds no lifecycle logic of its own. Each method is one call to a
@@ -48,6 +46,8 @@ export const CHANNEL_SECRET_SQL = Object.freeze({
   // revoke are shared with LINE_CHANNEL above: neither reads secretKind.
   writeProvider: 'select secret_ref, version_number from zuri_core.provider_secret_write($1, $2, $3, $4, $5::jsonb, $6::timestamptz, $7, $8)',
   resolveProvider: 'select secret_material, version, expires_at from zuri_core.provider_secret_resolve($1, $2, $3, $4, $5)',
+  writeNotion: 'select secret_ref, version_number from zuri_core.notion_secret_write($1, $2, $3, $4::jsonb, $5::timestamptz, $6, $7)',
+  resolveNotion: 'select secret_material, version, expires_at from zuri_core.notion_secret_resolve($1, $2, $3, $4)',
 })
 
 /**
@@ -114,12 +114,17 @@ export function createSupabaseVaultSecretStore({ sql } = {}) {
       parseStoreScope({ tenantId, businessId, connectionId })
       const parsed = parseSecretBundle(kind, bundle)
       parseCreatedVia(createdVia)
-      // parseSecretBundle already fail-closed anything but these three kinds.
-      const sql = kind === 'LINE_CHANNEL' ? CHANNEL_SECRET_SQL.write : CHANNEL_SECRET_SQL.writeProvider
-      const row = single(await call(CHANNEL_VAULT_WRITER_ROLE, sql, [
-        connectionId, tenantId, businessId, kind, serializeSecretBundle(kind, parsed),
-        expiresAt ? new Date(expiresAt).toISOString() : null, actorPersonId, createdVia,
-      ]))
+      // parseSecretBundle already fails closed anything but mapped kinds.
+      const sql = kind === 'LINE_CHANNEL'
+        ? CHANNEL_SECRET_SQL.write
+        : kind === 'NOTION_OAUTH_TOKEN'
+          ? CHANNEL_SECRET_SQL.writeNotion
+          : CHANNEL_SECRET_SQL.writeProvider
+      const serialized = serializeSecretBundle(kind, parsed)
+      const params = kind === 'NOTION_OAUTH_TOKEN'
+        ? [connectionId, tenantId, businessId, serialized, expiresAt ? new Date(expiresAt).toISOString() : null, actorPersonId, createdVia]
+        : [connectionId, tenantId, businessId, kind, serialized, expiresAt ? new Date(expiresAt).toISOString() : null, actorPersonId, createdVia]
+      const row = single(await call(CHANNEL_VAULT_WRITER_ROLE, sql, params))
       return { secretRef: row.secret_ref, versionNumber: int(row.version_number) }
     },
 
@@ -154,9 +159,8 @@ export function createSupabaseVaultSecretStore({ sql } = {}) {
 
     // `kind` defaults to LINE_CHANNEL, so every existing caller is unaffected and
     // still requires a destination and calls exactly channel_secret_resolve. A
-    // caller resolving OAUTH_CLIENT or MODEL_PROVIDER_KEY passes its kind and
-    // calls provider_secret_resolve instead, which never returns a LINE_CHANNEL
-    // row (cross-kind refusal) and has no destination concept.
+    // caller resolving OAUTH_CLIENT / MODEL_PROVIDER_KEY passes its kind and calls
+    // provider_secret_resolve; NOTION_OAUTH_TOKEN uses its dedicated function.
     async resolve(secretRef, { tenantId, businessId, connectionId, destination, kind = 'LINE_CHANNEL' } = {}) {
       if (!secretIdFromRef(secretRef, 'SUPABASE_VAULT')) throw new SecretStoreError('CHANNEL_SECRET_SCOPE_MISMATCH')
       parseStoreScope({ tenantId, businessId, connectionId })
@@ -169,6 +173,10 @@ export function createSupabaseVaultSecretStore({ sql } = {}) {
       } else if (kind === 'OAUTH_CLIENT' || kind === 'MODEL_PROVIDER_KEY') {
         rows = await call(CHANNEL_VAULT_READER_ROLE, CHANNEL_SECRET_SQL.resolveProvider, [
           secretRef.trim(), tenantId, businessId, connectionId, kind,
+        ])
+      } else if (kind === 'NOTION_OAUTH_TOKEN') {
+        rows = await call(CHANNEL_VAULT_READER_ROLE, CHANNEL_SECRET_SQL.resolveNotion, [
+          secretRef.trim(), tenantId, businessId, connectionId,
         ])
       } else {
         throw new SecretStoreError('CHANNEL_SECRET_SCOPE_MISMATCH')
