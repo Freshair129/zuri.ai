@@ -396,7 +396,9 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     const proposalId = await proposeWork(build().ports, 'synthetic-wtp-recheck-propose', title)
 
     // 1. The lease runs out while the canonical writer works: after the write, the
-    // clock Core reads is past the lease. The whole transaction rolls back.
+    // clock Core reads is past the lease (and, with the default five-minute lease,
+    // past the proposal too), so the re-check's own authority read refuses. The
+    // whole transaction rolls back.
     let late = null
     const slow = build({ coreOptions: { now: () => late ?? new Date(),
       db: withConfirmHooks({ afterResultWrite: async tx => {
@@ -412,6 +414,35 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     expect(await slow.ports.workTool.status(expired.claim, proposalId))
       .toEqual({ status: 'NOT_FOUND', proposalId, receipt: { status: 'AWAITING_CONFIRMATION' } })
     await release(expired.jobId)
+
+    // 1b. Only the lease runs out, and only after the re-check has read its clock:
+    // the proposal is still valid and the re-check's authority read passed, so the
+    // final lease guard at the end of confirmLineWork is the only thing that stops
+    // the commit. confirmLineWork reads Core's clock twice after the result write:
+    // once for the re-check, once for that final guard.
+    let leaseEnd = null
+    let armed = false
+    let clockReadsAfterWrite = 0
+    const finalGuard = build({ coreOptions: {
+      now: () => {
+        if (!armed) return new Date()
+        clockReadsAfterWrite += 1
+        return clockReadsAfterWrite === 1 ? new Date(leaseEnd.getTime() - 1) : new Date(leaseEnd.getTime())
+      },
+      db: withConfirmHooks({ afterResultWrite: async () => { armed = true } }) } })
+    const leaseOnly = await confirmationTurn(finalGuard.ports, 'synthetic-wtp-recheck-final-lease', proposalId)
+    // A short lease that ends well before the proposal and the job expire.
+    leaseEnd = new Date(Date.now() + 30_000)
+    await prisma.lineConversationJob.update({ where: { id: leaseOnly.jobId }, data: { leaseExpiresAt: leaseEnd } })
+    const proposalExpiresAt = Date.parse(JSON.parse((await prisma.auditEvent.findUnique({ where: { id: proposalId } })).payloadJson).expiresAt)
+    expect(leaseEnd.getTime()).toBeLessThan(proposalExpiresAt)
+    expect((await prisma.lineConversationJob.findUnique({ where: { id: leaseOnly.jobId } })).expiresAt.getTime()).toBeGreaterThan(leaseEnd.getTime())
+    await expect(finalGuard.ports.workTool.execute(leaseOnly.claim, leaseOnly.authority, leaseOnly.request))
+      .rejects.toMatchObject({ code: 'WORK_SCOPE_DENIED' })
+    expect(clockReadsAfterWrite).toBe(2)
+    armed = false
+    expect(await confirmationState(proposalId, title)).toEqual(nothingWritten)
+    await release(leaseOnly.jobId)
 
     // 2. The job is reclaimed by another runtime between the first authority check
     // and the end of the write. The re-check sees a stale claim and rolls back:

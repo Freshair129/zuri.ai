@@ -7,8 +7,9 @@
 // directory, listening on 127.0.0.1 only, on a free port, with a synthetic
 // password generated per run. It takes no URL from the environment, so it can
 // never be pointed at a real or shared database, and `stop()` deletes the
-// cluster. Binaries come from the `embedded-postgres` devDependency (the same
-// package the SCM service extraction uses for its PostgreSQL suite).
+// cluster. Binaries come from the `embedded-postgres` devDependency, the same
+// package and version the SCM service extraction uses for its PostgreSQL suite
+// on the #546 branch (feat/scm-service-extraction, not on main).
 //
 // The cluster is started through initdb + pg_ctl rather than by spawning
 // postgres directly: on Windows both drop an administrator token to a
