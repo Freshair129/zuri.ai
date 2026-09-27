@@ -607,7 +607,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-079",
@@ -1016,8 +1016,8 @@
           "title": "Asset Management domain and physical register foundation",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 44
+          "codeCount": 10,
+          "testCount": 46
         },
         {
           "id": "FR-134",
@@ -1032,8 +1032,8 @@
           "title": "Temporal responsibility, location, lot and Project allocation",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 11,
-          "testCount": 31
+          "codeCount": 12,
+          "testCount": 33
         },
         {
           "id": "FR-136",
@@ -1049,7 +1049,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-138",
@@ -1057,7 +1057,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-139",
@@ -1065,7 +1065,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-143",
@@ -1729,7 +1729,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 76
+          "testCount": 78
         },
         {
           "id": "FR-059",
@@ -4376,7 +4376,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 76
+          "testCount": 78
         },
         {
           "id": "FR-075",
@@ -5057,7 +5057,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-006",
@@ -5305,7 +5305,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-046",
@@ -5313,7 +5313,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 69,
-          "testCount": 76
+          "testCount": 78
         },
         {
           "id": "FR-056",
@@ -5433,7 +5433,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 69
+          "testCount": 70
         },
         {
           "id": "FR-073",
@@ -5681,7 +5681,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 44
+          "testCount": 46
         },
         {
           "id": "FR-134",
@@ -5697,7 +5697,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 31
+          "testCount": 33
         },
         {
           "id": "FR-136",
@@ -5713,7 +5713,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-138",
@@ -5721,7 +5721,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-139",
@@ -5729,7 +5729,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-143",
@@ -6719,7 +6719,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-058",
@@ -6788,6 +6788,7 @@
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
+        "apps/server/tests/unit/file-content-route-headers.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
@@ -8214,8 +8215,8 @@
           "title": "Asset Management domain and physical register foundation",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 25,
-          "testCount": 44
+          "codeCount": 26,
+          "testCount": 46
         },
         {
           "id": "FR-134",
@@ -8230,8 +8231,8 @@
           "title": "Temporal responsibility, location, lot and Project allocation",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 27,
-          "testCount": 31
+          "codeCount": 28,
+          "testCount": 33
         },
         {
           "id": "FR-136",
@@ -8266,6 +8267,7 @@
         "apps/server/src/modules/asset-management/application/asset-lookup-service.js",
         "apps/server/src/modules/asset-management/application/asset-maintenance-service.js",
         "apps/server/src/modules/asset-management/application/asset-register-service.js",
+        "apps/server/src/modules/asset-management/application/asset-request-scope.js",
         "apps/server/src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
         "apps/server/src/modules/asset-management/components/AssetScannerWorkspace.jsx",
         "apps/server/src/modules/asset-management/components/AssetTagLabel.jsx",
@@ -8291,6 +8293,7 @@
         "apps/server/tests/unit/asset-depreciation.test.js",
         "apps/server/tests/unit/asset-disposal-routes.test.js",
         "apps/server/tests/unit/asset-disposal-service.test.js",
+        "apps/server/tests/unit/asset-evidence-route-schema-contract.test.js",
         "apps/server/tests/unit/asset-lifecycle-routes.test.js",
         "apps/server/tests/unit/asset-lifecycle-service.test.js",
         "apps/server/tests/unit/asset-lookup-routes.test.js",
@@ -8305,6 +8308,7 @@
         "apps/server/tests/unit/asset-production-activation-contract.test.js",
         "apps/server/tests/unit/asset-register-routes.test.js",
         "apps/server/tests/unit/asset-register-service.test.js",
+        "apps/server/tests/unit/asset-request-scope-capability.test.js",
         "apps/server/tests/unit/asset-scanner-ui.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/context-composer.test.js",
@@ -8357,7 +8361,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-138",
@@ -8365,7 +8369,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-139",
@@ -8373,7 +8377,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-140",
@@ -8416,6 +8420,7 @@
         "apps/server/tests/unit/asset-intake-adapters-contract.test.js",
         "apps/server/tests/unit/asset-production-activation-contract.test.js",
         "apps/server/tests/unit/asset-receiving-evidence-ui.test.js",
+        "apps/server/tests/unit/asset-request-scope-capability.test.js",
         "apps/server/tests/unit/doc-graph-retired-rules.test.js"
       ]
     },
@@ -12057,7 +12062,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -12091,6 +12096,7 @@
         "apps/server/tests/unit/project-work-route.test.js",
         "apps/server/tests/unit/route-reachability.test.js",
         "apps/server/tests/unit/task-intake-modal.test.js",
+        "apps/server/tests/unit/work-list-business-scope.test.js",
         "apps/server/tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
@@ -13801,7 +13807,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 87,
-          "testCount": 76
+          "testCount": 78
         }
       ],
       "evidence": [
@@ -13929,6 +13935,7 @@
         "apps/server/tests/unit/business-strategy-route.test.js",
         "apps/server/tests/unit/entry-routing-boundary.test.js",
         "apps/server/tests/unit/entry-surfaces.test.js",
+        "apps/server/tests/unit/file-content-route-headers.test.js",
         "apps/server/tests/unit/fr036-team-authorization.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -13966,6 +13973,7 @@
         "apps/server/tests/unit/topbar-no-dropdown.test.js",
         "apps/server/tests/unit/usage-events.test.js",
         "apps/server/tests/unit/viewer-failure.test.js",
+        "apps/server/tests/unit/work-list-business-scope.test.js",
         "apps/server/tests/unit/workspace-collaboration-view.test.js",
         "apps/server/tests/unit/workspace-onboarding-routes.test.js"
       ]
@@ -14933,7 +14941,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 69
+          "testCount": 70
         }
       ],
       "evidence": [
@@ -15037,7 +15045,8 @@
         "apps/server/tests/unit/project-file-service.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js",
-        "apps/server/tests/unit/warehouse-location.test.js"
+        "apps/server/tests/unit/warehouse-location.test.js",
+        "apps/server/tests/unit/work-list-business-scope.test.js"
       ]
     },
     {
