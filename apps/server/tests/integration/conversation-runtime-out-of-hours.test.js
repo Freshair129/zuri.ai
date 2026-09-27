@@ -288,11 +288,13 @@ describe('FR-244 out-of-hours replies in the Conversation Runtime cohort', () =>
     }
   })
 
-  it('keeps an out-of-hours message from an unverified identity on the Server path, exactly as today', async () => {
+  it('admits an out-of-hours message from an unverified identity to the runtime cohort with the same snapshot', async () => {
+    // Owner ruling 2026-09-27: unverified senders join the runtime cohort; the
+    // byte-for-byte delivery comparison is in conversation-runtime-unverified.test.js.
     const at = bangkok('20:00:00')
     const job = await admit(runtimeAccount, { at, user: unverifiedUser, tag: 'runtime-unverified' })
-    expect(job).toMatchObject({ runtimeOwner: 'SERVER', status: 'READY', answerText: replyText, executionId: null })
-    expect((await traceOf(job.id)).map(event => event.kind)).toEqual(['TURN_RECEIVED', 'ANSWER_READY'])
+    expect(job).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', status: 'QUEUED', answerText: replyText, executionId: null })
+    expect((await traceOf(job.id)).map(event => event.kind)).toEqual(['TURN_RECEIVED', 'CHANNEL_IDENTITY_ADMITTED'])
   })
 
   it('gives the runtime no other reply, no credential and no Work for an out-of-hours turn', async () => {

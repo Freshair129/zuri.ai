@@ -1,7 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
-import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 import { resolveBusinessModelCredential } from '@/modules/integration/application/model-provider-credential-service'
 import { selectRegisteredQuery } from '@/modules/agent/grounded-business-answer'
 import {
@@ -23,7 +22,7 @@ import { createConversationRuntimeMemory, MEMORY_INJECTION_STATES, MEMORY_OPERAT
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
   failRuntimeConversationJob, renewRuntimeConversationJob, runtimeAudienceBound, runtimeConversationStatus, assertRuntimeTraceEvent,
-  runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply, LINE_TEXT_MAX_CHARS,
+  runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply, LINE_TEXT_MAX_CHARS, runtimeSenderAuthority,
 } from './line-conversation-jobs'
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
@@ -38,13 +37,20 @@ import {
 //   credential or Work tool is handed out for such a turn.
 // @req FR-149 — the `memory` operation carries memory-sync opt-in turns (ADR-106 D2
 //   Memory/Knowledge read/append/receipt); Core remains the only MSP caller.
+// @req FR-149 — a job admitted for an unverified LINE sender (owner ruling
+//   2026-09-27) gets exactly what the legacy Server path gives that sender, from
+//   Core's admission-time record (`runtimeSenderAuthority`), never from the runtime:
+//   `resolve` names no person, every Work call is refused with the legacy handler's
+//   own reply before any Work reader or writer, a `#sku` message is an ordinary
+//   question, and no memory operation exists for it. A verified job is unchanged.
 // @tested tests/integration/conversation-runtime-vertical-slice.test.js,
 //   tests/integration/conversation-runtime-grounding.test.js,
 //   tests/integration/conversation-runtime-grounding-parity.test.js,
 //   tests/integration/conversation-runtime-out-of-hours.test.js,
 //   tests/integration/conversation-runtime-group-room.test.js,
 //   tests/integration/conversation-runtime-catalog-command.test.js,
-//   tests/integration/conversation-runtime-memory.test.js
+//   tests/integration/conversation-runtime-memory.test.js,
+//   tests/integration/conversation-runtime-unverified.test.js
 const VERSION = 'conversation-runtime.v1'
 const MAX_BODY_BYTES = 64 * 1024
 const MAX_RESPONSE_BYTES = 64 * 1024
@@ -241,9 +247,13 @@ function validateResult(operation, data) {
   }
   if (operation === 'resolve') {
     if (!exact(data, ['authorized', 'version', 'scope']) || typeof data.authorized !== 'boolean' || !Number.isInteger(data.version) || data.version < 1
-      || !exact(data.scope, ['tenantId', 'businessId', 'accountId', 'identityId', 'identityVersion'])
-      || !['tenantId', 'businessId', 'accountId', 'identityId'].every(key => present(data.scope[key], 128))
-      || !Number.isInteger(data.scope.identityVersion) || data.scope.identityVersion < 1) invalid()
+      || !exact(data.scope, ['tenantId', 'businessId', 'accountId', 'identityId', 'identityVersion', 'identityState'])
+      || !['tenantId', 'businessId', 'accountId'].every(key => present(data.scope[key], 128))) invalid()
+    // A verified sender's scope names the identity, as before; an unverified
+    // sender's names no person at all and says so.
+    if (data.scope.identityState === undefined) {
+      if (!present(data.scope.identityId, 128) || !Number.isInteger(data.scope.identityVersion) || data.scope.identityVersion < 1) invalid()
+    } else if (data.scope.identityState !== 'UNVERIFIED' || data.scope.identityId !== null || data.scope.identityVersion !== null) invalid()
     return
   }
   if (operation === 'credential') {
@@ -449,10 +459,13 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     }
     return payload
   }
-  async function decideCatalogCommand(job) {
+  async function decideCatalogCommand(job, identityState) {
     const stored = await storedCatalogDecision(job)
     if (stored) return stored
-    const reply = await catalogCommand(job, { db, now, authorize: catalogAuthorize })
+    // @req FR-210 — the command acts only for a verified sender; for anyone else the
+    // message is an ordinary question. An unverified job's sender is never re-read,
+    // so a sender verified mid-turn cannot make the command run for it.
+    const reply = identityState === 'UNVERIFIED' ? null : await catalogCommand(job, { db, now, authorize: catalogAuthorize })
     const decision = reply ? { tool: 'LINE_CATALOG_COMMAND', decision: 'COMMAND', replyText: reply.text, replySha256: sha256(reply.text) }
       : { tool: 'LINE_CATALOG_COMMAND', decision: 'ORDINARY' }
     try {
@@ -475,9 +488,9 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     if (!stored) throw error('CATALOG_COMMAND_NOT_PREPARED', 409)
     return stored
   }
-  async function catalogCommandTurn(job) {
+  async function catalogCommandTurn(job, identityState) {
     if (!isCatalogMessage(job)) return null
-    const decision = await decideCatalogCommand(job)
+    const decision = await decideCatalogCommand(job, identityState)
     if (decision.decision !== 'COMMAND') return null
     // The question is informational only; admission and the turn contract share the
     // LINE_TEXT_MAX_CHARS bound (W7), so a long `#sku` batch still gets its reply.
@@ -506,11 +519,15 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       || (checkLease && (!job.leaseExpiresAt || job.leaseExpiresAt <= now())) || job.expiresAt <= now()) {
       throw error('CONVERSATION_JOB_AUTHORITY_REVOKED', 409)
     }
-    if (!checkIdentity) return { job, identity: null }
-    const identity = await findChannelIdentity({ db, tenantId: job.tenantId,
-      channelAccountId: job.channelAccountId, providerSubject: job.sourceUserId })
-    if (!channelIdentityIsVerified(identity)) throw error('CONVERSATION_IDENTITY_REVOKED', 403)
-    return { job, identity }
+    // The sender authority comes from Core's admission-time record and its own
+    // ChannelIdentity row, never from the runtime (see `runtimeSenderAuthority`).
+    const sender = await runtimeSenderAuthority(db, job)
+    if (!checkIdentity) return { job, identity: null, identityState: sender.identityState }
+    if (!sender.authorized) {
+      throw sender.identityState === 'UNVERIFIED' ? error('CONVERSATION_JOB_AUTHORITY_REVOKED', 409)
+        : error('CONVERSATION_IDENTITY_REVOKED', 403)
+    }
+    return { job, identity: sender.identity, identityState: sender.identityState }
   }
   const memory = createConversationRuntimeMemory({ db, env, now, ownedClaim, threadMemoryFactory,
     modelResolver: async job => {
@@ -547,7 +564,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   }
 
   async function workOperation(ref, request) {
-    const { job } = await ownedClaim(ref)
+    const { job, identityState } = await ownedClaim(ref)
     // @req FR-149, FR-150 — Work commands are not allowed in a group or room. The
     // legacy handler refuses them there before any Work read or write
     // (line-project-work-tools `contextFor`: WORK_SCOPE_DENIED) and replies with its
@@ -566,6 +583,21 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     const input = request.input
     if (request.operation === 'confirm-execute'
       && (!present(input.proposalId, 128) || request.operationId !== input.proposalId)) throw error('WORK_CONFIRMATION_IDENTITY_INVALID')
+    // @req FR-149, FR-150 — a Work command from an unverified sender is refused by the
+    // legacy handler (line-project-work-tools `contextFor`: WORK_IDENTITY_REQUIRED)
+    // with its fixed reply. Core answers the typed command with that reply as a final
+    // REJECTED outcome and reaches no Work reader or writer: `status` finds nothing,
+    // so the runtime executes and settles on the refusal. The sender is never re-read,
+    // so one verified mid-turn gets the same refusal.
+    if (identityState === 'UNVERIFIED') {
+      if (request.operation === 'status') return { status: 'NOT_FOUND', operationId: request.operationId }
+      const typed = parseLineProjectWorkCommand(job.inbound?.body)
+      if (!typed || typed.operation !== request.operation || canonicalJson(typed.input) !== canonicalJson(input)) {
+        throw error('WORK_COMMAND_MISMATCH', 409)
+      }
+      const { text, errorCode } = lineWorkErrorReply({ code: 'WORK_IDENTITY_REQUIRED' })
+      return { status: 'REJECTED', code: errorCode, result: { text } }
+    }
     if (request.operation !== 'status') {
       // The operation and its arguments are the ones the user typed: Core derives
       // them from the job's own signed inbound text. A runtime request that differs
@@ -622,12 +654,15 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         return renew(claimRef, { db, now })
       }
       case 'resolve': {
-        const { job, identity } = await ownedClaim(claimRef)
+        const { job, identity, identityState } = await ownedClaim(claimRef)
+        // @req FR-149 — an unverified sender's turn has account and Business scope and no person.
+        if (identityState === 'UNVERIFIED') return { authorized: true, version: job.version, scope: { tenantId: job.tenantId,
+          businessId: job.businessId, accountId: job.accountId, identityId: null, identityVersion: null, identityState: 'UNVERIFIED' } }
         return { authorized: true, version: job.version, scope: { tenantId: job.tenantId,
           businessId: job.businessId, accountId: job.accountId, identityId: identity.id, identityVersion: identity.version } }
       }
       case 'prepare': {
-        const { job } = await ownedClaim(claimRef)
+        const { job, identityState } = await ownedClaim(claimRef)
         if (payload.authorityVersion !== job.version) throw error('CONVERSATION_AUTHORITY_STALE', 409)
         // @req FR-244 — Core decided out-of-hours at admission and owns the reply.
         // Checked before any injected or default preparer, so no grounding mode,
@@ -640,8 +675,11 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
           turnKind: 'OUT_OF_HOURS', replyText: outOfHoursReply }
         // @req FR-210 — checked before any injected or default preparer, as the
         // Server worker's answer port checks `#sku` before its model answer.
-        const catalogTurn = await catalogCommandTurn(job)
+        const catalogTurn = await catalogCommandTurn(job, identityState)
         if (catalogTurn) return catalogTurn
+        // Admission keeps an unverified sender's memory-sync turn on SERVER; a job
+        // that nonetheless carries both is refused rather than given memory.
+        if (identityState === 'UNVERIFIED' && job.memorySyncOptIn === true) throw error('MEMORY_IDENTITY_UNVERIFIED', 409)
         const turn = fitPreparedTurn(await prepare(job, { deadlineAt: envelope.deadlineAt }))
         // An opted-in turn tells the runtime to run the memory phases; a Work
         // command (or its fixed reply) never touches memory, as in the legacy worker.
@@ -656,7 +694,13 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         return resolveCredential(job)
       }
       case 'work-tool': return workOperation(claimRef, payload)
-      case 'memory': return memory.operate(claimRef, payload)
+      case 'memory': {
+        // @req FR-149 — no memory operation exists for an unverified sender's job,
+        // whatever the runtime asks for (see `prepare`).
+        const { identityState } = await ownedClaim(claimRef, { checkLease: false, checkIdentity: false })
+        if (identityState === 'UNVERIFIED') throw error('MEMORY_IDENTITY_UNVERIFIED', 409)
+        return memory.operate(claimRef, payload)
+      }
       case 'complete': {
         const { job } = await ownedClaim(claimRef)
         // @req FR-210 — Core, not the runtime, owns a `#sku` reply: READY is committed
