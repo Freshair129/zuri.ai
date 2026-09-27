@@ -5,6 +5,8 @@ import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identi
 import { resolveBusinessModelCredential } from '@/modules/integration/application/model-provider-credential-service'
 import { selectRegisteredQuery } from '@/modules/agent/grounded-business-answer'
 import { parseLineProjectWorkCommand, searchLineProjectWork, proposeLineWork, confirmLineWork } from '@/modules/agent/line-project-work-tools'
+import { lineCatalogCommandReply, lineCatalogViewer } from '@/modules/agent/line-catalog-command'
+import { parseLineCatalogCommand } from '@/modules/inventory'
 import { serverLinePorts } from './server-line-runtime'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
@@ -14,7 +16,13 @@ import {
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
 // @spec ADR-106 D2-D4, SDD-110 — server-derived authority, strict bounded v1 operations.
-// @tested tests/integration/conversation-runtime-vertical-slice.test.js
+// @req FR-210 — the `#sku` catalogue command in the runtime cohort: Core runs it
+//   (scope from the claimed job, the person from the verified channel identity,
+//   Inventory authority from the resolved viewer) and hands the runtime its reply
+//   as a CATALOG_COMMAND turn, exactly the reply the Server worker sends. No model
+//   credential or Work tool is handed out for such a turn.
+// @tested tests/integration/conversation-runtime-vertical-slice.test.js,
+//   tests/integration/conversation-runtime-catalog-command.test.js
 const VERSION = 'conversation-runtime.v1'
 const MAX_BODY_BYTES = 64 * 1024
 const MAX_RESPONSE_BYTES = 64 * 1024
@@ -136,7 +144,12 @@ function validateResult(operation, data) {
     return
   }
   if (operation === 'prepare') {
-    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])
+    // FR-210 — a CATALOG_COMMAND turn carries Core's fixed `#sku` reply and nothing to execute.
+    if (data?.turnKind !== undefined && (data.turnKind !== 'CATALOG_COMMAND' || !present(data.replyText, 5000)
+      || data.workCommand != null || data.evidence?.records?.length || data.slices?.length
+      || !parseLineCatalogCommand(data.question))) invalid()
+    if (data?.turnKind === undefined && data?.replyText !== undefined) invalid()
+    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'turnKind', 'replyText'])
       || !present(data.question, 8000) || !exact(data.evidence, ['records']) || !Array.isArray(data.evidence.records)
       || data.evidence.records.length > 64 || !Array.isArray(data.slices) || data.slices.length > 64
       || typeof data.authorized !== 'boolean' || !['DIRECT', 'GROUP', 'ROOM'].includes(data.audienceKind)
@@ -219,7 +232,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   renew = renewRuntimeConversationJob, complete = completeRuntimeConversationJob, fail = failRuntimeConversationJob,
   readStatus = runtimeConversationStatus, operationStatus = runtimeOperationStatus,
   send = sendRuntimeConversationJob, appendTrace = appendRuntimeConversationTrace,
-  workSearch = searchLineProjectWork, workPropose = proposeLineWork, workConfirm = confirmLineWork } = {}) {
+  workSearch = searchLineProjectWork, workPropose = proposeLineWork, workConfirm = confirmLineWork,
+  catalogViewer = lineCatalogViewer, catalogCommand = lineCatalogCommandReply } = {}) {
   let businessPortsPromise
   const getBusinessPorts = async () => {
     if (!businessPortsPromise) {
@@ -251,6 +265,25 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     return result
   })
 
+  // @req FR-210 — whether this turn is a `#sku` command its sender may run: the
+  // same parse and the same authorization the Server worker's answer port uses.
+  // Read-only; anyone else's `#sku` message stays an ordinary question.
+  const catalogAuthorize = job => catalogViewer(job, { db })
+  const isCatalogCommandTurn = async job => Boolean(parseLineCatalogCommand(job.inbound?.body))
+    && Boolean(await catalogAuthorize(job))
+  // Runs the command once per prepare, as the Server worker runs it once per
+  // execution: a preview is keyed by the LINE event (a replay returns the same
+  // intake), and confirming a committed intake answers "saved" again.
+  async function catalogCommandTurn(job) {
+    const reply = await catalogCommand(job, { db, now, authorize: catalogAuthorize })
+    if (!reply) return null
+    // The question is informational only; admission accepts 10,000 characters and the
+    // turn contract 8,000, so a long `#sku` batch still gets its reply.
+    return { question: job.inbound.body.slice(0, 8000), evidence: { records: [] }, slices: [], authorized: true,
+      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null,
+      turnKind: 'CATALOG_COMMAND', replyText: reply.text }
+  }
+
   async function ownedClaim(ref, { status = 'CLAIMED', checkLease = true } = {}) {
     const job = await db.lineConversationJob.findUnique({ where: { id: ref.jobId },
       include: { account: true, inbound: { include: { conversation: true } } } })
@@ -279,6 +312,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
 
   async function workOperation(ref, request) {
     const { job } = await ownedClaim(ref)
+    // @req FR-210 — a `#sku` turn is answered by the catalogue command alone.
+    if (await isCatalogCommandTurn(job)) throw error('CATALOG_COMMAND_TURN_HAS_NO_WORK', 409)
     const expectedClaim = { ...ref, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' }
     const input = request.input
     if (request.operation === 'read') {
@@ -334,10 +369,16 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       case 'prepare': {
         const { job } = await ownedClaim(claimRef)
         if (payload.authorityVersion !== job.version) throw error('CONVERSATION_AUTHORITY_STALE', 409)
+        // @req FR-210 — checked before any injected or default preparer, as the
+        // Server worker's answer port checks `#sku` before its model answer.
+        const catalogTurn = await catalogCommandTurn(job)
+        if (catalogTurn) return catalogTurn
         return prepare(job)
       }
       case 'credential': {
         const { job } = await ownedClaim(claimRef)
+        // @req FR-210 — no model runs for a `#sku` turn; Core does not hand one out.
+        if (await isCatalogCommandTurn(job)) throw error('CATALOG_COMMAND_TURN_HAS_NO_MODEL', 409)
         return resolveCredential(job)
       }
       case 'work-tool': return workOperation(claimRef, payload)

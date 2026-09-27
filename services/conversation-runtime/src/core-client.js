@@ -151,7 +151,8 @@ function validateOperationResult(operation, data) {
       || !Number.isInteger(data.scope.identityVersion) || data.scope.identityVersion < 1
       || !Number.isInteger(data.version) || data.version < 1) invalid()
   } else if (operation === 'prepare') {
-    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand'])) invalid()
+    if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand',
+      'turnKind', 'replyText'])) invalid()
     try { validateTurnContext(data) } catch { invalid() }
   } else if (operation === 'credential') {
     if (!data || typeof data.provider !== 'string' || !data.provider.trim() || data.provider.length > 32
