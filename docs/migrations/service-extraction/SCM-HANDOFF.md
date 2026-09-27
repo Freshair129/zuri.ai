@@ -2,7 +2,7 @@
 id: ZAI:SCM-HANDOFF
 version: "0.1.0b"
 status: candidate
-last_update: "2026-09-27T10:20:00+07:00,Claude Opus 5.5 (Session 5)"
+last_update: "2026-09-28T02:40:00+07:00,Claude Opus 5.5 (Session 5)"
 attributes:
   domain: inventory
   scope: session-5-scm-service-extraction-handoff
@@ -993,6 +993,18 @@ board_update: BOARD_UPDATE_PENDING
    - Tests: SCM SQLite 341/343 (2 skipped), PostgreSQL 342/343 (1 skipped). The
      façade, CRM reader and sales-order tests pass 83/83, and the parity test runs
      per selected Business, including a viewer spanning two Tenants.
+2f. **#546 MERGED** into `main` at `84e77c5a` (2026-09-27T16:32:42Z) by MC0,
+   under the owner's merge authority. It is a merge commit whose second parent
+   is `a2bf3bf3`, the exact head that was READY, CLEAN and green on hosted CI
+   (all four test shards, scm, build, govern, verify). S5 did not merge.
+   - Merged: the SCM service package; the scm-core.v1 consumer (core auth
+     mode, Business selector, success-only scope cache); core's scm-core.v1
+     façade with the CRM and project-manager read ports; the scm CI job;
+     services/scm listed as an isolated service for scoped CI.
+   - Not claimed: no deployment and no production routing. The SCM process is
+     not running anywhere. Consumer routing, the managed-PostgreSQL rehearsal,
+     the image smoke and the cutover stay behind SCM-CUTOVER, and billing waits
+     for an Identity command path.
 2e. MC0 review of `535627cd`: PASS_WITH_FINDINGS, both fixed.
    - Finding 1 (LOW): the SCM boundary build missed dynamic `import('…')` and
      `require('…')`. `scripts/boundary-scan.mjs` now scans static, export-from,
