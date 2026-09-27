@@ -6,7 +6,7 @@
 // a disposable PostgreSQL started here (embedded-postgres, temp dir, 127.0.0.1,
 // random port) and removed afterwards; every test store gets its own database.
 // Default is SQLite. Extra arguments are test file filters.
-import { spawnSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import { readdirSync, statSync } from 'node:fs'
 import { join, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -25,9 +25,22 @@ if (engine === 'postgres') {
   server = await startTestPostgres({ label: 'suite' })
   env.SCM_TEST_PG_ADMIN_URL = server.adminUrl
 }
+// Asynchronous on purpose: the embedded PostgreSQL started above pipes its log
+// output into THIS process, and only this event loop drains that pipe. A
+// spawnSync here blocked the loop for the whole run, so once the server had
+// written a pipe's worth of log lines (64 KiB on Linux) every backend stalled
+// on its next log write and the suite timed out with SCM_PG_NO_REPLY.
+const runSuite = () => new Promise((resolve, reject) => {
+  const child = spawn(process.execPath, ['--test', '--test-reporter=spec', ...files], { cwd: root, env, stdio: ['ignore', 'pipe', 'inherit'] })
+  let stdout = ''
+  child.stdout.setEncoding('utf8')
+  child.stdout.on('data', (chunk) => { stdout += chunk })
+  child.once('error', reject)
+  child.once('close', (status) => resolve({ stdout, status }))
+})
 let result
 try {
-  result = spawnSync(process.execPath, ['--test', '--test-reporter=spec', ...files], { cwd: root, encoding: 'utf8', env, stdio: ['ignore', 'pipe', 'inherit'], maxBuffer: 64 * 1024 * 1024 })
+  result = await runSuite()
 } finally {
   await server?.stop()
 }
