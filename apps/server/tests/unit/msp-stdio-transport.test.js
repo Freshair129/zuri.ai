@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { buildMspChildEnvironment, createMspStdioTransport, createMspTransportFromEnvironment, MSP_OS_ENV_NAMES, MSP_RUNTIME_ENV_NAMES } from '@/modules/agent/msp-stdio-transport'
+import { buildMspChildEnvironment, createMspStdioTransport, createMspTransportFromEnvironment, MSP_OS_ENV_NAMES, MSP_RUNTIME_ENV_NAMES, MSP_TRANSPORT_MISCONFIGURED } from '@/modules/agent/msp-stdio-transport'
 
 // @req FR-057 — the zuri-ai → MSP transport: MSP's own NDJSON JSON-RPC framing
 // over a spawned process, one process per call, tool errors surfaced verbatim,
@@ -189,6 +189,31 @@ describe('the MSP child environment', () => {
       writeFileSync(pipelineFile, 'valid-pipeline')
       expect(() => buildMspChildEnvironment({ ...source, MSP_GKS_PIPELINE_CREDENTIAL_FILE: path.join(directory, 'missing') }))
         .toThrow('MSP_GKS_PIPELINE_CREDENTIAL_FILE could not be read')
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  // #578 review, finding 1: a plain Error here reached the evidence-pull route as
+  // HTTP 500 and could abort LINE runtime startup. The typed error is what lets
+  // callers map it to "unavailable" (503) or degrade, as they do for an absent MSP.
+  it('raises a typed, 503-status misconfiguration error that names only the variable', () => {
+    const directory = mkdtempSync(path.join(tmpdir(), 'zuri-gks-secret-'))
+    const emptyFile = path.join(directory, 'relay-credential')
+    const missingFile = path.join(directory, 'missing-relay-credential')
+    try {
+      writeFileSync(emptyFile, ' \n', { mode: 0o600 })
+      const source = { ...serverShapedEnvironment(), ...HTTP_GKS_CONFIGURATION }
+      for (const [file, message] of [[emptyFile, 'GKS_MSP_RELAY_CREDENTIAL_FILE is empty'], [missingFile, 'GKS_MSP_RELAY_CREDENTIAL_FILE could not be read']]) {
+        const env = { ...source, GKS_MSP_RELAY_CREDENTIAL_FILE: file }
+        for (const build of [() => buildMspChildEnvironment(env), () => createMspTransportFromEnvironment(env)]) {
+          let error
+          try { build() } catch (caught) { error = caught }
+          expect(error).toMatchObject({ code: 'MSP_TRANSPORT_MISCONFIGURED', status: 503, message })
+          expect(error.message).not.toContain(directory)
+        }
+      }
+      expect(MSP_TRANSPORT_MISCONFIGURED).toBe('MSP_TRANSPORT_MISCONFIGURED')
     } finally {
       rmSync(directory, { recursive: true, force: true })
     }

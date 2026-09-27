@@ -1,13 +1,13 @@
 import prisma from '@/lib/db'
 import { resolveServerLineAccount, createServerLineReplyTransport, createServerLinePushTransport } from '@/platform/integrations/providers/line/server-line-transport'
 import { createLineSecretManagerFromEnv } from '@/platform/integrations/core/secret-store/dispatching-secret-manager'
-import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
+import { createMspTransportFromEnvironment, MSP_TRANSPORT_MISCONFIGURED } from '@/modules/agent/msp-stdio-transport'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
 // @req FR-149 — deployment composition, no credentials returned to clients.
 // @req FR-223 — accounts resolve through the dispatching secret manager: the mount,
 //   and the one writable store ZURI_SECRET_STORE selects (SDD-097).
 // @spec ADR-061, SDD-097
-// @tested tests/integration/server-line-jobs.test.js
+// @tested tests/integration/server-line-jobs.test.js, tests/unit/server-line-runtime.test.js
 
 function createServerLineThreadMemory(env) {
   // The admission flag is intentionally absent here. It enrolls new jobs only;
@@ -17,7 +17,16 @@ function createServerLineThreadMemory(env) {
   // absent so the normal LINE worker can continue and the receipt stays pending.
   const serviceKey = env.ZURI_MSP_THREAD_SERVICE_KEY
   if (typeof serviceKey !== 'string' || serviceKey.length < 32) return null
-  const transport = createMspTransportFromEnvironment(env)
+  // A misconfigured MSP secret file (HTTP mode) is the same incomplete
+  // configuration as an absent MSP: the optional scanner stays absent and LINE
+  // starts. Any other construction error still fails startup.
+  let transport
+  try {
+    transport = createMspTransportFromEnvironment(env)
+  } catch (error) {
+    if (error?.code !== MSP_TRANSPORT_MISCONFIGURED) throw error
+    return null
+  }
   if (!transport) return null
   return createMspThreadMemoryPort({
     transport,

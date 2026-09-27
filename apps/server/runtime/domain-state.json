@@ -591,7 +591,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-072",
@@ -2444,7 +2444,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-118",
@@ -2548,7 +2548,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-224",
@@ -3224,7 +3224,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-111",
@@ -3742,7 +3742,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-224",
@@ -5633,7 +5633,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-123",
@@ -6121,7 +6121,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-224",
@@ -7909,7 +7909,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-111",
@@ -8072,6 +8072,7 @@
         "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-documents-ui.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",
+        "apps/server/tests/unit/knowledge-evidence-pull-route.test.js",
         "apps/server/tests/unit/knowledge-http.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
@@ -10678,7 +10679,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-224",
@@ -10816,7 +10817,8 @@
         "apps/server/tests/unit/platform/line-channel-admin-port.test.js",
         "apps/server/tests/unit/platform/server-line-transport.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
-        "apps/server/tests/unit/public-base-url.test.js"
+        "apps/server/tests/unit/public-base-url.test.js",
+        "apps/server/tests/unit/server-line-runtime.test.js"
       ]
     },
     {
@@ -14278,7 +14280,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -14302,6 +14304,7 @@
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/unit/agent-context-retrieval.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
+        "apps/server/tests/unit/ki17-worker-msp-launcher.test.js",
         "apps/server/tests/unit/msp-memory-evidence.test.js",
         "apps/server/tests/unit/msp-stdio-transport.test.js",
         "apps/server/tests/unit/msp-vault-resolver.test.js"

@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
 import { buildMspChildEnvironment } from './msp-child-environment.mjs'
-export { buildMspChildEnvironment, MSP_OS_ENV_NAMES, MSP_RUNTIME_ENV_NAMES } from './msp-child-environment.mjs'
+export { buildMspChildEnvironment, MSP_OS_ENV_NAMES, MSP_RUNTIME_ENV_NAMES, MSP_TRANSPORT_MISCONFIGURED } from './msp-child-environment.mjs'
 
 // @req FR-057 — the one lawful call direction out of Tier 1 is zuri-ai → MSP
 //   (ADR-043 D2); this is the transport that carries it, spawning the MSP
@@ -50,6 +50,10 @@ function transportError(message, code = 'MSP_TRANSPORT_UNAVAILABLE') {
  * a transport that will fail later — when `ZURI_MSP_COMMAND` is unset, so a
  * caller fails closed at the boundary it can name (503) rather than inside a
  * spawn. The child receives `buildMspChildEnvironment(env)`, not `env`.
+ *
+ * Throws an error with `code: MSP_TRANSPORT_MISCONFIGURED` and `status: 503`
+ * when an HTTP-mode secret file is unreadable or empty — "unavailable", like a
+ * missing command, not a server fault.
  */
 export function createMspTransportFromEnvironment(env = process.env) {
   const command = env.ZURI_MSP_COMMAND?.trim()

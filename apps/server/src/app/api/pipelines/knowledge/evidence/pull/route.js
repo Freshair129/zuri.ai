@@ -7,7 +7,7 @@ import { pullKnowledgeStageEvidence } from '@/platform/integrations/core/knowled
 //   MSP → gks_stage_evidence_export, applied through the reporter receiver,
 //   cursor advanced per scope only after the page's writes committed.
 // @spec ADR-068 D1-D4, ADR-050 D3
-// @tested tests/integration/fr110-knowledge-evidence-importer.test.js, tests/integration/openapi-docs.test.js
+// @tested tests/integration/fr110-knowledge-evidence-importer.test.js, tests/integration/openapi-docs.test.js, tests/unit/knowledge-evidence-pull-route.test.js
 
 export const dynamic = 'force-dynamic'
 
@@ -16,6 +16,8 @@ export async function POST(request) {
     // Identity before configuration: an unauthenticated caller learns that it
     // is unauthenticated, not whether this deployment has an MSP.
     const viewer = await resolveRequestViewer(request)
+    // A misconfigured HTTP-mode secret file throws MSP_TRANSPORT_MISCONFIGURED
+    // with status 503, so it answers "unavailable" exactly like an absent MSP.
     const transport = createMspTransportFromEnvironment(process.env)
     if (!transport) throw httpError(503, 'MSP transport is not configured (ZURI_MSP_COMMAND)')
     return pullKnowledgeStageEvidence(await request.json(), { viewer, transport })
