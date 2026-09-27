@@ -354,12 +354,9 @@ export const MODEL_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:\/-]{0,120}$/
 // derived, never stored: the stored machine is DRAFT → CONNECTED → PAUSED |
 // ARCHIVED, and an account reads LIVE only while the agent lane reports an
 // ACTIVE binding for it.
-// @req FR-265 — `transportMode` named who owns the account's LINE transport, the
-// tenant's Zuri Edge Device or the cloud. ADR-100 D1 retires the first: the cloud
-// owns it, so the list has one member and the account column is pinned to it. The
-// list is kept as a list rather than collapsed to a constant because
-// `LineConversationJob.executionMode` still reads `EDGE` rows as history, and a
-// vocabulary that once had two members is more honest about that than a boolean.
+// @req FR-265 — new LINE accounts use the server-owned transport only. The
+// `LineConversationJob.executionMode` column remains readable for historical
+// rows, so the supported transport vocabulary stays explicit rather than inferred.
 export const LINE_OA_ACCOUNT_STATUSES = ['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIVED']
 export const LINE_OA_ACCOUNT_EFFECTIVE_STATUSES = [...LINE_OA_ACCOUNT_STATUSES, 'LIVE']
 export const LINE_OA_TRANSPORT_MODES = ['CLOUD']

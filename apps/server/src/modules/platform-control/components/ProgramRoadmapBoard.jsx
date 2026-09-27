@@ -7,15 +7,14 @@
 // @req FR-219 — each task card carries evidence badges and its subtask progress.
 // @req FR-240 — phase cards split tokens and show tool calls, prompts and compactions;
 //   task telemetry lists the most used tools, errors and denials.
-// @req FR-241 — `audience="member"`: no Agent devices tab and no per-person or
-//   per-device rows. Lanes, sizing and the measured-through time arrive as props
+// @req FR-241 — `audience="member"`: no per-person usage rows. Lanes, sizing and the measured-through time arrive as props
 //   from the server page, so this client module never bundles the generated
 //   usage block with its tool and model names (ADR-092 D3).
 // @spec ADR-048 D3, ADR-086 D1, D6, ADR-092, SDD-055, NFR-008
 // @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js, tests/unit/program-roadmap-board-telemetry.test.js, tests/unit/programme-member-view.test.js
 
 import { useState } from 'react'
-import { Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, MonitorSmartphone, ShieldCheck } from 'lucide-react'
+import { Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, ShieldCheck } from 'lucide-react'
 import { Card, Kpi, PageHeader, ProgressBar, StatusPill } from '@/components/ui'
 import {
   PROGRAMME_DELIVERABLES,
@@ -38,7 +37,6 @@ import {
 } from '@/modules/platform-control/program-delivery-metrics'
 import { TONE_WORD } from '@/modules/platform-control/program-task-evidence'
 import DomainMapView from './DomainMapView'
-import HarnessDevicesView from './HarnessDevicesView'
 import TiltCard from './TiltCard'
 import styles from './program-roadmap-board.module.css'
 
@@ -150,7 +148,7 @@ function UsageDetailRow({ tokens, detail, detailSessions = 0, sessions = 0, test
   )
 }
 
-// FR-221: usage per person (and per device in task detail). The meter's local-log
+// FR-221: usage per person. The meter's local-log
 // figures carry no person and are shown as such, never guessed.
 function Breakdown({ rows, testId, noPersonLabel = 'ไม่ระบุคน (log เครื่อง operator)' }) {
   const entries = Object.entries(rows || {}).sort((a, b) => b[1].used - a[1].used)
@@ -227,7 +225,6 @@ function LaneTelemetry({ id, laneUsage, lanes = [], member = false }) {
       {m && !member ? (
         <p className="mt-1 flex flex-wrap items-center gap-2 text-xs">
           <span className="text-muted">ตามคน</span><Breakdown rows={m.byPerson} testId={`task-people-${id}`} />
-          {Object.keys(m.byDevice || {}).length > 0 && <><span className="text-muted">ตาม device</span><Breakdown rows={m.byDevice} testId={`task-devices-${id}`} /></>}
         </p>
       ) : null}
       {m?.detailSessions ? (
@@ -441,8 +438,6 @@ function HistoryChart({ history }) {
 const VIEWS = [
   { id: 'programme', label: 'Programme plan', icon: Layers3 },
   { id: 'domains', label: 'Domain map & inventory', icon: Boxes },
-  // FR-220 (ADR-087 D3): paired agent harness devices — activate or revoke.
-  { id: 'devices', label: 'Agent devices', icon: MonitorSmartphone },
 ]
 
 const TASK_SOT_BY_ID = new Map(ROADMAP_TASK_LEDGER.map((task) => [task.id, task]))
@@ -545,7 +540,7 @@ export default function ProgramRoadmapBoard({
   closesAt = null,
 }) {
   const member = audience === 'member'
-  const views = member ? VIEWS.filter(({ id }) => id !== 'devices') : VIEWS
+  const views = VIEWS
   const laneUsageMap = new Map(Object.entries(laneUsage))
   const taskUsageByCode = new Map((taskUsageLedger?.tasks || []).map((task) => [task.taskCode, task]))
   const [view, setView] = useState(domainMap && views.some(({ id }) => id !== 'programme' && id === initialView) ? initialView : 'programme')
@@ -602,11 +597,7 @@ export default function ProgramRoadmapBoard({
         </div>
       )}
 
-      {view === 'devices' && domainMap && !member ? (
-        <div role="tabpanel" id="roadmap-panel-devices" aria-labelledby="roadmap-tab-devices">
-          <HarnessDevicesView />
-        </div>
-      ) : view === 'domains' && domainMap ? (
+      {view === 'domains' && domainMap ? (
         <div role="tabpanel" id="roadmap-panel-domains" aria-labelledby="roadmap-tab-domains">
           <DomainMapView domainMap={domainMap} />
         </div>

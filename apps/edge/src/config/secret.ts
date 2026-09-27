@@ -7,8 +7,8 @@ import fs from 'fs';
  * Resolve a secret from the environment, honoring the Docker-secrets `_FILE` convention: when
  * `${name}_FILE` is set, its content is read from disk and used instead of `${name}` itself.
  *
- * This is the gap SEC-005 named: device credentials, the LINE channel secret, and the archive's
- * HMAC key all lived only as plaintext values in `.env`. The `_FILE` suffix is the same pattern
+ * This is the gap SEC-005 named: model-provider credentials and the archive's HMAC key can be
+ * supplied without putting their values directly in `.env`. The `_FILE` suffix is the same pattern
  * the official Postgres/MySQL Docker images use — a secret mounted read-only by the orchestrator,
  * or a file protected by OS ACLs, never a value the process environment or a dumped `.env` file
  * carries directly. A deployment that has always set `${name}` in plain `.env` keeps working

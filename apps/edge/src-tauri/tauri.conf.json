@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "ZuriEdgeDevice",
+  "productName": "ZuriLocalRuntime",
   "version": "0.3.2",
   "identifier": "ai.zuri.edge.device",
   "build": {
@@ -10,7 +10,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "Zuri Edge Device Control & Zero-Trust Pair",
+        "title": "Zuri Local Runtime",
         "width": 1050,
         "height": 680,
         "resizable": true,

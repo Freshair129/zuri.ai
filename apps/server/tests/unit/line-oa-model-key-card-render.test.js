@@ -179,7 +179,7 @@ describe('LINE OA account console after FR-265', () => {
 
   it('no longer advertises dispatching an answer to a paired device', () => {
     const html = source()
-    expect(html).toContain('เรียกโมเดลด้วย API key ของธุรกิจ')
+    expect(render({ modelCredential: null, ...catalogue })).toContain('เรียกโมเดลด้วยคีย์นี้')
     expect(html).not.toContain('ส่งคำสั่งไปยัง')
   })
 

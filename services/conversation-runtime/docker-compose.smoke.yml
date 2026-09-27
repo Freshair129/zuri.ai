@@ -1,0 +1,37 @@
+services:
+  smoke-core:
+    build:
+      context: ../..
+      dockerfile: services/conversation-runtime/scripts/Dockerfile.smoke-core
+    image: ${CR_SMOKE_CORE_IMAGE:-zuri-conversation-runtime-core:smoke}
+    restart: "no"
+    environment:
+      CONVERSATION_RUNTIME_TOKEN: ${CR_SMOKE_TOKEN:-ci-only-conversation-runtime-token-not-a-secret-000000}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4010/test/health').then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 2s
+      start_period: 2s
+      retries: 10
+
+  conversation-runtime:
+    build:
+      context: ../..
+      dockerfile: services/conversation-runtime/Dockerfile
+    image: ${CR_SMOKE_IMAGE:-zuri-conversation-runtime:smoke}
+    restart: "no"
+    stop_grace_period: 10s
+    depends_on:
+      smoke-core:
+        condition: service_healthy
+    environment:
+      CONVERSATION_RUNTIME_CORE_URL: http://smoke-core:4010
+      CONVERSATION_RUNTIME_TOKEN: ${CR_SMOKE_TOKEN:-ci-only-conversation-runtime-token-not-a-secret-000000}
+    ports:
+      - "${CR_SMOKE_BIND:-127.0.0.1}:${CR_SMOKE_PORT:-0}:3081"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3081/healthz').then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 2s
+      start_period: 2s
+      retries: 10

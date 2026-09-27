@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "ca3e8247e50eb95980561e3ce8aa882ed7b11010d0b2167582e5f37b448132c8",
+  "schemaSha256": "f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -961,5 +961,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "c45dd4b70079decbd1d415a392221bf1a4a71970cd807140d832549ff5481d55"
+  "targetSchemaSha256": "a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1"
 }

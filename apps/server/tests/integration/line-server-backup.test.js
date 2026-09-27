@@ -20,13 +20,16 @@ describe('LINE server snapshot recovery', () => {
     const viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: ['line-oa'] })
     const connection = await provisionLineServerConnection({ businessId: business.id, name: 'Backup', destination: `U${'b'.repeat(32)}`, secretRef: 'deployment-secret:backup' }, { viewer })
     const account = await connectLineOaAccount({ businessId: business.id, integrationConnectionId: connection.id, code: 'oa-backup', displayName: 'Backup' }, { viewer })
-    await prisma.lineOaAccount.update({ where: { id: account.id }, data: { serverEnabled: true, status: 'CONNECTED', transportEpoch: 4 } })
+    await prisma.lineOaAccount.update({ where: { id: account.id }, data: {
+      serverEnabled: true, status: 'CONNECTED', transportEpoch: 4, runtimeOwner: 'CONVERSATION_RUNTIME',
+    } })
     const jobs = []
     for (const status of ['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'UNKNOWN', 'ACCEPTED', 'RECORDED', 'FAILED', 'CANCELLED']) {
       const inbound = await ingestLineMessage({ tenantId: tenant.id, businessId: business.id, channelAccountId: account.id, lineUserId: 'backup-user', threadId: 'backup-thread', text: status, externalMessageId: `backup-${status}` })
       jobs.push(await prisma.lineConversationJob.create({ data: {
         accountId: account.id, inboundMessageId: inbound.messageId, eventId: `backup-${status}`, tenantId: tenant.id, businessId: business.id,
-        channelAccountId: account.id, transportEpoch: 4, executionMode: 'SERVER', modelAccess: 'EXTERNAL_MODEL_ALLOWED',
+        channelAccountId: account.id, transportEpoch: 4, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME',
+        modelAccess: 'EXTERNAL_MODEL_ALLOWED',
         ...(status === 'READY' ? { firstSendAt: new Date(), sendMethod: 'PUSH' } : {}),
         recipientId: 'backup-user', sourceUserId: 'backup-user', status, sealedReplyToken: `ciphertext-${status}`,
         claimantId: 'old-worker', leaseExpiresAt: new Date(Date.now() + 60000), expiresAt: new Date(Date.now() + 60000), correlationId: `backup-${status}`,
@@ -83,10 +86,11 @@ describe('LINE server snapshot recovery', () => {
     const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
     expect(result.restored).toBe(true)
     const restoredAccount = await prisma.lineOaAccount.findUnique({ where: { id: account.id } })
-    expect(restoredAccount).toMatchObject({ serverEnabled: false, transportEpoch: 5 })
+    expect(restoredAccount).toMatchObject({ serverEnabled: false, transportEpoch: 5, runtimeOwner: 'CONVERSATION_RUNTIME' })
     for (const original of jobs) {
       const restored = await prisma.lineConversationJob.findUnique({ where: { id: original.id }, include: { inbound: true, account: true } })
-      expect(restored).toMatchObject({ sealedReplyToken: null, claimantId: null, leaseExpiresAt: null, version: original.version + 1 })
+      expect(restored).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', sealedReplyToken: null,
+        claimantId: null, leaseExpiresAt: null, version: original.version + 1 })
       expect(restored.inbound.id).toBe(original.inboundMessageId)
       expect(restored.account.id).toBe(account.id)
       if (['QUEUED', 'CLAIMED'].includes(original.status)) expect(restored).toMatchObject({ status: 'CANCELLED', errorCode: 'RESTORED_REQUIRES_REVIEW' })
