@@ -30,10 +30,11 @@ export async function startScmProcess({ db, env = {} }) {
     child.once('exit', (code) => { clearTimeout(timer); reject(Object.assign(new Error(`SCM process exited ${code}: ${stderr}`), { exitCode: code, logs: lines })) })
   })
   const base = `http://127.0.0.1:${port}`
-  const request = async (method, path, { token, key, body } = {}) => {
+  // `headers` (core mode: bearer + x-zuri-subject) are sent as given, after the rest.
+  const request = async (method, path, { token, key, body, headers = {} } = {}) => {
     const res = await fetch(`${base}${path}`, {
       method,
-      headers: { ...(token ? { authorization: `Delegation ${token}` } : {}), ...(key ? { 'idempotency-key': key } : {}), ...(body !== undefined ? { 'content-type': 'application/json' } : {}) },
+      headers: { ...(token ? { authorization: `Delegation ${token}` } : {}), ...(key ? { 'idempotency-key': key } : {}), ...(body !== undefined ? { 'content-type': 'application/json' } : {}), ...headers },
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
     return { status: res.status, body: await res.json() }

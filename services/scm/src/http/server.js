@@ -1,14 +1,19 @@
 import { createServer } from 'node:http'
 import { ZodError } from 'zod'
+import { delegationAuthenticator } from './authenticate.js'
 
-// External SCM API v1 (contracts/v1/scm-api.v1.json). Thin: parse, verify the
-// delegated scope, hand ONE business command or query to the application, map
-// the outcome. No generic CRUD, no SQL, no executeAnything.
+// External SCM API v1 (contracts/v1/scm-api.v1.json). Thin: parse, authenticate
+// the caller into a scope (an injected `authenticate(req)`, see authenticate.js:
+// a verified delegation, or a core-resolved subject in core mode), hand ONE
+// business command or query to the application, map the outcome. No generic
+// CRUD, no SQL, no executeAnything.
 //
 // Outcome classes a caller must tell apart:
 //   4xx retryable:false  validation / denial / stale version → do not resend as-is
 //   409 retryable:true   concurrency loss before any effect → resend is safe
-//   503 retryable:true   store busy / draining, no effect → resend is safe
+//   503 retryable:true   store busy / draining / core unavailable, no effect → resend is safe
+//   502 retryable:false  core refused the SCM service itself (SCM_CORE_REJECTED): an
+//                        operator fault raised before any unit of work → no effect
 //   network loss / 5xx   UNKNOWN outcome → GET /v1/operations/... with the SAME key,
 //                        never a blind resend with a new key.
 
@@ -119,10 +124,13 @@ function send(res, status, body) {
   res.end(text)
 }
 
+// A 5xx that is a decided, no-effect refusal rather than an unknown outcome.
+const DECIDED_5XX = new Set(['SCM_CORE_REJECTED'])
+
 function errorBody(error) {
   if (error instanceof ZodError) return [422, { error: { code: 'SCM_VALIDATION_FAILED', message: 'request does not match the contract', retryable: false, issues: error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })) } }]
   const status = Number.isInteger(error?.status) ? error.status : 500
-  if (status >= 500 && !error.retryable) return [500, { error: { code: 'SCM_INTERNAL', message: 'internal error; outcome unknown — look up the operation by its key', retryable: false, outcome: 'UNKNOWN' } }]
+  if (status >= 500 && !error.retryable && !DECIDED_5XX.has(error.code)) return [500, { error: { code: 'SCM_INTERNAL', message: 'internal error; outcome unknown — look up the operation by its key', retryable: false, outcome: 'UNKNOWN' } }]
   const code = error.code ?? (/^[A-Z][A-Z0-9_]+$/.test(error?.message ?? '') ? error.message : 'SCM_ERROR')
   return [status, { error: { code, message: error.code ?? error.message, retryable: Boolean(error.retryable), ...(error.details ? { details: error.details } : {}) } }]
 }
@@ -140,7 +148,7 @@ async function readJson(req, limit) {
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8') || 'null') } catch { throw Object.assign(new Error('bad json'), { status: 400, code: 'SCM_MALFORMED_JSON' }) }
 }
 
-export function createScmHttpServer({ config, store, bus, verify, log = () => {} }) {
+export function createScmHttpServer({ config, store, bus, verify, authenticate = delegationAuthenticator(verify), log = () => {} }) {
   let draining = false
   const server = createServer(async (req, res) => {
     const started = Date.now()
@@ -158,9 +166,7 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
         return send(res, status, { status: ok ? 'ready' : draining ? 'draining' : 'store-unavailable', store: store.kind })
       }
       if (draining) throw Object.assign(new Error('draining'), { status: 503, code: 'SCM_DRAINING', retryable: true })
-      const auth = req.headers.authorization ?? ''
-      if (!auth.startsWith('Delegation ')) throw Object.assign(new Error('delegation required'), { status: 401, code: 'SCM_DELEGATION_REQUIRED' })
-      const scope = verify(auth.slice('Delegation '.length))
+      const scope = await authenticate(req)
       let body
       if (name === 'pricing.preview') {
         // A POST that is a query: evaluates, stores nothing, needs no key.
@@ -247,7 +253,7 @@ export function createScmHttpServer({ config, store, bus, verify, log = () => {}
       if (code >= 500) log('error', 'request failed', { path: url.pathname, code: body.error.code, error: error?.code ?? error?.name })
       if (!res.headersSent) send(res, code, body)
     } finally {
-      // Paths only: no body, no delegation token, no prices in logs.
+      // Paths only: no body, no delegation token, no service token, no subject, no prices in logs.
       log('info', 'request', { method: req.method, path: match ? match.r.name : 'unmatched', status, ms: Date.now() - started })
     }
   })

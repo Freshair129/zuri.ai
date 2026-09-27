@@ -1,9 +1,24 @@
 {
   "contract": "scm-api",
-  "revision": "v1-draft.15",
+  "revision": "v1-draft.16",
   "status": "PROPOSED — provider implemented and tested locally; no consumer wired; not integrator-reviewed",
   "auth": {
-    "header": "Authorization: Delegation <token>",
+    "modes": "SCM_AUTH_MODE selects ONE inbound scheme per process: `core` (required in production; the default there) or `delegation` (tests / non-production only; the default outside production; refused in production). Both produce the same scope; scopeDenial is identical in both.",
+    "core": {
+      "headers": [
+        "Authorization: Bearer <SCM_API_TOKEN> — the BFF's static service token (>= 32 chars, differs from SCM_CORE_TOKEN); proves the caller is the BFF, never a business authority",
+        "x-zuri-subject: <end user's session credential> — passed to core unchanged, never logged, stored or echoed; 1..4096 chars"
+      ],
+      "resolution": "SCM asks core to resolve the subject into scope over contracts/v1/scm-core.v1.json (resolve-scope) on every request; a viewer, role, owner flag or tenant sent by the BFF is never read",
+      "errors": {
+        "401 SCM_SERVICE_TOKEN_INVALID": "missing / wrong bearer (or a Delegation header) — checked first, core is not called",
+        "401 SCM_SUBJECT_REQUIRED": "missing, empty or > 4096-char x-zuri-subject — core is not called",
+        "401 SCM_SUBJECT_UNAUTHENTICATED": "core says the subject is not (or no longer) authenticated — the BFF re-authenticates the user",
+        "502 SCM_CORE_REJECTED": "core refused the SCM service itself (bad SCM_CORE_TOKEN, 403, out-of-contract 4xx) — operator fault, retryable:false, no effect",
+        "503 SCM_CORE_UNAVAILABLE": "core unreachable / timed out / 5xx / malformed / oversized answer — retryable:true, no effect"
+      }
+    },
+    "header": "Authorization: Delegation <token> (delegation mode)",
     "token": "scm.delegation.v1 (HMAC-SHA256 over base64url JSON claims; see src/infrastructure/delegation.js)",
     "claims": [
       "v",
@@ -659,7 +674,8 @@
     "SCM_CONCURRENT_CONFLICT (409: the unit lost a serialization / deadlock / unique race on every bounded re-run and was rolled back whole, receipt included; no effect, resend with the SAME key)",
     "SCM_DRAINING",
     "SCM_STORE_CLOSED",
-    "SCM_REFERENCE_AUTHORITY_UNAVAILABLE"
+    "SCM_REFERENCE_AUTHORITY_UNAVAILABLE",
+    "SCM_CORE_UNAVAILABLE (503, core mode: scope or a Branch/Customer/Conversation fact could not be read from core; no effect)"
   ],
   "notMigrated": []
 }

@@ -21,7 +21,8 @@ import { z } from 'zod'
 // membership revoked in core stops working at the next token, not mid-request.
 // The service identity that transports the token is NOT a business authority.
 
-const zGrant = z.object({
+/** One Business grant — shared with the core-resolved scope (core-client.js), same bounds. */
+export const zGrant = z.object({
   owner: z.boolean(),
   domains: z.array(z.string().min(1).max(64)).max(64),
   permissions: z.array(z.string().min(1).max(128)).max(128),
@@ -73,11 +74,20 @@ export function createDelegationVerifier({ key, issuer = 'zuri-core', maxLifetim
 }
 
 function scopeFrom(claims) {
-  const grant = (businessId) => (typeof businessId === 'string' && Object.hasOwn(claims.grants, businessId) ? claims.grants[businessId] : null)
+  return scopeFromGrants({ actorId: claims.sub, tenantId: claims.tenantId, delegationId: claims.jti, grants: claims.grants })
+}
+
+/**
+ * The ONE scope shape every authority ladder reads, whichever authenticator
+ * produced it: a verified delegation (above) or a core-resolved subject
+ * (core-reference-authority.js). `grants` must already be validated (zGrant).
+ */
+export function scopeFromGrants({ actorId, tenantId, delegationId, grants }) {
+  const grant = (businessId) => (typeof businessId === 'string' && Object.hasOwn(grants, businessId) ? grants[businessId] : null)
   const scope = {
-    actorId: claims.sub,
-    tenantId: claims.tenantId,
-    delegationId: claims.jti,
+    actorId,
+    tenantId,
+    delegationId,
     visible: (businessId) => Boolean(grant(businessId)),
     sees: (businessId, domain) => { const g = grant(businessId); return Boolean(g && g.domains.includes(domain)) },
     owns: (businessId) => Boolean(grant(businessId)?.owner),
