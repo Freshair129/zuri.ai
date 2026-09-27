@@ -7,6 +7,7 @@ import { selectRegisteredQuery } from '@/modules/agent/grounded-business-answer'
 import { parseLineProjectWorkCommand, searchLineProjectWork, proposeLineWork, confirmLineWork } from '@/modules/agent/line-project-work-tools'
 import { lineCatalogCommandReply, lineCatalogViewer } from '@/modules/agent/line-catalog-command'
 import { parseLineCatalogCommand } from '@/modules/inventory'
+import { appendTraceEvent, sha256 } from '@/modules/agent/execution-trace'
 import { serverLinePorts } from './server-line-runtime'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
@@ -265,23 +266,64 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     return result
   })
 
-  // @req FR-210 — whether this turn is a `#sku` command its sender may run: the
-  // same parse and the same authorization the Server worker's answer port uses.
-  // Read-only; anyone else's `#sku` message stays an ordinary question.
+  // @req FR-210 — the `#sku` decision is made once per job and stored by Core.
+  // Only a message that parses as `#sku` has one. The first `prepare` authorizes
+  // the sender exactly as the Server worker's answer port does, runs the command
+  // when they may, and records the outcome as an immutable trace row under a
+  // Core-only key (the runtime's own trace keys are all `<job>:runtime:…`):
+  // `{ decision: 'COMMAND', replyText }` or `{ decision: 'ORDINARY' }`. A reclaim
+  // or a duplicate `prepare` replays the stored decision and never runs the
+  // command again; `credential`, `work-tool` and `complete` read the same row, so
+  // they can never disagree with what `prepare` handed out.
+  const catalogKey = job => `${job.id}:catalog-command`
   const catalogAuthorize = job => catalogViewer(job, { db })
-  const isCatalogCommandTurn = async job => Boolean(parseLineCatalogCommand(job.inbound?.body))
-    && Boolean(await catalogAuthorize(job))
-  // Runs the command once per prepare, as the Server worker runs it once per
-  // execution: a preview is keyed by the LINE event (a replay returns the same
-  // intake), and confirming a committed intake answers "saved" again.
-  async function catalogCommandTurn(job) {
+  const isCatalogMessage = job => Boolean(parseLineCatalogCommand(job.inbound?.body))
+  async function storedCatalogDecision(job) {
+    const row = await db.agentTraceEvent.findUnique({ where: { tenantId_businessId_idempotencyKey: {
+      tenantId: job.tenantId, businessId: job.businessId, idempotencyKey: catalogKey(job) } } })
+    if (!row || row.turnId !== job.id || row.kind !== 'TOOL_RESULT') return null
+    const payload = JSON.parse(row.payloadJson)
+    if (payload?.tool !== 'LINE_CATALOG_COMMAND' || !['COMMAND', 'ORDINARY'].includes(payload.decision)
+      || (payload.decision === 'COMMAND' && (!present(payload.replyText, 5000) || payload.replySha256 !== sha256(payload.replyText)))) {
+      throw error('CATALOG_COMMAND_DECISION_INVALID', 500)
+    }
+    return payload
+  }
+  async function decideCatalogCommand(job) {
+    const stored = await storedCatalogDecision(job)
+    if (stored) return stored
     const reply = await catalogCommand(job, { db, now, authorize: catalogAuthorize })
-    if (!reply) return null
+    const decision = reply ? { tool: 'LINE_CATALOG_COMMAND', decision: 'COMMAND', replyText: reply.text, replySha256: sha256(reply.text) }
+      : { tool: 'LINE_CATALOG_COMMAND', decision: 'ORDINARY' }
+    try {
+      await appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: job.id,
+        executionId: job.executionId ?? null, kind: 'TOOL_RESULT', idempotencyKey: catalogKey(job), payload: decision, occurredAt: now() })
+    } catch (cause) {
+      // A concurrent prepare of the same job recorded first: its decision stands,
+      // and this one's reply is discarded. The command's own writes are safe to
+      // race (a preview is keyed by the LINE event; a commit is a version CAS).
+      const winner = await storedCatalogDecision(job)
+      if (!winner) throw cause
+      return winner
+    }
+    return decision
+  }
+  /** The stored decision for a `#sku` message; refuses a later operation that arrives before `prepare` made one. */
+  async function requiredCatalogDecision(job) {
+    if (!isCatalogMessage(job)) return null
+    const stored = await storedCatalogDecision(job)
+    if (!stored) throw error('CATALOG_COMMAND_NOT_PREPARED', 409)
+    return stored
+  }
+  async function catalogCommandTurn(job) {
+    if (!isCatalogMessage(job)) return null
+    const decision = await decideCatalogCommand(job)
+    if (decision.decision !== 'COMMAND') return null
     // The question is informational only; admission accepts 10,000 characters and the
     // turn contract 8,000, so a long `#sku` batch still gets its reply.
     return { question: job.inbound.body.slice(0, 8000), evidence: { records: [] }, slices: [], authorized: true,
       audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null,
-      turnKind: 'CATALOG_COMMAND', replyText: reply.text }
+      turnKind: 'CATALOG_COMMAND', replyText: decision.replyText }
   }
 
   async function ownedClaim(ref, { status = 'CLAIMED', checkLease = true } = {}) {
@@ -313,7 +355,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   async function workOperation(ref, request) {
     const { job } = await ownedClaim(ref)
     // @req FR-210 — a `#sku` turn is answered by the catalogue command alone.
-    if (await isCatalogCommandTurn(job)) throw error('CATALOG_COMMAND_TURN_HAS_NO_WORK', 409)
+    if ((await requiredCatalogDecision(job))?.decision === 'COMMAND') throw error('CATALOG_COMMAND_TURN_HAS_NO_WORK', 409)
     const expectedClaim = { ...ref, executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME' }
     const input = request.input
     if (request.operation === 'read') {
@@ -378,12 +420,17 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       case 'credential': {
         const { job } = await ownedClaim(claimRef)
         // @req FR-210 — no model runs for a `#sku` turn; Core does not hand one out.
-        if (await isCatalogCommandTurn(job)) throw error('CATALOG_COMMAND_TURN_HAS_NO_MODEL', 409)
+        if ((await requiredCatalogDecision(job))?.decision === 'COMMAND') throw error('CATALOG_COMMAND_TURN_HAS_NO_MODEL', 409)
         return resolveCredential(job)
       }
       case 'work-tool': return workOperation(claimRef, payload)
       case 'complete': {
-        await ownedClaim(claimRef)
+        const { job } = await ownedClaim(claimRef)
+        // @req FR-210 — Core, not the runtime, owns a `#sku` reply: READY is committed
+        // only for the stored reply, bounded as the runtime (and the Server worker)
+        // bound an answer, so a runtime cannot report an import that did not happen.
+        const catalog = await requiredCatalogDecision(job)
+        if (catalog?.decision === 'COMMAND' && payload.text !== catalog.replyText.trim()) throw error('CATALOG_COMMAND_REPLY_MISMATCH', 409)
         return complete(claimRef, payload, { db, now })
       }
       case 'fail': {

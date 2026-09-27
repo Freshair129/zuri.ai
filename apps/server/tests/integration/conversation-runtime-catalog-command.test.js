@@ -130,6 +130,25 @@ async function expectCommandParity(text, options) {
   return result
 }
 
+let commandRuns = 0
+function guardCore() {
+  return createConversationRuntimeCore({ db: prisma, env: { CONVERSATION_RUNTIME_TOKEN: serviceToken },
+    catalogCommand: (job, deps) => { commandRuns += 1; return lineCatalogCommandReply(job, deps) },
+    prepareTurn: async job => ({ question: job.inbound.body, evidence: { records: [{ product: 'synthetic-product' }] },
+      slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }),
+    credentialResolver: async () => ({ provider: 'prp', model: 'controlled-model', apiKey: 'synthetic-provider-key' }) })
+}
+async function claimFor(core, jobId, claimantId) {
+  const claimed = await core.operate({ operation: 'claim', payload: { claimantId } })
+  expect(claimed.jobId).toBe(jobId)
+  return { jobId: claimed.jobId, executionId: claimed.executionId, claimantId: claimed.claimantId, version: claimed.version,
+    tenantId: claimed.tenantId, businessId: claimed.businessId, accountId: claimed.accountId }
+}
+async function commits(code) {
+  const intake = await prisma.inventoryCatalogIntake.findFirst({ where: { businessId: business.id, code } })
+  return prisma.auditEvent.count({ where: { entityType: 'INVENTORY_CATALOG_INTAKE', entityId: intake.id, action: 'INVENTORY_CATALOG_INTAKE_COMMITTED' } })
+}
+
 const intakeCode = text => text.match(/CIT-[0-9A-F]{8}/)[0]
 
 async function person(code, role, lineUserId) {
@@ -234,20 +253,93 @@ describe('FR-210 #sku in the Conversation Runtime cohort — byte parity with th
     expect(await prisma.inventoryCatalogIntake.count({ where: { businessId: business.id } })).toBe(before)
   })
 
-  it('Core hands out no model credential and no Work tool for a command turn', async () => {
+  it('Core pins a command turn: no credential or Work tool, and READY only for the stored reply', async () => {
     const job = await admit('#sku')
-    const core = createConversationRuntimeCore({ db: prisma, env: { CONVERSATION_RUNTIME_TOKEN: serviceToken },
-      credentialResolver: async () => ({ provider: 'prp', model: 'controlled-model', apiKey: 'synthetic-provider-key' }) })
-    const claimed = await core.operate({ operation: 'claim', payload: { claimantId: 'runtime-catalog-guard' } })
-    expect(claimed.jobId).toBe(job.id)
-    const claim = { jobId: claimed.jobId, executionId: claimed.executionId, claimantId: claimed.claimantId, version: claimed.version,
-      tenantId: claimed.tenantId, businessId: claimed.businessId, accountId: claimed.accountId }
-    await expect(core.operate({ operation: 'credential', payload: { claim } })).rejects.toMatchObject({ code: 'CATALOG_COMMAND_TURN_HAS_NO_MODEL', status: 409 })
-    await expect(core.operate({ operation: 'work-tool', payload: { claim, operation: 'read', operationId: `${job.id}:work-read`, input: {} } }))
-      .rejects.toMatchObject({ code: 'CATALOG_COMMAND_TURN_HAS_NO_WORK', status: 409 })
+    const core = guardCore()
+    const claim = await claimFor(core, job.id, 'runtime-catalog-guard')
+    // Nothing is handed out for a `#sku` message before prepare has decided it.
+    await expect(core.operate({ operation: 'credential', payload: { claim } })).rejects.toMatchObject({ code: 'CATALOG_COMMAND_NOT_PREPARED', status: 409 })
+    await expect(core.operate({ operation: 'complete', payload: { claim, text: 'anything', operationId: `${job.id}:turn-answer` } }))
+      .rejects.toMatchObject({ code: 'CATALOG_COMMAND_NOT_PREPARED', status: 409 })
     const prepared = await core.operate({ operation: 'prepare', payload: { claim, authorityVersion: claim.version } })
     expect(prepared).toMatchObject({ turnKind: 'CATALOG_COMMAND', workCommand: null, evidence: { records: [] }, slices: [] })
     expect(prepared.replyText).toContain('คำสั่งนำเข้าสินค้า (#sku)')
+    await expect(core.operate({ operation: 'credential', payload: { claim } })).rejects.toMatchObject({ code: 'CATALOG_COMMAND_TURN_HAS_NO_MODEL', status: 409 })
+    await expect(core.operate({ operation: 'work-tool', payload: { claim, operation: 'read', operationId: `${job.id}:work-read`, input: {} } }))
+      .rejects.toMatchObject({ code: 'CATALOG_COMMAND_TURN_HAS_NO_WORK', status: 409 })
+    // A runtime cannot report a different outcome than the one Core produced.
+    for (const text of ['บันทึกแล้ว CIT-00000000', `${prepared.replyText.trim()}.`, MODEL_ANSWER]) {
+      await expect(core.operate({ operation: 'complete', payload: { claim, text, operationId: `${job.id}:turn-answer` } }))
+        .rejects.toMatchObject({ code: 'CATALOG_COMMAND_REPLY_MISMATCH', status: 409 })
+    }
+    expect(await core.operate({ operation: 'complete', payload: { claim, text: prepared.replyText.trim(), operationId: `${job.id}:turn-answer` } }))
+      .toMatchObject({ status: 'READY' })
+    expect((await prisma.lineConversationJob.findUnique({ where: { id: job.id } })).answerText).toBe(prepared.replyText.trim())
+  })
+
+  it('an ordinary #sku decision is stored too: the model path stays open for a sender without authority', async () => {
+    const job = await admit('#sku', { user: member })
+    const core = guardCore()
+    const claim = await claimFor(core, job.id, 'runtime-catalog-ordinary')
+    const prepared = await core.operate({ operation: 'prepare', payload: { claim, authorityVersion: claim.version } })
+    expect(prepared.turnKind).toBeUndefined()
+    expect(await core.operate({ operation: 'credential', payload: { claim } })).toMatchObject({ provider: 'prp' })
+    expect(await core.operate({ operation: 'complete', payload: { claim, text: MODEL_ANSWER, operationId: `${job.id}:turn-answer` } }))
+      .toMatchObject({ status: 'READY' })
+  })
+
+  it('a reclaimed confirm replays the stored reply and never imports twice', async () => {
+    const code = intakeCode((await expectCommandParity(['#sku', 'รหัส: CRSKU-CUP-GRN', 'ชื่อ: แก้วเขียว', 'สินค้าหลัก: CRSKU-CUPS'].join('\n'))).legacy)
+    const job = await admit(`#sku ยืนยัน ${code}`)
+    const core = guardCore()
+    const first = await claimFor(core, job.id, 'runtime-catalog-first')
+    const firstTurn = await core.operate({ operation: 'prepare', payload: { claim: first, authorityVersion: first.version } })
+    expect(firstTurn.replyText).toContain(`บันทึกแล้ว ${code}`)
+    expect(await prisma.product.count({ where: { businessId: business.id, code: 'CRSKU-CUP-GRN' } })).toBe(1)
+
+    // The first runtime dies before completing: its lease lapses and another claims the job.
+    await prisma.lineConversationJob.update({ where: { id: job.id }, data: { leaseExpiresAt: new Date(Date.now() - 1000) } })
+    const second = await claimFor(core, job.id, 'runtime-catalog-second')
+    expect(second.executionId).not.toBe(first.executionId)
+    const commitsBefore = await commits(code)
+    commandRuns = 0
+    const secondTurn = await core.operate({ operation: 'prepare', payload: { claim: second, authorityVersion: second.version } })
+    expect(secondTurn).toEqual(firstTurn)
+    expect(commandRuns).toBe(0)
+    expect(await commits(code)).toBe(commitsBefore)
+    expect(await prisma.product.count({ where: { businessId: business.id, code: 'CRSKU-CUP-GRN' } })).toBe(1)
+    // The stale execution can no longer complete; the new one completes with the same reply.
+    await expect(core.operate({ operation: 'complete', payload: { claim: first, text: firstTurn.replyText.trim(), operationId: `${job.id}:turn-answer` } }))
+      .rejects.toMatchObject({ status: 409 })
+    expect(await core.operate({ operation: 'complete', payload: { claim: second, text: firstTurn.replyText.trim(), operationId: `${job.id}:turn-answer` } }))
+      .toMatchObject({ status: 'READY' })
+  })
+
+  it('a reclaimed cancel replays its reply rather than answering "already cancelled"', async () => {
+    const code = intakeCode((await expectCommandParity(['#sku', 'รหัส: CRSKU-CUP-PNK', 'สินค้าหลัก: CRSKU-CUPS'].join('\n'))).legacy)
+    const job = await admit(`#sku ยกเลิก ${code}`)
+    const core = guardCore()
+    const first = await claimFor(core, job.id, 'runtime-catalog-cancel-1')
+    const firstTurn = await core.operate({ operation: 'prepare', payload: { claim: first, authorityVersion: first.version } })
+    expect(firstTurn.replyText).toBe(`ยกเลิก ${code} แล้ว — ไม่มีอะไรถูกบันทึก`)
+    await prisma.lineConversationJob.update({ where: { id: job.id }, data: { leaseExpiresAt: new Date(Date.now() - 1000) } })
+    const second = await claimFor(core, job.id, 'runtime-catalog-cancel-2')
+    commandRuns = 0
+    expect(await core.operate({ operation: 'prepare', payload: { claim: second, authorityVersion: second.version } })).toEqual(firstTurn)
+    expect(commandRuns).toBe(0)
+  })
+
+  it('two concurrent prepares of one confirm leave exactly one product and hand out one reply', async () => {
+    const code = intakeCode((await expectCommandParity(['#sku', 'รหัส: CRSKU-CUP-YLW', 'ชื่อ: แก้วเหลือง', 'สินค้าหลัก: CRSKU-CUPS'].join('\n'))).legacy)
+    const job = await admit(`#sku ยืนยัน ${code}`)
+    const core = guardCore()
+    const claim = await claimFor(core, job.id, 'runtime-catalog-race')
+    const turns = await Promise.all([0, 1].map(() => core.operate({ operation: 'prepare', payload: { claim, authorityVersion: claim.version } })))
+    expect(turns[1]).toEqual(turns[0])
+    expect(turns[0].replyText).toContain(`บันทึกแล้ว ${code}`)
+    expect(await prisma.product.count({ where: { businessId: business.id, code: 'CRSKU-CUP-YLW' } })).toBe(1)
+    expect(await commits(code)).toBe(1)
+    expect(await prisma.agentTraceEvent.count({ where: { turnId: job.id, idempotencyKey: `${job.id}:catalog-command` } })).toBe(1)
   })
 
   it('the same message in a group is an ordinary question, never the command', async () => {
