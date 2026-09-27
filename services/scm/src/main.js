@@ -19,7 +19,7 @@ function log(level, message, fields = {}) {
   process.stdout.write(`${JSON.stringify({ level, message, service: 'scm', ...fields })}\n`)
 }
 
-export async function start(env = process.env) {
+export async function start(env = process.env, { onSignal = null } = {}) {
   const config = loadConfig(env)
   // Inbound auth (SCM_AUTH_MODE). core: the BFF's static bearer + the user's
   // subject, resolved into scope by core (scm-core.v1); Branch/Customer/Conversation
@@ -43,8 +43,6 @@ export async function start(env = process.env) {
   const bus = createCommandBus({ store, references })
   const http = createScmHttpServer({ config, store, bus, authenticate, log })
   const address = await http.listen()
-  // Mode names only: never a token, key, URL credential or subject.
-  log('info', 'listening', { port: address.port, store: store.kind, env: config.env, auth: config.authMode, references: references.kind })
 
   let stopping
   const stop = (signal) => {
@@ -56,12 +54,18 @@ export async function start(env = process.env) {
     })()
     return stopping
   }
+  // Signal handlers go in BEFORE the process says it is listening. A supervisor
+  // (or a test) may send SIGTERM the moment it reads that line; with no handler
+  // yet, the default disposition killed the process without draining.
+  if (onSignal) for (const signal of ['SIGTERM', 'SIGINT']) process.once(signal, () => onSignal(signal, stop))
+  // Mode names only: never a token, key, URL credential or subject.
+  log('info', 'listening', { port: address.port, store: store.kind, env: config.env, auth: config.authMode, references: references.kind })
   return { config, address, stop }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  start().then((running) => {
-    for (const signal of ['SIGTERM', 'SIGINT']) process.once(signal, () => running.stop(signal).then(() => process.exit(0), () => process.exit(1)))
+  start(process.env, {
+    onSignal: (signal, stop) => stop(signal).then(() => process.exit(0), () => process.exit(1)),
   }).catch((error) => {
     log('error', 'failed to start', { code: error.code ?? 'SCM_START_FAILED', error: error.message })
     process.exit(1)
