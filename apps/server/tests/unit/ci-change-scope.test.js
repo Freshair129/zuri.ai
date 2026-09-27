@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import {
   FAN_OUT_LIMIT, FULL_SUITE_TRIGGERS, ISOLATED_SERVICES, POSTGRES_TEST, contractTestsFor, isolatedServices,
@@ -84,6 +84,15 @@ describe('CI service scope classification', () => {
     expect(lines.find((line) => line.startsWith('contracts='))).toContain('conversation-runtime-model-conformance.test.js')
   })
 })
+
+const ALWAYS_SCANNERS = [
+  'tests/unit/domain-visibility-server-enforcement.test.js',
+  'tests/unit/api-path-reachability.test.js',
+  'tests/unit/route-reachability.test.js',
+  'tests/unit/edge-surface-retirement.test.js',
+  'tests/integration/openapi-docs.test.js',
+  'tests/unit/table-integrity.test.js',
+]
 
 describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
   // Built at runtime so the doc graph does not read them as real requirement ids.
@@ -183,6 +192,9 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
       'apps/edge/src/index.ts',
       'apps/server/Dockerfile',
       'apps/server/docker-compose.yml',
+      'apps/server/tests/unit/local-helper.js',
+      'apps/server/tests/integration/fixture.json',
+      'apps/server/src/modules/crm/a file.js',
     ]) expect(relatedEligibility(src + trigger).eligible, trigger).toBe(false)
     expect(relatedEligibility('').eligible).toBe(false)
     expect(relatedEligibility('docs/a.md').eligible).toBe(false)
@@ -210,6 +222,10 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
     expect(related).toContain(POSTGRES_TEST)
     // names a requirement id the module declares with @req, without importing it
     expect(related).toContain('tests/unit/embedded-postgres-cleanup.test.js')
+    // tree scanners and computed dynamic imports ride along on every related run
+    for (const scanner of ALWAYS_SCANNERS) expect(related, scanner).toContain(scanner)
+    expect(related).toContain('tests/unit/asset-depreciation.test.js')
+    expect(related).toContain('tests/unit/knowledge-catalog-storage-contract.test.js')
     expect(related.length).toBeLessThanOrEqual(all * FAN_OUT_LIMIT)
   }, 180000)
 
@@ -249,9 +265,67 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
     expect(workflow).toMatch(/\n  conversation-runtime:\n    if: github\.event_name != 'schedule'\n/)
   }, 360000)
 
+  it('falls back to the full suite for a renamed source (the --no-renames diff lists the old path as deleted)', () => {
+    const renamed = 'apps/server/src/modules/agent/line-project-work-tools-renamed-away.js\napps/server/src/modules/agent/line-project-work-tools.js'
+    const exists = (file) => file !== 'apps/server/src/modules/agent/line-project-work-tools-renamed-away.js'
+    const verdict = relatedEligibility(renamed, exists)
+    expect(verdict.eligible).toBe(false)
+    expect(verdict.reason).toMatch(/deleted or renamed source: .*renamed-away\.js/)
+    // Through the real CLI and the real tree: the old path does not exist.
+    const run = spawnSync(process.execPath, [path.join(root, 'scripts/ci-change-scope.mjs'), '--related'], { input: `${renamed}\n`, encoding: 'utf8' })
+    expect(run.status, run.stderr).toBe(0)
+    expect(run.stdout).toContain('test_mode=full')
+    expect(run.stdout).toContain('deleted or renamed source')
+  })
+
+  it('adds the always-set (tree scanners, computed dynamic imports) to every related selection', () => {
+    const always = ['tests/unit/t090.test.js', 'tests/unit/t091.test.js']
+    const result = selectRelated({ ...base, always })
+    expect(result.mode).toBe('related')
+    for (const file of always) expect(result.related).toContain(file)
+    expect(result.reason).toContain('always=2')
+    // the always-set alone never makes a selection: nothing related → full
+    expect(selectRelated({ ...base, graph: [], testSources: {}, sourceTexts: {}, always }).mode).toBe('full')
+  })
+
+  it('detects a NEW directory-scanning test automatically, with no list to maintain', () => {
+    const serverRoot = path.join(root, 'apps', 'server')
+    const probe = `tests/unit/zz-ci-scope-probe-${process.pid}.test.js`
+    const out = path.join(serverRoot, 'node_modules', '.cache', `ci-scope-probe-${process.pid}.json`)
+    writeFileSync(path.join(serverRoot, probe), "import { readdirSync } from 'node:fs'\nimport { it } from 'vitest'\nit('walks', () => { readdirSync('src') })\n")
+    try {
+      const run = spawnSync(process.execPath, [path.join(serverRoot, 'scripts/vitest-related.mjs'), '--out', out, path.join(serverRoot, 'src/lib/viewer-failure.js')], {
+        cwd: serverRoot, encoding: 'utf8', timeout: 170000,
+      })
+      expect(run.status, run.stderr).toBe(0)
+      const result = JSON.parse(readFileSync(out, 'utf8'))
+      expect(result.scanners).toContain(probe)
+      for (const scanner of ALWAYS_SCANNERS) expect(result.scanners, scanner).toContain(scanner)
+      expect(result.dynamic).toContain('tests/unit/asset-depreciation.test.js')
+      expect(result.dynamic).toContain('tests/unit/knowledge-catalog-storage-contract.test.js')
+      expect(result.scanners).not.toContain('tests/unit/viewer-failure.test.js')
+    } finally {
+      rmSync(path.join(serverRoot, probe), { force: true })
+      rmSync(out, { force: true })
+    }
+  }, 180000)
+
   it('pins the workflow: PR-only related mode, ci:full escape hatch, main stays full, verify checks the mode', () => {
-    expect(workflow).toContain('types: [opened, synchronize, reopened, labeled]')
-    expect(workflow).toContain("if: github.event_name == 'pull_request' && steps.filter.outputs.server == 'true' && !contains(github.event.pull_request.labels.*.name, 'ci:full')")
+    // no `labeled` trigger (a skipped verify would mask a red one); labels are read live
+    expect(workflow).toMatch(/\non:\n(?: {2}#[^\n]*\n)* {2}pull_request:\n {2}push:/)
+    expect(workflow).not.toMatch(/types: \[[^\]]*labeled/)
+    expect(workflow).toContain("if: github.event_name == 'pull_request' && steps.filter.outputs.server == 'true'\n")
+    expect(workflow).toContain('gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/labels"')
+    expect(workflow).toContain("grep -qx 'ci:full'")
+    // one live run per PR; main, schedule and dispatch are never cancelled
+    expect(workflow).toContain("group: governance-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}")
+    expect(workflow).toContain("cancel-in-progress: ${{ github.event_name == 'pull_request' }}")
+    // renames arrive as delete + add
+    expect(workflow).toContain('changed=$(git diff --name-only --no-renames "$base" "$head" 2>&1)')
+    // the list is split into a quoted array, never an unquoted expansion
+    expect(workflow).toContain(`IFS=' ' read -r -a tests <<< "$RELATED_TESTS"`)
+    expect(workflow).toContain(String.raw`printf '%s\n' "${'$'}{tests[@]}" > "$list"`)
+    expect(workflow).not.toContain(String.raw`printf '%s\n' $RELATED_TESTS`)
     expect(workflow).toContain('node scripts/ci-change-scope.mjs --related-eligible')
     expect(workflow).toContain('node scripts/ci-change-scope.mjs --related <')
     expect(workflow).toContain('echo "test_mode=full" >> "$GITHUB_OUTPUT"; exit 0')

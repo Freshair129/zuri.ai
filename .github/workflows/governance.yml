@@ -8,11 +8,14 @@ name: governance
 # See .brain/rca/2026-08-17-governance-did-not-govern.md
 
 on:
+  # No `labeled` trigger (#609 review, finding 5). Adding any label would start
+  # a whole run; an early-exiting run for other labels would post a SKIPPED
+  # `verify` for the same commit, which branch protection reads as passing and
+  # which would mask a red `verify` from the real run. Instead `changes` reads
+  # the pull request's labels LIVE from the API, so `ci:full` takes effect on
+  # the next push or on "Re-run all jobs" (a re-run replays the old payload,
+  # which is why the payload's label list is not used).
   pull_request:
-    # `labeled` so that adding the `ci:full` label (see `changes`) re-runs the
-    # checks with the full suite; re-running an old run replays its payload,
-    # which does not carry the new label.
-    types: [opened, synchronize, reopened, labeled]
   push:
     branches: [main]
   # 02:00 Asia/Bangkok. A full e2e run on `main`, on a clock rather than on a
@@ -36,6 +39,13 @@ on:
   schedule:
     - cron: '0 19 * * *'
   workflow_dispatch:
+
+# One live run per pull request: a new push cancels the superseded run. Only
+# pull requests share a group; `main` pushes, the schedule and dispatches each
+# get their own group (the run id) and are never cancelled.
+concurrency:
+  group: governance-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # Which parts of the tree changed. The e2e suite takes 7-8 minutes and cannot
@@ -76,6 +86,10 @@ jobs:
   # mode, and the `ci:full` pull request label forces the full suite.
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
     outputs:
       code: ${{ steps.filter.outputs.code }}
       server: ${{ steps.filter.outputs.server }}
@@ -127,7 +141,11 @@ jobs:
               echo "code=true" >> "$GITHUB_OUTPUT"; echo "server=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
           esac
 
-          if ! changed=$(git diff --name-only "$base" "$head" 2>&1); then
+          # --no-renames (#609 review, finding 1): a rename is listed as its old
+          # path (deleted) and its new path, never the new path alone. A test
+          # still importing the old path is then seen: the deleted source makes
+          # related mode fall back to the full suite.
+          if ! changed=$(git diff --name-only --no-renames "$base" "$head" 2>&1); then
             echo "could not diff $base..$head — running the full suite"
             echo "$changed"
             echo "code=true" >> "$GITHUB_OUTPUT"; echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
@@ -162,11 +180,24 @@ jobs:
 
       # Related mode, pull requests only. The cheap path check runs first, so a
       # diff that must run the full suite never pays for the install below.
+      # Labels are read live (see `on:`); an unreadable label list fails safe to
+      # the full suite, as if `ci:full` were set.
       - id: eligible
-        if: github.event_name == 'pull_request' && steps.filter.outputs.server == 'true' && !contains(github.event.pull_request.labels.*.name, 'ci:full')
+        if: github.event_name == 'pull_request' && steps.filter.outputs.server == 'true'
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -uo pipefail
+          if ! labels=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/labels" --jq '.[].name'); then
+            echo "could not read the pull request's labels — full server suite"
+            echo "candidate=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if printf '%s\n' "$labels" | grep -qx 'ci:full'; then
+            echo "ci:full label — full server suite"
+            echo "candidate=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
           if ! verdict=$(node scripts/ci-change-scope.mjs --related-eligible < "$RUNNER_TEMP/changed.txt"); then
             echo "eligibility check failed — full server suite"
             echo "candidate=false" >> "$GITHUB_OUTPUT"; exit 0
@@ -476,7 +507,13 @@ jobs:
           set -euo pipefail
           echo "related mode: $TEST_REASON"
           list="$RUNNER_TEMP/related-tests.txt"
-          printf '%s\n' $RELATED_TESTS > "$list"
+          # Split on spaces into an array (no unquoted expansion, so no globbing);
+          # a path with whitespace never reaches here (ci-change-scope.mjs
+          # falls back to the full suite), and vitest.related.config.js rejects
+          # anything that is not tests/(unit|integration)/*.test.js.
+          IFS=' ' read -r -a tests <<< "$RELATED_TESTS"
+          [ "${#tests[@]}" -gt 0 ] || { echo "::error::empty related list"; exit 1; }
+          printf '%s\n' "${tests[@]}" > "$list"
           test -s "$list"
           ZURI_RELATED_TESTS_FILE="$list" npm test -- --config vitest.related.config.js --shard=${{ matrix.shard }}/${{ needs.changes.outputs.test_shard_total }}
 

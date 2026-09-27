@@ -83,11 +83,18 @@ export function scopeOutputs(text, serverRoot) {
 //      changed source file declares with `@req`, plus the tests its `@tested`
 //      names — the same edges the doc graph draws (scripts/doc-graph.mjs);
 //   c. the changed test files themselves, and tests that name a changed file's
-//      path (string-pinning tests read source instead of importing it).
+//      path (string-pinning tests read source instead of importing it);
+//   d. ALWAYS, the tests no import graph can relate (#609 review): every test
+//      that lists a directory itself or through a non-application helper
+//      (readdir/glob/opendir — route and API reachability, visibility
+//      enforcement, table integrity: a NEW file changes their verdict), and
+//      every test loading code via a computed `import(pathToFileURL(…))`.
+//      Detected automatically by vitest-related.mjs, never a hand-kept list.
 //
 // It FAILS SAFE to the full suite, in the same spirit as isolatedServices():
 // related mode is an allowlist of paths it can reason about, and anything
-// outside it, anything in FULL_SUITE_TRIGGERS, a deleted source file, an empty
+// outside it, anything in FULL_SUITE_TRIGGERS, a deleted source file (a rename
+// arrives as delete + add: governance.yml diffs with --no-renames), an empty
 // selection, a selection above FAN_OUT_LIMIT of the suite, or a graph
 // computation that fails or times out, is `test_mode=full`. Pushes to `main`,
 // the schedule and workflow_dispatch never reach this code (governance.yml),
@@ -137,6 +144,9 @@ export const FULL_SUITE_TRIGGERS = Object.freeze([
   { pattern: /^apps\/server\/vitest[^/]*\.config\.[cm]?js$/, reason: 'vitest config' },
   { pattern: /^apps\/server\/tests\/(setup|global-setup[^/]*)\.js$/, reason: 'vitest setup / global setup' },
   { pattern: /^apps\/server\/tests\/(helpers|fixtures)\//, reason: 'shared test helpers or fixtures' },
+  // A non-test file beside the tests (a local helper, a JSON fixture) is read
+  // by an unknown set of tests, some without importing it.
+  { pattern: /^apps\/server\/tests\/(unit|integration)\/(?!.*\.test\.js$)/, reason: 'non-test file under tests/unit or tests/integration' },
   { pattern: /^apps\/server\/src\/lib\//, reason: 'widely shared module (src/lib)' },
   { pattern: /^apps\/server\/src\/(middleware|instrumentation)\.[cm]?[jt]sx?$/, reason: 'widely shared module (middleware/instrumentation)' },
   { pattern: /(^|\/)\.env[^/]*$|^apps\/server\/(config|contracts)\/|^apps\/server\/[^/]+\.(js|json|mjs|cjs)$/, reason: 'env, config or contract files' },
@@ -149,7 +159,6 @@ export const FULL_SUITE_TRIGGERS = Object.freeze([
 // contract tests that import the service's code.
 const RELATED_SOURCE = new RegExp(`^(apps/server/(src|runtime|tests/factories)/|services/(${ISOLATED_SERVICES.map((name) => name.replace(/[-]/g, '\\-')).join('|')})/)`)
 const RELATED_TEST = /^apps\/server\/tests\/(unit|integration)\/.+\.test\.js$/
-const RELATED_TEST_SUPPORT = /^apps\/server\/tests\/(unit|integration)\//
 const INERT = /^(docs\/|\.brain\/|AGENTS\.md$|CLAUDE\.md$|README\.md$|apps\/server\/tests\/e2e\/)/
 const DOCUMENT = /^(docs\/|\.brain\/|AGENTS\.md$|CLAUDE\.md$|README\.md$)/
 const ANNOTATION = /@(req|tested)\s+([^\n]*)/g
@@ -168,7 +177,8 @@ export function relatedEligibility(text, exists = () => true) {
     const trigger = FULL_SUITE_TRIGGERS.find(({ pattern }) => pattern.test(file))
     if (trigger) return { eligible: false, reason: `${trigger.reason}: ${file}` }
     if (INERT.test(file)) continue
-    if (RELATED_TEST.test(file) || RELATED_TEST_SUPPORT.test(file)) { sawServer = true; continue }
+    if (/\s/.test(file)) return { eligible: false, reason: `path with whitespace: ${file}` }
+    if (RELATED_TEST.test(file)) { sawServer = true; continue }
     if (RELATED_SOURCE.test(file)) {
       if (!exists(file)) return { eligible: false, reason: `deleted or renamed source: ${file}` }
       sawServer = true
@@ -190,14 +200,16 @@ const idPattern = (id) => new RegExp(`(^|[^0-9A-Za-z])${id}(?![0-9])`)
  *   all          — every test file of the suite (apps/server-relative)
  *   testSources  — apps/server-relative test path → source text
  *   sourceTexts  — repo-relative changed source path → its current text
+ *   always       — tests no import graph can relate (vitest-related.mjs: directory
+ *                  scanners and computed dynamic imports), added to every run
  */
-export function selectRelated({ changed, graph, all, testSources, sourceTexts }) {
+export function selectRelated({ changed, graph, all, testSources, sourceTexts, always = [] }) {
   const full = (reason) => ({ mode: 'full', reason, related: [], postgres: false })
   if (!Array.isArray(graph)) return full('related computation failed')
   if (!all.length) return full('no test files found')
   const suite = new Set(all)
   const selected = new Set(graph.filter((file) => suite.has(file)))
-  const reasons = { graph: selected.size, req: 0, tested: 0, changedTests: 0, named: 0 }
+  const reasons = { graph: selected.size, req: 0, tested: 0, changedTests: 0, named: 0, always: 0 }
   const add = (file, kind) => {
     if (!suite.has(file) || selected.has(file)) return
     selected.add(file)
@@ -229,8 +241,11 @@ export function selectRelated({ changed, graph, all, testSources, sourceTexts })
     if (hit) add(hit, 'tested')
   }
 
+  if (selected.size === 0) return full('no related tests found')
+  for (const file of always) add(file, 'always')
+
   const related = [...selected].sort()
-  if (related.length === 0) return full('no related tests found')
+  if (related.some((file) => /\s/.test(file))) return full('a test path contains whitespace')
   if (related.length > all.length * FAN_OUT_LIMIT) {
     return full(`fan-out ${related.length}/${all.length} tests exceeds ${Math.round(FAN_OUT_LIMIT * 100)}%`)
   }
@@ -261,8 +276,9 @@ export function vitestRelated(repoRoot, changed, { timeout = RELATED_TIMEOUT_MS 
       return null
     }
     const result = JSON.parse(readFileSync(out, 'utf8'))
-    if (!Array.isArray(result.all) || !Array.isArray(result.related)) return null
-    return sources.length === 0 ? { all: result.all, related: [] } : result
+    if (!['all', 'related', 'scanners', 'dynamic'].every((key) => Array.isArray(result[key]))) return null
+    const always = [...new Set([...result.scanners, ...result.dynamic])]
+    return { all: result.all, related: sources.length === 0 ? [] : result.related, always }
   } catch (error) {
     process.stderr.write(`vitest-related failed: ${error.message}\n`)
     return null
@@ -284,7 +300,7 @@ export function relatedOutputs(text, repoRoot, { graphRunner = vitestRelated } =
   const testSources = walkTests(path.join(serverRoot, 'tests'), serverRoot)
   const sourceTexts = {}
   for (const file of changed) if (exists(file) && statSync(path.join(repoRoot, file)).isFile()) sourceTexts[file] = readFileSync(path.join(repoRoot, file), 'utf8')
-  const selection = selectRelated({ changed, graph: graph.related, all: graph.all, testSources, sourceTexts })
+  const selection = selectRelated({ changed, graph: graph.related, all: graph.all, testSources, sourceTexts, always: graph.always ?? [] })
   if (selection.mode !== 'related') return full(selection.reason)
   const shards = relatedShardCount(selection.related.length)
   return {
