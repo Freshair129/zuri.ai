@@ -190,7 +190,13 @@ export async function resolveAgentAuthorization({
       !customer.deletedAt &&
       (resolvedScope.businessId ? customer.businessId === null || customer.businessId === resolvedScope.businessId : customer.businessId === null),
   )
-  const identityVerified = principal.channelIdentity
+  // @req FR-149 — Core pins a Conversation Runtime job admitted for an unverified
+  // LINE sender as UNVERIFIED for its whole life (ADR-106 amendment 2026-09-27): the
+  // live identity is then never consulted, so a sender verified mid-turn gains no
+  // private memory or person. Only Core's memory seam sets this; the legacy worker
+  // never does, and nothing from the model or the LINE message reaches serverScope.
+  const identityPinnedUnverified = serverScope.identityState === 'UNVERIFIED'
+  const identityVerified = identityPinnedUnverified ? false : principal.channelIdentity
     ? channelIdentityIsVerified(principal.channelIdentity)
     : Boolean(principal.verifiedAt && principal.linkedAt)
   const knownPrincipal = principal.principalType !== 'UNKNOWN' && (staffScope || customerScope)
@@ -303,7 +309,7 @@ export async function resolveAgentAuthorization({
   })
 
   return {
-    principal,
+    principal: identityPinnedUnverified ? { ...principal, identityVerified: false } : principal,
     authContext,
     authorizationContext,
     authorizedVaults: allowedVaults,

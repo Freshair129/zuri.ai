@@ -240,11 +240,13 @@ describe('Conversation Runtime group and room audiences', () => {
       .toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', audienceKind: audience, recipientId: thread, sourceUserId: unverifiedSpeaker })
     expect(await prisma.agentTraceEvent.count({ where: { turnId: unverifiedJob.id, kind: 'CHANNEL_IDENTITY_ADMITTED' } })).toBe(1)
 
-    // Existing SERVER-only sub-cases apply to groups unchanged.
+    // A verified speaker's memory-sync turn joins the cohort too (W12); the group's
+    // thread memory is proved in conversation-runtime-memory-group-gks.test.js.
     const memory = await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text: 'ซูริ จำได้ไหม' }),
       { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' })
     expect(await prisma.lineConversationJob.findUnique({ where: { id: memory.jobId } }))
-      .toMatchObject({ runtimeOwner: 'SERVER', memorySyncOptIn: true })
+      .toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: true, audienceKind: audience, recipientId: thread })
+    // Existing SERVER-only sub-cases apply to groups unchanged.
     const malformed = await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text: '/work-create ซูริ' }))
     const malformedJob = await jobRow(malformed.jobId)
     expect(malformedJob.runtimeOwner).toBe('SERVER')

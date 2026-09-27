@@ -1,6 +1,7 @@
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { redactTraceTurn } from '@/modules/agent/execution-trace'
 import { appendMemoryDeliveryCheckpoint } from './line-memory-delivery'
+import { recordMemoryThreadErasures } from './line-memory-erasure'
 
 // @req FR-022, FR-149 — principal erasure also removes copied conversation-job content and delivery capabilities.
 // @req FR-171 — trace snapshots are erased atomically with their conversation jobs.
@@ -24,7 +25,7 @@ import { appendMemoryDeliveryCheckpoint } from './line-memory-delivery'
  * matched by both is erased once. Returns the inbound message ids of the jobs it
  * erased, so the caller can redact those messages in the same transaction.
  */
-export async function redactLineConversationJobs(tx, { tenantId, conversationIds = [], speakers = [] }) {
+export async function redactLineConversationJobs(tx, { tenantId, conversationIds = [], speakers = [], erasedPrincipalId = null }) {
   const threads = Array.isArray(conversationIds) ? conversationIds.filter(Boolean) : []
   const subjects = (Array.isArray(speakers) ? speakers : [])
     .filter(speaker => typeof speaker?.channelAccountId === 'string' && speaker.channelAccountId
@@ -46,9 +47,13 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     },
     select: { id: true, accountId: true, status: true, businessId: true, tenantId: true,
       executionId: true, inboundMessageId: true, memorySyncOptIn: true, memoryDeliveryState: true,
+      audienceKind: true, recipientId: true, sourceUserId: true, channelAccountId: true,
     },
     orderBy: [{ accountId: 'asc' }, { id: 'asc' }],
   })
+  // @req FR-022 — before any job is overwritten: the shared MSP threads this person
+  // spoke in with memory sync get a pending, Core-owned principal erasure (W12).
+  const { pendingThreads } = await recordMemoryThreadErasures(tx, { tenantId, principalId: erasedPrincipalId, jobs, speakers: subjects })
   for (const job of jobs) {
     // SENDING may already have reached LINE. Erasure cannot retract that fact;
     // UNKNOWN remains a payload-free tombstone instead of a false safe failure.
@@ -90,5 +95,5 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'CONTENT_ERASED',
       payload: { tenantId, accountId: job.accountId, status, possibleDelivery: status === 'UNKNOWN' } })
   }
-  return { redactedLineJobs: jobs.length, inboundMessageIds: jobs.map(job => job.inboundMessageId) }
+  return { redactedLineJobs: jobs.length, inboundMessageIds: jobs.map(job => job.inboundMessageId), pendingMemoryThreadErasures: pendingThreads }
 }

@@ -286,13 +286,13 @@ describe('Conversation Runtime memory-sync turns', () => {
     const jobId = await admit()
     expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } })).toMatchObject({
       executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: true, status: 'QUEUED' })
-    // A corpus-grounding account keeps memory turns on the Server, which alone
-    // composes GKS evidence and thread memory under one budget (FR-235).
+    // A corpus-grounding account's memory turns join the cohort too (W12): Core
+    // composes GKS evidence and thread memory under one budget in `memory read`.
     await prisma.lineOaAccount.update({ where: { id: account.id }, data: { knowledgeGrounding: 'GKS_CORPUS' } })
     try {
-      const serverJobId = await admit()
-      expect(await prisma.lineConversationJob.findUnique({ where: { id: serverJobId } }))
-        .toMatchObject({ runtimeOwner: 'SERVER', memorySyncOptIn: true })
+      const corpusJobId = await admit()
+      expect(await prisma.lineConversationJob.findUnique({ where: { id: corpusJobId } }))
+        .toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: true })
       const plainJobId = await admit({ memory: false })
       expect(await prisma.lineConversationJob.findUnique({ where: { id: plainJobId } }))
         .toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: false })

@@ -173,11 +173,14 @@ function validateOperationResult(operation, data, payload) {
       || !boundedJsonWithin(data.acceptance, 8 * 1024))) invalid()
   } else if (operation === 'memory') {
     if (!['COMPLETED', 'NOT_FOUND'].includes(data?.status) || typeof data.operationId !== 'string'
-      || !data.operationId.trim() || data.operationId.length > 200 || !boundedJsonWithin(data, 48 * 1024)) invalid()
+      || !data.operationId.trim() || data.operationId.length > 200 || !boundedJsonWithin(data, 60 * 1024)) invalid()
     if (data.status === 'NOT_FOUND' && !exact(data, ['status', 'operationId'])) invalid()
     if (data.status === 'COMPLETED') {
       const packet = data.result?.contextPacket
-      if (!exact(data, ['status', 'operationId', 'result']) || !exact(data.result, ['contextPacket', 'receipt'])
+      const evidence = data.result?.evidence
+      if (!exact(data, ['status', 'operationId', 'result']) || !exact(data.result, ['contextPacket', 'receipt', 'evidence'])
+        || (evidence !== undefined && (!exact(evidence, ['records']) || !Array.isArray(evidence.records)
+          || evidence.records.length > 64 || !boundedJsonWithin(evidence, 32 * 1024)))
         || !data.result.receipt || typeof data.result.receipt !== 'object' || Array.isArray(data.result.receipt)
         || Object.keys(data.result.receipt).length > 12
         || (packet !== undefined && packet !== null && (typeof packet !== 'object' || Array.isArray(packet)
