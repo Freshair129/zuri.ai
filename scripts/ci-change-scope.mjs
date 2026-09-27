@@ -122,6 +122,12 @@ export const POSTGRES_TEST = 'tests/integration/conversation-runtime-work-tool-p
  * Paths whose change forces the full suite even inside an otherwise related
  * diff: every test depends on them, or tests read them without importing them
  * (so no module graph can see the dependency), or they are the CI itself.
+ *
+ * The answer-policy mirror (apps/server/src/modules/agent/line-answer-policy.js
+ * and services/conversation-runtime/src/line-answer-policy.js) is deliberately
+ * NOT here: the parity suite imports both copies, so the module graph selects
+ * it for a change to either (pinned by tests/unit/ci-change-scope.test.js), and
+ * a services-side change still runs the conversation-runtime job.
  */
 export const FULL_SUITE_TRIGGERS = Object.freeze([
   { pattern: /(^|\/)package(-lock)?\.json$|(^|\/)npm-shrinkwrap\.json$|(^|\/)(yarn\.lock|pnpm-lock\.yaml)$/, reason: 'package manifest or lockfile' },
@@ -133,7 +139,6 @@ export const FULL_SUITE_TRIGGERS = Object.freeze([
   { pattern: /^apps\/server\/tests\/(helpers|fixtures)\//, reason: 'shared test helpers or fixtures' },
   { pattern: /^apps\/server\/src\/lib\//, reason: 'widely shared module (src/lib)' },
   { pattern: /^apps\/server\/src\/(middleware|instrumentation)\.[cm]?[jt]sx?$/, reason: 'widely shared module (middleware/instrumentation)' },
-  { pattern: /^(apps\/server\/src\/modules\/agent|services\/conversation-runtime\/src)\/line-answer-policy\.js$/, reason: 'answer-policy mirror (parity across Core and the service)' },
   { pattern: /(^|\/)\.env[^/]*$|^apps\/server\/(config|contracts)\/|^apps\/server\/[^/]+\.(js|json|mjs|cjs)$/, reason: 'env, config or contract files' },
 ])
 

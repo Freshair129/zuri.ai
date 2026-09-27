@@ -68,7 +68,7 @@ jobs:
   # test naming a requirement id the changed files declare with `@req`, and the
   # changed tests. `scripts/ci-change-scope.mjs --related` decides it and falls
   # back to `full` for prisma, lockfiles, vitest config/setup, tests/helpers and
-  # fixtures, .github, scripts, src/lib, the answer-policy mirror, env and config
+  # fixtures, .github, scripts, src/lib, env and config
   # files, a deleted source, a fan-out above 40% of the suite, or any failure.
   # Pushes to `main`, the schedule and workflow_dispatch never enter related
   # mode, and the `ci:full` pull request label forces the full suite.
@@ -172,19 +172,35 @@ jobs:
           echo "$verdict"
           printf '%s\n' "$verdict" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-node@v4
+      # vitest only transforms modules to read their imports; nothing executes,
+      # so the prisma client that `postinstall` generates is not needed here,
+      # and the install is cached whole on the lockfile: a hit skips `npm ci`.
+      - name: Restore apps/server node_modules for the module graph
+        id: graph-deps
         if: steps.eligible.outputs.candidate == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ runner.os }}-server-nm-graph-node22-${{ hashFiles('apps/server/package-lock.json') }}
+
+      - uses: actions/setup-node@v4
+        if: steps.eligible.outputs.candidate == 'true' && steps.graph-deps.outputs.cache-hit != 'true'
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: apps/server/package-lock.json
 
-      # vitest only transforms modules to read their imports; nothing executes,
-      # so the prisma client that `postinstall` generates is not needed here.
       - name: Install apps/server for the module graph
-        if: steps.eligible.outputs.candidate == 'true'
+        if: steps.eligible.outputs.candidate == 'true' && steps.graph-deps.outputs.cache-hit != 'true'
         working-directory: apps/server
         run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Save apps/server node_modules for the module graph
+        if: steps.eligible.outputs.candidate == 'true' && steps.graph-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ steps.graph-deps.outputs.cache-primary-key }}
 
       - id: related
         if: steps.eligible.outputs.candidate == 'true'
@@ -372,23 +388,67 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Setup used to be ~1.5-2.7 min of every shard (PR #609's first run): two
+      # setup-node restores of the npm download cache, then two `npm ci`. Both
+      # node_modules trees are now cached whole, keyed on everything the install
+      # and its postinstall read (lockfile; for the server also the prisma
+      # schema and the two client generators), and saved right after a fresh
+      # install — before the tests run, so no test output enters the cache. A
+      # hit skips the Node 24 toolchain and both installs. A changed input is a
+      # new key and a cold install, never a stale tree.
+      #
       # Server contract tests exercise the actual Edge runtime schema.
+      - name: Restore Edge contract consumer node_modules
+        id: edge-deps
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/edge/node_modules
+          key: ${{ runner.os }}-edge-nm-node24-${{ hashFiles('apps/edge/package-lock.json') }}
       - uses: actions/setup-node@v4
+        if: steps.edge-deps.outputs.cache-hit != 'true'
         with:
           node-version: '24'
           cache: npm
           cache-dependency-path: apps/edge/package-lock.json
       - name: Install Edge contract consumer
+        if: steps.edge-deps.outputs.cache-hit != 'true'
         working-directory: apps/edge
-        run: npm ci
+        run: npm ci --no-audit --no-fund
+      - name: Save Edge contract consumer node_modules
+        if: steps.edge-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: apps/edge/node_modules
+          key: ${{ steps.edge-deps.outputs.cache-primary-key }}
 
+      - name: Restore apps/server node_modules
+        id: server-deps
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ runner.os }}-server-nm-node22-${{ hashFiles('apps/server/package-lock.json', 'apps/server/prisma/schema.prisma', 'apps/server/scripts/generate-prisma-clients.mjs', 'apps/server/scripts/gen-postgres-schema.mjs') }}
+
+      # No npm download cache on a hit: nothing will be downloaded.
       - uses: actions/setup-node@v4
+        if: steps.server-deps.outputs.cache-hit == 'true'
+        with:
+          node-version: '22'
+      - uses: actions/setup-node@v4
+        if: steps.server-deps.outputs.cache-hit != 'true'
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: apps/server/package-lock.json
 
-      - run: npm ci
+      # `postinstall` runs `prisma generate`, so the client is in the cached tree.
+      - run: npm ci --no-audit --no-fund
+        if: steps.server-deps.outputs.cache-hit != 'true'
+      - name: Save apps/server node_modules
+        if: steps.server-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ steps.server-deps.outputs.cache-primary-key }}
 
       # Several tests read `docs/.doc-graph.json`, which is generated and not
       # committed (ADR-081); in the single-job layout the governance chain had

@@ -170,8 +170,6 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
       'apps/server/scripts/vitest-related.mjs',
       'apps/server/src/lib/db.js',
       'apps/server/src/middleware.js',
-      'apps/server/src/modules/agent/line-answer-policy.js',
-      'services/conversation-runtime/src/line-answer-policy.js',
       'apps/server/.env.example',
       'apps/server/next.config.js',
       'apps/server/jsconfig.json',
@@ -210,6 +208,26 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
     expect(related.length).toBeLessThanOrEqual(all * FAN_OUT_LIMIT)
   }, 180000)
 
+  it('selects the answer parity suite through the module graph when either answer-policy mirror changes', () => {
+    const parity = 'tests/integration/conversation-runtime-answer-parity.test.js'
+    for (const mirror of [
+      'apps/server/src/modules/agent/line-answer-policy.js',
+      'services/conversation-runtime/src/line-answer-policy.js',
+    ]) {
+      expect(relatedEligibility(`apps/server/src/modules/agent/server-line-answer.js\n${mirror}`).eligible, mirror).toBe(true)
+      const run = spawnSync(process.execPath, [path.join(root, 'scripts/ci-change-scope.mjs'), '--related'], {
+        input: `${mirror}\n`, encoding: 'utf8', timeout: 170000,
+      })
+      expect(run.status, run.stderr).toBe(0)
+      const lines = run.stdout.trim().split(/\r?\n/)
+      expect(lines, mirror).toContain('test_mode=related')
+      expect(lines.find((line) => line.startsWith('related=')).split(/[= ]/), mirror).toContain(parity)
+    }
+    // A services-only mirror change is service-scoped: its own job still runs, unconditionally on PRs.
+    expect(isolatedServices('services/conversation-runtime/src/line-answer-policy.js')).toEqual(['conversation-runtime'])
+    expect(workflow).toMatch(/\n  conversation-runtime:\n    if: github\.event_name != 'schedule'\n/)
+  }, 360000)
+
   it('pins the workflow: PR-only related mode, ci:full escape hatch, main stays full, verify checks the mode', () => {
     expect(workflow).toContain('types: [opened, synchronize, reopened, labeled]')
     expect(workflow).toContain("if: github.event_name == 'pull_request' && steps.filter.outputs.server == 'true' && !contains(github.event.pull_request.labels.*.name, 'ci:full')")
@@ -225,5 +243,15 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
     expect(workflow).toContain('[ "$EVENT" = "pull_request" ] || fail "related test mode outside a pull request"')
     expect(workflow).toContain('[ -n "$RELATED" ] || fail "related test mode with an empty test list"')
     expect(workflow).toContain('*) fail "unknown test mode: $TEST_MODE" ;;')
+  })
+
+  it('caches installed node_modules only under keys that cover every install input, saved before the tests run', () => {
+    expect(workflow).toContain("key: ${{ runner.os }}-server-nm-node22-${{ hashFiles('apps/server/package-lock.json', 'apps/server/prisma/schema.prisma', 'apps/server/scripts/generate-prisma-clients.mjs', 'apps/server/scripts/gen-postgres-schema.mjs') }}")
+    expect(workflow).toContain("key: ${{ runner.os }}-edge-nm-node24-${{ hashFiles('apps/edge/package-lock.json') }}")
+    expect(workflow).toContain("key: ${{ runner.os }}-server-nm-graph-node22-${{ hashFiles('apps/server/package-lock.json') }}")
+    const tests = workflow.slice(workflow.indexOf('\n  tests:\n'), workflow.indexOf('\n  build:\n'))
+    expect(tests).not.toMatch(/uses: actions\/cache@/) // restore/save split: a post-job save would capture test output
+    expect(tests.indexOf('Save apps/server node_modules')).toBeLessThan(tests.indexOf('Build the doc graph the tests read'))
+    expect(tests).toContain("- run: npm ci --no-audit --no-fund\n        if: steps.server-deps.outputs.cache-hit != 'true'")
   })
 })
