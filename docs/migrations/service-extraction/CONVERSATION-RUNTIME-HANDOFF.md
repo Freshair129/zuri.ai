@@ -1,8 +1,8 @@
 ---
 id: ZAI:CONVERSATION-RUNTIME-HANDOFF
-version: "0.3.16b"
+version: "0.3.17b"
 status: candidate
-last_update: "2026-09-27T21:20:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-09-28T06:30:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: agent
   scope: conversation-runtime-extraction-checkpoint
@@ -19,9 +19,92 @@ relations:
 
 # Conversation Runtime extraction handoff
 
-**Checkpoint state:** accepted scope complete; not in production. The independent Conversation Runtime process answers LINE turns for accounts opted into `runtimeOwner=CONVERSATION_RUNTIME`, through the authenticated Core façade and the Core-owned queue and receipts. `executionMode` remains `SERVER`; `LineOaAccount.runtimeOwner` defaults to `SERVER` and is snapshotted onto each job to pin the opted-in runtime cohort. PR #542 was merged on 2026-09-27 (see *Merged state*), and the workstreams W1–W12 followed on the same day. At `main` `c91db083` the runtime serves every flow the accepted scope names, including unverified senders (W10, W11), group and room memory and memory under a GKS grounding mode (W12). What stays `SERVER` is a short list of fail-safe cases, listed below. A full `npm run verify` with its E2E leg and all live and production work remain open (Gate PRODUCTION). The state at `main` `c91db083` against Mission Control gate `CR_TO_WM` is in *Current state* below.
+**Checkpoint state:** accepted scope complete; **deployed to production, not cut over.** The independent Conversation Runtime process answers LINE turns for accounts opted into `runtimeOwner=CONVERSATION_RUNTIME`, through the authenticated Core façade and the Core-owned queue and receipts. `executionMode` remains `SERVER`; `LineOaAccount.runtimeOwner` defaults to `SERVER` and is snapshotted onto each job to pin the opted-in runtime cohort. The runtime service runs in production (image `zuri-conversation-runtime:release-e428d91c`, deployed 2026-09-28, readiness READY, smoke PASS), but **no LINE account is opted in**, so it serves no customer turn yet. The operator pre-deploy steps are done. What stays `SERVER` is a short list of fail-safe cases (see *Runtime cohort*). Opting an account in (the cutover), the owner decision on DIRECT MSP thread erasure and a full `npm run verify` with its E2E leg remain open. The state at `main` `e428d91c` plus the residual-gap PR (branch `mc0/cr-residual-gaps`) is in *Current state* below.
 
-## Current state — 0.3.16b, base `main` `c91db083`
+## Current state — 0.3.17b, base `main` `e428d91c` plus branch `mc0/cr-residual-gaps`
+
+Written by MC0 on branch `mc0/cr-residual-gaps`, cut from `main` at `e428d91c` (the merge of PR #613). It supersedes *Checkpoint 0.3.16b* below, which stays accurate for the runtime path except where this section says otherwise. Code statements were checked against this branch; production statements are the operator's report of 2026-09-28, not something this branch or CI observed.
+
+### Merged since `c91db083`
+
+Only one merged change touches the runtime path's code: the answer check in `line-answer-policy.js` (#606, #608), mirrored byte for byte (the mirror is identical at `e428d91c`). The rest is documentation, CRM erasure outside the runtime path, other services, CI or deployment.
+
+| PR | What | Runtime path | Head | On `main` as |
+|---|---|---|---|---|
+| [#607](https://github.com/Freshair129/zuri.ai/pull/607) | Handoff 0.3.16b | no (docs) | `2b3c3a74` | merge `4752b925` |
+| [#606](https://github.com/Freshair129/zuri.ai/pull/606) | Numeral gaps in the grounded-answer check (mirrored) | yes (both cohorts) | `9cec8f6b` | merge `0b75c7df` |
+| [#603](https://github.com/Freshair129/zuri.ai/pull/603) | Per-speaker chat-archive keys; postback and raw LINE payloads blanked on group erasure (FR-022) | no (CRM erasure) | `ecaa0e40` | merge `9c6a8ce2` |
+| [#608](https://github.com/Freshair129/zuri.ai/pull/608) | Answer-check follow-ups from the #606 re-review (mirrored) | yes (both cohorts) | `70265c0a` | merge `f234db85` |
+| [#612](https://github.com/Freshair129/zuri.ai/pull/612) | CRM retention follow-ups (blocked-erasure alert, settle failures, a backup-test flake) | no | `82fd3207` | merge `05f3567d` |
+| [#613](https://github.com/Freshair129/zuri.ai/pull/613) | KI17 release overlay pinning the production tuple | no (deployment) | `e43269a4` | merge `e428d91c` |
+
+(#546, #594, #605, #609, #610 and #611 also merged in that range; none touches the runtime path.)
+
+### Production state (operator, 2026-09-28)
+
+The operator pre-deploy list of 0.3.16b is **done**:
+
+1. #596's three migrations are applied: the `Message.authorChannelIdentityId` column is present, the concurrently built index is valid, and the backfill attributed 298 of 298 inbound messages.
+2. The `RETENTION_TOMBSTONE` query returned 0 rows, so no erased turn was left with readable trace rows by a runtime-written tombstone.
+3. The deployed MSP (pin `68e6169dbb371dac2f0debf0bf731b553f7dc26d`, shipped in the web image) has `msp_thread_principal_erase`, and its identity HMAC key is configured, which that tool requires on every call.
+
+The runtime service was deployed on 2026-09-28 (`zuri-conversation-runtime:release-e428d91c`): readiness READY, the KI17 smoke PASS. **No LINE account has `runtimeOwner=CONVERSATION_RUNTIME`**, so every job is still admitted to `SERVER` and the runtime claims nothing. The runtime image predates this branch; see *Deploy order* below.
+
+### Residual gaps closed by this branch
+
+| Gap (0.3.16b) | Fix | Tests |
+|---|---|---|
+| Erasure scanner held-set query | `reconcileLineMemoryErasures` picks due records with bounded queries (`dueErasureRecords`): a page of open PENDING records (at most 100) is read with an anti-join that drops records with a `FAILED` row, then grace, the 60 s claim window and `DEFERRED` scheduling are checked only for that page's turns. At most 10 pages per tick. The anti-join compares no timestamps, so it reads the same on SQLite and PostgreSQL. Semantics unchanged. A change to `line-memory-erasure` now also triggers the PostgreSQL CI step. | `line-memory-erasure-due-query.test.js` (grace, claim window, schedule, FAILED; more FAILED records than a page), on SQLite and PostgreSQL; a group/GKS case asserting no `notIn` and every `in` list bounded by the page |
+| Erasure kinds not in restore gating | `backup-service` counts the five `MEMORY_THREAD_ERASURE_*` kinds (taken from `MEMORY_ERASURE_KINDS`) with the delivery kinds, so a snapshot without the memory manifest cannot replace an installation holding an erasure record. | `line-server-backup.test.js`: accepted with no record, refused with one |
+| No group parity test for unverified memory | New group/GKS cases with an unlinked speaker and a speaker whose LINE identity is PENDING: GROUP and ROOM next to a verified speaker, DIRECT under `GKS_CORPUS` and `GKS_THEN_BUSINESS_KNOWLEDGE`, GROUP under `GKS_CORPUS`. Each compares MSP calls and claims, provider requests and deliveries with the legacy tick, and checks PENDING appends, no recall, the admission record and a PENDING read receipt. | `conversation-runtime-memory-group-gks.test.js` (5 cases) |
+| `REPLY_DEADLINE_MISSED` pre-check | Core's WorkTool refuses `read`, `propose` and `confirm-execute` with `REPLY_DEADLINE_MISSED` (409, final) once the answer deadline has passed, before any Work reader or writer, as the legacy worker's `executeClaimed` does. `status` stays open for recovery. The deadline comes from `executionAnswerDeadline`, which settle now uses too. The runtime then fails the turn with that code, which is the job's `errorCode`, as on the Server path. | WorkToolPort suite: a spent-budget propose writes no proposal; a full turn whose budget runs out before the Work call ends `FAILED` / `REPLY_DEADLINE_MISSED` and sends nothing |
+| Core `validateResult` receipt strictness | The v1 Work receipt rules live in one pure module, `apps/server/src/modules/line-oa-studio/domain/work-tool-receipt.js`, mirrored byte for byte to `services/conversation-runtime/src/work-tool-receipt.js` (the `line-answer-policy.js` convention). Core checks its own response with it against the request sent; the runtime client checks the same response with it. `WORK_REJECTION_CODES` and the 5,000-character bound are defined once. | WorkToolPort suite: drift test; a Work reader whose 2-key receipt names another source (inside the old 12-key bound) is refused by Core with `CONTRACT_RESPONSE_INVALID`; per-operation shape checks |
+| Silent evidence trimming | Core appends one `EVIDENCE_TRIMMED` trace when `fitPreparedTurn` or `memory read` drops records: `{ phase, recordsBefore, recordsKept, recordsDropped }`, counts only. The kind is Core-only (not in `RUNTIME_TRACE_KINDS`); the write is best effort and never fails the turn. | legacy-parity (prepare) and group/GKS (memory read) suites assert the one trace and no content |
+| MSP erase scope unverified | Checked against the MSP code at the deployed pin (below). The test stand-in now follows that contract. | group/GKS erasure cases |
+| ADR-106 amendment wording | ADR-106 1.2.1: the eligibility sentence names the one remaining exception (malformed `/work` in GROUP/ROOM stays `SERVER`). Wording only. | n/a |
+
+### What `msp_thread_principal_erase` does (MSP pin `68e6169d`)
+
+Read from `packages/msp-core/src/domain/thread-memory.mjs` (`erasePrincipal`), the tool handler and guard in `apps/msp-server`, and `docs/API-011-THREAD-MEMORY-CONTRACT.md` at the pin:
+
+- **Not thread-bound.** The call names a principal and an idempotency key; no thread. It covers every thread of the grant's tenant the principal ever spoke in. Core's per-(person, room) record is the trigger, not the scope: the first acknowledged call erases the person tenant-wide, and later calls for the same person find nothing left.
+- **Messages:** the principal's own `HUMAN` messages are tombstoned (text blanked, row kept) in every thread. **Replies are not erased:** `AGENT` messages stay, including replies to the erased person's questions.
+- **Summaries and delivery receipts:** tombstoned only in threads where the principal is the sole human participant (a DIRECT-like thread). Shared group or room summaries are kept.
+- **Participants:** every open participant row of the principal is closed (`left_at` set), in every thread.
+- **Protected memory records** asserted by or about the principal are tombstoned. Vaults are untouched unless `erase_vault` is set; Core does not set it.
+- **Idempotent** by (tenant, idempotency key); a replay changes no content and returns the stored counts. Every call needs the identity HMAC key (configured in production).
+
+Consequences for Core, all recorded, none changed in Core's behaviour:
+
+- **A person who spoke in a group with memory sync loses their DIRECT human lines too**, through the same tenant-wide call, even though Core sends no call for a DIRECT thread. A person who only ever used DIRECT memory gets no MSP call at all. This sharpens the pending owner decision below.
+- **Replies that quote the erased person stay in MSP**, in groups and in DIRECT threads, and a group's summaries keep whatever they already summarised.
+- Core's port already sends the right input (principal and key, the thread only in the signed claims). The test stand-in used to remove whole exchanges from one thread; it now tombstones the principal's human messages tenant-wide and keeps replies, and the erasure tests assert that.
+
+### What remains
+
+1. **Cutover: opt an account in.** Gate PRODUCTION. Setting `runtimeOwner=CONVERSATION_RUNTIME` on a LINE account (through `CONFIGURE_EXECUTION`, which needs the account's jobs quiescent) is the first moment the runtime serves customers. **Deploy order:** this branch changes the Core ↔ runtime contract in two compatible ways (a new final `REPLY_DEADLINE_MISSED` refusal on `work-tool`, which the deployed runtime already handles as a non-retryable error; and Core refusing an inexact Work receipt, which the deployed runtime already refuses). The runtime at `release-e428d91c` does not carry the shared receipt module, but its own validator applies the same rules, so no redeploy of the runtime is needed for this branch; Core (web image) does need it. Opt-in of a first account is an owner decision.
+2. **Owner decision: DIRECT MSP thread erasure.** Unchanged in Core: a DIRECT memory thread gets no MSP erase call. Given the tenant-wide MSP contract above, the practical choices are (a) keep it (a DIRECT-only person's MSP lines stay; a group speaker's DIRECT lines are erased as a side effect), (b) also record an erasure for DIRECT memory threads, so every memory-sync person gets exactly one tenant-wide MSP erase, or (c) ask MSP for a thread-bound erase. Separately: whether replies (`AGENT` messages) that quote an erased person should be erased is an MSP contract question.
+3. **Full `npm run verify` with its E2E leg.** Not run for this branch (only the related suites listed in the PR).
+
+Residual gaps still open (from 0.3.16b, unchanged by this branch):
+
+| Gap | Current behaviour | Source |
+|---|---|---|
+| Memory-erasure thread discovery | Shared threads to erase are found only from job rows not already erased and the person's current `personId`. With the tenant-wide MSP erase, one surviving record for the person is enough to erase all their human lines; a person with no discoverable shared-thread job gets no MSP call. | #604 review, follow-up 4 |
+| Pending record holds identifiers | A pending record keeps the principal id and room id until MSP acknowledges; a `FAILED` one keeps them for manual erasure. Accepted in review. | #604 follow-up 8 |
+| Replies and shared summaries survive erasure in MSP | See the MSP contract above. | this version |
+| Out-of-hours delivery availability | A runtime-cohort out-of-hours reply is sent only if the runtime is up; otherwise the job expires after the 30-minute TTL with no reply. | #583 |
+| Group threads split between executors | In one group, malformed-`/work` turns go to `SERVER` and everything else to the runtime; replies can arrive out of order across the two consumers. | #585, #604 |
+| Deploy order: runtime before Core | Core has no contract-version gate; see 0.3.16b for the W9/W10/W12 cases. Moot for the deployed runtime (`release-e428d91c` postdates W12). | #591 (F2) |
+| `P2034` surfaced as a Prisma code | A lost serialization race on `confirm-execute` answers 503 `retryable: true` with the code `P2034`. | #586 |
+| MSP scanners in the Server tick | Runtime jobs' MSP delivery receipts and all group-memory erasures go through the Server worker tick, which must keep running with MSP configured. | #588, #604 |
+| ADR-106 D2 Knowledge half | There is no v1 Knowledge (GKS) operation; GKS stays inside Core `prepare` and Core `memory read`. | #584, #588, #604 |
+
+Closed since 0.3.16b by merged PRs (taken from their titles and the files they change; not re-reviewed here): raw LINE payloads and the chat evidence archive on group erasure (#603), and the answer-check numeral gaps (#606, #608).
+
+Upkeep notes (additions): `work-tool-receipt.js` is edited in `apps/server` and copied unchanged over `services/conversation-runtime/src/work-tool-receipt.js`; the WorkToolPort suite fails on any drift. `EVIDENCE_TRIMMED` is a Core trace kind; do not add it to `RUNTIME_TRACE_KINDS`.
+
+## Checkpoint 0.3.16b — base `main` `c91db083` (superseded by *Current state*)
 
 Written by MC0 on branch `mc0/cr-handoff-final`, cut from `main` at `c91db083cdcf5f70e119d78138b408583d31ea9a` (the merge of PR #604). Every statement in this section was checked against the code at that SHA, not copied from a PR body. Where a PR body and the code disagree, this section follows the code (see the note under *Base and PRs*). It supersedes the *Checkpoint 0.3.15b* section below.
 
@@ -539,6 +622,8 @@ The first mandatory `npm run verify` after the initial runtime tranche exposed f
 - [ ] Production deployment, production migration, live LINE traffic and real model calls require separate authorization; none are part of this checkpoint.
 
 ## Version diff
+
+`0.3.16b → 0.3.17b`: adds *Current state* for `main` `e428d91c` plus branch `mc0/cr-residual-gaps`. Records the operator's production state of 2026-09-28 (#596's migrations applied with 298/298 attributed, `RETENTION_TOMBSTONE` query 0 rows, MSP pin `68e6169d` with `msp_thread_principal_erase` and the identity HMAC key, runtime `release-e428d91c` deployed READY with smoke PASS, no account opted in). Lists the PRs merged since `c91db083` (only #606 and #608 touch the runtime path, through the mirrored answer check). Records eight residual gaps closed by the branch (bounded erasure due-selection, erasure kinds in restore gating, PENDING parity tests for GROUP/ROOM/GKS, the Work `REPLY_DEADLINE_MISSED` pre-check, Core's exact Work receipt check from one mirrored module, the `EVIDENCE_TRIMMED` trace, the MSP erase contract, ADR-106 1.2.1) with their tests, and what `msp_thread_principal_erase` does at the pin: tenant-wide, human messages tombstoned, replies kept, summaries only in sole-human threads, participants closed. What remains: the cutover (Gate PRODUCTION), the owner decision on DIRECT MSP erasure (sharpened by the tenant-wide contract) and a full `npm run verify` with E2E. The 0.3.16b section is kept, retitled as superseded.
 
 `0.3.15b → 0.3.16b`: rewrites *Current state* for base `main` `c91db083` (PR #604). Adds the PRs merged since `cc44ab86` with their heads and merge SHAs (#597 W10, #593, #596, #602, #600 W11, #604 W12; #598, #599 and #601 noted as not on the runtime path, #601 as Server-only) and lists the open #603 and #606 as pending. `required_checks` records #604's PR-head governance run `36324329014` (all required jobs green, 19/19 on PostgreSQL, 73/73 runtime tests; tree identical to `c91db083`) and Edge CI `36324329049`; `main`'s push run `36324888801` was still in progress and is recorded as pending. `accepted_scope_complete` is now done, from the admission code (`memoryRuntimeEligible = true`, no sender-verification condition on `runtimeOwner`) and Core's W10–W12 serving paths. Updates the cohort (unverified senders, group/room and GKS memory admitted; only malformed group `/work`, thread-less group events, unknown grounding modes and non-opted-in accounts stay `SERVER`), adds the Core fences (`runtimeSenderAuthority` and the `CHANNEL_IDENTITY_ADMITTED` record, the PENDING principal binding, the out-of-hours memory refusal, group memory scope, GKS composition in `memory read`, the per-speaker MSP erasure scanner) and the new deliberate differences, identities and trace kinds. *What remains*: unverified identities, group/room memory, memory with GKS and group erasure for later speakers are done; adds the operator pre-deploy list (#596's three migrations in order, the backfill re-run until 0 rows, the `RETENTION_TOMBSTONE` query, MSP TASK-MEMOS-004) and the review follow-ups of #600, #602 and #604 as residual gaps. Every claim was checked against the code at `c91db083`. The 0.3.15b section is kept, retitled as superseded; ADR-106, SDD-110, FR-265 and the PRD are unchanged.
 
