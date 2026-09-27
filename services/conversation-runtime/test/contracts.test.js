@@ -188,3 +188,19 @@ test('WorkTool REJECTED outcomes and prepare workReply are typed, bounded and cl
   assert.throws(() => validateTurnContext({ ...turn, workCommand: { operation: 'read', input: {} },
     workReply: { code: 'WORK_COMMAND_USAGE', text: 'usage' } }), { code: 'TURN_WORK_REPLY_INVALID' })
 })
+
+test('an OUT_OF_HOURS turn carries only a bounded fixed reply and nothing to execute', () => {
+  const base = { question: 'q', evidence: { records: [] }, slices: [], authorized: true, audienceKind: 'DIRECT',
+    threadId: null, maxBudgetChars: 0, workCommand: null }
+  assert.doesNotThrow(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: 'closed' }))
+  assert.doesNotThrow(() => validateTurnContext(base))
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'ANYTHING', replyText: 'closed' }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS' }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: '   ' }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: 'x'.repeat(5001) }), /TURN_REPLY_TEXT_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, replyText: 'closed' }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: 'closed',
+    workCommand: { operation: 'read', input: {} } }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...base, turnKind: 'OUT_OF_HOURS', replyText: 'closed',
+    evidence: { records: [{ sku: 1 }] } }), /TURN_KIND_INVALID/)
+})

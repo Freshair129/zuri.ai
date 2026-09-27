@@ -497,7 +497,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 8
         },
         {
           "id": "FR-027",
@@ -691,8 +691,8 @@
           "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 58
+          "codeCount": 4,
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -700,7 +700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 15
         },
         {
           "id": "FR-171",
@@ -708,7 +708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-181",
@@ -753,7 +753,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 33
+          "testCount": 30
         },
         {
           "id": "FR-253",
@@ -1681,7 +1681,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 8
         },
         {
           "id": "FR-031",
@@ -2508,7 +2508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 58
+          "testCount": 55
         },
         {
           "id": "FR-152",
@@ -3380,7 +3380,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 33
+          "testCount": 30
         },
         {
           "id": "FR-236",
@@ -3633,14 +3633,6 @@
           "testCount": 16
         },
         {
-          "id": "FR-026",
-          "title": "Agent write/action gate (ADR-007 P7, Gate F)",
-          "declared": "done",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 10
-        },
-        {
           "id": "FR-061",
           "title": "Per-Business domain visibility",
           "declared": "done",
@@ -3686,7 +3678,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 58
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -3694,7 +3686,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 16
+          "testCount": 15
         },
         {
           "id": "FR-151",
@@ -3726,7 +3718,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-190",
@@ -3805,8 +3797,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 33
+          "codeCount": 5,
+          "testCount": 30
         },
         {
           "id": "FR-238",
@@ -3829,8 +3821,8 @@
           "title": "Local model residency follows business hours",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 9
+          "codeCount": 4,
+          "testCount": 14
         },
         {
           "id": "FR-259",
@@ -5745,7 +5737,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 58
+          "testCount": 55
         },
         {
           "id": "FR-150",
@@ -5753,7 +5745,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 15
         },
         {
           "id": "FR-151",
@@ -8688,16 +8680,16 @@
           "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 42,
-          "testCount": 58
+          "codeCount": 40,
+          "testCount": 55
         },
         {
           "id": "FR-150",
           "title": "Optional Edge conversation execution",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 16
+          "codeCount": 10,
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -8722,7 +8714,6 @@
         "apps/server/src/app/api/line-oa/worker/route.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
-        "apps/server/src/modules/agent/line-knowledge-grounding.js",
         "apps/server/src/modules/agent/line-project-work-tools.js",
         "apps/server/src/modules/agent/msp-thread-memory-port.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
@@ -8754,9 +8745,8 @@
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
-        "apps/server/tests/integration/conversation-runtime-grounding-parity.test.js",
-        "apps/server/tests/integration/conversation-runtime-grounding.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
+        "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
@@ -8800,7 +8790,6 @@
         "apps/server/tests/unit/line-binding-status.test.js",
         "apps/server/tests/unit/line-job-failures-route.test.js",
         "apps/server/tests/unit/line-job-failures.test.js",
-        "apps/server/tests/unit/line-knowledge-grounding.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-readiness-journey.test.js",
         "apps/server/tests/unit/line-oa-worker-route-reconciler.test.js",
@@ -11020,8 +11009,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 33
+          "codeCount": 13,
+          "testCount": 30
         },
         {
           "id": "FR-236",
@@ -11074,7 +11063,6 @@
         "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
         "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
         "apps/server/src/modules/knowledge/ui/KnowledgeGapReport.jsx",
-        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-liff-app-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
@@ -11091,9 +11079,6 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
-        "apps/server/tests/integration/conversation-runtime-grounding-parity.test.js",
-        "apps/server/tests/integration/conversation-runtime-grounding.test.js",
-        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -11256,8 +11241,8 @@
           "title": "Local model residency follows business hours",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 3,
-          "testCount": 9
+          "codeCount": 6,
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -11269,12 +11254,15 @@
         "apps/server/src/modules/crm/conversation-session-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
         "apps/server/src/modules/crm/reply-record-service.js",
+        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
+        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -11303,9 +11291,14 @@
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
+        "apps/server/tests/unit/line-job-answer-text-marker.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
-        "apps/server/tests/unit/reply-record-service.test.js"
+        "apps/server/tests/unit/reply-record-service.test.js",
+        "services/conversation-runtime/src/contracts.js",
+        "services/conversation-runtime/src/turn-runtime.js",
+        "services/conversation-runtime/test/contracts.test.js",
+        "services/conversation-runtime/test/turn-runtime.test.js"
       ]
     },
     {
@@ -12948,8 +12941,7 @@
       "primaryDomain": "agent",
       "contributorDomains": [
         "agent",
-        "identity",
-        "line-oa-studio"
+        "identity"
       ],
       "useCase": "Agent ขอทำ action ที่มีความเสี่ยงสูงและระบบบังคับ step-up token ก่อน execute และ audit",
       "progressPercent": 100,
@@ -12962,8 +12954,8 @@
           "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 10
+          "codeCount": 6,
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -12973,12 +12965,9 @@
         "apps/server/src/modules/agent/step-up.js",
         "apps/server/src/modules/agent/write-tools.js",
         "apps/server/src/modules/identity/link-line-identity.js",
-        "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
-        "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
-        "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/line-project-work-tools.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
@@ -16775,7 +16764,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 29
+          "testCount": 30
         }
       ],
       "evidence": [
@@ -16801,6 +16790,7 @@
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/conversation-runtime-model-conformance.test.js",
+        "apps/server/tests/integration/conversation-runtime-out-of-hours.test.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",

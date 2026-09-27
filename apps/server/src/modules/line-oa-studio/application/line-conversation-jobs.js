@@ -23,6 +23,8 @@ import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
 // @req FR-244 — outside the account's declared business hours, admission creates the
 //   job straight at READY with the out-of-hours text as its answer, so it is sent and
 //   recorded by the existing send phase and never reaches execution (ADR-094 D6 option A).
+//   A job admitted to the Conversation Runtime cohort instead carries the same decision
+//   as a snapshot; the runtime completes it without a model and Core commits READY.
 // @req FR-265 — executionMode remains SERVER (ADR-100 D1, D2). Core retains the
 //   authoritative runtimeOwner cohort separately, while modelAccess keeps its
 //   retired-policy history value. Edge claim/context/tool/completion routes stay
@@ -30,7 +32,8 @@ import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
 // @spec ADR-061, SEC-001, FR-148 — queue and CRM share a transaction; devices cannot send.
 // @spec ADR-091 D5; ADR-094 D6
 // @tested tests/integration/server-line-jobs.test.js, tests/integration/line-non-text-admission.test.js,
-//   tests/integration/fr244-line-oa-business-hours.test.js
+//   tests/integration/fr244-line-oa-business-hours.test.js,
+//   tests/integration/conversation-runtime-out-of-hours.test.js
 
 export const LINE_JOB_LEASE_MS = 300_000
 
@@ -223,9 +226,9 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     const prior = await tx.lineConversationJob.findUnique({ where: { inboundMessageId: inbound.messageId } })
     if (prior) return { jobId: prior.id, created: false, inboundMessageId: inbound.messageId }
     // @req FR-244 — outside the account's declared business hours, the reply is the
-    // fixed out-of-hours text and no model runs (ADR-094 D6 option A). The job is
-    // created straight at READY with its answer already set, so it never reaches
-    // QUEUED/CLAIMED and no execution ever claims it — the tick worker's existing
+    // fixed out-of-hours text and no model runs (ADR-094 D6 option A). On the Server
+    // cohort the job is created straight at READY with its answer already set, so it
+    // never reaches QUEUED/CLAIMED and no execution ever claims it — the tick worker's existing
     // send phase (status: 'READY') delivers and records it exactly like any other
     // completed job, through the same reply-token/push, retry and OUTBOUND_RECORDED
     // path. `isAccountWithinBusinessHours` returns true for an account with no
@@ -234,8 +237,11 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     const memorySyncOptIn = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
     // @req FR-149 — every Work command, including malformed legacy syntax, is
     // runtime-eligible: Core answers malformed syntax with the Server's own reply.
+    // @req FR-244 — out-of-hours is no longer a reason to stay on the Server path
+    // (ADR-106, W3). Core still makes the decision here, once, at admission; an
+    // eligible runtime-cohort job carries it as a snapshot (see below).
     const runtimeEligible = current.runtimeOwner === 'CONVERSATION_RUNTIME' && audienceKind === 'DIRECT'
-      && !memorySyncOptIn && !outOfHours
+      && !memorySyncOptIn
       && conversationRuntimeServesGroundingMode(current.knowledgeGrounding)
     const identity = runtimeEligible
       ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
@@ -246,6 +252,14 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     const runtimeOwner = runtimeEligible && channelIdentityIsVerified(identity)
       ? 'CONVERSATION_RUNTIME' : 'SERVER'
     const executionMode = 'SERVER'
+    // @req FR-244 — the Server cohort keeps today's shape: created straight at READY
+    // and sent by the Server send phase. The runtime cohort is admitted QUEUED with
+    // the same admission-time reply snapshotted as `answerText`; that snapshot is the
+    // OUT_OF_HOURS decision the runtime is handed (`runtimeOutOfHoursReply`), and
+    // Core commits READY only for exactly that text.
+    const outOfHoursAdmission = !outOfHours ? {}
+      : runtimeOwner === 'CONVERSATION_RUNTIME' ? { answerText: current.outOfHoursReplyText }
+        : { status: 'READY', answerText: current.outOfHoursReplyText }
     const job = await tx.lineConversationJob.create({ data: {
       accountId: current.id, inboundMessageId: inbound.messageId, eventId,
       // @req FR-243 — the session the inbound message was just assigned (ADR-094 D4).
@@ -262,7 +276,7 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
       recipientId: threadId, sourceUserId: userId, sealedReplyToken: sealed,
       replyExpiresAt: sealed ? new Date(replyDeadlineAnchorMs + 45_000) : null,
       availableAt: now, expiresAt: new Date(now.getTime() + JOB_TTL_MS), correlationId,
-      ...(outOfHours ? { status: 'READY', answerText: current.outOfHoursReplyText } : {}),
+      ...outOfHoursAdmission,
     } })
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'QUEUED',
       payload: { tenantId: job.tenantId, businessId: job.businessId, accountId: job.accountId, correlationId, ...(outOfHours ? { outOfHours: true } : {}) } })
@@ -284,7 +298,8 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // execution path emits the same kind with the same payload keys) so a trace
     // reader sees one vocabulary for "the answer is ready to send" regardless of
     // where the text came from; `executionEvidence` is the field that says which.
-    if (outOfHours) {
+    // The runtime cohort's ANSWER_READY is written by Core when it commits READY.
+    if (outOfHours && runtimeOwner === 'SERVER') {
       await traceEvent(tx, job, 'ANSWER_READY', 'answer-ready', {
         text: current.outOfHoursReplyText, answerReadyAt: now.toISOString(), executionEvidence: 'OUT_OF_HOURS_RULE',
       }, now)
@@ -447,6 +462,21 @@ async function claimExecution({ db, claimantId, now, runtimeOwner = 'SERVER' }) 
     if (claimed.count) return { ...row, executionId, status: 'CLAIMED', claimantId, leaseExpiresAt, version: row.version + 1 }
   }
   return null
+}
+
+/**
+ * @req FR-244 — the admission-time out-of-hours decision of a runtime-cohort job,
+ * or `null`. Core decided it once at admission from the account's declared hours
+ * (`isAccountWithinBusinessHours`, Asia/Bangkok) and snapshotted the reply as the
+ * job's `answerText` while the job is still QUEUED/CLAIMED. No other path writes
+ * `answerText` before READY, and erasure clears it. This is the one reader: Core's
+ * `prepare` hands the text to the runtime as an OUT_OF_HOURS turn, and completion
+ * commits READY only for exactly that text. Nothing re-evaluates the hours later,
+ * the same as the Server path, which also sends its admission-time snapshot.
+ */
+export function runtimeOutOfHoursReply(job) {
+  return job?.runtimeOwner === 'CONVERSATION_RUNTIME' && ['QUEUED', 'CLAIMED'].includes(job.status)
+    && typeof job.answerText === 'string' && job.answerText.trim() ? job.answerText : null
 }
 
 function runtimeClaim(job, claimantId, now, phase = 'EXECUTION') {
@@ -669,12 +699,26 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
     if (!activeAccount(job.account, job) || job.status !== 'CLAIMED' || job.version !== version
       || job.claimantId !== claimantId || !job.leaseExpiresAt || job.leaseExpiresAt <= now || job.expiresAt <= now) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
     if (executionId && executionId !== job.executionId) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    // @req FR-244 — Core, not the runtime, owns the out-of-hours reply: READY is
+    // committed only for the admission snapshot, and without an execution budget,
+    // because the Server path never applies one to this reply (its send phase alone
+    // picks reply, push or expiry).
+    const outOfHoursReply = runtimeOwner === 'CONVERSATION_RUNTIME' ? runtimeOutOfHoursReply(job) : null
+    if (outOfHoursReply !== null && !code && text !== outOfHoursReply) throw failure(409, 'OUT_OF_HOURS_REPLY_MISMATCH')
+    // The Server path cannot lose this reply to an execution error, so a runtime
+    // failure never closes it either: FAILED would null the snapshot for good. The
+    // turn stays CLAIMED and returns to the queue on lease expiry. Core does not take
+    // the runtime's stated cause on trust: revocation and erasure were refused above
+    // (and in `ownedClaim`), and Core's own fences close those jobs — cancel at
+    // claim or send, erasure redaction, or the job's TTL.
+    if (outOfHoursReply !== null && code) throw failure(409, 'OUT_OF_HOURS_FAILURE_DEFERRED')
     const admittedContract = await tx.agentTraceEvent.findFirst({ where: { turnId: job.id, executionId: job.executionId,
       idempotencyKey: `${job.id}:execution:${job.executionId}:contract`, kind: 'CONTEXT_COMMITTED' } })
     const contract = admittedContract ? JSON.parse(admittedContract.payloadJson) : null
     if (contract?.contractVersion === '2' && executionId !== job.executionId) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
     if (contextReceipts?.length && !executionId) throw failure(400, 'CONTEXT_RECEIPT_EXECUTION_REQUIRED')
-    const deadline = contract?.executionBudget ?? (executionId ? lineExecutionBudget(job, new Date(job.leaseExpiresAt.getTime() - LINE_JOB_LEASE_MS)) : null)
+    const deadline = outOfHoursReply !== null ? null
+      : contract?.executionBudget ?? (executionId ? lineExecutionBudget(job, new Date(job.leaseExpiresAt.getTime() - LINE_JOB_LEASE_MS)) : null)
     // Charge authorization/corpus validation time too; an expensive manifest read
     // must not turn an answer that crossed the cutoff into READY.
     const checkedAt = now.getTime() + Math.max(0, performance.now() - startedAt)
@@ -699,7 +743,8 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       ...(code ? { errorCode: code, traceFailureCode: traceFailureCode ?? null,
         ...(outcome === 'UNKNOWN' ? { outcome: 'UNKNOWN' } : {}) }
         : { text, answerReadyAt: now.toISOString() }),
-      executionEvidence: 'SERVER',
+      // FR-244 — the same evidence value the Server path's admission-time ANSWER_READY carries.
+      executionEvidence: outOfHoursReply !== null && !code ? 'OUT_OF_HOURS_RULE' : 'SERVER',
       ...(deadline ? { executionBudget: deadline, completedAt: now.toISOString() } : {}),
     }, now)
     return { id, status: finalStatus, version: version + 1 }

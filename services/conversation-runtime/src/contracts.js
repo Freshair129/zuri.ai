@@ -10,6 +10,8 @@ export const WORK_TOOL_OPERATIONS = Object.freeze(['read', 'propose', 'confirm-e
 export const WORK_REJECTION_CODES = Object.freeze(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_ACTION_UNAVAILABLE'])
 // Fixed replies Core derives from malformed Work command text (`prepare` `workReply`).
 export const WORK_REPLY_CODES = Object.freeze(['WORK_COMMAND_USAGE', 'WORK_ACTION_UNAVAILABLE'])
+// Turn kinds Core may hand out from `prepare`; absent means an ordinary turn.
+export const TURN_KINDS = Object.freeze(['OUT_OF_HOURS'])
 export const MAX_REQUEST_BYTES = 64 * 1024
 export const MAX_RESPONSE_BYTES = 64 * 1024
 
@@ -155,7 +157,8 @@ export function validateWorkToolRequest(value) {
 
 export function validateTurnContext(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw fail('TURN_CONTEXT_INVALID')
-  const allowed = new Set(['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply'])
+  const allowed = new Set(['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply',
+    'turnKind', 'replyText'])
   if (Object.keys(value).some(key => !allowed.has(key))) throw fail('TURN_CONTEXT_UNKNOWN_FIELD')
   boundedText(value.question, 8000, 'TURN_QUESTION_INVALID')
   const records = Array.isArray(value.evidence) ? value.evidence : value.evidence?.records
@@ -176,5 +179,12 @@ export function validateTurnContext(value) {
       || Object.keys(reply).some(key => !['code', 'text'].includes(key)) || !WORK_REPLY_CODES.includes(reply.code)) throw fail('TURN_WORK_REPLY_INVALID')
     boundedText(reply.text, 5000, 'TURN_WORK_REPLY_INVALID')
   }
+  // @req FR-244 — Core's admission-time OUT_OF_HOURS decision: a fixed reply and
+  // nothing to execute (no evidence, context, Work command, Work reply or model).
+  if (value.turnKind !== undefined) {
+    if (!TURN_KINDS.includes(value.turnKind)) throw fail('TURN_KIND_INVALID')
+    boundedText(value.replyText, 5000, 'TURN_REPLY_TEXT_INVALID')
+    if (value.workCommand != null || value.workReply != null || records.length || value.slices.length) throw fail('TURN_KIND_INVALID')
+  } else if (value.replyText !== undefined) throw fail('TURN_KIND_INVALID')
   return value
 }
