@@ -402,7 +402,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       }
       case 'trace': {
         assertRuntimeTraceEvent(claimRef, payload)
-        await ownedClaim(claimRef, { status: payload.kind === 'ANSWER_READY' ? 'READY' : 'CLAIMED', checkLease: false })
+        await ownedClaim(claimRef, { status: 'CLAIMED', checkLease: false })
         return appendTrace(claimRef, payload, { db, now })
       }
       case 'status': {

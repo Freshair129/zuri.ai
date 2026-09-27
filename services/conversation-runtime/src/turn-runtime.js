@@ -87,7 +87,6 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       } catch (error) { return { jobId: claim.jobId, status: 'UNKNOWN', code: safeCode(error) } }
     }
 
-    const startedAt = now()
     let stage = 'authority'
     let renewalError = null
     let renewalInFlight = null
@@ -323,8 +322,7 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         throw unknownOutcome('COMPLETION_OUTCOME_UNKNOWN', completionError)
       }
       if (completed?.status !== 'READY') throw unknownOutcome('COMPLETION_OUTCOME_UNKNOWN')
-      try { await ports.trace.append(claim, { kind: 'ANSWER_READY', payload: { operationId: stableAnswerId,
-        status: completed?.status ?? 'READY', elapsedMs: Math.max(0, now() - startedAt) } }, { signal }) } catch { /* the durable completion row is authoritative */ }
+      // Core's settle writes the authoritative ANSWER_READY with the committed row.
       stage = 'delivery'
       let delivery
       delivery = await sendWithReconciliation(claim, { signal })

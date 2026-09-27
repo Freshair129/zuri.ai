@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, randomBytes, randomUUID } from 'node:crypto'
+import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
 import { ingestLineMessage, ingestLineConversationEvent, recordExistingConversationEvent, ingestLineUnsendEvent } from '@/modules/crm/line-ingest-service'
@@ -15,6 +15,7 @@ import { lineExecutionBudget } from '../domain/line-execution-budget'
 import { isLineProjectWorkCommand, parseLineProjectWorkCommand, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
 import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
 import { resolveLineKnowledgeGroundingMode } from '@/modules/agent/line-knowledge-grounding'
+import { zContextSliceSource } from '@/lib/validation/enums'
 import { assertMemoryAnswerAppended } from './runtime-memory-receipts'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
@@ -1068,18 +1069,44 @@ export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAc
 // operation id it must carry (`null`: none). Every other kind — Core receipts,
 // delivery, memory, evidence, retention tombstones — is written by Core alone, and
 // a runtime event is always keyed under `${jobId}:runtime:`, never a Core key.
+// Each kind also has one exact payload shape. ANSWER_READY is not here: Core's
+// settle writes the authoritative one, and nothing reads a runtime copy.
+const zRuntimeCode = z.string().regex(/^[A-Z0-9_:-]{1,80}$/)
+const zContextRef = z.string().min(1).max(200)
 const RUNTIME_TRACE_KINDS = Object.freeze({
-  MODEL_STARTED: 'runtime-model', MODEL_COMPLETED: 'runtime-model',
-  MODEL_FAILED: 'turn-answer', EXECUTION_FAILED: 'turn-answer', ANSWER_READY: 'turn-answer',
-  CONTEXT_COMMITTED: null,
+  MODEL_STARTED: { operation: 'runtime-model', payload: z.object({ operationId: z.string() }).strict() },
+  MODEL_COMPLETED: { operation: 'runtime-model',
+    payload: z.object({ operationId: z.string(), text: z.string().min(1).max(5000) }).strict() },
+  MODEL_FAILED: { operation: 'turn-answer', payload: z.object({ operationId: z.string(), code: zRuntimeCode }).strict() },
+  EXECUTION_FAILED: { operation: 'turn-answer', payload: z.object({ operationId: z.string(), code: zRuntimeCode }).strict() },
+  // The runtime Context Composer's receipt: references, budget, drops and their
+  // hash, never content (services/conversation-runtime/src/context.js).
+  CONTEXT_COMMITTED: { operation: null, payload: z.object({
+    refs: z.array(z.object({ id: zContextRef, source: zContextSliceSource, citationId: zContextRef.nullable() }).strict()).max(64),
+    budget: z.object({ max: z.number().int().min(0).max(32_000), used: z.number().int().min(0).max(32_000),
+      trimmed: z.number().int().min(0).max(64) }).strict(),
+    dropped: z.array(z.object({ id: zContextRef, source: zContextSliceSource,
+      reason: z.enum(['THREAD_SCOPE_MISMATCH', 'AUDIENCE_SCOPE_DENIED', 'BUDGET_EXCEEDED']) }).strict()).max(64),
+    hash: z.string().regex(/^[0-9a-f]{64}$/),
+  }).strict() },
 })
 
-/** Throws unless the runtime may report this kind under this operation id. */
+/** Throws unless the runtime may report this kind, under this operation id, with exactly this shape. */
 export function assertRuntimeTraceEvent(claim, { kind, payload } = {}) {
   if (!Object.hasOwn(RUNTIME_TRACE_KINDS, kind)) throw failure(400, 'TRACE_KIND_NOT_PERMITTED')
-  const expectedOperation = RUNTIME_TRACE_KINDS[kind]
-  if (expectedOperation === null ? payload?.operationId !== undefined
-    : payload?.operationId !== `${claim.jobId}:${expectedOperation}`) throw failure(400, 'TRACE_OPERATION_ID_INVALID')
+  const { operation, payload: shape } = RUNTIME_TRACE_KINDS[kind]
+  if (operation === null ? payload?.operationId !== undefined
+    : payload?.operationId !== `${claim.jobId}:${operation}`) throw failure(400, 'TRACE_OPERATION_ID_INVALID')
+  const parsed = shape.safeParse(payload)
+  if (!parsed.success) throw failure(400, 'TRACE_PAYLOAD_INVALID')
+  if (kind === 'CONTEXT_COMMITTED') {
+    const { refs, budget, dropped, hash } = parsed.data
+    const facts = { refs: refs.map(({ id, source, citationId }) => ({ id, source, citationId })),
+      budget: { max: budget.max, used: budget.used, trimmed: budget.trimmed },
+      dropped: dropped.map(({ id, source, reason }) => ({ id, source, reason })) }
+    if (budget.trimmed !== dropped.length || budget.used > budget.max
+      || createHash('sha256').update(JSON.stringify(facts)).digest('hex') !== hash) throw failure(400, 'TRACE_PAYLOAD_INVALID')
+  }
 }
 
 export async function appendRuntimeConversationTrace(claim, { kind, payload }, { db = prisma, now = () => new Date() } = {}) {
@@ -1093,7 +1120,10 @@ export async function appendRuntimeConversationTrace(claim, { kind, payload }, {
   }
   // An event without a stable operation id belongs to this execution: a reclaimed
   // execution commits its own context rather than colliding with the first one's.
-  const operationId = typeof payload?.operationId === 'string' ? payload.operationId : `${job.id}:${job.executionId}:turn`
+  // A failure is this execution's own outcome too: a reclaimed execution that
+  // fails differently records its failure instead of colliding with the first.
+  const operationId = typeof payload?.operationId !== 'string' ? `${job.id}:${job.executionId}:turn`
+    : ['EXECUTION_FAILED', 'MODEL_FAILED'].includes(kind) ? `${payload.operationId}:${job.executionId}` : payload.operationId
   await traceEvent(db, job, kind, `runtime:${operationId}:${kind}`, payload,
     new Date(typeof now === 'function' ? now() : now))
   return { recorded: true }

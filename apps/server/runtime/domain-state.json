@@ -484,6 +484,14 @@
       "status": "partial",
       "requirements": [
         {
+          "id": "FR-022",
+          "title": "LINE as an identity provider end-to-end",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 17
+        },
+        {
           "id": "FR-025",
           "title": "Agent read-only context contract (ADR-007 P6, Gate E)",
           "declared": "done",
@@ -1360,7 +1368,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-023",
@@ -1673,7 +1681,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-026",
@@ -2332,7 +2340,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-028",
@@ -3630,7 +3638,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-061",
@@ -5169,7 +5177,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-031",
@@ -12744,6 +12752,7 @@
       ],
       "primaryDomain": "identity",
       "contributorDomains": [
+        "agent",
         "crm",
         "identity",
         "integration",
@@ -12761,8 +12770,8 @@
           "title": "LINE as an identity provider end-to-end",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 16
+          "codeCount": 15,
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -12770,6 +12779,7 @@
         "apps/server/src/app/api/crm/customers/[customerId]/erasure/route.js",
         "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
         "apps/server/src/app/api/identity/link-tokens/route.js",
+        "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/crm/conversation-redaction-service.js",
         "apps/server/src/modules/identity/classify-principal.js",
         "apps/server/src/modules/identity/erase-customer-principal.js",
@@ -12786,6 +12796,7 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
+        "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
         "apps/server/tests/integration/identity-classify.test.js",
         "apps/server/tests/integration/identity-erase.test.js",

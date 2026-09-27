@@ -670,7 +670,7 @@ describe('Conversation Runtime memory-sync turns', () => {
   // trace kind through the generic `trace` operation, and Core must build every MSP
   // grant from its own authorization and route.
   describe('Core-owned receipts cannot be forged by the runtime', () => {
-    const RUNTIME_KINDS = ['MODEL_STARTED', 'MODEL_COMPLETED', 'MODEL_FAILED', 'EXECUTION_FAILED', 'ANSWER_READY', 'CONTEXT_COMMITTED']
+    const RUNTIME_KINDS = ['MODEL_STARTED', 'MODEL_COMPLETED', 'MODEL_FAILED', 'EXECUTION_FAILED', 'CONTEXT_COMMITTED']
     const traceRows = jobId => prisma.agentTraceEvent.findMany({ where: { turnId: jobId }, select: { kind: true, idempotencyKey: true } })
 
     it('refuses every Core-owned trace kind and every foreign operation id, and writes nothing', async () => {
@@ -683,13 +683,13 @@ describe('Conversation Runtime memory-sync turns', () => {
       const coreKinds = TRACE_EVENT_KINDS.filter(kind => !RUNTIME_KINDS.includes(kind))
       expect(coreKinds).toEqual(expect.arrayContaining(['MEMORY_THREAD_READ', 'MEMORY_THREAD_APPENDED', 'MEMORY_INJECTION_RECORDED',
         'CONTEXT_RECEIPT', 'RETENTION_TOMBSTONE', 'EVIDENCE_SELECTED', 'MEMORY_DELIVERY_ACKNOWLEDGED', 'OUTBOUND_RECORDED',
-        'SEND_RESULT', 'MEMORY_WRITTEN']))
+        'SEND_RESULT', 'MEMORY_WRITTEN', 'ANSWER_READY']))
       for (const kind of coreKinds) {
         await expect(ports.trace.append(claim, { kind, payload: { operationId: `${jobId}:memory-append`,
           textSha256: memoryTextSha256('forged answer') } }), kind).rejects.toMatchObject({ code: 'TRACE_KIND_NOT_PERMITTED' })
       }
       for (const [kind, operationId] of [['MODEL_COMPLETED', `${jobId}:memory-append`], ['MODEL_STARTED', `${jobId}:turn-answer`],
-        ['ANSWER_READY', `${jobId}:runtime-model`], ['EXECUTION_FAILED', `${jobId}:memory-read`], ['CONTEXT_COMMITTED', `${jobId}:turn-answer`],
+        ['MODEL_FAILED', `${jobId}:runtime-model`], ['EXECUTION_FAILED', `${jobId}:memory-read`], ['CONTEXT_COMMITTED', `${jobId}:turn-answer`],
         ['MODEL_COMPLETED', `other-job:runtime-model`]]) {
         await expect(ports.trace.append(claim, { kind, payload: { operationId, text: 'x' } }), `${kind} ${operationId}`)
           .rejects.toMatchObject({ code: 'TRACE_OPERATION_ID_INVALID' })
@@ -706,7 +706,9 @@ describe('Conversation Runtime memory-sync turns', () => {
       const forged = { operationId: `${jobId}:memory-append`, textSha256: memoryTextSha256('forged answer') }
       await expect(ports.trace.append(claim, { kind: 'MEMORY_THREAD_APPENDED', payload: forged })).rejects.toMatchObject({ code: 'TRACE_KIND_NOT_PERMITTED' })
       // The runtime's own allowed events carry nothing Core reads as a memory receipt.
-      await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: `${jobId}:runtime-model`, text: 'forged answer', textSha256: forged.textSha256 } })
+      await expect(ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: `${jobId}:runtime-model`,
+        text: 'forged answer', textSha256: forged.textSha256 } })).rejects.toMatchObject({ code: 'TRACE_PAYLOAD_INVALID' })
+      await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: `${jobId}:runtime-model`, text: 'forged answer' } })
       // A row at the runtime key namespace, however it got there, is not Core's receipt.
       const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
       await appendTraceEvent(prisma, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: jobId,
@@ -764,6 +766,86 @@ describe('Conversation Runtime memory-sync turns', () => {
       await expect(ports.memory.append(claim, 'answer')).rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
       expect(msp.calls.length).toBe(calls)
       expect(job.id).toBe(jobId)
+    })
+
+    it('accepts each runtime kind only in its exact payload shape, and never a runtime ANSWER_READY', async () => {
+      const jobId = await admit()
+      const { ports } = build({ msp: createFakeMsp() })
+      const claim = await ports.job.claim({ claimantId: 'runtime-trace-shapes' })
+      expect(claim.jobId).toBe(jobId)
+      const facts = { refs: [{ id: 'k1', source: 'KNOWLEDGE', citationId: null }], budget: { max: 100, used: 5, trimmed: 1 },
+        dropped: [{ id: 'm1', source: 'MSP', reason: 'BUDGET_EXCEEDED' }] }
+      const context = { ...facts, hash: sha256(JSON.stringify(facts)) }
+      const valid = [
+        ['MODEL_STARTED', { operationId: `${jobId}:runtime-model` }],
+        ['MODEL_COMPLETED', { operationId: `${jobId}:runtime-model`, text: 'answer' }],
+        ['CONTEXT_COMMITTED', context],
+        ['MODEL_FAILED', { operationId: `${jobId}:turn-answer`, code: 'MODEL_OUTCOME_UNKNOWN' }],
+        ['EXECUTION_FAILED', { operationId: `${jobId}:turn-answer`, code: 'EXECUTION_FAILED' }],
+      ]
+      for (const [kind, payload] of valid) expect(await ports.trace.append(claim, { kind, payload }), kind).toEqual({ recorded: true })
+      const invalid = [
+        ['MODEL_STARTED', { operationId: `${jobId}:runtime-model`, text: 'smuggled' }],
+        ['MODEL_COMPLETED', { operationId: `${jobId}:runtime-model`, text: '' }],
+        ['MODEL_COMPLETED', { operationId: `${jobId}:runtime-model`, text: 7 }],
+        ['MODEL_FAILED', { operationId: `${jobId}:turn-answer`, code: 'not a code' }],
+        ['EXECUTION_FAILED', { operationId: `${jobId}:turn-answer`, code: 'X', text: 'forged answer' }],
+        ['CONTEXT_COMMITTED', { ...context, hash: sha256('another') }],
+        ['CONTEXT_COMMITTED', { ...context, text: 'content' }],
+        ['CONTEXT_COMMITTED', { ...context, budget: { ...context.budget, trimmed: 0 } }],
+        ['CONTEXT_COMMITTED', { ...context, refs: [{ id: 'k1', source: 'CRM', citationId: null }] }],
+      ]
+      for (const [kind, payload] of invalid) {
+        await expect(ports.trace.append(claim, { kind, payload }), `${kind} ${JSON.stringify(payload)}`).rejects.toMatchObject({ code: 'TRACE_PAYLOAD_INVALID' })
+      }
+      // Once READY, a runtime ANSWER_READY with any text is still refused; Core's settled one is the only one.
+      await ports.memory.read(claim)
+      await ports.memory.append(claim, 'the committed answer')
+      expect(await ports.job.complete(claim, { text: 'the committed answer', operationId: `${jobId}:turn-answer` })).toMatchObject({ status: 'READY' })
+      await expect(ports.trace.append(claim, { kind: 'ANSWER_READY', payload: { operationId: `${jobId}:turn-answer`, text: 'forged answer' } }))
+        .rejects.toMatchObject({ code: 'TRACE_KIND_NOT_PERMITTED' })
+      const answers = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'ANSWER_READY' } })
+      expect(answers).toHaveLength(1)
+      expect(answers[0].idempotencyKey.startsWith(`${jobId}:settled:`)).toBe(true)
+      expect(answers[0].payloadJson).not.toContain('forged')
+    })
+
+    it('records the failure of a reclaimed execution instead of colliding with the first one', async () => {
+      const jobId = await admit()
+      const { ports } = build({ msp: createFakeMsp() })
+      const first = await ports.job.claim({ claimantId: 'runtime-failure-first' })
+      await ports.trace.append(first, { kind: 'EXECUTION_FAILED', payload: { operationId: `${jobId}:turn-answer`, code: 'FIRST_FAILURE' } })
+      await prisma.lineConversationJob.update({ where: { id: jobId }, data: { leaseExpiresAt: new Date(Date.now() - 1) } })
+      const second = await ports.job.claim({ claimantId: 'runtime-failure-second' })
+      expect(second.jobId).toBe(jobId)
+      expect(second.executionId).not.toBe(first.executionId)
+      expect(await ports.trace.append(second, { kind: 'EXECUTION_FAILED', payload: { operationId: `${jobId}:turn-answer`, code: 'SECOND_FAILURE' } }))
+        .toEqual({ recorded: true })
+      const failures = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'EXECUTION_FAILED' }, orderBy: { occurredAt: 'asc' } })
+      expect(failures.map(row => JSON.parse(row.payloadJson).code)).toEqual(['FIRST_FAILURE', 'SECOND_FAILURE'])
+    })
+
+    it('erasure still redacts the turn when a RETENTION_TOMBSTONE row exists under a foreign key', async () => {
+      const jobId = await admit()
+      const { ports } = build({ msp: createFakeMsp() })
+      const claim = await ports.job.claim({ claimantId: 'runtime-tombstone' })
+      await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: `${jobId}:runtime-model`, text: 'private model answer' } })
+      // The row `main` let a runtime write through `trace`: a tombstone that is not Core's.
+      const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
+      await appendTraceEvent(prisma, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: jobId,
+        executionId: job.executionId, kind: 'RETENTION_TOMBSTONE', payload: { reason: 'FORGED' },
+        idempotencyKey: `${jobId}:runtime:${jobId}:turn-answer:RETENTION_TOMBSTONE` })
+      const inbound = await prisma.message.findUnique({ where: { id: job.inboundMessageId } })
+      await prisma.$transaction(tx => redactLineConversationJobs(tx, { tenantId: tenant.id, conversationIds: [inbound.conversationId] }))
+      const rows = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId } })
+      const received = rows.find(row => row.kind === 'TURN_RECEIVED')
+      const completed = rows.find(row => row.kind === 'MODEL_COMPLETED')
+      expect(received.payloadJson).toBe('{"redacted":true}')
+      expect(completed.payloadJson).toBe('{"redacted":true}')
+      expect(JSON.stringify(rows)).not.toContain('private model answer')
+      expect(JSON.stringify(rows)).not.toContain(question)
+      expect(rows.filter(row => row.kind === 'RETENTION_TOMBSTONE').map(row => row.idempotencyKey))
+        .toContain(`retention:${jobId}`)
     })
 
     it('still requires the real append once memory was read, even if the job no longer reads as opted in', async () => {
