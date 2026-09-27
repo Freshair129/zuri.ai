@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
@@ -331,6 +331,14 @@ afterEach(async () => {
   wire = []
   corpusMock.fn = null
   corpusMock.calls.length = 0
+})
+
+// Hygiene for the rest of the run: this suite's RECORDED memory jobs would sit as
+// PENDING MSP deliveries in the shared database and fill the installation-wide
+// delivery scanner's batch in later suites. Close them; nothing here reads them after.
+afterAll(async () => {
+  await prisma.lineConversationJob.updateMany({ where: { tenantId: tenant.id, memoryDeliveryState: 'PENDING' },
+    data: { memoryDeliveryState: 'CLOSED', memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null } })
 })
 
 /** Play the same turns through the legacy tick, then the runtime; return both sides. */
