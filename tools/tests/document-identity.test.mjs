@@ -200,6 +200,37 @@ test('manifest validation checks source revision, endpoints, duplicate declarati
   assert.ok(invalid.some(error => error.code === 'INVALID_MAPPING_PROVENANCE'))
 })
 
+test('manifest validation preserves absent declaration status and blank crosswalk targets', () => {
+  const source = declaration('ZAI', 'FR-100', 'zai-pin')
+  const sourceWithBlankTarget = declaration('ZAI', 'FR-101', 'zai-pin')
+  const target = declaration('ZNEXT', 'FR-201', 'znext-pin', { sourceStatus: null })
+  const blankRow = provenance('znext-pin', null, 2)
+  const mappings = [
+    {
+      source: { namespace: 'ZAI', id: 'FR-100' },
+      sourceRevision: 'zai-pin',
+      sourceLocator: { path: source.path, blob: source.blob, sha256: source.sha256 },
+      targetRevision: 'znext-pin',
+      targets: [],
+      sourceDisposition: 'retired',
+      reviewStatus: 'not-reviewed',
+      provenance: [blankRow],
+    },
+    {
+      source: { namespace: 'ZAI', id: 'FR-101' },
+      sourceRevision: 'zai-pin',
+      sourceLocator: { path: sourceWithBlankTarget.path, blob: sourceWithBlankTarget.blob, sha256: sourceWithBlankTarget.sha256 },
+      targetRevision: 'znext-pin',
+      targets: [{ namespace: 'ZNEXT', id: 'FR-201' }],
+      sourceDisposition: 'mixed',
+      reviewStatus: 'not-reviewed',
+      provenance: [blankRow, provenance('znext-pin', 'FR-201', 3)],
+    },
+  ]
+
+  assert.deepEqual(validateIdentityManifests({ identities: [source, sourceWithBlankTarget, target], mappings }), [])
+})
+
 test('CLI validates manifest envelopes from an explicit repository root', () => {
   const root = mkdtempSync(path.join(tmpdir(), 'document-identity-check-'))
   try {

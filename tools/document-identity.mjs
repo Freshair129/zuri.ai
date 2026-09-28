@@ -128,8 +128,11 @@ export function validateIdentityManifests({ identities, mappings } = {}) {
   identities.forEach((identity, index) => {
     const at = `identities[${index}]`
     if (!validateQualifiedIdentity(identity, at, errors)) return
-    for (const field of ['family', 'revision', 'path', 'blob', 'sha256', 'declarationKind', 'sourceStatus', 'disposition', 'reviewStatus']) {
+    for (const field of ['family', 'revision', 'path', 'blob', 'sha256', 'declarationKind', 'disposition', 'reviewStatus']) {
       if (!isNonEmptyString(identity[field])) errors.push({ code: 'INVALID_IDENTITY_DECLARATION', path: `${at}.${field}`, message: `${field} must be a non-empty string.` })
+    }
+    if (identity.sourceStatus !== null && !isNonEmptyString(identity.sourceStatus)) {
+      errors.push({ code: 'INVALID_IDENTITY_DECLARATION', path: `${at}.sourceStatus`, message: 'sourceStatus must be a non-empty string or null when the source declaration omits it.' })
     }
     const key = declarationKey(identity)
     if (declarationKeys.has(key)) errors.push({ code: 'DUPLICATE_IDENTITY_DECLARATION', path: at, message: `Duplicate declaration for ${formatQualifiedIdentity(identity)} at revision ${identity.revision}.` })
@@ -188,11 +191,11 @@ export function validateIdentityManifests({ identities, mappings } = {}) {
     if (Array.isArray(mapping.provenance)) {
       if (targets.length > 0 && mapping.provenance.length === 0) errors.push({ code: 'MAPPING_PROVENANCE_REQUIRED', path: `${at}.provenance`, message: 'Mapped targets require source crosswalk provenance.' })
       mapping.provenance.forEach((row, rowIndex) => {
-        if (provenanceError(row) || !isNonEmptyString(row.targetId)) {
-          errors.push({ code: 'INVALID_MAPPING_PROVENANCE', path: `${at}.provenance[${rowIndex}]`, message: 'Each provenance row requires path, revision, blob, sha256, a positive row number, targetId, and sourceDisposition.' })
+        if (provenanceError(row) || !(row.targetId === null || isNonEmptyString(row.targetId))) {
+          errors.push({ code: 'INVALID_MAPPING_PROVENANCE', path: `${at}.provenance[${rowIndex}]`, message: 'Each provenance row requires path, revision, blob, sha256, a positive row number, a string or null targetId, and sourceDisposition.' })
         } else {
           if (row.revision !== mapping.targetRevision) errors.push({ code: 'MAPPING_PROVENANCE_REVISION_MISMATCH', path: `${at}.provenance[${rowIndex}].revision`, message: 'Crosswalk provenance revision must match targetRevision.' })
-          if (!targets.some(target => target.id === row.targetId)) errors.push({ code: 'MAPPING_PROVENANCE_TARGET_MISMATCH', path: `${at}.provenance[${rowIndex}].targetId`, message: 'Provenance targetId is absent from the grouped target list.' })
+          if (row.targetId !== null && !targets.some(target => target.id === row.targetId)) errors.push({ code: 'MAPPING_PROVENANCE_TARGET_MISMATCH', path: `${at}.provenance[${rowIndex}].targetId`, message: 'Provenance targetId is absent from the grouped target list.' })
         }
       })
     }
