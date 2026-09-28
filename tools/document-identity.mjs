@@ -3,55 +3,13 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { DocumentIdentityError, formatQualifiedIdentity, isDocumentIdentity, parseQualifiedIdentity } from '../apps/server/scripts/document-identity-format.mjs'
+export { DocumentIdentityError, formatQualifiedIdentity, parseQualifiedIdentity }
 
-const NAMESPACES = new Set(['ZAI', 'ZNEXT', 'edge'])
-const ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/
 const SPLIT_OR_MERGE = /(?:split|merg|one[-_ ]to[-_ ]many|many[-_ ]to[-_ ]one)/i
-
-export class DocumentIdentityError extends Error {
-  constructor(code, message, details = {}) {
-    super(message)
-    this.name = 'DocumentIdentityError'
-    this.code = code
-    this.details = details
-  }
-}
 
 function identityError(code, message, details) {
   return new DocumentIdentityError(code, message, details)
-}
-
-function assertIdentityParts(identity) {
-  if (!identity || !NAMESPACES.has(identity.namespace) || typeof identity.id !== 'string' || !ID_PATTERN.test(identity.id)) {
-    throw identityError('INVALID_IDENTITY_REFERENCE', 'Identity must have a supported namespace and a non-empty, unqualified ID.', { identity })
-  }
-}
-
-/** Parse a serialized qualified identity. Bare IDs are intentionally handled by resolution, not parsing. */
-export function parseQualifiedIdentity(reference) {
-  if (typeof reference !== 'string') {
-    throw identityError('INVALID_IDENTITY_REFERENCE', 'Identity reference must be a string.', { reference })
-  }
-  const value = reference.trim()
-  let identity
-  if (value.startsWith('edge::')) identity = { namespace: 'edge', id: value.slice('edge::'.length) }
-  else {
-    const match = /^(ZAI|ZNEXT):(.+)$/.exec(value)
-    if (match) identity = { namespace: match[1], id: match[2] }
-  }
-  if (!identity) {
-    if (!ID_PATTERN.test(value) || value.includes(':')) {
-      throw identityError('INVALID_IDENTITY_REFERENCE', `Invalid qualified identity: ${reference}`, { reference })
-    }
-    return null
-  }
-  assertIdentityParts(identity)
-  return identity
-}
-
-export function formatQualifiedIdentity(identity) {
-  assertIdentityParts(identity)
-  return identity.namespace === 'edge' ? `edge::${identity.id}` : `${identity.namespace}:${identity.id}`
 }
 
 function sameIdentity(left, right) {
@@ -91,7 +49,7 @@ export function resolveDocumentIdentity(reference, { identities, revision, path:
 }
 
 function validateQualifiedIdentity(value, at, errors) {
-  if (!value || typeof value !== 'object' || !NAMESPACES.has(value.namespace) || typeof value.id !== 'string' || !ID_PATTERN.test(value.id)) {
+  if (!isDocumentIdentity(value)) {
     errors.push({ code: 'INVALID_IDENTITY_KEY', path: at, message: 'Expected a supported namespace and an unqualified ID.' })
     return false
   }

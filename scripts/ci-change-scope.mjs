@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { adaptTraceAnnotations, legacyRequirementIds } from '../apps/server/scripts/trace-annotations.mjs'
 
 // Which verification a pull request's diff needs.
 //
@@ -162,7 +163,6 @@ const RELATED_TEST = /^apps\/server\/tests\/(unit|integration)\/.+\.test\.js$/
 const INERT = /^(docs\/|\.brain\/|AGENTS\.md$|CLAUDE\.md$|README\.md$|apps\/server\/tests\/e2e\/)/
 const DOCUMENT = /^(docs\/|\.brain\/|AGENTS\.md$|CLAUDE\.md$|README\.md$)/
 const ANNOTATION = /@(req|tested)\s+([^\n]*)/g
-const ID_LIST = /(?:FR|NFR|BR|SEC|SDD)-\d{3}/g
 const POSTGRES_PATHS = /conversation-runtime|work-tool|line-conversation-jobs|line-project-work|line-memory-erasure/
 
 /**
@@ -223,9 +223,16 @@ export function selectRelated({ changed, graph, all, testSources, sourceTexts, a
     const text = sourceTexts[file]
     if (text == null || RELATED_TEST.test(file)) continue
     for (const [, kind, rest] of text.matchAll(ANNOTATION)) {
-      if (kind === 'req') for (const id of rest.match(ID_LIST) || []) ids.add(id)
-      else for (const name of rest.split('—')[0].replace(/\([^)]*\)/g, '').split(',').map((s) => s.split('::')[0].trim()).filter(Boolean)) tested.add(name)
+      if (kind === 'req') {
+        for (const id of legacyRequirementIds(rest)) ids.add(id)
+        for (const match of rest.matchAll(/\bZAI:((?:FR|NFR|BR|SEC|SDD)-\d{3})(?![A-Za-z0-9_:-])/g)) ids.add(match[1])
+      } else for (const name of rest.split('—')[0].replace(/\([^)]*\)/g, '').split(',').map((s) => s.split('::')[0].trim()).filter(Boolean)) tested.add(name)
     }
+    // Selection is conservative, not an authority check. Governance resolves the
+    // declaration; an unsupported annotation here selects the full test suite.
+    const trace = adaptTraceAnnotations(text, { resolveIdentity: reference => ({ namespace: 'ZAI', id: reference.slice(4) }) })
+    if (trace.findings.length) return full('unresolved trace annotation')
+    for (const id of trace.req) ids.add(id)
   }
   const idTests = [...ids].map(idPattern)
   const names = changed

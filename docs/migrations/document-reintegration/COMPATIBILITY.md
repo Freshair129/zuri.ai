@@ -1,3 +1,8 @@
+---
+version: "0.1.1"
+status: approved
+---
+
 # Identity compatibility contract
 
 **Status:** Approved contract elaboration; compatibility lane implemented, integration pending

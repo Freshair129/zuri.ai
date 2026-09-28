@@ -1,5 +1,18 @@
 # CLAUDE.md — working guide for this repository
 
+## Documentation reintegration branch
+
+The [approved migration profile](docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md)
+defines the current branch's authoring boundary. Canonical ZAI records generate
+PRD/FEATURES compatibility exports (`npm run docs:registry`); never edit those
+exports by hand. Initial source rows and IDs remain pinned until the separately
+accepted writer cutover. Older row-authoring instructions below describe the
+pre-cutover workflow. Use exact `ZAI:`, `ZNEXT:` and `edge::` identities; imported
+crosswalks do not confer approval, implementation evidence or runtime authority.
+The [snapshot integration contract](docs/migrations/document-reintegration/INTEGRATION.md)
+preserves old v1 evidence and adds opt-in v2 reads. Run the full `govern` chain,
+including registry and identity checks, after document changes.
+
 ## Monorepo paths (ADR-062, 2026-09-06)
 
 Canonical governance remains in root `docs/`. Server source, tests, Prisma,

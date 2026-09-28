@@ -1,5 +1,25 @@
 # AGENTS.md — zuri-ai
 
+## Documentation reintegration branch (2026-09-29)
+
+Read [the approved migration profile](docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md)
+before changing a registry or document reader. On this branch, individual ZAI records
+in `registry/document-registry/index.json` generate the existing PRD/FEATURES paths.
+Run `npm run docs:registry` after an explanatory canonical edit; `govern` checks
+exports without repairing them. Initial source rows, issued IDs and subject anchors
+remain pinned. New/changed behavior needs a reviewed record migration; P6 writer
+cutover and merge acceptance are still separate gates. Older instructions below
+that describe direct PRD/FEATURES editing apply to the pre-cutover writer, not to
+hand editing compatibility exports on this branch.
+
+Use `ZAI:<ID>` for current qualified references, `ZNEXT:<ID>` for pinned provenance,
+and `edge::<ID>` for Edge. A crosswalk is navigation until reviewed; split/merged
+IDs never become implicit aliases. ADRs, issued ZV2-CR records, risk/MI registers,
+task evidence and proposal intake retain their existing authority and paths.
+Keep snapshot v1 manifests and proofs unchanged; v2 is explicitly selected by its
+manifest schema. Follow [the integration contract](docs/migrations/document-reintegration/INTEGRATION.md)
+and [identity compatibility](docs/migrations/document-reintegration/COMPATIBILITY.md).
+
 ## 0. Session start and close: session memory (read this first)
 
 **At session start**, before any other work, read the latest session note in

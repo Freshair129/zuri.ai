@@ -1,7 +1,7 @@
-import { formatQualifiedIdentity, parseQualifiedIdentity } from '../../../tools/document-identity.mjs'
+import { formatQualifiedIdentity, parseQualifiedIdentity } from './document-identity-format.mjs'
 
 const BARE_REQUIREMENT = /(?<![A-Za-z0-9_:./-])(?:FR|NFR|BR|SEC|SDD)-\d{3}(?![A-Za-z0-9_/-])/g
-const SLASH_SEPARATED_ID = /(?<![A-Za-z0-9_:./-])((?:FR|NFR|BR|SEC|SDD)-\d{3})\/(?=(?:FR|NFR|BR|SEC|SDD|ADR)-\d{3}(?![A-Za-z0-9_-]))/g
+const SLASH_SEPARATED_ID = /(?<![A-Za-z0-9_:./-])(?:FR|NFR|BR|SEC|SDD|ADR)-\d{3}(?:\/(?:(?:FR|NFR|BR|SEC|SDD|ADR)-)?\d{3})+(?![A-Za-z0-9_/-])/g
 const TRACE_LINE = /^[ \t]*(?:\/\/|\/\*+|\*|#)?[ \t]*@trace[ \t]+([A-Za-z][A-Za-z_-]*)[ \t]+(.+?)[ \t]*(?:\*\/)?$/gm
 const OLD_REQUIREMENT = /^(?:FR|NFR|BR|SEC|SDD)-\d{3}$/
 
@@ -21,7 +21,7 @@ function addFinding(findings, line, relation, target, code, message) {
 /** Return only complete, unqualified legacy 3-digit requirement tokens. */
 export function legacyRequirementIds(text) {
   const ids = []
-  const normalized = String(text ?? '').replace(SLASH_SEPARATED_ID, '$1 ')
+  const normalized = String(text ?? '').replace(SLASH_SEPARATED_ID, value => value.replaceAll('/', ' '))
   for (const match of normalized.matchAll(BARE_REQUIREMENT)) {
     if (/^\.md\b/i.test(normalized.slice(match.index + match[0].length))) continue
     addUnique(ids, match[0])

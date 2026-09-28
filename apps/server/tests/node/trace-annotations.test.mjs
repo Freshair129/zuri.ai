@@ -43,6 +43,8 @@ test('legacy scanner accepts complete bare IDs but never leaks qualified or long
   ].join('\n')
   assert.deepEqual(legacyRequirementIds(text), ['FR-042', 'NFR-003', 'BR-009', 'FR-051'])
   assert.deepEqual(legacyRequirementIds('FR-234/SDD-100; FR-192/ADR-077'), ['FR-234', 'SDD-100', 'FR-192'])
+  assert.deepEqual(legacyRequirementIds('ADR-106/SDD-110; FR-133/FR-135/FR-136; FR-066/067'), ['SDD-110', 'FR-133', 'FR-135', 'FR-136', 'FR-066'])
+  assert.deepEqual(legacyRequirementIds('docs/FR-133/FR-135.md; ZNEXT:FR-133/FR-135; edge::FR-004/FR-005'), [])
 })
 
 test('trace adapter maps only exact current ZAI identities and preserves relation meaning', () => {

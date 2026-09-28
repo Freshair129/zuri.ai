@@ -2,6 +2,36 @@
 // @tested tests/unit/doc-identities.test.js
 import path from 'node:path'
 
+const REINTEGRATION_INDEXES = new Set([
+  'docs/product/README.md', 'docs/architecture/README.md',
+  'docs/operations/README.md', 'docs/governance/README.md',
+])
+
+export function isGeneratedDocumentView(file) {
+  return REINTEGRATION_INDEXES.has(file)
+    || /^docs\/features\/FEAT-\d{3}\/(?:design|verification)\.md$/.test(file)
+}
+
+/** Registry records and explanatory feature notes are separate document roles. */
+export function collectDocumentClaims(paths, canonicalPaths = new Set()) {
+  const claims = new Map()
+  const claim = (id, file) => claims.set(id, [...(claims.get(id) || []), file])
+  for (const file of paths) {
+    const base = path.posix.basename(file)
+    const adr = /^ADR-(\d{3})/.exec(base)
+    if (adr) claim(`ADR-${adr[1]}`, file)
+    const cr = /^ZV2-CR-(\d{3})-(?!W\d+-)/.exec(base)
+    if (cr) claim(`ZV2-CR-${cr[1]}`, file)
+    // Only records present in the separately validated unique canonical index
+    // have this role. An unindexed copy still competes with the existing note.
+    if (file.includes('/features/') && !canonicalPaths.has(file)) {
+      const fr = /^(FR-\d{3})/.exec(base)
+      if (fr) claim(fr[1], file)
+    }
+  }
+  return claims
+}
+
 export function assertUniqueNodeIds(nodes) {
   const seen = new Map()
   for (const node of nodes) {

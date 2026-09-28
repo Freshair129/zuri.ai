@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -47,12 +48,18 @@ function ledgerAnchor(ledger, id, sourcePath) {
 }
 
 function extractRows(projectRoot) {
-  const ledger = JSON.parse(readFileSync(join(projectRoot, 'docs/.id-ledger.json'), 'utf8'));
+  const pinned = (file) => execFileSync('git', ['--no-replace-objects', 'cat-file', 'blob', `${SOURCE_REVISION}:${file}`],
+    { cwd: projectRoot, windowsHide: true, encoding: null, maxBuffer: 16 * 1024 * 1024 });
+  const ledger = JSON.parse(pinned('docs/.id-ledger.json').toString('utf8'));
   const collected = [];
   const sourceFiles = ['docs/PRD-SDD-v1.0.md', 'docs/FEATURES.md'];
   const seen = new Set();
   for (const sourcePath of sourceFiles) {
-    const content = readFileSync(join(projectRoot, sourcePath), 'utf8');
+    const sourceBytes = pinned(sourcePath);
+    if (!readFileSync(join(projectRoot, sourcePath)).equals(sourceBytes)) {
+      throw new Error(`${sourcePath} differs from the pinned migration source; --adopt cannot relabel new content as historical provenance`);
+    }
+    const content = sourceBytes.toString('utf8');
     const rows = lineParts(content).filter((line) => ROW_ID.test(line));
     for (const [exportOrder, row] of rows.entries()) {
       const id = rowId(row);
@@ -139,7 +146,7 @@ function buildTemplate(sourceText, sourcePath, records) {
   }).join('');
 }
 
-function loadRecords(projectRoot, index) {
+function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
   return index.records.map((entry) => {
     const file = join(projectRoot, entry.path);
     if (!existsSync(file)) throw new Error(`Missing canonical record ${entry.path}`);
@@ -154,7 +161,7 @@ function loadRecords(projectRoot, index) {
       if (entry[indexKey] !== record[recordKey]) throw new Error(`${entry.id} index ${indexKey} does not match its canonical record`);
     }
     if (JSON.stringify(entry.requirementCells ?? []) !== JSON.stringify(record.requirementCells)) throw new Error(`${entry.id} requirementCells do not match its canonical record`);
-    if (entry.recordSha256 !== recordDigest) throw new Error(`${entry.id} canonical record hash does not match index`);
+    if (verifyIndexHash && entry.recordSha256 !== recordDigest) throw new Error(`${entry.id} canonical record hash does not match index`);
     if (record.sourceRevision !== index.sourceRevision) throw new Error(`${entry.id} source revision differs from index`);
     return { ...entry, ...record, recordSha256: recordDigest };
   });
@@ -170,7 +177,7 @@ function buildIndex(records) {
     path: record.path,
     sourcePath: record.sourcePath,
     sourceRowSha256: record.sourceRowSha256,
-    recordSha256: sha256(Buffer.from(gitBlobText(canonicalMarkdown(record)), 'utf8')),
+    recordSha256: record.recordSha256,
     statementCell: record.statementCell,
     requirementCells: record.requirementCells,
     ...(record.featureId ? { featureId: record.featureId } : {}),
@@ -239,10 +246,10 @@ function adopt(projectRoot) {
   return outputs.length;
 }
 
-function writeProjections(projectRoot, check) {
+export function writeCanonicalProjections(projectRoot = ROOT, { check = false } = {}) {
   const indexText = readFileSync(join(projectRoot, INDEX_PATH), 'utf8');
   const index = parseCanonicalIndex(indexText);
-  const records = loadRecords(projectRoot, index);
+  const records = loadRecords(projectRoot, index, { verifyIndexHash: check });
   const nextIndex = buildIndex(records);
   const nextIndexText = `${JSON.stringify(nextIndex, null, 2)}\n`;
   if (check && nextIndexText !== indexText) throw new Error(`${INDEX_PATH} is stale; run --write`);
@@ -268,7 +275,7 @@ if (args.length > 0 && import.meta.url === pathToFileURL(resolve(process.argv[1]
     if (args[0] === '--adopt') {
       console.log(`Adopted ${adopt(ROOT)} canonical records.`);
     } else {
-      const records = writeProjections(ROOT, args[0] === '--check');
+      const records = writeCanonicalProjections(ROOT, { check: args[0] === '--check' });
       console.log(`${args[0] === '--check' ? 'Verified' : 'Wrote'} ${records.length} canonical records and compatibility projections.`);
     }
   } catch (error) {

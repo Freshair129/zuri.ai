@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 import { parseCanonicalIndex, parseCanonicalRecord, splitRow } from '../../apps/server/scripts/document-registry-format.mjs';
-import { readCanonicalRegistry } from '../document-registry.mjs';
+import { readCanonicalRegistry, writeCanonicalProjections } from '../document-registry.mjs';
 
 const SOURCE_REVISION = 'a34ceaf79c112e02b1bcfdbf0a84122d835b002e';
 
@@ -85,4 +88,39 @@ test('parseCanonicalIndex preserves additive fields and validates unique keys an
   assert.throws(() => parseCanonicalIndex(JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: [base, { ...base, id: 'FR-092' }] })), /duplicate path/);
   assert.throws(() => parseCanonicalIndex(JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: [{ ...base, path: 'docs/requirements/../secret.md' }] })), /unsafe path/);
   assert.throws(() => parseCanonicalIndex(JSON.stringify({ version: 2, sourceRevision: SOURCE_REVISION, records: [] })), /unsupported index version/);
+});
+
+test('writer refreshes authored wrapper hashes while preserving source rows and export bytes', () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'zuri-registry-writer-'));
+  const relative = 'docs/requirements/FR-091.md';
+  const original = canonicalRecord();
+  const row = parseCanonicalRecord(original).row;
+  const digest = (text) => createHash('sha256').update(text).digest('hex');
+  const put = (file, text) => { mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); writeFileSync(path.join(root, file), text); };
+  const entry = { id: 'FR-091', namespace: 'ZAI', family: 'FR', path: relative, recordVersion: 1,
+    status: 'source-preserved', sourcePath: 'docs/PRD-SDD-v1.0.md', sourceRowSha256: digest(row),
+    recordSha256: digest(original), statementCell: 2, requirementCells: [], featureId: 'FEAT-009',
+    exportDocument: 'docs/PRD-SDD-v1.0.md', exportOrder: 0 };
+  try {
+    put(relative, original);
+    put('registry/document-registry/index.json', JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: [entry] }));
+    put('registry/document-registry/PRD-SDD-v1.0.template.md', '{{CANONICAL_ROW:FR-091}}');
+    put('registry/document-registry/FEATURES.template.md', '# Features\n');
+    put('docs/PRD-SDD-v1.0.md', row);
+    put('docs/FEATURES.md', '# Features\n');
+    const authored = `${original}\nSource explanation with a reviewed link.\n`;
+    put(relative, authored);
+    assert.throws(() => writeCanonicalProjections(root, { check: true }), /hash does not match/);
+    writeCanonicalProjections(root, { check: false });
+    writeCanonicalProjections(root, { check: true });
+    assert.equal(readFileSync(path.join(root, relative), 'utf8'), authored);
+    assert.equal(readFileSync(path.join(root, 'docs/PRD-SDD-v1.0.md'), 'utf8'), row);
+    assert.equal(readCanonicalRegistry(root)[0].recordSha256, digest(authored));
+    put(relative, authored.replace('statement with', 'different subject with'));
+    assert.throws(() => writeCanonicalProjections(root, { check: false }), /source row hash/);
+  } finally {
+    assert.ok(path.resolve(root).startsWith(path.resolve(os.tmpdir()) + path.sep));
+    assert.ok(path.basename(root).startsWith('zuri-registry-writer-'));
+    rmSync(root, { recursive: true, force: true });
+  }
 });

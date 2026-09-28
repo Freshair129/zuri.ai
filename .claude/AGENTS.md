@@ -1,5 +1,12 @@
 # .claude/AGENTS.md — working on SCM/CRM-style domain-bar grouping
 
+On the documentation-reintegration branch, the root
+[migration profile](../docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md)
+overrides direct PRD/FEATURES row-writing steps below: they are compatibility
+exports of indexed ZAI records. Preserve existing subjects and source rows;
+new behavior requires a reviewed record migration and the separate P6 writer
+cutover. Domain-bar behavior and authority are otherwise unchanged.
+
 Read this before touching `apps/server/src/config/domains.js`'s `DOMAIN_GROUPS`
 export, adding a new one, or doing anything the owner describes as "จัดกลุ่ม
 [domains] ตามหลัก ERP" (group these domains by ERP taxonomy). This file exists

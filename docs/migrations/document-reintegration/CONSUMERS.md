@@ -1,0 +1,65 @@
+---
+doc_type: migration-consumer-contract
+version: "0.1.0"
+status: approved
+---
+
+# Document consumer compatibility
+
+This contract elaborates P4 of the [approved proposal](PROPOSAL.md). The pinned
+[tooling inventory](../../../registry/document-reintegration/tooling.json) records
+source locators, not a claim that every file needs a code change. Compatibility
+exports preserve the original paths and row grammar; readers can retain that
+interface while canonical records become the branch's source.
+
+## Reader boundaries
+
+| Consumer | Intended input and treatment | Verification |
+|---|---|---|
+| ID ledger, anchors and stability | Existing PRD/FEATURES export, ADR, risk, MI and issued CR source paths; no ledger rewrite | Original anchor/stability tests and full preflight |
+| Graph, links and preflight | Exported rows plus indexed canonical locations; exact qualified current identities; original control/link metadata | Graph freshness, link CLI, duplicate-claim, canonical text and retired-rule tests |
+| Domain-state, feature map and data-pipeline map | Same typed graph contract; current source and test bindings, with explicit canonical navigation added | Domain-state/data-pipeline tests and committed runtime projection freshness |
+| Roadmap evidence, coverage and UI | Existing task/roadmap and requirement IDs; no conversion of task completion into document approval | Roadmap evidence/coverage and read-model tests |
+| Source snapshot verifier | v1 pinned legacy blobs; opt-in v2 pinned canonical index and records | Capture/replay, wrong-version, mutation, hash, path and full-corpus tests |
+| Snapshot service and feature binding | Server-issued verifier proof and unchanged source namespace/subject digest fields | Snapshot capture integration and feature service/mutation/read-model tests |
+| Feature API, forms and read routes | Existing canonical feature keys and immutable snapshot-backed reference DTOs | Feature route/read-model tests; server build |
+| SQLite/Postgres schemas, repositories and Phase-B backup | Existing persisted IDs, manifest JSON, verifier versions and proof fields | No schema/data rewrite; original Phase-B migration and backup contracts retained |
+| CI related-test selector | Exact bare legacy IDs, explicit ZAI IDs and current `@trace implements`; unsafe/unknown trace selection falls back to full suite | Selector tests and migration fixtures |
+| Package/CI entrypoints | Registry and provenance checks before graph/preflight, then focused migration tests | Local governance and Node test suite; hosted CI reported separately |
+| LLM corpus and agent instructions | Updated root authoring boundary; original domain charters retained | Deterministic corpus generation/check |
+| Historical Edge graph/registry | Original namespaced registry and revision; current explicitly qualified ZAI references resolve only to ZAI | Existing monorepo graph checks and namespace refusal fixtures |
+| Retired plugin/harness material | Preserve historical source/inventory and retirement decisions; no resurrection of retired packages | Inventory provenance and existing retired-rule checks |
+| Incoming ZNEXT tools, templates and packet formats | Pinned reference source; adapted query/view behavior uses ZAI canonical records and current graph | No imported approval/readiness packet can confer current runtime authority |
+
+The active root `plugins/` directory is absent at the pinned target revision.
+Historical harness references therefore remain historical; creating a replacement
+package is outside this migration. Existing API schemas and seeds need no textual
+ID substitution because no issued ZAI identity or persisted key is renumbered.
+
+## Historical and current references
+
+Original ADRs and issued `ZV2-CR` phase artifacts remain at their original paths.
+Their approval text and Git blobs are not rewritten as summaries. Bare CR intake
+records stay proposals. Risk and MI registers retain their declared families.
+Navigation to ZNEXT requires a source revision and namespace; no broad find/replace
+may turn a same-number imported ID into a current ZAI identity.
+
+Canonical feature design/verification pages are generated navigation. Their links
+to code and tests record bindings, not successful execution. Generated pages are
+excluded from declaration discovery so reading a projection cannot create a second
+source; physical link and table checks still apply to them.
+
+## Authoring transition
+
+During this pre-cutover branch, original source rows are immutable migration input.
+Explanatory canonical edits can be projected with `npm run docs:registry`; stale
+exports and modified source-row digests fail the gate. New statements or new IDs
+need a separately reviewed record migration. This branch must not be represented
+as an unrestricted new authoring workflow: P6 accepts the writer transition after
+the composed evidence is reviewed. The old writer remains on the untouched main
+checkout until that decision.
+
+## Version diff
+
+0.0 → 0.1.0: records intended interfaces for active readers, retained historical
+consumers and imported tooling, with the explicit pre-cutover authoring boundary.

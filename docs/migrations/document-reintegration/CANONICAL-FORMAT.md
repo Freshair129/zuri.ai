@@ -1,3 +1,8 @@
+---
+version: "0.1.1"
+status: approved
+---
+
 # Canonical document record format
 
 **Status:** Approved migration implementation contract, lane deliverable v0.1.0.  
@@ -92,6 +97,22 @@ The templates in `registry/document-registry/` are projection scaffolding, not a
 - `parseCanonicalIndex(text)` → `{version, sourceRevision, records}` with normalized required record fields and tolerated unknown fields; refuses an unsupported version, non-ZAI active record, duplicate `(namespace,id)`, or duplicate path.
 
 The module reads no files, consults no environment, and mutates no state. `tools/document-registry.mjs` owns filesystem access and the `--write` / `--check` workflows. Its public `readCanonicalRegistry()` API returns the parsed records to graph/runtime integrations.
+
+The initial source row and provenance are preserved. Authors may add explanatory
+links outside that row. `--write` recomputes the derived record-file digest from
+the actual canonical file, then regenerates the index and exports. `--check`
+refuses stale digests. Neither mode repairs a changed source-row hash or a changed
+identity; such a change requires its own reviewed record migration. The exported
+`writeCanonicalProjections(root, {check})` applies the same rules to an explicit
+checkout, without editing a source record.
+
+`--adopt` is an initial migration operation: it reads the pinned source Git blobs
+and refuses a checkout whose compatibility registries differ from that pin. It
+cannot label newly authored rows as if they existed in the historical revision.
+
+Version diff 0.1.0 → 0.1.1: separates a derived file digest from immutable source-row
+provenance, allowing canonical explanatory edits without making the index a manual
+second source. Initial row content and compatibility export bytes remain unchanged.
 
 ## Acceptance
 

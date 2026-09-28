@@ -138,6 +138,22 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
     expect(selectRelated({ ...base, testSources: {}, sourceTexts: {}, graph: all.slice(0, limit) }).mode).toBe('related')
   })
 
+  it('selects exact ZAI trace evidence and runs the full suite for unresolved imported annotations', () => {
+    const file = base.changed[0]
+    const exact = selectRelated({ ...base, sourceTexts: { [file]: `// @trace implements ZAI:${REQ}` } })
+    expect(exact.mode).toBe('related')
+    expect(exact.related).toContain('tests/unit/t002.test.js')
+    expect(exact.related).not.toContain('tests/unit/t003.test.js')
+    expect(selectRelated({ ...base, sourceTexts: { [file]: `// @req ZAI:${REQ}` } }).related)
+      .toContain('tests/unit/t002.test.js')
+    for (const annotation of [`ZNEXT:${REQ}`, `${REQ}-003`, `edge::${REQ}`]) {
+      expect(selectRelated({ ...base, sourceTexts: { [file]: `// @trace implements ${annotation}` } }))
+        .toMatchObject({ mode: 'full', reason: 'unresolved trace annotation' })
+    }
+    const importedLegacy = selectRelated({ ...base, sourceTexts: { [file]: `// @req ZNEXT:${REQ}` } })
+    expect(importedLegacy.related).not.toContain('tests/unit/t002.test.js')
+  })
+
   it('runs the PostgreSQL WorkToolPort suite only when the change reaches it', () => {
     const withPg = [...all, POSTGRES_TEST]
     expect(selectRelated({ ...base, all: withPg, graph: [POSTGRES_TEST] }).postgres).toBe(true)

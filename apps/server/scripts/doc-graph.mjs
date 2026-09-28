@@ -14,13 +14,15 @@ import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
 import { domainMap, traceView } from './doc-views.mjs'
 import { collectDocumentLinks, documentLinksView, hasLinkMetadata } from './doc-links.mjs'
-import { qualifyDocumentIds, assertUniqueNodeIds } from './doc-identities.mjs'
+import { qualifyDocumentIds, assertUniqueNodeIds, isGeneratedDocumentView } from './doc-identities.mjs'
 import { generateDomainState } from './domain-state.mjs'
 import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // The same splitter the id ledger reads rows with. Two readings of one row, from
 // two splitters that disagree about `\|`, is how SDD-071's label reached
 // Appendix D as half a sentence.
 import { splitRow } from './id-anchors.mjs'
+import { parseCanonicalIndex } from './document-registry-format.mjs'
+import { adaptTraceAnnotations, legacyRequirementIds } from './trace-annotations.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: the spec pack and the module docs are one tree under ROOT/docs.
@@ -146,7 +148,6 @@ function requirementNodes(prdPath) {
 
 // -------------------------------------------------------------- annotations
 const ANNOTATION = /@(req|spec|tested|designs)\s+([^\n]*)/g
-const ID_LIST = /(?:FR|NFR|BR|SEC|SDD)-\d{3}/g
 
 // Roadmap status vocabulary. A status cell may carry a qualifier — "done (beta)",
 // "in-progress (local slice; gates pending)" — so match the leading token and
@@ -176,7 +177,7 @@ const MD_LINK = /\[[^\]]*\]\(([^)\s]+\.md)[^)]*\)/g
 const ADR_NUM = /ADR-\d{3}/g
 
 function annotationsOf(body) {
-  const found = { req: [], spec: [], tested: [], designs: [] }
+  const found = { req: [], spec: [], tested: [], designs: [], qualifiedReq: [], qualifiedSpec: [] }
   for (const [, kind, rest] of body.matchAll(ANNOTATION)) {
     if (kind === 'tested' || kind === 'designs') {
       // "a.test.js, b.test.js (7 view tests) — note" → ["a.test.js", "b.test.js"]
@@ -185,7 +186,11 @@ function annotationsOf(body) {
         if (!found[kind].includes(t)) found[kind].push(t)
       }
     } else {
-      for (const id of rest.match(ID_LIST) || []) if (!found[kind].includes(id)) found[kind].push(id)
+      for (const id of legacyRequirementIds(rest)) if (!found[kind].includes(id)) found[kind].push(id)
+      for (const id of rest.match(/\bZAI:[A-Za-z0-9][A-Za-z0-9._/-]*[A-Za-z0-9]/g) || []) {
+        const qualified = found[kind === 'req' ? 'qualifiedReq' : 'qualifiedSpec']
+        if (!qualified.includes(id)) qualified.push(id)
+      }
       // non-ID @spec targets (e.g. a doc path) are kept as references
       const head = rest.split('—')[0].trim()
       if (kind === 'spec' && head.endsWith('.md') && !found.spec.includes(head)) found.spec.push(head)
@@ -218,7 +223,7 @@ function build() {
   // runs to converge (the two-pass disease docs:check was cured of once).
   const GENERATED = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md', 'DOCUMENT-LINKS.md'])
   const docFiles = walk(workspacePath(ROOT, 'docs'), ['.md']).filter(
-    (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)),
+    (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)) && !isGeneratedDocumentView(rel(f)),
   )
   for (const file of docFiles) {
     const base = path.basename(file)
@@ -314,6 +319,17 @@ function build() {
   const prd = workspacePath(ROOT, 'docs', 'PRD-SDD-v1.0.md')
   const reqs = requirementNodes(prd)
   nodes.push(...reqs)
+  const canonicalIndex = path.join(workspaceRoot(ROOT), 'registry/document-registry/index.json')
+  if (existsSync(canonicalIndex)) {
+    for (const record of parseCanonicalIndex(read(canonicalIndex)).records) {
+      const node = nodes.find(n => n.id === `${record.family === 'FEAT' ? 'feat' : 'req'}:${record.id}`)
+      const declaration = nodes.find(n => n.path === record.path)
+      if (!node || !declaration) throw Error(`Missing canonical graph declaration: ZAI:${record.id}`)
+      node.canonical_path = record.path
+      node.namespace = record.namespace
+      addEdge(node.id, declaration.id, 'specifies', 'canonical-registry')
+    }
+  }
   // The two id namespaces, kept apart on purpose. `rootDeclaredIds` is what
   // this registry declares; `edgeOwnIds` is what Edge brought with it from
   // `Freshair129/zuri-edge-device` and still owns. ADR-039 forbids renumbering
@@ -380,7 +396,7 @@ function build() {
         if (id) targets.add(id)
       }
       for (const a of m[2].match(ADR_NUM) || []) if (adrById.has(a)) targets.add(adrById.get(a))
-      for (const r of m[2].match(ID_LIST) || []) targets.add(`req:${r}`)
+      for (const r of legacyRequirementIds(m[2])) targets.add(`req:${r}`)
       for (const t of targets) {
         if (t === selfId) continue
         // "supersedes" points newer → older, so an incoming edge = "what replaced me".
@@ -399,6 +415,30 @@ function build() {
   // not exist — 41 dangling edges the moment Edge source became visible. A
   // dangling edge is not a cosmetic defect here; `doc-code-symlink` reports it
   // and the traceability matrix shows the requirement as unverified.
+  const qualifiedNodes = new Map()
+  for (const node of nodes) {
+    if (/^(req|feat):/.test(node.id)) qualifiedNodes.set(`ZAI:${node.id.split(':')[1]}`, node)
+  }
+  for (const [id, graphId] of adrById) qualifiedNodes.set(`ZAI:${id}`, nodes.find(n => n.id === graphId))
+  for (const file of docFiles) {
+    const metadata = /^---\n([\s\S]*?)\n---/.exec(read(file))?.[1] || ''
+    const explicit = /^id:\s*["']?(ZAI:[A-Za-z0-9._/-]+)["']?\s*$/m.exec(metadata)?.[1]
+    if (!explicit) continue
+    const node = nodes.find(n => n.path === rel(file))
+    if (qualifiedNodes.has(explicit) && qualifiedNodes.get(explicit).id !== node.id) throw Error(`Duplicate qualified graph identity: ${explicit}`)
+    qualifiedNodes.set(explicit, node)
+  }
+  const resolveTraceIdentity = (reference) => {
+    const id = reference.slice('ZAI:'.length)
+    const node = qualifiedNodes.get(reference)
+    if (!node) throw Error(`Unknown current ZAI declaration: ${reference}`)
+    return { namespace: 'ZAI', id, path: node.canonical_path || node.path }
+  }
+  const traceOf = (body, file) => {
+    const result = adaptTraceAnnotations(body, { resolveIdentity: resolveTraceIdentity })
+    if (result.findings.length) throw Error(result.findings.map(f => `${rel(file)}:${f.line} ${f.message}`).join('\n'))
+    return result
+  }
   const testFiles = [
     ...walk(workspacePath(ROOT, 'tests'), ['.test.js', '.spec.js']),
     ...walk(workspacePath(ROOT, 'apps', 'edge', 'tests'), ['.test.ts', '.test.js', '.spec.ts', '.spec.js']),
@@ -413,11 +453,23 @@ function build() {
     // named inside an EDGE test is subject to the same collision rule as an
     // Edge source annotation: Edge's own FR-004 must not be read as evidence
     // for Server's.
-    const named = new Set(body.match(ID_LIST) || [])
+    const trace = traceOf(body, file)
+    const named = new Set(legacyRequirementIds(body))
+    // Existing Edge tests explicitly qualify current ZAI requirements with @req.
+    // They remain current evidence; an imported namespace or partial suffix does not.
     const verifies = file.startsWith(edgeTestRoot)
       ? [...named].filter((r) => rootDeclaredIds.has(r) && !edgeOwnIds.has(r))
       : [...named]
+    for (const reference of annotationsOf(body).qualifiedReq) {
+      const identity = resolveTraceIdentity(reference)
+      if (rootDeclaredIds.has(identity.id) && !verifies.includes(identity.id)) verifies.push(identity.id)
+    }
     for (const r of verifies) addEdge(`test:${rel(file)}`, `req:${r}`, 'verifies', 'test-reference')
+    for (const r of trace.verifiedRequirements) {
+      const key = r.slice('ZAI:'.length)
+      if (!rootDeclaredIds.has(key)) throw Error(`${rel(file)}: @trace verifies must name a current requirement: ${r}`)
+      addEdge(`test:${rel(file)}`, `req:${key}`, 'verifies', 'trace-annotation')
+    }
   }
   const testNodes = nodes.filter((n) => n.type === 'test')
   const resolveTest = (name) => {
@@ -459,7 +511,8 @@ function build() {
   for (const file of codeFiles) {
     const body = read(file)
     const ann = annotationsOf(body)
-    const annotated = ann.req.length + ann.spec.length + ann.tested.length > 0
+    const trace = traceOf(body, file)
+    const annotated = ann.req.length + ann.spec.length + ann.tested.length + ann.qualifiedReq.length + ann.qualifiedSpec.length + trace.req.length + trace.spec.length > 0
     if (!annotated) continue
     const id = `code:${rel(file)}`
     nodes.push({
@@ -472,6 +525,10 @@ function build() {
         ...(ann.req.length ? { '@req': ann.req } : {}),
         ...(ann.spec.length ? { '@spec': ann.spec } : {}),
         ...(ann.tested.length ? { '@tested': ann.tested } : {}),
+        ...(ann.qualifiedReq.length ? { '@req qualified': ann.qualifiedReq } : {}),
+        ...(ann.qualifiedSpec.length ? { '@spec qualified': ann.qualifiedSpec } : {}),
+        ...(trace.req.length ? { '@trace implements': trace.req } : {}),
+        ...(trace.spec.length ? { '@trace specified_by': trace.spec } : {}),
       },
     })
     // An id written inside `apps/edge` binds to a ROOT requirement only when it
@@ -489,6 +546,22 @@ function build() {
       ? ann.req.filter((r) => rootDeclaredIds.has(r) && !edgeOwnIds.has(r))
       : ann.req
     for (const r of bindable) addEdge(id, `req:${r}`, 'implements', 'annotation')
+    for (const qualified of ann.qualifiedReq) {
+      const target = qualifiedNodes.get(qualified)
+      if (!target || target.type !== 'requirement') throw Error(`${rel(file)}: unknown qualified requirement ${qualified}`)
+      addEdge(id, target.id, 'implements', 'qualified-annotation')
+    }
+    for (const qualified of ann.qualifiedSpec) {
+      const target = qualifiedNodes.get(qualified)
+      if (!target) throw Error(`${rel(file)}: unknown qualified specification ${qualified}`)
+      addEdge(id, target.id, target.type === 'requirement' ? 'follows' : 'references', 'qualified-annotation')
+    }
+    for (const r of trace.req) addEdge(id, `req:${r}`, 'implements', 'trace-annotation')
+    for (const qualified of trace.spec) {
+      const target = qualifiedNodes.get(qualified)?.id
+      if (!target) throw Error(`${rel(file)}: unsupported design identity ${qualified}`)
+      addEdge(id, target, 'references', 'trace-annotation')
+    }
     for (const s of ann.spec) {
       // @spec points at a design decision or constraint, not a feature.
       if (s.endsWith('.md')) addEdge(id, `doc:${path.basename(s, '.md')}`, 'references', 'annotation')
@@ -652,7 +725,7 @@ function featureMap(nodes, edges) {
       const taskId = cells[1]
       if (!/^TASK-/.test(taskId)) continue
       const claim = { taskId, started: hasStarted(cells) }
-      for (const req of line.match(ID_LIST) || []) {
+      for (const req of legacyRequirementIds(line)) {
         if (!claims.has(req)) claims.set(req, [])
         const seen = claims.get(req)
         if (!seen.some((c) => c.taskId === taskId)) seen.push(claim)
