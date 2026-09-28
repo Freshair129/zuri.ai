@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "namespace": "ZAI",
+      "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e"
+    },
+    {
+      "namespace": "ZNEXT",
+      "revision": "8f3fa178f05567ae2c3863896d5a99cf6fd96d49"
+    }
+  ],
+  "summary": {
+    "bareCrProposalFiles": 16
+  },
+  "intake": [
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS.md",
+      "blob": "a8c18679653158685b6bf94088ff0b5655f33952",
+      "sha256": "7cc18195e9bb89149c0d29515ffafd549c2dbd0a68212e9c81940e52b2b8ca45",
+      "filenameToken": "CR-001",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-002-GKS-MSP-CATALOG-VAULT-RESOLUTION.md",
+      "blob": "47f507642c622c826081185a21803329ed05f331",
+      "sha256": "720dc8701cc76729eb8a47de03f80f1305c09d77d2a6469b8d42172c1bc3a26f",
+      "filenameToken": "CR-002",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-003-ACCEPTED-SHAPE.md",
+      "blob": "04070ccf34acb4f14636945ba5e3cc3dddc41235",
+      "sha256": "de4c016921bc42addd381ddd99506dcda7214628ddabdcfbfe82d7a4fcbdc2e0",
+      "filenameToken": "CR-003",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-003-DATA-PIPELINE-GOVERNANCE-AND-APPROVAL-GATES.md",
+      "blob": "a975173a21aef165ffaf15981200ebbe1d054e32",
+      "sha256": "cb42bd4b20ec10f2a834e228a9b72494c1bb8d18f94c342dcdd2f3d7bbd069ef",
+      "filenameToken": "CR-003",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-004-ACCEPTED-SHAPE.md",
+      "blob": "a25a9ef032bc4f976040bc56c2f3d216619d9ecb",
+      "sha256": "d12b6e79621c32da3ff2d84a53e403c6a573c588bd1667df2b58602afc29b2fc",
+      "filenameToken": "CR-004",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-004-GITHUB-INTEGRATION-AND-FILES-TAB-EXPLORER.md",
+      "blob": "a3633375369f09eef90ea8fc6b424c88b26a0c3e",
+      "sha256": "a76e03e9bdf468cbe79ebc5c0ffa4de0f9d846a1b6cbb4accdcc1c1b50f2eb86",
+      "filenameToken": "CR-004",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-005-ACCEPTED-SHAPE.md",
+      "blob": "b9129e313c54ee26b4ba160969c65d41e5ede497",
+      "sha256": "a56d87638ffe4037325253019d5c72035f2bbfae648d7fde04dff7279e837421",
+      "filenameToken": "CR-005",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-005-SHIPPING-RATE-MATRIX-AND-OMNICHANNEL-AGENT-CONNECTORS.md",
+      "blob": "acddd63f40a3d457efab5ff9799ff590d6a749bc",
+      "sha256": "db31e819dfe31f9b81256225be3d2c83d76aa095b9c29866100a169ed7ba3178",
+      "filenameToken": "CR-005",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-014-ASSET-MANAGEMENT-DOMAIN.md",
+      "blob": "784561c2656d6f0ef5847ef098f20d041a7a1c20",
+      "sha256": "dcfefb433ef94cfeb3a26439dc9988c806e3bfe1b008a5b621c0fc67476ff30d",
+      "filenameToken": "CR-014",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION.md",
+      "blob": "229f1357f536ef253bbefe30498222decb195aac",
+      "sha256": "6042f472872e2e82113fe2bec9c91ffb15588dfb65a7bc1317f9a2fde322d388",
+      "filenameToken": "CR-015",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-016-ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md",
+      "blob": "cd2bdae90369f618bb420fc2174be36590a03c02",
+      "sha256": "d25067d442b308847885bbd302cb6cc64a4433a739ebca21c0d24f545310a3d0",
+      "filenameToken": "CR-016",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-017-ASSET-EVIDENCE-AND-WAITING-ROOM-UX-CORRECTION.md",
+      "blob": "8ca534f12eddc3d14051fb953aca7572518739dc",
+      "sha256": "49fc384ca4f150e9c86dd29303b13494642345a02fc61fbe69fd8c9bfbf7e644",
+      "filenameToken": "CR-017",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-017-MARKETING-ADS-ANALYTICS.md",
+      "blob": "7411d9470579002ddde9f3db8d93f7dcbe8976b5",
+      "sha256": "7529a521bd5962eefbb6a21be90b394b647053c14566fbc9ad3898ded5566183",
+      "filenameToken": "CR-017",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
+      "blob": "2babc91bd8031ca58d5a339aa1a2c5920ad9383e",
+      "sha256": "aba0a1e102214edfd0e5a75c56ee659e040105c73e95e49df02ec10789daf074",
+      "filenameToken": "CR-018",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md",
+      "blob": "f472dabc30d5ef6a74df376baafb90635f88f846",
+      "sha256": "65d57cf7a23f6bd98e5e52a8a096436cf096542baa3a2c1e4dbc5bc81616d48b",
+      "filenameToken": "CR-019",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    },
+    {
+      "namespace": "ZAI",
+      "sourceRevision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+      "path": "docs/change-requests/CR-020-OBSERVABILITY-ERROR-TRACKING-AND-FEATURE-USAGE.md",
+      "blob": "89f69006444f5a0b7ef0e27c5a20dc09b08316d9",
+      "sha256": "b6163a2b205272727f27d75dc45083b72a31610efea78b134c640ad53e441ac4",
+      "filenameToken": "CR-020",
+      "identity": null,
+      "disposition": "proposal-intake",
+      "reviewStatus": "not-reviewed"
+    }
+  ]
+}
