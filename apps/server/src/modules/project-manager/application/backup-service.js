@@ -124,7 +124,7 @@ const KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES = Object.freeze(['knowledgeArti
 const LINE_WORKER_MEMORY_RECOVERY_TABLES = Object.freeze(['lineConversationJob', 'agentTraceEvent'])
 const LINE_WORKER_MEMORY_STATES = Object.freeze(['NONE', 'PENDING', 'ACKNOWLEDGED', 'CLOSED'])
 const LINE_WORKER_MEMORY_AUDIENCES = Object.freeze(['DIRECT', 'GROUP', 'ROOM'])
-// @req FR-022 — group-memory erasure records (MEMORY_THREAD_ERASURE_*, W12) are
+// @req FR-022 — MSP memory erasure records (MEMORY_THREAD_ERASURE_*, W12) are
 // memory evidence too: a PENDING or FAILED one is the only trace of an erasure MSP
 // has not acknowledged. A snapshot that cannot carry them must not replace an
 // installation that holds any, exactly as for the delivery receipts.

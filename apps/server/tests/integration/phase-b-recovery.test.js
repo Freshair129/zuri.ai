@@ -88,10 +88,12 @@ describe('Phase B offline recovery runners', () => {
   // 1.2.0) rebind the frozen inventory from 192 to 194 application tables, on
   // top of the FR-277 LineGroundingShadowComparison rebind; see the decision
   // doc's binding ladder for the historical entries this one continues.
+  // @req FR-022 — the MSP memory erasure scan index on AgentTraceEvent rebinds
+  // the schema hash; the 194-table mapping is unchanged.
   it('loads the committed pinned 194-table inventory', () => {
     expect(inventory.applicationTables).toHaveLength(194)
-    expect(inventory.schemaSha256).toBe('1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206')
-    expect(inventory.targetSchemaSha256).toBe('3b0841c3771ae0fafb4147c9622e86b6d1827cbb656d070113f22bd7e94b8c79')
+    expect(inventory.schemaSha256).toBe('32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4')
+    expect(inventory.targetSchemaSha256).toBe('9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -101,6 +103,22 @@ describe('Phase B offline recovery runners', () => {
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining([
       'ProjectApprovalRequest', 'NotionOAuthState', 'NotionWebhookReceipt', 'NotionWebhookVerificationToken',
     ]))
+  })
+
+  it('refuses the previous 194-table binding against the erasure-scan-index schema', async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-old-binding-194-'))
+    const tempInventory = path.join(tempDir, 'previous-inventory.json')
+    try {
+      await writeFile(tempInventory, JSON.stringify({
+        ...inventory,
+        schemaSha256: '1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206',
+        targetSchemaSha256: '3b0841c3771ae0fafb4147c9622e86b6d1827cbb656d070113f22bd7e94b8c79',
+      }))
+      await expect(loadFrozenSchemaInventory({ modulePath: tempInventory }))
+        .rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
   })
 
   it('refuses the previous 192-table binding against the retention-consent schema', async () => {

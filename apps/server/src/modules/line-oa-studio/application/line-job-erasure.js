@@ -1,7 +1,7 @@
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { redactTraceTurn } from '@/modules/agent/execution-trace'
 import { appendMemoryDeliveryCheckpoint } from './line-memory-delivery'
-import { recordMemoryThreadErasures } from './line-memory-erasure'
+import { recordMemoryPrincipalErasure } from './line-memory-erasure'
 
 // @req FR-022, FR-149 — principal erasure also removes copied conversation-job content and delivery capabilities.
 // @req FR-171 — trace snapshots are erased atomically with their conversation jobs.
@@ -51,9 +51,10 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     },
     orderBy: [{ accountId: 'asc' }, { id: 'asc' }],
   })
-  // @req FR-022 — before any job is overwritten: the shared MSP threads this person
-  // spoke in with memory sync get a pending, Core-owned principal erasure (W12).
-  const { pendingThreads } = await recordMemoryThreadErasures(tx, { tenantId, principalId: erasedPrincipalId, jobs, speakers: subjects })
+  // @req FR-022 — before any job is overwritten: a person with any memory-sync turn
+  // (DIRECT, GROUP or ROOM) gets one pending, Core-owned tenant-wide MSP principal
+  // erasure (owner decision 2026-09-28, option A).
+  const { pendingPrincipalErasures } = await recordMemoryPrincipalErasure(tx, { tenantId, principalId: erasedPrincipalId, jobs, speakers: subjects })
   for (const job of jobs) {
     // SENDING may already have reached LINE. Erasure cannot retract that fact;
     // UNKNOWN remains a payload-free tombstone instead of a false safe failure.
@@ -95,5 +96,5 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'CONTENT_ERASED',
       payload: { tenantId, accountId: job.accountId, status, possibleDelivery: status === 'UNKNOWN' } })
   }
-  return { redactedLineJobs: jobs.length, inboundMessageIds: jobs.map(job => job.inboundMessageId), pendingMemoryThreadErasures: pendingThreads }
+  return { redactedLineJobs: jobs.length, inboundMessageIds: jobs.map(job => job.inboundMessageId), pendingMemoryPrincipalErasures: pendingPrincipalErasures }
 }

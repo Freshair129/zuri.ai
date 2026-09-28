@@ -2740,6 +2740,8 @@ model AgentTraceEvent {
   @@unique([tenantId, businessId, idempotencyKey], map: "AgentTraceEvent_scope_idempotency_key")
   @@index([tenantId, businessId, turnId, occurredAt])
   @@index([tenantId, businessId, turnId, createdAt])
+  // @req FR-022 — the MSP memory erasure scanner's keyset page (kind, then oldest first).
+  @@index([kind, occurredAt, id])
 }
 
 // @req FR-277 — one diagnostic-only row per SERVER LINE job answered while its

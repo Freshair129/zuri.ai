@@ -27,11 +27,13 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // application model on top of the Message author-channel-identity rebind
 // (main e7afa528), bringing this frozen inventory to 192 tables.
 // @req FR-022 — CustomerRetentionConsent and LegalHoldArchiveKey (ADR-093
-// 1.2.0, "consent to retain = keep") add two more, bringing it to 194. See
+// 1.2.0, "consent to retain = keep") add two more, bringing it to 194.
+// @req FR-022 — the MSP memory erasure scanner's index on AgentTraceEvent
+// (kind, occurredAt, id) changes the schema bytes, not the 194-table mapping. See
 // docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
 // for the historical binding ladder this entry continues.
-const FROZEN_SCHEMA_SHA256 = '1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206'
-const FROZEN_TARGET_SCHEMA_SHA256 = '3b0841c3771ae0fafb4147c9622e86b6d1827cbb656d070113f22bd7e94b8c79'
+const FROZEN_SCHEMA_SHA256 = '32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4'
+const FROZEN_TARGET_SCHEMA_SHA256 = '9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0'
 const FROZEN_APPLICATION_TABLE_COUNT = 194
 
 function ordinalCompare(a, b) {
