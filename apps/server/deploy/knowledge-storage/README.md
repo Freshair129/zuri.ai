@@ -50,8 +50,11 @@ The official Community source path was exercised separately for local testing:
 `go install github.com/minio/minio@latest` resolved to source commit
 `7aac2a2c5b7c` and produced a `DEVELOPMENT.GOGET` Linux binary with Go 1.24.13.
 It runs in the local image `zuri-minio-community:source-7aac2a2c5b7c` as
-`zuri-minio-community-local`, with API `127.0.0.1:19000`, console
-`127.0.0.1:19001`, and named data volume `zuri-minio-community-local-data`.
+`zuri-minio-community-local`, with API `127.0.0.1:19100`, console
+`127.0.0.1:19101`, and named data volume `zuri-minio-community-local-data`. It was rebuilt
+from the same source commit on 2026-09-29 after the original was lost; port 19000 is now used by
+an unrelated stack (see `.brain/rca/2026-09-29-watchdog-crash-loop-and-ki17-volume-loss.md`).
+Production web currently points its `.env.knowledge` endpoint at this store.
 The endpoint is loopback-only and is wired only through an operator-owned ignored
 `.env.knowledge` overlay and a separate local web canary; it is not exposed through
 ngrok and is not the production target. The Community repository is archived; this
