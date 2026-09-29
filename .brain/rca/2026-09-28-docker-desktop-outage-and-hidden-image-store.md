@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-28T07:30:00+07:00,MC0"
-last_update: "2026-09-28T07:30:00+07:00,MC0"
+last_update: "2026-09-29T13:20:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"

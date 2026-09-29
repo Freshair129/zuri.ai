@@ -1,7 +1,7 @@
 ---
-version: "0.1.1b"
+version: "0.1.2b"
 created_at: "2026-09-29T12:40:00+07:00,MC0"
-last_update: "2026-09-29T13:05:00+07:00,MC0"
+last_update: "2026-09-29T13:20:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"
@@ -20,9 +20,9 @@ attributes:
 ## Symptom
 
 From 2026-09-29 01:15 +07:00, web, the LINE worker, the genesis-worker, the conversation runtime and
-the ngrok tunnel were offline. The Docker engine answered again at about 06:18. By 06:25 none of the
-five `zuri-ai` containers existed, and later that morning the `zuri-ai` images and all three
-`zuri-ai` volumes (`ki17-state`, `ki17-genesis-store`, `ki17-model`) were also found missing. The
+the ngrok tunnel were offline. The Docker engine answered again at about 06:18. Later that morning
+the five `zuri-ai` containers, the `zuri-ai` images and all three `zuri-ai` volumes
+(`ki17-state`, `ki17-genesis-store`, `ki17-model`) were found missing. The
 local Supabase stack, which runs on the **same** Docker engine, kept its containers, images and
 volumes (all created 2026-09-02). The main database (Supabase cloud) was not affected.
 
@@ -33,22 +33,27 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
 | 01:15 | Docker Desktop stopped (the original cause is not known). The host watchdog, installed the day before after [the 09-28 outage](2026-09-28-docker-desktop-outage-and-hidden-image-store.md), found the engine down and started Docker Desktop |
 | 01:15 - 06:15 | The watchdog started or restarted Docker Desktop **37 times**. Every start first rewrote Docker Desktop's settings file, and some restarts force-stopped a Docker Desktop that was still starting |
 | about 06:18 | The engine answered again |
-| 06:25 | First watchdog health check with the engine up: none of the five production containers existed (see Evidence) |
-| 06:25 - 12:15 | The watchdog reported web health 0 every 5 minutes |
+| 06:25 - 12:15 | The watchdog reported web health 0 every 5 minutes and logged no `docker start` (see Evidence) |
+| late morning | MC0 found the `zuri-ai` containers, images and volumes missing |
 | about 12:15 | The watchdog scheduled task was disabled and the script was repaired |
 | 12:20 - 12:30 | Images rebuilt from `main` a34ceaf7, the model volume restored and hash-checked, the production benchmark fixture reinstalled, and all five services started. Web health 200 locally and through the tunnel; `ki17-smoke` PASS on both hops |
 
 ## Evidence
 
-- **BOM parse crash.** Docker Desktop's backend log records 27 `backend crashed ... initializing
-  settings loader ... loading settings from providers` entries from 2026-09-28T18:15Z (01:15 +07)
-  onward. Its error dialog offered only "Quit" and "Reset to factory defaults". The watchdog log
+- **BOM parse crash.** Docker Desktop's backend log records 23 `backend crashed ... loading settings
+  from providers` entries from 2026-09-28T18:15Z (01:15 +07) onward, each ending in
+  `invalid character 'ï' looking for beginning of value`. `ï` is how the first byte of a UTF-8 BOM
+  reads when decoded as Latin-1. There are fewer crash entries than the watchdog's 37 starts,
+  most likely because some starts were force-stopped by the watchdog and some ended in an unresponsive engine
+  rather than a logged crash. Its error dialog offered only "Quit" and "Reset to factory defaults". The watchdog log
   records a settings rewrite before each of its 37 starts. Windows PowerShell 5.1
   `Set-Content -Encoding utf8` writes a byte-order mark. The settings file now has no BOM and
   `UseContainerdSnapshotter` is `true`.
-- **Containers gone by 06:25.** The pre-repair watchdog ran `docker inspect` on each production
-  container once health failed twice, and logged `docker start` for any that existed but were
-  stopped. From 06:25 it logged no `docker start` at all, so `docker inspect` found none of the five.
+- **No stopped container after 06:18.** Once health failed twice, the pre-repair watchdog ran
+  `docker inspect` on each production container and logged `docker start` for any that existed but
+  were stopped. From 06:25 it logged no `docker start`. That rules out stopped containers, not
+  running ones, so it does not prove the containers were already gone. Given six hours of health 0
+  with `unless-stopped` containers, they most likely were. **Not verified.**
 - **Not a hidden image store.** On 09-28 the same "no images" symptom was the image store setting,
   with no data lost. Here the setting is on (`UseContainerdSnapshotter: true`, containerd
   snapshotter driver), the Supabase images are visible in the same store, and named volumes do not
@@ -65,7 +70,7 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
    Desktop's settings file before every start, with a BOM (Evidence). While a rewrite with a BOM was
    in place, the backend crashed at startup, and the next check started it again. The start at about
    06:18 succeeded, which means a BOM-free settings file was in place by then. What rewrote it is
-   **unverified** (possibly Docker Desktop itself, or a person using the error dialog).
+   **unverified**.
 2. **The watchdog had no back-off and could force-stop a starting engine.** It restarted Docker
    Desktop without a limit, and after three unresponsive checks it stopped the process even when it
    was still starting. One failure became a five-hour loop.
@@ -73,7 +78,8 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
    containers, images and volumes are gone; objects of other projects on the same engine survived.
    That pattern fits a project-scoped removal (for example a compose `down` with volumes and images,
    or a manual cleanup), not a Docker reset. **Who or what did it, and exactly when, is
-   unverified.** The containers were gone by 06:25.
+   unverified.** The engine was down from about 01:15 to 06:18, so the removal happened either
+   around 01:15 or after 06:18, most likely before 06:25 (see Evidence, which has the caveat).
 4. **No backup of the ki17 volumes existed.** `ki17-state` (MSP and GKS SQLite stores) and
    `ki17-genesis-store` (published generations) lived only on Docker's WSL2 data disk. The
    [deployment plan](../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md) (§6) warns never to run
