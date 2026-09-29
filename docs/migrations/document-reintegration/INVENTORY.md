@@ -1,13 +1,13 @@
 ---
 doc_type: migration-inventory-design
-status: inventory-generated-review-pending
-version: "0.2.0"
+status: p2-dispositions-recorded-import-pending
+version: "0.3.0"
 ---
 
 # Document inventory and provenance contract
 
-**Version:** 0.2.0
-**Status:** Generated snapshot verified; semantic reconciliation remains pending.
+**Version:** 0.3.0
+**Status:** Source inventory verified; P2 dispositions recorded; normative import remains pending.
 
 This inventory records source files, declared identities, the pinned zuri-next
 crosswalk, and proposal intake. It is an accounting and provenance baseline. It
@@ -86,6 +86,39 @@ preserved as `sourceDisposition`; each mapping's `reviewStatus` remains
 `not-reviewed`. A source ID absent from the crosswalk receives an explicit
 `unmapped` record with empty targets and no fabricated CSV provenance.
 
+`dispositions.json` is a separate review overlay. It does not alter the source
+inventory, rewrite source status, or treat a crosswalk label as semantic review.
+It records an explicit `provenance-only` policy for every ZNEXT document, tooling
+source, and declared identity. Its 39 exact coverage groups are selected by
+artifact/tooling class or identity family and source-status class; each group
+stores a count and SHA-256 over its pinned source locators. Offline validation
+recomputes those groups and rejects missing or changed members. The approved
+authority decision keeps current ZAI material canonical; ZNEXT approval is
+retained as source-local metadata and does not approve an import into ZAI.
+Missing status is a separate class; non-standard status values remain verbatim
+in the source manifest and are not interpreted. Every group says
+`semanticReview: "not-performed"`; these aggregate dispositions are not
+subject-level semantic reviews. The groups cover 902 ZNEXT document entries,
+47 tooling entries, and 2,873 declared identities.
+
+The overlay also records the 23 tracked ZAI documentation paths changed between
+the pinned derivation baseline and current ZAI source: 20 modifications, three
+additions, and no deletions. Each row pins the baseline and current Git objects,
+gives a current-source line anchor, a per-file reconciliation disposition, and
+relevant code/test evidence with explicit limits. These reviews do not authorize
+product changes or cutover, and they do not promote a local test or source
+document into deployment evidence. The two newly issued source IDs, FR-277 and
+ADR-111, remain unaliased; ADR-111 stays owner-blocked as a candidate boundary,
+while FR-277 is a documented behavior candidate with local code/tests and a
+written, unapplied migration.
+
+The bounded P2 review records explicit dispositions for all ZNEXT inventory
+items and individual content/code/test review for the 23 development-delta
+documents. Broader adoption of ZNEXT specifications is not complete: no ZNEXT
+artifact is imported as normative ZAI content in this overlay, and no semantic
+equivalence, delivery, or cutover is claimed. Later owner lanes may change a
+disposition only with new source-pinned review and evidence.
+
 ## Manifest shape and deterministic generation
 
 All JSON manifests use schema version `1`, stable lexicographic ordering, UTF-8,
@@ -100,8 +133,8 @@ The CLI has three operations:
 | Operation | Inputs | Purpose |
 |---|---|---|
 | `--generate --zai-repo <path> --znext-repo <path>` | Both repositories, each containing the pinned object | Rebuild all manifests exclusively from the two pinned Git object databases |
-| `--verify-sources --zai-repo <path> --znext-repo <path>` | Both repositories | Recheck each pinned revision, path, blob ID, and raw-byte SHA-256 against Git objects |
-| `--check` | Committed manifests only | Offline CI validation of schema, counts, ordering, unique qualified identities, source coverage, crosswalk provenance cardinality, mapping target declarations, and intake rules |
+| `--verify-sources --zai-repo <path> --znext-repo <path>` | Both repositories | Recheck pinned inventory sources, all 23 ZAI baseline/current delta objects, source anchors, and code/test evidence paths against Git objects |
+| `--check` | Committed manifests and overlay only | Offline CI validation of schema, counts, ordering, unique qualified identities, source coverage, crosswalk provenance cardinality, mapping target declarations, intake rules, disposition coverage hashes, and 23-delta completeness |
 
 `--check` does not claim that external pinned repositories are available or
 re-read. CI can validate the committed snapshot without a zuri-next checkout;
@@ -146,18 +179,20 @@ coverage, or implementation completeness.
 
 ## Verification and limits
 
-The focused Node test suite passes 4/4 tests. It verifies reproducibility from
+The focused Node test suite passes 6/6 tests. It verifies reproducibility from
 Git objects, exact snapshot pins, missing target rejection, duplicate/conflicting
-mapping handling, split and blank preservation, Edge namespace separation, and
-the rule that bare CR intake has no identity and remains a proposal. `--check`
-passes using only the committed manifests. `--verify-sources` reproduces every
-manifest from the two pinned Git object databases and verifies source blob IDs
-and raw-byte SHA-256 values. These checks do not complete the later
-content-by-content reconciliation.
+mapping handling, split and blank preservation, Edge namespace separation, the
+bare CR proposal rule, offline disposition coverage, and rejection of missing or
+promoted review records. `--check` validates the committed manifests and
+overlay without external repositories. `--verify-sources` reproduces the
+inventory from both pinned Git object databases and verifies the baseline/current
+development-delta objects and evidence paths. These checks do not complete the
+broader content-by-content reconciliation of all ZNEXT material.
 
 ## Version diff
 
 | Version | Change | Status |
 |---|---|---|
+| 0.3.0 | Added exact ZNEXT provenance-only coverage groups and 23 source-pinned ZAI development-delta reviews | Bounded P2 reconciliation recorded; normative import pending |
 | 0.2.0 | Generated and verified file, tooling, identity, mapping, and proposal-intake manifests; added fixture coverage | Inventory implemented; semantic review pending |
 | 0.1.0 | Defined pinned inputs, inventory scopes, provenance schemas, conservative dispositions, and CLI operations | Approved design |

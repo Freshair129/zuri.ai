@@ -20,6 +20,8 @@ const MANIFEST_FILES = Object.freeze({
   mappings: 'mappings.json',
   intake: 'intake.json',
 });
+const DISPOSITIONS_FILE = 'dispositions.json';
+const DELTA_BASELINE_REVISION = '9e5b104e7763975ab994171a1941c246cf172a7a';
 const DOCUMENT_EXTENSIONS = new Set(['.md', '.mdx', '.rst', '.adoc', '.txt']);
 const TEXT_EXTENSIONS = new Set([
   ...DOCUMENT_EXTENSIONS,
@@ -45,6 +47,14 @@ function gitText(repo, args) {
 
 function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
+}
+
+function sourceStatusClass(value) {
+  if (value == null) return 'missing';
+  const literal = value.toLowerCase();
+  return ['approved', 'draft', 'proposed', 'retired', 'superseded'].includes(literal)
+    ? `literal:${literal}`
+    : 'other-literal';
 }
 
 function safeRepoPath(value) {
@@ -750,12 +760,135 @@ export function validateManifests(manifests, { enforcePins = true } = {}) {
   };
 }
 
+function coverageMemberKey(record, includeId) {
+  return [record.namespace, record.revision, ...(includeId ? [record.id] : []), record.path, record.blob, record.sha256].join('\0');
+}
+
+function coverageSlug(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+export function validateDispositions(manifests, overlay) {
+  if (!overlay || overlay.schemaVersion !== 1) throw new Error('Invalid dispositions overlay envelope');
+  if (overlay.sources?.ZAI !== PINNED_REVISIONS.ZAI || overlay.sources?.ZNEXT !== PINNED_REVISIONS.ZNEXT) {
+    throw new Error('Unexpected source pins in dispositions overlay');
+  }
+  if (overlay.baseline?.namespace !== 'ZAI' || overlay.baseline.revision !== DELTA_BASELINE_REVISION) {
+    throw new Error('Unexpected development-delta baseline pin');
+  }
+  const policy = overlay.incomingPolicy;
+  if (policy?.disposition !== 'provenance-only' || policy.semanticReview !== 'not-performed' || !policy.reason?.trim()) {
+    throw new Error('Incoming policy must remain provenance-only and not semantically reviewed');
+  }
+
+  const expected = new Map();
+  const addCoverage = (manifestName, records, selectorField, includeId = false) => {
+    const groups = new Map();
+    for (const record of records.filter((entry) => entry.namespace === 'ZNEXT')) {
+      const discriminator = record[selectorField];
+      const statusClass = sourceStatusClass(record.sourceStatus);
+      const key = `${manifestName}\0${discriminator}\0${statusClass}`;
+      if (!groups.has(key)) groups.set(key, { discriminator, statusClass, members: [] });
+      groups.get(key).members.push(coverageMemberKey(record, includeId));
+    }
+    for (const [key, group] of groups) {
+      expected.set(key, {
+        manifest: manifestName,
+        selector: { namespace: 'ZNEXT', [selectorField]: group.discriminator, statusClass: group.statusClass },
+        count: group.members.length,
+        membersSha256: sha256(Buffer.from(group.members.sort().join('\n'), 'utf8')),
+      });
+    }
+  };
+  addCoverage('documents.files', manifests.documents.files, 'artifactKind');
+  addCoverage('tooling.tooling', manifests.tooling.tooling, 'toolingKind');
+  addCoverage('identities.identities', manifests.identities.identities, 'family', true);
+
+  if (!Array.isArray(policy.coverage)) throw new Error('Incoming policy lacks coverage groups');
+  const seen = new Set();
+  for (const group of policy.coverage) {
+    const selector = group.selector;
+    const discriminatorField = group.manifest === 'documents.files' ? 'artifactKind'
+      : group.manifest === 'tooling.tooling' ? 'toolingKind'
+        : group.manifest === 'identities.identities' ? 'family' : null;
+    if (!discriminatorField || selector?.namespace !== 'ZNEXT' || typeof selector[discriminatorField] !== 'string' || typeof selector.statusClass !== 'string') {
+      throw new Error(`Invalid disposition coverage selector: ${group.key}`);
+    }
+    const key = `${group.manifest}\0${selector[discriminatorField]}\0${selector.statusClass}`;
+    if (seen.has(key)) throw new Error(`Duplicate disposition coverage selector: ${group.key}`);
+    seen.add(key);
+    const expectedGroup = expected.get(key);
+    if (!expectedGroup) throw new Error(`Disposition coverage selector has no source records: ${group.key}`);
+    const discriminator = selector[discriminatorField];
+    const expectedKey = `${group.manifest}:${discriminator}:${selector.statusClass}`;
+    const coverageKind = group.manifest === 'documents.files' ? 'document' : group.manifest === 'tooling.tooling' ? 'tooling' : 'identity';
+    const expectedReasonCode = `${coverageKind}-${coverageSlug(discriminator)}-${coverageSlug(selector.statusClass)}`;
+    if (group.key !== expectedKey || group.reasonCode !== expectedReasonCode) throw new Error(`Disposition reason does not match its family/status selector: ${group.key}`);
+    if (group.count !== expectedGroup.count || group.membersSha256 !== expectedGroup.membersSha256) {
+      throw new Error(`Disposition coverage differs from source inventory: ${group.key}`);
+    }
+    if (group.disposition !== 'provenance-only' || group.semanticReview !== 'not-performed') {
+      throw new Error(`Incoming source was promoted beyond provenance-only: ${group.key}`);
+    }
+    if (!group.reasonCode?.trim() || !group.reason?.trim()) throw new Error(`Disposition coverage lacks a reason: ${group.key}`);
+  }
+  if (seen.size !== expected.size) throw new Error(`Disposition coverage is incomplete: expected ${expected.size} groups, found ${seen.size}`);
+
+  const delta = overlay.developmentDelta;
+  const reviews = delta?.reviews;
+  if (!Array.isArray(reviews) || delta.summary?.total !== 23 || reviews.length !== 23) {
+    throw new Error('Development-delta review must contain all 23 pinned document paths');
+  }
+  const paths = new Set();
+  const sourceDocs = new Map(manifests.documents.files.filter((entry) => entry.namespace === 'ZAI').map((entry) => [entry.path, entry]));
+  const sortedReviews = [...reviews].sort((a, b) => a.path.localeCompare(b.path));
+  if (JSON.stringify(reviews) !== JSON.stringify(sortedReviews)) throw new Error('Development-delta reviews are not deterministically ordered');
+  let modified = 0;
+  let added = 0;
+  for (const review of reviews) {
+    if (!safeRepoPath(review.path) || paths.has(review.path)) throw new Error(`Invalid or duplicate development-delta path: ${review.path}`);
+    paths.add(review.path);
+    if (!['modified', 'added'].includes(review.changeType)) throw new Error(`Invalid development-delta change type: ${review.path}`);
+    if (!['supplemented', 'historical-only', 'blocked'].includes(review.disposition) || review.authorityTreatment !== 'retain-current-ZAI-source') {
+      throw new Error(`Invalid development-delta disposition: ${review.path}`);
+    }
+    if (review.current?.revision !== PINNED_REVISIONS.ZAI || review.baseline?.revision !== (review.changeType === 'added' ? undefined : DELTA_BASELINE_REVISION)) {
+      throw new Error(`Development-delta revision mismatch: ${review.path}`);
+    }
+    const source = sourceDocs.get(review.path);
+    if (!source || source.blob !== review.current.blob || source.sha256 !== review.current.sha256) {
+      throw new Error(`Development-delta current locator mismatch: ${review.path}`);
+    }
+    if (review.changeType === 'added') added += 1;
+    else modified += 1;
+    if (review.sourceAnchor?.path !== review.path || !Number.isInteger(review.sourceAnchor.line) || review.sourceAnchor.line < 1 || !review.sourceAnchor.needle?.trim()) {
+      throw new Error(`Development-delta source anchor is missing: ${review.path}`);
+    }
+    if (!review.summary?.trim() || !Array.isArray(review.evidence) || !review.evidence.length || !Array.isArray(review.limitations)) {
+      throw new Error(`Development-delta review lacks evidence or limits: ${review.path}`);
+    }
+    for (const evidence of review.evidence) {
+      if (!['code', 'test', 'config'].includes(evidence.kind) || !safeRepoPath(evidence.path) || !evidence.note?.trim()) {
+        throw new Error(`Invalid development-delta evidence reference: ${review.path}`);
+      }
+    }
+  }
+  if (modified !== 20 || added !== 3 || delta.summary.modified !== modified || delta.summary.added !== added || delta.summary.deleted !== 0) {
+    throw new Error('Development-delta change counts differ from pinned comparison');
+  }
+  return { coverageGroups: seen.size, incomingFiles: policy.coverage.filter((entry) => entry.manifest === 'documents.files').reduce((sum, entry) => sum + entry.count, 0), incomingTooling: policy.coverage.filter((entry) => entry.manifest === 'tooling.tooling').reduce((sum, entry) => sum + entry.count, 0), incomingIdentities: policy.coverage.filter((entry) => entry.manifest === 'identities.identities').reduce((sum, entry) => sum + entry.count, 0), deltaReviews: reviews.length };
+}
+
 function readManifestFiles(directory) {
   const result = {};
   for (const [key, fileName] of Object.entries(MANIFEST_FILES)) {
     result[key] = JSON.parse(readFileSync(path.join(directory, fileName), 'utf8'));
   }
   return result;
+}
+
+function readDispositions(directory) {
+  return JSON.parse(readFileSync(path.join(directory, DISPOSITIONS_FILE), 'utf8'));
 }
 
 function writeManifestFiles(directory, manifests) {
@@ -804,6 +937,43 @@ function validateSourceReferences(manifests, zaiRepo, znextRepo) {
   return true;
 }
 
+function validateDeltaSourceReferences(overlay, zaiRepo) {
+  const current = loadSnapshot(zaiRepo, 'ZAI', PINNED_REVISIONS.ZAI);
+  const baseline = loadSnapshot(zaiRepo, 'ZAI baseline', DELTA_BASELINE_REVISION);
+  const sourceDiff = gitBuffer(zaiRepo, ['diff', '--name-status', DELTA_BASELINE_REVISION, PINNED_REVISIONS.ZAI, '--', 'docs']).toString('utf8').trim();
+  const diffRows = sourceDiff ? sourceDiff.split(/\r?\n/).map((line) => {
+    const [status, filePath] = line.split('\t');
+    return { path: filePath, changeType: status === 'A' ? 'added' : status === 'M' ? 'modified' : 'deleted' };
+  }).sort((a, b) => a.path.localeCompare(b.path)) : [];
+  const reviewedRows = overlay.developmentDelta.reviews.map(({ path: filePath, changeType }) => ({ path: filePath, changeType })).sort((a, b) => a.path.localeCompare(b.path));
+  if (JSON.stringify(diffRows) !== JSON.stringify(reviewedRows)) throw new Error('Development-delta review paths differ from the pinned ZAI documentation diff');
+  for (const review of overlay.developmentDelta.reviews) {
+    const currentEntry = current.tree.get(review.path);
+    if (!currentEntry || currentEntry.blob !== review.current.blob) throw new Error(`Pinned delta source mismatch: ZAI:${review.path}`);
+    ensureBlobs(current, [review.path]);
+    const currentBytes = current.blobs.get(currentEntry.blob);
+    if (sha256(currentBytes) !== review.current.sha256) throw new Error(`Pinned delta SHA-256 mismatch: ZAI:${review.path}`);
+    const currentText = currentBytes.toString('utf8');
+    const anchorIndex = currentText.toLowerCase().indexOf(review.sourceAnchor.needle.toLowerCase());
+    if (anchorIndex < 0) throw new Error(`Development-delta source anchor is missing: ZAI:${review.path}`);
+    const anchorLine = currentText.slice(0, anchorIndex).split(/\r?\n/).length;
+    if (anchorLine !== review.sourceAnchor.line) throw new Error(`Development-delta source anchor moved: ZAI:${review.path}`);
+    const baselineEntry = baseline.tree.get(review.path);
+    if (review.baseline) {
+      if (!baselineEntry || baselineEntry.blob !== review.baseline.blob) throw new Error(`Pinned delta baseline mismatch: ZAI:${review.path}`);
+      ensureBlobs(baseline, [review.path]);
+      if (sha256(baseline.blobs.get(baselineEntry.blob)) !== review.baseline.sha256) throw new Error(`Pinned delta baseline SHA-256 mismatch: ZAI:${review.path}`);
+    } else if (baselineEntry) {
+      throw new Error(`Added development-delta path already exists at baseline: ZAI:${review.path}`);
+    }
+    for (const evidence of review.evidence) {
+      const found = current.tree.has(evidence.path) || [...current.tree.keys()].some((filePath) => filePath.startsWith(`${evidence.path.replace(/\/$/, '')}/`));
+      if (!found) throw new Error(`Development-delta evidence path is missing: ZAI:${evidence.path}`);
+    }
+  }
+  return true;
+}
+
 function printHelp() {
   process.stdout.write([
     'Usage:',
@@ -837,8 +1007,10 @@ export function runCli(argv = process.argv.slice(2)) {
   const options = parseCli(argv);
   if (options.mode === 'help' || !options.mode) return printHelp();
   if (options.mode === 'check') {
-    const counts = validateManifests(readManifestFiles(MANIFEST_DIR));
-    process.stdout.write(`Inventory check passed: ${JSON.stringify(counts)}\n`);
+    const manifests = readManifestFiles(MANIFEST_DIR);
+    const counts = validateManifests(manifests);
+    const dispositions = validateDispositions(manifests, readDispositions(MANIFEST_DIR));
+    process.stdout.write(`Inventory check passed: ${JSON.stringify({ ...counts, dispositions })}\n`);
     return;
   }
   if (!options.zaiRepo || !options.znextRepo) throw new Error(`${options.mode} requires --zai-repo and --znext-repo`);
@@ -850,7 +1022,11 @@ export function runCli(argv = process.argv.slice(2)) {
     return;
   }
   if (options.mode === 'verify-sources') {
-    validateSourceReferences(readManifestFiles(MANIFEST_DIR), options.zaiRepo, options.znextRepo);
+    const committedManifests = readManifestFiles(MANIFEST_DIR);
+    const overlay = readDispositions(MANIFEST_DIR);
+    validateDispositions(committedManifests, overlay);
+    validateSourceReferences(committedManifests, options.zaiRepo, options.znextRepo);
+    validateDeltaSourceReferences(overlay, options.zaiRepo);
     for (const [key, fileName] of Object.entries(MANIFEST_FILES)) {
       if (jsonText(manifests[key]) !== readFileSync(path.join(MANIFEST_DIR, fileName), 'utf8')) {
         throw new Error(`Committed ${fileName} does not reproduce from pinned Git objects`);

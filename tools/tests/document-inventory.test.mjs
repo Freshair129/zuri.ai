@@ -1,10 +1,25 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-import { buildManifests, PINNED_REVISIONS, validateManifests } from '../document-inventory.mjs';
+import { buildManifests, PINNED_REVISIONS, validateDispositions, validateManifests } from '../document-inventory.mjs';
+
+const registryDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../registry/document-reintegration');
+
+function readCommittedInventory() {
+  const manifests = Object.fromEntries([
+    ['documents', 'documents.json'],
+    ['tooling', 'tooling.json'],
+    ['identities', 'identities.json'],
+    ['mappings', 'mappings.json'],
+    ['intake', 'intake.json'],
+  ].map(([key, fileName]) => [key, JSON.parse(readFileSync(path.join(registryDir, fileName), 'utf8'))]));
+  const overlay = JSON.parse(readFileSync(path.join(registryDir, 'dispositions.json'), 'utf8'));
+  return { manifests, overlay };
+}
 
 function git(repo, ...args) {
   return execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8' }).trim();
@@ -150,4 +165,34 @@ test('rejects duplicate source mapping records and target/cardinality disagreeme
   const conflict = structuredClone(manifests);
   conflict.mappings.mappings.find((mapping) => mapping.source.id === 'FR-100').targets.pop();
   assert.throws(() => validateManifests(conflict, { enforcePins: false }), /Mapping target cardinality differs/);
+});
+
+test('offline disposition coverage binds every incoming inventory group and all 23 development deltas', () => {
+  const { manifests, overlay } = readCommittedInventory();
+  const summary = validateDispositions(manifests, overlay);
+  assert.deepEqual(summary, {
+    coverageGroups: 39,
+    incomingFiles: 902,
+    incomingTooling: 47,
+    incomingIdentities: 2873,
+    deltaReviews: 23,
+  });
+  assert.ok(overlay.incomingPolicy.coverage.every((entry) => entry.disposition === 'provenance-only' && entry.semanticReview === 'not-performed'));
+});
+
+test('rejects missing disposition coverage, semantic-review promotion, and stale delta locators', () => {
+  const { manifests, overlay } = readCommittedInventory();
+  assert.throws(() => validateDispositions(manifests, undefined), /Invalid dispositions overlay envelope/);
+
+  const incomplete = structuredClone(overlay);
+  incomplete.incomingPolicy.coverage.pop();
+  assert.throws(() => validateDispositions(manifests, incomplete), /coverage is incomplete/);
+
+  const promoted = structuredClone(overlay);
+  promoted.incomingPolicy.coverage[0].semanticReview = 'reviewed';
+  assert.throws(() => validateDispositions(manifests, promoted), /not semantically reviewed|promoted beyond provenance-only/);
+
+  const stale = structuredClone(overlay);
+  stale.developmentDelta.reviews[0].current.sha256 = '0'.repeat(64);
+  assert.throws(() => validateDispositions(manifests, stale), /current locator mismatch/);
 });
