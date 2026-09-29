@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-28T07:30:00+07:00,MC0"
-last_update: "2026-09-28T07:30:00+07:00,MC0"
+last_update: "2026-09-29T13:20:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"
@@ -53,6 +53,9 @@ The machine had not rebooted.
   the daemon is down. Before each start it moves a `run` folder holding stale sockets aside and
   restores the containerd and AutoStart settings. It also force-restarts a daemon that hangs for 3
   checks, and starts stopped production containers after 2 failed health checks.
+  **Superseded 2026-09-29:** this watchdog caused the next outage. Its settings rewrite added a BOM
+  that Docker Desktop cannot parse, and it restarted without a limit. It was disabled and changed to
+  read and alert only; see [the 09-29 RCA](2026-09-29-watchdog-crash-loop-and-ki17-volume-loss.md).
 - Other Docker Desktop settings the reset may have cleared (CPU/RAM limits, WSL integration, proxy)
   are still for the owner to check.
 
