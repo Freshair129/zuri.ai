@@ -164,6 +164,20 @@ test('split, merge, unreviewed and competing crosswalks never become aliases', (
   )
 })
 
+test('approval cannot turn a retired, dropped or split provenance row into an alias', () => {
+  for (const disposition of ['retired', 'dropped', 'blocked', 'mixed', 'split', 'merged']) {
+    for (const location of ['mapping', 'row']) {
+      const { identities, mappings } = fixtures()
+      const mapping = mappings[0]
+      if (location === 'mapping') mapping.sourceDisposition = disposition
+      else mapping.provenance[0].sourceDisposition = disposition
+      const resolver = createDocumentIdentityResolver({ identities, mappings: [mapping] })
+      assert.throws(() => resolver.resolveCanonicalIdentity('ZNEXT:FR-042', { revision: 'znext-pin' }), { code: 'IDENTITY_ALIAS_NOT_ONE_TO_ONE' })
+      assert.ok(validateIdentityManifests({ identities, mappings: [mapping] }).some(error => error.code === 'INVALID_APPROVED_ALIAS'))
+    }
+  }
+})
+
 test('manifest validation checks source revision, endpoints, duplicate declarations and row provenance', () => {
   const { identities, mappings } = fixtures()
   const errors = validateIdentityManifests({ identities, mappings })

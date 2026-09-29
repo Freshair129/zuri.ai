@@ -83,6 +83,9 @@ export function collectDocumentLinks(documents, nodes) {
     try { target = decodeURIComponent(target); fragment = decodeURIComponent(fragment) } catch { if (strict) fail(doc, `Invalid encoded target: ${raw}`); return null }
     let matches
     if (!target && fragment) matches = new Set([doc.nodeId])
+    // A canonical file may now share a global ID's basename. Preserve legacy
+    // identity links; an explicit .md path still selects the document itself.
+    else if (/^(ADR|FR|NFR|BR|SEC|SDD|FEAT)-\d{3}$/.test(target) && aliases.has(`ZAI:${target}`)) matches = aliases.get(`ZAI:${target}`)
     else if (aliases.has(target)) matches = aliases.get(target)
     else if (/\.md$/i.test(target)) matches = aliases.get(path.posix.normalize(path.posix.join(path.posix.dirname(doc.path), identity(target))))
     // Bare global IDs are allowed for legacy controls, with an exact full match.

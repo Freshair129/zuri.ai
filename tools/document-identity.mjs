@@ -6,7 +6,10 @@ import { fileURLToPath } from 'node:url'
 import { DocumentIdentityError, formatQualifiedIdentity, isDocumentIdentity, parseQualifiedIdentity } from '../apps/server/scripts/document-identity-format.mjs'
 export { DocumentIdentityError, formatQualifiedIdentity, parseQualifiedIdentity }
 
-const SPLIT_OR_MERGE = /(?:split|merg|one[-_ ]to[-_ ]many|many[-_ ]to[-_ ]one)/i
+const NON_ALIAS_DISPOSITION = /(?:split|merg|retir|drop|block|mixed|unmapped|one[-_ ]to[-_ ]many|many[-_ ]to[-_ ]one)/i
+
+const hasNonAliasDisposition = mapping => NON_ALIAS_DISPOSITION.test(mapping.sourceDisposition || '')
+  || (Array.isArray(mapping.provenance) && mapping.provenance.some(row => NON_ALIAS_DISPOSITION.test(row?.sourceDisposition || '')))
 
 function identityError(code, message, details) {
   return new DocumentIdentityError(code, message, details)
@@ -170,7 +173,7 @@ export function validateIdentityManifests({ identities, mappings } = {}) {
     const sourceExistsAtRevision = (declarationsByTuple.get(tuple(mapping.source.namespace, mapping.source.id)) || [])
       .some(identity => identity.revision === mapping.sourceRevision)
     const rowTargetsMatch = validPair && provenance.length > 0 && provenance.every(row => row?.targetId === targets[0].id && row?.revision === mapping.targetRevision)
-    if (!validPair || !sourceExistsAtRevision || !provenance.length || !targetExistsAtSnapshot || !rowTargetsMatch || SPLIT_OR_MERGE.test(mapping.sourceDisposition)) {
+    if (!validPair || !sourceExistsAtRevision || !provenance.length || !targetExistsAtSnapshot || !rowTargetsMatch || hasNonAliasDisposition(mapping)) {
       errors.push({ code: 'INVALID_APPROVED_ALIAS', path: at, message: 'An approved alias must be a reviewed one-to-one ZAI→ZNEXT pair with exact source and target revision provenance.' })
     }
     if (validPair) {
@@ -201,7 +204,7 @@ export function resolveCanonicalDocumentIdentity(reference, options = {}) {
 
   const mapping = matching[0]
   if (mapping.reviewStatus !== 'approved-alias') aliasFailure('IDENTITY_ALIAS_NOT_APPROVED', `Mapping for ${formatQualifiedIdentity(source)} is not an approved alias.`, source, mapping)
-  if (mapping.targets?.length !== 1 || mapping.targets[0].namespace !== 'ZNEXT' || SPLIT_OR_MERGE.test(mapping.sourceDisposition || '')) {
+  if (mapping.targets?.length !== 1 || mapping.targets[0].namespace !== 'ZNEXT' || hasNonAliasDisposition(mapping)) {
     aliasFailure('IDENTITY_ALIAS_NOT_ONE_TO_ONE', `Mapping for ${formatQualifiedIdentity(source)} is a split, merge, or non-one-to-one relation.`, source, mapping)
   }
   const provenance = Array.isArray(mapping.provenance) ? mapping.provenance : []

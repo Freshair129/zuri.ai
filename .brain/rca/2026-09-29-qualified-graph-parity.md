@@ -30,6 +30,13 @@ ADR-to-SDD pairs, or the existing qualified Edge test annotation.
 
 ## Proposed prevention
 
+A second graph comparison found four legacy wikilinks in the FR-065 design
+resolving to newly introduced canonical document basenames instead of their
+original requirement nodes. `doc-links.mjs` selected a basename before checking
+the exact global ZAI identity. Keep exact declared global identity resolution
+ahead of filename aliases, while explicit `.md` paths still select files. Add a
+fixture containing both a requirement and its same-named canonical document.
+
 Normalize only complete slash-separated ID lists, without inferring abbreviated
 IDs or parsing paths/foreign namespaces. Resolve qualified test `@req` through the
 same exact current declaration map. Compare typed edge triples against the pinned

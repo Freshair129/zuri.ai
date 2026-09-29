@@ -49,6 +49,11 @@ to code and tests record bindings, not successful execution. Generated pages are
 excluded from declaration discovery so reading a projection cannot create a second
 source; physical link and table checks still apply to them.
 
+Legacy bare global wikilinks such as `[[FR-012]]` continue to resolve to the
+declared ZAI requirement, even when its new record has the basename `FR-012.md`.
+An explicit Markdown path still resolves to that file. A new canonical filename
+must not silently redirect an old identity link to a different graph node.
+
 ## Authoring transition
 
 During this pre-cutover branch, original source rows are immutable migration input.
