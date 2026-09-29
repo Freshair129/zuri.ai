@@ -26,8 +26,8 @@ the five `zuri-ai` containers, the `zuri-ai` images and all three `zuri-ai` volu
 (`ki17-state`, `ki17-genesis-store`, `ki17-model`) were found missing. At about 12:50 the local
 knowledge object store was also found missing: the container `zuri-minio-community-local`, its
 locally built image and its data volume `zuri-minio-community-local-data`, none of which are part
-of the `zuri-ai` compose project. The
-local Supabase stack, which runs on the **same** Docker engine, kept its containers, images and
+of the `zuri-ai` compose project.
+The local Supabase stack, which runs on the **same** Docker engine, kept its containers, images and
 volumes (all created 2026-09-02). The main database (Supabase cloud) was not affected.
 
 ## Timeline (+07:00)
@@ -40,12 +40,12 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
 | 06:25 - 12:15 | The watchdog reported web health 0 every 5 minutes and logged no `docker start` (see Evidence) |
 | late morning | MC0 found the `zuri-ai` containers, images and volumes missing |
 | about 12:15 | The watchdog scheduled task was disabled and the script was repaired |
-| about 12:39 | The owner approved re-enabling the repaired watchdog; it was enabled and its first run logged web health back to 200 |
-| 12:43 - 12:45 | ki17 backup set up (every 6 hours to a separate drive) and a restore rehearsed into scratch volumes |
 | 12:20 - 12:30 | Images rebuilt from `main` a34ceaf7, the model volume restored and hash-checked, the production benchmark fixture reinstalled, and all five services started. Web health 200 locally and through the tunnel; `ki17-smoke` PASS on both hops |
+| about 12:39 | The owner approved re-enabling the repaired watchdog; it was enabled and its first run logged web health back to 200 |
+| 12:43 - 12:45 | ki17 backup set up (every 6 hours to a separate drive) and a restore of the two ki17 volumes rehearsed into scratch volumes |
 | about 12:50 | The first catalog upload failed with "Object storage request was rejected". Port 19000, which the knowledge store used, was now served by an unrelated development stack started at 09:06 on the same host |
 | 12:54 - 12:55 | Knowledge store rebuilt from the same MinIO source commit on port 19100, bucket (versioned) and app user provisioned, web recreated to point at it |
-| 12:55 - 13:19 | The 22 SmartGift records re-admitted as byte-different copies of the same catalog files (uploads 12:55 and 12:58): 22 of 22 `PUBLISHED`, 17 of 17 stages each, 22 publication receipts (first 12:56, last 13:19). The object store was added to the backup at 12:57 |
+| 12:55 - 13:19 | The 22 SmartGift records re-admitted as byte-different copies of the same catalog files (uploads 12:55 and 12:58): 22 of 22 `PUBLISHED`, 17 of 17 stages each, 22 publication receipts (first 12:56, last 13:19). The object store was added to the backup at 12:57 and its restore rehearsed at about 12:58 |
 | 13:20 - 13:22 | The 22 old sources, which pointed at lost snapshots, were withdrawn: `revokedAt` set and their ingestions marked `WITHDRAWN`; history kept |
 | 13:24 | Post-publish backup taken |
 
@@ -150,8 +150,8 @@ alert) has **not** been exercised.
 2. Back up `ki17-state`, `ki17-genesis-store` and the knowledge object store off the Docker disk
    on a schedule, and after every publication, with a documented restore that has been rehearsed
    once. **Partly done 2026-09-29:** every 6 hours to a separate drive on the same host, with SQLite
-   online backup, integrity check and a SHA-256 manifest per run, and a restore rehearsed into
-   scratch volumes. Still pending: an automatic backup after each publication (one was taken by
+   online backup, integrity check and a SHA-256 manifest per run, and a restore of all three stores
+   rehearsed into scratch volumes. Still pending: an automatic backup after each publication (one was taken by
    hand) and an off-host copy; the knowledge-storage README is explicit that an on-host copy is not
    a disaster-recovery copy.
 3. Keep the production benchmark fixture's deployed copy somewhere durable.

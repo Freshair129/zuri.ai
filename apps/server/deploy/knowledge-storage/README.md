@@ -56,7 +56,7 @@ from the same source commit on 2026-09-29 after the original was lost; port 1900
 an unrelated stack (see `.brain/rca/2026-09-29-watchdog-crash-loop-and-ki17-volume-loss.md`).
 Production web currently points its `.env.knowledge` endpoint at this store.
 The endpoint is loopback-only and is wired only through an operator-owned ignored
-`.env.knowledge` overlay and a separate local web canary; it is not exposed through
+`.env.knowledge` overlay; it is not exposed through
 ngrok and is not the production target. The Community repository is archived; this
 profile is smoke-test evidence only and does not replace the AIStor production
 candidate or provide a production support/SLA claim.
