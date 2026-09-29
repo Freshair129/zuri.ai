@@ -1,7 +1,7 @@
 ---
-version: "0.1.2b"
+version: "0.2.0b"
 created_at: "2026-09-29T12:40:00+07:00,MC0"
-last_update: "2026-09-29T13:20:00+07:00,MC0"
+last_update: "2026-09-29T13:40:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"
@@ -22,7 +22,9 @@ attributes:
 From 2026-09-29 01:15 +07:00, web, the LINE worker, the genesis-worker, the conversation runtime and
 the ngrok tunnel were offline. The Docker engine answered again at about 06:18. Later that morning
 the five `zuri-ai` containers, the `zuri-ai` images and all three `zuri-ai` volumes
-(`ki17-state`, `ki17-genesis-store`, `ki17-model`) were found missing. The
+(`ki17-state`, `ki17-genesis-store`, `ki17-model`) were found missing. So were the local knowledge
+object store container `zuri-minio-community-local`, its locally built image and its data volume
+`zuri-minio-community-local-data`, which are not part of the `zuri-ai` compose project. The
 local Supabase stack, which runs on the **same** Docker engine, kept its containers, images and
 volumes (all created 2026-09-02). The main database (Supabase cloud) was not affected.
 
@@ -37,6 +39,9 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
 | late morning | MC0 found the `zuri-ai` containers, images and volumes missing |
 | about 12:15 | The watchdog scheduled task was disabled and the script was repaired |
 | 12:20 - 12:30 | Images rebuilt from `main` a34ceaf7, the model volume restored and hash-checked, the production benchmark fixture reinstalled, and all five services started. Web health 200 locally and through the tunnel; `ki17-smoke` PASS on both hops |
+| 12:52 | The first catalog upload failed with "Object storage request was rejected". Port 19000, which the knowledge store used, was now served by an unrelated development stack started at 09:06 on the same host |
+| 12:52 - 13:05 | Knowledge store rebuilt from the same MinIO source commit on port 19100, bucket (versioned) and app user provisioned, web pointed at it |
+| 13:05 - 13:25 | The 22 SmartGift records re-admitted as byte-different copies of the same catalog files: 22 of 22 `PUBLISHED`, 17 of 17 stages each, 22 publication receipts. The 22 old sources, which pointed at lost snapshots, were withdrawn |
 
 ## Evidence
 
@@ -74,8 +79,9 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
 2. **The watchdog had no back-off and could force-stop a starting engine.** It restarted Docker
    Desktop without a limit, and after three unresponsive checks it stopped the process even when it
    was still starting. One failure became a five-hour loop.
-3. **The `zuri-ai` objects were removed selectively.** Only the `zuri-ai` compose project's
-   containers, images and volumes are gone; objects of other projects on the same engine survived.
+3. **The zuri objects were removed selectively.** The `zuri-ai` compose project's containers,
+   images and volumes are gone, and so is the separately started `zuri-minio-community-local`
+   store; objects of other projects on the same engine (Supabase) survived.
    That pattern fits a project-scoped removal (for example a compose `down` with volumes and images,
    or a manual cleanup), not a Docker reset. **Who or what did it, and exactly when, is
    unverified.** The engine was down from about 01:15 to 06:18, so the removal happened either
@@ -92,9 +98,12 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
   5 testers); no customer OA was connected. Whether the OA was producing replies before the outage
   is tracked separately in
   [the LINE OA RCA](2026-09-28-zuri-line-oa-silent-since-0914.md), which is still open.
-- **Lost:** MSP conversation memory and journal, GKS decisions and receipts, and the 22 published
-  SmartGift knowledge generations. The main database still records those 22 ingestions as
-  `PUBLISHED`, so it disagrees with the empty genesis store until they are published again.
+- **Lost:** MSP conversation memory and journal, GKS decisions and receipts, the 22 published
+  SmartGift knowledge generations, and every raw file in the knowledge object store. Knowledge
+  queries failed until the records were published again.
+- **Re-published:** the same 22 records, from files whose records are identical to the originals
+  (verified against the benchmark fixture). Old source rows and their evidence stay in the database
+  as withdrawn history; their raw files cannot be read back.
 - **Recovered:** the embedding model (restored from a local cache, all five files match the pinned
   SHA-256), and the production benchmark fixture (an untracked copy on the host was byte-identical
   to the deployed file, sha256 `d2d40084…`, as recorded in
@@ -124,8 +133,12 @@ re-enabled.
 
 1. **Rule (proposed):** host automation must never write a file owned by another program. It reads
    and alerts, and any automatic restart has a fixed attempt limit per outage.
-2. Back up `ki17-state` and `ki17-genesis-store` off the Docker disk on a schedule, and after every
-   publication, with a documented restore that has been rehearsed once.
+2. Back up `ki17-state`, `ki17-genesis-store` and the knowledge object store off the Docker disk
+   on a schedule, and after every publication, with a documented restore that has been rehearsed
+   once. **Done 2026-09-29** on the host: every 6 hours to a separate drive, SQLite online backup,
+   integrity check and SHA-256 manifest per run; restore rehearsed into scratch volumes.
+7. Reserve host ports for production services, or move them off fixed loopback ports: a
+   development stack took the knowledge store's port within hours of it being freed.
 3. Keep the production benchmark fixture's deployed copy somewhere durable.
    [§10.1](../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md) already asks for a copy with every
    change; this time it survived only because an untracked file happened to exist.
@@ -137,6 +150,8 @@ re-enabled.
 
 ## Open follow-ups
 
-- Re-publish the 22 SmartGift records. This is an owner decision, and the main database status
-  must be reconciled first so the pipeline will run them again.
-- Decide whether to re-enable the repaired watchdog.
+- Done: the 22 SmartGift records are published again (owner approved 2026-09-29).
+- Done: the repaired watchdog is re-enabled (owner approved 2026-09-29).
+- The knowledge store is still the local Community smoke profile (see
+  `apps/server/deploy/knowledge-storage/README.md`), now on port 19100; the production target
+  remains pending.
