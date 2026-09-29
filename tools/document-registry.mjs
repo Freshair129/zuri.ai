@@ -147,7 +147,7 @@ function buildTemplate(sourceText, sourcePath, records) {
 }
 
 function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
-  return index.records.map((entry) => {
+  const records = index.records.map((entry) => {
     const file = join(projectRoot, entry.path);
     if (!existsSync(file)) throw new Error(`Missing canonical record ${entry.path}`);
     const text = readFileSync(file, 'utf8');
@@ -165,6 +165,18 @@ function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
     if (record.sourceRevision !== index.sourceRevision) throw new Error(`${entry.id} source revision differs from index`);
     return { ...entry, ...record, recordSha256: recordDigest };
   });
+  const byId = new Map(records.map(record => [record.id, record]));
+  const memberships = new Map();
+  for (const feature of records.filter(record => record.family === 'FEAT')) {
+    for (const id of feature.requirementKeys) {
+      if (byId.get(id)?.family !== 'FR' || memberships.has(id)) throw new Error(`${feature.id} has invalid or duplicate membership for ${id}`);
+      memberships.set(id, feature.id);
+    }
+  }
+  for (const record of records.filter(record => record.family === 'FR')) {
+    if (record.featureId !== memberships.get(record.id)) throw new Error(`${record.id} feature membership differs from its explicit FEAT row`);
+  }
+  return records;
 }
 
 function buildIndex(records) {

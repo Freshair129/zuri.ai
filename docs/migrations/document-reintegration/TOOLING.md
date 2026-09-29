@@ -45,7 +45,7 @@ test ran or passed. A requirement binding counts as current ZAI evidence only wh
 the graph's exact requirement node is also namespaced ZAI and marked current, any
 namespaced edge endpoint is ZAI, and the edge is current with a recognized source
 (`test-reference`, `trace-annotation`,
-or `transitive` for `verifies`; `annotation` or `qualified-annotation` for
+or `transitive` for `verifies`; `annotation`, `qualified-annotation` or `trace-annotation` for
 `implements`; `annotation` for `tests`). Other evidence-shaped edges are returned
 under `unverifiedEvidence` by impact queries and do not enter test bindings or the
 review set.
@@ -92,3 +92,7 @@ the same facts as text mode and does not change these semantics.
 - **0.1.0** — initial contract for read-only current-registry test, impact, and
   declaration/code/test-binding queries; explicit ZNEXT provenance and Edge
   separation; no execution or delivery-status claims.
+
+Commands include structured argv and an explicit working directory. Displayed PowerShell commands restore the caller directory after the selected runner exits. Canonical queries use the strict registry reader; dangling graph endpoints are unverified evidence.
+
+Only implements/verifies/tests count as evidence and require existing endpoints. Other typed relations and depends_on remain navigation/review leads; missing endpoints are explicitly type unknown and do not prove implementation or verification.

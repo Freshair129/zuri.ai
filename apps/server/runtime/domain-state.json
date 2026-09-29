@@ -5186,7 +5186,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-013",
@@ -12500,7 +12500,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 22
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -12527,7 +12527,6 @@
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/contract-plan-artifacts.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
-        "apps/server/tests/unit/doc-links.test.js",
         "apps/server/tests/unit/plan-import-commit-transaction.test.js",
         "apps/server/tests/unit/plan-intake-flow.test.js",
         "apps/server/tests/unit/plan-schema.test.js",

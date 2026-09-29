@@ -602,6 +602,7 @@ function parseCanonicalZaiRegistry(blobs) {
     const requirements = new Map()
     const rows = new Map()
     const memberships = new Map()
+    const declaredMemberships = new Map()
     for (const entry of index.records) {
       if (entry.namespace !== ZAI_SOURCE_NAMESPACE || !validRepositoryPath(entry.path)
         || !/^docs\/(?:features|requirements)\//.test(entry.path)) throw invalid('canonical-index-record')
@@ -612,7 +613,10 @@ function parseCanonicalZaiRegistry(blobs) {
       const record = parseCanonicalRecord(decodeUtf8(bytes, 'canonical-record-encoding'))
       if (record.namespace !== ZAI_SOURCE_NAMESPACE || record.id !== entry.id || record.family !== entry.family
         || record.sourcePath !== entry.sourcePath || record.sourceRowSha256 !== entry.sourceRowSha256
-        || record.sourceRevision !== index.sourceRevision) throw invalid('canonical-record-identity')
+        || record.sourceRevision !== index.sourceRevision
+        || record.recordVersion !== entry.recordVersion || record.status !== entry.status
+        || record.featureId !== entry.featureId
+        || JSON.stringify(record.requirementCells) !== JSON.stringify(entry.requirementCells)) throw invalid('canonical-record-identity')
       const cells = splitRow(record.row)
       if (record.statementCell !== 2 || entry.statementCell !== 2
         || cells[0] !== '' || cells[cells.length - 1] !== ''
@@ -625,6 +629,7 @@ function parseCanonicalZaiRegistry(blobs) {
       if (entry.family === 'FR') {
         if (!FR_KEY_RE.test(record.id) || requirements.has(record.id)) throw invalid('canonical-fr-identity')
         requirements.set(record.id, row)
+        declaredMemberships.set(record.id, record.featureId)
       } else {
         if (JSON.stringify(record.requirementCells) !== '[3]'
           || JSON.stringify(entry.requirementCells) !== '[3]') throw invalid('canonical-feature-cells')
@@ -637,6 +642,10 @@ function parseCanonicalZaiRegistry(blobs) {
     }
     if (!requirements.size) throw invalid('canonical-requirements-empty')
     for (const key of memberships.keys()) if (!requirements.has(key)) throw invalid('canonical-feature-requirement-missing')
+    for (const [key, declared] of declaredMemberships) {
+      const owners = memberships.get(key) || []
+      if (owners.length > 1 || declared !== owners[0]) throw invalid('canonical-feature-membership')
+    }
     return { requirements, features: { rows, memberships } }
   } catch (error) {
     if (error instanceof GovernanceSourceVerificationError) throw error

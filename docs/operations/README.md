@@ -23,6 +23,8 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Canonical registry consumer integration](../migrations/document-reintegration/INTEGRATION.md)
 - [Document inventory and provenance contract](../migrations/document-reintegration/INVENTORY.md)
 - [Documentation reintegration proposal](../migrations/document-reintegration/PROPOSAL.md)
+- [Documentation reintegration implementation receipt](../migrations/document-reintegration/RECEIPT.md)
+- [Document query tooling contract](../migrations/document-reintegration/TOOLING.md)
 - [Generated document views contract](../migrations/document-reintegration/VIEW-CONTRACT.md)
 - [Monorepo snapshot execution](../migrations/monorepo/EXECUTION.md)
 - [Conversation Runtime extraction handoff](../migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md)

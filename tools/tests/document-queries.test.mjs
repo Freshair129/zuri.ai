@@ -24,7 +24,7 @@ function digest(value) {
   return createHash('sha256').update(value).digest('hex')
 }
 
-function writeCanonicalRecord(root, { id, family, statement, members = [] }) {
+function writeCanonicalRecord(root, { id, family, statement, members = [], featureId }) {
   const requirementCells = family === 'FEAT' ? [3] : []
   const row = family === 'FEAT'
     ? `| ${id} | ${statement} | ${members.join(', ')} | active |\n`
@@ -45,6 +45,7 @@ function writeCanonicalRecord(root, { id, family, statement, members = [] }) {
     `source_row_sha256: ${sourceRowSha256}`,
     'statement_cell: 2',
     `requirement_cells: ${JSON.stringify(requirementCells)}`,
+    ...(featureId ? [`feature_id: ${featureId}`] : []),
     '---',
     '',
     `# ZAI:${id}`,
@@ -71,6 +72,7 @@ function writeCanonicalRecord(root, { id, family, statement, members = [] }) {
     recordSha256: digest(Buffer.from(markdown, 'utf8')),
     statementCell: 2,
     requirementCells,
+    ...(featureId ? { featureId } : {}),
   }
 }
 
@@ -84,8 +86,8 @@ function makeFixture() {
   const root = mkdtempSync(path.join(tmpdir(), 'zai-document-query-'))
   const records = [
     writeCanonicalRecord(root, { id: 'FEAT-001', family: 'FEAT', statement: 'Feature membership is explicit', members: ['FR-001', 'FR-002'] }),
-    writeCanonicalRecord(root, { id: 'FR-001', family: 'FR', statement: 'Server and Edge proof is bound' }),
-    writeCanonicalRecord(root, { id: 'FR-002', family: 'FR', statement: 'Runtime proof is bound' }),
+    writeCanonicalRecord(root, { id: 'FR-001', family: 'FR', statement: 'Server and Edge proof is bound', featureId: 'FEAT-001' }),
+    writeCanonicalRecord(root, { id: 'FR-002', family: 'FR', statement: 'Runtime proof is bound', featureId: 'FEAT-001' }),
     writeCanonicalRecord(root, { id: 'FR-003', family: 'FR', statement: 'Adjacent requirement is not a member' }),
   ]
   const indexPath = path.join(root, 'registry', 'document-registry', 'index.json')
@@ -151,8 +153,8 @@ test('FEAT test lookup expands only its explicit FR row and groups existing test
       'services/conversation-runtime:node-test',
     ])
     assert.deepEqual(report.commands.find(command => command.app === 'apps/edge').argv,
-      ['npm', '--prefix', 'apps/edge', 'exec', '--', 'node', '--import', 'tsx', '--test', 'tests/unit/fr-001.test.ts'])
-    assert.match(report.commands.find(command => command.app === 'apps/edge').command, /'tests\/unit\/fr-001\.test\.ts'$/)
+      ['node', '--import', 'tsx', '--test', 'tests/unit/fr-001.test.ts'])
+    assert.match(report.commands.find(command => command.app === 'apps/edge').command, /'tests\/unit\/fr-001\.test\.ts'/)
     assert.deepEqual(report.commands.find(command => command.runner === 'playwright').argv,
       ['npm', '--prefix', 'apps/server', 'run', 'test:e2e', '--', 'tests/e2e/fr-001.spec.js'])
     assert.match(report.note, /not evidence that tests were executed or passed/)
@@ -262,6 +264,20 @@ test('readiness measures only declaration, graph, code, and test bindings', () =
   }
 })
 
+test('current trace adapter implementation edges remain visible in query consumers', () => {
+  const fixture = makeFixture()
+  try {
+    const graph = JSON.parse(readFileSync(fixture.graphPath, 'utf8'))
+    for (const edge of graph.edges) if (edge.type === 'implements') edge.source = 'trace-annotation'
+    writeFileSync(fixture.graphPath, JSON.stringify(graph))
+    const context = loadDocumentQueryContext(fixture)
+    assert.equal(queryReadiness('ZAI:FEAT-001', context).completeness.codeBindings, true)
+    assert.ok(queryImpact('ZAI:FEAT-001', context).evidence.some(edge => edge.type === 'implements' && edge.source === 'trace-annotation'))
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
 test('unknown and non-exact ZAI IDs fail closed', () => {
   const fixture = makeFixture()
   try {
@@ -333,4 +349,53 @@ test('CLI honors --root and --graph from an unrelated working directory', () => 
 test('query flags reject unknown options and malformed invocation', () => {
   assert.throws(() => parseQueryArguments(['FR-001', '--mystery'], 'usage'), { code: 'USAGE' })
   assert.throws(() => parseQueryArguments(['--root', 'x'], 'usage'), { code: 'USAGE' })
+})
+
+test('queries refuse a canonical index without the record digest', () => {
+  const fixture = makeFixture()
+  try {
+    const file = path.join(fixture.root, 'registry/document-registry/index.json')
+    const index = JSON.parse(readFileSync(file, 'utf8'))
+    delete index.records[0].recordSha256
+    writeFileSync(file, JSON.stringify(index))
+    assert.throws(() => loadDocumentQueryContext(fixture), /hash does not match/)
+  } finally {
+    assert.ok(path.resolve(fixture.root).startsWith(path.resolve(tmpdir()) + path.sep))
+    assert.ok(path.basename(fixture.root).startsWith('zai-document-query-'))
+    rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('impact downgrades dangling recognized edges to unverified evidence', () => {
+  const fixture = makeFixture()
+  try {
+    const context = loadDocumentQueryContext(fixture)
+    context.graph.edges.push({ from: 'ghost:missing', to: 'req:FR-001', type: 'implements', status: 'current', source: 'annotation' })
+    context.graph.edges.push({ from: 'ghost:dependency', to: 'req:FR-001', type: 'depends_on', status: 'current' })
+    const report = queryImpact('ZAI:FR-001', context)
+    assert.ok(!report.evidence.some(edge => edge.from.id === 'ghost:missing'))
+    assert.ok(report.unverifiedEvidence.some(edge => edge.from.id === 'ghost:missing'))
+    assert.ok(report.dependencies.some(edge => edge.from.id === 'ghost:dependency' && edge.from.type === 'unknown'))
+  } finally {
+    assert.ok(path.resolve(fixture.root).startsWith(path.resolve(tmpdir()) + path.sep))
+    assert.ok(path.basename(fixture.root).startsWith('zai-document-query-'))
+    rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('generated runtime invocation executes selected tests from its declared cwd', () => {
+  const fixture = makeFixture()
+  try {
+    writeFile(fixture.root, 'services/conversation-runtime/test/fr-002.test.js', "const assert = require('node:assert/strict'); assert.equal(require('node:path').basename(process.cwd()), 'conversation-runtime'); require('node:fs').writeFileSync('selected-test-ran.txt', 'passed');")
+    const command = queryTestsFor('FR-002', loadDocumentQueryContext(fixture)).commands.find(item => item.app === 'services/conversation-runtime')
+    const env = { ...process.env }
+    delete env.NODE_TEST_CONTEXT
+    const result = spawnSync(process.execPath, command.argv.slice(1), { cwd: command.cwd, encoding: 'utf8', env })
+    assert.equal(result.status, 0, result.stderr)
+    assert.equal(readFileSync(path.join(command.cwd, 'selected-test-ran.txt'), 'utf8'), 'passed')
+  } finally {
+    assert.ok(path.resolve(fixture.root).startsWith(path.resolve(tmpdir()) + path.sep))
+    assert.ok(path.basename(fixture.root).startsWith('zai-document-query-'))
+    rmSync(fixture.root, { recursive: true, force: true })
+  }
 })

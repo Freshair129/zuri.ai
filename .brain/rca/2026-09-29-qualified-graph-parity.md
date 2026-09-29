@@ -36,6 +36,11 @@ original requirement nodes. `doc-links.mjs` selected a basename before checking
 the exact global ZAI identity. Keep exact declared global identity resolution
 ahead of filename aliases, while explicit `.md` paths still select files. Add a
 fixture containing both a requirement and its same-named canonical document.
+The query consumer's initial source allowlist also omitted `trace-annotation`
+for implementation edges, although the graph adapter emits it for current
+`@trace implements`. Accept that exact adapter source while keeping foreign
+namespaces and crosswalk-derived edges outside current evidence; cover the
+adapter-to-query boundary with a binding-completeness regression fixture.
 
 Normalize only complete slash-separated ID lists, without inferring abbreviated
 IDs or parsing paths/foreign namespaces. Resolve qualified test `@req` through the

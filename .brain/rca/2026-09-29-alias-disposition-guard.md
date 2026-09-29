@@ -29,3 +29,7 @@ including original provenance rows. Keep regression cases for both locations.
 Independent review reproduced a foreign/unknown disposition escaping a negative
 keyword list. Use an explicit allowed disposition set, retaining all other
 approval/cardinality/provenance requirements, and test foreign and unknown values.
+The public resolver also now checks every selected row's locator and positive
+row number directly. Independent review showed that relying on a separate CLI
+validation call allowed an API caller to omit those fields. Missing-field fixtures
+cover resolution without any prevalidation step.

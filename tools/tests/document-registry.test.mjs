@@ -93,13 +93,13 @@ test('parseCanonicalIndex preserves additive fields and validates unique keys an
 test('writer refreshes authored wrapper hashes while preserving source rows and export bytes', () => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'zuri-registry-writer-'));
   const relative = 'docs/requirements/FR-091.md';
-  const original = canonicalRecord();
+  const original = canonicalRecord({ featureId: null });
   const row = parseCanonicalRecord(original).row;
   const digest = (text) => createHash('sha256').update(text).digest('hex');
   const put = (file, text) => { mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); writeFileSync(path.join(root, file), text); };
   const entry = { id: 'FR-091', namespace: 'ZAI', family: 'FR', path: relative, recordVersion: 1,
     status: 'source-preserved', sourcePath: 'docs/PRD-SDD-v1.0.md', sourceRowSha256: digest(row),
-    recordSha256: digest(original), statementCell: 2, requirementCells: [], featureId: 'FEAT-009',
+    recordSha256: digest(original), statementCell: 2, requirementCells: [],
     exportDocument: 'docs/PRD-SDD-v1.0.md', exportOrder: 0 };
   try {
     put(relative, original);
@@ -121,6 +121,33 @@ test('writer refreshes authored wrapper hashes while preserving source rows and 
   } finally {
     assert.ok(path.resolve(root).startsWith(path.resolve(os.tmpdir()) + path.sep));
     assert.ok(path.basename(root).startsWith('zuri-registry-writer-'));
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('registry rejects reverse membership drift even with matching wrapper and index hashes', () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'zuri-membership-'));
+  const records = readCanonicalRegistry().filter(record => ['FEAT-009', 'FR-091', 'FR-093'].includes(record.id));
+  const entries = JSON.parse(readFileSync(new URL('../../registry/document-registry/index.json', import.meta.url), 'utf8')).records.filter(entry => records.some(record => record.id === entry.id));
+  const putIndex = () => writeFileSync(path.join(root, 'registry/document-registry/index.json'), JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: entries }));
+  try {
+    mkdirSync(path.join(root, 'registry/document-registry'), { recursive: true });
+    for (const entry of entries) {
+      mkdirSync(path.dirname(path.join(root, entry.path)), { recursive: true });
+      writeFileSync(path.join(root, entry.path), readFileSync(new URL(`../../${entry.path}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n'));
+    }
+    putIndex();
+    assert.equal(readCanonicalRegistry(root).length, 3);
+    const entry = entries.find(item => item.id === 'FR-091');
+    const changed = readFileSync(path.join(root, entry.path), 'utf8').replace('feature_id: FEAT-009', 'feature_id: FEAT-999');
+    writeFileSync(path.join(root, entry.path), changed);
+    entry.featureId = 'FEAT-999';
+    entry.recordSha256 = createHash('sha256').update(changed).digest('hex');
+    putIndex();
+    assert.throws(() => readCanonicalRegistry(root), /membership/);
+  } finally {
+    assert.ok(path.resolve(root).startsWith(path.resolve(os.tmpdir()) + path.sep));
+    assert.ok(path.basename(root).startsWith('zuri-membership-'));
     rmSync(root, { recursive: true, force: true });
   }
 });

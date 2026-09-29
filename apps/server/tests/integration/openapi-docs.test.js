@@ -426,7 +426,7 @@ describe('OpenAPI document', () => {
       const value = { path: name, sha256: 'a'.repeat(64) }
       expect(entry(value), name).toBe(zSourceManifestEntry.safeParse(value).success)
     }
-    expect(doc.components.schemas.SourceManifest.properties.schemaVersion.enum).toEqual(['1.0.0'])
+    expect(doc.components.schemas.SourceManifest.properties.schemaVersion.enum).toEqual(['1.0.0', '2.0.0'])
     expect(doc.components.schemas.SourceManifest['x-maxBytes']).toBe(1048576)
   })
 

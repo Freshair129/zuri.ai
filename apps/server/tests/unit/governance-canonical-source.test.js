@@ -29,22 +29,22 @@ const sourceRevision = 'a'.repeat(40)
 const rootPaths = []
 let fixture
 
-function canonical(id, family, row, filePath, requirementCells = []) {
+function canonical(id, family, row, filePath, requirementCells = [], featureId) {
   const sourcePath = family === 'FEAT' ? 'docs/FEATURES.md' : 'docs/PRD-SDD-v1.0.md'
   const sourceRowSha256 = sha256(`${row}\n`)
   const text = [
     '---', `id: ${id}`, 'namespace: ZAI', `family: ${family}`, 'version: 1', 'status: source-preserved',
     `source_revision: ${sourceRevision}`, `source_path: ${sourcePath}`,
     `source_row_sha256: ${sourceRowSha256}`, 'source_row_eol: LF', 'statement_cell: 2',
-    `requirement_cells: ${JSON.stringify(requirementCells)}`, '---', '', `# ${id}`, '',
+    `requirement_cells: ${JSON.stringify(requirementCells)}`, ...(featureId ? [`feature_id: ${featureId}`] : []), '---', '', `# ${id}`, '',
     '<!-- canonical-row:start -->', '```text', row, '```', '<!-- canonical-row:end -->', '',
   ].join('\n')
   return { text, entry: { id, namespace: 'ZAI', family, recordVersion: 1, status: 'source-preserved', path: filePath, sourcePath,
-    sourceRowSha256, recordSha256: sha256(text), statementCell: 2, requirementCells,
+    sourceRowSha256, recordSha256: sha256(text), statementCell: 2, requirementCells, ...(featureId ? { featureId } : {}),
     exportDocument: sourcePath, exportOrder: family === 'FEAT' ? 0 : 1 } }
 }
 
-const fr = canonical('FR-252', 'FR', '| FR-252 | **Bind** the canonical requirement. |', 'docs/requirements/FR-252.md')
+const fr = canonical('FR-252', 'FR', '| FR-252 | **Bind** the canonical requirement. |', 'docs/requirements/FR-252.md', [], 'FEAT-001')
 const feature = canonical('FEAT-001', 'FEAT', '| FEAT-001 | Feature one | FR-252 | live |', 'docs/features/FEAT-001/feature.md', [3])
 
 async function git(args, cwd) {
@@ -117,7 +117,7 @@ describe('canonical source snapshot v2', () => {
       const files = {}
       for (let number = 1; number <= 277; number += 1) {
         const id = `FR-${String(number).padStart(3, '0')}`
-        const record = canonical(id, 'FR', `| ${id} | Requirement ${number}. |`, `docs/requirements/${id}.md`)
+        const record = canonical(id, 'FR', `| ${id} | Requirement ${number}. |`, `docs/requirements/${id}.md`, [], number <= 46 ? `FEAT-${String(number).padStart(3, '0')}` : undefined)
         records.push(record.entry)
         files[record.entry.path] = record.text
       }
@@ -160,13 +160,20 @@ describe('canonical source snapshot v2', () => {
     }
   })
 
-  it.each(['duplicate', 'path-escape', 'namespace', 'wrong-id', 'record-digest', 'unknown-fr'])('refuses %s in committed canonical sources', async (fault) => {
+  it.each(['duplicate', 'path-escape', 'namespace', 'wrong-id', 'record-digest', 'unknown-fr', 'reverse-membership', 'index-status'])('refuses %s in committed canonical sources', async (fault) => {
     const broken = await makeFixture((value) => {
       if (fault === 'duplicate') value.index.records.push({ ...value.index.records[0] })
       if (fault === 'path-escape') value.index.records[0].path = '../escape.md'
       if (fault === 'namespace') value.index.records[0].namespace = 'ZNEXT'
       if (fault === 'wrong-id') value.index.records[0].id = 'FR-253'
       if (fault === 'record-digest') value.index.records[0].recordSha256 = 'b'.repeat(64)
+      if (fault === 'reverse-membership') {
+        const entry = value.index.records[0]
+        value.files[entry.path] = value.files[entry.path].replace('feature_id: FEAT-001', 'feature_id: FEAT-999')
+        entry.featureId = 'FEAT-999'
+        entry.recordSha256 = sha256(value.files[entry.path])
+      }
+      if (fault === 'index-status') value.index.records[0].status = 'approved'
       if (fault === 'unknown-fr') value.index.records = [value.index.records[1]]
       return value
     })

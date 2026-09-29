@@ -285,3 +285,12 @@ test('identity errors retain a stable code and useful details', () => {
     return true
   })
 })
+
+test('canonical resolution enforces complete provenance without a separate validation call', () => {
+  for (const field of ['path', 'blob', 'sha256', 'row']) {
+    const { identities, mappings } = fixtures()
+    delete mappings[0].provenance[0][field]
+    const resolver = createDocumentIdentityResolver({ identities, mappings: [mappings[0]] })
+    assert.throws(() => resolver.resolveCanonicalIdentity('ZNEXT:FR-042', { revision: 'znext-pin' }), { code: 'IDENTITY_ALIAS_PROVENANCE_INVALID' })
+  }
+})

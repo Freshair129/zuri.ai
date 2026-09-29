@@ -1,5 +1,5 @@
 ---
-version: "0.1.0"
+version: "0.2.0"
 status: active
 ---
 
@@ -19,15 +19,20 @@ indexes do not index themselves.
   defines how pinned ZNEXT records are treated as provenance. A matching number or
   imported file does not make a ZNEXT record an active ZAI requirement.
 - [Reintegration diagrams](migrations/document-reintegration/DIAGRAMS.md) show the
-  distinct v1 historical verifier, proposed v2 reader, identity resolution and
+  distinct v1 historical verifier, implemented v2 reader, identity resolution and
   migration gates. [Generated-view contract](migrations/document-reintegration/VIEW-CONTRACT.md)
   defines the feature and category projections.
 
-The migration is in progress: P0 contract approval is complete; P1 compatibility
-work and P3 canonical-view work are underway. P2 reconciliation, P4 consumer
-updates, P5 integrated acceptance and P6 cutover are not complete. Generated pages
-are navigation and traceability projections; a code or test path on a page is not
-a test result or an approval.
+The isolated migration branch contains the canonical records, dual-version
+readers, compatibility exports, generated views and query tools. The source delta
+review covers 23 changed ZAI documents; ZNEXT material remains provenance-only
+until subject-level review authorizes an import. [Implementation receipt](migrations/document-reintegration/RECEIPT.md)
+records validation and remaining acceptance/cutover gates. Generated pages and
+code/test bindings are not test results or delivery approval.
+
+Use `npm run docs:tests-for -- ZAI:FEAT-009`, `npm run docs:impact -- ZAI:FR-091`
+and `npm run docs:readiness -- ZAI:FEAT-009` for scoped navigation and binding
+reports. See the [tooling contract](migrations/document-reintegration/TOOLING.md).
 
 ## Generated navigation
 

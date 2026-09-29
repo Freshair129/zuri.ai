@@ -208,6 +208,9 @@ export function resolveCanonicalDocumentIdentity(reference, options = {}) {
     aliasFailure('IDENTITY_ALIAS_NOT_ONE_TO_ONE', `Mapping for ${formatQualifiedIdentity(source)} is a split, merge, or non-one-to-one relation.`, source, mapping)
   }
   const provenance = Array.isArray(mapping.provenance) ? mapping.provenance : []
+  if (provenance.some(row => provenanceError(row))) {
+    aliasFailure('IDENTITY_ALIAS_PROVENANCE_INVALID', 'Every selected crosswalk row must retain its complete source locator and row number.', source, mapping)
+  }
   if (mapping.targetRevision !== source.revision || !provenance.length || !provenance.every(row => row?.revision === source.revision && row?.targetId === source.id)) {
     aliasFailure('IDENTITY_ALIAS_REVISION_MISMATCH', `Crosswalk provenance does not pin ${formatQualifiedIdentity(source)} at ${source.revision}.`, source, mapping)
   }

@@ -1,13 +1,13 @@
 ---
 doc_type: migration-design
 status: implementation
-version: "0.2.0"
+version: "0.3.0"
 ---
 
 # Reintegration diagrams
 
-**Version:** 0.2.0
-**Status:** Target design under the owner-approved migration; not all readers or gates are implemented.
+**Version:** 0.3.0
+**Status:** Implemented migration candidate; owner acceptance and writer cutover remain pending.
 
 ## Identity, historical reads and generated views
 
@@ -24,9 +24,9 @@ flowchart LR
   ONE -->|"split or merge"| SET["Explicit source/target set<br/>no automatic alias"]
   ONE -->|"ambiguous, retired or unreviewed"| DENY["Refuse active resolution"]
 
-  IDX["P3 canonical index and per-ID ZAI records<br/>candidate source"] --> V2["v2 snapshot reader target<br/>version, namespace, expected ID,<br/>canonical path and record hash"]
-  ALIAS -->|"reviewed, after required gates"| V2
-  SET -->|"explicit target selected"| V2
+  IDX["P3 canonical index and per-ID ZAI records<br/>candidate source"] --> V2["Implemented v2 snapshot reader<br/>version, namespace, expected ID,<br/>canonical path and record hash"]
+  ALIAS --> PROV["Provenance lookup only; no runtime alias"]
+  SET --> PROV
   V2 --> ACTIVE["Approved ZAI subject lookup"]
 
   IDX --> GEN["Registry projection generator"]
@@ -42,7 +42,7 @@ flowchart LR
 ```
 
 The v1 verifier is bound to its historical source snapshot and never follows a
-crosswalk. The v2 reader is a separate versioned target, not yet an active cutover;
+crosswalk. The v2 reader is implemented with versioned manifest dispatch; writer cutover is pending;
 provenance alone cannot bind runtime behavior. Generated views display canonical
 statements and graph bindings; they do not declare requirements, approve a mapping,
 or prove a test passed.
@@ -74,11 +74,13 @@ flowchart TD
   STOP --> OLD
 ```
 
-P0 contract approval is complete. P1 compatibility work and P3 canonical-view work
-are in progress; the remaining reconciliation, consumer, integration and cutover
-gates are not complete. Before P6, the existing writer remains selected. After any
-new-format writes, rollback requires stopping and reconciling them before restoring
-the prior selection. Merge and production remain separate decisions.
+P0 approval, canonical records, dual readers, projections and query consumers
+are implemented in the isolated branch. P2 records the 23 ZAI development-delta
+reviews and complete provenance dispositions; it does not assert semantic
+equivalence for all ZNEXT records. The [implementation receipt](RECEIPT.md)
+records local validation. P5 owner acceptance and P6 remain pending. After any
+new-format writes, rollback requires stopping and reconciling them before
+restoring the prior selection. Merge and production remain separate decisions.
 
 The four specialist roles are Explorer, Refactor agent, Doc writer and Diagram
 agent. The integrator owns serialized shared outputs; the human owner approves
@@ -93,6 +95,8 @@ is the 539-record ZAI index at source revision
 `a34ceaf79c112e02b1bcfdbf0a84122d835b002e`; the frozen graph is version 2.0.0.
 Those inputs do not prove P2 reconciliation, P5 acceptance or P6 cutover.
 
-0.1.0 → 0.2.0: distinguish pre-cutover writer authority, v1 historical verification,
+0.1.0 → 0.3.0: distinguish pre-cutover writer authority, v1 historical verification,
 the v2 candidate reader, generated projections, current phase gates and owner review.
 No historical blob, ID, or runtime binding is rewritten by this diagram.
+
+0.2.0 to 0.3.0: record implemented readers and provenance-only alias boundary; link local validation receipt.

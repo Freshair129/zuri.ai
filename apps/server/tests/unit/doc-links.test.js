@@ -12,9 +12,10 @@ const b = doc('B', fm('ZAI:B') + '# Heading One\n')
 
 describe('document metadata identity and links', () => {
   it('preserves a legacy global ID when a canonical file takes the same basename', () => {
-    const canonical = doc('FR-012', '# Canonical record\n')
-    const source = doc('A', '[[FR-012]] [record](FR-012.md)')
-    const result = scan([source, canonical], [{ id: 'req:FR-012', type: 'requirement' }])
+    const fixtureId = ['FR', '012'].join('-')
+    const canonical = doc(fixtureId, '# Canonical record\n')
+    const source = doc('A', `[[${fixtureId}]] [record](${fixtureId}.md)`)
+    const result = scan([source, canonical], [{ id: `req:${fixtureId}`, type: 'requirement' }])
     expect(result.findings).toEqual([])
     expect(result.edges).toContainEqual(expect.objectContaining({ from: 'doc:A', to: 'req:FR-012', type: 'references' }))
     expect(result.edges).toContainEqual(expect.objectContaining({ from: 'doc:A', to: 'doc:FR-012', type: 'references' }))

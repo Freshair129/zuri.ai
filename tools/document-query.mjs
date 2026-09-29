@@ -1,15 +1,16 @@
-import { createHash } from 'node:crypto'
 import { readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { parseQualifiedIdentity } from './document-identity.mjs'
-import { parseCanonicalIndex, parseCanonicalRecord } from '../apps/server/scripts/document-registry-format.mjs'
+import { parseCanonicalIndex } from '../apps/server/scripts/document-registry-format.mjs'
+
+import { readCanonicalRegistry } from './document-registry.mjs'
 
 const TOOL_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const EVIDENCE_TYPES = new Set(['implements', 'verifies', 'tests'])
 const EVIDENCE_SOURCES = new Map([
-  ['implements', new Set(['annotation', 'qualified-annotation'])],
+  ['implements', new Set(['annotation', 'qualified-annotation', 'trace-annotation'])],
   ['verifies', new Set(['test-reference', 'trace-annotation', 'transitive'])],
   ['tests', new Set(['annotation'])],
 ])
@@ -29,10 +30,6 @@ function fail(code, message, details) {
   throw new DocumentQueryError(code, message, details)
 }
 
-function sha256(text) {
-  return createHash('sha256').update(Buffer.from(text.replace(/\r\n/g, '\n'), 'utf8')).digest('hex')
-}
-
 function readJson(file, label) {
   try {
     return JSON.parse(readFileSync(file, 'utf8'))
@@ -50,31 +47,13 @@ function indexCanonicalRecords(root) {
     fail('INVALID_CANONICAL_INDEX', `Could not load the canonical document index: ${error.message}`, { file: indexPath })
   }
 
-  const records = new Map()
-  for (const entry of index.records) {
-    const recordPath = path.resolve(root, ...entry.path.split('/'))
-    let text
-    try {
-      text = readFileSync(recordPath, 'utf8')
-    } catch (error) {
-      fail('CANONICAL_RECORD_READ_ERROR', `Could not read ${entry.path}: ${error.message}`, { file: recordPath, id: entry.id })
-    }
-    let record
-    try {
-      record = parseCanonicalRecord(text)
-    } catch (error) {
-      fail('INVALID_CANONICAL_RECORD', `Could not parse ${entry.path}: ${error.message}`, { file: recordPath, id: entry.id })
-    }
-    if (record.id !== entry.id || record.namespace !== entry.namespace || record.family !== entry.family || record.sourceRevision !== index.sourceRevision) {
-      fail('CANONICAL_INDEX_MISMATCH', `${entry.id} does not match its canonical index declaration.`, { id: entry.id, path: entry.path })
-    }
-    if (entry.recordSha256 && sha256(text) !== entry.recordSha256) {
-      fail('CANONICAL_RECORD_HASH_MISMATCH', `${entry.id} does not match its canonical index hash.`, { id: entry.id, path: entry.path })
-    }
-    const key = `${record.namespace}:${record.id}`
-    if (records.has(key)) fail('AMBIGUOUS_IDENTITY', `Canonical identity ${key} is declared more than once.`)
-    records.set(key, { ...entry, ...record })
+  let validated
+  try {
+    validated = readCanonicalRegistry(root)
+  } catch (error) {
+    fail('INVALID_CANONICAL_RECORD', `Could not validate canonical records: ${error.message}`)
   }
+  const records = new Map(validated.map(record => [`${record.namespace}:${record.id}`, record]))
   return { index, records }
 }
 
@@ -214,15 +193,17 @@ function runnerFor(app, files) {
   return app === 'apps/edge' ? 'node-test-tsx' : 'node-test'
 }
 
-function commandForFiles(app, files) {
+function commandForFiles(app, files, root) {
   const testPaths = files.map(file => file.slice(`${app}/`.length))
   const runner = runnerFor(app, files)
   let argv
   if (runner === 'playwright') argv = ['npm', '--prefix', app, 'run', 'test:e2e', '--', ...testPaths]
   else if (app === 'apps/server') argv = ['npm', '--prefix', app, 'test', '--', ...testPaths]
-  else if (app === 'apps/edge') argv = ['npm', '--prefix', app, 'exec', '--', 'node', '--import', 'tsx', '--test', ...testPaths]
-  else argv = ['npm', '--prefix', app, 'exec', '--', 'node', '--test', ...testPaths]
-  return { runner, argv, command: `${argv[0]} ${argv.slice(1).map(powershellArg).join(' ')}` }
+  else if (app === 'apps/edge') argv = ['node', '--import', 'tsx', '--test', ...testPaths]
+  else argv = ['node', '--test', ...testPaths]
+  const cwd = app === 'apps/server' ? root : path.join(root, app)
+  const invocation = `${argv[0]} ${argv.slice(1).map(powershellArg).join(' ')}`
+  return { runner, argv, cwd, command: `Push-Location -LiteralPath ${powershellArg(cwd)}; try { ${invocation} } finally { Pop-Location }` }
 }
 
 function normalizeGraphPath(file) {
@@ -243,7 +224,9 @@ function graphBindings(context, requirementId, edgeType, sourceType) {
 function isCurrentEvidence(edge, context) {
   if (edge.status !== 'current' || !EVIDENCE_SOURCES.get(edge.type)?.has(edge.source)) return false
   return [edge.from, edge.to].every(id => {
-    const namespace = context.nodes.get(id)?.namespace
+    const node = context.nodes.get(id)
+    if (!node) return false
+    const namespace = node.namespace
     return !namespace || namespace === 'ZAI'
   })
 }
@@ -274,7 +257,7 @@ export function queryTestsFor(reference, context) {
   for (const requirement of requirements) {
     for (const { edge, node } of graphBindings(context, requirement, 'verifies', 'test')) {
       const location = bindingPath(context, node)
-      const invocation = location.exists && location.app ? commandForFiles(location.app, [location.file]) : null
+      const invocation = location.exists && location.app ? commandForFiles(location.app, [location.file], context.root) : null
       bindings.push({
         requirement: `ZAI:${requirement}`,
         testNode: node.id,
@@ -283,7 +266,7 @@ export function queryTestsFor(reference, context) {
         app: location.app,
         edgeStatus: edge.status,
         source: edge.source || null,
-        ...(invocation ? { runner: invocation.runner, command: invocation.command, argv: invocation.argv } : {}),
+        ...(invocation ? { runner: invocation.runner, command: invocation.command, argv: invocation.argv, cwd: invocation.cwd } : {}),
       })
     }
   }
@@ -299,7 +282,7 @@ export function queryTestsFor(reference, context) {
   }
   const commands = [...commandGroups.values()].sort((a, b) => `${a.app}:${a.runner}`.localeCompare(`${b.app}:${b.runner}`)).map(group => {
     const files = [...group.files].sort()
-    return { app: group.app, runner: group.runner, files, ...commandForFiles(group.app, files) }
+    return { app: group.app, runner: group.runner, files, ...commandForFiles(group.app, files, context.root) }
   })
   return {
     target,
