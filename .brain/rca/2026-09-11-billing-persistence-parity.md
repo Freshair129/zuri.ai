@@ -38,7 +38,7 @@ the table privileges needed to use the new tables.
 - The isolated logs, copied SQL snapshots, source hashes, synthetic fixtures
   and result manifest are retained in the task artifact directory's
   `billing-pg-qa/` and `billing-sqlite-qa/` folders. The artifact root is
-  `C:/Users/pc/.codex/visualizations/2026/09/10/01a08aba-fa9c-7a51-9e67-415f939bd9ac`.
+  `<codex-home>/visualizations/<run>`.
 
 ## Root cause
 

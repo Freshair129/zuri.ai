@@ -80,7 +80,7 @@ shown. Paths below describe the installed device, not an unbuilt monorepo copy.
 | Host restart | `Win32_OperatingSystem.LastBootUpTime`: 2026-09-08 06:27:00.500 ICT. |
 | Startup execution | Scheduled Task `ZuriEdgeStack`: LastRunTime 06:27:14 ICT, LastTaskResult 1, current state Ready, logon trigger, RestartCount 0. Ready means scheduled, not a healthy Edge service. |
 | Installed task predates code change | Task file creation/last-write: 2026-09-04 11:48:01.626 ICT. Its description still says it starts embed, RAG and LINE webhook. Action runs `powershell.exe` with the installed `scripts/start-edge-stack.ps1`, without `-TransportOwner`. |
-| Installed launcher | `C:\Users\pc\workspace\zuri-edge-device\scripts\start-edge-stack.ps1`, modified 2026-09-06 14:15:03 ICT. Default TransportOwner is SERVER at line 29; only LEGACY_EDGE opens 8787 at lines 167–169. |
+| Installed launcher | `<workspace>\zuri-edge-device\scripts\start-edge-stack.ps1`, modified 2026-09-06 14:15:03 ICT. Default TransportOwner is SERVER at line 29; only LEGACY_EDGE opens 8787 at lines 167–169. |
 | Change provenance | Edge commit `4a6e7ca47257c97a46c3f85e70f7f4f58ea4776c` (2026-09-06) changed the launcher default to SERVER and added an explicit mode argument to newly installed tasks. Installed Edge checkout HEAD is `a470a45`. |
 | Exact source match | Installed launcher and this worktree's `apps/edge/scripts/start-edge-stack.ps1` share SHA-256 `1613DB39C8CA552D934680BFF1FFB6669037CD64791E0A45C3A4E138914F7DEE`. |
 | Boot dependency processes | Python embed sidecar PID 26236 started 06:27:58.960; RAG Node PID 26068 started 06:31:02.805. Their parent launcher PID was 10264. Probe commands themselves were excluded from runtime attribution. |

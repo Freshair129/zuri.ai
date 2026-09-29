@@ -41,7 +41,7 @@ Local merge f95cd5b ไม่เปลี่ยน application source.
 - src/app/api/crm/conversations/route.js กับ conversations/[id]/route.js
   เรียก readers ดังกล่าวหลัง resolve viewer. รอบนี้พิสูจน์ service จริง แต่ไม่ได้ยิง HTTP/browser.
 - หลักฐาน JSON ที่ไม่มีข้อมูลลูกค้าจริง:
-  C:/Users/freshair/AppData/Local/Temp/zuri-wave2-inbox-audit-nRbbm7/result.json.
+  <temp>/zuri-wave2-inbox-audit-nRbbm7/result.json.
   schema-push.log อยู่ใน directory เดียวกัน. ไฟล์ TEMP เป็นหลักฐานประกอบ;
   ขั้นตอนและผลที่จำเป็นต่อการทำซ้ำบันทึกถาวรไว้ด้านล่าง.
 

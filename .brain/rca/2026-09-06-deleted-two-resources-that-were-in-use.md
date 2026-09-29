@@ -20,7 +20,7 @@ Both were in use.
 1. `%LOCALAPPDATA%\Docker\wsl\disk\docker_data.vhdx` (9.08 GB), reported to the
    owner as "a stale disk Docker Desktop left behind when it upgraded", deleted
    at 10:44 while the Docker daemon and the production containers were running.
-2. The git worktree `C:\Users\pc\workspace\zuri-ai-artifactid-migration`,
+2. The git worktree `<workspace>\zuri-ai-artifactid-migration`,
    reported as "merged and clean", deleted at ~11:05 while another session was
    actively working in it.
 
@@ -74,7 +74,7 @@ which reading is true.
 
 ### 2. The worktree
 
-`C:\Users\pc\workspace\zuri-ai-artifactid-migration` held the lane that produced
+`<workspace>\zuri-ai-artifactid-migration` held the lane that produced
 PR #233. Before removing it the session checked three things, and all three were
 true:
 
