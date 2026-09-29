@@ -323,6 +323,10 @@ jobs:
       - name: Governance chain
         run: npm run govern
 
+      - name: Documentation migration contracts
+        working-directory: .
+        run: npm run docs:migration:test
+
       # `runtime/domain-state.json` IS still committed — the app imports it and
       # the Docker build context cannot regenerate it (ADR-081 D2) — so it keeps
       # a byte-stability check of its own. #354 removed the run timestamp that
@@ -362,6 +366,8 @@ jobs:
           tests/unit/doc-graph-canonical-text.test.js
           tests/unit/doc-graph-delivery-attribution.test.js
           tests/unit/doc-graph-retired-rules.test.js
+          tests/unit/governance-source-verifier.test.js
+          tests/unit/governance-canonical-source.test.js
 
       # A service-scoped pull request skips `tests`, so the apps/server tests
       # that import the changed service's code — the Core-side contract tests —

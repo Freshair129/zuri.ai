@@ -692,7 +692,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 13
         },
         {
           "id": "FR-149",
@@ -769,7 +769,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-256",
@@ -1245,7 +1245,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 19,
-          "testCount": 38
+          "testCount": 39
         }
       ],
       "checks": {
@@ -1409,7 +1409,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-093",
@@ -1465,7 +1465,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 15
+          "testCount": 13
         },
         {
           "id": "FR-151",
@@ -1964,7 +1964,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 13
         },
         {
           "id": "FR-154",
@@ -2092,7 +2092,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 45
+          "testCount": 46
         }
       ],
       "checks": {
@@ -2461,7 +2461,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 54
+          "testCount": 52
         },
         {
           "id": "FR-110",
@@ -3289,7 +3289,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 54
+          "testCount": 52
         },
         {
           "id": "FR-110",
@@ -3485,7 +3485,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-254",
@@ -3735,7 +3735,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-093",
@@ -5098,7 +5098,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 14
         },
         {
           "id": "FR-002",
@@ -5610,7 +5610,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-092",
@@ -5714,7 +5714,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 54
+          "testCount": 52
         },
         {
           "id": "FR-110",
@@ -6346,7 +6346,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 23,
-          "testCount": 45
+          "testCount": 46
         },
         {
           "id": "FR-253",
@@ -6354,7 +6354,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-254",
@@ -7592,7 +7592,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-093",
@@ -7639,6 +7639,7 @@
         "apps/server/tests/unit/conversation-read-model.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/data-pipeline-map.test.js",
+        "apps/server/tests/unit/doc-identities.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
@@ -8001,7 +8002,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 54
+          "testCount": 52
         },
         {
           "id": "FR-110",
@@ -8179,7 +8180,6 @@
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-s3-object-storage.test.js",
-        "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",
         "apps/server/tests/unit/knowledge-stage-runner.test.js",
         "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
@@ -8777,7 +8777,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 13
         },
         {
           "id": "FR-149",
@@ -8906,8 +8906,6 @@
         "apps/server/tests/unit/conversation-read-model.test.js",
         "apps/server/tests/unit/conversation-session-ui.test.js",
         "apps/server/tests/unit/data-pipeline-map.test.js",
-        "apps/server/tests/unit/doc-identities.test.js",
-        "apps/server/tests/unit/doc-links.test.js",
         "apps/server/tests/unit/embedded-postgres-cleanup.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
@@ -12015,7 +12013,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -12039,8 +12037,7 @@
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
-        "apps/server/tests/unit/route-reachability.test.js",
-        "apps/server/tests/unit/self-plan-generator.test.js"
+        "apps/server/tests/unit/route-reachability.test.js"
       ]
     },
     {
@@ -17535,7 +17532,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 45
+          "testCount": 46
         }
       ],
       "evidence": [
@@ -17598,6 +17595,7 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr046-session-port.test.js",
         "apps/server/tests/unit/fr250-navigation.test.js",
+        "apps/server/tests/unit/governance-canonical-source.test.js",
         "apps/server/tests/unit/governance-source-verifier.test.js",
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/identity/api-write-csrf-route.test.js",
@@ -17641,7 +17639,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 24,
-          "testCount": 38
+          "testCount": 39
         }
       ],
       "evidence": [
@@ -17695,6 +17693,7 @@
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr253-pricing-routes.test.js",
+        "apps/server/tests/unit/governance-canonical-source.test.js",
         "apps/server/tests/unit/governance-source-verifier.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",

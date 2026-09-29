@@ -20,6 +20,8 @@ import { findUncoveredRequirements } from './roadmap-coverage.mjs'
 import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
 import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
 import { evaluateSchemaMigrationDrift } from './schema-migration-drift.mjs'
+import { parseCanonicalIndex, parseCanonicalRecord } from './document-registry-format.mjs'
+import { collectDocumentClaims, isGeneratedDocumentView, requiresSuccessor } from './doc-identities.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -56,11 +58,14 @@ const ARCHIVE_DIR = path.join(SPEC_PACK, 'archive')
 const labDocs = walk(workspacePath(ROOT, 'docs'), '.md').filter((f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR))
 const specDocs = []
 const allDocs = labDocs
+const canonicalIndexPath = path.join(workspaceRoot(ROOT), 'registry/document-registry/index.json')
+const canonicalPaths = new Set(existsSync(canonicalIndexPath)
+  ? parseCanonicalIndex(read(canonicalIndexPath)).records.map(record => record.path) : [])
 
 // Read source files even when the persisted graph is stale or missing a new doc.
 {
   const generated = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md', 'DOCUMENT-LINKS.md'])
-  const sources = allDocs.filter(f => !generated.has(path.basename(f)))
+  const sources = allDocs.filter(f => !generated.has(path.basename(f)) && !isGeneratedDocumentView(rel(f)))
   const saved = existsSync(GRAPH) ? JSON.parse(read(GRAPH)).nodes : []
   const nodes = sources.map(f => {
     const p = rel(f), base = path.basename(f, '.md')
@@ -100,9 +105,24 @@ for (const f of allDocs) {
 // ---- Check 2: broken relative links --------------------------------------
 const LINK = /\[[^\]]*\]\(([^)#]+?)(?:#[^)]*)?\)/g
 for (const f of allDocs) {
-  for (const [, href] of read(f).matchAll(LINK)) {
+  const body = read(f)
+  const sources = [{ body, base: path.dirname(f) }]
+  if (canonicalPaths.has(rel(f))) {
+    // The preserved row keeps the original document's relative-link context.
+    // Check it there; links authored outside the row use the new file's context.
+    const record = parseCanonicalRecord(body)
+    sources[0].body = body.replace(/<!-- canonical-row:start -->[\s\S]*?<!-- canonical-row:end -->/, '')
+    sources.push({ body: record.row, base: path.dirname(path.join(workspaceRoot(ROOT), record.sourcePath)) })
+  }
+  for (const source of sources) for (const [, href] of source.body.matchAll(LINK)) {
     if (/^(https?:|mailto:)/.test(href)) continue
-    const target = path.resolve(path.dirname(f), href)
+    let pathname
+    try { pathname = decodeURIComponent(href.split('?')[0]) }
+    catch {
+      add('warning', 'cross-reference', `Invalid encoded link → ${href}`, `in ${path.basename(f)}`, [rel(f)], 'Correct the URL encoding')
+      continue
+    }
+    const target = path.resolve(source.base, pathname)
     if (!existsSync(target)) {
       add('warning', 'cross-reference', `Broken link → ${href}`, `in ${path.basename(f)}`, [rel(f)], 'Fix the path or remove the link')
     }
@@ -155,25 +175,7 @@ if (!existsSync(GRAPH)) {
   // by two documents is a CRITICAL: it breaks the key contract (AGENTS.md §18)
   // that every plan, annotation and test relies on.
   {
-    const claims = new Map() // id → [files]
-    const claim = (id, file) => {
-      if (!claims.has(id)) claims.set(id, [])
-      claims.get(id).push(rel(file))
-    }
-    for (const f of allDocs) {
-      const base = path.basename(f)
-      const adr = /^ADR-(\d{3})/.exec(base)
-      if (adr) claim(`ADR-${adr[1]}`, f)
-      // Stage artifacts of a CR (ZV2-CR-001-W0-INVENTORY.md) belong to it and
-      // are not competing claims on the id.
-      const cr = /^ZV2-CR-(\d{3})-(?!W\d+-)/.exec(base)
-      if (cr) claim(`ZV2-CR-${cr[1]}`, f)
-      // A feature note claims its FR; plans and briefs citing the id do not.
-      if (f.includes(`${path.sep}features${path.sep}`)) {
-        const fr = /^(FR-\d{3})/.exec(base)
-        if (fr) claim(fr[1], f)
-      }
-    }
+    const claims = collectDocumentClaims(allDocs.map(rel), canonicalPaths)
     for (const [id, holders] of claims) {
       if (holders.length > 1) {
         add('critical', 'id-uniqueness', `${id} is claimed by ${holders.length} documents`, holders.join(' · '), holders,
@@ -347,7 +349,7 @@ if (!existsSync(GRAPH)) {
 
   // Lineage integrity — a doc marked superseded must carry a successor edge, so
   // "what replaced it" is answerable from the graph (RWANG lineage guard).
-  for (const n of (g.nodes || []).filter((n) => n.status === 'superseded' || /supersed/i.test(n.doc_status || ''))) {
+  for (const n of (g.nodes || []).filter(requiresSuccessor)) {
     if (!(g.edges || []).some((e) => e.to === n.id && e.type === 'supersedes')) {
       add('warning', 'lineage', 'Superseded doc without a successor edge', n.id, [n.path].filter(Boolean), 'Add **Superseded by:** [X](X.md) so the graph records what replaced it')
     }

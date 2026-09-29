@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-COMMIT-PROVENANCE
 title: Phase B bound commit provenance implementation contract
-version: "0.1.1b"
+version: "0.2.0"
 status: beta
 created_at: "2026-09-17T15:16:00+07:00,RWANG,052821a7"
-last_update: "2026-09-17T17:10:00+07:00,RWANG"
+last_update: "2026-09-29,RWANG"
 attributes:
   domain: project-manager
   doc_type: implementation-contract
@@ -38,7 +38,7 @@ read-only canonical subject and explicit unavailable-evidence behavior.
 
 ## 1. Exact manifest bytes
 
-The producer supports SourceManifest schemaVersion "1.0.0". Keep the selected
+The original producer supports SourceManifest schemaVersion "1.0.0". Keep the selected
 strict shape, 1 MiB request-manifest limit and at most 1,000 entries. Reject
 duplicate paths, absolute/drive paths, backslashes, NUL, parent traversal and
 noncanonical POSIX spellings, including empty segments and "." segments.
@@ -56,6 +56,29 @@ authority. The caller's manifestHash must equal the recomputed value.
 Only normalized verifier output is persisted. Supported inputs remain within
 the existing SourceManifest schema; an unsupported producer version receives
 the existing typed verification refusal.
+
+### Canonical-record extension (0.2.0)
+
+The owner-approved [documentation reintegration contract](../../migrations/document-reintegration/PROPOSAL.md)
+adds SourceManifest schemaVersion "2.0.0", paired exclusively with verifierVersion
+"2.0.0". Its index is `registry/document-registry/index.json`; the manifest must
+contain that index and every FR/FEAT record it declares. Each record is a regular
+Git blob at the bound commit, matches its manifest and index SHA-256, and declares
+the expected original ZAI ID, family and provenance. Missing, duplicate, malformed
+or cross-namespace records refuse the capture. The same size, time, path and scope
+bounds apply. See the [consumer integration design](../../migrations/document-reintegration/INTEGRATION.md)
+for the canonical parser and compatibility-export boundary.
+
+Schema/verifier 1.0.0 continue to read the two registry blobs specified below.
+Historical evidence is never reinterpreted through the current index or crosswalk.
+Schema/verifier 2.0.0 read canonical records with the same subject digest and
+feature-membership rules. New locators name their canonical file; old locators
+retain their original registry path. Unknown or mismatched stored version pairs
+are unavailable. The operator checkout configuration remains schema 1.0.0.
+
+This extension changes no persisted model, business behavior or source namespace
+accepted by requirement binding. ZNEXT is migration provenance, not runtime evidence.
+Version diff 0.1.1b → 0.2.0: adds this opt-in reader while preserving v1 replay.
 
 ## 2. Installation operator checkout configuration
 
