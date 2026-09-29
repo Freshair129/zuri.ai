@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -397,5 +397,27 @@ test('generated runtime invocation executes selected tests from its declared cwd
     assert.ok(path.resolve(fixture.root).startsWith(path.resolve(tmpdir()) + path.sep))
     assert.ok(path.basename(fixture.root).startsWith('zai-document-query-'))
     rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('a test binding through a directory symlink cannot escape the selected repository', () => {
+  const fixture = makeFixture()
+  const outside = mkdtempSync(path.join(tmpdir(), 'zai-query-outside-'))
+  try {
+    writeFileSync(path.join(outside, 'escape.test.js'), 'throw Error("must not run")')
+    const relative = 'services/conversation-runtime/test/external'
+    symlinkSync(outside, path.join(fixture.root, relative), process.platform === 'win32' ? 'junction' : 'dir')
+    const context = loadDocumentQueryContext(fixture)
+    const node = context.nodes.get('test:services/conversation-runtime/test/fr-002.test.js')
+    node.path = `${relative}/escape.test.js`
+    const report = queryTestsFor('FR-002', context)
+    assert.ok(report.missingFiles.includes(node.path))
+    assert.equal(report.commands.length, 0)
+  } finally {
+    for (const [root, prefix] of [[fixture.root, 'zai-document-query-'], [outside, 'zai-query-outside-']]) {
+      assert.ok(path.resolve(root).startsWith(path.resolve(tmpdir()) + path.sep))
+      assert.ok(path.basename(root).startsWith(prefix))
+      rmSync(root, { recursive: true, force: true })
+    }
   }
 })

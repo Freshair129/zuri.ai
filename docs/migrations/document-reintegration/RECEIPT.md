@@ -52,7 +52,7 @@ query refusal fixtures, generated-view freshness and the server build.
 
 | Local check | Result |
 |---|---|
-| Migration Node suite | 51/51 passed |
+| Migration Node suite | 52/52 passed |
 | Historical/v2 verifier and document-link regressions | 44/44 passed |
 | Generated OpenAPI contract | 18/18 passed |
 | Feature consumer regressions | 34/34 passed |

@@ -1,4 +1,4 @@
-import { readFileSync, statSync } from 'node:fs'
+import { readFileSync, realpathSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -173,6 +173,8 @@ function safeFilePath(root, relativePath) {
   const rel = path.relative(root, absolute)
   if (rel.startsWith('..') || path.isAbsolute(rel)) return null
   try {
+    const realRelative = path.relative(realpathSync(root), realpathSync(absolute))
+    if (realRelative.startsWith('..') || path.isAbsolute(realRelative)) return null
     return statSync(absolute).isFile() ? absolute : null
   } catch {
     return null

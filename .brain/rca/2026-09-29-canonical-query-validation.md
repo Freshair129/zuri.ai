@@ -40,3 +40,8 @@ Selected Node test commands used npm exec with --prefix, which does not change
 the process working directory as npm run does. Direct Node argv now carries an
 explicit cwd, and the displayed PowerShell command sets/restores that directory.
 A subprocess regression actually executes a selected test and asserts its cwd.
+
+A directory-junction fixture also reproduced an outside-root test being offered
+as runnable: lexical containment followed by stat followed symlinks. The query
+now checks realpath containment as well. A Windows junction/POSIX symlink fixture
+verifies outside targets are reported as unavailable and generate no command.
