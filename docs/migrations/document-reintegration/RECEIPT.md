@@ -1,12 +1,12 @@
 ---
-version: "0.4.0"
+version: "0.5.0"
 status: implementation
 ---
 
 # Documentation reintegration implementation receipt
 
-**Version:** 0.4.0
-**Status:** Local migration candidate; owner acceptance and P6 pending.
+**Version:** 0.5.0
+**Status:** P5 evidence accepted by the owner on 2026-09-29; P6 cutover and merge pending.
 
 The [approved proposal](PROPOSAL.md) is implemented on an isolated ZAI branch.
 The original ZAI source is pinned to
@@ -60,7 +60,7 @@ query refusal fixtures, generated-view freshness and the server build.
 
 | Local check | Result |
 |---|---|
-| Migration Node suite | 52/52 passed |
+| Migration Node suite | 53/53 passed, including pre-write and post-write table rollback rehearsal |
 | Documentary identity/link regression suites | 31/31 passed |
 | Historical/v2 verifier and document-link regressions | 44/44 passed |
 | Generated OpenAPI contract | 18/18 passed |
@@ -76,6 +76,16 @@ dangling links. The 47 removed relation triples are 42 filename-prefix follows
 matches and five fixture/transitive verification matches; exact qualified
 annotations retain their intended evidence. No historical record is rewritten.
 
+The [consumer contract](CONSUMERS.md) records the rollback fixture's limits. It
+proves that a pre-write projection leaves the old table bytes unchanged and that
+the unchanged baseline `id-anchors.mjs` row parser reads a post-write row after its
+canonical fixture is removed. It does not exercise full application-reader
+routing, rollback of non-table metadata, imported ZNEXT semantics, or an actual
+main-branch writer transition.
+
+0.4.0 → 0.5.0: record owner acceptance of P5 evidence and add fixture-backed
+pre-write/post-write table rollback evidence; clarify that P6 cutover and merge
+remain pending.
 0.3.0 → 0.4.0: add qualified graph identities for all issued IDs and scope
 successor-lineage checks to content-bearing documents and requirements. Identity
 status and original source rows remain unchanged.
@@ -92,8 +102,10 @@ revision recorded in the delivery report; this document does not grant approval.
 
 ## Remaining gates
 
-Owner acceptance of the local evidence, any further normative ZNEXT adoption,
-P6 canonical-writer cutover and merge remain explicit decisions. Before any
-post-cutover rollback, stop and reconcile new-format writes; do not reinterpret
-them with v1 or reset a shared checkout. Existing v1 evidence remains bound to its
-original revision, path and hash. No persisted-data migration is performed here.
+The owner accepted the P5 local evidence on 2026-09-29. P6 canonical-writer
+cutover and merge authority remain open decisions; the rollback rehearsal does
+not authorize a main-branch transition. Any further normative ZNEXT adoption is
+also separate. Before a post-cutover rollback, stop and reconcile new-format
+writes; do not reinterpret them with v1 or reset a shared checkout. Existing v1
+evidence remains bound to its original revision, path and hash. No persisted-data
+migration is performed here.

@@ -1,6 +1,6 @@
 ---
 doc_type: migration-consumer-contract
-version: "0.1.0"
+version: "0.2.0"
 status: approved
 ---
 
@@ -64,7 +64,29 @@ as an unrestricted new authoring workflow: P6 accepts the writer transition afte
 the composed evidence is reviewed. The old writer remains on the untouched main
 checkout until that decision.
 
+## Writer rollback proof
+
+The fixture rehearsal covers only records represented by the current canonical
+registry and its PRD/FEATURES projections. In the pre-write case, projecting the
+canonical record leaves the existing legacy table bytes unchanged, and the strict
+projection check then passes. After a synthetic same-ID row update standing in for
+a separately reviewed record migration, the generated legacy table retains the
+exact updated row. The fixture removes the canonical index and record, then invokes
+the unchanged baseline `id-anchors.mjs` row parser to read the projected ID and
+statement. The fixture does not model the review itself or switch application
+reader selection. This shows the retained export remains parseable in a
+rollback-shaped fixture. It does not prove semantic adoption of ZNEXT material or
+a rollback of an unreviewed identity, mapping, or historical-evidence change.
+
+For a real post-cutover rollback, freeze canonical writes, save the exact branch
+revision and generated exports, run the projection check, and reconcile any
+non-table canonical change in an explicit disposition manifest before selecting
+the old writer. Do not discard canonical records or use a blind Git revert as a
+data rollback. Keep the v1 historical reader and all original snapshots pinned.
+
 ## Version diff
 
+0.1.0 → 0.2.0: records the pre-write and post-write table rollback rehearsal,
+including its covered scope and the reconciliation boundary for non-table data.
 0.0 → 0.1.0: records intended interfaces for active readers, retained historical
 consumers and imported tooling, with the explicit pre-cutover authoring boundary.

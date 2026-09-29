@@ -5,6 +5,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'nod
 import os from 'node:os';
 import path from 'node:path';
 
+import { splitRow as splitLegacyRow } from '../../apps/server/scripts/id-anchors.mjs';
 import { parseCanonicalIndex, parseCanonicalRecord, splitRow } from '../../apps/server/scripts/document-registry-format.mjs';
 import { readCanonicalRegistry, writeCanonicalProjections } from '../document-registry.mjs';
 
@@ -20,10 +21,11 @@ function canonicalRecord({
   namespace = 'ZAI',
   sourceRowEol = 'CRLF',
   sourcePath = family === 'FEAT' ? 'docs/FEATURES.md' : 'docs/PRD-SDD-v1.0.md',
+  sourceRevision = SOURCE_REVISION,
 } = {}) {
   const sourceRowSha256 = createHash('sha256').update(Buffer.from(row, 'utf8')).digest('hex');
   const storedRow = row.replace(/\r?\n$/, '');
-  return `---\nid: ${id}\nnamespace: ${namespace}\nfamily: ${family}\nversion: 1\nstatus: source-preserved\nsource_revision: ${SOURCE_REVISION}\nsource_path: ${sourcePath}\nsource_row_eol: ${sourceRowEol}\nsource_row_sha256: ${sourceRowSha256}\nstatement_cell: ${statementCell}\nrequirement_cells: ${JSON.stringify(requirementCells)}\n${featureId ? `feature_id: ${featureId}\n` : ''}subject_anchor: stable subject\n---\n# ZAI:${id}\n\n<!-- canonical-row:start -->\n\`\`\`text\n${storedRow}\n\`\`\`\n<!-- canonical-row:end -->\n`;
+  return `---\nid: ${id}\nnamespace: ${namespace}\nfamily: ${family}\nversion: 1\nstatus: source-preserved\nsource_revision: ${sourceRevision}\nsource_path: ${sourcePath}\nsource_row_eol: ${sourceRowEol}\nsource_row_sha256: ${sourceRowSha256}\nstatement_cell: ${statementCell}\nrequirement_cells: ${JSON.stringify(requirementCells)}\n${featureId ? `feature_id: ${featureId}\n` : ''}subject_anchor: stable subject\n---\n# ZAI:${id}\n\n<!-- canonical-row:start -->\n\`\`\`text\n${storedRow}\n\`\`\`\n<!-- canonical-row:end -->\n`;
 }
 
 test('splitRow retains outer empty cells and matches legacy escaped-pipe behavior', () => {
@@ -121,6 +123,71 @@ test('writer refreshes authored wrapper hashes while preserving source rows and 
   } finally {
     assert.ok(path.resolve(root).startsWith(path.resolve(os.tmpdir()) + path.sep));
     assert.ok(path.basename(root).startsWith('zuri-registry-writer-'));
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('writer rollback rehearsal preserves legacy rows before and after a canonical write', () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'zuri-registry-rollback-'));
+  const relative = 'docs/requirements/FR-091.md';
+  const legacyPath = 'docs/PRD-SDD-v1.0.md';
+  const indexPath = 'registry/document-registry/index.json';
+  const digest = (text) => createHash('sha256').update(text).digest('hex');
+  const put = (file, text) => {
+    mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+    writeFileSync(path.join(root, file), text);
+  };
+  const initialRow = '| FR-091 | stable behavior | ✅ |\r\n';
+  const initialRecord = canonicalRecord({ featureId: null, row: initialRow });
+  const initialParsed = parseCanonicalRecord(initialRecord);
+  const entry = {
+    id: 'FR-091', namespace: 'ZAI', family: 'FR', path: relative,
+    recordVersion: 1, status: 'source-preserved', sourcePath: legacyPath,
+    sourceRowSha256: initialParsed.sourceRowSha256, recordSha256: digest(initialRecord),
+    statementCell: 2, requirementCells: [], exportDocument: legacyPath, exportOrder: 0,
+  };
+  const template = '# PRD\n\n| ID | Statement | Status |\n|---|---|---|\n{{CANONICAL_ROW:FR-091}}\n';
+
+  try {
+    put(relative, initialRecord);
+    put(indexPath, `${JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: [entry] }, null, 2)}\n`);
+    put('registry/document-registry/PRD-SDD-v1.0.template.md', template);
+    put('registry/document-registry/FEATURES.template.md', '# Features\n');
+    put(legacyPath, template.replace('{{CANONICAL_ROW:FR-091}}', initialRow));
+    put('docs/FEATURES.md', '# Features\n');
+
+    const preWriteExport = readFileSync(path.join(root, legacyPath), 'utf8');
+    writeCanonicalProjections(root);
+    assert.equal(readFileSync(path.join(root, legacyPath), 'utf8'), preWriteExport);
+    writeCanonicalProjections(root, { check: true });
+
+    const postRow = '| FR-091 | stable behavior with an approved clarification | ✅ |\r\n';
+    const postRecord = canonicalRecord({ featureId: null, row: postRow });
+    const postParsed = parseCanonicalRecord(postRecord);
+    put(relative, postRecord);
+    put(indexPath, `${JSON.stringify({
+      version: 1,
+      sourceRevision: SOURCE_REVISION,
+      records: [{ ...entry, sourceRowSha256: postParsed.sourceRowSha256, recordSha256: digest(postRecord) }],
+    }, null, 2)}\n`);
+
+    writeCanonicalProjections(root);
+    const postWriteExport = readFileSync(path.join(root, legacyPath), 'utf8');
+    assert.equal(readCanonicalRegistry(root)[0].row, postRow);
+    rmSync(path.join(root, relative));
+    rmSync(path.join(root, indexPath));
+    const rollbackTable = readFileSync(path.join(root, legacyPath), 'utf8');
+    assert.equal(rollbackTable, postWriteExport);
+    assert.equal(rollbackTable.includes(postRow.trimEnd()), true);
+    const legacyRow = rollbackTable.split(/\r?\n/).find((line) => line.startsWith('| FR-091 |'));
+    assert.equal(`${legacyRow}\r\n`, postRow);
+    assert.deepEqual(splitLegacyRow(legacyRow).slice(1, 3), [
+      'FR-091', 'stable behavior with an approved clarification',
+    ]);
+    assert.deepEqual(splitRow(legacyRow), splitLegacyRow(legacyRow));
+  } finally {
+    assert.ok(path.resolve(root).startsWith(path.resolve(os.tmpdir()) + path.sep));
+    assert.ok(path.basename(root).startsWith('zuri-registry-rollback-'));
     rmSync(root, { recursive: true, force: true });
   }
 });
