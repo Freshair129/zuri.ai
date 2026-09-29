@@ -116,7 +116,13 @@ for (const f of allDocs) {
   }
   for (const source of sources) for (const [, href] of source.body.matchAll(LINK)) {
     if (/^(https?:|mailto:)/.test(href)) continue
-    const target = path.resolve(source.base, href)
+    let pathname
+    try { pathname = decodeURIComponent(href.split('?')[0]) }
+    catch {
+      add('warning', 'cross-reference', `Invalid encoded link → ${href}`, `in ${path.basename(f)}`, [rel(f)], 'Correct the URL encoding')
+      continue
+    }
+    const target = path.resolve(source.base, pathname)
     if (!existsSync(target)) {
       add('warning', 'cross-reference', `Broken link → ${href}`, `in ${path.basename(f)}`, [rel(f)], 'Fix the path or remove the link')
     }

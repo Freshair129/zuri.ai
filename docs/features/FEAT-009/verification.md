@@ -2,6 +2,7 @@
 doc_type: generated-view
 view_type: feature-verification
 generator_version: "1.0.0"
+version: "1.0.0"
 registry_source_revision: a34ceaf79c112e02b1bcfdbf0a84122d835b002e
 graph_version: "2.0.0"
 status: generated
@@ -50,6 +51,7 @@ status: generated
 - [apps/server/tests/unit/conversation-read-model.test.js](../../../apps/server/tests/unit/conversation-read-model.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/crm-group-navigation.test.js](../../../apps/server/tests/unit/crm-group-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/data-pipeline-map.test.js](../../../apps/server/tests/unit/data-pipeline-map.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/doc-identities.test.js](../../../apps/server/tests/unit/doc-identities.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/domain-navigation.test.js](../../../apps/server/tests/unit/domain-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-api-ui-contract.test.js](../../../apps/server/tests/unit/fr045-api-ui-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr091-inbox-ui-contract.test.js](../../../apps/server/tests/unit/fr091-inbox-ui-contract.test.js) — `verifies` (`test-reference`)

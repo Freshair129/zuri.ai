@@ -2,6 +2,7 @@
 doc_type: generated-view
 view_type: feature-verification
 generator_version: "1.0.0"
+version: "1.0.0"
 registry_source_revision: a34ceaf79c112e02b1bcfdbf0a84122d835b002e
 graph_version: "2.0.0"
 status: generated
@@ -181,6 +182,7 @@ status: generated
 - [apps/server/tests/integration/agent-tools.test.js](../../../apps/server/tests/integration/agent-tools.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/iam-authorization.test.js](../../../apps/server/tests/integration/iam-authorization.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/mfa-totp-lifecycle.test.js](../../../apps/server/tests/integration/mfa-totp-lifecycle.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/agent-context-retrieval.test.js](../../../apps/server/tests/unit/agent-context-retrieval.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/authorization-context.test.js](../../../apps/server/tests/unit/authorization-context.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/canonical-iam-migration.test.js](../../../apps/server/tests/unit/canonical-iam-migration.test.js) — `verifies` (`test-reference`)

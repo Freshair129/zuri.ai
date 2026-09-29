@@ -2,6 +2,7 @@
 doc_type: generated-view
 view_type: feature-verification
 generator_version: "1.0.0"
+version: "1.0.0"
 registry_source_revision: a34ceaf79c112e02b1bcfdbf0a84122d835b002e
 graph_version: "2.0.0"
 status: generated
@@ -53,6 +54,7 @@ status: generated
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/sot-decisions-route.test.js](../../../apps/server/tests/integration/sot-decisions-route.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/api-access-key-migration.test.js](../../../apps/server/tests/unit/api-access-key-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/programme-containers.test.js](../../../apps/server/tests/unit/programme-containers.test.js) — `verifies` (`test-reference`)

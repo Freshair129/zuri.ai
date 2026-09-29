@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
@@ -11,6 +12,24 @@ import { renderDocumentViews, writeDocumentViews } from '../generate-document-vi
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const records = readCanonicalRegistry(ROOT);
 const graph = JSON.parse(readFileSync(join(ROOT, 'docs/.doc-graph.json'), 'utf8'));
+
+test('the default CLI invocation generates views without arguments', () => {
+  const root = mkdtempSync(join(tmpdir(), 'zai-doc-view-cli-'));
+  try {
+    mkdirSync(join(root, 'tools'));
+    mkdirSync(join(root, 'docs'));
+    writeFileSync(join(root, 'tools/generate-document-views.mjs'), readFileSync(join(ROOT, 'tools/generate-document-views.mjs')));
+    writeFileSync(join(root, 'tools/document-registry.mjs'), `export const readCanonicalRegistry = () => ${JSON.stringify([{ id: 'FR-999', family: 'FR', sourceRevision: 'a'.repeat(40) }])};\n`);
+    writeFileSync(join(root, 'docs/.doc-graph.json'), JSON.stringify({ version: '2.0.0', nodes: [], edges: [] }));
+    const result = spawnSync(process.execPath, [join(root, 'tools/generate-document-views.mjs')], { cwd: tmpdir(), encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Generated 4 document views/);
+    assert.ok(existsSync(join(root, 'docs/product/README.md')));
+  } finally {
+    assert.ok(resolve(root).startsWith(resolve(tmpdir())) && root.includes('zai-doc-view-cli-'));
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 function generate(inputGraph = graph) {
   return renderDocumentViews({ root: ROOT, records, graph: inputGraph });
@@ -24,6 +43,7 @@ test('renders deterministic projections for canonical feature membership', () =>
   const feature = records.find((record) => record.id === 'FEAT-001');
   const requirement = records.find((record) => record.id === 'FR-037');
   const design = outputs.get('docs/features/FEAT-001/design.md');
+  assert.match(design, /^version: "1\.0\.0"$/m);
   assert.ok(design.includes(feature.statement));
   assert.ok(design.includes(requirement.statement));
   assert.ok(design.includes(requirement.cells.slice(1, -1).at(-1)));

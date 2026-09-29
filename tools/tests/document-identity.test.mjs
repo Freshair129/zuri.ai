@@ -165,7 +165,7 @@ test('split, merge, unreviewed and competing crosswalks never become aliases', (
 })
 
 test('approval cannot turn a retired, dropped or split provenance row into an alias', () => {
-  for (const disposition of ['retired', 'dropped', 'blocked', 'mixed', 'split', 'merged']) {
+  for (const disposition of ['retired', 'dropped', 'blocked', 'mixed', 'split', 'merged', 'foreign', 'unknown-future-status']) {
     for (const location of ['mapping', 'row']) {
       const { identities, mappings } = fixtures()
       const mapping = mappings[0]

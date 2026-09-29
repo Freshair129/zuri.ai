@@ -26,3 +26,6 @@ remain unreviewed, so no production or existing imported alias was activated.
 
 Reject non-alias lifecycle/cardinality dispositions at validation and resolution,
 including original provenance rows. Keep regression cases for both locations.
+Independent review reproduced a foreign/unknown disposition escaping a negative
+keyword list. Use an explicit allowed disposition set, retaining all other
+approval/cardinality/provenance requirements, and test foreign and unknown values.

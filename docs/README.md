@@ -1,3 +1,8 @@
+---
+version: "0.1.0"
+status: active
+---
+
 # Documentation
 
 This index links to the current ZAI source records, their compatibility exports,

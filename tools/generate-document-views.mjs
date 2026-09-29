@@ -97,6 +97,7 @@ function markdownHeader(metadata) {
     'doc_type: generated-view',
     `view_type: ${metadata.viewType}`,
     `generator_version: "${GENERATOR_VERSION}"`,
+    `version: "${GENERATOR_VERSION}"`,
     `registry_source_revision: ${metadata.registrySourceRevision}`,
     `graph_version: "${metadata.graphVersion}"`,
     'status: generated',
@@ -418,7 +419,7 @@ function parseArgs(args) {
 }
 
 const args = process.argv.slice(2);
-if (args.length > 0 && import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
+if (import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
   try {
     const options = parseArgs(args);
     const graph = JSON.parse(readFileSync(options.graph ?? join(options.root, 'docs/.doc-graph.json'), 'utf8'));

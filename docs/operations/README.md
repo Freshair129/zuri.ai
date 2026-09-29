@@ -2,6 +2,7 @@
 doc_type: generated-view
 view_type: operations-navigation
 generator_version: "1.0.0"
+version: "1.0.0"
 registry_source_revision: a34ceaf79c112e02b1bcfdbf0a84122d835b002e
 graph_version: "2.0.0"
 status: generated
@@ -15,10 +16,14 @@ Generated navigation for current source documents in the operations grouping. A 
 
 - [Deploying zuri-ai with Docker Compose + ngrok](../deployment/docker-ngrok.md)
 - [Canonical document record format](../migrations/document-reintegration/CANONICAL-FORMAT.md)
-- [Proposed documentation migration architecture](../migrations/document-reintegration/DIAGRAMS.md)
+- [Identity compatibility contract](../migrations/document-reintegration/COMPATIBILITY.md)
+- [Document consumer compatibility](../migrations/document-reintegration/CONSUMERS.md)
+- [Reintegration diagrams](../migrations/document-reintegration/DIAGRAMS.md)
 - [ZAI documentation integration profile](../migrations/document-reintegration/GOVERNANCE-PROFILE.md)
 - [Canonical registry consumer integration](../migrations/document-reintegration/INTEGRATION.md)
+- [Document inventory and provenance contract](../migrations/document-reintegration/INVENTORY.md)
 - [Documentation reintegration proposal](../migrations/document-reintegration/PROPOSAL.md)
+- [Generated document views contract](../migrations/document-reintegration/VIEW-CONTRACT.md)
 - [Monorepo snapshot execution](../migrations/monorepo/EXECUTION.md)
 - [Conversation Runtime extraction handoff](../migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md)
 - [Marketing Insights: reconciling the contract with this repository (S6)](../migrations/service-extraction/INSIGHTS-CONTRACT-RECONCILIATION.md)

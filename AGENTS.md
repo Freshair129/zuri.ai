@@ -5,8 +5,9 @@
 Read [the approved migration profile](docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md)
 before changing a registry or document reader. On this branch, individual ZAI records
 in `registry/document-registry/index.json` generate the existing PRD/FEATURES paths.
-Run `npm run docs:registry` after an explanatory canonical edit; `govern` checks
-exports without repairing them. Initial source rows, issued IDs and subject anchors
+Run `npm run docs:registry` after an explanatory canonical edit, then
+`npm run docs:graph` and `npm run docs:views`. `govern` checks exports and views
+without repairing them. Initial source rows, issued IDs and subject anchors
 remain pinned. New/changed behavior needs a reviewed record migration; P6 writer
 cutover and merge acceptance are still separate gates. Older instructions below
 that describe direct PRD/FEATURES editing apply to the pre-cutover writer, not to

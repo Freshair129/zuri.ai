@@ -28,6 +28,8 @@ it('CLI reproduces generated files and rejects stale state, backlinks and missin
     writeFileSync(path.join(fixture, 'apps/edge/tests/unit/qualified.test.ts'), '// @req ' + qualifiedFixtureId + '\n// foreign ZNEXT:FR-002 and edge::FR-003 are not root test evidence\n')
     writeFileSync(path.join(fixture, 'docs/LINK-PHASE.md'), '---\nid: ZAI:FIXTURE-DOC-LINK-PHASE\nrelations: []\n---\n# Phase\n')
     writeFileSync(path.join(fixture, 'docs/LEGACY-WIKI.md'), '# Legacy wiki\n\n**Relates to:** [[ZAI:FIXTURE-DOC-LINK-PHASE]]\n')
+    writeFileSync(path.join(fixture, 'docs/encoded target.txt'), 'Fixture target\n')
+    writeFileSync(path.join(fixture, 'docs/ENCODED-LINK.md'), '# Encoded links\n[real](encoded%20target.txt)\n[missing](__missing%20target.txt)\n')
     mkdirSync(path.join(fixture, 'docs/migrations'), { recursive: true })
     writeFileSync(path.join(fixture, 'docs/migrations/FIXTURE-MIGRATION.md'), '# Source migration\n')
     for (const name of ['identity-a', 'identity-b']) {
@@ -80,6 +82,8 @@ it('CLI reproduces generated files and rejects stale state, backlinks and missin
     const preflight = run('doc-preflight.mjs', ['--strict'])
     expect(preflight.status, preflight.stderr).toBe(1)
     const report = JSON.parse(readFileSync(path.join(fixture, 'docs/.preflight-report.json'), 'utf8'))
+    expect(report.findings.some(f => f.check === 'cross-reference' && f.title.includes('encoded%20target.txt'))).toBe(false)
+    expect(report.findings.some(f => f.check === 'cross-reference' && f.title.includes('__missing%20target.txt'))).toBe(true)
     expect(report.findings.some(f => f.severity === 'critical' && f.check === 'doc-link-metadata' && f.details.includes('ZAI:DOES-NOT-EXIST'))).toBe(true)
   } finally {
     // The target is the exact directory allocated by mkdtemp above; remove the

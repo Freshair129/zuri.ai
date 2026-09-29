@@ -2,6 +2,7 @@
 doc_type: generated-view
 view_type: feature-verification
 generator_version: "1.0.0"
+version: "1.0.0"
 registry_source_revision: a34ceaf79c112e02b1bcfdbf0a84122d835b002e
 graph_version: "2.0.0"
 status: generated
@@ -194,6 +195,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/edge/tests/unit/conversation-deadline.test.ts](../../../apps/edge/tests/unit/conversation-deadline.test.ts) — `verifies` (`transitive`)
+- [apps/edge/tests/unit/conversation-progress.test.ts](../../../apps/edge/tests/unit/conversation-progress.test.ts) — `verifies` (`test-reference`)
 - [apps/edge/tests/unit/genesisrag17-edge.test.ts](../../../apps/edge/tests/unit/genesisrag17-edge.test.ts) — `verifies` (`transitive`)
 - [apps/server/tests/integration/conversation-runtime-group-room.test.js](../../../apps/server/tests/integration/conversation-runtime-group-room.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/conversation-runtime-unverified.test.js](../../../apps/server/tests/integration/conversation-runtime-unverified.test.js) — `verifies` (`test-reference`)

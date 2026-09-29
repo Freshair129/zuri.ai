@@ -6,10 +6,10 @@ import { fileURLToPath } from 'node:url'
 import { DocumentIdentityError, formatQualifiedIdentity, isDocumentIdentity, parseQualifiedIdentity } from '../apps/server/scripts/document-identity-format.mjs'
 export { DocumentIdentityError, formatQualifiedIdentity, parseQualifiedIdentity }
 
-const NON_ALIAS_DISPOSITION = /(?:split|merg|retir|drop|block|mixed|unmapped|one[-_ ]to[-_ ]many|many[-_ ]to[-_ ]one)/i
+const ALIASABLE_DISPOSITIONS = new Set(['mapped', 'migrated', 'equivalent', 'equivalent-candidate', 'accepted-unchanged'])
 
-const hasNonAliasDisposition = mapping => NON_ALIAS_DISPOSITION.test(mapping.sourceDisposition || '')
-  || (Array.isArray(mapping.provenance) && mapping.provenance.some(row => NON_ALIAS_DISPOSITION.test(row?.sourceDisposition || '')))
+const hasNonAliasDisposition = mapping => !ALIASABLE_DISPOSITIONS.has(mapping.sourceDisposition)
+  || (Array.isArray(mapping.provenance) && mapping.provenance.some(row => !ALIASABLE_DISPOSITIONS.has(row?.sourceDisposition)))
 
 function identityError(code, message, details) {
   return new DocumentIdentityError(code, message, details)

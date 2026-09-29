@@ -2,6 +2,7 @@
 doc_type: generated-view
 view_type: product-navigation
 generator_version: "1.0.0"
+version: "1.0.0"
 registry_source_revision: a34ceaf79c112e02b1bcfdbf0a84122d835b002e
 graph_version: "2.0.0"
 status: generated

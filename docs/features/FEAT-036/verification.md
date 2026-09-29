@@ -2,6 +2,7 @@
 doc_type: generated-view
 view_type: feature-verification
 generator_version: "1.0.0"
+version: "1.0.0"
 registry_source_revision: a34ceaf79c112e02b1bcfdbf0a84122d835b002e
 graph_version: "2.0.0"
 status: generated
@@ -143,7 +144,7 @@ status: generated
 - [apps/server/tests/integration/fr146-line-oa-account.test.js](../../../apps/server/tests/integration/fr146-line-oa-account.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr149-line-server-configuration.test.js](../../../apps/server/tests/integration/fr149-line-server-configuration.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js](../../../apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js](../../../apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js](../../../apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr238-line-studio-description-admission.test.js](../../../apps/server/tests/integration/fr238-line-studio-description-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-channel-credential-routes.test.js](../../../apps/server/tests/integration/line-channel-credential-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-session-ui.test.js](../../../apps/server/tests/unit/conversation-session-ui.test.js) — `verifies` (`transitive`)

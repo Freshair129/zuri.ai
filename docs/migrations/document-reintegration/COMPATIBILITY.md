@@ -54,6 +54,12 @@ does not rewrite stored IDs, paths, hashes, revisions, approval text, persisted
 bindings, or historical snapshots. No runtime reader may rebind a pinned historical
 reference through the current crosswalk.
 
+Approved aliases additionally require each aggregate and original row disposition
+to be one of `mapped`, `migrated`, `equivalent`, `equivalent-candidate`, or
+`accepted-unchanged`. This list does not approve an alias by itself; exact review,
+cardinality and source locators remain required. Foreign, retired, dropped, split,
+merged, mixed, blocked and unknown dispositions fail closed.
+
 ## Trace annotation adaptation
 
 Trace adaptation is a compatibility projection for the current graph only. An
