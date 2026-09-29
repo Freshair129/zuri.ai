@@ -1,29 +1,33 @@
 ---
-version: "0.1.2b"
+version: "0.2.1b"
 created_at: "2026-09-29T12:40:00+07:00,MC0"
-last_update: "2026-09-29T13:20:00+07:00,MC0"
+last_update: "2026-09-29T13:55:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"
   doc_type: "root-cause-analysis"
-  scope: "Watchdog-driven Docker Desktop crash loop, removal of the zuri-ai images, containers and volumes, and the rebuild on the single production host"
+  scope: "Watchdog-driven Docker Desktop crash loop, removal of the zuri-ai images, containers and volumes and of the local knowledge object store, the takeover of its port, the rebuild and the re-publish of the SmartGift records on the single production host"
 ---
 
-# RCA - Watchdog crash loop and loss of the ki17 volumes
+# RCA - Watchdog crash loop, loss of the ki17 volumes and the knowledge object store
 
 ## Complexity and risk
 
 - **Complexity:** C-2 - host operations plus a rebuild, no product code change
-- **Risk:** CRITICAL - two Docker volumes holding published knowledge and conversation memory were
-  lost with no backup. The outage itself affected only the platform's internal test OA
+- **Risk:** CRITICAL - three Docker data volumes were lost with no backup: the two ki17 volumes
+  (published knowledge and conversation memory) and the knowledge object store (raw catalog
+  files). The outage itself affected only the platform's internal test OA
 
 ## Symptom
 
 From 2026-09-29 01:15 +07:00, web, the LINE worker, the genesis-worker, the conversation runtime and
 the ngrok tunnel were offline. The Docker engine answered again at about 06:18. Later that morning
 the five `zuri-ai` containers, the `zuri-ai` images and all three `zuri-ai` volumes
-(`ki17-state`, `ki17-genesis-store`, `ki17-model`) were found missing. The
-local Supabase stack, which runs on the **same** Docker engine, kept its containers, images and
+(`ki17-state`, `ki17-genesis-store`, `ki17-model`) were found missing. At about 12:50 the local
+knowledge object store was also found missing: the container `zuri-minio-community-local`, its
+locally built image and its data volume `zuri-minio-community-local-data`, none of which are part
+of the `zuri-ai` compose project.
+The local Supabase stack, which runs on the **same** Docker engine, kept its containers, images and
 volumes (all created 2026-09-02). The main database (Supabase cloud) was not affected.
 
 ## Timeline (+07:00)
@@ -37,6 +41,13 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
 | late morning | MC0 found the `zuri-ai` containers, images and volumes missing |
 | about 12:15 | The watchdog scheduled task was disabled and the script was repaired |
 | 12:20 - 12:30 | Images rebuilt from `main` a34ceaf7, the model volume restored and hash-checked, the production benchmark fixture reinstalled, and all five services started. Web health 200 locally and through the tunnel; `ki17-smoke` PASS on both hops |
+| about 12:39 | The owner approved re-enabling the repaired watchdog; it was enabled and its first run logged web health back to 200 |
+| 12:43 - 12:45 | ki17 backup set up (every 6 hours to a separate drive) and a restore of the two ki17 volumes rehearsed into scratch volumes |
+| about 12:50 | The first catalog upload failed with "Object storage request was rejected". Port 19000, which the knowledge store used, was now served by an unrelated development stack started at 09:06 on the same host |
+| 12:54 - 12:55 | Knowledge store rebuilt from the same MinIO source commit on port 19100, bucket (versioned) and app user provisioned, web recreated to point at it |
+| 12:55 - 13:19 | The 22 SmartGift records re-admitted as byte-different copies of the same catalog files (uploads 12:55 and 12:58): 22 of 22 `PUBLISHED`, 17 of 17 stages each, 22 publication receipts (first 12:56, last 13:19). The object store was added to the backup at 12:57 and its restore rehearsed at about 12:58 |
+| 13:20 - 13:22 | The 22 old sources, which pointed at lost snapshots, were withdrawn: `revokedAt` set and their ingestions marked `WITHDRAWN`; history kept |
+| 13:24 | Post-publish backup taken |
 
 ## Evidence
 
@@ -60,6 +71,11 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
   depend on the image store: `docker volume ls` lists the three Supabase volumes and, before the
   rebuild, no `zuri-ai` volume. The rebuilt volumes carry 2026-09-29 creation times.
 - **Not a factory reset.** A reset removes every container and volume. The Supabase ones survived.
+- **Object store and port.** `docker volume ls` before the rebuild listed no
+  `zuri-minio-community-local-data` volume and `docker ps -a` no `zuri-minio-community-local`
+  container. The container publishing `127.0.0.1:19000` belongs to a different compose project and
+  was created at 2026-09-29T02:06Z (09:06 +07). The rebuilt store container was created at 05:54Z
+  (12:54 +07).
 - `docker events` does not keep history across engine restarts, so it cannot show what removed the
   `zuri-ai` objects.
 
@@ -74,14 +90,16 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
 2. **The watchdog had no back-off and could force-stop a starting engine.** It restarted Docker
    Desktop without a limit, and after three unresponsive checks it stopped the process even when it
    was still starting. One failure became a five-hour loop.
-3. **The `zuri-ai` objects were removed selectively.** Only the `zuri-ai` compose project's
-   containers, images and volumes are gone; objects of other projects on the same engine survived.
+3. **The zuri objects were removed selectively.** The `zuri-ai` compose project's containers,
+   images and volumes are gone, and so is the separately started `zuri-minio-community-local`
+   store; objects of other projects on the same engine (Supabase) survived.
    That pattern fits a project-scoped removal (for example a compose `down` with volumes and images,
    or a manual cleanup), not a Docker reset. **Who or what did it, and exactly when, is
    unverified.** The engine was down from about 01:15 to 06:18, so the removal happened either
    around 01:15 or after 06:18, most likely before 06:25 (see Evidence, which has the caveat).
-4. **No backup of the ki17 volumes existed.** `ki17-state` (MSP and GKS SQLite stores) and
-   `ki17-genesis-store` (published generations) lived only on Docker's WSL2 data disk. The
+4. **No backup of the ki17 volumes or the object store existed.** `ki17-state` (MSP and GKS
+   SQLite stores), `ki17-genesis-store` (published generations) and the knowledge object store's
+   data volume lived only on Docker's WSL2 data disk. The
    [deployment plan](../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md) (§6) warns never to run
    `down -v`, but nothing enforced it and no copy existed elsewhere.
 
@@ -92,9 +110,12 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
   5 testers); no customer OA was connected. Whether the OA was producing replies before the outage
   is tracked separately in
   [the LINE OA RCA](2026-09-28-zuri-line-oa-silent-since-0914.md), which is still open.
-- **Lost:** MSP conversation memory and journal, GKS decisions and receipts, and the 22 published
-  SmartGift knowledge generations. The main database still records those 22 ingestions as
-  `PUBLISHED`, so it disagrees with the empty genesis store until they are published again.
+- **Lost:** MSP conversation memory and journal, GKS decisions and receipts, the 22 published
+  SmartGift knowledge generations, and every raw file in the knowledge object store. Knowledge
+  queries failed until the records were published again.
+- **Re-published:** the same 22 records, from files whose records are identical to the originals
+  (verified against the benchmark fixture). Old source rows and their evidence stay in the database
+  as withdrawn history (`revokedAt` set, ingestions `WITHDRAWN`); their raw files cannot be read back.
 - **Recovered:** the embedding model (restored from a local cache, all five files match the pinned
   SHA-256), and the production benchmark fixture (an untracked copy on the host was byte-identical
   to the deployed file, sha256 `d2d40084…`, as recorded in
@@ -109,23 +130,30 @@ volumes (all created 2026-09-02). The main database (Supabase cloud) was not aff
 
 ## Fix applied
 
-The watchdog script lives on the production host, outside this repository. It was changed as below.
-Only a PowerShell parse check has been run; the new behavior is **untested** until the task is
-re-enabled.
+The watchdog script lives on the production host, outside this repository. It was changed as below
+and re-enabled at about 12:39 with the owner's approval. Its normal path (health check, recovery
+notice) has run; the outage path (the two-start limit, the missing-container alert and the hourly
+alert) has **not** been exercised.
 
 - It **only reads** Docker's settings file and alerts when the image store setting is off. It never
   writes it.
 - It makes **at most two** automatic starts per outage, then alerts every hour and leaves recovery to
   a person. It never force-stops Docker Desktop.
 - It alerts when a production container is **missing**, not only stopped.
-- The scheduled task stays **disabled** until the owner re-enables it.
+- It leaves a paused container alone, so the backup's short pause of the worker is not treated as a
+  failure.
 
 ## Proposed prevention
 
 1. **Rule (proposed):** host automation must never write a file owned by another program. It reads
    and alerts, and any automatic restart has a fixed attempt limit per outage.
-2. Back up `ki17-state` and `ki17-genesis-store` off the Docker disk on a schedule, and after every
-   publication, with a documented restore that has been rehearsed once.
+2. Back up `ki17-state`, `ki17-genesis-store` and the knowledge object store off the Docker disk
+   on a schedule, and after every publication, with a documented restore that has been rehearsed
+   once. **Partly done 2026-09-29:** every 6 hours to a separate drive on the same host, with SQLite
+   online backup, integrity check and a SHA-256 manifest per run, and a restore of all three stores
+   rehearsed into scratch volumes. Still pending: an automatic backup after each publication (one was taken by
+   hand) and an off-host copy; the knowledge-storage README is explicit that an on-host copy is not
+   a disaster-recovery copy.
 3. Keep the production benchmark fixture's deployed copy somewhere durable.
    [§10.1](../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md) already asks for a copy with every
    change; this time it survived only because an untracked file happened to exist.
@@ -134,9 +162,13 @@ re-enabled.
    holds no matching generation.
 6. Find out what removed the `zuri-ai` objects: check the other automations and agent sessions
    active on the host that night, and turn on persistent Docker event logging.
+7. Reserve host ports for production services, or move them off fixed loopback ports: a
+   development stack took the knowledge store's port within hours of it being freed.
 
 ## Open follow-ups
 
-- Re-publish the 22 SmartGift records. This is an owner decision, and the main database status
-  must be reconciled first so the pipeline will run them again.
-- Decide whether to re-enable the repaired watchdog.
+- Done: the 22 SmartGift records are published again (owner approved 2026-09-29).
+- Done: the repaired watchdog is re-enabled (owner approved 2026-09-29).
+- The knowledge store is still the local Community smoke profile (see
+  `apps/server/deploy/knowledge-storage/README.md`), now on port 19100; the production target
+  remains pending.
