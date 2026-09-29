@@ -40,6 +40,37 @@ export function assertUniqueNodeIds(nodes) {
   }
 }
 
+/** Identity targets retain source status but are not superseded content needing a successor. */
+export function requiresSuccessor(node) {
+  return node.type !== 'document-identity'
+    && (node.status === 'superseded' || /supersed/i.test(node.doc_status || ''))
+}
+
+/** Bind every declaration collected from its existing owner registry to one ZAI graph identity. */
+export function indexDeclaredIdentities(declarations, nodes) {
+  const qualified = new Map()
+  for (const [id, declaration] of declarations) {
+    const family = declaration.family
+    const nodeId = family === 'FEAT' ? `feat:${id}`
+      : ['FR', 'NFR', 'BR', 'SEC', 'SDD'].includes(family) ? `req:${id}` : null
+    let node = nodeId ? nodes.find(candidate => candidate.id === nodeId)
+      : family === 'ADR' ? nodes.find(candidate => candidate.type === 'adr' && candidate.id.startsWith(`spec:${id}-`))
+        : family === 'ZV2-CR' ? nodes.find(candidate => candidate.path === declaration.source) : null
+    if (!node) {
+      node = { id: `identity:ZAI:${id}`, type: 'document-identity', defined_in: declaration.source, status: declaration.status }
+      nodes.push(node)
+    }
+    node.namespace = 'ZAI'
+    node.document_identity = id
+    node.identity_family = family
+    node.defined_in = declaration.source
+    node.canonical_path ||= `${declaration.source}#${id}`
+    if (qualified.has(`ZAI:${id}`)) throw Error(`Duplicate declared identity: ZAI:${id}`)
+    qualified.set(`ZAI:${id}`, node)
+  }
+  return qualified
+}
+
 /** Only ambiguous document basenames change; business registry IDs never do. */
 export function qualifyDocumentIds(nodes) {
   const groups = new Map()

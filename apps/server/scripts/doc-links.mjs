@@ -26,6 +26,7 @@ function withoutFences(s) {
 const prose = (s) => withoutFences(s).replace(/(`+)[^\n]*?\1/g, '')
 const headingId = (s) => s.toLowerCase().replace(/<[^>]*>/g, '').replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/\s/g, '-')
 const identity = (s) => s.replaceAll('\\', '/')
+const ISSUED_DOCUMENT_ID = /^(?:ADR|FR|NFR|BR|SEC|SDD|FEAT|RSK|MI-RQ|ZV2-CR)-\d{3}$/
 export const hasLinkMetadata = body => /^relations\s*:/m.test(frontmatter.exec(body)?.[1] || '')
 
 /** Resolve metadata and prose against real graph identities, never guessed paths. */
@@ -69,6 +70,10 @@ export function collectDocumentLinks(documents, nodes) {
   })
   for (const n of nodes) {
     if (/^(req|feat):/.test(n.id)) register(`ZAI:${n.id.slice(n.id.indexOf(':') + 1)}`, n)
+    if (n.namespace === 'ZAI' && typeof n.document_identity === 'string') {
+      register(`ZAI:${n.document_identity}`, n)
+      register(n.document_identity, n)
+    }
     register(n.id, n)
     if (n.identity_migration) register(n.identity_migration.previous_id, n)
   }
@@ -85,11 +90,11 @@ export function collectDocumentLinks(documents, nodes) {
     if (!target && fragment) matches = new Set([doc.nodeId])
     // A canonical file may now share a global ID's basename. Preserve legacy
     // identity links; an explicit .md path still selects the document itself.
-    else if (/^(ADR|FR|NFR|BR|SEC|SDD|FEAT)-\d{3}$/.test(target) && aliases.has(`ZAI:${target}`)) matches = aliases.get(`ZAI:${target}`)
+    else if (ISSUED_DOCUMENT_ID.test(target) && aliases.has(`ZAI:${target}`)) matches = aliases.get(`ZAI:${target}`)
     else if (aliases.has(target)) matches = aliases.get(target)
     else if (/\.md$/i.test(target)) matches = aliases.get(path.posix.normalize(path.posix.join(path.posix.dirname(doc.path), identity(target))))
     // Bare global IDs are allowed for legacy controls, with an exact full match.
-    else if (/^(ADR|FR|NFR|BR|SEC|SDD|FEAT)-\d{3}$/.test(target)) matches = aliases.get(`ZAI:${target}`)
+    else if (ISSUED_DOCUMENT_ID.test(target)) matches = aliases.get(`ZAI:${target}`)
     if (!matches || matches.size !== 1) {
       if (strict || matches?.size > 1) fail(doc, `${matches?.size > 1 ? 'Ambiguous' : 'Missing'} link target: ${raw}`)
       return null
@@ -105,7 +110,9 @@ export function collectDocumentLinks(documents, nodes) {
         while (headings.has(candidate)) candidate = `${base}-${++suffix}`
         headings.add(candidate)
       }
-      if (!headings.has(fragment)) { if (strict) fail(doc, `Missing heading: ${raw}`); return null }
+      const declaredAnchor = nodes.some(candidate => candidate.namespace === 'ZAI'
+        && candidate.document_identity === fragment && candidate.defined_in === node?.path)
+      if (!headings.has(fragment) && !declaredAnchor) { if (strict) fail(doc, `Missing heading: ${raw}`); return null }
     }
     return id
   }
@@ -127,7 +134,7 @@ export function collectDocumentLinks(documents, nodes) {
     const text = prose(doc.body)
     if (doc.metadata) for (const match of text.matchAll(control)) {
       const kind = { 'relates to': 'relates_to', supersedes: 'supersedes', 'superseded by': 'superseded_by' }[match[1].toLowerCase().replace(/\s*\([^)]*\)/, '')]
-      const tokens = [...match[2].matchAll(/\[\[([^\]]+)\]\]|\[[^\]]+\]\(([^)]+)\)|((?:[A-Z][A-Z0-9_-]*:)?(?:ADR|FR|NFR|BR|SEC|SDD|FEAT)-\d{3}(?:-P\d+)?)/g)]
+      const tokens = [...match[2].matchAll(/\[\[([^\]]+)\]\]|\[[^\]]+\]\(([^)]+)\)|((?:[A-Z][A-Z0-9_-]*:)?(?:ADR|FR|NFR|BR|SEC|SDD|FEAT|RSK|MI-RQ|ZV2-CR)-\d{3}(?:-P\d+)?)/g)]
       const actual = new Set(tokens.map(m => resolve(m[1]?.split('|')[0] || m[2] || m[3], doc)).filter(Boolean))
       const wanted = declarations.get(kind) || new Set()
       if (actual.size !== wanted.size || [...actual].some(id => !wanted.has(id))) fail(doc, `Metadata conflicts with legacy ${match[1]}`)

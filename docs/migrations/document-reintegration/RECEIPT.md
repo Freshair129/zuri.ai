@@ -1,11 +1,11 @@
 ---
-version: "0.1.0"
+version: "0.4.0"
 status: implementation
 ---
 
 # Documentation reintegration implementation receipt
 
-**Version:** 0.1.0
+**Version:** 0.4.0
 **Status:** Local migration candidate; owner acceptance and P6 pending.
 
 The [approved proposal](PROPOSAL.md) is implemented on an isolated ZAI branch.
@@ -24,6 +24,7 @@ history, published ID, database or deployment is changed by this branch.
 | Historical manifest reader | Existing v1 interpretation plus separate v2 canonical manifests; stored proofs are not rebound |
 | Table and graph navigation | 96 generated feature/category views plus scoped tests-for, impact and binding-readiness queries |
 | Historical source comparison | 23 individually reviewed ZAI document deltas, pinned hashes, source anchors and code/test paths |
+| Documentary IDs and references | One qualified graph lookup for all 747 issued ZAI IDs; existing ADR/CR/risk/MI source files stay in their owner registries; embedded status does not create document-successor obligations |
 
 All 16 bare CR intake files remain proposals. Neither their presence nor a
 crosswalk allocates an issued CR, approves a decision or proves delivery.
@@ -43,6 +44,13 @@ are preserved. Explanatory wrapper edits can refresh their derived file digest;
 changing a requirement's meaning or admitting a new canonical record requires a
 reviewed migration. The current branch is not an unrestricted writer cutover.
 
+The canonical text index contains the 539 FR/FEAT/BR/NFR/SDD/SEC records. The
+other 208 issued ADR/RSK/MI-RQ/ZV2-CR identities resolve through the generated
+graph from their existing owning registries and anchored source locations. The
+graph has one qualified target for all 747 issued ZAI IDs, including separate
+nodes for MI-RQ subjects sharing one SRS file. The
+16 bare CR intake proposals stay distinct from the ten issued ZV2-CR records.
+
 ## Verification
 
 Local evidence covers registry and export round trips, inventory/source pins,
@@ -53,17 +61,24 @@ query refusal fixtures, generated-view freshness and the server build.
 | Local check | Result |
 |---|---|
 | Migration Node suite | 52/52 passed |
+| Documentary identity/link regression suites | 31/31 passed |
 | Historical/v2 verifier and document-link regressions | 44/44 passed |
 | Generated OpenAPI contract | 18/18 passed |
 | Feature consumer regressions | 34/34 passed |
 | Pinned inventory source verification | Passed for both source Git object databases |
 | Canonical exports and 96 generated views | Deterministic checks passed |
 | Server build | Passed |
+| Governance preflight | 0 critical, 1 baseline warning, 34 info; no warning growth |
 
-Graph comparison preserves 242/242 code and test coverage and the 10 pre-existing
+The generated graph indexes 747 qualified ZAI identities. Graph comparison
+preserves 242/242 code and test coverage and the 10 pre-existing
 dangling links. The 47 removed relation triples are 42 filename-prefix follows
 matches and five fixture/transitive verification matches; exact qualified
 annotations retain their intended evidence. No historical record is rewritten.
+
+0.3.0 → 0.4.0: add qualified graph identities for all issued IDs and scope
+successor-lineage checks to content-bearing documents and requirements. Identity
+status and original source rows remain unchanged.
 
 The integration runner records exact command results outside the tracked source.
 The full governance gate must retain its baseline of zero critical findings,

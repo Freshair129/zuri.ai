@@ -1,12 +1,12 @@
 ---
 doc_type: migration-design
 status: implementation
-version: "0.3.0"
+version: "0.4.0"
 ---
 
 # Reintegration diagrams
 
-**Version:** 0.3.0
+**Version:** 0.4.0
 **Status:** Implemented migration candidate; owner acceptance and writer cutover remain pending.
 
 ## Identity, historical reads and generated views
@@ -14,6 +14,8 @@ version: "0.3.0"
 ```mermaid
 flowchart LR
   ZAI["ZAI published IDs and original records"] --> OLD["Pre-P6 active writer and compatibility exports"]
+  ZAI --> OWNER["Existing owner registries and exact ID anchors"]
+  OWNER --> GRAPH["Generated graph: 747 qualified ZAI identities"]
   OLD --> V1["v1 historical verifier<br/>pinned commit, path and original blob hash"]
   V1 --> HIST["Historical evidence<br/>original interpretation retained"]
 
@@ -95,8 +97,8 @@ is the 539-record ZAI index at source revision
 `a34ceaf79c112e02b1bcfdbf0a84122d835b002e`; the frozen graph is version 2.0.0.
 Those inputs do not prove P2 reconciliation, P5 acceptance or P6 cutover.
 
-0.1.0 → 0.3.0: distinguish pre-cutover writer authority, v1 historical verification,
+0.1.0 → 0.4.0: distinguish pre-cutover writer authority, v1 historical verification,
 the v2 candidate reader, generated projections, current phase gates and owner review.
 No historical blob, ID, or runtime binding is rewritten by this diagram.
 
-0.2.0 to 0.3.0: record implemented readers and provenance-only alias boundary; link local validation receipt.
+0.3.0 to 0.4.0: show generated qualified identity targets across existing ZAI registries. This does not grant runtime proof or move source ownership.

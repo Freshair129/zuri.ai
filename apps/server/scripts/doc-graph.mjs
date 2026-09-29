@@ -14,13 +14,13 @@ import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
 import { domainMap, traceView } from './doc-views.mjs'
 import { collectDocumentLinks, documentLinksView, hasLinkMetadata } from './doc-links.mjs'
-import { qualifyDocumentIds, assertUniqueNodeIds, isGeneratedDocumentView } from './doc-identities.mjs'
+import { qualifyDocumentIds, assertUniqueNodeIds, isGeneratedDocumentView, indexDeclaredIdentities } from './doc-identities.mjs'
 import { generateDomainState } from './domain-state.mjs'
 import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // The same splitter the id ledger reads rows with. Two readings of one row, from
 // two splitters that disagree about `\|`, is how SDD-071's label reached
 // Appendix D as half a sentence.
-import { splitRow } from './id-anchors.mjs'
+import { collectDeclared, splitRow } from './id-anchors.mjs'
 import { parseCanonicalIndex } from './document-registry-format.mjs'
 import { adaptTraceAnnotations, legacyRequirementIds } from './trace-annotations.mjs'
 
@@ -148,6 +148,7 @@ function requirementNodes(prdPath) {
 
 // -------------------------------------------------------------- annotations
 const ANNOTATION = /@(req|spec|tested|designs)\s+([^\n]*)/g
+const DOCUMENT_ID_TOKEN = /(?<![A-Za-z0-9_:./-])((?:ADR|FR|NFR|BR|SEC|SDD|FEAT|RSK|MI-RQ|ZV2-CR)-\d{3})(?![A-Za-z0-9_/-])/g
 
 // Roadmap status vocabulary. A status cell may carry a qualifier — "done (beta)",
 // "in-progress (local slice; gates pending)" — so match the leading token and
@@ -190,6 +191,10 @@ function annotationsOf(body) {
       for (const id of rest.match(/\bZAI:[A-Za-z0-9][A-Za-z0-9._/-]*[A-Za-z0-9]/g) || []) {
         const qualified = found[kind === 'req' ? 'qualifiedReq' : 'qualifiedSpec']
         if (!qualified.includes(id)) qualified.push(id)
+      }
+      if (kind === 'spec') for (const [, id] of rest.matchAll(DOCUMENT_ID_TOKEN)) {
+        const qualified = `ZAI:${id}`
+        if (!found.qualifiedSpec.includes(qualified)) found.qualifiedSpec.push(qualified)
       }
       // non-ID @spec targets (e.g. a doc path) are kept as references
       const head = rest.split('—')[0].trim()
@@ -330,6 +335,10 @@ function build() {
       addEdge(node.id, declaration.id, 'specifies', 'canonical-registry')
     }
   }
+  const declarations = collectDeclared(ROOT)
+  if (declarations.missing.length) throw Error(`Missing identity source registries: ${JSON.stringify(declarations.missing)}`)
+  if (declarations.duplicates.length) throw Error(`Duplicate identity declarations: ${declarations.duplicates.map(item => item.id).join(', ')}`)
+  const qualifiedNodes = indexDeclaredIdentities(declarations, nodes)
   // The two id namespaces, kept apart on purpose. `rootDeclaredIds` is what
   // this registry declares; `edgeOwnIds` is what Edge brought with it from
   // `Freshair129/zuri-edge-device` and still owns. ADR-039 forbids renumbering
@@ -396,6 +405,10 @@ function build() {
         if (id) targets.add(id)
       }
       for (const a of m[2].match(ADR_NUM) || []) if (adrById.has(a)) targets.add(adrById.get(a))
+      for (const [, id] of m[2].matchAll(/(?<![A-Za-z0-9_:./-])((?:ADR|FR|NFR|BR|SEC|SDD|FEAT|RSK|MI-RQ|ZV2-CR)-\d{3})(?![A-Za-z0-9_/-])/g)) {
+        const target = qualifiedNodes.get(`ZAI:${id}`)
+        if (target) targets.add(target.id)
+      }
       for (const r of legacyRequirementIds(m[2])) targets.add(`req:${r}`)
       for (const t of targets) {
         if (t === selfId) continue
@@ -415,11 +428,6 @@ function build() {
   // not exist — 41 dangling edges the moment Edge source became visible. A
   // dangling edge is not a cosmetic defect here; `doc-code-symlink` reports it
   // and the traceability matrix shows the requirement as unverified.
-  const qualifiedNodes = new Map()
-  for (const node of nodes) {
-    if (/^(req|feat):/.test(node.id)) qualifiedNodes.set(`ZAI:${node.id.split(':')[1]}`, node)
-  }
-  for (const [id, graphId] of adrById) qualifiedNodes.set(`ZAI:${id}`, nodes.find(n => n.id === graphId))
   for (const file of docFiles) {
     const metadata = /^---\n([\s\S]*?)\n---/.exec(read(file))?.[1] || ''
     const explicit = /^id:\s*["']?(ZAI:[A-Za-z0-9._/-]+)["']?\s*$/m.exec(metadata)?.[1]

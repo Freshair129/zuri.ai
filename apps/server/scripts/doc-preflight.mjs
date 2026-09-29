@@ -21,7 +21,7 @@ import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
 import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
 import { evaluateSchemaMigrationDrift } from './schema-migration-drift.mjs'
 import { parseCanonicalIndex, parseCanonicalRecord } from './document-registry-format.mjs'
-import { collectDocumentClaims, isGeneratedDocumentView } from './doc-identities.mjs'
+import { collectDocumentClaims, isGeneratedDocumentView, requiresSuccessor } from './doc-identities.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -349,7 +349,7 @@ if (!existsSync(GRAPH)) {
 
   // Lineage integrity — a doc marked superseded must carry a successor edge, so
   // "what replaced it" is answerable from the graph (RWANG lineage guard).
-  for (const n of (g.nodes || []).filter((n) => n.status === 'superseded' || /supersed/i.test(n.doc_status || ''))) {
+  for (const n of (g.nodes || []).filter(requiresSuccessor)) {
     if (!(g.edges || []).some((e) => e.to === n.id && e.type === 'supersedes')) {
       add('warning', 'lineage', 'Superseded doc without a successor edge', n.id, [n.path].filter(Boolean), 'Add **Superseded by:** [X](X.md) so the graph records what replaced it')
     }
