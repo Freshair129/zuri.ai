@@ -1,12 +1,12 @@
 ---
-version: "0.5.0"
+version: "0.6.0"
 status: implementation
 ---
 
 # Documentation reintegration implementation receipt
 
-**Version:** 0.5.0
-**Status:** P5 evidence accepted by the owner on 2026-09-29; P6 cutover and merge pending.
+**Version:** 0.6.0
+**Status:** P5 evidence accepted on 2026-09-29; owner approved P6 canonical-writer cutover and merge on 2026-09-30. Main integration proceeds through the protected-branch PR and required checks.
 
 The [approved proposal](PROPOSAL.md) is implemented on an isolated ZAI branch.
 The original ZAI source is pinned to
@@ -42,7 +42,9 @@ requires subject-level review under the existing document lifecycle.
 Current ZAI statements, status, row bytes, historical locators and the ID ledger
 are preserved. Explanatory wrapper edits can refresh their derived file digest;
 changing a requirement's meaning or admitting a new canonical record requires a
-reviewed migration. The current branch is not an unrestricted writer cutover.
+reviewed migration. The approved writer transition changes where documentation
+edits begin; it does not authorize normative ZNEXT adoption or persisted-data
+migration.
 
 The canonical text index contains the 539 FR/FEAT/BR/NFR/SDD/SEC records. The
 other 208 issued ADR/RSK/MI-RQ/ZV2-CR identities resolve through the generated
@@ -67,7 +69,10 @@ query refusal fixtures, generated-view freshness and the server build.
 | Feature consumer regressions | 34/34 passed |
 | Pinned inventory source verification | Passed for both source Git object databases |
 | Canonical exports and 96 generated views | Deterministic checks passed |
-| Server build | Passed |
+| Conversation Runtime tests | 73/73 passed |
+| Full server unit/integration suite | 7,828 passed, 43 skipped |
+| Next.js production build | Passed |
+| Playwright E2E | 207 passed, 4 skipped |
 | Governance preflight | 0 critical, 1 baseline warning, 34 info; no warning growth |
 
 The generated graph indexes 747 qualified ZAI identities. Graph comparison
@@ -83,6 +88,9 @@ canonical fixture is removed. It does not exercise full application-reader
 routing, rollback of non-table metadata, imported ZNEXT semantics, or an actual
 main-branch writer transition.
 
+0.5.0 → 0.6.0: record owner approval for P6 canonical-writer cutover, clarify its
+documentation-only scope, and add full local verification results after rebasing
+on the latest `origin/main`.
 0.4.0 → 0.5.0: record owner acceptance of P5 evidence and add fixture-backed
 pre-write/post-write table rollback evidence; clarify that P6 cutover and merge
 remain pending.
@@ -96,16 +104,16 @@ one warning and 34 informational findings. Code and test requirement coverage
 remains 242/242; rule coverage remains 179/189. Generated bindings are not evidence
 that every bound test was executed.
 
-Hosted CI, full monorepo/E2E verification, deployment and production acceptance
-are not claimed. The independent review applies to the composed implementation
-revision recorded in the delivery report; this document does not grant approval.
+The full local verification suite passed on the rebased branch. Hosted CI,
+deployment and production acceptance are not claimed. The independent review
+applies to the composed implementation revision recorded in the delivery report.
 
 ## Remaining gates
 
-The owner accepted the P5 local evidence on 2026-09-29. P6 canonical-writer
-cutover and merge authority remain open decisions; the rollback rehearsal does
-not authorize a main-branch transition. Any further normative ZNEXT adoption is
-also separate. Before a post-cutover rollback, stop and reconcile new-format
-writes; do not reinterpret them with v1 or reset a shared checkout. Existing v1
-evidence remains bound to its original revision, path and hash. No persisted-data
-migration is performed here.
+The owner approved the P6 canonical-writer cutover and merge on 2026-09-30.
+Protected-main integration uses this branch's PR and requires its configured CI
+checks to pass. Any further normative ZNEXT adoption is separate. Before a
+post-cutover rollback, stop and reconcile new-format writes; do not reinterpret
+them with v1 or reset a shared checkout. Existing v1 evidence remains bound to
+its original revision, path and hash. No persisted-data migration is performed
+here.

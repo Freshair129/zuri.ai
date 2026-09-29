@@ -56,13 +56,14 @@ must not silently redirect an old identity link to a different graph node.
 
 ## Authoring transition
 
-During this pre-cutover branch, original source rows are immutable migration input.
-Explanatory canonical edits can be projected with `npm run docs:registry`; stale
-exports and modified source-row digests fail the gate. New statements or new IDs
-need a separately reviewed record migration. This branch must not be represented
-as an unrestricted new authoring workflow: P6 accepts the writer transition after
-the composed evidence is reviewed. The old writer remains on the untouched main
-checkout until that decision.
+The owner accepted the P6 canonical documentation-writer transition on
+2026-09-30; this integration activates it on `main` when the branch merges.
+Original source rows, issued IDs and subject anchors remain pinned. Explanatory
+canonical edits can be projected with `npm run docs:registry`; stale exports and
+modified source-row digests fail the gate. New statements or IDs need a separately
+reviewed record migration. The writer transition changes where documentation
+edits begin; it does not approve normative ZNEXT adoption or persisted-data
+migration.
 
 ## Writer rollback proof
 
@@ -86,6 +87,9 @@ data rollback. Keep the v1 historical reader and all original snapshots pinned.
 
 ## Version diff
 
+0.2.0 → 0.3.0: records owner approval for the P6 canonical documentation-writer
+transition while keeping normative ZNEXT adoption and persisted-data migration
+separate.
 0.1.0 → 0.2.0: records the pre-write and post-write table rollback rehearsal,
 including its covered scope and the reconciliation boundary for non-table data.
 0.0 → 0.1.0: records intended interfaces for active readers, retained historical

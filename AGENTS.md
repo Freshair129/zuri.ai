@@ -8,10 +8,12 @@ in `registry/document-registry/index.json` generate the existing PRD/FEATURES pa
 Run `npm run docs:registry` after an explanatory canonical edit, then
 `npm run docs:graph` and `npm run docs:views`. `govern` checks exports and views
 without repairing them. Initial source rows, issued IDs and subject anchors
-remain pinned. New/changed behavior needs a reviewed record migration; P6 writer
-cutover and merge acceptance are still separate gates. Older instructions below
-that describe direct PRD/FEATURES editing apply to the pre-cutover writer, not to
-hand editing compatibility exports on this branch.
+remain pinned. New/changed behavior needs a reviewed record migration. The owner
+approved the P6 canonical documentation-writer cutover for this integration; it
+becomes active on `main` when this branch merges. This changes where documentation
+edits begin, not application data or authority to adopt ZNEXT semantics. Older
+instructions below that describe direct PRD/FEATURES editing apply to the
+pre-cutover workflow; never hand-edit compatibility exports.
 
 Use `ZAI:<ID>` for current qualified references, `ZNEXT:<ID>` for pinned provenance,
 and `edge::<ID>` for Edge. A crosswalk is navigation until reviewed; split/merged
