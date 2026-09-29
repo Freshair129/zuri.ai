@@ -37,6 +37,9 @@ const MAX_CAS_RETRIES = 3
 // the callers' latency was the sum of all of them (measured ~47 s for 22 snapshots
 // at ~100 ms per database round trip); 4 keeps the process count bounded.
 const QUERY_SNAPSHOT_CONCURRENCY = 4
+// Lineage lookups (several database queries each) share one budget for the whole query, so
+// snapshots x rows can never open more connections than the pool is sized for.
+const LINEAGE_LOOKUP_CONCURRENCY = 6
 const SCOPE_KEYS = Object.freeze(['portfolioId', 'tenantId', 'businessId', 'workspaceId', 'agentId', 'visibility'])
 const SHA256 = /^[a-f0-9]{64}$/i
 
@@ -525,6 +528,26 @@ function assertSnapshotResponse(response, entry, scope) {
   }
 }
 
+/** Run tasks so that at most `limit` are in flight at once, across every caller of the returned function. */
+function createLimiter(limit) {
+  let active = 0
+  const waiting = []
+  const release = () => {
+    active -= 1
+    const next = waiting.shift()
+    if (next) next()
+  }
+  return async (task) => {
+    if (active >= limit) await new Promise((resolve) => waiting.push(resolve))
+    active += 1
+    try {
+      return await task()
+    } finally {
+      release()
+    }
+  }
+}
+
 /**
  * Run `task` over `items` with at most `limit` in flight. Results are returned in
  * item order, whatever order they finish in. After the first failure no further item
@@ -541,10 +564,10 @@ async function mapInOrder(items, limit, task) {
       next += 1
       if (index >= items.length) return
       try {
-        outcomes[index] = { value: await task(items[index], index) }
+        outcomes[index] = { ok: true, value: await task(items[index], index) }
       } catch (error) {
         failed = true
-        outcomes[index] = { error }
+        outcomes[index] = { ok: false, error }
       }
     }
   }
@@ -667,35 +690,46 @@ export async function queryKnowledgeCorpus(
   // Query and verify every snapshot with bounded concurrency. Verification of a snapshot's
   // rows (including the lineage lookups) happens inside its own task; fusion below walks the
   // snapshots in manifest order, so the result never depends on which finished first.
+  const lineageSlot = createLimiter(LINEAGE_LOOKUP_CONCURRENCY)
   const verifySnapshot = async (group) => {
     const response = await queryFn({ scope: initialScope, query, topK, snapshotId: group.snapshotId })
     assertSnapshotResponse(response, group.entries[0], initialScope)
+    // topK bounds what the worker may return; more than that would only multiply lookups.
+    if (!Array.isArray(response.results) || response.results.length > topK) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
     const entryBySource = new Map(group.entries.map((entry) => [entry.sourceId, entry]))
-    const rows = []
-    for (let index = 0; index < response.results.length; index += 1) {
-      const row = response.results[index]
-      if (!row || typeof row.id !== 'string' || !row.id || typeof row.text !== 'string' || typeof row.score !== 'number' || !Number.isFinite(row.score) || !row.citation) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
-      const citation = row.citation
-      for (const key of ['sourceId', 'rawArtifactId', 'parsedArtifactId', 'chunkId', 'contentHash']) if (typeof citation[key] !== 'string' || !citation[key]) throw queryResponseError('Knowledge snapshot response contains an incomplete citation')
-      assertHash(citation.contentHash, 'query citation contentHash')
-      const entry = entryBySource.get(citation.sourceId)
-      if (!entry || entry.snapshotId !== response.snapshotId || entry.generation !== response.generation || entry.rawArtifactId !== citation.rawArtifactId || entry.parsedArtifactId !== citation.parsedArtifactId) {
-        throw queryResponseError('Knowledge snapshot response citation is outside the pinned manifest')
+    // Row by row, exactly the checks the serial code made, but a failure is kept and raised
+    // when the walk below reaches its row, so the error that surfaces is the same one.
+    const prepared = response.results.map((row, index) => {
+      try {
+        if (!row || typeof row.id !== 'string' || !row.id || typeof row.text !== 'string' || typeof row.score !== 'number' || !Number.isFinite(row.score) || !row.citation) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
+        const citation = row.citation
+        for (const key of ['sourceId', 'rawArtifactId', 'parsedArtifactId', 'chunkId', 'contentHash']) if (typeof citation[key] !== 'string' || !citation[key]) throw queryResponseError('Knowledge snapshot response contains an incomplete citation')
+        assertHash(citation.contentHash, 'query citation contentHash')
+        const entry = entryBySource.get(citation.sourceId)
+        if (!entry || entry.snapshotId !== response.snapshotId || entry.generation !== response.generation || entry.rawArtifactId !== citation.rawArtifactId || entry.parsedArtifactId !== citation.parsedArtifactId) {
+          throw queryResponseError('Knowledge snapshot response citation is outside the pinned manifest')
+        }
+        return { row, citation, entry, index }
+      } catch (error) {
+        return { failure: error }
       }
-      rows.push({ row, citation, entry, index })
-    }
-    const lineages = await Promise.all(rows.map(({ entry, citation }) => repository.resolveLineage({
+    })
+    const lineages = await Promise.allSettled(prepared.map((item) => (item.failure ? undefined : lineageSlot(() => repository.resolveLineage({
       scope: initialScope,
-      sourceId: entry.sourceId,
-      documentId: entry.sourceId,
-      version: entry.sourceVersion,
-      rawArtifactId: citation.rawArtifactId,
-      parsedArtifactId: citation.parsedArtifactId,
-      chunkId: citation.chunkId,
-    })))
+      sourceId: item.entry.sourceId,
+      documentId: item.entry.sourceId,
+      version: item.entry.sourceVersion,
+      rawArtifactId: item.citation.rawArtifactId,
+      parsedArtifactId: item.citation.parsedArtifactId,
+      chunkId: item.citation.chunkId,
+    })))))
     const seen = new Set()
-    return rows.map(({ row, citation, entry, index }, position) => {
-      const lineage = lineages[position]
+    return prepared.map((item, position) => {
+      if (item.failure) throw item.failure
+      const settled = lineages[position]
+      if (settled.status === 'rejected') throw settled.reason
+      const { row, citation, entry, index } = item
+      const lineage = settled.value
       verifyLineage(lineage, citation, entry, initialScope)
       if (lineage.text !== row.text) throw queryResponseError('Knowledge snapshot response text does not match its immutable chunk', 'KNOWLEDGE_LINEAGE_MISMATCH')
       const identity = `${entry.sourceId}\u0000${entry.ingestionId}\u0000${citation.chunkId}`
@@ -707,7 +741,8 @@ export async function queryKnowledgeCorpus(
   const outcomes = await mapInOrder([...entriesBySnapshot.values()], QUERY_SNAPSHOT_CONCURRENCY, verifySnapshot)
   const fused = new Map()
   for (const outcome of outcomes) {
-    if (outcome.error) throw outcome.error
+    if (!outcome) throw queryResponseError('Knowledge snapshot query was not run', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
+    if (!outcome.ok) throw outcome.error
     for (const { identity, entry, citation, row, index } of outcome.value) {
       const currentHit = fused.get(identity)
       const rankFusionScore = (currentHit?.rankFusionScore || 0) + 1 / (RRF_K + index + 1)
