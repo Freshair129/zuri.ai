@@ -532,14 +532,16 @@ function assertSnapshotResponse(response, entry, scope) {
 function createLimiter(limit) {
   let active = 0
   const waiting = []
+  // A finishing task hands its slot straight to the next waiter (active is unchanged), so a
+  // caller arriving in between can never take a slot the waiter is about to use.
   const release = () => {
-    active -= 1
     const next = waiting.shift()
     if (next) next()
+    else active -= 1
   }
   return async (task) => {
     if (active >= limit) await new Promise((resolve) => waiting.push(resolve))
-    active += 1
+    else active += 1
     try {
       return await task()
     } finally {
@@ -695,7 +697,7 @@ export async function queryKnowledgeCorpus(
     const response = await queryFn({ scope: initialScope, query, topK, snapshotId: group.snapshotId })
     assertSnapshotResponse(response, group.entries[0], initialScope)
     // topK bounds what the worker may return; more than that would only multiply lookups.
-    if (!Array.isArray(response.results) || response.results.length > topK) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
+    if (response.results.length > topK) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
     const entryBySource = new Map(group.entries.map((entry) => [entry.sourceId, entry]))
     // Row by row, exactly the checks the serial code made, but a failure is kept and raised
     // when the walk below reaches its row, so the error that surfaces is the same one.

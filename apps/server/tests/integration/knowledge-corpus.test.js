@@ -782,6 +782,22 @@ describe('corpus query over many single-record snapshots', () => {
     await expect(ask(repo, db, broken, 5)).rejects.toMatchObject({ code: 'KNOWLEDGE_LINEAGE_MISMATCH' })
   })
 
+  it('raises a failed lookup of an earlier row before a later row that is malformed', async () => {
+    const { repo, db, ingestions } = await seedMany({ extraChunks: 2 })
+    const { fn } = snapshotStub(repo, ingestions, { rows: 3 })
+    const original = repo.resolveLineage.bind(repo)
+    vi.spyOn(repo, 'resolveLineage').mockImplementation(async (input) => {
+      if (input.sourceId === 'source-5' && input.chunkId === 'chunk-ingestion-5') throw Object.assign(new Error('lookup failed'), { code: 'LOOKUP_FAILED' })
+      return original(input)
+    })
+    const broken = vi.fn(async (input) => {
+      const answer = await fn(input)
+      if (input.snapshotId === 'snapshot-5') delete answer.results[1].citation
+      return answer
+    })
+    await expect(ask(repo, db, broken, 5)).rejects.toMatchObject({ code: 'LOOKUP_FAILED' })
+  })
+
   it('rejects a snapshot that returns more rows than topK', async () => {
     const { repo, db, ingestions } = await seedMany({ extraChunks: 4 })
     const { fn } = snapshotStub(repo, ingestions, { rows: 5 })
