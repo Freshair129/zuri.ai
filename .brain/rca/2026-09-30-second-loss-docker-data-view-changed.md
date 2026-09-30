@@ -1,7 +1,7 @@
 ---
-version: "0.2.1b"
+version: "0.2.2b"
 created_at: "2026-09-30T22:20:00+07:00,MC0"
-last_update: "2026-09-30T23:40:00+07:00,MC0"
+last_update: "2026-10-01T00:05:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"
@@ -25,9 +25,13 @@ the explanations that are still open.
 ## Symptom
 
 At 06:55 - 07:00 +07:00 on 2026-09-30, after the watchdog had started Docker Desktop, the engine
-answered but none of the five production containers existed. The site returned nothing until the
-recovery below. The images, the local knowledge object store (container and data volume) and the
-local Supabase stack were also absent. The last time the containers were known to exist was 06:00
+answered but none of the five production containers existed (watchdog log). That is the only thing
+observed at that time. The site returned nothing until the recovery below.
+
+At about 21:50, when the outage was noticed and recovery began, the images, the local knowledge
+object store (container and data volume) and the local Supabase stack were also absent. That was
+after Docker Desktop had been restarted at 09:49 and its VM at 11:26, so it is not known which of
+those absences already held at 06:55. The last time the containers were known to exist was 06:00
 (the scheduled backup ran and found the worker container).
 
 ## Timeline (+07:00)
@@ -63,13 +67,15 @@ The unreachable period is about 15 hours (from the 06:50 stop to the 22:15 recov
   already existed then; the ki17 volumes have no writes after 09-29 01:14, which is consistent with
   it but does not prove it.
 - **This does not fit a simple rollback.** A rollback to the state at 09-29 01:14 would have
-  brought back the local Supabase volumes too, and they were absent. It does not fit a plain
+  brought back the local Supabase volumes too, and they were absent at 21:50 (the 09:49 root-disk
+  recreation could account for their absence as well). It does not fit a plain
   deletion either, because the original volumes reappeared.
 - **The engine used the classic storage driver** (`overlay2`), not the containerd one it used on
   09-29, and the containerd data folder inside the Docker VM was empty (4 KB), both observed at about
   21:50. The empty folder may date from the 09:49 recreation of the VM root disk or the 11:26 VM
   start rather than from 06:50. Docker Desktop 4.93.0.
-- **Docker's settings folder is not in the state the 09-29 outage left it.** The watchdog's own
+- **Docker's settings folder does not look like the state the 09-29 outage left** (file times read at
+  about 21:50). The watchdog's own
   backups of `settings-store.json` show it was rewritten repeatedly until 06:10 on 09-29. The live
   file has a creation time and a last-write time that are both 09-29 00:50:47, before the first of
   those rewrites, and it has no BOM and reads `true` for the containerd setting. Several other
@@ -88,7 +94,8 @@ The unreachable period is about 15 hours (from the 06:50 stop to the 22:15 recov
   that window (listing restore points needs elevation and was not done).
 - **A reboot happened on 09-29 at 05:27** (a user-initiated restart), inside the 09-29 outage
   window. The 09-29 RCA does not mention it. No reboot happened on 09-30, which rules out a reboot
-  as the trigger of the 06:50 stop.
+  as the trigger of the 06:50 stop. It does not rule out a logoff, a sleep, or Docker Desktop being
+  closed or crashing on its own.
 
 ## Root cause
 

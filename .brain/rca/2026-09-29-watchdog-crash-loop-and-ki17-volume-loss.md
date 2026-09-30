@@ -175,7 +175,7 @@ alert) has **not** been exercised.
 
 ## Follow-up (2026-09-30)
 
-[The 09-30 RCA](2026-09-30-second-loss-docker-data-view-changed.md) adds three corrections. The
+[The 09-30 RCA](2026-09-30-second-loss-docker-data-view-changed.md) adds two corrections and one caveat. The
 machine was restarted by a user at 05:27 on 09-29, inside this outage window, which this record
 does not mention. The conversation memory counted as lost above still existed: the original
 volumes reappeared on 09-30 and are archived together with the original genesis store (the 22 generations
