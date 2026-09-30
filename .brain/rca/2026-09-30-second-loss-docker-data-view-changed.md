@@ -1,7 +1,7 @@
 ---
-version: "0.2.2b"
+version: "0.2.3b"
 created_at: "2026-09-30T22:20:00+07:00,MC0"
-last_update: "2026-10-01T00:05:00+07:00,MC0"
+last_update: "2026-10-01T00:20:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"
@@ -19,7 +19,7 @@ the explanations that are still open.
 
 - **Complexity:** C-2 - host operations, no product code change
 - **Risk:** HIGH - production was unreachable for about 15 hours and nobody was alerted. The data
-  the engine showed was older than the day before, so a wrong recovery choice could have silently
+  the engine showed at recovery was older than the day before, so a wrong recovery choice could have silently
   discarded either the old conversation memory or the newer knowledge publication
 
 ## Symptom
@@ -38,7 +38,7 @@ those absences already held at 06:55. The last time the containers were known to
 
 | Time | Event |
 |---|---|
-| 09-29 13:24 - 09-30 06:00 | Production healthy on the stack rebuilt after the 09-29 outage. The 06:00 backup succeeded |
+| 09-29 13:24 - 09-30 06:00 | Production running on the stack rebuilt after the 09-29 outage; known healthy at 06:00, when the scheduled backup succeeded |
 | 09-30 05:40 - 06:35 | (Correlation only) Another agent session ran cross-session Windows access tests on this host, including a temporary local user profile that shows up in the system log at 05:42 and is gone now. Whether it is related is **not known** |
 | 06:50 | The watchdog found the engine down with Docker Desktop not running and started it (attempt 1 of 2). Why Docker Desktop had stopped is **not known** |
 | 06:55 - 07:00 | The engine answered. The watchdog logged all five production containers as missing |
@@ -50,7 +50,7 @@ those absences already held at 06:55. The last time the containers were known to
 | 21:45 | The outage was noticed while starting a planned deploy; the backup failure was the first sign |
 | 21:50 - 22:15 | Recovery (below) |
 
-The unreachable period is about 15 hours (from the 06:50 stop to the 22:15 recovery). The watchdog's
+The unreachable period is about 15 hours (from the 06:50 detection, with the actual stop somewhere after 06:00, to the 22:15 recovery). The watchdog's
 "web health 0" lines only cover 09:30 onward, so a count taken from them understates it.
 
 ## Evidence
@@ -87,7 +87,8 @@ The unreachable period is about 15 hours (from the 06:50 stop to the 22:15 recov
   watchdog read the file while it was being rewritten and got nothing, so the warning was false,
   or (b) the file really lacked the setting at those moments, which is the 09-28 failure mode,
   and was later replaced. Both are unverified.
-- **One data-disk file and one WSL distribution were found** for the user that owns Docker
+- **One data-disk file and one WSL distribution were found** (at about 21:50, after the 09:49
+  root-disk recreation) for the user that owns Docker
   Desktop, so the engine did not obviously choose between two disks. A restore or replacement of
   the disk, or a different daemon behind the same pipe, are not ruled out. Windows creates a
   restore point for updates, but no restore event was found in the system or application logs for
