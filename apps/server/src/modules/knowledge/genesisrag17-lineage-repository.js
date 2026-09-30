@@ -65,6 +65,19 @@ export function createGenesisRag17LineageRepository(db, scope) {
       return raw.findFirst({ where: whereFor(scope, { id }) })
     },
 
+    // Batch counterparts used to resolve many citations with one read per table.
+    findRawsByIds(ids) {
+      return ids.length ? raw.findMany({ where: whereFor(scope, { id: { in: ids } }) }) : Promise.resolve([])
+    },
+
+    findParsedByIds(ids) {
+      return ids.length ? parsed.findMany({ where: whereFor(scope, { id: { in: ids } }) }) : Promise.resolve([])
+    },
+
+    findChunksByIds(ids) {
+      return ids.length ? chunk.findMany({ where: whereFor(scope, { id: { in: ids } }) }) : Promise.resolve([])
+    },
+
     findRawByIdentity({ sourceId, version, contentHash, pipelineVersion }) {
       return raw.findFirst({ where: whereFor(scope, { sourceId, version, contentHash, pipelineVersion }) })
     },

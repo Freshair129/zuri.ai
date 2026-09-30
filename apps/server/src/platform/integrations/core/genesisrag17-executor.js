@@ -943,35 +943,28 @@ async function loadReplayRun(db, value, rawArtifactId, lineageRepository) {
   return replay
 }
 
-/**
- * Resolve one immutable Tier 1 citation back through RawExternalRecord,
- * KnowledgeRawArtifact, KnowledgeParsedArtifact and KnowledgeChunk. Every
- * lookup carries the six-field scope and every link is checked before the
- * citation leaves this boundary.
- */
-export async function resolveGenesisRag17RawLineage({
-  scope,
-  sourceId,
-  documentId,
-  version,
-  rawArtifactId,
-  parsedArtifactId,
-  chunkId,
-} = {}, { db = prisma } = {}) {
-  const normalizedScope = parseGenesisRag17Scope(scope)
-  if (!rawArtifactId || !parsedArtifactId || !chunkId) throw serviceError(400, 'GenesisRAG17 lineage resolver requires rawArtifactId, parsedArtifactId and chunkId', 'GENESISRAG17_LINEAGE_INPUT_INVALID')
-  const lineageRepository = createGenesisRag17LineageRepository(db, normalizedScope)
-  const raw = await lineageRepository.findRawById(rawArtifactId)
+function lineageInputError() {
+  return serviceError(400, 'GenesisRAG17 lineage resolver requires rawArtifactId, parsedArtifactId and chunkId', 'GENESISRAG17_LINEAGE_INPUT_INVALID')
+}
+
+// The citation walk, one check per function, in the order the walk makes them. The single
+// resolver and the batch resolver below both call exactly these, so they cannot disagree.
+function assertLineageRawIntegrity(raw) {
   if (!raw) throw serviceError(404, 'GenesisRAG17 raw artifact is outside the requested scope or missing', 'GENESISRAG17_LINEAGE_NOT_FOUND')
   if (raw.contentHash !== hashGenesisRag17Text(raw.content)) throw serviceError(409, 'GenesisRAG17 raw artifact content hash is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
+}
+
+function assertLineageRawMatches(raw, { sourceId, documentId, version }) {
   if ((sourceId && raw.sourceId !== sourceId) || (documentId && raw.documentId !== documentId) || (version && raw.version !== version)) {
     throw serviceError(404, 'GenesisRAG17 raw artifact does not match the requested source version', 'GENESISRAG17_LINEAGE_NOT_FOUND')
   }
-  const canonicalRaw = await db.rawExternalRecord.findFirst({
-    where: { id: raw.rawExternalRecordId, tenantId: normalizedScope.tenantId, businessId: normalizedScope.businessId },
-  })
+}
+
+function assertLineageCanonicalRaw(raw, canonicalRaw) {
   if (!canonicalRaw || canonicalRaw.artifactId !== raw.id || payloadText(canonicalRaw) !== raw.content) throw serviceError(409, 'GenesisRAG17 canonical RawExternalRecord link is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
-  const parsed = await lineageRepository.findParsedById(parsedArtifactId)
+}
+
+function assertLineageParsed(raw, parsed) {
   // Parser-1 keeps the raw text as its parsed content. Parser-2's parsed
   // content is re-derived from the raw bytes here, so a citation still proves
   // raw -> parsed -> chunk rather than trusting the stored rendering.
@@ -994,9 +987,14 @@ export async function resolveGenesisRag17RawLineage({
   } catch { throw serviceError(409, 'GenesisRAG17 parsed artifact metadata is invalid', 'GENESISRAG17_LINEAGE_BROKEN') }
   if (parsed.contentHash !== expectedParsedHash) throw serviceError(409, 'GenesisRAG17 parsed artifact content hash is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
   if (parsed.rawArtifactId !== raw.id) throw serviceError(409, 'GenesisRAG17 parsed artifact does not match its raw parent', 'GENESISRAG17_LINEAGE_BROKEN')
-  const chunk = await lineageRepository.findChunkById(chunkId)
+}
+
+function assertLineageChunk(parsed, chunk) {
   if (!chunk || chunk.endOffset < chunk.startOffset || parsed.content.slice(chunk.startOffset, chunk.endOffset) !== chunk.text || chunk.contentHash !== hashGenesisRag17Text(chunk.text)) throw serviceError(409, 'GenesisRAG17 chunk does not match its immutable source substring', 'GENESISRAG17_LINEAGE_BROKEN')
   if (chunk.parsedArtifactId !== parsed.id) throw serviceError(409, 'GenesisRAG17 chunk does not match its parsed parent', 'GENESISRAG17_LINEAGE_BROKEN')
+}
+
+function lineageCitation(raw, parsed, chunk) {
   return {
     sourceId: raw.sourceId,
     rawArtifactId: raw.id,
@@ -1010,6 +1008,120 @@ export async function resolveGenesisRag17RawLineage({
     endOffset: chunk.endOffset,
     rawExternalRecordId: raw.rawExternalRecordId,
   }
+}
+
+/**
+ * Resolve one immutable Tier 1 citation back through RawExternalRecord,
+ * KnowledgeRawArtifact, KnowledgeParsedArtifact and KnowledgeChunk. Every
+ * lookup carries the six-field scope and every link is checked before the
+ * citation leaves this boundary.
+ */
+export async function resolveGenesisRag17RawLineage({
+  scope,
+  sourceId,
+  documentId,
+  version,
+  rawArtifactId,
+  parsedArtifactId,
+  chunkId,
+} = {}, { db = prisma } = {}) {
+  const normalizedScope = parseGenesisRag17Scope(scope)
+  if (!rawArtifactId || !parsedArtifactId || !chunkId) throw lineageInputError()
+  const lineageRepository = createGenesisRag17LineageRepository(db, normalizedScope)
+  const raw = await lineageRepository.findRawById(rawArtifactId)
+  assertLineageRawIntegrity(raw)
+  assertLineageRawMatches(raw, { sourceId, documentId, version })
+  const canonicalRaw = await db.rawExternalRecord.findFirst({
+    where: { id: raw.rawExternalRecordId, tenantId: normalizedScope.tenantId, businessId: normalizedScope.businessId },
+  })
+  assertLineageCanonicalRaw(raw, canonicalRaw)
+  const parsed = await lineageRepository.findParsedById(parsedArtifactId)
+  assertLineageParsed(raw, parsed)
+  const chunk = await lineageRepository.findChunkById(chunkId)
+  assertLineageChunk(parsed, chunk)
+  return lineageCitation(raw, parsed, chunk)
+}
+
+/**
+ * Resolve many citations with a fixed number of database reads (one per table and scope)
+ * instead of four per citation. Every citation still passes every check of
+ * resolveGenesisRag17RawLineage, in the same order, and fails with the same error; only the
+ * fetching is shared. Checks that depend only on the raw artifact, or on the raw/parsed pair,
+ * run once per distinct pair and their outcome (including a failure) is reused.
+ *
+ * Returns one Promise.allSettled-shaped entry per reference, in input order, so one bad
+ * citation never hides the outcome of the others.
+ */
+export async function resolveGenesisRag17RawLineages(references, { db = prisma } = {}) {
+  const results = new Array(references.length)
+  const reject = (index, reason) => { results[index] = { status: 'rejected', reason } }
+  const groups = new Map()
+  references.forEach((reference, index) => {
+    try {
+      const normalizedScope = parseGenesisRag17Scope(reference?.scope)
+      if (!reference.rawArtifactId || !reference.parsedArtifactId || !reference.chunkId) throw lineageInputError()
+      const key = JSON.stringify(normalizedScope)
+      const group = groups.get(key) || { scope: normalizedScope, indexes: [] }
+      group.indexes.push(index)
+      groups.set(key, group)
+    } catch (error) {
+      reject(index, error)
+    }
+  })
+  for (const { scope: normalizedScope, indexes } of groups.values()) {
+    const unique = (name) => [...new Set(indexes.map((index) => references[index][name]))]
+    let rawById
+    let canonicalById
+    let parsedById
+    let chunkById
+    try {
+      const lineageRepository = createGenesisRag17LineageRepository(db, normalizedScope)
+      const [raws, parsedRows, chunks] = await Promise.all([
+        lineageRepository.findRawsByIds(unique('rawArtifactId')),
+        lineageRepository.findParsedByIds(unique('parsedArtifactId')),
+        lineageRepository.findChunksByIds(unique('chunkId')),
+      ])
+      const canonicalIds = [...new Set(raws.map((row) => row.rawExternalRecordId).filter(Boolean))]
+      const canonicalRows = canonicalIds.length
+        ? await db.rawExternalRecord.findMany({ where: { id: { in: canonicalIds }, tenantId: normalizedScope.tenantId, businessId: normalizedScope.businessId } })
+        : []
+      rawById = new Map(raws.map((row) => [row.id, row]))
+      canonicalById = new Map(canonicalRows.map((row) => [row.id, row]))
+      parsedById = new Map(parsedRows.map((row) => [row.id, row]))
+      chunkById = new Map(chunks.map((row) => [row.id, row]))
+    } catch (error) {
+      for (const index of indexes) reject(index, error)
+      continue
+    }
+    // A check's outcome depends only on its inputs, so it is computed once and replayed,
+    // whether it passed or threw.
+    const memo = { integrity: new Map(), canonical: new Map(), parsed: new Map() }
+    const once = (cache, key, check) => {
+      if (!cache.has(key)) {
+        try { check(); cache.set(key, null) } catch (error) { cache.set(key, error) }
+      }
+      const failure = cache.get(key)
+      if (failure) throw failure
+    }
+    for (const index of indexes) {
+      const reference = references[index]
+      try {
+        const raw = rawById.get(reference.rawArtifactId) ?? null
+        once(memo.integrity, reference.rawArtifactId, () => assertLineageRawIntegrity(raw))
+        assertLineageRawMatches(raw, reference)
+        const canonicalRaw = canonicalById.get(raw.rawExternalRecordId) ?? null
+        once(memo.canonical, raw.id, () => assertLineageCanonicalRaw(raw, canonicalRaw))
+        const parsed = parsedById.get(reference.parsedArtifactId) ?? null
+        once(memo.parsed, `${raw.id}\u0000${reference.parsedArtifactId}`, () => assertLineageParsed(raw, parsed))
+        const chunk = chunkById.get(reference.chunkId) ?? null
+        assertLineageChunk(parsed, chunk)
+        results[index] = { status: 'fulfilled', value: lineageCitation(raw, parsed, chunk) }
+      } catch (error) {
+        reject(index, error)
+      }
+    }
+  }
+  return results
 }
 
 function buildBatch({ value, identity, run, steps, rawArtifactId, parsedArtifactId, parsedContent, chunks, mentions }) {

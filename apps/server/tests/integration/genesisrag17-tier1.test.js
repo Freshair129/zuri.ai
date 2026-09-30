@@ -3,7 +3,8 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { makeOperatorViewer } from '../factories/viewer'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
-import { ingestGenesisRag17Raw, resolveGenesisRag17RawLineage } from '@/platform/integrations/core/genesisrag17-executor'
+import { ingestGenesisRag17Raw, resolveGenesisRag17RawLineage, resolveGenesisRag17RawLineages } from '@/platform/integrations/core/genesisrag17-executor'
+import { createKnowledgeRepository } from '@/modules/knowledge/knowledge-repository'
 import { requestPipelineReplay } from '@/platform/integrations/core/pipeline-tracking-service'
 import {
   GENESIS_RAG17_PIPELINE_VERSION,
@@ -336,5 +337,165 @@ describe('GenesisRAG17 Tier 1 source execution', () => {
         await expect(resolveGenesisRag17RawLineage(reference, { db: prisma })).rejects.toMatchObject({ code: 'GENESISRAG17_LINEAGE_BROKEN' })
       } finally { await prisma[model].update({ where: { id }, data: { contentHash: original.contentHash } }) }
     }
+  })
+
+  describe('resolving many citations at once', () => {
+    const outcomeOf = (settled) => settled.map((entry) => (entry.status === 'fulfilled'
+      ? { ok: true, value: entry.value }
+      : { ok: false, code: entry.reason?.code ?? null, status: entry.reason?.status ?? null, message: entry.reason?.message ?? String(entry.reason) }))
+
+    async function ingestTwo() {
+      const a = await ingestGenesisRag17Raw(input({ sourceId: `synthetic://ki17/batch-a/${randomUUID()}` }), { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' })
+      const b = await ingestGenesisRag17Raw(input({ sourceId: `synthetic://ki17/batch-b/${randomUUID()}`, content: fixtureText.replace('Alice', 'Carol') }), { db: prisma, viewer, now, transport: sourceTransport, credential: 'test-source' })
+      const refOf = (result, chunk = 0, over = {}) => ({
+        scope: input().scope,
+        sourceId: result.source.sourceId,
+        documentId: result.source.documentId,
+        version: result.source.version,
+        rawArtifactId: result.source.rawArtifactId,
+        parsedArtifactId: result.source.parsedArtifactId,
+        chunkId: result.chunks[chunk].chunkId,
+        ...over,
+      })
+      return { a, b, refOf }
+    }
+
+    it('gives every citation the same outcome and the same error as resolving it alone', async () => {
+      const { a, b, refOf } = await ingestTwo()
+      const references = [
+        refOf(a, 0), refOf(a, 1), refOf(b, 0), refOf(b, 2),
+        refOf(a, 0), // the same citation twice
+        refOf(a, 0, { sourceId: 'another-source' }),
+        refOf(a, 0, { documentId: 'another-document' }),
+        refOf(a, 0, { version: 'another-version' }),
+        refOf(a, 0, { rawArtifactId: 'missing-raw' }),
+        refOf(a, 0, { parsedArtifactId: 'missing-parsed' }),
+        refOf(a, 0, { parsedArtifactId: b.source.parsedArtifactId }), // the parsed artifact of another raw
+        refOf(a, 0, { chunkId: b.chunks[0].chunkId }), // a chunk of another parsed artifact
+        refOf(a, 0, { chunkId: 'missing-chunk' }),
+        refOf(a, 0, { rawArtifactId: '' }), // input invalid
+        refOf(a, 0, { scope: { ...input().scope, businessId: 'another-business' } }), // another scope
+      ]
+      const alone = await Promise.allSettled(references.map((reference) => resolveGenesisRag17RawLineage(reference, { db: prisma })))
+      const batch = await resolveGenesisRag17RawLineages(references, { db: prisma })
+      expect(batch).toHaveLength(references.length)
+      expect(outcomeOf(batch)).toEqual(outcomeOf(alone))
+      const outcomes = outcomeOf(batch)
+      expect(outcomes.slice(0, 5).every((entry) => entry.ok)).toBe(true)
+      expect(outcomes.slice(5).every((entry) => !entry.ok)).toBe(true)
+      expect(new Set(outcomes.slice(5).map((entry) => entry.code)).size).toBeGreaterThan(1)
+    })
+
+    it('rejects a tampered artifact for exactly the citations that reach it, like resolving each alone', async () => {
+      const { a, b, refOf } = await ingestTwo()
+      const references = [refOf(a, 0), refOf(a, 1), refOf(b, 0), refOf(b, 1)]
+      const cases = [
+        ['knowledgeRawArtifact', a.source.rawArtifactId, { contentHash: '0'.repeat(64) }],
+        ['knowledgeParsedArtifact', b.source.parsedArtifactId, { contentHash: '0'.repeat(64) }],
+        ['knowledgeParsedArtifact', a.source.parsedArtifactId, { content: 'not what was parsed' }],
+        ['knowledgeChunk', a.chunks[1].chunkId, { text: 'not the chunk text' }],
+        ['knowledgeChunk', b.chunks[0].chunkId, { contentHash: '1'.repeat(64) }],
+      ]
+      for (const [model, id, data] of cases) {
+        const original = await prisma[model].findUnique({ where: { id } })
+        try {
+          await prisma[model].update({ where: { id }, data })
+          const alone = await Promise.allSettled(references.map((reference) => resolveGenesisRag17RawLineage(reference, { db: prisma })))
+          const batch = await resolveGenesisRag17RawLineages(references, { db: prisma })
+          expect(outcomeOf(batch)).toEqual(outcomeOf(alone))
+          expect(outcomeOf(batch).some((entry) => !entry.ok)).toBe(true)
+          expect(outcomeOf(batch).some((entry) => entry.ok)).toBe(true) // the untouched citations still resolve
+        } finally {
+          await prisma[model].update({ where: { id }, data: Object.fromEntries(Object.keys(data).map((key) => [key, original[key]])) })
+        }
+      }
+    })
+
+    // A wrapper around the database that counts calls per model method and can fail one of them,
+    // without touching the shared client.
+    function observed(db, { failOn } = {}) {
+      const calls = {}
+      const wrapped = new Proxy(db, {
+        get(target, name) {
+          const model = target[name]
+          if (!model || typeof model !== 'object' || typeof model.findMany !== 'function') return model
+          return new Proxy(model, {
+            get(inner, method) {
+              const member = inner[method]
+              if (typeof member !== 'function') return member
+              return (...args) => {
+                const key = `${String(name)}.${String(method)}`
+                calls[key] = (calls[key] || 0) + 1
+                if (failOn === key) return Promise.reject(Object.assign(new Error('database down'), { code: 'DB_DOWN' }))
+                return member.apply(inner, args)
+              }
+            },
+          })
+        },
+      })
+      return { calls, db: wrapped }
+    }
+
+    it('rejects a tampered canonical RawExternalRecord for the citations that reach it, like resolving each alone', async () => {
+      const { a, b, refOf } = await ingestTwo()
+      const references = [refOf(a, 0), refOf(a, 1), refOf(b, 0), refOf(b, 1)]
+      const canonicalId = (await prisma.knowledgeRawArtifact.findUnique({ where: { id: a.source.rawArtifactId } })).rawExternalRecordId
+      const original = await prisma.rawExternalRecord.findUnique({ where: { id: canonicalId } })
+      const suffix = randomUUID().slice(0, 8)
+      const otherTenant = await createTenant({ portfolioId: portfolio.id, name: `Batch other tenant ${suffix}`, code: `KI17-OT-${suffix}` })
+      const otherBusiness = await createBusiness({ tenantId: otherTenant.id, name: `Batch other business ${suffix}`, code: `KI17-OB-${suffix}` })
+      const cases = [
+        { artifactId: 'another-artifact' }, // the record no longer points back at the raw artifact
+        { payloadJson: JSON.stringify({ content: 'not the raw content' }) }, // its payload no longer matches the raw content
+        { tenantId: otherTenant.id, businessId: otherBusiness.id }, // the record sits in another scope
+      ]
+      for (const data of cases) {
+        try {
+          await prisma.rawExternalRecord.update({ where: { id: canonicalId }, data })
+          const alone = await Promise.allSettled(references.map((reference) => resolveGenesisRag17RawLineage(reference, { db: prisma })))
+          const batch = await resolveGenesisRag17RawLineages(references, { db: prisma })
+          expect(outcomeOf(batch)).toEqual(outcomeOf(alone))
+          expect(outcomeOf(batch).slice(0, 2).every((entry) => !entry.ok && entry.code === 'GENESISRAG17_LINEAGE_BROKEN')).toBe(true)
+          expect(outcomeOf(batch).slice(2).every((entry) => entry.ok)).toBe(true) // the other source still resolves
+        } finally {
+          await prisma.rawExternalRecord.update({ where: { id: canonicalId }, data: { artifactId: original.artifactId, payloadJson: original.payloadJson, tenantId: original.tenantId, businessId: original.businessId } })
+        }
+      }
+    })
+
+    it('is what the real knowledge repository returns from resolveLineages', async () => {
+      const { a, b, refOf } = await ingestTwo()
+      const references = [refOf(a, 0), refOf(b, 1), refOf(a, 0, { chunkId: 'missing-chunk' })]
+      const viaRepository = await createKnowledgeRepository(prisma).resolveLineages(references)
+      const alone = await Promise.allSettled(references.map((reference) => resolveGenesisRag17RawLineage(reference, { db: prisma })))
+      expect(outcomeOf(viaRepository)).toEqual(outcomeOf(alone))
+      expect(viaRepository.map((entry) => entry.status)).toEqual(['fulfilled', 'fulfilled', 'rejected'])
+    })
+
+    it('reads each table once for any number of citations', async () => {
+      const { a, b, refOf } = await ingestTwo()
+      const references = [0, 1, 2].flatMap((chunk) => [refOf(a, chunk), refOf(b, chunk)])
+      const { calls, db } = observed(prisma)
+      const batch = await resolveGenesisRag17RawLineages(references, { db })
+      expect(batch.every((entry) => entry.status === 'fulfilled')).toBe(true)
+      expect(calls['knowledgeRawArtifact.findMany']).toBe(1)
+      expect(calls['knowledgeParsedArtifact.findMany']).toBe(1)
+      expect(calls['knowledgeChunk.findMany']).toBe(1)
+      expect(calls['rawExternalRecord.findMany']).toBe(1)
+      expect(Object.keys(calls).filter((key) => key.endsWith('.findFirst') || key.endsWith('.findUnique'))).toEqual([])
+      // the single resolver, for comparison, reads four rows per citation
+      const single = observed(prisma)
+      await Promise.all(references.map((reference) => resolveGenesisRag17RawLineage(reference, { db: single.db })))
+      expect(Object.values(single.calls).reduce((sum, count) => sum + count, 0)).toBe(references.length * 4)
+    })
+
+    it('resolves an empty list and reports a failed read against every citation', async () => {
+      expect(await resolveGenesisRag17RawLineages([], { db: prisma })).toEqual([])
+      const { a, refOf } = await ingestTwo()
+      const { db } = observed(prisma, { failOn: 'knowledgeChunk.findMany' })
+      const batch = await resolveGenesisRag17RawLineages([refOf(a, 0), refOf(a, 1)], { db })
+      expect(batch.map((entry) => entry.status)).toEqual(['rejected', 'rejected'])
+      expect(batch.every((entry) => entry.reason.code === 'DB_DOWN')).toBe(true)
+    })
   })
 })

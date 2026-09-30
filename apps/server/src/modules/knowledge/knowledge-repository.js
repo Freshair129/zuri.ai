@@ -152,6 +152,11 @@ export function createKnowledgeRepository(db = prisma) {
       const { resolveGenesisRag17RawLineage } = await import('@/platform/integrations/core/genesisrag17-executor')
       return resolveGenesisRag17RawLineage(reference, { db })
     },
+    // Many citations at once, as Promise.allSettled-shaped entries (see resolveGenesisRag17RawLineages).
+    async resolveLineages(references) {
+      const { resolveGenesisRag17RawLineages } = await import('@/platform/integrations/core/genesisrag17-executor')
+      return resolveGenesisRag17RawLineages(references, { db })
+    },
     async audit({ entityId, action, actorId, payload, entityType = 'KNOWLEDGE_CORPUS' }) {
       const { recordAudit } = await import('@/modules/project-manager/application/audit')
       return recordAudit(db, { entityType, entityId, action, actorId, payload })
