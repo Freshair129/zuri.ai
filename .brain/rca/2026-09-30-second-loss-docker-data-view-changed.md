@@ -1,122 +1,161 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-30T22:20:00+07:00,MC0"
-last_update: "2026-09-30T22:20:00+07:00,MC0"
+last_update: "2026-09-30T23:10:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"
   doc_type: "root-cause-analysis"
-  scope: "Second loss of the production containers and images in two days, a different set of Docker volumes appearing, an unnoticed 12-hour outage, and the recovery from backup"
+  scope: "Second loss of the production containers and images in two days, the engine presenting a different set of Docker data, an unnoticed outage of about 15 hours, and the recovery from backup"
 ---
 
 # RCA - Second loss: the engine came back showing different Docker data
 
 Follows [the 09-29 RCA](2026-09-29-watchdog-crash-loop-and-ki17-volume-loss.md). The cause of this
-event is **not known**; this record separates what was observed from what is inferred.
+event is **not known**. This record separates what was observed from what is inferred, and lists
+the explanations that are still open.
 
 ## Complexity and risk
 
 - **Complexity:** C-2 - host operations, no product code change
-- **Risk:** HIGH - production was offline for about 12 hours and nobody was alerted. The state it
-  came back with was older than the state the day before, so a wrong recovery choice could have
-  silently discarded either the old conversation memory or the newer knowledge publication
+- **Risk:** HIGH - production was unreachable for about 15 hours and nobody was alerted. The data
+  the engine showed was older than the day before, so a wrong recovery choice could have silently
+  discarded either the old conversation memory or the newer knowledge publication
 
 ## Symptom
 
-Around 09:30 +07:00 on 2026-09-30 the Docker engine answered again after a period in which Docker
-Desktop was not running. None of the five production containers existed, and the site returned
-nothing. The images, the local knowledge object store (container and data volume) and the local
-Supabase stack were also absent. The production containers had been healthy until about 06:00.
+At 06:55 - 07:00 +07:00 on 2026-09-30, after the watchdog had started Docker Desktop, the engine
+answered but none of the five production containers existed. The site returned nothing until the
+recovery below. The images, the local knowledge object store (container and data volume) and the
+local Supabase stack were also absent. The last time the containers were known to exist was 06:00
+(the scheduled backup ran and found the worker container).
 
 ## Timeline (+07:00)
 
 | Time | Event |
 |---|---|
-| 09-29 12:40 - 09-30 06:00 | Production healthy on the rebuilt stack. The 6-hourly backup ran at 06:00 and succeeded (the worker container existed) |
-| 09-30 06:50 | The watchdog found the engine down with Docker Desktop not running and started it (attempt 1 of 2) |
+| 09-29 13:24 - 09-30 06:00 | Production healthy on the stack rebuilt after the 09-29 outage. The 06:00 backup succeeded |
+| 09-30 05:40 - 06:35 | (Correlation only) Another agent session ran cross-session Windows access tests on this host, including a temporary local account whose profile shows up in the system log at 05:42 and is gone now. Whether it is related is **not known** |
+| 06:50 | The watchdog found the engine down with Docker Desktop not running and started it (attempt 1 of 2). Why Docker Desktop had stopped is **not known** |
 | 06:55 - 07:00 | The engine answered. The watchdog logged all five production containers as missing |
-| 07:25 - 08:25 | Two more start attempts, then the watchdog stopped retrying as designed ("needs a human") |
-| 09:25 - 09:30 | Another start; the engine answered again |
+| 07:25, 07:30 | The engine was down again; the watchdog made attempts 1 and 2 of a new outage, then stopped retrying as designed ("needs a human") at 08:25 |
+| 09:25 - 09:30 | The watchdog made attempt 1 of another outage; the engine answered. Docker Desktop's own process, started at 09:49, was not started by the watchdog; who or what started it is **not known** |
+| 09:49 | Docker Desktop's install-settings file and the Docker VM's root disk were rewritten (VM root disk created 09:49) |
+| 11:26 | The Docker VM was started again; containers of an unrelated development stack were started on the engine at about 11:45 |
 | 09:30 - 21:45 | The watchdog logged web health 0 every 5 minutes. The 12:00 and 18:00 backups failed because the worker container did not exist |
-| about 11:45 | Containers of an unrelated development stack were started on this engine |
 | 21:45 | The outage was noticed while starting a planned deploy; the backup failure was the first sign |
 | 21:50 - 22:15 | Recovery (below) |
 
+The unreachable period is about 15 hours (from the 06:50 stop to the 22:15 recovery). The watchdog's
+"web health 0" lines only cover 09:30 onward, so a count taken from them understates it.
+
 ## Evidence
 
-- **The watchdog log** has the timeline above. Its alerts are desktop notifications on the same
-  host; the 12-hour outage produced no message anyone saw.
-- **A different set of volumes was visible.** The three ki17 volumes were present but were the
-  **original** ones (created 2026-09-17; the SQLite store's last write is 2026-09-29 01:14, the
-  minute the 09-29 outage began), not the ones rebuilt on 09-29 (created that morning). The local
-  Supabase volumes and the object store volume that existed on 09-29 were absent, and the volume
-  list was much longer (43 volumes across other projects) than the six seen on 09-29.
+- **The watchdog log** has the events above. Its alerts are desktop notifications on the same
+  host; the outage produced no message anyone saw.
+- **The volumes shown were the original ones.** The three ki17 volumes were present but were the
+  ones created on 2026-09-17, not the ones rebuilt on 09-29 (created that morning). The SQLite
+  store's last write is 09-29 01:14, the minute the 09-29 outage began. The local Supabase volumes
+  and the object store volume that existed on 09-29 were absent, and 43 volumes across other
+  projects were listed, where on 09-29 the list held only the local Supabase volumes plus the ki17
+  volumes rebuilt that day.
+- **This does not fit a simple rollback.** A rollback to the state at 09-29 01:14 would have
+  brought back the local Supabase volumes too, and they were absent. It does not fit a plain
+  deletion either, because the original volumes reappeared.
 - **The engine used the classic storage driver** (`overlay2`), not the containerd one it used on
-  09-29. Docker Desktop's settings file still says the containerd store is on and has not changed
-  since 09-29 00:50, and the containerd data folder inside the Docker VM is empty (4 KB).
-- **One data disk** file (about 150 GB) and one WSL distribution exist, so this is not two disks
-  chosen between by configuration.
-- **A watchdog warning is unexplained.** At each start it logged "containerd setting is not true",
-  but reading the same file with the same code now returns `True`. It may be a false alarm from
-  reading the file while Docker Desktop was rewriting it; not verified.
-- **No reboot** happened on 09-30 (the last one was 09-29 05:27, the day before).
+  09-29, and the containerd data folder inside the Docker VM was empty (4 KB). Docker Desktop
+  4.93.0.
+- **Docker's settings folder is not in the state the 09-29 outage left it.** The watchdog's own
+  backups of `settings-store.json` show it was rewritten repeatedly until 06:10 on 09-29. The live
+  file has a creation time and a last-write time that are both 09-29 00:50:47, before the first of
+  those rewrites, and it has no BOM and reads `true` for the containerd setting. Several other
+  small files in that folder also carry start-of-day times from 09-28 04:50 and 09-29 00:50. So
+  the folder appears to have been replaced by an older copy, or reinstalled, at some point after
+  06:15 on 09-29. **Which, when and by what is not known.**
+- **A watchdog warning has two readings.** At each start on 09-30 the watchdog logged "the
+  containerd setting is not true". Reading the same file now returns `true`. Either (a) the
+  watchdog read the file while it was being rewritten and got nothing, so the warning was false,
+  or (b) the file really lacked the setting at those moments, which is the 09-28 failure mode,
+  and was later replaced. Both are unverified.
+- **One data-disk file and one WSL distribution were found** for the user that owns Docker
+  Desktop, so the engine did not obviously choose between two disks. A restore or replacement of
+  the disk, or a different daemon behind the same pipe, are not ruled out. Windows creates a
+  restore point for updates, but no restore event was found in the system or application logs for
+  that window (listing restore points needs elevation and was not done).
+- **A reboot happened on 09-29 at 05:27** (a user-initiated restart), inside the 09-29 outage
+  window. The 09-29 RCA does not mention it.
 
 ## Root cause
 
-**Unknown.** Established: after Docker Desktop restarted at about 06:50 the engine presented a
-different volume and image set from the one it presented at 06:00. Not established: why, and
-whether the earlier view still exists somewhere. Two facts constrain any explanation: the file the
-engine uses is a single disk, and the original volumes' last writes are from 09-29 01:14, so the
-view shown on 09-30 is the state from before the 09-29 outage, not from before 09-30 06:00.
+**Unknown.** Established: after Docker Desktop restarted at 06:50 the engine presented a different
+set of volumes and images from the one it presented at 06:00, in a Docker configuration folder that
+had itself been replaced by an older copy. Not established: what replaced it, why the engine's
+view changed, and whether the earlier view (with the 09-29 rebuild) still exists anywhere.
+
+Open explanations, none verified: an older copy of Docker's configuration and data was restored
+by some tool or person; Docker Desktop was reinstalled or updated at 09:49 and reset itself; a
+concurrent agent session's Windows access tests interfered with the Docker Desktop process or its
+pipe; a second Docker engine answered on the same pipe.
 
 ## Impact
 
-- About 12 hours without web, the tunnel, LINE webhook intake and all workers. The Zuri OA is the
+- About 15 hours without web, the tunnel, LINE webhook intake and all workers. The Zuri OA is the
   platform's internal test OA; no customer OA was connected.
-- **Data:** the 06:00 backup restored everything that mattered to production state. Activity
-  between 06:00 and about 06:50 on 09-30 (test conversations) is lost. The 22 SmartGift records
-  and the object store came back from the backup and answer queries.
-- **Recovered as a side effect:** the original conversation memory (about 200 MB, up to 09-29
-  01:14) that the 09-29 RCA counted as lost still existed, and is now archived. It was not merged
-  into production; that is an owner decision.
+- **Data:** the 06:00 backup restored production's state (SQLite stores, the published knowledge
+  store, and the object store). Activity between 06:00 and about 06:50 (test conversations) is
+  lost. The 22 SmartGift records and their raw files came back and answered five test queries.
+  The model volume was not touched; it holds the five files the worker verifies at start.
+- **Also found, not merged:** the original conversation memory (about 200 MB, up to 09-29 01:14),
+  which the 09-29 RCA counted as lost, still existed. It and the original knowledge store (the
+  22 generations from 09-21, whose sources were withdrawn in the 09-29 re-publish) are archived
+  and hashed. Neither was merged into production; that is an owner decision.
 
 ## Why detection escaped
 
 - Watchdog alerts stay on the host as desktop notifications. Nothing outside the machine learns
-  that production is down.
-- The 09-29 prevention work (backup, watchdog) worked as designed, but the backup failing twice was
-  logged only to a file.
+  that production is down. This was already a 09-29 finding and is still open.
+- The scheduled backup failing twice was logged only to a file.
+- The 09-29 start limit held (each outage got at most two starts), but it only stops retries; it
+  reports nothing outside the host.
 
 ## Fix applied (recovery)
 
-1. Archived the two original volumes that were visible (state and genesis store) to a separate
-   drive with SHA-256 hashes, before touching anything.
-2. Restored the 06:00 backup into the production volumes (state, genesis store) and recreated the
-   object store volume; the restore verified file hashes and SQLite integrity.
-3. Rebuilt the images from `main` at the merge of the query-performance fix, rebuilt the object
-   store image, and started all services. Health 200 locally and through the tunnel; the relay
-   smoke check passes and the worker answers with a published generation; all 22 snapshots
-   answer for five test queries.
-4. Saved the built images to the separate drive (about 660 MB) so a recovery no longer needs a
+1. Archived the two original volumes that were visible (state and knowledge store) to a second
+   drive with SHA-256 hashes before touching anything.
+2. Restored the 06:00 backup into the production volumes and recreated the object store volume;
+   the restore verified file hashes and SQLite integrity.
+3. Rebuilt the images from `main` at `b83def06` (the merge of the query-performance fix) and the
+   object store image, and started all services. Health 200 locally and through the tunnel;
+   `ki17-smoke` passes and the worker answers with a published generation; all 22 snapshots
+   answered for five test queries.
+4. Saved the built images to the second drive (about 660 MB) so a recovery no longer needs a
    30-minute rebuild.
 
 ## Proposed prevention
 
-1. **Alert off the host.** A production-down condition lasting more than 15 minutes must reach a
-   person by a channel that does not depend on this machine (a LINE push or e-mail from a place
-   that is not the affected host).
-2. **Record the engine's view at every watchdog tick:** storage driver, container and volume
-   counts, and the engine id, so the next change is timestamped and the cause can be found.
-3. **One-command recovery** from the saved images and the latest backup, rehearsed once.
-4. **Copy backups and saved images off the host.** They are on a second drive of the same machine.
-5. Decide whether to pin the engine's storage driver explicitly in Docker's own configuration
-   instead of relying on the settings UI (owner decision: it changes Docker's configuration).
-6. Investigate the Docker Desktop version in use for data-disk handling after an abnormal stop.
+Items marked **carry-over** were already proposed on 09-29 and are still open.
+
+1. **Alert off the host (carry-over, 09-29 item 4).** Production down for more than 15 minutes
+   must reach a person by a channel that does not depend on this machine. Owner: user picks the
+   channel; MC0 implements. Done when a simulated outage produces a message on a phone.
+2. **Record the engine's view at every watchdog check:** storage driver, container and volume
+   counts, engine id, and the modification time of Docker's settings file (overlaps 09-29 item 6,
+   persistent Docker event logging). Owner: MC0. Done when the log shows those fields each check.
+3. **One-command recovery** from the saved images and the latest backup, rehearsed once. Owner:
+   MC0. Done when a rehearsal into scratch names restores a working stack.
+4. **Copy backups and saved images off the host (carry-over, 09-29 item 2).** They are on a second
+   drive of the same machine. Owner: user picks the target; MC0 implements.
+5. **Ask the lane that ran the cross-session tests** whether they touched Docker Desktop, its pipe
+   or its data around 05:40 - 06:50 on 09-30, and record the answer here. Owner: MC0.
+6. **Docker configuration.** Whether to pin the engine's storage driver in Docker's own
+   configuration is an owner decision; the 09-29 rule that host automation must not write files
+   Docker owns still applies, so it would be a manual change. The premise is weak (the setting was
+   already on and the engine still used the classic store). Also investigate what Docker Desktop
+   4.93.0 does to its configuration and data after an abnormal stop.
 
 ## Open follow-ups
 
-- Owner: decide what to do with the archived original conversation memory (keep archived, or plan
-  a merge).
+- Owner: decide what to do with the archived original conversation memory and knowledge store
+  (keep archived, or plan a merge).
 - Owner: decide on an off-host backup target and an alert channel.
-- MC0: find out what changed the engine's view (proposal 2 will make the next occurrence
-  diagnosable).
+- MC0: find out what changed the engine's view (prevention 2 and 5).

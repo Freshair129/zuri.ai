@@ -172,3 +172,12 @@ alert) has **not** been exercised.
 - The knowledge store is still the local Community smoke profile (see
   `apps/server/deploy/knowledge-storage/README.md`), now on port 19100; the production target
   remains pending.
+
+## Follow-up (2026-09-30)
+
+[The 09-30 RCA](2026-09-30-second-loss-docker-data-view-changed.md) adds three corrections. The
+machine was restarted by a user at 05:27 on 09-29, inside this outage window, which this record
+does not mention. The conversation memory counted as lost above still existed: the original
+volumes reappeared on 09-30 and are archived (not merged). And "removed selectively by an unknown
+actor" is not the only explanation any more: the engine may have presented a different set of
+Docker data rather than deleted the first one. Neither reading is verified.
