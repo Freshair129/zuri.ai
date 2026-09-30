@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.2.1b"
 created_at: "2026-09-30T22:20:00+07:00,MC0"
-last_update: "2026-09-30T23:10:00+07:00,MC0"
+last_update: "2026-09-30T23:40:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"
@@ -35,14 +35,14 @@ local Supabase stack were also absent. The last time the containers were known t
 | Time | Event |
 |---|---|
 | 09-29 13:24 - 09-30 06:00 | Production healthy on the stack rebuilt after the 09-29 outage. The 06:00 backup succeeded |
-| 09-30 05:40 - 06:35 | (Correlation only) Another agent session ran cross-session Windows access tests on this host, including a temporary local account whose profile shows up in the system log at 05:42 and is gone now. Whether it is related is **not known** |
+| 09-30 05:40 - 06:35 | (Correlation only) Another agent session ran cross-session Windows access tests on this host, including a temporary local user profile that shows up in the system log at 05:42 and is gone now. Whether it is related is **not known** |
 | 06:50 | The watchdog found the engine down with Docker Desktop not running and started it (attempt 1 of 2). Why Docker Desktop had stopped is **not known** |
 | 06:55 - 07:00 | The engine answered. The watchdog logged all five production containers as missing |
 | 07:25, 07:30 | The engine was down again; the watchdog made attempts 1 and 2 of a new outage, then stopped retrying as designed ("needs a human") at 08:25 |
 | 09:25 - 09:30 | The watchdog made attempt 1 of another outage; the engine answered. Docker Desktop's own process, started at 09:49, was not started by the watchdog; who or what started it is **not known** |
+| 09:30 - 21:45 | The watchdog logged web health 0 every 5 minutes. The 12:00 and 18:00 backups failed because the worker container did not exist |
 | 09:49 | Docker Desktop's install-settings file and the Docker VM's root disk were rewritten (VM root disk created 09:49) |
 | 11:26 | The Docker VM was started again; containers of an unrelated development stack were started on the engine at about 11:45 |
-| 09:30 - 21:45 | The watchdog logged web health 0 every 5 minutes. The 12:00 and 18:00 backups failed because the worker container did not exist |
 | 21:45 | The outage was noticed while starting a planned deploy; the backup failure was the first sign |
 | 21:50 - 22:15 | Recovery (below) |
 
@@ -53,18 +53,22 @@ The unreachable period is about 15 hours (from the 06:50 stop to the 22:15 recov
 
 - **The watchdog log** has the events above. Its alerts are desktop notifications on the same
   host; the outage produced no message anyone saw.
-- **The volumes shown were the original ones.** The three ki17 volumes were present but were the
+- **The volumes shown were the original ones** (observed at about 21:50, during recovery, after the
+  09:49 and 11:26 restarts). The three ki17 volumes were present but were the
   ones created on 2026-09-17, not the ones rebuilt on 09-29 (created that morning). The SQLite
   store's last write is 09-29 01:14, the minute the 09-29 outage began. The local Supabase volumes
   and the object store volume that existed on 09-29 were absent, and 43 volumes across other
   projects were listed, where on 09-29 the list held only the local Supabase volumes plus the ki17
-  volumes rebuilt that day.
+  volumes rebuilt that day. No volume listing was taken at 06:55, so it is not known that this view
+  already existed then; the ki17 volumes have no writes after 09-29 01:14, which is consistent with
+  it but does not prove it.
 - **This does not fit a simple rollback.** A rollback to the state at 09-29 01:14 would have
   brought back the local Supabase volumes too, and they were absent. It does not fit a plain
   deletion either, because the original volumes reappeared.
 - **The engine used the classic storage driver** (`overlay2`), not the containerd one it used on
-  09-29, and the containerd data folder inside the Docker VM was empty (4 KB). Docker Desktop
-  4.93.0.
+  09-29, and the containerd data folder inside the Docker VM was empty (4 KB), both observed at about
+  21:50. The empty folder may date from the 09:49 recreation of the VM root disk or the 11:26 VM
+  start rather than from 06:50. Docker Desktop 4.93.0.
 - **Docker's settings folder is not in the state the 09-29 outage left it.** The watchdog's own
   backups of `settings-store.json` show it was rewritten repeatedly until 06:10 on 09-29. The live
   file has a creation time and a last-write time that are both 09-29 00:50:47, before the first of
@@ -83,19 +87,25 @@ The unreachable period is about 15 hours (from the 06:50 stop to the 22:15 recov
   restore point for updates, but no restore event was found in the system or application logs for
   that window (listing restore points needs elevation and was not done).
 - **A reboot happened on 09-29 at 05:27** (a user-initiated restart), inside the 09-29 outage
-  window. The 09-29 RCA does not mention it.
+  window. The 09-29 RCA does not mention it. No reboot happened on 09-30, which rules out a reboot
+  as the trigger of the 06:50 stop.
 
 ## Root cause
 
-**Unknown.** Established: after Docker Desktop restarted at 06:50 the engine presented a different
-set of volumes and images from the one it presented at 06:00, in a Docker configuration folder that
-had itself been replaced by an older copy. Not established: what replaced it, why the engine's
-view changed, and whether the earlier view (with the 09-29 rebuild) still exists anywhere.
+**Unknown.** Established: at 06:55 - 07:00 the engine answered with none of the five production
+containers (watchdog log); at about 21:50 it showed the original ki17 volumes, none of the 09-29
+rebuild, the classic storage driver, and a Docker settings folder whose file times pre-date the end
+of 09-29. Not established: whether that view was already present at 06:55 (the 09:49 and 11:26
+restarts came in between), what changed it (from file times the settings folder *appears* to have
+been replaced by an older copy or reinstalled), and whether the earlier view (with the 09-29
+rebuild) still exists anywhere.
 
-Open explanations, none verified: an older copy of Docker's configuration and data was restored
-by some tool or person; Docker Desktop was reinstalled or updated at 09:49 and reset itself; a
-concurrent agent session's Windows access tests interfered with the Docker Desktop process or its
-pipe; a second Docker engine answered on the same pipe.
+Open explanations, none verified: an older copy of Docker's configuration and data was restored by
+some tool or person; Docker Desktop was reinstalled or updated at 09:49 and reset itself (this alone
+cannot explain the missing containers at 06:55); a concurrent agent session's Windows access tests
+interfered with the Docker Desktop process or its pipe; a second Docker engine answered on the same
+pipe; the watchdog's own starts, or an unattended Docker Desktop update, contributed (the watchdog
+caused the 09-29 loop, and although it no longer writes Docker's settings, its starts continue).
 
 ## Impact
 
@@ -104,23 +114,25 @@ pipe; a second Docker engine answered on the same pipe.
 - **Data:** the 06:00 backup restored production's state (SQLite stores, the published knowledge
   store, and the object store). Activity between 06:00 and about 06:50 (test conversations) is
   lost. The 22 SmartGift records and their raw files came back and answered five test queries.
-  The model volume was not touched; it holds the five files the worker verifies at start.
+  The model volume was not touched; the worker started and passed its start-up verification of the
+  five model files.
 - **Also found, not merged:** the original conversation memory (about 200 MB, up to 09-29 01:14),
-  which the 09-29 RCA counted as lost, still existed. It and the original knowledge store (the
-  22 generations from 09-21, whose sources were withdrawn in the 09-29 re-publish) are archived
-  and hashed. Neither was merged into production; that is an owner decision.
+  which the 09-29 RCA counted as lost, still existed. It and the original genesis store (the
+  22 generations published on 09-21, per [the 09-24 probe](../reports/2026-09-24-genesisrag17-production-probe.md);
+  their sources were withdrawn in the 09-29 re-publish) are archived and hashed. Neither was merged into production; that is an owner decision.
 
 ## Why detection escaped
 
 - Watchdog alerts stay on the host as desktop notifications. Nothing outside the machine learns
   that production is down. This was already a 09-29 finding and is still open.
 - The scheduled backup failing twice was logged only to a file.
-- The 09-29 start limit held (each outage got at most two starts), but it only stops retries; it
-  reports nothing outside the host.
+- The watchdog made four starts (06:50, 07:25, 07:30, 09:25) in about three hours. Its limit of two
+  applies per outage and resets whenever the engine answers, so it did not stop this sequence; it
+  only limits retries and reports nothing outside the host.
 
 ## Fix applied (recovery)
 
-1. Archived the two original volumes that were visible (state and knowledge store) to a second
+1. Archived the two original volumes that were visible (state and genesis store) to a second
    drive with SHA-256 hashes before touching anything.
 2. Restored the 06:00 backup into the production volumes and recreated the object store volume;
    the restore verified file hashes and SQLite integrity.

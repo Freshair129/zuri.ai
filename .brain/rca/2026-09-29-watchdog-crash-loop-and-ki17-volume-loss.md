@@ -1,7 +1,7 @@
 ---
-version: "0.2.1b"
+version: "0.2.2b"
 created_at: "2026-09-29T12:40:00+07:00,MC0"
-last_update: "2026-09-29T13:55:00+07:00,MC0"
+last_update: "2026-09-30T23:40:00+07:00,MC0"
 status: "under review"
 attributes:
   domain: "production-host"
@@ -178,6 +178,7 @@ alert) has **not** been exercised.
 [The 09-30 RCA](2026-09-30-second-loss-docker-data-view-changed.md) adds three corrections. The
 machine was restarted by a user at 05:27 on 09-29, inside this outage window, which this record
 does not mention. The conversation memory counted as lost above still existed: the original
-volumes reappeared on 09-30 and are archived (not merged). And "removed selectively by an unknown
+volumes reappeared on 09-30 and are archived together with the original genesis store (the 22 generations
+published on 09-21); neither was merged, and the "Lost" bullet under Impact should be read with this. And "removed selectively by an unknown
 actor" is not the only explanation any more: the engine may have presented a different set of
 Docker data rather than deleted the first one. Neither reading is verified.
