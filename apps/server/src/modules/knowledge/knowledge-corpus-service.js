@@ -689,19 +689,17 @@ export async function queryKnowledgeCorpus(
     return { corpusId: initialCorpusId, corpusGeneration: current.manifest.generation, manifestHash: current.manifestHash, ranking: 'rrf-k60', results: [] }
   }
   const queryFn = await resolveQueryFunction({ db, env, querySnapshot, runtime, runtimeCapability, transport })
-  // Query and verify every snapshot with bounded concurrency. Verification of a snapshot's
-  // rows (including the lineage lookups) happens inside its own task; fusion below walks the
-  // snapshots in manifest order, so the result never depends on which finished first.
+  // Phase 1 - query every snapshot with bounded concurrency and shape-check its rows. A row's
+  // failure is kept and raised when the walk in phase 3 reaches it, so the error that surfaces is
+  // the one the serial code raised.
   const lineageSlot = createLimiter(LINEAGE_LOOKUP_CONCURRENCY)
-  const verifySnapshot = async (group) => {
+  const fetchSnapshot = async (group) => {
     const response = await queryFn({ scope: initialScope, query, topK, snapshotId: group.snapshotId })
     assertSnapshotResponse(response, group.entries[0], initialScope)
     // topK bounds what the worker may return; more than that would only multiply lookups.
     if (response.results.length > topK) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
     const entryBySource = new Map(group.entries.map((entry) => [entry.sourceId, entry]))
-    // Row by row, exactly the checks the serial code made, but a failure is kept and raised
-    // when the walk below reaches its row, so the error that surfaces is the same one.
-    const prepared = response.results.map((row, index) => {
+    return response.results.map((row, index) => {
       try {
         if (!row || typeof row.id !== 'string' || !row.id || typeof row.text !== 'string' || typeof row.score !== 'number' || !Number.isFinite(row.score) || !row.citation) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
         const citation = row.citation
@@ -716,19 +714,59 @@ export async function queryKnowledgeCorpus(
         return { failure: error }
       }
     })
-    const lineages = await Promise.allSettled(prepared.map((item) => (item.failure ? undefined : lineageSlot(() => repository.resolveLineage({
-      scope: initialScope,
-      sourceId: item.entry.sourceId,
-      documentId: item.entry.sourceId,
-      version: item.entry.sourceVersion,
-      rawArtifactId: item.citation.rawArtifactId,
-      parsedArtifactId: item.citation.parsedArtifactId,
-      chunkId: item.citation.chunkId,
-    })))))
+  }
+  const fetched = await mapInOrder([...entriesBySnapshot.values()], QUERY_SNAPSHOT_CONCURRENCY, fetchSnapshot)
+
+  // Phase 2 - resolve the lineage of every row of every snapshot that can still matter in one
+  // batch. Only snapshots before the first failed one can decide the outcome, so later ones are
+  // not looked up.
+  const firstFailed = fetched.findIndex((outcome) => outcome && !outcome.ok)
+  const decisive = firstFailed === -1 ? fetched.length : firstFailed
+  const lineageReferences = []
+  const lineageSlots = new Map()
+  for (let snapshot = 0; snapshot < decisive; snapshot += 1) {
+    if (!fetched[snapshot]?.ok) continue
+    fetched[snapshot].value.forEach((item, position) => {
+      if (item.failure) return
+      lineageSlots.set(`${snapshot}:${position}`, lineageReferences.length)
+      lineageReferences.push({
+        scope: initialScope,
+        sourceId: item.entry.sourceId,
+        documentId: item.entry.sourceId,
+        version: item.entry.sourceVersion,
+        rawArtifactId: item.citation.rawArtifactId,
+        parsedArtifactId: item.citation.parsedArtifactId,
+        chunkId: item.citation.chunkId,
+      })
+    })
+  }
+  const resolveAllLineages = async (references) => {
+    if (!references.length) return []
+    if (typeof repository.resolveLineages === 'function') {
+      try {
+        const settled = await repository.resolveLineages(references)
+        if (Array.isArray(settled) && settled.length === references.length) return settled
+        throw queryResponseError('Knowledge lineage resolver returned an unexpected answer', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
+      } catch (error) {
+        return references.map(() => ({ status: 'rejected', reason: error }))
+      }
+    }
+    // Repositories without a batch resolver: one lookup per row within the shared budget.
+    return Promise.allSettled(references.map((reference) => lineageSlot(() => repository.resolveLineage(reference))))
+  }
+  const lineages = await resolveAllLineages(lineageReferences)
+
+  // Phase 3 - walk the snapshots in manifest order: the failure of the earliest snapshot wins,
+  // and inside one snapshot the earliest bad row, exactly as the serial code behaved.
+  const fused = new Map()
+  for (let snapshot = 0; snapshot < fetched.length; snapshot += 1) {
+    const outcome = fetched[snapshot]
+    if (!outcome) throw queryResponseError('Knowledge snapshot query was not run', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
+    if (!outcome.ok) throw outcome.error
     const seen = new Set()
-    return prepared.map((item, position) => {
+    outcome.value.forEach((item, position) => {
       if (item.failure) throw item.failure
-      const settled = lineages[position]
+      const settled = lineages[lineageSlots.get(`${snapshot}:${position}`)]
       if (settled.status === 'rejected') throw settled.reason
       const { row, citation, entry, index } = item
       const lineage = settled.value
@@ -737,15 +775,6 @@ export async function queryKnowledgeCorpus(
       const identity = `${entry.sourceId}\u0000${entry.ingestionId}\u0000${citation.chunkId}`
       if (seen.has(identity)) throw queryResponseError('Knowledge snapshot response contains a duplicate chunk', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
       seen.add(identity)
-      return { identity, entry, citation, row, index }
-    })
-  }
-  const outcomes = await mapInOrder([...entriesBySnapshot.values()], QUERY_SNAPSHOT_CONCURRENCY, verifySnapshot)
-  const fused = new Map()
-  for (const outcome of outcomes) {
-    if (!outcome) throw queryResponseError('Knowledge snapshot query was not run', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
-    if (!outcome.ok) throw outcome.error
-    for (const { identity, entry, citation, row, index } of outcome.value) {
       const currentHit = fused.get(identity)
       const rankFusionScore = (currentHit?.rankFusionScore || 0) + 1 / (RRF_K + index + 1)
       if (!currentHit) {
@@ -764,7 +793,7 @@ export async function queryKnowledgeCorpus(
       } else {
         currentHit.rankFusionScore = rankFusionScore
       }
-    }
+    })
   }
   // A query may take long enough for a membership or ACL change to race it.
   // Check live access and every selected source immediately before disclosure.

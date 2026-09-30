@@ -827,6 +827,64 @@ describe('corpus query over many single-record snapshots', () => {
     expect(max).toBeLessThanOrEqual(6)
   })
 
+  describe('with a batch lineage resolver', () => {
+    const batched = (repo) => {
+      repo.resolveLineages = vi.fn(async (references) => Promise.allSettled(references.map((reference) => repo.resolveLineage(reference))))
+      return repo.resolveLineages
+    }
+
+    it('resolves the lineage of every row of every snapshot in a single call', async () => {
+      const { repo, db, ingestions } = await seedMany({ extraChunks: 2 })
+      const resolveLineages = batched(repo)
+      const single = vi.spyOn(repo, 'resolveLineage')
+      const { fn } = snapshotStub(repo, ingestions, { rows: 3 })
+      const result = await ask(repo, db, fn, 3)
+      expect(result.results).toHaveLength(3)
+      expect(resolveLineages).toHaveBeenCalledTimes(1)
+      expect(resolveLineages.mock.calls[0][0]).toHaveLength(COUNT * 3)
+      expect(single).toHaveBeenCalledTimes(COUNT * 3) // the stub answers each through the single resolver
+    })
+
+    it('raises the earliest snapshot\'s failure whichever phase it happens in', async () => {
+      const { repo, db, ingestions } = await seedMany({ extraChunks: 1 })
+      const manifest = await readAuthorizedKnowledgeManifest({ businessId: scope.businessId, projectId: 'project-1' }, { repository: repo, db, viewer: reader })
+      const [first, second] = manifest.entries.map((entry) => entry.snapshotId)
+      batched(repo)
+      const { fn } = snapshotStub(repo, ingestions, { rows: 2 })
+      // the first snapshot has a bad row (found in the lineage phase); the second fails to answer at all
+      const wrapped = vi.fn(async (input) => {
+        if (input.snapshotId === second) throw Object.assign(new Error('second'), { code: 'SECOND' })
+        const answer = await fn(input)
+        if (input.snapshotId === first) answer.results[1].text = 'not what was published'
+        return answer
+      })
+      await expect(ask(repo, db, wrapped, 5)).rejects.toMatchObject({ code: 'KNOWLEDGE_LINEAGE_MISMATCH' })
+    })
+
+    it('does not look up lineage past the first snapshot that failed to answer', async () => {
+      const { repo, db, ingestions } = await seedMany()
+      const manifest = await readAuthorizedKnowledgeManifest({ businessId: scope.businessId, projectId: 'project-1' }, { repository: repo, db, viewer: reader })
+      const [first] = manifest.entries.map((entry) => entry.snapshotId)
+      const resolveLineages = batched(repo)
+      const { fn } = snapshotStub(repo, ingestions)
+      const wrapped = vi.fn(async (input) => {
+        if (input.snapshotId === first) throw Object.assign(new Error('first'), { code: 'FIRST' })
+        return fn(input)
+      })
+      await expect(ask(repo, db, wrapped)).rejects.toMatchObject({ code: 'FIRST' })
+      expect(resolveLineages).not.toHaveBeenCalled()
+    })
+
+    it('fails the query when the batch itself fails, and refuses a malformed batch answer', async () => {
+      const { repo, db, ingestions } = await seedMany()
+      const { fn } = snapshotStub(repo, ingestions)
+      repo.resolveLineages = vi.fn(async () => { throw Object.assign(new Error('database down'), { code: 'DB_DOWN' }) })
+      await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'DB_DOWN' })
+      repo.resolveLineages = vi.fn(async () => [])
+      await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'KNOWLEDGE_QUERY_RESPONSE_INVALID' })
+    })
+  })
+
   it('rejects when a snapshot query throws a falsy value instead of treating it as success', async () => {
     const { repo, db } = await seedMany()
     const throwsNothing = vi.fn(async () => { throw undefined })

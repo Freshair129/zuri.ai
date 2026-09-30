@@ -85,7 +85,8 @@ function requestFor(ingestion, source, scope, stage9StepId, stage9AttemptId) {
 }
 
 function seamRepository({ receipts, lineages }) {
-  const wrap = (delegate) => ({
+  const wrap = (delegate) => {
+    const seam = {
     ...delegate,
     verifyPublication: async (executionRunId) => receipts.get(executionRunId) || null,
     resolveLineage: async (reference) => {
@@ -107,7 +108,12 @@ function seamRepository({ receipts, lineages }) {
       }
     },
     transaction: (callback) => delegate.transaction((tx) => callback(wrap(tx))),
-  })
+    }
+    // The batch resolver inherited from the real repository would bypass the seam above, so it
+    // answers through the seam's own (possibly re-patched) resolveLineage.
+    seam.resolveLineages = (references) => Promise.allSettled(references.map((reference) => seam.resolveLineage(reference)))
+    return seam
+  }
   return wrap(createKnowledgeRepository(prisma))
 }
 
