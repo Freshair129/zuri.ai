@@ -33,6 +33,13 @@ import {
 const CORPUS_SCHEMA_VERSION = 'knowledge-corpus.v1'
 const RRF_K = 60
 const MAX_CAS_RETRIES = 3
+// Snapshots are queried this many at a time. Each query spawns an MSP child and
+// the callers' latency was the sum of all of them (measured ~47 s for 22 snapshots
+// at ~100 ms per database round trip); 4 keeps the process count bounded.
+const QUERY_SNAPSHOT_CONCURRENCY = 4
+// Lineage lookups (several database queries each) share one budget for the whole query, so
+// snapshots x rows can never open more connections than the pool is sized for.
+const LINEAGE_LOOKUP_CONCURRENCY = 6
 const SCOPE_KEYS = Object.freeze(['portfolioId', 'tenantId', 'businessId', 'workspaceId', 'agentId', 'visibility'])
 const SHA256 = /^[a-f0-9]{64}$/i
 
@@ -521,6 +528,55 @@ function assertSnapshotResponse(response, entry, scope) {
   }
 }
 
+/** Run tasks so that at most `limit` are in flight at once, across every caller of the returned function. */
+function createLimiter(limit) {
+  let active = 0
+  const waiting = []
+  // A finishing task hands its slot straight to the next waiter (active is unchanged), so a
+  // caller arriving in between can never take a slot the waiter is about to use.
+  const release = () => {
+    const next = waiting.shift()
+    if (next) next()
+    else active -= 1
+  }
+  return async (task) => {
+    if (active >= limit) await new Promise((resolve) => waiting.push(resolve))
+    else active += 1
+    try {
+      return await task()
+    } finally {
+      release()
+    }
+  }
+}
+
+/**
+ * Run `task` over `items` with at most `limit` in flight. Results are returned in
+ * item order, whatever order they finish in. After the first failure no further item
+ * is started; items already in flight still finish, and their outcomes are kept, so
+ * the caller can raise the failure of the EARLIEST item deterministically.
+ */
+async function mapInOrder(items, limit, task) {
+  const outcomes = new Array(items.length)
+  let next = 0
+  let failed = false
+  const lane = async () => {
+    while (!failed) {
+      const index = next
+      next += 1
+      if (index >= items.length) return
+      try {
+        outcomes[index] = { ok: true, value: await task(items[index], index) }
+      } catch (error) {
+        failed = true
+        outcomes[index] = { ok: false, error }
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, lane))
+  return outcomes
+}
+
 function citationReference({ corpusId, corpusGeneration, sourceId, ingestionId, chunkId }) {
   const value = JSON.stringify({ corpusId, corpusGeneration, sourceId, ingestionId, chunkId })
   return `kc1.${Buffer.from(value, 'utf8').toString('base64url')}`
@@ -546,7 +602,9 @@ async function resolveQueryFunction(options) {
   try {
     const bridge = await import('./knowledge-runtime.js')
     if (typeof bridge.queryKnowledgeSnapshot !== 'function') throw new Error('queryKnowledgeSnapshot is unavailable')
+    const bindingCache = new Map()
     return (input) => bridge.queryKnowledgeSnapshot(input, {
+      bindingCache,
       db: options.db,
       env: options.env,
       transport: options.transport,
@@ -609,12 +667,18 @@ export async function queryKnowledgeCorpus(
   const sources = await listSources(repository, corpus.id)
   const sourceById = new Map(sources.map((source) => [source.id, source]))
   const entriesBySnapshot = new Map()
+  // Many sources share one FileAsset (a catalog file admits one source per record), and
+  // the check is a fixed set of database round trips, so run it once per asset.
+  const readableBefore = new Set()
   for (const entry of current.manifest.entries) {
     const source = sourceById.get(entry.sourceId)
     if (!source) throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
     assertSourceMatchesEntry({ ...source, corpusId: corpus.id }, { ...entry, corpusId: corpus.id })
     assertActiveSource(source)
-    if (source.fileAssetId) await assertKnowledgeFileReadable(viewer, source.fileAssetId, { businessId, projectId, db, env })
+    if (source.fileAssetId && !readableBefore.has(source.fileAssetId)) {
+      readableBefore.add(source.fileAssetId)
+      await assertKnowledgeFileReadable(viewer, source.fileAssetId, { businessId, projectId, db, env })
+    }
     if (!sameScope(assertScope(entry.scope, 'manifest entry scope'), initialScope)) throw serviceError(409, 'Knowledge manifest scope is invalid', 'KNOWLEDGE_SCOPE_INVALID')
     const group = entriesBySnapshot.get(entry.snapshotId) || { snapshotId: entry.snapshotId, generation: entry.generation, scope: entry.scope, entries: [] }
     if (group.generation !== entry.generation || !sameScope(group.scope, entry.scope)) throw serviceError(409, 'Knowledge corpus has conflicting snapshot identity', 'KNOWLEDGE_MANIFEST_INVALID')
@@ -625,36 +689,63 @@ export async function queryKnowledgeCorpus(
     return { corpusId: initialCorpusId, corpusGeneration: current.manifest.generation, manifestHash: current.manifestHash, ranking: 'rrf-k60', results: [] }
   }
   const queryFn = await resolveQueryFunction({ db, env, querySnapshot, runtime, runtimeCapability, transport })
-  const fused = new Map()
-  for (const group of entriesBySnapshot.values()) {
+  // Query and verify every snapshot with bounded concurrency. Verification of a snapshot's
+  // rows (including the lineage lookups) happens inside its own task; fusion below walks the
+  // snapshots in manifest order, so the result never depends on which finished first.
+  const lineageSlot = createLimiter(LINEAGE_LOOKUP_CONCURRENCY)
+  const verifySnapshot = async (group) => {
     const response = await queryFn({ scope: initialScope, query, topK, snapshotId: group.snapshotId })
     assertSnapshotResponse(response, group.entries[0], initialScope)
+    // topK bounds what the worker may return; more than that would only multiply lookups.
+    if (response.results.length > topK) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
     const entryBySource = new Map(group.entries.map((entry) => [entry.sourceId, entry]))
-    const seen = new Set()
-    for (let index = 0; index < response.results.length; index += 1) {
-      const row = response.results[index]
-      if (!row || typeof row.id !== 'string' || !row.id || typeof row.text !== 'string' || typeof row.score !== 'number' || !Number.isFinite(row.score) || !row.citation) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
-      const citation = row.citation
-      for (const key of ['sourceId', 'rawArtifactId', 'parsedArtifactId', 'chunkId', 'contentHash']) if (typeof citation[key] !== 'string' || !citation[key]) throw queryResponseError('Knowledge snapshot response contains an incomplete citation')
-      assertHash(citation.contentHash, 'query citation contentHash')
-      const entry = entryBySource.get(citation.sourceId)
-      if (!entry || entry.snapshotId !== response.snapshotId || entry.generation !== response.generation || entry.rawArtifactId !== citation.rawArtifactId || entry.parsedArtifactId !== citation.parsedArtifactId) {
-        throw queryResponseError('Knowledge snapshot response citation is outside the pinned manifest')
+    // Row by row, exactly the checks the serial code made, but a failure is kept and raised
+    // when the walk below reaches its row, so the error that surfaces is the same one.
+    const prepared = response.results.map((row, index) => {
+      try {
+        if (!row || typeof row.id !== 'string' || !row.id || typeof row.text !== 'string' || typeof row.score !== 'number' || !Number.isFinite(row.score) || !row.citation) throw queryResponseError('Knowledge snapshot response contains an invalid result', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
+        const citation = row.citation
+        for (const key of ['sourceId', 'rawArtifactId', 'parsedArtifactId', 'chunkId', 'contentHash']) if (typeof citation[key] !== 'string' || !citation[key]) throw queryResponseError('Knowledge snapshot response contains an incomplete citation')
+        assertHash(citation.contentHash, 'query citation contentHash')
+        const entry = entryBySource.get(citation.sourceId)
+        if (!entry || entry.snapshotId !== response.snapshotId || entry.generation !== response.generation || entry.rawArtifactId !== citation.rawArtifactId || entry.parsedArtifactId !== citation.parsedArtifactId) {
+          throw queryResponseError('Knowledge snapshot response citation is outside the pinned manifest')
+        }
+        return { row, citation, entry, index }
+      } catch (error) {
+        return { failure: error }
       }
-      const lineage = await repository.resolveLineage({
-        scope: initialScope,
-        sourceId: entry.sourceId,
-        documentId: entry.sourceId,
-        version: entry.sourceVersion,
-        rawArtifactId: citation.rawArtifactId,
-        parsedArtifactId: citation.parsedArtifactId,
-        chunkId: citation.chunkId,
-      })
+    })
+    const lineages = await Promise.allSettled(prepared.map((item) => (item.failure ? undefined : lineageSlot(() => repository.resolveLineage({
+      scope: initialScope,
+      sourceId: item.entry.sourceId,
+      documentId: item.entry.sourceId,
+      version: item.entry.sourceVersion,
+      rawArtifactId: item.citation.rawArtifactId,
+      parsedArtifactId: item.citation.parsedArtifactId,
+      chunkId: item.citation.chunkId,
+    })))))
+    const seen = new Set()
+    return prepared.map((item, position) => {
+      if (item.failure) throw item.failure
+      const settled = lineages[position]
+      if (settled.status === 'rejected') throw settled.reason
+      const { row, citation, entry, index } = item
+      const lineage = settled.value
       verifyLineage(lineage, citation, entry, initialScope)
       if (lineage.text !== row.text) throw queryResponseError('Knowledge snapshot response text does not match its immutable chunk', 'KNOWLEDGE_LINEAGE_MISMATCH')
       const identity = `${entry.sourceId}\u0000${entry.ingestionId}\u0000${citation.chunkId}`
       if (seen.has(identity)) throw queryResponseError('Knowledge snapshot response contains a duplicate chunk', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
       seen.add(identity)
+      return { identity, entry, citation, row, index }
+    })
+  }
+  const outcomes = await mapInOrder([...entriesBySnapshot.values()], QUERY_SNAPSHOT_CONCURRENCY, verifySnapshot)
+  const fused = new Map()
+  for (const outcome of outcomes) {
+    if (!outcome) throw queryResponseError('Knowledge snapshot query was not run', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
+    if (!outcome.ok) throw outcome.error
+    for (const { identity, entry, citation, row, index } of outcome.value) {
       const currentHit = fused.get(identity)
       const rankFusionScore = (currentHit?.rankFusionScore || 0) + 1 / (RRF_K + index + 1)
       if (!currentHit) {
@@ -681,6 +772,7 @@ export async function queryKnowledgeCorpus(
   await resolveAuthorizedCorpus({ businessId, projectId, action: 'read', db, repository, viewer: currentViewer, env })
   const afterSources = await listSources(repository, corpus.id)
   const afterById = new Map(afterSources.map((source) => [source.id, source]))
+  const readableAfter = new Set()
   for (const entry of current.manifest.entries) {
     const source = afterById.get(entry.sourceId)
     if (!source || source.corpusId !== corpus.id) {
@@ -688,10 +780,16 @@ export async function queryKnowledgeCorpus(
     }
     assertSourceMatchesEntry(source, { ...entry, corpusId: corpus.id })
     assertActiveSource(source)
-    if (source.fileAssetId) await assertKnowledgeFileReadable(currentViewer, source.fileAssetId, { businessId, projectId, db, env })
+    if (source.fileAssetId && !readableAfter.has(source.fileAssetId)) {
+      readableAfter.add(source.fileAssetId)
+      await assertKnowledgeFileReadable(currentViewer, source.fileAssetId, { businessId, projectId, db, env })
+    }
   }
   const results = [...fused.values()]
-    .sort((left, right) => right.rankFusionScore - left.rankFusionScore || left.sourceId.localeCompare(right.sourceId) || left.chunkId.localeCompare(right.chunkId) || left.ingestionId.localeCompare(right.ingestionId))
+    // Each source is its own snapshot, so every snapshot's best hit has rank 1 and the same
+    // RRF score. Break those ties by the similarity the worker computed (one embedder and
+    // one hybrid formula for every snapshot) instead of by source id, which is arbitrary.
+    .sort((left, right) => right.rankFusionScore - left.rankFusionScore || right.snapshotScore - left.snapshotScore || left.sourceId.localeCompare(right.sourceId) || left.chunkId.localeCompare(right.chunkId) || left.ingestionId.localeCompare(right.ingestionId))
     .slice(0, topK)
   return { corpusId: initialCorpusId, corpusGeneration: current.manifest.generation, manifestHash: current.manifestHash, ranking: 'rrf-k60', results }
 }

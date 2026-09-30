@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-ADMISSION-CONTRACT
 title: Knowledge admission phases 0–4 integration contract
-version: "1.0.1b"
+version: "1.0.2b"
 status: beta
 created_at: "2026-09-08T16:40:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-08T19:37:00+07:00,RWANG"
+last_update: "2026-09-29T15:00:00+07:00,MC0"
 relations:
   - type: references
     target: ZAI:ADR-072
@@ -26,7 +26,7 @@ Admission is a strict object `{businessId, projectId?, idempotencyKey, source}`.
 
 `readKnowledgeIngestion(id, options)` and `listKnowledgeIngestions({businessId,projectId,limit}, options)` return no raw text or runtime secrets. Public id is the admission job id; executionRunId remains a separately named nullable field. Corpus/source status and receipt-backed publication identity are explicit.
 
-`queryKnowledgeCorpus({businessId,projectId,query,topK}, options)` returns `{corpusId, corpusGeneration, manifestHash, ranking:"rrf-k60", results}`. Each result has source/ingestion/snapshot/generation identity, rank-fusion score, snapshot-local score, text and citationId. Query pins a manifest and validates every returned hit against its exact snapshot and lineage; empty active corpus is a truthful empty result. A missing required snapshot fails the request rather than silently omitting a document. Use reciprocal-rank fusion k=60 over per-snapshot ranks with deterministic source/chunk tie breaks, not a sort of incomparable native BM25/hybrid scores. The corpus is a Tier 1 snapshot read set; cross-document graph traversal and an aggregate native gate are not claimed.
+`queryKnowledgeCorpus({businessId,projectId,query,topK}, options)` returns `{corpusId, corpusGeneration, manifestHash, ranking:"rrf-k60", results}`. Each result has source/ingestion/snapshot/generation identity, rank-fusion score, snapshot-local score, text and citationId. Query pins a manifest and validates every returned hit against its exact snapshot and lineage; snapshots are queried with bounded concurrency (4) but fused in manifest order, so the result never depends on completion order. Empty active corpus is a truthful empty result. A missing required snapshot fails the request rather than silently omitting a document. A snapshot that returns more rows than the requested topK is refused as an invalid response (the worker slices its answer to topK, so a longer one means the response is not what was asked for). Use reciprocal-rank fusion k=60 over per-snapshot ranks, not a sort of raw native BM25/hybrid scores. Hits that tie on the fused score (a single-record snapshot ranks its best hit first, so every such hit ties) are ordered by snapshot-local score, then by source and chunk id. The snapshot-local score is therefore used only to break exact ties, and that is sound only while every snapshot is served by one worker with one embedder and one hybrid formula; per-snapshot lexical statistics are not comparable in general. The corpus is a Tier 1 snapshot read set; cross-document graph traversal and an aggregate native gate are not claimed.
 
 `resolveKnowledgeCitation(citationId, options)` resolves source/version/chunk/text/offset and verifies current corpus/source/file/project access even for historical generations. Citation ids encode references only; unsigned reference tampering is detected by manifest membership and authoritative records, never trusted as authorization.
 
@@ -85,5 +85,6 @@ Native worker: explicit-snapshot correctness review/fixes and actual native mult
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.0.2b | 2026-09-29 | beta | Query performance and ranking: bounded-concurrency snapshot queries fused in manifest order, one FileAsset readability check per distinct file per phase, one runtime-binding read per query, and rank-fusion ties ordered by snapshot-local score. Contract fields unchanged. | this change | Claude Sonnet 5.5 |
 | 1.0.1b | 2026-09-08 | beta | Record isolated Business surface/native acceptance and distinguish Project/API-grant test evidence | 03256b74 + integration | RWANG |
 | 1.0.0b | 2026-09-08 | beta | Frozen source, corpus, job, manifest and service boundaries for approved phases 0–4 | base dfdbaf11 | RWANG |

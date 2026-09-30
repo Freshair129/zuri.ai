@@ -5,7 +5,7 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { makeViewer } from '../factories/viewer'
 import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 import { createKnowledgeExecutionAuthority, hasKnowledgeScopeAuthority, hasKnowledgeRunAuthority } from '@/modules/knowledge/knowledge-execution-authority'
-import { resolveKnowledgeRuntimeBinding, createKnowledgeAdmissionRuntime } from '@/modules/knowledge/knowledge-runtime'
+import { resolveKnowledgeRuntimeBinding, queryKnowledgeSnapshot, createKnowledgeAdmissionRuntime } from '@/modules/knowledge/knowledge-runtime'
 import { withdrawKnowledgeSource } from '@/modules/knowledge/knowledge-corpus-service'
 import { ORPHAN_RETRY_BACKOFF_MS } from '@/modules/knowledge/knowledge-repository'
 import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17-executor'
@@ -65,6 +65,43 @@ async function durableJob({ sourceKind = 'TEXT', sourceMetaJson = '{}' } = {}) {
   const job = await prisma.knowledgeIngestion.create({ data: { corpusId: corpus.id, sourceId: source.id, revision: 1, sourceVersion: '1', content, contentHash: hashGenesisRag17Text(content), sourceMetaJson, idempotencyKey: suffix, requestHash: hashGenesisRag17Text(suffix) } })
   return { corpus, source, job, actualScope, env: environment(actualScope) }
 }
+
+describe('knowledge snapshot query', () => {
+  const emptyAnswer = (snapshotId) => ({ schemaVersion: 'genesisrag17.v1', scope, snapshotId, generation: 'g1', results: [] })
+  const businessDb = () => ({ business: { findUnique: vi.fn(async () => ({ id: 'b', status: 'ACTIVE', tenantId: 't', tenant: { portfolioId: 'p' } })) } })
+
+  it('reads the runtime binding once per query when a binding cache is shared, even for concurrent snapshots', async () => {
+    const db = businessDb()
+    const transport = vi.fn(async (_name, input) => emptyAnswer(input.snapshotId))
+    const bindingCache = new Map()
+    const ids = ['snap-1', 'snap-2', 'snap-3', 'snap-4', 'snap-5']
+    const answers = await Promise.all(ids.map((snapshotId) => queryKnowledgeSnapshot({ scope, query: 'q', topK: 3, snapshotId }, { db, env: environment(), transport, bindingCache })))
+    expect(answers.map((answer) => answer.snapshotId)).toEqual(ids)
+    expect(db.business.findUnique).toHaveBeenCalledTimes(1)
+    expect(transport).toHaveBeenCalledTimes(ids.length)
+  })
+
+  it('still reads the binding on every call when no cache is given, and does not share it across queries', async () => {
+    const db = businessDb()
+    const transport = vi.fn(async (_name, input) => emptyAnswer(input.snapshotId))
+    await queryKnowledgeSnapshot({ scope, query: 'q', topK: 3, snapshotId: 'snap-1' }, { db, env: environment(), transport })
+    await queryKnowledgeSnapshot({ scope, query: 'q', topK: 3, snapshotId: 'snap-2' }, { db, env: environment(), transport })
+    expect(db.business.findUnique).toHaveBeenCalledTimes(2)
+    await queryKnowledgeSnapshot({ scope, query: 'q', topK: 3, snapshotId: 'snap-3' }, { db, env: environment(), transport, bindingCache: new Map() })
+    await queryKnowledgeSnapshot({ scope, query: 'q', topK: 3, snapshotId: 'snap-4' }, { db, env: environment(), transport, bindingCache: new Map() })
+    expect(db.business.findUnique).toHaveBeenCalledTimes(4)
+  })
+
+  it('refuses every snapshot of a query when the runtime binding is not available', async () => {
+    const db = businessDb()
+    const transport = vi.fn()
+    const bindingCache = new Map()
+    for (const snapshotId of ['snap-1', 'snap-2']) {
+      await expect(queryKnowledgeSnapshot({ scope, query: 'q', topK: 3, snapshotId }, { db, env: {}, transport, bindingCache })).rejects.toMatchObject({ status: 503, code: 'KNOWLEDGE_RUNTIME_UNAVAILABLE' })
+    }
+    expect(transport).not.toHaveBeenCalled()
+  })
+})
 
 describe('knowledge durable queue', () => {
   // ADR-072 amendment 2026-09-24 / ADR-090 D7: FR-238 studio descriptions are

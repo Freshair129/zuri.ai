@@ -81,8 +81,19 @@ export async function resolveKnowledgeRuntimeBinding({ businessId, projectId }, 
   return { scope, policy: { allowEmbedding: true, allowPublication: true } }
 }
 
-export async function queryKnowledgeSnapshot({ scope, query, topK, snapshotId }, { db = prisma, env = process.env, transport } = {}) {
-  const binding = await resolveKnowledgeRuntimeBinding({ businessId: scope.businessId }, { db, env })
+/**
+ * `bindingCache` lets one corpus query, which asks this once per snapshot, read the runtime
+ * binding from the database once instead of once per snapshot. The cache holds the pending
+ * promise, so concurrent snapshot queries share a single read; it lives only as long as the
+ * caller keeps the Map, which `queryKnowledgeCorpus` creates per query.
+ */
+export async function queryKnowledgeSnapshot({ scope, query, topK, snapshotId }, { db = prisma, env = process.env, transport, bindingCache } = {}) {
+  let pending = bindingCache?.get(scope.businessId)
+  if (!pending) {
+    pending = resolveKnowledgeRuntimeBinding({ businessId: scope.businessId }, { db, env })
+    bindingCache?.set(scope.businessId, pending)
+  }
+  const binding = await pending
   if (!isDeepStrictEqual(binding.scope, scope)) throw unavailable()
   return queryGenesisRag17({ scope, query, topK, snapshotId, env, transport, viewer: createKnowledgeExecutionAuthority(scope, 'query') })
 }
