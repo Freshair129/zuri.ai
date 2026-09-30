@@ -4,7 +4,7 @@ title: Knowledge admission phases 0–4 integration contract
 version: "1.0.3b"
 status: beta
 created_at: "2026-09-08T16:40:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-10-01T01:10:00+07:00,MC0"
+last_update: "2026-09-30T23:45:00+07:00,MC0"
 relations:
   - type: references
     target: ZAI:ADR-072
@@ -85,7 +85,7 @@ Native worker: explicit-snapshot correctness review/fixes and actual native mult
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.0.3b | 2026-10-01 | beta | Lineage of all returned rows resolved in one batch per query instead of four reads per row (measured production query ~9 s before). Every check and error unchanged; contract fields unchanged. | this change | Claude Sonnet 5.5 |
+| 1.0.3b | 2026-09-30 | beta | Lineage of all returned rows resolved in one batch per query instead of four reads per row (measured production query ~9 s before). Every check and error unchanged; contract fields unchanged. | this change | Claude Sonnet 5.5 |
 | 1.0.2b | 2026-09-29 | beta | Query performance and ranking: bounded-concurrency snapshot queries fused in manifest order, one FileAsset readability check per distinct file per phase, one runtime-binding read per query, and rank-fusion ties ordered by snapshot-local score. Contract fields unchanged. | this change | Claude Sonnet 5.5 |
 | 1.0.1b | 2026-09-08 | beta | Record isolated Business surface/native acceptance and distinguish Project/API-grant test evidence | 03256b74 + integration | RWANG |
 | 1.0.0b | 2026-09-08 | beta | Frozen source, corpus, job, manifest and service boundaries for approved phases 0–4 | base dfdbaf11 | RWANG |

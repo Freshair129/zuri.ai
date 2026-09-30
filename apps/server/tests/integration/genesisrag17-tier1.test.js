@@ -4,6 +4,7 @@ import prisma from '@/lib/db'
 import { makeOperatorViewer } from '../factories/viewer'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 import { ingestGenesisRag17Raw, resolveGenesisRag17RawLineage, resolveGenesisRag17RawLineages } from '@/platform/integrations/core/genesisrag17-executor'
+import { createKnowledgeRepository } from '@/modules/knowledge/knowledge-repository'
 import { requestPipelineReplay } from '@/platform/integrations/core/pipeline-tracking-service'
 import {
   GENESIS_RAG17_PIPELINE_VERSION,
@@ -434,6 +435,42 @@ describe('GenesisRAG17 Tier 1 source execution', () => {
       })
       return { calls, db: wrapped }
     }
+
+    it('rejects a tampered canonical RawExternalRecord for the citations that reach it, like resolving each alone', async () => {
+      const { a, b, refOf } = await ingestTwo()
+      const references = [refOf(a, 0), refOf(a, 1), refOf(b, 0), refOf(b, 1)]
+      const canonicalId = (await prisma.knowledgeRawArtifact.findUnique({ where: { id: a.source.rawArtifactId } })).rawExternalRecordId
+      const original = await prisma.rawExternalRecord.findUnique({ where: { id: canonicalId } })
+      const suffix = randomUUID().slice(0, 8)
+      const otherTenant = await createTenant({ portfolioId: portfolio.id, name: `Batch other tenant ${suffix}`, code: `KI17-OT-${suffix}` })
+      const otherBusiness = await createBusiness({ tenantId: otherTenant.id, name: `Batch other business ${suffix}`, code: `KI17-OB-${suffix}` })
+      const cases = [
+        { artifactId: 'another-artifact' }, // the record no longer points back at the raw artifact
+        { payloadJson: JSON.stringify({ content: 'not the raw content' }) }, // its payload no longer matches the raw content
+        { tenantId: otherTenant.id, businessId: otherBusiness.id }, // the record sits in another scope
+      ]
+      for (const data of cases) {
+        try {
+          await prisma.rawExternalRecord.update({ where: { id: canonicalId }, data })
+          const alone = await Promise.allSettled(references.map((reference) => resolveGenesisRag17RawLineage(reference, { db: prisma })))
+          const batch = await resolveGenesisRag17RawLineages(references, { db: prisma })
+          expect(outcomeOf(batch)).toEqual(outcomeOf(alone))
+          expect(outcomeOf(batch).slice(0, 2).every((entry) => !entry.ok && entry.code === 'GENESISRAG17_LINEAGE_BROKEN')).toBe(true)
+          expect(outcomeOf(batch).slice(2).every((entry) => entry.ok)).toBe(true) // the other source still resolves
+        } finally {
+          await prisma.rawExternalRecord.update({ where: { id: canonicalId }, data: { artifactId: original.artifactId, payloadJson: original.payloadJson, tenantId: original.tenantId, businessId: original.businessId } })
+        }
+      }
+    })
+
+    it('is what the real knowledge repository returns from resolveLineages', async () => {
+      const { a, b, refOf } = await ingestTwo()
+      const references = [refOf(a, 0), refOf(b, 1), refOf(a, 0, { chunkId: 'missing-chunk' })]
+      const viaRepository = await createKnowledgeRepository(prisma).resolveLineages(references)
+      const alone = await Promise.allSettled(references.map((reference) => resolveGenesisRag17RawLineage(reference, { db: prisma })))
+      expect(outcomeOf(viaRepository)).toEqual(outcomeOf(alone))
+      expect(viaRepository.map((entry) => entry.status)).toEqual(['fulfilled', 'fulfilled', 'rejected'])
+    })
 
     it('reads each table once for any number of citations', async () => {
       const { a, b, refOf } = await ingestTwo()

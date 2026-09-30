@@ -740,6 +740,9 @@ export async function queryKnowledgeCorpus(
       })
     })
   }
+  // If the batch itself fails (for example the database is down), every row carries that one
+  // error, where the serial code could have reported an earlier row's lineage error first. Both
+  // fail the query; only the reported cause can differ.
   const resolveAllLineages = async (references) => {
     if (!references.length) return []
     if (typeof repository.resolveLineages === 'function') {
@@ -766,7 +769,9 @@ export async function queryKnowledgeCorpus(
     const seen = new Set()
     outcome.value.forEach((item, position) => {
       if (item.failure) throw item.failure
-      const settled = lineages[lineageSlots.get(`${snapshot}:${position}`)]
+      const slot = lineageSlots.get(`${snapshot}:${position}`)
+      if (slot === undefined) throw queryResponseError('Knowledge snapshot row was not looked up', 'KNOWLEDGE_QUERY_RESPONSE_INVALID')
+      const settled = lineages[slot]
       if (settled.status === 'rejected') throw settled.reason
       const { row, citation, entry, index } = item
       const lineage = settled.value
