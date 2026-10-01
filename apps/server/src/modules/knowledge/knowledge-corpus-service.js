@@ -574,7 +574,16 @@ async function settleInOrder(promises) {
 async function assertFilesReadable(viewer, fileAssetIds, options) {
   if (!fileAssetIds.length) return
   const slot = createLimiter(FILE_READABLE_CONCURRENCY)
-  await settleInOrder(fileAssetIds.map((fileAssetId) => slot(() => assertKnowledgeFileReadable(viewer, fileAssetId, options))))
+  let denied = false // once one asset is refused, the checks not yet started are skipped
+  await settleInOrder(fileAssetIds.map((fileAssetId) => slot(async () => {
+    if (denied) return
+    try {
+      await assertKnowledgeFileReadable(viewer, fileAssetId, options)
+    } catch (error) {
+      denied = true
+      throw error
+    }
+  })))
 }
 
 /**
