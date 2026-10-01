@@ -35,8 +35,11 @@ const RRF_K = 60
 const MAX_CAS_RETRIES = 3
 // Snapshots are queried this many at a time. Each query spawns an MSP child and
 // the callers' latency was the sum of all of them (measured ~47 s for 22 snapshots
-// at ~100 ms per database round trip); 4 keeps the process count bounded.
-const QUERY_SNAPSHOT_CONCURRENCY = 4
+// at ~100 ms per database round trip). On production a full pass over 22 snapshots took
+// 1.4 s at 4 and 0.8 s at 8 without errors; 8 keeps the process count bounded.
+const QUERY_SNAPSHOT_CONCURRENCY = 8
+// Distinct FileAssets are checked this many at a time (each check is several round trips).
+const FILE_READABLE_CONCURRENCY = 4
 // Lineage lookups (several database queries each) share one budget for the whole query, so
 // snapshots x rows can never open more connections than the pool is sized for.
 const LINEAGE_LOOKUP_CONCURRENCY = 6
@@ -138,8 +141,17 @@ function assertLiveCorpus(corpus, businessId, projectId = null) {
 }
 
 async function resolveAuthorizedCorpus({ businessId, projectId = null, action = 'read', db, repository, viewer, env }) {
-  const access = await resolveKnowledgeScope({ viewer, businessId, projectId, action, db, env })
-  const corpus = await findCorpus(repository, businessId, projectId)
+  // The two reads do not depend on each other, so they share one round trip. The scope answer
+  // is raised first, exactly as when they ran one after the other: a caller who may not see the
+  // Business learns nothing about whether it has a corpus.
+  const [scoped, found] = await Promise.allSettled([
+    resolveKnowledgeScope({ viewer, businessId, projectId, action, db, env }),
+    findCorpus(repository, businessId, projectId),
+  ])
+  if (scoped.status === 'rejected') throw scoped.reason
+  if (found.status === 'rejected') throw found.reason
+  const access = scoped.value
+  const corpus = found.value
   assertLiveCorpus(corpus, businessId, projectId)
   if (corpus.tenantId !== access.business.tenantId || corpus.portfolioId !== access.business.tenant?.portfolioId) {
     throw serviceError(409, 'Knowledge corpus tenant does not match its Business', 'KNOWLEDGE_SCOPE_INVALID')
@@ -550,18 +562,42 @@ function createLimiter(limit) {
   }
 }
 
+/** Await independent reads together; if several fail, raise the earliest one in list order. */
+async function settleInOrder(promises) {
+  const settled = await Promise.allSettled(promises)
+  const failed = settled.find((entry) => entry.status === 'rejected')
+  if (failed) throw failed.reason
+  return settled.map((entry) => entry.value)
+}
+
+/** Check each distinct FileAsset with a bounded number in flight; the earliest failure is raised. */
+async function assertFilesReadable(viewer, fileAssetIds, options) {
+  if (!fileAssetIds.length) return
+  const slot = createLimiter(FILE_READABLE_CONCURRENCY)
+  let denied = false // once one asset is refused, the checks not yet started are skipped
+  await settleInOrder(fileAssetIds.map((fileAssetId) => slot(async () => {
+    if (denied) return
+    try {
+      await assertKnowledgeFileReadable(viewer, fileAssetId, options)
+    } catch (error) {
+      denied = true
+      throw error
+    }
+  })))
+}
+
 /**
  * Run `task` over `items` with at most `limit` in flight. Results are returned in
  * item order, whatever order they finish in. After the first failure no further item
  * is started; items already in flight still finish, and their outcomes are kept, so
  * the caller can raise the failure of the EARLIEST item deterministically.
  */
-async function mapInOrder(items, limit, task) {
+async function mapInOrder(items, limit, task, shouldStop = () => false) {
   const outcomes = new Array(items.length)
   let next = 0
   let failed = false
   const lane = async () => {
-    while (!failed) {
+    while (!failed && !shouldStop()) {
       const index = next
       next += 1
       if (index >= items.length) return
@@ -603,6 +639,13 @@ async function resolveQueryFunction(options) {
     const bridge = await import('./knowledge-runtime.js')
     if (typeof bridge.queryKnowledgeSnapshot !== 'function') throw new Error('queryKnowledgeSnapshot is unavailable')
     const bindingCache = new Map()
+    if (options.businessId && typeof bridge.resolveKnowledgeRuntimeBinding === 'function') {
+      // Read the runtime binding now, while the manifest is still being loaded, instead of
+      // after it: the first snapshot query awaits this same promise and applies the same checks.
+      const pending = bridge.resolveKnowledgeRuntimeBinding({ businessId: options.businessId }, { db: options.db, env: options.env })
+      pending.catch(() => {}) // awaited again by the first snapshot query; nothing else may see it unhandled
+      bindingCache.set(options.businessId, pending)
+    }
     return (input) => bridge.queryKnowledgeSnapshot(input, {
       bindingCache,
       db: options.db,
@@ -663,8 +706,10 @@ export async function queryKnowledgeCorpus(
   const { corpus } = access
   const initialCorpusId = corpus.id
   const initialScope = scopeFromCorpus(corpus)
-  const current = await loadManifest(repository, corpus)
-  const sources = await listSources(repository, corpus.id)
+  // The runtime lookup starts now and is only awaited once there is something to query.
+  const queryFnPromise = resolveQueryFunction({ db, env, querySnapshot, runtime, runtimeCapability, transport, businessId })
+  queryFnPromise.catch(() => {})
+  const [current, sources] = await settleInOrder([loadManifest(repository, corpus), listSources(repository, corpus.id)])
   const sourceById = new Map(sources.map((source) => [source.id, source]))
   const entriesBySnapshot = new Map()
   // Many sources share one FileAsset (a catalog file admits one source per record), and
@@ -675,10 +720,7 @@ export async function queryKnowledgeCorpus(
     if (!source) throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
     assertSourceMatchesEntry({ ...source, corpusId: corpus.id }, { ...entry, corpusId: corpus.id })
     assertActiveSource(source)
-    if (source.fileAssetId && !readableBefore.has(source.fileAssetId)) {
-      readableBefore.add(source.fileAssetId)
-      await assertKnowledgeFileReadable(viewer, source.fileAssetId, { businessId, projectId, db, env })
-    }
+    if (source.fileAssetId) readableBefore.add(source.fileAssetId)
     if (!sameScope(assertScope(entry.scope, 'manifest entry scope'), initialScope)) throw serviceError(409, 'Knowledge manifest scope is invalid', 'KNOWLEDGE_SCOPE_INVALID')
     const group = entriesBySnapshot.get(entry.snapshotId) || { snapshotId: entry.snapshotId, generation: entry.generation, scope: entry.scope, entries: [] }
     if (group.generation !== entry.generation || !sameScope(group.scope, entry.scope)) throw serviceError(409, 'Knowledge corpus has conflicting snapshot identity', 'KNOWLEDGE_MANIFEST_INVALID')
@@ -688,7 +730,45 @@ export async function queryKnowledgeCorpus(
   if (!entriesBySnapshot.size) {
     return { corpusId: initialCorpusId, corpusGeneration: current.manifest.generation, manifestHash: current.manifestHash, ranking: 'rrf-k60', results: [] }
   }
-  const queryFn = await resolveQueryFunction({ db, env, querySnapshot, runtime, runtimeCapability, transport })
+  // The FileAsset checks run while the snapshots are being queried. Nothing is disclosed until
+  // both are done, and a failed check is raised before any snapshot result (or runtime error), so
+  // the caller sees the same error as when the checks ran first; the snapshots just stop being started.
+  let fileDenied = false
+  const filesReadable = assertFilesReadable(viewer, [...readableBefore], { businessId, projectId, db, env })
+  filesReadable.catch(() => { fileDenied = true })
+  const queryFn = await queryFnPromise.catch(async (error) => { await filesReadable; throw error })
+  // Live access, sources and FileAssets, read again after the snapshots answered. Its reads that
+  // do not need the fresh viewer run beside the viewer lookup, and the Business/corpus check runs
+  // beside the FileAsset checks. Errors keep their old order: viewer, Business/corpus, sources, files.
+  const recheckAccess = async () => {
+    const [currentViewer, afterSources] = await settleInOrder([
+      typeof resolveCurrentViewer === 'function' ? resolveCurrentViewer() : viewer,
+      listSources(repository, corpus.id),
+    ])
+    let structural = null
+    const readableAfter = new Set()
+    try {
+      const afterById = new Map(afterSources.map((source) => [source.id, source]))
+      for (const entry of current.manifest.entries) {
+        const source = afterById.get(entry.sourceId)
+        if (!source || source.corpusId !== corpus.id) {
+          throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
+        }
+        assertSourceMatchesEntry(source, { ...entry, corpusId: corpus.id })
+        assertActiveSource(source)
+        if (source.fileAssetId) readableAfter.add(source.fileAssetId)
+      }
+    } catch (error) {
+      structural = error
+    }
+    const [authorized, files] = await Promise.allSettled([
+      resolveAuthorizedCorpus({ businessId, projectId, action: 'read', db, repository, viewer: currentViewer, env }),
+      structural ? Promise.resolve() : assertFilesReadable(currentViewer, [...readableAfter], { businessId, projectId, db, env }),
+    ])
+    if (authorized.status === 'rejected') throw authorized.reason
+    if (structural) throw structural
+    if (files.status === 'rejected') throw files.reason
+  }
   // Phase 1 - query every snapshot with bounded concurrency and shape-check its rows. A row's
   // failure is kept and raised when the walk in phase 3 reaches it, so the error that surfaces is
   // the one the serial code raised.
@@ -715,7 +795,14 @@ export async function queryKnowledgeCorpus(
       }
     })
   }
-  const fetched = await mapInOrder([...entriesBySnapshot.values()], QUERY_SNAPSHOT_CONCURRENCY, fetchSnapshot)
+  const fetchedPromise = mapInOrder([...entriesBySnapshot.values()], QUERY_SNAPSHOT_CONCURRENCY, fetchSnapshot, () => fileDenied)
+  fetchedPromise.catch(() => {})
+  await filesReadable
+  const fetched = await fetchedPromise
+  // The final access check starts here, once the snapshots have answered, and runs while their
+  // lineage is resolved and verified below (lineage is immutable data, not an authority).
+  const finalCheck = recheckAccess()
+  finalCheck.catch(() => {})
 
   // Phase 2 - resolve the lineage of every row of every snapshot that can still matter in one
   // batch. Only snapshots before the first failed one can decide the outcome, so later ones are
@@ -802,23 +889,7 @@ export async function queryKnowledgeCorpus(
   }
   // A query may take long enough for a membership or ACL change to race it.
   // Check live access and every selected source immediately before disclosure.
-  const currentViewer = typeof resolveCurrentViewer === 'function' ? await resolveCurrentViewer() : viewer
-  await resolveAuthorizedCorpus({ businessId, projectId, action: 'read', db, repository, viewer: currentViewer, env })
-  const afterSources = await listSources(repository, corpus.id)
-  const afterById = new Map(afterSources.map((source) => [source.id, source]))
-  const readableAfter = new Set()
-  for (const entry of current.manifest.entries) {
-    const source = afterById.get(entry.sourceId)
-    if (!source || source.corpusId !== corpus.id) {
-      throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
-    }
-    assertSourceMatchesEntry(source, { ...entry, corpusId: corpus.id })
-    assertActiveSource(source)
-    if (source.fileAssetId && !readableAfter.has(source.fileAssetId)) {
-      readableAfter.add(source.fileAssetId)
-      await assertKnowledgeFileReadable(currentViewer, source.fileAssetId, { businessId, projectId, db, env })
-    }
-  }
+  await finalCheck
   const results = [...fused.values()]
     // Each source is its own snapshot, so every snapshot's best hit has rank 1 and the same
     // RRF score. Break those ties by the similarity the worker computed (one embedder and

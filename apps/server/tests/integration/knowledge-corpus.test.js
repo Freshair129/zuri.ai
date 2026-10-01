@@ -725,7 +725,7 @@ describe('corpus query over many single-record snapshots', () => {
     const { fn, track } = snapshotStub(repo, ingestions, { scoreOf: (id) => (numberOf(id) === 9 ? 0.9 : 0.4), delayOf: (id) => (COUNT + 1 - numberOf(id)) * 2 })
     const result = await ask(repo, db, fn, 4)
     expect(track.max).toBeGreaterThan(1)
-    expect(track.max).toBeLessThanOrEqual(4)
+    expect(track.max).toBeLessThanOrEqual(8)
     expect(result.results.map((row) => row.sourceId)).toEqual(['source-9', 'source-1', 'source-10', 'source-11'])
     const again = await ask(repo, db, snapshotStub(repo, ingestions, { scoreOf: (id) => (numberOf(id) === 9 ? 0.9 : 0.4) }).fn, 4)
     expect(again.results.map((row) => row.sourceId)).toEqual(result.results.map((row) => row.sourceId))
@@ -739,15 +739,58 @@ describe('corpus query over many single-record snapshots', () => {
     // the earlier snapshot fails LATER than the next one; the earlier still wins
     const { fn, track } = snapshotStub(repo, ingestions, { failWith, delayOf: (id) => (id === first ? 25 : id === second ? 1 : 40) })
     await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'FIRST' })
-    expect(track.started.length).toBeLessThanOrEqual(4)
+    expect(track.started.length).toBeLessThanOrEqual(8)
   })
 
-  it('refuses the whole query when a FileAsset shared by many sources is unreadable, before any snapshot is queried', async () => {
+  it('refuses the whole query when a FileAsset shared by many sources is unreadable, starts no snapshot after that, and looks up no lineage', async () => {
     const { repo, db, ingestions, files } = await seedMany()
     files.a.deletedAt = new Date()
-    const { fn } = snapshotStub(repo, ingestions)
+    // the snapshots are slow, so the denial is known long before the first lane finishes
+    const { fn, track } = snapshotStub(repo, ingestions, { delayOf: () => 20 })
+    const lineage = vi.spyOn(repo, 'resolveLineage')
     await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'KNOWLEDGE_FILE_ASSET_NOT_FOUND' })
-    expect(fn).not.toHaveBeenCalled()
+    expect(track.started.length).toBeLessThanOrEqual(8)
+    expect(lineage).not.toHaveBeenCalled()
+  })
+
+  it('raises an unreadable FileAsset ahead of an error from the snapshots, as when the check ran first', async () => {
+    const { repo, db, ingestions, files } = await seedMany()
+    files.a.deletedAt = new Date()
+    const { fn } = snapshotStub(repo, ingestions, { failWith: (id) => (id === 'snapshot-1' ? Object.assign(new Error('first'), { code: 'FIRST' }) : null) })
+    await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'KNOWLEDGE_FILE_ASSET_NOT_FOUND' })
+  })
+
+  it('reads the current viewer once, and only after every snapshot has answered', async () => {
+    const { repo, db, ingestions } = await seedMany()
+    const events = []
+    const { fn } = snapshotStub(repo, ingestions, { delayOf: (id) => (numberOf(id) % 5) * 3 })
+    const tracked = vi.fn(async (input) => { const answer = await fn(input); events.push('snapshot'); return answer })
+    const result = await queryKnowledgeCorpus(
+      { businessId: scope.businessId, projectId: 'project-1', query: 'anything', topK: 3 },
+      { repository: repo, db, viewer: reader, querySnapshot: tracked, resolveCurrentViewer: () => { events.push('viewer'); return reader } },
+    )
+    expect(result.results).toHaveLength(3)
+    expect(events.filter((event) => event === 'viewer')).toHaveLength(1)
+    expect(events.filter((event) => event === 'snapshot')).toHaveLength(COUNT)
+    expect(events.lastIndexOf('snapshot')).toBeLessThan(events.indexOf('viewer'))
+  })
+
+  it('reports a corpus that disappeared during the query ahead of a lost FileAsset', async () => {
+    const { repo, db, ingestions, files } = await seedMany()
+    const { fn } = snapshotStub(repo, ingestions)
+    const racing = vi.fn(async (input) => { repo.corpora.get('corpus-1').deletedAt = new Date(); files.b.deletedAt = new Date(); return fn(input) })
+    await expect(ask(repo, db, racing)).rejects.toMatchObject({ code: 'KNOWLEDGE_CORPUS_NOT_FOUND' })
+  })
+
+  it('reports a source that changed during the query ahead of a lost FileAsset', async () => {
+    const { repo, db, ingestions, files } = await seedMany()
+    const { fn } = snapshotStub(repo, ingestions)
+    const racing = vi.fn(async (input) => {
+      files.b.deletedAt = new Date()
+      repo.sources.get('source-3').revokedAt = new Date()
+      return fn(input)
+    })
+    await expect(ask(repo, db, racing)).rejects.toMatchObject({ code: 'KNOWLEDGE_SOURCE_REVOKED' })
   })
 
   it('refuses to disclose anything when a shared FileAsset is revoked while the snapshots are being queried', async () => {
