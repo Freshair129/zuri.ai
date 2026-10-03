@@ -263,6 +263,18 @@ describe('domain state projection', () => {
       .toThrow('FR-069 has no example use case')
   })
 
+  it('rejects mismatched wire kind and ID prefix in schema 2.0', () => {
+    const schema = JSON.parse(readFileSync('contracts/domain-state.schema.json', 'utf8'))
+    const state = JSON.parse(readFileSync(workspacePath(process.cwd(), 'docs/.domain-state.json'), 'utf8'))
+    const ajv = new Ajv2020({ strict: true, allErrors: true })
+    addFormats(ajv)
+    const validate = ajv.compile(schema)
+    expect(validate(state)).toBe(true)
+    const item = state.features.find(row => row.id.startsWith('FR-'))
+    item.kind = 'bundle'
+    expect(validate(state)).toBe(false)
+  })
+
   it('keeps one explicit use case for every committed projected feature', () => {
     const presentation = parseFeaturePresentation(process.cwd())
     const state = JSON.parse(readFileSync(workspacePath(process.cwd(), 'docs/.domain-state.json'), 'utf8'))

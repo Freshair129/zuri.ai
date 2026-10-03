@@ -9,12 +9,18 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.3.0b |
+| **Version** | 0.3.1b |
 | **Status** | Implemented — beta |
-| **Date** | 2026-08-14 |
+| **Date** | 2026-10-03 |
 | **Relates to** | ADR-017, SDD-024, SEC-008, FR-031, FR-044, ZV2-CR-002 |
 
 ## User story
+
+Browser fixture clarification (0.3.0b → 0.3.1b): `loginAsOwner` completes only
+after successful credential submission reaches `/businesses`. Callers may then
+navigate to another protected surface. A delayed-response browser regression
+guards this boundary; see the [login race RCA](../../../../.brain/rca/2026-10-03-e2e-login-navigation-race.md).
+Production authentication and session behavior are unchanged.
 
 As a signed-in Zuri user, I want Business Routing to return only Businesses that my
 server-authenticated identity may access, so that hidden tenant/business information

@@ -20,6 +20,8 @@ import { findUncoveredRequirements } from './roadmap-coverage.mjs'
 import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
 import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
 import { evaluateSchemaMigrationDrift } from './schema-migration-drift.mjs'
+import { parseFeatureBundles, classifyRequirements, assertCapabilityTerminology } from './capability-registry.mjs'
+import { generateDomainState } from './domain-state.mjs'
 import { parseCanonicalIndex, parseCanonicalRecord } from './document-registry-format.mjs'
 import { collectDocumentClaims, isGeneratedDocumentView, requiresSuccessor } from './doc-identities.mjs'
 
@@ -66,6 +68,29 @@ const canonicalPaths = new Set(existsSync(canonicalIndexPath)
 {
   const generated = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md', 'DOCUMENT-LINKS.md'])
   const sources = allDocs.filter(f => !generated.has(path.basename(f)) && !isGeneratedDocumentView(rel(f)))
+  try {
+    const orientationDocs = ['README.md', 'CLAUDE.md', 'AGENTS.md', 'llms.txt']
+      .map(name => path.join(workspaceRoot(ROOT), name)).filter(existsSync)
+    assertCapabilityTerminology([...sources, ...orientationDocs].map(f => ({ path: rel(f), body: read(f) })))
+    const bundles = parseFeatureBundles(read(path.join(SPEC_PACK, 'FEATURES.md')))
+    if (existsSync(GRAPH)) {
+      const graph = JSON.parse(read(GRAPH))
+      const nodes = graph.nodes.filter(n => n.type !== 'feature')
+      const edges = graph.edges.filter(e => e.type !== 'bundles')
+      for (const row of bundles) {
+        nodes.push({ id: `feat:${row.id}`, type: 'feature', label: row.title, declared: row.status })
+        for (const id of row.requirementIds) edges.push({ from: `feat:${row.id}`, to: `req:${id}`, type: 'bundles' })
+      }
+      classifyRequirements(nodes, edges)
+      const fresh = generateDomainState({ root: ROOT, nodes, edges })
+      const projected = workspacePath(ROOT, 'docs/.domain-state.json')
+      if (!existsSync(projected) || JSON.stringify(JSON.parse(read(projected)).features) !== JSON.stringify(fresh.features)) {
+        throw new Error('Readiness projection is stale — run npm run docs:graph')
+      }
+    }
+  } catch (error) {
+    add('critical', 'capability-classification', error.message, 'Explicit Feature / Standalone FR contract', ['docs/FEATURES.md'], 'Fix the canonical sources and regenerate with npm run govern')
+  }
   const saved = existsSync(GRAPH) ? JSON.parse(read(GRAPH)).nodes : []
   const nodes = sources.map(f => {
     const p = rel(f), base = path.basename(f, '.md')

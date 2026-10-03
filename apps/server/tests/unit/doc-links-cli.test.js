@@ -65,6 +65,38 @@ it('CLI reproduces generated files and rejects stale state, backlinks and missin
     expect(stateCheck.status).toBe(1)
     expect(stateCheck.stderr).toContain('domain state is stale')
     writeFileSync(statePath, state)
+    const featuresPath = path.join(fixture, 'docs/FEATURES.md')
+    const originalFeatures = readFileSync(featuresPath, 'utf8')
+    const bundleRows = originalFeatures.split('\n').filter(line => /^\| FEAT-/.test(line))
+    const firstFr = bundleRows[0].match(/FR-\d{3}/)[0]
+    const next = bundleRows[1].split('|')
+    const violations = [
+      [originalFeatures.replace(bundleRows[0], bundleRows[0].replace(firstFr, `${firstFr}, ${firstFr}`)), 'repeats an FR'],
+      [originalFeatures.replace(bundleRows[0], bundleRows[0].replace(firstFr, ['FR', '998'].join('-'))), 'bundles unknown FR'],
+      [originalFeatures.replace(bundleRows[1], [next[0], next[1], next[2], ` ${firstFr},${next[3]}`, ...next.slice(4)].join('|')), 'belongs to multiple FEATs'],
+      [originalFeatures + '\nAn FR is implicitly a feature of one.\n', 'retired capability terminology'],
+    ]
+    for (const [body, message] of violations) {
+      writeFileSync(featuresPath, body)
+      const refused = run('doc-graph.mjs')
+      expect(refused.status, refused.stderr).toBe(1)
+      expect(refused.stderr).toContain(message)
+    }
+    // Preflight independently reads current registry rows, even with an old graph.
+    expect(run('doc-preflight.mjs', ['--strict']).status).toBe(1)
+    const terminologyReport = JSON.parse(readFileSync(path.join(fixture, 'docs/.preflight-report.json'), 'utf8'))
+    expect(terminologyReport.findings.some(f => f.check === 'capability-classification' && f.severity === 'critical')).toBe(true)
+    writeFileSync(featuresPath, originalFeatures)
+    const guidePath = path.join(fixture, 'AGENTS.md')
+    const guide = readFileSync(guidePath, 'utf8')
+    writeFileSync(guidePath, guide + '\nAn FR is an implicit feature.\n')
+    expect(run('doc-graph.mjs').stderr).toContain('retired capability terminology')
+    writeFileSync(guidePath, guide)
+    const tracePath = path.join(fixture, 'docs/TRACE.md')
+    const trace = readFileSync(tracePath, 'utf8')
+    writeFileSync(tracePath, trace.replace('standalone-fr', 'bundled-fr'))
+    expect(run('doc-graph.mjs', ['--check']).stderr).toContain('TRACE.md is stale')
+    writeFileSync(tracePath, trace)
     const ambiguousPath = path.join(fixture, 'docs/AMBIGUOUS-FIXTURE.md')
     writeFileSync(ambiguousPath, '# Ambiguous\n\n[[doc:FIXTURE-SRS]]\n')
     const ambiguous = run('doc-graph.mjs')

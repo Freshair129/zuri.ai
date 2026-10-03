@@ -96,8 +96,9 @@ function FeatureRow({ feature, frById, open, onToggle }) {
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
             <code className={styles.code}>{feature.id}</code>
+            <span className="text-[11px] text-muted">{feature.kind === 'feature' ? 'Feature' : 'Standalone FR'}</span>
             <ReadinessPill status={feature.readiness} />
-            {feature.kind === 'bundle' && <span className="text-[11px] text-muted">registry {feature.registryStatus}</span>}
+            {feature.kind === 'feature' && <span className="text-[11px] text-muted">registry {feature.registryStatus}</span>}
             <span className="ml-auto text-[11px] text-muted">{feature.requirementIds.length} FR · {feature.progressPercent}%</span>
             <ChevronDown size={14} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
           </span>
@@ -168,7 +169,7 @@ export default function DomainMapView({ domainMap }) {
     <div className={`${styles.view} space-y-6`} data-testid="domain-map-view">
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" aria-label="Domain readiness summary">
         <Kpi label="Domains" value={overall.domainCount} meta="chartered lanes" />
-        <Kpi label="Features ready" value={`${overall.readyFeatureCount} / ${overall.featureCount}`} meta="FEAT bundles + unbundled FRs" tone={overall.readyFeatureCount === overall.featureCount ? 'good' : 'warn'} />
+        <Kpi label="Capabilities ready" value={`${overall.readyFeatureCount} / ${overall.featureCount}`} meta="Features + Standalone FRs" tone={overall.readyFeatureCount === overall.featureCount ? 'good' : 'warn'} />
         <Kpi label="FR verified" value={`${overall.verifiedRequirementCount} / ${overall.requirementCount}`} meta={`requirement progress ${overall.progressPercent}%`} tone={overall.verifiedRequirementCount === overall.requirementCount ? 'good' : 'warn'} />
         <Kpi label="NFR with evidence" value={`${overall.verifiedNonFunctionalCount} / ${overall.nonFunctionalCount}`} meta="followed in code and verified by a test" tone={overall.verifiedNonFunctionalCount === overall.nonFunctionalCount ? 'good' : 'warn'} />
         <Kpi label="Open gaps" value={overall.gapCount} meta="across all domain checks" tone={overall.gapCount ? 'warn' : 'good'} />
@@ -219,12 +220,12 @@ export default function DomainMapView({ domainMap }) {
                     <span className={styles.barFill} style={{ width: `${domain.progressPercent ?? 0}%` }} />
                   </span>
                   <span className={styles.tileStats}>
-                    <span><b>{domain.readyFeatureCount}/{domain.featureCount}</b> features ready</span>
+                    <span><b>{domain.readyFeatureCount}/{domain.featureCount}</b> capabilities ready</span>
                     <span><b>{domain.verifiedFunctionalCount}/{domain.functional.length}</b> FR</span>
                     <span><b>{domain.nonFunctional.length}</b> NFR</span>
                     <span className={domain.gaps.length ? styles.gapWarn : ''}><b>{domain.gaps.length}</b> gaps</span>
                   </span>
-                  <span className="text-[11px] text-muted">{domain.progressPercent === null ? 'no feature claimed' : `${domain.progressPercent}% progress`}{filtering ? ` · ${hitCount} match${hitCount === 1 ? '' : 'es'}` : ''}</span>
+                  <span className="text-[11px] text-muted">{domain.progressPercent === null ? 'no capability claimed' : `${domain.progressPercent}% progress`}{filtering ? ` · ${hitCount} match${hitCount === 1 ? '' : 'es'}` : ''}</span>
                 </button>
               </TiltCard>
             )
@@ -238,7 +239,7 @@ export default function DomainMapView({ domainMap }) {
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-lg font-bold">{current.label}</h2>
               <ReadinessPill status={current.status} />
-              <span className="text-xs text-muted">{current.featureCount} features · {current.functional.length} FR · {current.nonFunctional.length} NFR · {current.gaps.length} gaps</span>
+              <span className="text-xs text-muted">{current.featureCount} capabilities · {current.functional.length} FR · {current.nonFunctional.length} NFR · {current.gaps.length} gaps</span>
             </div>
             <ul className={styles.checks} aria-label={`${current.label} readiness checks`}>
               {current.checks.map(({ check, status }) => (
@@ -252,7 +253,7 @@ export default function DomainMapView({ domainMap }) {
 
           <div className="grid gap-4 2xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
             <Card>
-              <div className="mb-3 flex items-center gap-2"><Gauge size={16} aria-hidden /><h3 className="font-bold">Features</h3><span className="text-xs text-muted">{view.features.length} of {current.features.length}</span></div>
+              <div className="mb-3 flex items-center gap-2"><Gauge size={16} aria-hidden /><h3 className="font-bold">Capabilities</h3><span className="text-xs text-muted">{view.features.length} of {current.features.length}</span></div>
               {view.features.length === 0 ? (
                 <p className={styles.empty}>Nothing matches.</p>
               ) : (

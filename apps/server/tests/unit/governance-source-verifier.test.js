@@ -31,7 +31,7 @@ const REPOSITORY_ID = '44444444-4444-4444-8444-444444444444'
 const PROJECT_REPOSITORY_ID = '55555555-5555-4555-8555-555555555555'
 const CHECKOUT_BINDING_ID = 'fixture-checkout'
 
-const PRD = `# Requirements\n\n| ID | Statement |\n| --- | --- |\n| FR-252 | **Bind** the [canonical requirement](https://example.test/fr-252). |\n| FR-253 | A requirement that remains an implicit feature. |\n`
+const PRD = `# Requirements\n\n| ID | Statement |\n| --- | --- |\n| FR-252 | **Bind** the [canonical requirement](https://example.test/fr-252). |\n| FR-253 | A requirement that remains standalone. |\n`
 const FEATURES = `# Features\n\n| Feature | Title | Requirements | Status |\n| --- | --- | --- | --- |\n| FEAT-001 | Feature one | FR-252 | live |\n`
 
 let fixture
@@ -343,17 +343,17 @@ describe('bound Git verification', () => {
 })
 
 describe('canonical key evidence port', () => {
-  it('proves explicit bundles, implicit feature-of-one FRs and exact revision hashes', async () => {
+  it('proves explicit bundles, Standalone FRs and exact revision hashes', async () => {
     const port = createGovernanceEvidencePort({ env })
     const tx = transactionFor()
     const explicit = await port.verifyFeatureKey({
       tx, scope, snapshot, projectRepository: { id: PROJECT_REPOSITORY_ID, projectId: PROJECT_ID, repoId: REPOSITORY_ID }, canonicalFeatureKey: 'FEAT-001',
     })
     expect(explicit).toMatchObject({ state: 'AVAILABLE', canonicalFeatureKey: 'FEAT-001', canonicalSubject: 'Feature one' })
-    const implicit = await port.verifyFeatureKey({
+    const standalone = await port.verifyFeatureKey({
       tx, scope, snapshot, projectRepository: { id: PROJECT_REPOSITORY_ID, projectId: PROJECT_ID, repoId: REPOSITORY_ID }, canonicalFeatureKey: 'FR-253',
     })
-    expect(implicit).toMatchObject({ state: 'AVAILABLE', canonicalFeatureKey: 'FR-253', canonicalSubject: 'A requirement that remains an implicit feature.' })
+    expect(standalone).toMatchObject({ state: 'AVAILABLE', canonicalFeatureKey: 'FR-253', canonicalSubject: 'A requirement that remains standalone.' })
     const requirement = await port.verifyRequirement({
       tx, scope, feature: { canonicalFeatureKey: 'FEAT-001' }, snapshot, projectRepository: { id: PROJECT_REPOSITORY_ID, projectId: PROJECT_ID, repoId: REPOSITORY_ID },
       sourceNamespace: 'ZAI', requirementKey: 'FR-252', revisionHash: statementDigest('**Bind** the [canonical requirement](https://example.test/fr-252).'),
