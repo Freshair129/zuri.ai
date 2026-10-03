@@ -79,7 +79,11 @@ describe('FR-211 domain map UI', () => {
     expect(html).toContain(`data-testid="domain-inventory-${first.name}"`)
     expect(html).toContain('Functional requirements')
     expect(html).toContain('Non-functional requirements')
-    for (const feature of first.features) expect(html).toContain(feature.id)
+    for (const feature of first.features) {
+      expect(html).toContain(feature.id)
+      expect(html).toContain(feature.kind === 'feature' ? '>Feature</span>' : '>Standalone FR</span>')
+    }
+    expect(html).toContain('Capabilities ready')
     expect(html).toContain('NFRs no domain code follows')
     // Status never travels by colour alone (NFR-008): each coloured row carries its word.
     expect(html).toMatch(/data-readiness="verified">verified</)

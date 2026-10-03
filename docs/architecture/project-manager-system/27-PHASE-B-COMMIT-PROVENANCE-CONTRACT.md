@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-COMMIT-PROVENANCE
 title: Phase B bound commit provenance implementation contract
-version: "0.1.1b"
+version: "0.1.2b"
 status: beta
 created_at: "2026-09-17T15:16:00+07:00,RWANG,052821a7"
-last_update: "2026-09-17T17:10:00+07:00,RWANG"
+last_update: "2026-10-03T20:30:00+07:00,RWANG"
 attributes:
   domain: project-manager
   doc_type: implementation-contract
@@ -22,6 +22,8 @@ relations:
 ---
 
 # W5: prove keys against the bound commit
+
+Version diff 0.1.1b → 0.1.2b: Standalone FR terminology under ADR-025 revision 3; bound keys, hashes and verification authority unchanged.
 
 ## Authority and scope
 
@@ -127,8 +129,8 @@ cell, preserving wording, punctuation and case. The ledger's lowercased,
 60-character subject anchor is not display text and cannot substitute for it.
 
 An explicit FEAT-xxx key resolves its single FEATURES registry row and may bind
-only FR keys listed in that row. An FR absent from all explicit bundles is an
-implicit feature-of-one and may bind only the same FR key. Reject duplicate
+only FR keys listed in that row. An FR absent from all explicit bundles is a
+Standalone FR and may bind only the same FR key. Reject duplicate
 IDs, ambiguous bundle membership or malformed relevant rows. A key present in
 today's working tree but absent from the bound commit is unverified.
 
@@ -158,7 +160,7 @@ flowchart LR
 
 - Raw Git fixtures: dirty checkout does not alter proof; wrong commit, blob,
   manifest digest, path, duplicate, symlink or object type refuses.
-- Registry fixtures: explicit bundle and implicit feature-of-one succeed;
+- Registry fixtures: explicit bundle and Standalone FR succeed;
   formatting-only statement changes retain the digest, wording changes alter it.
   Missing keys, duplicate rows, namespace or membership mismatches refuse.
 - Operator binding: missing/ambiguous registry or active ProjectRepository,

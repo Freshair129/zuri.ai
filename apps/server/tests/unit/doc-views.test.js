@@ -68,6 +68,8 @@ describe('traceView', () => {
     expect(out).toMatch(/### FR-028[\s\S]{0,200}\*\*Feature:\*\* FEAT-001 — File Manager/)
     const fr023 = out.slice(out.indexOf('### FR-023'), out.indexOf('### FR-028'))
     expect(fr023).not.toContain('**Feature:**')
+    expect(fr023).toContain('**Classification:** standalone-fr')
+    expect(out).toContain('**Classification:** bundled-fr')
   })
 })
 

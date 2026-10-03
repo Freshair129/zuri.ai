@@ -1,8 +1,8 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.240.0b"
+version: "1.249.0b"
 status: draft
-last_update: "2026-09-19T00:00:00+07:00,Luna Max"
+last_update: "2026-10-03T20:30:00+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -19,17 +19,27 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.238.0b |
+| **Version** | 1.249.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-17 |
+| **Last Updated** | 2026-10-03 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
+
+## Capability classification
+
+FR IDs identify exact system behavior; FEAT IDs identify explicit product bundles.
+An FR has zero or one FEAT membership. Zero means **Standalone FR**, one means
+**bundled FR**; multiple memberships are invalid. Readiness displays explicit
+Features and Standalone FRs separately without changing requirement identity.
+Canonical rules: [FEATURES](FEATURES.md#capability-classification), ADR-025 revision 3.
+This clarification does not change any requirement statement or ID.
 
 ## Version History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.249.0b | 2026-10-03 | RWANG | ADR-025 revision 3: distinguish explicit Features and Standalone FRs in a canonical classification pointer. All requirement rows and IDs unchanged. Version advances from the latest history entry 1.248.0b; stale frontmatter/control versions are aligned. |
 | 1.248.0b | 2026-09-22 | Claude Sonnet 5 | FR-268 and FR-271 implemented (ADR-101 D6 Phase 1): `BusinessGoal.perspective`/`isWig` fields, `BusinessKeyResult`(+`CheckIn`) models, the pure `keyResultProgress`/`expectedProgress`/`keyResultStatus`/`rollupGoal`/`smartChecks`/`weekStartFor` calculators, the OWNER-only write-through mutation service (SDD-107, BR-044), the FR-041 read extension, the Key Result list/modals/SMART checklist UI on StrategyCard, a Key-Result-off-track attention-queue row (FR-060), both migration trees (not production-applied — ADR-057), `SNAPSHOT_MODELS`, seed data and tests. FR-269, FR-270, BR-043 remain declared only (Phase 2/3). Implementation on `feat/task-zai-122-goal-service-phase1-key-results`; PR pending merge. |
 | 1.247.0b | 2026-09-22 | Claude Sonnet 5 | Declare FR-268, FR-269, FR-270 and FR-271, SDD-107, BR-043 and BR-044 under ADR-101 and FEAT-002's reserved "Goals & KPIs" sub-page (`docs/domains/project-manager/features/FR-060-business-home.md`, "Out, and each needs its own FR when built"): Key Results and weekly check-ins roll up into `BusinessGoal.progress` as a write-through cache (SDD-107, BR-044); a Business-scoped Balanced Scorecard (`BusinessKpi`/`BusinessKpiObservation`, FR-269); 4DX weekly execution — at most two WIG goals per Business (BR-043), lead measures, commitments, a weekly session ritual (FR-270); and a SMART validation contract that returns Achievable/Relevant as `null` rather than a fabricated score (FR-271). Declaration only, on `feat/task-zai-122-goal-service-phase0-docs`; no schema, route or UI change is claimed by this revision — see ADR-101 for the phased plan. |
 | 1.246.0b | 2026-09-22 | Claude Sonnet 5 | Reword FR-060's status cell (statement unchanged): `attentionQueue` read `strategy?.goals`, a key the real FR-041 payload never sends — goals nest under `roadmaps[].horizons[].goals[]` — so every goal-based attention row ("Goal past target", "Goal has no linked Project") was dead code in production. Fixed in `business-home-read-model.js`; the prior unit test only passed because it hand-fed the wrong shape, now corrected to the real nested shape plus a new empty-roadmap case. Local only, on `feat/task-zai-122-goal-service-phase0-docs`; not merged. |
