@@ -24,6 +24,7 @@ async function loginAsOwner(page, { remember = false } = {}) {
   await page.getByLabel('Password', { exact: true }).fill(E2E_PASSWORD)
   if (remember) await page.getByLabel('จดจำฉันไว้').check()
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await page.waitForURL('**/businesses')
 }
 
 function loginRequest(request, options = {}) {

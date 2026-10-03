@@ -158,6 +158,12 @@
       }
     },
     "feature": {
+      "description": "Schema 2.0 compatibility container for a Feature bundle or Standalone FR readiness item.",
+      "allOf": [{
+        "if": { "properties": { "id": { "type": "string", "pattern": "^FEAT-" } } },
+        "then": { "properties": { "kind": { "const": "bundle" } } },
+        "else": { "properties": { "kind": { "const": "requirement" }, "requirementIds": { "type": "array", "maxItems": 1 } } }
+      }],
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "title", "kind", "registryStatus", "requirementIds", "primaryDomain", "contributorDomains", "useCase", "progressPercent", "ready", "readiness", "blockers", "requirements", "evidence"],

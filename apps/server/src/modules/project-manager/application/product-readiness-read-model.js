@@ -16,8 +16,17 @@ import { isDomainVisible } from '@/config/domains'
 // "may you see the engineering interior at all", and that is
 // `resolveProductReadinessDecision` below.
 
+// Schema 2.0 keeps its wire vocabulary; consumers receive semantic entity types.
+const readinessSnapshot = {
+  ...domainState,
+  features: domainState.features.map(item => ({
+    ...item,
+    kind: item.id.startsWith('FEAT-') ? 'feature' : 'standalone-fr',
+  })),
+}
+
 export function getProductReadinessSnapshot() {
-  return domainState
+  return readinessSnapshot
 }
 
 export function getProductReadinessDomain(domainName) {
@@ -25,7 +34,7 @@ export function getProductReadinessDomain(domainName) {
   return {
     domainName,
     domain: domainState.domains[domainName],
-    features: domainState.features.filter((feature) => feature.primaryDomain === domainName),
+    features: readinessSnapshot.features.filter((feature) => feature.primaryDomain === domainName),
   }
 }
 

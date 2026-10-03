@@ -28,9 +28,25 @@ describe('FR-124 product readiness UI contract', () => {
     expect(html).not.toContain('Invalid Date')
   })
 
+  it('distinguishes Feature and Standalone FR on summary and domain drilldown', () => {
+    const snapshot = getProductReadinessSnapshot()
+    const feature = snapshot.features.find(item => item.kind === 'feature')
+    const standalone = snapshot.features.find(item => item.kind === 'standalone-fr')
+    for (const item of [feature, standalone]) {
+      for (const initialDomain of [null, item.primaryDomain]) {
+        const html = renderToStaticMarkup(createElement(ProductReadinessDashboard, { snapshot: { ...snapshot, features: [item] }, initialDomain }))
+        expect(html).toContain(item.id)
+        expect(html).toContain(item.kind === 'feature' ? '>Feature</span>' : '>Standalone FR</span>')
+        expect(html).toContain('Capabilities')
+        expect(html).toContain('ยังไม่อยู่ใน Feature bundle')
+        expect(html).not.toContain('single FR')
+      }
+    }
+  })
+
   it('renders exactly six contextual KPIs and keeps methodology visible', () => {
     expect(dashboardSource.match(/<Kpi label=/g)).toHaveLength(6)
-    for (const label of ['Domains', 'Features', 'Ready', 'Progress', 'Verified FRs', 'Open gaps']) {
+    for (const label of ['Domains', 'Capabilities', 'Ready', 'Progress', 'Verified FRs', 'Open gaps']) {
       expect(dashboardSource).toContain(`<Kpi label="${label}"`)
     }
     expect(dashboardSource).toContain('วิธีคำนวณและขอบเขตของตัวเลข')

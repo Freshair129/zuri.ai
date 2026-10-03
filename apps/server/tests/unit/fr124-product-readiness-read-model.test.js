@@ -42,6 +42,15 @@ describe('FR-124 product readiness read model', () => {
     expect(projected.length).toBe(snapshot.overall.requirementCount)
   })
 
+  it('normalizes semantic kinds while preserving IDs, metadata and evidence', () => {
+    const snapshot = getProductReadinessSnapshot()
+    for (const item of snapshot.features) {
+      expect(item.kind).toBe(item.id.startsWith('FEAT-') ? 'feature' : 'standalone-fr')
+      if (item.kind === 'standalone-fr') expect(item.requirementIds).toEqual([item.id])
+      expect(getProductReadinessDomain(item.primaryDomain).features.find(row => row.id === item.id)).toEqual(item)
+    }
+  })
+
   it('returns only primary-domain features and rejects unknown domains', () => {
     const snapshot = getProductReadinessSnapshot()
     const [name] = Object.keys(snapshot.domains).filter((key) => snapshot.domains[key].featureCount > 0)

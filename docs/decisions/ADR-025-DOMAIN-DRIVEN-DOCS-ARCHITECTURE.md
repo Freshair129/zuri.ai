@@ -89,7 +89,7 @@ product capability that may bundle several.
 | # | Decision |
 |---|---|
 | D10 | `FEAT-xxx` is a new id family under the §18 contract (immutable, never reused, duplicate-guarded). The registry is `docs/FEATURES.md` — hand-maintained source of truth; the graph reads it into `feat:` nodes with `bundles` edges to FRs |
-| D11 | An FR with no FEAT row is implicitly a feature of one — **rows are added when a capability genuinely spans FRs**, never mechanically for all 57. Existing FR ids and note filenames do not change; the feature axis is additive |
+| D11 | Amended by revision 3: an FR with no explicit FEAT membership is a **Standalone FR**, retaining its requirement identity. Create a FEAT only when bundling or product framing adds meaning, never mechanically for every FR. Existing FR IDs and note filenames do not change |
 
 Also in this revision: the graph gains `route:`, `model:` and `domain:` nodes
 with ownership edges (closing the trace chain), and two generated human views —
@@ -97,6 +97,18 @@ with ownership edges (closing the trace chain), and two generated human views �
 preflight, per the prevention rule in the 2026-08-16 drift RCA. The charter
 node id collision (five files named `CHARTER.md` all mapping to `doc:CHARTER`)
 is fixed by making charters `domain:` nodes.
+
+## Revision 3 — Standalone FR classification (2026-10-03)
+
+**Status:** Accepted — owner-supplied implementation specification for this change.
+Version diff revision 2 → 3: amends D11's classification only; D10's identities,
+registry and bundle edges remain intact. No FR/FEAT ID or requirement meaning changes.
+
+A Feature expresses product capability; an FR specifies exact system behavior.
+Zero FEAT membership means Standalone FR; one means bundled FR; more than one is
+invalid. Both types appear in Product Readiness without conflating their identity.
+The canonical rules, examples and compatibility contract live in
+[FEATURES — Capability classification](../FEATURES.md#capability-classification).
 
 ## Review
 

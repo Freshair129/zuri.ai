@@ -12,6 +12,18 @@ test.describe('FR-046 production-shaped entry boundary', () => {
     await context.clearCookies()
   })
 
+  test('owner login finishes authenticated navigation before returning under a slow response', async ({ page }) => {
+    await page.route('**/api/auth/login', async (route) => {
+      // Inject network latency so a click cannot stand in for completed login.
+      await new Promise((resolve) => setTimeout(resolve, 250))
+      await route.continue()
+    })
+    await loginAsOwner(page)
+    expect(new URL(page.url()).pathname).toBe('/businesses')
+    await page.goto('/businesses')
+    await expect(page.getByRole('heading', { name: 'Choose a Business' })).toBeVisible()
+  })
+
   test('fails closed without a session and enters through the owner session', async ({ page }) => {
     const unauthenticated = await api(page.request).get('/api/entry')
     expect(unauthenticated.status()).toBe(401)

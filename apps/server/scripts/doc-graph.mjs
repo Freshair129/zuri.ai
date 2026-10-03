@@ -15,7 +15,8 @@ import { readCanonical } from './canonical-text.mjs'
 import { domainMap, traceView } from './doc-views.mjs'
 import { collectDocumentLinks, documentLinksView, hasLinkMetadata } from './doc-links.mjs'
 import { qualifyDocumentIds, assertUniqueNodeIds, isGeneratedDocumentView, indexDeclaredIdentities } from './doc-identities.mjs'
-import { generateDomainState } from './domain-state.mjs'
+import { generateDomainState, discoverFeatureRequirements } from './domain-state.mjs'
+import { parseFeatureBundles, classifyRequirements, assertCapabilityTerminology, capabilityInventory } from './capability-registry.mjs'
 import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // The same splitter the id ledger reads rows with. Two readings of one row, from
 // two splitters that disagree about `\|`, is how SDD-071's label reached
@@ -230,6 +231,9 @@ function build() {
   const docFiles = walk(workspacePath(ROOT, 'docs'), ['.md']).filter(
     (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)) && !isGeneratedDocumentView(rel(f)),
   )
+  const orientationDocs = ['README.md', 'CLAUDE.md', 'AGENTS.md', 'llms.txt']
+    .map(name => path.join(workspaceRoot(ROOT), name)).filter(existsSync)
+  assertCapabilityTerminology([...docFiles, ...orientationDocs].map(file => ({ path: rel(file), body: read(file) })))
   for (const file of docFiles) {
     const base = path.basename(file)
     // Domain charters all share the basename CHARTER.md, so the default
@@ -269,12 +273,9 @@ function build() {
   // registry is docs/FEATURES.md; rows are `| FEAT-xxx | name | FR-a, FR-b | status |`.
   const featRegistry = workspacePath(ROOT, 'docs', 'FEATURES.md')
   if (existsSync(featRegistry)) {
-    for (const line of read(featRegistry).split('\n')) {
-      const m = /^\|\s*(FEAT-\d{3})\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|/.exec(line)
-      if (!m) continue
-      const [, fid, name, frs, status] = m
-      nodes.push({ id: `feat:${fid}`, type: 'feature', label: name.trim(), declared: status.trim(), status: 'current' })
-      for (const fr of frs.match(/FR-\d{3}/g) || []) addEdge(`feat:${fid}`, `req:${fr}`, 'bundles', 'feature-registry')
+    for (const { id: fid, title, requirementIds, status } of parseFeatureBundles(read(featRegistry))) {
+      nodes.push({ id: `feat:${fid}`, type: 'feature', label: title, declared: status, status: 'current' })
+      for (const fr of requirementIds) addEdge(`feat:${fid}`, `req:${fr}`, 'bundles', 'feature-registry')
     }
   }
 
@@ -596,6 +597,8 @@ function build() {
   const byId = new Map(nodes.map((n) => [n.id, n]))
   const testPaths = nodes.filter((n) => n.type === 'test')
   const resolved = []
+  // Validate bundle targets before unresolved edges become diagnostic-only.
+  classifyRequirements(nodes, edges)
   const dangling = []
   for (const e of edges) {
     let { from, to } = e
@@ -696,6 +699,7 @@ ${section(['NFR'], 'Non-functional requirements', ['implements', 'follows'], 'Ev
 // tests → design doc → roadmap task. Once V1 modules are lifted in, the
 // "source" column doubles as the cutover dashboard.
 function featureMap(nodes, edges) {
+  const classification = new Map(classifyRequirements(nodes, edges).map(row => [row.id, row]))
   const short = (id) => id.replace(/^(code|test):/, '').replace(/^src\/|^tests\//, '')
   const moduleOf = (p) =>
     /modules\/([^/]+)\//.exec(p)?.[1] || (p.startsWith('prisma/') ? 'seed' : 'shell')
@@ -762,7 +766,7 @@ function featureMap(nodes, edges) {
       const modules = [...new Set(code.map(moduleOf))].join(', ') || '—'
       const status = code.length === 0 ? '🔜 planned' : r.declared === 'planned' ? '🟠 built, not declared' : '✅ live'
       const head = code.length > 2 ? `\`${code[0]}\` +${code.length - 1}` : code.map((c) => `\`${c}\``).join(', ') || '—'
-      return `| ${fid} | ${cell(r.label)} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${deliveryTask(fid, code.length > 0)} |`
+      return `| ${fid} | ${cell(r.label)} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${deliveryTask(fid, code.length > 0)} | ${classification.get(fid).classification} | ${classification.get(fid).featureId || '—'} |`
     })
 
   return `# Feature Map
@@ -773,13 +777,14 @@ function featureMap(nodes, edges) {
 | **Status** | Auto-generated |
 | **Generator** | \`scripts/doc-graph.mjs\` (RWANG doc-graph) |
 
-> One index for every feature: what it is, which domain owns it, and where its
+> One index for every Functional Requirement: its explicit FEAT membership or
+> Standalone FR classification, which domain owns its note, and where its
 > code, tests, design note and delivery task live. This is the feature-driven
 > user view over the domain spine (ADR-025). Regenerate with \`npm run docs:graph\`
 > — never hand-edit.
 
-| ID | Feature | Domain | Module | Source | Status | Code | Tests | Design note | Task |
-|---|---|---|---|---|---|---|---|---|---|
+| ID | Functional Requirement | Domain | Module | Source | Status | Code | Tests | Design note | Task | Classification | Feature bundle |
+|---|---|---|---|---|---|---|---|---|---|---|---|
 ${rows.join('\n')}
 
 Design notes live in \`docs/features/\` and declare their feature in frontmatter
@@ -826,6 +831,7 @@ const removed = (previous?.nodes || []).filter((n) => !nodes.some((x) => x.id ==
 
 const cov = coverage(nodes, edges)
 const domainState = generateDomainState({ root: ROOT, nodes, edges })
+const inventory = capabilityInventory(nodes, edges, domainState, discoverFeatureRequirements(ROOT))
 const dataPipelineMap = generateDataPipelineMap({ root: ROOT, domainState })
 const graph = {
   version: '2.0.0',
@@ -889,6 +895,17 @@ if (process.argv.includes('--check')) {
     console.error('data pipeline map is stale — run: npm run docs:graph')
     process.exit(1)
   }
+  const capabilityViews = [
+    [FEATURE_MAP_PATH, featureMap(nodes, edges)],
+    [TRACE_PATH, traceView(nodes, edges, inventory)],
+  ]
+  if (workspaceRoot(ROOT) !== ROOT) capabilityViews.push([path.join(ROOT, 'runtime', 'domain-state.json'), domainStateSerialized])
+  for (const [file, expected] of capabilityViews) {
+    if (!existsSync(file) || read(file) !== expected) {
+      console.error(`${rel(file)} is stale — run: npm run docs:graph`)
+      process.exit(1)
+    }
+  }
   console.log('doc-graph is up to date')
   if (!existsSync(LINKS_PATH) || read(LINKS_PATH) !== linksSerialized) {
     console.error('document links are stale — run: npm run docs:graph')
@@ -904,7 +921,7 @@ writeFileSync(GRAPH_PATH, serialized)
 writeFileSync(MATRIX_PATH, matrix(nodes, edges, cov))
 writeFileSync(FEATURE_MAP_PATH, featureMap(nodes, edges))
 writeFileSync(DOMAIN_MAP_PATH, domainMap(nodes, edges))
-writeFileSync(TRACE_PATH, traceView(nodes, edges))
+writeFileSync(TRACE_PATH, traceView(nodes, edges, inventory))
 writeFileSync(LINKS_PATH, linksSerialized)
 writeFileSync(DOMAIN_STATE_PATH, domainStateSerialized)
 if (dataPipelineMapSerialized !== null) writeFileSync(DATA_PIPELINE_MAP_PATH, dataPipelineMapSerialized)

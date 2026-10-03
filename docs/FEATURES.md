@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.67.0b"
+version: "1.68.0b"
 status: active
-last_update: "2026-09-27T12:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-10-03T20:30:00+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -18,9 +18,11 @@ relations:
 
 # Features (FEAT registry)
 
-Version diff 1.66.0b → 1.67.0b (2026-09-27): readiness metadata gains **FR-277** (primary domain `agent`) — the LINE grounding shadow-compare harness (ADR-090 Phase 3, TASK-ZAI-095): disabled by default, a fire-and-forget comparison generation against the paired grounding mode, never customer-visible. A feature of one for now; no FEAT row is added.
+Version diff 1.67.0b → 1.68.0b: distinguish explicit Feature bundles from Standalone FRs under ADR-025 revision 3. No IDs, requirement subjects, memberships, use cases or domain claims change.
 
-Version diff 1.65.0b → 1.66.0b (2026-09-27): readiness metadata gains **FR-275** and **FR-276** (primary domain `marketing`), the Marketing Insights read surface and refresh declared for #554. Each is a feature of one for now; no FEAT row is added.
+Version diff 1.66.0b → 1.67.0b (2026-09-27): readiness metadata gains **FR-277** (primary domain `agent`) — the LINE grounding shadow-compare harness (ADR-090 Phase 3, TASK-ZAI-095): disabled by default, a fire-and-forget comparison generation against the paired grounding mode, never customer-visible. A Standalone FR; no FEAT row is added.
+
+Version diff 1.65.0b → 1.66.0b (2026-09-27): readiness metadata gains **FR-275** and **FR-276** (primary domain `marketing`), the Marketing Insights read surface and refresh declared for #554. Each is a Standalone FR; no FEAT row is added.
 
 Version diff 1.64.0b → 1.65.0b (2026-09-27): ADR-110 D1 retires the harness pairing/plugin bundle and Edge-specific LINE transport; historical usage/device records and the server-side PRP key path are preserved. FEAT-018, FEAT-019, FEAT-035, FEAT-039 and FEAT-045 reflect the current boundary; FEAT-017 retirement remains deferred until the residual apps/edge extraction client is removed.
 
@@ -35,15 +37,15 @@ Version diff 1.60.0b -> 1.61.0b (2026-09-19): Added FEAT-044 for Mission Control
 Version diff 1.59.0b -> 1.60.0b: compose Knowledge Console as FR-254 in FEAT-013, preserving published FR-253 Commerce pricing. Console scope unchanged; release verification pending.
 
 Version diff 1.58.0b → 1.59.0b: declare FR-253 Commerce pricing rules and formula engine, owner approved 2026-09-17; TASK-ZAI-055/056/059. Implementation in progress, no production activation.
-Version diff 1.57.0b → 1.58.0b: register owner-approved FR-252 Project Feature authority as a project-manager feature-of-one under ADR-097. Cross-domain P1–P4 slices share that requirement; no new FEAT bundle or runtime completion.
+Version diff 1.57.0b → 1.58.0b: register owner-approved FR-252 Project Feature authority as a project-manager Standalone FR under ADR-097. Cross-domain P1–P4 slices share that requirement; no new FEAT bundle or runtime completion.
 
-Version diff 1.56.0b → 1.57.0b: register owner-approved FR-251 as a project-manager feature-of-one for the read-only Project Execution Domains view, now implemented and verified locally; FEAT-033's FR-215 live overlay is implemented locally with four bounded owning-domain reads.
+Version diff 1.56.0b → 1.57.0b: register owner-approved FR-251 as a project-manager Standalone FR for the read-only Project Execution Domains view, now implemented and verified locally; FEAT-033's FR-215 live overlay is implemented locally with four bounded owning-domain reads.
 
-Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-of-one for hierarchical Projects & Work navigation. No new FEAT bundle or runtime completion is asserted.
+Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager Standalone FR for hierarchical Projects & Work navigation. No new FEAT bundle or runtime completion is asserted.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.66.0b |
+| **Version** | 1.68.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -55,9 +57,47 @@ preflight covers this table, and Check 12 (ADR-039) additionally pins each row's
 SUBJECT in `.id-ledger.json`, so a FEAT number cannot quietly come to mean a
 different capability the way SDD-049 did on 2026-08-20.
 
-An FR with no FEAT row is implicitly a feature of one — add a row only when a
-capability genuinely spans FRs or needs product-level framing. The graph reads
-this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
+## Capability classification
+
+The Product Capability Registry has two readiness-visible entity types:
+
+- **Explicit Feature Bundle:** a product capability declared as `FEAT-xxx`,
+  bundling one or more related FRs. A Feature answers “What product capability
+  does the user get?”
+- **Standalone FR:** an independently deliverable system capability expressed
+  directly as an `FR-xxx` Functional Requirement with no explicit FEAT membership.
+  An FR answers “What exact behavior must the system provide?” It remains a
+  requirement; it is not an implicit or synthetic Feature.
+
+```text
+Product Capability Registry
+├── Explicit Feature (FEAT)
+│   └── bundled Functional Requirements (FR)
+└── Standalone Functional Requirement (FR)
+```
+
+An FR belongs to **0..1 explicit FEAT**: zero means `standalone-fr`; one means
+`bundled-fr` with `featureId = FEAT-xxx`; more than one is invalid. FEAT and FR
+are separate semantic types and namespaces. Later bundling preserves the FR ID
+and its requirement meaning forever. No synthetic FEAT IDs are allocated.
+
+Create a FEAT when related FRs jointly form a recognizable capability, when
+product-level framing is useful, when several surfaces/workflows/domains form
+one capability, or when roadmap/readiness needs capability-level tracking.
+Keep an FR standalone when it is bounded and independently useful and no broader
+grouping adds product meaning. Do not mechanically wrap every FR in a FEAT.
+A deliberate one-FR Feature is valid when its product framing adds meaning;
+existing one-FR bundles remain unchanged.
+
+Verified examples: **FEAT-023 Commerce — Orders & Payments** bundles **FR-166**
+and **FR-163** (bundled FRs). **FR-046 Production viewer entry contract** has no FEAT membership
+and is a Standalone FR; its readiness primary domain is `identity`. These
+examples describe membership, not a production-readiness claim.
+
+The graph reads this table (`feat:` nodes, `bundles` edges). TRACE includes a
+deterministic inventory of every canonical FR: classification, FEAT membership,
+charter/note ownership, readiness primary domain, metadata/use-case presence and
+code/test evidence state. Presentation domain is not an ownership claim.
 
 | ID | Feature | FRs | Status |
 |---|---|---|---|
@@ -160,19 +200,39 @@ Version diff 1.34.0b → 1.35.0b (2026-09-11): FEAT-026 is declared `proposed` �
 ## Readiness Dashboard presentation metadata
 
 This block is the hand-maintained presentation contract for FR-124. It carries
-one entry for every **projected feature**: each explicit `FEAT` row in the table
-above, plus each FR that no `FEAT` row bundles (ADR-025 rev 2 — an unbundled FR
-is implicitly a feature of one). It declares no new ids and moves no requirement
+one entry for every **readiness item**: each explicit `FEAT` row in the table
+above, plus each Standalone FR (ADR-025 revision 3). It declares no new ids and moves no requirement
 ownership; `primaryDomain` is a presentation choice about which lane's card a
-feature appears on, not a charter claim.
+readiness item appears on, not a charter claim.
 
 It exists because one field here cannot be derived from anything: `useCase` is
-the sentence saying what a Human can do with the feature, and no generator can
+the sentence saying what a Human can do with the readiness item, and no generator can
 infer it. `npm run docs:graph` therefore **fails** — rather than quietly
 projecting a shorter list — when an entry is missing, duplicated, names an id
 that is not projected, names a domain with no charter, or has an empty use case.
-The practical cost is real and deliberate: declaring a new FR now also means
+The practical cost is real and deliberate: declaring a new Standalone FR also means
 writing one sentence here, or the governance chain stops.
+
+### Readiness type contract
+
+`ReadinessItem = FeatureReadinessItem | StandaloneFrReadinessItem`.
+Hand-maintained rows stay `{ id, primaryDomain, useCase }`: type is derived from
+validated membership and ID, never a second editable registry field.
+`FEAT-* → kind: feature`; projected `FR-* → kind: standalone-fr`.
+
+For compatibility, generated schema 2.0 retains `features`, `featureCount`,
+`readyFeatureCount` and wire `kind: bundle | requirement`. These are readiness
+item containers/counts, not a claim that every item is a Feature. The server read
+model normalizes kind to `feature | standalone-fr` from the ID prefix; both
+Product Readiness and its Platform Domain Map consumer label the types explicitly.
+The wire schema ties each prefix to its kind. Metadata is required for each FEAT
+and Standalone FR; bundled FRs inherit their bundle's presentation entry and
+must not retain a separate standalone entry. Readiness/evidence calculations,
+use cases, authorization and charter ownership remain unchanged.
+
+Graph generation rejects unknown/repeated FRs in a bundle, multiple FEAT
+membership, empty bundles, missing/extra metadata and blank use cases. Preflight
+also rejects retired classification terminology in live authoritative documents.
 
 <!-- readiness-metadata:start -->
 ```json
@@ -1018,7 +1078,7 @@ Version diff 1.43.0b → 1.44.0b (2026-09-13): **FEAT-031 moves from `building` 
 
 Version diff 1.44.0b → 1.45.0b (2026-09-13): Added **FEAT-032** (FR-208, FR-209, FR-210) under **ADR-084** — catalogue intake that resolves before it creates: one envelope and planner, the Excel converter and Import tab, and the LINE `#sku` command. Implemented locally; migration written in both trees and not applied to production.
 
-Version diff 1.45.0b → 1.46.0b (2026-09-13): readiness metadata gains **FR-211** (primary domain `platform-control`) — the Domain map & inventory tab on `/control/roadmap`. An unbundled FR, so it is a feature of one; no FEAT row is added.
+Version diff 1.45.0b → 1.46.0b (2026-09-13): readiness metadata gains **FR-211** (primary domain `platform-control`) — the Domain map & inventory tab on `/control/roadmap`. A Standalone FR; no FEAT row is added.
 
 Version diff 1.46.0b → 1.47.0b (2026-09-13): **FEAT-032 moves from `building` to `implemented`** — migration `20260913200000_inventory_catalog_intake` is applied on production and main ada5188b (PR #375) is deployed. No feature text changed.
 
@@ -1034,7 +1094,7 @@ Version diff 1.51.0b → 1.52.0b (2026-09-14): Added **FEAT-039** (FR-239, FR-24
 
 Version diff 1.52.0b → 1.53.0b (2026-09-14): **FEAT-034**, **FEAT-035** and **FEAT-039** move from building to live — every FR they bundle is merged and deployed (#383, #386, #393; running image `zuri-ai-web:release-daca80fb`) with its migrations applied on production. No feature text changed.
 
-Version diff 1.53.0b → 1.54.0b (2026-09-14): readiness metadata for **FR-241** (a feature of one, ADR-092) — the 30-day roadmap member view for signed-in people.
+Version diff 1.53.0b → 1.54.0b (2026-09-14): readiness metadata for **FR-241** (a Standalone FR, ADR-092) — the 30-day roadmap member view for signed-in people.
 
 Version diff 1.54.0b → 1.55.0b (2026-09-16): **FEAT-040** (FR-243, FR-244; ADR-094) and **FEAT-041** (FR-245, FR-246; ADR-093) declared with readiness metadata, on the owner's acceptance of both ADRs.
 

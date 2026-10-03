@@ -6,6 +6,8 @@
 // @spec docs/decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md
 // @tested tests/unit/doc-views.test.js
 
+import { classifyRequirements } from './capability-registry.mjs'
+
 const sourcePath = value => value?.replace(/^apps\/server\//, '')
 
 const banner = (title, tagline) => `# ${title}
@@ -64,7 +66,8 @@ export function domainMap(nodes, edges) {
 }
 
 /** The full chain per FR: surface → code → rules → tests → feature. */
-export function traceView(nodes, edges) {
+export function traceView(nodes, edges, inventory = []) {
+  const classification = new Map(classifyRequirements(nodes, edges).map(row => [row.id, row.classification]))
   const featsByFr = new Map()
   for (const f of nodes.filter((n) => n.type === 'feature')) {
     for (const e of edges) {
@@ -88,6 +91,7 @@ export function traceView(nodes, edges) {
     const specs = new Set()
     for (const c of code) for (const s of byId.get(`code:${c}`)?.annotations?.['@spec'] || []) specs.add(s)
     const lines = [`### ${fid} — ${r.label}`, '']
+    lines.push(`- **Classification:** ${classification.get(fid)}`)
     const feats = featsByFr.get(fid)
     if (feats) lines.push(`- **Feature:** ${feats.join(' · ')}`)
     lines.push(`- **Status:** ${r.declared}`)
@@ -102,6 +106,15 @@ export function traceView(nodes, edges) {
     banner(
       'Trace',
       'The full chain per functional requirement: which surface renders it, which code implements it, which rules it follows, which tests prove it, which feature bundles it.',
-    ) + blocks.join('\n')
+    ) + (inventory.length ? [
+      '## Functional Requirement inventory', '',
+      'Ownership names the domain of a canonical FR note; undeclared ownership stays UNKNOWN.',
+      'Implementation lanes come from charter-scoped code evidence. Neither is inferred from the readiness primary domain.',
+      'Bundled FR metadata/use cases are supplied by the named FEAT readiness item; standalone rows require their own FR entry.',
+      'Evidence state describes code/test trace links, not a test execution or production claim.', '',
+      '| FR | Classification | Feature bundle | Owning domain (note) | Implementation lanes | Readiness item | Primary domain | Metadata | Use case | Evidence state | Code | Tests |',
+      '|---|---|---|---|---|---|---|---|---|---|---|---|',
+      ...inventory.map(r => `| ${r.id} | ${r.classification} | ${r.featureId || '—'} | ${r.owningDomains.join(', ') || 'UNKNOWN'} | ${r.implementationDomains.join(', ') || '—'} | ${r.readinessId || '—'} | ${r.primaryDomain || '—'} | ${r.metadataPresent ? 'yes' : 'no'} | ${r.useCasePresent ? 'yes' : 'no'} | ${r.evidenceState} | ${r.codeCount} | ${r.testCount} |`), '', '',
+    ].join('\n') : '') + blocks.join('\n')
   )
 }

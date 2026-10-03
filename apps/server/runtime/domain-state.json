@@ -1746,7 +1746,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 78
+          "testCount": 79
         },
         {
           "id": "FR-059",
@@ -4449,7 +4449,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 78
+          "testCount": 79
         },
         {
           "id": "FR-075",
@@ -5386,7 +5386,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 69,
-          "testCount": 78
+          "testCount": 79
         },
         {
           "id": "FR-056",
@@ -5738,7 +5738,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-127",
@@ -13972,7 +13972,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 87,
-          "testCount": 78
+          "testCount": 79
         }
       ],
       "evidence": [
@@ -14066,6 +14066,7 @@
         "apps/server/tests/e2e/fr044-entry-routing.spec.js",
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
         "apps/server/tests/e2e/fr104-password-reset-redemption.spec.js",
+        "apps/server/tests/e2e/fr124-product-readiness.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
@@ -16514,7 +16515,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 22
+          "testCount": 23
         }
       ],
       "evidence": [
@@ -16530,6 +16531,7 @@
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/capability-registry.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/data-pipeline-map.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",

@@ -27,11 +27,22 @@ test.describe('FR-124 Product Readiness Dashboard', () => {
     // and one of them is FR-124's own PRD statement, which begins with these
     // very words.
     await expect(page.getByRole('heading', { level: 1, name: 'Product readiness', exact: true })).toBeVisible()
-    for (const label of ['Domains', 'Features', 'Ready', 'Progress', 'Verified FRs', 'Open gaps']) {
+    for (const label of ['Domains', 'Capabilities', 'Ready', 'Progress', 'Verified FRs', 'Open gaps']) {
       await expect(page.locator('main').getByText(label, { exact: true })).toBeVisible()
     }
     await expect(page.getByText('วิธีคำนวณและขอบเขตของตัวเลข')).toBeVisible()
     await expect(page.getByText(SNAPSHOT_MARKER).first()).toBeVisible()
+    await expect(page.getByText('Feature', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('Standalone FR', { exact: true }).first()).toBeVisible()
+    const search = page.getByRole('textbox', { name: 'Search product readiness capabilities' })
+    await search.fill('FR-046')
+    const list = page.getByRole('region', { name: 'Capability list' })
+    await expect(list.getByText('FR-046', { exact: true }).first()).toBeVisible()
+    // Full-text search can also match another FR's prose referencing this ID.
+    const standaloneCard = list.locator('.card').filter({ has: page.getByText('FR-046', { exact: true }) })
+    await expect(standaloneCard).toHaveCount(1)
+    await expect(standaloneCard.getByText('Standalone FR', { exact: true })).toBeVisible()
+    await search.fill('')
 
     // The drilldown is exercised through the page's own card rather than a
     // hard-coded domain key: which lanes exist is generated, and pinning one

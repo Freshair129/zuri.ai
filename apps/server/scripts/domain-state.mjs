@@ -6,6 +6,7 @@ import { workspacePath, workspaceRoot, canonicalRelative } from './workspace-pat
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import Ajv2020 from 'ajv/dist/2020.js'
+import { classifyRequirements } from './capability-registry.mjs'
 
 export const STATUS_VALUES = [
   'verified',
@@ -350,8 +351,8 @@ export function parseFeaturePresentation(root) {
 }
 
 /**
- * Project every complete feature once: each explicit FEAT bundle, plus each FR
- * that no bundle claims (ADR-025 rev 2 — an unbundled FR is a feature of one).
+ * Project each explicit Feature bundle and each Standalone FR once.
+ * Schema 2.0 wire kinds remain bundle/requirement for compatibility (ADR-025 rev 3).
  *
  * @req FR-124 — a partial list is a wrong answer, so this never silently drops an
  * item or infers a domain. Missing, duplicated, unknown or use-case-less metadata
@@ -366,6 +367,7 @@ export function parseFeaturePresentation(root) {
  * was correct but its input could not express the failure it was checking for.
  */
 function buildFeatureProjection({ nodes, edges, domains, presentation, requirements }) {
+  classifyRequirements(nodes, edges)
   if (presentation === null) return []
 
   const requirementById = new Map(requirements.map((requirement) => [requirement.id, requirement]))
