@@ -1,3 +1,8 @@
+---
+status: active
+superseded_by: null
+---
+
 # AGENTS.md — zuri-ai
 
 ## Documentation reintegration branch (2026-09-29)
@@ -642,3 +647,21 @@ role roster (`rkoi`/`kin`/`janus`/`ghost`/`ather`) — dev/build/test for
 either happens in that repo, not in zuri-ai. zuri-ai never writes to their
 Prisma-equivalent stores directly (ADR-050 D3/D4): for stages zuri-ai does
 not execute, it holds counts only, never payload.
+
+## 23. Developer documentation writer
+
+The repository's developer-team entry point is [`.agents/README.md`](.agents/README.md).
+The [team roster](.agents/team.md) separates manual responsibilities from shipped
+agent definitions. For canonical documentation work, use the
+[Doc Writer role](.agents/roles/doc-writer.md) and its
+[authoring skill](.agents/skills/zuri-doc-writing/SKILL.md).
+
+Doc Writer prepares documentation and reconciles verified evidence. It does not
+approve its own proposals, change product behavior by rewriting a document, or
+hand-edit generated registries/views. Existing owner approvals remain valid for
+their recorded scope. The role does not activate either candidate S-01 document
+or authorize autonomous dispatch. Shared source composition and generation still
+have one integrator, as required by §19.
+
+Version diff (2026-10-04): adds the owner-approved Doc Writer entry point and
+lifecycle metadata; existing product authority and canonical IDs are unchanged.

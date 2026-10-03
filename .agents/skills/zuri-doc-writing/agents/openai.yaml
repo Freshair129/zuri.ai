@@ -1,0 +1,3 @@
+interface:
+  display_name: "Zuri Doc Writer"
+  short_description: "Write canonical Zuri docs with traceable evidence"
