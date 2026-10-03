@@ -9,23 +9,18 @@
 // instead of reading product-row fields corpus evidence does not have. Every
 // existing evidence shape is untouched: this branch only ever fires for a
 // record actually carrying `kind: 'CORPUS_CHUNK'`.
+// @req FR-149 — the candidate check, the evidence fallback and the no-evidence
+// reply live in line-answer-policy.js, which the Conversation Runtime mirrors, so
+// both answer paths apply the same post-model rules.
 // @spec SDD-025, SEC-009 — provider wording is advisory; evidence remains authoritative.
 // @tested tests/unit/grounded-business-answer.test.js
 
-const PRODUCT_CODE = /\b[A-Z0-9][A-Z0-9._-]{2,}\b/gi
-const NUMBER = /\d[\d,]*(?:\.\d+)?/g
-const HIGH_RISK_CLAIM = /(ส่งฟรี|พร้อมส่ง|มีสต็อก|รับประกัน|จัดส่ง|ภายใน\s*\d+\s*วัน)/i
-
-function normalizedNumbers(value) {
-  return new Set((String(value).match(NUMBER) ?? []).map((item) => {
-    const numeric = Number(item.replaceAll(',', ''))
-    return Number.isFinite(numeric) ? String(numeric) : item
-  }))
-}
-
-function normalizedCodes(value) {
-  return new Set((String(value).match(PRODUCT_CODE) ?? []).map((item) => item.toLocaleUpperCase()))
-}
+import {
+  NO_EVIDENCE_REPLY,
+  checkModelAnswer,
+  deterministicFallback,
+  normalizedCodes,
+} from './line-answer-policy'
 
 // @req FR-235 — exported so a caller that must pre-fetch this turn's evidence
 // (server-line-answer.js, to compose knowledge evidence with MSP slices under
@@ -39,41 +34,6 @@ export function selectRegisteredQuery(question) {
   }
   if (codes.length >= 1) return { queryId: 'product_detail', params: { productCode: codes[0] }, limit: 1 }
   return { queryId: 'product_search', params: { term: question }, limit: 5 }
-}
-
-function verifyCandidate(question, evidence, candidate) {
-  const authority = `${question}\n${JSON.stringify(evidence.records)}`
-  const allowedNumbers = normalizedNumbers(authority)
-  const unsupportedNumbers = [...normalizedNumbers(candidate)].filter((number) => !allowedNumbers.has(number))
-  const allowedCodes = normalizedCodes(authority)
-  const unsupportedCodes = [...normalizedCodes(candidate)]
-    .filter((code) => /\d/.test(code) && !allowedCodes.has(code))
-  const riskyClaim = HIGH_RISK_CLAIM.test(candidate) && !HIGH_RISK_CLAIM.test(JSON.stringify(evidence.records))
-  return {
-    supported: unsupportedNumbers.length === 0 && unsupportedCodes.length === 0 && !riskyClaim,
-    unsupportedNumbers,
-    unsupportedCodes,
-    riskyClaim,
-  }
-}
-
-function formatValue(value) {
-  return new Intl.NumberFormat('th-TH', { maximumFractionDigits: 2 }).format(value)
-}
-
-function deterministicFallback(evidence) {
-  const record = evidence.records[0]
-  if (record?.kind === 'CORPUS_CHUNK') {
-    const text = typeof record.text === 'string' ? record.text.trim() : ''
-    return text || 'ยังไม่พบข้อมูลสินค้าที่ตรงกับคำถามนี้ค่ะ ลองระบุรหัสสินค้า หรือชื่อสินค้าเพิ่มอีกหนึ่งอย่างได้ไหมคะ'
-  }
-  const facts = [`${record.name} (${record.product_code})`]
-  if (record.sell_price !== null) facts.push(`ราคา ${formatValue(record.sell_price)} ${record.currency ?? 'THB'}/${record.unit ?? 'ชิ้น'}`)
-  if (record.moq !== null) facts.push(`ขั้นต่ำ ${formatValue(record.moq)} ${record.unit ?? 'ชิ้น'}`)
-  const specs = Object.entries(record.specification ?? {}).map(([key, value]) => `${key}: ${value}`)
-  if (specs.length) facts.push(specs.join(', '))
-  facts.push(`ข้อมูล ณ ${record.as_of.slice(0, 10)}`)
-  return facts.join(' — ')
 }
 
 /** @req FR-149 — server LOCAL_ONLY answers never invoke a model provider. */
@@ -95,7 +55,7 @@ export async function answerBusinessQuestion({ tenantId, businessId, question },
 
   if (!evidence.records?.length) {
     return {
-      text: 'ยังไม่พบข้อมูลสินค้าที่ตรงกับคำถามนี้ค่ะ ลองระบุรหัสสินค้า หรือชื่อสินค้าเพิ่มอีกหนึ่งอย่างได้ไหมคะ',
+      text: NO_EVIDENCE_REPLY,
       grounded: false,
       evidence,
       provider: { provider: model.provider, model: model.model, status: 'not-called' },
@@ -105,16 +65,16 @@ export async function answerBusinessQuestion({ tenantId, businessId, question },
 
   try {
     const generated = await model.generate({ question, evidence, contextPacket, ...(trace ? { trace } : {}) })
-    const verification = verifyCandidate(question, evidence, generated.text)
-    if (verification.supported) {
-      return { text: generated.text, grounded: true, evidence, provider: generated, verification }
+    const checked = checkModelAnswer(question, evidence, generated.text)
+    if (checked.status === 'ok') {
+      return { text: generated.text, grounded: true, evidence, provider: generated, verification: checked.verification }
     }
     return {
-      text: deterministicFallback(evidence),
+      text: checked.text,
       grounded: true,
       evidence,
       provider: { provider: model.provider, model: model.model, status: 'rejected-output' },
-      verification,
+      verification: checked.verification,
     }
   } catch (error) {
     if (error?.code === 'MSP_INJECTION_RECEIPT_UNKNOWN') throw error

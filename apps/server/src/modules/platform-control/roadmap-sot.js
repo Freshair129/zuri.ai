@@ -113,8 +113,8 @@ export const ROADMAP_SOT = {
   },
   "dag": {
     "algorithm": "kahn-topological-layers",
-    "nodeCount": 121,
-    "edgeCount": 135,
+    "nodeCount": 123,
+    "edgeCount": 137,
     "waveCount": 21,
     "missingDependencies": [],
     "cycles": [],
@@ -261,7 +261,9 @@ export const ROADMAP_SOT = {
           "TASK-ZAI-080",
           "TASK-ZAI-089",
           "TASK-ZAI-090",
-          "TASK-ZAI-092"
+          "TASK-ZAI-092",
+          "TASK-ZAI-123",
+          "TASK-ZAI-124"
         ]
       },
       {
@@ -374,13 +376,13 @@ export const ROADMAP_SOT = {
     {
       "id": "SUBPLAN-KI-PRODUCTION-ACTIVATION",
       "parent": "TASK-ZAI-050 / ADR-073 amendment / ADR-075 Phase 2",
-      "status": "planned",
-      "proofScope": "SPEC",
-      "implementationState": "NOT_STARTED",
+      "status": "in-progress",
+      "proofScope": "PRODUCTION",
+      "implementationState": "IN_PROGRESS",
       "authority": "docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
-      "evidence": "ADR-075 Phase 2 gate; no production activation claim",
+      "evidence": "ADR-075 Phase 2 gate; production observation 2026-09-24 (Revision 2.134.0b): the ki17 overlay and genesis-worker have run on production since 2026-09-21 with 22 published generations; 2026-09-27 DoD review (Revision 2.137.0b, .brain/reports/2026-09-27-task-zai-050-dod-review.md): knowledge migrations recorded inferred (not verified row-by-row; DoD item kept unchecked) from ADR-104's 2026-09-23 full migration-ledger preflight; a documented operator activation record remains the one open DoD item, needing an operator with production access",
       "duplicateKey": "KI-PRODUCTION-ACTIVATION",
-      "relation": "gate; do not infer from isolated acceptance"
+      "relation": "gate; production observation reconciled 2026-09-24, still short of the done DoD"
     },
     {
       "id": "SUBPLAN-SMARTGIFT-STRUCTURED-ADAPTER",
@@ -1134,7 +1136,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-005",
     "authority": "ROADMAP.md",
-    "evidence": "PR #511 head `0fa8fa5050d060fbd8d32bd5d521f907abad24f2` merged as `291db06f05d2eba52336de378ca40ba971d28cc4`; focused admission/runtime 15/15 passed; hosted Governance/Edge runs `35552902035`/`35552902044` passed applicable checks with E2E/Desktop skipped; FileAsset MIME now reaches the Stage 1 request; native KI17, FR-071 production ledger and production activation remain NOT_RUN; 24-week baseline; Section 3.1 row 4; ADR-072, ADR-073"
+    "evidence": "PR #511 head `0fa8fa5050d060fbd8d32bd5d521f907abad24f2` merged as `291db06f05d2eba52336de378ca40ba971d28cc4`; focused admission/runtime 15/15 passed; hosted Governance/Edge runs `35552902035`/`35552902044` passed applicable checks with E2E/Desktop skipped; FileAsset MIME now reaches the Stage 1 request; native KI17 acceptance and the FR-071 production ledger remain NOT_RUN; production activation is tracked under TASK-ZAI-050, now `in-progress / PRODUCTION / IN_PROGRESS` (Revision 2.134.0b) rather than NOT_STARTED; 24-week baseline; Section 3.1 row 4; ADR-072, ADR-073"
   },
   {
     "id": "TASK-ZAI-046",
@@ -1184,12 +1186,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-050",
     "sprint": "SPR-ZAI-03",
     "title": "Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "in-progress",
+    "proofScope": "PRODUCTION",
+    "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-045; TASK-ZAI-049",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; ADR-073 amendment; ADR-075 Phase 2 gate"
+    "evidence": "Production observation 2026-09-24: `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay` and a healthy `genesis-worker` have run on the production host since 2026-09-21 with `ZURI_KNOWLEDGE_ENABLED=1`, `ZURI_KNOWLEDGE_STORAGE_ENABLED=1`, `ZURI_KNOWLEDGE_BINDINGS` and `MSP_PIPELINE_PRINCIPALS` set in `apps/server/.env.knowledge`; the one SmartGift `KnowledgeCorpus` is at generation 22 with 22 `KnowledgeIngestion` rows PUBLISHED, 22 `GenesisRag17PublicationReceipt` rows dated 2026-09-21, and gate verdicts at `ontology_v2` (38 rows). PR #519 (main `2295dc2b`) fixed the 2026-09-18 Stage 2/Stage 17 failures; PR #521 (main `0e36a993`) pinned the tuple the running images were verified against; `.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md` records the worker-namespace recreate that restored the relay. 2026-09-27 DoD review (`.brain/reports/2026-09-27-task-zai-050-dod-review.md`, Revision 2.137.0b): knowledge migrations recorded is now resolved by tracing ADR-104's 2026-09-23 full-tree migration-ledger preflight, which named exactly ten missing versions and none of the four knowledge migrations this row's acceptance criterion checks; a documented operator activation record is still genuinely open — `docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md` §9.2 and `apps/server/deploy/ki17/README.md` both currently state it does not exist, and writing one needs an operator with production/Docker access (image digests, pinned commits, run id, receipt hash), which this read-only review could not manufacture. One `PipelineRun` (`1db6810c-eb86-4e96-9f4c-e9c89c8ba0d3`) is stuck RUNNING since 2026-09-21 06:04. Not `done`: the operator activation record remains the one open DoD item; 24-week baseline; ADR-073 amendment; ADR-075 Phase 2 gate"
   },
   {
     "id": "TASK-ZAI-051",
@@ -1971,6 +1973,28 @@ export const ROADMAP_TASK_LEDGER = [
     "dependsOn": "TASK-ZAI-120",
     "authority": "ROADMAP.md",
     "evidence": "PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open"
+  },
+  {
+    "id": "TASK-ZAI-123",
+    "sprint": "SPR-ZAI-10",
+    "title": "Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274, ADR-109",
+    "status": "in-progress",
+    "proofScope": "LOCAL",
+    "implementationState": "LOCAL",
+    "dependsOn": "TASK-ZAI-078",
+    "authority": "ROADMAP.md",
+    "evidence": "Rebased on current origin/main d302eb08; governance passed (0 critical, 1 existing warning); Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Notion-focused integration tests passed; provider setup, production migrations and deployment remain unclaimed."
+  },
+  {
+    "id": "TASK-ZAI-124",
+    "sprint": "SPR-ZAI-10",
+    "title": "Marketing Insights read surface — FR-275, routes and page off by default",
+    "status": "done",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
+    "dependsOn": "TASK-ZAI-078",
+    "authority": "ROADMAP.md",
+    "evidence": "Merged in #554 (1e224d5b, 2026-09-27); hosted CI green on the PR head and on main. Route tests pass against the synthetic fixture repository; every route answers 503 INSIGHTS_NOT_CONFIGURED in this release. No browser proof with data, persistence or deployment is claimed."
   }
 ]
 

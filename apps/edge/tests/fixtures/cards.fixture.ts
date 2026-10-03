@@ -1,4 +1,4 @@
-import { CardViewModel } from '../../src/zuri-api/types.js';
+import { CardViewModel } from '../../src/contracts.js';
 
 export const VALID_EXECUTIVE_CARD_FIXTURE: CardViewModel = {
   templateId: 'executive-summary.v1',

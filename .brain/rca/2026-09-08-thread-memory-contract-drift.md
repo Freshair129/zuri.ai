@@ -33,6 +33,6 @@ Astra's review also identified that a compaction lease did not wait for the answ
 
 The real MSP contract gate was rerun from the MSP worktree with:
 
-`$env:MSP_TEST_ZURI_ROOT='C:\Users\pc\workspace\zuri-ai-finish-memory-20260910'; npm run test:cross-zuri`
+`$env:MSP_TEST_ZURI_ROOT='<workspace>\zuri-ai-finish-memory-20260910'; npm run test:cross-zuri`
 
 It returned one passing file and one passing test while using the actual MSP handlers and storage. The signed direct inbound append deliberately succeeds without an authorization or requesterId claim because the MSP append contract authorizes the human speaker identity and treats the message as non-private input. The same real-server check rejects a cached tenant/business authorization mismatch before dispatch and rejects a delivery route whose business does not match the signed grant. No MSP files were changed.

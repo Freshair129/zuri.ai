@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.7b"
+version: "0.3.14b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-23T00:37:41+07:00,RWANG"
+last_update: "2026-09-28T12:00:00+07:00,Claude Opus 5.5 (MC0)"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -203,12 +203,151 @@ inventory binding has `targetSchemaSha256`
 `a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115`.
 The 187-table binding remains historical and refuses cross-schema recovery.
 
+The Notion integration adds `NotionOAuthState`,
+`NotionWebhookVerificationToken` and `NotionWebhookReceipt`, rebinding the
+frozen inventory to **191 application tables**. That binding's canonical LF
+schema hash is `ca3e8247e50eb95980561e3ce8aa882ed7b11010d0b2167582e5f37b448132c8`;
+the target inventory hash is
+`c45dd4b70079decbd1d415a392221bf1a4a71970cd807140d832549ff5481d55`.
+OAuth state and encrypted verification-token rows remain excluded from backup
+contents; minimal webhook receipts are included. The former 188-table binding
+remains historical and refuses cross-schema recovery. No production migration
+or recovery operation is claimed.
+
+Conversation Runtime (ADR-106 / SDD-110) adds `runtimeOwner` to the existing
+`LineOaAccount` and `LineConversationJob` models. It adds no application model,
+so the 191-entry table mapping is unchanged, but the schema bytes change. The
+binding for the merged Notion + Conversation Runtime schema was
+`schemaSha256`
+`f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078` with
+`targetSchemaSha256`
+`a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1`, recomputed
+with `computeTargetSchemaSha256` over the unchanged 191-table mapping. The
+Notion-only binding above and the interim runtimeOwner-only 188-table binding
+(`ffa2c121e08891b4de556480130d5a6e116979f151133a58fd0f23a98ba61f2d` /
+`51b45ae26066775435adef2b983616835d6c09a940ec884f9de0e4cacf8d2899`) are both
+historical and refused against this schema. Both models remain in snapshot
+coverage: restore preserves `runtimeOwner`, disables a restored LINE account and
+increments its transport epoch, and clears reply-token/claim-lease capabilities
+while quarantining queued or uncertain jobs. This rebind changes neither the
+table-empty proof nor the recovery/erasure algorithm; it accepts only this exact
+schema and does not authorize automatic rewriting or recovery of artifacts bound
+to older hashes.
+
+PDPA erasure of one speaker in a shared LINE group or room thread (FR-022) adds
+the nullable `authorChannelIdentityId` column (and its index) to the existing
+`Message` model. It adds no application model, so the 191-entry table mapping is
+unchanged; only the schema bytes change. This binding has `schemaSha256`
+`26a67720bdc418d9e1de1b06849ccc685b111d0810d3d04dc03952bcb6d268f8` with
+`targetSchemaSha256`
+`53119b5c3d73c1acdaebdf16cc7c1d8b34d97bfb8877b36df2fc9cbfe0db751d`, recomputed
+with `computeTargetSchemaSha256` over the unchanged mapping. The merged Notion +
+Conversation Runtime binding above is historical and refused against this schema.
+`Message` stays in snapshot coverage and a restore carries the column as data;
+this rebind changes neither the table-empty proof nor the recovery/erasure
+algorithm, and it does not authorize recovery of artifacts bound to older hashes.
+
+FR-277 (ADR-090 Phase 3, TASK-ZAI-095) adds one application model,
+`LineGroundingShadowComparison` — the diagnostic-only LINE grounding
+shadow-compare row — on top of the Message rebind above, bringing the frozen
+inventory to **192 application tables**. That binding had
+`schemaSha256`
+`94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d` and
+`targetSchemaSha256`
+`372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885`, computed
+the same way as every binding above: `schemaSha256` over the raw
+`prisma/schema.prisma` bytes (now carrying both the Message
+`authorChannelIdentityId` column and the new model), `targetSchemaSha256` via
+`computeTargetSchemaSha256` over the full, alphabetically sorted 192-model
+mapping (every model gets `schemaName: 'public'`, `tableName` equal to its
+`modelName`; none of this schema's models use `@@map`). Every binding above —
+the Notion + Conversation Runtime merge, the interim runtimeOwner-only binding,
+and the 191-table Message rebind — is historical and refuses cross-schema
+recovery against this schema. The new model is included in `SNAPSHOT_MODELS`
+(backup-service.js) with no declared relation, matching `AgentTraceEvent`'s own
+convention in the same domain — it restores without ordering constraints.
+This binding has now had the same independent hash/mapping check as the
+rebinds above: `schemaSha256` was recomputed directly from the bytes of the
+committed `apps/server/prisma/schema.prisma` (matches exactly) and
+`targetSchemaSha256` was recomputed by calling the repo's own
+`computeTargetSchemaSha256` against the committed inventory's 192-entry
+`applicationTables` (matches exactly); both values above are therefore
+independently confirmed, not merely asserted by the commit that introduced
+them. This is a mechanical hash/count recheck, the same kind every prior
+rebind above records — it does not re-review whether every model's family,
+snapshot inclusion or RLS visibility assignment is itself correct beyond
+noting that `LineGroundingShadowComparison` follows an existing precedent
+(`AgentTraceEvent`'s no-declared-relation convention); a deeper design review
+of the mapping, if wanted, is still a separate, undone step. The CLI proof
+this paragraph's predecessor also deferred remains separately undone.
+
+FR-022 "consent to retain = keep" (owner ruling 2026-09-27, ADR-093 1.2.0) adds
+two application models on top of the FR-277 binding: `CustomerRetentionConsent`
+(the retention consent a sales user collects in advance from a Customer — a
+history with real foreign keys to Tenant, Customer and the recording Person) and
+`LegalHoldArchiveKey` (the wrapped per-legal-hold data key re-sealed chat
+evidence lives under — no `@relation`, same shape as `CustomerArchiveKey`),
+bringing the frozen inventory to **194 application tables**. That binding had
+`schemaSha256`
+`1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206` and
+`targetSchemaSha256`
+`3b0841c3771ae0fafb4147c9622e86b6d1827cbb656d070113f22bd7e94b8c79`, computed
+the same way: `schemaSha256` over the raw `prisma/schema.prisma` bytes,
+`targetSchemaSha256` via `computeTargetSchemaSha256` over the full,
+alphabetically sorted 194-model mapping (`schemaName: 'public'`, `tableName`
+equal to `modelName`, no `@@map`). The 192-table FR-277 binding and every
+binding before it are historical and refuse cross-schema recovery against this
+schema. Both new models are in `SNAPSHOT_MODELS` (backup-service.js):
+`customerRetentionConsent` right after `customerLegalHold` (a Customer child row,
+same reasoning), `legalHoldArchiveKey` right after `customerArchiveKey` (wrapped
+ciphertext whose KEK is never in a snapshot, and a random data key with no
+re-entry path). This rebind changes neither the table-empty proof nor the
+recovery/erasure algorithm, and it does not authorize recovery of artifacts
+bound to older hashes. The migrations are written, not applied to any database.
+
+FR-022 MSP memory erasure (owner decision 2026-09-28, option A) adds the index
+`AgentTraceEvent (kind, occurredAt, id)` for the erasure scanner's keyset page.
+No model is added or renamed, so the 194-table mapping is unchanged; only the
+schema bytes move. The **current** binding has `schemaSha256`
+`32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4` and `targetSchemaSha256`
+`9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0`, computed the same way. The previous
+194-table binding (`schemaSha256` `1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206`) is historical and refuses
+cross-schema recovery against this schema. This rebind changes neither the
+table-empty proof nor the recovery/erasure algorithm. The index migration is
+written, not applied to any database.
+
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.13b → 0.3.14b: rebind the frozen recovery inventory to the schema
+with the `AgentTraceEvent (kind, occurredAt, id)` index (FR-022 MSP memory
+erasure scan). The 194-table mapping is unchanged; the 0.3.13b binding stays
+historical and is refused.
+
+Version diff 0.3.12b → 0.3.13b: rebind the frozen recovery inventory to the
+194-table schema with `CustomerRetentionConsent` and `LegalHoldArchiveKey`
+(FR-022, ADR-093 1.2.0). This supersedes the FR-277 192-table binding that
+0.3.12b independently confirmed; that binding stays historical and is refused.
+
+Version diff 0.3.10b → 0.3.11b: rebind the frozen recovery inventory to the
+schema with `Message.authorChannelIdentityId` (FR-022 group-speaker erasure).
+The 191-table mapping is unchanged; the 0.3.10b binding stays historical and is
+refused.
+
+Version diff 0.3.9b → 0.3.10b: rebind the frozen recovery inventory to the merged
+Notion + Conversation Runtime schema (191 tables, `runtimeOwner` on the LINE
+account and conversation-job models). The table mapping is unchanged; the
+Notion-only and runtimeOwner-only bindings stay historical and are refused.
+
+Version diff 0.3.8b → 0.3.9b: rebind the frozen recovery inventory to the 191-table
+schema after adding the Notion OAuth state, encrypted webhook verification-token
+and receipt models. OAuth state and verification-token material stay out of
+snapshots; minimal receipts remain recoverable. The 188-table binding remains
+historical and refuses cross-schema recovery.
 
 Version diff 0.3.6b → 0.3.7b: rebind the frozen recovery inventory to the
 composed 187-table schema after FR-268's `BusinessKeyResult`/
@@ -421,6 +560,11 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.13b | 2026-09-27 | beta | Rebind Phase B recovery to the 194-table schema adding `CustomerRetentionConsent` and `LegalHoldArchiveKey` (FR-022, ADR-093 1.2.0): `schemaSha256` `1f7fa962…1206`, `targetSchemaSha256` `3b0841c3…8c79` via `computeTargetSchemaSha256`; both new models in `SNAPSHOT_MODELS`; the 192-table binding confirmed in 0.3.12b is superseded and refused | working-tree | Claude Opus 5.5 (MC0) |
+| 0.3.12b | 2026-09-27 | beta | Independently recompute and confirm the FR-277 rebind (191→192 tables, `LineGroundingShadowComparison`): `schemaSha256` matches the committed `prisma/schema.prisma` bytes exactly; `targetSchemaSha256` recomputes correctly via the repo's own `computeTargetSchemaSha256` over the committed 192-entry mapping. Mechanical hash/count check only — does not re-review family/RLS mapping design beyond noting the model follows `AgentTraceEvent`'s existing no-relation precedent; a deeper design review and the CLI proof remain separately undone | working-tree | Claude Sonnet 5 |
+| 0.3.11b | 2026-09-27 | beta | Rebind Phase B recovery to the 191-table Message `authorChannelIdentityId` schema (FR-022 PDPA erasure column); table mapping unchanged, schema bytes change; refuse the merged Notion + Conversation Runtime binding | ffede2f9 | Claude Opus 5.5 |
+| 0.3.10b | 2026-09-27 | beta | Rebind Phase B recovery to the merged Notion + Conversation Runtime schema (191 tables, runtimeOwner fields); refuse both the Notion-only and runtimeOwner-only bindings; document runtimeOwner restore handling | working-tree | Claude Opus 5.5 (MC0) |
+| 0.3.9b | 2026-09-26 | beta | Rebind Phase B recovery to the 191-table Notion schema; exclude OAuth state and encrypted webhook verification material from backups, include minimal receipts, and preserve refusal of the historical 188-table binding | working-tree | Codex GPT-6 |
 | 0.3.8b | 2026-09-24 | beta | Rebind Phase B recovery to the 188-table schema after adding the operational LINE OA worker checkpoint; preserve the historical 187-table binding | working-tree | RWANG |
 | 0.3.7b | 2026-09-23 | beta | Rebind Phase B recovery to the composed 187-table schema after FR-268 and PM approval gateway models landed; preserve the historical 186-table binding | working-tree | RWANG |
 | 0.3.6b | 2026-09-22 | beta | Rebind Phase B recovery to the composed 186-model schema after the FR-268 Business Key Result models landed; preserve the historical 179-model binding | origin/main | RWANG |

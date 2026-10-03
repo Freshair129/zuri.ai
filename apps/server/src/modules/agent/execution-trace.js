@@ -17,6 +17,7 @@ export const TRACE_EVENT_KINDS = Object.freeze([
   'EXECUTION_STARTED',
   'CONTEXT_COMMITTED',
   'EVIDENCE_SELECTED',
+  'MODEL_STARTED',
   'MODEL_COMPLETED',
   'MODEL_FAILED',
   'ANSWER_READY',
@@ -38,6 +39,26 @@ export const TRACE_EVENT_KINDS = Object.freeze([
   // @req FR-234 — one Context Composer receipt per model invocation: references,
   // a hash and the budget, never content (ADR-091 D7, SDD-100).
   'CONTEXT_RECEIPT',
+  // @req FR-149 — Core's durable receipts for a Conversation Runtime memory turn
+  // (ADR-106 D2 Memory/Knowledge): the thread context it read, the answer it
+  // appended, and each MSP injection receipt state it recorded.
+  'MEMORY_THREAD_READ',
+  'MEMORY_THREAD_APPENDED',
+  'MEMORY_INJECTION_RECORDED',
+  // @req FR-022 — Core's pending, attempted and acknowledged tenant-wide erasure of
+  // one person from MSP thread memory (line-memory-erasure.js). The kind names
+  // predate the owner decision of 2026-09-28 and are kept for existing records.
+  'MEMORY_THREAD_ERASURE_PENDING',
+  'MEMORY_THREAD_ERASURE_ATTEMPT',
+  'MEMORY_THREAD_ERASURE_DEFERRED',
+  'MEMORY_THREAD_ERASURE_ACKNOWLEDGED',
+  'MEMORY_THREAD_ERASURE_FAILED',
+  // @req FR-149 — Core's admission-time record that a Conversation Runtime job's
+  // LINE sender was unverified, so the job runs with no person (ADR-106 D3).
+  'CHANNEL_IDENTITY_ADMITTED',
+  // @req FR-149 — Core dropped low-ranked evidence records so a Conversation
+  // Runtime answer fits its bounds (`prepare`, `memory read`). Counts only.
+  'EVIDENCE_TRIMMED',
 ])
 
 export const zTraceEventKind = z.enum(TRACE_EVENT_KINDS)
@@ -70,6 +91,10 @@ const SECRET_FIELD_NAMES = new Set([
 ])
 
 const FAILURE_KINDS = new Set(['MODEL_FAILED', 'EXECUTION_FAILED'])
+// @req FR-022, FR-171 — the one key Core's erasure writes its tombstone under.
+// Only that row closes a turn or means "already redacted"; a RETENTION_TOMBSTONE
+// row under any other key (a caller-chosen key) proves nothing about erasure.
+export const retentionTombstoneKey = turnId => `retention:${turnId}`
 const FAILURE_STATUS = new Set(['FAILED', 'FAILURE', 'ERROR', 'ERRORED', 'REJECTED'])
 const REDACTED_PAYLOAD_JSON = '{"redacted":true}'
 
@@ -319,7 +344,8 @@ async function appendTraceEventInternal(db, input, { bypassTurnGuard = false, re
   if (!bypassTurnGuard) await assertTraceTurnOpen(db, normalized)
   if (!bypassTurnGuard) {
     const tombstone = await model.findFirst({
-      where: { tenantId: normalized.tenantId, businessId: normalized.businessId, turnId: normalized.turnId, kind: 'RETENTION_TOMBSTONE' },
+      where: { tenantId: normalized.tenantId, businessId: normalized.businessId, turnId: normalized.turnId, kind: 'RETENTION_TOMBSTONE',
+        idempotencyKey: retentionTombstoneKey(normalized.turnId) },
     })
     if (tombstone) {
       throw traceError('EXECUTION_TRACE_TURN_REDACTED', 'trace writes are closed after retention', 409)
@@ -852,7 +878,8 @@ async function redactTraceTurnInternal(db, { scope, turnId, now } = {}) {
   const rows = await model.findMany({ where, orderBy: [{ occurredAt: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }] })
   for (const row of rows) assertRowScope(row, normalizedScope)
 
-  const existingTombstone = rows.find((row) => row.kind === 'RETENTION_TOMBSTONE')
+  const existingTombstone = rows.find((row) => row.kind === 'RETENTION_TOMBSTONE'
+    && row.idempotencyKey === retentionTombstoneKey(normalizedTurnId))
   if (existingTombstone) {
     return Object.freeze({ redactedCount: rows.filter((row) => row.kind !== 'RETENTION_TOMBSTONE').length, tombstone: existingTombstone })
   }
@@ -871,7 +898,7 @@ async function redactTraceTurnInternal(db, { scope, turnId, now } = {}) {
       turnId: normalizedTurnId,
       executionId,
       kind: 'RETENTION_TOMBSTONE',
-      idempotencyKey: `retention:${normalizedTurnId}`,
+      idempotencyKey: retentionTombstoneKey(normalizedTurnId),
       payload,
       occurredAt: redactedAt,
     }, { bypassTurnGuard: true, retryOnUnique: false })
@@ -881,7 +908,7 @@ async function redactTraceTurnInternal(db, { scope, turnId, now } = {}) {
     if (error?.code !== 'EXECUTION_TRACE_IDEMPOTENCY_CONFLICT') throw error
     const winner = await findByIdempotency(model, {
       ...normalizedScope,
-      idempotencyKey: `retention:${normalizedTurnId}`,
+      idempotencyKey: retentionTombstoneKey(normalizedTurnId),
     })
     if (!winner || winner.kind !== 'RETENTION_TOMBSTONE') throw error
     tombstone = winner
@@ -898,7 +925,8 @@ export async function redactTraceTurn(db, input) {
       const normalizedScope = normalizeScope(input?.scope)
       const normalizedTurnId = requiredUuid(input?.turnId, 'turnId')
       const winner = await db.agentTraceEvent.findFirst({
-        where: { ...normalizedScope, turnId: normalizedTurnId, kind: 'RETENTION_TOMBSTONE' },
+        where: { ...normalizedScope, turnId: normalizedTurnId, kind: 'RETENTION_TOMBSTONE',
+          idempotencyKey: retentionTombstoneKey(normalizedTurnId) },
       })
       if (!winner) throw error
       const rows = await db.agentTraceEvent.findMany({ where: { ...normalizedScope, turnId: normalizedTurnId } })

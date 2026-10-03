@@ -277,3 +277,25 @@ this follow-up reran the 25 relevant unit checks, production build and complete
 browser suite. The aggregate `npm run verify` command was not rerun as one chain.
 The initial browser blocker is closed. The existing dangling-annotation warning
 and four browser skips remain; no hosted CI, merge or deployment is claimed.
+
+## Integration with current main — 2026-10-03
+
+Before opening the requested PR, fetched main was
+`d3ae56254bfa7c0c7b252e53c0a74e5dbda8e158`, 398 commits beyond the original
+base. It is merged into this branch without discarding upstream changes.
+Its canonical records and compatibility-template writers are preserved:
+FEATURES/PRD prose now lives in `registry/document-registry/*.template.md`,
+and `npm run docs:registry` generates the compatibility documents. Canonical
+record files and the index are unchanged relative to current main.
+
+The current inventory supersedes the earlier-base counts: **46 FEAT, 277 FR,
+160 bundled, 117 standalone, 163 readiness items**, with no multi-FEAT ownership.
+Registry subjects, status rows, memberships and metadata introduced upstream
+are preserved. Registry write/check and governance pass (0 critical, 1 warning,
+34 info). The PR diff has no database schema or migration change.
+
+Composed document versions: FEATURES 1.67.0b → 1.68.0b; PRD 1.259.0b →
+1.260.0b; PRODUCT 1.3.0b → 1.4.0b; provenance contract 0.2.0 → 0.2.1.
+The retired Edge/harness surfaces stay retired under upstream ADR-110.
+Earlier local verification applies to its recorded base; current-head checks,
+hosted CI, merge and deployment remain separate evidence to collect.

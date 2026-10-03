@@ -1,0 +1,69 @@
+{
+  "manifestVersion": 1,
+  "id": "ZAI:KI17-DEPLOYMENT-PINS-GKS-HTTP",
+  "profile": "gks-http",
+  "cycle": "ADR-075 D10 — private MSP-to-GKS HTTP canary (opt-in)",
+  "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
+  "recordedAt": "2026-09-23",
+  "note": "Candidate tuple for the private GKS HTTP canary ONLY, selected by docker-compose.ki17-gks-http.yml through the KI17_PINS_MANIFEST build argument: Zuri main baseline 49d1808b, GenesisBlock 5156f412, MSP a65914de (HTTP GKS provider), GKS 1ebcff09 (HTTP runtime). The historic G-3 result applies to the stdio tuple in pins.json only; this HTTP container canary is NOT_RUN.",
+  "runtime": {
+    "node": "24.18.0",
+    "nodePlatform": "linux-x64",
+    "nodeShasums": "https://nodejs.org/dist/v24.18.0/SHASUMS256.txt",
+    "python": "3.12",
+    "pythonImage": "python:3.12-slim-bookworm",
+    "modelRepository": "intfloat/multilingual-e5-small",
+    "modelRevision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "workerPort": 19417
+  },
+  "repositories": {
+    "zuri-ai": {
+      "repository": "Freshair129/zuri.ai",
+      "commit": "49d1808b805c5a9720edeaed8c8a8b0235e3016e",
+      "buildContext": null,
+      "verifiedInBuild": false,
+      "note": "This repository is the build's own main context, and .dockerignore excludes .git from it, so the build cannot read its own HEAD. Recorded for the G-4 gate and verified by the operator on the host before the build (`git rev-parse HEAD`).",
+      "entrypoints": []
+    },
+    "msp": {
+      "repository": "Freshair129/Memory-and-Soul-Passport",
+      "commit": "a65914defd5918ad7e44173ec1cdccf379eca7fe",
+      "buildContext": "msp",
+      "verifiedInBuild": true,
+      "installRoot": "/opt/ki17/msp",
+      "entrypoints": [
+        "apps/msp-server/bin/msp-server.mjs",
+        "package.json",
+        "package-lock.json"
+      ]
+    },
+    "gks": {
+      "repository": "Freshair129/Genesis-Knowledge-System",
+      "commit": "1ebcff09ce5f19b0bd219433d376670a44be0278",
+      "buildContext": "gks",
+      "verifiedInBuild": true,
+      "installRoot": "/opt/ki17/gks",
+      "entrypoints": [
+        "apps/gks-server/bin/gks-server.mjs",
+        "apps/gks-server/bin/gks-http-server.mjs",
+        "deploy/docker/entrypoint.mjs",
+        "package.json",
+        "package-lock.json"
+      ]
+    },
+    "genesisblock": {
+      "repository": "Freshair129/GenesisBlock",
+      "commit": "5156f412da73905a23d74775a82cc14d1f6d04d0",
+      "buildContext": "genesisblock",
+      "verifiedInBuild": true,
+      "installRoot": "/opt/ki17/genesisblock",
+      "entrypoints": [
+        "genesisrag17-worker/src/cli.mjs",
+        "genesisrag17-worker/requirements.txt",
+        "index.js",
+        "npm/linux-x64-gnu/index.linux-x64-gnu.node"
+      ],
+      "note": "PR #178 stale-lock recovery plus PR #179 deployed benchmark fixture compatibility; Linux addon included."
+    }
+  }
+}

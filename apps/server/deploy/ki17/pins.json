@@ -1,10 +1,11 @@
 {
   "manifestVersion": 1,
   "id": "ZAI:KI17-DEPLOYMENT-PINS",
-  "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment (SmartGift structured-record profile)",
+  "profile": "stdio",
+  "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment, stdio transport (the production tuple)",
   "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
-  "recordedAt": "2026-09-20",
-  "note": "TASK-ZAI-050 local production-like tuple: zuri a9039dcc, GenesisBlock 5156f412 (PR #178 stale-lock recovery + PR #179 benchmark fixture compatibility), MSP 68e6169d (v0.2.8), GKS ecf1e4de. G-3 passed 36/36 and post-cutover health/smoke passed on 2026-09-20.",
+  "recordedAt": "2026-09-28",
+  "note": "Default manifest for every ki17 target: the proven stdio tuple the production images run (release-05f3567d-ki17-overlay, 2026-09-28): GenesisBlock 5156f412 (PR #178 stale-lock recovery + PR #179 benchmark fixture compatibility), MSP 68e6169d (v0.2.8), GKS ecf1e4de. G-3 passed 36/36 on this tuple on 2026-09-20. The private GKS HTTP canary tuple lives in pins.gks-http.json and is opt-in.",
   "runtime": {
     "node": "24.18.0",
     "nodePlatform": "linux-x64",
@@ -18,7 +19,7 @@
   "repositories": {
     "zuri-ai": {
       "repository": "Freshair129/zuri.ai",
-      "commit": "a9039dcc1c78745c595571da66c3935eda6dbebb",
+      "commit": "05f3567d35398fc1705489c249210fc4b3660d50",
       "buildContext": null,
       "verifiedInBuild": false,
       "note": "This repository is the build's own main context, and .dockerignore excludes .git from it, so the build cannot read its own HEAD. Recorded for the G-4 gate and verified by the operator on the host before the build (`git rev-parse HEAD`).",

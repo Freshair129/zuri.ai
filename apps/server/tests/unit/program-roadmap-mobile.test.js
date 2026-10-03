@@ -22,14 +22,14 @@ describe('SUBPLAN-ROADMAP-MOBILE canonical evidence presentation', () => {
     const stageMarkers = html.match(/data-testid="genesisrag17-stage-/g) || []
     const productionGate = ROADMAP_SOT.subplans.find((plan) => plan.id === 'SUBPLAN-KI-PRODUCTION-ACTIVATION')
 
-    expect(PROGRAMME_TASKS).toHaveLength(121)
+    expect(PROGRAMME_TASKS).toHaveLength(123)
     expect(ROADMAP_SOT.coverage).toHaveLength(17)
     expect(stageMarkers).toHaveLength(17)
     expect(html).toContain('GenesisRAG17 coverage')
     expect(html).toContain('ISOLATED ACCEPTED')
     expect(html).toContain('production-activation-gate')
     expect(html).toContain(productionGate.id)
-    expect(html).toContain('NOT STARTED')
+    expect(html).toContain(productionGate.implementationState.replace(/_/g, ' '))
     expect(html).toContain('proof')
     expect(html).toContain('implementation')
     expect(html).toContain('TASK-ZAI-119')

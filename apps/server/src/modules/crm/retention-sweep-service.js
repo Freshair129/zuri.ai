@@ -107,6 +107,8 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       sessionId: true,
       createdAt: true,
       externalMessageId: true,
+      // @req FR-022 — the archive seals a group line under its speaker's key.
+      authorChannelIdentityId: true,
       conversation: { select: { id: true, customerId: true, businessId: true } },
       attachments: {
         select: { id: true, kind: true, providerContentId: true, fileAssetId: true, fetchState: true, mimeType: true, sizeBytes: true },
@@ -150,6 +152,17 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
     redactedAttachments: archiveResult.redactedAttachments,
     skippedNonTerminalJob,
     archiveFailed: false,
+    // @req FR-022 — lines whose key Customer is erased and keyless (ADR-093 1.2.0)
+    //   are never archived. A staff, push or unknown-author line is left untouched
+    //   (deferred) while a live Customer who is a member for it — the thread owner,
+    //   or someone who spoke there before it — has an active retention consent;
+    //   every other such line, including every customer-authored one, is blanked
+    //   with the retention tombstone. Decided again on every sweep.
+    deferredErasedKey: archiveResult.deferredMessages ?? 0,
+    blankedWithoutArchive: archiveResult.blankedMessages ?? 0,
+    // Deciding/blanking those lines failed after any archive committed: its own
+    // failure, so the archive's counts above stay truthful.
+    ...(archiveResult.settleFailed ? { settleFailed: true, settleFailureReason: archiveResult.settleFailureReason } : {}),
     manifest: archiveResult.manifest
       ? { manifestId: archiveResult.manifest.id, runId: archiveResult.manifest.runId, manifestHash: archiveResult.manifest.manifestHash }
       : null,
@@ -172,6 +185,9 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
   const totals = { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0 }
   const manifests = []
   const archiveFailures = []
+  let deferredErasedKey = 0
+  let blankedWithoutArchive = 0
+  const settleFailures = []
 
   // CRM_OWNED_RETENTION_CLASSES has exactly one member today (MESSAGE_BODY_AND_ATTACHMENTS);
   // looping over it rather than hard-coding the call keeps this function's shape
@@ -184,6 +200,9 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
       totals.redactedMessages += result.redactedMessages
       totals.redactedAttachments += result.redactedAttachments
       totals.skippedNonTerminalJob += result.skippedNonTerminalJob
+      deferredErasedKey += result.deferredErasedKey ?? 0
+      blankedWithoutArchive += result.blankedWithoutArchive ?? 0
+      if (result.settleFailed) settleFailures.push({ tenantId: tenant.id, reason: result.settleFailureReason })
       if (result.archiveFailed) {
         archiveFailures.push({ tenantId: tenant.id, reason: result.archiveFailureReason })
       } else if (result.manifest) {
@@ -200,6 +219,9 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
       //   names neither, rather than an empty array claiming it checked.
       ...(archiveFailures.length > 0 ? { archiveFailures } : {}),
       ...(manifests.length > 0 ? { manifests } : {}),
+      ...(deferredErasedKey > 0 ? { deferredErasedKey } : {}),
+      ...(blankedWithoutArchive > 0 ? { blankedWithoutArchive } : {}),
+      ...(settleFailures.length > 0 ? { settleFailures } : {}),
     },
   }
   const event = await recordAudit(db, {

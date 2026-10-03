@@ -16,7 +16,7 @@ import { LINE_OA_PROVIDER, normalizeLineWebhookEvent } from './line-oa-webhook'
 //   a row outside it, rather than filtering after the write.
 // @spec docs/domains/integration/features/FR-081-raw-external-ingestion.md
 // Boundary: docs/domains/integration/CHARTER.md
-// @tested tests/integration/line-oa-evidence-convergence.test.js
+// @tested tests/integration/conversation-runtime-vertical-slice.test.js
 //
 // WHY THIS SITS BESIDE THE TURN RATHER THAN REPLACING IT
 // -----------------------------------------------------
@@ -31,13 +31,9 @@ import { LINE_OA_PROVIDER, normalizeLineWebhookEvent } from './line-oa-webhook'
  * Build the evidence recorder for one webhook batch, or `null` when this LINE channel
  * has no `LINE_OA` IntegrationConnection yet.
  *
- * `null` means this channel has no provisioned `LINE_OA` connection. What that answer
- * costs depends on the caller, and the two callers now differ:
- *
- *   · `POST /api/agent/line-webhook` (the retained legacy forwarding seam) tolerates it:
- *     it checks `if (evidence)` and runs the turn without recording.
- *   · `POST /api/line-oa/accounts/[id]/webhook` (the native seam, ADR-061) does not. It
- *     throws `LINE_EVIDENCE_UNAVAILABLE` and answers 503 for the whole batch on `null`,
+ * `null` means this channel has no provisioned `LINE_OA` connection. The native
+ * `POST /api/line-oa/accounts/[id]/webhook` seam (ADR-061) refuses it: it throws
+ * `LINE_EVIDENCE_UNAVAILABLE` and answers 503 for the whole batch on `null`,
  *     or when the resolved `connectionId` differs from the account's. There, evidence is
  *     the write that makes the event unloseable and is therefore a hard dependency of the
  *     ingress: deactivate or re-point the connection and every LINE delivery is refused

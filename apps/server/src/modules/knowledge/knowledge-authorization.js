@@ -300,8 +300,16 @@ export async function assertKnowledgeFileReadable(
   { businessId, projectId = null, db = prisma, env = process.env } = {},
 ) {
   requireViewer(viewer, 'assertKnowledgeFileReadable')
-  const access = await resolveKnowledgeScope({ viewer, businessId, projectId, action: 'read', db, env })
-  const asset = await loadLiveFileAsset(db, fileAssetId)
+  // The Business/Project scope and the asset row are independent reads. The scope answer is
+  // raised first, as when they ran one after the other.
+  const [scoped, loaded] = await Promise.allSettled([
+    resolveKnowledgeScope({ viewer, businessId, projectId, action: 'read', db, env }),
+    loadLiveFileAsset(db, fileAssetId),
+  ])
+  if (scoped.status === 'rejected') throw scoped.reason
+  if (loaded.status === 'rejected') throw loaded.reason
+  const access = scoped.value
+  const asset = loaded.value
   await assertAssetRelation(asset, access, { viewer, action: 'read', db, env })
   await assertPricingCatalogCurrent(asset, { db })
   return { asset, ...access }

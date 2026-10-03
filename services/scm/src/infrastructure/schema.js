@@ -1,0 +1,445 @@
+// SCM-owned persistence (service-local, disposable in this tranche).
+//
+// Column names are the Prisma field names of apps/server/prisma/schema.prisma so
+// a rehearsal transfer maps 1:1 and ids never change (internal UUIDs stay the
+// keys; human codes stay unique per Tenant). Only the models the vertical slice
+// executes are here; each table keeps its LOGICAL owner, recorded in OWNERS and
+// enforced by test/unit/module-boundaries.test.js (a module's adapter may only
+// write its own tables).
+//
+// Foreign masters (Tenant, Business, Customer, Person, Project, FileAsset…) are
+// NOT copied: their ids are opaque references verified by the caller's
+// delegated scope (ReferenceAuthority), never joined here.
+
+import { toPostgres } from './sql-dialect.js'
+
+export const OWNERS = Object.freeze({
+  inventory: ['Product', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'WarehouseLocation', 'ProductIdentifier', 'ProductMaster', 'InventoryCategory', 'ProductFamily', 'Factory', 'ProductBundle', 'ProductBundleItem', 'ProductUnitConversion', 'ProductRecipe', 'ProductRecipeLine', 'CustomizationWorkOrder', 'KittingWorkOrder', 'StockReservation', 'InventoryStocktake', 'InventoryCatalogIntake'],
+  procurement: ['Supplier', 'PurchaseOrder', 'PurchaseOrderLine', 'GoodsReceipt', 'GoodsReceiptLine', 'SupplierCostSheet', 'SupplierCostLine'],
+  commerce: ['SalesOrder', 'SalesOrderLine', 'Payment', 'BusinessBillingProfile', 'PricingRuleSet', 'PricingCalculation'],
+  scm: ['ScmOperationReceipt', 'ScmAuditEvent', 'ScmOutbox', 'ScmSchemaVersion'],
+})
+
+// v2 (S5.4 POS checkout): WarehouseLocation, SalesOrder(+Line), Payment,
+// BusinessBillingProfile; Product.maintenanceIntervalDays, ProductLot.lastMaintainedAt.
+// v3 (S5.4 pricing rules): PricingRuleSet, PricingCalculation; ScmAuditEvent gains
+// the reason / beforeJson / afterJson columns of core AuditEvent.
+// v4 (S5.4 supplier cost sheets): SupplierCostSheet, SupplierCostLine; Product carton
+// facts (unitsPerCarton, cartonCbm, cartonKg, freightGoodsType, leadTimeDays);
+// ProductIdentifier (Inventory-owned; read for SKU matching, its writers have not moved).
+// v5 (S5.4 POS terminal catalogue): ProductMaster, InventoryCategory (Inventory-owned;
+// read by the catalogue, their writers — the catalogue service — have not moved).
+// v6 (S5.4 Inventory catalogue writers, F-13): ProductFamily, Factory, ProductBundle(+Item);
+// the remaining catalogue columns of InventoryCategory, ProductMaster and Product.
+// v7 (S5.4 identifiers + unit conversions, F-13): ProductUnitConversion; ProductIdentifier
+// is now written here too.
+// v8 (S5.4 recipes + work orders): ProductRecipe(+Line), CustomizationWorkOrder,
+// KittingWorkOrder; StockReservation (its writers joined in the ATP tranche; no schema change).
+// v9 (S5.4 stocktake, transfers, locations): InventoryStocktake; ProductLot.factoryId;
+// WarehouseLocation.archivedAt.
+// v10 (S5.4 catalogue intake, shelf-life, hygiene, replenishment): InventoryCatalogIntake.
+// Disposable stores only — there is no v1→…→v10 migration (the migration owner writes one).
+export const SCHEMA_VERSION = 10
+
+const TABLES = `
+CREATE TABLE IF NOT EXISTS ScmSchemaVersion (version INTEGER NOT NULL PRIMARY KEY, appliedAt TEXT NOT NULL);
+
+CREATE TABLE IF NOT EXISTS Product (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productMasterId TEXT NOT NULL, name TEXT, unit TEXT NOT NULL DEFAULT 'EA',
+  stockPolicy TEXT NOT NULL DEFAULT 'TRACKED', trackingMode TEXT NOT NULL DEFAULT 'NONE',
+  safetyStock INTEGER NOT NULL DEFAULT 10, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  itemKind TEXT NOT NULL DEFAULT 'RAW_COMPONENT', dedicatedCustomerId TEXT, dedicatedSalesOrderId TEXT,
+  maintenanceIntervalDays INTEGER, maxStorageDays INTEGER, reorderPoint INTEGER,
+  unitsPerCarton INTEGER, cartonCbm REAL, cartonKg REAL, freightGoodsType TEXT, leadTimeDays INTEGER,
+  color TEXT, material TEXT, archivedAt TEXT, flowAccountSku TEXT, variantJson TEXT NOT NULL DEFAULT '{}',
+  variantKey TEXT, mergedIntoProductId TEXT, reorderQty INTEGER,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code),
+  UNIQUE (tenantId, flowAccountSku)
+);
+CREATE INDEX IF NOT EXISTS Product_master_variant ON Product (productMasterId, variantKey);
+
+-- Scannable / legacy codes of a SKU (ADR-083 D3): an attribute of one SKU, never a key.
+-- Written by Inventory's identity writers (application/identity.js), read by resolve and
+-- by the cost-sheet SKU matcher.
+CREATE TABLE IF NOT EXISTS ProductIdentifier (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), kind TEXT NOT NULL, value TEXT NOT NULL,
+  issuer TEXT, unit TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, kind, value)
+);
+CREATE INDEX IF NOT EXISTS ProductIdentifier_business ON ProductIdentifier (businessId, value);
+
+-- A pack size is an integer factor on the SKU (FR-204, BR-037): never the base unit,
+-- never on a serial-tracked product or a service. RETIRE keeps the row.
+CREATE TABLE IF NOT EXISTS ProductUnitConversion (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), unit TEXT NOT NULL, name TEXT, factor INTEGER NOT NULL,
+  usage TEXT NOT NULL DEFAULT 'ANY', status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (productId, unit)
+);
+
+-- The catalogue above a SKU (FR-154): category, family, factory and master, plus
+-- bundles of SKUs. Written by Inventory's catalogue writers (application/catalog.js);
+-- read by the POS terminal catalogue and the cost-sheet SKU matcher.
+CREATE TABLE IF NOT EXISTS InventoryCategory (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  nameTh TEXT NOT NULL, nameEn TEXT NOT NULL, slug TEXT, vibe TEXT, targetRecipient TEXT, guardrail TEXT,
+  status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code),
+  UNIQUE (businessId, slug)
+);
+
+CREATE TABLE IF NOT EXISTS ProductFamily (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  name TEXT NOT NULL, description TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS Factory (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  name TEXT NOT NULL, country TEXT, contact TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS ProductBundle (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  name TEXT NOT NULL, description TEXT, targetRecipients INTEGER, totalPrice REAL, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS ProductBundleItem (
+  id TEXT PRIMARY KEY, bundleId TEXT NOT NULL REFERENCES ProductBundle(id), productId TEXT NOT NULL REFERENCES Product(id), qty INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ProductBundleItem_bundle ON ProductBundleItem (bundleId);
+CREATE INDEX IF NOT EXISTS InventoryCategory_business ON InventoryCategory (businessId, status);
+
+CREATE TABLE IF NOT EXISTS ProductMaster (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  categoryId TEXT NOT NULL, familyId TEXT, factoryId TEXT, nameTh TEXT NOT NULL, nameEn TEXT NOT NULL,
+  baseCost REAL NOT NULL DEFAULT 0, specsJson TEXT NOT NULL DEFAULT '{}', nature TEXT NOT NULL DEFAULT 'GOOD',
+  defaultStockPolicy TEXT NOT NULL DEFAULT 'TRACKED', variantAxesJson TEXT NOT NULL DEFAULT '[]',
+  status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS Product_business ON Product (businessId, status);
+
+CREATE TABLE IF NOT EXISTS ProductLot (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), factoryId TEXT, manufacturedAt TEXT, expiresAt TEXT,
+  receivedQty INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'OPEN', lastMaintainedAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (productId, code)
+);
+
+CREATE TABLE IF NOT EXISTS SerialUnit (
+  id TEXT PRIMARY KEY, serialNo TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), lotId TEXT REFERENCES ProductLot(id),
+  status TEXT NOT NULL DEFAULT 'IN_STOCK', createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (productId, serialNo)
+);
+
+CREATE TABLE IF NOT EXISTS StockMovement (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), lotId TEXT REFERENCES ProductLot(id), serialUnitId TEXT REFERENCES SerialUnit(id),
+  kind TEXT NOT NULL, quantity INTEGER NOT NULL, reason TEXT, reference TEXT, actorId TEXT,
+  occurredAt TEXT NOT NULL, createdAt TEXT NOT NULL,
+  sourceLocationId TEXT, targetLocationId TEXT, costSatang INTEGER,
+  customerId TEXT, salesOrderId TEXT, workOrderId TEXT
+);
+CREATE INDEX IF NOT EXISTS StockMovement_product ON StockMovement (productId, occurredAt);
+
+CREATE TABLE IF NOT EXISTS InventoryLedgerFence (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  mutationRevision INTEGER NOT NULL DEFAULT 0, createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL,
+  UNIQUE (tenantId, businessId)
+);
+
+CREATE TABLE IF NOT EXISTS Supplier (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  name TEXT NOT NULL, taxId TEXT, contactName TEXT, phone TEXT, email TEXT, address TEXT,
+  paymentTerms TEXT, leadTimeDays INTEGER, notes TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE',
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS PurchaseOrder (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  supplierId TEXT NOT NULL REFERENCES Supplier(id), status TEXT NOT NULL DEFAULT 'DRAFT',
+  currency TEXT NOT NULL DEFAULT 'THB', expectedAt TEXT, notes TEXT, orderedAt TEXT NOT NULL,
+  sentAt TEXT, receivedAt TEXT, closedAt TEXT, closeReason TEXT, cancelledAt TEXT, cancelReason TEXT,
+  createdByPersonId TEXT, createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS PurchaseOrderLine (
+  id TEXT PRIMARY KEY, purchaseOrderId TEXT NOT NULL REFERENCES PurchaseOrder(id),
+  productId TEXT REFERENCES Product(id), description TEXT NOT NULL, qty INTEGER NOT NULL,
+  unitCostSatang INTEGER NOT NULL, sortOrder INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS PurchaseOrderLine_order ON PurchaseOrderLine (purchaseOrderId);
+
+CREATE TABLE IF NOT EXISTS GoodsReceipt (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  purchaseOrderId TEXT NOT NULL REFERENCES PurchaseOrder(id), supplierReference TEXT, notes TEXT,
+  receivedAt TEXT NOT NULL, postedByPersonId TEXT, createdAt TEXT NOT NULL,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS GoodsReceiptLine (
+  id TEXT PRIMARY KEY, receiptId TEXT NOT NULL REFERENCES GoodsReceipt(id),
+  purchaseOrderLineId TEXT NOT NULL REFERENCES PurchaseOrderLine(id), qty INTEGER NOT NULL,
+  lotCode TEXT, expiresAt TEXT, serialNosJson TEXT
+);
+CREATE INDEX IF NOT EXISTS GoodsReceiptLine_orderLine ON GoodsReceiptLine (purchaseOrderLineId);
+
+-- Supplier cost sheets (TASK-ZAI-053). A sheet holds one immutable source version
+-- (locked FX + normalized preview) until a person confirms every SKU mapping; lines
+-- exist only after commit. At most one CONFIRMED sheet per supplier (see F-12).
+CREATE TABLE IF NOT EXISTS SupplierCostSheet (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  supplierId TEXT NOT NULL REFERENCES Supplier(id), currency TEXT NOT NULL, fxRateLocked REAL NOT NULL,
+  sourceRef TEXT, sourceSha256 TEXT NOT NULL, previewHash TEXT NOT NULL, previewJson TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'DRAFT', lineCount INTEGER NOT NULL DEFAULT 0,
+  createdByPersonId TEXT, confirmedByPersonId TEXT, confirmedAt TEXT, supersededAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code),
+  UNIQUE (businessId, sourceSha256)
+);
+CREATE INDEX IF NOT EXISTS SupplierCostSheet_business ON SupplierCostSheet (businessId, status, createdAt);
+CREATE UNIQUE INDEX IF NOT EXISTS SupplierCostSheet_one_confirmed ON SupplierCostSheet (businessId, supplierId) WHERE status = 'CONFIRMED';
+
+CREATE TABLE IF NOT EXISTS SupplierCostLine (
+  id TEXT PRIMARY KEY, sheetId TEXT NOT NULL REFERENCES SupplierCostSheet(id), productId TEXT NOT NULL REFERENCES Product(id),
+  sourceSku TEXT NOT NULL, minQty INTEGER NOT NULL, unitCostForeign REAL NOT NULL,
+  unitsPerCarton INTEGER, cartonCbm REAL, cartonKg REAL, freightGoodsType TEXT, leadTimeDays INTEGER,
+  mappingConfidence TEXT NOT NULL, mappingConfirmedByPersonId TEXT, mappingConfirmedAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL,
+  UNIQUE (sheetId, sourceSku, minQty)
+);
+CREATE INDEX IF NOT EXISTS SupplierCostLine_product ON SupplierCostLine (productId, minQty);
+
+-- Recipes (FR-156): a bill of materials for one output SKU at one batch size.
+-- Lines name component SKUs of the same Business; qty is per batch (Float, like legacy).
+CREATE TABLE IF NOT EXISTS ProductRecipe (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), name TEXT NOT NULL, batchSize INTEGER NOT NULL, yieldQty INTEGER NOT NULL,
+  unit TEXT NOT NULL DEFAULT 'EA', notes TEXT, scrapAllowanceFactor REAL NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'ACTIVE', archivedAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code),
+  UNIQUE (productId, batchSize)
+);
+CREATE INDEX IF NOT EXISTS ProductRecipe_business ON ProductRecipe (businessId, status);
+
+CREATE TABLE IF NOT EXISTS ProductRecipeLine (
+  id TEXT PRIMARY KEY, recipeId TEXT NOT NULL REFERENCES ProductRecipe(id), componentProductId TEXT NOT NULL REFERENCES Product(id),
+  qty REAL NOT NULL, unit TEXT, fixed INTEGER NOT NULL DEFAULT 0, note TEXT,
+  UNIQUE (recipeId, componentProductId)
+);
+CREATE INDEX IF NOT EXISTS ProductRecipeLine_component ON ProductRecipeLine (componentProductId);
+
+-- Work orders (FR-176, FR-177) hold intent and progress; the ledger keeps holding fact.
+-- customerId / salesOrderId are opaque references (CRM, Commerce), never joined.
+CREATE TABLE IF NOT EXISTS CustomizationWorkOrder (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  salesOrderId TEXT, customerId TEXT, rawProductId TEXT NOT NULL REFERENCES Product(id), outputProductId TEXT REFERENCES Product(id),
+  technique TEXT NOT NULL, logoArtworkUrl TEXT, pantoneColorsJson TEXT,
+  plannedQty INTEGER NOT NULL, issuedQty INTEGER NOT NULL DEFAULT 0, completedQty INTEGER NOT NULL DEFAULT 0, scrapQty INTEGER NOT NULL DEFAULT 0,
+  scrapAllowanceFactor REAL NOT NULL DEFAULT 0.02, setupCostSatang INTEGER NOT NULL DEFAULT 0, runCostSatang INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'DRAFT', wipLocationId TEXT, scrapLocationId TEXT, sourceLocationId TEXT,
+  scheduledDate TEXT, startedAt TEXT, completedAt TEXT, cancelledAt TEXT, notes TEXT, createdByPersonId TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS CustomizationWorkOrder_business ON CustomizationWorkOrder (businessId, status);
+
+CREATE TABLE IF NOT EXISTS KittingWorkOrder (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  salesOrderId TEXT, customerId TEXT, recipeId TEXT NOT NULL REFERENCES ProductRecipe(id), finishedProductId TEXT NOT NULL REFERENCES Product(id),
+  plannedQty INTEGER NOT NULL, assembledQty INTEGER NOT NULL DEFAULT 0, scrapQty INTEGER NOT NULL DEFAULT 0,
+  laborCostSatang INTEGER NOT NULL DEFAULT 0, unitCostSatang INTEGER, plannedLinesJson TEXT,
+  status TEXT NOT NULL DEFAULT 'DRAFT', sourceLocationId TEXT, wipLocationId TEXT, targetLocationId TEXT, scrapLocationId TEXT,
+  outputLotCode TEXT, startedAt TEXT, completedAt TEXT, cancelledAt TEXT, notes TEXT, createdByPersonId TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS KittingWorkOrder_business ON KittingWorkOrder (businessId, status);
+
+-- Reservations (FR-180): a promise, never a ledger write, never deleted; read by ATP,
+-- kitting open and the ARCHIVE / MERGE guards; written by application/atp.js.
+CREATE TABLE IF NOT EXISTS StockReservation (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  productId TEXT NOT NULL REFERENCES Product(id), purpose TEXT NOT NULL, quantity INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'ACTIVE', customerId TEXT, salesOrderId TEXT, quoteReference TEXT,
+  customerCompany TEXT, contactHandle TEXT, notes TEXT, reservedAt TEXT NOT NULL, expiresAt TEXT,
+  releasedAt TEXT, convertedAt TEXT, createdByPersonId TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS StockReservation_product ON StockReservation (productId, status);
+
+-- Physical stocktake (FR-184): a durable preview (no movement) and its commit, which
+-- appends signed ADJUSTMENT rows under the Business ledger fence. idempotencyKey is
+-- the caller's body key (PREVIEW:<id> until committed).
+CREATE TABLE IF NOT EXISTS InventoryStocktake (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, idempotencyKey TEXT NOT NULL,
+  payloadHash TEXT NOT NULL, normalizedLinesJson TEXT NOT NULL, snapshotVersion INTEGER NOT NULL, snapshotHash TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'PREVIEWED', resultJson TEXT, committedAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, businessId, idempotencyKey)
+);
+CREATE INDEX IF NOT EXISTS InventoryStocktake_business ON InventoryStocktake (businessId, status, createdAt);
+
+-- Catalogue intake (FR-208, ADR-084): a persisted plan (preview) and its commit, which
+-- runs every action through the catalogue and identity writers in one unit of work.
+-- One row per (Business, channel, correlation); code is unique per Tenant.
+CREATE TABLE IF NOT EXISTS InventoryCatalogIntake (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  sourceChannel TEXT NOT NULL, sourceCorrelationId TEXT NOT NULL, payloadSha256 TEXT NOT NULL,
+  normalizedEnvelopeJson TEXT NOT NULL, planJson TEXT NOT NULL, planHash TEXT NOT NULL,
+  committable INTEGER NOT NULL DEFAULT 0, itemCount INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'PREVIEWED',
+  requestedById TEXT, resultJson TEXT, expiresAt TEXT NOT NULL, committedAt TEXT, cancelledAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (businessId, sourceChannel, sourceCorrelationId),
+  UNIQUE (tenantId, code)
+);
+CREATE INDEX IF NOT EXISTS InventoryCatalogIntake_business ON InventoryCatalogIntake (businessId, status, createdAt);
+
+CREATE TABLE IF NOT EXISTS WarehouseLocation (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, name TEXT NOT NULL,
+  type TEXT NOT NULL, isVirtual INTEGER NOT NULL DEFAULT 0, address TEXT, status TEXT NOT NULL DEFAULT 'ACTIVE', archivedAt TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+-- Commerce. customerId / conversationId / slipFileAssetId are opaque references to
+-- CRM and Files owners (verified through ReferenceAuthority, never joined here).
+CREATE TABLE IF NOT EXISTS SalesOrder (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  customerId TEXT, conversationId TEXT, origin TEXT NOT NULL DEFAULT 'WALK_IN', status TEXT NOT NULL DEFAULT 'DRAFT',
+  currency TEXT NOT NULL DEFAULT 'THB', discountSatang INTEGER NOT NULL DEFAULT 0, notes TEXT,
+  orderedAt TEXT NOT NULL, confirmedAt TEXT, completedAt TEXT, cancelledAt TEXT, cancelReason TEXT, stockIssuedAt TEXT,
+  closedByPersonId TEXT, createdByPersonId TEXT, createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code)
+);
+
+CREATE TABLE IF NOT EXISTS SalesOrderLine (
+  id TEXT PRIMARY KEY, orderId TEXT NOT NULL REFERENCES SalesOrder(id), productId TEXT REFERENCES Product(id),
+  description TEXT NOT NULL, qty INTEGER NOT NULL, unitPriceSatang INTEGER NOT NULL,
+  discountSatang INTEGER NOT NULL DEFAULT 0, sortOrder INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS SalesOrderLine_order ON SalesOrderLine (orderId);
+
+CREATE TABLE IF NOT EXISTS Payment (
+  id TEXT PRIMARY KEY, code TEXT NOT NULL, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  orderId TEXT NOT NULL REFERENCES SalesOrder(id), kind TEXT NOT NULL DEFAULT 'PAYMENT', method TEXT NOT NULL,
+  amountSatang INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'PENDING', bankReference TEXT, slipFileAssetId TEXT, note TEXT,
+  paidAt TEXT NOT NULL, verifiedAt TEXT, verifiedByPersonId TEXT, rejectReason TEXT, createdByPersonId TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (tenantId, code),
+  UNIQUE (tenantId, bankReference)
+);
+
+-- PromptPay configuration read by POS. Its writer (billing profile update, which also
+-- writes Identity-owned LegalEntity/Branch rows) has NOT moved: SHARED_TRANSITION.
+CREATE TABLE IF NOT EXISTS BusinessBillingProfile (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL UNIQUE,
+  promptPayProvider TEXT, promptPayTargetType TEXT, promptPayTarget TEXT, promptPayActive INTEGER NOT NULL DEFAULT 0,
+  promptPayVerifiedAt TEXT, active INTEGER NOT NULL DEFAULT 1,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Pricing (FR-253, ADR-098). Rule content is immutable once it leaves DRAFT and a
+-- calculation is an immutable snapshot: both are enforced here as well as in the
+-- service, so no future writer can quietly rewrite an approved policy or a price.
+CREATE TABLE IF NOT EXISTS PricingRuleSet (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, name TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'DRAFT', rulesJson TEXT NOT NULL, rulesHash TEXT NOT NULL,
+  sourceRuleSetId TEXT REFERENCES PricingRuleSet(id), createdByPersonId TEXT,
+  approvedByPersonId TEXT, approvedAt TEXT, effectiveFrom TEXT, expiresAt TEXT, approvalReason TEXT,
+  revokedByPersonId TEXT, revokedAt TEXT, revocationReason TEXT,
+  createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS PricingRuleSet_scope ON PricingRuleSet (tenantId, businessId);
+CREATE INDEX IF NOT EXISTS PricingRuleSet_effective ON PricingRuleSet (businessId, effectiveFrom, approvedAt);
+
+CREATE TABLE IF NOT EXISTS PricingCalculation (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL,
+  ruleSetId TEXT NOT NULL REFERENCES PricingRuleSet(id), ruleVersion INTEGER NOT NULL,
+  rulesHash TEXT NOT NULL, rulesJson TEXT NOT NULL, evaluatorVersion TEXT NOT NULL,
+  inputHash TEXT NOT NULL, inputJson TEXT NOT NULL, resultJson TEXT NOT NULL,
+  inputProvenance TEXT NOT NULL DEFAULT 'USER_ENTERED', requestHash TEXT NOT NULL,
+  idempotencyKey TEXT NOT NULL, createdByPersonId TEXT, createdAt TEXT NOT NULL,
+  UNIQUE (businessId, idempotencyKey)
+);
+CREATE INDEX IF NOT EXISTS PricingCalculation_ruleSet ON PricingCalculation (ruleSetId);
+
+-- Durable mutation identity: one row per (scope, idempotency key), committed in
+-- the SAME transaction as the effect, so "committed" and "has a receipt" are one fact.
+CREATE TABLE IF NOT EXISTS ScmOperationReceipt (
+  id TEXT PRIMARY KEY, tenantId TEXT NOT NULL, businessId TEXT NOT NULL, action TEXT NOT NULL,
+  actorId TEXT NOT NULL, idempotencyKey TEXT NOT NULL, requestHash TEXT NOT NULL,
+  targetId TEXT, status TEXT NOT NULL, responseJson TEXT NOT NULL, affectedJson TEXT NOT NULL,
+  createdAt TEXT NOT NULL,
+  UNIQUE (tenantId, businessId, action, actorId, idempotencyKey)
+);
+
+-- Local audit envelope with the columns of core AuditEvent; atomic with the effect.
+CREATE TABLE IF NOT EXISTS ScmAuditEvent (
+  id TEXT PRIMARY KEY, entityType TEXT NOT NULL, entityId TEXT NOT NULL, action TEXT NOT NULL,
+  payloadJson TEXT NOT NULL, actorType TEXT NOT NULL, actorId TEXT, occurredAt TEXT NOT NULL,
+  tenantId TEXT, businessId TEXT, requestId TEXT, reason TEXT, beforeJson TEXT, afterJson TEXT
+);
+
+-- Transactional outbox: written with the effect; delivery to the core audit view is a
+-- separate, idempotent relay (not implemented in this tranche — rows stay undelivered).
+CREATE TABLE IF NOT EXISTS ScmOutbox (
+  id TEXT PRIMARY KEY, topic TEXT NOT NULL, aggregateType TEXT NOT NULL, aggregateId TEXT NOT NULL,
+  aggregateVersion INTEGER, payloadJson TEXT NOT NULL, createdAt TEXT NOT NULL, deliveredAt TEXT
+);
+`
+
+// Store-level refusals, declared once and emitted per engine. Each fires BEFORE the
+// statement and aborts it with the message the services and tests look for.
+export const TRIGGERS = Object.freeze([
+  // Append-only ledger: the store refuses UPDATE and DELETE outright (ADR-054 D3).
+  { name: 'StockMovement_no_update', table: 'StockMovement', event: 'UPDATE', message: 'INVENTORY_LEDGER_APPEND_ONLY' },
+  { name: 'StockMovement_no_delete', table: 'StockMovement', event: 'DELETE', message: 'INVENTORY_LEDGER_APPEND_ONLY' },
+  // A receipt is never edited (FR-165): corrections are Inventory ADJUSTMENTs.
+  { name: 'GoodsReceipt_immutable', table: 'GoodsReceipt', event: 'UPDATE', message: 'GOODS_RECEIPT_IMMUTABLE' },
+  { name: 'GoodsReceiptLine_immutable', table: 'GoodsReceiptLine', event: 'UPDATE', message: 'GOODS_RECEIPT_IMMUTABLE' },
+  { name: 'SupplierCostSheet_source_immutable', table: 'SupplierCostSheet', event: 'UPDATE', columns: ['currency', 'fxRateLocked', 'sourceSha256', 'previewHash', 'previewJson', 'supplierId', 'businessId', 'tenantId'], message: 'PROCUREMENT_COST_SHEET_SOURCE_IMMUTABLE' },
+  { name: 'SupplierCostLine_immutable', table: 'SupplierCostLine', event: 'UPDATE', message: 'PROCUREMENT_COST_LINE_IMMUTABLE' },
+  { name: 'PricingRuleSet_content_immutable', table: 'PricingRuleSet', event: 'UPDATE', columns: ['rulesJson', 'rulesHash', 'name', 'tenantId', 'businessId', 'sourceRuleSetId'], when: "OLD.status <> 'DRAFT'", message: 'PRICING_RULE_IMMUTABLE' },
+  { name: 'PricingRuleSet_no_delete', table: 'PricingRuleSet', event: 'DELETE', message: 'PRICING_RULE_IMMUTABLE' },
+  { name: 'PricingCalculation_no_update', table: 'PricingCalculation', event: 'UPDATE', message: 'PRICING_CALCULATION_IMMUTABLE' },
+  { name: 'PricingCalculation_no_delete', table: 'PricingCalculation', event: 'DELETE', message: 'PRICING_CALCULATION_IMMUTABLE' },
+])
+
+const sqliteTrigger = (t) => `CREATE TRIGGER IF NOT EXISTS ${t.name} BEFORE ${t.event}${t.columns ? ` OF ${t.columns.join(', ')}` : ''} ON ${t.table}${t.when ? `\n  WHEN ${t.when}` : ''}\n  BEGIN SELECT RAISE(ABORT, '${t.message}'); END;`
+
+const q = (name) => `"${name}"`
+const postgresTrigger = (t) => [
+  `CREATE OR REPLACE FUNCTION ${q(`scm_refuse_${t.name}`)}() RETURNS trigger LANGUAGE plpgsql AS $fn$ BEGIN RAISE EXCEPTION '${t.message}' USING ERRCODE = 'P0001'; END $fn$;`,
+  `DROP TRIGGER IF EXISTS ${q(t.name)} ON ${q(t.table)};`,
+  `CREATE TRIGGER ${q(t.name)} BEFORE ${t.event}${t.columns ? ` OF ${t.columns.map(q).join(', ')}` : ''} ON ${q(t.table)} FOR EACH ROW${t.when ? ` WHEN (${t.when})` : ''} EXECUTE FUNCTION ${q(`scm_refuse_${t.name}`)}();`,
+].join('\n')
+
+/** SQLite DDL (the dev/test engine and the original spelling). */
+export const DDL = `${TABLES}\n${TRIGGERS.map(sqliteTrigger).join('\n')}\n`
+
+/**
+ * PostgreSQL DDL from the same table text: mixed-case names quoted, REAL widened
+ * to DOUBLE PRECISION (REAL is 4-byte there, 8-byte in SQLite), timestamps kept as
+ * ISO-8601 TEXT so comparisons and ordering are identical on both engines.
+ */
+export const POSTGRES_DDL = `${toPostgres(TABLES.replace(/\bREAL\b/g, 'DOUBLE PRECISION')).text}\n${TRIGGERS.map(postgresTrigger).join('\n')}\n`

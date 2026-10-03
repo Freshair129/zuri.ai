@@ -58,7 +58,7 @@ summary is `.brain/reports/2026-09-20-ki17-runtime-recovery.json`.
   snapshot `3b92cd0f` plus the current application source and tests. The model
   cache exists and is checked separately from the image's GenesisBlock provenance.
 - The final helper receipt is
-  `C:\Users\pc\.codex\runtimes\ki17-runtime\runs\ki17-59a0a93d862e442895296872f4b9ca58\receipt.json`.
+  `<codex-home>\runtimes\ki17-runtime\runs\<run>\receipt.json`.
   It records `PASS`, exit `0`, 40/40 tests across two files, zero failed/pending/todo,
   and the same four-process grounding measurements recorded in the tracked report.
 
@@ -85,7 +85,7 @@ current manifest pins 5e75c4a, which made source restoration ambiguous.
 
 1. Use the fixed Linux image route. Verify the raw local image ID above and
    `/opt/ki17/pins/resolved.json`, then invoke
-   `C:\Users\pc\.codex\runtimes\ki17-runtime\run-ki17-acceptance.ps1`.
+   `<codex-home>\runtimes\ki17-runtime\run-ki17-acceptance.ps1`.
    The helper extracts the fixed `3b92cd0f` source/test overlay; GenesisBlock
    provenance is artifact-attested, not a fresh Git clone.
 2. Record `linux-x64`, actual Node 24.18.0 and Python 3.12 versions, the image

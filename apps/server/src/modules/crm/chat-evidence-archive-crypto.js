@@ -187,3 +187,83 @@ export function openArchiveSegment(segment, { dek, tenantId, customerId, runId }
     throw new ChatEvidenceArchiveCryptoError('ARCHIVE_SEGMENT_SCOPE_MISMATCH')
   }
 }
+
+// @req FR-022, SEC-034 — the legal-hold re-seal key (ADR-093 1.2.0). Same
+//   construction as the per-Customer key above, with its own AAD labels so a
+//   hold key can never be opened as a Customer key (or the reverse), and a hold
+//   segment can never be opened under any Customer's key:
+//     DEK wrap AAD = ['LegalHoldArchiveKey', legalHoldId, tenantId, kekLabel]
+//     segment AAD  = ['ChatEvidenceArchiveHoldSegment', tenantId, legalHoldId, runId]
+
+function holdDekWrapAad({ legalHoldId, tenantId, kekLabel }) {
+  return aad(['LegalHoldArchiveKey', legalHoldId, tenantId, kekLabel])
+}
+
+function holdSegmentAad({ tenantId, legalHoldId, runId }) {
+  return aad(['ChatEvidenceArchiveHoldSegment', tenantId, legalHoldId, runId])
+}
+
+/** Mint a fresh data key for one legal hold, wrapped under the current archive KEK. */
+export function mintLegalHoldArchiveKey({ legalHoldId, heldCustomerId, tenantId }, env = process.env) {
+  const { current } = resolveArchiveKeyring(env)
+  const dek = randomBytes(32)
+  const wrapped = gcmSeal(current.key, dek, holdDekWrapAad({ legalHoldId, tenantId, kekLabel: current.label }))
+  return {
+    row: {
+      legalHoldId,
+      heldCustomerId,
+      tenantId,
+      kekId: current.label,
+      wrappedDek: [wrapped.nonce, wrapped.tag, wrapped.ciphertext].map((b) => b.toString('base64url')).join('.'),
+    },
+    dek,
+  }
+}
+
+/** Unwrap a stored `LegalHoldArchiveKey` row's DEK for this exact hold and Tenant. */
+export function openLegalHoldArchiveKey(row, { legalHoldId, tenantId }, env = process.env) {
+  const keyring = resolveArchiveKeyring(env)
+  if (!row || typeof row.kekId !== 'string' || !KEK_LABEL.test(row.kekId)) {
+    throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_SCOPE_MISMATCH')
+  }
+  const kek = keyring.keyFor(row.kekId)
+  if (!kek) throw unavailable()
+  const parts = String(row.wrappedDek ?? '').split('.')
+  if (parts.length !== 3) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_SCOPE_MISMATCH')
+  try {
+    const [nonce, tag, ciphertext] = parts.map((part) => Buffer.from(part, 'base64url'))
+    return gcmOpen(kek, { nonce, tag, ciphertext }, holdDekWrapAad({ legalHoldId, tenantId, kekLabel: row.kekId }))
+  } catch {
+    throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_SCOPE_MISMATCH')
+  }
+}
+
+/**
+ * Seal one legal hold's re-sealed lines (already gzipped). The segment names the
+ * hold only — never a `customerId`, and not the held Customer either (L4 of the
+ * #610 review: anything in the cleartext envelope is either bound by the AAD or
+ * absent; the hold id is bound, and the held Customer is found through the hold
+ * row). Every reader that walks segments by Customer
+ * (retrieval, expiry, the v2 writer's tests) passes over it untouched.
+ */
+export function sealHoldArchiveSegment({ dek, tenantId, legalHoldId, runId, plaintext }) {
+  const sealed = gcmSeal(dek, plaintext, holdSegmentAad({ tenantId, legalHoldId, runId }))
+  return {
+    keyScope: 'LEGAL_HOLD',
+    legalHoldId,
+    iv: sealed.nonce.toString('base64'),
+    tag: sealed.tag.toString('base64'),
+    ciphertext: sealed.ciphertext.toString('base64'),
+  }
+}
+
+export function openHoldArchiveSegment(segment, { dek, tenantId, legalHoldId, runId }) {
+  try {
+    const nonce = Buffer.from(segment.iv, 'base64')
+    const tag = Buffer.from(segment.tag, 'base64')
+    const ciphertext = Buffer.from(segment.ciphertext, 'base64')
+    return gcmOpen(dek, { nonce, tag, ciphertext }, holdSegmentAad({ tenantId, legalHoldId, runId }))
+  } catch {
+    throw new ChatEvidenceArchiveCryptoError('ARCHIVE_SEGMENT_SCOPE_MISMATCH')
+  }
+}

@@ -91,7 +91,8 @@ describe('FR-129 / SDD-075 — the gate envelope carries the reviewer’s eviden
     expect(() => parsePipelineEvent(event)).toThrow(/requires the evidence it was decided on/)
   })
 
-  // SEC-001/append-only: the column is under FORCE ROW LEVEL SECURITY and
+  // @trace verifies ZAI:SEC-001
+  // Append-only: the column is under FORCE ROW LEVEL SECURITY and
   // cannot be un-written. A strict object is what stops it becoming the place
   // rows leak into.
   it('refuses evidence carrying anything beyond the declared members', () => {

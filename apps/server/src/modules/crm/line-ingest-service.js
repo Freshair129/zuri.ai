@@ -11,6 +11,7 @@ import {
 } from '@/lib/validation/entities'
 import { refreshConversationPreview } from './conversation-preview-service'
 import { assignMessageSession, openSessionIdAt } from './conversation-session-service'
+import { LINE_UNSEND_TOMBSTONE } from './line-unsend-tombstone'
 
 // @req FR-023 — inbound LINE identity, customer, conversation and message are atomic.
 // @req FR-097 — trusted channel account is carried into identity discovery.
@@ -20,6 +21,7 @@ import { assignMessageSession, openSessionIdAt } from './conversation-session-se
 // @req FR-243 — every Message written here is assigned its session inside the same
 //   transaction, and every ConversationEvent takes the session open when it occurred
 //   (ADR-094 D2, SDD-102).
+// @req FR-022 — an inbound Message records its speaker's ChannelIdentity.
 // @req FR-233 — every write here that touches Message content refreshes
 //   Conversation.lastMessageAt/lastMessagePreview (conversation-preview-service.js).
 // @spec ADR-061, ADR-044, ADR-045, BR-001, BR-002, SEC-001, SEC-018
@@ -110,7 +112,11 @@ export async function ingestLineMessage(input, { db = prisma } = {}) {
   })
   const message = await db.message.create({
     data: { conversationId: conversation.id, direction, body: text, externalMessageId: externalMessageId ?? null,
-      contentKind: contentKind ?? 'TEXT', sessionId: session.id },
+      contentKind: contentKind ?? 'TEXT', sessionId: session.id,
+      // @req FR-022 — the speaker, not the thread owner: in a group or room the
+      //   Conversation belongs to its first speaker, so erasure of any other
+      //   speaker selects their words by this id (erase-principal.js).
+      authorChannelIdentityId: direction === 'INBOUND' ? identity.channelIdentity?.id ?? null : null },
   })
   // FR-229 — a media message also gets a MessageAttachment recorded without bytes.
   // Created in the same transaction as the message it belongs to, so a redelivery
@@ -274,11 +280,8 @@ export async function recordExistingConversationEvent(input, { db = prisma } = {
   return { conversationId: conversation.id, eventId: event.id, created: true }
 }
 
-// FR-229 — the one string an unsent message's body carries, distinct from the PDPA
-// erasure tombstone in conversation-redaction-service.js: the customer withdrew the
-// message themselves, which is a different fact than "erased by legal request", so
-// the two must read differently in the FR-091 inbox.
-export const LINE_UNSEND_TOMBSTONE = '[ข้อความถูกเรียกคืนโดยผู้ส่ง]'
+// FR-229 — the one string an unsent message's body carries (line-unsend-tombstone.js).
+export { LINE_UNSEND_TOMBSTONE }
 
 /**
  * FR-229 — an `unsend` event. Unlike follow/unfollow/postback, this never mints a

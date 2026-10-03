@@ -1,7 +1,7 @@
 ---
-version: "0.10.0b"
+version: "0.12.0b"
 status: active
-last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-27T23:30:00+07:00,Claude Opus 5.5 (MC0)"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -34,6 +34,8 @@ owns_models:
   - CustomerArchiveKey
   - ArchiveManifest
   - CustomerLegalHold
+  - CustomerRetentionConsent
+  - LegalHoldArchiveKey
 ---
 
 # Domain charter — crm
@@ -105,7 +107,18 @@ turn flows through before any agent work happens.
   (never a Member grant), and resolves the Customer through the caller's owned
   Business's tenant — the same BR-001 scope `getConversationInbox` reads
   through — so a Customer id alone can never widen the write past it.
-- `redactConversationContentForCustomers` — the PDPA erasure writer (FR-022). A
+- `recordCustomerRetentionConsent` / `revokeCustomerRetentionConsent` — FR-022's
+  retention consent (ADR-093 1.2.0, "consent to retain = keep"). This is the only
+  writer of `CustomerRetentionConsent`. It is a history, and it is separate from
+  FR-103: a sales user records the Customer's advance agreement that their chat
+  evidence may be kept. `SALES_REP` holds `crm.retention-consent.write`, and a
+  Business OWNER holds it implicitly. The write is tenant-bound like
+  `recordCustomerConsent`, and both writes are audited. Revoking destroys the
+  Customer's `LegalHoldArchiveKey` rows in the same transaction. While the
+  Customer is held, revoking therefore needs Business OWNER authority and a
+  reason. Readers
+  (`retention-consent-reader.js`) query it at erasure, sweep and retrieval time.
+- `redactConversationContent` — the PDPA erasure writer (FR-022). A
   fourth narrow writer, and the only one that is called by another domain: erasure
   belongs to identity ("the only flow allowed to do so", identity's charter), but
   `Message` is owned here, so identity asks through this export inside its own
@@ -120,6 +133,23 @@ turn flows through before any agent work happens.
   writer here, and idempotent — a message or attachment already redacted is
   neither counted nor rewritten. If a denormalised preview/snippet column is ever
   added to `Conversation`, it must be redacted in this same call.
+  It is keyed by conversation ids, and erasure uses it only for a thread that is
+  the erased person's alone (a direct chat). A LINE group or room thread is shared — it belongs to its first speaker's
+  Customer while every member writes in it — so it is never erased whole:
+  `redactSpeakerContentInSharedThreads` tombstones one speaker's own inbound lines
+  (selected by `Message.authorChannelIdentityId`, recorded at ingest, or by the
+  inbound id of that speaker's answer job, or, for a row with neither, the
+  speaker's Customer on its MESSAGE_INGESTED audit row, which is then written back
+  as the author) and the stack reply to each of them, in
+  any thread whoever owns it, leaving every other member's lines and staff messages
+  untouched (FR-022).
+  `findSpeakerConversationEventKeys` is its read-only companion for events: it names
+  the LINE webhook event ids of one person's own `ConversationEvent`s — every event
+  of a thread that is theirs alone, and, in any other thread, a POSTBACK / FOLLOW /
+  UNFOLLOW attributed to their Customer by its CONVERSATION_EVENT_RECORDED audit row
+  on the same channel account — so identity can tombstone those raw webhook payloads
+  (postback `data`, the sender's LINE user id). The event rows themselves hold ids
+  only (FR-229) and stay as the envelope (FR-022).
 - `recordConversationAnalysis` / `getConversationAnalyses` — the FR-127 derived
   CRM record boundary. A run is keyed by an internal `Conversation.id` and its
   generated analysis id; writes require ownership of the exact bound Business
@@ -167,7 +197,7 @@ turn flows through before any agent work happens.
   one data class: `MESSAGE_BODY_AND_ATTACHMENTS` (`Message.body` /
   `MessageAttachment`, 24-month installation default). It tombstones content
   past its effective per-Tenant window, keeps envelope columns (the same shape
-  `redactConversationContentForCustomers` already keeps), skips a row a
+  `redactConversationContent` already keeps), skips a row a
   non-terminal `LineConversationJob` still references
   (`LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES`), refreshes
   `Conversation.lastMessageAt`/`lastMessagePreview` for every conversation it
@@ -205,6 +235,18 @@ turn flows through before any agent work happens.
   or `LINE_OA_PUBLISHER` deciding a candidate has already proven authority
   over that exact Business through the knowledge domain and must not be
   refused for lacking an unrelated CRM inbox grant. Read-only by construction.
+- `readCustomerFact` / `readConversationFact` (`scm-reference-reader.js`) — the
+  narrow, internal (non-viewer) read port core's `scm-core.v1` façade
+  (`inventory/application/scm-core-facade.js`, ADR-111 D5) calls for the SCM
+  service's `customer` / `conversation` facts, instead of reading `Customer` and
+  `Conversation` itself. Given the Tenant of a Business the caller has already
+  authorized (the façade requires the commerce view of it) and one id, it answers
+  only `{id, code, tenantId, businessId|null, deletedAt|null}` for a Customer and
+  `{id, tenantId, businessId|null, customerId|null}` for a Conversation — never a
+  name, contact, consent or message field — or `null` for a missing id, malformed
+  input or another Tenant's row. The home-Business visibility rule stays with the
+  caller (legacy `sales-order-service` requireCustomer / requireConversation).
+  Read-only by construction; no `owns_models` change.
 - `createSalesTask` / `applySalesTaskAction` / `listSalesTasks` / `getSalesTask`
   — the sales task writer and readers (FR-161, ADR-064). A fifth narrow writer:
   a follow-up a salesperson owes a customer (call, LINE message, email, meeting,
@@ -319,6 +361,25 @@ before it tombstones a message body, a manifest model chains the files per Tenan
 and a legal-hold record on a Customer is the one thing that defers destroying their
 archive key on erasure.
 
+**ADR-093 1.2.0 (2026-09-27): consent to retain = keep.** `owns_models` +=
+`CustomerRetentionConsent`, `LegalHoldArchiveKey`.
+- **Erasure of a member of a shared thread.** Suppose another live member of the
+  thread is under an active legal hold and has an active retention consent. Before
+  the erased member's key is destroyed, `chat-evidence-hold-reseal-service.js`
+  re-seals the lines that key would shred, plus the erased member's unswept lines,
+  under that hold's key. It writes one new format-3 file and appends one manifest.
+  The hold key is destroyed when the hold ends (expiry run), when the consent is
+  revoked, or when the held Customer is erased.
+- **The retention sweep.** A past-window line whose key Customer is erased is never
+  archived. A staff, push or unknown-author line stays deferred while a live
+  member for it (the owner, or someone who spoke before it) has an active
+  consent. Every other such line is blanked. Every sweep re-checks consent inside
+  the blanking transaction.
+- **Retrieval.** Retrieval returns re-sealed lines to the held Customer while the
+  hold and the consent are active.
+- **Safety.** Re-seal files are never deleted. A qualifying hold with a broken
+  chain blocks the erasure.
+
 **FR-245 slice 1 built (2026-09-16, TASK-ZAI-111, not merged):** `owns_models` +=
 `CustomerArchiveKey`, `ArchiveManifest`. `chat-evidence-archive-crypto.js` mirrors
 `envelope-secret-store.js`'s AES-256-GCM AAD-bound construction under a dedicated
@@ -350,6 +411,21 @@ actually recorded — `Message` itself carries no such column), falling back to
 written, not applied. Retrieval (TASK-ZAI-112) and key destruction / the legal
 hold (TASK-ZAI-113) are not part of this slice.
 
+**Per-speaker archive keys in shared threads (2026-09-27, FR-022, ADR-093 1.1.0):**
+archive format 2 seals a LINE group or room line under its speaker's Customer key
+(`resolveArchiveKeyCustomers`: the Customer of `Message.authorChannelIdentityId`, the
+same key for the stack reply to that line, the thread owner's key for everything
+else), so key destruction and the legal hold act on exactly one member's lines.
+Retrieval of a Customer opens every still-existing member key a thread needs
+(`openExistingCustomerArchiveKeyDek`, never minting) and also returns the lines that
+Customer wrote in threads another Customer owns. The writer first attributes (and
+writes back) unauthored inbound rows through `attributeInboundMessageAuthors` (answer
+job sender, else MESSAGE_INGESTED audit), never mints a key for an erased Customer
+(such lines are deferred, `deferredErasedKey`), and its tombstone transaction touches
+only rows whose content still exists, rolling back and deleting its file otherwise.
+Format-1 files keep owner keying;
+their migration path is ADR-093 §"Group archives written before format 2".
+
 **FR-246 built (2026-09-16, TASK-ZAI-110, branch `feat/crm-staff-reply`, not
 merged):** `sendStaffReply`, above, needed no new model or migration — it writes
 `Message`/`AuditEvent` through the columns FR-093's writer already established
@@ -368,6 +444,9 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.12.0b | 2026-09-27 | FR-022 / ADR-093 1.2.0, the owner's ruling "consent to retain = keep". `owns_models` += `CustomerRetentionConsent`, `LegalHoldArchiveKey`. New writer `customer-retention-consent-service.js` (SALES_REP `crm.retention-consent.write`, OWNER implicit, audited, revocable, tenant-bound). Erasure re-seals a held, consenting member's evidence under a per-hold key into one appended format-3 file before the erased key is destroyed, then revokes the erased Customer's consent and clears the FR-103 note and recorder. The sweep blanks, without archiving, past-window lines whose erased key Customer nobody consented for. The expiry run destroys lapsed hold keys. Retrieval opens active hold keys. Migrations `20260927230000` written, not applied; Phase B inventory rebound to 194 tables | Claude Opus 5.5 (MC0) |
+| 0.11.0b | 2026-09-27 | Added `readCustomerFact` / `readConversationFact` (`scm-reference-reader.js`, ADR-111 D5): a narrow, internal, Tenant-bounded read port for the scm-core.v1 façade's Customer / Conversation facts, so core's façade no longer reads crm's models directly; read-only, field allow-list, no `owns_models` change | Claude Opus 5.5 |
+| 0.10.1b | 2026-09-27 | FR-022: archive format 2 seals a shared thread's lines per speaker and retrieval opens each member's existing key (ADR-093 1.1.0); `findSpeakerConversationEventKeys` names a person's own event keys so erasure tombstones their postback raw payloads | Claude Opus 5.5 (MC0) |
 | 0.10.0b | 2026-09-16 | FR-245 slice 1 built (TASK-ZAI-111, not merged): `owns_models` += `CustomerArchiveKey`, `ArchiveManifest`; `chat-evidence-archive-crypto.js` (AES-256-GCM under a dedicated `ZURI_ARCHIVE_KEK`, AAD binds Tenant/Customer/run) and `chat-evidence-archive-service.js` (per-Customer segment write, verify-then-rename, chained manifest, structurally-inseparable tombstone) called from `retention-sweep-service.js`, which now catches per Tenant and reports archive failures/manifests in the audit payload instead of tombstoning without a verified archive; migration `20260916150000` written, not applied; retrieval and key destruction are separate tasks (TASK-ZAI-112, TASK-ZAI-113) | Claude Sonnet 5 |
 | 0.9.0b | 2026-09-16 | FR-246 built (TASK-ZAI-110, not merged): second outbound writer `sendStaffReply` (FR-093's `recordLineReply` is now "the automatic" writer); pushes through line-oa-studio's `serverLinePorts` (a declared cross-domain reach, matching identity's `resolveLineIdentity` precedent), idempotent on `clientRequestId`, refuses before any push for the legacy channel/non-owner/non-server-enabled account; no new model | Claude Sonnet 5 |
 | 0.8.0b | 2026-09-16 | FR-243 surfaces (TASK-ZAI-107, not merged): the thread read model returns each message's session id, code and opening time; the Inbox draws a divider per session; the backfill also copies each LINE job's session from its inbound message | Claude Opus 5 |

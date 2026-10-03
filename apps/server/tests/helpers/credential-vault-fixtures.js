@@ -28,9 +28,17 @@ export function generateModelProviderKeyBundle() {
   return { apiKey: `sk-test-${randomBytes(24).toString('hex')}` }
 }
 
+/** A fresh Notion OAuth token pair for vault tests. */
+export function generateNotionOauthTokenBundle() {
+  return {
+    accessToken: `secret_test_${randomBytes(24).toString('hex')}`,
+    refreshToken: `nrt_test_${randomBytes(24).toString('hex')}`,
+  }
+}
+
 /** The strings a leak scan looks for: every secret field and their base64 forms. */
 export function secretNeedles(bundle) {
-  const needles = [bundle.channelSecret, bundle.channelAccessToken, bundle.clientSecret, bundle.apiKey].filter(Boolean)
+  const needles = [bundle.channelSecret, bundle.channelAccessToken, bundle.clientSecret, bundle.apiKey, bundle.accessToken, bundle.refreshToken].filter(Boolean)
   for (const value of [...needles]) {
     needles.push(Buffer.from(value, 'utf8').toString('base64'))
     needles.push(Buffer.from(value, 'utf8').toString('base64url'))

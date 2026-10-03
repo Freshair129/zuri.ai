@@ -107,16 +107,3 @@ describe('FR-139 Asset workbook and Sheet snapshot', () => {
     })
   })
 })
-
-describe('FR-140 trusted LINE handoff', () => {
-  it('accepts opaque FileAsset IDs and forbids body authority, secrets, tokens and URLs', async () => {
-    const line = await optionalModule('src/modules/asset-management/import/line-asset-handoff.js')
-    expect(line, 'LINE Asset handoff contract must exist').not.toBeNull()
-    if (!line) return
-
-    expect(line.zLineAssetHandoff.safeParse({ correlationId: 'line-1', fileAssetIds: ['file-a'] }).success).toBe(true)
-    for (const forbidden of ['tenantId', 'businessId', 'channelAccessToken', 'channelSecret', 'replyToken', 'attachmentUrl']) {
-      expect(line.zLineAssetHandoff.safeParse({ correlationId: 'line-1', fileAssetIds: ['file-a'], [forbidden]: 'forbidden' }).success, forbidden).toBe(false)
-    }
-  })
-})

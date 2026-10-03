@@ -13,7 +13,7 @@ vi.mock('@/modules/agent/execution-trace', () => ({
 }))
 vi.mock('@/modules/agent/line-execution-trace', () => ({ createLineExecutionTrace: vi.fn() }))
 
-import { admitCapturedLineEvents, admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
+import { admitCapturedLineEvents, admitLineConversation, markLineAdmissionIntent } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 
 // @req FR-149 — admission runs after LINE has been answered, so its failures have to be handled
 //   here rather than by asking for a redelivery that will no longer come; the reply-token deadline
@@ -37,6 +37,26 @@ const label = update => update.mock.calls.map(([call]) => ({
   status: call.data.processingStatus,
   error: call.data.processingError,
 }))
+
+describe('durable LINE admission outbox intent', () => {
+  it('marks every captured evidence row ADMITTING before ingress may acknowledge', async () => {
+    const { db, update } = dbDouble()
+    await markLineAdmissionIntent({ entries: [entry('one'), entry('two')], db })
+    expect(label(update)).toEqual([
+      { id: 'raw-one', status: 'ADMITTING', error: null },
+      { id: 'raw-two', status: 'ADMITTING', error: null },
+    ])
+  })
+
+  it('fails closed when the outbox row is missing or its durable write fails', async () => {
+    const { db } = dbDouble()
+    await expect(markLineAdmissionIntent({ entries: [{ rawRecordId: null }], db }))
+      .rejects.toMatchObject({ status: 503, message: 'LINE_ADMISSION_OUTBOX_ID_REQUIRED' })
+    const broken = dbDouble({ failUpdate: true }).db
+    await expect(markLineAdmissionIntent({ entries: [entry()], db: broken }))
+      .rejects.toThrow('LABEL_WRITE_FAILED')
+  })
+})
 
 describe('admission after the acknowledgement', () => {
   it('retries a transient failure and records the event as admitted', async () => {
@@ -203,6 +223,7 @@ describe('replyExpiresAt is anchored to the event, not to now', () => {
       allowDelayedPush: false, serverEnabled: true, transportMode: 'CLOUD', status: 'CONNECTED',
     }
     const tx = {
+      $executeRaw: vi.fn(async () => 1),
       lineOaAccount: { findUnique: vi.fn(async () => oaAccount) },
       lineConversationJob: {
         findUnique: vi.fn(async () => null),
@@ -225,6 +246,10 @@ describe('replyExpiresAt is anchored to the event, not to now', () => {
     })
 
     expect(createdReplyExpiresAt(tx)).toEqual(new Date(ingressReceivedAt.getTime() + 45_000))
+    expect(tx.$executeRaw).toHaveBeenCalledTimes(1)
+    const [statement, accountId] = tx.$executeRaw.mock.calls[0]
+    expect(statement.join('?')).toBe('UPDATE "LineOaAccount" SET "id" = "id" WHERE "id" = ?')
+    expect(accountId).toBe(account.id)
   })
 
   it('records the same deadline no matter how late now is across repeated retries', async () => {

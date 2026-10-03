@@ -29,7 +29,8 @@ import {
 //   is an Inventory service call with that viewer — no scope from the message,
 //   no Prisma write, no model output on the write path.
 // @spec ADR-084 D4; ADR-061; BR-042; SDD-091; SEC-001; FR-097
-// @tested tests/unit/agent-line-catalog-command.test.js, tests/integration/fr210-line-catalog-command.test.js
+// @tested tests/unit/agent-line-catalog-command.test.js, tests/integration/fr210-line-catalog-command.test.js,
+//   tests/integration/conversation-runtime-catalog-command.test.js
 
 const nonEmpty = (value) => typeof value === 'string' && value.trim().length > 0
 
@@ -51,6 +52,52 @@ export async function lineCatalogViewer(job, { db = prisma, identity = { findCha
   }
 }
 
+/**
+ * The fixed reply to a `#sku` command, or null when the message is not a
+ * command this sender may run (it then belongs to the normal answer). No model
+ * runs on either side of this decision. It is the one implementation both
+ * executor cohorts use: the Server worker through `withLineCatalogCommand`, and
+ * Core's Conversation Runtime `prepare` (ADR-106), which hands the reply to the
+ * runtime as a fixed turn so the two paths answer byte for byte alike.
+ */
+export async function lineCatalogCommandReply(job, {
+  db = prisma,
+  now = () => new Date(),
+  authorize = (claimed) => lineCatalogViewer(claimed, { db }),
+  inventory = { previewCatalogIntake, commitCatalogIntake, findCatalogIntakeByCode, applyCatalogIntakeAction },
+} = {}) {
+  const command = parseLineCatalogCommand(job?.inbound?.body)
+  if (!command) return null
+  const viewer = await authorize(job)
+  if (!viewer) return null
+  const requestedById = viewer.principal?.id ?? null
+  const at = now()
+  try {
+    if (command.kind === 'HELP') return { text: LINE_CATALOG_HELP }
+    if (command.kind === 'PREVIEW') {
+      if (command.unknownKeys.length) return { text: formatLineCatalogUnknownKeys(command.unknownKeys) }
+      if (!command.items.length) return { text: LINE_CATALOG_HELP }
+      const { intake } = await inventory.previewCatalogIntake({
+        schemaVersion: CATALOG_INTAKE_SCHEMA_VERSION,
+        businessId: job.businessId,
+        source: { channel: 'LINE_OA', correlationId: `line:${job.channelAccountId}:${job.eventId}` },
+        items: command.items,
+      }, { viewer, db, now: at, requestedById })
+      return { text: formatLineCatalogPreview(intake) }
+    }
+    const intake = await inventory.findCatalogIntakeByCode({ businessId: job.businessId, code: command.code }, { viewer, db })
+    if (intake.requestedById !== requestedById) return { text: formatLineCatalogError({ status: 404 }) }
+    if (command.kind === 'CONFIRM') {
+      const { intake: committed } = await inventory.commitCatalogIntake({ businessId: job.businessId, intakeId: intake.id, planHash: intake.planHash }, { viewer, db, now: at, requestedById })
+      return { text: formatLineCatalogResult(committed) }
+    }
+    await inventory.applyCatalogIntakeAction(intake.id, { action: 'CANCEL', version: intake.version }, { viewer, db, now: at, businessId: job.businessId, requestedById })
+    return { text: `ยกเลิก ${intake.code} แล้ว — ไม่มีอะไรถูกบันทึก` }
+  } catch (error) {
+    return { text: formatLineCatalogError(error) }
+  }
+}
+
 /** Wrap an answer port so `#sku` commands from authorized senders are handled before the model. */
 export function withLineCatalogCommand(answer, {
   db = prisma,
@@ -59,35 +106,7 @@ export function withLineCatalogCommand(answer, {
   inventory = { previewCatalogIntake, commitCatalogIntake, findCatalogIntakeByCode, applyCatalogIntakeAction },
 } = {}) {
   return async function answerWithCatalogCommand(job, options) {
-    const command = parseLineCatalogCommand(job?.inbound?.body)
-    if (!command) return answer(job, options)
-    const viewer = await authorize(job)
-    if (!viewer) return answer(job, options)
-    const requestedById = viewer.principal?.id ?? null
-    const at = now()
-    try {
-      if (command.kind === 'HELP') return { text: LINE_CATALOG_HELP }
-      if (command.kind === 'PREVIEW') {
-        if (command.unknownKeys.length) return { text: formatLineCatalogUnknownKeys(command.unknownKeys) }
-        if (!command.items.length) return { text: LINE_CATALOG_HELP }
-        const { intake } = await inventory.previewCatalogIntake({
-          schemaVersion: CATALOG_INTAKE_SCHEMA_VERSION,
-          businessId: job.businessId,
-          source: { channel: 'LINE_OA', correlationId: `line:${job.channelAccountId}:${job.eventId}` },
-          items: command.items,
-        }, { viewer, db, now: at, requestedById })
-        return { text: formatLineCatalogPreview(intake) }
-      }
-      const intake = await inventory.findCatalogIntakeByCode({ businessId: job.businessId, code: command.code }, { viewer, db })
-      if (intake.requestedById !== requestedById) return { text: formatLineCatalogError({ status: 404 }) }
-      if (command.kind === 'CONFIRM') {
-        const { intake: committed } = await inventory.commitCatalogIntake({ businessId: job.businessId, intakeId: intake.id, planHash: intake.planHash }, { viewer, db, now: at, requestedById })
-        return { text: formatLineCatalogResult(committed) }
-      }
-      await inventory.applyCatalogIntakeAction(intake.id, { action: 'CANCEL', version: intake.version }, { viewer, db, now: at, businessId: job.businessId, requestedById })
-      return { text: `ยกเลิก ${intake.code} แล้ว — ไม่มีอะไรถูกบันทึก` }
-    } catch (error) {
-      return { text: formatLineCatalogError(error) }
-    }
+    const reply = await lineCatalogCommandReply(job, { db, now, authorize, inventory })
+    return reply ?? answer(job, options)
   }
 }

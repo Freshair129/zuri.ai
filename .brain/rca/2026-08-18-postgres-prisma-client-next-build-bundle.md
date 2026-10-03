@@ -19,7 +19,7 @@ attributes:
 ## Symptom
 
 `npm run build` failed before compilation completed with
-`EPERM: operation not permitted, scandir C:\\Users\\freshair\\Application Data`.
+`EPERM: operation not permitted, scandir <user-profile>\\Application Data`.
 
 ## Evidence
 

@@ -2,12 +2,13 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.1.0b |
+| **Version** | 1.3.0b |
 | **Status** | Draft — snapshot of what exists on `main` plus the declared lanes, drawn 2026-09-05 |
 | **Author** | Claude Fable 5.1 |
 | **Date** | 2026-09-05 |
 | **Knowledge profile update** | 2026-09-08 — ADR-073 isolated execution; other domains retain their dated snapshot |
 | **Data flow update** | 2026-09-13 — where data enters, where it is combined and who receives it now lives in [DATA-PIPELINE-MAP.md](DATA-PIPELINE-MAP.md) (FR-212, ADR-085), regenerated on every `govern` with a surface level and build status per hop; this page keeps its dated context view |
+| **CI update** | 2026-09-27 — the CI subgraph is redrawn to what `governance.yml` runs: `tests` in four shards, `tests`/`build` skipped for a service-scoped pull request (the service's job, `govern` and its Core-side contract tests still run), e2e nightly only; later the same day, a pull request that changes only apps/server source/tests (optionally with isolated-service sources: conversation-runtime, market-intelligence, scm) runs only the RELATED tests (importers by vitest's module graph, tests naming the `@req` ids the changed files declare, the changed tests, and always every directory-scanning or computed-dynamic-import test; 1-4 shards by size, PostgreSQL WorkToolPort only when reached) and falls back to the full four shards for a renamed/deleted source, prisma, lockfiles, vitest config/setup, test helpers/fixtures, `.github`, scripts, `src/lib`, env/config, fan-out above 40%, any failure or the `ci:full` label; `main` pushes stay full |
 | **Relates to** | [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md) (three-layer, data-flow and flowchart views from 2026-08-15), [ARCHITECTURE.md](ARCHITECTURE.md), [DOMAIN-MAP.md](DOMAIN-MAP.md) (generated ownership), [PRODUCT.md](PRODUCT.md), ADR-007, ADR-018, ADR-025, ADR-041, ADR-043, ADR-044, ADR-058, ADR-059, ADR-060 |
 
 หน้านี้ตอบคำถามเดียว: **ระบบทั้งหมดประกอบด้วยอะไร ใครคุยกับใคร และอะไรสร้างแล้ว/ยังไม่สร้าง** ณ วันที่วาด
@@ -126,8 +127,16 @@ flowchart LR
     BUCKET["Storage bucket asset-evidence (private)<br/>ไบต์หลักฐานทรัพย์สิน; ไม่มี public URL"]
   end
 
-  subgraph CI["GitHub Actions — governance.yml ทุก PR"]
-    CHANGES["changes (path filter)"] --> VERIFY["verify: npm test → build → govern"] --> E2E["e2e (Playwright, ข้ามเมื่อเป็นเอกสารล้วน)"]
+  subgraph CI["GitHub Actions — governance.yml ทุก PR (2026-09-27)"]
+    CHANGES["changes: code / server scope (scripts/ci-change-scope.mjs)"] --> GOVERN["govern + contract tests ของ service ที่แก้"]
+    CHANGES --> TESTS["tests ×4 shards — PR: เฉพาะ related tests (vitest graph + @req) 1-4 shards;<br/>full เมื่อแตะ prisma/lockfile/config/src/lib/scripts/.github, fan-out &gt;40% หรือ label ci:full;<br/>main push = full เสมอ (ข้ามเมื่อแก้เฉพาะ service)"]
+    CHANGES --> BUILD["build (ข้ามเมื่อแก้เฉพาะ service)"]
+    SERVICES["conversation-runtime · market-intelligence · scm jobs"]
+    GOVERN --> VERIFY["verify (required)"]
+    TESTS --> VERIFY
+    BUILD --> VERIFY
+    SERVICES --> VERIFY
+    E2E["e2e: nightly / workflow_dispatch เท่านั้น"]
   end
 
   subgraph DEV["Developer machines"]
@@ -141,7 +150,7 @@ flowchart LR
   classDef ext fill:#eeeeee,stroke:#777,color:#222
   classDef store fill:#fdf1e3,stroke:#b57a2a,color:#4a3110
   class NGROK,WEB,LOCALDB box
-  class INTERNET,CHANGES,VERIFY,E2E ext
+  class INTERNET,CHANGES,GOVERN,TESTS,BUILD,SERVICES,VERIFY,E2E ext
   class PUB,CORE,VAULT,BUCKET,SQL store
   class PRIMARY,WT box
 ```

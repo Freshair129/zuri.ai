@@ -68,9 +68,8 @@ describe('FR-241 member projection', () => {
   const operatorUsage = mergeLaneUsage({
     lanes: PROGRAMME_LANES,
     usage: { lanes: {} },
-    reporters: { 'inst-1': { personDisplayName: 'Ploy Person', deviceLabel: 'DESKTOP-PLOY' } },
     reports: [{
-      source: 'claude-code', sessionId: 'sess-1', branch: lane.branches[1], taskCode: null, installationId: 'inst-1',
+      source: 'claude-code', sessionId: 'sess-1', branch: lane.branches[1], taskCode: null, personId: 'person-1', installationId: 'inst-1',
       inputTokens: 100, cacheWriteTokens: 1000, cacheReadTokens: 50000, outputTokens: 400, requestCount: 10, activeMinutes: 12,
       startedAt: '2026-09-14T01:00:00.000Z', endedAt: '2026-09-14T01:20:00.000Z', detail,
     }],
@@ -79,7 +78,7 @@ describe('FR-241 member projection', () => {
   it('removes people, devices, tool and model names, and keeps lane totals and headline counts', () => {
     const member = projectMemberLaneUsage(operatorUsage)
     const serialized = JSON.stringify(member)
-    for (const secret of ['Ploy Person', 'DESKTOP-PLOY', 'mcp__secret_connector__read', 'claude-opus-5']) {
+    for (const secret of ['person-1', 'mcp__secret_connector__read', 'claude-opus-5']) {
       expect(JSON.stringify(Object.fromEntries(operatorUsage))).toContain(secret)
       expect(serialized).not.toContain(secret)
     }
@@ -88,7 +87,7 @@ describe('FR-241 member projection', () => {
     expect(entry.sessions).toBe(1)
     expect(entry.detail).toMatchObject({ toolCalls: 5, toolErrors: 1, prompts: 2, reasoningTokens: 80, tools: {}, models: {} })
     expect(entry.byPerson).toEqual({})
-    expect(entry.byDevice).toEqual({})
+    expect(entry).not.toHaveProperty('byDevice')
   })
 
   it('still feeds the phase card figures', () => {

@@ -224,5 +224,32 @@ describe('FR-165 GoodsReceipt', () => {
     expect(productDetail.costing.costHistory[0].costSatang).toBe(5500)
     expect(productDetail.costing.costHistory[1].costSatang).toBe(2000)
   })
+
+  // @req FR-196 — the person who wrote the order cannot also sign for its goods,
+  // an OWNER included (the capability gate lets an OWNER through; this is the
+  // refusal it does not answer). `selfVerifyAttested: true` is the auditable
+  // exemption for a genuinely one-person Business. Had no test before
+  // (SCM-HANDOFF F-2).
+  it('FR-196 — the order author cannot post its receipt unless attested, and the attested post is audited as selfVerified', async () => {
+    const order = await sentOrder([{ productId: box.id, qty: 2, unitCost: 20 }])
+    expect(order.createdByPersonId).toBe('per-owner')
+    const line = order.lines[0].id
+    const before = await onHand('BOX-GRN')
+    await expect(postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: line, qty: 2 }] }, { viewer: owner, now: NOW })).rejects.toMatchObject({ status: 409, message: 'GOODS_RECEIPT_SELF_POST_FORBIDDEN' })
+    expect(await prisma.goodsReceipt.count({ where: { purchaseOrderId: order.id } })).toBe(0)
+    expect(await onHand('BOX-GRN')).toBe(before)
+
+    const attested = await postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: line, qty: 2 }], selfVerifyAttested: true }, { viewer: owner, now: NOW })
+    expect(attested.receipt.postedByPersonId).toBe('per-owner')
+    expect(await onHand('BOX-GRN')).toBe(before + 2)
+    const audit = await prisma.auditEvent.findFirst({ where: { entityType: 'GOODS_RECEIPT', entityId: attested.receipt.id, action: 'GOODS_RECEIPT_POSTED' } })
+    expect(JSON.parse(audit.payloadJson)).toMatchObject({ selfVerified: true })
+
+    // Someone else receiving is not a self-post, and is audited as such.
+    const other = await sentOrder([{ productId: box.id, qty: 1, unitCost: 20 }])
+    const byReceiver = await postGoodsReceipt(other.id, { lines: [{ purchaseOrderLineId: other.lines[0].id, qty: 1 }] }, { viewer: receiver, now: NOW })
+    const audit2 = await prisma.auditEvent.findFirst({ where: { entityType: 'GOODS_RECEIPT', entityId: byReceiver.receipt.id, action: 'GOODS_RECEIPT_POSTED' } })
+    expect(JSON.parse(audit2.payloadJson)).toMatchObject({ selfVerified: false })
+  })
 })
 

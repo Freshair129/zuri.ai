@@ -26,6 +26,13 @@
 // A context with neither fails. Nothing here ever guesses, and nothing passes by
 // default: an unreadable provenance is a failed build, which is the whole point.
 //
+// Two manifests exist. `pins.json` (profile "stdio") is the default for every ki17
+// target and pins the tuple production runs. `pins.gks-http.json` (profile
+// "gks-http") pins the newer MSP/GKS pair the opt-in private HTTP canary needs, and
+// is selected only through the Dockerfile's KI17_PINS_MANIFEST build argument. The
+// receipt records which profile was verified, and `--profile` makes a caller's
+// expectation explicit: a manifest with a different or missing profile fails.
+//
 // Node built-ins only — this runs before any npm install in the build.
 
 import { readFileSync, existsSync, statSync, writeFileSync, mkdirSync } from 'node:fs'
@@ -43,9 +50,10 @@ class PinError extends Error {
 function usage() {
   return [
     'Usage:',
-    '  node verify-ki17-pins.mjs --manifest <pins.json> --context <name>=<dir> [--context ...] [--out <file>]',
+    '  node verify-ki17-pins.mjs --manifest <pins.json> --context <name>=<dir> [--context ...] [--profile <name>] [--out <file>]',
     '',
-    '  --manifest  the pin manifest (apps/server/deploy/ki17/pins.json)',
+    '  --manifest  the pin manifest (apps/server/deploy/ki17/pins.json, or pins.gks-http.json for the HTTP canary)',
+    '  --profile   optional; fail unless the manifest declares this profile (stdio | gks-http)',
     '  --context   a build context to verify, named as it appears in the manifest',
     "              under repositories.<name>.buildContext (e.g. msp=/ctx/msp)",
     '  --out       optional path for a JSON receipt of what was resolved',
@@ -53,12 +61,18 @@ function usage() {
 }
 
 export function parseArguments(argv) {
-  const options = { manifest: null, contexts: [], out: null }
+  const options = { manifest: null, contexts: [], out: null, profile: null }
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index]
     const value = argv[index + 1]
     if (flag === '--manifest') { options.manifest = value; index += 1; continue }
     if (flag === '--out') { options.out = value; index += 1; continue }
+    if (flag === '--profile') {
+      if (typeof value !== 'string' || !value || value.startsWith('--')) throw new PinError('KI17_PIN_ARGS_INVALID', `--profile expects a profile name, got ${value ?? '(nothing)'}`)
+      options.profile = value
+      index += 1
+      continue
+    }
     if (flag === '--context') {
       if (typeof value !== 'string' || !value.includes('=')) throw new PinError('KI17_PIN_ARGS_INVALID', `--context expects <name>=<dir>, got ${value ?? '(nothing)'}`)
       const separator = value.indexOf('=')
@@ -140,10 +154,13 @@ export function resolveContextCommit(contextDir) {
   ].join('\n  '))
 }
 
-export function verifyPins({ manifest, contexts, readManifest = (file) => JSON.parse(readFileSync(file, 'utf8')), resolve = resolveContextCommit, exists = existsSync }) {
+export function verifyPins({ manifest, contexts, profile = null, readManifest = (file) => JSON.parse(readFileSync(file, 'utf8')), resolve = resolveContextCommit, exists = existsSync }) {
   const pins = readManifest(manifest)
   const repositories = pins?.repositories
   if (!repositories || typeof repositories !== 'object') throw new PinError('KI17_PIN_MANIFEST_INVALID', `${manifest} has no "repositories" object`)
+  if (profile !== null && pins.profile !== profile) {
+    throw new PinError('KI17_PIN_PROFILE_MISMATCH', `${manifest} declares profile ${JSON.stringify(pins.profile ?? null)}, but ${JSON.stringify(profile)} was required`)
+  }
 
   const results = []
   const failures = []
@@ -190,12 +207,14 @@ export function verifyPins({ manifest, contexts, readManifest = (file) => JSON.p
   }
 
   if (failures.length) throw new PinError('KI17_PIN_MISMATCH', `\n  ${failures.join('\n  ')}\n`)
-  return { manifest, cycle: pins.cycle ?? null, runtime: pins.runtime ?? null, verifiedAt: new Date().toISOString(), contexts: results }
+  return { manifest, profile: pins.profile ?? null, cycle: pins.cycle ?? null, runtime: pins.runtime ?? null, verifiedAt: new Date().toISOString(), contexts: results }
 }
 
 function main(argv) {
   const options = parseArguments(argv)
   const receipt = verifyPins(options)
+  process.stdout.write(`ki17 pin profile ${receipt.profile ?? '(none declared)'}  (${options.manifest})
+`)
   for (const context of receipt.contexts) {
     const note = context.provenance === 'git' ? 'verified from git' : 'operator-attested via .ki17-pin'
     process.stdout.write(`ki17 pin ok  ${context.name.padEnd(13)} ${context.commit}  (${note})\n`)

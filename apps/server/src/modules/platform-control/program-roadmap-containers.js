@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.22, 2026-09-23) so the board can open a task the way the html board
+// (v0.4.28, 2026-09-27) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -1568,7 +1568,7 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/asset-management/application/asset-extraction-job-service.js",
       "doc": "docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md",
-      "test": "apps/server/tests/integration/fr143-asset-extraction-job.test.js"
+      "test": "apps/server/tests/unit/edge-surface-retirement.test.js"
     },
     "linkState": {
       "code": "present",
@@ -2324,7 +2324,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-050",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "ATHER",
@@ -2356,7 +2356,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts \"no production deployment\" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live.",
+    "changelog": "Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts \"no production deployment\" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live. Status corrected to in-progress 2026-09-27 to match the live ROADMAP.md task row (moved there by Revision 2.134.0b on 2026-09-24 and never mirrored into this container). 2026-09-27 (v0.2.0, .brain/reports/2026-09-27-task-zai-050-dod-review.md): the acceptance criterion's four named migrations are checked true, traced by exclusion from ADR-104's 2026-09-23 full-tree migration-ledger preflight (105 files vs 96 ledger rows, ten named gaps, none of these four) and its post-apply 107-row ledger; this session had no live production DB access to confirm directly. success_criteria and exit_criteria are untouched — MSP/GKS reachability shows partial evidence (2026-09-24 probe: 22/38 Stage 17 PASS, one stuck PipelineRun) and the real-document run/receipt/citation record is separate from this review's two-item scope, so neither is claimed done here.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 30000,
     "totalTokens": 0,
@@ -3324,10 +3324,10 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/identity/harness-credential.js",
       "doc": "docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md",
-      "test": "apps/server/tests/e2e/fr220-harness-pairing.spec.js"
+      "test": "apps/server/tests/unit/edge-surface-retirement.test.js"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "present"
     },
@@ -3455,9 +3455,9 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/server/tests/unit/zuri-harness-plugin.test.js"
     },
     "linkState": {
-      "code": "present",
-      "doc": "present",
-      "test": "present"
+      "code": "missing",
+      "doc": "missing",
+      "test": "missing"
     },
     "delivers": [
       "FR-222",
@@ -3520,7 +3520,7 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/server/tests/unit/usage-detail.test.js"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "present"
     },
@@ -3565,7 +3565,7 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/server/tests/unit/usage-detail.test.js"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "present"
     },
@@ -5308,7 +5308,7 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/crm/conversation-preview-service.js",
       "doc": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
-      "test": "apps/server/tests/e2e/fr243-conversation-sessions.spec.js"
+      "test": "apps/server/tests/integration/crm-conversation-sessions.test.js"
     },
     "linkState": {
       "code": "present",
@@ -5419,9 +5419,9 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/edge/tests/unit/model-residency-schedule.test.ts"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
-      "test": "present"
+      "test": "missing"
     },
     "delivers": [
       "FR-244"
@@ -6116,6 +6116,102 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-103"
     ],
     "evidence": "PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103"
+  },
+  "TASK-ZAI-123": {
+    "container": "TC-TASK-ZAI-123",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.2b",
+    "priority": "P1",
+    "pic": "Codex",
+    "executor": "Codex",
+    "approver": "Owen",
+    "auditor": "pending",
+    "links": {
+      "code": "apps/server/src/modules/integration/application/notion-oauth-service.js",
+      "doc": "docs/decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md",
+      "test": "apps/server/tests/integration/notion-oauth-webhook.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FEAT-046",
+      "FR-273",
+      "FR-274"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a Business owner at AAL2 and a configured Notion connection, when the callback returns a code with matching state, then the server stores the token through SecretStorePort and redirects without credential material",
+        "checked": true
+      },
+      "success": {
+        "text": "Given Notion webhook events, when the exact raw body signature is invalid or absent, then no receipt is written, and valid duplicate event ids create one minimal receipt",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the owner-authorized release process, when the Notion provider is configured and the additive migrations are applied, then a real OAuth callback and webhook verification receipt are recorded without exposing credentials",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-26 under ADR-109 after owner approval. Rebased on current origin/main d302eb08 and locally verified: governance passed with 0 critical and 1 existing warning; Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Provider setup, production migrations and deployment are not performed by this task.",
+    "created": "2026-09-26T00:00:00Z,Codex,pending",
+    "predictedTokens": 45000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-078"
+    ],
+    "evidence": "../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md"
+  },
+  "TASK-ZAI-124": {
+    "container": "TC-TASK-ZAI-124",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.0b",
+    "priority": "P2",
+    "pic": "MC0",
+    "executor": "MC0",
+    "approver": "Owen",
+    "auditor": "pending",
+    "links": {
+      "code": "apps/server/src/app/api/insights/_insights-http.js",
+      "doc": "docs/migrations/service-extraction/MARKETING-INSIGHTS-HANDOFF.md",
+      "test": "apps/server/tests/unit/marketing/insights/insights-routes.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FR-275"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a signed-in viewer, when any /api/insights route is called in this release, then it answers 503 INSIGHTS_NOT_CONFIGURED after authentication and never calls a provider",
+        "checked": true
+      },
+      "success": {
+        "text": "Given the synthetic fixture repository injected in tests, when a viewer reads summary, metric, export and content, then only brands whose Business they see with the growth domain are returned and refusals keep their typed code",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the I2 persistent repository and an owner-approved brand binding, when a member opens /growth/insights, then the page shows real snapshot data and the CSV matches the chart",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-27 by MC0 for S6 after the B1/B2 integrator decisions. Five GET routes, the /growth/insights page and route tests on draft #554; no reporting source, provider call, migration or deployment.",
+    "created": "2026-09-27T00:00:00Z,MC0,pending",
+    "predictedTokens": 30000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-078"
+    ],
+    "evidence": "../migrations/service-extraction/MARKETING-INSIGHTS-HANDOFF.md"
   },
   "TASK-ZAI-121": {
     "container": "TC-TASK-ZAI-121",

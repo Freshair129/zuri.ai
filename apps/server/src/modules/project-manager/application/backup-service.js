@@ -33,6 +33,7 @@ import prisma from '@/lib/db'
 import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
 import { recordAudit } from './audit'
 import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
+import { MEMORY_ERASURE_KINDS } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { pricingHash } from '@/modules/commerce/domain/pricing-engine'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
@@ -123,9 +124,14 @@ const KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES = Object.freeze(['knowledgeArti
 const LINE_WORKER_MEMORY_RECOVERY_TABLES = Object.freeze(['lineConversationJob', 'agentTraceEvent'])
 const LINE_WORKER_MEMORY_STATES = Object.freeze(['NONE', 'PENDING', 'ACKNOWLEDGED', 'CLOSED'])
 const LINE_WORKER_MEMORY_AUDIENCES = Object.freeze(['DIRECT', 'GROUP', 'ROOM'])
-const LINE_WORKER_MEMORY_TRACE_KINDS = Object.freeze([
+// @req FR-022 — MSP memory erasure records (MEMORY_THREAD_ERASURE_*, W12) are
+// memory evidence too: a PENDING or FAILED one is the only trace of an erasure MSP
+// has not acknowledged. A snapshot that cannot carry them must not replace an
+// installation that holds any, exactly as for the delivery receipts.
+export const LINE_WORKER_MEMORY_TRACE_KINDS = Object.freeze([
   'MEMORY_DELIVERY_PENDING', 'MEMORY_DELIVERY_ATTEMPT',
   'MEMORY_DELIVERY_ACKNOWLEDGED', 'MEMORY_DELIVERY_CLOSED',
+  ...Object.values(MEMORY_ERASURE_KINDS),
 ])
 
 function validSnapshotDate(value) {
@@ -198,7 +204,7 @@ export const SNAPSHOT_MODELS = [
   // it and delete before the Tenant/Business they reference. The three integration
   // metadata models were absent from this list entirely; a restore silently dropped
   // them, which the new foreign keys turn from invisible data loss into a hard error.
-  'integrationConnection', 'integrationCredential',
+  'integrationConnection', 'integrationCredential', 'notionWebhookReceipt',
   // @req FR-223 — a credential's version history hangs off the credential; it holds
   // references and lifecycle metadata, never material (SEC-030), so it is exported
   // whole. The material itself (IntegrationSecretEnvelope) is excluded below.
@@ -356,6 +362,10 @@ export const SNAPSHOT_MODELS = [
   // a dispute reason and an end date, no key and no file reference — unlike
   // CustomerArchiveKey/ArchiveManifest below, which stay excluded.
   'customerLegalHold',
+  // @req FR-022 — a Customer's retention consents hang off Customer and the
+  // recording Person, same position and reasoning as customerLegalHold: a
+  // business record (who agreed, who recorded it, when, revoked when), no key.
+  'customerRetentionConsent',
   'conversation',
   // @req FR-243 — a session hangs off Conversation and Message/ConversationEvent
   // point at it, so it restores between them. Ids, counts and times, no content.
@@ -384,6 +394,10 @@ export const SNAPSHOT_MODELS = [
   // not a constraint the database enforces — this position (after `customer`,
   // `conversation` and `message`, above) keeps it truthful anyway.
   'customerArchiveKey', 'archiveManifest',
+  // @req FR-022, SEC-034 — a legal hold's re-seal key (ADR-093 1.2.0): included
+  // for exactly customerArchiveKey's reason — wrapped ciphertext whose KEK is
+  // never in a snapshot, and a random data key with no re-entry path.
+  'legalHoldArchiveKey',
   // @req FR-161 — a sales task hangs off Business, Person (assignee) and
   // optionally Customer and Conversation, so it restores after all of them.
   // Operating data, no secret: exported whole.
@@ -417,6 +431,11 @@ export const SNAPSHOT_MODELS = [
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
   'agentTraceEvent',
+  // @req FR-277 — diagnostic-only shadow-compare rows (ADR-090 Phase 3,
+  // TASK-ZAI-095). No relation is declared (matching agentTraceEvent's own
+  // convention), so ordering relative to it is not load-bearing; exported
+  // whole, no secret — the same answer text the primary path already sent.
+  'lineGroundingShadowComparison',
   // @req FR-127 — analyses are derived children of Conversation and must travel
   // with it so an export/import round trip does not silently lose CRM context.
   'conversationAnalysis', 'auditEvent',
@@ -474,6 +493,12 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
     'FR-223 envelope-store ciphertext is credential material (SEC-030, ADR-089 D1). It is never exported: a ' +
     'snapshot carries credential references and version history only, a restored credential must be entered ' +
     'again (REENTRY_REQUIRED), and the key-encryption key that could open it is never part of any export.',
+  notionOAuthState:
+    'FR-273 OAuth state is a short-lived anti-forgery capability. It is never exported or restored, so a ' +
+    'recovery cannot reopen an already-used authorization callback.',
+  notionWebhookVerificationToken:
+    'FR-274 webhook verification material is encrypted credential material. It is never exported or restored; ' +
+    'a recovered installation must recreate and verify its Notion webhook subscription (ADR-109 D3).',
   localWorkspaceMount:
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +
@@ -495,7 +520,11 @@ const KNOWLEDGE_ADMISSION_TABLES = ['knowledgeCorpus', 'knowledgeSource', 'knowl
 // copy of the whole snapshot list: a same-version legacy snapshot may predate
 // these arrays, but treating their absence as an intentional empty table can
 // permanently strand archive files or erase retained usage totals.
-const ARCHIVE_RECOVERY_TABLES = Object.freeze(['customerArchiveKey', 'archiveManifest'])
+// @req FR-022, SEC-034 — `legalHoldArchiveKey` (ADR-093 1.2.0) joins the family:
+// a restore from a snapshot without it would silently delete every live hold key,
+// i.e. crypto-shred retained dispute evidence. It is optional for a snapshot
+// that predates it only while the installation holds no hold key.
+const ARCHIVE_RECOVERY_TABLES = Object.freeze(['customerArchiveKey', 'archiveManifest', 'legalHoldArchiveKey'])
 const USAGE_ROLLUP_RECOVERY_TABLE = 'usageEventRollup'
 const PRICING_RECOVERY_TABLES = Object.freeze(['pricingRuleSet', 'pricingCalculation'])
 export const PRICING_RECOVERY_MANIFEST_VERSION = 'pricing-recovery.v1'
@@ -739,8 +768,21 @@ function archiveRecovery(snapshot) {
     if (manifestState === 'MALFORMED') result.errors.push('Archive recovery snapshot archiveManifest must be an array')
     return result
   }
+  const holdKeyState = snapshotTableState(tables, ARCHIVE_RECOVERY_TABLES[2])
+  if (holdKeyState === 'MALFORMED') {
+    result.status = 'INVALID'
+    result.errors.push('Archive recovery snapshot legalHoldArchiveKey must be an array')
+    return result
+  }
   const keyPresent = keyState === 'PRESENT'
   const manifestPresent = manifestState === 'PRESENT'
+  // An empty hold-key array carries no evidence, so it never makes a family partial.
+  if (holdKeyState === 'PRESENT' && tables.legalHoldArchiveKey.length > 0 && !(keyPresent && manifestPresent)) {
+    result.status = 'INVALID'
+    result.errors.push('Archive recovery snapshot has a partial archive family; legalHoldArchiveKey requires customerArchiveKey and archiveManifest')
+    return result
+  }
+  result.holdKeysMissing = holdKeyState === 'MISSING'
   if (keyPresent !== manifestPresent) {
     result.status = 'INVALID'
     result.errors.push('Archive recovery snapshot has a partial archive family; customerArchiveKey and archiveManifest must be present together')
@@ -763,6 +805,23 @@ function archiveRecovery(snapshot) {
     }
     if (archiveKeyCustomers.has(row.customerId)) result.errors.push(`Archive keys reuse customerId ${row.customerId}`)
     archiveKeyCustomers.add(row.customerId)
+  }
+  if (holdKeyState === 'PRESENT') {
+    const holds = new Set()
+    for (const row of tables.legalHoldArchiveKey) {
+      const label = row?.id || '<unknown>'
+      if (!isSnapshotObject(row)) {
+        result.errors.push(`Legal hold archive key ${label} is not an object`)
+        continue
+      }
+      for (const field of ['id', 'tenantId', 'legalHoldId', 'heldCustomerId', 'kekId', 'wrappedDek']) {
+        if (typeof row[field] !== 'string' || !row[field].trim()) result.errors.push(`Legal hold archive key ${label} has no valid ${field}`)
+      }
+      if (holds.has(row.legalHoldId)) result.errors.push(`Legal hold archive keys reuse legalHoldId ${row.legalHoldId}`)
+      holds.add(row.legalHoldId)
+    }
+  } else {
+    result.warnings.push('LEGAL_HOLD_ARCHIVE_KEY_RECOVERY_UNAVAILABLE: snapshot has no legalHoldArchiveKey array')
   }
   result.manifestRows = archiveManifestRestoreRows(tables.archiveManifest, result)
   if (result.errors.length) result.status = 'INVALID'
@@ -1690,6 +1749,10 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
     archive.errors.push('Chat evidence archive recovery is unavailable while the installation contains archive keys or manifests; refusing a restore that would erase evidence')
     archive.status = 'INVALID'
   }
+  if (archive.status === 'AVAILABLE' && archive.holdKeysMissing && current.legalHoldArchiveKey > 0) {
+    archive.errors.push('Legal hold archive key recovery is unavailable while the installation contains legal hold keys; refusing a restore that would erase retained evidence')
+    archive.status = 'INVALID'
+  }
   if (usageRollup.status === 'UNAVAILABLE' && current[USAGE_ROLLUP_RECOVERY_TABLE] > 0) {
     usageRollup.errors.push('Usage event rollup recovery is unavailable while the installation contains rollup rows; refusing a restore that would erase aggregate evidence')
     usageRollup.status = 'INVALID'
@@ -1745,6 +1808,13 @@ async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
   }
   const pricing = pricingRecovery(snapshot)
   if (pricing.errors.length) throw new BackupRestoreSafetyError('BACKUP_PRICING_RECOVERY_INVALID', pricing.errors.join('; '))
+  const holdKeysMissing = preview.archiveRecovery?.status === 'AVAILABLE' && preview.archiveRecovery?.holdKeysMissing
+  if (holdKeysMissing && await tx.legalHoldArchiveKey.count() > 0) {
+    throw new BackupRestoreSafetyError(
+      'BACKUP_ARCHIVE_RECOVERY_LIVE_DATA_APPEARED',
+      'Legal hold archive key recovery is unavailable while legalHoldArchiveKey gained live rows; refusing to erase evidence',
+    )
+  }
   if (preview.archiveRecovery?.status === 'UNAVAILABLE') {
     for (const model of ARCHIVE_RECOVERY_TABLES) {
       const count = await tx[model].count()

@@ -107,13 +107,13 @@ function NodeDetail({ node, map, onSelectChain }) {
           <dt>ระดับ surface</dt>
           <dd>{SURFACE_LABEL[node.surfaceLevel] || '—'}</dd>
           <dt>โดเมน</dt>
-          <dd>{node.domain ?? (node.system === 'edge' ? 'Edge Device' : '—')}</dd>
+          <dd>{node.domain ?? '—'}</dd>
           <dt>FEAT</dt>
           <dd>{node.features.length ? node.features.join(', ') : '—'}</dd>
         </dl>
       ) : (
         <p className={styles.detailText}>
-          {node.system === 'edge' ? 'Zuri Edge Device' : 'ระบบภายนอก'} — สถานะอยู่ที่ node ของ zuri-ai ที่เชื่อมกับมัน
+          ระบบภายนอก — สถานะอยู่ที่ node ของ zuri-ai ที่เชื่อมกับมัน
         </p>
       )}
       {node.requirements.length > 0 && (
@@ -965,7 +965,7 @@ export default function DataPipelineMapView({
                         const internal = isInternal(node)
                         const second = internal
                           ? `${STATUS_LABEL[node.buildStatus]} · ${SURFACE_LABEL[node.surfaceLevel]}`
-                          : (node.system === 'edge' ? 'Edge Device' : 'ภายนอก')
+                          : 'ภายนอก'
 
                         return (
                           <g

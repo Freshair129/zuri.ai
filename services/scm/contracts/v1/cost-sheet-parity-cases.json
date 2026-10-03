@@ -1,0 +1,33 @@
+{
+  "schema": "scm.cost-sheet-parity-cases.v1",
+  "note": "Synthetic supplier cost-sheet previews. The golden (code, previewHash, sourceSha256, SKU-match suggestions, locked-FX costs) is recorded by the legacy previewSupplierCostSheet; SCM must reproduce it from its own store.",
+  "tenantId": "tenant-synthetic-a",
+  "businessId": "biz-synthetic-a1",
+  "supplierId": "sup-parity-1",
+  "products": [
+    { "id": "prod-parity-box", "code": "SG-BOX", "name": "Gift box", "status": "ACTIVE", "identifiers": [] },
+    { "id": "prod-parity-cup", "code": "SG-CUP", "name": "Mug", "status": "ACTIVE", "identifiers": [{ "kind": "BARCODE", "value": "8850000000017", "status": "ACTIVE" }, { "kind": "LEGACY", "value": "OLD-CUP", "status": "RETIRED" }] },
+    { "id": "prod-parity-pen", "code": "SG-PEN", "name": "Pen", "status": "ACTIVE", "identifiers": [{ "kind": "LEGACY", "value": "AMB-1", "status": "ACTIVE" }] },
+    { "id": "prod-parity-amb", "code": "AMB-1", "name": "Ambiguous code", "status": "ACTIVE", "identifiers": [] },
+    { "id": "prod-parity-old", "code": "SG-OLD", "name": "Archived", "status": "ARCHIVED", "identifiers": [] }
+  ],
+  "cases": [
+    { "id": "explicit-hash-all-match-kinds", "envelope": { "currency": "USD", "fxRateLocked": 34, "sourceRef": "factory-costs.json", "sourceSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "lines": [
+      { "sku": "SG-BOX", "minQty": 1, "unitCostForeign": 1.25, "unitsPerCarton": 24, "cartonCbm": 0.018, "cartonKg": 4.2, "freightGoodsType": "GENERAL", "leadTimeDays": 14 },
+      { "sku": "SG-BOX", "minQty": 100, "unitCostForeign": 1.1, "unitsPerCarton": 24, "cartonCbm": 0.018, "cartonKg": 4.2, "freightGoodsType": "GENERAL", "leadTimeDays": 14 },
+      { "sku": "8850000000017", "minQty": 1, "unitCostForeign": 0.333 },
+      { "sku": "AMB-1", "minQty": 1, "unitCostForeign": 2 },
+      { "sku": "SG-OLD", "minQty": 1, "unitCostForeign": 3 },
+      { "sku": "OLD-CUP", "minQty": 1, "unitCostForeign": 4 }
+    ] } },
+    { "id": "derived-hash-no-source-ref", "envelope": { "currency": "CNY", "fxRateLocked": 4.9876, "lines": [
+      { "sku": "SG-PEN", "minQty": 50, "unitCostForeign": 0.07, "leadTimeDays": 0 },
+      { "sku": "SG-PEN", "minQty": 500, "unitCostForeign": 0.061 }
+    ] } },
+    { "id": "refuse-duplicate-break", "envelope": { "currency": "USD", "fxRateLocked": 34, "lines": [
+      { "sku": "SG-BOX", "minQty": 1, "unitCostForeign": 1 },
+      { "sku": "SG-BOX", "minQty": 1, "unitCostForeign": 2 }
+    ] } },
+    { "id": "refuse-unknown-field", "envelope": { "currency": "USD", "fxRateLocked": 34, "approved": true, "lines": [{ "sku": "SG-BOX", "minQty": 1, "unitCostForeign": 1 }] } }
+  ]
+}

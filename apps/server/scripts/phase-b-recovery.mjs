@@ -23,9 +23,18 @@ const THIS_DIR = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_INVENTORY_PATH = path.resolve(THIS_DIR, '../../../docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json')
 const DEFAULT_SCHEMA_PATH = path.resolve(THIS_DIR, '../prisma/schema.prisma')
 const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
-const FROZEN_SCHEMA_SHA256 = '9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a'
-const FROZEN_TARGET_SCHEMA_SHA256 = 'a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115'
-const FROZEN_APPLICATION_TABLE_COUNT = 188
+// @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) added one
+// application model on top of the Message author-channel-identity rebind
+// (main e7afa528), bringing this frozen inventory to 192 tables.
+// @req FR-022 — CustomerRetentionConsent and LegalHoldArchiveKey (ADR-093
+// 1.2.0, "consent to retain = keep") add two more, bringing it to 194.
+// @req FR-022 — the MSP memory erasure scanner's index on AgentTraceEvent
+// (kind, occurredAt, id) changes the schema bytes, not the 194-table mapping. See
+// docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
+// for the historical binding ladder this entry continues.
+const FROZEN_SCHEMA_SHA256 = '32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4'
+const FROZEN_TARGET_SCHEMA_SHA256 = '9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0'
+const FROZEN_APPLICATION_TABLE_COUNT = 194
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0
@@ -80,7 +89,7 @@ function normalizeInventory(inventory) {
     }
   }
   if (!pinned || modelNames.size !== FROZEN_APPLICATION_TABLE_COUNT || tableNames.size !== FROZEN_APPLICATION_TABLE_COUNT) {
-    throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Frozen application table inventory is not the approved 188-table inventory')
+    throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, `Frozen application table inventory is not the approved ${FROZEN_APPLICATION_TABLE_COUNT}-table inventory`)
   }
   return normalized
 }
