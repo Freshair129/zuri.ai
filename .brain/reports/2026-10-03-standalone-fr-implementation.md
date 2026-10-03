@@ -198,7 +198,7 @@ Verification logs and screenshots are retained locally under
 `.playwright-cli/standalone-fr-first-run` and `standalone-fr-second-run`.
 The isolated visual probe stopped its own browser and server after inspection.
 
-## Remaining issues
+## Remaining issues at initial delivery
 
 **Full repository acceptance is not satisfied.** The latest browser run passed
 the FR-252 Project Feature snapshot/tombstone case only on retry:
@@ -214,3 +214,66 @@ It does not block strict preflight and was not broadened into this change.
 
 The verification above predates the owner's subsequent commit/push authorization.
 No deployment, remote CI or merge is claimed by this report.
+
+## Browser-gate follow-up — 2026-10-03
+
+The owner requested correction of the full browser gate after commit
+`80f630a7`. **The final full browser gate now passes: 223 passed, 4 unchanged
+skipped, 0 failed, 0 flaky; exit 0.** Earlier failed results above remain
+historical evidence rather than being relabelled.
+
+Two independently reproduced races were corrected:
+
+1. FR-252 FormDialog scheduled unconditional initial focus. A delayed callback
+   stole focus from Manifest hash, placing its text in Repository ID and leaving
+   browser required-field validation to block submission. Preserve focus already
+   inside the dialog. A controlled-frame browser regression failed before the
+   one-line runtime fix and passes afterward, with exact request-body checks.
+2. The subsequent full suite exposed pairing failures: loginAsOwner returned
+   after clicking, before the login response/navigation. A caller navigated away
+   8 ms after submitting login and arrived without a session. Wait for the normal
+   Business chooser destination in the test helper. A delayed-login regression
+   proves the old helper returns at `/login` and the corrected helper returns at
+   `/businesses`. Production authentication is unchanged.
+
+Additional changed files:
+
+| File | Change |
+|---|---|
+| `apps/server/src/modules/project-manager/components/ProjectFeatureForms.jsx` | One guard preserves selected dialog focus |
+| `apps/server/tests/e2e/project-feature-mutations.spec.js` | Controlled autofocus ordering, field values and exact snapshot payload regression |
+| `apps/server/tests/e2e/e2e-auth.js` | Await authenticated navigation before returning |
+| `apps/server/tests/e2e/fr046-entry-contract.spec.js` | Delayed-login completion regression |
+| `docs/domains/project-manager/features/PHASE-FR-252-P4-feature-ui-and-final-gate.md` | Focus acceptance contract, version 0.5.0b → 0.6.0b |
+| `docs/domains/identity/features/FR-046-production-viewer-entry-contract.md` | Fixture completion contract, version 0.3.0b → 0.3.1b |
+| `.brain/rca/2026-10-03-fr252-delayed-dialog-autofocus.md` | FR-252 cause and before/after evidence |
+| `.brain/rca/2026-10-03-e2e-login-navigation-race.md` | Pairing setup cause and before/after evidence |
+| This report | Preserve initial failures and record the final correction |
+
+Commands run from repository root unless stated otherwise; browser commands use
+`E2E_SERVER_MODE=production`. No timeout, retry count or flaky gate was relaxed.
+
+| Command | Result |
+|---|---|
+| `npm --prefix apps/server run test:e2e -- project-feature-mutations.spec.js -g 'replaces relationships' --retries=0` before fix | Expected FAIL, 1 failed: focus stolen after frame release |
+| `npm --prefix apps/server test -- tests/unit/project-feature-forms.test.js tests/unit/project-feature-pickers.test.js` | PASS, 25 tests, exit 0 |
+| `npm run build` | PASS, exit 0 including lint/type checks |
+| `npm --prefix apps/server run test:e2e -- project-feature-mutations.spec.js --retries=0` | PASS, 7 tests, exit 0 |
+| First full `npm --prefix apps/server run test:e2e` after autofocus fix | FAIL, 220 passed, 4 skipped, 1 failed FR-220, 1 flaky Edge denial; all FR-252 cases passed |
+| `npm --prefix apps/server run test:e2e -- fr046-entry-contract.spec.js -g 'slow response' --retries=0` before helper fix | Expected FAIL, 1 failed: helper returned at `/login` |
+| `npm --prefix apps/server run test:e2e -- fr046-entry-contract.spec.js edge-pairing.spec.js fr220-harness-pairing.spec.js project-feature-mutations.spec.js --retries=0` | PASS, 13 tests, exit 0 |
+| Final `npm --prefix apps/server run test:e2e` | **PASS, 223 passed, 4 skipped, 0 failed, 0 flaky, exit 0** |
+| Final `npm run govern` | PASS, exit 0: 0 critical, 1 existing warning, 32 info |
+| `npm run docs:llms:check` and `git diff --check` | PASS |
+
+Logs: `output/playwright/fr252-*` and `output/playwright/e2e-login-before.log`.
+Pairing failure traces/screenshots are preserved in
+`.playwright-cli/fr252-pairing-failures`. Generated views were regenerated;
+the tracked runtime snapshot is unchanged by this follow-up. Test-generated
+screenshots are retained locally and excluded from the source diff.
+
+The full unit/integration suite's 6,717-pass result above predates this follow-up;
+this follow-up reran the 25 relevant unit checks, production build and complete
+browser suite. The aggregate `npm run verify` command was not rerun as one chain.
+The initial browser blocker is closed. The existing dangling-annotation warning
+and four browser skips remain; no hosted CI, merge or deployment is claimed.

@@ -412,15 +412,39 @@ test.describe('FR-252 Project Feature owner forms', () => {
     await expect(snapshots).toContainText(SNAPSHOT_ID)
     await snapshots.getByRole('button', { name: 'Load more snapshots', exact: true }).click()
     await expect(snapshots).toContainText(NEXT_SNAPSHOT_ID)
+    // Reproduce a delayed dialog autofocus after the owner selects another field.
+    await page.evaluate(() => {
+      const requestFrame = window.requestAnimationFrame.bind(window)
+      const frames = []
+      window.requestAnimationFrame = (callback) => requestFrame((time) => frames.push(() => callback(time)))
+      window.releaseDialogFocusFrames = () => {
+        window.requestAnimationFrame = requestFrame
+        for (const run of frames.splice(0)) run()
+      }
+      window.pendingDialogFocusFrames = () => frames.length
+    })
     await snapshots.getByRole('button', { name: 'Capture snapshot', exact: true }).click()
     const capture = page.getByRole('dialog', { name: 'Capture governance snapshot' })
+    await expect.poll(() => page.evaluate(() => window.pendingDialogFocusFrames())).toBeGreaterThan(0)
+    await capture.getByLabel('Manifest hash').focus()
+    await page.evaluate(() => window.releaseDialogFocusFrames())
+    await expect(capture.getByLabel('Manifest hash')).toBeFocused()
     await capture.getByLabel('Repository ID').fill(PROJECT_ID)
     await capture.getByLabel('Commit SHA').fill('a'.repeat(40))
     await capture.getByLabel('Manifest hash').fill('b'.repeat(64))
     await capture.getByLabel('Source manifest JSON').fill(JSON.stringify({ schemaVersion: '1.0.0', entries: [] }))
+    await expect(capture.getByLabel('Repository ID')).toHaveValue(PROJECT_ID)
+    await expect(capture.getByLabel('Commit SHA')).toHaveValue('a'.repeat(40))
+    await expect(capture.getByLabel('Manifest hash')).toHaveValue('b'.repeat(64))
     await capture.getByRole('button', { name: 'Capture snapshot', exact: true }).click()
     await expect(capture).toHaveCount(0)
     expect(mutationRequests.some((request) => request.method === 'POST' && request.path.endsWith('/governance-snapshots'))).toBe(true)
+    expect(mutationRequests.find((request) => request.method === 'POST' && request.path.endsWith('/governance-snapshots')).body).toEqual({
+      repositoryId: PROJECT_ID,
+      commitSha: 'a'.repeat(40),
+      manifestHash: 'b'.repeat(64),
+      sourceManifest: { schemaVersion: '1.0.0', entries: [] },
+    })
 
     await row.click()
     await expect(drawer).toBeVisible()
