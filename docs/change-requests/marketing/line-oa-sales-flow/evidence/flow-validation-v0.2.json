@@ -1,0 +1,27 @@
+{
+  "geometry": {
+    "nodes": 6,
+    "edges": 6,
+    "focalNodes": 2,
+    "viewBox": "0 0 1120 792",
+    "font": "\"IBM Plex Sans Thai\", Manrope, sans-serif",
+    "thaiFontReady": true,
+    "outside": [],
+    "nodeOverflow": [],
+    "overlaps": [],
+    "maskHits": [],
+    "transit": []
+  },
+  "mobile": {
+    "pageWidth": 390,
+    "pageScrollWidth": 390,
+    "localWidth": 390,
+    "localScrollWidth": 1120,
+    "svgMinWidth": "1120px"
+  },
+  "print": {
+    "minWidth": "0px",
+    "overflow": "visible"
+  },
+  "pageErrors": []
+}
