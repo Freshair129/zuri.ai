@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-08-15T00:00:00+07:00,ATHER"
-last_update: "2026-08-15T10:00:00+07:00,ATHER"
+last_update: "2026-10-04T09:44:57+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:

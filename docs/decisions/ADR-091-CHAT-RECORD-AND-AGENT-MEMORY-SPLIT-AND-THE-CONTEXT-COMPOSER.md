@@ -1,7 +1,7 @@
 ---
-version: "1.1.0"
+version: "1.2.0"
 created_at: "2026-09-14T15:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
+last_update: "2026-10-04T09:44:57+07:00,Codex"
 status: "accepted"
 superseded_by: null
 attributes:
