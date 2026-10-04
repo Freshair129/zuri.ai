@@ -52,7 +52,7 @@ it('builds the qualified index for the complete current registry without changin
   expect(declarations.duplicates).toEqual([])
   expect(declarations.missing).toEqual([])
   const indexed = indexDeclaredIdentities(declarations, [])
-  expect(indexed.size).toBe(747)
+  expect(indexed.size).toBe(748)
   for (const id of ['ADR-039', 'ZV2-CR-009', 'RSK-016', 'MI-RQ-033', 'MI-RQ-211']) expect(indexed.has(`ZAI:${id}`)).toBe(true)
 })
 
@@ -66,7 +66,7 @@ it('publishes every issued ZAI identity and resolves historical @spec references
   const graphPath = path.resolve(process.cwd(), '..', '..', 'docs/.doc-graph.json')
   const graph = JSON.parse(readFileSync(graphPath, 'utf8'))
   const declared = graph.nodes.filter(node => node.namespace === 'ZAI' && node.document_identity)
-  expect(new Set(declared.map(node => node.document_identity)).size).toBe(747)
+  expect(new Set(declared.map(node => node.document_identity)).size).toBe(748)
   for (const id of ['ADR-039', 'ZV2-CR-009', 'RSK-016', 'MI-RQ-033', 'MI-RQ-211']) {
     expect(declared.filter(node => node.document_identity === id)).toHaveLength(1)
   }

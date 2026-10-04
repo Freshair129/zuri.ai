@@ -1,7 +1,7 @@
 ---
-version: "0.12.0b"
+version: "0.13.0b"
 status: active
-last_update: "2026-09-27T23:30:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-10-05T04:38:57+07:00,Codex"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -258,6 +258,11 @@ turn flows through before any agent work happens.
   the `SALES_REP` binding. It is deliberately not a project-manager `WorkItem`:
   no milestones, no progress, no children; overdue / due-today are computed on
   read against the Business calendar, never stored.
+- `getSalesTaskHealthSummary` (FR-278) — Marketing's narrow owner-read contract
+  for the executive LINE OA dashboard. It requires the same Business visibility
+  and `customer` domain gate as CRM task reads and returns only aggregate open,
+  in-progress, overdue, due-today and unassigned counts with an observation time;
+  it never returns task, Customer or Conversation rows.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 
@@ -444,6 +449,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.13.0b | 2026-10-05 | FR-278: add the CRM-owned aggregate SalesTask health read for Marketing; preserve Business/customer-domain visibility and omit task, Customer and Conversation details | Codex |
 | 0.12.0b | 2026-09-27 | FR-022 / ADR-093 1.2.0, the owner's ruling "consent to retain = keep". `owns_models` += `CustomerRetentionConsent`, `LegalHoldArchiveKey`. New writer `customer-retention-consent-service.js` (SALES_REP `crm.retention-consent.write`, OWNER implicit, audited, revocable, tenant-bound). Erasure re-seals a held, consenting member's evidence under a per-hold key into one appended format-3 file before the erased key is destroyed, then revokes the erased Customer's consent and clears the FR-103 note and recorder. The sweep blanks, without archiving, past-window lines whose erased key Customer nobody consented for. The expiry run destroys lapsed hold keys. Retrieval opens active hold keys. Migrations `20260927230000` written, not applied; Phase B inventory rebound to 194 tables | Claude Opus 5.5 (MC0) |
 | 0.11.0b | 2026-09-27 | Added `readCustomerFact` / `readConversationFact` (`scm-reference-reader.js`, ADR-111 D5): a narrow, internal, Tenant-bounded read port for the scm-core.v1 façade's Customer / Conversation facts, so core's façade no longer reads crm's models directly; read-only, field allow-list, no `owns_models` change | Claude Opus 5.5 |
 | 0.10.1b | 2026-09-27 | FR-022: archive format 2 seals a shared thread's lines per speaker and retrieval opens each member's existing key (ADR-093 1.1.0); `findSpeakerConversationEventKeys` names a person's own event keys so erasure tombstones their postback raw payloads | Claude Opus 5.5 (MC0) |

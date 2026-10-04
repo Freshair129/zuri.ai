@@ -407,6 +407,7 @@
     "FR-275",
     "FR-276",
     "FR-277",
+    "FR-278",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5163,6 +5164,19 @@
         {
           "anchor": "line grounding shadow compare harness",
           "since": "2026-09-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-278": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "99302e073b8e2b43f914ec057cdc97ddd22a6a05b36af277955693dc0740640f",
+      "history": [
+        {
+          "anchor": "executive line oa sales dashboard",
+          "since": "2026-10-04",
           "reason": "declared"
         }
       ]

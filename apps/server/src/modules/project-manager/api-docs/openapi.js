@@ -96,6 +96,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/growth/ask-marketing', ['POST']],
   ['/api/growth/broadcast-intents', ['GET', 'POST']], ['/api/growth/broadcast-intents/{id}', ['GET', 'PATCH']],
   ['/api/growth/paid-media', ['GET']],
+  // @req FR-278 — weekly executive summary uses Commerce and aggregate CRM owner reads only.
+  ['/api/growth/line-sales', ['GET']],
   // @req FR-149, FR-150 — ADR-061 native ingress and optional executor.
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/accounts/{id}/transport-health', ['GET']],

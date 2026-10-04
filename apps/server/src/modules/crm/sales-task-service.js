@@ -149,6 +149,27 @@ export async function listSalesTasks(query, { viewer, db = prisma, now = new Dat
   return { businessId: business.id, tasks, summary: salesTaskSummary(open, { now, viewerPersonId: actor(viewer) }) }
 }
 
+// @req FR-278 — Marketing may read only this aggregate CRM owner summary; task
+//   rows, customer details and conversation details stay inside CRM.
+// @spec FR-161; SEC-001
+// @tested tests/integration/fr161-sales-task.test.js
+export async function getSalesTaskHealthSummary(query, { viewer, db = prisma, now = new Date() } = {}) {
+  const business = await resolveScope(db, viewer, query?.businessId)
+  const openTasks = await db.salesTask.findMany({
+    where: { businessId: business.id, status: { in: ['OPEN', 'IN_PROGRESS'] } },
+    select: { status: true, dueDate: true, assigneePersonId: true },
+  })
+  const fullSummary = salesTaskSummary(openTasks, { now })
+  const summary = {
+    open: fullSummary.open,
+    inProgress: fullSummary.inProgress,
+    overdue: fullSummary.overdue,
+    dueToday: fullSummary.dueToday,
+    unassigned: fullSummary.unassigned,
+  }
+  return { businessId: business.id, summary, observedAt: now.toISOString() }
+}
+
 export async function getSalesTask(id, { viewer, db = prisma, now = new Date() } = {}) {
   const taskId = typeof id === 'string' ? id.trim() : ''
   if (!taskId) throw failure(404, 'Business not found')

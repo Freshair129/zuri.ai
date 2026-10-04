@@ -36,6 +36,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [ข้อเสนอ Dashboard ผู้บริหาร: จาก Ads ถึงเงินรับที่ยืนยันแล้ว](../change-requests/marketing/line-oa-sales-flow/EXECUTIVE-KPI-DASHBOARD-PROPOSAL.md)
 - [คู่มือใช้ Flow หน้าเดียว](../change-requests/marketing/line-oa-sales-flow/README-flow.md)
 - [จากงบโฆษณา สู่ยอดขายที่วัดผลได้](../change-requests/marketing/line-oa-sales-flow/README.md)
+- [ข้อเสนอเพิ่มเติมก่อนเริ่ม implementation](../change-requests/marketing/line-oa-sales-flow/RECORD-MIGRATION-AND-CRM-READ-PROPOSAL.md)
 - [Marketing — Channel & Measurement Contracts](../change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md)
 - [Marketing — Interface Inventory & Mockup Coverage](../change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
 - [Marketing — Mockup QA & Review Guide](../change-requests/marketing/MARKETING-MOCKUP-QA.md)

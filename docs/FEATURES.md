@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.68.0b"
+version: "1.69.0b"
 status: active
-last_update: "2026-10-03T20:30:00+07:00,RWANG"
+last_update: "2026-10-05T03:14:26+07:00,ATHER"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.68.0b → 1.69.0b (2026-10-05): readiness metadata gains **FR-278** (primary domain `marketing`) — executives select a Business and week to read verified revenue, order status and aggregate follow-up health while Ads, attribution, Lead and call metrics remain unavailable. A Standalone FR; no FEAT row or membership is added.
 
 Version diff 1.67.0b → 1.68.0b: distinguish explicit Feature bundles from Standalone FRs under ADR-025 revision 3. No IDs, requirement subjects, memberships, use cases or domain claims change.
 
@@ -1051,6 +1053,11 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-277",
     "primaryDomain": "agent",
     "useCase": "ผู้ดูแล LINE OA เปิด shadow-compare ให้บัญชีหนึ่งบัญชี ระบบตอบลูกค้าตามโหมดเดิมเหมือนทุกครั้ง แล้วสร้างคำตอบเปรียบเทียบจากโหมดคู่ตรงข้ามในพื้นหลังแบบไม่บล็อกและไม่ส่งให้ลูกค้าเห็น เพื่อดูหลักฐานว่าอีกโหมดจะตอบต่างกันแค่ไหนก่อนสั่งสวิตช์จริงในช่วงแคมเปญ"
+  },
+  {
+    "id": "FR-278",
+    "primaryDomain": "marketing",
+    "useCase": "ผู้บริหารเลือก Business และสัปดาห์เพื่อดูรายรับสุทธิที่ยืนยันแล้ว สถานะออเดอร์ และสุขภาพงานติดตามแบบรวม พร้อมเห็น Ads, attribution, Lead และผลการโทรที่ยังไม่มีแหล่งข้อมูล"
   }
 ]
 ```

@@ -365,9 +365,18 @@ export function renderDocumentViews({ root = ROOT, records = readCanonicalRegist
   const normalizedRoot = resolve(root);
   const inputGraph = graph ?? JSON.parse(readFileSync(join(normalizedRoot, 'docs/.doc-graph.json'), 'utf8'));
   const { nodes, byId, features } = checkGraph(normalizedRoot, records, inputGraph);
-  const registrySourceRevision = records[0]?.sourceRevision;
-  if (!registrySourceRevision || records.some((record) => record.sourceRevision !== registrySourceRevision)) {
-    throw new Error('Canonical registry records do not share one source revision');
+  const registrySourceRevision = records[0]?.registrySourceRevision
+    ?? records.find((record) => record.status === 'source-preserved')?.sourceRevision
+    ?? records[0]?.sourceRevision;
+  if (!registrySourceRevision || !/^[a-f0-9]{40}$/i.test(registrySourceRevision)) {
+    throw new Error('Canonical registry index has no valid source revision');
+  }
+  if (records.some((record) => record.status === 'source-preserved' && record.sourceRevision !== registrySourceRevision)) {
+    throw new Error('Source-preserved canonical records do not match the registry source revision');
+  }
+  if (records.some((record) => record.status === 'reviewed-migration'
+      && (!/^[a-f0-9]{40}$/i.test(record.migrationBaseRevision || '') || !record.migrationDocument))) {
+    throw new Error('Reviewed migration records require separate base-revision and approval-document provenance');
   }
 
   const outputs = new Map();

@@ -258,9 +258,12 @@ describe('OpenAPI document', () => {
       // path, POST only. 328 + 1 = 329 paths; 433 + 1 = 434 operations.
       // FR-022 (ADR-093 1.2.0) adds the retention-consent record and revoke
       // paths, POST each: 329 + 2 = 331; 434 + 2 = 436.
-      pathCount: 331,
-      operationCount: 436,
+      // FR-278 adds the read-only executive sales dashboard: one path and GET.
+      // 331 + 1 = 332 paths; 436 + 1 = 437 operations.
+      pathCount: 332,
+      operationCount: 437,
     })
+    expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
     expect(doc.paths['/api/import/dry-run'].post['x-zuri-contract']).toBeUndefined()
