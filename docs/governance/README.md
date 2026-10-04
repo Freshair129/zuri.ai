@@ -33,6 +33,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [CR-018 — Marketing Domain Design: Strategy, Execution, Measurement & Refinement](../change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md)
 - [CR-019 — 24-week programme: deliverable 11, ERP business modules](../change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md)
 - [CR-020 — Observability gaps: error tracking and feature usage](../change-requests/CR-020-OBSERVABILITY-ERROR-TRACKING-AND-FEATURE-USAGE.md)
+- [ข้อเสนอ Dashboard ผู้บริหาร: จาก Ads ถึงเงินรับที่ยืนยันแล้ว](../change-requests/marketing/line-oa-sales-flow/EXECUTIVE-KPI-DASHBOARD-PROPOSAL.md)
 - [คู่มือใช้ Flow หน้าเดียว](../change-requests/marketing/line-oa-sales-flow/README-flow.md)
 - [จากงบโฆษณา สู่ยอดขายที่วัดผลได้](../change-requests/marketing/line-oa-sales-flow/README.md)
 - [Marketing — Channel & Measurement Contracts](../change-requests/marketing/MARKETING-CHANNEL-CONTRACTS.md)
