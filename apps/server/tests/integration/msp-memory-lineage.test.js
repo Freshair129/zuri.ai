@@ -10,7 +10,7 @@ function authorization() {
   return {
     authContext: { scope, actor: { principalId: 'person' }, request: { agentId: 'agent' },
       conversation: { sessionId: 'caller-session', instanceId: 'worker', threadId: 'thread' },
-      policy: { decision: 'ALLOW', privateMemoryAllowed: true } },
+      policy: { decision: 'ALLOW', privateMemoryAllowed: true, episodicMemoryAllowed: true } },
     authorizedVaults: [{ scope: 'private', ...scope, principalId: 'person', agentId: 'agent' }],
   }
 }
@@ -123,6 +123,7 @@ describe('MSP memory lineage at the authorized port', () => {
     const { port } = fixture(async () => { calls += 1; return { entities: [] } })
     const denied = authorization()
     denied.authContext.policy.privateMemoryAllowed = false
+    denied.authContext.policy.episodicMemoryAllowed = false
     await expect(port.recallAuthorized(denied)).rejects.toThrow(/ALLOW/)
     await expect(port.rememberAuthorized(denied, {})).rejects.toThrow(/ALLOW/)
     expect(calls).toBe(0)

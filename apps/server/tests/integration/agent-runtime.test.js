@@ -62,9 +62,11 @@ describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', ()
       if (name === 'msp_memory_list') return { entities: [{ body_json: { note: 'seen before' } }] }
       return { ok: true }
     }
-    const ports = createAgentPorts({ mspTransport: transport })
+    const ports = createAgentPorts({ mspTransport: transport, mspServiceKey: 'synthetic-api010-service-key-00000001' })
     const person = await prisma.person.create({ data: { code: 'PSN-RT-MSP', displayName: 'MSP user' } })
     await prisma.membership.create({ data: { personId: person.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
+    await prisma.customer.create({ data: { code: 'CUS-RT-MSP', tenantId: tenant.id, businessId: business.id,
+      personId: person.id, displayName: 'Consented MSP user', consentStatus: 'GRANTED' } })
     const link = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
     await redeemLinkToken({ tenantId: tenant.id, token: link.token, lineUserId: 'Urt-3' })
     const ctx = await assembleAgentContext({
@@ -72,7 +74,8 @@ describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', ()
       businessId: business.id,
       lineUserId: 'Urt-3',
       memory: ports.memory,
-      serverScope: { transportVerified: true, businessId: business.id, workspaceId: workspace.id, projectId: project.id },
+      serverScope: { transportVerified: true, businessId: business.id, workspaceId: workspace.id, projectId: project.id,
+        episodicMemoryOptIn: true },
     })
     // memory recall went to MSP, scoped to the principal vault (never a channel handle)
     const listCall = wire.find((c) => c.name === 'msp_memory_list')

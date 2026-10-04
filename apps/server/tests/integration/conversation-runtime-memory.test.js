@@ -6,7 +6,9 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import Ajv2020 from 'ajv/dist/2020'
 import addFormats from 'ajv-formats'
 import prisma from '@/lib/db'
-import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
+import { createPortfolio, createTenant, createBusiness, createWorkspace } from '../factories/scope'
+import { createProject } from '@/modules/project-manager/application/project-service'
+import { makeViewer } from '../factories/viewer'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
@@ -15,6 +17,7 @@ import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/applicat
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { createServerLineThreadMemory } from '@/modules/line-oa-studio/application/server-line-runtime'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
+import { createMspMemoryPort } from '@/modules/agent/msp-memory-port'
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
 import { createModelProviderPort } from '@/modules/agent/model-provider'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
@@ -51,7 +54,7 @@ const providerReply = { choices: [{ message: { content: 'คำตอบจา�
 const schema = JSON.parse(readFileSync(new URL(
   '../../../../services/conversation-runtime/contracts/v1/operation.schema.json', import.meta.url), 'utf8'))
 
-let tenant, business, account, actor
+let tenant, business, workspace, project, account, actor
 let wire = []
 let deliveries = []
 let openJobs = []
@@ -123,7 +126,8 @@ function createFakeMsp() {
     }
     if (name === 'msp_thread_delivery_record') {
       deliveryReceipts.push(input.receipt_id)
-      return { receiptId: input.receipt_id, messageId: next('delivery'), outcome: 'ACCEPTED' }
+      const message = messages.find(item => item.sourceEventId === input.source_event_id)
+      return { receiptId: input.receipt_id, ...(message ? { messageId: message.messageId } : {}), outcome: 'ACCEPTED' }
     }
     return {}
   }
@@ -261,15 +265,22 @@ beforeAll(async () => {
   const portfolio = await createPortfolio({ name: 'Runtime memory fixture', code: 'PF-CR-MEM' })
   tenant = await createTenant({ portfolioId: portfolio.id, name: 'Runtime memory tenant', code: 'TNT-CR-MEM' })
   business = await createBusiness({ tenantId: tenant.id, name: 'Runtime memory business', code: 'BUS-CR-MEM' })
+  workspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: business.id,
+    name: 'Runtime memory workspace', code: 'WS-CR-MEM' })
+  const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+  project = await createProject({ workspaceId: workspace.id, businessId: business.id,
+    name: 'Runtime memory project', code: 'PR-CR-MEM' }, { viewer: owner })
   actor = await prisma.person.create({ data: { code: 'PER-CR-MEM', displayName: 'Synthetic memory customer' } })
   await prisma.membership.create({ data: { personId: actor.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
+  await prisma.customer.create({ data: { code: 'CUS-CR-MEM', tenantId: tenant.id, businessId: business.id,
+    personId: actor.id, displayName: 'Consented memory customer', consentStatus: 'GRANTED' } })
   const provider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE OA' })
   const connection = await createIntegrationConnection({ tenantId: tenant.id, businessId: business.id,
     providerId: provider.id, name: 'Synthetic memory LINE connection', externalAccountId: 'synthetic-memory-destination', status: 'ACTIVE' })
   account = await prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id,
     integrationConnectionId: connection.id, code: 'cr-memory-account', displayName: 'Synthetic memory OA',
     bindingCode: 'cr-memory-binding', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD',
-    runtimeOwner: 'CONVERSATION_RUNTIME', memoryPolicy: 'ON' } })
+    runtimeOwner: 'CONVERSATION_RUNTIME', memoryPolicy: 'ON', memoryProjectId: project.id } })
   const linkedAt = new Date()
   await prisma.externalIdentity.create({ data: { tenantId: tenant.id, personId: actor.id, provider: 'LINE',
     providerSubject: lineUser, verifiedAt: linkedAt, linkedAt } })
@@ -304,6 +315,134 @@ describe('Conversation Runtime memory-sync turns', () => {
       const plainJobId = await admit({ memory: false })
       expect(await prisma.lineConversationJob.findUnique({ where: { id: plainJobId } }))
         .toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: false })
+    } finally {
+      await prisma.lineOaAccount.update({ where: { id: account.id }, data: { knowledgeGrounding: 'BUSINESS_KNOWLEDGE' } })
+    }
+  })
+
+  it('recalls API-010 episodic memory with API-011 disabled and makes no thread-memory call or append', async () => {
+    const jobId = await admit()
+    const admitted = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
+    expect(admitted).toMatchObject({ episodicMemoryOptIn: true, episodicWorkspaceId: workspace.id, episodicProjectId: project.id })
+    const episodicCalls = []
+    const episodicMemory = createMspMemoryPort({
+      vaultSetResolver: { resolve: async authorization => {
+        expect(authorization.policy.episodicMemoryAllowed).toBe(true)
+        return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+          permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
+      } },
+      transport: async (name, input) => {
+        episodicCalls.push({ name, input })
+        return name === 'msp_memory_list' ? { entities: [{ entity_id: 'episode-1', vault_id: 'api010-private-vault',
+          current_version: 1, body_json: { fact: 'authorized episodic fact' }, source_hash: 'e'.repeat(64),
+          recorded_at: '2026-10-04T00:00:00.000Z' }] } : {}
+      },
+    })
+    const built = build({ coreOptions: {
+      env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey,
+        ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true', ZURI_MSP_THREAD_MEMORY_ENABLED: 'false' },
+      businessPorts: async () => ({ episodicMemory }),
+      threadMemoryFactory: () => { throw new Error('API_011_MUST_STAY_DISABLED') },
+    } })
+
+    const outcome = await createConversationRuntime({ ports: built.ports, claimantId: 'runtime-api010-independent' }).runOne()
+
+    expect(outcome).toMatchObject({ jobId, status: 'RECORDED' })
+    expect(episodicCalls.map(call => call.name)).toEqual(['msp_memory_list'])
+    expect(JSON.stringify(built.modelInputs[0].contextPacket)).toContain('authorized episodic fact')
+    expect(memoryWire()).toEqual([])
+  })
+
+  it('does not send API-010 context to the model when erasure commits during recall', async () => {
+    const jobId = await admit()
+    const episodicCalls = []
+    const episodicMemory = createMspMemoryPort({
+      vaultSetResolver: { resolve: async authorization => {
+        expect(authorization.policy.episodicMemoryAllowed).toBe(true)
+        return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+          permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
+      } },
+      transport: async (name, input) => {
+        episodicCalls.push({ name, input })
+        if (name === 'msp_memory_list') {
+          const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
+          const inbound = await prisma.message.findUnique({ where: { id: job.inboundMessageId } })
+          await prisma.$transaction(tx => redactLineConversationJobs(tx, { tenantId: tenant.id,
+            conversationIds: [inbound.conversationId] }))
+          return { entities: [{ entity_id: 'episode-after-erasure', vault_id: 'api010-private-vault',
+            current_version: 1, body_json: { fact: 'must not reach the model' }, source_hash: 'a'.repeat(64),
+            recorded_at: '2026-10-04T00:00:00.000Z' }] }
+        }
+        return {}
+      },
+    })
+    const built = build({ coreOptions: {
+      env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey,
+        ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true', ZURI_MSP_THREAD_MEMORY_ENABLED: 'false' },
+      businessPorts: async () => ({ episodicMemory }),
+      threadMemoryFactory: () => { throw new Error('API_011_MUST_STAY_DISABLED') },
+    } })
+
+    const outcome = await createConversationRuntime({ ports: built.ports, claimantId: 'runtime-api010-erasure-race' }).runOne()
+
+    expect(outcome.status).not.toBe('RECORDED')
+    expect(episodicCalls.map(call => call.name)).toEqual(['msp_memory_list'])
+    expect(built.providerCalls).toEqual([])
+    expect(built.modelInputs).toEqual([])
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } }))
+      .toMatchObject({ status: 'CANCELLED', errorCode: 'PDPA_ERASURE', episodicMemoryOptIn: false })
+    expect(memoryWire()).toEqual([])
+  })
+
+  it('composes GKS evidence with API-010 under one budget while API-011 is disabled', async () => {
+    await prisma.lineOaAccount.update({ where: { id: account.id }, data: { knowledgeGrounding: 'GKS_CORPUS' } })
+    try {
+      const jobId = await admit()
+      const episodicCalls = []
+      const episodicMemory = createMspMemoryPort({
+        vaultSetResolver: { resolve: async authorization => {
+          expect(authorization.policy.episodicMemoryAllowed).toBe(true)
+          return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+            permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
+        } },
+        transport: async (name, input) => {
+          episodicCalls.push({ name, input })
+          return name === 'msp_memory_list' ? { entities: [{ entity_id: 'episode-gks', vault_id: 'api010-private-vault',
+            current_version: 1, body_json: { fact: 'authorized episodic fact beside corpus evidence' },
+            source_hash: 'f'.repeat(64), recorded_at: '2026-10-04T00:00:00.000Z' }] } : {}
+        },
+      })
+      const corpusRecords = [{ citationId: 'gks-citation-1', text: 'published GKS product fact' }]
+      const coreOptions = {
+        env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey,
+          ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true', ZURI_MSP_THREAD_MEMORY_ENABLED: 'false' },
+        prepareTurn: undefined,
+        corpusReaderFactory: () => ({ query: async () => ({ records: corpusRecords }) }),
+        businessPorts: async () => ({ businessKnowledge: { query: async () => ({ records: [] }) }, episodicMemory }),
+        threadMemoryFactory: () => { throw new Error('API_011_MUST_STAY_DISABLED') },
+      }
+      const built = build({ coreOptions })
+
+      const outcome = await createConversationRuntime({ ports: built.ports, claimantId: 'runtime-api010-gks-independent' }).runOne()
+
+      expect(outcome).toMatchObject({ jobId, status: 'RECORDED' })
+      expect(episodicCalls.map(call => call.name)).toEqual(['msp_memory_list'])
+      expect(memoryWire()).toEqual([])
+      expect(built.modelInputs).toHaveLength(1)
+      expect(built.modelInputs[0].evidence.records).toEqual(corpusRecords)
+      expect(built.modelInputs[0].contextPacket.text).toContain('published GKS product fact')
+      expect(built.modelInputs[0].contextPacket.text).toContain('authorized episodic fact beside corpus evidence')
+      expect(built.modelInputs[0].contextReceipt.refs.map(ref => ref.source)).toEqual(['KNOWLEDGE', 'MSP'])
+
+      const noEvidenceJobId = await admit()
+      corpusRecords[0] = { ...corpusRecords[0], text: 'oversized corpus record '.repeat(250) }
+      const noEvidenceBuilt = build({ coreOptions })
+      const noEvidenceOutcome = await createConversationRuntime({ ports: noEvidenceBuilt.ports,
+        claimantId: 'runtime-api010-gks-budget' }).runOne()
+
+      expect(noEvidenceOutcome).toMatchObject({ jobId: noEvidenceJobId, status: 'RECORDED' })
+      expect(noEvidenceBuilt.modelInputs).toEqual([])
+      expect(JSON.stringify(deliveries.at(-1))).toContain('ยังไม่พบข้อมูลสินค้า')
     } finally {
       await prisma.lineOaAccount.update({ where: { id: account.id }, data: { knowledgeGrounding: 'BUSINESS_KNOWLEDGE' } })
     }
@@ -362,7 +501,7 @@ describe('Conversation Runtime memory-sync turns', () => {
     // (the same pattern as line-server-backup.test.js).
     const jobsOfThisTenant = new Proxy(prisma.lineConversationJob, { get(target, prop) {
       if (prop !== 'findMany') { const value = Reflect.get(target, prop); return typeof value === 'function' ? value.bind(target) : value }
-      return (args = {}) => target.findMany({ ...args, where: { AND: [args.where ?? {}, { tenantId: tenant.id }] } })
+      return (args = {}) => target.findMany({ ...args, where: { AND: [args.where ?? {}, { tenantId: tenant.id }, { id: jobId }] } })
     } })
     const scopedDb = new Proxy(prisma, { get(target, prop) {
       if (prop === 'lineConversationJob') return jobsOfThisTenant
@@ -370,7 +509,7 @@ describe('Conversation Runtime memory-sync turns', () => {
       return typeof value === 'function' ? value.bind(target) : value
     } })
     const scanned = await reconcileLineMemoryDeliveries({ db: scopedDb, env: { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' }, threadMemory: mspPort(runtimeMsp), workerId: 'memory-scanner-w5' })
-    expect(scanned.acknowledged).toBeGreaterThanOrEqual(1)
+    expect(scanned.acknowledged, JSON.stringify(scanned)).toBe(1)
     expect(runtimeMsp.deliveryReceipts).toHaveLength(1)
     expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } })).toMatchObject({ memoryDeliveryState: 'ACKNOWLEDGED' })
   })
@@ -473,21 +612,21 @@ describe('Conversation Runtime memory-sync turns', () => {
       expect(deliveries).toEqual([])
     })
 
-    it('keeps an unknown injection receipt UNKNOWN: no append, no delivery, no second model call', async () => {
+    it('keeps an unknown SUBMITTED injection receipt UNKNOWN without starting the provider', async () => {
       const jobId = await admit()
       const msp = createFakeMsp()
       msp.hooks.before = (name, input) => { if (name === 'msp_thread_injection_record' && input.state === 'SUBMITTED') throw transportError() }
       const { ports, providerCalls } = build({ msp })
       const outcome = await createConversationRuntime({ ports, claimantId: 'runtime-memory-receipt-unknown' }).runOne()
       expect(outcome).toMatchObject({ jobId, status: 'UNKNOWN', code: 'MSP_INJECTION_RECEIPT_UNKNOWN' })
-      expect(providerCalls).toHaveLength(1)
+      expect(providerCalls).toHaveLength(0)
       expect(threadMessages(msp, 'OUTBOUND')).toEqual([])
       expect(deliveries).toEqual([])
       // The legacy worker's durable outcome for the same failure.
       expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } })).toMatchObject({
         status: 'UNKNOWN', errorCode: 'MSP_INJECTION_RECEIPT_UNKNOWN', answerText: null })
       expect(await createConversationRuntime({ ports, claimantId: 'runtime-memory-receipt-unknown-2' }).runOne()).toEqual({ status: 'IDLE' })
-      expect(providerCalls).toHaveLength(1)
+      expect(providerCalls).toHaveLength(0)
     })
   })
 

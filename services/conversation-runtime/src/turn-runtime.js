@@ -28,6 +28,7 @@ const MODEL_CONFIGURATION_CODES = new Set(['MODEL_CONFIG_INVALID', 'MODEL_PRIVAT
 function answersFromEvidence(error, signal) {
   if (signal?.aborted || error?.outcome === 'UNKNOWN' || error?.beforeProvider === true) return false
   if (['MSP_INJECTION_RECEIPT_UNKNOWN', 'MODEL_OUTCOME_UNKNOWN'].includes(error?.code)) return false
+  if (AUTHORITY_ENDED.includes(error?.code) || error?.code === 'CONVERSATION_JOB_LEASE_LOST') return false
   return !MODEL_CONFIGURATION_CODES.has(error?.code)
 }
 
@@ -36,6 +37,25 @@ const MEMORY_METHODS = ['read', 'append', 'receipt']
 function injectionReceiptUnknown(cause) {
   return Object.assign(new Error('MSP_INJECTION_RECEIPT_UNKNOWN'),
     { code: 'MSP_INJECTION_RECEIPT_UNKNOWN', outcome: 'UNKNOWN', ...(cause ? { cause } : {}) })
+}
+
+function threadMemorySlices(packet) {
+  const threadId = packet?.thread?.threadId ?? null
+  const memory = packet?.memory ?? {}
+  const slice = (id, value, extra = {}) => ({ id, source: 'MSP', threadId,
+    text: typeof value === 'string' ? value : JSON.stringify(value), ...extra })
+  const list = key => Array.isArray(memory[key]) ? memory[key] : []
+  return [
+    ...list('participants').map((item, index) => slice(`participant:${item?.principalId ?? item?.id ?? index}`, item)),
+    ...list('protectedMemory').map((item, index) => slice(`protected:${item?.recordId ?? index}`, item)),
+    ...[...list('recentExchanges')].reverse().map((item, index) => slice(`exchange:${item?.exchangeId ?? index}`, item, { sequence: 'exchanges' })),
+    ...list('summaries').map((item, index) => slice(`summary:${item?.summaryId ?? index}`, item)),
+    ...list('episodic').map((item, index) => slice(`episodic:${item?.id ?? item?.reference?.memoryId ?? index}`, item, { scope: 'CROSS_THREAD' })),
+  ]
+}
+
+function episodicTurnSlices(slices) {
+  return slices.filter(item => item?.source === 'MSP' && item?.scope === 'CROSS_THREAD')
 }
 
 function unknownOutcome(code, cause) {
@@ -152,9 +172,9 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       } catch (error) { return { ok: false, error } }
     }
     // The legacy worker's MSP injection-receipt wrapper, driven through Core one
-    // state at a time: RESOLVED before the provider starts, SUBMITTED while it
-    // runs, then COMPLETED or FAILED. A receipt that cannot be established after
-    // the provider may have run is UNKNOWN, never a retryable failure.
+    // state at a time: RESOLVED and SUBMITTED before the provider starts, then
+    // COMPLETED or FAILED. A receipt that cannot be established after the
+    // provider may have run is UNKNOWN, never a retryable failure.
     const invokeWithInjectionReceipt = async generate => {
       const resolved = await recordInjection('RESOLVED')
       // Nothing has run yet: a typed Core fence refusal is an ordinary failure, as
@@ -163,19 +183,12 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       if (!resolved.ok) {
         throw Object.assign(resolved.error?.retryable === false ? resolved.error : injectionReceiptUnknown(resolved.error), { beforeProvider: true })
       }
-      let pending
-      try { pending = Promise.resolve(generate()) } catch (error) { pending = Promise.reject(error) }
-      const settled = pending.then(value => ({ value }), error => ({ error }))
       const submitted = await recordInjection('SUBMITTED')
-      const result = await settled
       if (!submitted.ok) {
-        if (result.error) {
-          const terminal = await recordInjection('FAILED')
-          if (!terminal.ok) throw injectionReceiptUnknown(submitted.error)
-          throw result.error
-        }
-        throw injectionReceiptUnknown(submitted.error)
+        throw Object.assign(injectionReceiptUnknown(submitted.error), { beforeProvider: true })
       }
+      let result
+      try { result = { value: await generate() } } catch (error) { result = { error } }
       if (result.error) {
         const failed = await recordInjection('FAILED')
         if (!failed.ok) throw injectionReceiptUnknown(failed.error)
@@ -295,72 +308,94 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         if (evidenceRecords(evidence).length === 0) {
           text = NO_EVIDENCE_REPLY
         } else {
-          composed = composeTurnContext({ authorized: turn.authorized, slices: turn.slices,
+          const episodicSlices = episodicTurnSlices(turn.slices)
+          const threadSlices = memoryPacket && episodicSlices.length ? threadMemorySlices(memoryPacket) : []
+          const knowledgeRecordById = new Map()
+          const knowledgeSlices = episodicSlices.length ? evidenceRecords(evidence).map((record, index) => {
+            const id = `knowledge:${index}`
+            knowledgeRecordById.set(id, record)
+            return { id, source: 'KNOWLEDGE', citationId: record?.citationId ?? null,
+              text: typeof record?.text === 'string' ? record.text : JSON.stringify(record) }
+          }) : []
+          composed = composeTurnContext({ authorized: turn.authorized,
+            slices: [...threadSlices, ...knowledgeSlices, ...turn.slices],
             threadId: turn.threadId, audienceKind: turn.audienceKind, maxBudgetChars: turn.maxBudgetChars })
-          await ensureLease()
-          stage = 'model'
-          const prior = await ports.trace.status(claim, stableModelId, { signal })
-          if (prior?.status === 'COMPLETED' && typeof prior.text === 'string') text = prior.text
-          else if (prior?.status === 'STARTED' && prior.executionId !== claim.executionId) {
-            throw Object.assign(new Error('MODEL_OUTCOME_UNKNOWN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+          if (episodicSlices.length) {
+            const includedKnowledge = composed.slices.filter(slice => slice.source === 'KNOWLEDGE')
+              .map(slice => knowledgeRecordById.get(slice.id)).filter(record => record !== undefined)
+            evidence = Array.isArray(evidence) ? includedKnowledge : { ...(evidence ?? {}), records: includedKnowledge }
+          }
+          const composedMemoryPacket = memoryPacket && episodicSlices.length
+            ? (composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null)
+            : memoryPacket
+          const shouldRecordInjection = Boolean(memoryPacket)
+          if (episodicSlices.length && evidenceRecords(evidence).length === 0) {
+            text = NO_EVIDENCE_REPLY
           } else {
-            if (prior?.status === 'NOT_FOUND') {
+            await ensureLease()
+            stage = 'model'
+            const prior = await ports.trace.status(claim, stableModelId, { signal })
+            if (prior?.status === 'COMPLETED' && typeof prior.text === 'string') text = prior.text
+            else if (prior?.status === 'STARTED' && prior.executionId !== claim.executionId) {
+              throw Object.assign(new Error('MODEL_OUTCOME_UNKNOWN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+            } else {
+              if (prior?.status === 'NOT_FOUND') {
+                try {
+                  await ports.trace.append(claim, { kind: 'MODEL_STARTED', payload: { operationId: stableModelId } }, { signal })
+                } catch {
+                  const recorded = await ports.trace.status(claim, stableModelId, { signal })
+                  if (recorded?.status !== 'STARTED' || recorded.executionId !== claim.executionId) throw Object.assign(new Error('MODEL_START_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+                }
+              } else if (prior?.status !== 'STARTED') {
+                throw Object.assign(new Error('MODEL_OPERATION_STATUS_INVALID'), { code: 'MODEL_OPERATION_STATUS_INVALID' })
+              }
+              await ensureLease()
+              const credential = await ports.model.credential(claim, authority, { signal })
+              // @req FR-049, FR-149 — the Server answer path's post-model rules, from
+              // the same policy source: a provider failure answers from evidence, and a
+              // candidate carrying a number, code or delivery claim the evidence does
+              // not carry is replaced by the evidence fallback.
+              const checkedEvidence = { records: evidenceRecords(evidence) }
+              // API-011's read packet is unchanged unless independently authorized API-010
+              // slices need the same runtime prompt budget.
+              const generate = async () => {
+                // Receipt writes and credential resolution may yield; revalidate the
+                // live claim and identity after them, immediately before provider entry.
+                await ensureLease()
+                const currentAuthority = await ports.authority.resolve(claim, { signal })
+                assertAuthority(currentAuthority, claim, authority)
+                return ports.model.generate({ question: turn.question, evidence,
+                  contextPacket: composedMemoryPacket ?? (composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null),
+                  contextReceipt: composed.receipt, credential,
+                  deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
+              }
+              let generated
+              let answer = null
               try {
-                await ports.trace.append(claim, { kind: 'MODEL_STARTED', payload: { operationId: stableModelId } }, { signal })
+                generated = shouldRecordInjection ? await invokeWithInjectionReceipt(generate) : await generate()
+              } catch (error) {
+                if (!answersFromEvidence(error, signal)) throw error
+                answer = { text: deterministicFallback(checkedEvidence), status: 'fallback', code: safeCode(error) }
+              }
+              if (!answer) {
+                if (typeof generated !== 'string' || !generated.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
+                answer = checkModelAnswer(turn.question, checkedEvidence, generated)
+              }
+              // The Server worker bounds the answer and then trims it (zCompletion), in
+              // that order. The recorded text is the final reply, so a replay after a
+              // reclaim reuses it as is and never calls the provider a second time.
+              text = boundLineText(answer.text).trim()
+              try {
+                await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: stableModelId, text,
+                  answerStatus: answer.status, ...(answer.code ? { code: answer.code } : {}) } }, { signal })
               } catch {
                 const recorded = await ports.trace.status(claim, stableModelId, { signal })
-                if (recorded?.status !== 'STARTED' || recorded.executionId !== claim.executionId) throw Object.assign(new Error('MODEL_START_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+                if (recorded?.status === 'COMPLETED' && typeof recorded.text === 'string') text = recorded.text
+                else throw Object.assign(new Error('MODEL_RESULT_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
               }
-            } else if (prior?.status !== 'STARTED') {
-              throw Object.assign(new Error('MODEL_OPERATION_STATUS_INVALID'), { code: 'MODEL_OPERATION_STATUS_INVALID' })
             }
-            await ensureLease()
-            const credential = await ports.model.credential(claim, authority, { signal })
-            // Credential resolution is a point-in-time grant. Revalidate the durable
-            // claim and identity after receiving it, immediately before the provider
-            // side effect, so a revoke or transport/lease change during that request
-            // cannot start a model invocation with stale authority.
-            await ensureLease()
-            const currentAuthority = await ports.authority.resolve(claim, { signal })
-            assertAuthority(currentAuthority, claim, authority)
-            await ensureLease()
-            // @req FR-049, FR-149 — the Server answer path's post-model rules, from
-            // the same policy source: a provider failure answers from evidence, and a
-            // candidate carrying a number, code or delivery claim the evidence does
-            // not carry is replaced by the evidence fallback.
-            const checkedEvidence = { records: evidenceRecords(evidence) }
-            // The memory packet is Core's composed MSP context, byte-identical to the
-            // one the legacy worker hands its provider.
-            const generate = () => ports.model.generate({ question: turn.question, evidence,
-              contextPacket: memoryPacket ?? (composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null),
-              contextReceipt: composed.receipt, credential,
-              deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
-            let generated
-            let answer = null
-            try {
-              generated = memoryPacket ? await invokeWithInjectionReceipt(generate) : await generate()
-            } catch (error) {
-              if (!answersFromEvidence(error, signal)) throw error
-              answer = { text: deterministicFallback(checkedEvidence), status: 'fallback', code: safeCode(error) }
-            }
-            if (!answer) {
-              if (typeof generated !== 'string' || !generated.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })
-              answer = checkModelAnswer(turn.question, checkedEvidence, generated)
-            }
-            // The Server worker bounds the answer and then trims it (zCompletion), in
-            // that order. The recorded text is the final reply, so a replay after a
-            // reclaim reuses it as is and never calls the provider a second time.
-            text = boundLineText(answer.text).trim()
-            try {
-              await ports.trace.append(claim, { kind: 'MODEL_COMPLETED', payload: { operationId: stableModelId, text,
-                answerStatus: answer.status, ...(answer.code ? { code: answer.code } : {}) } }, { signal })
-            } catch {
-              const recorded = await ports.trace.status(claim, stableModelId, { signal })
-              if (recorded?.status === 'COMPLETED' && typeof recorded.text === 'string') text = recorded.text
-              else throw Object.assign(new Error('MODEL_RESULT_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
-            }
+            await ports.trace.append(claim, { kind: 'CONTEXT_COMMITTED', payload: composed.receipt }, { signal })
           }
-          await ports.trace.append(claim, { kind: 'CONTEXT_COMMITTED', payload: composed.receipt }, { signal })
         }
         if (turn.memorySync === true) {
           if (typeof text !== 'string' || !text.trim()) throw Object.assign(new Error('RUNTIME_ANSWER_EMPTY'), { code: 'RUNTIME_ANSWER_EMPTY' })

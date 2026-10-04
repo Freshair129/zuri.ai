@@ -1,7 +1,7 @@
 ---
-version: "1.3.0"
+version: "1.6.0"
 created_at: "2026-09-14T15:00:00+07:00,Claude Opus 5"
-last_update: "2026-10-04T15:07:48+07:00,Codex"
+last_update: "2026-10-04T16:59:37+07:00,Codex"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -129,7 +129,41 @@ The session/thread path in this decision uses API-011. Private episodic-memory
 access uses the separate API-010 → API-009 path in [ADR-022](ADR-022-MULTI-TENANT-MSP-VAULTS.md).
 Neither API's grant, receipt or rollout gate substitutes for the other's.
 In particular, API-011 context does not prove that FR-057's API-010 authorization
-and API-009 retrieval are wired.
+and API-009 retrieval are wired. The caller boundary applies to both Server and
+Conversation Runtime cohorts: API-010 retrieval is authorized and composed from
+the persisted per-job episodic opt-in, verified principal, granted Customer
+consent, DIRECT audience and the account's trusted Project/derived Workspace
+scope. A Publisher selects one live Development Project per LINE OA account;
+the server derives that Project's Workspace and revalidates both against the
+account's Tenant and Business before each API-010/API-009 retrieval. The job
+captures both IDs at admission, and the LINE payload cannot choose either one.
+It must remain callable while `ZURI_MSP_THREAD_MEMORY_ENABLED` is off;
+that flag controls API-011 only. The two tiers may share the existing prompt
+budget and Context Composer, but API-010 must not run as a side effect of the
+API-011 `memory.read` operation. When the API-011 flag is off, no
+`msp_thread_*` call or append requirement is created by account policy alone.
+For Conversation Runtime turns with GKS evidence and API-010 episodic slices,
+both sources must enter the same composer budget even while API-011 is off; the
+model receives only GKS evidence records retained by that composer. Snapshot
+recovery validates API-010's DIRECT audience and trusted Project/derived
+Workspace job snapshots independently of API-011 delivery state, and restores
+both memory tiers fail-closed when the recovery manifest is unavailable.
+The Runtime composer treats an API-010-authorized `CROSS_THREAD` slice as
+independent of the active API-011 thread ID only on a DIRECT turn; API-011
+thread-scoped slices still require an exact thread match, and GROUP/ROOM turns
+receive no cross-thread or passport slices.
+After API-009 recall, both execution cohorts revalidate the live claimed job,
+erasure fence, current identity/consent and Project/Workspace mapping immediately
+before a model side effect. Complete required pre-model receipt writes before
+this final check: the Server caller persists its local ContextReceipt first, and
+Conversation Runtime records its pre-provider injection states first. Place the
+final live check inside the provider callback and enter the provider without
+another awaited operation after it, so erasure cannot race receipt persistence.
+In mixed API-010/API-011 context, the API-011 receipt
+lifecycle still brackets the provider call whenever retained API-011 slices are
+included, even if other thread slices were trimmed by the shared budget. The
+API-011 delivery scanner sends against an acknowledged inbound projection only
+while its erasure status is `ACTIVE` after the local policy recheck.
 
 ### D5 — Non-text content is recorded now; media bytes are fetched later
 
@@ -169,7 +203,7 @@ orchestrator (agent charter, ADR-022); MSP resolves memory; GKS orchestrates kno
 | Inputs | the server-built AuthContext; MSP packet slices with provenance; knowledge evidence with `citationId` (ADR-090); CRM and ERP operational facts through their read ports; the account's policy |
 | Priority | **authorization first**; then CRM/ERP record **>** GKS evidence **>** MSP memory. Memory that conflicts with a record is dropped with reason **`SUPERSEDED_BY_RECORD`** |
 | Budget | one prompt-wide budget, split per slice; every trim is reported |
-| Scope | group slices never cross threads; a non-DIRECT turn gets no passport or recall slice; **denied means an empty packet**, never a partial one |
+| Scope | API-011 thread slices require the active thread ID; API-010-authorized `CROSS_THREAD` slices may omit that ID only on DIRECT turns; GROUP/ROOM turns get no cross-thread or passport slice; **denied means an empty packet**, never a partial one |
 | Receipt | exactly **one `ContextReceipt` per model invocation** — references, hash and budget, never content — recorded on `AgentTraceEvent`; MSP's injection receipt references it by id |
 | No evidence | no evidence and no facts means **no model call**; the deterministic reply is sent |
 | Lineage | a follow-on to FR-171-P2's memory-provenance envelope |
@@ -258,6 +292,12 @@ add a transport with nothing to isolate.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.9.0 | 2026-10-04 | accepted | Completes required receipt writes before the final live authorization fence in both runtime cohorts and enters the provider immediately afterward | working-tree | Codex |
+| 1.8.0 | 2026-10-04 | accepted | Separates authorized API-010 cross-thread slices from API-011 thread isolation in the Runtime composer, retaining DIRECT-only access and non-DIRECT denial | working-tree | Codex |
+| 1.6.0 | 2026-10-04 | accepted | Requires GKS evidence and independent API-010 episodic slices to share the runtime composer budget with API-011 off; validates and preserves API-010 scope independently in snapshot recovery | working-tree | Codex |
+| 1.7.0 | 2026-10-04 | accepted | Requires a current erasure/identity/consent/scope fence before model use and API-011 injection receipts for mixed contexts with any retained thread slices | working-tree | Codex |
+| 1.5.0 | 2026-10-04 | accepted | Defines the Publisher-selected Project per LINE OA account, live derived Workspace revalidation, and immutable job-scope comparison for independent API-010 retrieval | working-tree | Codex |
+| 1.4.0 | 2026-10-04 | accepted | Requires API-010 episodic retrieval to stay independently callable from API-011 in both Server and Conversation Runtime cohorts; each tier keeps its own kill switch and the existing Context Composer owns shared prompt budgeting | working-tree | Codex |
 | 1.3.0 | 2026-10-04 | accepted | Amends D6 erasure-call granularity to the owner's 2026-09-28 tenant-wide per-principal/per-request decision (PR #614); keeps projection receipts independently traceable and consent-decline delivery open | working-tree | Codex |
 | 1.2.0 | 2026-10-04 | accepted | Clarifies API-011 session memory is separate from API-010 → API-009 episodic memory; each retains its own consent and activation gates | working-tree | Codex |
 | 1.1.0 | 2026-09-16 | accepted | Amended by ADR-093 (archive before tombstone for message bodies) and refined by ADR-094 (the record owns the session id); D1–D7 otherwise unchanged | working-tree | Claude Opus 5 |

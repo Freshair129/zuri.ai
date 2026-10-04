@@ -105,7 +105,8 @@ export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1
 export const KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_MANIFEST_VERSION = 'knowledge-artifact-storage-recovery.v1'
 export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-recovery.v1'
 export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
-export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v2'
+export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v3'
+const PREVIOUS_LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v2'
 const COMMERCE_BILLING_RECOVERY_TABLES = Object.freeze([
   'businessBillingProfile',
   'commerceDocumentSequence',
@@ -1385,16 +1386,16 @@ function lineWorkerMemoryRecovery(snapshot) {
   const result = { status: 'UNAVAILABLE', manifestVersion: manifest?.schemaVersion || null, errors: [], warnings: [] }
   if (manifest === undefined) {
     result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: snapshot has no memory recovery manifest; pending memory receipts are not claimed as preserved')
-    if (rows.some((row) => row?.memorySyncOptIn === true
+    if (rows.some((row) => row?.memorySyncOptIn === true || row?.episodicMemoryOptIn === true
       || (typeof row?.memoryDeliveryState === 'string' && row.memoryDeliveryState !== 'NONE'))) {
       result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: memory fields in a legacy snapshot are untrusted and will be restored as opt-out defaults')
     }
     return result
   }
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)
-    || manifest.schemaVersion !== LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION
+    || ![LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION, PREVIOUS_LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION].includes(manifest.schemaVersion)
     || JSON.stringify(manifest.requiredTables) !== JSON.stringify(LINE_WORKER_MEMORY_RECOVERY_TABLES)) {
-    result.errors.push(`Invalid LINE worker memory recovery manifest (expected ${LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION})`)
+    result.errors.push(`Invalid LINE worker memory recovery manifest (expected ${LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION} or ${PREVIOUS_LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION})`)
   }
   for (const model of LINE_WORKER_MEMORY_RECOVERY_TABLES) {
     if (!Array.isArray(tables[model])) result.errors.push(`LINE worker memory recovery snapshot is missing required table: ${model}`)
@@ -1418,8 +1419,10 @@ function lineWorkerMemoryRecovery(snapshot) {
     if (row.memorySyncOptIn === false && row.memoryDeliveryState !== 'NONE') {
       result.errors.push(`LINE worker memory recovery job ${label} has opt-out memory with non-NONE state`)
     }
-    if (row.episodicMemoryOptIn === true && (row.memorySyncOptIn !== true || row.audienceKind !== 'DIRECT')) {
-      result.errors.push(`LINE worker memory recovery job ${label} has episodic memory without direct opted-in session memory`)
+    if (row.episodicMemoryOptIn === true && (row.audienceKind !== 'DIRECT'
+      || typeof row.episodicWorkspaceId !== 'string' || !row.episodicWorkspaceId.trim()
+      || typeof row.episodicProjectId !== 'string' || !row.episodicProjectId.trim())) {
+      result.errors.push(`LINE worker memory recovery job ${label} has episodic memory without DIRECT trusted workspace/project scope`)
     }
     if (row.memoryDeliveryState === 'NONE'
       && (row.memoryDeliveryAttempts !== 0 || row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
@@ -1760,7 +1763,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
     artifactStorage.recovery.status = 'INVALID'
   }
   const currentMemoryJobs = await db.lineConversationJob.count({ where: {
-    OR: [{ memorySyncOptIn: true }, { memoryDeliveryState: { not: 'NONE' } }],
+    OR: [{ memorySyncOptIn: true }, { episodicMemoryOptIn: true }, { memoryDeliveryState: { not: 'NONE' } }],
   } })
   const currentMemoryEvidence = await db.agentTraceEvent.count({ where: { kind: { in: [...LINE_WORKER_MEMORY_TRACE_KINDS] } } })
   const currentMemoryProjections = await db.memoryProjectionReceipt.count()
@@ -1894,10 +1897,13 @@ export function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
   const { sealedReplyToken, ...rest } = row
   const preserveMemoryRecovery = lineWorkerMemoryRecovery?.status === 'AVAILABLE'
   const memory = preserveMemoryRecovery
-    ? { memorySyncOptIn: row.memorySyncOptIn, episodicMemoryOptIn: row.episodicMemoryOptIn === true, memoryDeliveryState: row.memoryDeliveryState,
+    ? { memorySyncOptIn: row.memorySyncOptIn, episodicMemoryOptIn: row.episodicMemoryOptIn === true,
+      episodicWorkspaceId: row.episodicWorkspaceId ?? null, episodicProjectId: row.episodicProjectId ?? null,
+      memoryDeliveryState: row.memoryDeliveryState,
       memoryDeliveryAttempts: row.memoryDeliveryAttempts, memoryDeliveryNextAttemptAt: row.memoryDeliveryNextAttemptAt,
       memoryDeliveryLeaseUntil: null }
-    : { audienceKind: 'DIRECT', memorySyncOptIn: false, episodicMemoryOptIn: false, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
+    : { audienceKind: 'DIRECT', memorySyncOptIn: false, episodicMemoryOptIn: false, episodicWorkspaceId: null,
+      episodicProjectId: null, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
       memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null }
   const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
     // A restored account is disabled above. Preserve the durable pending receipt

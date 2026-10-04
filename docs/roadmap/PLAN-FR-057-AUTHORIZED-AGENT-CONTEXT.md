@@ -1,7 +1,7 @@
 ---
-version: "0.4.7b"
+version: "0.4.15b"
 created_at: "2026-08-15T00:00:00+07:00,ATHER"
-last_update: "2026-10-04T15:07:48+07:00,Codex"
+last_update: "2026-10-04T19:41:38+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
@@ -129,6 +129,116 @@ flowchart TD
   H -. does not supply scope .-> E
 ```
 
+## Independent runtime caller boundary — 2026-10-04
+
+ADR-091 D4 requires API-010 → API-009 episodic retrieval to remain a separate
+authorization and rollout path from API-011 session/thread memory. This applies
+to both the legacy Server worker and Conversation Runtime cohort. API-010 reads
+must be based on the claimed job's immutable episodic opt-in, verified LINE
+principal, current granted Customer consent, DIRECT audience, and revalidated
+Publisher-selected Development Project for the LINE OA account. The server
+derives its Workspace from the live Project, validates Tenant and Business on
+both records, and compares both current IDs with the job's admission snapshot
+before each API-010/API-009 call. LINE payload fields cannot provide this scope.
+API-010 reads must not depend on
+the API-011 `memory.read` operation or on
+`ZURI_MSP_THREAD_MEMORY_ENABLED`.
+
+When the API-011 kill switch is off, the Conversation Runtime must still be able
+to compose an authorized API-010 episodic slice into the existing prompt context
+within the Context Composer's budget, and must make no `msp_thread_*` request or
+require an API-011 append. When the API-011 flag is on, its own read/append and
+receipt rules remain unchanged. Missing scope, consent, identity, grant or the
+API-010 feature flag returns no episodic slice and makes no API-009 request.
+
+The shared Runtime composer treats an authorized API-010 `CROSS_THREAD` slice
+as independent of the active API-011 thread ID, but only for a DIRECT turn.
+API-011 thread-scoped slices still require the active thread ID; GROUP and ROOM
+turns receive no cross-thread or passport slice.
+
+Complete required receipt writes before the final live authorization/erasure
+fence in both runtime cohorts. For the Server caller, persist the local
+ContextReceipt first. For Conversation Runtime, persist the pre-provider
+injection states first. Put the final live fence inside the provider callback
+and call the model immediately after it without another awaited step.
+
+```mermaid
+sequenceDiagram
+  participant C as LINE caller
+  participant R as Required receipt store
+  participant L as Live authorization/state
+  participant M as Model provider
+  C->>R: Persist pre-provider receipt state
+  R-->>C: Write completed
+  C->>L: Revalidate job, erasure, identity, consent and scope
+  alt Still authorized
+    L-->>C: Allow
+    C->>M: Generate immediately
+    M-->>C: Result
+    C->>R: Persist receipt completion where required
+  else State changed or erased
+    L-->>C: Deny
+    C-->>C: No model call
+  end
+```
+
+Acceptance evidence for this boundary:
+
+- With API-011 disabled and API-010 enabled, a consented DIRECT runtime turn
+  resolves the vault before listing memory, includes only composer-retained
+  episodic slices, and performs no `msp_thread_*` calls.
+- With an active API-011 thread, the composer retains an authorized API-010
+  `CROSS_THREAD` slice on a DIRECT turn without a thread-ID match, while a
+  thread-scoped MSP slice still requires the exact thread and GROUP/ROOM turns
+  drop cross-thread slices.
+- With GKS grounding, API-010 enabled and API-011 disabled, the runtime reads
+  GKS during `prepare`, composes GKS and episodic slices under one budget, and
+  gives the model only the GKS records retained by that composer. If none fit,
+  it returns the existing no-evidence reply without invoking the model.
+- Backup recovery validates episodic DIRECT audience and the trusted
+  Project/derived Workspace snapshots independently of API-011 session opt-in,
+  preserves both IDs under a valid manifest, and clears them when recovery is
+  unavailable.
+- With API-010 denied or scope/consent missing, no `msp_memory_list` call occurs;
+  the normal answer path remains available without personal memory.
+- With API-011 disabled and an opted-in account, the turn completes without an
+  API-011 append requirement. With API-011 enabled, existing thread read/write
+  and delivery-receipt tests continue to pass.
+- A moved, deleted, archived or cross-scope selected Project/Workspace denies
+  episodic retrieval before API-010 or API-009.
+- If erasure or current authorization changes while API-009 is in flight, both
+  runtime cohorts re-read the claimed job, account scope and current identity/
+  consent before the model side effect; an unavailable or changed state fails
+  closed independently of the API-011 feature flag.
+- If erasure commits during Server ContextReceipt or Runtime pre-provider
+  injection-receipt persistence, the final live fence blocks model generation.
+- No asynchronous receipt or lease operation runs between a successful final
+  live fence and provider entry.
+- A mixed API-010/API-011 prompt keeps API-011 injection receipts around the
+  provider call whenever any API-011 packet is included, even if the composer
+  trimmed some of that packet.
+- The API-011 delivery scanner refuses an inbound projection whose erasure
+  status is pending or complete, including after its policy recheck.
+- Test doubles return the message IDs their append operation acknowledged, and
+  authorized API-010 fixtures explicitly set current consent, trusted scope and
+  `episodicMemoryAllowed`.
+- The Phase B frozen recovery inventory and parent decision are rebound to the
+  `MemoryProjectionReceipt` schema using the repository's count/hash functions;
+  stale-schema refusal remains enforced.
+
+The first full verification before the recovery correction passed governance
+but stopped at `npm test` with 7,864 passed, 43 skipped and 23 failed across 13
+files. RCA v1.10 traced those failures to the obsolete requirement that
+episodic opt-in imply API-011 session opt-in. After the independent recovery
+fix, the affected backup/recovery files passed 93/93 focused tests and the full
+`npm run verify` passed: Conversation Runtime 73/73; Server Vitest 7,887 passed,
+43 skipped across 850 passing files and 5 skipped files; production build
+passed; Playwright E2E 208 passed, 4 skipped. Governance and generated-document
+checks passed with 0 critical findings; the strict preflight retained 21
+existing warnings and the document graph reported 10 existing dangling
+references. This local verification does not satisfy hosted CI or production
+release gates.
+
 Release remains blocked: the signed API-010 contract is still absent from MSP
 main. A local Zuri-resolver-to-MSP-handler contract run passed; hosted CI,
 rollback acceptance and deployment evidence have not been recorded. FR-232 also remains open for
@@ -140,6 +250,11 @@ paths.
 
 | Version | Change |
 |---|---|
+| 0.4.13b | Defines the DIRECT-only composition rule for API-010 `CROSS_THREAD` slices while preserving API-011 thread isolation. |
+| 0.4.11b | Records passing full local verification after the API-010-only backup-recovery correction; keeps hosted CI and production gates open. |
+| 0.4.9b | Revalidates the Publisher-selected LINE account Project and its live derived Workspace against the immutable admission snapshot before independent API-010 retrieval; records full verification repair scope. |
+| 0.4.12b | Adds an API-010 liveness/current-authorization fence before model invocation and retains API-011 receipt lifecycle for partially composed mixed context. |
+| 0.4.8b | Requires API-010 episodic retrieval to run independently of API-011 in both Server and Conversation Runtime cohorts; adds disabled-gate and fail-closed acceptance evidence plus full-verification gaps. |
 | 0.4.3b | Owner-selected Project mapping and derived Workspace are recorded; mapping, caller, receipt and erasure work remained open. |
 | 0.4.4b | Records the implemented API-010/API-009 LINE caller, durable API-011 projection receipts, and vault-aware principal erasure; preserves MSP-main, CI, rollback, consent-decline, GKS and deployment gates. |
 | 0.4.5b | Adds the architecture boundary diagram for Project-derived API-010 scope and the separate API-011 session path; records verification defects fixed and release blockers. |
@@ -181,6 +296,14 @@ MSP data during rollback.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.15b | 2026-10-04 | beta | Closes Server and Runtime receipt-time erasure races; focused final tests and builds pass, with full verify evidence labeled pre-correction | working-tree | Codex |
+| 0.4.14b | 2026-10-04 | beta | Completes required receipt writes before both cohorts' final live authorization fence and blocks provider entry after concurrent erasure | working-tree | Codex |
+| 0.4.13b | 2026-10-04 | beta | Allows authorized API-010 `CROSS_THREAD` slices in DIRECT runtime composition while keeping API-011 thread matching and GROUP/ROOM denial | working-tree | Codex |
+| 0.4.11b | 2026-10-04 | beta | Full local verification before the receipt-ordering correction: 7,890 server tests and 208 E2E tests pass; 43 server and 4 E2E tests skipped; hosted CI and production gates remain open | working-tree | Codex |
+| 0.4.10b | 2026-10-04 | beta | Requires GKS evidence and API-010 slices to share the runtime budget with API-011 disabled; validates API-010 scope independently in snapshot recovery | working-tree | Codex |
+| 0.4.9b | 2026-10-04 | beta | Requires live Project-derived Workspace revalidation per LINE OA account before API-010/API-009 access; binds it to the job snapshot | working-tree | Codex |
+| 0.4.8b | 2026-10-04 | beta | Requires independent API-010 episodic retrieval in both LINE cohorts, separate from API-011 kill-switch and read behavior | working-tree | Codex |
+| 0.4.12b | 2026-10-04 | beta | Rechecks current erasure, authorization and scope before model use; requires API-011 receipt lifecycle for included partial thread context | working-tree | Codex |
 | 0.4.7b | 2026-10-04 | beta | Reconciles erasure request granularity with the owner decision while retaining consent-decline, GKS and release blockers | working-tree | Codex |
 | 0.4.6b | 2026-10-04 | beta | Refreshes remote head evidence; records the pushed MSP contract branch, absent PR, and current production blockers | working-tree | Codex |
 | 0.4.5b | 2026-10-04 | beta | Adds the scope and runtime boundary diagram; records the implemented caller, receipts, principal erasure and remaining release gates | working-tree | Codex |

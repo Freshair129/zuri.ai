@@ -100,7 +100,7 @@ export async function traceEvidenceTrimmed(db, job, { phase, recordsBefore, reco
 }
 
 export function createConversationRuntimeMemory({ db, env, now = () => new Date(), ownedClaim, modelResolver, groundingQuery,
-  threadMemoryFactory = null, episodicMemoryFactory = null, contextAssembler = assembleAgentContext,
+  threadMemoryFactory = null, contextAssembler = assembleAgentContext,
   authorizationResolver = resolveAgentAuthorization } = {}) {
   if (typeof ownedClaim !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_CLAIM_REQUIRED')
   if (typeof modelResolver !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_MODEL_REQUIRED')
@@ -204,8 +204,8 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
    */
   function memoryTurn(job) {
     if (job.memorySyncOptIn !== true) throw error('MEMORY_NOT_ENABLED', 409)
-    if (env.ZURI_MSP_THREAD_MEMORY_ENABLED !== 'true') throw error('MEMORY_NOT_ENABLED', 409)
     if (!isMemoryTurn(job)) throw error('MEMORY_NOT_APPLICABLE', 409)
+    if (env.ZURI_MSP_THREAD_MEMORY_ENABLED !== 'true') throw error('MEMORY_NOT_ENABLED', 409)
     // @req FR-244 — an out-of-hours turn never touches memory, as on the Server path
     // (#600 review, MEDIUM): every memory operation is refused for it.
     if (runtimeOutOfHoursReply(job) !== null) throw error('MEMORY_NOT_APPLICABLE', 409)
@@ -253,11 +253,8 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       return readResult(stored)
     }
     const port = threadMemory()
-    const episodicMemory = job.episodicMemoryOptIn === true && typeof episodicMemoryFactory === 'function'
-      ? await episodicMemoryFactory(env, job)
-      : null
     const { memoryContext, memoryInbound, authorizedForMemory } = await prepareLineMemoryContext({ job, route,
-      question: job.inbound.body, threadMemory: port, episodicMemory,
+      question: job.inbound.body, threadMemory: port,
       projectionReceiptWriter: input => recordMemoryProjectionReceipt(db, input),
       contextAssembler: assemblerFor(job), memoryStateReader, env })
     // @req FR-235 — under a corpus mode, the legacy worker reads this turn's

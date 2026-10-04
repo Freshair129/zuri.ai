@@ -616,7 +616,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-072",
@@ -3736,7 +3736,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-061",
@@ -5461,7 +5461,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-058",
@@ -14617,7 +14617,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 28
+          "testCount": 29
         }
       ],
       "evidence": [
@@ -14642,6 +14642,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
         "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+        "apps/server/tests/integration/line-gks-grounding.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",

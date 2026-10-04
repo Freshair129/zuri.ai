@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
+import { createServerLineAnswer, readAuthorizedLineEpisodicMemory } from '@/modules/agent/server-line-answer'
 import { createDeterministicBusinessModel } from '@/modules/agent/grounded-business-answer'
 
 // @req FR-235 — LINE answer grounding from the published knowledge corpus,
@@ -240,7 +240,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
         mspAuthorization: { read: audienceKind === 'DIRECT', writePrivate: false, writeShared: false } },
       serverScope,
     }))
-    return { threadMemory, contextAssembler, authorizationResolver }
+    return { threadMemory, contextAssembler, authorizationResolver, env: { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' } }
   }
 
   it('memory-opt-in + GKS_CORPUS with evidence: exactly one ContextReceipt listing both the MSP participant and the citation', async () => {
@@ -314,6 +314,141 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
     expect(trace.recordContextReceipt).toHaveBeenCalledTimes(1)
     const receipt = trace.recordContextReceipt.mock.calls[0][0]
     expect(receipt.refs.citations).toEqual([])
+  })
+})
+
+describe('FR-057 — API-010 episodic recall is independent and scope-bound', () => {
+  const workspaceId = 'workspace-selected'
+  const projectId = 'project-selected'
+  function episodicJob() {
+    return { id: 'episodic-job', tenantId, businessId, channelAccountId: 'memory-binding', eventId: 'episodic-event',
+      sourceUserId: 'verified-line-user', audienceKind: 'DIRECT', memorySyncOptIn: true, episodicMemoryOptIn: true,
+      status: 'CLAIMED', version: 1, transportEpoch: 1,
+      episodicWorkspaceId: workspaceId, episodicProjectId: projectId,
+      account: { id: 'account-id', tenantId, businessId, bindingCode: 'memory-binding', memoryProjectId: projectId,
+        serverEnabled: true, transportMode: 'CLOUD', status: 'CONNECTED', transportEpoch: 1 },
+      inbound: { id: 'inbound-id', body: 'AB-1 ราคาเท่าไร', conversation: { tenantId, businessId, channel: 'LINE',
+        channelAccountId: 'memory-binding', externalThreadId: 'direct-thread' } } }
+  }
+  function episodicMemoryState(job = episodicJob()) {
+    return { id: job.id, tenantId: job.tenantId, businessId: job.businessId, channelAccountId: job.channelAccountId,
+      sourceUserId: job.sourceUserId, eventId: job.eventId, audienceKind: job.audienceKind,
+      memorySyncOptIn: true, episodicMemoryOptIn: true, episodicWorkspaceId: workspaceId,
+      episodicProjectId: projectId, status: 'CLAIMED', version: 1, errorCode: null, transportEpoch: 1,
+      account: { id: 'account-id', tenantId, businessId, bindingCode: 'memory-binding', memoryProjectId: projectId,
+        serverEnabled: true, transportMode: 'CLOUD', status: 'CONNECTED', transportEpoch: 1 } }
+  }
+  const liveEpisodicMemoryReader = job => vi.fn(async () => episodicMemoryState(job))
+  function allowedAuthorization() {
+    return { policy: { episodicMemoryAllowed: true }, authContext: { policy: { decision: 'ALLOW', episodicMemoryAllowed: true },
+      actor: { identityVerified: true },
+      scope: { tenantId, businessId, workspaceId, projectId } } }
+  }
+
+  it('reads through API-010/API-009 while API-011 has no enabled flag, using the Publisher Project and derived Workspace', async () => {
+    const job = episodicJob()
+    const authorization = allowedAuthorization()
+    const scopeResolver = vi.fn(async input => ({ workspaceId, projectId: input.projectId }))
+    const authorizationResolver = vi.fn(async () => authorization)
+    const memoryPort = { recallAuthorized: vi.fn(async () => ({ entries: [{ value: 'authorized episode' }] })) }
+
+    const result = await readAuthorizedLineEpisodicMemory({ job, memoryPort, scopeResolver, authorizationResolver,
+      memoryStateReader: liveEpisodicMemoryReader(job), env: { ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' } })
+
+    expect(scopeResolver).toHaveBeenCalledWith({ tenantId, businessId, projectId })
+    expect(authorizationResolver).toHaveBeenCalledWith(expect.objectContaining({
+      tenantId, businessId, lineUserId: job.sourceUserId,
+      serverScope: expect.objectContaining({ workspaceId, projectId, episodicMemoryOptIn: true }),
+    }))
+    expect(memoryPort.recallAuthorized).toHaveBeenCalledWith(authorization)
+    expect(result).toEqual({ allowed: true, entries: [{ value: 'authorized episode' }] })
+  })
+
+  it('Server composes API-010 episodic context without creating an API-011 read or append', async () => {
+    const authorization = allowedAuthorization()
+    const model = createDeterministicBusinessModel()
+    const generate = vi.fn(input => model.generate(input))
+    const episodicMemory = { recallAuthorized: vi.fn(async () => ({ entries: [{ value: 'authorized episode' }] })) }
+    const answer = createServerLineAnswer({ env: { ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' },
+      scopeResolver: async () => ({ workspaceId, projectId }), authorizationResolver: async () => authorization,
+      runtimeFactory: async () => ({ businessKnowledge: { query: async () => businessKnowledgeEvidence() },
+        episodicMemory, resolveModel: async () => ({ ...model, generate }) }) })
+    const trace = fakeTrace()
+
+    await answer(episodicJob(), { trace, memoryStateReader: liveEpisodicMemoryReader(episodicJob()) })
+
+    expect(generate).toHaveBeenCalledTimes(1)
+    expect(JSON.stringify(generate.mock.calls[0][0].contextPacket)).toContain('authorized episode')
+    expect(episodicMemory.recallAuthorized).toHaveBeenCalledWith(authorization)
+    expect(trace.recordContextReceipt).toHaveBeenCalledTimes(1)
+    expect(trace.recordThreadMemory).not.toHaveBeenCalled()
+  })
+
+  it('does not call the model with API-010 context if erasure commits after recall', async () => {
+    const job = episodicJob()
+    const authorization = allowedAuthorization()
+    const model = createDeterministicBusinessModel()
+    const generate = vi.fn(input => model.generate(input))
+    const episodicMemory = { recallAuthorized: vi.fn(async () => ({ entries: [{ value: 'must not reach model after erasure' }] })) }
+    const live = episodicMemoryState(job)
+    const erased = { ...live, status: 'CANCELLED', version: 2, errorCode: 'PDPA_ERASURE', episodicMemoryOptIn: false }
+    const memoryStateReader = vi.fn().mockResolvedValueOnce(live).mockResolvedValueOnce(erased)
+    const answer = createServerLineAnswer({ env: { ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' },
+      scopeResolver: async () => ({ workspaceId, projectId }), authorizationResolver: async () => authorization,
+      runtimeFactory: async () => ({ businessKnowledge: { query: async () => businessKnowledgeEvidence() },
+        episodicMemory, resolveModel: async () => ({ ...model, generate }) }) })
+
+    const response = await answer(job, { trace: fakeTrace(), memoryStateReader })
+    expect(response).not.toContain('must not reach model after erasure')
+    expect(episodicMemory.recallAuthorized).toHaveBeenCalledTimes(1)
+    expect(memoryStateReader).toHaveBeenCalledTimes(2)
+    expect(generate).not.toHaveBeenCalled()
+  })
+
+  it('rechecks erasure after the asynchronous ContextReceipt write and before the model', async () => {
+    const job = episodicJob()
+    const authorization = allowedAuthorization()
+    const model = createDeterministicBusinessModel()
+    const generate = vi.fn(input => model.generate(input))
+    const episodicMemory = { recallAuthorized: vi.fn(async () => ({ entries: [{ value: 'must not reach model after receipt-time erasure' }] })) }
+    let persisted = episodicMemoryState(job)
+    const memoryStateReader = vi.fn(async () => persisted)
+    const trace = fakeTrace()
+    trace.recordContextReceipt.mockImplementation(async () => {
+      persisted = { ...persisted, status: 'CANCELLED', version: 2, errorCode: 'PDPA_ERASURE', episodicMemoryOptIn: false }
+    })
+    const answer = createServerLineAnswer({ env: { ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' },
+      scopeResolver: async () => ({ workspaceId, projectId }), authorizationResolver: async () => authorization,
+      runtimeFactory: async () => ({ businessKnowledge: { query: async () => businessKnowledgeEvidence() },
+        episodicMemory, resolveModel: async () => ({ ...model, generate }) }) })
+
+    const response = await answer(job, { trace, memoryStateReader })
+
+    expect(response).not.toContain('must not reach model after receipt-time erasure')
+    expect(memoryStateReader).toHaveBeenCalledTimes(2)
+    expect(trace.recordContextReceipt).toHaveBeenCalledTimes(1)
+    expect(generate).not.toHaveBeenCalled()
+  })
+
+  it('does not call API-010 or API-009 if the selected Project now resolves to another Workspace', async () => {
+    const scopeResolver = vi.fn(async () => ({ workspaceId: 'moved-workspace', projectId }))
+    const authorizationResolver = vi.fn()
+    const memoryPort = { recallAuthorized: vi.fn() }
+    const result = await readAuthorizedLineEpisodicMemory({ job: episodicJob(), memoryPort, scopeResolver,
+      authorizationResolver, memoryStateReader: liveEpisodicMemoryReader(), env: { ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' } })
+    expect(result).toEqual({ allowed: false, entries: [] })
+    expect(authorizationResolver).not.toHaveBeenCalled()
+    expect(memoryPort.recallAuthorized).not.toHaveBeenCalled()
+  })
+
+  it('does not call API-009 when the current authorization no longer grants episodic consent', async () => {
+    const authorizationResolver = vi.fn(async () => ({ ...allowedAuthorization(), policy: { episodicMemoryAllowed: false } }))
+    const memoryPort = { recallAuthorized: vi.fn() }
+    const result = await readAuthorizedLineEpisodicMemory({ job: episodicJob(), memoryPort, authorizationResolver,
+      scopeResolver: async () => ({ workspaceId, projectId }), memoryStateReader: liveEpisodicMemoryReader(),
+      env: { ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' } })
+    expect(result).toEqual({ allowed: false, entries: [] })
+    expect(memoryPort.recallAuthorized).not.toHaveBeenCalled()
   })
 })
 

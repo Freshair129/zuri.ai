@@ -99,6 +99,11 @@ async function runToPending(fixture, { mspMessageId = 'msp-message-1' } = {}) {
   const row = await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })
   expect(row).toMatchObject({ memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 0 })
   await prisma.memoryProjectionReceipt.create({ data: { tenantId: row.tenantId, businessId: row.businessId,
+    lineConversationJobId: row.id, principalId: `person:${row.sourceUserId}`, direction: 'INBOUND',
+    episodicMemoryOptIn: row.episodicMemoryOptIn, mspThreadId: `thread:${row.id}`, mspSessionId: `session:${row.id}`,
+    mspMessageId: 'msp-inbound-message-1', mspExchangeId: `exchange:${row.id}`, acknowledgedAt: now,
+    deliveryState: 'ACKNOWLEDGED', deliveryAcknowledgedAt: now } })
+  await prisma.memoryProjectionReceipt.create({ data: { tenantId: row.tenantId, businessId: row.businessId,
     lineConversationJobId: row.id, principalId: `person:${row.sourceUserId}`, direction: 'OUTBOUND',
     episodicMemoryOptIn: row.episodicMemoryOptIn, mspThreadId: `thread:${row.id}`, mspSessionId: `session:${row.id}`,
     mspMessageId, mspExchangeId: `exchange:${row.id}`, acknowledgedAt: now, deliveryState: 'PENDING' } })
@@ -170,7 +175,7 @@ describe('LINE memory enrollment and receipt recovery', () => {
     expect(result).toMatchObject({ scanned: 1, acknowledged: 1, pending: 0 })
     expect(recordDelivery).toHaveBeenCalledOnce()
     expect(recordDelivery.mock.calls[0][0]).toMatchObject({ receiptId: outbound.id, text: `durable answer ${fixture.jobId}`,
-      inboundMessageId: fixture.inboundMessageId })
+      inboundMessageId: 'msp-inbound-message-1' })
     expect(recordDelivery.mock.calls[0][0].text).not.toContain('tampered')
     expect(await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })).toMatchObject({ memoryDeliveryState: 'ACKNOWLEDGED', memoryDeliveryLeaseUntil: null })
     expect((await reconcileLineMemoryDeliveries({ db: prisma, env: fixture.env, threadMemory: { recordDelivery }, now: () => now,
@@ -300,6 +305,23 @@ describe('LINE memory enrollment and receipt recovery', () => {
     expect(result).toMatchObject({ scanned: 1, acknowledged: 0 })
     expect(recordDelivery).not.toHaveBeenCalled()
     expect((await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })).memoryDeliveryState).toBe('CLOSED')
+  })
+
+  it('closes an outbound receipt when its acknowledged inbound projection is erasure-pending', async () => {
+    const fixture = await admittedFixture()
+    await runToPending(fixture)
+    await prisma.memoryProjectionReceipt.update({
+      where: { lineConversationJobId_direction: { lineConversationJobId: fixture.jobId, direction: 'INBOUND' } },
+      data: { erasureStatus: 'PENDING_MSP' },
+    })
+    const recordDelivery = vi.fn()
+    const result = await reconcileLineMemoryDeliveries({ db: prisma, env: fixture.env,
+      threadMemory: { recordDelivery }, now: () => now, workerId: 'scanner-erasure-pending', policyResolver: policyFor() })
+
+    expect(result).toMatchObject({ scanned: 1, closed: 1, acknowledged: 0 })
+    expect(recordDelivery).not.toHaveBeenCalled()
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } }))
+      .toMatchObject({ memoryDeliveryState: 'CLOSED' })
   })
 
   it('closes disabled-account and erasure races without calling MSP or recreating text', async () => {

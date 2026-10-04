@@ -662,10 +662,11 @@ export async function renewRuntimeConversationJob(claim, { db = prisma, now = ()
   })
 }
 
-export async function completeRuntimeConversationJob(claim, { text, operationId }, { db = prisma, now = () => new Date() } = {}) {
+export async function completeRuntimeConversationJob(claim, { text, operationId },
+  { db = prisma, now = () => new Date(), threadMemoryEnabled = true } = {}) {
   if (operationId !== `${claim.jobId}:turn-answer`) throw failure(400, 'COMPLETION_IDEMPOTENCY_INVALID')
   return settleExecution(claim.jobId, { version: claim.version, text, executionId: claim.executionId },
-    { db, claimantId: claim.claimantId, now: new Date(typeof now === 'function' ? now() : now), runtimeOwner: 'CONVERSATION_RUNTIME' })
+    { db, claimantId: claim.claimantId, now: new Date(typeof now === 'function' ? now() : now), runtimeOwner: 'CONVERSATION_RUNTIME', threadMemoryEnabled })
 }
 
 export async function failRuntimeConversationJob(claim, { code, outcome }, { db = prisma, now = () => new Date() } = {}) {
@@ -839,7 +840,7 @@ export async function runtimeWorkBudgetSpent(db, job, { at }) {
 // scoping, the `EDGE_REPORTED` context-receipt source and the published-corpus
 // re-check a device's claim needed are gone with the claim that produced them.
 async function settleExecution(id, { version, text, code, executionId, contextReceipts, traceFailureCode, outcome },
-  { db, claimantId, now, executionMode = 'SERVER', runtimeOwner = 'SERVER' }) {
+  { db, claimantId, now, executionMode = 'SERVER', runtimeOwner = 'SERVER', threadMemoryEnabled = true }) {
   const startedAt = performance.now()
   return db.$transaction(async tx => {
     const job = await tx.lineConversationJob.findFirst({ where: { id, executionMode, runtimeOwner },
@@ -861,11 +862,14 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       // snapshot, which the out-of-hours check below pins READY to.
       // A read receipt means memory ran for the turn after all; it then commits only
       // with its append, out of hours or not (#600 review, MEDIUM).
-      if (!code && (runtimeOutOfHoursReply(job) === null || await loadMemoryReceipt(tx, job, 'read'))
+      const memoryRead = await loadMemoryReceipt(tx, job, 'read')
+      if (!code && (runtimeOutOfHoursReply(job) === null || memoryRead)
         && !(job.status === 'READY' && job.executionId === executionId && job.answerText === text)) {
-        const inbound = job.memorySyncOptIn
+        const inbound = job.memorySyncOptIn && threadMemoryEnabled
           ? await tx.message.findUnique({ where: { id: job.inboundMessageId }, select: { body: true } }) : null
-        await assertMemoryAnswerAppended(tx, { ...job, inbound }, text)
+        if (memoryRead || (job.memorySyncOptIn && threadMemoryEnabled)) {
+          await assertMemoryAnswerAppended(tx, { ...job, memorySyncOptIn: job.memorySyncOptIn && threadMemoryEnabled, inbound }, text)
+        }
       }
     }
     // A completion retry after a lost HTTP response is reconciled from the
@@ -1007,8 +1011,11 @@ async function executeClaimed({ db, answer, execution, claimantId, now }) {
       trace: createLineExecutionTrace({ db, job: execution }),
       ...(execution.memorySyncOptIn ? { memoryStateReader: id => db.lineConversationJob.findUnique({
         where: { id },
-        select: { memorySyncOptIn: true, status: true, version: true, errorCode: true, transportEpoch: true,
-          account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true,
+        select: { id: true, tenantId: true, businessId: true, channelAccountId: true, sourceUserId: true,
+          eventId: true, audienceKind: true, memorySyncOptIn: true, episodicMemoryOptIn: true,
+          episodicWorkspaceId: true, episodicProjectId: true, status: true, version: true, errorCode: true,
+          transportEpoch: true, account: { select: { id: true, tenantId: true, businessId: true,
+            bindingCode: true, serverEnabled: true, transportMode: true, status: true, transportEpoch: true,
             memoryProjectId: true } } },
       }) } : {}),
     })

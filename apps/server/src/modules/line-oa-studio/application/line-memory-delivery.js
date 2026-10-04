@@ -261,7 +261,19 @@ async function loadSource(db, claimed) {
     || outbound.conversation.channel !== 'LINE' || outbound.conversation.channelAccountId !== route.channelAccountId) {
     return { job, conversation, route, outbound, closed: true, reason: 'SCOPE_MISMATCH' }
   }
-  return { job, conversation, route, outbound, closed: false }
+  const inboundProjection = await db.memoryProjectionReceipt.findUnique({ where: {
+    lineConversationJobId_direction: { lineConversationJobId: job.id, direction: 'INBOUND' },
+  } })
+  if (!inboundProjection || inboundProjection.tenantId !== route.tenantId
+    || inboundProjection.businessId !== route.businessId
+    || inboundProjection.lineConversationJobId !== job.id
+    || inboundProjection.direction !== 'INBOUND'
+    || inboundProjection.deliveryState !== 'ACKNOWLEDGED'
+    || inboundProjection.erasureStatus !== 'ACTIVE'
+    || typeof inboundProjection.mspMessageId !== 'string' || !inboundProjection.mspMessageId.trim()) {
+    return { job, conversation, route, outbound, closed: true, reason: 'MSP_INBOUND_PROJECTION_UNAVAILABLE' }
+  }
+  return { job, conversation, route, outbound, inboundProjection, closed: false }
 }
 
 async function policyAllows({ job, route, policyResolver }) {
@@ -450,7 +462,7 @@ export async function reconcileLineMemoryDeliveries({
       }
       const receipt = await threadMemory.recordDelivery({
         route: source.route,
-        inboundMessageId: source.job.inboundMessageId,
+        inboundMessageId: source.inboundProjection.mspMessageId,
         receiptId: source.outbound.id,
         text: source.outbound.body,
         providerRef: source.job.providerMessageId || source.job.providerRequestId || undefined,

@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4",
+  "schemaSha256": "73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -492,11 +492,6 @@
       "tableName": "LocalWorkspaceMount"
     },
     {
-      "modelName": "MarketObservation",
-      "schemaName": "public",
-      "tableName": "MarketObservation"
-    },
-    {
       "modelName": "MarketingBroadcastIntent",
       "schemaName": "public",
       "tableName": "MarketingBroadcastIntent"
@@ -562,9 +557,19 @@
       "tableName": "MarketingReview"
     },
     {
+      "modelName": "MarketObservation",
+      "schemaName": "public",
+      "tableName": "MarketObservation"
+    },
+    {
       "modelName": "Membership",
       "schemaName": "public",
       "tableName": "Membership"
+    },
+    {
+      "modelName": "MemoryProjectionReceipt",
+      "schemaName": "public",
+      "tableName": "MemoryProjectionReceipt"
     },
     {
       "modelName": "Message",
@@ -976,5 +981,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0"
+  "targetSchemaSha256": "9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9"
 }

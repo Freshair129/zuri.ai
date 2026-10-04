@@ -88,12 +88,12 @@ describe('Phase B offline recovery runners', () => {
   // 1.2.0) rebind the frozen inventory from 192 to 194 application tables, on
   // top of the FR-277 LineGroundingShadowComparison rebind; see the decision
   // doc's binding ladder for the historical entries this one continues.
-  // @req FR-022 — the MSP memory erasure scan index on AgentTraceEvent rebinds
-  // the schema hash; the 194-table mapping is unchanged.
-  it('loads the committed pinned 194-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(194)
-    expect(inventory.schemaSha256).toBe('32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4')
-    expect(inventory.targetSchemaSha256).toBe('9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0')
+  // @req FR-022 — the MSP memory erasure index and MemoryProjectionReceipt
+  // rebind the frozen inventory to the current 195-model schema.
+  it('loads the committed pinned 195-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(195)
+    expect(inventory.schemaSha256).toBe('73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1')
+    expect(inventory.targetSchemaSha256).toBe('9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -101,7 +101,7 @@ describe('Phase B offline recovery runners', () => {
       expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet', 'BusinessKeyResult', 'BusinessKeyResultCheckIn'])
     )
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining([
-      'ProjectApprovalRequest', 'NotionOAuthState', 'NotionWebhookReceipt', 'NotionWebhookVerificationToken',
+      'ProjectApprovalRequest', 'NotionOAuthState', 'NotionWebhookReceipt', 'NotionWebhookVerificationToken', 'MemoryProjectionReceipt',
     ]))
   })
 
@@ -294,7 +294,7 @@ describe('Phase B offline recovery runners', () => {
     // it was written. `beforeFr277` is the 191-entry Notion+runtimeOwner
     // mapping this PR's own binding was rebound from.
     // @req FR-022 — likewise excludes the two ADR-093 1.2.0 models added after FR-277.
-    const AFTER_FR277 = ['LineGroundingShadowComparison', 'CustomerRetentionConsent', 'LegalHoldArchiveKey']
+    const AFTER_FR277 = ['LineGroundingShadowComparison', 'CustomerRetentionConsent', 'LegalHoldArchiveKey', 'MemoryProjectionReceipt']
     const beforeFr277 = inventory.applicationTables.filter(({ modelName }) => !AFTER_FR277.includes(modelName))
     const smaller = inventoryVariant({ applicationTables: inventory.applicationTables.slice(0, -1) })
     const rehashed = inventoryVariant({ schemaSha256: '0'.repeat(64) })
@@ -338,8 +338,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 194-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 194-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 195-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 195-table inventory/)
     }
   })
 
