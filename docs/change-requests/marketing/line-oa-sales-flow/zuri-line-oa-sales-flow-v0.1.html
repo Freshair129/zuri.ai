@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="คู่มือภาพหน้าเดียวสำหรับทีม Ads และแอดมินขาย: Ads A/B ไปสู่ LINE OA, AI, งานโทร, ออเดอร์ และการทบทวนผลรายสัปดาห์">
+  <title>zuri.ai — จาก Ads ถึงยอดขายใน LINE OA</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    :root { --paper:#FFFFFF; --paper-2:#F7F8FA; --ink:#1F2937; --muted:#526171;
+      --rule:#DDE2E7; --accent:#E8820C; --accent-tint:#FFF8F0; --link:#3D7A9E;
+      --font-sans:'IBM Plex Sans Thai','Manrope',sans-serif; }
+    body { margin:0; color:var(--ink); background:var(--paper-2); font-family:var(--font-sans); }
+    main { width:100%; max-width:1120px; min-width:0; margin:24px auto; }
+    .diagram-container { width:100%; overflow-x:auto; }
+    svg { width:100%; min-width:1120px; display:block; font-family:var(--font-sans); }
+    text { fill:var(--ink); }
+    .page-title { font-size:32px; font-weight:600; }
+    .group-title { font-size:14px; font-weight:600; }
+    .node-title { font-size:12px; font-weight:600; }
+    .body { font-size:10.5px; font-weight:400; }
+    .small { font-size:9px; font-weight:400; fill:var(--muted); }
+    .label { font-size:8px; font-weight:600; fill:var(--muted); }
+    .subtitle { font-size:12px; font-weight:400; fill:var(--muted); }
+    .lane-title { font-size:12px; font-weight:600; }
+    .muted { fill:var(--muted); }
+    .node { fill:#FFFFFF; stroke:#AAB4BE; stroke-width:1; }
+    .focal { fill:var(--accent-tint); stroke:var(--accent); stroke-width:1.5; }
+    .connector { fill:none; stroke:var(--muted); stroke-width:1.4; marker-end:url(#zuri-arrow); }
+    .feedback { stroke-dasharray:5 4; }
+    .rule { stroke:var(--rule); stroke-width:1; }
+    @page { size:A4 landscape; margin:0; }
+    @media print {
+      body { background:white; }
+      main { margin:0; width:297mm; max-width:none; }
+      .diagram-container { overflow-x:visible; }
+      svg { width:297mm; height:210mm; min-width:0; }
+    }
+  </style>
+</head>
+<body>
+<main aria-label="คู่มือ Flow การขาย zuri.ai ฉบับร่าง">
+<div class="diagram-container">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 792" role="img" aria-labelledby="zuri-line-oa-sales-flow-v0.1-title zuri-line-oa-sales-flow-v0.1-desc">
+<title id="zuri-line-oa-sales-flow-v0.1-title">จาก Ads ถึงยอดขายใน LINE OA</title>
+<desc id="zuri-line-oa-sales-flow-v0.1-desc">Flow ที่เสนอสำหรับทีม Ads และแอดมินขาย เริ่มจากทดสอบ Ads A/B ลูกค้าทัก LINE ให้ AI ตอบและขอเบอร์พร้อมความยินยอม ส่งงานโทร บันทึกออเดอร์และเงินที่ยืนยันแล้ว และทบทวนตัวชี้วัดทุกสัปดาห์เพื่อปรับรอบถัดไป</desc>
+<defs><marker id="zuri-arrow" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#526171"/></marker></defs>
+<rect x="0" y="0" width="1120" height="792" fill="#FFFFFF"/>
+
+<text x="40" y="52" class="label">ZURI.AI  /  SALES OPERATING GUIDE</text>
+<text x="40" y="96" class="page-title">จาก Ads ถึงยอดขายใน LINE OA</text>
+<text x="40" y="128" class="subtitle">ทีม Ads และแอดมินขาย · รู้ว่าใครทำอะไร ส่งต่องานเมื่อไร และวัดผลอย่างไร</text>
+<text x="1076" y="52" class="small" text-anchor="end">v0.1 · DRAFT · 03 OCT 2026</text>
+<text x="1076" y="88" class="group-title" text-anchor="end">คู่มือภาพหน้าเดียว</text>
+<text x="1076" y="112" class="small" text-anchor="end">Flow ที่เสนอ • ยังไม่ใช่สถานะเปิดใช้งานจริง</text>
+<rect x="40" y="160" width="1040" height="112" fill="#F7F8FA"/>
+<line x1="40" y1="160" x2="1080" y2="160" class="rule"/>
+<text x="52" y="195" class="lane-title">ทีม Ads</text>
+<text x="52" y="213" class="label">MARKETING</text>
+<rect x="40" y="272" width="1040" height="112" fill="#FFFFFF"/>
+<line x1="40" y1="272" x2="1080" y2="272" class="rule"/>
+<text x="52" y="307" class="lane-title">ลูกค้า + AI</text>
+<text x="52" y="325" class="label">LINE OA</text>
+<rect x="40" y="384" width="1040" height="112" fill="#F7F8FA"/>
+<line x1="40" y1="384" x2="1080" y2="384" class="rule"/>
+<text x="52" y="419" class="lane-title">แอดมินขาย</text>
+<text x="52" y="437" class="label">CRM</text>
+<rect x="40" y="496" width="1040" height="104" fill="#FFFFFF"/>
+<line x1="40" y1="496" x2="1080" y2="496" class="rule"/>
+<text x="52" y="531" class="lane-title">ขาย + ตรวจเงิน</text>
+<text x="52" y="549" class="label">COMMERCE</text>
+<path data-edge="1-2" d="M360 212 H388" class="connector"/>
+<path data-edge="2-3" d="M488 256 V280" class="connector"/>
+<path data-edge="3-4" d="M584 324 H612" class="connector"/>
+<path data-edge="4-5" d="M708 368 V392" class="connector"/>
+<path data-edge="5-6" d="M808 436 H836" class="connector"/>
+<path data-edge="6-7" d="M968 480 V504" class="connector"/>
+<path data-edge="6-5" d="M872 480 V484 Q872 492 864 492 H644 Q636 492 636 484 V480" class="connector feedback"/>
+<path data-edge="7-8" d="M1032 548 H1060 Q1068 548 1068 540 V220 Q1068 212 1060 212 H1032" class="connector feedback"/>
+<path data-edge="8-1" d="M936 168 V152 Q936 144 928 144 H272 Q264 144 264 152 V168" class="connector feedback"/>
+<rect data-label-mask="next" x="680" y="120" width="104" height="16" fill="#FFFFFF"/>
+<text x="732" y="131" class="label" text-anchor="middle">ปรับรอบถัดไป</text>
+<rect data-label-mask="ready" x="716" y="372" width="76" height="16" fill="#FFFFFF"/>
+<text x="754" y="383" class="label" text-anchor="middle">พร้อมโทร</text>
+<rect data-label-mask="buy" x="976" y="484" width="56" height="16" fill="#FFFFFF"/>
+<text x="1004" y="495" class="label" text-anchor="middle">เมื่อซื้อ</text>
+<g data-node="1" data-box="164,168,196,88">
+<rect x="164" y="168" width="196" height="88" rx="6" class="node"/>
+<text x="176" y="189" class="node-title">01  ตั้งการทดสอบ A/B</text>
+<text x="176" y="208" class="body">สินค้า • กลุ่มลูกค้า • ข้อเสนอเดียวกัน</text>
+<text x="176" y="226" class="body">เปลี่ยน 1 ตัวแปร + แบ่งกลุ่มไม่ทับกัน</text>
+<text x="176" y="244" class="small">กำหนดงบ / ระยะทดสอบ / KPI ล่วงหน้า</text>
+</g>
+<g data-node="2" data-box="388,168,196,88">
+<rect x="388" y="168" width="196" height="88" rx="6" class="node"/>
+<text x="400" y="189" class="node-title">02  ยิง Ads + เก็บสถิติ</text>
+<text x="400" y="208" class="body">แยก campaign / ad / ชุด A หรือ B</text>
+<text x="400" y="226" class="body">เก็บยอดเห็น • คลิก • ค่าใช้จ่าย</text>
+<text x="400" y="244" class="small">ใช้ลิงก์หรือรหัสเข้าถึง LINE แยกชุด</text>
+</g>
+<g data-node="3" data-box="388,280,196,88">
+<rect x="388" y="280" width="196" height="88" rx="6" class="node"/>
+<text x="400" y="301" class="node-title">03  ลูกค้าทัก LINE OA</text>
+<text x="400" y="320" class="body">สร้าง Lead / ผูกบทสนทนา</text>
+<text x="400" y="338" class="body">เก็บเวลาแรกทัก + แหล่งที่มีหลักฐาน</text>
+<text x="400" y="356" class="small">ไม่ทราบแหล่ง: ระบุ Unknown</text>
+</g>
+<g data-node="4" data-box="612,280,196,88">
+<rect x="612" y="280" width="196" height="88" rx="6" class="node"/>
+<text x="624" y="301" class="node-title">04  AI ตอบ + ขอเบอร์</text>
+<text x="624" y="320" class="body">ตอบข้อมูลสินค้า • คัดความสนใจ</text>
+<text x="624" y="338" class="body">ขอเบอร์ที่ติดต่อได้ + อนุญาตให้โทร</text>
+<text x="624" y="356" class="small">ไม่ให้เบอร์: คุยต่อ / รอ / จบตามลูกค้า</text>
+</g>
+<g data-node="5" data-box="612,392,196,88">
+<rect x="612" y="392" width="196" height="88" rx="6" class="focal"/>
+<text x="624" y="413" class="node-title">05  ส่งต่องานโทร</text>
+<text x="624" y="432" class="body">พร้อมโทร → ระบุแอดมิน + เวลานัด</text>
+<text x="624" y="450" class="body">ส่งเบอร์ • สินค้าที่สนใจ • สรุปแชต</text>
+<text x="624" y="468" class="small">OPEN → IN_PROGRESS → DONE</text>
+</g>
+<g data-node="6" data-box="836,392,196,88">
+<rect x="836" y="392" width="196" height="88" rx="6" class="node"/>
+<text x="848" y="413" class="node-title">06  โทร + บันทึกผล</text>
+<text x="848" y="432" class="body">โทรติด → เสนอขาย / บันทึกการตอบรับ</text>
+<text x="848" y="450" class="body">ไม่รับสาย / นัดใหม่ → วนติดตาม</text>
+<text x="848" y="468" class="small">ไม่ซื้อ → ปิด Lead + เก็บเหตุผล</text>
+</g>
+<g data-node="7" data-box="836,504,196,88">
+<rect x="836" y="504" width="196" height="88" rx="6" class="node"/>
+<text x="848" y="525" class="node-title">07  ออเดอร์ + รับชำระ</text>
+<text x="848" y="544" class="body">สร้าง Order → ตรวจยอด → ส่งมอบ</text>
+<text x="848" y="562" class="body">รอจ่าย / จ่ายบางส่วน / จ่ายครบ</text>
+<text x="848" y="580" class="small">เก็บยกเลิก / คืนเงิน พร้อมเหตุผล</text>
+</g>
+<g data-node="8" data-box="836,168,196,88">
+<rect x="836" y="168" width="196" height="88" rx="6" class="focal"/>
+<text x="848" y="189" class="node-title">08  ทบทวนทุกสัปดาห์</text>
+<text x="848" y="208" class="body">ทีม Ads + แอดมิน + ผู้ตรวจเงิน</text>
+<text x="848" y="226" class="body">เทียบ A/B ด้วยต้นทุน Lead และ ROAS</text>
+<text x="848" y="244" class="small">ข้อมูลพอ: ขยาย/หยุด • ไม่พอ: ทดสอบต่อ</text>
+</g>
+<text x="164" y="302" class="node-title">พร้อมโทร = สนใจสินค้า + เบอร์ใช้ได้</text>
+<text x="164" y="320" class="body">+ ลูกค้าอนุญาตให้ติดต่อทางโทรศัพท์</text>
+<text x="164" y="341" class="small">ลูกค้าขอคน / AI ตอบไม่ได้ → คนรับช่วงแชต</text>
+<text x="164" y="525" class="node-title">เก็บประวัติทุกครั้งที่เปลี่ยนสถานะ</text>
+<text x="164" y="547" class="body">Lead • แหล่ง Ads / A/B • ผู้รับผิดชอบ • เวลาเข้า–ออกขั้น • เหตุผล • นัดถัดไป</text>
+<text x="164" y="567" class="body">ผูก Conversation → Sales task → Order → Payment ด้วยรหัสอ้างอิง</text>
+<text x="164" y="585" class="small">ยอดสุทธิ = เงินที่ VERIFIED − คืนเงินที่ VERIFIED  |  คำว่า “สนใจ” ยังไม่ใช่ยอดขาย</text>
+<text x="40" y="605" class="group-title">เช็กทุกสัปดาห์</text>
+<text x="212" y="605" class="small">จันทร์–อาทิตย์ • Asia/Bangkok • แยก A/B และแอดมิน • ระบุวันตัดยอด</text>
+<rect x="40" y="616" width="1040" height="88" fill="#F7F8FA"/>
+<text x="52" y="635" class="label">ADS</text>
+<text x="52" y="654" class="small">ยอดเห็น / คลิก / ค่า Ads</text>
+<text x="52" y="672" class="small">CTR = คลิก ÷ ยอดเห็น</text>
+<text x="52" y="690" class="small">CPC = ค่า Ads ÷ คลิก</text>
+<line x1="184" y1="628" x2="184" y2="692" class="rule"/>
+<text x="196" y="635" class="label">LINE INTAKE</text>
+<text x="196" y="654" class="small">Lead ใหม่ที่ทักจริง</text>
+<text x="196" y="672" class="small">สัดส่วนระบุแหล่ง Ads ได้</text>
+<text x="196" y="690" class="small">รายงาน Unknown แยก</text>
+<line x1="328" y1="628" x2="328" y2="692" class="rule"/>
+<text x="340" y="635" class="label">AI / LEAD</text>
+<text x="340" y="654" class="small">เวลาตอบครั้งแรก (p50)</text>
+<text x="340" y="672" class="small">Lead พร้อมโทร ÷ Lead ใหม่</text>
+<text x="340" y="690" class="small">แต่ละ Lead นับครั้งเดียว</text>
+<line x1="472" y1="628" x2="472" y2="692" class="rule"/>
+<text x="484" y="635" class="label">HANDOFF</text>
+<text x="484" y="654" class="small">ส่งงานแล้ว / ยังไม่มีคนรับ</text>
+<text x="484" y="672" class="small">เวลาจากพร้อมโทรถึงมีผู้รับ</text>
+<text x="484" y="690" class="small">ทุกงานมีเจ้าของ + กำหนดเวลา</text>
+<line x1="624" y1="628" x2="624" y2="692" class="rule"/>
+<text x="636" y="635" class="label">CALL FOLLOW-UP</text>
+<text x="636" y="654" class="small">โทรติด ÷ Lead ที่ได้รับงาน</text>
+<text x="636" y="672" class="small">งานค้าง / เกินกำหนด</text>
+<text x="636" y="690" class="small">สาเหตุไม่ซื้อ + นัดถัดไป</text>
+<line x1="768" y1="628" x2="768" y2="692" class="rule"/>
+<text x="780" y="635" class="label">SALES / CASH</text>
+<text x="780" y="654" class="small">ผู้ซื้อจ่ายครบ ÷ Lead พร้อมโทร</text>
+<text x="780" y="672" class="small">จำนวน Order + ยอดสุทธิ</text>
+<text x="780" y="690" class="small">แยกรอจ่าย / ยกเลิก / คืนเงิน</text>
+<line x1="920" y1="628" x2="920" y2="692" class="rule"/>
+<text x="932" y="635" class="label">A/B DECISION</text>
+<text x="932" y="654" class="small">CPLq = ค่า Ads ÷ Lead พร้อมโทร</text>
+<text x="932" y="672" class="small">ROAS = ยอดสุทธิผูก Ads ÷ ค่า Ads</text>
+<text x="932" y="690" class="small">ไม่ครบ / หารด้วย 0 → N/A</text>
+<text x="40" y="723" class="small">รายงานแยก 2 มุม: กิจกรรมที่เกิดสัปดาห์นี้  /  ผลของ Lead ที่เริ่มในสัปดาห์เดียวกัน (cohort) — เพื่อไม่ปนยอดข้ามสัปดาห์</text>
+<line x1="40" y1="736" x2="1080" y2="736" class="rule"/>
+<line x1="40" y1="744" x2="68" y2="744" class="connector"/>
+<text x="80" y="748" class="small">ส่งต่องานเมื่อเข้าเงื่อนไข</text>
+<line x1="264" y1="744" x2="292" y2="744" class="connector feedback"/>
+<text x="304" y="748" class="small">ติดตาม / นำผลกลับมาปรับ</text>
+<text x="1076" y="748" class="small" text-anchor="end">สถานะ Lead และการเชื่อม Ads ในภาพเป็นข้อเสนอ • คำนิยามและหลักฐานอยู่ในคู่มือประกอบ</text>
+</svg></div></main></body></html>
