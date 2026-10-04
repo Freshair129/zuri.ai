@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-MULTI-AGENT-DELIVERY
 title: Luna Max workers and independent verification with a final integration gate
-version: "0.1.0b"
+version: "0.2.0b"
 status: candidate
 created_at: "2026-09-16T13:40:13+07:00,RWANG,design base 087f3025"
-last_update: "2026-09-16T13:54:45+07:00,RWANG"
+last_update: "2026-10-04T10:00:00+07:00,Codex"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
@@ -152,7 +152,7 @@ IDs `MA-*` เป็นหมายเลขงานในแผน ไม่�
 | MA-D03 | Workforce inputs และประวัติ · project-manager | MA-D01 | SPEC-G02 | Typed estimates, calendars, availability, team shares, effective assignments/history and seven-mode status maps; ตรวจ: Missing inputs remain PARTIAL; effective-date/reassignment and duplicate event examples; agent/unresolved assignee cannot become Person |
 | MA-D04 | Metric variants, policy และ corrections · project-manager | MA-D03 | SPEC-G03, SPEC-G04 | Twelve metric result shapes, Business/person/team review and correction lifecycle, reviewer authority; ตรวจ: Each metric has typed value/sample/coverage/cohort; denominator zero, small samples, quantiles, changed due date, reopened work and history corrections |
 | MA-D05 | Physical adapter และ migration design · project-manager | MA-D03, MA-D04 | SPEC-G07 | Per-owner table reuse, exact SQLite/Postgres mapping, transaction/RLS/grant/backfill/rollback design; ตรวจ: Retain source composite keys; person/day conflict locking; no blanket creation of 54 records; migration design vs execution proof separated |
-| MA-D06 | Provider / agent / ledger compatibility contracts · integration | MA-D01 | SPEC-G05, SPEC-G07, SPEC-G08 | Cloud/private/paired locations, model vs MCP protocols, key/secret owner, ledger profile and typed handoff contracts plus conformance fixtures; ตรวจ: Existing PipelineRun required definition and unique attempt identity preserved; vault/revoke/private network, lease/epoch/UNKNOWN, no arbitrary execution |
+| MA-D06 | Provider / agent / ledger compatibility contracts · integration | MA-D01 | SPEC-G05, SPEC-G07, SPEC-G08 | Cloud/private/paired locations, model vs MCP protocols, key/secret owner, ledger profile and typed handoff contracts plus conformance fixtures; ตรวจ: PipelineRun required fields/unique attempt identity remain data-pipeline-only; project workflows use PM ProjectExecutionRun/Step with Integration queue/lease owner port; prove IDs and states never alias; vault/revoke/private network, epoch/UNKNOWN, no arbitrary execution |
 | MA-D07 | Workforce conformance fixtures และ test design · project-manager | MA-D03, MA-D04, MA-D05, MA-D02W | SPEC-G08 | Request/response/error/lifecycle example matrix and PMT-033 A–P test design; ตรวจ: Positive and invalid payloads; overlaps/dedup/zero capacity; stale preview and concurrent commit; permission revocation; fixtures are not service tests |
 | MA-D08 | Register และอนุมัติ baseline ราย slice · root | MA-D00 | SPEC-G09 | Per-slice REUSE/EXTEND/NEW canonical mapping, exact approved docs/contracts, ledger and phase receipt; ตรวจ: Selected slice relevant design outputs and entry-proof accepted; preserve IDs; shared FR with ordered phases; govern after composed registration |
 
@@ -213,7 +213,7 @@ IDs `MA-*` เป็นหมายเลขงานในแผน ไม่�
 | MA-I10 | Identity key/grant services and their tests; Integration secret references via its own writer |
 | MA-I11 | Integration inference gateway; any Edge/runtime change is a separate owner packet with cross-app contract tests |
 | MA-I12 | PM AgentDefinition/Version and review/UI services |
-| MA-I13 | Integration run ledger/executor adapters; PM Command Center read projection is a separate allowed-file packet |
+| MA-I13 | Integration PipelineRun data-pipeline ledger plus workflow queue/lease/executor adapters; PM owns ProjectExecutionRun/Step and the Command Center composes authorized trace/runtime projections |
 | MA-I14 | PM fleet/workflow definitions and compiler-facing UI/contracts |
 | MA-I15 | Integration scheduler/events/trigger/usage owners; PM UI consumes projections through separate packet |
 | MA-I16 | PM support services/routes/UI; inventory is not stock write; individual features dispatched separately |
@@ -328,3 +328,4 @@ flowchart TD
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-16 | candidate | Add user-selected Luna Max worker and verifier workflow with root integration gates and ordered delivery packets | design base 087f3025; uncommitted | RWANG |
+| 0.2.0b | 2026-10-04 | candidate | Require distinct PM workflow-run trace and Integration runtime/data-pipeline ledger contracts in the provider/ledger packet | documentation refinement | Codex |

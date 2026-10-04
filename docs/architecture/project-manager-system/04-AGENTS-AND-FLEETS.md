@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-EXECUTION
 title: Agent inventory fleet inventory and command center
-version: "0.1.0b"
+version: "0.2.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f3025"
-last_update: "2026-09-16T00:27:15+07:00,RWANG"
+last_update: "2026-10-04T10:00:00+07:00,Codex"
 superseded_by: null
 attributes:
   doc_type: execution-specification
@@ -18,21 +18,29 @@ relations:
 
 # Agents, Fleets & Command Center
 
-**Version:** 0.1.0b · **Status:** Candidate
+**Version:** 0.2.0b · **Status:** Candidate
 
 ## 1. Concepts
 
 | Concept | Meaning |
 |---|---|
-| AgentDefinition | Stable identity of a domain-bound worker configuration |
-| AgentVersion | Immutable charter/skill/tool/model/runtime/policy configuration |
+| AgentDefinition / AgentVersion | Stable UUID identity plus an immutable charter/skill/tool/model/runtime/policy revision |
 | Executor | Authenticated process/host capable of carrying out approved steps |
 | Role / hat | planner, architect, implementer, reviewer, tester used inside a domain desk |
 | Agentic workflow | One desk plans/uses allowed tools within a bounded step or workflow |
 | Fleet | Versioned composition of multiple domain desks and handoff contracts |
-| Workflow | Declarative DAG of steps; contains data/bindings, no shell command text |
-| Run / attempt | One invocation / one leased execution of a step |
+| WorkflowDefinition / WorkflowVersion | Stable UUID/code plus an immutable declarative DAG revision; no shell command text |
+| ContractDefinition / ContractVersion | Stable namespaced `contractId` plus exact SemVer `contractVersion`; validates each system boundary |
+| Run / step / attempt | `executionRunId` → `executionStepId` → `attemptId` on the PM execution trace |
+| Job | No generic `jobId` in this design; add one only for durable queued work with an independent lifecycle |
 | Command Center | Read projection and authenticated commands over the ledger |
+
+An entity's `id` is its database UUID primary key; API names such as `workflowId`,
+`workflowVersionId`, `agentId` and `agentVersionId` expose the corresponding row
+identity. Human-readable `code` values are lookup/display keys. A contract
+reference is `{contractId, contractVersion}` and resolves to one approved,
+immutable ContractVersion. `schemaDocumentFormat` (JSON/YAML) is separate from
+the payload `serializationFormat` and `mediaType`.
 
 One AgentVersion can run on several eligible executors. One executor can host more than one **read-only** task within capacity; concurrent writes remain restricted by lane. Read-only role workers do not become autonomous cross-domain agents.
 
@@ -42,7 +50,7 @@ One AgentVersion can run on several eligible executors. One executor can host mo
 |---|---|---|
 | Identity | UUID/code/name/description, ownerDomainId, executionKind | PROJECT_DELIVERY or BUSINESS_AUTOMATION; owner domain exists |
 | Charter | repositoryRef, charterPath, approvedSnapshotHash | Read charter at pinned SHA; changed charter requires review |
-| Role | allowed hats, input/output schema refs, task classes | No role can exceed desk capabilities |
+| Role | allowed hats, exact input/output contract refs, task classes | No role can exceed desk capabilities |
 | Instructions | versioned instructionRef, language, bounded context policy | Instructions are content; tools/permissions defined outside prompt |
 | Skills | package ID/version/hash, provenance, allowed assets | Approved package; no implicit install/update on execution |
 | Tools | tool ID/schema digest, read/write/effect class, resources, timeout | Identity capability + tool policy intersection |
@@ -66,7 +74,7 @@ Business automation invokes domain service tools (for example read Inventory via
 
 - Stable fleet identity and immutable revision
 - Member bindings = `roleKey → agentVersionId`; each member keeps its domain lane and approved capabilities
-- WorkflowVersion supplies step DAG, input/output schemas and cross-domain handoff artifact types
+- WorkflowVersion supplies the step DAG and exact input/output ContractVersion references, plus cross-domain handoff artifact types
 - Orchestrator schedules only; cannot write every domain to simplify coordination
 - At most two orchestration layers per ADR-026; role workers live within an attempt
 - Allowed patterns: sequential, fan-out/fan-in, conditional branch with explicit predicates, independent review, bounded retry
@@ -84,9 +92,9 @@ Input contract: [workflow schema](contracts/workflow.schema.json). Example: [wor
 Validation stages:
 
 1. Structural schema, size/count limits and supported schemaVersion
-2. Resolve all IDs/versions/contracts against approved scoped registries
+2. Resolve all IDs/versions/contracts against approved scoped registries; each contract pair must select one immutable version, never `latest`
 3. Check unique step keys, dependency existence, no self-edge/cycle, reachable start/end and required outputs
-   - `resultFrom` selects one terminal step output matching the workflow output schema; use a typed JOIN output when several branches contribute
+   - `resultFrom` selects one terminal step output whose exact contract pair matches the workflow output contract; use a typed JOIN output when several branches contribute
 4. Check cross-domain contribution and handoff contract; lane assignments exactly one owner per writing step
 5. Check tool/schema/model capabilities, executor profile, data classification and approval requirements
 6. Estimate worst-case bounded exposure across retries/fan-out and reserve budget at dispatch
@@ -121,7 +129,7 @@ stateDiagram-v2
   CANCELLED --> [*]
 ```
 
-Public run states are a proposed workflow profile mapped into Integration's ledger. Existing data-pipeline state sets must pass compatibility review before these are introduced; legacy consumers must not guess unknown status values.
+Public workflow run states are a proposed profile over the PM-owned `ProjectExecutionRun` / `ProjectExecutionStep` trace. Integration's `PipelineRun` / `PipelineStep` remain specific to data pipelines; they do not own agent-workflow execution state. Legacy consumers must not guess unknown status values.
 
 For parallel steps, RUNNING remains visible while any eligible/active required step can proceed. WAITING_APPROVAL applies only when remaining required progress is blocked by approval and no active attempt remains. A pause request becomes PAUSED after active attempts reach a safe checkpoint. CANCELLING and UNKNOWN stop new claims immediately and require all affected in-flight effects to reconcile before terminal outcome. SUCCEEDED requires every required output/gate; one branch's success cannot finish the run.
 
@@ -143,7 +151,7 @@ Step states: PENDING, READY, LEASED, RUNNING, WAITING_APPROVAL, SUCCEEDED, FAILE
 1. Enrollment requires current owner/operator authorization appropriate to scope and a one-time challenge. Identity issues an execution-audience credential; it is separate from harness usage pairing
 2. Executor advertises observed OS/runtime/tool versions and capacity, never self-grants capability
 3. Long-poll claim authenticates executor, matches authorized scope/lane/profile and atomically reserves a step
-4. Server returns runId, stepId, attemptId, immutable manifest hash, lane key, leaseEpoch, leaseUntil and short-lived attempt token
+4. Server returns executionRunId, executionStepId, attemptId, immutable manifest hash, lane key, leaseEpoch, leaseUntil and short-lived attempt token
 5. Candidate lease = 90 seconds; heartbeat = every 30 seconds; expiry based on server time with at most 5-second tolerated clock skew
 6. Every heartbeat/report/tool action includes attemptId + epoch; server renews by compare-and-swap
 7. Expired claim records LEASE_BREACH. Requeue only after isolated workspace is quarantined and effects are known; old process cannot promote an artifact/commit with stale epoch
@@ -209,3 +217,4 @@ No hidden chain-of-thought capture requirement. Store observable commands, tool 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-15 | candidate | Agent/fleet definitions, lifecycle, leases, approvals, retry and recovery semantics | base 087f3025 | RWANG |
+| 0.2.0b | 2026-10-04 | candidate | Pin input/output schemas through exact inter-system contract versions; align workflow run IDs with the PM execution trace; clarify no generic job ID | documentation refinement | Codex |

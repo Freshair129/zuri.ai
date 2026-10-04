@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:zuri:proposal:project-manager:workflow:1.0",
+  "$id": "urn:zuri:proposal:project-manager:workflow:1.1",
   "title": "Candidate project workflow definition",
-  "description": "Design contract only. Runtime requires approved registry resolution, authorization and semantic graph checks.",
+  "description": "Design contract only. Contract pairs resolve to exact approved ContractVersion rows; runtime requires authorization and semantic graph checks.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,15 +12,15 @@
     "version",
     "executionKind",
     "agentBindings",
-    "inputSchema",
-    "outputSchema",
+    "inputContract",
+    "outputContract",
     "steps",
     "limits",
     "resultFrom"
   ],
   "properties": {
     "schemaVersion": {
-      "const": "1.0"
+      "const": "1.1"
     },
     "code": {
       "type": "string",
@@ -33,7 +33,7 @@
     },
     "version": {
       "type": "string",
-      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:b)?$"
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
     },
     "executionKind": {
       "enum": [
@@ -73,11 +73,11 @@
         }
       }
     },
-    "inputSchema": {
-      "$ref": "#/$defs/schemaDocument"
+    "inputContract": {
+      "$ref": "#/$defs/contractRef"
     },
-    "outputSchema": {
-      "$ref": "#/$defs/schemaDocument"
+    "outputContract": {
+      "$ref": "#/$defs/contractRef"
     },
     "steps": {
       "type": "array",
@@ -172,23 +172,23 @@
       "type": "string",
       "pattern": "^[a-z][a-z0-9-]{1,63}$"
     },
-    "schemaDocument": {
+    "contractRef": {
       "type": "object",
-      "description": "JSON Schema document; full metaschema validation is an additional compile gate.",
+      "additionalProperties": false,
       "required": [
-        "type"
+        "contractId",
+        "contractVersion"
       ],
       "properties": {
-        "type": {
-          "enum": [
-            "object",
-            "array",
-            "string",
-            "number",
-            "integer",
-            "boolean",
-            "null"
-          ]
+        "contractId": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "contractVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
         }
       }
     },
@@ -205,7 +205,8 @@
         "outputs",
         "timeoutSeconds",
         "retry",
-        "approval"
+        "approval",
+        "inputContract"
       ],
       "properties": {
         "key": {
@@ -280,6 +281,9 @@
             }
           }
         },
+        "inputContract": {
+          "$ref": "#/$defs/contractRef"
+        },
         "outputs": {
           "type": "array",
           "maxItems": 20,
@@ -289,7 +293,7 @@
             "required": [
               "name",
               "artifactType",
-              "schema"
+              "contract"
             ],
             "properties": {
               "name": {
@@ -300,8 +304,8 @@
                 "minLength": 1,
                 "maxLength": 512
               },
-              "schema": {
-                "$ref": "#/$defs/schemaDocument"
+              "contract": {
+                "$ref": "#/$defs/contractRef"
               }
             }
           }
