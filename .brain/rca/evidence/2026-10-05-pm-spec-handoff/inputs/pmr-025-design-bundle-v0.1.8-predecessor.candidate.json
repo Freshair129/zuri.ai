@@ -1,0 +1,1234 @@
+{
+  "schemaVersion": "0.1.0",
+  "artifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.8.candidate.json",
+  "requirement": "PMR-025",
+  "status": "CANDIDATE_ONLY",
+  "risk": "HIGH",
+  "complexity": "C-3",
+  "authorization": {
+    "basis": "Root-authorized candidate-only preparation of PMR-025 v0.1.8, limited by Terra HOLD of current v0.1.4 use, Terra GO_WITH_LIMITS preparation scope and Astra CONCUR_WITH_LIMITS for this exact one-file successor. Neither decision grants acceptance or implementation authority.",
+    "ownerApproval": "REQUIRED_FOR_REMAINING_DOMAIN_CONTRACTS",
+    "decisionStatus": "USER_DIRECTION_PARTIALLY_APPROVED",
+    "canonicalRegistration": false,
+    "implementationAuthorized": false,
+    "userDirectionApproval": "APPROVED_FOR_LISTED_DIRECTION_ONLY"
+  },
+  "purpose": "Record direct user-approved PMR-025 import and export direction while preserving the existing per-project PlanEnvelope and separate programme-level ExecutionPlanBundle. Exact packaging relationship, detailed schemas, technical owner contracts and executable behavior remain open.",
+  "scope": {
+    "sourceRefPolicy": "The input paths below identify the review scope. Their rawByteSha256 values are baseline evidence only; they do not choose a design hash, content hash, or canonicalization rule.",
+    "included": [
+      "PMR-025 candidate design/artifact boundary",
+      "User-directed import effect: DesignSnapshot/bindings only; no ExecutionPlan create/update",
+      "Import preview and commit surfaces remain candidate proposals with technical semantics open",
+      "User-directed immutable ArtifactRevision export with scoped reference/download-handle delivery; lifecycle and owner contract open"
+    ],
+    "excluded": [
+      "owner decision between a new design-snapshot/artifact bundle and an ExecutionPlanBundle extension",
+      "canonical requirement registration or new canonical IDs",
+      "OpenAPI, shared schema, PlanEnvelope, or ExecutionPlanBundle edits",
+      "generated outputs, fixtures, runtime/source/test changes, migrations, storage operations, deployment, and product acceptance",
+      "Workforce or Phase-B semantics as defaults"
+    ]
+  },
+  "preservedContractBoundaries": {
+    "planEnvelope": {
+      "status": "PRESERVED_CANONICAL",
+      "role": "Canonical per-project plan-import pipeline",
+      "pipeline": [
+        "scope-first authorization",
+        "schema validation",
+        "semantic validation",
+        "dry-run and conflict preview",
+        "transactional commit",
+        "idempotency",
+        "AuditEvent recording"
+      ],
+      "writerBoundary": "PlanEnvelope remains the per-project plan-import writer; it is not the sole writer for all Project Manager CRUD."
+    },
+    "executionPlanBundle": {
+      "status": "PRESERVED_SEPARATE",
+      "role": "Separate programme-level orchestration package",
+      "relationship": "ExecutionPlanBundle remains above and separate from the per-project PlanEnvelope contract; its nested project plans continue to use PlanEnvelope."
+    },
+    "importedContent": {
+      "status": "DATA_ONLY",
+      "rule": "Imported content is not executable and cannot grant authority, execute scripts, or widen scope."
+    }
+  },
+  "candidateContractBoundary": {
+    "status": "OPEN",
+    "selection": "PARTIAL_USER_DIRECTION; EXACT_BUNDLE_RELATIONSHIP_AND_SCHEMA_OPEN",
+    "requiredConcepts": [
+      {
+        "name": "schemaVersion",
+        "status": "OPEN",
+        "value": "UNRESOLVED"
+      },
+      {
+        "name": "namespace",
+        "status": "OPEN",
+        "value": "UNRESOLVED"
+      },
+      {
+        "name": "refs",
+        "status": "OPEN",
+        "value": "UNRESOLVED"
+      },
+      {
+        "name": "hashes",
+        "status": "OPEN",
+        "value": "UNRESOLVED"
+      },
+      {
+        "name": "conflictPreview",
+        "status": "OPEN",
+        "value": "UNRESOLVED"
+      },
+      {
+        "name": "sanitizedPortableExport",
+        "status": "OPEN",
+        "value": "UNRESOLVED"
+      }
+    ],
+    "possibleBindingTargets": [
+      {
+        "name": "DesignSnapshot",
+        "status": "OPEN",
+        "selected": false
+      },
+      {
+        "name": "RequirementBinding",
+        "status": "OPEN",
+        "selected": false
+      },
+      {
+        "name": "ArchitectureElementBinding",
+        "status": "OPEN",
+        "selected": false
+      },
+      {
+        "name": "ArtifactRevision",
+        "status": "OPEN",
+        "selected": false
+      }
+    ],
+    "defaultSemantics": "No Workforce or Phase-B semantics are selected or used as defaults."
+  },
+  "openContractBoundaries": {
+    "namespace": {
+      "status": "OPEN",
+      "grammar": "UNRESOLVED",
+      "relationToExistingSourceNamespace": "UNRESOLVED",
+      "owner": "UNASSIGNED"
+    },
+    "references": {
+      "status": "OPEN",
+      "typedKinds": "UNRESOLVED",
+      "scopeRules": "UNRESOLVED",
+      "resolutionAndCollisionRules": "UNRESOLVED",
+      "owner": "UNASSIGNED"
+    },
+    "hashes": {
+      "status": "OPEN",
+      "hashedMaterial": "UNRESOLVED",
+      "canonicalization": "UNRESOLVED",
+      "comparisonAndVersionRules": "UNRESOLVED",
+      "owner": "UNASSIGNED"
+    },
+    "conflictPreview": {
+      "status": "OPEN",
+      "states": "UNRESOLVED",
+      "diagnosticShape": "UNRESOLVED",
+      "owner": "UNASSIGNED"
+    },
+    "export": {
+      "status": "DIRECTION_SELECTED_TECHNICAL_DETAILS_OPEN",
+      "bytesOrReference": "User-approved direction: exported bytes are stored as an immutable ArtifactRevision.",
+      "representation": "User-approved direction: return a scoped reference or download handle. Exact wire shape, authorization, expiry, audit, revocation and byte-delivery mechanics remain unresolved.",
+      "owner": "UNASSIGNED"
+    },
+    "artifactStorage": {
+      "status": "DIRECTION_SELECTED_TECHNICAL_DETAILS_OPEN",
+      "immutableArtifactRevision": "USER_APPROVED_DIRECTION",
+      "classification": "UNRESOLVED",
+      "expiryAndRetention": "UNRESOLVED",
+      "redaction": "UNRESOLVED",
+      "owner": "UNASSIGNED"
+    },
+    "sanitizationAndRecipients": {
+      "status": "OPEN",
+      "sanitizationPolicy": "UNRESOLVED",
+      "recipientReauthorization": "UNRESOLVED",
+      "owner": "UNASSIGNED"
+    }
+  },
+  "proposedSurfaces": [
+    {
+      "method": "POST",
+      "path": "/api/projects/{projectId}/design-bundles/dry-run",
+      "operationId": "previewDesignBundleImport",
+      "evidenceStatus": "PROPOSED_NOT_IMPLEMENTED",
+      "effectClass": "READ_ONLY",
+      "boundary": "Candidate preview surface only; exact request, response, authorization, reference, hash, and conflict semantics remain open."
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/{projectId}/design-bundles/commit",
+      "operationId": "commitDesignBundleImport",
+      "evidenceStatus": "PROPOSED_NOT_IMPLEMENTED",
+      "effectClass": "WRITE",
+      "boundary": "Candidate commit surface only. User-approved target direction is DesignSnapshot/bindings only and never ExecutionPlan create/update; exact approval, If-Match, dry-run expiry, idempotency, binding schema and transaction semantics remain open."
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/{projectId}/design-bundles/export",
+      "operationId": "exportDesignBundle",
+      "evidenceStatus": "PROPOSED_NOT_IMPLEMENTED",
+      "effectClass": "READ_ONLY",
+      "boundary": "Candidate export surface only. User-approved direction stores immutable ArtifactRevision bytes and returns a scoped reference or download handle; exact representation, sanitization, recipient reauthorization, storage owner and retention remain open."
+    }
+  ],
+  "reviewBlockers": [
+    {
+      "reviewDomain": "project-manager",
+      "owner": "UNASSIGNED",
+      "status": "OPEN",
+      "blocker": "Define the PM-owned design snapshot, binding, project-scope, preview, commit, and export boundary without creating a second plan writer.",
+      "directionDisposition": "Import effect selected; exact relationship to ExecutionPlanBundle and remaining PM contract details stay open."
+    },
+    {
+      "reviewDomain": "identity",
+      "owner": "UNASSIGNED",
+      "status": "OPEN",
+      "blocker": "Define current-scope authorization, approval authority, If-Match/commit authorization, separation of duties, and recipient reauthorization.",
+      "directionDisposition": "Identity remains the authorization authority; exact capability, approval, If-Match, SoD and recipient-reauthorization contracts stay open."
+    },
+    {
+      "reviewDomain": "knowledge",
+      "owner": "UNASSIGNED",
+      "status": "OPEN",
+      "blocker": "Define source provenance, typed reference admission, scope-limited resolution, and any Knowledge read boundary."
+    },
+    {
+      "reviewDomain": "integration",
+      "owner": "UNASSIGNED",
+      "status": "OPEN",
+      "blocker": "Review cross-domain transport, artifact delivery, receipt, and connector boundaries without assigning runtime or execution authority to the candidate packet."
+    },
+    {
+      "reviewDomain": "artifact-storage",
+      "owner": "UNASSIGNED",
+      "status": "OPEN",
+      "blocker": "Decide whether export bytes are retained as immutable ArtifactRevision data and who controls classification, expiry, retention, and redaction.",
+      "directionDisposition": "Immutable ArtifactRevision export direction selected; owner, classification, retention, expiry and redaction details stay open."
+    }
+  ],
+  "openQuestions": [
+    {
+      "questionNumber": 1,
+      "question": "Is PMR-025 a new design-snapshot/artifact bundle, or an extension of the existing ExecutionPlanBundle?",
+      "status": "OPEN",
+      "resolution": "OWNER_APPROVAL_REQUIRED",
+      "owner": "UNASSIGNED",
+      "answer": null
+    },
+    {
+      "questionNumber": 2,
+      "question": "Does import produce DesignSnapshot/bindings only, or does it create/update execution plans?",
+      "status": "OPEN",
+      "resolution": "USER_APPROVED_CANDIDATE_DIRECTION_ONLY",
+      "owner": "USER_PRODUCT_DIRECTION",
+      "answer": "Import creates DesignSnapshot/bindings only. It does not create or update ExecutionPlan records. Exact bundle packaging and binding schema remain open under question 1 and the references boundary."
+    },
+    {
+      "questionNumber": 3,
+      "question": "What exactly is `namespace`? It is not aligned yet with the existing `sourceNamespace` field.",
+      "status": "OPEN",
+      "resolution": "OWNER_APPROVAL_REQUIRED",
+      "owner": "UNASSIGNED",
+      "answer": null
+    },
+    {
+      "questionNumber": 4,
+      "question": "What are the typed reference kinds and scope rules?",
+      "status": "OPEN",
+      "resolution": "OWNER_APPROVAL_REQUIRED",
+      "owner": "UNASSIGNED",
+      "answer": null
+    },
+    {
+      "questionNumber": 5,
+      "question": "What is hashed: canonical source, manifest, sections, sanitized output, or all of them? What canonicalization rules apply?",
+      "status": "OPEN",
+      "resolution": "OWNER_APPROVAL_REQUIRED",
+      "owner": "UNASSIGNED",
+      "answer": null
+    },
+    {
+      "questionNumber": 6,
+      "question": "What conflict states must preview expose: insert, update, no-op, collision, stale, out-of-scope, or other states?",
+      "status": "OPEN",
+      "resolution": "OWNER_APPROVAL_REQUIRED",
+      "owner": "UNASSIGNED",
+      "answer": null
+    },
+    {
+      "questionNumber": 7,
+      "question": "Are export bytes stored as an immutable `ArtifactRevision`, and which owner controls storage, classification, expiry, and redaction?",
+      "status": "OPEN",
+      "resolution": "PARTIAL_DIRECTION_APPROVED; DOMAIN_OWNER_DETAILS_OPEN",
+      "owner": "UNASSIGNED",
+      "answer": "Store export bytes as an immutable ArtifactRevision. Artifact Storage owner, classification, expiry, retention and redaction policy remain unresolved."
+    },
+    {
+      "questionNumber": 8,
+      "question": "Does export include content, a signed artifact reference, or a download handle?",
+      "status": "OPEN",
+      "resolution": "PARTIAL_DIRECTION_APPROVED; TECHNICAL_DELIVERY_DETAILS_OPEN",
+      "owner": "UNASSIGNED",
+      "answer": "Expose a scoped artifact reference or download handle. Exact representation, handle authorization, expiry, revocation, audit and byte-delivery behavior remain unresolved."
+    },
+    {
+      "questionNumber": 9,
+      "question": "What exact approval, `If-Match`, dry-run expiry, and idempotency rules bind commit?",
+      "status": "OPEN",
+      "resolution": "OWNER_APPROVAL_REQUIRED",
+      "owner": "UNASSIGNED",
+      "answer": null
+    },
+    {
+      "questionNumber": 10,
+      "question": "Which owner supplies the sanitization and recipient reauthorization policy?",
+      "status": "OPEN",
+      "resolution": "OWNER_APPROVAL_REQUIRED",
+      "owner": "UNASSIGNED",
+      "answer": null
+    }
+  ],
+  "designDecisions": [
+    {
+      "id": "USER-DIRECTION-PMR025-IMPORT",
+      "status": "APPROVED_DIRECTION_ONLY",
+      "source": "Direct user reply, 2026-09-29",
+      "decision": "Import creates DesignSnapshot/bindings only; it must not create or update ExecutionPlan records.",
+      "unresolved": "Whether PMR-025 is a new bundle or an extension of ExecutionPlanBundle remains open."
+    },
+    {
+      "id": "USER-DIRECTION-PMR025-EXPORT",
+      "status": "APPROVED_DIRECTION_ONLY",
+      "source": "Direct user reply, 2026-09-29",
+      "decision": "Store export bytes as immutable ArtifactRevision and return a scoped reference or download handle.",
+      "unresolved": "Artifact Storage ownership, classification, retention, expiry, redaction and handle lifecycle remain open."
+    }
+  ],
+  "closedFlags": {
+    "ownerAcceptance": false,
+    "codegen": false,
+    "implementation": false,
+    "authorization": false,
+    "dispatch": false,
+    "runtime": false,
+    "migration": false,
+    "production": false,
+    "executable": false
+  },
+  "evidence": {
+    "baselineCommit": "cd3c9f304dca6903daa38792278116275ad969fd",
+    "manifestPurpose": "READINESS_AUDIT_INPUTS",
+    "rawByteHashAlgorithm": "SHA-256",
+    "rawByteHashEncoding": "lowercase hexadecimal",
+    "rawBytePolicy": "For v0.1.8, hashes cover exact bytes of the 44 listed tracked files in the dirty isolated worktree at authoring time. They identify current source bytes only, not an accepted commit-tree or remote origin/main baseline, and do not choose a design hash or canonicalization rule.",
+    "candidateExcludedFromInputManifest": true,
+    "allInputsExistTrackedAndMatchBaseline": false,
+    "inputManifest": [
+      {
+        "path": "docs/domains/project-manager/requirements/PMR-025-proposal-requirement.md",
+        "scopeRole": "proposal-requirement",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "6420d7455f920702ac11f1e1d600a21f272b8bfaeeba0ee8aee511e2556aac22",
+        "historicalCommitSha256": "6420d7455f920702ac11f1e1d600a21f272b8bfaeeba0ee8aee511e2556aac22",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "6420d7455f920702ac11f1e1d600a21f272b8bfaeeba0ee8aee511e2556aac22",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/README.md",
+        "scopeRole": "architecture-overview",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "54982bfa3d9e047cfdbc4e6b566cf3f3d7ab58a6fbd0ae814896a8940aaf5a12",
+        "historicalCommitSha256": "54982bfa3d9e047cfdbc4e6b566cf3f3d7ab58a6fbd0ae814896a8940aaf5a12",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "54982bfa3d9e047cfdbc4e6b566cf3f3d7ab58a6fbd0ae814896a8940aaf5a12",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/01-REQUIREMENTS-AND-UX.md",
+        "scopeRole": "requirements-and-ux",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "81300c21352554afd236c58cc29779825a1abdc813f12e185d199f1f534bc896",
+        "historicalCommitSha256": "81300c21352554afd236c58cc29779825a1abdc813f12e185d199f1f534bc896",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "81300c21352554afd236c58cc29779825a1abdc813f12e185d199f1f534bc896",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/02-DECISIONS-AND-DIAGRAMS.md",
+        "scopeRole": "decisions-and-diagrams",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "58ed9b02208c6f8d4d5f91188b564c8d30400f000a90bf8c6f143f509b48ebb4",
+        "historicalCommitSha256": "58ed9b02208c6f8d4d5f91188b564c8d30400f000a90bf8c6f143f509b48ebb4",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "58ed9b02208c6f8d4d5f91188b564c8d30400f000a90bf8c6f143f509b48ebb4",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/03-DATA-AND-EVENTS.md",
+        "scopeRole": "data-and-events",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "2ab2d3f6609690aacbfdd73482a8398824ba55b21beebe00d6deff8e2936ec0a",
+        "historicalCommitSha256": "2ab2d3f6609690aacbfdd73482a8398824ba55b21beebe00d6deff8e2936ec0a",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "2ab2d3f6609690aacbfdd73482a8398824ba55b21beebe00d6deff8e2936ec0a",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/06-API-AND-CONTRACTS.md",
+        "scopeRole": "api-and-contracts",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "bc0a1b94eb52f00105921ea1bd3e082db9da7b85340a552ef3cc271d2c5aaa9c",
+        "historicalCommitSha256": "bc0a1b94eb52f00105921ea1bd3e082db9da7b85340a552ef3cc271d2c5aaa9c",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "bc0a1b94eb52f00105921ea1bd3e082db9da7b85340a552ef3cc271d2c5aaa9c",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/07-DELIVERY-AND-VERIFICATION.md",
+        "scopeRole": "delivery-and-verification",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "b01051141b907ffb7c91275a8766504e3bebc85fa0988a47619b4c9fb9a6b9be",
+        "historicalCommitSha256": "b01051141b907ffb7c91275a8766504e3bebc85fa0988a47619b4c9fb9a6b9be",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "b01051141b907ffb7c91275a8766504e3bebc85fa0988a47619b4c9fb9a6b9be",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/16-SPEC-READINESS-AND-API-REFERENCE.md",
+        "scopeRole": "spec-readiness-and-api-reference",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": false,
+        "rawByteSha256": "059fec55195d0145a327896338b855b3ae827ef0ab86e40ba2e7e766ae401dac",
+        "historicalCommitSha256": "2f2dc8ee0765b041bebb3bcc50fdd146c4c8a230afacd2b4901442c72624d347",
+        "matchesHistoricalCommit": false,
+        "currentWorktreeSha256": "059fec55195d0145a327896338b855b3ae827ef0ab86e40ba2e7e766ae401dac",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/17-SRS.md",
+        "scopeRole": "srs",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "5f1966c80a55791e73f005b50efa7b1d02d0a7f64ed332689f4bbe733c2c7f6d",
+        "historicalCommitSha256": "5f1966c80a55791e73f005b50efa7b1d02d0a7f64ed332689f4bbe733c2c7f6d",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "5f1966c80a55791e73f005b50efa7b1d02d0a7f64ed332689f4bbe733c2c7f6d",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/19-SYSTEM-BLUEPRINT.md",
+        "scopeRole": "system-blueprint",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "4f36e1c5db68c498495dd9427edbbfc070c5e1db957ee9aef69746cb0e92be9b",
+        "historicalCommitSha256": "4f36e1c5db68c498495dd9427edbbfc070c5e1db957ee9aef69746cb0e92be9b",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "4f36e1c5db68c498495dd9427edbbfc070c5e1db957ee9aef69746cb0e92be9b",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+        "scopeRole": "delivery-plan",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": false,
+        "rawByteSha256": "f502e5e97e0a30bbbacdd187af0a01d69093e368a523755249406a6c4c067ab2",
+        "historicalCommitSha256": "244792688df0daa70ca9c73b74b49f85fc16ba49346622b6afe12130254c7524",
+        "matchesHistoricalCommit": false,
+        "currentWorktreeSha256": "f502e5e97e0a30bbbacdd187af0a01d69093e368a523755249406a6c4c067ab2",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/contracts/openapi.candidate.yaml",
+        "scopeRole": "candidate-openapi",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": false,
+        "rawByteSha256": "0b546debb1e7408a66974385c5959ebf3598649eceafdb0c37bb44c55852b7a9",
+        "historicalCommitSha256": "90efa05a463bbcd557cbde1e5cf3fce6da38fd778352db6b81ee75f0af966612",
+        "matchesHistoricalCommit": false,
+        "currentWorktreeSha256": "0b546debb1e7408a66974385c5959ebf3598649eceafdb0c37bb44c55852b7a9",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/contracts/traceability.json",
+        "scopeRole": "traceability",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "997f0ae18aec2277b5a68f7438755fc1b703843ae21adf55b99e66b6771605d9",
+        "historicalCommitSha256": "997f0ae18aec2277b5a68f7438755fc1b703843ae21adf55b99e66b6771605d9",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "997f0ae18aec2277b5a68f7438755fc1b703843ae21adf55b99e66b6771605d9",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/contracts/pm-requirement-index.json",
+        "scopeRole": "proposal-requirement-index",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": false,
+        "rawByteSha256": "4f64ac86412d0109fd924a6ca5283aa33010bd3994bc3f7cc8e3fbe167cc4165",
+        "historicalCommitSha256": "a75bea3f66fd1730de8336234a77e92ea883a7e233814d7436df3468e2b44565",
+        "matchesHistoricalCommit": false,
+        "currentWorktreeSha256": "4f64ac86412d0109fd924a6ca5283aa33010bd3994bc3f7cc8e3fbe167cc4165",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+        "scopeRole": "candidate-delivery-plan",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": false,
+        "rawByteSha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+        "historicalCommitSha256": "2c28fd617dd4bb552004894b26713db4fbe0ac1999343788b05913638441eb9f",
+        "matchesHistoricalCommit": false,
+        "currentWorktreeSha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/contracts/srs-traceability.candidate.json",
+        "scopeRole": "candidate-srs-traceability",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "3f2a5e19b760bd8bf30fba57d2d9f54a5c023d1bca7d829c21a52abbc636bce5",
+        "historicalCommitSha256": "3f2a5e19b760bd8bf30fba57d2d9f54a5c023d1bca7d829c21a52abbc636bce5",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "3f2a5e19b760bd8bf30fba57d2d9f54a5c023d1bca7d829c21a52abbc636bce5",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/contracts/architecture.model.json",
+        "scopeRole": "architecture-model",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "0e16e29db78311021852547b80d730a00398854c2a2d9928b772c3998086bacf",
+        "historicalCommitSha256": "0e16e29db78311021852547b80d730a00398854c2a2d9928b772c3998086bacf",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "0e16e29db78311021852547b80d730a00398854c2a2d9928b772c3998086bacf",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/architecture/project-manager-system/contracts/data-model.candidate.json",
+        "scopeRole": "candidate-data-model",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "89364cffdad5a4b03470875c49879ad4efd0fa7ab0668eb509fe331733aaa0f3",
+        "historicalCommitSha256": "89364cffdad5a4b03470875c49879ad4efd0fa7ab0668eb509fe331733aaa0f3",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "89364cffdad5a4b03470875c49879ad4efd0fa7ab0668eb509fe331733aaa0f3",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/domains/project-manager/EXECUTION-PLAN-BUNDLE.md",
+        "scopeRole": "programme-bundle-boundary",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "e690717ed210042d3b79f504fe0deef15dace4921a760370e3aca2a62232d536",
+        "historicalCommitSha256": "e690717ed210042d3b79f504fe0deef15dace4921a760370e3aca2a62232d536",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "e690717ed210042d3b79f504fe0deef15dace4921a760370e3aca2a62232d536",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/domains/project-manager/features/FR-108-execution-plan-bundle.md",
+        "scopeRole": "programme-bundle-feature",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "b18d9d89608011ca16e8ddf9e28fa813c3462bd3bd17a42c91b0d8e741af9051",
+        "historicalCommitSha256": "b18d9d89608011ca16e8ddf9e28fa813c3462bd3bd17a42c91b0d8e741af9051",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "b18d9d89608011ca16e8ddf9e28fa813c3462bd3bd17a42c91b0d8e741af9051",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
+        "scopeRole": "per-project-plan-intake",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "83521bda581fd47a99e3670556d005f37f47977693d07bd411edd3d10fa3a4ad",
+        "historicalCommitSha256": "83521bda581fd47a99e3670556d005f37f47977693d07bd411edd3d10fa3a4ad",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "83521bda581fd47a99e3670556d005f37f47977693d07bd411edd3d10fa3a4ad",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "docs/decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md",
+        "scopeRole": "programme-bundle-decision",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "f40c06eb5e4cfbe846ec0bc30b85212e96e4b122e537c811c3dfd34e6cf07211",
+        "historicalCommitSha256": "f40c06eb5e4cfbe846ec0bc30b85212e96e4b122e537c811c3dfd34e6cf07211",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "f40c06eb5e4cfbe846ec0bc30b85212e96e4b122e537c811c3dfd34e6cf07211",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/contracts/execution-plan-bundle.schema.json",
+        "scopeRole": "programme-bundle-schema",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "5b533bbda3edee8aea3b5fa1e0f1ae7e92cafe17086c6f4943e7e4ea15f2adda",
+        "historicalCommitSha256": "5b533bbda3edee8aea3b5fa1e0f1ae7e92cafe17086c6f4943e7e4ea15f2adda",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "5b533bbda3edee8aea3b5fa1e0f1ae7e92cafe17086c6f4943e7e4ea15f2adda",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/contracts/plan-envelope.schema.json",
+        "scopeRole": "per-project-plan-schema",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "af039539b7aa1348499c48c746d1fbd8c2e86134ec75b36a58cd98a68bcdb38e",
+        "historicalCommitSha256": "af039539b7aa1348499c48c746d1fbd8c2e86134ec75b36a58cd98a68bcdb38e",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "af039539b7aa1348499c48c746d1fbd8c2e86134ec75b36a58cd98a68bcdb38e",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/contracts/sample-execution-plan-bundle.json",
+        "scopeRole": "programme-bundle-fixture-source",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "73bcd052265403ef06ac33d92392c5cbf2d737d1fdf6b06408da8f4516204b80",
+        "historicalCommitSha256": "73bcd052265403ef06ac33d92392c5cbf2d737d1fdf6b06408da8f4516204b80",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "73bcd052265403ef06ac33d92392c5cbf2d737d1fdf6b06408da8f4516204b80",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/app/api/import/dry-run/route.js",
+        "scopeRole": "per-project-import-dry-run-route",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "45debdb7e53ac62b62f1038928c153c2fc5e61a4592862b48ec273bf5141cbf9",
+        "historicalCommitSha256": "45debdb7e53ac62b62f1038928c153c2fc5e61a4592862b48ec273bf5141cbf9",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "45debdb7e53ac62b62f1038928c153c2fc5e61a4592862b48ec273bf5141cbf9",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/app/api/import/commit/route.js",
+        "scopeRole": "per-project-import-commit-route",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "e141ef165a9b6fda91b85570d0120e012edd0203d7d59f94ab5bf6ca3d894945",
+        "historicalCommitSha256": "e141ef165a9b6fda91b85570d0120e012edd0203d7d59f94ab5bf6ca3d894945",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "e141ef165a9b6fda91b85570d0120e012edd0203d7d59f94ab5bf6ca3d894945",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/app/api/import/bundle/dry-run/route.js",
+        "scopeRole": "programme-bundle-dry-run-route",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "2655852be6a76e82fcade0e9534cea3eef51c7e5fa1a982a8b4b50161c435e08",
+        "historicalCommitSha256": "2655852be6a76e82fcade0e9534cea3eef51c7e5fa1a982a8b4b50161c435e08",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "2655852be6a76e82fcade0e9534cea3eef51c7e5fa1a982a8b4b50161c435e08",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/app/api/import/bundle/commit/route.js",
+        "scopeRole": "programme-bundle-commit-route",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "05e0b7e1972db043c6e7eb7f66fcb8d2f988dc2077d643d475a1009856398f91",
+        "historicalCommitSha256": "05e0b7e1972db043c6e7eb7f66fcb8d2f988dc2077d643d475a1009856398f91",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "05e0b7e1972db043c6e7eb7f66fcb8d2f988dc2077d643d475a1009856398f91",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/modules/project-manager/import/plan-import-service.js",
+        "scopeRole": "per-project-import-service",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "2dd34850c115d09259e5815f14901a21f7e109728ae59051b4d22462cbbdcc25",
+        "historicalCommitSha256": "2dd34850c115d09259e5815f14901a21f7e109728ae59051b4d22462cbbdcc25",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "2dd34850c115d09259e5815f14901a21f7e109728ae59051b4d22462cbbdcc25",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/modules/project-manager/import/plan-schema.js",
+        "scopeRole": "per-project-plan-validator",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "26aa0ddf6ed31db2a785605a12bb167c0e9ac7f27912a92c67edf5ab024e38b4",
+        "historicalCommitSha256": "26aa0ddf6ed31db2a785605a12bb167c0e9ac7f27912a92c67edf5ab024e38b4",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "26aa0ddf6ed31db2a785605a12bb167c0e9ac7f27912a92c67edf5ab024e38b4",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/modules/project-manager/import/bundle/bundle-schema.js",
+        "scopeRole": "programme-bundle-validator",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "281bcfb75baf8b77574841e5e5cb50df7129f662fed6b83c164a89accac29356",
+        "historicalCommitSha256": "281bcfb75baf8b77574841e5e5cb50df7129f662fed6b83c164a89accac29356",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "281bcfb75baf8b77574841e5e5cb50df7129f662fed6b83c164a89accac29356",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/modules/project-manager/import/bundle/bundle-resolver.js",
+        "scopeRole": "programme-bundle-scope-and-reference-resolver",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "f4bb538392464cac911c49dc95e2d8d5ac89ba1735a5b2115bc9b2206073d548",
+        "historicalCommitSha256": "f4bb538392464cac911c49dc95e2d8d5ac89ba1735a5b2115bc9b2206073d548",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "f4bb538392464cac911c49dc95e2d8d5ac89ba1735a5b2115bc9b2206073d548",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/modules/project-manager/import/bundle/bundle-dry-run.js",
+        "scopeRole": "programme-bundle-preview-service",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "b2cb385fc338745a4a292284629cc65971976a2e82d083d1776c1b80cc9ef86e",
+        "historicalCommitSha256": "b2cb385fc338745a4a292284629cc65971976a2e82d083d1776c1b80cc9ef86e",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "b2cb385fc338745a4a292284629cc65971976a2e82d083d1776c1b80cc9ef86e",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/modules/project-manager/import/bundle/bundle-commit-service.js",
+        "scopeRole": "programme-bundle-commit-service",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "9d79e98102674804b4db8a2551b1ce72a5039bd615f3bb2584cc37e6f3883c97",
+        "historicalCommitSha256": "9d79e98102674804b4db8a2551b1ce72a5039bd615f3bb2584cc37e6f3883c97",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "9d79e98102674804b4db8a2551b1ce72a5039bd615f3bb2584cc37e6f3883c97",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/modules/project-manager/import/bundle/bundle-receipt.js",
+        "scopeRole": "programme-bundle-receipt-service",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "c78e09f70bde224649dac957fa72d190d9e0fa38585f97777fb3514da20f5fd4",
+        "historicalCommitSha256": "c78e09f70bde224649dac957fa72d190d9e0fa38585f97777fb3514da20f5fd4",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "c78e09f70bde224649dac957fa72d190d9e0fa38585f97777fb3514da20f5fd4",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/tests/integration/execution-plan-bundle.test.js",
+        "scopeRole": "programme-bundle-integration-tests",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "2c961423381d54f3d4145c42d86c7c85769becca2f172e83f30f6969493eaec7",
+        "historicalCommitSha256": "2c961423381d54f3d4145c42d86c7c85769becca2f172e83f30f6969493eaec7",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "2c961423381d54f3d4145c42d86c7c85769becca2f172e83f30f6969493eaec7",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/tests/unit/bundle-schema.test.js",
+        "scopeRole": "programme-bundle-schema-tests",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "6a167b39a690954e123722c4095bb272d221d82c59a354687884e2d71d06be0d",
+        "historicalCommitSha256": "6a167b39a690954e123722c4095bb272d221d82c59a354687884e2d71d06be0d",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "6a167b39a690954e123722c4095bb272d221d82c59a354687884e2d71d06be0d",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/tests/integration/plan-import.test.js",
+        "scopeRole": "per-project-import-integration-tests",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "d4260e33e4eea964ff5d681050a4b352a3cdab466e2843e71236157cdb565ed0",
+        "historicalCommitSha256": "d4260e33e4eea964ff5d681050a4b352a3cdab466e2843e71236157cdb565ed0",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "d4260e33e4eea964ff5d681050a4b352a3cdab466e2843e71236157cdb565ed0",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/tests/integration/plan-import-scope.test.js",
+        "scopeRole": "per-project-import-scope-tests",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "d532ffbbdeb6e07632f7637c64ba7f5514fb326c542de42040802dfbad9b7b07",
+        "historicalCommitSha256": "d532ffbbdeb6e07632f7637c64ba7f5514fb326c542de42040802dfbad9b7b07",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "d532ffbbdeb6e07632f7637c64ba7f5514fb326c542de42040802dfbad9b7b07",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/tests/unit/plan-import-commit-transaction.test.js",
+        "scopeRole": "per-project-import-transaction-tests",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "fd64c1d4ea3da35380fed71b91cd49c37afb1b8f395018735d061091d120c7d2",
+        "historicalCommitSha256": "fd64c1d4ea3da35380fed71b91cd49c37afb1b8f395018735d061091d120c7d2",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "fd64c1d4ea3da35380fed71b91cd49c37afb1b8f395018735d061091d120c7d2",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/tests/unit/plan-schema.test.js",
+        "scopeRole": "per-project-plan-schema-tests",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "84d967ab49896bd7c9517ecb6bc43b086b33a72824a714599f254fb511fd640c",
+        "historicalCommitSha256": "84d967ab49896bd7c9517ecb6bc43b086b33a72824a714599f254fb511fd640c",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "84d967ab49896bd7c9517ecb6bc43b086b33a72824a714599f254fb511fd640c",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/src/modules/project-manager/application/backup-service.js",
+        "scopeRole": "artifact-and-backup-context",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "bc497ad9c724c33a6d17d0f05043b8b23e6394b412417069868f5c69665a2a39",
+        "historicalCommitSha256": "bc497ad9c724c33a6d17d0f05043b8b23e6394b412417069868f5c69665a2a39",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "bc497ad9c724c33a6d17d0f05043b8b23e6394b412417069868f5c69665a2a39",
+        "matchesCurrentWorktree": true
+      },
+      {
+        "path": "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "scopeRole": "artifact-and-backup-contract-tests",
+        "existsAtBaseline": true,
+        "trackedAtBaseline": true,
+        "matchesBaseline": true,
+        "rawByteSha256": "e73f4614bd1c102c42fe9f9437c8f0104a1703598d1e5e5497ca0fdac585fa0a",
+        "historicalCommitSha256": "e73f4614bd1c102c42fe9f9437c8f0104a1703598d1e5e5497ca0fdac585fa0a",
+        "matchesHistoricalCommit": true,
+        "currentWorktreeSha256": "e73f4614bd1c102c42fe9f9437c8f0104a1703598d1e5e5497ca0fdac585fa0a",
+        "matchesCurrentWorktree": true
+      }
+    ],
+    "actualCheckoutHead": "a6e295a5e30b61aa0e6a178454e371d59e053818",
+    "historicalPredecessorBaselineCommit": "cd3c9f304dca6903daa38792278116275ad969fd",
+    "observedLocalOriginMain": {
+      "commit": "a6e295a5e30b61aa0e6a178454e371d59e053818",
+      "observedAtUtc": "2026-10-04T12:26:07Z",
+      "freshness": "UNVERIFIED",
+      "fetchPerformed": false,
+      "limitation": "Local origin/main tracking ref observed separately at 2026-10-04T12:26:07Z UTC. Checkout HEAD is a6e295a5e30b61aa0e6a178454e371d59e053818. No fetch was performed; the local tracking ref is not treated as remote-current."
+    },
+    "headEqualsOriginMain": true,
+    "inputRefresh": {
+      "predecessorInputCount": 44,
+      "predecessorInputsMatchingBeforeRefresh": 43,
+      "predecessorStaleInputsBeforeRefresh": [
+        {
+          "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+          "expected": "b0030ea9ebd006ff0fd2cd832c833212798931d2b4ab5aab7299650c6e3bc2eb",
+          "actual": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393"
+        }
+      ],
+      "predecessorInputsRehashed": 44,
+      "additionalExactPins": 1,
+      "totalInputCount": 45,
+      "allListedHashesMatchAtAuthoring": true,
+      "currentSnapshotPinsVerified": 44,
+      "currentSnapshotPinsDiffering": 0,
+      "historicalBaselinePinsMatching": 39,
+      "historicalBaselinePinsDiffering": 5,
+      "historicalBaselineDifferingPaths": [
+        "docs/architecture/project-manager-system/16-SPEC-READINESS-AND-API-REFERENCE.md",
+        "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+        "docs/architecture/project-manager-system/contracts/openapi.candidate.yaml",
+        "docs/architecture/project-manager-system/contracts/pm-requirement-index.json",
+        "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json"
+      ],
+      "successorRefresh": {
+        "directParentPath": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.7.candidate.json",
+        "directParentSha256": "15d19e82b92d349cd84799425c2405e82fc36d4b56ea3d1dd76c9c2d73d1a49c",
+        "sourceInputCount": 44,
+        "changedSinceDirectParent": 1,
+        "changedPaths": [
+          {
+            "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+            "previousSha256": "b0030ea9ebd006ff0fd2cd832c833212798931d2b4ab5aab7299650c6e3bc2eb",
+            "currentSha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393"
+          }
+        ],
+        "allCurrentRawPinsMatch": true,
+        "checkoutHead": "a6e295a5e30b61aa0e6a178454e371d59e053818",
+        "worktreeState": "DIRTY_ISOLATED_WORKTREE; raw hashes identify current file bytes, not committed HEAD contents.",
+        "planPath": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+        "planVersion": "0.9.46b",
+        "planSha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+        "pointerComposed": false,
+        "remoteFreshness": "UNVERIFIED"
+      }
+    },
+    "currentSourceManifestNote": "For v0.1.8, all 44 unique tracked source inputs were rehashed from exact dirty-worktree bytes at authoring time. Compared with direct predecessor v0.1.7, 43 pins matched and only delivery-plan.candidate.json changed from v0.9.44b SHA-256 b0030ea9ebd006ff0fd2cd832c833212798931d2b4ab5aab7299650c6e3bc2eb to v0.9.46b SHA-256 9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393. The direct user-direction receipt is separately pinned at SHA-256 c43f4ae5928cff4b335a41d643083e9663a908faea088373ee4ae25e9a816b83. Current plan v0.9.46b still points to PMR-025 candidate v0.1.4 SHA-256 de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0; its fileBoundary remains subject to root reconciliation. v0.1.8 is unselected and pointerComposed=false. Local remote freshness remains UNVERIFIED; no remote-current claim is made.",
+    "allInputsExistTrackedAndMatchHistoricalBaseline": false,
+    "allInputsExistTrackedAndMatchCurrentSnapshot": true,
+    "baselineComparisonMeaning": "matchesBaseline and allInputsExistTrackedAndMatchBaseline compare exact raw bytes with baselineCommit (the historical cd3c9f304dca6903daa38792278116275ad969fd tree). Current dirty-worktree equality is reported separately by matchesCurrentWorktree and current-snapshot verification fields.",
+    "historicalBaselineVerification": {
+      "commit": "cd3c9f304dca6903daa38792278116275ad969fd",
+      "inputCount": 44,
+      "matchingCount": 39,
+      "differingCount": 5,
+      "allRawBytePinsMatchHistoricalCommit": false,
+      "differingPaths": [
+        {
+          "path": "docs/architecture/project-manager-system/16-SPEC-READINESS-AND-API-REFERENCE.md",
+          "historicalCommitSha256": "2f2dc8ee0765b041bebb3bcc50fdd146c4c8a230afacd2b4901442c72624d347",
+          "currentWorktreeSha256": "059fec55195d0145a327896338b855b3ae827ef0ab86e40ba2e7e766ae401dac"
+        },
+        {
+          "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+          "historicalCommitSha256": "244792688df0daa70ca9c73b74b49f85fc16ba49346622b6afe12130254c7524",
+          "currentWorktreeSha256": "f502e5e97e0a30bbbacdd187af0a01d69093e368a523755249406a6c4c067ab2"
+        },
+        {
+          "path": "docs/architecture/project-manager-system/contracts/openapi.candidate.yaml",
+          "historicalCommitSha256": "90efa05a463bbcd557cbde1e5cf3fce6da38fd778352db6b81ee75f0af966612",
+          "currentWorktreeSha256": "0b546debb1e7408a66974385c5959ebf3598649eceafdb0c37bb44c55852b7a9"
+        },
+        {
+          "path": "docs/architecture/project-manager-system/contracts/pm-requirement-index.json",
+          "historicalCommitSha256": "a75bea3f66fd1730de8336234a77e92ea883a7e233814d7436df3468e2b44565",
+          "currentWorktreeSha256": "4f64ac86412d0109fd924a6ca5283aa33010bd3994bc3f7cc8e3fbe167cc4165"
+        },
+        {
+          "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+          "historicalCommitSha256": "2c28fd617dd4bb552004894b26713db4fbe0ac1999343788b05913638441eb9f",
+          "currentWorktreeSha256": "b0030ea9ebd006ff0fd2cd832c833212798931d2b4ab5aab7299650c6e3bc2eb"
+        }
+      ]
+    },
+    "currentSnapshotVerification": {
+      "checkoutHead": "a6e295a5e30b61aa0e6a178454e371d59e053818",
+      "inputCount": 44,
+      "existingCount": 44,
+      "trackedCount": 44,
+      "matchingCount": 44,
+      "differingCount": 0,
+      "allRawBytePinsMatchCurrentSnapshot": true,
+      "differingPaths": []
+    },
+    "currentDeliveryPlanPin": {
+      "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+      "planVersion": "0.9.46b",
+      "rawByteSha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+      "matchesCurrentSnapshot": true,
+      "matchesHistoricalCommit": false
+    },
+    "rootCauseAnalysisReference": {
+      "path": ".brain/rca/2026-10-01-pmr025-baseline-current-pin-provenance-ambiguity.md",
+      "sha256": "d1fbf1f215554fa338653850bcced0383f861db69b9ac04d5fd64b0cb5795a54",
+      "role": "Provenance correction for the historical baseline versus current dirty-worktree pin ambiguity"
+    },
+    "observedRemoteMain": {
+      "ref": "refs/heads/main",
+      "advertisedCommit": "d72bee571578d8d7ebe2096fed7565fd0391b23c",
+      "observedAtUtc": "2026-10-04T05:28:16.244Z",
+      "source": "git ls-remote origin refs/heads/main",
+      "fetchPerformed": false,
+      "baselineUse": "OBSERVATION_ONLY_NOT_USED_AS_DESIGN_OR_INPUT_BASELINE",
+      "freshness": "UNVERIFIED",
+      "matchesLocalTrackingRefAtObservation": true,
+      "role": "HISTORICAL_REMOTE_ADVERTISEMENT_NOT_RECHECKED",
+      "notRecheckedAtSuccessorRefresh": true,
+      "note": "This remote advertisement is retained as historical evidence from its recorded observation time only. It was not rechecked for v0.1.7; the current remote main commit is unknown. Do not infer current equality with the local origin/main tracking ref."
+    },
+    "userDirectionReceiptSha256": "c43f4ae5928cff4b335a41d643083e9663a908faea088373ee4ae25e9a816b83"
+  },
+  "handoff": {
+    "ownerApprovalRequired": true,
+    "implementationMayBegin": false,
+    "externalCandidateRawShaPolicy": "Compute final raw-byte SHA-256 externally after writing. This candidate intentionally has no self-hash property and no sidecar.",
+    "testsRun": false,
+    "governanceRun": false,
+    "rollbackSnapshotId": "pmr025-v018-prewrite-20261004T192919Z-3bedd105",
+    "rollbackSnapshotRole": "FRESH_V0.1.8_PREWRITE_SNAPSHOT; prior snapshots remain historical only.",
+    "historicalRollbackSnapshotId": "pmr025-v015-preimage-20261004-014434181"
+  },
+  "candidateRevision": "0.1.8",
+  "versionDiff": "v0.1.7→v0.1.8: immutable direct successor and provenance-only refresh. Rehashes all 44 current raw-byte inputs, rebinds the current plan to delivery-plan v0.9.46b, adds the direct user-direction receipt SHA-256 pin, and records that the plan still selects PMR-025 v0.1.4 while its fileBoundary requires root reconciliation. Preserves the PMR-025 semantic payload, all ten openQuestions plus PMR025-Q11-EXPORT-LIFECYCLE implementation block, partial user-direction answers, all owner blockers, and every false authority flag. Records Terra HOLD of v0.1.4/current-use, Terra GO_WITH_LIMITS for this one-file candidate-preparation scope, and Astra CONCUR_WITH_LIMITS for the same preparation scope only; v0.1.8 remains unselected/uncomposed, final exact review is pending, and remote freshness remains UNVERIFIED.",
+  "successorOf": {
+    "artifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.7.candidate.json",
+    "sha256": "15d19e82b92d349cd84799425c2405e82fc36d4b56ea3d1dd76c9c2d73d1a49c",
+    "relation": "DIRECT_VERSIONED_SUCCESSOR; v0.1.7 remains byte-for-byte unchanged and candidate-only"
+  },
+  "decisionReceiptId": "PM-SPEC-DIRECTION-20260929-01",
+  "directionReceiptRef": {
+    "receiptId": "PM-SPEC-DIRECTION-20260929-01",
+    "path": "docs/architecture/project-manager-system/contracts/user-direction-receipt-2026-09-29.candidate.json",
+    "scope": "Product-direction record only; no technical owner sign-off or implementation authority.",
+    "sha256": "c43f4ae5928cff4b335a41d643083e9663a908faea088373ee4ae25e9a816b83"
+  },
+  "openQuestionSummary": {
+    "total": 11,
+    "open": 11,
+    "closed": 0,
+    "ownerAccepted": 0,
+    "note": "The ten entries in openQuestions remain byte-for-byte unchanged and OPEN. Q2, Q7 and Q8 retain recorded user-direction answers only. PMR025-Q11-EXPORT-LIFECYCLE is a separate additional implementation-blocking OPEN question; no lifecycle method or owner is selected."
+  },
+  "deliveryPlanBinding": {
+    "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+    "planVersion": "0.9.46b",
+    "planSha256AtRefresh": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+    "candidateSha256StillPinned": "de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0",
+    "pinnedCandidateVersion": "0.1.4",
+    "status": "SUCCESSOR_CANDIDATE_UNCOMPOSED_PENDING_ROOT_REVIEW",
+    "changedByThisRevision": true,
+    "successorCandidateVersion": "0.1.8",
+    "pointerComposed": false,
+    "canonicalRegistrationClaimed": false,
+    "remoteFreshness": "UNVERIFIED",
+    "note": "Delivery-plan v0.9.46b SHA-256 9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393 still selects PMR-025 candidate v0.1.4 SHA-256 de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0. Its fileBoundary remains \"PM design docs/examples; no shared OpenAPI edit before root composition\" and requires root reconciliation before any pointer composition or shared-document change. This v0.1.8 successor is unselected/uncomposed, pointerComposed=false, and records current source/receipt provenance only; it grants no owner acceptance, canonical registration, G0, downstream-use, dispatch or implementation authority. Final exact candidate review remains PENDING and remote freshness remains UNVERIFIED.",
+    "fileBoundaryReconciliation": {
+      "status": "PENDING_ROOT_RECONCILIATION",
+      "planFileBoundary": "PM design docs/examples; no shared OpenAPI edit before root composition",
+      "candidatePreparationException": "ONE_FILE_METADATA_PROVENANCE_ONLY",
+      "pointerComposed": false,
+      "sharedDocumentCompositionAuthorized": false
+    }
+  },
+  "additionalOpenQuestion": {
+    "id": "PMR025-Q11-EXPORT-LIFECYCLE",
+    "question": "How can an export surface labeled GET and READ_ONLY satisfy the approved direction to store exported bytes as an immutable ArtifactRevision?",
+    "status": "OPEN",
+    "resolution": "OWNER_APPROVAL_REQUIRED",
+    "owner": "UNASSIGNED",
+    "answer": null,
+    "implementationBlock": true,
+    "blocks": [
+      "export API contract",
+      "ArtifactRevision lifecycle",
+      "implementation"
+    ],
+    "conflict": "The candidate records GET /api/projects/{projectId}/design-bundles/export with effectClass READ_ONLY, while the approved direction says exported bytes are stored as an immutable ArtifactRevision. Persistence requires a generation/write lifecycle absent from a read-only retrieval label.",
+    "alternativesForDecision": [
+      "GET retrieves an already-created immutable ArtifactRevision; the operation that created and persisted it is defined separately.",
+      "A separate explicit export-generation operation creates and persists the revision, followed by scoped GET retrieval.",
+      "An asynchronous export job creates and persists the revision, then a later scoped GET retrieves the result.",
+      "The GET itself generates and persists a new revision, which has write side effects and would require review/reclassification of the READ_ONLY surface."
+    ],
+    "unresolved": [
+      "generation trigger",
+      "persistence method",
+      "storage writer/owner",
+      "transaction or atomicity boundary",
+      "authorization and scope checks at creation and retrieval",
+      "idempotency/retry and receipt behavior",
+      "failure/partial-write handling",
+      "whether GET remains READ_ONLY"
+    ],
+    "selection": "NONE; no generation, persistence, retrieval method, writer, transaction, or authorization is selected."
+  },
+  "rollbackSnapshot": {
+    "snapshotId": "pmr025-v018-prewrite-20261004T192919Z-3bedd105",
+    "manifestPath": "C:\\Users\\pc\\.codex\\backups\\pmr025-v018-prewrite-20261004T192919Z-3bedd105\\manifest.json",
+    "manifestSha256": "28a2bfaef1555cb220cd23452e955fe2496df9311bc5b0c564a80ef0d5ddc4a3",
+    "archivePath": "C:\\Users\\pc\\.codex\\backups\\pmr025-v018-prewrite-20261004T192919Z-3bedd105.zip",
+    "archiveSha256": "d2262fac17054285c3d9e3a54e6d70cbfeb7f3085999829390335f3390c9024c",
+    "targetCandidatePath": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.8.candidate.json",
+    "targetAbsentAtSnapshot": true,
+    "sourceInputCount": 44,
+    "additionalProtectedPreimageCount": 2,
+    "verifiedProtectedPayloads": "46/46",
+    "planPointerCompositionAuthorized": false,
+    "previousHistoricalSnapshot": {
+      "snapshotId": "pmr025-v015-preimage-20261004-014434181",
+      "manifestPath": "C:\\Users\\pc\\.codex\\backups\\pmr025-v015-preimage-20261004-014434181\\manifest.json",
+      "manifestSha256": "0ebb05b786521b46f3af546af8856fb9ad8d244c4bb348a52dc17627ec2407f4",
+      "planPointerCompositionAuthorized": false,
+      "note": "The referenced verified snapshot is the recorded v0.1.5 preimage only; it binds the earlier v0.9.39b plan/Doc20 inputs and does not snapshot the v0.1.6 write or current v0.9.43b plan/Doc20 bytes. No v0.1.6 prewrite snapshot is claimed. It authorizes no plan composition, canonical registration, G0, downstream use, implementation, tests, or governance."
+    },
+    "note": "Fresh verified prewrite snapshot for candidate v0.1.8. It binds exact v0.1.7 predecessor bytes, current delivery-plan v0.9.46b bytes, the direct user-direction receipt and all 44 protected source preimages. The plan pointer remains unchanged; this snapshot authorizes no plan composition, canonical registration, G0, downstream use, dispatch, implementation, tests or governance."
+  },
+  "successorAuthorization": {
+    "status": "AUTHORIZED_CANDIDATE_ONLY",
+    "complexity": "C-3",
+    "risk": "HIGH",
+    "decisionRoute": "Root-authorized C-3/HIGH candidate-only v0.1.8 preparation, with Terra HOLD of v0.1.4/current-use, Terra GO_WITH_LIMITS for this exact one-file successor scope, and Astra CONCUR_WITH_LIMITS for the same preparation scope; final exact-candidate review is pending.",
+    "scope": "Create only docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.8.candidate.json as a direct immutable successor from exact v0.1.7; refresh current 44 raw-byte inputs and direct receipt pin, record current plan v0.9.46b and fileBoundary reconciliation pending, and preserve all semantic/open/authority boundaries. No delivery-plan or shared-document composition, canonical registration, G0, downstream use, dispatch, implementation, tests, governance, runtime, provider, deployment or external action.",
+    "implementationAuthorized": false,
+    "pointerComposed": false,
+    "remoteFreshness": "UNVERIFIED",
+    "decisionReceipts": [
+      {
+        "receiptId": "terra-pmr025-design-bundle-v015-preparation-2026-10-04",
+        "reviewer": "Terra-role GPT-6-Sol",
+        "verdict": "GO_WITH_LIMITS",
+        "reviewedArtifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.5.candidate.json",
+        "reviewedSha256": "aca6e1f8e724222b358e62484b3398cd5c88a9e5b08efcbdd548244e778ed1de",
+        "applicability": "PREDECESSOR_ONLY_NOT_TRANSFERRED"
+      },
+      {
+        "receiptId": "astra-pmr025-design-v015-preparation-2026-10-04",
+        "reviewer": "Astra",
+        "verdict": "CONCUR_WITH_LIMITS",
+        "reviewedArtifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.5.candidate.json",
+        "reviewedSha256": "aca6e1f8e724222b358e62484b3398cd5c88a9e5b08efcbdd548244e778ed1de",
+        "applicability": "PREDECESSOR_ONLY_NOT_TRANSFERRED"
+      },
+      {
+        "receiptId": "terra-pmr025-design-bundle-v016-review-2026-10-04",
+        "reviewer": "Terra-role GPT-6-Sol HIGH",
+        "verdict": "REWORK/HOLD_FOR_V0.1.6_CURRENT_SOURCE_ACTIONABILITY",
+        "reviewedArtifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.6.candidate.json",
+        "reviewedSha256": "0329b48c26d7b95b248f7bb4d98e579d9cc8d48d11b90b4a0088d04246539e8f",
+        "applicability": "PREPARATION_SCOPE_FOR_V0.1.7_ONLY; NOT_FINAL_CANDIDATE_REVIEW",
+        "limits": "v0.1.6 remains held for current-source use. Prepare only immutable v0.1.7 after exact 44-pin refresh, plan/checkout provenance correction, fresh snapshot and Astra concurrence; no pointer composition or implementation.",
+        "successorPreparationVerdict": "GO_WITH_LIMITS"
+      },
+      {
+        "receiptId": "astra-pmr025-v017-preparation-2026-10-04",
+        "reviewer": "Astra HIGH",
+        "verdict": "CONCUR_WITH_LIMITS",
+        "reviewedArtifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.6.candidate.json",
+        "reviewedSha256": "0329b48c26d7b95b248f7bb4d98e579d9cc8d48d11b90b4a0088d04246539e8f",
+        "applicability": "PREPARATION_SCOPE_APPROVAL_ONLY; FINAL_V0.1.7_REVIEW_PENDING",
+        "verifiedSnapshotId": "pmr025-v016-prewrite-20261004T121730Z-22fc9e",
+        "verifiedManifestSha256": "40c777a8e4b1f1df34bd2e162b345389379feb981b5e0cc022d56b08d7c9ebba"
+      },
+      {
+        "receiptId": "terra-pmr025-design-bundle-v018-preparation-2026-10-05",
+        "reviewer": "Terra-role GPT-6-Sol HIGH",
+        "verdict": "GO_WITH_LIMITS",
+        "reviewedArtifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.4.candidate.json",
+        "reviewedSha256": "de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0",
+        "applicability": "PREPARATION_SCOPE_FOR_V0.1.8_ONLY; NOT_FINAL_CANDIDATE_REVIEW",
+        "currentUseDisposition": "HOLD_V0.1.4_CURRENT_USE",
+        "scope": "Prepare exactly one immutable v0.1.8 successor from exact v0.1.7 with refreshed 44-input and receipt provenance; do not compose the plan or grant any execution authority.",
+        "source": "EXPLICIT_ROOT_SCOPE_DECISION"
+      },
+      {
+        "receiptId": "astra-pmr025-design-bundle-v018-preparation-2026-10-05",
+        "reviewer": "Astra HIGH",
+        "verdict": "CONCUR_WITH_LIMITS",
+        "reviewedArtifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.7.candidate.json",
+        "reviewedSha256": "15d19e82b92d349cd84799425c2405e82fc36d4b56ea3d1dd76c9c2d73d1a49c",
+        "applicability": "EXACT_ONE_FILE_PREPARATION_SCOPE_ONLY; NOT_FINAL_CANDIDATE_REVIEW",
+        "scope": "Concur only with the one-file metadata/provenance successor preparation under the stated C-3/HIGH limits; no final candidate review, plan composition, owner acceptance, G0, dispatch or implementation authority.",
+        "source": "EXPLICIT_ROOT_SCOPE_DECISION"
+      }
+    ],
+    "freshExactCandidateReviewStatus": "PENDING_FRESH_EXACT_CANDIDATE_REVIEW",
+    "decisionReceiptsScope": "Historical predecessor receipts remain bound to their exact predecessor bytes and do not transfer. Terra HOLD applies to current use of v0.1.4; Terra GO_WITH_LIMITS and Astra CONCUR_WITH_LIMITS apply only to this exact one-file v0.1.8 preparation scope. They are not final review, owner acceptance, G0, pointer composition, downstream-use, dispatch or implementation authority.",
+    "rootScopeDecision": {
+      "provenanceType": "EXPLICIT_ROOT_SCOPE_DECISION",
+      "source": "Explicit root dispatch for this task; this record is provenance for the authoring exception and is not itself a technical owner approval or candidate review receipt.",
+      "decision": "AUTHORIZE_EXACT_ONE_FILE_CANDIDATE_PREPARATION",
+      "targetArtifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.8.candidate.json",
+      "directPredecessor": {
+        "path": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.7.candidate.json",
+        "sha256": "15d19e82b92d349cd84799425c2405e82fc36d4b56ea3d1dd76c9c2d73d1a49c",
+        "version": "0.1.7"
+      },
+      "currentPlan": {
+        "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+        "version": "0.9.46b",
+        "sha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+        "selectedCandidatePath": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.4.candidate.json",
+        "selectedCandidateSha256": "de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0",
+        "fileBoundary": "PM design docs/examples; no shared OpenAPI edit before root composition",
+        "pointerComposed": false
+      },
+      "userDirectionReceipt": {
+        "path": "docs/architecture/project-manager-system/contracts/user-direction-receipt-2026-09-29.candidate.json",
+        "sha256": "c43f4ae5928cff4b335a41d643083e9663a908faea088373ee4ae25e9a816b83"
+      },
+      "terra": {
+        "reviewer": "Terra-role GPT-6-Sol HIGH",
+        "currentUseDecision": "HOLD",
+        "currentUseArtifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.4.candidate.json",
+        "currentUseSha256": "de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0",
+        "preparationDecision": "GO_WITH_LIMITS",
+        "preparationScope": "This exact one-file v0.1.8 successor only; not final review or plan composition."
+      },
+      "astra": {
+        "reviewer": "Astra HIGH",
+        "decision": "CONCUR_WITH_LIMITS",
+        "scope": "This exact one-file v0.1.8 successor preparation only; not final review or plan composition."
+      },
+      "authoringException": {
+        "status": "ONE_TIME_C3_HIGH_EXCEPTION",
+        "reason": "The current plan still names v0.1.4 and its fileBoundary requires root reconciliation; this task authorizes only the successor candidate file while leaving plan/shared documents unchanged.",
+        "writeAllowlist": [
+          "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.8.candidate.json"
+        ],
+        "pointerComposed": false,
+        "sharedDocumentCompositionAuthorized": false,
+        "implementationAuthorized": false
+      },
+      "limits": [
+        "Preserve all 11 OPEN decisions, including PMR025-Q11-EXPORT-LIFECYCLE and implementationBlock=true.",
+        "Preserve all authority flags false and candidate-only status.",
+        "No final exact review, owner acceptance, G0, downstream use, dispatch, implementation, tests, governance, runtime, provider, deployment or external action."
+      ]
+    }
+  },
+  "userDirectionReceiptSha256": "c43f4ae5928cff4b335a41d643083e9663a908faea088373ee4ae25e9a816b83"
+}
