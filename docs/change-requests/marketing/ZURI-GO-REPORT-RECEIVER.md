@@ -3,7 +3,7 @@ doc_type: intake-note
 title: Zuri-Go reported Marketing evidence — parent record migration
 status: draft
 superseded_by: null
-version: "0.2.0"
+version: "0.3.0"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
@@ -19,7 +19,7 @@ Parent intent is [Marketing charter](../../domains/marketing/CHARTER.md) and [in
 
 Source baseline: `332b88c9277ee0995798f125f99d5343e7d493f0`. The parent remains SQLite/Prisma; Go is PostgreSQL schema 11. The inspected growth routes use session viewers and native writes require Business ownership. `resolveApiAccessViewer` resolves a Tenant service account, not a Marketing owner. No external-report receiver or report-ingest permission exists in this baseline. Existing FR-106 tokens must retain their current semantics.
 
-External counterpart: `Freshair129/zuri-go`, design at `docs/features/FEAT-015-marketing-report-exchange/design.md`, wire version `zuri-marketing-report/0.1`. These external file locators do not declare or alias parent ZAI identities. The full wire field whitelist, canonical serialization and receipt shape are owned once by `docs/features/FEAT-015-marketing-report-exchange/contract.md` there. This parent chapter owns credential, receiver persistence and authorization. It must reference the reviewed counterpart commit before coding, not a moving draft or copied schema.
+External counterpart: `Freshair129/zuri-go`, reviewed documentation commit `696c387bc9db171151c93b96edf0ee230542ecd7`, design at `docs/features/FEAT-015-marketing-report-exchange/design.md`, wire version `zuri-marketing-report/0.1`. These external file locators do not declare or alias parent ZAI identities. The full wire field whitelist, canonical serialization and receipt shape are owned once by `docs/features/FEAT-015-marketing-report-exchange/contract.md` there. This parent chapter owns credential, receiver persistence and authorization. Before coding, confirm that the reviewed counterpart contract is still applicable; do not use a moving draft or copied schema.
 
 ## Proposed canonical record migration
 
@@ -50,7 +50,7 @@ One `MarketingReportBinding` logical record contains one dedicated credential an
 
 The resolver returns a dedicated report-ingest principal containing the verified binding/scope; it never returns an Enterprise `isApiAccess` viewer or native Person viewer. No session fallback exists on the receiver. The dedicated prefix is rejected by existing Enterprise and native session entry points; regression tests prove that they cannot gain those capabilities. A public POST URL is not permission.
 
-Before each new intake or replay, recheck credential/binding status inside the receiving transaction, derive Tenant/Business from the binding, compare source and target hints to that scope and resolve the requested initiative/plan from the same active Business. Domain availability is an explicit binding permission, separate from native Member domain visibility. Provisioning requires a reviewed active growth-domain target; reads by people continue to use the existing visibility gate. A revoked binding or inactive/deleted target refuses receipt disclosure. This does not mint OWNER authority.
+Before each new intake or replay, recheck credential/binding status inside the receiving transaction, derive Tenant/Business from the binding, compare source and target hints to that scope and resolve the requested initiative/plan from the same active Business. Current machine growth permission requires all of: an ACTIVE binding, its explicit report-ingest permission and the target Business's currently enabled growth domain. Provisioning against an enabled growth domain is not a permanent grant. Every transaction, including a replay or a contention retry, rechecks this conjunction; disabling the target growth domain or revoking the binding refuses both new writes and receipt disclosure. Machine scope is separate from native Member domain visibility; human reads retain the existing visibility gate. An inactive/deleted target also refuses receipt disclosure. This does not mint OWNER authority.
 
 ## Operations — candidate paths, no allocated API IDs
 
@@ -93,7 +93,7 @@ QA uses a fresh test-owned SQLite file and synthetic Tenant/Business/initiative/
 | Test group | Required assertions |
 |---|---|
 | Credential isolation | invalid/revoked key uniform refusal; dedicated key fails Enterprise import, native Marketing writes and unrelated routes; no Person/OWNER synthesized |
-| Scope/replay privacy | crossed deployment/source Business/target Tenant/Business/initiative, inactive target and revoked binding refuse before write or receipt disclosure |
+| Scope/replay privacy | crossed deployment/source Business/target Tenant/Business/initiative, inactive target, disabled machine growth scope and revoked binding refuse before write or receipt disclosure; disable/revoke after a successful intake also denies identical replay; human hidden-domain read denial is checked separately |
 | Strict wire | canonical bytes/hash, whitelist/UTF-8/duplicates/size/revision checks; UNKNOWN/null and unverified review trust preserved |
 | Atomic acceptance | deliberate failure before audit/commit leaves no evidence or receipt; reply never acknowledges an uncommitted transaction |
 | SQLite concurrency | independent requests/clients, identical key creates one evidence/receipt/audit; different bytes conflicts; contention retry cannot bypass reauthorization |
@@ -109,6 +109,8 @@ Prepared on isolated branch `codex/marketing-report-p3`; the active parent check
 Before coding: review/approve the parent record migration and physical contracts → allocate fresh qualified IDs through the supported governed authoring path → regenerate/check registry, graph, views and identity/ID-ledger constraints. A missing authoring capability must be documented and resolved under its own approved scope; never edit a generated index or label new rows source-preserved merely to pass a check.
 
 ## Version diff
+
+0.2.0 → 0.3.0: pinned the reviewed Go documentation revision and made current machine growth permission, per-transaction reauthorization and disable/revoke replay denial explicit after independent architecture review. No issued records or application behavior changed.
 
 0.1.0 → 0.2.0: recorded owner-approved minimum retention of 90 days and closed the numeric policy gate; parent normative record migration and code/QA acceptance remain unperformed.
 
