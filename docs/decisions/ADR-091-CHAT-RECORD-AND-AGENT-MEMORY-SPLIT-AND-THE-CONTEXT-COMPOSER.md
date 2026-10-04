@@ -125,6 +125,12 @@ local transaction that settles its delivery state, so erasure always has a durab
 - A group or room turn never reaches private memory; its slices never cross threads (MSP design §10).
 - Admission captures both answers immutably per job, as it captures the opt-in today.
 
+The session/thread path in this decision uses API-011. Private episodic-memory
+access uses the separate API-010 → API-009 path in [ADR-022](ADR-022-MULTI-TENANT-MSP-VAULTS.md).
+Neither API's grant, receipt or rollout gate substitutes for the other's.
+In particular, API-011 context does not prove that FR-057's API-010 authorization
+and API-009 retrieval are wired.
+
 ### D5 — Non-text content is recorded now; media bytes are fetched later
 
 Admission stops skipping non-text events. Stickers, locations and media become CRM `Message` rows with a
@@ -242,5 +248,6 @@ add a transport with nothing to isolate.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0 | 2026-10-04 | accepted | Clarifies API-011 session memory is separate from API-010 → API-009 episodic memory; each retains its own consent and activation gates | working-tree | Codex |
 | 1.1.0 | 2026-09-16 | accepted | Amended by ADR-093 (archive before tombstone for message bodies) and refined by ADR-094 (the record owns the session id); D1–D7 otherwise unchanged | working-tree | Claude Opus 5 |
 | 1.0.0 | 2026-09-14 | accepted | CRM is the business record and MSP's session tier the agent's 90-day ledger consolidated into episodic and passport memory; retention defaults with downward-only Tenant overrides; MSP projection off until MSP main ships thread and erase tools; session tier needs policy, memory beyond it consent and DIRECT; non-text content recorded without bytes; erasure transactional inside Tier 1 and acknowledged outside; the Context Composer as an agent-lane module with one `ContextReceipt` per model call; reconciles PHASE-04 with ADR-061; Phase 0 declaration only | working-tree | Claude Opus 5 |
