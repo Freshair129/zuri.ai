@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.4.3b"
 created_at: "2026-08-15T00:00:00+07:00,ATHER"
-last_update: "2026-10-04T09:44:57+07:00,Codex"
+last_update: "2026-10-04T12:20:00+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
@@ -51,11 +51,45 @@ API-010/API-009 composition tests; and erasure, receipts, rollback and deploymen
 acceptance must be recorded. Until then the path remains off. This plan amendment
 does not certify deployment readiness.
 
+## Policy hardening slice — 2026-10-04
+
+This patch implements the OFF-by-default account policy and API-011 session
+kill switch while keeping episodic access separate. It does not wire the missing
+FR-057 API-010 → API-009 caller:
+
+- `LineOaAccount.memoryPolicy` is publisher-set `OFF | ON`, defaults to `OFF`,
+  and is changed through the existing versioned publisher action. Existing rows
+  remain `OFF` after the additive migration, and the immutable `memorySyncOptIn`
+  job snapshot records that account policy at admission.
+- `ZURI_MSP_THREAD_MEMORY_ENABLED` is a runtime kill switch, not an admission
+  grant. The Server checks it before session-memory operations and the delivery
+  scanner does not call MSP while it is off. Turning it off leaves pending
+  receipts parked; turning it on can resume only jobs whose account-policy
+  snapshot was already `ON`.
+- `episodicMemoryOptIn` remains false because LINE has no approved trusted
+  workspace/project mapping. Do not mint defaults or accept either value from
+  LINE input. `resolveAgentAuthorization()` separately requires the persisted
+  episodic snapshot, current `Customer.consentStatus = GRANTED`, DIRECT audience,
+  and a resolved workspace/project before it allows the API-009 memory port.
+- The API-010 resolver and API-009 port reject a context without episodic
+  authorization before transport. They remain unconnected to the production LINE
+  composition, which still uses API-011. No API-010 call or episodic retrieval is
+  claimed by these changes.
+- No production activation, MSP migration, data write, or branch merge is part
+  of this slice. MSP main must first accept the signed grant contract and
+  trusted scope mapping, caller receipts/erasure, rollback, and deployment gates
+  must be independently satisfied.
+
+The original root cause remains: no production LINE API-010→API-009 caller and
+no trusted workspace/project owner tuple. The new policy and fail-closed gates
+reduce accidental access but do not close FR-057's caller requirement.
+
 ## Work order
 
 | Work | Deliverable | Proof |
 |---|---|---|
 | W0 | Register FR-057, ADR-022, NFR-014, BR-015, SEC-013, SDD-030 | docs graph/preflight |
+| W0.5 | Add OFF-by-default account policy and immutable session/episodic admission decisions | migration, account-action and admission tests |
 | W1 | AuthContext and deterministic policy resolver | unit tests for deny-by-default and revocation |
 | W2 | Server-owned scope plus GoVibe API-010 `msp_vault_resolve` adapter | API-010 contract tests; no raw vault injection |
 | W3 | Bind identity, thread, session and policy to the agent turn | integration tests for group participants |
@@ -85,5 +119,9 @@ MSP data during rollback.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.3b | 2026-10-04 | beta | Separates account-policy admission from the runtime kill switch and records that episodic mapping/caller remain blocked | working-tree | Codex |
+| 0.4.2b | 2026-10-04 | beta | Requires trusted workspace/project mapping for episodic eligibility | working-tree | Codex |
+| 0.4.1b | 2026-10-04 | beta | Clarifies the runtime kill switch and fail-closed workspace/project mapping gate alongside the account policy and consent snapshots | working-tree | Codex |
+| 0.4.0b | 2026-10-04 | beta | Specifies the OFF-by-default publisher policy, admission snapshots, current-consent API-010 gate, and read-only episodic caller boundary | working-tree | Codex |
 | 0.3.0b | 2026-10-04 | beta | Records the absent production API-010 caller, separates API-011 session context, and lists contract/policy/erasure activation gates | working-tree | Codex |
 | 0.2.0b | 2026-08-15 | beta | Approved API-010 canonical resolver implementation plan | working-tree | ATHER |

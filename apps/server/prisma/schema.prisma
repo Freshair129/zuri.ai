@@ -4100,6 +4100,8 @@ model LineOaAccount {
   // runs after it and is recorded in `LineGroundingShadowComparison`, never
   // sent to the customer (line-grounding-shadow-compare.js).
   knowledgeGroundingShadow Boolean              @default(false)
+  // @req FR-231 — memory projection stays off until the publisher opts in.
+  memoryPolicy            String                @default("OFF")
   allowDelayedPush        Boolean               @default(false)
   transportEpoch          Int                   @default(1)
   // @req FR-227 — computed webhook health only LINE can report: {endpoint, active,
@@ -4330,6 +4332,7 @@ model LineConversationJob {
   acceptedAt                  DateTime?
   errorCode                   String?
   memorySyncOptIn             Boolean   @default(false)
+  episodicMemoryOptIn         Boolean   @default(false)
   memoryDeliveryState         String    @default("NONE")
   memoryDeliveryAttempts      Int       @default(0)
   memoryDeliveryNextAttemptAt DateTime?

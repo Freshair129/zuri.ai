@@ -21,6 +21,7 @@ function authorization({ writePrivate = false } = {}) {
       policy: {
         decision: 'ALLOW',
         privateMemoryAllowed: true,
+        episodicMemoryAllowed: true,
         version: 'FR-057.v2',
         ...(writePrivate ? { mspAuthorization: { writePrivate: true } } : {}),
       },
@@ -56,6 +57,19 @@ function transportFor(vaultSet = readOnlyVaultSet) {
 }
 
 describe('API-010 canonical MSP memory boundary (FR-057)', () => {
+  it('does not call API-010 or API-009 without episodic authorization', async () => {
+    const transport = transportFor()
+    const port = createMspMemoryPort({
+      transport,
+      vaultSetResolver: createMspVaultResolver({ transport }),
+    })
+    const denied = authorization()
+    denied.authContext.policy.episodicMemoryAllowed = false
+
+    await expect(port.recallAuthorized(denied)).rejects.toThrow(/episodic retrieval requires an ALLOW policy decision/)
+    expect(transport.calls).toEqual([])
+  })
+
   it('resolves the canonical set first and reads API-009 by opaque Workspace Private ID', async () => {
     const transport = transportFor()
     const port = createMspMemoryPort({

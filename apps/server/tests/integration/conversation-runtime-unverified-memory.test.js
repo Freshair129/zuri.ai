@@ -152,7 +152,7 @@ function model(inputs) {
 
 async function legacyTick(msp, { sink, inputs, hooks = {} }) {
   const generate = model(inputs)
-  const answer = createServerLineAnswer({ threadMemory: mspPort(msp), runtimeFactory: async () => ({
+  const answer = createServerLineAnswer({ env: memoryEnv, threadMemory: mspPort(msp), runtimeFactory: async () => ({
     businessKnowledge: { query: async () => evidence },
     resolveModel: async () => ({ provider: 'synthetic', model: 'synthetic-w11-model', generate: async input => {
       await hooks.beforeModel?.()
@@ -165,7 +165,7 @@ async function legacyTick(msp, { sink, inputs, hooks = {} }) {
 function buildRuntime(msp, { sink, inputs, hooks = {}, coreOptions = {} }) {
   const wire = []
   const core = createConversationRuntimeCore({ db: prisma, now,
-    env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey },
+    env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey, ...memoryEnv },
     businessPorts: async () => ({ businessKnowledge: { query: async () => evidence } }),
     credentialResolver: async () => ({ provider: 'prp', model: 'synthetic-w11-model', apiKey: 'synthetic-provider-key' }),
     threadMemoryFactory: () => mspPort(msp),
@@ -276,7 +276,7 @@ beforeAll(async () => {
     name: 'Synthetic W11 connection', externalAccountId: 'synthetic-w11-destination', status: 'ACTIVE' })
   account = await prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id, integrationConnectionId: connection.id,
     code: 'cr-w11-account', displayName: 'Synthetic W11 OA', bindingCode: 'cr-w11-binding', status: 'CONNECTED', serverEnabled: true,
-    transportMode: 'CLOUD', runtimeOwner: 'CONVERSATION_RUNTIME' } })
+    transportMode: 'CLOUD', runtimeOwner: 'CONVERSATION_RUNTIME', memoryPolicy: 'ON' } })
   // A customer whose LINE identity is PENDING (a member, so a verified link would open private memory).
   const pending = await prisma.person.create({ data: { code: 'PER-CR-UMEM-PENDING', displayName: 'Synthetic pending customer' } })
   await prisma.membership.create({ data: { personId: pending.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER', status: 'ACTIVE' } })

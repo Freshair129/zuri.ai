@@ -96,6 +96,9 @@ describe('FR-146 LineOaAccount domain rules', () => {
     expect(zLineOaAccountAction.parse({ action: 'CONFIGURE_EXECUTION', version: 1, allowDelayedPush: true }).allowDelayedPush).toBe(true)
     // Absent and false must not mean the same thing for a delivery policy.
     expect(zLineOaAccountAction.parse({ action: 'CONFIGURE_EXECUTION', version: 1, allowDelayedPush: false }).allowDelayedPush).toBe(false)
+    expect(zLineOaAccountAction.parse({ action: 'CONFIGURE_MEMORY_POLICY', version: 1, memoryPolicy: 'OFF' }).memoryPolicy).toBe('OFF')
+    expect(() => zLineOaAccountAction.parse({ action: 'CONFIGURE_MEMORY_POLICY', version: 1 })).toThrow()
+    expect(() => zLineOaAccountAction.parse({ action: 'CONFIGURE_MEMORY_POLICY', version: 1, memoryPolicy: 'ALWAYS' })).toThrow()
     expect(() => zLineOaAccountAction.parse({ action: 'SWITCH_TRANSPORT_MODE', version: 1, transportMode: 'CLOUD' })).toThrow()
     // The retired execution/model-access fields are refused outright by .strict().
     expect(() => zLineOaAccountAction.parse({ action: 'CONFIGURE_EXECUTION', version: 1, allowDelayedPush: true, executionMode: 'EDGE' })).toThrow()

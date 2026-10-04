@@ -319,7 +319,7 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // path. `isAccountWithinBusinessHours` returns true for an account with no
     // declared hours, so this branch is a no-op for every account that never opted in.
     const outOfHours = !isAccountWithinBusinessHours(current, now) && Boolean(current.outOfHoursReplyText)
-    const memorySyncOptIn = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+    const memorySyncOptIn = current.memoryPolicy === 'ON'
     // @req FR-149, FR-235 — a memory-sync opt-in turn is runtime-eligible on the
     // same terms as any other turn: Core serves its MSP phases through the v1
     // `memory` operation for a DIRECT chat and for a group or room (one MSP thread
@@ -353,6 +353,10 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     const identity = runtimeEligible
       ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
       : null
+    // FR-057's current LINE account/business model has no trusted workspace or
+    // project mapping. Do not mint a default scope or accept one from LINE; until
+    // the mapping is approved and persisted, episodic retrieval remains off.
+    const episodicMemoryOptIn = false
     // Runtime routing is a separate, Core-owned cohort from executionMode.
     // Ineligible work remains with the default Server consumer; later account
     // changes cannot transfer an already admitted job to another executor.
@@ -380,10 +384,9 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
       // @req FR-149 — execution mode and executor cohort are separate durable facts.
       executionMode, runtimeOwner,
       modelAccess: RETIRED_MODEL_ACCESS, allowDelayedPush: current.allowDelayedPush,
-      // This is immutable trusted LINE admission provenance. The opt-in flag is
-      // a per-job decision captured at the same boundary; later env changes do
-      // not enroll or silently drop an already admitted job.
-      audienceKind, memorySyncOptIn,
+      // This is immutable trusted LINE admission provenance. Account policy is
+      // captured here; the environment flag remains a runtime kill switch.
+      audienceKind, memorySyncOptIn, episodicMemoryOptIn,
       recipientId: threadId, sourceUserId: userId, sealedReplyToken: sealed,
       replyExpiresAt: sealed ? new Date(replyDeadlineAnchorMs + 45_000) : null,
       availableAt: now, expiresAt: new Date(now.getTime() + JOB_TTL_MS), correlationId,

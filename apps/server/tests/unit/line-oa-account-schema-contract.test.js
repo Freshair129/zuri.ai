@@ -20,7 +20,7 @@ describe('FR-146 LineOaAccount Prisma, backup and migration contract', () => {
 
   it('carries scope, references and identity rules as columns and constraints', () => {
     const body = modelBody(read('prisma/schema.prisma'))
-    for (const column of ['tenantId', 'businessId', 'integrationConnectionId', 'bindingCode', 'transportMode', 'isDefaultForBusiness', 'archivedAt', 'version']) {
+    for (const column of ['tenantId', 'businessId', 'integrationConnectionId', 'bindingCode', 'transportMode', 'memoryPolicy', 'isDefaultForBusiness', 'archivedAt', 'version']) {
       expect(body).toContain(column)
     }
     // One account per connection, one code per Tenant, one binding per Tenant.
@@ -55,6 +55,22 @@ describe('FR-146 LineOaAccount Prisma, backup and migration contract', () => {
     expect(productionSql).toContain('FORCE ROW LEVEL SECURITY')
     expect(productionSql).toContain('REVOKE ALL ON TABLE "LineOaAccount" FROM public, anon, authenticated, service_role')
     expect(productionSql).toMatch(/NOT APPLIED/)
+    expect(productionSql).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+  })
+
+  it('keeps memory policy and episodic eligibility additive and fail-closed', () => {
+    const prisma = read('prisma/schema.prisma')
+    expect(modelBody(prisma)).toContain('memoryPolicy            String                @default("OFF")')
+    const jobBody = prisma.match(/model LineConversationJob \{[\s\S]*?\n\}/)?.[0] || ''
+    expect(jobBody).toContain('episodicMemoryOptIn         Boolean   @default(false)')
+    const local = fs.readdirSync(path.resolve(process.cwd(), 'prisma/migrations')).find((name) => name.includes('line_memory_policy_and_episodic_snapshot'))
+    expect(local).toBeTruthy()
+    expect(read(`prisma/migrations/${local}/migration.sql`)).toContain("DEFAULT 'OFF'")
+    const production = fs.readdirSync(path.resolve(process.cwd(), 'supabase/migrations')).find((name) => name.includes('line_memory_policy_and_episodic_snapshot'))
+    expect(production).toBeTruthy()
+    const productionSql = read(`supabase/migrations/${production}`)
+    expect(productionSql).toContain('NOT APPLIED')
+    expect(productionSql).toMatch(/episodicMemoryOptIn.*DEFAULT false/s)
     expect(productionSql).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
   })
 

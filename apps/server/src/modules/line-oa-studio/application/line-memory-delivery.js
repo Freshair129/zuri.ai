@@ -383,6 +383,7 @@ async function acknowledgeMemoryDelivery(db, source, result, { now } = {}) {
 export async function reconcileLineMemoryDeliveries({
   db = prisma,
   threadMemory,
+  env = process.env,
   now = () => new Date(),
   workerId = 'memory-scanner',
   batchSize = MEMORY_DELIVERY_BATCH,
@@ -390,6 +391,7 @@ export async function reconcileLineMemoryDeliveries({
   policyResolver = resolveAgentAuthorization,
 } = {}) {
   const result = { scanned: 0, acknowledged: 0, pending: 0, closed: 0, unknown: 0 }
+  if (env.ZURI_MSP_THREAD_MEMORY_ENABLED !== 'true') return { ...result, disabled: true }
   if (!threadMemory?.recordDelivery) return result
   const at = asDate(typeof now === 'function' ? now() : now)
   const take = Number.isInteger(batchSize) && batchSize > 0 && batchSize <= 50 ? batchSize : MEMORY_DELIVERY_BATCH

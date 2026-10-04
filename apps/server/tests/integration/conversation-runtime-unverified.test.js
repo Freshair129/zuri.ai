@@ -178,7 +178,7 @@ beforeAll(async () => {
       name: `Synthetic ${code} connection`, externalAccountId: `synthetic-${code}-destination`, status: 'ACTIVE' })
     return prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id, integrationConnectionId: connection.id,
       code, displayName: `Synthetic ${code}`, bindingCode: `${code}-binding`, status: 'CONNECTED', serverEnabled: true,
-      transportMode: 'CLOUD', runtimeOwner } })
+      transportMode: 'CLOUD', runtimeOwner, memoryPolicy: 'ON' } })
   }
   legacyAccount = await account('cr-unv-legacy', 'SERVER')
   runtimeAccount = await account('cr-unv-runtime', 'CONVERSATION_RUNTIME')

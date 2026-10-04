@@ -254,6 +254,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
   const [push, setPush] = useState(account.allowDelayedPush);
   const [runtimeOwner, setRuntimeOwner] = useState(account.runtimeOwner ?? "SERVER");
   const [grounding, setGrounding] = useState(account.knowledgeGrounding);
+  const [memoryPolicy, setMemoryPolicy] = useState(account.memoryPolicy ?? 'OFF');
   const [sessionTimeout, setSessionTimeout] = useState(String(account.sessionIdleTimeoutMinutes ?? 30));
   const [quiesced, setQuiesced] = useState(false);
   const [jobs, setJobs] = useState(null);
@@ -268,6 +269,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
     setPush(account.allowDelayedPush);
     setRuntimeOwner(account.runtimeOwner ?? "SERVER");
     setGrounding(account.knowledgeGrounding);
+    setMemoryPolicy(account.memoryPolicy ?? 'OFF');
     setSessionTimeout(String(account.sessionIdleTimeoutMinutes ?? 30));
   }, [account]);
 
@@ -441,6 +443,23 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
           >
             บันทึกแหล่งความรู้
           </button>
+
+          <div className="grid gap-2 rounded-xl border border-slate-200 p-3 text-xs dark:border-slate-700">
+            <label className="grid gap-1 font-semibold">
+              นโยบายความจำ MSP
+              <select value={memoryPolicy} onChange={(event) => setMemoryPolicy(event.target.value)}
+                className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs dark:border-slate-600 dark:bg-slate-900">
+                <option value="OFF">ปิด (ค่าเริ่มต้น)</option>
+                <option value="ON">เปิดรับเทิร์นใหม่</option>
+              </select>
+            </label>
+            <p className="text-slate-500 dark:text-slate-400">การเปิดนโยบายไม่ข้าม consent, audience, scope mapping หรือ kill switch ของระบบ</p>
+            <button type="button" disabled={memoryPolicy === (account.memoryPolicy ?? 'OFF')}
+              className="justify-self-start rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => onAction(account, { action: "CONFIGURE_MEMORY_POLICY", memoryPolicy })}>
+              บันทึกนโยบายความจำ
+            </button>
+          </div>
 
           <button
             type="button"

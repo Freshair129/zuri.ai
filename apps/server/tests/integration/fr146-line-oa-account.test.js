@@ -73,7 +73,7 @@ describe('FR-146 LineOaAccount', () => {
     expect(account).toMatchObject({
       code: 'oa-cloud-main', businessId: business.id, tenantId: tenant.id, integrationConnectionId: connection.id,
       status: 'DRAFT', effectiveStatus: 'DRAFT', transportMode: 'CLOUD', runtimeOwner: 'SERVER', executionMode: 'SERVER',
-      isDefaultForBusiness: true, version: 1, bindingCode: null,
+      memoryPolicy: 'OFF', isDefaultForBusiness: true, version: 1, bindingCode: null,
     })
     // Health names its sources and reports what is not wired instead of guessing.
     expect(account.health.connection).toMatchObject({ status: 'ACTIVE', secretConfigured: false, secretStatus: 'MISSING', lastWebhookAt: null })
@@ -86,6 +86,21 @@ describe('FR-146 LineOaAccount', () => {
     const audit = await prisma.auditEvent.findMany({ where: { entityId: account.id, action: 'LINE_OA_ACCOUNT_CONNECTED' } })
     expect(audit).toHaveLength(1)
     expect(JSON.parse(audit[0].payloadJson)).toMatchObject({ transportMode: 'CLOUD', transportModeSource: 'SERVER_DEFAULT', status: 'DRAFT' })
+  })
+
+  it('configures the OFF-by-default memory policy without fencing admitted work', async () => {
+    const connection = await lineConnection(business, 'memory-policy')
+    const account = await connectLineOaAccount({ businessId: business.id,
+      integrationConnectionId: connection.id, code: 'oa-memory-policy', displayName: 'Memory Policy' }, { viewer: owner })
+    const enabled = await applyLineOaAccountAction(account.id, {
+      action: 'CONFIGURE_MEMORY_POLICY', version: account.version, memoryPolicy: 'ON',
+    }, { viewer: publisher })
+    expect(enabled).toMatchObject({ memoryPolicy: 'ON', version: account.version + 1, transportEpoch: account.transportEpoch })
+    const audit = await prisma.auditEvent.findFirst({ where: { entityId: account.id, action: 'LINE_OA_ACCOUNT_MEMORY_POLICY_CONFIGURED' } })
+    expect(JSON.parse(audit.payloadJson)).toMatchObject({ from: { memoryPolicy: 'OFF' }, to: { memoryPolicy: 'ON' } })
+    await expect(applyLineOaAccountAction(account.id, {
+      action: 'CONFIGURE_MEMORY_POLICY', version: enabled.version, memoryPolicy: 'ON',
+    }, { viewer: publisher })).rejects.toMatchObject({ status: 409, message: 'LINE_OA_MEMORY_POLICY_UNCHANGED' })
   })
 
   it('AC-146.2 — defaults to CLOUD and a publisher may explicitly select CLOUD at connect time', async () => {

@@ -87,7 +87,9 @@ export async function assembleAgentContext({
   const key = memoryKey(tenantId, principal.principalType, principal.personId)
   const scopedKey = authorizedVaults[0]?.scopeKey ?? key
   const memoryPort = memory ?? createInMemoryMemory()
-  const privateMemoryReadAllowed = policy.privateMemoryAllowed === true && policy.mspAuthorization?.read === true
+  const episodicPort = memoryPort.requiresEpisodicAuthorization === true
+  const privateMemoryReadAllowed = (episodicPort ? policy.episodicMemoryAllowed === true : policy.privateMemoryAllowed === true)
+    && policy.mspAuthorization?.read === true
   if (!privateMemoryReadAllowed) {
     await recordAudit(prisma, {
       entityType: ROLE_MEMORY_AUDIT_ENTITY,
@@ -97,7 +99,9 @@ export async function assembleAgentContext({
       actorId: authContext.actor?.principalId ?? null,
       tenantId: authContext.scope.tenantId,
       businessId: authContext.scope.businessId,
-      reason: policy.privateMemoryAllowed === true ? 'MEMORY_READ_PERMISSION_DENIED' : policy.reason,
+      reason: (episodicPort ? policy.episodicMemoryAllowed : policy.privateMemoryAllowed) === true
+        ? 'MEMORY_READ_PERMISSION_DENIED'
+        : episodicPort ? policy.episodicMemoryReason ?? policy.reason : policy.reason,
       payload: {
         partition: 'private',
         agentId: authContext.request?.agentId ?? null,

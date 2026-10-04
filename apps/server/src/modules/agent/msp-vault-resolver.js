@@ -23,8 +23,8 @@ function optional(value) {
 
 function currentScope(authorization) {
   const authContext = authorization?.authContext
-  if (!authContext || authContext.policy?.decision !== 'ALLOW' || authContext.policy?.privateMemoryAllowed !== true) {
-    throw new Error('API-010 vault resolution requires an ALLOW AuthContext')
+  if (!authContext || authContext.policy?.decision !== 'ALLOW' || authContext.policy?.episodicMemoryAllowed !== true) {
+    throw new Error('API-010 vault resolution requires an episodic-memory ALLOW AuthContext')
   }
 
   const scope = authContext.scope ?? {}
@@ -73,7 +73,7 @@ function authorizationFacts(authContext, operation) {
   const configured = policy.mspAuthorization && typeof policy.mspAuthorization === 'object'
     ? policy.mspAuthorization
     : {}
-  const allowed = policy.decision === 'ALLOW' && policy.privateMemoryAllowed === true
+  const allowed = policy.decision === 'ALLOW' && policy.episodicMemoryAllowed === true
   return {
     membership_active: allowed,
     allowed,

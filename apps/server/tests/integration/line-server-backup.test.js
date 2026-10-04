@@ -35,7 +35,7 @@ describe('LINE server snapshot recovery', () => {
         recipientId: 'backup-user', sourceUserId: 'backup-user', status, sealedReplyToken: `ciphertext-${status}`,
         claimantId: 'old-worker', leaseExpiresAt: new Date(Date.now() + 60000), expiresAt: new Date(Date.now() + 60000), correlationId: `backup-${status}`,
         ...(status === 'ACCEPTED' ? { acceptedAt: new Date(), providerRequestId: 'accepted-provider-id', answerText: 'Accepted answer' } : {}),
-        ...(status === 'RECORDED' ? { memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2,
+        ...(status === 'RECORDED' ? { memorySyncOptIn: true, episodicMemoryOptIn: false, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2,
           memoryDeliveryNextAttemptAt: new Date(Date.now() - 1000), memoryDeliveryLeaseUntil: new Date(Date.now() + 60000),
           acceptedAt: new Date(), providerRequestId: 'recorded-provider-id', answerText: 'Recorded answer' } : {}),
       } }))
@@ -58,13 +58,14 @@ describe('LINE server snapshot recovery', () => {
     const corrupt = structuredClone(snapshot)
     const corruptJob = corrupt.tables.lineConversationJob.find(job => job.id === jobs.find((job) => job.status === 'RECORDED').id)
     corruptJob.memorySyncOptIn = false
+    corruptJob.episodicMemoryOptIn = true
     corruptJob.memoryDeliveryAttempts = -1
     corruptJob.memoryDeliveryState = 'ACKNOWLEDGED'
     corruptJob.memoryDeliveryNextAttemptAt = new Date()
     corruptJob.audienceKind = 'NOT_A_LINE_AUDIENCE'
     const corruptPreview = await previewImport(corrupt, { viewer: makeOperatorViewer() })
     expect(corruptPreview.valid).toBe(false)
-    expect(corruptPreview.lineWorkerMemoryRecovery.errors.join(' ')).toMatch(/invalid memoryDeliveryAttempts|invalid audienceKind|retry cursor on a terminal state|pending memory/)
+    expect(corruptPreview.lineWorkerMemoryRecovery.errors.join(' ')).toMatch(/episodic memory|invalid memoryDeliveryAttempts|invalid audienceKind|retry cursor on a terminal state|pending memory/)
     const foreignTrace = structuredClone(snapshot)
     const foreign = foreignTrace.tables.agentTraceEvent.find(event => event.kind === 'MEMORY_DELIVERY_PENDING' && event.turnId === jobs.find(job => job.status === 'RECORDED').id)
     foreign.businessId = 'foreign-business'
@@ -98,7 +99,7 @@ describe('LINE server snapshot recovery', () => {
       else if (original.status === 'SENDING' || original.status === 'READY') expect(restored).toMatchObject({ status: 'UNKNOWN', errorCode: 'RESTORED_SEND_OUTCOME_UNKNOWN' })
       else expect(restored.status).toBe(original.status)
       if (original.status === 'ACCEPTED') expect(restored).toMatchObject({ providerRequestId: 'accepted-provider-id', answerText: 'Accepted answer', acceptedAt: original.acceptedAt })
-      if (original.status === 'RECORDED') expect(restored).toMatchObject({ memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2, memoryDeliveryLeaseUntil: null })
+      if (original.status === 'RECORDED') expect(restored).toMatchObject({ memorySyncOptIn: true, episodicMemoryOptIn: false, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2, memoryDeliveryLeaseUntil: null })
     }
     const recordDelivery = vi.fn()
     // The scanner is an installation-wide worker by design (it has no tenant
@@ -114,7 +115,8 @@ describe('LINE server snapshot recovery', () => {
       const value = Reflect.get(target, prop)
       return typeof value === 'function' ? value.bind(target) : value
     } })
-    const memoryRun = await reconcileLineMemoryDeliveries({ db: scopedDb, threadMemory: { recordDelivery }, now: () => new Date(), workerId: 'restored-memory-scanner', policyResolver: vi.fn() })
+    const memoryRun = await reconcileLineMemoryDeliveries({ db: scopedDb, env: { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' },
+      threadMemory: { recordDelivery }, now: () => new Date(), workerId: 'restored-memory-scanner', policyResolver: vi.fn() })
     expect(memoryRun.closed).toBe(1)
     expect(recordDelivery).not.toHaveBeenCalled()
     expect((await prisma.lineConversationJob.findUnique({ where: { id: jobs.find((job) => job.status === 'RECORDED').id } })).memoryDeliveryState).toBe('CLOSED')

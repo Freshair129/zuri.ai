@@ -84,6 +84,7 @@ const ACTIONS = Object.freeze({
   ARCHIVE: 'LINE_OA_ACCOUNT_ARCHIVED',
   SET_DEFAULT: 'LINE_OA_ACCOUNT_DEFAULT_SET',
   CONFIGURE_KNOWLEDGE_GROUNDING: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED',
+  CONFIGURE_MEMORY_POLICY: 'LINE_OA_ACCOUNT_MEMORY_POLICY_CONFIGURED',
   // @req FR-277 — shadow-compare on/off (ADR-090 Phase 3, TASK-ZAI-095).
   CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_SHADOW_CONFIGURED',
   REGISTER_WEBHOOK: 'LINE_OA_ACCOUNT_WEBHOOK_REGISTERED',
@@ -300,6 +301,7 @@ const SELECT = {
   runtimeOwner: true,
   modelAccess: true, allowDelayedPush: true, transportEpoch: true, knowledgeGrounding: true,
   knowledgeGroundingShadow: true,
+  memoryPolicy: true,
   webhookStateJson: true, sessionIdleTimeoutMinutes: true,
   businessHoursOpen: true, businessHoursClose: true, outOfHoursReplyText: true,
 }
@@ -363,6 +365,7 @@ function toDto(row, health) {
     modelAccess: row.modelAccess,
     allowDelayedPush: row.allowDelayedPush,
     knowledgeGrounding: row.knowledgeGrounding,
+    memoryPolicy: row.memoryPolicy ?? 'OFF',
     knowledgeGroundingShadow: row.knowledgeGroundingShadow,
     sessionIdleTimeoutMinutes: row.sessionIdleTimeoutMinutes,
     // @req FR-244 — null on all three reads as "no declared hours".
@@ -614,6 +617,16 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
         payload.to.knowledgeGrounding = data.knowledgeGrounding
         break
       }
+      // @req FR-231 — apply the publisher's OFF-by-default memory policy to
+      // new admissions only; existing jobs keep their immutable snapshots.
+      case 'CONFIGURE_MEMORY_POLICY': {
+        if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
+        if (row.memoryPolicy === data.memoryPolicy) throw failure(409, 'LINE_OA_MEMORY_POLICY_UNCHANGED')
+        change.memoryPolicy = data.memoryPolicy
+        payload.from.memoryPolicy = row.memoryPolicy ?? 'OFF'
+        payload.to.memoryPolicy = data.memoryPolicy
+        break
+      }
       // @req FR-277 — shadow-compare on/off (ADR-090 Phase 3, TASK-ZAI-095).
       // Independent of CONFIGURE_KNOWLEDGE_GROUNDING: turning shadow-compare on
       // changes nothing about the customer-facing answer, so — like the mode
@@ -750,7 +763,7 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
     // exception for the same reason, one level removed: it never changes
     // which evidence the customer-facing answer reads at all — only whether a
     // second, non-customer-visible comparison generation also runs after it.
-    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT' && action !== 'CONFIGURE_BUSINESS_HOURS').includes(data.action)
+    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW' && action !== 'CONFIGURE_MEMORY_POLICY' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT' && action !== 'CONFIGURE_BUSINESS_HOURS').includes(data.action)
       && (data.action !== 'CONFIGURE_EXECUTION' || data.allowDelayedPush !== row.allowDelayedPush)
     if (fencesWork) {
       change.transportEpoch = { increment: 1 }

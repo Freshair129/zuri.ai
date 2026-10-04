@@ -179,7 +179,8 @@ function inProcessFetch(handlers) {
 
 function build({ msp, env = {}, records = evidenceRecords, threadMemoryFactory, coreOptions = {} } = {}) {
   const core = createConversationRuntimeCore({ db: prisma,
-    env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey, ...env },
+    env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey,
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true', ...env },
     credentialResolver: async () => ({ provider: 'openrouter', model: 'test-model', apiKey: providerKey }),
     prepareTurn: async job => ({ question: job.inbound.body, evidence: { records }, slices: [], authorized: true,
       audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }),
@@ -213,11 +214,18 @@ function mortal(ports, dies) {
 async function admit({ memory = true, text = question } = {}) {
   const eventId = `synthetic-memory-event-${++eventSequence}`
   const current = await prisma.lineOaAccount.findUnique({ where: { id: account.id } })
-  const { jobId } = await admitLineConversation({ db: prisma, account: current,
-    env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey, ...(memory ? { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' } : {}) },
-    correlationId: eventId, now: new Date(),
-    event: { type: 'message', webhookEventId: eventId, replyToken: `synthetic-reply-${eventId}`, timestamp: Date.now(),
-      source: { type: 'user', userId: lineUser }, message: { type: 'text', id: `synthetic-message-${eventId}`, text } } })
+  if (!memory) await prisma.lineOaAccount.update({ where: { id: account.id }, data: { memoryPolicy: 'OFF' } })
+  let jobId
+  try {
+    const admitted = await admitLineConversation({ db: prisma, account: current,
+      env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' },
+      correlationId: eventId, now: new Date(),
+      event: { type: 'message', webhookEventId: eventId, replyToken: `synthetic-reply-${eventId}`, timestamp: Date.now(),
+        source: { type: 'user', userId: lineUser }, message: { type: 'text', id: `synthetic-message-${eventId}`, text } } })
+    jobId = admitted.jobId
+  } finally {
+    if (!memory) await prisma.lineOaAccount.update({ where: { id: account.id }, data: { memoryPolicy: 'ON' } })
+  }
   openJobs.push(jobId)
   return jobId
 }
@@ -231,7 +239,7 @@ async function legacyAnswer(jobId, msp, { records = evidenceRecords, runtimeFact
   const modelInputs = []
   const provider = createModelProviderPort({ provider: 'openrouter', model: 'test-model', credential: providerKey,
     timeoutMs: 1000, fetchFn: captureFetch(providerCalls) })
-  const answer = createServerLineAnswer({ threadMemory: msp ? mspPort(msp) : null,
+  const answer = createServerLineAnswer({ env: { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' }, threadMemory: msp ? mspPort(msp) : null,
     runtimeFactory: runtimeFactory ?? (async () => ({ businessKnowledge: { query: async () => ({ records }) },
       resolveModel: async () => ({ ...provider, generate: input => { modelInputs.push(input); return provider.generate(input) } }) })) })
   let text
@@ -261,7 +269,7 @@ beforeAll(async () => {
   account = await prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id,
     integrationConnectionId: connection.id, code: 'cr-memory-account', displayName: 'Synthetic memory OA',
     bindingCode: 'cr-memory-binding', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD',
-    runtimeOwner: 'CONVERSATION_RUNTIME' } })
+    runtimeOwner: 'CONVERSATION_RUNTIME', memoryPolicy: 'ON' } })
   const linkedAt = new Date()
   await prisma.externalIdentity.create({ data: { tenantId: tenant.id, personId: actor.id, provider: 'LINE',
     providerSubject: lineUser, verifiedAt: linkedAt, linkedAt } })
@@ -361,7 +369,7 @@ describe('Conversation Runtime memory-sync turns', () => {
       const value = Reflect.get(target, prop)
       return typeof value === 'function' ? value.bind(target) : value
     } })
-    const scanned = await reconcileLineMemoryDeliveries({ db: scopedDb, threadMemory: mspPort(runtimeMsp), workerId: 'memory-scanner-w5' })
+    const scanned = await reconcileLineMemoryDeliveries({ db: scopedDb, env: { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' }, threadMemory: mspPort(runtimeMsp), workerId: 'memory-scanner-w5' })
     expect(scanned.acknowledged).toBeGreaterThanOrEqual(1)
     expect(runtimeMsp.deliveryReceipts).toHaveLength(1)
     expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } })).toMatchObject({ memoryDeliveryState: 'ACKNOWLEDGED' })

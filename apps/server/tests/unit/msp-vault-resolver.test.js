@@ -17,7 +17,7 @@ function authorizedContext(overrides = {}) {
       },
       request: { agentId: 'agent-1', capability: 'READ' },
       conversation: { threadId: 'thread-1', sessionId: 'session-1', instanceId: 'instance-1' },
-      policy: { decision: 'ALLOW', privateMemoryAllowed: true, version: 'FR-057.v2' },
+      policy: { decision: 'ALLOW', privateMemoryAllowed: true, episodicMemoryAllowed: true, version: 'FR-057.v2' },
     },
     authorizedVaults: [{
       scope: 'private',
@@ -96,6 +96,16 @@ describe('createMspVaultResolver (FR-057, API-010)', () => {
     })
 
     await expect(resolver.resolve(context)).rejects.toThrow(/projectId|project_id/)
+    expect(calls).toHaveLength(0)
+  })
+
+  it('fails closed before transport when episodic authorization is absent', async () => {
+    const calls = []
+    const resolver = createMspVaultResolver({ transport: async (...args) => { calls.push(args); return resolved } })
+    const context = authorizedContext()
+    context.authContext.policy.episodicMemoryAllowed = false
+
+    await expect(resolver.resolve(context)).rejects.toThrow(/episodic-memory ALLOW AuthContext/)
     expect(calls).toHaveLength(0)
   })
 

@@ -225,6 +225,7 @@ export function memoryServerScope(job, route) {
     audienceKind: route.audienceKind,
     agentId: 'zuri-line-agent',
     mspAuthorization: { read: true, writePrivate: false, writeShared: false },
+    episodicMemoryOptIn: job.episodicMemoryOptIn === true,
     // @req FR-149 — Core's PENDING memory mode: a Conversation Runtime job that Core
     // admitted for an unverified sender (`CHANNEL_IDENTITY_ADMITTED`) is marked by
     // Core's own claim check, never by the runtime. The legacy worker's job rows carry
@@ -265,8 +266,11 @@ export function assertMemoryContextRoute(context, route, { requirePacket = false
 
 const emptyMemoryKnowledge = async () => ({ found: false, relations: [] })
 
-export async function assertMemoryJobLive(job, memoryStateReader) {
+export async function assertMemoryJobLive(job, memoryStateReader, env = process.env) {
   if (job?.errorCode === 'PDPA_ERASURE') throw failure('LINE_MEMORY_JOB_ERASED')
+  if (job?.memorySyncOptIn !== true || env.ZURI_MSP_THREAD_MEMORY_ENABLED !== 'true') {
+    throw failure('LINE_MEMORY_JOB_FENCED')
+  }
   if (typeof memoryStateReader !== 'function') return
   const current = await memoryStateReader(job.id)
   if (!current || current.memorySyncOptIn !== true || current.status !== 'CLAIMED'
@@ -293,10 +297,10 @@ export async function assertMemoryJobLive(job, memoryStateReader) {
  * The job is re-checked before every MSP boundary (`assertMemoryJobLive`).
  */
 export async function prepareLineMemoryContext({ job, route, question, threadMemory,
-  contextAssembler = assembleAgentContext, memoryStateReader } = {}) {
+  contextAssembler = assembleAgentContext, memoryStateReader, env = process.env } = {}) {
   const tenantId = job.tenantId
   const businessId = job.businessId
-  await assertMemoryJobLive(job, memoryStateReader)
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const serverScope = memoryServerScope(job, route)
   const contextInput = {
     tenantId, businessId, lineUserId: job.sourceUserId,
@@ -309,7 +313,7 @@ export async function prepareLineMemoryContext({ job, route, question, threadMem
     throw failure('LINE_MEMORY_CONTEXT_UNAVAILABLE')
   }
   assertMemoryContextRoute(firstContext, route)
-  await assertMemoryJobLive(job, memoryStateReader)
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const memoryInbound = await threadMemory.appendMessage({
     threadId: firstContext.thread.threadId,
     speakerId: firstContext.identity.principalId,
@@ -328,7 +332,7 @@ export async function prepareLineMemoryContext({ job, route, question, threadMem
     || !memoryInbound.session?.sessionId) {
     throw failure('LINE_MEMORY_APPEND_UNAVAILABLE')
   }
-  await assertMemoryJobLive(job, memoryStateReader)
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const memoryContext = await contextAssembler({ ...contextInput,
     deferThreadRecall: false, currentExchangeId: memoryInbound.message.exchangeId })
   if (!memoryContext?.threadMemory) throw failure('LINE_MEMORY_CONTEXT_UNAVAILABLE')
@@ -336,6 +340,7 @@ export async function prepareLineMemoryContext({ job, route, question, threadMem
   if (route.audienceKind !== 'DIRECT' && memoryContext.threadMemory.policyDecision === 'ALLOW') {
     throw failure('LINE_MEMORY_AUDIENCE_DENIED')
   }
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const authorizedForMemory = memoryContext.threadMemory.policyDecision === 'ALLOW'
   return { memoryContext, memoryInbound, authorizedForMemory }
 }
@@ -406,10 +411,10 @@ export function lineMemoryHandle(memoryContext, memoryInbound) {
  * exchange. Nothing is appended unless every check passes.
  */
 export async function appendLineMemoryAnswer({ job, route, threadMemory, memory, answerText,
-  authorizationResolver = resolveAgentAuthorization, memoryStateReader } = {}) {
+  authorizationResolver = resolveAgentAuthorization, memoryStateReader, env = process.env } = {}) {
   const tenantId = job.tenantId
   const businessId = job.businessId
-  await assertMemoryJobLive(job, memoryStateReader)
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const currentAuthorization = await authorizationResolver({
     tenantId, businessId, lineUserId: job.sourceUserId, threadId: route.externalRoomRef,
     eventId: job.eventId, serverScope: memoryServerScope(job, route),
@@ -426,7 +431,7 @@ export async function appendLineMemoryAnswer({ job, route, threadMemory, memory,
       || currentAuthorization.policy?.mspAuthorization?.read !== true)) {
     throw failure('LINE_MEMORY_POLICY_REVOKED')
   }
-  await assertMemoryJobLive(job, memoryStateReader)
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const memoryAgent = await threadMemory.appendMessage({
     threadId: memory.threadId,
     sessionId: memory.sessionId ?? null,
@@ -466,7 +471,7 @@ export function createServerLineAnswer({
     if (job.account && (job.account.tenantId !== tenantId || job.account.businessId !== businessId)) {
       throw failure('LINE_ANSWER_SCOPE_MISMATCH')
     }
-    const memoryOptIn = job.memorySyncOptIn === true
+    const memoryOptIn = job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
     const route = memoryOptIn ? memoryRoute(job) : null
     let selectedThreadMemory = memoryOptIn ? threadMemory : null
     let runtimePorts = null
@@ -474,7 +479,7 @@ export function createServerLineAnswer({
     let model
     try {
       if (memoryOptIn && !selectedThreadMemory) {
-        runtimePorts = await runtimeFactory({ ...env, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' },
+        runtimePorts = await runtimeFactory(env,
           { ...runtimeDependencies, queryFn, bindingRequired: false })
         selectedThreadMemory = runtimePorts?.threadMemory
         if (!selectedThreadMemory) throw failure('LINE_MEMORY_NOT_CONFIGURED')
@@ -531,7 +536,7 @@ export function createServerLineAnswer({
       let injectedPacket = null
       if (memoryOptIn) {
         const prepared = await prepareLineMemoryContext({ job, route, question,
-          threadMemory: selectedThreadMemory, contextAssembler, memoryStateReader })
+          threadMemory: selectedThreadMemory, contextAssembler, memoryStateReader, env })
         memoryContext = prepared.memoryContext
         memoryInbound = prepared.memoryInbound
         const authorizedForMemory = prepared.authorizedForMemory
@@ -641,7 +646,7 @@ export function createServerLineAnswer({
       if (memoryOptIn && (!invocationModel || typeof invocationModel.generate !== 'function')) {
         throw failure('LINE_MEMORY_INJECTION_RECEIPT_UNAVAILABLE')
       }
-      if (memoryOptIn) await assertMemoryJobLive(job, memoryStateReader)
+      if (memoryOptIn) await assertMemoryJobLive(job, memoryStateReader, env)
       const result = await answerBusinessQuestion({ tenantId, businessId, question }, {
         knowledge: tracedKnowledge, model: invocationModel, trace,
         contextPacket: memoryOptIn ? injectedPacket : null,
@@ -672,7 +677,7 @@ export function createServerLineAnswer({
       if (memoryOptIn) {
         await appendLineMemoryAnswer({ job, route, threadMemory: selectedThreadMemory,
           memory: lineMemoryHandle(memoryContext, memoryInbound), answerText,
-          authorizationResolver, memoryStateReader })
+          authorizationResolver, memoryStateReader, env })
       }
       return answerText
     } catch (error) {

@@ -1405,6 +1405,7 @@ function lineWorkerMemoryRecovery(snapshot) {
       continue
     }
     if (typeof row.memorySyncOptIn !== 'boolean') result.errors.push(`LINE worker memory recovery job ${label} has an invalid memorySyncOptIn`)
+    if (row.episodicMemoryOptIn !== undefined && typeof row.episodicMemoryOptIn !== 'boolean') result.errors.push(`LINE worker memory recovery job ${label} has an invalid episodicMemoryOptIn`)
     if (!LINE_WORKER_MEMORY_STATES.includes(row.memoryDeliveryState)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryState`)
     if (!Number.isInteger(row.memoryDeliveryAttempts) || row.memoryDeliveryAttempts < 0) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryAttempts`)
     if (!LINE_WORKER_MEMORY_AUDIENCES.includes(row.audienceKind)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid audienceKind`)
@@ -1415,6 +1416,9 @@ function lineWorkerMemoryRecovery(snapshot) {
     }
     if (row.memorySyncOptIn === false && row.memoryDeliveryState !== 'NONE') {
       result.errors.push(`LINE worker memory recovery job ${label} has opt-out memory with non-NONE state`)
+    }
+    if (row.episodicMemoryOptIn === true && (row.memorySyncOptIn !== true || row.audienceKind !== 'DIRECT')) {
+      result.errors.push(`LINE worker memory recovery job ${label} has episodic memory without direct opted-in session memory`)
     }
     if (row.memoryDeliveryState === 'NONE'
       && (row.memoryDeliveryAttempts !== 0 || row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
@@ -1854,10 +1858,10 @@ export function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
   const { sealedReplyToken, ...rest } = row
   const preserveMemoryRecovery = lineWorkerMemoryRecovery?.status === 'AVAILABLE'
   const memory = preserveMemoryRecovery
-    ? { memorySyncOptIn: row.memorySyncOptIn, memoryDeliveryState: row.memoryDeliveryState,
+    ? { memorySyncOptIn: row.memorySyncOptIn, episodicMemoryOptIn: row.episodicMemoryOptIn === true, memoryDeliveryState: row.memoryDeliveryState,
       memoryDeliveryAttempts: row.memoryDeliveryAttempts, memoryDeliveryNextAttemptAt: row.memoryDeliveryNextAttemptAt,
       memoryDeliveryLeaseUntil: null }
-    : { audienceKind: 'DIRECT', memorySyncOptIn: false, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
+    : { audienceKind: 'DIRECT', memorySyncOptIn: false, episodicMemoryOptIn: false, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
       memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null }
   const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
     // A restored account is disabled above. Preserve the durable pending receipt
