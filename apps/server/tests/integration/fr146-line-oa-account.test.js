@@ -23,7 +23,7 @@ import {
 
 const DOMAINS_WITH_STUDIO = ['projects', 'people', 'platform', 'line-oa']
 
-let tenant, business, otherBusiness, provider
+let portfolio, tenant, business, otherBusiness, provider
 let owner, publisher, member, blindMember, foreignOwner
 let seq = 0
 
@@ -41,7 +41,7 @@ async function lineConnection(target, label = `line-${++seq}`) {
 
 describe('FR-146 LineOaAccount', () => {
   beforeAll(async () => {
-    const portfolio = await createPortfolio({ code: 'PF-LINE-OA', name: 'LINE OA Studio Group' })
+    portfolio = await createPortfolio({ code: 'PF-LINE-OA', name: 'LINE OA Studio Group' })
     tenant = await createTenant({ portfolioId: portfolio.id, code: 'TNT-LINE-OA', name: 'LINE OA Tenant' })
     business = await createBusiness({ tenantId: tenant.id, code: 'BUS-LINE-OA', name: 'Cloud Business' })
     otherBusiness = await createBusiness({ tenantId: tenant.id, code: 'BUS-LINE-OA-2', name: 'Other Business' })
@@ -92,10 +92,34 @@ describe('FR-146 LineOaAccount', () => {
     const connection = await lineConnection(business, 'memory-policy')
     const account = await connectLineOaAccount({ businessId: business.id,
       integrationConnectionId: connection.id, code: 'oa-memory-policy', displayName: 'Memory Policy' }, { viewer: owner })
-    const enabled = await applyLineOaAccountAction(account.id, {
+    await expect(applyLineOaAccountAction(account.id, {
       action: 'CONFIGURE_MEMORY_POLICY', version: account.version, memoryPolicy: 'ON',
+    }, { viewer: publisher })).rejects.toMatchObject({ status: 409, message: 'LINE_OA_MEMORY_SCOPE_REQUIRED' })
+    const workspace = await prisma.workspace.create({ data: { code: `WS-LINE-MEM-${++seq}`, name: 'LINE memory scope',
+      scopeType: 'BUSINESS', portfolioId: portfolio.id, tenantId: tenant.id, businessId: business.id } })
+    const project = await prisma.project.create({ data: { code: `PRJ-LINE-MEM-${seq}`, name: 'LINE private memory',
+      businessId: business.id, workspaceId: workspace.id, status: 'ACTIVE' } })
+    const foreignWorkspace = await prisma.workspace.create({ data: { code: `WS-LINE-MEM-OTHER-${seq}`, name: 'Other LINE memory scope',
+      scopeType: 'BUSINESS', portfolioId: portfolio.id, tenantId: tenant.id, businessId: otherBusiness.id } })
+    const foreignProject = await prisma.project.create({ data: { code: `PRJ-LINE-MEM-OTHER-${seq}`, name: 'Other Business project',
+      businessId: otherBusiness.id, workspaceId: foreignWorkspace.id, status: 'ACTIVE' } })
+    await expect(applyLineOaAccountAction(account.id, {
+      action: 'CONFIGURE_MEMORY_SCOPE', version: account.version, memoryProjectId: foreignProject.id,
+    }, { viewer: publisher })).rejects.toMatchObject({ status: 409, message: 'LINE_OA_MEMORY_SCOPE_INVALID' })
+    const scoped = await applyLineOaAccountAction(account.id, {
+      action: 'CONFIGURE_MEMORY_SCOPE', version: account.version, memoryProjectId: project.id,
     }, { viewer: publisher })
-    expect(enabled).toMatchObject({ memoryPolicy: 'ON', version: account.version + 1, transportEpoch: account.transportEpoch })
+    expect(scoped).toMatchObject({ memoryProjectId: project.id, version: account.version + 1,
+      transportEpoch: account.transportEpoch })
+    const listed = await listLineOaAccounts({ businessId: business.id, viewer: publisher })
+    expect(listed.accounts.find(row => row.id === account.id).memoryProjectOptions).toContainEqual({
+      id: project.id, code: project.code, name: project.name, workspaceName: workspace.name })
+    expect(listed.accounts.find(row => row.id === account.id).memoryProjectOptions.map(row => row.id)).not.toContain(foreignProject.id)
+    const enabled = await applyLineOaAccountAction(account.id, {
+      action: 'CONFIGURE_MEMORY_POLICY', version: scoped.version, memoryPolicy: 'ON',
+    }, { viewer: publisher })
+    expect(enabled).toMatchObject({ memoryPolicy: 'ON', memoryProjectId: project.id,
+      version: scoped.version + 1, transportEpoch: account.transportEpoch })
     const audit = await prisma.auditEvent.findFirst({ where: { entityId: account.id, action: 'LINE_OA_ACCOUNT_MEMORY_POLICY_CONFIGURED' } })
     expect(JSON.parse(audit.payloadJson)).toMatchObject({ from: { memoryPolicy: 'OFF' }, to: { memoryPolicy: 'ON' } })
     await expect(applyLineOaAccountAction(account.id, {

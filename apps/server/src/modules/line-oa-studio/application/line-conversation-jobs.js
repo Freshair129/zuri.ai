@@ -12,6 +12,7 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
 import { reconcileLineMemoryErasures } from './line-memory-erasure'
+import { resolveLineMemoryProject } from './line-memory-scope'
 import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 import { lineExecutionBudget } from '../domain/line-execution-budget'
 import { isLineProjectWorkCommand, handleLineProjectWorkCommand, parseLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
@@ -350,13 +351,20 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
       && (audienceKind === 'DIRECT' || threadId !== userId)
       && memoryRuntimeEligible && (audienceKind === 'DIRECT' || !legacyOnlyWorkCommand)
       && conversationRuntimeServesGroundingMode(current.knowledgeGrounding)
-    const identity = runtimeEligible
+    const identity = runtimeEligible || (current.memoryPolicy === 'ON' && audienceKind === 'DIRECT')
       ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
       : null
-    // FR-057's current LINE account/business model has no trusted workspace or
-    // project mapping. Do not mint a default scope or accept one from LINE; until
-    // the mapping is approved and persisted, episodic retrieval remains off.
-    const episodicMemoryOptIn = false
+    const memoryScope = current.memoryPolicy === 'ON' && audienceKind === 'DIRECT'
+      ? await resolveLineMemoryProject({ db: tx, tenantId: current.tenantId,
+        businessId: current.businessId, projectId: current.memoryProjectId })
+      : null
+    const customer = identity && channelIdentityIsVerified(identity)
+      ? await tx.customer.findUnique({ where: { tenantId_personId: { tenantId: current.tenantId, personId: identity.personId } },
+        select: { id: true, deletedAt: true, consentStatus: true } })
+      : null
+    const episodicMemoryOptIn = memorySyncOptIn && audienceKind === 'DIRECT'
+      && channelIdentityIsVerified(identity) && customer?.deletedAt === null
+      && customer?.consentStatus === 'GRANTED' && Boolean(memoryScope)
     // Runtime routing is a separate, Core-owned cohort from executionMode.
     // Ineligible work remains with the default Server consumer; later account
     // changes cannot transfer an already admitted job to another executor.
@@ -387,6 +395,8 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
       // This is immutable trusted LINE admission provenance. Account policy is
       // captured here; the environment flag remains a runtime kill switch.
       audienceKind, memorySyncOptIn, episodicMemoryOptIn,
+      episodicWorkspaceId: episodicMemoryOptIn ? memoryScope.workspaceId : null,
+      episodicProjectId: episodicMemoryOptIn ? memoryScope.projectId : null,
       recipientId: threadId, sourceUserId: userId, sealedReplyToken: sealed,
       replyExpiresAt: sealed ? new Date(replyDeadlineAnchorMs + 45_000) : null,
       availableAt: now, expiresAt: new Date(now.getTime() + JOB_TTL_MS), correlationId,
@@ -998,7 +1008,8 @@ async function executeClaimed({ db, answer, execution, claimantId, now }) {
       ...(execution.memorySyncOptIn ? { memoryStateReader: id => db.lineConversationJob.findUnique({
         where: { id },
         select: { memorySyncOptIn: true, status: true, version: true, errorCode: true, transportEpoch: true,
-          account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true } } },
+          account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true,
+            memoryProjectId: true } } },
       }) } : {}),
     })
     const text = zCompletion.shape.text.parse(response?.text ?? response)

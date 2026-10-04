@@ -1,5 +1,6 @@
 import prisma from '@/lib/db'
 import { LINE_OA_ACCOUNT_ACTIONS, LINE_OA_ACCOUNT_STATUSES } from '@/lib/validation/enums'
+import { listLineMemoryProjects, resolveLineMemoryProject } from './line-memory-scope'
 import { resolveServerLineAccount } from '@/platform/integrations/providers/line/server-line-transport'
 import { createLineChannelAdminPort } from '@/platform/integrations/providers/line/line-channel-admin-port'
 import { createLineSecretManagerFromEnv } from '@/platform/integrations/core/secret-store/dispatching-secret-manager'
@@ -85,6 +86,7 @@ const ACTIONS = Object.freeze({
   SET_DEFAULT: 'LINE_OA_ACCOUNT_DEFAULT_SET',
   CONFIGURE_KNOWLEDGE_GROUNDING: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED',
   CONFIGURE_MEMORY_POLICY: 'LINE_OA_ACCOUNT_MEMORY_POLICY_CONFIGURED',
+  CONFIGURE_MEMORY_SCOPE: 'LINE_OA_ACCOUNT_MEMORY_SCOPE_CONFIGURED',
   // @req FR-277 — shadow-compare on/off (ADR-090 Phase 3, TASK-ZAI-095).
   CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_SHADOW_CONFIGURED',
   REGISTER_WEBHOOK: 'LINE_OA_ACCOUNT_WEBHOOK_REGISTERED',
@@ -302,6 +304,7 @@ const SELECT = {
   modelAccess: true, allowDelayedPush: true, transportEpoch: true, knowledgeGrounding: true,
   knowledgeGroundingShadow: true,
   memoryPolicy: true,
+  memoryProjectId: true,
   webhookStateJson: true, sessionIdleTimeoutMinutes: true,
   businessHoursOpen: true, businessHoursClose: true, outOfHoursReplyText: true,
 }
@@ -366,6 +369,7 @@ function toDto(row, health) {
     allowDelayedPush: row.allowDelayedPush,
     knowledgeGrounding: row.knowledgeGrounding,
     memoryPolicy: row.memoryPolicy ?? 'OFF',
+    memoryProjectId: row.memoryProjectId ?? null,
     knowledgeGroundingShadow: row.knowledgeGroundingShadow,
     sessionIdleTimeoutMinutes: row.sessionIdleTimeoutMinutes,
     // @req FR-244 — null on all three reads as "no declared hours".
@@ -387,10 +391,17 @@ async function describe(rows, db, ports) {
   const p = portsOf(db, ports)
   const connections = await p.connectionHealth(rows.map((row) => row.integrationConnectionId))
   const groups = await db.lineConversationJob.groupBy({ by: ['accountId', 'status'], where: { accountId: { in: rows.map(row => row.id) } }, _count: { _all: true } })
+  const optionsByScope = new Map()
+  for (const row of rows) {
+    const key = `${row.tenantId}|${row.businessId}`
+    if (!optionsByScope.has(key)) optionsByScope.set(key, listLineMemoryProjects({ db, tenantId: row.tenantId, businessId: row.businessId }))
+  }
+  for (const [key, pending] of optionsByScope) optionsByScope.set(key, await pending)
   const result = []
   for (const row of rows) {
     const bindingStatus = await p.bindingStatus(row)
-    result.push(toDto(row, toHealth(row, { connection: connections.get(row.integrationConnectionId) ?? null, bindingStatus, transportJobs: Object.fromEntries(groups.filter(group => group.accountId === row.id).map(group => [group.status, group._count._all])) })))
+    const memoryProjectOptions = optionsByScope.get(`${row.tenantId}|${row.businessId}`) ?? []
+    result.push({ ...toDto(row, toHealth(row, { connection: connections.get(row.integrationConnectionId) ?? null, bindingStatus, transportJobs: Object.fromEntries(groups.filter(group => group.accountId === row.id).map(group => [group.status, group._count._all])) })), memoryProjectOptions })
   }
   return result
 }
@@ -622,9 +633,26 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       case 'CONFIGURE_MEMORY_POLICY': {
         if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
         if (row.memoryPolicy === data.memoryPolicy) throw failure(409, 'LINE_OA_MEMORY_POLICY_UNCHANGED')
+        if (data.memoryPolicy === 'ON' && !(await resolveLineMemoryProject({ db: tx, tenantId: row.tenantId,
+          businessId: row.businessId, projectId: row.memoryProjectId }))) {
+          throw failure(409, 'LINE_OA_MEMORY_SCOPE_REQUIRED')
+        }
         change.memoryPolicy = data.memoryPolicy
         payload.from.memoryPolicy = row.memoryPolicy ?? 'OFF'
         payload.to.memoryPolicy = data.memoryPolicy
+        break
+      }
+      case 'CONFIGURE_MEMORY_SCOPE': {
+        if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
+        const projectId = data.memoryProjectId ?? null
+        if (row.memoryProjectId === projectId) throw failure(409, 'LINE_OA_MEMORY_SCOPE_UNCHANGED')
+        if (projectId && !(await resolveLineMemoryProject({ db: tx, tenantId: row.tenantId,
+          businessId: row.businessId, projectId }))) {
+          throw failure(409, 'LINE_OA_MEMORY_SCOPE_INVALID')
+        }
+        change.memoryProjectId = projectId
+        payload.from.memoryProjectId = row.memoryProjectId ?? null
+        payload.to.memoryProjectId = projectId
         break
       }
       // @req FR-277 — shadow-compare on/off (ADR-090 Phase 3, TASK-ZAI-095).
@@ -763,7 +791,7 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
     // exception for the same reason, one level removed: it never changes
     // which evidence the customer-facing answer reads at all — only whether a
     // second, non-customer-visible comparison generation also runs after it.
-    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW' && action !== 'CONFIGURE_MEMORY_POLICY' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT' && action !== 'CONFIGURE_BUSINESS_HOURS').includes(data.action)
+    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW' && action !== 'CONFIGURE_MEMORY_POLICY' && action !== 'CONFIGURE_MEMORY_SCOPE' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT' && action !== 'CONFIGURE_BUSINESS_HOURS').includes(data.action)
       && (data.action !== 'CONFIGURE_EXECUTION' || data.allowDelayedPush !== row.allowDelayedPush)
     if (fencesWork) {
       change.transportEpoch = { increment: 1 }

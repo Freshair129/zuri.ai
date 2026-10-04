@@ -42,6 +42,11 @@ describe('LINE server snapshot recovery', () => {
       if (status === 'RECORDED') {
         const outbound = await prisma.message.create({ data: { conversationId: inbound.conversationId, direction: 'OUTBOUND',
           body: 'Recorded answer', externalMessageId: `reply:${inbound.messageId}` } })
+        await prisma.memoryProjectionReceipt.create({ data: { tenantId: tenant.id, businessId: business.id,
+          lineConversationJobId: jobs.at(-1).id, principalId: 'backup-principal', direction: 'OUTBOUND',
+          episodicMemoryOptIn: false, mspThreadId: 'backup-thread-id', mspSessionId: 'backup-session-id',
+          mspMessageId: 'backup-message-id', mspExchangeId: 'backup-exchange-id', acknowledgedAt: new Date(),
+          deliveryState: 'PENDING' } })
         await appendTraceEvent(prisma, { scope: { tenantId: tenant.id, businessId: business.id }, turnId: jobs.at(-1).id,
           kind: 'MEMORY_DELIVERY_PENDING', idempotencyKey: `memory-delivery:pending:${jobs.at(-1).id}`,
           payload: { jobId: jobs.at(-1).id, inboundMessageId: inbound.messageId, outboundMessageId: outbound.id,
@@ -52,7 +57,8 @@ describe('LINE server snapshot recovery', () => {
     const snapshot = await exportSnapshot()
     const exported = snapshot.tables.lineConversationJob.filter(job => job.accountId === account.id)
     expect(exported).toHaveLength(jobs.length)
-    expect(snapshot.lineWorkerMemoryRecovery).toEqual({ schemaVersion: 'line-worker-memory-recovery.v1', requiredTables: ['lineConversationJob', 'agentTraceEvent'] })
+    expect(snapshot.lineWorkerMemoryRecovery).toEqual({ schemaVersion: 'line-worker-memory-recovery.v2',
+      requiredTables: ['lineConversationJob', 'agentTraceEvent', 'memoryProjectionReceipt'] })
     expect(exported.every(job => !Object.hasOwn(job, 'sealedReplyToken'))).toBe(true)
     expect(JSON.stringify(snapshot)).not.toContain('ciphertext-')
     const corrupt = structuredClone(snapshot)
@@ -139,6 +145,8 @@ describe('LINE server snapshot recovery', () => {
       if (prop === 'lineConversationJob') return scoped(target.lineConversationJob, async () => 0)
       if (prop === 'agentTraceEvent') return scoped(target.agentTraceEvent,
         (args = {}) => target.agentTraceEvent.count({ ...args, where: { AND: [args.where ?? {}, { tenantId: tenant.id }] } }))
+      if (prop === 'memoryProjectionReceipt') return scoped(target.memoryProjectionReceipt,
+        (args = {}) => target.memoryProjectionReceipt.count({ ...args, where: { AND: [args.where ?? {}, { tenantId: tenant.id }] } }))
       const value = Reflect.get(target, prop)
       return typeof value === 'function' ? value.bind(target) : value
     } })

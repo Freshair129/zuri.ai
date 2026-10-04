@@ -35,7 +35,10 @@ const append = (row, kind, key, occurredAt, payload = {}) => appendTraceEvent(pr
 function recordingMsp() {
   const erased = []
   return { erased, port: {
-    erasePrincipalInTenant: async input => { erased.push(input.principalId.slice(0, -'-principal'.length)); return { replay: false } },
+    erasePrincipalInTenant: async input => {
+      erased.push(input.principalId.slice(0, -'-principal'.length))
+      return { erasureReceiptId: `receipt-${input.idempotencyKey}` }
+    },
   } }
 }
 

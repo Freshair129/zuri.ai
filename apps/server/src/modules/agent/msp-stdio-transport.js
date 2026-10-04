@@ -45,6 +45,13 @@ function transportError(message, code = 'MSP_TRANSPORT_UNAVAILABLE') {
   return error
 }
 
+function toolErrorCode(message, envelope) {
+  if (envelope?.code === 'vault_provision_conflict' || envelope?.data?.code === 'vault_provision_conflict') {
+    return 'vault_provision_conflict'
+  }
+  return /^vault_provision_conflict\s*:/.test(message) ? 'vault_provision_conflict' : null
+}
+
 /**
  * Build the transport from deployment configuration. Returns `null` — never
  * a transport that will fail later — when `ZURI_MSP_COMMAND` is unset, so a
@@ -132,7 +139,10 @@ export function createMspStdioTransport({ command, args = [], cwd, env = process
         if (!waiting) continue
         pending.delete(message.id)
         clearTimeout(waiting.timeout)
-        if (message.error) waiting.reject(transportError(message.error.message ?? 'MSP returned a JSON-RPC error'))
+        if (message.error) {
+          const messageText = message.error.message ?? 'MSP returned a JSON-RPC error'
+          waiting.reject(transportError(messageText, toolErrorCode(messageText, message.error) ?? 'MSP_TRANSPORT_UNAVAILABLE'))
+        }
         else waiting.resolve(message.result)
       }
     })
@@ -151,8 +161,9 @@ export function createMspStdioTransport({ command, args = [], cwd, env = process
       child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} })}\n`)
       const result = await request('tools/call', { name, arguments: input ?? {} })
       if (result?.isError) {
-        const text = result.content?.find((item) => item.type === 'text')?.text
-        throw transportError(text ?? `MSP tool ${name} returned an error`, 'MSP_TOOL_ERROR')
+        const text = result?.structuredContent?.message ?? result.content?.find((item) => item.type === 'text')?.text
+        const message = typeof text === 'string' ? text : `MSP tool ${name} returned an error`
+        throw transportError(message, toolErrorCode(message, result?.structuredContent) ?? 'MSP_TOOL_ERROR')
       }
       return result?.structuredContent ?? {}
     } finally {

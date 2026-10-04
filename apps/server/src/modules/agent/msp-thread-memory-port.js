@@ -499,8 +499,9 @@ export function createMspThreadMemoryPort({
   // thread-bound): its grant needs the tenant, the acting principal and the
   // data-subject claims, never a room, so no thread is resolved (and none is
   // minted) to send it. Private read and write stay false.
-  async function erasePrincipalInTenant({ tenantId, principalId, idempotencyKey, authorization }) {
+  async function erasePrincipalInTenant({ tenantId, principalId, idempotencyKey, authorization, eraseVault = false }) {
     const tenant = required(tenantId, 'tenantId')
+    if (typeof eraseVault !== 'boolean') throw new Error('MSP_ERASE_VAULT_INVALID')
     const auth = authorization?.authContext
     const policy = auth?.policy
     const caller = auth?.actor?.principalId
@@ -511,6 +512,7 @@ export function createMspThreadMemoryPort({
     if (auth?.scope?.tenantId !== tenant) throw new Error('MSP_AUTHORIZATION_SCOPE_MISMATCH')
     return unwrap(await callTool('msp_thread_principal_erase', {
       ...(principalId ? { principal_id: principalId } : {}), idempotency_key: required(idempotencyKey, 'idempotencyKey'),
+      ...(eraseVault ? { erase_vault: true } : {}),
     }, { tenantId: tenant, businessId: null, principalId: required(caller, 'actor principalId'),
       policyRevision: policy.version ?? 'default', readPrivate: false, writePrivate: false,
       ...Object.fromEntries(permissions.map(name => [name, true])) }))

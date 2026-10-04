@@ -8,6 +8,7 @@ import {
   lineMemoryHandle, memoryRoute, memoryServerScope, prepareLineMemoryContext,
 } from '@/modules/agent/server-line-answer'
 import { createServerLineThreadMemory } from './server-line-runtime'
+import { recordMemoryProjectionReceipt } from './line-memory-projection'
 import { runtimeOutOfHoursReply } from './line-conversation-jobs'
 import {
   coreMemoryKey, isMemoryTurn, loadMemoryReceipt, MEMORY_RECEIPT_KINDS, memoryOperationIds, memoryReceiptKey, memoryTextSha256,
@@ -99,7 +100,7 @@ export async function traceEvidenceTrimmed(db, job, { phase, recordsBefore, reco
 }
 
 export function createConversationRuntimeMemory({ db, env, now = () => new Date(), ownedClaim, modelResolver, groundingQuery,
-  threadMemoryFactory = null, contextAssembler = assembleAgentContext,
+  threadMemoryFactory = null, episodicMemoryFactory = null, contextAssembler = assembleAgentContext,
   authorizationResolver = resolveAgentAuthorization } = {}) {
   if (typeof ownedClaim !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_CLAIM_REQUIRED')
   if (typeof modelResolver !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_MODEL_REQUIRED')
@@ -126,7 +127,8 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
   const memoryStateReader = id => db.lineConversationJob.findUnique({
     where: { id },
     select: { memorySyncOptIn: true, status: true, version: true, errorCode: true, transportEpoch: true,
-      account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true } } },
+      account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true,
+        memoryProjectId: true } } },
   })
 
   const loadReceipt = (job, name) => loadMemoryReceipt(db, job, name)
@@ -251,8 +253,13 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       return readResult(stored)
     }
     const port = threadMemory()
+    const episodicMemory = job.episodicMemoryOptIn === true && typeof episodicMemoryFactory === 'function'
+      ? await episodicMemoryFactory(env, job)
+      : null
     const { memoryContext, memoryInbound, authorizedForMemory } = await prepareLineMemoryContext({ job, route,
-      question: job.inbound.body, threadMemory: port, contextAssembler: assemblerFor(job), memoryStateReader, env })
+      question: job.inbound.body, threadMemory: port, episodicMemory,
+      projectionReceiptWriter: input => recordMemoryProjectionReceipt(db, input),
+      contextAssembler: assemblerFor(job), memoryStateReader, env })
     // @req FR-235 — under a corpus mode, the legacy worker reads this turn's
     // knowledge here, after the MSP phases, and composes it with the thread in ONE
     // call under ONE budget. The read is Core's `prepare` read, with W2's budget
@@ -328,7 +335,8 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     // saved repeats the call on reclaim with the same source event id, which MSP
     // deduplicates exactly as it does for a restarted legacy worker.
     const agent = await appendLineMemoryAnswer({ job, route, threadMemory: port, memory: stored,
-      answerText: text, authorizationResolver: authorizationFor(job), memoryStateReader, env })
+      answerText: text, authorizationResolver: authorizationFor(job),
+      projectionReceiptWriter: input => recordMemoryProjectionReceipt(db, input), memoryStateReader, env })
     const receipt = { operationId: memoryOperationIds(job.id).append, threadId: stored.threadId,
       exchangeId: stored.exchangeId, messageId: agent.message.messageId, sessionId: agent.session.sessionId, textSha256 }
     await saveReceipt(job, 'append', receipt)

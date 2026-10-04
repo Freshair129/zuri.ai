@@ -1,9 +1,13 @@
+import { createHash, createHmac, randomBytes } from 'node:crypto'
+
 // @req FR-057 — canonical GoVibe/MSP API-010 vault resolution before API-009 memory access.
-// @spec ADR-022, SDD-030, SEC-013 — MSP owns opaque vault IDs; Zuri sends only
+// @spec ADR-022, SDD-030, SEC-013 — MSP owns opaque vault IDs; Zuri signs only
 // server-derived AuthContext and current authorization facts.
 // @tested tests/unit/msp-vault-resolver.test.js, tests/integration/msp-vault-memory-port.test.js
 
 const DEFAULT_ACTOR = 'zuri-agent'
+const GRANT_TTL_MS = 60_000
+const MIN_SERVICE_KEY_LENGTH = 32
 
 function resolveCaller(transport) {
   if (typeof transport === 'function') return (name, input) => transport(name, input)
@@ -21,10 +25,50 @@ function optional(value) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
+function parseServiceKeyring(value) {
+  if (value === undefined || value === null || value === '') return null
+  let parsed = value
+  if (typeof value === 'string') {
+    try { parsed = JSON.parse(value) } catch { throw new Error('MSP_THREAD_SERVICE_KEYRING_INVALID') }
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('MSP_THREAD_SERVICE_KEYRING_INVALID')
+  }
+  const keyring = Object.create(null)
+  for (const [tenantId, key] of Object.entries(parsed)) {
+    if (!tenantId.trim() || tenantId.trim() !== tenantId || typeof key !== 'string'
+      || !key.trim() || key.trim() !== key || key.length < MIN_SERVICE_KEY_LENGTH) {
+      throw new Error('MSP_THREAD_SERVICE_KEYRING_INVALID')
+    }
+    keyring[tenantId] = key
+  }
+  if (Object.keys(keyring).length === 0) throw new Error('MSP_THREAD_SERVICE_KEYRING_INVALID')
+  return keyring
+}
+
+function serviceKeyFor({ tenantId, serviceKey, serviceKeyring }) {
+  const key = serviceKeyring
+    ? (Object.hasOwn(serviceKeyring, tenantId) ? serviceKeyring[tenantId] : undefined)
+    : serviceKey
+  if (typeof key !== 'string' || key.trim() !== key || key.length < MIN_SERVICE_KEY_LENGTH) {
+    throw new Error('API-010 requires MSP_THREAD_SERVICE_KEY for the authenticated tenant')
+  }
+  return key
+}
+
+function signedGrant(operation, claims, payloadHash, serviceKey) {
+  const grant = { operation, expiresAt: Date.now() + GRANT_TTL_MS, payloadHash,
+    ...claims, nonce: randomBytes(16).toString('hex') }
+  return { grant, signature: createHmac('sha256', serviceKey).update(JSON.stringify(grant)).digest('hex') }
+}
+
 function currentScope(authorization) {
   const authContext = authorization?.authContext
   if (!authContext || authContext.policy?.decision !== 'ALLOW' || authContext.policy?.episodicMemoryAllowed !== true) {
     throw new Error('API-010 vault resolution requires an episodic-memory ALLOW AuthContext')
+  }
+  if (authContext.transport?.signatureVerified !== true || authContext.actor?.identityVerified !== true) {
+    throw new Error('API-010 grant signing requires verified transport and identity')
   }
 
   const scope = authContext.scope ?? {}
@@ -86,6 +130,36 @@ function authorizationFacts(authContext, operation) {
   }
 }
 
+function buildRequest(scope, actor, operation, serviceKey) {
+  const payload = {
+    actor,
+    access_context: {
+      tenant_id: scope.tenantId,
+      business_id: scope.businessId,
+      principal_id: scope.principalId,
+      agent_id: scope.agentId,
+      instance_id: scope.instanceId,
+      project_id: scope.projectId,
+      workspace_id: scope.workspaceId,
+      thread_id: scope.threadId,
+      session_id: scope.sessionId,
+      policy_version: scope.policyVersion,
+    },
+    authorization: authorizationFacts(scope.authContext, operation),
+  }
+  const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
+  return {
+    ...payload,
+    legacy_access: signedGrant('msp_vault_resolve_legacy', {
+      tenantId: scope.tenantId,
+      principalId: scope.principalId,
+      agentId: scope.agentId,
+      workspaceId: scope.workspaceId,
+      projectId: scope.projectId,
+    }, payloadHash, serviceKey),
+  }
+}
+
 function validateVaultSet(result) {
   const value = result?.structuredContent ?? result
   if (!value || typeof value !== 'object') throw new Error('API-010 returned no vault set')
@@ -118,9 +192,10 @@ function validateVaultSet(result) {
  * the immutable AuthContext produced by Zuri's policy seam; it never accepts a
  * vault ID, line user ID, model claim, or client scope value.
  */
-export function createMspVaultResolver({ transport, actor = DEFAULT_ACTOR } = {}) {
+export function createMspVaultResolver({ transport, actor = DEFAULT_ACTOR, serviceKey, serviceKeyring } = {}) {
   const callTool = resolveCaller(transport)
   const canonicalActor = required(actor, 'actor')
+  const parsedServiceKeyring = parseServiceKeyring(serviceKeyring)
 
   return {
     async resolve(authorization, { operation = 'read' } = {}) {
@@ -128,30 +203,25 @@ export function createMspVaultResolver({ transport, actor = DEFAULT_ACTOR } = {}
         throw new Error('API-010 operation must be read or write')
       }
       const scope = currentScope(authorization)
-      const result = await callTool('msp_vault_resolve', {
-        actor: canonicalActor,
-        access_context: {
-          tenant_id: scope.tenantId,
-          business_id: scope.businessId,
-          principal_id: scope.principalId,
-          agent_id: scope.agentId,
-          instance_id: scope.instanceId,
-          project_id: scope.projectId,
-          workspace_id: scope.workspaceId,
-          thread_id: scope.threadId,
-          session_id: scope.sessionId,
-          policy_version: scope.policyVersion,
-        },
-        authorization: authorizationFacts(scope.authContext, operation),
-      })
-      const vaultSet = validateVaultSet(result)
-      if (operation === 'read' && vaultSet.permissions.read !== true) {
-        throw new Error('API-010 denied read permission')
+      const key = serviceKeyFor({ tenantId: scope.tenantId, serviceKey, serviceKeyring: parsedServiceKeyring })
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        let result
+        try {
+          result = await callTool('msp_vault_resolve', buildRequest(scope, canonicalActor, operation, key))
+        } catch (error) {
+          if (attempt === 0 && error?.code === 'vault_provision_conflict') continue
+          throw error
+        }
+        const vaultSet = validateVaultSet(result)
+        if (operation === 'read' && vaultSet.permissions.read !== true) {
+          throw new Error('API-010 denied read permission')
+        }
+        if (operation === 'write' && vaultSet.permissions.writePrivate !== true) {
+          throw new Error('API-010 denied private write permission')
+        }
+        return vaultSet
       }
-      if (operation === 'write' && vaultSet.permissions.writePrivate !== true) {
-        throw new Error('API-010 denied private write permission')
-      }
-      return vaultSet
+      throw new Error('API-010 resolver exhausted its conflict retry')
     },
   }
 }

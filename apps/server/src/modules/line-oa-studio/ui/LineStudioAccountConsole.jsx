@@ -255,6 +255,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
   const [runtimeOwner, setRuntimeOwner] = useState(account.runtimeOwner ?? "SERVER");
   const [grounding, setGrounding] = useState(account.knowledgeGrounding);
   const [memoryPolicy, setMemoryPolicy] = useState(account.memoryPolicy ?? 'OFF');
+  const [memoryProjectId, setMemoryProjectId] = useState(account.memoryProjectId ?? '');
   const [sessionTimeout, setSessionTimeout] = useState(String(account.sessionIdleTimeoutMinutes ?? 30));
   const [quiesced, setQuiesced] = useState(false);
   const [jobs, setJobs] = useState(null);
@@ -270,6 +271,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
     setRuntimeOwner(account.runtimeOwner ?? "SERVER");
     setGrounding(account.knowledgeGrounding);
     setMemoryPolicy(account.memoryPolicy ?? 'OFF');
+    setMemoryProjectId(account.memoryProjectId ?? '');
     setSessionTimeout(String(account.sessionIdleTimeoutMinutes ?? 30));
   }, [account]);
 
@@ -445,6 +447,22 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
           </button>
 
           <div className="grid gap-2 rounded-xl border border-slate-200 p-3 text-xs dark:border-slate-700">
+            <label className="grid gap-1 font-semibold">
+              Project สำหรับขอบเขตความจำส่วนตัว
+              <select value={memoryProjectId} onChange={(event) => setMemoryProjectId(event.target.value)}
+                className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs dark:border-slate-600 dark:bg-slate-900">
+                <option value="">ยังไม่เลือก Project</option>
+                {(account.memoryProjectOptions ?? []).map(project => (
+                  <option key={project.id} value={project.id}>{project.name} · {project.workspaceName}</option>
+                ))}
+              </select>
+            </label>
+            <p className="text-slate-500 dark:text-slate-400">ระบบใช้ Workspace ของ Project ที่เลือก และปฏิเสธ scope หาก Project ไม่อยู่ใน Business นี้</p>
+            <button type="button" disabled={memoryProjectId === (account.memoryProjectId ?? '')}
+              className="justify-self-start rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => onAction(account, { action: "CONFIGURE_MEMORY_SCOPE", memoryProjectId: memoryProjectId || null })}>
+              บันทึก Project ความจำ
+            </button>
             <label className="grid gap-1 font-semibold">
               นโยบายความจำ MSP
               <select value={memoryPolicy} onChange={(event) => setMemoryPolicy(event.target.value)}

@@ -6,6 +6,8 @@ import { makeViewer } from '../factories/viewer'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { admitLineConversation, runLineConversationWorker, readLineConversationTrace } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/application/line-memory-delivery'
+import { acknowledgeMemoryProjectionErasure, markMemoryProjectionErasurePending, recordMemoryProjectionReceipt,
+  settleMemoryProjectionDelivery } from '@/modules/line-oa-studio/application/line-memory-projection'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 import { createDeterministicBusinessModel } from '@/modules/agent/grounded-business-answer'
@@ -90,12 +92,16 @@ function traceViewer() {
   return makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: ['line-oa'] })
 }
 
-async function runToPending(fixture) {
+async function runToPending(fixture, { mspMessageId = 'msp-message-1' } = {}) {
   const worker = workerFor(fixture)
   const result = await runLineConversationWorker(worker)
   expect(result).toMatchObject({ status: 'RECORDED' })
   const row = await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })
   expect(row).toMatchObject({ memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 0 })
+  await prisma.memoryProjectionReceipt.create({ data: { tenantId: row.tenantId, businessId: row.businessId,
+    lineConversationJobId: row.id, principalId: `person:${row.sourceUserId}`, direction: 'OUTBOUND',
+    episodicMemoryOptIn: row.episodicMemoryOptIn, mspThreadId: `thread:${row.id}`, mspSessionId: `session:${row.id}`,
+    mspMessageId, mspExchangeId: `exchange:${row.id}`, acknowledgedAt: now, deliveryState: 'PENDING' } })
   return { worker, row }
 }
 
@@ -107,6 +113,7 @@ beforeAll(async () => {
 })
 
 afterEach(async () => {
+  await prisma.memoryProjectionReceipt.deleteMany({ where: { tenantId: tenant.id } })
   await prisma.lineConversationJob.deleteMany({ where: { tenantId: tenant.id } })
 })
 
@@ -122,6 +129,28 @@ describe('LINE memory enrollment and receipt recovery', () => {
     await admitLineConversation({ account: on.oa, event: event('unused-different-event'), correlationId: 'different',
       now, env: sealEnv })
     expect(await prisma.lineConversationJob.findUnique({ where: { id: on.jobId } })).toMatchObject({ memorySyncOptIn: true })
+  })
+
+  it('snapshots Publisher-mapped Project and derived Workspace only for a verified, consented direct sender', async () => {
+    const oa = await account()
+    const workspace = await prisma.workspace.create({ data: { code: `WS-MEM-${randomUUID()}`, name: 'Memory workspace',
+      scopeType: 'BUSINESS', portfolioId: tenant.portfolioId, tenantId: tenant.id, businessId: business.id } })
+    const project = await prisma.project.create({ data: { code: `PRJ-MEM-${randomUUID()}`, name: 'Memory project',
+      businessId: business.id, workspaceId: workspace.id, status: 'ACTIVE' } })
+    await prisma.lineOaAccount.update({ where: { id: oa.id }, data: { memoryProjectId: project.id } })
+    const suffix = `${++sequence}-${randomUUID().slice(0, 8)}`
+    const person = await prisma.person.create({ data: { code: `memory-owner-${randomUUID()}`, displayName: 'Consented LINE person' } })
+    await prisma.membership.create({ data: { personId: person.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
+    await prisma.customer.create({ data: { code: `memory-customer-${randomUUID()}`, tenantId: tenant.id,
+      businessId: business.id, personId: person.id, displayName: 'Consented LINE person', consentStatus: 'GRANTED' } })
+    const link = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    const lineUserId = `user-${suffix}`
+    await redeemLinkToken({ tenantId: tenant.id, token: link.token, channelAccountId: oa.bindingCode, lineUserId, merge: true })
+    const admitted = await admitLineConversation({ account: oa, event: event(suffix), correlationId: `corr-${suffix}`,
+      now, env: { ...sealEnv, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' } })
+    const job = await prisma.lineConversationJob.findUnique({ where: { id: admitted.jobId } })
+    expect(job).toMatchObject({ memorySyncOptIn: true, episodicMemoryOptIn: true,
+      episodicWorkspaceId: workspace.id, episodicProjectId: project.id })
   })
 
   it('reconciles the persisted CRM body once and acknowledges only a valid MSP receipt', async () => {
@@ -154,9 +183,38 @@ describe('LINE memory enrollment and receipt recovery', () => {
     expect(memoryEvents.every(item => !JSON.stringify(item.payload).includes('tampered'))).toBe(true)
   })
 
+  it('persists idempotent API-011 append receipts and settles delivery and erasure acknowledgements', async () => {
+    const fixture = await admittedFixture()
+    const job = await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })
+    const inbound = { job, principalId: 'receipt-principal', direction: 'INBOUND', crmMessageId: fixture.inboundMessageId,
+      threadId: 'receipt-thread', sessionId: 'receipt-session', messageId: 'msp-inbound-message', exchangeId: 'msp-inbound-exchange' }
+    const firstInbound = await recordMemoryProjectionReceipt(prisma, inbound)
+    const retryInbound = await recordMemoryProjectionReceipt(prisma, inbound)
+    expect(retryInbound.id).toBe(firstInbound.id)
+    expect(firstInbound).toMatchObject({ crmMessageId: fixture.inboundMessageId, direction: 'INBOUND',
+      deliveryState: 'ACKNOWLEDGED', erasureStatus: 'ACTIVE' })
+
+    const outbound = await recordMemoryProjectionReceipt(prisma, { ...inbound, direction: 'OUTBOUND', crmMessageId: null,
+      messageId: 'msp-outbound-message', exchangeId: 'msp-outbound-exchange' })
+    expect(outbound).toMatchObject({ crmMessageId: null, direction: 'OUTBOUND', deliveryState: 'PENDING' })
+    await prisma.$transaction(tx => settleMemoryProjectionDelivery(tx, { job, crmMessageId: 'crm-outbound-message',
+      mspMessageId: 'msp-outbound-message', receiptId: 'msp-delivery-receipt', acknowledgedAt: now }))
+    expect(await prisma.memoryProjectionReceipt.findUnique({ where: { id: outbound.id } })).toMatchObject({
+      crmMessageId: 'crm-outbound-message', deliveryState: 'ACKNOWLEDGED', deliveryReceiptId: 'msp-delivery-receipt' })
+
+    await prisma.$transaction(async tx => {
+      await markMemoryProjectionErasurePending(tx, { tenantId: tenant.id, principalId: 'receipt-principal' })
+      return acknowledgeMemoryProjectionErasure(tx, { tenantId: tenant.id, principalId: 'receipt-principal',
+        erasureReceiptId: 'msp-erasure-receipt' })
+    })
+    const erased = await prisma.memoryProjectionReceipt.findMany({ where: { tenantId: tenant.id, principalId: 'receipt-principal' } })
+    expect(erased).toHaveLength(2)
+    expect(erased.every(receipt => receipt.erasureStatus === 'ERASED' && receipt.erasureReceiptId === 'msp-erasure-receipt')).toBe(true)
+  })
+
   it('passes the complete persisted scope to the default authorization resolver', async () => {
     const fixture = await admittedFixture()
-    await runToPending(fixture)
+    await runToPending(fixture, { mspMessageId: 'msp-default-message' })
     const job = await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })
     const person = await prisma.person.create({ data: { code: `memory-default-${randomUUID()}`, displayName: 'Default resolver' } })
     await prisma.membership.create({ data: { personId: person.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })

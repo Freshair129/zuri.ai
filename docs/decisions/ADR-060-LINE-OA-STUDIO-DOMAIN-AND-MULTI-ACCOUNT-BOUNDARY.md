@@ -1,7 +1,7 @@
 ---
-version: "0.3.2"
+version: "0.3.3"
 created_at: "2026-09-05T00:00:00+07:00,Claude Code"
-last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
+last_update: "2026-10-04T13:08:25+07:00,Codex"
 status: "proposed"
 superseded_by: null
 attributes:
@@ -208,6 +208,23 @@ Rules:
 5. The Dashboard, Analytics and Command Center aggregate **the accounts of the
    selected Business** the viewer may see. The shell stops at Business
    (ADR-011); there is no portfolio-wide Studio view in this decision.
+
+### Scoped amendment — Development Project as API-010 memory scope (2026-10-04)
+
+The owner selected one Zuri Development `Project` per LINE OA account as the
+trusted episodic-memory scope for API-010. The server derives the `Workspace`
+from that Project and validates that the Project and Workspace belong to the
+account's same Tenant and Business and remain eligible. Only the Project
+reference is stored on `LineOaAccount`; Workspace is derived and both IDs are
+snapshotted on an admitted job. An absent, stale, archived or mismatched mapping
+fails closed before API-010 or API-009.
+
+This is a scoped association for FR-057. It does not change D2: the LINE Studio
+prototype's “Project” remains the `LineOaAccount` aggregate, and LINE/customer
+payloads never supply memory scope. A Publisher selects the Development Project
+through the account's authenticated, versioned action. See [FR-057](../requirements/FR-057.md),
+[FR-231](../features/FEAT-037/requirements/FR-231.md) and the
+[FR-057 plan](../roadmap/PLAN-FR-057-AUTHORIZED-AGENT-CONTEXT.md).
 
 ### D3 — An account is the join of three authorities the Studio does not own
 
@@ -624,6 +641,7 @@ npm run verify
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.3 | 2026-10-04 | proposed | Records the owner-approved API-010-only Project association and server-derived Workspace validation; Studio aggregate unchanged | working-tree | Codex |
 | 0.3.2 | 2026-09-14 | proposed | Pointer only: D3's "never accepts secret material" is amended by ADR-089 (browser write-only entry into the Integration vault; the Studio still holds no material) | working-tree | Claude Opus 5 |
 | 0.3.1 | 2026-09-05 | proposed | Clarified D5 after the edge runtime's maintainer asked: FR-093 delivery receipts and the transport-job lane coexist, split by who initiated the send — reply-turn sends report through `/api/agent/line-delivery`, Studio-initiated sends report as the job result; one send, one receipt path | working-tree | Claude Code |
 | 0.3.0 | 2026-09-05 | proposed | Owner's answers to the last three questions: Business-scope templates for the first release (`TENANT` reserved), a Studio-owned scheduler (`LineOaSchedule`, scheduled dispatch in Phase 2, timed WAIT in Phase 3), `LINE_OA_PUBLISHER` confirmed; no question remains open | working-tree | Claude Code |

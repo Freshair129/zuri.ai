@@ -571,6 +571,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       : owned
   }
   const memory = createConversationRuntimeMemory({ db, env, now, ownedClaim: memoryClaim, threadMemoryFactory,
+    episodicMemoryFactory: async () => (await getBusinessPorts())?.episodicMemory ?? null,
     groundingQuery: (job, options) => groundingQuery(job, options),
     modelResolver: async job => {
       const credential = await resolveCredential(job)

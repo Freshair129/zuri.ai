@@ -31,6 +31,7 @@ owns_models:
   - LineOaLiffApp
   - LineOaWorkerCheckpoint
   - LineConversationJob
+  - MemoryProjectionReceipt
 owns_routes:
   - src/app/(pm)/line-oa/**
   - src/app/api/line-oa/**
@@ -38,9 +39,9 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.13.0b"
+version: "0.16.0b"
 created_at: "2026-09-05T00:00:00+07:00"
-updated_at: "2026-09-23T23:32:00+07:00"
+updated_at: "2026-10-04T14:28:26+07:00,Codex"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -397,14 +398,16 @@ code or schema; each column enters the model in the slice that implements it.
   (LINE's endpoint equals ours and no legacy evidence for 120 s) instead of asking
   for the typed confirmation, which stays for mount-backed accounts; the epoch fence
   is unchanged.
-- **Memory policy (FR-231 — [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)).**
-  A planned publisher-set `LineOaAccount.memoryPolicy`, default OFF. Admission
-  captures per job whether a turn may reach MSP's session tier (policy not OFF) and
-  episodic, passport or cross-thread memory (also consent GRANTED and DIRECT).
-  Projection stays off until MSP main ships thread and erase tools;
-  `ZURI_MSP_THREAD_MEMORY_ENABLED` becomes a kill switch. Admission also stops
-  skipping non-text events (FR-229), creating CRM rows through the crm contract and
-  no answer job.
+- **Memory policy and receipts (FR-057, FR-231, FR-232 — [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)).**
+  The Publisher sets `LineOaAccount.memoryPolicy` (default OFF) and selects one
+  Development Project for API-010 scope. Admission derives and validates that
+  Project's Workspace, then snapshots both IDs only for a verified, consented
+  DIRECT customer. This lane owns `MemoryProjectionReceipt`, keyed by job and
+  direction, containing CRM/MSP identifiers and delivery/erasure acknowledgements
+  but no content. API-011 session/thread memory and API-010 → API-009 episodic
+  memory stay separate; the latter remains OFF by default. Principal erasure
+  retains `PENDING_MSP` until an MSP receipt arrives. The signed API-010 contract
+  must be accepted on MSP main before production activation.
 - **Knowledge grounding (FR-235 — [ADR-090](../../decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md)).**
   A planned publisher-set `LineOaAccount.knowledgeGrounding` —
   `BUSINESS_KNOWLEDGE` (default), `GKS_CORPUS` or `GKS_THEN_BUSINESS_KNOWLEDGE`.
@@ -437,6 +440,7 @@ no model call. A session closing never loads or unloads a model.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.16.0b | 2026-10-04 | phase-1-building | FR-057/FR-231/FR-232: claims the LINE-owned projection receipt model, Project-derived API-010 scope and durable delivery/erasure evidence; production activation stays gated | working-tree | Codex |
 | 0.15.0b | 2026-09-16 | phase-1-building | FR-246 (not merged): notes `serverLinePorts` as reachable from crm's `sendStaffReply`, the one place outside this domain that calls it | working-tree | Claude Sonnet 5 |
 | 0.14.0b | 2026-09-16 | phase-1-building | FR-243 (TASK-ZAI-107, not merged): `LineConversationJob.sessionId` copied at admission (migration `20260916120000`); `listLineConversationJobs` filters by session code within the account; the Edge Connection card sets `CONFIGURE_SESSION_TIMEOUT` (audited as `LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED`, health-only, never fences) and shows each job's trace | working-tree | Claude Opus 5 |
 | 0.13.0b | 2026-09-16 | phase-1-building | FR-243 (TASK-ZAI-106, not merged): `LineOaAccount.sessionIdleTimeoutMinutes` added (default 30, CHECK 10–120 in migration `20260916090000`); admission passes it and LINE's clamped `event.timestamp` to the crm writers for every message and event; the account setting UI is TASK-ZAI-107 | working-tree | Claude Opus 5 |

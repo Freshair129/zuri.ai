@@ -2,6 +2,7 @@ import prisma from '@/lib/db'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
 import { resolveAgentAuthorization } from '@/modules/agent/auth-context'
 import { CUSTOMER_ERASURE_TOMBSTONE } from '@/modules/crm/conversation-redaction-service'
+import { closeMemoryProjectionDelivery, settleMemoryProjectionDelivery } from './line-memory-projection'
 
 // @req FR-149, FR-171 — reconcile one provider-accepted server reply into the
 // opt-in MSP thread without another LINE send or CRM message.
@@ -47,9 +48,9 @@ function successfulReceiptOutcome(receipt) {
   if (!MEMORY_SUCCESS_OUTCOMES.has(outcome)) return null
   const receiptId = nonEmpty(receipt?.receiptId)
   if (!receiptId) return null
-  // MSP's durable DTO has two successful shapes: a normal accepted record has
-  // a returned message id, while PENDING_INBOUND is durable before that id
-  // exists. Callers compare receiptId to the local CRM Message id below.
+  // MSP's durable DTO has two successful shapes: an accepted record returns a
+  // message id, while PENDING_INBOUND is durable before one is returned. The
+  // latter settles against the append id already stored in MemoryProjectionReceipt.
   if (outcome !== 'PENDING_INBOUND' && !nonEmpty(receipt?.messageId)) return null
   return outcome
 }
@@ -335,6 +336,7 @@ async function closeMemoryDelivery(db, source, { now, reason }) {
       data: { memoryDeliveryState: 'CLOSED', memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null, version: { increment: 1 } },
     })
     if (!updated.count) return false
+    await closeMemoryProjectionDelivery(tx, current.id)
     // Erasure redacts the complete trace immediately after this helper in the
     // erasure transaction. Once that tombstone exists, the trace turn guard
     // intentionally rejects new events; the closed operational state is still
@@ -364,6 +366,8 @@ async function acknowledgeMemoryDelivery(db, source, result, { now } = {}) {
     if (!updated.count) return false
     const outcome = successfulReceiptOutcome(result)
     if (!outcome) throw failure('MSP_DELIVERY_UNKNOWN')
+    await settleMemoryProjectionDelivery(tx, { job: current, crmMessageId: source.outbound.id,
+      mspMessageId: result.messageId ?? null, receiptId: result.receiptId, acknowledgedAt: at })
     await appendMemoryDeliveryCheckpoint(tx, {
       job: current,
       kind: MEMORY_TRACE_KINDS.acknowledged,

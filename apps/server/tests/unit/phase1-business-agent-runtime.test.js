@@ -69,6 +69,51 @@ describe('Phase 1 business-agent runtime', () => {
     expect(ports.threadMemory).toBeTruthy()
   })
 
+  it('wires episodic API-010/API-009 access only behind its independent switch', async () => {
+    const common = {
+      ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',
+      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login.qcnmhyglarzcpudjorzc:password@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres',
+      ZURI_LINE_BINDING_HASH_PEPPER: 'p'.repeat(32),
+      ZURI_MODEL_PROVIDER: 'groq',
+      ZURI_MODEL_NAME: 'llama-test',
+      ZURI_MODEL_CREDENTIAL: 'provider-secret',
+      MSP_THREAD_SERVICE_KEYRING: JSON.stringify({ 'tenant-api010': 'k'.repeat(32) }),
+    }
+    const calls = []
+    const mspTransport = async (name, input) => {
+      calls.push({ name, input })
+      if (name === 'msp_vault_resolve') return {
+        workspacePrivateVaultId: 'opaque-workspace-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+        permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'v1' },
+      }
+      if (name === 'msp_memory_list') return { entities: [{ body_json: { key: 'episodic-1', value: 'private fact' } }] }
+      throw new Error(`unexpected MSP tool ${name}`)
+    }
+    const disabled = createPhase1BusinessAgentPortsFromEnv(common, { queryFn: vi.fn(), mspTransport })
+    expect(disabled.episodicMemory).toBeNull()
+
+    const ports = createPhase1BusinessAgentPortsFromEnv({ ...common, ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' },
+      { queryFn: vi.fn(), mspTransport })
+    const authorization = {
+      authContext: {
+        transport: { signatureVerified: true }, actor: { principalId: 'person-api010', identityVerified: true },
+        scope: { tenantId: 'tenant-api010', businessId: 'business-api010', workspaceId: 'workspace-api010', projectId: 'project-api010' },
+        request: { agentId: 'agent-api010' },
+        policy: { decision: 'ALLOW', episodicMemoryAllowed: true, version: 'v1' },
+      },
+      authorizedVaults: [{ scope: 'private', tenantId: 'tenant-api010', principalId: 'person-api010',
+        agentId: 'agent-api010', workspaceId: 'workspace-api010', projectId: 'project-api010' }],
+    }
+    await expect(ports.episodicMemory.recallAuthorized(authorization)).resolves.toMatchObject({
+      entries: [{ key: 'episodic-1', value: 'private fact' }], key: 'opaque-workspace-vault',
+    })
+    expect(calls.map(call => call.name)).toEqual(['msp_vault_resolve', 'msp_memory_list'])
+    expect(calls[0].input.legacy_access.grant).toMatchObject({ operation: 'msp_vault_resolve_legacy',
+      tenantId: 'tenant-api010', workspaceId: 'workspace-api010', projectId: 'project-api010' })
+    expect(calls[0].input.legacy_access.signature).toMatch(/^[0-9a-f]{64}$/)
+    expect(calls[1].input).toEqual({ vault_id: 'opaque-workspace-vault' })
+  })
+
   it('accepts only the approved project-qualified Supavisor login form', () => {
     const common = {
       ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',

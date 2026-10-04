@@ -103,7 +103,7 @@ function failure(code) {
 //      on its own fit, no sequence (an oversized summary drops alone).
 // `packet.knowledge` (a separate, non-MSP field) is never turned into a slice
 // here — see injectedMspPacket's own note on why it is stripped instead.
-export function mspPacketSlices(packet) {
+export function mspPacketSlices(packet, episodicEntries = []) {
   const threadId = packet?.thread?.threadId ?? null
   const participants = Array.isArray(packet?.memory?.participants) ? packet.memory.participants : []
   const protectedRecords = Array.isArray(packet?.memory?.protectedMemory) ? packet.memory.protectedMemory : []
@@ -111,15 +111,21 @@ export function mspPacketSlices(packet) {
   const summaries = Array.isArray(packet?.memory?.summaries) ? packet.memory.summaries : []
   const exchangeSlices = exchanges.map((exchange, index) =>
     ({ id: `exchange:${exchange?.exchangeId ?? index}`, threadId, sequence: 'exchanges', text: exchange }))
+  const episodicSlices = episodicEntries.map((entry, index) => ({
+    id: `episodic:${entry?.id ?? entry?.reference?.memoryId ?? index}`,
+    scope: 'CROSS_THREAD',
+    text: entry,
+  }))
   return [
     ...participants.map((participant, index) => ({ id: `participant:${participant?.principalId ?? participant?.id ?? index}`, threadId, text: participant })),
     ...protectedRecords.map((record, index) => ({ id: `protected:${record?.recordId ?? index}`, threadId, text: record })),
     ...[...exchangeSlices].reverse(),
     ...summaries.map((summary, index) => ({ id: `summary:${summary?.summaryId ?? index}`, threadId, text: summary })),
+    ...episodicSlices,
   ]
 }
 
-const MSP_SLICE_PREFIXES = Object.freeze(['participant:', 'protected:', 'exchange:', 'summary:'])
+const MSP_SLICE_PREFIXES = Object.freeze(['participant:', 'protected:', 'exchange:', 'summary:', 'episodic:'])
 
 function sliceIdSuffix(id, prefix) {
   return id.slice(prefix.length)
@@ -150,7 +156,8 @@ function injectedMspPacket(packet, includedMspSlices, droppedMspSlices = []) {
   // chronologically (oldest-first) to match MSP's own packet convention.
   const recentExchanges = byPrefix('exchange:').reverse()
   const summaries = byPrefix('summary:')
-  if (!participants.length && !protectedMemory.length && !recentExchanges.length && !summaries.length) return null
+  const episodic = byPrefix('episodic:')
+  if (!participants.length && !protectedMemory.length && !recentExchanges.length && !summaries.length && !episodic.length) return null
 
   const omittedRanges = [...(packet.manifest?.omittedRanges ?? [])]
   for (const entry of droppedMspSlices) {
@@ -159,6 +166,7 @@ function injectedMspPacket(packet, includedMspSlices, droppedMspSlices = []) {
     else if (prefix === 'summary:') omittedRanges.push({ summaryId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
     else if (prefix === 'protected:') omittedRanges.push({ protectedRecordId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
     else if (prefix === 'participant:') omittedRanges.push({ participantId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
+    else if (prefix === 'episodic:') omittedRanges.push({ episodicMemoryId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
   }
   const truncated = droppedMspSlices.length > 0
 
@@ -172,7 +180,7 @@ function injectedMspPacket(packet, includedMspSlices, droppedMspSlices = []) {
     // either go through the composer or be removed (see the review this
     // fixes), and this field has no composer-representable shape today.
     knowledge: null,
-    memory: { participants, recentExchanges, summaries, protectedMemory },
+    memory: { participants, recentExchanges, summaries, protectedMemory, episodic },
     manifest: packet.manifest ? {
       ...packet.manifest,
       effectiveRecentExchangeCount: recentExchanges.length,
@@ -226,6 +234,10 @@ export function memoryServerScope(job, route) {
     agentId: 'zuri-line-agent',
     mspAuthorization: { read: true, writePrivate: false, writeShared: false },
     episodicMemoryOptIn: job.episodicMemoryOptIn === true,
+    ...(job.episodicMemoryOptIn === true ? {
+      workspaceId: job.episodicWorkspaceId ?? null,
+      projectId: job.episodicProjectId ?? null,
+    } : {}),
     // @req FR-149 — Core's PENDING memory mode: a Conversation Runtime job that Core
     // admitted for an unverified sender (`CHANNEL_IDENTITY_ADMITTED`) is marked by
     // Core's own claim check, never by the runtime. The legacy worker's job rows carry
@@ -282,6 +294,10 @@ export async function assertMemoryJobLive(job, memoryStateReader, env = process.
     || account.status !== 'CONNECTED' || account.transportEpoch !== current.transportEpoch)) {
     throw failure('LINE_MEMORY_JOB_FENCED')
   }
+  if (job.episodicMemoryOptIn === true && (!job.episodicWorkspaceId || !job.episodicProjectId
+    || account?.memoryProjectId !== job.episodicProjectId)) {
+    throw failure('LINE_MEMORY_SCOPE_MISMATCH')
+  }
 }
 
 // @req FR-149 — the three memory-opt-in phases below are the ONE implementation of
@@ -297,7 +313,8 @@ export async function assertMemoryJobLive(job, memoryStateReader, env = process.
  * The job is re-checked before every MSP boundary (`assertMemoryJobLive`).
  */
 export async function prepareLineMemoryContext({ job, route, question, threadMemory,
-  contextAssembler = assembleAgentContext, memoryStateReader, env = process.env } = {}) {
+  episodicMemory = null, projectionReceiptWriter = null, contextAssembler = assembleAgentContext,
+  memoryStateReader, env = process.env } = {}) {
   const tenantId = job.tenantId
   const businessId = job.businessId
   await assertMemoryJobLive(job, memoryStateReader, env)
@@ -332,8 +349,13 @@ export async function prepareLineMemoryContext({ job, route, question, threadMem
     || !memoryInbound.session?.sessionId) {
     throw failure('LINE_MEMORY_APPEND_UNAVAILABLE')
   }
+  if (typeof projectionReceiptWriter === 'function') await projectionReceiptWriter({ job,
+    principalId: firstContext.identity.principalId, direction: 'INBOUND', crmMessageId: job.inbound.id,
+    threadId: firstContext.thread.threadId, sessionId: memoryInbound.session.sessionId,
+    messageId: memoryInbound.message.messageId, exchangeId: memoryInbound.message.exchangeId })
   await assertMemoryJobLive(job, memoryStateReader, env)
   const memoryContext = await contextAssembler({ ...contextInput,
+    ...(job.episodicMemoryOptIn === true && episodicMemory ? { memory: episodicMemory } : {}),
     deferThreadRecall: false, currentExchangeId: memoryInbound.message.exchangeId })
   if (!memoryContext?.threadMemory) throw failure('LINE_MEMORY_CONTEXT_UNAVAILABLE')
   assertMemoryContextRoute(memoryContext, route, { requirePacket: true })
@@ -357,7 +379,8 @@ export function composeLineMemoryPacket({ memoryContext, route, authorizedForMem
     authorized: groundingMode === 'BUSINESS_KNOWLEDGE' ? authorizedForMemory : true,
     scope: { threadId: memoryContext.thread.threadId },
     audienceKind: route.audienceKind,
-    mspSlices: authorizedForMemory ? mspPacketSlices(memoryContext.threadMemory) : [],
+    mspSlices: authorizedForMemory ? mspPacketSlices(memoryContext.threadMemory,
+      memoryContext.policy?.episodicMemoryAllowed === true ? memoryContext.memory?.entries ?? [] : []) : [],
     knowledgeEvidence: knowledgeSliceInputs,
   })
   const injectedPacket = injectedMspPacket(memoryContext.threadMemory,
@@ -411,7 +434,8 @@ export function lineMemoryHandle(memoryContext, memoryInbound) {
  * exchange. Nothing is appended unless every check passes.
  */
 export async function appendLineMemoryAnswer({ job, route, threadMemory, memory, answerText,
-  authorizationResolver = resolveAgentAuthorization, memoryStateReader, env = process.env } = {}) {
+  authorizationResolver = resolveAgentAuthorization, projectionReceiptWriter = null,
+  memoryStateReader, env = process.env } = {}) {
   const tenantId = job.tenantId
   const businessId = job.businessId
   await assertMemoryJobLive(job, memoryStateReader, env)
@@ -448,6 +472,10 @@ export async function appendLineMemoryAnswer({ job, route, threadMemory, memory,
     || memoryAgent.message.exchangeId !== memory.exchangeId) {
     throw failure('LINE_MEMORY_APPEND_UNAVAILABLE')
   }
+  if (typeof projectionReceiptWriter === 'function') await projectionReceiptWriter({ job,
+    principalId: memory.principalId, direction: 'OUTBOUND', threadId: memory.threadId,
+    sessionId: memoryAgent.session.sessionId, messageId: memoryAgent.message.messageId,
+    exchangeId: memoryAgent.message.exchangeId })
   return memoryAgent
 }
 
@@ -459,6 +487,7 @@ export function createServerLineAnswer({
   threadMemory = null,
   contextAssembler = assembleAgentContext,
   authorizationResolver = resolveAgentAuthorization,
+  projectionReceiptWriter = null,
   ...runtimeDependencies
 } = {}) {
   return async function answer(job, { trace, memoryStateReader } = {}) {
@@ -474,6 +503,7 @@ export function createServerLineAnswer({
     const memoryOptIn = job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
     const route = memoryOptIn ? memoryRoute(job) : null
     let selectedThreadMemory = memoryOptIn ? threadMemory : null
+    let selectedEpisodicMemory = null
     let runtimePorts = null
     let businessKnowledge
     let model
@@ -482,6 +512,7 @@ export function createServerLineAnswer({
         runtimePorts = await runtimeFactory(env,
           { ...runtimeDependencies, queryFn, bindingRequired: false })
         selectedThreadMemory = runtimePorts?.threadMemory
+        selectedEpisodicMemory = runtimePorts?.episodicMemory ?? null
         if (!selectedThreadMemory) throw failure('LINE_MEMORY_NOT_CONFIGURED')
       }
       if (memoryOptIn && typeof selectedThreadMemory.withInjectionReceipt !== 'function') {
@@ -496,13 +527,15 @@ export function createServerLineAnswer({
       // Direct native ingress has already authenticated account scope; opting out
       // of the legacy Edge binding does not weaken the provider/Vault gates.
       {
-        const ports = runtimePorts ?? await runtimeFactory(env, { ...runtimeDependencies, queryFn, bindingRequired: false })
+        runtimePorts = runtimePorts ?? await runtimeFactory(env, { ...runtimeDependencies, queryFn, bindingRequired: false })
+        const ports = runtimePorts
         if (!ports?.businessKnowledge || typeof ports.resolveModel !== 'function') {
           throw failure('LINE_BUSINESS_AGENT_NOT_CONFIGURED')
         }
         businessKnowledge = ports.businessKnowledge
         model = await ports.resolveModel({ tenantId, businessId })
         if (memoryOptIn && !selectedThreadMemory) selectedThreadMemory = ports.threadMemory
+        if (memoryOptIn) selectedEpisodicMemory = ports.episodicMemory ?? null
       }
 
       // @req FR-235 — a missing/unrecognised mode always resolves to
@@ -536,7 +569,9 @@ export function createServerLineAnswer({
       let injectedPacket = null
       if (memoryOptIn) {
         const prepared = await prepareLineMemoryContext({ job, route, question,
-          threadMemory: selectedThreadMemory, contextAssembler, memoryStateReader, env })
+          threadMemory: selectedThreadMemory,
+          episodicMemory: job.episodicMemoryOptIn === true ? selectedEpisodicMemory : null,
+          projectionReceiptWriter, contextAssembler, memoryStateReader, env })
         memoryContext = prepared.memoryContext
         memoryInbound = prepared.memoryInbound
         const authorizedForMemory = prepared.authorizedForMemory
@@ -677,7 +712,7 @@ export function createServerLineAnswer({
       if (memoryOptIn) {
         await appendLineMemoryAnswer({ job, route, threadMemory: selectedThreadMemory,
           memory: lineMemoryHandle(memoryContext, memoryInbound), answerText,
-          authorizationResolver, memoryStateReader, env })
+          authorizationResolver, projectionReceiptWriter, memoryStateReader, env })
       }
       return answerText
     } catch (error) {

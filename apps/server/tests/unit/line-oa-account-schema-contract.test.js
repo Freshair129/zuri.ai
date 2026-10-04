@@ -74,6 +74,32 @@ describe('FR-146 LineOaAccount Prisma, backup and migration contract', () => {
     expect(productionSql).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
   })
 
+  it('stores only projection identifiers and protects the receipt table with RLS', () => {
+    const sqlite = read('prisma/schema.prisma')
+    const postgres = read('prisma/schema.postgres.prisma')
+    const receiptBody = schema => schema.match(/model MemoryProjectionReceipt \{[\s\S]*?\n\}/)?.[0] || ''
+    expect(receiptBody(sqlite)).not.toBe('')
+    expect(receiptBody(postgres)).toBe(receiptBody(sqlite))
+    expect(receiptBody(sqlite)).toContain('mspMessageId')
+    expect(receiptBody(sqlite)).toContain('erasureReceiptId')
+    expect(receiptBody(sqlite)).not.toMatch(/text|body|token|secret/i)
+
+    const backup = read('src/modules/project-manager/application/backup-service.js')
+    const list = backup.slice(backup.indexOf('const SNAPSHOT_MODELS'), backup.indexOf('SNAPSHOT_EXCLUDED_MODELS'))
+    expect(list.indexOf("'lineConversationJob'")).toBeLessThan(list.indexOf("'memoryProjectionReceipt'"))
+    expect(list.indexOf("'agentTraceEvent'")).toBeLessThan(list.indexOf("'memoryProjectionReceipt'"))
+
+    const production = fs.readdirSync(path.resolve(process.cwd(), 'supabase/migrations'))
+      .find(name => name.includes('line_memory_projection_receipts'))
+    expect(production).toBeTruthy()
+    const sql = read(`supabase/migrations/${production}`)
+    expect(sql).toContain('NOT APPLIED')
+    expect(sql).toContain('REVOKE ALL ON TABLE public."MemoryProjectionReceipt" FROM public, anon, authenticated')
+    expect(sql).toContain('ALTER TABLE public."MemoryProjectionReceipt" FORCE ROW LEVEL SECURITY')
+    expect(sql).toContain('GRANT SELECT, INSERT, UPDATE, DELETE')
+    expect(sql).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+  })
+
   it('names the closed vocabularies once, in enums.js', () => {
     const enums = read('src/lib/validation/enums.js')
     expect(enums).toMatch(/LINE_OA_ACCOUNT_STATUSES = \['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIVED'\]/)

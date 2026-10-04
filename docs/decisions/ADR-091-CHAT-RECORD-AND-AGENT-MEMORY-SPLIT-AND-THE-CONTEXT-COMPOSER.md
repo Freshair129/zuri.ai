@@ -1,7 +1,7 @@
 ---
-version: "1.2.0"
+version: "1.3.0"
 created_at: "2026-09-14T15:00:00+07:00,Claude Opus 5"
-last_update: "2026-10-04T09:44:57+07:00,Codex"
+last_update: "2026-10-04T15:07:48+07:00,Codex"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -144,10 +144,20 @@ the event is recorded. The inbox gains read-model columns and a search reader in
 
 One transaction tombstones everything Tier 1 holds (CRM bodies, previews and attachments; LINE job
 fields; raw payloads; trace inputs; knowledge candidates per ADR-090 D8). The same transaction leaves
-durable work: one MSP erase call per projection receipt, retried with backoff, and a knowledge-source
+durable MSP erasure work, retried with backoff, and a knowledge-source
 withdrawal for any candidate already admitted. The Customer's erasure status reads **`PENDING_MSP`**
 until MSP acknowledges. An external tier is never assumed erased (SEC-031). A consent change to DECLINED
 erases that customer's memory projections without a full principal erasure.
+
+**Owner amendment (2026-09-28, option A; recorded in
+[CONVERSATION-RUNTIME-HANDOFF.md](../migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md)
+v0.3.18b; delivered in merged PR #614):** for an erased person with any memory-sync data, use exactly
+one tenant-wide MSP erase per `(tenant, principal, erasure request)`, including DIRECT-only memory.
+Durable MSP work uses that same unit. The tenant-wide erase does not resolve a thread. Every local
+projection receipt remains separately traceable; after MSP acknowledges, the local erasure receipt is
+recorded against the affected receipts. This amendment supersedes the original per-projection-receipt
+call granularity above. A consent-decline implementation remains open and must apply this approved
+tenant-wide per-request scope when it is implemented.
 
 ### D7 — The Context Composer is a formal node in the agent lane
 
@@ -248,6 +258,7 @@ add a transport with nothing to isolate.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0 | 2026-10-04 | accepted | Amends D6 erasure-call granularity to the owner's 2026-09-28 tenant-wide per-principal/per-request decision (PR #614); keeps projection receipts independently traceable and consent-decline delivery open | working-tree | Codex |
 | 1.2.0 | 2026-10-04 | accepted | Clarifies API-011 session memory is separate from API-010 → API-009 episodic memory; each retains its own consent and activation gates | working-tree | Codex |
 | 1.1.0 | 2026-09-16 | accepted | Amended by ADR-093 (archive before tombstone for message bodies) and refined by ADR-094 (the record owns the session id); D1–D7 otherwise unchanged | working-tree | Claude Opus 5 |
 | 1.0.0 | 2026-09-14 | accepted | CRM is the business record and MSP's session tier the agent's 90-day ledger consolidated into episodic and passport memory; retention defaults with downward-only Tenant overrides; MSP projection off until MSP main ships thread and erase tools; session tier needs policy, memory beyond it consent and DIRECT; non-text content recorded without bytes; erasure transactional inside Tier 1 and acknowledged outside; the Context Composer as an agent-lane module with one `ContextReceipt` per model call; reconciles PHASE-04 with ADR-061; Phase 0 declaration only | working-tree | Claude Opus 5 |

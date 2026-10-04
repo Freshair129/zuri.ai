@@ -132,6 +132,7 @@ const customerDto = (customer) => ({
   //   already composes. This module stays read-only (no writer added): the
   //   attestation write lives in customer-consent-service.js, a sibling module.
   consentStatus: customer.consentStatus,
+  memoryErasureStatus: customer.memoryErasureStatus ?? 'NONE',
   consentRecordedAt: customer.consentRecordedAt ? customer.consentRecordedAt.toISOString() : null,
   consentNote: customer.consentNote,
 })
@@ -169,6 +170,7 @@ export async function getConversationInbox({ viewer, businessId, limit = INBOX_R
           displayName: true,
           lifecycleStage: true,
           consentStatus: true,
+          memoryErasureStatus: true,
           consentRecordedAt: true,
           consentNote: true,
         },
@@ -313,6 +315,7 @@ export async function getConversationThread({ viewer, businessId, conversationId
           displayName: true,
           lifecycleStage: true,
           consentStatus: true,
+          memoryErasureStatus: true,
           consentRecordedAt: true,
           consentNote: true,
         },
