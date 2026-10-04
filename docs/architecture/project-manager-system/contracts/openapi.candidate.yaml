@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Zuri Project Manager full-system additions — CANDIDATE
-  version: 0.5.0b
+  version: 0.6.0b
   description: Full-system candidate. Phase A FR-251 is delivered in PR443 at c07cfaba. Phase B Feature paths and schemas reference the single document-24 candidate contract; B1 approval and B2 registration are pending. Other planned surfaces remain candidates. Synthetic server only; live routes are published by runtime /api/docs.
 servers:
   - url: https://pm-design.invalid
@@ -1194,7 +1194,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/Limit"
         - $ref: "#/components/parameters/Cursor"
-  /api/projects/{projectId}/runs/{runId}:
+  /api/projects/{projectId}/runs/{executionRunId}:
     parameters:
       - name: projectId
         in: path
@@ -1202,7 +1202,7 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: runId
+      - name: executionRunId
         in: path
         required: true
         schema:
@@ -1250,7 +1250,7 @@ paths:
           $ref: "#/components/responses/StandardError"
         "503":
           $ref: "#/components/responses/StandardError"
-  /api/projects/{projectId}/runs/{runId}/commands:
+  /api/projects/{projectId}/runs/{executionRunId}/commands:
     parameters:
       - name: projectId
         in: path
@@ -1258,7 +1258,7 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: runId
+      - name: executionRunId
         in: path
         required: true
         schema:
@@ -1269,7 +1269,7 @@ paths:
       tags:
         - Command center
       summary: commandProjectRun
-      description: RETRY requires stepId and reconciled retry eligibility. CANCEL remains pending until active effects are known.
+      description: RETRY requires executionStepId and reconciled retry eligibility. CANCEL remains pending until active effects are known.
       x-proposal-requirements:
         - PMR-008
         - PMR-021
@@ -1316,7 +1316,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/RunCommandInput"
-  /api/projects/{projectId}/runs/{runId}/events:
+  /api/projects/{projectId}/runs/{executionRunId}/events:
     parameters:
       - name: projectId
         in: path
@@ -1324,7 +1324,7 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: runId
+      - name: executionRunId
         in: path
         required: true
         schema:
@@ -2027,9 +2027,9 @@ paths:
               $ref: "#/components/schemas/ClaimInput"
       security:
         - ExecutorAuth: []
-  /api/platform/integrations/executions/{runId}/heartbeat:
+  /api/platform/integrations/executions/{executionRunId}/heartbeat:
     parameters:
-      - name: runId
+      - name: executionRunId
         in: path
         required: true
         schema:
@@ -2086,9 +2086,9 @@ paths:
               $ref: "#/components/schemas/HeartbeatInput"
       security:
         - ExecutorAuth: []
-  /api/platform/integrations/executions/{runId}/events:
+  /api/platform/integrations/executions/{executionRunId}/events:
     parameters:
-      - name: runId
+      - name: executionRunId
         in: path
         required: true
         schema:
@@ -3772,6 +3772,21 @@ components:
         sha256:
           type: string
           pattern: ^[a-f0-9]{64}$
+    ContractRef:
+      type: object
+      additionalProperties: false
+      required:
+        - contractId
+        - contractVersion
+      properties:
+        contractId:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 512
+        contractVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$
     MutationReceipt:
       type: object
       additionalProperties: false
@@ -3799,7 +3814,7 @@ components:
       additionalProperties: false
       required:
         - commandId
-        - runId
+        - executionRunId
         - state
         - version
         - requestId
@@ -3808,7 +3823,7 @@ components:
         commandId:
           type: string
           format: uuid
-        runId:
+        executionRunId:
           type: string
           format: uuid
         state:
@@ -4468,8 +4483,8 @@ components:
         - allowedRoles
         - modelPolicyVersionId
         - executorProfileId
-        - inputSchema
-        - outputSchema
+        - inputContract
+        - outputContract
         - evaluationSuiteId
         - reason
       properties:
@@ -4500,10 +4515,10 @@ components:
         executorProfileId:
           type: string
           format: uuid
-        inputSchema:
-          $ref: "#/components/schemas/ArtifactRef"
-        outputSchema:
-          $ref: "#/components/schemas/ArtifactRef"
+        inputContract:
+          $ref: "#/components/schemas/ContractRef"
+        outputContract:
+          $ref: "#/components/schemas/ContractRef"
         evaluationSuiteId:
           type: string
           format: uuid
@@ -4573,7 +4588,7 @@ components:
         schemaVersion:
           type: string
           enum:
-            - "1.0"
+            - "1.1"
         reason:
           type: string
           minLength: 1
@@ -4733,7 +4748,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        - id
+        - executionRunId
         - projectId
         - workflowVersionId
         - manifestSha256
@@ -4746,7 +4761,7 @@ components:
         - eventCursor
         - acceptance
       properties:
-        id:
+        executionRunId:
           type: string
           format: uuid
         projectId:
@@ -4822,14 +4837,14 @@ components:
           additionalProperties: false
           required:
             - action
-            - stepId
+            - executionStepId
             - reason
           properties:
             action:
               type: string
               enum:
                 - RETRY
-            stepId:
+            executionStepId:
               type: string
               format: uuid
             reason:
@@ -4960,18 +4975,18 @@ components:
       type: object
       additionalProperties: false
       required:
-        - runId
-        - stepId
+        - executionRunId
+        - executionStepId
         - attemptId
         - leaseEpoch
         - leaseUntil
         - manifest
         - attemptToken
       properties:
-        runId:
+        executionRunId:
           type: string
           format: uuid
-        stepId:
+        executionStepId:
           type: string
           format: uuid
         attemptId:

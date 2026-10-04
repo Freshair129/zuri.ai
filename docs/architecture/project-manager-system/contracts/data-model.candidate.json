@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.1.0",
+  "schemaVersion": "0.2.0",
   "status": "CANDIDATE",
   "codegenReady": false,
   "designBase": "087f30258a6831865afd751e28804e36505aff30",
@@ -27,7 +27,7 @@
         "RequirementBinding"
       ],
       "addedRecord": "ProjectFeatureMutationReceipt",
-      "rule": "For Phase B only, resolve the selected overlay for exact fields, keys, bounds, snapshot proof, Project-serialized concurrency, delete-batch restore cohorts and typed receipts. The tables array below preserves the earlier 85-record broad proposal. No other record is overridden; no schema or code generation is authorized. Allocation state and graph ETag are derived; no graph-state table."
+      "rule": "For Phase B only, resolve the selected overlay for exact fields, keys, bounds, snapshot proof, Project-serialized concurrency, delete-batch restore cohorts and typed receipts. The tables array preserves the earlier broad proposal plus two contract-registry records and two PM execution-trace records. No other record is overridden; no schema or code generation is authorized. Allocation state and graph ETag are derived; no graph-state table."
     }
   },
   "tables": [
@@ -4583,6 +4583,20 @@
           "note": "PROJECT_DELIVERY or BUSINESS_AUTOMATION"
         },
         {
+          "name": "inputContract",
+          "type": "json",
+          "nullable": false,
+          "references": null,
+          "note": "Exact {contractId,contractVersion} input interface; resolves to one approved ContractVersion"
+        },
+        {
+          "name": "outputContract",
+          "type": "json",
+          "nullable": false,
+          "references": null,
+          "note": "Exact {contractId,contractVersion} output interface; resolves to one approved ContractVersion"
+        },
+        {
           "name": "tools",
           "type": "json",
           "nullable": false,
@@ -4615,10 +4629,193 @@
         "definitionId,revision"
       ],
       "checks": [
-        "Published references exact versions; no latest alias; draft edits use CAS"
+        "Published references exact versions; no latest alias; draft edits use CAS",
+        "Input and output contract pairs resolve to approved immutable ContractVersion rows before approval"
       ],
       "indexes": [
         "businessId,definitionId,state"
+      ]
+    },
+    {
+      "name": "ContractDefinition",
+      "group": "contracts",
+      "owner": "integration",
+      "profile": "MUTABLE",
+      "status": "PROPOSED",
+      "purpose": "Stable product-wide identity for one inter-system API, event, message or file contract; ownerDomainId owns its meaning",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "note": "Internal row identity; never the contract reference"
+        },
+        {
+          "name": "contractId",
+          "type": "uri",
+          "nullable": false,
+          "note": "Stable namespace-qualified contract identity; remains the same across versions"
+        },
+        {
+          "name": "ownerDomainId",
+          "type": "text",
+          "nullable": false,
+          "note": "Domain that owns the contract meaning; registry plumbing remains Integration-owned"
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "note": ""
+        },
+        {
+          "name": "lifecycle",
+          "type": "enum",
+          "nullable": false,
+          "note": "DRAFT ACTIVE RETIRED; retirement blocks new bindings but preserves historical references"
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "note": "Server UTC creation time"
+        },
+        {
+          "name": "updatedAt",
+          "type": "instant",
+          "nullable": false,
+          "note": "Server UTC modification time"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "nullable": false,
+          "note": "CAS integer >=1; default 1"
+        }
+      ],
+      "unique": [
+        "contractId"
+      ],
+      "checks": [
+        "Contract identity grants no authorization; semantic owner resolves approval"
+      ],
+      "indexes": [
+        "ownerDomainId,lifecycle"
+      ]
+    },
+    {
+      "name": "ContractVersion",
+      "group": "contracts",
+      "owner": "integration",
+      "profile": "REVISION",
+      "status": "PROPOSED",
+      "purpose": "Immutable approved schema and wire-format revision of a ContractDefinition",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "note": "Internal immutable revision identity; internal FKs use this row ID"
+        },
+        {
+          "name": "definitionId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "ContractDefinition",
+          "note": ""
+        },
+        {
+          "name": "contractVersion",
+          "type": "text",
+          "nullable": false,
+          "note": "SemVer for this immutable contract revision; no latest alias"
+        },
+        {
+          "name": "state",
+          "type": "enum",
+          "nullable": false,
+          "note": "DRAFT IN_REVIEW APPROVED RETIRED"
+        },
+        {
+          "name": "schemaId",
+          "type": "uri",
+          "nullable": false,
+          "note": "Canonical version-specific schema URI; equals $id for JSON Schema"
+        },
+        {
+          "name": "schemaKind",
+          "type": "enum",
+          "nullable": false,
+          "note": "JSON_SCHEMA OPENAPI"
+        },
+        {
+          "name": "schemaDocumentFormat",
+          "type": "enum",
+          "nullable": false,
+          "note": "JSON YAML; serialization of the schema document itself"
+        },
+        {
+          "name": "serializationFormat",
+          "type": "enum",
+          "nullable": true,
+          "note": "JSON YAML; wire payload format, null when OpenAPI defines it per operation"
+        },
+        {
+          "name": "mediaType",
+          "type": "text",
+          "nullable": true,
+          "note": "Wire Content-Type, e.g. application/json or application/yaml; OpenAPI may specify it per operation"
+        },
+        {
+          "name": "schemaDocument",
+          "type": "json",
+          "nullable": false,
+          "note": "Validated, normalized schema object; YAML source parses to the same JSON data model"
+        },
+        {
+          "name": "schemaHash",
+          "type": "sha256",
+          "nullable": false,
+          "note": "Digest of the canonical normalized schema object, independent of JSON/YAML source formatting"
+        },
+        {
+          "name": "approvalReceiptRef",
+          "type": "text",
+          "nullable": true,
+          "note": "Owner review evidence required before APPROVED"
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "note": "Server UTC creation time"
+        },
+        {
+          "name": "updatedAt",
+          "type": "instant",
+          "nullable": false,
+          "note": "Server UTC modification time"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "nullable": false,
+          "note": "CAS integer >=1 while draft; approved revision is immutable"
+        }
+      ],
+      "unique": [
+        "definitionId,contractVersion",
+        "schemaId"
+      ],
+      "checks": [
+        "Approved revision is immutable; correction creates a new contractVersion",
+        "schemaDocumentFormat describes the schema file; serializationFormat/mediaType describe exchanged payloads",
+        "Every workflow reference resolves exact contractId + contractVersion before approval; latest is forbidden"
+      ],
+      "indexes": [
+        "definitionId,state"
       ]
     },
     {
@@ -4800,25 +4997,11 @@
           "type": "json",
           "nullable": false,
           "references": null,
-          "note": "Exactly workflow.schema.json plus semantic checks"
+          "note": "workflow.schema.json 1.1; input, output and per-step contract refs resolve exact approved ContractVersion rows before approval"
         },
         {
           "name": "workflowHash",
           "type": "sha256",
-          "nullable": false,
-          "references": null,
-          "note": ""
-        },
-        {
-          "name": "inputSchema",
-          "type": "json",
-          "nullable": false,
-          "references": null,
-          "note": ""
-        },
-        {
-          "name": "outputSchema",
-          "type": "json",
           "nullable": false,
           "references": null,
           "note": ""
@@ -5136,12 +5319,267 @@
       ]
     },
     {
+      "name": "ProjectExecutionRun",
+      "group": "execution",
+      "owner": "project-manager",
+      "profile": "MUTABLE",
+      "status": "PROPOSED",
+      "purpose": "PM source-of-truth lifecycle record for one admitted project workflow run",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "note": "Internal row identity; distinct from the run reference"
+        },
+        {
+          "name": "executionRunId",
+          "type": "uuid",
+          "nullable": false,
+          "references": null,
+          "note": "Stable run reference exposed across the PM and Integration owner port"
+        },
+        {
+          "name": "tenantId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Tenant",
+          "note": "Trusted isolation scope"
+        },
+        {
+          "name": "businessId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Business",
+          "note": "Trusted Business scope; must belong to tenant"
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "references": null,
+          "note": "Server UTC creation time"
+        },
+        {
+          "name": "updatedAt",
+          "type": "instant",
+          "nullable": false,
+          "references": null,
+          "note": "Server UTC modification time"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "nullable": false,
+          "references": null,
+          "note": "CAS integer >=1; default 1"
+        },
+        {
+          "name": "state",
+          "type": "enum",
+          "nullable": false,
+          "references": null,
+          "note": "QUEUED RUNNING WAITING_APPROVAL PAUSED CANCELLING SUCCEEDED FAILED CANCELLED UNKNOWN"
+        },
+        {
+          "name": "acceptance",
+          "type": "enum",
+          "nullable": false,
+          "references": null,
+          "note": "NOT_REVIEWED IN_REVIEW ACCEPTED REJECTED"
+        },
+        {
+          "name": "manifestSha256",
+          "type": "sha256",
+          "nullable": false,
+          "references": null,
+          "note": "Hash of the pinned execution manifest"
+        },
+        {
+          "name": "eventCursor",
+          "type": "text",
+          "nullable": false,
+          "references": null,
+          "note": "Opaque cursor for authorized run-event reads"
+        },
+        {
+          "name": "failureCode",
+          "type": "text",
+          "nullable": true,
+          "references": null,
+          "note": "Typed failure code; no raw provider or credential data"
+        },
+        {
+          "name": "startedAt",
+          "type": "instant",
+          "nullable": true,
+          "references": null,
+          "note": "Observed start time in UTC"
+        },
+        {
+          "name": "finishedAt",
+          "type": "instant",
+          "nullable": true,
+          "references": null,
+          "note": "Observed terminal time in UTC"
+        }
+      ],
+      "unique": [
+        "executionRunId"
+      ],
+      "checks": [
+        "Project workflow state is authoritative here; Integration queue, lease and provider details are projections through the owner port",
+        "UNKNOWN remains reconcilable; terminal execution state cannot be overwritten by a late stale attempt",
+        "A project run binds to exactly one ProjectRunBinding and never aliases Integration PipelineRun"
+      ],
+      "indexes": [
+        "businessId,state,createdAt",
+        "tenantId,createdAt"
+      ]
+    },
+    {
+      "name": "ProjectExecutionStep",
+      "group": "execution",
+      "owner": "project-manager",
+      "profile": "MUTABLE",
+      "status": "PROPOSED",
+      "purpose": "PM-owned per-step state and current attempt identity within a project execution run",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "note": "Internal row identity; distinct from the step reference"
+        },
+        {
+          "name": "executionStepId",
+          "type": "uuid",
+          "nullable": false,
+          "references": null,
+          "note": "Stable step reference used by run commands and Integration owner-port events"
+        },
+        {
+          "name": "tenantId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Tenant",
+          "note": "Trusted isolation scope copied from the run and checked on write"
+        },
+        {
+          "name": "businessId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Business",
+          "note": "Trusted Business scope copied from the run and checked on write"
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "references": null,
+          "note": "Server UTC creation time"
+        },
+        {
+          "name": "updatedAt",
+          "type": "instant",
+          "nullable": false,
+          "references": null,
+          "note": "Server UTC modification time"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "nullable": false,
+          "references": null,
+          "note": "CAS integer >=1; default 1"
+        },
+        {
+          "name": "executionRunId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "ProjectExecutionRun",
+          "note": "Parent PM execution trace; never PipelineRun"
+        },
+        {
+          "name": "stepKey",
+          "type": "text",
+          "nullable": false,
+          "references": null,
+          "note": "Stable key from the pinned WorkflowVersion"
+        },
+        {
+          "name": "state",
+          "type": "enum",
+          "nullable": false,
+          "references": null,
+          "note": "QUEUED READY RUNNING WAITING_APPROVAL SUCCEEDED FAILED SKIPPED CANCELLED UNKNOWN"
+        },
+        {
+          "name": "requiredForSuccess",
+          "type": "bool",
+          "nullable": false,
+          "references": null,
+          "note": "Pinned from the admitted WorkflowVersion"
+        },
+        {
+          "name": "attemptId",
+          "type": "uuid",
+          "nullable": true,
+          "references": null,
+          "note": "Current attempt reference; a retry allocates a fresh UUID and the prior value remains in immutable AuditEvent history"
+        },
+        {
+          "name": "attemptNo",
+          "type": "int",
+          "nullable": false,
+          "references": null,
+          "note": "Current attempt number; zero before first claim"
+        },
+        {
+          "name": "startedAt",
+          "type": "instant",
+          "nullable": true,
+          "references": null,
+          "note": "Observed start time in UTC"
+        },
+        {
+          "name": "finishedAt",
+          "type": "instant",
+          "nullable": true,
+          "references": null,
+          "note": "Observed step terminal time in UTC"
+        },
+        {
+          "name": "failureCode",
+          "type": "text",
+          "nullable": true,
+          "references": null,
+          "note": "Typed failure code; no raw provider or credential data"
+        }
+      ],
+      "unique": [
+        "executionStepId",
+        "executionRunId,stepKey",
+        "attemptId"
+      ],
+      "checks": [
+        "Each step belongs to one PM run and one key in its pinned WorkflowVersion",
+        "attemptId is null before claim; a retry gets a new attemptId and increments attemptNo",
+        "The latest step state is authoritative here; immutable AuditEvent preserves prior attempt identities and transitions"
+      ],
+      "indexes": [
+        "businessId,executionRunId,state"
+      ]
+    },
+    {
       "name": "ProjectRunBinding",
       "group": "execution",
       "owner": "project-manager",
       "profile": "APPEND",
       "status": "PROPOSED",
-      "purpose": "Project association to the Integration-owned run",
+      "purpose": "Project association to a PM-owned ProjectExecutionRun",
       "fields": [
         {
           "name": "id",
@@ -5185,11 +5623,11 @@
           "note": ""
         },
         {
-          "name": "pipelineRunId",
+          "name": "executionRunId",
           "type": "uuid",
           "nullable": false,
-          "references": "PipelineRun",
-          "note": ""
+          "references": "ProjectExecutionRun",
+          "note": "Binds to the PM-owned execution trace; not Integration PipelineRun"
         },
         {
           "name": "workflowVersionId",
@@ -5221,10 +5659,11 @@
         }
       ],
       "unique": [
-        "pipelineRunId"
+        "executionRunId"
       ],
       "checks": [
-        "One project per admitted PM run; Integration state read through owner port"
+        "One project per admitted PM run; execution state is read from the PM-owned ProjectExecutionRun",
+        "Integration PipelineRun remains a separate data-pipeline ledger"
       ],
       "indexes": [
         "businessId,projectId,createdAt"
@@ -9935,12 +10374,52 @@
       "maxChildren": "MANY"
     },
     {
-      "parent": "PipelineRun",
+      "parent": "ProjectExecutionRun",
       "child": "ProjectRunBinding",
-      "column": "pipelineRunId",
+      "column": "executionRunId",
       "optional": false,
       "kind": "PROPOSED_REFERENCE",
       "maxChildren": 1
+    },
+    {
+      "parent": "Tenant",
+      "child": "ProjectExecutionRun",
+      "column": "tenantId",
+      "optional": false,
+      "kind": "PROPOSED_REFERENCE",
+      "maxChildren": "MANY"
+    },
+    {
+      "parent": "Business",
+      "child": "ProjectExecutionRun",
+      "column": "businessId",
+      "optional": false,
+      "kind": "PROPOSED_REFERENCE",
+      "maxChildren": "MANY"
+    },
+    {
+      "parent": "ProjectExecutionRun",
+      "child": "ProjectExecutionStep",
+      "column": "executionRunId",
+      "optional": false,
+      "kind": "PROPOSED_REFERENCE",
+      "maxChildren": "MANY"
+    },
+    {
+      "parent": "Tenant",
+      "child": "ProjectExecutionStep",
+      "column": "tenantId",
+      "optional": false,
+      "kind": "PROPOSED_REFERENCE",
+      "maxChildren": "MANY"
+    },
+    {
+      "parent": "Business",
+      "child": "ProjectExecutionStep",
+      "column": "businessId",
+      "optional": false,
+      "kind": "PROPOSED_REFERENCE",
+      "maxChildren": "MANY"
     },
     {
       "parent": "WorkflowVersion",
@@ -11541,6 +12020,14 @@
       "optional": false,
       "kind": "SOURCE_RELATION",
       "maxChildren": "MANY"
+    },
+    {
+      "parent": "ContractDefinition",
+      "child": "ContractVersion",
+      "column": "definitionId",
+      "optional": false,
+      "kind": "PROPOSED_REFERENCE",
+      "maxChildren": "MANY"
     }
   ],
   "erdViews": [
@@ -11595,6 +12082,8 @@
       "id": "E04",
       "title": "Durable execution and usage",
       "entities": [
+        "ProjectExecutionRun",
+        "ProjectExecutionStep",
         "ProjectRunBinding",
         "PipelineRun",
         "PipelineStep",

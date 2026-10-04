@@ -43,6 +43,13 @@
       "status": "TARGET_CANDIDATE"
     },
     {
+      "id": "pm-execution-trace",
+      "label": "Project run and step trace",
+      "ownerDomain": "project-manager",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
       "id": "workforce",
       "label": "People and workforce planning",
       "ownerDomain": "project-manager",
@@ -51,7 +58,7 @@
     },
     {
       "id": "execution",
-      "label": "Durable execution and usage",
+      "label": "Integration admission queue and executor leases",
       "ownerDomain": "integration",
       "kind": "SERVICE",
       "status": "TARGET_CANDIDATE"
@@ -308,7 +315,7 @@
     },
     {
       "id": "BPE-20",
-      "source": "pm-definitions",
+      "source": "pm-execution-trace",
       "target": "execution",
       "type": "COMMANDS",
       "direction": "SOURCE_TO_TARGET",
@@ -376,6 +383,33 @@
       "type": "REPORTS_EVIDENCE",
       "direction": "SOURCE_TO_TARGET",
       "contractRef": "../07-DELIVERY-AND-VERIFICATION.md",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-28",
+      "source": "pm-definitions",
+      "target": "pm-execution-trace",
+      "type": "COMMANDS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "workflow.schema.json",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-29",
+      "source": "pm-execution-trace",
+      "target": "pm-store",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "data-model.candidate.json",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-30",
+      "source": "execution",
+      "target": "pm-execution-trace",
+      "type": "REPORTS_EVENT",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "openapi.candidate.yaml",
       "ownerDomain": "integration"
     }
   ],

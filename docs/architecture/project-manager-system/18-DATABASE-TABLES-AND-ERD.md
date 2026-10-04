@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-TABLES-ERD
 title: Project Manager table dictionary and ERD
-version: "0.2.0b"
+version: "0.3.0b"
 status: candidate
 created_at: "2026-09-16T12:00:32+07:00,RWANG,design base 087f3025"
-last_update: "2026-09-17T01:25:33+07:00,RWANG"
+last_update: "2026-10-04T10:00:00+07:00,Codex"
 superseded_by: null
 attributes:
   doc_type: data-design
@@ -30,8 +30,9 @@ mutation receipt and allocation concurrency rules take precedence for that slice
 
 The complete selected dictionary is [phase-b/data-model.candidate.json](contracts/phase-b/data-model.candidate.json).
 Its six `selectedPhaseBRecords` and document 24's ERD are the Phase B proposal.
-The 85-record inventory below is the earlier full-system catalog; it does not
-include the newly selected receipt record and must not be used alone to generate
+The 89-record inventory below is the broad full-system catalog, including the
+two PM execution-trace records added in this review. It does not include the
+separately selected Phase B receipt record and must not be used alone to generate
 Phase B schemas. The broad JSON points to this overlay through `selectedSlices.phaseB`.
 
 | Selected record | Source of fields, keys and invariants | Relationship to the earlier catalog |
@@ -69,11 +70,12 @@ defines these rules and the cross-adapter tests; this document grants no DDL aut
 
 | Type/profile | Proposed contract |
 |---|---|
-| uuid / text / sha256 | Internal UUID; bounded text; 64 lower-case hex digest. Source commit SHA format follows the repository algorithm. |
+| uuid / uri / text / sha256 | Internal UUID; absolute URI for contract/schema identities; bounded text; 64 lower-case hex digest. Source commit SHA format follows the repository algorithm. |
 | int / bigint / decimal | Integer minutes and basis points; nonnegative money in currency minor units stored as BIGINT and serialized safely as string. No floating-point currency. |
 | instant | UTC instant; PostgreSQL timestamptz, SQLite normalized UTC via repository adapter. Local IANA timezone stored separately; use half-open intervals. |
 | json | Versioned schema validated before persistence; PostgreSQL JSONB / SQLite validated JSON text. A JSON label alone does not close an API shape gap. |
-| MUTABLE | id, tenantId, businessId, createdAt, updatedAt, version>=1, nullable deletedAt plus entity fields. Default version=1; timestamps server-generated; no default person, calendar, effort or permission. |
+| contract identity | Stable `contractId` URI + exact SemVer `contractVersion`; internal `id` is UUID. `schemaId` names one immutable schema URI. `schemaKind`, `schemaDocumentFormat`, payload `serializationFormat` and `mediaType` are distinct. |
+| MUTABLE | Scoped records use id, tenantId, businessId, createdAt, updatedAt, version>=1, nullable deletedAt plus entity fields. The global contract registry is intentionally unscoped; default version=1 and timestamps server-generated. |
 | REVISION | id/scope/timestamps/version plus entity fields; draft is CAS-mutable, approved/submitted revision immutable. A correction appends, retirement affects future use. |
 | APPEND | id/scope/createdAt plus entity fields; business facts append only. Exceptional privacy redaction uses audited tombstone, preserving evidence identity. |
 | Composite scope | New scoped child links require same tenant/business and project where relevant. New tables expose UNIQUE(tenantId,businessId,id); scoped child FK uses that triple for new peers. |
@@ -127,6 +129,8 @@ No physical table is proposed for navigation Domain groups, Feature-driven views
 | DesignSnapshot | project-manager | PROPOSED | REVISION | Reviewable exact requirement graph contract and policy baseline |
 | DesignReview | project-manager | PROPOSED | APPEND | Review receipt for a specific snapshot |
 | ArchitectureElementBinding | project-manager | PROPOSED | APPEND | Element provenance and source anchors |
+| ContractDefinition | integration | PROPOSED | MUTABLE | Stable cross-system contract identity; semantic owner is ownerDomainId |
+| ContractVersion | integration | PROPOSED | REVISION | Immutable approved schema and wire-format revision |
 | AgentDefinition | project-manager | PROPOSED | MUTABLE | Agent stable inventory identity |
 | AgentVersion | project-manager | PROPOSED | REVISION | Immutable approved agent revision |
 | WorkflowDefinition | project-manager | PROPOSED | MUTABLE | Workflow stable inventory identity |
@@ -134,7 +138,9 @@ No physical table is proposed for navigation Domain groups, Feature-driven views
 | FleetDefinition | project-manager | PROPOSED | MUTABLE | Fleet stable inventory identity |
 | FleetVersion | project-manager | PROPOSED | REVISION | Immutable approved fleet revision |
 | FleetMember | project-manager | PROPOSED | APPEND | A role pinned to an approved agent version |
-| ProjectRunBinding | project-manager | PROPOSED | APPEND | Project association to the Integration-owned run |
+| ProjectExecutionRun | project-manager | PROPOSED | MUTABLE | Project workflow state and run identity source of truth |
+| ProjectExecutionStep | project-manager | PROPOSED | MUTABLE | Project workflow step state and current attempt reference |
+| ProjectRunBinding | project-manager | PROPOSED | APPEND | Project association to the PM-owned ProjectExecutionRun |
 | StepAttempt | integration | PROPOSED | MUTABLE | Durable attempts without reusing legacy PipelineStep.attemptId semantics |
 | QueueLease | integration | PROPOSED | MUTABLE | Exclusive active execution lane and fencing token |
 | EffectReceipt | integration | PROPOSED | APPEND | Deduplicated external side-effect intent/outcome evidence |
@@ -1036,6 +1042,47 @@ Existing model constraints: @@index([runId, status]); @@index([gateId]). Postgre
 
 **Unique:** snapshotId,elementId. **Indexes:** businessId,snapshotId. **Invariants:** Refs must occur in sealed graph or API manifest.
 
+### ContractDefinition
+
+**PROPOSED · integration · MUTABLE** — Product-wide contract registry identity; `ownerDomainId` owns semantics
+
+| Column | Type | Nullable | Key/reference | Rule or source definition |
+|---|---|---|---|---|
+| id | uuid | No | PK | Internal registry-row identity; not the external contract reference |
+| contractId | uri | No | UNIQUE | Stable namespace-qualified identity; unchanged across contract versions |
+| ownerDomainId | text | No |  | Domain that owns the contract meaning; Integration owns registry plumbing |
+| name | text | No |  | Human-readable display name |
+| lifecycle | enum | No |  | DRAFT ACTIVE RETIRED; retirement blocks new bindings only |
+| createdAt | instant | No |  | Server UTC creation time |
+| updatedAt | instant | No |  | Server UTC modification time |
+| version | int | No |  | CAS integer >=1; default 1 |
+
+**Unique:** contractId. **Indexes:** ownerDomainId,lifecycle. **Scope:** global metadata only; payload data is never stored here.
+
+### ContractVersion
+
+**PROPOSED · integration · REVISION** — Immutable approved schema and wire-format revision
+
+| Column | Type | Nullable | Key/reference | Rule or source definition |
+|---|---|---|---|---|
+| id | uuid | No | PK | Internal version-row identity; internal FKs use this value |
+| definitionId | uuid | No | FK → ContractDefinition | No implicit default; registry resolves the owning definition |
+| contractVersion | text | No |  | SemVer; exact consumer pin, never `latest` |
+| state | enum | No |  | DRAFT IN_REVIEW APPROVED RETIRED |
+| schemaId | uri | No | UNIQUE | Canonical version-specific schema URI; equals `$id` for JSON Schema |
+| schemaKind | enum | No |  | JSON_SCHEMA OPENAPI |
+| schemaDocumentFormat | enum | No |  | JSON YAML; representation of the contract document itself |
+| serializationFormat | enum | Yes |  | JSON YAML; payload serialization, null when OpenAPI specifies it per operation |
+| mediaType | text | Yes |  | Wire Content-Type; e.g. `application/json` or `application/yaml` |
+| schemaDocument | json | No |  | Validated normalized schema; YAML parses into the same JSON data model |
+| schemaHash | sha256 | No |  | Digest of the canonical normalized schema object |
+| approvalReceiptRef | text | Yes |  | Owner review evidence required before APPROVED |
+| createdAt | instant | No |  | Server UTC creation time |
+| updatedAt | instant | No |  | Server UTC modification time |
+| version | int | No |  | CAS integer >=1 while draft; approved revision is immutable |
+
+**Unique:** definitionId,contractVersion; schemaId. **Indexes:** definitionId,state. **Invariants:** `schemaDocumentFormat` is independent of payload `serializationFormat` / `mediaType`; changes to an approved schema create a new contractVersion.
+
 ### AgentDefinition
 
 **PROPOSED · project-manager · MUTABLE** — Agent stable inventory identity
@@ -1075,12 +1122,14 @@ Existing model constraints: @@index([runId, status]); @@index([gateId]). Postgre
 | approvalReceiptRef | text | Yes |  | No implicit default; owner validates before commit |
 | charterRef | text | No |  | No implicit default; owner validates before commit |
 | executionKind | enum | No |  | PROJECT_DELIVERY or BUSINESS_AUTOMATION |
+| inputContract | json | No |  | Exact `{contractId,contractVersion}` input interface; resolves to one approved ContractVersion |
+| outputContract | json | No |  | Exact `{contractId,contractVersion}` output interface; resolves to one approved ContractVersion |
 | tools | json | No |  | Pinned tool IDs and digests |
 | modelPolicyVersionId | uuid | No | FK → RoutingPolicyVersion | No implicit default; owner validates before commit |
 | executorConstraints | json | No |  | Whitelisted capabilities |
 | evalArtifactId | uuid | Yes | FK → ArtifactRevision | No implicit default; owner validates before commit |
 
-**Unique:** definitionId,revision. **Indexes:** businessId,definitionId,state. **Invariants:** Published references exact versions; no latest alias; draft edits use CAS.
+**Unique:** definitionId,revision. **Indexes:** businessId,definitionId,state. **Invariants:** Published references exact versions; input/output contract pairs resolve to approved immutable ContractVersion rows; no latest alias; draft edits use CAS.
 
 ### WorkflowDefinition
 
@@ -1119,12 +1168,10 @@ Existing model constraints: @@index([runId, status]); @@index([gateId]). Postgre
 | state | enum | No |  | DRAFT IN_REVIEW APPROVED RETIRED |
 | contentHash | sha256 | No |  | No implicit default; owner validates before commit |
 | approvalReceiptRef | text | Yes |  | No implicit default; owner validates before commit |
-| workflow | json | No |  | Exactly workflow.schema.json plus semantic checks |
+| workflow | json | No |  | workflow.schema.json 1.1; root and step `{contractId,contractVersion}` pairs resolve exact approved ContractVersion rows before approval |
 | workflowHash | sha256 | No |  | No implicit default; owner validates before commit |
-| inputSchema | json | No |  | No implicit default; owner validates before commit |
-| outputSchema | json | No |  | No implicit default; owner validates before commit |
 
-**Unique:** definitionId,revision. **Indexes:** businessId,definitionId,state. **Invariants:** Published references exact versions; no latest alias; draft edits use CAS.
+**Unique:** definitionId,revision. **Indexes:** businessId,definitionId,state. **Invariants:** Published references exact versions; no latest alias; draft edits use CAS. Root input/output schemas are not copied into separate mutable columns.
 
 ### FleetDefinition
 
@@ -1189,9 +1236,57 @@ Existing model constraints: @@index([runId, status]); @@index([gateId]). Postgre
 
 **Unique:** fleetVersionId,roleKey. **Indexes:** businessId,agentVersionId. **Invariants:** Same authorized scope; owner lane constraints.
 
+### ProjectExecutionRun
+
+**PROPOSED · project-manager · MUTABLE** — Authoritative lifecycle record for one admitted project workflow run
+
+| Column | Type | Nullable | Key/reference | Rule or source definition |
+|---|---|---|---|---|
+| id | uuid | No | PK | Internal row identity; distinct from the run reference |
+| executionRunId | uuid | No | UK | Stable run reference exposed across the PM and Integration owner port |
+| tenantId | uuid | No | FK → Tenant | Trusted isolation scope |
+| businessId | uuid | No | FK → Business | Trusted Business scope; must belong to tenant |
+| createdAt | instant | No |  | Server UTC creation time |
+| updatedAt | instant | No |  | Server UTC modification time |
+| version | int | No |  | CAS integer >=1; default 1 |
+| state | enum | No |  | QUEUED / RUNNING / WAITING_APPROVAL / PAUSED / CANCELLING / SUCCEEDED / FAILED / CANCELLED / UNKNOWN |
+| acceptance | enum | No |  | NOT_REVIEWED / IN_REVIEW / ACCEPTED / REJECTED |
+| manifestSha256 | sha256 | No |  | Hash of the pinned execution manifest |
+| eventCursor | text | No |  | Opaque cursor for authorized run-event reads |
+| failureCode | text | Yes |  | Typed failure code; no raw provider or credential data |
+| startedAt | instant | Yes |  | Observed start time in UTC |
+| finishedAt | instant | Yes |  | Observed terminal time in UTC |
+
+**Unique:** executionRunId. **Indexes:** businessId,state,createdAt; tenantId,createdAt. **Invariants:** PM owns project-workflow state; UNKNOWN remains reconcilable; a run binds to one ProjectRunBinding and never aliases Integration PipelineRun.
+
+### ProjectExecutionStep
+
+**PROPOSED · project-manager · MUTABLE** — Authoritative state for one keyed step in a ProjectExecutionRun
+
+| Column | Type | Nullable | Key/reference | Rule or source definition |
+|---|---|---|---|---|
+| id | uuid | No | PK | Internal row identity; distinct from the step reference |
+| executionStepId | uuid | No | UK | Stable step reference used by run commands and Integration owner-port events |
+| tenantId | uuid | No | FK → Tenant | Trusted isolation scope copied from the run and checked on write |
+| businessId | uuid | No | FK → Business | Trusted Business scope copied from the run and checked on write |
+| createdAt | instant | No |  | Server UTC creation time |
+| updatedAt | instant | No |  | Server UTC modification time |
+| version | int | No |  | CAS integer >=1; default 1 |
+| executionRunId | uuid | No | FK → ProjectExecutionRun | Parent PM execution trace; never PipelineRun |
+| stepKey | text | No |  | Stable key from the pinned WorkflowVersion |
+| state | enum | No |  | QUEUED / READY / RUNNING / WAITING_APPROVAL / SUCCEEDED / FAILED / SKIPPED / CANCELLED / UNKNOWN |
+| requiredForSuccess | bool | No |  | Pinned from the admitted WorkflowVersion |
+| attemptId | uuid | Yes | UK | Current attempt; retries allocate a fresh UUID and immutable AuditEvent keeps prior identities |
+| attemptNo | int | No |  | Current attempt number; zero before first claim |
+| startedAt | instant | Yes |  | Observed start time in UTC |
+| finishedAt | instant | Yes |  | Observed terminal time in UTC |
+| failureCode | text | Yes |  | Typed failure code; no raw provider or credential data |
+
+**Unique:** executionStepId; executionRunId,stepKey; attemptId when non-null. **Indexes:** businessId,executionRunId,state. **Invariants:** One step per key in its pinned WorkflowVersion; every retry gets a new attemptId and increments attemptNo; PM owns latest step state and AuditEvent preserves prior attempt identity/state transitions.
+
 ### ProjectRunBinding
 
-**PROPOSED · project-manager · APPEND** — Project association to the Integration-owned run
+**PROPOSED · project-manager · APPEND** — Project association to the PM-owned execution run
 
 | Column | Type | Nullable | Key/reference | Rule or source definition |
 |---|---|---|---|---|
@@ -1201,13 +1296,13 @@ Existing model constraints: @@index([runId, status]); @@index([gateId]). Postgre
 | createdAt | instant | No |  | Server UTC creation time |
 | projectId | uuid | No | FK → Project | No implicit default; owner validates before commit |
 | workstreamId | uuid | Yes | FK → Workstream | No implicit default; owner validates before commit |
-| pipelineRunId | uuid | No | FK → PipelineRun | No implicit default; owner validates before commit |
+| executionRunId | uuid | No | FK → ProjectExecutionRun | PM-owned workflow execution trace; not Integration PipelineRun |
 | workflowVersionId | uuid | No | FK → WorkflowVersion | No implicit default; owner validates before commit |
 | fleetVersionId | uuid | Yes | FK → FleetVersion | No implicit default; owner validates before commit |
 | snapshotId | uuid | No | FK → DesignSnapshot | No implicit default; owner validates before commit |
 | baselineHash | sha256 | No |  | No implicit default; owner validates before commit |
 
-**Unique:** pipelineRunId. **Indexes:** businessId,projectId,createdAt. **Invariants:** One project per admitted PM run; Integration state read through owner port.
+**Unique:** executionRunId. **Indexes:** businessId,projectId,createdAt. **Invariants:** One project binding per admitted PM run; PM execution trace remains the run authority.
 
 ### StepAttempt
 
@@ -2248,6 +2343,23 @@ erDiagram
     String status
     Int version
   }
+  ContractDefinition {
+    uuid id PK
+    uri contractId UK
+    text ownerDomainId
+    enum lifecycle
+  }
+  ContractVersion {
+    uuid id PK
+    uuid definitionId FK
+    text contractVersion
+    uri schemaId UK
+    enum schemaKind
+    enum schemaDocumentFormat
+    enum serializationFormat
+    text mediaType
+    enum state
+  }
   AgentDefinition {
     uuid id PK
     int version
@@ -2293,6 +2405,7 @@ erDiagram
     uuid definitionId FK
     int revision
     enum state
+    json workflow
   }
   RoutingPolicyVersion {
     uuid id PK
@@ -2301,6 +2414,7 @@ erDiagram
     int revision
     enum state
   }
+  ContractDefinition ||..o{ ContractVersion : definitionId
   Project ||..o{ AgentDefinition : projectId
   AgentDefinition ||..o{ AgentVersion : definitionId
   RoutingPolicyVersion ||..o{ AgentVersion : modelPolicyVersionId
@@ -2313,16 +2427,31 @@ erDiagram
   AgentVersion ||..o{ FleetMember : agentVersionId
 ```
 
-Keys shown are a selected subset. Full fields and constraints are in §4; table status determines whether an edge is existing or proposed. Non-identifying references use dashed lines. Single-column unique FKs show at most one child; temporal overlap/credit rules remain in the dictionary.
+Keys shown are a selected subset. Full fields and constraints are in §4; table status determines whether an edge is existing or proposed. ContractVersion references nested in the immutable WorkflowVersion JSON resolve by exact `{contractId,contractVersion}` and are validated before approval; that semantic reference is not a SQL FK. Non-identifying references use dashed lines. Single-column unique FKs show at most one child; temporal overlap/credit rules remain in the dictionary.
 
 ## E04 — Durable execution and usage
 
 ```mermaid
 erDiagram
   direction TB
+  ProjectExecutionRun {
+    uuid id PK
+    uuid executionRunId UK
+    enum state
+    enum acceptance
+  }
+  ProjectExecutionStep {
+    uuid id PK
+    uuid executionStepId UK
+    uuid executionRunId FK
+    uuid attemptId UK "nullable current attempt"
+    text stepKey
+    enum state
+  }
   ProjectRunBinding {
     uuid id PK
-    uuid pipelineRunId FK
+    uuid executionRunId FK
+    uuid workflowVersionId FK
   }
   PipelineRun {
     String id PK
@@ -2377,7 +2506,9 @@ erDiagram
     int revision
     enum state
   }
-  PipelineRun ||..o| ProjectRunBinding : pipelineRunId
+  ProjectExecutionRun ||..o| ProjectRunBinding : executionRunId
+  ProjectExecutionRun ||..o{ ProjectExecutionStep : executionRunId
+  WorkflowVersion ||..o{ ProjectRunBinding : workflowVersionId
   PipelineStep ||..o{ StepAttempt : pipelineStepId
   ExecutorRegistration ||..o{ StepAttempt : executorId
   PipelineStep ||..o{ QueueLease : pipelineStepId
@@ -2390,7 +2521,7 @@ erDiagram
   PipelineRun ||..o{ PipelineStep : runId
 ```
 
-Keys shown are a selected subset. Full fields and constraints are in §4; table status determines whether an edge is existing or proposed. Non-identifying references use dashed lines. Single-column unique FKs show at most one child; temporal overlap/credit rules remain in the dictionary.
+Keys shown are a selected subset. Full fields and constraints are in §4; table status determines whether an edge is existing or proposed. Non-identifying references use dashed lines. Single-column unique FKs show at most one child; temporal overlap/credit rules remain in the dictionary. Project workflows bind to the PM execution ledger; Integration PipelineRun remains a separate data-pipeline ledger.
 
 ## E05 — Providers MCP and keys
 
@@ -2841,7 +2972,7 @@ ProjectControlRecord.details must be discriminated by kind and mapped to RiskInp
 | Publish human plan | Stable ordered person/day and work-item lock set; all active Business allocations, effective calendar/shares/assignment/estimate versions; plan+allocations+audit+owner outbox | Simultaneous overlapping plans cannot both commit; hidden demand handled by authorized coarse availability or PARTIAL/refusal |
 | Multi-owner calendar+allocation plan | If owners share one DB, explicit shared unit-of-work with each service validating; if remote, prepare/commit protocol or split user-visible commands | No claim of cross-service transaction; remote protocol remains SPEC-G02/G07 gate |
 | Review metric/time entry | Current Identity action and reviewer conflict check, expected hash/version, append receipt and approved revision | Stale review fails; peer membership never substitutes for grant |
-| Dispatch/claim/result | Integration admission reserves usage and outbox; exclusive lane lease, incremented epoch; receipt and state transition commit together | Existing PipelineRun dataPipelineDefinitionId and PipelineStep.attemptId need explicit PM-profile mapping before reuse |
+| Dispatch/claim/result | PM records workflow execution in ProjectExecutionRun/ProjectExecutionStep; Integration runs its own PipelineRun/PipelineStep only for data pipelines | Queue lease, executor attempt and effect-receipt extensions need an owner-approved binding; this candidate does not merge ledgers |
 | Redacted projections | Scope before aggregation; cache key includes viewer entitlement/version and authorized cohort; recheck on read | No cross-Business counts, IDs or protected individual metrics exposed |
 | PostgreSQL adapter | Migration-reviewed FKs/checks/indexes, runtime-role grants, transaction-local scope/RLS policy per table | Read-only schema validation and cross-tenant integration tests; no assumed generic RLS function |
 | SQLite adapter | Foreign keys enabled per connection; scoped repositories; CAS/BEGIN IMMEDIATE where relevant; deterministic date/JSON encoding | Same negative contract suite; SQLite has no native RLS |
@@ -2864,3 +2995,4 @@ This table design partially addresses SPEC-G07 (fields, invariants, indexing, tr
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-16 | candidate | Add enumerated existing-model fields, candidate table dictionary, nine ERD views and persistence acceptance | design base 087f3025; uncommitted | RWANG |
 | 0.2.0b | 2026-09-17 | candidate | Unify sourceNamespace; bind the selected six-record Phase B overlay including typed mutation receipts, per-WorkItem concurrency and restore cohorts; retain the earlier broad catalog explicitly as historical | composed ecc30b94 | RWANG |
+| 0.3.0b | 2026-10-04 | candidate | Add product-wide versioned interface-contract registry; resolve workflow schemas by exact contract version; bind ProjectRunBinding to PM execution trace and separate Integration pipeline runs | documentation refinement | Codex |
