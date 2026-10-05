@@ -3065,9 +3065,9 @@ Charter: [docs/domains/marketing/CHARTER.md](docs/domains/marketing/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/marketing` |
-| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake, MarketingBroadcastIntent, MarketingBroadcastIntentVersion |
-| Routes owned | 40 (22 api · 18 pages) |
-| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162, FR-185, FR-275, FR-278 |
+| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingReportPolicy, MarketingReportBinding, MarketingExternalReport, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake, MarketingBroadcastIntent, MarketingBroadcastIntentVersion |
+| Routes owned | 41 (23 api · 18 pages) |
+| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162, FR-185, FR-275, FR-278, FR-281, FR-282, FR-283 |
 
 ## platform-control
 
@@ -3100,7 +3100,7 @@ Charter: [docs/domains/project-manager/CHARTER.md](docs/domains/project-manager/
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, TaxRegistrationBranch, Business, Branch, Employment, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, BusinessKeyResult, BusinessKeyResultCheckIn, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, AuditEvent, PlanImportReceipt, ProjectExecutionRun, ProjectExecutionStep, ProjectApprovalRequest, GovernanceSnapshot, ProjectFeature, FeatureContribution, FeatureWorkLink, RequirementBinding, ProjectFeatureMutationReceipt |
 | Routes owned | 216 (169 api · 47 pages) |
-| FRs implemented in lane | BR-001, BR-044, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-039, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-094, FR-095, FR-097, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-184, FR-185, FR-186, FR-187, FR-191, FR-193, FR-194, FR-195, FR-197, FR-198, FR-199, FR-203, FR-204, FR-206, FR-207, FR-208, FR-209, FR-218, FR-223, FR-224, FR-226, FR-229, FR-230, FR-233, FR-236, FR-237, FR-243, FR-245, FR-246, FR-247, FR-248, FR-249, FR-250, FR-251, FR-252, FR-253, FR-254, FR-266, FR-268, FR-270, FR-271, FR-272, FR-273, FR-274, FR-275, FR-277, FR-278, NFR-023, SDD-037, SDD-107, SDD-110, SEC-034 |
+| FRs implemented in lane | BR-001, BR-044, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-039, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-094, FR-095, FR-097, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-184, FR-185, FR-186, FR-187, FR-191, FR-193, FR-194, FR-195, FR-197, FR-198, FR-199, FR-203, FR-204, FR-206, FR-207, FR-208, FR-209, FR-218, FR-223, FR-224, FR-226, FR-229, FR-230, FR-233, FR-236, FR-237, FR-243, FR-245, FR-246, FR-247, FR-248, FR-249, FR-250, FR-251, FR-252, FR-253, FR-254, FR-266, FR-268, FR-270, FR-271, FR-272, FR-273, FR-274, FR-275, FR-277, FR-278, FR-281, FR-282, FR-283, NFR-023, SDD-037, SDD-107, SDD-110, SEC-034 |
 
 
 # Vocabulary
@@ -5999,10 +5999,22 @@ Long-running polling/browser/translation work may execute in a separate worker *
 
 
 <!-- ======================================================================== -->
-<!-- source: docs/domains/marketing/CHARTER.md — version: 0.6.0b · status: beta -->
+<!-- source: docs/domains/marketing/CHARTER.md — version: 0.7.0b · status: beta -->
 <!-- ======================================================================== -->
 
 # Marketing domain charter
+
+Approved external Marketing evidence is owned by fresh FR-281–283/SDD-112
+([physical contract](docs/change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md)).
+The candidate dedicated receiver uses an independent deny-default Business machine
+policy, immutable report-only binding and reported-evidence receipt. It creates no
+Person, native plan/review/decision or verified Commerce total. Native acceptance
+and independent application review remain separate gates; no real provisioning,
+migration, send or deployment is implied. Legacy JSON backup refuses nonempty
+machine evidence; private consistent whole-database custody preserves it.
+
+Version diff 0.6.0b → 0.7.0b: adds approved report custody ownership and candidate
+receiver boundary; existing dashboard FR-278 and human Marketing grants stay stable.
 
 > For LLM readers: [llms.txt](llms.txt) is the repository index, and
 > [llms-full.txt](llms-full.txt) inlines this charter, the working rules
@@ -6653,12 +6665,12 @@ These are machine-written and regenerated by `npm run govern`; a frozen copy
 here would be stale within a day, and together they outweigh the prose above by
 an order of magnitude. Read them from the repository:
 
-- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) (620KB): the FR / NFR / BR / SEC / SDD registry — every requirement id
-- [docs/FEATURES.md](docs/FEATURES.md) (110KB): the FEAT registry
-- [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md) (282KB): generated — the feature-driven view over the domain spine
-- [docs/TRACE.md](docs/TRACE.md) (734KB): generated — per FR: surface to code to rules to tests
-- [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (198KB): generated — the API surface
-- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (100KB): the database schema
-- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (849KB): generated — the traceability appendix
-- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (423KB): live delivery state (Thai) — read by GoVibe Mission Control
+- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) (624KB): the FR / NFR / BR / SEC / SDD registry — every requirement id
+- [docs/FEATURES.md](docs/FEATURES.md) (113KB): the FEAT registry
+- [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md) (285KB): generated — the feature-driven view over the domain spine
+- [docs/TRACE.md](docs/TRACE.md) (740KB): generated — per FR: surface to code to rules to tests
+- [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (199KB): generated — the API surface
+- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (101KB): the database schema
+- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (855KB): generated — the traceability appendix
+- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (424KB): live delivery state (Thai) — read by GoVibe Mission Control
 

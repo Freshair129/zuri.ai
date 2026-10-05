@@ -3,7 +3,7 @@ doc_type: intake-note
 title: Marketing report receiver — physical design for review
 status: approved
 superseded_by: null
-version: "0.2.0"
+version: "0.3.0"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
@@ -11,11 +11,11 @@ risk: HIGH
 
 # Marketing report receiver — physical design proposal
 
-Final main gate: main advanced to `07779662` and issued a different FR-278. References below are this task branch's issued records at `fcb7ade3`, not active-main identities. [Main-first reconciliation](ZURI-GO-REPORT-MAIN-RECONCILIATION.md) is approved; the fresh main worktree implements its combined tooling before reviewed fresh issuance and application coding. No identity is renamed or aliased by this physical proposal.
+Main-first reconciliation preserves main `07779662` and its dashboard FR-278, plus the historical branch's conflicting batch. Fresh reviewed issuance at `d08f08a8` supplies FR-281–283/SDD-112 below; no old identity is renamed or aliased. [Bounded implementation evidence](ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md) records the SQLite candidate and remaining acceptance gates.
 
-This proposal elaborates [ZAI:SDD-111](../../requirements/SDD-111.md), [FR-278](../../requirements/FR-278.md), [FR-279](../../requirements/FR-279.md) and [FR-280](../../requirements/FR-280.md). Their issued statements, identities, planned delivery and frozen approval remain unchanged. The approved [receiver intake](ZURI-GO-REPORT-RECEIVER.md) supplies behavior; this document proposes its physical enforcement and native test bindings. Owner approved this physical design on 2026-10-05, including the separate deny-default Business machine policy and backup restrictions. Native implementation/acceptance remains pending. No schema, application code or live credential is delivered here.
+This approved physical design elaborates freshly issued [ZAI:SDD-112](../../requirements/SDD-112.md), [FR-281](../../requirements/FR-281.md), [FR-282](../../requirements/FR-282.md) and [FR-283](../../requirements/FR-283.md) at `d08f08a8f2604bd9657360d37f7c135d636189b7`, after exact independent manifest review. These preserve the four report subjects under fresh identities; they are not aliases for any old branch ID. Main FR-278 remains the dashboard. The old batch at `cdb9518bc50019e876c15c6b1f6c1c98af84f65a` and its sealed evidence remain unchanged. The approved [receiver intake](ZURI-GO-REPORT-RECEIVER.md) supplies behavior. The owner approved this physical design, including the deny-default Business machine policy and backup restrictions; native implementation/acceptance is pending.
 
-Inspected composition: parent merge `fcb7ade3a022029cf47530643edc74fab2e49420`, integrating main `3506129ffc1feb93773d2110901e248609f80f7c` into the task branch without rebasing issued provenance. Counterpart Go baseline: `f06ef4d3e2321ff9ab24f125503bf32900343e37`, schema 11. Go owns the wire whitelist/canonicalization in `docs/features/FEAT-015-marketing-report-exchange/contract.md` v0.3.0 and sender physical chapter `p3-physical-delivery.md` v0.1.0. Pin their approved blobs together before coding; a moving draft is not approval. This intake issues no new API, component or TC ID and does not change feature membership.
+Inspected composition: parent merge `fcb7ade3a022029cf47530643edc74fab2e49420`, integrating main `3506129ffc1feb93773d2110901e248609f80f7c` into the task branch without rebasing issued provenance. Counterpart Go baseline: `f06ef4d3e2321ff9ab24f125503bf32900343e37`, schema 11. Go owns the approved wire whitelist/canonicalization v0.4.0 and sender physical chapter v0.3.0 at counterpart commit `4faf6334ce1eadcd291958606b70b94e2ab6b658`; the wire bytes/version are unchanged. These are pinned approved documents, not moving drafts. This intake issues no new API, component or TC ID and does not change feature membership.
 
 ## Decisions requiring review
 
@@ -90,11 +90,11 @@ These are intended files, not test results or allocated TC records. Test-owned S
 
 | Candidate binding under `apps/server/tests/` | Required evidence | Canonical subject |
 |---|---|---|
-| `unit/marketing-report-wire.test.js` | Golden wire/receipt parity with Go; invalid UTF-8, duplicate/unknown keys, byte/hash/size/revision rejects; UNKNOWN/null retained | ZAI:FR-279 |
-| `integration/marketing-report-identity.test.js` | No policy/default denial; enable/disable; inactive targets; revoked/crossed source/target; key isolation/no Person; successful acceptance followed by disabled/revoked replay denial | ZAI:FR-278 |
-| `integration/marketing-report-receiver.test.js` | One report/receipt/audit; audit/commit failpoints rollback; lost committed response replay; byte conflict; guarded native evidence read; direct-SQL immutability/scope/FK/audit checks | ZAI:FR-279/280 |
-| `integration/marketing-report-concurrency.test.js` | Multi-client identical/different-byte races, real lock exhaustion, concurrent disable/revoke, each retry sees fresh grants; bounded time and one committed outcome | ZAI:FR-278/279 |
-| Cross-repository synthetic harness | Go freeze → explicit send → strict parent commit → validate receipt; dropped response → same-byte replay; verify native Marketing/PM/Commerce and Go source hashes/counts unchanged | ZAI:SDD-111; Go FR-015-004/005 |
+| `unit/marketing-report-wire.test.js` | Golden wire/receipt parity with Go; invalid UTF-8, duplicate/unknown keys, byte/hash/size/revision rejects; UNKNOWN/null retained | ZAI:FR-282 |
+| `integration/marketing-report-identity.test.js` | No policy/default denial; enable/disable; inactive targets; revoked/crossed source/target; key isolation/no Person; successful acceptance followed by disabled/revoked replay denial | ZAI:FR-281 |
+| `integration/marketing-report-receiver.test.js` | One report/receipt/audit; audit/commit failpoints rollback; lost committed response replay; byte conflict; guarded native evidence read; direct-SQL immutability/scope/FK/audit checks | ZAI:FR-282/283 |
+| `integration/marketing-report-concurrency.test.js` | Multi-client identical/different-byte races, real lock exhaustion, concurrent disable/revoke, each retry sees fresh grants; bounded time and one committed outcome | ZAI:FR-281/282 |
+| Cross-repository synthetic harness | Go freeze → explicit send → strict parent commit → validate receipt; dropped response → same-byte replay; verify native Marketing/PM/Commerce and Go source hashes/counts unchanged | ZAI:SDD-112; Go FR-015-004/005 |
 
 Before merge of application code: all above native evidence, peer wire review, scoped independent architecture/security review, approved migration review, and preservation checks must pass. Before live migration/provision/send/deploy: obtain separately scoped operational approval and backup/target checks. Minimum retention is 90 days from acceptedAt; no automatic purge or manual deletion command. Private evidence and receipt persist after revoke.
 
@@ -106,6 +106,10 @@ Private consistent whole-SQLite database backup/restore is the operational custo
 
 Marketing charter also requires generated PostgreSQL Prisma schema and additive SQL artifacts to accompany parent schema changes. Generate/check them through the existing parent tools, including the new models and equivalent reviewed constraint intent; do not hand-write generated schema or infer PostgreSQL receiver runtime qualification from portability generation. SQLite remains the native receiver acceptance engine. Candidate migrations, exporter guards and tests are application work only after this proposal is approved.
 
+Implementation mirror binding: `apps/server/supabase/migrations/20261005124416_marketing_external_report.sql`, created with the Supabase CLI. PostgreSQL receiver runtime remains disabled; the mirror denies direct Data API/runtime access with forced RLS/no policies and explicit revocation. Only native audit/scope relationship guards use narrow definer trigger authority to preserve preexisting native edits while seeing retained private links, with fixed search_path, revoked direct EXECUTE and an explicit trusted BYPASSRLS migration-owner prerequisite. This is custody protection, not a PostgreSQL receiver or generic privileged reader. [Bounded verification](ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md) records actual restricted-role compatibility checks and the earlier regression.
+
 Version diff 0 → 0.1.0: proposes the missing Business machine gate, physical immutable constraints, audit coupling, SQLite first-write serialization and native QA bindings. Adds no issued identities, application version, real database operation or delivery claim.
 
 Version diff 0.1.0 → 0.2.0: records owner approval. Old task-qualified references remain historical until the reviewed fresh issuance provides new IDs; no alias or live operation is implied.
+
+Version diff 0.2.0 → 0.3.0: explicitly rebinds current physical implementation to fresh FR-281–283/SDD-112, preserving historical branch-qualified references and main FR-278 without aliases.

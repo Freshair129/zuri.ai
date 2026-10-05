@@ -980,6 +980,16 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
     rel(file) === 'src/app/api/integrations/notion/webhook/route.js') continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
+    // @req FR-281/FR-282, SDD-112 — this one approved machine receiver
+    // resolves a report-only binding inside its first-write transaction. A
+    // Person/session would be the wrong principal. Admit only the exact path
+    // with both strict bearer precheck and committed receiver delegation;
+    // never exempt the growth namespace or add viewer-baseline debt.
+    if (rel(file) === 'src/app/api/growth/external-marketing-reports/route.js'
+      && /import\s+\{[^}]*reportCredentialHash[^}]*\}\s+from\s+['"]@\/modules\/marketing\/application\/marketing-report-wire['"]/.test(body)
+      && /import\s+\{\s*receiveMarketingReport\s*\}\s+from\s+['"]@\/modules\/marketing\/application\/marketing-report-receiver['"]/.test(body)
+      && /reportCredentialHash\(authorization\)/.test(body)
+      && /receiveMarketingReport\(\{\s*db:\s*marketingReportDatabase\(\),\s*authorization,\s*raw:\s*canonicalEnvelope\s*\}\)/.test(body)) continue
     if (RESOLVES.test(body)) continue
     offenders.push(rel(file))
   }

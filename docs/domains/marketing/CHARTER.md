@@ -14,6 +14,9 @@ owns_models:
   - MarketingDecision
   - MarketingHandoff
   - MarketingInitiative
+  - MarketingReportPolicy
+  - MarketingReportBinding
+  - MarketingExternalReport
   - MarketingContentBrief
   - MarketingContentVersion
   - MarketingContentReview
@@ -22,7 +25,7 @@ owns_models:
   - MarketingBroadcastIntent
   - MarketingBroadcastIntentVersion
 technical_owner: TD-MARKETING
-version: "0.6.0b"
+version: "0.7.0b"
 created_at: "2026-09-06T18:35:00+07:00,RWANG,5044ba25"
 last_update: "2026-10-05T04:38:57+07:00,Codex"
 status: beta
@@ -30,6 +33,18 @@ superseded_by: null
 ---
 
 # Marketing domain charter
+
+Approved external Marketing evidence is owned by fresh FR-281–283/SDD-112
+([physical contract](../../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md)).
+The candidate dedicated receiver uses an independent deny-default Business machine
+policy, immutable report-only binding and reported-evidence receipt. It creates no
+Person, native plan/review/decision or verified Commerce total. Native acceptance
+and independent application review remain separate gates; no real provisioning,
+migration, send or deployment is implied. Legacy JSON backup refuses nonempty
+machine evidence; private consistent whole-database custody preserves it.
+
+Version diff 0.6.0b → 0.7.0b: adds approved report custody ownership and candidate
+receiver boundary; existing dashboard FR-278 and human Marketing grants stay stable.
 
 > For LLM readers: [llms.txt](../../../llms.txt) is the repository index, and
 > [llms-full.txt](../../../llms-full.txt) inlines this charter, the working rules

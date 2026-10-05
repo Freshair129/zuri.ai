@@ -98,6 +98,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/growth/paid-media', ['GET']],
   // @req FR-278 — weekly executive summary uses Commerce and aggregate CRM owner reads only.
   ['/api/growth/line-sales', ['GET']],
+  // @req FR-281, FR-282 — dedicated reported-evidence intake, no session fallback.
+  ['/api/growth/external-marketing-reports', ['POST']],
   // @req FR-149, FR-150 — ADR-061 native ingress and optional executor.
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/accounts/{id}/transport-health', ['GET']],
@@ -419,6 +421,7 @@ function conversationRuntimeResponses(method) {
 
 function registerInventoryOperations(registry) {
   const detailedOperations = new Set(['get /api/auth/csrf', 'get /api/projects/{id}/domain-view', 'get /api/projects/{id}/feature-view', 'get /api/projects/{id}/features', 'get /api/projects/{id}/features/{featureId}', 'get /api/projects/{id}/governance-snapshots', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
+  detailedOperations.add('post /api/growth/external-marketing-reports')
   for (const route of FEATURE_MUTATIONS) detailedOperations.add(`${route.method} ${route.path}`)
   for (const [path, methods] of CURRENT_API_ROUTE_INVENTORY) {
     for (const method of methods) {
@@ -574,6 +577,32 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     description: 'Authenticates the Conversation Runtime process only. Core derives actor and Business authority from the claimed job and authoritative state.',
   })
   registry.register('Error', zError)
+  registry.registerComponent('securitySchemes', 'MarketingReportBinding', {
+    type: 'http', scheme: 'bearer', bearerFormat: 'zmr_ report-only secret',
+    description: 'Current active dedicated source/target binding plus deny-default Business ingest policy. Not a SessionAuth or Enterprise API credential. Rechecked on every intake, replay and contention retry.',
+  })
+  // @req FR-281, FR-282 — document the approved byte contract without copying
+  // its nested whitelist into a second validator. Runtime validation is the
+  // strict wire parser; the generic object schema below is inventory only.
+  registry.registerPath({
+    method: 'post', path: '/api/growth/external-marketing-reports',
+    summary: 'Accept immutable reported Marketing evidence', tags: ['Marketing report'],
+    security: [{ MarketingReportBinding: [] }],
+    description: 'Exact canonical zuri-marketing-report/0.1 UTF-8 JSON bytes, maximum 262144 bytes, identity content encoding. The paired Go contract owns the complete whitelist/hash and strict receipt. Native SQLite evidence/audit commit precedes any receipt; identical authorized replay returns the original receipt. No native plan, review, decision or verified revenue write. PostgreSQL receiver runtime is disabled.',
+    request: { body: { required: true, content: { 'application/json': { schema: zRouteInventoryRequest } } } },
+    responses: {
+      200: json(zRouteInventoryResponse, 'Original committed receipt for identical authorized replay.'),
+      201: json(zRouteInventoryResponse, 'Strict reported-evidence receipt after atomic evidence/audit commit.'),
+      401: json(zError, 'Generic invalid, missing or revoked report credential.'),
+      404: json(zError, 'Current target or crossed source/target scope refusal.'),
+      409: json(zError, 'Same binding/report identity with different frozen bytes.'),
+      413: json(zError, 'Request exceeds 262144 bytes.'),
+      415: json(zError, 'Unsupported JSON media type, charset or content encoding.'),
+      422: json(zError, 'Invalid wire bytes, canonicalization, hash or fields.'),
+      503: json(zError, 'Receiver unavailable or bounded contention exhausted; no ACK.'),
+    },
+    'x-zuri-contract': 'zuri-marketing-report/0.1', 'x-maxBytes': 262144,
+  })
 
   // @req FR-252 — detailed read contracts use the same strict runtime DTOs;
   // mutation operations join only when their handlers are implemented.

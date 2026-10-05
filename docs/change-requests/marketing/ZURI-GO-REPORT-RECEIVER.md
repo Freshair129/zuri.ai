@@ -3,7 +3,7 @@ doc_type: intake-note
 title: Zuri-Go reported Marketing evidence — parent record migration
 status: approved
 superseded_by: null
-version: "0.6.0"
+version: "0.7.0"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
@@ -11,7 +11,7 @@ risk: HIGH
 
 # Zuri-Go report receiver — parent contract and record migration
 
-Physical follow-up: [receiver physical design](ZURI-GO-REPORT-PHYSICAL-DESIGN.md) v0.1.0 is DRAFT for owner review. It proposes the previously unimplemented Business machine gate, SQLite immutable enforcement, atomic audit/receipt and native test files under the issued subjects. This link does not approve its new physical decisions; approved behavior and frozen v0.4.0 evidence remain unchanged. Version diff 0.5.0 → 0.6.0 adds this navigation and approval distinction only.
+Physical follow-up: [receiver physical design](ZURI-GO-REPORT-PHYSICAL-DESIGN.md) is approved, including the separate deny-default Business machine policy, immutable SQLite evidence/audit/receipt and unsupported legacy JSON backup refusal. Main-first reconciliation issued fresh planned FR-281–283/SDD-112 at `d08f08a8f2604bd9657360d37f7c135d636189b7` from exact reviewed manifest SHA-256 `758bd232d12fa7c8768ce0f924b3b83344aea3dc118bdc6047d387792c440ee0`. The old FR-278–280/SDD-111 batch is historical at `cdb9518bc50019e876c15c6b1f6c1c98af84f65a`; it is not active-main identity or an alias. Current implementation uses the fresh identities. [Bounded implementation evidence](ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md) records 17/17 isolated native/wire checks and independent source review; full sender/cross-repository/live acceptance remains open.
 
 The owner approved Zuri-Go's Marketing report exchange P3 on 2026-10-05: a dedicated report credential, isolated QA first, explicit delivery and a durable reported-evidence receipt; the owner subsequently selected minimum retention of 90 days. This document makes the parent Identity/Marketing boundary concrete. It is an intake under [the proposal rules](../README.md), not an issued requirement or a claim of parent implementation. New canonical records need the reviewed migration below; no generated registry or pinned historical row is rewritten by this proposal.
 
@@ -21,7 +21,7 @@ Parent intent is [Marketing charter](../../domains/marketing/CHARTER.md) and [in
 
 Source baseline: `332b88c9277ee0995798f125f99d5343e7d493f0`. The parent remains SQLite/Prisma; Go is PostgreSQL schema 11. The inspected growth routes use session viewers and native writes require Business ownership. `resolveApiAccessViewer` resolves a Tenant service account, not a Marketing owner. No external-report receiver or report-ingest permission exists in this baseline. Existing FR-106 tokens must retain their current semantics.
 
-External counterpart: `Freshair129/zuri-go`, reviewed documentation commit `696c387bc9db171151c93b96edf0ee230542ecd7`, design at `docs/features/FEAT-015-marketing-report-exchange/design.md`, wire version `zuri-marketing-report/0.1`. These external file locators do not declare or alias parent ZAI identities. The full wire field whitelist, canonical serialization and receipt shape are owned once by `docs/features/FEAT-015-marketing-report-exchange/contract.md` there. This parent chapter owns credential, receiver persistence and authorization. Before coding, confirm that the reviewed counterpart contract is still applicable; do not use a moving draft or copied schema.
+External counterpart: `Freshair129/zuri-go`, paired approved documentation commit `4faf6334ce1eadcd291958606b70b94e2ab6b658`, design at `docs/features/FEAT-015-marketing-report-exchange/design.md`, wire version `zuri-marketing-report/0.1`. These external file locators do not declare or alias parent ZAI identities. The full wire field whitelist, canonical serialization and receipt shape are owned once by `docs/features/FEAT-015-marketing-report-exchange/contract.md` there. This parent chapter owns credential, receiver persistence and authorization. Before coding, confirm that the reviewed counterpart contract is still applicable; do not use a moving draft or copied schema.
 
 ## Proposed canonical record migration
 
@@ -34,7 +34,7 @@ These are exact behavioral subjects for new records, not reinterpretations of FR
 | Private source-preserving evidence read | Marketing | Re-evaluate Business/growth visibility before every read, exclude Guest/public projections, preserve null/UNKNOWN/reported trust and leave native plans, reviews, decisions, PM execution and Commerce verified totals unchanged. |
 | Receiver/Identity design | Identity + Marketing | Specify the physical models, fixed receiver route, authority checks, SQLite concurrent-transaction behavior, retention policy and the scoped integration tests below. Delivery stays declared until tests and operational gates pass. |
 
-The owner approved this receiver contract, including current machine growth permission, on 2026-10-05, and separately approved [additive authored-record tooling](ZURI-GO-RECORD-AUTHORING.md). Reviewed governed issuance now records FR-278/279/280 and SDD-111 as planned subjects; [verification](../../migrations/document-reintegration/AUTHORED-VERIFICATION.md) pins the tooling/manifest reviews and exact receipt. New source provenance distinguishes authored behavior from the pinned migration inventory. Existing subject anchors, identities and generated source rows remain intact. Physical append-only design and native test bindings remain OPEN before receiver coding.
+The owner approved this receiver contract, including current machine growth permission, on 2026-10-05, and separately approved [additive authored-record tooling](ZURI-GO-RECORD-AUTHORING.md). Current reviewed issuance records FR-281/282/283 and SDD-112 as planned subjects; [reconciled verification](ZURI-GO-RECONCILED-TOOLING-VERIFICATION.md) pins the exact tooling/manifest reviews and receipt. New source provenance distinguishes authored behavior from the pinned migration inventory. Existing subject anchors, identities and generated source rows remain intact. Physical append-only design and isolated native test bindings are approved; bounded receiver/transport source review passed, while complete native acceptance remains OPEN.
 
 ## Credential and binding — proposed minimum
 
@@ -121,3 +121,5 @@ Before application coding: complete composed governance/output review for issued
 0.1.0 → 0.2.0: recorded owner-approved minimum retention of 90 days and closed the numeric policy gate; parent normative record migration and code/QA acceptance remain unperformed.
 
 0 → 0.1.0: proposed the parent-owned report credential, fixed intake, immutable evidence/receipt, private-reader policy, explicit record migration and SQLite QA assertions for the approved Go P3 direction. No code, applied schema, credential or runtime change.
+
+0.6.0 → 0.7.0: records physical approval and reviewed fresh main issuance; preserves original receiver subjects and historical sealed evidence. No live operation is implied.
