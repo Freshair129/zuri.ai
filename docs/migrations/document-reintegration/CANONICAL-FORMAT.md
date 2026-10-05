@@ -1,11 +1,11 @@
 ---
-version: "0.1.1"
+version: "0.2.0"
 status: approved
 ---
 
 # Canonical document record format
 
-**Status:** Approved migration implementation contract, lane deliverable v0.1.0.  
+**Status:** Approved canonical record and reviewed-addition workflow contract.
 **Source revision:** zuri-ai `a34ceaf79c112e02b1bcfdbf0a84122d835b002e`.  
 **Identity rule:** existing zuri-ai keys remain `ZAI` namespace identities. This format does not import zuri-next declarations or mint IDs.
 
@@ -47,7 +47,7 @@ feature_id: FEAT-009
 
 The metadata values are plain scalars except `requirement_cells`, a JSON-style integer array. `feature_id` is present only for an FR directly listed in a single existing FEAT row. If a FEAT row lists the same FR more than once, or two FEAT rows list it, bootstrap fails for review; it never picks one. `subject_anchor` is copied from the existing ID ledger when present and is informational: the ledger remains unchanged and authoritative. H1 is ID-only, so it cannot accidentally replace the published subject.
 
-The row payload in `parseCanonicalRecord().row` includes its exact source line ending. The body line ending used to store Markdown may be normalized by Git; `source_row_eol` lets the parser reconstruct and hash the original source bytes. The legacy export renderer uses the destination template's line ending so its full-file bytes match the current checkout's original export. `source_row_sha256` therefore remains stable across checkout EOL settings while still detecting a changed source row. Every canonical record carries `version: 1` and `status: source-preserved`; the status describes the imported record only and does not replace the row status.
+The row payload in `parseCanonicalRecord().row` includes its declared line ending. The body line ending used to store Markdown may be normalized by Git; `source_row_eol` lets the parser reconstruct and hash the row bytes. `source_row_sha256` therefore remains stable across checkout EOL settings while still detecting a changed row. Every canonical record carries `version: 1`. The initial adopted records use `status: source-preserved`; later approved additions use `status: reviewed-migration`. Neither status replaces the status in the exported row.
 
 `statement_cell` and `requirement_cells` are zero-based offsets into `cells`; cells retain the table's leading/trailing empty positions and their content is trimmed for consumers. The source row itself is never normalized. Current table positions are `2` for statement in FR/NFR/BR/SEC/SDD rows, `2` for FEAT's description, and `3` for FEAT's FR membership. Only FEAT uses `requirement_cells: [3]`. The raw row remains available for exact export and evidence.
 
@@ -88,12 +88,27 @@ The current `docs/PRD-SDD-v1.0.md` and `docs/FEATURES.md` remain compatibility p
 
 The templates in `registry/document-registry/` are projection scaffolding, not alternate sources for record content. A later record addition or retirement must update the canonical record and its projection slot through the document-registry workflow; generated exports and index stay machine-owned.
 
+## Reviewed additions
+
+A reviewed addition was not present in the pinned initial source revision and must never be labelled `source-preserved`. The initial index keeps its pinned `sourceRevision`; each new canonical record uses `status: reviewed-migration`, omits `source_revision`, and records:
+
+```yaml
+migration_base_revision: <full Git SHA-1 that is an ancestor of HEAD>
+migration_document: docs/change-requests/<approved migration document>.md
+```
+
+`source_path` still names the compatibility registry that owns the projection slot, and `source_row_sha256` hashes the new row and its declared line ending. The migration document must have `status: approved` in frontmatter and an explicit approval section. Version 1 additions are deliberately limited to standalone FR records at `docs/requirements/FR-nnn.md`; feature membership is not inferred or changed.
+
+Register a reviewed record with `node tools/document-registry.mjs --register-reviewed <canonical-record-path>`. The command refuses an invalid or non-ancestor base revision, an unapproved/missing migration document, a duplicate or previously used ID/path, a conflicting ID-ledger subject, an invalid FR registry target, or a missing functional-requirement projection section. It inserts the projection slot after the last FR slot, then generates the index and compatibility export. The slot order is authoritative for generated `exportOrder` values, so later rows retain correct order after an insertion. The command never edits the ID ledger; run `npm run docs:ids -- --write` immediately after registration, then `npm run docs:registry` and `npm run govern`.
+
+`--write` and `--check` validate that each reviewed record still points to an approved migration document and carries its migration provenance. They do not rerun the ancestry check: registration records that point at the approved base revision, and subsequent CI checkouts may be shallow. The pinned source-preserved records, their row hashes, paths and subject anchors remain unchanged.
+
 ## Shared parser API
 
 `apps/server/scripts/document-registry-format.mjs` is a pure Node built-in-only parser shared by the CLI, application verifier and tests:
 
 - `splitRow(row)` → cells retaining leading/trailing empties; matches the legacy registry splitter: escaped pipes are unescaped and backticks have no special role.
-- `parseCanonicalRecord(text)` → `{id, namespace, family, recordVersion, status, row, cells, statement, requirementKeys, sourceRevision, sourcePath, sourceRowEol, sourceRowSha256, statementCell, requirementCells, subjectAnchor?, featureId?}`. It accepts one record only, verifies the explicit row fence and exact source-row SHA-256, and uses declared cell indexes rather than a family/ID guess.
+- `parseCanonicalRecord(text)` → `{id, namespace, family, recordVersion, status, row, cells, statement, requirementKeys, sourceRevision?, migrationBaseRevision?, migrationDocument?, sourcePath, sourceRowEol, sourceRowSha256, statementCell, requirementCells, subjectAnchor?, featureId?}`. It accepts one record only, verifies the explicit row fence and row SHA-256, and uses declared cell indexes rather than a family/ID guess.
 - `parseCanonicalIndex(text)` → `{version, sourceRevision, records}` with normalized required record fields and tolerated unknown fields; refuses an unsupported version, non-ZAI active record, duplicate `(namespace,id)`, or duplicate path.
 
 The module reads no files, consults no environment, and mutates no state. `tools/document-registry.mjs` owns filesystem access and the `--write` / `--check` workflows. Its public `readCanonicalRegistry()` API returns the parsed records to graph/runtime integrations.
@@ -110,9 +125,7 @@ checkout, without editing a source record.
 and refuses a checkout whose compatibility registries differ from that pin. It
 cannot label newly authored rows as if they existed in the historical revision.
 
-Version diff 0.1.0 → 0.1.1: separates a derived file digest from immutable source-row
-provenance, allowing canonical explanatory edits without making the index a manual
-second source. Initial row content and compatibility export bytes remain unchanged.
+Version diff 0.1.1 → 0.2.0: adds a provenance-safe, reviewed workflow for new standalone FR records while preserving the initial source snapshot. Adds a writer-owned projection slot and export-order update; initial row content, hashes, paths and subject anchors remain unchanged.
 
 ## Acceptance
 
@@ -120,6 +133,7 @@ second source. Initial row content and compatibility export bytes remain unchang
 - FEAT/FR/NFR/BR/SEC/SDD IDs and current subject anchors match the source registry and existing `.id-ledger.json`; no ID ledger or history is rewritten.
 - `--write` makes both compatibility exports byte-identical to their pre-migration bytes and writes a deterministic index; `--check` passes against those outputs.
 - Duplicate/missing IDs, duplicate/missing placeholders, ambiguous FEAT membership, malformed row fences, invalid family/path/namespace, altered source row hashes and stale output fail closed.
+- Reviewed additions require an approved migration document and an ancestor base revision; registration refuses IDs already present or retired in the ID ledger and generates index/export projections.
 - Focused `node --test tools/tests/document-registry.test.mjs` passes.
 
 This format document is the documentation-first contract for this lane. It does not describe zuri-next as active authority and does not approve a product behavior change.

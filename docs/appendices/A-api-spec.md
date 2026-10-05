@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.101.0b → 1.102.0b (2026-10-05): add GET `/api/growth/line-sales` for the read-only FR-278 executive dashboard and register it in OpenAPI. Inventory: 331 route handlers, 332 OpenAPI paths, 437 operations; local route only, no production activation claimed.
+
 Version diff 1.100.0b → 1.101.0b (2026-09-27): add the two FR-022 retention-consent routes (ADR-093 1.2.0, "consent to retain = keep"): record and revoke, POST each. Inventory: 330 route handlers, 331 OpenAPI paths, 436 operations.
 
 Version diff 1.99.0b → 1.100.0b (2026-09-27): add the SCM service's private core façade (ADR-111 D5, the ADR-108 D4 pattern), one dynamic path with POST only; 328 API route handlers, 329 OpenAPI paths and 434 operations. Not reachable with a browser session; no production route switch is claimed.
@@ -38,9 +40,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.101.0b |
+| **Version** | 1.102.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-27 |
+| **Last Updated** | 2026-10-05 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -90,7 +92,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=330 -->
+<!-- api-spec-counts: route_handlers=331 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -1132,6 +1134,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.102.0b | 2026-10-05 | candidate | FR-278 read-only Business-scoped executive dashboard at `/api/growth/line-sales`; 331 route handlers, 332 OpenAPI paths, 437 operations; local implementation only | working-tree | Codex |
 | 1.101.0b | 2026-09-27 | candidate | FR-022 (ADR-093 1.2.0): `POST /api/crm/customers/[customerId]/retention-consent` and `.../retention-consent/revoke`. Route handler count 328 -> 330 | working-tree | Claude Opus 5.5 (MC0) |
 | 1.100.0b | 2026-09-27 | candidate | ADR-111 D5 adds the SCM service's private core façade at `/api/internal/scm/v1/[operation]` (one path, POST only: `resolve-scope`, `branch`, `branches`, `customer`, `conversation`); inventory 327 -> 328 route handlers, 328 -> 329 paths / 433 -> 434 operations; no production route switch claimed | working-tree | Claude Opus 5.5 |
 | 1.99.0b | 2026-09-27 | candidate | Conversation Runtime v1 `memory` operation for memory-sync opt-in turns; Core stays the only MSP caller. Route inventory unchanged | working-tree | Claude Opus 5.5 (MC0 W5) |
@@ -1315,6 +1318,14 @@ Query: `brand`, optional `asset`, `from`/`to` (Asia/Bangkok dates, inclusive), `
 | POST | `/api/growth/ask-marketing` | Deterministic, read-only question classifier for the approved overview, ROAS and fatigue questions. Unsupported questions and unavailable paid metrics return explicit unavailable states; no LLM, provider, CRM audience or send action is invoked. |
 
 [Broadcast planning and projection contract](../domains/marketing/features/FR-185-broadcast-planning-intent.md). Hidden Business scope is 404, invalid input is 400, stale writes are 409, and owner read failures remain UNKNOWN. The LINE dispatch boundary and CRM audience resolution remain unavailable by contract.
+
+## Executive LINE OA sales dashboard (FR-278)
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/growth/line-sales` | Business-scoped, read-only executive projection. Commerce supplies verified net revenue, refunds, pending payments and order counts for the selected Bangkok week; CRM supplies aggregate SalesTask health as a live snapshot. Source state and reason are returned separately. Ads spend/impressions/clicks/attribution, Lead readiness/permission-to-call and call outcomes remain `UNAVAILABLE` with null metrics. No customer or conversation payload is returned and no `CHAT` origin is treated as ad attribution. |
+
+Marketing visibility is checked before owner reads; Commerce and CRM retain their own visibility checks. The API does not write records, call an ad/LINE provider or create historical task snapshots. Source failures remain `UNKNOWN` or `UNAVAILABLE`, never zero-valued success.
 
 Version diff 1.57.0b → 1.58.0b: add the four FR-185 route families and reconcile the current route-handler marker to 235; planning and projections remain local, read-only where stated, and provider activation is not claimed.
 

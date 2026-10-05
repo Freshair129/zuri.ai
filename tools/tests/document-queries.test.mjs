@@ -163,6 +163,16 @@ test('FEAT test lookup expands only its explicit FR row and groups existing test
   }
 })
 
+test('ZAI query output distinguishes reviewed migration provenance from the pinned registry revision', () => {
+  const context = loadDocumentQueryContext({ root: REPO_ROOT });
+  const target = resolveQueryTarget('ZAI:FR-278', context);
+  assert.equal(target.recordStatus, 'reviewed-migration');
+  assert.equal(target.sourceRevision, null);
+  assert.equal(target.registrySourceRevision, SOURCE_REVISION);
+  assert.equal(target.migrationBaseRevision, 'a6e295a5e30b61aa0e6a178454e371d59e053818');
+  assert.equal(target.migrationDocument, 'docs/change-requests/marketing/line-oa-sales-flow/RECORD-MIGRATION-AND-CRM-READ-PROPOSAL.md');
+});
+
 test('foreign namespaces are separately classified and never queried as current evidence', () => {
   const fixture = makeFixture()
   try {

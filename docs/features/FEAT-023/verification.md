@@ -125,6 +125,7 @@ status: generated
 - [apps/server/tests/unit/inventory-routes.test.js](../../../apps/server/tests/unit/inventory-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js](../../../apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/marketing-navigation.test.js](../../../apps/server/tests/unit/marketing-navigation.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/marketing/line-sales-dashboard-service.test.js](../../../apps/server/tests/unit/marketing/line-sales-dashboard-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/procurement-routes.test.js](../../../apps/server/tests/unit/procurement-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/scm-core-facade.test.js](../../../apps/server/tests/unit/scm-core-facade.test.js) — `verifies` (`test-reference`)

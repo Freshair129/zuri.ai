@@ -39,6 +39,11 @@ test('renders deterministic projections for canonical feature membership', () =>
   const outputs = generate();
   assert.equal(outputs.size, 96);
   assert.equal(outputs.get('docs/features/FEAT-001/design.md'), generate().get('docs/features/FEAT-001/design.md'));
+  const migrated = records.find((record) => record.id === 'FR-278');
+  assert.equal(migrated.status, 'reviewed-migration');
+  assert.equal(migrated.registrySourceRevision, records.find((record) => record.status === 'source-preserved').sourceRevision);
+  assert.match(migrated.migrationBaseRevision, /^[a-f0-9]{40}$/);
+  assert.equal(migrated.migrationDocument, 'docs/change-requests/marketing/line-oa-sales-flow/RECORD-MIGRATION-AND-CRM-READ-PROPOSAL.md');
 
   const feature = records.find((record) => record.id === 'FEAT-001');
   const requirement = records.find((record) => record.id === 'FR-037');

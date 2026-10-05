@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { anchor, sameAnchor } from '../apps/server/scripts/id-anchors.mjs';
 import { parseCanonicalIndex, parseCanonicalRecord, splitRow } from '../apps/server/scripts/document-registry-format.mjs';
 
 const SOURCE_REVISION = 'a34ceaf79c112e02b1bcfdbf0a84122d835b002e';
@@ -16,6 +17,30 @@ const ROW_ID = /^\|\s*(FEAT|FR|NFR|BR|SEC|SDD)-\d{3,}\s*\|/;
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
+}
+
+function verifyApprovedMigrationDocument(projectRoot, migrationDocument) {
+  const file = join(projectRoot, migrationDocument);
+  if (!existsSync(file)) throw new Error(`Missing approved migration document ${migrationDocument}`);
+  const text = readFileSync(file, 'utf8');
+  const frontmatter = text.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+  if (!frontmatter || !/^status:\s*["']?approved["']?\s*$/m.test(frontmatter[1])) {
+    throw new Error(`${migrationDocument} must have status: approved in frontmatter`);
+  }
+  const body = text.slice(frontmatter[0].length);
+  if (!/^##\s+(?:การอนุมัติ|Approval)\s*$/im.test(body)) {
+    throw new Error(`${migrationDocument} must contain an explicit approval section`);
+  }
+}
+
+function verifyMigrationBaseRevision(projectRoot, revision) {
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', revision, 'HEAD'], {
+      cwd: projectRoot, windowsHide: true, stdio: 'ignore',
+    });
+  } catch {
+    throw new Error(`migration_base_revision ${revision} must be an ancestor of HEAD`);
+  }
 }
 
 function gitBlobText(value) {
@@ -75,6 +100,7 @@ function extractRows(projectRoot) {
         id,
         namespace: 'ZAI',
         family,
+        status: 'source-preserved',
         path: '',
         sourcePath,
         sourceRevision: SOURCE_REVISION,
@@ -157,13 +183,17 @@ function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
       ['id', 'id'], ['namespace', 'namespace'], ['family', 'family'], ['sourcePath', 'sourcePath'],
       ['sourceRowSha256', 'sourceRowSha256'], ['recordVersion', 'recordVersion'], ['status', 'status'],
       ['statementCell', 'statementCell'], ['featureId', 'featureId'],
+      ['migrationBaseRevision', 'migrationBaseRevision'], ['migrationDocument', 'migrationDocument'],
     ]) {
       if (entry[indexKey] !== record[recordKey]) throw new Error(`${entry.id} index ${indexKey} does not match its canonical record`);
     }
     if (JSON.stringify(entry.requirementCells ?? []) !== JSON.stringify(record.requirementCells)) throw new Error(`${entry.id} requirementCells do not match its canonical record`);
     if (verifyIndexHash && entry.recordSha256 !== recordDigest) throw new Error(`${entry.id} canonical record hash does not match index`);
-    if (record.sourceRevision !== index.sourceRevision) throw new Error(`${entry.id} source revision differs from index`);
-    return { ...entry, ...record, recordSha256: recordDigest };
+    if (record.status === 'source-preserved' && record.sourceRevision !== index.sourceRevision) {
+      throw new Error(`${entry.id} source revision differs from index`);
+    }
+    if (record.status === 'reviewed-migration') verifyApprovedMigrationDocument(projectRoot, record.migrationDocument);
+    return { ...entry, ...record, registrySourceRevision: index.sourceRevision, recordSha256: recordDigest };
   });
   const byId = new Map(records.map(record => [record.id, record]));
   const memberships = new Map();
@@ -179,13 +209,23 @@ function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
   return records;
 }
 
-function buildIndex(records) {
+function buildIndex(projectRoot, records, templateOverrides = new Map()) {
+  const exportOrders = new Map();
+  for (let i = 0; i < TEMPLATE_PATHS.length; i += 1) {
+    const templatePath = TEMPLATE_PATHS[i];
+    const template = templateOverrides.get(templatePath) ?? readFileSync(join(projectRoot, templatePath), 'utf8');
+    const placeholders = [...template.matchAll(/\{\{CANONICAL_ROW:([^}]+)\}\}/g)].map((match) => match[1]);
+    placeholders.forEach((id, exportOrder) => exportOrders.set(id, exportOrder));
+  }
+  for (const record of records) {
+    if (!exportOrders.has(record.id)) throw new Error(`${record.id} has no canonical projection slot`);
+  }
   const entries = records.map((record) => ({
     id: record.id,
     namespace: record.namespace,
     family: record.family,
     recordVersion: 1,
-    status: 'source-preserved',
+    status: record.status,
     path: record.path,
     sourcePath: record.sourcePath,
     sourceRowSha256: record.sourceRowSha256,
@@ -194,18 +234,22 @@ function buildIndex(records) {
     requirementCells: record.requirementCells,
     ...(record.featureId ? { featureId: record.featureId } : {}),
     exportDocument: record.exportDocument,
-    exportOrder: record.exportOrder,
+    exportOrder: exportOrders.get(record.id),
+    ...(record.migrationBaseRevision ? { migrationBaseRevision: record.migrationBaseRevision } : {}),
+    ...(record.migrationDocument ? { migrationDocument: record.migrationDocument } : {}),
   }));
   return { version: 1, sourceRevision: SOURCE_REVISION, records: entries };
 }
 
-function renderExports(projectRoot, index, records) {
+function renderExports(projectRoot, index, records, templateOverrides = new Map()) {
   const byId = new Map(records.map((record) => [record.id, record]));
   return TEMPLATE_PATHS.map((templatePath, i) => {
-    const template = readFileSync(join(projectRoot, templatePath), 'utf8');
+    const template = templateOverrides.get(templatePath) ?? readFileSync(join(projectRoot, templatePath), 'utf8');
     const placeholders = [...template.matchAll(/\{\{CANONICAL_ROW:([^}]+)\}\}/g)].map((match) => match[1]);
-    const expected = index.records.filter((record) => record.exportDocument === EXPORT_PATHS[i]).map((record) => record.id);
-    if (new Set(placeholders).size !== placeholders.length || placeholders.length !== expected.length || expected.some((id) => !placeholders.includes(id))) {
+    const expected = index.records.filter((record) => record.exportDocument === EXPORT_PATHS[i])
+      .sort((a, b) => a.exportOrder - b.exportOrder).map((record) => record.id);
+    if (new Set(placeholders).size !== placeholders.length || placeholders.length !== expected.length ||
+        placeholders.some((id, offset) => id !== expected[offset])) {
       throw new Error(`${templatePath} placeholders do not match canonical records`);
     }
     const output = template.replace(/\{\{CANONICAL_ROW:([^}]+)\}\}/g, (_match, id) => {
@@ -247,7 +291,7 @@ function adopt(projectRoot) {
     const existingTemplate = join(projectRoot, TEMPLATE_PATHS[i]);
     writeFile(projectRoot, TEMPLATE_PATHS[i], template);
   }
-  const index = buildIndex(outputs);
+  const index = buildIndex(projectRoot, outputs);
   writeFile(projectRoot, INDEX_PATH, `${JSON.stringify(index, null, 2)}\n`);
   const exports = renderExports(projectRoot, index, outputs);
   for (const output of exports) {
@@ -262,7 +306,7 @@ export function writeCanonicalProjections(projectRoot = ROOT, { check = false } 
   const indexText = readFileSync(join(projectRoot, INDEX_PATH), 'utf8');
   const index = parseCanonicalIndex(indexText);
   const records = loadRecords(projectRoot, index, { verifyIndexHash: check });
-  const nextIndex = buildIndex(records);
+  const nextIndex = buildIndex(projectRoot, records);
   const nextIndexText = `${JSON.stringify(nextIndex, null, 2)}\n`;
   if (check && nextIndexText !== indexText) throw new Error(`${INDEX_PATH} is stale; run --write`);
   const exports = renderExports(projectRoot, nextIndex, records);
@@ -280,11 +324,76 @@ export function readCanonicalRegistry(projectRoot = ROOT) {
   return loadRecords(projectRoot, index);
 }
 
+export function registerReviewedRecord(projectRoot = ROOT, candidatePath) {
+  const relativePath = String(candidatePath || '').replace(/\\/g, '/');
+  if (!/^docs\/requirements\/FR-\d{3,}\.md$/.test(relativePath)) {
+    throw new Error('Reviewed registration accepts standalone FR records at docs/requirements/FR-nnn.md only');
+  }
+  const index = parseCanonicalIndex(readFileSync(join(projectRoot, INDEX_PATH), 'utf8'));
+  const records = loadRecords(projectRoot, index);
+  const file = join(projectRoot, relativePath);
+  if (!existsSync(file)) throw new Error(`Missing canonical record ${relativePath}`);
+  const candidateText = readFileSync(file, 'utf8');
+  const candidate = parseCanonicalRecord(candidateText);
+  if (candidate.status !== 'reviewed-migration') throw new Error(`${candidate.id} must use status: reviewed-migration`);
+  if (relativePath !== `docs/requirements/${candidate.id}.md`) throw new Error(`${candidate.id} canonical path does not match its ID`);
+  if (candidate.sourcePath !== 'docs/PRD-SDD-v1.0.md' || candidate.featureId) {
+    throw new Error(`${candidate.id} must target the PRD as a standalone functional requirement`);
+  }
+  if (records.some((record) => record.id === candidate.id || record.path === relativePath)) {
+    throw new Error(`${candidate.id} or ${relativePath} is already registered`);
+  }
+
+  const ledger = JSON.parse(readFileSync(join(projectRoot, 'docs/.id-ledger.json'), 'utf8'));
+  if (ledger.ids?.[candidate.id] || ledger.roster?.includes(candidate.id)) {
+    throw new Error(`${candidate.id} is already pinned or previously used in the ID ledger`);
+  }
+  const candidateAnchor = anchor(candidate.statement);
+  for (const [id, entry] of Object.entries(ledger.ids || {})) {
+    if (entry.family !== candidate.family) continue;
+    const pinnedAnchor = entry.history?.at(-1)?.anchor;
+    if (sameAnchor(candidateAnchor, pinnedAnchor)) throw new Error(`${candidate.id} inherits the pinned subject of ${id}`);
+  }
+  verifyApprovedMigrationDocument(projectRoot, candidate.migrationDocument);
+  verifyMigrationBaseRevision(projectRoot, candidate.migrationBaseRevision);
+
+  const templatePath = TEMPLATE_PATHS[0];
+  const template = readFileSync(join(projectRoot, templatePath), 'utf8');
+  const matches = [...template.matchAll(/\{\{CANONICAL_ROW:FR-\d{3,}\}\}/g)];
+  if (!matches.length) throw new Error(`${templatePath} has no functional-requirement projection slot`);
+  const slot = `{{CANONICAL_ROW:${candidate.id}}}`;
+  if (template.includes(slot)) throw new Error(`${candidate.id} already has a projection slot`);
+  const last = matches.at(-1);
+  const end = last.index + last[0].length;
+  const nextTemplate = `${template.slice(0, end)}${slot}${template.slice(end)}`;
+  const recordDigest = sha256(Buffer.from(gitBlobText(candidateText), 'utf8'));
+  const addedRecord = {
+    ...candidate,
+    path: relativePath,
+    recordSha256: recordDigest,
+    exportDocument: candidate.sourcePath,
+  };
+  const nextRecords = [...records, addedRecord];
+  const templateOverrides = new Map([[templatePath, nextTemplate]]);
+  const nextIndex = buildIndex(projectRoot, nextRecords, templateOverrides);
+  const indexText = `${JSON.stringify(nextIndex, null, 2)}\n`;
+  const exports = renderExports(projectRoot, nextIndex, nextRecords, templateOverrides);
+
+  writeFile(projectRoot, templatePath, nextTemplate);
+  writeFile(projectRoot, INDEX_PATH, indexText);
+  for (const output of exports) writeFile(projectRoot, output.path, output.output);
+  return candidate.id;
+}
+
 const args = process.argv.slice(2);
 if (args.length > 0 && import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
   try {
-    if (args.length !== 1 || !['--adopt', '--write', '--check'].includes(args[0])) throw new Error('Usage: node tools/document-registry.mjs --adopt|--write|--check');
-    if (args[0] === '--adopt') {
+    if (args[0] === '--register-reviewed') {
+      if (args.length !== 2) throw new Error('Usage: node tools/document-registry.mjs --register-reviewed <canonical-record-path>');
+      console.log(`Registered reviewed record ZAI:${registerReviewedRecord(ROOT, args[1])}.`);
+    } else if (args.length !== 1 || !['--adopt', '--write', '--check'].includes(args[0])) {
+      throw new Error('Usage: node tools/document-registry.mjs --adopt|--write|--check|--register-reviewed <canonical-record-path>');
+    } else if (args[0] === '--adopt') {
       console.log(`Adopted ${adopt(ROOT)} canonical records.`);
     } else {
       const records = writeCanonicalProjections(ROOT, { check: args[0] === '--check' });
