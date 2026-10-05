@@ -365,8 +365,9 @@ export function renderDocumentViews({ root = ROOT, records = readCanonicalRegist
   const normalizedRoot = resolve(root);
   const inputGraph = graph ?? JSON.parse(readFileSync(join(normalizedRoot, 'docs/.doc-graph.json'), 'utf8'));
   const { nodes, byId, features } = checkGraph(normalizedRoot, records, inputGraph);
-  const registrySourceRevision = records[0]?.sourceRevision;
-  if (!registrySourceRevision || records.some((record) => record.sourceRevision !== registrySourceRevision)) {
+  const imported = records.filter(record => record.recordVersion === 1);
+  const registrySourceRevision = imported[0]?.sourceRevision;
+  if (!registrySourceRevision || imported.some((record) => record.sourceRevision !== registrySourceRevision)) {
     throw new Error('Canonical registry records do not share one source revision');
   }
 

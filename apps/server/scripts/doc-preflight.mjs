@@ -137,7 +137,7 @@ for (const f of allDocs) {
     // Check it there; links authored outside the row use the new file's context.
     const record = parseCanonicalRecord(body)
     sources[0].body = body.replace(/<!-- canonical-row:start -->[\s\S]*?<!-- canonical-row:end -->/, '')
-    sources.push({ body: record.row, base: path.dirname(path.join(workspaceRoot(ROOT), record.sourcePath)) })
+    sources.push({ body: record.row, base: path.dirname(path.join(workspaceRoot(ROOT), record.recordVersion === 1 ? record.sourcePath : rel(f))) })
   }
   for (const source of sources) for (const [, href] of source.body.matchAll(LINK)) {
     if (/^(https?:|mailto:)/.test(href)) continue

@@ -64,7 +64,7 @@ test('parseCanonicalRecord rejects changed row bytes and non-ZAI namespace', () 
 });
 
 test('readCanonicalRegistry verifies all pinned canonical records and explicit feature links', () => {
-  const records = readCanonicalRegistry();
+  const records = readCanonicalRegistry().filter(record => record.recordVersion === 1);
   assert.equal(records.length, 539);
   assert.deepEqual(records.reduce((counts, record) => {
     counts[record.family] = (counts[record.family] ?? 0) + 1;
@@ -89,7 +89,8 @@ test('parseCanonicalIndex preserves additive fields and validates unique keys an
   assert.throws(() => parseCanonicalIndex(JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: [base, { ...base, path: 'docs/requirements/FR-092.md' }] })), /duplicate id/);
   assert.throws(() => parseCanonicalIndex(JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: [base, { ...base, id: 'FR-092' }] })), /duplicate path/);
   assert.throws(() => parseCanonicalIndex(JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: [{ ...base, path: 'docs/requirements/../secret.md' }] })), /unsafe path/);
-  assert.throws(() => parseCanonicalIndex(JSON.stringify({ version: 2, sourceRevision: SOURCE_REVISION, records: [] })), /unsupported index version/);
+  assert.equal(parseCanonicalIndex(JSON.stringify({ version: 2, sourceRevision: SOURCE_REVISION, records: [base] })).version, 2);
+  assert.throws(() => parseCanonicalIndex(JSON.stringify({ version: 3, sourceRevision: SOURCE_REVISION, records: [] })), /unsupported index version/);
 });
 
 test('writer refreshes authored wrapper hashes while preserving source rows and export bytes', () => {

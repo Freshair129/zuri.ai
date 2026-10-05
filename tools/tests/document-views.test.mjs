@@ -19,7 +19,7 @@ test('the default CLI invocation generates views without arguments', () => {
     mkdirSync(join(root, 'tools'));
     mkdirSync(join(root, 'docs'));
     writeFileSync(join(root, 'tools/generate-document-views.mjs'), readFileSync(join(ROOT, 'tools/generate-document-views.mjs')));
-    writeFileSync(join(root, 'tools/document-registry.mjs'), `export const readCanonicalRegistry = () => ${JSON.stringify([{ id: 'FR-999', family: 'FR', sourceRevision: 'a'.repeat(40) }])};\n`);
+    writeFileSync(join(root, 'tools/document-registry.mjs'), `export const readCanonicalRegistry = () => ${JSON.stringify([{ id: 'FR-999', family: 'FR', recordVersion: 1, sourceRevision: 'a'.repeat(40) }])};\n`);
     writeFileSync(join(root, 'docs/.doc-graph.json'), JSON.stringify({ version: '2.0.0', nodes: [], edges: [] }));
     const result = spawnSync(process.execPath, [join(root, 'tools/generate-document-views.mjs')], { cwd: tmpdir(), encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);

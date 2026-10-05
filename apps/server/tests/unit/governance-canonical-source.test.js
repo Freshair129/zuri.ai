@@ -1,10 +1,14 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { execFile as execFileCallback } from 'node:child_process'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { promisify } from 'node:util'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { anchor } from '../../scripts/id-anchors.mjs'
+import { parseCanonicalRecord } from '../../scripts/document-registry-format.mjs'
+import { authoredRecordMarkdown } from '../../../../tools/document-record-migration.mjs'
+import { buildCanonicalIndex } from '../../../../tools/document-registry.mjs'
 import {
   CANONICAL_INDEX_PATH, CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION,
   createGovernanceEvidencePort, normalizeSourceManifest, statementDigest,
@@ -81,6 +85,62 @@ async function makeFixture(transform = (value) => value) {
   return { root, commitSha, ...normalized, env: { ZURI_PM_CHECKOUT_REGISTRY_PATH: registryPath } }
 }
 
+async function makeAuthoredFixture(fault = null) {
+  const approvalPath = 'docs/change-requests/fixture-approved.md'
+  const approval = '---\nstatus: approved\nversion: "1.0.0"\n---\n# Receiver fixture\n'
+  const base = await makeFixture(value => { value.files[approvalPath] = approval; value.files['docs/.id-ledger.json'] = '{}\n'; return value })
+  const manifestPath = 'docs/migrations/document-reintegration/record-migrations/snapshot-fixture.manifest.json'
+  const statement = 'Report credential isolation: a synthetic standalone machine permission.'
+  const item = { id: 'FR-900', family: 'FR', statement, statementSha256: sha256(statement), subjectAnchor: anchor(statement) }
+  const migration = { version: 1, migrationId: 'snapshot-fixture',
+    base: { commit: base.commitSha, indexSha256: fault === 'forged-base' ? 'a'.repeat(64) : sha256(await readFile(path.join(base.root, CANONICAL_INDEX_PATH))), ledgerSha256: sha256('{}\n') },
+    approval: { path: approvalPath, revision: fault === 'forged-origin' ? 'f'.repeat(40) : base.commitSha, version: '1.0.0', sha256: sha256(approval) }, records: [item] }
+  const manifestText = `${JSON.stringify(migration, null, 2)}\n`
+  let text = authoredRecordMarkdown(item, migration, manifestPath, sha256(manifestText))
+  if (fault === 'unsupported-record') text = text.replace('version: 2', 'version: 3')
+  if (fault === 'statement-hash') text = text.replace(`statement_sha256: ${item.statementSha256}`, `statement_sha256: ${'e'.repeat(64)}`)
+  const parsed = parseCanonicalRecord(authoredRecordMarkdown(item, migration, manifestPath, sha256(manifestText)))
+  const recordPath = 'docs/requirements/FR-900.md'
+  const entry = buildCanonicalIndex([{ ...parsed, path: recordPath, recordSha256: sha256(text), exportDocument: 'docs/PRD-SDD-v1.0.md', exportOrder: 1 }]).records[0]
+  if (fault === 'unsupported-record') entry.recordVersion = 3
+  const index = JSON.parse(await readFile(path.join(base.root, CANONICAL_INDEX_PATH), 'utf8'))
+  index.version = fault === 'unsupported-index' ? 3 : 2
+  index.records.push(entry)
+  const files = {
+    [CANONICAL_INDEX_PATH]: JSON.stringify(index), [recordPath]: text,
+    [manifestPath]: manifestText,
+    [manifestPath.replace('.manifest.json', '.approval.md')]: fault === 'forged-approval' ? approval.replace('approved', 'draft') : approval,
+  }
+  if (fault === 'cache-forged-base' || fault === 'two-manifests') {
+    const second = structuredClone(migration)
+    second.migrationId = 'second-fixture'
+    if (fault === 'cache-forged-base') second.base.ledgerSha256 = 'f'.repeat(64)
+    const statement = 'Second report evidence: independently verified authored provenance.'
+    const item = { id: 'FR-901', family: 'FR', statement, statementSha256: sha256(statement), subjectAnchor: anchor(statement) }
+    second.records = [item]
+    const secondPath = manifestPath.replace('snapshot-fixture', second.migrationId)
+    const manifestText = `${JSON.stringify(second, null, 2)}\n`
+    const text = authoredRecordMarkdown(item, second, secondPath, sha256(manifestText))
+    const recordPath = 'docs/requirements/FR-901.md'
+    const parsed = parseCanonicalRecord(text)
+    index.records.push(buildCanonicalIndex([{ ...parsed, path: recordPath, recordSha256: sha256(text), exportDocument: 'docs/PRD-SDD-v1.0.md', exportOrder: 2 }]).records[0])
+    files[CANONICAL_INDEX_PATH] = JSON.stringify(index)
+    files[recordPath] = text
+    files[secondPath] = manifestText
+    files[secondPath.replace('.manifest.json', '.approval.md')] = approval
+  }
+  for (const [file, content] of Object.entries(files)) {
+    await mkdir(path.dirname(path.join(base.root, file)), { recursive: true })
+    await writeFile(path.join(base.root, file), content)
+  }
+  await git(['add', '--', '.'], base.root)
+  await git(['commit', '--quiet', '-m', 'authored fixture'], base.root)
+  const commitSha = await git(['rev-parse', 'HEAD'], base.root)
+  const entries = base.manifest.entries.filter(entry => !Object.hasOwn(files, entry.path))
+  entries.push(...Object.entries(files).map(([file, content]) => ({ path: file, sha256: sha256(content) })))
+  return { ...base, commitSha, ...normalizeSourceManifest({ schemaVersion: CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION, entries }) }
+}
+
 function capture(value, sourceManifest = value.manifest) {
   return verifyGovernanceSnapshotIntent({ projectId, scope, repository, projectRepository,
     env: value.env, now: new Date('2026-09-29T00:00:00.000Z'),
@@ -111,6 +171,29 @@ afterAll(async () => {
 })
 
 describe('canonical source snapshot v2', () => {
+  it('captures and replays mixed imported/authored records with unchanged snapshot version and subject digests', async () => {
+    const mixed = await makeAuthoredFixture()
+    const verified = await capture(mixed)
+    expect(verified.proof.verifierVersion).toBe('2.0.0')
+    expect(verified.manifest.schemaVersion).toBe('2.0.0')
+    const args = await replay(mixed)
+    const port = createGovernanceEvidencePort({ env: mixed.env })
+    expect(await port.verifyFeatureKey({ ...args, canonicalFeatureKey: 'FR-900' })).toMatchObject({
+      state: 'AVAILABLE', canonicalSubject: 'Report credential isolation: a synthetic standalone machine permission.',
+    })
+    expect(await port.verifyRequirement({ ...args, feature: { canonicalFeatureKey: 'FR-900' }, sourceNamespace: 'ZAI', requirementKey: 'FR-900',
+      revisionHash: statementDigest('Report credential isolation: a synthetic standalone machine permission.') })).toMatchObject({ state: 'AVAILABLE' })
+    expect(await port.verifyFeatureKey({ ...args, canonicalFeatureKey: 'FEAT-001' })).toMatchObject({ state: 'AVAILABLE', canonicalSubject: 'Feature one' })
+  })
+
+  it('verifies two legitimate migrations sharing the same approval and base', async () => {
+    expect((await capture(await makeAuthoredFixture('two-manifests'))).validationStatus).toBe('VALID')
+  })
+
+  it.each(['forged-origin', 'forged-base', 'cache-forged-base', 'forged-approval', 'unsupported-record', 'unsupported-index', 'statement-hash'])('rejects authored %s without a verification proof', async (fault) => {
+    await expect(capture(await makeAuthoredFixture(fault))).rejects.toMatchObject({ code: 'SNAPSHOT_INVALID' })
+  })
+
   it('captures a full-size 277-FR and 46-feature registry within the unchanged verification budget', async () => {
     const full = await makeFixture(() => {
       const records = []

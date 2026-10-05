@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { parseCanonicalIndex, parseCanonicalRecord, splitRow } from '../apps/server/scripts/document-registry-format.mjs';
+import { authoredProvenanceKeys, parseCanonicalIndex, parseCanonicalRecord, splitRow, validateCanonicalEntry, validateAuthoredProvenance } from '../apps/server/scripts/document-registry-format.mjs';
 
 const SOURCE_REVISION = 'a34ceaf79c112e02b1bcfdbf0a84122d835b002e';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -153,16 +153,9 @@ function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
     const text = readFileSync(file, 'utf8');
     const record = parseCanonicalRecord(text);
     const recordDigest = sha256(Buffer.from(gitBlobText(text), 'utf8'));
-    for (const [indexKey, recordKey] of [
-      ['id', 'id'], ['namespace', 'namespace'], ['family', 'family'], ['sourcePath', 'sourcePath'],
-      ['sourceRowSha256', 'sourceRowSha256'], ['recordVersion', 'recordVersion'], ['status', 'status'],
-      ['statementCell', 'statementCell'], ['featureId', 'featureId'],
-    ]) {
-      if (entry[indexKey] !== record[recordKey]) throw new Error(`${entry.id} index ${indexKey} does not match its canonical record`);
-    }
-    if (JSON.stringify(entry.requirementCells ?? []) !== JSON.stringify(record.requirementCells)) throw new Error(`${entry.id} requirementCells do not match its canonical record`);
+    validateCanonicalEntry(record, entry, index);
+    validateAuthoredProvenance(record, file => readFileSync(join(projectRoot, file)));
     if (verifyIndexHash && entry.recordSha256 !== recordDigest) throw new Error(`${entry.id} canonical record hash does not match index`);
-    if (record.sourceRevision !== index.sourceRevision) throw new Error(`${entry.id} source revision differs from index`);
     return { ...entry, ...record, recordSha256: recordDigest };
   });
   const byId = new Map(records.map(record => [record.id, record]));
@@ -179,16 +172,17 @@ function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
   return records;
 }
 
-function buildIndex(records) {
+export function buildCanonicalIndex(records) {
   const entries = records.map((record) => ({
     id: record.id,
     namespace: record.namespace,
     family: record.family,
-    recordVersion: 1,
-    status: 'source-preserved',
+    recordVersion: record.recordVersion ?? 1,
+    status: record.status ?? 'source-preserved',
     path: record.path,
-    sourcePath: record.sourcePath,
-    sourceRowSha256: record.sourceRowSha256,
+    ...(record.recordVersion === 2
+      ? { provenance: 'authored', ...Object.fromEntries(authoredProvenanceKeys.map(key => [key, record[key]])) }
+      : { sourcePath: record.sourcePath, sourceRowSha256: record.sourceRowSha256 }),
     recordSha256: record.recordSha256,
     statementCell: record.statementCell,
     requirementCells: record.requirementCells,
@@ -196,23 +190,25 @@ function buildIndex(records) {
     exportDocument: record.exportDocument,
     exportOrder: record.exportOrder,
   }));
-  return { version: 1, sourceRevision: SOURCE_REVISION, records: entries };
+  return { version: records.some(record => record.recordVersion === 2) ? 2 : 1, sourceRevision: SOURCE_REVISION, records: entries };
 }
 
-function renderExports(projectRoot, index, records) {
+export function renderCanonicalExports(projectRoot, index, records) {
   const byId = new Map(records.map((record) => [record.id, record]));
   return TEMPLATE_PATHS.map((templatePath, i) => {
     const template = readFileSync(join(projectRoot, templatePath), 'utf8');
     const placeholders = [...template.matchAll(/\{\{CANONICAL_ROW:([^}]+)\}\}/g)].map((match) => match[1]);
-    const expected = index.records.filter((record) => record.exportDocument === EXPORT_PATHS[i]).map((record) => record.id);
+    const expected = index.records.filter((record) => record.exportDocument === EXPORT_PATHS[i] && record.recordVersion === 1).map((record) => record.id);
     if (new Set(placeholders).size !== placeholders.length || placeholders.length !== expected.length || expected.some((id) => !placeholders.includes(id))) {
       throw new Error(`${templatePath} placeholders do not match canonical records`);
     }
-    const output = template.replace(/\{\{CANONICAL_ROW:([^}]+)\}\}/g, (_match, id) => {
+    let output = template.replace(/\{\{CANONICAL_ROW:([^}]+)\}\}/g, (_match, id) => {
       const record = byId.get(id);
       if (!record) throw new Error(`${templatePath} has unknown placeholder ${id}`);
       return record.row;
     });
+    const authored = records.filter(record => record.exportDocument === EXPORT_PATHS[i] && record.recordVersion === 2);
+    if (authored.length) output += `\n\n## Authored records\n\n| ID | Statement | Status |\n|---|---|---|\n${authored.map(record => record.row).join('')}`;
     return { path: EXPORT_PATHS[i], output };
   });
 }
@@ -247,9 +243,9 @@ function adopt(projectRoot) {
     const existingTemplate = join(projectRoot, TEMPLATE_PATHS[i]);
     writeFile(projectRoot, TEMPLATE_PATHS[i], template);
   }
-  const index = buildIndex(outputs);
+  const index = buildCanonicalIndex(outputs);
   writeFile(projectRoot, INDEX_PATH, `${JSON.stringify(index, null, 2)}\n`);
-  const exports = renderExports(projectRoot, index, outputs);
+  const exports = renderCanonicalExports(projectRoot, index, outputs);
   for (const output of exports) {
     const original = readFileSync(join(projectRoot, output.path), 'utf8');
     if (output.output !== original) throw new Error(`${output.path} is not byte-identical after canonical adoption`);
@@ -262,10 +258,10 @@ export function writeCanonicalProjections(projectRoot = ROOT, { check = false } 
   const indexText = readFileSync(join(projectRoot, INDEX_PATH), 'utf8');
   const index = parseCanonicalIndex(indexText);
   const records = loadRecords(projectRoot, index, { verifyIndexHash: check });
-  const nextIndex = buildIndex(records);
+  const nextIndex = buildCanonicalIndex(records);
   const nextIndexText = `${JSON.stringify(nextIndex, null, 2)}\n`;
   if (check && nextIndexText !== indexText) throw new Error(`${INDEX_PATH} is stale; run --write`);
-  const exports = renderExports(projectRoot, nextIndex, records);
+  const exports = renderCanonicalExports(projectRoot, nextIndex, records);
   for (const output of exports) {
     const existing = readFileSync(join(projectRoot, output.path), 'utf8');
     if (check && output.output !== existing) throw new Error(`${output.path} is stale; run --write`);

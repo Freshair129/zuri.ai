@@ -1,6 +1,7 @@
 ---
-version: "0.1.1"
+version: "0.2.0"
 status: approved
+superseded_by: null
 ---
 
 # Canonical document record format
@@ -114,7 +115,37 @@ Version diff 0.1.0 → 0.1.1: separates a derived file digest from immutable sou
 provenance, allowing canonical explanatory edits without making the index a manual
 second source. Initial row content and compatibility export bytes remain unchanged.
 
+## Additive authored records — approved writer scope (2026-10-05)
+
+The owner approved [the authored-record tooling](../../change-requests/marketing/ZURI-GO-RECORD-AUTHORING.md) v0.2.0. Version-1 imported rows/provenance remain unchanged. Version-2 canonical records are active, genuinely authored standalone FR/SDD statements; their delivery cell is `planned`, not implemented. This first writer is add-only, up to four records, with no feature-membership changes.
+
+The v2 wrapper declares `superseded_by: null`, `provenance: authored`, `authored_base_revision`, `approval_revision/path/version/sha256`, `migration_id`, `manifest_path/sha256`, `row_sha256`, `statement_sha256` and `subject_anchor`. Its bounded row has ID, exact statement and `planned`, with a declared LF digest. It cannot carry historical `source_revision/path/row_sha256` fields. The v2 generated index holds both v1 and v2 records; `sourceRevision` still identifies the original import, while each authored entry carries its own explicit provenance. Original template placeholders and row order remain intact; authored rows are appended in a separate generated section.
+
+The source manifest is `docs/migrations/document-reintegration/record-migrations/<name>.manifest.json`. It carries version 1, migrationId, base commit/index/ledger digests, the pinned approved note's locator/version/revision/digest and candidate records (ID, family, exact statement/digest/anchor). The integrator checks fresh main for collisions before choosing candidates. Approval and record issuance remain separate from application delivery.
+
+```mermaid
+flowchart LR
+  A[Approved note + fresh base] --> M[Source manifest]
+  M --> P[Read-only plan and collision checks]
+  P --> R[Independent candidate review]
+  R --> W[Explicit apply and sanctioned ID writer]
+  W --> E[Generated exports + issuance receipt]
+  W -->|filesystem failure| F[PARTIAL receipt and exact remaining paths]
+  E --> S[Snapshot capture and replay]
+  I[539 imported records unchanged] --> E
+```
+
+Use `node tools/document-record-migration.mjs --plan <manifest-path>` first, then explicit `--apply` after candidate review. Apply rechecks base/approval preconditions, refuses existing/burnt/reserved IDs, inherited subjects, namespace/family/path escapes and unsupported membership changes before writing. It invokes the existing add-only `id-ledger.mjs --write`; neither a generator nor a gate hand-patches the ledger. The frozen `<name>.approval.md` is exact evidence of the approved note revision, not a second authoring source. The note may later evolve without rewriting that evidence. Both it and the source manifest are digest-checked by record readers.
+
+`<name>.receipt.json` records APPLIED, source manifest digest, original base digests, issued IDs and before/after output digests. Identical reapplication verifies the existing output and is a no-op; changed input/drift or a PARTIAL receipt fails. No atomic-filesystem claim is made. A failed apply emits a recovery receipt with exact changed source paths and the receipt locator; inspect those paths and restore/reconcile them explicitly before another reviewed attempt. Do not use a broad clean/reset or delete historical IDs to hide the failure.
+
+Snapshot schema versions remain separate from record/index versions. Existing snapshot v1 manifests and proofs stay unchanged. The canonical snapshot v2 reader validates each record's provenance, reads the sealed approval/manifest as digest-bound evidence, and verifies authored base/approval commits and the original approved note in the bound Git history before issuing/replaying a proof. This extends canonical reading without rewriting stored snapshots or promoting a planned receiver into delivered behavior.
+
+Version diff 0.1.1 → 0.2.0: adds the owner-approved authored record/index format, sanctioned manifest writer and per-record snapshot provenance checks. The initial import contract and version-1 reader remain unchanged.
+
 ## Acceptance
+
+The bullets below describe the initial import. Authored-record acceptance additionally follows the approved tooling proposal's preservation, failure and snapshot checks.
 
 - Initial adoption extracts exactly every selected declaration in the two source registries, with no generated zuri-next content and no unclassified selected row.
 - FEAT/FR/NFR/BR/SEC/SDD IDs and current subject anchors match the source registry and existing `.id-ledger.json`; no ID ledger or history is rewritten.

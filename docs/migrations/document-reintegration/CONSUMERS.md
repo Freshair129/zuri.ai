@@ -1,7 +1,8 @@
 ---
 doc_type: migration-consumer-contract
-version: "0.2.0"
+version: "0.3.0"
 status: approved
+superseded_by: null
 ---
 
 # Document consumer compatibility
@@ -66,6 +67,10 @@ edits begin; it does not approve normative ZNEXT adoption or persisted-data
 migration.
 
 ## Writer rollback proof
+
+The owner approved [additive authored-record support](../../change-requests/marketing/ZURI-GO-RECORD-AUTHORING.md) on 2026-10-05. Canonical record/index version 2 is distinct from snapshot manifest schema 2.0.0. Readers keep historical version-1 snapshots and their proofs unchanged; the existing canonical snapshot reader verifies each imported/authored record according to its own provenance, including sealed approval/manifest digests and actual bound Git origin for authored rows. Query/graph/views retain the historical import revision while resolving authored subjects by their own canonical path and approval/base revision. This adds no native Marketing write authority or delivery evidence.
+
+Version diff 0.2.0 → 0.3.0: documents the approved authored-record writer and snapshot/query/view compatibility boundary; no stored snapshot or historical subject is rewritten.
 
 The fixture rehearsal covers only records represented by the current canonical
 registry and its PRD/FEATURES projections. In the pre-write case, projecting the

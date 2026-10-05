@@ -5,7 +5,7 @@ import path from 'node:path'
 import { promisify } from 'node:util'
 import { z } from 'zod'
 import { anchor, canonicalStatement, splitRow, statementDigest } from '../../../../scripts/id-anchors.mjs'
-import { parseCanonicalIndex, parseCanonicalRecord } from '../../../../scripts/document-registry-format.mjs'
+import { parseCanonicalIndex, parseCanonicalRecord, validateCanonicalEntry, validateAuthoredProvenance } from '../../../../scripts/document-registry-format.mjs'
 
 // @req FR-252 — only a server-local, operator-bound Git verifier may produce
 // the immutable provenance used by a GovernanceSnapshot or a Feature binding.
@@ -462,6 +462,32 @@ async function verifyManifestAgainstCommit({ binding, commitSha, manifest, manif
   // manifests retain their original parser and byte identity during replay.
   const registry = normalized.manifest.schemaVersion === CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION
     ? parseCanonicalZaiRegistry(blobs) : null
+  if (registry?.authoredRecords.length) {
+    const checked = new Set()
+    for (const record of registry.authoredRecords) {
+      const key = JSON.stringify([record.manifestSha256, record.authoredBaseRevision,
+        record.migrationBase.indexSha256, record.migrationBase.ledgerSha256,
+        record.approvalRevision, record.approvalPath, record.approvalSha256])
+      if (checked.has(key)) continue
+      try {
+        for (const revision of new Set([record.authoredBaseRevision, record.approvalRevision])) {
+          await verifyCommit(gitRunner, binding.absoluteCheckoutRoot, revision, remainingMs)
+          await invokeGit(gitRunner, ['merge-base', '--is-ancestor', revision, commitSha],
+            { cwd: binding.absoluteCheckoutRoot, timeoutMs: remainingMs() })
+        }
+        for (const [file, digest] of [[CANONICAL_INDEX_PATH, record.migrationBase.indexSha256], ['docs/.id-ledger.json', record.migrationBase.ledgerSha256]]) {
+          const baseBytes = await readBlob(gitRunner, binding.absoluteCheckoutRoot, record.authoredBaseRevision, file, remainingMs)
+          inspectedBytes += baseBytes.length
+          if (inspectedBytes > MAX_INSPECTED_BYTES || sha256Bytes(Buffer.from(decodeUtf8(baseBytes, 'authored-base-encoding').replace(/\r\n/g, '\n'))) !== digest) throw invalid('authored-base-origin')
+        }
+        const approvedBytes = await readBlob(gitRunner, binding.absoluteCheckoutRoot, record.approvalRevision, record.approvalPath, remainingMs)
+        inspectedBytes += approvedBytes.length
+        if (inspectedBytes > MAX_INSPECTED_BYTES
+          || sha256Bytes(Buffer.from(decodeUtf8(approvedBytes, 'authored-approval-encoding').replace(/\r\n/g, '\n'))) !== record.approvalSha256) throw invalid('authored-approval-origin')
+      } catch { throw invalid('authored-origin-unverifiable') }
+      checked.add(key)
+    }
+  }
   remainingOrRefuse(verificationDeadline)
   return { ...normalized, blobs, registry, checkoutBindingId: binding.checkoutBindingId }
 }
@@ -603,6 +629,7 @@ function parseCanonicalZaiRegistry(blobs) {
     const rows = new Map()
     const memberships = new Map()
     const declaredMemberships = new Map()
+    const authoredRecords = []
     for (const entry of index.records) {
       if (entry.namespace !== ZAI_SOURCE_NAMESPACE || !validRepositoryPath(entry.path)
         || !/^docs\/(?:features|requirements)\//.test(entry.path)) throw invalid('canonical-index-record')
@@ -611,12 +638,9 @@ function parseCanonicalZaiRegistry(blobs) {
       if (!bytes) throw invalid('canonical-record-missing')
       if (sha256Bytes(bytes) !== entry.recordSha256) throw invalid('canonical-record-digest')
       const record = parseCanonicalRecord(decodeUtf8(bytes, 'canonical-record-encoding'))
-      if (record.namespace !== ZAI_SOURCE_NAMESPACE || record.id !== entry.id || record.family !== entry.family
-        || record.sourcePath !== entry.sourcePath || record.sourceRowSha256 !== entry.sourceRowSha256
-        || record.sourceRevision !== index.sourceRevision
-        || record.recordVersion !== entry.recordVersion || record.status !== entry.status
-        || record.featureId !== entry.featureId
-        || JSON.stringify(record.requirementCells) !== JSON.stringify(entry.requirementCells)) throw invalid('canonical-record-identity')
+      validateCanonicalEntry(record, entry, index)
+      const migration = validateAuthoredProvenance(record, file => blobs.get(file))
+      if (record.recordVersion === 2) authoredRecords.push({ ...record, migrationBase: migration.base })
       const cells = splitRow(record.row)
       if (record.statementCell !== 2 || entry.statementCell !== 2
         || cells[0] !== '' || cells[cells.length - 1] !== ''
@@ -646,7 +670,7 @@ function parseCanonicalZaiRegistry(blobs) {
       const owners = memberships.get(key) || []
       if (owners.length > 1 || declared !== owners[0]) throw invalid('canonical-feature-membership')
     }
-    return { requirements, features: { rows, memberships } }
+    return { requirements, features: { rows, memberships }, authoredRecords }
   } catch (error) {
     if (error instanceof GovernanceSourceVerificationError) throw error
     throw invalid('canonical-registry-invalid')
