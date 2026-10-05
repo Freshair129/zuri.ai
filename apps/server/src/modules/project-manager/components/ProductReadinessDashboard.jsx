@@ -74,7 +74,7 @@ function DomainCard({ name, domain }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-bold">{domainLabel(name)}</p>
-          <p className="mt-0.5 text-[10px] text-muted">{domain.readyFeatureCount}/{domain.featureCount} features ready</p>
+          <p className="mt-0.5 text-[10px] text-muted">{domain.readyFeatureCount}/{domain.featureCount} capabilities ready</p>
         </div>
         <ArrowRight size={15} aria-hidden className="text-muted" />
       </div>
@@ -95,7 +95,7 @@ function FeatureCard({ feature }) {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[10px] font-bold text-[var(--brand-dark)]">{feature.id}</span>
-              <span className="pill pill-planned">{feature.kind === 'bundle' ? 'FEAT bundle' : 'single FR'}</span>
+              <span className="pill pill-planned">{feature.kind === 'feature' ? 'Feature' : 'Standalone FR'}</span>
               <ReadinessBadge ready={feature.ready} />
             </div>
             <h3 className="mt-2 text-sm font-bold leading-5" title={feature.title}>{headline(feature.title)}</h3>
@@ -207,18 +207,19 @@ export default function ProductReadinessDashboard({ snapshot, initialDomain = nu
 
       <div className="mb-4 grid grid-cols-6 gap-3 max-xl:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1">
         <Kpi label="Domains" value={contextual.domainCount} meta={domain ? 'Selected implementation lane' : 'ADR-025 implementation lanes'} />
-        <Kpi label="Features" value={contextual.featureCount} meta="FEAT bundles + unbundled FRs" />
+        <Kpi label="Capabilities" value={contextual.featureCount} meta="Features + Standalone FRs" />
         <Kpi label="Ready" value={contextual.readyFeatureCount} meta={`${contextual.featureCount - contextual.readyFeatureCount} not ready`} tone={contextual.readyFeatureCount === contextual.featureCount ? 'good' : 'warn'} />
         <Kpi label="Progress" value={percent(contextual.progressPercent)} meta="20% declaration · 40% code · 40% tests" />
         <Kpi label="Verified FRs" value={`${contextual.verifiedRequirementCount}/${contextual.requirementCount}`} meta="Code and test evidence complete" />
         <Kpi label="Open gaps" value={contextual.gapCount} meta="Governance and requirement gaps" tone={contextual.gapCount ? 'warn' : 'good'} />
       </div>
 
+      <p className="mb-3 text-xs text-muted">Feature คือกลุ่ม FR ที่ประกาศด้วย FEAT · Standalone FR คือข้อกำหนดที่ยังไม่อยู่ใน Feature bundle และแสดงแยกได้</p>
       <Methodology snapshot={snapshot} />
 
       {!domain && (
         <section className="mb-5" aria-label="Domain readiness">
-          <SectionTitle caption="Open a lane to see all of its primary features and blockers.">Domain readiness</SectionTitle>
+          <SectionTitle caption="Open a lane to see all of its primary capabilities and blockers.">Domain readiness</SectionTitle>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {Object.entries(snapshot.domains).map(([name, value]) => <DomainCard key={name} name={name} domain={value} />)}
           </div>
@@ -241,12 +242,12 @@ export default function ProductReadinessDashboard({ snapshot, initialDomain = nu
         </section>
       )}
 
-      <section aria-label="Feature list">
-        <SectionTitle caption={`${filtered.length} of ${scopeFeatures.length} features shown. Filters never change the KPI denominator.`}>Feature list</SectionTitle>
+      <section aria-label="Capability list">
+        <SectionTitle caption={`${filtered.length} of ${scopeFeatures.length} capabilities shown. Filters never change the KPI denominator.`}>Capability list</SectionTitle>
         <div className="mb-3 grid gap-2 md:grid-cols-[minmax(0,1fr)_180px_190px]">
           <label className="relative block">
             <Search size={14} aria-hidden className="pointer-events-none absolute left-3 top-2.5 text-muted" />
-            <input className="input w-full pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search id, feature or use case…" aria-label="Search product readiness features" />
+            <input className="input w-full pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search id, capability or use case…" aria-label="Search product readiness capabilities" />
           </label>
           {!initialDomain && (
             <select className="input" value={selectedDomain} onChange={(event) => setSelectedDomain(event.target.value)} aria-label="Filter by implementation domain">
@@ -262,7 +263,7 @@ export default function ProductReadinessDashboard({ snapshot, initialDomain = nu
         </div>
         <div className="space-y-3">
           {filtered.map((feature) => <FeatureCard key={feature.id} feature={feature} />)}
-          {filtered.length === 0 && <EmptyState title="ไม่พบ feature ที่ตรงกับตัวกรอง" hint="ล้างคำค้นหรือเปลี่ยน readiness filter โดย KPI ด้านบนยังคง denominator เดิม" />}
+          {filtered.length === 0 && <EmptyState title="ไม่พบรายการ ที่ตรงกับตัวกรอง" hint="ล้างคำค้นหรือเปลี่ยน readiness filter โดย KPI ด้านบนยังคง denominator เดิม" />}
         </div>
       </section>
     </div>

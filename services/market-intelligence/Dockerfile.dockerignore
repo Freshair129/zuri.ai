@@ -1,0 +1,5 @@
+*
+!services/market-intelligence/package.json
+!services/market-intelligence/package-lock.json
+!services/market-intelligence/src/**
+!services/market-intelligence/contracts/**

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T09:13:48.487Z",
+  "status": "PASS_FINAL_SOURCE",
+  "reviewer": "GPT-6-Sol High",
+  "requestedReviewer": "Terra High",
+  "reviewerLimitation": "Terra High unavailable in reviewer selector; requested GPT-6-Sol fallback used",
+  "mode": "independent read-only",
+  "reviewedManifestSha256": "e2bd4367764644ff4439308063ae49a4f1ae625539402dfe8853a8289235470f",
+  "sourceHashes": {
+    "document20": "4a49a4d2897d48fff5ec1c2c8e74451346d1e3e83d15191c08fb6f09d2561b94",
+    "agents": "848392b627aae29c215247db97d784a3330282eaddb6f087ae28b0ffd9cb5bec"
+  },
+  "findings": [
+    "Reviewed preview differs only in version metadata, banner and section 13 merge lineage.",
+    "D1-D5 and original two-round retry clause preserved.",
+    "Preview section 14 onward history preserved exactly, including main MA-D06, MA-I13 and two upstream changelog rows.",
+    "All 23 inherited contracts match exact main Git blobs; contracts directory has no diff against main.",
+    "Eleven anchors unique and merge evidence link resolves; no unresolved index entries."
+  ],
+  "limitations": [
+    "Source review only; no completed merge or hosted-check conclusion.",
+    "No product acceptance or governance HOLD lift.",
+    "No files changed by reviewer and no govern/test/build run.",
+    "An initial reviewer rev-parse invocation was corrected before the final 23/23 comparison; no remaining mismatch."
+  ]
+}

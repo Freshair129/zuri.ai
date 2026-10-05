@@ -23,9 +23,8 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 // @req FR-243 — the thread draws a divider where the conversation session changes,
 // naming the session code and when it opened (ADR-094 D4).
 // @spec SDD-050, SDD-053, BR-001, BR-011, SDD-007, SEC-005
-// @tested tests/unit/fr091-inbox-ui-contract.test.js, tests/e2e/fr091-conversation-inbox.spec.js,
-//   tests/e2e/fr246-staff-reply.spec.js,
-//   tests/unit/conversation-session-ui.test.js, tests/e2e/fr243-conversation-sessions.spec.js
+// @tested tests/unit/fr091-inbox-ui-contract.test.js, tests/integration/crm-staff-reply.test.js,
+//   tests/unit/conversation-session-ui.test.js, tests/integration/crm-conversation-sessions.test.js
 //
 // The one reply box on this page (ReplyComposer, FR-246) sends through LINE's Push
 // API, never Reply — it never touches a replyToken, so it is not a second owner of

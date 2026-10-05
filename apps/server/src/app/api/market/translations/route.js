@@ -8,6 +8,7 @@ import {
 import { createMarketObservationRepository } from '@/modules/market-intelligence/infrastructure/market-observation-repository'
 import { listMarketLaneRawRecordCandidates } from '@/modules/market-intelligence/infrastructure/market-raw-record-repository'
 import { extractGenericMarketCandidate } from '@/modules/market-intelligence/application/generic-candidate-extractor'
+import { marketRouting } from '@/modules/market-intelligence/infrastructure/market-executor'
 
 // @req FR-092 — the production trigger for the FR-092 translation seam. Until this
 //   route existed, `loadTranslateAndPersistRawMarketRecord` had no caller outside a
@@ -20,7 +21,8 @@ import { extractGenericMarketCandidate } from '@/modules/market-intelligence/app
 //   "Decision 2026-09-02").
 // @spec SDD-049, BR-001, SEC-001, SEC-017, ADR-038
 // @tested tests/unit/market-intelligence/market-translations-route.test.js,
-//   tests/integration/market-intelligence-translation-run.test.js
+//   tests/integration/market-intelligence-translation-run.test.js,
+//   tests/unit/market-intelligence/market-executor.test.js
 //
 // POST only, and gated on ownership rather than visibility: a translation run writes
 // `MarketObservation` rows, so `runMarketTranslationForBusiness` authorizes with
@@ -38,6 +40,9 @@ import { extractGenericMarketCandidate } from '@/modules/market-intelligence/app
 export const dynamic = 'force-dynamic'
 
 export async function POST(request) {
+  // ADR-108 D6: with MARKET_EXECUTOR=service the Market service is the only writer;
+  // unset or `legacy` leaves the code below as the only path.
+  if (marketRouting.translate) return marketRouting.translate(request)
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
     const body = await request.json()

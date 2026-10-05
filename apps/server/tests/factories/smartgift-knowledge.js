@@ -11,7 +11,6 @@
 //
 // @spec ADR-063, FR-047, SEC-009 — records carry no price and no live fact; the
 //   reader serves only PUBLIC rows for the one Business named.
-// @tested tests/integration/smartgift-webhook-e2e.test.js
 
 import { createHash } from 'node:crypto'
 import {

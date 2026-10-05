@@ -45,6 +45,7 @@ function failure(status, code, message) {
 }
 
 const KEY_SEGMENT = /^[A-Za-z0-9_-]+$/
+const AUTHORITY_FAILURE_STATUSES = new Set([401, 403, 404])
 
 export function catalogObjectKey({ tenantId, businessId, sha256 }) {
   for (const segment of [tenantId, businessId]) {
@@ -126,6 +127,8 @@ export async function uploadSmartGiftCatalogFile(input, {
     })
   } catch (error) {
     if (!Number.isInteger(error?.status) || typeof error?.code !== 'string' || !error.code.startsWith('KNOWLEDGE_')) throw error
+    // Authorization and scope refusals from admission stay request failures, not a stored-file partial outcome.
+    if (AUTHORITY_FAILURE_STATUSES.has(error.status)) throw error
     knowledgeStatus = error.code === 'KNOWLEDGE_RUNTIME_UNAVAILABLE' ? 'UNAVAILABLE' : 'FAILED'
     knowledgeCode = error.code
   }

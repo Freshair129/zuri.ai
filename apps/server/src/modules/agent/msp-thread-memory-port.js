@@ -362,8 +362,10 @@ export function createMspThreadMemoryPort({
     }, claimsFor(threadId, authorization, requesterId)))
   }
 
-  function withInjectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId, contextReceiptId = null }) {
-    if (!contextPacket || contextPacket.policyDecision !== 'ALLOW') return model
+  // @req FR-149 — the one injection-receipt recorder. `withInjectionReceipt`
+  // drives it around an in-process model call; the Conversation Runtime Core
+  // façade drives it state by state when the model runs in the runtime process.
+  function injectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId, contextReceiptId = null }) {
     const packetHash = createHash('sha256').update(JSON.stringify(contextPacket)).digest('hex')
     const receipt = { thread_id: threadId, exchange_id: exchangeId, injection_id: contextPacket.injectionId,
       packet_hash: packetHash, policy_revision: authorization.authContext.policy.version ?? 'default',
@@ -389,6 +391,26 @@ export function createMspThreadMemoryPort({
         }
       }
     }
+    return { record, recordWithRetry }
+  }
+
+  // @req FR-149 — re-attach a route this process did not resolve itself. The
+  // caller is the Core façade restoring a route it resolved in an earlier
+  // request of the same claimed job: every field comes from that persisted job
+  // and the thread id from its own durable MSP receipt, never from the runtime,
+  // the model or message text. MSP still verifies the signed claims.
+  function bindTrustedRoute(threadId, route) {
+    routes.set(required(threadId, 'threadId'), {
+      tenantId: required(route?.tenantId, 'tenantId'), businessId: optional(route?.businessId),
+      channelAccountId: required(route?.channelAccountId, 'channelAccountId'),
+      externalRoomRef: required(route?.externalRoomRef, 'externalRoomRef'),
+      audienceKind: enumValue(route?.audienceKind, THREAD_KINDS, 'audienceKind'),
+    })
+  }
+
+  function withInjectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId, contextReceiptId = null }) {
+    if (!contextPacket || contextPacket.policyDecision !== 'ALLOW') return model
+    const { recordWithRetry } = injectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId, contextReceiptId })
     return { ...model, async generate(input) {
       const resolved = await recordWithRetry('RESOLVED')
       if (!resolved.ok) throw injectionReceiptUnknown(resolved.error)
@@ -472,6 +494,28 @@ export function createMspThreadMemoryPort({
     }, lifecycleClaims(threadId, authorization, permissions)))
   }
 
+  // @req FR-022 — the PDPA erasure of one principal across the whole tenant.
+  // `msp_thread_principal_erase` is tenant/principal-scoped at API-011 (not
+  // thread-bound): its grant needs the tenant, the acting principal and the
+  // data-subject claims, never a room, so no thread is resolved (and none is
+  // minted) to send it. Private read and write stay false.
+  async function erasePrincipalInTenant({ tenantId, principalId, idempotencyKey, authorization }) {
+    const tenant = required(tenantId, 'tenantId')
+    const auth = authorization?.authContext
+    const policy = auth?.policy
+    const caller = auth?.actor?.principalId
+    const permissions = principalId && principalId !== caller ? ['dataSubjectAccess', 'dataSubjectAdmin'] : ['dataSubjectAccess']
+    if (policy?.decision !== 'ALLOW' || permissions.some(name => policy.mspAuthorization?.[name] !== true)) {
+      throw new Error('MSP_LIFECYCLE_SCOPE_DENIED')
+    }
+    if (auth?.scope?.tenantId !== tenant) throw new Error('MSP_AUTHORIZATION_SCOPE_MISMATCH')
+    return unwrap(await callTool('msp_thread_principal_erase', {
+      ...(principalId ? { principal_id: principalId } : {}), idempotency_key: required(idempotencyKey, 'idempotencyKey'),
+    }, { tenantId: tenant, businessId: null, principalId: required(caller, 'actor principalId'),
+      policyRevision: policy.version ?? 'default', readPrivate: false, writePrivate: false,
+      ...Object.fromEntries(permissions.map(name => [name, true])) }))
+  }
+
   return {
     resolveThread,
     appendMessage,
@@ -482,7 +526,10 @@ export function createMspThreadMemoryPort({
     recordInjection,
     participantLifecycle,
     erasePrincipal,
+    erasePrincipalInTenant,
     withInjectionReceipt,
+    injectionReceipt,
+    bindTrustedRoute,
     buildContextPacket: (input) => buildThreadContextPacket({ ...input, maxContextBytes }),
     policy: { idleTimeoutMinutes: idleCeiling, recentExchangeCount: recentCeiling },
   }

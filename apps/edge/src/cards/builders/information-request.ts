@@ -1,4 +1,4 @@
-import { CardViewModel } from '../../zuri-api/types.js';
+import { CardViewModel } from '../../contracts.js';
 import { CardBuilderContext } from '../types.js';
 
 /** Bounded non-PII checklist; it reports a data gap, never a fabricated forecast. */

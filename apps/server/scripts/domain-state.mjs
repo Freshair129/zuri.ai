@@ -6,6 +6,7 @@ import { workspacePath, workspaceRoot, canonicalRelative } from './workspace-pat
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import Ajv2020 from 'ajv/dist/2020.js'
+import { classifyRequirements } from './capability-registry.mjs'
 
 export const STATUS_VALUES = [
   'verified',
@@ -350,8 +351,8 @@ export function parseFeaturePresentation(root) {
 }
 
 /**
- * Project every complete feature once: each explicit FEAT bundle, plus each FR
- * that no bundle claims (ADR-025 rev 2 — an unbundled FR is a feature of one).
+ * Project each explicit Feature bundle and each Standalone FR once.
+ * Schema 2.0 wire kinds remain bundle/requirement for compatibility (ADR-025 rev 3).
  *
  * @req FR-124 — a partial list is a wrong answer, so this never silently drops an
  * item or infers a domain. Missing, duplicated, unknown or use-case-less metadata
@@ -366,6 +367,7 @@ export function parseFeaturePresentation(root) {
  * was correct but its input could not express the failure it was checking for.
  */
 function buildFeatureProjection({ nodes, edges, domains, presentation, requirements }) {
+  classifyRequirements(nodes, edges)
   if (presentation === null) return []
 
   const requirementById = new Map(requirements.map((requirement) => [requirement.id, requirement]))
@@ -511,13 +513,13 @@ function apiCheck(root, routes) {
       .split(/\r?\n/)
       .filter((line) => line.startsWith('|'))
       .flatMap((line) => (line.split('|')[2] || '').replaceAll('`', '').split(',').map((value) => value.trim().split('?')[0]))
-      .filter((value) => value.startsWith('/api/')),
+      .filter((value) => value.startsWith('/api/') || value.startsWith('/oauth/')),
   )
   const missingFromInventory = apis.filter((route) => !inventoryPaths.has(route.route))
   const openapi = readText(root, 'src/modules/project-manager/api-docs/openapi.js')
   const openApiPaths = unique([
     ...[...openapi.matchAll(/path:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]),
-    ...[...openapi.matchAll(/\[\s*['"](\/api\/[^'"]+)['"]/g)].map((match) => match[1]),
+    ...[...openapi.matchAll(/\[\s*['"](\/(?:api|oauth)\/[^'"]+)['"]/g)].map((match) => match[1]),
   ].map((value) => value.replace(/\{([^}]+)\}/g, '[$1]')))
   const missingFromOpenApi = apis.filter((route) => !openApiPaths.includes(route.route))
   const gaps = []
@@ -606,10 +608,13 @@ function authorizationCheck(root, routes) {
     // resolveViewer itself. They are still server-owned authorization seams, so
     // counting them as viewer-less would understate the coverage this reports.
     const hasViewer = /resolveRequestViewer|requireTrusted|requireViewer|resolveViewer|getPluginCapabilities|exchangePluginAuthorizationCode|revokePluginToken/.test(body)
+    // Public provider hooks use an explicit marker and a named receiving service:
+    // their contract authenticates provider signatures instead of a browser viewer.
+    const hasPublicProviderAuth = /@public-provider-endpoint/.test(body) && /receiveNotionWebhook\s*\(/.test(body)
     for (const method of methods) {
       if (MUTATING_METHODS.includes(method)) {
         mutations += 1
-        if (hasViewer) guardedMutations += 1
+        if (hasViewer || hasPublicProviderAuth) guardedMutations += 1
       }
       if (method === 'GET') {
         reads += 1
@@ -620,7 +625,7 @@ function authorizationCheck(root, routes) {
 
   const evidence = ['docs/appendices/A-api-spec.md']
   const gaps = []
-  if (guardedMutations < mutations) gaps.push(gap('AUTH-001', 'high', 'At least one mutating route lacks a recognizable request viewer seam'))
+  if (guardedMutations < mutations) gaps.push(gap('AUTH-001', 'high', 'At least one mutating route lacks a recognizable viewer or provider authentication seam'))
   if (unguardedReads) gaps.push(gap('AUTH-002', 'medium', 'At least one read route lacks a recognizable request viewer seam'))
   const status = guardedMutations < mutations || unguardedReads ? 'partial' : mutations ? 'verified' : 'unknown'
   return check(status, evidence, gaps, { mutations, guardedMutations, reads, unguardedReads })

@@ -5,10 +5,10 @@ parent_requirement: FR-252
 phase_id: FR-252-P4
 phase_order: 4
 domain: project-manager
-version: "0.5.0b"
+version: "0.6.0b"
 status: beta
 created_at: "2026-09-17T02:46:11+07:00,RWANG,approved e5ccfd7a"
-last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
+last_update: "2026-10-03T22:38:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-252
@@ -69,10 +69,17 @@ governance results are recorded in the integration report. CRM's narrow service 
 See the [integration report](../../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 for frozen proof and release boundaries.
 
+Initial dialog autofocus must preserve a control the user has already focused
+inside that dialog. Browser verification delays the initial animation frame,
+selects another input, releases the frame and proves focus and the exact capture
+payload remain intact. See the [autofocus RCA](../../../../.brain/rca/2026-10-03-fr252-delayed-dialog-autofocus.md).
+This correction does not relax timeout, retry, receipt or authorization checks.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.6.0b | 2026-10-03 | beta | Preserve user-selected dialog focus against delayed initial autofocus; add deterministic browser regression and exact snapshot payload checks | pending | RWANG |
 | 0.5.0b | 2026-09-17 | beta | Close approved UI conformance findings with independent source and 25-test proof; record final Server suite/build and retain exact browser/release gate status | 052821a7 + 892f23f3 | RWANG |
 | 0.4.0b | 2026-09-17 | beta | Record actual owner transport journey, preserve strict receipt fixture failure, and track independently found UI conformance repairs before final verification | 052821a7 + 892f23f3 | RWANG |
 | 0.3.0b | 2026-09-17 | beta | Record W3 browser/independent PASS and active W5 owner-form verification; distinguish historical reads from new write flows | 052821a7 + 892f23f3 | RWANG |

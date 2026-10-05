@@ -8,6 +8,13 @@ name: governance
 # See .brain/rca/2026-08-17-governance-did-not-govern.md
 
 on:
+  # No `labeled` trigger (#609 review, finding 5). Adding any label would start
+  # a whole run; an early-exiting run for other labels would post a SKIPPED
+  # `verify` for the same commit, which branch protection reads as passing and
+  # which would mask a red `verify` from the real run. Instead `changes` reads
+  # the pull request's labels LIVE from the API, so `ci:full` takes effect on
+  # the next push or on "Re-run all jobs" (a re-run replays the old payload,
+  # which is why the payload's label list is not used).
   pull_request:
   push:
     branches: [main]
@@ -33,6 +40,13 @@ on:
     - cron: '0 19 * * *'
   workflow_dispatch:
 
+# One live run per pull request: a new push cancels the superseded run. Only
+# pull requests share a group; `main` pushes, the schedule and dispatches each
+# get their own group (the run id) and are never cancelled.
+concurrency:
+  group: governance-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   # Which parts of the tree changed. The e2e suite takes 7-8 minutes and cannot
   # observe a documentation-only change at all, so a doc slice used to pay the
@@ -48,10 +62,45 @@ jobs:
   #
   # `verify` is deliberately NOT gated on this. It carries the governance chain,
   # which is exactly what a documentation change has to pass.
+  #
+  # `server` (2026-09-27, owner instruction): the reason services are extracted
+  # is that a change confined to one is verified by that service alone. When a
+  # pull request's whole diff sits inside isolated services
+  # (scripts/ci-change-scope.mjs), `server=false`: `tests` and `build` are
+  # skipped, `govern` still runs (the doc graph scans services/*/src and test)
+  # and also runs `contracts` — the apps/server tests that import that service's
+  # code. Every other diff, every push to `main` and every classification
+  # failure is `server=true`, the full suite, so `main` stays fully verified.
+  #
+  # `test_mode` (2026-09-27, owner instruction: "narrow, per FR"): a pull request
+  # whose diff is apps/server source/tests (plus docs, and optionally sources of
+  # the isolated services — conversation-runtime, market-intelligence, scm —
+  # whose own jobs run on every PR regardless) runs only the RELATED
+  # tests — importers of the changed files by vitest's own module graph, every
+  # test naming a requirement id the changed files declare with `@req`, and the
+  # changed tests. `scripts/ci-change-scope.mjs --related` decides it and falls
+  # back to `full` for prisma, lockfiles, vitest config/setup, tests/helpers and
+  # fixtures, .github, scripts, src/lib, env and config
+  # files, a deleted source, a fan-out above 40% of the suite, or any failure.
+  # Pushes to `main`, the schedule and workflow_dispatch never enter related
+  # mode, and the `ci:full` pull request label forces the full suite.
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
     outputs:
       code: ${{ steps.filter.outputs.code }}
+      server: ${{ steps.filter.outputs.server }}
+      services: ${{ steps.filter.outputs.services }}
+      contracts: ${{ steps.filter.outputs.contracts }}
+      test_mode: ${{ steps.related.outputs.test_mode }}
+      test_reason: ${{ steps.related.outputs.test_reason }}
+      related: ${{ steps.related.outputs.related }}
+      postgres: ${{ steps.related.outputs.postgres }}
+      test_shards: ${{ steps.related.outputs.test_shards }}
+      test_shard_total: ${{ steps.related.outputs.test_shard_total }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,7 +121,7 @@ jobs:
           # decision: say it here so the log states the reason.
           if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "scheduled run — exercising the full suite against main"
-            echo "code=true" >> "$GITHUB_OUTPUT"; exit 0
+            echo "code=true" >> "$GITHUB_OUTPUT"; echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -89,16 +138,21 @@ jobs:
           case "$base" in
             ''|0000000000000000000000000000000000000000)
               echo "no usable base ($base) — running the full suite"
-              echo "code=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+              echo "code=true" >> "$GITHUB_OUTPUT"; echo "server=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
           esac
 
-          if ! changed=$(git diff --name-only "$base" "$head" 2>&1); then
+          # --no-renames (#609 review, finding 1): a rename is listed as its old
+          # path (deleted) and its new path, never the new path alone. A test
+          # still importing the old path is then seen: the deleted source makes
+          # related mode fall back to the full suite.
+          if ! changed=$(git diff --name-only --no-renames "$base" "$head" 2>&1); then
             echo "could not diff $base..$head — running the full suite"
             echo "$changed"
-            echo "code=true" >> "$GITHUB_OUTPUT"; exit 0
+            echo "code=true" >> "$GITHUB_OUTPUT"; echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
 
           echo "changed files:"; echo "$changed"
+          printf '%s\n' "$changed" > "$RUNNER_TEMP/changed.txt"
 
           # Root documentation files are enumerated, never matched by a `*.md`
           # wildcard. A wildcard would also skip a README dropped into `src/`
@@ -110,6 +164,88 @@ jobs:
             echo "classification failed — running the full suite"
             echo "code=true" >> "$GITHUB_OUTPUT"
           fi
+
+          # A push to `main` always runs the full server suite: it is the
+          # safety net behind every scoped pull request.
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "not a pull request — full server suite"
+            echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if ! scope=$(printf '%s\n' "$changed" | node scripts/ci-change-scope.mjs); then
+            echo "scope classification failed — full server suite"
+            echo "server=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "scope:"; echo "$scope"
+          printf '%s\n' "$scope" >> "$GITHUB_OUTPUT"
+
+      # Related mode, pull requests only. The cheap path check runs first, so a
+      # diff that must run the full suite never pays for the install below.
+      # Labels are read live (see `on:`); an unreadable label list fails safe to
+      # the full suite, as if `ci:full` were set.
+      - id: eligible
+        if: github.event_name == 'pull_request' && steps.filter.outputs.server == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -uo pipefail
+          if ! labels=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/labels" --jq '.[].name'); then
+            echo "could not read the pull request's labels — full server suite"
+            echo "candidate=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if printf '%s\n' "$labels" | grep -qx 'ci:full'; then
+            echo "ci:full label — full server suite"
+            echo "candidate=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if ! verdict=$(node scripts/ci-change-scope.mjs --related-eligible < "$RUNNER_TEMP/changed.txt"); then
+            echo "eligibility check failed — full server suite"
+            echo "candidate=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "$verdict"
+          printf '%s\n' "$verdict" >> "$GITHUB_OUTPUT"
+
+      # vitest only transforms modules to read their imports; nothing executes,
+      # so the prisma client that `postinstall` generates is not needed here,
+      # and the install is cached whole on the lockfile: a hit skips `npm ci`.
+      - name: Restore apps/server node_modules for the module graph
+        id: graph-deps
+        if: steps.eligible.outputs.candidate == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ runner.os }}-server-nm-graph-node22-${{ hashFiles('apps/server/package-lock.json') }}
+
+      - uses: actions/setup-node@v4
+        if: steps.eligible.outputs.candidate == 'true' && steps.graph-deps.outputs.cache-hit != 'true'
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+
+      - name: Install apps/server for the module graph
+        if: steps.eligible.outputs.candidate == 'true' && steps.graph-deps.outputs.cache-hit != 'true'
+        working-directory: apps/server
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Save apps/server node_modules for the module graph
+        if: steps.eligible.outputs.candidate == 'true' && steps.graph-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ steps.graph-deps.outputs.cache-primary-key }}
+
+      - id: related
+        if: steps.eligible.outputs.candidate == 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          if ! out=$(node scripts/ci-change-scope.mjs --related < "$RUNNER_TEMP/changed.txt"); then
+            echo "related computation failed — full server suite"
+            echo "test_mode=full" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          printf '%s\n' "$out"
+          printf '%s\n' "$out" >> "$GITHUB_OUTPUT"
 
   # ---------------------------------------------------------------------------
   # `verify` used to be one job: install → govern → tests → build, ~14.5 min in
@@ -125,14 +261,21 @@ jobs:
   #             and the governance-facing unit tests. Reports in ~2-3 minutes,
   #             so a documentation or annotation slip is red before the suite
   #             is half done.
-  #   tests   — the full unit + integration suite. The long job; unchanged.
+  #   tests   — the full unit + integration suite, in four shards (2026-09-27).
+  #             Skipped, with `build`, for a service-scoped pull request.
   #   build   — the production build, no longer queued behind the tests.
-  #   verify  — an aggregate that fails if any of the three did. Branch
+  #   conversation-runtime — isolated service tests, boundary build and image build.
+  #   market-intelligence — the ADR-108 service package: isolated tests,
+  #             boundary build, Postgres store conformance and image build.
+  #   scm     — the ADR-111 service package: kernel mirror drift check, boundary
+  #             build, the suite on SQLite and on an embedded PostgreSQL 17,
+  #             image build.
+  #   verify  — an aggregate that fails if any of the six did. Branch
   #             protection requires a check literally named `verify`
   #             (`changes`, `verify`, `edge-verify`), and a required check that
   #             only covered one of the three would let a red suite merge.
   #
-  # The three run in PARALLEL rather than govern-first-then-the-rest: gating the
+  # The server's three long checks run in PARALLEL rather than govern-first-then-the-rest: gating the
   # 11-minute suite on a 3-minute job would add 3 minutes to every green run to
   # save runner minutes on the red ones, and time-to-signal — not runner cost —
   # is what this split is for. `gh run rerun --failed` now re-runs only the job
@@ -149,6 +292,7 @@ jobs:
   # `main` already merged and verified, so nothing here can change.
   # ---------------------------------------------------------------------------
   govern:
+    needs: changes
     if: github.event_name != 'schedule'
     runs-on: windows-latest
     defaults:
@@ -178,6 +322,10 @@ jobs:
       # still asks: is the generator REPRODUCIBLE.
       - name: Governance chain
         run: npm run govern
+
+      - name: Documentation migration contracts
+        working-directory: .
+        run: npm run docs:migration:test
 
       # `runtime/domain-state.json` IS still committed — the app imports it and
       # the Docker build context cannot regenerate it (ADR-081 D2) — so it keeps
@@ -218,6 +366,28 @@ jobs:
           tests/unit/doc-graph-canonical-text.test.js
           tests/unit/doc-graph-delivery-attribution.test.js
           tests/unit/doc-graph-retired-rules.test.js
+          tests/unit/governance-source-verifier.test.js
+          tests/unit/governance-canonical-source.test.js
+
+      # A service-scoped pull request skips `tests`, so the apps/server tests
+      # that import the changed service's code — the Core-side contract tests —
+      # run here instead. The list is computed from the tree by
+      # scripts/ci-change-scope.mjs, not maintained by hand. On a full run
+      # `tests` covers them and this step is skipped.
+      - name: Service contract tests (service-scoped pull request)
+        if: needs.changes.outputs.server == 'false' && needs.changes.outputs.contracts != ''
+        shell: bash
+        env:
+          CONTRACT_TESTS: ${{ needs.changes.outputs.contracts }}
+        run: npm test -- $CONTRACT_TESTS
+
+      # The same WorkToolPort suite on PostgreSQL (vitest.postgres.config.js):
+      # a disposable embedded PostgreSQL 17 started and deleted by the run, never
+      # a shared database. Here only when the scoped contract tests include it;
+      # on a full run the `tests` job runs it.
+      - name: WorkToolPort on PostgreSQL (service-scoped pull request)
+        if: needs.changes.outputs.server == 'false' && contains(needs.changes.outputs.contracts, 'conversation-runtime-work-tool-port.test.js')
+        run: npm run test:postgres
 
       # llms-full.txt is built, not compared (ADR-081 D1 as amended): with no
       # committed copy there is nothing to be current against, so what is left
@@ -235,8 +405,24 @@ jobs:
           path: llms-full.txt
           retention-days: 30
 
+  # Sharded (2026-09-27): vitest.config.js runs files serially
+  # (fileParallelism: false, one SQLite writer), so one job took ~18-20 minutes.
+  # Four shards on four runners, each with its own disposable database, divide
+  # that wall time. `verify` reads the matrix as one result: success only when
+  # every shard succeeded. Skipped for a service-scoped pull request (`changes`).
+  #
+  # Related mode (`changes` emitted test_mode=related; pull requests only): the
+  # same job runs only the computed list through vitest.related.config.js, in
+  # 1-4 shards sized by the list (45 files per shard, scripts/ci-change-scope.mjs),
+  # and the PostgreSQL step only when the change reaches the WorkToolPort paths.
   tests:
-    if: github.event_name != 'schedule'
+    needs: changes
+    if: github.event_name != 'schedule' && needs.changes.outputs.server != 'false'
+    name: ${{ needs.changes.outputs.test_mode == 'related' && format('tests (related {0}/{1})', matrix.shard, needs.changes.outputs.test_shard_total) || format('tests ({0}/4)', matrix.shard) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.changes.outputs.test_mode == 'related' && needs.changes.outputs.test_shards || '[1, 2, 3, 4]') }}
     runs-on: windows-latest
     defaults:
       run:
@@ -244,23 +430,67 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Setup used to be ~1.5-2.7 min of every shard (PR #609's first run): two
+      # setup-node restores of the npm download cache, then two `npm ci`. Both
+      # node_modules trees are now cached whole, keyed on everything the install
+      # and its postinstall read (lockfile; for the server also the prisma
+      # schema and the two client generators), and saved right after a fresh
+      # install — before the tests run, so no test output enters the cache. A
+      # hit skips the Node 24 toolchain and both installs. A changed input is a
+      # new key and a cold install, never a stale tree.
+      #
       # Server contract tests exercise the actual Edge runtime schema.
+      - name: Restore Edge contract consumer node_modules
+        id: edge-deps
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/edge/node_modules
+          key: ${{ runner.os }}-edge-nm-node24-${{ hashFiles('apps/edge/package-lock.json') }}
       - uses: actions/setup-node@v4
+        if: steps.edge-deps.outputs.cache-hit != 'true'
         with:
           node-version: '24'
           cache: npm
           cache-dependency-path: apps/edge/package-lock.json
       - name: Install Edge contract consumer
+        if: steps.edge-deps.outputs.cache-hit != 'true'
         working-directory: apps/edge
-        run: npm ci
+        run: npm ci --no-audit --no-fund
+      - name: Save Edge contract consumer node_modules
+        if: steps.edge-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: apps/edge/node_modules
+          key: ${{ steps.edge-deps.outputs.cache-primary-key }}
 
+      - name: Restore apps/server node_modules
+        id: server-deps
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ runner.os }}-server-nm-node22-${{ hashFiles('apps/server/package-lock.json', 'apps/server/prisma/schema.prisma', 'apps/server/scripts/generate-prisma-clients.mjs', 'apps/server/scripts/gen-postgres-schema.mjs') }}
+
+      # No npm download cache on a hit: nothing will be downloaded.
       - uses: actions/setup-node@v4
+        if: steps.server-deps.outputs.cache-hit == 'true'
+        with:
+          node-version: '22'
+      - uses: actions/setup-node@v4
+        if: steps.server-deps.outputs.cache-hit != 'true'
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: apps/server/package-lock.json
 
-      - run: npm ci
+      # `postinstall` runs `prisma generate`, so the client is in the cached tree.
+      - run: npm ci --no-audit --no-fund
+        if: steps.server-deps.outputs.cache-hit != 'true'
+      - name: Save apps/server node_modules
+        if: steps.server-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ steps.server-deps.outputs.cache-primary-key }}
 
       # Several tests read `docs/.doc-graph.json`, which is generated and not
       # committed (ADR-081); in the single-job layout the governance chain had
@@ -270,10 +500,40 @@ jobs:
         run: npm run docs:graph
 
       - name: Unit and integration tests
-        run: npm test
+        if: needs.changes.outputs.test_mode != 'related'
+        run: npm test -- --shard=${{ matrix.shard }}/4
+
+      - name: Related unit and integration tests (pull request)
+        if: needs.changes.outputs.test_mode == 'related'
+        shell: bash
+        env:
+          RELATED_TESTS: ${{ needs.changes.outputs.related }}
+          TEST_REASON: ${{ needs.changes.outputs.test_reason }}
+        run: |
+          set -euo pipefail
+          echo "related mode: $TEST_REASON"
+          list="$RUNNER_TEMP/related-tests.txt"
+          # Split on spaces into an array (no unquoted expansion, so no globbing);
+          # a path with whitespace never reaches here (ci-change-scope.mjs
+          # falls back to the full suite), and vitest.related.config.js rejects
+          # anything that is not tests/(unit|integration)/*.test.js.
+          IFS=' ' read -r -a tests <<< "$RELATED_TESTS"
+          [ "${#tests[@]}" -gt 0 ] || { echo "::error::empty related list"; exit 1; }
+          printf '%s\n' "${tests[@]}" > "$list"
+          test -s "$list"
+          ZURI_RELATED_TESTS_FILE="$list" npm test -- --config vitest.related.config.js --shard=${{ matrix.shard }}/${{ needs.changes.outputs.test_shard_total }}
+
+      # The WorkToolPort suite again on PostgreSQL, the production engine
+      # (vitest.postgres.config.js): a disposable embedded PostgreSQL 17 on
+      # 127.0.0.1, started and deleted by the run; it reads no database URL, so it
+      # can never reach a shared database. Once per run, on the first shard.
+      - name: WorkToolPort on PostgreSQL
+        if: matrix.shard == 1 && (needs.changes.outputs.test_mode != 'related' || needs.changes.outputs.postgres == 'true')
+        run: npm run test:postgres
 
   build:
-    if: github.event_name != 'schedule'
+    needs: changes
+    if: github.event_name != 'schedule' && needs.changes.outputs.server != 'false'
     runs-on: windows-latest
     defaults:
       run:
@@ -292,24 +552,228 @@ jobs:
       - name: Production build
         run: npm run build
 
+  conversation-runtime:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: services/conversation-runtime/package-lock.json
+
+      - name: Install isolated service package
+        run: npm ci --prefix services/conversation-runtime
+
+      - name: Conversation Runtime tests
+        run: npm --prefix services/conversation-runtime test
+
+      - name: Conversation Runtime build and boundary scan
+        run: npm --prefix services/conversation-runtime run build
+
+      - name: Verify resolved Compose build paths
+        run: node services/conversation-runtime/scripts/verify-compose-paths.mjs
+
+      - name: Create disposable Compose interpolation file
+        shell: bash
+        run: touch apps/server/.env
+
+      - name: Verify Docker Compose resolved build paths
+        run: node services/conversation-runtime/scripts/verify-compose-paths.mjs --compose
+        env:
+          CONVERSATION_RUNTIME_TOKEN: ci-only-conversation-runtime-token-not-a-secret-000000
+          ZURI_CONVERSATION_RUNTIME_IMAGE: zuri-conversation-runtime:ci
+
+      - name: Build standalone service image through the deployment Compose overlay
+        run: docker compose --project-directory apps/server -f apps/server/docker-compose.yml -f apps/server/docker-compose.conversation-runtime.yml build conversation-runtime
+        env:
+          CONVERSATION_RUNTIME_TOKEN: ci-only-conversation-runtime-token-not-a-secret-000000
+          ZURI_CONVERSATION_RUNTIME_IMAGE: zuri-conversation-runtime:ci
+
+      - name: Record hosted image build
+        run: echo "HOSTED_IMAGE_BUILD=PASS image=zuri-conversation-runtime:ci"
+
+      - name: Drain and stop the image in a disposable project
+        shell: bash
+        run: |
+          set -euo pipefail
+          project="conversation-runtime-smoke-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          compose=(docker compose --project-name "$project" -f services/conversation-runtime/docker-compose.smoke.yml)
+          cleanup() { "${compose[@]}" down --remove-orphans >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          "${compose[@]}" up -d --build
+          container="$("${compose[@]}" ps -q conversation-runtime)"
+          test -n "$container"
+          mapping="$("${compose[@]}" port conversation-runtime 3081)"
+          port="${mapping##*:}"
+          for attempt in $(seq 1 30); do
+            live="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:${port}/healthz" || true)"
+            if [ "$live" = "200" ]; then break; fi
+            sleep 1
+          done
+          test "$live" = "200"
+          ready="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:${port}/readyz" || true)"
+          test "$ready" = "200"
+          for attempt in $(seq 1 15); do
+            health="$(docker inspect --format '{{.State.Health.Status}}' "$container")"
+            if [ "$health" = "healthy" ]; then break; fi
+            sleep 1
+          done
+          test "$health" = "healthy"
+          smoke_core_state() {
+            "${compose[@]}" exec -T smoke-core node -e "fetch('http://127.0.0.1:4010/test/state').then(r=>r.json()).then(v=>process.stdout.write(JSON.stringify(v))).catch(()=>process.exit(1))"
+          }
+          for attempt in $(seq 1 30); do
+            state="$(smoke_core_state || true)"
+            if [[ "$state" == *'"prepareEntered":true'* ]]; then break; fi
+            sleep 1
+          done
+          test -n "$state"
+          [[ "$state" == *'"prepareEntered":true'* ]]
+          docker stop --time 10 "$container" >/dev/null 2>&1 &
+          stop_pid=$!
+          ready_during_drain="200"
+          for attempt in $(seq 1 30); do
+            ready_during_drain="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:${port}/readyz" || true)"
+            if [ "$ready_during_drain" = "503" ]; then break; fi
+            sleep 0.2
+          done
+          test "$ready_during_drain" = "503"
+          "${compose[@]}" exec -T smoke-core node -e "fetch('http://127.0.0.1:4010/test/release',{method:'POST'}).then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"
+          wait "$stop_pid"
+          state="$(docker inspect --format '{{.State.Status}}' "$container")"
+          exit_code="$(docker inspect --format '{{.State.ExitCode}}' "$container")"
+          test "$state" = "exited"
+          test "$exit_code" = "0"
+          state="$(smoke_core_state)"
+          node -e 'const state=JSON.parse(process.argv[1]); const ok=state.prepareEntered && state.claimCalls===1 && state.providerCalls===1 && state.completeCalls===1 && state.sendCalls===1 && state.traceKinds.includes("MODEL_STARTED") && state.traceKinds.includes("MODEL_COMPLETED"); if (!ok) { process.stderr.write(JSON.stringify(state)+"\\n"); process.exit(1) }' "$state"
+          echo "IMAGE_START_SMOKE=PASS healthz=$live readyz_before_drain=$ready readyz_during_drain=$ready_during_drain container_health=$health providerCalls=1 completeCalls=1 sendCalls=1 shutdown_exit=$exit_code project=$project"
+        env:
+          CR_SMOKE_IMAGE: zuri-conversation-runtime:ci
+          CR_SMOKE_CORE_IMAGE: zuri-conversation-runtime-core:ci
+          CR_SMOKE_PORT: '0'
+          CR_SMOKE_BIND: 127.0.0.1
+          CR_SMOKE_TOKEN: ci-only-conversation-runtime-token-not-a-secret-000000
+
+  market-intelligence:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: services/market-intelligence/package-lock.json
+
+      - name: Install isolated service package
+        run: npm ci --prefix services/market-intelligence
+
+      - name: Market Intelligence tests
+        run: npm --prefix services/market-intelligence test
+
+      - name: Market Intelligence build and boundary scan
+        run: npm --prefix services/market-intelligence run build
+
+      # Disposable postgres:16 container; the script refuses anything it did not start.
+      - name: Postgres store conformance
+        run: npm --prefix services/market-intelligence run test:pg
+
+      - name: Build standalone service image
+        run: docker build -f services/market-intelligence/Dockerfile -t zuri-market-intelligence:ci .
+
+  scm:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: services/scm/package-lock.json
+
+      - name: Install isolated service package
+        run: npm ci --prefix services/scm
+
+      # src/kernel/** is generated from apps/server/src; a hand edit or a stale
+      # mirror fails here rather than drifting silently.
+      - name: Kernel mirror in sync
+        run: npm --prefix services/scm run kernel:check
+
+      # Boundary scan + declared dependencies + syntax check (scripts/build.mjs),
+      # the same meaning `build` has for the other isolated services.
+      - name: SCM build and boundary scan
+        run: npm --prefix services/scm run build
+
+      - name: SCM tests (SQLite)
+        run: npm --prefix services/scm test
+
+      # Embedded PostgreSQL 17 on a random local port, started and removed by
+      # the runner script; no service container, no secrets.
+      - name: SCM tests (PostgreSQL)
+        run: npm --prefix services/scm run test:postgres
+
+      - name: Build standalone service image
+        run: docker build -f services/scm/Dockerfile -t zuri-scm:ci .
+
   # The required aggregate check. `if: always()` makes dependency failures
   # visible in one explicit result instead of leaving the aggregate ambiguous.
   verify:
     if: always() && github.event_name != 'schedule'
-    needs: [govern, tests, build]
+    needs: [changes, govern, tests, build, conversation-runtime, market-intelligence, scm]
     runs-on: ubuntu-latest
     steps:
-      - name: All three verification jobs passed
+      # `tests` and `build` may be skipped ONLY when `changes` succeeded and
+      # classified the pull request as service-scoped (server=false). Any other
+      # skip — a failed or cancelled `changes`, a missing output — fails here.
+      - name: All verification jobs passed
         shell: bash
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          SERVER: ${{ needs.changes.outputs.server }}
+          SERVICES: ${{ needs.changes.outputs.services }}
+          EVENT: ${{ github.event_name }}
+          TEST_MODE: ${{ needs.changes.outputs.test_mode }}
+          TEST_REASON: ${{ needs.changes.outputs.test_reason }}
+          RELATED: ${{ needs.changes.outputs.related }}
+          GOVERN: ${{ needs.govern.result }}
+          TESTS: ${{ needs.tests.result }}
+          BUILD: ${{ needs.build.result }}
+          CONVERSATION_RUNTIME: ${{ needs.conversation-runtime.result }}
+          MARKET_INTELLIGENCE: ${{ needs.market-intelligence.result }}
+          SCM: ${{ needs.scm.result }}
         run: |
-          echo "govern: ${{ needs.govern.result }}"
-          echo "tests:  ${{ needs.tests.result }}"
-          echo "build:  ${{ needs.build.result }}"
-          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}"; do
-            if [ "$r" != "success" ]; then
-              echo "::error::a verification job did not succeed (see the job results above)"
-              exit 1
-            fi
+          echo "changes: $CHANGES (server=$SERVER services=$SERVICES)"
+          echo "test mode: ${TEST_MODE:-full} $TEST_REASON"
+          echo "govern: $GOVERN"
+          echo "tests:  $TESTS"
+          echo "build:  $BUILD"
+          echo "conversation-runtime: $CONVERSATION_RUNTIME"
+          echo "market-intelligence: $MARKET_INTELLIGENCE"
+          echo "scm: $SCM"
+          fail() { echo "::error::$1"; exit 1; }
+          [ "$CHANGES" = "success" ] || fail "changes did not succeed"
+          # A narrowed `tests` counts only when `changes` itself emitted related
+          # mode, for a pull request, with a non-empty list. `main` is always full.
+          case "$TEST_MODE" in
+            ''|full) ;;
+            related)
+              [ "$EVENT" = "pull_request" ] || fail "related test mode outside a pull request"
+              [ -n "$RELATED" ] || fail "related test mode with an empty test list" ;;
+            *) fail "unknown test mode: $TEST_MODE" ;;
+          esac
+          for r in "$GOVERN" "$CONVERSATION_RUNTIME" "$MARKET_INTELLIGENCE" "$SCM"; do
+            [ "$r" = "success" ] || fail "a verification job did not succeed (see the job results above)"
+          done
+          for r in "$TESTS" "$BUILD"; do
+            if [ "$r" = "success" ]; then continue; fi
+            if [ "$r" = "skipped" ] && [ "$SERVER" = "false" ]; then continue; fi
+            fail "tests/build did not succeed and the change was not service-scoped"
           done
 
   e2e:

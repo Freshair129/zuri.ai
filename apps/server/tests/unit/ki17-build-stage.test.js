@@ -13,14 +13,18 @@ import { dockerfileStage, runnerStage } from '../helpers/dockerfile-stage.js'
 const read = (relative) => readFileSync(resolve(process.cwd(), relative), 'utf8')
 const dockerfile = read('Dockerfile')
 const compose = read('docker-compose.yml')
+const gksHttpCompose = read('docker-compose.ki17-gks-http.yml')
+const gksHttpCanaryCompose = read('docker-compose.ki17-gks-http-canary.yml')
 const pins = JSON.parse(read('deploy/ki17/pins.json'))
+const httpPins = JSON.parse(read('deploy/ki17/pins.gks-http.json'))
 const example = read('.env.knowledge.example')
 const smoke = read('scripts/ki17-smoke.mjs')
+const workerMspLauncher = read('scripts/ki17-worker-msp-launcher.mjs')
 
 describe('the pin manifest', () => {
   it('names all four repositories of the cycle, each at a full 40-character commit', () => {
-    // A short sha is ambiguous, and an ambiguous pin is not a pin. The gate G-4
-    // comparison is against the commits the G-2 acceptance recorded.
+    // A short sha is ambiguous, and an ambiguous pin is not a pin. Before release,
+    // G-4 compares this candidate tuple with the matching acceptance receipt.
     expect(Object.keys(pins.repositories).sort()).toEqual(['genesisblock', 'gks', 'msp', 'zuri-ai'])
     for (const [name, entry] of Object.entries(pins.repositories)) {
       expect(entry.commit, `${name} commit`).toMatch(/^[0-9a-f]{40}$/)
@@ -43,6 +47,56 @@ describe('the pin manifest', () => {
     for (const name of ['msp', 'gks', 'genesisblock']) {
       expect(pins.repositories[name].verifiedInBuild, name).toBe(true)
     }
+  })
+})
+
+describe('the two pin manifests (stdio default, gks-http opt-in)', () => {
+  const PROVEN_STDIO = {
+    msp: '68e6169dbb371dac2f0debf0bf731b553f7dc26d',
+    gks: 'ecf1e4de269e949406a6a5f791f9ff8fe30c9578',
+    genesisblock: '5156f412da73905a23d74775a82cc14d1f6d04d0',
+  }
+  const HTTP_FILES = ['apps/gks-server/bin/gks-http-server.mjs', 'deploy/docker/entrypoint.mjs']
+
+  it('pins the default manifest to the stdio tuple production runs', () => {
+    // 2026-09-28: pins.json had moved to the HTTP canary tuple, so the default
+    // runner-ki17 build could not be reproduced on the production host.
+    expect(pins.profile).toBe('stdio')
+    for (const [name, commit] of Object.entries(PROVEN_STDIO)) expect(pins.repositories[name].commit, name).toBe(commit)
+    for (const file of HTTP_FILES) expect(pins.repositories.gks.entrypoints).not.toContain(file)
+  })
+
+  it('keeps the HTTP canary tuple in its own manifest, which demands the HTTP entrypoints', () => {
+    expect(httpPins.profile).toBe('gks-http')
+    expect(httpPins.repositories.msp.commit).toBe('a65914defd5918ad7e44173ec1cdccf379eca7fe')
+    expect(httpPins.repositories.gks.commit).toBe('1ebcff09ce5f19b0bd219433d376670a44be0278')
+    for (const file of HTTP_FILES) expect(httpPins.repositories.gks.entrypoints).toContain(file)
+    expect(Object.keys(httpPins.repositories).sort()).toEqual(Object.keys(pins.repositories).sort())
+    expect(httpPins.runtime).toEqual(pins.runtime)
+  })
+
+  it('selects the manifest with one build argument whose default is the stdio manifest', () => {
+    expect(dockerfile).toContain('ARG KI17_PINS_MANIFEST=deploy/ki17/pins.json')
+    const gate = dockerfileStage(dockerfile, 'ki17-pins')
+    expect(gate).toContain('COPY ${KI17_PINS_MANIFEST} /opt/ki17/pins/pins.json')
+    expect(gate).toContain('--manifest /opt/ki17/pins/pins.json')
+  })
+
+  it('does not require GKS HTTP files in the stdio images', () => {
+    for (const stage of ['ki17', 'runner-ki17', 'genesis-worker']) {
+      const body = dockerfileStage(dockerfile, stage).split(/\r?\n/).filter((line) => !line.trimStart().startsWith('#')).join(' ')
+      expect(body, stage).not.toContain('gks-http-server.mjs')
+      expect(body, stage).not.toContain('deploy/docker/entrypoint.mjs')
+    }
+  })
+
+  it('builds gks-http only from the gks-http manifest, and the HTTP overlay selects it for every image it builds', () => {
+    const stage = dockerfileStage(dockerfile, 'gks-http')
+    expect(stage).toContain("r.profile !== 'gks-http'")
+    expect(stage).toContain('KI17_GKS_HTTP_PROFILE_REQUIRED')
+    expect(gksHttpCompose.match(/KI17_PINS_MANIFEST: deploy\/ki17\/pins\.gks-http\.json/g)).toHaveLength(3)
+    expect(read('docker-compose.ki17-web.yml')).not.toContain('pins.gks-http.json')
+    expect(compose).not.toContain('pins.gks-http.json')
   })
 })
 
@@ -82,6 +136,18 @@ describe('the pin gate', () => {
   it('records an attested pin as attested, never as verified', () => {
     const receipt = run({ commit: 'a'.repeat(40), provenance: 'attested', detail: '/ctx/msp/.ki17-pin' })
     expect(receipt.contexts[0].provenance).toBe('attested')
+  })
+
+  it('records the manifest profile in the receipt and fails closed when a required profile differs', () => {
+    const profiled = { ...manifest, profile: 'stdio' }
+    const good = { commit: 'a'.repeat(40), provenance: 'git', detail: 'x' }
+    const base = { manifest: 'pins.json', contexts, readManifest: () => profiled, resolve: () => good, exists: () => true }
+    expect(verifyPins(base).profile).toBe('stdio')
+    expect(verifyPins({ ...base, profile: 'stdio' }).profile).toBe('stdio')
+    expect(() => verifyPins({ ...base, profile: 'gks-http' })).toThrow(/KI17_PIN_PROFILE_MISMATCH/)
+    expect(() => verifyPins({ ...base, readManifest: () => manifest, profile: 'stdio' })).toThrow(/KI17_PIN_PROFILE_MISMATCH/)
+    expect(parseArguments(['--manifest', 'p.json', '--context', 'msp=/x', '--profile', 'gks-http']).profile).toBe('gks-http')
+    expect(() => parseArguments(['--manifest', 'p.json', '--context', 'msp=/x', '--profile'])).toThrow(/--profile expects/)
   })
 
   it('refuses arguments it does not understand instead of checking nothing', () => {
@@ -150,6 +216,7 @@ describe('the runtime image copies every file the ki17 configuration names', () 
     expect(imports).toEqual(['../src/modules/agent/msp-stdio-transport.js'])
     expect(stage).toMatch(/COPY --from=builder[^\n]*\/app\/scripts\/ki17-smoke\.mjs/)
     expect(stage).toMatch(/COPY --from=builder[^\n]*\/app\/src\/modules\/agent\/msp-stdio-transport\.js/)
+    expect(stage).toMatch(/COPY --from=builder[^\n]*\/app\/src\/modules\/agent\/msp-child-environment\.mjs/)
   })
 
   it('adds nothing to the production `runner` stage, so a plain web deploy is byte-identical', () => {
@@ -166,8 +233,12 @@ describe('the runtime image copies every file the ki17 configuration names', () 
     const files = [
       '/opt/ki17/msp/apps/msp-server/bin/msp-server.mjs',
       '/opt/ki17/gks/apps/gks-server/bin/gks-server.mjs',
+      '/opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs',
+      '/opt/ki17/gks/deploy/docker/entrypoint.mjs',
       '/opt/ki17/genesisblock/genesisrag17-worker/src/cli.mjs',
       '/opt/ki17/genesisblock/index.linux-x64-gnu.node',
+      '/opt/ki17/tools/ki17-worker-msp-launcher.mjs',
+      '/opt/ki17/src/modules/agent/msp-child-environment.mjs',
     ]
     for (const path of executables) expect(dockerfile, `Dockerfile must assert ${path} is executable`).toContain(`test -x ${path}`)
     for (const path of files) expect(dockerfile, `Dockerfile must assert ${path} exists`).toContain(`test -f ${path}`)
@@ -270,11 +341,15 @@ describe('the compose service', () => {
     // and the shared values must exist once rather than in two files that drift.
     const worker = compose.slice(compose.indexOf('  genesis-worker:'), compose.indexOf('  ngrok:'))
     const envFiles = [...worker.matchAll(/- path: (\S+)/g)].map((match) => match[1])
-    expect(envFiles).toEqual(['.env.knowledge'])
-    expect(worker).toMatch(/- path: \.env\.knowledge\n\s+required: true/)
+    expect(envFiles).toEqual(['${ZURI_KNOWLEDGE_ENV_FILE:-.env.knowledge}'])
+    expect(worker).toMatch(/- path: \$\{ZURI_KNOWLEDGE_ENV_FILE:-\.env\.knowledge\}\n\s+required: true/)
     const web = compose.slice(compose.indexOf('  web:'), compose.indexOf('  # ADR-075 Phase 3 (P-4)'))
-    expect([...web.matchAll(/- path: (\S+)/g)].map((match) => match[1])).toEqual(['.env', '.env.docker', '.env.knowledge'])
-    expect(web).toMatch(/- path: \.env\.knowledge\n\s+required: false/)
+    expect([...web.matchAll(/- path: (\S+)/g)].map((match) => match[1])).toEqual([
+      '${ZURI_WEB_ENV_FILE:-.env}',
+      '${ZURI_WEB_DOCKER_ENV_FILE:-.env.docker}',
+      '${ZURI_KNOWLEDGE_ENV_FILE:-.env.knowledge}',
+    ])
+    expect(web).toMatch(/- path: \$\{ZURI_KNOWLEDGE_ENV_FILE:-\.env\.knowledge\}\n\s+required: false/)
   })
 
   it('leaves the web build block alone, so a routine web deploy needs no knowledge context', () => {
@@ -315,6 +390,8 @@ describe('the configuration template', () => {
       'ZURI_MSP_COMMAND', 'ZURI_MSP_ARGS', 'ZURI_MSP_CWD', 'ZURI_MSP_TIMEOUT_MS',
       'MSP_DB_PATH', 'GKS_DB_PATH',
       'MSP_GKS_COMMAND', 'MSP_GKS_ARGS', 'MSP_GKS_CWD',
+      'GKS_MSP_RELAY_CREDENTIAL_FILE',
+      'MSP_GKS_PIPELINE_CREDENTIAL_FILE',
       'MSP_PIPELINE_PRINCIPALS', 'MSP_GKS_PIPELINE_CREDENTIAL', 'GKS_PIPELINE_RELAY_CREDENTIAL',
       'MSP_PIPELINE_WORKER_URL', 'MSP_PIPELINE_WORKER_TOKEN',
       'GENESIS_WORKER_DB_PATH', 'GENESIS_WORKER_SCOPE', 'GENESIS_WORKER_CREDENTIAL',
@@ -331,7 +408,9 @@ describe('the configuration template', () => {
     // The file is committed. Paths and the port are configuration; a credential,
     // a scope object or a token never is.
     for (const name of [
-      'MSP_PIPELINE_PRINCIPALS', 'MSP_GKS_PIPELINE_CREDENTIAL', 'GKS_PIPELINE_RELAY_CREDENTIAL',
+      'MSP_PIPELINE_PRINCIPALS', 'MSP_GKS_PIPELINE_CREDENTIAL', 'GKS_MSP_RELAY_CREDENTIAL',
+      'GKS_MSP_RELAY_CREDENTIAL_FILE', 'GKS_PIPELINE_RELAY_CREDENTIAL',
+      'MSP_GKS_PIPELINE_CREDENTIAL_FILE',
       'MSP_PIPELINE_WORKER_TOKEN', 'GENESIS_WORKER_SCOPE', 'GENESIS_WORKER_CREDENTIAL',
       'GENESIS_WORKER_QUERY_TOKEN', 'ZURI_KNOWLEDGE_BINDINGS',
     ]) {
@@ -358,5 +437,69 @@ describe('the configuration template', () => {
     expect(fixture.startsWith('/opt/ki17/fixtures/')).toBe(true)
     expect(dockerfile).toContain(fixture.slice('/opt/ki17/fixtures/'.length))
     expect(dockerfile).toContain(`test -s ${fixture}`)
+  })
+})
+
+describe('the private GKS HTTP canary overlay', () => {
+  const service = (name, nextName) => {
+    const start = name === 'web'
+      ? gksHttpCompose.indexOf(`  ${name}:`)
+      : gksHttpCompose.indexOf(`\n  ${name}:`) + 1
+    const end = nextName ? gksHttpCompose.indexOf(`\n  ${nextName}:`, start) : gksHttpCompose.indexOf('\nnetworks:', start)
+    return gksHttpCompose.slice(start, end)
+  }
+
+  it('keeps HTTP transport opt-in and the default stack stdio-only', () => {
+    expect(compose).not.toContain('gks-http')
+    expect(read('docker-compose.ki17-web.yml')).not.toContain('MSP_GKS_TRANSPORT: http')
+    expect(example).toMatch(/^MSP_GKS_TRANSPORT=stdio$/m)
+    expect(gksHttpCompose).toContain('MSP_GKS_TRANSPORT: http')
+    expect(gksHttpCompose).toContain('MSP_GKS_HTTP_URL: http://gks-http:8787')
+  })
+
+  it('supports a separate canary env set and disables ngrok only in the canary overlay', () => {
+    expect(compose).toContain('path: ${ZURI_WEB_ENV_FILE:-.env}')
+    expect(compose).toContain('path: ${ZURI_WEB_DOCKER_ENV_FILE:-.env.docker}')
+    expect(compose).toContain('path: ${ZURI_KNOWLEDGE_ENV_FILE:-.env.knowledge}')
+    expect(gksHttpCanaryCompose).toContain('profiles: ["gks-http-canary-disabled"]')
+    expect(read('.env.example')).toContain('ZURI_WEB_ENV_FILE=.env.ki17-canary')
+    expect(read('.env.example')).toContain('ZURI_KNOWLEDGE_ENV_FILE=.env.knowledge.ki17-canary')
+  })
+
+  it('builds the dedicated GKS image from the same pinned source contexts', () => {
+    expect(gksHttpCompose).toContain('target: gks-http')
+    for (const name of ['msp', 'gks', 'genesisblock']) {
+      expect(gksHttpCompose).toContain(`${name}: $` + `{KI17_${name.toUpperCase()}_CONTEXT:-`)
+    }
+    expect(dockerfileStage(dockerfile, 'gks-http')).toContain('/opt/ki17/gks/apps/gks-server/bin/gks-http-server.mjs')
+  })
+
+  it('mounts both HTTP credentials as files and filters both MSP callers', () => {
+    for (const [name, nextName] of [['web', 'genesis-worker'], ['genesis-worker', 'gks-http'], ['gks-http', null]]) {
+      const current = service(name, nextName)
+      expect(current).toContain('GKS_MSP_RELAY_CREDENTIAL_FILE: /run/secrets/gks_msp_relay_credential')
+      expect(current).toContain('secrets:\n      - gks_msp_relay_credential\n      - gks_pipeline_relay_credential')
+      if (name !== 'gks-http') {
+        expect(current).toContain('MSP_GKS_PIPELINE_CREDENTIAL_FILE: /run/secrets/gks_pipeline_relay_credential')
+        expect(current).toContain('MSP_GKS_TRANSPORT: http')
+        expect(current).toContain('condition: service_healthy')
+      }
+    }
+    expect(service('genesis-worker', 'gks-http')).toContain('GENESIS_WORKER_MSP_COMMAND: /opt/ki17/node/bin/node')
+    expect(service('genesis-worker', 'gks-http')).toContain('/opt/ki17/tools/ki17-worker-msp-launcher.mjs')
+    expect(workerMspLauncher).toContain('buildMspChildEnvironment(process.env)')
+    expect(gksHttpCompose).toContain('GKS_MSP_RELAY_CREDENTIAL_FILE_HOST:?')
+    expect(gksHttpCompose).not.toMatch(/^\s{4}GKS_MSP_RELAY_CREDENTIAL:\s*\S/m)
+    expect(gksHttpCompose).toContain('GKS_PIPELINE_RELAY_CREDENTIAL_FILE_HOST:?')
+    expect(gksHttpCompose).not.toMatch(/^\s{4}GKS_PIPELINE_RELAY_CREDENTIAL:\s*\S/m)
+  })
+
+  it('keeps GKS private, without a host-published port or public-network membership', () => {
+    const gks = service('gks-http')
+    expect(gks).toContain('expose:\n      - "8787"')
+    expect(gks).not.toMatch(/^\s{4}ports:/m)
+    expect(gks).toContain('networks:\n      - gks-private')
+    expect(gksHttpCompose).toMatch(/gks-private:\n\s+internal: true/)
+    expect(gks).toContain('gks_pipeline_relay_credential')
   })
 })

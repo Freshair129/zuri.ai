@@ -67,7 +67,7 @@ describe('domain state projection', () => {
     // `commerce` on 2026-09-07 (FR-166/FR-163, DOM-COMMERCE);
     // `procurement` on 2026-09-07 (FR-164/FR-165, DOM-PROCUREMENT).
     expect(Object.keys(state.domains).sort()).toEqual([
-      'agent', 'asset-management', 'commerce', 'crm', 'identity', 'integration', 'inventory', 'knowledge', 'line-oa-studio', 'market-intelligence', 'marketing', 'platform-control', 'procurement', 'project-manager',
+      'agent', 'asset-management', 'commerce', 'crm', 'file-management', 'identity', 'integration', 'inventory', 'knowledge', 'line-oa-studio', 'market-intelligence', 'marketing', 'platform-control', 'procurement', 'project-manager',
     ])
   })
 
@@ -104,6 +104,18 @@ describe('domain state projection', () => {
     expect(state.domains.crm.status).toBe('not_applicable')
     expect(state.domains['project-manager'].checks.httpApi.status).toBe('partial')
     expect(state.domains['project-manager'].checks.mcp.status).toBe('unknown')
+  })
+
+  it('recognizes unprefixed OAuth callbacks and signed provider webhooks as governed endpoints', () => {
+    const state = JSON.parse(readFileSync(workspacePath(process.cwd(), 'docs/.domain-state.json'), 'utf8'))
+    const integration = state.domains.integration
+
+    expect(integration.checks.httpApi).toEqual(expect.objectContaining({
+      status: 'verified',
+      details: expect.objectContaining({ missingFromOpenApi: 0 }),
+      gaps: [],
+    }))
+    expect(integration.checks.authorization.status).toBe('verified')
   })
 
   it('keeps evidence and gaps attached to the check that produced them', () => {
@@ -249,6 +261,18 @@ describe('domain state projection', () => {
       .toThrow('FR-069 names unknown primary domain no-such-domain')
     expect(build([valid[0], { ...valid[1], useCase: '   ' }]))
       .toThrow('FR-069 has no example use case')
+  })
+
+  it('rejects mismatched wire kind and ID prefix in schema 2.0', () => {
+    const schema = JSON.parse(readFileSync('contracts/domain-state.schema.json', 'utf8'))
+    const state = JSON.parse(readFileSync(workspacePath(process.cwd(), 'docs/.domain-state.json'), 'utf8'))
+    const ajv = new Ajv2020({ strict: true, allErrors: true })
+    addFormats(ajv)
+    const validate = ajv.compile(schema)
+    expect(validate(state)).toBe(true)
+    const item = state.features.find(row => row.id.startsWith('FR-'))
+    item.kind = 'bundle'
+    expect(validate(state)).toBe(false)
   })
 
   it('keeps one explicit use case for every committed projected feature', () => {

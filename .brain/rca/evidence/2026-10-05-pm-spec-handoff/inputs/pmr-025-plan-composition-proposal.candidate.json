@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "1.0.0",
+  "proposalId": "PMR-025-V019-PLAN-COMPOSITION-20261005-01",
+  "version": "0.1.0",
+  "status": "PROPOSAL_ONLY",
+  "candidateOnly": true,
+  "risk": "HIGH",
+  "sourcePlan": {
+    "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+    "version": "0.9.46b",
+    "sha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+    "bytes": 423055,
+    "status": "candidate",
+    "dispatchable": false,
+    "implementationAuthorized": false,
+    "currentPackagePointer": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.4.candidate.json",
+    "currentCandidateSha256": "de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0"
+  },
+  "reviewedCandidate": {
+    "path": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.9.candidate.json",
+    "version": "0.1.9",
+    "sha256": "03207eac2818f469e10bd164543a0dc0db42c45fb5f363965b20604245f103ac",
+    "candidateOnly": true,
+    "ownerAcceptance": "OPEN",
+    "sourcePinsBeforeComposition": {
+      "expected": 44,
+      "matched": 44,
+      "planPinBecomesHistoricalAfterComposition": true
+    },
+    "reviews": {
+      "lunaMax": {
+        "model": "gpt-6-luna",
+        "verdict": "PASS",
+        "scope": "Exact candidate bytes only"
+      },
+      "terraFallback": {
+        "model": "gpt-6-sol",
+        "role": "USER_AUTHORIZED_TERRA_FALLBACK",
+        "verdict": "GO_WITH_LIMITS",
+        "scope": "Candidate-only readiness; no pointer composition"
+      },
+      "astra": {
+        "model": "gpt-6-astra",
+        "verdict": "CONCUR_WITH_LIMITS",
+        "scope": "Candidate-only readiness; no pointer composition"
+      }
+    },
+    "openQuestions": 11,
+    "g0Passed": false,
+    "remoteFreshness": "UNVERIFIED"
+  },
+  "proposedPlanVersion": "0.9.47b",
+  "proposedChanges": {
+    "planVersion": {
+      "before": "0.9.46b",
+      "after": "0.9.47b"
+    },
+    "workPackageId": "PMR-025-BUNDLE-DESIGN",
+    "state": {
+      "before": "CANDIDATE_READY_FOR_REVIEW",
+      "after": "CANDIDATE_READY_FOR_REVIEW"
+    },
+    "candidateArtifact": {
+      "before": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.4.candidate.json",
+      "after": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.9.candidate.json"
+    },
+    "candidateSha256": {
+      "before": "de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0",
+      "after": "03207eac2818f469e10bd164543a0dc0db42c45fb5f363965b20604245f103ac"
+    },
+    "candidateVersion": {
+      "before": "0.1.4",
+      "after": "0.1.9"
+    },
+    "previousPlanPointer": {
+      "before": {
+        "artifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.candidate.json",
+        "sha256": "2efcd0d8c794dccbe12828a776a117a4a2d639d65df7b2e50aa4691b5d6cc23a",
+        "state": "CANDIDATE_READY_FOR_REVIEW"
+      },
+      "after": {
+        "artifact": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.4.candidate.json",
+        "sha256": "de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0",
+        "state": "CANDIDATE_READY_FOR_REVIEW"
+      }
+    },
+    "latestCandidateReview": {
+      "before": {
+        "reviewedPlanPreimageSha256": "720a82a4745dfc86f96eed469ffca3bb95969647c7c99af95eb28221a9094095",
+        "exactCandidateSha256": "efd7887e3ffaf8b8cde2c8b0a8b765bf599560bec19fd9ce7df211fff18ba03f"
+      },
+      "after": {
+        "reviewedPlanPreimageSha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+        "exactCandidateSha256": "03207eac2818f469e10bd164543a0dc0db42c45fb5f363965b20604245f103ac",
+        "reviewerVerdicts": {
+          "lunaMax": "PASS",
+          "terraFallback": "GO_WITH_LIMITS",
+          "astra": "CONCUR_WITH_LIMITS"
+        },
+        "disposition": "Candidate-only readiness; no owner acceptance, G0/SPEC closure, downstream adoption or implementation."
+      }
+    },
+    "coordinatorReconciliation": "Exact PMR-025 v0.1.9 candidate SHA 03207eac2818f469e10bd164543a0dc0db42c45fb5f363965b20604245f103ac was reviewed against plan v0.9.46b SHA 9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393. Luna Max PASS, Terra-role GPT-6-Sol authorized fallback GO_WITH_LIMITS and Astra CONCUR_WITH_LIMITS establish candidate-only readiness and explicitly do not authorize pointer composition. This separate proposal requests new Terra-fallback and Astra composition decisions bound to this proposal, the exact plan preimage and candidate hash. Only those fresh decisions and the root exact-composition gate could authorize the enumerated pointer bookkeeping. Composition does not accept the design or resolve its 11 open questions; Q11 remains implementation-blocking. The plan pin becomes historical after composition. Preserve current file boundary and all owner, G0/SPEC, canonical, downstream, dispatch and implementation gates.",
+    "candidateFileBoundary": "The candidate v0.1.9 preparation exception is one-file provenance metadata only. Root pointer composition does not grant workers a broader write scope; shared OpenAPI, canonical docs and owner contracts remain read-only and unchanged."
+  },
+  "compositionReceiptPlan": {
+    "appendExactlyOneRootDecisionReceiptAfterFreshTerraAndAstraCompositionAuthorization": true,
+    "bindCurrentPlanPreimageSha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+    "proposalHashBinding": "Reviewers and the root composition receipt record this file's SHA-256 externally; the proposal does not contain a self-referential hash.",
+    "bindExactCandidateSha256": "03207eac2818f469e10bd164543a0dc0db42c45fb5f363965b20604245f103ac",
+    "recordReviewerModelsVerdictsScopeAndFreshRollbackSnapshot": true,
+    "preserveAllPriorReceiptsByteForByte": true,
+    "writeAllowlist": [
+      "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json"
+    ]
+  },
+  "preservedInvariants": [
+    "All 43 work packages, 90 dependency edges and 13 DAG waves remain identical.",
+    "All package states, requirements, dependencies and entry gates remain unchanged; PMR-025 remains CANDIDATE_READY_FOR_REVIEW.",
+    "dispatchable=false and implementationAuthorized=false remain false; no implementation package is unlocked.",
+    "The candidate remains unaccepted: all 11 questions remain open, Q11 retains implementationBlock=true, and G0/SPEC, owner and canonical-registration gates remain open.",
+    "The candidate's v0.9.46b plan pin becomes historical after composition; no post-composition 44/44-current claim is made.",
+    "No shared API/schema/OpenAPI/document edits, canonical registration, downstream adoption, dispatch, implementation, provider activity, runtime, migration, deployment, release or production action."
+  ],
+  "requiredBeforeComposition": [
+    "Terra-fallback and Astra independently authorize only this exact pointer-composition proposal hash.",
+    "Create a fresh local rollback snapshot of the exact live plan preimage and reviewed candidate inputs; verify every manifest and archive hash before writing.",
+    "Immediately before write, require the live plan and candidate hashes still match this proposal.",
+    "After write, verify the exact pointer/version/lineage/review-receipt delta, all DAG counts and states, authority flags, and the candidate source-pin disposition.",
+    "Do not run npm run govern while the separate PMR-020 governance hold remains; a governance run requires a fresh exact 13-path snapshot and explicit Astra lift."
+  ],
+  "decisionRequest": "Terra High fallback and Astra High: independently review this exact proposal SHA, plan preimage and candidate SHA. Authorize, reject or conditionally authorize only the enumerated PMR-025 v0.1.9 candidate-pointer composition. Candidate review does not itself authorize composition or acceptance.",
+  "versionDiff": {
+    "from": "No prior PMR-025 v0.1.9 composition proposal",
+    "to": "0.1.0 proposal-only",
+    "change": "Defines one bounded root-only delivery-plan pointer composition for exact reviewed candidate v0.1.9; preserves candidate-only, owner, G0/SPEC, dispatch and implementation gates."
+  }
+}

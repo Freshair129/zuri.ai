@@ -20,7 +20,7 @@ The owner approved implementing the proposed metadata/template/parser workflow o
 
 Use an explicit namespace-qualified `id` and a `relations` array. Each relation contains `type` and `target`; supported types are `relates_to`, `references`, `supersedes`, `superseded_by`. The versioned structural schema is `contracts/doc-link-metadata.schema.json`. Unrelated existing frontmatter fields remain allowed. An empty `relations: []` opts a document into the convention. Existing documents without link metadata remain valid.
 
-Stable IDs resolve through the discovered document registry. `ZAI:ADR-025` is inferred from an existing ADR filename; existing exact global FR/SDD/etc and FEAT IDs resolve to their graph nodes. Explicit document IDs and optional `aliases` retain identity after moves. A phase such as `ZAI:FR-148-P1` must resolve as a complete explicit ID; it is never truncated to the parent FR. Phase links do not assert automated phase-order or completion tracking.
+Stable IDs resolve through the discovered document registries. Existing exact ZAI IDs across FR/NFR/BR/SEC/SDD/FEAT, ADR, RSK, MI-RQ and issued ZV2-CR resolve to their owning graph node or exact anchored identity node. Bare CR intake remains unissued and does not alias ZV2-CR. Explicit document IDs and optional `aliases` retain identity after moves. A phase such as `ZAI:FR-148-P1` must resolve as a complete explicit ID; it is never truncated to the parent FR. Phase links do not assert automated phase-order or completion tracking.
 
 ## Link forms
 
@@ -70,3 +70,4 @@ Tests prove valid YAML, safe parsing, wrong relation types/targets, same-basenam
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | candidate | Metadata links, templates, backward compatibility and validation contract | uncommitted | RWANG |
 | 0.2.0b | 2026-09-06 | beta | Owner-approved M3: disambiguated document node IDs, source-path lineage and duplicate publication guard | base 06cadb76 | RWANG |
+| 0.3.0 | 2026-09-29 | implementation | Resolve all issued ZAI identity families through generated links; preserve owning source registries and distinguish CR intake | migration branch | Codex |

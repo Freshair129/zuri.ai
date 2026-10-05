@@ -14,6 +14,15 @@ import { createPhase1BusinessAgentPortsFromEnv } from '@/modules/agent/phase1-ru
 
 vi.mock('@/lib/db', () => ({ default: {} }))
 
+// @req FR-277 — the shadow-compare harness is a separate module with its own
+// unit tests (line-grounding-shadow-compare.test.js); here it is mocked so
+// these tests can assert exactly how `createServerLineAnswer` calls it —
+// disabled by default, fire-and-forget, never affecting the returned answer.
+const runLineGroundingShadowCompareMock = vi.fn().mockResolvedValue(null)
+vi.mock('@/modules/agent/line-grounding-shadow-compare', () => ({
+  runLineGroundingShadowCompare: (...args) => runLineGroundingShadowCompareMock(...args),
+}))
+
 const tenantId = '11111111-1111-4111-8111-111111111111'
 const businessId = '22222222-2222-4222-8222-222222222222'
 const job = () => ({ tenantId, businessId, modelAccess: 'LOCAL_ONLY', inbound: { body: 'AB-1 ราคาเท่าไร' }, account: { tenantId, businessId } })
@@ -126,5 +135,60 @@ describe('direct server runtime composition', () => {
 
   it('does not relax production raw provider credential prohibition', () => {
     expect(() => createPhase1BusinessAgentPortsFromEnv({ ...env, ZURI_MODEL_CREDENTIAL: 'forbidden' }, { ...dependencies(), bindingRequired: false })).toThrow('PHASE1_PRODUCTION_LEGACY_MODEL_CONFIG_FORBIDDEN')
+  })
+})
+
+// @req FR-277 — shadow-compare wiring (ADR-090 Phase 3, TASK-ZAI-095): disabled
+// by default, fire-and-forget when enabled, and never able to change the
+// answer actually returned to the caller (and, through it, the customer).
+describe('FR-277 shadow-compare wiring in createServerLineAnswer', () => {
+  it('never calls the shadow harness for an account with no knowledgeGroundingShadow flag', async () => {
+    runLineGroundingShadowCompareMock.mockClear()
+    const query = vi.fn().mockResolvedValue(evidence())
+    const text = await createServerLineAnswer({ runtimeFactory: runtimeWith(query) })(job())
+    expect(text).toContain('AB-1')
+    expect(runLineGroundingShadowCompareMock).not.toHaveBeenCalled()
+  })
+
+  it('never calls the shadow harness when the flag is explicitly false', async () => {
+    runLineGroundingShadowCompareMock.mockClear()
+    const query = vi.fn().mockResolvedValue(evidence())
+    const input = job()
+    input.account.knowledgeGroundingShadow = false
+    await createServerLineAnswer({ runtimeFactory: runtimeWith(query) })(input)
+    expect(runLineGroundingShadowCompareMock).not.toHaveBeenCalled()
+  })
+
+  it('calls the shadow harness with the resolved answer once the flag is on, without awaiting it', async () => {
+    runLineGroundingShadowCompareMock.mockClear()
+    let released
+    const gate = new Promise((resolve) => { released = resolve })
+    runLineGroundingShadowCompareMock.mockReturnValueOnce(gate)
+    const query = vi.fn().mockResolvedValue(evidence())
+    const input = job()
+    input.account.knowledgeGroundingShadow = true
+    const text = await createServerLineAnswer({ runtimeFactory: runtimeWith(query) })(input)
+    // The customer-facing call already resolved even though the shadow
+    // promise (`gate`) is still pending — proof this is fire-and-forget, not
+    // awaited on the critical path.
+    expect(text).toContain('AB-1')
+    expect(runLineGroundingShadowCompareMock).toHaveBeenCalledTimes(1)
+    const call = runLineGroundingShadowCompareMock.mock.calls[0][0]
+    expect(call.primaryMode).toBe('BUSINESS_KNOWLEDGE')
+    expect(call.primaryAnswerText).toBe(text)
+    expect(call.tenantId).toBe(tenantId)
+    expect(call.businessId).toBe(businessId)
+    expect(call.job).toBe(input)
+    expect(typeof call.businessKnowledgeReader.query).toBe('function')
+    released(null)
+  })
+
+  it('a rejected shadow promise never surfaces as an error or affects the answer', async () => {
+    runLineGroundingShadowCompareMock.mockClear()
+    runLineGroundingShadowCompareMock.mockRejectedValueOnce(new Error('shadow harness blew up'))
+    const query = vi.fn().mockResolvedValue(evidence())
+    const input = job()
+    input.account.knowledgeGroundingShadow = true
+    await expect(createServerLineAnswer({ runtimeFactory: runtimeWith(query) })(input)).resolves.toContain('AB-1')
   })
 })

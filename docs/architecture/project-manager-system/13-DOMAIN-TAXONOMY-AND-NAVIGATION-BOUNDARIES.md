@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-DOMAIN-NAV-BOUNDARIES
 title: Project Manager domain placement and navigation boundaries
-version: "0.3.0b"
+version: "0.4.0b"
 status: candidate
 created_at: "2026-09-16T02:28:04+07:00,RWANG,source 000b26f1000fe178b06282db83f2ed6cb1b60f47"
-last_update: "2026-09-16T03:23:25+07:00,RWANG"
+last_update: "2026-10-04T10:00:00+07:00,Codex"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -185,10 +185,10 @@ Shortcuts อาจชี้ไปยังทั้ง subdomain และ feat
 | Feature Driven view | Projects & Work → Delivery Design → Features | capability หลาย Domain ใช้ identity และ trace ร่วม; แยกจาก Domains |
 | Directed architecture node/edge view | Delivery Design → Architecture | diagram เป็น design artifact ที่ pin revision/type/direction ไม่สร้าง service จากการลาก node โดยอัตโนมัติ |
 | Visual Swagger/API | Delivery Design → API | scoped catalog จาก contract authority; environment และ execution permission แยกจากดูเอกสาร |
-| Agent command center | Agent Delivery → Command Center | filtered projection ของ project runs; global cross-domain console เป็น Platform capability proposal |
+| Agent command center | Agent Delivery → Command Center | PM-owned `ProjectExecutionRun` trace enriched with Integration queue/lease/runtime projections; global cross-domain console เป็น Platform capability proposal |
 | Agent inventory | Agent Delivery → Agents | project delivery definitions/versions; ไม่แก้ canonical LINE runtime persona หรือเพิ่ม permission จากการลงทะเบียน |
 | Fleet inventory | Agent Delivery → Fleets | composition ของ approved references; ไม่สร้าง supervisor ใหม่ใน business agent lane |
-| Agentic / multi-agent workflow | Agent Delivery → Workflows | PM owns delivery definition profile; durable run state/queue/leases ผ่าน Integration port |
+| Agentic / multi-agent workflow | Agent Delivery → Workflows | PM owns workflow definitions and project run/step SOT; Integration port owns admission, queue, leases and provider execution; `PipelineRun` remains data-pipeline-only |
 | Cloud/local/self-host providers และ MCP | Platform → Integrations; project ดู Connections used | Integration owns provider/connection/secret lifecycle; Identity controls authority/client access; runtime API and MCP are distinct adapter capabilities |
 | Docs → Diagram → Spec → Code | Delivery Design ร่วมกับ Delivery Governance | source revision → review → contract/tests → code evidence; การจัดเมนูไม่ข้าม approval หรือ release gates |
 
@@ -199,7 +199,7 @@ flowchart TD
   H["Business Home shortcuts"] -.->|navigate and reauthorize| PM["Projects & Work"]
   H -.->|navigate and reauthorize| PL["Platform"]
   PM -->|owns delivery plans and definitions| PD["PM application services"]
-  PM -->|project run projection| I["Integration execution and provider ports"]
+  I -->|queue, lease and runtime projection| PM["PM application services"]
   PL -->|authorized administration| I
   I -->|validated dispatch| E["Cloud / local / self-host executors"]
   ID["Identity"] -.->|access policy| PD
@@ -292,3 +292,4 @@ TAX-A* เป็น local candidate acceptance labels ไม่ใช่ tests �
 | 0.1.0b | 2026-09-16 | candidate | Owner clarification, ERP/PM comparison, Projects & Work placement, module/tab hierarchy and prior navigation disposition | source 000b26f1; uncommitted | RWANG |
 | 0.2.0b | 2026-09-16 | candidate | Restore Inventory and seven Work views explicitly; retain planned Risks/Resources; distinguish Team membership from resource planning | source 96630462; uncommitted | RWANG |
 | 0.3.0b | 2026-09-16 | candidate | Define Resources workforce views from new owner requirement without changing existing tab audit | source 0f5a47fc; uncommitted | RWANG |
+| 0.4.0b | 2026-10-04 | candidate | Clarify PM project run/step ownership versus Integration runtime and data-pipeline ledger responsibilities | documentation refinement | Codex |

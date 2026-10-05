@@ -5,6 +5,7 @@ import path from 'node:path'
 import { promisify } from 'node:util'
 import { z } from 'zod'
 import { anchor, canonicalStatement, splitRow, statementDigest } from '../../../../scripts/id-anchors.mjs'
+import { parseCanonicalIndex, parseCanonicalRecord } from '../../../../scripts/document-registry-format.mjs'
 
 // @req FR-252 — only a server-local, operator-bound Git verifier may produce
 // the immutable provenance used by a GovernanceSnapshot or a Feature binding.
@@ -16,6 +17,9 @@ const execFile = promisify(execFileCallback)
 export const SOURCE_MANIFEST_SCHEMA_VERSION = '1.0.0'
 export const VERIFIER_ID = 'zuri.git-registry'
 export const VERIFIER_VERSION = '1.0.0'
+export const CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION = '2.0.0'
+export const CANONICAL_VERIFIER_VERSION = '2.0.0'
+export const CANONICAL_INDEX_PATH = 'registry/document-registry/index.json'
 export const ZAI_SOURCE_NAMESPACE = 'ZAI'
 export const REQUIRED_SOURCE_PATHS = Object.freeze([
   'docs/PRD-SDD-v1.0.md',
@@ -60,7 +64,7 @@ export const zSourceManifestEntry = z.object({
 }).strict()
 
 export const zSourceManifest = z.object({
-  schemaVersion: z.literal(SOURCE_MANIFEST_SCHEMA_VERSION),
+  schemaVersion: z.enum([SOURCE_MANIFEST_SCHEMA_VERSION, CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION]),
   entries: z.array(zSourceManifestEntry).max(MAX_MANIFEST_ENTRIES),
 }).strict().superRefine((value, ctx) => {
   const manifestBytes = Buffer.byteLength(JSON.stringify(value), 'utf8')
@@ -230,7 +234,7 @@ export function normalizeSourceManifest(value, { manifestHash = null } = {}) {
   const entries = [...parsed.entries]
     .sort((left, right) => compareOrdinal(left.path, right.path))
     .map(({ path: entryPath, sha256 }) => ({ path: entryPath, sha256 }))
-  const normalized = { schemaVersion: SOURCE_MANIFEST_SCHEMA_VERSION, entries }
+  const normalized = { schemaVersion: parsed.schemaVersion, entries }
   const bytes = Buffer.from(JSON.stringify(normalized), 'utf8')
   if (bytes.length > MAX_MANIFEST_BYTES) throw invalid('manifest-too-large')
   const digest = sha256Bytes(bytes)
@@ -433,19 +437,33 @@ async function verifyManifestAgainstCommit({ binding, commitSha, manifest, manif
   await verifyCommit(gitRunner, binding.absoluteCheckoutRoot, commitSha, remainingMs)
   const blobs = new Map()
   let inspectedBytes = 0
-  for (const entry of normalized.manifest.entries) {
-    const bytes = await readBlob(gitRunner, binding.absoluteCheckoutRoot, commitSha, entry.path, remainingMs)
-    remainingOrRefuse(verificationDeadline)
-    inspectedBytes += bytes.length
-    if (inspectedBytes > MAX_INSPECTED_BYTES) throw invalid('inspection-limit')
-    if (sha256Bytes(bytes) !== entry.sha256) throw invalid('blob-digest-mismatch')
-    blobs.set(entry.path, bytes)
+  const width = normalized.manifest.schemaVersion === CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION ? 4 : 1
+  for (let offset = 0; offset < normalized.manifest.entries.length; offset += width) {
+    const group = normalized.manifest.entries.slice(offset, offset + width)
+    const results = await Promise.allSettled(group.map(async entry => {
+      const bytes = await readBlob(gitRunner, binding.absoluteCheckoutRoot, commitSha, entry.path, remainingMs)
+      remainingOrRefuse(verificationDeadline)
+      inspectedBytes += bytes.length
+      if (inspectedBytes > MAX_INSPECTED_BYTES) throw invalid('inspection-limit')
+      if (sha256Bytes(bytes) !== entry.sha256) throw invalid('blob-digest-mismatch')
+      return bytes
+    }))
+    for (const [index, result] of results.entries()) {
+      if (result.status === 'rejected') throw result.reason
+      blobs.set(group[index].path, result.value)
+    }
   }
-  for (const requiredPath of REQUIRED_SOURCE_PATHS) {
+  const requiredPaths = normalized.manifest.schemaVersion === SOURCE_MANIFEST_SCHEMA_VERSION
+    ? REQUIRED_SOURCE_PATHS : [CANONICAL_INDEX_PATH]
+  for (const requiredPath of requiredPaths) {
     if (!blobs.has(requiredPath)) throw invalid('required-source-path-missing')
   }
+  // New captures prove the canonical records before issuing a proof. Historical
+  // manifests retain their original parser and byte identity during replay.
+  const registry = normalized.manifest.schemaVersion === CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION
+    ? parseCanonicalZaiRegistry(blobs) : null
   remainingOrRefuse(verificationDeadline)
-  return { ...normalized, blobs, checkoutBindingId: binding.checkoutBindingId }
+  return { ...normalized, blobs, registry, checkoutBindingId: binding.checkoutBindingId }
 }
 
 export async function verifyGovernanceSnapshotIntent({
@@ -493,7 +511,7 @@ export async function verifyGovernanceSnapshotIntent({
   const proof = zGovernanceVerificationProof.parse({
     proofId: randomUUID(),
     verifierId: VERIFIER_ID,
-    verifierVersion: VERIFIER_VERSION,
+    verifierVersion: verifierVersionFor(command.manifest),
     verifiedAt: verifiedAt.toISOString(),
     projectId,
     projectRepositoryId: projectRepository.id,
@@ -573,6 +591,68 @@ function parseZaiRegistry(blobs) {
   }
 }
 
+function verifierVersionFor(manifest) {
+  return manifest.schemaVersion === SOURCE_MANIFEST_SCHEMA_VERSION
+    ? VERIFIER_VERSION : CANONICAL_VERIFIER_VERSION
+}
+
+function parseCanonicalZaiRegistry(blobs) {
+  try {
+    const index = parseCanonicalIndex(decodeUtf8(blobs.get(CANONICAL_INDEX_PATH), 'canonical-index-encoding'))
+    const requirements = new Map()
+    const rows = new Map()
+    const memberships = new Map()
+    const declaredMemberships = new Map()
+    for (const entry of index.records) {
+      if (entry.namespace !== ZAI_SOURCE_NAMESPACE || !validRepositoryPath(entry.path)
+        || !/^docs\/(?:features|requirements)\//.test(entry.path)) throw invalid('canonical-index-record')
+      if (entry.family !== 'FR' && entry.family !== 'FEAT') continue
+      const bytes = blobs.get(entry.path)
+      if (!bytes) throw invalid('canonical-record-missing')
+      if (sha256Bytes(bytes) !== entry.recordSha256) throw invalid('canonical-record-digest')
+      const record = parseCanonicalRecord(decodeUtf8(bytes, 'canonical-record-encoding'))
+      if (record.namespace !== ZAI_SOURCE_NAMESPACE || record.id !== entry.id || record.family !== entry.family
+        || record.sourcePath !== entry.sourcePath || record.sourceRowSha256 !== entry.sourceRowSha256
+        || record.sourceRevision !== index.sourceRevision
+        || record.recordVersion !== entry.recordVersion || record.status !== entry.status
+        || record.featureId !== entry.featureId
+        || JSON.stringify(record.requirementCells) !== JSON.stringify(entry.requirementCells)) throw invalid('canonical-record-identity')
+      const cells = splitRow(record.row)
+      if (record.statementCell !== 2 || entry.statementCell !== 2
+        || cells[0] !== '' || cells[cells.length - 1] !== ''
+        || record.statement !== cells[2]) throw invalid('canonical-record-cells')
+      const statement = cells[2].replace(/\s+/g, ' ').trim()
+      const canonical = canonicalStatement(statement)
+      if (!statement || !canonical) throw invalid('canonical-record-statement')
+      const row = { id: record.id, statement, canonicalSubject: canonical,
+        revisionHash: statementDigest(statement), sourcePath: entry.path }
+      if (entry.family === 'FR') {
+        if (!FR_KEY_RE.test(record.id) || requirements.has(record.id)) throw invalid('canonical-fr-identity')
+        requirements.set(record.id, row)
+        declaredMemberships.set(record.id, record.featureId)
+      } else {
+        if (JSON.stringify(record.requirementCells) !== '[3]'
+          || JSON.stringify(entry.requirementCells) !== '[3]') throw invalid('canonical-feature-cells')
+        const keys = (cells[3] || '').split(',').map((key) => key.trim())
+        if (!FEAT_KEY_RE.test(record.id) || rows.has(record.id) || !Array.isArray(keys) || !keys.length
+          || keys.some((key) => !FR_KEY_RE.test(key)) || new Set(keys).size !== keys.length) throw invalid('canonical-feature-identity')
+        rows.set(record.id, { ...row, requirementKeys: keys })
+        for (const key of keys) memberships.set(key, [...(memberships.get(key) || []), record.id])
+      }
+    }
+    if (!requirements.size) throw invalid('canonical-requirements-empty')
+    for (const key of memberships.keys()) if (!requirements.has(key)) throw invalid('canonical-feature-requirement-missing')
+    for (const [key, declared] of declaredMemberships) {
+      const owners = memberships.get(key) || []
+      if (owners.length > 1 || declared !== owners[0]) throw invalid('canonical-feature-membership')
+    }
+    return { requirements, features: { rows, memberships } }
+  } catch (error) {
+    if (error instanceof GovernanceSourceVerificationError) throw error
+    throw invalid('canonical-registry-invalid')
+  }
+}
+
 function unavailableFeature(canonicalFeatureKey) {
   return { state: 'UNAVAILABLE', canonicalFeatureKey, canonicalSubject: null, ref: null }
 }
@@ -615,7 +695,7 @@ async function materializeSnapshotEvidence({ tx, scope, snapshot, projectReposit
     const typedSnapshot = toGovernanceSnapshotDto(snapshot)
     const proof = typedSnapshot.verificationProof
     if (typedSnapshot.verifierId !== VERIFIER_ID
-      || typedSnapshot.verifierVersion !== VERIFIER_VERSION
+      || typedSnapshot.verifierVersion !== verifierVersionFor(typedSnapshot.sourceManifest)
       || proof.verifierId !== typedSnapshot.verifierId
       || proof.verifierVersion !== typedSnapshot.verifierVersion
       || proof.proofId !== typedSnapshot.proofId
@@ -647,7 +727,7 @@ async function materializeSnapshotEvidence({ tx, scope, snapshot, projectReposit
       gitRunner,
       deadline,
     })
-    return { snapshot: typedSnapshot, binding, ...verified, registry: parseZaiRegistry(verified.blobs) }
+    return { snapshot: typedSnapshot, binding, ...verified, registry: verified.registry ?? parseZaiRegistry(verified.blobs) }
   } catch {
     return null
   }

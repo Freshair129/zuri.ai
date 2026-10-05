@@ -14,13 +14,16 @@ import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
 import { domainMap, traceView } from './doc-views.mjs'
 import { collectDocumentLinks, documentLinksView, hasLinkMetadata } from './doc-links.mjs'
-import { qualifyDocumentIds, assertUniqueNodeIds } from './doc-identities.mjs'
-import { generateDomainState } from './domain-state.mjs'
+import { qualifyDocumentIds, assertUniqueNodeIds, isGeneratedDocumentView, indexDeclaredIdentities } from './doc-identities.mjs'
+import { generateDomainState, discoverFeatureRequirements } from './domain-state.mjs'
+import { parseFeatureBundles, classifyRequirements, assertCapabilityTerminology, capabilityInventory } from './capability-registry.mjs'
 import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // The same splitter the id ledger reads rows with. Two readings of one row, from
 // two splitters that disagree about `\|`, is how SDD-071's label reached
 // Appendix D as half a sentence.
-import { splitRow } from './id-anchors.mjs'
+import { collectDeclared, splitRow } from './id-anchors.mjs'
+import { parseCanonicalIndex } from './document-registry-format.mjs'
+import { adaptTraceAnnotations, legacyRequirementIds } from './trace-annotations.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: the spec pack and the module docs are one tree under ROOT/docs.
@@ -146,7 +149,7 @@ function requirementNodes(prdPath) {
 
 // -------------------------------------------------------------- annotations
 const ANNOTATION = /@(req|spec|tested|designs)\s+([^\n]*)/g
-const ID_LIST = /(?:FR|NFR|BR|SEC|SDD)-\d{3}/g
+const DOCUMENT_ID_TOKEN = /(?<![A-Za-z0-9_:./-])((?:ADR|FR|NFR|BR|SEC|SDD|FEAT|RSK|MI-RQ|ZV2-CR)-\d{3})(?![A-Za-z0-9_/-])/g
 
 // Roadmap status vocabulary. A status cell may carry a qualifier — "done (beta)",
 // "in-progress (local slice; gates pending)" — so match the leading token and
@@ -176,7 +179,7 @@ const MD_LINK = /\[[^\]]*\]\(([^)\s]+\.md)[^)]*\)/g
 const ADR_NUM = /ADR-\d{3}/g
 
 function annotationsOf(body) {
-  const found = { req: [], spec: [], tested: [], designs: [] }
+  const found = { req: [], spec: [], tested: [], designs: [], qualifiedReq: [], qualifiedSpec: [] }
   for (const [, kind, rest] of body.matchAll(ANNOTATION)) {
     if (kind === 'tested' || kind === 'designs') {
       // "a.test.js, b.test.js (7 view tests) — note" → ["a.test.js", "b.test.js"]
@@ -185,7 +188,15 @@ function annotationsOf(body) {
         if (!found[kind].includes(t)) found[kind].push(t)
       }
     } else {
-      for (const id of rest.match(ID_LIST) || []) if (!found[kind].includes(id)) found[kind].push(id)
+      for (const id of legacyRequirementIds(rest)) if (!found[kind].includes(id)) found[kind].push(id)
+      for (const id of rest.match(/\bZAI:[A-Za-z0-9][A-Za-z0-9._/-]*[A-Za-z0-9]/g) || []) {
+        const qualified = found[kind === 'req' ? 'qualifiedReq' : 'qualifiedSpec']
+        if (!qualified.includes(id)) qualified.push(id)
+      }
+      if (kind === 'spec') for (const [, id] of rest.matchAll(DOCUMENT_ID_TOKEN)) {
+        const qualified = `ZAI:${id}`
+        if (!found.qualifiedSpec.includes(qualified)) found.qualifiedSpec.push(qualified)
+      }
       // non-ID @spec targets (e.g. a doc path) are kept as references
       const head = rest.split('—')[0].trim()
       if (kind === 'spec' && head.endsWith('.md') && !found.spec.includes(head)) found.spec.push(head)
@@ -218,8 +229,11 @@ function build() {
   // runs to converge (the two-pass disease docs:check was cured of once).
   const GENERATED = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md', 'DOCUMENT-LINKS.md'])
   const docFiles = walk(workspacePath(ROOT, 'docs'), ['.md']).filter(
-    (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)),
+    (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)) && !isGeneratedDocumentView(rel(f)),
   )
+  const orientationDocs = ['README.md', 'CLAUDE.md', 'AGENTS.md', 'llms.txt']
+    .map(name => path.join(workspaceRoot(ROOT), name)).filter(existsSync)
+  assertCapabilityTerminology([...docFiles, ...orientationDocs].map(file => ({ path: rel(file), body: read(file) })))
   for (const file of docFiles) {
     const base = path.basename(file)
     // Domain charters all share the basename CHARTER.md, so the default
@@ -259,12 +273,9 @@ function build() {
   // registry is docs/FEATURES.md; rows are `| FEAT-xxx | name | FR-a, FR-b | status |`.
   const featRegistry = workspacePath(ROOT, 'docs', 'FEATURES.md')
   if (existsSync(featRegistry)) {
-    for (const line of read(featRegistry).split('\n')) {
-      const m = /^\|\s*(FEAT-\d{3})\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|/.exec(line)
-      if (!m) continue
-      const [, fid, name, frs, status] = m
-      nodes.push({ id: `feat:${fid}`, type: 'feature', label: name.trim(), declared: status.trim(), status: 'current' })
-      for (const fr of frs.match(/FR-\d{3}/g) || []) addEdge(`feat:${fid}`, `req:${fr}`, 'bundles', 'feature-registry')
+    for (const { id: fid, title, requirementIds, status } of parseFeatureBundles(read(featRegistry))) {
+      nodes.push({ id: `feat:${fid}`, type: 'feature', label: title, declared: status, status: 'current' })
+      for (const fr of requirementIds) addEdge(`feat:${fid}`, `req:${fr}`, 'bundles', 'feature-registry')
     }
   }
 
@@ -314,6 +325,21 @@ function build() {
   const prd = workspacePath(ROOT, 'docs', 'PRD-SDD-v1.0.md')
   const reqs = requirementNodes(prd)
   nodes.push(...reqs)
+  const canonicalIndex = path.join(workspaceRoot(ROOT), 'registry/document-registry/index.json')
+  if (existsSync(canonicalIndex)) {
+    for (const record of parseCanonicalIndex(read(canonicalIndex)).records) {
+      const node = nodes.find(n => n.id === `${record.family === 'FEAT' ? 'feat' : 'req'}:${record.id}`)
+      const declaration = nodes.find(n => n.path === record.path)
+      if (!node || !declaration) throw Error(`Missing canonical graph declaration: ZAI:${record.id}`)
+      node.canonical_path = record.path
+      node.namespace = record.namespace
+      addEdge(node.id, declaration.id, 'specifies', 'canonical-registry')
+    }
+  }
+  const declarations = collectDeclared(ROOT)
+  if (declarations.missing.length) throw Error(`Missing identity source registries: ${JSON.stringify(declarations.missing)}`)
+  if (declarations.duplicates.length) throw Error(`Duplicate identity declarations: ${declarations.duplicates.map(item => item.id).join(', ')}`)
+  const qualifiedNodes = indexDeclaredIdentities(declarations, nodes)
   // The two id namespaces, kept apart on purpose. `rootDeclaredIds` is what
   // this registry declares; `edgeOwnIds` is what Edge brought with it from
   // `Freshair129/zuri-edge-device` and still owns. ADR-039 forbids renumbering
@@ -380,7 +406,11 @@ function build() {
         if (id) targets.add(id)
       }
       for (const a of m[2].match(ADR_NUM) || []) if (adrById.has(a)) targets.add(adrById.get(a))
-      for (const r of m[2].match(ID_LIST) || []) targets.add(`req:${r}`)
+      for (const [, id] of m[2].matchAll(/(?<![A-Za-z0-9_:./-])((?:ADR|FR|NFR|BR|SEC|SDD|FEAT|RSK|MI-RQ|ZV2-CR)-\d{3})(?![A-Za-z0-9_/-])/g)) {
+        const target = qualifiedNodes.get(`ZAI:${id}`)
+        if (target) targets.add(target.id)
+      }
+      for (const r of legacyRequirementIds(m[2])) targets.add(`req:${r}`)
       for (const t of targets) {
         if (t === selfId) continue
         // "supersedes" points newer → older, so an incoming edge = "what replaced me".
@@ -399,9 +429,30 @@ function build() {
   // not exist — 41 dangling edges the moment Edge source became visible. A
   // dangling edge is not a cosmetic defect here; `doc-code-symlink` reports it
   // and the traceability matrix shows the requirement as unverified.
+  for (const file of docFiles) {
+    const metadata = /^---\n([\s\S]*?)\n---/.exec(read(file))?.[1] || ''
+    const explicit = /^id:\s*["']?(ZAI:[A-Za-z0-9._/-]+)["']?\s*$/m.exec(metadata)?.[1]
+    if (!explicit) continue
+    const node = nodes.find(n => n.path === rel(file))
+    if (qualifiedNodes.has(explicit) && qualifiedNodes.get(explicit).id !== node.id) throw Error(`Duplicate qualified graph identity: ${explicit}`)
+    qualifiedNodes.set(explicit, node)
+  }
+  const resolveTraceIdentity = (reference) => {
+    const id = reference.slice('ZAI:'.length)
+    const node = qualifiedNodes.get(reference)
+    if (!node) throw Error(`Unknown current ZAI declaration: ${reference}`)
+    return { namespace: 'ZAI', id, path: node.canonical_path || node.path }
+  }
+  const traceOf = (body, file) => {
+    const result = adaptTraceAnnotations(body, { resolveIdentity: resolveTraceIdentity })
+    if (result.findings.length) throw Error(result.findings.map(f => `${rel(file)}:${f.line} ${f.message}`).join('\n'))
+    return result
+  }
   const testFiles = [
     ...walk(workspacePath(ROOT, 'tests'), ['.test.js', '.spec.js']),
     ...walk(workspacePath(ROOT, 'apps', 'edge', 'tests'), ['.test.ts', '.test.js', '.spec.ts', '.spec.js']),
+    ...walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'test'), ['.test.js', '.spec.js']),
+    ...walk(workspacePath(ROOT, 'services', 'market-intelligence', 'test'), ['.test.js', '.spec.js']),
   ]
   const edgeTestRoot = workspacePath(ROOT, 'apps', 'edge', 'tests')
   for (const file of testFiles) {
@@ -411,11 +462,23 @@ function build() {
     // named inside an EDGE test is subject to the same collision rule as an
     // Edge source annotation: Edge's own FR-004 must not be read as evidence
     // for Server's.
-    const named = new Set(body.match(ID_LIST) || [])
+    const trace = traceOf(body, file)
+    const named = new Set(legacyRequirementIds(body))
+    // Existing Edge tests explicitly qualify current ZAI requirements with @req.
+    // They remain current evidence; an imported namespace or partial suffix does not.
     const verifies = file.startsWith(edgeTestRoot)
       ? [...named].filter((r) => rootDeclaredIds.has(r) && !edgeOwnIds.has(r))
       : [...named]
+    for (const reference of annotationsOf(body).qualifiedReq) {
+      const identity = resolveTraceIdentity(reference)
+      if (rootDeclaredIds.has(identity.id) && !verifies.includes(identity.id)) verifies.push(identity.id)
+    }
     for (const r of verifies) addEdge(`test:${rel(file)}`, `req:${r}`, 'verifies', 'test-reference')
+    for (const r of trace.verifiedRequirements) {
+      const key = r.slice('ZAI:'.length)
+      if (!rootDeclaredIds.has(key)) throw Error(`${rel(file)}: @trace verifies must name a current requirement: ${r}`)
+      addEdge(`test:${rel(file)}`, `req:${key}`, 'verifies', 'trace-annotation')
+    }
   }
   const testNodes = nodes.filter((n) => n.type === 'test')
   const resolveTest = (name) => {
@@ -441,17 +504,24 @@ function build() {
   // tree. Unscanned, its FR would read as having no code, the same blindness the
   // Edge note above describes.
   const pluginCodeFiles = walk(workspacePath(ROOT, 'plugins'), ['.mjs', '.js'])
+  const serviceCodeFiles = walk(workspacePath(ROOT, 'services', 'conversation-runtime', 'src'), ['.mjs', '.js'])
+  // ADR-108: the Market Intelligence service runs as its own package under
+  // services/. Unscanned, FR-092's service-side code and tests would be invisible.
+  const marketServiceCodeFiles = walk(workspacePath(ROOT, 'services', 'market-intelligence', 'src'), ['.mjs', '.js'])
   const codeFiles = [
     ...walk(workspacePath(ROOT, 'src'), ['.js', '.jsx']),
     ...walk(workspacePath(ROOT, 'prisma'), ['.js']),
     ...edgeCodeFiles,
     ...pluginCodeFiles,
+    ...serviceCodeFiles,
+    ...marketServiceCodeFiles,
   ]
   const isEdgeFile = new Set(edgeCodeFiles.map((f) => f))
   for (const file of codeFiles) {
     const body = read(file)
     const ann = annotationsOf(body)
-    const annotated = ann.req.length + ann.spec.length + ann.tested.length > 0
+    const trace = traceOf(body, file)
+    const annotated = ann.req.length + ann.spec.length + ann.tested.length + ann.qualifiedReq.length + ann.qualifiedSpec.length + trace.req.length + trace.spec.length > 0
     if (!annotated) continue
     const id = `code:${rel(file)}`
     nodes.push({
@@ -464,6 +534,10 @@ function build() {
         ...(ann.req.length ? { '@req': ann.req } : {}),
         ...(ann.spec.length ? { '@spec': ann.spec } : {}),
         ...(ann.tested.length ? { '@tested': ann.tested } : {}),
+        ...(ann.qualifiedReq.length ? { '@req qualified': ann.qualifiedReq } : {}),
+        ...(ann.qualifiedSpec.length ? { '@spec qualified': ann.qualifiedSpec } : {}),
+        ...(trace.req.length ? { '@trace implements': trace.req } : {}),
+        ...(trace.spec.length ? { '@trace specified_by': trace.spec } : {}),
       },
     })
     // An id written inside `apps/edge` binds to a ROOT requirement only when it
@@ -481,6 +555,22 @@ function build() {
       ? ann.req.filter((r) => rootDeclaredIds.has(r) && !edgeOwnIds.has(r))
       : ann.req
     for (const r of bindable) addEdge(id, `req:${r}`, 'implements', 'annotation')
+    for (const qualified of ann.qualifiedReq) {
+      const target = qualifiedNodes.get(qualified)
+      if (!target || target.type !== 'requirement') throw Error(`${rel(file)}: unknown qualified requirement ${qualified}`)
+      addEdge(id, target.id, 'implements', 'qualified-annotation')
+    }
+    for (const qualified of ann.qualifiedSpec) {
+      const target = qualifiedNodes.get(qualified)
+      if (!target) throw Error(`${rel(file)}: unknown qualified specification ${qualified}`)
+      addEdge(id, target.id, target.type === 'requirement' ? 'follows' : 'references', 'qualified-annotation')
+    }
+    for (const r of trace.req) addEdge(id, `req:${r}`, 'implements', 'trace-annotation')
+    for (const qualified of trace.spec) {
+      const target = qualifiedNodes.get(qualified)?.id
+      if (!target) throw Error(`${rel(file)}: unsupported design identity ${qualified}`)
+      addEdge(id, target, 'references', 'trace-annotation')
+    }
     for (const s of ann.spec) {
       // @spec points at a design decision or constraint, not a feature.
       if (s.endsWith('.md')) addEdge(id, `doc:${path.basename(s, '.md')}`, 'references', 'annotation')
@@ -507,6 +597,8 @@ function build() {
   const byId = new Map(nodes.map((n) => [n.id, n]))
   const testPaths = nodes.filter((n) => n.type === 'test')
   const resolved = []
+  // Validate bundle targets before unresolved edges become diagnostic-only.
+  classifyRequirements(nodes, edges)
   const dangling = []
   for (const e of edges) {
     let { from, to } = e
@@ -534,7 +626,9 @@ function coverage(nodes, edges) {
 
   // A registry FR marked 🔜 (declared === 'planned') is expected to have no code
   // yet — it is not a coverage defect. Only "built" FRs (✅) must have code+tests.
-  const fr = reqs.filter((r) => r.family === 'FR' && r.declared !== 'planned')
+  const allFr = reqs.filter((r) => r.family === 'FR')
+  const frSuperseded = allFr.filter((r) => r.status === 'superseded').map((r) => r.id.slice(4))
+  const fr = allFr.filter((r) => r.declared !== 'planned' && r.status !== 'superseded')
   const frPlanned = reqs.filter((r) => r.family === 'FR' && r.declared === 'planned').map((r) => r.id.slice(4))
   const frImpl = fr.filter((r) => linked(r, ['implements']))
   const frTest = fr.filter((r) => linked(r, ['verifies']))
@@ -556,6 +650,7 @@ function coverage(nodes, edges) {
     nfr_evidence_based: `${nfr.length} (verified by the acceptance matrix, not code-linked)`,
     annotated_code_files: nodes.filter((n) => n.type === 'code_file').length,
     fr_planned: frPlanned,
+    fr_superseded: frSuperseded,
     fr_without_code: fr.filter((r) => !frImpl.includes(r)).map((r) => r.id.slice(4)),
     fr_without_tests: fr.filter((r) => !frTest.includes(r)).map((r) => r.id.slice(4)),
     rules_without_anchor: rules.filter((r) => !rulesLinked.includes(r)).map((r) => r.id.slice(4)),
@@ -604,6 +699,7 @@ ${section(['NFR'], 'Non-functional requirements', ['implements', 'follows'], 'Ev
 // tests → design doc → roadmap task. Once V1 modules are lifted in, the
 // "source" column doubles as the cutover dashboard.
 function featureMap(nodes, edges) {
+  const classification = new Map(classifyRequirements(nodes, edges).map(row => [row.id, row]))
   const short = (id) => id.replace(/^(code|test):/, '').replace(/^src\/|^tests\//, '')
   const moduleOf = (p) =>
     /modules\/([^/]+)\//.exec(p)?.[1] || (p.startsWith('prisma/') ? 'seed' : 'shell')
@@ -641,7 +737,7 @@ function featureMap(nodes, edges) {
       const taskId = cells[1]
       if (!/^TASK-/.test(taskId)) continue
       const claim = { taskId, started: hasStarted(cells) }
-      for (const req of line.match(ID_LIST) || []) {
+      for (const req of legacyRequirementIds(line)) {
         if (!claims.has(req)) claims.set(req, [])
         const seen = claims.get(req)
         if (!seen.some((c) => c.taskId === taskId)) seen.push(claim)
@@ -670,7 +766,7 @@ function featureMap(nodes, edges) {
       const modules = [...new Set(code.map(moduleOf))].join(', ') || '—'
       const status = code.length === 0 ? '🔜 planned' : r.declared === 'planned' ? '🟠 built, not declared' : '✅ live'
       const head = code.length > 2 ? `\`${code[0]}\` +${code.length - 1}` : code.map((c) => `\`${c}\``).join(', ') || '—'
-      return `| ${fid} | ${cell(r.label)} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${deliveryTask(fid, code.length > 0)} |`
+      return `| ${fid} | ${cell(r.label)} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${deliveryTask(fid, code.length > 0)} | ${classification.get(fid).classification} | ${classification.get(fid).featureId || '—'} |`
     })
 
   return `# Feature Map
@@ -681,13 +777,14 @@ function featureMap(nodes, edges) {
 | **Status** | Auto-generated |
 | **Generator** | \`scripts/doc-graph.mjs\` (RWANG doc-graph) |
 
-> One index for every feature: what it is, which domain owns it, and where its
+> One index for every Functional Requirement: its explicit FEAT membership or
+> Standalone FR classification, which domain owns its note, and where its
 > code, tests, design note and delivery task live. This is the feature-driven
 > user view over the domain spine (ADR-025). Regenerate with \`npm run docs:graph\`
 > — never hand-edit.
 
-| ID | Feature | Domain | Module | Source | Status | Code | Tests | Design note | Task |
-|---|---|---|---|---|---|---|---|---|---|
+| ID | Functional Requirement | Domain | Module | Source | Status | Code | Tests | Design note | Task | Classification | Feature bundle |
+|---|---|---|---|---|---|---|---|---|---|---|---|
 ${rows.join('\n')}
 
 Design notes live in \`docs/features/\` and declare their feature in frontmatter
@@ -734,6 +831,7 @@ const removed = (previous?.nodes || []).filter((n) => !nodes.some((x) => x.id ==
 
 const cov = coverage(nodes, edges)
 const domainState = generateDomainState({ root: ROOT, nodes, edges })
+const inventory = capabilityInventory(nodes, edges, domainState, discoverFeatureRequirements(ROOT))
 const dataPipelineMap = generateDataPipelineMap({ root: ROOT, domainState })
 const graph = {
   version: '2.0.0',
@@ -797,6 +895,17 @@ if (process.argv.includes('--check')) {
     console.error('data pipeline map is stale — run: npm run docs:graph')
     process.exit(1)
   }
+  const capabilityViews = [
+    [FEATURE_MAP_PATH, featureMap(nodes, edges)],
+    [TRACE_PATH, traceView(nodes, edges, inventory)],
+  ]
+  if (workspaceRoot(ROOT) !== ROOT) capabilityViews.push([path.join(ROOT, 'runtime', 'domain-state.json'), domainStateSerialized])
+  for (const [file, expected] of capabilityViews) {
+    if (!existsSync(file) || read(file) !== expected) {
+      console.error(`${rel(file)} is stale — run: npm run docs:graph`)
+      process.exit(1)
+    }
+  }
   console.log('doc-graph is up to date')
   if (!existsSync(LINKS_PATH) || read(LINKS_PATH) !== linksSerialized) {
     console.error('document links are stale — run: npm run docs:graph')
@@ -812,7 +921,7 @@ writeFileSync(GRAPH_PATH, serialized)
 writeFileSync(MATRIX_PATH, matrix(nodes, edges, cov))
 writeFileSync(FEATURE_MAP_PATH, featureMap(nodes, edges))
 writeFileSync(DOMAIN_MAP_PATH, domainMap(nodes, edges))
-writeFileSync(TRACE_PATH, traceView(nodes, edges))
+writeFileSync(TRACE_PATH, traceView(nodes, edges, inventory))
 writeFileSync(LINKS_PATH, linksSerialized)
 writeFileSync(DOMAIN_STATE_PATH, domainStateSerialized)
 if (dataPipelineMapSerialized !== null) writeFileSync(DATA_PIPELINE_MAP_PATH, dataPipelineMapSerialized)

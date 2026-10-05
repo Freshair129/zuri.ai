@@ -869,8 +869,8 @@ Bound to [candidate OpenAPI](contracts/openapi.candidate.yaml), with objective-f
 | allowedRoles | บทบาทที่อนุญาต | multiselect | Yes | {"type":"array","maxItems":20} |
 | modelPolicyVersionId | Model policy version | reference | Yes | {"type":"string","format":"uuid"} |
 | executorProfileId | Executor profile | reference | Yes | {"type":"string","format":"uuid"} |
-| inputSchema | Input schema | schema | Yes | Server validation |
-| outputSchema | Output schema | schema | Yes | Server validation |
+| inputContract | Input contract | contract-reference | Yes | เลือก `contractId` และ pin `contractVersion` ที่อนุมัติ; ห้ามใช้ latest |
+| outputContract | Output contract | contract-reference | Yes | เลือก `contractId` และ pin `contractVersion` ที่อนุมัติ; ห้ามใช้ latest |
 | evaluationSuiteId | ชุดประเมิน | reference | Yes | {"type":"string","format":"uuid"} |
 | reason | เหตุผลของรุ่นนี้ | textarea | Yes | {"type":"string","minLength":1,"maxLength":1000} |
 
@@ -894,7 +894,7 @@ Bound to [candidate OpenAPI](contracts/openapi.candidate.yaml), with objective-f
 | Field | Label | Control | Required | Constraints / help |
 |---|---|---|---|---|
 | definition | ขั้นตอนและ handoff | workflow | Yes | กำหนด step, dependsOn, ownerDomain, inputRefs และ outputs |
-| schemaVersion | Schema version | readonly | Yes | {"type":"string","enum":["1.0"]} |
+| schemaVersion | Schema version | readonly | Yes | {"type":"string","enum":["1.1"]} |
 | reason | เหตุผลของรุ่นนี้ | textarea | Yes | {"type":"string","minLength":1,"maxLength":1000} |
 
 ### FORM-REVIEW — Review decision
@@ -1026,6 +1026,12 @@ Navigation approval remains NAV-P0/NAV-P1 unless the owner explicitly approves f
 | API and navigation contracts separate | 13 forms / 83 field mappings tied to schema or creation source |
 | Heritage reference | Semantic usage, contrast, validation and responsive rules |
 | Product acceptance families | Add 14 UI scenarios and screen-level handoff; product tests still not run |
+
+## 8. Version diff — 0.3.0b → 0.4.0b
+
+| Before | After |
+|---|---|
+| Agent forms accepted schema artifacts without a pinned exchange identity; workflow form named schema version 1.0 | Agent input/output forms select exact approved `{contractId, contractVersion}` references; workflow form uses schema 1.1 |
 
 ## CHANGELOG
 

@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SPEC-READINESS
 title: Specification completeness and API reference audit
-version: "0.4.0b"
+version: "0.5.0b"
 status: candidate
 created_at: "2026-09-16T03:55:57+07:00,RWANG,design base 087f3025"
-last_update: "2026-09-18T00:00:00+07:00,RWANG,working-tree"
+last_update: "2026-10-04T10:00:00+07:00,Codex"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -31,8 +31,9 @@ This audit is C-2 documentation/review work. No application, schema migration, p
 |---|---|---|
 | Requirements / behavior | [01 Requirements](01-REQUIREMENTS-AND-UX.md), [15 Workforce](15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md) | 33 proposal requirements; workforce has 12 metric definitions and PMT-033 cases A–P |
 | Architecture / ownership / diagrams | [02 Architecture](02-DECISIONS-AND-DIAGRAMS.md), [13 Navigation boundaries](13-DOMAIN-TAXONOMY-AND-NAVIGATION-BOUNDARIES.md), document 15 | 14 rendered diagrams; PM-G14 is composed as a candidate extension in the G01 machine model |
-| Logical data schema / table dictionary | [18 Tables & ERD](18-DATABASE-TABLES-AND-ERD.md), [data model](contracts/data-model.candidate.json) | 31 source models + 54 proposed logical records, typed fields, keys, invariants, indexes and 9 ERDs; exact physical adapter DDL/migrations remain pending |
-| Main API contract | [openapi.candidate.yaml](contracts/openapi.candidate.yaml) | OpenAPI 3.0.3; **52 paths / 72 operations / 102 schema definitions**, candidate |
+| Logical data schema / table dictionary | [18 Tables & ERD](18-DATABASE-TABLES-AND-ERD.md), [data model](contracts/data-model.candidate.json) | 31 source models + 58 proposed logical records, including the PM execution run/step SOT; typed fields, keys, invariants, indexes and 9 ERDs; exact physical adapter DDL/migrations remain pending |
+| Main API contract | [openapi.candidate.yaml](contracts/openapi.candidate.yaml) | OpenAPI 3.0.3; **59 path entries** (49 inline + 10 Phase-B references), **81 resolved operations** (67 inline + 14 referenced), 103 locally declared schemas; candidate |
+| Phase-B API overlay | [Phase-B OpenAPI](contracts/phase-b/openapi.candidate.json) | OpenAPI 3.0.3; **10 paths / 14 operations / 30 schemas**; these operations are already included in the resolved Main count |
 | Workforce API contract | [workforce.openapi.candidate.yaml](contracts/workforce.openapi.candidate.yaml) | OpenAPI 3.0.3; **8 paths / 8 operations / 30 schema definitions**, candidate |
 | Workflow JSON Schema | [workflow.schema.json](contracts/workflow.schema.json), [example](contracts/workflow.example.json) | Structural schema and synthetic example, plus DAG semantic checks |
 | Architecture contract | [architecture.model.json](contracts/architecture.model.json) | PM-G01 plus PM-G14 candidate extension: 28 nodes / 35 edges with owners/contracts/directions; codegen disabled pending canonical registration |
@@ -43,7 +44,7 @@ This audit is C-2 documentation/review work. No application, schema migration, p
 | API reference prose | [06 API & contracts](06-API-AND-CONTRACTS.md), document 15 §8 | Endpoints, errors, auth, version/idempotency, streaming and owner boundaries |
 | Swagger UI | Local review artifact `swagger-api.html` | Actual Swagger UI rendering of both contracts, added in this review; read-only documentation mode |
 
-**Count semantics:** 80 operations and 132 schema definitions are the sum of two separately versioned OpenAPI files. They are not 125 database tables, not 80 deployed endpoints and not a completeness score. Keep the specs separate in the viewer because generic component/security names may differ in meaning.
+**Count semantics:** The composed Main contract has 81 operations and 133 schema definitions (103 declared in Main + 30 in its Phase-B overlay). Workforce adds 8 operations and 30 schemas, for **89 operations and 163 schema declarations across the three source files**. Phase-B's 14 operations are referenced by Main and are not added twice. This revision adds one reusable `ContractRef` schema; counts do not imply endpoint deployment or complete semantic coverage. Keep the specs separate in the viewer because generic component/security names may differ in meaning.
 
 The existing application also has FR-019's [OpenAPI generator](../../../apps/server/src/modules/project-manager/api-docs/openapi.js), which describes existing API behavior. This design package supplements that source; it does not replace the application's runtime `/api/docs`, and this review does not request a production spec or validate live authentication.
 
@@ -82,7 +83,7 @@ These gaps are derived from explicit package content and enumeration of its cont
 
 ## 4. Swagger review behavior
 
-The local viewer uses pinned `swagger-ui-dist` **5.32.15** static assets. It offers a selector for Workforce (8 operations / 30 schemas) and Full PM (72 operations / 102 schemas), operation filtering, expandable parameters/body/responses and model schemas. It is an API reference, not a live integration test.
+The local viewer uses pinned `swagger-ui-dist` **5.32.15** static assets. It offers a selector for Workforce (8 operations / 30 schemas) and Full PM (81 resolved operations / 133 schemas including the Phase-B overlay), operation filtering, expandable parameters/body/responses and model schemas. It is an API reference, not a live integration test.
 
 - Sources are local generated JSON copies of the two YAML candidates; the rendering copies do not become a second authoring source
 - Synthetic workload/performance examples are attached to the corresponding response in the rendering copy and labelled as examples
@@ -114,6 +115,7 @@ Work can close gaps in bounded phases: shared data/identity/transport → workfo
 | 0.2.0b | 2026-09-16 | candidate | Record SRS ERD blueprint additions and distinguish design coverage from remaining API migration gates | design base 087f3025; uncommitted | RWANG |
 | 0.3.0b | 2026-09-16 | candidate | Reconcile bounded allocation and core navigation design; retain CSRF, Workforce and implementation gates explicitly | isolated document composition | RWANG |
 | 0.4.0b | 2026-09-18 | candidate | Record PM-G14 composition and G14/TaskUsageLedger contract artifacts while keeping codegen and runtime activation gated | working-tree | RWANG |
+| 0.5.0b | 2026-10-04 | candidate | Update the candidate inventory for ContractRef, exact agent/workflow interface versions, and PM versus Integration execution IDs; runtime parity remains open | documentation refinement | Codex |
 
 ## v0.9 review update
 

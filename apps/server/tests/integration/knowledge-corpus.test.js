@@ -12,6 +12,12 @@ import {
 import { createKnowledgeExecutionAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
 
+// Delegates to the real bridge; one test swaps in a recorder to see the options each query passes.
+vi.mock('@/modules/knowledge/knowledge-runtime', async (importOriginal) => {
+  const actual = await importOriginal()
+  return { ...actual, queryKnowledgeSnapshot: vi.fn(actual.queryKnowledgeSnapshot) }
+})
+
 // @req FR-173 — an authorized corpus is an immutable manifest of verified
 // per-source snapshots, with current ACL and revocation checks at every read.
 // @req FR-188 — a parser-2 batch hash is accepted only for the parser-2 parsed
@@ -611,5 +617,344 @@ describe('knowledge corpus publication, query and citation boundary', () => {
     await expect(withdrawKnowledgeSource('source-1', { expectedVersion: 1 }, { repository: repo, db, viewer: owner }))
       .rejects.toMatchObject({ status: 409, code: 'KNOWLEDGE_SOURCE_VERSION_CONFLICT' })
     expect(published.manifest.entries).toHaveLength(1)
+  })
+})
+
+// A catalog file admits one source per record, and each source is its own snapshot. Production
+// had 22 of them and a query took ~47 s: every snapshot was queried in turn, each source
+// re-checked its FileAsset (twice), and every snapshot's best hit tied on rank 1 so the top
+// result was decided by source id, not by relevance.
+describe('corpus query over many single-record snapshots', () => {
+  const COUNT = 22
+  const fileFor = (id) => ({ id, businessId: scope.businessId, tenantId: scope.tenantId, projectId: 'project-1', status: 'ACTIVE', deletedAt: null })
+  const numberOf = (snapshotId) => Number(snapshotId.split('-')[1])
+
+  async function seedMany({ extraChunks = 0 } = {}) {
+    const { repo, firstIngestion } = seed({ count: 1 })
+    const files = { a: fileFor('file-a'), b: fileFor('file-b') }
+    const db = makeDb({ fileAssets: [files.a, files.b] })
+    repo.sources.get('source-1').fileAssetId = 'file-a'
+    const ingestions = [firstIngestion]
+    for (let n = 2; n <= COUNT; n += 1) {
+      const row = source({ id: `source-${n}`, fileAssetId: n <= 16 ? 'file-a' : 'file-b' })
+      repo.sources.set(row.id, row)
+      const ingestion = ingestionFor(row, { id: `ingestion-${n}`, content: `record ${n}`, snapshotId: `snapshot-${n}`, snapshotGeneration: `native-${n}`, rawArtifactId: `raw-${n}`, parsedArtifactId: `parsed-${n}` })
+      repo.ingestions.set(ingestion.id, ingestion)
+      addPublicationEvidence(repo, ingestion, row)
+      repo.chunks.set(`chunk-${ingestion.id}`, chunkFor(ingestion, { id: `chunk-${ingestion.id}`, text: `record ${n}` }))
+      ingestions.push(ingestion)
+    }
+    for (const ingestion of ingestions) {
+      // more chunks of the same record, so one snapshot can return several rows
+      for (let k = 1; k <= extraChunks; k += 1) repo.chunks.set(`chunk-${ingestion.id}-${k}`, chunkFor(ingestion, { id: `chunk-${ingestion.id}-${k}`, text: repo.chunks.get(`chunk-${ingestion.id}`).text }))
+      await publish(repo, db, ingestion)
+    }
+    return { repo, db, ingestions, files }
+  }
+
+  function snapshotStub(repo, ingestions, { scoreOf = () => 0.5, delayOf = () => 0, failWith = () => null, rows = 1 } = {}) {
+    const track = { active: 0, max: 0, started: [] }
+    const fn = vi.fn(async ({ snapshotId }) => {
+      track.started.push(snapshotId)
+      track.active += 1
+      track.max = Math.max(track.max, track.active)
+      try {
+        await new Promise((resolve) => setTimeout(resolve, delayOf(snapshotId)))
+        const failure = failWith(snapshotId)
+        if (failure) throw failure
+        const ingestion = ingestions.find((row) => row.snapshotId === snapshotId)
+        const chunk = repo.chunks.get(`chunk-${ingestion.id}`)
+        return {
+          schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
+          scope,
+          snapshotId,
+          generation: ingestion.snapshotGeneration,
+          results: Array.from({ length: rows }, (_, k) => {
+            const chunkId = k === 0 ? `chunk-${ingestion.id}` : `chunk-${ingestion.id}-${k}`
+            return { id: `hit-${snapshotId}-${k}`, score: scoreOf(snapshotId) - k * 0.001, text: chunk.text, citation: {
+              sourceId: ingestion.sourceId, rawArtifactId: ingestion.rawArtifactId, parsedArtifactId: ingestion.parsedArtifactId,
+              chunkId, contentHash: chunk.contentHash,
+            } }
+          }),
+        }
+      } finally {
+        track.active -= 1
+      }
+    })
+    return { fn, track }
+  }
+
+  const ask = (repo, db, querySnapshot, topK = 3) => queryKnowledgeCorpus(
+    { businessId: scope.businessId, projectId: 'project-1', query: 'anything', topK },
+    { repository: repo, db, viewer: reader, querySnapshot },
+  )
+
+  it('checks a FileAsset shared by many sources once per phase, and looks up each returned row once', async () => {
+    const { repo, db, ingestions } = await seedMany()
+    const lineage = vi.spyOn(repo, 'resolveLineage')
+    db.fileAsset.findUnique.mockClear()
+    const { fn } = snapshotStub(repo, ingestions)
+    await ask(repo, db, fn)
+    // two distinct files, checked before the query and again before disclosure
+    expect(db.fileAsset.findUnique).toHaveBeenCalledTimes(4)
+    expect(lineage).toHaveBeenCalledTimes(COUNT)
+    expect(fn).toHaveBeenCalledTimes(COUNT)
+  })
+
+  it('breaks rank-1 ties by the similarity the worker computed, not by source id', async () => {
+    const { repo, db, ingestions } = await seedMany()
+    const best = { 'snapshot-13': 0.91, 'snapshot-7': 0.82, 'snapshot-20': 0.73 }
+    const { fn } = snapshotStub(repo, ingestions, { scoreOf: (id) => best[id] ?? 0.3 })
+    const result = await ask(repo, db, fn)
+    expect(result.results.map((row) => row.sourceId)).toEqual(['source-13', 'source-7', 'source-20'])
+    // still reciprocal-rank fusion: every single-hit snapshot contributes 1 / (60 + 1)
+    expect(result.results.every((row) => Math.abs(row.rankFusionScore - 1 / 61) < 1e-12)).toBe(true)
+    expect(result.ranking).toBe('rrf-k60')
+  })
+
+  it('stays deterministic on a full tie: rank, then similarity, then source id', async () => {
+    const { repo, db, ingestions } = await seedMany()
+    const { fn } = snapshotStub(repo, ingestions, { scoreOf: () => 0.5 })
+    const result = await ask(repo, db, fn, 5)
+    expect(result.results.map((row) => row.sourceId)).toEqual(['source-1', 'source-10', 'source-11', 'source-12', 'source-13'])
+  })
+
+  it('queries snapshots concurrently within the bound and returns the same result whatever finishes first', async () => {
+    const { repo, db, ingestions } = await seedMany()
+    // later snapshots answer first, so completion order is the reverse of manifest order
+    const { fn, track } = snapshotStub(repo, ingestions, { scoreOf: (id) => (numberOf(id) === 9 ? 0.9 : 0.4), delayOf: (id) => (COUNT + 1 - numberOf(id)) * 2 })
+    const result = await ask(repo, db, fn, 4)
+    expect(track.max).toBeGreaterThan(1)
+    expect(track.max).toBeLessThanOrEqual(8)
+    expect(result.results.map((row) => row.sourceId)).toEqual(['source-9', 'source-1', 'source-10', 'source-11'])
+    const again = await ask(repo, db, snapshotStub(repo, ingestions, { scoreOf: (id) => (numberOf(id) === 9 ? 0.9 : 0.4) }).fn, 4)
+    expect(again.results.map((row) => row.sourceId)).toEqual(result.results.map((row) => row.sourceId))
+  })
+
+  it('raises the failure of the earliest snapshot in manifest order and starts no further ones', async () => {
+    const { repo, db, ingestions } = await seedMany()
+    const manifest = await readAuthorizedKnowledgeManifest({ businessId: scope.businessId, projectId: 'project-1' }, { repository: repo, db, viewer: reader })
+    const [first, second] = manifest.entries.map((entry) => entry.snapshotId)
+    const failWith = (id) => (id === first ? Object.assign(new Error('first'), { code: 'FIRST' }) : id === second ? Object.assign(new Error('second'), { code: 'SECOND' }) : null)
+    // the earlier snapshot fails LATER than the next one; the earlier still wins
+    const { fn, track } = snapshotStub(repo, ingestions, { failWith, delayOf: (id) => (id === first ? 25 : id === second ? 1 : 40) })
+    await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'FIRST' })
+    expect(track.started.length).toBeLessThanOrEqual(8)
+  })
+
+  it('refuses the whole query when a FileAsset shared by many sources is unreadable, starts no snapshot after that, and looks up no lineage', async () => {
+    const { repo, db, ingestions, files } = await seedMany()
+    files.a.deletedAt = new Date()
+    // the snapshots are slow, so the denial is known long before the first lane finishes
+    const { fn, track } = snapshotStub(repo, ingestions, { delayOf: () => 20 })
+    const lineage = vi.spyOn(repo, 'resolveLineage')
+    await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'KNOWLEDGE_FILE_ASSET_NOT_FOUND' })
+    expect(track.started.length).toBeLessThanOrEqual(8)
+    expect(lineage).not.toHaveBeenCalled()
+  })
+
+  it('raises an unreadable FileAsset ahead of an error from the snapshots, as when the check ran first', async () => {
+    const { repo, db, ingestions, files } = await seedMany()
+    files.a.deletedAt = new Date()
+    const { fn } = snapshotStub(repo, ingestions, { failWith: (id) => (id === 'snapshot-1' ? Object.assign(new Error('first'), { code: 'FIRST' }) : null) })
+    await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'KNOWLEDGE_FILE_ASSET_NOT_FOUND' })
+  })
+
+  it('reads the current viewer once, and only after every snapshot has answered', async () => {
+    const { repo, db, ingestions } = await seedMany()
+    const events = []
+    const { fn } = snapshotStub(repo, ingestions, { delayOf: (id) => (numberOf(id) % 5) * 3 })
+    const tracked = vi.fn(async (input) => { const answer = await fn(input); events.push('snapshot'); return answer })
+    const result = await queryKnowledgeCorpus(
+      { businessId: scope.businessId, projectId: 'project-1', query: 'anything', topK: 3 },
+      { repository: repo, db, viewer: reader, querySnapshot: tracked, resolveCurrentViewer: () => { events.push('viewer'); return reader } },
+    )
+    expect(result.results).toHaveLength(3)
+    expect(events.filter((event) => event === 'viewer')).toHaveLength(1)
+    expect(events.filter((event) => event === 'snapshot')).toHaveLength(COUNT)
+    expect(events.lastIndexOf('snapshot')).toBeLessThan(events.indexOf('viewer'))
+  })
+
+  it('reports a corpus that disappeared during the query ahead of a lost FileAsset', async () => {
+    const { repo, db, ingestions, files } = await seedMany()
+    const { fn } = snapshotStub(repo, ingestions)
+    const racing = vi.fn(async (input) => { repo.corpora.get('corpus-1').deletedAt = new Date(); files.b.deletedAt = new Date(); return fn(input) })
+    await expect(ask(repo, db, racing)).rejects.toMatchObject({ code: 'KNOWLEDGE_CORPUS_NOT_FOUND' })
+  })
+
+  it('reports a source that changed during the query ahead of a lost FileAsset', async () => {
+    const { repo, db, ingestions, files } = await seedMany()
+    const { fn } = snapshotStub(repo, ingestions)
+    const racing = vi.fn(async (input) => {
+      files.b.deletedAt = new Date()
+      repo.sources.get('source-3').revokedAt = new Date()
+      return fn(input)
+    })
+    await expect(ask(repo, db, racing)).rejects.toMatchObject({ code: 'KNOWLEDGE_SOURCE_REVOKED' })
+  })
+
+  it('refuses to disclose anything when a shared FileAsset is revoked while the snapshots are being queried', async () => {
+    const { repo, db, ingestions, files } = await seedMany()
+    const { fn } = snapshotStub(repo, ingestions)
+    const racing = vi.fn(async (input) => { files.b.deletedAt = new Date(); return fn(input) })
+    await expect(ask(repo, db, racing)).rejects.toMatchObject({ code: 'KNOWLEDGE_FILE_ASSET_NOT_FOUND' })
+  })
+
+  it('still verifies every row of a multi-row snapshot, including one after the first', async () => {
+    const { repo, db, ingestions } = await seedMany({ extraChunks: 2 })
+    const { fn } = snapshotStub(repo, ingestions, { rows: 3 })
+    const tampered = vi.fn(async (input) => {
+      const answer = await fn(input)
+      if (input.snapshotId === 'snapshot-5') answer.results[2].text = 'not what was published'
+      return answer
+    })
+    await expect(ask(repo, db, tampered, 5)).rejects.toMatchObject({ code: 'KNOWLEDGE_LINEAGE_MISMATCH' })
+  })
+
+  it('raises the error of the earliest bad row in a snapshot, as the serial code did', async () => {
+    const { repo, db, ingestions } = await seedMany({ extraChunks: 2 })
+    const { fn } = snapshotStub(repo, ingestions, { rows: 3 })
+    const broken = vi.fn(async (input) => {
+      const answer = await fn(input)
+      if (input.snapshotId === 'snapshot-5') {
+        answer.results[0].text = 'not what was published' // lineage mismatch on row 0 ...
+        delete answer.results[1].citation // ... and a malformed row after it
+      }
+      return answer
+    })
+    await expect(ask(repo, db, broken, 5)).rejects.toMatchObject({ code: 'KNOWLEDGE_LINEAGE_MISMATCH' })
+  })
+
+  it('raises a failed lookup of an earlier row before a later row that is malformed', async () => {
+    const { repo, db, ingestions } = await seedMany({ extraChunks: 2 })
+    const { fn } = snapshotStub(repo, ingestions, { rows: 3 })
+    const original = repo.resolveLineage.bind(repo)
+    vi.spyOn(repo, 'resolveLineage').mockImplementation(async (input) => {
+      if (input.sourceId === 'source-5' && input.chunkId === 'chunk-ingestion-5') throw Object.assign(new Error('lookup failed'), { code: 'LOOKUP_FAILED' })
+      return original(input)
+    })
+    const broken = vi.fn(async (input) => {
+      const answer = await fn(input)
+      if (input.snapshotId === 'snapshot-5') delete answer.results[1].citation
+      return answer
+    })
+    await expect(ask(repo, db, broken, 5)).rejects.toMatchObject({ code: 'LOOKUP_FAILED' })
+  })
+
+  it('rejects a snapshot that returns more rows than topK', async () => {
+    const { repo, db, ingestions } = await seedMany({ extraChunks: 4 })
+    const { fn } = snapshotStub(repo, ingestions, { rows: 5 })
+    await expect(ask(repo, db, fn, 3)).rejects.toMatchObject({ code: 'KNOWLEDGE_QUERY_RESPONSE_INVALID' })
+  })
+
+  it('keeps lineage lookups inside one budget for the whole query, however many snapshots and rows', async () => {
+    const { repo, db, ingestions } = await seedMany({ extraChunks: 4 })
+    let active = 0
+    let max = 0
+    const original = repo.resolveLineage.bind(repo)
+    vi.spyOn(repo, 'resolveLineage').mockImplementation(async (input) => {
+      active += 1
+      max = Math.max(max, active)
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 4))
+        return await original(input)
+      } finally {
+        active -= 1
+      }
+    })
+    const { fn } = snapshotStub(repo, ingestions, { rows: 5 })
+    const result = await ask(repo, db, fn, 5)
+    expect(result.results).toHaveLength(5)
+    expect(repo.resolveLineage).toHaveBeenCalledTimes(COUNT * 5)
+    expect(max).toBeGreaterThan(1)
+    expect(max).toBeLessThanOrEqual(6)
+  })
+
+  describe('with a batch lineage resolver', () => {
+    const batched = (repo) => {
+      repo.resolveLineages = vi.fn(async (references) => Promise.allSettled(references.map((reference) => repo.resolveLineage(reference))))
+      return repo.resolveLineages
+    }
+
+    it('resolves the lineage of every row of every snapshot in a single call', async () => {
+      const { repo, db, ingestions } = await seedMany({ extraChunks: 2 })
+      const resolveLineages = batched(repo)
+      const single = vi.spyOn(repo, 'resolveLineage')
+      const { fn } = snapshotStub(repo, ingestions, { rows: 3 })
+      const result = await ask(repo, db, fn, 3)
+      expect(result.results).toHaveLength(3)
+      expect(resolveLineages).toHaveBeenCalledTimes(1)
+      expect(resolveLineages.mock.calls[0][0]).toHaveLength(COUNT * 3)
+      expect(single).toHaveBeenCalledTimes(COUNT * 3) // the stub answers each through the single resolver
+    })
+
+    it('raises the earliest snapshot\'s failure whichever phase it happens in', async () => {
+      const { repo, db, ingestions } = await seedMany({ extraChunks: 1 })
+      const manifest = await readAuthorizedKnowledgeManifest({ businessId: scope.businessId, projectId: 'project-1' }, { repository: repo, db, viewer: reader })
+      const [first, second] = manifest.entries.map((entry) => entry.snapshotId)
+      batched(repo)
+      const { fn } = snapshotStub(repo, ingestions, { rows: 2 })
+      // the first snapshot has a bad row (found in the lineage phase); the second fails to answer at all
+      const wrapped = vi.fn(async (input) => {
+        if (input.snapshotId === second) throw Object.assign(new Error('second'), { code: 'SECOND' })
+        const answer = await fn(input)
+        if (input.snapshotId === first) answer.results[1].text = 'not what was published'
+        return answer
+      })
+      await expect(ask(repo, db, wrapped, 5)).rejects.toMatchObject({ code: 'KNOWLEDGE_LINEAGE_MISMATCH' })
+    })
+
+    it('does not look up lineage past the first snapshot that failed to answer', async () => {
+      const { repo, db, ingestions } = await seedMany()
+      const manifest = await readAuthorizedKnowledgeManifest({ businessId: scope.businessId, projectId: 'project-1' }, { repository: repo, db, viewer: reader })
+      const [first] = manifest.entries.map((entry) => entry.snapshotId)
+      const resolveLineages = batched(repo)
+      const { fn } = snapshotStub(repo, ingestions)
+      const wrapped = vi.fn(async (input) => {
+        if (input.snapshotId === first) throw Object.assign(new Error('first'), { code: 'FIRST' })
+        return fn(input)
+      })
+      await expect(ask(repo, db, wrapped)).rejects.toMatchObject({ code: 'FIRST' })
+      expect(resolveLineages).not.toHaveBeenCalled()
+    })
+
+    it('fails the query when the batch itself fails, and refuses a malformed batch answer', async () => {
+      const { repo, db, ingestions } = await seedMany()
+      const { fn } = snapshotStub(repo, ingestions)
+      repo.resolveLineages = vi.fn(async () => { throw Object.assign(new Error('database down'), { code: 'DB_DOWN' }) })
+      await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'DB_DOWN' })
+      repo.resolveLineages = vi.fn(async () => [])
+      await expect(ask(repo, db, fn)).rejects.toMatchObject({ code: 'KNOWLEDGE_QUERY_RESPONSE_INVALID' })
+    })
+  })
+
+  it('rejects when a snapshot query throws a falsy value instead of treating it as success', async () => {
+    const { repo, db } = await seedMany()
+    const throwsNothing = vi.fn(async () => { throw undefined })
+    await expect(ask(repo, db, throwsNothing)).rejects.toBeUndefined()
+  })
+
+  it('gives each query its own binding cache, shared by all of its snapshots', async () => {
+    const { repo, db, ingestions } = await seedMany()
+    const runtime = await import('@/modules/knowledge/knowledge-runtime')
+    const original = runtime.queryKnowledgeSnapshot.getMockImplementation()
+    const stub = snapshotStub(repo, ingestions)
+    const caches = []
+    runtime.queryKnowledgeSnapshot.mockImplementation(async (input, options) => {
+      caches.push(options.bindingCache)
+      return stub.fn(input)
+    })
+    try {
+      const input = { businessId: scope.businessId, projectId: 'project-1', query: 'anything', topK: 3 }
+      await queryKnowledgeCorpus(input, { repository: repo, db, viewer: reader })
+      await queryKnowledgeCorpus(input, { repository: repo, db, viewer: reader })
+    } finally {
+      runtime.queryKnowledgeSnapshot.mockImplementation(original)
+    }
+    expect(caches).toHaveLength(COUNT * 2)
+    expect(caches[0]).toBeInstanceOf(Map)
+    expect(new Set(caches.slice(0, COUNT)).size).toBe(1)
+    expect(new Set(caches.slice(COUNT)).size).toBe(1)
+    expect(caches[COUNT]).not.toBe(caches[0])
   })
 })

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T09:25:58.222Z",
+  "status": "PASS_NARROW_NAVIGATION_CORRECTION",
+  "reviewer": "GPT-6-Sol High",
+  "mode": "independent read-only",
+  "reviewedReceiptSha256": "2803a769944c03de8737f95401fb062fb105c87b462e8b5786648a6254e74cd3",
+  "reviewedHashes": {
+    "navigation": "e50caf46ecc6c5bce551101efd4e7aed05617116096c86ba8b02ba71a08b1cc9",
+    "document20": "4a49a4d2897d48fff5ec1c2c8e74451346d1e3e83d15191c08fb6f09d2561b94",
+    "agents": "848392b627aae29c215247db97d784a3330282eaddb6f087ae28b0ffd9cb5bec",
+    "rca": "e4f907124eaafd0d99ddca387f4bdf9fc17eac433e3a40364ecaf0d55fec0099"
+  },
+  "findings": [
+    "Hosted failure independently verified from exact job log.",
+    "README line42 now matches reviewed Doc20 H1 line22; one tracked navigation label changed.",
+    "Sanctioned generator uses graph node title and exact-byte freshness check.",
+    "Root cause and stated limits supported.",
+    "Document20, AGENTS and all 23 main contract hashes unchanged."
+  ],
+  "limitations": [
+    "No generator/govern/test/build run by reviewer.",
+    "Final hosted checks and merge pending; no product acceptance."
+  ]
+}

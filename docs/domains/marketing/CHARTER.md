@@ -6,6 +6,7 @@ modules:
 owns_routes:
   - src/app/(pm)/growth/**
   - src/app/api/growth/**
+  - src/app/api/insights/**
 owns_models:
   - MarketingPlan
   - MarketingPlanVersion
@@ -21,9 +22,9 @@ owns_models:
   - MarketingBroadcastIntent
   - MarketingBroadcastIntentVersion
 technical_owner: TD-MARKETING
-version: "0.5.0b"
+version: "0.6.0b"
 created_at: "2026-09-06T18:35:00+07:00,RWANG,5044ba25"
-last_update: "2026-09-11T03:44:02+07:00,RWANG"
+last_update: "2026-10-05T04:38:57+07:00,Codex"
 status: beta
 superseded_by: null
 ---
@@ -65,6 +66,13 @@ while LINE OA Studio owns account configuration and any future delivery contract
 planning payload stores no message body, recipients or provider credentials. Paid
 provider metrics and CRM audience/consent resolution remain explicit unavailable owner
 states until those domains publish approved read contracts.
+
+The FR-278 executive LINE OA dashboard is a read-only, Business-scoped projection:
+weekly verified Commerce payments and current order status plus CRM's aggregate
+SalesTask health. Ads/A-B results, AI chatbot reply/handoff counts, Lead readiness
+and call outcomes stay `UNAVAILABLE` until their owners publish approved sources.
+Only the Commerce revenue window is historical by selected week; CRM task health
+and order status are current snapshots, and the dashboard stores no weekly history.
 
 - Marketing owns planning payloads, immutable revisions, independent reviews,
   accountable decisions and references to accepted PM handoffs.
@@ -118,3 +126,4 @@ PM intake is implied by source delivery. Completion evidence is recorded in the
 | 0.3.0b | 2026-09-06 | beta | Add approved Content intent/review/decision ownership while preserving Files and PM | See git history | RWANG |
 | 0.4.0b | 2026-09-07 | beta | Add Operations intake ownership and the PM/approval/handoff projection boundary | See git history | RWANG |
 | 0.5.0b | 2026-09-11 | beta | Add approved FR-185 broadcast planning identity, append-only revision boundary and unavailable dispatch/read-state contract | See git history | RWANG |
+| 0.6.0b | 2026-10-05 | beta | Add the FR-278 read-only executive LINE OA projection with explicit Commerce/CRM owner reads and unavailable Ads, chatbot, Lead and call sources | See git history | Codex |

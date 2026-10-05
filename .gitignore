@@ -8,6 +8,10 @@ prisma/.test-dbs/
 # Agent worktrees live inside the repo and are full checkouts. Untracked, they
 # are one `git add -A` away from being committed as thousands of duplicate files.
 .claude/worktrees/
+# Same for lane worktrees and the throwaway release checkouts the ki17 overlay
+# release procedure (apps/server/deploy/ki17/README.md) may create.
+.worktrees/
+.deploy-worktree-*/
 test-results/
 playwright-report/
 .playwright-cli/

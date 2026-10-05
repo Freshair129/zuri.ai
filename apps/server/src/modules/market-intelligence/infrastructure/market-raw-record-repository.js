@@ -52,7 +52,7 @@ export const MARKET_RAW_RECORD_CANDIDATE_SCAN_LIMIT = 500
  * `MarketObservation` (see `findTranslatedRawRecordIds`) before treating anything as
  * eligible for translation.
  */
-export async function listMarketLaneRawRecordCandidates(db, { tenantId, businessId, scanLimit } = {}) {
+export async function listMarketLaneRawRecordCandidates(db, { tenantId, businessId, scanLimit, fields } = {}) {
   if (!tenantId) throw new Error('Market raw candidate read tenantId is required')
   if (!businessId) throw new Error('Market raw candidate read businessId is required')
   if (!db?.rawExternalRecord?.findMany) {
@@ -68,5 +68,8 @@ export async function listMarketLaneRawRecordCandidates(db, { tenantId, business
     where: { tenantId, businessId, lane: MARKET_INTELLIGENCE_LANE },
     orderBy: [{ receivedAt: 'asc' }, { createdAt: 'asc' }],
     take,
+    // The market-core façade asks for only the columns it forwards; legacy callers
+    // omit `fields` and keep reading whole rows.
+    ...(Array.isArray(fields) && fields.length ? { select: Object.fromEntries(fields.map((field) => [field, true])) } : {}),
   })
 }

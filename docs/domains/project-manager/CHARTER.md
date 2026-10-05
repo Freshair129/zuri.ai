@@ -126,6 +126,19 @@ trail. This is the back-office console's core.
 - `application/scope-service` — createPortfolio / createTenant / createBusiness
   and scope resolution; crm and agent build their test and runtime scopes
   through it, never by inserting scope rows directly.
+- `application/branch-reference-reader` — `readBranchFact` /
+  `listBusinessBranchFacts`: the narrow, internal (non-viewer) read port core's
+  `scm-core.v1` façade (`inventory/application/scm-core-facade.js`, ADR-111 D5)
+  calls for the SCM service's `branch` / `branches` facts, instead of reading
+  `Branch` itself (the same standard as crm's `scm-reference-reader`). Given the
+  Tenant of a Business the caller has already authorized, it answers only
+  `{id, code, name, tenantId, businessId, status}` for one Branch, or, for one
+  Business, every Branch (any status, ordered by code, bounded by the caller's
+  `limit`) as `{id, code, name, address|null, kind, status, tenantId,
+  businessId}` — never a tax branch code or any other column — and `null` / `[]`
+  for a missing id, malformed input or another Tenant's row. Visibility of the
+  Branch's home Business stays with the caller. Read-only by construction; no
+  `owns_models` change.
 - Per-Project intake contract: `contracts/plan-envelope.schema.json`.
 - Programme-level package contract:
   `contracts/execution-plan-bundle.schema.json`, governed by ADR-049 and

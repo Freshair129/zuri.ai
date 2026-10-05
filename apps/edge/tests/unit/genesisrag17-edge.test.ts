@@ -20,7 +20,6 @@ import { createMspStdioTransport, mspChildEnvironment, MSP_RUNTIME_ENV_NAMES, MS
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { ConversationError } from '../../src/conversation/contract.js';
-import { runConversationOnce } from '../../src/conversation/worker.js';
 
 // @req FR-189 — off unchanged, shadow never changes the answer, primary reads the published
 //   generation and falls back to v4 only before the configured sunset, report aggregation.
@@ -486,44 +485,6 @@ test('per-turn abort terminates an MSP child during initialize or tools/call; pr
   error => error instanceof MspTransportError && error.code === 'MSP_REQUEST_ABORTED');
 });
 
-test('expired published turn stops its child and queued reads; next worker claim uses a clean signal', async () => {
- const root = tmp(), script = path.join(root, 'cancellable.mjs'), marker = path.join(root, 'worker.pid');
- fs.writeFileSync(script, CANCELLABLE_MSP);
- const runtime = createGenesisRag17Runtime(env('primary', { ZURI_MSP_ARGS: JSON.stringify([script, marker, 'tools/call']),
-  ZURI_EDGE_GENESISRAG17_FALLBACK_UNTIL: '2027-03-31' }), { store: memoryStore().store });
- const turn = new AbortController(), nextTurn = new AbortController(), v4 = fakeV4();
- const jobs = [{ ...job(), question: 'slow' }, { ...job(), question: 'fast' }];
- const failed: string[] = [], completed: string[] = [];
- const deps = {
-  client: { claim: async () => jobs.shift() ?? null, complete: async (_job: ConversationJob, text: string) => { completed.push(text); },
-   fail: async (_job: ConversationJob, code: string) => { failed.push(code); } },
-  answer: async (claimed: ConversationJob) => {
-   const rag = wrapAnswerRag(v4.rag, runtime, undefined, claimed.question === 'slow' ? turn.signal : nextTurn.signal);
-   const first = rag.searchProducts(claimed.question);
-   if (claimed.question === 'slow') {
-    const queued = rag.searchProducts('never-start-this-read');
-    const failedReads = Promise.allSettled([first, queued]);
-    await waitUntil(() => fs.existsSync(marker));
-    turn.abort(new ConversationError('REPLY_DEADLINE_MISSED'));
-    const outcomes = await failedReads;
-    assert.ok(outcomes.every(outcome => outcome.status === 'rejected'));
-   }
-   const result = await first;
-   assert.equal(result.published?.snapshotId, 'snap-next');
-   return { text: 'next claim completed', source: 'model' as const };
-  },
- };
- try {
-  assert.equal((await runConversationOnce(deps)).outcome, 'deadline_missed');
-  const pid = Number(fs.readFileSync(marker, 'utf8'));
-  await waitUntil(() => !processAlive(pid));
-  assert.equal((await runConversationOnce(deps)).outcome, 'completed');
-  assert.deepEqual(failed, ['REPLY_DEADLINE_MISSED']); assert.deepEqual(completed, ['next claim completed']);
-  assert.deepEqual(v4.calls, [], 'aborted primary reads must not fall back to v4');
-  assert.deepEqual(fs.readFileSync(marker + '.calls', 'utf8').trim().split('\n'), ['slow', 'fast']);
- } finally { turn.abort(); nextTurn.abort(); }
-});
-
 test('the MSP stdio transport speaks initialize then tools/call, and keeps edge secrets from the child', async () => {
   const script = path.join(tmp(), 'fake-msp.mjs');
   fs.writeFileSync(script, FAKE_MSP);
@@ -601,22 +562,25 @@ test('allowlisted names are matched without case and copied as the caller spelle
   assert.deepEqual(child, { Path: '/usr/bin', SystemRoot: 'C:/Windows', windir: 'C:/Windows', msp_db_path: '/msp.sqlite' });
 });
 
-test('the edge pipeline allowlist matches Server except its explicit MemoryOS-only authority', () => {
-  const serverTransport = fs.readFileSync(fileURLToPath(new URL('../../../server/src/modules/agent/msp-stdio-transport.js', import.meta.url)), 'utf8');
+test('the edge pipeline allowlist matches shared Server names except Server-only authorities', () => {
+  const serverEnvironmentContract = fs.readFileSync(fileURLToPath(new URL('../../../server/src/modules/agent/msp-child-environment.mjs', import.meta.url)), 'utf8');
   const namesIn = (constant: string) => {
-    const start = serverTransport.indexOf(`export const ${constant} = Object.freeze([`);
-    assert.ok(start >= 0, `${constant} not found in the server transport`);
-    const end = serverTransport.indexOf('])', start);
-    return serverTransport.slice(start, end).match(/'([A-Z0-9_]+)'/g)?.map((quoted) => quoted.slice(1, -1)) ?? [];
+    const start = serverEnvironmentContract.indexOf(`export const ${constant} = Object.freeze([`);
+    assert.ok(start >= 0, `${constant} not found in the shared server environment helper`);
+    const end = serverEnvironmentContract.indexOf('])', start);
+    return serverEnvironmentContract.slice(start, end).match(/'([A-Z0-9_]+)'/g)?.map((quoted) => quoted.slice(1, -1)) ?? [];
   };
-  // API-011 memory is authorized on Server and arrives as ephemeral CIN input.
-  // Edge's pipeline child must never acquire the keys that mint memory grants.
+  // API-011 memory keys and the Server-only HTTP provider settings are not part of
+  // Edge's stdio child environment. Edge must never acquire either authority.
   const serverMemoryOnly = new Set(['MSP_THREAD_SERVICE_KEY', 'MSP_THREAD_SERVICE_KEYRING',
     'MSP_IDENTITY_HMAC_KEY', 'MSP_GLOBAL_PRIVATE_GRANT_REQUIRED', 'MSP_IDENTITY_HMAC_KEY_VERSION',
     'MSP_IDENTITY_HMAC_KEYRING', 'MSP_THREAD_IDLE_TIMEOUT_MINUTES', 'MSP_THREAD_RETENTION_DAYS',
     'MSP_THREAD_RECENT_EXCHANGES']);
-  assert.deepEqual([...MSP_RUNTIME_ENV_NAMES].sort(), namesIn('MSP_RUNTIME_ENV_NAMES').filter((name) => !serverMemoryOnly.has(name)).sort());
+  const serverHttpOnly = new Set(['MSP_GKS_TRANSPORT', 'MSP_GKS_HTTP_URL', 'GKS_MSP_RELAY_CREDENTIAL', 'GKS_MSP_AUTH_REQUIRED']);
+  const serverOnly = new Set([...serverMemoryOnly, ...serverHttpOnly]);
+  assert.deepEqual([...MSP_RUNTIME_ENV_NAMES].sort(), namesIn('MSP_RUNTIME_ENV_NAMES').filter((name) => !serverOnly.has(name)).sort());
   for (const name of serverMemoryOnly) assert.equal(MSP_RUNTIME_ENV_NAMES.includes(name), false);
+  for (const name of serverHttpOnly) assert.equal(MSP_RUNTIME_ENV_NAMES.includes(name), false);
   assert.deepEqual([...MSP_OS_ENV_NAMES].sort(), namesIn('MSP_OS_ENV_NAMES').sort());
 });
 

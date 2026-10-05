@@ -12,7 +12,7 @@ import { buildCampaignBreakdownCard } from './builders/campaign-breakdown.js';
 import { buildApprovalQueueCard } from './builders/approval-queue.js';
 import { buildInformationRequestCard } from './builders/information-request.js';
 import { CardBuilderContext } from './types.js';
-import { CardViewModel } from '../zuri-api/types.js';
+import { CardViewModel } from '../contracts.js';
 
 // @req SDD-006 — the card builders; no raw Flex JSON is delivered from here.
 

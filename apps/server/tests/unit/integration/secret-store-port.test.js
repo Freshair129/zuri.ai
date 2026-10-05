@@ -1,7 +1,7 @@
 // @req FR-223 — the SecretStorePort vocabulary: references name their store, bundles
 //   are validated without echoing a value, and errors carry a code and nothing else.
-// @req FR-242 — OAUTH_CLIENT and MODEL_PROVIDER_KEY bundle schemas, dispatched by
-//   an explicit map keyed by kind; a kind absent from the map is refused.
+// @req FR-242, FR-273 — OAUTH_CLIENT, MODEL_PROVIDER_KEY and NOTION_OAUTH_TOKEN
+//   bundle schemas are dispatched by an explicit map keyed by kind.
 // @spec SDD-097, SEC-030
 // @tested tests/unit/integration/secret-store-port.test.js
 import { describe, expect, it } from 'vitest'
@@ -21,6 +21,7 @@ import {
   errorTrace,
   generateLineChannelBundle,
   generateModelProviderKeyBundle,
+  generateNotionOauthTokenBundle,
   generateOauthClientBundle,
 } from '../../helpers/credential-vault-fixtures'
 
@@ -129,8 +130,22 @@ describe('bundles (ADR-089 D3)', () => {
     }
   })
 
+  it('accepts a Notion OAuth token pair without exposing or hinting on either token', () => {
+    const input = generateNotionOauthTokenBundle()
+    const parsed = parseSecretBundle('NOTION_OAUTH_TOKEN', input)
+    expect(JSON.stringify(parsed)).toBe('{}')
+    expect(parsed.accessToken).toBe(input.accessToken)
+    expect(parsed.refreshToken).toBe(input.refreshToken)
+    expect(JSON.parse(serializeSecretBundle('NOTION_OAUTH_TOKEN', parsed))).toEqual(input)
+    expect(displayHintFor('NOTION_OAUTH_TOKEN', parsed)).toBeNull()
+    expect(() => parseSecretBundle('NOTION_OAUTH_TOKEN', { accessToken: input.accessToken, refreshToken: null, extra: input.refreshToken }))
+      .toThrow('CHANNEL_SECRET_BUNDLE_INVALID')
+    expect(() => parseSecretBundle('NOTION_OAUTH_TOKEN', { accessToken: input.accessToken, refreshToken: ' ' }))
+      .toThrow('CHANNEL_SECRET_BUNDLE_INVALID')
+  })
+
   it('declares exactly the kinds a store can write and resolve today', () => {
-    expect(RESOLVABLE_SECRET_KINDS).toEqual(['LINE_CHANNEL', 'OAUTH_CLIENT', 'MODEL_PROVIDER_KEY'])
+    expect(RESOLVABLE_SECRET_KINDS).toEqual(['LINE_CHANNEL', 'OAUTH_CLIENT', 'MODEL_PROVIDER_KEY', 'NOTION_OAUTH_TOKEN'])
   })
 })
 

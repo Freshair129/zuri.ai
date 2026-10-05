@@ -84,14 +84,74 @@ function fakeAdapter(sourceInventory = inventory) {
 }
 
 describe('Phase B offline recovery runners', () => {
-  it('loads the committed pinned 188-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(188)
-    expect(inventory.schemaSha256).toBe('9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a')
-    expect(inventory.targetSchemaSha256).toBe('a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115')
+  // @req FR-022 — CustomerRetentionConsent and LegalHoldArchiveKey (ADR-093
+  // 1.2.0) rebind the frozen inventory from 192 to 194 application tables, on
+  // top of the FR-277 LineGroundingShadowComparison rebind; see the decision
+  // doc's binding ladder for the historical entries this one continues.
+  // @req FR-022 — the MSP memory erasure scan index on AgentTraceEvent rebinds
+  // the schema hash; the 194-table mapping is unchanged.
+  it('loads the committed pinned 194-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(194)
+    expect(inventory.schemaSha256).toBe('32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4')
+    expect(inventory.targetSchemaSha256).toBe('9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0')
+    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
+      expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
+    )
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet', 'BusinessKeyResult', 'BusinessKeyResultCheckIn'])
     )
-    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining(['ProjectApprovalRequest']))
+    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining([
+      'ProjectApprovalRequest', 'NotionOAuthState', 'NotionWebhookReceipt', 'NotionWebhookVerificationToken',
+    ]))
+  })
+
+  it('refuses the previous 194-table binding against the erasure-scan-index schema', async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-old-binding-194-'))
+    const tempInventory = path.join(tempDir, 'previous-inventory.json')
+    try {
+      await writeFile(tempInventory, JSON.stringify({
+        ...inventory,
+        schemaSha256: '1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206',
+        targetSchemaSha256: '3b0841c3771ae0fafb4147c9622e86b6d1827cbb656d070113f22bd7e94b8c79',
+      }))
+      await expect(loadFrozenSchemaInventory({ modulePath: tempInventory }))
+        .rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
+  })
+
+  it('refuses the previous 192-table binding against the retention-consent schema', async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-old-binding-192-'))
+    const tempInventory = path.join(tempDir, 'previous-inventory.json')
+    try {
+      await writeFile(tempInventory, JSON.stringify({
+        ...inventory,
+        applicationTables: inventory.applicationTables.filter(({ modelName }) => !['CustomerRetentionConsent', 'LegalHoldArchiveKey'].includes(modelName)),
+        schemaSha256: '94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d',
+        targetSchemaSha256: '372a2af5602a7af64aef2ea77904f039c7666f4e44007c27b0caf4a74fa50885',
+      }))
+      await expect(loadFrozenSchemaInventory({ modulePath: tempInventory }))
+        .rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
+  })
+
+  it('refuses the previous 191-table binding against the Message author schema', async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-old-binding-'))
+    const tempInventory = path.join(tempDir, 'previous-inventory.json')
+    try {
+      await writeFile(tempInventory, JSON.stringify({
+        ...inventory,
+        schemaSha256: 'f17edcf1917e80825f6b1ec8e0e958fc9dae74b570195d5b3e0c6069eb7dd078',
+        targetSchemaSha256: 'a3b354485036ccb70f84980f0af2676ddeee554fff0089b33eb0afe29f43d4d1',
+      }))
+      await expect(loadFrozenSchemaInventory({ modulePath: tempInventory }))
+        .rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
   })
 
   it('rejects a CRLF-mutated schema even with the approved inventory', async () => {
@@ -225,10 +285,36 @@ describe('Phase B offline recovery runners', () => {
   it('rejects smaller or rehashed inventories at every executable boundary', async () => {
     const snapshot = completeSnapshot()
     const bytes = Buffer.from(JSON.stringify(snapshot), 'utf8')
+    // @req FR-277 — `LineGroundingShadowComparison` is the one application
+    // model this change adds, so every historical reconstruction below (each
+    // built by filtering the CURRENT, live `inventory.applicationTables`)
+    // must exclude it first — otherwise "current minus Notion" etc. counts
+    // one model too many for a binding that predates FR-277 entirely, which
+    // is exactly what broke this test the first time a model was added after
+    // it was written. `beforeFr277` is the 191-entry Notion+runtimeOwner
+    // mapping this PR's own binding was rebound from.
+    // @req FR-022 — likewise excludes the two ADR-093 1.2.0 models added after FR-277.
+    const AFTER_FR277 = ['LineGroundingShadowComparison', 'CustomerRetentionConsent', 'LegalHoldArchiveKey']
+    const beforeFr277 = inventory.applicationTables.filter(({ modelName }) => !AFTER_FR277.includes(modelName))
     const smaller = inventoryVariant({ applicationTables: inventory.applicationTables.slice(0, -1) })
     const rehashed = inventoryVariant({ schemaSha256: '0'.repeat(64) })
+    const historical = inventoryVariant({
+      applicationTables: beforeFr277.filter(({ modelName }) => !modelName.startsWith('Notion')),
+      schemaSha256: '9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a',
+    })
+    expect(historical.targetSchemaSha256).toBe('a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115')
+    const notionWithoutRuntimeOwner = inventoryVariant({
+      applicationTables: beforeFr277,
+      schemaSha256: 'ca3e8247e50eb95980561e3ce8aa882ed7b11010d0b2167582e5f37b448132c8',
+    })
+    expect(notionWithoutRuntimeOwner.targetSchemaSha256).toBe('c45dd4b70079decbd1d415a392221bf1a4a71970cd807140d832549ff5481d55')
+    const runtimeOwnerWithoutNotion = inventoryVariant({
+      applicationTables: beforeFr277.filter(({ modelName }) => !modelName.startsWith('Notion')),
+      schemaSha256: 'ffa2c121e08891b4de556480130d5a6e116979f151133a58fd0f23a98ba61f2d',
+    })
+    expect(runtimeOwnerWithoutNotion.targetSchemaSha256).toBe('51b45ae26066775435adef2b983616835d6c09a940ec884f9de0e4cacf8d2899')
 
-    for (const candidate of [smaller, rehashed]) {
+    for (const candidate of [smaller, rehashed, historical, notionWithoutRuntimeOwner, runtimeOwnerWithoutNotion]) {
       const cleanAdapter = fakeAdapter()
       const clean = await runCleanTargetRestore({
         snapshotBytes: bytes,
@@ -252,8 +338,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 188-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 188-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 194-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 194-table inventory/)
     }
   })
 

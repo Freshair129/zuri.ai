@@ -51,6 +51,11 @@ export const ASSET_EVIDENCE_REVIEW_PERMISSION = 'asset.evidence.review'
 export const LINE_OA_PUBLISH_PERMISSION = 'line-oa.account.publish'
 export const INVENTORY_MANAGE_PERMISSION = 'inventory.catalog.write'
 export const SALES_TASK_WRITE_PERMISSION = 'crm.sales-task.write'
+// @req FR-022 — recording (and revoking) a Customer's retention consent: the
+// customer's advance agreement that their chat evidence may be kept (owner
+// ruling 2026-09-27, ADR-093 1.2.0). A sales write, so SALES_REP holds it; a
+// Business OWNER holds it implicitly and needs no binding.
+export const RETENTION_CONSENT_WRITE_PERMISSION = 'crm.retention-consent.write'
 export const ORDER_WRITE_PERMISSION = 'commerce.order.write'
 export const PAYMENT_VERIFY_PERMISSION = 'commerce.payment.verify'
 export const PURCHASE_ORDER_WRITE_PERMISSION = 'procurement.po.write'
@@ -86,6 +91,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_SALES_REP]: Object.freeze([
     'crm.read',
     SALES_TASK_WRITE_PERMISSION,
+    RETENTION_CONSENT_WRITE_PERMISSION,
     // @req FR-166 — a rep also writes the orders they close and records the
     // payments customers send; verifying those payments is a different hat.
     'commerce.read',

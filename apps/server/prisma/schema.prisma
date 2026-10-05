@@ -54,6 +54,8 @@ model Tenant {
   tenantRetentionOverrides   TenantRetentionOverride[]
   // @req SEC-034 — this Tenant's Customers' chat evidence archive legal holds (ADR-093 D6).
   customerLegalHolds         CustomerLegalHold[]
+  // @req FR-022 — this Tenant's Customers' retention consents (ADR-093 1.2.0).
+  customerRetentionConsents  CustomerRetentionConsent[]
   roleBindings               RoleBinding[]
   customerImportBatches      CustomerImportBatch[]
   customerImportReviewCases  CustomerImportReviewCase[]
@@ -429,6 +431,8 @@ model Person {
   mfaFactors                    MfaFactor[]
   // @req SEC-034 — legal holds this OWNER recorded on a Customer's chat evidence archive (ADR-093 D6).
   customerLegalHoldsRecorded    CustomerLegalHold[]             @relation("CustomerLegalHoldRecordedBy")
+  // @req FR-022 — retention consents this sales user collected from a Customer (ADR-093 1.2.0).
+  customerRetentionConsentsRecorded CustomerRetentionConsent[]   @relation("CustomerRetentionConsentRecordedBy")
   passkeyCredentials            PasskeyCredential[]
   // @req FR-268, ADR-101 — Key Results this Person owns, and check-ins this
   // Person recorded (distinct: an OWNER can check in a Key Result owned by
@@ -2119,6 +2123,9 @@ model Customer {
   // reference, so it is a normal relation that travels with the Customer like
   // any other CRM child row.
   legalHolds            CustomerLegalHold[]
+  // @req FR-022 — the retention consents a sales user collected from this
+  //   Customer (ADR-093 1.2.0); history rows, active while `revokedAt` is null.
+  retentionConsents     CustomerRetentionConsent[]
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -2294,6 +2301,13 @@ model Message {
   // @req FR-243 — the sitting this message belongs to (ADR-094 D2, SDD-102). Null only
   //   for a row written before sessions existed and not yet backfilled.
   sessionId         String?
+  // @req FR-022 — the ChannelIdentity of the speaker who wrote an INBOUND message.
+  //   A LINE group or room Conversation is owned by its first speaker's Customer, so
+  //   the owner cannot say who wrote a given line; PDPA erasure selects a speaker's
+  //   own messages by this id in every thread, whoever owns it. A plain reference,
+  //   not a relation: identity owns ChannelIdentity. Null for OUTBOUND rows and for
+  //   inbound rows the backfill could not attribute.
+  authorChannelIdentityId String?
   createdAt         DateTime @default(now())
 
   conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
@@ -2309,6 +2323,7 @@ model Message {
   @@unique([conversationId, externalMessageId])
   @@index([conversationId])
   @@index([sessionId])
+  @@index([authorChannelIdentityId])
 }
 
 // @req FR-229 — a media message (image, video, audio, file) is recorded without
@@ -2550,6 +2565,67 @@ model CustomerLegalHold {
   @@index([customerId, endDate])
 }
 
+// @req FR-022 — "consent to retain = keep" (owner ruling 2026-09-27, ADR-093
+//   1.2.0). A sales user (SALES_REP, or the Business OWNER) records, in advance,
+//   that this Customer agreed to have their chat evidence retained. A history,
+//   not a mutable status: recording writes a row, revoking stamps `revokedAt` on
+//   the active row(s), and "active" is `revokedAt IS NULL` — read at erasure and
+//   sweep time, never cached. Deliberately separate from Customer.consentStatus
+//   (FR-103), which is the Business's PDPA processing attestation that also gates
+//   marketing broadcasts: retaining evidence is a different purpose with a
+//   different writer. Business data (no key, no file reference), so it is a
+//   normal member of the backup snapshot with real foreign keys, like
+//   CustomerLegalHold above. `businessId` names the Business whose authority the
+//   recording user acted under; `revokedByPersonId` is null when an erasure
+//   revoked it (the erased Customer's own consent ends with their erasure).
+// @spec ADR-093 1.2.0, FR-022, BR-001
+// @tested tests/integration/crm-retention-consent.test.js
+model CustomerRetentionConsent {
+  id                 String    @id @default(uuid())
+  tenantId           String
+  customerId         String
+  businessId         String
+  recordedByPersonId String
+  recordedAt         DateTime  @default(now())
+  note               String?
+  revokedAt          DateTime?
+  revokedByPersonId  String?
+
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  recordedBy Person   @relation("CustomerRetentionConsentRecordedBy", fields: [recordedByPersonId], references: [id])
+
+  @@index([tenantId])
+  @@index([customerId, revokedAt])
+}
+
+// @req FR-022, SEC-034 — the data key a legal hold's re-sealed evidence lives
+//   under (ADR-093 1.2.0). When a Customer A is erased while another member B of
+//   one of A's shared threads is under an active legal hold AND has an active
+//   retention consent, the lines A's key would otherwise shred in that thread
+//   (A's own lines, and the staff/push/unknown-author lines sealed under A's key)
+//   are re-sealed, before A's key is destroyed, into a NEW archive file under
+//   this per-hold key. Destroyed when the hold ends (the archive expiry run), when
+//   B's retention consent is revoked (same transaction), or when B is erased —
+//   which makes every re-sealed line unreadable without touching a file.
+//   Same shape and backup treatment as CustomerArchiveKey: wrapped under
+//   ZURI_ARCHIVE_KEK, no `@relation` (a plain scope column), included in the
+//   backup snapshot because a random data key has no re-entry path.
+// @spec ADR-093 1.2.0, SEC-034
+// @tested tests/integration/crm-retention-consent.test.js
+model LegalHoldArchiveKey {
+  id             String   @id @default(uuid())
+  tenantId       String
+  legalHoldId    String   @unique
+  heldCustomerId String
+  kekId          String
+  wrappedDek     String
+  createdAt      DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([heldCustomerId])
+}
+
 // @req FR-127 — each recomputable, advisory analysis run belongs to an internal
 // Conversation. Tenant/business scope is inherited through Conversation;
 // external provider thread ids are never used as identity. analyzedDate is a
@@ -2657,6 +2733,47 @@ model AgentTraceEvent {
   @@unique([tenantId, businessId, idempotencyKey], map: "AgentTraceEvent_scope_idempotency_key")
   @@index([tenantId, businessId, turnId, occurredAt])
   @@index([tenantId, businessId, turnId, createdAt])
+  // @req FR-022 — the MSP memory erasure scanner's keyset page (kind, then oldest first).
+  @@index([kind, occurredAt, id])
+}
+
+// @req FR-277 — one diagnostic-only row per SERVER LINE job answered while its
+// account carries `LineOaAccount.knowledgeGroundingShadow: true` (ADR-090
+// Phase 3, TASK-ZAI-095): what the account's OTHER grounding mode would have
+// answered, generated best-effort after the primary answer and never sent to
+// the customer. `status` (COMPLETED | FAILED | TIMED_OUT) distinguishes a
+// comparison that ran to completion from one that did not — a shadow failure
+// is data, not a defect, and never touches the primary job's own status or
+// `AgentTraceEvent` trace. `jobId` is unique: a re-claimed job overwrites its
+// own prior attempt rather than accumulating duplicate rows. No relation to
+// LineConversationJob/Tenant/Business is declared, matching AgentTraceEvent's
+// own convention in this domain (scoped columns only, never a cross-domain FK).
+// @spec ADR-090 D1-D3, SEC-032 — carries the same answer text the primary path
+//   already sends the customer, plus evidence source/reason, retrieval
+//   references, latency and outcome only; no new customer content.
+// @tested tests/unit/line-grounding-shadow-compare.test.js,
+//   tests/integration/fr277-line-grounding-shadow-compare.test.js
+model LineGroundingShadowComparison {
+  id                      String    @id @default(uuid())
+  jobId                   String    @unique
+  tenantId                String
+  businessId              String
+  accountId               String?
+  primaryMode             String
+  shadowMode              String
+  status                  String
+  primaryAnswerText       String?
+  shadowAnswerText        String?
+  shadowEvidenceSource    String?
+  shadowEvidenceReason    String?
+  shadowRetrievalRefsJson String?
+  answersDiverge          Boolean?
+  latencyMs               Int?
+  errorCode               String?
+  createdAt               DateTime  @default(now())
+
+  @@index([tenantId, businessId, createdAt])
+  @@index([accountId, createdAt])
 }
 
 // @req FR-071 — server-owned full data-pipeline execution ledger.
@@ -3382,6 +3499,59 @@ model KnowledgeCandidate {
 // @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret references only;
 // the production partial active-primary invariant is an additive Postgres DDL gate.
 // @tested tests/unit/fr079-schema-contract.test.js
+// @req FR-273 — expiring single-use OAuth CSRF state contains no provider code
+//   and is never included in installation snapshots.
+// @spec ADR-109 D1; SEC-037
+// @tested tests/integration/notion-oauth-webhook.test.js
+model NotionOAuthState {
+  id          String    @id @default(uuid())
+  stateHash   String    @unique
+  tenantId    String
+  businessId  String
+  actorId     String
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  version     Int       @default(1)
+
+  @@index([expiresAt])
+  @@index([tenantId, businessId, actorId])
+}
+
+// @req FR-274 — encrypted app-level Notion webhook verification material; excluded
+//   from backups and revealed once so a restore cannot resurrect a stale token.
+// @spec ADR-109 D2, D3; SEC-037
+// @tested tests/integration/notion-oauth-webhook.test.js
+model NotionWebhookVerificationToken {
+  id          String   @id
+  kekId       String
+  wrappedDek  String
+  iv          String
+  tag         String
+  ciphertext  String
+  revealedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  version     Int      @default(1)
+}
+
+// @req FR-274 — minimal immutable event receipt for Notion webhook idempotency;
+//   no payload, entity, page or comment content is stored.
+// @spec ADR-109 D2, D3; SEC-037
+// @tested tests/integration/notion-oauth-webhook.test.js
+model NotionWebhookReceipt {
+  eventId     String   @id
+  eventType   String
+  workspaceId String
+  occurredAt  DateTime
+  receivedAt  DateTime @default(now())
+  version     Int      @default(1)
+
+  @@index([workspaceId, receivedAt])
+  @@index([occurredAt])
+}
+
 model IntegrationProvider {
   id               String   @id @default(uuid())
   code             String   @unique
@@ -3913,12 +4083,23 @@ model LineOaAccount {
   // @req FR-149, FR-150 — transport ownership and compute placement are independent.
   serverEnabled           Boolean               @default(false)
   executionMode           String                @default("SERVER")
+  // @spec ADR-106 D3, SDD-110 — the Core-owned executor cohort is independent
+  // from executionMode, which remains SERVER for every new conversation job.
+  runtimeOwner            String                @default("SERVER")
   modelAccess             String                @default("LOCAL_ONLY")
   // @req FR-235 — publisher-set grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE
   // (default, every existing account, unchanged behaviour) | GKS_CORPUS |
   // GKS_THEN_BUSINESS_KNOWLEDGE. Additive, opt-in; nothing reads a corpus until
   // a publisher switches it.
   knowledgeGrounding      String                @default("BUSINESS_KNOWLEDGE")
+  // @req FR-277 — publisher/operator-set shadow-compare flag (ADR-090 Phase 3,
+  // TASK-ZAI-095), independent of `knowledgeGrounding`. Default false: no
+  // account's behaviour changes until an operator turns this on for the one
+  // campaign window. When true, a SERVER job's primary answer is unchanged; a
+  // second, best-effort generation under the account's OTHER grounding mode
+  // runs after it and is recorded in `LineGroundingShadowComparison`, never
+  // sent to the customer (line-grounding-shadow-compare.js).
+  knowledgeGroundingShadow Boolean              @default(false)
   allowDelayedPush        Boolean               @default(false)
   transportEpoch          Int                   @default(1)
   // @req FR-227 — computed webhook health only LINE can report: {endpoint, active,
@@ -4124,6 +4305,9 @@ model LineConversationJob {
   channelAccountId            String
   transportEpoch              Int
   executionMode               String
+  // Immutable admission-time consumer cohort; executionMode records SERVER
+  // compute placement for both Core and Conversation Runtime consumers.
+  runtimeOwner                String    @default("SERVER")
   modelAccess                 String
   audienceKind                String    @default("DIRECT")
   allowDelayedPush            Boolean   @default(false)

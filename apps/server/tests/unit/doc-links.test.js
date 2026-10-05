@@ -11,6 +11,34 @@ function scan(docs, extra = []) {
 const b = doc('B', fm('ZAI:B') + '# Heading One\n')
 
 describe('document metadata identity and links', () => {
+  it('preserves a legacy global ID when a canonical file takes the same basename', () => {
+    const fixtureId = ['FR', '012'].join('-')
+    const canonical = doc(fixtureId, '# Canonical record\n')
+    const source = doc('A', `[[${fixtureId}]] [record](${fixtureId}.md)`)
+    const result = scan([source, canonical], [{ id: `req:${fixtureId}`, type: 'requirement' }])
+    expect(result.findings).toEqual([])
+    expect(result.edges).toContainEqual(expect.objectContaining({ from: 'doc:A', to: 'req:FR-012', type: 'references' }))
+    expect(result.edges).toContainEqual(expect.objectContaining({ from: 'doc:A', to: 'doc:FR-012', type: 'references' }))
+  })
+  it('resolves qualified and bare links to anchored documentary identity nodes', () => {
+    const risk = { id: 'identity:ZAI:RSK-016', type: 'document-identity', namespace: 'ZAI',
+      document_identity: 'RSK-016', defined_in: 'docs/appendices/E-risk-matrix.md', canonical_path: 'docs/appendices/E-risk-matrix.md#RSK-016' }
+    const source = doc('SOURCE', '[[ZAI:RSK-016]] [[RSK-016]]')
+    const result = scan([source], [risk])
+    expect(result.findings).toEqual([])
+    expect(result.edges).toEqual([{ from: 'doc:SOURCE', to: risk.id, type: 'references', source: 'wikilink', status: 'current' }])
+  })
+  it('validates legacy table-row fragments and keeps bare CR intake unissued', () => {
+    const frId = ['FR', '001'].join('-')
+    const requirement = { id: `req:${frId}`, type: 'requirement', namespace: 'ZAI', document_identity: frId,
+      defined_in: 'docs/PRD-SDD-v1.0.md', canonical_path: `docs/requirements/${frId}.md` }
+    const prd = { ...doc('PRD-SDD-v1.0', `| ${frId} | Statement | current |\n`), path: 'docs/PRD-SDD-v1.0.md' }
+    const source = doc('SOURCE', `[row](PRD-SDD-v1.0.md#${frId}) [[CR-014]]`)
+    const intake = doc('CR-014-ASSET-MANAGEMENT', '# CR-014 — Proposal\n')
+    const result = collectDocumentLinks([source, prd, intake], [...[source, prd, intake].map(d => ({ id: d.nodeId, path: d.path })), requirement])
+    expect(result.edges).toContainEqual(expect.objectContaining({ from: 'doc:SOURCE', to: 'doc:PRD-SDD-v1.0', type: 'references' }))
+    expect(result.findings).toContainEqual(expect.objectContaining({ message: 'Missing link target: CR-014' }))
+  })
   it('resolves typed metadata and deduplicates equivalent prose links', () => {
     const a = doc('A', fm('ZAI:A', relation('ZAI:B')) + '[[ZAI:B|B]] [B](B.md)')
     expect(scan([a, b])).toEqual({ findings: [], edges: [{ from: 'doc:A', to: 'doc:B', type: 'relates', source: 'metadata', status: 'current' }] })

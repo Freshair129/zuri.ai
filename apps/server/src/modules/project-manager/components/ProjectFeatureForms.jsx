@@ -663,6 +663,7 @@ function FormDialog({ title, onClose, children, wide = true }) {
   useEffect(() => {
     const previouslyFocused = document.activeElement
     const frame = requestAnimationFrame(() => {
+      if (dialogRef.current?.contains(document.activeElement)) return
       const first = dialogRef.current?.querySelector('input:not([type="hidden"]), select, textarea, button:not([aria-label="Close dialog"])')
       ;(first || dialogRef.current?.querySelector(FORM_FOCUSABLE_SELECTOR))?.focus()
     })

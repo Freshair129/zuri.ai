@@ -13,7 +13,7 @@ import { makeViewer } from '../factories/viewer'
 import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 import { ROLE_SALES_REP } from '@/modules/identity/rbac'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
-import { applySalesTaskAction, createSalesTask, getSalesTask, listSalesTasks } from '@/modules/crm/sales-task-service'
+import { applySalesTaskAction, createSalesTask, getSalesTask, getSalesTaskHealthSummary, listSalesTasks } from '@/modules/crm/sales-task-service'
 
 const NOW = new Date('2026-09-06T03:00:00Z') // 10:00 in Bangkok
 const CRM = ['projects', 'platform', 'customer']
@@ -147,5 +147,18 @@ describe('FR-161 SalesTask', () => {
     expect((await listSalesTasks({ businessId: business.id, assigneePersonId: 'me' }, { viewer: boss, now: NOW })).tasks.map((t) => t.id)).toEqual([late.id])
     expect((await listSalesTasks({ businessId: business.id, includeClosed: true }, { viewer: boss, now: NOW })).tasks.map((t) => t.title)).toEqual(['late', 'closed', 'today', 'soon'])
     expect((await listSalesTasks({ businessId: business.id, status: 'DONE' }, { viewer: boss, now: NOW })).tasks.map((t) => t.title)).toEqual(['closed'])
+
+    const health = await getSalesTaskHealthSummary({ businessId: business.id }, { viewer: boss, now: NOW })
+    expect(health).toEqual({
+      businessId: business.id,
+      summary: { open: 3, inProgress: 0, overdue: 1, dueToday: 1, unassigned: 2 },
+      observedAt: NOW.toISOString(),
+    })
+    const noCrm = makeViewer({
+      role: 'MEMBER', visibleBusinessIds: [business.id], ownedBusinessIds: [], visibleDomains: ['growth'],
+      domainsByBusinessId: { [business.id]: ['growth'] },
+    })
+    await expect(getSalesTaskHealthSummary({ businessId: business.id }, { viewer: noCrm, now: NOW }))
+      .rejects.toMatchObject({ status: 404 })
   })
 })

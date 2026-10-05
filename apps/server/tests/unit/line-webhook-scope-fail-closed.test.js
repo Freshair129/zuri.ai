@@ -10,7 +10,7 @@ import { resolvePhase1RequestScope } from '@/modules/agent/phase1-runtime'
 // The regression under test: when no Phase 1 runtime is composed (the default —
 // ZURI_LINE_BUSINESS_AGENT_ENABLED is "false" in .env.example), the resolver used to
 // fall back to client-supplied tenantId/businessId with no credential check at all.
-// In production that made POST /api/agent/line-webhook an unauthenticated,
+// In production that would make LINE request-scope resolution an unauthenticated,
 // caller-selected-tenant write path.
 
 const headers = new Headers()

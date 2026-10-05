@@ -2,8 +2,6 @@ const { test, expect } = require('@playwright/test')
 const fs = require('node:fs')
 const path = require('node:path')
 
-// @req FR-150 — the Desktop shell keeps pairing, provider and worker state usable
-// while the four-panel inventory UI remains bounded at the supported sizes.
 // @spec ZAI:EDGE-DESKTOP-UI-INVENTORY, FR-144, FR-141, SEC-025
 // @tested apps/server/tests/e2e/edge-desktop-ui.spec.js
 
@@ -65,7 +63,7 @@ function inventory(status = 'ready') {
 }
 
 function desktopBridge() {
-  return ({ configured = true, inventoryStatus = 'ready', modelCount = 25, longText = false, initialWorkerState = 'STOPPED', initialWorkerActive = false, holdDiscovery = false, holdWorkerStart = false, fixture = {} } = {}) => {
+  return ({ inventoryStatus = 'ready', modelCount = 25, longText = false, holdDiscovery = false, fixture = {} } = {}) => {
     const longValue = longText ? fixture.longValue : ''
     let settings = {
       provider: 'ollama',
@@ -75,35 +73,18 @@ function desktopBridge() {
       claude_model: 'claude-test',
       allow_cloud: false,
     }
-    let pairingApproved = false
-    let workerState = initialWorkerState
-    let workerActive = initialWorkerActive
-    let workerReadError = false
-    let workerStatusReads = 0
     let loginState = 'LOGGED_OUT'
     let inventoryReads = 0
     let inventoryFailure = false
-    let pairingBrowserCalls = 0
-    let lastPairingBrowserArgs = null
-    let pairingRequestId = null
-    let lastOpenedPairingRequest = null
     let discoveryRelease = null
-    let workerStartRelease = null
     window.nativeCalls = []
     window.__edgeTest = {
       inventoryStatus,
       modelCount,
       completeLogin: false,
       longText,
-      setWorkerReadError(value) { workerReadError = Boolean(value) },
       setInventoryFailure(value) { inventoryFailure = Boolean(value) },
-      setWorkerFailed() { workerState = 'FAILED'; workerActive = true },
       get inventoryReads() { return inventoryReads },
-      get workerStatusReads() { return workerStatusReads },
-      get pairingBrowserCalls() { return pairingBrowserCalls },
-      get lastPairingBrowserArgs() { return lastPairingBrowserArgs },
-      get lastOpenedPairingRequest() { return lastOpenedPairingRequest },
-      releaseWorkerStart() { workerStartRelease?.() },
       releaseDiscovery() {
         if (discoveryRelease) {
           const release = discoveryRelease
@@ -114,15 +95,7 @@ function desktopBridge() {
     }
     window.__TAURI__ = { core: { invoke: async (command, args = {}) => {
       window.nativeCalls.push({ command, args })
-      if (command === 'get_edge_status') return {
-        device_id: 'EDGE-TEST-UUID-DO-NOT-DISPLAY',
-        cloud_base_url: 'https://zuri.example',
-        business_name: configured ? (longText ? longValue : 'Test Business') : '',
-        configured,
-        server_verified: configured,
-        version: '0.3.0',
-        last_heartbeat_at: '2026-09-08T15:00:00.000Z',
-      }
+      if (command === 'get_desktop_status') return {}
       if (command === 'get_provider_settings') return { ...settings }
       if (command === 'save_provider_settings') { settings = { ...args.settings }; return { ...settings } }
       if (command === 'discover_ollama') {
@@ -138,37 +111,17 @@ function desktopBridge() {
         value.capturedAt = new Date(Date.parse(value.capturedAt) + inventoryReads * 1000).toISOString()
         return value
       }
-      if (command === 'get_worker_status') {
-        workerStatusReads += 1
-        if (workerReadError) throw Error('WORKER_STATUS_READ_FAILED')
-        return { state: workerState, active: workerActive, failure: workerState === 'FAILED' ? 'WORKER_FAILED' : '', message: longText ? longValue : '' }
-      }
-      if (command === 'start_worker') {
-        if (holdWorkerStart) await new Promise(resolve => { workerStartRelease = resolve })
-        workerState = 'RUNNING'; workerActive = true
-        return { state: workerState, active: workerActive }
-      }
-      if (command === 'stop_worker') { workerState = 'STOPPED'; workerActive = false; return { state: workerState, active: false } }
       if (command === 'start_provider_login') { loginState = 'AUTHENTICATING'; return { provider: args.provider, state: loginState, message: 'กำลังรอยืนยันในเบราว์เซอร์' } }
       if (command === 'cancel_provider_login') { loginState = 'LOGGED_OUT'; return { provider: args.provider, state: loginState, message: 'ยกเลิกแล้ว' } }
       if (command === 'get_provider_status') {
         if (window.__edgeTest.completeLogin) loginState = 'READY'
         return { provider: args.provider, state: loginState, message: loginState === 'AUTHENTICATING' ? 'กำลังรอยืนยันในเบราว์เซอร์' : `สถานะ ${args.provider}: ${loginState}` }
       }
-      if (command === 'connect_zuri') { pairingRequestId = 'PAIR-REQUEST-001'; return { request_id: pairingRequestId, approval_url: 'https://zuri.example/approve/PAIR-REQUEST-001', check_code: 'ABC123', expires_at: new Date(Date.now() + 300000).toISOString(), browser_opened: true, qr_svg: '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><rect width="240" height="240" fill="white"/></svg>' } }
-      if (command === 'open_pairing_browser') { pairingBrowserCalls += 1; lastPairingBrowserArgs = { ...args }; lastOpenedPairingRequest = pairingRequestId; return { success: true, request_id: lastOpenedPairingRequest, message: 'เปิด Browser แล้ว' } }
-      if (command === 'send_heartbeat_now') return { success: true, message: 'ดำเนินการแล้ว' }
-      if (command === 'poll_pairing') {
-        if (args.cancel) return { state: 'CANCELLED' }
-        if (!pairingApproved) return { state: 'PENDING' }
-        return { state: 'PAIRED' }
-      }
       if (command === 'check_headless_cli') return { success: true, message: 'พบโปรแกรม แต่ยังไม่ยืนยัน Login', version: longText ? longValue : '0.3.0' }
       if (command === 'check_app_update') return { success: false, message: 'ตัวตรวจอัปเดตยังไม่พร้อมใช้งาน' }
       if (command === 'get_app_version') return '0.3.0'
       throw Error(`Unexpected test command: ${command}`)
     } } }
-    Object.defineProperty(window.__edgeTest, 'approvePairing', { set(value) { pairingApproved = Boolean(value) } })
   }
 }
 
@@ -264,10 +217,9 @@ async function expectBounded(page) {
 
 async function expectNativeActionDisabled(page) {
   const selectors = [
-    '#connect', '#saveProvider', '#providerLogin', '#providerCheck', '#discoverModels',
+    '#saveProvider', '#providerLogin', '#providerCheck', '#discoverModels',
     '#openModelPicker',
-    '#startWorker', '#stopWorker', '#globalStop', '#checkCli', '#checkUpdate',
-    '#hardwareRefresh', '#hardwarePageRefresh', '[data-testid="hardware-refresh"]', '[data-testid="global-stop-worker"]',
+    '#checkCli', '#checkUpdate', '#hardwareRefresh', '#hardwarePageRefresh',
   ]
   for (const selector of selectors) {
     const control = page.locator(`${selector}:visible`).first()
@@ -387,19 +339,19 @@ test('browser preview fails closed without native IPC', async ({ page }) => {
   await expect(page.locator('[role="tablist"]')).toBeVisible()
 })
 
-test('ARIA tabs use manual activation and retain drafts, pairing and login state', async ({ page }) => {
-  await desktop(page, desktopBridge(), { configured: false })
+test('ARIA tabs use manual activation and retain provider drafts and login state', async ({ page }) => {
+  await desktop(page, desktopBridge(), {})
   const tabs = page.getByRole('tab')
-  await expect(tabs).toHaveCount(4)
+  await expect(tabs).toHaveCount(3)
   await expect(page.locator('[role="tablist"]')).toHaveAttribute('aria-orientation', 'vertical')
   await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveCount(1)
   await tabs.filter({ hasText: 'ภาพรวม' }).click()
   await expect(tabs.filter({ hasText: 'ภาพรวม' })).toHaveAttribute('aria-selected', 'true')
   await tabs.filter({ hasText: 'ภาพรวม' }).focus()
   await tabs.filter({ hasText: 'ภาพรวม' }).press('ArrowDown')
-  await expect(tabs.filter({ hasText: 'เชื่อมต่อ' })).toBeFocused()
+  await expect(tabs.filter({ hasText: 'AI' })).toBeFocused()
   await expect(tabs.filter({ hasText: 'ภาพรวม' })).toHaveAttribute('aria-selected', 'true')
-  await tabs.filter({ hasText: 'เชื่อมต่อ' }).press('End')
+  await tabs.filter({ hasText: 'AI' }).press('End')
   await expect(tabs.filter({ hasText: 'ตั้งค่า' })).toBeFocused()
   await expect(tabs.filter({ hasText: 'ภาพรวม' })).toHaveAttribute('aria-selected', 'true')
   await tabs.filter({ hasText: 'ตั้งค่า' }).press('Home')
@@ -409,20 +361,6 @@ test('ARIA tabs use manual activation and retain drafts, pairing and login state
   await expect(page.getByRole('tab', { name: 'ตัวช่วย AI' })).toHaveAttribute('aria-selected', 'true')
   await page.locator('#providerClaude').check()
   await page.locator('#providerModel').fill('claude-draft-model')
-  await tabs.filter({ hasText: 'เชื่อมต่อ' }).click()
-  await page.locator('#connect').click()
-  await expect(page.locator('#checkCode')).toHaveText('ABC123')
-  await page.locator('#openBrowser').click()
-  await expect.poll(() => page.evaluate(() => window.__edgeTest.pairingBrowserCalls)).toBe(1)
-  await expect.poll(() => page.evaluate(() => window.__edgeTest.lastPairingBrowserArgs)).toEqual({})
-  await expect.poll(() => page.evaluate(() => window.__edgeTest.lastOpenedPairingRequest)).toBe('PAIR-REQUEST-001')
-  await tabs.filter({ hasText: 'ภาพรวม' }).click()
-  await tabs.filter({ hasText: 'เชื่อมต่อ' }).click()
-  await expect(page.locator('#checkCode')).toBeVisible()
-  await page.locator('#cancel').click()
-  await expect(page.locator('#pairingState')).toContainText(/ยกเลิก|CANCELLED/)
-  await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
-  await expect(page.locator('#providerModel')).toHaveValue('claude-draft-model')
   await page.locator('#providerLogin').click()
   await expect(page.locator('#providerAuth')).toContainText('กำลังรอยืนยัน')
   await tabs.filter({ hasText: 'ภาพรวม' }).click()
@@ -438,13 +376,12 @@ test('ARIA tabs use manual activation and retain drafts, pairing and login state
   await expect.poll(() => page.evaluate(() => window.nativeCalls.filter(call => call.command === 'start_provider_login').length)).toBe(loginCallsBeforeRetry + 1)
 })
 
-test('sidebar exposes four real panels with visible labels, icons and an accessible AI name', async ({ page }) => {
-  await desktop(page, desktopBridge(), { configured: true })
+test('sidebar exposes three real panels with visible labels, icons and an accessible AI name', async ({ page }) => {
+  await desktop(page, desktopBridge(), {})
   const tablist = page.locator('#primaryTabs')
   await expect(tablist).toHaveAttribute('aria-orientation', 'vertical')
   const entries = [
     ['overview', 'ภาพรวม'],
-    ['connect', 'เชื่อมต่อ'],
     ['ai', 'AI'],
     ['settings', 'ตั้งค่า'],
   ]
@@ -462,16 +399,12 @@ test('sidebar exposes four real panels with visible labels, icons and an accessi
 })
 
 test('vertical sidebar keyboard activation preserves an AI draft', async ({ page }) => {
-  await desktop(page, desktopBridge(), { configured: true })
+  await desktop(page, desktopBridge(), {})
   const overview = page.locator('#tab-overview')
-  const connect = page.locator('#tab-connect')
   const ai = page.locator('#tab-ai')
   const settings = page.locator('#tab-settings')
   await overview.focus()
   await overview.press('ArrowDown')
-  await expect(connect).toBeFocused()
-  await expect(overview).toHaveAttribute('aria-selected', 'true')
-  await connect.press('ArrowDown')
   await expect(ai).toBeFocused()
   await expect(overview).toHaveAttribute('aria-selected', 'true')
   await ai.press(' ')
@@ -493,11 +426,9 @@ test('vertical sidebar keyboard activation preserves an AI draft', async ({ page
 
 test.describe('vertical sidebar shell geometry', () => {
   for (const size of SUPPORTED_VIEWPORTS) {
-    test(`${size.name} keeps the rail left of content and Stop reachable`, async ({ page }) => {
+    test(`${size.name} keeps the three-tab rail left of content`, async ({ page }) => {
       await page.setViewportSize({ width: size.width, height: size.height })
-      await desktop(page, desktopBridge(), { configured: true, initialWorkerState: 'RUNNING', initialWorkerActive: true })
-      await expect(page.locator('#globalStop')).toBeVisible()
-      await expect(page.locator('#globalStop')).toBeEnabled()
+      await desktop(page, desktopBridge(), {})
       await expectBounded(page)
       const geometry = await page.evaluate(() => {
         const rect = (selector) => {
@@ -513,7 +444,6 @@ test.describe('vertical sidebar shell geometry', () => {
           rail: rect('#primaryTabs'),
           main: rect('#appMain'),
           footer: rect('.app-footer'),
-          stop: rect('#globalStop'),
           tabs: tabs.map(tab => {
             const value = tab.getBoundingClientRect()
             return { left: value.left, right: value.right, top: value.top, bottom: value.bottom }
@@ -524,18 +454,14 @@ test.describe('vertical sidebar shell geometry', () => {
       expect(geometry.rail).not.toBeNull()
       expect(geometry.main).not.toBeNull()
       expect(geometry.footer).not.toBeNull()
-      expect(geometry.stop).not.toBeNull()
-      expect(geometry.tabs).toHaveLength(4)
+      expect(geometry.tabs).toHaveLength(3)
       const lefts = geometry.tabs.map(tab => tab.left)
       expect(Math.max(...lefts) - Math.min(...lefts)).toBeLessThanOrEqual(2)
       expect(geometry.tabs[0].top).toBeLessThan(geometry.tabs[1].top)
       expect(geometry.tabs[1].top).toBeLessThan(geometry.tabs[2].top)
-      expect(geometry.tabs[2].top).toBeLessThan(geometry.tabs[3].top)
-      expect(geometry.tabs[3].bottom).toBeGreaterThanOrEqual(geometry.rail.bottom - 24)
+      expect(geometry.tabs[2].bottom).toBeGreaterThanOrEqual(geometry.rail.bottom - 24)
       expect(geometry.main.left).toBeGreaterThanOrEqual(geometry.rail.right - 1)
       expect(geometry.footer.left).toBeGreaterThanOrEqual(geometry.rail.right - 1)
-      expect(geometry.stop.left).toBeGreaterThanOrEqual(geometry.rail.right - 1)
-      expect(geometry.stop.right).toBeLessThanOrEqual(size.width + 1)
     })
   }
 })
@@ -544,7 +470,7 @@ test.describe('sidebar text zoom navigation', () => {
   for (const size of SUPPORTED_VIEWPORTS) {
     test(`${size.name} keeps labels and task controls reachable at 200% text`, async ({ page }) => {
       await page.setViewportSize({ width: size.width, height: size.height })
-      await desktop(page, desktopBridge(), { configured: false })
+      await desktop(page, desktopBridge(), {})
       await emulateTextZoom(page)
       await expectBounded(page)
       const labelGeometry = await page.evaluate(() => [...document.querySelectorAll('#primaryTabs [role="tab"]')].map(tab => {
@@ -557,7 +483,7 @@ test.describe('sidebar text zoom navigation', () => {
           label: labelRect ? { left: labelRect.left, right: labelRect.right, top: labelRect.top, bottom: labelRect.bottom } : null,
         }
       }))
-      expect(labelGeometry).toHaveLength(4)
+      expect(labelGeometry).toHaveLength(3)
       for (const entry of labelGeometry) {
         expect(entry.label, `${entry.text} must render a label`).not.toBeNull()
         expect(entry.label.left, `${entry.text} starts outside its tab`).toBeGreaterThanOrEqual(entry.tab.left - 1)
@@ -566,22 +492,20 @@ test.describe('sidebar text zoom navigation', () => {
         expect(entry.label.bottom, `${entry.text} ends outside its tab`).toBeLessThanOrEqual(entry.tab.bottom + 1)
       }
 
-      await page.getByRole('tab', { name: 'เชื่อมต่อ' }).click()
-      await reachControl(page, '#connect', '#connectCompactNext')
       await page.getByRole('tab', { name: 'ตั้งค่า' }).click()
-      await expect(page.locator('#openAdvanced')).toBeVisible()
+      await expect(page.locator('#openCli')).toBeVisible()
+      await expect(page.locator('#openAbout')).toBeVisible()
       await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
       await reachControl(page, '#ollamaUrl', '#aiCompactNext')
       await page.locator('#ollamaUrl').fill('http://127.0.0.1:11435')
       await reachControl(page, '#saveProvider', '#aiCompactNext')
       await expect(page.locator('#saveProvider')).toBeVisible()
-      await expect(page.locator('#globalStop')).toBeVisible()
     })
   }
 })
 
-test('provider drafts remain independent and Save never starts the worker', async ({ page }) => {
-  await desktop(page, desktopBridge(), { configured: true })
+test('provider drafts remain independent when saved', async ({ page }) => {
+  await desktop(page, desktopBridge(), {})
   await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
   await page.locator('#ollamaUrl').fill('http://127.0.0.1:11435')
   await page.locator('#providerCodex').check()
@@ -592,7 +516,6 @@ test('provider drafts remain independent and Save never starts the worker', asyn
   await expect(page.locator('#providerModel')).toHaveValue('codex-draft')
   await page.locator('#saveProvider').click()
   await expect(page.locator('#providerMessage, #providerSaveState').filter({ hasText: /บันทึก|saved/i }).first()).toBeVisible()
-  await expect.poll(() => page.evaluate(() => window.nativeCalls.filter(call => call.command === 'start_worker').length)).toBe(0)
   const lastSave = await page.evaluate(() => window.nativeCalls.filter(call => call.command === 'save_provider_settings').at(-1))
   expect(lastSave.args.settings.ollama_base_url).toBe('http://127.0.0.1:11434')
   await page.locator('#providerOllama').check()
@@ -604,40 +527,24 @@ test('provider drafts remain independent and Save never starts the worker', asyn
 })
 
 test('switching from a cloud provider to Ollama clears cloud permission on save', async ({ page }) => {
-  await desktop(page, desktopBridge(), { configured: true })
+  await desktop(page, desktopBridge(), {})
   await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
   await page.locator('#providerCodex').check()
   await page.locator('#providerModel').fill('codex-cloud-draft')
   await page.locator('#allowCloud').check()
   await page.locator('#saveProvider').click()
-  await expect(page.locator('#providerMessage')).toContainText(/บันทึกแล้ว|saved/i)
+  await expect(page.locator('#providerMessage')).toContainText(/บันทึก.*แล้ว|saved/i)
   await page.locator('#providerOllama').check()
   await page.locator('#saveProvider').click()
-  await expect(page.locator('#providerMessage')).toContainText(/บันทึกแล้ว|saved/i)
+  await expect(page.locator('#providerMessage')).toContainText(/บันทึก.*แล้ว|saved/i)
   const saves = await page.evaluate(() => window.nativeCalls.filter(call => call.command === 'save_provider_settings'))
   expect(saves.at(-1)?.args?.settings?.provider).toBe('ollama')
   expect(saves.at(-1)?.args?.settings?.allow_cloud).toBe(false)
 })
 
-test('provider model mutations stay locked during pairing, active work and discovery', async ({ page }) => {
-  const pairingPage = await page.context().newPage()
-  await desktop(pairingPage, desktopBridge(), { configured: false })
-  await pairingPage.locator('#connect').click()
-  await expect(pairingPage.locator('#pairingState')).toContainText(/รอยืนยัน|WAITING/)
-  await pairingPage.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
-  for (const selector of ['#discoverModels', '#openModelPicker', '#saveProvider', '#providerOllama']) {
-    await expect(pairingPage.locator(selector)).toBeDisabled()
-  }
-  await pairingPage.close()
-
-  await desktop(page, desktopBridge(), { configured: true, initialWorkerState: 'RUNNING', initialWorkerActive: true })
-  await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
-  for (const selector of ['#discoverModels', '#openModelPicker', '#saveProvider', '#providerOllama']) {
-    await expect(page.locator(selector)).toBeDisabled()
-  }
-
+test('provider model mutations stay locked during model discovery', async ({ page }) => {
   const busyPage = await page.context().newPage()
-  await desktop(busyPage, desktopBridge(), { configured: true, holdDiscovery: true })
+  await desktop(busyPage, desktopBridge(), { holdDiscovery: true })
   await busyPage.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
   await busyPage.locator('#discoverModels').click()
   await expect(busyPage.locator('#discoverModels')).toBeDisabled()
@@ -648,70 +555,10 @@ test('provider model mutations stay locked during pairing, active work and disco
   await busyPage.close()
 })
 
-test('provider settings remain locked while worker Start is pending across tabs', async ({ page }) => {
-  await desktop(page, desktopBridge(), { holdWorkerStart: true })
-  await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
-  await page.locator('#startWorker').click()
-  await expect(page.locator('#startWorker')).toBeDisabled()
-  await page.getByRole('tab', { name: 'ตั้งค่า' }).click()
-  await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
-  for (const selector of ['#saveProvider', '#providerCodex', '#discoverModels', '#openModelPicker', '#providerCheck']) {
-    await expect(page.locator(selector)).toBeDisabled()
-  }
-  await page.evaluate(() => window.__edgeTest.releaseWorkerStart())
-  await expect(page.locator('#globalStop')).toBeEnabled()
-  await page.locator('#globalStop').click()
-  await expect(page.locator('#saveProvider')).toBeEnabled()
-})
-
-test('global Stop remains available for FAILED ownership and worker status read errors', async ({ page }) => {
-  await desktop(page, desktopBridge(), { configured: true, initialWorkerState: 'FAILED', initialWorkerActive: true })
-  const stop = page.locator('#globalStop:visible, #stopWorker:visible, [data-testid="global-stop-worker"]:visible').first()
-  await expect(stop).toBeEnabled()
-  await page.getByRole('tab', { name: 'ตั้งค่า' }).click()
-  await expect(page.locator('#globalStop:visible, #stopWorker:visible, [data-testid="global-stop-worker"]:visible').first()).toBeEnabled()
-  const readsBeforeError = await page.evaluate(() => window.__edgeTest.workerStatusReads)
-  await page.evaluate(() => window.__edgeTest.setWorkerReadError(true))
-  await page.getByRole('tab', { name: 'ภาพรวม' }).click()
-  await expect.poll(() => page.evaluate(() => window.__edgeTest.workerStatusReads)).toBeGreaterThan(readsBeforeError)
-  await expect(page.locator('#globalStop:visible, #stopWorker:visible, [data-testid="global-stop-worker"]:visible').first()).toBeEnabled()
-  await expect(page.getByText(/WORKER_STATUS_READ_FAILED|ตรวจสถานะตัวประมวลผลไม่ได้|อ่านสถานะ/).first()).toBeVisible()
-  await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
-  await expect(page.locator('#startWorker:visible')).toBeDisabled()
-  await expect(page.locator('#workerState')).not.toContainText(/กำลังรับงานจาก Zuri|พร้อมตรวจแล้ว|READY/)
-  await page.evaluate(() => window.__edgeTest.setWorkerReadError(false))
-  await stop.click()
-  await expect(page.locator('#workerState')).toContainText(/หยุด|STOPPED/)
-})
-
-for (const previousState of ['RUNNING', 'STOPPED']) {
-  test(`worker read failure invalidates ${previousState} readiness without losing ownership`, async ({ page }) => {
-    const owned = previousState === 'RUNNING'
-    await desktop(page, desktopBridge(), { configured: true, initialWorkerState: previousState, initialWorkerActive: owned })
-    await expect.poll(() => page.evaluate(() => window.__edgeTest.workerStatusReads)).toBeGreaterThan(0)
-    if (!owned) await expect(page.locator('#overviewStart')).toBeEnabled()
-    else await expect(page.locator('#globalStop')).toBeEnabled()
-    const before = await page.evaluate(() => window.__edgeTest.workerStatusReads)
-    await page.evaluate(() => window.__edgeTest.setWorkerReadError(true))
-    await page.getByRole('tab', { name: 'ตั้งค่า' }).click()
-    await page.getByRole('tab', { name: 'ภาพรวม' }).click()
-    await expect.poll(() => page.evaluate(() => window.__edgeTest.workerStatusReads)).toBeGreaterThan(before)
-    await expect(page.locator('#overviewFeedback')).toContainText('WORKER_STATUS_READ_FAILED')
-    await expect(page.locator('#workerState')).toContainText('ยังยืนยันสถานะไม่ได้')
-    await expect(page.locator('#overviewStart')).toBeDisabled()
-    if (owned) await expect(page.locator('#globalStop')).toBeEnabled()
-    else await expect(page.locator('#globalStop')).toBeDisabled()
-    await page.evaluate(() => runWorker('start_worker'))
-    expect(await page.evaluate(() => window.nativeCalls.filter(call => call.command === 'start_worker').length)).toBe(0)
-  })
-}
-
-test('hardware inventory starts before pairing, refreshes, and separates computer name from device UUID', async ({ page }) => {
-  await desktop(page, desktopBridge(), { configured: false, inventoryStatus: 'ready' })
+test('hardware inventory reads and refreshes local machine specifications', async ({ page }) => {
+  await desktop(page, desktopBridge(), { inventoryStatus: 'ready' })
   await expect.poll(() => page.evaluate(() => window.__edgeTest.inventoryReads)).toBeGreaterThanOrEqual(1)
   await expect(page.locator('#computerName')).toHaveText('ORBIT-DEV-01')
-  await expect(page.locator('#computerName')).not.toHaveText('EDGE-TEST-UUID-DO-NOT-DISPLAY')
-  await expect(page.locator('#device')).toHaveText('EDGE-TEST-UUID-DO-NOT-DISPLAY')
   await page.getByRole('tab', { name: 'ภาพรวม' }).click()
   const before = await page.evaluate(() => window.__edgeTest.inventoryReads)
   await page.locator('#hardwareRefresh:visible, #hardwarePageRefresh:visible').first().click()
@@ -724,7 +571,7 @@ test('hardware inventory starts before pairing, refreshes, and separates compute
 })
 
 test('hardware keeps the last-good inventory visible when a recheck fails', async ({ page }) => {
-  await desktop(page, desktopBridge(), { configured: false, inventoryStatus: 'ready' })
+  await desktop(page, desktopBridge(), { inventoryStatus: 'ready' })
   await expect.poll(() => page.evaluate(() => window.__edgeTest.inventoryReads)).toBeGreaterThanOrEqual(1)
   await expect(page.locator('#computerName')).toHaveText('ORBIT-DEV-01')
   await page.getByRole('tab', { name: 'ภาพรวม' }).click()
@@ -738,7 +585,7 @@ test('hardware keeps the last-good inventory visible when a recheck fails', asyn
 })
 
 test('hardware null and partial fields are explicit and do not become fake zero values', async ({ page }) => {
-  await desktop(page, desktopBridge(), { configured: false, inventoryStatus: 'partial' })
+  await desktop(page, desktopBridge(), { inventoryStatus: 'partial' })
   await expect(page.getByText(/อ่านชื่อเครื่องไม่ได้|ไม่พร้อม|partial|บางส่วน/).first()).toBeVisible()
   await openHardwarePage(page)
   await expect(page.locator('#hardwarePageStatus')).toContainText(/บางรายการอ่านไม่ได้|ไม่สามารถอ่าน/i)
@@ -748,7 +595,7 @@ test('hardware null and partial fields are explicit and do not become fake zero 
 
 test('approved mock IPC UI reference screenshots cover overview, compact AI, hardware and text zoom', async ({ page }) => {
   await page.setViewportSize({ width: 1050, height: 680 })
-  await desktop(page, desktopBridge(), { configured: true, modelCount: 25 })
+  await desktop(page, desktopBridge(), { modelCount: 25 })
   await expect(page.getByRole('tab', { name: 'ภาพรวม' })).toHaveAttribute('aria-selected', 'true')
   await captureDesign(page, 'overview-1050x680.png')
 
@@ -778,7 +625,7 @@ test('approved mock IPC UI reference screenshots cover overview, compact AI, har
 
 test('long CLI details preserve every character across pagination resize and text zoom', async ({ page }) => {
   await page.setViewportSize({ width: 800, height: 560 })
-  await desktop(page, desktopBridge(), { configured: true, longText: true })
+  await desktop(page, desktopBridge(), { longText: true })
   await page.getByRole('tab', { name: 'ตั้งค่า' }).click()
   await page.locator('#openCli').click()
   await page.locator('#checkCli').click()
@@ -805,7 +652,7 @@ test('long CLI details preserve every character across pagination resize and tex
 
 test('model and hardware lists paginate 25 and 100 records without scroll', async ({ page }) => {
   await page.setViewportSize({ width: 800, height: 560 })
-  await desktop(page, desktopBridge(), { configured: true, modelCount: 25, longText: true })
+  await desktop(page, desktopBridge(), { modelCount: 25, longText: true })
   await page.getByRole('tab', { name: 'ตัวช่วย AI' }).click()
   const aiNext = page.locator('#aiCompactNext:visible')
   if (await aiNext.count() && !await aiNext.isDisabled()) await aiNext.click()
@@ -837,7 +684,7 @@ test.describe('supported viewport bounds with long content', () => {
   for (const size of SUPPORTED_VIEWPORTS) {
     test(`${size.name} ${size.width}x${size.height} keeps controls and feedback in view`, async ({ page }) => {
       await page.setViewportSize({ width: size.width, height: size.height })
-      await desktop(page, desktopBridge(), { configured: true, modelCount: 100, longText: true })
+      await desktop(page, desktopBridge(), { modelCount: 100, longText: true })
       await expectBounded(page)
       const overviewNext = page.locator('#overviewCompactNext:visible')
       while (await overviewNext.count() && !await overviewNext.isDisabled()) {
@@ -861,15 +708,13 @@ test.describe('supported viewport bounds with long content', () => {
   }
 })
 
-test('Connect and Settings subpages retain their controls at 200% text', async ({ page }) => {
+test('CLI and release Settings subpages retain their controls at 200% text', async ({ page }) => {
   await page.setViewportSize({ width: 640, height: 480 })
-  await desktop(page, desktopBridge(), { configured: false })
+  await desktop(page, desktopBridge(), {})
   await emulateTextZoom(page)
-  await reachControl(page, '#connect', '#connectCompactNext')
   await page.getByRole('tab', { name: 'ตั้งค่า' }).click()
   await expectBounded(page)
   for (const [entry, next, back, controls] of [
-    ['openAdvanced', 'advancedCompactNext', 'advancedBack', ['baseUrl', 'pairingFile']],
     ['openCli', 'cliCompactNext', 'cliBack', ['cli', 'checkCli']],
     ['openAbout', 'aboutCompactNext', 'aboutBack', ['appVersion', 'checkUpdate']],
   ]) {
@@ -897,8 +742,8 @@ for (const provider of ['Ollama', 'Codex', 'Claude']) {
     await page.locator(`#provider${provider}`).check()
     while (await page.locator('#aiCompactPrev').isEnabled()) await page.locator('#aiCompactPrev').click()
     const required = new Set(provider === 'Ollama'
-      ? ['ollamaUrl', 'discoverModels', 'openModelPicker', 'saveProvider', 'startWorker']
-      : ['providerModel', 'providerLogin', 'providerCheck', 'allowCloud', 'saveProvider', 'startWorker'])
+      ? ['ollamaUrl', 'discoverModels', 'openModelPicker', 'saveProvider']
+      : ['providerModel', 'providerLogin', 'providerCheck', 'allowCloud', 'saveProvider'])
     for (let index = 0; index < 20; index += 1) {
       await expectBounded(page)
       for (const id of [...required]) if (await page.locator(`#${id}`).isVisible()) required.delete(id)
@@ -931,7 +776,7 @@ test('all compact Overview pages remain reachable at 200% text', async ({ page }
 
 test('200% text zoom emulation preserves actual visual scale and bounds', async ({ page }) => {
   await page.setViewportSize({ width: 640, height: 480 })
-  await desktop(page, desktopBridge(), { configured: true, modelCount: 25, longText: true })
+  await desktop(page, desktopBridge(), { modelCount: 25, longText: true })
   const zoom = await emulateTextZoom(page, 2)
   expect(zoom.ratio).toBeCloseTo(2, 1)
   await expectBounded(page)

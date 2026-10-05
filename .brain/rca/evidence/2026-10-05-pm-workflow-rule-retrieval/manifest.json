@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T00:40:22Z",
+  "purpose": "Bounded document RCA evidence excerpts; not raw rollout, effective context or operational authority",
+  "entries": [
+    {
+      "path": "excerpts.json",
+      "sha256": "bd720eef9ae2767a12241c609eef4a7906174460652d07faba695be0b3fcec94",
+      "bytes": 18053
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+      "bytes": 8
+    }
+  ],
+  "pinnedSources": [
+    {
+      "path": "../2026-10-05-pm-spec-handoff/manifest.json",
+      "sha256": "b5b5bb65e61556c8332260652a9074319f7de0d8f6aa19fbd945c19dc2b014b8",
+      "bytes": 5706
+    },
+    {
+      "path": "../2026-10-05-pm-spec-handoff/source/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sha256": "f502e5e97e0a30bbbacdd187af0a01d69093e368a523755249406a6c4c067ab2",
+      "bytes": 105531
+    },
+    {
+      "path": "../2026-10-05-pm-spec-handoff/inputs/delivery-plan-v0.9.47b-postcomposition.json",
+      "sha256": "2b83dc3b5f907293848ddf5cc68fee587520c8cba643652ace4347056ae2b08e",
+      "bytes": 429894
+    }
+  ]
+}

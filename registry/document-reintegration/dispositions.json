@@ -1,0 +1,1523 @@
+{
+  "schemaVersion": 1,
+  "sources": {
+    "ZAI": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+    "ZNEXT": "8f3fa178f05567ae2c3863896d5a99cf6fd96d49"
+  },
+  "baseline": {
+    "namespace": "ZAI",
+    "revision": "9e5b104e7763975ab994171a1941c246cf172a7a"
+  },
+  "authorityDecision": {
+    "source": "docs/migrations/document-reintegration/PROPOSAL.md",
+    "anchor": "Authority and artifact coverage",
+    "decision": "ZAI remains the canonical active authority; ZNEXT remains pinned provenance. Crosswalk lineage does not establish semantic equivalence or alias eligibility."
+  },
+  "incomingPolicy": {
+    "disposition": "provenance-only",
+    "semanticReview": "not-performed",
+    "reason": "The approved migration contract requires subject-level review before semantic import or alias. This bounded P2 lane records source-local status and exact coverage; it does not complete all-content reconciliation or promote delivery state.",
+    "coverage": [
+      {
+        "key": "documents.files:document:literal:approved",
+        "manifest": "documents.files",
+        "selector": {
+          "namespace": "ZNEXT",
+          "artifactKind": "document",
+          "statusClass": "literal:approved"
+        },
+        "count": 33,
+        "membersSha256": "e91434a11aff43f5068617783bc674f6e021dac09164588cfd90a31aaa4342fd",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "document-document-literal-approved",
+        "reason": "ZNEXT document artifacts remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status approved is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "documents.files:document:literal:draft",
+        "manifest": "documents.files",
+        "selector": {
+          "namespace": "ZNEXT",
+          "artifactKind": "document",
+          "statusClass": "literal:draft"
+        },
+        "count": 80,
+        "membersSha256": "5c3460bbc3746bb9abe35cfe0ed0447d724fe07bfa358e2f4af770f1390e79fb",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "document-document-literal-draft",
+        "reason": "ZNEXT document artifacts remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status draft is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "documents.files:document:literal:proposed",
+        "manifest": "documents.files",
+        "selector": {
+          "namespace": "ZNEXT",
+          "artifactKind": "document",
+          "statusClass": "literal:proposed"
+        },
+        "count": 26,
+        "membersSha256": "feca894b9e8184cb58178510764228f5512789b7ed7c29d347ea29f380012206",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "document-document-literal-proposed",
+        "reason": "ZNEXT document artifacts remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status proposed is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "documents.files:document:missing",
+        "manifest": "documents.files",
+        "selector": {
+          "namespace": "ZNEXT",
+          "artifactKind": "document",
+          "statusClass": "missing"
+        },
+        "count": 751,
+        "membersSha256": "67af503b581770527be9a545f17cd690f1df8d34ac1138f37c5a7235653b6a3a",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "document-document-missing",
+        "reason": "ZNEXT document artifacts remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "documents.files:documentation-asset:missing",
+        "manifest": "documents.files",
+        "selector": {
+          "namespace": "ZNEXT",
+          "artifactKind": "documentation-asset",
+          "statusClass": "missing"
+        },
+        "count": 12,
+        "membersSha256": "35409620e069d9158c53a8b262dd53a9d16036b46d7a50f5fb6793d7cf449414",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "document-documentation-asset-missing",
+        "reason": "ZNEXT documentation-asset artifacts remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:AC:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "AC",
+          "statusClass": "missing"
+        },
+        "count": 958,
+        "membersSha256": "43636fcee6563ac5e96b24af6513efbf417ba8857f1068c5133330108136173e",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-ac-missing",
+        "reason": "ZNEXT AC identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:ADR:literal:approved",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "ADR",
+          "statusClass": "literal:approved"
+        },
+        "count": 38,
+        "membersSha256": "d63cfb54417df6dedcf6bbd5ae7aef434ceda2b1333d8e981df028477594223e",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-adr-literal-approved",
+        "reason": "ZNEXT ADR identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status approved is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:ADR:other-literal",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "ADR",
+          "statusClass": "other-literal"
+        },
+        "count": 69,
+        "membersSha256": "297a0ecbba817bf570a090b3f9d01566a9c05a6d4e7ffe4650f5f4f8c414bae1",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-adr-other-literal",
+        "reason": "ZNEXT ADR identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source status is opaque to this policy and remains verbatim in the source manifest; it is not interpreted."
+      },
+      {
+        "key": "identities.identities:API:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "API",
+          "statusClass": "missing"
+        },
+        "count": 266,
+        "membersSha256": "1ae3d333244c81a5291f7e46c530ca082aa33e04919e82338448df613dedd1bf",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-api-missing",
+        "reason": "ZNEXT API identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:ARCH:literal:draft",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "ARCH",
+          "statusClass": "literal:draft"
+        },
+        "count": 1,
+        "membersSha256": "3ac5506c74cc7db9cd125168878eb596b46dc6fabb6e1bbfd9147e65027f01d5",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-arch-literal-draft",
+        "reason": "ZNEXT ARCH identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status draft is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:BR:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "BR",
+          "statusClass": "missing"
+        },
+        "count": 89,
+        "membersSha256": "bb9b664fc2c8d70c4ac7104fbd4409d015c889d9004d2201b2d5e50c2d9d4733",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-br-missing",
+        "reason": "ZNEXT BR identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:BRD:literal:draft",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "BRD",
+          "statusClass": "literal:draft"
+        },
+        "count": 1,
+        "membersSha256": "644cec6afa34bb00b8be18b68b2f0f7393d7d33695d6fb054df9e16a5f172b44",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-brd-literal-draft",
+        "reason": "ZNEXT BRD identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status draft is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:CMP:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "CMP",
+          "statusClass": "missing"
+        },
+        "count": 287,
+        "membersSha256": "72f0f7365b31812970ca1f664c6bafeffb07dc8b556b5405b63a06e5421fe746",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-cmp-missing",
+        "reason": "ZNEXT CMP identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:DOM:literal:approved",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "DOM",
+          "statusClass": "literal:approved"
+        },
+        "count": 2,
+        "membersSha256": "e43ea385fffdb6311a7daf9fd6f27b0b42976c90834426d6a174f1c2fac0a600",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-dom-literal-approved",
+        "reason": "ZNEXT DOM identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status approved is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:DOM:literal:draft",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "DOM",
+          "statusClass": "literal:draft"
+        },
+        "count": 3,
+        "membersSha256": "ddd8758fe7b9e9577d93d05cdbcf7a06a04bad71f8b7c8bb43adf9203d536b05",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-dom-literal-draft",
+        "reason": "ZNEXT DOM identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status draft is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:DOM:literal:proposed",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "DOM",
+          "statusClass": "literal:proposed"
+        },
+        "count": 8,
+        "membersSha256": "86053a9e0e92569821238e9df080221566b90a4bdc709d9b881237e47b679d26",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-dom-literal-proposed",
+        "reason": "ZNEXT DOM identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status proposed is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:DOM:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "DOM",
+          "statusClass": "missing"
+        },
+        "count": 1,
+        "membersSha256": "f03947f5bf1095f0b7a65b5c2e1d4160cae4131daecba59c5fcd8d8bbab01411",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-dom-missing",
+        "reason": "ZNEXT DOM identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:EVT:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "EVT",
+          "statusClass": "missing"
+        },
+        "count": 3,
+        "membersSha256": "b9d4043bac3c8d19e1dfd7ca00367511694964dfad87a59092b0d15c57d2bdaf",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-evt-missing",
+        "reason": "ZNEXT EVT identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:FEAT:literal:approved",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "FEAT",
+          "statusClass": "literal:approved"
+        },
+        "count": 31,
+        "membersSha256": "530eddeca258635534e5452795980115a4ca1267adedb7393e2ab74654983fde",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-feat-literal-approved",
+        "reason": "ZNEXT FEAT identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status approved is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:FEAT:literal:draft",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "FEAT",
+          "statusClass": "literal:draft"
+        },
+        "count": 54,
+        "membersSha256": "040819e16bf8921d6d60832fd75eb5c3199ca889ed86e07110dec46f7cc2a676",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-feat-literal-draft",
+        "reason": "ZNEXT FEAT identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status draft is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:FEAT:literal:proposed",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "FEAT",
+          "statusClass": "literal:proposed"
+        },
+        "count": 12,
+        "membersSha256": "860e984cf1e5bb4c9f9ad3ce260b4176353c9aa4f9502821683bbc7660fa092a",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-feat-literal-proposed",
+        "reason": "ZNEXT FEAT identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status proposed is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:FEAT:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "FEAT",
+          "statusClass": "missing"
+        },
+        "count": 35,
+        "membersSha256": "0d4254072e632487e4cd1af370994a52486310d99eb90b9fd5f55883cb1a9a1f",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-feat-missing",
+        "reason": "ZNEXT FEAT identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:FR:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "FR",
+          "statusClass": "missing"
+        },
+        "count": 411,
+        "membersSha256": "fbc5d6d3fccda94cb0372512d86a50d6c298f6927757dd6cf03ab24c00b9066b",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-fr-missing",
+        "reason": "ZNEXT FR identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:NFR:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "NFR",
+          "statusClass": "missing"
+        },
+        "count": 97,
+        "membersSha256": "7cc98e712c5275e9bea4daa6fff209507064b77bf9b259eb286c9cbc97f147bf",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-nfr-missing",
+        "reason": "ZNEXT NFR identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:NFR:other-literal",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "NFR",
+          "statusClass": "other-literal"
+        },
+        "count": 4,
+        "membersSha256": "5987e3b87825bf538270c528e7c3a7fb0554669c66b185340a9d0991fb152312",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-nfr-other-literal",
+        "reason": "ZNEXT NFR identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source status is opaque to this policy and remains verbatim in the source manifest; it is not interpreted."
+      },
+      {
+        "key": "identities.identities:PLAN:literal:proposed",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "PLAN",
+          "statusClass": "literal:proposed"
+        },
+        "count": 1,
+        "membersSha256": "bf4907c7478e039c2fa97378229ad1e2c4770ca0962e8414fcb31917b41da2a0",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-plan-literal-proposed",
+        "reason": "ZNEXT PLAN identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status proposed is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:PRD:literal:draft",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "PRD",
+          "statusClass": "literal:draft"
+        },
+        "count": 1,
+        "membersSha256": "28273118188e39b1cb2be6c2f32a19a739b555c7d7e267bdfbec90552d1f36a8",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-prd-literal-draft",
+        "reason": "ZNEXT PRD identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status draft is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:PROC:literal:proposed",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "PROC",
+          "statusClass": "literal:proposed"
+        },
+        "count": 1,
+        "membersSha256": "dc19736215516b0cd1eac91a849c44c0a54a1fe00c0a87437952fcc708467527",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-proc-literal-proposed",
+        "reason": "ZNEXT PROC identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status proposed is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:RB:literal:draft",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "RB",
+          "statusClass": "literal:draft"
+        },
+        "count": 5,
+        "membersSha256": "d60d2eedbc0a32a8eaf3db11a225164a0a9691078a8f53a97744816ddd79a2e7",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-rb-literal-draft",
+        "reason": "ZNEXT RB identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status draft is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:SDD:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "SDD",
+          "statusClass": "missing"
+        },
+        "count": 97,
+        "membersSha256": "44c6ea60265f542017547e1595cac477ab93f36110f89d4dfa4e734dfc2d3ea8",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-sdd-missing",
+        "reason": "ZNEXT SDD identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:SEC:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "SEC",
+          "statusClass": "missing"
+        },
+        "count": 28,
+        "membersSha256": "328e1451af6745f5d91caf5cff5de43f84d5d21775952137d4b49aaa1220ca65",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-sec-missing",
+        "reason": "ZNEXT SEC identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:SEC:other-literal",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "SEC",
+          "statusClass": "other-literal"
+        },
+        "count": 7,
+        "membersSha256": "a87ffa817b6a30452fd5d5c158b2f3b05ec2d6cbee57fb3221b186adf6c9efb0",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-sec-other-literal",
+        "reason": "ZNEXT SEC identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source status is opaque to this policy and remains verbatim in the source manifest; it is not interpreted."
+      },
+      {
+        "key": "identities.identities:SRV:literal:draft",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "SRV",
+          "statusClass": "literal:draft"
+        },
+        "count": 9,
+        "membersSha256": "d6729150a527a34f11b72434705e921db60c070ac34eabf2ca4501eff87aa66a",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-srv-literal-draft",
+        "reason": "ZNEXT SRV identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status draft is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:STD:literal:proposed",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "STD",
+          "statusClass": "literal:proposed"
+        },
+        "count": 4,
+        "membersSha256": "1af16e67c497d518c1e47018672dc338b887b479853833323c56bd0fed5ecec4",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-std-literal-proposed",
+        "reason": "ZNEXT STD identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The literal source status proposed is preserved but does not establish equivalence or authorize import."
+      },
+      {
+        "key": "identities.identities:STD:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "STD",
+          "statusClass": "missing"
+        },
+        "count": 1,
+        "membersSha256": "4434ff67ef9586a4ec2fc46e6d1d6e50283b216daa403037b35e4c6063dbca6a",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-std-missing",
+        "reason": "ZNEXT STD identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "identities.identities:TC:missing",
+        "manifest": "identities.identities",
+        "selector": {
+          "namespace": "ZNEXT",
+          "family": "TC",
+          "statusClass": "missing"
+        },
+        "count": 349,
+        "membersSha256": "ae5ecc477552126305c8b2ea08743f8d4e42bbd61b8e72a278c34eae15b686bb",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "identity-tc-missing",
+        "reason": "ZNEXT TC identity declarations remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "tooling.tooling:contributor-instructions:missing",
+        "manifest": "tooling.tooling",
+        "selector": {
+          "namespace": "ZNEXT",
+          "toolingKind": "contributor-instructions",
+          "statusClass": "missing"
+        },
+        "count": 2,
+        "membersSha256": "3fb015cea73f4950fc566133d89f6ca4ff4ef5e54d60c0db1b3a29e8cd960281",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "tooling-contributor-instructions-missing",
+        "reason": "ZNEXT contributor-instructions tooling sources remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "tooling.tooling:documentation-tool:missing",
+        "manifest": "tooling.tooling",
+        "selector": {
+          "namespace": "ZNEXT",
+          "toolingKind": "documentation-tool",
+          "statusClass": "missing"
+        },
+        "count": 17,
+        "membersSha256": "fa482d1ba5424d6ae08af4b1add3686ed791a19e6863fa55bfe0ace818656966",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "tooling-documentation-tool-missing",
+        "reason": "ZNEXT documentation-tool tooling sources remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      },
+      {
+        "key": "tooling.tooling:source-registry:missing",
+        "manifest": "tooling.tooling",
+        "selector": {
+          "namespace": "ZNEXT",
+          "toolingKind": "source-registry",
+          "statusClass": "missing"
+        },
+        "count": 28,
+        "membersSha256": "a4457903d22ae7d14056c0ca24c489a2a757df118458e2fa2db42cc32cc6e1f7",
+        "disposition": "provenance-only",
+        "semanticReview": "not-performed",
+        "reasonCode": "tooling-source-registry-missing",
+        "reason": "ZNEXT source-registry tooling sources remain source-qualified provenance. The approved migration contract requires subject-level review before semantic import or alias; this P2 overlay does not perform that review. The source record has no declared status; absence does not imply approval, retirement, or delivery."
+      }
+    ]
+  },
+  "developmentDelta": {
+    "summary": {
+      "modified": 20,
+      "added": 3,
+      "deleted": 0,
+      "total": 23
+    },
+    "reviews": [
+      {
+        "path": "docs/.id-ledger.json",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "The current ledger adds FR-277 and ADR-111 and updates digest/review-history entries for FR-265 and SDD-110. Retain issued identities and historical status; no new crosswalk alias is approved.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "116a3d625c4d04380cd1843762e42dbf44d689aa",
+          "sha256": "61df0bf1e2ad03a1d1d965e2df0bc04433d267649c74ed66f9f0c119f7a4fbd5"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "1744a66d3e6930710d6c530cf2a5707e6504d92d",
+          "sha256": "30848e63aba90c570b0ca55910c02b1e08af40fd4a4d09030c8e3b5c3bf489e0"
+        },
+        "sourceAnchor": {
+          "path": "docs/.id-ledger.json",
+          "line": 409,
+          "needle": "\"FR-277\""
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/scripts/id-ledger.mjs",
+            "note": "ledger reader and digest checks"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/unit/id-anchor-stability.test.js",
+            "note": "stable identity anchors"
+          }
+        ],
+        "limitations": []
+      },
+      {
+        "path": "docs/appendices/A-api-spec.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds private SCM core-facade and retention-consent API descriptions. The SCM route remains private and the document does not prove production routing.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "8c77f7c66876bdddedfb0951a5f8aa2fc6f15810",
+          "sha256": "807b7eab98cc7f585bcf1a36eb7aaf0d5663b3059b684c3522608636949cc60b"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "69e4c63537467db4c88cd3203b0ece0f1e9d2992",
+          "sha256": "83e39098f0932628a62c4f4a483adc54d277d479ed93310ff9fb4aae8b0b082d"
+        },
+        "sourceAnchor": {
+          "path": "docs/appendices/A-api-spec.md",
+          "line": 5,
+          "needle": "SCM service"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/inventory/application/scm-core-facade.js",
+            "note": "private SCM facade"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/openapi-docs.test.js",
+            "note": "OpenAPI inventory and route contract"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/scm-core-facade-http.test.js",
+            "note": "SCM private route"
+          }
+        ],
+        "limitations": [
+          "No production route switch is claimed."
+        ]
+      },
+      {
+        "path": "docs/appendices/B-db-schema.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds retention-consent and legal-hold archive schema models. The matching migrations are authored but unapplied.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "25e6a03c62f835fd1b4742188ec2a307d422caea",
+          "sha256": "3db37b5b5388110f7bc6bf0eb5d0a17d8c583fd5974e7247dc4de9f3c33ba6c2"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "d9d3e92018671125d3dcf945247e19c5490ee4e5",
+          "sha256": "5c656ca6309e44f4b220a2e8564e9110f6bfeecc828879f8b6102162079e253e"
+        },
+        "sourceAnchor": {
+          "path": "docs/appendices/B-db-schema.md",
+          "line": 3,
+          "needle": "CustomerRetentionConsent"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/prisma/schema.prisma",
+            "note": "schema model declarations"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/crm-retention-consent.test.js",
+            "note": "consent persistence behavior"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/phase-b-recovery.test.js",
+            "note": "recovery schema binding"
+          }
+        ],
+        "limitations": [
+          "Schema text and migration files do not prove a database migration ran."
+        ]
+      },
+      {
+        "path": "docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Rebinds the frozen Phase-B recovery inventory for the added consent and hold-key models, changing the snapshot from 192 to 194 tables. The decision explicitly leaves migrations unapplied.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "7e4a959c08f25fc97706d1f4cc532bd7fd0954cd",
+          "sha256": "79d6d49510b3e909fcf8aef17483e9abe6302599509af30f49775267a6c7cbfc"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "7a25a95d2cf0bacb384af9fd290eb52d9b6344c0",
+          "sha256": "6937da1c0cdbb4dbacc96f918178a80f12345e11ffad4038958e07fb23042fd5"
+        },
+        "sourceAnchor": {
+          "path": "docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md",
+          "line": 285,
+          "needle": "two application models on top"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/scripts/phase-b-recovery.mjs",
+            "note": "schema inventory verifier"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/phase-b-recovery.test.js",
+            "note": "frozen-schema acceptance"
+          }
+        ],
+        "limitations": [
+          "No migration application or database state is claimed."
+        ]
+      },
+      {
+        "path": "docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Updates the pinned Phase-B table/model inventory to include the consent and legal-hold additions; it is a static recovery contract.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "805a7f630917cdaba5d58447ad396877219904d0",
+          "sha256": "b17277b098ae7a372a89261706c92d20f91d12896656ee9971f61b6d704d4d67"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "95fb80f34b441a5b553be06000ace0452391970f",
+          "sha256": "e72d3830b9a3941052269102375a4d063e756315c8c14c999d087d861172893f"
+        },
+        "sourceAnchor": {
+          "path": "docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json",
+          "line": 190,
+          "needle": "CustomerRetentionConsent"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/scripts/phase-b-recovery.mjs",
+            "note": "inventory binding reader"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/phase-b-recovery.test.js",
+            "note": "inventory checksum and model binding"
+          }
+        ],
+        "limitations": [
+          "The inventory is not a live database inspection."
+        ]
+      },
+      {
+        "path": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Separates optional GKS HTTP canary pins from default stdio pins. Local build tests verify the split; the canary remains opt-in and this does not authorize deployment.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "756c6b64ba9091ecfbbd7a36318194a1bd2d780a",
+          "sha256": "8e3cea790f280453e673b5a0dfd86b0010b51164ea631de2f6551dfb08c0acb2"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "52308aa3ccaedb03b7771ce3d7e0c35ab0b12d2f",
+          "sha256": "f7c763aa9977236db22754fb62c93cc978196b9d55361d36bf3a05bbb1d2c418"
+        },
+        "sourceAnchor": {
+          "path": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
+          "line": 259,
+          "needle": "pins.gks-http.json"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/deploy/ki17/pins.gks-http.json",
+            "note": "opt-in HTTP pin set"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/unit/ki17-build-stage.test.js",
+            "note": "separate pin/default behavior"
+          }
+        ],
+        "limitations": [
+          "No provider activation or production canary is inferred."
+        ]
+      },
+      {
+        "path": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds per-speaker archive keys, consent-gated retention, and held-member re-sealing rules. Code and tests cover the local contract; schema migrations remain unapplied.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "95076841d0912bc76d09d24fa74513f71dd3c4b4",
+          "sha256": "cb666020d1fedee7e7e25d0fde1086b8fa1ee58203b32ded205464515e412c19"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "ddb93d798690f895bde60fc2351e645d3bc23374",
+          "sha256": "cca8ed9964a6bcad9d636558f5a84a7e31da20b4363c7b8774fe7ddde080b056"
+        },
+        "sourceAnchor": {
+          "path": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+          "line": 104,
+          "needle": "Consent to retain"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/crm/customer-retention-consent-service.js",
+            "note": "consent lifecycle"
+          },
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/crm/chat-evidence-hold-reseal-service.js",
+            "note": "hold re-seal"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/crm-retention-consent.test.js",
+            "note": "consent lifecycle"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/crm-archive-group-speakers.test.js",
+            "note": "speaker isolation"
+          }
+        ],
+        "limitations": [
+          "No production data migration or archive activation is claimed."
+        ]
+      },
+      {
+        "path": "docs/decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Amends the runtime cohort to include unverified LINE senders with admission-time identity pinning and PENDING memory behavior. Matching local code and tests exist.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "c2b6772cff117d970fdbbee470559201119a752f",
+          "sha256": "e0c86741d2dafe1b64f05ac3db7fb4007ed06131f4700e887460705d3c1f44f2"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "802df319b072dd8e0cede00183935e013cfd7525",
+          "sha256": "1ddfe9fad1b005f8de9393dfeddc98faa6a2cc32692e8058e6a10bef41a1644d"
+        },
+        "sourceAnchor": {
+          "path": "docs/decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md",
+          "line": 140,
+          "needle": "unverified LINE senders join the runtime cohort"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "services/conversation-runtime/src/turn-runtime.js",
+            "note": "runtime memory-port path"
+          },
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
+            "note": "core admission policy"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/conversation-runtime-unverified.test.js",
+            "note": "unverified cohort"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/conversation-runtime-unverified-memory.test.js",
+            "note": "pending memory behavior"
+          }
+        ],
+        "limitations": []
+      },
+      {
+        "path": "docs/decisions/ADR-111-SCM-SERVICE-EXTRACTION.md",
+        "changeType": "added",
+        "disposition": "blocked",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "New SCM extraction decision is explicitly a candidate boundary. Local facade/service tests exist, but owner and dependent-domain review/cutover gates remain open; retain as candidate only.",
+        "baseline": null,
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "b06b9d666d4454cd5a6924d6415061ad2771748d",
+          "sha256": "216f41616ff44a03d84281f299076d7f178b4c62b5992104f8dfdcdfd17069fa"
+        },
+        "sourceAnchor": {
+          "path": "docs/decisions/ADR-111-SCM-SERVICE-EXTRACTION.md",
+          "line": 5,
+          "needle": "Candidate"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/inventory/application/scm-core-facade.js",
+            "note": "current private facade"
+          },
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/crm/scm-reference-reader.js",
+            "note": "current CRM reader"
+          },
+          {
+            "kind": "test",
+            "path": "services/scm/test/contract/scm-api-contract.test.js",
+            "note": "SCM contract tests"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/scm-core-facade-http.test.js",
+            "note": "facade integration"
+          }
+        ],
+        "limitations": [
+          "Candidate status is not architecture approval, service extraction completion, or production readiness."
+        ]
+      },
+      {
+        "path": "docs/domains/agent/CHARTER.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds the shadow-comparison component to the agent domain charter, consistent with the FR-277 local implementation and test boundary.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "1140b47591d02419c25daddb131bd2352a20b9f6",
+          "sha256": "78c34e77a7ceda342b1b4482fe810b7d3f0595ec887c7d1541c8fb61151f51fd"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "8d8e83b5f4283d662a5689cfb78b5ff71461588b",
+          "sha256": "9f8c63ea9ed57b959f261dbd938ea28319c8cc1dbdbb10ec405c28bdf8743ad7"
+        },
+        "sourceAnchor": {
+          "path": "docs/domains/agent/CHARTER.md",
+          "line": 25,
+          "needle": "LineGroundingShadowComparison"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/agent/line-grounding-shadow-compare.js",
+            "note": "comparison component"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/unit/line-grounding-shadow-compare.test.js",
+            "note": "comparison modes and failure behavior"
+          }
+        ],
+        "limitations": [
+          "Charter ownership does not establish deployment."
+        ]
+      },
+      {
+        "path": "docs/domains/crm/CHARTER.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds retention-consent, hold/re-seal and SCM-reference responsibilities. Consent/archive behavior has local tests; SCM boundary remains a candidate.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "71f5c09fc17bd9c04bd3f71cfc0cee625c5876a8",
+          "sha256": "9348ca2420922c99c055d91da4f41301352f03149a3ca5dc5ee1f44866584082"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "5e116a2eba40f76a81b8344123ca9f882c82775f",
+          "sha256": "f4e8ba9e011cb56b2d4360be4298c18aca833067334023f457a003009d5d1094"
+        },
+        "sourceAnchor": {
+          "path": "docs/domains/crm/CHARTER.md",
+          "line": 37,
+          "needle": "CustomerRetentionConsent"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/crm/customer-retention-consent-service.js",
+            "note": "consent service"
+          },
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/crm/scm-reference-reader.js",
+            "note": "SCM reader"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/crm-retention-consent.test.js",
+            "note": "consent flows"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/crm-archive-group-speakers.test.js",
+            "note": "group archive key scope"
+          }
+        ],
+        "limitations": [
+          "SCM approval remains gated by candidate ADR-111."
+        ]
+      },
+      {
+        "path": "docs/domains/integration/CHARTER.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds erasure of a person’s LINE webhook payload records to the integration charter. Review is bounded to the stated record paths and tests.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "3f95c524aedc74fd1cc2faa4da25de1fe52ac931",
+          "sha256": "0b310727cded6f9346b4467196df64360e0053b54fbeb59919165d91b963e3d9"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "3dd1cc3fcae13e2926a5efc6631ba3ed758a2ff8",
+          "sha256": "ed61b2c01f4f0d2c5da2b8fd719ab4d78d8f7307fd27125bf7c58fa91aa69e40"
+        },
+        "sourceAnchor": {
+          "path": "docs/domains/integration/CHARTER.md",
+          "line": 367,
+          "needle": "raw payloads"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/line-oa-studio",
+            "note": "LINE webhook and erasure implementation"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "note": "speaker-event erasure"
+          }
+        ],
+        "limitations": [
+          "No broader provider-data deletion claim is made."
+        ]
+      },
+      {
+        "path": "docs/domains/inventory/CHARTER.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds the internal SCM facade as an Inventory-owned boundary and identifies dependent access. Keep current contract; ADR-111 approval is still open.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "f43cf33827fb9bbd5e1ec39b2a1cbaf30bdf5644",
+          "sha256": "346f64d3b4aa159e740f8aa6089dd74bf0b72eb920ca77c8aa6579fe40bc56b8"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "93628a9eefce8170774d68a9af42ae22d3f27d5b",
+          "sha256": "e2fca43facddc4c0e9c82fbd0cfb40178b1439691297b01fd46b054663186dad"
+        },
+        "sourceAnchor": {
+          "path": "docs/domains/inventory/CHARTER.md",
+          "line": 31,
+          "needle": "scm"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/inventory/application/scm-core-facade.js",
+            "note": "Inventory facade"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/unit/scm-core-facade.test.js",
+            "note": "facade policy and behavior"
+          }
+        ],
+        "limitations": [
+          "The charter does not close the service-boundary decision."
+        ]
+      },
+      {
+        "path": "docs/domains/project-manager/CHARTER.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds Project Manager references to the candidate SCM facade/read port. Local service workflow tests support implementation details, while architecture approval remains blocked.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "534892795a5df2c830d5db00936541d4ef4b49ba",
+          "sha256": "eb406d083e47dd11f719355d561c4832556a68afb5fabf7eccfefdff80df53b9"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "5995ffb5cd474981e2097c9d1bee7af462297c0e",
+          "sha256": "4130e56c9897a0a7e6ddb994597264732dfa188c9281121ea863dc10147554e9"
+        },
+        "sourceAnchor": {
+          "path": "docs/domains/project-manager/CHARTER.md",
+          "line": 131,
+          "needle": "scm"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "services/scm/src",
+            "note": "SCM workflow service"
+          },
+          {
+            "kind": "test",
+            "path": "services/scm/test/workflow/scm-process-flow.test.js",
+            "note": "workflow process contract"
+          }
+        ],
+        "limitations": [
+          "Dependent-domain/owner acceptance remains open."
+        ]
+      },
+      {
+        "path": "docs/FEATURES.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds FR-277 readiness metadata as a feature-of-one without creating a FEAT record. Readiness metadata is not delivery or deployment evidence.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "3fa13075d97ea7fee3e00383aee0c94c988ab878",
+          "sha256": "28b8d9f2450cebd7d7308b56df1d43cd7cad3ed85dcf143895b9fb63fb302d97"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "2f039f47d502ad8e178678b78bed537a9f3c52aa",
+          "sha256": "029ef3e26eb0c212a7d808f4bda969f690d5ed65063f06c747aab3e737ce9233"
+        },
+        "sourceAnchor": {
+          "path": "docs/FEATURES.md",
+          "line": 21,
+          "needle": "FR-277"
+        },
+        "evidence": [
+          {
+            "kind": "test",
+            "path": "apps/server/tests/unit/line-grounding-shadow-compare.test.js",
+            "note": "shadow comparison behavior"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/fr277-line-grounding-shadow-compare.test.js",
+            "note": "FR-277 integration path"
+          }
+        ],
+        "limitations": [
+          "No FEAT row or release/cutover approval is created."
+        ]
+      },
+      {
+        "path": "docs/migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md",
+        "changeType": "modified",
+        "disposition": "historical-only",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Updates the dated Conversation Runtime handoff with later branch/merge and scope evidence. Preserve it as a time-bound handoff record; its production statements are not independently verified by this inventory.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "7a0fd9140b0de4882a23ee6a4bf0abcc9b1624ee",
+          "sha256": "1354505476ec1aec6dfcd8d0381c4ad21c7b6575125bda969f19e1b5f07ad050"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "8c522f9a349102cc4c7778ae6acde6c9bd71d158",
+          "sha256": "b3bf1c875b083c8c09fc23d6f46d547fc6ffd788a0ac47a2763d00301db77c04"
+        },
+        "sourceAnchor": {
+          "path": "docs/migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md",
+          "line": 151,
+          "needle": "unverified LINE senders"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "services/conversation-runtime/src/turn-runtime.js",
+            "note": "runtime implementation"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/conversation-runtime-unverified.test.js",
+            "note": "unverified runtime path"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
+            "note": "memory boundary"
+          }
+        ],
+        "limitations": [
+          "Repository content does not independently verify the handoff’s production statements."
+        ]
+      },
+      {
+        "path": "docs/migrations/service-extraction/SCM-HANDOFF.md",
+        "changeType": "added",
+        "disposition": "blocked",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "New SCM handoff records a candidate service extraction and local test evidence, with owner, Core, CRM and runtime/cutover approvals still open.",
+        "baseline": null,
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "e1cb629dc8f8acac1df0b5d158a662f9e523852c",
+          "sha256": "186b743fd1fcedb11d0ba86bb160c23859d78e698a76f3fce8558bd89221ba18"
+        },
+        "sourceAnchor": {
+          "path": "docs/migrations/service-extraction/SCM-HANDOFF.md",
+          "line": 4,
+          "needle": "Candidate"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "services/scm/src",
+            "note": "SCM service"
+          },
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/inventory/application/scm-core-facade.js",
+            "note": "compatibility facade"
+          },
+          {
+            "kind": "test",
+            "path": "services/scm/test/contract/scm-api-contract.test.js",
+            "note": "SCM contract"
+          },
+          {
+            "kind": "test",
+            "path": "services/scm/test/workflow/scm-process-flow.test.js",
+            "note": "SCM workflow"
+          }
+        ],
+        "limitations": [
+          "Handoff completion is not owner approval or cutover authorization."
+        ]
+      },
+      {
+        "path": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Updates the Edge deployment plan for the split GKS HTTP canary pins and deployment status. The document remains a plan/receipt source and does not authorize a canary.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "000a257dd2229be2f9716c9e39c33487c8c6bdb5",
+          "sha256": "5ee1aef7cb0170e4276adce397661c137aec33766b013bac56773a10a7d765f2"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "7c8d7f509e2ab36447175d6e78c049366c7c9f03",
+          "sha256": "755822b37f45ee919244e65dae18b95916b8b649b5870300f123ebe5e308ca29"
+        },
+        "sourceAnchor": {
+          "path": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
+          "line": 288,
+          "needle": "pins.gks-http.json"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/deploy/ki17/pins.gks-http.json",
+            "note": "opt-in pin set"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/unit/ki17-build-stage.test.js",
+            "note": "default stdio and HTTP split"
+          }
+        ],
+        "limitations": [
+          "No live Edge deployment or provider activation is established."
+        ]
+      },
+      {
+        "path": "docs/PRD-SDD-v1.0.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds the FR-277 shadow-comparison requirement and revisions to retention-consent and unverified-sender scope. Its schema migration is written but not applied.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "0a49c27192b43c0d8ce10328315f6ac7574a2612",
+          "sha256": "6f6522b61dd8e0ee56d711967f03a01ba6da8d3f1a4acddd7dca65bb9f0bd91b"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "8db5ba3770bb36054f9eb8696a60d2761c6a8618",
+          "sha256": "4800c3b1519fc51da7b47eab14e7520ac7242619d3c546486d7212d122a7b6af"
+        },
+        "sourceAnchor": {
+          "path": "docs/PRD-SDD-v1.0.md",
+          "line": 661,
+          "needle": "FR-277"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/agent/line-grounding-shadow-compare.js",
+            "note": "shadow comparison entrypoint"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/fr277-line-grounding-shadow-compare.test.js",
+            "note": "FR-277 integration"
+          }
+        ],
+        "limitations": [
+          "Migration application is not established by this specification."
+        ]
+      },
+      {
+        "path": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+        "changeType": "modified",
+        "disposition": "historical-only",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds dated delivery/task state and evidence links for the grounding switch and related work. Treat roadmap entries as historical task evidence, not a current release/production assertion.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "e7584614e3d8bb5da83e23b45c78ff5fea85d011",
+          "sha256": "1ea2788d00ba010d899b9244caa04fbfe40dbeac9d2dded5211f36da1d58c0b2"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "79f9b12c2a3704159aa50659b0033dbef92db146",
+          "sha256": "49b9586088b2fb557099506cd190bd9c7600693f66e4f52ee43234d0e74b3c7f"
+        },
+        "sourceAnchor": {
+          "path": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+          "line": 589,
+          "needle": "TASK-ZAI-095"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/agent/line-grounding-shadow-compare.js",
+            "note": "FR-277 implementation"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/fr277-line-grounding-shadow-compare.test.js",
+            "note": "FR-277 test evidence"
+          }
+        ],
+        "limitations": [
+          "The roadmap’s time-stamped operational claims are not re-verified by this review."
+        ]
+      },
+      {
+        "path": "docs/roadmap/ROADMAP.md",
+        "changeType": "modified",
+        "disposition": "historical-only",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Updates the release/roadmap snapshot and records that a separate pin split is still a follow-up. Preserve as dated status evidence; do not infer runtime/deployment state.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "6e4afd518278e4a21462862ab41627c546242fab",
+          "sha256": "01e112a6d48066212b557611d808deccd37ce470dcf289eed877eb720a00f9b5"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "94f58ed38bdf155dfcc38cc2cacfd73d183d883b",
+          "sha256": "119262bc5be9d4f3d7d2a7f450ffead67bd5760eacabb77be107c6f6f4913918"
+        },
+        "sourceAnchor": {
+          "path": "docs/roadmap/ROADMAP.md",
+          "line": 22,
+          "needle": "Revision 2.137.1b"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/deploy/ki17/pins.gks-http.json",
+            "note": "separate HTTP pin configuration"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/unit/ki17-build-stage.test.js",
+            "note": "pin selection tests"
+          }
+        ],
+        "limitations": [
+          "The roadmap’s release narrative is not independently validated as production evidence."
+        ]
+      },
+      {
+        "path": "docs/runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md",
+        "changeType": "added",
+        "disposition": "blocked",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Adds an owner-triggered switch runbook with a shadow-compare window and rollback. It is not an execution record; the owner decision/window remains a gate.",
+        "baseline": null,
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "1122228961b5379899e4b64c467d16b80af28642",
+          "sha256": "a1b8b2210efd9b70d3d1bb03c5b9dc139e2ae8209f711b3d2f3d3294c18a92eb"
+        },
+        "sourceAnchor": {
+          "path": "docs/runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md",
+          "line": 10,
+          "needle": "TASK-ZAI-095"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": "apps/server/src/modules/agent/line-grounding-shadow-compare.js",
+            "note": "comparison harness"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/unit/line-grounding-shadow-compare.test.js",
+            "note": "disabled/default and paired modes"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/integration/fr277-line-grounding-shadow-compare.test.js",
+            "note": "integration behavior"
+          }
+        ],
+        "limitations": [
+          "No account switch, operator execution, or customer-visible behavior is authorized by the runbook."
+        ]
+      },
+      {
+        "path": "docs/SYSTEM-DIAGRAM.md",
+        "changeType": "modified",
+        "disposition": "supplemented",
+        "authorityTreatment": "retain-current-ZAI-source",
+        "summary": "Updates the CI diagram for service-scoped and related-test selection behavior and lists the SCM service job. Diagram text is not a CI execution receipt.",
+        "baseline": {
+          "revision": "9e5b104e7763975ab994171a1941c246cf172a7a",
+          "blob": "86637e7a394bf05095a148aa985af29beeee31d0",
+          "sha256": "e86c7e522b85461b270c4d745f77fb82477d4f9aea1f2d4ed97cce356442365e"
+        },
+        "current": {
+          "revision": "a34ceaf79c112e02b1bcfdbf0a84122d835b002e",
+          "blob": "d005d8247af444dac110ca55c65988d8c36a4373",
+          "sha256": "a5ba83876ab0d81cabcbc91112a1a00e6fede423465ebec8fb88484f03d1eb77"
+        },
+        "sourceAnchor": {
+          "path": "docs/SYSTEM-DIAGRAM.md",
+          "line": 11,
+          "needle": "CI update"
+        },
+        "evidence": [
+          {
+            "kind": "code",
+            "path": ".github/workflows/governance.yml",
+            "note": "governance workflow"
+          },
+          {
+            "kind": "test",
+            "path": "apps/server/tests/unit/ci-change-scope.test.js",
+            "note": "test selection behavior"
+          }
+        ],
+        "limitations": [
+          "No hosted CI run is inferred from the diagram."
+        ]
+      }
+    ]
+  }
+}

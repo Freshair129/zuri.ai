@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "9ca8618d758d29387a0eaf79877a370c2ee8f24aadf09a07b4c103e0fe7f974a",
+  "schemaSha256": "32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -185,6 +185,11 @@
       "modelName": "CustomerLegalHold",
       "schemaName": "public",
       "tableName": "CustomerLegalHold"
+    },
+    {
+      "modelName": "CustomerRetentionConsent",
+      "schemaName": "public",
+      "tableName": "CustomerRetentionConsent"
     },
     {
       "modelName": "CustomizationWorkOrder",
@@ -437,9 +442,19 @@
       "tableName": "LegalEntityIdentifier"
     },
     {
+      "modelName": "LegalHoldArchiveKey",
+      "schemaName": "public",
+      "tableName": "LegalHoldArchiveKey"
+    },
+    {
       "modelName": "LineConversationJob",
       "schemaName": "public",
       "tableName": "LineConversationJob"
+    },
+    {
+      "modelName": "LineGroundingShadowComparison",
+      "schemaName": "public",
+      "tableName": "LineGroundingShadowComparison"
     },
     {
       "modelName": "LineOaAccount",
@@ -475,6 +490,11 @@
       "modelName": "LocalWorkspaceMount",
       "schemaName": "public",
       "tableName": "LocalWorkspaceMount"
+    },
+    {
+      "modelName": "MarketObservation",
+      "schemaName": "public",
+      "tableName": "MarketObservation"
     },
     {
       "modelName": "MarketingBroadcastIntent",
@@ -542,11 +562,6 @@
       "tableName": "MarketingReview"
     },
     {
-      "modelName": "MarketObservation",
-      "schemaName": "public",
-      "tableName": "MarketObservation"
-    },
-    {
       "modelName": "Membership",
       "schemaName": "public",
       "tableName": "Membership"
@@ -570,6 +585,21 @@
       "modelName": "Milestone",
       "schemaName": "public",
       "tableName": "Milestone"
+    },
+    {
+      "modelName": "NotionOAuthState",
+      "schemaName": "public",
+      "tableName": "NotionOAuthState"
+    },
+    {
+      "modelName": "NotionWebhookReceipt",
+      "schemaName": "public",
+      "tableName": "NotionWebhookReceipt"
+    },
+    {
+      "modelName": "NotionWebhookVerificationToken",
+      "schemaName": "public",
+      "tableName": "NotionWebhookVerificationToken"
     },
     {
       "modelName": "PasskeyCredential",
@@ -946,5 +976,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "a669f032250b6d72fff5f99398a3fb9166fd5ee383bdd6d5c66c5a6df5831115"
+  "targetSchemaSha256": "9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0"
 }

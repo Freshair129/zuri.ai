@@ -3,9 +3,9 @@ domain: project-manager
 feature: FR-124
 module: project-manager
 source: v2-native
-version: "1.1.0b"
+version: "1.2.0b"
 created_at: "2026-08-30T00:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-12T20:40:00+07:00,RWANG"
+last_update: "2026-10-03T20:30:00+07:00,RWANG"
 status: "beta"
 ---
 
@@ -42,7 +42,7 @@ fresh from main's ledger with `npm run docs:ids -- --write`.
 
 ## Metric contract
 
-The six summary KPIs are Domains, Features, Ready, Progress, Verified FRs and
+The six summary KPIs are Domains, Capabilities, Ready, Progress, Verified FRs and
 Open gaps. The calculation is shown beside the numbers and is also carried in
 the machine-readable snapshot:
 
@@ -88,11 +88,10 @@ The failure this arrangement exists to avoid is a policy becoming a fact because
 nobody could see where it was decided. An owner should either ratify 20/40/40 or
 replace it; until then the PRD status cell says so, in those words.
 
-## Complete feature projection
+## Complete readiness projection
 
-ADR-025 rev 2 remains intact: FEAT identifies a bundle; an unbundled FR is an
-implicit feature of one. The Dashboard projects each explicit FEAT once and each
-unbundled FR once. `docs/FEATURES.md` carries presentation metadata keyed by
+ADR-025 revision 3 distinguishes explicit Feature bundles from Standalone FRs.
+The Dashboard projects each explicit FEAT once and each Standalone FR once. `docs/FEATURES.md` carries presentation metadata keyed by
 that projected id, in a fenced `readiness-metadata` block:
 
 - exactly one primary implementation domain;
@@ -103,7 +102,7 @@ a wrong answer, so the Dashboard never silently drops an item or assigns it to a
 inferred domain.
 
 **This is a new hard gate on the whole governance chain, and it has an ongoing
-cost an owner should accept knowingly:** declaring a new FR now also means
+cost an owner should accept knowingly:** declaring a new Standalone FR also means
 writing one sentence of use case in `docs/FEATURES.md`, or `npm run govern`
 stops. That is the price of the fourth question — "what can a Human use this
 for" — being answerable at all; it is the one field in the projection that no
@@ -117,6 +116,23 @@ existed to catch. An empty array is now a wrong answer that names every id it is
 missing. Only omitting the argument altogether means "not projecting features",
 and no real generation path does that: `generateDomainState` always calls
 `parseFeaturePresentation`, which throws rather than returning nothing.
+
+### Classification and compatibility
+
+The read-model union has `kind: feature | standalone-fr`, derived from the
+validated ID prefix. Schema 2.0 wire kinds remain `bundle | requirement` so
+existing generated-contract consumers keep working; no new hand-written field
+is required. See [canonical classification](../../../FEATURES.md#capability-classification).
+Cards show **Feature** or **Standalone FR**; the list and aggregate are labelled
+Capabilities and explain that Standalone FRs have no explicit bundle. The same
+labels apply on the domain drilldown and the Platform Domain Map consumer.
+
+Membership validation occurs before graph edge deduplication. Every FR appears
+in the TRACE inventory with its membership, classification, ownership evidence,
+presentation domain, metadata/use-case coverage and implementation evidence.
+Unknown, repeated or multiply bundled FRs and stale standalone metadata fail
+rather than disappearing. Live authoritative documentation cannot reintroduce
+retired classification terminology. No readiness status or weighting changes.
 
 ## Authorization
 
@@ -210,7 +226,7 @@ stale-output gate while giving state-consuming tests a coherent projection.
 
 ## Acceptance criteria
 
-- All projected features appear exactly once and carry one use-case example.
+- All readiness items appear exactly once with one use-case example and the correct Feature / Standalone FR label.
 - Summary renders no more than six headline KPIs.
 - Every domain card links to a stable domain URL.
 - Every progress bar has a numeric value and accessible progress semantics.
@@ -237,4 +253,5 @@ stale-output gate while giving state-consuming tests a coherent projection.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0b | 2026-08-30 | beta | Re-applied from `rescue/domain-dashboard` as FR-124: metric contract with the weighting hoisted into one named constant and raised as an open question, complete projection with the empty-array bypass closed, and server-side viewer resolution added | pending | Claude Opus 5 |
+| 1.2.0b | 2026-10-03 | beta | Explicit Feature / Standalone FR semantics, strict membership and TRACE inventory; schema 2.0 retained | pending | RWANG |
 | 1.1.0b | 2026-09-12 | beta | Owner-approved deterministic schema 2.0 snapshot, generation time removed, bundled-version provenance and repeatability checks | pending | RWANG |

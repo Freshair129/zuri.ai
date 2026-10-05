@@ -67,7 +67,7 @@ export function getPreviewEligibility(asset) {
   if (mime === 'application/pdf') return { mode: 'pdf', contentUrl }
   if (mime.startsWith('text/')) return { mode: 'text', contentUrl }
   // Any other mime: link-out file-info card, not a new endpoint — the content
-  // route already serves any mime with Content-Disposition: inline.
+  // route serves it as a download (attachment), never inline on this origin.
   return { mode: 'file-info', contentUrl }
 }
 

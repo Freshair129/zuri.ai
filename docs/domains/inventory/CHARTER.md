@@ -28,6 +28,7 @@ owns_models:
 owns_routes:
   - src/app/(pm)/inventory/**
   - src/app/api/inventory/**
+  - src/app/api/internal/scm/**
 owns_code:
   - src/modules/inventory/**
 technical_owner: TD-INVENTORY

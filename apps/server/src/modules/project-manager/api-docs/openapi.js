@@ -85,6 +85,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // read-only handoff detail.
   ['/api/growth/operations', ['GET', 'POST']], ['/api/growth/operations/intake/{intakeId}', ['GET', 'PATCH']],
   ['/api/growth/operations/handoffs/{handoffId}', ['GET']],
+  // @req FR-275 — Marketing Insights reads; 503 INSIGHTS_NOT_CONFIGURED until a reporting source exists.
+  ['/api/insights/brands', ['GET']], ['/api/insights/summary', ['GET']], ['/api/insights/content', ['GET']],
+  ['/api/insights/metric/{metricKey}', ['GET']], ['/api/insights/metric/{metricKey}/export', ['GET']],
   // @req FR-157 — scoped Content lifecycle and owner reference choices.
   ['/api/growth/content', ['GET', 'POST']], ['/api/growth/content/briefs/{id}', ['GET', 'PATCH']],
   ['/api/growth/content/assets/{id}', ['GET']], ['/api/growth/content/references', ['GET']],
@@ -93,10 +96,14 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/growth/ask-marketing', ['POST']],
   ['/api/growth/broadcast-intents', ['GET', 'POST']], ['/api/growth/broadcast-intents/{id}', ['GET', 'PATCH']],
   ['/api/growth/paid-media', ['GET']],
+  // @req FR-278 — weekly executive summary uses Commerce and aggregate CRM owner reads only.
+  ['/api/growth/line-sales', ['GET']],
   // @req FR-149, FR-150 — ADR-061 native ingress and optional executor.
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/accounts/{id}/transport-health', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
+  // @req FR-149 — private ADR-106/SDD-110 runtime adapter; Core remains authoritative.
+  ['/api/internal/conversation-runtime/v1/{operation}', ['GET', 'POST']],
   // @req FR-223, FR-224 — write-only credential rotation, revocation and live
   // validation (ADR-089); nothing they answer carries material.
   ['/api/line-oa/connections/{id}/credential', ['POST']],
@@ -108,28 +115,23 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/integration/model-providers', ['GET', 'POST']],
   ['/api/integration/model-providers/{id}/revoke', ['POST']],
   ['/api/integration/model-providers/{id}/validate', ['POST']],
+  // @req FR-273 — Business-scoped Notion OAuth, including its exact unprefixed callback.
+  ['/api/integrations/notion/connect', ['GET']], ['/oauth/notion/callback', ['GET']],
+  // @req FR-274 — signed, receipt-only Notion webhook and operator challenge controls.
+  ['/api/integrations/notion/webhook', ['POST']],
+  ['/api/platform/integrations/notion/webhook-verification/reveal', ['POST']],
+  ['/api/platform/integrations/notion/webhook-verification/reset', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/line-oa/jobs/failures', ['GET']],
-  // @req FR-265 — the five edge conversation-job operations and the identity-free
-  // residency poll are withdrawn (ADR-100 D2). The extraction and pairing
-  // operations below are untouched: this retired LINE conversation work on the
-  // device, not the device.
-  // @req FR-143, FR-144 — the edge-executed extraction surface: three
-  // owner-governed credential operations on the Platform side, four
-  // device-authenticated job operations, and the review surface's job read.
-  ['/api/platform/edge-devices/credentials', ['GET', 'POST']], ['/api/platform/edge-devices/credentials/{id}', ['DELETE']],
-  // @req FR-144 — expiring browser approval and one-use Desktop credential handover.
-  ['/api/edge/pairing/start', ['POST']], ['/api/edge/pairing/approve', ['POST']], ['/api/edge/pairing/poll', ['POST']],
-  ['/api/edge/extraction-jobs/claim', ['POST']], ['/api/edge/extraction-jobs/{id}/evidence', ['GET']],
-  ['/api/edge/extraction-jobs/{id}/complete', ['POST']], ['/api/edge/extraction-jobs/{id}/fail', ['POST']],
-  ['/api/assets/evidence/{id}/extraction-job', ['GET']],
+  // @req ADR-110 — retired Edge Device and harness routes are absent from the
+  // active inventory; historical rows and Prisma records remain preserved.
   // @req FR-146 — LINE OA Studio accounts: list/connect on the collection,
   // read and versioned actions (pause, resume, archive, set default, switch
   // transport mode) on the item. Archive is a PATCH action, never a DELETE.
   ['/api/line-oa/accounts', ['GET', 'POST']], ['/api/line-oa/accounts/{id}', ['GET', 'PATCH']],
   ['/api/line-oa/rich-menus', ['GET', 'POST']], ['/api/line-oa/rich-menus/{id}', ['GET', 'PATCH']],
-  ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']], ['/api/platform/programme-usage-reports', ['POST']], ['/api/platform/task-usage-ledger', ['GET']], ['/api/platform/programme-usage-reports/whoami', ['GET']], ['/api/platform/harness-pairing/start', ['POST']], ['/api/platform/harness-pairing/approve', ['POST']], ['/api/platform/harness-pairing/poll', ['POST']], ['/api/platform/harness-devices', ['GET']], ['/api/platform/harness-devices/{id}', ['PATCH']],
+  ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']], ['/api/platform/programme-usage-reports', ['POST']], ['/api/platform/task-usage-ledger', ['GET']],
   // @req FR-247 — the deduplicated error list (GET) and resolving one (PATCH).
   ['/api/platform/error-events', ['GET']], ['/api/platform/error-events/{id}', ['PATCH']],
   // @req FR-248, FR-249 — record one's own usage (POST), read the breakdown
@@ -148,6 +150,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // (list + create), item (read exploded to a quantity + versioned action)
   // and the atomic build (POST only).
   ['/api/inventory/recipes', ['GET', 'POST']], ['/api/inventory/recipes/{id}', ['GET', 'PATCH']], ['/api/inventory/recipes/{id}/build', ['POST']],
+  // ADR-111 D5 — private scm-core.v1 façade for the SCM service (POST only).
+  ['/api/internal/scm/v1/{operation}', ['POST']],
   // @req FR-182 — the SCM operations surface (ADR-074): locations and the
   // atomic transfer, both work orders with their versioned action, reservations
   // and ATP, the shelf-life audit and de-kitting. Every one is a thin handler
@@ -178,7 +182,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/inventory/catalog-intakes', ['GET']], ['/api/inventory/catalog-intakes/preview', ['POST']],
   ['/api/inventory/catalog-intakes/commit', ['POST']], ['/api/inventory/catalog-intakes/{id}', ['GET', 'PATCH']],
   ['/api/inventory/catalog-intakes/template', ['GET']], ['/api/inventory/catalog-intakes/xlsx', ['POST']],
-  ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/assets/lookup', ['GET']], ['/api/assets/register', ['GET', 'POST']], ['/api/assets/register/{id}', ['GET']], ['/api/assets/register/{id}/depreciation', ['GET']], ['/api/assets/register/{id}/dispose', ['GET', 'POST']], ['/api/assets/register/{id}/maintenance', ['GET', 'POST']], ['/api/assets/register/{id}/responsibility', ['POST']], ['/api/assets/register/{id}/relocate', ['POST']], ['/api/assets/register/{id}/allocate', ['POST']], ['/api/assets/register/{id}/return', ['POST']], ['/api/assets/register/{id}/verify', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
+  ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/assets/lookup', ['GET']], ['/api/assets/register', ['GET', 'POST']], ['/api/assets/register/{id}', ['GET']], ['/api/assets/register/{id}/depreciation', ['GET']], ['/api/assets/register/{id}/dispose', ['GET', 'POST']], ['/api/assets/register/{id}/maintenance', ['GET', 'POST']], ['/api/assets/register/{id}/responsibility', ['POST']], ['/api/assets/register/{id}/relocate', ['POST']], ['/api/assets/register/{id}/allocate', ['POST']], ['/api/assets/register/{id}/return', ['POST']], ['/api/assets/register/{id}/verify', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   // @req FR-268 (ADR-101) — Business Key Results: create under a goal, patch
   // (including archive via status), and the weekly check-in.
@@ -213,6 +217,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // retrieval rows above: this appends a new history row, never replaces or
   // previews one, and every recording is independently audited.
   ['/api/crm/customers/{customerId}/legal-hold', ['POST']],
+  // @req FR-022 — a sales user records / revokes a Customer's retention consent
+  // (ADR-093 1.2.0). POST only: each is an audited history write.
+  ['/api/crm/customers/{customerId}/retention-consent', ['POST']],
+  ['/api/crm/customers/{customerId}/retention-consent/revoke', ['POST']],
   // @req FR-230 — the nightly retention sweep's scheduled entry point (ADR-091 D1,
   // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
   // /api/line-oa/worker and /api/platform/programme-usage-reports below.
@@ -252,6 +260,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // production translation run below.
   ['/api/market/observations', ['GET']],
   ['/api/market/translations', ['POST']],
+  // ADR-108 D4 draft — private market-core.v1 façade for the Market service.
+  ['/api/internal/market-intelligence/v1/{operation}', ['GET', 'POST']],
   ['/api/dependencies', ['GET', 'POST']], ['/api/dependencies/{id}', ['DELETE']], ['/api/docs', ['GET']], ['/api/entry', ['GET']], ['/api/files', ['GET', 'POST']], ['/api/files/{id}', ['DELETE']],
   ['/api/files/{id}/content', ['GET']], ['/api/files/{id}/relink', ['POST']], ['/api/files/{id}/reveal', ['POST']], ['/api/files/cache/rebuild', ['POST']], ['/api/files/migrate', ['POST']], ['/api/files/mounts', ['GET', 'POST']], ['/api/files/reconcile', ['POST']],
   ['/api/gates', ['POST']], ['/api/gates/{id}', ['PATCH']], ['/api/health', ['GET']], ['/api/import/bundle/commit', ['POST']], ['/api/import/bundle/dry-run', ['POST']], ['/api/import/commit', ['POST']], ['/api/import/dry-run', ['POST']], ['/api/import/template', ['GET']], ['/api/import/xlsx', ['POST']], ['/api/ingest/documents', ['GET', 'POST']], ['/api/mcp', ['POST']],
@@ -321,6 +331,28 @@ const zRouteInventoryResponse = z.any().openapi({
   description: 'Handler-specific response fields are intentionally not inferred here. This operation proves route coverage only; the route and Appendix A remain the detailed contract authority.',
 })
 
+const CONVERSATION_RUNTIME_PATH = '/api/internal/conversation-runtime/v1/{operation}'
+const CONVERSATION_RUNTIME_OPERATIONS = ['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory']
+const zConversationRuntimeEnvelope = z.object({
+  contractVersion: z.literal('conversation-runtime.v1'),
+  operation: z.enum(CONVERSATION_RUNTIME_OPERATIONS),
+  correlationId: z.string().min(1).max(128),
+  idempotencyKey: z.string().min(1).max(200),
+  deadlineAt: z.string().max(40),
+  payload: z.record(z.string(), z.unknown()).refine(value => Object.keys(value).length <= 32),
+}).strict().openapi({ description: 'Operation-specific payload fields are defined by services/conversation-runtime/contracts/v1/operation.schema.json.' })
+const zConversationRuntimeResponse = z.object({
+  contractVersion: z.literal('conversation-runtime.v1'),
+  ok: z.boolean(),
+  data: z.unknown().optional(),
+  error: z.object({ code: z.string(), retryable: z.boolean() }).strict().optional(),
+}).strict()
+const zConversationRuntimeHealth = z.object({
+  contractVersion: z.literal('conversation-runtime.v1'),
+  status: z.enum(['READY', 'UNAVAILABLE']),
+  runtimeOwner: z.literal('CONVERSATION_RUNTIME'),
+}).strict()
+
 const zBinaryResponse = z.string().openapi({ format: 'binary' })
 
 function pathParameters(path) {
@@ -367,6 +399,24 @@ function genericResponses(path) {
   }
 }
 
+function conversationRuntimeResponses(method) {
+  if (method === 'get') return {
+    200: json(zConversationRuntimeHealth, 'Authenticated operational health only; it is not a claim or ownership gate.'),
+    401: { description: 'CORE_CREDENTIAL_REQUIRED' },
+    503: json(zConversationRuntimeHealth, 'Core is unavailable or the service bearer is not configured.'),
+  }
+  return {
+    200: json(zConversationRuntimeResponse, 'Operation result; payload shape is validated by the operation-specific Core response contract.'),
+    400: json(zConversationRuntimeResponse, 'Malformed envelope or operation payload.'),
+    401: json(zConversationRuntimeResponse, 'CORE_CREDENTIAL_REQUIRED.'),
+    408: json(zConversationRuntimeResponse, 'CONTRACT_DEADLINE_EXPIRED.'),
+    409: json(zConversationRuntimeResponse, 'Authority, ownership, lease or operation conflict.'),
+    413: json(zConversationRuntimeResponse, 'CONTRACT_REQUEST_TOO_LARGE: request body exceeds 64 KiB.'),
+    500: json(zConversationRuntimeResponse, 'Invalid or oversized operation result; no valid success response is returned.'),
+    503: json(zConversationRuntimeResponse, 'Core operation unavailable.'),
+  }
+}
+
 function registerInventoryOperations(registry) {
   const detailedOperations = new Set(['get /api/auth/csrf', 'get /api/projects/{id}/domain-view', 'get /api/projects/{id}/feature-view', 'get /api/projects/{id}/features', 'get /api/projects/{id}/features/{featureId}', 'get /api/projects/{id}/governance-snapshots', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
   for (const route of FEATURE_MUTATIONS) detailedOperations.add(`${route.method} ${route.path}`)
@@ -374,16 +424,25 @@ function registerInventoryOperations(registry) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
       if (detailedOperations.has(`${methodName} ${path}`)) continue
+      const conversationRuntime = path === CONVERSATION_RUNTIME_PATH
       registry.registerPath({
         method: methodName,
         path,
-        summary: `Route inventory: ${method} ${path}`,
-        description: `Current handler inventory coverage for ${method} ${path}. This generic operation is deliberately transparent: handler-specific request and response fields are not claimed here; use Appendix A and live route validation for the detailed contract.`,
-        tags: ['Route inventory'],
-        parameters: pathParameters(path),
-        request: genericRequest(path, methodName),
-        responses: genericResponses(path),
-        'x-zuri-contract': 'route-inventory',
+        summary: conversationRuntime ? `Private Conversation Runtime ${method} adapter` : `Route inventory: ${method} ${path}`,
+        description: conversationRuntime
+          ? `Private ADR-106/SDD-110 service boundary. GET permits only health; POST accepts only the fixed conversation-runtime.v1 operation enum. Core revalidates identity, Tenant/Business, account binding, consent/erasure, transport epoch, lease and ownership from authoritative state. Request and response bodies are bounded to 64 KiB. Operation payload fields: services/conversation-runtime/contracts/v1/operation.schema.json.`
+          : `Current handler inventory coverage for ${method} ${path}. This generic operation is deliberately transparent: handler-specific request and response fields are not claimed here; use Appendix A and live route validation for the detailed contract.`,
+        tags: conversationRuntime ? ['Internal service'] : ['Route inventory'],
+        parameters: conversationRuntime
+          ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
+          : pathParameters(path),
+        request: conversationRuntime && methodName === 'post'
+          ? { body: { required: true, content: { 'application/json': { schema: zConversationRuntimeEnvelope } } } }
+          : genericRequest(path, methodName),
+        responses: conversationRuntime ? conversationRuntimeResponses(methodName) : genericResponses(path),
+        ...(conversationRuntime
+          ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': 'conversation-runtime.v1' }
+          : { 'x-zuri-contract': 'route-inventory' }),
       })
     }
   }
@@ -509,6 +568,10 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     in: 'cookie',
     name: AUTH_SESSION_COOKIE,
     description: 'Current server-resolved session. Authorization is recomputed from live server state; no role is inferred from cookie labels.',
+  })
+  registry.registerComponent('securitySchemes', 'ConversationRuntimeService', {
+    type: 'http', scheme: 'bearer', bearerFormat: 'opaque service token',
+    description: 'Authenticates the Conversation Runtime process only. Core derives actor and Business authority from the claimed job and authoritative state.',
   })
   registry.register('Error', zError)
 
@@ -842,7 +905,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],
     'x-zuri-route-inventory': {
-      source: 'src/app/api/**/route.js',
+      source: 'src/app/api/**/route.js plus explicit OAuth callbacks',
       pathCount: CURRENT_API_ROUTE_INVENTORY.length,
       operationCount: CURRENT_API_ROUTE_INVENTORY.reduce((count, [, methods]) => count + methods.length, 0),
     },

@@ -95,11 +95,10 @@ export function laneOfReport(report, lanes = []) {
  * for a session the meter already counted in the same lane is skipped; a report
  * naming a task in no lane becomes a lane of its own (`TASK:<id>`); a report
  * whose branch no lane declares goes to `UNATTRIBUTED`. Each lane also carries a
- * breakdown by person and by device label (`reporters` maps an installation id
- * to its person and device); the meter's figures carry no person (FR-221).
+ * breakdown by person id; the meter's figures carry no person (FR-221).
  * Lanes with nothing measured are absent from the result.
  */
-export function mergeLaneUsage({ lanes = [], usage = {}, reports = [], reporters = {} }) {
+export function mergeLaneUsage({ lanes = [], usage = {}, reports = [] }) {
   const merged = new Map()
   const counted = new Set()
   for (const [laneId, m] of Object.entries(usage.lanes || {})) {
@@ -116,7 +115,6 @@ export function mergeLaneUsage({ lanes = [], usage = {}, reports = [], reporters
       sources: Object.keys(m.bySource || {}).sort(),
       reported: 0,
       byPerson: {},
-      byDevice: {},
       detail: emptyUsageDetail(),
       detailSessions: 0,
     }
@@ -133,7 +131,7 @@ export function mergeLaneUsage({ lanes = [], usage = {}, reports = [], reporters
     const reportKey = `report|${report.source}:${report.sessionId}:${report.branch || ''}`
     if (counted.has(reportKey)) continue
     const entry = merged.get(laneId) || {
-      laneId, tokens: emptyTokens(), requests: 0, sessions: 0, activeMinutes: 0, firstActivityAt: null, lastActivityAt: null, sources: [], reported: 0, byPerson: {}, byDevice: {},
+      laneId, tokens: emptyTokens(), requests: 0, sessions: 0, activeMinutes: 0, firstActivityAt: null, lastActivityAt: null, sources: [], reported: 0, byPerson: {},
       detail: emptyUsageDetail(), detailSessions: 0,
     }
     if (addUsageDetail(entry.detail, report.detail)) entry.detailSessions += 1
@@ -147,9 +145,7 @@ export function mergeLaneUsage({ lanes = [], usage = {}, reports = [], reporters
     entry.lastActivityAt = maxIso(entry.lastActivityAt, toIso(report.endedAt))
     const source = `report:${report.source}`
     if (!entry.sources.includes(source)) entry.sources = [...entry.sources, source].sort()
-    const who = report.installationId ? reporters[report.installationId] : null
-    addBreakdown(entry.byPerson, who?.personDisplayName || (report.installationId ? 'ไม่พบชื่อ' : 'deployment'), tokens, 1)
-    if (who?.deviceLabel) addBreakdown(entry.byDevice, who.deviceLabel, tokens, 1)
+    addBreakdown(entry.byPerson, report.personId || (report.installationId ? 'historical attribution' : 'deployment'), tokens, 1)
     counted.add(reportKey)
     merged.set(laneId, entry)
   }

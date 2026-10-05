@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-CONTRACT
 title: GenesisRAG17 isolated execution wire contract
-version: "1.4.0b"
+version: "1.4.5b"
 status: active
 created_at: "2026-09-07T23:00:00+07:00,RWANG"
-last_update: "2026-09-11T12:30:00+07:00,Claude Opus 5"
+last_update: "2026-09-25T00:00:00+07:00,Claude Sonnet 5"
 attributes:
   domain: knowledge
   scope: isolated seventeen-stage acceptance implementation
@@ -17,9 +17,11 @@ relations:
 
 Version 1.3.1b records the user-approved code-audit remediation; wire `genesisrag17.v1` is unchanged.
 Version 1.4.0b records ADR-075 D6 / FR-188 (structured-record profile, contract revision 2):
-`ontology_v2` and `genesisrag17-parser-2`. **Both pins take effect when the GKS
-`ontology_v2` PR is merged (rollout step 2)**; until then GKS produces and the gate
-accepts `ontology_v1` only, and no parser-2 batch is sent. The wire schema stays
+`ontology_v2` and `genesisrag17-parser-2`. **Both pins have been in effect since
+2026-09-21 on the production edge deployment (GKS `ecf1e4de`, GenesisBlock
+`5156f412`, MSP `68e6169d` per `apps/server/deploy/ki17/pins.json`, rollout step 2)**;
+GKS produces and the gate accept both `ontology_v1` and `ontology_v2`, and
+parser-2 batches are sent for `SMARTGIFT_CATALOG` sources. The wire schema stays
 `genesisrag17.v1` and no field is added.
 Read [the stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and
 [execution/extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) before adding fields
@@ -43,12 +45,67 @@ Stage identity is `{runId,pipelineStageId,executionStepId,attemptId}`. `runId` i
 
 ### Tier 1 Stage 2/7/8 profiles (FR-188, ADR-075 D6)
 
-Tier 1-internal identities; none crosses the wire as a field. **Effective when the GKS
-`ontology_v2` PR is merged (rollout step 2)**; zuri-ai sends parser-2 batches only at
-rollout step 3, after the GenesisBlock worker (step 1) and GKS (step 2) accept both
-ontology versions.
+Tier 1-internal identities; none crosses the wire as a field. **In effect since
+2026-09-21 on the production edge deployment (GKS `ecf1e4de`, GenesisBlock
+`5156f412`, MSP `68e6169d` per `apps/server/deploy/ki17/pins.json`)**: the
+GenesisBlock worker (rollout step 1) and GKS (step 2) accept both ontology
+versions, and zuri-ai sends parser-2 batches (step 3).
 
-- `genesisrag17-parser-1` + recognizer `rule_v1`: every prose source. Unchanged.
+- `genesisrag17-parser-3` + recognizer `rule_v1`: every prose (TEXT-profile) source
+  (2026-09-24 remediation). Bounds each window by whichever of the 80-whitespace-token
+  budget or a 480-character budget is hit first — a Thai paragraph has no spaces, so
+  it is one whitespace token, and only the character budget bounds it. The arithmetic
+  `512 − 2` (special tokens) `− 9` (one token per character of the 9-character
+  `"passage: "` prefix) `= 501`, 480 keeping a 21-token margin under that, holds for
+  ordinary prose in any script (measured: a 3,000-character Thai paragraph chunks at
+  up to 480 raw characters and at most ~142 tokenizer tokens per chunk) but is NOT a
+  universal guarantee: the pinned XLM-R tokenizer applies NFKC before tokenizing, and
+  NFKC expands a handful of Unicode compatibility characters well past one token per
+  raw character (measured: 480 x U+FDFA normalizes to 8,640 characters; 480 x U+3231
+  to 1,440). To close that gap too, every window is additionally bounded so that
+  `text.normalize('NFKC').length` also stays `<= 480` (`nfkcBoundedCharBudgetEnd` in
+  the implementation, 2026-09-25 follow-up), which keeps every chunk inside the
+  512-token window regardless of script or NFKC expansion. Cuts prefer, in order, a
+  paragraph break, then sentence punctuation (`. ! ?`) or a plain space between two
+  Thai runs (Thai's usual sentence break), then any whitespace, and only as a last
+  resort a hard character cut AT the 480-character (NFKC-safe) budget edge — a
+  2026-09-25 follow-up closed a gap where, on input with no safe grapheme boundary
+  anywhere (e.g. a long run of nothing but combining marks), the cut used to keep
+  extending forward past the budget instead of hard-cutting at it (measured pre-fix:
+  single chunks of 1,001 and 1,500 characters). A cut never opens on a combining mark
+  (Thai vowel/tone marks U+0E31, U+0E34-U+0E3A, U+0E47-U+0E4E, and more generally any
+  Unicode combining mark) or inside a surrogate pair. Consecutive windows of the same
+  section keep up to 60 characters of overlap, itself boundary-aligned where possible
+  and advanced past any leading separator — a 2026-09-25 follow-up fixed the overlap
+  search so it can no longer re-find the exact boundary that produced the cut (which
+  had been collapsing the overlap to zero on the majority of sentence-punctuation and
+  plain-whitespace cuts; only a hard cut ever got the configured overlap before this
+  fix). `genesisrag17-chunker-2` records this behavior; `genesisrag17-parser-1` /
+  `genesisrag17-chunker-1`
+  remain defined as historical identities for rows already parsed under them — no
+  new ingestion produces them, and no re-ingestion of existing parser-1 generations
+  is triggered by this change. Resume (`resumeGenesisRag17Worker`) and the FR-071
+  replay path (`loadReplayRun`) both replay a persisted parser-1/chunker-1 intent
+  through the historical splitter unchanged — `inputValue`'s `isLegacyTextRequest`
+  check accepts that exact pair verbatim instead of re-deriving parser-3/chunker-2
+  and refusing the mismatch (2026-09-25 follow-up; a RUNNING or replayable TEXT
+  intent recorded before this remediation would otherwise 400/409 on its first
+  resume or replay attempt). This holds at Stage 2 specifically because a legacy
+  request's `parsed.metadata` OMITS `maxChars`/`overlapChars` entirely rather than
+  setting them to `null` (a second 2026-09-25 follow-up): the metadata object a
+  legacy request produces is therefore byte-identical to what
+  `genesisrag17-parser-1` produced before this whole remediation existed, so
+  `parsedArtifactContentHash` (which hashes `metadata`) matches an already-persisted
+  parser-1 row and `ensureParsedArtifact` (genesisrag17-executor.js) does not treat
+  the resumed/replayed request as a parsed-identity conflict. Proven by
+  `tests/integration/genesisrag17-tier1.test.js` ("replays a historical parser-1
+  legacy TEXT intent through Stage 2 without a parsed-identity conflict") and the
+  pinned-metadata regression gate in
+  `tests/unit/genesisrag17-executor-legacy-resume.test.js`. Implementation:
+  `apps/server/src/modules/knowledge/genesisrag17-source.js`
+  (`parseGenesisRag17Document`, `genesisRag17ParserIdentity`,
+  `isHistoricalParserIdentity`, `splitRangeLegacy`),
+  `apps/server/src/platform/integrations/core/genesisrag17-executor.js` (`inputValue`).
 - `genesisrag17-parser-2` + recognizer `genesisrag17-structured-recognizer-1`: sources
   whose provider is `SMARTGIFT_CATALOG` only, selected by provider, never by a caller
   option. The parsed content is the rendered record text: per record, one DESCRIPTIVE
@@ -71,7 +128,7 @@ ontology versions.
 MSP names below relay to the same suffix with `gks_` replacing `msp_`. Provider methods may use suffix names. Requests and results below include schemaVersion and exact scope unless stated.
 
 1. `msp_pipeline_submit`: `{batch}` -> `{batchId,decisionId,status}`. Batch is `{schemaVersion,batchId,idempotencyKey,scope,runId,stages,source,policy,chunks,mentions}`. `source` is `{sourceId,rawArtifactId,parsedArtifactId,documentId,version,contentHash,content}`. `chunks[]` is `{chunkId,parsedArtifactId,ordinal,text,contentHash,startOffset,endOffset}`; offsets must identify exact source substrings. `mentions[]` is `{sourceMentionId,resolutionKey,semanticType,name,chunkId,startOffset,endOffset}`; offsets are chunk-local and must match the name. `policy` is `{allowEmbedding:true,allowPublication:true}` (false explicitly denies). `batchId` and idempotencyKey remain stable across lost replies. GKS validates source and chunk hashes/positions before canonical processing. `decisionId` may initially be null if processing pending.
-2. `msp_pipeline_claim`: `{limit:1}` -> `{decisions:[decision]}`. No destructive dequeue. Return pending decisions until final publication acknowledged; worker receipt idempotency prevents duplicated writes. Decision is `{schemaVersion,decisionId,decisionHash,batchId,scope,runId,stages,source,chunks,entities,facts,held,derived,policy,ontologyVersion,pipelineVersion:"genesisrag17.v1"}`. `ontologyVersion` is `"ontology_v1"` until rollout step 2; **effective when the GKS `ontology_v2` PR is merged**, it is one of the fixed supported set `{"ontology_v1","ontology_v2"}`, GKS produces `"ontology_v2"`, in-flight v1 decisions complete under v1 rules, and GKS (Stage 17) and the worker (Stage 13) validate each decision against its own version's table. `ontology_v2` is a strict superset of `ontology_v1` (`WORKS_FOR` PERSON→ORGANIZATION and `PURCHASED` PERSON|ORGANIZATION→PRODUCT unchanged) that adds `HAS_COMPONENT` PACKAGE→PRODUCT, `PRICED_AT` PRODUCT|PACKAGE→PRICE_TIER and `IN_CATEGORY` PRODUCT|PACKAGE→CATEGORY; endpoint types are `PERSON`, `ORGANIZATION`, `PRODUCT`, `PACKAGE`, `CATEGORY`, `PRICE_TIER`. There is no `PACKAGED_AS` and no `OFFER`. The fact shape is unchanged (a tier-qualified price is a distinct `PRICE_TIER` entity, Option A). decisionHash is canonical hash of the decision excluding decisionHash. Every fact/derived row has stable id and source references `{sourceId,rawArtifactId,parsedArtifactId,chunkId,sourceMentionIds}`. Facts include subjectId,predicate,objectId OR value,confidence,temporal. Entities have id,name,semanticType,mentions. Payload belongs in GKS/worker; zuri ledger stores counts only.
+2. `msp_pipeline_claim`: `{limit:1}` -> `{decisions:[decision]}`. No destructive dequeue. Return pending decisions until final publication acknowledged; worker receipt idempotency prevents duplicated writes. Decision is `{schemaVersion,decisionId,decisionHash,batchId,scope,runId,stages,source,chunks,entities,facts,held,derived,policy,ontologyVersion,pipelineVersion:"genesisrag17.v1"}`. `ontologyVersion` is one of the fixed supported set `{"ontology_v1","ontology_v2"}`; **in effect since 2026-09-21 on the production edge deployment (GKS `ecf1e4de`, GenesisBlock `5156f412`, MSP `68e6169d` per `apps/server/deploy/ki17/pins.json`)**, GKS produces `"ontology_v2"`, in-flight v1 decisions complete under v1 rules, and GKS (Stage 17) and the worker (Stage 13) validate each decision against its own version's table. `ontology_v2` is a strict superset of `ontology_v1` (`WORKS_FOR` PERSON→ORGANIZATION and `PURCHASED` PERSON|ORGANIZATION→PRODUCT unchanged) that adds `HAS_COMPONENT` PACKAGE→PRODUCT, `PRICED_AT` PRODUCT|PACKAGE→PRICE_TIER and `IN_CATEGORY` PRODUCT|PACKAGE→CATEGORY; endpoint types are `PERSON`, `ORGANIZATION`, `PRODUCT`, `PACKAGE`, `CATEGORY`, `PRICE_TIER`. There is no `PACKAGED_AS` and no `OFFER`. The fact shape is unchanged (a tier-qualified price is a distinct `PRICE_TIER` entity, Option A). decisionHash is canonical hash of the decision excluding decisionHash. Every fact/derived row has stable id and source references `{sourceId,rawArtifactId,parsedArtifactId,chunkId,sourceMentionIds}`. Facts include subjectId,predicate,objectId OR value,confidence,temporal. Entities have id,name,semanticType,mentions. Payload belongs in GKS/worker; zuri ledger stores counts only.
 3. `msp_pipeline_write_receipt`: `{receipt}` -> `{accepted:true,receiptHash}`. Receipt is `{schemaVersion,scope,runId,decisionId,decisionHash,stages,snapshotId,generation,model,transaction,readback,laneManifest,metrics,benchmark}`. `model` = `{id:"intfloat/multilingual-e5-small",revision:"614241f622f53c4eeff9890bdc4f31cfecc418b3",dimensions:384,metric:"cosine",artifactHashes:{path:sha256}}`. `transaction` = `{id,frontier,checkpoint}` (actual native values represented as JSON-safe strings). `readback` = `{ok,nodeCount,edgeCount,vectorCount,citationCount}` from actual reads. laneManifest has vector,lexical,graph,sqlite,bitemporal,provenance each `{status:"ready"|"not_applicable"|"unsupported",reason,objects}`. Unsupported required capability fails gate. `metrics` maps stage numbers 13,15,16 to all six counters. `benchmark` = `{fixtureVersion,queryCount,recallAt5,mrr,citationCorrectness,crossTenantLeaks}` derived from real queries on frozen fixtures. Runtime identity supplied by authenticated MSP is reporter authority.
 4. `msp_pipeline_gate`: `{decisionId,decisionHash}` -> `{verdict}`. Verdict = `{schemaVersion,scope,runId,decisionId,decisionHash,snapshotId,generation,receiptHash,verdict:"PASS"|"WARN"|"FAIL",allowPublication,dimensions}`. Each dimension data,graph,knowledge,security,retrieval has `{result:"PASS"|"WARN"|"FAIL",critical:boolean,reasons:[]}`. GKS evaluates immutable source/facts/policy and matching physical receipt; missing receipt cannot pass. Recall@5 >= .80, MRR >= .65, citation correctness == 1, cross tenant leaks == 0. No inferred success or synthesized zero metrics.
 5. `msp_pipeline_publication_receipt`: `{receipt}` -> `{accepted:true}`. Receipt is `{schemaVersion,scope,runId,decisionId,decisionHash,snapshotId,generation,receiptHash,publishedAt,pointerHash,modelRevision,transactionFrontier,readback:{ok:true}}`. GKS checks against exact allowed verdict/write receipt before storing, then emits Stage17 terminal evidence. Duplicate identical receipt succeeds; different content for same identity conflicts.
@@ -170,11 +227,20 @@ engine/model revisions.
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| 1.4.5b | 2026-09-25 | active | Closes three gaps an Opus gate review found in the 1.4.2b/1.4.3b remediation: (1) the "cannot exceed 512 e5 tokens" claim assumed at most one tokenizer token per raw character, but the pinned XLM-R tokenizer applies NFKC before tokenizing and NFKC expands some Unicode compatibility characters (measured: 480 x U+FDFA -> 8,640 normalized characters, 480 x U+3231 -> 1,440) — every window is now additionally bounded so `text.normalize('NFKC').length` also stays within the 480-character budget (`nfkcBoundedCharBudgetEnd`), and the profile bullet's arithmetic is reworded to state this as a measured practical bound for ordinary prose plus a closed NFKC-expansion exception, not an unconditional one; (2) the overlap search reused the same hard end that produced the cut, so it re-found the identical boundary and delivered zero overlap on the majority of ordinary prose cuts (sentence-punctuation and plain-whitespace cuts alike; only a hard cut ever got the configured overlap) — fixed by requiring the overlap boundary to be strictly earlier than the cut, and advanced past any leading separator without collapsing back onto the cut (`findOverlapStart`); (3) when no safe grapheme boundary existed anywhere before the section's end, the forward safety-nudge extended a chunk without bound (measured: single 1,001- and 1,500-character chunks) — fixed by capping that forward search to the character budget and accepting a hard cut there as the documented last resort. A cut also now advances past trailing whitespace so a chunk never opens on a leading separator. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`. Production note: SmartGift production uses parser-2 only (untouched by this change; `tests/unit/genesisrag17-parser-2.test.js` proves byte-identical output), so this changes no published record. No wire field, pin value or new-ingestion parser identity changed | Claude Sonnet 5 |
+| 1.4.4b | 2026-09-25 | active | Correction to the 1.4.3b claim: a persisted parser-1/chunker-1 intent's resume/replay did NOT in fact avoid a Stage 2 conflict, because `ensureParsedArtifact` (genesisrag17-executor.js) hashes `parsed.metadata`, and 1.4.3b's legacy code path set `metadata.maxChars`/`metadata.overlapChars` to `null` instead of omitting them — a shape no pre-1.4.2b row ever had, so `parsedArtifactContentHash` mismatched every already-persisted parser-1 row and Stage 2 still 409'd (`GENESISRAG17_PARSED_IDENTITY_CONFLICT`) on any resume/replay that re-runs it. Fixed by omitting both keys for a legacy request, restoring metadata byte-identical to the pre-remediation shape; a `splitRange` overlap corner case (a paragraph break immediately followed by a combining mark could re-emit a chunk fully contained in the previous one on malformed input) is also closed with an explicit forward-progress guard. Proven by a real ingest -> FR-071 replay -> Stage 2 integration test (`tests/integration/genesisrag17-tier1.test.js`) and a pinned-metadata/hash regression unit test (`tests/unit/genesisrag17-executor-legacy-resume.test.js`). No wire field, pin value, parser-2 output or new-ingestion parser-3 output changed | Claude Sonnet 5 |
+| 1.4.3b | 2026-09-25 | active | Fixes to the 1.4.2b remediation: (1) the overlap step could stall near a paragraph/sentence boundary, moving `cursor` forward by only 1 character and re-finding the same cut repeatedly, emitting long runs of near-duplicate or whitespace-only slivers — fixed by skipping the overlap entirely whenever the chunk just cut is not longer than the overlap budget, and otherwise moving directly to a boundary-aligned overlap start strictly between the previous cursor and the cut, guaranteeing forward progress; (2) the overlap start is now actually searched for the same paragraph/sentence/whitespace boundary preference as the cut itself, not only nudged for grapheme safety, matching what this doc already claimed; (3) a persisted parser-1/chunker-1 intent (recorded before 1.4.2b) now resumes and replays through the historical splitter unchanged instead of 400/409ing on `resumeGenesisRag17Worker` or the FR-071 replay path — see the Tier 1 Stage 2/7/8 profiles section. No wire field, pin value, parser-2 or new-ingestion parser-3 output changed | Claude Sonnet 5 |
+| 1.4.2b | 2026-09-24 | active | TEXT-profile Tier 1-internal identity becomes `genesisrag17-parser-3` / `genesisrag17-chunker-2` — adds a 480-character budget (arithmetic in the profile bullet) alongside the existing 80-whitespace-token budget so a spaceless-script (Thai) prose source cannot silently exceed the pinned e5 embedder's 512-token window; boundary-preferred cuts, ≤60-character overlap, never splits a combining mark or surrogate pair. `genesisrag17-parser-1`/`-chunker-1` recorded as historical-only. No wire field, pin value or SMARTGIFT_CATALOG parser-2 behavior changed; verified no GKS/MSP/worker code validates the parser-identity string (Tier 1-internal, confirmed unchanged) | Claude Sonnet 5 |
+| 1.4.1b | 2026-09-24 | active | Wording only, D5 remediation: record that the `ontology_v2` / `genesisrag17-parser-2` pins from 1.4.0b are in effect on the production edge deployment since 2026-09-21, not still conditional on a future merge; no wire field, pin value or stage identity changed | Claude Sonnet 5 |
 | 1.3.0b | 2026-09-08 | active | User-approved audit repairs: semantic correctness, durable recovery, measured evidence and PASS-only atomic publication | RWANG |
 | 1.2.1b | 2026-09-08 | active | Consolidate current nine-operation authority, graph receipt ordering and extension navigation; wire unchanged | RWANG |
 | 1.0.0b | 2026-09-07 | active | User-approved isolated execution and wire freeze | RWANG |
 | 1.1.0b | 2026-09-07 | active | Separate graph acknowledgement preserves actual 13 -> 14 -> 15 -> 16 execution order and operation timestamps | RWANG |
 | 1.2.0b | 2026-09-07 | active | Authenticated stage failures terminate honestly; publication receipt required only for successful completion | RWANG |
+
+## Version diff 1.4.0b → 1.4.1b
+
+Production evidence (2026-09-24, verified read-only on 2026-09-24): 38 Stage 17 gate verdicts carry `ontologyVersion: "ontology_v2"` and 38 of 40 `KnowledgeParsedArtifact` rows are `genesisrag17-parser-2`, on the production edge deployment pinned at GKS `ecf1e4de`, GenesisBlock `5156f412`, MSP `68e6169d` (`apps/server/deploy/ki17/pins.json`). The three passages above that said the 1.4.0b pins "take effect when the GKS `ontology_v2` PR is merged" now read "in effect since 2026-09-21 on the production edge deployment"; no wire field, pin value or stage identity changed.
 
 ## Version diff 1.3.0b → 1.3.1b
 

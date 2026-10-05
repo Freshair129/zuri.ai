@@ -494,6 +494,8 @@ describe('snapshot backup round trip', () => {
     const missingArchive = structuredClone(snapshot)
     delete missingArchive.tables.customerArchiveKey
     delete missingArchive.tables.archiveManifest
+    // @req FR-022 — legalHoldArchiveKey is part of the archive family (ADR-093 1.2.0).
+    delete missingArchive.tables.legalHoldArchiveKey
     const missingPreview = await previewImport(missingArchive, { viewer: makeOperatorViewer() })
     expect(missingPreview.valid).toBe(false)
     expect(missingPreview.errors.join(' ')).toMatch(/archive recovery is unavailable/i)
@@ -558,8 +560,10 @@ describe('snapshot backup round trip', () => {
     expect(customer).toBeTruthy()
     delete snapshot.tables.customerArchiveKey
     delete snapshot.tables.archiveManifest
+    delete snapshot.tables.legalHoldArchiveKey
     await prisma.customerArchiveKey.deleteMany()
     await prisma.archiveManifest.deleteMany()
+    await prisma.legalHoldArchiveKey.deleteMany()
     expect(await prisma.customerArchiveKey.count()).toBe(0)
 
     const restoredAuditBefore = await prisma.auditEvent.count({ where: { action: 'RESTORED' } })

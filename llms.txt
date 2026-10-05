@@ -18,7 +18,7 @@ Repository: https://github.com/Freshair129/zuri.ai · Monorepo: `apps/server` (N
 ## Requirements and identity
 
 - [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md): the FR / NFR / BR / SEC / SDD registry — global ids that never move
-- [docs/FEATURES.md](docs/FEATURES.md): FEAT registry — a feature bundles one or more FRs
+- [docs/FEATURES.md](docs/FEATURES.md): capability classification — explicit FEAT bundles and Standalone FRs retain separate identities
 - [docs/decisions/](docs/decisions/): ADRs — ADR-024 (direction), ADR-025 (domain spine), ADR-039 (id pinning), ADR-062 (monorepo)
 - [docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md](docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md): ids are keys — never renumber, never reuse, never recycle a burnt number
 - [docs/GOVERNANCE-LINK-METADATA.md](docs/GOVERNANCE-LINK-METADATA.md): stable document ids, relations and wikilinks

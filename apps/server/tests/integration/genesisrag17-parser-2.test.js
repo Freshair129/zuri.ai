@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { makeOperatorViewer } from '../factories/viewer'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
-import { ingestGenesisRag17Raw, resolveGenesisRag17RawLineage } from '@/platform/integrations/core/genesisrag17-executor'
+import { ingestGenesisRag17Raw, resolveGenesisRag17RawLineage, resolveGenesisRag17RawLineages } from '@/platform/integrations/core/genesisrag17-executor'
 import {
   assertGenesisRag17BatchIntegrity,
   canonicalGenesisRag17Json,
@@ -21,7 +21,8 @@ import {
 // artifact holds the rendered sections, the Stage 9 batch carries that parsed
 // content so every chunk is an exact substring, the same raw reuses one parsed
 // artifact, a malformed record fails Stage 2 with no chunks, and prose
-// sources keep genesisrag17-parser-1.
+// sources keep genesisrag17-parser-3 (2026-09-24 remediation; genesisrag17-parser-1 is a
+// historical identity, never produced by a new ingestion).
 // @spec ADR-075, ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/integration/genesisrag17-parser-2.test.js
 
@@ -138,6 +139,38 @@ describe('GenesisRAG17 parser-2 Tier 1 execution (FR-188)', () => {
     expect(await prisma.knowledgeParsedArtifact.count({ where: { rawArtifactId: raw.id } })).toBe(1)
   })
 
+  it('resolves parser-2 citations in a batch exactly as one at a time, including when the rendering is tampered with', async () => {
+    const outcomeOf = (settled) => settled.map((entry) => (entry.status === 'fulfilled'
+      ? { ok: true, value: entry.value }
+      : { ok: false, code: entry.reason?.code ?? null, status: entry.reason?.status ?? null, message: entry.reason?.message ?? String(entry.reason) }))
+    const bundle = bundles.find((row) => row.code === 'PKG-XMAS-2026-SIGNATURE-CLEVEL')
+    const product = products.find((row) => row.code === 'PM-PEN')
+    const one = await ingestGenesisRag17Raw(structuredInput(bundle, { sourceId: `smartgift-catalog:p2-batch#${randomUUID()}` }), { db: prisma, viewer, now, transport, credential: 'test-source' })
+    const two = await ingestGenesisRag17Raw(structuredInput(product, { entityType: 'ProductMaster', sourceId: `smartgift-catalog:p2-batch#${randomUUID()}` }), { db: prisma, viewer, now, transport, credential: 'test-source' })
+    const refOf = (result, index) => ({
+      scope: scope(), sourceId: result.source.sourceId, documentId: result.source.documentId, version: result.source.version,
+      rawArtifactId: result.source.rawArtifactId, parsedArtifactId: result.source.parsedArtifactId, chunkId: result.chunks[index].chunkId,
+    })
+    const references = [0, 1, 2].map((index) => refOf(one, index)).concat([0, 1].map((index) => refOf(two, index)))
+    const alone = await Promise.allSettled(references.map((reference) => resolveGenesisRag17RawLineage(reference, { db: prisma })))
+    const batch = await resolveGenesisRag17RawLineages(references, { db: prisma })
+    expect(outcomeOf(batch)).toEqual(outcomeOf(alone))
+    expect(batch.every((entry) => entry.status === 'fulfilled')).toBe(true)
+
+    // the stored rendering no longer matches what the raw bytes derive: only that bundle's citations fail
+    const original = await prisma.knowledgeParsedArtifact.findUnique({ where: { id: one.source.parsedArtifactId } })
+    try {
+      await prisma.knowledgeParsedArtifact.update({ where: { id: original.id }, data: { content: `${original.content}\n\ntampered` } })
+      const aloneTampered = await Promise.allSettled(references.map((reference) => resolveGenesisRag17RawLineage(reference, { db: prisma })))
+      const batchTampered = await resolveGenesisRag17RawLineages(references, { db: prisma })
+      expect(outcomeOf(batchTampered)).toEqual(outcomeOf(aloneTampered))
+      expect(batchTampered.slice(0, 3).every((entry) => entry.status === 'rejected')).toBe(true)
+      expect(batchTampered.slice(3).every((entry) => entry.status === 'fulfilled')).toBe(true)
+    } finally {
+      await prisma.knowledgeParsedArtifact.update({ where: { id: original.id }, data: { content: original.content } })
+    }
+  })
+
   it('refuses a caller-chosen parser-1 identity or token budget for a SmartGift source', async () => {
     const record = products.find((row) => row.code === 'PM-PEN')
     await expect(ingestGenesisRag17Raw(structuredInput(record, { parserVersion: 'genesisrag17-parser-1', entityType: 'ProductMaster' }), { db: prisma, viewer, now, transport, credential: 'test-source' }))
@@ -165,7 +198,7 @@ describe('GenesisRAG17 parser-2 Tier 1 execution (FR-188)', () => {
     expect(await prisma.genesisRag17Batch.count({ where: { executionRunId: intent.executionRunId } })).toBe(0)
   })
 
-  it('keeps prose sources on parser-1 and rule_v1 through the same executor', async () => {
+  it('keeps prose sources on parser-3 and rule_v1 through the same executor', async () => {
     const content = '# Purchase\n\nAlice purchased Atlas.'
     const result = await ingestGenesisRag17Raw({
       scope: scope(),
@@ -178,7 +211,7 @@ describe('GenesisRAG17 parser-2 Tier 1 execution (FR-188)', () => {
       policy: { allowEmbedding: true, allowPublication: true },
     }, { db: prisma, viewer, now, transport, credential: 'test-source' })
     const parsed = await prisma.knowledgeParsedArtifact.findUnique({ where: { id: result.source.parsedArtifactId } })
-    expect(parsed).toMatchObject({ parserVersion: 'genesisrag17-parser-1', content })
+    expect(parsed).toMatchObject({ parserVersion: 'genesisrag17-parser-3', content })
     expect(result.source).toMatchObject({ content, contentHash: hashGenesisRag17Text(content) })
     const rows = await prisma.genesisRag17SourceMention.findMany({ where: { executionRunId: result.run.executionRunId } })
     expect(rows.length).toBeGreaterThan(0)

@@ -115,6 +115,31 @@ describe('uploadSmartGiftCatalogFile', () => {
     expect(storage.objects.size).toBe(1)
   })
 
+  it.each([
+    [403, 'KNOWLEDGE_ACCESS_DENIED'],
+    [404, 'KNOWLEDGE_FILE_ASSET_NOT_FOUND'],
+    [404, 'KNOWLEDGE_PROJECT_NOT_FOUND'],
+    [401, 'KNOWLEDGE_AUTH_REQUIRED'],
+  ])('keeps an admission authorization or scope refusal (%i %s) as a request failure', async (status, code) => {
+    const storage = memoryStorage()
+    const refusal = Object.assign(new Error('refused'), { status, code })
+    await expect(uploadSmartGiftCatalogFile(
+      { businessId: 'biz-1', name: 'products.json', contentBase64: base64 },
+      { db: fakeDb(), viewer, objectStoragePort: storage, admit: vi.fn(async () => { throw refusal }) },
+    )).rejects.toBe(refusal)
+  })
+
+  it('rethrows a status-bearing error without a Knowledge code, and a Knowledge code without a status', async () => {
+    const noCode = Object.assign(new Error('project refused'), { status: 409 })
+    const noStatus = Object.assign(new Error('odd'), { code: 'KNOWLEDGE_SOURCE_CONFLICT' })
+    for (const failure of [noCode, noStatus]) {
+      await expect(uploadSmartGiftCatalogFile(
+        { businessId: 'biz-1', name: 'products.json', contentBase64: base64 },
+        { db: fakeDb(), viewer, objectStoragePort: memoryStorage(), admit: vi.fn(async () => { throw failure }) },
+      )).rejects.toBe(failure)
+    }
+  })
+
   it('preserves untyped downstream errors instead of reporting a successful partial outcome', async () => {
     const storage = memoryStorage()
     const failure = new Error('connection reset')

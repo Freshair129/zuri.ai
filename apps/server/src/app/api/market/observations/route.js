@@ -6,6 +6,7 @@ import {
   parseMarketObservationFeedQuery,
 } from '@/modules/market-intelligence/application/market-observation-service'
 import { createMarketObservationRepository } from '@/modules/market-intelligence/infrastructure/market-observation-repository'
+import { marketRouting } from '@/modules/market-intelligence/infrastructure/market-executor'
 
 // @req FR-092 — the first surface-reachable endpoint for Market Intelligence: the
 //   translated `MarketObservation` state FR-092 has been able to persist since PR #88,
@@ -13,7 +14,8 @@ import { createMarketObservationRepository } from '@/modules/market-intelligence
 //   domain had no route at all, so `/market` could only show fixtures.
 // @spec SDD-049, BR-001, SEC-001, SEC-017, ADR-038
 // @tested tests/unit/market-intelligence/market-observations-route.test.js,
-//   tests/integration/market-intelligence-observation-feed.test.js
+//   tests/integration/market-intelligence-observation-feed.test.js,
+//   tests/unit/market-intelligence/market-executor.test.js
 //
 // GET only, and that is the boundary rather than an omission. A `MarketObservation` has
 // exactly one writer — the FR-092 translation seam over Integration-owned raw evidence
@@ -29,6 +31,9 @@ import { createMarketObservationRepository } from '@/modules/market-intelligence
 export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
+  // ADR-108 D6: with MARKET_EXECUTOR=service this route is a thin BFF over the Market
+  // service; unset or `legacy` leaves the code below as the only path.
+  if (marketRouting.feed) return marketRouting.feed(request)
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
     const query = parseMarketObservationFeedQuery(queryParams(request))

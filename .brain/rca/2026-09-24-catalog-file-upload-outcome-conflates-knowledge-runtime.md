@@ -39,7 +39,7 @@ stored.
   original bytes"` from `apps/server`; one targeted test failed, nine were
   skipped by the test-name filter.
 - After the change, the focused uploader/UI/A-B command completed with 3 test
-  files and 32 tests passed, zero skipped, exit 0. The B fixture now observes a
+  files and 33 tests passed, zero skipped, exit 0. The B fixture now observes a
   stored original and an explicit `UNAVAILABLE` Knowledge outcome.
 
 ## Root Cause
@@ -65,7 +65,10 @@ Return explicit additive file and Knowledge outcome fields. Preserve the
 existing admission payload on success; report typed `KNOWLEDGE_*` admission
 errors as `FAILED`, except the known runtime-unavailable result, which is
 `UNAVAILABLE`. Let untyped failures propagate. Keep authorization, validation,
-storage, and asset-registration errors fail-closed. Show the saved-file state
+storage, and asset-registration errors raised before admission fail-closed, and keep
+typed 401/403/404 refusals raised during admission (access, missing asset or project)
+failing as well; only the remaining typed admission errors become a 200 `FAILED`
+(review follow-up, 2026-09-27). Show the saved-file state
 and Knowledge outcome in the UI, and retain the A/B integration regression
 against the actual services.
 
