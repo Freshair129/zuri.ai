@@ -3,13 +3,15 @@ doc_type: intake-note
 title: Zuri-Go reported Marketing evidence — parent record migration
 status: approved
 superseded_by: null
-version: "0.5.0"
+version: "0.6.0"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
 ---
 
 # Zuri-Go report receiver — parent contract and record migration
+
+Physical follow-up: [receiver physical design](ZURI-GO-REPORT-PHYSICAL-DESIGN.md) v0.1.0 is DRAFT for owner review. It proposes the previously unimplemented Business machine gate, SQLite immutable enforcement, atomic audit/receipt and native test files under the issued subjects. This link does not approve its new physical decisions; approved behavior and frozen v0.4.0 evidence remain unchanged. Version diff 0.5.0 → 0.6.0 adds this navigation and approval distinction only.
 
 The owner approved Zuri-Go's Marketing report exchange P3 on 2026-10-05: a dedicated report credential, isolated QA first, explicit delivery and a durable reported-evidence receipt; the owner subsequently selected minimum retention of 90 days. This document makes the parent Identity/Marketing boundary concrete. It is an intake under [the proposal rules](../README.md), not an issued requirement or a claim of parent implementation. New canonical records need the reviewed migration below; no generated registry or pinned historical row is rewritten by this proposal.
 

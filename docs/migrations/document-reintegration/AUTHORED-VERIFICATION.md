@@ -2,11 +2,31 @@
 doc_type: migration-verification
 status: active
 superseded_by: null
-version: "0.1.0"
+version: "0.2.0"
 date: "2026-10-05"
 ---
 
 # Authored Marketing receiver records — verification
+
+## Final fresh-main gate — 2026-10-05
+
+Latest-main integration is **BLOCKED**: final `git ls-remote`/fetch found main `077796622233bf9f35905f7eac226f0963760dcb` (PR #632), which publishes a different FR-278/dashboard subject and modifies the record format/parser/writer/index. [RCA](../../../.brain/rca/marketing-report-branch-id-collision.md) confirms concurrent branch-local issuance without shared reservation. [Main-first reconciliation](../../change-requests/marketing/ZURI-GO-REPORT-MAIN-RECONCILIATION.md) is DRAFT for owner decision. No conflicting merge, ID rewrite, receipt change or latest-main qualification was attempted. Earlier PASS below applies to `fcb7ade3`/main `3506129f` only. Parent/Go physical proposals remain reviewable but need reconciled parent IDs before coding.
+
+## Integrated main and physical proposal — 2026-10-05
+
+Owner authorization covers integrating fresh main and preparing the next physical design. Clean isolated task branch merged main `3506129ffc1feb93773d2110901e248609f80f7c` without conflicts as `fcb7ade3a022029cf47530643edc74fab2e49420`; the active parent checkout/runtime was not moved. This integrates upstream into the task branch, not PR #630 into main. Issuance base/approval ancestry and all original record/receipt bytes remain preserved.
+
+| Integrated check | Result / scope |
+|---|---|
+| `npm run docs:migration:test` | PASS — 73/73, 0 failure/skip on merged composition |
+| Source snapshot/verifier unit suites | PASS — 32/32 serialized, installed pure-Node test config; no database setup or timeout increase |
+| New upstream PM guard tests | PASS — 23/23; no Marketing or PM application change |
+| Fresh graph/views/entrypoint corpus/full governance | PASS — serialized generators; corpus check up to date; full `npm run govern` exit 0 with 543 records/751 pins/96 views, 0 critical findings and existing accepted debt |
+| Planned/retired projection tests | PASS — 9/9 on merged regenerated graph; authored subjects stay planned/zero delivery credit |
+| Physical proposal independent review | PASS for owner-review readiness — parent blob `8da2f63af23919ec8f26a0537885d6dda778893d`, Go blob `5a85e532f5ab9e96ee5eceab50bc26db860b5796`; initialization, backup custody and lease/age/error findings resolved. Owner decisions remain OPEN; no runtime acceptance |
+| Receiver/sender native QA / application / migration | NOT_RUN — no new runtime/schema/provision/send/deploy operation |
+
+[Physical design](../../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md) v0.1.0 is DRAFT. New decision for owner review is the deny-default Business machine-ingest policy, independent of Member visibility; SQLite first-write guard, append-only constraints and proposed native tests remain unimplemented. Counterpart Go sender physical chapter is also DRAFT. New application coding remains gated on approval of this concrete pair and wire scope. Version diff 0.1.0 → 0.2.0 adds integrated-main evidence and physical-proposal navigation; prior issuance evidence below is historical and unchanged.
 
 The owner approved the [receiver intake](../../change-requests/marketing/ZURI-GO-REPORT-RECEIVER.md) and separately approved [additive record tooling](../../change-requests/marketing/ZURI-GO-RECORD-AUTHORING.md). This C-3/HIGH slice adds a governed writer and issues planned canonical statements; it does not implement a receiver, sender, database schema or live credential.
 
@@ -43,6 +63,6 @@ All four delivery cells remain `planned`; none was assigned to an existing featu
 
 Private logs and preservation receipts stay under the operator checkout's `.local/postgres-local/`; canonical issuance evidence above contains only documentation metadata/digests. The active parent checkout/runtime is untouched. No merge is performed by record issuance.
 
-Final remote-main recheck: `3506129ffc1feb93773d2110901e248609f80f7c` advances the earlier issuance-time `332b88c9` through PM workflow documentation/guard PR #631. Read-only fetch/range inspection confirms its ledger still has 747 pins and none of these four candidates; registry/schema/Marketing/Identity files were not changed by that range. This branch's tests/governance remain evidence for its own reviewed composition; integration/retesting against the newer main is NOT_RUN and remains a pre-merge check. No main merge/rebase or active-checkout movement was performed.
+Issuance-time remote-main recheck: `3506129ffc1feb93773d2110901e248609f80f7c` advances the earlier issuance-time `332b88c9` through PM workflow documentation/guard PR #631. Read-only fetch/range inspection confirmed its ledger still had 747 pins and none of these four candidates; registry/schema/Marketing/Identity files were not changed by that range. Integration/retesting was then NOT_RUN; the later integrated-main section above supersedes that limitation with its actual scoped results.
 
 Version diff 0 → 0.1.0: records reviewed additive tooling, exact governed issuance, preservation, tests and remaining physical/application gates. Application package and database versions do not change.

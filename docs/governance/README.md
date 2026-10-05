@@ -42,6 +42,8 @@ Generated navigation for current source documents in the governance grouping. A 
 - [Marketing — Navigation & Views](../change-requests/marketing/MARKETING-NAVIGATION-VIEWS.md)
 - [Marketing — Multi-agent Team & Refinement](../change-requests/marketing/MARKETING-TEAM-REFINEMENT.md)
 - [Authored records — migration proposal, before tooling changes](../change-requests/marketing/ZURI-GO-RECORD-AUTHORING.md)
+- [Main-first reconciliation before report receiver coding](../change-requests/marketing/ZURI-GO-REPORT-MAIN-RECONCILIATION.md)
+- [Marketing report receiver — physical design proposal](../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md)
 - [Zuri-Go report receiver — parent contract and record migration](../change-requests/marketing/ZURI-GO-REPORT-RECEIVER.md)
 - [`docs/change-requests/` — intake, not governance](../change-requests/README.md)
 - [Approved contract — Commerce Billing, PromptPay and POS](../change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
