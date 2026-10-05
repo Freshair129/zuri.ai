@@ -46,6 +46,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [Authored records — migration proposal, before tooling changes](../change-requests/marketing/ZURI-GO-RECORD-AUTHORING.md)
 - [Bounded implementation verification](../change-requests/marketing/ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md)
 - [Main-first reconciliation before report receiver coding](../change-requests/marketing/ZURI-GO-REPORT-MAIN-RECONCILIATION.md)
+- [Phase B compatibility proposal](../change-requests/marketing/ZURI-GO-REPORT-PHASE-B-REBIND.md)
 - [Marketing report receiver — physical design proposal](../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md)
 - [Zuri-Go report receiver — parent contract and record migration](../change-requests/marketing/ZURI-GO-REPORT-RECEIVER.md)
 - [`docs/change-requests/` — intake, not governance](../change-requests/README.md)

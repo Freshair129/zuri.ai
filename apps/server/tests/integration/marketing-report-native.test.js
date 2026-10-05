@@ -47,7 +47,7 @@ function database() {
   clients.push(db, second)
   return { db, second, file }
 }
-async function fixture() {
+async function fixture(source = golden.source) {
   const instance = database(), { db } = instance
   await db.$connect(); await instance.second.$connect()
   const portfolio = await db.portfolio.create({ data: { code: randomUUID(), name: 'Synthetic QA' } })
@@ -56,7 +56,7 @@ async function fixture() {
   const plan = await db.marketingPlan.create({ data: { tenantId: tenant.id, businessId: business.id, code: 'QA', title: 'Synthetic QA', createdBy: 'qa' } })
   const initiative = await db.marketingInitiative.create({ data: { tenantId: tenant.id, businessId: business.id, planId: plan.id, code: 'QA', createdBy: 'qa' } })
   await setMarketingReportPolicy({ db, viewer: operator, businessId: business.id, expectedVersion: 0, ingestEnabled: false })
-  const { binding, credential } = await createMarketingReportBinding({ db, viewer: operator, businessId: business.id, sourceDeploymentId: golden.source.deploymentId, sourceBusinessId: golden.source.sourceBusinessId })
+  const { binding, credential } = await createMarketingReportBinding({ db, viewer: operator, businessId: business.id, sourceDeploymentId: source.deploymentId, sourceBusinessId: source.sourceBusinessId })
   const envelope = structuredClone(golden); envelope.target = { bindingId: binding.id, initiativeId: initiative.id }
   const bytes = encode(envelope), authorization = 'Bearer ' + credential
   return { ...instance, business, tenant, plan, initiative, binding, credential, bytes, authorization }
@@ -164,6 +164,83 @@ describe.skipIf(!configured)('native external report custody (NOT_RUN without ex
     } finally { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)) }
     // This qualifies HTTP/receiver recovery, not the still-pending PostgreSQL
     // sender Claim/Complete/Settle ledger or a real cross-system deployment.
+  })
+  test.skipIf(!process.env.ZURI_REPORT_GO_SOURCE || !process.env.ZURI_GO_MARKETING_QA_ADMIN_URL || !process.env.ZURI_GO_MARKETING_QA_RUNTIME_URL)('native Go freeze/Claim/Complete recovers dropped durable ACK once across PostgreSQL and SQLite', async () => {
+    const root = resolve(process.env.ZURI_REPORT_GO_SOURCE)
+    const adminTarget = new URL(process.env.ZURI_GO_MARKETING_QA_ADMIN_URL), runtimeTarget = new URL(process.env.ZURI_GO_MARKETING_QA_RUNTIME_URL)
+    for (const target of [adminTarget, runtimeTarget]) expect(['localhost', '127.0.0.1', '[::1]'].includes(target.hostname) && /^\/zuri_go_marketing_qa_[a-z0-9_]+$/.test(target.pathname)).toBe(true)
+    expect(runtimeTarget.hostname).toBe(adminTarget.hostname); expect(runtimeTarget.port).toBe(adminTarget.port); expect(runtimeTarget.pathname).toBe(adminTarget.pathname)
+    const { default: pg } = await import(/* @vite-ignore */ pathToFileURL(resolve(root, 'apps/api/node_modules/pg/lib/index.js')).href)
+    const load = path => import(/* @vite-ignore */ pathToFileURL(resolve(root, path)).href)
+    const { prepareMarketingReport, freezeMarketingReport } = await load('apps/api/marketing-report-ledger.mjs')
+    const { sendMarketingDelivery, requestMarketingReceipt } = await load('apps/api/marketing-report-delivery.mjs')
+    const { canonicalHash } = await load('apps/api/marketing-report.mjs')
+    const { createCampaign } = await load('apps/web/src/content/shared/model.mjs')
+    const admin = new pg.Pool({ connectionString: adminTarget.href, options: '-c search_path=zuri_go,public' })
+    const runtime = new pg.Pool({ connectionString: runtimeTarget.href, options: '-c search_path=zuri_go,public' })
+    let server
+    try {
+      const inspected = (await admin.query('SELECT (SELECT count(*)::int FROM businesses) businesses,(SELECT max(version) FROM public.zuri_go_migrations) schema')).rows[0]
+      expect(inspected).toEqual({ businesses: 0, schema: 12 })
+      const role = (await runtime.query('SELECT current_user name,rolsuper,rolbypassrls FROM pg_roles WHERE rolname=current_user')).rows[0]
+      expect(role).toEqual({ name: 'zuri_go_app', rolsuper: false, rolbypassrls: false })
+      const b = randomUUID(), c = randomUUID(), a = randomUUID()
+      const f = await fixture({ deploymentId: 'native-qa', sourceBusinessId: b }); await enable(f); routeDatabase.db = f.db
+      const nativeBefore = await nativeSnapshot(f.db), state = createCampaign('ISOLATED CROSS QA', 'leads', false)
+      await admin.query('INSERT INTO businesses(id,name,slug) VALUES($1,$2,$3)', [b, 'ISOLATED CROSS QA', b])
+      await admin.query("INSERT INTO campaigns(business_id,id,code,name,objective) VALUES($1,$2,'CAM-0001','QA','leads')", [b, c])
+      await admin.query('INSERT INTO campaign_states(business_id,campaign_id,state_json,payload_hash) VALUES($1,$2,$3,$4)', [b, c, state, canonicalHash(state)])
+      await admin.query("INSERT INTO marketing_report_associations(id,business_id,source_deployment_id,external_binding_id,parent_tenant_id,parent_business_id,parent_initiative_id,reviewed_at,review_ref) VALUES($1,$2,'native-qa',$3,$4,$5,$6,clock_timestamp(),'qa-review')", [a, b, f.binding.id, f.tenant.id, f.business.id, f.initiative.id])
+      const transaction = async fn => {
+        const tx = await runtime.connect()
+        try {
+          await tx.query('BEGIN ISOLATION LEVEL REPEATABLE READ'); await tx.query("SELECT set_config('zuri_go.business_id',$1,true),set_config('zuri_go.viewer_kind','operator',true)", [b]); tx.zuriViewer = { kind: 'operator' }
+          const result = await fn(tx); await tx.query('COMMIT'); return result
+        } catch (error) { await tx.query('ROLLBACK'); throw error } finally { tx.release() }
+      }
+      const window = { start: '2026-09-21', endExclusive: '2026-09-28', timezone: 'Asia/Bangkok', asOf: '2026-09-28T00:00:00+07:00' }
+      const { preparation } = await transaction(tx => prepareMarketingReport(tx, b, c, { associationId: a, idempotencyKey: randomUUID(), window }))
+      const { report } = await transaction(tx => freezeMarketingReport(tx, b, c, { idempotencyKey: randomUUID(), preparationId: preparation.id, expectedPreviewHash: preparation.preview.previewHash, expectedSourceRevision: preparation.preview.sourceRevision }))
+      f.bytes = report.canonicalEnvelope
+      let calls = 0, firstReceipt
+      server = createServer(async (request, response) => {
+        const chunks = []; for await (const chunk of request) chunks.push(Buffer.from(chunk))
+        const raw = Buffer.concat(chunks); expect(raw.toString()).toBe(f.bytes)
+        const result = await POST(new Request('https://receiver.invalid/api/growth/external-marketing-reports', { method: 'POST', body: raw, headers: { Authorization: request.headers.authorization, 'Content-Type': 'application/json' } }))
+        const receipt = await result.json(); calls++
+        if (calls === 1) { expect(result.status).toBe(201); firstReceipt = receipt; response.destroy(); return }
+        expect(result.status).toBe(200); response.writeHead(result.status, { 'Content-Type': 'application/json' }); response.end(JSON.stringify(receipt))
+      })
+      await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+      const binding = { associationId: a, rowVersion: '1', bindingId: f.binding.id, origin: 'https://receiver.invalid', credential: f.credential }
+      const fetchImpl = (url, options) => { expect(url).toBe(binding.origin + '/api/growth/external-marketing-reports'); return fetch('http://127.0.0.1:' + server.address().port + '/api/growth/external-marketing-reports', options) }
+      const send = () => sendMarketingDelivery({ transaction, businessId: b, reportId: report.envelope.reportId, bindings: [binding], requestReceipt: args => requestMarketingReceipt({ ...args, fetchImpl }) })
+      expect((await send()).delivery.state).toBe('UNKNOWN')
+      expect(await f.db.marketingExternalReport.count()).toBe(1); expect(await acceptedAudits(f.db)).toBe(1)
+      expect((await admin.query('SELECT count(*)::int n FROM marketing_report_delivery_receipts')).rows[0].n).toBe(0)
+      await expect(send()).rejects.toMatchObject({ code: 'DELIVERY_NOT_ELIGIBLE' }); expect(calls).toBe(1)
+      // Test-owned owner advances only synthetic retry eligibility; no production clock/trigger is altered.
+      const owner = await admin.connect()
+      try {
+        await owner.query('BEGIN'); await owner.query('ALTER TABLE marketing_report_deliveries DISABLE TRIGGER marketing_delivery_guard')
+        await owner.query("UPDATE marketing_report_deliveries SET next_eligible_at=clock_timestamp()-interval '1 second' WHERE business_id=$1", [b])
+        await owner.query('ALTER TABLE marketing_report_deliveries ENABLE TRIGGER marketing_delivery_guard'); await owner.query('COMMIT')
+      } catch (error) { await owner.query('ROLLBACK'); throw error } finally { owner.release() }
+      const recovered = await send(); expect(recovered.delivery.state).toBe('ACKNOWLEDGED'); expect(recovered.delivery.receipt).toEqual(firstReceipt)
+      expect(calls).toBe(2); expect(await f.db.marketingExternalReport.count()).toBe(1); expect(await acceptedAudits(f.db)).toBe(1)
+      expect((await admin.query('SELECT (SELECT count(*)::int FROM marketing_report_delivery_attempts) attempts,(SELECT count(*)::int FROM marketing_report_delivery_receipts) receipts')).rows[0]).toEqual({ attempts: 2, receipts: 1 })
+      expect((await admin.query('SELECT canonical_envelope FROM marketing_reports')).rows[0].canonical_envelope).toBe(f.bytes)
+      expect((await admin.query('SELECT state FROM marketing_report_outbox')).rows[0].state).toBe('QUEUED'); expect(await nativeSnapshot(f.db)).toBe(nativeBefore)
+      await expect(send()).rejects.toMatchObject({ code: 'DELIVERY_TERMINAL' }); expect(calls).toBe(2)
+      const changed = JSON.parse(f.bytes); changed.campaign.code = 'CAM-0002'
+      await expect(ingest(f, f.db, encode(changed))).rejects.toMatchObject({ status: 409 })
+      await setMarketingReportPolicy({ db: f.db, viewer: operator, businessId: f.business.id, expectedVersion: 2, ingestEnabled: false })
+      await expect(ingest(f)).rejects.toMatchObject({ status: 404 })
+      expect(await f.db.marketingExternalReport.count()).toBe(1); expect(await acceptedAudits(f.db)).toBe(1)
+    } finally {
+      if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)) }
+      await Promise.all([admin.end(), runtime.end()])
+    }
   })
   test('private evidence reads recheck Guest, foreign Business/Tenant and hidden domain while retaining native inactive read semantics', async () => {
     const f = await fixture(); await enable(f); await ingest(f); const row = await f.db.marketingExternalReport.findFirst()

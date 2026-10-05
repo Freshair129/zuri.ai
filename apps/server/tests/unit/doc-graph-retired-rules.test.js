@@ -23,7 +23,7 @@ function rowFor(id) {
 describe('retired rules are excluded honestly', () => {
   const cov = () => graph().stats.coverage
 
-  it.each([[278, 'identity'], [279, 'marketing'], [280, 'marketing']])('keeps authored FR-%s planned and gives it no delivery credit', (number, domain) => {
+  it.each([[281, 'identity'], [282, 'marketing'], [283, 'marketing']])('keeps authored FR-%s planned and partial without release readiness', (number, domain) => {
     const id = `FR-${number}`
     const g = graph()
     expect(g.nodes.find(node => node.id === `req:${id}`)).toMatchObject({ declared: 'planned', status: 'planned' })
@@ -31,7 +31,7 @@ describe('retired rules are excluded honestly', () => {
     expect(cov().fr_without_code).not.toContain(id)
     const projection = JSON.parse(readFileSync(workspacePath(process.cwd(), 'apps/server/runtime/domain-state.json'), 'utf8'))
     expect(projection.features.find(feature => feature.id === id)).toMatchObject({ primaryDomain: domain,
-      registryStatus: 'planned', progressPercent: 0, ready: false, readiness: 'not_ready' })
+      registryStatus: 'planned', progressPercent: 80, ready: false, readiness: 'not_ready' })
   })
 
   it('keeps superseded FRs visible while excluding them from active coverage', () => {

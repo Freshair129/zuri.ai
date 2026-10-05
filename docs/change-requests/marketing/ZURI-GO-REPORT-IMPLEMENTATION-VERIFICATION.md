@@ -1,15 +1,31 @@
 ---
 doc_type: verification-note
-title: Marketing report receiver and pure transport — bounded implementation evidence
+title: Marketing report receiver and native paired delivery evidence
 status: active
 superseded_by: null
-version: "0.1.0"
+version: "0.2.0"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
 ---
 
 # Bounded implementation verification
+
+## Full paired native sender checkpoint — 2026-10-05
+
+Owner chose existing trusted local operator plus the configured non-archived Go Business; the parent keeps its independently approved deny-default machine-ingest policy. Go additive schema 012/CMP-004/API-026 implements bounded Claim/Complete/Settle with current authority, strict durable receipts, DB clock after every lock, five-second SQL waits and a pre-network expired-claim denial. The earlier bounded transport-only evidence below remains historical; full isolated sender acceptance now passes.
+
+Final opt-in runner PASS **18/18** (13 integration + 5 wire), 22:02:49 Asia/Bangkok, 33.06 seconds. The additional guarded paired case uses a fresh, empty test-owned loopback PostgreSQL 18.6 database migrated by the actual Go migrator through 012 and restricted `zuri_go_app` (non-superuser/non-BYPASSRLS), plus native Prisma 5.22.0 SQLite receiver QA. Actual Go prepare/freeze → Claim commit → actual bounded Go HTTP → actual Next route → committed parent receipt → dropped response produces Go UNKNOWN with no local receipt. An explicit eligible identical replay returns the original receipt and Go atomically becomes ACKNOWLEDGED. Exactly two sender attempts, one Go receipt, one parent report and one accepted audit. Frozen report/outbox bytes and all 193 parent preexisting non-Audit tables remain unchanged; valid changed campaign bytes conflict409, and disabled parent policy denies identical replay404.
+
+Paired case requires `ZURI_REPORT_GO_SOURCE`, both `ZURI_GO_MARKETING_QA_ADMIN_URL`/`ZURI_GO_MARKETING_QA_RUNTIME_URL`, same loopback `zuri_go_marketing_qa_*` target, initially empty and schema 12. Without these, it reports NOT_RUN/skipped rather than opening application configuration. Go separate sender suite PASS **16/16** (10 native, 3 pure transport, 3 orchestration); P1/P2 native regression PASS6/6 and disposable PGlite regression PASS8/8 on schema-12 QA. Source review PASS pins sender `452ce105`, migration `c4ef2ea6`, native Go tests `12bb9b0b`, orchestration `7488aa6b`, parent paired test `1fd049b6`; reviewer did not independently rerun databases. The primary agent executed these native checks.
+
+The first paired run failed its conflict fixture: changing a target while retaining missing-field codes was invalid422. Final test changes existing `campaign.code`, recomputes the hash and proves409. Subsequent source review also corrected a before-final-lock DB clock in Go; short-lease held-attempt-row ACK/UNKNOWN regressions pass. Go RCA records all lease-boundary findings. No parent runtime implementation, historical record issuance or receipt was rewritten by this checkpoint.
+
+Version diff 0.1.0 → 0.2.0: adds reproducible full paired native sender/receiver and independent review evidence. Parent candidate remains planned/partial/not_ready; Go remains building. Real Local and Production schema11, real credentials/bindings, live sends, parent PostgreSQL receiver qualification, new migration, deployment and merge remain unperformed. This is candidate qualification, not operational release.
+
+Hosted CI at5958b38 exposed two stale reconciliation fixtures (748 versus752 identities, old receiver IDs278–280). These exact assertions are corrected to the reviewed752 identities and FR281–283 without changing historical issuance. A separate Phase B collection failure remains: the frozen194-model schema binding refuses the additive197-model schema. The fail-closed loader and frozen inventory remain untouched. [Phase B compatibility proposal](ZURI-GO-REPORT-PHASE-B-REBIND.md) and `.brain/rca/marketing-report-reconciled-ci-fixtures.md` record the new parent/peer gate. No full hosted-CI PASS or merge readiness is claimed.
+
+Focused reconciled governance/fixture suite PASS55/55 after correcting the planned/partial80% projection assertion. The full registry snapshot completes in14.787 seconds inside its unchanged20-second test budget. Identity publication assertions are separated from receiver runtime coverage. Generated graph/views/corpus must be refreshed after these source changes; an earlier mid-edit graph check correctly reported stale output and is not a final PASS. Go sealed/pushed sender candidate is `caaf942a5f69a620da6c1073f88cf2e10eae3646` (paired documentation checkpoint73a450f).
 
 This candidate implements the approved [receiver physical design](ZURI-GO-REPORT-PHYSICAL-DESIGN.md) against fresh FR-281–283/SDD-112 issued at `d08f08a8f2604bd9657360d37f7c135d636189b7`. The paired Go contract/physical approval is pinned at `4faf6334ce1eadcd291958606b70b94e2ab6b658`. It does not complete the PostgreSQL sender or authorize a live migration, binding, credential, send or deployment. Remote main was rechecked at `077796622233bf9f35905f7eac226f0963760dcb`; the primary parent checkout/runtime is unchanged.
 
