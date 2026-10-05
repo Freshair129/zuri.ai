@@ -39,7 +39,7 @@ Generated navigation for current source documents in the architecture grouping. 
 - [Software Requirements Specification — Project Manager](project-manager-system/17-SRS.md)
 - [Database tables & ERD](project-manager-system/18-DATABASE-TABLES-AND-ERD.md)
 - [System Blueprint — จาก requirement ไปถึงการส่งมอบ](project-manager-system/19-SYSTEM-BLUEPRINT.md)
-- [Multi-agent delivery — Luna Max → Verify gate → Final gate](project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md)
+- [Multi-agent execution — Luna Max workers → Terra decision gate → Astra escalation](project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md)
 - [Shared allocation, identity and transport contract foundation](project-manager-system/21-CONTRACT-FOUNDATION.md)
 - [22 — Navigation Implementation Baseline, Attempt 3](project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md)
 - [Project, Domain and Feature implementation baseline](project-manager-system/23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md)
