@@ -74,13 +74,28 @@ export function parseCanonicalRecord(text) {
   const recordVersion = Number(fields.version);
   if (recordVersion !== 1) fail('version must be 1');
   const status = requiredText(fields.status, 'status');
-  if (status !== 'source-preserved') fail(`status must be source-preserved in format version 1: ${status}`);
+  if (!['source-preserved', 'reviewed-migration'].includes(status)) fail(`unsupported record status: ${status}`);
   if (namespace !== 'ZAI') fail(`active record namespace must be ZAI: ${namespace}`);
   if (!FAMILY_ID.test(id) || !FAMILIES.has(family) || !id.startsWith(`${family}-`)) {
     fail(`id ${id} does not match supported family ${family}`);
   }
-  const sourceRevision = requiredText(fields.source_revision, 'source_revision');
-  if (!SHA1.test(sourceRevision)) fail('source_revision must be a full Git SHA-1');
+  let sourceRevision;
+  let migrationBaseRevision;
+  let migrationDocument;
+  if (status === 'source-preserved') {
+    sourceRevision = requiredText(fields.source_revision, 'source_revision');
+    if (!SHA1.test(sourceRevision)) fail('source_revision must be a full Git SHA-1');
+    if (fields.migration_base_revision || fields.migration_document) fail('source-preserved records cannot declare migration provenance');
+  } else {
+    if (fields.source_revision) fail('reviewed-migration records must not claim source_revision provenance');
+    migrationBaseRevision = requiredText(fields.migration_base_revision, 'migration_base_revision');
+    if (!SHA1.test(migrationBaseRevision)) fail('migration_base_revision must be a full Git SHA-1');
+    migrationDocument = requiredText(fields.migration_document, 'migration_document');
+    if (!/^docs\/change-requests\/(?!.*(?:^|\/)\.\.(?:\/|$))[A-Za-z0-9._/-]+\.md$/.test(migrationDocument)) {
+      fail('migration_document must be a safe path under docs/change-requests');
+    }
+    if (family !== 'FR' || fields.feature_id) fail('reviewed-migration records currently support standalone FR records only');
+  }
   const sourcePath = requiredText(fields.source_path, 'source_path');
   if (!REGISTRY_PATHS.has(sourcePath)) fail(`unsupported source_path: ${sourcePath}`);
   if ((family === 'FEAT') !== (sourcePath === 'docs/FEATURES.md')) {
@@ -136,7 +151,8 @@ export function parseCanonicalRecord(text) {
     cells,
     statement: cells[statementCell],
     requirementKeys,
-    sourceRevision,
+    ...(sourceRevision ? { sourceRevision } : {}),
+    ...(migrationBaseRevision ? { migrationBaseRevision, migrationDocument } : {}),
     sourcePath,
     sourceRowEol,
     sourceRowSha256: actualRowSha256,
@@ -180,7 +196,7 @@ export function parseCanonicalIndex(text) {
     if (namespace !== 'ZAI') fail(`records[${offset}] namespace must be ZAI`);
     if (!FAMILY_ID.test(id) || !FAMILIES.has(family) || !id.startsWith(`${family}-`)) fail(`records[${offset}] has invalid id/family`);
     if (record.recordVersion !== 1) fail(`records[${offset}].recordVersion must be 1`);
-    if (record.status !== 'source-preserved') fail(`records[${offset}].status must be source-preserved`);
+    if (!['source-preserved', 'reviewed-migration'].includes(record.status)) fail(`records[${offset}].status is unsupported`);
     if (!validRegistryPath(path)) fail(`records[${offset}] has unsafe path`);
     const key = `${namespace}:${id}`;
     if (keys.has(key)) fail(`duplicate id: ${key}`);
@@ -197,6 +213,16 @@ export function parseCanonicalIndex(text) {
     if (record.exportOrder !== undefined) nonNegativeInteger(record.exportOrder, `records[${offset}].exportOrder`);
     if (record.requirementCells !== undefined && (!Array.isArray(record.requirementCells) || record.requirementCells.some((item) => !Number.isSafeInteger(item) || item < 0))) {
       fail(`records[${offset}].requirementCells must be an integer array`);
+    }
+    if (record.status === 'reviewed-migration') {
+      if (typeof record.migrationBaseRevision !== 'string' || !SHA1.test(record.migrationBaseRevision)) {
+        fail(`records[${offset}].migrationBaseRevision must be a full Git SHA-1`);
+      }
+      if (typeof record.migrationDocument !== 'string' || !/^docs\/change-requests\/(?!.*(?:^|\/)\.\.(?:\/|$))[A-Za-z0-9._/-]+\.md$/.test(record.migrationDocument)) {
+        fail(`records[${offset}].migrationDocument must be a safe path under docs/change-requests`);
+      }
+    } else if (record.migrationBaseRevision !== undefined || record.migrationDocument !== undefined) {
+      fail(`records[${offset}] source-preserved record cannot declare migration provenance`);
     }
     return { ...record, id, namespace, family, path };
   });

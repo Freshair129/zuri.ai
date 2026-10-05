@@ -4,6 +4,7 @@
 // Business scope and gives a direct path into the Strategy workspace.
 // @req FR-185 — the active Marketing dashboard links to the approved
 // planning/read surfaces without introducing a dispatch action.
+// @req FR-278 — provide an entry to the read-only executive LINE OA dashboard.
 // @spec SDD-086 — unsupported provider metrics are explicit unavailable states.
 // @tested tests/unit/marketing-strategy-ui.test.js, tests/e2e/marketing-strategy.spec.js
 
@@ -53,6 +54,7 @@ export default function MarketingDashboard({ businessId }) {
           <Link href="/growth/paid-media" className="btn text-[11px]">Paid Media</Link>
           <Link href="/growth/broadcast" className="btn text-[11px]">Broadcast Planning</Link>
           <Link href="/growth/ask-marketing" className="btn text-[11px]">Ask Marketing</Link>
+          <Link href="/growth/line-sales" className="btn text-[11px]">LINE OA Sales KPIs</Link>
         </nav>
         <MarketingPerformance />
         {plans.length === 0 ? (

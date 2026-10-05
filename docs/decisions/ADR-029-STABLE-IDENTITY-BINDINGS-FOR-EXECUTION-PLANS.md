@@ -1,6 +1,6 @@
 # ADR-029 — Stable identity bindings for execution plans, tags, domains and supporting references
 
-**Status:** Proposed — documentation boundary written; schema/code implementation pending
+**Status:** Proposed — owner-approved contract-ID design direction added; source-record migration and schema/code implementation pending
 **Date:** 2026-08-17
 **Decided by:** Boss (requested design correction, owner review still required before migration)
 **Relates to:** [ADR-025](ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md), [ADR-028](ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md), [FR-069](../domains/project-manager/features/FR-069-plan-blueprint-and-intake.md), [FR-070](../domains/project-manager/features/FR-070-stable-execution-domain-and-tag-identities.md), [EXECUTION-MODES.md](../EXECUTION-MODES.md), [SITEMAP-DOMAIN-NAV.md](../SITEMAP-DOMAIN-NAV.md)
@@ -43,7 +43,8 @@ The system separates identity axes instead of overloading one `domainId`:
 | Supporting graph | `graphId`, `nodeId`, `edgeId` | Knowledge/GKS projection identities; distinct from the generated document graph and PM work IDs |
 | Evidence | `artifactId`, `verifyId` | Approved source/evidence artifact and verification occurrence identities |
 | Gate | `gateId` | Existing Project Manager `Gate.id`; gate status is a projection |
-| CRM Contact | `contractId` | User-defined CRM Contact identity; not an Execution or multi-agent workflow contract |
+| Inter-system contract | `contractId` + `contractVersion` | Stable namespace-qualified contract identity plus exact immutable SemVer revision; separate from its database UUID and document/payload format |
+| CRM subject | `customerId`, `personId` | Existing Customer/Person identities; a future Contact entity uses `contactId` only after it is introduced |
 | CRM interaction | `meetingId`, `callId`, `followupId` | Meeting, call and follow-up occurrence identities; distinct from Project Manager work IDs |
 | Requirement reference | `reqId` | Declared FR/NFR/BR/SEC/SDD/FEAT key; not a transport request occurrence |
 | Integration | `integrationId` | Adapter/bridge identity; legacy `intId` normalizes to this field |
@@ -53,6 +54,14 @@ The system separates identity axes instead of overloading one `domainId`:
 | Knowledge promotion | `promotionId` | Governed candidate-to-canonical promotion occurrence; distinct from fact and execution identities |
 | Agent capability | `skillId`, `toolId` | Allow-listed capability references; Agent consumes them and owns no PM model |
 | Entity | `projectId`, `workstreamId`, `containerId`, `workItemId` | Server UUIDs for the records created by the Project Manager domain |
+
+Owner-approved design direction (2026-10-04): new interface, event and data
+exchange contracts use `contractId` plus `contractVersion`. A Contact is a
+separate CRM subject and does not use that field. The pinned FR-071 and SDD-040
+source rows still carry the earlier `contract_id` = CRM Contact interpretation;
+they are not rewritten here and require a reviewed record migration before any
+runtime reference adopts the new meaning. This ADR remains Proposed until its
+full identity boundary and that migration are reviewed.
 
 ### D2 — Domain IDs are stable catalog IDs, not labels or route keys
 
@@ -256,7 +265,9 @@ lineage:
 | `node_id` | `nodeId` | one Knowledge/GKS graph node | target; current project graph exposes generic `id` only |
 | `edge_id` | `edgeId` | one Knowledge/GKS graph relationship | target; current project graph has no stable edge ID |
 | `artifact_id` | `artifactId` | approved source/evidence artifact | target; `FileAsset.id`/hash/path are not aliases |
-| `contract_id` | `contractId` | CRM Contact context | target; not `execution_contract_id` or `workflow_contract_id`, no Contact model yet |
+| `contract_id` | `contractId` + `contractVersion` | exact inter-system API/event/message/file contract revision | candidate; namespaced stable URI + SemVer; FR-071 / SDD-040 retain the earlier CRM mapping pending reviewed record migration |
+| `contract_definition_id` | Internal only | `ContractDefinition.id` UUID primary key | never sent as the portable contract reference |
+| `contract_version_id` | Internal only | `ContractVersion.id` UUID primary key | internal revision FK; wire references remain `contractId` + `contractVersion` |
 | `meeting_id` | `meetingId` | CRM meeting occurrence | target; distinct from Milestone and Gate |
 | `call_id` | `callId` | CRM call/interaction occurrence | target; distinct from Conversation and execution run |
 | `followup_id` | `followupId` | CRM follow-up action/reminder | target; distinct from Project Manager WorkItem |
@@ -279,12 +290,17 @@ cross-scope or owner-unavailable references fail closed for writes and are
 explicitly `unavailable` on reads. None of these references grants authority.
 
 `execution_contract_id` is the seven-mode Execution contract and is deliberately
-separate from `workflow_contract_id`, the multi-agent workflow contract.
-`contract_id` is CRM Contact by product contract. `integration_id` is the
-canonical Integration identity; `int_id` is a compatibility alias only and is
-not an Intent identity. `req_id` is a declared requirement reference, while
-`runbook_id` is a concrete procedure and `promotion_id` is a governed
-promotion occurrence. These meanings are fixed before code or schema work.
+separate from `workflow_contract_id`, the multi-agent orchestration contract.
+The candidate `contract_id` identifies an inter-system data/API contract, paired
+with its exact `contract_version`; JSON/YAML schema-document encoding is separate
+from payload serialization and media type. Current CRM records use
+`customer_id`/`person_id`; this proposal does not introduce a Contact model.
+Because pinned FR-071 and SDD-040 still define the former CRM mapping, no runtime
+field may change meaning until a reviewed record migration resolves it.
+`integration_id` is the canonical Integration identity; `int_id` is a
+compatibility alias only and is not an Intent identity. `req_id` is a declared
+requirement reference, while `runbook_id` is a concrete procedure and
+`promotion_id` is a governed promotion occurrence.
 
 ## Identity graph
 
@@ -307,7 +323,8 @@ flowchart TD
   P --> GR[graphId]
   GR --> N[nodeId]
   GR --> E[edgeId]
-  P --> CT[contractId<br/>CRM Contact]
+  P --> CT[contractId<br/>inter-system contract URI]
+  CT --> CV[contractVersion<br/>exact SemVer]
   P --> MI[meetingId / callId / followupId]
   P --> REQ[reqId]
   P --> IN[integrationId]
@@ -333,7 +350,7 @@ flowchart TD
 | Attach tags by `label` or `tagCode` only | Allows duplicate meanings and cross-domain collisions |
 | Treat B2B Sales as Marketing because it is an Agent plan | Sitemap places B2B/wholesale under Commerce; CRM is supporting identity/data context |
 | Use Business Home as the execution domain | Business Home is a non-owning cross-domain projection |
-| Treat `contract_id` as a document or execution contract | Product contract defines `contract_id` as CRM Contact; it must remain distinct from both contract families |
+| Treat `contract_id` as a CRM subject or execution-mode contract | CRM uses `customer_id` / `person_id`; execution modes keep `execution_contract_id`; interface contracts use the versioned `contract_id` + `contract_version` pair |
 | Collapse `execution_contract_id` and `workflow_contract_id` | Execution mode behavior and multi-agent orchestration have different owners, versions and lifecycles |
 | Treat `int_id` as a canonical Intent identity | `integration_id` is the canonical Integration key; `int_id` survives only as a compatibility alias |
 | Treat `req_id` as a transport request ID | Transport correlation/idempotency IDs already own that concern; `req_id` resolves to a declared requirement/feature key |
@@ -348,3 +365,11 @@ migrations, schema version 1.2, execution-trace persistence, route changes or au
 changes require the FR-070 implementation plan and owner approval. Until then,
 the existing string fields remain compatibility input, while new documentation
 must not describe them as the final production identity model.
+
+## Version diff
+
+2026-10-04 owner-approved design direction: assigns `contractId` +
+`contractVersion` to inter-system contracts, separates CRM `customerId` /
+`personId`, and records the pinned FR-071 / SDD-040 migration gate. ADR status
+remains Proposed; no requirement rows, runtime fields, Prisma models or
+migrations were changed.

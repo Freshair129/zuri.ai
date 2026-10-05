@@ -392,7 +392,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 > while choosing a Business, but it never enters a Group Overview; `/overview` requires
 > a selected Business. Portfolio progress remains a reporting API.
 
-{{CANONICAL_ROW:FR-273}}{{CANONICAL_ROW:FR-274}}{{CANONICAL_ROW:FR-275}}{{CANONICAL_ROW:FR-276}}{{CANONICAL_ROW:FR-277}}
+{{CANONICAL_ROW:FR-273}}{{CANONICAL_ROW:FR-274}}{{CANONICAL_ROW:FR-275}}{{CANONICAL_ROW:FR-276}}{{CANONICAL_ROW:FR-277}}{{CANONICAL_ROW:FR-278}}
 ## 1.4 Non-functional requirements
 
 | ID | Requirement | หลักฐาน |

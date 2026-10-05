@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "taskId": "pm-workflow-document-adoption-20261005",
+  "action": "adopt owner-approved document clauses in existing analysis branch",
+  "trigger": "TASK_START",
+  "source": {
+    "documentId": "ZAI:PM-MULTI-AGENT-DELIVERY",
+    "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+    "version": "0.9.32b-rca.1",
+    "rawByteSha256": "7ebb4a3272bd3ce60ea6cc9b39d796301a18ea272bb4ec145459923eb6904592"
+  },
+  "relevantClauses": [
+    {
+      "section": "entry point / §5",
+      "clause": "selected exact source, applicability and counterevidence must be recorded",
+      "applicability": "explicit .9.32 evidence baseline selected for analysis branch only; remote latest UNKNOWN"
+    },
+    {
+      "section": "§10",
+      "clause": "repair rounds maximum two per acceptance revision; required source changes require affected recheck",
+      "applicability": "document adoption has explicit owner approval; it does not establish a new PM acceptance revision or reset historical repair counts; candidate pins are not rebound"
+    },
+    {
+      "section": "§4 / §6",
+      "clause": "composition does not replace delegated owner authority or grant implementation permission",
+      "applicability": "document-only composition in isolated branch; no G0/SPEC passage, main/remote update or PM execution"
+    }
+  ],
+  "readEvidence": "this task source/hash inspection and static-validation.json; final independent review recorded separately",
+  "commandTimestamp": "UNKNOWN",
+  "uncertainty": {
+    "originatingMachineLatestSource": "UNKNOWN",
+    "historicalRepairRoundCount": "UNKNOWN",
+    "effectiveCompactionContext": "UNKNOWN",
+    "operationalPreventionEffect": "NOT_RUN"
+  },
+  "nextPermissibleAction": "finish exact-byte document review; preserve governance HOLD and await authorized generation/adoption evidence",
+  "claimReconciliation": [
+    {
+      "claim": "The previous RCA lacked bounded retry policy",
+      "sourceClause": "§10 two-round limit",
+      "counterevidence": "existing clause and recorded successful plan reads",
+      "disposition": "REJECT; rule existed; internal causal mechanism remains UNKNOWN"
+    },
+    {
+      "claim": "Document edits are applied",
+      "sourceClause": "exact source outputs in adoption manifest",
+      "counterevidence": "prepared amendment manifest originally stated not applied",
+      "disposition": "APPLIED_IN_ANALYSIS_BRANCH_ONLY; prior manifest remains historical; main/remote source not updated"
+    },
+    {
+      "claim": "Workflow now prevents loops in agent execution",
+      "sourceClause": "document acceptance scenarios",
+      "counterevidence": "no agent adoption experiment executed",
+      "disposition": "UNKNOWN_EFFECT / NOT_RUN; no effectiveness claim"
+    }
+  ]
+}

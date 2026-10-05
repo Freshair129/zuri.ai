@@ -29,9 +29,9 @@ relations:
 **Evidence baseline:** original design `087f30258a6831865afd751e28804e36505aff30`; MA-I02 source audit `138db6630e650e3c695b81158eff3cecdad6d0a5`.
 **Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 และ Domain View Phase A (FR-251) ส่งมอบแล้ว โดย Phase A merge/deploy ที่ `c07cfaba` พร้อม archive/rollup repair ใน PR444 เมื่อ 2026-09-17 ส่วน Feature Phase B ผ่าน B1/B2 และเริ่ม implementation ใน worktree แยก; ผลส่งมอบแต่ละ slice อยู่ใน FR-252 และยังไม่ใช่ production rollout
 
-**Spec completeness:** [16 Spec readiness & API reference](16-SPEC-READINESS-AND-API-REFERENCE.md) เป็น baseline audit ของ contracts / API schemas / OpenAPI references และ Swagger UI ใน local review; จำนวน 132 schema definitions ใน audit นั้นเป็น API/JSON shapes ไม่ใช่ตารางฐานข้อมูล ส่วน Phase B ใช้ selected contract ในเอกสาร 24 โดยผ่าน B1/B2 ก่อน code แล้ว; ห้ามตีความ structural validation ว่า implementation-ready หรือว่าปิด SPEC-G01–G09 ของทั้งระบบแล้ว
+**Spec completeness:** [16 Spec readiness & API reference](16-SPEC-READINESS-AND-API-REFERENCE.md) เป็น inventory/audit ของ contracts, API schemas, OpenAPI references และ Swagger UI ใน local review; composed candidates มี 89 operations (Main 81 รวม Phase-B references + Workforce 8) และ 163 schema definitions across Main, Phase-B overlay and Workforce. Phase B 14 operations/30 schemas are referenced by Main and counted once in its composed total. Counts do not establish implementation readiness or close SPEC-G01–G09.
 
-ฐานเอกสารก่อน Phase B มี 24 Markdown documents, 30 diagrams, 33 requirements/acceptance families และ OpenAPI candidates 80 operations (72 original + 8 workforce) พร้อม workflow schema/example, architecture/traceability, navigation และ UX/UI models; UX/UI supplement มี 37 screen families, 10 journeys, 13 forms / 83 fields และ 14 UI acceptance scenarios; เพิ่ม semantic audit ของ 9 Project sections, 14 routes และ 7 Work views ก่อนจัดเมนูใหม่ ชุด Phase B เพิ่มเอกสาร 24 และสัญญาเฉพาะ Feature โดยระบุสิ่งที่แทนข้อเสนอเดิมอย่างชัดเจน
+ฐานเอกสารก่อน Phase B มี 24 Markdown documents, 30 diagrams, 33 requirements/acceptance families และ OpenAPI candidates 80 operations ตาม inventory ณ เวลานั้น (72 main + 8 workforce); ตัวเลขนี้เป็นประวัติ ไม่ใช่จำนวน composed contracts ปัจจุบัน. ชุดนั้นยังมี workflow schema/example, architecture/traceability, navigation และ UX/UI models; UX/UI supplement มี 37 screen families, 10 journeys, 13 forms / 83 fields และ 14 UI acceptance scenarios; เพิ่ม semantic audit ของ 9 Project sections, 14 routes และ 7 Work views ก่อนจัดเมนูใหม่ ชุด Phase B เพิ่มเอกสาร 24 และสัญญาเฉพาะ Feature โดยระบุสิ่งที่แทนข้อเสนอเดิมอย่างชัดเจน
 
 **Phase B plan:** [24 Feature implementation plan](24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md)
 รวม schema/ERD, API, UX wireframes, snapshot provenance, CSRF, concurrency,
@@ -379,3 +379,10 @@ Version diff 0.17.0b → 0.18.0b: compose the PM-G14 workforce registry and Task
 - Extract the 33 proposal-local PMR bodies into one file per requirement and leave indexes/links in documents 01 and 17.
 - Add a link-only canonical FR index, a machine-readable PMR index and the Site current-status snapshot in GitHub.
 - Keep repository supplements 23+ and preserve explicit candidate, NOT_REPORTED and NOT_RUN boundaries.
+
+## Version diff — 0.19.0b → 0.20.0b
+
+| Before | After |
+|---|---|
+| Workflow handoffs embedded mutable schemas; run IDs and pipeline IDs were conflated across candidate docs | Add immutable ContractDefinition/ContractVersion identities, exact contract pairs and JSON/YAML format fields; bind Project workflows to PM `ProjectExecutionRun` / `ProjectExecutionStep`, with Integration queue/lease/runtime and data-pipeline ledgers kept distinct |
+| Agent forms/API had no shared exact-version reference, and ProjectRunBinding referenced absent PM run/step records; full catalog showed 85 records / 132 OpenAPI schemas | Candidate forms/API use reusable `ContractRef`; catalog has 89 records / 163 OpenAPI schema declarations across Main, Phase B and Workforce, with PM execution run/step records; no application, Prisma schema or migration changed |

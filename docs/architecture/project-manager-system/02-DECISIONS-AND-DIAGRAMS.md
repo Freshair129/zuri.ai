@@ -49,7 +49,7 @@ relations:
 
 | Owner | Owns / writes | Calls peers for | Does not own |
 |---|---|---|---|
-| project-manager | Project/Work*, FeatureBinding, DesignSnapshot, Agent/Fleet/Workflow definitions, ProjectRunBinding, acceptance/read models | dispatch/read via Integration; authority via Identity; retrieval via Knowledge | provider secret bytes, model serving, MSP/GKS stores |
+| project-manager | Project/Work*, FeatureBinding, DesignSnapshot, Agent/Fleet/Workflow definitions, ProjectExecutionRun/Step trace, ProjectRunBinding, acceptance/read models | dispatch/read via Integration; authority via Identity; retrieval via Knowledge | provider secret bytes, model serving, MSP/GKS stores |
 | integration | Provider/Connection/Credential, ModelDeployment, MCP binding, executor adapter, Pipeline ledger, queue/lease/attempt, usage/outbox | token validation/issuance policy via Identity; PM callbacks through contracts | Project/WorkItem direct mutations |
 | identity | actor resolution, membership/capability checks, service/device/gateway-key identity, approvals authority checks, share grants | metadata status through owning lane | giving Business access to operator automatically |
 | agent | existing business-turn/context/model capability adapter and AgentTraceEvent | model invocation via configured provider port; domain tools | project-delivery fleet inventory/queue |

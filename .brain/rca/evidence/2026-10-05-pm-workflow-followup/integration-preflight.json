@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T08:36:20.745Z",
+  "classification": "READ_ONLY_INTEGRATION_PROPOSAL_NOT_APPLIED",
+  "topicCommit": "8f513b9494b02f1945827eb8181ce9ede430bb8e",
+  "observedRemoteMain": "332b88c9277ee0995798f125f99d5343e7d493f0",
+  "localMainEqualsObservedRemote": true,
+  "mergeDryRun": {
+    "command": [
+      "git",
+      "merge-tree",
+      "--write-tree",
+      "--messages",
+      "--name-only",
+      "332b88c9277ee0995798f125f99d5343e7d493f0",
+      "8f513b9494b02f1945827eb8181ce9ede430bb8e"
+    ],
+    "exitCode": 1,
+    "result": "CONTENT_CONFLICT",
+    "conflictPaths": [
+      "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md"
+    ],
+    "gitObjectTree": "e97fa5517d8c848112985d1d99ff062989e08c76",
+    "workingTreeMergeStarted": false
+  },
+  "proposal": {
+    "header": "retain analysis-branch metadata and lineage",
+    "changelog": "preserve topic receipt rows and both upstream .1/.2 rows",
+    "semanticRows": "keep upstream MA-D06 and MA-I13 ownership refinements from approved main",
+    "version": "preview retains topic metadata; integrator allocates actual successor at application",
+    "applied": false,
+    "isolatedPatchAndByteComparison": "PASS",
+    "independentReview": "PASS_PROPOSAL_ONLY"
+  },
+  "readSet": [
+    {
+      "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sha256": "7ebb4a3272bd3ce60ea6cc9b39d796301a18ea272bb4ec145459923eb6904592",
+      "bytes": 115628
+    },
+    {
+      "path": "main:docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sha256": "7c444c19fa55f6ef68809ebb235d304043a7bb9326469bdb62f6897da089b8ca",
+      "bytes": 41366
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Document20.main-preimage.md",
+      "sha256": "7c444c19fa55f6ef68809ebb235d304043a7bb9326469bdb62f6897da089b8ca",
+      "bytes": 41366
+    },
+    {
+      "path": "Document20.reconciled-preview.md",
+      "sha256": "6423e1ef20d8ed98587c3e94803d404fbcc289a6ac1c2ca3112f3e6e23897ae0",
+      "bytes": 116220
+    },
+    {
+      "path": "main-reconciliation.patch",
+      "sha256": "fb3fa2f99a757372336bdad1ec11fe26c6b7e6bedfc03fd20edeb85589da2b47",
+      "bytes": 5676
+    }
+  ],
+  "limits": [
+    "whole main reconciliation changes candidate JSON files and is outside current no-candidate-edit scope",
+    "no actual merge, canonical-source edit or candidate rebind",
+    "govern/test/build NOT_RUN",
+    "preview is not independently approved until reviewer receipt",
+    "original originating-machine latest source remains UNKNOWN"
+  ]
+}

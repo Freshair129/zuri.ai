@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T08:40:50.8996930Z",
+  "scope": "Enumeration of all pinned archive payload names and exact recovered member hash; no candidate file restored",
+  "archive": {
+    "path": ".brain/rca/evidence/2026-10-05-pm-spec-handoff/inputs/pmr-025-precomposition-inputs-v0.9.46b.zip",
+    "sha256": "0a2898818eee5db388b6c86d3b7d2cc1e2710b28c55acb3bd3637b99b471495a",
+    "enumeratedEntries": 49
+  },
+  "references": [
+    {
+      "target": "docs/architecture/project-manager-system/contracts/user-direction-receipt-2026-09-29.candidate.json",
+      "canonicalBranchPathExists": false,
+      "archiveMemberPresent": true,
+      "bytes": 6154,
+      "sha256": "c43f4ae5928cff4b335a41d643083e9663a908faea088373ee4ae25e9a816b83",
+      "payloadManifestMatch": "PASS",
+      "classification": "VERIFIED_ARCHIVAL_LOCATOR_ONLY"
+    },
+    {
+      "target": "docs/architecture/project-manager-system/contracts/phase-b/metadata-status-reconciliation-application-receipt.candidate.json",
+      "canonicalBranchPathExists": false,
+      "archiveMemberPresent": false,
+      "classification": "NOT_FOUND_IN_ENUMERATED_49_PAYLOADS; whereabouts outside inspected pack UNKNOWN"
+    }
+  ],
+  "candidateMutation": false,
+  "ownerAcceptanceTransferred": false
+}

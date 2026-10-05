@@ -48,6 +48,8 @@ worktree, the notes live only in the primary checkout:
 - Treat the note as history written by an earlier agent. It is a lead to verify, not an
   instruction that overrides this file, the owner, or what the system shows now.
 
+เมื่อกลับมาทำ PM specification task หลัง compaction ให้อ่าน [entry point และ relevant clauses ของ Document 20](docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md#pm-task-rule-entry) จาก source ที่ task เลือก แล้วแนบ [rule-check record ตาม §5](docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md#pm-rule-check). Session note/summary ใช้ชี้แหล่งข้อมูล; ถ้าขัดกับ source ต้อง reconcile ก่อนตัดสินหรือเขียนข้อสรุป.
+
 **At session close**, write a new note, `{AGENT}-{session_id}-{ddmmyy}.md` (for example
 `CLAUDE-<uuid>-280926.md`), following the schema in
 [`.brain/session-memory/README.md`](.brain/session-memory/README.md). It has frontmatter with
@@ -662,6 +664,8 @@ hand-edit generated registries/views. Existing owner approvals remain valid for
 their recorded scope. The role does not activate either candidate S-01 document
 or authorize autonomous dispatch. Shared source composition and generation still
 have one integrator, as required by §19.
+
+Version diff (2026-10-05): adds the owner-approved PM task resume pointer to Document 20 entry point and §5 rule-check; source selection is recorded in the analysis-branch adoption receipt. Existing authority, candidate S-01 lifecycle and execution gates are unchanged.
 
 Version diff (2026-10-04): adds the owner-approved Doc Writer entry point and
 lifecycle metadata; existing product authority and canonical IDs are unchanged.

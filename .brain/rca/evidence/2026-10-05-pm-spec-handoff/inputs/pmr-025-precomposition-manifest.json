@@ -1,0 +1,279 @@
+{
+  "snapshotId": "pmr025-v019-plan-compose-v0946b-prewrite-20261005T033454008",
+  "createdAt": "2026-10-05T03:34:54.6715381+07:00",
+  "purpose": "One-file PMR-025 v0.1.9 candidate pointer composition rollback",
+  "sourcePlan": {
+    "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+    "version": "0.9.46b",
+    "sha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+    "bytes": 423055
+  },
+  "reviewedCandidate": {
+    "path": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.9.candidate.json",
+    "sha256": "03207eac2818f469e10bd164543a0dc0db42c45fb5f363965b20604245f103ac"
+  },
+  "proposal": {
+    "path": "docs/architecture/project-manager-system/contracts/pmr-025-v0.1.9-plan-composition-proposal.candidate.json",
+    "sha256": "eb8c951e017ff94c04d30acb6f417f7211f44839564546b5f22bb3a3a0222f1b"
+  },
+  "candidateInputManifestCount": 44,
+  "protectedPayloadCount": 49,
+  "payloadEntries": [
+    {
+      "path": "apps/server/contracts/execution-plan-bundle.schema.json",
+      "bytes": 7586,
+      "sha256": "5b533bbda3edee8aea3b5fa1e0f1ae7e92cafe17086c6f4943e7e4ea15f2adda"
+    },
+    {
+      "path": "apps/server/contracts/plan-envelope.schema.json",
+      "bytes": 17283,
+      "sha256": "af039539b7aa1348499c48c746d1fbd8c2e86134ec75b36a58cd98a68bcdb38e"
+    },
+    {
+      "path": "apps/server/contracts/sample-execution-plan-bundle.json",
+      "bytes": 4710,
+      "sha256": "73bcd052265403ef06ac33d92392c5cbf2d737d1fdf6b06408da8f4516204b80"
+    },
+    {
+      "path": "apps/server/src/app/api/import/bundle/commit/route.js",
+      "bytes": 1267,
+      "sha256": "05e0b7e1972db043c6e7eb7f66fcb8d2f988dc2077d643d475a1009856398f91"
+    },
+    {
+      "path": "apps/server/src/app/api/import/bundle/dry-run/route.js",
+      "bytes": 1327,
+      "sha256": "2655852be6a76e82fcade0e9534cea3eef51c7e5fa1a982a8b4b50161c435e08"
+    },
+    {
+      "path": "apps/server/src/app/api/import/commit/route.js",
+      "bytes": 1230,
+      "sha256": "e141ef165a9b6fda91b85570d0120e012edd0203d7d59f94ab5bf6ca3d894945"
+    },
+    {
+      "path": "apps/server/src/app/api/import/dry-run/route.js",
+      "bytes": 1236,
+      "sha256": "45debdb7e53ac62b62f1038928c153c2fc5e61a4592862b48ec273bf5141cbf9"
+    },
+    {
+      "path": "apps/server/src/modules/project-manager/application/backup-service.js",
+      "bytes": 123759,
+      "sha256": "bc497ad9c724c33a6d17d0f05043b8b23e6394b412417069868f5c69665a2a39"
+    },
+    {
+      "path": "apps/server/src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "bytes": 14776,
+      "sha256": "9d79e98102674804b4db8a2551b1ce72a5039bd615f3bb2584cc37e6f3883c97"
+    },
+    {
+      "path": "apps/server/src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "bytes": 11560,
+      "sha256": "b2cb385fc338745a4a292284629cc65971976a2e82d083d1776c1b80cc9ef86e"
+    },
+    {
+      "path": "apps/server/src/modules/project-manager/import/bundle/bundle-receipt.js",
+      "bytes": 4943,
+      "sha256": "c78e09f70bde224649dac957fa72d190d9e0fa38585f97777fb3514da20f5fd4"
+    },
+    {
+      "path": "apps/server/src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "bytes": 11184,
+      "sha256": "f4bb538392464cac911c49dc95e2d8d5ac89ba1735a5b2115bc9b2206073d548"
+    },
+    {
+      "path": "apps/server/src/modules/project-manager/import/bundle/bundle-schema.js",
+      "bytes": 8885,
+      "sha256": "281bcfb75baf8b77574841e5e5cb50df7129f662fed6b83c164a89accac29356"
+    },
+    {
+      "path": "apps/server/src/modules/project-manager/import/plan-import-service.js",
+      "bytes": 35211,
+      "sha256": "2dd34850c115d09259e5815f14901a21f7e109728ae59051b4d22462cbbdcc25"
+    },
+    {
+      "path": "apps/server/src/modules/project-manager/import/plan-schema.js",
+      "bytes": 19098,
+      "sha256": "26aa0ddf6ed31db2a785605a12bb167c0e9ac7f27912a92c67edf5ab024e38b4"
+    },
+    {
+      "path": "apps/server/tests/integration/execution-plan-bundle.test.js",
+      "bytes": 13263,
+      "sha256": "2c961423381d54f3d4145c42d86c7c85769becca2f172e83f30f6969493eaec7"
+    },
+    {
+      "path": "apps/server/tests/integration/plan-import-scope.test.js",
+      "bytes": 11028,
+      "sha256": "d532ffbbdeb6e07632f7637c64ba7f5514fb326c542de42040802dfbad9b7b07"
+    },
+    {
+      "path": "apps/server/tests/integration/plan-import.test.js",
+      "bytes": 11778,
+      "sha256": "d4260e33e4eea964ff5d681050a4b352a3cdab466e2843e71236157cdb565ed0"
+    },
+    {
+      "path": "apps/server/tests/unit/bundle-schema.test.js",
+      "bytes": 4588,
+      "sha256": "6a167b39a690954e123722c4095bb272d221d82c59a354687884e2d71d06be0d"
+    },
+    {
+      "path": "apps/server/tests/unit/fr045-backup-contract.test.js",
+      "bytes": 7591,
+      "sha256": "e73f4614bd1c102c42fe9f9437c8f0104a1703598d1e5e5497ca0fdac585fa0a"
+    },
+    {
+      "path": "apps/server/tests/unit/plan-import-commit-transaction.test.js",
+      "bytes": 3109,
+      "sha256": "fd64c1d4ea3da35380fed71b91cd49c37afb1b8f395018735d061091d120c7d2"
+    },
+    {
+      "path": "apps/server/tests/unit/plan-schema.test.js",
+      "bytes": 6256,
+      "sha256": "84d967ab49896bd7c9517ecb6bc43b086b33a72824a714599f254fb511fd640c"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/01-REQUIREMENTS-AND-UX.md",
+      "bytes": 18430,
+      "sha256": "81300c21352554afd236c58cc29779825a1abdc813f12e185d199f1f534bc896"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/02-DECISIONS-AND-DIAGRAMS.md",
+      "bytes": 13977,
+      "sha256": "58ed9b02208c6f8d4d5f91188b564c8d30400f000a90bf8c6f143f509b48ebb4"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/03-DATA-AND-EVENTS.md",
+      "bytes": 17895,
+      "sha256": "2ab2d3f6609690aacbfdd73482a8398824ba55b21beebe00d6deff8e2936ec0a"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/06-API-AND-CONTRACTS.md",
+      "bytes": 13042,
+      "sha256": "bc0a1b94eb52f00105921ea1bd3e082db9da7b85340a552ef3cc271d2c5aaa9c"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/07-DELIVERY-AND-VERIFICATION.md",
+      "bytes": 20924,
+      "sha256": "b01051141b907ffb7c91275a8766504e3bebc85fa0988a47619b4c9fb9a6b9be"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/16-SPEC-READINESS-AND-API-REFERENCE.md",
+      "bytes": 14616,
+      "sha256": "059fec55195d0145a327896338b855b3ae827ef0ab86e40ba2e7e766ae401dac"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/17-SRS.md",
+      "bytes": 31027,
+      "sha256": "5f1966c80a55791e73f005b50efa7b1d02d0a7f64ed332689f4bbe733c2c7f6d"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/19-SYSTEM-BLUEPRINT.md",
+      "bytes": 20112,
+      "sha256": "4f36e1c5db68c498495dd9427edbbfc070c5e1db957ee9aef69746cb0e92be9b"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "bytes": 105531,
+      "sha256": "f502e5e97e0a30bbbacdd187af0a01d69093e368a523755249406a6c4c067ab2"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/architecture.model.json",
+      "bytes": 27754,
+      "sha256": "0e16e29db78311021852547b80d730a00398854c2a2d9928b772c3998086bacf"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/data-model.candidate.json",
+      "bytes": 302220,
+      "sha256": "89364cffdad5a4b03470875c49879ad4efd0fa7ab0668eb509fe331733aaa0f3"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+      "bytes": 423055,
+      "sha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/openapi.candidate.yaml",
+      "bytes": 214208,
+      "sha256": "0b546debb1e7408a66974385c5959ebf3598649eceafdb0c37bb44c55852b7a9"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/pm-requirement-index.json",
+      "bytes": 23737,
+      "sha256": "4f64ac86412d0109fd924a6ca5283aa33010bd3994bc3f7cc8e3fbe167cc4165"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.4.candidate.json",
+      "bytes": 57906,
+      "sha256": "de4326ea6bb0d9aed378230b6def5dc9b8167b24640364c4a6b1923103561bc0"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.8.candidate.json",
+      "bytes": 67482,
+      "sha256": "cefa496ebcc0e778b55957df18378b42a7a701192077a43163fbf9a4bf3a6b78"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.9.candidate.json",
+      "bytes": 73019,
+      "sha256": "03207eac2818f469e10bd164543a0dc0db42c45fb5f363965b20604245f103ac"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/pmr-025-v0.1.9-plan-composition-proposal.candidate.json",
+      "bytes": 8248,
+      "sha256": "eb8c951e017ff94c04d30acb6f417f7211f44839564546b5f22bb3a3a0222f1b"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/srs-traceability.candidate.json",
+      "bytes": 31284,
+      "sha256": "3f2a5e19b760bd8bf30fba57d2d9f54a5c023d1bca7d829c21a52abbc636bce5"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/traceability.json",
+      "bytes": 19575,
+      "sha256": "997f0ae18aec2277b5a68f7438755fc1b703843ae21adf55b99e66b6771605d9"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/user-direction-receipt-2026-09-29.candidate.json",
+      "bytes": 6154,
+      "sha256": "c43f4ae5928cff4b335a41d643083e9663a908faea088373ee4ae25e9a816b83"
+    },
+    {
+      "path": "docs/architecture/project-manager-system/README.md",
+      "bytes": 42900,
+      "sha256": "54982bfa3d9e047cfdbc4e6b566cf3f3d7ab58a6fbd0ae814896a8940aaf5a12"
+    },
+    {
+      "path": "docs/decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md",
+      "bytes": 10198,
+      "sha256": "f40c06eb5e4cfbe846ec0bc30b85212e96e4b122e537c811c3dfd34e6cf07211"
+    },
+    {
+      "path": "docs/domains/project-manager/EXECUTION-PLAN-BUNDLE.md",
+      "bytes": 12831,
+      "sha256": "e690717ed210042d3b79f504fe0deef15dace4921a760370e3aca2a62232d536"
+    },
+    {
+      "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
+      "bytes": 35942,
+      "sha256": "83521bda581fd47a99e3670556d005f37f47977693d07bd411edd3d10fa3a4ad"
+    },
+    {
+      "path": "docs/domains/project-manager/features/FR-108-execution-plan-bundle.md",
+      "bytes": 6010,
+      "sha256": "b18d9d89608011ca16e8ddf9e28fa813c3462bd3bd17a42c91b0d8e741af9051"
+    },
+    {
+      "path": "docs/domains/project-manager/requirements/PMR-025-proposal-requirement.md",
+      "bytes": 1814,
+      "sha256": "6420d7455f920702ac11f1e1d600a21f272b8bfaeeba0ee8aee511e2556aac22"
+    }
+  ],
+  "archive": {
+    "path": "rollback-payload.zip",
+    "sha256": "0a2898818eee5db388b6c86d3b7d2cc1e2710b28c55acb3bd3637b99b471495a",
+    "entries": 49
+  },
+  "verification": {
+    "copiedPayloadHashes": "PASS",
+    "sourceStableDuringCopy": "PASS",
+    "archiveEntryCount": "PASS",
+    "archivePayloadHashes": "PASS"
+  }
+}

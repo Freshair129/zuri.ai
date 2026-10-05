@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-DATA
 title: Project Manager domain data and event contracts
-version: "0.3.0b"
+version: "0.4.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f3025"
-last_update: "2026-09-16T12:22:55+07:00,RWANG"
+last_update: "2026-10-04T10:00:00+07:00,Codex"
 superseded_by: null
 attributes:
   doc_type: data-design
@@ -20,7 +20,7 @@ relations:
 
 # Domain Data & Events
 
-**Version:** 0.3.0b · **Status:** Candidate
+**Version:** 0.4.0b · **Status:** Candidate
 ทุกชื่อ “new” เป็น logical model proposal ไม่ใช่ Prisma schema ที่มีอยู่แล้ว
 
 **Workforce supplement:** [15 Workforce planning & performance](15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md) §4–6 defines typed estimate/remaining minutes, effective calendars and team shares, allocations, logs, delivery evidence and versioned metric policies. Reuse WorkItem/Team/Employment identities and owner writers; reconcile generic AllocationInput/resourceId from the earlier API proposal with personId before code so no duplicate allocation authority is created. Team Membership and Employment never grant access. No existing data or schema is changed by this supplement.
@@ -40,6 +40,53 @@ relations:
 9. Label/layout/UI filter ไม่เป็น authorization และไม่เปลี่ยน semantic content hash
 10. New scoped tables ต้องมี composite constraints/foreign-key scope guards และ RLS สำหรับ production adapter; application check อย่างเดียวไม่พอ
 
+### Stable IDs and inter-system contracts
+
+- A persisted row's `id` is its internal UUID primary key. An API field such as
+  `workflowId` is that same UUID; `code` is the human-readable lookup value, not
+  a second primary key.
+- `ContractDefinition.id` is the registry row UUID. `contractId` is its stable,
+  namespace-qualified URI; `ContractVersion.id` is the internal version-row
+  UUID; `contractVersion` is the immutable SemVer label. External references
+  carry the exact `{ contractId, contractVersion }` pair. A versioned `schemaId`
+  identifies the schema document; it is not a contact, workflow, or execution ID.
+- `schemaKind` identifies JSON Schema versus OpenAPI. `schemaDocumentFormat`
+  describes whether the contract document is JSON or YAML. `serializationFormat`
+  and `mediaType` describe the exchanged payload. They are separate fields:
+  OpenAPI may declare media types per operation, and a YAML schema file does not
+  imply YAML wire payloads.
+- `workflowId` maps to `WorkflowDefinition.id`; `workflowVersionId` maps to one
+  immutable `WorkflowVersion.id`. `agentId` / `agentVersionId` and `fleetId` /
+  `fleetVersionId` follow the same definition-versus-pinned-revision rule.
+- Agentic project execution reuses the Project Manager trace IDs:
+  `executionRunId` → `executionStepId` → `attemptId` → `auditEventId`.
+  `ProjectRunBinding` points to the PM-owned `ProjectExecutionRun`. Integration's
+  `PipelineRun` / `PipelineStep.runId` are reserved for data-pipeline work and
+  are not aliases for a project workflow run. A generic `jobId` is absent until
+  an independently addressable job aggregate with its own lifecycle is approved.
+- `correlationId` groups transport activity; `idempotencyKey` deduplicates a
+  retried command; neither is an entity ID. A request-attempt ID, if exposed, is
+  likewise distinct from a durable execution run.
+- Current CRM records are `Customer` and `Person`; no `Contact` model exists.
+  New contract references use `contractId`, never `contactId`. The older pinned
+  FR-071 / SDD-040 rows still carry the former CRM interpretation of
+  `contract_id`; their meaning remains unchanged until a reviewed record
+  migration is approved. This candidate is not permission to reinterpret those
+  runtime fields.
+
+Contract reference example:
+
+```json
+{
+  "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+  "contractVersion": "1.0.0"
+}
+```
+
+No `latest` alias is accepted in an approved WorkflowVersion. Its root input and
+output, plus every step input and output, resolve to an approved exact contract
+version before the workflow revision is sealed.
+
 ## 2. Aggregate inventory and data dictionary
 
 | Aggregate / owner | Status | Core fields and relationships | Constraints |
@@ -52,10 +99,12 @@ relations:
 | DesignSnapshot; PM | new | projectId, revision, requirementsHash, graphHash, contractsHash, policyHash, state | APPROVED immutable; exact review receipt required |
 | DesignReview; PM | new | snapshotId, reviewerId, decision, reason, evidenceRefs, decidedAt | Reviewer permissions/current scope and SoD checked at decision time |
 | ArchitectureElementBinding; PM | new | snapshotId, elementId, sourceRef, codeAnchorRefs, operationIds | Unique snapshot+element; code refs pinned to SHA |
-| AgentDefinition / AgentVersion; PM | new | stable id/code; revision, charterRef, executionKind, roles, skills/tools, modelPolicy, executorConstraints, evalRef | No raw prompt authority or embedded secret; approved versions immutable |
+| ContractDefinition / ContractVersion; Integration registry, semantic domain owner | candidate | `contractId` URI, ownerDomainId, immutable `contractVersion`, `schemaId`, schema kind, JSON/YAML document format, payload serialization/media type and digest | Unique stable ID + version; owner review; approved version immutable; exact version required |
+| AgentDefinition / AgentVersion; PM | new | stable id/code; revision, charterRef, executionKind, roles, exact input/output contract pairs, skills/tools, modelPolicy, executorConstraints, evalRef | No raw prompt authority or embedded secret; approved versions immutable; contracts resolve before approval |
 | FleetDefinition / FleetVersion; PM | new | stable id/code; member role + agentVersionId, workflowVersionId, limits, policies | Member role unique; no unresolved latest reference |
-| WorkflowDefinition / WorkflowVersion; PM | new | stable id/code; typed DAG, input/output schemas, step bindings, retry/approval rules | Schema + semantic validator before publish |
-| ProjectRunBinding; PM | new | projectId, workstreamId?, executionRunId, workflowVersionId, baselineHash | Unique project+executionRunId; run state read from Integration |
+| WorkflowDefinition / WorkflowVersion; PM | new | stable UUID/code; typed DAG with exact root/step contract references, step bindings, retry/approval rules | Schema + semantic validator resolves every contract version before publish |
+| ProjectExecutionRun / ProjectExecutionStep; PM | new | `executionRunId`, `executionStepId`, `attemptId`, `workflowVersionId` via binding | PM-owned workflow state of record; attempt IDs differ from Integration pipeline attempts |
+| ProjectRunBinding; PM | new | projectId, workstreamId?, executionRunId → ProjectExecutionRun, workflowVersionId, baselineHash | One binding per PM execution run; PM trace ledger remains authoritative |
 | ArtifactRevision; PM | new metadata over FileAsset | artifactId, revision, storageRef, sha256, mediaType, classification, producerRunId, sourceRefs | Bytes private and immutable; expiry/tombstone preserves audit identity |
 | Risk / Issue / Decision / ChangeRequest; PM | new or reconcile existing FR-070 supporting records | code, owner, severity, probability/impact, dueAt, linked objects, resolutionRef | Reuse matching existing supporting model after field-level diff; avoid duplicate registries |
 | ResourceAllocation / BudgetBaseline; PM | proposed extension | assignee/resourceRef, time window, effort units, currency, plannedCost, actualUsageRefs | Units explicit; concurrency check before commit; overrides reasoned |
@@ -64,8 +113,8 @@ relations:
 | ModelDeployment / ModelOffering / RoutingPolicy; Integration | new | connectionId, executionLocation, endpoint profile, model identifier/revision, capabilities, probe, pricing basis | Connection scope enforced; routing approved version pinned |
 | McpBinding / ToolSnapshot; Integration | new | transport/protocol, server identity, tool schemas/digests, executor binding, consent | Tool metadata changes invalidate approval; sensitive args never inventory data |
 | ExecutorRegistration; Integration with Identity credential | new execution profile | host identity, allowed scopes/repos, OS/runtime/capabilities, heartbeat, capacity, drain state | Existing harness report credential cannot claim runs |
-| PipelineRun / PipelineStep / PipelineEventReceipt / PipelineGateDecision; Integration | reuse + profile extension | existing executionRunId/executionContractId + PM workflow profile/version, events and receipts | Namespace isolates PM workflow validation from existing data pipelines |
-| StepAttempt / QueueLease / EffectReceipt; Integration | new ledger extensions | attemptId, stepId, leaseEpoch, leaseUntil, effectKey, payloadHash, outcome, receiptRef | CAS claim; unique active lane; stale epoch cannot commit/promote |
+| PipelineRun / PipelineStep / PipelineEventReceipt / PipelineGateDecision; Integration | reuse | existing `executionRunId` / `executionContractId` for governed data pipelines, events and receipts | Separate from PM ProjectExecutionRun; no cross-domain workflow-run alias |
+| StepAttempt / QueueLease / EffectReceipt; Integration | candidate pipeline-ledger extensions | `attemptId`, `pipelineStepId`, `leaseEpoch`, `leaseUntil`, `effectKey`, `payloadHash`, outcome, receiptRef | Applies only to Integration pipeline work; it does not alias PM ProjectExecutionStep attempts or introduce a generic PM `jobId` |
 | UsageReservation / UsageEntry; Integration | new | scope, run/attempt, budgetId, currency, max exposure, usage categories, measurement source | Reserve atomically; charge once per invocation; unknown not zero |
 | GatewayClientKey; Identity | new audience/profile or separate type after review | keyId, hash, prefix, scope, model allowlist, expiresAt, revokedAt, quotas | One-time reveal; inference-only audience; never upstream secret |
 | ShareGrant; Identity | new/reuse generic grant if exact fit | artifactRevisionId, recipient/audience, permission, expiresAt, revokedAt, access audit | Snapshot-specific; no project-wide implicit grant |
@@ -82,12 +131,15 @@ erDiagram
   PROJECT_FEATURE ||--o{ REQUIREMENT_BINDING : requires
   PROJECT ||--o{ DESIGN_SNAPSHOT : versions
   DESIGN_SNAPSHOT ||--o{ DESIGN_REVIEW : reviewed_by
+  CONTRACT_DEFINITION ||--|{ CONTRACT_VERSION : versions
+  CONTRACT_VERSION ||..o{ WORKFLOW_VERSION : exact_refs_in_workflow_json
   AGENT_DEFINITION ||--|{ AGENT_VERSION : versions
   FLEET_VERSION ||--|{ FLEET_MEMBER : contains
   AGENT_VERSION ||--o{ FLEET_MEMBER : pinned_by
   WORKFLOW_VERSION ||--o{ FLEET_VERSION : used_by
   PROJECT ||--o{ PROJECT_RUN_BINDING : tracks
-  PIPELINE_RUN ||--o| PROJECT_RUN_BINDING : associated
+  PROJECT_EXECUTION_RUN ||--o| PROJECT_RUN_BINDING : associated
+  PROJECT_EXECUTION_RUN ||--o{ PROJECT_EXECUTION_STEP : records
   PIPELINE_RUN ||--o{ PIPELINE_STEP : records
   PIPELINE_STEP ||--o{ STEP_ATTEMPT : retries
   STEP_ATTEMPT ||--o{ EFFECT_RECEIPT : reports
@@ -96,7 +148,7 @@ erDiagram
   INTEGRATION_CONNECTION ||--o| INTEGRATION_CREDENTIAL : resolves
 ```
 
-Diagram is logical: cardinality and authorization still need physical composite constraints. Shared provider catalog is installation metadata; connection/deployment/use remain scoped.
+Diagram is logical: cardinality and authorization still need physical composite constraints. The dotted WorkflowVersion edge is a semantic reference inside its immutable JSON, resolved to an exact approved ContractVersion; it is not a SQL foreign key. `ProjectExecutionRun` is PM-owned agentic execution; Integration `PipelineRun` stays a separate data-pipeline ledger. Shared provider catalog is installation metadata; connection/deployment/use remain scoped.
 
 ## 4. Transaction and concurrency contract
 
@@ -104,10 +156,10 @@ Diagram is logical: cardinality and authorization still need physical composite 
 |---|---|---|
 | Edit draft | authorize + expectedVersion check + save + AuditEvent | 412 VERSION_CONFLICT; return currentVersion and reload link |
 | Approve version | verify complete hash manifest + current review grant + SoD + append approval + seal version | 409 INPUT_CHANGED / 403 REVIEW_FORBIDDEN |
-| Dispatch | resolve versions + scope/policy + idempotency record + budget reservation + run/steps/outbox | Any failure rolls back enqueue; duplicate identical request returns original receipt |
+| Dispatch | PM resolves exact workflow/fleet/contract versions and writes its ProjectExecutionRun/steps; a separate Integration pipeline command may reserve pipeline usage + outbox | Any failure rolls back that owner's enqueue; duplicate identical request returns original receipt |
 | Claim | eligible step + repository/domain lane uniqueness + lease increment + attempt creation | No eligible work returns 204; lock conflict waits/backoff |
 | Receive event | validate executor/epoch/scope + dedup by source/eventId + sequence + receipt + outbox | Same ID/different hash is CONFLICT; late epoch quarantined |
-| Complete step | authoritative effect/evidence refs + output schema + state transition + events | Invalid output fails attempt; no auto acceptance |
+| Complete step | authoritative effect/evidence refs + exact output ContractVersion validation + PM trace state transition/events | Invalid output fails the attempt; no auto acceptance |
 | Accept work | PM service checks required gates/current evidence and records status+AuditEvent | A successful run without accepted evidence leaves work in review |
 | Rotate secret | stage new version → validate → atomic active-pointer switch | Failed validation keeps previous active version; immediate revoke blocks future resolution |
 | Reserve budget | compare remaining including reservations + insert reservation | 429 BUDGET_EXCEEDED; no provider call |
@@ -124,6 +176,8 @@ All new internal workflow events use this versioned envelope:
   "schemaVersion": "1.0",
   "eventId": "00000000-0000-4000-8000-000000000101",
   "eventType": "pm.execution.step.completed.v1",
+  "contractId": "urn:zuri:contract:project-manager:execution-step-completed",
+  "contractVersion": "1.0.0",
   "source": "integration.execution",
   "occurredAt": "2026-09-15T16:00:00Z",
   "recordedAt": "2026-09-15T16:00:01Z",
@@ -142,7 +196,7 @@ All new internal workflow events use this versioned envelope:
 }
 ```
 
-All UUIDs and the payload locator above are synthetic examples, not real records. Payload refs resolve within the same scope. No auth token, raw key, credential URL, prompt payload or hidden reasoning in the event envelope.
+All UUIDs and the payload locator above are synthetic examples, not real records. `schemaVersion` versions this envelope shape; `contractId` + `contractVersion` pin the payload schema. The HTTP/content transport declares the payload media type, independently of whether the schema document was authored as JSON or YAML. Payload refs resolve within the same scope. No auth token, raw key, credential URL, prompt payload or hidden reasoning in the event envelope.
 
 | Event family | Producer | Consumer / effect |
 |---|---|---|
@@ -196,3 +250,4 @@ No rewrite of existing FR/FEAT keys, no forced migration of old pipelines to fle
 | 0.1.0b | 2026-09-15 | candidate | Aggregate ownership, immutable revisions, ledger reuse, transactions, events and retention | base 087f3025 | RWANG |
 | 0.2.0b | 2026-09-16 | candidate | Add workforce data ownership, evidence history and allocation reconciliation gate | source 0f5a47fc; uncommitted | RWANG |
 | 0.3.0b | 2026-09-16 | candidate | Link field-level table dictionary and focused ERDs while retaining owner and migration gates | design base 087f3025; uncommitted | RWANG |
+| 0.4.0b | 2026-10-04 | candidate | Add versioned inter-system contract identities, pin workflow input/output schemas by exact version, and bind project workflows to the PM execution ledger; preserve old FR-071/SDD-040 semantics pending reviewed migration | design refinement; documentation only | Codex |

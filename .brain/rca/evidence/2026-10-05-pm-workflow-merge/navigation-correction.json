@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T09:23:25.448Z",
+  "status": "PASS_NARROW_DOCUMENT_GENERATION_REVIEW_PENDING",
+  "prHeadAtFailure": "f9f641e3c17bd181eed6182721bdc3205de226e5",
+  "hostedFailure": {
+    "runId": 37288692555,
+    "jobId": 111693839899,
+    "result": "FAIL",
+    "message": "docs/architecture/README.md is stale; run generator without --check"
+  },
+  "commands": [
+    {
+      "command": "npm ci --ignore-scripts --no-audit --no-fund",
+      "purpose": "isolated worktree generator dependencies only",
+      "result": "PASS_NO_LIFECYCLE_SCRIPTS"
+    },
+    {
+      "command": "node apps/server/scripts/doc-graph.mjs",
+      "result": "PASS_GENERATED_INPUT"
+    },
+    {
+      "command": "node tools/generate-document-views.mjs",
+      "result": "PASS_GENERATED_96_VIEWS"
+    },
+    {
+      "command": "node tools/generate-document-views.mjs --check",
+      "result": "PASS_VERIFIED_96_VIEWS"
+    }
+  ],
+  "trackedProjectionDelta": "docs/architecture/README.md one navigation label; no other tracked generated changes",
+  "outputs": [
+    {
+      "path": "docs/architecture/README.md",
+      "sha256": "e50caf46ecc6c5bce551101efd4e7aed05617116096c86ba8b02ba71a08b1cc9",
+      "bytes": 20661
+    },
+    {
+      "path": ".brain/rca/2026-10-05-pm-workflow-generated-navigation-stale.md",
+      "sha256": "e4f907124eaafd0d99ddca387f4bdf9fc17eac433e3a40364ecaf0d55fec0099",
+      "bytes": 3013
+    }
+  ],
+  "pinnedComposedSourceAndMainContracts": "PASS_UNCHANGED_2_SOURCE_AND_23_CONTRACTS",
+  "localGovern": "NOT_RUN",
+  "localTests": "NOT_RUN",
+  "localBuild": "NOT_RUN",
+  "hostedFinalChecks": "PENDING",
+  "independentReview": "PENDING",
+  "authority": {
+    "dispatchable": false,
+    "implementationAuthorized": false
+  },
+  "limits": [
+    "Graph generation is not strict preflight, test execution or runtime proof.",
+    "Graph diagnostic dangling edges and unanchored rules are not evaluated as acceptance by this narrow correction.",
+    "Product HOLD and operational adoption remain unchanged."
+  ]
+}

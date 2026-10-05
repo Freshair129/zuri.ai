@@ -1,7 +1,7 @@
 ---
-version: "1.39.0b"
+version: "1.40.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-24T20:46:40+07:00,RWANG"
+last_update: "2026-10-05T00:00:00+07:00,Codex"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -12,20 +12,22 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
+Version diff 1.39.0b -> 1.40.0b: add the FR-278 read-only `/growth/line-sales` executive dashboard and its explicit unavailable Ads/Lead/call states; 116 page routes.
+
 Version diff 1.38.0b -> 1.39.0b: add the FR-275 `/growth/insights` page (Marketing Insights); 115 page routes.
 
 Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describe the PRP LocalWorker API-key flow, and reconcile the inventory to 114 page routes; 59 operational subdomain entries remain.
 
 | Field | Value |
 |---|---|
-| **Version** | 1.39.0b |
+| **Version** | 1.40.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-24 |
+| **Last Updated** | 2026-10-05 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=115; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=116; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -288,6 +290,7 @@ and does not require an active Business selection.
 | `/growth/paid-media` | Marketing Paid Media | BusinessShell → Marketing / Paid Media | Owner projections for campaign, operations, integration and verified Commerce revenue; paid provider metrics remain null and unavailable | Business growth visibility; loading, empty, failure, unavailable and unknown source states; no provider or CRM audience call | FR-185; `src/app/(pm)/growth/paid-media/page.jsx`; locally verified beta; [FR-185 contract](domains/marketing/features/FR-185-broadcast-planning-intent.md) |
 | `/growth/broadcast` | Marketing Broadcast Planning | BusinessShell → Marketing / Broadcast | Backend/current-UI milestone for durable PLANNING intents with strict content, LINE account, consent and unavailable audience references; append-only revisions and archive | API owner create/revise/archive with Business scope and CAS; picker/detail UI follow-up remains; stale references, unavailable audience and dispatch stay visible | FR-185; `src/app/(pm)/growth/broadcast/page.jsx`; API locally verified beta, picker/detail UI pending; [FR-185 contract](domains/marketing/features/FR-185-broadcast-planning-intent.md) |
 | `/growth/ask-marketing` | Ask Marketing | BusinessShell → Marketing / Ask Marketing | Deterministic read-only overview, ROAS and fatigue question states over owner DTOs; unsupported questions return unavailable | Business growth visibility; loading, error, unknown and unavailable; no LLM, provider, CRM audience or send action | FR-185; `src/app/(pm)/growth/ask-marketing/page.jsx`; locally verified beta; [FR-185 contract](domains/marketing/features/FR-185-broadcast-planning-intent.md) |
+| `/growth/line-sales` | Executive LINE OA Sales Dashboard | BusinessShell → Marketing; linked from Marketing Dashboard | Weekly verified Commerce revenue, refund/pending/order summary and aggregate CRM follow-up health; Ads, lead attribution and call outcomes stay unavailable | Business-scoped read; week selector; source-specific ready/unavailable/unknown states; CRM health is a live snapshot, not historical weekly data | FR-278; `src/app/(pm)/growth/line-sales/page.jsx`; local implementation and focused tests; [FR-278](requirements/FR-278.md) |
 | `/growth/insights` | Marketing Insights | BusinessShell → Marketing (URL only; no Insights navigation entry until data exists) | Brand selector, date presets and Overview / Results / Content tabs over one snapshot, with CSV export per metric; in this release the page reports that Insights is not available because `/api/insights/*` return 503 `INSIGHTS_NOT_CONFIGURED` | Signed-in; every binding re-authorized by Business visibility plus the `growth` domain; loading, not-configured, error | FR-275; `src/app/(pm)/growth/insights/page.jsx`; route tests with synthetic fixtures; no reporting source, browser proof with data or navigation entry (TASK-ZAI-124) |
 
 The [approved 100-screen inventory](change-requests/marketing/MARKETING-INTERFACE-INVENTORY.md)
@@ -413,6 +416,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.40.0b | 2026-10-05 | candidate | Add the FR-278 `/growth/line-sales` executive dashboard; 116 page routes | working-tree | Codex |
 | 1.39.0b | 2026-09-27 | candidate | Add the FR-275 `/growth/insights` page; 115 page routes | working-tree | Claude Opus 5.5 (MC0) |
 | 1.38.0b | 2026-09-24 | candidate | Retire Edge and harness pairing routes, describe the PRP LocalWorker API-key flow, and reconcile to 114 page routes | working-tree | RWANG |
 | 1.36.0b | 2026-09-19 | candidate | Reconcile Documents & Intake with the FR-254 Knowledge Console route and navigation; 115 page routes and 59 operational subdomain entries | working-tree | RWANG |

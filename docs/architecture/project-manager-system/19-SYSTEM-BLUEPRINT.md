@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-BLUEPRINT
 title: Project Manager system implementation blueprint
-version: "0.1.0b"
+version: "0.2.0b"
 status: candidate
 created_at: "2026-09-16T12:00:32+07:00,RWANG,design base 087f3025"
-last_update: "2026-09-16T12:22:55+07:00,RWANG"
+last_update: "2026-10-04T10:00:00+07:00,Codex"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -25,7 +25,7 @@ relations:
 | Decision | Blueprint | Reason / consequence |
 |---|---|---|
 | Product scope | Extend zuri-ai PM; preserve seven-mode universal core | Existing tasks and progress remain interoperable |
-| Domain boundaries | PM definitions/planning; Integration runtime/providers; Identity authority; CRM Person; Knowledge retrieval | Single writer per owner; UI navigation does not change code/data ownership |
+| Domain boundaries | PM definitions/planning and ProjectExecutionRun/Step trace; Integration admission/queue/leases/providers; Identity authority; CRM Person; Knowledge retrieval | PM owns project workflow run state; Integration owns runtime controls and its separate PipelineRun data-pipeline ledger |
 | Deployment shape | Modular monolith with durable worker/executor adapters | Component boxes below are logical modules, not a mandate for microservices |
 | Source of truth | Versioned SRS + table/graph contracts + OpenAPI + acceptance evidence | Rendered diagrams and Swagger consume source contracts |
 | Human capacity | Workforce lane independent from Agent/Fleet runtime | Useful planning can ship before autonomous execution |
@@ -41,7 +41,8 @@ relations:
 | PM design/evidence | Requirement/snapshot/graph bindings, API catalog, release/evaluation links | Exact manifest hashes and evidence with SHA/environment | PM module; existing api-docs generator remains source for deployed API docs |
 | PM definitions | Agent/fleet/workflow configuration versions | Validated DAG, pinned tool/model/agent versions | PM module; invokes Integration admission port |
 | People/workforce | Employment calendars, estimates, assignments, capacity, schedule, scorecard | Workforce OpenAPI and typed owner input ports | Current PM people module + pure calculators/repositories |
-| Integration execution | Run/step/attempt, lease, triggers, usage and receipts | Execution profile mapped into existing pipeline ledger | Integration owner module/platform ports |
+| PM execution trace | ProjectExecutionRun / ProjectExecutionStep, workflow binding, run/step/attempt identity and project outcome | Workflow contract, exact WorkflowVersion, input/output contracts and owner-approved state transitions | Project Manager owner service and PM data partition |
+| Integration runtime | Admission queue, executor lease/fencing, provider invocation, usage and runtime receipts; PipelineRun/Step only for data pipelines | Exact `executionRunId` / `executionStepId`; reports observed execution events through the PM owner port | Integration owner module/platform ports |
 | Integration providers | Connections, vault, model/MCP binding, inference routing | Scoped credential resolution and versioned capability/probe | Existing platform integration writer and new reviewed adapters |
 | Identity | Viewer scope, service credentials, inference/share profiles and review authorization | Authority receipt/current capability intersection | Identity owner; no duplicate PM role resolver |
 | CRM / Knowledge | Person identity / authorized retrieval | Read/reference ports with provenance | Existing owner services; no PM writes to their stores |
@@ -57,7 +58,8 @@ flowchart TB
   H["Human and service client"] -->|USES| W["PM web and LINE intake"]
   W -->|REQUESTS| PM["Project Manager"]
   PM -->|AUTHORIZES| ID["Identity"]
-  PM -->|COMMANDS_AND_READS| INT["Integration execution and provider ports"]
+  PM -->|COMMANDS| INT["Integration queue, leases and provider ports"]
+  INT -->|REPORTS_EVENT| PM
   PM -->|READS_OWNER| CRM["CRM Person and People references"]
   PM -->|RETRIEVES| K["Knowledge ports to MSP and GKS"]
   INT -->|SCOPED_CALL| EXT["Cloud provider or paired private host"]
@@ -74,17 +76,21 @@ flowchart TB
     PL["Planning and support"]
     DE["Design and evidence"]
     DF["Agent Fleet Workflow definitions"]
+    TR["ProjectExecutionRun / ProjectExecutionStep trace"]
     WF["People and workforce"]
   end
   subgraph INT["Integration boundary"]
-    RUN["Durable execution and usage"]
+    RUN["Admission queue and executor leases"]
     PR["Model MCP gateway"]
     AD["SCM notification calendar adapters"]
   end
   W -->|REQUESTS| PM
   PM -->|AUTHORIZES| ID["Identity authorization"]
   PM -->|WRITES| PDB["PM data partition"]
-  DF -->|COMMANDS| RUN
+  DF -->|COMMANDS| TR
+  TR -->|COMMANDS| RUN
+  RUN -->|REPORTS_EVENT| TR
+  TR -->|WRITES| PDB
   WF -->|READS_OWNER| CRM["CRM Person port"]
   DE -->|RETRIEVES| K["Knowledge ports"]
   INT -->|AUTHORIZES| ID
@@ -96,7 +102,7 @@ flowchart TB
   PR -->|INVOKES| M["Cloud or private model"]
 ```
 
-This is a grouped projection for readability; boundary arrows combine same-type per-module edges, and CLAIMS_AND_REPORTS combines CLAIMS plus REPORTS_EVENT. Machine source: [blueprint.candidate.json](contracts/blueprint.candidate.json), 18 nodes and 27 exact directed edges listed below. AUTHORIZES means the source requests a decision from Identity; it does not give the target a grant. WRITES edges must remain within the owning domain. READS_OWNER crosses only a published owner port. Database boxes are logical partitions of the selected adapter, not three compulsory databases. Original G01 remains unchanged.
+This is a grouped projection for readability; boundary arrows combine same-type per-module edges. Machine source: [blueprint.candidate.json](contracts/blueprint.candidate.json), 19 nodes and 30 exact directed edges listed below. AUTHORIZES means the source requests a decision from Identity; it does not give the target a grant. WRITES edges must remain within the owning domain. READS_OWNER crosses only a published owner port. Database boxes are logical partitions of the selected adapter, not three compulsory databases. Integration writes its PipelineRun ledger only for data-pipeline work; project workflow run/step state stays in the PM partition. Original G01 remains unchanged.
 
 | Edge | From → To | Type | Contract |
 |---|---|---|---|
@@ -116,10 +122,10 @@ This is a grouped projection for readability; boundary arrows combine same-type 
 | BPE-14 | pm-definitions → pm-store | WRITES | data-model.candidate.json |
 | BPE-15 | workforce → pm-store | WRITES | data-model.candidate.json |
 | BPE-16 | identity → identity-store | WRITES | ../17-SRS.md |
-| BPE-17 | execution → integration-store | WRITES | data-model.candidate.json |
+| BPE-17 | execution → integration-store | WRITES | data-model.candidate.json (Integration data pipelines only) |
 | BPE-18 | provider → integration-store | WRITES | data-model.candidate.json |
 | BPE-19 | provider → vault | RESOLVES_SECRET | ../05-PROVIDERS-AND-MCP.md |
-| BPE-20 | pm-definitions → execution | COMMANDS | workflow.schema.json |
+| BPE-20 | pm-execution-trace → execution | COMMANDS | workflow.schema.json |
 | BPE-21 | executor → execution | CLAIMS | openapi.candidate.yaml |
 | BPE-22 | executor → execution | REPORTS_EVENT | openapi.candidate.yaml |
 | BPE-23 | executor → provider | INVOKES | openapi.candidate.yaml |
@@ -127,6 +133,9 @@ This is a grouped projection for readability; boundary arrows combine same-type 
 | BPE-25 | pm-design → knowledge | RETRIEVES | ../03-DATA-AND-EVENTS.md |
 | BPE-26 | integration-adapters → scm | VERIFIES | ../07-DELIVERY-AND-VERIFICATION.md |
 | BPE-27 | integration-adapters → pm-design | REPORTS_EVIDENCE | ../07-DELIVERY-AND-VERIFICATION.md |
+| BPE-28 | pm-definitions → pm-execution-trace | COMMANDS | workflow.schema.json |
+| BPE-29 | pm-execution-trace → pm-store | WRITES | data-model.candidate.json |
+| BPE-30 | execution → pm-execution-trace | REPORTS_EVENT | openapi.candidate.yaml |
 
 ## BP03 — Deployment and trust boundaries
 
@@ -193,24 +202,28 @@ This sequence assumes the approved owner unit-of-work can provide one transactio
 sequenceDiagram
   actor U as Requester
   participant PM as PM definitions
-  participant I as Integration ledger
+  participant T as PM ProjectExecutionRun trace
+  participant I as Integration runtime
   participant E as Executor
   participant P as Provider or tool owner
   U->>PM: Approved baseline plus dry-run receipt
-  PM->>I: Admit exact workflow and idempotency hash
-  I->>I: Reauthorize reserve budget persist run outbox
-  I-->>U: Durable queued receipt
+  PM->>T: Admit exact workflow and idempotency hash
+  T->>T: Reauthorize and persist ProjectExecutionRun plus ordered steps
+  T->>I: Dispatch executionRunId and pinned work
+  I->>I: Enqueue and reserve runtime usage
+  I-->>U: Durable queued receipt with executionRunId
   E->>I: Claim eligible step
   I-->>E: Attempt capability lease epoch and pinned refs
   E->>P: Authorized invocation with effect key
   P-->>E: Output or ambiguous outcome
   E->>I: Event ID hash epoch output evidence
+  I->>T: Report observed execution event through PM owner port
   alt stale epoch duplicate conflict or unknown effect
     I->>I: Reject quarantine or stop for reconciliation
   else valid output and receipt
-    I->>I: Commit receipt step transition and next readiness
+    T->>T: Commit step transition and next readiness
   end
-  PM->>I: Read authorized completion evidence
+  PM->>T: Read authorized completion evidence
   PM-->>U: Work ready for review
   U->>PM: Accept evidence through PM owner
   PM->>PM: Recompute strategy progress and append audit
@@ -225,7 +238,7 @@ sequenceDiagram
 | PMF-03 Visual API | PM; Integration/Identity contracts | OpenAPI snapshots and operation bindings | P2; read-only first |
 | PMF-04 Agent inventory | PM; Integration | AgentDefinition/Version, approved model/tool refs | P4 |
 | PMF-05 Fleet inventory | PM; Integration | Fleet/Workflow versions and member bindings | P5 after durable single-run proof |
-| PMF-06 Command center | Integration; PM UI | Run/Step/Attempt/Lease/EffectReceipt/Trigger | P4–P5; ledger compatibility gate |
+| PMF-06 Command center | PM trace; Integration runtime; PM UI | PM ProjectExecutionRun/Step/attempt identity plus Integration lease/usage/runtime evidence | P4–P5; owner-port and ledger-separation gate |
 | PMF-07 Provider/MCP/gateway | Integration; Identity | Connection, Deployment, Offering, ToolSnapshot, inference-key profile | P3; no automatic public LINE change |
 | PMF-08 Authority/evidence | Identity; PM | Existing grants, exact review/share profile and AuditEvent | Every slice |
 | PMF-09 Collaboration/retrieval | PM; Knowledge/Integration/Identity | ArtifactRevision, comments, subscription/delivery, share | P6 |
@@ -239,7 +252,7 @@ sequenceDiagram
 | UI → API | Timeout, stale ETag, session revocation | Query durable receipt, preserve draft, never show success without confirmation |
 | PM → Identity/CRM | Missing scope, deleted/unknown person, changed grant | Refuse or show partial coverage; no guessed identity or automatic Membership |
 | Calendar/allocation writers | Concurrent plan, changed estimate/share, fixed-slot overlap | Atomic CAS/ordered locks and no partial commit; review coarse conflict scope |
-| PM → Integration | Duplicate admission or pipeline profile mismatch | Same key/hash returns receipt; unsupported profile rejected; do not repurpose existing required fields |
+| PM → Integration | Duplicate workflow admission or data-pipeline profile mismatch | PM returns the original executionRunId for the same key/hash; Integration rejects unsupported pipeline profiles; never alias the two ledgers |
 | Executor → ledger | Crash, expired lease, late result | Epoch fence; stale evidence quarantined; no state promotion |
 | Provider/tool effect | Success before network loss | Mark UNKNOWN, retain effect key/receipt and reconcile before retry |
 | Outbox/inbox | Duplicate/out-of-order message | Owner-local atomic dedup plus event; visible gap and bounded replay |
@@ -288,3 +301,4 @@ Use [16 readiness audit](16-SPEC-READINESS-AND-API-REFERENCE.md) as the gap ledg
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-16 | candidate | Add component/data/deployment blueprint, typed edges, two runtime sequences and per-phase handoff | design base 087f3025; uncommitted | RWANG |
+| 0.2.0b | 2026-10-04 | candidate | Assign project workflow run/step SOT to PM, retain Integration queue/lease/provider runtime and separate data-pipeline ledger; add the owner-port event path | documentation refinement | Codex |

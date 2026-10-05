@@ -36,11 +36,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 163,
-    "readyFeatureCount": 118,
-    "requirementCount": 277,
-    "verifiedRequirementCount": 245,
-    "progressPercent": 92.6,
+    "featureCount": 164,
+    "readyFeatureCount": 119,
+    "requirementCount": 278,
+    "verifiedRequirementCount": 246,
+    "progressPercent": 92.7,
     "gapCount": 48,
     "gaps": [
       {
@@ -1206,7 +1206,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-166",
@@ -1288,7 +1288,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 331,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -1514,7 +1514,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-166",
@@ -1587,6 +1587,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 27
+        },
+        {
+          "id": "FR-278",
+          "title": "Executive LINE OA sales dashboard",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -1997,7 +2005,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-163",
@@ -2005,7 +2013,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-164",
@@ -2144,7 +2152,7 @@
           "details": {
             "routes": 27,
             "inventoried": 26,
-            "openApiPaths": 331,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -2712,7 +2720,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 331,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -2907,7 +2915,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-164",
@@ -3134,7 +3142,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 331,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -4012,7 +4020,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 331,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -4223,7 +4231,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 331,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -4373,6 +4381,14 @@
           "status": "verified",
           "codeCount": 7,
           "testCount": 3
+        },
+        {
+          "id": "FR-278",
+          "title": "Executive LINE OA sales dashboard",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -4383,8 +4399,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 17,
-            "inventoried": 17,
+            "routes": 18,
+            "inventoried": 18,
             "missing": 0
           }
         },
@@ -4396,9 +4412,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 21,
-            "inventoried": 21,
-            "openApiPaths": 331,
+            "routes": 22,
+            "inventoried": 22,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -4449,7 +4465,7 @@
           "details": {
             "mutations": 12,
             "guardedMutations": 12,
-            "reads": 14,
+            "reads": 15,
             "unguardedReads": 0
           }
         },
@@ -4484,20 +4500,21 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 38,
-        "apiRoutes": 21,
-        "pageRoutes": 17,
+        "routes": 40,
+        "apiRoutes": 22,
+        "pageRoutes": 18,
         "ownedModels": 13,
         "featureNotes": 5
       },
       "featureIds": [
         "FEAT-021",
         "FR-275",
-        "FR-276"
+        "FR-276",
+        "FR-278"
       ],
-      "featureCount": 3,
-      "readyFeatureCount": 1,
-      "progressPercent": 87.5
+      "featureCount": 4,
+      "readyFeatureCount": 2,
+      "progressPercent": 88.9
     },
     "platform-control": {
       "status": "partial",
@@ -4757,7 +4774,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 331,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -5054,7 +5071,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 331,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -5989,7 +6006,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-163",
@@ -5997,7 +6014,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-164",
@@ -6520,6 +6537,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 25
+        },
+        {
+          "id": "FR-278",
+          "title": "Executive LINE OA sales dashboard",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -6555,7 +6580,7 @@
           "details": {
             "routes": 169,
             "inventoried": 169,
-            "openApiPaths": 331,
+            "openApiPaths": 332,
             "missingFromOpenApi": 0
           }
         },
@@ -9400,7 +9425,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 29
+          "testCount": 30
         }
       ],
       "evidence": [
@@ -9437,6 +9462,7 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/marketing/line-sales-dashboard-service.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/sales-task-domain.test.js",
@@ -9475,7 +9501,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-166",
@@ -9541,6 +9567,7 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/marketing/line-sales-dashboard-service.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/scm-core-facade.test.js",
@@ -17973,6 +18000,52 @@
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/server-line-answer.test.js"
+      ]
+    },
+    {
+      "id": "FR-278",
+      "title": "Executive LINE OA sales dashboard — Marketing exposes a read-only, Business-scoped weekly executive projection sourced only from Commerce verified net payments, pending/refund totals and order status plus CRM aggregate SalesTask health. The revenue window is Monday 00:00 through the following Monday 00:00 in Asia/Bangkok; task health is a live snapshot identified by read time, not a historical weekly cohort. The projection preserves READY, PARTIAL, UNAVAILABLE and UNKNOWN with source reasons, returns money and counts without customer or conversation data, and never treats origin CHAT as ad attribution. Spend, impressions, clicks, verified ad attribution, Lead readiness/permission-to-call, and call outcomes remain UNAVAILABLE until their owner sources are approved.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-278"
+      ],
+      "primaryDomain": "marketing",
+      "contributorDomains": [
+        "crm",
+        "marketing",
+        "project-manager"
+      ],
+      "useCase": "ผู้บริหารเลือก Business และสัปดาห์เพื่อดูรายรับสุทธิที่ยืนยันแล้ว สถานะออเดอร์ และสุขภาพงานติดตามแบบรวม พร้อมเห็น Ads, attribution, Lead และผลการโทรที่ยังไม่มีแหล่งข้อมูล",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-278",
+          "title": "Executive LINE OA sales dashboard",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/growth/line-sales/page.jsx",
+        "apps/server/src/app/api/growth/line-sales/route.js",
+        "apps/server/src/modules/crm/sales-task-service.js",
+        "apps/server/src/modules/marketing/application/line-sales-dashboard-service.js",
+        "apps/server/src/modules/marketing/components/LineSalesExecutiveDashboard.jsx",
+        "apps/server/src/modules/marketing/components/MarketingDashboard.jsx",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/tests/e2e/marketing-strategy.spec.js",
+        "apps/server/tests/integration/fr161-sales-task.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/marketing-strategy-ui.test.js",
+        "apps/server/tests/unit/marketing/line-sales-dashboard-route.test.js",
+        "apps/server/tests/unit/marketing/line-sales-dashboard-service.test.js",
+        "apps/server/tests/unit/marketing/line-sales-dashboard-ui.test.js"
       ]
     }
   ],
