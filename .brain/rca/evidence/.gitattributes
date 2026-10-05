@@ -1,0 +1,3 @@
+# Unified diff context includes a literal space on blank context lines.
+# Preserve the reviewed patch bytes; source-document whitespace checks stay active.
+2026-10-05-pm-workflow-document-amendment/workflow.patch -whitespace

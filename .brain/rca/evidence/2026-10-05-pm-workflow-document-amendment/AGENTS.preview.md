@@ -665,7 +665,5 @@ their recorded scope. The role does not activate either candidate S-01 document
 or authorize autonomous dispatch. Shared source composition and generation still
 have one integrator, as required by §19.
 
-Version diff (2026-10-05): adds the owner-approved PM task resume pointer to Document 20 entry point and §5 rule-check; source selection is recorded in the analysis-branch adoption receipt. Existing authority, candidate S-01 lifecycle and execution gates are unchanged.
-
 Version diff (2026-10-04): adds the owner-approved Doc Writer entry point and
 lifecycle metadata; existing product authority and canonical IDs are unchanged.

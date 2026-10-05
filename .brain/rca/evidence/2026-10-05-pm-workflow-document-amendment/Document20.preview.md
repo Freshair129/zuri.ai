@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-MULTI-AGENT-DELIVERY
 title: Luna Max execution workers with Terra decisions and Astra escalation
-version: "0.9.32b-rca.1"
+version: "0.9.32b"
 status: candidate
 created_at: "2026-09-16T13:40:13+07:00,RWANG,design base 087f3025"
-last_update: "2026-10-05,Codex, owner-approved D-1 through D-5 workflow document amendment; analysis-branch composition only"
+last_update: "2026-10-03,Codex, record exact MA-D01/MA-D02 candidate reviews and GPT-6-Sol/Astra NFR applicability disposition; preserve historical pins and closed execution gates"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
@@ -21,13 +21,11 @@ relations:
 
 # Multi-agent execution — Luna Max workers → Terra decision gate → Astra escalation
 
-**Version:** 0.9.32b-rca.1 · **Status:** Candidate · **Version diff:** selected v0.9.32b baseline → branch-scoped RCA amendment; adds rule entry/resume checks, claim reconciliation, retry applicability and historical navigation. Owner/G0/SPEC/dispatch/implementation gates remain closed. This suffix identifies this analysis-branch composition, not a globally reserved next source version.
+**Version:** 0.9.32b · **Status:** Candidate · **Version diff:** 0.9.31b to 0.9.32b records the exact MA-D01 v0.1.8b and MA-D02 A4 .4.3/.4.4 candidate review outcomes plus bounded NFR applicability concurrence; the DAG and package states remain unchanged and owner/G0/SPEC/dispatch/implementation gates stay closed.
 
 **แผนหลัก:** ใช้ `gpt-5.6-luna` / reasoning `max` สอง agents ทำงานขนานใน packet ที่ไม่ชนกัน และใช้ Luna Max อีก agent ตรวจ revision จริงอย่างอิสระ. ผู้ใช้มอบหมายให้ `gpt-5.6-terra` / reasoning `max` เป็น decision agent สำหรับการตัดสินใจใน task นี้; เรื่องสำคัญ ผลกระทบสูง หรือยังไม่แน่ใจให้ `gpt-6-astra` / reasoning `max` ร่วมตัดสิน. Root เป็น coordinator และ integrator; ไม่แทนการตัดสินที่มอบหมายไว้. การมอบหมายนี้ไม่เปลี่ยนอำนาจ Identity, reviewer, owner หรือ segregation-of-duties ขณะระบบทำงาน
 
 งานนี้ทำ **execution DAG และดำเนิน packet ที่ผ่าน gate** ใน worktree แยก. JSON ยังคงเป็นข้อมูลวางแผน candidate และไม่ถูกส่งไปรันอัตโนมัติ. ทุก packet ต้องมี mapping กับ requirement ปัจจุบัน, owner, allowlist, acceptance และ baseline. การอนุมัติ task นี้ไม่รวม external provider calls, credential issuance, foreign-owner writes, data migration, release, deployment หรือ activation
-
-> **Analysis-branch source selection — 2026-10-05:** This branch composes the owner-approved D-1–D-5 amendment over the exact reviewed [Document 20 v0.9.32b snapshot](../../../.brain/rca/evidence/2026-10-05-pm-spec-handoff/source/20-MULTI-AGENT-DELIVERY-PLAN.md), SHA-256 f502e5e97e0a30bbbacdd187af0a01d69093e368a523755249406a6c4c067ab2, replacing its older v0.1.0b document. The latest originating-machine source is UNKNOWN; this is not a remote cutover or freshness claim. [Adoption evidence](../../../.brain/rca/evidence/2026-10-05-pm-workflow-document-adoption/README.md) preserves the branch preimage and exact lineage. The analyzed [plan v0.9.47b](../../../.brain/rca/evidence/2026-10-05-pm-spec-handoff/inputs/delivery-plan-v0.9.47b-postcomposition.json), SHA-256 2b83dc3b5f907293848ddf5cc68fee587520c8cba643652ace4347056ae2b08e, is read-only evidence; the branch plan/candidate pointers are not composed or promoted by this document edit. Historical contract/receipt links may name artifacts absent from this older branch; do not treat them as current local evidence without enumeration and exact-source verification.
 
 <a id="pm-task-rule-entry"></a>
 ## ก่อนเริ่ม task และเมื่อกลับมาหลัง compaction
@@ -487,17 +485,6 @@ flowchart TD
 | SPEC-G01–G09 เปิดอยู่ | ยังเปิดอยู่จนงานปิด gap แต่ละชิ้นผ่านตามหลักฐานที่ต้องใช้ |
 | D01, PMR-033, navigation และ candidate packets ยังรอ exact review dispositions | PMR-020/026/029/031/032/033, MA-D01/02/06 และ FR-272 มี reviewed candidate outputs; PMR-025 has an exact-candidate review receipt with limitations; owner acceptance, contract resolution and canonical composition remain OPEN; MA-D03 ยังคง BLOCKED จน owner acceptance และ canonical workforce composition; MA-D02W ยังคง deferred |
 | Product implementation/migration/tests ยังไม่เริ่มใน task ออกแบบ | แผนนี้ไม่ได้อ้างว่าปิด implementation; evidence ของ candidate packets ยังคง NOT_RUN จนมี revision, independent proof และ delegated decision receipt |
-
-### Owner-approved workflow document amendment — 2026-10-05
-
-| Before | After |
-|---|---|
-| Analysis branch held Document 20 v0.1.0b; analyzed source was v0.9.32b | Explicit selection of verified v0.9.32b as this branch's document baseline; previous branch bytes preserved in adoption evidence; current remote source remains UNKNOWN |
-| Existing two-round policy and receipt fields lacked the specific RCA/resume checks proposed in this task | D-1 entry-point anchors, D-2 rule-check/resume record, D-3 claim/counterevidence reconciliation, D-4 repeat applicability and D-5 historical notice/AGENTS pointer |
-| Original roles, gates, retry clause and historical receipts | Preserved from the selected baseline; no new canonical requirement identity, candidate rebind, dispatch, implementation or product acceptance |
-| Independent review covered a prepared patch | Applied document bytes require their own receipt/review; generation, corpus refresh and operational adoption remain NOT_RUN |
-
-Version 0.9.32b-rca.1 is scoped to this analysis branch. Approved wording does not lift the existing governance HOLD or activate candidate S-01/runtime dispatch. The edited Document 20 hash makes reviews/pins of older bytes historical for this branch; affected meaning and read sets must be rechecked under §10 before promotion, without silently changing candidate manifests.
 
 <a id="pm-receipt-history"></a>
 > **Receipt-time history:** §14 เป็นต้นไปบันทึก state/count/hash/approval ของ snapshot ที่แต่ละ receipt ตรวจ. ใช้ selected plan revision/raw-byte SHA-256 และ latest decision receipt ของ task สำหรับสถานะปัจจุบัน; อย่าใช้จำนวนหรือสถานะที่พบก่อนเป็น current. ประวัติและ approval เดิมไม่โอนมายัง revision ใหม่โดยอัตโนมัติ.

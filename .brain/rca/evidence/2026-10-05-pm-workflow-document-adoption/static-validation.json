@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T07:19:56.026Z",
+  "status": "PASS_BOUNDED_DOCUMENT_STATIC_CHECKS_WITH_INHERITED_LINK_LIMITATIONS",
+  "reviewedOutputs": [
+    {
+      "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sha256": "7ebb4a3272bd3ce60ea6cc9b39d796301a18ea272bb4ec145459923eb6904592",
+      "bytes": 115628
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "848392b627aae29c215247db97d784a3330282eaddb6f087ae28b0ffd9cb5bec",
+      "bytes": 30433
+    }
+  ],
+  "checks": {
+    "allPinnedEvidence": "PASS",
+    "preservedEarlierArtifacts": "PASS",
+    "originalHistory": "PASS",
+    "originalRetry": "PASS",
+    "newAnchorsAndLinks": "PASS",
+    "adoptionReadmeLinks": "PASS",
+    "trackedBranchContracts": "PASS_UNCHANGED_23"
+  },
+  "addedLinksChecked": [
+    "../../../.brain/rca/evidence/2026-10-05-pm-spec-handoff/source/20-MULTI-AGENT-DELIVERY-PLAN.md",
+    "../../../.brain/rca/evidence/2026-10-05-pm-workflow-document-adoption/README.md",
+    "../../../.brain/rca/evidence/2026-10-05-pm-spec-handoff/inputs/delivery-plan-v0.9.47b-postcomposition.json",
+    "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md#pm-task-rule-entry",
+    "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md#pm-rule-check"
+  ],
+  "inheritedMissingLinkTargets": [
+    "contracts/user-direction-receipt-2026-09-29.candidate.json",
+    "contracts/phase-b/metadata-status-reconciliation-application-receipt.candidate.json"
+  ],
+  "preservedEarlierArtifactHashes": {
+    "tools/pm-spec-guard.mjs": "44717856a0153a034dce01feb51d16016a0c3621f489646945412742b17bf846",
+    "tools/tests/pm-spec-guard.test.mjs": "6a31fdae7c96616f34f05035af09ebce8de6c86f51509de17135c4764c1f7fbf",
+    ".brain/rca/2026-10-05-pm-spec-dag-two-day-progress-loop.md": "7a84fe6ede64256399cc201ba741679081762f88a5b53cebd6c674eadce26759",
+    ".brain/rca/2026-10-05-pm-workflow-document-rule-retrieval.md": "4e30f2839c31eec6dfaadfe5d416f9f1b5b434db459fa520cc4b7e9ee0fa3590"
+  },
+  "limitations": {
+    "fullLinkHealth": "NOT_PASS; selected baseline references missing historical artifacts in this older branch",
+    "corpus": "NOT_RUN_MISSING_GENERATED_DOMAIN_MAP",
+    "govern": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "build": "NOT_RUN",
+    "agentAdoption": "NOT_RUN"
+  }
+}
