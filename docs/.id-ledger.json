@@ -408,6 +408,9 @@
     "FR-276",
     "FR-277",
     "FR-278",
+    "FR-281",
+    "FR-282",
+    "FR-283",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -543,6 +546,7 @@
     "SDD-108",
     "SDD-109",
     "SDD-110",
+    "SDD-112",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -5181,6 +5185,45 @@
         }
       ]
     },
+    "FR-281": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0b36af840091a0a7f648874b568856cced18c980fba187d5b6b9c898266ee0ab",
+      "history": [
+        {
+          "anchor": "report only machine credential",
+          "since": "2026-10-05",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-282": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3ebf7b175520eb831d7bc08463248c440f6aa5ec1bf65d90251cc138ccaba0ef",
+      "history": [
+        {
+          "anchor": "atomic reported evidence intake",
+          "since": "2026-10-05",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-283": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e45ef9dfba6c44fdc10cac2d35a8c22364fa9e9841921b07d7671a3105871746",
+      "history": [
+        {
+          "anchor": "private source preserving reported evidence",
+          "since": "2026-10-05",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6967,6 +7010,19 @@
       ],
       "statement_digest_reviewed_at": "2026-09-27",
       "statement_digest_reason": "An unverified sender's memory-sync turn now runs in Core's PENDING memory mode in the runtime cohort (ADR-106 1.2.0); subject unchanged."
+    },
+    "SDD-112": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b2aa80a9e3c02005fef881d3809c7e940ec8a5003c92e7266b9e08568b59592c",
+      "history": [
+        {
+          "anchor": "marketing report receiver design",
+          "since": "2026-10-05",
+          "reason": "declared"
+        }
+      ]
     },
     "SEC-001": {
       "family": "SEC",
