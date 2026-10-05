@@ -3,13 +3,65 @@ doc_type: verification-note
 title: Marketing report receiver and native paired delivery evidence
 status: active
 superseded_by: null
-version: "0.2.0"
-date: "2026-10-05"
+version: "0.3.0"
+date: "2026-10-06"
 complexity: C-3
 risk: HIGH
 ---
 
 # Bounded implementation verification
+
+## Approved Phase B rebind — 2026-10-06
+
+The owner approved the bounded [rebind v0.1.0](ZURI-GO-REPORT-PHASE-B-REBIND.md).
+Canonical Phase B decision0.3.14b→0.3.15b preserves all194 prior mappings
+(SHA256 of their unchanged JSON array `f170d8b0246546bdf903e7bc4142a85486dc2e20e76e1a532a5fb93a12a98c93`)
+and adds only the three public Marketing custody models. The197-model raw LF
+Prisma schema hash is `45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06`;
+canonical inventory hash is `e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e`.
+The loader still refuses historical/tampered bindings and modified raw bytes.
+Schema content is unchanged; LF checkout materialization follows `.gitattributes`.
+
+Offline runner tests initially reproduced three nonempty custody exports and nine
+unsupported-field acceptances through permissive callbacks. Direct census and
+field guards now refuse before extraction/insertion/commit. Missing/unreadable
+counts, historical bindings and failed privileges/locks refuse; all197 tables
+remain in the actual PostgreSQL adapter catalog/privilege/lock/census loops. JSON
+inclusion, model order, family delegates and immutable triggers are unchanged.
+RCA: `.brain/rca/marketing-report-reconciled-ci-fixtures.md`.
+
+Focused isolated tests PASS57/57 at00:59:17 Asia/Bangkok: Phase B runner38,
+Phase B backup14, Marketing wire5. These use fake census/transaction adapters
+and a mocked connection on the actual PostgreSQL adapter, with ambient application
+database access denied. They are not PostgreSQL restore or production-role proof.
+Separate opt-in native receiver/full paired regression PASS18/18 (13 integration,
+5 wire),00:58:19,74.67 seconds: fresh test-owned PostgreSQL schema12 and native
+SQLite reproduce freeze/Claim/lost committed ACK/explicit same-byte retry/durable
+receipt; all legacy backup entry points and receiver contention cases pass again.
+No skipped native case. Only guarded QA storage was created/migrated.
+
+Independent reviewer reran the final57-case candidate at01:02:25 (2.88 seconds)
+and found no blocker; reviewed test blob is `8ab3cc556d633f4a901e03d34489949bd6f307dc`,
+inventory `d1f1c22854b3296d4a2122478b88b450be5ce4c5`, decision
+`f8f0e1c7b47b5e5b8ea8edc94b323c099a68d024`. Runner final blob
+`378cc20571c6f107c63b950698043d03b3165805` differs from the reviewed `edcd0ac3`
+only by removal of a duplicate two-line annotation. Native QA remains executed
+by the primary agent. Hosted run37332956011 at13591 passed governance/build and three test
+shards; its remaining shard failed only the old Phase B inventory collection
+(2006 tests passed). Exact pushed-head hosted CI and final composed-check results
+are recorded on PR633; these checkpoint tests do not grant merge authority.
+
+PM rule-check: parent26 defines exact frozen binding/complete census and historical
+refusal; approved Marketing physical design requires retained custody refusal.
+Document20 §5 requires source-clause applicability and exact revision evidence:
+this is the separately approved Marketing compatibility slice, not authority to
+dispatch its candidate PM packets or perform live operations. Its §4 separates
+verification from release/merge. Current record publication stays planned/partial/
+not_ready and receiver PostgreSQL remains disabled/unqualified.
+
+Version diff0.2.0→0.3.0: records the approved197-model compatibility fix and new
+isolated verification. Real Local/Production remain schema11; no real backup,
+restore, credential/binding, send, deploy or merge is performed.
 
 ## Full paired native sender checkpoint — 2026-10-05
 

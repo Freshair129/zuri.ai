@@ -1,15 +1,17 @@
 ---
 doc_type: intake-note
 title: Marketing report custody and Phase B frozen inventory rebind
-status: draft
+status: approved
 superseded_by: null
-version: "0.1.0"
-date: "2026-10-05"
+version: "0.2.0"
+date: "2026-10-06"
 complexity: C-3
 risk: HIGH
 ---
 
 # Phase B compatibility proposal
+
+Owner approval: latest “approcve” on 2026-10-06 approves the bounded v0.1.0 proposal below. Implementation and isolated verification are authorized; live operations and merge remain outside scope.
 
 Parent intent: FR-252 and `docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md` require an exact frozen schema inventory, complete target-table census and clean-target recovery. Peer contract: approved `ZURI-GO-REPORT-PHYSICAL-DESIGN.md` requires retained report custody, fail-closed legacy JSON snapshots and consistent whole-SQLite backup meanwhile. It explicitly defers extending the JSON snapshot format and report/audit import ordering.
 
@@ -26,3 +28,5 @@ Acceptance: current empty-custody schema can load the exact inventory and existi
 Tradeoff: this narrow rebind restores compatibility for empty-custody Phase B workflows while retaining the approved refusal for nonempty Marketing evidence. Supporting those retained records in JSON recovery requires a separate format/order contract and is deferred. Leaving the old binding unchanged is safe but blocks CI and merge of the receiver schema.
 
 Version diff0→0.1.0: documents a new parent/peer compatibility gate for review. No Phase B code, schema pins or frozen inventory is changed by this proposal.
+
+Version diff0.1.0→0.2.0: records owner approval of the unchanged scope before implementation.
