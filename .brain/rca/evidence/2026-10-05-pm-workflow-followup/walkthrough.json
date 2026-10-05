@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T08:39:02.391Z",
+  "reviewer": {
+    "agent": "/root/independent_sol_review",
+    "model": "gpt-6-sol",
+    "effort": "high",
+    "requested": "Terra High",
+    "fallbackReason": "Terra unavailable in reviewer interface"
+  },
+  "reviewedCommit": "8f513b9494b02f1945827eb8181ce9ede430bb8e",
+  "verdict": "PASS_DOCUMENT_WALKTHROUGH",
+  "readSet": [
+    {
+      "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sha256": "7ebb4a3272bd3ce60ea6cc9b39d796301a18ea272bb4ec145459923eb6904592"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "848392b627aae29c215247db97d784a3330282eaddb6f087ae28b0ffd9cb5bec"
+    },
+    {
+      "path": ".brain/rca/evidence/2026-10-05-pm-spec-handoff/inputs/delivery-plan-v0.9.47b-postcomposition.json",
+      "sha256": "2b83dc3b5f907293848ddf5cc68fee587520c8cba643652ace4347056ae2b08e"
+    }
+  ],
+  "verifiedPlanCounts": {
+    "ACCEPTED": 3,
+    "CANDIDATE_READY_FOR_REVIEW": 12,
+    "PLANNED": 24,
+    "BLOCKED_FOR_DESIGN": 1,
+    "BLOCKED_OWNER_CONTRACT": 3
+  },
+  "scenarios": [
+    {
+      "id": "W01",
+      "trigger": "RULE_CONFLICT: supplied summary says no bounded retry rule",
+      "sourceLocators": [
+        "Document20 §5 lines176-178",
+        "Document20 §10 line438",
+        "plan /repairPolicy/maxAutomaticRepairRounds"
+      ],
+      "disposition": "REJECT_ABSENCE_CLAIM",
+      "counterevidence": "exact two-round acceptance-revision clause and plan value2",
+      "unknown": "coverage of other retry classes and historical compliance",
+      "next": "record corrected claim/clause/applicability/counterevidence/disposition",
+      "result": "PASS_DOCUMENT_WALKTHROUGH",
+      "syntheticCase": true
+    },
+    {
+      "id": "W02",
+      "trigger": "synthetic known POST_COMPACTION with incomplete retry history",
+      "sourceLocators": [
+        "Document20 §5 lines167-169",
+        "Document20 §10 line438"
+      ],
+      "disposition": "UNKNOWN_NEEDS_DECISION; do not reset to zero",
+      "counterevidence": "absence of receipts cannot establish zero attempts",
+      "unknown": "historical attempt count",
+      "next": "enumerate exact acceptance-revision receipts; obtain authorized decision if incomplete",
+      "result": "PASS_DOCUMENT_WALKTHROUGH",
+      "syntheticCase": true
+    },
+    {
+      "id": "W03",
+      "trigger": "rename candidate after two evidenced repairs, same acceptance revision",
+      "sourceLocators": [
+        "Document20 §10 lines438,447-449"
+      ],
+      "disposition": "AUTOMATIC_REPAIR_CAP_EXHAUSTED",
+      "counterevidence": "name/version alone does not establish new acceptance revision",
+      "unknown": "new acceptance revision unless substantive evidence supplied",
+      "next": "root RCA/alter task or obtain decision; no automatic repeat",
+      "result": "PASS_DOCUMENT_WALKTHROUGH",
+      "syntheticCase": true
+    },
+    {
+      "id": "W04",
+      "trigger": "provenance successor/tool retry without applicability/limit decision",
+      "sourceLocators": [
+        "Document20 §10 lines447-449",
+        "Document20 §4 lines132-136"
+      ],
+      "disposition": "NEEDS_DECISION_HOLD_REPEAT",
+      "counterevidence": "existing acceptance-repair cap does not define every retry class",
+      "unknown": "authorized applicability/limit/owner decision",
+      "next": "authorized owner records class, input revision, evidence, limit and stop condition",
+      "result": "PASS_DOCUMENT_WALKTHROUGH",
+      "syntheticCase": true
+    },
+    {
+      "id": "W05",
+      "trigger": "historical11candidate/25planned differs from selected .47b12/24",
+      "sourceLocators": [
+        "Document20 entry line47",
+        "Document20 history notice line503",
+        "plan /workPackages[*]/state"
+      ],
+      "disposition": "REPORT12_CANDIDATE_READY_AND24_PLANNED_FOR_SELECTED_SNAPSHOT; label11/25 historical",
+      "counterevidence": "independent grouping of verified plan state values",
+      "unknown": "live originating-machine state",
+      "next": "bind plan SHA and task latest decision receipt before claiming current state",
+      "result": "PASS_DOCUMENT_WALKTHROUGH",
+      "syntheticCase": true
+    },
+    {
+      "id": "W06",
+      "trigger": "source hash changes after rule-check",
+      "sourceLocators": [
+        "Document20 §5 line169",
+        "Document20 §10 line440",
+        "Document20 §13 line500"
+      ],
+      "disposition": "STALE_HOLD_AFFECTED_WORK",
+      "counterevidence": "old receipt binds old bytes; no equivalence assertion substitutes for recheck",
+      "unknown": "affected meaning pending inspection",
+      "next": "pin new bytes, assess read-set impact, reverify affected work; no unrelated blanket invalidation",
+      "result": "PASS_DOCUMENT_WALKTHROUGH",
+      "syntheticCase": true
+    },
+    {
+      "id": "W07",
+      "trigger": "API exposes no compaction event or command timestamp",
+      "sourceLocators": [
+        "Document20 §5 lines167,171",
+        "AGENTS line51"
+      ],
+      "disposition": "DO_NOT_FABRICATE_EVENT_OR_TIMESTAMP",
+      "counterevidence": "turn start is not command/read time",
+      "unknown": "command timestamp/effective context",
+      "next": "use actual task-start/pre-decision trigger and source locator; record missing time UNKNOWN",
+      "result": "PASS_DOCUMENT_WALKTHROUGH",
+      "syntheticCase": true
+    },
+    {
+      "id": "W08",
+      "trigger": "document-source PASS offered as dispatch/implementation permission",
+      "sourceLocators": [
+        "Document20 entry line38",
+        "Document20 §4 lines132-138",
+        "Document20 §12 line473",
+        "plan false flags"
+      ],
+      "disposition": "REJECT_AUTHORITY_PROMOTION",
+      "counterevidence": "candidateOnly/false flags and separate owner/G0/SPEC/decision/integration gates",
+      "unknown": "future authorized gate outcomes",
+      "next": "obtain exact scoped approvals and evidence before dispatch or implementation",
+      "result": "PASS_DOCUMENT_WALKTHROUGH",
+      "syntheticCase": true
+    }
+  ],
+  "scope": "independent read-only application of written rules to synthetic cases; primary records reviewer report",
+  "limits": {
+    "govern": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "build": "NOT_RUN",
+    "runtime": "NOT_RUN",
+    "operationalCompactionExperiment": "NOT_RUN",
+    "loopPreventionEffectiveness": "UNKNOWN",
+    "effectiveContextAfterCompaction": "UNKNOWN"
+  },
+  "authority": {
+    "candidateOnly": true,
+    "dispatchable": false,
+    "implementationAuthorized": false
+  }
+}

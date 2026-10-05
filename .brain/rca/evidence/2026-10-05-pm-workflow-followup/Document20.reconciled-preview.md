@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-MULTI-AGENT-DELIVERY
 title: Luna Max execution workers with Terra decisions and Astra escalation
-version: "0.9.32b-rca.2"
+version: "0.9.32b-rca.1"
 status: candidate
 created_at: "2026-09-16T13:40:13+07:00,RWANG,design base 087f3025"
-last_update: "2026-10-05,Codex, reconcile owner-approved workflow amendment with main PR629; preserve candidate bytes and closed execution gates"
+last_update: "2026-10-05,Codex, owner-approved D-1 through D-5 workflow document amendment; analysis-branch composition only"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
@@ -21,7 +21,7 @@ relations:
 
 # Multi-agent execution — Luna Max workers → Terra decision gate → Astra escalation
 
-**Version:** 0.9.32b-rca.2 · **Status:** Candidate · **Version diff:** 0.9.32b-rca.1 → 0.9.32b-rca.2 reconciles upstream MA-D06/MA-I13 ownership clauses and both changelog histories for owner-requested PR #631 merge. D-1–D-5 and owner/G0/SPEC/dispatch/implementation gates remain unchanged.
+**Version:** 0.9.32b-rca.1 · **Status:** Candidate · **Version diff:** selected v0.9.32b baseline → branch-scoped RCA amendment; adds rule entry/resume checks, claim reconciliation, retry applicability and historical navigation. Owner/G0/SPEC/dispatch/implementation gates remain closed. This suffix identifies this analysis-branch composition, not a globally reserved next source version.
 
 **แผนหลัก:** ใช้ `gpt-5.6-luna` / reasoning `max` สอง agents ทำงานขนานใน packet ที่ไม่ชนกัน และใช้ Luna Max อีก agent ตรวจ revision จริงอย่างอิสระ. ผู้ใช้มอบหมายให้ `gpt-5.6-terra` / reasoning `max` เป็น decision agent สำหรับการตัดสินใจใน task นี้; เรื่องสำคัญ ผลกระทบสูง หรือยังไม่แน่ใจให้ `gpt-6-astra` / reasoning `max` ร่วมตัดสิน. Root เป็น coordinator และ integrator; ไม่แทนการตัดสินที่มอบหมายไว้. การมอบหมายนี้ไม่เปลี่ยนอำนาจ Identity, reviewer, owner หรือ segregation-of-duties ขณะระบบทำงาน
 
@@ -498,12 +498,6 @@ flowchart TD
 | Independent review covered a prepared patch | Applied document bytes require their own receipt/review; generation, corpus refresh and operational adoption remain NOT_RUN |
 
 Version 0.9.32b-rca.1 is scoped to this analysis branch. Approved wording does not lift the existing governance HOLD or activate candidate S-01/runtime dispatch. The edited Document 20 hash makes reviews/pins of older bytes historical for this branch; affected meaning and read sets must be rechecked under §10 before promotion, without silently changing candidate manifests.
-
-### Owner-requested PR #631 source reconciliation — 2026-10-05
-
-Version 0.9.32b-rca.1 → 0.9.32b-rca.2 applies the independently reviewed reconciliation proposal against main 332b88c9277ee0995798f125f99d5343e7d493f0. It retains main's exact MA-D06 and MA-I13 PM execution-trace versus Integration data-pipeline/runtime ownership clauses and both .1/.2 changelog rows, together with the approved D-1–D-5 wording and selected snapshot history. [Merge evidence](../../../.brain/rca/evidence/2026-10-05-pm-workflow-merge/README.md) records exact source and inherited main candidate hashes.
-
-The direct owner merge instruction authorizes source-control integration for this documentation PR. It does not close product owner/G0/SPEC gates, rebind candidate manifests, authorize dispatch/implementation or prove operational loop prevention. Earlier packet receipts remain historical for their exact preimages; affected read sets require an explicit review before subsequent product promotion.
 
 <a id="pm-receipt-history"></a>
 > **Receipt-time history:** §14 เป็นต้นไปบันทึก state/count/hash/approval ของ snapshot ที่แต่ละ receipt ตรวจ. ใช้ selected plan revision/raw-byte SHA-256 และ latest decision receipt ของ task สำหรับสถานะปัจจุบัน; อย่าใช้จำนวนหรือสถานะที่พบก่อนเป็น current. ประวัติและ approval เดิมไม่โอนมายัง revision ใหม่โดยอัตโนมัติ.

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T08:40:51.339Z",
+  "verdict": "PASS_PROPOSAL_ONLY",
+  "reviewer": {
+    "agent": "/root/independent_sol_review",
+    "model": "gpt-6-sol",
+    "effort": "high"
+  },
+  "reviewedArtifacts": [
+    {
+      "path": "Document20.main-preimage.md",
+      "sha256": "7c444c19fa55f6ef68809ebb235d304043a7bb9326469bdb62f6897da089b8ca"
+    },
+    {
+      "path": "Document20.reconciled-preview.md",
+      "sha256": "6423e1ef20d8ed98587c3e94803d404fbcc289a6ac1c2ca3112f3e6e23897ae0"
+    },
+    {
+      "path": "main-reconciliation.patch",
+      "sha256": "fb3fa2f99a757372336bdad1ec11fe26c6b7e6bedfc03fd20edeb85589da2b47"
+    }
+  ],
+  "findings": [],
+  "verified": [
+    "D1-D5 and topic metadata unchanged",
+    "upstream MA-D06 and MA-I13 byte-identical to main",
+    "both main changelog rows byte-identical",
+    "topic section14 history exact prefix before appended upstream rows",
+    "topic-to-preview diff has4 additions/2 deletions only",
+    "eleven anchors unique and added links resolve"
+  ],
+  "limits": [
+    "proposal fidelity only, no whole-tree merge",
+    "actual successor version allocation pending",
+    "candidate read-set review and governance hold unresolved",
+    "govern/tests/build NOT_RUN",
+    "agent-report transcription is unsigned"
+  ]
+}
