@@ -10839,5 +10839,23 @@
   "statement_digest_baseline": {
     "at": "2026-08-20",
     "reason": "Initialize review-only statement digests after PR #94; preserve the anchor false-positive trade-off and require review for future same-subject edits."
-  }
+  },
+  "reserved_ids": [
+    "FR-279",
+    "FR-280",
+    "SDD-111"
+  ],
+  "reservation_history": [
+    {
+      "revision": "edff9794d779704d0d9acee15c9cdf3aabf77d77",
+      "declared_in": "docs/change-requests/marketing/ZURI-GO-REPORT-MAIN-RECONCILIATION.md#0.2.0",
+      "reason": "Preserve all issued branch-only numbers after main-first reconciliation without replacing published identities.",
+      "at": "2026-10-05",
+      "ids": [
+        "FR-279",
+        "FR-280",
+        "SDD-111"
+      ]
+    }
+  ]
 }
