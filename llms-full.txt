@@ -1511,8 +1511,20 @@ Version diff 1.1.0 → 1.2.0b: Added explicit FEAT-019 phase links and current s
 | `execution_step_id` | one concrete lifecycle/evidence step occurrence |
 | `attempt_id` | one try of an execution step; retries get new IDs |
 | `audit_event_id` | immutable audit record for a state-changing step |
+| `agent_id` / `agent_version_id` | UUID identity of an agent definition and the exact immutable configuration revision |
+| `fleet_id` / `fleet_version_id` | UUID identity of an agent-fleet definition and the exact pinned composition revision |
+| `workflow_id` / `workflow_version_id` | UUID identity of a workflow definition and the exact immutable DAG revision |
+| `contract_id` | stable namespace-qualified identity of an inter-system API, event, message or file contract; pair with `contract_version` |
+| `contract_version` | immutable SemVer label for one `contract_id` revision; consumers must pin an exact version |
+| `contract_definition_id` | internal UUID primary key of a `ContractDefinition`; not the stable `contract_id` reference |
+| `contract_version_id` | internal UUID primary key of the immutable contract-version row; not the wire reference |
+| `schema_id` | canonical URI identifying one versioned schema document; for JSON Schema it matches `$id` |
+| `contact_id` | reserved for a first-class CRM Contact only if that entity is explicitly introduced; current CRM identities are `customer_id` and `person_id` |
+| `job_id` | no generic identity in the current workflow design; add only when a durable queued job has a lifecycle independent of its execution run/step |
 | `data_pipeline_definition_id` | stable definition of a governed source-to-Supabase pipeline |
 | `pipeline_stage_id` | stable catalog ID for one data-pipeline stage; not the B2B `pipelineId` |
+| `pipeline_run_id` | one Integration-owned data-pipeline execution; not a PM workflow `execution_run_id` |
+| `pipeline_step_id` | one step in a data-pipeline run; not a PM `execution_step_id` |
 | `pipeline_record_id` | one source-record execution unit within a pipeline run |
 | `doc_id` | stable identity of a source document; not a filename, path or content hash |
 | `pic_id` | stable identity of a source picture/image asset; not a blob URL or image bytes |
@@ -1521,7 +1533,6 @@ Version diff 1.1.0 → 1.2.0b: Added explicit FEAT-019 phase links and current s
 | `node_id` | stable identity of a Knowledge/GKS graph node projection |
 | `edge_id` | stable identity of a Knowledge/GKS graph relationship projection |
 | `artifact_id` | stable identity of an approved source/evidence artifact |
-| `contract_id` | stable identity of a CRM Contact; not an Execution or multi-agent workflow contract |
 | `meeting_id` | stable identity of a CRM meeting occurrence; not a Project Milestone or Gate |
 | `call_id` | stable identity of a CRM call/interaction occurrence; not a Conversation or execution run |
 | `followup_id` | stable identity of a CRM follow-up action/reminder; not a Project Manager WorkItem |
@@ -1530,12 +1541,29 @@ Version diff 1.1.0 → 1.2.0b: Added explicit FEAT-019 phase links and current s
 | `gate_id` | stable identity of an existing Project Manager `Gate` record |
 | `integration_id` | stable identity of an Integration adapter/bridge; legacy `int_id` is a compatibility alias only |
 | `graph_id` | stable identity of a Knowledge/GKS graph/projection containing nodes and edges |
-| `workflow_contract_id` | stable identity of a multi-agent workflow contract for roles, handoffs, inputs, outputs, tools, failure handling and approval |
-| `workflow_id` | stable identity of a selected workflow definition governed by `workflow_contract_id`; its concrete procedure is `runbook_id` |
+| `workflow_contract_id` | stable identity of the multi-agent orchestration contract; distinct from each input/output `contract_id` |
 | `runbook_id` | stable identity of a concrete operational runbook/procedure selected by a workflow |
 | `promotion_id` | stable identity of a governed knowledge candidate-to-canonical promotion occurrence |
 | `skill_id` | stable identity of an allow-listed Agent skill/capability |
 | `tool_id` | stable identity of an allow-listed Agent tool |
+
+The inter-system contract registry is a candidate design in the [Project Manager
+data/event contract](docs/architecture/project-manager-system/03-DATA-AND-EVENTS.md)
+and [candidate table dictionary](docs/architecture/project-manager-system/18-DATABASE-TABLES-AND-ERD.md).
+`ContractDefinition.id` is the database UUID and `contractId` is the stable
+external reference. `ContractVersion.id` is the database UUID and
+`contractVersion` is the semantic version. A contract's JSON/YAML source format
+is separate from its payload serialization and media type. `execution_contract_id`
+continues to identify one of the seven execution-mode contracts, and
+`workflow_contract_id` continues to identify orchestration semantics; neither is
+the payload schema's `contract_id`.
+
+This is a proposed identity correction, not a live requirement migration. The
+pinned FR-071 and SDD-040 source rows still describe `contract_id` as CRM Contact
+context, while the current CRM models are `Customer` and `Person`. Those rows
+must remain unchanged until their owner-reviewed record migration resolves the
+historical mapping. Do not repurpose an existing trace field based on this
+candidate vocabulary alone.
 
 Execution trace IDs are operational identity, not replacements for the business
 graph IDs. A trace step may reference `projectId`, `planId`, `containerId` and
@@ -1552,22 +1580,31 @@ new. Replay lineage uses `replayOfDocId`, `replayOfPicId` and `replayOfFactId`
 alongside the corresponding run, step and pipeline-record lineage fields.
 
 Supporting execution references use the same API/storage naming rule: `nodeId`,
-`edgeId`, `artifactId`, `contractId`, `meetingId`, `callId`, `followupId`,
+`edgeId`, `artifactId`, `contractId` + `contractVersion`, `meetingId`, `callId`, `followupId`,
 `reqId`, `verifyId`, `gateId`, `integrationId`, `graphId`,
 `workflowContractId`, `workflowId`, `runbookId`, `promotionId`, `skillId` and
 `toolId` in API/events, with the snake_case forms in SQL/storage. These are owner-resolved
 references, not labels or authorization shortcuts. `execution_contract_id` is
 the seven-mode Execution contract, `workflow_contract_id` is the multi-agent
-workflow contract, and `contract_id` is CRM Contact. `integration_id` is
-canonical; legacy `int_id` is not an Intent identity.
+orchestration contract, and `contract_id` + `contract_version` identify an
+inter-system payload/API contract. This is the candidate target vocabulary;
+FR-071 and SDD-040 retain their pinned historical CRM Contact wording until a
+reviewed record migration. `integration_id` is canonical; legacy `int_id` is
+not an Intent identity.
 
 The current repository has a real `Gate.id`, while the first-class Artifact,
-Contact, Meeting, Call, Follow-up, Verify, Integration, Workflow, Runbook,
+Meeting, Call, Follow-up, Verify, Integration, Contract, Workflow, Runbook,
 Promotion, Skill, Tool and graph projection identities
 are target contracts. The current Knowledge project graph returns generic node
 `id` values and relation `from`/`to` values; it does not yet provide
 `graph_id`/`node_id`/`edge_id`. No implementation may fabricate these IDs from
 labels, paths, hashes or edge endpoints.
+
+The candidate workflow data model reuses the PM-owned `ProjectExecutionRun` /
+`ProjectExecutionStep` trace IDs for project runs, steps and attempts. The
+Integration `PipelineRun` / `PipelineStep.runId` remains specific to data
+pipelines. It does not create a universal `WorkflowRun` or `Job` table. Transport
+correlation and idempotency keys are separate from entity identities.
 
 ## Human codes
 
@@ -1790,6 +1827,11 @@ Business ----< Project
 The existing `ProjectFile` remains active behind the compatibility adapter during
 the evidence window. Removal requires a separate future change; FR-045 does not
 delete legacy rows or routes.
+
+Version diff (2026-10-04): adds the candidate inter-system contract ID/version
+vocabulary and explicit migration boundary for pinned FR-071/SDD-040 mappings;
+adds agent, fleet and workflow revision IDs; distinguishes PM execution runs from
+Integration pipeline runs. No runtime identity or requirement row is changed.
 
 
 <!-- ======================================================================== -->
