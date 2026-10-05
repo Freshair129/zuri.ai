@@ -1,9 +1,9 @@
 ---
 doc_type: intake-note
 title: Zuri-Go reported Marketing evidence — parent record migration
-status: draft
+status: approved
 superseded_by: null
-version: "0.3.0"
+version: "0.4.0"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
@@ -32,7 +32,7 @@ These are exact behavioral subjects for new records, not reinterpretations of FR
 | Private source-preserving evidence read | Marketing | Re-evaluate Business/growth visibility before every read, exclude Guest/public projections, preserve null/UNKNOWN/reported trust and leave native plans, reviews, decisions, PM execution and Commerce verified totals unchanged. |
 | Receiver/Identity design | Identity + Marketing | Specify the physical models, fixed receiver route, authority checks, SQLite concurrent-transaction behavior, retention policy and the scoped integration tests below. Delivery stays declared until tests and operational gates pass. |
 
-The parent canonical migration is OPEN. The approval of the overall P3 scope is recorded; this intake does not self-approve newly issued parent records. New source provenance must distinguish authored behavior from the pinned migration inventory. Existing subject anchors, identities and generated source rows remain intact.
+The owner approved this receiver contract, including current machine growth permission, on 2026-10-05. Approval applies to the intake's stated behavior, not to issued IDs or an unreviewed governance-tool extension. The parent canonical migration is OPEN because the current format/writer supports only the initial source-preserved records. The separate [authored-record migration proposal](ZURI-GO-RECORD-AUTHORING.md) makes that prerequisite reviewable. New source provenance must distinguish authored behavior from the pinned migration inventory. Existing subject anchors, identities and generated source rows remain intact.
 
 ## Credential and binding — proposed minimum
 
@@ -104,11 +104,13 @@ Go delivery lease/attempt/receipt schema and PostgreSQL tests remain Go-owned. E
 
 ## Execution and verification record
 
-Prepared on isolated branch `codex/marketing-report-p3`; the active parent checkout/runtime is unchanged. Status: overall Go P3 scope APPROVED, detailed parent intake/record migration DRAFT, retention APPROVED (90 days), code/schema/QA end-to-end NOT_RUN. No issued IDs, registry exports or application artifacts changed.
+Prepared on isolated branch `codex/marketing-report-p3`; the active parent checkout/runtime is unchanged. Status: overall Go P3 scope APPROVED, detailed parent receiver intake APPROVED, authored-record migration proposal DRAFT, retention APPROVED (90 days), code/schema/QA end-to-end NOT_RUN. No issued IDs, registry exports or application artifacts changed.
 
 Before coding: review/approve the parent record migration and physical contracts → allocate fresh qualified IDs through the supported governed authoring path → regenerate/check registry, graph, views and identity/ID-ledger constraints. A missing authoring capability must be documented and resolved under its own approved scope; never edit a generated index or label new rows source-preserved merely to pass a check.
 
 ## Version diff
+
+0.3.0 → 0.4.0: records owner approval of the receiver contract and separates it from the newly documented authored-record tooling prerequisite. No canonical IDs issued and no application implementation claimed.
 
 0.2.0 → 0.3.0: pinned the reviewed Go documentation revision and made current machine growth permission, per-transaction reauthorization and disable/revoke replay denial explicit after independent architecture review. No issued records or application behavior changed.
 
