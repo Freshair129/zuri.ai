@@ -1,9 +1,9 @@
 ---
 doc_type: intake-note
 title: Governed authored-record migration for the Marketing report receiver
-status: draft
+status: approved
 superseded_by: null
-version: "0.1.0"
+version: "0.2.0"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
@@ -51,8 +51,10 @@ No application auth/routes/Prisma schema, database migrations, live provisioning
 
 ## Decision and handoff
 
-Recommended: approve this additive authored-record support, then let the integrator implement/test the bounded writer and prepare the receiver's four-record manifest at fresh main. No IDs are allocated in this proposal. The owner must approve this governance-format/tooling scope separately from the already approved receiver behavior; the existing Doc Writer role itself has no authority to issue IDs or change tooling.
+The owner approved this additive authored-record support on 2026-10-05, separately from the receiver contract. The integrator may implement/test the bounded writer and prepare the receiver's four-record manifest at fresh main. No IDs are allocated by this approval; actual issuance remains subject to the independent review and acceptance checks above. The Doc Writer role itself does not issue IDs or change tooling; implementation and sanctioned writes are serialized integrator work under this approval.
 
 ## Version diff
+
+0.1.0 → 0.2.0: records the owner's explicit tooling-scope approval. Tooling tests, independent implementation review and actual record issuance remain pending; no runtime operation is authorized by this metadata change.
 
 0 → 0.1.0: documents the current format/writer limitation, an additive authored-record migration, preservation rules, implementation boundary and concrete acceptance checks. No code, issued ID, generated registry or database change.
