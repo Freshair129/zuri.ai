@@ -23,6 +23,17 @@ function rowFor(id) {
 describe('retired rules are excluded honestly', () => {
   const cov = () => graph().stats.coverage
 
+  it.each([[278, 'identity'], [279, 'marketing'], [280, 'marketing']])('keeps authored FR-%s planned and gives it no delivery credit', (number, domain) => {
+    const id = `FR-${number}`
+    const g = graph()
+    expect(g.nodes.find(node => node.id === `req:${id}`)).toMatchObject({ declared: 'planned', status: 'planned' })
+    expect(cov().fr_planned).toContain(id)
+    expect(cov().fr_without_code).not.toContain(id)
+    const projection = JSON.parse(readFileSync(workspacePath(process.cwd(), 'apps/server/runtime/domain-state.json'), 'utf8'))
+    expect(projection.features.find(feature => feature.id === id)).toMatchObject({ primaryDomain: domain,
+      registryStatus: 'planned', progressPercent: 0, ready: false, readiness: 'not_ready' })
+  })
+
   it('keeps superseded FRs visible while excluding them from active coverage', () => {
     const g = graph()
     const coverage = cov()

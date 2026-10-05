@@ -69,11 +69,12 @@ import { workspacePath, workspaceRoot, canonicalRelative } from './workspace-pat
 //       does not swamp it. Refused for any registry not marked draft.
 
 import { existsSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readCanonical as read } from './canonical-text.mjs'
 import { collectDeclared, sameAnchor, statementDigest, REGISTRIES, BURNT_FAMILIES, NOT_IDS } from './id-anchors.mjs'
-import { inheritedFrom } from './id-stability.mjs'
+import { inheritedFrom, reservedBranchIds } from './id-stability.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const LEDGER = workspacePath(ROOT, 'docs', '.id-ledger.json')
@@ -219,6 +220,7 @@ function writeNew(led, declared, { allowMoved = new Set(), allowDistinct = new S
   const roster = new Set(led.roster || [])
   const inherited = inheritedFrom(declared, led.ids)
   for (const [id, d] of declared) {
+    if (reservedBranchIds(led).has(id)) fail(`${id} is reserved by historical branch issuance and cannot be declared`)
     const entry = led.ids[id]
     if (!entry) {
       if (roster.has(id)) {
@@ -267,6 +269,7 @@ const flag = (name) => {
   return i >= 0 && i + 1 < argv.length ? argv[i + 1] : null
 }
 const led = loadLedger()
+if ([...reservedBranchIds(led)].some(id => !(led.reserved_ids || []).includes(id))) fail('historical reservation inventory was removed; restore it from reservation_history')
 const declared = collectDeclared(ROOT)
 
 // ---- --declare / --reword / --supersede / --abandon / --distinct / --bulk ---
@@ -279,8 +282,40 @@ const abandonId = flag('--abandon')
 const distinctId = flag('--distinct')
 const bulkFile = flag('--bulk')
 const declaredIn = flag('--declared-in')
+const reserveRevision = flag('--reserve-branch')
 const allowMoved = new Set()
 const allowDistinct = new Set()
+
+// A non-reuse record preserves branch-only issued numbers without retiring,
+// replacing or aliasing any published main identity. The historical Git blob
+// and approved decision are explicit operator inputs, never an inferred merge.
+if (reserveRevision) {
+  if (!/^[a-f0-9]{40}$/.test(reserveRevision)) fail('--reserve-branch requires a full historical Git SHA-1')
+  if (declareId || rewordId || reviewId || reviewBaseline || supersedeId || abandonId || distinctId || bulkFile) fail('branch reservation is a separate operation')
+  const reason = requireReason(flag('--reason'))
+  const pointer = declaredIn?.match(/^(docs\/change-requests\/(?!.*(?:^|\/)\.\.(?:\/|$))[A-Za-z0-9._/-]+\.md)#([0-9]+\.[0-9]+\.[0-9]+)$/)
+  if (!pointer) fail('--declared-in requires an approved change request path#version')
+  const approval = read(workspacePath(ROOT, pointer[1]))
+  const fm = approval.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)?.[1]
+  if (!fm || !/^status:\s*["']?approved["']?\s*$/m.test(fm)
+    || !new RegExp(`^version:\\s*["']?${pointer[2].replace(/\./g, '\\.')}["']?\\s*$`, 'm').test(fm)) fail('reservation decision must be approved at the stated version')
+  let historical
+  try {
+    const root = workspaceRoot(ROOT)
+    historical = JSON.parse(execFileSync('git', ['--no-replace-objects', 'show', `${reserveRevision}:docs/.id-ledger.json`],
+      { cwd: root, encoding: 'utf8', windowsHide: true, maxBuffer: 16 * 1024 * 1024 }))
+  } catch { fail('historical branch ledger is unavailable or invalid') }
+  if (!historical.ids || !Array.isArray(historical.roster)) fail('historical branch ledger has no identity inventory')
+  const active = new Set([...Object.keys(led.ids), ...(led.roster || [])])
+  const candidates = sortRoster([...Object.keys(historical.ids), ...historical.roster]).filter(id => !active.has(id))
+  if (candidates.some(id => !/^(FR|SDD)-\d{3,}$/.test(id))) fail('branch reservation currently supports FR/SDD identities only')
+  const previous = led.reservation_history || []
+  const matching = previous.find(entry => entry.revision === reserveRevision)
+  if (matching && (matching.declared_in !== declaredIn || matching.reason !== reason || JSON.stringify(matching.ids) !== JSON.stringify(candidates))) fail('historical reservation evidence differs from the previous operation')
+  led.reserved_ids = sortRoster([...(led.reserved_ids || []), ...candidates])
+  if (!matching) (led.reservation_history ||= []).push({ revision: reserveRevision, declared_in: declaredIn, reason, at: TODAY, ids: candidates })
+  console.log(`id-ledger: reserved ${candidates.join(', ') || '(none)'}; active main identities preserved`)
+}
 
 function needVersionPointer(entry) {
   const reg = REGISTRIES.find((r) => r.families.includes(entry.family))

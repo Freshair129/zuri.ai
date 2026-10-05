@@ -61,8 +61,10 @@ const labDocs = walk(workspacePath(ROOT, 'docs'), '.md').filter((f) => !f.starts
 const specDocs = []
 const allDocs = labDocs
 const canonicalIndexPath = path.join(workspaceRoot(ROOT), 'registry/document-registry/index.json')
-const canonicalPaths = new Set(existsSync(canonicalIndexPath)
-  ? parseCanonicalIndex(read(canonicalIndexPath)).records.map(record => record.path) : [])
+const canonicalRecords = existsSync(canonicalIndexPath) ? parseCanonicalIndex(read(canonicalIndexPath)).records : []
+const canonicalPaths = new Set(canonicalRecords.map(record => record.path))
+const approvalContexts = new Map(canonicalRecords.filter(record => record.recordVersion === 2)
+  .map(record => [record.manifestPath.replace(/\.manifest\.json$/, '.approval.md'), record.approvalPath]))
 
 // Read source files even when the persisted graph is stale or missing a new doc.
 {
@@ -131,13 +133,15 @@ for (const f of allDocs) {
 const LINK = /\[[^\]]*\]\(([^)#]+?)(?:#[^)]*)?\)/g
 for (const f of allDocs) {
   const body = read(f)
-  const sources = [{ body, base: path.dirname(f) }]
+  // Frozen evidence retains the approved note's relative-link context.
+  const sources = [{ body, base: path.dirname(approvalContexts.has(rel(f))
+    ? path.join(workspaceRoot(ROOT), approvalContexts.get(rel(f))) : f) }]
   if (canonicalPaths.has(rel(f))) {
     // The preserved row keeps the original document's relative-link context.
     // Check it there; links authored outside the row use the new file's context.
     const record = parseCanonicalRecord(body)
     sources[0].body = body.replace(/<!-- canonical-row:start -->[\s\S]*?<!-- canonical-row:end -->/, '')
-    sources.push({ body: record.row, base: path.dirname(path.join(workspaceRoot(ROOT), record.sourcePath)) })
+    sources.push({ body: record.row, base: path.dirname(path.join(workspaceRoot(ROOT), record.recordVersion === 1 ? record.sourcePath : rel(f))) })
   }
   for (const source of sources) for (const [, href] of source.body.matchAll(LINK)) {
     if (/^(https?:|mailto:)/.test(href)) continue

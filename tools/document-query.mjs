@@ -136,6 +136,7 @@ export function resolveQueryTarget(reference, context) {
     statement: record.statement,
     recordStatus: record.status,
     sourceRevision: record.sourceRevision ?? null,
+    ...(record.recordVersion === 2 ? { provenance: 'authored', authoredBaseRevision: record.authoredBaseRevision, approvalRevision: record.approvalRevision, migrationId: record.migrationId } : {}),
     registrySourceRevision: record.registrySourceRevision ?? null,
     migrationBaseRevision: record.migrationBaseRevision ?? null,
     migrationDocument: record.migrationDocument ?? null,

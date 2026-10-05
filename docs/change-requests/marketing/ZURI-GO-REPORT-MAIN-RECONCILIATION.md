@@ -56,9 +56,8 @@ Recorded owner approval of this proposal authorizes implementation of this combi
 
 Main FR-278 and all main initial/published pin metadata must remain exact. All old task evidence must remain recoverable at its original commits and hashes. Both reviewed-migration and authored provenance must survive registry/query/views/snapshot verification without accidental `source-preserved` labeling. New IDs must be uniquely coordinated and issued only once; no downstream alias is inferred. Document-only checks do not satisfy native receiver/sender runtime acceptance.
 
-Current physical designs are review-ready against `fcb7ade3` and Go `f06ef4d3`, but their task-branch FR references cannot be presented as identities on main `07779662`. Latest-main integration is BLOCKED pending this decision; no conflicting merge/reissue was attempted. The successful earlier `3506129f` integration remains historical qualification, not evidence for the new main. No database, deployment, runtime or credential operation is part of this proposal.
+Current physical designs are review-ready against `fcb7ade3` and Go `f06ef4d3`, but their task-branch FR references cannot be presented as identities on main `07779662`. The owner has now approved this decision; the fresh main worktree implements the reviewed recovery, with exact-manifest review still required before issuance. No conflicting merge or reissue of old identities was attempted. The successful earlier `3506129f` integration remains historical qualification, not evidence for the new main. No database, deployment, runtime or credential operation is part of this proposal.
 
 Version diff 0 → 0.1.0: records the concurrent-ID/root-format conflict and proposes main-first recovery with immutable history, fresh coordinated issuance and mixed-format review. Does not allocate, rename, retire, alias or supersede a canonical identity.
 
 Version diff 0.1.0 → 0.2.0: records owner approval and activates the combined tooling/physical scope; historical evidence and main IDs remain unchanged. Fresh worktree starts at main07779662. Candidate IDs will be reviewed before issuance.
-

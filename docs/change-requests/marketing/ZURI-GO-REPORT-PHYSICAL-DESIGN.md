@@ -11,7 +11,7 @@ risk: HIGH
 
 # Marketing report receiver — physical design proposal
 
-Final main gate: main advanced to `07779662` and issued a different FR-278. References below are this task branch's issued records at `fcb7ade3`, not active-main identities. [Main-first reconciliation](ZURI-GO-REPORT-MAIN-RECONCILIATION.md) is DRAFT; latest-main integration/coding is BLOCKED pending the owner decision. No identity is renamed or aliased by this physical proposal.
+Final main gate: main advanced to `07779662` and issued a different FR-278. References below are this task branch's issued records at `fcb7ade3`, not active-main identities. [Main-first reconciliation](ZURI-GO-REPORT-MAIN-RECONCILIATION.md) is approved; the fresh main worktree implements its combined tooling before reviewed fresh issuance and application coding. No identity is renamed or aliased by this physical proposal.
 
 This proposal elaborates [ZAI:SDD-111](../../requirements/SDD-111.md), [FR-278](../../requirements/FR-278.md), [FR-279](../../requirements/FR-279.md) and [FR-280](../../requirements/FR-280.md). Their issued statements, identities, planned delivery and frozen approval remain unchanged. The approved [receiver intake](ZURI-GO-REPORT-RECEIVER.md) supplies behavior; this document proposes its physical enforcement and native test bindings. Owner approved this physical design on 2026-10-05, including the separate deny-default Business machine policy and backup restrictions. Native implementation/acceptance remains pending. No schema, application code or live credential is delivered here.
 
@@ -109,4 +109,3 @@ Marketing charter also requires generated PostgreSQL Prisma schema and additive 
 Version diff 0 → 0.1.0: proposes the missing Business machine gate, physical immutable constraints, audit coupling, SQLite first-write serialization and native QA bindings. Adds no issued identities, application version, real database operation or delivery claim.
 
 Version diff 0.1.0 → 0.2.0: records owner approval. Old task-qualified references remain historical until the reviewed fresh issuance provides new IDs; no alias or live operation is implied.
-

@@ -120,6 +120,7 @@ function requirementNodes(prdPath) {
     if (nodes.some((n) => n.id === `req:${id}`)) continue
     const label = (cells[2] || '').replace(/\s+/g, ' ').trim()
     const marker = cells.slice(3).join(' ')
+    const planned = marker.includes('🔜') || marker.trim() === 'planned'
     nodes.push({
       id: `req:${id}`,
       type: 'requirement',
@@ -127,7 +128,7 @@ function requirementNodes(prdPath) {
       label,
       defined_in: rel(prdPath),
       // ✅/🔜 only appear in the FR registry; other families carry evidence text.
-      declared: marker.includes('✅') ? 'done' : marker.includes('🔜') ? 'planned' : 'n/a',
+      declared: marker.includes('✅') ? 'done' : planned ? 'planned' : 'n/a',
       // A rule the registry itself retires is not a coverage defect, for the same
       // reason a 🔜 FR is not one. Documents have carried this state since the
       // control-block reader was written (`status:` above); requirement rows had
@@ -139,7 +140,7 @@ function requirementNodes(prdPath) {
       // happens to discuss retirement is not silently dropped from the denominator.
       status: /~~/.test(label) || /\b(supersed|cancelled|retired)/i.test(marker)
         ? 'superseded'
-        : marker.includes('🔜') ? 'planned' : 'current',
+        : planned ? 'planned' : 'current',
       // Kept so a retired rule's successors can be resolved into real edges below.
       row_text: `${label} ${marker}`,
     })
