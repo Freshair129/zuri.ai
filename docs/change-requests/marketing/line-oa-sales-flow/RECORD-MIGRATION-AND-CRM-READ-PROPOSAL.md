@@ -1,7 +1,7 @@
 ---
 doc_type: change-request-addendum
 title: "LINE OA executive KPI dashboard — canonical record migration and CRM read boundary"
-version: "0.3.0"
+version: "0.5.0"
 status: approved
 superseded_by: null
 date: "2026-10-05"
@@ -9,7 +9,7 @@ approved_on: "2026-10-05"
 audience: "ผู้บริหารและเจ้าของ domain"
 ---
 
-# ข้อเสนอเพิ่มเติมก่อนเริ่ม implementation
+# Canonical record migration และ CRM read boundary
 
 ## การอนุมัติ
 
@@ -73,11 +73,22 @@ Projection reads remain inside the owners' scope gates. It never reads CRM table
 - Marketing endpoint แสดง `READY`, `PARTIAL`, `UNAVAILABLE` หรือ `UNKNOWN` ตาม owner source จริง; error ไม่กลายเป็นศูนย์
 - Tests ยืนยัน boundary, aggregation และ rendering ของ unavailable states; no Ads/A/B/chatbot/Lead/call value ถูกนำเสนอเป็นตัวเลข
 
+## ผลการดำเนินงานและการตรวจ
+
+- Reviewed-record migration สร้างและ pin `FR-278` ผ่าน document-registry writer; source rows, ID/subject anchors และ paths เดิมคงเดิม
+- Local `npm run govern` ผ่านด้วย 0 critical และ 1 warning: dangling documentation/code links ที่มีอยู่ 10 รายการ
+- Dashboard route, service, UI, CRM/FR-161 integration, OpenAPI และ registry/view/query focused tests ผ่าน; Conversation Runtime ผ่าน 73/73 tests และ build
+- Server full suite: 7,871 passed, 43 skipped, 6 tests timed out across five unrelated runtime/backup files. Isolated rerun ผ่าน 4 จาก 5 files; `line-memory-erasure-due-query` ยัง timeout ซ้ำ 1 test (3 passed, 1 failed)
+- Production build ผ่านหลัง generate Prisma Client ใน local validation checkout
+- Full browser suite ยังไม่จบ: Next dev worker ล้มด้วย `Zone Allocation failed` ระหว่าง `/api/files/warmup`; ไม่มี final Playwright summary จึงไม่นับเป็น PASS
+- Ads/A-B, chatbot, Lead permission/readiness, call outcomes และ ad attribution ยังคง `UNAVAILABLE`; ไม่มี schema/database migration, provider activation หรือ deployment
+
 ## Version diff
 
 | Version | Status | Change |
 |---|---|---|
 | 0.1.0 | approved | เพิ่ม scope migration ที่จำเป็นต่อ dashboard รุ่นแรก หลังพบข้อห้าม CRM reader ใน FR-185 และช่องว่างขั้นตอนเพิ่ม canonical registry record |
 | 0.2.0 | approved | บันทึกการอนุมัติ migration/dashboard, รายละเอียด reviewed-record workflow และภาพ owner-read boundary สำหรับ C-3 implementation; เพิ่มข้อกำหนด provenance, scope และ source states ให้ตรวจสอบได้ |
-| 0.4.0 | approved | บันทึก flow steps สำหรับ Ads/A-B, AI chatbot, Lead handoff, CRM follow-up, admin call และ Commerce close; แหล่งที่ยังไม่มี owner contract แสดง UNAVAILABLE |
 | 0.3.0 | approved | เพิ่ม readiness metadata ที่ governance ต้องใช้สำหรับ Standalone FR โดยแยก presentation domain จาก FEAT membership; export สร้างผ่าน registry writer |
+| 0.4.0 | approved | บันทึก flow steps สำหรับ Ads/A-B, AI chatbot, Lead handoff, CRM follow-up, admin call และ Commerce close; แหล่งที่ยังไม่มี owner contract แสดง UNAVAILABLE |
+| 0.5.0 | approved | บันทึกผล implementation และหลักฐาน validation โดยแยก PASS, timeout และ browser OOM/incomplete อย่างชัดเจน; ไม่มี production/deployment claim |
