@@ -36,11 +36,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 163,
+    "featureCount": 166,
     "readyFeatureCount": 118,
-    "requirementCount": 277,
+    "requirementCount": 280,
     "verifiedRequirementCount": 245,
-    "progressPercent": 92.3,
+    "progressPercent": 91.4,
     "gapCount": 47,
     "gaps": [
       {
@@ -2342,11 +2342,12 @@
         "FR-120",
         "FR-121",
         "FR-122",
-        "FR-123"
+        "FR-123",
+        "FR-278"
       ],
-      "featureCount": 24,
+      "featureCount": 25,
       "readyFeatureCount": 18,
-      "progressPercent": 94.9
+      "progressPercent": 92.2
     },
     "integration": {
       "status": "partial",
@@ -4434,11 +4435,13 @@
       "featureIds": [
         "FEAT-021",
         "FR-275",
-        "FR-276"
+        "FR-276",
+        "FR-279",
+        "FR-280"
       ],
-      "featureCount": 3,
+      "featureCount": 5,
       "readyFeatureCount": 1,
-      "progressPercent": 87.5
+      "progressPercent": 70
     },
     "platform-control": {
       "status": "partial",
@@ -17882,6 +17885,93 @@
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/server-line-answer.test.js"
       ]
+    },
+    {
+      "id": "FR-278",
+      "title": "Report-only machine credential: resolve an ACTIVE dedicated credential to its immutable Zuri-Go source deployment/Business and target Tenant/Business binding with marketing.report.ingest permission; never synthesize a Person/OWNER or accept this credential on Enterprise import, native Marketing writers or unrelated routes. Before every intake, replay and contention retry, recheck the credential/binding and active target with currently enabled growth domain inside the receiving transaction; revocation or domain disablement denies writes and receipt disclosure. Invalid, missing and revoked credentials use generic authentication refusal; operator-only provisioning/revocation is audited, and raw secrets never persist, enter browser state or audit payloads.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-278"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [],
+      "useCase": "Zuri-Go ใช้ credential สำหรับส่งรายงานเท่านั้น โดยตรวจ binding และสิทธิ์ growth ปัจจุบันซ้ำทุกครั้งก่อนรับข้อมูลหรือคืน receipt",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-278 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-278",
+          "title": "Report-only machine credential",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-279",
+      "title": "Atomic reported-evidence intake: authenticate and validate exact bounded canonical bytes, hash, revision 1 only with no correction/supersedes, and source/target/initiative scope using the reviewed Zuri-Go wire contract; atomically persist one immutable MarketingExternalReport with committed receipt and one scoped service-principal AuditEvent, unique by bindingId and sourceReportId. Identical authorized replay returns the original committed receipt after byte and hash comparison; different bytes under that identity conflict without writes. Independent SQLite requests rely on the unique constraint and bounded whole-transaction contention retry with reauthorization; an aborted or exhausted transaction never acknowledges acceptance. Preserve Go source and parent native plans, reviews, decisions, handoffs, initiative lifecycle, PM records and Commerce verified totals.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-279"
+      ],
+      "primaryDomain": "marketing",
+      "contributorDomains": [],
+      "useCase": "รับรายงาน revision 1 เป็น reported evidence พร้อม receipt และ audit ใน transaction เดียว คำขอซ้ำได้ receipt เดิม และไม่เปลี่ยนแผนหรือยอดที่ยืนยันแล้ว",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-279 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-279",
+          "title": "Atomic reported-evidence intake",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-280",
+      "title": "Private source-preserving reported evidence: resolve Tenant/Business and existing assertMarketingReadAccess with current Marketing/growth read authority before every human evidence read; Guest, foreign Business and hidden domain cannot disclose evidence through public projections or bypass paths. A report credential receives only its own matching receipt through reauthorized intake/replay with an active target. Preserve null, UNKNOWN and reported trust without provider completeness or native approval promotion, including HELD reports. Retain immutable evidence and matching receipt at least 90 days from acceptedAt under retention policy version 1; revoke access without altering retained bytes, retain the existing append-only audit policy and provide no automatic purge in this slice.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-280"
+      ],
+      "primaryDomain": "marketing",
+      "contributorDomains": [],
+      "useCase": "ทีมการตลาดอ่าน reported evidence ตามสิทธิ์เดิมของ Business เก็บหลักฐานกับ receipt ขั้นต่ำ 90 วัน โดยคง UNKNOWN และไม่มีการลบอัตโนมัติ",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-280 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-280",
+          "title": "Private source-preserving reported evidence",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
     }
   ],
   "nonFunctionalRequirements": [

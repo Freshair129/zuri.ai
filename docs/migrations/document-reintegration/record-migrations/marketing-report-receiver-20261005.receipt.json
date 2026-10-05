@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "migrationId": "marketing-report-receiver-20261005",
+  "status": "APPLIED",
+  "manifestSha256": "7a5e6c9dbef8532389364214810d7c8b6f27484a6ec64ff8e122c972b294f10a",
+  "base": {
+    "commit": "90b9df7dfb65550e9c18259fc817291126546887",
+    "indexSha256": "21ba4c98eea7152ff9c28319019040fb37ea4bc89870fe50304532e367d8770f",
+    "ledgerSha256": "30848e63aba90c570b0ca55910c02b1e08af40fd4a4d09030c8e3b5c3bf489e0"
+  },
+  "ids": [
+    "FR-278",
+    "FR-279",
+    "FR-280",
+    "SDD-111"
+  ],
+  "before": {
+    "docs/migrations/document-reintegration/record-migrations/marketing-report-receiver-20261005.approval.md": null,
+    "docs/requirements/FR-278.md": null,
+    "docs/requirements/FR-279.md": null,
+    "docs/requirements/FR-280.md": null,
+    "docs/requirements/SDD-111.md": null,
+    "registry/document-registry/index.json": "21ba4c98eea7152ff9c28319019040fb37ea4bc89870fe50304532e367d8770f",
+    "docs/PRD-SDD-v1.0.md": "e9c15ee5573b48076e3136cb8c347893e0e0959585cc8d711f4039c7ff40a77a",
+    "docs/FEATURES.md": "1704e04a559ebbeaf0c74bac955195c7d01f5504e984557189abc907a6c714eb",
+    "docs/.id-ledger.json": "30848e63aba90c570b0ca55910c02b1e08af40fd4a4d09030c8e3b5c3bf489e0"
+  },
+  "outputs": {
+    "docs/migrations/document-reintegration/record-migrations/marketing-report-receiver-20261005.approval.md": "174a6a96e251272cb093e6c0d875ef3fb237d92ddc27f0f8b7720a504a50df1c",
+    "docs/requirements/FR-278.md": "6e7b1ace9f435bbc54ed4cea564973b142dbd1810b0d1fed5d1da2fe950c3dae",
+    "docs/requirements/FR-279.md": "32107c6ee9498370ff8e5a42879294ad5367cda0131d5d2ae604ae11725cf480",
+    "docs/requirements/FR-280.md": "893f1ccd6918219a7352d6e7e8ebc43ddd8b7a66f25ee8aaa3cebdc807fb355b",
+    "docs/requirements/SDD-111.md": "58d1650b9b0ee9f0c0a9479914e5f2cdb01cfa1735aa271d3ec5de60884313dd",
+    "registry/document-registry/index.json": "b4e96b52a0424c65134c165abbb8e0e0a68d7813753ba0c4a8b4de3a03df101d",
+    "docs/PRD-SDD-v1.0.md": "5770fb6efe2fce2a1e9c2981b60e6ebb62d64a48cdc67473c651b07927008326",
+    "docs/FEATURES.md": "1704e04a559ebbeaf0c74bac955195c7d01f5504e984557189abc907a6c714eb",
+    "docs/.id-ledger.json": "22962ea8b3711f342f8548cc777ef1ef124c658ddd18bda538fa997a6cb03655"
+  }
+}

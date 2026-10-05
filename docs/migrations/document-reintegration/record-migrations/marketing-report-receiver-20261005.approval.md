@@ -3,7 +3,7 @@ doc_type: intake-note
 title: Zuri-Go reported Marketing evidence — parent record migration
 status: approved
 superseded_by: null
-version: "0.5.0"
+version: "0.4.0"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
@@ -32,7 +32,7 @@ These are exact behavioral subjects for new records, not reinterpretations of FR
 | Private source-preserving evidence read | Marketing | Re-evaluate Business/growth visibility before every read, exclude Guest/public projections, preserve null/UNKNOWN/reported trust and leave native plans, reviews, decisions, PM execution and Commerce verified totals unchanged. |
 | Receiver/Identity design | Identity + Marketing | Specify the physical models, fixed receiver route, authority checks, SQLite concurrent-transaction behavior, retention policy and the scoped integration tests below. Delivery stays declared until tests and operational gates pass. |
 
-The owner approved this receiver contract, including current machine growth permission, on 2026-10-05, and separately approved [additive authored-record tooling](ZURI-GO-RECORD-AUTHORING.md). Reviewed governed issuance now records FR-278/279/280 and SDD-111 as planned subjects; [verification](../../migrations/document-reintegration/AUTHORED-VERIFICATION.md) pins the tooling/manifest reviews and exact receipt. New source provenance distinguishes authored behavior from the pinned migration inventory. Existing subject anchors, identities and generated source rows remain intact. Physical append-only design and native test bindings remain OPEN before receiver coding.
+The owner approved this receiver contract, including current machine growth permission, on 2026-10-05. Approval applies to the intake's stated behavior, not to issued IDs or an unreviewed governance-tool extension. The parent canonical migration is OPEN because the current format/writer supports only the initial source-preserved records. The separate [authored-record migration proposal](ZURI-GO-RECORD-AUTHORING.md) makes that prerequisite reviewable. New source provenance must distinguish authored behavior from the pinned migration inventory. Existing subject anchors, identities and generated source rows remain intact.
 
 ## Credential and binding — proposed minimum
 
@@ -104,13 +104,11 @@ Go delivery lease/attempt/receipt schema and PostgreSQL tests remain Go-owned. E
 
 ## Execution and verification record
 
-Prepared on isolated branch `codex/marketing-report-p3`; the active parent checkout/runtime is unchanged. Current status: overall Go P3 scope APPROVED, detailed parent receiver intake APPROVED, authored-record tooling APPROVED and implemented, retention APPROVED (90 days), four canonical subjects issued with planned delivery. Application receiver/sender code, schema and QA end-to-end remain NOT_RUN; physical design remains OPEN. The issuance archives exact approved v0.4.0 evidence; this current note records progress without rewriting that evidence.
+Prepared on isolated branch `codex/marketing-report-p3`; the active parent checkout/runtime is unchanged. Status: overall Go P3 scope APPROVED, detailed parent receiver intake APPROVED, authored-record migration proposal DRAFT, retention APPROVED (90 days), code/schema/QA end-to-end NOT_RUN. No issued IDs, registry exports or application artifacts changed.
 
-Before application coding: complete composed governance/output review for issued records → review/approve physical contracts and native test bindings → implement isolated receiver/sender acceptance. Never edit a generated index or label new rows source-preserved merely to pass a check.
+Before coding: review/approve the parent record migration and physical contracts → allocate fresh qualified IDs through the supported governed authoring path → regenerate/check registry, graph, views and identity/ID-ledger constraints. A missing authoring capability must be documented and resolved under its own approved scope; never edit a generated index or label new rows source-preserved merely to pass a check.
 
 ## Version diff
-
-0.4.0 → 0.5.0: records separately approved tooling and reviewed canonical issuance; planned delivery and physical-design/application gates remain explicit. No receiver behavior, live data or schema changes.
 
 0.3.0 → 0.4.0: records owner approval of the receiver contract and separates it from the newly documented authored-record tooling prerequisite. No canonical IDs issued and no application implementation claimed.
 

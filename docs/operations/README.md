@@ -15,6 +15,7 @@ status: generated
 Generated navigation for current source documents in the operations grouping. A path's presence here does not declare ownership or approval.
 
 - [Deploying zuri-ai with Docker Compose + ngrok](../deployment/docker-ngrok.md)
+- [Authored Marketing receiver records — verification](../migrations/document-reintegration/AUTHORED-VERIFICATION.md)
 - [Canonical document record format](../migrations/document-reintegration/CANONICAL-FORMAT.md)
 - [Identity compatibility contract](../migrations/document-reintegration/COMPATIBILITY.md)
 - [Document consumer compatibility](../migrations/document-reintegration/CONSUMERS.md)
@@ -24,6 +25,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Document inventory and provenance contract](../migrations/document-reintegration/INVENTORY.md)
 - [Documentation reintegration proposal](../migrations/document-reintegration/PROPOSAL.md)
 - [Documentation reintegration implementation receipt](../migrations/document-reintegration/RECEIPT.md)
+- [Zuri-Go report receiver — parent contract and record migration](../migrations/document-reintegration/record-migrations/marketing-report-receiver-20261005.approval.md)
 - [Document query tooling contract](../migrations/document-reintegration/TOOLING.md)
 - [Generated document views contract](../migrations/document-reintegration/VIEW-CONTRACT.md)
 - [Monorepo snapshot execution](../migrations/monorepo/EXECUTION.md)
