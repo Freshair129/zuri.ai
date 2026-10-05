@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T02:10:12.296Z",
+  "reviewer": {
+    "agent": "/root/independent_sol_review",
+    "model": "gpt-6-sol",
+    "effort": "high",
+    "selection": "requested fallback; Terra unavailable",
+    "firstAttempt": "NOT_RUN_MODEL_AT_CAPACITY",
+    "retry": "PASS"
+  },
+  "verdict": "PASS_PREPARED_AMENDMENT_ONLY",
+  "reviewed": {
+    "patchSha256": "85a6486d0d4244801e3260f5ae532a98f36b4adaa3f06ce79e28304634627d6b",
+    "document20PreviewSha256": "401cfb57baec3371c514faf63bff646d8d7eb61b02fcd4336244633ab6ffa7f9",
+    "agentsPreviewSha256": "99d3dd1684d28d95a1a336ff747d9f176c3799c4c0f75c8e55f20c1d65cd0b9d",
+    "manifestSha256": "f52f54007b8718838bdb19959dacfdb0788618594089b53325caedde79f7e0ef",
+    "readmeAtReviewSha256": "673a16669c06a073791583f7df8fc32e0d04f015bbb63214bb2332394945c025"
+  },
+  "verified": [
+    "D1-D5 faithful to approved RCA",
+    "insertions only: Document20 +49 lines, AGENTS +2 lines",
+    "original two-round clause unchanged",
+    "original section14-to-end bytes unchanged",
+    "eleven unique explicit anchors",
+    "roles/gates and candidate authority unchanged"
+  ],
+  "minorClarification": {
+    "finding": "Do not imply current originating-checkout bytes were verified unchanged.",
+    "resolution": "README now states this task has not applied the patch there and current contents remain UNKNOWN."
+  },
+  "limitations": [
+    "canonical integration pending",
+    "operational validation NOT_RUN",
+    "reviewer did not mutate files or run govern/test/build",
+    "receipt records agent report; not cryptographic authorship attestation"
+  ]
+}

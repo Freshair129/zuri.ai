@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T07:16:25.211Z",
+  "status": "APPLIED_TO_ANALYSIS_BRANCH_DOCUMENT_SOURCES_STATIC_AND_INDEPENDENT_REVIEW_PASS",
+  "branch": "codex/pm-spec-issue-analysis-20261005",
+  "baseCommit": "41cfd674c91dbdc7af88c807e24561f22f6ef368",
+  "documentVersion": "0.9.32b-rca.1",
+  "approval": {
+    "source": "latest direct user approve in task 01a108f9-f6e8-7c91-b766-b30e3c423215 after prepared amendment handoff",
+    "messageTimestamp": "UNKNOWN",
+    "scope": "document amendment adoption in existing analysis worktree; candidate-only"
+  },
+  "selectedBaseline": {
+    "path": ".brain/rca/evidence/2026-10-05-pm-spec-handoff/source/20-MULTI-AGENT-DELIVERY-PLAN.md",
+    "sha256": "f502e5e97e0a30bbbacdd187af0a01d69093e368a523755249406a6c4c067ab2",
+    "version": "0.9.32b",
+    "classification": "verified historical source selected explicitly for this branch; remote latest UNKNOWN"
+  },
+  "reviewedAmendment": {
+    "patchSha256": "85a6486d0d4244801e3260f5ae532a98f36b4adaa3f06ce79e28304634627d6b",
+    "status": "PASS_PREPARED_PATCH; not transferred to final bytes"
+  },
+  "entries": [
+    {
+      "path": ".gitattributes",
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+      "bytes": 8
+    },
+    {
+      "path": "Document20.branch-preimage.md",
+      "sha256": "244792688df0daa70ca9c73b74b49f85fc16ba49346622b6afe12130254c7524",
+      "bytes": 40969
+    },
+    {
+      "path": "AGENTS.branch-preimage.md",
+      "sha256": "c500bb2201f620f97688a70193b88ef3ed73c61171bbe8f7b757dbf74b8a7aaa",
+      "bytes": 29491
+    }
+  ],
+  "outputs": [
+    {
+      "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sha256": "7ebb4a3272bd3ce60ea6cc9b39d796301a18ea272bb4ec145459923eb6904592",
+      "bytes": 115628
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "848392b627aae29c215247db97d784a3330282eaddb6f087ae28b0ffd9cb5bec",
+      "bytes": 30433
+    }
+  ],
+  "authority": {
+    "candidateOnly": true,
+    "dispatchable": false,
+    "implementationAuthorized": false
+  },
+  "validation": {
+    "sourceByteChecks": "PASS",
+    "originalHistory": "PASS",
+    "originalRetryClause": "PASS",
+    "independentFinalReview": "PASS_EXACT_OUTPUT_HASHES",
+    "govern": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "build": "NOT_RUN",
+    "corpusGeneration": "NOT_RUN_MISSING_GENERATED_DOMAIN_MAP",
+    "agentAdoption": "NOT_RUN",
+    "newAnchorsAndLinks": "PASS",
+    "trackedBranchContracts": "PASS_23_UNCHANGED",
+    "fullInheritedLinkHealth": "LIMITATION_TWO_MISSING_HISTORICAL_TARGETS"
+  },
+  "primaryCheckoutChanged": false,
+  "originatingCheckoutApplied": false,
+  "evidenceFiles": [
+    {
+      "path": "README.md",
+      "sha256": "976d4c336b3240f25d1ef1d4ab949760ad95fad2dbbe8997927fbb1339803669",
+      "bytes": 4506
+    },
+    {
+      "path": "static-validation.json",
+      "sha256": "6ce9b01d1992ffea52b3305c99be09e6c0c8bd6e50215d65506030e7a30a829f",
+      "bytes": 2343
+    },
+    {
+      "path": "rule-check.json",
+      "sha256": "4b407f1ab54624024c1045538fc95c7b7cc8cf068296c2938b32ec6136e99813",
+      "bytes": 2804
+    },
+    {
+      "path": "independent-review.json",
+      "sha256": "3f0ea98be0959cd9b890531c7f07b2dd0ce12bbee250a3cc0a7ad0f63fcf210a",
+      "bytes": 1417
+    }
+  ]
+}

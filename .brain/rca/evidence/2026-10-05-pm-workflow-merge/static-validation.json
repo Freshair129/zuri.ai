@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T09:09:02.419Z",
+  "status": "PASS_COMPOSED_DOCUMENT_STATIC_CHECKS",
+  "outputs": [
+    {
+      "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sha256": "4a49a4d2897d48fff5ec1c2c8e74451346d1e3e83d15191c08fb6f09d2561b94",
+      "bytes": 117135
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "848392b627aae29c215247db97d784a3330282eaddb6f087ae28b0ffd9cb5bec",
+      "bytes": 30433
+    }
+  ],
+  "checks": {
+    "allMainCandidateContracts": "PASS_EXACT_MAIN_BYTES_23",
+    "reconciledHistory": "PASS_BYTE_IDENTICAL",
+    "originalTwoRoundClause": "PASS",
+    "uniqueAnchorsAndLinks": "PASS",
+    "historicalEvidence": "PASS_UNCHANGED",
+    "localGovern": "NOT_RUN",
+    "localTests": "NOT_RUN",
+    "localBuild": "NOT_RUN",
+    "hostedChecks": "PENDING"
+  }
+}

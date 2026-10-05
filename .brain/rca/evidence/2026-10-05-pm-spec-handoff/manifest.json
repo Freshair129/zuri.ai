@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "1",
+  "capturedAt": "2026-10-05T04:45:50.3210643+07:00",
+  "branchBase": "a6e295a5e30b61aa0e6a178454e371d59e053818",
+  "purpose": "Read-only cross-machine evidence for the PM specification DAG RCA; copies are not canonical artifacts or acceptance",
+  "entries": [
+    {
+      "sha256": "2b83dc3b5f907293848ddf5cc68fee587520c8cba643652ace4347056ae2b08e",
+      "snapshotPath": "inputs/delivery-plan-v0.9.47b-postcomposition.json",
+      "sourcePath": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+      "bytes": 429894
+    },
+    {
+      "sha256": "cefa496ebcc0e778b55957df18378b42a7a701192077a43163fbf9a4bf3a6b78",
+      "snapshotPath": "inputs/pmr-025-design-bundle-v0.1.8-predecessor.candidate.json",
+      "sourcePath": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.8.candidate.json",
+      "bytes": 67482
+    },
+    {
+      "sha256": "03207eac2818f469e10bd164543a0dc0db42c45fb5f363965b20604245f103ac",
+      "snapshotPath": "inputs/pmr-025-design-bundle-v0.1.9-selected.candidate.json",
+      "sourcePath": "docs/architecture/project-manager-system/contracts/pmr-025-design-bundle.v0.1.9.candidate.json",
+      "bytes": 73019
+    },
+    {
+      "sha256": "eb8c951e017ff94c04d30acb6f417f7211f44839564546b5f22bb3a3a0222f1b",
+      "snapshotPath": "inputs/pmr-025-plan-composition-proposal.candidate.json",
+      "sourcePath": "docs/architecture/project-manager-system/contracts/pmr-025-v0.1.9-plan-composition-proposal.candidate.json",
+      "bytes": 8248
+    },
+    {
+      "sha256": "1704e04a559ebbeaf0c74bac955195c7d01f5504e984557189abc907a6c714eb",
+      "snapshotPath": "source/FEATURES.md",
+      "sourcePath": "docs/FEATURES.md",
+      "bytes": 112193
+    },
+    {
+      "sha256": "d9c3fa6483eabfe6c142c89571f9281914d380ddb90c13fa3394baf20f962dab",
+      "snapshotPath": "source/FEATURE-MAP.generated.md",
+      "sourcePath": "docs/FEATURE-MAP.md",
+      "bytes": 288153
+    },
+    {
+      "sha256": "e9c15ee5573b48076e3136cb8c347893e0e0959585cc8d711f4039c7ff40a77a",
+      "snapshotPath": "source/PRD-SDD-v1.0.md",
+      "sourcePath": "docs/PRD-SDD-v1.0.md",
+      "bytes": 634159
+    },
+    {
+      "sha256": "4f64ac86412d0109fd924a6ca5283aa33010bd3994bc3f7cc8e3fbe167cc4165",
+      "snapshotPath": "source/pm-requirement-index.json",
+      "sourcePath": "docs/architecture/project-manager-system/contracts/pm-requirement-index.json",
+      "bytes": 23737
+    },
+    {
+      "sha256": "30848e63aba90c570b0ca55910c02b1e08af40fd4a4d09030c8e3b5c3bf489e0",
+      "snapshotPath": "source/id-ledger.json",
+      "sourcePath": "docs/.id-ledger.json",
+      "bytes": 333376
+    },
+    {
+      "sha256": "8a52953d04305be32b8e3c464c804e694b21bc88804b27f15d35bc8990d74799",
+      "snapshotPath": "source/08-EVIDENCE-AND-REVIEW.md",
+      "sourcePath": "docs/architecture/project-manager-system/08-EVIDENCE-AND-REVIEW.md",
+      "bytes": 107361
+    },
+    {
+      "sha256": "8f7e28f21ff81a07a299f8d906f0ddd1ad053a7458f6b6f7ace41662185c4748",
+      "snapshotPath": "source/11-UI-SYSTEM-AND-INTERACTIONS.md",
+      "sourcePath": "docs/architecture/project-manager-system/11-UI-SYSTEM-AND-INTERACTIONS.md",
+      "bytes": 23275
+    },
+    {
+      "sha256": "f502e5e97e0a30bbbacdd187af0a01d69093e368a523755249406a6c4c067ab2",
+      "snapshotPath": "source/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sourcePath": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "bytes": 105531
+    },
+    {
+      "sha256": "aca2721a210783ad8680a157d8cd8b6263467a79217e1231ea153e255fa1d795",
+      "snapshotPath": "rca/pm-dashboard-refresh-replacement-corruption.md",
+      "sourcePath": ".brain/rca/2026-10-05-pm-dashboard-refresh-replacement-corruption.md",
+      "bytes": 1667
+    },
+    {
+      "sha256": "1ec92f5181ff5b6af8bcbc6910461da4e479fbf5eb1e93a3ca41240c19149cb9",
+      "snapshotPath": "rca/pmr032-source-pin-and-boundary-drift.md",
+      "sourcePath": ".brain/rca/2026-10-04-pmr032-source-pin-and-boundary-drift.md",
+      "bytes": 4599
+    },
+    {
+      "sha256": "8151b0dc5544a49097e4e35d60cfcf45a976797c3a3738f2f018a56db256e266",
+      "snapshotPath": "dashboard/pm-execution-progress-r8.html",
+      "sourcePath": "local visualization; revision r8",
+      "bytes": 435758
+    },
+    {
+      "sha256": "9138bb3fde52014c293df613785bf0515527bc42d7793cc9e893654c7bf6c393",
+      "snapshotPath": "inputs/delivery-plan-v0.9.46b-precomposition.json",
+      "sourcePath": "verified rollback archive entry: docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+      "bytes": 423055
+    },
+    {
+      "sha256": "0a2898818eee5db388b6c86d3b7d2cc1e2710b28c55acb3bd3637b99b471495a",
+      "snapshotPath": "inputs/pmr-025-precomposition-inputs-v0.9.46b.zip",
+      "sourcePath": "verified local prewrite rollback archive",
+      "bytes": 411779
+    },
+    {
+      "sha256": "b3fed07504c460db1210ede0beb7e7324c83abe1b00cdb2c6fb7d81d1fa93534",
+      "snapshotPath": "inputs/pmr-025-precomposition-manifest.json",
+      "sourcePath": "verified local prewrite rollback manifest",
+      "bytes": 11528
+    },
+    {
+      "sha256": "70e8447d39e4a35a9ee74e2a464b08c1d5c75ff100ba2646d2d30709f40cd738",
+      "snapshotPath": "README.md",
+      "sourcePath": "context-pack index written alongside snapshots",
+      "bytes": 1861
+    },
+    {
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+      "snapshotPath": ".gitattributes",
+      "sourcePath": "evidence-pack byte-preservation rule",
+      "bytes": 8
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T08:40:51.379Z",
+  "status": "PUBLISHED_SOURCE_FOLLOWUP_DOCUMENT_WALKTHROUGH_PASS_RECONCILIATION_PROPOSAL_PASS",
+  "publishedSourceCommit": "8f513b9494b02f1945827eb8181ce9ede430bb8e",
+  "observedRemoteMain": "332b88c9277ee0995798f125f99d5343e7d493f0",
+  "entries": [
+    {
+      "path": ".gitattributes",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "Document20.main-preimage.md",
+      "bytes": 41366,
+      "sha256": "7c444c19fa55f6ef68809ebb235d304043a7bb9326469bdb62f6897da089b8ca"
+    },
+    {
+      "path": "Document20.reconciled-preview.md",
+      "bytes": 116220,
+      "sha256": "6423e1ef20d8ed98587c3e94803d404fbcc289a6ac1c2ca3112f3e6e23897ae0"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4737,
+      "sha256": "6eb6521a5e505f4d3b95903d6d15eec738759923339896d3eb4c782d07c3da91"
+    },
+    {
+      "path": "historical-reference-lineage.json",
+      "bytes": 1280,
+      "sha256": "3b927fb1cd72d14952cff81d63e2332114986cac650f290eb1a63504b89d267d"
+    },
+    {
+      "path": "integration-preflight.json",
+      "bytes": 2600,
+      "sha256": "bf544ea15c074f3294bc33efe88d7a6060140564436f9da6789bee5a3a1f5978"
+    },
+    {
+      "path": "main-reconciliation.patch",
+      "bytes": 5676,
+      "sha256": "fb3fa2f99a757372336bdad1ec11fe26c6b7e6bedfc03fd20edeb85589da2b47"
+    },
+    {
+      "path": "proposal-review.json",
+      "bytes": 1308,
+      "sha256": "52fb2acee871bec09b39fe49a5534f0e98da4e9b2822c7f872047c5d1c6d3994"
+    },
+    {
+      "path": "publication.json",
+      "bytes": 1097,
+      "sha256": "3b90fad71f8d72bbbce27b01e28eb98ee56e279d86a4549336657d2e46c14ec4"
+    },
+    {
+      "path": "walkthrough.json",
+      "bytes": 6569,
+      "sha256": "ef36a0fabf86abcebf07093302ea6262ab15ae710341a705c173ced2b91d1893"
+    }
+  ],
+  "canonicalSourcesUnchanged": [
+    {
+      "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sha256": "7ebb4a3272bd3ce60ea6cc9b39d796301a18ea272bb4ec145459923eb6904592"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "848392b627aae29c215247db97d784a3330282eaddb6f087ae28b0ffd9cb5bec"
+    }
+  ],
+  "upstreamCandidatePathsOutsideScope": [
+    "docs/architecture/project-manager-system/contracts/blueprint.candidate.json",
+    "docs/architecture/project-manager-system/contracts/data-model.candidate.json",
+    "docs/architecture/project-manager-system/contracts/openapi.candidate.yaml",
+    "docs/architecture/project-manager-system/contracts/ux-ui.candidate.json",
+    "docs/architecture/project-manager-system/contracts/workflow.example.json",
+    "docs/architecture/project-manager-system/contracts/workflow.schema.json"
+  ],
+  "results": {
+    "documentWalkthrough": "8_OF_8_PASS_DOCUMENT_WALKTHROUGH",
+    "proposal": "PASS_PROPOSAL_ONLY",
+    "sourceMerge": "NOT_APPLIED",
+    "govern": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "build": "NOT_RUN",
+    "corpusGeneration": "NOT_RUN_MISSING_GENERATED_DOMAIN_MAP",
+    "operationalAdoption": "NOT_RUN",
+    "loopPreventionEffect": "UNKNOWN"
+  },
+  "authority": {
+    "candidateOnly": true,
+    "dispatchable": false,
+    "implementationAuthorized": false
+  },
+  "successorVersion": "NOT_ISSUED; preview keeps topic version for illustration"
+}

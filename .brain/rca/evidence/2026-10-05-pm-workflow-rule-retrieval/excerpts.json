@@ -1,0 +1,339 @@
+{
+  "schemaVersion": 1,
+  "status": "CAPTURED_EXCERPTS_NOT_RAW_ROLLOUT",
+  "source": {
+    "tool": "mcp__codex_app__read_thread",
+    "hostId": "remote-control:env_e_6a96eea6d5888327be0d38dac2d3ab9c",
+    "threadId": "01a0eb8d-0439-72c1-8685-1f7ba9efd1a6",
+    "threadTitle": "Clarify project manager request",
+    "turnLimit": 10,
+    "pagesRead": 2,
+    "maxOutputCharsPerItem": [
+      4500,
+      6000
+    ],
+    "sourceIsLiveThread": true,
+    "signed": false
+  },
+  "selection": {
+    "windowStart": "2026-10-03T02:38:00+07:00",
+    "windowEnd": "2026-10-05T02:38:00+07:00",
+    "method": "Select turns by startedAt inclusively; item timestamps are unavailable. Events may continue beyond the window end.",
+    "turns": 17,
+    "uniqueCompactionEvents": 50,
+    "exactTwoRoundPolicyOutputs": 8,
+    "exactPolicyOutputsAfterSameTurnCompaction": 6
+  },
+  "perTurn": [
+    {
+      "id": "01a100b9-5b8d-78c0-89e9-d642de52060e",
+      "startedAt": "2026-10-03T07:45:10.000Z",
+      "compactionIds": [
+        "01a100ce-95fa-71d0-899d-fe004af35e5b",
+        "01a100e6-f614-7ef0-af8a-87832cc71d0f",
+        "01a10100-8fbc-73a1-8b4b-c1eaf1b1f6c2",
+        "01a1011e-a121-7ad3-b045-616adf849bee",
+        "01a1013c-0506-7910-bd1c-455698f23f7c",
+        "01a10181-451f-74c1-acf3-471c53ee56b3",
+        "01a101a8-b5ef-70c1-bcc5-aafe55970041",
+        "01a101d1-088d-7e71-b462-024bd5b56362"
+      ]
+    },
+    {
+      "id": "01a101d8-8bf3-7fb3-ae5c-51fc6ed60b5b",
+      "startedAt": "2026-10-03T12:58:51.000Z",
+      "compactionIds": [
+        "01a101e8-8504-7d53-b1a8-cd45515e241f",
+        "01a10211-9554-7881-a64b-f9980244d987",
+        "01a10232-3734-7d93-8bcc-ff6eb03948fd",
+        "01a10260-9cd1-7151-a61e-cb7b5d01d4b5",
+        "01a10284-b928-7a30-9088-0cf5368b7bbd",
+        "01a102b7-7d74-72e3-95f9-38f7cdef0e25",
+        "01a102ef-6649-7112-8cce-d39c824085fe",
+        "01a10310-83cb-7642-ae05-da86ced1de52",
+        "01a10334-b751-7bb1-8964-43d9b101ef93",
+        "01a1036e-3369-7cc1-86b8-851a03a88c39",
+        "01a10398-a529-7a22-9cf2-201263c04ae9",
+        "01a103b9-74fa-7f12-988d-d604b5242046",
+        "01a103e7-c945-7fd3-8001-5b5348beebb1",
+        "01a10420-a39e-7332-a7c6-5e7b968fbc03",
+        "01a10447-fbe6-7e83-94bd-ecb89b765833",
+        "01a10470-8170-7403-9334-7da5b8ff65c5",
+        "01a10496-ec45-79f2-a758-2f0e70e6dda0",
+        "01a104c3-86e2-7213-b5a4-f8dfe1702f45"
+      ]
+    },
+    {
+      "id": "01a104d4-8028-7600-b4be-3170a2d1c51f",
+      "startedAt": "2026-10-04T02:53:17.000Z",
+      "compactionIds": [
+        "01a104df-64aa-7e40-85a1-2a2dfa96603c"
+      ]
+    },
+    {
+      "id": "01a104ec-7141-7623-ac4a-1d842dce9d37",
+      "startedAt": "2026-10-04T03:19:26.000Z",
+      "compactionIds": [
+        "01a1050e-8e1e-7031-8519-0e26ac05a035"
+      ]
+    },
+    {
+      "id": "01a10524-9a41-7371-ada1-585d28f89422",
+      "startedAt": "2026-10-04T04:20:47.000Z",
+      "compactionIds": [
+        "01a10537-113d-76c3-b189-5682871e6092"
+      ]
+    },
+    {
+      "id": "01a10541-2e58-7363-8f14-abca78cfc5be",
+      "startedAt": "2026-10-04T04:52:00.000Z",
+      "compactionIds": [
+        "01a10566-45f3-7a12-b9dd-19595f555474"
+      ]
+    },
+    {
+      "id": "01a105bf-7f3e-7352-879e-bfe4b060216f",
+      "startedAt": "2026-10-04T07:09:58.000Z",
+      "compactionIds": [
+        "01a105c0-2ff2-7513-a0ff-ab9f12ae6e46"
+      ]
+    },
+    {
+      "id": "01a105c5-2035-7270-b2ec-210d5e5383ea",
+      "startedAt": "2026-10-04T07:16:07.000Z",
+      "compactionIds": [
+        "01a105e4-4e54-7a60-b38e-bbd91b845c56"
+      ]
+    },
+    {
+      "id": "01a105ee-2240-7cd3-b54e-780b3bc7cac6",
+      "startedAt": "2026-10-04T08:00:54.000Z",
+      "compactionIds": [
+        "01a10602-3196-7672-8263-2b18dfd67c20"
+      ]
+    },
+    {
+      "id": "01a10608-3fb2-7612-9c3b-79a6c656fc31",
+      "startedAt": "2026-10-04T08:29:26.000Z",
+      "compactionIds": [
+        "01a1061e-bb8f-7730-9b04-19e6695a98c8"
+      ]
+    },
+    {
+      "id": "01a1063e-1f85-7eb1-bf64-399557073032",
+      "startedAt": "2026-10-04T09:28:17.000Z",
+      "compactionIds": [
+        "01a10642-fc88-74e1-8838-cd4d8d59877b"
+      ]
+    },
+    {
+      "id": "01a10651-5278-74c2-a103-b01d7de8fbef",
+      "startedAt": "2026-10-04T09:49:15.000Z",
+      "compactionIds": [
+        "01a1065f-d8f4-7b82-92de-fa87910bdfb5",
+        "01a10681-086a-7d60-b08e-157a6a7eb56d",
+        "01a106a2-2f2a-7b60-bcb7-d4aade0d1fac",
+        "01a106c1-2a22-7a10-8041-c06799a69135"
+      ]
+    },
+    {
+      "id": "01a106c3-5131-74c1-853f-a6c25770ad27",
+      "startedAt": "2026-10-04T11:53:46.000Z",
+      "compactionIds": [
+        "01a106d9-d9c5-7db2-a0f6-bf6d0a39b956",
+        "01a106f8-e404-7cf3-a0bf-e5820300f68f",
+        "01a10722-09d8-7b01-a053-a855c412516d"
+      ]
+    },
+    {
+      "id": "01a10732-ecf6-7111-b384-98e7c0b6d914",
+      "startedAt": "2026-10-04T13:55:40.000Z",
+      "compactionIds": [
+        "01a10740-54b2-7b91-8654-16364ffa6738",
+        "01a1076b-b09a-7fa0-955f-eae52a121d8d",
+        "01a10793-924f-70f2-ba97-2fc2eb26024c"
+      ]
+    },
+    {
+      "id": "01a1079c-dfd4-7f71-8842-28ddf73ad66a",
+      "startedAt": "2026-10-04T15:51:23.000Z",
+      "compactionIds": [
+        "01a107ab-332e-7801-be94-2546e25a459d"
+      ]
+    },
+    {
+      "id": "01a107ae-39a8-7551-b83a-d75a7215ff71",
+      "startedAt": "2026-10-04T16:10:20.000Z",
+      "compactionIds": [
+        "01a107d2-46f1-7d73-99bd-20c07679a88d",
+        "01a1080c-f49a-7a10-b510-599130ee765b",
+        "01a1083c-b7e0-71b2-88f2-0b2a7fae001e"
+      ]
+    },
+    {
+      "id": "01a10842-946a-7e23-b1cb-67174a64bdb8",
+      "startedAt": "2026-10-04T18:52:23.000Z",
+      "compactionIds": [
+        "01a10861-85d2-7893-88a0-848f215db11e"
+      ]
+    }
+  ],
+  "policyReadExcerpts": [
+    {
+      "turnId": "01a100b9-5b8d-78c0-89e9-d642de52060e",
+      "turnStartedAt": "2026-10-03T07:45:10.000Z",
+      "itemOrdinal": 533,
+      "commandId": "exec-c4b37a6f-d127-49e3-8761-6db7d49661a9",
+      "command": "\"C:\\\\Users\\\\pc\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command '$ErrorActionPreference='\"'Stop'; \"'$nav=Get-Content -Raw docs/architecture/project-manager-system/contracts/ma-d02-navigation-a4.candidate.json | ConvertFrom-Json; '\"'NAV ROOT KEYS'; \"'$nav.PSObject.Properties.Name -join '\"', '; 'NAV SOURCE EVIDENCE KEYS'; if(\"'$nav.sourceEvidence){$nav.sourceEvidence.PSObject.Properties.Name -join '\"', '; \"'$nav.sourceEvidence.currentMaD02Documents | ConvertTo-Json -Depth 4}; '\"'EXECUTION CROSSWALK'; \"'$nav.routeCrosswalk | Where-Object {$_.route -match '\"'execution'} | ConvertTo-Json -Depth 6; 'BUSINESS DESTINATIONS'; \"'$nav.businessDestinationRelocation | ForEach-Object { '\"'{0} => {1}/{2}' -f \"'$_.path,$_.moduleId,$_.localSurfaceId }; '\"'PLAN TOP OBJECT'; Get-Content docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json -TotalCount 90; 'DOC22 AROUND SOURCE TABLE'; Get-Content docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md | Select-Object -Skip 52 -First 30; 'PLAN VERSION REFS'; rg -n '0\\\\.9\\\\.35b|0\\\\.9\\\\.36b|versionDiff|changeLog' docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md | Select-Object -First 80\"",
+      "exitCode": 0,
+      "outputExcerpt": [
+        "    \"maxAutomaticRepairRounds\": 2,",
+        "    \"then\": \"ROOT_RCA_AND_TERRA_SCOPE_DECISION; ASTRA_CONCURRENCE_WHEN_HIGH_IMPACT_OR_UNCERTAIN\","
+      ],
+      "outputTruncated": true,
+      "priorCompactionId": "01a10100-8fbc-73a1-8b4b-c1eaf1b1f6c2"
+    },
+    {
+      "turnId": "01a100b9-5b8d-78c0-89e9-d642de52060e",
+      "turnStartedAt": "2026-10-03T07:45:10.000Z",
+      "itemOrdinal": 1272,
+      "commandId": "exec-7bda276d-5faa-4b27-8812-ae78b31d8ffc",
+      "command": "\"C:\\\\Users\\\\pc\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command \"node -e \\\"const fs=require('fs'); const p=JSON.parse(fs.readFileSync('docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json','utf8')); console.log(JSON.stringify({keys:Object.keys(p), metadata:Object.fromEntries(Object.entries(p).filter(([k])=>k\"'!=='\"'workPackages')), candidateRows:p.workPackages.filter(x=>x.candidateArtifact).map(x=>({id:x.id,candidateArtifact:x.candidateArtifact,candidateVersion:x.candidateVersion,candidateSha256:x.candidateSha256,coordinatorReconciliation:x.coordinatorReconciliation})).slice(-3)},null,2));\\\"\"",
+      "exitCode": 0,
+      "outputExcerpt": [
+        "      \"maxAutomaticRepairRounds\": 2,",
+        "      \"then\": \"ROOT_RCA_AND_TERRA_SCOPE_DECISION; ASTRA_CONCURRENCE_WHEN_HIGH_IMPACT_OR_UNCERTAIN\","
+      ],
+      "outputTruncated": true,
+      "priorCompactionId": "01a10181-451f-74c1-acf3-471c53ee56b3"
+    },
+    {
+      "turnId": "01a101d8-8bf3-7fb3-ae5c-51fc6ed60b5b",
+      "turnStartedAt": "2026-10-03T12:58:51.000Z",
+      "itemOrdinal": 17,
+      "commandId": "exec-f6eb4aa4-0b7b-489b-9862-5d9b3ad4b499",
+      "command": "\"C:\\\\Users\\\\pc\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command '$plan=Get-Content -LiteralPath '\"'docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json' -Raw | ConvertFrom-Json\n\"'$plan.concurrency | ConvertTo-Json -Depth 6\n$plan.repairPolicy | ConvertTo-Json -Depth 6\n$plan.sharedWriter | ConvertTo-Json -Depth 8\n$plan.authorizationBoundary | ConvertTo-Json -Depth 8\n$plan.decisionAuthority | ConvertTo-Json -Depth 8\n$plan.gateOrder | ConvertTo-Json -Depth 8\n$plan.workPackages | Where-Object {$_.state -eq '\"'CANDIDATE_READY_FOR_REVIEW'} | ForEach-Object {\n  \"'$refs=@()\n  if ($_.candidateArtifacts) { $refs += @($_.candidateArtifacts | ForEach-Object { \"$($_.path)@$($_.sha256)\" }) }\n  if ($_.candidateArtifact) { $refs += \"$($_.candidateArtifact)@$($_.candidateSha256)\" }\n  if ($_.candidateSuccessor) { $refs += \"$($_.candidateSuccessor.artifact)@$($_.candidateSuccessor.sha256)\" }\n  [pscustomobject]@{\n    id=$_.id; depends=($_.dependsOn -join '\"','); risk=\"'$_.risk; requiresAstra=$_.requiresAstra; entry=$_.entryGate\n    boundary=$_.fileBoundary; candidates=($refs -join '\"'; ')\n    review=\"'$_.coordinatorReconciliation; limits=$_.candidateReviewLimits\n  }\n} | ConvertTo-Json -Depth 6\n\"DELIVERY DOC 20 WAVE / REVIEW DIRECTIONS\"\nGet-Content -LiteralPath '\"'docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md' | Select-Object -Skip 535 -First 55\"",
+      "exitCode": 0,
+      "outputExcerpt": [
+        "  \"maxAutomaticRepairRounds\": 2,",
+        "  \"then\": \"ROOT_RCA_AND_TERRA_SCOPE_DECISION; ASTRA_CONCURRENCE_WHEN_HIGH_IMPACT_OR_UNCERTAIN\","
+      ],
+      "outputTruncated": true,
+      "priorCompactionId": null
+    },
+    {
+      "turnId": "01a101d8-8bf3-7fb3-ae5c-51fc6ed60b5b",
+      "turnStartedAt": "2026-10-03T12:58:51.000Z",
+      "itemOrdinal": 352,
+      "commandId": "exec-336d54e4-d474-425d-8c66-9dc65ce40ddf",
+      "command": "\"C:\\\\Users\\\\pc\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command '$p = Get-Content -Raw '\"'docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json' | ConvertFrom-Json; \"'$p | ConvertTo-Json -Depth 80'",
+      "exitCode": 0,
+      "outputExcerpt": [
+        "    \"maxAutomaticRepairRounds\": 2,",
+        "    \"then\": \"ROOT_RCA_AND_TERRA_SCOPE_DECISION; ASTRA_CONCURRENCE_WHEN_HIGH_IMPACT_OR_UNCERTAIN\","
+      ],
+      "outputTruncated": true,
+      "priorCompactionId": "01a10211-9554-7881-a64b-f9980244d987"
+    },
+    {
+      "turnId": "01a101d8-8bf3-7fb3-ae5c-51fc6ed60b5b",
+      "turnStartedAt": "2026-10-03T12:58:51.000Z",
+      "itemOrdinal": 3406,
+      "commandId": "exec-fe97cc25-ea18-449e-afd3-738453475f69",
+      "command": "\"C:\\\\Users\\\\pc\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command \"node -e \\\"const p=require('./docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json'); console.log('package0',JSON.stringify(p.workPackages[0],null,2)); console.log('top',Object.fromEntries(Object.entries(p).filter(([k])=>\"'!['\"'workPackages','decisionReceipts','requirementDispositions','nfrApplicability'].includes(k))))\\\"\"",
+      "exitCode": 0,
+      "outputExcerpt": [
+        "    maxAutomaticRepairRounds: 2,",
+        "    then: 'ROOT_RCA_AND_TERRA_SCOPE_DECISION; ASTRA_CONCURRENCE_WHEN_HIGH_IMPACT_OR_UNCERTAIN',"
+      ],
+      "outputTruncated": true,
+      "priorCompactionId": "01a10420-a39e-7332-a7c6-5e7b968fbc03"
+    },
+    {
+      "turnId": "01a101d8-8bf3-7fb3-ae5c-51fc6ed60b5b",
+      "turnStartedAt": "2026-10-03T12:58:51.000Z",
+      "itemOrdinal": 3877,
+      "commandId": "exec-60a2ae4c-0aee-4aeb-a623-1a333676bc34",
+      "command": "\"C:\\\\Users\\\\pc\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command '$p = Get-Content docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json -Raw | ConvertFrom-Json; $p.PSObject.Properties.Name; $p | ConvertTo-Json -Depth 6 | Select-Object -First 1'",
+      "exitCode": 0,
+      "outputExcerpt": [
+        "    \"maxAutomaticRepairRounds\": 2,",
+        "    \"then\": \"ROOT_RCA_AND_TERRA_SCOPE_DECISION; ASTRA_CONCURRENCE_WHEN_HIGH_IMPACT_OR_UNCERTAIN\","
+      ],
+      "outputTruncated": true,
+      "priorCompactionId": "01a10470-8170-7403-9334-7da5b8ff65c5"
+    },
+    {
+      "turnId": "01a101d8-8bf3-7fb3-ae5c-51fc6ed60b5b",
+      "turnStartedAt": "2026-10-03T12:58:51.000Z",
+      "itemOrdinal": 4476,
+      "commandId": "exec-aa23ddf5-c8a9-45f1-a551-2f6618c90583",
+      "command": "\"C:\\\\Users\\\\pc\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command '$p=Get-Content -Raw '\"'docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json'|ConvertFrom-Json; '---AUTHORITY/GATES---'; [pscustomobject]@{dispatchable=\"'$p.dispatchable;implementationAuthorized=$p.implementationAuthorized;authorizationBoundary=$p.authorizationBoundary;gateOrder=$p.gateOrder;concurrency=$p.concurrency;repairPolicy=$p.repairPolicy}|ConvertTo-Json -Depth 6; '\"'---PLANNED PACKAGES---'; @(\"'$p.workPackages|Where-Object{$_.state -eq '\"'PLANNED'}|Select-Object -First 12 id,title,dependsOn,entryGate,risk,requiresAstra,fileBoundary)|ConvertTo-Json -Depth 8\"",
+      "exitCode": 0,
+      "outputExcerpt": [
+        "    \"maxAutomaticRepairRounds\": 2,",
+        "    \"then\": \"ROOT_RCA_AND_TERRA_SCOPE_DECISION; ASTRA_CONCURRENCE_WHEN_HIGH_IMPACT_OR_UNCERTAIN\","
+      ],
+      "outputTruncated": false,
+      "priorCompactionId": "01a104c3-86e2-7213-b5a4-f8dfe1702f45"
+    },
+    {
+      "turnId": "01a1079c-dfd4-7f71-8842-28ddf73ad66a",
+      "turnStartedAt": "2026-10-04T15:51:23.000Z",
+      "itemOrdinal": 38,
+      "commandId": "exec-7cda3d74-257f-4cd7-a72b-befb5aafb36f",
+      "command": "\"C:\\\\Users\\\\pc\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command '$root='\"'C:\\\\Users\\\\pc\\\\.codex\\\\worktrees\\\\pm-spec-execution\\\\zuri-ai'; Set-Location -LiteralPath \"'$root; $d=Get-Content -LiteralPath '\"'docs\\\\architecture\\\\project-manager-system\\\\contracts\\\\delivery-plan.candidate.json' -Raw|ConvertFrom-Json; 'SHARED_WRITER:'; \"'$d.sharedWriter|ConvertTo-Json -Depth 8; '\"'REPAIR_AND_CONCURRENCY:'; \"'$d.repairPolicy|ConvertTo-Json -Depth 8; $d.concurrency|ConvertTo-Json -Depth 8; '\"'DESIGN_PACKAGES:'; foreach(\"'$id in @('\"'MA-D02W','MA-D04','MA-D05','MA-D07','MA-D08')){ \"'$w=$d.workPackages|Where-Object id -eq $id; \"---$id\"; $w|ConvertTo-Json -Depth 12 }'",
+      "exitCode": 0,
+      "outputExcerpt": [
+        "  \"maxAutomaticRepairRounds\": 2,",
+        "  \"then\": \"ROOT_RCA_AND_TERRA_SCOPE_DECISION; ASTRA_CONCURRENCE_WHEN_HIGH_IMPACT_OR_UNCERTAIN\","
+      ],
+      "outputTruncated": true,
+      "priorCompactionId": null
+    }
+  ],
+  "contradictoryClaim": {
+    "turnId": "01a10842-946a-7e23-b1cb-67174a64bdb8",
+    "turnStartedAt": "2026-10-04T18:52:23.000Z",
+    "commandId": "exec-f9ede844-349f-401d-941b-6dfc4541a658",
+    "itemOrdinal": 286,
+    "operation": "RCA file write",
+    "quote": "The workflow had no bounded retry rule, no source-freeze interval, and no mandatory root composition receipt after a review batch.",
+    "exitCode": 0
+  },
+  "compactionsBetweenLastSelectedReadAndClaim": [
+    {
+      "turnId": "01a1079c-dfd4-7f71-8842-28ddf73ad66a",
+      "itemOrdinal": 129,
+      "id": "01a107ab-332e-7801-be94-2546e25a459d"
+    },
+    {
+      "turnId": "01a107ae-39a8-7551-b83a-d75a7215ff71",
+      "itemOrdinal": 215,
+      "id": "01a107d2-46f1-7d73-99bd-20c07679a88d"
+    },
+    {
+      "turnId": "01a107ae-39a8-7551-b83a-d75a7215ff71",
+      "itemOrdinal": 436,
+      "id": "01a1080c-f49a-7a10-b510-599130ee765b"
+    },
+    {
+      "turnId": "01a107ae-39a8-7551-b83a-d75a7215ff71",
+      "itemOrdinal": 672,
+      "id": "01a1083c-b7e0-71b2-88f2-0b2a7fae001e"
+    },
+    {
+      "turnId": "01a10842-946a-7e23-b1cb-67174a64bdb8",
+      "itemOrdinal": 198,
+      "id": "01a10861-85d2-7893-88a0-848f215db11e"
+    }
+  ],
+  "limitations": [
+    "API exposes contextCompaction event IDs, not compacted summary or effective model prompt.",
+    "Only selected command/output excerpts are retained. Not a complete or independently signed transcript.",
+    "Output excerpts may come from truncated outputs; counts are lower bounds for returned policy text.",
+    "Turn timestamps are not command/compaction timestamps.",
+    "This proves the recorded contradiction and event ordering; it does not prove compaction caused the error.",
+    "No private reasoning content or unrelated source outputs are included."
+  ]
+}
