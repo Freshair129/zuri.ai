@@ -24,6 +24,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Document inventory and provenance contract](../migrations/document-reintegration/INVENTORY.md)
 - [Documentation reintegration proposal](../migrations/document-reintegration/PROPOSAL.md)
 - [Documentation reintegration implementation receipt](../migrations/document-reintegration/RECEIPT.md)
+- [Main-first reconciliation before report receiver coding](../migrations/document-reintegration/record-migrations/marketing-report-receiver-reconciled-20261005.approval.md)
 - [Document query tooling contract](../migrations/document-reintegration/TOOLING.md)
 - [Generated document views contract](../migrations/document-reintegration/VIEW-CONTRACT.md)
 - [Monorepo snapshot execution](../migrations/monorepo/EXECUTION.md)

@@ -1,5 +1,5 @@
 ---
-version: "0.2.0"
+version: "0.3.0"
 status: approved
 ---
 
@@ -47,7 +47,7 @@ feature_id: FEAT-009
 
 The metadata values are plain scalars except `requirement_cells`, a JSON-style integer array. `feature_id` is present only for an FR directly listed in a single existing FEAT row. If a FEAT row lists the same FR more than once, or two FEAT rows list it, bootstrap fails for review; it never picks one. `subject_anchor` is copied from the existing ID ledger when present and is informational: the ledger remains unchanged and authoritative. H1 is ID-only, so it cannot accidentally replace the published subject.
 
-The row payload in `parseCanonicalRecord().row` includes its declared line ending. The body line ending used to store Markdown may be normalized by Git; `source_row_eol` lets the parser reconstruct and hash the row bytes. `source_row_sha256` therefore remains stable across checkout EOL settings while still detecting a changed row. Every canonical record carries `version: 1`. The initial adopted records use `status: source-preserved`; later approved additions use `status: reviewed-migration`. Neither status replaces the status in the exported row.
+The row payload in `parseCanonicalRecord().row` includes its declared line ending. The body line ending used to store Markdown may be normalized by Git; `source_row_eol` lets the parser reconstruct and hash the row bytes. `source_row_sha256` therefore remains stable across checkout EOL settings while still detecting a changed row. Initial imported and reviewed-migration canonical records carry `version: 1`. The initial adopted records use `status: source-preserved`; later approved additions use `status: reviewed-migration`. Neither status replaces the status in the exported row.
 
 `statement_cell` and `requirement_cells` are zero-based offsets into `cells`; cells retain the table's leading/trailing empty positions and their content is trimmed for consumers. The source row itself is never normalized. Current table positions are `2` for statement in FR/NFR/BR/SEC/SDD rows, `2` for FEAT's description, and `3` for FEAT's FR membership. Only FEAT uses `requirement_cells: [3]`. The raw row remains available for exact export and evidence.
 
@@ -80,7 +80,7 @@ The row payload in `parseCanonicalRecord().row` includes its declared line endin
 }
 ```
 
-`exportOrder` is zero-based row order within `exportDocument`, counting only selected declarations. The source row's location is kept by an ID placeholder in the template, so separated FR tables remain separated and are reconstructed byte-for-byte. `recordSha256` hashes the canonical Markdown in LF form matching a committed Git text blob, independent of Windows checkout EOL conversion. `parseCanonicalIndex(text)` requires version 1, a full source revision, valid `ZAI` records and unique namespace+ID and path; it tolerates extra top-level and record fields for additive manifest metadata. In this active index the namespace is strictly `ZAI`; the approved `ZNEXT` import remains in a separate provenance manifest.
+`exportOrder` is zero-based row order within `exportDocument`, counting only selected declarations. The source row's location is kept by an ID placeholder in the template, so separated FR tables remain separated and are reconstructed byte-for-byte. `recordSha256` hashes the canonical Markdown in LF form matching a committed Git text blob, independent of Windows checkout EOL conversion. `parseCanonicalIndex(text)` accepts index versions 1 and 2, a full source revision, valid `ZAI` records and unique namespace+ID and path; it tolerates extra top-level and record fields for additive manifest metadata. In this active index the namespace is strictly `ZAI`; the approved `ZNEXT` import remains in a separate provenance manifest.
 
 ## Legacy exports and templates
 
@@ -137,3 +137,46 @@ Version diff 0.1.1 → 0.2.0: adds a provenance-safe, reviewed workflow for new 
 - Focused `node --test tools/tests/document-registry.test.mjs` passes.
 
 This format document is the documentation-first contract for this lane. It does not describe zuri-next as active authority and does not approve a product behavior change.
+
+## Additive authored records — approved writer scope (2026-10-05)
+
+The owner approved [the authored-record tooling](../../change-requests/marketing/ZURI-GO-RECORD-AUTHORING.md) v0.2.0. Version-1 imported rows/provenance remain unchanged. Version-2 canonical records are active, genuinely authored standalone FR/SDD statements; their delivery cell is `planned`, not implemented. This first writer is add-only, up to four records, with no feature-membership changes.
+
+The v2 wrapper declares `superseded_by: null`, `provenance: authored`, `authored_base_revision`, `approval_revision/path/version/sha256`, `migration_id`, `manifest_path/sha256`, `row_sha256`, `statement_sha256` and `subject_anchor`. Its bounded row has ID, exact statement and `planned`, with a declared LF digest. It cannot carry historical `source_revision/path/row_sha256` fields. The v2 generated index holds both v1 and v2 records; `sourceRevision` still identifies the original import, while each authored entry carries its own explicit provenance. Original template placeholders and row order remain intact; authored rows are appended in a separate generated section.
+
+The source manifest is `docs/migrations/document-reintegration/record-migrations/<name>.manifest.json`. It carries version 1, migrationId, base commit/index/ledger digests, the pinned approved note's locator/version/revision/digest and candidate records (ID, family, exact statement/digest/anchor). The integrator checks fresh main for collisions before choosing candidates. Approval and record issuance remain separate from application delivery.
+
+```mermaid
+flowchart LR
+  A[Approved note + fresh base] --> M[Source manifest]
+  M --> P[Read-only plan and collision checks]
+  P --> R[Independent candidate review]
+  R --> W[Explicit apply and sanctioned ID writer]
+  W --> E[Generated exports + issuance receipt]
+  W -->|filesystem failure| F[PARTIAL receipt and exact remaining paths]
+  E --> S[Snapshot capture and replay]
+  I[539 imported records unchanged] --> E
+```
+
+Use `node tools/document-record-migration.mjs --plan <manifest-path>` first, then explicit `--apply` after candidate review. Apply rechecks base/approval preconditions, refuses existing/burnt/reserved IDs, inherited subjects, namespace/family/path escapes and unsupported membership changes before writing. It invokes the existing add-only `id-ledger.mjs --write`; neither a generator nor a gate hand-patches the ledger. The frozen `<name>.approval.md` is exact evidence of the approved note revision, not a second authoring source. The note may later evolve without rewriting that evidence. Both it and the source manifest are digest-checked by record readers.
+
+`<name>.receipt.json` records APPLIED, source manifest digest, original base digests, issued IDs and before/after output digests. Identical reapplication verifies the existing output and is a no-op; changed input/drift or a PARTIAL receipt fails. No atomic-filesystem claim is made. A failed apply emits a recovery receipt with exact changed source paths and the receipt locator; inspect those paths and restore/reconcile them explicitly before another reviewed attempt. Do not use a broad clean/reset or delete historical IDs to hide the failure.
+
+Snapshot schema versions remain separate from record/index versions. Existing snapshot v1 manifests and proofs stay unchanged. The canonical snapshot v2 reader validates each record's provenance, reads the sealed approval/manifest as digest-bound evidence, and verifies authored base/approval commits and the original approved note in the bound Git history before issuing/replaying a proof. This extends canonical reading without rewriting stored snapshots or promoting a planned receiver into delivered behavior.
+
+Version diff 0.1.1 → 0.2.0: adds the owner-approved authored record/index format, sanctioned manifest writer and per-record snapshot provenance checks. The initial import contract and version-1 reader remain unchanged.
+
+
+## Unified provenance and coordinated issuance — approved 2026-10-05
+
+The owner approved main-first reconciliation in [the recovery contract](../../change-requests/marketing/ZURI-GO-REPORT-MAIN-RECONCILIATION.md) v0.2.0. This format accepts all three dialects without a common fabricated source: imported v1 keeps source_revision; reviewed-migration v1 keeps migration_base_revision and migration_document; authored v2 keeps its own base, approval and manifest evidence. Main FR-278, all published identities and both histories remain unchanged. No alias is inferred.
+
+Canonical snapshot v2 must include each reviewed migration document among digest-bound committed inputs, validate approved frontmatter plus an explicit Approval section, and prove migration_base_revision is an ancestor of the captured commit. Authored provenance keeps exact sealed approval/manifest checks and base/approval ancestry. Provenance cache keys include all base/document/approval digests. Historical snapshot/proof versions are not rewritten. Reviewed source_path is projection context, not initial-import provenance.
+
+Before fresh allocation, the existing sanctioned ledger writer records branch-only numbers with `node scripts/id-ledger.mjs --reserve-branch <full-historical-SHA> --reason <40-character-or-longer-reason> --declared-in docs/change-requests/<approved-decision>.md#<version>` from apps/server. It reads that immutable historical ledger, excludes all currently pinned/rostered main numbers, and adds only FR/SDD non-reuse reservations with source revision and approved decision evidence. Existing ids/roster entries are preserved; this is not retirement, replacement or aliasing. Both record writers, direct ledger issuance, registry checks and preflight reject reserved numbers. Repeating identical reservation evidence is idempotent; changed evidence refuses. This branch-local record does not claim distributed exclusion: the owner coordinates one issuance lane and checks freshly fetched main before publication.
+
+Projection order is generated from v1 template slots followed by authored records in their existing relative order; reviewed insertion therefore shifts the authored suffix without duplicate orders. This projection change does not alter canonical row bytes, prior IDs or immutable historical receipts. Authored queries expose authoredBaseRevision separately and sourceRevision as null.
+
+Version diff 0.2.0 -> 0.3.0: retains main's reviewed-v1 workflow and adds the approved authored-v2 workflow, dialect-specific snapshot provenance, historical branch non-reuse reservations and composed writer ordering. Application behavior, schema, credentials and deployment are outside this tooling change.
+
+Historical canonical snapshot v2 keeps its FR/FEAT evidence selection. A full index does not require non-PM record blobs which older proofs omitted; CLI registry reading continues to verify every source record. Reviewed/authored provenance checks apply to records consumed by that snapshot reader. Removing reservation inventory while its history remains, or malformed reservation evidence, fails every issuance/check path rather than reopening a number.

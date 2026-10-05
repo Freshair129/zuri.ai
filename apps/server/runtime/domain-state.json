@@ -36,12 +36,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 164,
+    "featureCount": 167,
     "readyFeatureCount": 119,
-    "requirementCount": 278,
+    "requirementCount": 281,
     "verifiedRequirementCount": 246,
-    "progressPercent": 92.4,
-    "gapCount": 47,
+    "progressPercent": 92.2,
+    "gapCount": 56,
     "gaps": [
       {
         "domain": "agent",
@@ -295,6 +295,93 @@
         "evidence": []
       },
       {
+        "domain": "marketing",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "marketing",
+        "id": "AUTH-001",
+        "severity": "high",
+        "check": "authorization",
+        "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
+      },
+      {
+        "domain": "marketing",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "marketing",
+        "id": "REQ-FR-281",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-281 is partial",
+        "evidence": [
+          "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+          "apps/server/src/modules/marketing/application/marketing-report-operator.js",
+          "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+          "apps/server/tests/integration/marketing-report-native.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/unit/marketing-report-wire.test.js"
+        ]
+      },
+      {
+        "domain": "marketing",
+        "id": "REQ-FR-282",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-282 is partial",
+        "evidence": [
+          "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+          "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+          "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+          "apps/server/src/modules/marketing/application/marketing-report-wire.js",
+          "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/marketing-report-native.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/marketing-report-wire.test.js",
+          "apps/server/tests/unit/pricing-backup.test.js"
+        ]
+      },
+      {
+        "domain": "marketing",
+        "id": "REQ-FR-283",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-283 is partial",
+        "evidence": [
+          "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+          "apps/server/src/modules/marketing/application/marketing-report-read.js",
+          "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/marketing-report-native.test.js",
+          "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/marketing-report-wire.test.js",
+          "apps/server/tests/unit/pricing-backup.test.js"
+        ]
+      },
+      {
         "domain": "platform-control",
         "id": "UI-STATUS-001",
         "severity": "medium",
@@ -475,6 +562,65 @@
         "evidence": [
           "apps/server/src/modules/project-manager/progress/week.js",
           "apps/server/tests/unit/fr268-week.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-281",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-281 is partial",
+        "evidence": [
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
+          "apps/server/tests/integration/marketing-report-native.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/unit/marketing-report-wire.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-282",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-282 is partial",
+        "evidence": [
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
+          "apps/server/src/modules/project-manager/application/backup-service.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/marketing-report-native.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/marketing-report-wire.test.js",
+          "apps/server/tests/unit/pricing-backup.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-283",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-283 is partial",
+        "evidence": [
+          "apps/server/src/modules/project-manager/application/backup-service.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/marketing-report-native.test.js",
+          "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/marketing-report-wire.test.js",
+          "apps/server/tests/unit/pricing-backup.test.js"
         ]
       }
     ]
@@ -1271,7 +1417,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 332,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -2135,7 +2281,7 @@
           "details": {
             "routes": 27,
             "inventoried": 26,
-            "openApiPaths": 332,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -2350,11 +2496,12 @@
         "FR-120",
         "FR-121",
         "FR-122",
-        "FR-123"
+        "FR-123",
+        "FR-281"
       ],
-      "featureCount": 24,
+      "featureCount": 25,
       "readyFeatureCount": 18,
-      "progressPercent": 94.9
+      "progressPercent": 94.4
     },
     "integration": {
       "status": "partial",
@@ -2703,7 +2850,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 332,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -3125,7 +3272,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 332,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -3977,7 +4124,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 332,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -4172,7 +4319,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 332,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -4330,6 +4477,75 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 7
+        },
+        {
+          "id": "FR-281",
+          "title": "Report-only machine credential",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 3,
+          "evidence": [
+            "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+            "apps/server/src/modules/marketing/application/marketing-report-operator.js",
+            "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js"
+          ]
+        },
+        {
+          "id": "FR-282",
+          "title": "Atomic reported-evidence intake",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 13,
+          "evidence": [
+            "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+            "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+            "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+            "apps/server/src/modules/marketing/application/marketing-report-wire.js",
+            "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
+        },
+        {
+          "id": "FR-283",
+          "title": "Private source-preserving reported evidence",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 12,
+          "evidence": [
+            "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+            "apps/server/src/modules/marketing/application/marketing-report-read.js",
+            "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
         }
       ],
       "checks": {
@@ -4353,9 +4569,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 22,
-            "inventoried": 22,
-            "openApiPaths": 332,
+            "routes": 23,
+            "inventoried": 23,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -4372,12 +4588,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "verified",
@@ -4393,29 +4615,41 @@
           ],
           "gaps": [],
           "details": {
-            "models": 13,
-            "present": 13
+            "models": 16,
+            "present": 16
           }
         },
         "authorization": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "AUTH-001",
+              "severity": "high",
+              "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
+            }
+          ],
           "details": {
-            "mutations": 12,
+            "mutations": 13,
             "guardedMutations": 12,
             "reads": 15,
             "unguardedReads": 0
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -4439,23 +4673,107 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "AUTH-001",
+          "severity": "high",
+          "check": "authorization",
+          "summary": "At least one mutating route lacks a recognizable viewer or provider authentication seam"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-281",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-281 is partial",
+          "evidence": [
+            "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+            "apps/server/src/modules/marketing/application/marketing-report-operator.js",
+            "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-282",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-282 is partial",
+          "evidence": [
+            "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+            "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+            "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+            "apps/server/src/modules/marketing/application/marketing-report-wire.js",
+            "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-283",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-283 is partial",
+          "evidence": [
+            "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+            "apps/server/src/modules/marketing/application/marketing-report-read.js",
+            "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
+        }
+      ],
       "details": {
-        "routes": 40,
-        "apiRoutes": 22,
+        "routes": 41,
+        "apiRoutes": 23,
         "pageRoutes": 18,
-        "ownedModels": 13,
+        "ownedModels": 16,
         "featureNotes": 5
       },
       "featureIds": [
         "FEAT-021",
         "FR-275",
         "FR-276",
-        "FR-278"
+        "FR-278",
+        "FR-282",
+        "FR-283"
       ],
-      "featureCount": 4,
+      "featureCount": 6,
       "readyFeatureCount": 2,
-      "progressPercent": 88.9
+      "progressPercent": 87.3
     },
     "platform-control": {
       "status": "partial",
@@ -4715,7 +5033,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 332,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -5012,7 +5330,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 332,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -6478,6 +6796,68 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 7
+        },
+        {
+          "id": "FR-281",
+          "title": "Report-only machine credential",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 3,
+          "evidence": [
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js"
+          ]
+        },
+        {
+          "id": "FR-282",
+          "title": "Atomic reported-evidence intake",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 13,
+          "evidence": [
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
+        },
+        {
+          "id": "FR-283",
+          "title": "Private source-preserving reported evidence",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 12,
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
         }
       ],
       "checks": {
@@ -6513,7 +6893,7 @@
           "details": {
             "routes": 169,
             "inventoried": 169,
-            "openApiPaths": 332,
+            "openApiPaths": 333,
             "missingFromOpenApi": 0
           }
         },
@@ -6722,6 +7102,62 @@
           "evidence": [
             "apps/server/src/modules/project-manager/progress/week.js",
             "apps/server/tests/unit/fr268-week.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-281",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-281 is partial",
+          "evidence": [
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-282",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-282 is partial",
+          "evidence": [
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-283",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-283 is partial",
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/marketing-report-native.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-wire.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
           ]
         }
       ],
@@ -17954,6 +18390,148 @@
         "apps/server/tests/unit/marketing/line-sales-dashboard-route.test.js",
         "apps/server/tests/unit/marketing/line-sales-dashboard-service.test.js",
         "apps/server/tests/unit/marketing/line-sales-dashboard-ui.test.js"
+      ]
+    },
+    {
+      "id": "FR-281",
+      "title": "Report-only machine credential: resolve an ACTIVE dedicated credential to its immutable Zuri-Go source deployment/Business and target Tenant/Business binding with marketing.report.ingest permission; never synthesize a Person/OWNER or accept this credential on Enterprise import, native Marketing writers or unrelated routes. Before every intake, replay and contention retry, recheck the credential/binding and active target with currently enabled growth domain inside the receiving transaction; revocation or domain disablement denies writes and receipt disclosure. Invalid, missing and revoked credentials use generic authentication refusal; operator-only provisioning/revocation is audited, and raw secrets never persist, enter browser state or audit payloads.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-281"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "marketing",
+        "project-manager"
+      ],
+      "useCase": "Zuri-Go ใช้ credential สำหรับส่งรายงานเท่านั้น โดยตรวจ binding และสิทธิ์ growth ปัจจุบันซ้ำทุกครั้งก่อนรับข้อมูลหรือคืน receipt",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-281 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-281",
+          "title": "Report-only machine credential",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 4,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+        "apps/server/src/modules/marketing/application/marketing-report-operator.js",
+        "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/tests/integration/marketing-report-native.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/marketing-report-wire.test.js"
+      ]
+    },
+    {
+      "id": "FR-282",
+      "title": "Atomic reported-evidence intake: authenticate and validate exact bounded canonical bytes, hash, revision 1 only with no correction/supersedes, and source/target/initiative scope using the reviewed Zuri-Go wire contract; atomically persist one immutable MarketingExternalReport with committed receipt and one scoped service-principal AuditEvent, unique by bindingId and sourceReportId. Identical authorized replay returns the original committed receipt after byte and hash comparison; different bytes under that identity conflict without writes. Independent SQLite requests rely on the unique constraint and bounded whole-transaction contention retry with reauthorization; an aborted or exhausted transaction never acknowledges acceptance. Preserve Go source and parent native plans, reviews, decisions, handoffs, initiative lifecycle, PM records and Commerce verified totals.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-282"
+      ],
+      "primaryDomain": "marketing",
+      "contributorDomains": [
+        "marketing",
+        "project-manager"
+      ],
+      "useCase": "รับรายงาน revision 1 เป็น reported evidence พร้อม receipt และ audit ใน transaction เดียว คำขอซ้ำได้ receipt เดิม และไม่เปลี่ยนแผนหรือยอดที่ยืนยันแล้ว",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-282 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-282",
+          "title": "Atomic reported-evidence intake",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 7,
+          "testCount": 13
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+        "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+        "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+        "apps/server/src/modules/marketing/application/marketing-report-wire.js",
+        "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/marketing-report-native.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/marketing-report-wire.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js"
+      ]
+    },
+    {
+      "id": "FR-283",
+      "title": "Private source-preserving reported evidence: resolve Tenant/Business and existing assertMarketingReadAccess with current Marketing/growth read authority before every human evidence read; Guest, foreign Business and hidden domain cannot disclose evidence through public projections or bypass paths. A report credential receives only its own matching receipt through reauthorized intake/replay with an active target. Preserve null, UNKNOWN and reported trust without provider completeness or native approval promotion, including HELD reports. Retain immutable evidence and matching receipt at least 90 days from acceptedAt under retention policy version 1; revoke access without altering retained bytes, retain the existing append-only audit policy and provide no automatic purge in this slice.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-283"
+      ],
+      "primaryDomain": "marketing",
+      "contributorDomains": [
+        "marketing",
+        "project-manager"
+      ],
+      "useCase": "ทีมการตลาดอ่าน reported evidence ตามสิทธิ์เดิมของ Business เก็บหลักฐานกับ receipt ขั้นต่ำ 90 วัน โดยคง UNKNOWN และไม่มีการลบอัตโนมัติ",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-283 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-283",
+          "title": "Private source-preserving reported evidence",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 4,
+          "testCount": 12
+        }
+      ],
+      "evidence": [
+        "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+        "apps/server/src/modules/marketing/application/marketing-report-read.js",
+        "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/marketing-report-native.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/marketing-report-wire.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js"
       ]
     }
   ],

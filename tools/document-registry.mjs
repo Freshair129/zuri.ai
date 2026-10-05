@@ -5,7 +5,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { anchor, sameAnchor } from '../apps/server/scripts/id-anchors.mjs';
-import { parseCanonicalIndex, parseCanonicalRecord, splitRow } from '../apps/server/scripts/document-registry-format.mjs';
+import { reservedBranchIds } from '../apps/server/scripts/id-stability.mjs';
+import { authoredProvenanceKeys, parseCanonicalIndex, parseCanonicalRecord, splitRow, validateCanonicalEntry, validateAuthoredProvenance } from '../apps/server/scripts/document-registry-format.mjs';
 
 const SOURCE_REVISION = 'a34ceaf79c112e02b1bcfdbf0a84122d835b002e';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -173,25 +174,20 @@ function buildTemplate(sourceText, sourcePath, records) {
 }
 
 function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
+  const ledgerPath = join(projectRoot, 'docs/.id-ledger.json');
+  const ledger = existsSync(ledgerPath) ? JSON.parse(readFileSync(ledgerPath, 'utf8')) : {};
+  const reservations = reservedBranchIds(ledger);
+  if ([...reservations].some(id => !(ledger.reserved_ids || []).includes(id))) throw new Error('Historical reservation inventory was removed');
   const records = index.records.map((entry) => {
+    if (reservations.has(entry.id)) throw new Error(`${entry.id} reuses a historical branch reservation`);
     const file = join(projectRoot, entry.path);
     if (!existsSync(file)) throw new Error(`Missing canonical record ${entry.path}`);
     const text = readFileSync(file, 'utf8');
     const record = parseCanonicalRecord(text);
     const recordDigest = sha256(Buffer.from(gitBlobText(text), 'utf8'));
-    for (const [indexKey, recordKey] of [
-      ['id', 'id'], ['namespace', 'namespace'], ['family', 'family'], ['sourcePath', 'sourcePath'],
-      ['sourceRowSha256', 'sourceRowSha256'], ['recordVersion', 'recordVersion'], ['status', 'status'],
-      ['statementCell', 'statementCell'], ['featureId', 'featureId'],
-      ['migrationBaseRevision', 'migrationBaseRevision'], ['migrationDocument', 'migrationDocument'],
-    ]) {
-      if (entry[indexKey] !== record[recordKey]) throw new Error(`${entry.id} index ${indexKey} does not match its canonical record`);
-    }
-    if (JSON.stringify(entry.requirementCells ?? []) !== JSON.stringify(record.requirementCells)) throw new Error(`${entry.id} requirementCells do not match its canonical record`);
+    validateCanonicalEntry(record, entry, index);
+    validateAuthoredProvenance(record, file => readFileSync(join(projectRoot, file)));
     if (verifyIndexHash && entry.recordSha256 !== recordDigest) throw new Error(`${entry.id} canonical record hash does not match index`);
-    if (record.status === 'source-preserved' && record.sourceRevision !== index.sourceRevision) {
-      throw new Error(`${entry.id} source revision differs from index`);
-    }
     if (record.status === 'reviewed-migration') verifyApprovedMigrationDocument(projectRoot, record.migrationDocument);
     return { ...entry, ...record, registrySourceRevision: index.sourceRevision, recordSha256: recordDigest };
   });
@@ -210,6 +206,10 @@ function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
 }
 
 function buildIndex(projectRoot, records, templateOverrides = new Map()) {
+  return buildCanonicalIndex(records, projectRoot, templateOverrides);
+}
+
+export function buildCanonicalIndex(records, projectRoot = ROOT, templateOverrides = new Map()) {
   const exportOrders = new Map();
   for (let i = 0; i < TEMPLATE_PATHS.length; i += 1) {
     const templatePath = TEMPLATE_PATHS[i];
@@ -218,17 +218,23 @@ function buildIndex(projectRoot, records, templateOverrides = new Map()) {
     placeholders.forEach((id, exportOrder) => exportOrders.set(id, exportOrder));
   }
   for (const record of records) {
-    if (!exportOrders.has(record.id)) throw new Error(`${record.id} has no canonical projection slot`);
+    if (record.recordVersion !== 2 && !exportOrders.has(record.id)) throw new Error(`${record.id} has no canonical projection slot`);
+  }
+  for (const document of EXPORT_PATHS) {
+    let next = records.filter(record => record.recordVersion !== 2 && record.exportDocument === document).length;
+    for (const record of records.filter(record => record.recordVersion === 2 && record.exportDocument === document)
+      .sort((a, b) => a.exportOrder - b.exportOrder || a.id.localeCompare(b.id))) exportOrders.set(record.id, next++);
   }
   const entries = records.map((record) => ({
     id: record.id,
     namespace: record.namespace,
     family: record.family,
-    recordVersion: 1,
-    status: record.status,
+    recordVersion: record.recordVersion ?? 1,
+    status: record.status ?? 'source-preserved',
     path: record.path,
-    sourcePath: record.sourcePath,
-    sourceRowSha256: record.sourceRowSha256,
+    ...(record.recordVersion === 2
+      ? { provenance: 'authored', ...Object.fromEntries(authoredProvenanceKeys.map(key => [key, record[key]])) }
+      : { sourcePath: record.sourcePath, sourceRowSha256: record.sourceRowSha256 }),
     recordSha256: record.recordSha256,
     statementCell: record.statementCell,
     requirementCells: record.requirementCells,
@@ -238,25 +244,30 @@ function buildIndex(projectRoot, records, templateOverrides = new Map()) {
     ...(record.migrationBaseRevision ? { migrationBaseRevision: record.migrationBaseRevision } : {}),
     ...(record.migrationDocument ? { migrationDocument: record.migrationDocument } : {}),
   }));
-  return { version: 1, sourceRevision: SOURCE_REVISION, records: entries };
+  return { version: records.some(record => record.recordVersion === 2) ? 2 : 1, sourceRevision: SOURCE_REVISION, records: entries };
 }
 
-function renderExports(projectRoot, index, records, templateOverrides = new Map()) {
+const renderExports = (...args) => renderCanonicalExports(...args);
+
+export function renderCanonicalExports(projectRoot, index, records, templateOverrides = new Map()) {
   const byId = new Map(records.map((record) => [record.id, record]));
   return TEMPLATE_PATHS.map((templatePath, i) => {
     const template = templateOverrides.get(templatePath) ?? readFileSync(join(projectRoot, templatePath), 'utf8');
     const placeholders = [...template.matchAll(/\{\{CANONICAL_ROW:([^}]+)\}\}/g)].map((match) => match[1]);
-    const expected = index.records.filter((record) => record.exportDocument === EXPORT_PATHS[i])
+    const expected = index.records.filter((record) => record.exportDocument === EXPORT_PATHS[i] && record.recordVersion !== 2)
       .sort((a, b) => a.exportOrder - b.exportOrder).map((record) => record.id);
     if (new Set(placeholders).size !== placeholders.length || placeholders.length !== expected.length ||
         placeholders.some((id, offset) => id !== expected[offset])) {
       throw new Error(`${templatePath} placeholders do not match canonical records`);
     }
-    const output = template.replace(/\{\{CANONICAL_ROW:([^}]+)\}\}/g, (_match, id) => {
+    let output = template.replace(/\{\{CANONICAL_ROW:([^}]+)\}\}/g, (_match, id) => {
       const record = byId.get(id);
       if (!record) throw new Error(`${templatePath} has unknown placeholder ${id}`);
       return record.row;
     });
+    const authored = index.records.filter(record => record.exportDocument === EXPORT_PATHS[i] && record.recordVersion === 2)
+      .sort((a, b) => a.exportOrder - b.exportOrder).map(entry => byId.get(entry.id));
+    if (authored.length) output += `\n\n## Authored records\n\n| ID | Statement | Status |\n|---|---|---|\n${authored.map(record => record.row).join('')}`;
     return { path: EXPORT_PATHS[i], output };
   });
 }
@@ -293,7 +304,7 @@ function adopt(projectRoot) {
   }
   const index = buildIndex(projectRoot, outputs);
   writeFile(projectRoot, INDEX_PATH, `${JSON.stringify(index, null, 2)}\n`);
-  const exports = renderExports(projectRoot, index, outputs);
+  const exports = renderCanonicalExports(projectRoot, index, outputs);
   for (const output of exports) {
     const original = readFileSync(join(projectRoot, output.path), 'utf8');
     if (output.output !== original) throw new Error(`${output.path} is not byte-identical after canonical adoption`);
@@ -309,7 +320,7 @@ export function writeCanonicalProjections(projectRoot = ROOT, { check = false } 
   const nextIndex = buildIndex(projectRoot, records);
   const nextIndexText = `${JSON.stringify(nextIndex, null, 2)}\n`;
   if (check && nextIndexText !== indexText) throw new Error(`${INDEX_PATH} is stale; run --write`);
-  const exports = renderExports(projectRoot, nextIndex, records);
+  const exports = renderCanonicalExports(projectRoot, nextIndex, records);
   for (const output of exports) {
     const existing = readFileSync(join(projectRoot, output.path), 'utf8');
     if (check && output.output !== existing) throw new Error(`${output.path} is stale; run --write`);
@@ -345,7 +356,7 @@ export function registerReviewedRecord(projectRoot = ROOT, candidatePath) {
   }
 
   const ledger = JSON.parse(readFileSync(join(projectRoot, 'docs/.id-ledger.json'), 'utf8'));
-  if (ledger.ids?.[candidate.id] || ledger.roster?.includes(candidate.id)) {
+  if (ledger.ids?.[candidate.id] || ledger.roster?.includes(candidate.id) || reservedBranchIds(ledger).has(candidate.id)) {
     throw new Error(`${candidate.id} is already pinned or previously used in the ID ledger`);
   }
   const candidateAnchor = anchor(candidate.statement);

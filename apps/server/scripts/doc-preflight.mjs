@@ -61,8 +61,10 @@ const labDocs = walk(workspacePath(ROOT, 'docs'), '.md').filter((f) => !f.starts
 const specDocs = []
 const allDocs = labDocs
 const canonicalIndexPath = path.join(workspaceRoot(ROOT), 'registry/document-registry/index.json')
-const canonicalPaths = new Set(existsSync(canonicalIndexPath)
-  ? parseCanonicalIndex(read(canonicalIndexPath)).records.map(record => record.path) : [])
+const canonicalRecords = existsSync(canonicalIndexPath) ? parseCanonicalIndex(read(canonicalIndexPath)).records : []
+const canonicalPaths = new Set(canonicalRecords.map(record => record.path))
+const approvalContexts = new Map(canonicalRecords.filter(record => record.recordVersion === 2)
+  .map(record => [record.manifestPath.replace(/\.manifest\.json$/, '.approval.md'), record.approvalPath]))
 
 // Read source files even when the persisted graph is stale or missing a new doc.
 {
@@ -131,13 +133,15 @@ for (const f of allDocs) {
 const LINK = /\[[^\]]*\]\(([^)#]+?)(?:#[^)]*)?\)/g
 for (const f of allDocs) {
   const body = read(f)
-  const sources = [{ body, base: path.dirname(f) }]
+  // Frozen evidence retains the approved note's relative-link context.
+  const sources = [{ body, base: path.dirname(approvalContexts.has(rel(f))
+    ? path.join(workspaceRoot(ROOT), approvalContexts.get(rel(f))) : f) }]
   if (canonicalPaths.has(rel(f))) {
     // The preserved row keeps the original document's relative-link context.
     // Check it there; links authored outside the row use the new file's context.
     const record = parseCanonicalRecord(body)
     sources[0].body = body.replace(/<!-- canonical-row:start -->[\s\S]*?<!-- canonical-row:end -->/, '')
-    sources.push({ body: record.row, base: path.dirname(path.join(workspaceRoot(ROOT), record.sourcePath)) })
+    sources.push({ body: record.row, base: path.dirname(path.join(workspaceRoot(ROOT), record.recordVersion === 1 ? record.sourcePath : rel(f))) })
   }
   for (const source of sources) for (const [, href] of source.body.matchAll(LINK)) {
     if (/^(https?:|mailto:)/.test(href)) continue
@@ -976,6 +980,16 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
     rel(file) === 'src/app/api/integrations/notion/webhook/route.js') continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
+    // @req FR-281/FR-282, SDD-112 — this one approved machine receiver
+    // resolves a report-only binding inside its first-write transaction. A
+    // Person/session would be the wrong principal. Admit only the exact path
+    // with both strict bearer precheck and committed receiver delegation;
+    // never exempt the growth namespace or add viewer-baseline debt.
+    if (rel(file) === 'src/app/api/growth/external-marketing-reports/route.js'
+      && /import\s+\{[^}]*reportCredentialHash[^}]*\}\s+from\s+['"]@\/modules\/marketing\/application\/marketing-report-wire['"]/.test(body)
+      && /import\s+\{\s*receiveMarketingReport\s*\}\s+from\s+['"]@\/modules\/marketing\/application\/marketing-report-receiver['"]/.test(body)
+      && /reportCredentialHash\(authorization\)/.test(body)
+      && /receiveMarketingReport\(\{\s*db:\s*marketingReportDatabase\(\),\s*authorization,\s*raw:\s*canonicalEnvelope\s*\}\)/.test(body)) continue
     if (RESOLVES.test(body)) continue
     offenders.push(rel(file))
   }
