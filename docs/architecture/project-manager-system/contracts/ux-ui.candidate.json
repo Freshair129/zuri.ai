@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "0.3.0b",
+  "version": "0.4.0b",
   "status": "candidate",
   "runtimeImplemented": false,
   "sourceRef": "zuri-pm-design/docs/architecture/project-manager-system/contracts/ux-ui.candidate.json",
@@ -2475,19 +2475,19 @@
           }
         },
         {
-          "key": "inputSchema",
-          "label": "Input schema",
-          "type": "schema",
-          "hint": "",
+          "key": "inputContract",
+          "label": "Input contract",
+          "type": "contract-reference",
+          "hint": "เลือกรหัส contract และ pin รุ่น SemVer ที่อนุมัติ",
           "condition": null,
           "required": true,
           "constraints": {}
         },
         {
-          "key": "outputSchema",
-          "label": "Output schema",
-          "type": "schema",
-          "hint": "",
+          "key": "outputContract",
+          "label": "Output contract",
+          "type": "contract-reference",
+          "hint": "เลือกรหัส contract และ pin รุ่น SemVer ที่อนุมัติ",
           "condition": null,
           "required": true,
           "constraints": {}
@@ -2623,7 +2623,7 @@
           "constraints": {
             "type": "string",
             "enum": [
-              "1.0"
+              "1.1"
             ]
           }
         },

@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-API
 title: Project Manager API specification and visual Swagger contract
-version: "0.2.1b"
+version: "0.2.2b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f3025"
-last_update: "2026-09-16T03:55:57+07:00,RWANG"
+last_update: "2026-10-04T10:00:00+07:00,Codex"
 superseded_by: null
 attributes:
   doc_type: api-specification
@@ -21,7 +21,9 @@ relations:
 **Version:** 0.2.1b · **Status:** Candidate
 Machine-readable source: [openapi.candidate.yaml](contracts/openapi.candidate.yaml)
 
-**Workforce addition:** [workforce.openapi.candidate.yaml](contracts/workforce.openapi.candidate.yaml) adds eight proposed operations and 27 schemas under explicit Business scope, with [synthetic examples](contracts/workforce.examples.json). Main candidate remains 72 operations; combined total is 80. [15 Workforce planning & performance](15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md) supplies calculation, cohort, concurrency and authorization rules not expressible by JSON shape alone. Before enabling resource writes, reconcile the main candidate's generic AllocationInput with this typed human-allocation contract; do not publish two independent writers.
+**Candidate inventory:** Main has 59 path entries: 49 inline paths with 67 operations and 10 Phase-B `$ref` path items that resolve to 14 operations. Its composed total is 81 operations, including the Phase-B overlay's 30 schemas alongside 103 Main-local schemas. Workforce adds eight operations and 30 schemas, for 89 proposed operations and 163 schema declarations across the three source files. Phase-B references are already included in Main's operation total. These are contract counts, not implemented routes.
+
+**Workforce addition:** [workforce.openapi.candidate.yaml](contracts/workforce.openapi.candidate.yaml) adds eight proposed operations and 30 schemas under explicit Business scope, with [synthetic examples](contracts/workforce.examples.json). [15 Workforce planning & performance](15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md) supplies calculation, cohort, concurrency and authorization rules not expressible by JSON shape alone. Before enabling resource writes, reconcile the main candidate's generic AllocationInput with this typed human-allocation contract; do not publish two independent writers.
 
 **Completeness and actual viewer:** [16 Spec readiness & API reference](16-SPEC-READINESS-AND-API-REFERENCE.md) inventories what exists and SPEC-G01–G09 that remain. The local `swagger-api.html` now renders both files with bundled Swagger UI 5.32.15; it is read-only documentation, not a production API. No candidate endpoint is marked implemented by rendering it.
 
@@ -64,9 +66,9 @@ Before code generation, each operationId must map to canonical requirements, own
 | Fleets | GET/POST {p}/fleets; GET {p}/fleets/{fleetId}; POST {p}/fleets/{fleetId}/versions | PM; member-version and workflow refs |
 | Workflows | GET/POST {p}/workflows; POST {p}/workflows/{workflowId}/versions | PM; declared DAG and pinned refs |
 | Reviews | POST {p}/reviews | PM invokes Identity authority; approval bound to resource/hash |
-| Run admission | POST {p}/runs/dry-run; GET/POST {p}/runs | PM orchestration → Integration ledger |
-| Run control | GET {p}/runs/{runId}; POST {p}/runs/{runId}/commands | PM interface → Integration command port |
-| Live evidence | GET {p}/runs/{runId}/events | Integration read port, PM projection; authorized stream |
+| Run admission | POST {p}/runs/dry-run; GET/POST {p}/runs | PM validates and writes `ProjectExecutionRun` / steps, then dispatches through Integration admission/queue port |
+| Run control | GET {p}/runs/{executionRunId}; POST {p}/runs/{executionRunId}/commands | PM-owned trace and state; Integration command port controls executor work |
+| Live evidence | GET {p}/runs/{executionRunId}/events | PM execution trace is authoritative; Integration supplies authorized runtime events |
 | Artifact sharing | POST {p}/artifacts/{artifactId}/shares | PM orchestration → Identity grant; exact revision |
 | Project support | GET/POST {p}/resource-allocations, risks, issues, change-requests, comments, notification-subscriptions, releases, evaluations, triggers | PM surfaces call owning services; concrete request schemas are in OpenAPI |
 | Trigger lifecycle | PATCH {p}/triggers/{triggerId} | Expected-version pause/resume of admission; run cancellation is separate |
@@ -77,7 +79,7 @@ Before code generation, each operationId must map to canonical requirements, own
 | Model deployments | GET/POST /api/platform/integrations/model-deployments; POST .../{deploymentId}/probe | Integration; approved connection + validated profile |
 | MCP bindings | GET/POST /api/platform/integrations/mcp-bindings; POST .../{bindingId}/probe | Integration; schema pin and executor/network profile |
 | Executor queue | POST /api/platform/integrations/executors/claim | Integration; execution credential only |
-| Executor heartbeat/result | POST /api/platform/integrations/executions/{runId}/heartbeat; POST .../events | Integration; attempt+epoch+scope checks |
+| Executor heartbeat/result | POST /api/platform/integrations/executions/{executionRunId}/heartbeat; POST .../events | Integration runtime; attempt+epoch+scope checks, then reports accepted workflow state through the PM owner port |
 | Inference keys | GET/POST /api/identity/inference-keys; POST .../{keyId}/revoke | Identity; owner management + one-time reveal |
 | Inference gateway | GET /inference/v1/models; POST /inference/v1/chat/completions; POST /inference/v1/embeddings | Integration; inference-audience key, model allowlist and budgets |
 
@@ -118,7 +120,7 @@ Error bodies never contain raw upstream responses, stack traces, secretRef inter
 
 Dry-run resolves actual registry versions, effect classifications and budget exposure. Its result includes blockers and requiredApprovalRefs; dispatch revalidates them. The caller cannot replace a dry-run's model/tool policy by editing another field.
 
-Accepted response carries runId, commandId, state=QUEUED, version, eventCursor, requestId. A 202 response means durable admission, not task completion.
+Accepted response carries `executionRunId`, `commandId`, state=QUEUED, version, eventCursor and requestId. `executionRunId` resolves to the PM-owned `ProjectExecutionRun`; a 202 response means durable admission, not task completion.
 
 ## 6. Streaming
 
@@ -158,3 +160,4 @@ Swagger UI exposes these configuration controls; their use here is a product des
 | 0.1.0b | 2026-09-16 | candidate | Proposed HTTP surfaces, errors, scopes, SSE and Swagger configuration | base 087f3025 | RWANG |
 | 0.2.0b | 2026-09-16 | candidate | Add independent workforce OpenAPI supplement and semantic gates | source 0f5a47fc; uncommitted | RWANG |
 | 0.2.1b | 2026-09-16 | candidate | Link Swagger review and distinguish candidate HTTP schemas from complete implementation contracts | design base 087f3025; uncommitted | RWANG |
+| 0.2.2b | 2026-10-04 | candidate | Name workflow run/step IDs explicitly and align API ownership with the PM trace and Integration runtime boundary | documentation refinement | Codex |

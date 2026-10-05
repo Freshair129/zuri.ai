@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-MULTI-AGENT-DELIVERY
 title: Luna Max execution workers with Terra decisions and Astra escalation
-version: "0.9.32b-rca.1"
+version: "0.9.32b-rca.2"
 status: candidate
 created_at: "2026-09-16T13:40:13+07:00,RWANG,design base 087f3025"
-last_update: "2026-10-05,Codex, owner-approved D-1 through D-5 workflow document amendment; analysis-branch composition only"
+last_update: "2026-10-05,Codex, reconcile owner-approved workflow amendment with main PR629; preserve candidate bytes and closed execution gates"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
@@ -21,7 +21,7 @@ relations:
 
 # Multi-agent execution — Luna Max workers → Terra decision gate → Astra escalation
 
-**Version:** 0.9.32b-rca.1 · **Status:** Candidate · **Version diff:** selected v0.9.32b baseline → branch-scoped RCA amendment; adds rule entry/resume checks, claim reconciliation, retry applicability and historical navigation. Owner/G0/SPEC/dispatch/implementation gates remain closed. This suffix identifies this analysis-branch composition, not a globally reserved next source version.
+**Version:** 0.9.32b-rca.2 · **Status:** Candidate · **Version diff:** 0.9.32b-rca.1 → 0.9.32b-rca.2 reconciles upstream MA-D06/MA-I13 ownership clauses and both changelog histories for owner-requested PR #631 merge. D-1–D-5 and owner/G0/SPEC/dispatch/implementation gates remain unchanged.
 
 **แผนหลัก:** ใช้ `gpt-5.6-luna` / reasoning `max` สอง agents ทำงานขนานใน packet ที่ไม่ชนกัน และใช้ Luna Max อีก agent ตรวจ revision จริงอย่างอิสระ. ผู้ใช้มอบหมายให้ `gpt-5.6-terra` / reasoning `max` เป็น decision agent สำหรับการตัดสินใจใน task นี้; เรื่องสำคัญ ผลกระทบสูง หรือยังไม่แน่ใจให้ `gpt-6-astra` / reasoning `max` ร่วมตัดสิน. Root เป็น coordinator และ integrator; ไม่แทนการตัดสินที่มอบหมายไว้. การมอบหมายนี้ไม่เปลี่ยนอำนาจ Identity, reviewer, owner หรือ segregation-of-duties ขณะระบบทำงาน
 
@@ -294,7 +294,7 @@ IDs `MA-*` เป็นหมายเลขงานในแผน ไม่�
 | MA-D03 | Workforce inputs และประวัติ · project-manager | MA-D01, PMR-033-WORKFORCE-SOURCE-CONTRACT | SPEC-G02 | Typed estimates, calendars, availability, team shares, effective assignments/history and seven-mode status maps; dispatch only after root accepts and composes both D01 and PMR-033 proposal artifacts; ตรวจ: Missing inputs remain PARTIAL; effective-date/reassignment and duplicate event examples; agent/unresolved assignee cannot become Person |
 | MA-D04 | Metric variants, policy และ corrections · project-manager | MA-D03 | SPEC-G03, SPEC-G04 | Twelve metric result shapes, Business/person/team review and correction lifecycle, reviewer authority; ตรวจ: Each metric has typed value/sample/coverage/cohort; denominator zero, small samples, quantiles, changed due date, reopened work and history corrections |
 | MA-D05 | Physical adapter และ migration design · project-manager | MA-D03, MA-D04 | SPEC-G07 | Per-owner table reuse, exact SQLite/Postgres mapping, transaction/RLS/grant/backfill/rollback design; ตรวจ: Retain source composite keys; person/day conflict locking; no blanket creation of 54 records; migration design vs execution proof separated |
-| MA-D06 | Provider / agent / ledger compatibility contracts · integration | MA-D01 | SPEC-G05, SPEC-G07, SPEC-G08 | Cloud/private/paired locations, model vs MCP protocols, key/secret owner, ledger profile and typed handoff contracts plus conformance fixtures; ตรวจ: Existing PipelineRun required definition and unique attempt identity preserved; vault/revoke/private network, lease/epoch/UNKNOWN, no arbitrary execution |
+| MA-D06 | Provider / agent / ledger compatibility contracts · integration | MA-D01 | SPEC-G05, SPEC-G07, SPEC-G08 | Cloud/private/paired locations, model vs MCP protocols, key/secret owner, ledger profile and typed handoff contracts plus conformance fixtures; ตรวจ: PipelineRun required fields/unique attempt identity remain data-pipeline-only; project workflows use PM ProjectExecutionRun/Step with Integration queue/lease owner port; prove IDs and states never alias; vault/revoke/private network, epoch/UNKNOWN, no arbitrary execution |
 | MA-D07 | Workforce conformance fixtures และ test design · project-manager | MA-D03, MA-D04, MA-D05, MA-D02W | SPEC-G08 | Request/response/error/lifecycle example matrix and PMT-033 A–P test design; ตรวจ: Positive and invalid payloads; overlaps/dedup/zero capacity; stale preview and concurrent commit; permission revocation; fixtures are not service tests |
 | MA-D08 | Register และอนุมัติ baseline ราย slice · root | MA-D00, PM-DOC-RECONCILE | SPEC-G09 | Per-slice REUSE/EXTEND/NEW canonical mapping, exact approved docs/contracts, ledger and phase receipt; ตรวจ: Selected slice relevant design outputs and entry-proof accepted; preserve IDs; shared FR with ordered phases; govern after composed registration |
 
@@ -358,7 +358,7 @@ IDs `MA-*` เป็นหมายเลขงานในแผน ไม่�
 | MA-I10 | Identity key/grant services and their tests; Integration secret references via its own writer |
 | MA-I11 | Integration inference gateway; any Edge/runtime change is a separate owner packet with cross-app contract tests |
 | MA-I12 | PM AgentDefinition/Version and review/UI services |
-| MA-I13 | Integration run ledger/executor adapters; PM Command Center read projection is a separate allowed-file packet |
+| MA-I13 | Integration PipelineRun data-pipeline ledger plus workflow queue/lease/executor adapters; PM owns ProjectExecutionRun/Step and the Command Center composes authorized trace/runtime projections |
 | MA-I14 | PM fleet/workflow definitions and compiler-facing UI/contracts |
 | MA-I15 | Integration scheduler/events/trigger/usage owners; PM UI consumes projections through separate packet |
 | MA-I16 | PM support services/routes/UI; inventory is not stock write; individual features dispatched separately |
@@ -498,6 +498,12 @@ flowchart TD
 | Independent review covered a prepared patch | Applied document bytes require their own receipt/review; generation, corpus refresh and operational adoption remain NOT_RUN |
 
 Version 0.9.32b-rca.1 is scoped to this analysis branch. Approved wording does not lift the existing governance HOLD or activate candidate S-01/runtime dispatch. The edited Document 20 hash makes reviews/pins of older bytes historical for this branch; affected meaning and read sets must be rechecked under §10 before promotion, without silently changing candidate manifests.
+
+### Owner-requested PR #631 source reconciliation — 2026-10-05
+
+Version 0.9.32b-rca.1 → 0.9.32b-rca.2 applies the independently reviewed reconciliation proposal against main 332b88c9277ee0995798f125f99d5343e7d493f0. It retains main's exact MA-D06 and MA-I13 PM execution-trace versus Integration data-pipeline/runtime ownership clauses and both .1/.2 changelog rows, together with the approved D-1–D-5 wording and selected snapshot history. [Merge evidence](../../../.brain/rca/evidence/2026-10-05-pm-workflow-merge/README.md) records exact source and inherited main candidate hashes.
+
+The direct owner merge instruction authorizes source-control integration for this documentation PR. It does not close product owner/G0/SPEC gates, rebind candidate manifests, authorize dispatch/implementation or prove operational loop prevention. Earlier packet receipts remain historical for their exact preimages; affected read sets require an explicit review before subsequent product promotion.
 
 <a id="pm-receipt-history"></a>
 > **Receipt-time history:** §14 เป็นต้นไปบันทึก state/count/hash/approval ของ snapshot ที่แต่ละ receipt ตรวจ. ใช้ selected plan revision/raw-byte SHA-256 และ latest decision receipt ของ task สำหรับสถานะปัจจุบัน; อย่าใช้จำนวนหรือสถานะที่พบก่อนเป็น current. ประวัติและ approval เดิมไม่โอนมายัง revision ใหม่โดยอัตโนมัติ.
@@ -704,3 +710,5 @@ The DAG remains 43 packages, 90 edges and 13 waves with counts 3 ACCEPTED, 12 CA
 | 0.9.11b | 2026-09-30 | candidate | Record PMR-025 docket and MA-D03 v0.1.1 exact reviews, update baseline/inventory and candidate counts, retain rollback proof and owner/canonical/implementation gates | uncommitted | Codex |
 | 0.9.12b | 2026-09-30 | candidate | Record exact review of PMR-025 conformance candidate and 47-input read set; G0, owner, canonical and implementation gates remain open | uncommitted | Codex |
 | 0.9.13b | 2026-09-30 | candidate | Record PMR-033 v0.1.1 exact reviews and its reconciled pre-receipt governance run; retain the stale candidate plan pin, mark post-receipt governance pending, and keep owner/SPEC/G0/MA-D03/canonical/implementation gates open | uncommitted | Codex |
+| 0.1.0b | 2026-09-16 | candidate | Add user-selected Luna Max worker and verifier workflow with root integration gates and ordered delivery packets | design base 087f3025; uncommitted | RWANG |
+| 0.2.0b | 2026-10-04 | candidate | Require distinct PM workflow-run trace and Integration runtime/data-pipeline ledger contracts in the provider/ledger packet | documentation refinement | Codex |

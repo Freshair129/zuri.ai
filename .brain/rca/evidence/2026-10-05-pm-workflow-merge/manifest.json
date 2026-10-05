@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T09:07:31.767Z",
+  "status": "CONFLICT_RESOLVED_FINAL_SOURCE_REVIEW_PASS",
+  "approval": {
+    "source": "direct user merge after draft PR631",
+    "scope": "source-control PR integration; no PM implementation or candidate reauthoring"
+  },
+  "baseMain": "332b88c9277ee0995798f125f99d5343e7d493f0",
+  "topicBeforeSync": "558fc4040d6ffb544daadb21987a53c69239ae50",
+  "proposalSha256": "6423e1ef20d8ed98587c3e94803d404fbcc289a6ac1c2ca3112f3e6e23897ae0",
+  "documentVersion": "0.9.32b-rca.2",
+  "outputs": [
+    {
+      "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md",
+      "sha256": "4a49a4d2897d48fff5ec1c2c8e74451346d1e3e83d15191c08fb6f09d2561b94",
+      "bytes": 117135
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "848392b627aae29c215247db97d784a3330282eaddb6f087ae28b0ffd9cb5bec",
+      "bytes": 30433
+    }
+  ],
+  "inheritedMainContracts": [
+    {
+      "path": "docs/architecture/project-manager-system/contracts/architecture.model.json",
+      "sha256": "0e16e29db78311021852547b80d730a00398854c2a2d9928b772c3998086bacf",
+      "bytes": 27754,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/blueprint.candidate.json",
+      "sha256": "a9079bda880fb591bd4ca2a6efc5b28ae9c66b9de87706a2e39ed4c5f88f850c",
+      "bytes": 11295,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/contract-foundation.examples.json",
+      "sha256": "f1e027cdcfd358dd920244c3f113c2d4f5314e521f7d92f18476bef1c1148d30",
+      "bytes": 41252,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/current-implementation-status.snapshot.json",
+      "sha256": "292a6b833e5163c6ff6a6fe11b7e6020455e9471bfa32907273ed08fa159d247",
+      "bytes": 3320,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/data-model.candidate.json",
+      "sha256": "3e4fde28dc092141e1966b2af5988f1589edb85e48121d602b3d00528f1464b1",
+      "bytes": 317490,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json",
+      "sha256": "2c28fd617dd4bb552004894b26713db4fbe0ac1999343788b05913638441eb9f",
+      "bytes": 25093,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/g14-registry.candidate.json",
+      "sha256": "a0fd976515648f12a40299a6b52defd2267fdd0dbb8d2217c18cf76fedeb9452",
+      "bytes": 69264,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/nav-conformance.fixtures.json",
+      "sha256": "e46dfedc7c4322989b2b8c5f6917e03d936617557b86d865ec7ddff43af5f591",
+      "bytes": 19329,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/navigation.candidate.json",
+      "sha256": "87888add21a064cea24651573a780a66dab9ead9af6caf03fedfa962dab099fe",
+      "bytes": 50951,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/openapi.candidate.yaml",
+      "sha256": "301539a086d26f12116b96807f11a74b230e108599a2d381a588f30ad230fc71",
+      "bytes": 214031,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/phase-b/data-model.candidate.json",
+      "sha256": "3d2663eb12ee3369423344673066d579d3ef3a02bc12897656ada0cbc5c5e6c8",
+      "bytes": 87674,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/phase-b/openapi.candidate.json",
+      "sha256": "8cf45304c7ebc26193c4d046808d3577e7fea4574f641d8f30332b07df3ccad8",
+      "bytes": 96400,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json",
+      "sha256": "e72d3830b9a3941052269102375a4d063e756315c8c14c999d087d861172893f",
+      "bytes": 23748,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/pm-requirement-index.json",
+      "sha256": "a75bea3f66fd1730de8336234a77e92ea883a7e233814d7436df3468e2b44565",
+      "bytes": 23674,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/srs-traceability.candidate.json",
+      "sha256": "3f2a5e19b760bd8bf30fba57d2d9f54a5c023d1bca7d829c21a52abbc636bce5",
+      "bytes": 31284,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/task-usage-ledger.contract.json",
+      "sha256": "7d7978ba8fe393736c31b4d5e082944049ff3f2cd19a478c211e403ff698fbe2",
+      "bytes": 4875,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/task-usage-ledger.snapshot.schema.json",
+      "sha256": "e081d0e668c9bcefa2e89f0895e2e4b756674a7d4c75c1cf56df11e14395c0c2",
+      "bytes": 4854,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/traceability.json",
+      "sha256": "997f0ae18aec2277b5a68f7438755fc1b703843ae21adf55b99e66b6771605d9",
+      "bytes": 19575,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/ux-ui.candidate.json",
+      "sha256": "10f479fa42bed95ffc82c393380cb1c8454a2f38c39108c04cffe35935e8f020",
+      "bytes": 110165,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/workflow.example.json",
+      "sha256": "43c8331e6493b9295d84b146dfd08a0511445079dd2ffb49eb0266e9cd91fefc",
+      "bytes": 6848,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/workflow.schema.json",
+      "sha256": "cc314342a4338296f8adbe4c4136cff5a8b837714ba8a09e7aa07925bf8ce57b",
+      "bytes": 9892,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/workforce.examples.json",
+      "sha256": "ded3e668abd7ac45f74a445080bd0f810283656e36b21663f53c4ca149514fec",
+      "bytes": 4091,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    },
+    {
+      "path": "docs/architecture/project-manager-system/contracts/workforce.openapi.candidate.yaml",
+      "sha256": "c16770ca5c22be36a7c499bddd13b01b49dd4188169c1617694c2af14e0bec98",
+      "bytes": 53834,
+      "provenance": "accepted main 332b88c9277ee0995798f125f99d5343e7d493f0",
+      "editedByThisTask": false
+    }
+  ],
+  "authority": {
+    "candidateOnly": true,
+    "dispatchable": false,
+    "implementationAuthorized": false
+  },
+  "checks": {
+    "mainContracts": "PASS_EXACT_MAIN_BYTES_23",
+    "localGovern": "NOT_RUN",
+    "localTests": "NOT_RUN",
+    "localBuild": "NOT_RUN",
+    "finalIndependentReview": "PASS_FINAL_SOURCE",
+    "hostedRequiredChecks": "PENDING",
+    "operationalAdoption": "NOT_RUN"
+  },
+  "notes": [
+    "main candidate bytes inherited unchanged; PR diff against main must contain zero candidate contract changes",
+    "historical manifests and their old output/source hashes remain immutable",
+    "required GitHub checks observed normally; no admin override or manual CI dispatch"
+  ],
+  "receipts": [
+    {
+      "path": "README.md",
+      "sha256": "65f86653d03c3c3d2b68c26179fc0c068fb13cbbd646edab14070b5ca69479c4",
+      "bytes": 2529
+    },
+    {
+      "path": "static-validation.json",
+      "sha256": "1be7ce6f5efb010686ad59544dbb596225d163ec451613401934299379ec3eba",
+      "bytes": 859
+    },
+    {
+      "path": "independent-review.json",
+      "sha256": "a8169bca4728f50d4b2a9a12ba46ad1003df87732d732a119270c5ed7c01a149",
+      "bytes": 1435
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+      "bytes": 8
+    }
+  ]
+}

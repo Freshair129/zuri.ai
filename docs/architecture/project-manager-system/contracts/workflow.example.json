@@ -1,8 +1,8 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "1.1",
   "code": "WF_PROJECT_DELIVERY_EXAMPLE",
   "name": "Synthetic multi-domain delivery with independent acceptance",
-  "version": "0.1.0b",
+  "version": "0.1.0",
   "executionKind": "PROJECT_DELIVERY",
   "exampleOnly": true,
   "agentBindings": [
@@ -17,39 +17,6 @@
       "ownerDomain": "integration"
     }
   ],
-  "inputSchema": {
-    "type": "object",
-    "required": [
-      "objectiveRef"
-    ],
-    "additionalProperties": false,
-    "properties": {
-      "objectiveRef": {
-        "type": "string",
-        "minLength": 1,
-        "maxLength": 512
-      }
-    }
-  },
-  "outputSchema": {
-    "type": "object",
-    "required": [
-      "artifactRef",
-      "sha256"
-    ],
-    "additionalProperties": false,
-    "properties": {
-      "artifactRef": {
-        "type": "string",
-        "minLength": 1,
-        "maxLength": 512
-      },
-      "sha256": {
-        "type": "string",
-        "pattern": "^[a-f0-9]{64}$"
-      }
-    }
-  },
   "steps": [
     {
       "key": "prepare-spec",
@@ -67,24 +34,9 @@
         {
           "name": "spec",
           "artifactType": "PROJECT_EVIDENCE",
-          "schema": {
-            "type": "object",
-            "required": [
-              "artifactRef",
-              "sha256"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "artifactRef": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 512
-              },
-              "sha256": {
-                "type": "string",
-                "pattern": "^[a-f0-9]{64}$"
-              }
-            }
+          "contract": {
+            "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+            "contractVersion": "1.0.0"
           }
         }
       ],
@@ -100,7 +52,11 @@
       "requiredForSuccess": true,
       "agentRole": "pm-desk",
       "executorProfileRef": "urn:zuri:fixture:isolated-doc-profile",
-      "modelPolicyVersionId": "00000000-0000-4000-8000-000000000310"
+      "modelPolicyVersionId": "00000000-0000-4000-8000-000000000310",
+      "inputContract": {
+        "contractId": "urn:zuri:contract:project-manager:objective-ref",
+        "contractVersion": "1.0.0"
+      }
     },
     {
       "key": "approve-spec",
@@ -120,24 +76,9 @@
         {
           "name": "approval",
           "artifactType": "PROJECT_EVIDENCE",
-          "schema": {
-            "type": "object",
-            "required": [
-              "artifactRef",
-              "sha256"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "artifactRef": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 512
-              },
-              "sha256": {
-                "type": "string",
-                "pattern": "^[a-f0-9]{64}$"
-              }
-            }
+          "contract": {
+            "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+            "contractVersion": "1.0.0"
           }
         }
       ],
@@ -151,7 +92,11 @@
         "independentReviewer": true,
         "capability": "project.design.approve"
       },
-      "requiredForSuccess": true
+      "requiredForSuccess": true,
+      "inputContract": {
+        "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+        "contractVersion": "1.0.0"
+      }
     },
     {
       "key": "implement-contract",
@@ -175,24 +120,9 @@
         {
           "name": "implementation",
           "artifactType": "PROJECT_EVIDENCE",
-          "schema": {
-            "type": "object",
-            "required": [
-              "artifactRef",
-              "sha256"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "artifactRef": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 512
-              },
-              "sha256": {
-                "type": "string",
-                "pattern": "^[a-f0-9]{64}$"
-              }
-            }
+          "contract": {
+            "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+            "contractVersion": "1.0.0"
           }
         }
       ],
@@ -209,7 +139,11 @@
       "requiredForSuccess": true,
       "agentRole": "integration-desk",
       "executorProfileRef": "urn:zuri:fixture:isolated-repo-profile",
-      "modelPolicyVersionId": "00000000-0000-4000-8000-000000000310"
+      "modelPolicyVersionId": "00000000-0000-4000-8000-000000000310",
+      "inputContract": {
+        "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+        "contractVersion": "1.0.0"
+      }
     },
     {
       "key": "verify-contract",
@@ -229,24 +163,9 @@
         {
           "name": "tests",
           "artifactType": "PROJECT_EVIDENCE",
-          "schema": {
-            "type": "object",
-            "required": [
-              "artifactRef",
-              "sha256"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "artifactRef": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 512
-              },
-              "sha256": {
-                "type": "string",
-                "pattern": "^[a-f0-9]{64}$"
-              }
-            }
+          "contract": {
+            "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+            "contractVersion": "1.0.0"
           }
         }
       ],
@@ -260,7 +179,11 @@
         "independentReviewer": false
       },
       "requiredForSuccess": true,
-      "toolBindingRef": "urn:zuri:fixture:approved-contract-test-runner"
+      "toolBindingRef": "urn:zuri:fixture:approved-contract-test-runner",
+      "inputContract": {
+        "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+        "contractVersion": "1.0.0"
+      }
     },
     {
       "key": "accept-result",
@@ -284,24 +207,9 @@
         {
           "name": "accepted-artifact",
           "artifactType": "PROJECT_EVIDENCE",
-          "schema": {
-            "type": "object",
-            "required": [
-              "artifactRef",
-              "sha256"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "artifactRef": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 512
-              },
-              "sha256": {
-                "type": "string",
-                "pattern": "^[a-f0-9]{64}$"
-              }
-            }
+          "contract": {
+            "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+            "contractVersion": "1.0.0"
           }
         }
       ],
@@ -315,7 +223,11 @@
         "independentReviewer": true,
         "capability": "project.evidence.accept"
       },
-      "requiredForSuccess": true
+      "requiredForSuccess": true,
+      "inputContract": {
+        "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+        "contractVersion": "1.0.0"
+      }
     }
   ],
   "limits": {
@@ -333,5 +245,13 @@
   "resultFrom": {
     "stepKey": "accept-result",
     "outputName": "accepted-artifact"
+  },
+  "inputContract": {
+    "contractId": "urn:zuri:contract:project-manager:objective-ref",
+    "contractVersion": "1.0.0"
+  },
+  "outputContract": {
+    "contractId": "urn:zuri:contract:project-manager:artifact-evidence",
+    "contractVersion": "1.0.0"
   }
 }
