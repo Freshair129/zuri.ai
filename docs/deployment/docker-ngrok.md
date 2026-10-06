@@ -1,7 +1,7 @@
 ---
-version: "1.3.1b"
+version: "1.3.2b"
 created_at: "2026-09-03T21:30:00+07:00,CLAUDE"
-last_update: "2026-09-11T14:50:00+07:00,CLAUDE"
+last_update: "2026-10-06,ATHER"
 status: "current"
 superseded_by: null
 attributes:
@@ -12,7 +12,12 @@ attributes:
 
 # Deploying zuri-ai with Docker Compose + ngrok
 
-**Version:** 1.3.0b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirement: FR-142
+**Version:** 1.3.2b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirement: FR-142
+
+For the owner-requested Windows reinstall and existing-database move, start with
+[Windows recovery and Docker handoff](windows-recovery-and-docker-handoff.md).
+It covers backup/config custody, restore rehearsal and the separate PostgreSQL
+Marketing receiver gate; this guide's start commands are not restore instructions.
 
 This is the deployment path that replaces Vercel. Nothing about the application
 changed to make it possible except a liveness probe (`GET /api/health`) and one
@@ -327,6 +332,8 @@ not being Vercel. Leave it unset otherwise.
   one instance, which is the simplest case.
 
 ## Publication containment revision
+
+2026-10-06, version 1.3.1b → 1.3.2b: adds navigation to the owner-requested Windows recovery/Docker handoff; no Compose, runtime, database, migration or deployment change.
 
 2026-09-06, version 1.1.0 → 1.2.0b: private source conversion completed; registry
 publication suspended pending private release review. The observed local service
