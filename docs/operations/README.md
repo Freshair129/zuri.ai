@@ -28,6 +28,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Document query tooling contract](../migrations/document-reintegration/TOOLING.md)
 - [Generated document views contract](../migrations/document-reintegration/VIEW-CONTRACT.md)
 - [Monorepo snapshot execution](../migrations/monorepo/EXECUTION.md)
+- [Scoped verification pilot](../migrations/scoped-verification/PILOT.md)
 - [Conversation Runtime extraction handoff](../migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md)
 - [Marketing Insights: reconciling the contract with this repository (S6)](../migrations/service-extraction/INSIGHTS-CONTRACT-RECONCILIATION.md)
 - [Marketing Insights: metric compatibility matrix (S6)](../migrations/service-extraction/INSIGHTS-METRIC-COMPATIBILITY.md)

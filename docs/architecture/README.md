@@ -53,6 +53,7 @@ Generated navigation for current source documents in the architecture grouping. 
 - [Current Project Manager implementation and delivery status](project-manager-system/28-CURRENT-IMPLEMENTATION-AND-DELIVERY-STATUS.md)
 - [Approval Gateway admission — design and delivery packet](project-manager-system/29-APPROVAL-GATEWAY-ADMISSION-DESIGN.md)
 - [Project Manager — Full System Design](project-manager-system/README.md)
+- [Monorepo documentation and verification policy](VERIFICATION-POLICY.md)
 - [ADR-001 — Build Standalone Before Integrating with Zuri](../decisions/ADR-001-STANDALONE-ZURI-V2.md)
 - [ADR-002 — Ship Project Manager as a Zuri v1 Module, Promote to v2 on Trigger](../decisions/ADR-002-INTEGRATION-DIRECTION.md)
 - [ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)](../decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md)

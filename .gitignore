@@ -85,6 +85,7 @@ docs/.data-pipeline-map.json
 docs/.preflight-report.json
 docs/FEATURE-MAP.md
 docs/DOMAIN-MAP.md
+docs/architecture/SERVICE-MAP.md
 docs/TRACE.md
 docs/DOCUMENT-LINKS.md
 docs/appendices/D-traceability.md

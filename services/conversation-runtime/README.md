@@ -4,6 +4,12 @@ Independent Node process for Conversation Runtime orchestration. It does not imp
 Next.js, Prisma, Edge, or another repository. Shared authority and side effects are
 accessed through the private `conversation-runtime.v1` core contract.
 
+Canonical [service boundary](../../docs/services/conversation-runtime/SERVICE.md)
+and [testing guide](../../docs/services/conversation-runtime/TESTING.md) explain
+ownership, consumers and evidence limits. `verification.json` participates only in
+the [shadow pilot](../../docs/architecture/VERIFICATION-POLICY.md); it does not
+authorize CI omissions.
+
 ## Local commands
 
 Run from this directory:
