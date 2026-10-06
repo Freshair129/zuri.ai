@@ -7,6 +7,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import Ajv2020 from 'ajv/dist/2020.js'
 import { classifyRequirements } from './capability-registry.mjs'
+import { readDomainModelSource } from './domain-model-source.mjs'
 
 export const STATUS_VALUES = [
   'verified',
@@ -534,16 +535,46 @@ function apiCheck(root, routes) {
   })
 }
 
-function mcpCheck(root, domain, featureDocs) {
+function mcpCheck(root, domain, featureDocs, requirements, nodes, edges) {
   const mcpDocs = featureDocs.filter((doc) => /\bMCP\b/i.test(doc.body))
   const text = mcpDocs.map((doc) => doc.body).join('\n')
   const mentionsMcp = /\bMCP\b/i.test(text)
-  const mcpFiles = walkFiles(workspacePath(root, 'src'), ['.js', '.jsx', '.mjs']).filter((file) => /mcp/i.test(file))
-  const protocolTests = walkFiles(workspacePath(root, 'tests'), ['.js', '.jsx', '.mjs'])
+  const codeIds = domainCodeIds(domain, nodes, edges)
+  const requirementIds = new Set(requirements.map((requirement) => `req:${requirement.id}`))
+  const ownsMcpFile = (filePath) => codeIds.has(`code:${filePath}`)
+    || (domain.modules || []).some((module) => filePath.startsWith(`src/modules/${module}/`))
+    || (domain.owns_code || []).some((glob) => filePath.startsWith(glob.replace(/\*\*$/, '')))
+  const sharedMcpRequirement = (filePath) => edges.some((edge) =>
+    edge.from === `code:${filePath}` && edge.type === 'implements' && requirementIds.has(edge.to))
+  const mcpFiles = [
+    ...walkFiles(workspacePath(root, 'src'), ['.js', '.jsx', '.mjs']),
+    ...walkFiles(workspacePath(root, 'services'), ['.js', '.jsx', '.mjs']),
+  ]
+    .filter((file) => /mcp/i.test(file))
+    .filter((file) => !/[\\/]tests?[\\/]|\.(?:test|spec)\./i.test(file))
+    .filter((file) => {
+      const filePath = rel(root, file)
+      return ownsMcpFile(filePath) || sharedMcpRequirement(filePath)
+    })
+  const protocolTests = [
+    ...walkFiles(workspacePath(root, 'tests'), ['.js', '.jsx', '.mjs']),
+    ...walkFiles(workspacePath(root, 'services'), ['.test.js', '.spec.js', '.test.mjs', '.spec.mjs']),
+  ]
     .filter((file) => /mcp/i.test(file))
     .filter((file) => {
       const body = readText(root, rel(root, file))
       return /initialize/.test(body) && /tools\/list/.test(body) && /tools\/call/.test(body)
+        && mcpFiles.some((implementation) => {
+          const sourcePath = rel(root, implementation).replace(/^src\//, '@/').replace(/\.[^.]+$/, '')
+          const relativePath = path.posix.relative(path.posix.dirname(rel(root, file)), rel(root, implementation)).replace(/\.[^.]+$/, '')
+          const implementationRequirements = new Set(edges
+            .filter((edge) => edge.from === `code:${rel(root, implementation)}` && edge.type === 'implements' && requirementIds.has(edge.to))
+            .map((edge) => edge.to))
+          const requirementProof = edges.some((edge) => edge.from === `test:${rel(root, file)}`
+            && edge.type === 'verifies' && implementationRequirements.has(edge.to))
+          const directProof = body.includes(sourcePath) || body.includes(sourcePath.replace(/^@\//, '')) || body.includes(relativePath)
+          return requirementProof || (ownsMcpFile(rel(root, implementation)) && directProof)
+        })
     })
   if (!mentionsMcp && !mcpFiles.length) return check('not_applicable')
   if (mcpFiles.length) {
@@ -585,10 +616,16 @@ function jsonSchemaCheck(root, featureDocs) {
 function databaseCheck(root, domain) {
   const models = domain.owns_models || []
   if (!models.length) return check('not_applicable')
-  const schema = readText(root, 'prisma/schema.prisma')
-  const missing = models.filter((model) => !new RegExp(`^model\\s+${model}\\s*\\{`, 'm').test(schema))
-  if (missing.length) return check('partial', ['prisma/schema.prisma'], [gap('DB-001', 'high', 'Charter-owned model is not present in Prisma schema', missing)], { models: models.length, present: models.length - missing.length })
-  return check('verified', ['prisma/schema.prisma'], [], { models: models.length, present: models.length })
+  let source
+  let presentModels
+  try {
+    ({ source, models: presentModels } = readDomainModelSource(root, domain.model_source))
+  } catch (error) {
+    return check('blocked', [domain.model_source || 'apps/server/prisma/schema.prisma'], [gap('DB-SOURCE-001', 'high', error.message)])
+  }
+  const missing = models.filter((model) => !presentModels.has(model))
+  if (missing.length) return check('partial', [source], [gap('DB-001', 'high', 'Charter-owned model is not present in its model source', missing)], { models: models.length, present: models.length - missing.length })
+  return check('verified', [source], [], { models: models.length, present: models.length })
 }
 
 function authorizationCheck(root, routes) {
@@ -676,7 +713,7 @@ export function collectDomainObservations({ root, nodes, edges, featureRequireme
       checks: {
         ui: interfaceCheck(root, routes),
         httpApi: apiCheck(root, routes),
-        mcp: mcpCheck(root, domain, featureDocs),
+        mcp: mcpCheck(root, domain, featureDocs, requirements, nodes, edges),
         runtimeContract: runtimeContractCheck(root, requirements),
         jsonSchema: jsonSchemaCheck(root, featureDocs),
         database: databaseCheck(root, domain),

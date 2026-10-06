@@ -24,6 +24,7 @@ import { parseFeatureBundles, classifyRequirements, assertCapabilityTerminology 
 import { generateDomainState } from './domain-state.mjs'
 import { parseCanonicalIndex, parseCanonicalRecord } from './document-registry-format.mjs'
 import { collectDocumentClaims, isGeneratedDocumentView, requiresSuccessor } from './doc-identities.mjs'
+import { readDomainModelSource } from './domain-model-source.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -329,9 +330,8 @@ if (!existsSync(GRAPH)) {
   {
     const DOMAINS_DIR = path.join(SPEC_PACK, 'domains')
     if (existsSync(DOMAINS_DIR)) {
-      const schemaModels = new Set(
-        (read(workspacePath(ROOT, 'prisma', 'schema.prisma')).match(/^model\s+(\w+)/gm) || []).map((m) => m.split(/\s+/)[1]),
-      )
+      const schemaModels = new Set()
+      const modelSources = new Map()
       const modelClaims = new Map() // model → [domains]
       for (const entry of readdirSync(DOMAINS_DIR)) {
         const dir = path.join(DOMAINS_DIR, entry)
@@ -347,11 +347,29 @@ if (!existsSync(GRAPH)) {
           add('warning', 'domain-spine', `Charter domain mismatch: frontmatter says "${declared}", folder is "${entry}"`, path.basename(charter), [rel(charter)], 'Make the frontmatter match the folder')
         }
         const inModels = /owns_models:\s*\n((?:\s+-\s+\S+\n?)*)/.exec(fm)?.[1] || ''
+        const declaredSource = /^model_source:\s*["']?([^\s"']+)["']?\s*$/m.exec(fm)?.[1] || null
+        let sourceModels = new Set()
+        let source = declaredSource
+        try {
+          const resolved = readDomainModelSource(ROOT, declaredSource)
+          source = resolved.source
+          sourceModels = resolved.models
+          for (const model of sourceModels) {
+            const previous = modelSources.get(model)
+            if (previous && previous !== source) {
+              add('critical', 'domain-spine', `Model ${model} appears in multiple model sources`, `${previous}, ${source}`, [rel(charter)], 'Resolve model identity before claiming ownership')
+            }
+            modelSources.set(model, source)
+            schemaModels.add(model)
+          }
+        } catch (error) {
+          add('critical', 'domain-spine', `Invalid model source for ${entry}`, error.message, [rel(charter)], 'Declare a readable in-workspace Prisma or SQL source')
+        }
         for (const m of inModels.match(/-\s+(\S+)/g)?.map((x) => x.replace(/-\s+/, '')) || []) {
           if (!modelClaims.has(m)) modelClaims.set(m, [])
           modelClaims.get(m).push(entry)
-          if (!schemaModels.has(m)) {
-            add('warning', 'domain-spine', `Charter claims a model that is not in the schema: ${m}`, `domains/${entry}`, [rel(charter)], 'Stale charter — sync owns_models with prisma/schema.prisma')
+          if (!sourceModels.has(m)) {
+            add('warning', 'domain-spine', `Charter claims a model that is not in its model source: ${m}`, `domains/${entry}: ${source || '(invalid)'}`, [rel(charter)], 'Sync owns_models with the declared model_source')
           }
         }
         // Feature notes must declare the domain they sit in.
