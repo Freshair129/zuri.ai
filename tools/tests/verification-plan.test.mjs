@@ -218,6 +218,26 @@ test('local collection includes staged, unstaged, untracked and rename/deletion 
   assert.equal(result.revisions.workingTreeIncluded, true)
 })
 
+test('local collection keeps staged Core changes reversed in the working copy', t => {
+  const { root, put } = gitFixture(t)
+  const authority = 'apps/server/src/lib/authority.js'
+  const original = 'export const authority = 1\n'
+  put(authority, original); git(root, 'add', authority)
+  git(root, '-c', 'user.name=Verification fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Core baseline')
+  const base = git(root, 'rev-parse', 'HEAD')
+  put(authority, 'export const authority = 2\n'); git(root, 'add', authority)
+  put(authority, original)
+  put(SOURCE, 'export const value = 2\n')
+  const changes = collectChanges(root, { base })
+  assert.ok(changes.changed.includes(authority), 'staged Core input must survive an opposing working-copy edit')
+  assert.ok(changes.changed.includes(SOURCE))
+  const plan = createVerificationPlan(root, changes)
+  assert.equal(plan.candidate.eligible, false)
+  assert.equal(plan.candidate.serverBuild, true)
+  assert.match(plan.candidate.reason, /outside bounded pilot/)
+  assert.equal(plan.omissionsAllowed, false)
+})
+
 test('unavailable base, option-like revision, unknown CLI flag and hosted dirty tree fail', t => {
   const { root, put, base } = gitFixture(t)
   assert.throws(() => collectChanges(root, { base: 'not-a-real-ref' }), /GIT_READ_FAILED/)

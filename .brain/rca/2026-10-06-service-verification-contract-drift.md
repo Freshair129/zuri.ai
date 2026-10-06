@@ -1,7 +1,7 @@
 ---
 status: active
 superseded_by: null
-version: "0.1.0"
+version: "0.1.1"
 ---
 
 # Service verification policy and documentation drift
@@ -63,3 +63,41 @@ Prevention: collect deletion status directly from Git's `--name-status
 and reject a candidate for those paths even when they still resolve on disk.
 Add regressions for case-only rename and staged deletion/replacement. This
 implements the already-approved conservative rename/deletion requirement.
+## Review finding - cancelled staged changes
+
+### Symptom
+
+The local shadow report can classify partially staged Core and Runtime work as
+Runtime-only when a staged Core edit is reversed in the working copy.
+
+### Evidence
+
+Independent review of `abf707d3f536132daf85865427fa66b8b1757de3` reproduced this
+in a disposable Git fixture. A tracked Core authority file was modified and
+staged, its working copy was restored to HEAD, and a Runtime file was modified.
+`git diff --cached --name-only` contained the Core path; `git diff --name-only`
+contained both Core and Runtime. `collectChanges` returned only Runtime and
+`candidate.eligible` was true. `omissionsAllowed` remained false, so no CI job
+was omitted. The approved local-input contract requires staged and unstaged work.
+
+### Root cause
+
+Local collection used only `git diff HEAD`, which compares HEAD with the final
+working copy. Opposing staged and unstaged edits cancel in that net comparison,
+even though the index still contains a pending Core change.
+
+### Why the issue escaped detection
+
+The existing mixed local-state test changes different files in each Git state.
+It never stages an edit and then reverses that same path in the working copy.
+Hosted clean-checkout validation cannot exercise this local index divergence.
+
+### Proposed prevention
+
+Collect the union of index-versus-HEAD and working-copy-versus-index changes,
+retaining deletion evidence from both. Add a regression for the reproduced
+Core/Runtime case and verify the conservative candidate result. This corrects
+the approved input contract; it adds no omission or execution authority.
+
+Version diff 0.1.0 -> 0.1.1: records independent review evidence and prevention
+for cancelled staged changes; earlier findings remain historical.

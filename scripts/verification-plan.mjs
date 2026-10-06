@@ -164,7 +164,8 @@ export function collectChanges(root, { base, head = 'HEAD', event = 'local' }) {
   // Include the actual merge/checkout tree too, not only the PR author's head.
   const changed = [...diff(comparisonBase, headSha), ...diff(comparisonBase, testedHead)]
   if (event === 'local') {
-    changed.push(...diff('HEAD'))
+    // Opposing index/worktree edits must not cancel a pending input.
+    changed.push(...diff('--cached', 'HEAD'), ...diff())
     changed.push(...git(root, ['ls-files', '--others', '--exclude-standard', '-z']).split('\0'))
   } else {
     assert(git(root, ['status', '--porcelain', '--untracked-files=no']) === '', 'DIRTY_HOSTED_CHECKOUT')
