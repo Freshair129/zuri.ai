@@ -1,9 +1,10 @@
 ---
 domain: file-management
-version: "0.1.1b"
+version: "0.1.2b"
 status: beta
-last_update: "2026-10-06T07:08:00+07:00,Codex"
+last_update: "2026-10-06T07:26:00+07:00,Codex"
 module: services/file-management
+model_source: services/file-management/migrations/0001_file_management.sql
 owns_code:
   - services/file-management/**
 owns_models:
@@ -79,3 +80,7 @@ no T1 table or runtime operation implements it.
 
 0.1.0b → 0.1.1b: align current model claims with the T1 migration and label
 FileUsageReference as a later target. The approved service boundary is unchanged.
+
+0.1.1b → 0.1.2b: declare the standalone T1 SQL migration as the explicit
+model evidence source for the approved governance correction. No runtime model
+or behavior changes.
