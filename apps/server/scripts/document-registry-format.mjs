@@ -72,13 +72,14 @@ export function parseCanonicalRecord(text) {
   const family = requiredText(fields.family, 'family');
   const namespace = requiredText(fields.namespace, 'namespace');
   const recordVersion = Number(fields.version);
-  if (recordVersion !== 1) fail('version must be 1');
+  if (![1, 2].includes(recordVersion)) fail('version must be 1 or 2');
   const status = requiredText(fields.status, 'status');
-  if (!['source-preserved', 'reviewed-migration'].includes(status)) fail(`unsupported record status: ${status}`);
+  if (recordVersion === 1 && !['source-preserved', 'reviewed-migration'].includes(status)) fail(`unsupported record status: ${status}`);
   if (namespace !== 'ZAI') fail(`active record namespace must be ZAI: ${namespace}`);
   if (!FAMILY_ID.test(id) || !FAMILIES.has(family) || !id.startsWith(`${family}-`)) {
     fail(`id ${id} does not match supported family ${family}`);
   }
+  if (recordVersion === 2) return parseAuthoredRecord(fields, body, { id, namespace, family, recordVersion, status });
   let sourceRevision;
   let migrationBaseRevision;
   let migrationDocument;
@@ -164,7 +165,7 @@ export function parseCanonicalRecord(text) {
 }
 
 function validRegistryPath(value) {
-  if (typeof value !== 'string' || value === '' || value.includes('\\') || value.startsWith('/')) return false;
+  if (typeof value !== 'string' || value === '' || /[\\:\u0000-\u001f\u007f]/.test(value) || value.startsWith('/')) return false;
   const parts = value.split('/');
   if (parts.some((part) => part === '' || part === '.' || part === '..')) return false;
   return value.startsWith('docs/features/') || value.startsWith('docs/requirements/');
@@ -180,7 +181,7 @@ export function parseCanonicalIndex(text) {
     fail('index must be valid JSON');
   }
   if (!index || typeof index !== 'object' || Array.isArray(index)) fail('index must be a JSON object');
-  if (index.version !== 1) fail(`unsupported index version: ${index.version}`);
+  if (![1, 2].includes(index.version)) fail(`unsupported index version: ${index.version}`);
   const sourceRevision = requiredText(index.sourceRevision, 'sourceRevision');
   if (!SHA1.test(sourceRevision)) fail('sourceRevision must be a full Git SHA-1');
   if (!Array.isArray(index.records)) fail('records must be an array');
@@ -195,8 +196,10 @@ export function parseCanonicalIndex(text) {
     const path = requiredText(record.path, `records[${offset}].path`);
     if (namespace !== 'ZAI') fail(`records[${offset}] namespace must be ZAI`);
     if (!FAMILY_ID.test(id) || !FAMILIES.has(family) || !id.startsWith(`${family}-`)) fail(`records[${offset}] has invalid id/family`);
-    if (record.recordVersion !== 1) fail(`records[${offset}].recordVersion must be 1`);
-    if (!['source-preserved', 'reviewed-migration'].includes(record.status)) fail(`records[${offset}].status is unsupported`);
+    if (![1, 2].includes(record.recordVersion) || (index.version === 1 && record.recordVersion !== 1)) fail(`records[${offset}].recordVersion is unsupported`);
+    if (record.recordVersion === 1) {
+      if (!['source-preserved', 'reviewed-migration'].includes(record.status)) fail(`records[${offset}].status is unsupported`);
+    } else validateAuthoredFields(record);
     if (!validRegistryPath(path)) fail(`records[${offset}] has unsafe path`);
     const key = `${namespace}:${id}`;
     if (keys.has(key)) fail(`duplicate id: ${key}`);
@@ -227,5 +230,115 @@ export function parseCanonicalIndex(text) {
     return { ...record, id, namespace, family, path };
   });
 
-  return { version: 1, sourceRevision, records };
+  return { version: index.version, sourceRevision, records };
+}
+
+const AUTHORED_FIELDS = {
+  authored_base_revision: 'authoredBaseRevision', approval_revision: 'approvalRevision',
+  approval_path: 'approvalPath', approval_version: 'approvalVersion', approval_sha256: 'approvalSha256',
+  migration_id: 'migrationId', manifest_path: 'manifestPath', manifest_sha256: 'manifestSha256',
+  row_sha256: 'rowSha256', statement_sha256: 'statementSha256', subject_anchor: 'subjectAnchor',
+};
+
+export const authoredProvenanceKeys = Object.freeze(Object.values(AUTHORED_FIELDS));
+
+function validProvenancePath(value) {
+  return typeof value === 'string' && /^docs\/(?:change-requests|migrations)\//.test(value)
+    && !/[\\:\u0000-\u001f\u007f]/.test(value)
+    && value.split('/').every(part => part && part !== '.' && part !== '..');
+}
+
+function validateAuthoredFields(record) {
+  if (!['FR', 'SDD'].includes(record.family) || record.status !== 'active' || record.provenance !== 'authored') fail('authored records require FR/SDD, active lifecycle and authored provenance');
+  if (record.sourcePath !== undefined || record.sourceRowSha256 !== undefined || record.sourceRevision !== undefined) fail('authored records cannot claim imported provenance');
+  for (const key of authoredProvenanceKeys) requiredText(record[key], key);
+  for (const key of ['authoredBaseRevision', 'approvalRevision']) if (!SHA1.test(record[key])) fail(`${key} must be a Git SHA-1`);
+  for (const key of ['approvalSha256', 'manifestSha256', 'rowSha256', 'statementSha256']) if (!SHA256.test(record[key])) fail(`${key} must be a SHA-256`);
+  if (!/^[0-9]+\.[0-9]+\.[0-9]+$/.test(record.approvalVersion)) fail('approvalVersion must be semantic');
+  if (!/^[a-z][a-z0-9-]{0,79}$/.test(record.migrationId)) fail('invalid migration identity');
+  if (!validProvenancePath(record.approvalPath) || !validProvenancePath(record.manifestPath)) fail('unsafe authored provenance path');
+  if (record.manifestPath !== `docs/migrations/document-reintegration/record-migrations/${record.migrationId}.manifest.json`) fail('authored manifest path does not match migration identity');
+  if (record.featureId !== undefined || JSON.stringify(record.requirementCells ?? []) !== '[]') fail('authored membership changes are unsupported');
+}
+
+function parseAuthoredRecord(fields, body, identity) {
+  const allowed = new Set(['id', 'namespace', 'family', 'version', 'status', 'superseded_by', 'provenance', ...Object.keys(AUTHORED_FIELDS)]);
+  for (const key of Object.keys(fields)) if (!allowed.has(key)) fail(`unsupported authored field: ${key}`);
+  if (fields.superseded_by !== 'null') fail('active authored record must have superseded_by: null');
+  const record = { ...identity, provenance: fields.provenance, requirementCells: [] };
+  for (const [field, key] of Object.entries(AUTHORED_FIELDS)) record[key] = fields[field];
+  validateAuthoredFields(record);
+  const fences = [...body.matchAll(/<!-- canonical-row:start -->\r?\n```text\r?\n([^\r\n]*)\r?\n```\r?\n<!-- canonical-row:end -->/g)];
+  if (fences.length !== 1 || (body.match(/<!-- canonical-row:start -->/g) ?? []).length !== 1) fail('authored record needs exactly one canonical row');
+  const row = `${fences[0][1]}\n`;
+  if (digest(row) !== record.rowSha256) fail('authored row hash does not match payload');
+  const cells = splitRow(row);
+  if (cells.length !== 5 || cells[0] !== '' || cells[4] !== '' || cells[1] !== record.id || cells[3] !== 'planned' || !cells[2]) fail('invalid authored identity/statement/lifecycle cells');
+  if (digest(cells[2]) !== record.statementSha256) fail('authored statement hash does not match payload');
+  return { ...record, row, cells, statement: cells[2], statementCell: 2, requirementKeys: [] };
+}
+
+const digest = value => createHash('sha256').update(value).digest('hex');
+
+export function validateApprovalSource(text, version, sha256) {
+  const fields = parseFrontmatter(text).fields;
+  if (digest(text) !== sha256 || fields.status !== 'approved'
+    || fields.version?.replace(/^["']|["']$/g, '') !== version) fail('authored approval provenance mismatch');
+}
+
+/** Reviewed v1 additions prove approval in their committed migration document. */
+export function validateReviewedProvenance(record, readSource) {
+  if (record.status !== 'reviewed-migration') return;
+  const bytes = readSource(record.migrationDocument);
+  if (bytes === undefined || bytes === null) fail(`missing reviewed provenance: ${record.migrationDocument}`);
+  const text = bytes.toString().replace(/\r\n/g, '\n');
+  const { fields, body } = parseFrontmatter(text);
+  if (fields.status?.replace(/^["']|["']$/g, '') !== 'approved'
+    || !/^##\s+(?:การอนุมัติ|Approval)\s*$/im.test(body)) fail('reviewed migration approval mismatch');
+  return { migrationBaseRevision: record.migrationBaseRevision,
+    migrationDocument: record.migrationDocument, migrationDocumentSha256: digest(text) };
+}
+
+/** One identity/provenance comparison used by filesystem and snapshot readers. */
+export function validateCanonicalEntry(record, entry, index) {
+  const keys = ['id', 'namespace', 'family', 'recordVersion', 'status', 'statementCell', 'featureId'];
+  if (record.recordVersion === 1) {
+    keys.push('sourcePath', 'sourceRowSha256');
+    keys.push('migrationBaseRevision', 'migrationDocument');
+    if (record.status === 'source-preserved' && record.sourceRevision !== index.sourceRevision) fail(`${record.id} source revision differs from index`);
+  } else keys.push('provenance', ...authoredProvenanceKeys);
+  for (const key of keys) if (record[key] !== entry[key]) fail(`${record.id} index ${key} does not match its canonical record`);
+  if (JSON.stringify(record.requirementCells) !== JSON.stringify(entry.requirementCells ?? [])) fail(`${record.id} requirementCells differ`);
+}
+
+/** Authored provenance is backed by the exact source manifest and approved note. */
+export function validateAuthoredProvenance(record, readSource) {
+  if (record.recordVersion !== 2) return;
+  const read = file => {
+    const bytes = readSource(file);
+    if (bytes === undefined || bytes === null) fail(`missing authored provenance: ${file}`);
+    return bytes.toString().replace(/\r\n/g, '\n');
+  };
+  // An immutable copy proves the approved revision without freezing the live note.
+  const approval = read(record.manifestPath.replace(/\.manifest\.json$/, '.approval.md'));
+  validateApprovalSource(approval, record.approvalVersion, record.approvalSha256);
+  const manifestText = read(record.manifestPath);
+  if (digest(manifestText) !== record.manifestSha256) fail('authored manifest digest mismatch');
+  const manifest = JSON.parse(manifestText);
+  const keys = (value, expected) => value && typeof value === 'object' && !Array.isArray(value)
+    && Object.keys(value).length === expected.length && expected.every(key => Object.hasOwn(value, key));
+  if (!keys(manifest, ['version', 'migrationId', 'base', 'approval', 'records'])
+    || !keys(manifest.base, ['commit', 'indexSha256', 'ledgerSha256'])
+    || !keys(manifest.approval, ['path', 'revision', 'version', 'sha256'])
+    || !SHA256.test(manifest.base.indexSha256) || !SHA256.test(manifest.base.ledgerSha256)
+    || !Array.isArray(manifest.records) || manifest.records.length < 1 || manifest.records.length > 4
+    || manifest.records.some(item => !keys(item, ['id', 'family', 'statement', 'statementSha256', 'subjectAnchor']))
+    || new Set(manifest.records.map(item => item.id)).size !== manifest.records.length) fail('invalid authored manifest schema');
+  if (manifest.version !== 1 || manifest.migrationId !== record.migrationId || manifest.base?.commit !== record.authoredBaseRevision
+    || manifest.approval?.revision !== record.approvalRevision || manifest.approval?.path !== record.approvalPath
+    || manifest.approval?.version !== record.approvalVersion || manifest.approval?.sha256 !== record.approvalSha256) fail('authored manifest provenance mismatch');
+  const items = manifest.records?.filter(item => item.id === record.id) ?? [];
+  if (items.length !== 1 || items[0].family !== record.family || items[0].statement !== record.statement
+    || items[0].statementSha256 !== record.statementSha256 || items[0].subjectAnchor !== record.subjectAnchor) fail('authored manifest subject mismatch');
+  return manifest;
 }

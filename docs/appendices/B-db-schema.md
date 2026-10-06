@@ -1,5 +1,15 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.63.0b → 1.64.0b (2026-10-05): add three approved FR-281–283 machine-custody models (197 application tables). Candidate SQLite migration has isolated native evidence; the PostgreSQL mirror has structural-only QA and no enabled receiver/runtime grants. Legacy JSON backup refuses any nonempty custody table instead of omitting retained data; SQLite whole-database backup is separately verified. No live migration or deployment.
+
+| Model | Fields / scope | Custody |
+|---|---|---|
+| MarketingReportPolicy | Business PK, Tenant FK, ingestEnabled false by default, version, timestamps | Trusted installation-operator CAS; immutable scope/no delete. Separate from human visibility. |
+| MarketingReportBinding | UUID, unique SHA-256 keyHash, Tenant/Business, fixed source deployment/Business/system, permission, ACTIVE/REVOKED, version/timestamps | Hash-only credential, immutable scope, one-way audited revocation; no browser provisioning. |
+| MarketingExternalReport | UUID, Tenant/Business/binding/initiative/plan FKs, source report/campaign identity, exact canonicalEnvelope/payloadHash, revision 1/null supersedes, unique receipt UUID, acceptedAt/status, retentionPolicyVersion/retainUntil, unique AuditEvent FK | Unique binding/report; immutable evidence/receipt and linked audit; minimum 90 days, no purge; no Guest projection/native total write. |
+
+Physical invariants and exact tests: [receiver design](../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md), [bounded verification](../change-requests/marketing/ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md). These records are intentionally excluded from unsupported legacy snapshots with fail-closed export/preview/import guards; a database containing them requires the approved whole-database custody procedure.
+
 Version diff 1.62.0b → 1.63.0b (2026-09-27): add `CustomerRetentionConsent` and
 `LegalHoldArchiveKey` (FR-022, ADR-093 1.2.0, "consent to retain = keep"). Both
 are in the backup snapshot, and the Phase B frozen inventory is rebound to 194

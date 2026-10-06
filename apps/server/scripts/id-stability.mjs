@@ -97,6 +97,21 @@ export function inheritedFrom(declared, pinned) {
  * @param {{path:string,body:string}[]} namedFiles  files whose basename may carry an id
  * @returns {{severity:string,check:string,title:string,details:string,files:string[],action:string}[]}
  */
+export function reservedBranchIds(ledger) {
+  const ids = ledger.reserved_ids ?? []
+  const history = ledger.reservation_history ?? []
+  const validId = id => typeof id === 'string' && /^(FR|SDD)-\d{3,}$/.test(id)
+  if (!Array.isArray(ids) || ids.some(id => !validId(id)) || !Array.isArray(history)
+    || history.some(entry => !entry || typeof entry !== 'object' || Array.isArray(entry)
+      || !/^[a-f0-9]{40}$/.test(entry.revision ?? '')
+      || typeof entry.declared_in !== 'string' || !/^docs\/change-requests\/(?!.*(?:^|\/)\.\.(?:\/|$))[A-Za-z0-9._/-]+\.md#[0-9]+\.[0-9]+\.[0-9]+$/.test(entry.declared_in)
+      || typeof entry.reason !== 'string' || entry.reason.trim().length < 40
+      || !/^\d{4}-\d{2}-\d{2}$/.test(entry.at ?? '')
+      || !Array.isArray(entry.ids) || entry.ids.some(id => !validId(id))
+      || new Set(entry.ids).size !== entry.ids.length)) throw new Error('Invalid historical branch reservation evidence')
+  return new Set([...ids, ...history.flatMap(entry => entry.ids)])
+}
+
 export function evaluateIdStability({
   declared,
   ledger = {},
@@ -115,6 +130,17 @@ export function evaluateIdStability({
   const registryOf = (family) => registries.find((r) => r.families.includes(family))
   const duplicates = declared?.duplicates || []
   const missingRegistries = declared?.missing || []
+  let reservations
+  try { reservations = [...reservedBranchIds(ledger)] } catch (error) {
+    emit('critical', 'Invalid historical branch reservation evidence', error.message, [ledgerPath], 'Restore reviewed historical reservation evidence')
+    return out
+  }
+  const missingReservations = reservations.filter(id => !(ledger.reserved_ids || []).includes(id))
+  if (missingReservations.length) emit('critical', 'Historical branch reservation inventory removed', missingReservations.join(' · '), [ledgerPath],
+    'Restore the non-reuse inventory from its reservation history; historical numbers never become fresh numbers')
+  const reusedReservations = reservations.filter(id => declared.has(id) || pinned[id] || roster.includes(id))
+  if (reusedReservations.length) emit('critical', 'Historical branch reservation reused', reusedReservations.join(' · '), [ledgerPath],
+    'Preserve reserved numbers and use a fresh ID; reservations never replace an active main identity')
   const familyIsUnreadable = new Set(missingRegistries.flatMap((m) => m.families))
 
   const withCiters = (id, source) => {

@@ -35,7 +35,7 @@
     "docs:tests-for": "node tools/tests-for.mjs",
     "docs:impact": "node tools/impact.mjs",
     "docs:readiness": "node tools/document-readiness.mjs",
-    "docs:migration:test": "node --test tools/tests/document-identity.test.mjs tools/tests/document-inventory.test.mjs tools/tests/document-registry.test.mjs tools/tests/document-views.test.mjs tools/tests/document-queries.test.mjs apps/server/tests/node/trace-annotations.test.mjs",
+    "docs:migration:test": "node --test tools/tests/document-identity.test.mjs tools/tests/document-inventory.test.mjs tools/tests/document-registry.test.mjs tools/tests/document-record-migration.test.mjs tools/tests/document-views.test.mjs tools/tests/document-queries.test.mjs apps/server/tests/node/trace-annotations.test.mjs",
     "docs:llms": "node scripts/build-llms-full.mjs",
     "docs:llms:check": "node scripts/build-llms-full.mjs --check",
     "govern": "npm --prefix apps/server run govern",

@@ -1,8 +1,8 @@
 ---
 domain: file-management
-version: "0.1.0b"
+version: "0.1.1b"
 status: beta
-last_update: "2026-09-24T00:00:00+07:00,Codex"
+last_update: "2026-10-06T07:08:00+07:00,Codex"
 module: services/file-management
 owns_code:
   - services/file-management/**
@@ -10,7 +10,6 @@ owns_models:
   - FileRecord
   - FileVersion
   - FileOperation
-  - FileUsageReference
 owns_routes: []
 ---
 
@@ -71,3 +70,12 @@ their current Project Manager, CRM and Knowledge owners until a reviewed
 consumer migration assigns one writer per cohort. No production schema,
 provider configuration, MinIO volume or business data is changed by this
 charter.
+
+The T1 service migration currently persists FileRecord, FileVersion and
+FileOperation. FileUsageReference remains an ADR-107 target for a later tranche;
+no T1 table or runtime operation implements it.
+
+## Version diff
+
+0.1.0b → 0.1.1b: align current model claims with the T1 migration and label
+FileUsageReference as a later target. The approved service boundary is unchanged.

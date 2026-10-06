@@ -1,5 +1,11 @@
 # Appendix A — API Specification
 
+Version diff 1.102.0b → 1.103.0b (2026-10-05): add the approved FR-281/FR-282 report-only receiver candidate, POST `/api/growth/external-marketing-reports`. Inventory: 332 route handlers, 333 OpenAPI paths, 438 operations. Only dedicated report bearer authentication is accepted; no session/Enterprise fallback. PostgreSQL receiver runtime, live migration, credentials and deployment remain unqualified/unperformed.
+
+| Method | Path | Contract |
+|---|---|---|
+| POST | `/api/growth/external-marketing-reports` | Exact canonical `zuri-marketing-report/0.1` UTF-8 JSON bytes, at most 256 KiB, no content encoding. Current active dedicated binding, deny-default Business machine policy and same-scope live initiative/plan are rechecked inside each native SQLite transaction/retry. 201 only after atomic evidence/audit commit, 200 identical authorized replay with the original strict receipt, 409 changed bytes under the same identity; generic 401 invalid/revoked report credential, 404 crossed scope, 413 oversized, 415 media/encoding, 422 invalid wire, 503 unavailable/contention. Every response is no-store. Receipt fields, whitelist/hash/retention and remaining acceptance gates are in the [approved physical design](../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md) and [bounded verification](../change-requests/marketing/ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md). No native plan/review/decision or verified revenue write. |
+
 Version diff 1.101.0b → 1.102.0b (2026-10-05): add GET `/api/growth/line-sales` for the read-only FR-278 executive dashboard and register it in OpenAPI. Inventory: 331 route handlers, 332 OpenAPI paths, 437 operations; local route only, no production activation claimed.
 
 Version diff 1.100.0b → 1.101.0b (2026-09-27): add the two FR-022 retention-consent routes (ADR-093 1.2.0, "consent to retain = keep"): record and revoke, POST each. Inventory: 330 route handlers, 331 OpenAPI paths, 436 operations.
@@ -92,7 +98,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=331 -->
+<!-- api-spec-counts: route_handlers=332 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 

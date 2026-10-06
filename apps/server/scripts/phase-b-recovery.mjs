@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import pg from 'pg'
+import { MARKETING_REPORT_TABLES, unsupportedMarketingReportSnapshot } from '../src/modules/marketing/application/marketing-report-backup.js'
 import {
   PHASE_B_ERROR_CODES,
   PHASE_B_FAMILY_DELEGATES,
@@ -32,9 +33,11 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // (kind, occurredAt, id) changes the schema bytes, not the 194-table mapping. See
 // docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
 // for the historical binding ladder this entry continues.
-const FROZEN_SCHEMA_SHA256 = '32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4'
-const FROZEN_TARGET_SCHEMA_SHA256 = '9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0'
-const FROZEN_APPLICATION_TABLE_COUNT = 194
+// @req FR-282, FR-283 — owner-approved 2026-10-06 Marketing custody rebind
+// adds three excluded retained-evidence models to the complete 197-table census.
+const FROZEN_SCHEMA_SHA256 = '45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06'
+const FROZEN_TARGET_SCHEMA_SHA256 = 'e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e'
+const FROZEN_APPLICATION_TABLE_COUNT = 197
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0
@@ -474,6 +477,7 @@ export async function runCleanTargetRestore({ snapshotBytes, snapshot, expectedS
   if (snapshot !== undefined && comparableJson(snapshot) !== comparableJson(effectiveSnapshot)) {
     return redactedResult({ status: 'REFUSED', errorCode: PHASE_B_ERROR_CODES.SNAPSHOT_INVALID, ...base })
   }
+  if (unsupportedMarketingReportSnapshot(effectiveSnapshot)) return redactedResult({ status: 'REFUSED', errorCode: 'MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED', ...base })
   try {
     const sharedValidation = await validateSnapshotRecovery(effectiveSnapshot)
     if (!sharedValidation || sharedValidation.valid !== true) {
@@ -553,6 +557,7 @@ export async function runProtectedExport({ inventory, adapter, extractSnapshot, 
     await tx.assertPrivileges({ write: false })
     const targetCounts = await tx.countAllApplicationTables()
     if (!completeCounts(targetCounts, normalized)) throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.EXPORT_COMPLETENESS_UNAVAILABLE, 'Complete source application table counts could not be established')
+    if (MARKETING_REPORT_TABLES.some(model => targetCounts[model[0].toUpperCase() + model.slice(1)] !== 0)) throw new PhaseBRecoveryError('MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED', 'Retained Marketing custody cannot be omitted from a JSON export')
     const extracted = await extractSnapshot({ tx, adapter, includeBinaryContent: false })
     const snapshot = extracted && typeof extracted === 'object' && !Array.isArray(extracted) && extracted.snapshot
       ? extracted.snapshot
@@ -563,6 +568,7 @@ export async function runProtectedExport({ inventory, adapter, extractSnapshot, 
     const excludedModels = extracted && typeof extracted === 'object' && !Array.isArray(extracted) && extracted.snapshot
       ? extracted.excludedModels
       : null
+    if (unsupportedMarketingReportSnapshot(snapshot)) throw new PhaseBRecoveryError('MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED', 'Marketing custody fields are unsupported by JSON recovery')
     const bound = {
       ...snapshot,
       targetSchemaSha256: normalized.targetSchemaSha256,

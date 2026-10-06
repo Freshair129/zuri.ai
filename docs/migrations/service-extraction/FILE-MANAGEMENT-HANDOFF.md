@@ -1,9 +1,9 @@
 ---
 id: ZAI:FILE-MANAGEMENT-HANDOFF
 title: File Management service extraction handoff
-version: "0.1.2b"
+version: "0.1.3b"
 created_at: "2026-09-24T10:57:59+07:00,Codex, base fad8ec6"
-last_update: "2026-09-24T23:15:00+07:00,Codex"
+last_update: "2026-10-06T07:08:00+07:00,Codex"
 status: beta
 superseded_by: null
 attributes:
@@ -24,12 +24,12 @@ production migration, provider activation, or business-content publication.
 
 | Tranche | Status | Evidence and boundary |
 | --- | --- | --- |
-| T0 catalog upload outcome | BLOCKED | Root cause was the upload path treating a missing Business Knowledge binding as failure of the already-saved Business catalog FileAsset. Fix commit 3263ddf is on PR #543, now marked ready for review. S1 received a REVIEW_REQUEST for head 3263ddf42e16ca1b6736af25e73e9c987e843593, but the delegated reviewer automatic review block rejected it as outside the authorized review queue. S1 will not route around the block and requires direct user authorization before review proceeds; no review result exists. File and Knowledge outcomes are now reported separately; no fallback to another Business. |
-| T1 independent FilePort service | LOCAL PASS | Standalone Node ESM service, Postgres repository, S3-compatible exact-version adapter, HTTP API, authority client, migration, contracts and isolated tests are present under services/file-management/. The operation intent is persisted before the HTTP body stream. |
+| T0 catalog upload outcome | MERGED | PR #543 merged on 2026-09-27. File and Knowledge outcomes are reported separately; a missing Business Knowledge binding does not undo the saved Business catalog FileAsset or fall back to another Business. |
+| T1 independent FilePort service | LOCAL PASS; PRIOR-HEAD HOSTED CI PASS | Standalone Node ESM service, Postgres repository, S3-compatible exact-version adapter, HTTP API, authority client, migration, contracts and isolated tests are present under services/file-management/. The operation intent is persisted before the HTTP body stream. Hosted CI passed on PR #635 head 40ec4daa; the composed head requires a new run. |
 | T2 LINE and CRM handoff | PARTIAL | LINE_CAPTURE has strict channel binding, message id, attachment ordinal and provider type. Only synthetic authority and byte fixtures were exercised. No LINE webhook/media request or CRM attachment integration ran. |
 | T3 Knowledge and pipeline lineage | NOT STARTED | Owner references and state projection remain contracts; no Knowledge or Integration runtime was changed or contacted. |
 | T4 bound SOT module | NOT STARTED | ADR-107 records the target boundary. No browser SOT read/history/diff, review, restore or provider action is implemented here. |
-| T5 consumer migration and release gates | NOT STARTED | No consumer cutover, production migration, CI service job, deployment or rollback rehearsal has run. |
+| T5 consumer migration and release gates | NOT STARTED | A standalone service CI job passed on the prior PR head; consumer cutover, production migration, deployment and rollback rehearsal have not run. |
 
 ## T1 service boundary
 
@@ -62,32 +62,28 @@ consent, retention and unsend.
 | PostgreSQL migration on a disposable live database | NOT RUN |
 | Docker Engine image build and inspect | PASS — file-management-service:codex-3263ddf42e16-20260924-rootapi; image sha256:0e557eafb9f49675f0feba85193b0828e1b9bd79caaad7ec1c7c4b6bcf2dcd35; Docker Engine 29.8.0/API 1.56; 16-file build context. No container started. |
 | Live authority provider and real consumer integration | NOT RUN |
-| Hosted CI for the standalone service | NOT RUN |
+| Hosted CI for the standalone service | PASS on PR #635 head 40ec4daa, Actions run 37358294077; composed head NOT RUN pending new CI |
 | Browser/user UAT and production verification | NOT RUN |
 
 The passing isolated suite uses memory storage/repository and mocked database
 and provider boundaries. It does not prove runtime PostgreSQL, MinIO, authority
-availability, consumer compatibility, hosted CI, or production readiness.
+availability, consumer compatibility, composed-head CI, or production readiness.
 
 ## Shared documentation serial window
 
-This branch has not edited the shared ID ledger, generated graph, OpenAPI
-inventory, API appendix, or root CI. Reconcile the new ADR-107 source together
-with ADR-106 from PR #542 and ADR-108 from PR #544, then run the sanctioned ID
-writer and governance chain once for the composed tree. Session 4 has not
-reserved a new FR or SDD.
+The original T1 checkpoint did not edit the shared ID ledger, generated graph,
+OpenAPI inventory, API appendix, or root CI. The PR #635 composition has since
+pinned ADR-107 through the sanctioned ID writer and regenerated shared views.
+The composed head still needs its own governance, tests and CI. Session 4 has
+not reserved a new FR or SDD.
 
-The user-requested Session 4 delta was forwarded to the serial owner. PR #545
-adds one OpenAPI path and two operations to the reported inventory (336 to 337
-paths; 442 to 444 operations), and changes the API appendix and OpenAPI
-inventory test. The linked comment reports ADR-108 pinned on #544. Its test and
-CI observations are tied to code head b53d849; the current open draft #544 head
-was observed as ad69952, so refresh those observations before promoting them.
-At the time of this handoff, #545 is still an open draft at 19f8ee41.
+The Session 4 OpenAPI inventory delta and ADR-108 were merged through PR #545
+and PR #544 on 2026-09-24. Their historical test and CI observations are tied
+to their own heads; they are not proof of this File Management branch.
 
 ## Release boundary
 
-T0 PR #543 is marked ready, but its S1 review request is blocked by the automatic review gate pending direct user authorization. No review result exists. T1 remains an isolated handoff branch pending the runtime and integration gates. Neither state authorizes merge or deployment. T2 requires
+T0 PR #543 is merged. Its earlier automatic review block is historical. T1 remains an isolated handoff branch pending review and the runtime and integration gates. Its passing prior-head CI does not authorize merge or deployment. T2 requires
 LINE and CRM owner approval before integration. External owner changes require
 their own repository and authority. No production database migration, live
 LINE fetch/send, MinIO volume/configuration change, business document publish,
@@ -100,3 +96,4 @@ service deployment, merge, or cutover was performed by this work.
 | 0.1.0b | 2026-09-24 | beta | Record File Management implementation status, evidence boundaries, and shared serial-window inputs | working-tree | Codex |
 | 0.1.1b | 2026-09-24 | beta | Record Docker image build proof and PR #543 review state | working-tree | Codex |
 | 0.1.2b | 2026-09-24 | beta | Record automatic review gate blocking PR #543 | working-tree | Codex |
+| 0.1.3b | 2026-10-06 | beta | Reconcile merged T0 and prior-head T1 CI while preserving pending composed-head and runtime gates | working-tree | Codex |

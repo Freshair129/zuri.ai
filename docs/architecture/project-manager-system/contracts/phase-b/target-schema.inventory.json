@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4",
+  "schemaSha256": "45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -532,6 +532,11 @@
       "tableName": "MarketingDecision"
     },
     {
+      "modelName": "MarketingExternalReport",
+      "schemaName": "public",
+      "tableName": "MarketingExternalReport"
+    },
+    {
       "modelName": "MarketingHandoff",
       "schemaName": "public",
       "tableName": "MarketingHandoff"
@@ -555,6 +560,16 @@
       "modelName": "MarketingPlanVersion",
       "schemaName": "public",
       "tableName": "MarketingPlanVersion"
+    },
+    {
+      "modelName": "MarketingReportBinding",
+      "schemaName": "public",
+      "tableName": "MarketingReportBinding"
+    },
+    {
+      "modelName": "MarketingReportPolicy",
+      "schemaName": "public",
+      "tableName": "MarketingReportPolicy"
     },
     {
       "modelName": "MarketingReview",
@@ -976,5 +991,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0"
+  "targetSchemaSha256": "e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e"
 }
