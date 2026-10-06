@@ -535,10 +535,22 @@ function apiCheck(root, routes) {
   })
 }
 
+function declaredMcpContract(root, domain, featureDocs) {
+  if (!domain.path) return []
+  const contractSections = readText(root, domain.path).split(/^## /m)
+    .filter((section) => /^[^\r\n]*contract\b/i.test(section))
+  const charterDeclares = contractSections.some((section) => /\bMCP\b/i.test(section) && /\b(?:converge|accept|support|expose)\w*\b/i.test(section))
+  if (!charterDeclares) return []
+  const accepted = featureDocs.filter((doc) => /^feature:\s*FR-\d{3}\s*$/m.test(doc.body)
+    && doc.body.split(/^## /m)
+      .filter((section) => /^User stories and acceptance criteria\b/i.test(section))
+      .some((section) => /^-\s+[^\r\n]*\b(?:accepts|supports|exposes)\b[^\r\n]*\bMCP\b/im.test(section)))
+  return accepted.length ? [domain.path, ...accepted.map((doc) => doc.path)] : []
+}
+
 function mcpCheck(root, domain, featureDocs, requirements, nodes, edges) {
-  const mcpDocs = featureDocs.filter((doc) => /\bMCP\b/i.test(doc.body))
-  const text = mcpDocs.map((doc) => doc.body).join('\n')
-  const mentionsMcp = /\bMCP\b/i.test(text)
+  const withoutComments = (body) => body.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/[^\r\n]*/gm, '$1')
+  const methods = ['initialize', 'tools/list', 'tools/call']
   const codeIds = domainCodeIds(domain, nodes, edges)
   const requirementIds = new Set(requirements.map((requirement) => `req:${requirement.id}`))
   const ownsMcpFile = (filePath) => codeIds.has(`code:${filePath}`)
@@ -547,11 +559,16 @@ function mcpCheck(root, domain, featureDocs, requirements, nodes, edges) {
   const sharedMcpRequirement = (filePath) => edges.some((edge) =>
     edge.from === `code:${filePath}` && edge.type === 'implements' && requirementIds.has(edge.to))
   const mcpFiles = [
-    ...walkFiles(workspacePath(root, 'src'), ['.js', '.jsx', '.mjs']),
-    ...walkFiles(workspacePath(root, 'services'), ['.js', '.jsx', '.mjs']),
+    ...walkFiles(workspacePath(root, 'src'), ['.js', '.mjs']),
+    ...walkFiles(workspacePath(root, 'services'), ['.js', '.mjs']),
   ]
     .filter((file) => /mcp/i.test(file))
     .filter((file) => !/[\\/]tests?[\\/]|\.(?:test|spec)\./i.test(file))
+    .filter((file) => {
+      const source = withoutComments(readText(root, rel(root, file)))
+      return methods.every((method) => new RegExp(`(?:\\.method\\s*(?:===?|!==?)\\s*|case\\s+)['"]${method}['"]`).test(source))
+        || (/\/api\/mcp\/route\.js$/.test(rel(root, file)) && /transport\.handle/.test(source) && /export async function POST/.test(source))
+    })
     .filter((file) => {
       const filePath = rel(root, file)
       return ownsMcpFile(filePath) || sharedMcpRequirement(filePath)
@@ -562,8 +579,9 @@ function mcpCheck(root, domain, featureDocs, requirements, nodes, edges) {
   ]
     .filter((file) => /mcp/i.test(file))
     .filter((file) => {
-      const body = readText(root, rel(root, file))
-      return /initialize/.test(body) && /tools\/list/.test(body) && /tools\/call/.test(body)
+      const body = withoutComments(readText(root, rel(root, file)))
+      return methods.every((method) => new RegExp(`\\bmethod\\s*:\\s*['"]${method}['"]`).test(body))
+        && /\bexpect\s*\(/.test(body)
         && mcpFiles.some((implementation) => {
           const sourcePath = rel(root, implementation).replace(/^src\//, '@/').replace(/\.[^.]+$/, '')
           const relativePath = path.posix.relative(path.posix.dirname(rel(root, file)), rel(root, implementation)).replace(/\.[^.]+$/, '')
@@ -576,14 +594,17 @@ function mcpCheck(root, domain, featureDocs, requirements, nodes, edges) {
           return requirementProof || (ownsMcpFile(rel(root, implementation)) && directProof)
         })
     })
-  if (!mentionsMcp && !mcpFiles.length) return check('not_applicable')
+  if (!mcpFiles.length) {
+    const contractEvidence = declaredMcpContract(root, domain, featureDocs)
+    if (!contractEvidence.length) return check('not_applicable')
+    return check('not_implemented', contractEvidence,
+      [gap('MCP-TRANSPORT-001', 'medium', 'Declared MCP intake channel has no domain adapter', contractEvidence)])
+  }
   if (mcpFiles.length) {
     const evidence = [...mcpFiles, ...protocolTests].map((file) => rel(root, file))
     if (protocolTests.length) return check('verified', evidence)
     return check('partial', evidence, [gap('MCP-VERIFY-001', 'medium', 'MCP implementation exists but requires an explicit protocol test')])
   }
-  const outOfScope = /out of scope|not selected|deliberately out of scope/i.test(text)
-  return check(outOfScope ? 'planned' : 'not_implemented', mcpDocs.map((doc) => doc.path), [gap('MCP-TRANSPORT-001', 'medium', 'MCP is referenced but no domain MCP adapter is implemented', mcpDocs.map((doc) => doc.path))])
 }
 
 function runtimeContractCheck(root, requirements) {
@@ -615,7 +636,6 @@ function jsonSchemaCheck(root, featureDocs) {
 
 function databaseCheck(root, domain) {
   const models = domain.owns_models || []
-  if (!models.length) return check('not_applicable')
   let source
   let presentModels
   try {
@@ -623,6 +643,7 @@ function databaseCheck(root, domain) {
   } catch (error) {
     return check('blocked', [domain.model_source || 'apps/server/prisma/schema.prisma'], [gap('DB-SOURCE-001', 'high', error.message)])
   }
+  if (!models.length) return check('not_applicable')
   const missing = models.filter((model) => !presentModels.has(model))
   if (missing.length) return check('partial', [source], [gap('DB-001', 'high', 'Charter-owned model is not present in its model source', missing)], { models: models.length, present: models.length - missing.length })
   return check('verified', [source], [], { models: models.length, present: models.length })
@@ -829,7 +850,7 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
   return {
     schemaVersion: '2.0',
     generatedBy: 'scripts/domain-state.mjs',
-    generatedFrom: SOURCE_FILES,
+    generatedFrom: [...SOURCE_FILES, ...unique(nodes.filter((node) => node.type === 'domain').map((node) => node.model_source))],
     statusVocabulary: STATUS_VALUES,
     progressMethodology: PROGRESS_METHODOLOGY,
     overall: {

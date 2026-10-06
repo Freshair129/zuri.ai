@@ -24,7 +24,7 @@ import { parseFeatureBundles, classifyRequirements, assertCapabilityTerminology 
 import { generateDomainState } from './domain-state.mjs'
 import { parseCanonicalIndex, parseCanonicalRecord } from './document-registry-format.mjs'
 import { collectDocumentClaims, isGeneratedDocumentView, requiresSuccessor } from './doc-identities.mjs'
-import { readDomainModelSource } from './domain-model-source.mjs'
+import { modelSourceFromFrontmatter, readDomainModelSource } from './domain-model-source.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -347,10 +347,10 @@ if (!existsSync(GRAPH)) {
           add('warning', 'domain-spine', `Charter domain mismatch: frontmatter says "${declared}", folder is "${entry}"`, path.basename(charter), [rel(charter)], 'Make the frontmatter match the folder')
         }
         const inModels = /owns_models:\s*\n((?:\s+-\s+\S+\n?)*)/.exec(fm)?.[1] || ''
-        const declaredSource = /^model_source:\s*["']?([^\s"']+)["']?\s*$/m.exec(fm)?.[1] || null
         let sourceModels = new Set()
-        let source = declaredSource
+        let source = null
         try {
+          const declaredSource = modelSourceFromFrontmatter(fm)
           const resolved = readDomainModelSource(ROOT, declaredSource)
           source = resolved.source
           sourceModels = resolved.models

@@ -23,7 +23,7 @@ import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // Appendix D as half a sentence.
 import { collectDeclared, splitRow } from './id-anchors.mjs'
 import { parseCanonicalIndex } from './document-registry-format.mjs'
-import { readDomainModelSource } from './domain-model-source.mjs'
+import { modelSourceFromFrontmatter, readDomainModelSource } from './domain-model-source.mjs'
 import { adaptTraceAnnotations, legacyRequirementIds } from './trace-annotations.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -253,7 +253,7 @@ function build() {
         path: rel(file),
         title: `Domain — ${domain}`,
         owns_models: listOf('owns_models'),
-        model_source: /^model_source:\s*["']?([^\s"']+)["']?\s*$/m.exec(fm)?.[1] || null,
+        model_source: modelSourceFromFrontmatter(fm),
         owns_routes: listOf('owns_routes'),
         owns_code: listOf('owns_code'),
         modules: listOf('modules').length ? listOf('modules') : [domain],

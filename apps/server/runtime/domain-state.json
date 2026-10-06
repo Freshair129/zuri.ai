@@ -41,18 +41,8 @@
     "requirementCount": 281,
     "verifiedRequirementCount": 246,
     "progressPercent": 92.2,
-    "gapCount": 61,
+    "gapCount": 57,
     "gaps": [
-      {
-        "domain": "agent",
-        "id": "MCP-TRANSPORT-001",
-        "severity": "medium",
-        "check": "mcp",
-        "summary": "MCP is referenced but no domain MCP adapter is implemented",
-        "evidence": [
-          "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md"
-        ]
-      },
       {
         "domain": "agent",
         "id": "CONTRACT-001",
@@ -133,17 +123,11 @@
         "id": "MCP-TRANSPORT-001",
         "severity": "medium",
         "check": "mcp",
-        "summary": "MCP is referenced but no domain MCP adapter is implemented",
+        "summary": "Declared MCP intake channel has no domain adapter",
         "evidence": [
+          "docs/domains/asset-management/CHARTER.md",
           "docs/domains/asset-management/features/FR-133-asset-management-foundation.md"
         ]
-      },
-      {
-        "domain": "crm",
-        "id": "MCP-VERIFY-001",
-        "severity": "medium",
-        "check": "mcp",
-        "summary": "MCP implementation exists but requires an explicit protocol test"
       },
       {
         "domain": "identity",
@@ -153,16 +137,6 @@
         "summary": "API route is not present in Appendix A",
         "evidence": [
           "/api/auth/csrf"
-        ]
-      },
-      {
-        "domain": "identity",
-        "id": "MCP-TRANSPORT-001",
-        "severity": "medium",
-        "check": "mcp",
-        "summary": "MCP is referenced but no domain MCP adapter is implemented",
-        "evidence": [
-          "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md"
         ]
       },
       {
@@ -301,13 +275,6 @@
           "apps/edge/tests/unit/genesisrag17-edge.test.ts",
           "apps/edge/tests/unit/genesisrag17-products.test.ts"
         ]
-      },
-      {
-        "domain": "line-oa-studio",
-        "id": "MCP-VERIFY-001",
-        "severity": "medium",
-        "check": "mcp",
-        "summary": "MCP implementation exists but requires an explicit protocol test"
       },
       {
         "domain": "line-oa-studio",
@@ -1014,20 +981,9 @@
           "gaps": []
         },
         "mcp": {
-          "status": "not_implemented",
-          "evidence": [
-            "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md"
-          ],
-          "gaps": [
-            {
-              "id": "MCP-TRANSPORT-001",
-              "severity": "medium",
-              "summary": "MCP is referenced but no domain MCP adapter is implemented",
-              "evidence": [
-                "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md"
-              ]
-            }
-          ]
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
         },
         "runtimeContract": {
           "status": "partial",
@@ -1106,15 +1062,6 @@
         "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [
-        {
-          "id": "MCP-TRANSPORT-001",
-          "severity": "medium",
-          "check": "mcp",
-          "summary": "MCP is referenced but no domain MCP adapter is implemented",
-          "evidence": [
-            "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md"
-          ]
-        },
         {
           "id": "CONTRACT-001",
           "severity": "medium",
@@ -1296,14 +1243,16 @@
         "mcp": {
           "status": "not_implemented",
           "evidence": [
+            "docs/domains/asset-management/CHARTER.md",
             "docs/domains/asset-management/features/FR-133-asset-management-foundation.md"
           ],
           "gaps": [
             {
               "id": "MCP-TRANSPORT-001",
               "severity": "medium",
-              "summary": "MCP is referenced but no domain MCP adapter is implemented",
+              "summary": "Declared MCP intake channel has no domain adapter",
               "evidence": [
+                "docs/domains/asset-management/CHARTER.md",
                 "docs/domains/asset-management/features/FR-133-asset-management-foundation.md"
               ]
             }
@@ -1363,8 +1312,9 @@
           "id": "MCP-TRANSPORT-001",
           "severity": "medium",
           "check": "mcp",
-          "summary": "MCP is referenced but no domain MCP adapter is implemented",
+          "summary": "Declared MCP intake channel has no domain adapter",
           "evidence": [
+            "docs/domains/asset-management/CHARTER.md",
             "docs/domains/asset-management/features/FR-133-asset-management-foundation.md"
           ]
         }
@@ -1561,7 +1511,7 @@
       "progressPercent": 100
     },
     "crm": {
-      "status": "partial",
+      "status": "verified",
       "requirements": [
         {
           "id": "FR-022",
@@ -1784,17 +1734,9 @@
           "gaps": []
         },
         "mcp": {
-          "status": "partial",
-          "evidence": [
-            "src/modules/line-crm/LineCrmAiMcp.jsx"
-          ],
-          "gaps": [
-            {
-              "id": "MCP-VERIFY-001",
-              "severity": "medium",
-              "summary": "MCP implementation exists but requires an explicit protocol test"
-            }
-          ]
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
         },
         "runtimeContract": {
           "status": "verified",
@@ -1850,17 +1792,9 @@
         "docs/domains/crm/features/FR-246-staff-reply.md",
         "docs/domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md",
         "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/import/plan-schema.js"
       ],
-      "gaps": [
-        {
-          "id": "MCP-VERIFY-001",
-          "severity": "medium",
-          "check": "mcp",
-          "summary": "MCP implementation exists but requires an explicit protocol test"
-        }
-      ],
+      "gaps": [],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
@@ -2335,20 +2269,9 @@
           }
         },
         "mcp": {
-          "status": "not_implemented",
-          "evidence": [
-            "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md"
-          ],
-          "gaps": [
-            {
-              "id": "MCP-TRANSPORT-001",
-              "severity": "medium",
-              "summary": "MCP is referenced but no domain MCP adapter is implemented",
-              "evidence": [
-                "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md"
-              ]
-            }
-          ]
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
         },
         "runtimeContract": {
           "status": "partial",
@@ -2462,15 +2385,6 @@
           "summary": "API route is not present in Appendix A",
           "evidence": [
             "/api/auth/csrf"
-          ]
-        },
-        {
-          "id": "MCP-TRANSPORT-001",
-          "severity": "medium",
-          "check": "mcp",
-          "summary": "MCP is referenced but no domain MCP adapter is implemented",
-          "evidence": [
-            "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md"
           ]
         },
         {
@@ -4168,17 +4082,9 @@
           }
         },
         "mcp": {
-          "status": "partial",
-          "evidence": [
-            "src/modules/line-crm/LineCrmAiMcp.jsx"
-          ],
-          "gaps": [
-            {
-              "id": "MCP-VERIFY-001",
-              "severity": "medium",
-              "summary": "MCP implementation exists but requires an explicit protocol test"
-            }
-          ]
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
         },
         "runtimeContract": {
           "status": "partial",
@@ -4263,17 +4169,10 @@
         "docs/domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-256-P3-server-owned-self-hosted-model-execution.md",
         "docs/domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [
-        {
-          "id": "MCP-VERIFY-001",
-          "severity": "medium",
-          "check": "mcp",
-          "summary": "MCP implementation exists but requires an explicit protocol test"
-        },
         {
           "id": "CONTRACT-001",
           "severity": "medium",
@@ -6890,7 +6789,6 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
@@ -7021,7 +6919,6 @@
         "docs/domains/project-manager/features/PHASE-FR-252-P3-feature-api.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P4-feature-ui-and-final-gate.md",
         "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",

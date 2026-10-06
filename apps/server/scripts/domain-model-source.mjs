@@ -4,6 +4,16 @@ import { workspaceRoot } from './workspace-path.mjs'
 
 export const DEFAULT_MODEL_SOURCE = 'apps/server/prisma/schema.prisma'
 
+export function modelSourceFromFrontmatter(frontmatter) {
+  const declarations = [...frontmatter.matchAll(/^model_source:\s*(.*)$/gm)]
+  if (!declarations.length) return null
+  if (declarations.length !== 1) throw new Error('Duplicate model_source declaration')
+  const value = declarations[0][1].trim()
+  const scalar = /^(?:"([^"]+)"|'([^']+)'|([\w./-]+))(?:\s+#.*)?$/.exec(value)
+  if (!scalar) throw new Error(`Invalid model_source declaration: ${value || '(empty)'}`)
+  return scalar[1] || scalar[2] || scalar[3]
+}
+
 export function readDomainModelSource(appRoot, declaredSource) {
   const root = workspaceRoot(appRoot)
   const source = declaredSource || (root === appRoot ? 'prisma/schema.prisma' : DEFAULT_MODEL_SOURCE)
