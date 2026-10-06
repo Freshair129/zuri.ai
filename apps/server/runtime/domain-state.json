@@ -13,7 +13,8 @@
     "src/app/**/route.js",
     "src/app/**/page.jsx",
     "src/modules/**/*.js",
-    "tests/**/*.{test,spec}.js"
+    "tests/**/*.{test,spec}.js",
+    "services/file-management/migrations/0001_file_management.sql"
   ],
   "statusVocabulary": [
     "verified",
@@ -119,15 +120,14 @@
         "evidence": []
       },
       {
-        "domain": "file-management",
-        "id": "DB-001",
-        "severity": "high",
-        "check": "database",
-        "summary": "Charter-owned model is not present in Prisma schema",
+        "domain": "asset-management",
+        "id": "MCP-TRANSPORT-001",
+        "severity": "medium",
+        "check": "mcp",
+        "summary": "Declared MCP intake channel has no domain adapter",
         "evidence": [
-          "FileOperation",
-          "FileRecord",
-          "FileVersion"
+          "docs/domains/asset-management/CHARTER.md",
+          "docs/domains/asset-management/features/FR-133-asset-management-foundation.md"
         ]
       },
       {
@@ -982,15 +982,8 @@
           "gaps": []
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -1017,7 +1010,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -1045,6 +1038,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "contracts/plan-envelope.schema.json",
         "docs/TRACE.md",
         "docs/domains/agent/CHARTER.md",
@@ -1066,14 +1060,7 @@
         "docs/domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md",
         "docs/domains/agent/features/PHASE-FR-171-P2-memory-provenance.md",
         "docs/domains/agent/features/PHASE-FR-256-P1-server-owned-self-hosted-model-execution.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [
         {
@@ -1176,7 +1163,7 @@
       "progressPercent": 68.2
     },
     "asset-management": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-133",
@@ -1255,16 +1242,22 @@
           "gaps": []
         },
         "mcp": {
-          "status": "verified",
+          "status": "not_implemented",
           "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
+            "docs/domains/asset-management/CHARTER.md",
+            "docs/domains/asset-management/features/FR-133-asset-management-foundation.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "MCP-TRANSPORT-001",
+              "severity": "medium",
+              "summary": "Declared MCP intake channel has no domain adapter",
+              "evidence": [
+                "docs/domains/asset-management/CHARTER.md",
+                "docs/domains/asset-management/features/FR-133-asset-management-foundation.md"
+              ]
+            }
+          ]
         },
         "runtimeContract": {
           "status": "verified",
@@ -1284,7 +1277,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -1306,22 +1299,27 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "contracts/plan-envelope.schema.json",
         "docs/TRACE.md",
         "docs/domains/asset-management/CHARTER.md",
         "docs/domains/asset-management/features/FR-133-asset-management-foundation.md",
         "docs/domains/asset-management/features/FR-137-asset-evidence-intake-execution.md",
         "docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "MCP-TRANSPORT-001",
+          "severity": "medium",
+          "check": "mcp",
+          "summary": "Declared MCP intake channel has no domain adapter",
+          "evidence": [
+            "docs/domains/asset-management/CHARTER.md",
+            "docs/domains/asset-management/features/FR-133-asset-management-foundation.md"
+          ]
+        }
+      ],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
@@ -1434,15 +1432,8 @@
           }
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -1461,7 +1452,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -1491,6 +1482,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
@@ -1498,15 +1490,8 @@
         "docs/domains/commerce/features/FR-163-payments-and-revenue.md",
         "docs/domains/commerce/features/FR-166-sales-orders.md",
         "docs/domains/commerce/features/FR-253-pricing-rules-and-engine.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [],
       "details": {
@@ -1750,15 +1735,8 @@
           "gaps": []
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -1779,7 +1757,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -1801,6 +1779,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "contracts/plan-envelope.schema.json",
         "docs/TRACE.md",
         "docs/domains/crm/CHARTER.md",
@@ -1814,14 +1793,7 @@
         "docs/domains/crm/features/FR-246-staff-reply.md",
         "docs/domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md",
         "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [],
       "details": {
@@ -1848,7 +1820,7 @@
       "progressPercent": 86
     },
     "file-management": {
-      "status": "partial",
+      "status": "verified",
       "requirements": [],
       "checks": {
         "ui": {
@@ -1862,15 +1834,8 @@
           "gaps": []
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -1884,25 +1849,14 @@
           "gaps": []
         },
         "database": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "services/file-management/migrations/0001_file_management.sql"
           ],
-          "gaps": [
-            {
-              "id": "DB-001",
-              "severity": "high",
-              "summary": "Charter-owned model is not present in Prisma schema",
-              "evidence": [
-                "FileOperation",
-                "FileRecord",
-                "FileVersion"
-              ]
-            }
-          ],
+          "gaps": [],
           "details": {
             "models": 3,
-            "present": 0
+            "present": 3
           }
         },
         "authorization": {
@@ -1918,27 +1872,9 @@
       },
       "evidence": [
         "docs/domains/file-management/CHARTER.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "services/file-management/migrations/0001_file_management.sql"
       ],
-      "gaps": [
-        {
-          "id": "DB-001",
-          "severity": "high",
-          "check": "database",
-          "summary": "Charter-owned model is not present in Prisma schema",
-          "evidence": [
-            "FileOperation",
-            "FileRecord",
-            "FileVersion"
-          ]
-        }
-      ],
+      "gaps": [],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
@@ -2402,15 +2338,8 @@
           }
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -2435,7 +2364,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -2482,6 +2411,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
@@ -2513,15 +2443,8 @@
         "docs/domains/identity/features/FR-199-access-history-read-models.md",
         "docs/domains/identity/features/FR-200-explicit-superadmin.md",
         "docs/domains/identity/features/PHASE-FR-252-P2-api-write-csrf.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [
         {
@@ -2974,7 +2897,6 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
@@ -3004,7 +2926,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -3040,6 +2962,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
@@ -3058,9 +2981,7 @@
         "docs/domains/integration/features/PHASE-FR-149-P1-server-line-transport.md",
         "docs/domains/integration/features/PHASE-FR-149-P4-server-line-transport.md",
         "docs/domains/integration/features/PHASE-FR-256-P2-server-owned-self-hosted-model-execution.md",
-        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -3393,15 +3314,8 @@
           }
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -3420,7 +3334,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -3450,6 +3364,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
@@ -3462,15 +3377,8 @@
         "docs/domains/inventory/features/FR-202-variant-identity.md",
         "docs/domains/inventory/features/FR-205-sku-lifecycle-and-merge.md",
         "docs/domains/inventory/features/FR-210-line-sku-command.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [
         {
@@ -3799,7 +3707,6 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
@@ -3829,7 +3736,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -3857,6 +3764,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
         "docs/domains/knowledge/CHARTER.md",
@@ -3878,9 +3786,7 @@
         "docs/domains/knowledge/features/FR-188-genesisrag17-parser-2.md",
         "docs/domains/knowledge/features/FR-189-edge-published-generation.md",
         "docs/domains/knowledge/features/FR-254-knowledge-base-console.md",
-        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/knowledge-admission-mcp.test.js",
@@ -4245,15 +4151,8 @@
           }
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -4278,7 +4177,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -4320,6 +4219,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
@@ -4338,15 +4238,8 @@
         "docs/domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-256-P3-server-owned-self-hosted-model-execution.md",
         "docs/domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [
         {
@@ -4440,15 +4333,8 @@
           }
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -4467,7 +4353,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -4497,20 +4383,14 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
         "docs/domains/market-intelligence/CHARTER.md",
         "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [],
       "details": {
@@ -4692,15 +4572,8 @@
           }
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -4727,7 +4600,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -4769,6 +4642,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "contracts/plan-envelope.schema.json",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
@@ -4779,15 +4653,8 @@
         "docs/domains/marketing/features/FR-160-campaign-initiatives.md",
         "docs/domains/marketing/features/FR-162-operations-coordination.md",
         "docs/domains/marketing/features/FR-185-broadcast-planning-intent.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [
         {
@@ -5154,15 +5021,8 @@
           }
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -5187,7 +5047,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -5229,21 +5089,15 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
         "docs/domains/platform-control/CHARTER.md",
         "docs/domains/platform-control/features/FR-105-platform-programme-roadmap.md",
         "docs/domains/platform-control/features/FR-258-inference-pool-operations-projection.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [
         {
@@ -5451,15 +5305,8 @@
           }
         },
         "mcp": {
-          "status": "verified",
-          "evidence": [
-            "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
-            "src/modules/project-manager/mcp/transport.js",
-            "tests/unit/knowledge-admission-mcp.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/project-manager-mcp.test.js"
-          ],
+          "status": "not_applicable",
+          "evidence": [],
           "gaps": []
         },
         "runtimeContract": {
@@ -5478,7 +5325,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -5508,21 +5355,15 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
         "docs/domains/procurement/CHARTER.md",
         "docs/domains/procurement/features/FR-164-suppliers-and-purchase-orders.md",
         "docs/domains/procurement/features/FR-165-goods-receipts.md",
-        "prisma/schema.prisma",
-        "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
-        "src/modules/project-manager/import/plan-schema.js",
-        "src/modules/project-manager/mcp/transport.js",
-        "tests/unit/knowledge-admission-mcp.test.js",
-        "tests/unit/pipeline-mcp-transport.test.js",
-        "tests/unit/project-manager-mcp.test.js"
+        "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [],
       "details": {
@@ -7017,7 +6858,6 @@
           "status": "verified",
           "evidence": [
             "src/app/api/mcp/route.js",
-            "src/modules/line-crm/LineCrmAiMcp.jsx",
             "src/modules/project-manager/mcp/transport.js",
             "tests/unit/knowledge-admission-mcp.test.js",
             "tests/unit/pipeline-mcp-transport.test.js",
@@ -7049,7 +6889,7 @@
         "database": {
           "status": "verified",
           "evidence": [
-            "prisma/schema.prisma"
+            "apps/server/prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
@@ -7096,6 +6936,7 @@
         }
       },
       "evidence": [
+        "apps/server/prisma/schema.prisma",
         "contracts/plan-envelope.schema.json",
         "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
@@ -7146,9 +6987,7 @@
         "docs/domains/project-manager/features/PHASE-FR-252-P1-feature-persistence.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P3-feature-api.md",
         "docs/domains/project-manager/features/PHASE-FR-252-P4-feature-ui-and-final-gate.md",
-        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
-        "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
