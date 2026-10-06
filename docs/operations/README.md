@@ -15,6 +15,7 @@ status: generated
 Generated navigation for current source documents in the operations grouping. A path's presence here does not declare ownership or approval.
 
 - [Deploying zuri-ai with Docker Compose + ngrok](../deployment/docker-ngrok.md)
+- [Windows ใหม่ → กู้ฐาน Zuri-AI เดิม → deploy Docker](../deployment/windows-recovery-and-docker-handoff.md)
 - [Canonical document record format](../migrations/document-reintegration/CANONICAL-FORMAT.md)
 - [Identity compatibility contract](../migrations/document-reintegration/COMPATIBILITY.md)
 - [Document consumer compatibility](../migrations/document-reintegration/CONSUMERS.md)
