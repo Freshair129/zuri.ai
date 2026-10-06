@@ -95,10 +95,10 @@ it('allows one indexed registry record beside its existing note without permitti
 })
 
 it('excludes derived views without hiding canonical records, source notes or unrelated READMEs', () => {
-  for (const file of ['docs/features/FEAT-009/design.md', 'docs/features/FEAT-009/verification.md', 'docs/operations/README.md']) {
+  for (const file of ['docs/features/FEAT-009/design.md', 'docs/features/FEAT-009/verification.md', 'docs/operations/README.md', 'docs/architecture/SERVICE-MAP.md']) {
     expect(isGeneratedDocumentView(file)).toBe(true)
   }
-  for (const file of ['docs/features/FEAT-009/feature.md', 'docs/features/FEAT-009/requirements/FR-091.md', 'docs/domains/crm/README.md', 'docs/README.md']) {
+  for (const file of ['docs/features/FEAT-009/feature.md', 'docs/features/FEAT-009/requirements/FR-091.md', 'docs/domains/crm/README.md', 'docs/README.md', 'docs/services/conversation-runtime/SERVICE.md', 'docs/services/conversation-runtime/TESTING.md']) {
     expect(isGeneratedDocumentView(file)).toBe(false)
   }
 })

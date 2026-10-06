@@ -110,6 +110,28 @@ jobs:
         with:
           node-version: '22'
 
+      # Approved shadow pilot: reports cannot feed outputs or skip any job.
+      # Collect before installs/generators so the tested checkout is still clean.
+      - name: Verify shadow planner
+        if: github.event_name != 'schedule'
+        run: node --test tools/tests/verification-plan.test.mjs
+
+      - name: Compare Runtime shadow plan
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/verification-plan.mjs --base "$BASE_SHA" --head "$HEAD_SHA" --event pull_request > "$RUNNER_TEMP/verification-shadow-plan.json"
+
+      - name: Upload shadow comparison
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-shadow-plan
+          path: ${{ runner.temp }}/verification-shadow-plan.json
+          if-no-files-found: warn
+
       - id: filter
         shell: bash
         run: |
@@ -403,6 +425,14 @@ jobs:
         with:
           name: llms-full
           path: llms-full.txt
+          retention-days: 30
+
+      - name: Keep generated service navigation
+        uses: actions/upload-artifact@v4
+        with:
+          name: service-map
+          path: docs/architecture/SERVICE-MAP.md
+          if-no-files-found: error
           retention-days: 30
 
   # Sharded (2026-09-27): vitest.config.js runs files serially
