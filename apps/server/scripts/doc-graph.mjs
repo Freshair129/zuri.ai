@@ -23,6 +23,7 @@ import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // Appendix D as half a sentence.
 import { collectDeclared, splitRow } from './id-anchors.mjs'
 import { parseCanonicalIndex } from './document-registry-format.mjs'
+import { modelSourceFromFrontmatter, readDomainModelSource } from './domain-model-source.mjs'
 import { adaptTraceAnnotations, legacyRequirementIds } from './trace-annotations.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -252,6 +253,7 @@ function build() {
         path: rel(file),
         title: `Domain — ${domain}`,
         owns_models: listOf('owns_models'),
+        model_source: modelSourceFromFrontmatter(fm),
         owns_routes: listOf('owns_routes'),
         owns_code: listOf('owns_code'),
         modules: listOf('modules').length ? listOf('modules') : [domain],
@@ -317,9 +319,17 @@ function build() {
   for (const d of domainNodes) {
     for (const m of d.owns_models || []) addEdge(`model:${m}`, d.id, 'owned_by', 'charter')
   }
-  const schemaBody = read(workspacePath(ROOT, 'prisma', 'schema.prisma'))
-  for (const m of schemaBody.match(/^model\s+(\w+)/gm) || []) {
-    nodes.push({ id: `model:${m.split(/\s+/)[1]}`, type: 'model', status: 'current' })
+  const modelSources = new Map()
+  for (const domain of domainNodes) {
+    const { source, models } = readDomainModelSource(ROOT, domain.model_source)
+    for (const model of models) {
+      const previous = modelSources.get(model)
+      if (previous && previous !== source) throw Error(`Model ${model} appears in multiple model sources: ${previous}, ${source}`)
+      modelSources.set(model, source)
+    }
+  }
+  for (const [model, source] of modelSources) {
+    nodes.push({ id: `model:${model}`, type: 'model', model_source: source, status: 'current' })
   }
 
   // Requirements from the PRD registry.
