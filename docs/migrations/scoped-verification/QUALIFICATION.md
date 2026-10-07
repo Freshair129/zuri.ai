@@ -1,7 +1,7 @@
 ---
 status: active
 superseded_by: null
-version: "0.4.0"
+version: "0.5.0"
 ---
 
 # Q1: Runtime consumer qualification
@@ -164,7 +164,7 @@ Local implementation checks on 2026-10-07 (Asia/Bangkok), based on a787834:
 | Current selected SQLite profile, 18 files | PASS, 394/394, zero failed/skipped; 270,069 ms including startup |
 | Temporary fixture restoration | PASS; original physical directory and failed DB/journal hashes restored |
 | Current PostgreSQL qualification | PASS, 27/27 across both existing files, zero failed/skipped; 37,747 ms |
-| Hosted qualification | NOT_RUN |
+| Hosted qualification, initial attempt | PROFILE_EXECUTION_PASS on cd1a8694: SQLite 394/394, PostgreSQL 27/27; both cleanup VERIFIED |
 
 The local toolchain was Node 24.16.0, not the manual workflow's Server Node 22.
 The retained SQLite log reports schema setup at 86.72 s, the memory/group/GKS
@@ -243,14 +243,60 @@ against its immutable snapshot; both findings were closed. Previous Runtime
 (73 tests/build) and reader (78 tests) evidence
 is historical and was not rerun for these isolated helper changes.
 
-These checks describe an uncommitted implementation worktree. The first local
+The preceding local checks describe the uncommitted implementation checkpoint. The first local
 receipt and raw log are retained in the task workspace under
 architecture/scoped-verification-adoption-v0.1.0/implementation-evidence/
 local-core-20261007-first. Its source inventory is preserved and does not claim
-a committed Q1 revision. Local SQLite and PostgreSQL are now verified. Overall
-status is IMPLEMENTED_QUALIFICATION_NOT_RUN: the reviewed integration and actual
-exact-main hosted qualification remain pending. Original failed evidence is
-preserved. A successful local profile cannot bypass required PR/main checks.
+a committed Q1 revision. Local SQLite and PostgreSQL passed before integration;
+IMPLEMENTED_QUALIFICATION_NOT_RUN was the status at that checkpoint. The hosted
+result below is separate evidence. Original failures remain preserved, and a
+successful local profile cannot bypass required PR/main checks.
+
+## Hosted execution checkpoint
+
+[PR #639](https://github.com/Freshair129/zuri.ai/pull/639) integrated the reviewed
+implementation after all required checks passed. The normal merge produced
+cd1a869456bf49492bd1824a2cee4c8fcf5552b3 with tree
+8c163bcfd52b6c08751013690752356ae8d3844d, identical to the reviewed source tree.
+The successful full main-push [control run 37596758576](https://github.com/Freshair129/zuri.ai/actions/runs/37596758576),
+attempt 1, contains all four full Server shards, PostgreSQL, governance, build,
+all three services, Runtime image/drain and the aggregate verify job.
+
+The one initial manual [qualification run 37597880065](https://github.com/Freshair129/zuri.ai/actions/runs/37597880065),
+attempt 1, passed on the same commit/tree. Its receipt reports
+PROFILE_EXECUTION_PASS. Windows hosted control regressions, native lifecycle
+regressions and graph generation passed before engine execution.
+
+| Engine | Executed result | Command duration | Owned-process cleanup |
+|---|---|---|---|
+| SQLite selected Core profile | 394 passed, 0 failed/skipped, 18 files | 160,633 ms | VERIFIED, zero remaining members |
+| PostgreSQL existing package command | 27 passed, 0 failed/skipped, 2 files | 35,402 ms | VERIFIED, zero remaining members |
+
+These are separate engine results, not 421 unique tests. The qualification runner
+reported Server Node v22.23.3, Edge Node v24.21.0, Windows X64 image
+win25-vs2026 / 20260925.250.1, and hits for both existing dependency caches.
+Control cache class and actual Node version remain UNVERIFIED in the receipt;
+timingComparison remains INCONCLUSIVE. Command durations do not establish
+end-to-end CI speedup.
+
+Artifact runtime-qualification-37597880065-1 was downloaded and retained under
+the task evidence directory implementation-evidence/hosted-q1-20261007-01/artifact.
+The artifact API reports archive digest
+sha256:a4f3428dbb8abce96c08328c53981cbe654a28180d9916dbbda8d62e12c83541;
+the extracted receipt.json SHA-256 independently computed locally is
+50bfbe274b897ec49e73dd486cfc86b39a5f512fe1ccf270c09dcdac1cbbcce4.
+The SQLite report SHA-256 is
+3642a7836c9a3c582e63cac722cd5198c06dafe70794331cd52e29d7ed766cdb;
+the PostgreSQL report SHA-256 is
+8359cfd088dc25f069a9d83a3ce4f0d691aa3c8111a7f55c7e55a44fd76d874a.
+Exact file membership, fresh passing reports, process/adapter cleanup, and 31
+receipt input hashes were checked against the qualified Git commit. PowerShell
+checkout hashes use the CRLF form explicitly required by .gitattributes.
+
+This closes the initial Q1 profile execution at the named revision. It does not
+qualify later commits automatically. omissionsAllowed and scopeAdoptionQualified
+remain false; the control-plane change is not a Runtime-only adoption case.
+Ordinary CI selection and required checks remain unchanged, and Q2 is inactive.
 
 The historical [pilot record](PILOT.md) remains unchanged; its receipts are not
 Q1 implementation evidence. The [consumer-discovery RCA](../../../.brain/rca/2026-10-06-runtime-consumer-discovery-gap.md)
@@ -273,6 +319,9 @@ PostgreSQL, hosted qualification and Q2 activation remain unverified.
 Version diff 0.3.0 -> 0.4.0: records the bounded 27-test PostgreSQL pass, verified
 cluster teardown and unchanged source. Local engine verification is complete;
 integration and hosted qualification remain pending, with Q2 still inactive.
+Version diff 0.4.0 -> 0.5.0: records PR #639 integration and the first successful
+exact-main hosted profile, engine reports, cleanup and artifact provenance.
+Historical failures and timing/adoption limits remain explicit; no gate changes.
 
 Version diff 0.0 → 0.1.0: records approved Q1 scope, implementation contract,
 qualification execution and explicit limits. No new requirement ID is issued.
