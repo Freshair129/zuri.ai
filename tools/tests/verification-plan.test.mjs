@@ -13,6 +13,8 @@ const SOURCE = 'services/conversation-runtime/src/context.js'
 const DOCUMENT = 'docs/services/conversation-runtime/TESTING.md'
 const CONSUMER = 'tests/unit/runtime-consumer.test.js'
 const template = JSON.parse(readFileSync(path.join(REPO, META), 'utf8'))
+const additional = template.additionalCoreTests.map(file => file.slice('apps/server/'.length))
+const selected = (...files) => [...new Set([...additional, ...files])].sort()
 
 function fixture(t) {
   const parent = path.resolve(tmpdir())
@@ -33,6 +35,7 @@ function fixture(t) {
   put(META, JSON.stringify(template))
   put(SOURCE, 'export const value = 1\n')
   put(`apps/server/${CONSUMER}`, `// observes ${SOURCE}\n`)
+  for (const file of template.additionalCoreTests) put(file, '// Core-only semantic consumer\n')
   put('.gitignore', 'scratch/\n')
   mkdirSync(path.join(root, 'docs/architecture'), { recursive: true })
   t.after(() => {
@@ -67,7 +70,7 @@ test('Runtime plus declared explanation preserves all current Core consumer test
   assert.equal(plan.candidate.eligible, true)
   assert.equal(plan.candidate.serverBuild, false)
   assert.deepEqual(plan.candidate.serviceJobs, ['conversation-runtime'])
-  assert.deepEqual(plan.candidate.coreContractTests, ['tests/integration/runtime-second.test.js', CONSUMER])
+  assert.deepEqual(plan.candidate.coreContractTests, selected('tests/integration/runtime-second.test.js', CONSUMER))
   assert.deepEqual(plan.active.serviceJobs, ['conversation-runtime', 'market-intelligence', 'scm'])
 })
 
@@ -75,7 +78,8 @@ test('service-only active selection is reused without authorizing additional omi
   const { root } = fixture(t)
   const plan = createVerificationPlan(root, { changed: [SOURCE], event: 'pull_request' })
   assert.equal(plan.active.serverBuild, false)
-  assert.deepEqual(plan.active.coreContractTests, plan.candidate.coreContractTests)
+  assert.deepEqual(plan.active.coreContractTests, [CONSUMER])
+  assert.deepEqual(plan.candidate.coreContractTests, selected(CONSUMER))
   assert.equal(plan.omissionsAllowed, false)
 })
 
@@ -115,11 +119,12 @@ test('deleted/renamed Runtime source refuses a narrow candidate', t => {
   assert.match(plan.candidate.reason, /deleted or renamed/)
 })
 
-test('contract edits retain provider and every discovered Core consumer', t => {
+test('contract edits require wider qualification while inventory remains available', t => {
   const { root } = fixture(t)
   const plan = createVerificationPlan(root, { changed: [template.contract] })
-  assert.equal(plan.candidate.eligible, true)
-  assert.deepEqual(plan.candidate.coreContractTests, [CONSUMER])
+  assert.equal(plan.candidate.eligible, false)
+  assert.match(plan.candidate.reason, /contract requires wider qualification/)
+  assert.deepEqual(plan.consumerInventory.selected, selected(CONSUMER))
   assert.equal(plan.omissionsAllowed, false)
 })
 
@@ -132,11 +137,18 @@ test('empty consumer discovery cannot become a successful narrow plan', t => {
 })
 
 for (const change of [
-  value => { value.schemaVersion = 2 }, value => { value.mode = 'enforce' },
+  value => { value.schemaVersion = 1 }, value => { value.mode = 'enforce' },
   value => { value.id = 'scm' }, value => { value.root = '../elsewhere' },
   value => { value.extra = true }, value => { value.documents.push('docs/requirements/FR-001.md') },
   value => { value.domainRefs = ['../outside.md'] }, value => { value.contract = '../secret' },
   value => { value.tasks.test = 'arbitrary-command' }, value => { value.tasks.extra = 'build' },
+  value => { value.additionalCoreTests = [] }, value => { value.additionalCoreTests = null },
+  value => { value.additionalCoreTests.push(value.additionalCoreTests[0]) },
+  value => { value.additionalCoreTests = ['apps/server/tests/unit/*.test.js'] },
+  value => { value.additionalCoreTests = ['apps/server/tests/unit/has space.test.js'] },
+  value => { value.additionalCoreTests = ['apps/server/tests/unit/../escaped.test.js'] },
+  value => { value.additionalCoreTests = ['services/conversation-runtime/test/private.test.js'] },
+  value => { value.additionalCoreTests = ['apps/server/tests/unit/options?.test.js'] },
 ]) {
   test(`metadata rejects mutation ${change.toString()}`, t => {
     const { root, put } = fixture(t)
@@ -182,6 +194,42 @@ test('plan is deterministic and changed-content edits invalidate its digest', t 
   assert.deepEqual(a, createVerificationPlan(root, { changed: [SOURCE, DOCUMENT] }))
   put(SOURCE, 'export const value = 2')
   assert.notEqual(a.changedInputDigest, createVerificationPlan(root, { changed: [SOURCE, DOCUMENT] }).changedInputDigest)
+})
+
+test('v2 consumer inventory retains provenance and deduplicates discovered additions', t => {
+  const { root, put } = fixture(t)
+  put(template.additionalCoreTests[0], `// also imports ${SOURCE}`)
+  const plan = createVerificationPlan(root, { changed: [DOCUMENT], revisions: { testedHead: 'a'.repeat(40) } })
+  assert.equal(plan.schemaVersion, 2)
+  assert.equal(plan.candidate.eligible, false)
+  assert.equal(plan.consumerInventory.sourceRevision, 'a'.repeat(40))
+  assert.equal(plan.consumerInventory.completeness, 'known-bounded-set')
+  assert.deepEqual(plan.consumerInventory.selected, selected(CONSUMER))
+  assert.equal(plan.consumerInventory.files.length, selected(CONSUMER).length)
+  const before = plan.consumerInventory.files.find(file => file.path === template.additionalCoreTests[0]).sha256
+  put(template.additionalCoreTests[0], '// changed Core-only semantic consumer')
+  const after = createVerificationPlan(root, { changed: [DOCUMENT] }).consumerInventory
+  assert.notEqual(after.files.find(file => file.path === template.additionalCoreTests[0]).sha256, before)
+})
+
+test('a missing explicitly declared consumer fails validation', t => {
+  const { root } = fixture(t)
+  rmSync(path.join(root, template.additionalCoreTests[0]))
+  assert.throws(() => loadPilot(root), /MISSING_FILE/)
+})
+
+test('explicit consumer junction escape is rejected', t => {
+  const { root, container } = fixture(t)
+  const tests = path.join(root, 'apps/server/tests/integration')
+  const outside = path.join(container, 'outside-consumers')
+  renameSync(tests, outside)
+  try { symlinkSync(outside, tests, process.platform === 'win32' ? 'junction' : 'dir') }
+  catch (error) {
+    renameSync(outside, tests)
+    t.skip(`platform link creation unavailable: ${error.code}`)
+    return
+  }
+  assert.throws(() => loadPilot(root), /PATH_ESCAPE/)
 })
 
 test('deletion digest cannot equal a real file containing the deletion marker', t => {

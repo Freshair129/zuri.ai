@@ -37,10 +37,10 @@ function containedFile(root, relative) {
 
 export function loadPilot(root) {
   const value = JSON.parse(readFileSync(containedFile(root, `${PILOT_ROOT}/verification.json`), 'utf8'))
-  const keys = ['schemaVersion', 'id', 'root', 'mode', 'documents', 'domainRefs', 'contract', 'tasks']
+  const keys = ['schemaVersion', 'id', 'root', 'mode', 'documents', 'domainRefs', 'contract', 'tasks', 'additionalCoreTests']
   assert(value && typeof value === 'object' && !Array.isArray(value)
     && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key)), 'INVALID_METADATA_KEYS')
-  assert(value.schemaVersion === 1 && value.id === PILOT && value.root === PILOT_ROOT && value.mode === 'shadow', 'INVALID_PILOT_IDENTITY')
+  assert(value.schemaVersion === 2 && value.id === PILOT && value.root === PILOT_ROOT && value.mode === 'shadow', 'INVALID_PILOT_IDENTITY')
   assert(JSON.stringify(value.documents) === JSON.stringify(DOCUMENTS), 'INVALID_PILOT_DOCUMENTS')
   assert(Array.isArray(value.domainRefs) && value.domainRefs.length > 0
     && new Set(value.domainRefs).size === value.domainRefs.length
@@ -48,10 +48,26 @@ export function loadPilot(root) {
   assert(value.contract === `${PILOT_ROOT}/contracts/v1/operation.schema.json`, 'INVALID_CONTRACT_REFERENCE')
   assert(value.tasks && Object.keys(value.tasks).sort().join(',') === 'build,test'
     && value.tasks.test === 'test' && value.tasks.build === 'build', 'INVALID_TASK_REFERENCES')
-  for (const ref of [...value.documents, ...value.domainRefs, value.contract]) containedFile(root, ref)
+  assert(Array.isArray(value.additionalCoreTests) && value.additionalCoreTests.length > 0
+    && new Set(value.additionalCoreTests).size === value.additionalCoreTests.length
+    && value.additionalCoreTests.every(file => typeof file === 'string'
+      && /^apps\/server\/tests\/(unit|integration)\/[A-Za-z0-9._/-]+\.test\.js$/.test(file)), 'INVALID_ADDITIONAL_CORE_TESTS')
+  for (const ref of [...value.documents, ...value.domainRefs, value.contract, ...value.additionalCoreTests]) containedFile(root, ref)
   const pkg = JSON.parse(readFileSync(containedFile(root, `${PILOT_ROOT}/package.json`), 'utf8'))
   for (const task of Object.values(value.tasks)) assert(typeof pkg.scripts?.[task] === 'string' && pkg.scripts[task].trim(), `MISSING_PACKAGE_SCRIPT:${task}`)
   return value
+}
+
+export function consumerInventory(root, metadata = loadPilot(root), sourceRevision = null) {
+  const discovered = scopeOutputs(`${PILOT_ROOT}/src/context.js`, path.join(root, 'apps/server'))
+    .contracts.split(' ').filter(Boolean)
+  const additional = metadata.additionalCoreTests.map(file => file.slice('apps/server/'.length)).sort()
+  const selected = [...new Set([...discovered, ...additional])].sort()
+  const files = selected.map(file => {
+    const relative = `apps/server/${file}`
+    return { path: relative, sha256: createHash('sha256').update(readFileSync(containedFile(root, relative))).digest('hex') }
+  })
+  return { discovered, additional, selected, sourceRevision, files, completeness: 'known-bounded-set' }
 }
 
 function changedDigest(root, files) {
@@ -97,35 +113,36 @@ export function createVerificationPlan(root, { changed, deleted = [], event = 'l
       if (deletions.includes(file) || !existsSync(path.join(root, file))) reason ||= `deleted document:${file}`
       continue
     }
-    if (!file.startsWith(`${PILOT_ROOT}/src/`) && !file.startsWith(`${PILOT_ROOT}/test/`)
-      && !file.startsWith(`${PILOT_ROOT}/contracts/`)) {
+    if (file.startsWith(`${PILOT_ROOT}/contracts/`)) {
+      reason ||= `contract requires wider qualification:${file}`
+      continue
+    }
+    if (!file.startsWith(`${PILOT_ROOT}/src/`) && !file.startsWith(`${PILOT_ROOT}/test/`)) {
       reason ||= `outside bounded pilot:${file}`
       continue
     }
     runtimeChanged = true
     if (deletions.includes(file) || !existsSync(path.join(root, file))) reason ||= `deleted or renamed input:${file}`
   }
-  if (!runtimeChanged) reason ||= 'no Runtime implementation/test/contract input changed'
-  // Reuse the ACTIVE consumer selector, including every current Core reference.
-  const consumers = scopeOutputs(`${PILOT_ROOT}/src/context.js`, path.join(root, 'apps/server'))
-    .contracts.split(' ').filter(Boolean)
-  if (!consumers.length) reason ||= 'no Core contract evidence discovered'
-  for (const file of consumers) containedFile(root, `apps/server/${file}`)
+  if (!runtimeChanged) reason ||= 'no Runtime implementation/test input changed'
+  // Keep active discovery and add explicit semantic consumers only to shadow evidence.
+  const inventory = consumerInventory(root, metadata, revisions.testedHead ?? null)
+  if (!inventory.discovered.length) reason ||= 'no Core contract evidence discovered'
   const candidate = reason ? { ...active, eligible: false, reason } : {
     governance: true,
     serverBuild: false,
     serverTests: 'existing-contract-selection',
     serviceJobs: [PILOT],
     e2e: false,
-    coreContractTests: consumers,
+    coreContractTests: inventory.selected,
     eligible: true,
     reason: 'Runtime inputs plus explicitly declared service explanation only',
   }
   return {
-    schemaVersion: 1, mode: 'shadow', omissionsAllowed: false, event, revisions,
+    schemaVersion: 2, mode: 'shadow', omissionsAllowed: false, event, revisions,
     changed: files, deleted: deletions, changedInputDigest: changedDigest(root, files),
     metadataDigest: createHash('sha256').update(JSON.stringify(metadata)).digest('hex'),
-    active, candidate,
+    active, candidate, consumerInventory: inventory,
     limitation: 'No jobs are skipped or executed. Consumer completeness and paired full-run evidence remain required.',
   }
 }
