@@ -663,6 +663,20 @@ opened and checked, not assumed.
 <!-- source: AGENTS.md — status: active -->
 <!-- ======================================================================== -->
 
+## Current coding-delivery selection — WF00 bootstrap
+
+For the exact supervised WF00 bootstrap only, use the selected roles, gates,
+concurrency, and retry limits in
+[`WORKFLOW-POLICY.md`](docs/architecture/delivery-control/WORKFLOW-POLICY.md)
+and its single machine-readable authority,
+[`model-policy.json`](docs/architecture/delivery-control/contracts/model-policy.json).
+The model assignments in S-01 and Document 20 are retained as historical
+profiles and receipts. This scoped selection does not install a controller,
+enable general autonomy or Business Fleet permissions, or admit later work;
+each later node needs its own G0. Source conflicts and evidence dispositions
+for this packet are recorded in
+[`SOURCE-RECONCILIATION.md`](docs/architecture/delivery-control/SOURCE-RECONCILIATION.md).
+
 # AGENTS.md — zuri-ai
 
 ## Documentation reintegration branch (2026-09-29)

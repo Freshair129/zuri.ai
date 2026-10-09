@@ -19,6 +19,8 @@ Generated navigation for current source documents in the architecture grouping. 
 - [Zuri Modular Monolith + Shared Database Architecture Specification](../ARCHITECTURE-TARGET-MODULAR-MONOLITH.md)
 - [Architecture](../ARCHITECTURE.md)
 - [Database Schema — Full ERD Reference](database-erd/full-schema.md)
+- [WF00 source reconciliation](delivery-control/SOURCE-RECONCILIATION.md)
+- [Coding-delivery workflow policy](delivery-control/WORKFLOW-POLICY.md)
 - [Canonical ERP Organizational Hierarchy & Data Architecture](ERP-ORGANIZATIONAL-HIERARCHY.md)
 - [Requirements & UX](project-manager-system/01-REQUIREMENTS-AND-UX.md)
 - [Decisions & Diagrams](project-manager-system/02-DECISIONS-AND-DIAGRAMS.md)
