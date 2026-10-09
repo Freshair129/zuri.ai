@@ -3,6 +3,7 @@ import { resolveServerLineAccount, createServerLineReplyTransport, createServerL
 import { createLineSecretManagerFromEnv } from '@/platform/integrations/core/secret-store/dispatching-secret-manager'
 import { createMspTransportFromEnvironment, MSP_TRANSPORT_MISCONFIGURED } from '@/modules/agent/msp-stdio-transport'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
+import { recordMemoryProjectionReceipt } from './line-memory-projection'
 // @req FR-149 — deployment composition, no credentials returned to clients.
 // @req FR-223 — accounts resolve through the dispatching secret manager: the mount,
 //   and the one writable store ZURI_SECRET_STORE selects (SDD-097).
@@ -48,5 +49,6 @@ export function serverLinePorts(env = process.env, db = prisma) {
   const secretManager = createLineSecretManagerFromEnv(env, { db })
   return { resolveAccount: accountId => resolveServerLineAccount({ accountId, db, secretManager }),
     replyTransport: createServerLineReplyTransport(), pushTransport: createServerLinePushTransport(),
-    threadMemory: createServerLineThreadMemory(env) }
+    threadMemory: createServerLineThreadMemory(env),
+    projectionReceiptWriter: input => recordMemoryProjectionReceipt(db, input) }
 }

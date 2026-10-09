@@ -188,7 +188,7 @@ async function runLegacy({ msp, records } = {}) {
   const providerCalls = []
   const provider = createModelProviderPort({ provider: 'openrouter', model: 'test-model', credential: providerKey,
     timeoutMs: 1000, fetchFn: captureFetch(providerCalls) })
-  const answer = createServerLineAnswer({ env: knowledgeEnv, threadMemory: mspPort(msp),
+  const answer = createServerLineAnswer({ env: { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true', ...knowledgeEnv }, threadMemory: mspPort(msp),
     runtimeFactory: async () => ({ businessKnowledge: businessKnowledge(records), resolveModel: async () => provider }) })
   const send = async ({ messages }) => { deliveries.push(messages); return { status: 'ACCEPTED_BY_LINE', requestId: `legacy-${deliveries.length}` } }
   for (let tick = 0; tick < 12; tick += 1) {
@@ -215,7 +215,8 @@ function inProcessFetch(handlers) {
 
 function buildRuntime({ msp, records, corpusReaderFactory } = {}) {
   const core = createConversationRuntimeCore({ db: prisma,
-    env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey, ...knowledgeEnv },
+    env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey,
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true', ...knowledgeEnv },
     credentialResolver: async () => ({ provider: 'openrouter', model: 'test-model', apiKey: providerKey }),
     businessPorts: { businessKnowledge: businessKnowledge(records) },
     threadMemoryFactory: () => mspPort(msp),
@@ -318,7 +319,7 @@ beforeAll(async () => {
     name: 'Synthetic W12 LINE connection', externalAccountId: 'synthetic-w12-destination', status: 'ACTIVE' })
   account = await prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id,
     integrationConnectionId: connection.id, code: 'cr-w12-account', displayName: 'Synthetic W12 OA', bindingCode: 'cr-w12-binding',
-    status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD', runtimeOwner: 'SERVER' } })
+    status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD', runtimeOwner: 'SERVER', memoryPolicy: 'ON' } })
   persons.A = await linkSpeaker('A')
   persons.B = await linkSpeaker('B')
   // A customer with no staff grant, so a PDPA erasure may run for them.

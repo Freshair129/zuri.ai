@@ -179,7 +179,7 @@ export async function resolveAgentAuthorization({
   const customer = principal.customerId
     ? await prisma.customer.findUnique({
         where: { id: principal.customerId },
-        select: { id: true, tenantId: true, businessId: true, deletedAt: true },
+        select: { id: true, tenantId: true, businessId: true, deletedAt: true, consentStatus: true },
       })
     : null
 
@@ -223,16 +223,6 @@ export async function resolveAgentAuthorization({
   const projectId = resolvedScope.projectId
   const resolvedBusinessId = resolvedScope.businessId
   const policyVersion = clean(serverScope.policyVersion) ?? DEFAULT_POLICY_VERSION
-  const allowedVaults = privateMemoryAllowed
-    ? [vaultScope({
-        tenantId,
-        principalId: principal.personId,
-        agentId,
-        workspaceId,
-        projectId,
-      })]
-    : []
-
   const reason = privateMemoryAllowed
     ? 'ALLOW'
     : !transportVerified
@@ -244,6 +234,24 @@ export async function resolveAgentAuthorization({
           : !knownPrincipal
             ? 'MEMBERSHIP_SCOPE_DENIED'
             : 'PRIVATE_MEMORY_DENIED'
+  const episodicMemoryAllowed = privateMemoryAllowed
+    && serverScope.episodicMemoryOptIn === true
+    && customer?.consentStatus === 'GRANTED'
+    && Boolean(workspaceId && projectId)
+  const episodicMemoryReason = episodicMemoryAllowed ? 'ALLOW'
+    : serverScope.episodicMemoryOptIn !== true ? 'EPISODIC_MEMORY_NOT_ENROLLED'
+      : customer?.consentStatus !== 'GRANTED' ? 'CUSTOMER_CONSENT_REQUIRED'
+        : !workspaceId || !projectId ? 'PRIVATE_MEMORY_SCOPE_UNAVAILABLE'
+          : reason
+  const allowedVaults = privateMemoryAllowed
+    ? [vaultScope({
+        tenantId,
+        principalId: principal.personId,
+        agentId,
+        workspaceId,
+        projectId,
+      })]
+    : []
 
   const authContext = Object.freeze({
     transport: Object.freeze({
@@ -299,6 +307,8 @@ export async function resolveAgentAuthorization({
       decision: privateMemoryAllowed ? 'ALLOW' : 'DENY',
       reason,
       privateMemoryAllowed,
+      episodicMemoryAllowed,
+      episodicMemoryReason,
       mspAuthorization,
     }),
     authorization: Object.freeze({

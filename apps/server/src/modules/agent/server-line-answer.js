@@ -11,6 +11,7 @@ import {
   resolveLineKnowledgeGroundingMode,
 } from './line-knowledge-grounding'
 import { runLineGroundingShadowCompare } from './line-grounding-shadow-compare'
+import { resolveLineMemoryProject } from '@/modules/line-oa-studio/application/line-memory-scope'
 
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
@@ -103,7 +104,7 @@ function failure(code) {
 //      on its own fit, no sequence (an oversized summary drops alone).
 // `packet.knowledge` (a separate, non-MSP field) is never turned into a slice
 // here — see injectedMspPacket's own note on why it is stripped instead.
-export function mspPacketSlices(packet) {
+export function mspPacketSlices(packet, episodicEntries = []) {
   const threadId = packet?.thread?.threadId ?? null
   const participants = Array.isArray(packet?.memory?.participants) ? packet.memory.participants : []
   const protectedRecords = Array.isArray(packet?.memory?.protectedMemory) ? packet.memory.protectedMemory : []
@@ -111,15 +112,21 @@ export function mspPacketSlices(packet) {
   const summaries = Array.isArray(packet?.memory?.summaries) ? packet.memory.summaries : []
   const exchangeSlices = exchanges.map((exchange, index) =>
     ({ id: `exchange:${exchange?.exchangeId ?? index}`, threadId, sequence: 'exchanges', text: exchange }))
+  const episodicSlices = episodicEntries.map((entry, index) => ({
+    id: `episodic:${entry?.id ?? entry?.reference?.memoryId ?? index}`,
+    scope: 'CROSS_THREAD',
+    text: entry,
+  }))
   return [
     ...participants.map((participant, index) => ({ id: `participant:${participant?.principalId ?? participant?.id ?? index}`, threadId, text: participant })),
     ...protectedRecords.map((record, index) => ({ id: `protected:${record?.recordId ?? index}`, threadId, text: record })),
     ...[...exchangeSlices].reverse(),
     ...summaries.map((summary, index) => ({ id: `summary:${summary?.summaryId ?? index}`, threadId, text: summary })),
+    ...episodicSlices,
   ]
 }
 
-const MSP_SLICE_PREFIXES = Object.freeze(['participant:', 'protected:', 'exchange:', 'summary:'])
+const MSP_SLICE_PREFIXES = Object.freeze(['participant:', 'protected:', 'exchange:', 'summary:', 'episodic:'])
 
 function sliceIdSuffix(id, prefix) {
   return id.slice(prefix.length)
@@ -150,7 +157,8 @@ function injectedMspPacket(packet, includedMspSlices, droppedMspSlices = []) {
   // chronologically (oldest-first) to match MSP's own packet convention.
   const recentExchanges = byPrefix('exchange:').reverse()
   const summaries = byPrefix('summary:')
-  if (!participants.length && !protectedMemory.length && !recentExchanges.length && !summaries.length) return null
+  const episodic = byPrefix('episodic:')
+  if (!participants.length && !protectedMemory.length && !recentExchanges.length && !summaries.length && !episodic.length) return null
 
   const omittedRanges = [...(packet.manifest?.omittedRanges ?? [])]
   for (const entry of droppedMspSlices) {
@@ -159,6 +167,7 @@ function injectedMspPacket(packet, includedMspSlices, droppedMspSlices = []) {
     else if (prefix === 'summary:') omittedRanges.push({ summaryId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
     else if (prefix === 'protected:') omittedRanges.push({ protectedRecordId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
     else if (prefix === 'participant:') omittedRanges.push({ participantId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
+    else if (prefix === 'episodic:') omittedRanges.push({ episodicMemoryId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
   }
   const truncated = droppedMspSlices.length > 0
 
@@ -172,7 +181,7 @@ function injectedMspPacket(packet, includedMspSlices, droppedMspSlices = []) {
     // either go through the composer or be removed (see the review this
     // fixes), and this field has no composer-representable shape today.
     knowledge: null,
-    memory: { participants, recentExchanges, summaries, protectedMemory },
+    memory: { participants, recentExchanges, summaries, protectedMemory, episodic },
     manifest: packet.manifest ? {
       ...packet.manifest,
       effectiveRecentExchangeCount: recentExchanges.length,
@@ -225,6 +234,11 @@ export function memoryServerScope(job, route) {
     audienceKind: route.audienceKind,
     agentId: 'zuri-line-agent',
     mspAuthorization: { read: true, writePrivate: false, writeShared: false },
+    episodicMemoryOptIn: job.episodicMemoryOptIn === true,
+    ...(job.episodicMemoryOptIn === true ? {
+      workspaceId: job.episodicWorkspaceId ?? null,
+      projectId: job.episodicProjectId ?? null,
+    } : {}),
     // @req FR-149 — Core's PENDING memory mode: a Conversation Runtime job that Core
     // admitted for an unverified sender (`CHANNEL_IDENTITY_ADMITTED`) is marked by
     // Core's own claim check, never by the runtime. The legacy worker's job rows carry
@@ -235,6 +249,68 @@ export function memoryServerScope(job, route) {
     tenantId: job.tenantId,
     businessId: job.businessId,
   }
+}
+
+async function resolveLiveLineEpisodicAuthorization({ job, memoryStateReader, authorizationResolver,
+  scopeResolver, env, identityState } = {}) {
+  if (env.ZURI_MSP_EPISODIC_MEMORY_ENABLED !== 'true' || job?.episodicMemoryOptIn !== true
+    || job?.memorySyncOptIn !== true || job?.audienceKind !== 'DIRECT' || job?.errorCode === 'PDPA_ERASURE'
+    || identityState === 'UNVERIFIED' || (identityState !== undefined && identityState !== 'VERIFIED')
+    || !job?.id || !job?.episodicWorkspaceId || !job?.episodicProjectId
+    || typeof memoryStateReader !== 'function') return null
+
+  let current
+  try { current = await memoryStateReader(job.id) } catch { return null }
+  const account = current?.account
+  if (!current || current.status !== 'CLAIMED' || current.version !== job.version
+    || current.errorCode === 'PDPA_ERASURE' || current.memorySyncOptIn !== true
+    || current.episodicMemoryOptIn !== true || current.audienceKind !== 'DIRECT'
+    || current.episodicWorkspaceId !== job.episodicWorkspaceId
+    || current.episodicProjectId !== job.episodicProjectId
+    || current.tenantId !== job.tenantId || current.businessId !== job.businessId
+    || current.channelAccountId !== job.channelAccountId || current.transportEpoch !== job.transportEpoch
+    || !account || account.id !== job.account?.id || account.tenantId !== job.tenantId
+    || account.businessId !== job.businessId || account.memoryProjectId !== job.episodicProjectId
+    || account.serverEnabled !== true || account.transportMode !== 'CLOUD'
+    || account.status !== 'CONNECTED' || account.transportEpoch !== current.transportEpoch) return null
+
+  const liveJob = { ...job, ...current, account: { ...job.account, ...account } }
+  const scope = await scopeResolver({ tenantId: liveJob.tenantId, businessId: liveJob.businessId,
+    projectId: account.memoryProjectId })
+  if (!scope || scope.projectId !== liveJob.episodicProjectId || scope.workspaceId !== liveJob.episodicWorkspaceId) return null
+  const route = memoryRoute(liveJob)
+  const authorization = await authorizationResolver({ tenantId: liveJob.tenantId, businessId: liveJob.businessId,
+    lineUserId: liveJob.sourceUserId, threadId: route.externalRoomRef, eventId: liveJob.eventId,
+    serverScope: memoryServerScope(liveJob, route) })
+  if (authorization?.policy?.episodicMemoryAllowed !== true
+    || authorization?.authContext?.policy?.decision !== 'ALLOW'
+    || authorization?.authContext?.actor?.identityVerified !== true
+    || authorization?.authContext?.scope?.tenantId !== liveJob.tenantId
+    || authorization?.authContext?.scope?.businessId !== liveJob.businessId
+    || authorization?.authContext?.scope?.workspaceId !== scope.workspaceId
+    || authorization?.authContext?.scope?.projectId !== scope.projectId) return null
+  return { job: liveJob, route, scope, authorization }
+}
+
+export async function assertLineEpisodicMemoryJobLive(options = {}) {
+  const live = await resolveLiveLineEpisodicAuthorization({
+    ...options, authorizationResolver: options.authorizationResolver ?? resolveAgentAuthorization,
+    scopeResolver: options.scopeResolver ?? resolveLineMemoryProject, env: options.env ?? process.env,
+  })
+  if (!live) throw failure('LINE_EPISODIC_MEMORY_JOB_FENCED')
+  return live
+}
+
+export async function readAuthorizedLineEpisodicMemory({ job, memoryPort, memoryStateReader,
+  authorizationResolver = resolveAgentAuthorization, scopeResolver = resolveLineMemoryProject,
+  env = process.env, identityState } = {}) {
+  const live = await resolveLiveLineEpisodicAuthorization({ job, memoryStateReader,
+    authorizationResolver, scopeResolver, env, identityState })
+  if (!live) return { allowed: false, entries: [] }
+  const selectedPort = typeof memoryPort === 'function' ? await memoryPort() : memoryPort
+  if (typeof selectedPort?.recallAuthorized !== 'function') throw failure('LINE_EPISODIC_MEMORY_NOT_CONFIGURED')
+  const recalled = await selectedPort.recallAuthorized(live.authorization)
+  return { allowed: true, entries: Array.isArray(recalled?.entries) ? recalled.entries : [] }
 }
 
 function memoryAudience(value) {
@@ -265,8 +341,11 @@ export function assertMemoryContextRoute(context, route, { requirePacket = false
 
 const emptyMemoryKnowledge = async () => ({ found: false, relations: [] })
 
-export async function assertMemoryJobLive(job, memoryStateReader) {
+export async function assertMemoryJobLive(job, memoryStateReader, env = process.env) {
   if (job?.errorCode === 'PDPA_ERASURE') throw failure('LINE_MEMORY_JOB_ERASED')
+  if (job?.memorySyncOptIn !== true || env.ZURI_MSP_THREAD_MEMORY_ENABLED !== 'true') {
+    throw failure('LINE_MEMORY_JOB_FENCED')
+  }
   if (typeof memoryStateReader !== 'function') return
   const current = await memoryStateReader(job.id)
   if (!current || current.memorySyncOptIn !== true || current.status !== 'CLAIMED'
@@ -277,6 +356,10 @@ export async function assertMemoryJobLive(job, memoryStateReader) {
   if (account && (account.serverEnabled !== true || account.transportMode !== 'CLOUD'
     || account.status !== 'CONNECTED' || account.transportEpoch !== current.transportEpoch)) {
     throw failure('LINE_MEMORY_JOB_FENCED')
+  }
+  if (job.episodicMemoryOptIn === true && (!job.episodicWorkspaceId || !job.episodicProjectId
+    || account?.memoryProjectId !== job.episodicProjectId)) {
+    throw failure('LINE_MEMORY_SCOPE_MISMATCH')
   }
 }
 
@@ -293,10 +376,11 @@ export async function assertMemoryJobLive(job, memoryStateReader) {
  * The job is re-checked before every MSP boundary (`assertMemoryJobLive`).
  */
 export async function prepareLineMemoryContext({ job, route, question, threadMemory,
-  contextAssembler = assembleAgentContext, memoryStateReader } = {}) {
+  episodicMemory = null, projectionReceiptWriter = null, contextAssembler = assembleAgentContext,
+  memoryStateReader, env = process.env } = {}) {
   const tenantId = job.tenantId
   const businessId = job.businessId
-  await assertMemoryJobLive(job, memoryStateReader)
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const serverScope = memoryServerScope(job, route)
   const contextInput = {
     tenantId, businessId, lineUserId: job.sourceUserId,
@@ -309,7 +393,7 @@ export async function prepareLineMemoryContext({ job, route, question, threadMem
     throw failure('LINE_MEMORY_CONTEXT_UNAVAILABLE')
   }
   assertMemoryContextRoute(firstContext, route)
-  await assertMemoryJobLive(job, memoryStateReader)
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const memoryInbound = await threadMemory.appendMessage({
     threadId: firstContext.thread.threadId,
     speakerId: firstContext.identity.principalId,
@@ -328,14 +412,20 @@ export async function prepareLineMemoryContext({ job, route, question, threadMem
     || !memoryInbound.session?.sessionId) {
     throw failure('LINE_MEMORY_APPEND_UNAVAILABLE')
   }
-  await assertMemoryJobLive(job, memoryStateReader)
+  if (typeof projectionReceiptWriter === 'function') await projectionReceiptWriter({ job,
+    principalId: firstContext.identity.principalId, direction: 'INBOUND', crmMessageId: job.inbound.id,
+    threadId: firstContext.thread.threadId, sessionId: memoryInbound.session.sessionId,
+    messageId: memoryInbound.message.messageId, exchangeId: memoryInbound.message.exchangeId })
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const memoryContext = await contextAssembler({ ...contextInput,
+    ...(job.episodicMemoryOptIn === true && episodicMemory ? { memory: episodicMemory } : {}),
     deferThreadRecall: false, currentExchangeId: memoryInbound.message.exchangeId })
   if (!memoryContext?.threadMemory) throw failure('LINE_MEMORY_CONTEXT_UNAVAILABLE')
   assertMemoryContextRoute(memoryContext, route, { requirePacket: true })
   if (route.audienceKind !== 'DIRECT' && memoryContext.threadMemory.policyDecision === 'ALLOW') {
     throw failure('LINE_MEMORY_AUDIENCE_DENIED')
   }
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const authorizedForMemory = memoryContext.threadMemory.policyDecision === 'ALLOW'
   return { memoryContext, memoryInbound, authorizedForMemory }
 }
@@ -346,13 +436,29 @@ export async function prepareLineMemoryContext({ job, route, question, threadMem
  * and MSP's injection receipt receive from the composer's included slices only.
  * See the FR-234/FR-235 notes inside `createServerLineAnswer` for why.
  */
+export function composeLineEpisodicPacket({ entries = [], route, knowledgeSliceInputs = [] } = {}) {
+  const composed = composeContext({ authorized: true, scope: {}, audienceKind: route?.audienceKind,
+    mspSlices: mspPacketSlices(null, entries), knowledgeEvidence: knowledgeSliceInputs })
+  const episodic = composed.slices.filter(slice => slice.source === 'MSP' && slice.scope === 'CROSS_THREAD')
+  const injectedPacket = episodic.length ? {
+    policyDecision: 'ALLOW', memory: { episodic: episodic.map(slice => slice.content) },
+    manifest: { episodicMemoryCount: episodic.length, coverageGap: composed.dropped.length > 0,
+      budget: { ...composed.receipt.budget, truncated: composed.dropped.length > 0 } },
+  } : null
+  return { composed, injectedPacket }
+}
+
 export function composeLineMemoryPacket({ memoryContext, route, authorizedForMemory,
-  groundingMode = 'BUSINESS_KNOWLEDGE', knowledgeSliceInputs = [] } = {}) {
+  episodicEntries = [], episodicAuthorized = false, groundingMode = 'BUSINESS_KNOWLEDGE', knowledgeSliceInputs = [] } = {}) {
+  const mspSlices = [
+    ...(authorizedForMemory ? mspPacketSlices(memoryContext.threadMemory) : []),
+    ...(episodicAuthorized ? mspPacketSlices(null, episodicEntries) : []),
+  ]
   const composed = composeContext({
     authorized: groundingMode === 'BUSINESS_KNOWLEDGE' ? authorizedForMemory : true,
     scope: { threadId: memoryContext.thread.threadId },
     audienceKind: route.audienceKind,
-    mspSlices: authorizedForMemory ? mspPacketSlices(memoryContext.threadMemory) : [],
+    mspSlices,
     knowledgeEvidence: knowledgeSliceInputs,
   })
   const injectedPacket = injectedMspPacket(memoryContext.threadMemory,
@@ -406,10 +512,11 @@ export function lineMemoryHandle(memoryContext, memoryInbound) {
  * exchange. Nothing is appended unless every check passes.
  */
 export async function appendLineMemoryAnswer({ job, route, threadMemory, memory, answerText,
-  authorizationResolver = resolveAgentAuthorization, memoryStateReader } = {}) {
+  authorizationResolver = resolveAgentAuthorization, projectionReceiptWriter = null,
+  memoryStateReader, env = process.env } = {}) {
   const tenantId = job.tenantId
   const businessId = job.businessId
-  await assertMemoryJobLive(job, memoryStateReader)
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const currentAuthorization = await authorizationResolver({
     tenantId, businessId, lineUserId: job.sourceUserId, threadId: route.externalRoomRef,
     eventId: job.eventId, serverScope: memoryServerScope(job, route),
@@ -426,7 +533,7 @@ export async function appendLineMemoryAnswer({ job, route, threadMemory, memory,
       || currentAuthorization.policy?.mspAuthorization?.read !== true)) {
     throw failure('LINE_MEMORY_POLICY_REVOKED')
   }
-  await assertMemoryJobLive(job, memoryStateReader)
+  await assertMemoryJobLive(job, memoryStateReader, env)
   const memoryAgent = await threadMemory.appendMessage({
     threadId: memory.threadId,
     sessionId: memory.sessionId ?? null,
@@ -443,6 +550,10 @@ export async function appendLineMemoryAnswer({ job, route, threadMemory, memory,
     || memoryAgent.message.exchangeId !== memory.exchangeId) {
     throw failure('LINE_MEMORY_APPEND_UNAVAILABLE')
   }
+  if (typeof projectionReceiptWriter === 'function') await projectionReceiptWriter({ job,
+    principalId: memory.principalId, direction: 'OUTBOUND', threadId: memory.threadId,
+    sessionId: memoryAgent.session.sessionId, messageId: memoryAgent.message.messageId,
+    exchangeId: memoryAgent.message.exchangeId })
   return memoryAgent
 }
 
@@ -454,6 +565,8 @@ export function createServerLineAnswer({
   threadMemory = null,
   contextAssembler = assembleAgentContext,
   authorizationResolver = resolveAgentAuthorization,
+  scopeResolver = resolveLineMemoryProject,
+  projectionReceiptWriter = null,
   ...runtimeDependencies
 } = {}) {
   return async function answer(job, { trace, memoryStateReader } = {}) {
@@ -466,17 +579,20 @@ export function createServerLineAnswer({
     if (job.account && (job.account.tenantId !== tenantId || job.account.businessId !== businessId)) {
       throw failure('LINE_ANSWER_SCOPE_MISMATCH')
     }
-    const memoryOptIn = job.memorySyncOptIn === true
+    const memoryOptIn = job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+    const episodicMemoryOptIn = job.episodicMemoryOptIn === true && env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
     const route = memoryOptIn ? memoryRoute(job) : null
     let selectedThreadMemory = memoryOptIn ? threadMemory : null
+    let selectedEpisodicMemory = null
     let runtimePorts = null
     let businessKnowledge
     let model
     try {
       if (memoryOptIn && !selectedThreadMemory) {
-        runtimePorts = await runtimeFactory({ ...env, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' },
+        runtimePorts = await runtimeFactory(env,
           { ...runtimeDependencies, queryFn, bindingRequired: false })
         selectedThreadMemory = runtimePorts?.threadMemory
+        selectedEpisodicMemory = runtimePorts?.episodicMemory ?? null
         if (!selectedThreadMemory) throw failure('LINE_MEMORY_NOT_CONFIGURED')
       }
       if (memoryOptIn && typeof selectedThreadMemory.withInjectionReceipt !== 'function') {
@@ -491,13 +607,24 @@ export function createServerLineAnswer({
       // Direct native ingress has already authenticated account scope; opting out
       // of the legacy Edge binding does not weaken the provider/Vault gates.
       {
-        const ports = runtimePorts ?? await runtimeFactory(env, { ...runtimeDependencies, queryFn, bindingRequired: false })
+        runtimePorts = runtimePorts ?? await runtimeFactory(env, { ...runtimeDependencies, queryFn, bindingRequired: false })
+        const ports = runtimePorts
         if (!ports?.businessKnowledge || typeof ports.resolveModel !== 'function') {
           throw failure('LINE_BUSINESS_AGENT_NOT_CONFIGURED')
         }
         businessKnowledge = ports.businessKnowledge
         model = await ports.resolveModel({ tenantId, businessId })
         if (memoryOptIn && !selectedThreadMemory) selectedThreadMemory = ports.threadMemory
+        if (episodicMemoryOptIn) selectedEpisodicMemory = ports.episodicMemory ?? null
+      }
+
+      let episodicMemoryEntries = []
+      let episodicAuthorized = false
+      if (episodicMemoryOptIn) {
+        const recalled = await readAuthorizedLineEpisodicMemory({ job, memoryPort: selectedEpisodicMemory,
+          memoryStateReader, authorizationResolver, scopeResolver, env })
+        episodicAuthorized = recalled.allowed
+        episodicMemoryEntries = recalled.entries
       }
 
       // @req FR-235 — a missing/unrecognised mode always resolves to
@@ -529,9 +656,11 @@ export function createServerLineAnswer({
       let memoryInbound = null
       let contextReceipt = null
       let injectedPacket = null
+      let recordEpisodicReceiptBeforeModel = null
       if (memoryOptIn) {
         const prepared = await prepareLineMemoryContext({ job, route, question,
-          threadMemory: selectedThreadMemory, contextAssembler, memoryStateReader })
+          threadMemory: selectedThreadMemory,
+          projectionReceiptWriter, contextAssembler, memoryStateReader, env })
         memoryContext = prepared.memoryContext
         memoryInbound = prepared.memoryInbound
         const authorizedForMemory = prepared.authorizedForMemory
@@ -579,9 +708,11 @@ export function createServerLineAnswer({
         // original packet — so the receipt this turn records can never
         // describe less than what the model actually saw.
         const memoryPacket = composeLineMemoryPacket({ memoryContext, route, authorizedForMemory,
+          episodicEntries: episodicMemoryEntries, episodicAuthorized,
           groundingMode, knowledgeSliceInputs })
         const composed = memoryPacket.composed
         injectedPacket = memoryPacket.injectedPacket
+        contextReceipt = composed.receipt
         trace?.recordThreadMemory?.({
           contextPacket: injectedPacket,
           thread: memoryContext.thread,
@@ -610,8 +741,32 @@ export function createServerLineAnswer({
           // here — so this is not a guess about what it will decide, it is
           // the same decision, made once.
           if (finalKnowledgeRecords.length > 0) {
-            contextReceipt = composed.receipt
             if (typeof trace?.recordContextReceipt === 'function') await trace.recordContextReceipt(contextReceipt)
+          }
+        }
+      } else if (episodicAuthorized) {
+        let knowledgeSliceInputs = []
+        let knowledgeRecordById = new Map()
+        let groundingEvidence = null
+        if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
+          groundingEvidence = await businessKnowledge.query({ tenantId, businessId, ...selectRegisteredQuery(question) })
+          ;({ knowledgeSliceInputs, knowledgeRecordById } = lineKnowledgeSliceInputs(groundingEvidence?.records))
+        }
+        const episodicPacket = composeLineEpisodicPacket({ entries: episodicMemoryEntries, route: memoryRoute(job), knowledgeSliceInputs })
+        contextReceipt = episodicPacket.composed.receipt
+        injectedPacket = episodicPacket.injectedPacket
+        if (groundingEvidence) {
+          const finalKnowledgeRecords = composedKnowledgeRecords(episodicPacket.composed, knowledgeRecordById)
+          businessKnowledge = { query: async () => ({ records: finalKnowledgeRecords }) }
+          if (finalKnowledgeRecords.length > 0 && typeof trace?.recordContextReceipt === 'function') {
+            await trace.recordContextReceipt(contextReceipt)
+          }
+        } else {
+          let recorded = false
+          recordEpisodicReceiptBeforeModel = async () => {
+            if (recorded || typeof trace?.recordContextReceipt !== 'function') return
+            await trace.recordContextReceipt(contextReceipt)
+            recorded = true
           }
         }
       }
@@ -632,19 +787,28 @@ export function createServerLineAnswer({
       // a packet the composer denied or fully trimmed is `null` here, so
       // `withInjectionReceipt` correctly skips wrapping (no injection to
       // attest) and the model gets no memory content at all.
-      const invocationModel = memoryOptIn && typeof selectedThreadMemory.withInjectionReceipt === 'function'
-        ? selectedThreadMemory.withInjectionReceipt({ model, contextPacket: injectedPacket,
+      const episodicIncluded = Array.isArray(injectedPacket?.memory?.episodic) && injectedPacket.memory.episodic.length > 0
+      let invocationModel = recordEpisodicReceiptBeforeModel || episodicIncluded
+        ? { generate: async input => {
+          if (recordEpisodicReceiptBeforeModel) await recordEpisodicReceiptBeforeModel()
+          if (episodicIncluded) await assertLineEpisodicMemoryJobLive({ job, memoryStateReader,
+            authorizationResolver, scopeResolver, env })
+          return model.generate(input)
+        } }
+        : model
+      invocationModel = memoryOptIn && typeof selectedThreadMemory.withInjectionReceipt === 'function'
+        ? selectedThreadMemory.withInjectionReceipt({ model: invocationModel, contextPacket: injectedPacket,
           threadId: memoryContext.thread.threadId, exchangeId: memoryInbound.message.exchangeId,
           authorization: { authContext: memoryContext.authContext }, requesterId: memoryContext.identity.principalId,
           contextReceiptId: contextReceipt?.receiptId ?? null })
-        : model
+        : invocationModel
       if (memoryOptIn && (!invocationModel || typeof invocationModel.generate !== 'function')) {
         throw failure('LINE_MEMORY_INJECTION_RECEIPT_UNAVAILABLE')
       }
-      if (memoryOptIn) await assertMemoryJobLive(job, memoryStateReader)
+      if (memoryOptIn) await assertMemoryJobLive(job, memoryStateReader, env)
       const result = await answerBusinessQuestion({ tenantId, businessId, question }, {
         knowledge: tracedKnowledge, model: invocationModel, trace,
-        contextPacket: memoryOptIn ? injectedPacket : null,
+        contextPacket: memoryOptIn || episodicAuthorized ? injectedPacket : null,
       })
       // Grounding may choose a deterministic fallback after a provider failure;
       // a failed journal write must never be mistaken for that safe fallback.
@@ -672,7 +836,7 @@ export function createServerLineAnswer({
       if (memoryOptIn) {
         await appendLineMemoryAnswer({ job, route, threadMemory: selectedThreadMemory,
           memory: lineMemoryHandle(memoryContext, memoryInbound), answerText,
-          authorizationResolver, memoryStateReader })
+          authorizationResolver, projectionReceiptWriter, memoryStateReader, env })
       }
       return answerText
     } catch (error) {

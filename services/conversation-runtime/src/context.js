@@ -19,9 +19,10 @@ export function composeTurnContext(input) {
   const slices = []
   const dropped = []
   for (const item of entries) {
-    const wrongThread = item.source === 'MSP' && input.threadId && item.threadId !== input.threadId
-    const audienceDenied = item.source === 'MSP' && input.audienceKind && input.audienceKind !== 'DIRECT'
-      && ['PASSPORT', 'CROSS_THREAD'].includes(item.scope)
+    const wrongThread = item.source === 'MSP' && item.scope !== 'CROSS_THREAD'
+      && input.threadId && item.threadId !== input.threadId
+    const audienceDenied = item.source === 'MSP' && ['PASSPORT', 'CROSS_THREAD'].includes(item.scope)
+      && input.audienceKind !== 'DIRECT'
     if (wrongThread || audienceDenied) {
       dropped.push({ id: item.id, source: item.source, reason: wrongThread ? 'THREAD_SCOPE_MISMATCH' : 'AUDIENCE_SCOPE_DENIED' })
       continue

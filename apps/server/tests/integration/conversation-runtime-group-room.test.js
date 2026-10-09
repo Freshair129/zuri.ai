@@ -100,7 +100,7 @@ function inProcessFetch(handlers) {
 
 function buildRuntime() {
   const core = createConversationRuntimeCore({ db: prisma,
-    env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey },
+    env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' },
     businessPorts: { businessKnowledge: knowledge('runtime') },
     credentialResolver: async () => ({ provider: 'openai', model: 'test-model', apiKey: 'synthetic-group-room-key' }),
     linePorts: () => ({ resolveAccount, ...transports('runtime') }) })
@@ -112,7 +112,7 @@ function buildRuntime() {
 }
 
 // The legacy answer exactly as `app/api/line-oa/worker/route.js` composes it.
-const legacyAnswer = withLineCatalogCommand(createServerLineAnswer({ env: {},
+const legacyAnswer = withLineCatalogCommand(createServerLineAnswer({ env: { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' },
   runtimeFactory: async () => ({ businessKnowledge: knowledge('legacy'),
     resolveModel: async () => ({ provider: 'openai', model: 'test-model',
       generate: async input => {
@@ -170,7 +170,7 @@ beforeAll(async () => {
     return prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id,
       integrationConnectionId: connection.id, code: `cr-grp-${suffix}`, displayName: `Synthetic group/room ${suffix} OA`,
       bindingCode: `cr-grp-${suffix}-binding`, status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD',
-      allowDelayedPush: true, runtimeOwner } })
+      allowDelayedPush: true, runtimeOwner, memoryPolicy: 'OFF' } })
   }
   // Two accounts on one Business: the legacy cohort (default SERVER) and an opted-in one.
   serverAccount = await account('server', 'SERVER')
@@ -242,10 +242,12 @@ describe('Conversation Runtime group and room audiences', () => {
 
     // A verified speaker's memory-sync turn joins the cohort too (W12); the group's
     // thread memory is proved in conversation-runtime-memory-group-gks.test.js.
+    await prisma.lineOaAccount.update({ where: { id: runtimeAccount.id }, data: { memoryPolicy: 'ON' } })
     const memory = await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text: 'ซูริ จำได้ไหม' }),
       { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' })
     expect(await prisma.lineConversationJob.findUnique({ where: { id: memory.jobId } }))
       .toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: true, audienceKind: audience, recipientId: thread })
+    await prisma.lineOaAccount.update({ where: { id: runtimeAccount.id }, data: { memoryPolicy: 'OFF' } })
     // Existing SERVER-only sub-cases apply to groups unchanged.
     const malformed = await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text: '/work-create ซูริ' }))
     const malformedJob = await jobRow(malformed.jobId)

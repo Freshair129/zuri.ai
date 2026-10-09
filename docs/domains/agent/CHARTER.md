@@ -1,5 +1,5 @@
 ---
-version: "0.5.0b"
+version: "0.6.0b"
 status: active
 last_update: "2026-09-27T12:00:00+07:00,Claude Sonnet 5"
 id: ZAI:DOMAIN-AGENT
@@ -139,10 +139,13 @@ code yet; `owns_models` changes only when a model lands.
   episodic and passport memory. MSP calls no model, so **this lane produces the
   consolidation summaries** and sends them back. MSP persists nothing into
   GenesisBlockDB, and the GenesisBlockDB write-ahead log is never a chat buffer.
-  Projection stays off until MSP main ships thread and erase tools. **Planned model
-  `MemoryProjectionReceipt`** — one row per projection MSP acknowledged — is claimed
-  here, with an erase worker that calls MSP per receipt and reports `PENDING_MSP`
-  until acknowledged. Trace input snapshots gain a 90-day retention window.
+  API-011 session/thread projection and API-010 → API-009 episodic access remain
+  separate authorization paths. LINE OA Studio owns the per-job
+  `MemoryProjectionReceipt`; Agent supplies the AuthContext, API-010 resolver,
+  API-009 memory port and context-composition boundary. The principal erasure
+  worker exposes `PENDING_MSP` until MSP returns an erasure receipt. Production
+  episodic access stays off until the signed API-010 contract is accepted on MSP
+  main and release gates pass. Trace input snapshots gain a 90-day retention window.
 - **Grounding composition (FR-235, SDD-099).** This lane composes the knowledge
   lane's corpus reader into the server answer by the account's grounding mode and
   records `retrievalRefs`, source and reason on `EVIDENCE_SELECTED`; it owns no model
@@ -152,6 +155,7 @@ code yet; `owns_models` changes only when a model lands.
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.6.0b | 2026-10-04 | Separates API-011 session projection from API-010 episodic memory; assigns the LINE-specific durable projection receipt to LINE OA Studio and records the MSP-main activation gate | Codex |
 | 0.4.0b | 2026-09-14 | ADR-091 / ADR-090 declared (FEAT-037, FEAT-038): the Context Composer as an agent-lane module with one `ContextReceipt` per model call, the CRM-record versus MSP-ledger split with this lane producing consolidation summaries, planned `MemoryProjectionReceipt`, and grounding composition; the one lawful chat-to-knowledge route named in Boundaries; no `owns_models` change | Claude Opus 5 |
 | 0.3.0b | 2026-09-13 | FR-210 / ADR-084 D4: the `#sku` catalogue command wraps the server-owned LINE worker's answer port for verified staff with Inventory write authority; the native path still never calls `handleAgentTurn`, and no model output reaches a write | Claude Opus 5 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

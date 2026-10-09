@@ -8,6 +8,7 @@ import {
   lineMemoryHandle, memoryRoute, memoryServerScope, prepareLineMemoryContext,
 } from '@/modules/agent/server-line-answer'
 import { createServerLineThreadMemory } from './server-line-runtime'
+import { recordMemoryProjectionReceipt } from './line-memory-projection'
 import { runtimeOutOfHoursReply } from './line-conversation-jobs'
 import {
   coreMemoryKey, isMemoryTurn, loadMemoryReceipt, MEMORY_RECEIPT_KINDS, memoryOperationIds, memoryReceiptKey, memoryTextSha256,
@@ -126,7 +127,8 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
   const memoryStateReader = id => db.lineConversationJob.findUnique({
     where: { id },
     select: { memorySyncOptIn: true, status: true, version: true, errorCode: true, transportEpoch: true,
-      account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true } } },
+      account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true,
+        memoryProjectId: true } } },
   })
 
   const loadReceipt = (job, name) => loadMemoryReceipt(db, job, name)
@@ -203,6 +205,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
   function memoryTurn(job) {
     if (job.memorySyncOptIn !== true) throw error('MEMORY_NOT_ENABLED', 409)
     if (!isMemoryTurn(job)) throw error('MEMORY_NOT_APPLICABLE', 409)
+    if (env.ZURI_MSP_THREAD_MEMORY_ENABLED !== 'true') throw error('MEMORY_NOT_ENABLED', 409)
     // @req FR-244 — an out-of-hours turn never touches memory, as on the Server path
     // (#600 review, MEDIUM): every memory operation is refused for it.
     if (runtimeOutOfHoursReply(job) !== null) throw error('MEMORY_NOT_APPLICABLE', 409)
@@ -245,13 +248,15 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       // not asked twice and the injection receipt keeps one packet identity. The
       // job fence and, for private context, the current policy are rechecked first:
       // an erasure, revocation or withdrawal since the first read wins.
-      await assertMemoryJobLive(job, memoryStateReader)
+      await assertMemoryJobLive(job, memoryStateReader, env)
       if (stored.privateMemoryAllowed) await assertPolicyStillAllows(job, route, stored)
       return readResult(stored)
     }
     const port = threadMemory()
     const { memoryContext, memoryInbound, authorizedForMemory } = await prepareLineMemoryContext({ job, route,
-      question: job.inbound.body, threadMemory: port, contextAssembler: assemblerFor(job), memoryStateReader })
+      question: job.inbound.body, threadMemory: port,
+      projectionReceiptWriter: input => recordMemoryProjectionReceipt(db, input),
+      contextAssembler: assemblerFor(job), memoryStateReader, env })
     // @req FR-235 — under a corpus mode, the legacy worker reads this turn's
     // knowledge here, after the MSP phases, and composes it with the thread in ONE
     // call under ONE budget. The read is Core's `prepare` read, with W2's budget
@@ -298,7 +303,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       contextReceiptId: recordsContextReceipt ? composed.receipt?.receiptId ?? null : null, contextPacketJson,
       ...(evidenceJson ? { evidenceJson } : {}),
       ...(pendingMode(job) ? { identityAssurance: 'PENDING' } : {}) }
-    await assertMemoryJobLive(job, memoryStateReader)
+    await assertMemoryJobLive(job, memoryStateReader, env)
     await saveReceipt(job, 'read', receipt)
     // The legacy worker records the composer's ContextReceipt (references, hash,
     // budget; never content) for every BUSINESS_KNOWLEDGE memory turn.
@@ -327,7 +332,8 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     // saved repeats the call on reclaim with the same source event id, which MSP
     // deduplicates exactly as it does for a restarted legacy worker.
     const agent = await appendLineMemoryAnswer({ job, route, threadMemory: port, memory: stored,
-      answerText: text, authorizationResolver: authorizationFor(job), memoryStateReader })
+      answerText: text, authorizationResolver: authorizationFor(job),
+      projectionReceiptWriter: input => recordMemoryProjectionReceipt(db, input), memoryStateReader, env })
     const receipt = { operationId: memoryOperationIds(job.id).append, threadId: stored.threadId,
       exchangeId: stored.exchangeId, messageId: agent.message.messageId, sessionId: agent.session.sessionId, textSha256 }
     await saveReceipt(job, 'append', receipt)
@@ -353,7 +359,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     // never for another execution and never after erasure.
     const { job } = await ownedClaim(ref, state === 'RESOLVED' ? {} : { checkLease: false, checkIdentity: false })
     const route = memoryTurn(job)
-    if (state === 'RESOLVED') await assertMemoryJobLive(job, memoryStateReader)
+    if (state === 'RESOLVED') await assertMemoryJobLive(job, memoryStateReader, env)
     else if (job.errorCode === 'PDPA_ERASURE') throw error('LINE_MEMORY_JOB_ERASED', 409)
     const stored = await storedRead(job, route)
     if (!stored?.contextPacketJson) throw error('MEMORY_INJECTION_NOT_APPLICABLE', 409)

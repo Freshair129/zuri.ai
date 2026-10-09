@@ -107,7 +107,8 @@ export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1
 export const KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_MANIFEST_VERSION = 'knowledge-artifact-storage-recovery.v1'
 export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-recovery.v1'
 export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
-export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v1'
+export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v3'
+const PREVIOUS_LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v2'
 const COMMERCE_BILLING_RECOVERY_TABLES = Object.freeze([
   'businessBillingProfile',
   'commerceDocumentSequence',
@@ -123,7 +124,7 @@ const GENESIS_RAG17_RECOVERY_TABLES = Object.freeze([
   'genesisRag17SourceMention',
 ])
 const KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES = Object.freeze(['knowledgeArtifactStorage', 'knowledgeArtifactOperation'])
-const LINE_WORKER_MEMORY_RECOVERY_TABLES = Object.freeze(['lineConversationJob', 'agentTraceEvent'])
+const LINE_WORKER_MEMORY_RECOVERY_TABLES = Object.freeze(['lineConversationJob', 'agentTraceEvent', 'memoryProjectionReceipt'])
 const LINE_WORKER_MEMORY_STATES = Object.freeze(['NONE', 'PENDING', 'ACKNOWLEDGED', 'CLOSED'])
 const LINE_WORKER_MEMORY_AUDIENCES = Object.freeze(['DIRECT', 'GROUP', 'ROOM'])
 // @req FR-022 — MSP memory erasure records (MEMORY_THREAD_ERASURE_*, W12) are
@@ -220,14 +221,6 @@ export const SNAPSHOT_MODELS = [
   // @req FR-092 — translated market state is restored after its Integration
   // evidence and before downstream projections exist.
   'marketObservation',
-  // @req FR-146 — a LINE OA Studio account references a LINE_OA connection
-  // (above) and a Business (top of this list), so it restores after both and
-  // deletes before them. Operating truth, not credential material: it holds
-  // no secret and is exported whole.
-  'lineOaAccount',
-  // @req FR-153 — a LIFF app registry row hangs off its account: design data,
-  // no secret, exported whole.
-  'lineOaLiffApp',
   // A roadmap hangs off a Business, a horizon off the roadmap, and a goal off
   // both — so they restore in that order and delete in the reverse. All three,
   // plus projectGoal and roleBinding below, were absent from this list until the
@@ -270,7 +263,16 @@ export const SNAPSHOT_MODELS = [
   // restore in this order and delete in the reverse. `projectTeam` needs
   // `project` as well and therefore waits for the next line.
   'team', 'teamMembership',
-  'workspace', 'project', 'planImportReceipt', 'projectExecutionRun', 'projectExecutionStep', 'projectApprovalRequest', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
+  'workspace', 'project',
+  // @req FR-146, FR-057 — a LINE OA Studio account references its LINE_OA
+  // connection, Business and optional private-memory Project. Those parents
+  // all precede it; deleting in reverse removes the account before the Project.
+  // Operating truth, not credential material: it holds no secret and is exported whole.
+  'lineOaAccount',
+  // @req FR-153 — a LIFF app registry row hangs off its account: design data,
+  // no secret, exported whole.
+  'lineOaLiffApp',
+  'planImportReceipt', 'projectExecutionRun', 'projectExecutionStep', 'projectApprovalRequest', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
   // @req FR-151 — a rich menu hangs off a LINE OA account (above) and its
@@ -432,7 +434,7 @@ export const SNAPSHOT_MODELS = [
   'supplierCostSheet', 'supplierCostLine',
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
-  'agentTraceEvent',
+  'agentTraceEvent', 'memoryProjectionReceipt',
   // @req FR-277 — diagnostic-only shadow-compare rows (ADR-090 Phase 3,
   // TASK-ZAI-095). No relation is declared (matching agentTraceEvent's own
   // convention), so ordering relative to it is not load-bearing; exported
@@ -1392,16 +1394,16 @@ function lineWorkerMemoryRecovery(snapshot) {
   const result = { status: 'UNAVAILABLE', manifestVersion: manifest?.schemaVersion || null, errors: [], warnings: [] }
   if (manifest === undefined) {
     result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: snapshot has no memory recovery manifest; pending memory receipts are not claimed as preserved')
-    if (rows.some((row) => row?.memorySyncOptIn === true
+    if (rows.some((row) => row?.memorySyncOptIn === true || row?.episodicMemoryOptIn === true
       || (typeof row?.memoryDeliveryState === 'string' && row.memoryDeliveryState !== 'NONE'))) {
       result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: memory fields in a legacy snapshot are untrusted and will be restored as opt-out defaults')
     }
     return result
   }
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)
-    || manifest.schemaVersion !== LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION
+    || ![LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION, PREVIOUS_LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION].includes(manifest.schemaVersion)
     || JSON.stringify(manifest.requiredTables) !== JSON.stringify(LINE_WORKER_MEMORY_RECOVERY_TABLES)) {
-    result.errors.push(`Invalid LINE worker memory recovery manifest (expected ${LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION})`)
+    result.errors.push(`Invalid LINE worker memory recovery manifest (expected ${LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION} or ${PREVIOUS_LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION})`)
   }
   for (const model of LINE_WORKER_MEMORY_RECOVERY_TABLES) {
     if (!Array.isArray(tables[model])) result.errors.push(`LINE worker memory recovery snapshot is missing required table: ${model}`)
@@ -1413,6 +1415,7 @@ function lineWorkerMemoryRecovery(snapshot) {
       continue
     }
     if (typeof row.memorySyncOptIn !== 'boolean') result.errors.push(`LINE worker memory recovery job ${label} has an invalid memorySyncOptIn`)
+    if (row.episodicMemoryOptIn !== undefined && typeof row.episodicMemoryOptIn !== 'boolean') result.errors.push(`LINE worker memory recovery job ${label} has an invalid episodicMemoryOptIn`)
     if (!LINE_WORKER_MEMORY_STATES.includes(row.memoryDeliveryState)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryState`)
     if (!Number.isInteger(row.memoryDeliveryAttempts) || row.memoryDeliveryAttempts < 0) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryAttempts`)
     if (!LINE_WORKER_MEMORY_AUDIENCES.includes(row.audienceKind)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid audienceKind`)
@@ -1423,6 +1426,11 @@ function lineWorkerMemoryRecovery(snapshot) {
     }
     if (row.memorySyncOptIn === false && row.memoryDeliveryState !== 'NONE') {
       result.errors.push(`LINE worker memory recovery job ${label} has opt-out memory with non-NONE state`)
+    }
+    if (row.episodicMemoryOptIn === true && (row.audienceKind !== 'DIRECT'
+      || typeof row.episodicWorkspaceId !== 'string' || !row.episodicWorkspaceId.trim()
+      || typeof row.episodicProjectId !== 'string' || !row.episodicProjectId.trim())) {
+      result.errors.push(`LINE worker memory recovery job ${label} has episodic memory without DIRECT trusted workspace/project scope`)
     }
     if (row.memoryDeliveryState === 'NONE'
       && (row.memoryDeliveryAttempts !== 0 || row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
@@ -1438,6 +1446,40 @@ function lineWorkerMemoryRecovery(snapshot) {
       if (!hasMemoryPendingCheckpoint(snapshot, row)) {
         result.errors.push(`LINE worker memory recovery job ${label} has no matching scoped MEMORY_DELIVERY_PENDING checkpoint`)
       }
+    }
+  }
+  const jobById = new Map(rows.filter(row => row && typeof row.id === 'string').map(row => [row.id, row]))
+  for (const receipt of Array.isArray(tables.memoryProjectionReceipt) ? tables.memoryProjectionReceipt : []) {
+    const label = receipt?.id || '<unknown>'
+    if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt)) {
+      result.errors.push(`LINE worker memory projection ${label} is not an object`)
+      continue
+    }
+    const job = jobById.get(receipt.lineConversationJobId)
+    if (!job || job.tenantId !== receipt.tenantId || job.businessId !== receipt.businessId) {
+      result.errors.push(`LINE worker memory projection ${label} has no matching scoped job`)
+    }
+    for (const field of ['tenantId', 'businessId', 'lineConversationJobId', 'principalId', 'mspThreadId',
+      'mspSessionId', 'mspMessageId', 'mspExchangeId']) {
+      if (typeof receipt[field] !== 'string' || !receipt[field].trim()) result.errors.push(`LINE worker memory projection ${label} has an invalid ${field}`)
+    }
+    if (!['INBOUND', 'OUTBOUND'].includes(receipt.direction)) result.errors.push(`LINE worker memory projection ${label} has an invalid direction`)
+    if (typeof receipt.episodicMemoryOptIn !== 'boolean') result.errors.push(`LINE worker memory projection ${label} has an invalid episodicMemoryOptIn`)
+    if (!['PENDING', 'ACKNOWLEDGED', 'CLOSED'].includes(receipt.deliveryState)) result.errors.push(`LINE worker memory projection ${label} has an invalid deliveryState`)
+    if (!['ACTIVE', 'PENDING_MSP', 'ERASED'].includes(receipt.erasureStatus)) result.errors.push(`LINE worker memory projection ${label} has an invalid erasureStatus`)
+    if (!validSnapshotDate(receipt.acknowledgedAt)) result.errors.push(`LINE worker memory projection ${label} has an invalid acknowledgedAt`)
+    if (receipt.deliveryAcknowledgedAt !== null && !validSnapshotDate(receipt.deliveryAcknowledgedAt)) {
+      result.errors.push(`LINE worker memory projection ${label} has an invalid deliveryAcknowledgedAt`)
+    }
+    if (receipt.direction === 'INBOUND' && (typeof receipt.crmMessageId !== 'string' || !receipt.crmMessageId.trim())) {
+      result.errors.push(`LINE worker inbound projection ${label} has no CRM message ID`)
+    }
+    if (receipt.direction === 'OUTBOUND' && receipt.deliveryState === 'ACKNOWLEDGED'
+      && (typeof receipt.crmMessageId !== 'string' || !receipt.crmMessageId.trim() || !validSnapshotDate(receipt.deliveryAcknowledgedAt))) {
+      result.errors.push(`LINE worker acknowledged outbound projection ${label} has no CRM delivery receipt`)
+    }
+    if (receipt.erasureStatus === 'ERASED' && (typeof receipt.erasureReceiptId !== 'string' || !receipt.erasureReceiptId.trim())) {
+      result.errors.push(`LINE worker erased projection ${label} has no MSP erasure receipt`)
     }
   }
   if (result.errors.length) result.status = 'INVALID'
@@ -1733,9 +1775,10 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
     artifactStorage.recovery.status = 'INVALID'
   }
   const currentMemoryJobs = await db.lineConversationJob.count({ where: {
-    OR: [{ memorySyncOptIn: true }, { memoryDeliveryState: { not: 'NONE' } }],
+    OR: [{ memorySyncOptIn: true }, { episodicMemoryOptIn: true }, { memoryDeliveryState: { not: 'NONE' } }],
   } })
   const currentMemoryEvidence = await db.agentTraceEvent.count({ where: { kind: { in: [...LINE_WORKER_MEMORY_TRACE_KINDS] } } })
+  const currentMemoryProjections = await db.memoryProjectionReceipt.count()
   // An older snapshot may be useful for read-only inspection, but importing it
   // while any billing row exists would silently turn omitted arrays into deletes.
   // An installation with no billing rows can still restore the older snapshot;
@@ -1754,7 +1797,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   if (marketingBroadcast.status === 'UNAVAILABLE' && MARKETING_BROADCAST_RECOVERY_TABLES.some(model => current[model] > 0)) {
     marketingBroadcast.errors.push('Marketing broadcast recovery is unavailable while the installation contains broadcast rows; refusing a restore that would erase planning evidence')
   }
-  if (lineWorkerMemory.status === 'UNAVAILABLE' && (currentMemoryJobs > 0 || currentMemoryEvidence > 0)) {
+  if (lineWorkerMemory.status === 'UNAVAILABLE' && (currentMemoryJobs > 0 || currentMemoryEvidence > 0 || currentMemoryProjections > 0)) {
     lineWorkerMemory.errors.push('LINE worker memory recovery is unavailable while the installation contains enrolled jobs or memory evidence; refusing a restore that would erase evidence')
   }
   if (archive.status === 'UNAVAILABLE' && ARCHIVE_RECOVERY_TABLES.some((model) => current[model] > 0)) {
@@ -1866,10 +1909,13 @@ export function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
   const { sealedReplyToken, ...rest } = row
   const preserveMemoryRecovery = lineWorkerMemoryRecovery?.status === 'AVAILABLE'
   const memory = preserveMemoryRecovery
-    ? { memorySyncOptIn: row.memorySyncOptIn, memoryDeliveryState: row.memoryDeliveryState,
+    ? { memorySyncOptIn: row.memorySyncOptIn, episodicMemoryOptIn: row.episodicMemoryOptIn === true,
+      episodicWorkspaceId: row.episodicWorkspaceId ?? null, episodicProjectId: row.episodicProjectId ?? null,
+      memoryDeliveryState: row.memoryDeliveryState,
       memoryDeliveryAttempts: row.memoryDeliveryAttempts, memoryDeliveryNextAttemptAt: row.memoryDeliveryNextAttemptAt,
       memoryDeliveryLeaseUntil: null }
-    : { audienceKind: 'DIRECT', memorySyncOptIn: false, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
+    : { audienceKind: 'DIRECT', memorySyncOptIn: false, episodicMemoryOptIn: false, episodicWorkspaceId: null,
+      episodicProjectId: null, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
       memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null }
   const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
     // A restored account is disabled above. Preserve the durable pending receipt

@@ -40,8 +40,8 @@
     "readyFeatureCount": 119,
     "requirementCount": 281,
     "verifiedRequirementCount": 246,
-    "progressPercent": 92.2,
-    "gapCount": 57,
+    "progressPercent": 92.5,
+    "gapCount": 58,
     "gaps": [
       {
         "domain": "agent",
@@ -296,6 +296,23 @@
         "severity": "medium",
         "check": "tests",
         "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "line-oa-studio",
+        "id": "REQ-FR-231",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-231 is partial",
+        "evidence": [
+          "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+          "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+          "apps/server/tests/integration/fr146-line-oa-account.test.js",
+          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+          "apps/server/tests/unit/line-oa-account-domain.test.js"
+        ]
       },
       {
         "domain": "line-oa-studio",
@@ -756,7 +773,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 16
+          "testCount": 29
         },
         {
           "id": "FR-072",
@@ -1816,7 +1833,7 @@
       ],
       "featureCount": 10,
       "readyFeatureCount": 4,
-      "progressPercent": 86
+      "progressPercent": 90
     },
     "identity": {
       "status": "partial",
@@ -3822,6 +3839,14 @@
           "testCount": 10
         },
         {
+          "id": "FR-057",
+          "title": "Authorized agent context",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 29
+        },
+        {
           "id": "FR-061",
           "title": "Per-Business domain visibility",
           "declared": "done",
@@ -3982,6 +4007,24 @@
           "testCount": 19
         },
         {
+          "id": "FR-231",
+          "title": "LINE memory projection policy and receipts",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 6,
+          "evidence": [
+            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js"
+          ]
+        },
+        {
           "id": "FR-235",
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
@@ -4112,8 +4155,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 7,
-            "present": 7
+            "models": 8,
+            "present": 8
           }
         },
         "authorization": {
@@ -4192,6 +4235,22 @@
           "summary": "At least one requirement lacks complete code-and-test evidence"
         },
         {
+          "id": "REQ-FR-231",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-231 is partial",
+          "evidence": [
+            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js"
+          ]
+        },
+        {
           "id": "REQ-FR-259",
           "severity": "medium",
           "check": "requirements",
@@ -4203,7 +4262,7 @@
         "routes": 25,
         "apiRoutes": 15,
         "pageRoutes": 10,
-        "ownedModels": 7,
+        "ownedModels": 8,
         "featureNotes": 14
       },
       "featureIds": [
@@ -5618,6 +5677,14 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 3
+        },
+        {
+          "id": "FR-057",
+          "title": "Authorized agent context",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 29
         },
         {
           "id": "FR-058",
@@ -11356,12 +11423,12 @@
         "project-manager"
       ],
       "useCase": "พนักงานเปิด Inbox แล้วเห็นบทสนทนา LINE ครบทั้งข้อความ สติกเกอร์ รูปที่ลูกค้าส่ง และเหตุการณ์อย่างการเพิ่มเพื่อนหรือบล็อก ค้นหาข้อความเก่าได้ ส่วนเจ้าของธุรกิจกำหนดได้ว่าบัญชีไหนให้ agent จำบริบทได้ รู้ว่าข้อมูลแต่ละชั้นเก็บนานเท่าไร และเมื่อลูกค้าขอลบข้อมูลก็เห็นว่าลบครบทุกชั้นแล้วหรือยังรออยู่ที่ไหน",
-      "progressPercent": 80,
+      "progressPercent": 93.3,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-037 registry status is declared",
-        "FR-231 is planned",
+        "FR-231 is partial",
         "FR-232 is partial"
       ],
       "requirements": [
@@ -11384,10 +11451,10 @@
         {
           "id": "FR-231",
           "title": "LINE memory projection policy and receipts",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 2,
+          "testCount": 6
         },
         {
           "id": "FR-232",
@@ -11440,10 +11507,13 @@
         "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/crm/retention-sweep-tombstone.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -11454,6 +11524,10 @@
         "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
         "apps/server/tests/integration/identity-erase-speaker-events.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
@@ -11480,6 +11554,7 @@
         "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
+        "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/reply-record-service.test.js",
@@ -14875,7 +14950,9 @@
       ],
       "primaryDomain": "agent",
       "contributorDomains": [
-        "agent"
+        "agent",
+        "line-oa-studio",
+        "project-manager"
       ],
       "useCase": "ทุก LINE turn resolve authorized MSP vaults จาก principal และ scope ก่อน retrieval",
       "progressPercent": 100,
@@ -14888,8 +14965,8 @@
           "title": "Authorized agent context",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 16
+          "codeCount": 10,
+          "testCount": 29
         }
       ],
       "evidence": [
@@ -14901,22 +14978,37 @@
         "apps/server/src/modules/agent/msp-thread-memory-port.js",
         "apps/server/src/modules/agent/msp-vault-resolver.js",
         "apps/server/src/modules/agent/scoped-memory.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/agent-msp-port.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/agent-runtime.test.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
+        "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+        "apps/server/tests/integration/line-gks-grounding.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/memory-trace-linkage.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/unit/agent-context-retrieval.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/ki17-worker-msp-launcher.test.js",
+        "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/msp-memory-evidence.test.js",
         "apps/server/tests/unit/msp-stdio-transport.test.js",
-        "apps/server/tests/unit/msp-vault-resolver.test.js"
+        "apps/server/tests/unit/msp-vault-resolver.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js"
       ]
     },
     {

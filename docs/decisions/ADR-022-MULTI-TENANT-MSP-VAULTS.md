@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-08-15T00:00:00+07:00,ATHER"
-last_update: "2026-08-15T10:00:00+07:00,ATHER"
+last_update: "2026-10-04T09:44:57+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
@@ -100,6 +100,25 @@ The `AuthContext` contains server-derived `transport`, `actor`, `scope`,
 `conversation`, `request`, and `policy` fields. Raw `lineUserId`, inbound scope
 claims, prompt text, and model output are never authorization authorities.
 
+### Memory API boundary clarification — 2026-10-04
+
+This API-010 → API-009 contract governs private episodic-memory reads and writes.
+API-011 `msp_thread_*` calls serve the separate session/thread tier described by
+[ADR-091](ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md).
+An API-011 grant or session receipt does not authorize API-009 access, and an
+API-010 vault set does not authorize API-011 session projection.
+
+For API-009 episodic, passport or cross-thread memory, the per-turn policy must
+allow access, the Customer's consent must be `GRANTED`, and the audience must be
+`DIRECT`; otherwise private-memory retrieval is denied. A missing or untrusted
+consent, policy or owner value fails closed. The session-tier path follows
+ADR-091's separate policy, receipt and erasure gates.
+
+This clarification does not enable either path. Production activation requires
+the signed API-010 contract used by Zuri to be present on MSP main, the relevant
+trusted policy/consent inputs and erasure evidence to be implemented and
+verified, and a separately accepted rollout record.
+
 ## Supabase/RLS boundary
 
 When these records are exposed through Supabase, every exposed table remains RLS
@@ -128,4 +147,5 @@ only when explicitly enabled for a bounded migration or local test.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0b | 2026-10-04 | accepted | Clarifies API-010 → API-009 episodic memory is distinct from API-011 session memory and records the consent, contract and activation gates | working-tree | Codex |
 | 0.2.0b | 2026-08-15 | beta | Approved API-010 canonical vault resolution and explicit compatibility boundary | working-tree | ATHER |

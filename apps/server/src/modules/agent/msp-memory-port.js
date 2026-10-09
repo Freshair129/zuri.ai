@@ -147,9 +147,9 @@ export function createMspMemoryPort({
     if (
       !authorization?.authContext ||
       authorization.authContext.policy?.decision !== 'ALLOW' ||
-      authorization.authContext.policy?.privateMemoryAllowed !== true
+      authorization.authContext.policy?.episodicMemoryAllowed !== true
     ) {
-      throw new Error('MSP memory port: private retrieval requires an ALLOW policy decision')
+      throw new Error('MSP memory port: episodic retrieval requires an ALLOW policy decision')
     }
     const scopes = authorization.authorizedVaults
     if (!Array.isArray(scopes) || scopes.length === 0) {
@@ -309,5 +309,5 @@ export function createMspMemoryPort({
     return recallAfterWrite(() => recall(key), writeReceipt)
   }
 
-  return { recall, remember, recallAuthorized, rememberAuthorized }
+  return { requiresEpisodicAuthorization: true, recall, remember, recallAuthorized, rememberAuthorized }
 }

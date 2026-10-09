@@ -29,15 +29,15 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // (main e7afa528), bringing this frozen inventory to 192 tables.
 // @req FR-022 — CustomerRetentionConsent and LegalHoldArchiveKey (ADR-093
 // 1.2.0, "consent to retain = keep") add two more, bringing it to 194.
-// @req FR-022 — the MSP memory erasure scanner's index on AgentTraceEvent
-// (kind, occurredAt, id) changes the schema bytes, not the 194-table mapping. See
+// @req FR-022 — MemoryProjectionReceipt is included in the frozen application
+// inventory alongside the MSP memory erasure scan index. See
 // docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
 // for the historical binding ladder this entry continues.
 // @req FR-282, FR-283 — owner-approved 2026-10-06 Marketing custody rebind
-// adds three excluded retained-evidence models to the complete 197-table census.
-const FROZEN_SCHEMA_SHA256 = '45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06'
-const FROZEN_TARGET_SCHEMA_SHA256 = 'e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e'
-const FROZEN_APPLICATION_TABLE_COUNT = 197
+// adds three excluded retained-evidence models to the complete census, composed with MemoryProjectionReceipt for 198 tables.
+const FROZEN_SCHEMA_SHA256 = '19bebd6e40dbaf43bfae5a99d54d29ebf33576add850b45525033f516d09405a'
+const FROZEN_TARGET_SCHEMA_SHA256 = '40815083980a80c6d3c3237b1f9db5bf9c1c6c93682beb360a060a93996e50bb'
+const FROZEN_APPLICATION_TABLE_COUNT = 198
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0

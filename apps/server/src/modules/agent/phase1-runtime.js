@@ -21,6 +21,8 @@ import {
 import pg from 'pg'
 import { createMspTransportFromEnvironment } from './msp-stdio-transport'
 import { createMspThreadMemoryPort } from './msp-thread-memory-port'
+import { createMspMemoryPort } from './msp-memory-port'
+import { createMspVaultResolver } from './msp-vault-resolver'
 
 // @req FR-047, FR-048, FR-052, FR-080 — compose Phase 1 ports only from server-owned scope and configuration.
 // @req FR-266 — `resolveModel` reads the Business's own browser-provisioned model
@@ -316,22 +318,43 @@ export function createPhase1BusinessAgentPortsFromEnv(
     resolveModel,
     close: async () => {},
   }
-  if (env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true') {
+  const threadMemoryEnabled = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+  const episodicMemoryEnabled = env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
+  if (threadMemoryEnabled || episodicMemoryEnabled) {
     const transport = mspTransport ?? createMspTransportFromEnvironment(env)
     if (!transport) throw new Error('MSP_THREAD_MEMORY_TRANSPORT_REQUIRED')
-    if ((env.ZURI_MSP_THREAD_SERVICE_KEY ?? '').length < 32) throw new Error('MSP_THREAD_SERVICE_KEY_REQUIRED')
-    ports.threadMemory = createMspThreadMemoryPort({
-      transport,
-      actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
-      agentId: env.ZURI_MSP_THREAD_AGENT_ID ?? env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
-      workspaceId: env.ZURI_MSP_THREAD_WORKSPACE_ID,
-      serviceKey: env.ZURI_MSP_THREAD_SERVICE_KEY,
-      maxContextBytes: Number(env.ZURI_MSP_CONTEXT_MAX_BYTES ?? 24000),
-      idleTimeoutMinutes: Number(env.MSP_THREAD_IDLE_TIMEOUT_MINUTES ?? 30),
-      recentExchangeCount: Number(env.MSP_THREAD_RECENT_EXCHANGES ?? 6),
-    })
+    const serviceKey = env.ZURI_MSP_THREAD_SERVICE_KEY
+    if (threadMemoryEnabled && (typeof serviceKey !== 'string' || serviceKey.length < 32)) {
+      throw new Error('MSP_THREAD_SERVICE_KEY_REQUIRED')
+    }
+    if (threadMemoryEnabled) {
+      ports.threadMemory = createMspThreadMemoryPort({
+        transport,
+        actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
+        agentId: env.ZURI_MSP_THREAD_AGENT_ID ?? env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
+        workspaceId: env.ZURI_MSP_THREAD_WORKSPACE_ID,
+        serviceKey,
+        maxContextBytes: Number(env.ZURI_MSP_CONTEXT_MAX_BYTES ?? 24000),
+        idleTimeoutMinutes: Number(env.MSP_THREAD_IDLE_TIMEOUT_MINUTES ?? 30),
+        recentExchangeCount: Number(env.MSP_THREAD_RECENT_EXCHANGES ?? 6),
+      })
+    } else {
+      ports.threadMemory = null
+    }
+    if (episodicMemoryEnabled) {
+      const serviceKeyring = env.MSP_THREAD_SERVICE_KEYRING
+      if ((typeof serviceKey !== 'string' || serviceKey.length < 32) && !serviceKeyring) {
+        throw new Error('MSP_THREAD_SERVICE_KEY_REQUIRED')
+      }
+      const resolver = createMspVaultResolver({ transport,
+        actor: env.ZURI_MSP_EPISODIC_MEMORY_ACTOR ?? 'zuri-line-agent', serviceKey, serviceKeyring })
+      ports.episodicMemory = createMspMemoryPort({ transport, vaultSetResolver: resolver })
+    } else {
+      ports.episodicMemory = null
+    }
   } else {
     ports.threadMemory = null
+    ports.episodicMemory = null
   }
   return ports
 }

@@ -42,6 +42,7 @@ function consentSummary(customer) {
     code: customer.code,
     displayName: customer.displayName,
     consentStatus: customer.consentStatus,
+    memoryErasureStatus: customer.memoryErasureStatus ?? 'NONE',
     consentRecordedAt: customer.consentRecordedAt ? customer.consentRecordedAt.toISOString() : null,
     consentRecordedByPersonId: customer.consentRecordedByPersonId,
     consentNote: customer.consentNote,
@@ -89,7 +90,7 @@ export async function recordCustomerConsent(customerId, input, { viewer, db = pr
   // the caller supplies, because the lookup itself is bounded by it.
   const customer = await db.customer.findFirst({
     where: { id: customerId, tenantId: business.tenantId },
-    select: { id: true, code: true, displayName: true, consentStatus: true },
+    select: { id: true, code: true, displayName: true, consentStatus: true, memoryErasureStatus: true },
   })
   if (!customer) throw failure(404, 'CUSTOMER_NOT_FOUND')
 

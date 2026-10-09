@@ -83,11 +83,17 @@ status: generated
 
 ### Code paths — graph bindings
 
-No current binding of this type is present in the frozen graph.
+- [apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js](../../../apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/line-oa-studio/domain/line-oa-account.js](../../../apps/server/src/modules/line-oa-studio/domain/line-oa-account.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
-No current binding of this type is present in the frozen graph.
+- [apps/server/tests/integration/credential-vault-lifecycle.test.js](../../../apps/server/tests/integration/credential-vault-lifecycle.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr146-line-oa-account.test.js](../../../apps/server/tests/integration/fr146-line-oa-account.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js](../../../apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js](../../../apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr238-line-studio-description-admission.test.js](../../../apps/server/tests/integration/fr238-line-studio-description-admission.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-oa-account-domain.test.js](../../../apps/server/tests/unit/line-oa-account-domain.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-232](requirements/FR-232.md)
 

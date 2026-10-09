@@ -261,6 +261,26 @@ describe('context-composer: thread and audience scope', () => {
     expect(composed.dropped).toEqual([{ id: 'msp-passport', source: 'MSP', reason: 'AUDIENCE_SCOPE_DENIED' }])
   })
 
+  it('allows a cross-thread episodic slice to a DIRECT audience without thread provenance', () => {
+    const episodic = { id: 'episodic:memory-1', scope: 'CROSS_THREAD', text: { value: 'preference' } }
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'direct-thread' }, audienceKind: 'DIRECT', mspSlices: [episodic],
+    })
+    expect(composed.slices.map((slice) => slice.id)).toEqual(['episodic:memory-1'])
+    expect(composed.slices[0].content).toEqual({ value: 'preference' })
+    expect(composed.receipt.refs.msp).toEqual(['episodic:memory-1'])
+    expect(composed.dropped).toEqual([])
+  })
+
+  it('rejects a cross-thread slice that claims another thread', () => {
+    const episodic = { id: 'episodic:memory-2', scope: 'CROSS_THREAD', threadId: 'other-thread', text: 'private' }
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'direct-thread' }, audienceKind: 'DIRECT', mspSlices: [episodic],
+    })
+    expect(composed.slices).toEqual([])
+    expect(composed.dropped).toEqual([{ id: 'episodic:memory-2', source: 'MSP', reason: 'THREAD_SCOPE_MISMATCH' }])
+  })
+
   it('allows an in-thread slice for a non-DIRECT audience when it is not passport/cross-thread scoped', () => {
     const inThreadSlice = { id: 'msp-in-thread', threadId: 'group-thread', text: 'ข้อความในห้องนี้' }
     const composed = composeContext({

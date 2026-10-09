@@ -1,9 +1,9 @@
 ---
 id: ZAI:ADR-061
-version: "0.1.8b"
+version: "0.1.9b"
 status: active
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
-last_update: "2026-09-21T00:00:00+07:00,Claude Opus 5"
+last_update: "2026-10-04T17:20:28+07:00,Codex"
 relations:
   - type: relates_to
     target: ZAI:ADR-041
@@ -52,7 +52,9 @@ LINE and CRM remain available without Edge. Jobs requiring an offline device rem
 
 Implementation uses the existing Next.js app, Prisma provider schemas and Docker deployment. The worker is a separate process from the same release and calls an authenticated internal worker route; it does not keep work in RAM after acknowledgment. The Edge daemon is independently deployable and must upgrade before transport cutover. Asset extraction remains supported through its existing pull contract.
 
-Snapshot recovery preserves the LINE job ledger after its account and inbound Message parents, while excluding sealed reply tokens from export and discarding any token supplied on import. New exports retain the global `1.0` format and declare a `lineWorkerMemoryRecovery` manifest covering both the job and trace tables; manifested memory opt-in, audience, retry state and checkpoint evidence are validated and restored, with scanner leases cleared. A legacy snapshot without that manifest reports memory recovery as unavailable and is refused when the installation already contains enrolled jobs or memory evidence; untrusted legacy memory fields are restored as opt-out defaults when no such evidence exists. Every restored account has server ownership disabled and its epoch advanced; activation requires fresh credential validation and an explicit handoff. Waiting or prepared jobs become CANCELLED with `RESTORED_REQUIRES_REVIEW`; an exported SENDING job becomes UNKNOWN because a provider send may have succeeded after the snapshot was taken. Existing UNKNOWN remains uncertain and blocks activation until acknowledged. ACCEPTED jobs retain provider evidence for CRM-only repair, without another LINE call. Snapshot restoration never resumes external delivery automatically.
+Snapshot recovery preserves the LINE job ledger after its account and inbound Message parents, while excluding sealed reply tokens from export and discarding any token supplied on import. New exports retain the global `1.0` format and declare a `lineWorkerMemoryRecovery.v3` manifest covering the job, trace and projection-receipt tables. API-011 delivery opt-in and retry state are validated independently from API-010 episodic opt-in, which requires a DIRECT audience and both trusted job-scope IDs; scanner leases are cleared on restore. A legacy snapshot without that manifest reports memory recovery as unavailable and is refused when the installation already contains enrolled jobs or memory evidence; untrusted legacy memory fields and episodic scope IDs are restored as opt-out defaults when no such evidence exists. Every restored account has server ownership disabled and its epoch advanced; activation requires fresh credential validation and an explicit handoff. Waiting or prepared jobs become CANCELLED with `RESTORED_REQUIRES_REVIEW`; an exported SENDING job becomes UNKNOWN because a provider send may have succeeded after the snapshot was taken. Existing UNKNOWN remains uncertain and blocks activation until acknowledged. ACCEPTED jobs retain provider evidence for CRM-only repair, without another LINE call. Snapshot restoration never resumes external delivery automatically.
+
+**Owner-approved API-010 amendment (2026-10-04):** episodic `episodicMemoryOptIn` and its admission-snapshotted `episodicWorkspaceId`/`episodicProjectId` are independent of API-011 `memorySyncOptIn` and its delivery retry state. The recovery validator requires a DIRECT audience and both non-empty scope IDs for an episodic-enabled job; it does not require API-011 opt-in. A valid recovery manifest preserves those job snapshots for the caller's live revalidation. If memory recovery is unavailable, import fails closed by restoring both memory flags off and clearing episodic scope IDs; episodic-only jobs count as protected evidence. Restored accounts remain disabled and snapshot recovery never resumes MSP delivery.
 
 ## Required proof
 
