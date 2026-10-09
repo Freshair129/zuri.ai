@@ -1,0 +1,207 @@
+{
+  "$comment": "Governed by ZAI:ADR-107.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.ai/contracts/file-authority-authorization.v1.schema.json",
+  "title": "File authority authorization v1",
+  "description": "Proposed narrow authority adapter contract. The authority owner must implement and review this endpoint before protected service operations can become ready.",
+  "type": "object",
+  "required": [
+    "request",
+    "grant",
+    "health"
+  ],
+  "properties": {
+    "request": {
+      "type": "object",
+      "required": [
+        "bearerToken",
+        "action",
+        "tenantId",
+        "businessId"
+      ],
+      "properties": {
+        "bearerToken": {
+          "type": "string",
+          "minLength": 1
+        },
+        "action": {
+          "enum": [
+            "files:create",
+            "files:write",
+            "files:read"
+          ]
+        },
+        "tenantId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "businessId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      },
+      "additionalProperties": false
+    },
+    "grant": {
+      "type": "object",
+      "required": [
+        "actorId",
+        "tenantId",
+        "businessId",
+        "permissions"
+      ],
+      "properties": {
+        "actorId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "tenantId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "businessId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "permissions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "files:create",
+              "files:write",
+              "files:read",
+              "files:line-capture",
+              "files:sot-snapshot",
+              "files:knowledge-artifact",
+              "files:system-import"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "health": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "const": "ready"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "BROWSER_UPLOAD",
+            "LINE_CAPTURE",
+            "KNOWLEDGE_EXPORT",
+            "GIT_SNAPSHOT",
+            "API_IMPORT",
+            "OTHER"
+          ]
+        },
+        "sourceId": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "sourceRevision": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "capturedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "producer": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "channelBindingId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "providerMessageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "attachmentOrdinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "contentProviderType": {
+          "enum": [
+            "line",
+            "external"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "LINE_CAPTURE"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "sourceId",
+              "channelBindingId",
+              "providerMessageId",
+              "attachmentOrdinal",
+              "contentProviderType"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "channelBindingId"
+                  ]
+                },
+                {
+                  "required": [
+                    "providerMessageId"
+                  ]
+                },
+                {
+                  "required": [
+                    "attachmentOrdinal"
+                  ]
+                },
+                {
+                  "required": [
+                    "contentProviderType"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}

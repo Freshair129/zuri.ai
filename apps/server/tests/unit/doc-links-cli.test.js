@@ -17,6 +17,9 @@ it('CLI reproduces generated files and rejects stale state, backlinks and missin
     cpSync(workspacePath(root, 'AGENTS.md'), path.join(fixture, 'AGENTS.md'))
     mkdirSync(path.join(fixture, 'prisma'))
     cpSync(workspacePath(root, 'prisma/schema.prisma'), path.join(fixture, 'prisma/schema.prisma'))
+    const fileModelSource = 'services/file-management/migrations/0001_file_management.sql'
+    mkdirSync(path.dirname(path.join(fixture, fileModelSource)), { recursive: true })
+    cpSync(workspacePath(root, fileModelSource), path.join(fixture, fileModelSource))
     symlinkSync(workspacePath(root, 'node_modules'), path.join(fixture, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir')
     mkdirSync(path.join(fixture, 'src/config'), { recursive: true })
     cpSync(workspacePath(root, 'src/config/domains.js'), path.join(fixture, 'src/config/domains.js'))

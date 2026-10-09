@@ -13,7 +13,8 @@
     "src/app/**/route.js",
     "src/app/**/page.jsx",
     "src/modules/**/*.js",
-    "tests/**/*.{test,spec}.js"
+    "tests/**/*.{test,spec}.js",
+    "services/file-management/migrations/0001_file_management.sql"
   ],
   "statusVocabulary": [
     "verified",
@@ -35,7 +36,7 @@
   },
   "overall": {
     "status": "partial",
-    "domainCount": 14,
+    "domainCount": 15,
     "featureCount": 167,
     "readyFeatureCount": 119,
     "requirementCount": 281,
@@ -1834,6 +1835,74 @@
       "featureCount": 10,
       "readyFeatureCount": 4,
       "progressPercent": 90
+    },
+    "file-management": {
+      "status": "verified",
+      "requirements": [],
+      "checks": {
+        "ui": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "httpApi": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "mcp": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "jsonSchema": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "database": {
+          "status": "verified",
+          "evidence": [
+            "services/file-management/migrations/0001_file_management.sql"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 3,
+            "present": 3
+          }
+        },
+        "authorization": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "tests": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        }
+      },
+      "evidence": [
+        "docs/domains/file-management/CHARTER.md",
+        "services/file-management/migrations/0001_file_management.sql"
+      ],
+      "gaps": [],
+      "details": {
+        "routes": 0,
+        "apiRoutes": 0,
+        "pageRoutes": 0,
+        "ownedModels": 3,
+        "featureNotes": 0
+      },
+      "featureIds": [],
+      "featureCount": 0,
+      "readyFeatureCount": 0,
+      "progressPercent": null
     },
     "identity": {
       "status": "partial",

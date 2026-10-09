@@ -160,6 +160,7 @@ Generated navigation for current source documents in the architecture grouping. 
 - [ADR-104 — Production PostgreSQL migration lineage reconciliation and controlled apply](../decisions/ADR-104-PRODUCTION-MIGRATION-LINEAGE-RECONCILIATION.md)
 - [ADR-105 — LINE OA Studio stateless application tier with stateful domain persistence](../decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md)
 - [ADR-106 — Conversation Runtime service extraction](../decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md)
+- [ADR-107 — File Management service and exact-version FilePort](../decisions/ADR-107-FILE-MANAGEMENT-SERVICE-AND-EXACT-VERSION-PORT.md)
 - [ADR-108 — Market Intelligence service extraction on the ownership trigger](../decisions/ADR-108-MARKET-INTELLIGENCE-SERVICE-EXTRACTION.md)
 - [ADR-109 — Notion OAuth installation and signed webhook boundary](../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md)
 - [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md)

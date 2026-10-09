@@ -55,8 +55,8 @@ it('builds the qualified index for the complete current registry without changin
   expect(declarations.duplicates).toEqual([])
   expect(declarations.missing).toEqual([])
   const indexed = indexDeclaredIdentities(declarations, [])
-  expect(indexed.size).toBe(752)
-  for (const id of ['ADR-039', 'ZV2-CR-009', 'RSK-016', 'MI-RQ-033', 'MI-RQ-211', ...reportIdentities]) expect(indexed.has(`ZAI:${id}`)).toBe(true)
+  expect(indexed.size).toBe(753)
+  for (const id of ['ADR-039', 'ADR-107', 'ZV2-CR-009', 'RSK-016', 'MI-RQ-033', 'MI-RQ-211', ...reportIdentities]) expect(indexed.has(`ZAI:${id}`)).toBe(true)
 })
 
 it('keeps identity-only lifecycle status out of document successor obligations', () => {
@@ -69,8 +69,8 @@ it('publishes every issued ZAI identity and resolves historical @spec references
   const graphPath = path.resolve(process.cwd(), '..', '..', 'docs/.doc-graph.json')
   const graph = JSON.parse(readFileSync(graphPath, 'utf8'))
   const declared = graph.nodes.filter(node => node.namespace === 'ZAI' && node.document_identity)
-  expect(new Set(declared.map(node => node.document_identity)).size).toBe(752)
-  for (const id of ['ADR-039', 'ZV2-CR-009', 'RSK-016', 'MI-RQ-033', 'MI-RQ-211', ...reportIdentities]) {
+  expect(new Set(declared.map(node => node.document_identity)).size).toBe(753)
+  for (const id of ['ADR-039', 'ADR-107', 'ZV2-CR-009', 'RSK-016', 'MI-RQ-033', 'MI-RQ-211', ...reportIdentities]) {
     expect(declared.filter(node => node.document_identity === id)).toHaveLength(1)
   }
   const change = graph.edges.find(edge => edge.from === 'code:src/modules/project-manager/application/file-asset-service.js'

@@ -67,7 +67,7 @@ describe('domain state projection', () => {
     // `commerce` on 2026-09-07 (FR-166/FR-163, DOM-COMMERCE);
     // `procurement` on 2026-09-07 (FR-164/FR-165, DOM-PROCUREMENT).
     expect(Object.keys(state.domains).sort()).toEqual([
-      'agent', 'asset-management', 'commerce', 'crm', 'identity', 'integration', 'inventory', 'knowledge', 'line-oa-studio', 'market-intelligence', 'marketing', 'platform-control', 'procurement', 'project-manager',
+      'agent', 'asset-management', 'commerce', 'crm', 'file-management', 'identity', 'integration', 'inventory', 'knowledge', 'line-oa-studio', 'market-intelligence', 'marketing', 'platform-control', 'procurement', 'project-manager',
     ])
   })
 

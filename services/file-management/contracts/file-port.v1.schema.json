@@ -1,0 +1,439 @@
+{
+  "$comment": "Governed by ZAI:ADR-107.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.ai/contracts/file-port.v1.schema.json",
+  "title": "Zuri FilePort v1",
+  "description": "Independent Files service boundary. Bytes use an application/octet-stream HTTP body; all scope is revalidated by the authority port.",
+  "type": "object",
+  "required": [
+    "contract",
+    "version",
+    "operations",
+    "provenance",
+    "writeReceipt",
+    "fileVersion",
+    "fileList"
+  ],
+  "properties": {
+    "contract": {
+      "const": "FilePort"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "operations": {
+      "const": [
+        "POST /v1/files",
+        "POST /v1/files/{fileId}/versions",
+        "GET /v1/files",
+        "GET /v1/files/{fileId}",
+        "GET /v1/files/{fileId}/versions",
+        "GET /v1/files/{fileId}/versions/{versionId}/content"
+      ]
+    },
+    "headers": {
+      "type": "object",
+      "required": [
+        "Authorization",
+        "X-Tenant-Id",
+        "X-Business-Id",
+        "Idempotency-Key",
+        "X-Operation-Id",
+        "X-Correlation-Id",
+        "X-Deadline",
+        "Content-Type",
+        "Content-Length",
+        "X-Content-Length",
+        "X-Content-SHA256",
+        "X-File-Name",
+        "X-File-Provenance"
+      ],
+      "properties": {
+        "Authorization": {
+          "type": "string",
+          "pattern": "^Bearer .+"
+        },
+        "X-Tenant-Id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "X-Business-Id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "Idempotency-Key": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 200
+        },
+        "X-Operation-Id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Stable across retries for one logical write."
+        },
+        "X-Correlation-Id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "X-Deadline": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Must be in the future and within one hour."
+        },
+        "Content-Type": {
+          "type": "string",
+          "format": "media-type"
+        },
+        "Content-Length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 536870912
+        },
+        "X-Content-Length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 536870912
+        },
+        "X-Content-SHA256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "X-File-Name": {
+          "type": "string",
+          "description": "Percent-encoded UTF-8 file name; path components are discarded by Files."
+        },
+        "X-File-Provenance": {
+          "type": "string",
+          "contentEncoding": "base64url",
+          "contentMediaType": "application/json"
+        }
+      },
+      "additionalProperties": true
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "writeReceipt": {
+      "$ref": "#/$defs/writeReceipt"
+    },
+    "fileVersion": {
+      "$ref": "#/$defs/fileVersion"
+    },
+    "fileList": {
+      "$ref": "#/$defs/fileList"
+    }
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "BROWSER_UPLOAD",
+            "LINE_CAPTURE",
+            "KNOWLEDGE_EXPORT",
+            "GIT_SNAPSHOT",
+            "API_IMPORT",
+            "OTHER"
+          ]
+        },
+        "sourceId": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "sourceRevision": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "capturedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "producer": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "channelBindingId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "providerMessageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "attachmentOrdinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "contentProviderType": {
+          "enum": [
+            "line",
+            "external"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "LINE_CAPTURE"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "sourceId",
+              "channelBindingId",
+              "providerMessageId",
+              "attachmentOrdinal",
+              "contentProviderType"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "channelBindingId"
+                  ]
+                },
+                {
+                  "required": [
+                    "providerMessageId"
+                  ]
+                },
+                {
+                  "required": [
+                    "attachmentOrdinal"
+                  ]
+                },
+                {
+                  "required": [
+                    "contentProviderType"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "writeReceipt": {
+      "type": "object",
+      "required": [
+        "fileId",
+        "versionId",
+        "versionNumber",
+        "operationId",
+        "correlationId",
+        "status",
+        "sha256",
+        "byteLength",
+        "storageVersionId"
+      ],
+      "properties": {
+        "fileId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "versionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "versionNumber": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "operationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "correlationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "const": "STORED"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "storageVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "const": "null"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "fileVersion": {
+      "type": "object",
+      "required": [
+        "id",
+        "fileId",
+        "versionNumber",
+        "fileName",
+        "contentType",
+        "byteLength",
+        "sha256",
+        "provenance",
+        "createdAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "fileId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "versionNumber": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string",
+          "format": "media-type"
+        },
+        "safetyState": {
+          "enum": [
+            "UNSCANNED",
+            "SAFE",
+            "BLOCKED",
+            "UNKNOWN"
+          ]
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "fileList": {
+      "type": "object",
+      "required": [
+        "files",
+        "nextCursor"
+      ],
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "tenantId",
+              "businessId",
+              "status",
+              "updatedAt",
+              "currentVersion"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "tenantId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "businessId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "enum": [
+                  "ACTIVE",
+                  "WITHDRAWN"
+                ]
+              },
+              "rowVersion": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "createdBy": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "currentVersionId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uuid"
+              },
+              "currentVersion": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/fileVersion"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 512
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
