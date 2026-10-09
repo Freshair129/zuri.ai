@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-MULTI-AGENT-DELIVERY
 title: Luna Max execution workers with Terra decisions and Astra escalation
-version: "0.9.32b-rca.2"
+version: "0.9.33b"
 status: candidate
 created_at: "2026-09-16T13:40:13+07:00,RWANG,design base 087f3025"
-last_update: "2026-10-05,Codex, reconcile owner-approved workflow amendment with main PR629; preserve candidate bytes and closed execution gates"
+last_update: "2026-10-10,Codex, select bounded WF00 policy and reconcile task source evidence; preserve candidate and closed runtime gates"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
@@ -21,7 +21,22 @@ relations:
 
 # Multi-agent execution — Luna Max workers → Terra decision gate → Astra escalation
 
-**Version:** 0.9.32b-rca.2 · **Status:** Candidate · **Version diff:** 0.9.32b-rca.1 → 0.9.32b-rca.2 reconciles upstream MA-D06/MA-I13 ownership clauses and both changelog histories for owner-requested PR #631 merge. D-1–D-5 and owner/G0/SPEC/dispatch/implementation gates remain unchanged.
+**Version:** 0.9.33b · **Status:** Candidate · **Version diff:** adds a scoped WF00 policy pointer and source reconciliation; existing candidate plan, source history, and closed runtime gates remain unchanged.
+
+**Current scoped selection:** For this admitted supervised WF00 bootstrap only,
+the selected model roles, gates, concurrency, and retry limits are in the
+[coding-delivery policy](../delivery-control/WORKFLOW-POLICY.md) and its
+[single model-policy contract](../delivery-control/contracts/model-policy.json).
+The historical model-profile paragraph immediately below and the role/model
+assignments in §2 remain historical profiles. §§4/5/6/10 remain source clauses
+for gates, packet evidence, ownership, and retry handling; their applicable
+behavior is summarized in the selected contract. Historical receipts do not
+transfer to this revision. This selection does not authorize later work or
+runtime dispatch. See the [WF00 source reconciliation](../delivery-control/SOURCE-RECONCILIATION.md).
+
+**Historical source profile (retained):** The paragraph below records the old
+Luna/Terra/Astra assignment and its original task-specific delegation; it is
+not the current WF00 selection.
 
 **แผนหลัก:** ใช้ `gpt-5.6-luna` / reasoning `max` สอง agents ทำงานขนานใน packet ที่ไม่ชนกัน และใช้ Luna Max อีก agent ตรวจ revision จริงอย่างอิสระ. ผู้ใช้มอบหมายให้ `gpt-5.6-terra` / reasoning `max` เป็น decision agent สำหรับการตัดสินใจใน task นี้; เรื่องสำคัญ ผลกระทบสูง หรือยังไม่แน่ใจให้ `gpt-6-astra` / reasoning `max` ร่วมตัดสิน. Root เป็น coordinator และ integrator; ไม่แทนการตัดสินที่มอบหมายไว้. การมอบหมายนี้ไม่เปลี่ยนอำนาจ Identity, reviewer, owner หรือ segregation-of-duties ขณะระบบทำงาน
 
@@ -74,6 +89,10 @@ Before these direction artifacts were created, all 71 files in this architecture
 
 <a id="pm-roles"></a>
 ## 2. ทีมและจำนวนงานพร้อมกัน
+
+The table below preserves the historical plan profile. Current WF00 role and
+capacity selection is defined only by the linked `model-policy.json`; this
+bounded selection does not lift the candidate dispatch gates below.
 
 | Role | Model / effort | หน้าที่ | ขอบเขตการเขียน |
 |---|---|---|---|
@@ -477,6 +496,7 @@ flowchart TD
 
 | Before | After |
 |---|---|
+| Historical plan profile and no WF00 policy pointer | v0.9.33b links the selected WF00 model/gate/concurrency/retry policy and source reconciliation; historical model rows and candidate/dispatch/implementation gates remain unchanged |
 | v0.9.17b | v0.9.18b synchronizes A-07 acceptance across the design and FR-272 feature note, records exact-review findings in the RCA, and keeps race/rollback proof unverified |
 | v0.9.16b | v0.9.17b clarifies A-07 same-decision idempotency, conflicting CAS decisions and audit rollback; the race/rollback proof remains UNVERIFIED and no implementation or dispatch authority is added |
 | v0.9.14b | v0.9.15b records MA-D03 v0.1.2 authoring verification and exact Terra/Astra candidate decisions, plus the pre-v0.9.15b governance observation; MA-D03 remains candidate-only with 10/13 current input pins and owner/SPEC/G0/canonical/dispatch/implementation gates open |
@@ -677,6 +697,7 @@ The DAG remains 43 packages, 90 edges and 13 waves with counts 3 ACCEPTED, 12 CA
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.9.33b | 2026-10-10 | candidate | Select bounded WF00 policy via one model-policy contract; reconcile Doc29 implementation/mapping, stale status projections and source authority while preserving canonical rows and closed runtime gates | uncommitted | Codex |
 | 0.9.32b | 2026-10-03 | candidate | Record exact MA-D01, MA-D02 A4 and NFR applicability decisions; preserve candidate-only states, exact rollback and open gates | uncommitted | Codex |
 | 0.9.31b | 2026-10-03 | candidate | Add NFR-001..025 applicability mapping and reconcile the historical 22-source digest audit to 15/22 current; preserve candidate-only and closed execution gates | uncommitted | Codex |
 | 0.9.30b | 2026-10-03 | candidate | Record bounded MA-D08 v0.1.7 pointer composition; preserve base writer boundary, historical pins, rollback and closed baseline/G0/dispatch/implementation gates | uncommitted | Codex |

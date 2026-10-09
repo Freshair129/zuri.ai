@@ -1,0 +1,120 @@
+{
+  "policyId": "WF00-CODING-DELIVERY-MODEL-POLICY",
+  "version": 1,
+  "status": "SELECTED_FOR_SUPERVISED_BOOTSTRAP_ONLY",
+  "authority": {
+    "packetId": "WF00-IMPLEMENTATION-20261010",
+    "source": "Human go after the reviewed WF00-first plan",
+    "scope": "Current model, gate, concurrency, and retry selection for supervised coding-delivery bootstrap only",
+    "futureWork": "Every later node requires its own explicit G0 admission"
+  },
+  "models": {
+    "decision": { "model": "gpt-6.1-sol" },
+    "criticalDebugging": { "model": "gpt-6.1-sol" },
+    "integration": { "model": "gpt-6.1-sol" },
+    "audit": { "model": "gpt-6.1-sol" },
+    "orchestration": { "model": "gpt-6.1-sol" },
+    "finalGate": { "model": "gpt-6.1-sol" },
+    "exploration": { "model": "gpt-6-luna", "reasoningEffort": "max" },
+    "research": { "model": "gpt-6-luna", "reasoningEffort": "max" },
+    "worker": { "model": "gpt-6-luna", "reasoningEffort": "max" },
+    "verify": { "model": "gpt-6-luna", "reasoningEffort": "max" },
+    "review": { "model": "gpt-6-luna", "reasoningEffort": "max" }
+  },
+  "sessionIdentity": {
+    "distinctSessionRoles": ["worker", "verifier", "reviewer"],
+    "workerVerifierReviewerMustBeDifferentSessions": true,
+    "verifierAndReviewerMustBeDifferentSessions": true,
+    "roleSubstitutionAllowed": false,
+    "modelFailure": {
+      "code": "MODEL_UNAVAILABLE",
+      "disposition": "BLOCKED",
+      "fallbackAllowed": false,
+      "roleSubstitutionAllowed": false
+    }
+  },
+  "concurrency": {
+    "agentSlotsMaximum": 4,
+    "rootSlots": 1,
+    "workerSlotsMaximum": 2,
+    "gateSlots": 1,
+    "gateSlotReviewMode": "Verifier and reviewer sessions run as separate sequential gate turns",
+    "unverifiedSubmissionQueueMaximum": 2,
+    "backpressureAtQueueMaximum": "Pause new worker dispatch until the queue is reduced"
+  },
+  "gates": {
+    "gateOrder": [
+      "G0_ADMISSION",
+      "G1_WORKER_SUBMISSION",
+      "G2_INDEPENDENT_VERIFY",
+      "G2R_INDEPENDENT_REVIEW",
+      "G3_GPT_6_1_SOL_DECISION",
+      "G3B_ROOT_INTEGRATION",
+      "G4_EXACT_HEAD_CI",
+      "G5_GPT_6_1_SOL_FINAL_BEFORE_MERGE",
+      "G6_OWNER_RELEASE_ACTIVATION",
+      "SOT_CLOSEOUT",
+      "SAFE_CLEANUP"
+    ],
+    "g0": "Root-pinned dependencies, owner, exact file allowlist, acceptance, baseline, and environment; missing/negative evidence blocks assignment",
+    "g1": "Worker submission and self-check; not independent approval",
+    "g2": "Different-session Luna Max verification on the exact submitted revision",
+    "g2r": "Mandatory independent review by a different Luna Max session from both worker and verifier on the same exact verified revision; no review receipt means BLOCKED",
+    "g3": "GPT-6.1-Sol resolves the task decision after G2 and G2R; the decision cannot grant domain-owner, Business, provider, or production authority",
+    "highImpactOrUncertainCase": "GPT-6.1-Sol makes the task disposition; when required domain-owner authority is missing, park for that owner instead of substituting model judgment",
+    "g3b": "GPT-6.1-Sol root integrates only after G2, G2R, and G3 receipts; recheck scope, pins, conflicts, and exact evidence",
+    "g4": "Required CI must attest the exact reviewed PR head and required ancestors; head change invalidates affected review and CI",
+    "g5": "GPT-6.1-Sol final gate checks the integrated revision and exact-head CI before merge",
+    "g6": "Separate owner release/activation decision with target, environment, migration, rollback, and receipt evidence",
+    "sotCloseout": "Reconcile through the owning canonical source of truth after the authorized delivery action",
+    "safeCleanup": "Only after SOT closeout and evidence retention, after confirming no active assignment, process, lease, or unpreserved worktree state",
+    "negativeEvidence": "Any required failure, missing proof, stale pin, scope escape, unknown authority, unavailable model, or failed command blocks PASS",
+    "missingReviewReceiptDisposition": "BLOCKED",
+    "unknownStatusIsPass": false,
+    "exactHeadCiRequiredWhenApplicable": true,
+    "sotReconciliationRequiredForCloseout": true
+  },
+  "retryAndLineage": {
+    "scope": "WF00_PACKET_ONLY_NOT_GLOBAL_RUNTIME_DEFAULTS",
+    "futureNodeMustSealItsOwnLimitsAtG0": true,
+    "maxAutomaticAcceptanceRepairRoundsPerAcceptanceRevision": 2,
+    "maxLineageAttempts": 3,
+    "preserveLineageAcrossRepairRenameRebaseAndCandidateVersion": true,
+    "maxSuccessorPlans": 1,
+    "maxRecoveryAttempts": 1,
+    "maxRcaDecisions": 1,
+    "maxEscalations": 1,
+    "maxCircuitProbes": 1,
+    "retryClassifier": {
+      "classes": [
+        "ACCEPTANCE_REPAIR",
+        "PROVENANCE_SUCCESSOR",
+        "TOOL_RETRY",
+        "REVIEW_WITH_NEW_EVIDENCE",
+        "RECOVERY",
+        "RCA_DECISION",
+        "ESCALATION",
+        "CIRCUIT_PROBE"
+      ],
+      "requiredEvidence": ["acceptanceRevision", "lineageId", "attempt", "repairRound", "failureEvidence", "owner", "nextPermittedAction"],
+      "reclassificationToBypassLimitsAllowed": false,
+      "unclassifiedRetryDisposition": "NEEDS_DECISION",
+      "unknownCounterHistoryDisposition": "NEEDS_DECISION"
+    },
+    "toolRetry": {
+      "maximum": 2,
+      "prerequisites": "Same operation/input revision and idempotency must be established from evidence",
+      "unknownEffectDisposition": "UNKNOWN_BLOCKED_PENDING_AUTHORITATIVE_RECONCILIATION"
+    }
+  },
+  "authorityBoundary": {
+    "currentScope": "WF00 admitted documentation-only bootstrap; no global controller, product runtime, provider, Business, external-write, migration, release, deployment, or production authority",
+    "rootOwnedToolingPath": "tools/delivery-control/",
+    "repositoryLocalNonProductState": "<git-common-dir>/zuri-delivery-control/",
+    "futureSchemaAndBackend": "Pending separately admitted WF02 work",
+    "installedController": "NOT_IMPLEMENTED",
+    "liveControllerExecution": "NOT_RUN",
+    "pl01Pl02Pilot": "NOT_RUN",
+    "wf09DispatchAndAcceptance": "NOT_RUN"
+  }
+}

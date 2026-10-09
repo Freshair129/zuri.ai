@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-APPROVAL-GATEWAY-ADMISSION-DESIGN
 title: Project Manager Approval Gateway admission design
-version: "0.1.0b"
+version: "0.1.1b"
 status: candidate
 created_at: "2026-09-22T00:00:00+07:00,RWANG"
-last_update: "2026-09-22T00:00:00+07:00,RWANG"
+last_update: "2026-10-10,Codex, reconcile source-presence, canonical mapping, and unrun gates"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
@@ -26,12 +26,46 @@ relations:
 **Risk:** HIGH
 **Requirement source:** PMR-013, acceptance PMT-013
 **Parent handoff:** ADR-102 PM execution trace and replay
-**Implementation state:** NOT_STARTED / NOT_RUN
+**Implementation source state:** service, schema, routes, migrations, and test assets are present in this repository. **WF00-observed test execution, production release, and live use:** NOT_RUN. **Generic controller installation/implementation:** NOT_IMPLEMENTED; **controller execution:** NOT_RUN.
 
-This packet is the phase-level companion to [ADR-103](../../decisions/ADR-103-PM-APPROVAL-GATEWAY-ADMISSION.md). It freezes the proposed boundary and
-acceptance before any code, schema or production action. PMR-013 remains a
-proposal-local key until canonical registration; it must not be used as a
-source annotation.
+This candidate packet is the phase-level companion to [ADR-103](../../decisions/ADR-103-PM-APPROVAL-GATEWAY-ADMISSION.md).
+Its proposed boundary and acceptance remain candidate design. Source presence
+is established by
+[`approval-gateway.js`](../../../apps/server/src/modules/project-manager/application/approval-gateway.js),
+the `ProjectApprovalRequest` model in
+[`schema.prisma`](../../../apps/server/prisma/schema.prisma), migration
+`apps/server/prisma/migrations/20260923010000_pm_approval_gateway_admission/migration.sql`,
+`apps/server/supabase/migrations/20260923010000_pm_approval_gateway_admission.sql`,
+request route
+[`approvals/route.js`](../../../apps/server/src/app/api/projects/%5Bid%5D/execution-runs/%5BexecutionRunId%5D/approvals/route.js)
+and decision route
+[`decision/route.js`](../../../apps/server/src/app/api/projects/%5Bid%5D/execution-runs/%5BexecutionRunId%5D/approvals/%5BapprovalRequestId%5D/decision/route.js),
+and [`project-approval-gateway.test.js`](../../../apps/server/tests/integration/project-approval-gateway.test.js).
+These paths do not prove that the tests ran in this WF00 task or that all PMT-013
+acceptance passed.
+
+PMR-013 is registered as canonical **FR-272**, as verified in the
+[canonical FR-272 record](../../requirements/FR-272.md) and
+[PMR-013 source requirement](../../domains/project-manager/requirements/PMR-013-proposal-requirement.md).
+FR-196 remains Identity segregation-of-duties context and is not repurposed.
+This status correction does not claim production deployment or a live generic
+controller: those gates remain NOT_RUN / NOT_IMPLEMENTED. See the
+[WF00 source reconciliation](../delivery-control/SOURCE-RECONCILIATION.md).
+
+## 0. WF00 source reconciliation — 2026-10-10
+
+Static source review confirms an approval service, schema model, migrations,
+request/decision API routes, and a focused integration-test asset. No
+application test was run for this docs-only packet. The canonical FR-272 row
+records implementation locally while local verification and release gates are
+pending and the feature is not deployed. This document therefore records
+implementation source presence, not successful execution, production status,
+or installation of a generic delivery controller.
+
+Knowledge/Goals and retired Edge-source discrepancies are recorded in the
+[source reconciliation](../delivery-control/SOURCE-RECONCILIATION.md). They
+are pointers to exact source evidence; canonical rows and generated exports
+remain unchanged.
 
 ## 1. Problem and outcome
 
@@ -211,7 +245,7 @@ existing PM trace/replay, audit and authorization suites as regression gates.
 
 | Gate | Deliverable | Exit condition |
 |---|---|---|
-| G0 | Canonical registration and owner mapping | PMR-013 is mapped without repurposing FR-196; exact IDs are recorded |
+| G0 | Canonical registration and owner mapping | PMR-013 is registered as FR-272 (mapping source-verified in this reconciliation); FR-196 remains Identity SoD context |
 | G1 | Frozen request/error/OpenAPI contract | hash inputs, action allowlist, scope and reviewer port reviewed |
 | G2 | Schema/adapter packet | SQLite/Postgres/backup/RLS/erasure impact and rollback are reviewed |
 | G3 | PM service and trace linkage | focused negative/race/idempotency tests pass; no second business writer |
@@ -246,4 +280,5 @@ activation.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.1b | 2026-10-10 | candidate | Reconcile implementation source presence and PMR-013 → FR-272 mapping; retain NOT_RUN verification/release and NOT_IMPLEMENTED live generic-controller gates | uncommitted | Codex |
 | 0.1.0b | 2026-09-22 | candidate | Candidate phase packet for PMR-013 Approval Gateway admission; no implementation | uncommitted | RWANG |

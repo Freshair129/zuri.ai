@@ -1,0 +1,21 @@
+{
+  "packetId": "WF00-IMPLEMENTATION-20261010",
+  "baseCommit": "578b103e1556a4d9251b16cb1b3b07a866d21cfb",
+  "meaning": "Immutable G0 source preimage hashes copied from the admitted packet; hashes bind baseline files, not this working-tree revision.",
+  "sourceDigests": [
+    { "path": "AGENTS.md", "sha256": "9a9960d856a52b683c830223f8357409158d23dae1d565a6a0b83e8674a27426" },
+    { "path": "docs/STD-Multi agent workflow S-01.md", "sha256": "2728f1242d17501e83e0d66be1a6a3daf4385d0e22fe1d76cd113af8b88419e6" },
+    { "path": "docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md", "sha256": "4a49a4d2897d48fff5ec1c2c8e74451346d1e3e83d15191c08fb6f09d2561b94" },
+    { "path": "docs/architecture/project-manager-system/contracts/delivery-plan.candidate.json", "sha256": "2c28fd617dd4bb552004894b26713db4fbe0ac1999343788b05913638441eb9f" },
+    { "path": "docs/architecture/project-manager-system/29-APPROVAL-GATEWAY-ADMISSION-DESIGN.md", "sha256": "6598725eac4b948549d415464beccab1b033a9d25674245a4a459d2530e20a94" },
+    { "path": "docs/decisions/ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE.md", "sha256": "99e29a13aaf54b8a4f9478df59e95388f000d46f2f3206fba3b0144ec3b77e4b" },
+    { "path": "docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md", "sha256": "964a482cdd141ccdc27b5dfab80bccc46ad4000cd5adc3caa97ebb8829f6ce0a" },
+    { "path": "docs/architecture/VERIFICATION-POLICY.md", "sha256": "1cea44e36a4e938d20a4876ddbfd1664adbe58592bbdade834aac2f5cdaf2046" },
+    { "path": "docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md", "sha256": "f3aeb11107ea252d31519ec20dfcd1568fe432cc7786b270ea2740aa1e27932c" },
+    { "path": "docs/migrations/document-reintegration/CANONICAL-FORMAT.md", "sha256": "252ec398d91d8a3f5b2e2667d1aa5568d98aa8bd130c35b15e365227f8dd87b4" },
+    { "path": "docs/features/FEAT-017/feature.md", "sha256": "e6a58fbd7cf9d35400ea104665a7fa71d628dc38c7775604c49c88148134cd73" },
+    { "path": "docs/features/FEAT-043/feature.md", "sha256": "b2cc797132e639fa5a09c37853b9838249b22a802df0bb5b4aeb807245eff878" },
+    { "path": "docs/domains/knowledge/CHARTER.md", "sha256": "b5721fdb912b2a3ae74848d4135cd3e469a28bb7a277e105fc976b3013ebe697" },
+    { "path": "docs/roadmap/ROADMAP.md", "sha256": "9b30b8ad3c597d3ecab221b3e1c78f32ad86fc3cb77d781dac3f795cfcf6b342" }
+  ]
+}
