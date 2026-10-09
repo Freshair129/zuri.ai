@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1",
+  "schemaSha256": "19bebd6e40dbaf43bfae5a99d54d29ebf33576add850b45525033f516d09405a",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -492,6 +492,11 @@
       "tableName": "LocalWorkspaceMount"
     },
     {
+      "modelName": "MarketObservation",
+      "schemaName": "public",
+      "tableName": "MarketObservation"
+    },
+    {
       "modelName": "MarketingBroadcastIntent",
       "schemaName": "public",
       "tableName": "MarketingBroadcastIntent"
@@ -527,6 +532,11 @@
       "tableName": "MarketingDecision"
     },
     {
+      "modelName": "MarketingExternalReport",
+      "schemaName": "public",
+      "tableName": "MarketingExternalReport"
+    },
+    {
       "modelName": "MarketingHandoff",
       "schemaName": "public",
       "tableName": "MarketingHandoff"
@@ -552,14 +562,19 @@
       "tableName": "MarketingPlanVersion"
     },
     {
+      "modelName": "MarketingReportBinding",
+      "schemaName": "public",
+      "tableName": "MarketingReportBinding"
+    },
+    {
+      "modelName": "MarketingReportPolicy",
+      "schemaName": "public",
+      "tableName": "MarketingReportPolicy"
+    },
+    {
       "modelName": "MarketingReview",
       "schemaName": "public",
       "tableName": "MarketingReview"
-    },
-    {
-      "modelName": "MarketObservation",
-      "schemaName": "public",
-      "tableName": "MarketObservation"
     },
     {
       "modelName": "Membership",
@@ -981,5 +996,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9"
+  "targetSchemaSha256": "40815083980a80c6d3c3237b1f9db5bf9c1c6c93682beb360a060a93996e50bb"
 }

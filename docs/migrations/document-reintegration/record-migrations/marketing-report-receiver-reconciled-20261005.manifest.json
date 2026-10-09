@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "migrationId": "marketing-report-receiver-reconciled-20261005",
+  "base": {
+    "commit": "303dafc0276ac65e3f476966f7738929c2def885",
+    "indexSha256": "0a4ea891b92a8896888c6b135ec55bf2389fef0aa968e381e875fcd359e1cc44",
+    "ledgerSha256": "b502f17b3ff5ee6e65be11ef80d450b675bcb137cff589890eacf49abfe26c4b"
+  },
+  "approval": {
+    "path": "docs/change-requests/marketing/ZURI-GO-REPORT-MAIN-RECONCILIATION.md",
+    "revision": "4bd9ebc7821faafa1685a3c4892300ca3b843dae",
+    "version": "0.2.0",
+    "sha256": "e4548c61e129dfacff9132194ba161e48bb689fb91cf42fbbcd739b7f65f5db7"
+  },
+  "records": [
+    {
+      "id": "FR-281",
+      "family": "FR",
+      "statement": "Report-only machine credential: resolve an ACTIVE dedicated credential to its immutable Zuri-Go source deployment/Business and target Tenant/Business binding with marketing.report.ingest permission; never synthesize a Person/OWNER or accept this credential on Enterprise import, native Marketing writers or unrelated routes. Before every intake, replay and contention retry, recheck the credential/binding and active target with currently enabled growth domain inside the receiving transaction; revocation or domain disablement denies writes and receipt disclosure. Invalid, missing and revoked credentials use generic authentication refusal; operator-only provisioning/revocation is audited, and raw secrets never persist, enter browser state or audit payloads.",
+      "statementSha256": "0b36af840091a0a7f648874b568856cced18c980fba187d5b6b9c898266ee0ab",
+      "subjectAnchor": "report only machine credential"
+    },
+    {
+      "id": "FR-282",
+      "family": "FR",
+      "statement": "Atomic reported-evidence intake: authenticate and validate exact bounded canonical bytes, hash, revision 1 only with no correction/supersedes, and source/target/initiative scope using the reviewed Zuri-Go wire contract; atomically persist one immutable MarketingExternalReport with committed receipt and one scoped service-principal AuditEvent, unique by bindingId and sourceReportId. Identical authorized replay returns the original committed receipt after byte and hash comparison; different bytes under that identity conflict without writes. Independent SQLite requests rely on the unique constraint and bounded whole-transaction contention retry with reauthorization; an aborted or exhausted transaction never acknowledges acceptance. Preserve Go source and parent native plans, reviews, decisions, handoffs, initiative lifecycle, PM records and Commerce verified totals.",
+      "statementSha256": "3ebf7b175520eb831d7bc08463248c440f6aa5ec1bf65d90251cc138ccaba0ef",
+      "subjectAnchor": "atomic reported evidence intake"
+    },
+    {
+      "id": "FR-283",
+      "family": "FR",
+      "statement": "Private source-preserving reported evidence: resolve Tenant/Business and existing assertMarketingReadAccess with current Marketing/growth read authority before every human evidence read; Guest, foreign Business and hidden domain cannot disclose evidence through public projections or bypass paths. A report credential receives only its own matching receipt through reauthorized intake/replay with an active target. Preserve null, UNKNOWN and reported trust without provider completeness or native approval promotion, including HELD reports. Retain immutable evidence and matching receipt at least 90 days from acceptedAt under retention policy version 1; revoke access without altering retained bytes, retain the existing append-only audit policy and provide no automatic purge in this slice.",
+      "statementSha256": "e45ef9dfba6c44fdc10cac2d35a8c22364fa9e9841921b07d7671a3105871746",
+      "subjectAnchor": "private source preserving reported evidence"
+    },
+    {
+      "id": "SDD-112",
+      "family": "SDD",
+      "statement": "Marketing report receiver design: use the approved ZURI-GO-REPORT-RECEIVER v0.4.0 receiver contract and reviewed Go-owned zuri-marketing-report/0.1 wire contract for POST /api/growth/external-marketing-reports with a dedicated report principal, no session fallback, and strict body/receipt validation. MarketingReportBinding stores a unique high-entropy-secret SHA-256 keyHash, immutable source/target and explicit ingest permission with ACTIVE/REVOKED lifecycle; MarketingExternalReport stores relationally consistent scope, canonical envelope/hash and immutable UUID receipt/acceptedAt with unique bindingId/sourceReportId. Append the existing scoped AuditEvent in the same SQLite transaction and reauthorize all retries/replays. Physical append-only design and native test bindings still require review before application coding. Gate acceptance on isolated synthetic SQLite/PostgreSQL credential isolation, strict wire, privacy, rollback/concurrency, native/source preservation and committed-response-loss recovery tests; no live provisioning, data transfer, migration or deployment is implied by record issuance.",
+      "statementSha256": "b2aa80a9e3c02005fef881d3809c7e940ec8a5003c92e7266b9e08568b59592c",
+      "subjectAnchor": "marketing report receiver design"
+    }
+  ]
+}

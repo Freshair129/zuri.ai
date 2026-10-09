@@ -24,6 +24,7 @@ import { parseFeatureBundles, classifyRequirements, assertCapabilityTerminology 
 import { generateDomainState } from './domain-state.mjs'
 import { parseCanonicalIndex, parseCanonicalRecord } from './document-registry-format.mjs'
 import { collectDocumentClaims, isGeneratedDocumentView, requiresSuccessor } from './doc-identities.mjs'
+import { modelSourceFromFrontmatter, readDomainModelSource } from './domain-model-source.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -61,8 +62,10 @@ const labDocs = walk(workspacePath(ROOT, 'docs'), '.md').filter((f) => !f.starts
 const specDocs = []
 const allDocs = labDocs
 const canonicalIndexPath = path.join(workspaceRoot(ROOT), 'registry/document-registry/index.json')
-const canonicalPaths = new Set(existsSync(canonicalIndexPath)
-  ? parseCanonicalIndex(read(canonicalIndexPath)).records.map(record => record.path) : [])
+const canonicalRecords = existsSync(canonicalIndexPath) ? parseCanonicalIndex(read(canonicalIndexPath)).records : []
+const canonicalPaths = new Set(canonicalRecords.map(record => record.path))
+const approvalContexts = new Map(canonicalRecords.filter(record => record.recordVersion === 2)
+  .map(record => [record.manifestPath.replace(/\.manifest\.json$/, '.approval.md'), record.approvalPath]))
 
 // Read source files even when the persisted graph is stale or missing a new doc.
 {
@@ -131,13 +134,15 @@ for (const f of allDocs) {
 const LINK = /\[[^\]]*\]\(([^)#]+?)(?:#[^)]*)?\)/g
 for (const f of allDocs) {
   const body = read(f)
-  const sources = [{ body, base: path.dirname(f) }]
+  // Frozen evidence retains the approved note's relative-link context.
+  const sources = [{ body, base: path.dirname(approvalContexts.has(rel(f))
+    ? path.join(workspaceRoot(ROOT), approvalContexts.get(rel(f))) : f) }]
   if (canonicalPaths.has(rel(f))) {
     // The preserved row keeps the original document's relative-link context.
     // Check it there; links authored outside the row use the new file's context.
     const record = parseCanonicalRecord(body)
     sources[0].body = body.replace(/<!-- canonical-row:start -->[\s\S]*?<!-- canonical-row:end -->/, '')
-    sources.push({ body: record.row, base: path.dirname(path.join(workspaceRoot(ROOT), record.sourcePath)) })
+    sources.push({ body: record.row, base: path.dirname(path.join(workspaceRoot(ROOT), record.recordVersion === 1 ? record.sourcePath : rel(f))) })
   }
   for (const source of sources) for (const [, href] of source.body.matchAll(LINK)) {
     if (/^(https?:|mailto:)/.test(href)) continue
@@ -325,9 +330,8 @@ if (!existsSync(GRAPH)) {
   {
     const DOMAINS_DIR = path.join(SPEC_PACK, 'domains')
     if (existsSync(DOMAINS_DIR)) {
-      const schemaModels = new Set(
-        (read(workspacePath(ROOT, 'prisma', 'schema.prisma')).match(/^model\s+(\w+)/gm) || []).map((m) => m.split(/\s+/)[1]),
-      )
+      const schemaModels = new Set()
+      const modelSources = new Map()
       const modelClaims = new Map() // model → [domains]
       for (const entry of readdirSync(DOMAINS_DIR)) {
         const dir = path.join(DOMAINS_DIR, entry)
@@ -343,11 +347,29 @@ if (!existsSync(GRAPH)) {
           add('warning', 'domain-spine', `Charter domain mismatch: frontmatter says "${declared}", folder is "${entry}"`, path.basename(charter), [rel(charter)], 'Make the frontmatter match the folder')
         }
         const inModels = /owns_models:\s*\n((?:\s+-\s+\S+\n?)*)/.exec(fm)?.[1] || ''
+        let sourceModels = new Set()
+        let source = null
+        try {
+          const declaredSource = modelSourceFromFrontmatter(fm)
+          const resolved = readDomainModelSource(ROOT, declaredSource)
+          source = resolved.source
+          sourceModels = resolved.models
+          for (const model of sourceModels) {
+            const previous = modelSources.get(model)
+            if (previous && previous !== source) {
+              add('critical', 'domain-spine', `Model ${model} appears in multiple model sources`, `${previous}, ${source}`, [rel(charter)], 'Resolve model identity before claiming ownership')
+            }
+            modelSources.set(model, source)
+            schemaModels.add(model)
+          }
+        } catch (error) {
+          add('critical', 'domain-spine', `Invalid model source for ${entry}`, error.message, [rel(charter)], 'Declare a readable in-workspace Prisma or SQL source')
+        }
         for (const m of inModels.match(/-\s+(\S+)/g)?.map((x) => x.replace(/-\s+/, '')) || []) {
           if (!modelClaims.has(m)) modelClaims.set(m, [])
           modelClaims.get(m).push(entry)
-          if (!schemaModels.has(m)) {
-            add('warning', 'domain-spine', `Charter claims a model that is not in the schema: ${m}`, `domains/${entry}`, [rel(charter)], 'Stale charter — sync owns_models with prisma/schema.prisma')
+          if (!sourceModels.has(m)) {
+            add('warning', 'domain-spine', `Charter claims a model that is not in its model source: ${m}`, `domains/${entry}: ${source || '(invalid)'}`, [rel(charter)], 'Sync owns_models with the declared model_source')
           }
         }
         // Feature notes must declare the domain they sit in.
@@ -976,6 +998,16 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
     rel(file) === 'src/app/api/integrations/notion/webhook/route.js') continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
+    // @req FR-281/FR-282, SDD-112 — this one approved machine receiver
+    // resolves a report-only binding inside its first-write transaction. A
+    // Person/session would be the wrong principal. Admit only the exact path
+    // with both strict bearer precheck and committed receiver delegation;
+    // never exempt the growth namespace or add viewer-baseline debt.
+    if (rel(file) === 'src/app/api/growth/external-marketing-reports/route.js'
+      && /import\s+\{[^}]*reportCredentialHash[^}]*\}\s+from\s+['"]@\/modules\/marketing\/application\/marketing-report-wire['"]/.test(body)
+      && /import\s+\{\s*receiveMarketingReport\s*\}\s+from\s+['"]@\/modules\/marketing\/application\/marketing-report-receiver['"]/.test(body)
+      && /reportCredentialHash\(authorization\)/.test(body)
+      && /receiveMarketingReport\(\{\s*db:\s*marketingReportDatabase\(\),\s*authorization,\s*raw:\s*canonicalEnvelope\s*\}\)/.test(body)) continue
     if (RESOLVES.test(body)) continue
     offenders.push(rel(file))
   }

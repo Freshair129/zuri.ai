@@ -1,3 +1,9 @@
+---
+status: active
+superseded_by: null
+version: "4"
+---
+
 # ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow
 
 **Status:** Accepted
@@ -109,6 +115,37 @@ Zero FEAT membership means Standalone FR; one means bundled FR; more than one is
 invalid. Both types appear in Product Readiness without conflating their identity.
 The canonical rules, examples and compatibility contract live in
 [FEATURES — Capability classification](../FEATURES.md#capability-classification).
+
+## Revision 4 — Service execution and verification layer (2026-10-06)
+
+**Status:** Accepted — owner approved monorepo documentation proposal v0.1.0.
+Version diff revision 3 → 4: adds execution documentation and a shadow verification
+pilot. Business ownership, requirement identities and explicit FEAT membership
+remain unchanged. This amendment does not authorize a service/data migration.
+
+1. Domain charters remain the business-ownership spine. A service is an execution,
+   installation and testing boundary; several domains may execute in one service.
+   SCM therefore references Commerce, Inventory and Procurement instead of
+   inventing three separate processes or duplicate requirement registries.
+2. `docs/services/<project>/SERVICE.md` owns boundary/contract explanations;
+   `TESTING.md` owns verification rationale, fixture/engine limits and dependency
+   checks. READMEs link to these sources. Add a RUNBOOK only when a real operating
+   procedure exists. Package scripts and wire schemas remain executable sources.
+3. The accepted canonical-record cutover supersedes the old direct-authoring
+   wording in D7/D10: FEAT and explicitly bundled FR records live under
+   `docs/features/`; standalone/global requirement records under
+   `docs/requirements/`. The document-registry index and PRD/FEATURES compatibility
+   exports are generated. This amendment does not move or reissue any record.
+4. Adopt [the verification policy](../architecture/VERIFICATION-POLICY.md).
+   Conversation Runtime metadata and the shared planner compare proposed scopes
+   in shadow mode. Active CI selection and full safety nets remain in force until
+   paired comparison evidence and dependency closure justify a reviewed change.
+5. `SERVICE-MAP.md` is an ignored generated view under ADR-081. Brand persona,
+   character sheets and visual design authority stay in the versioned brand kit;
+   product execution references an approved design revision when needed.
+
+See [service sources](../services/README.md) and the
+[pilot delivery/evidence record](../migrations/scoped-verification/PILOT.md).
 
 ## Review
 

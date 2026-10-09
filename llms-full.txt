@@ -140,7 +140,7 @@ Vercel is no longer a deployment dependency.
 
 
 <!-- ======================================================================== -->
-<!-- source: CLAUDE.md -->
+<!-- source: CLAUDE.md — status: active -->
 <!-- ======================================================================== -->
 
 # CLAUDE.md — working guide for this repository
@@ -180,6 +180,16 @@ Server-relative; canonical IDs and subject anchors are unchanged. Edge historica
 IDs are qualified as `edge::...` only in the combined graph. Read
 [snapshot execution](docs/migrations/monorepo/EXECUTION.md) for exact provenance,
 held files and release limits. Original device configuration/data are untouched.
+
+### Service documentation and verification policy (2026-10-06)
+
+[Service documents](docs/services/README.md) describe execution boundaries and
+testing; domain charters retain business ownership. Follow the approved
+[verification policy](docs/architecture/VERIFICATION-POLICY.md) when choosing
+baseline and acceptance checks. Runtime's `verification.json` and
+`npm run verification:plan -- --base <commit>` produce shadow comparisons only;
+the active selector still controls all CI jobs. `govern` regenerates the ignored
+service map from the current package/document sources.
 
 
 Read this first, then `AGENTS.md` for the full rules.
@@ -398,13 +408,16 @@ inside the very tree they're meant to be isolated from. Add it to `.gitignore`
 first if you ever use that convention here; otherwise use the sibling layout
 above or `EnterWorktree`.
 
-**Run the test baseline before doing anything else in a new worktree.** This
-is not hygiene — it already cost real time once. In `D:\zuri-ai-fr107`,
+**Run a change-appropriate baseline in a new worktree.** The approved
+[policy](docs/architecture/VERIFICATION-POLICY.md#baseline-and-verification-obligations)
+defines this documentation/control-plane lane's scoped baseline; application,
+schema or shared-fixture changes still require the corresponding wider checks.
+Verify dependency and database isolation first. In `D:\zuri-ai-fr107`,
 `node_modules` was a junction back to the primary, and the shared Prisma client
 resolved its relative SQLite path against the wrong tree; roughly 70 test
 suites failed as a result, and it was only discovered mid-work rather than at
-setup. A plain `npm test` run as the first thing in a new worktree catches this
-in the first minute instead of the middle of a task.
+setup. An isolated install and baseline must catch this before implementation;
+a passing narrow suite must be reported with its scope, not as a full-suite PASS.
 
 Refresh the primary only on a clean tree: `git fetch && git checkout --detach
 origin/main` — on a machine whose layout you have not confirmed, `git worktree
@@ -437,7 +450,7 @@ contracts/                JSON Schema + sample envelopes
 
 ```bash
 npm run dev            # dev server (use the preview tool, not a raw shell, when available)
-npm run verify         # the definition of done in one command: govern → test → build → e2e
+npm run verify         # broad local profile: Runtime test/build → Server govern/test/build/e2e
 npm run build          # production build — must stay clean
 npm test               # Vitest: unit + integration (own SQLite db per run, prisma/.test-dbs/)
 npm run test:e2e       # Playwright against its own dev server + its own seeded db.
@@ -459,6 +472,12 @@ npm run docs:llms      # rebuild llms-full.txt — the one-file corpus for LLM r
                        # CI fails on a stale copy, so run it when you edit one of
                        # those; docs:llms:check is the same gate, locally.
 ```
+
+The root `verify` command does not run MI/SCM service jobs. Hosted governance
+selects PR Server checks from the diff, runs all three service jobs on
+non-scheduled events, and keeps full Server tests/build on main. E2E runs only on
+schedule/workflow_dispatch. See the policy for local scoped evidence and the
+requirements before any shadow plan may become enforcement.
 
 **Declaring a new id costs one command.** Preflight Check 12 fails on an id that
 is declared in a registry and not pinned in `docs/.id-ledger.json`, so the step
@@ -494,7 +513,8 @@ or adds a route, preflight *before* graph reports CRITICALs that are artifacts o
 a stale input — and preflight *without* `--strict` used to print CRITICAL and
 still exit 0. Both were real defects, fixed on 2026-08-17
 ([RCA](.brain/rca/2026-08-17-governance-did-not-govern.md)). `.github/workflows/governance.yml`
-now runs this chain plus tests, build and the full e2e suite on every pull request.
+runs this chain and the applicable PR tests/build. Main retains full Server
+tests/build; E2E is scheduled/manual under the current verification policy.
 
 Run `docs:graph` **and** `docs:preflight` after any change that adds a route, a
 model, a requirement or a document. Both write machine-readable reports
@@ -648,8 +668,10 @@ opened and checked, not assumed.
 ## Documentation reintegration branch (2026-09-29)
 
 Read [the approved migration profile](docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md)
-before changing a registry or document reader. On this branch, individual ZAI records
-in `registry/document-registry/index.json` generate the existing PRD/FEATURES paths.
+before changing a registry or document reader. Individual ZAI records in
+`docs/features/FEAT-*/feature.md`, their explicitly bundled `requirements/`, and
+`docs/requirements/` generate `registry/document-registry/index.json` and the
+existing PRD/FEATURES compatibility paths.
 Run `npm run docs:registry` after an explanatory canonical edit, then
 `npm run docs:graph` and `npm run docs:views`. `govern` checks exports and views
 without repairing them. Initial source rows, issued IDs and subject anchors
@@ -726,6 +748,20 @@ Server-relative; canonical IDs and subject anchors are unchanged. Edge historica
 IDs are qualified as `edge::...` only in the combined graph. Read
 [snapshot execution](docs/migrations/monorepo/EXECUTION.md) for exact provenance,
 held files and release limits. Original device configuration/data are untouched.
+
+### Service documentation and scoped verification (2026-10-06)
+
+Read [the verification policy](docs/architecture/VERIFICATION-POLICY.md) and the
+relevant [service documents](docs/services/README.md) before choosing validation.
+Domain charters own business rules; service documents own execution and contract
+explanations. Package scripts own commands. Canonical FR/FEAT records retain their
+identities and membership; do not duplicate them inside service folders.
+
+The owner-approved Runtime pilot produces shadow plans only. Existing CI job
+selection, main full Server checks and scheduled/manual E2E remain active.
+`npm run verification:plan -- --base <commit>` includes local working changes;
+its report never grants permission to omit checks. `npm run docs:services`
+regenerates the service map, an ignored view under ADR-081.
 
 
 ## Mission
@@ -1027,8 +1063,14 @@ result** — `verify` fails on a stale copy (`docs:llms:check` is the same gate,
 locally). A stale corpus is worse than none: it reads authoritative while
 stating rules this repository no longer has.
 
-`npm run verify` is the definition of done in one command (govern → test → build →
-e2e). Both test commands are wrapped by `scripts/assert-tests-ran.mjs`, which fails a
+`npm run verify` retains the broad local profile: Runtime tests/build, then Server
+govern → test → build → e2e. It does not include MI/SCM service verification.
+Use the approved [verification policy](docs/architecture/VERIFICATION-POLICY.md)
+to choose a change-appropriate baseline and acceptance checks, and state their
+scope. This control-plane pilot requires planner/selector regressions, Runtime
+tests/build, Core contracts and governance; it does not require a blanket local
+application suite merely because a worktree is new. Server test commands are
+wrapped by `scripts/assert-tests-ran.mjs`, which fails a
 run that executed **zero** tests — `vitest run -t "NO_MATCH"` exits 0 with everything
 skipped, and an exit code of 0 must never mean the work did not run. `test:e2e`
 additionally fails on **flaky**: Playwright exits 0 for a test that passes only on
@@ -1043,9 +1085,11 @@ baseline.
 
 Until 2026-08-17 none of this was enforced: there was no CI, no git hook, and
 `docs:preflight` omitted `--strict`, so it printed `CRITICAL` and exited 0. The
-rule was a habit, not a gate. `.github/workflows/governance.yml` now runs the
-chain, the tests, the build and the full e2e suite on every pull request, and
-a route that implements no declared requirement is a CRITICAL against a
+rule was a habit, not a gate. `.github/workflows/governance.yml` runs governance
+and selects PR Server checks from the diff, retaining related/full fallbacks;
+all three service jobs run on non-scheduled events. Main pushes run full Server
+tests/build. E2E runs on schedule or workflow_dispatch. A route that implements
+no declared requirement is a CRITICAL against a
 shrink-only baseline. Full account:
 [RCA](.brain/rca/2026-08-17-governance-did-not-govern.md).
 
@@ -1310,27 +1354,31 @@ Version diff (2026-10-05): adds the owner-approved PM task resume pointer to Doc
 Version diff (2026-10-04): adds the owner-approved Doc Writer entry point and
 lifecycle metadata; existing product authority and canonical IDs are unchanged.
 
+Version diff (2026-10-06): adopts service documentation and the shadow verification
+policy, reconciles canonical-record paths and current CI/baseline instructions,
+and preserves all active job-selection gates.
+
 
 # Product
 
 Layer 0 — what the product is, above the per-module requirements.
 
 <!-- ======================================================================== -->
-<!-- source: docs/PRODUCT.md — id: ZAI:PRODUCT · version: 1.4.0b · status: draft -->
+<!-- source: docs/PRODUCT.md — id: ZAI:PRODUCT · version: 1.4.1b · status: draft -->
 <!-- ======================================================================== -->
 
 # Zuri V2 — Product Definition
 
-> Current authority (2026-09-24): Zuri is a standalone product under [ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs Server LINE ingress; [ADR-106](docs/decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md) defines the Conversation Runtime boundary; [ADR-110](docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) retires Edge Device and harness surfaces while keeping the PRP LocalWorker model-key flow. [FEAT-019 phase map](docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) is a candidate repository decision, not the current layout.
+> Current authority (2026-10-06): Zuri is a standalone product under [ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs Server LINE ingress; [ADR-106](docs/decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md) defines the Conversation Runtime boundary; [ADR-110](docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) retires Edge Device and harness surfaces while keeping the PRP LocalWorker model-key flow. [FEAT-019 phase map](docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) approved snapshot relocation into the current monorepo; its pinned candidate heading does not override its amended status. Independent releases and retirement have separate gates. [Service documentation](docs/services/README.md) describes the current execution boundaries.
 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.4.0b |
+| **Version** | 1.4.1b |
 | **Status** | Draft |
 | **Author** | Owen + Claude |
 | **Created** | 2026-08-12 |
-| **Last Updated** | 2026-10-03 |
+| **Last Updated** | 2026-10-06 |
 | **Layer** | 0 — product (above the per-module PRD/SDD) |
 
 Layer 0: what Zuri V2 *is*. Module-level requirements live one layer down
@@ -1342,6 +1390,10 @@ For LLM readers: [llms.txt](llms.txt) is the repository index, and
 every domain charter into one file (generated by `npm run docs:llms`).
 
 ## Capability classification
+
+Version diff 1.4.0b → 1.4.1b: reconciles the repository-layout statement with
+ADR-062's approved snapshot relocation and links the service documentation layer.
+Product scope, business ownership and release authority are unchanged.
 
 Version diff 1.3.0b → 1.4.0b: clarify product registry types (ADR-025 revision 3).
 An explicit `FEAT-*` is a product capability bundling one or more requirements.
@@ -3065,9 +3117,9 @@ Charter: [docs/domains/marketing/CHARTER.md](docs/domains/marketing/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/marketing` |
-| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake, MarketingBroadcastIntent, MarketingBroadcastIntentVersion |
-| Routes owned | 40 (22 api · 18 pages) |
-| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162, FR-185, FR-275, FR-278 |
+| Models owned | MarketingPlan, MarketingPlanVersion, MarketingReview, MarketingDecision, MarketingHandoff, MarketingInitiative, MarketingReportPolicy, MarketingReportBinding, MarketingExternalReport, MarketingContentBrief, MarketingContentVersion, MarketingContentReview, MarketingContentDecision, MarketingOperationsIntake, MarketingBroadcastIntent, MarketingBroadcastIntentVersion |
+| Routes owned | 41 (23 api · 18 pages) |
+| FRs implemented in lane | FR-157, FR-158, FR-159, FR-160, FR-162, FR-185, FR-275, FR-278, FR-281, FR-282, FR-283 |
 
 ## platform-control
 
@@ -3100,7 +3152,7 @@ Charter: [docs/domains/project-manager/CHARTER.md](docs/domains/project-manager/
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, TaxRegistrationBranch, Business, Branch, Employment, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, BusinessKeyResult, BusinessKeyResultCheckIn, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, AuditEvent, PlanImportReceipt, ProjectExecutionRun, ProjectExecutionStep, ProjectApprovalRequest, GovernanceSnapshot, ProjectFeature, FeatureContribution, FeatureWorkLink, RequirementBinding, ProjectFeatureMutationReceipt |
 | Routes owned | 216 (169 api · 47 pages) |
-| FRs implemented in lane | BR-001, BR-044, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-039, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-057, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-094, FR-095, FR-097, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-184, FR-185, FR-186, FR-187, FR-191, FR-193, FR-194, FR-195, FR-197, FR-198, FR-199, FR-203, FR-204, FR-206, FR-207, FR-208, FR-209, FR-218, FR-223, FR-224, FR-226, FR-229, FR-230, FR-233, FR-236, FR-237, FR-243, FR-245, FR-246, FR-247, FR-248, FR-249, FR-250, FR-251, FR-252, FR-253, FR-254, FR-266, FR-268, FR-270, FR-271, FR-272, FR-273, FR-274, FR-275, FR-277, FR-278, NFR-023, SDD-037, SDD-107, SDD-110, SEC-034 |
+| FRs implemented in lane | BR-001, BR-044, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-039, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-057, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-094, FR-095, FR-097, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-184, FR-185, FR-186, FR-187, FR-191, FR-193, FR-194, FR-195, FR-197, FR-198, FR-199, FR-203, FR-204, FR-206, FR-207, FR-208, FR-209, FR-218, FR-223, FR-224, FR-226, FR-229, FR-230, FR-233, FR-236, FR-237, FR-243, FR-245, FR-246, FR-247, FR-248, FR-249, FR-250, FR-251, FR-252, FR-253, FR-254, FR-266, FR-268, FR-270, FR-271, FR-272, FR-273, FR-274, FR-275, FR-277, FR-278, FR-281, FR-282, FR-283, NFR-023, SDD-037, SDD-107, SDD-110, SEC-034 |
 
 
 # Vocabulary
@@ -6006,10 +6058,22 @@ Long-running polling/browser/translation work may execute in a separate worker *
 
 
 <!-- ======================================================================== -->
-<!-- source: docs/domains/marketing/CHARTER.md — version: 0.6.0b · status: beta -->
+<!-- source: docs/domains/marketing/CHARTER.md — version: 0.7.0b · status: beta -->
 <!-- ======================================================================== -->
 
 # Marketing domain charter
+
+Approved external Marketing evidence is owned by fresh FR-281–283/SDD-112
+([physical contract](docs/change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md)).
+The candidate dedicated receiver uses an independent deny-default Business machine
+policy, immutable report-only binding and reported-evidence receipt. It creates no
+Person, native plan/review/decision or verified Commerce total. Native acceptance
+and independent application review remain separate gates; no real provisioning,
+migration, send or deployment is implied. Legacy JSON backup refuses nonempty
+machine evidence; private consistent whole-database custody preserves it.
+
+Version diff 0.6.0b → 0.7.0b: adds approved report custody ownership and candidate
+receiver boundary; existing dashboard FR-278 and human Marketing grants stay stable.
 
 > For LLM readers: [llms.txt](llms.txt) is the repository index, and
 > [llms-full.txt](llms-full.txt) inlines this charter, the working rules
@@ -6660,12 +6724,12 @@ These are machine-written and regenerated by `npm run govern`; a frozen copy
 here would be stale within a day, and together they outweigh the prose above by
 an order of magnitude. Read them from the repository:
 
-- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) (620KB): the FR / NFR / BR / SEC / SDD registry — every requirement id
-- [docs/FEATURES.md](docs/FEATURES.md) (110KB): the FEAT registry
-- [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md) (282KB): generated — the feature-driven view over the domain spine
-- [docs/TRACE.md](docs/TRACE.md) (735KB): generated — per FR: surface to code to rules to tests
-- [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (198KB): generated — the API surface
-- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (101KB): the database schema
-- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (850KB): generated — the traceability appendix
-- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (423KB): live delivery state (Thai) — read by GoVibe Mission Control
+- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) (624KB): the FR / NFR / BR / SEC / SDD registry — every requirement id
+- [docs/FEATURES.md](docs/FEATURES.md) (112KB): the FEAT registry
+- [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md) (285KB): generated — the feature-driven view over the domain spine
+- [docs/TRACE.md](docs/TRACE.md) (741KB): generated — per FR: surface to code to rules to tests
+- [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (199KB): generated — the API surface
+- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (103KB): the database schema
+- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (856KB): generated — the traceability appendix
+- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (424KB): live delivery state (Thai) — read by GoVibe Mission Control
 

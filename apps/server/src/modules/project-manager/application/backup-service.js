@@ -38,6 +38,8 @@ import { pricingHash } from '@/modules/commerce/domain/pricing-engine'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
 import { assertOperator, assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
+// @req FR-282, FR-283 — fail closed before legacy export/replacement loses evidence.
+import { assertMarketingReportBackupSafe, unsupportedMarketingReportSnapshot } from '@/modules/marketing/application/marketing-report-backup'
 import {
   PHASE_B_FAMILY_DELEGATES, PHASE_B_RECOVERY_MANIFEST_VERSION,
   PhaseBRecoveryError, readPhaseBCounts, assertPhaseBWebRestoreSafe,
@@ -462,6 +464,12 @@ export const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  marketingReportPolicy:
+    'FR-281 machine policy is retained custody. Legacy JSON export/import refuses when any report policy, binding or evidence exists; use a separately authorized consistent whole-database backup.',
+  marketingReportBinding:
+    'FR-281 report-only credential hashes and revocation history cannot be recreated by legacy JSON. Nonempty export/import/replacement fails closed; whole-database custody preserves this row.',
+  marketingExternalReport:
+    'FR-282/FR-283 immutable reported evidence, receipt and audit linkage must be retained at least 90 days. Legacy JSON operations refuse instead of omitting, deleting or rewriting this evidence.',
   lineOaWorkerCheckpoint:
     'FR-190 / ADR-105 operational scheduling checkpoints are disposable coordination state, not business evidence. ' +
     'They are recreated with an expired lease after restore so a snapshot can never restore a live worker claimant.',
@@ -1595,6 +1603,7 @@ export async function extractSnapshot({
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
   if (!db) throw new Error('SNAPSHOT_DATABASE_REQUIRED')
+  await assertMarketingReportBackupSafe(db)
   const visibility = await readPhaseBCounts(db)
   if (visibility.status !== 'FULL') throw new PhaseBRecoveryError(
     'PHASE_B_EXPORT_COMPLETENESS_UNAVAILABLE',
@@ -1687,6 +1696,7 @@ export async function exportSnapshot({
 
 export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   const errors = []
+  if (unsupportedMarketingReportSnapshot(snapshot)) errors.push('MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED')
   const warnings = []
   let recovery = { status: 'UNKNOWN', manifestVersion: null }
   let artifactStorageRecovery = { status: 'UNKNOWN', manifestVersion: null }
@@ -1742,8 +1752,10 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   // `nested` is importSnapshot's own dry run — the caller already proved
   // authority and will record one BACKUP_RESTORE use, so a second
   // BACKUP_PREVIEW row here would double-count one act.
-  if (nested) assertOperator(viewer, RESTORE_DENIED)
-  else await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
+  requireViewer(viewer, 'backup restore')
+  assertOperator(viewer, RESTORE_DENIED)
+  await assertMarketingReportBackupSafe(db, snapshot)
+  if (!nested) await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
   const billing = commerceBillingRecovery(snapshot)
@@ -1945,6 +1957,7 @@ export async function importSnapshot(snapshot, {
 
   try {
     await db.$transaction(async (tx) => {
+      await assertMarketingReportBackupSafe(tx, snapshot)
       // This is the commit-side half of the legacy protected-table guard. It
       // must run before plugin/mount/model deletion so a row that appeared
       // after preview can never be erased by an omitted snapshot array.

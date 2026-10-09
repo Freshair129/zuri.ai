@@ -1,0 +1,382 @@
+{
+  "version": "0.1.0",
+  "status": "LOCAL_SCOPED_VERIFIED_SHADOW_ONLY",
+  "recordedAt": "2026-10-06T06:54:16.563Z",
+  "baseCommit": "71e5dde06104c5e1ff30fa5f890031b5fcdb514b",
+  "branch": "codex/monorepo-verification-pilot-20261006",
+  "workingTree": "UNCOMMITTED",
+  "mode": "shadow",
+  "omissionsAllowed": false,
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.16.0",
+    "hostedNodeMajor": 22,
+    "hostedParity": "NOT_RUN",
+    "dependencyIsolation": "OWN_PHYSICAL_INSTALL",
+    "databaseIsolation": "DISPOSABLE_RUN_SPECIFIC_SQLITE",
+    "testAssertionsAndTimeoutsChanged": false
+  },
+  "checks": [
+    {
+      "name": "planner regressions",
+      "command": "npm run verification:test",
+      "status": "PASS",
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 82627.6406,
+      "evidence": {
+        "path": ".verification.local/planner-final.log",
+        "sha256": "dbbea005b74ca067e3a4be01ae3b0c4f16bd518e264d8cb99b322defec90e133",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "name": "existing selector baseline",
+      "command": "npm --prefix apps/server test -- tests/unit/ci-change-scope.test.js",
+      "status": "PASS",
+      "passed": 23,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 417.39,
+      "evidence": {
+        "path": ".verification.local/selector-baseline.log",
+        "sha256": "2eec45819971b98b9e1d692bbaaaafd7e3ca6e03cfd12f570878d784ed93bc22",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "name": "Conversation Runtime tests",
+      "command": "npm run conversation-runtime:test",
+      "status": "PASS",
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 586.0339,
+      "evidence": {
+        "path": ".verification.local/runtime-tests.log",
+        "sha256": "f61a2621e88bf026c2f7f3e7b971bb72dad1cb874861a8c2f89aaba2841307e4",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "name": "Conversation Runtime build",
+      "command": "npm run conversation-runtime:build",
+      "status": "PASS",
+      "sourceFiles": 11,
+      "evidence": {
+        "path": ".verification.local/runtime-build.log",
+        "sha256": "7a68fe8cae0622e8e6de8f6babce0a402785bdd64480e24c06be8f81faae0236",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "name": "document migration and reader contracts",
+      "command": "npm run docs:migration:test",
+      "status": "PASS",
+      "passed": 78,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 207732.9833,
+      "evidence": {
+        "path": ".verification.local/document-contracts.log",
+        "sha256": "88b1eaf651179660515cdd1524ade4083f4fc07f565d776f7d5cb10b654088f7",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "name": "repository governance",
+      "command": "npm run govern",
+      "status": "PASS",
+      "critical": 0,
+      "evidence": {
+        "path": ".verification.local/govern-final.log",
+        "sha256": "b113042565415d9f45bb67e2c2f1b4bb37d53b89cbf54bd63b925f6f876069a6",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      },
+      "note": "Final strict preflight below supersedes the earlier warning for the not-yet-tracked validation receipt."
+    },
+    {
+      "name": "final strict preflight",
+      "command": "npm --prefix apps/server run docs:preflight",
+      "status": "PASS",
+      "reportStatus": "WARN",
+      "critical": 0,
+      "warnings": 4,
+      "info": 36,
+      "evidence": {
+        "path": ".verification.local/preflight-final.log",
+        "sha256": "a130fc55091d7f51e26f9d7303e411632676ba42db1c542019879b42c4715d09",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      },
+      "warningScope": "Three pre-existing broken document links and one group of 13 dangling annotation edges; retained as out-of-scope findings."
+    },
+    {
+      "name": "service map freshness",
+      "command": "npm run docs:services:check",
+      "status": "PASS",
+      "evidence": {
+        "path": ".verification.local/map-freshness-final.log",
+        "sha256": "1361dd588fe1cb749eb46fbdf84f17cfe68b3211086a493d33556a86286c1c67",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "name": "LLM corpus freshness",
+      "command": "npm run docs:llms:check",
+      "status": "PASS",
+      "evidence": {
+        "path": ".verification.local/corpus-freshness-final.log",
+        "sha256": "d6e313ceed766d615baaed7c3ec4546ed7fee067a8fc3a39d80f899f151e7d82",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "name": "generated document view freshness",
+      "command": "npm run docs:views:check",
+      "status": "PASS",
+      "views": 96,
+      "features": 46,
+      "evidence": {
+        "path": ".verification.local/view-freshness-final.log",
+        "sha256": "f0ed542cf86d35729c7eeeffe59344a4edec04624e24f383870b782e8ff74d50",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "name": "workflow invariants",
+      "status": "PASS",
+      "jobs": 9,
+      "unchanged": [
+        "events",
+        "concurrency",
+        "job conditions",
+        "job dependencies",
+        "job outputs",
+        "active selector"
+      ],
+      "evidence": {
+        "path": ".verification.local/workflow-structure.json",
+        "sha256": "48833834c40d4c23ec7773236e8979ed95a4ccd0c0455d0cab5bd9db27f379ac",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "name": "real and simulated shadow plans plus protected-source boundaries",
+      "status": "PASS",
+      "realDiffCandidate": false,
+      "simulationCandidate": true,
+      "simulationConsumerFiles": 15,
+      "omissionsAllowed": false,
+      "evidence": {
+        "path": ".verification.local/final-invariants.json",
+        "sha256": "9c83b31192837af9fa94d4323be74036c934f45239fb417acefcbf380cd01c35",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      },
+      "simulation": {
+        "path": ".verification.local/runtime-doc-example.json",
+        "sha256": "54affd73807c5f00893e906f2a146432d780f1f27e60a7355ff3ddef665c41a2",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      },
+      "note": "Planning checks are not execution receipts. The real control-plane diff retains existing selection."
+    },
+    {
+      "name": "scoped Core consumers and governance readers",
+      "status": "PASS_ACROSS_CONTROLLED_RUNS",
+      "uniqueTestFiles": 24,
+      "uniquePassedTests": 468,
+      "unresolvedFailures": 0,
+      "selectedFiles": [
+        "tests/integration/conversation-runtime-answer-parity.test.js",
+        "tests/integration/conversation-runtime-catalog-command.test.js",
+        "tests/integration/conversation-runtime-grounding.test.js",
+        "tests/integration/conversation-runtime-group-room.test.js",
+        "tests/integration/conversation-runtime-legacy-parity.test.js",
+        "tests/integration/conversation-runtime-memory-group-gks.test.js",
+        "tests/integration/conversation-runtime-memory.test.js",
+        "tests/integration/conversation-runtime-model-conformance.test.js",
+        "tests/integration/conversation-runtime-out-of-hours.test.js",
+        "tests/integration/conversation-runtime-unverified-memory.test.js",
+        "tests/integration/conversation-runtime-unverified.test.js",
+        "tests/integration/conversation-runtime-vertical-slice.test.js",
+        "tests/integration/conversation-runtime-work-tool-port.test.js",
+        "tests/unit/ci-change-scope.test.js",
+        "tests/unit/design-system.test.js",
+        "tests/unit/doc-graph-canonical-text.test.js",
+        "tests/unit/doc-graph-delivery-attribution.test.js",
+        "tests/unit/doc-graph-retired-rules.test.js",
+        "tests/unit/doc-identities.test.js",
+        "tests/unit/domain-state.test.js",
+        "tests/unit/governance-canonical-source.test.js",
+        "tests/unit/governance-source-verifier.test.js",
+        "tests/unit/id-anchor-stability.test.js",
+        "tests/unit/schema-migration-drift.test.js"
+      ],
+      "selection": {
+        "path": ".verification.local/core-selection.json",
+        "sha256": "a1c0a2e1f61730a62bfc74b8c7d3115a8b98fd767b7da0107ad168ff3fd17f2c",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      },
+      "note": "This is combined evidence from the 467-pass/1-fail batch and the unchanged 27-test file rerun. It is not a green single 24-file batch or a full Server-suite result."
+    }
+  ],
+  "testAttempts": [
+    {
+      "id": "local-o-storage",
+      "status": "FAILED_THEN_STOPPED",
+      "command": "ZURI_RELATED_TESTS_FILE=.verification.local/core-and-reader-tests.txt npm --prefix apps/server test -- --config vitest.related.config.js",
+      "databaseDrive": "O:",
+      "temporaryDrive": "O:",
+      "schemaSetupSeconds": 446.37,
+      "memoryGroupSuite": {
+        "tests": 29,
+        "failed": 12,
+        "durationMs": 598405
+      },
+      "note": "Owned runner stopped after timeout/query-failure cascades; incomplete batch. Original failed database was preserved.",
+      "evidence": {
+        "path": ".verification.local/core-and-readers.log",
+        "sha256": "780bde7c8ce3421adfdca2a1be2965ec43166c3e4cc95cf2ddf93119f1a88b93",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "id": "local-c-database",
+      "status": "FAIL",
+      "command": "ZURI_RELATED_TESTS_FILE=.verification.local/core-and-reader-tests.txt npm --prefix apps/server test -- --config vitest.related.config.js",
+      "databaseDrive": "C:",
+      "temporaryDrive": "O:",
+      "schemaSetupSeconds": 3.26,
+      "passed": 467,
+      "failed": 1,
+      "skipped": 0,
+      "passedFiles": 23,
+      "failedFiles": 1,
+      "durationSeconds": 421.14,
+      "memoryGroupSuite": {
+        "passed": 29,
+        "failed": 0,
+        "durationMs": 29652
+      },
+      "remainingFailure": "Canonical full-size registry fixture exceeded 30000ms while os.tmpdir() remained on O:.",
+      "evidence": {
+        "path": ".verification.local/core-and-readers-c-temp.log",
+        "sha256": "6500036277a9b527d28e2de3d96c44b921d1ed2ebebfde3c02de40c7975299ec",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      },
+      "rawReport": {
+        "path": ".verification.local/core-c-temp-vitest.json",
+        "sha256": "2718a5356cb0802aa881943f43887380fbdd1dcda690c079514e60eb6710280d",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    },
+    {
+      "id": "canonical-private-c-temporary-directory",
+      "status": "PASS",
+      "command": "npm --prefix apps/server test -- tests/unit/governance-canonical-source.test.js",
+      "environmentChange": "TEMP/TMP point to a private C: directory; ZURI_RELATED_TESTS_FILE unset; disposable SQLite fixtures remain on C:.",
+      "databaseDrive": "C:",
+      "temporaryDrive": "C:",
+      "schemaSetupSeconds": 3.78,
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 71.59,
+      "largeRegistryCaseMs": 18771.206900000005,
+      "unchangedTestTimeoutMs": 30000,
+      "evidence": {
+        "path": ".verification.local/canonical-c-temp.log",
+        "sha256": "926de4fab6d31fd5bb8f50da2bd9ef6d906f8c5a04aa56630ce694e883b2da8b",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      },
+      "rawReport": {
+        "path": ".verification.local/canonical-c-temp-vitest.json",
+        "sha256": "96af8ae8660d80647b99c3fb94ffb40fd7d5f69406969fa64217fb63d1c080b1",
+        "availability": "LOCAL_IGNORED_ARTIFACT"
+      }
+    }
+  ],
+  "localStorageInvestigation": {
+    "rca": ".brain/rca/2026-10-06-local-verification-sqlite-latency.md",
+    "probe": {
+      "path": ".verification.local/sqlite-storage-probe.json",
+      "sha256": "413703d628cb54f16699348d378fe8690e45315bab4a40df37d69429c2d619f9",
+      "availability": "LOCAL_IGNORED_ARTIFACT"
+    },
+    "scope": "Local temporary-storage sensitivity; physical-device cause and older hosted CI incident remain unverified."
+  },
+  "environmentRestoration": {
+    "status": "RESTORED_WITH_CACHE_RETAINED",
+    "databaseJunctionRemoved": true,
+    "originalPhysicalDatabaseDirectoryRestored": true,
+    "privateDatabaseDirectoryRemoved": true,
+    "privateRunnerDirectory": "Only Node compile cache retained. Automatic approval review rejected recursive cleanup: blocked by policy.",
+    "activeTestProcess": false,
+    "fixtureReceipt": {
+      "path": ".verification.local/fixture-location.json",
+      "sha256": "a50b8e253feba9d35dff5c706fd2347a27cf90e924c5833141d919fd4ebea8b2",
+      "availability": "LOCAL_IGNORED_ARTIFACT"
+    },
+    "cleanupReceipt": {
+      "path": ".verification.local/cleanup.json",
+      "sha256": "4780af9deb6506279a96f47eac0021dd6678e9bfd9e07748c38bbb02ab1e5255",
+      "availability": "LOCAL_IGNORED_ARTIFACT"
+    }
+  },
+  "notRun": [
+    "Hosted GitHub Actions for this branch",
+    "Paired representative hosted shadow/full comparisons",
+    "Node 22 hosted parity",
+    "Full Server test suite and production build",
+    "Scheduled/manual E2E",
+    "PostgreSQL engine qualification",
+    "Deployment and service extraction"
+  ],
+  "limitations": [
+    "No measured hosted CI speedup. The reported historical 60+ minute run remains unidentified.",
+    "Candidate consumer completeness, including non-import edges, is not certified.",
+    "No CI job omissions, execution cache or selection-enforcement switch is activated.",
+    "Local ignored logs are not portable release evidence; CI artifacts require an actual hosted run."
+  ],
+  "provenance": {
+    "digestAlgorithm": "SHA-256 over raw file bytes",
+    "sourceDigests": {
+      ".brain/rca/2026-10-06-local-verification-sqlite-latency.md": "2c08a43e7594b0f2a5cf1c29546bf2b8b9143772291594d74c987aeb7bf5d849",
+      ".brain/rca/2026-10-06-service-verification-contract-drift.md": "92aaab67b447686b16948561ed8c89c9f285f9132d652443858b6f6cbe3a187c",
+      ".github/workflows/governance.yml": "6b8195783445b008c95713031e7995294ca4cc1ed6efb6c73b65c661d11b5859",
+      ".gitignore": "0548a484ccd43a2139211959e4a9b7611979340c91531d70bedb70c5d8ccbee2",
+      "AGENTS.md": "9a9960d856a52b683c830223f8357409158d23dae1d565a6a0b83e8674a27426",
+      "CLAUDE.md": "cdf0bc6f3646bed7ce286eb833ed0880ac90be139f63647da8eacc093eae1e17",
+      "apps/server/package.json": "429553bcb4bbf3880e26b1ba1ae5ef70fb0bc91cbaea4d381034795d66e3dad6",
+      "apps/server/scripts/doc-identities.mjs": "638e2fdcccee0fb40d667b00c812cf8235f70bce98310ea653b06562d5116a8a",
+      "apps/server/tests/unit/doc-identities.test.js": "4598fa6031b66b110006643a9c7c9d51791f11837fba8fe8915f38435f6b7aad",
+      "docs/PRODUCT.md": "a6e700ae44421fa8aaf522467c6a3c51d0f9a775c885c4fedfa67de8550d662c",
+      "docs/README.md": "123fb86ad69afb22b3b1f44df970ab0a1d7dc1fef952f2de293a58ee8ae23444",
+      "docs/architecture/README.md": "5de8c14dff5107cd73ea4e9bc656b63926f49f96a0987e8e068294e9e4c085f8",
+      "docs/architecture/VERIFICATION-POLICY.md": "1c543df31b42732c78923315174b65413cf0a111e630df8057cb4683a4697f90",
+      "docs/decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md": "0b9250ed0aadb0519cc99bc79eabc555ae629412674b854ee7a7703703e5e9a1",
+      "docs/migrations/scoped-verification/PILOT.md": "48982b63926b07185efba44ee4aa10f659f1ffb43256ebd3ee60bb80a869fe58",
+      "docs/operations/README.md": "c209b53bce9bd7dbb4cbb42b6addca4db5ef0f5b31a82568edf59699000b113d",
+      "docs/services/README.md": "73b4a0394d49c736c834295079ebc40d30d0024b6b8b1bf1b88564521eac54b5",
+      "docs/services/conversation-runtime/SERVICE.md": "64477a5b8b26da12d27d6d720b9838bc62fcc73533236e7df9d9a843f5701d8b",
+      "docs/services/conversation-runtime/TESTING.md": "483a601af8d4f0f4bfe42aafb9b587f6b9ed412a0b33952d39fe8b14793a3beb",
+      "docs/services/market-intelligence/SERVICE.md": "d9b88bb35b22cca5a88ea79f8f818563c0f7e4f55a42e302113c97bd079196e7",
+      "docs/services/market-intelligence/TESTING.md": "7d1e07b3e8e535c7abda6f26781058d2e9ca2cbd4cf3dc696c73a8789d63d5a6",
+      "docs/services/scm/SERVICE.md": "92a222c3fb6f3818af1381269f248bbc2f47200c3ececda3ecebc7f9d1f495d2",
+      "docs/services/scm/TESTING.md": "68bd1c9a0d756544b5b65d674e5c8b2a9cf75cef34c8e876a3667f5830bb3ba2",
+      "docs/services/server/SERVICE.md": "2d39707b4096ec4ea8baacc61771456232c07916f5278ece204d1a66e5197229",
+      "docs/services/server/TESTING.md": "9ba79f7ad6021f537bb87376db9715e6b780339d7cb6945d6216a28d4b22c077",
+      "llms-full.txt": "8c55d353b57f60b0c6f11212dcd6f940b65b48231aa6178dcbf2bc132d4b1183",
+      "package.json": "26bde66201769b61b20b3c4c1274146c439ae5f9bd85180479db9d4496e7c8f5",
+      "scripts/verification-plan.mjs": "0419c695a0da9730aaede91dabf24b6c0bc02ee9e99bf1658734e80b74787d23",
+      "services/conversation-runtime/README.md": "b97d50d30cffbcae3c561edf02140b46f34bcd0bb95389905c34b63a720b553b",
+      "services/conversation-runtime/verification.json": "ad53dc9952e9af30f1e0ae97095c082664b8cd564ca7b46a078b9b7c6ea354d0",
+      "tools/tests/verification-plan.test.mjs": "fd90651dd240f4027dff874dfdb2f2d61508453e472d98c3930ca8b7bafee33b"
+    },
+    "excludedFromSourceDigests": [
+      "docs/migrations/scoped-verification/VALIDATION.json"
+    ],
+    "note": "This receipt is excluded to avoid a self-referential digest. Base commit supplies unchanged files; digests identify all other changed tracked source files. No commit, remote run or deployment is implied."
+  }
+}

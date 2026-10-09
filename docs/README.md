@@ -1,6 +1,7 @@
 ---
-version: "0.2.0"
+version: "0.3.0"
 status: active
+superseded_by: null
 ---
 
 # Documentation
@@ -34,6 +35,23 @@ Use `npm run docs:tests-for -- ZAI:FEAT-009`, `npm run docs:impact -- ZAI:FR-091
 and `npm run docs:readiness -- ZAI:FEAT-009` for scoped navigation and binding
 reports. See the [tooling contract](migrations/document-reintegration/TOOLING.md).
 
+## Domain ownership and service execution
+
+- [Domain map](DOMAIN-MAP.md) leads to business ownership and each domain charter.
+- [Service documentation](services/README.md) explains Core, Conversation Runtime,
+  Market Intelligence and SCM execution boundaries and verification responsibilities.
+- [Verification policy](architecture/VERIFICATION-POLICY.md) defines scoped evidence,
+  conservative expansion and the bounded Runtime shadow pilot.
+- [Service map](architecture/SERVICE-MAP.md) is generated from the active project
+  inventory, pilot metadata and package scripts with `npm run docs:services`.
+- [Pilot delivery and evidence](migrations/scoped-verification/PILOT.md) records
+  what has actually been checked and what remains before CI omissions can change.
+
+Domain, service and feature are different axes. A service may execute several
+domains; service documents link the canonical requirements rather than duplicate
+them. Brand personas and character/design boards remain in the versioned design
+kit outside this execution repository.
+
 ## Generated navigation
 
 - [Product and feature views](product/README.md)
@@ -46,3 +64,6 @@ reports. See the [tooling contract](migrations/document-reintegration/TOOLING.md
 - [Product](PRODUCT.md) · [Architecture](ARCHITECTURE.md)
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
+
+Version diff 0.2.0 → 0.3.0: adds the domain/service documentation layer and scoped
+verification entrypoints; preserves canonical records and generated feature views.

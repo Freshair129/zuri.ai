@@ -1058,6 +1058,21 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-278",
     "primaryDomain": "marketing",
     "useCase": "ผู้บริหารเลือก Business และสัปดาห์เพื่อดูรายรับสุทธิที่ยืนยันแล้ว สถานะออเดอร์ และสุขภาพงานติดตามแบบรวม พร้อมเห็น Ads, attribution, Lead และผลการโทรที่ยังไม่มีแหล่งข้อมูล"
+  },
+  {
+    "id": "FR-281",
+    "primaryDomain": "identity",
+    "useCase": "Zuri-Go ใช้ credential สำหรับส่งรายงานเท่านั้น โดยตรวจ binding และสิทธิ์ growth ปัจจุบันซ้ำทุกครั้งก่อนรับข้อมูลหรือคืน receipt"
+  },
+  {
+    "id": "FR-282",
+    "primaryDomain": "marketing",
+    "useCase": "รับรายงาน revision 1 เป็น reported evidence พร้อม receipt และ audit ใน transaction เดียว คำขอซ้ำได้ receipt เดิม และไม่เปลี่ยนแผนหรือยอดที่ยืนยันแล้ว"
+  },
+  {
+    "id": "FR-283",
+    "primaryDomain": "marketing",
+    "useCase": "ทีมการตลาดอ่าน reported evidence ตามสิทธิ์เดิมของ Business เก็บหลักฐานกับ receipt ขั้นต่ำ 90 วัน โดยคง UNKNOWN และไม่มีการลบอัตโนมัติ"
   }
 ]
 ```

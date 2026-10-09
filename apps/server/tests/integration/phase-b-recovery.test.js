@@ -3,7 +3,9 @@
 // @spec docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
 // @tested tests/integration/phase-b-recovery.test.js
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { createHash } from 'node:crypto'
+import pg from 'pg'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -27,6 +29,7 @@ import { runProtectedExportCli } from '../../scripts/phase-b-protected-export.mj
 const inventory = await loadFrozenSchemaInventory()
 if (!inventory) throw new Error('The committed Phase B target inventory could not be loaded')
 const validRecovery = async () => ({ valid: true })
+const MARKETING_CUSTODY = ['MarketingExternalReport', 'MarketingReportBinding', 'MarketingReportPolicy']
 
 function emptySnapshot() {
   return {
@@ -88,12 +91,13 @@ describe('Phase B offline recovery runners', () => {
   // 1.2.0) rebind the frozen inventory from 192 to 194 application tables, on
   // top of the FR-277 LineGroundingShadowComparison rebind; see the decision
   // doc's binding ladder for the historical entries this one continues.
-  // @req FR-022 — the MSP memory erasure index and MemoryProjectionReceipt
-  // rebind the frozen inventory to the current 195-model schema.
-  it('loads the committed pinned 195-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(195)
-    expect(inventory.schemaSha256).toBe('73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1')
-    expect(inventory.targetSchemaSha256).toBe('9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9')
+  // @req FR-022 — the MSP memory erasure scan index on AgentTraceEvent rebinds
+  // the schema hash; MemoryProjectionReceipt and the three Marketing custody
+  // models compose the current 198-table mapping.
+  it('loads the committed pinned 198-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(198)
+    expect(inventory.schemaSha256).toBe('19bebd6e40dbaf43bfae5a99d54d29ebf33576add850b45525033f516d09405a')
+    expect(inventory.targetSchemaSha256).toBe('40815083980a80c6d3c3237b1f9db5bf9c1c6c93682beb360a060a93996e50bb')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -104,6 +108,159 @@ describe('Phase B offline recovery runners', () => {
       'ProjectApprovalRequest', 'NotionOAuthState', 'NotionWebhookReceipt', 'NotionWebhookVerificationToken', 'MemoryProjectionReceipt',
     ]))
   })
+
+  it('preserves the exact previous 194 mappings and covers every current Prisma model', async () => {
+    const previous = inventory.applicationTables.filter(({ modelName }) => !MARKETING_CUSTODY.includes(modelName) && modelName !== 'MemoryProjectionReceipt')
+    expect(previous).toHaveLength(194)
+    expect(createHash('sha256').update(JSON.stringify(previous)).digest('hex')).toBe('f170d8b0246546bdf903e7bc4142a85486dc2e20e76e1a532a5fb93a12a98c93')
+    const bytes = await readFile(new URL('../../prisma/schema.prisma', import.meta.url))
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe(inventory.schemaSha256)
+    expect(computeTargetSchemaSha256(inventory)).toBe(inventory.targetSchemaSha256)
+    expect([...bytes.toString().matchAll(/^model\s+(\w+)\s*\{/gm)].map(match => match[1]).sort()).toEqual(inventory.applicationTables.map(entry => entry.modelName))
+    for (const model of MARKETING_CUSTODY) {
+      const delegate = model[0].toLowerCase() + model.slice(1)
+      expect(SNAPSHOT_MODELS).not.toContain(delegate)
+      expect(SNAPSHOT_EXCLUDED_MODELS[delegate]).toMatch(/custody|history|immutable/)
+      expect(PHASE_B_FAMILY_DELEGATES).not.toContain(delegate)
+    }
+  })
+
+  it('includes all 198 tables in the actual PostgreSQL adapter catalog, privileges, locks and census', async () => {
+    const queries = []
+    const client = { release() {}, async query(sql, values) {
+      queries.push({ sql, values })
+      if (sql.includes('pg_catalog.pg_class')) return { rows: inventory.applicationTables }
+      if (sql.includes('has_table_privilege')) return { rows: [{ canSelect: true, canInsert: true }] }
+      if (sql.startsWith('SELECT COUNT')) return { rows: [{ count: '0' }] }
+      return { rows: [] }
+    } }
+    const connect = vi.spyOn(pg.Pool.prototype, 'connect').mockResolvedValue(client)
+    const adapter = createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_phase_b_adapter_qa', inventory })
+    try {
+      const tx = await adapter.begin()
+      expect(await tx.reconcileCatalog()).toEqual({ expectedCount: 198, catalogCount: 198 })
+      await tx.assertPrivileges({ write: true })
+      await tx.lockApplicationTables()
+      expect(Object.keys(await tx.countAllApplicationTables()).sort()).toEqual(inventory.applicationTables.map(entry => entry.modelName))
+      const names = inventory.applicationTables.map(entry => `"public"."${entry.tableName}"`)
+      expect(queries.filter(query => query.sql.includes('has_table_privilege')).map(query => query.values[0])).toEqual(names)
+      expect(queries.filter(query => query.sql.startsWith('LOCK TABLE')).map(query => query.sql)).toEqual(names.map(name => `LOCK TABLE ${name} IN SHARE ROW EXCLUSIVE MODE`))
+      expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(198)
+      await tx.rollback()
+    } finally { connect.mockRestore(); await adapter.close() }
+  })
+
+  for (const model of MARKETING_CUSTODY) {
+    it(`denies missing ${model} PostgreSQL privileges and bounded lock failures`, async () => {
+      for (const failure of ['privilege', 'lock']) {
+        const client = { release() {}, async query(sql, values) {
+          if (sql.includes('has_table_privilege')) return { rows: [{ canSelect: values[0] !== `"public"."${model}"`, canInsert: true }] }
+          if (sql === `LOCK TABLE "public"."${model}" IN SHARE ROW EXCLUSIVE MODE`) throw Error('bounded lock unavailable')
+          return { rows: [] }
+        } }
+        const connect = vi.spyOn(pg.Pool.prototype, 'connect').mockResolvedValue(client)
+        const adapter = createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_phase_b_adapter_qa', inventory })
+        try {
+          const tx = await adapter.begin()
+          await expect(failure === 'privilege' ? tx.assertPrivileges({ write: true }) : tx.lockApplicationTables()).rejects.toMatchObject({ code: failure === 'privilege' ? 'TARGET_PRIVILEGE_UNAVAILABLE' : 'TARGET_LOCK_UNAVAILABLE' })
+          await tx.rollback()
+        } finally { connect.mockRestore(); await adapter.close() }
+      }
+    })
+  }
+
+  it('refuses the last valid 194-model binding at every runner and loader boundary', async () => {
+    const previous = inventoryVariant({ applicationTables: inventory.applicationTables.filter(({ modelName }) => !MARKETING_CUSTODY.includes(modelName) && modelName !== 'MemoryProjectionReceipt'), schemaSha256: '32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4' })
+    expect(previous.targetSchemaSha256).toBe('9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0')
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-marketing-old-'))
+    try {
+      const file = path.join(dir, 'inventory.json')
+      await writeFile(file, JSON.stringify(previous))
+      await expect(loadFrozenSchemaInventory({ modulePath: file })).rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+      const adapter = fakeAdapter()
+      const bytes = Buffer.from(JSON.stringify(emptySnapshot()))
+      expect(await runCleanTargetRestore({ inventory: previous, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
+      expect(await runProtectedExport({ inventory: previous, adapter, extractSnapshot: async () => ({ snapshot: completeSnapshot(), ...exportedModelContract() }), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED', snapshot: null })
+      expect(adapter.events).not.toContain('begin')
+    } finally { await rm(dir, { recursive: true, force: true }) }
+  })
+
+  for (const historical of [
+    { name: 'API-010 195-model', schemaSha256: '73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1', targetSchemaSha256: '9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9', omit: MARKETING_CUSTODY },
+    { name: 'main 197-model', schemaSha256: '45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06', targetSchemaSha256: 'e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e', omit: ['MemoryProjectionReceipt'] },
+  ]) {
+    it(`preserves and refuses the historical ${historical.name} binding at every runner and loader boundary`, async () => {
+      const previous = inventoryVariant({ applicationTables: inventory.applicationTables.filter(({ modelName }) => !historical.omit.includes(modelName)), schemaSha256: historical.schemaSha256 })
+      expect(previous.targetSchemaSha256).toBe(historical.targetSchemaSha256)
+      const dir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-composed-old-'))
+      try {
+        const file = path.join(dir, 'inventory.json')
+        await writeFile(file, JSON.stringify(previous))
+        await expect(loadFrozenSchemaInventory({ modulePath: file })).rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+        const adapter = fakeAdapter()
+        const bytes = Buffer.from(JSON.stringify(emptySnapshot()))
+        expect(await runCleanTargetRestore({ inventory: previous, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
+        expect(await runProtectedExport({ inventory: previous, adapter, extractSnapshot: async () => ({ snapshot: completeSnapshot(), ...exportedModelContract() }), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED', snapshot: null })
+        expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 198-table inventory/)
+        expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_composed_qa', inventory: previous })).toThrow(/approved 198-table inventory/)
+        expect(adapter.events).not.toContain('begin')
+      } finally { await rm(dir, { recursive: true, force: true }) }
+    })
+  }
+
+  for (const model of MARKETING_CUSTODY) {
+    for (const state of ['nonempty', 'missing', 'unreadable']) {
+      it(`refuses ${state} ${model} custody before export or restore callbacks`, async () => {
+        for (const operation of ['export', 'restore']) {
+          const adapter = fakeAdapter()
+          const original = adapter.begin
+          adapter.begin = async (...args) => {
+            const tx = await original(...args)
+            tx.countAllApplicationTables = async () => {
+              if (state === 'unreadable') throw new Error('count unavailable')
+              const counts = Object.fromEntries(inventory.applicationTables.map(entry => [entry.modelName, 0]))
+              if (state === 'missing') delete counts[model]
+              else counts[model] = 1
+              return counts
+            }
+            return tx
+          }
+          let callbacks = 0
+          const snapshot = completeSnapshot()
+          const bytes = Buffer.from(JSON.stringify(snapshot))
+          const result = operation === 'export'
+            ? await runProtectedExport({ inventory, adapter, validateSnapshotRecovery: validRecovery, extractSnapshot: async () => { callbacks++; return { snapshot, ...exportedModelContract() } } })
+            : await runCleanTargetRestore({ inventory, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), confirmation: 'PHASE_B_EMPTY_TARGET', validateSnapshotRecovery: validRecovery, insertSnapshot: async () => { callbacks++; return {} } })
+          expect(result.status).toBe('REFUSED')
+          expect(callbacks).toBe(0)
+          expect(adapter.events).toContain('rollback')
+          expect(adapter.events).not.toContain('commit')
+          if (operation === 'export') expect(result.snapshot).toBeNull()
+        }
+      })
+    }
+    for (const location of ['delegate', 'model', 'top-level']) {
+      it(`refuses unsupported empty ${model} ${location} fields even when shared validation accepts`, async () => {
+        const snapshot = completeSnapshot()
+        const delegate = model[0].toLowerCase() + model.slice(1)
+        if (location === 'top-level') snapshot[delegate] = []
+        else snapshot.tables[location === 'model' ? model : delegate] = []
+        for (const operation of ['export', 'restore']) {
+          const adapter = fakeAdapter()
+          let inserts = 0
+          const bytes = Buffer.from(JSON.stringify(snapshot))
+          const result = operation === 'export'
+            ? await runProtectedExport({ inventory, adapter, validateSnapshotRecovery: validRecovery, extractSnapshot: async () => ({ snapshot, ...exportedModelContract() }) })
+            : await runCleanTargetRestore({ inventory, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), confirmation: 'PHASE_B_EMPTY_TARGET', validateSnapshotRecovery: validRecovery, insertSnapshot: async () => { inserts++; return {} } })
+          expect(result).toMatchObject({ status: 'REFUSED', errorCode: 'MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED' })
+          expect(inserts).toBe(0)
+          expect(adapter.events).not.toContain('commit')
+          if (operation === 'restore') expect(adapter.events).not.toContain('begin')
+          else expect(result.snapshot).toBeNull()
+        }
+      })
+    }
+  }
 
   it('refuses the previous 194-table binding against the erasure-scan-index schema', async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-old-binding-194-'))
@@ -294,7 +451,7 @@ describe('Phase B offline recovery runners', () => {
     // it was written. `beforeFr277` is the 191-entry Notion+runtimeOwner
     // mapping this PR's own binding was rebound from.
     // @req FR-022 — likewise excludes the two ADR-093 1.2.0 models added after FR-277.
-    const AFTER_FR277 = ['LineGroundingShadowComparison', 'CustomerRetentionConsent', 'LegalHoldArchiveKey', 'MemoryProjectionReceipt']
+    const AFTER_FR277 = ['LineGroundingShadowComparison', 'CustomerRetentionConsent', 'LegalHoldArchiveKey', 'MemoryProjectionReceipt', 'MarketingReportPolicy', 'MarketingReportBinding', 'MarketingExternalReport']
     const beforeFr277 = inventory.applicationTables.filter(({ modelName }) => !AFTER_FR277.includes(modelName))
     const smaller = inventoryVariant({ applicationTables: inventory.applicationTables.slice(0, -1) })
     const rehashed = inventoryVariant({ schemaSha256: '0'.repeat(64) })
@@ -338,8 +495,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 195-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 195-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 198-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 198-table inventory/)
     }
   })
 

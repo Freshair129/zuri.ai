@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.15b"
+version: "0.3.16b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-28T12:00:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-10-10,Codex, API-010 and main mechanical schema reconciliation"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -307,9 +307,19 @@ bound to older hashes. The migrations are written, not applied to any database.
 
 FR-022 MSP memory erasure (owner decision 2026-09-28, option A) adds the index
 `AgentTraceEvent (kind, occurredAt, id)` for the erasure scanner's keyset page.
+No model is added or renamed, so the 194-table mapping is unchanged; only the
+schema bytes move. The historical 0.3.14b binding has `schemaSha256`
+`32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4` and `targetSchemaSha256`
+`9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0`, computed the same way. The previous
+194-table binding (`schemaSha256` `1f7fa96247a7af651cca6ca1cb157ae0d9b07f37e36262084967a20d36cc1206`) is historical and refuses
+cross-schema recovery against this schema. This rebind changes neither the
+table-empty proof nor the recovery/erasure algorithm. The index migration is
+written, not applied to any database.
+
+API-010 branch history (0.3.15b):
 The schema also contains `MemoryProjectionReceipt`, the durable record for
 acknowledged API-011 projections. The frozen application mapping therefore has
-195 tables. Its **current** binding has `schemaSha256`
+195 tables. Its historical branch binding has `schemaSha256`
 `73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1` and
 `targetSchemaSha256`
 `9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9`. The
@@ -321,6 +331,32 @@ this schema. This rebind changes neither the table-empty proof nor the
 recovery/erasure algorithm. The index migration is written, not applied to any
 database.
 
+The **historical main 0.3.15b binding** follows the owner's 2026-10-06 approval of
+[the bounded Marketing rebind](../../change-requests/marketing/ZURI-GO-REPORT-PHASE-B-REBIND.md).
+It adds only `MarketingReportPolicy`, `MarketingReportBinding` and
+`MarketingExternalReport` to the exact prior 194 public mappings, giving 197.
+`schemaSha256` is `45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06`
+over the raw LF Prisma bytes required by `.gitattributes`;
+`targetSchemaSha256` is `e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e`
+via the unchanged `computeTargetSchemaSha256`. All previous bindings remain
+historical and refuse cross-schema recovery, including 0.3.14b above.
+
+The **current 0.3.16b binding** composes the API-010 branch and main after the owner's 2026-10-10 approval to reconcile conflicts. It preserves every prior mapping and includes all 198 application tables. Raw LF Prisma bytes give `schemaSha256` `19bebd6e40dbaf43bfae5a99d54d29ebf33576add850b45525033f516d09405a`; the unchanged `computeTargetSchemaSha256` gives `targetSchemaSha256` `40815083980a80c6d3c3237b1f9db5bf9c1c6c93682beb360a060a93996e50bb`. Both divergent 0.3.15b bindings above are historical and refuse cross-schema recovery. This is a mechanical schema reconciliation; Memory and Marketing recovery guards remain in force. No live migration, recovery, activation or deployment is authorized by this binding.
+
+These three retained-custody models remain explicitly excluded from legacy JSON
+snapshots, recovery-family delegates and insertion/deletion order. They join the
+complete catalog, privilege, census and restore-lock checks. Protected export
+refuses any nonzero Marketing count before extraction; incomplete/unreadable
+census refuses. Clean-target restore still requires every application table to be
+provably empty. Both runners independently reject unsupported Marketing fields,
+even empty arrays and even when a supplied shared validator accepts them. Existing
+backup-service guards continue to enforce the same rule for web preview/import,
+transactional replacement and extraction. Never disable immutable triggers.
+Separately authorized consistent whole-SQLite backup remains the accepted route
+for nonempty custody; JSON support needs a separate reviewed format/order contract.
+This rebind grants no live migration, backup/restore, credential, send, deployment
+or merge authority.
+
 That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
@@ -328,7 +364,13 @@ synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-p
 retains the exact proof; this does not establish production role or migration
 readiness.
 
-Version diff 0.3.14b → 0.3.15b: bind the frozen recovery inventory to the
+Version diff 0.3.15b → 0.3.16b: compose the approved branch reconciliation with all 198 unchanged model-to-table mappings. Pin the exact composed schema and preserve both Memory and Marketing custody guards; every historical binding remains refused.
+
+Main branch history — Version diff 0.3.14b → 0.3.15b: preserve the original 194 mappings, pin the exact
+197-model Marketing receiver schema, and enforce retained-custody refusal at the
+generic offline runner boundary. JSON format and historical bindings are unchanged.
+
+API-010 branch history — Version diff 0.3.14b → 0.3.15b: bind the frozen recovery inventory to the
 current schema bytes and the full 195-table mapping, including
 `MemoryProjectionReceipt`; the prior 194-table and schema-digest bindings stay
 historical and are refused.
@@ -570,7 +612,9 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 0.3.15b | 2026-10-04 | beta | Rebinds Phase B recovery to the raw current schema digest and 195-table mapping including MemoryProjectionReceipt; prior bindings remain refused | working-tree | Codex |
+| 0.3.16b | 2026-10-10 | beta | Compose API-010 and main into 198-table inventory; preserve both lineages, all mappings and retained-custody refusal; mechanical reconciliation only | working-tree | Codex |
+| 0.3.15b | 2026-10-06 | beta | Main branch history: owner-approved 194→197 Marketing custody rebind; exact prior mappings preserved, raw LF and canonical inventory hashes pinned; retained/unsupported Marketing JSON recovery refuses | working-tree | Codex |
+| 0.3.15b | 2026-10-04 | beta | API-010 branch history: rebinds Phase B recovery to the raw current schema digest and 195-table mapping including MemoryProjectionReceipt; prior bindings remain refused | working-tree | Codex |
 | 0.3.14b | 2026-09-28 | beta | Rebinds Phase B recovery to the AgentTraceEvent erasure-scan index schema; preserves the 194-table mapping and refuses the prior schema digest | working-tree | Codex |
 | 0.3.13b | 2026-09-27 | beta | Rebind Phase B recovery to the 194-table schema adding `CustomerRetentionConsent` and `LegalHoldArchiveKey` (FR-022, ADR-093 1.2.0): `schemaSha256` `1f7fa962…1206`, `targetSchemaSha256` `3b0841c3…8c79` via `computeTargetSchemaSha256`; both new models in `SNAPSHOT_MODELS`; the 192-table binding confirmed in 0.3.12b is superseded and refused | working-tree | Claude Opus 5.5 (MC0) |
 | 0.3.12b | 2026-09-27 | beta | Independently recompute and confirm the FR-277 rebind (191→192 tables, `LineGroundingShadowComparison`): `schemaSha256` matches the committed `prisma/schema.prisma` bytes exactly; `targetSchemaSha256` recomputes correctly via the repo's own `computeTargetSchemaSha256` over the committed 192-entry mapping. Mechanical hash/count check only — does not re-review family/RLS mapping design beyond noting the model follows `AgentTraceEvent`'s existing no-relation precedent; a deeper design review and the CLI proof remain separately undone | working-tree | Claude Sonnet 5 |

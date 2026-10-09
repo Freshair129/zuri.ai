@@ -1,14 +1,26 @@
 # Appendix B — Database Schema Summary
 
-Version diff 1.63.0b → 1.64.0b (2026-10-04): add the Publisher-selected LINE
+Version diff 1.64.0b → 1.65.0b (2026-10-10): reconcile the API-010 branch with current main. The schema declares 198 models, preserving MemoryProjectionReceipt and all three Marketing custody models. Both 1.64.0b entries below retain their branch provenance. No live migration or deployment.
+
+API-010 branch history — Version diff 1.63.0b → 1.64.0b (2026-10-04): add the Publisher-selected LINE
 API-010 Project reference and admission scope snapshot, Customer erasure status,
 and `MemoryProjectionReceipt` (FR-057, FR-231, FR-232). The receipt stores only
 scoped CRM/MSP identifiers and delivery/erasure acknowledgements; Supabase
 revokes public roles and grants the RLS-protected table to Zuri server roles.
 SQLite and Supabase migrations `20261004130000_line_memory_project_scope` and
 `20261004143000_line_memory_projection_receipts` are authored but NOT applied.
-The schema now declares 195 Prisma models. The LINE worker memory-recovery
+That branch schema declared 195 Prisma models. The LINE worker memory-recovery
 manifest is v2 and includes the receipt table.
+
+Main history — Version diff 1.63.0b → 1.64.0b (2026-10-05): add three approved FR-281–283 machine-custody models (197 application tables). Candidate SQLite migration has isolated native evidence; the PostgreSQL mirror has structural-only QA and no enabled receiver/runtime grants. Legacy JSON backup refuses any nonempty custody table instead of omitting retained data; SQLite whole-database backup is separately verified. No live migration or deployment.
+
+| Model | Fields / scope | Custody |
+|---|---|---|
+| MarketingReportPolicy | Business PK, Tenant FK, ingestEnabled false by default, version, timestamps | Trusted installation-operator CAS; immutable scope/no delete. Separate from human visibility. |
+| MarketingReportBinding | UUID, unique SHA-256 keyHash, Tenant/Business, fixed source deployment/Business/system, permission, ACTIVE/REVOKED, version/timestamps | Hash-only credential, immutable scope, one-way audited revocation; no browser provisioning. |
+| MarketingExternalReport | UUID, Tenant/Business/binding/initiative/plan FKs, source report/campaign identity, exact canonicalEnvelope/payloadHash, revision 1/null supersedes, unique receipt UUID, acceptedAt/status, retentionPolicyVersion/retainUntil, unique AuditEvent FK | Unique binding/report; immutable evidence/receipt and linked audit; minimum 90 days, no purge; no Guest projection/native total write. |
+
+Physical invariants and exact tests: [receiver design](../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md), [bounded verification](../change-requests/marketing/ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md). These records are intentionally excluded from unsupported legacy snapshots with fail-closed export/preview/import guards; a database containing them requires the approved whole-database custody procedure.
 
 Version diff 1.62.0b → 1.63.0b (2026-09-27): add `CustomerRetentionConsent` and
 `LegalHoldArchiveKey` (FR-022, ADR-093 1.2.0, "consent to retain = keep"). Both

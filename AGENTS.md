@@ -8,8 +8,10 @@ superseded_by: null
 ## Documentation reintegration branch (2026-09-29)
 
 Read [the approved migration profile](docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md)
-before changing a registry or document reader. On this branch, individual ZAI records
-in `registry/document-registry/index.json` generate the existing PRD/FEATURES paths.
+before changing a registry or document reader. Individual ZAI records in
+`docs/features/FEAT-*/feature.md`, their explicitly bundled `requirements/`, and
+`docs/requirements/` generate `registry/document-registry/index.json` and the
+existing PRD/FEATURES compatibility paths.
 Run `npm run docs:registry` after an explanatory canonical edit, then
 `npm run docs:graph` and `npm run docs:views`. `govern` checks exports and views
 without repairing them. Initial source rows, issued IDs and subject anchors
@@ -86,6 +88,20 @@ Server-relative; canonical IDs and subject anchors are unchanged. Edge historica
 IDs are qualified as `edge::...` only in the combined graph. Read
 [snapshot execution](docs/migrations/monorepo/EXECUTION.md) for exact provenance,
 held files and release limits. Original device configuration/data are untouched.
+
+### Service documentation and scoped verification (2026-10-06)
+
+Read [the verification policy](docs/architecture/VERIFICATION-POLICY.md) and the
+relevant [service documents](docs/services/README.md) before choosing validation.
+Domain charters own business rules; service documents own execution and contract
+explanations. Package scripts own commands. Canonical FR/FEAT records retain their
+identities and membership; do not duplicate them inside service folders.
+
+The owner-approved Runtime pilot produces shadow plans only. Existing CI job
+selection, main full Server checks and scheduled/manual E2E remain active.
+`npm run verification:plan -- --base <commit>` includes local working changes;
+its report never grants permission to omit checks. `npm run docs:services`
+regenerates the service map, an ignored view under ADR-081.
 
 
 ## Mission
@@ -387,8 +403,14 @@ result** — `verify` fails on a stale copy (`docs:llms:check` is the same gate,
 locally). A stale corpus is worse than none: it reads authoritative while
 stating rules this repository no longer has.
 
-`npm run verify` is the definition of done in one command (govern → test → build →
-e2e). Both test commands are wrapped by `scripts/assert-tests-ran.mjs`, which fails a
+`npm run verify` retains the broad local profile: Runtime tests/build, then Server
+govern → test → build → e2e. It does not include MI/SCM service verification.
+Use the approved [verification policy](docs/architecture/VERIFICATION-POLICY.md)
+to choose a change-appropriate baseline and acceptance checks, and state their
+scope. This control-plane pilot requires planner/selector regressions, Runtime
+tests/build, Core contracts and governance; it does not require a blanket local
+application suite merely because a worktree is new. Server test commands are
+wrapped by `scripts/assert-tests-ran.mjs`, which fails a
 run that executed **zero** tests — `vitest run -t "NO_MATCH"` exits 0 with everything
 skipped, and an exit code of 0 must never mean the work did not run. `test:e2e`
 additionally fails on **flaky**: Playwright exits 0 for a test that passes only on
@@ -403,9 +425,11 @@ baseline.
 
 Until 2026-08-17 none of this was enforced: there was no CI, no git hook, and
 `docs:preflight` omitted `--strict`, so it printed `CRITICAL` and exited 0. The
-rule was a habit, not a gate. `.github/workflows/governance.yml` now runs the
-chain, the tests, the build and the full e2e suite on every pull request, and
-a route that implements no declared requirement is a CRITICAL against a
+rule was a habit, not a gate. `.github/workflows/governance.yml` runs governance
+and selects PR Server checks from the diff, retaining related/full fallbacks;
+all three service jobs run on non-scheduled events. Main pushes run full Server
+tests/build. E2E runs on schedule or workflow_dispatch. A route that implements
+no declared requirement is a CRITICAL against a
 shrink-only baseline. Full account:
 [RCA](.brain/rca/2026-08-17-governance-did-not-govern.md).
 
@@ -669,3 +693,7 @@ Version diff (2026-10-05): adds the owner-approved PM task resume pointer to Doc
 
 Version diff (2026-10-04): adds the owner-approved Doc Writer entry point and
 lifecycle metadata; existing product authority and canonical IDs are unchanged.
+
+Version diff (2026-10-06): adopts service documentation and the shadow verification
+policy, reconciles canonical-record paths and current CI/baseline instructions,
+and preserves all active job-selection gates.

@@ -46,6 +46,16 @@ function currentRouteInventory() {
 const routeInventory = currentRouteInventory()
 
 describe('OpenAPI document', () => {
+  // @req FR-281, FR-282 — report credential must not become native authority.
+  it('documents report intake with its dedicated bearer and commit/replay statuses', () => {
+    const operation = doc.paths['/api/growth/external-marketing-reports'].post
+    expect(operation.security).toEqual([{ MarketingReportBinding: [] }])
+    expect(doc.components.securitySchemes.MarketingReportBinding).toMatchObject({ type: 'http', scheme: 'bearer' })
+    expect(operation['x-zuri-contract']).toBe('zuri-marketing-report/0.1')
+    expect(operation['x-maxBytes']).toBe(262144)
+    expect(Object.keys(operation.responses).sort()).toEqual(['200', '201', '401', '404', '409', '413', '415', '422', '503'])
+    expect(Object.keys(doc.paths['/api/growth/external-marketing-reports'])).toEqual(['post'])
+  })
   it('is a valid OpenAPI 3 document describing the intake surface', () => {
     expect(doc.openapi).toMatch(/^3\./)
     expect(doc.info.title).toContain('Enterprise Intake API')
@@ -260,8 +270,8 @@ describe('OpenAPI document', () => {
       // paths, POST each: 329 + 2 = 331; 434 + 2 = 436.
       // FR-278 adds the read-only executive sales dashboard: one path and GET.
       // 331 + 1 = 332 paths; 436 + 1 = 437 operations.
-      pathCount: 332,
-      operationCount: 437,
+      pathCount: 333,
+      operationCount: 438,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')

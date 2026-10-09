@@ -29,6 +29,11 @@ model Portfolio {
 }
 
 model Tenant {
+  // @req FR-281, FR-282, FR-283 — external reported evidence retains native scope.
+  marketingReportPolicies MarketingReportPolicy[]
+  marketingReportBindings MarketingReportBinding[]
+  marketingExternalReports MarketingExternalReport[]
+
   id          String   @id @default(uuid())
   code        String   @unique
   portfolioId String
@@ -207,6 +212,10 @@ model TaxRegistrationBranch {
 }
 
 model Business {
+  // @req FR-281, FR-282, FR-283 — external reported evidence retains native scope.
+  marketingReportPolicy MarketingReportPolicy?
+  marketingExternalReports MarketingExternalReport[]
+
   id               String   @id @default(uuid())
   code             String   @unique
   tenantId         String
@@ -2673,6 +2682,9 @@ model ConversationAnalysis {
 // referential-action decision.
 // @tested tests/unit/access-history-service.test.js, tests/integration/fr198-fr199-audit-access-evidence.test.js
 model AuditEvent {
+  // @req FR-281, FR-282, FR-283 — external reported evidence retains native scope.
+  marketingExternalReport MarketingExternalReport?
+
   id          String   @id @default(uuid())
   entityType  String
   entityId    String
@@ -4400,6 +4412,9 @@ model LineConversationJob {
 // @spec SDD-086, SEC-001, SEC-003
 // @tested tests/integration/marketing-plan.test.js
 model MarketingPlan {
+  // @req FR-281, FR-282, FR-283 — external reported evidence retains native scope.
+  externalReports MarketingExternalReport[]
+
   id              String    @id @default(uuid())
   tenantId        String
   businessId      String
@@ -4511,6 +4526,9 @@ model MarketingHandoff {
 // @spec SDD-087, SEC-001, SEC-003
 // @tested tests/integration/marketing-campaign.test.js
 model MarketingInitiative {
+  // @req FR-281, FR-282, FR-283 — external reported evidence retains native scope.
+  externalReports MarketingExternalReport[]
+
   id            String    @id @default(uuid())
   tenantId      String
   businessId    String
@@ -6281,4 +6299,70 @@ model PricingCalculation {
   @@unique([businessId, idempotencyKey])
   @@index([tenantId, businessId])
   @@index([ruleSetId])
+}
+
+// @req FR-281 — a machine grant is independent of human Marketing visibility.
+model MarketingReportPolicy {
+  businessId String @id
+  tenantId String
+  ingestEnabled Boolean @default(false)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  bindings MarketingReportBinding[]
+}
+
+// @req FR-281 — hash-only, immutable-scope, report-only machine binding.
+model MarketingReportBinding {
+  id String @id @default(uuid())
+  keyHash String @unique
+  tenantId String
+  businessId String
+  sourceSystem String @default("zuri-go")
+  sourceDeploymentId String
+  sourceBusinessId String
+  permission String @default("marketing.report.ingest")
+  status String @default("ACTIVE")
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  policy MarketingReportPolicy @relation(fields: [businessId], references: [businessId], onDelete: Restrict, onUpdate: Restrict)
+  reports MarketingExternalReport[]
+  @@index([businessId, status])
+}
+
+// @req FR-282, FR-283 — immutable evidence and durable receipt, never native totals.
+model MarketingExternalReport {
+  id String @id @default(uuid())
+  tenantId String
+  businessId String
+  bindingId String
+  initiativeId String
+  planId String
+  sourceDeploymentId String
+  sourceBusinessId String
+  sourceCampaignId String
+  sourceReportId String
+  contractVersion String
+  reportRevision Int
+  supersedesReportId String?
+  canonicalEnvelope String
+  payloadHash String
+  receiverReceiptId String @unique
+  acceptedAt DateTime
+  status String @default("ACCEPTED_REPORTED_EVIDENCE")
+  retentionPolicyVersion Int @default(1)
+  retainUntil DateTime
+  auditEventId String @unique
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  binding MarketingReportBinding @relation(fields: [bindingId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  initiative MarketingInitiative @relation(fields: [initiativeId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  plan MarketingPlan @relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  auditEvent AuditEvent @relation(fields: [auditEventId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  @@unique([bindingId, sourceReportId])
+  @@index([tenantId, businessId, initiativeId, acceptedAt])
 }
