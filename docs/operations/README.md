@@ -56,6 +56,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Mission Control — DAG orchestration observability implementation plan](../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md)
 - [Mission Control — DAG orchestration observability](../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY.md)
 - [Roadmap W2 next-wave dispatch and evidence plan](../plans/PLAN-ROADMAP-W2-NEXT-WAVE.md)
+- [Zuri Visual Office 2.5D — Implementation elaboration](../plans/PLAN-VISUAL-OFFICE-2-5D.md)
 - [Release safety repair specification — restore, usage rollup and archive storage](../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md)
 - [TASK-ZAI-047 — Knowledge base console](../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md)
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md)
