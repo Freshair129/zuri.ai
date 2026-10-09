@@ -56,7 +56,8 @@ export async function POST(request) {
   try {
     const ports = serverLinePorts()
     const result = await runLineConversationWorker({ ...ports,
-      answer: withLineCatalogCommand(createServerLineAnswer({ threadMemory: ports.threadMemory })) })
+      answer: withLineCatalogCommand(createServerLineAnswer({ threadMemory: ports.threadMemory,
+        projectionReceiptWriter: ports.projectionReceiptWriter })) })
     return NextResponse.json({ ...result, reconciled })
   } catch { return NextResponse.json({ error: 'LINE_WORKER_UNAVAILABLE' }, { status: 503 }) }
 }

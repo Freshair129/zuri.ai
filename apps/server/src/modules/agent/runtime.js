@@ -184,18 +184,22 @@ export function replayAgentContext({ recordedContext, currentContext } = {}) {
  *
  * @param {Object} [backends]
  * @param {Function} [backends.mspTransport]   injected MSP tool-caller (name,input)=>result
+ * @param {string} [backends.mspServiceKey] MSP_THREAD_SERVICE_KEY for API-010 grant signing
+ * @param {string|Object} [backends.mspServiceKeyring] tenant-keyed API-010 signing keys
  * @param {Function} [backends.graphTraverse]  injected graph read ({tenantId,principalId})=>relations[]
  * @param {{resolve: Function}|Function} [backends.mspVaultResolver] canonical API-010 resolver
  * @param {boolean} [backends.mspCompatibilityMode] explicitly enable legacy scopeKey mode
  * @returns {{ memory: import('./memory-port').MemoryPort, knowledge: Function, threadMemory: object|null, replayAgentContext: Function }}
  */
-export function createAgentPorts({ mspTransport, mspVaultResolver, mspCompatibilityMode = false, mspActor = 'zuri-agent', graphTraverse } = {}) {
+export function createAgentPorts({ mspTransport, mspVaultResolver, mspServiceKey, mspServiceKeyring,
+  mspCompatibilityMode = false, mspActor = 'zuri-agent', graphTraverse } = {}) {
   const memory = mspTransport
     ? mspCompatibilityMode
       ? createMspMemoryPort({ transport: mspTransport, vaultResolver: mspVaultResolver, compatibilityMode: true })
       : createMspMemoryPort({
           transport: mspTransport,
-          vaultSetResolver: mspVaultResolver ?? createMspVaultResolver({ transport: mspTransport, actor: mspActor }),
+          vaultSetResolver: mspVaultResolver ?? createMspVaultResolver({ transport: mspTransport, actor: mspActor,
+            serviceKey: mspServiceKey, serviceKeyring: mspServiceKeyring }),
         })
     : createInMemoryMemory()
   const knowledge = graphTraverse ? createGraphKnowledgeReader({ traverse: graphTraverse }) : queryKnowledge

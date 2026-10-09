@@ -82,6 +82,10 @@ export const zLineOaAccountAction = z.object({
   legacyQuiesced: z.literal(true).optional(),
   // @req FR-235 — publisher-set grounding mode (ADR-090 D1).
   knowledgeGrounding: z.enum(KNOWLEDGE_GROUNDING_MODES).optional(),
+  // @req FR-231 — publisher-set, OFF-by-default memory projection policy.
+  memoryPolicy: z.enum(['OFF', 'ON']).optional(),
+  // @req FR-057 — nullable Publisher-selected Development Project for API-010 scope.
+  memoryProjectId: z.string().trim().min(1).max(200).nullable().optional(),
   // @req FR-277 — shadow-compare flag (ADR-090 Phase 3, TASK-ZAI-095),
   //   independent of `knowledgeGrounding` itself.
   knowledgeGroundingShadow: z.boolean().optional(),
@@ -115,6 +119,12 @@ export const zLineOaAccountAction = z.object({
   }
   if (value.action === 'CONFIGURE_KNOWLEDGE_GROUNDING' && !value.knowledgeGrounding) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['knowledgeGrounding'], message: 'knowledgeGrounding is required for CONFIGURE_KNOWLEDGE_GROUNDING' })
+  }
+  if (value.action === 'CONFIGURE_MEMORY_POLICY' && !value.memoryPolicy) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['memoryPolicy'], message: 'memoryPolicy is required for CONFIGURE_MEMORY_POLICY' })
+  }
+  if (value.action === 'CONFIGURE_MEMORY_SCOPE' && value.memoryProjectId === undefined) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['memoryProjectId'], message: 'memoryProjectId is required for CONFIGURE_MEMORY_SCOPE' })
   }
   if (value.action === 'CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW' && typeof value.knowledgeGroundingShadow !== 'boolean') {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['knowledgeGroundingShadow'], message: 'knowledgeGroundingShadow is required for CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW' })

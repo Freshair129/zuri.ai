@@ -178,7 +178,7 @@ beforeAll(async () => {
       name: `Synthetic ${code} connection`, externalAccountId: `synthetic-${code}-destination`, status: 'ACTIVE' })
     return prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: business.id, integrationConnectionId: connection.id,
       code, displayName: `Synthetic ${code}`, bindingCode: `${code}-binding`, status: 'CONNECTED', serverEnabled: true,
-      transportMode: 'CLOUD', runtimeOwner } })
+      transportMode: 'CLOUD', runtimeOwner, memoryPolicy: 'ON' } })
   }
   legacyAccount = await account('cr-unv-legacy', 'SERVER')
   runtimeAccount = await account('cr-unv-runtime', 'CONVERSATION_RUNTIME')
@@ -307,9 +307,16 @@ describe('unverified sender: the runtime cohort answers byte for byte as the leg
     // conversation-runtime-unverified-memory.test.js.
     expect(job).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: true, status: 'QUEUED' })
     expect(JSON.parse((await identityRecord(job)).payloadJson)).toMatchObject({ identityAssurance: 'UNVERIFIED' })
-    // Without the memory flag the same sender joins the runtime cohort too.
+    // The account policy is an admission snapshot; the missing runtime flag is
+    // only an API-011 kill switch and must not make Core attempt thread memory.
+    await prisma.lineConversationJob.update({ where: { id: jobId }, data: { status: 'CANCELLED',
+      errorCode: 'TEST_UNVERIFIED_DONE', version: { increment: 1 } } })
     const plain = await jobRow((await admit(runtimeAccount, 'จำได้ไหมคะ')).jobId)
-    expect(plain).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: false })
+    expect(plain).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', memorySyncOptIn: true, episodicMemoryOptIn: false })
+    const built = buildRuntime()
+    expect(await built.runtime.runOne()).toMatchObject({ jobId: plain.id, status: 'RECORDED' })
+    expect(built.wire).not.toContain('memory')
+    expect(built.spies).toMatchObject({ threadMemory: 0, memoryContext: 0 })
   })
 })
 

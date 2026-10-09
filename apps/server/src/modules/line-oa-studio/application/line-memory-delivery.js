@@ -2,6 +2,7 @@ import prisma from '@/lib/db'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
 import { resolveAgentAuthorization } from '@/modules/agent/auth-context'
 import { CUSTOMER_ERASURE_TOMBSTONE } from '@/modules/crm/conversation-redaction-service'
+import { closeMemoryProjectionDelivery, settleMemoryProjectionDelivery } from './line-memory-projection'
 
 // @req FR-149, FR-171 — reconcile one provider-accepted server reply into the
 // opt-in MSP thread without another LINE send or CRM message.
@@ -47,9 +48,9 @@ function successfulReceiptOutcome(receipt) {
   if (!MEMORY_SUCCESS_OUTCOMES.has(outcome)) return null
   const receiptId = nonEmpty(receipt?.receiptId)
   if (!receiptId) return null
-  // MSP's durable DTO has two successful shapes: a normal accepted record has
-  // a returned message id, while PENDING_INBOUND is durable before that id
-  // exists. Callers compare receiptId to the local CRM Message id below.
+  // MSP's durable DTO has two successful shapes: an accepted record returns a
+  // message id, while PENDING_INBOUND is durable before one is returned. The
+  // latter settles against the append id already stored in MemoryProjectionReceipt.
   if (outcome !== 'PENDING_INBOUND' && !nonEmpty(receipt?.messageId)) return null
   return outcome
 }
@@ -260,7 +261,19 @@ async function loadSource(db, claimed) {
     || outbound.conversation.channel !== 'LINE' || outbound.conversation.channelAccountId !== route.channelAccountId) {
     return { job, conversation, route, outbound, closed: true, reason: 'SCOPE_MISMATCH' }
   }
-  return { job, conversation, route, outbound, closed: false }
+  const inboundProjection = await db.memoryProjectionReceipt.findUnique({ where: {
+    lineConversationJobId_direction: { lineConversationJobId: job.id, direction: 'INBOUND' },
+  } })
+  if (!inboundProjection || inboundProjection.tenantId !== route.tenantId
+    || inboundProjection.businessId !== route.businessId
+    || inboundProjection.lineConversationJobId !== job.id
+    || inboundProjection.direction !== 'INBOUND'
+    || inboundProjection.deliveryState !== 'ACKNOWLEDGED'
+    || inboundProjection.erasureStatus !== 'ACTIVE'
+    || typeof inboundProjection.mspMessageId !== 'string' || !inboundProjection.mspMessageId.trim()) {
+    return { job, conversation, route, outbound, closed: true, reason: 'MSP_INBOUND_PROJECTION_UNAVAILABLE' }
+  }
+  return { job, conversation, route, outbound, inboundProjection, closed: false }
 }
 
 async function policyAllows({ job, route, policyResolver }) {
@@ -335,6 +348,7 @@ async function closeMemoryDelivery(db, source, { now, reason }) {
       data: { memoryDeliveryState: 'CLOSED', memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null, version: { increment: 1 } },
     })
     if (!updated.count) return false
+    await closeMemoryProjectionDelivery(tx, current.id)
     // Erasure redacts the complete trace immediately after this helper in the
     // erasure transaction. Once that tombstone exists, the trace turn guard
     // intentionally rejects new events; the closed operational state is still
@@ -364,6 +378,8 @@ async function acknowledgeMemoryDelivery(db, source, result, { now } = {}) {
     if (!updated.count) return false
     const outcome = successfulReceiptOutcome(result)
     if (!outcome) throw failure('MSP_DELIVERY_UNKNOWN')
+    await settleMemoryProjectionDelivery(tx, { job: current, crmMessageId: source.outbound.id,
+      mspMessageId: result.messageId ?? null, receiptId: result.receiptId, acknowledgedAt: at })
     await appendMemoryDeliveryCheckpoint(tx, {
       job: current,
       kind: MEMORY_TRACE_KINDS.acknowledged,
@@ -383,6 +399,7 @@ async function acknowledgeMemoryDelivery(db, source, result, { now } = {}) {
 export async function reconcileLineMemoryDeliveries({
   db = prisma,
   threadMemory,
+  env = process.env,
   now = () => new Date(),
   workerId = 'memory-scanner',
   batchSize = MEMORY_DELIVERY_BATCH,
@@ -390,6 +407,7 @@ export async function reconcileLineMemoryDeliveries({
   policyResolver = resolveAgentAuthorization,
 } = {}) {
   const result = { scanned: 0, acknowledged: 0, pending: 0, closed: 0, unknown: 0 }
+  if (env.ZURI_MSP_THREAD_MEMORY_ENABLED !== 'true') return { ...result, disabled: true }
   if (!threadMemory?.recordDelivery) return result
   const at = asDate(typeof now === 'function' ? now() : now)
   const take = Number.isInteger(batchSize) && batchSize > 0 && batchSize <= 50 ? batchSize : MEMORY_DELIVERY_BATCH
@@ -444,7 +462,7 @@ export async function reconcileLineMemoryDeliveries({
       }
       const receipt = await threadMemory.recordDelivery({
         route: source.route,
-        inboundMessageId: source.job.inboundMessageId,
+        inboundMessageId: source.inboundProjection.mspMessageId,
         receiptId: source.outbound.id,
         text: source.outbound.body,
         providerRef: source.job.providerMessageId || source.job.providerRequestId || undefined,

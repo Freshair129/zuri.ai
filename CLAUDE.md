@@ -1,3 +1,8 @@
+---
+status: active
+superseded_by: null
+---
+
 # CLAUDE.md — working guide for this repository
 
 ## Documentation reintegration branch
@@ -35,6 +40,16 @@ Server-relative; canonical IDs and subject anchors are unchanged. Edge historica
 IDs are qualified as `edge::...` only in the combined graph. Read
 [snapshot execution](docs/migrations/monorepo/EXECUTION.md) for exact provenance,
 held files and release limits. Original device configuration/data are untouched.
+
+### Service documentation and verification policy (2026-10-06)
+
+[Service documents](docs/services/README.md) describe execution boundaries and
+testing; domain charters retain business ownership. Follow the approved
+[verification policy](docs/architecture/VERIFICATION-POLICY.md) when choosing
+baseline and acceptance checks. Runtime's `verification.json` and
+`npm run verification:plan -- --base <commit>` produce shadow comparisons only;
+the active selector still controls all CI jobs. `govern` regenerates the ignored
+service map from the current package/document sources.
 
 
 Read this first, then `AGENTS.md` for the full rules.
@@ -253,13 +268,16 @@ inside the very tree they're meant to be isolated from. Add it to `.gitignore`
 first if you ever use that convention here; otherwise use the sibling layout
 above or `EnterWorktree`.
 
-**Run the test baseline before doing anything else in a new worktree.** This
-is not hygiene — it already cost real time once. In `D:\zuri-ai-fr107`,
+**Run a change-appropriate baseline in a new worktree.** The approved
+[policy](docs/architecture/VERIFICATION-POLICY.md#baseline-and-verification-obligations)
+defines this documentation/control-plane lane's scoped baseline; application,
+schema or shared-fixture changes still require the corresponding wider checks.
+Verify dependency and database isolation first. In `D:\zuri-ai-fr107`,
 `node_modules` was a junction back to the primary, and the shared Prisma client
 resolved its relative SQLite path against the wrong tree; roughly 70 test
 suites failed as a result, and it was only discovered mid-work rather than at
-setup. A plain `npm test` run as the first thing in a new worktree catches this
-in the first minute instead of the middle of a task.
+setup. An isolated install and baseline must catch this before implementation;
+a passing narrow suite must be reported with its scope, not as a full-suite PASS.
 
 Refresh the primary only on a clean tree: `git fetch && git checkout --detach
 origin/main` — on a machine whose layout you have not confirmed, `git worktree
@@ -292,7 +310,7 @@ contracts/                JSON Schema + sample envelopes
 
 ```bash
 npm run dev            # dev server (use the preview tool, not a raw shell, when available)
-npm run verify         # the definition of done in one command: govern → test → build → e2e
+npm run verify         # broad local profile: Runtime test/build → Server govern/test/build/e2e
 npm run build          # production build — must stay clean
 npm test               # Vitest: unit + integration (own SQLite db per run, prisma/.test-dbs/)
 npm run test:e2e       # Playwright against its own dev server + its own seeded db.
@@ -314,6 +332,12 @@ npm run docs:llms      # rebuild llms-full.txt — the one-file corpus for LLM r
                        # CI fails on a stale copy, so run it when you edit one of
                        # those; docs:llms:check is the same gate, locally.
 ```
+
+The root `verify` command does not run MI/SCM service jobs. Hosted governance
+selects PR Server checks from the diff, runs all three service jobs on
+non-scheduled events, and keeps full Server tests/build on main. E2E runs only on
+schedule/workflow_dispatch. See the policy for local scoped evidence and the
+requirements before any shadow plan may become enforcement.
 
 **Declaring a new id costs one command.** Preflight Check 12 fails on an id that
 is declared in a registry and not pinned in `docs/.id-ledger.json`, so the step
@@ -349,7 +373,8 @@ or adds a route, preflight *before* graph reports CRITICALs that are artifacts o
 a stale input — and preflight *without* `--strict` used to print CRITICAL and
 still exit 0. Both were real defects, fixed on 2026-08-17
 ([RCA](.brain/rca/2026-08-17-governance-did-not-govern.md)). `.github/workflows/governance.yml`
-now runs this chain plus tests, build and the full e2e suite on every pull request.
+runs this chain and the applicable PR tests/build. Main retains full Server
+tests/build; E2E is scheduled/manual under the current verification policy.
 
 Run `docs:graph` **and** `docs:preflight` after any change that adds a route, a
 model, a requirement or a document. Both write machine-readable reports

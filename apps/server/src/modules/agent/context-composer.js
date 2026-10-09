@@ -202,17 +202,25 @@ export function composeContext({
 
   const scopedMsp = []
   for (const slice of mspSlicesRaw) {
-    // Fail CLOSED: once a thread is in scope, a slice with no threadId at all
-    // is exactly as untrusted as one naming a different thread. The earlier
-    // version only dropped an explicit mismatch, so an MSP slice missing
-    // provenance passed straight through to every audience.
-    if (threadId && slice.threadId !== threadId) {
-      dropped.push({ id: slice.id, source: slice.source, reason: 'THREAD_SCOPE_MISMATCH' })
-      continue
-    }
-    if (nonDirect && (slice.scope === 'PASSPORT' || slice.scope === 'CROSS_THREAD')) {
-      dropped.push({ id: slice.id, source: slice.source, reason: 'AUDIENCE_SCOPE_DENIED' })
-      continue
+    const crossThread = slice.scope === 'PASSPORT' || slice.scope === 'CROSS_THREAD'
+    if (crossThread) {
+      if (nonDirect) {
+        dropped.push({ id: slice.id, source: slice.source, reason: 'AUDIENCE_SCOPE_DENIED' })
+        continue
+      }
+      // Episodic/passport memory is intentionally not attached to a thread;
+      // a caller that gives it thread provenance must not widen its scope.
+      if (slice.threadId) {
+        dropped.push({ id: slice.id, source: slice.source, reason: 'THREAD_SCOPE_MISMATCH' })
+        continue
+      }
+    } else {
+      // Fail CLOSED: once a thread is in scope, a slice with no threadId at all
+      // is exactly as untrusted as one naming a different thread.
+      if (threadId && slice.threadId !== threadId) {
+        dropped.push({ id: slice.id, source: slice.source, reason: 'THREAD_SCOPE_MISMATCH' })
+        continue
+      }
     }
     if (slice.subjectKey && recordKeys.has(slice.subjectKey)) {
       dropped.push({ id: slice.id, source: slice.source, reason: 'SUPERSEDED_BY_RECORD' })

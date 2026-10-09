@@ -9,6 +9,7 @@ const REINTEGRATION_INDEXES = new Set([
 
 export function isGeneratedDocumentView(file) {
   return REINTEGRATION_INDEXES.has(file)
+    || file === 'docs/architecture/SERVICE-MAP.md'
     || /^docs\/features\/FEAT-\d{3}\/(?:design|verification)\.md$/.test(file)
 }
 

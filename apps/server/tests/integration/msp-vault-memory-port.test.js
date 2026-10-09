@@ -6,10 +6,16 @@ import { createMspVaultResolver } from '@/modules/agent/msp-vault-resolver'
 // @spec ADR-022, SDD-030, SEC-013 — opaque MSP IDs, permission checks, and no fallback.
 // @tested this file
 
+const SERVICE_KEY = 'msp-test-service-key-0123456789012345'
+const resolverFor = (transport, options = {}) => createMspVaultResolver({
+  transport, serviceKey: SERVICE_KEY, ...options,
+})
+
 function authorization({ writePrivate = false } = {}) {
   return {
     authContext: {
-      actor: { principalId: 'person-api010' },
+      transport: { signatureVerified: true },
+      actor: { principalId: 'person-api010', identityVerified: true },
       scope: {
         tenantId: 'tenant-api010',
         businessId: 'business-api010',
@@ -21,6 +27,7 @@ function authorization({ writePrivate = false } = {}) {
       policy: {
         decision: 'ALLOW',
         privateMemoryAllowed: true,
+        episodicMemoryAllowed: true,
         version: 'FR-057.v2',
         ...(writePrivate ? { mspAuthorization: { writePrivate: true } } : {}),
       },
@@ -56,11 +63,24 @@ function transportFor(vaultSet = readOnlyVaultSet) {
 }
 
 describe('API-010 canonical MSP memory boundary (FR-057)', () => {
+  it('does not call API-010 or API-009 without episodic authorization', async () => {
+    const transport = transportFor()
+    const port = createMspMemoryPort({
+      transport,
+      vaultSetResolver: resolverFor(transport),
+    })
+    const denied = authorization()
+    denied.authContext.policy.episodicMemoryAllowed = false
+
+    await expect(port.recallAuthorized(denied)).rejects.toThrow(/episodic retrieval requires an ALLOW policy decision/)
+    expect(transport.calls).toEqual([])
+  })
+
   it('resolves the canonical set first and reads API-009 by opaque Workspace Private ID', async () => {
     const transport = transportFor()
     const port = createMspMemoryPort({
       transport,
-      vaultSetResolver: createMspVaultResolver({ transport, actor: 'zuri-api010-test' }),
+      vaultSetResolver: resolverFor(transport, { actor: 'zuri-api010-test' }),
     })
 
     const result = await port.recallAuthorized(authorization())
@@ -74,7 +94,7 @@ describe('API-010 canonical MSP memory boundary (FR-057)', () => {
     const deniedTransport = transportFor(readOnlyVaultSet)
     const deniedPort = createMspMemoryPort({
       transport: deniedTransport,
-      vaultSetResolver: createMspVaultResolver({ transport: deniedTransport }),
+      vaultSetResolver: resolverFor(deniedTransport),
     })
     await expect(deniedPort.rememberAuthorized(authorization(), { key: 'fact-2', value: 'nope' }))
       .rejects.toThrow(/write|permission|denied/i)
@@ -87,7 +107,7 @@ describe('API-010 canonical MSP memory boundary (FR-057)', () => {
     const writableTransport = transportFor(writableVaultSet)
     const writablePort = createMspMemoryPort({
       transport: writableTransport,
-      vaultSetResolver: createMspVaultResolver({ transport: writableTransport }),
+      vaultSetResolver: resolverFor(writableTransport),
     })
     await writablePort.rememberAuthorized(authorization({ writePrivate: true }), { key: 'fact-3', value: 'yes' })
     const upsert = writableTransport.calls.find((call) => call.name === 'msp_memory_upsert')
@@ -99,7 +119,7 @@ describe('API-010 canonical MSP memory boundary (FR-057)', () => {
     const transport = transportFor({ globalPrivateVaultIds: [] })
     const port = createMspMemoryPort({
       transport,
-      vaultSetResolver: createMspVaultResolver({ transport }),
+      vaultSetResolver: resolverFor(transport),
     })
 
     await expect(port.recallAuthorized(authorization())).rejects.toThrow(/workspacePrivateVaultId/)

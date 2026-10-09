@@ -144,6 +144,8 @@ describe('FR-057 multi-principal agent context', () => {
       tenantId: tenant.id, businessId: business.id, lineUserId: 'UFR057-alice', threadId: 'group-FR057',
       serverScope: { transportVerified: true, businessId: business.id, agentId: 'sales-agent', workspaceId: salesWorkspace.id },
     })
+    aliceContext.authContext = { ...aliceContext.authContext,
+      policy: { ...aliceContext.authContext.policy, episodicMemoryAllowed: true } }
     const bobContext = {
       ...aliceContext,
       authorizedVaults: [{ ...aliceContext.authorizedVaults[0], principalId: bob.id }],
@@ -172,6 +174,8 @@ describe('FR-057 multi-principal agent context', () => {
       tenantId: tenant.id, businessId: business.id, lineUserId: 'UFR057-alice', threadId: 'group-FR057',
       serverScope: { transportVerified: true, businessId: business.id, agentId: 'sales-agent', workspaceId: salesWorkspace.id },
     })
+    aliceContext.authContext = { ...aliceContext.authContext,
+      policy: { ...aliceContext.authContext.policy, episodicMemoryAllowed: true } }
     const forgedWorkspaceContext = {
       ...aliceContext,
       authorizedVaults: [{ ...aliceContext.authorizedVaults[0], workspaceId: supportWorkspace.id }],

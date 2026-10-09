@@ -15,6 +15,7 @@ status: generated
 Generated navigation for current source documents in the operations grouping. A path's presence here does not declare ownership or approval.
 
 - [Deploying zuri-ai with Docker Compose + ngrok](../deployment/docker-ngrok.md)
+- [Windows ใหม่ → กู้ฐาน Zuri-AI เดิม → deploy Docker](../deployment/windows-recovery-and-docker-handoff.md)
 - [Canonical document record format](../migrations/document-reintegration/CANONICAL-FORMAT.md)
 - [Identity compatibility contract](../migrations/document-reintegration/COMPATIBILITY.md)
 - [Document consumer compatibility](../migrations/document-reintegration/CONSUMERS.md)
@@ -28,6 +29,8 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Document query tooling contract](../migrations/document-reintegration/TOOLING.md)
 - [Generated document views contract](../migrations/document-reintegration/VIEW-CONTRACT.md)
 - [Monorepo snapshot execution](../migrations/monorepo/EXECUTION.md)
+- [Scoped verification pilot](../migrations/scoped-verification/PILOT.md)
+- [Q1: Runtime consumer qualification](../migrations/scoped-verification/QUALIFICATION.md)
 - [Conversation Runtime extraction handoff](../migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md)
 - [File Management service extraction handoff](../migrations/service-extraction/FILE-MANAGEMENT-HANDOFF.md)
 - [Marketing Insights: reconciling the contract with this repository (S6)](../migrations/service-extraction/INSIGHTS-CONTRACT-RECONCILIATION.md)
@@ -55,6 +58,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Mission Control — DAG orchestration observability implementation plan](../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md)
 - [Mission Control — DAG orchestration observability](../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY.md)
 - [Roadmap W2 next-wave dispatch and evidence plan](../plans/PLAN-ROADMAP-W2-NEXT-WAVE.md)
+- [Zuri Visual Office 2.5D — Implementation elaboration](../plans/PLAN-VISUAL-OFFICE-2-5D.md)
 - [Release safety repair specification — restore, usage rollup and archive storage](../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md)
 - [TASK-ZAI-047 — Knowledge base console](../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md)
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md)

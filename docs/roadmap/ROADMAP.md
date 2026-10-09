@@ -853,6 +853,8 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 | TASK-ZAI-124 | SPR-ZAI-10 | Marketing Insights read surface — FR-275, routes and page off by default | done | HOSTED_CI | MERGED | TASK-ZAI-078 | ROADMAP.md | Merged in #554 (1e224d5b, 2026-09-27); hosted CI green on the PR head and on main. Route tests pass against the synthetic fixture repository; every route answers 503 INSIGHTS_NOT_CONFIGURED in this release. No browser proof with data, persistence or deployment is claimed. |
 <!-- roadmap-task-ledger:end -->
 
+**Visual Office 2.5D implementation elaboration (TASK-ZAI-019–023, candidate):** [Scene, glTF rooms, avatar/desk slots, live Agent/Mission state, accessible animations, approval and mobile contracts](../plans/PLAN-VISUAL-OFFICE-2-5D.md). This is proposed engineering and acceptance detail under existing Sprint 07–08 tasks, **not an implemented feature, newly issued FR/FEAT, live evidence or authorization**. The canonical task statuses/proof/dependencies above remain unchanged. ADR-026 governs product-building coding-agent topology, not the user-facing Business Agent Runtime; reconcile this boundary before adopting its queue/scheduler for ERP agents.
+
 ### Subplans and implementation coverage
 
 <!-- roadmap-sot:start -->

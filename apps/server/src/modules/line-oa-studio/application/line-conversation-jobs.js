@@ -12,6 +12,7 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { findChannelIdentity, channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
 import { reconcileLineMemoryErasures } from './line-memory-erasure'
+import { resolveLineMemoryProject } from './line-memory-scope'
 import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 import { lineExecutionBudget } from '../domain/line-execution-budget'
 import { isLineProjectWorkCommand, handleLineProjectWorkCommand, parseLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
@@ -319,7 +320,7 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // path. `isAccountWithinBusinessHours` returns true for an account with no
     // declared hours, so this branch is a no-op for every account that never opted in.
     const outOfHours = !isAccountWithinBusinessHours(current, now) && Boolean(current.outOfHoursReplyText)
-    const memorySyncOptIn = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+    const memorySyncOptIn = current.memoryPolicy === 'ON'
     // @req FR-149, FR-235 — a memory-sync opt-in turn is runtime-eligible on the
     // same terms as any other turn: Core serves its MSP phases through the v1
     // `memory` operation for a DIRECT chat and for a group or room (one MSP thread
@@ -350,9 +351,20 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
       && (audienceKind === 'DIRECT' || threadId !== userId)
       && memoryRuntimeEligible && (audienceKind === 'DIRECT' || !legacyOnlyWorkCommand)
       && conversationRuntimeServesGroundingMode(current.knowledgeGrounding)
-    const identity = runtimeEligible
+    const identity = runtimeEligible || (current.memoryPolicy === 'ON' && audienceKind === 'DIRECT')
       ? await findChannelIdentity({ db: tx, tenantId: current.tenantId, channelAccountId, providerSubject: userId })
       : null
+    const memoryScope = current.memoryPolicy === 'ON' && audienceKind === 'DIRECT'
+      ? await resolveLineMemoryProject({ db: tx, tenantId: current.tenantId,
+        businessId: current.businessId, projectId: current.memoryProjectId })
+      : null
+    const customer = identity && channelIdentityIsVerified(identity)
+      ? await tx.customer.findUnique({ where: { tenantId_personId: { tenantId: current.tenantId, personId: identity.personId } },
+        select: { id: true, deletedAt: true, consentStatus: true } })
+      : null
+    const episodicMemoryOptIn = memorySyncOptIn && audienceKind === 'DIRECT'
+      && channelIdentityIsVerified(identity) && customer?.deletedAt === null
+      && customer?.consentStatus === 'GRANTED' && Boolean(memoryScope)
     // Runtime routing is a separate, Core-owned cohort from executionMode.
     // Ineligible work remains with the default Server consumer; later account
     // changes cannot transfer an already admitted job to another executor.
@@ -380,10 +392,11 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
       // @req FR-149 — execution mode and executor cohort are separate durable facts.
       executionMode, runtimeOwner,
       modelAccess: RETIRED_MODEL_ACCESS, allowDelayedPush: current.allowDelayedPush,
-      // This is immutable trusted LINE admission provenance. The opt-in flag is
-      // a per-job decision captured at the same boundary; later env changes do
-      // not enroll or silently drop an already admitted job.
-      audienceKind, memorySyncOptIn,
+      // This is immutable trusted LINE admission provenance. Account policy is
+      // captured here; the environment flag remains a runtime kill switch.
+      audienceKind, memorySyncOptIn, episodicMemoryOptIn,
+      episodicWorkspaceId: episodicMemoryOptIn ? memoryScope.workspaceId : null,
+      episodicProjectId: episodicMemoryOptIn ? memoryScope.projectId : null,
       recipientId: threadId, sourceUserId: userId, sealedReplyToken: sealed,
       replyExpiresAt: sealed ? new Date(replyDeadlineAnchorMs + 45_000) : null,
       availableAt: now, expiresAt: new Date(now.getTime() + JOB_TTL_MS), correlationId,
@@ -649,10 +662,11 @@ export async function renewRuntimeConversationJob(claim, { db = prisma, now = ()
   })
 }
 
-export async function completeRuntimeConversationJob(claim, { text, operationId }, { db = prisma, now = () => new Date() } = {}) {
+export async function completeRuntimeConversationJob(claim, { text, operationId },
+  { db = prisma, now = () => new Date(), threadMemoryEnabled = true } = {}) {
   if (operationId !== `${claim.jobId}:turn-answer`) throw failure(400, 'COMPLETION_IDEMPOTENCY_INVALID')
   return settleExecution(claim.jobId, { version: claim.version, text, executionId: claim.executionId },
-    { db, claimantId: claim.claimantId, now: new Date(typeof now === 'function' ? now() : now), runtimeOwner: 'CONVERSATION_RUNTIME' })
+    { db, claimantId: claim.claimantId, now: new Date(typeof now === 'function' ? now() : now), runtimeOwner: 'CONVERSATION_RUNTIME', threadMemoryEnabled })
 }
 
 export async function failRuntimeConversationJob(claim, { code, outcome }, { db = prisma, now = () => new Date() } = {}) {
@@ -826,7 +840,7 @@ export async function runtimeWorkBudgetSpent(db, job, { at }) {
 // scoping, the `EDGE_REPORTED` context-receipt source and the published-corpus
 // re-check a device's claim needed are gone with the claim that produced them.
 async function settleExecution(id, { version, text, code, executionId, contextReceipts, traceFailureCode, outcome },
-  { db, claimantId, now, executionMode = 'SERVER', runtimeOwner = 'SERVER' }) {
+  { db, claimantId, now, executionMode = 'SERVER', runtimeOwner = 'SERVER', threadMemoryEnabled = true }) {
   const startedAt = performance.now()
   return db.$transaction(async tx => {
     const job = await tx.lineConversationJob.findFirst({ where: { id, executionMode, runtimeOwner },
@@ -848,11 +862,14 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       // snapshot, which the out-of-hours check below pins READY to.
       // A read receipt means memory ran for the turn after all; it then commits only
       // with its append, out of hours or not (#600 review, MEDIUM).
-      if (!code && (runtimeOutOfHoursReply(job) === null || await loadMemoryReceipt(tx, job, 'read'))
+      const memoryRead = await loadMemoryReceipt(tx, job, 'read')
+      if (!code && (runtimeOutOfHoursReply(job) === null || memoryRead)
         && !(job.status === 'READY' && job.executionId === executionId && job.answerText === text)) {
-        const inbound = job.memorySyncOptIn
+        const inbound = job.memorySyncOptIn && threadMemoryEnabled
           ? await tx.message.findUnique({ where: { id: job.inboundMessageId }, select: { body: true } }) : null
-        await assertMemoryAnswerAppended(tx, { ...job, inbound }, text)
+        if (memoryRead || (job.memorySyncOptIn && threadMemoryEnabled)) {
+          await assertMemoryAnswerAppended(tx, { ...job, memorySyncOptIn: job.memorySyncOptIn && threadMemoryEnabled, inbound }, text)
+        }
       }
     }
     // A completion retry after a lost HTTP response is reconciled from the
@@ -994,8 +1011,12 @@ async function executeClaimed({ db, answer, execution, claimantId, now }) {
       trace: createLineExecutionTrace({ db, job: execution }),
       ...(execution.memorySyncOptIn ? { memoryStateReader: id => db.lineConversationJob.findUnique({
         where: { id },
-        select: { memorySyncOptIn: true, status: true, version: true, errorCode: true, transportEpoch: true,
-          account: { select: { serverEnabled: true, transportMode: true, status: true, transportEpoch: true } } },
+        select: { id: true, tenantId: true, businessId: true, channelAccountId: true, sourceUserId: true,
+          eventId: true, audienceKind: true, memorySyncOptIn: true, episodicMemoryOptIn: true,
+          episodicWorkspaceId: true, episodicProjectId: true, status: true, version: true, errorCode: true,
+          transportEpoch: true, account: { select: { id: true, tenantId: true, businessId: true,
+            bindingCode: true, serverEnabled: true, transportMode: true, status: true, transportEpoch: true,
+            memoryProjectId: true } } },
       }) } : {}),
     })
     const text = zCompletion.shape.text.parse(response?.text ?? response)

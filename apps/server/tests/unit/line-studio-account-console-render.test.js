@@ -64,6 +64,9 @@ describe('the LINE account console keeps PRP model key configuration', () => {
     }
     expect(page).toMatch(/action:\s*"CONFIGURE_KNOWLEDGE_GROUNDING"/)
     expect(page).toMatch(/knowledgeGrounding:\s*grounding/)
+    expect(page).toContain('account.memoryPolicy')
+    expect(page).toMatch(/action:\s*"CONFIGURE_MEMORY_POLICY"/)
+    expect(page).toMatch(/action:\s*"CONFIGURE_MEMORY_POLICY",\s*memoryPolicy/)
   })
 })
 

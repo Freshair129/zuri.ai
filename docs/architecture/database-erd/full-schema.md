@@ -1483,7 +1483,7 @@ erDiagram
 
 ---
 
-## 17. LINE OA STUDIO: accounts, rich menus, LIFF & transport jobs
+## 17. LINE OA STUDIO: account scope, projection receipts, menus, LIFF & jobs
 
 LINE OA Studio (`DOM-LINE-OA-STUDIO`, ADR-060) — บัญชี LINE Official Account **หลายบัญชีต่อ Business**,
 โดย transport ที่รับ/ส่งข้อความเป็นของ server ตาม ADR-061
@@ -1492,6 +1492,7 @@ LINE OA Studio (`DOM-LINE-OA-STUDIO`, ADR-060) — บัญชี LINE Official
 erDiagram
     Business ||--o{ LineOaAccount : "runs"
     IntegrationConnection ||--|| LineOaAccount : "1:1 LINE_OA connection"
+    Project o|--o{ LineOaAccount : "Publisher-selected API-010 scope"
     LineOaAccount ||--o{ LineOaRichMenu : "designs"
     LineOaRichMenu ||--o{ LineOaRichMenuVersion : "numbered bodies"
     FileAsset ||--o{ LineOaRichMenuVersion : "image"
@@ -1501,12 +1502,32 @@ erDiagram
     LineOaAccount ||--o{ LineConversationJob : "answers through"
     Message ||--|| LineConversationJob : "inbound → job"
 
+    %% Identifier-only projection evidence intentionally has no cross-domain FK.
+    MemoryProjectionReceipt {
+        uuid     id                      PK
+        uuid     tenantId
+        uuid     businessId
+        uuid     lineConversationJobId
+        string   direction               "INBOUND | OUTBOUND"
+        uuid     crmMessageId
+        uuid     principalId
+        uuid     mspThreadId
+        uuid     mspSessionId
+        uuid     mspMessageId
+        uuid     mspExchangeId
+        string   deliveryState           "PENDING | ACKNOWLEDGED | CLOSED"
+        string   erasureStatus           "ACTIVE | PENDING_MSP | ERASED"
+        string   erasureReceiptId
+    }
+
     LineOaAccount {
         uuid     id                      PK
         string   code                    UK  "unique ต่อ Tenant"
         uuid     tenantId                FK
         uuid     businessId              FK
         uuid     integrationConnectionId FK  "unique"
+        uuid     memoryProjectId         FK  "nullable; Workspace derived from Project"
+        string   memoryPolicy                 "OFF | ON"
         string   bindingCode                 "unique ต่อ Tenant — อ่าน zuri_core.line_channel_binding"
         string   displayName
         string   basicId                     "@handle ของ LINE — attribute"
@@ -1594,6 +1615,10 @@ erDiagram
         int      transportEpoch
         string   executionMode        "SERVER | EDGE"
         string   modelAccess
+        bool     memorySyncOptIn
+        bool     episodicMemoryOptIn
+        uuid     episodicWorkspaceId
+        uuid     episodicProjectId
         string   recipientId
         string   sourceUserId
         string   sealedReplyToken     "sealed — เปิดได้ที่ server เท่านั้น"
@@ -1619,10 +1644,12 @@ erDiagram
 | `transportEpoch` บน job | job ที่ถูก claim ด้วย epoch เก่าถูก **fence** เมื่อบัญชีสลับ transport — ไม่มี job สองเจ้าของ (ADR-061 D6) |
 | `externalRichMenuId` / `externalLiffId` | id ที่ LINE ออก — attribute ที่ transport/publisher บันทึก ไม่เคยเป็น key (BR-002) |
 | `LineConversationJob.inboundMessageId` unique | ข้อความเข้าหนึ่งข้อความสร้าง job ได้ครั้งเดียว; `retryKey` unique กันส่งซ้ำ; ตอบ UNKNOWN ต้องมีคน acknowledge |
+| `LineOaAccount.memoryProjectId` | Publisher เลือก Project ใน Business เดียวกัน; Workspace derive ที่ server และ snapshot บน job; client/LINE ไม่ส่ง scope |
+| `MemoryProjectionReceipt` | เก็บ CRM/MSP append IDs, direction และ acknowledgement เพื่อ recovery/erasure; ไม่มี content และไม่มี FK ที่ cascade ลบ provenance |
 | `Conversation.channelAccountId` (FR-148) | identity ของ conversation รวม account ที่รับ — แถวเก่าเป็น `LEGACY:LINE` โดยไม่เดา |
 | ไม่มี model ของ Flex / Flow / Template / Dispatch | charter ประกาศเป็น *target*; แต่ละตัวมาพร้อม FR ของตัวเอง (ADR-060 D14) |
 
-**Spec:** FR-146, FR-147, FR-148, FR-149, FR-150, FR-151, FR-152, FR-153 · ADR-060, ADR-061
+**Spec:** FR-057, FR-146, FR-147, FR-148, FR-149, FR-150, FR-151, FR-152, FR-153, FR-231, FR-232 · ADR-060, ADR-061, ADR-091
 
 ---
 

@@ -140,7 +140,7 @@ Vercel is no longer a deployment dependency.
 
 
 <!-- ======================================================================== -->
-<!-- source: CLAUDE.md -->
+<!-- source: CLAUDE.md — status: active -->
 <!-- ======================================================================== -->
 
 # CLAUDE.md — working guide for this repository
@@ -180,6 +180,16 @@ Server-relative; canonical IDs and subject anchors are unchanged. Edge historica
 IDs are qualified as `edge::...` only in the combined graph. Read
 [snapshot execution](docs/migrations/monorepo/EXECUTION.md) for exact provenance,
 held files and release limits. Original device configuration/data are untouched.
+
+### Service documentation and verification policy (2026-10-06)
+
+[Service documents](docs/services/README.md) describe execution boundaries and
+testing; domain charters retain business ownership. Follow the approved
+[verification policy](docs/architecture/VERIFICATION-POLICY.md) when choosing
+baseline and acceptance checks. Runtime's `verification.json` and
+`npm run verification:plan -- --base <commit>` produce shadow comparisons only;
+the active selector still controls all CI jobs. `govern` regenerates the ignored
+service map from the current package/document sources.
 
 
 Read this first, then `AGENTS.md` for the full rules.
@@ -398,13 +408,16 @@ inside the very tree they're meant to be isolated from. Add it to `.gitignore`
 first if you ever use that convention here; otherwise use the sibling layout
 above or `EnterWorktree`.
 
-**Run the test baseline before doing anything else in a new worktree.** This
-is not hygiene — it already cost real time once. In `D:\zuri-ai-fr107`,
+**Run a change-appropriate baseline in a new worktree.** The approved
+[policy](docs/architecture/VERIFICATION-POLICY.md#baseline-and-verification-obligations)
+defines this documentation/control-plane lane's scoped baseline; application,
+schema or shared-fixture changes still require the corresponding wider checks.
+Verify dependency and database isolation first. In `D:\zuri-ai-fr107`,
 `node_modules` was a junction back to the primary, and the shared Prisma client
 resolved its relative SQLite path against the wrong tree; roughly 70 test
 suites failed as a result, and it was only discovered mid-work rather than at
-setup. A plain `npm test` run as the first thing in a new worktree catches this
-in the first minute instead of the middle of a task.
+setup. An isolated install and baseline must catch this before implementation;
+a passing narrow suite must be reported with its scope, not as a full-suite PASS.
 
 Refresh the primary only on a clean tree: `git fetch && git checkout --detach
 origin/main` — on a machine whose layout you have not confirmed, `git worktree
@@ -437,7 +450,7 @@ contracts/                JSON Schema + sample envelopes
 
 ```bash
 npm run dev            # dev server (use the preview tool, not a raw shell, when available)
-npm run verify         # the definition of done in one command: govern → test → build → e2e
+npm run verify         # broad local profile: Runtime test/build → Server govern/test/build/e2e
 npm run build          # production build — must stay clean
 npm test               # Vitest: unit + integration (own SQLite db per run, prisma/.test-dbs/)
 npm run test:e2e       # Playwright against its own dev server + its own seeded db.
@@ -459,6 +472,12 @@ npm run docs:llms      # rebuild llms-full.txt — the one-file corpus for LLM r
                        # CI fails on a stale copy, so run it when you edit one of
                        # those; docs:llms:check is the same gate, locally.
 ```
+
+The root `verify` command does not run MI/SCM service jobs. Hosted governance
+selects PR Server checks from the diff, runs all three service jobs on
+non-scheduled events, and keeps full Server tests/build on main. E2E runs only on
+schedule/workflow_dispatch. See the policy for local scoped evidence and the
+requirements before any shadow plan may become enforcement.
 
 **Declaring a new id costs one command.** Preflight Check 12 fails on an id that
 is declared in a registry and not pinned in `docs/.id-ledger.json`, so the step
@@ -494,7 +513,8 @@ or adds a route, preflight *before* graph reports CRITICALs that are artifacts o
 a stale input — and preflight *without* `--strict` used to print CRITICAL and
 still exit 0. Both were real defects, fixed on 2026-08-17
 ([RCA](.brain/rca/2026-08-17-governance-did-not-govern.md)). `.github/workflows/governance.yml`
-now runs this chain plus tests, build and the full e2e suite on every pull request.
+runs this chain and the applicable PR tests/build. Main retains full Server
+tests/build; E2E is scheduled/manual under the current verification policy.
 
 Run `docs:graph` **and** `docs:preflight` after any change that adds a route, a
 model, a requirement or a document. Both write machine-readable reports
@@ -648,8 +668,10 @@ opened and checked, not assumed.
 ## Documentation reintegration branch (2026-09-29)
 
 Read [the approved migration profile](docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md)
-before changing a registry or document reader. On this branch, individual ZAI records
-in `registry/document-registry/index.json` generate the existing PRD/FEATURES paths.
+before changing a registry or document reader. Individual ZAI records in
+`docs/features/FEAT-*/feature.md`, their explicitly bundled `requirements/`, and
+`docs/requirements/` generate `registry/document-registry/index.json` and the
+existing PRD/FEATURES compatibility paths.
 Run `npm run docs:registry` after an explanatory canonical edit, then
 `npm run docs:graph` and `npm run docs:views`. `govern` checks exports and views
 without repairing them. Initial source rows, issued IDs and subject anchors
@@ -726,6 +748,20 @@ Server-relative; canonical IDs and subject anchors are unchanged. Edge historica
 IDs are qualified as `edge::...` only in the combined graph. Read
 [snapshot execution](docs/migrations/monorepo/EXECUTION.md) for exact provenance,
 held files and release limits. Original device configuration/data are untouched.
+
+### Service documentation and scoped verification (2026-10-06)
+
+Read [the verification policy](docs/architecture/VERIFICATION-POLICY.md) and the
+relevant [service documents](docs/services/README.md) before choosing validation.
+Domain charters own business rules; service documents own execution and contract
+explanations. Package scripts own commands. Canonical FR/FEAT records retain their
+identities and membership; do not duplicate them inside service folders.
+
+The owner-approved Runtime pilot produces shadow plans only. Existing CI job
+selection, main full Server checks and scheduled/manual E2E remain active.
+`npm run verification:plan -- --base <commit>` includes local working changes;
+its report never grants permission to omit checks. `npm run docs:services`
+regenerates the service map, an ignored view under ADR-081.
 
 
 ## Mission
@@ -1027,8 +1063,14 @@ result** — `verify` fails on a stale copy (`docs:llms:check` is the same gate,
 locally). A stale corpus is worse than none: it reads authoritative while
 stating rules this repository no longer has.
 
-`npm run verify` is the definition of done in one command (govern → test → build →
-e2e). Both test commands are wrapped by `scripts/assert-tests-ran.mjs`, which fails a
+`npm run verify` retains the broad local profile: Runtime tests/build, then Server
+govern → test → build → e2e. It does not include MI/SCM service verification.
+Use the approved [verification policy](docs/architecture/VERIFICATION-POLICY.md)
+to choose a change-appropriate baseline and acceptance checks, and state their
+scope. This control-plane pilot requires planner/selector regressions, Runtime
+tests/build, Core contracts and governance; it does not require a blanket local
+application suite merely because a worktree is new. Server test commands are
+wrapped by `scripts/assert-tests-ran.mjs`, which fails a
 run that executed **zero** tests — `vitest run -t "NO_MATCH"` exits 0 with everything
 skipped, and an exit code of 0 must never mean the work did not run. `test:e2e`
 additionally fails on **flaky**: Playwright exits 0 for a test that passes only on
@@ -1043,9 +1085,11 @@ baseline.
 
 Until 2026-08-17 none of this was enforced: there was no CI, no git hook, and
 `docs:preflight` omitted `--strict`, so it printed `CRITICAL` and exited 0. The
-rule was a habit, not a gate. `.github/workflows/governance.yml` now runs the
-chain, the tests, the build and the full e2e suite on every pull request, and
-a route that implements no declared requirement is a CRITICAL against a
+rule was a habit, not a gate. `.github/workflows/governance.yml` runs governance
+and selects PR Server checks from the diff, retaining related/full fallbacks;
+all three service jobs run on non-scheduled events. Main pushes run full Server
+tests/build. E2E runs on schedule or workflow_dispatch. A route that implements
+no declared requirement is a CRITICAL against a
 shrink-only baseline. Full account:
 [RCA](.brain/rca/2026-08-17-governance-did-not-govern.md).
 
@@ -1310,27 +1354,31 @@ Version diff (2026-10-05): adds the owner-approved PM task resume pointer to Doc
 Version diff (2026-10-04): adds the owner-approved Doc Writer entry point and
 lifecycle metadata; existing product authority and canonical IDs are unchanged.
 
+Version diff (2026-10-06): adopts service documentation and the shadow verification
+policy, reconciles canonical-record paths and current CI/baseline instructions,
+and preserves all active job-selection gates.
+
 
 # Product
 
 Layer 0 — what the product is, above the per-module requirements.
 
 <!-- ======================================================================== -->
-<!-- source: docs/PRODUCT.md — id: ZAI:PRODUCT · version: 1.4.0b · status: draft -->
+<!-- source: docs/PRODUCT.md — id: ZAI:PRODUCT · version: 1.4.1b · status: draft -->
 <!-- ======================================================================== -->
 
 # Zuri V2 — Product Definition
 
-> Current authority (2026-09-24): Zuri is a standalone product under [ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs Server LINE ingress; [ADR-106](docs/decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md) defines the Conversation Runtime boundary; [ADR-110](docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) retires Edge Device and harness surfaces while keeping the PRP LocalWorker model-key flow. [FEAT-019 phase map](docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) is a candidate repository decision, not the current layout.
+> Current authority (2026-10-06): Zuri is a standalone product under [ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md); legacy V1 replacement language below is historical and grants no migration authority. [ADR-061](docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) governs Server LINE ingress; [ADR-106](docs/decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md) defines the Conversation Runtime boundary; [ADR-110](docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) retires Edge Device and harness surfaces while keeping the PRP LocalWorker model-key flow. [FEAT-019 phase map](docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) records current domain handoffs and rollout gaps. [ADR-062](docs/decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) approved snapshot relocation into the current monorepo; its pinned candidate heading does not override its amended status. Independent releases and retirement have separate gates. [Service documentation](docs/services/README.md) describes the current execution boundaries.
 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.4.0b |
+| **Version** | 1.4.1b |
 | **Status** | Draft |
 | **Author** | Owen + Claude |
 | **Created** | 2026-08-12 |
-| **Last Updated** | 2026-10-03 |
+| **Last Updated** | 2026-10-06 |
 | **Layer** | 0 — product (above the per-module PRD/SDD) |
 
 Layer 0: what Zuri V2 *is*. Module-level requirements live one layer down
@@ -1342,6 +1390,10 @@ For LLM readers: [llms.txt](llms.txt) is the repository index, and
 every domain charter into one file (generated by `npm run docs:llms`).
 
 ## Capability classification
+
+Version diff 1.4.0b → 1.4.1b: reconciles the repository-layout statement with
+ADR-062's approved snapshot relocation and links the service documentation layer.
+Product scope, business ownership and release authority are unchanged.
 
 Version diff 1.3.0b → 1.4.0b: clarify product registry types (ADR-025 revision 3).
 An explicit `FEAT-*` is a product capability bundling one or more requirements.
@@ -3054,9 +3106,9 @@ Charter: [docs/domains/line-oa-studio/CHARTER.md](docs/domains/line-oa-studio/CH
 | | |
 |---|---|
 | Modules | `src/modules/line-oa-studio` |
-| Models owned | LineOaAccount, LineOaRichMenu, LineOaRichMenuVersion, LineOaRichMenuJob, LineOaLiffApp, LineOaWorkerCheckpoint, LineConversationJob |
+| Models owned | LineOaAccount, LineOaRichMenu, LineOaRichMenuVersion, LineOaRichMenuJob, LineOaLiffApp, LineOaWorkerCheckpoint, LineConversationJob, MemoryProjectionReceipt |
 | Routes owned | 25 (15 api · 10 pages) |
-| FRs implemented in lane | FR-021, FR-022, FR-026, FR-061, FR-080, FR-091, FR-093, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-171, FR-190, FR-210, FR-223, FR-224, FR-225, FR-226, FR-227, FR-228, FR-229, FR-235, FR-238, FR-243, FR-244, FR-265, FR-266, FR-267, FR-277, SDD-097 |
+| FRs implemented in lane | FR-021, FR-022, FR-026, FR-057, FR-061, FR-080, FR-091, FR-093, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-171, FR-190, FR-210, FR-223, FR-224, FR-225, FR-226, FR-227, FR-228, FR-229, FR-231, FR-235, FR-238, FR-243, FR-244, FR-265, FR-266, FR-267, FR-277, SDD-097 |
 
 ## market-intelligence
 
@@ -3111,7 +3163,7 @@ Charter: [docs/domains/project-manager/CHARTER.md](docs/domains/project-manager/
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, TaxRegistrationBranch, Business, Branch, Employment, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, BusinessKeyResult, BusinessKeyResultCheckIn, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, Team, TeamMembership, ProjectTeam, LocalWorkspaceMount, FileAsset, FileLink, AuditEvent, PlanImportReceipt, ProjectExecutionRun, ProjectExecutionStep, ProjectApprovalRequest, GovernanceSnapshot, ProjectFeature, FeatureContribution, FeatureWorkLink, RequirementBinding, ProjectFeatureMutationReceipt |
 | Routes owned | 216 (169 api · 47 pages) |
-| FRs implemented in lane | BR-001, BR-044, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-039, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-094, FR-095, FR-097, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-184, FR-185, FR-186, FR-187, FR-191, FR-193, FR-194, FR-195, FR-197, FR-198, FR-199, FR-203, FR-204, FR-206, FR-207, FR-208, FR-209, FR-218, FR-223, FR-224, FR-226, FR-229, FR-230, FR-233, FR-236, FR-237, FR-243, FR-245, FR-246, FR-247, FR-248, FR-249, FR-250, FR-251, FR-252, FR-253, FR-254, FR-266, FR-268, FR-270, FR-271, FR-272, FR-273, FR-274, FR-275, FR-277, FR-278, FR-281, FR-282, FR-283, NFR-023, SDD-037, SDD-107, SDD-110, SEC-034 |
+| FRs implemented in lane | BR-001, BR-044, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-017, FR-018, FR-019, FR-020, FR-022, FR-036, FR-037, FR-038, FR-039, FR-040, FR-041, FR-042, FR-043, FR-045, FR-046, FR-057, FR-058, FR-059, FR-060, FR-061, FR-063, FR-064, FR-065, FR-067, FR-068, FR-069, FR-070, FR-071, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, FR-086, FR-087, FR-088, FR-089, FR-090, FR-092, FR-094, FR-095, FR-097, FR-100, FR-102, FR-106, FR-107, FR-108, FR-109, FR-110, FR-123, FR-124, FR-127, FR-133, FR-134, FR-135, FR-136, FR-146, FR-149, FR-150, FR-151, FR-152, FR-153, FR-154, FR-155, FR-156, FR-157, FR-158, FR-159, FR-160, FR-161, FR-163, FR-164, FR-165, FR-166, FR-169, FR-173, FR-174, FR-176, FR-177, FR-180, FR-182, FR-183, FR-184, FR-185, FR-186, FR-187, FR-191, FR-193, FR-194, FR-195, FR-197, FR-198, FR-199, FR-203, FR-204, FR-206, FR-207, FR-208, FR-209, FR-218, FR-223, FR-224, FR-226, FR-229, FR-230, FR-233, FR-236, FR-237, FR-243, FR-245, FR-246, FR-247, FR-248, FR-249, FR-250, FR-251, FR-252, FR-253, FR-254, FR-266, FR-268, FR-270, FR-271, FR-272, FR-273, FR-274, FR-275, FR-277, FR-278, FR-281, FR-282, FR-283, NFR-023, SDD-037, SDD-107, SDD-110, SEC-034 |
 
 
 # Vocabulary
@@ -3184,7 +3236,7 @@ claiming it, when two charters claim one model, or when a feature note declares
 a domain that disagrees with its folder.
 
 <!-- ======================================================================== -->
-<!-- source: docs/domains/agent/CHARTER.md — id: ZAI:DOMAIN-AGENT · version: 0.5.0b · status: active -->
+<!-- source: docs/domains/agent/CHARTER.md — id: ZAI:DOMAIN-AGENT · version: 0.6.0b · status: active -->
 <!-- ======================================================================== -->
 
 # Domain charter — agent
@@ -3299,10 +3351,13 @@ code yet; `owns_models` changes only when a model lands.
   episodic and passport memory. MSP calls no model, so **this lane produces the
   consolidation summaries** and sends them back. MSP persists nothing into
   GenesisBlockDB, and the GenesisBlockDB write-ahead log is never a chat buffer.
-  Projection stays off until MSP main ships thread and erase tools. **Planned model
-  `MemoryProjectionReceipt`** — one row per projection MSP acknowledged — is claimed
-  here, with an erase worker that calls MSP per receipt and reports `PENDING_MSP`
-  until acknowledged. Trace input snapshots gain a 90-day retention window.
+  API-011 session/thread projection and API-010 → API-009 episodic access remain
+  separate authorization paths. LINE OA Studio owns the per-job
+  `MemoryProjectionReceipt`; Agent supplies the AuthContext, API-010 resolver,
+  API-009 memory port and context-composition boundary. The principal erasure
+  worker exposes `PENDING_MSP` until MSP returns an erasure receipt. Production
+  episodic access stays off until the signed API-010 contract is accepted on MSP
+  main and release gates pass. Trace input snapshots gain a 90-day retention window.
 - **Grounding composition (FR-235, SDD-099).** This lane composes the knowledge
   lane's corpus reader into the server answer by the account's grounding mode and
   records `retrievalRefs`, source and reason on `EVIDENCE_SELECTED`; it owns no model
@@ -3312,6 +3367,7 @@ code yet; `owns_models` changes only when a model lands.
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.6.0b | 2026-10-04 | Separates API-011 session projection from API-010 episodic memory; assigns the LINE-specific durable projection receipt to LINE OA Studio and records the MSP-main activation gate | Codex |
 | 0.4.0b | 2026-09-14 | ADR-091 / ADR-090 declared (FEAT-037, FEAT-038): the Context Composer as an agent-lane module with one `ContextReceipt` per model call, the CRM-record versus MSP-ledger split with this lane producing consolidation summaries, planned `MemoryProjectionReceipt`, and grounding composition; the one lawful chat-to-knowledge route named in Boundaries; no `owns_models` change | Claude Opus 5 |
 | 0.3.0b | 2026-09-13 | FR-210 / ADR-084 D4: the `#sku` catalogue command wraps the server-owned LINE worker's answer port for verified staff with Inventory write authority; the native path still never calls `handleAgentTurn`, and no model output reaches a write | Claude Opus 5 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |
@@ -5536,7 +5592,7 @@ its own terms.
 
 
 <!-- ======================================================================== -->
-<!-- source: docs/domains/line-oa-studio/CHARTER.md — id: ZAI:DOMAIN-LINE-OA-STUDIO · version: 0.13.0b · status: phase-1-building -->
+<!-- source: docs/domains/line-oa-studio/CHARTER.md — id: ZAI:DOMAIN-LINE-OA-STUDIO · version: 0.16.0b · status: phase-1-building -->
 <!-- ======================================================================== -->
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -5893,14 +5949,16 @@ code or schema; each column enters the model in the slice that implements it.
   (LINE's endpoint equals ours and no legacy evidence for 120 s) instead of asking
   for the typed confirmation, which stays for mount-backed accounts; the epoch fence
   is unchanged.
-- **Memory policy (FR-231 — [ADR-091](docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)).**
-  A planned publisher-set `LineOaAccount.memoryPolicy`, default OFF. Admission
-  captures per job whether a turn may reach MSP's session tier (policy not OFF) and
-  episodic, passport or cross-thread memory (also consent GRANTED and DIRECT).
-  Projection stays off until MSP main ships thread and erase tools;
-  `ZURI_MSP_THREAD_MEMORY_ENABLED` becomes a kill switch. Admission also stops
-  skipping non-text events (FR-229), creating CRM rows through the crm contract and
-  no answer job.
+- **Memory policy and receipts (FR-057, FR-231, FR-232 — [ADR-091](docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)).**
+  The Publisher sets `LineOaAccount.memoryPolicy` (default OFF) and selects one
+  Development Project for API-010 scope. Admission derives and validates that
+  Project's Workspace, then snapshots both IDs only for a verified, consented
+  DIRECT customer. This lane owns `MemoryProjectionReceipt`, keyed by job and
+  direction, containing CRM/MSP identifiers and delivery/erasure acknowledgements
+  but no content. API-011 session/thread memory and API-010 → API-009 episodic
+  memory stay separate; the latter remains OFF by default. Principal erasure
+  retains `PENDING_MSP` until an MSP receipt arrives. The signed API-010 contract
+  must be accepted on MSP main before production activation.
 - **Knowledge grounding (FR-235 — [ADR-090](docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md)).**
   A planned publisher-set `LineOaAccount.knowledgeGrounding` —
   `BUSINESS_KNOWLEDGE` (default), `GKS_CORPUS` or `GKS_THEN_BUSINESS_KNOWLEDGE`.
@@ -5933,6 +5991,7 @@ no model call. A session closing never loads or unloads a model.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.16.0b | 2026-10-04 | phase-1-building | FR-057/FR-231/FR-232: claims the LINE-owned projection receipt model, Project-derived API-010 scope and durable delivery/erasure evidence; production activation stays gated | working-tree | Codex |
 | 0.15.0b | 2026-09-16 | phase-1-building | FR-246 (not merged): notes `serverLinePorts` as reachable from crm's `sendStaffReply`, the one place outside this domain that calls it | working-tree | Claude Sonnet 5 |
 | 0.14.0b | 2026-09-16 | phase-1-building | FR-243 (TASK-ZAI-107, not merged): `LineConversationJob.sessionId` copied at admission (migration `20260916120000`); `listLineConversationJobs` filters by session code within the account; the Edge Connection card sets `CONFIGURE_SESSION_TIMEOUT` (audited as `LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED`, health-only, never fences) and shows each job's trace | working-tree | Claude Opus 5 |
 | 0.13.0b | 2026-09-16 | phase-1-building | FR-243 (TASK-ZAI-106, not merged): `LineOaAccount.sessionIdleTimeoutMinutes` added (default 30, CHECK 10–120 in migration `20260916090000`); admission passes it and LINE's clamped `event.timestamp` to the crm writers for every message and event; the account setting UI is TASK-ZAI-107 | working-tree | Claude Opus 5 |
@@ -6756,9 +6815,9 @@ an order of magnitude. Read them from the repository:
 - [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) (624KB): the FR / NFR / BR / SEC / SDD registry — every requirement id
 - [docs/FEATURES.md](docs/FEATURES.md) (112KB): the FEAT registry
 - [docs/FEATURE-MAP.md](docs/FEATURE-MAP.md) (285KB): generated — the feature-driven view over the domain spine
-- [docs/TRACE.md](docs/TRACE.md) (740KB): generated — per FR: surface to code to rules to tests
+- [docs/TRACE.md](docs/TRACE.md) (741KB): generated — per FR: surface to code to rules to tests
 - [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (199KB): generated — the API surface
-- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (101KB): the database schema
-- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (855KB): generated — the traceability appendix
-- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (424KB): live delivery state (Thai) — read by GoVibe Mission Control
+- [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (103KB): the database schema
+- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (856KB): generated — the traceability appendix
+- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (425KB): live delivery state (Thai) — read by GoVibe Mission Control
 

@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { composeTurnContext } from '../src/context.js'
 import { createConversationRuntime } from '../src/turn-runtime.js'
 
@@ -19,6 +20,14 @@ test('context composer prioritizes approved records, drops cross-thread memory a
   assert.equal(composed.slices[0].id, 'record')
   assert.ok(composed.dropped.some(item => item.reason === 'THREAD_SCOPE_MISMATCH'))
   assert.equal(composeTurnContext({ authorized: false, maxBudgetChars: 1 }).text, '')
+
+  const episodic = composeTurnContext({ authorized: true, threadId: 'thread-1', audienceKind: 'DIRECT', maxBudgetChars: 40,
+    slices: [{ id: 'episodic', source: 'MSP', scope: 'CROSS_THREAD', text: 'private episodic' }] })
+  assert.equal(episodic.text, 'private episodic')
+  const group = composeTurnContext({ authorized: true, threadId: 'thread-1', audienceKind: 'GROUP', maxBudgetChars: 40,
+    slices: [{ id: 'episodic', source: 'MSP', scope: 'CROSS_THREAD', text: 'private episodic' }] })
+  assert.equal(group.text, '')
+  assert.ok(group.dropped.some(item => item.reason === 'AUDIENCE_SCOPE_DENIED'))
 })
 
 test('real turn runner claims, checks authority, composes, invokes the model and coordinates delivery through ports', async () => {
@@ -40,6 +49,107 @@ test('real turn runner claims, checks authority, composes, invokes the model and
   const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
   assert.equal(result.status, 'RECORDED')
   assert.deepEqual(order, ['claim', 'authority', 'context', 'MODEL_STARTED', 'credential', 'authority', 'model', 'MODEL_COMPLETED', 'CONTEXT_COMMITTED', 'complete', 'delivery'])
+})
+
+test('records API-011 injection states when a mixed API-010/API-011 packet is only partly retained', async () => {
+  const injectionStates = []
+  let appended = false
+  let providerContext = null
+  const packet = { thread: { threadId: 'thread-1' }, memory: {
+    participants: [{ principalId: 'person-1' }], protectedMemory: [],
+    recentExchanges: [{ exchangeId: 'long-exchange', messages: [{ text: 'x'.repeat(120) }] }], summaries: [],
+  } }
+  const mixedTurn = { ...turn, evidence: [{ citationId: 'gks-1', text: 'GKS' }],
+    slices: [{ id: 'episodic:api010-1', source: 'MSP', scope: 'CROSS_THREAD', text: 'episodic fact' }],
+    audienceKind: 'DIRECT', threadId: 'thread-1', maxBudgetChars: 50, memorySync: true }
+  const ports = {
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async (_claim, result) => ({ status: 'READY', ...result }), status: async () => ({ status: 'CLAIMED' }), fail: async () => {} },
+    authority: { resolve: async () => ({ authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId,
+        identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare: async () => mixedTurn },
+    workTool: { execute: async () => assert.fail('normal turn should not call WorkToolPort'), status: async () => ({ status: 'NOT_FOUND' }) },
+    memory: {
+      read: async () => ({ status: 'COMPLETED', result: { contextPacket: packet } }),
+      receipt: async (_claim, kind, input) => {
+        if (kind === 'injection') injectionStates.push(input.state)
+        if (kind === 'append') return appended ? { status: 'COMPLETED', result: { receipt: {
+          textSha256: createHash('sha256').update('supported answer', 'utf8').digest('hex') } } } : { status: 'NOT_FOUND' }
+        return { status: 'COMPLETED' }
+      },
+      append: async () => {
+        appended = true
+        return { status: 'COMPLETED', result: { receipt: {
+          textSha256: createHash('sha256').update('supported answer', 'utf8').digest('hex') } } }
+      },
+    },
+    model: { credential: async () => ({ provider: 'fake' }), generate: async input => {
+      providerContext = input.contextPacket.text
+      return 'supported answer'
+    } },
+    delivery: { send: async () => ({ status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
+    trace: { append: async () => {}, status: async () => ({ status: 'NOT_FOUND' }) },
+  }
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.deepEqual(injectionStates, ['RESOLVED', 'SUBMITTED', 'COMPLETED'])
+  assert.match(providerContext, /person-1/)
+  assert.match(providerContext, /episodic fact/)
+  assert.doesNotMatch(providerContext, /long-exchange/)
+})
+
+test('revalidates API-010 authority after pre-provider injection receipt writes', async () => {
+  const injectionStates = []
+  let erased = false
+  let authorityCalls = 0
+  let providerCalls = 0
+  let failed
+  const packet = { thread: { threadId: 'thread-1' }, memory: {
+    participants: [{ principalId: 'person-1' }], protectedMemory: [],
+    recentExchanges: [{ exchangeId: 'exchange-1', messages: [{ text: 'private API-011 text' }] }], summaries: [],
+  } }
+  const mixedTurn = { ...turn, evidence: [{ citationId: 'gks-1', text: 'GKS' }],
+    slices: [{ id: 'episodic:api010-1', source: 'MSP', scope: 'CROSS_THREAD', text: 'private API-010 fact' }],
+    audienceKind: 'DIRECT', threadId: 'thread-1', maxBudgetChars: 1000, memorySync: true }
+  const ports = {
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async () => assert.fail('erased turn must not complete'), status: async () => ({ status: 'CLAIMED' }),
+      fail: async (_claim, result) => { failed = result } },
+    authority: { resolve: async () => {
+      authorityCalls += 1
+      if (erased && authorityCalls > 1) throw Object.assign(new Error('PDPA_ERASURE'), { code: 'PDPA_ERASURE', status: 409 })
+      return { authorized: true, version: 1,
+        scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId,
+          identityId: 'identity-1', identityVersion: 1 } }
+    } },
+    context: { prepare: async () => mixedTurn },
+    workTool: { execute: async () => assert.fail('normal turn should not call WorkToolPort'), status: async () => ({ status: 'NOT_FOUND' }) },
+    memory: {
+      read: async () => ({ status: 'COMPLETED', result: { contextPacket: packet } }),
+      receipt: async (_claim, kind, input) => {
+        if (kind === 'injection') {
+          injectionStates.push(input.state)
+          if (input.state === 'SUBMITTED') erased = true
+        }
+        if (kind === 'append') return { status: 'NOT_FOUND' }
+        return { status: 'COMPLETED' }
+      },
+      append: async (_claim, _answer) => ({ status: 'COMPLETED', result: { receipt: {
+        textSha256: createHash('sha256').update('supported answer', 'utf8').digest('hex') } } }),
+    },
+    model: { credential: async () => ({ provider: 'fake' }), generate: async () => { providerCalls += 1; return 'supported answer' } },
+    delivery: { send: async () => assert.fail('erased turn must not deliver'), status: async () => ({ status: 'READY' }) },
+    trace: { append: async () => {}, status: async () => ({ status: 'NOT_FOUND' }) },
+  }
+
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+
+  assert.equal(providerCalls, 0)
+  assert.equal(result.status, 'FAILED')
+  assert.equal(result.code, 'PDPA_ERASURE')
+  assert.equal(failed.code, 'PDPA_ERASURE')
+  assert.deepEqual(injectionStates, ['RESOLVED', 'SUBMITTED', 'FAILED'])
 })
 
 test('revalidates identity, transport and lease after credential grant before starting the provider', async () => {

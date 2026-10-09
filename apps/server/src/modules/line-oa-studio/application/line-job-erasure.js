@@ -46,7 +46,7 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
       ],
     },
     select: { id: true, accountId: true, status: true, businessId: true, tenantId: true,
-      executionId: true, inboundMessageId: true, memorySyncOptIn: true, memoryDeliveryState: true,
+      executionId: true, inboundMessageId: true, memorySyncOptIn: true, episodicMemoryOptIn: true, memoryDeliveryState: true,
       audienceKind: true, recipientId: true, sourceUserId: true, channelAccountId: true,
     },
     orderBy: [{ accountId: 'asc' }, { id: 'asc' }],
@@ -86,6 +86,7 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
       providerRequestId: null,
       providerMessageId: null,
       errorCode: 'PDPA_ERASURE',
+      episodicMemoryOptIn: false,
       ...(job.memorySyncOptIn && job.memoryDeliveryState === 'PENDING'
         ? { memoryDeliveryState: 'CLOSED' } : {}),
       memoryDeliveryNextAttemptAt: null,

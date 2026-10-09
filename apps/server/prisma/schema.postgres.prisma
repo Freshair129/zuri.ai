@@ -1045,6 +1045,7 @@ model Project {
   projectFeatureMutationReceipts  ProjectFeatureMutationReceipt[]
 
   marketingHandoffs MarketingHandoff[]
+  lineOaMemoryAccounts LineOaAccount[] @relation("LineOaMemoryProject")
 
   @@index([businessId])
   @@index([workspaceId])
@@ -2117,6 +2118,7 @@ model Customer {
   consentRecordedAt         DateTime?
   consentRecordedByPersonId String?
   consentNote               String?
+  memoryErasureStatus       String    @default("NONE")
 
   tenant                Tenant                         @relation(fields: [tenantId], references: [id])
   business              Business?                      @relation(fields: [businessId], references: [id])
@@ -2754,6 +2756,37 @@ model AgentTraceEvent {
   @@index([tenantId, businessId, turnId, createdAt])
   // @req FR-022 — the MSP memory erasure scanner's keyset page (kind, then oldest first).
   @@index([kind, occurredAt, id])
+}
+
+// @req FR-231, FR-232 — durable identifiers for each API-011 message append;
+// no content, provider identity, or cross-domain FK. Outbound CRM identity is
+// attached only when the delivery scanner settles the accepted LINE message.
+model MemoryProjectionReceipt {
+  id                       String    @id @default(uuid())
+  tenantId                 String
+  businessId               String
+  lineConversationJobId    String
+  crmMessageId             String?
+  principalId              String
+  direction                String
+  episodicMemoryOptIn      Boolean   @default(false)
+  mspThreadId              String
+  mspSessionId             String
+  mspMessageId             String
+  mspExchangeId            String
+  acknowledgedAt           DateTime
+  deliveryState            String    @default("PENDING")
+  deliveryAcknowledgedAt   DateTime?
+  deliveryReceiptId        String?
+  erasureStatus            String    @default("ACTIVE")
+  erasureReceiptId         String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  @@unique([lineConversationJobId, direction], map: "MemoryProjectionReceipt_job_direction_key")
+  @@unique([crmMessageId, direction], map: "MemoryProjectionReceipt_crm_direction_key")
+  @@index([tenantId, principalId, erasureStatus], map: "MemoryProjectionReceipt_erasure_lookup_idx")
+  @@index([businessId, createdAt], map: "MemoryProjectionReceipt_business_created_idx")
 }
 
 // @req FR-277 — one diagnostic-only row per SERVER LINE job answered while its
@@ -4119,6 +4152,11 @@ model LineOaAccount {
   // runs after it and is recorded in `LineGroundingShadowComparison`, never
   // sent to the customer (line-grounding-shadow-compare.js).
   knowledgeGroundingShadow Boolean              @default(false)
+  // @req FR-231 — memory projection stays off until the publisher opts in.
+  memoryPolicy            String                @default("OFF")
+  // @req FR-057 — Publisher-selected Development Project for API-010 scope;
+  // Workspace is derived from this Project at admission and revalidated per use.
+  memoryProjectId         String?
   allowDelayedPush        Boolean               @default(false)
   transportEpoch          Int                   @default(1)
   // @req FR-227 — computed webhook health only LINE can report: {endpoint, active,
@@ -4148,11 +4186,13 @@ model LineOaAccount {
   tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business   Business              @relation(fields: [businessId], references: [id], onDelete: Cascade)
   connection IntegrationConnection @relation(fields: [integrationConnectionId], references: [id])
+  memoryProject Project? @relation("LineOaMemoryProject", fields: [memoryProjectId], references: [id], onDelete: SetNull)
   richMenus  LineOaRichMenu[]
 
   @@unique([tenantId, code])
   @@unique([tenantId, bindingCode])
   @@index([businessId, status])
+  @@index([memoryProjectId])
 }
 
 // FR-151 — a rich menu design of one LineOaAccount (ADR-060 D3): identity,
@@ -4349,6 +4389,9 @@ model LineConversationJob {
   acceptedAt                  DateTime?
   errorCode                   String?
   memorySyncOptIn             Boolean   @default(false)
+  episodicMemoryOptIn         Boolean   @default(false)
+  episodicWorkspaceId         String?
+  episodicProjectId           String?
   memoryDeliveryState         String    @default("NONE")
   memoryDeliveryAttempts      Int       @default(0)
   memoryDeliveryNextAttemptAt DateTime?

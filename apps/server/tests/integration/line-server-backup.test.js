@@ -3,12 +3,14 @@
 // @tested tests/integration/line-server-backup.test.js
 import { describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
-import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
+import { createPortfolio, createTenant, createBusiness, createWorkspace } from '../factories/scope'
+import { createProject } from '@/modules/project-manager/application/project-service'
 import { makeOperatorViewer, makeViewer } from '../factories/viewer'
 import { provisionLineServerConnection } from '@/modules/integration/application/line-server-provisioning-service'
 import { connectLineOaAccount } from '@/modules/line-oa-studio/application/line-oa-account-service'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
-import { exportSnapshot, importSnapshot, LINE_WORKER_MEMORY_TRACE_KINDS, previewImport } from '@/modules/project-manager/application/backup-service'
+import { exportSnapshot, importSnapshot, LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION,
+  LINE_WORKER_MEMORY_TRACE_KINDS, previewImport, restoredRow } from '@/modules/project-manager/application/backup-service'
 import { MEMORY_ERASURE_KINDS, recordMemoryPrincipalErasure } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/application/line-memory-delivery'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
@@ -18,11 +20,17 @@ describe('LINE server snapshot recovery', () => {
     const portfolio = await createPortfolio({ code: 'PF-LINE-BAK', name: 'LINE Backup' })
     const tenant = await createTenant({ portfolioId: portfolio.id, code: 'TNT-LINE-BAK', name: 'LINE Backup' })
     const business = await createBusiness({ tenantId: tenant.id, code: 'BUS-LINE-BAK', name: 'LINE Backup' })
+    const scopeOwner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    const workspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: business.id,
+      name: 'LINE Backup Workspace', code: 'WS-LINE-BAK' })
+    const project = await createProject({ workspaceId: workspace.id, businessId: business.id,
+      name: 'LINE Backup Project', code: 'PR-LINE-BAK' }, { viewer: scopeOwner })
     const viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: ['line-oa'] })
     const connection = await provisionLineServerConnection({ businessId: business.id, name: 'Backup', destination: `U${'b'.repeat(32)}`, secretRef: 'deployment-secret:backup' }, { viewer })
     const account = await connectLineOaAccount({ businessId: business.id, integrationConnectionId: connection.id, code: 'oa-backup', displayName: 'Backup' }, { viewer })
     await prisma.lineOaAccount.update({ where: { id: account.id }, data: {
       serverEnabled: true, status: 'CONNECTED', transportEpoch: 4, runtimeOwner: 'CONVERSATION_RUNTIME',
+      memoryPolicy: 'ON', memoryProjectId: project.id,
     } })
     const jobs = []
     for (const status of ['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'UNKNOWN', 'ACCEPTED', 'RECORDED', 'FAILED', 'CANCELLED']) {
@@ -35,13 +43,18 @@ describe('LINE server snapshot recovery', () => {
         recipientId: 'backup-user', sourceUserId: 'backup-user', status, sealedReplyToken: `ciphertext-${status}`,
         claimantId: 'old-worker', leaseExpiresAt: new Date(Date.now() + 60000), expiresAt: new Date(Date.now() + 60000), correlationId: `backup-${status}`,
         ...(status === 'ACCEPTED' ? { acceptedAt: new Date(), providerRequestId: 'accepted-provider-id', answerText: 'Accepted answer' } : {}),
-        ...(status === 'RECORDED' ? { memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2,
+        ...(status === 'RECORDED' ? { memorySyncOptIn: true, episodicMemoryOptIn: false, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2,
           memoryDeliveryNextAttemptAt: new Date(Date.now() - 1000), memoryDeliveryLeaseUntil: new Date(Date.now() + 60000),
           acceptedAt: new Date(), providerRequestId: 'recorded-provider-id', answerText: 'Recorded answer' } : {}),
       } }))
       if (status === 'RECORDED') {
         const outbound = await prisma.message.create({ data: { conversationId: inbound.conversationId, direction: 'OUTBOUND',
           body: 'Recorded answer', externalMessageId: `reply:${inbound.messageId}` } })
+        await prisma.memoryProjectionReceipt.create({ data: { tenantId: tenant.id, businessId: business.id,
+          lineConversationJobId: jobs.at(-1).id, principalId: 'backup-principal', direction: 'OUTBOUND',
+          episodicMemoryOptIn: false, mspThreadId: 'backup-thread-id', mspSessionId: 'backup-session-id',
+          mspMessageId: 'backup-message-id', mspExchangeId: 'backup-exchange-id', acknowledgedAt: new Date(),
+          deliveryState: 'PENDING' } })
         await appendTraceEvent(prisma, { scope: { tenantId: tenant.id, businessId: business.id }, turnId: jobs.at(-1).id,
           kind: 'MEMORY_DELIVERY_PENDING', idempotencyKey: `memory-delivery:pending:${jobs.at(-1).id}`,
           payload: { jobId: jobs.at(-1).id, inboundMessageId: inbound.messageId, outboundMessageId: outbound.id,
@@ -49,22 +62,46 @@ describe('LINE server snapshot recovery', () => {
             providerAcceptance: 'ACCEPTED_BY_LINE' } })
       }
     }
+    const episodicInbound = await ingestLineMessage({ tenantId: tenant.id, businessId: business.id,
+      channelAccountId: account.id, lineUserId: 'backup-user', threadId: 'backup-thread',
+      text: 'API-010 only', externalMessageId: 'backup-api010-only' })
+    const episodicJob = await prisma.lineConversationJob.create({ data: {
+      accountId: account.id, inboundMessageId: episodicInbound.messageId, eventId: 'backup-api010-only',
+      tenantId: tenant.id, businessId: business.id, channelAccountId: account.id, transportEpoch: 4,
+      executionMode: 'SERVER', runtimeOwner: 'CONVERSATION_RUNTIME', modelAccess: 'EXTERNAL_MODEL_ALLOWED',
+      recipientId: 'backup-user', sourceUserId: 'backup-user', audienceKind: 'DIRECT', status: 'RECORDED',
+      memorySyncOptIn: false, episodicMemoryOptIn: true, episodicWorkspaceId: workspace.id,
+      episodicProjectId: project.id, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
+      expiresAt: new Date(Date.now() + 60000), correlationId: 'backup-api010-only',
+      acceptedAt: new Date(), providerRequestId: 'api010-only-provider-id', answerText: 'Episodic answer',
+    } })
     const snapshot = await exportSnapshot()
     const exported = snapshot.tables.lineConversationJob.filter(job => job.accountId === account.id)
-    expect(exported).toHaveLength(jobs.length)
-    expect(snapshot.lineWorkerMemoryRecovery).toEqual({ schemaVersion: 'line-worker-memory-recovery.v1', requiredTables: ['lineConversationJob', 'agentTraceEvent'] })
+    expect(exported).toHaveLength(jobs.length + 1)
+    expect(snapshot.lineWorkerMemoryRecovery).toEqual({ schemaVersion: LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION,
+      requiredTables: ['lineConversationJob', 'agentTraceEvent', 'memoryProjectionReceipt'] })
     expect(exported.every(job => !Object.hasOwn(job, 'sealedReplyToken'))).toBe(true)
     expect(JSON.stringify(snapshot)).not.toContain('ciphertext-')
+    const compatibleV2 = structuredClone(snapshot)
+    compatibleV2.lineWorkerMemoryRecovery.schemaVersion = 'line-worker-memory-recovery.v2'
+    expect((await previewImport(compatibleV2, { viewer: makeOperatorViewer() })).valid).toBe(true)
+    const missingEpisodicScope = structuredClone(snapshot)
+    const missingScopeJob = missingEpisodicScope.tables.lineConversationJob.find(job => job.id === episodicJob.id)
+    missingScopeJob.episodicProjectId = null
+    const missingScopePreview = await previewImport(missingEpisodicScope, { viewer: makeOperatorViewer() })
+    expect(missingScopePreview.valid).toBe(false)
+    expect(missingScopePreview.lineWorkerMemoryRecovery.errors.join(' ')).toMatch(/DIRECT trusted workspace\/project scope/)
     const corrupt = structuredClone(snapshot)
     const corruptJob = corrupt.tables.lineConversationJob.find(job => job.id === jobs.find((job) => job.status === 'RECORDED').id)
     corruptJob.memorySyncOptIn = false
+    corruptJob.episodicMemoryOptIn = true
     corruptJob.memoryDeliveryAttempts = -1
     corruptJob.memoryDeliveryState = 'ACKNOWLEDGED'
     corruptJob.memoryDeliveryNextAttemptAt = new Date()
     corruptJob.audienceKind = 'NOT_A_LINE_AUDIENCE'
     const corruptPreview = await previewImport(corrupt, { viewer: makeOperatorViewer() })
     expect(corruptPreview.valid).toBe(false)
-    expect(corruptPreview.lineWorkerMemoryRecovery.errors.join(' ')).toMatch(/invalid memoryDeliveryAttempts|invalid audienceKind|retry cursor on a terminal state|pending memory/)
+    expect(corruptPreview.lineWorkerMemoryRecovery.errors.join(' ')).toMatch(/episodic memory|invalid memoryDeliveryAttempts|invalid audienceKind|retry cursor on a terminal state|pending memory/)
     const foreignTrace = structuredClone(snapshot)
     const foreign = foreignTrace.tables.agentTraceEvent.find(event => event.kind === 'MEMORY_DELIVERY_PENDING' && event.turnId === jobs.find(job => job.status === 'RECORDED').id)
     foreign.businessId = 'foreign-business'
@@ -82,12 +119,18 @@ describe('LINE server snapshot recovery', () => {
     expect(legacyPreview.valid).toBe(false)
     expect(legacyPreview.lineWorkerMemoryRecovery.status).toBe('UNAVAILABLE')
     expect(legacyPreview.errors.join(' ')).toMatch(/enrolled jobs or memory evidence/)
+    expect(restoredRow('lineConversationJob', exported.find(job => job.id === episodicJob.id),
+      { lineWorkerMemoryRecovery: legacyPreview.lineWorkerMemoryRecovery })).toMatchObject({
+      memorySyncOptIn: false, episodicMemoryOptIn: false, episodicWorkspaceId: null, episodicProjectId: null })
     // Even an older or tampered snapshot cannot reintroduce a sealed token.
     for (const job of exported) job.sealedReplyToken = 'injected-restored-token'
     const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
     expect(result.restored).toBe(true)
     const restoredAccount = await prisma.lineOaAccount.findUnique({ where: { id: account.id } })
-    expect(restoredAccount).toMatchObject({ serverEnabled: false, transportEpoch: 5, runtimeOwner: 'CONVERSATION_RUNTIME' })
+    expect(restoredAccount).toMatchObject({ serverEnabled: false, transportEpoch: 5, runtimeOwner: 'CONVERSATION_RUNTIME', memoryProjectId: project.id })
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: episodicJob.id } })).toMatchObject({
+      status: 'RECORDED', memorySyncOptIn: false, episodicMemoryOptIn: true,
+      episodicWorkspaceId: workspace.id, episodicProjectId: project.id, memoryDeliveryState: 'NONE' })
     for (const original of jobs) {
       const restored = await prisma.lineConversationJob.findUnique({ where: { id: original.id }, include: { inbound: true, account: true } })
       expect(restored).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', sealedReplyToken: null,
@@ -98,7 +141,7 @@ describe('LINE server snapshot recovery', () => {
       else if (original.status === 'SENDING' || original.status === 'READY') expect(restored).toMatchObject({ status: 'UNKNOWN', errorCode: 'RESTORED_SEND_OUTCOME_UNKNOWN' })
       else expect(restored.status).toBe(original.status)
       if (original.status === 'ACCEPTED') expect(restored).toMatchObject({ providerRequestId: 'accepted-provider-id', answerText: 'Accepted answer', acceptedAt: original.acceptedAt })
-      if (original.status === 'RECORDED') expect(restored).toMatchObject({ memorySyncOptIn: true, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2, memoryDeliveryLeaseUntil: null })
+      if (original.status === 'RECORDED') expect(restored).toMatchObject({ memorySyncOptIn: true, episodicMemoryOptIn: false, memoryDeliveryState: 'PENDING', memoryDeliveryAttempts: 2, memoryDeliveryLeaseUntil: null })
     }
     const recordDelivery = vi.fn()
     // The scanner is an installation-wide worker by design (it has no tenant
@@ -114,7 +157,8 @@ describe('LINE server snapshot recovery', () => {
       const value = Reflect.get(target, prop)
       return typeof value === 'function' ? value.bind(target) : value
     } })
-    const memoryRun = await reconcileLineMemoryDeliveries({ db: scopedDb, threadMemory: { recordDelivery }, now: () => new Date(), workerId: 'restored-memory-scanner', policyResolver: vi.fn() })
+    const memoryRun = await reconcileLineMemoryDeliveries({ db: scopedDb, env: { ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' },
+      threadMemory: { recordDelivery }, now: () => new Date(), workerId: 'restored-memory-scanner', policyResolver: vi.fn() })
     expect(memoryRun.closed).toBe(1)
     expect(recordDelivery).not.toHaveBeenCalled()
     expect((await prisma.lineConversationJob.findUnique({ where: { id: jobs.find((job) => job.status === 'RECORDED').id } })).memoryDeliveryState).toBe('CLOSED')
@@ -137,6 +181,8 @@ describe('LINE server snapshot recovery', () => {
       if (prop === 'lineConversationJob') return scoped(target.lineConversationJob, async () => 0)
       if (prop === 'agentTraceEvent') return scoped(target.agentTraceEvent,
         (args = {}) => target.agentTraceEvent.count({ ...args, where: { AND: [args.where ?? {}, { tenantId: tenant.id }] } }))
+      if (prop === 'memoryProjectionReceipt') return scoped(target.memoryProjectionReceipt,
+        (args = {}) => target.memoryProjectionReceipt.count({ ...args, where: { AND: [args.where ?? {}, { tenantId: tenant.id }] } }))
       const value = Reflect.get(target, prop)
       return typeof value === 'function' ? value.bind(target) : value
     } })

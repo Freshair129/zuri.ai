@@ -1,0 +1,87 @@
+name: scoped-verification-qualification
+
+# Manual evidence only. No output from this workflow authorizes a job omission.
+on:
+  workflow_dispatch:
+    inputs:
+      control_run_id:
+        description: Successful full governance main-push run at this exact main commit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  qualify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Record Edge toolchain
+        shell: pwsh
+        run: '"Q1_EDGE_NODE_VERSION=$(node --version)" >> $env:GITHUB_ENV'
+
+      - name: Restore Edge contract consumer dependencies
+        id: edge-deps
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/edge/node_modules
+          key: ${{ runner.os }}-edge-nm-node24-${{ hashFiles('apps/edge/package-lock.json') }}
+      - name: Install Edge consumer
+        if: steps.edge-deps.outputs.cache-hit != 'true'
+        working-directory: apps/edge
+        run: npm ci --no-audit --no-fund
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore Server dependencies
+        id: server-deps
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ runner.os }}-server-nm-node22-${{ hashFiles('apps/server/package-lock.json', 'apps/server/prisma/schema.prisma', 'apps/server/scripts/generate-prisma-clients.mjs', 'apps/server/scripts/gen-postgres-schema.mjs') }}
+      - name: Install Server
+        if: steps.server-deps.outputs.cache-hit != 'true'
+        working-directory: apps/server
+        run: npm ci --no-audit --no-fund
+
+      - name: Qualification control regressions
+        run: node --test tools/tests/verification-plan.test.mjs tools/tests/verification-qualify.test.mjs
+
+      - name: Windows qualification lifecycle regressions
+        timeout-minutes: 2
+        run: node --test --test-timeout=120000 tools/tests/verification-process-win.test.mjs
+
+      - name: Build the doc graph the tests read
+        working-directory: apps/server
+        run: npm run docs:graph
+
+      - name: Qualify Runtime Core consumers
+        shell: pwsh
+        env:
+          CONTROL_RUN_ID: ${{ inputs.control_run_id }}
+          GITHUB_TOKEN: ${{ github.token }}
+          Q1_EDGE_CACHE_HIT: ${{ steps.edge-deps.outputs.cache-hit == 'true' && 'hit' || 'miss' }}
+          Q1_SERVER_CACHE_HIT: ${{ steps.server-deps.outputs.cache-hit == 'true' && 'hit' || 'miss' }}
+        run: node scripts/verification-qualify.mjs --control-run-id "$env:CONTROL_RUN_ID" --output "$env:RUNNER_TEMP/runtime-qualification"
+
+      - name: Keep qualification evidence, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-qualification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/runtime-qualification/
+          if-no-files-found: error
+          retention-days: 14

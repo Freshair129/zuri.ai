@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "id": "conversation-runtime",
+  "root": "services/conversation-runtime",
+  "mode": "shadow",
+  "documents": [
+    "docs/services/conversation-runtime/SERVICE.md",
+    "docs/services/conversation-runtime/TESTING.md"
+  ],
+  "domainRefs": [
+    "docs/domains/agent/CHARTER.md",
+    "docs/domains/line-oa-studio/CHARTER.md"
+  ],
+  "contract": "services/conversation-runtime/contracts/v1/operation.schema.json",
+  "tasks": { "test": "test", "build": "build" },
+  "additionalCoreTests": [
+    "apps/server/tests/integration/conversation-runtime-grounding-parity.test.js",
+    "apps/server/tests/integration/openapi-docs.test.js",
+    "apps/server/tests/unit/line-job-answer-text-marker.test.js"
+  ]
+}

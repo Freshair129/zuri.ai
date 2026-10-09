@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { appendTraceEvent, redactTraceTurn } from '@/modules/agent/execution-trace'
+import { acknowledgeMemoryProjectionErasure, markMemoryProjectionErasurePending } from './line-memory-projection'
 
 // @req FR-022, FR-149 — erasing a person also erases what MSP thread memory holds of
 //   them. Owner decision 2026-09-28 (option A): every person with memory-sync data
@@ -72,8 +73,10 @@ const uuidShape = hex => `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12,
  * replayed writes the same record, and a later erasure of the same person covering
  * newer turns gets a record of its own instead of meeting a closed, redacted one.
  */
-export function memoryErasureTurnId({ tenantId, principalId, jobIds = [] }) {
-  const request = createHash('sha256').update(JSON.stringify([...new Set(jobIds)].sort())).digest('hex')
+export function memoryErasureTurnId({ tenantId, principalId, jobIds = [], eraseVault = false }) {
+  const sortedJobIds = [...new Set(jobIds)].sort()
+  const requestShape = eraseVault ? { jobIds: sortedJobIds, eraseVault: true } : sortedJobIds
+  const request = createHash('sha256').update(JSON.stringify(requestShape)).digest('hex')
   return uuidShape(createHash('sha256').update(JSON.stringify(['msp-principal-erasure', tenantId, principalId, request])).digest('hex'))
 }
 
@@ -92,20 +95,29 @@ export async function recordMemoryPrincipalErasure(tx, { tenantId, principalId, 
     && typeof job.businessId === 'string' && job.businessId
     && (job.audienceKind === 'DIRECT' || own.has(`${job.channelAccountId}|${job.sourceUserId}`)))
   if (!synced.length) return { pendingPrincipalErasures: 0 }
+  const priorEpisodicReceipt = tx.memoryProjectionReceipt?.findFirst
+    ? await tx.memoryProjectionReceipt.findFirst({ where: { tenantId, principalId, episodicMemoryOptIn: true,
+      erasureStatus: { not: 'ERASED' } }, select: { id: true } })
+    : null
+  const eraseVault = synced.some(job => job.episodicMemoryOptIn === true) || Boolean(priorEpisodicReceipt)
   const turnId = memoryErasureTurnId({ tenantId, principalId,
-    jobIds: synced.map(job => job.id ?? `${job.channelAccountId}|${job.recipientId}|${job.sourceUserId}`) })
+    jobIds: synced.map(job => job.id ?? `${job.channelAccountId}|${job.recipientId}|${job.sourceUserId}`), eraseVault })
   // The trace needs one Business scope; the erase itself is tenant-wide.
   const businessId = synced.map(job => job.businessId).sort()[0]
   const audiences = [...new Set(synced.map(job => job.audienceKind))].sort()
   try {
     await appendTraceEvent(tx, { scope: { tenantId, businessId }, turnId, executionId: null,
       kind: MEMORY_ERASURE_KINDS.pending, idempotencyKey: `${turnId}:pending`,
-      payload: { scope: MEMORY_ERASURE_SCOPE, principalId, audiences, idempotencyKey: `msp-principal-erasure:${turnId}` }, occurredAt: now })
+      payload: { scope: MEMORY_ERASURE_SCOPE, principalId, audiences, idempotencyKey: `msp-principal-erasure:${turnId}`,
+        ...(eraseVault ? { eraseVault: true } : {}) }, occurredAt: now })
   } catch (error) {
     // Already erased and acknowledged: that record's turn is closed and redacted.
     if (error?.code !== 'EXECUTION_TRACE_TURN_REDACTED') throw error
     return { pendingPrincipalErasures: 0 }
   }
+  if (tx.memoryProjectionReceipt?.updateMany) await markMemoryProjectionErasurePending(tx, { tenantId, principalId })
+  if (tx.customer?.updateMany) await tx.customer.updateMany({ where: { tenantId, personId: principalId },
+    data: { memoryErasureStatus: 'PENDING_MSP' } })
   return { pendingPrincipalErasures: 1 }
 }
 
@@ -116,6 +128,30 @@ function backoff(attemptNumber) {
 const safeCode = error => {
   const code = error?.code ?? error?.message
   return typeof code === 'string' && /^[A-Z0-9_:-]{1,80}$/.test(code) ? code : 'MSP_ERASURE_FAILED'
+}
+
+function parsedPayload(event) {
+  try { return JSON.parse(event?.payloadJson ?? '{}') } catch { return {} }
+}
+
+function erasureReceiptId(value) {
+  const id = value?.erasureReceiptId ?? value?.erasure_receipt_id
+  return typeof id === 'string' && id.trim() ? id.trim() : null
+}
+
+async function finalizeErasure(db, { scope, row, request, receiptId, attemptNumber, at, writeAcknowledgement = true }) {
+  if (!receiptId) throw Object.assign(new Error('MSP_ERASURE_RECEIPT_REQUIRED'), { code: 'MSP_ERASURE_RECEIPT_REQUIRED' })
+  const finalize = async tx => {
+    if (writeAcknowledgement) await appendTraceEvent(tx, { scope, turnId: row.turnId, executionId: null, kind: MEMORY_ERASURE_KINDS.acknowledged,
+      idempotencyKey: `${row.turnId}:acknowledged`,
+      payload: { acknowledgedAt: at.toISOString(), attemptNumber, erasureReceiptId: receiptId }, occurredAt: at })
+    if (tx.memoryProjectionReceipt?.updateMany) {
+      await acknowledgeMemoryProjectionErasure(tx, { tenantId: request.tenantId,
+        principalId: request.principalId, erasureReceiptId: receiptId })
+    }
+    await redactTraceTurn(tx, { scope, turnId: row.turnId, now: at })
+  }
+  return typeof db?.$transaction === 'function' ? db.$transaction(finalize) : finalize(db)
 }
 
 function defaultAlert(entry) {
@@ -139,9 +175,10 @@ function erasureRequest(row) {
   const principalId = payload?.principalId
   const idempotencyKey = payload?.idempotencyKey
   if (typeof principalId !== 'string' || !principalId || typeof idempotencyKey !== 'string' || !idempotencyKey) return null
+  if (payload.eraseVault !== undefined && typeof payload.eraseVault !== 'boolean') return null
   // Both shapes erase in the record's own tenant: a per-thread record's route names
   // the same tenant, and MSP's erase takes no thread anyway.
-  return { tenantId: row.tenantId, principalId, idempotencyKey }
+  return { tenantId: row.tenantId, principalId, idempotencyKey, eraseVault: payload.eraseVault === true }
 }
 
 // Candidate pages read per tick. A page holds at most this many open records.
@@ -268,8 +305,21 @@ export async function reconcileLineMemoryErasures({ db = prisma, threadMemory, n
   for (const row of rows) {
     const scope = { tenantId: row.tenantId, businessId: row.businessId }
     const events = await db.agentTraceEvent.findMany({ where: { ...scope, turnId: row.turnId } })
-    if (events.some(event => event.kind === MEMORY_ERASURE_KINDS.acknowledged)) {
-      await redactTraceTurn(db, { scope, turnId: row.turnId, now: at })
+    const priorAcknowledgement = events.find(event => event.kind === MEMORY_ERASURE_KINDS.acknowledged)
+    if (priorAcknowledgement) {
+      const request = erasureRequest(row)
+      if (!request) continue
+      let receiptId = erasureReceiptId(parsedPayload(priorAcknowledgement))
+      if (!receiptId) {
+        try {
+          const recovered = await threadMemory.erasePrincipalInTenant({ tenantId: request.tenantId,
+            principalId: request.principalId, idempotencyKey: request.idempotencyKey,
+            authorization: erasureAuthorization(request.tenantId), eraseVault: request.eraseVault })
+          receiptId = erasureReceiptId(recovered)
+        } catch { continue }
+      }
+      await finalizeErasure(db, { scope, row, request, receiptId, attemptNumber: 0, at, writeAcknowledgement: false })
+      result.acknowledged += 1
       continue
     }
     const attemptNumber = events.filter(event => event.kind === MEMORY_ERASURE_KINDS.attempt).length + 1
@@ -282,11 +332,11 @@ export async function reconcileLineMemoryErasures({ db = prisma, threadMemory, n
       const request = erasureRequest(row)
       if (!request) throw Object.assign(new Error('MEMORY_ERASURE_RECORD_INVALID'), { code: 'MEMORY_ERASURE_RECORD_INVALID' })
       const erased = await threadMemory.erasePrincipalInTenant({ tenantId: request.tenantId, principalId: request.principalId,
-        idempotencyKey: request.idempotencyKey, authorization: erasureAuthorization(request.tenantId) })
-      if (!erased || typeof erased !== 'object') throw Object.assign(new Error('MSP_ERASURE_UNACKNOWLEDGED'), { code: 'MSP_ERASURE_UNACKNOWLEDGED' })
-      await appendTraceEvent(db, { scope, turnId: row.turnId, executionId: null, kind: MEMORY_ERASURE_KINDS.acknowledged,
-        idempotencyKey: `${row.turnId}:acknowledged`, payload: { acknowledgedAt: at.toISOString(), attemptNumber }, occurredAt: at })
-      await redactTraceTurn(db, { scope, turnId: row.turnId, now: at })
+        idempotencyKey: request.idempotencyKey, authorization: erasureAuthorization(request.tenantId),
+        eraseVault: request.eraseVault })
+      const receiptId = erasureReceiptId(erased)
+      if (!receiptId) throw Object.assign(new Error('MSP_ERASURE_RECEIPT_REQUIRED'), { code: 'MSP_ERASURE_RECEIPT_REQUIRED' })
+      await finalizeErasure(db, { scope, row, request, receiptId, attemptNumber, at })
       result.acknowledged += 1
     } catch (error) {
       const code = safeCode(error)

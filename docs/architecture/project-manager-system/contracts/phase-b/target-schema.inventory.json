@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06",
+  "schemaSha256": "19bebd6e40dbaf43bfae5a99d54d29ebf33576add850b45525033f516d09405a",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -582,6 +582,11 @@
       "tableName": "Membership"
     },
     {
+      "modelName": "MemoryProjectionReceipt",
+      "schemaName": "public",
+      "tableName": "MemoryProjectionReceipt"
+    },
+    {
       "modelName": "Message",
       "schemaName": "public",
       "tableName": "Message"
@@ -991,5 +996,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e"
+  "targetSchemaSha256": "40815083980a80c6d3c3237b1f9db5bf9c1c6c93682beb360a060a93996e50bb"
 }

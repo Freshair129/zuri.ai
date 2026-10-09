@@ -9,6 +9,8 @@ import {
 } from '@/modules/agent/line-knowledge-grounding'
 import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
 import { createCorpusKnowledgeReader } from '@/modules/knowledge/corpus-knowledge-reader'
+import { DEFAULT_CONTEXT_BUDGET_CHARS } from '@/modules/agent/context-composer'
+import { assertLineEpisodicMemoryJobLive, mspPacketSlices, readAuthorizedLineEpisodicMemory } from '@/modules/agent/server-line-answer'
 import {
   parseLineProjectWorkCommand, searchLineProjectWork, proposeLineWork, confirmLineWork, isLineWorkDomainError,
   lineProjectWorkSyntaxReply, lineWorkConfirmText, lineWorkErrorReply, lineWorkProposalText, lineWorkReadText,
@@ -205,12 +207,14 @@ function safeResponse(data) {
 // never touches the question, which admission already bounded.
 function fitPreparedTurn(result) {
   const records = result?.evidence?.records
-  if (!Array.isArray(records)) return result
-  const kept = [...records]
+  const keptRecords = Array.isArray(records) ? [...records] : []
+  const keptSlices = Array.isArray(result?.slices) ? [...result.slices] : []
   const bytes = () => Buffer.byteLength(JSON.stringify({ contractVersion: VERSION, ok: true,
-    data: { ...result, evidence: { ...result.evidence, records: kept } } }), 'utf8')
-  while (kept.length && bytes() > MAX_RESPONSE_BYTES) kept.pop()
-  return kept.length === records.length ? result : { ...result, evidence: { ...result.evidence, records: kept } }
+    data: { ...result, evidence: { ...result.evidence, records: keptRecords }, slices: keptSlices } }), 'utf8')
+  while (keptRecords.length && bytes() > MAX_RESPONSE_BYTES) keptRecords.pop()
+  while (keptSlices.length && bytes() > MAX_RESPONSE_BYTES) keptSlices.pop()
+  return keptRecords.length === records?.length && keptSlices.length === result?.slices?.length ? result
+    : { ...result, evidence: { ...result.evidence, records: keptRecords }, slices: keptSlices }
 }
 
 function validateResult(operation, data, request) {
@@ -417,10 +421,11 @@ export function createCorePrepareTurn({ db = prisma, env = process.env, now = ()
     if (workReply) return { question, evidence: { records: [] }, slices: [], authorized: true,
       audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null, workReply }
     if (!conversationRuntimeServesGroundingMode(job.account.knowledgeGrounding)) throw error('RUNTIME_GROUNDING_MODE_NOT_SUPPORTED', 409)
-    // @req FR-235 — a memory-sync turn under a corpus mode reads its knowledge in
-    // Core `memory read`, after the MSP phases and composed with the thread under
-    // one budget, as the legacy worker does; `prepare` reads nothing for it.
-    if (isMemoryTurn(job) && resolveLineKnowledgeGroundingMode(job.account.knowledgeGrounding) !== 'BUSINESS_KNOWLEDGE') {
+    // @req FR-235 — when API-011 owns this turn's memory read, it fetches corpus
+    // knowledge after the MSP phases and composes both under one budget. With
+    // API-011 disabled, `prepare` must retain the independent GKS read.
+    if (isMemoryTurn(job) && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+      && resolveLineKnowledgeGroundingMode(job.account.knowledgeGrounding) !== 'BUSINESS_KNOWLEDGE') {
       return { question, evidence: { records: [] }, slices: [], authorized: true, audienceKind: job.audienceKind,
         threadId: null, maxBudgetChars: 0, workCommand: null }
     }
@@ -430,6 +435,16 @@ export function createCorePrepareTurn({ db = prisma, env = process.env, now = ()
     if (Buffer.byteLength(JSON.stringify(result.evidence), 'utf8') > 32 * 1024) throw error('TURN_EVIDENCE_TOO_LARGE', 413)
     return result
   }
+}
+
+async function episodicSlicesForRuntime({ env, job, identityState, businessPorts, authorizationResolver, memoryStateReader }) {
+  const recalled = await readAuthorizedLineEpisodicMemory({ job, identityState, authorizationResolver, env,
+    memoryStateReader, memoryPort: async () => (await businessPorts())?.episodicMemory })
+  if (!recalled.allowed) return []
+  const slices = mspPacketSlices(null, recalled.entries)
+    .slice(0, 64).map(slice => ({ id: slice.id, source: 'MSP', scope: 'CROSS_THREAD', text: JSON.stringify(slice.text) }))
+  if (Buffer.byteLength(JSON.stringify(slices), 'utf8') > 32 * 1024) throw error('TURN_SLICES_TOO_LARGE', 413)
+  return slices
 }
 
 function reply(status, body) {
@@ -464,6 +479,14 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   })
   const prepare = prepareTurn ?? createCorePrepareTurn({ db, env, now, businessPorts: getBusinessPorts, corpusReaderFactory })
   const groundingQuery = createCoreGroundingQuery({ db, env, now, businessPorts: getBusinessPorts, corpusReaderFactory })
+  const episodicAuthorizationResolver = memoryAuthorizationResolver
+  const episodicMemoryStateReader = id => db.lineConversationJob.findUnique({ where: { id }, select: {
+    id: true, tenantId: true, businessId: true, channelAccountId: true, sourceUserId: true, eventId: true,
+    audienceKind: true, memorySyncOptIn: true, episodicMemoryOptIn: true, episodicWorkspaceId: true,
+    episodicProjectId: true, status: true, version: true, errorCode: true, transportEpoch: true,
+    account: { select: { id: true, tenantId: true, businessId: true, bindingCode: true, memoryProjectId: true,
+      serverEnabled: true, transportMode: true, status: true, transportEpoch: true } },
+  } })
 
   // @req FR-210 — the `#sku` decision is made once per job and stored by Core.
   // Only a message that parses as `#sku` has one. The first `prepare` authorizes
@@ -706,6 +729,10 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       }
       case 'resolve': {
         const { job, identity, identityState } = await ownedClaim(claimRef)
+        if (job.episodicMemoryOptIn === true && env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true') {
+          await assertLineEpisodicMemoryJobLive({ job, identityState, env, memoryStateReader: episodicMemoryStateReader,
+            authorizationResolver: episodicAuthorizationResolver })
+        }
         // @req FR-149 — an unverified sender's turn has account and Business scope and no person.
         if (identityState === 'UNVERIFIED') return { authorized: true, version: job.version, scope: { tenantId: job.tenantId,
           businessId: job.businessId, accountId: job.accountId, identityId: null, identityVersion: null, identityState: 'UNVERIFIED' } }
@@ -729,12 +756,19 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         const catalogTurn = await catalogCommandTurn(job, identityState)
         if (catalogTurn) return catalogTurn
         const prepared = await prepare(job, { deadlineAt: envelope.deadlineAt })
-        const turn = fitPreparedTurn(prepared)
+        const episodicSlices = prepared?.workCommand == null && prepared?.workReply == null
+          ? await episodicSlicesForRuntime({ env, job, identityState, businessPorts: getBusinessPorts,
+            authorizationResolver: episodicAuthorizationResolver, memoryStateReader: episodicMemoryStateReader }) : []
+        const turn = fitPreparedTurn(episodicSlices.length
+          ? { ...prepared, slices: [...(prepared.slices ?? []), ...episodicSlices],
+            maxBudgetChars: prepared.maxBudgetChars || DEFAULT_CONTEXT_BUDGET_CHARS }
+          : prepared)
         await traceEvidenceTrimmed(db, job, { phase: 'prepare', recordsBefore: prepared?.evidence?.records?.length,
           recordsKept: turn?.evidence?.records?.length, now })
         // An opted-in turn tells the runtime to run the memory phases; a Work
         // command (or its fixed reply) never touches memory, as in the legacy worker.
-        return job.memorySyncOptIn === true && turn?.workCommand == null && turn?.workReply == null ? { ...turn, memorySync: true } : turn
+        return job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+          && turn?.workCommand == null && turn?.workReply == null ? { ...turn, memorySync: true } : turn
       }
       case 'credential': {
         const { job } = await ownedClaim(claimRef)
@@ -755,7 +789,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         // its own pin is Core's admission snapshot, checked when READY is committed.
         const catalog = runtimeOutOfHoursReply(job) !== null ? null : await requiredCatalogDecision(job)
         if (catalog?.decision === 'COMMAND' && payload.text !== catalog.replyText.trim()) throw error('CATALOG_COMMAND_REPLY_MISMATCH', 409)
-        return complete(claimRef, payload, { db, now })
+        return complete(claimRef, payload, { db, now, threadMemoryEnabled: env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true' })
       }
       case 'fail': {
         await ownedClaim(claimRef)

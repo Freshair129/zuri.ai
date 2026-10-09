@@ -51,12 +51,12 @@ function fakePorts({ order, memory = {}, generate } = {}) {
   }
 }
 
-test('a memory turn reads, records RESOLVED/SUBMITTED/COMPLETED around the model, appends, then completes', async () => {
+test('a memory turn records RESOLVED and SUBMITTED before the model, then completes the receipt and turn', async () => {
   const order = []
   const result = await createConversationRuntime({ ports: fakePorts({ order }), now }).runOne()
   assert.equal(result.status, 'RECORDED')
-  assert.deepEqual(order, ['claim', 'memory read', 'receipt RESOLVED', 'model injection_1',
-    'receipt SUBMITTED', 'receipt COMPLETED', 'receipt append',
+  assert.deepEqual(order, ['claim', 'memory read', 'receipt RESOLVED', 'receipt SUBMITTED', 'model injection_1',
+    'receipt COMPLETED', 'receipt append',
     'memory append คำตอบ', 'complete คำตอบ', 'delivery'])
 })
 
