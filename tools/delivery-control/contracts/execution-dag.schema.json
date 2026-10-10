@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/delivery-control/execution-dag.schema.json",
+  "title": "WF01 per-packet execution DAG",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind", "schemaVersion", "documentVersion", "documentId", "revision", "acceptanceRevision",
+    "packetId", "lineageId", "deliveryDagDigest", "baseCommit", "branch", "owner", "sourceDigests", "budget", "stopConditions",
+    "dependencies", "allowedFiles", "writeSet", "declaredEffects", "effects", "locks", "acceptance",
+    "authority", "environment", "modelPolicy", "roleSessions", "sharedLocks", "nodes", "parkRoutes", "approvalReceipt"
+  ],
+  "properties": {
+    "kind": { "const": "execution-dag" },
+    "schemaVersion": { "const": "execution-dag/v1" },
+    "documentVersion": { "const": 1 },
+    "documentId": { "$ref": "#/$defs/identifier" },
+    "revision": { "type": "integer", "minimum": 1 },
+    "acceptanceRevision": { "type": "integer", "minimum": 1 },
+    "packetId": { "$ref": "#/$defs/identifier" },
+    "lineageId": { "$ref": "#/$defs/identifier" },
+    "deliveryDagDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "baseCommit": { "$ref": "#/$defs/commit" },
+    "branch": { "$ref": "#/$defs/branch" },
+    "owner": {
+      "type": "object", "additionalProperties": false, "required": ["ownerId", "domain", "scope"],
+      "description": "At the execution root, owner.ownerId and owner.scope bind exactly to authority.owner and authority.scope; executable validation enforces equality.",
+      "properties": { "ownerId": { "type": "string", "minLength": 1, "pattern": "\\S" }, "domain": { "type": "string", "minLength": 1, "pattern": "\\S" }, "scope": { "type": "string", "minLength": 1, "pattern": "\\S" } }
+    },
+    "sourceDigests": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/sourceDigest" } },
+    "budget": { "$ref": "#/$defs/budget" },
+    "stopConditions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/stopCondition" } },
+    "dependencies": { "type": "array", "items": { "$ref": "#/$defs/artifact" } },
+    "allowedFiles": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/path" } },
+    "writeSet": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/path" } },
+    "declaredEffects": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/effect" } },
+    "effects": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/effect" } },
+    "locks": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "acceptance": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/acceptance" } },
+    "authority": { "$ref": "#/$defs/authority", "description": "At this paired root location, authority.owner and authority.scope must exactly equal owner.ownerId and owner.scope; executable validation enforces this relation." },
+    "environment": { "$ref": "#/$defs/environment" },
+    "modelPolicy": { "$ref": "#/$defs/modelPolicy" },
+    "roleSessions": { "$ref": "#/$defs/roleSessions" },
+    "sharedLocks": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/sharedLock" } },
+    "nodes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/node" } },
+    "parkRoutes": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/parkRoute" } },
+    "approvalReceipt": { "$ref": "#/$defs/approvalReceipt" }
+  },
+  "$defs": {
+    "identifier": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "path": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9._@+-]+(?:/[A-Za-z0-9._@+-]+)*$" },
+    "branch": { "type": "string", "minLength": 1, "pattern": "^[a-z0-9][a-z0-9._/-]*$" },
+    "budget": {
+      "type": "object", "additionalProperties": false,
+      "required": ["absoluteRunDeadline", "perNodeDeadline", "blockedWaitDeadline", "maxLineageAttempts", "maxAcceptanceRepairRounds", "maxSuccessorPlans", "maxToolRetries", "maxCircuitProbes", "maxRecoveryAttempts", "maxRcaDecisions", "maxEscalations"],
+      "properties": {
+        "absoluteRunDeadline": { "type": "string", "format": "date-time" }, "perNodeDeadline": { "type": "string", "format": "date-time" },
+        "blockedWaitDeadline": { "type": "string", "format": "date-time" },
+        "maxLineageAttempts": { "type": "integer", "minimum": 0 }, "maxAcceptanceRepairRounds": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "maxSuccessorPlans": { "type": "integer", "minimum": 0 }, "maxToolRetries": { "type": "integer", "minimum": 0 },
+        "maxCircuitProbes": { "type": "integer", "minimum": 0 }, "maxRecoveryAttempts": { "type": "integer", "minimum": 0 },
+        "maxRcaDecisions": { "type": "integer", "minimum": 0 }, "maxEscalations": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "stopCondition": {
+      "type": "object", "additionalProperties": false, "required": ["condition", "nextAction"],
+      "properties": { "condition": { "type": "string", "minLength": 1 }, "nextAction": { "type": "string", "minLength": 1 } }
+    },
+    "effect": { "type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$" },
+    "sourceDigest": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+      "properties": { "path": { "$ref": "#/$defs/path" }, "sha256": { "$ref": "#/$defs/sha256" } }
+    },
+    "authority": {
+      "type": "object", "additionalProperties": false, "required": ["authorityId", "owner", "scope", "receiptSha256"],
+      "properties": {
+        "authorityId": { "type": "string", "minLength": 1 }, "owner": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "scope": { "type": "string", "minLength": 1, "pattern": "\\S" }, "receiptSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "environment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["environmentId", "kind", "runtime", "receiptSha256", "commands"],
+      "properties": {
+        "environmentId": { "type": "string", "minLength": 1 }, "kind": { "type": "string", "minLength": 1 },
+        "runtime": { "type": "string", "minLength": 1 }, "receiptSha256": { "$ref": "#/$defs/sha256" },
+        "commands": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "acceptance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "mandatory", "given", "when", "then", "oracle", "proofMethod", "command", "fixtureManifest", "independentIssuer"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 }, "mandatory": { "type": "boolean" },
+        "given": { "type": "string", "minLength": 1 }, "when": { "type": "string", "minLength": 1 },
+        "then": { "type": "string", "minLength": 1 }, "oracle": { "type": "string", "minLength": 1 },
+        "proofMethod": { "type": "string", "minLength": 1 }, "command": { "type": "string", "minLength": 1 },
+        "fixtureManifest": { "type": "string", "minLength": 1 }, "independentIssuer": { "type": "string", "minLength": 1 }
+      }
+    },
+    "modelPolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["solRoles", "lunaRoles", "fallbackAllowed", "roleSubstitutionAllowed", "sessionsMustBeDistinct"],
+      "properties": {
+        "solRoles": {
+          "type": "object", "additionalProperties": false,
+          "required": ["orchestrator", "decision", "criticalDebug", "integration", "audit", "finalGate"],
+          "properties": {
+            "orchestrator": { "const": "gpt-6.1-sol" }, "decision": { "const": "gpt-6.1-sol" },
+            "criticalDebug": { "const": "gpt-6.1-sol" }, "integration": { "const": "gpt-6.1-sol" },
+            "audit": { "const": "gpt-6.1-sol" }, "finalGate": { "const": "gpt-6.1-sol" }
+          }
+        },
+        "lunaRoles": {
+          "type": "object", "additionalProperties": false,
+          "required": ["explore", "research", "worker", "verifier", "reviewer"],
+          "properties": {
+            "explore": { "$ref": "#/$defs/lunaAssignment" }, "research": { "$ref": "#/$defs/lunaAssignment" },
+            "worker": { "$ref": "#/$defs/lunaAssignment" }, "verifier": { "$ref": "#/$defs/lunaAssignment" },
+            "reviewer": { "$ref": "#/$defs/lunaAssignment" }
+          }
+        },
+        "fallbackAllowed": { "const": false },
+        "roleSubstitutionAllowed": { "const": false },
+        "sessionsMustBeDistinct": { "const": true }
+      }
+    },
+    "lunaAssignment": {
+      "type": "object", "additionalProperties": false, "required": ["model", "effort"],
+      "properties": { "model": { "const": "gpt-6-luna" }, "effort": { "const": "max" } }
+    },
+    "session": {
+      "type": "object", "additionalProperties": false, "required": ["role", "sessionId", "model", "effort"],
+      "properties": { "role": { "enum": ["worker", "verifier", "reviewer"] }, "sessionId": { "type": "string", "minLength": 1 }, "model": { "const": "gpt-6-luna" }, "effort": { "const": "max" } }
+    },
+    "roleSessions": {
+      "type": "object", "additionalProperties": false, "required": ["worker", "verifier", "reviewer"],
+      "properties": { "worker": { "$ref": "#/$defs/session" }, "verifier": { "$ref": "#/$defs/session" }, "reviewer": { "$ref": "#/$defs/session" } }
+    },
+    "acceptedReceipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["receiptSha256", "status", "artifactSha256", "producerCommit", "schemaVersion", "authorityId", "sessionRoles"],
+      "properties": {
+        "receiptSha256": { "$ref": "#/$defs/sha256" }, "status": { "const": "ACCEPTED" },
+        "artifactSha256": { "$ref": "#/$defs/sha256" }, "producerCommit": { "$ref": "#/$defs/commit" },
+        "schemaVersion": { "type": "string", "minLength": 1 }, "authorityId": { "type": "string", "minLength": 1 },
+        "sessionRoles": { "$ref": "#/$defs/roleSessions" }
+      }
+    },
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["artifactId", "uri", "sha256", "producerCommit", "schemaVersion", "acceptanceReceipt"],
+      "properties": {
+        "artifactId": { "$ref": "#/$defs/identifier" }, "uri": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "sha256": { "$ref": "#/$defs/sha256" }, "producerCommit": { "$ref": "#/$defs/commit" },
+        "schemaVersion": { "type": "string", "minLength": 1 }, "acceptanceReceipt": { "$ref": "#/$defs/acceptedReceipt" }
+      }
+    },
+    "sharedLock": {
+      "type": "object", "additionalProperties": false, "required": ["lockId", "resourcePaths"],
+      "properties": {
+        "lockId": { "type": "string", "minLength": 1 },
+        "resourcePaths": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/path" } }
+      }
+    },
+    "parkRoute": {
+      "type": "object", "additionalProperties": false,
+      "required": ["fromNodeId", "toState", "failureClass", "mappingDigest"],
+      "properties": {
+        "fromNodeId": { "$ref": "#/$defs/identifier" }, "toState": { "const": "PARK" },
+        "failureClass": { "enum": ["UNKNOWN_EFFECT", "MERGED_CLOSEOUT_INCOMPLETE", "AUTHORITY_OR_SPEC_MISSING", "STALE_PINS", "BUDGET_OR_DEADLINE", "DECISION_NO_GO", "CLEANUP_UNRESOLVED", "UNCLASSIFIED"] },
+        "mappingDigest": { "const": "sha256:fafbecdcec41731f72e555944bde202a946389d53be311a6c1199d2f8245413d" }
+      }
+    },
+    "node": {
+      "type": "object", "additionalProperties": false,
+      "required": ["nodeId", "dependsOn", "allowedFiles", "writeSet", "declaredEffects", "effects", "locks", "acceptance"],
+      "properties": {
+        "nodeId": { "$ref": "#/$defs/identifier" },
+        "dependsOn": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/identifier" } },
+        "allowedFiles": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/path" } },
+        "writeSet": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/path" } },
+        "declaredEffects": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/effect" } },
+        "effects": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/effect" } },
+        "locks": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "acceptance": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/acceptance" } }
+      }
+    },
+    "approvalReceipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["receiptSha256", "status", "kind", "revision", "acceptanceRevision", "documentDigest", "authorityId"],
+      "properties": {
+        "receiptSha256": { "$ref": "#/$defs/sha256" }, "status": { "const": "APPROVED" },
+        "kind": { "const": "execution-dag" }, "revision": { "type": "integer", "minimum": 1 },
+        "acceptanceRevision": { "type": "integer", "minimum": 1 }, "documentDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "authorityId": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

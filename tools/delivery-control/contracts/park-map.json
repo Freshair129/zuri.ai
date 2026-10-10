@@ -1,0 +1,94 @@
+{
+  "kind": "TERMINAL_RUN_ROUTER_NOT_A_PERSISTED_NODE_STATE",
+  "classifier": "Deterministic controller emits an enum from evidence; free-form condition text and LLM opinion do not select a disposition. Unknown classification uses safe fallback.",
+  "priority": [
+    "UNKNOWN_EFFECT",
+    "MERGED_CLOSEOUT_INCOMPLETE",
+    "AUTHORITY_OR_SPEC_MISSING",
+    "STALE_PINS",
+    "BUDGET_OR_DEADLINE",
+    "DECISION_NO_GO",
+    "CLEANUP_UNRESOLVED",
+    "UNCLASSIFIED"
+  ],
+  "cases": [
+    {
+      "failureClass": "UNKNOWN_EFFECT",
+      "runDisposition": "NEEDS_DECISION",
+      "nodeState": "UNKNOWN_EFFECT",
+      "effectState": "UNKNOWN",
+      "canonicalCloseout": "RETAIN_CURRENT_UNRESOLVED_STATUS",
+      "next": "Only receipt/state reconciliation; no effect retry until outcome resolved and successor admission authorized"
+    },
+    {
+      "failureClass": "MERGED_CLOSEOUT_INCOMPLETE",
+      "runDisposition": "DEFERRED",
+      "nodeState": "MERGED_PENDING_CLOSEOUT",
+      "effectState": "RETAIN_OBSERVED",
+      "canonicalCloseout": "MERGED_NOT_CLOSED",
+      "next": "Reconcile missing SOT receipts under bounded authorized successor; never merge again"
+    },
+    {
+      "failureClass": "AUTHORITY_OR_SPEC_MISSING",
+      "runDisposition": "NEEDS_DECISION",
+      "nodeState": "NEEDS_DECISION",
+      "effectState": "NONE_UNLESS_ALREADY_OBSERVED",
+      "canonicalCloseout": "RETAIN_CURRENT_UNRESOLVED_STATUS",
+      "next": "Wait for explicit authorized decision; unchanged input does not wake"
+    },
+    {
+      "failureClass": "STALE_PINS",
+      "runDisposition": "DEFERRED",
+      "nodeState": "STALE",
+      "effectState": "RETAIN_OBSERVED",
+      "canonicalCloseout": "NOT_ACCEPTED",
+      "next": "Approved repin and affected verification in a bounded new attempt; no old receipt promotion"
+    },
+    {
+      "failureClass": "BUDGET_OR_DEADLINE",
+      "runDisposition": "DEFERRED",
+      "nodeState": "DEFERRED",
+      "effectState": "RETAIN_OBSERVED",
+      "canonicalCloseout": "NOT_CLOSED",
+      "next": "Fence outstanding work; no heartbeat extension or automatic new budget"
+    },
+    {
+      "failureClass": "DECISION_NO_GO",
+      "runDisposition": "FAILED",
+      "nodeState": "FAILED",
+      "effectState": "RETAIN_OBSERVED",
+      "canonicalCloseout": "NOT_ACCEPTED",
+      "next": "Record final decision; no automatic successor"
+    },
+    {
+      "failureClass": "CLEANUP_UNRESOLVED",
+      "runDisposition": "DEFERRED",
+      "nodeState": "DEFERRED",
+      "effectState": "RETAIN_OBSERVED",
+      "canonicalCloseout": "RETAIN_CLOSEOUT_RECEIPTS_BUT_CLEANUP_PENDING",
+      "next": "Preserve recoverable checkout and refs; CLOSED only after accepted cleanup or retained-worktree disposition"
+    },
+    {
+      "failureClass": "UNCLASSIFIED",
+      "runDisposition": "NEEDS_DECISION",
+      "nodeState": "NEEDS_DECISION",
+      "effectState": "UNKNOWN_IF_ANY_EFFECT_ATTEMPTED",
+      "canonicalCloseout": "NOT_CLOSED",
+      "next": "Fail closed; record source evidence and require classification before further controlled action"
+    }
+  ],
+  "durableRecord": [
+    "failureClass",
+    "runDisposition",
+    "nodeState",
+    "effectState",
+    "canonicalCloseout",
+    "lastKnownGitHostState",
+    "evidenceDigests",
+    "leaseEpoch",
+    "remainingLineageBudget"
+  ],
+  "onEntry": "Atomically persist disposition, release active worker capacity, fence controlled writer, preserve effect safety quarantine and required receipt reconciliation; no automatic back edge",
+  "noFailureClassMeans": "UNCLASSIFIED",
+  "multipleFailures": "Use first matching priority; UNKNOWN_EFFECT safety quarantine remains even if closeout or deadline is also incomplete"
+}

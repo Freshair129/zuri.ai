@@ -1,0 +1,737 @@
+{
+  "kind": "wf01-local-fixture",
+  "fixtureOnly": true,
+  "syntheticEvidenceNotice": "Every receipt, authority and approval here is synthetic and exists only for local isolated fixture validation.",
+  "trustedContext": {
+    "kind": "ISOLATED_FIXTURE_ONLY",
+    "authorityId": "wf01-isolated-fixture-authority",
+    "artifactContext": {
+      "authorityId": "wf01-isolated-fixture-authority",
+      "acceptedReceipt": {
+        "receiptSha256": "a8a8414e2daab4bd96f4461d6ebacc28bf7d96a9aef919e8a6d70fc7c9729b83",
+        "status": "ACCEPTED",
+        "artifactSha256": "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+        "producerCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "schemaVersion": "fixture-artifact/v1",
+        "authorityId": "wf01-isolated-fixture-authority",
+        "sessionRoles": {
+          "worker": {
+            "role": "worker",
+            "sessionId": "fixture-worker-session",
+            "model": "gpt-6-luna",
+            "effort": "max"
+          },
+          "verifier": {
+            "role": "verifier",
+            "sessionId": "fixture-verifier-session",
+            "model": "gpt-6-luna",
+            "effort": "max"
+          },
+          "reviewer": {
+            "role": "reviewer",
+            "sessionId": "fixture-reviewer-session",
+            "model": "gpt-6-luna",
+            "effort": "max"
+          }
+        }
+      }
+    },
+    "acceptedApprovals": [
+      {
+        "status": "APPROVED",
+        "kind": "delivery-dag",
+        "revision": 1,
+        "acceptanceRevision": 1,
+        "documentDigest": "sha256:e8d2de16eb9fd7e7a7dc6d9e84cd22c942244b4bb224d3098b003ec131d07867",
+        "authorityId": "wf01-isolated-fixture-authority",
+        "receiptSha256": "4761b4b4f87d7872bcf3ac9748757c6368dca4ca6fb730122ce77165b0cb7875"
+      },
+      {
+        "status": "APPROVED",
+        "kind": "execution-dag",
+        "revision": 1,
+        "acceptanceRevision": 1,
+        "documentDigest": "sha256:0d6d35ff0d54c1a6b6018a223d0f2d8bf7704bbc5c7cf4911ba0289eafe40346",
+        "authorityId": "wf01-isolated-fixture-authority",
+        "receiptSha256": "addfbad199d6f79ce454661b0113dcaf05efaa48c52fc2bf2e7cc42846255c69"
+      }
+    ]
+  },
+  "artifact": {
+    "artifactId": "fixture-artifact-1",
+    "uri": "sha256:66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+    "sha256": "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+    "producerCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "schemaVersion": "fixture-artifact/v1",
+    "acceptanceReceipt": {
+      "receiptSha256": "a8a8414e2daab4bd96f4461d6ebacc28bf7d96a9aef919e8a6d70fc7c9729b83",
+      "status": "ACCEPTED",
+      "artifactSha256": "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+      "producerCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "schemaVersion": "fixture-artifact/v1",
+      "authorityId": "wf01-isolated-fixture-authority",
+      "sessionRoles": {
+        "worker": {
+          "role": "worker",
+          "sessionId": "fixture-worker-session",
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "verifier": {
+          "role": "verifier",
+          "sessionId": "fixture-verifier-session",
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "reviewer": {
+          "role": "reviewer",
+          "sessionId": "fixture-reviewer-session",
+          "model": "gpt-6-luna",
+          "effort": "max"
+        }
+      }
+    }
+  },
+  "artifactBytesBase64": "V0YwMSBpc29sYXRlZCBmaXh0dXJlIGFydGlmYWN0IGJ5dGVzCg==",
+  "packet": {
+    "kind": "task-packet",
+    "schemaVersion": "packet/v1",
+    "packetId": "WF01-FIXTURE-1",
+    "lineageId": "WF01-FIXTURE-LINEAGE-1",
+    "acceptanceRevision": 1,
+    "attempt": 0,
+    "repairRound": 0,
+    "owner": {
+      "ownerId": "root-tooling",
+      "domain": "delivery-control",
+      "scope": "local WF01 fixture only"
+    },
+    "baseCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "branch": "codex/delivery-control/wf01-fixture",
+    "sourceDigests": [
+      {
+        "path": "tools/delivery-control/README.md",
+        "sha256": "cee402f7243d1914d0dd122817821bb813bb9541e87bf8da00c5464ad3410a2f"
+      }
+    ],
+    "budget": {
+      "absoluteRunDeadline": "2099-10-10T01:00:00Z",
+      "perNodeDeadline": "2099-10-10T00:55:00Z",
+      "blockedWaitDeadline": "2099-10-10T00:59:00Z",
+      "maxLineageAttempts": 3,
+      "maxAcceptanceRepairRounds": 2,
+      "maxSuccessorPlans": 1,
+      "maxToolRetries": 2,
+      "maxCircuitProbes": 1,
+      "maxRecoveryAttempts": 1,
+      "maxRcaDecisions": 1,
+      "maxEscalations": 1
+    },
+    "stopConditions": [
+      {
+        "condition": "Any sealed retry bound is exhausted.",
+        "nextAction": "Stop and preserve the current unresolved state."
+      }
+    ],
+    "dependencies": [
+      {
+        "artifactId": "fixture-artifact-1",
+        "uri": "sha256:66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+        "sha256": "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+        "producerCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "schemaVersion": "fixture-artifact/v1",
+        "acceptanceReceipt": {
+          "receiptSha256": "a8a8414e2daab4bd96f4461d6ebacc28bf7d96a9aef919e8a6d70fc7c9729b83",
+          "status": "ACCEPTED",
+          "artifactSha256": "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+          "producerCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "schemaVersion": "fixture-artifact/v1",
+          "authorityId": "wf01-isolated-fixture-authority",
+          "sessionRoles": {
+            "worker": {
+              "role": "worker",
+              "sessionId": "fixture-worker-session",
+              "model": "gpt-6-luna",
+              "effort": "max"
+            },
+            "verifier": {
+              "role": "verifier",
+              "sessionId": "fixture-verifier-session",
+              "model": "gpt-6-luna",
+              "effort": "max"
+            },
+            "reviewer": {
+              "role": "reviewer",
+              "sessionId": "fixture-reviewer-session",
+              "model": "gpt-6-luna",
+              "effort": "max"
+            }
+          }
+        }
+      }
+    ],
+    "allowedFiles": [
+      "tools/delivery-control/examples/output.json"
+    ],
+    "writeSet": [
+      "tools/delivery-control/examples/output.json"
+    ],
+    "declaredEffects": [
+      "local.validate"
+    ],
+    "effects": [
+      "local.validate"
+    ],
+    "acceptance": [
+      {
+        "id": "WF01-FIXTURE-AC1",
+        "mandatory": true,
+        "given": "All local inputs are explicit.",
+        "when": "The validator evaluates the immutable contract.",
+        "then": "A machine-readable verdict is returned without side effects.",
+        "oracle": "The local validator result and targeted oracle probe.",
+        "proofMethod": "Inspect the returned code and field path.",
+        "command": "node tools/delivery-control/validate.mjs --kind fixture --input tools/delivery-control/examples/wf01-valid.json",
+        "fixtureManifest": "tools/delivery-control/examples/wf01-valid.json",
+        "independentIssuer": "isolated fixture author"
+      }
+    ],
+    "authority": {
+      "authorityId": "wf01-isolated-fixture-authority",
+      "owner": "root-tooling",
+      "scope": "local WF01 fixture only",
+      "receiptSha256": "57bfd98bd8934a513259f6a12b57d9bbea85652105d08dd188735cd5e1167340"
+    },
+    "environment": {
+      "environmentId": "fixture-node-runtime",
+      "kind": "local-only",
+      "runtime": "Node built-ins",
+      "receiptSha256": "b0adbd1fad5a2400b3f22683dda0bb75cc2e9c40a934e11403953af055008519",
+      "commands": [
+        "node --version",
+        "node tools/delivery-control/validate.mjs --kind fixture"
+      ]
+    },
+    "modelPolicy": {
+      "solRoles": {
+        "orchestrator": "gpt-6.1-sol",
+        "decision": "gpt-6.1-sol",
+        "criticalDebug": "gpt-6.1-sol",
+        "integration": "gpt-6.1-sol",
+        "audit": "gpt-6.1-sol",
+        "finalGate": "gpt-6.1-sol"
+      },
+      "lunaRoles": {
+        "explore": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "research": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "worker": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "verifier": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "reviewer": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        }
+      },
+      "fallbackAllowed": false,
+      "roleSubstitutionAllowed": false,
+      "sessionsMustBeDistinct": true
+    },
+    "roleSessions": {
+      "worker": {
+        "role": "worker",
+        "sessionId": "fixture-worker-session",
+        "model": "gpt-6-luna",
+        "effort": "max"
+      },
+      "verifier": {
+        "role": "verifier",
+        "sessionId": "fixture-verifier-session",
+        "model": "gpt-6-luna",
+        "effort": "max"
+      },
+      "reviewer": {
+        "role": "reviewer",
+        "sessionId": "fixture-reviewer-session",
+        "model": "gpt-6-luna",
+        "effort": "max"
+      }
+    }
+  },
+  "deliveryDag": {
+    "kind": "delivery-dag",
+    "schemaVersion": "delivery-dag/v1",
+    "documentVersion": 1,
+    "documentId": "WF01-FIXTURE-DELIVERY",
+    "revision": 1,
+    "acceptanceRevision": 1,
+    "baseCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "scope": "One isolated tooling packet.",
+    "sourceDigests": [
+      {
+        "path": "tools/delivery-control/README.md",
+        "sha256": "cee402f7243d1914d0dd122817821bb813bb9541e87bf8da00c5464ad3410a2f"
+      }
+    ],
+    "authority": {
+      "authorityId": "wf01-isolated-fixture-authority",
+      "owner": "root-tooling",
+      "scope": "local WF01 fixture only",
+      "receiptSha256": "57bfd98bd8934a513259f6a12b57d9bbea85652105d08dd188735cd5e1167340"
+    },
+    "modelPolicy": {
+      "solRoles": {
+        "orchestrator": "gpt-6.1-sol",
+        "decision": "gpt-6.1-sol",
+        "criticalDebug": "gpt-6.1-sol",
+        "integration": "gpt-6.1-sol",
+        "audit": "gpt-6.1-sol",
+        "finalGate": "gpt-6.1-sol"
+      },
+      "lunaRoles": {
+        "explore": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "research": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "worker": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "verifier": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "reviewer": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        }
+      },
+      "fallbackAllowed": false,
+      "roleSubstitutionAllowed": false,
+      "sessionsMustBeDistinct": true
+    },
+    "sharedLocks": [],
+    "nodes": [
+      {
+        "nodeId": "packet-node-1",
+        "packetId": "WF01-FIXTURE-1",
+        "lineageId": "WF01-FIXTURE-LINEAGE-1",
+        "owner": {
+          "ownerId": "root-tooling",
+          "domain": "delivery-control",
+          "scope": "local WF01 fixture only"
+        },
+        "branch": "codex/delivery-control/wf01-fixture",
+        "baseCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "dependsOn": [],
+        "sourceDigests": [
+          {
+            "path": "tools/delivery-control/README.md",
+            "sha256": "cee402f7243d1914d0dd122817821bb813bb9541e87bf8da00c5464ad3410a2f"
+          }
+        ],
+        "budget": {
+          "absoluteRunDeadline": "2099-10-10T01:00:00Z",
+          "perNodeDeadline": "2099-10-10T00:55:00Z",
+          "blockedWaitDeadline": "2099-10-10T00:59:00Z",
+          "maxLineageAttempts": 3,
+          "maxAcceptanceRepairRounds": 2,
+          "maxSuccessorPlans": 1,
+          "maxToolRetries": 2,
+          "maxCircuitProbes": 1,
+          "maxRecoveryAttempts": 1,
+          "maxRcaDecisions": 1,
+          "maxEscalations": 1
+        },
+        "stopConditions": [
+          {
+            "condition": "Any sealed retry bound is exhausted.",
+            "nextAction": "Stop and preserve the current unresolved state."
+          }
+        ],
+        "dependencies": [
+          {
+            "artifactId": "fixture-artifact-1",
+            "uri": "sha256:66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+            "sha256": "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+            "producerCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "schemaVersion": "fixture-artifact/v1",
+            "acceptanceReceipt": {
+              "receiptSha256": "a8a8414e2daab4bd96f4461d6ebacc28bf7d96a9aef919e8a6d70fc7c9729b83",
+              "status": "ACCEPTED",
+              "artifactSha256": "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+              "producerCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "schemaVersion": "fixture-artifact/v1",
+              "authorityId": "wf01-isolated-fixture-authority",
+              "sessionRoles": {
+                "worker": {
+                  "role": "worker",
+                  "sessionId": "fixture-worker-session",
+                  "model": "gpt-6-luna",
+                  "effort": "max"
+                },
+                "verifier": {
+                  "role": "verifier",
+                  "sessionId": "fixture-verifier-session",
+                  "model": "gpt-6-luna",
+                  "effort": "max"
+                },
+                "reviewer": {
+                  "role": "reviewer",
+                  "sessionId": "fixture-reviewer-session",
+                  "model": "gpt-6-luna",
+                  "effort": "max"
+                }
+              }
+            }
+          }
+        ],
+        "allowedFiles": [
+          "tools/delivery-control/examples/output.json"
+        ],
+        "writeSet": [
+          "tools/delivery-control/examples/output.json"
+        ],
+        "declaredEffects": [
+          "local.validate"
+        ],
+        "effects": [
+          "local.validate"
+        ],
+        "locks": [],
+        "acceptance": [
+          {
+            "id": "WF01-NODE-AC1",
+            "mandatory": true,
+            "given": "All local inputs are explicit.",
+            "when": "The validator evaluates the immutable contract.",
+            "then": "A machine-readable verdict is returned without side effects.",
+            "oracle": "The local validator result and targeted oracle probe.",
+            "proofMethod": "Inspect the returned code and field path.",
+            "command": "node tools/delivery-control/validate.mjs --kind fixture --input tools/delivery-control/examples/wf01-valid.json",
+            "fixtureManifest": "tools/delivery-control/examples/wf01-valid.json",
+            "independentIssuer": "isolated fixture author"
+          }
+        ],
+        "authority": {
+          "authorityId": "wf01-isolated-fixture-authority",
+          "owner": "root-tooling",
+          "scope": "local WF01 fixture only",
+          "receiptSha256": "57bfd98bd8934a513259f6a12b57d9bbea85652105d08dd188735cd5e1167340"
+        },
+        "environment": {
+          "environmentId": "fixture-node-runtime",
+          "kind": "local-only",
+          "runtime": "Node built-ins",
+          "receiptSha256": "b0adbd1fad5a2400b3f22683dda0bb75cc2e9c40a934e11403953af055008519",
+          "commands": [
+            "node --version",
+            "node tools/delivery-control/validate.mjs --kind fixture"
+          ]
+        },
+        "roleSessions": {
+          "worker": {
+            "role": "worker",
+            "sessionId": "fixture-worker-session",
+            "model": "gpt-6-luna",
+            "effort": "max"
+          },
+          "verifier": {
+            "role": "verifier",
+            "sessionId": "fixture-verifier-session",
+            "model": "gpt-6-luna",
+            "effort": "max"
+          },
+          "reviewer": {
+            "role": "reviewer",
+            "sessionId": "fixture-reviewer-session",
+            "model": "gpt-6-luna",
+            "effort": "max"
+          }
+        }
+      }
+    ],
+    "parkRoutes": [
+      {
+        "fromNodeId": "packet-node-1",
+        "toState": "PARK",
+        "failureClass": "UNKNOWN_EFFECT",
+        "mappingDigest": "sha256:fafbecdcec41731f72e555944bde202a946389d53be311a6c1199d2f8245413d"
+      }
+    ],
+    "approvalReceipt": {
+      "status": "APPROVED",
+      "kind": "delivery-dag",
+      "revision": 1,
+      "acceptanceRevision": 1,
+      "documentDigest": "sha256:e8d2de16eb9fd7e7a7dc6d9e84cd22c942244b4bb224d3098b003ec131d07867",
+      "authorityId": "wf01-isolated-fixture-authority",
+      "receiptSha256": "4761b4b4f87d7872bcf3ac9748757c6368dca4ca6fb730122ce77165b0cb7875"
+    }
+  },
+  "executionDag": {
+    "kind": "execution-dag",
+    "schemaVersion": "execution-dag/v1",
+    "documentVersion": 1,
+    "documentId": "WF01-FIXTURE-EXECUTION",
+    "revision": 1,
+    "acceptanceRevision": 1,
+    "packetId": "WF01-FIXTURE-1",
+    "lineageId": "WF01-FIXTURE-LINEAGE-1",
+    "deliveryDagDigest": "sha256:e8d2de16eb9fd7e7a7dc6d9e84cd22c942244b4bb224d3098b003ec131d07867",
+    "baseCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "branch": "codex/delivery-control/wf01-fixture",
+    "owner": {
+      "ownerId": "root-tooling",
+      "domain": "delivery-control",
+      "scope": "local WF01 fixture only"
+    },
+    "sourceDigests": [
+      {
+        "path": "tools/delivery-control/README.md",
+        "sha256": "cee402f7243d1914d0dd122817821bb813bb9541e87bf8da00c5464ad3410a2f"
+      }
+    ],
+    "budget": {
+      "absoluteRunDeadline": "2099-10-10T01:00:00Z",
+      "perNodeDeadline": "2099-10-10T00:55:00Z",
+      "blockedWaitDeadline": "2099-10-10T00:59:00Z",
+      "maxLineageAttempts": 3,
+      "maxAcceptanceRepairRounds": 2,
+      "maxSuccessorPlans": 1,
+      "maxToolRetries": 2,
+      "maxCircuitProbes": 1,
+      "maxRecoveryAttempts": 1,
+      "maxRcaDecisions": 1,
+      "maxEscalations": 1
+    },
+    "stopConditions": [
+      {
+        "condition": "Any sealed retry bound is exhausted.",
+        "nextAction": "Stop and preserve the current unresolved state."
+      }
+    ],
+    "dependencies": [
+      {
+        "artifactId": "fixture-artifact-1",
+        "uri": "sha256:66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+        "sha256": "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+        "producerCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "schemaVersion": "fixture-artifact/v1",
+        "acceptanceReceipt": {
+          "receiptSha256": "a8a8414e2daab4bd96f4461d6ebacc28bf7d96a9aef919e8a6d70fc7c9729b83",
+          "status": "ACCEPTED",
+          "artifactSha256": "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771",
+          "producerCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "schemaVersion": "fixture-artifact/v1",
+          "authorityId": "wf01-isolated-fixture-authority",
+          "sessionRoles": {
+            "worker": {
+              "role": "worker",
+              "sessionId": "fixture-worker-session",
+              "model": "gpt-6-luna",
+              "effort": "max"
+            },
+            "verifier": {
+              "role": "verifier",
+              "sessionId": "fixture-verifier-session",
+              "model": "gpt-6-luna",
+              "effort": "max"
+            },
+            "reviewer": {
+              "role": "reviewer",
+              "sessionId": "fixture-reviewer-session",
+              "model": "gpt-6-luna",
+              "effort": "max"
+            }
+          }
+        }
+      }
+    ],
+    "allowedFiles": [
+      "tools/delivery-control/examples/output.json"
+    ],
+    "writeSet": [
+      "tools/delivery-control/examples/output.json"
+    ],
+    "declaredEffects": [
+      "local.validate"
+    ],
+    "effects": [
+      "local.validate"
+    ],
+    "locks": [],
+    "acceptance": [
+      {
+        "id": "WF01-EXEC-AC1",
+        "mandatory": true,
+        "given": "All local inputs are explicit.",
+        "when": "The validator evaluates the immutable contract.",
+        "then": "A machine-readable verdict is returned without side effects.",
+        "oracle": "The local validator result and targeted oracle probe.",
+        "proofMethod": "Inspect the returned code and field path.",
+        "command": "node tools/delivery-control/validate.mjs --kind fixture --input tools/delivery-control/examples/wf01-valid.json",
+        "fixtureManifest": "tools/delivery-control/examples/wf01-valid.json",
+        "independentIssuer": "isolated fixture author"
+      }
+    ],
+    "authority": {
+      "authorityId": "wf01-isolated-fixture-authority",
+      "owner": "root-tooling",
+      "scope": "local WF01 fixture only",
+      "receiptSha256": "57bfd98bd8934a513259f6a12b57d9bbea85652105d08dd188735cd5e1167340"
+    },
+    "environment": {
+      "environmentId": "fixture-node-runtime",
+      "kind": "local-only",
+      "runtime": "Node built-ins",
+      "receiptSha256": "b0adbd1fad5a2400b3f22683dda0bb75cc2e9c40a934e11403953af055008519",
+      "commands": [
+        "node --version",
+        "node tools/delivery-control/validate.mjs --kind fixture"
+      ]
+    },
+    "modelPolicy": {
+      "solRoles": {
+        "orchestrator": "gpt-6.1-sol",
+        "decision": "gpt-6.1-sol",
+        "criticalDebug": "gpt-6.1-sol",
+        "integration": "gpt-6.1-sol",
+        "audit": "gpt-6.1-sol",
+        "finalGate": "gpt-6.1-sol"
+      },
+      "lunaRoles": {
+        "explore": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "research": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "worker": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "verifier": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        },
+        "reviewer": {
+          "model": "gpt-6-luna",
+          "effort": "max"
+        }
+      },
+      "fallbackAllowed": false,
+      "roleSubstitutionAllowed": false,
+      "sessionsMustBeDistinct": true
+    },
+    "roleSessions": {
+      "worker": {
+        "role": "worker",
+        "sessionId": "fixture-worker-session",
+        "model": "gpt-6-luna",
+        "effort": "max"
+      },
+      "verifier": {
+        "role": "verifier",
+        "sessionId": "fixture-verifier-session",
+        "model": "gpt-6-luna",
+        "effort": "max"
+      },
+      "reviewer": {
+        "role": "reviewer",
+        "sessionId": "fixture-reviewer-session",
+        "model": "gpt-6-luna",
+        "effort": "max"
+      }
+    },
+    "sharedLocks": [],
+    "nodes": [
+      {
+        "nodeId": "work",
+        "dependsOn": [],
+        "allowedFiles": [
+          "tools/delivery-control/examples/output.json"
+        ],
+        "writeSet": [
+          "tools/delivery-control/examples/output.json"
+        ],
+        "declaredEffects": [
+          "local.validate"
+        ],
+        "effects": [
+          "local.validate"
+        ],
+        "locks": [],
+        "acceptance": [
+          {
+            "id": "WF01-WORK-AC1",
+            "mandatory": true,
+            "given": "All local inputs are explicit.",
+            "when": "The validator evaluates the immutable contract.",
+            "then": "A machine-readable verdict is returned without side effects.",
+            "oracle": "The local validator result and targeted oracle probe.",
+            "proofMethod": "Inspect the returned code and field path.",
+            "command": "node tools/delivery-control/validate.mjs --kind fixture --input tools/delivery-control/examples/wf01-valid.json",
+            "fixtureManifest": "tools/delivery-control/examples/wf01-valid.json",
+            "independentIssuer": "isolated fixture author"
+          }
+        ]
+      }
+    ],
+    "parkRoutes": [
+      {
+        "fromNodeId": "work",
+        "toState": "PARK",
+        "failureClass": "UNKNOWN_EFFECT",
+        "mappingDigest": "sha256:fafbecdcec41731f72e555944bde202a946389d53be311a6c1199d2f8245413d"
+      }
+    ],
+    "approvalReceipt": {
+      "status": "APPROVED",
+      "kind": "execution-dag",
+      "revision": 1,
+      "acceptanceRevision": 1,
+      "documentDigest": "sha256:0d6d35ff0d54c1a6b6018a223d0f2d8bf7704bbc5c7cf4911ba0289eafe40346",
+      "authorityId": "wf01-isolated-fixture-authority",
+      "receiptSha256": "addfbad199d6f79ce454661b0113dcaf05efaa48c52fc2bf2e7cc42846255c69"
+    }
+  },
+  "parkScenario": {
+    "failureClass": [
+      "BUDGET_OR_DEADLINE",
+      "UNKNOWN_EFFECT"
+    ],
+    "context": {
+      "runId": "fixture-run-1",
+      "nodeId": "work",
+      "packetId": "WF01-FIXTURE-1",
+      "lineageId": "WF01-FIXTURE-LINEAGE-1",
+      "effectId": "effect-fixture-1",
+      "lastKnownGitHostState": "NO_REMOTE_ACTION",
+      "evidenceDigests": [
+        "66506e1aeef54c15ca7048c317f52f453a35850942c8b70ad864db6a56816771"
+      ],
+      "leaseEpoch": 0,
+      "remainingLineageBudget": {
+        "attempts": 2,
+        "repairRounds": 1
+      }
+    }
+  }
+}
