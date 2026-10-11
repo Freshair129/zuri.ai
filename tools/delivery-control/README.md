@@ -43,3 +43,7 @@ Dependency proof entries contain `artifactId`, a `Buffer` or `Uint8Array` in `by
 ## Trust and persistence boundary
 
 The validator checks that separately supplied trust context fields exactly match the document or receipt. It cannot authenticate who supplied that context, verify a digital signature, prove receipt provenance, or establish that a runtime used the selected model/session. The caller must obtain and authenticate those anchors outside this local tool. Cryptographic signatures and durable handoff are later work (WF05); persistent state, leases, and ledger writes are separate work (WF02). PARK results are intended records only and never claim that a durable transition occurred. This package is a contract validator, not an autonomous controller.
+
+## WF02 durable ledger
+
+The WF02 local SQLite ledger API, schema, JSON CLI, lifecycle/PARK semantics, quarantine boundary, and limitations are documented in [LEDGER.md](./LEDGER.md). This adds a local persistence tool; it does not change WF01 validation or activate a dispatcher.
