@@ -574,12 +574,39 @@
         "id": "REQ-FR-269",
         "severity": "medium",
         "check": "requirements",
-        "summary": "FR-269 is planned",
+        "summary": "FR-269 is partial",
         "evidence": [
+          "apps/server/src/app/api/business/kpis/[id]/observations/route.js",
+          "apps/server/src/app/api/business/kpis/[id]/route.js",
+          "apps/server/src/app/api/business/kpis/route.js",
+          "apps/server/src/modules/business/application/business-kpi-status.js",
+          "apps/server/src/modules/business/application/business-strategy-service.js",
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
+          "apps/server/src/modules/project-manager/application/backup-service.js",
+          "apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js",
+          "apps/server/src/modules/project-manager/components/BusinessKpiScorecard.jsx",
+          "apps/server/tests/e2e/fr269-business-kpi-scorecard.spec.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-recovery.test.js",
+          "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
+          "apps/server/tests/unit/business-strategy-service.test.js",
           "apps/server/tests/unit/context-composer.test.js",
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/plan-schema.test.js"
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/fr059-strategy-validation.test.js",
+          "apps/server/tests/unit/fr269-business-kpi-status.test.js",
+          "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/pricing-backup.test.js"
         ]
       },
       {
@@ -1444,7 +1471,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 333,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -1969,7 +1996,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 79
+          "testCount": 80
         },
         {
           "id": "FR-059",
@@ -2350,7 +2377,7 @@
           "details": {
             "routes": 27,
             "inventoried": 26,
-            "openApiPaths": 333,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -2906,7 +2933,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 333,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -3326,7 +3353,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 333,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -4189,7 +4216,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 333,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -4387,7 +4414,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 333,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -4626,7 +4653,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 333,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -4826,7 +4853,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 79
+          "testCount": 80
         },
         {
           "id": "FR-075",
@@ -5075,7 +5102,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 333,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -5359,7 +5386,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 333,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -5736,8 +5763,8 @@
           "title": "Production viewer entry contract",
           "declared": "done",
           "status": "verified",
-          "codeCount": 69,
-          "testCount": 79
+          "codeCount": 72,
+          "testCount": 80
         },
         {
           "id": "FR-056",
@@ -6743,14 +6770,41 @@
           "id": "FR-269",
           "title": "A Business may track ongoing health metrics independent of any Objective or cycle as BusinessKpi (name, one Balanced Scorecard perspective",
           "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 4,
+          "status": "partial",
+          "codeCount": 9,
+          "testCount": 22,
           "evidence": [
+            "apps/server/src/app/api/business/kpis/[id]/observations/route.js",
+            "apps/server/src/app/api/business/kpis/[id]/route.js",
+            "apps/server/src/app/api/business/kpis/route.js",
+            "apps/server/src/modules/business/application/business-kpi-status.js",
+            "apps/server/src/modules/business/application/business-strategy-service.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js",
+            "apps/server/src/modules/project-manager/components/BusinessKpiScorecard.jsx",
+            "apps/server/tests/e2e/fr269-business-kpi-scorecard.spec.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/business-strategy-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/plan-schema.test.js"
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr059-strategy-validation.test.js",
+            "apps/server/tests/unit/fr269-business-kpi-status.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
           ]
         },
         {
@@ -6915,9 +6969,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 169,
-            "inventoried": 169,
-            "openApiPaths": 333,
+            "routes": 172,
+            "inventoried": 172,
+            "openApiPaths": 336,
             "missingFromOpenApi": 0
           }
         },
@@ -6960,8 +7014,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 42,
-            "present": 42
+            "models": 44,
+            "present": 44
           }
         },
         "authorization": {
@@ -6982,8 +7036,8 @@
             }
           ],
           "details": {
-            "mutations": 128,
-            "guardedMutations": 127,
+            "mutations": 131,
+            "guardedMutations": 130,
             "reads": 81,
             "unguardedReads": 9
           }
@@ -7108,12 +7162,39 @@
           "id": "REQ-FR-269",
           "severity": "medium",
           "check": "requirements",
-          "summary": "FR-269 is planned",
+          "summary": "FR-269 is partial",
           "evidence": [
+            "apps/server/src/app/api/business/kpis/[id]/observations/route.js",
+            "apps/server/src/app/api/business/kpis/[id]/route.js",
+            "apps/server/src/app/api/business/kpis/route.js",
+            "apps/server/src/modules/business/application/business-kpi-status.js",
+            "apps/server/src/modules/business/application/business-strategy-service.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js",
+            "apps/server/src/modules/project-manager/components/BusinessKpiScorecard.jsx",
+            "apps/server/tests/e2e/fr269-business-kpi-scorecard.spec.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/business-strategy-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/plan-schema.test.js"
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr059-strategy-validation.test.js",
+            "apps/server/tests/unit/fr269-business-kpi-status.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
           ]
         },
         {
@@ -7184,10 +7265,10 @@
         }
       ],
       "details": {
-        "routes": 216,
-        "apiRoutes": 169,
+        "routes": 219,
+        "apiRoutes": 172,
         "pageRoutes": 47,
-        "ownedModels": 42,
+        "ownedModels": 44,
         "featureNotes": 45
       },
       "featureIds": [
@@ -7431,8 +7512,8 @@
           "title": "A Business may track ongoing health metrics independent of any Objective or cycle as BusinessKpi (name, one Balanced Scorecard perspective",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 1,
-          "testCount": 4
+          "codeCount": 10,
+          "testCount": 22
         },
         {
           "id": "FR-270",
@@ -7457,6 +7538,9 @@
         "apps/server/src/app/api/business/goals/[id]/key-results/route.js",
         "apps/server/src/app/api/business/key-results/[id]/check-ins/route.js",
         "apps/server/src/app/api/business/key-results/[id]/route.js",
+        "apps/server/src/app/api/business/kpis/[id]/observations/route.js",
+        "apps/server/src/app/api/business/kpis/[id]/route.js",
+        "apps/server/src/app/api/business/kpis/route.js",
         "apps/server/src/app/api/business/strategy/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/config/modules.js",
@@ -7464,11 +7548,13 @@
         "apps/server/src/lib/shell-mode.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/business/application/business-home-read-model.js",
+        "apps/server/src/modules/business/application/business-kpi-status.js",
         "apps/server/src/modules/business/application/business-strategy-service.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js",
         "apps/server/src/modules/project-manager/application/project-service.js",
+        "apps/server/src/modules/project-manager/components/BusinessKpiScorecard.jsx",
         "apps/server/src/modules/project-manager/components/StrategyEditModals.jsx",
         "apps/server/src/modules/project-manager/progress/key-result-progress.js",
         "apps/server/src/modules/project-manager/progress/smart-checks.js",
@@ -7482,6 +7568,7 @@
         "apps/server/tests/e2e/fr124-product-readiness.spec.js",
         "apps/server/tests/e2e/fr213-data-pipeline-map.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
+        "apps/server/tests/e2e/fr269-business-kpi-scorecard.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/backup.test.js",
@@ -7490,11 +7577,13 @@
         "apps/server/tests/integration/fr072-project-service-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
+        "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/phase-b-recovery.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
@@ -7520,6 +7609,7 @@
         "apps/server/tests/unit/fr124-product-readiness-ui.test.js",
         "apps/server/tests/unit/fr268-key-result-progress.test.js",
         "apps/server/tests/unit/fr268-week.test.js",
+        "apps/server/tests/unit/fr269-business-kpi-status.test.js",
         "apps/server/tests/unit/fr271-smart-checks.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
@@ -14464,8 +14554,8 @@
           "title": "Production viewer entry contract",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 87,
-          "testCount": 79
+          "codeCount": 90,
+          "testCount": 80
         }
       ],
       "evidence": [
@@ -14487,6 +14577,9 @@
         "apps/server/src/app/api/business/goals/route.js",
         "apps/server/src/app/api/business/key-results/[id]/check-ins/route.js",
         "apps/server/src/app/api/business/key-results/[id]/route.js",
+        "apps/server/src/app/api/business/kpis/[id]/observations/route.js",
+        "apps/server/src/app/api/business/kpis/[id]/route.js",
+        "apps/server/src/app/api/business/kpis/route.js",
         "apps/server/src/app/api/business/roadmaps/[id]/route.js",
         "apps/server/src/app/api/business/roadmaps/route.js",
         "apps/server/src/app/api/business/strategy/route.js",
@@ -14580,6 +14673,7 @@
         "apps/server/tests/integration/fr089-team-scope.test.js",
         "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
         "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
+        "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",

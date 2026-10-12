@@ -187,6 +187,12 @@ export const KEY_RESULT_STATUSES = ['ACTIVE', 'ARCHIVED']
 // BusinessGoal.perspective (Phase 1) and BusinessKpi.perspective (FR-269,
 // Phase 2) so both surfaces group under the same four labels.
 export const BUSINESS_GOAL_PERSPECTIVES = ['FINANCIAL', 'CUSTOMER', 'INTERNAL_PROCESS', 'LEARNING_GROWTH']
+// @req FR-269 — Business-level scorecard lifecycle and cadence. Directions
+// share the established UP/DOWN vocabulary; KPI status is derived separately.
+export const BUSINESS_KPI_DIRECTIONS = ['UP', 'DOWN']
+export const BUSINESS_KPI_CADENCES = ['WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY']
+export const BUSINESS_KPI_STATUSES = ['ACTIVE', 'ARCHIVED']
+export const BUSINESS_KPI_RESULT_STATUSES = ['NO_SIGNAL', 'OK', 'WARN', 'BAD']
 
 // FR-023 — CRM slice (ADR-007 P2)
 export const CHANNELS = ['LINE', 'FACEBOOK', 'WEB']
@@ -677,6 +683,9 @@ export const zGoalPriority = z.enum(GOAL_PRIORITIES)
 export const zKeyResultDirection = z.enum(KEY_RESULT_DIRECTIONS)
 export const zKeyResultStatus = z.enum(KEY_RESULT_STATUSES)
 export const zBusinessGoalPerspective = z.enum(BUSINESS_GOAL_PERSPECTIVES)
+export const zBusinessKpiDirection = z.enum(BUSINESS_KPI_DIRECTIONS)
+export const zBusinessKpiCadence = z.enum(BUSINESS_KPI_CADENCES)
+export const zBusinessKpiStatus = z.enum(BUSINESS_KPI_STATUSES)
 export const zMessageContentKind = z.enum(MESSAGE_CONTENT_KINDS)
 export const zMessageAttachmentKind = z.enum(MESSAGE_ATTACHMENT_KINDS)
 export const zMessageAttachmentFetchState = z.enum(MESSAGE_ATTACHMENT_FETCH_STATES)

@@ -21,7 +21,17 @@
 import prisma from '@/lib/db'
 import { z } from 'zod'
 import { uniqueHumanCode } from '@/lib/ids'
-import { zRoadmapStatus, zGoalStatus, zGoalPriority, zKeyResultDirection, zKeyResultStatus, zBusinessGoalPerspective } from '@/lib/validation/enums'
+import {
+  zRoadmapStatus,
+  zGoalStatus,
+  zGoalPriority,
+  zKeyResultDirection,
+  zKeyResultStatus,
+  zBusinessGoalPerspective,
+  zBusinessKpiDirection,
+  zBusinessKpiCadence,
+  zBusinessKpiStatus,
+} from '@/lib/validation/enums'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { recordAudit } from './audit'
 // @req FR-268, SDD-107 — the pure calculators this file's Key Result writers
@@ -30,6 +40,7 @@ import { recordAudit } from './audit'
 import { keyResultProgress, expectedProgress } from '../progress/key-result-progress'
 import { rollupGoal } from '../progress/goal-rollup'
 import { weekStartFor } from '../progress/week'
+import { serializeBusinessKpi } from '@/modules/business/application/business-strategy-service'
 
 // ---- authorization ----------------------------------------------------------
 // Owner-role check follows the same idiom as
@@ -220,6 +231,40 @@ export const zCheckInInput = z.object({
   confidence: z.number().int().min(1).max(5),
   note: z.string().nullish(),
 })
+
+// @req FR-269 — all measures are finite numbers; threshold direction is
+// checked against the merged target/direction on both create and patch.
+export const zBusinessKpiCreateInput = z.object({
+  businessId: z.string().min(1),
+  name: z.string().trim().min(1),
+  perspective: zBusinessGoalPerspective,
+  unit: z.string().trim().min(1),
+  target: z.number().finite(),
+  warningThreshold: z.number().finite(),
+  direction: zBusinessKpiDirection.default('UP'),
+  cadence: zBusinessKpiCadence.default('MONTHLY'),
+}).strict()
+
+export const zBusinessKpiPatchInput = z.object({
+  businessId: z.string().min(1).optional(),
+  name: z.string().trim().min(1).optional(),
+  perspective: zBusinessGoalPerspective.optional(),
+  unit: z.string().trim().min(1).optional(),
+  target: z.number().finite().optional(),
+  warningThreshold: z.number().finite().optional(),
+  direction: zBusinessKpiDirection.optional(),
+  cadence: zBusinessKpiCadence.optional(),
+  status: zBusinessKpiStatus.optional(),
+}).strict()
+
+// `businessId` is accepted only so a caller can send a scope assertion; it is
+// never used to select the target or persisted as a mutation field.
+export const zBusinessKpiObservationInput = z.object({
+  businessId: z.string().min(1).optional(),
+  value: z.number().finite(),
+  observedAt: z.coerce.date().optional(),
+  note: z.string().nullish(),
+}).strict()
 
 export const zProjectLinkInput = z.object({
   projectId: z.string().min(1),
@@ -906,6 +951,196 @@ export async function updateKeyResult(id, patch, { db = prisma, viewer } = {}) {
   })
 
   return serializeKeyResultDto(kr)
+}
+
+// ---- Business scorecard KPIs (FR-269) --------------------------------------
+
+const KPI_LATEST_OBSERVATION_INCLUDE = {
+  observations: {
+    orderBy: [{ observedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
+    take: 1,
+  },
+}
+
+function assertKpiThresholdOrder({ direction, warningThreshold, target }) {
+  const ordered = direction === 'UP'
+    ? warningThreshold < target
+    : direction === 'DOWN'
+      ? warningThreshold > target
+      : false
+  if (!ordered) {
+    throw badRequest(direction === 'UP'
+      ? 'warningThreshold must be less than target when direction is UP'
+      : direction === 'DOWN'
+        ? 'warningThreshold must be greater than target when direction is DOWN'
+        : 'Unsupported Business KPI direction')
+  }
+}
+
+function kpiSnapshot(kpi) {
+  return {
+    name: kpi.name,
+    perspective: kpi.perspective,
+    unit: kpi.unit,
+    target: Number(kpi.target),
+    warningThreshold: Number(kpi.warningThreshold),
+    direction: kpi.direction,
+    cadence: kpi.cadence,
+    status: kpi.status,
+  }
+}
+
+export async function createBusinessKpi(input, { db = prisma, viewer } = {}) {
+  requireOwner(viewer)
+  const data = zBusinessKpiCreateInput.parse(input)
+  assertBusinessOwned(data.businessId, viewer)
+  assertKpiThresholdOrder(data)
+
+  const business = await db.business.findUnique({
+    where: { id: data.businessId },
+    select: { id: true, tenantId: true, status: true },
+  })
+  if (!business || business.status === 'ARCHIVED') throw new Error('Business not found')
+
+  const kpi = await db.$transaction(async (tx) => {
+    const created = await tx.businessKpi.create({
+      data: {
+        businessId: business.id,
+        name: data.name,
+        perspective: data.perspective,
+        unit: data.unit,
+        target: data.target,
+        warningThreshold: data.warningThreshold,
+        direction: data.direction,
+        cadence: data.cadence,
+      },
+      include: KPI_LATEST_OBSERVATION_INCLUDE,
+    })
+    await recordAudit(tx, {
+      entityType: 'BUSINESS_KPI',
+      entityId: created.id,
+      action: 'CREATED',
+      payload: { businessId: business.id, ...kpiSnapshot(created) },
+      afterJson: kpiSnapshot(created),
+      actorId: viewer.principal?.id ?? null,
+      tenantId: business.tenantId,
+      businessId: business.id,
+    })
+    return created
+  })
+
+  return serializeBusinessKpi(kpi)
+}
+
+export async function updateBusinessKpi(id, patch, { db = prisma, viewer } = {}) {
+  requireOwner(viewer)
+  const parsed = zBusinessKpiPatchInput.parse(patch)
+  const existing = await db.businessKpi.findUnique({
+    where: { id },
+    include: { business: { select: { tenantId: true } } },
+  })
+  if (!existing) throw new Error('Business KPI not found')
+  assertBusinessOwned(existing.businessId, viewer)
+  if (parsed.businessId !== undefined && parsed.businessId !== existing.businessId) {
+    throw badRequest('Business scope mismatch')
+  }
+
+  const data = { ...parsed }
+  delete data.businessId
+  if (Object.keys(data).length === 0) {
+    const unchanged = await db.businessKpi.findUnique({ where: { id }, include: KPI_LATEST_OBSERVATION_INCLUDE })
+    return serializeBusinessKpi(unchanged)
+  }
+
+  const next = {
+    direction: data.direction ?? existing.direction,
+    warningThreshold: data.warningThreshold ?? existing.warningThreshold,
+    target: data.target ?? existing.target,
+  }
+  assertKpiThresholdOrder(next)
+
+  const before = kpiSnapshot(existing)
+  const kpi = await db.$transaction(async (tx) => {
+    const changed = await tx.businessKpi.updateMany({
+      where: { id, businessId: existing.businessId, version: existing.version },
+      data: { ...data, version: { increment: 1 } },
+    })
+    if (changed.count !== 1) throw conflict('Business KPI changed; refresh and retry')
+    const updated = await tx.businessKpi.findUnique({ where: { id }, include: KPI_LATEST_OBSERVATION_INCLUDE })
+    await recordAudit(tx, {
+      entityType: 'BUSINESS_KPI',
+      entityId: id,
+      action: 'UPDATED',
+      payload: data,
+      beforeJson: before,
+      afterJson: kpiSnapshot(updated),
+      actorId: viewer.principal?.id ?? null,
+      tenantId: existing.business?.tenantId ?? null,
+      businessId: existing.businessId,
+    })
+    return updated
+  })
+
+  return serializeBusinessKpi(kpi)
+}
+
+export async function recordBusinessKpiObservation(kpiId, input, { db = prisma, viewer, now = Date.now() } = {}) {
+  requireOwner(viewer)
+  const data = zBusinessKpiObservationInput.parse(input)
+  const existing = await db.businessKpi.findUnique({
+    where: { id: kpiId },
+    include: { business: { select: { tenantId: true } } },
+  })
+  if (!existing) throw new Error('Business KPI not found')
+  assertBusinessOwned(existing.businessId, viewer)
+  if (data.businessId !== undefined && data.businessId !== existing.businessId) {
+    throw badRequest('Business scope mismatch')
+  }
+  if (existing.status !== 'ACTIVE') throw conflict('Cannot record an observation for an archived Business KPI')
+  const observedAt = data.observedAt ?? new Date(now)
+  if (observedAt.getTime() > new Date(now).getTime()) {
+    throw badRequest('observedAt cannot be in the future')
+  }
+
+  const actorPersonId = viewer.principal?.id ?? null
+  const kpi = await db.$transaction(async (tx) => {
+    // Configuration edits and archive writes bump the same version. This
+    // compare-and-swap runs inside the observation transaction, so an
+    // observation cannot slip in after an archive or against stale settings.
+    const changed = await tx.businessKpi.updateMany({
+      where: { id: kpiId, businessId: existing.businessId, status: 'ACTIVE', version: existing.version },
+      data: { version: { increment: 1 } },
+    })
+    if (changed.count !== 1) throw conflict('Business KPI changed; refresh and retry')
+
+    const observation = await tx.businessKpiObservation.create({
+      data: {
+        kpiId,
+        value: data.value,
+        observedAt,
+        actorPersonId,
+        note: data.note ?? null,
+      },
+    })
+    await recordAudit(tx, {
+      entityType: 'BUSINESS_KPI',
+      entityId: kpiId,
+      action: 'OBSERVATION_RECORDED',
+      payload: {
+        observationId: observation.id,
+        value: Number(observation.value),
+        observedAt: observation.observedAt,
+        note: observation.note,
+      },
+      afterJson: observation,
+      actorId: actorPersonId,
+      tenantId: existing.business?.tenantId ?? null,
+      businessId: existing.businessId,
+    })
+    return tx.businessKpi.findUnique({ where: { id: kpiId }, include: KPI_LATEST_OBSERVATION_INCLUDE })
+  })
+
+  return serializeBusinessKpi(kpi)
 }
 
 // No separate archiveKeyResult: `updateKeyResult(id, { status: 'ARCHIVED' })`

@@ -21,7 +21,7 @@ import {
 import { createProject } from '@/modules/project-manager/application/project-service'
 import { makeViewer } from '../factories/viewer'
 
-let owner, business, project
+let owner, business, project, backupKpi, backupObservation, backupPersonId
 
 describe('snapshot backup round trip', () => {
   beforeAll(async () => {
@@ -39,6 +39,28 @@ describe('snapshot backup round trip', () => {
     // prove restore ORDER too — which the preflight check cannot.
     // @spec .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
     const person = await prisma.person.create({ data: { code: 'PER-BAK', displayName: 'Backup Person' } })
+    backupPersonId = person.id
+    backupKpi = await prisma.businessKpi.create({
+      data: {
+        businessId: business.id,
+        name: 'Backup KPI',
+        perspective: 'FINANCIAL',
+        unit: 'USD',
+        target: 100,
+        warningThreshold: 80,
+        direction: 'UP',
+        cadence: 'MONTHLY',
+      },
+    })
+    backupObservation = await prisma.businessKpiObservation.create({
+      data: {
+        kpiId: backupKpi.id,
+        value: 90,
+        observedAt: new Date('2026-10-12T00:00:00.000Z'),
+        actorPersonId: person.id,
+        note: 'Backup fixture observation',
+      },
+    })
     const roadmap = await prisma.businessRoadmap.create({
       data: { businessId: business.id, code: 'ROAD-BAK', title: 'Backup roadmap' },
     })
@@ -332,6 +354,8 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.businessRoadmap.length).toBeGreaterThan(0)
     expect(snapshot.tables.businessRoadmapHorizon.length).toBeGreaterThan(0)
     expect(snapshot.tables.businessGoal.length).toBeGreaterThan(0)
+    expect(snapshot.tables.businessKpi.length).toBeGreaterThan(0)
+    expect(snapshot.tables.businessKpiObservation.length).toBeGreaterThan(0)
     expect(snapshot.tables.projectGoal.length).toBeGreaterThan(0)
     expect(snapshot.tables.roleBinding.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportBatch.length).toBeGreaterThan(0)
@@ -423,6 +447,24 @@ describe('snapshot backup round trip', () => {
 
     const binding = await prisma.roleBinding.findFirst({ where: { roleKey: 'PRODUCT_OWNER' } })
     expect(binding.status).toBe('ACTIVE')
+  })
+
+  it('round trip carries a Business KPI and its Person-linked observation in restorable order', async () => {
+    const snapshot = await exportSnapshot()
+    expect(snapshot.tables.businessKpi.find((row) => row.id === backupKpi.id)).toBeTruthy()
+    expect(snapshot.tables.businessKpiObservation.find((row) => row.id === backupObservation.id)).toBeTruthy()
+
+    await prisma.businessKpiObservation.delete({ where: { id: backupObservation.id } })
+    await prisma.businessKpi.delete({ where: { id: backupKpi.id } })
+    expect(await prisma.businessKpi.findUnique({ where: { id: backupKpi.id } })).toBeNull()
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(result.restored).toBe(true)
+
+    const restoredKpi = await prisma.businessKpi.findUnique({ where: { id: backupKpi.id } })
+    const restoredObservation = await prisma.businessKpiObservation.findUnique({ where: { id: backupObservation.id } })
+    expect(restoredKpi).toMatchObject({ businessId: business.id, name: 'Backup KPI', version: 1 })
+    expect(restoredObservation).toMatchObject({ kpiId: backupKpi.id, actorPersonId: backupPersonId, note: 'Backup fixture observation' })
   })
 
   it('round trip carries the customer import batch and provenance edge, in restorable order', async () => {

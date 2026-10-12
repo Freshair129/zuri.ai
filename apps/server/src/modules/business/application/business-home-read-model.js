@@ -17,6 +17,7 @@
 // and this calculator does zero I/O — importing it does not compromise the
 // "no I/O at all" guarantee this file's own header states below.
 import { keyResultStatus, KEY_RESULT_STATUS } from '@/modules/project-manager/progress/key-result-progress'
+import { BUSINESS_KPI_RESULT_STATUS, kpiStatus } from '@/modules/business/application/business-kpi-status'
 
 /**
  * Domain states. `RESERVED` and `NO_SIGNAL` are deliberately distinct: a
@@ -133,6 +134,10 @@ function strategyGoals(strategy) {
   return (strategy?.roadmaps || []).flatMap((roadmap) => (roadmap.horizons || []).flatMap((horizon) => horizon.goals || []))
 }
 
+function strategyKpis(strategy) {
+  return (strategy?.kpis || []).flatMap((group) => group.kpis || [])
+}
+
 /** Cross-domain exceptions, from real rows only. Empty is a valid, honest answer. */
 function attentionQueue({ projects, strategy, now }) {
   const items = []
@@ -201,6 +206,21 @@ function attentionQueue({ projects, strategy, now }) {
         href: '/overview',
       })
     }
+  }
+
+  // FR-269 — KPI health is actionable as its own scorecard signal, never an
+  // input to `domainHealthRows` or the cross-domain composite above.
+  for (const kpi of strategyKpis(strategy)) {
+    const status = kpi.resultStatus || kpiStatus(kpi, kpi.latestObservation)
+    if (status !== BUSINESS_KPI_RESULT_STATUS.WARN && status !== BUSINESS_KPI_RESULT_STATUS.BAD) continue
+    items.push({
+      id: `business-kpi:${kpi.id}`,
+      severity: status === BUSINESS_KPI_RESULT_STATUS.BAD ? SEVERITY.HIGH : SEVERITY.MED,
+      title: `${status === BUSINESS_KPI_RESULT_STATUS.BAD ? 'KPI off track' : 'KPI warning'} — ${kpi.name}`,
+      detail: `Scorecard · ${kpi.perspective}`,
+      domainKey: 'projects',
+      href: '/overview',
+    })
   }
 
   return items.sort(compareAttention)

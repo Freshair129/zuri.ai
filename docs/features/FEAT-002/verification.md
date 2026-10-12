@@ -148,14 +148,41 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/api/business/kpis/\[id\]/observations/route.js](../../../apps/server/src/app/api/business/kpis/%5Bid%5D/observations/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/business/kpis/\[id\]/route.js](../../../apps/server/src/app/api/business/kpis/%5Bid%5D/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/business/kpis/route.js](../../../apps/server/src/app/api/business/kpis/route.js) — `implements` (`annotation`)
 - [apps/server/src/lib/validation/enums.js](../../../apps/server/src/lib/validation/enums.js) — `implements` (`annotation`)
+- [apps/server/src/modules/business/application/business-kpi-status.js](../../../apps/server/src/modules/business/application/business-kpi-status.js) — `implements` (`annotation`)
+- [apps/server/src/modules/business/application/business-strategy-service.js](../../../apps/server/src/modules/business/application/business-strategy-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js](../../../apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/components/BusinessKpiScorecard.jsx](../../../apps/server/src/modules/project-manager/components/BusinessKpiScorecard.jsx) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/fr269-business-kpi-scorecard.spec.js](../../../apps/server/tests/e2e/fr269-business-kpi-scorecard.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr059-business-strategy-mutation.test.js](../../../apps/server/tests/integration/fr059-business-strategy-mutation.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr269-business-kpi-mutation.test.js](../../../apps/server/tests/integration/fr269-business-kpi-mutation.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/line-server-backup.test.js](../../../apps/server/tests/integration/line-server-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/marketing-backup.test.js](../../../apps/server/tests/integration/marketing-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/phase-b-recovery.test.js](../../../apps/server/tests/integration/phase-b-recovery.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/business-strategy-service.test.js](../../../apps/server/tests/unit/business-strategy-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr059-strategy-validation.test.js](../../../apps/server/tests/unit/fr059-strategy-validation.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr269-business-kpi-status.test.js](../../../apps/server/tests/unit/fr269-business-kpi-status.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-270](requirements/FR-270.md)
 

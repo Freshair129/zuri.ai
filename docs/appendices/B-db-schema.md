@@ -1,5 +1,7 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.65.0b → 1.66.0b (2026-10-12): add BusinessKpi and BusinessKpiObservation (FR-269), including Business → KPI → observation cascades, Person SetNull, and snapshot restore ordering. The schema declares 200 models. SQLite and Supabase migrations are authored locally and not production-applied.
+
 Version diff 1.64.0b → 1.65.0b (2026-10-10): reconcile the API-010 branch with current main. The schema declares 198 models, preserving MemoryProjectionReceipt and all three Marketing custody models. Both 1.64.0b entries below retain their branch provenance. No live migration or deployment.
 
 API-010 branch history — Version diff 1.63.0b → 1.64.0b (2026-10-04): add the Publisher-selected LINE
@@ -167,6 +169,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | ProjectGoal | projectId, goalId | optional many-to-many link; Project remains a Development resource |
 | BusinessKeyResult | goalId, businessId, code, title, metric, unit, baseline, target, direction, dueAt?, ownerPersonId?, confidence, status | FR-268 — a measurable child of BusinessGoal (OKR Key Result); no stored progress/status, both computed on every read from `(baseline, target, direction, latest check-in)` (SDD-107) |
 | BusinessKeyResultCheckIn | keyResultId, weekStartAt unique per keyResultId, value, confidence, note?, actorPersonId? | FR-268 — append-only weekly check-in; `weekStartAt` is server-computed (`weekStartFor`, Monday 00:00 Asia/Bangkok), never a client field |
+| BusinessKpi | businessId → Business (Cascade), name, perspective, unit, finite target/warningThreshold, direction, cadence, status, version, timestamps | FR-269 — OWNER-managed manual scorecard definition; threshold order follows direction; result status is derived from the latest observation and never stored or folded into FR-060 composite health |
+| BusinessKpiObservation | kpiId → BusinessKpi (Cascade), finite value, observedAt, createdAt, actorPersonId? → Person (SetNull), note? | FR-269 — append-only manual observation history; latest ordered by observedAt/createdAt/id descending; exported/restored after BusinessKpi; Business hard-delete erases the KPI and its observations |
 | AuditEvent | entityType, entityId, action, payloadJson, actorType | append-only (SEC-003). `entityType` is **SCREAMING_SNAKE_CASE**, enforced by preflight `audit-entity-type`. It names a *category*, not a Prisma model — `SNAPSHOT`, `STEP_UP`, `AGENT_ACTION` and `PLUGIN_AUTH_MAINTENANCE` have no model behind them — so it is never spelled like one. Four other models carry a column of the same name (`RawExternalRecord`, `ExternalEntityRef`, `ExternalRef`, `FileLink`); those are a separate vocabulary of provider-side and link-side kinds (`listing`, `retail_price`) and this rule does not reach them |
 | PipelineRun | executionRunId unique, dataPipelineDefinitionId, executionContractId, tenantId, businessId?, status, hashes, counts, replay lineage, heartbeat | server-owned full-pipeline run envelope; distinct from IngestionRun and PlanImportReceipt (FR-071) |
 | PipelineStep | executionStepId unique, runId, pipelineStageId, sequence, attemptId unique, status, hashes, failure evidence, heartbeat | one stage occurrence/attempt; retries create new executionStepId/attemptId (FR-071) |

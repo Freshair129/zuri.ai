@@ -27,6 +27,8 @@ owns_models:
   - ProjectGoal
   - BusinessKeyResult
   - BusinessKeyResultCheckIn
+  - BusinessKpi
+  - BusinessKpiObservation
   - Workstream
   - WorkContainer
   - WorkItem
@@ -152,7 +154,8 @@ Two small `src/modules/` folders are read-slices of this domain, not domains of
 their own — both write **nothing**:
 
 - `business` — the Business Strategy read model (FR-041/FR-043): serializes
-  BusinessRoadmap/Goals/Projects, all owned here.
+  BusinessRoadmap/Goals/Projects and projects the FR-269 KPI scorecard; all
+  source models are owned here.
 - `people` — the People Directory (FR-042): a Business-scoped view joining this
   domain's `Membership` with crm's `Person` (read-only cross-domain read, the
   pattern the architecture spec's §5.3 explicitly allows).
@@ -170,17 +173,21 @@ child model family: a measurable child of `BusinessGoal` whose weekly check-ins
 roll `BusinessGoal.progress` up through a pure calculator (SDD-107, FR-268),
 and once a goal holds one, a manual `progress` patch is refused (BR-044).
 
-## Declared, not yet in schema (FEAT-002, ADR-101 D6 Phase 2/3)
+## Delivered in Phase 2 (FEAT-002, FR-269)
 
-The rest of ADR-101's model family does not exist in `prisma/schema.prisma`
-yet, and none of this section grants a write any sooner than the schema does:
+`BusinessKpi` and append-only `BusinessKpiObservation` are Business-scoped,
+not Goal-scoped, ongoing health metrics in one of the four fixed Balanced
+Scorecard perspectives. The Business Home scorecard derives current status
+from the latest manual OWNER observation and keeps it separate from the FR-060
+composite. Configuration/archive and observation writes are OWNER-only and
+audited; observation age does not imply staleness, and the system introduces
+no provider polling or credential access. See the bounded [FR-269 contract](features/FR-269-business-scorecard-kpis.md).
 
-- `BusinessKpi` (+ append-only `BusinessKpiObservation`) — a Business-scoped,
-  **not** goal-scoped, ongoing health metric carrying a Balanced Scorecard
-  perspective. Named with the `Business` prefix deliberately: the shell already
-  exports a `Kpi` UI component (`src/components/ui/index.jsx`), and a bare `KPI`
-  Prisma model would both collide with it and produce an awkward `db.kPI`
-  client accessor.
+## Declared, not yet in schema (FEAT-002, ADR-101 D6 Phase 3)
+
+The remaining 4DX model family does not exist in `prisma/schema.prisma` yet,
+and none of this section grants a write any sooner than the schema does:
+
 - `BusinessLeadMeasure` (+ append-only `BusinessLeadMeasureValue`) — a 4DX lead
   measure, meaningful only under a goal with `isWig=true`.
 - `BusinessWeeklyCommitment`, `BusinessWigSession` — the weekly 4DX ritual: what
