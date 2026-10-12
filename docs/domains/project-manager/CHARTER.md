@@ -187,11 +187,12 @@ composite. Configuration/archive and observation writes are OWNER-only and
 audited; observation age does not imply staleness, and the system introduces
 no provider polling or credential access. See the bounded [FR-269 contract](features/FR-269-business-scorecard-kpis.md).
 
-## FR-270 4DX weekly execution — implementation candidate (FEAT-002, ADR-101 D6 Phase 3)
+## FR-270 4DX weekly execution — implementation (FEAT-002, ADR-101 D6 Phase 3)
 
-Phase 3 is implemented as a local candidate on
-`codex/feat002/fr270-4dx-weekly-execution`, based on admitted `main`
-`4144430bcdc69e92dfe8365a73226ad6259955fa`. The candidate declares
+Phase 3 merged via PR #647 to `main` as
+`8a2fd4984a868923291c68c0169b16a8f0716768` on 2026-10-12. The implementation
+was based on admitted `main` `4144430bcdc69e92dfe8365a73226ad6259955fa` and
+developed on `codex/feat002/fr270-4dx-weekly-execution`. It declares
 `BusinessKeyResult.isLagMeasure` and adds Business-scoped
 `BusinessLeadMeasure` with append-only `BusinessLeadMeasureValue`,
 `BusinessWeeklyCommitment`, and `BusinessWigSession` models, migration files,
@@ -201,11 +202,14 @@ writers live in `project-manager/application/` alongside the existing
 `business-strategy-mutation-service.js`; the business read-slice remains
 read-only.
 
-Focused integration/unit checks pass 57/57, and OpenAPI route coverage passes
-19/19 after registering the seven new routes. Browser acceptance, the final
-governed full regression/build, and exact-head hosted checks remain pending.
-The migrations are authored but not applied; deployment, provider activation,
-and live-Business acceptance remain separate gates under ADR-057. See the
+Focused integration/unit checks passed 57/57, and OpenAPI route coverage
+passed 19/19 after registering the seven new routes.
+Exact-head hosted governance, build, four test shards, and specialized checks
+passed; E2E and desktop hosted jobs were skipped by workflow. Local
+production-mode Playwright passed 210 tests with four repository-skipped
+superseded smoke cases. The migrations are authored but not applied;
+deployment, provider activation, and live-Business acceptance remain separate
+gates under ADR-057. See the
 [FR-270 implementation contract](features/FR-270-4dx-weekly-execution.md).
 
 ## Known shared-write exceptions (debt, visible on purpose)

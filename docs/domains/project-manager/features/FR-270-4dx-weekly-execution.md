@@ -9,8 +9,8 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.2.1b |
-| **Status** | Phase 3 implementation candidate on `codex/feat002/fr270-4dx-weekly-execution`; production build, governance, and browser acceptance pass; exact-head hosted CI pending |
+| **Version** | 0.2.2b |
+| **Status** | Phase 3 merged via PR #647 as `8a2fd498`; exact-head hosted governance, build, tests, and specialized checks pass; production migration and live-business acceptance remain separate |
 | **Date** | 2026-10-12 |
 | **Relates to** | [ZAI:FR-270](../../../features/FEAT-002/requirements/FR-270.md), [FEAT-002](../../../features/FEAT-002/feature.md), [ADR-101 D1/D5/D6](../../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md), [BR-043](../../../requirements/BR-043.md), [FR-268](../../../features/FEAT-002/requirements/FR-268.md), [FR-269](../../../features/FEAT-002/requirements/FR-269.md), [FR-059](../../../requirements/FR-059.md) |
 
@@ -141,23 +141,25 @@ do not change ADR-101's design decisions or authorize production operations.
 
 ## Implementation evidence
 
-The Phase 3 candidate is implemented on the admitted branch based on
-`4144430bcdc69e92dfe8365a73226ad6259955fa`. It adds the four model families,
-the audited OWNER writers and seven API routes, the additive Strategy DTO,
-Overview card and overdue-session projection, snapshot coverage, and generated
-PostgreSQL schema/migration evidence. Focused integration/unit coverage passed
-57/57 and the OpenAPI inventory passed 19/19 after adding the seven routes. A
-full Vitest run passed 7,989 tests with 56 skipped after the Phase B binding
-repair; after the final checkbox accessible-name adjustment, its focused UI
-suite passed 3/3. The production build passed after that source change. The
-production-mode Playwright suite passed 210 tests with four repository-skipped
-superseded smoke cases; the FR-270 production flow passed in both targeted and
-full runs. A redundant full Vitest rerun was interrupted during the 186-second
-`ci-change-scope` file and is not counted as a result. Strict governance
+The Phase 3 implementation was developed from admitted base
+`4144430bcdc69e92dfe8365a73226ad6259955fa`, pushed as source head
+`bd9a7496a5de1f981fae1b20353b9b1610a791c8`, and merged by PR #647 as
+`8a2fd4984a868923291c68c0169b16a8f0716768` on 2026-10-12. It adds the four
+model families, audited OWNER writers and seven API routes, the additive
+Strategy DTO, Overview card and overdue-session projection, snapshot coverage,
+and generated PostgreSQL schema/migration evidence. Focused integration/unit
+coverage passed 57/57 and the OpenAPI inventory passed 19/19. Exact-head hosted
+governance, build, all four test shards, and specialized checks passed; hosted
+E2E and desktop jobs were skipped by their workflow. Local production-mode
+Playwright passed 210 tests with four repository-skipped superseded smoke cases;
+the FR-270 flow passed in both targeted and full runs. A completed full Vitest
+run after the Phase B binding repair passed 7,989 tests with 56 skipped; after
+the final checkbox accessible-name adjustment, its focused UI suite passed
+3/3. A redundant full Vitest rerun was interrupted during the 186-second
+`ci-change-scope` file and is not counted as a result. Strict local governance
 passed with zero critical findings, four warnings, and 39 informational
-findings; exact-head hosted CI is the remaining merge gate. Migrations are
-written but not applied; deployment, provider activation and live-Business
-acceptance are not claimed.
+findings. Migrations are written but not applied; deployment, provider
+activation and live-Business acceptance are not claimed.
 
 ## In scope — Phase 3
 
