@@ -38,6 +38,8 @@ test('four concurrent refund verifications never exceed the verified net', async
     assert.equal(results.filter((r) => r.status === 201).length, 2)
     for (const r of results.filter((x) => x.status !== 201)) assert.ok(['PAYMENT_REFUND_EXCEEDS_PAID', 'SCM_STORE_BUSY'].includes(r.body.error.code), r.body.error.code)
     const view = await a.request('GET', `/v1/commerce/orders/${orderId}`, { token: rep() })
+    const serverErrors = a.logs.filter((entry) => entry.message === 'request failed').slice(-2)
+    assert.equal(view.status, 200, `order read failed: ${JSON.stringify({ response: view.body, serverErrors })}`)
     assert.deepEqual([view.body.order.paid, view.body.order.refunded, view.body.order.net], [1000, 800, 200])
     const check = openRaw(db)
     try {
