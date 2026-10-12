@@ -9,8 +9,8 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.3.1b |
-| **Status** | Implemented and locally verified candidate on `codex/feat002/fr269-contract`; full Vitest, Playwright, production build, and SCM kernel mirror checks pass; PR #645 is open with hosted CI pending; not merged or deployed |
+| **Version** | 0.3.2b |
+| **Status** | Implemented and merged in PR #645 as `54e7e357`; full local Vitest (7,976 passed, 56 skipped), Playwright (210 passed, 4 skipped), and production build were recorded as pre-merge evidence; all completed hosted checks passed, including SCM; Governance E2E and Edge Desktop were skipped; not production migrated, deployed, provider-activated, or verified with live data |
 | **Date** | 2026-10-12 |
 | **Source base** | zuri.ai 2912d70bf649314ec3631c49a784031ab16415c6 |
 | **Relates to** | [ZAI:FR-269](../../../features/FEAT-002/requirements/FR-269.md), [FEAT-002](../../../features/FEAT-002/feature.md), [ADR-101 D1/D6](../../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md), [FR-060](../../../features/FEAT-002/requirements/FR-060.md) |
@@ -197,9 +197,11 @@ age. No observation remains NO_SIGNAL.
   tests ran. The 4 skips are existing superseded scenarios.
 - Production build passed, including lint/type checks and generation of all
   99 static pages.
-- These are local branch results. PR #645 is open and hosted CI is pending; no
-  production migration, deployment, provider activation, or live-data proof is
-  claimed.
+- The full test and build results above were recorded as local pre-merge
+  evidence. PR #645 merged as `54e7e35780002237cc418e5525e683b1362908d1`; all
+  completed hosted check runs, including SCM, passed, while Governance E2E and
+  Edge Desktop were skipped. No production migration, deployment, provider
+  activation, or live-data proof is claimed.
 
 ## Exclusions
 
@@ -276,3 +278,7 @@ deployment, provider activation, or live-data proof.
 0.3.0b → 0.3.1b: records passing full Vitest, Playwright, and build gates and
 the exact local coverage counts; keeps PR, hosted CI, production migration,
 deployment, provider activation, and live-data claims gated.
+
+0.3.1b → 0.3.2b: records PR #645 merged as `54e7e357` and the completed hosted
+checks, including SCM; Governance E2E and Edge Desktop were skipped. No product
+behavior or production readiness is newly claimed.
