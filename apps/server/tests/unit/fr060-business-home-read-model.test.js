@@ -203,6 +203,45 @@ describe('attention queue', () => {
     expect(attention.some((a) => a.id === 'key-result:kr-ok')).toBe(false)
   })
 
+  it('raises BAD KPI as HIGH and WARN as MED, omits OK/NO_SIGNAL, and never changes composite health', () => {
+    const strategy = {
+      kpis: [
+        {
+          perspective: 'FINANCIAL',
+          kpis: [
+            { id: 'bad', name: 'Revenue', perspective: 'FINANCIAL', resultStatus: 'BAD' },
+            { id: 'warn', name: 'Margin', perspective: 'FINANCIAL', resultStatus: 'WARN' },
+            { id: 'ok', name: 'Cash', perspective: 'FINANCIAL', resultStatus: 'OK' },
+            { id: 'none', name: 'Forecast', perspective: 'FINANCIAL', resultStatus: 'NO_SIGNAL' },
+          ],
+        },
+      ],
+    }
+    const withoutKpis = build({ projects: [project()] })
+    const withKpis = build({ projects: [project()], strategy })
+
+    expect(withKpis.attention.find((item) => item.id === 'business-kpi:bad')).toMatchObject({ severity: SEVERITY.HIGH })
+    expect(withKpis.attention.find((item) => item.id === 'business-kpi:warn')).toMatchObject({ severity: SEVERITY.MED })
+    expect(withKpis.attention.some((item) => ['ok', 'none'].some((id) => item.id === `business-kpi:${id}`))).toBe(false)
+    expect(withKpis.health.score).toBe(withoutKpis.health.score)
+    expect(withKpis.health.domains).toEqual(withoutKpis.health.domains)
+  })
+
+  it('uses the shared KPI calculator when a Strategy fixture has only latestObservation', () => {
+    const { attention } = build({
+      strategy: {
+        kpis: [{ perspective: 'CUSTOMER', kpis: [
+          {
+            id: 'derived-warn', name: 'Satisfaction', perspective: 'CUSTOMER',
+            direction: 'UP', target: 90, warningThreshold: 70,
+            latestObservation: { value: 75 },
+          },
+        ] }],
+      },
+    })
+    expect(attention.find((item) => item.id === 'business-kpi:derived-warn').severity).toBe(SEVERITY.MED)
+  })
+
   it('skips Key Result rows for a goal already marked DONE', () => {
     const goal = {
       id: 'g-done-kr', code: 'G5', title: 'Wrapped up', status: 'DONE', targetAt: past, projects: [],

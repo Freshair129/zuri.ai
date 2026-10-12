@@ -270,8 +270,11 @@ describe('OpenAPI document', () => {
       // paths, POST each: 329 + 2 = 331; 434 + 2 = 436.
       // FR-278 adds the read-only executive sales dashboard: one path and GET.
       // 331 + 1 = 332 paths; 436 + 1 = 437 operations.
-      pathCount: 333,
-      operationCount: 438,
+      // FR-269 adds KPI create, patch and observation append endpoints.
+      // The route inventory includes one additional explicit callback path:
+      // 333 + 3 = 336 paths; 438 + 3 = 441 operations.
+      pathCount: 336,
+      operationCount: 441,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')

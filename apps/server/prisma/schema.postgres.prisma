@@ -345,6 +345,8 @@ model Business {
   // the goal, never listed at the Business directly; this relation exists so
   // Prisma has the back-reference `businessId` on BusinessKeyResult needs.
   businessKeyResults              BusinessKeyResult[]
+  // @req FR-269 — manual Business scorecard KPIs belong to one Business.
+  businessKpis                    BusinessKpi[]
 
   @@index([tenantId])
 }
@@ -455,6 +457,8 @@ model Person {
   // someone else, Phase 1's authorization boundary — ADR-101 D4).
   businessKeyResultsOwned        BusinessKeyResult[]             @relation("BusinessKeyResultOwner")
   businessKeyResultCheckIns      BusinessKeyResultCheckIn[]      @relation("BusinessKeyResultCheckInActor")
+  // @req FR-269 — the Business OWNER who recorded a manual KPI observation.
+  businessKpiObservationsRecorded BusinessKpiObservation[]         @relation("BusinessKpiObservationActor")
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -1257,6 +1261,48 @@ model BusinessKeyResultCheckIn {
 
   @@unique([keyResultId, weekStartAt])
   @@index([keyResultId])
+}
+
+// @req FR-269, ADR-101 D1 — Business-owned scorecard KPI. Status is derived
+// from the latest immutable observation and this row's target thresholds;
+// no score is stored or folded into FR-060's domain composite.
+model BusinessKpi {
+  id               String   @id @default(uuid())
+  businessId       String
+  name             String
+  perspective      String
+  unit             String
+  target           Float
+  warningThreshold Float
+  direction        String   @default("UP")
+  cadence          String   @default("MONTHLY")
+  status           String   @default("ACTIVE")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  version          Int      @default(1)
+
+  business     Business                @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  observations BusinessKpiObservation[]
+
+  @@index([businessId, status, perspective])
+}
+
+// @req FR-269 — append-only manual observations. Corrections are new rows;
+// consumers select a deterministic latest observation by observedAt, createdAt,
+// then id. No update/delete route is provided for this history.
+model BusinessKpiObservation {
+  id            String   @id @default(uuid())
+  kpiId         String
+  value         Float
+  observedAt    DateTime
+  actorPersonId String?
+  note          String?
+  createdAt     DateTime @default(now())
+
+  kpi   BusinessKpi @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+  actor Person?     @relation("BusinessKpiObservationActor", fields: [actorPersonId], references: [id], onDelete: SetNull)
+
+  @@index([kpiId, observedAt])
 }
 
 model ProjectGoal {

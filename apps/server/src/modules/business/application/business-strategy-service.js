@@ -1,4 +1,6 @@
 import prisma from '@/lib/db'
+import { BUSINESS_GOAL_PERSPECTIVES } from '@/lib/validation/enums'
+import { kpiStatus } from '@/modules/business/application/business-kpi-status'
 // @req FR-268, SDD-107 — pure calculators; this read model calls them the
 // same way project-roadmap-read-model.js already calls calculateWorkstreamProgress
 // before returning, rather than leaving every consumer to duplicate the math.
@@ -8,6 +10,56 @@ import { keyResultProgress, expectedProgress } from '@/modules/project-manager/p
 // direct Project Business ownership for goal links.
 // @spec ADR-013, SDD-020, BR-001 - strategy belongs to Business; never infer it from Organization.
 // @tested tests/unit/business-strategy-service.test.js
+
+function serializeKpiObservation(observation) {
+  if (!observation) return null
+  return {
+    id: observation.id,
+    value: Number(observation.value),
+    observedAt: observation.observedAt,
+    actorPersonId: observation.actorPersonId,
+    note: observation.note,
+    createdAt: observation.createdAt,
+  }
+}
+
+export function serializeBusinessKpi(kpi) {
+  const latestObservation = serializeKpiObservation(kpi.observations?.[0] || null)
+  return {
+    id: kpi.id,
+    businessId: kpi.businessId,
+    name: kpi.name,
+    perspective: kpi.perspective,
+    unit: kpi.unit,
+    target: Number(kpi.target),
+    warningThreshold: Number(kpi.warningThreshold),
+    direction: kpi.direction,
+    cadence: kpi.cadence,
+    status: kpi.status,
+    createdAt: kpi.createdAt,
+    updatedAt: kpi.updatedAt,
+    latestObservation,
+    resultStatus: kpiStatus(kpi, latestObservation),
+  }
+}
+
+function compareText(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
+function groupKpisByPerspective(rows) {
+  const groups = BUSINESS_GOAL_PERSPECTIVES.map((perspective) => ({ perspective, kpis: [] }))
+  const byPerspective = new Map(groups.map((group) => [group.perspective, group]))
+  for (const row of rows || []) {
+    const group = byPerspective.get(row.perspective)
+    // A persisted perspective is enum-constrained. Fail closed if a corrupted
+    // row escapes that constraint rather than silently dropping it.
+    if (!group) throw new Error(`Unsupported Business KPI perspective: ${row.perspective}`)
+    group.kpis.push(serializeBusinessKpi(row))
+  }
+  for (const group of groups) group.kpis.sort((a, b) => compareText(a.name, b.name) || compareText(a.id, b.id))
+  return groups
+}
 
 function serializeCheckIn(checkIn) {
   return {
@@ -129,6 +181,10 @@ export async function getBusinessStrategy(
   if (visibleBusinessIds && !visibleBusinessIds.includes(businessId)) {
     throw new Error('Business access denied')
   }
+  // The route supplies the viewer's visible Business set. A direct internal
+  // call without that set keeps the legacy Strategy projection and fails
+  // closed for this additive KPI slice.
+  const canReadKpis = Array.isArray(visibleBusinessIds) && visibleBusinessIds.includes(businessId)
 
   const business = await db.business.findUnique({
     where: { id: businessId },
@@ -177,6 +233,18 @@ export async function getBusinessStrategy(
           },
         },
       },
+      ...(canReadKpis ? {
+        businessKpis: {
+          where: { businessId, status: 'ACTIVE' },
+          orderBy: [{ perspective: 'asc' }, { name: 'asc' }, { id: 'asc' }],
+          include: {
+            observations: {
+              orderBy: [{ observedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
+              take: 1,
+            },
+          },
+        },
+      } : {}),
     },
   })
 
@@ -185,6 +253,7 @@ export async function getBusinessStrategy(
   const roadmaps = business.roadmaps.map((roadmap) => serializeRoadmap(roadmap, businessId, now))
   const active = roadmaps[0] || null
   const goals = roadmaps.flatMap((roadmap) => roadmap.horizons.flatMap((horizon) => horizon.goals))
+  const kpis = groupKpisByPerspective(business.businessKpis || [])
   return {
     business: {
       id: business.id,
@@ -199,6 +268,10 @@ export async function getBusinessStrategy(
     // this is exactly what business-home-read-model.js's own attentionQueue
     // had to do by hand (PRD-SDD 1.246.0b) before this field existed.
     goals,
+    // @req FR-269 — active Business KPIs are grouped into all four Balanced
+    // Scorecard perspectives. Their result status is never part of the
+    // cross-domain health composite.
+    kpis,
     activeRoadmapId: active?.id || null,
     summary: {
       roadmapCount: roadmaps.length,

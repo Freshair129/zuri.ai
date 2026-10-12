@@ -21,11 +21,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Pencil, Plus, Link2 } from 'lucide-react'
 import { PageHeader, Card, Kpi, SectionTitle, StatusPill, ProgressBar, EmptyState, ErrorState } from '@/components/ui'
 import { MODE_LABELS, SLUG_BY_MODE } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
+import BusinessKpiScorecard from '@/modules/project-manager/components/BusinessKpiScorecard'
 import { RoadmapModal, GoalModal, LinkProjectModal, KeyResultModal, CheckInModal } from '@/modules/project-manager/components/StrategyEditModals'
 import { DOMAINS } from '@/config/domains'
 import { buildBusinessHomeReadModel, DOMAIN_STATE } from '@/modules/business/application/business-home-read-model'
@@ -86,10 +88,10 @@ function DomainHealthCard({ health }) {
 
 function AttentionCard({ attention }) {
   return (
-    <Card className="mb-4">
-      <SectionTitle caption="Cross-domain exceptions from real rows, ordered by impact">Attention queue</SectionTitle>
+    <Card className="mb-4" data-testid="business-attention-queue">
+      <SectionTitle caption="Cross-domain exceptions from real rows, including KPI results, ordered by impact">Attention queue</SectionTitle>
       {attention.length === 0 ? (
-        <EmptyState title="Nothing needs attention" hint="No overdue gate, milestone or goal in this Business." />
+        <EmptyState title="Nothing needs attention" hint="No overdue gate, milestone, goal or off-track KPI in this Business." />
       ) : (
         <ul className="space-y-2">
           {attention.map((item) => (
@@ -386,6 +388,13 @@ function BusinessOverview({ scope }) {
     businessId ? `/api/business/strategy?businessId=${encodeURIComponent(businessId)}` : null,
     [businessId],
   )
+  const router = useRouter()
+  const refreshStrategy = async () => {
+    // The strategy response owns the grouped KPI projection and attention rows.
+    // Re-read it after every write; refresh the route projection as well.
+    await strategy.reload()
+    router.refresh()
+  }
   // @req FR-059 - edit affordances are gated on the resolved viewer's
   // per-Business OWNER grant (`ownedBusinessIds`), the same `/api/viewer`
   // contract DomainBar/BusinessShellGuard already use for the rest of the
@@ -437,6 +446,15 @@ function BusinessOverview({ scope }) {
           </div>
           <DomainHealthCard health={home.health} />
           <AttentionCard attention={home.attention} />
+          <BusinessKpiScorecard
+            businessId={businessId}
+            kpiGroups={strategy.data?.kpis || []}
+            canManage={isOwner}
+            loading={strategy.loading}
+            error={strategy.error}
+            retry={strategy.reload}
+            onSaved={refreshStrategy}
+          />
           <StrategyCard
             strategy={strategy.data}
             loading={strategy.loading}

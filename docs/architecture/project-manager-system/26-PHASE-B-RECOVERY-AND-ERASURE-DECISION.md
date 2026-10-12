@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.16b"
+version: "0.3.17b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-10-10,Codex, API-010 and main mechanical schema reconciliation"
+last_update: "2026-10-12,Codex, FR-269 Business KPI schema binding"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -341,7 +341,9 @@ over the raw LF Prisma bytes required by `.gitattributes`;
 via the unchanged `computeTargetSchemaSha256`. All previous bindings remain
 historical and refuse cross-schema recovery, including 0.3.14b above.
 
-The **current 0.3.16b binding** composes the API-010 branch and main after the owner's 2026-10-10 approval to reconcile conflicts. It preserves every prior mapping and includes all 198 application tables. Raw LF Prisma bytes give `schemaSha256` `19bebd6e40dbaf43bfae5a99d54d29ebf33576add850b45525033f516d09405a`; the unchanged `computeTargetSchemaSha256` gives `targetSchemaSha256` `40815083980a80c6d3c3237b1f9db5bf9c1c6c93682beb360a060a93996e50bb`. Both divergent 0.3.15b bindings above are historical and refuse cross-schema recovery. This is a mechanical schema reconciliation; Memory and Marketing recovery guards remain in force. No live migration, recovery, activation or deployment is authorized by this binding.
+The **historical 0.3.16b binding** composes the API-010 branch and main after the owner's 2026-10-10 approval to reconcile conflicts. It preserves every prior mapping and includes all 198 application tables. Raw LF Prisma bytes give `schemaSha256` `19bebd6e40dbaf43bfae5a99d54d29ebf33576add850b45525033f516d09405a`; `computeTargetSchemaSha256` gives `targetSchemaSha256` `40815083980a80c6d3c3237b1f9db5bf9c1c6c93682beb360a060a93996e50bb`. Both divergent 0.3.15b bindings above are historical and refuse cross-schema recovery. Memory and Marketing recovery guards remain in force.
+
+The **current 0.3.17b binding** extends 0.3.16b with exactly `BusinessKpi` and `BusinessKpiObservation` for FR-269, preserving the prior 198 mappings for 200 total application tables. The exact `prisma/schema.prisma` bytes give `schemaSha256` `64baeee00e5b9ab48f3ba35a37cc3be50321c27ab7b3b41b9496710717b809ca`; the unchanged `computeTargetSchemaSha256` gives `targetSchemaSha256` `27aeaa988c2b203c20d0e9403ddca03c91cc6618de41e36dc2a1a913d89e2302`. The 198-table binding is historical and refuses cross-schema recovery. This static binding does not authorize or prove a live migration, backup, recovery, activation, deployment or production readiness; all real-role and executable recovery gates remain separate.
 
 These three retained-custody models remain explicitly excluded from legacy JSON
 snapshots, recovery-family delegates and insertion/deletion order. They join the
@@ -363,6 +365,8 @@ the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.16b → 0.3.17b: add `BusinessKpi` and `BusinessKpiObservation` to the exact public-table mapping; pin the current schema and target hashes; preserve all prior mappings and Memory/Marketing custody guards; every historical binding remains refused.
 
 Version diff 0.3.15b → 0.3.16b: compose the approved branch reconciliation with all 198 unchanged model-to-table mappings. Pin the exact composed schema and preserve both Memory and Marketing custody guards; every historical binding remains refused.
 
@@ -612,6 +616,7 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.17b | 2026-10-12 | beta | Bind the FR-269 Business KPI tables in the static 200-table inventory; preserve all earlier mappings and production/recovery gates | working-tree | Codex |
 | 0.3.16b | 2026-10-10 | beta | Compose API-010 and main into 198-table inventory; preserve both lineages, all mappings and retained-custody refusal; mechanical reconciliation only | working-tree | Codex |
 | 0.3.15b | 2026-10-06 | beta | Main branch history: owner-approved 194→197 Marketing custody rebind; exact prior mappings preserved, raw LF and canonical inventory hashes pinned; retained/unsupported Marketing JSON recovery refuses | working-tree | Codex |
 | 0.3.15b | 2026-10-04 | beta | API-010 branch history: rebinds Phase B recovery to the raw current schema digest and 195-table mapping including MemoryProjectionReceipt; prior bindings remain refused | working-tree | Codex |

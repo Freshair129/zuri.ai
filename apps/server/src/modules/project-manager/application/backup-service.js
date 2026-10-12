@@ -232,6 +232,10 @@ export const SNAPSHOT_MODELS = [
   // off an actor Person. Both restore after Person, above, and after
   // businessGoal on the line before it.
   'businessKeyResult', 'businessKeyResultCheckIn',
+  // @req FR-269 — scorecard KPIs hang off Business; observations hang off a
+  // KPI and, optionally, the Person who recorded them. Both restore after
+  // their referenced Business/Person parents and before no other child here.
+  'businessKpi', 'businessKpiObservation',
   // @req FR-248, FR-249 — route/action usage, per person; restores after Person,
   // which it references (ADR-095 D2). No secret, no Business/Tenant scope.
   'usageEvent',

@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.103.0b → 1.104.0b (2026-10-12): add the FR-269 Business KPI scorecard contract and its three OWNER-scoped mutation handlers. Inventory: 335 route handlers. Local SQLite/PostgreSQL schemas and routes are implementation evidence; production migration/deployment are not claimed.
+
 Version diff 1.102.0b → 1.103.0b (2026-10-05): add the approved FR-281/FR-282 report-only receiver candidate, POST `/api/growth/external-marketing-reports`. Inventory: 332 route handlers, 333 OpenAPI paths, 438 operations. Only dedicated report bearer authentication is accepted; no session/Enterprise fallback. PostgreSQL receiver runtime, live migration, credentials and deployment remain unqualified/unperformed.
 
 | Method | Path | Contract |
@@ -46,9 +48,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.102.0b |
+| **Version** | 1.104.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-10-05 |
+| **Last Updated** | 2026-10-12 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -98,7 +100,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=332 -->
+<!-- api-spec-counts: route_handlers=335 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -331,6 +333,26 @@ A Key Result's `progress`/`expectedProgress`/`status` are never stored columns
 — both are recomputed on every read from `(baseline, target, direction,
 latest check-in)` (SDD-107), the same pure calculators the Key Result
 list/modal UI uses for its live preview.
+
+## Business KPI scorecard (FR-269, ADR-101 D1)
+
+Business Strategy reads add exactly four KPI perspective groups, including empty
+groups. KPI result status is derived from the latest observation, direction,
+target and OWNER-defined warning threshold; it is separate from the FR-060
+composite health score. Cadence is descriptive only.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/business/strategy?businessId=...` | Existing Strategy response plus `kpis: [{perspective, kpis: [...]}, ...]` in the fixed order `FINANCIAL`, `CUSTOMER`, `INTERNAL_PROCESS`, `LEARNING_GROWTH`. Each KPI includes `id`, `businessId`, `name`, `perspective`, `unit`, finite `target` and `warningThreshold`, `direction`, `cadence`, lifecycle `status`, timestamps, `latestObservation` (nullable), and derived `resultStatus` (`NO_SIGNAL`, `OK`, `WARN`, `BAD`). Only ACTIVE KPIs are included. No KPI value contributes to composite health. |
+| POST | `/api/business/kpis` | OWNER-only `{businessId, name, perspective, unit, target, warningThreshold, direction?, cadence?}`. `perspective` is one of the four above; target/threshold are finite numbers; direction defaults to `UP`, cadence to `MONTHLY`; `UP` requires `warningThreshold < target`, `DOWN` requires `warningThreshold > target`. Returns the serialized KPI with `NO_SIGNAL` until an observation exists. |
+| PATCH | `/api/business/kpis/[id]` | OWNER-only partial KPI fields; optional `businessId` is a scope assertion and cannot move the KPI. `{status: 'ARCHIVED'}` archives it; there is no DELETE handler. Expected-version compare-and-swap returns `409` on a concurrent change. Returns the serialized KPI. |
+| POST | `/api/business/kpis/[id]/observations` | OWNER-only `{value, observedAt?, note?, businessId?}`; value must be finite, optional `businessId` must match the stored Business, omitted `observedAt` uses server acceptance time, and future times are rejected. Each call appends an immutable observation and records an audit event; there is no observation edit/delete handler. Returns the updated serialized KPI. |
+
+Invalid values, thresholds, future timestamps and crossed Business assertions
+return `400`; non-OWNER writes return `403`; archived observations and stale
+compare-and-swap writes return `409`. Observation ordering is `observedAt DESC`,
+`createdAt DESC`, then `id DESC`. The additive migration files are artifacts;
+no production migration or deployment is implied.
 
 ## Entry and Business Routing (FR-044 and FR-046 implemented beta)
 

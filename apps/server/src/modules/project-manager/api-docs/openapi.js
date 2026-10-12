@@ -189,6 +189,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-268 (ADR-101) — Business Key Results: create under a goal, patch
   // (including archive via status), and the weekly check-in.
   ['/api/business/goals/{id}/key-results', ['POST']], ['/api/business/key-results/{id}', ['PATCH']], ['/api/business/key-results/{id}/check-ins', ['POST']],
+  // @req FR-269 — OWNER-scoped manual KPI create/update and append-only
+  // observation; reads are additive on /api/business/strategy.
+  ['/api/business/kpis', ['POST']], ['/api/business/kpis/{id}', ['PATCH']], ['/api/business/kpis/{id}/observations', ['POST']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],
   // @req FR-169 — the only writer of Business.capabilitiesJson; PATCH only.
   ['/api/businesses/{id}/capabilities', ['PATCH']],

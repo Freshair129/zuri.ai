@@ -35,9 +35,11 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // for the historical binding ladder this entry continues.
 // @req FR-282, FR-283 — owner-approved 2026-10-06 Marketing custody rebind
 // adds three excluded retained-evidence models to the complete census, composed with MemoryProjectionReceipt for 198 tables.
-const FROZEN_SCHEMA_SHA256 = '19bebd6e40dbaf43bfae5a99d54d29ebf33576add850b45525033f516d09405a'
-const FROZEN_TARGET_SCHEMA_SHA256 = '40815083980a80c6d3c3237b1f9db5bf9c1c6c93682beb360a060a93996e50bb'
-const FROZEN_APPLICATION_TABLE_COUNT = 198
+// @req FR-269 — BusinessKpi and BusinessKpiObservation add two public tables;
+// this static binding includes them without granting live migration or recovery authority.
+const FROZEN_SCHEMA_SHA256 = '64baeee00e5b9ab48f3ba35a37cc3be50321c27ab7b3b41b9496710717b809ca'
+const FROZEN_TARGET_SCHEMA_SHA256 = '27aeaa988c2b203c20d0e9403ddca03c91cc6618de41e36dc2a1a913d89e2302'
+const FROZEN_APPLICATION_TABLE_COUNT = 200
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0
