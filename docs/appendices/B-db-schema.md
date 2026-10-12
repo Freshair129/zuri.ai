@@ -1,6 +1,6 @@
 # Appendix B — Database Schema Summary
 
-Version diff 1.65.0b → 1.66.0b (2026-10-12): add BusinessKpi and BusinessKpiObservation (FR-269), including Business → KPI → observation cascades, Person SetNull, and snapshot restore ordering. The schema declares 200 models. SQLite and Supabase migrations are authored locally and not production-applied.
+Version diff 1.66.0b → 1.67.0b (2026-10-12): add `BusinessLeadMeasure`, `BusinessLeadMeasureValue`, `BusinessWeeklyCommitment` and `BusinessWigSession` for FR-270; extend BusinessGoal with WIG/lag-Key-Result fields and BusinessKeyResult with its lag-measure flag. The schema declares 204 models. SQLite and Supabase migrations are authored locally and not production-applied.
 
 Version diff 1.64.0b → 1.65.0b (2026-10-10): reconcile the API-010 branch with current main. The schema declares 198 models, preserving MemoryProjectionReceipt and all three Marketing custody models. Both 1.64.0b entries below retain their branch provenance. No live migration or deployment.
 
@@ -69,9 +69,9 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.63.0b |
-| **Status** | Draft |
-| **Last Updated** | 2026-09-26 |
+| **Version** | 1.67.0b |
+| **Status** | Candidate |
+| **Last Updated** | 2026-10-12 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -165,12 +165,16 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | ProjectFile | projectId, workItemId?, name, mime, size, url/blobRef, version, uploadedBy | metadata/reference only; optional WorkItem must belong to Project (FR-037) |
 | BusinessRoadmap | businessId, code, title, status, startAt/targetAt | Business-level direction container (FR-041) |
 | BusinessRoadmapHorizon | roadmapId, key, label, position, targetAt | ordered short/medium/long horizon; service allows 2 or 3 |
-| BusinessGoal | businessId, roadmapId?, horizonId?, code, title, status, progress, perspective?, isWig | Business goal displayed in Strategy Overview; `progress` becomes a write-through cache once a non-archived `BusinessKeyResult` exists (SDD-107, BR-044) |
+| BusinessGoal | businessId, roadmapId?, horizonId?, code, title, status, progress, perspective?, isWig, lagKeyResultId? | Business goal displayed in Strategy Overview; `progress` becomes a write-through cache once a non-archived `BusinessKeyResult` exists (SDD-107, BR-044); WIG flag and optional same-Goal lag KR are OWNER-managed (FR-270) |
 | ProjectGoal | projectId, goalId | optional many-to-many link; Project remains a Development resource |
-| BusinessKeyResult | goalId, businessId, code, title, metric, unit, baseline, target, direction, dueAt?, ownerPersonId?, confidence, status | FR-268 — a measurable child of BusinessGoal (OKR Key Result); no stored progress/status, both computed on every read from `(baseline, target, direction, latest check-in)` (SDD-107) |
+| BusinessKeyResult | goalId, businessId, code, title, metric, unit, baseline, target, direction, dueAt?, ownerPersonId?, confidence, status, isLagMeasure | FR-268 / FR-270 — a measurable child of BusinessGoal (OKR Key Result); no stored progress/status, both computed on every read from `(baseline, target, direction, latest check-in)` (SDD-107); active lag KR is unique per Goal |
 | BusinessKeyResultCheckIn | keyResultId, weekStartAt unique per keyResultId, value, confidence, note?, actorPersonId? | FR-268 — append-only weekly check-in; `weekStartAt` is server-computed (`weekStartFor`, Monday 00:00 Asia/Bangkok), never a client field |
 | BusinessKpi | businessId → Business (Cascade), name, perspective, unit, finite target/warningThreshold, direction, cadence, status, version, timestamps | FR-269 — OWNER-managed manual scorecard definition; threshold order follows direction; result status is derived from the latest observation and never stored or folded into FR-060 composite health |
 | BusinessKpiObservation | kpiId → BusinessKpi (Cascade), finite value, observedAt, createdAt, actorPersonId? → Person (SetNull), note? | FR-269 — append-only manual observation history; latest ordered by observedAt/createdAt/id descending; exported/restored after BusinessKpi; Business hard-delete erases the KPI and its observations |
+| BusinessLeadMeasure | businessId → Business (Cascade), goalId → BusinessGoal (Cascade), name, unit, finite weeklyTarget, direction, status, version | FR-270 — OWNER-managed measure under an active WIG; archive preserves child value history; backup after Business and BusinessGoal |
+| BusinessLeadMeasureValue | leadMeasureId → BusinessLeadMeasure (Cascade), weekStartAt, finite value, note?, actorPersonId? → Person (SetNull) | FR-270 — append-only immutable weekly value; Bangkok Monday bucket, corrections append new history; backup after BusinessLeadMeasure |
+| BusinessWeeklyCommitment | businessId → Business (Cascade), weekStartAt, ownerPersonId? → Person (SetNull), leadMeasureId? → BusinessLeadMeasure (SetNull), title, done | FR-270 — audited current/next-week commitment assigned only to a direct active Business member; backup after its parents |
+| BusinessWigSession | businessId → Business (Cascade), weekStartAt, reportAt?, scoreboardAt?, planAt? | FR-270 — explicit OWNER-updated weekly step state, created on first write and unique per Business/week; backup after Business |
 | AuditEvent | entityType, entityId, action, payloadJson, actorType | append-only (SEC-003). `entityType` is **SCREAMING_SNAKE_CASE**, enforced by preflight `audit-entity-type`. It names a *category*, not a Prisma model — `SNAPSHOT`, `STEP_UP`, `AGENT_ACTION` and `PLUGIN_AUTH_MAINTENANCE` have no model behind them — so it is never spelled like one. Four other models carry a column of the same name (`RawExternalRecord`, `ExternalEntityRef`, `ExternalRef`, `FileLink`); those are a separate vocabulary of provider-side and link-side kinds (`listing`, `retail_price`) and this rule does not reach them |
 | PipelineRun | executionRunId unique, dataPipelineDefinitionId, executionContractId, tenantId, businessId?, status, hashes, counts, replay lineage, heartbeat | server-owned full-pipeline run envelope; distinct from IngestionRun and PlanImportReceipt (FR-071) |
 | PipelineStep | executionStepId unique, runId, pipelineStageId, sequence, attemptId unique, status, hashes, failure evidence, heartbeat | one stage occurrence/attempt; retries create new executionStepId/attemptId (FR-071) |

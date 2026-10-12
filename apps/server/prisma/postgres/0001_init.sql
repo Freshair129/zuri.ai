@@ -543,6 +543,7 @@ CREATE TABLE "BusinessKeyResult" (
     "ownerPersonId" TEXT,
     "confidence" INTEGER NOT NULL DEFAULT 3,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "isLagMeasure" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 1,
@@ -563,6 +564,99 @@ CREATE TABLE "BusinessKeyResultCheckIn" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "BusinessKeyResultCheckIn_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessKpi" (
+    "id" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "perspective" TEXT NOT NULL,
+    "unit" TEXT NOT NULL,
+    "target" DOUBLE PRECISION NOT NULL,
+    "warningThreshold" DOUBLE PRECISION NOT NULL,
+    "direction" TEXT NOT NULL DEFAULT 'UP',
+    "cadence" TEXT NOT NULL DEFAULT 'MONTHLY',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "BusinessKpi_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessKpiObservation" (
+    "id" TEXT NOT NULL,
+    "kpiId" TEXT NOT NULL,
+    "value" DOUBLE PRECISION NOT NULL,
+    "observedAt" TIMESTAMP(3) NOT NULL,
+    "actorPersonId" TEXT,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "BusinessKpiObservation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessLeadMeasure" (
+    "id" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "goalId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "unit" TEXT NOT NULL,
+    "weeklyTarget" DOUBLE PRECISION NOT NULL,
+    "direction" TEXT NOT NULL DEFAULT 'UP',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "BusinessLeadMeasure_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessLeadMeasureValue" (
+    "id" TEXT NOT NULL,
+    "leadMeasureId" TEXT NOT NULL,
+    "weekStartAt" TIMESTAMP(3) NOT NULL,
+    "value" DOUBLE PRECISION NOT NULL,
+    "actorPersonId" TEXT,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "BusinessLeadMeasureValue_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessWeeklyCommitment" (
+    "id" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "weekStartAt" TIMESTAMP(3) NOT NULL,
+    "ownerPersonId" TEXT,
+    "leadMeasureId" TEXT,
+    "title" TEXT NOT NULL,
+    "done" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "BusinessWeeklyCommitment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessWigSession" (
+    "id" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "weekStartAt" TIMESTAMP(3) NOT NULL,
+    "reportCompletedAt" TIMESTAMP(3),
+    "scoreboardCompletedAt" TIMESTAMP(3),
+    "planCompletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "BusinessWigSession_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1197,6 +1291,7 @@ CREATE TABLE "Customer" (
     "consentRecordedAt" TIMESTAMP(3),
     "consentRecordedByPersonId" TEXT,
     "consentNote" TEXT,
+    "memoryErasureStatus" TEXT NOT NULL DEFAULT 'NONE',
 
     CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
@@ -1309,6 +1404,7 @@ CREATE TABLE "Message" (
     "externalMessageId" TEXT,
     "contentKind" TEXT NOT NULL DEFAULT 'TEXT',
     "sessionId" TEXT,
+    "authorChannelIdentityId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
@@ -1421,6 +1517,34 @@ CREATE TABLE "CustomerLegalHold" (
 );
 
 -- CreateTable
+CREATE TABLE "CustomerRetentionConsent" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "recordedByPersonId" TEXT NOT NULL,
+    "recordedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "note" TEXT,
+    "revokedAt" TIMESTAMP(3),
+    "revokedByPersonId" TEXT,
+
+    CONSTRAINT "CustomerRetentionConsent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LegalHoldArchiveKey" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "legalHoldId" TEXT NOT NULL,
+    "heldCustomerId" TEXT NOT NULL,
+    "kekId" TEXT NOT NULL,
+    "wrappedDek" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "LegalHoldArchiveKey_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "ConversationAnalysis" (
     "id" TEXT NOT NULL,
     "conversationId" TEXT NOT NULL,
@@ -1474,6 +1598,55 @@ CREATE TABLE "AgentTraceEvent" (
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "AgentTraceEvent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MemoryProjectionReceipt" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "lineConversationJobId" TEXT NOT NULL,
+    "crmMessageId" TEXT,
+    "principalId" TEXT NOT NULL,
+    "direction" TEXT NOT NULL,
+    "episodicMemoryOptIn" BOOLEAN NOT NULL DEFAULT false,
+    "mspThreadId" TEXT NOT NULL,
+    "mspSessionId" TEXT NOT NULL,
+    "mspMessageId" TEXT NOT NULL,
+    "mspExchangeId" TEXT NOT NULL,
+    "acknowledgedAt" TIMESTAMP(3) NOT NULL,
+    "deliveryState" TEXT NOT NULL DEFAULT 'PENDING',
+    "deliveryAcknowledgedAt" TIMESTAMP(3),
+    "deliveryReceiptId" TEXT,
+    "erasureStatus" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "erasureReceiptId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "MemoryProjectionReceipt_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LineGroundingShadowComparison" (
+    "id" TEXT NOT NULL,
+    "jobId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "accountId" TEXT,
+    "primaryMode" TEXT NOT NULL,
+    "shadowMode" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "primaryAnswerText" TEXT,
+    "shadowAnswerText" TEXT,
+    "shadowEvidenceSource" TEXT,
+    "shadowEvidenceReason" TEXT,
+    "shadowRetrievalRefsJson" TEXT,
+    "answersDiverge" BOOLEAN,
+    "latencyMs" INTEGER,
+    "errorCode" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "LineGroundingShadowComparison_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -2047,6 +2220,50 @@ CREATE TABLE "KnowledgeCandidate" (
 );
 
 -- CreateTable
+CREATE TABLE "NotionOAuthState" (
+    "id" TEXT NOT NULL,
+    "stateHash" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "actorId" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "consumedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "NotionOAuthState_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "NotionWebhookVerificationToken" (
+    "id" TEXT NOT NULL,
+    "kekId" TEXT NOT NULL,
+    "wrappedDek" TEXT NOT NULL,
+    "iv" TEXT NOT NULL,
+    "tag" TEXT NOT NULL,
+    "ciphertext" TEXT NOT NULL,
+    "revealedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "NotionWebhookVerificationToken_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "NotionWebhookReceipt" (
+    "eventId" TEXT NOT NULL,
+    "eventType" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "occurredAt" TIMESTAMP(3) NOT NULL,
+    "receivedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "NotionWebhookReceipt_pkey" PRIMARY KEY ("eventId")
+);
+
+-- CreateTable
 CREATE TABLE "IntegrationProvider" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -2421,6 +2638,9 @@ CREATE TABLE "LineOaAccount" (
     "runtimeOwner" TEXT NOT NULL DEFAULT 'SERVER',
     "modelAccess" TEXT NOT NULL DEFAULT 'LOCAL_ONLY',
     "knowledgeGrounding" TEXT NOT NULL DEFAULT 'BUSINESS_KNOWLEDGE',
+    "knowledgeGroundingShadow" BOOLEAN NOT NULL DEFAULT false,
+    "memoryPolicy" TEXT NOT NULL DEFAULT 'OFF',
+    "memoryProjectId" TEXT,
     "allowDelayedPush" BOOLEAN NOT NULL DEFAULT false,
     "transportEpoch" INTEGER NOT NULL DEFAULT 1,
     "webhookStateJson" TEXT,
@@ -2583,6 +2803,9 @@ CREATE TABLE "LineConversationJob" (
     "acceptedAt" TIMESTAMP(3),
     "errorCode" TEXT,
     "memorySyncOptIn" BOOLEAN NOT NULL DEFAULT false,
+    "episodicMemoryOptIn" BOOLEAN NOT NULL DEFAULT false,
+    "episodicWorkspaceId" TEXT,
+    "episodicProjectId" TEXT,
     "memoryDeliveryState" TEXT NOT NULL DEFAULT 'NONE',
     "memoryDeliveryAttempts" INTEGER NOT NULL DEFAULT 0,
     "memoryDeliveryNextAttemptAt" TIMESTAMP(3),
@@ -3840,6 +4063,63 @@ CREATE TABLE "PricingCalculation" (
     CONSTRAINT "PricingCalculation_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "MarketingReportPolicy" (
+    "businessId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "ingestEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "MarketingReportPolicy_pkey" PRIMARY KEY ("businessId")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingReportBinding" (
+    "id" TEXT NOT NULL,
+    "keyHash" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "sourceSystem" TEXT NOT NULL DEFAULT 'zuri-go',
+    "sourceDeploymentId" TEXT NOT NULL,
+    "sourceBusinessId" TEXT NOT NULL,
+    "permission" TEXT NOT NULL DEFAULT 'marketing.report.ingest',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revokedAt" TIMESTAMP(3),
+
+    CONSTRAINT "MarketingReportBinding_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingExternalReport" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "bindingId" TEXT NOT NULL,
+    "initiativeId" TEXT NOT NULL,
+    "planId" TEXT NOT NULL,
+    "sourceDeploymentId" TEXT NOT NULL,
+    "sourceBusinessId" TEXT NOT NULL,
+    "sourceCampaignId" TEXT NOT NULL,
+    "sourceReportId" TEXT NOT NULL,
+    "contractVersion" TEXT NOT NULL,
+    "reportRevision" INTEGER NOT NULL,
+    "supersedesReportId" TEXT,
+    "canonicalEnvelope" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "receiverReceiptId" TEXT NOT NULL,
+    "acceptedAt" TIMESTAMP(3) NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACCEPTED_REPORTED_EVIDENCE',
+    "retentionPolicyVersion" INTEGER NOT NULL DEFAULT 1,
+    "retainUntil" TIMESTAMP(3) NOT NULL,
+    "auditEventId" TEXT NOT NULL,
+
+    CONSTRAINT "MarketingExternalReport_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_code_key" ON "Portfolio"("code");
 
@@ -4127,6 +4407,36 @@ CREATE INDEX "BusinessKeyResultCheckIn_keyResultId_idx" ON "BusinessKeyResultChe
 
 -- CreateIndex
 CREATE UNIQUE INDEX "BusinessKeyResultCheckIn_keyResultId_weekStartAt_key" ON "BusinessKeyResultCheckIn"("keyResultId", "weekStartAt");
+
+-- CreateIndex
+CREATE INDEX "BusinessKpi_businessId_status_perspective_idx" ON "BusinessKpi"("businessId", "status", "perspective");
+
+-- CreateIndex
+CREATE INDEX "BusinessKpiObservation_kpiId_observedAt_idx" ON "BusinessKpiObservation"("kpiId", "observedAt");
+
+-- CreateIndex
+CREATE INDEX "BusinessLeadMeasure_businessId_status_idx" ON "BusinessLeadMeasure"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "BusinessLeadMeasure_goalId_status_idx" ON "BusinessLeadMeasure"("goalId", "status");
+
+-- CreateIndex
+CREATE INDEX "BusinessLeadMeasureValue_leadMeasureId_weekStartAt_createdA_idx" ON "BusinessLeadMeasureValue"("leadMeasureId", "weekStartAt", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "BusinessWeeklyCommitment_businessId_weekStartAt_done_idx" ON "BusinessWeeklyCommitment"("businessId", "weekStartAt", "done");
+
+-- CreateIndex
+CREATE INDEX "BusinessWeeklyCommitment_ownerPersonId_weekStartAt_idx" ON "BusinessWeeklyCommitment"("ownerPersonId", "weekStartAt");
+
+-- CreateIndex
+CREATE INDEX "BusinessWeeklyCommitment_leadMeasureId_idx" ON "BusinessWeeklyCommitment"("leadMeasureId");
+
+-- CreateIndex
+CREATE INDEX "BusinessWigSession_businessId_weekStartAt_idx" ON "BusinessWigSession"("businessId", "weekStartAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BusinessWigSession_businessId_weekStartAt_key" ON "BusinessWigSession"("businessId", "weekStartAt");
 
 -- CreateIndex
 CREATE INDEX "ProjectGoal_goalId_idx" ON "ProjectGoal"("goalId");
@@ -4498,6 +4808,9 @@ CREATE INDEX "Message_conversationId_idx" ON "Message"("conversationId");
 CREATE INDEX "Message_sessionId_idx" ON "Message"("sessionId");
 
 -- CreateIndex
+CREATE INDEX "Message_authorChannelIdentityId_idx" ON "Message"("authorChannelIdentityId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Message_conversationId_externalMessageId_key" ON "Message"("conversationId", "externalMessageId");
 
 -- CreateIndex
@@ -4549,6 +4862,21 @@ CREATE INDEX "CustomerLegalHold_tenantId_idx" ON "CustomerLegalHold"("tenantId")
 CREATE INDEX "CustomerLegalHold_customerId_endDate_idx" ON "CustomerLegalHold"("customerId", "endDate");
 
 -- CreateIndex
+CREATE INDEX "CustomerRetentionConsent_tenantId_idx" ON "CustomerRetentionConsent"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "CustomerRetentionConsent_customerId_revokedAt_idx" ON "CustomerRetentionConsent"("customerId", "revokedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LegalHoldArchiveKey_legalHoldId_key" ON "LegalHoldArchiveKey"("legalHoldId");
+
+-- CreateIndex
+CREATE INDEX "LegalHoldArchiveKey_tenantId_idx" ON "LegalHoldArchiveKey"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "LegalHoldArchiveKey_heldCustomerId_idx" ON "LegalHoldArchiveKey"("heldCustomerId");
+
+-- CreateIndex
 CREATE INDEX "ConversationAnalysis_conversationId_analyzedDate_idx" ON "ConversationAnalysis"("conversationId", "analyzedDate");
 
 -- CreateIndex
@@ -4582,7 +4910,31 @@ CREATE INDEX "AgentTraceEvent_tenantId_businessId_turnId_occurredAt_idx" ON "Age
 CREATE INDEX "AgentTraceEvent_tenantId_businessId_turnId_createdAt_idx" ON "AgentTraceEvent"("tenantId", "businessId", "turnId", "createdAt");
 
 -- CreateIndex
+CREATE INDEX "AgentTraceEvent_kind_occurredAt_id_idx" ON "AgentTraceEvent"("kind", "occurredAt", "id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "AgentTraceEvent_scope_idempotency_key" ON "AgentTraceEvent"("tenantId", "businessId", "idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "MemoryProjectionReceipt_erasure_lookup_idx" ON "MemoryProjectionReceipt"("tenantId", "principalId", "erasureStatus");
+
+-- CreateIndex
+CREATE INDEX "MemoryProjectionReceipt_business_created_idx" ON "MemoryProjectionReceipt"("businessId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MemoryProjectionReceipt_job_direction_key" ON "MemoryProjectionReceipt"("lineConversationJobId", "direction");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MemoryProjectionReceipt_crm_direction_key" ON "MemoryProjectionReceipt"("crmMessageId", "direction");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LineGroundingShadowComparison_jobId_key" ON "LineGroundingShadowComparison"("jobId");
+
+-- CreateIndex
+CREATE INDEX "LineGroundingShadowComparison_tenantId_businessId_createdAt_idx" ON "LineGroundingShadowComparison"("tenantId", "businessId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "LineGroundingShadowComparison_accountId_createdAt_idx" ON "LineGroundingShadowComparison"("accountId", "createdAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PipelineRun_executionRunId_key" ON "PipelineRun"("executionRunId");
@@ -4798,6 +5150,21 @@ CREATE INDEX "KnowledgeCandidate_conversationId_idx" ON "KnowledgeCandidate"("co
 CREATE UNIQUE INDEX "KnowledgeCandidate_businessId_idempotencyKey_key" ON "KnowledgeCandidate"("businessId", "idempotencyKey");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "NotionOAuthState_stateHash_key" ON "NotionOAuthState"("stateHash");
+
+-- CreateIndex
+CREATE INDEX "NotionOAuthState_expiresAt_idx" ON "NotionOAuthState"("expiresAt");
+
+-- CreateIndex
+CREATE INDEX "NotionOAuthState_tenantId_businessId_actorId_idx" ON "NotionOAuthState"("tenantId", "businessId", "actorId");
+
+-- CreateIndex
+CREATE INDEX "NotionWebhookReceipt_workspaceId_receivedAt_idx" ON "NotionWebhookReceipt"("workspaceId", "receivedAt");
+
+-- CreateIndex
+CREATE INDEX "NotionWebhookReceipt_occurredAt_idx" ON "NotionWebhookReceipt"("occurredAt");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "IntegrationProvider_code_key" ON "IntegrationProvider"("code");
 
 -- CreateIndex
@@ -4961,6 +5328,9 @@ CREATE UNIQUE INDEX "LineOaAccount_integrationConnectionId_key" ON "LineOaAccoun
 
 -- CreateIndex
 CREATE INDEX "LineOaAccount_businessId_status_idx" ON "LineOaAccount"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "LineOaAccount_memoryProjectId_idx" ON "LineOaAccount"("memoryProjectId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "LineOaAccount_tenantId_code_key" ON "LineOaAccount"("tenantId", "code");
@@ -5517,6 +5887,24 @@ CREATE INDEX "PricingCalculation_ruleSetId_idx" ON "PricingCalculation"("ruleSet
 -- CreateIndex
 CREATE UNIQUE INDEX "PricingCalculation_businessId_idempotencyKey_key" ON "PricingCalculation"("businessId", "idempotencyKey");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingReportBinding_keyHash_key" ON "MarketingReportBinding"("keyHash");
+
+-- CreateIndex
+CREATE INDEX "MarketingReportBinding_businessId_status_idx" ON "MarketingReportBinding"("businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingExternalReport_receiverReceiptId_key" ON "MarketingExternalReport"("receiverReceiptId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingExternalReport_auditEventId_key" ON "MarketingExternalReport"("auditEventId");
+
+-- CreateIndex
+CREATE INDEX "MarketingExternalReport_tenantId_businessId_initiativeId_ac_idx" ON "MarketingExternalReport"("tenantId", "businessId", "initiativeId", "acceptedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingExternalReport_bindingId_sourceReportId_key" ON "MarketingExternalReport"("bindingId", "sourceReportId");
+
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -5696,6 +6084,39 @@ ALTER TABLE "BusinessKeyResultCheckIn" ADD CONSTRAINT "BusinessKeyResultCheckIn_
 
 -- AddForeignKey
 ALTER TABLE "BusinessKeyResultCheckIn" ADD CONSTRAINT "BusinessKeyResultCheckIn_actorPersonId_fkey" FOREIGN KEY ("actorPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessKpi" ADD CONSTRAINT "BusinessKpi_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessKpiObservation" ADD CONSTRAINT "BusinessKpiObservation_kpiId_fkey" FOREIGN KEY ("kpiId") REFERENCES "BusinessKpi"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessKpiObservation" ADD CONSTRAINT "BusinessKpiObservation_actorPersonId_fkey" FOREIGN KEY ("actorPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessLeadMeasure" ADD CONSTRAINT "BusinessLeadMeasure_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessLeadMeasure" ADD CONSTRAINT "BusinessLeadMeasure_goalId_fkey" FOREIGN KEY ("goalId") REFERENCES "BusinessGoal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessLeadMeasureValue" ADD CONSTRAINT "BusinessLeadMeasureValue_leadMeasureId_fkey" FOREIGN KEY ("leadMeasureId") REFERENCES "BusinessLeadMeasure"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessLeadMeasureValue" ADD CONSTRAINT "BusinessLeadMeasureValue_actorPersonId_fkey" FOREIGN KEY ("actorPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessWeeklyCommitment" ADD CONSTRAINT "BusinessWeeklyCommitment_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessWeeklyCommitment" ADD CONSTRAINT "BusinessWeeklyCommitment_ownerPersonId_fkey" FOREIGN KEY ("ownerPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessWeeklyCommitment" ADD CONSTRAINT "BusinessWeeklyCommitment_leadMeasureId_fkey" FOREIGN KEY ("leadMeasureId") REFERENCES "BusinessLeadMeasure"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessWigSession" ADD CONSTRAINT "BusinessWigSession_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProjectGoal" ADD CONSTRAINT "ProjectGoal_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -5947,6 +6368,15 @@ ALTER TABLE "CustomerLegalHold" ADD CONSTRAINT "CustomerLegalHold_customerId_fke
 ALTER TABLE "CustomerLegalHold" ADD CONSTRAINT "CustomerLegalHold_recordedByPersonId_fkey" FOREIGN KEY ("recordedByPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "CustomerRetentionConsent" ADD CONSTRAINT "CustomerRetentionConsent_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerRetentionConsent" ADD CONSTRAINT "CustomerRetentionConsent_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerRetentionConsent" ADD CONSTRAINT "CustomerRetentionConsent_recordedByPersonId_fkey" FOREIGN KEY ("recordedByPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ConversationAnalysis" ADD CONSTRAINT "ConversationAnalysis_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -6116,6 +6546,9 @@ ALTER TABLE "LineOaAccount" ADD CONSTRAINT "LineOaAccount_businessId_fkey" FOREI
 
 -- AddForeignKey
 ALTER TABLE "LineOaAccount" ADD CONSTRAINT "LineOaAccount_integrationConnectionId_fkey" FOREIGN KEY ("integrationConnectionId") REFERENCES "IntegrationConnection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaAccount" ADD CONSTRAINT "LineOaAccount_memoryProjectId_fkey" FOREIGN KEY ("memoryProjectId") REFERENCES "Project"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LineOaRichMenu" ADD CONSTRAINT "LineOaRichMenu_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -6650,4 +7083,34 @@ ALTER TABLE "PricingCalculation" ADD CONSTRAINT "PricingCalculation_businessId_f
 
 -- AddForeignKey
 ALTER TABLE "PricingCalculation" ADD CONSTRAINT "PricingCalculation_ruleSetId_fkey" FOREIGN KEY ("ruleSetId") REFERENCES "PricingRuleSet"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingReportPolicy" ADD CONSTRAINT "MarketingReportPolicy_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "MarketingReportPolicy" ADD CONSTRAINT "MarketingReportPolicy_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "MarketingReportBinding" ADD CONSTRAINT "MarketingReportBinding_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "MarketingReportBinding" ADD CONSTRAINT "MarketingReportBinding_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "MarketingReportPolicy"("businessId") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "MarketingExternalReport" ADD CONSTRAINT "MarketingExternalReport_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "MarketingExternalReport" ADD CONSTRAINT "MarketingExternalReport_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "MarketingExternalReport" ADD CONSTRAINT "MarketingExternalReport_bindingId_fkey" FOREIGN KEY ("bindingId") REFERENCES "MarketingReportBinding"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "MarketingExternalReport" ADD CONSTRAINT "MarketingExternalReport_initiativeId_fkey" FOREIGN KEY ("initiativeId") REFERENCES "MarketingInitiative"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "MarketingExternalReport" ADD CONSTRAINT "MarketingExternalReport_planId_fkey" FOREIGN KEY ("planId") REFERENCES "MarketingPlan"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "MarketingExternalReport" ADD CONSTRAINT "MarketingExternalReport_auditEventId_fkey" FOREIGN KEY ("auditEventId") REFERENCES "AuditEvent"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 

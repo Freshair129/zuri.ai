@@ -273,8 +273,11 @@ describe('OpenAPI document', () => {
       // FR-269 adds KPI create, patch and observation append endpoints.
       // The route inventory includes one additional explicit callback path:
       // 333 + 3 = 336 paths; 438 + 3 = 441 operations.
-      pathCount: 336,
-      operationCount: 441,
+      // FR-270 adds seven owner-scoped WIG, lead-measure, value, commitment,
+      // and session-step paths, each with one explicit mutation operation:
+      // 336 + 7 = 343 paths; 441 + 7 = 448 operations.
+      pathCount: 343,
+      operationCount: 448,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')

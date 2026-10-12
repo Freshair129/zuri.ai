@@ -191,6 +191,18 @@ export const zGoalPatchInput = z.object({
   targetAt: z.coerce.date().nullish().optional(),
 })
 
+export const zGoalWigInput = z.object({
+  isWig: z.boolean(),
+  lagKeyResultId: z.string().min(1).nullable().optional(),
+}).strict().superRefine((value, context) => {
+  if (value.isWig && !value.lagKeyResultId) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['lagKeyResultId'], message: 'A WIG requires one lag Key Result' })
+  }
+  if (!value.isWig && value.lagKeyResultId) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['lagKeyResultId'], message: 'Disable the WIG without selecting a lag Key Result' })
+  }
+})
+
 // @req FR-268 — a Key Result under an existing goal. `goalId` is a function
 // parameter (createKeyResult(goalId, input, …)), never a body field — the
 // same shape linkProjectToGoal already uses, so a caller cannot claim a
@@ -349,6 +361,7 @@ function serializeKeyResultDto(kr, now = Date.now()) {
     ownerPersonId: kr.ownerPersonId,
     confidence: kr.confidence,
     status: kr.status,
+    isLagMeasure: kr.isLagMeasure,
     current,
     progress: keyResultProgress(kr, current),
     expectedProgress: expectedProgress(kr, now),
@@ -711,6 +724,27 @@ export async function updateGoal(id, patch, { db = prisma, viewer } = {}) {
   }
 
   const goal = await db.$transaction(async (tx) => {
+    if (data.status !== undefined) {
+      await lockBusinessWigState(tx, businessId)
+      const fresh = await tx.businessGoal.findUnique({
+        where: { id },
+        select: { id: true, businessId: true, status: true, isWig: true },
+      })
+      if (fresh?.isWig && fresh.status === 'ARCHIVED' && data.status !== 'ARCHIVED') {
+        const [activeWigs, activeLagKeyResults] = await Promise.all([
+          tx.businessGoal.count({
+            where: { businessId, id: { not: id }, isWig: true, status: { not: 'ARCHIVED' } },
+          }),
+          tx.businessKeyResult.count({
+            where: { goalId: id, isLagMeasure: true, status: { not: 'ARCHIVED' } },
+          }),
+        ])
+        if (activeWigs >= 2) throw conflict('This Business already has two active WIGs (BR-043)')
+        if (activeLagKeyResults !== 1) {
+          throw conflict('Reopen this WIG only after restoring one non-archived lag Key Result')
+        }
+      }
+    }
     const updated = await tx.businessGoal.update({
       where: { id },
       data: {
@@ -739,6 +773,100 @@ export async function updateGoal(id, patch, { db = prisma, viewer } = {}) {
   })
 
   return serializeGoalDto(goal, businessId)
+}
+
+// @req FR-270, BR-043, ADR-101 D5 — the Business row is the shared
+// serialization point for writers that can change the active WIG count or
+// selected lag-Key-Result invariant. The write precedes the count so competing
+// transactions queue on the same row in SQLite and PostgreSQL; any conflict
+// rolls the version bump back with the transaction.
+async function lockBusinessWigState(tx, businessId) {
+  await tx.business.update({ where: { id: businessId }, data: { version: { increment: 1 } } })
+}
+
+/** Set or clear a goal's WIG designation and its one lag Key Result atomically. */
+export async function setGoalWig(goalId, input, { db = prisma, viewer } = {}) {
+  requireOwner(viewer)
+  const data = zGoalWigInput.parse(input)
+  const existing = await db.businessGoal.findUnique({ where: { id: goalId }, select: { id: true, businessId: true } })
+  if (!existing) throw new Error('Goal not found')
+  assertBusinessOwned(existing.businessId, viewer)
+
+  const goal = await db.$transaction(async (tx) => {
+    await lockBusinessWigState(tx, existing.businessId)
+    const current = await tx.businessGoal.findUnique({ where: { id: goalId }, include: GOAL_INCLUDE })
+    if (!current) throw new Error('Goal not found')
+    const currentLagId = (current.keyResults || []).find((keyResult) => keyResult.isLagMeasure)?.id ?? null
+
+    if (current.isWig === data.isWig && (data.isWig ? currentLagId === data.lagKeyResultId : currentLagId === null)) {
+      return current
+    }
+
+    if (data.isWig) {
+      if (current.status === 'ARCHIVED') throw conflict('An archived goal cannot be activated as a WIG')
+      const lagKeyResult = await tx.businessKeyResult.findFirst({
+        where: {
+          id: data.lagKeyResultId,
+          goalId,
+          businessId: existing.businessId,
+          status: { not: 'ARCHIVED' },
+        },
+        select: { id: true },
+      })
+      if (!lagKeyResult) throw badRequest('lagKeyResultId must name a non-archived Key Result of this Goal')
+
+      if (!current.isWig) {
+        const activeWigs = await tx.businessGoal.count({
+          where: { businessId: existing.businessId, isWig: true, status: { not: 'ARCHIVED' } },
+        })
+        if (activeWigs >= 2) throw conflict('This Business already has two active WIGs (BR-043)')
+      }
+
+      await tx.businessKeyResult.updateMany({
+        where: { goalId, isLagMeasure: true },
+        data: { isLagMeasure: false, version: { increment: 1 } },
+      })
+      await tx.businessKeyResult.update({
+        where: { id: lagKeyResult.id },
+        data: { isLagMeasure: true, version: { increment: 1 } },
+      })
+      const updated = await tx.businessGoal.update({
+        where: { id: goalId },
+        data: { isWig: true, version: { increment: 1 } },
+        include: GOAL_INCLUDE,
+      })
+      await recordAudit(tx, {
+        entityType: 'BUSINESS_GOAL',
+        entityId: goalId,
+        action: current.isWig ? 'WIG_LAG_MEASURE_CHANGED' : 'WIG_ENABLED',
+        payload: { isWig: true, lagKeyResultId: lagKeyResult.id },
+        actorId: viewer.principal?.id ?? null,
+        businessId: existing.businessId,
+      })
+      return updated
+    }
+
+    await tx.businessKeyResult.updateMany({
+      where: { goalId, isLagMeasure: true },
+      data: { isLagMeasure: false, version: { increment: 1 } },
+    })
+    const updated = await tx.businessGoal.update({
+      where: { id: goalId },
+      data: { isWig: false, version: { increment: 1 } },
+      include: GOAL_INCLUDE,
+    })
+    await recordAudit(tx, {
+      entityType: 'BUSINESS_GOAL',
+      entityId: goalId,
+      action: 'WIG_DISABLED',
+      payload: { isWig: false, lagKeyResultId: null },
+      actorId: viewer.principal?.id ?? null,
+      businessId: existing.businessId,
+    })
+    return updated
+  })
+
+  return serializeGoalDto(goal, existing.businessId)
 }
 
 // ---- goal <-> project link --------------------------------------------------
@@ -918,19 +1046,31 @@ export async function updateKeyResult(id, patch, { db = prisma, viewer } = {}) {
   }
 
   const kr = await db.$transaction(async (tx) => {
+    let current = existing
+    if (data.status !== undefined) {
+      await lockBusinessWigState(tx, existing.businessId)
+      current = await tx.businessKeyResult.findUnique({ where: { id } })
+      const parentGoal = await tx.businessGoal.findUnique({
+        where: { id: current.goalId },
+        select: { status: true, isWig: true },
+      })
+      if (data.status === 'ARCHIVED' && current.isLagMeasure && parentGoal?.isWig && parentGoal.status !== 'ARCHIVED') {
+        throw conflict('The lag Key Result of an active WIG cannot be archived')
+      }
+    }
     const updated = await tx.businessKeyResult.update({
       where: { id },
       data: {
-        title: data.title ?? existing.title,
-        metric: data.metric ?? existing.metric,
-        unit: data.unit ?? existing.unit,
-        baseline: data.baseline ?? existing.baseline,
-        target: data.target ?? existing.target,
-        direction: data.direction ?? existing.direction,
-        dueAt: data.dueAt === undefined ? existing.dueAt : data.dueAt,
-        ownerPersonId: data.ownerPersonId === undefined ? existing.ownerPersonId : data.ownerPersonId,
-        confidence: data.confidence ?? existing.confidence,
-        status: data.status ?? existing.status,
+        title: data.title ?? current.title,
+        metric: data.metric ?? current.metric,
+        unit: data.unit ?? current.unit,
+        baseline: data.baseline ?? current.baseline,
+        target: data.target ?? current.target,
+        direction: data.direction ?? current.direction,
+        dueAt: data.dueAt === undefined ? current.dueAt : data.dueAt,
+        ownerPersonId: data.ownerPersonId === undefined ? current.ownerPersonId : data.ownerPersonId,
+        confidence: data.confidence ?? current.confidence,
+        status: data.status ?? current.status,
         version: { increment: 1 },
       },
       include: KEY_RESULT_INCLUDE,

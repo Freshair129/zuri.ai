@@ -28,6 +28,7 @@ import { MODE_LABELS, SLUG_BY_MODE } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
 import BusinessKpiScorecard from '@/modules/project-manager/components/BusinessKpiScorecard'
+import BusinessWigExecution from '@/modules/project-manager/components/BusinessWigExecution'
 import { RoadmapModal, GoalModal, LinkProjectModal, KeyResultModal, CheckInModal } from '@/modules/project-manager/components/StrategyEditModals'
 import { DOMAINS } from '@/config/domains'
 import { buildBusinessHomeReadModel, DOMAIN_STATE } from '@/modules/business/application/business-home-read-model'
@@ -453,6 +454,13 @@ function BusinessOverview({ scope }) {
             loading={strategy.loading}
             error={strategy.error}
             retry={strategy.reload}
+            onSaved={refreshStrategy}
+          />
+          <BusinessWigExecution
+            businessId={businessId}
+            execution={strategy.data?.wigExecution}
+            goals={strategy.data?.goals || []}
+            canManage={isOwner}
             onSaved={refreshStrategy}
           />
           <StrategyCard

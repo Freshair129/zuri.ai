@@ -188,11 +188,42 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/api/business/goals/\[id\]/lead-measures/route.js](../../../apps/server/src/app/api/business/goals/%5Bid%5D/lead-measures/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/business/goals/\[id\]/wig/route.js](../../../apps/server/src/app/api/business/goals/%5Bid%5D/wig/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/business/lead-measures/\[id\]/route.js](../../../apps/server/src/app/api/business/lead-measures/%5Bid%5D/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/business/lead-measures/\[id\]/values/route.js](../../../apps/server/src/app/api/business/lead-measures/%5Bid%5D/values/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/business/weekly-commitments/\[id\]/route.js](../../../apps/server/src/app/api/business/weekly-commitments/%5Bid%5D/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/business/weekly-commitments/route.js](../../../apps/server/src/app/api/business/weekly-commitments/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/business/wig-sessions/steps/route.js](../../../apps/server/src/app/api/business/wig-sessions/steps/route.js) — `implements` (`annotation`)
+- [apps/server/src/modules/business/application/business-strategy-service.js](../../../apps/server/src/modules/business/application/business-strategy-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js](../../../apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/business-wig-execution-service.js](../../../apps/server/src/modules/project-manager/application/business-wig-execution-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/components/BusinessWigExecution.jsx](../../../apps/server/src/modules/project-manager/components/BusinessWigExecution.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/progress/week.js](../../../apps/server/src/modules/project-manager/progress/week.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/fr270-business-wig-execution.spec.js](../../../apps/server/tests/e2e/fr270-business-wig-execution.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr059-business-strategy-mutation.test.js](../../../apps/server/tests/integration/fr059-business-strategy-mutation.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr270-business-wig-execution.test.js](../../../apps/server/tests/integration/fr270-business-wig-execution.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/line-server-backup.test.js](../../../apps/server/tests/integration/line-server-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/marketing-backup.test.js](../../../apps/server/tests/integration/marketing-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/phase-b-recovery.test.js](../../../apps/server/tests/integration/phase-b-recovery.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/business-strategy-service.test.js](../../../apps/server/tests/unit/business-strategy-service.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr059-strategy-validation.test.js](../../../apps/server/tests/unit/fr059-strategy-validation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr268-week.test.js](../../../apps/server/tests/unit/fr268-week.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr270-business-wig-execution-ui.test.js](../../../apps/server/tests/unit/fr270-business-wig-execution-ui.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-271](requirements/FR-271.md)
 

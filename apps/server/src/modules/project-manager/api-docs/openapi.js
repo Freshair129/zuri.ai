@@ -192,6 +192,12 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-269 — OWNER-scoped manual KPI create/update and append-only
   // observation; reads are additive on /api/business/strategy.
   ['/api/business/kpis', ['POST']], ['/api/business/kpis/{id}', ['PATCH']], ['/api/business/kpis/{id}/observations', ['POST']],
+  // @req FR-270 — OWNER-scoped 4DX WIG designation, lead-measure setup and
+  // values, weekly commitments, and explicit report/scoreboard/plan steps.
+  ['/api/business/goals/{id}/wig', ['PATCH']], ['/api/business/goals/{id}/lead-measures', ['POST']],
+  ['/api/business/lead-measures/{id}', ['PATCH']], ['/api/business/lead-measures/{id}/values', ['POST']],
+  ['/api/business/weekly-commitments', ['POST']], ['/api/business/weekly-commitments/{id}', ['PATCH']],
+  ['/api/business/wig-sessions/steps', ['PUT']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],
   // @req FR-169 — the only writer of Business.capabilitiesJson; PATCH only.
   ['/api/businesses/{id}/capabilities', ['PATCH']],

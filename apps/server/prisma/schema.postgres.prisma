@@ -347,6 +347,10 @@ model Business {
   businessKeyResults              BusinessKeyResult[]
   // @req FR-269 — manual Business scorecard KPIs belong to one Business.
   businessKpis                    BusinessKpi[]
+  // @req FR-270 — 4DX weekly records share the Business scope, not roadmap scope.
+  businessLeadMeasures             BusinessLeadMeasure[]
+  businessWeeklyCommitments        BusinessWeeklyCommitment[]
+  businessWigSessions              BusinessWigSession[]
 
   @@index([tenantId])
 }
@@ -459,6 +463,9 @@ model Person {
   businessKeyResultCheckIns      BusinessKeyResultCheckIn[]      @relation("BusinessKeyResultCheckInActor")
   // @req FR-269 — the Business OWNER who recorded a manual KPI observation.
   businessKpiObservationsRecorded BusinessKpiObservation[]         @relation("BusinessKpiObservationActor")
+  // @req FR-270 — a Person named on an OWNER-recorded weekly commitment.
+  businessWeeklyCommitments      BusinessWeeklyCommitment[]      @relation("BusinessWeeklyCommitmentPerson")
+  businessLeadMeasureValuesRecorded BusinessLeadMeasureValue[]    @relation("BusinessLeadMeasureValueActor")
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -1193,6 +1200,8 @@ model BusinessGoal {
   // exist (SDD-107, BR-044) instead of the `progress` column above being
   // hand-typed.
   keyResults BusinessKeyResult[]
+  // @req FR-270 — lead measures are children of the one WIG goal they support.
+  leadMeasures BusinessLeadMeasure[]
 
   @@index([businessId, status])
   @@index([roadmapId])
@@ -1223,6 +1232,8 @@ model BusinessKeyResult {
   ownerPersonId String?
   confidence    Int       @default(3)
   status        String    @default("ACTIVE")
+  // @req ADR-101 D5, FR-270 — the selected lag Key Result of its parent WIG.
+  isLagMeasure  Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   version       Int       @default(1)
@@ -1303,6 +1314,89 @@ model BusinessKpiObservation {
   actor Person?     @relation("BusinessKpiObservationActor", fields: [actorPersonId], references: [id], onDelete: SetNull)
 
   @@index([kpiId, observedAt])
+}
+
+// @req FR-270, ADR-101 D1 — a weekly-target measure controlled by the team
+// and attached to one BusinessGoal that is designated WIG by application logic.
+model BusinessLeadMeasure {
+  id           String   @id @default(uuid())
+  businessId   String
+  goalId       String
+  name         String
+  unit         String
+  weeklyTarget Float
+  direction    String   @default("UP")
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  version      Int      @default(1)
+
+  business           Business                    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  goal               BusinessGoal                @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  values             BusinessLeadMeasureValue[]
+  weeklyCommitments  BusinessWeeklyCommitment[]
+
+  @@index([businessId, status])
+  @@index([goalId, status])
+}
+
+// @req FR-270 — immutable cumulative-to-date snapshots. A correction is a
+// new row; the read model selects the latest by createdAt, then id.
+model BusinessLeadMeasureValue {
+  id                 String   @id @default(uuid())
+  leadMeasureId      String
+  weekStartAt        DateTime
+  value              Float
+  actorPersonId      String?
+  note               String?
+  createdAt          DateTime @default(now())
+
+  leadMeasure BusinessLeadMeasure @relation(fields: [leadMeasureId], references: [id], onDelete: Cascade)
+  actor       Person?             @relation("BusinessLeadMeasureValueActor", fields: [actorPersonId], references: [id], onDelete: SetNull)
+
+  @@index([leadMeasureId, weekStartAt, createdAt])
+}
+
+// @req FR-270 — OWNER-recorded commitment assigned to a direct Business
+// Member. Person erasure may clear the optional FK while preserving the fact.
+model BusinessWeeklyCommitment {
+  id            String   @id @default(uuid())
+  businessId    String
+  weekStartAt   DateTime
+  ownerPersonId String?
+  leadMeasureId String?
+  title         String
+  done          Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  version       Int      @default(1)
+
+  business    Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  owner       Person?             @relation("BusinessWeeklyCommitmentPerson", fields: [ownerPersonId], references: [id], onDelete: SetNull)
+  leadMeasure BusinessLeadMeasure? @relation(fields: [leadMeasureId], references: [id], onDelete: SetNull)
+
+  @@index([businessId, weekStartAt, done])
+  @@index([ownerPersonId, weekStartAt])
+  @@index([leadMeasureId])
+}
+
+// @req FR-270 — one auditable report/scoreboard/plan session per Business and
+// fixed Bangkok week. The empty row is created only by an explicit step write.
+model BusinessWigSession {
+  id                  String   @id @default(uuid())
+  businessId          String
+  weekStartAt         DateTime
+  reportCompletedAt   DateTime?
+  scoreboardCompletedAt DateTime?
+  planCompletedAt     DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  version             Int      @default(1)
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, weekStartAt])
+  @@index([businessId, weekStartAt])
 }
 
 model ProjectGoal {
