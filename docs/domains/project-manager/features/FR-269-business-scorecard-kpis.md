@@ -10,7 +10,7 @@ source: v2-native
 | Field | Value |
 |---|---|
 | **Version** | 0.3.1b |
-| **Status** | Implemented and locally verified candidate on `codex/feat002/fr269-contract`; full Vitest, Playwright, and production build pass; PR, hosted CI, and merge pending; not deployed |
+| **Status** | Implemented and locally verified candidate on `codex/feat002/fr269-contract`; full Vitest, Playwright, production build, and SCM kernel mirror checks pass; PR #645 is open with hosted CI pending; not merged or deployed |
 | **Date** | 2026-10-12 |
 | **Source base** | zuri.ai 2912d70bf649314ec3631c49a784031ab16415c6 |
 | **Relates to** | [ZAI:FR-269](../../../features/FEAT-002/requirements/FR-269.md), [FEAT-002](../../../features/FEAT-002/feature.md), [ADR-101 D1/D6](../../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md), [FR-060](../../../features/FEAT-002/requirements/FR-060.md) |
@@ -197,7 +197,7 @@ age. No observation remains NO_SIGNAL.
   tests ran. The 4 skips are existing superseded scenarios.
 - Production build passed, including lint/type checks and generation of all
   99 static pages.
-- These are local branch results. There is no PR or hosted CI result yet; no
+- These are local branch results. PR #645 is open and hosted CI is pending; no
   production migration, deployment, provider activation, or live-data proof is
   claimed.
 
