@@ -55,6 +55,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [P3 MemoryOS and CIN: local evidence](../plans/LINE-OA-P3-MEMORYOS-CIN-EVIDENCE.md)
 - [P5 local console durability evidence](../plans/LINE-OA-P5-DURABLE-CONSOLE-EVIDENCE.md)
 - [LINE OA flow → GKS: pipeline analysis and integration design](../plans/LINE-TO-GKS-GROUNDING-AND-CANDIDATE-PIPELINE-DESIGN.md)
+- [Local PostgreSQL identity migration and test plan](../plans/LOCAL-POSTGRES-IDENTITY-TEST-PLAN.md)
 - [Mission Control — DAG orchestration observability implementation plan](../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md)
 - [Mission Control — DAG orchestration observability](../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY.md)
 - [Roadmap W2 next-wave dispatch and evidence plan](../plans/PLAN-ROADMAP-W2-NEXT-WAVE.md)

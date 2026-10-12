@@ -1,0 +1,27 @@
+# Isolated PostgreSQL-only fixture for future identity integration work.
+# This file deliberately has no web service, migration runner, or db:push path.
+# Every run must choose a fresh run id, host port, and password in its shell env.
+name: zuri-local-pg-identity-${ZURI_LOCAL_PG_RUN_ID:?Set a unique ZURI_LOCAL_PG_RUN_ID}
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    profiles: ["identity-test"]
+    environment:
+      POSTGRES_DB: zuri_identity_test
+      POSTGRES_USER: zuri_identity_test
+      POSTGRES_PASSWORD: ${ZURI_LOCAL_PG_PASSWORD:?Set ZURI_LOCAL_PG_PASSWORD in the caller environment}
+    ports:
+      - "127.0.0.1:${ZURI_LOCAL_PG_HOST_PORT:?Set an unused ZURI_LOCAL_PG_HOST_PORT}:5432"
+    volumes:
+      - identity-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 2s
+      timeout: 5s
+      start_period: 5s
+      retries: 30
+
+volumes:
+  identity-data:
+    name: zuri-local-pg-identity-data-${ZURI_LOCAL_PG_RUN_ID:?Set a unique ZURI_LOCAL_PG_RUN_ID}
