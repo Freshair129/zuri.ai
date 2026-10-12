@@ -1979,11 +1979,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-10",
     "title": "Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274, ADR-109",
     "status": "in-progress",
-    "proofScope": "LOCAL",
-    "implementationState": "LOCAL",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-078",
     "authority": "ROADMAP.md",
-    "evidence": "Rebased on current origin/main d302eb08; governance passed (0 critical, 1 existing warning); Vitest passed 815 files and 6,995 tests (6 files and 47 tests skipped); production build passed; Playwright passed 223 tests with 4 skipped and no failures or flaky tests. Notion-focused integration tests passed; provider setup, production migrations and deployment remain unclaimed."
+    "evidence": "PR #575 merged as `7d144455` on 2026-09-26; hosted checks passed, with E2E and desktop skipped. Rebased verification on origin/main d302eb08 passed governance (0 critical, 1 existing warning), 815 Vitest files / 6,995 tests (6 files and 47 tests skipped), production build, and 223 Playwright tests (4 skipped, no failures/flaky tests). Notion-focused integration tests passed; provider setup, production migrations and deployment remain unclaimed."
   },
   {
     "id": "TASK-ZAI-124",
