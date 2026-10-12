@@ -1,6 +1,6 @@
 # Appendix A — API Specification
 
-Version diff 1.103.0b → 1.104.0b (2026-10-12): add the FR-269 Business KPI scorecard contract and its three OWNER-scoped mutation handlers. Inventory: 335 route handlers. Local SQLite/PostgreSQL schemas and routes are implementation evidence; production migration/deployment are not claimed.
+Version diff 1.104.0b → 1.105.0b (2026-10-12): add the FR-270 Business WIG weekly-execution read/write contract and seven OWNER-scoped mutation handlers. Inventory: 342 route handlers, 343 OpenAPI paths, 448 operations. Local SQLite/PostgreSQL schemas, routes and migrations are implementation evidence; migrations are not production-applied and deployment is not claimed.
 
 Version diff 1.102.0b → 1.103.0b (2026-10-05): add the approved FR-281/FR-282 report-only receiver candidate, POST `/api/growth/external-marketing-reports`. Inventory: 332 route handlers, 333 OpenAPI paths, 438 operations. Only dedicated report bearer authentication is accepted; no session/Enterprise fallback. PostgreSQL receiver runtime, live migration, credentials and deployment remain unqualified/unperformed.
 
@@ -48,7 +48,7 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.104.0b |
+| **Version** | 1.105.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-10-12 |
 
@@ -100,7 +100,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=335 -->
+<!-- api-spec-counts: route_handlers=342 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -353,6 +353,32 @@ return `400`; non-OWNER writes return `403`; archived observations and stale
 compare-and-swap writes return `409`. Observation ordering is `observedAt DESC`,
 `createdAt DESC`, then `id DESC`. The additive migration files are artifacts;
 no production migration or deployment is implied.
+
+## Business WIG weekly execution (FR-270)
+
+Strategy adds `wigExecution` to the existing response: active WIGs with their
+lead measures and five weeks of values, current/next-week commitments, the
+current-week session, and persisted sessions more than seven days overdue. The
+projection is additive and does not change Goal, Key Result, KPI, or composite
+health calculations. A Business may have at most two non-archived WIG Goals;
+each WIG's optional lag Key Result must be active and belong to that same Goal.
+Writes are OWNER-only, Business-scoped, audited and serialized on the Business
+row. Week keys are Mondays at 00:00 Asia/Bangkok.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/business/strategy?businessId=...` | Existing Strategy fields plus `wigExecution`: active WIGs, five weeks of lead-measure values, current/next-week commitments, current session, and persisted overdue sessions. |
+| PATCH | `/api/business/goals/[id]/wig` | `{isWig, lagKeyResultId?}` — toggles a Goal as a WIG or assigns/clears its same-Goal active lag Key Result; clearing WIG status also clears the lag reference. |
+| POST | `/api/business/goals/[id]/lead-measures` | `{name, unit, weeklyTarget, direction?}` — creates a lead measure under an active WIG. |
+| PATCH | `/api/business/lead-measures/[id]` | Partial `{name?, unit?, weeklyTarget?, direction?, status?}`; archival retains historical values. |
+| POST | `/api/business/lead-measures/[id]/values` | `{weekStartAt, value, note?}` — finite value for the current or a past Bangkok week; corrections append immutable history. |
+| POST | `/api/business/weekly-commitments` | `{businessId, weekStartAt, ownerPersonId, leadMeasureId?, title}` — current or next week; assignee must be a direct active member of the Business. |
+| PATCH | `/api/business/weekly-commitments/[id]` | `{done: boolean}` — explicit completion state; replaying the same state is idempotent. |
+| PUT | `/api/business/wig-sessions/steps` | `{businessId, weekStartAt, step, completed}` where `step` is `REPORT`, `SCOREBOARD`, or `PLAN`; current or past week, explicit idempotent state update. |
+
+Weekly values are append-only; commitments and session steps are mutable audited
+state. Backup export/restore includes the four execution models in dependency
+order. These local migrations are not applied to production.
 
 ## Entry and Business Routing (FR-044 and FR-046 implemented beta)
 
@@ -1162,6 +1188,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.105.0b | 2026-10-12 | candidate | FR-270 OWNER-scoped weekly WIG execution: additive Strategy projection and seven write handlers; 342 route handlers, 343 OpenAPI paths, 448 operations; migrations authored locally, not production-applied | working-tree | Codex |
 | 1.102.0b | 2026-10-05 | candidate | FR-278 read-only Business-scoped executive dashboard at `/api/growth/line-sales`; 331 route handlers, 332 OpenAPI paths, 437 operations; local implementation only | working-tree | Codex |
 | 1.101.0b | 2026-09-27 | candidate | FR-022 (ADR-093 1.2.0): `POST /api/crm/customers/[customerId]/retention-consent` and `.../retention-consent/revoke`. Route handler count 328 -> 330 | working-tree | Claude Opus 5.5 (MC0) |
 | 1.100.0b | 2026-09-27 | candidate | ADR-111 D5 adds the SCM service's private core façade at `/api/internal/scm/v1/[operation]` (one path, POST only: `resolve-scope`, `branch`, `branches`, `customer`, `conversation`); inventory 327 -> 328 route handlers, 328 -> 329 paths / 433 -> 434 operations; no production route switch claimed | working-tree | Claude Opus 5.5 |

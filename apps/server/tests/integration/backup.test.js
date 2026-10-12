@@ -22,6 +22,7 @@ import { createProject } from '@/modules/project-manager/application/project-ser
 import { makeViewer } from '../factories/viewer'
 
 let owner, business, project, backupKpi, backupObservation, backupPersonId
+let backupGoal, backupLeadMeasure, backupLeadMeasureValue, backupWeeklyCommitment, backupWigSession
 
 describe('snapshot backup round trip', () => {
   beforeAll(async () => {
@@ -69,6 +70,32 @@ describe('snapshot backup round trip', () => {
     })
     const goal = await prisma.businessGoal.create({
       data: { businessId: business.id, roadmapId: roadmap.id, horizonId: horizon.id, code: 'GOAL-BAK', title: 'Backup goal' },
+    })
+    backupGoal = goal
+    await prisma.businessKeyResult.create({
+      data: {
+        businessId: business.id, goalId: goal.id, code: 'KR-BAK', title: 'Backup lag result',
+        metric: 'renewals', unit: 'accounts', baseline: 0, target: 10, isLagMeasure: true,
+      },
+    })
+    await prisma.businessGoal.update({ where: { id: goal.id }, data: { isWig: true } })
+    backupLeadMeasure = await prisma.businessLeadMeasure.create({
+      data: { businessId: business.id, goalId: goal.id, name: 'Customer interviews', unit: 'interviews', weeklyTarget: 5 },
+    })
+    backupLeadMeasureValue = await prisma.businessLeadMeasureValue.create({
+      data: {
+        leadMeasureId: backupLeadMeasure.id, weekStartAt: new Date('2026-10-11T17:00:00.000Z'),
+        value: 6, actorPersonId: person.id, note: 'weekly total',
+      },
+    })
+    backupWeeklyCommitment = await prisma.businessWeeklyCommitment.create({
+      data: {
+        businessId: business.id, weekStartAt: new Date('2026-10-11T17:00:00.000Z'),
+        ownerPersonId: person.id, leadMeasureId: backupLeadMeasure.id, title: 'Run five interviews',
+      },
+    })
+    backupWigSession = await prisma.businessWigSession.create({
+      data: { businessId: business.id, weekStartAt: new Date('2026-10-11T17:00:00.000Z'), reportCompletedAt: new Date('2026-10-12T00:00:00.000Z') },
     })
     await prisma.projectGoal.create({ data: { projectId: project.id, goalId: goal.id } })
     await prisma.roleBinding.create({
@@ -356,6 +383,10 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.businessGoal.length).toBeGreaterThan(0)
     expect(snapshot.tables.businessKpi.length).toBeGreaterThan(0)
     expect(snapshot.tables.businessKpiObservation.length).toBeGreaterThan(0)
+    expect(snapshot.tables.businessLeadMeasure.length).toBeGreaterThan(0)
+    expect(snapshot.tables.businessLeadMeasureValue.length).toBeGreaterThan(0)
+    expect(snapshot.tables.businessWeeklyCommitment.length).toBeGreaterThan(0)
+    expect(snapshot.tables.businessWigSession.length).toBeGreaterThan(0)
     expect(snapshot.tables.projectGoal.length).toBeGreaterThan(0)
     expect(snapshot.tables.roleBinding.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportBatch.length).toBeGreaterThan(0)
@@ -465,6 +496,26 @@ describe('snapshot backup round trip', () => {
     const restoredObservation = await prisma.businessKpiObservation.findUnique({ where: { id: backupObservation.id } })
     expect(restoredKpi).toMatchObject({ businessId: business.id, name: 'Backup KPI', version: 1 })
     expect(restoredObservation).toMatchObject({ kpiId: backupKpi.id, actorPersonId: backupPersonId, note: 'Backup fixture observation' })
+  })
+
+  it('round trip carries the WIG lead measure, value, commitment and session graph', async () => {
+    const snapshot = await exportSnapshot()
+    expect(snapshot.tables.businessLeadMeasure.find((row) => row.id === backupLeadMeasure.id)).toBeTruthy()
+    expect(snapshot.tables.businessLeadMeasureValue.find((row) => row.id === backupLeadMeasureValue.id)).toBeTruthy()
+    expect(snapshot.tables.businessWeeklyCommitment.find((row) => row.id === backupWeeklyCommitment.id)).toBeTruthy()
+    expect(snapshot.tables.businessWigSession.find((row) => row.id === backupWigSession.id)).toBeTruthy()
+
+    await prisma.businessWeeklyCommitment.delete({ where: { id: backupWeeklyCommitment.id } })
+    await prisma.businessLeadMeasureValue.delete({ where: { id: backupLeadMeasureValue.id } })
+    await prisma.businessWigSession.delete({ where: { id: backupWigSession.id } })
+    await prisma.businessLeadMeasure.delete({ where: { id: backupLeadMeasure.id } })
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(result.restored).toBe(true)
+    expect(await prisma.businessLeadMeasure.findUnique({ where: { id: backupLeadMeasure.id } })).toMatchObject({ goalId: backupGoal.id, businessId: business.id })
+    expect(await prisma.businessLeadMeasureValue.findUnique({ where: { id: backupLeadMeasureValue.id } })).toMatchObject({ leadMeasureId: backupLeadMeasure.id, actorPersonId: backupPersonId })
+    expect(await prisma.businessWeeklyCommitment.findUnique({ where: { id: backupWeeklyCommitment.id } })).toMatchObject({ leadMeasureId: backupLeadMeasure.id, ownerPersonId: backupPersonId })
+    expect(await prisma.businessWigSession.findUnique({ where: { id: backupWigSession.id } })).toMatchObject({ businessId: business.id })
   })
 
   it('round trip carries the customer import batch and provenance edge, in restorable order', async () => {

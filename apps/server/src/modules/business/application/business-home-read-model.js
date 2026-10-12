@@ -223,6 +223,20 @@ function attentionQueue({ projects, strategy, now }) {
     })
   }
 
+  // FR-270 — only a persisted session row with unfinished steps becomes an
+  // overdue attention item. The read model is pure; it neither creates empty
+  // weeks nor hides an old incomplete session behind the current-week card.
+  for (const session of strategy?.wigExecution?.overdueSessions || []) {
+    items.push({
+      id: session.id,
+      severity: SEVERITY.MED,
+      title: 'Weekly WIG session incomplete',
+      detail: `4DX · week of ${new Date(session.weekStartAt).toISOString().slice(0, 10)} · missing ${session.missingSteps.join(', ')}`,
+      domainKey: 'projects',
+      href: '/overview',
+    })
+  }
+
   return items.sort(compareAttention)
 }
 

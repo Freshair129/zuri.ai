@@ -5,6 +5,9 @@ import { kpiStatus } from '@/modules/business/application/business-kpi-status'
 // same way project-roadmap-read-model.js already calls calculateWorkstreamProgress
 // before returning, rather than leaving every consumer to duplicate the math.
 import { keyResultProgress, expectedProgress } from '@/modules/project-manager/progress/key-result-progress'
+import { weekStartFor } from '@/modules/project-manager/progress/week'
+
+const DAY_MS = 24 * 60 * 60 * 1000
 
 // @req FR-041, FR-043 - Business Overview needs a Business-level Roadmap and
 // direct Project Business ownership for goal links.
@@ -94,6 +97,7 @@ function serializeKeyResult(kr, now) {
     ownerPersonId: kr.ownerPersonId,
     confidence: kr.confidence,
     status: kr.status,
+    isLagMeasure: kr.isLagMeasure,
     current,
     progress: keyResultProgress(kr, current),
     expectedProgress: expectedProgress(kr, now),
@@ -168,6 +172,123 @@ function serializeRoadmap(roadmap, businessId, now) {
   }
 }
 
+function valueTimeOrder(a, b) {
+  return new Date(a.createdAt) - new Date(b.createdAt) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+}
+
+function serializeLeadMeasure(measure, currentWeek) {
+  const firstWeek = new Date(currentWeek.getTime() - 4 * 7 * DAY_MS)
+  const latestByWeek = new Map()
+  for (const value of [...(measure.values || [])].sort(valueTimeOrder)) {
+    latestByWeek.set(new Date(value.weekStartAt).toISOString(), value)
+  }
+  const weeklyBars = Array.from({ length: 5 }, (_, index) => {
+    const weekStartAt = new Date(firstWeek.getTime() + index * 7 * DAY_MS)
+    const latest = latestByWeek.get(weekStartAt.toISOString())
+    return {
+      weekStartAt,
+      value: latest ? Number(latest.value) : null,
+      recordedAt: latest?.createdAt ?? null,
+      observationId: latest?.id ?? null,
+    }
+  })
+  return {
+    id: measure.id,
+    goalId: measure.goalId,
+    name: measure.name,
+    unit: measure.unit,
+    weeklyTarget: Number(measure.weeklyTarget),
+    direction: measure.direction,
+    status: measure.status,
+    weeklyBars,
+  }
+}
+
+function serializeCommitment(row) {
+  return {
+    id: row.id,
+    weekStartAt: row.weekStartAt,
+    ownerPersonId: row.ownerPersonId,
+    owner: row.owner
+      ? { id: row.owner.id, code: row.owner.code, displayName: row.owner.displayName }
+      : null,
+    leadMeasure: row.leadMeasure ? { id: row.leadMeasure.id, name: row.leadMeasure.name, goalId: row.leadMeasure.goalId } : null,
+    title: row.title,
+    done: row.done,
+  }
+}
+
+function serializeSession(session, weekStartAt) {
+  return {
+    id: session?.id ?? null,
+    weekStartAt,
+    reportCompletedAt: session?.reportCompletedAt ?? null,
+    scoreboardCompletedAt: session?.scoreboardCompletedAt ?? null,
+    planCompletedAt: session?.planCompletedAt ?? null,
+    complete: Boolean(session?.reportCompletedAt && session?.scoreboardCompletedAt && session?.planCompletedAt),
+  }
+}
+
+function serializeOverdueSession(session) {
+  const dueAt = new Date(new Date(session.weekStartAt).getTime() + 8 * DAY_MS)
+  return {
+    id: `wig-session-incomplete:${session.businessId}:${new Date(session.weekStartAt).toISOString()}`,
+    businessId: session.businessId,
+    weekStartAt: session.weekStartAt,
+    dueAt,
+    missingSteps: [
+      !session.reportCompletedAt && 'report',
+      !session.scoreboardCompletedAt && 'scoreboard',
+      !session.planCompletedAt && 'plan',
+    ].filter(Boolean),
+  }
+}
+
+function serializeWigExecution({ goals, leadMeasures, commitments, commitmentPeople, currentSession, overdueSessions, currentWeek, nextWeek, now }) {
+  const measuresByGoal = new Map()
+  for (const measure of leadMeasures || []) {
+    const list = measuresByGoal.get(measure.goalId) || []
+    list.push(serializeLeadMeasure(measure, currentWeek))
+    measuresByGoal.set(measure.goalId, list)
+  }
+  const wigs = (goals || []).filter((goal) => goal.isWig && goal.status !== 'ARCHIVED').map((goal) => {
+    const lagKeyResults = goal.keyResults.filter((keyResult) => keyResult.isLagMeasure)
+    return {
+      goalId: goal.id,
+      code: goal.code,
+      title: goal.title,
+      status: goal.status,
+      lagKeyResult: lagKeyResults.length === 1 ? lagKeyResults[0] : null,
+      configurationError: lagKeyResults.length === 1 ? null : 'LAG_KEY_RESULT_COUNT',
+      leadMeasures: (measuresByGoal.get(goal.id) || []).sort((a, b) => compareText(a.name, b.name) || compareText(a.id, b.id)),
+    }
+  })
+  const safeCommitments = (commitments || []).map(serializeCommitment)
+    .sort((a, b) => a.weekStartAt - b.weekStartAt
+      || compareText(a.owner?.displayName || '', b.owner?.displayName || '')
+      || compareText(a.title, b.title)
+      || compareText(a.id, b.id))
+  return {
+    currentWeekStartAt: currentWeek,
+    nextWeekStartAt: nextWeek,
+    weeks: Array.from({ length: 5 }, (_, index) => new Date(currentWeek.getTime() - (4 - index) * 7 * DAY_MS)),
+    wigs,
+    commitmentPeople: (commitmentPeople || []).map((person) => ({
+      id: person.id,
+      code: person.code,
+      displayName: person.displayName,
+    })),
+    commitments: {
+      current: safeCommitments.filter((item) => item.weekStartAt.getTime() === currentWeek.getTime()),
+      next: safeCommitments.filter((item) => item.weekStartAt.getTime() === nextWeek.getTime()),
+    },
+    currentSession: serializeSession(currentSession, currentWeek),
+    overdueSessions: (overdueSessions || [])
+      .filter((session) => new Date(session.weekStartAt).getTime() + 8 * DAY_MS <= now.getTime())
+      .map(serializeOverdueSession),
+  }
+}
+
 /**
  * Read the strategy owned by one Business. `visibleBusinessIds` is supplied by
  * the viewer gate at the route boundary and is also accepted here so tests can
@@ -185,6 +306,11 @@ export async function getBusinessStrategy(
   // call without that set keeps the legacy Strategy projection and fails
   // closed for this additive KPI slice.
   const canReadKpis = Array.isArray(visibleBusinessIds) && visibleBusinessIds.includes(businessId)
+  const nowDate = now instanceof Date ? new Date(now.getTime()) : new Date(now)
+  const currentWeek = weekStartFor(nowDate)
+  const nextWeek = new Date(currentWeek.getTime() + 7 * DAY_MS)
+  const firstWeek = new Date(currentWeek.getTime() - 4 * 7 * DAY_MS)
+  const overdueCutoff = new Date(nowDate.getTime() - 8 * DAY_MS)
 
   const business = await db.business.findUnique({
     where: { id: businessId },
@@ -244,6 +370,53 @@ export async function getBusinessStrategy(
             },
           },
         },
+        businessLeadMeasures: {
+          where: {
+            businessId,
+            status: 'ACTIVE',
+            goal: { businessId, isWig: true, status: { not: 'ARCHIVED' } },
+          },
+          orderBy: [{ goalId: 'asc' }, { name: 'asc' }, { id: 'asc' }],
+          include: {
+            values: {
+              where: { weekStartAt: { gte: firstWeek, lte: currentWeek } },
+              orderBy: [{ weekStartAt: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+            },
+          },
+        },
+        businessWeeklyCommitments: {
+          where: { businessId, weekStartAt: { in: [currentWeek, nextWeek] } },
+          include: {
+            owner: { select: { id: true, code: true, displayName: true } },
+            leadMeasure: { select: { id: true, name: true, goalId: true } },
+          },
+        },
+        businessWigSessions: {
+          where: {
+            businessId,
+            OR: [
+              { weekStartAt: currentWeek },
+              {
+                weekStartAt: { lte: overdueCutoff },
+                OR: [
+                  { reportCompletedAt: null },
+                  { scoreboardCompletedAt: null },
+                  { planCompletedAt: null },
+                ],
+              },
+            ],
+          },
+          orderBy: [{ weekStartAt: 'asc' }, { id: 'asc' }],
+        },
+        memberships: {
+          where: {
+            scopeType: 'BUSINESS',
+            status: 'ACTIVE',
+            person: { accessDisabledAt: null },
+            OR: [{ expiresAt: null }, { expiresAt: { gt: nowDate } }],
+          },
+          select: { person: { select: { id: true, code: true, displayName: true } } },
+        },
       } : {}),
     },
   })
@@ -254,6 +427,25 @@ export async function getBusinessStrategy(
   const active = roadmaps[0] || null
   const goals = roadmaps.flatMap((roadmap) => roadmap.horizons.flatMap((horizon) => horizon.goals))
   const kpis = groupKpisByPerspective(business.businessKpis || [])
+  const currentWigSession = (business.businessWigSessions || []).find((session) =>
+    new Date(session.weekStartAt).getTime() === currentWeek.getTime()) || null
+  const commitmentPeople = [...new Map((business.memberships || [])
+    .filter((membership) => membership.person)
+    .map((membership) => [membership.person.id, membership.person])).values()]
+    .sort((a, b) => compareText(a.displayName || '', b.displayName || '') || compareText(a.id, b.id))
+  const wigExecution = canReadKpis
+    ? serializeWigExecution({
+      goals,
+      leadMeasures: business.businessLeadMeasures || [],
+      commitments: business.businessWeeklyCommitments || [],
+      commitmentPeople,
+      currentSession: currentWigSession,
+      overdueSessions: business.businessWigSessions || [],
+      currentWeek,
+      nextWeek,
+      now: nowDate,
+    })
+    : null
   return {
     business: {
       id: business.id,
@@ -272,6 +464,10 @@ export async function getBusinessStrategy(
     // Scorecard perspectives. Their result status is never part of the
     // cross-domain health composite.
     kpis,
+    // @req FR-270 — additive, Business-scoped 4DX projection. It is populated
+    // only after the route's visible-Business gate, the same read boundary as
+    // the adjacent FR-269 KPI projection.
+    wigExecution,
     activeRoadmapId: active?.id || null,
     summary: {
       roadmapCount: roadmaps.length,

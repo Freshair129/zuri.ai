@@ -242,6 +242,24 @@ describe('attention queue', () => {
     expect(attention.find((item) => item.id === 'business-kpi:derived-warn').severity).toBe(SEVERITY.MED)
   })
 
+  it('raises a persisted incomplete WIG session at its supplied due boundary without creating one from an empty week', () => {
+    const session = {
+      id: 'wig-session-incomplete:b1:2026-08-01',
+      weekStartAt: past,
+      dueAt: past,
+      missingSteps: ['scoreboard', 'plan'],
+    }
+    const { attention } = build({ strategy: { wigExecution: { overdueSessions: [session] } } })
+    expect(attention).toEqual([expect.objectContaining({
+      id: session.id,
+      severity: SEVERITY.MED,
+      title: 'Weekly WIG session incomplete',
+      detail: expect.stringContaining('missing scoreboard, plan'),
+      href: '/overview',
+    })])
+    expect(build({ strategy: { wigExecution: { overdueSessions: [] } } }).attention).toEqual([])
+  })
+
   it('skips Key Result rows for a goal already marked DONE', () => {
     const goal = {
       id: 'g-done-kr', code: 'G5', title: 'Wrapped up', status: 'DONE', targetAt: past, projects: [],

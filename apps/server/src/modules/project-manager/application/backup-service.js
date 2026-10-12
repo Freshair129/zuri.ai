@@ -236,6 +236,11 @@ export const SNAPSHOT_MODELS = [
   // KPI and, optionally, the Person who recorded them. Both restore after
   // their referenced Business/Person parents and before no other child here.
   'businessKpi', 'businessKpiObservation',
+  // @req FR-270 — lead measures hang off Business/Goal; immutable weekly
+  // values also reference an optional Person, commitments reference Business,
+  // Person and an optional measure, and sessions reference Business/week.
+  // Keep parents before dependent rows so portable restore preserves execution.
+  'businessLeadMeasure', 'businessLeadMeasureValue', 'businessWeeklyCommitment', 'businessWigSession',
   // @req FR-248, FR-249 — route/action usage, per person; restores after Person,
   // which it references (ADR-095 D2). No secret, no Business/Tenant scope.
   'usageEvent',

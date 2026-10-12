@@ -29,6 +29,10 @@ owns_models:
   - BusinessKeyResultCheckIn
   - BusinessKpi
   - BusinessKpiObservation
+  - BusinessLeadMeasure
+  - BusinessLeadMeasureValue
+  - BusinessWeeklyCommitment
+  - BusinessWigSession
   - Workstream
   - WorkContainer
   - WorkItem
@@ -183,23 +187,26 @@ composite. Configuration/archive and observation writes are OWNER-only and
 audited; observation age does not imply staleness, and the system introduces
 no provider polling or credential access. See the bounded [FR-269 contract](features/FR-269-business-scorecard-kpis.md).
 
-## Declared, not yet in schema (FEAT-002, ADR-101 D6 Phase 3)
+## FR-270 4DX weekly execution — implementation candidate (FEAT-002, ADR-101 D6 Phase 3)
 
-The remaining 4DX model family does not exist in `prisma/schema.prisma` yet,
-and none of this section grants a write any sooner than the schema does:
+Phase 3 is implemented as a local candidate on
+`codex/feat002/fr270-4dx-weekly-execution`, based on admitted `main`
+`4144430bcdc69e92dfe8365a73226ad6259955fa`. The candidate declares
+`BusinessKeyResult.isLagMeasure` and adds Business-scoped
+`BusinessLeadMeasure` with append-only `BusinessLeadMeasureValue`,
+`BusinessWeeklyCommitment`, and `BusinessWigSession` models, migration files,
+seven OWNER-only write routes, the additive Strategy DTO, the Overview card,
+persisted overdue-session attention, and backup recovery coverage. All new
+writers live in `project-manager/application/` alongside the existing
+`business-strategy-mutation-service.js`; the business read-slice remains
+read-only.
 
-- `BusinessLeadMeasure` (+ append-only `BusinessLeadMeasureValue`) — a 4DX lead
-  measure, meaningful only under a goal with `isWig=true`.
-- `BusinessWeeklyCommitment`, `BusinessWigSession` — the weekly 4DX ritual: what
-  a named Person commits to, and the report/scoreboard/plan session state, both
-  Business-scoped.
-
-Every new writer lives in `project-manager/application/`, alongside the
-existing `business-strategy-mutation-service.js`, never in the `business`
-read-slice above — the "both write nothing" rule for satellite modules is
-unchanged by this section. Owner check-in authority for Phase 1 is OWNER-only,
-the same authority that can already hand-edit a goal's progress (ADR-101 D4);
-a narrower Key-Result-owner grant is explicitly future work, not assumed here.
+Focused integration/unit checks pass 57/57, and OpenAPI route coverage passes
+19/19 after registering the seven new routes. Browser acceptance, the final
+governed full regression/build, and exact-head hosted checks remain pending.
+The migrations are authored but not applied; deployment, provider activation,
+and live-Business acceptance remain separate gates under ADR-057. See the
+[FR-270 implementation contract](features/FR-270-4dx-weekly-execution.md).
 
 ## Known shared-write exceptions (debt, visible on purpose)
 

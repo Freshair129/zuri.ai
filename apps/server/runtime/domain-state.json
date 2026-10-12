@@ -616,8 +616,39 @@
         "check": "requirements",
         "summary": "FR-270 is partial",
         "evidence": [
+          "apps/server/src/app/api/business/goals/[id]/lead-measures/route.js",
+          "apps/server/src/app/api/business/goals/[id]/wig/route.js",
+          "apps/server/src/app/api/business/lead-measures/[id]/route.js",
+          "apps/server/src/app/api/business/lead-measures/[id]/values/route.js",
+          "apps/server/src/app/api/business/weekly-commitments/[id]/route.js",
+          "apps/server/src/app/api/business/weekly-commitments/route.js",
+          "apps/server/src/app/api/business/wig-sessions/steps/route.js",
+          "apps/server/src/modules/business/application/business-strategy-service.js",
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
+          "apps/server/src/modules/project-manager/application/backup-service.js",
+          "apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js",
+          "apps/server/src/modules/project-manager/application/business-wig-execution-service.js",
+          "apps/server/src/modules/project-manager/components/BusinessWigExecution.jsx",
           "apps/server/src/modules/project-manager/progress/week.js",
-          "apps/server/tests/unit/fr268-week.test.js"
+          "apps/server/tests/e2e/fr270-business-wig-execution.spec.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/fr270-business-wig-execution.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-recovery.test.js",
+          "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/unit/business-strategy-service.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/fr059-strategy-validation.test.js",
+          "apps/server/tests/unit/fr268-week.test.js",
+          "apps/server/tests/unit/fr270-business-wig-execution-ui.test.js",
+          "apps/server/tests/unit/pricing-backup.test.js"
         ]
       },
       {
@@ -1471,7 +1502,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 336,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -2377,7 +2408,7 @@
           "details": {
             "routes": 27,
             "inventoried": 26,
-            "openApiPaths": 336,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -2933,7 +2964,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 336,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -3353,7 +3384,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 336,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -4216,7 +4247,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 336,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -4414,7 +4445,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 336,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -4653,7 +4684,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 336,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -5102,7 +5133,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 336,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -5386,7 +5417,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 336,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -6812,11 +6843,42 @@
           "title": "A Business may mark at most two active BusinessGoal rows Wildly Important (isWig, BR-043), each naming one BusinessKeyResult as its lag…",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 1,
-          "testCount": 1,
+          "codeCount": 14,
+          "testCount": 19,
           "evidence": [
+            "apps/server/src/app/api/business/goals/[id]/lead-measures/route.js",
+            "apps/server/src/app/api/business/goals/[id]/wig/route.js",
+            "apps/server/src/app/api/business/lead-measures/[id]/route.js",
+            "apps/server/src/app/api/business/lead-measures/[id]/values/route.js",
+            "apps/server/src/app/api/business/weekly-commitments/[id]/route.js",
+            "apps/server/src/app/api/business/weekly-commitments/route.js",
+            "apps/server/src/app/api/business/wig-sessions/steps/route.js",
+            "apps/server/src/modules/business/application/business-strategy-service.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js",
+            "apps/server/src/modules/project-manager/application/business-wig-execution-service.js",
+            "apps/server/src/modules/project-manager/components/BusinessWigExecution.jsx",
             "apps/server/src/modules/project-manager/progress/week.js",
-            "apps/server/tests/unit/fr268-week.test.js"
+            "apps/server/tests/e2e/fr270-business-wig-execution.spec.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr270-business-wig-execution.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/business-strategy-service.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr059-strategy-validation.test.js",
+            "apps/server/tests/unit/fr268-week.test.js",
+            "apps/server/tests/unit/fr270-business-wig-execution-ui.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
           ]
         },
         {
@@ -6969,9 +7031,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 172,
-            "inventoried": 172,
-            "openApiPaths": 336,
+            "routes": 179,
+            "inventoried": 179,
+            "openApiPaths": 343,
             "missingFromOpenApi": 0
           }
         },
@@ -7014,8 +7076,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 44,
-            "present": 44
+            "models": 48,
+            "present": 48
           }
         },
         "authorization": {
@@ -7036,8 +7098,8 @@
             }
           ],
           "details": {
-            "mutations": 131,
-            "guardedMutations": 130,
+            "mutations": 138,
+            "guardedMutations": 137,
             "reads": 81,
             "unguardedReads": 9
           }
@@ -7203,8 +7265,39 @@
           "check": "requirements",
           "summary": "FR-270 is partial",
           "evidence": [
+            "apps/server/src/app/api/business/goals/[id]/lead-measures/route.js",
+            "apps/server/src/app/api/business/goals/[id]/wig/route.js",
+            "apps/server/src/app/api/business/lead-measures/[id]/route.js",
+            "apps/server/src/app/api/business/lead-measures/[id]/values/route.js",
+            "apps/server/src/app/api/business/weekly-commitments/[id]/route.js",
+            "apps/server/src/app/api/business/weekly-commitments/route.js",
+            "apps/server/src/app/api/business/wig-sessions/steps/route.js",
+            "apps/server/src/modules/business/application/business-strategy-service.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js",
+            "apps/server/src/modules/project-manager/application/business-wig-execution-service.js",
+            "apps/server/src/modules/project-manager/components/BusinessWigExecution.jsx",
             "apps/server/src/modules/project-manager/progress/week.js",
-            "apps/server/tests/unit/fr268-week.test.js"
+            "apps/server/tests/e2e/fr270-business-wig-execution.spec.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr270-business-wig-execution.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/business-strategy-service.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr059-strategy-validation.test.js",
+            "apps/server/tests/unit/fr268-week.test.js",
+            "apps/server/tests/unit/fr270-business-wig-execution-ui.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
           ]
         },
         {
@@ -7265,10 +7358,10 @@
         }
       ],
       "details": {
-        "routes": 219,
-        "apiRoutes": 172,
+        "routes": 226,
+        "apiRoutes": 179,
         "pageRoutes": 47,
-        "ownedModels": 44,
+        "ownedModels": 48,
         "featureNotes": 45
       },
       "featureIds": [
@@ -7520,8 +7613,8 @@
           "title": "A Business may mark at most two active BusinessGoal rows Wildly Important (isWig, BR-043), each naming one BusinessKeyResult as its lag…",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 1,
-          "testCount": 1
+          "codeCount": 14,
+          "testCount": 19
         },
         {
           "id": "FR-271",
@@ -7536,12 +7629,19 @@
         "apps/server/prisma/seed.js",
         "apps/server/src/app/(pm)/overview/page.jsx",
         "apps/server/src/app/api/business/goals/[id]/key-results/route.js",
+        "apps/server/src/app/api/business/goals/[id]/lead-measures/route.js",
+        "apps/server/src/app/api/business/goals/[id]/wig/route.js",
         "apps/server/src/app/api/business/key-results/[id]/check-ins/route.js",
         "apps/server/src/app/api/business/key-results/[id]/route.js",
         "apps/server/src/app/api/business/kpis/[id]/observations/route.js",
         "apps/server/src/app/api/business/kpis/[id]/route.js",
         "apps/server/src/app/api/business/kpis/route.js",
+        "apps/server/src/app/api/business/lead-measures/[id]/route.js",
+        "apps/server/src/app/api/business/lead-measures/[id]/values/route.js",
         "apps/server/src/app/api/business/strategy/route.js",
+        "apps/server/src/app/api/business/weekly-commitments/[id]/route.js",
+        "apps/server/src/app/api/business/weekly-commitments/route.js",
+        "apps/server/src/app/api/business/wig-sessions/steps/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/config/modules.js",
         "apps/server/src/lib/business-shell-guard.js",
@@ -7553,8 +7653,10 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js",
+        "apps/server/src/modules/project-manager/application/business-wig-execution-service.js",
         "apps/server/src/modules/project-manager/application/project-service.js",
         "apps/server/src/modules/project-manager/components/BusinessKpiScorecard.jsx",
+        "apps/server/src/modules/project-manager/components/BusinessWigExecution.jsx",
         "apps/server/src/modules/project-manager/components/StrategyEditModals.jsx",
         "apps/server/src/modules/project-manager/progress/key-result-progress.js",
         "apps/server/src/modules/project-manager/progress/smart-checks.js",
@@ -7569,6 +7671,7 @@
         "apps/server/tests/e2e/fr213-data-pipeline-map.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/e2e/fr269-business-kpi-scorecard.spec.js",
+        "apps/server/tests/e2e/fr270-business-wig-execution.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/backup.test.js",
@@ -7578,6 +7681,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
         "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
+        "apps/server/tests/integration/fr270-business-wig-execution.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -7610,6 +7714,7 @@
         "apps/server/tests/unit/fr268-key-result-progress.test.js",
         "apps/server/tests/unit/fr268-week.test.js",
         "apps/server/tests/unit/fr269-business-kpi-status.test.js",
+        "apps/server/tests/unit/fr270-business-wig-execution-ui.test.js",
         "apps/server/tests/unit/fr271-smart-checks.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
