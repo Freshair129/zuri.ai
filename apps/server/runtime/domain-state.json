@@ -2850,7 +2850,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 52
+          "testCount": 53
         },
         {
           "id": "FR-187",
@@ -2930,7 +2930,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-255",
@@ -3671,7 +3671,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 52
+          "testCount": 53
         },
         {
           "id": "FR-187",
@@ -3778,8 +3778,8 @@
           "title": "Knowledge base console",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 20
+          "codeCount": 8,
+          "testCount": 22
         }
       ],
       "checks": {
@@ -6435,7 +6435,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 52
+          "testCount": 53
         },
         {
           "id": "FR-174",
@@ -6811,7 +6811,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-266",
@@ -8801,15 +8801,15 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 27,
-          "testCount": 52
+          "testCount": 53
         },
         {
           "id": "FR-254",
           "title": "Knowledge base console",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 18,
-          "testCount": 20
+          "codeCount": 19,
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -8947,6 +8947,7 @@
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-documents-ui.test.js",
+        "apps/server/tests/unit/knowledge-documents-withdrawal.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",
         "apps/server/tests/unit/knowledge-evidence-pull-route.test.js",
         "apps/server/tests/unit/knowledge-http.test.js",
