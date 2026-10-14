@@ -23,6 +23,8 @@
     "verify": "npm run conversation-runtime:test && npm run conversation-runtime:build && npm --prefix apps/server run verify",
     "verification:plan": "node scripts/verification-plan.mjs",
     "verification:test": "node --test tools/tests/verification-plan.test.mjs",
+    "delivery:preflight": "node tools/delivery-control/preflight.mjs",
+    "delivery:test": "node --test tools/tests/task-preflight.test.mjs",
     "docs:services": "node scripts/verification-plan.mjs --map",
     "docs:services:check": "node scripts/verification-plan.mjs --check-map",
     "docs:graph": "npm --prefix apps/server run docs:graph",

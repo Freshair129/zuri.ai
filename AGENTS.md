@@ -3,60 +3,73 @@ status: active
 superseded_by: null
 ---
 
-## Current coding-delivery policy — autonomous v3 (2026-10-14)
+## Current coding-delivery policy — autonomous v4 (2026-10-15)
 
-Use the active autonomous coding-delivery procedure in
-[`WORKFLOW-POLICY.md`](docs/architecture/delivery-control/WORKFLOW-POLICY.md)
-and its single machine-readable authority,
-[`model-policy.json`](docs/architecture/delivery-control/contracts/model-policy.json).
-The root agent derives bounded admissions from the standing owner objective and
-trusted delegation. G0 is an agent preflight, not a per-node human approval.
-This policy supersedes prior routine per-node and per-gate human approvals for
-in-scope coding and documentation work. Explicit user prohibitions and external
-authority requirements remain binding. Sol owns decisions, critical debugging,
-orchestration, audit, integration and final disposition; role-to-model bindings
-come from the contract. Keep worker, verifier and reviewer sessions distinct
-and follow its single source for role assignments, gates, concurrency and
-lineage budgets.
+Use the active procedure in
+[WORKFLOW-POLICY.md](docs/architecture/delivery-control/WORKFLOW-POLICY.md)
+and its machine authority,
+[model-policy.json](docs/architecture/delivery-control/contracts/model-policy.json).
+Ordinary repository code and documentation work uses one `task-readiness/v1`
+record and the automatic `AUTOMATIC_TASK_PREFLIGHT` stage:
 
-Before reserving a sealed G0 evaluation or control-plane successor, Sol prepares
-the candidate using `tools/delivery-control/prepare-g0.mjs` and the active
-policy's bounded preparation allowance. The helper requires the stable CLI
-lineage and atomically reserves a shared append-only attempt before reading
-candidate files; malformed JSON still consumes capacity. Root first verifies
-terminal eligibility, full history, original deadline and no-progress budget.
-Invalid drafts consume preparation and
-no-progress capacity, not execution repair capacity. A structural preparation
-receipt is `PREPARED_NOT_ADMITTED`: root still verifies trusted authority,
-actual pins, environment, scope and remaining history before G0 or dispatch.
-Use create-only publication after validation and byte read-back; never write an
-admission with an unchecked shell object or overwrite evidence. Preparation is
-bounded by the original lineage deadline. Existing terminal dispositions and
-reservations remain unchanged; a policy upgrade does not unlock old work.
+    node tools/delivery-control/preflight.mjs --task-file <path> --base origin/main
 
-The direct current user task or standing delegation already evidenced in trusted
-conversation or harness context is sufficient authority provenance. Root records
-the mandate once with its source message/reference, repository, objective,
-effects in scope and prohibitions; derived packets reference that record. The
-user need not author or sign a packet or repeat approval. Actual dispatch
-requires that root-recorded mandate plus a verified authority binding derived
-from trusted conversation or harness evidence. Structural contract validation
-or copied packet fields alone never prove authorization. Technical decisions
-and reversible repairs inside the mandate are resolved by Sol without another
-approval round. Preserve existing user and repository prohibitions. Do not infer
-credentials, external permissions, production or Supabase authority, or
-permission for effects outside scope. Commit, push, PR and merge actions are
-allowed only when already included in the trusted mandate. Use conditional
-delegated release activation only when its target, environment grant and
-required evidence already exist; otherwise record a typed blocked action and
-continue independent eligible work.
+The record requires `schemaVersion: task-readiness/v1`, taskId, objective,
+acceptance strings, writeScope, checks and mandateReference. Optional
+dependencies name a task and may name a revision. Preflight checks the Git
+baseline, dependencies, write scope and environment, and emits evidence such as
+`READY`; that status is not authority to act. `--changed` includes changed path
+sets in the result; preflight always checks changed paths against writeScope.
+Objectives, acceptance, scope and dependency references come from the roadmap
+where available and the current trusted task mandate. Ordinary tasks do not need
+a packet, sidecar, per-criterion environment hash receipt, sealed admission,
+reservation or phase-receipt ceremony.
 
-The policy is an agent procedure, not evidence that a durable controller or
-ledger has shipped. The local contract validator exists; do not infer live
-dispatch from a structural PASS. WF00 pins, packet receipts and
-[`SOURCE-RECONCILIATION.md`](docs/architecture/delivery-control/SOURCE-RECONCILIATION.md)
-remain historical and immutable. The 2026-10-14 policy update is a separate
-objective; it does not restart or reset any existing lineage.
+The trusted user task or standing delegation is recorded once by root, with its
+source, repository, objective, scope and prohibitions. A mandate reference in a
+task record is provenance, not independent authority. Do not ask the user to
+repeat an approval already in scope. Reconcile a legacy owner-approved label
+with the current trusted delegation; a stale label alone does not block the
+work. Root resolves technical and product choices within the delegated scope.
+Worker, verifier and reviewer use distinct `gpt-6-luna` max sessions and may
+inspect the same exact patch independently. Sol owns one root delivery
+responsibility for in-scope decisions, integration and authorized delivery.
+
+Keep required tests, independent review, exact-head CI, merge and release gates.
+An authorized commit, push or PR may collect pending CI; merge and release wait
+for every applicable acceptance, review, test, CI and authority gate.
+Documentation work receives no blanket CI exemption. Production, destructive
+and security-sensitive effects need their actual risk-specific grants and
+evidence. A readiness result never grants external permissions.
+
+Classify proven no-effect parse, schema, missing-field, quoting or legacy
+receipt errors as `METADATA_DEFECT` and repair the record. Such repairs do not
+spend implementation, submission, control-plane-successor or execution-cycle
+capacity and do not start the execution deadline. Unsafe paths and scope escapes
+remain `BLOCKED_SCOPE`. Repeated identical semantic no-progress uses the active
+cumulative cap and yields `YIELD_REASSESS`; the task remains resumable.
+
+Implementation and submission caps and execution deadlines apply per bounded
+cycle under the same taskId. A cycle's deadline starts at first worker dispatch;
+retries and resumes within that cycle do not reset the anchor. Exhaustion pauses
+the cycle with its history intact. Root may admit a new dated numbered cycle
+only after material new evidence or a corrected implementation plan, linking
+the prior history and reason. The semantic no-progress guard stays cumulative
+across cycles. Do not erase the objective, silently extend a cap or hot retry
+unchanged work. Unknown effects require quarantine and read-only reconciliation.
+Out-of-scope work remains blocked.
+
+`prepare-g0.mjs` is a read-only audit path for historical v1 records under v4;
+it cannot create new reservations or publish new receipts. Keep v1 contracts,
+receipts, WF00 pins and
+[SOURCE-RECONCILIATION.md](docs/architecture/delivery-control/SOURCE-RECONCILIATION.md)
+immutable. Root may reassess a historical metadata-only block under the same
+stable task identity using current authority and actual state, recording a new
+dated result linked to the old history. A real implementation,
+external-authority or unknown-effect block is not waived by the policy update.
+
+This document defines an agent procedure. It does not establish that a durable
+workflow controller or ledger has shipped.
 
 # AGENTS.md — zuri-ai
 
@@ -773,3 +786,11 @@ lifecycle metadata; existing product authority and canonical IDs are unchanged.
 Version diff (2026-10-06): adopts service documentation and the shadow verification
 policy, reconciles canonical-record paths and current CI/baseline instructions,
 and preserves all active job-selection gates.
+
+Version diff (2026-10-15, v4): replaces sealed G0 draft preparation for ordinary
+work with one automatic read-only task-readiness preflight; folds root decision,
+integration and final delivery into one responsibility; separates metadata
+repair from per-cycle implementation budgets; and makes metadata-only
+no-progress resumable. Keeps high-risk authority checks, independent review and
+mandatory CI/test/merge gates; preserves historical v1 contracts, receipts and
+WF00 source reconciliation.
