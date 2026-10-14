@@ -1246,7 +1246,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-134",
@@ -1262,7 +1262,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-136",
@@ -6171,7 +6171,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-134",
@@ -6187,7 +6187,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-136",
@@ -8976,7 +8976,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-134",
@@ -8992,7 +8992,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-136",
@@ -9057,6 +9057,7 @@
         "apps/server/tests/unit/asset-lifecycle-routes.test.js",
         "apps/server/tests/unit/asset-lifecycle-service.test.js",
         "apps/server/tests/unit/asset-lookup-routes.test.js",
+        "apps/server/tests/unit/asset-lookup-schema-integration.test.js",
         "apps/server/tests/unit/asset-lookup-service.test.js",
         "apps/server/tests/unit/asset-maintenance-routes.test.js",
         "apps/server/tests/unit/asset-maintenance-service.test.js",
