@@ -6,10 +6,12 @@ const { signUpBusinessActor, switchBusinessActor } = require('./e2e-business-act
 //   confirms it and completes it.
 // @req FR-163 — records a payment against it, verifies it, and sees the order
 //   turn PAID and the dashboard count the verified money.
+// @req FR-196 — self-verification requires explicit per-payment attestation; another actor needs none.
 // @spec ADR-065; SEC-001
 // @tested tests/e2e/fr166-commerce-orders.spec.js
 
 test('FR-166/FR-163 — an order is created, paid, verified and completed on the Commerce pages', async ({ page, request }) => {
+  test.setTimeout(120000)
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/\/overview$/)
@@ -44,22 +46,68 @@ test('FR-166/FR-163 — an order is created, paid, verified and completed on the
   await row().getByRole('button', { name: 'ยืนยัน', exact: true }).click()
   await expect(row()).toContainText('ยืนยันแล้ว')
 
-  // Open the order, record a transfer of the full amount, verify it.
+  // Open the order and record two payments so consent must remain bound to one.
   await row().getByRole('button', { name: code }).click()
-  await page.getByLabel('จำนวนเงิน', { exact: true }).fill('1000')
+  await page.getByLabel('จำนวนเงิน', { exact: true }).fill('500')
   // Not the order code: the payments table would then match the order-row filter below.
-  await page.getByLabel('อ้างอิงธนาคาร', { exact: true }).fill(`E2E-REF-${Date.now()}`)
+  await page.getByLabel('อ้างอิงธนาคาร', { exact: true }).fill(`E2E-REF-1-${Date.now()}`)
   const recorded = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes('/payments'))
   await page.getByRole('button', { name: 'บันทึกการชำระ', exact: true }).click()
   expect((await recorded).ok()).toBe(true)
   await expect(status).toContainText(/บันทึก PAY-\d{8}-\d{3}/)
+  const firstPaymentCode = (await status.textContent()).match(/PAY-\d{8}-\d{3}/)[0]
+  await page.getByLabel('จำนวนเงิน', { exact: true }).fill('500')
+  await page.getByLabel('อ้างอิงธนาคาร', { exact: true }).fill(`E2E-REF-2-${Date.now()}`)
+  const secondRecorded = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes('/payments'))
+  await page.getByRole('button', { name: 'บันทึกการชำระ', exact: true }).click()
+  expect((await secondRecorded).ok()).toBe(true)
+  await expect(status).toContainText(/บันทึก PAY-\d{8}-\d{3}/)
+  const secondPaymentCode = (await status.textContent()).match(/PAY-\d{8}-\d{3}/)[0]
   await expect(row()).toContainText('รอ 1,000.00')
+
+  const paymentRow = (paymentCode) => page.getByRole('row').filter({ hasText: paymentCode })
+  const selfVerify = (paymentCode) => page.getByRole('checkbox', { name: `ยืนยันตรวจการชำระ ${paymentCode} ด้วยตนเอง` })
+  await expect(selfVerify(firstPaymentCode)).not.toBeChecked()
+  await expect(selfVerify(secondPaymentCode)).not.toBeChecked()
+
+  // The recorder's default verification is refused, with no hidden opt-in.
+  const defaultSelfVerify = page.waitForResponse((r) => r.request().method() === 'PATCH' && r.url().includes('/api/commerce/payments/'))
+  await paymentRow(firstPaymentCode).getByRole('button', { name: 'ตรวจแล้ว', exact: true }).click()
+  const refusedSelfVerify = await defaultSelfVerify
+  expect(refusedSelfVerify.status()).toBe(409)
+  expect(refusedSelfVerify.request().postDataJSON()).not.toHaveProperty('selfVerifyAttested')
+  await expect(page.locator('p[role="alert"]')).toContainText('ให้ผู้ใช้อื่นตรวจสอบ')
+  await expect(selfVerify(firstPaymentCode)).not.toBeChecked()
+
+  // Opting into the first payment does not select the second payment's control.
+  await selfVerify(firstPaymentCode).check()
+  const explicitSelfVerify = page.waitForResponse((r) => r.request().method() === 'PATCH' && r.url().includes('/api/commerce/payments/'))
+  await paymentRow(firstPaymentCode).getByRole('button', { name: 'ตรวจแล้ว', exact: true }).click()
+  const verifiedSelfPayment = await explicitSelfVerify
+  expect(verifiedSelfPayment.ok()).toBe(true)
+  expect(verifiedSelfPayment.request().postDataJSON()).toMatchObject({ action: 'VERIFY', selfVerifyAttested: true })
+  await expect(paymentRow(firstPaymentCode)).toContainText('ตรวจแล้ว')
+  await expect(selfVerify(secondPaymentCode)).not.toBeChecked()
+
+  // The same recorder is still refused on the other payment; no record choice carried over.
+  const secondDefaultVerify = page.waitForResponse((r) => r.request().method() === 'PATCH' && r.url().includes('/api/commerce/payments/'))
+  await paymentRow(secondPaymentCode).getByRole('button', { name: 'ตรวจแล้ว', exact: true }).click()
+  const refusedSecondVerify = await secondDefaultVerify
+  expect(refusedSecondVerify.status()).toBe(409)
+  expect(refusedSecondVerify.request().postDataJSON()).not.toHaveProperty('selfVerifyAttested')
+  await expect(page.locator('p[role="alert"]')).toContainText('ให้ผู้ใช้อื่นตรวจสอบ')
+
   // FR-196: a separate authenticated person verifies the recorded payment.
   const scope = await readScope(page.request)
   const verifier = await signUpBusinessActor(request, scope.businesses.find((b) => b.code === 'BUS-001').id)
   await switchBusinessActor(page, verifier)
   await row().getByRole('button', { name: code }).click()
-  await page.getByRole('button', { name: 'ตรวจแล้ว', exact: true }).click()
+  await expect(selfVerify(secondPaymentCode)).not.toBeChecked()
+  const otherActorVerify = page.waitForResponse((r) => r.request().method() === 'PATCH' && r.url().includes('/api/commerce/payments/'))
+  await paymentRow(secondPaymentCode).getByRole('button', { name: 'ตรวจแล้ว', exact: true }).click()
+  const verifiedOtherPayment = await otherActorVerify
+  expect(verifiedOtherPayment.ok()).toBe(true)
+  expect(verifiedOtherPayment.request().postDataJSON()).not.toHaveProperty('selfVerifyAttested')
   await expect(status).toContainText('ชำระครบ')
   await expect(row()).toContainText('ชำระครบ')
 
