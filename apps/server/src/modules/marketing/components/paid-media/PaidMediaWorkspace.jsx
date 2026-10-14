@@ -3,7 +3,7 @@
 // @req FR-185 — Paid Media is an honest owner projection: unavailable metrics
 // are visible without fixture rows or false zeros.
 // @spec SDD-086, ADR-065
-// @tested tests/e2e/marketing-p5.spec.js
+// @tested tests/unit/marketing/paid-media-revenue-render.test.js, tests/e2e/marketing-p5.spec.js
 
 import { Card, EmptyState, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
 import { useFetch } from '@/modules/project-manager/components/useApi'
@@ -14,11 +14,16 @@ function metricValue(metric) {
   return String(metric.value)
 }
 
-function formatThbFromSatang(value) {
+// Commerce's revenue DTO already exposes baht (FR-163), so display without rescaling.
+function formatThb(value) {
   if (value === null || value === undefined || value === '') return 'UNAVAILABLE'
-  const satang = Number(value)
-  if (!Number.isFinite(satang)) return 'UNAVAILABLE'
-  return `${(satang / 100).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} THB`
+  const baht = typeof value === 'number'
+    ? value
+    : typeof value === 'string' && value.trim() !== ''
+      ? Number(value)
+      : Number.NaN
+  if (!Number.isFinite(baht)) return 'UNAVAILABLE'
+  return `${baht.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} THB`
 }
 
 function measurementWindowLabel(window) {
@@ -48,7 +53,7 @@ export default function PaidMediaWorkspace({ businessId }) {
         <Card className="mb-5">
           <SectionTitle caption="Provider metrics are outside the approved source contract">Measurement status</SectionTitle>
           <p className="break-words rounded-lg bg-[var(--brand-tint)] p-3 text-xs" role="status">{data?.state || 'UNKNOWN'} — Paid metrics are unavailable; this view never substitutes zeros.</p>
-          {revenue ? <div className="mt-3 min-w-0 text-xs"><p className="break-words">Verified Commerce revenue: {formatThbFromSatang(revenue.verifiedNet)}</p><p className="mt-1 break-words text-muted">Measurement window: {measurementWindowLabel(revenue)}</p></div> : <p className="mt-3 break-words text-xs text-muted">Verified Commerce revenue is unavailable in this scope.</p>}
+          {revenue ? <div className="mt-3 min-w-0 text-xs"><p className="break-words">Verified Commerce revenue: {formatThb(revenue.verifiedNet)}</p><p className="mt-1 break-words text-muted">Measurement window: {measurementWindowLabel(revenue)}</p></div> : <p className="mt-3 break-words text-xs text-muted">Verified Commerce revenue is unavailable in this scope.</p>}
           <SourceNote>Owner DTOs: Marketing, Integration and Commerce. CRM audience and ad providers are not called.</SourceNote>
         </Card>
         <Card>
