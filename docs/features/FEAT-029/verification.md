@@ -50,6 +50,8 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/(pm)/commerce/orders/page.jsx](../../../apps/server/src/app/%28pm%29/commerce/orders/page.jsx) — `implements` (`annotation`)
+- [apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx](../../../apps/server/src/app/%28pm%29/procurement/purchase-orders/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/commerce/application/payment-service.js](../../../apps/server/src/modules/commerce/application/payment-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/commerce/domain/commerce.js](../../../apps/server/src/modules/commerce/domain/commerce.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/rbac-service.js](../../../apps/server/src/modules/identity/rbac-service.js) — `implements` (`annotation`)
@@ -68,6 +70,7 @@ status: generated
 - [apps/server/tests/integration/fr196-sod-cannot-be-assembled.test.js](../../../apps/server/tests/integration/fr196-sod-cannot-be-assembled.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/scm-legacy-races.postgres.test.js](../../../apps/server/tests/integration/scm-legacy-races.postgres.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/commerce-domain.test.js](../../../apps/server/tests/unit/commerce-domain.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/commerce-routes.test.js](../../../apps/server/tests/unit/commerce-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/customer-import-review-service.test.js](../../../apps/server/tests/unit/customer-import-review-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr076-product-owner-business-assignment.test.js](../../../apps/server/tests/unit/fr076-product-owner-business-assignment.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/procurement-domain.test.js](../../../apps/server/tests/unit/procurement-domain.test.js) — `verifies` (`transitive`)
