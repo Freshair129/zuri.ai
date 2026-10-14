@@ -1,4 +1,8 @@
 import { describe, it, expect, beforeAll } from 'vitest'
+import fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
+import { createHash, randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 // @req FR-075 — restore is an installation-wide operation; these cases arrange
 // as the operator, and fr075-restore-authorization.test.js is where the refusal
@@ -416,6 +420,63 @@ describe('snapshot backup round trip', () => {
     expect(result.needsConfirmation).toBe(true)
     expect(result.wouldReplace).toBe(true)
     expect(await prisma.project.count()).toBe(before)
+  })
+
+  // @req FR-284 — a portable POSIX remount restores included managed bytes.
+  // @spec SDD-113
+  it.skipIf(process.platform === 'win32')('restores included managed binary content to a POSIX remount', async () => {
+    const fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zuri-backup-posix-'))
+    const sourceRoot = path.join(fixtureRoot, 'source')
+    const restoreRoot = path.join(fixtureRoot, 'restored')
+    const sourceDeviceKey = `backup-source-${randomUUID()}`
+    const restoreDeviceKey = `backup-restore-${randomUUID()}`
+    const content = Buffer.from([0, 255, 1, 65, 0, 128])
+    let assetId
+    try {
+      await fs.mkdir(path.join(sourceRoot, 'Documents'), { recursive: true })
+      await fs.writeFile(path.join(sourceRoot, 'Documents', 'fixture.bin'), content)
+      await prisma.localWorkspaceMount.create({
+        data: { tenantId: business.tenantId, businessId: business.id, deviceKey: sourceDeviceKey, rootPath: sourceRoot },
+      })
+      const asset = await prisma.fileAsset.create({ data: {
+        code: `FIL-BACKUP-${randomUUID()}`, tenantId: business.tenantId, businessId: business.id,
+        projectId: project.id, storageKind: 'LOCAL_FILE', relativePath: 'Documents/fixture.bin',
+        name: 'fixture.bin', mime: 'application/octet-stream', size: content.length,
+        sha256: createHash('sha256').update(content).digest('hex'), status: 'ACTIVE',
+      } })
+      assetId = asset.id
+
+      const snapshot = await exportSnapshot({ includeBinaryContent: true })
+      expect(snapshot.fileContentManifest).toContainEqual(expect.objectContaining({
+        fileId: asset.id, contentIncluded: true, contentBase64: content.toString('base64'),
+      }))
+      const result = await importSnapshot(snapshot, {
+        confirm: true,
+        remounts: [{ businessId: business.id, deviceKey: restoreDeviceKey, rootPath: restoreRoot }],
+        viewer: makeOperatorViewer(),
+      })
+      expect(result.restored).toBe(true)
+      expect(await fs.readFile(path.join(restoreRoot, 'Documents', 'fixture.bin'))).toEqual(content)
+      expect(await prisma.localWorkspaceMount.findUnique({ where: { businessId_deviceKey: { businessId: business.id, deviceKey: restoreDeviceKey } } }))
+        .toMatchObject({ rootPath: restoreRoot })
+    } finally {
+      if (assetId) await prisma.fileAsset.deleteMany({ where: { id: assetId } })
+      await prisma.localWorkspaceMount.deleteMany({ where: { businessId: business.id, deviceKey: { in: [sourceDeviceKey, restoreDeviceKey] } } })
+      if (path.resolve(fixtureRoot).startsWith(path.resolve(os.tmpdir()))) await fs.rm(fixtureRoot, { recursive: true, force: true })
+    }
+  })
+
+  it('rejects ambiguous and drive-relative remount roots before restore writes', async () => {
+    const snapshot = await exportSnapshot()
+    const projectCount = await prisma.project.count()
+    for (const rootPath of ['\\root', 'C:relative']) {
+      await expect(importSnapshot(snapshot, {
+        confirm: true,
+        remounts: [{ businessId: business.id, deviceKey: `invalid-${randomUUID()}`, rootPath }],
+        viewer: makeOperatorViewer(),
+      })).rejects.toThrow(/absolute Windows or POSIX rootPath/)
+    }
+    expect(await prisma.project.count()).toBe(projectCount)
   })
 
   it('round trip: export → mutate → confirm import → data restored', async () => {
