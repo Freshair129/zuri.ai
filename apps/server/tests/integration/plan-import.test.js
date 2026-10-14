@@ -14,6 +14,8 @@ let viewer
 let businessGoal
 
 // @req FR-065 — import authorizes its target, so the pipeline now takes a viewer.
+// @req FR-012, FR-069 — PlanEnvelope validation enforces Product Launch gate evidence.
+// @spec SDD-039 — Human and Agent input share the same mode-specific validation and writer.
 // This suite is about validation, diffing and transactional commit, not about
 // authorization: it runs as the owner of the Business it creates. The
 // authorization behaviour itself is pinned in
@@ -105,6 +107,32 @@ function schema12Plan() {
   return candidate
 }
 
+function productLaunchPlan({ projectCode, gate }) {
+  const phaseCode = `${projectCode}-PHASE`
+  return {
+    schemaVersion: '1.0',
+    generatedBy: 'test-agent',
+    scope: { workspaceCode: 'WS-IMP' },
+    project: { code: projectCode, name: `Launch plan ${projectCode}`, status: 'PLANNED' },
+    workstreams: [
+      {
+        code: `${projectCode}-WST`,
+        name: 'Launch',
+        executionMode: 'PRODUCT_LAUNCH',
+        progressStrategy: 'MILESTONE_READINESS',
+        containers: [{ code: phaseCode, subtype: 'LAUNCH_PHASE', title: 'Launch phase' }],
+        items: [{
+          code: `${projectCode}-DELIVERABLE`,
+          containerCode: phaseCode,
+          subtype: 'DELIVERABLE',
+          title: 'Launch deliverable',
+        }],
+        gates: [gate],
+      },
+    ],
+  }
+}
+
 describe('plan envelope import', () => {
   beforeAll(async () => {
     const portfolio = await createPortfolio({ name: 'Import Group', code: 'PF-IMP' })
@@ -150,6 +178,61 @@ describe('plan envelope import', () => {
     expect(result.preview.summary.conflictCount).toBe(0)
     const after = await prisma.project.count()
     expect(after).toBe(before) // no writes
+  })
+
+  it('refuses a required Product Launch gate without evidence before any commit writes', async () => {
+    const invalidPlan = productLaunchPlan({
+      projectCode: 'PRJ-IMP-PL-NO-EVIDENCE',
+      gate: { code: 'GATE-IMP-PL-NO-EVIDENCE', title: 'Launch approval' },
+    })
+    const projectsBefore = await prisma.project.count()
+    const gatesBefore = await prisma.gate.count()
+    const receiptsBefore = await prisma.planImportReceipt.count()
+    const auditsBefore = await prisma.auditEvent.count({ where: { action: 'PLAN_IMPORTED' } })
+    const expectedError =
+      'workstreams[0].gates[0].evidence: required gate "GATE-IMP-PL-NO-EVIDENCE" must include a non-empty evidence object'
+
+    const dry = await dryRun(invalidPlan)
+    expect(dry.valid).toBe(false)
+    expect(dry.errors).toContain(expectedError)
+
+    const result = await runCommit(invalidPlan)
+    expect(result.committed).toBe(false)
+    expect(result.errors).toContain(expectedError)
+    expect(await prisma.project.findUnique({ where: { code: invalidPlan.project.code } })).toBeNull()
+    expect(await prisma.gate.findUnique({ where: { code: 'GATE-IMP-PL-NO-EVIDENCE' } })).toBeNull()
+    expect(await prisma.project.count()).toBe(projectsBefore)
+    expect(await prisma.gate.count()).toBe(gatesBefore)
+    expect(await prisma.planImportReceipt.count()).toBe(receiptsBefore)
+    expect(await prisma.auditEvent.count({ where: { action: 'PLAN_IMPORTED' } })).toBe(auditsBefore)
+  })
+
+  it('imports a required Product Launch gate with evidence through the existing PlanEnvelope writer', async () => {
+    const launchPlan = productLaunchPlan({
+      projectCode: 'PRJ-IMP-PL-WITH-EVIDENCE',
+      gate: {
+        code: 'GATE-IMP-PL-WITH-EVIDENCE',
+        title: 'Launch approval',
+        required: true,
+        evidence: { checklist: 'release regression report' },
+      },
+    })
+    const dry = await dryRun(launchPlan)
+    expect(dry.valid).toBe(true)
+
+    const result = await runCommit(launchPlan)
+    expect(result.committed).toBe(true)
+    const project = await prisma.project.findUnique({
+      where: { code: launchPlan.project.code },
+      include: { gates: true },
+    })
+    expect(project.gates).toHaveLength(1)
+    expect(project.gates[0]).toMatchObject({
+      code: 'GATE-IMP-PL-WITH-EVIDENCE',
+      required: true,
+      evidenceJson: JSON.stringify({ checklist: 'release regression report' }),
+    })
+    expect(await prisma.auditEvent.findFirst({ where: { action: 'PLAN_IMPORTED', entityId: project.id } })).toBeTruthy()
   })
 
   it('commit is transactional and audited', async () => {
