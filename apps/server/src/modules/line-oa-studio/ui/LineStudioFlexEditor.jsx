@@ -26,8 +26,6 @@ export default function LineStudioFlexEditor({ project }) {
   const [editorMode, setEditorMode] = useState("visual"); // 'visual' | 'json'
   const [jsonContent, setJsonContent] = useState("");
   const [copied, setCopied] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [testSent, setTestSent] = useState(false);
 
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId) || templates[0];
 
@@ -53,18 +51,12 @@ export default function LineStudioFlexEditor({ project }) {
     setJsonContent(JSON.stringify(updated.json, null, 2));
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  const handleSendTest = () => {
-    setTestSent(true);
-    setTimeout(() => setTestSent(false), 3000);
-  };
-
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] min-h-[650px] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden font-thai">
+      <div id="flex-preview-notice" role="status" className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+        <p className="font-bold">ตัวอย่าง Flex ในเครื่องเท่านั้น</p>
+        <p className="mt-1">แก้ไขเพื่อดูตัวอย่างได้ชั่วคราว การแก้ไขจะหายไปเมื่อโหลดหน้าใหม่ หน้านี้ยังไม่มีระบบบันทึกหรือส่งข้อความไป LINE จึงปิดปุ่มบันทึกและส่งทดสอบไว้</p>
+      </div>
       {/* Top Action Bar */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850/80 backdrop-blur-md">
         <div className="flex items-center gap-4">
@@ -105,22 +97,24 @@ export default function LineStudioFlexEditor({ project }) {
 
         <div className="flex items-center gap-2.5">
           <button
-            onClick={handleSendTest}
-            className={`px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
-              testSent ? "text-emerald-600 border-emerald-400" : ""
-            }`}
+            type="button"
+            disabled
+            aria-describedby="flex-preview-notice"
+            title="ยังไม่มีระบบส่งทดสอบไปยัง LINE"
+            className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-semibold flex items-center gap-1.5 opacity-60 cursor-not-allowed"
           >
-            {testSent ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Send className="w-3.5 h-3.5 text-brand-amber" />}
-            <span>{testSent ? "ส่งไปยัง LINE แล้ว!" : "ส่งทดสอบ"}</span>
+            <Send className="w-3.5 h-3.5" />
+            <span>ส่งทดสอบ (ปิดไว้)</span>
           </button>
           <button
-            onClick={handleSave}
-            className={`px-4 py-1.5 rounded-xl text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
-              saved ? "bg-emerald-600" : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20"
-            }`}
+            type="button"
+            disabled
+            aria-describedby="flex-preview-notice"
+            title="ยังไม่มีระบบบันทึก Flex"
+            className="px-4 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1.5 opacity-60 cursor-not-allowed"
           >
-            {saved ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-            <span>{saved ? "บันทึกเรียบร้อย" : "บันทึก"}</span>
+            <Save className="w-3.5 h-3.5" />
+            <span>บันทึก (ปิดไว้)</span>
           </button>
         </div>
       </div>

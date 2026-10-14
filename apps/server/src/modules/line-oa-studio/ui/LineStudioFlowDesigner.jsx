@@ -18,7 +18,6 @@ import {
   Maximize2,
   RotateCcw,
   Sparkles,
-  Check,
   ChevronRight,
   Info,
   X,
@@ -39,9 +38,6 @@ export default function LineStudioFlowDesigner({ project }) {
   const [edges, setEdges] = useState(MOCK_INITIAL_FLOW.edges);
   const [selectedNodeId, setSelectedNodeId] = useState("node-2");
   const [scale, setScale] = useState(1);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [testSimulating, setTestSimulating] = useState(false);
-  const [simLog, setSimLog] = useState([]);
 
   const canvasRef = useRef(null);
   const draggingNodeRef = useRef(null);
@@ -127,29 +123,17 @@ export default function LineStudioFlowDesigner({ project }) {
 
   const selectedNode = nodes.find(n => n.id === selectedNodeId);
 
-  const handleSaveFlow = () => {
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 2500);
-  };
-
-  const handleRunSimulation = () => {
-    setTestSimulating(true);
-    setSimLog([
-      "🚀 เริ่มต้นจำลองเหตุการณ์: Follow Event (ผู้ใช้กดติดตาม LINE OA)",
-      "▶️ กำลังส่งข้อมูลไปยัง Node [START]...",
-      "⚡ ตรวจสอบเงื่อนไขการส่งต่อ Node Connection...",
-      "💬 ดำเนินการ Node [MESSAGE]: ยินดีต้อนรับ สวัสดีครับ! ยินดีต้อนรับ🎉",
-      "✅ ข้อความถูกส่งเข้าห้องแชทจำลองสำเร็จ (Response: 200 OK)"
-    ]);
-  };
-
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] min-h-[600px] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden font-thai">
+      <div id="flow-preview-notice" role="status" className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+        <p className="font-bold">ตัวอย่างโครงสร้าง Flow ในเครื่องเท่านั้น</p>
+        <p className="mt-1">โหนดในหน้านี้เป็นข้อมูลตัวอย่าง ไม่ใช่ Flow ที่บันทึกหรือกำลังทำงาน การแก้ไขอยู่ชั่วคราวและจะหายไปเมื่อโหลดหน้าใหม่ หน้านี้ยังไม่มีระบบบันทึก ทดสอบ หรือส่งข้อความไป LINE จริง</p>
+      </div>
       {/* Top Action Bar */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850/80 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
             <h2 className="font-bold text-slate-900 dark:text-white text-sm">
               {MOCK_INITIAL_FLOW.name}
             </h2>
@@ -159,22 +143,24 @@ export default function LineStudioFlowDesigner({ project }) {
 
         <div className="flex items-center gap-2.5">
           <button
-            onClick={handleRunSimulation}
-            className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+            type="button"
+            disabled
+            aria-describedby="flow-preview-notice"
+            title="ยังไม่มีระบบทดสอบ Flow"
+            className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-semibold flex items-center gap-1.5 opacity-60 cursor-not-allowed"
           >
-            <Play className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" />
-            <span>จำลองการทำงาน</span>
+            <Play className="w-3.5 h-3.5" />
+            <span>ทดสอบ Flow (ปิดไว้)</span>
           </button>
           <button
-            onClick={handleSaveFlow}
-            className={`px-4 py-1.5 rounded-xl text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
-              saveSuccess
-                ? "bg-emerald-600 shadow-emerald-500/20"
-                : "bg-brand-amber hover:bg-brand-hover shadow-brand-amber/20"
-            }`}
+            type="button"
+            disabled
+            aria-describedby="flow-preview-notice"
+            title="ยังไม่มีระบบบันทึก Flow"
+            className="px-4 py-1.5 rounded-xl bg-brand-amber text-white text-xs font-semibold flex items-center gap-1.5 opacity-60 cursor-not-allowed"
           >
-            {saveSuccess ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-            <span>{saveSuccess ? "บันทึกเรียบร้อย!" : "บันทึก Flow"}</span>
+            <Save className="w-3.5 h-3.5" />
+            <span>บันทึก Flow (ปิดไว้)</span>
           </button>
         </div>
       </div>
@@ -390,50 +376,12 @@ export default function LineStudioFlowDesigner({ project }) {
 
             <div className="p-3 rounded-xl bg-brand-surface/40 dark:bg-slate-800/40 border border-brand-amber/20 text-[11px] text-slate-600 dark:text-slate-300 flex items-start gap-2">
               <Info className="w-4 h-4 text-brand-amber shrink-0 mt-0.5" />
-              <span>การแก้ไข Flow ในหน้านี้จะมีผลในทันทีเมื่อกดบันทึก</span>
+              <span>การแก้ไขเป็นตัวอย่างชั่วคราวและจะหายไปเมื่อโหลดหน้าใหม่ หน้านี้ยังไม่รองรับการบันทึก Flow</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Simulation Modal */}
-      {testSimulating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden font-thai">
-            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <Play className="w-4 h-4 text-emerald-500 fill-emerald-500" />
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm">
-                  จำลองการรัน Flow ในสภาพแวดล้อมทดสอบ
-                </h3>
-              </div>
-              <button
-                onClick={() => setTestSimulating(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-4 bg-slate-950 text-emerald-400 font-mono text-xs space-y-2 max-h-72 overflow-y-auto">
-              {simLog.map((log, idx) => (
-                <div key={idx} className="leading-relaxed">
-                  {log}
-                </div>
-              ))}
-            </div>
-
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-              <button
-                onClick={() => setTestSimulating(false)}
-                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-200"
-              >
-                ปิดหน้าต่าง
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

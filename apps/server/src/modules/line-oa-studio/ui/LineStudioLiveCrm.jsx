@@ -13,7 +13,7 @@ export default function LineStudioLiveCrm() {
   const [activeSubTab, setActiveSubTab] = useState("chat"); // 'chat' | 'members' | 'loyalty' | 'campaigns'
 
   const subTabs = [
-    { id: "chat", label: "แชทสด & Live Inbox", icon: MessageSquare, badge: "12" },
+    { id: "chat", label: "แชทสด & Live Inbox", icon: MessageSquare },
     { id: "members", label: "สมาชิก 360°", icon: Users },
     { id: "loyalty", label: "แต้มสะสม & Tier", icon: Star },
     { id: "campaigns", label: "บรอดแคสต์ & แคมเปญ", icon: Send }
@@ -39,13 +39,6 @@ export default function LineStudioLiveCrm() {
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
-                {tab.badge && (
-                  <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${
-                    isActive ? "bg-white/20 text-white" : "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300"
-                  }`}>
-                    {tab.badge}
-                  </span>
-                )}
               </button>
             );
           })}
