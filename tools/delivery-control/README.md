@@ -2,6 +2,30 @@
 
 This folder contains strict JSON Schema 2020-12 contracts and a Node.js ESM validator for immutable task packets, delivery DAGs, per-packet execution DAGs, artifact acknowledgements, and typed PARK disposition mapping. It uses Node built-ins only and performs local reads. It does not dispatch work, execute declared commands, call providers, contact a database, alter a ledger, merge code, or persist PARK records.
 
+## Current autonomous workflow
+
+The [coding-delivery policy](../../docs/architecture/delivery-control/WORKFLOW-POLICY.md)
+and [model policy](../../docs/architecture/delivery-control/contracts/model-policy.json)
+govern the agents operating these tools. A delegated Sol root can be the accountable
+`owner` and approval issuer within a recorded user mandate. The v1 contracts do not
+require a human approver. The authority identity, scope, receipt binding, independent
+sessions, and exact document digest still have to match.
+
+For real admission, root records the mandate independently of the candidate packet
+and validates the delivery/execution DAG with its separately obtained trusted
+context. An `ok` structural result with `approvalContext: NOT_TRUSTED`, a fixture
+result, or a context copied from untrusted packet contents cannot authorize dispatch.
+Matching caller context proves a binding only; the caller must establish its origin.
+
+The validator does not load the current model-policy file or enforce its global
+run counters, read-scope closure, deadlines, or recovery decisions. Root checks and
+records those in the run manifest and append-only action receipts before dispatch.
+The v1 packet/DAG budgets must fit inside the remaining root-lineage budget. New
+control-plane metadata belongs beside the v1 documents, not in unrecognized schema
+fields. Existing fixtures, park-map bytes, source pins, and historical receipts
+retain their original meaning. This policy update supplies an agent procedure;
+it does not claim a persistent controller or ledger is installed.
+
 ## Validate locally
 
 ```powershell

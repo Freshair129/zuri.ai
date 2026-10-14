@@ -1,122 +1,265 @@
 # Coding-delivery workflow policy
 
-**Status:** Selected for the supervised WF00 bootstrap only. This document and
-[`contracts/model-policy.json`](contracts/model-policy.json) do not install a
-runtime controller or grant product, Business, provider, or production
-authority. The exact admission packet is
-[`contracts/source-pins.json`](contracts/source-pins.json); its source hashes
-are the immutable G0 preimage at `578b103e1556a4d9251b16cb1b3b07a866d21cfb`.
+**Status:** Active autonomous agent procedure, version 2, adopted at owner
+direction on 2026-10-14. The sole machine-readable authority for role bindings,
+gates, concurrency and finite limits is
+[`contracts/model-policy.json`](contracts/model-policy.json). This procedure
+does not establish that a durable controller or ledger has shipped. A local
+contract validator exists; its structural result is not an authorization
+receipt.
 
-## Authority and boundary
+Earlier per-node and per-gate human approval requirements are superseded for
+in-scope coding and documentation work. Explicit user prohibitions and required
+external effect grants remain binding. The earlier WF00 admission, its source
+pins, packet receipts and [`SOURCE-RECONCILIATION.md`](SOURCE-RECONCILIATION.md)
+remain historical and immutable. Package28 ended in terminal G0 PARK; this
+policy update is a separate objective and does not restart it or replenish any
+exhausted lineage.
 
-The selected model-role, gate, concurrency, and finite-retry values have one
-machine-readable authority in `contracts/model-policy.json`. The existing
-model tables in S-01 and Document 20 remain historical profiles; their
-role names, model choices, and receipts are not silently rewritten or carried
-forward as current runtime policy. Documents 20 and 29 remain candidate
-specifications. This WF00 packet selects a supervised documentation process;
-future work packages require their own explicit G0 admission.
+## Authority and task admission
 
-Root owns coding-delivery tooling under `tools/delivery-control/`. Its future
-repository-local, non-product state root is the repository's git common
-directory plus `zuri-delivery-control/`. This location stores workflow evidence
-and control state only; it is not product data, an application database, a
-Business namespace, or a permission grant. Schema and backend selection remain
-pending a separately admitted WF02 node. WF00 creates neither the tooling nor
-the backend.
+The direct current user task or a standing delegation already evidenced in the
+trusted conversation or harness is sufficient authority provenance. The root
+records that mandate once with its source message/reference, repository,
+objective, effects in scope and prohibitions. Derived packets reference this
+root-recorded authority record. The user does not need to author or sign a
+packet, or repeat an approval. An accountable owner may be a delegated agent
+when the mandate binds that delegation. The root agent derives bounded task
+admissions from the standing objective and mandate; it does not request a new
+human decision at each node or gate.
 
-No general autonomy or Business Fleet permission follows from this policy.
-Persistent controller, PL01/PL02 pilot, and WF09 dispatch/acceptance remain
-`NOT_IMPLEMENTED` / `NOT_RUN` as applicable. No scheduler, watchdog, automatic
-provider action, external write, migration, deployment, or activation is
-authorized by this document.
+Actual dispatch requires both the root-recorded trusted mandate and a verified
+authority binding derived from trusted conversation or harness evidence. A
+structurally valid packet, validator PASS, prior agent statement, copied packet
+fields, or historical receipt alone cannot prove that binding. Do not require a
+second user-authored artifact or approval. If trusted context or its authority
+binding is unavailable, block only the affected lineage before dispatch and
+continue independent eligible work.
 
-## Reusable packet contract
+Sol owns decisions, critical debugging, orchestration, audit, integration and
+final disposition. Technical choices, reversible implementation decisions and
+in-scope packet repairs are decided by Sol under the mandate without another
+approval round. Role-to-model assignments and gate order are read from the
+machine-readable contract. Worker, verifier and reviewer are distinct sessions;
+the verifier and reviewer cannot share a session or substitute roles.
 
-Every future packet must name one owner, base commit, exact source digests,
-approved specification, explicit dependencies, exact allowed paths, forbidden
-effects, acceptance checks, verification environment, output receipt, and
-finite budget. The current G0 packet is docs-only. Its eight-file allowlist is
-the complete writer scope; generated outputs remain generator-owned, and
-canonical source rows, registries, readers, exports, IDs, and historical
-receipts are outside that scope.
+Preserve existing user and repository prohibitions. Autonomy does not infer
+credentials, capabilities, external permissions, production or Supabase
+authority, or permission for effects outside the mandate. Commit, push, PR and
+merge actions require an existing trusted mandate. An authorized commit, push
+or PR may collect CI evidence while CI is pending; publication does not mark the
+work accepted. Merge and release wait for all applicable evidence gates.
+Applying a Supabase migration remains under
+the existing owner-instruction rule. If the trusted mandate does not contain
+that instruction, record a typed blocked action. A missing external grant,
+target binding or credential never causes an agent to ask for an approval
+prompt or invent authority.
 
-Before dispatch, the root checks every required source against the exact pinned
-revision and proves the scope is ready. Missing or negative evidence blocks
-progress. A hash mismatch, path escape, forbidden effect, unknown authority,
-missing evidence, unavailable required model, failed command, skipped required
-check, or unclear retry history cannot receive `PASS`. `NOT_RUN`, `UNKNOWN`,
-`FLAKY`, `SKIPPED`, and `PARTIAL` remain distinct from `PASSED`.
+## Coordination and gates
 
-Each worker submission identifies packet and lineage, attempt, acceptance
-revision, writer identity, base and head SHA, changed paths, claim-to-evidence
-map, actual commands and exit codes, environment, exact artifact digests,
-limitations, and open gates. The verifier and reviewer use separate sessions
-from each other and from the writer; each receipt names the exact revision,
-session role, model, verdict, checked criteria, evidence, and remaining limits.
-No model fallback or session-role substitution is allowed.
+Use the contract's role map and concurrency limits. Independent branches may
+run in parallel only when their DAG dependencies point to actual accepted
+artifacts. Keep branch concurrency within the contract's limits. Serialize shared-source
+generation and integration, and lock conflicting write paths. The root owns one
+integration queue; generated outputs remain with their designated generator.
 
-The independent verifier checks the exact submitted revision. The reviewer
-checks that same verified revision and its evidence. Root alone composes the
-accepted patch and checks the resulting exact tree. A semantic repair creates
-a new submission revision and invalidates affected verification. A receipt
-proves only the evidence class and revision it names; a local check does not
-prove hosted CI, deployment, live Business use, or production acceptance.
+Run the gates in the order encoded in the contract:
 
-The required gate order is worker submission → independent verification →
-mandatory independent review → GPT-6.1-Sol task decision → GPT-6.1-Sol root
-integration → exact-head hosted CI → GPT-6.1-Sol final gate → separate owner
-release/activation decision when applicable → SOT closeout → safe cleanup.
-The mandatory reviewer is a distinct session from both writer and verifier; a
-missing receipt blocks. High-impact or uncertain task questions go to the
-selected GPT-6.1-Sol decision role. If domain-owner, Business, provider, or
-production authority is missing, park for that owner; model judgment cannot
-replace it.
+1. **G0 agent preflight:** the root checks the trusted mandate, authority
+   binding, exact base and required pins, task dependencies, read/write scopes,
+   forbidden effects, acceptance oracle, environment and receipt destination.
+   G0 creates an agent admission; it is not a human approval gate.
+2. **G1 worker submission:** the worker returns its exact revision, changed
+   paths, self-check, command receipts, evidence map and remaining gaps.
+3. **G2 independent verification:** a separate configured verifier checks the exact
+   submitted revision and acceptance criteria.
+4. **G2R independent review:** a third, separately configured session reviews the same verified
+   revision, its meaning, scope, contracts and evidence.
+5. **G3 Sol decision:** after G2 and G2R, Sol resolves technical decisions
+   within the mandate. This decision cannot grant missing domain, Business,
+   provider, production or other external authority.
+6. **G3B Sol integration:** Sol composes only accepted revisions, checks scope,
+   source conflicts, shared-path locks and evidence, then records the exact
+   integrated revision.
+7. **G4 exact-head CI:** when required, evidence must attest the exact reviewed
+   head and required ancestors before merge or release. Authorized commit, push
+   and PR creation may precede this gate to start CI. A changed head invalidates
+   affected review and CI evidence.
+8. **G5 Sol final gate:** Sol checks the integrated revision, applicable
+   exact-head evidence, authority scope and remaining gates before any allowed
+   merge.
+9. **Conditional `DELEGATED_RELEASE_ACTIVATION`:** if release or activation is
+   not part of the task, mark this gate `NOT_APPLICABLE` and proceed to
+   closeout. If it is part of the task, reuse its existing target/environment grant and required
+   gates, executing without a human prompt when the trusted mandate covers that
+   exact effect. Missing authority or credentials yields a typed blocked action
+   for that effect; unrelated eligible work continues.
+10. **SOT closeout and safe cleanup:** reconcile through the owning canonical
+    source of truth, record unresolved conditions and retain receipts before
+    removing any worktree or evidence.
 
-Hosted CI must be attached to the reviewed PR head SHA and required ancestors.
-If the head changes, the affected review and CI evidence must be refreshed
-before the GPT-6.1-Sol final gate and merge. `mergeable=true` alone is not
-authorization. Integration is a single root-owned queue; shared contracts,
-schemas, canonical rows, generated outputs, and target-branch changes are
-serialized.
+There is no mandatory human-in-the-loop gate. Process questions and in-scope
+repairs route to Sol. A required authority or capability outside the trusted
+mandate is an external blocker, not a reason to pause unrelated work or to seek
+an extra approval in the workflow.
 
-## Retries, unknown effects, and PARK
+Every failed gate, including G0 preflight and exact-head CI, first routes to Sol
+for failure triage. Sol classifies the evidence and selects only the matching
+bounded route in the contract: a proven no-effect packet/allowlist/argv defect
+may use the permitted batched control-plane successor; an implementation,
+test, review, integration or CI defect may use an acceptance repair and a new
+submission in the same lineage, then reruns every affected downstream gate; a
+known transient tool error may retry the same input only when idempotence or no
+effect is established. Missing authority, unavailable capability, exhausted
+budget, or repeated no-progress blocks that task and leaves independent
+eligible work moving. A NOT_APPLICABLE receipt is valid only for a gate not
+requested by the mandate and not required by repository policy. It cannot
+replace mandatory CI or any acceptance criterion; missing required evidence is
+NOT_RUN or BLOCKED, never PASS.
 
-The numeric retry and lineage caps in `contracts/model-policy.json` are sealed
-for this WF00 packet only; they are not global runtime defaults. Each future
-node must seal its own finite values at G0. Within a packet, counters attach to
-their original lineage and acceptance revision; rename, rebase,
-candidate-version change, or a new chat does not reset them. Acceptance repair,
-provenance successor, tool retry, review, recovery, RCA, escalation, and
-circuit-probe actions are different classes and may not be relabeled to bypass
-their limits. A tool retry is allowed only when the original operation's
-idempotency and input revision are established. If a counter, model failure,
-or prior effect cannot be established from evidence, record
-`MODEL_UNAVAILABLE` / `UNKNOWN` and block for a decision instead of assuming
-zero or falling back.
+If an operation's effect is unknown, quarantine it and perform read-only
+authoritative reconciliation. Do not retry while its effect remains unknown.
+Keep `effectState: UNKNOWN` separate from the run disposition, including when a
+deadline or budget makes the run terminal `BLOCKED` or `FAILED`; terminal status
+never converts an uncertain effect into `NONE` or a retryable failure.
 
-An external effect with unknown outcome becomes `UNKNOWN` and stays quarantined
-until an authoritative receipt or state check resolves it. Do not blindly retry
-or infer success from a local agent response. Parked work has a typed reason:
-`STALE_BASELINE`, `SCOPE_BLOCKED`, `DEPENDENCY_BLOCKED`, `UNKNOWN_EFFECT`, or
-`OWNER_DECISION_REQUIRED`. A PARK record includes packet/lineage/node identity,
-reason code, exact evidence reference, accountable owner, next permitted action,
-and whether a new admission is required. Unknown effects remain blocked even
-when another deadline or retry limit is reached.
+```mermaid
+flowchart TD
+    G0[Automatic agent G0 preflight] --> W[Worker submission]
+    W --> V[Independent verifier]
+    V --> R[Separate independent reviewer]
+    R --> S[Sol decision]
+    S --> I[Sol integration]
+    I --> CI[Exact-head CI when required]
+    CI --> F[Sol final gate]
+    F --> Q{Release or activation in task?}
+    Q -->|no, NOT_APPLICABLE| C[SOT closeout]
+    Q -->|yes| A{Exact grant and credentials?}
+    A -->|yes| G6[Delegated release activation]
+    A -->|no| B[Typed blocked action]
+    G6 --> C
+    C[SOT closeout] --> CL[Safe cleanup]
+    B --> N[Continue other independent eligible work]
+    G0 -. failure .-> Triage[Sol failure triage]
+    W -. failure .-> Triage
+    V -. failure .-> Triage
+    R -. failure .-> Triage
+    S -. failure .-> Triage
+    I -. failure .-> Triage
+    CI -. failure .-> Triage
+    F -. failure .-> Triage
+    G6 -. failure .-> Triage
+    C -. failure .-> Triage
+    CL -. failure .-> Triage
+    Triage --> K{Evidence-based failure class}
+    K -->|proven no-effect packet/argv defect| P[Bounded control-plane successor]
+    P --> G0
+    K -->|implementation, test, review, integration or CI defect| Repair[Bounded acceptance repair and new submission]
+    Repair --> W
+    K -->|known transient, idempotent or proven no-effect| Retry[Bounded same-input tool retry]
+    Retry --> Action[Retry original action or gate]
+    Action -->|succeeded| Resume[Continue after original action]
+    Action -. failed .-> Triage
+    K -->|effect unknown| U[Quarantine and read-only authoritative reconciliation]
+    U -->|remains unknown| T[Typed terminal blocker; effectState stays UNKNOWN]
+    U -->|new authoritative evidence and budget remains| Triage
+    K -->|out of scope, unavailable, exhausted or no progress| T
+    T --> N
+```
 
-## Closeout and source of truth
+The diagram shows the execution path and recovery edges. A repair stays in the
+same root lineage. An exhausted or externally blocked task becomes terminal for
+that lineage while unrelated eligible work proceeds.
 
-Submission is not closure. Root closeout records worker, verifier, reviewer,
-and integrated revisions; exact source and output digests; conflicts and
-dispositions; commands and observed results; typed PARK states; and every
-remaining gate with its owner and release condition. Reconcile status through
-the owning canonical source of truth (SOT); then regenerate governed projections
-from that source and check them. Never repair a stale projection by editing a
-generated export or changing an immutable canonical row.
+## Packet preflight and evidence
 
-The closure receipt names the integrated revision and exact-headed hosted CI
-when required, the canonical SOT reconciliation, projection/governance evidence,
-and unresolved owner, provider, production, or activation gates. A delivery
-merge does not close a separate live or production criterion. When a required
-receipt is absent, closeout records `NOT_RUN` or `UNKNOWN` with the next owner;
-it does not claim completion.
+Read scope and write scope are separate. Before dispatch, derive and validate
+the complete read-set closure for repository instructions, dependencies, every
+required startup/source/policy pin, prior receipts and expected-missing paths.
+Permit only scoped, read-only discovery of those instructions, dependencies and
+exact git-common-dir evidence references. Reject path escapes and secret dumps.
+Presence checks, hash reads and body reads are distinct operations; read bodies
+only when needed. Prove an expected absence with an existence check and record
+the result without inventing a hash for a missing file.
+
+Every acceptance criterion has a Given/When/Then oracle, an explicit command,
+its executable and arguments, the working directory and environment proof.
+Process APIs use `shell=false` with explicit executable, `argv` and `cwd`. When
+invoking the Git tree expression in PowerShell, preserve the literal argument:
+`git rev-parse 'HEAD^{tree}'`.
+
+The worker and each gate receipt name the exact revision, policy version, role
+and session, criteria and checks, evidence locator, command and exit status,
+environment, verdict and remaining gaps. Keep `NOT_RUN`, `UNKNOWN`, `FLAKY`,
+`SKIPPED`, `PARTIAL`, `FAIL` and `PASS` distinct; missing or negative required
+evidence cannot become PASS. The final receipt identifies the integrated
+revision and every unresolved gate with its owner and release condition.
+
+A real source-hash mismatch triggers read-only reconciliation against actual
+bytes; never repin merely to clear a mismatch. A source edit invalidates every
+affected verification. A diagnosed allowlist or quoting defect may use the
+control-plane repair successor allowed by the contract only after evidence
+proves the failed operation had no effect. Batch the diagnosed control-plane
+defects, preserve the old packet and receipts as immutable history, and retain
+every old failure as a failure. Do not manufacture a PASS from a repaired
+packet. For an acceptance repair, submit the changed implementation as a new
+revision in the same lineage and rerun each affected downstream gate from the
+earliest invalidated receipt.
+
+## Lineage budgets and stopping
+
+Each `rootLineageId` identifies one independently deliverable task or feature
+with a stable objective and acceptance identity. All descendants and new
+acceptance versions of that work share its lineage. Independent DAG objectives
+may have separate lineages; relabeling the same failed work never creates one.
+Reserve each relevant counter before action and persist its outcome and cost.
+The initial submission and each repaired submission consume the total
+submission allowance. A control-plane successor consumes both its specific
+allowance and the total successor-plan allowance. Gate evaluations are keyed by
+canonical gate ID across the whole lineage. Never roll back a reservation after
+a failed validation. Renaming, rebasing, opening a chat, changing a packet or
+upgrading this policy never resets a counter. The single authority for all caps
+and deadlines is `contracts/model-policy.json`; do not restate numeric limits
+here or create per-node increases.
+
+Anchor the run deadline at the first G0 attempt for the lineage, the node
+deadline at its first dispatch, and each bounded wait at that wait's start.
+Repairs, same-lineage successors and resumes preserve the original deadline
+anchors. A new independent task has its own lineage and anchors.
+
+An error fingerprint consists of objective, stage, failure class and semantic
+input digest. Cosmetic edits do not count as progress. A genuinely new external
+evidence digest may wake a blocked task only within its remaining lineage
+budget. Retry a tool only on the same input when it is idempotent or evidence
+proves the prior attempt had no effect. Unknown effects remain blocked pending
+authoritative reconciliation.
+
+When a counter or deadline is exhausted, mark the affected lineage terminal
+`BLOCKED` or `FAILED` and continue other eligible work. Do not prompt for
+approval, repackage the same work, automatically extend a budget, or poll an
+unchanged input. Missing history blocks only the affected lineage; do not
+assume an empty history or silently revive an exhausted run. A future resume
+preserves that lineage's history and remaining budget.
+
+Gate exhaustion applies to G0 and CI as well as later gates. If a budget or
+deadline expires during unknown-effect reconciliation, the run may become
+terminal but the separate effect state stays `UNKNOWN`; only authoritative
+evidence can resolve it.
+
+## Runtime and history boundary
+
+This file defines agent procedure. The local contract validator checks contract
+structure; no durable ledger or runtime controller is assumed to be shipped.
+Do not claim live dispatch, automatic polling, lease/lock enforcement, CI,
+deployment, Business use or production acceptance without its own exact
+evidence. If the executing environment cannot preserve trusted authority,
+lineage counters and receipts, do not dispatch the affected task.
+
+Version diff (2026-10-14): replaces the WF00-only supervised selection with
+autonomous v2 admissions derived from trusted standing delegation; supersedes
+routine human approval gates for in-scope work; routes
+process decisions to Sol; adds a conditional delegated release gate, read-set
+and command evidence rules, and global finite lineage budgets. Preserves
+historical WF00 receipts, source pins, product authority and all
+existing production and Supabase prohibitions. This is policy documentation,
+not a claim that a runtime controller or durable ledger was installed.

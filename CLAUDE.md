@@ -19,6 +19,35 @@ preserves old v1 evidence and adds opt-in v2 reads. After changing source record
 run `docs:registry`, `docs:graph`, then `docs:views`; run the full `govern` chain,
 including registry, identity and view freshness checks, after document changes.
 
+## Autonomous coding delivery (2026-10-14)
+
+Follow the active v2 procedure in
+[`docs/architecture/delivery-control/WORKFLOW-POLICY.md`](docs/architecture/delivery-control/WORKFLOW-POLICY.md)
+and its single machine-readable authority,
+[`model-policy.json`](docs/architecture/delivery-control/contracts/model-policy.json).
+The root agent derives bounded admissions from the standing owner objective and
+trusted mandate. The direct current user task or standing delegation already
+evidenced in trusted conversation or harness context is sufficient provenance;
+root records the source message/reference, repository, objective, effects and
+prohibitions once and packets reference that record. G0 is agent preflight; there
+is no per-gate human approval or need for a user-authored packet/signature.
+This policy supersedes earlier routine per-node and per-gate human approval
+requirements for in-scope coding and documentation work. Explicit user
+prohibitions and required external grants remain binding.
+Actual dispatch requires the root-recorded mandate and verified authority
+binding from trusted conversation or harness evidence; copied packet fields or a
+structural validator result alone are not authorization. Route process decisions
+and in-scope repairs to Sol. Preserve all existing scope and production limits,
+require evidence for the exact revision, and permit commit/push/PR/merge only
+when they are already included in the trusted mandate. The local contract
+validator does not establish that a durable controller or ledger has shipped.
+Historical packets and receipts remain immutable; the policy update is a
+separate objective and does not reset an existing lineage.
+
+Version diff (2026-10-14): adds the autonomous delivery entry point and
+trusted-mandate dispatch boundary. No product requirement or runtime authority
+is changed.
+
 ## Monorepo paths (ADR-062, 2026-09-06)
 
 Canonical governance remains in root `docs/`. Server source, tests, Prisma,
@@ -323,7 +352,8 @@ npm run docs:graph     # rebuild docs/.doc-graph.json + Appendix D from the file
 npm run docs:check     # fails when the committed graph is stale
 npm run docs:preflight # doc health — exits non-zero on any CRITICAL (--strict)
 npm run docs:preflight:report  # same findings, never fails — for reading, not gating
-npm run docs:ids       # the id ledger's ONLY writer — run by a human, never by govern.
+npm run docs:ids       # the id ledger's ONLY writer — run by the delegated Integrator
+                       # within the trusted mandate's scope, never by govern.
                        # `-- --write` pins newly declared ids (the routine "+" block);
                        # --reword / --supersede / --abandon / --distinct / --declare each
                        # record one named change with a sentence. See ADR-039.
