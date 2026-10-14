@@ -2083,7 +2083,9 @@ export async function importSnapshot(snapshot, {
       } catch { /* missing content is reported, not guessed */ }
     }
     if (!active) unresolvedContentFileIds.push(asset.id)
-    await db.fileAsset.update({ where: { id: asset.id }, data: { status: active ? 'ACTIVE' : 'MISSING' } })
+    let restoredStatus = active ? 'ACTIVE' : 'MISSING'
+    if (asset.status === 'QUARANTINED') restoredStatus = 'QUARANTINED'
+    await db.fileAsset.update({ where: { id: asset.id }, data: { status: restoredStatus } })
   }
   return {
     restored: true,

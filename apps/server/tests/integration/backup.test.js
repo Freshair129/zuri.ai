@@ -457,7 +457,9 @@ describe('snapshot backup round trip', () => {
         viewer: makeOperatorViewer(),
       })
       expect(result.restored).toBe(true)
+      expect(result.unresolvedContentFileIds).not.toContain(asset.id)
       expect(await fs.readFile(path.join(restoreRoot, 'Documents', 'fixture.bin'))).toEqual(content)
+      expect(await prisma.fileAsset.findUnique({ where: { id: asset.id } })).toMatchObject({ status: 'ACTIVE' })
       expect(await prisma.localWorkspaceMount.findUnique({ where: { businessId_deviceKey: { businessId: business.id, deviceKey: restoreDeviceKey } } }))
         .toMatchObject({ rootPath: restoreRoot })
     } finally {
@@ -531,6 +533,73 @@ describe('snapshot backup round trip', () => {
       })
       expect(filesystemPort.cleanupStaged).toHaveBeenCalledTimes(1)
       expect(filesystemPort.copy).not.toHaveBeenCalled()
+    } finally {
+      if (assetId) await prisma.fileAsset.deleteMany({ where: { id: assetId } })
+      await prisma.localWorkspaceMount.deleteMany({ where: { businessId: business.id, deviceKey: { in: [sourceDeviceKey, restoreDeviceKey] } } })
+      if (path.resolve(fixtureRoot).startsWith(path.resolve(os.tmpdir()))) await fs.rm(fixtureRoot, { recursive: true, force: true })
+    }
+  })
+
+  // @req FR-045, FR-284 — restore preserves quarantine while reporting content gaps.
+  // @spec SEC-007, SDD-113
+  it.each([
+    ['included bytes', true, false],
+    ['absent bytes', false, true],
+  ])('preserves quarantined FileAsset state with %s', async (_caseName, includeBinaryContent, contentIsUnresolved) => {
+    const fixtureRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'zuri-backup-quarantine-'))
+    const sourceRoot = path.join(fixtureRoot, 'source')
+    const restoreRoot = path.join(fixtureRoot, 'restored')
+    const sourceDeviceKey = `backup-quarantine-source-${randomUUID()}`
+    const restoreDeviceKey = `backup-quarantine-restore-${randomUUID()}`
+    const filename = `quarantined-${randomUUID()}.bin`
+    const relativePath = `Documents/${filename}`
+    const content = Buffer.from([0, 255, 2, 65, 0, 128])
+    let assetId
+    try {
+      await fs.mkdir(sourceRoot, { recursive: true })
+      if (includeBinaryContent) {
+        await fs.mkdir(path.join(sourceRoot, 'Documents'), { recursive: true })
+        await fs.writeFile(path.join(sourceRoot, 'Documents', filename), content)
+      }
+      await prisma.localWorkspaceMount.create({
+        data: { tenantId: business.tenantId, businessId: business.id, deviceKey: sourceDeviceKey, rootPath: sourceRoot },
+      })
+      const asset = await prisma.fileAsset.create({ data: {
+        code: `FIL-BACKUP-${randomUUID()}`, tenantId: business.tenantId, businessId: business.id,
+        projectId: project.id, storageKind: 'LOCAL_FILE', relativePath,
+        name: filename, mime: 'application/octet-stream', size: content.length,
+        sha256: createHash('sha256').update(content).digest('hex'), status: 'QUARANTINED', version: 7,
+      } })
+      assetId = asset.id
+      const fileLink = await prisma.fileLink.create({ data: {
+        fileId: asset.id, entityType: 'PROJECT', entityId: project.id, relationType: 'ATTACHMENT',
+      } })
+
+      const snapshot = await exportSnapshot({ includeBinaryContent })
+      expect(snapshot.fileContentManifest).toContainEqual(expect.objectContaining({
+        fileId: asset.id,
+        contentIncluded: includeBinaryContent,
+        ...(includeBinaryContent ? { contentBase64: content.toString('base64') } : {}),
+      }))
+      const result = await importSnapshot(snapshot, {
+        confirm: true,
+        remounts: [{ businessId: business.id, deviceKey: restoreDeviceKey, rootPath: restoreRoot }],
+        viewer: makeOperatorViewer(),
+      })
+
+      expect(result.restored).toBe(true)
+      expect(result.unresolvedContentFileIds.includes(asset.id)).toBe(contentIsUnresolved)
+      if (includeBinaryContent) {
+        expect(await fs.readFile(path.join(restoreRoot, 'Documents', filename))).toEqual(content)
+      }
+      const restoredAsset = await prisma.fileAsset.findUnique({ where: { id: asset.id }, include: { links: true } })
+      expect(restoredAsset).toMatchObject({
+        status: 'QUARANTINED', version: 7, sha256: asset.sha256, relativePath,
+        businessId: business.id, projectId: project.id,
+      })
+      expect(restoredAsset.links).toContainEqual(expect.objectContaining({
+        id: fileLink.id, fileId: asset.id, entityType: 'PROJECT', entityId: project.id, relationType: 'ATTACHMENT',
+      }))
     } finally {
       if (assetId) await prisma.fileAsset.deleteMany({ where: { id: assetId } })
       await prisma.localWorkspaceMount.deleteMany({ where: { businessId: business.id, deviceKey: { in: [sourceDeviceKey, restoreDeviceKey] } } })
