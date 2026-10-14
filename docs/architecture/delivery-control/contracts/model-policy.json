@@ -1,6 +1,6 @@
 {
   "policyId": "AUTONOMOUS-CODING-DELIVERY-MODEL-POLICY",
-  "version": 2,
+  "version": 3,
   "status": "ACTIVE",
   "authority": {
     "ownerDirectionDate": "2026-10-14",
@@ -198,6 +198,22 @@
     ]
   },
   "packetPreflight": {
+    "draftPreparation": {
+      "stage": "DRAFT_NOT_ADMITTED",
+      "owner": "Sol",
+      "tool": "tools/delivery-control/prepare-g0.mjs",
+      "schema": "tools/delivery-control/contracts/g0-preparation.schema.json",
+      "requiredBeforeSealedG0Reservation": true,
+      "structuralPassAllowsDispatch": false,
+      "checks": ["Strict packet structure and dependency byte proofs", "Exact packet digest and lineage binding", "Active policy version", "One structured shell=false executable/argv/cwd/environment receipt proof per acceptance criterion", "Scoped repository read-set paths", "JSON serialization round-trip and complete-byte read-back before create-only receipt publication"],
+      "rootStillChecks": ["Trusted mandate provenance and verified authority binding", "Actual baseline and source bytes", "Complete startup and dependency read-set closure including exact private evidence references", "Command semantics and actual environment capability", "Remaining lineage budgets and original deadline", "Distinct role sessions and scoped effects"],
+      "accounting": "The helper requires a stable CLI lineage and reserves a create-exclusive append-only flat slot under git-common-dir before opening candidate files. Linked worktrees and sessions share capacity. Malformed JSON consumes an attempt; corrupt, ambiguous, conflicting or exhausted history blocks candidate reads without automatic retry. Never delete, overwrite or refund slots; policy upgrades cannot raise the original reserved cap. Root still checks full history, original deadline, no-progress and terminal eligibility before invocation. Preparation errors consume this allowance and no-progress budget only; no sealed G0, successor, submission or acceptance-repair capacity is reserved before preparation succeeds. Retain every failed candidate and diagnostic",
+      "completion": "A published PREPARED_NOT_ADMITTED structural receipt binds the exact candidate and active policy digest; root must perform the remaining authority/evidence checks and reserve sealed G0 separately before admission or dispatch",
+      "publication": "Create-only same-directory hard-link publication after serialization, fsync and byte read-back; existing bytes are never overwritten. Unsupported filesystem or uncertain publication requires typed failure and read-only reconciliation; no overwrite fallback",
+      "noProgressFingerprint": ["objective", "stage", "failureClass", "semanticInputDigest"],
+      "onExhaustion": "TERMINAL_BLOCKED for affected root lineage; preserve evidence, continue independent eligible work; no human approval loop, relabeling, deadline extension or counter reset",
+      "history": "Only new or still-eligible lineages use draft preparation. Previously exhausted or terminal lineages remain terminal; this policy does not retroactively reclassify or refund reservations"
+    },
     "readScopeDistinctFromWriteScope": true,
     "scopedReadOnlyDiscovery": [
       "Repository instructions",
@@ -254,6 +270,7 @@
     "reserveCounterBeforeAction": true,
     "persistOutcomeAndCost": true,
     "counterSemantics": {
+      "preparationAttempt": "Every candidate validation or publication attempt uses the shared root-lineage preparation allowance before action, including malformed candidates and publication failures. Successful structural preparation does not replace sealed G0",
       "submissionAttempt": "Initial submission and each repaired submission count toward the total",
       "controlPlaneRepairSuccessor": "Consumes both its control-plane repair successor allowance and the total successor plan allowance",
       "gateEvaluation": "Keyed by canonical gate ID and shared across every descendant in the root lineage",
@@ -261,13 +278,14 @@
       "reservationRollbackOnFailure": false
     },
     "deadlineAnchors": {
-      "run": "Starts at the first G0 attempt for the rootLineageId",
+      "run": "Starts at the first draft preparation or G0 attempt for the rootLineageId, whichever came first; existing anchors remain unchanged",
       "node": "Starts at the first dispatch of a stable node identity; repair and resume preserve the original start",
       "boundedWait": "Starts when each wait begins; do not poll unchanged input after it expires",
       "repairOrResumeResetsDeadline": false,
       "sameLineageSuccessorResetsDeadline": false
     },
     "limits": {
+      "maxPreparationAttemptsTotalPerRootLineage": 3,
       "maxSubmissionAttemptsTotalPerRootLineage": 3,
       "maxAcceptanceRepairRoundsTotalPerRootLineage": 2,
       "maxControlPlaneRepairSuccessorsPerRootLineage": 1,
@@ -335,6 +353,7 @@
   "runtimeBoundary": {
     "agentProcedurePolicy": "ACTIVE",
     "localContractValidator": "EXISTS",
+    "draftPreparationCounterEnforcement": "LOCAL_APPEND_ONLY_CREATE_EXCLUSIVE_RESERVATIONS_BEFORE_CANDIDATE_READS; shared across worktrees/sessions; only preparation-attempt cap is enforced. Full history, terminal eligibility, original deadlines and no-progress remain root checks",
     "durableLedger": "NOT_ASSUMED_SHIPPED",
     "runtimeController": "NOT_ASSUMED_SHIPPED",
     "liveDispatch": "NOT_ASSERTED",

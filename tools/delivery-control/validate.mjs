@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 const PACKET_SCHEMA = readJson(new URL('./contracts/packet.schema.json', import.meta.url));
 const DELIVERY_SCHEMA = readJson(new URL('./contracts/delivery-dag.schema.json', import.meta.url));
 const EXECUTION_SCHEMA = readJson(new URL('./contracts/execution-dag.schema.json', import.meta.url));
+const G0_PREPARATION_SCHEMA = readJson(new URL('./contracts/g0-preparation.schema.json', import.meta.url));
 const PARK_MAP_BYTES = readFileSync(new URL('./contracts/park-map.json', import.meta.url));
 export const PARK_MAP_SHA256 = 'sha256:fafbecdcec41731f72e555944bde202a946389d53be311a6c1199d2f8245413d';
 function deepFreeze(value) {
@@ -664,6 +665,38 @@ export function validatePacket(packet, options = {}) {
     dependencyReadiness: dependencyResult.ready ? 'READY' : 'BLOCKED',
     readinessBasis: 'LOCAL_VALIDATION_ONLY', authorityGrant: false, stateWritePerformed: false,
   };
+}
+
+/** Validate a draft sidecar before any sealed G0 reservation. This never admits work. */
+export function validateG0Preparation(preparation, packet, policy, options = {}) {
+  const errors = schemaErrors(preparation, G0_PREPARATION_SCHEMA, G0_PREPARATION_SCHEMA);
+  const packetResult = validatePacket(packet, options);
+  errors.push(...withPrefix(packetResult.errors, '$/packet'));
+  if (isRecord(preparation) && isRecord(packet)) {
+    if (preparation.policyVersion !== policy?.version || policy?.status !== 'ACTIVE' || !policy?.packetPreflight?.draftPreparation) {
+      add(errors, 'G0_POLICY_MISMATCH', '$/policyVersion', 'Preparation requires the active policy with draft preparation enabled.');
+    }
+    if (preparation.rootLineageId !== packet.lineageId) add(errors, 'G0_LINEAGE_MISMATCH', '$/rootLineageId', 'Preparation and packet must share the root lineage.');
+    if (preparation.packetDigest !== canonicalDigest(packet)) add(errors, 'G0_PACKET_DIGEST_MISMATCH', '$/packetDigest', 'Preparation must bind the exact packet digest.');
+    validatePathList(preparation.readSet, '$/readSet', errors, { required: true });
+    const criteria = Array.isArray(packet.acceptance) ? packet.acceptance : [];
+    const commands = Array.isArray(preparation.acceptanceCommands) ? preparation.acceptanceCommands : [];
+    const ids = criteria.map((criterion) => criterion?.id);
+    if (new Set(ids).size !== ids.length) add(errors, 'G0_DUPLICATE_CRITERION', '$/packet/acceptance', 'Criterion IDs must be unique.');
+    const seen = new Set();
+    for (const [index, command] of commands.entries()) {
+      if (!isRecord(command)) continue;
+      const at = `$/acceptanceCommands/${index}`;
+      if (!ids.includes(command.criterionId) || seen.has(command.criterionId)) add(errors, 'G0_COMMAND_BINDING_INVALID', at, 'Each command must bind exactly one declared criterion.');
+      seen.add(command.criterionId);
+      if (command.environmentReceiptSha256 !== packet.environment?.receiptSha256) add(errors, 'G0_ENVIRONMENT_MISMATCH', at, 'Command environment must bind the packet environment receipt.');
+      if (typeof command.executable === 'string' && !path.isAbsolute(command.executable)) add(errors, 'G0_EXECUTABLE_NOT_ABSOLUTE', `${at}/executable`, 'Pin an absolute executable path; do not depend on PATH lookup.');
+      if (typeof command.cwd === 'string' && !path.isAbsolute(command.cwd)) add(errors, 'G0_CWD_NOT_ABSOLUTE', `${at}/cwd`, 'Pin the absolute working directory.');
+    }
+    for (const id of ids) if (!seen.has(id)) add(errors, 'G0_COMMAND_PROOF_MISSING', '$/acceptanceCommands', `Command proof is missing for criterion ${id}.`);
+  }
+  const finalErrors = uniqueErrors(errors);
+  return { ok: finalErrors.length === 0, errors: finalErrors, readinessBasis: 'DRAFT_STRUCTURE_ONLY', authorityGrant: false, dispatchAllowed: false, stateWritePerformed: false };
 }
 
 function validateDocument(document, schema, options = {}, { packetDag = false } = {}) {
