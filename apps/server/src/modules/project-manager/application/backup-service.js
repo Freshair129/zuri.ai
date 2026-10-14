@@ -2067,9 +2067,15 @@ export async function importSnapshot(snapshot, {
     if (mount && manifest?.contentIncluded && manifest.contentBase64) {
       const stagingRoot = resolveLexicalContainedPath({ mountRoot: mount.rootPath, relativePath: '.zuri/temp' }).absolutePath
       const stagingName = `restore-${randomUUID()}.tmp`
-      await filesystemPort.stageWrite({ mountRoot: mount.rootPath, stagingRoot, stagingName, content: Buffer.from(manifest.contentBase64, 'base64') })
-      await filesystemPort.promote({ mountRoot: mount.rootPath, stagingRoot, stagingName, relativePath: asset.relativePath })
-      active = true
+      try {
+        await filesystemPort.stageWrite({ mountRoot: mount.rootPath, stagingRoot, stagingName, content: Buffer.from(manifest.contentBase64, 'base64') })
+        await filesystemPort.promote({ mountRoot: mount.rootPath, stagingRoot, stagingName, relativePath: asset.relativePath })
+        active = true
+      } catch {
+        try {
+          await filesystemPort.cleanupStaged({ mountRoot: mount.rootPath, stagingRoot, stagingName })
+        } catch { /* failed content remains unresolved after the committed metadata restore */ }
+      }
     } else if (mount) {
       try {
         await filesystemPort.stat({ mountRoot: mount.rootPath, relativePath: asset.relativePath })
