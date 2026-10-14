@@ -1,17 +1,17 @@
-// @req FR-045 — SQLite-authoritative managed files, lossless legacy migration and remount metadata.
-// @spec SDD-023, BR-010, SEC-007, ADR-016, ZV2-CR-001
+// @req FR-045, FR-284 — SQLite-authoritative managed files, lossless legacy migration and remount metadata.
+// @spec SDD-023, SDD-113, BR-010, SEC-007, ADR-016, ZV2-CR-001
 // @tested tests/unit/fr045-file-asset-service.test.js, tests/integration/fr045-managed-files.test.js
 // @req FR-072 — every FileAsset/mount write refuses unless the viewer owns the
 // governing Business; reads stay scoped to visible Businesses.
 // @spec SEC-001, SEC-008, BR-001
 // @tested tests/integration/fr072-file-asset-authorization.test.js
-import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
+import { normalizeMountRoot, resolveLexicalContainedPath } from '../local-files/path-security'
 import { createConfiguredManagedBlobObjectStoragePort } from '@/platform/storage/supabase-object-storage'
 import { assertBusinessWritable, assertFileAssetWritable, assertInstallationOperatorWritable } from './project-authorization'
 import {
@@ -19,7 +19,6 @@ import {
   buildProjectFileManagerReadModel,
 } from './file-manager-read-model'
 
-const win = path.win32
 const STORAGE_KINDS = ['LOCAL_FILE', 'MANAGED_BLOB', 'EXTERNAL_URL']
 
 function isHttpUrl(value) {
@@ -142,15 +141,15 @@ export async function createManagedFileAsset(input, {
   })
 
   if (!content) return asset
-  const stagingRoot = win.join(mount.rootPath, '.zuri', 'temp')
+  const stagingRoot = resolveLexicalContainedPath({ mountRoot: mount.rootPath, relativePath: '.zuri/temp' }).absolutePath
   const stagingName = `${asset.id}.tmp`
   try {
-    await filesystemPort.stageWrite({ stagingRoot, stagingName, content })
+    await filesystemPort.stageWrite({ mountRoot: mount.rootPath, stagingRoot, stagingName, content })
     await filesystemPort.promote({ mountRoot: mount.rootPath, stagingRoot, stagingName, relativePath: value.relativePath })
     return await db.fileAsset.update({ where: { id: asset.id }, data: { status: 'ACTIVE', version: { increment: 1 } } })
   } catch (error) {
     await db.fileAsset.update({ where: { id: asset.id }, data: { status: 'QUARANTINED' } })
-    await filesystemPort.cleanupStaged({ stagingRoot, stagingName }).catch(() => {})
+    await filesystemPort.cleanupStaged({ mountRoot: mount.rootPath, stagingRoot, stagingName }).catch(() => {})
     throw error
   }
 }
@@ -195,11 +194,11 @@ export async function listManagedFileAssets({ businessId, projectId = null }, {
 export async function upsertLocalWorkspaceMount(input, { db = prisma, viewer } = {}) {
   const value = z.object({ businessId: z.string().min(1), deviceKey: z.string().min(1), rootPath: z.string().min(1) }).parse(input)
   const business = await assertBusinessWritable(viewer, value.businessId, { db })
-  if (!win.isAbsolute(value.rootPath)) throw new Error('Mount root must be an absolute Windows path')
+  const rootPath = normalizeMountRoot(value.rootPath)
   const mount = await db.localWorkspaceMount.upsert({
     where: { businessId_deviceKey: { businessId: value.businessId, deviceKey: value.deviceKey } },
-    create: { tenantId: business.tenantId, businessId: value.businessId, deviceKey: value.deviceKey, rootPath: win.normalize(value.rootPath) },
-    update: { rootPath: win.normalize(value.rootPath), status: 'ACTIVE', version: { increment: 1 } },
+    create: { tenantId: business.tenantId, businessId: value.businessId, deviceKey: value.deviceKey, rootPath },
+    update: { rootPath, status: 'ACTIVE', version: { increment: 1 } },
   })
   await recordAudit(db, { entityType: 'LOCAL_WORKSPACE_MOUNT', entityId: mount.id, action: 'REMOUNTED', payload: { businessId: value.businessId, deviceKey: value.deviceKey } })
   return mount

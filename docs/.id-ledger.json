@@ -411,6 +411,7 @@
     "FR-281",
     "FR-282",
     "FR-283",
+    "FR-284",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -547,6 +548,7 @@
     "SDD-109",
     "SDD-110",
     "SDD-112",
+    "SDD-113",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -5225,6 +5227,19 @@
         }
       ]
     },
+    "FR-284": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "415ef61328ff969d377f5b7b9040e9234a87bd13db13f9a7f7539d6bb6776bd0",
+      "history": [
+        {
+          "anchor": "portable managed file content",
+          "since": "2026-10-14",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -7021,6 +7036,19 @@
         {
           "anchor": "marketing report receiver design",
           "since": "2026-10-05",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-113": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4fd2f892287d96543925436ea2a282f5fd1871ad6f61619a637a83d2cdb90746",
+      "history": [
+        {
+          "anchor": "mount dialect contained io",
+          "since": "2026-10-14",
           "reason": "declared"
         }
       ]

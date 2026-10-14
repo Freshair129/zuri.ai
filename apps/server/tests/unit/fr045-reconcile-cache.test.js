@@ -1,5 +1,5 @@
-// @req FR-045 — reconcile and cache are explicit, audited and rebuildable.
-// @spec SDD-023, BR-010, SEC-007
+// @req FR-045, FR-284 — reconcile and cache are explicit, audited and rebuildable.
+// @spec SDD-023, SDD-113, BR-010, SEC-007
 // @tested tests/unit/fr045-reconcile-cache.test.js
 import { describe, expect, it, vi } from 'vitest'
 import { reconcileLocalFiles, rebuildBusinessFileCache } from '@/modules/project-manager/application/file-reconcile-cache-service'
@@ -35,6 +35,46 @@ describe('FR-045 reconcile and cache', () => {
     const committed = await reconcileLocalFiles({ businessId: 'business-a', mountId: 'mount-a', confirm: true }, { db, viewer: owner, scan })
     expect(committed.confirmed).toBe(true)
     expect(updateMany).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps POSIX file identities case-sensitive while Windows mounts stay case-insensitive', async () => {
+    const assets = [
+      { id: 'posix-file', businessId: 'business-a', storageKind: 'LOCAL_FILE', relativePath: 'Docs/Brief.txt', status: 'ACTIVE' },
+    ]
+    const db = {
+      business: businessMock(),
+      localWorkspaceMount: { findUnique: vi.fn().mockResolvedValue({ id: 'mount-posix', businessId: 'business-a', rootPath: '/tmp/workspace', status: 'ACTIVE' }) },
+      fileAsset: { findMany: vi.fn().mockResolvedValue(assets) },
+    }
+    const scan = vi.fn().mockResolvedValue(['docs/brief.txt'])
+
+    const posix = await reconcileLocalFiles({ businessId: 'business-a', mountId: 'mount-posix' }, { db, viewer: owner, scan })
+    expect(posix).toMatchObject({ missing: ['posix-file'], untracked: ['docs/brief.txt'] })
+
+    db.localWorkspaceMount.findUnique.mockResolvedValue({ id: 'mount-win', businessId: 'business-a', rootPath: 'D:\\workspace', status: 'ACTIVE' })
+    const windows = await reconcileLocalFiles({ businessId: 'business-a', mountId: 'mount-win' }, { db, viewer: owner, scan })
+    expect(windows).toMatchObject({ missing: [], untracked: [] })
+  })
+
+  it('builds the disposable cache under a POSIX mount without Windows separators', async () => {
+    const db = {
+      business: businessMock(),
+      localWorkspaceMount: { findUnique: vi.fn().mockResolvedValue({ id: 'mount-posix', businessId: 'business-a', rootPath: '/srv/workspace', status: 'ACTIVE' }) },
+      project: { findMany: vi.fn().mockResolvedValue([]) },
+      fileAsset: { findMany: vi.fn().mockResolvedValue([]) },
+      auditEvent: { create: vi.fn().mockResolvedValue({}) },
+    }
+    const filesystemPort = { stageWrite: vi.fn().mockResolvedValue('/tmp/staged'), promote: vi.fn().mockResolvedValue('/srv/workspace/.zuri/cache/business-overview/files.json') }
+
+    await rebuildBusinessFileCache({ businessId: 'business-a', mountId: 'mount-posix' }, { db, viewer: owner, filesystemPort })
+
+    expect(filesystemPort.stageWrite).toHaveBeenCalledWith(expect.objectContaining({
+      mountRoot: '/srv/workspace', stagingRoot: '/srv/workspace/.zuri/temp',
+    }))
+    expect(filesystemPort.promote).toHaveBeenCalledWith(expect.objectContaining({
+      mountRoot: '/srv/workspace', stagingRoot: '/srv/workspace/.zuri/temp',
+      relativePath: '.zuri/cache/business-overview/files.json',
+    }))
   })
 
   it('rebuilds a revisioned cache from the canonical read model via atomic promotion', async () => {

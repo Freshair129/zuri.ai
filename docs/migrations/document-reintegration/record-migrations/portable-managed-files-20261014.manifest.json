@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "migrationId": "portable-managed-files-20261014",
+  "base": {
+    "commit": "cc32742e2e79b73dba1d048c98ebc8d368832beb",
+    "indexSha256": "e02feeae774037b69404d6e0b699d1d0ab4ce2fa97dfaa14f54b8ee890de4b9e",
+    "ledgerSha256": "3dfd14f30cc71b01506bfb6ba7bb03d72a370cebc9ef7a762d20d67e118f4d8a"
+  },
+  "approval": {
+    "path": "docs/change-requests/project-manager/portable-managed-files-20261014.md",
+    "revision": "cc32742e2e79b73dba1d048c98ebc8d368832beb",
+    "version": "0.1.0",
+    "sha256": "31fe651b5276e4c4c8abbd22616999aee61002d1620a11dd8732181db1e625f4"
+  },
+  "records": [
+    {
+      "id": "FR-284",
+      "family": "FR",
+      "statement": "Portable managed file content: authorized Business and Project FileAssets support explicit fully qualified Windows drive or UNC mounts and POSIX absolute mounts. Preserve stable relative identity, links, hash, version, quarantine and audit. Stage, promote, read, reconcile and rebuild disposable cache using the mount path dialect; reject traversal, ambiguous roots and resolved symlink or junction escape. POSIX reconciliation is case-sensitive. Atomic rename failures never fall back to copying or report active content. Knowledge FILE admission reads the real managed text content; unsupported binary content remains rejected. Explorer reveal retains its Windows local-capability boundary and hosted denial.",
+      "statementSha256": "415ef61328ff969d377f5b7b9040e9234a87bd13db13f9a7f7539d6bb6776bd0",
+      "subjectAnchor": "portable managed file content"
+    },
+    {
+      "id": "SDD-113",
+      "family": "SDD",
+      "statement": "Mount-dialect contained IO: extend the historical Windows-only SDD-023 implementation with POSIX content IO under FR-284 while preserving SDD-023 source provenance. Select path.win32 for fully qualified drive or UNC roots and path.posix for POSIX absolute roots, reject drive-relative and ambiguous Windows rooted mounts, and apply one dialect to lexical and real root, parent and staged containment plus cache and reconciliation paths. Preserve Windows volume checks; POSIX rename has no copy fallback. Keep viewer authorization, persistence schema and hosted OS-reveal denial unchanged.",
+      "statementSha256": "4fd2f892287d96543925436ea2a282f5fd1871ad6f61619a637a83d2cdb90746",
+      "subjectAnchor": "mount dialect contained io"
+    }
+  ]
+}
