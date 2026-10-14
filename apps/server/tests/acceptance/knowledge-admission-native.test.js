@@ -651,6 +651,9 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     const withdrawnBody = await withdrawFromDocumentsQueue(harness, publishedB.source)
     expect(withdrawnBody.status).toBe('WITHDRAWN')
     expect(withdrawnBody.source.revokedAt).toBeTruthy()
+    // The Documents browser route can cold-compile Next routes and reset the
+    // process-local MCP session registry, so start this protocol phase fresh.
+    mcpSessionId = await openMcpSession(api)
     const withdrawnQuery = await queryHttp(api, { businessId: business.id, query: 'Which company employs Alice?', topK: 10 })
     const withdrawnMcpQuery = await callMcp(api, mcpSessionId, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-withdrawn')
     expect(withdrawnQuery.body.results.some((row) => row.sourceId === publishedB.source.id)).toBe(false)
