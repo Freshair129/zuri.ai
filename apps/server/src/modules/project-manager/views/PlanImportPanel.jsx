@@ -202,7 +202,7 @@ export default function PlanImportPanel({ projectId }) {
                 <option key={w.id} value={w.id}>{w.code} · {w.name}</option>
               ))}
             </select>
-            <button type="button" className="btn" onClick={runDry} disabled={busy || !text.trim()}>
+            <button type="button" className="btn" onClick={() => runDry()} disabled={busy || !text.trim()}>
               {busy ? 'Working…' : 'Validate + dry run'}
             </button>
             <button

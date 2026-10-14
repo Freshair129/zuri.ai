@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test')
 const { loginAsOwner, loginRequest } = require('./e2e-auth')
 // api() retries a lost connection, never an answer — see ./reconnecting-request.
 const { api } = require('./reconnecting-request')
+const samplePlan = require('../../contracts/sample-plan.json')
 
 // E2E smoke: every major route renders with seeded data (npm run db:seed first).
 
@@ -167,7 +168,37 @@ test.describe('plan import', () => {
     const textarea = page.getByLabel('Plan envelope JSON')
     await textarea.fill(JSON.stringify({ schemaVersion: '1.0', project: { code: 'X', name: 'X' }, workstreams: [{ code: 'W', name: 'W', executionMode: 'NOT_A_MODE', progressStrategy: 'TASK_WEIGHT' }] }))
     await page.getByRole('button', { name: /Validate \+ dry run/i }).click()
-    await expect(page.getByText(/Validation errors/i)).toBeVisible()
+    const executionModeError = page.getByText(/executionMode: Invalid enum value/)
+    await expect(executionModeError).toContainText('SOFTWARE_SPRINT')
+    await expect(executionModeError).toContainText('NOT_A_MODE')
+  })
+
+  test('manual JSON dry run previews the existing sample PlanEnvelope without committing it', async ({ page }) => {
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    await page.goto(`/projects/${resolved.id}/import`)
+    await page.getByLabel('Plan envelope JSON').fill(JSON.stringify(samplePlan))
+    let commitRequests = 0
+    page.on('request', (request) => {
+      if (new URL(request.url()).pathname === '/api/import/commit' && request.method() === 'POST') commitRequests += 1
+    })
+
+    const responsePromise = page.waitForResponse((response) => {
+      const request = response.request()
+      return new URL(response.url()).pathname === '/api/import/dry-run' && request.method() === 'POST'
+    })
+    await page.getByRole('button', { name: /Validate \+ dry run/i }).click()
+    const response = await responsePromise
+    expect(response.ok()).toBeTruthy()
+    const result = await response.json()
+    expect(result.valid).toBe(true)
+    expect(result.preview).toMatchObject({
+      inserts: expect.any(Array),
+      updates: expect.any(Array),
+      conflicts: expect.any(Array),
+    })
+    await expect(page.getByText('Dry-run preview')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Confirm import' })).toBeEnabled()
+    expect(commitRequests).toBe(0)
   })
 })
 
