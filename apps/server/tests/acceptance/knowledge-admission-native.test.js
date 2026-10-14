@@ -425,6 +425,31 @@ async function verifyConsolePublication(harness, published) {
   }
 }
 
+async function withdrawFromDocumentsQueue(harness, source) {
+  const browser = await chromium.launch({ headless: true })
+  const context = await browser.newContext({ baseURL: harness.baseURL })
+  const page = await context.newPage()
+  try {
+    await enterBusiness(page)
+    await page.goto('/knowledge/documents')
+    await page.getByTestId('tab-queue').click()
+    const withdrawButton = page.getByTestId(`withdraw-${source.id}`)
+    await playwrightExpect(withdrawButton).toBeVisible()
+
+    const endpoint = `/api/knowledge/sources/${encodeURIComponent(source.id)}`
+    const requestPromise = page.waitForRequest((request) => request.method() === 'DELETE' && new URL(request.url()).pathname === endpoint)
+    const responsePromise = page.waitForResponse((response) => response.request().method() === 'DELETE' && new URL(response.url()).pathname === endpoint)
+    page.once('dialog', (dialog) => dialog.accept())
+    await withdrawButton.click()
+    const [request, response] = await Promise.all([requestPromise, responsePromise])
+    expect(request.postDataJSON()).toEqual({ expectedVersion: source.version })
+    return await requireOk(response, 'Documents queue source withdrawal')
+  } finally {
+    await context.close()
+    await browser.close()
+  }
+}
+
 async function createManagedFileFromFilesPage(harness, { deviceKey, name, content }) {
   const browser = await chromium.launch({ headless: true })
   const context = await browser.newContext({ baseURL: harness.baseURL })
@@ -623,9 +648,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(oldCitationAfterMcpBody.sourceVersion).toBe('1')
     expect(oldCitationAfterMcpBody.text).toBe('Alice works for Acme Ltd.')
 
-    const sourceVersionBeforeWithdraw = publishedB.source.version
-    const withdrawn = await api.delete(`/api/knowledge/sources/${encodeURIComponent(publishedB.source.id)}`, { data: { expectedVersion: sourceVersionBeforeWithdraw } })
-    const withdrawnBody = await requireOk(withdrawn, 'source withdrawal')
+    const withdrawnBody = await withdrawFromDocumentsQueue(harness, publishedB.source)
     expect(withdrawnBody.status).toBe('WITHDRAWN')
     expect(withdrawnBody.source.revokedAt).toBeTruthy()
     const withdrawnQuery = await queryHttp(api, { businessId: business.id, query: 'Which company employs Alice?', topK: 10 })

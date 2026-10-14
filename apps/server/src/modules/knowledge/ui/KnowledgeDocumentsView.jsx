@@ -1,7 +1,7 @@
 'use client'
 
-// @req FR-173 — Knowledge source admission, queue monitor and corpus query in the Knowledge (GKS) slot
-// @spec ADR-072, ADR-085, SEC-001, SEC-008
+// @req FR-173, FR-254 — Knowledge source admission, queue monitor and corpus query in the Knowledge (GKS) slot
+// @spec ADR-072, ADR-073, ADR-085, SEC-001, SEC-008
 // @tested tests/unit/knowledge-documents-ui.test.js
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
@@ -840,6 +840,11 @@ function QueueTabPanel({ admissions, onReload, onWithdrawSuccess, onError }) {
 
   const handleWithdraw = async (item) => {
     if (!item.source?.id) return
+    const expectedVersion = item.source.version
+    if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1) {
+      onError('Knowledge source version is unavailable. Refresh the queue before withdrawing.')
+      return
+    }
     const confirmed = window.confirm(`คุณแน่ใจหรือไม่ว่าต้องการถอนเอกสาร "${item.source.title || item.source.sourceKey}" ออกจากคลังความรู้?`)
     if (!confirmed) return
 
@@ -848,12 +853,13 @@ function QueueTabPanel({ admissions, onReload, onWithdrawSuccess, onError }) {
       await api(`/api/knowledge/sources/${encodeURIComponent(item.source.id)}`, {
         method: 'DELETE',
         body: {
-          expectedVersion: item.revision ?? 1,
+          expectedVersion,
         },
       })
       onWithdrawSuccess(item.source.id)
     } catch (err) {
       onError(err.message)
+      if (err.status === 409) onReload()
     } finally {
       setWithdrawingId(null)
     }
