@@ -38,4 +38,51 @@ test.describe('FR-066 Waiting Room identity', () => {
     await home.click()
     await expect(page).toHaveURL(/\/$/)
   })
+
+  test('opens a newly created Business after Profile and Workspace setup without a page reload', async ({ page }, testInfo) => {
+    const suffix = `${testInfo.workerIndex}-${testInfo.retry}-${Date.now()}`
+    const email = `business-entry-${suffix}@example.com`
+    const workspaceName = `Workspace ${suffix}`
+    const businessName = `Business ${suffix}`
+    let mainDocumentNavigations = 0
+    page.on('request', (request) => {
+      if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
+        mainDocumentNavigations += 1
+      }
+    })
+
+    await page.goto('/signup')
+    const documentNavigationsAfterSignup = mainDocumentNavigations
+    expect(documentNavigationsAfterSignup).toBeGreaterThan(0)
+    await page.getByLabel('ชื่อที่ใช้แสดง').fill('เจ้าของธุรกิจทดสอบ')
+    await page.getByLabel('อีเมล').fill(email)
+    await page.getByLabel('รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)', { exact: true }).fill(PASSWORD)
+    await page.getByLabel('ยืนยันรหัสผ่าน', { exact: true }).fill(PASSWORD)
+    await page.getByRole('button', { name: 'สมัครสมาชิก', exact: true }).click()
+    await expect(page).toHaveURL(/\/onboarding\/profile$/)
+
+    await page.getByLabel('ชื่อ *', { exact: true }).fill('เจ้าของ')
+    await page.getByLabel('นามสกุล *', { exact: true }).fill('ธุรกิจทดสอบ')
+    await page.getByLabel('เบอร์โทรศัพท์ *', { exact: true }).fill('0812345678')
+    await page.locator('input[autocomplete="nickname"]').fill('เจ้าของธุรกิจทดสอบ')
+    await page.getByRole('button', { name: 'บันทึกโปรไฟล์', exact: true }).click()
+    await expect(page).toHaveURL(/\/waiting-room$/)
+    await expect(page.getByRole('heading', { name: 'โปรไฟล์ของผู้รอ' })).toBeVisible()
+
+    await page.getByLabel('ชื่อ Workspace').fill(workspaceName)
+    await page.getByRole('button', { name: 'สร้าง Workspace', exact: true }).click()
+    await expect(page).toHaveURL(/\/workspace-home$/)
+    await expect(page.getByRole('heading', { name: 'Workspace ของคุณ' })).toBeVisible()
+
+    await page.getByLabel('ชื่อธุรกิจ').fill(businessName)
+    await page.getByRole('button', { name: 'สร้างธุรกิจ', exact: true }).click()
+    await expect(page).toHaveURL(/\/businesses$/)
+    const openBusiness = page.getByRole('button', { name: `Open Business ${businessName}` })
+    await expect(openBusiness).toBeVisible()
+    await openBusiness.click()
+
+    await expect(page).toHaveURL(/\/overview$/)
+    await expect(page.getByRole('heading', { name: `${businessName} — Command Center` })).toBeVisible()
+    expect(mainDocumentNavigations).toBe(documentNavigationsAfterSignup)
+  })
 })

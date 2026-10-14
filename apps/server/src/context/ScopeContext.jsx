@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { deriveShell } from '@/lib/shell-mode'
 import { resolveView, DEFAULT_VIEW } from '@/config/scope-views'
@@ -38,17 +38,52 @@ export function ScopeProvider({ children }) {
     projectId: null,
   })
   const [viewMode, setViewMode] = useState(DEFAULT_VIEW)
+  const scopeRequestId = useRef(0)
+  const activeScopeRequest = useRef(null)
+
+  const loadScope = useCallback(({ force = false, settleLoadedOnFailure = false } = {}) => {
+    if (!force && activeScopeRequest.current) return activeScopeRequest.current.promise
+
+    const requestId = ++scopeRequestId.current
+    const promise = (async () => {
+      try {
+        const res = force
+          ? await fetch('/api/scope', { cache: 'no-store' })
+          : await fetch('/api/scope')
+        if (!res.ok) throw new Error('Scope refresh failed')
+        const payload = await res.json()
+        if (!Array.isArray(payload?.businesses)) throw new Error('Scope response is invalid')
+
+        if (requestId === scopeRequestId.current) setData({ ...payload, loaded: true })
+        return { ok: true, payload }
+      } catch {
+        if (requestId === scopeRequestId.current && settleLoadedOnFailure) {
+          setData((current) => ({ ...current, loaded: true }))
+        }
+        return { ok: false, payload: null }
+      }
+    })()
+
+    activeScopeRequest.current = { requestId, promise }
+    void promise.then(() => {
+      if (activeScopeRequest.current?.requestId === requestId) activeScopeRequest.current = null
+    })
+    return promise
+  }, [])
 
   const refresh = useCallback(async () => {
-    try {
-      const res = await fetch('/api/scope')
-      if (!res.ok) return
-      const payload = await res.json()
-      setData({ ...payload, loaded: true })
-    } catch {
-      // offline-first: shell still renders without scope data
-    }
-  }, [])
+    await loadScope()
+  }, [loadScope])
+
+  const refreshForBusinessEntry = useCallback(async (businessId) => {
+    // Business Routing loads from the narrow /api/entry model. Read the broad
+    // scope only after explicit Business selection, and keep the shell waiting
+    // while that fresh inventory is loading.
+    setData((current) => ({ ...current, loaded: false }))
+    const result = await loadScope({ force: true, settleLoadedOnFailure: true })
+    // The routing page remains open on failure so a later explicit click can retry.
+    return result.ok && result.payload.businesses.some((business) => business?.id === businessId)
+  }, [loadScope])
 
   const [restored, setRestored] = useState(false)
 
@@ -123,6 +158,7 @@ export function ScopeProvider({ children }) {
       selection,
       select,
       refresh,
+      refreshForBusinessEntry,
       shell,
       viewMode,
       setViewMode,
@@ -135,7 +171,7 @@ export function ScopeProvider({ children }) {
       scopedWorkspaces: workspaces,
       scopedProjects: projects,
     }
-  }, [data, selection, select, refresh, viewMode])
+  }, [data, selection, select, refresh, refreshForBusinessEntry, viewMode])
 
   return <ScopeContext.Provider value={value}>{children}</ScopeContext.Provider>
 }

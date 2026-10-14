@@ -11,7 +11,7 @@
 // an incomplete Profile to Profile setup first — AC-066.1) instead of being
 // asked to create or select operating scope here.
 // @spec ADR-027 D8, SDD-038
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Building2 } from 'lucide-react'
 import { Card, EmptyState, ErrorState, PageHeader } from '@/components/ui'
@@ -20,14 +20,17 @@ import { useScope } from '@/context/ScopeContext'
 import { LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 import { classifyViewerFailure, SESSION_UNAVAILABLE_DETAIL_TH, SESSION_UNAVAILABLE_TITLE_TH } from '@/lib/viewer-failure'
 
-function BusinessChoice({ business, onSelect }) {
+function BusinessChoice({ business, onSelect, openingBusinessId }) {
   const { tenant, portfolio } = business
+  const opening = openingBusinessId === business.id
   return (
     <Card className="group p-0">
       <button
         type="button"
         className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-[var(--brand-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-inset"
         onClick={() => onSelect(business)}
+        disabled={Boolean(openingBusinessId)}
+        aria-busy={opening}
         aria-label={`Open Business ${business.name}`}
       >
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--brand-tint)] text-[var(--brand-dark)]" aria-hidden>
@@ -50,6 +53,8 @@ export default function BusinessesPage() {
   const router = useRouter()
   const scope = useScope()
   const entry = useFetch('/api/entry')
+  const [openingBusinessId, setOpeningBusinessId] = useState(null)
+  const [entryError, setEntryError] = useState(null)
   const availableBusinesses = entry.data?.businesses || []
   // @req FR-046 — SESSION_UNAVAILABLE (session store outage) is kept apart
   // from AUTH_REQUIRED (no valid session) so an outage never bounces an
@@ -80,8 +85,19 @@ export default function BusinessesPage() {
     return <ErrorState title="Unable to load Business Routing" detail={entry.error} retry={entry.reload} />
   }
 
-  const enterBusiness = (business) => {
+  const enterBusiness = async (business) => {
+    setOpeningBusinessId(business.id)
+    setEntryError(null)
+    // Persist the explicit choice before navigation; the entry-specific refresh
+    // keeps BusinessShellGuard in its existing LOADING state until it settles.
     scope.select({ portfolioId: business.portfolio?.id || null, businessId: business.id })
+    const scopeConfirmed = await scope.refreshForBusinessEntry(business.id)
+    if (!scopeConfirmed) {
+      setOpeningBusinessId(null)
+      setEntryError('ไม่สามารถยืนยันขอบเขตธุรกิจล่าสุดได้ กรุณาลองเปิดธุรกิจอีกครั้ง')
+      return
+    }
+
     router.push('/overview')
   }
 
@@ -92,6 +108,8 @@ export default function BusinessesPage() {
         title="Choose a Business"
         subtitle="Select the Business you want to work in. Portfolio and Tenant are context labels only."
       />
+      {entryError ? <p className="mb-3 text-sm text-[var(--danger)]" role="alert">{entryError}</p> : null}
+      {openingBusinessId ? <p className="mb-3 text-sm text-muted" role="status">กำลังตรวจสอบสิทธิ์ธุรกิจ…</p> : null}
       {availableBusinesses.length === 0 ? (
         <EmptyState
           title="No Business is available"
@@ -100,7 +118,12 @@ export default function BusinessesPage() {
       ) : (
         <div className="grid max-w-3xl gap-3 sm:grid-cols-2">
           {availableBusinesses.map((item) => (
-            <BusinessChoice key={item.id} business={item} onSelect={enterBusiness} />
+            <BusinessChoice
+              key={item.id}
+              business={item}
+              onSelect={enterBusiness}
+              openingBusinessId={openingBusinessId}
+            />
           ))}
         </div>
       )}
