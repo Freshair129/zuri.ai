@@ -1158,7 +1158,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "ISOLATED_ACCEPTED",
     "dependsOn": "TASK-ZAI-045",
     "authority": "ROADMAP.md",
-    "evidence": "frozen production-base branch; isolated implementation/native acceptance; runtime activation under TASK-ZAI-050; not deployed; ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md"
+    "evidence": "frozen production-base branch and isolated implementation/native acceptance; PR #658 merged to main `adf39250` for source-version CAS withdrawal; final native withdrawal browser suite 2/2 and exact-head CI/G2R passed; current read-only Knowledge Documents browser queue shows the uploaded Markdown corpus WITHDRAWN and a separate synthetic corpus PUBLISHED; this view does not expose source-version or revocation metadata, so those fields are not claimed as verified; earlier 131/131 unit, strict governance/build and GenesisRAG17 42/42 are attributed by exact read-set parity and were not rerun at final head; runtime activation remains TASK-ZAI-050; not production-deployed; ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md"
   },
   {
     "id": "TASK-ZAI-048",
