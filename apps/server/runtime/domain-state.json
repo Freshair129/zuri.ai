@@ -733,6 +733,7 @@
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/unit/doc-identities.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/fr045-file-asset-service.test.js",
           "apps/server/tests/unit/fr045-filesystem-port.test.js",
@@ -7036,7 +7037,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 17,
+          "testCount": 18,
           "evidence": [
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/src/modules/project-manager/application/file-asset-service.js",
@@ -7054,6 +7055,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/doc-identities.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
             "apps/server/tests/unit/fr045-filesystem-port.test.js",
@@ -7441,6 +7443,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/doc-identities.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
             "apps/server/tests/unit/fr045-filesystem-port.test.js",
@@ -18907,7 +18910,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 5,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -18927,6 +18930,7 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/unit/doc-identities.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
         "apps/server/tests/unit/fr045-filesystem-port.test.js",
