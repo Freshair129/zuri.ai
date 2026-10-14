@@ -85,6 +85,10 @@ test.describe('FR-120 self-serve signup', () => {
     // ever made rather than after one has half-succeeded.
     expect(posted).toBe(0)
     await expect(page).toHaveURL(/\/signup$/)
+
+    await page.getByLabel('ยืนยันรหัสผ่าน', { exact: true }).fill(PASSWORD)
+    await expect(formAlert(page)).toHaveCount(0)
+    expect(posted).toBe(0)
   })
 
   test('refuses a short password at the server, not only at the input', async ({ page }, testInfo) => {
