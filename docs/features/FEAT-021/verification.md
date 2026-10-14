@@ -310,6 +310,7 @@ status: generated
 - [apps/server/tests/unit/marketing/marketing-broadcast-route.test.js](../../../apps/server/tests/unit/marketing/marketing-broadcast-route.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/marketing/marketing-insights-route.test.js](../../../apps/server/tests/unit/marketing/marketing-insights-route.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/marketing/marketing-insights-service.test.js](../../../apps/server/tests/unit/marketing/marketing-insights-service.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/marketing/paid-media-revenue-render.test.js](../../../apps/server/tests/unit/marketing/paid-media-revenue-render.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 
 ## Limits

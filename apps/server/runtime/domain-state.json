@@ -1420,7 +1420,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-166",
@@ -2269,7 +2269,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-164",
@@ -3157,7 +3157,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-164",
@@ -4573,7 +4573,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-275",
@@ -6347,7 +6347,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-164",
@@ -6467,7 +6467,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-186",
@@ -9830,7 +9830,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -9978,6 +9978,7 @@
         "apps/server/tests/unit/marketing/marketing-operations-ui.test.js",
         "apps/server/tests/unit/marketing/marketing-plan-contract.test.js",
         "apps/server/tests/unit/marketing/marketing-plan-route.test.js",
+        "apps/server/tests/unit/marketing/paid-media-revenue-render.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
@@ -10088,7 +10089,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-166",
@@ -10155,6 +10156,7 @@
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/marketing/line-sales-dashboard-service.test.js",
+        "apps/server/tests/unit/marketing/paid-media-revenue-render.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/scm-core-facade.test.js",
