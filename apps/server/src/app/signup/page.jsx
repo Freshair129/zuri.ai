@@ -103,7 +103,10 @@ export default function SignupPage() {
             autoComplete="name"
             required
             value={displayName}
-            onChange={(event) => setDisplayName(event.target.value)}
+            onChange={(event) => {
+              setDisplayName(event.target.value)
+              setError('')
+            }}
             className="mt-1.5 min-h-11 w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg)] px-3 text-sm font-normal outline-none focus:border-[var(--action-primary)]"
           />
         </label>
@@ -125,7 +128,10 @@ export default function SignupPage() {
             required
             aria-describedby="email-hint"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => {
+              setEmail(event.target.value)
+              setError('')
+            }}
             className="mt-1.5 min-h-11 w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg)] px-3 text-sm font-normal outline-none focus:border-[var(--action-primary)]"
           />
           {/* FR-120: email is an identifier here, not a channel. This
@@ -144,7 +150,10 @@ export default function SignupPage() {
           revealSubject="รหัสผ่าน"
           minLength={PASSWORD_MIN_LENGTH}
           value={password}
-          onChange={setPassword}
+          onChange={(value) => {
+            setPassword(value)
+            setError('')
+          }}
         />
         <PasswordField
           id="confirmation"
@@ -154,7 +163,10 @@ export default function SignupPage() {
           revealSubject="การยืนยันรหัสผ่าน"
           minLength={PASSWORD_MIN_LENGTH}
           value={confirmation}
-          onChange={setConfirmation}
+          onChange={(value) => {
+            setConfirmation(value)
+            setError('')
+          }}
         />
 
         {error ? <p role="alert" className="text-xs text-[var(--danger)]">{error}</p> : null}
