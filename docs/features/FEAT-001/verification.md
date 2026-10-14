@@ -71,7 +71,7 @@ status: generated
 - [apps/server/tests/e2e/fr045-files.spec.js](../../../apps/server/tests/e2e/fr045-files.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/fr058-file-views.spec.js](../../../apps/server/tests/e2e/fr058-file-views.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/fr254-knowledge-console.spec.js](../../../apps/server/tests/e2e/fr254-knowledge-console.spec.js) — `verifies` (`transitive`)
-- [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr045-managed-files.test.js](../../../apps/server/tests/integration/fr045-managed-files.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr072-file-asset-authorization.test.js](../../../apps/server/tests/integration/fr072-file-asset-authorization.test.js) — `verifies` (`transitive`)
