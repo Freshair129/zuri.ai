@@ -717,17 +717,28 @@
         "check": "requirements",
         "summary": "FR-284 is partial",
         "evidence": [
+          "apps/server/src/modules/project-manager/application/backup-service.js",
           "apps/server/src/modules/project-manager/application/file-asset-service.js",
           "apps/server/src/modules/project-manager/application/file-reconcile-cache-service.js",
           "apps/server/src/modules/project-manager/local-files/filesystem-port.js",
           "apps/server/src/modules/project-manager/local-files/path-security.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
           "apps/server/tests/integration/fr045-managed-files.test.js",
           "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
           "apps/server/tests/integration/fr072-files-migrate-authorization.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/fr045-file-asset-service.test.js",
           "apps/server/tests/unit/fr045-filesystem-port.test.js",
           "apps/server/tests/unit/fr045-path-security.test.js",
-          "apps/server/tests/unit/fr045-reconcile-cache.test.js"
+          "apps/server/tests/unit/fr045-reconcile-cache.test.js",
+          "apps/server/tests/unit/pricing-backup.test.js"
         ]
       }
     ]
@@ -7024,20 +7035,31 @@
           "title": "Portable managed file content",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 4,
-          "testCount": 7,
+          "codeCount": 5,
+          "testCount": 17,
           "evidence": [
+            "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/src/modules/project-manager/application/file-asset-service.js",
             "apps/server/src/modules/project-manager/application/file-reconcile-cache-service.js",
             "apps/server/src/modules/project-manager/local-files/filesystem-port.js",
             "apps/server/src/modules/project-manager/local-files/path-security.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr045-managed-files.test.js",
             "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
             "apps/server/tests/integration/fr072-files-migrate-authorization.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
             "apps/server/tests/unit/fr045-filesystem-port.test.js",
             "apps/server/tests/unit/fr045-path-security.test.js",
-            "apps/server/tests/unit/fr045-reconcile-cache.test.js"
+            "apps/server/tests/unit/fr045-reconcile-cache.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
           ]
         }
       ],
@@ -7403,17 +7425,28 @@
           "check": "requirements",
           "summary": "FR-284 is partial",
           "evidence": [
+            "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/src/modules/project-manager/application/file-asset-service.js",
             "apps/server/src/modules/project-manager/application/file-reconcile-cache-service.js",
             "apps/server/src/modules/project-manager/local-files/filesystem-port.js",
             "apps/server/src/modules/project-manager/local-files/path-security.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr045-managed-files.test.js",
             "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
             "apps/server/tests/integration/fr072-files-migrate-authorization.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
             "apps/server/tests/unit/fr045-filesystem-port.test.js",
             "apps/server/tests/unit/fr045-path-security.test.js",
-            "apps/server/tests/unit/fr045-reconcile-cache.test.js"
+            "apps/server/tests/unit/fr045-reconcile-cache.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
           ]
         }
       ],
@@ -18873,22 +18906,33 @@
           "title": "Portable managed file content",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 4,
-          "testCount": 7
+          "codeCount": 5,
+          "testCount": 17
         }
       ],
       "evidence": [
+        "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/modules/project-manager/application/file-asset-service.js",
         "apps/server/src/modules/project-manager/application/file-reconcile-cache-service.js",
         "apps/server/src/modules/project-manager/local-files/filesystem-port.js",
         "apps/server/src/modules/project-manager/local-files/path-security.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
         "apps/server/tests/integration/fr072-files-migrate-authorization.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
         "apps/server/tests/unit/fr045-filesystem-port.test.js",
         "apps/server/tests/unit/fr045-path-security.test.js",
-        "apps/server/tests/unit/fr045-reconcile-cache.test.js"
+        "apps/server/tests/unit/fr045-reconcile-cache.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js"
       ]
     }
   ],
