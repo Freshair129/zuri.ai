@@ -1467,8 +1467,8 @@
           "title": "Segregation of duties gets a writer, not only a role list",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 13
+          "codeCount": 3,
+          "testCount": 14
         },
         {
           "id": "FR-253",
@@ -2325,7 +2325,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-197",
@@ -5390,8 +5390,8 @@
           "title": "Segregation of duties gets a writer, not only a role list",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 13
+          "codeCount": 3,
+          "testCount": 14
         }
       ],
       "checks": {
@@ -10827,8 +10827,8 @@
           "title": "Segregation of duties gets a writer, not only a role list",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 13
+          "codeCount": 8,
+          "testCount": 14
         },
         {
           "id": "FR-197",
@@ -10848,6 +10848,8 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/commerce/orders/page.jsx",
+        "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
         "apps/server/src/app/api/audit/route.js",
         "apps/server/src/app/api/backup/export/route.js",
         "apps/server/src/lib/validation/enums.js",
@@ -10894,6 +10896,7 @@
         "apps/server/tests/unit/audit-page.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/commerce-domain.test.js",
+        "apps/server/tests/unit/commerce-routes.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
