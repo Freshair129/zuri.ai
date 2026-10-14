@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { zPlanEnvelope, validatePlanSemantics } from '@/modules/project-manager/import/plan-schema'
 
+// @req FR-069 — required Product Launch gates carry the existing evidence object.
+// @spec SDD-039 — mode evidence is enforced through the shared PlanEnvelope pipeline.
+// @tested tests/unit/plan-schema.test.js
+
 const validPlan = {
   schemaVersion: '1.0',
   project: { code: 'PRJ-T', name: 'Test' },
@@ -14,6 +18,17 @@ const validPlan = {
       items: [{ code: 'I1', containerCode: 'C1', subtype: 'TASK', title: 'Task 1' }],
     },
   ],
+}
+
+const productLaunchPlanWithGate = (gate) => {
+  const plan = structuredClone(validPlan)
+  const workstream = plan.workstreams[0]
+  workstream.executionMode = 'PRODUCT_LAUNCH'
+  workstream.progressStrategy = 'MILESTONE_READINESS'
+  workstream.containers[0].subtype = 'LAUNCH_PHASE'
+  workstream.items[0].subtype = 'DELIVERABLE'
+  workstream.gates = [{ code: 'GATE-LAUNCH', title: 'Launch readiness', ...gate }]
+  return plan
 }
 
 describe('plan envelope schema', () => {
@@ -110,6 +125,40 @@ describe('plan semantics', () => {
     bad.dependencies = [{ sourceRef: 'GHOST', targetRef: 'WST-A', type: 'BLOCKS' }]
     const errors = validatePlanSemantics(zPlanEnvelope.parse(bad))
     expect(errors.some((e) => e.includes('sourceRef "GHOST"'))).toBe(true)
+  })
+
+  it('rejects a required Product Launch gate without evidence when required is omitted', () => {
+    const plan = productLaunchPlanWithGate({})
+    const errors = validatePlanSemantics(zPlanEnvelope.parse(plan))
+
+    expect(errors).toContain(
+      'workstreams[0].gates[0].evidence: required gate "GATE-LAUNCH" must include a non-empty evidence object',
+    )
+  })
+
+  it('rejects an explicitly required Product Launch gate with empty evidence', () => {
+    const plan = productLaunchPlanWithGate({ required: true, evidence: {} })
+    const errors = validatePlanSemantics(zPlanEnvelope.parse(plan))
+
+    expect(errors).toContain(
+      'workstreams[0].gates[0].evidence: required gate "GATE-LAUNCH" must include a non-empty evidence object',
+    )
+  })
+
+  it('accepts a required Product Launch gate with the existing non-empty evidence object', () => {
+    const plan = productLaunchPlanWithGate({ required: true, evidence: { checklist: 'release regression report' } })
+    expect(validatePlanSemantics(zPlanEnvelope.parse(plan))).toEqual([])
+  })
+
+  it('allows an optional Product Launch gate without evidence', () => {
+    const plan = productLaunchPlanWithGate({ required: false })
+    expect(validatePlanSemantics(zPlanEnvelope.parse(plan))).toEqual([])
+  })
+
+  it('keeps required gates without evidence valid outside Product Launch', () => {
+    const plan = structuredClone(validPlan)
+    plan.workstreams[0].gates = [{ code: 'GATE-SOFTWARE', title: 'Existing gate', required: true }]
+    expect(validatePlanSemantics(zPlanEnvelope.parse(plan))).toEqual([])
   })
 })
 

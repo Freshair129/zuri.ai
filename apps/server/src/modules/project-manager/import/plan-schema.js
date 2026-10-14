@@ -18,7 +18,8 @@ import {
 // @spec FR-069, BR-004, BR-007, SEC-002 — unknown modes rejected; plans are data, never executed
 // @spec SDD-002 — every status here is the Zod enum from the single source of
 // truth, never `z.string()`
-// @tested tests/unit/plan-schema.test.js, tests/unit/plan-status-vocabulary.test.js
+// @tested tests/unit/plan-schema.test.js, tests/unit/plan-status-vocabulary.test.js,
+//   tests/integration/plan-import.test.js
 // Zod mirror of contracts/plan-envelope.schema.json (schemaVersion 1.0 / 1.1 / 1.2).
 // strict() everywhere = additionalProperties:false. Never executes plan content.
 //
@@ -323,6 +324,7 @@ export function normalizePlanEnvelope(plan) {
  * - duplicate codes inside the envelope
  * - item.containerCode must reference a container in the same workstream
  * - container.parentCode must reference a container in the same workstream
+ * - required Product Launch gates must carry non-empty evidence JSON
  * - dependency refs must resolve to codes defined in the envelope (or the project)
  * Returns array of error strings (empty = valid).
  */
@@ -373,7 +375,7 @@ export function validatePlanSemantics(plan) {
     if (unsupportedRefs.length) errors.push(`Supporting identity refs are unavailable in this slice: ${unsupportedRefs.join(', ')}`)
     if ((normalized.project.riskIds || []).length) errors.push('Risk ids are unavailable because no Project Manager Risk owner exists')
   }
-  for (const ws of normalized.workstreams) {
+  for (const [workstreamIndex, ws] of normalized.workstreams.entries()) {
     const modeContract = EXECUTION_MODE_CONTRACTS[ws.executionMode]
     const expectedModeId = EXECUTION_MODE_IDS[ws.executionMode]
     const expectedContractId = EXECUTION_CONTRACT_IDS[ws.executionMode]
@@ -427,7 +429,18 @@ export function validatePlanSemantics(plan) {
       }
     }
     for (const m of ws.milestones || []) claim(m.code, 'milestone', m)
-    for (const g of ws.gates || []) claim(g.code, 'gate', g)
+    for (const [gateIndex, g] of (ws.gates || []).entries()) {
+      // The importer defaults an omitted `required` flag to true. Product
+      // Launch gates follow the existing evidence JSON contract; optional gates
+      // and the other execution modes keep their existing validation behavior.
+      const hasEvidence = Object.keys(g.evidence || {}).length > 0
+      if (ws.executionMode === 'PRODUCT_LAUNCH' && g.required !== false && !hasEvidence) {
+        errors.push(
+          `workstreams[${workstreamIndex}].gates[${gateIndex}].evidence: required gate "${g.code}" must include a non-empty evidence object`,
+        )
+      }
+      claim(g.code, 'gate', g)
+    }
   }
   for (const r of normalized.repositories || []) claim(r.code, 'repository')
 
