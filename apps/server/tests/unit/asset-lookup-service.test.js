@@ -98,7 +98,7 @@ describe('asset-lookup-service', () => {
             id: 'ev-photo',
             role: 'ASSET_PHOTO',
             fileAssetId: 'fil-1',
-            fileAsset: { id: 'fil-1', name: 'macbook_unboxing.jpg', mimeType: 'image/jpeg', sizeBytes: 2048576 },
+            fileAsset: { id: 'fil-1', name: 'macbook_unboxing.jpg', mime: 'image/jpeg', size: 2048576 },
           },
         ],
       }
@@ -152,7 +152,10 @@ describe('asset-lookup-service', () => {
           lotCode: 'LOT-2026-01',
         },
         photoEvidence: {
+          fileName: 'macbook_unboxing.jpg',
           fileAssetId: 'fil-1',
+          mimeType: 'image/jpeg',
+          sizeBytes: 2048576,
         },
       })
     })

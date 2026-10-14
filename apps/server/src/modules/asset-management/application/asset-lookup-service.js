@@ -1,6 +1,6 @@
 // @req FR-133, FR-135 — fast QR token lookup, physical asset identification, and stocktake verification.
 // @spec SDD-078, SDD-080, BR-023, SEC-023, ADR-055
-// @tested tests/unit/asset-lookup-service.test.js
+// @tested tests/unit/asset-lookup-service.test.js, tests/unit/asset-lookup-schema-integration.test.js
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { relocateAsset } from './asset-lifecycle-service'
@@ -95,7 +95,7 @@ export async function lookupAssetByQrOrCode({
       evidence: {
         where: { deletedAt: null },
         include: {
-          fileAsset: { select: { id: true, name: true, mimeType: true, sizeBytes: true } },
+          fileAsset: { select: { id: true, name: true, mime: true, size: true } },
         },
       },
     },
@@ -169,6 +169,8 @@ export async function lookupAssetByQrOrCode({
       id: photoEvidence.id,
       fileAssetId: photoEvidence.fileAssetId,
       fileName: photoEvidence.fileAsset?.name,
+      mimeType: photoEvidence.fileAsset?.mime,
+      sizeBytes: photoEvidence.fileAsset?.size,
     } : null,
     verifiedAt: new Date().toISOString(),
   }
