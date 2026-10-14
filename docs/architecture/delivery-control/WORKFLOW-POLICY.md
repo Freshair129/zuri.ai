@@ -117,6 +117,13 @@ requested by the mandate and not required by repository policy. It cannot
 replace mandatory CI or any acceptance criterion; missing required evidence is
 NOT_RUN or BLOCKED, never PASS.
 
+This mandatory ordinary Sol root triage is part of the triggering gate/action
+disposition. It consumes no separate escalation, retry, repair, submission, or
+successor attempt. Triage remains bounded by the triggering gate/action and the
+existing no-progress and deadline budgets. If those budgets are exhausted, Sol
+may only record the terminal disposition and continue independent eligible
+work; triage cannot authorize another attempt.
+
 If an operation's effect is unknown, quarantine it and perform read-only
 authoritative reconciliation. Do not retry while its effect remains unknown.
 Keep `effectState: UNKNOWN` separate from the run disposition, including when a

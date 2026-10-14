@@ -135,6 +135,7 @@
       ],
       "triageOwner": "Sol",
       "triagePrecedesEveryRetryOrRepair": true,
+      "triageAccounting": "Mandatory ordinary Sol root triage is part of the triggering gate/action disposition and consumes no separate escalation, retry, repair, submission, or successor attempt. It is bounded by that triggering gate/action and the existing no-progress and deadline budgets. When those budgets are exhausted, triage may only record the terminal disposition and continue independent eligible work; it cannot authorize another attempt",
       "routes": [
         {
           "failureClass": "PROVEN_NO_EFFECT_PACKET_ALLOWLIST_OR_ARGV_DEFECT",
@@ -256,6 +257,7 @@
       "submissionAttempt": "Initial submission and each repaired submission count toward the total",
       "controlPlaneRepairSuccessor": "Consumes both its control-plane repair successor allowance and the total successor plan allowance",
       "gateEvaluation": "Keyed by canonical gate ID and shared across every descendant in the root lineage",
+      "ordinarySolRootTriage": "Mandatory root triage is part of the triggering gate/action disposition and consumes no separate escalation, retry, repair, submission, or successor counter; it remains bounded by the triggering gate/action and existing no-progress and deadline budgets. At exhaustion, triage may only record terminal disposition and continue independent eligible work; it cannot authorize another attempt",
       "reservationRollbackOnFailure": false
     },
     "deadlineAnchors": {
@@ -274,7 +276,6 @@
       "maxGateEvaluationsPerGate": 3,
       "maxRecoveryAttemptsPerRootLineage": 1,
       "maxRcaDecisionsPerRootLineage": 1,
-      "maxEscalationsToSolPerRootLineage": 1,
       "maxCircuitProbesPerRootLineage": 1,
       "maxOccurrencesPerNoProgressFingerprint": 2,
       "maxRunDurationMinutes": 120,
@@ -290,7 +291,6 @@
         "REVIEW_WITH_NEW_EVIDENCE",
         "RECOVERY",
         "RCA_DECISION",
-        "ESCALATION_TO_SOL",
         "CIRCUIT_PROBE"
       ],
       "requiredEvidence": [
