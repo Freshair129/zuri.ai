@@ -1,5 +1,5 @@
-// @req FR-045 — managed assets and legacy migration are lossless and Business scoped.
-// @spec SDD-023, BR-010, SEC-007, ADR-016
+// @req FR-045, FR-284 — managed assets and legacy migration are lossless and Business scoped.
+// @spec SDD-023, SDD-113, BR-010, SEC-007, ADR-016
 // @tested tests/unit/fr045-file-asset-service.test.js
 import { describe, expect, it, vi } from 'vitest'
 import { makeViewer, makeOperatorViewer } from '../factories/viewer'
@@ -112,18 +112,21 @@ describe('FR-045 FileAsset service', () => {
       auditEvent: { create: vi.fn().mockResolvedValue({}) },
       $transaction: vi.fn(async (callback) => callback(db)),
     }
+    const crossDevice = Object.assign(new Error('cross-device rename'), { code: 'EXDEV' })
     const port = {
       stageWrite: vi.fn().mockResolvedValue('D:\\workspace\\.zuri\\temp\\asset-local.tmp'),
-      promote: vi.fn().mockRejectedValue(new Error('disk full')),
+      promote: vi.fn().mockRejectedValue(crossDevice),
       cleanupStaged: vi.fn().mockResolvedValue(undefined),
     }
     await expect(createManagedFileAsset({
       code: 'FIL-LOCAL', businessId: 'business-a', projectId: 'project-a', storageKind: 'LOCAL_FILE',
       mountId: 'mount-a', relativePath: 'Projects/P-A/Documents/file.txt', contentBase64: 'aGVsbG8=',
       name: 'file.txt', mime: 'text/plain', size: 5,
-    }, { db, viewer: owner, filesystemPort: port })).rejects.toThrow('disk full')
+    }, { db, viewer: owner, filesystemPort: port })).rejects.toMatchObject({ code: 'EXDEV' })
     expect(updates).toContainEqual(expect.objectContaining({ status: 'QUARANTINED' }))
     expect(port.cleanupStaged).toHaveBeenCalled()
+    expect(port.stageWrite).toHaveBeenCalledWith(expect.objectContaining({ mountRoot: 'D:\\workspace' }))
+    expect(port.cleanupStaged).toHaveBeenCalledWith(expect.objectContaining({ mountRoot: 'D:\\workspace' }))
   })
 
   it('remounts one Business/device mapping without changing file identity', async () => {
@@ -137,6 +140,24 @@ describe('FR-045 FileAsset service', () => {
       .resolves.toMatchObject({ rootPath: 'E:\\zuri' })
     expect(upsert).toHaveBeenCalledWith(expect.objectContaining({
       where: { businessId_deviceKey: { businessId: 'business-a', deviceKey: 'desktop-a' } },
+    }))
+  })
+
+  it('accepts and normalizes an absolute POSIX remount root', async () => {
+    const upsert = vi.fn().mockResolvedValue({ id: 'mount-posix', rootPath: '/tmp/team/workspace' })
+    const db = {
+      business: { findUnique: vi.fn().mockResolvedValue({ id: 'business-a', tenantId: 'tenant-a' }) },
+      localWorkspaceMount: { upsert },
+      auditEvent: { create: vi.fn().mockResolvedValue({}) },
+    }
+
+    await upsertLocalWorkspaceMount({
+      businessId: 'business-a', deviceKey: 'linux-host', rootPath: '/tmp/team/temporary/../workspace',
+    }, { db, viewer: owner })
+
+    expect(upsert).toHaveBeenCalledWith(expect.objectContaining({
+      create: expect.objectContaining({ rootPath: '/tmp/team/workspace' }),
+      update: expect.objectContaining({ rootPath: '/tmp/team/workspace' }),
     }))
   })
 

@@ -27,7 +27,6 @@
 // @spec SEC-008
 // @tested tests/integration/backup.test.js, tests/integration/crm-conversation-analysis.test.js, tests/unit/fr045-backup-contract.test.js
 // @tested tests/integration/fr075-restore-authorization.test.js
-import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
@@ -36,6 +35,9 @@ import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service
 import { MEMORY_ERASURE_KINDS } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { pricingHash } from '@/modules/commerce/domain/pricing-engine'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
+// @req FR-284 — restore uses the selected mount's native path dialect.
+// @spec SDD-113
+import { normalizeMountRoot, resolveLexicalContainedPath } from '../local-files/path-security'
 import { requireViewer } from './project-authorization'
 import { assertOperator, assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
 // @req FR-282, FR-283 — fail closed before legacy export/replacement loses evidence.
@@ -1960,9 +1962,14 @@ export async function importSnapshot(snapshot, {
   const preview = await previewImport(snapshot, { remounts, db, viewer, nested: true })
   if (!preview.valid) return { restored: false, ...preview }
   if (!confirm) return { restored: false, needsConfirmation: true, ...preview }
-  for (const mount of remounts) {
-    if (!mount.businessId || !mount.deviceKey || !path.win32.isAbsolute(mount.rootPath || '')) throw new Error('Each remount requires businessId, deviceKey and an absolute Windows rootPath')
-  }
+  const normalizedRemounts = remounts.map((mount) => {
+    if (!mount.businessId || !mount.deviceKey) throw new Error('Each remount requires businessId, deviceKey and an absolute Windows or POSIX rootPath')
+    try {
+      return { ...mount, rootPath: normalizeMountRoot(mount.rootPath) }
+    } catch {
+      throw new Error('Each remount requires businessId, deviceKey and an absolute Windows or POSIX rootPath')
+    }
+  })
 
   try {
     await db.$transaction(async (tx) => {
@@ -1995,10 +2002,10 @@ export async function importSnapshot(snapshot, {
           : model === 'pricingRuleSet' ? preview.pricingRecovery.ruleRows : snapshot.tables[model] || []
         for (const row of rows) await tx[model].create({ data: restoredRow(model, row, { lineWorkerMemoryRecovery: preview.lineWorkerMemoryRecovery }) })
       }
-      for (const mount of remounts) {
+      for (const mount of normalizedRemounts) {
         const business = await tx.business.findUnique({ where: { id: mount.businessId }, select: { tenantId: true } })
         if (!business) throw new Error(`Remount Business not found: ${mount.businessId}`)
-        await tx.localWorkspaceMount.create({ data: { tenantId: business.tenantId, businessId: mount.businessId, deviceKey: mount.deviceKey, rootPath: path.win32.normalize(mount.rootPath) } })
+        await tx.localWorkspaceMount.create({ data: { tenantId: business.tenantId, businessId: mount.businessId, deviceKey: mount.deviceKey, rootPath: mount.rootPath } })
       }
       await recordAudit(tx, { entityType: 'SNAPSHOT', entityId: 'local', action: 'RESTORED', payload: { exportedAt: snapshot.exportedAt || null, counts: preview.counts } })
       // @req FR-197 — inside the transaction and after the re-insert, so the
@@ -2050,7 +2057,7 @@ export async function importSnapshot(snapshot, {
     throw error
   }
 
-  const remountByBusiness = new Map(remounts.map((mount) => [mount.businessId, mount]))
+  const remountByBusiness = new Map(normalizedRemounts.map((mount) => [mount.businessId, mount]))
   const manifestByFile = new Map(contentManifest(snapshot).map((entry) => [entry.fileId, entry]))
   const unresolvedContentFileIds = []
   for (const asset of localAssets(snapshot)) {
@@ -2058,11 +2065,17 @@ export async function importSnapshot(snapshot, {
     const manifest = manifestByFile.get(asset.id)
     let active = false
     if (mount && manifest?.contentIncluded && manifest.contentBase64) {
-      const stagingRoot = path.win32.join(mount.rootPath, '.zuri', 'temp')
+      const stagingRoot = resolveLexicalContainedPath({ mountRoot: mount.rootPath, relativePath: '.zuri/temp' }).absolutePath
       const stagingName = `restore-${randomUUID()}.tmp`
-      await filesystemPort.stageWrite({ stagingRoot, stagingName, content: Buffer.from(manifest.contentBase64, 'base64') })
-      await filesystemPort.promote({ mountRoot: mount.rootPath, stagingRoot, stagingName, relativePath: asset.relativePath })
-      active = true
+      try {
+        await filesystemPort.stageWrite({ mountRoot: mount.rootPath, stagingRoot, stagingName, content: Buffer.from(manifest.contentBase64, 'base64') })
+        await filesystemPort.promote({ mountRoot: mount.rootPath, stagingRoot, stagingName, relativePath: asset.relativePath })
+        active = true
+      } catch {
+        try {
+          await filesystemPort.cleanupStaged({ mountRoot: mount.rootPath, stagingRoot, stagingName })
+        } catch { /* failed content remains unresolved after the committed metadata restore */ }
+      }
     } else if (mount) {
       try {
         await filesystemPort.stat({ mountRoot: mount.rootPath, relativePath: asset.relativePath })
@@ -2070,7 +2083,9 @@ export async function importSnapshot(snapshot, {
       } catch { /* missing content is reported, not guessed */ }
     }
     if (!active) unresolvedContentFileIds.push(asset.id)
-    await db.fileAsset.update({ where: { id: asset.id }, data: { status: active ? 'ACTIVE' : 'MISSING' } })
+    let restoredStatus = active ? 'ACTIVE' : 'MISSING'
+    if (asset.status === 'QUARANTINED') restoredStatus = 'QUARANTINED'
+    await db.fileAsset.update({ where: { id: asset.id }, data: { status: restoredStatus } })
   }
   return {
     restored: true,

@@ -1073,6 +1073,11 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-283",
     "primaryDomain": "marketing",
     "useCase": "ทีมการตลาดอ่าน reported evidence ตามสิทธิ์เดิมของ Business เก็บหลักฐานกับ receipt ขั้นต่ำ 90 วัน โดยคง UNKNOWN และไม่มีการลบอัตโนมัติ"
+  },
+  {
+    "id": "FR-284",
+    "primaryDomain": "project-manager",
+    "useCase": "จัดเก็บและอ่านไฟล์ managed ตามสิทธิ์ Business และ Project บน Windows หรือ Linux โดยรักษา path containment และส่งไฟล์ข้อความเข้า Knowledge ได้จริง"
   }
 ]
 ```

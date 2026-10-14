@@ -7,6 +7,13 @@ import { collectDeclared } from '../../scripts/id-anchors.mjs'
 
 // Publication assertions are identity evidence, not receiver runtime coverage.
 const reportIdentities = [...[281, 282, 283].map(number => ['FR', number].join('-')), ['SDD', 112].join('-')]
+const portableFileIdentities = ['FR-284', 'SDD-113']
+
+const issuedIdentityKeys = () => {
+  const repositoryRoot = path.resolve(process.cwd(), '..', '..')
+  const ledger = JSON.parse(readFileSync(path.join(repositoryRoot, 'docs/.id-ledger.json'), 'utf8'))
+  return Object.keys(ledger.ids).map(id => `ZAI:${id}`).sort()
+}
 
 it('qualifies equal basenames without changing unique documents or requirement IDs', () => {
   const nodes = [
@@ -55,8 +62,8 @@ it('builds the qualified index for the complete current registry without changin
   expect(declarations.duplicates).toEqual([])
   expect(declarations.missing).toEqual([])
   const indexed = indexDeclaredIdentities(declarations, [])
-  expect(indexed.size).toBe(753)
-  for (const id of ['ADR-039', 'ADR-107', 'ZV2-CR-009', 'RSK-016', 'MI-RQ-033', 'MI-RQ-211', ...reportIdentities]) expect(indexed.has(`ZAI:${id}`)).toBe(true)
+  expect([...indexed.keys()].sort()).toEqual(issuedIdentityKeys())
+  for (const id of ['ADR-039', 'ADR-107', 'ZV2-CR-009', 'RSK-016', 'MI-RQ-033', 'MI-RQ-211', ...reportIdentities, ...portableFileIdentities]) expect(indexed.has(`ZAI:${id}`)).toBe(true)
 })
 
 it('keeps identity-only lifecycle status out of document successor obligations', () => {
@@ -69,10 +76,14 @@ it('publishes every issued ZAI identity and resolves historical @spec references
   const graphPath = path.resolve(process.cwd(), '..', '..', 'docs/.doc-graph.json')
   const graph = JSON.parse(readFileSync(graphPath, 'utf8'))
   const declared = graph.nodes.filter(node => node.namespace === 'ZAI' && node.document_identity)
-  expect(new Set(declared.map(node => node.document_identity)).size).toBe(753)
+  const publishedIdentities = declared.map(node => node.document_identity)
+  const issuedIdentities = issuedIdentityKeys().map(identity => identity.slice('ZAI:'.length))
+  expect(new Set(publishedIdentities).size).toBe(issuedIdentities.length)
+  expect(publishedIdentities.sort()).toEqual(issuedIdentities)
   for (const id of ['ADR-039', 'ADR-107', 'ZV2-CR-009', 'RSK-016', 'MI-RQ-033', 'MI-RQ-211', ...reportIdentities]) {
     expect(declared.filter(node => node.document_identity === id)).toHaveLength(1)
   }
+  for (const id of portableFileIdentities) expect(declared.filter(node => node.document_identity === id)).toHaveLength(1)
   const change = graph.edges.find(edge => edge.from === 'code:src/modules/project-manager/application/file-asset-service.js'
     && edge.to === 'doc:ZV2-CR-001-MANAGED-LOCAL-FILES-AND-CACHE')
   expect(change).toMatchObject({ type: 'references', source: 'qualified-annotation' })

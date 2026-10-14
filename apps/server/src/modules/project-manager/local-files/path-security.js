@@ -1,5 +1,5 @@
-// @req FR-045 — managed local files use portable, contained relative paths.
-// @spec SDD-023, SEC-007, ADR-016 D3/D8
+// @req FR-045, FR-284 — managed local files use portable, contained relative paths.
+// @spec SDD-023, SDD-113, SEC-007, ADR-016 D3/D8
 // @tested tests/unit/fr045-path-security.test.js
 import path from 'node:path'
 
@@ -16,19 +16,55 @@ function reject(message) {
   throw new LocalPathSecurityError(message)
 }
 
-function normalizeWindowsRoot(mountRoot) {
+/**
+ * Roots keep the path syntax of the filesystem that owns them. Drive and UNC
+ * roots remain Windows paths even when inspected by a POSIX-hosted server.
+ * A single leading backslash and drive-relative roots are ambiguous and fail
+ * closed; POSIX roots must use their unambiguous leading slash form.
+ */
+export function normalizeMountRoot(mountRoot) {
   if (typeof mountRoot !== 'string' || mountRoot.trim() === '') reject('mount root is required')
-  if (mountRoot.includes('\0') || !windowsPath.isAbsolute(mountRoot)) reject('mount root must be absolute')
-  return windowsPath.normalize(mountRoot)
+  if (mountRoot.includes('\0')) reject('mount root contains a null byte')
+
+  if (/^[a-zA-Z]:[\\/]/.test(mountRoot)) {
+    if (!windowsPath.isAbsolute(mountRoot)) reject('mount root must be absolute')
+    return windowsPath.normalize(mountRoot)
+  }
+
+  if (mountRoot.startsWith('\\\\') || mountRoot.startsWith('//')) {
+    const slashForm = mountRoot.replaceAll('\\', '/')
+    if (/^\/\/[?.]\//.test(slashForm)) reject('Windows device paths are not supported')
+    const uncParts = slashForm.slice(2).split('/')
+    if (!uncParts[0] || !uncParts[1] || !windowsPath.isAbsolute(mountRoot)) {
+      reject('mount root must be a fully qualified UNC path')
+    }
+    return windowsPath.normalize(mountRoot)
+  }
+
+  if (mountRoot.startsWith('/') && !mountRoot.startsWith('//')) {
+    return path.posix.normalize(mountRoot)
+  }
+
+  reject('mount root must be a fully qualified Windows or absolute POSIX path')
 }
 
-function equalOrDescendant(candidate, root) {
-  const relative = windowsPath.relative(root, candidate)
-  return relative === '' || (!relative.startsWith('..') && !windowsPath.isAbsolute(relative))
+export function pathFlavorForRoot(mountRoot) {
+  const normalized = normalizeMountRoot(mountRoot)
+  return /^[a-zA-Z]:[\\/]/.test(normalized) || normalized.startsWith('\\\\')
+    ? 'windows'
+    : 'posix'
 }
 
-function assertContained(candidate, root, message) {
-  if (!equalOrDescendant(candidate, root)) reject(message)
+/** Returns the path implementation selected by an already trusted root value. */
+export function pathImplementationForRoot(mountRoot) {
+  return pathFlavorForRoot(mountRoot) === 'windows' ? windowsPath : path.posix
+}
+
+function assertContained(candidate, root, flavor, message) {
+  const pathApi = flavor === 'windows' ? windowsPath : path.posix
+  const relative = pathApi.relative(root, candidate)
+  if (relative === '') return
+  if (relative === '..' || relative.startsWith(`..${pathApi.sep}`) || pathApi.isAbsolute(relative)) reject(message)
 }
 
 /**
@@ -40,7 +76,7 @@ export function normalizeClientRelativePath(input) {
   if (input.includes('\0')) reject('relative path contains a null byte')
 
   const candidate = input.trim()
-  if (windowsPath.isAbsolute(candidate) || candidate.startsWith('/') || /^[a-zA-Z]:/.test(candidate)) {
+  if (candidate.startsWith('/') || candidate.startsWith('\\') || /^[a-zA-Z]:/.test(candidate)) {
     reject('relative path must not be absolute or drive-relative')
   }
 
@@ -57,10 +93,12 @@ export function normalizeClientRelativePath(input) {
 }
 
 function lexicalContainedPath({ mountRoot, relativePath }) {
-  const root = normalizeWindowsRoot(mountRoot)
+  const root = normalizeMountRoot(mountRoot)
+  const flavor = pathFlavorForRoot(root)
+  const pathApi = flavor === 'windows' ? windowsPath : path.posix
   const normalizedRelativePath = normalizeClientRelativePath(relativePath)
-  const absolutePath = windowsPath.join(root, ...normalizedRelativePath.split('/'))
-  assertContained(absolutePath, root, 'lexical path escapes mounted root')
+  const absolutePath = pathApi.join(root, ...normalizedRelativePath.split('/'))
+  assertContained(absolutePath, root, flavor, 'lexical path escapes mounted root')
   return { root, relativePath: normalizedRelativePath, absolutePath }
 }
 
@@ -76,11 +114,12 @@ export function resolveLexicalContainedPath({ mountRoot, relativePath }) {
 export async function resolveContainedPath({ mountRoot, relativePath, realpath }) {
   if (typeof realpath !== 'function') reject('realpath capability is required')
   const lexical = lexicalContainedPath({ mountRoot, relativePath })
+  const flavor = pathFlavorForRoot(lexical.root)
   const [realRoot, realFinalPath] = await Promise.all([
     realpath(lexical.root),
     realpath(lexical.absolutePath),
   ])
-  assertContained(realFinalPath, realRoot, 'final real path escapes mounted root')
+  assertContained(realFinalPath, realRoot, flavor, 'final real path escapes mounted root')
   return { relativePath: lexical.relativePath, absolutePath: lexical.absolutePath }
 }
 
@@ -91,42 +130,66 @@ export async function resolveContainedPath({ mountRoot, relativePath, realpath }
 export async function resolveContainedWritePath({ mountRoot, relativePath, realpath }) {
   if (typeof realpath !== 'function') reject('realpath capability is required')
   const lexical = lexicalContainedPath({ mountRoot, relativePath })
+  const flavor = pathFlavorForRoot(lexical.root)
+  const pathApi = flavor === 'windows' ? windowsPath : path.posix
   const [realRoot, realParent] = await Promise.all([
     realpath(lexical.root),
-    realpath(windowsPath.dirname(lexical.absolutePath)),
+    realpath(pathApi.dirname(lexical.absolutePath)),
   ])
-  assertContained(realParent, realRoot, 'final real path escapes mounted root')
-  const absolutePath = windowsPath.join(realParent, windowsPath.basename(lexical.absolutePath))
-  assertContained(absolutePath, realRoot, 'final real path escapes mounted root')
+  assertContained(realParent, realRoot, flavor, 'final real path escapes mounted root')
+  const absolutePath = pathApi.join(realParent, pathApi.basename(lexical.absolutePath))
+  assertContained(absolutePath, realRoot, flavor, 'final real path escapes mounted root')
   return { relativePath: lexical.relativePath, absolutePath }
 }
 
 export function resolveStagingPath({ stagingRoot, stagingName }) {
-  const root = normalizeWindowsRoot(stagingRoot)
+  const root = normalizeMountRoot(stagingRoot)
+  const flavor = pathFlavorForRoot(root)
+  const pathApi = flavor === 'windows' ? windowsPath : path.posix
   const normalizedName = normalizeClientRelativePath(stagingName)
-  const absolutePath = windowsPath.join(root, ...normalizedName.split('/'))
-  assertContained(absolutePath, root, 'staging path escapes staging root')
+  const absolutePath = pathApi.join(root, ...normalizedName.split('/'))
+  assertContained(absolutePath, root, flavor, 'staging path escapes staging root')
   return absolutePath
 }
 
 /**
- * Resolves an existing staged file and confirms it remains inside its caller-owned
- * staging root. Its canonical path is used for same-volume promotion checks.
+ * Resolves an existing staged file and confirms it remains within its staging
+ * root and, when supplied, within the managed mount as well.
  */
-export async function resolveContainedStagingPath({ stagingRoot, stagingName, realpath }) {
+export async function resolveContainedStagingPath({ stagingRoot, stagingName, realpath, mountRoot }) {
   if (typeof realpath !== 'function') reject('realpath capability is required')
-  const absolutePath = resolveStagingPath({ stagingRoot, stagingName })
-  const root = normalizeWindowsRoot(stagingRoot)
-  const [realRoot, realPath] = await Promise.all([realpath(root), realpath(absolutePath)])
-  assertContained(realPath, realRoot, 'staged real path escapes staging root')
+  const normalizedStagingRoot = normalizeMountRoot(stagingRoot)
+  const stagingFlavor = pathFlavorForRoot(normalizedStagingRoot)
+  const pathApi = stagingFlavor === 'windows' ? windowsPath : path.posix
+  const absolutePath = resolveStagingPath({ stagingRoot: normalizedStagingRoot, stagingName })
+  const [realStagingRoot, realPath] = await Promise.all([
+    realpath(normalizedStagingRoot),
+    realpath(absolutePath),
+  ])
+  assertContained(realPath, realStagingRoot, stagingFlavor, 'staged real path escapes staging root')
+
+  if (mountRoot !== undefined) {
+    const normalizedMountRoot = normalizeMountRoot(mountRoot)
+    const mountFlavor = pathFlavorForRoot(normalizedMountRoot)
+    if (mountFlavor !== stagingFlavor) reject('staging and mount roots must use the same path type')
+    assertContained(normalizedStagingRoot, normalizedMountRoot, mountFlavor, 'staging path escapes mounted root')
+    const realMountRoot = await realpath(normalizedMountRoot)
+    assertContained(realStagingRoot, realMountRoot, mountFlavor, 'staging real path escapes mounted root')
+    assertContained(realPath, realMountRoot, mountFlavor, 'staging real path escapes mounted root')
+  }
+
   return realPath
 }
 
 /**
- * Node rename is atomic only within one filesystem. Cross-volume promotion is
- * rejected instead of falling back to copy-and-delete semantics.
+ * Node rename is atomic only within one filesystem. Windows drive/UNC volume
+ * checks are explicit; POSIX cross-device renames fail atomically with EXDEV.
  */
 export function assertSameWindowsVolume(sourcePath, destinationPath) {
+  const sourceFlavor = pathFlavorForRoot(sourcePath)
+  const destinationFlavor = pathFlavorForRoot(destinationPath)
+  if (sourceFlavor !== destinationFlavor) reject('staging and destination must be on the same volume')
+  if (sourceFlavor === 'posix') return
   const sourceRoot = windowsPath.parse(sourcePath).root.toLowerCase()
   const destinationRoot = windowsPath.parse(destinationPath).root.toLowerCase()
   if (sourceRoot !== destinationRoot) reject('staging and destination must be on the same volume')

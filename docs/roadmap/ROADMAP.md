@@ -10,14 +10,16 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.146.0b"
-updated: "2026-10-12"
+version: "2.147.0b"
+updated: "2026-10-14"
 owner: "Owen"
 source_of_truth: true
 live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.147.0b (2026-10-14): Register the authored FR-284/SDD-113 managed-file platform extension as a review candidate in PR #657. POSIX content IO extends the historical Windows-only implementation while preserving FR-045/SDD-023 source identities. Independent verification, review and exact-head CI remain the merge gates; production deployment and provider activation are not claimed.
 
 > Revision 2.146.0b (2026-10-12): Reconcile TASK-ZAI-122 Phase 3 FR-270/BR-043 as merged via PR #647 to `main` at `8a2fd4984a868923291c68c0169b16a8f0716768` (source head `bd9a7496a5de1f981fae1b20353b9b1610a791c8`). Exact-head hosted governance, build, all four test shards, Edge verification, SCM, Conversation Runtime, and Market Intelligence checks passed; hosted E2E and desktop jobs were skipped by workflow. Local production-mode Playwright passed 210 tests, with four repository-skipped smoke cases superseded by FR-041. The focused UI suite passed 3/3; strict local governance had 0 critical findings, 4 warnings, and 39 informational findings. A redundant full Vitest rerun was interrupted during the 186-second CI-scope test, not counted; all exact-head hosted test shards passed. SQLite and Supabase migrations remain authored but unapplied; no deployment, provider activation, or live-Business acceptance is claimed.
 
@@ -604,6 +606,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-V2-CROSSBIZ | PHASE-V2-REPLACE | task | Ship one genuinely cross-business screen early (survives ADR-024 as ordinary product work — no longer tied to any migration) | P1 | Claude | planned | - | ADR-024 |
 | TASK-V2-LASTDATE | PHASE-V2-REPLACE | task | ~~Final per-tenant cutover date~~ — no cutover will occur | P0 | Owen | cancelled (ADR-024) | - | ADR-024 |
 | TASK-FR-045 | PHASE-V2-REPLACE | task | SQLite-authoritative managed local file workspace, Business/Project File Manager, disposable cache and legacy ProjectFile migration | P0 | Codex | done (beta) | ADR-016; ZV2-CR-001 | ../domains/project-manager/features/FR-045-managed-local-file-workspace.md; roadmap/PLAN-FR-045-MANAGED-LOCAL-FILE-WORKSPACE.md |
+| TASK-FR-284 | PHASE-V2-REPLACE | task | Portable Windows/POSIX managed FileAsset content, contained staging and promotion, case-aware reconciliation, and honest partial snapshot restore | P1 | Codex / Luna | review (PR #657 candidate; verification and merge gates pending, local scope) | FR-284; SDD-113; FR-045; SEC-007; ADR-016 | ../requirements/FR-284.md; ../requirements/SDD-113.md; ../change-requests/project-manager/portable-managed-files-20261014.md |
 | TASK-FR-046 | PHASE-V2-REPLACE | task | Trusted request viewer and atomic viewer-scoped `/api/entry` for production-safe Business Routing | P0 | Codex | done | FR-031; FR-044 | ADR-017; ../domains/identity/features/FR-046-production-viewer-entry-contract.md |
 | TASK-FR-053-054 | PHASE-V2-REPLACE | task | Phase 1 activation readiness: deterministic golden evaluation, live-role isolation probe and dry-run controlled canary plan | P0 | Codex | done (beta; external activation pending) | FR-047..052; ADR-018 | ADR-019; changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md |
 | TASK-FR-079 | PHASE-V2-REPLACE | task | Phase 1 LINE runtime connection cut-over: trusted Business-scoped active-primary selection, provider-neutral SecretManagerPort and local-only Ollama boundary | P0 | ATHER | done (beta; production external gates pending) | FR-047..052; ADR-031 | ../domains/integration/features/FR-079-phase1-line-runtime-connection-cutover.md; PLAN-FR-079-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER.md |

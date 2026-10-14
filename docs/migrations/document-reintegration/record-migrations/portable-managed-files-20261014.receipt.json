@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "migrationId": "portable-managed-files-20261014",
+  "status": "APPLIED",
+  "manifestSha256": "0ac5b1cc13ce3088ce8efb91b00fe0194d0ef3de1a341abf97bddb0fc73bff96",
+  "base": {
+    "commit": "cc32742e2e79b73dba1d048c98ebc8d368832beb",
+    "indexSha256": "e02feeae774037b69404d6e0b699d1d0ab4ce2fa97dfaa14f54b8ee890de4b9e",
+    "ledgerSha256": "3dfd14f30cc71b01506bfb6ba7bb03d72a370cebc9ef7a762d20d67e118f4d8a"
+  },
+  "ids": [
+    "FR-284",
+    "SDD-113"
+  ],
+  "before": {
+    "docs/migrations/document-reintegration/record-migrations/portable-managed-files-20261014.approval.md": null,
+    "docs/requirements/FR-284.md": null,
+    "docs/requirements/SDD-113.md": null,
+    "registry/document-registry/index.json": "e02feeae774037b69404d6e0b699d1d0ab4ce2fa97dfaa14f54b8ee890de4b9e",
+    "docs/PRD-SDD-v1.0.md": "c650ebace0a0c98d99867763256072ad352d303e043f5ccdf77fb46185358f31",
+    "docs/FEATURES.md": "cf5f0ee8dc556692ac3caa214ca575694be2549026d41cc1e4ea33be10c4501d",
+    "docs/.id-ledger.json": "3dfd14f30cc71b01506bfb6ba7bb03d72a370cebc9ef7a762d20d67e118f4d8a"
+  },
+  "outputs": {
+    "docs/migrations/document-reintegration/record-migrations/portable-managed-files-20261014.approval.md": "31fe651b5276e4c4c8abbd22616999aee61002d1620a11dd8732181db1e625f4",
+    "docs/requirements/FR-284.md": "6cdac177012d36a477d76ba0eb1496a120bc7191008d8379f40f707a1bae6880",
+    "docs/requirements/SDD-113.md": "6d2bc057bac8ffd47eae080ff8dfb0adde2c372c04fa89d3262ad0f01c43b4bc",
+    "registry/document-registry/index.json": "4623a31e5b98df225bdcd2d82a38dc3a449e041e70145095bb45df7e442b0b46",
+    "docs/PRD-SDD-v1.0.md": "c02327ad25ce7f297f70ba5ebec630e82a9e270fbc148d32e4b6470a9cfc2040",
+    "docs/FEATURES.md": "cf5f0ee8dc556692ac3caa214ca575694be2549026d41cc1e4ea33be10c4501d",
+    "docs/.id-ledger.json": "ef79b6dd0b23c606d99c96d6ab6a411885e7128f53d5ad3b89edae84b84f488e"
+  }
+}
