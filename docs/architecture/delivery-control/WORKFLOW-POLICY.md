@@ -17,6 +17,10 @@ strings, `writeScope`, `checks`, and `mandateReference`. Each check declares
 task intent and bounded scope; it is not an approval receipt, environment hash
 bundle, or authority grant.
 
+Write scopes name exact files unless they end with `/`, which explicitly
+authorizes a directory and its descendants. This intent does not depend on
+whether the target exists yet.
+
 Derive the objective, acceptance criteria, write scope and dependency references
 from the roadmap where it has the relevant source. Root may resolve technical
 and product choices inside the user's delegated scope. Reconcile a legacy

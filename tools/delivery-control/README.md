@@ -32,6 +32,9 @@ optional; each names a `taskId` and may include a `revision`.
     }
 
 Each declared check uses `shell: false` with `executable`, `argv` and `cwd`.
+Write scopes without a trailing `/` name exact files. A trailing `/` explicitly
+allows a directory and its descendants, including when that directory is new.
+Filesystem existence never broadens an exact-file scope.
 Preflight checks that the declaration is usable and the environment can support
 it; it does not execute the command. The `mandateReference` records provenance
 only. Root reconciles it against trusted conversation or harness context and

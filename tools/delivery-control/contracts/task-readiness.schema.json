@@ -31,7 +31,7 @@
       "minItems": 1,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/nonempty" },
-      "description": "Repository-relative slash paths. Preflight rejects traversal and symlink or junction escapes."
+      "description": "Repository-relative paths: unmarked entries authorize exact files; a trailing slash explicitly authorizes directory descendants. Preflight rejects traversal and symlink or junction escapes."
     },
     "checks": {
       "type": "array",

@@ -249,8 +249,9 @@ function scopeContains(repoRoot, scopeEntry, changedPath) {
   if (!normalizedScope) return false;
   const scopeChecked = checkedRepoPath(repoRoot, normalizedScope);
   if (!scopeChecked.ok) return false;
-  let isDirectory = true;
-  try { isDirectory = statSync(scopeChecked.path).isDirectory(); } catch {}
+  // Scope intent is stable before and after files exist. Only an explicit
+  // directory marker authorizes descendants; a filename never expands itself.
+  const isDirectory = scopeEntry.endsWith('/');
   if (!isDirectory) return normalizedPath(changedPath) === normalizedPath(normalizedScope);
   const left = process.platform === 'win32' ? normalizedScope.toLowerCase() : normalizedScope;
   const right = process.platform === 'win32' ? changedPath.toLowerCase() : changedPath;

@@ -195,6 +195,21 @@ test('dirty and committed paths outside writeScope block readiness', (t) => {
   assert.deepEqual(committed.baseline.committedChangedPaths, ['outside-committed.txt']);
 });
 
+test('an exact-file scope never broadens to newly created descendants', (t) => {
+  const f = fixture(t);
+  saveTask(f, taskRecord({ writeScope: ['src/new.ts'] }));
+  assert.equal(runPreflight(f).status, 'READY', 'missing file scope is valid');
+  mkdirSync(path.join(f.repo, 'src', 'new.ts'));
+  writeFileSync(path.join(f.repo, 'src', 'new.ts', 'child.txt'), 'unscoped child\n');
+  assert.equal(runPreflight(f).status, 'BLOCKED_SCOPE');
+  saveTask(f, taskRecord({ writeScope: ['src/new.ts/'] }));
+  assert.equal(runPreflight(f).status, 'READY', 'explicit directory scope authorizes children');
+  rmSync(path.join(f.repo, 'src', 'new.ts'), { recursive: true });
+  writeFileSync(path.join(f.repo, 'src', 'new.ts'), 'the intended exact file\n');
+  saveTask(f, taskRecord({ writeScope: ['src/new.ts'] }));
+  assert.equal(runPreflight(f).status, 'READY');
+});
+
 test('task source path and symlink escapes are blocked', (t) => {
   const f = fixture(t);
   saveTask(f, taskRecord());
