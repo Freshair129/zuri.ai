@@ -3,7 +3,7 @@ status: active
 superseded_by: null
 ---
 
-## Current coding-delivery policy — autonomous v2 (2026-10-14)
+## Current coding-delivery policy — autonomous v3 (2026-10-14)
 
 Use the active autonomous coding-delivery procedure in
 [`WORKFLOW-POLICY.md`](docs/architecture/delivery-control/WORKFLOW-POLICY.md)
@@ -18,6 +18,21 @@ orchestration, audit, integration and final disposition; role-to-model bindings
 come from the contract. Keep worker, verifier and reviewer sessions distinct
 and follow its single source for role assignments, gates, concurrency and
 lineage budgets.
+
+Before reserving a sealed G0 evaluation or control-plane successor, Sol prepares
+the candidate using `tools/delivery-control/prepare-g0.mjs` and the active
+policy's bounded preparation allowance. The helper requires the stable CLI
+lineage and atomically reserves a shared append-only attempt before reading
+candidate files; malformed JSON still consumes capacity. Root first verifies
+terminal eligibility, full history, original deadline and no-progress budget.
+Invalid drafts consume preparation and
+no-progress capacity, not execution repair capacity. A structural preparation
+receipt is `PREPARED_NOT_ADMITTED`: root still verifies trusted authority,
+actual pins, environment, scope and remaining history before G0 or dispatch.
+Use create-only publication after validation and byte read-back; never write an
+admission with an unchecked shell object or overwrite evidence. Preparation is
+bounded by the original lineage deadline. Existing terminal dispositions and
+reservations remain unchanged; a policy upgrade does not unlock old work.
 
 The direct current user task or standing delegation already evidenced in trusted
 conversation or harness context is sufficient authority provenance. Root records
@@ -744,6 +759,11 @@ supersedes routine human approval gates for in-scope work, and requires
 trusted-mandate dispatch binding; preserves historical packet dispositions and
 repository authority boundaries. Corrects the generated-corpus instruction to
 ADR-081.
+
+Version diff (2026-10-14, v3): requires bounded draft preparation before sealed
+G0 reservations and create-only validated structural receipts, preventing draft
+construction errors from consuming execution repair capacity. Preserves trusted
+authority checks, execution budgets and all previous terminal dispositions.
 
 Version diff (2026-10-05): adds the owner-approved PM task resume pointer to Document 20 entry point and §5 rule-check; source selection is recorded in the analysis-branch adoption receipt. Existing authority, candidate S-01 lifecycle and execution gates are unchanged.
 

@@ -1,10 +1,10 @@
 # Coding-delivery workflow policy
 
-**Status:** Active autonomous agent procedure, version 2, adopted at owner
+**Status:** Active autonomous agent procedure, version 3, adopted at owner
 direction on 2026-10-14. The sole machine-readable authority for role bindings,
 gates, concurrency and finite limits is
 [`contracts/model-policy.json`](contracts/model-policy.json). This procedure
-does not establish that a durable controller or ledger has shipped. A local
+does not establish that a durable workflow controller or full ledger has shipped. A local
 contract validator exists; its structural result is not an authorization
 receipt.
 
@@ -180,6 +180,60 @@ that lineage while unrelated eligible work proceeds.
 
 ## Packet preflight and evidence
 
+### Bounded preparation before sealed G0
+
+Sol first constructs the packet and its strict `g0-preparation/v1` sidecar as
+drafts. Confirm eligibility, prior lineage history, the original deadline and
+no-progress budget before invoking
+[`prepare-g0.mjs`](../../../tools/delivery-control/prepare-g0.mjs). The tool
+validates the existing v1 packet and dependency byte proofs, binds its exact
+digest, lineage and active policy, and requires one structured command proof
+for every acceptance criterion. The sidecar stays beside the packet; it does
+not add unrecognized fields to the sealed v1 contracts.
+
+A malformed draft, missing command proof or failed local publication consumes
+the finite preparation allowance and no-progress budget. It does not consume a
+sealed G0 evaluation, control-plane successor, worker submission or acceptance
+repair. Batch diagnosed draft defects before the next preparation attempt.
+Record the original candidate, failure class and semantic input digest; syntax
+changes alone do not establish progress. Root retains failed drafts and
+diagnostics in private append-only history. The helper requires the stable CLI
+lineage and atomically claims a create-exclusive reservation before opening
+candidate files; malformed JSON still consumes capacity. Flat slots in the shared
+git-common-dir are keyed by SHA-256 lineage ID and sequence number, with no
+per-lineage directory initialization. They are never overwritten, deleted or
+refunded. Contiguous valid history is required; corrupt, ambiguous or exhausted
+history blocks candidate reads. Competing claims fail without waiting or retry
+loops. Policy upgrades cannot raise a ledger's original cap. The helper enforces
+preparation attempts only; root still enforces the original deadline, no-progress
+budget and terminal eligibility. Missing full lineage history blocks the task;
+absence of preparation slots never proves the task has no previous failures.
+
+Successful preparation is `PREPARED_NOT_ADMITTED`, never G0 PASS. Before reserving
+and evaluating sealed G0, root still proves trusted mandate provenance and
+authority binding, actual baseline/pins, complete read closure, environment and
+command capability, role sessions, scoped effects, remaining budgets and the
+original deadline. If any of those checks fails after sealing, use the existing
+bounded failure routes. Preparation cannot reclassify a sealed failure, refund
+a reservation or revive a terminal lineage.
+
+For publication, the helper serializes a validated record, parses it again,
+checks its semantic digest, writes and fsyncs a private temporary file, and
+compares the bytes read back before linking it to a new final receipt name.
+The same-directory hard link is create-only: an existing receipt is never
+overwritten. Unsupported filesystems fail closed; there is no rename or copy
+fallback. A failure after publication may have an effect: reconcile the exact
+private path read-only before any retry and retain published evidence. This
+protects against publishing `null` or partial JSON as an admission. It does not
+claim a durable workflow controller, full counter ledger or crash-proof storage exists.
+
+The machine policy owns the preparation cap. Every validation/publication
+attempt, including failures, consumes it; the shared no-progress rule and run
+deadline also apply. Exhaustion produces one terminal typed blocker, then
+independent work continues. No new approval, renamed packet or repeated prompt
+restarts that task. Existing terminal histories retain their original counts;
+this change applies only to new or still-eligible lineages.
+
 Read scope and write scope are separate. Before dispatch, derive and validate
 the complete read-set closure for repository instructions, dependencies, every
 required startup/source/policy pin, prior receipts and expected-missing paths.
@@ -229,7 +283,8 @@ upgrading this policy never resets a counter. The single authority for all caps
 and deadlines is `contracts/model-policy.json`; do not restate numeric limits
 here or create per-node increases.
 
-Anchor the run deadline at the first G0 attempt for the lineage, the node
+Anchor the run deadline at the first draft preparation or G0 attempt for the
+lineage, whichever happened first, preserving any earlier recorded anchor. Anchor the node
 deadline at its first dispatch, and each bounded wait at that wait's start.
 Repairs, same-lineage successors and resumes preserve the original deadline
 anchors. A new independent task has its own lineage and anchors.
@@ -270,3 +325,8 @@ and command evidence rules, and global finite lineage budgets. Preserves
 historical WF00 receipts, source pins, product authority and all
 existing production and Supabase prohibitions. This is policy documentation,
 not a claim that a runtime controller or durable ledger was installed.
+
+Version diff (2026-10-14, v3): introduces a finite draft preparation stage and
+strict command-proof sidecar before sealed G0, with create-only receipt tooling.
+Draft errors no longer spend execution successor capacity; sealed reservations,
+terminal histories, authority scope and downstream gates retain their meaning.
