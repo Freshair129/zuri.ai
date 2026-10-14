@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
 import { COMMERCE_TABS } from '@/lib/module-tabs'
+import { selfVerificationRefusalMessage } from '@/lib/self-verification-ui'
 import { useScope } from '@/context/ScopeContext'
 import { PAYMENT_KINDS, PAYMENT_METHODS, SALES_ORDER_ACTIONS, SALES_ORDER_ORIGINS } from '@/lib/validation/enums'
 
@@ -13,6 +14,7 @@ import { PAYMENT_KINDS, PAYMENT_METHODS, SALES_ORDER_ACTIONS, SALES_ORDER_ORIGIN
 //   money figure comes from the server's read, never from the page.
 // @req FR-163 — record a payment or refund on an order (PENDING) and verify or
 //   reject it; the order's paid / balance / payment state follow.
+// @req FR-196 — self-verification stays refused unless this payment explicitly opts in.
 // @spec ADR-065; SEC-001 — every request names the selected Business as a
 //   selector the server validates against the trusted viewer.
 // @tested tests/e2e/fr166-commerce-orders.spec.js, tests/unit/commerce-routes.test.js
@@ -20,7 +22,7 @@ import { PAYMENT_KINDS, PAYMENT_METHODS, SALES_ORDER_ACTIONS, SALES_ORDER_ORIGIN
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
   const result = await response.json()
-  if (!response.ok) throw new Error(result.issues?.join(' · ') || result.error || 'Request failed')
+  if (!response.ok) throw new Error(selfVerificationRefusalMessage(result.error) || result.issues?.join(' · ') || result.error || 'Request failed')
   return result
 }
 
@@ -66,6 +68,7 @@ export default function CommerceOrdersPage() {
   const [form, setForm] = useState({ origin: 'WALK_IN', conversationId: '', discount: '', notes: '' })
   const [lines, setLines] = useState([emptyLine()])
   const [pay, setPay] = useState({ kind: 'PAYMENT', method: 'TRANSFER', amount: '', bankReference: '', note: '' })
+  const [paymentSelfAttestations, setPaymentSelfAttestations] = useState({})
   const bind = (state, set) => (name) => ({ name, value: state[name] ?? '', onChange: (e) => set((f) => ({ ...f, [name]: e.target.value })) })
   const bindForm = bind(form, setForm)
   const bindPay = bind(pay, setPay)
@@ -84,6 +87,13 @@ export default function CommerceOrdersPage() {
 
   useEffect(() => { refresh().catch((err) => setError(err.message)) }, [refresh])
 
+  useEffect(() => {
+    setOpenId(null)
+    setPaymentSelfAttestations({})
+  }, [businessId])
+
+  useEffect(() => { setPaymentSelfAttestations({}) }, [openId])
+
   async function run(fn) {
     if (!businessId || busy) return
     setBusy(true); setError(''); setMessage('')
@@ -93,6 +103,21 @@ export default function CommerceOrdersPage() {
   }
 
   const setLine = (i, name, value) => setLines((ls) => ls.map((l, idx) => (idx === i ? { ...l, [name]: value } : l)))
+  const selectOrder = (orderId) => {
+    const nextId = openId === orderId ? null : orderId
+    setOpenId(nextId)
+    setPaymentSelfAttestations({})
+  }
+  const setPaymentSelfAttested = (payment, checked) => setPaymentSelfAttestations((current) => {
+    const next = { ...current }
+    if (checked) next[payment.id] = { businessId, orderId: openId }
+    else delete next[payment.id]
+    return next
+  })
+  const isPaymentSelfAttested = (payment) => {
+    const attestation = paymentSelfAttestations[payment.id]
+    return attestation?.businessId === businessId && attestation?.orderId === openId
+  }
   const create = () => run(async () => {
     const order = await api('/api/commerce/orders', 'POST', {
       businessId, origin: form.origin, ...(form.conversationId ? { conversationId: form.conversationId } : {}),
@@ -120,12 +145,21 @@ export default function CommerceOrdersPage() {
   })
 
   const verify = (payment, action) => run(async () => {
-    const result = await api(`/api/commerce/payments/${payment.id}`, 'PATCH', { action, version: payment.version })
+    const selfVerifyAttested = action === 'VERIFY' && isPaymentSelfAttested(payment)
+    const result = await api(`/api/commerce/payments/${payment.id}`, 'PATCH', {
+      action, version: payment.version,
+      ...(selfVerifyAttested ? { selfVerifyAttested: true } : {}),
+    })
+    setPaymentSelfAttestations((current) => {
+      const next = { ...current }
+      delete next[payment.id]
+      return next
+    })
     return `${result.payment.code}: ${PAY_STATUS_LABEL[result.payment.status]} · ออเดอร์ ${result.order.code} ${PAY_STATE_LABEL[result.order.paymentState]}`
   })
 
   const columns = [
-    { key: 'code', label: 'รหัส', render: (o) => <button type="button" className="font-mono text-xs underline" onClick={() => setOpenId(openId === o.id ? null : o.id)}>{o.code}</button> },
+    { key: 'code', label: 'รหัส', render: (o) => <button type="button" className="font-mono text-xs underline" onClick={() => selectOrder(o.id)}>{o.code}</button> },
     { key: 'customer', label: 'ลูกค้า', render: (o) => o.customer?.displayName || '—' },
     { key: 'origin', label: 'ที่มา', render: (o) => ORIGIN_LABEL[o.origin] || o.origin },
     { key: 'total', label: 'ยอดรวม', render: (o) => baht(o.total) },
@@ -181,9 +215,20 @@ export default function CommerceOrdersPage() {
         { key: 'amount', label: 'จำนวนเงิน', render: (p) => baht(p.amount) },
         { key: 'bankReference', label: 'อ้างอิงธนาคาร', render: (p) => p.bankReference || '—' },
         { key: 'status', label: 'สถานะ', render: (p) => PAY_STATUS_LABEL[p.status] },
-        { key: 'actions', label: '', render: (p) => p.status === 'PENDING' ? <div className="flex gap-1">
-          <button type="button" className="btn btn-primary px-2 py-1 text-xs" disabled={busy} onClick={() => verify(p, 'VERIFY')}>ตรวจแล้ว</button>
-          <button type="button" className="btn px-2 py-1 text-xs" disabled={busy} onClick={() => verify(p, 'REJECT')}>ปฏิเสธ</button>
+        { key: 'actions', label: '', render: (p) => p.status === 'PENDING' ? <div className="grid gap-2">
+          <label className="flex items-start gap-2 text-xs font-normal">
+            <input
+              type="checkbox"
+              aria-label={`ยืนยันตรวจการชำระ ${p.code} ด้วยตนเอง`}
+              checked={isPaymentSelfAttested(p)}
+              onChange={(e) => setPaymentSelfAttested(p, e.target.checked)}
+            />
+            <span>ฉันเป็นผู้บันทึก {p.code} และยืนยันตรวจรายการนี้ด้วยตนเอง การเลือกนี้ใช้กับรายการนี้ครั้งเดียวและบันทึกไว้ในประวัติ</span>
+          </label>
+          <div className="flex gap-1">
+            <button type="button" className="btn btn-primary px-2 py-1 text-xs" disabled={busy} onClick={() => verify(p, 'VERIFY')}>ตรวจแล้ว</button>
+            <button type="button" className="btn px-2 py-1 text-xs" disabled={busy} onClick={() => verify(p, 'REJECT')}>ปฏิเสธ</button>
+          </div>
         </div> : null },
       ]} rows={open.payments} rowKey={(p) => p.id} empty={<p className="text-sm text-muted">ยังไม่มีการชำระ</p>} />
       {open.status !== 'CANCELLED' && <fieldset disabled={busy} className="mt-4 grid gap-3 md:grid-cols-5">

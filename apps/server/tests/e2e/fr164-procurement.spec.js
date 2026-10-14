@@ -84,27 +84,72 @@ test('FR-164/FR-165 — a supplier, a purchase order and two receipts on the Pro
   await row().getByRole('button', { name: 'ส่งให้ผู้ขาย', exact: true }).click()
   await expect(row()).toContainText('ส่งผู้ขายแล้ว')
 
-  // FR-196: the receiver is not the person who created the PO.
+  // A second sent order checks that a self-receipt choice cannot carry across
+  // records. It remains untouched so the final stock total comes from the first order.
+  await page.getByLabel('รายการ 1', { exact: true }).fill(`ทดสอบรีเซ็ต ${tag}`)
+  await page.getByLabel('ต้นทุน 1', { exact: true }).fill('1')
+  const secondOrderCreated = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().endsWith('/api/procurement/purchase-orders'))
+  await page.getByRole('button', { name: 'สร้างใบสั่งซื้อ', exact: true }).click()
+  expect((await secondOrderCreated).ok()).toBe(true)
+  const secondCode = (await status.textContent()).match(/PO-\d{8}-\d{3}/)[0]
+  const secondRow = () => page.getByRole('row').filter({ hasText: secondCode })
+  await secondRow().getByRole('button', { name: 'ส่งให้ผู้ขาย', exact: true }).click()
+  await expect(secondRow()).toContainText('ส่งผู้ขายแล้ว')
+
+  const attestation = (poCode) => page.getByRole('checkbox', { name: `ยืนยันรับของใบสั่งซื้อ ${poCode} ด้วยตนเอง` })
+  await row().getByRole('button', { name: code }).click()
+  await expect(attestation(code)).not.toBeChecked()
+  await attestation(code).check()
+  await secondRow().getByRole('button', { name: secondCode }).click()
+  await expect(attestation(secondCode)).not.toBeChecked()
+  await row().getByRole('button', { name: code }).click()
+  await expect(attestation(code)).not.toBeChecked()
+
+  // FR-196: the creator's default receipt attempt is refused with no opt-in.
+  await page.getByLabel('รับเข้า 1', { exact: true }).fill('1')
+  await page.getByLabel('เลขที่ใบส่งของ', { exact: true }).fill(`DN-${tag}-SELF`)
+  const defaultSelfReceipt = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes('/receipts'))
+  await page.getByRole('button', { name: 'บันทึกรับของ', exact: true }).click()
+  const refusedReceipt = await defaultSelfReceipt
+  expect(refusedReceipt.status()).toBe(409)
+  expect(refusedReceipt.request().postDataJSON()).not.toHaveProperty('selfVerifyAttested')
+  await expect(page.locator('p[role="alert"]')).toContainText('ให้ผู้ใช้อื่นบันทึกรับของ')
+  await expect(attestation(code)).not.toBeChecked()
+
+  // Explicit consent applies to this one receipt and is cleared after posting.
+  await attestation(code).check()
+  const selfReceipt = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes('/receipts'))
+  await page.getByRole('button', { name: 'บันทึกรับของ', exact: true }).click()
+  const postedSelfReceipt = await selfReceipt
+  expect(postedSelfReceipt.ok()).toBe(true)
+  expect(postedSelfReceipt.request().postDataJSON()).toMatchObject({ selfVerifyAttested: true })
+  await expect(status).toContainText(/บันทึกรับของ GRN-\d{8}-\d{3} · PO-\d{8}-\d{3} รับบางส่วน/)
+  await expect(attestation(code)).not.toBeChecked()
+
   const scope = await readScope(page.request)
   const receiver = await signUpBusinessActor(request, scope.businesses.find((b) => b.code === 'BUS-001').id)
   await switchBusinessActor(page, receiver)
 
-  // First receipt: three boxes — partially received, the Warehouse holds three.
+  // The separate receiver posts three boxes without consent.
   await row().getByRole('button', { name: code }).click()
   await page.getByLabel('รับเข้า 1', { exact: true }).fill('3')
   await page.getByLabel('เลขที่ใบส่งของ', { exact: true }).fill(`DN-${tag}-1`)
   const firstReceipt = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes('/receipts'))
   await page.getByRole('button', { name: 'บันทึกรับของ', exact: true }).click()
-  expect((await firstReceipt).ok()).toBe(true)
+  const postedOtherReceipt = await firstReceipt
+  expect(postedOtherReceipt.ok()).toBe(true)
+  expect(postedOtherReceipt.request().postDataJSON()).not.toHaveProperty('selfVerifyAttested')
   await expect(status).toContainText(/บันทึกรับของ GRN-\d{8}-\d{3} · PO-\d{8}-\d{3} รับบางส่วน/)
   await expect(row()).toContainText('รับบางส่วน')
 
-  // Second receipt: the last two boxes and the freight — the order is received and leaves the open list.
-  await page.getByLabel('รับเข้า 1', { exact: true }).fill('2')
+  // The last box and freight complete the order and persist all five SKU units.
+  await page.getByLabel('รับเข้า 1', { exact: true }).fill('1')
   await page.getByLabel('รับเข้า 2', { exact: true }).fill('1')
   const secondReceipt = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes('/receipts'))
   await page.getByRole('button', { name: 'บันทึกรับของ', exact: true }).click()
-  expect((await secondReceipt).ok()).toBe(true)
+  const postedFinalReceipt = await secondReceipt
+  expect(postedFinalReceipt.ok()).toBe(true)
+  expect(postedFinalReceipt.request().postDataJSON()).not.toHaveProperty('selfVerifyAttested')
   await expect(status).toContainText('รับครบ')
   await expect(row()).toHaveCount(0)
   await page.getByRole('button', { name: 'ทั้งหมด', exact: true }).click()

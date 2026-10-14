@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
 import { PROCUREMENT_TABS } from '@/lib/module-tabs'
+import { selfVerificationRefusalMessage } from '@/lib/self-verification-ui'
 import { useScope } from '@/context/ScopeContext'
 import { PURCHASE_ORDER_ACTIONS } from '@/lib/validation/enums'
 
@@ -14,6 +15,7 @@ import { PURCHASE_ORDER_ACTIONS } from '@/lib/validation/enums'
 // @req FR-165 — post a goods receipt against a sent order, line by line (a
 //   lot code and expiry for a LOT-tracked SKU, serials for a SERIAL-tracked
 //   one), and see the order's receipt state and the Warehouse's on-hand follow.
+// @req FR-196 — self-receipt stays refused unless this receipt explicitly opts in.
 // @spec ADR-066; SEC-001 — every request names the selected Business as a
 //   selector the server validates against the trusted viewer.
 // @tested tests/e2e/fr164-procurement.spec.js, tests/unit/procurement-routes.test.js
@@ -21,7 +23,7 @@ import { PURCHASE_ORDER_ACTIONS } from '@/lib/validation/enums'
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
   const result = await response.json()
-  if (!response.ok) throw new Error(result.issues?.join(' · ') || result.error || 'Request failed')
+  if (!response.ok) throw new Error(selfVerificationRefusalMessage(result.error) || result.issues?.join(' · ') || result.error || 'Request failed')
   return result
 }
 
@@ -63,6 +65,7 @@ export default function PurchaseOrdersPage() {
   const [form, setForm] = useState({ supplierId: '', expectedAt: '', notes: '' })
   const [lines, setLines] = useState([emptyLine()])
   const [receipt, setReceipt] = useState({ supplierReference: '', lines: {} })
+  const [receiptSelfAttestation, setReceiptSelfAttestation] = useState(null)
   const bindForm = (name) => ({ name, value: form[name] ?? '', onChange: (e) => setForm((f) => ({ ...f, [name]: e.target.value })) })
 
   const refresh = useCallback(async () => {
@@ -80,6 +83,12 @@ export default function PurchaseOrdersPage() {
 
   useEffect(() => { refresh().catch((err) => setError(err.message)) }, [refresh])
 
+  useEffect(() => {
+    setOpenId(null)
+    setReceipt({ supplierReference: '', lines: {} })
+    setReceiptSelfAttestation(null)
+  }, [businessId])
+
   async function run(fn) {
     if (!businessId || busy) return
     setBusy(true); setError(''); setMessage('')
@@ -90,6 +99,12 @@ export default function PurchaseOrdersPage() {
 
   const setLine = (i, name, value) => setLines((ls) => ls.map((l, idx) => (idx === i ? { ...l, [name]: value } : l)))
   const setReceiptLine = (lineId, name, value) => setReceipt((r) => ({ ...r, lines: { ...r.lines, [lineId]: { ...(r.lines[lineId] || {}), [name]: value } } }))
+  const selectOrder = (orderId) => {
+    const nextId = openId === orderId ? null : orderId
+    setOpenId(nextId)
+    setReceipt({ supplierReference: '', lines: {} })
+    setReceiptSelfAttestation(null)
+  }
 
   const create = () => run(async () => {
     const order = await api('/api/procurement/purchase-orders', 'POST', {
@@ -111,7 +126,11 @@ export default function PurchaseOrdersPage() {
 
   const post = (order) => run(async () => {
     const entries = Object.entries(receipt.lines).filter(([, v]) => Number(v.qty) > 0)
+    const selfVerifyAttested = receiptSelfAttestation?.businessId === businessId
+      && receiptSelfAttestation?.orderId === order.id
+      && receiptSelfAttestation?.checked === true
     const result = await api(`/api/procurement/purchase-orders/${order.id}/receipts`, 'POST', {
+      ...(selfVerifyAttested ? { selfVerifyAttested: true } : {}),
       ...(receipt.supplierReference ? { supplierReference: receipt.supplierReference } : {}),
       lines: entries.map(([purchaseOrderLineId, v]) => ({
         purchaseOrderLineId, qty: Number(v.qty),
@@ -120,11 +139,12 @@ export default function PurchaseOrdersPage() {
       })),
     })
     setReceipt({ supplierReference: '', lines: {} })
+    setReceiptSelfAttestation(null)
     return `บันทึกรับของ ${result.receipt.code} · ${result.order.code} ${RECEIPT_STATE_LABEL[result.order.receiptState]}`
   })
 
   const columns = [
-    { key: 'code', label: 'รหัส', render: (o) => <button type="button" className="font-mono text-xs underline" onClick={() => setOpenId(openId === o.id ? null : o.id)}>{o.code}</button> },
+    { key: 'code', label: 'รหัส', render: (o) => <button type="button" className="font-mono text-xs underline" onClick={() => selectOrder(o.id)}>{o.code}</button> },
     { key: 'supplier', label: 'ผู้ขาย', render: (o) => o.supplier?.name || '—' },
     { key: 'total', label: 'ยอดรวม', render: (o) => baht(o.total) },
     { key: 'receiptState', label: 'การรับของ', render: (o) => <span style={{ color: o.receiptState === 'COMPLETE' ? 'var(--success)' : 'inherit' }}>{RECEIPT_STATE_LABEL[o.receiptState]}{o.receiptState !== 'NONE' ? ` (${baht(o.receivedValue)})` : ''}</span> },
@@ -140,6 +160,10 @@ export default function PurchaseOrdersPage() {
   const open = data?.orders.find((o) => o.id === openId)
   const receivable = open?.status === 'SENT'
   const anyQty = Object.values(receipt.lines).some((v) => Number(v.qty) > 0)
+  const receiptAttestationChecked = Boolean(open
+    && receiptSelfAttestation?.businessId === businessId
+    && receiptSelfAttestation?.orderId === open.id
+    && receiptSelfAttestation?.checked)
 
   return <div>
     <ModuleTabs tabs={PROCUREMENT_TABS} />
@@ -200,6 +224,15 @@ export default function PurchaseOrdersPage() {
           <Input label="เลขที่ใบส่งของ" placeholder="เลขที่ใบส่งของ / ใบกำกับของผู้ขาย" value={receipt.supplierReference} onChange={(e) => setReceipt((r) => ({ ...r, supplierReference: e.target.value }))} />
           <div className="flex items-end"><button type="button" className="btn btn-primary" onClick={() => post(open)} disabled={busy || !anyQty}>บันทึกรับของ</button></div>
         </div>
+        <label className="flex items-start gap-2 text-xs font-normal">
+          <input
+            type="checkbox"
+            aria-label={`ยืนยันรับของใบสั่งซื้อ ${open.code} ด้วยตนเอง`}
+            checked={receiptAttestationChecked}
+            onChange={(e) => setReceiptSelfAttestation({ businessId, orderId: open.id, checked: e.target.checked })}
+          />
+          <span>ฉันสร้างใบสั่งซื้อ {open.code} และยืนยันรับของด้วยตนเองสำหรับครั้งนี้ การเลือกนี้ใช้กับใบรับของครั้งนี้เท่านั้นและบันทึกไว้ในประวัติ</span>
+        </label>
       </fieldset>}
     </Card>}
 
