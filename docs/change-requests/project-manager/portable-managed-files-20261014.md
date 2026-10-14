@@ -6,15 +6,6 @@ superseded_by: null
 version: "0.1.0"
 date: "2026-10-14"
 risk: HIGH
-relations:
-  - type: relates_to
-    target: ZAI:FR-045
-  - type: relates_to
-    target: ZAI:SDD-023
-  - type: relates_to
-    target: ZAI:SEC-007
-  - type: relates_to
-    target: ZAI:ADR-016
 ---
 
 # Portable managed file content
