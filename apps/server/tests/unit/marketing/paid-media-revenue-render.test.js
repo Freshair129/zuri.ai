@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createElement } from 'react'
+import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+
+globalThis.React = React
 
 // @req FR-185 — render verified Commerce revenue from the owner DTO without changing its baht units.
 // @spec ADR-065, FR-163
