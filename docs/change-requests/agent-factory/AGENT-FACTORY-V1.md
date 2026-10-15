@@ -1,5 +1,5 @@
 ---
-version: "0.1.2"
+version: "0.1.3"
 status: approved
 task_id: TASK-ZAI-009
 ---
@@ -99,6 +99,10 @@ select an internal authorization bypass.
    Existing installation backup export/restore preserves this persisted config
    after its Business, including timestamps/content and the existing apply audit,
    without replaying factory apply or silently discarding configuration.
+   If a legacy snapshot omits the configuration table while the installation
+   contains configs, preview/import refuse before destructive replacement and import rechecks
+   inside its replacement transaction. Empty installations may still accept
+   legacy snapshots without implicitly creating a config.
 
 ## Task boundary
 
@@ -122,12 +126,14 @@ No existing source-row hash or generated export was edited manually.
 
 The review hash below covers the earlier private v1 design, not this later
 revision text or runtime patch. Root adopted the v0.1.1 error clarification and
-v0.1.2 backup criterion under the same delegated mandate. Independent final
+v0.1.2/v0.1.3 backup criterion under the same delegated mandate. Independent final
 verification/review must bind the complete artifact head before merge.
 
 Root disposition on 2026-10-15 under the current trusted user mandate and standing in-scope product/technical delegation. The independent Luna reviewer passed the source design at SHA-256 0396B6AE4800EB70ED713A0A8873DEC493B8A462A9CDC4DC90218247B072650C after three bounded findings were corrected. Root adopts these eight criteria for local repository implementation; no production/Supabase migration apply, provider credentials, live-agent activation or bulk backfill is admitted. The user did not separately approve this exact document; root records the delegated decision explicitly.
 
 ## Version diff
+
+0.1.2 -> 0.1.3: makes the no-silent-discard backup guarantee explicit for legacy snapshots missing the config table while live configs exist, including a transaction-side race recheck. Empty-target compatibility and operator restore authority remain unchanged.
 
 0.1.1 -> 0.1.2: adds the existing installation backup round-trip invariant to persistence acceptance after strict governance exposed the new model's missing snapshot integration. Root admits a corrected bounded cycle under the same Task9 identity with prior repair history retained; no restore authority or external migration permission changes.
 

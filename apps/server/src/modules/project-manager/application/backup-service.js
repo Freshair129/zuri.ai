@@ -1771,9 +1771,33 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   requireViewer(viewer, 'backup restore')
   assertOperator(viewer, RESTORE_DENIED)
   await assertMarketingReportBackupSafe(db, snapshot)
-  if (!nested) await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
   const base = previewSnapshot(snapshot, { remounts })
-  if (!base.valid) return base
+  if (!base.valid) {
+    if (!nested) await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
+    return base
+  }
+  // A legacy 1.0 artifact can be read and restored on an installation that has
+  // no Business agent config yet. Once rows exist, silently treating the
+  // absent table as [] would erase the config and its attributed audit event.
+  // Refuse before destructive replacement; the authorized preview still
+  // records operator use under FR-197, including a protected-data refusal.
+  if (!Array.isArray(snapshot?.tables?.businessAgentConfig)) {
+    const liveConfigCount = await db.businessAgentConfig.count()
+    if (liveConfigCount > 0) {
+      if (!nested) await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
+      const message = 'Business agent configuration recovery is unavailable while the installation contains configuration rows; refusing a restore that would erase them'
+      return {
+        ...base,
+        valid: false,
+        errorCode: 'BACKUP_BUSINESS_AGENT_CONFIG_RECOVERY_UNAVAILABLE',
+        errors: [message],
+        businessAgentConfigRecovery: { status: 'UNAVAILABLE', liveConfigCount },
+        current: { businessAgentConfig: liveConfigCount },
+        wouldReplace: true,
+      }
+    }
+  }
+  if (!nested) await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
   const billing = commerceBillingRecovery(snapshot)
   const marketingBroadcast = marketingBroadcastRecovery(snapshot)
   const inventory = inventoryStocktakeRecovery(snapshot)
@@ -1869,6 +1893,12 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
  * turn into a silent wipe.
  */
 async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
+  if (!Array.isArray(snapshot?.tables?.businessAgentConfig) && await tx.businessAgentConfig.count() > 0) {
+    throw new BackupRestoreSafetyError(
+      'BACKUP_BUSINESS_AGENT_CONFIG_LIVE_DATA_APPEARED',
+      'Business agent configuration recovery became unavailable while BusinessAgentConfig gained live rows; refusing to erase them',
+    )
+  }
   const artifactStorage = knowledgeArtifactStorageRecoveryManifest(snapshot)
   if (artifactStorage.errors.length) throw new BackupRestoreSafetyError('BACKUP_KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_INVALID', artifactStorage.errors.join('; '))
   if (artifactStorage.recovery.status === 'UNAVAILABLE') {
