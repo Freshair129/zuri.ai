@@ -54,11 +54,13 @@ export async function runCodexRole({ executable, role, worktree, artifactDir, pr
   let callbackError = null;
   let callbacks = Promise.resolve();
   let disposed = false;
+  let processExited = false;
   let releaseWait;
   let stopTimer;
   const stopped = new Promise((resolve) => { releaseWait = resolve; });
   const stop = () => {
     if (stopTimer) return;
+    if (processExited) { releaseWait({ code: null, signal: 'STOP_AFTER_EXIT' }); return; }
     stopTimer = setTimeout(() => {
       if (child?.pid && process.platform !== 'win32') { try { process.kill(-child.pid, 'SIGKILL'); } catch {} }
       releaseWait({ code: null, signal: 'STOP_DEADLINE' });
@@ -72,6 +74,8 @@ export async function runCodexRole({ executable, role, worktree, artifactDir, pr
   try {
     child = spawnProcess(executable, args, { cwd: worktree, shell: false, windowsHide: true, detached: process.platform !== 'win32',
       env: backendEnvironment(), stdio: ['pipe', 'pipe', 'pipe'] });
+    child.once('exit', () => { processExited = true; });
+    child.once('close', () => { processExited = true; });
     fs.writeFileSync(path.join(artifactDir, 'process.json'), JSON.stringify({ pid: child.pid ?? null,
       startedAt: new Date().toISOString(), executable, worktree, role }));
     signal?.addEventListener('abort', stop, { once: true });
