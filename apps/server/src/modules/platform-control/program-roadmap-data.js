@@ -5,8 +5,8 @@
 
 import { ROADMAP_SOT, ROADMAP_TASK_STATUS } from './roadmap-sot'
 
-// Re-projected 2026-09-27 from the source document's own frontmatter and
-// tables (v0.4.24 → v0.4.25): the metadata below states what the
+// Re-projected 2026-10-15 from the source document's own frontmatter and
+// tables (v0.4.28 → v0.4.29): the metadata below states what the
 // DOCUMENT says about itself, never what today's git happens to be —
 // refreshing baselineCommit to "current HEAD" would falsify the plan's
 // provenance. The document's baseline moved because the document was
@@ -14,8 +14,8 @@ import { ROADMAP_SOT, ROADMAP_TASK_STATUS } from './roadmap-sot'
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
   status: 'approved',
-  version: '0.4.25',
-  updated: '2026-09-27',
+  version: '0.4.29',
+  updated: '2026-10-15',
   baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
   programmeEnd: '2027-02-07',
