@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.29"
+version: "0.4.30"
 updated: "2026-10-15"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -34,7 +34,9 @@ related_docs:
 
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
-Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+Archived historical static HTML snapshot (v0.4.9; not the current rendered board): `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.29 → 0.4.30 (2026-10-15): Reconcile the projection metadata with canonical ROADMAP.md Revision 2.154.0b and label the linked HTML as a historical v0.4.9 snapshot, not a current board. Task14 remains in-progress with its three open criteria; Task15 remains planned behind Task14. This documentation-only reconciliation claims no E2E, live-agent, provider or production validation.
 
 Version diff 0.4.28 → 0.4.29 (2026-10-15): Reconcile TASK-ZAI-014 to in-progress for the bounded Business-two delivery in PR #671, merged as 1662ede0094044d12eb019c44a476d821410c330. The merged slice preserves Tenant ownership, Membership counts and DENY configuration while proving Business switching and CRM visibility in isolated evidence; it does not satisfy the full task. SmartGift-sentinel isolation across all readers, live-agent behavior after switching Business and Business-specific generic private memory remain open. Exact-head hosted Governance and Edge passed; hosted E2E/Desktop were skipped. Keep the corresponding Task Container criteria unchecked and TASK-ZAI-015 planned behind Task14. Recompute phase and sprint progress from the 123 canonical task rows using the documented status mapping.
 

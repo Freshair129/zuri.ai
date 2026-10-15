@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.153.0b"
+version: "2.154.0b"
 updated: "2026-10-15"
 owner: "Owen"
 source_of_truth: true
