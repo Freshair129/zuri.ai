@@ -690,3 +690,661 @@ export async function prepareBaseAdvancedResume({ repoRoot, privateRoot, stateRo
     result, resultFile: reconciliationFile, reason });
   return { status: 'READY_TO_RESUME', ...saved };
 }
+
+function rootOnlyError(code) {
+  const error = new Error(code);
+  error.code = code;
+  return error;
+}
+
+function rootOnlyAssert(condition, code) {
+  if (!condition) throw rootOnlyError(code);
+}
+
+function ensurePrivateDirectory(privateRoot, target) {
+  const root = fs.realpathSync(privateRoot);
+  rootOnlyAssert(samePath(path.resolve(privateRoot), root), 'ROOT_ONLY_PRIVATE_PATH_REDIRECTED');
+  const absoluteTarget = path.resolve(target);
+  rootOnlyAssert(within(root, absoluteTarget), 'ROOT_ONLY_PRIVATE_PATH_INVALID');
+  let current = root;
+  for (const segment of path.relative(root, absoluteTarget).split(path.sep).filter(Boolean)) {
+    current = path.join(current, segment);
+    let stat;
+    try { stat = fs.lstatSync(current); }
+    catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+      fs.mkdirSync(current);
+      stat = fs.lstatSync(current);
+    }
+    rootOnlyAssert(!stat.isSymbolicLink() && stat.isDirectory() && samePath(fs.realpathSync(current), current),
+      'ROOT_ONLY_PRIVATE_PATH_REDIRECTED');
+  }
+  return absoluteTarget;
+}
+
+function assertPrivateFile(privateRoot, file, topDirectory, { allowMissing = false } = {}) {
+  const root = fs.realpathSync(privateRoot);
+  rootOnlyAssert(samePath(path.resolve(privateRoot), root), 'ROOT_ONLY_PRIVATE_PATH_REDIRECTED');
+  rootOnlyAssert(typeof file === 'string' && file.length > 0, 'ROOT_ONLY_PRIVATE_RECORD_PATH_INVALID');
+  const absoluteFile = path.resolve(file);
+  rootOnlyAssert(within(root, absoluteFile) && !samePath(root, absoluteFile), 'ROOT_ONLY_PRIVATE_RECORD_PATH_INVALID');
+  const segments = path.relative(root, absoluteFile).split(path.sep);
+  rootOnlyAssert(segments.length >= 2 && segments[0] === topDirectory
+    && segments.every((segment) => segment && segment !== '.' && segment !== '..'),
+  'ROOT_ONLY_PRIVATE_RECORD_PATH_INVALID');
+  let current = root;
+  for (let index = 0; index < segments.length; index++) {
+    current = path.join(current, segments[index]);
+    const final = index === segments.length - 1;
+    let stat;
+    try { stat = fs.lstatSync(current); }
+    catch (error) {
+      if (allowMissing && final && error.code === 'ENOENT') return absoluteFile;
+      throw rootOnlyError(error.code === 'ENOENT' ? 'ROOT_ONLY_PRIVATE_RECORD_MISSING' : 'ROOT_ONLY_PRIVATE_RECORD_INVALID');
+    }
+    rootOnlyAssert(!stat.isSymbolicLink() && samePath(fs.realpathSync(current), current),
+      'ROOT_ONLY_PRIVATE_RECORD_PATH_REDIRECTED');
+    rootOnlyAssert(final ? stat.isFile() : stat.isDirectory(), 'ROOT_ONLY_PRIVATE_RECORD_INVALID');
+  }
+  return absoluteFile;
+}
+
+function readPrivateJsonRecord(privateRoot, file, topDirectory) {
+  const absoluteFile = assertPrivateFile(privateRoot, file, topDirectory);
+  let bytes;
+  let value;
+  try {
+    bytes = fs.readFileSync(absoluteFile);
+    value = JSON.parse(bytes.toString('utf8').replace(/^\uFEFF/, ''));
+  } catch { throw rootOnlyError('ROOT_ONLY_PRIVATE_RECORD_INVALID'); }
+  return { file: absoluteFile, bytes, value, sha256: createHash('sha256').update(bytes).digest('hex') };
+}
+
+function writeRootOnlyArtifact(privateRoot, file, value) {
+  assertPrivateFile(privateRoot, file, 'supervisors', { allowMissing: true });
+  const saved = putImmutableJson(file, value);
+  assertPrivateFile(privateRoot, file, 'supervisors');
+  return saved;
+}
+
+function rootOnlyHold({ privateRoot, attemptDir, taskId, cycleNo, evidenceSignature, code, evidence = {} }) {
+  const hold = { schemaVersion: 'root-only-base-advanced-hold/v1', status: 'HELD', taskId,
+    cycleNo, evidenceSignature, code, evidence };
+  const contentDigest = createHash('sha256').update(JSON.stringify(hold)).digest('hex');
+  const file = path.join(attemptDir, `hold-${contentDigest}.json`);
+  try { writeRootOnlyArtifact(privateRoot, file, hold); }
+  catch (error) {
+    if (error.code === 'BASE_ADVANCED_IMMUTABLE_ARTIFACT_MISMATCH') throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+    throw error;
+  }
+  throw rootOnlyError(code);
+}
+
+function readRootOnlyArtifact(privateRoot, attemptDir, filename) {
+  const file = path.join(attemptDir, filename);
+  try {
+    assertPrivateFile(privateRoot, file, 'supervisors');
+    return readJson(file);
+  } catch (error) {
+    if (error.code === 'ROOT_ONLY_PRIVATE_RECORD_MISSING') return null;
+    if (error.code?.startsWith('ROOT_ONLY_')) throw error;
+    throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+  }
+}
+
+function rootOnlyHashedArtifact(privateRoot, attemptDir, prefix) {
+  const matches = directoryFiles(attemptDir).filter((name) => name.startsWith(prefix));
+  if (matches.length > 1) throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+  if (!matches.length) return null;
+  const name = matches[0];
+  const match = name.match(/-([a-f0-9]{64})\.json$/);
+  if (!match) throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+  const file = path.join(attemptDir, name);
+  assertPrivateFile(privateRoot, file, 'supervisors');
+  const bytes = fs.readFileSync(file);
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  if (sha256 !== match[1]) throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+  let value;
+  try { value = JSON.parse(bytes.toString('utf8').replace(/^\uFEFF/, '')); }
+  catch { throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT'); }
+  return { file, bytes, value, sha256 };
+}
+
+function putRootOnlyHashedArtifact(privateRoot, attemptDir, prefix, value) {
+  const bytes = Buffer.from(JSON.stringify(value));
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  const file = path.join(attemptDir, `${prefix}-${sha256}.json`);
+  writeRootOnlyArtifact(privateRoot, file, value);
+  return { file, sha256, value };
+}
+
+function readRootOnlyHolds(privateRoot, attemptDir, taskId, cycleNo) {
+  return directoryFiles(attemptDir).filter((name) => name.startsWith('hold-')).map((name) => {
+    const match = name.match(/^hold-([a-f0-9]{64})\.json$/);
+    if (!match) throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+    const file = path.join(attemptDir, name);
+    assertPrivateFile(privateRoot, file, 'supervisors');
+    const bytes = fs.readFileSync(file);
+    const sha256 = createHash('sha256').update(bytes).digest('hex');
+    if (sha256 !== match[1]) throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+    let value;
+    try { value = JSON.parse(bytes.toString('utf8').replace(/^\uFEFF/, '')); }
+    catch { throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT'); }
+    if (value?.schemaVersion !== 'root-only-base-advanced-hold/v1' || value.status !== 'HELD'
+        || value.taskId !== taskId || value.cycleNo !== cycleNo
+        || !/^[a-f0-9]{64}$/.test(value.evidenceSignature ?? '')
+        || typeof value.code !== 'string' || !value.code.startsWith('ROOT_ONLY_')) {
+      throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+    }
+    return { file, sha256, value };
+  });
+}
+
+function rootOnlyObservationKey({ taskId, cycleNo, admissionFile, expectedAdmissionSha256, expectedTaskSha256,
+  binding, code, observed = null, effects = null }) {
+  return digest({ taskId, cycleNo, admissionFile: admissionFile ?? null,
+    expectedAdmissionSha256: expectedAdmissionSha256 ?? null, expectedTaskSha256: expectedTaskSha256 ?? null,
+    worktree: binding?.worktree ?? null, branch: binding?.branch ?? null,
+    expectedHeadCommit: binding?.expectedCandidateHeadCommit ?? null,
+    expectedOldBaseCommit: binding?.expectedOldBaseCommit ?? null, code, observed, effects });
+}
+
+function validateRootOnlyAdmission(admission, { taskId, binding, taskFile, taskSha256,
+  expectedOldBaseCommit, expectedCandidateHeadCommit }) {
+  const cycleNo = admission?.cycle;
+  rootOnlyAssert(Number.isSafeInteger(cycleNo) && cycleNo > 1
+    && admission?.schemaVersion === 'root-execution-cycle-admission/v1'
+    && admission.taskId === taskId && Number.isSafeInteger(admission.revision) && admission.revision > 0
+    && admission.status === 'ADMITTED_NOT_DISPATCHED'
+    && admission.basis === 'MATERIAL_NEW_EVIDENCE_AND_CORRECTED_IMPLEMENTATION_PLAN'
+    && typeof admission.readinessFile === 'string' && samePath(admission.readinessFile, taskFile)
+    && /^[a-f0-9]{64}$/i.test(admission.readinessSha256 ?? '')
+    && admission.readinessSha256.toLowerCase() === taskSha256,
+  'ROOT_ONLY_ADMISSION_BINDING_INVALID');
+  const prior = admission.previousCycles?.find((cycle) => cycle.cycle === cycleNo - 1);
+  const priorOldBase = prior?.oldBaseCommit ?? prior?.oldBase;
+  const priorCandidateHead = prior?.candidateHeadCommit ?? prior?.candidateHead;
+  const priorRepairLimit = prior?.implementationRepairsLimit ?? prior?.implementationRepairLimit;
+  const priorDeadline = prior?.deadlineAtUtc ?? prior?.deadlineUtc;
+  rootOnlyAssert(typeof prior?.disposition === 'string' && prior.disposition.startsWith('PAUSED_')
+    && isCommit(priorCandidateHead) && isCommit(priorOldBase)
+    && priorCandidateHead === expectedCandidateHeadCommit && priorOldBase === expectedOldBaseCommit
+    && Number.isSafeInteger(prior.implementationRepairsUsed) && Number.isSafeInteger(priorRepairLimit)
+    && prior.implementationRepairsUsed === priorRepairLimit
+    && prior.controllerRunRows === 0 && prior.controllerCycles === 0
+    && prior.unknownEffects === 'NONE_OBSERVED'
+    && prior.publication === 'none' && prior.submission === 'none'
+    && typeof priorDeadline === 'string' && Number.isFinite(Date.parse(priorDeadline)),
+  'ROOT_ONLY_PRIOR_CYCLE_BINDING_INVALID');
+  const material = admission.materialNewEvidence;
+  const materialOldBase = material?.oldBaseCommit ?? material?.oldBase;
+  const materialCandidateHead = material?.oldCandidateHead ?? material?.candidateHead;
+  const previousWorktree = material?.cycle04Worktree ?? material?.candidateWorktree;
+  const candidateWorktree = material?.cycle05Worktree ?? material?.candidateWorktree;
+  const candidateBranch = material?.cycle05Branch ?? material?.candidateBranch;
+  rootOnlyAssert(materialOldBase === priorOldBase && materialCandidateHead === priorCandidateHead
+    && isCommit(material.currentMain) && material.oldBaseIsAncestor === true
+    && material.currentMainIsAncestorOfOldCandidate === false
+    && material.controllerRuns === 0 && material.controllerCycles === 0
+    && material.unknownEffects === 'NONE_OBSERVED'
+    && typeof previousWorktree === 'string' && typeof candidateWorktree === 'string'
+    && typeof candidateBranch === 'string'
+    && typeof binding?.worktree === 'string' && samePath(binding.worktree, candidateWorktree)
+    && binding.branch === candidateBranch
+    && !samePath(binding.worktree, previousWorktree), 'ROOT_ONLY_MATERIAL_EVIDENCE_INVALID');
+  rootOnlyAssert(admission.cumulativeNoProgress?.knownOccurrences === 1
+    && admission.cumulativeNoProgress?.limit === 2
+    && typeof admission.cumulativeNoProgress?.knownFingerprint === 'string'
+    && admission.cumulativeNoProgress.disposition?.includes('Preserve count 1 unchanged'),
+  'ROOT_ONLY_NO_PROGRESS_HISTORY_INVALID');
+  const caps = admission.newCycleCaps;
+  rootOnlyAssert(Number.isSafeInteger(caps?.maxImplementationRepairRounds) && caps.maxImplementationRepairRounds > 0
+    && Number.isSafeInteger(caps.maxSubmissionAttempts) && caps.maxSubmissionAttempts > 0
+    && Number.isSafeInteger(caps.maxToolRetries) && caps.maxToolRetries >= 0
+    && Number.isSafeInteger(caps.maxRunDurationMinutes) && caps.maxRunDurationMinutes > 0
+    && Number.isSafeInteger(caps.maxNodeDurationMinutes) && caps.maxNodeDurationMinutes > 0
+    && caps.maxNodeDurationMinutes <= caps.maxRunDurationMinutes
+    && caps.deadlineAnchor === 'FIRST_WORKER_DISPATCH'
+    && caps.automaticDeadlineExtension === false && caps.deadlineStarted === false,
+  'ROOT_ONLY_CYCLE_CAPS_INVALID');
+  rootOnlyAssert(typeof binding?.branch === 'string'
+    && binding?.expectedOldBaseCommit === priorOldBase
+    && binding?.expectedCandidateHeadCommit === priorCandidateHead,
+  'ROOT_ONLY_CANDIDATE_BINDING_INVALID');
+  return { cycleNo, prior, priorOldBase, priorCandidateHead, material, caps };
+}
+
+function validateRootOnlyTask(task, taskId) {
+  rootOnlyAssert(task?.schemaVersion === 'task-readiness/v1' && task.taskId === taskId
+    && typeof task.objective === 'string' && Array.isArray(task.acceptance) && Array.isArray(task.writeScope)
+    && Array.isArray(task.checks) && typeof task.mandateReference === 'string', 'ROOT_ONLY_TASK_BINDING_INVALID');
+}
+
+function rootOnlyEffectSnapshot(value) {
+  rootOnlyAssert(value && Array.isArray(value.activeWorkers) && Array.isArray(value.unknownEffects)
+    && Array.isArray(value.unknownNodes) && Array.isArray(value.unknownOperations),
+  'ROOT_ONLY_EFFECT_INSPECTION_UNAVAILABLE');
+  return value;
+}
+
+async function inspectRootOnlyEffects(inspectTaskEffects, taskId, worktree) {
+  if (typeof inspectTaskEffects !== 'function') throw rootOnlyError('ROOT_ONLY_EFFECT_INSPECTION_UNAVAILABLE');
+  try { return rootOnlyEffectSnapshot(await inspectTaskEffects({ taskId, worktree })); }
+  catch (error) {
+    if (error.code === 'ROOT_ONLY_EFFECT_INSPECTION_UNAVAILABLE') throw error;
+    throw rootOnlyError('ROOT_ONLY_EFFECT_INSPECTION_UNAVAILABLE');
+  }
+}
+
+function assertNoUnknownRootOnlyOperations(privateRoot, attemptDir, taskId, cycleNo) {
+  const names = directoryFiles(attemptDir);
+  const plain = /^(?:hold|operation-intent|fetch-result|merge-intent|merge-result)-[a-f0-9]{64}\.json$/;
+  const hashed = /^(?:reconciliation|receipt)-[a-f0-9]{64}-[a-f0-9]{64}\.json$/;
+  if (names.some((name) => !plain.test(name) && !hashed.test(name))) throw rootOnlyError('ROOT_ONLY_UNKNOWN_ARTIFACT');
+  for (const name of names.filter((item) => item.startsWith('operation-intent-'))) {
+    const key = name.slice('operation-intent-'.length, -'.json'.length);
+    const intent = readRootOnlyArtifact(privateRoot, attemptDir, name);
+    if (!intent || intent.schemaVersion !== 'root-only-base-advanced-operation-intent/v1'
+        || intent.taskId !== taskId || intent.cycleNo !== cycleNo || intent.evidenceSignature !== key) {
+      throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+    }
+    const fetchResult = readRootOnlyArtifact(privateRoot, attemptDir, `fetch-result-${key}.json`);
+    if (!fetchResult) throw rootOnlyError('ROOT_ONLY_FETCH_OUTCOME_UNKNOWN');
+    if (fetchResult.taskId !== taskId || fetchResult.cycleNo !== cycleNo
+        || fetchResult.evidenceSignature !== key) throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+    const mergeIntent = readRootOnlyArtifact(privateRoot, attemptDir, `merge-intent-${key}.json`);
+    if (mergeIntent) {
+      if (mergeIntent.schemaVersion !== 'root-only-base-advanced-merge-intent/v1'
+          || mergeIntent.taskId !== taskId || mergeIntent.cycleNo !== cycleNo
+          || mergeIntent.evidenceSignature !== key) throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+      const mergeResult = readRootOnlyArtifact(privateRoot, attemptDir, `merge-result-${key}.json`);
+      if (!mergeResult) throw rootOnlyError('ROOT_ONLY_MERGE_OUTCOME_UNKNOWN');
+      if (mergeResult.taskId !== taskId || mergeResult.cycleNo !== cycleNo
+          || mergeResult.evidenceSignature !== key) throw rootOnlyError('ROOT_ONLY_ARTIFACT_CORRUPT');
+    }
+  }
+}
+
+function rootOnlyParents(worktree, head) {
+  const line = head && maybeGit(worktree, ['rev-list', '--parents', '-n', '1', head]);
+  return line?.split(/\s+/).slice(1) ?? [];
+}
+
+function assertRootOnlyCleanObservation(observed, { branch, head, errorCode }) {
+  if (observed.head !== head || observed.branch !== branch || observed.status !== ''
+      || observed.unmerged !== '' || observed.mergeHead !== null) throw rootOnlyError(errorCode);
+}
+
+function isAncestor(worktree, older, newer) {
+  return isCommit(older) && isCommit(newer)
+    && maybeGit(worktree, ['merge-base', '--is-ancestor', older, newer]) !== null;
+}
+
+function gitOperationInProgress(worktree) {
+  for (const name of ['MERGE_HEAD', 'CHERRY_PICK_HEAD', 'REVERT_HEAD', 'REBASE_HEAD', 'rebase-merge', 'rebase-apply']) {
+    let entry;
+    try { entry = git(worktree, ['rev-parse', '--git-path', name]); }
+    catch { return true; }
+    const absolute = path.isAbsolute(entry) ? entry : path.resolve(worktree, entry);
+    if (fs.existsSync(absolute)) return true;
+  }
+  return false;
+}
+
+function rootOnlyReceiptFrom(result) {
+  return { schemaVersion: 'root-only-base-prepared-candidate/v1', status: 'PREPARED_FOR_FRESH_CYCLE_DISPATCH',
+    taskId: result.taskId, cycleNo: result.cycleNo, oldHeadCommit: result.oldHeadCommit,
+    headCommit: result.headCommit, oldBaseCommit: result.oldBaseCommit, newBaseCommit: result.newBaseCommit,
+    branch: result.branch, worktreeRoot: result.worktreeRoot, baseRef: result.baseRef,
+    admissionSha256: result.admissionSha256, taskSha256: result.taskSha256,
+    evidenceRef: result.evidenceRef, evidenceSha256: result.evidenceSha256,
+    priorCycleHistory: result.priorCycleHistory, cumulativeNoProgress: result.cumulativeNoProgress,
+    cycleCaps: result.cycleCaps, controllerRunCreated: false, priorCycleResumed: false,
+    workerDispatched: false, verifyDispatched: false, reviewDispatched: false };
+}
+
+function makeRootOnlyReceipt({ privateRoot, attemptDir, key, resultFile, result }) {
+  const receipt = rootOnlyReceiptFrom({ ...result, evidenceRef: privateReference(privateRoot, resultFile),
+    evidenceSha256: createHash('sha256').update(fs.readFileSync(resultFile)).digest('hex') });
+  const saved = putRootOnlyHashedArtifact(privateRoot, attemptDir, `receipt-${key}`, receipt);
+  return { receipt, receiptFile: saved.file, receiptDigest: saved.sha256 };
+}
+
+function validateRootOnlyReceipt(privateRoot, attemptDir, key, resultFile, result) {
+  const saved = rootOnlyHashedArtifact(privateRoot, attemptDir, `receipt-${key}-`);
+  if (!saved) return null;
+  const expected = rootOnlyReceiptFrom({ ...result, evidenceRef: privateReference(privateRoot, resultFile),
+    evidenceSha256: createHash('sha256').update(fs.readFileSync(resultFile)).digest('hex') });
+  if (!isDeepStrictEqual(saved.value, expected)) throw rootOnlyError('ROOT_ONLY_RECEIPT_CORRUPT');
+  return { receipt: saved.value, receiptFile: saved.file, receiptDigest: saved.sha256 };
+}
+
+/**
+ * Reconcile a newly admitted cycle when the prior paused cycle has no live
+ * controller run. This path prepares a clean candidate for a fresh cycle; it
+ * never creates controller state or resumes the prior cycle.
+ */
+export async function prepareRootOnlyBaseAdvancedCandidate({ repoRoot, privateRoot, stateRoot, binding,
+  admissionFile, expectedAdmissionSha256, expectedTaskSha256, baseRef, inspectTaskEffects,
+  fetchBase = fetchConfiguredBase, readRemoteBase = readConfiguredRemoteBase,
+  mergeBase = ({ repo, newBaseCommit }) => git(repo, ['merge', '--no-edit', '--no-ff', newBaseCommit]) } = {}) {
+  const taskId = binding?.taskId;
+  if (!safeTaskId(taskId) || typeof privateRoot !== 'string') throw rootOnlyError('ROOT_ONLY_INPUT_BINDING_INVALID');
+  let roots;
+  try { roots = safePrivateRoots({ repoRoot, privateRoot, stateRoot, campaignId: taskId }); }
+  catch { throw rootOnlyError('ROOT_ONLY_PRIVATE_ROOT_INVALID'); }
+  let admissionRecord;
+  let taskRecord;
+  let admissionSha256;
+  let taskSha256;
+  let admitted;
+  try {
+    rootOnlyAssert(/^[a-f0-9]{64}$/i.test(expectedAdmissionSha256 ?? ''), 'ROOT_ONLY_ADMISSION_HASH_REQUIRED');
+    rootOnlyAssert(/^[a-f0-9]{64}$/i.test(expectedTaskSha256 ?? ''), 'ROOT_ONLY_TASK_HASH_REQUIRED');
+    admissionRecord = readPrivateJsonRecord(roots.privateRoot, admissionFile, 'evidence');
+    taskRecord = readPrivateJsonRecord(roots.privateRoot, binding.taskFile, 'tasks');
+    admissionSha256 = admissionRecord.sha256;
+    taskSha256 = taskRecord.sha256;
+    rootOnlyAssert(admissionSha256 === expectedAdmissionSha256.toLowerCase(), 'ROOT_ONLY_ADMISSION_HASH_MISMATCH');
+    rootOnlyAssert(taskSha256 === expectedTaskSha256.toLowerCase(), 'ROOT_ONLY_TASK_HASH_MISMATCH');
+    validateRootOnlyTask(taskRecord.value, taskId);
+    admitted = validateRootOnlyAdmission(admissionRecord.value, { taskId, binding, taskFile: taskRecord.file, taskSha256,
+      expectedOldBaseCommit: binding.expectedOldBaseCommit,
+      expectedCandidateHeadCommit: binding.expectedCandidateHeadCommit });
+    rootOnlyAssert(baseRef === 'origin/main', 'ROOT_ONLY_BASE_REF_BINDING_INVALID');
+  } catch (error) {
+    throw rootOnlyError(error.code ?? 'ROOT_ONLY_ADMISSION_INVALID');
+  }
+  const { cycleNo, material, caps } = admitted;
+  const priorCycleHistory = admitted.prior;
+  const prior = { ...priorCycleHistory, oldBase: admitted.priorOldBase, candidateHead: admitted.priorCandidateHead };
+  const attemptDir = path.join(roots.stateRoot, 'base-advanced-root-only', `cycle-${cycleNo}`);
+  try { ensurePrivateDirectory(roots.privateRoot, attemptDir); }
+  catch { throw rootOnlyError('ROOT_ONLY_PRIVATE_ARTIFACT_DIRECTORY_INVALID'); }
+  let activeEvidenceSignature = null;
+  const hold = (code, evidence = {}, observed = null, effects = null) => rootOnlyHold({
+    privateRoot: roots.privateRoot, attemptDir, taskId, cycleNo, code, evidence,
+    evidenceSignature: activeEvidenceSignature ?? rootOnlyObservationKey({ taskId, cycleNo,
+      admissionFile, expectedAdmissionSha256, expectedTaskSha256, binding, code, observed, effects }),
+  });
+  try { assertNoUnknownRootOnlyOperations(roots.privateRoot, attemptDir, taskId, cycleNo); }
+  catch (error) { hold(error.code ?? 'ROOT_ONLY_UNKNOWN_OPERATION_EFFECT', { stage: 'prior-journal' }); }
+  let priorHolds;
+  try { priorHolds = readRootOnlyHolds(roots.privateRoot, attemptDir, taskId, cycleNo); }
+  catch (error) { hold(error.code ?? 'ROOT_ONLY_ARTIFACT_CORRUPT', { stage: 'prior-hold-journal' }); }
+
+  let worktreeRoot;
+  let observed;
+  try {
+    rootOnlyAssert(typeof binding.worktree === 'string' && typeof binding.branch === 'string',
+      'ROOT_ONLY_WORKTREE_BINDING_INVALID');
+    worktreeRoot = fs.realpathSync(binding.worktree);
+    rootOnlyAssert(samePath(path.resolve(binding.worktree), worktreeRoot), 'ROOT_ONLY_WORKTREE_IDENTITY_INVALID');
+    const topLevel = fs.realpathSync(git(binding.worktree, ['rev-parse', '--show-toplevel']));
+    const common = fs.realpathSync(git(binding.worktree, ['rev-parse', '--path-format=absolute', '--git-common-dir']));
+    rootOnlyAssert(samePath(worktreeRoot, topLevel) && samePath(roots.common, common), 'ROOT_ONLY_WORKTREE_IDENTITY_INVALID');
+    rootOnlyAssert(!samePath(worktreeRoot, material.cycle04Worktree ?? material.candidateWorktree),
+      'ROOT_ONLY_PRIOR_WORKTREE_REUSE_FORBIDDEN');
+    git(binding.worktree, ['check-ref-format', `refs/heads/${binding.branch}`]);
+    observed = worktreeObservation(binding.worktree);
+    rootOnlyAssert(!gitOperationInProgress(binding.worktree), 'ROOT_ONLY_GIT_OPERATION_IN_PROGRESS');
+    assertRootOnlyCleanObservation(observed, { branch: binding.branch,
+      head: observed.head, errorCode: 'ROOT_ONLY_CANDIDATE_NOT_EXACT_AND_CLEAN' });
+    rootOnlyAssert(isAncestor(binding.worktree, prior.oldBase, observed.head), 'ROOT_ONLY_CANDIDATE_DIVERGED');
+    rootOnlyAssert(isAncestor(binding.worktree, prior.oldBase, material.currentMain), 'ROOT_ONLY_ADMITTED_BASE_INVALID');
+  } catch (error) {
+    hold(error.code ?? 'ROOT_ONLY_WORKTREE_IDENTITY_INVALID', { stage: 'candidate-preflight' }, observed);
+  }
+
+  let effects;
+  try { effects = await inspectRootOnlyEffects(inspectTaskEffects, taskId, binding.worktree); }
+  catch (error) { hold(error.code ?? 'ROOT_ONLY_EFFECT_INSPECTION_UNAVAILABLE', { stage: 'pre-fetch' }, observed); }
+  const emptyEffects = effects.activeWorkers.length === 0 && effects.unknownEffects.length === 0
+    && effects.unknownNodes.length === 0 && effects.unknownOperations.length === 0;
+  if (!emptyEffects) hold('ROOT_ONLY_ACTIVE_OR_UNKNOWN_EFFECTS', { stage: 'pre-fetch' }, observed, effects);
+
+  let remoteBefore;
+  try { remoteBefore = await readRemoteBase({ repo: binding.worktree, baseRef }); }
+  catch { hold('ROOT_ONLY_REMOTE_UNAVAILABLE_BEFORE_FETCH', { stage: 'pre-fetch' }, observed, effects); }
+  if (!isCommit(remoteBefore)) hold('ROOT_ONLY_REMOTE_SHA_INVALID', { stage: 'pre-fetch', remoteBefore }, observed, effects);
+  if (!isAncestor(binding.worktree, prior.oldBase, remoteBefore)
+      || !isAncestor(binding.worktree, material.currentMain, remoteBefore)) {
+    hold('ROOT_ONLY_ADMITTED_MOVEMENT_NOT_ANCESTOR', { stage: 'pre-fetch', remoteBefore,
+      oldBaseCommit: prior.oldBase, admittedMainCommit: material.currentMain }, observed, effects);
+  }
+
+  const effectBinding = { activeWorkers: effects.activeWorkers, unknownEffects: effects.unknownEffects,
+    unknownNodes: effects.unknownNodes, unknownOperations: effects.unknownOperations };
+  const evidenceSignature = digest({ taskId, cycleNo, admissionSha256, taskSha256,
+    oldBaseCommit: prior.oldBase, oldHeadCommit: prior.candidateHead, admittedMainCommit: material.currentMain,
+    liveRemoteBeforeFetch: remoteBefore, baseRef, branch: binding.branch, worktreeRoot,
+    effectBinding });
+  activeEvidenceSignature = evidenceSignature;
+  const matchingHold = priorHolds.find((item) => item.value.evidenceSignature === evidenceSignature);
+  if (matchingHold) throw rootOnlyError(matchingHold.value.code);
+  if (priorHolds.length) {
+    hold('ROOT_ONLY_PRIOR_ATTEMPT_HELD', { stage: 'prior-hold', changedEvidence: true,
+      priorHoldDigests: priorHolds.map((item) => item.sha256), evidenceSignature }, observed, effectBinding);
+  }
+
+  const priorMergeResult = readRootOnlyArtifact(roots.privateRoot, attemptDir,
+    `merge-result-${evidenceSignature}.json`);
+  if (!priorMergeResult && observed.head !== prior.candidateHead) {
+    hold('ROOT_ONLY_CANDIDATE_NOT_EXACT_AND_CLEAN', { stage: 'candidate-preflight', head: observed.head }, observed, effectBinding);
+  }
+
+  const operationIntentFile = path.join(attemptDir, `operation-intent-${evidenceSignature}.json`);
+  const fetchResultFile = path.join(attemptDir, `fetch-result-${evidenceSignature}.json`);
+  const mergeIntentFile = path.join(attemptDir, `merge-intent-${evidenceSignature}.json`);
+  const mergeResultFile = path.join(attemptDir, `merge-result-${evidenceSignature}.json`);
+  let operationIntent = readRootOnlyArtifact(roots.privateRoot, attemptDir, path.basename(operationIntentFile));
+  if (!operationIntent) {
+    operationIntent = { schemaVersion: 'root-only-base-advanced-operation-intent/v1', taskId,
+      cycleNo, evidenceSignature, admissionSha256, taskSha256,
+      oldBaseCommit: prior.oldBase, oldHeadCommit: prior.candidateHead,
+      admittedMainCommit: material.currentMain, liveRemoteBeforeFetch: remoteBefore,
+      branch: binding.branch, worktreeRoot, baseRef,
+      operation: 'fetch configured base, then git merge --no-edit --no-ff',
+      effectSnapshot: effectBinding };
+    try { writeRootOnlyArtifact(roots.privateRoot, operationIntentFile, operationIntent); }
+    catch { hold('ROOT_ONLY_OPERATION_INTENT_WRITE_FAILED', { stage: 'before-fetch' }, observed, effectBinding); }
+  }
+  if (operationIntent.schemaVersion !== 'root-only-base-advanced-operation-intent/v1'
+      || operationIntent.evidenceSignature !== evidenceSignature || operationIntent.taskId !== taskId
+      || operationIntent.cycleNo !== cycleNo || operationIntent.admissionSha256 !== admissionSha256
+      || operationIntent.taskSha256 !== taskSha256) {
+    hold('ROOT_ONLY_ARTIFACT_CORRUPT', { stage: 'operation-intent' }, observed, effectBinding);
+  }
+
+  let fetchResult = readRootOnlyArtifact(roots.privateRoot, attemptDir, path.basename(fetchResultFile));
+  if (!fetchResult) {
+    let fetchedBaseSha;
+    try { fetchedBaseSha = await fetchBase({ repo: binding.worktree, baseRef }); }
+    catch { hold('ROOT_ONLY_FETCH_OUTCOME_UNKNOWN', { stage: 'fetch', evidenceSignature }, observed, effectBinding); }
+    let remoteShaAfterFetch;
+    try { remoteShaAfterFetch = await readRemoteBase({ repo: binding.worktree, baseRef }); }
+    catch {
+      const uncertain = { schemaVersion: 'root-only-base-advanced-fetch-result/v1', status: 'REMOTE_UNAVAILABLE_AFTER_FETCH',
+        taskId, cycleNo, evidenceSignature, fetchedBaseSha: isCommit(fetchedBaseSha) ? fetchedBaseSha : null,
+        remoteShaAfterFetch: null };
+      writeRootOnlyArtifact(roots.privateRoot, fetchResultFile, uncertain);
+      hold('ROOT_ONLY_REMOTE_UNCERTAIN_AFTER_FETCH', { stage: 'post-fetch', evidenceSignature }, observed, effectBinding);
+    }
+    const fetchStatus = isCommit(fetchedBaseSha) && isCommit(remoteShaAfterFetch)
+      && fetchedBaseSha === remoteShaAfterFetch && remoteBefore === remoteShaAfterFetch
+      ? 'FETCH_CONFIRMED' : 'REMOTE_MOVED_OR_FETCH_INVALID';
+    fetchResult = { schemaVersion: 'root-only-base-advanced-fetch-result/v1', status: fetchStatus,
+      taskId, cycleNo, evidenceSignature, fetchedBaseSha: isCommit(fetchedBaseSha) ? fetchedBaseSha : null,
+      remoteShaBeforeFetch: remoteBefore, remoteShaAfterFetch: isCommit(remoteShaAfterFetch) ? remoteShaAfterFetch : null };
+    try { writeRootOnlyArtifact(roots.privateRoot, fetchResultFile, fetchResult); }
+    catch { hold('ROOT_ONLY_ARTIFACT_CORRUPT', { stage: 'fetch-result' }, observed, effectBinding); }
+    if (fetchStatus !== 'FETCH_CONFIRMED') {
+      hold('ROOT_ONLY_REMOTE_MOVED_DURING_FETCH', { stage: 'post-fetch', fetchResult }, observed, effectBinding);
+    }
+  }
+  if (fetchResult.schemaVersion !== 'root-only-base-advanced-fetch-result/v1'
+      || fetchResult.status !== 'FETCH_CONFIRMED' || fetchResult.evidenceSignature !== evidenceSignature
+      || !isCommit(fetchResult.fetchedBaseSha) || fetchResult.fetchedBaseSha !== fetchResult.remoteShaAfterFetch
+      || fetchResult.remoteShaBeforeFetch !== remoteBefore) {
+    hold('ROOT_ONLY_PRIOR_ATTEMPT_HELD', { stage: 'fetch-result', fetchResult }, observed, effectBinding);
+  }
+  const newBaseCommit = fetchResult.fetchedBaseSha;
+  if (newBaseCommit === prior.oldBase || !isAncestor(binding.worktree, prior.oldBase, newBaseCommit)
+      || !isAncestor(binding.worktree, material.currentMain, newBaseCommit)) {
+    hold('ROOT_ONLY_FETCHED_BASE_NOT_ADMITTED_DESCENDANT', { stage: 'post-fetch', newBaseCommit,
+      oldBaseCommit: prior.oldBase, admittedMainCommit: material.currentMain }, observed, effectBinding);
+  }
+
+  const resultForReceipt = async (mergeResult) => {
+    const reconciliation = { schemaVersion: 'root-only-base-advanced-reconciliation/v1',
+      status: 'MERGED_AND_REMOTE_CONFIRMED', taskId, cycleNo,
+      admissionSha256, taskSha256, baseRef, branch: binding.branch, worktreeRoot,
+      oldBaseCommit: prior.oldBase, oldHeadCommit: prior.candidateHead,
+      admittedMainCommit: material.currentMain, newBaseCommit, fetchedBaseSha: fetchResult.fetchedBaseSha,
+      remoteShaBeforeFetch: fetchResult.remoteShaBeforeFetch, remoteShaAfterFetch: fetchResult.remoteShaAfterFetch,
+      remoteShaBeforeMerge: mergeResult.remoteShaBeforeMerge, remoteShaAfterMerge: mergeResult.remoteShaAfterMerge,
+      headCommit: mergeResult.headCommit, mergeParents: mergeResult.mergeParents,
+      priorCycleHistory, cumulativeNoProgress: admissionRecord.value.cumulativeNoProgress,
+      cycleCaps: caps, controllerRunCreated: false, priorCycleResumed: false,
+      workerDispatched: false, verifyDispatched: false, reviewDispatched: false };
+    let reconciliationFile;
+    try {
+      const saved = putRootOnlyHashedArtifact(roots.privateRoot, attemptDir,
+        `reconciliation-${evidenceSignature}`, reconciliation);
+      reconciliationFile = saved.file;
+    } catch { hold('ROOT_ONLY_RECONCILIATION_WRITE_FAILED', { stage: 'success-receipt' }, observed, effectBinding); }
+    let prepared;
+    try {
+      prepared = validateRootOnlyReceipt(roots.privateRoot, attemptDir, evidenceSignature, reconciliationFile, reconciliation)
+        ?? makeRootOnlyReceipt({ privateRoot: roots.privateRoot, attemptDir, key: evidenceSignature,
+          resultFile: reconciliationFile, result: reconciliation });
+    } catch { hold('ROOT_ONLY_RECEIPT_CORRUPT', { stage: 'success-receipt' }, observed, effectBinding); }
+    return { status: 'PREPARED_FOR_FRESH_CYCLE_DISPATCH', ...prepared,
+      reconciliation, reconciliationFile, reconciliationDigest: createHash('sha256').update(fs.readFileSync(reconciliationFile)).digest('hex') };
+  };
+
+  let mergeResult = readRootOnlyArtifact(roots.privateRoot, attemptDir, path.basename(mergeResultFile));
+  if (mergeResult) {
+    const exactResult = mergeResult.schemaVersion === 'root-only-base-advanced-merge-result/v1'
+      && mergeResult.status === 'MERGED_AND_REMOTE_CONFIRMED' && mergeResult.taskId === taskId
+      && mergeResult.cycleNo === cycleNo && mergeResult.evidenceSignature === evidenceSignature
+      && mergeResult.oldHeadCommit === prior.candidateHead && mergeResult.oldBaseCommit === prior.oldBase
+      && mergeResult.newBaseCommit === newBaseCommit && mergeResult.remoteShaAfterMerge === newBaseCommit
+      && Array.isArray(mergeResult.mergeParents)
+      && isDeepStrictEqual(mergeResult.mergeParents, [prior.candidateHead, newBaseCommit]);
+    if (!exactResult) {
+      const heldCode = mergeResult.status === 'MERGE_ABORTED_CONFLICT'
+        ? 'ROOT_ONLY_MERGE_CONFLICT' : 'ROOT_ONLY_PRIOR_ATTEMPT_HELD';
+      hold(heldCode, { stage: 'merge-result', mergeResult }, observed, effectBinding);
+    }
+    let liveAfterMerge;
+    try { liveAfterMerge = await readRemoteBase({ repo: binding.worktree, baseRef }); }
+    catch { hold('ROOT_ONLY_REMOTE_UNCERTAIN_AFTER_MERGE', { stage: 'receipt-recovery' }, observed, effectBinding); }
+    const current = worktreeObservation(binding.worktree);
+    assertRootOnlyCleanObservation(current, { branch: binding.branch, head: mergeResult.headCommit,
+      errorCode: 'ROOT_ONLY_MERGE_RESULT_NOT_CURRENT' });
+    if (liveAfterMerge !== newBaseCommit || gitOperationInProgress(binding.worktree)
+        || !isDeepStrictEqual(rootOnlyParents(binding.worktree, current.head), [prior.candidateHead, newBaseCommit])) {
+      hold('ROOT_ONLY_MERGE_RESULT_NOT_CURRENT', { stage: 'receipt-recovery', liveAfterMerge }, current, effectBinding);
+    }
+    const savedReconciliation = rootOnlyHashedArtifact(roots.privateRoot, attemptDir, `reconciliation-${evidenceSignature}-`);
+    if (savedReconciliation && (savedReconciliation.value.status !== 'MERGED_AND_REMOTE_CONFIRMED'
+        || savedReconciliation.value.headCommit !== current.head
+        || savedReconciliation.value.admissionSha256 !== admissionSha256
+        || savedReconciliation.value.taskSha256 !== taskSha256)) {
+      hold('ROOT_ONLY_RECONCILIATION_CORRUPT', { stage: 'receipt-recovery' }, current, effectBinding);
+    }
+    return resultForReceipt(savedReconciliation?.value ?? { ...mergeResult,
+      status: 'MERGED_AND_REMOTE_CONFIRMED', headCommit: current.head,
+      mergeParents: [prior.candidateHead, newBaseCommit], remoteShaBeforeMerge: mergeResult.remoteShaBeforeMerge });
+  }
+
+  let effectsBeforeMerge;
+  try { effectsBeforeMerge = await inspectRootOnlyEffects(inspectTaskEffects, taskId, binding.worktree); }
+  catch (error) { hold(error.code ?? 'ROOT_ONLY_EFFECT_INSPECTION_UNAVAILABLE', { stage: 'pre-merge' }, observed, effectBinding); }
+  if (effectsBeforeMerge.activeWorkers.length || effectsBeforeMerge.unknownEffects.length
+      || effectsBeforeMerge.unknownNodes.length || effectsBeforeMerge.unknownOperations.length) {
+    hold('ROOT_ONLY_ACTIVE_OR_UNKNOWN_EFFECTS', { stage: 'pre-merge' }, observed, effectsBeforeMerge);
+  }
+  let remoteBeforeMerge;
+  try { remoteBeforeMerge = await readRemoteBase({ repo: binding.worktree, baseRef }); }
+  catch { hold('ROOT_ONLY_REMOTE_UNAVAILABLE_BEFORE_MERGE', { stage: 'pre-merge' }, observed, effectBinding); }
+  if (remoteBeforeMerge !== newBaseCommit) {
+    hold('ROOT_ONLY_REMOTE_MOVED_BEFORE_MERGE', { stage: 'pre-merge', remoteBeforeMerge, newBaseCommit }, observed, effectBinding);
+  }
+  const beforeMerge = worktreeObservation(binding.worktree);
+  try {
+    rootOnlyAssert(!gitOperationInProgress(binding.worktree), 'ROOT_ONLY_GIT_OPERATION_IN_PROGRESS');
+    assertRootOnlyCleanObservation(beforeMerge, { branch: binding.branch,
+      head: prior.candidateHead, errorCode: 'ROOT_ONLY_CANDIDATE_CHANGED_BEFORE_MERGE' });
+  } catch (error) { hold(error.code ?? 'ROOT_ONLY_CANDIDATE_CHANGED_BEFORE_MERGE', { stage: 'pre-merge' }, beforeMerge, effectBinding); }
+
+  const mergeIntent = { schemaVersion: 'root-only-base-advanced-merge-intent/v1', taskId,
+    cycleNo, evidenceSignature, admissionSha256, taskSha256,
+    oldBaseCommit: prior.oldBase, oldHeadCommit: prior.candidateHead, newBaseCommit,
+    baseRef, branch: binding.branch, worktreeRoot, remoteShaBeforeMerge: remoteBeforeMerge,
+    operation: 'git merge --no-edit --no-ff', disposition: `PREPARE_FRESH_CYCLE_${cycleNo}` };
+  try { writeRootOnlyArtifact(roots.privateRoot, mergeIntentFile, mergeIntent); }
+  catch { hold('ROOT_ONLY_MERGE_INTENT_WRITE_FAILED', { stage: 'before-merge' }, beforeMerge, effectBinding); }
+
+  let mergeError = null;
+  try { await mergeBase({ repo: binding.worktree, newBaseCommit }); }
+  catch (error) { mergeError = error; }
+  let afterMerge = worktreeObservation(binding.worktree);
+  let parents = rootOnlyParents(binding.worktree, afterMerge.head);
+  const exactMerge = afterMerge.branch === binding.branch && afterMerge.status === ''
+    && afterMerge.unmerged === '' && afterMerge.mergeHead === null && !gitOperationInProgress(binding.worktree)
+    && afterMerge.head !== prior.candidateHead && isDeepStrictEqual(parents, [prior.candidateHead, newBaseCommit]);
+  if (!exactMerge && mergeError?.status === 1 && afterMerge.head === prior.candidateHead
+      && afterMerge.branch === binding.branch && afterMerge.mergeHead === newBaseCommit && afterMerge.unmerged !== '') {
+    try { git(binding.worktree, ['merge', '--abort']); }
+    catch { hold('ROOT_ONLY_MERGE_OUTCOME_UNKNOWN', { stage: 'conflict-abort' }, afterMerge, effectBinding); }
+    afterMerge = worktreeObservation(binding.worktree);
+    if (afterMerge.head !== prior.candidateHead || afterMerge.branch !== binding.branch || afterMerge.status !== ''
+        || afterMerge.unmerged !== '' || afterMerge.mergeHead !== null || gitOperationInProgress(binding.worktree)) {
+      hold('ROOT_ONLY_MERGE_OUTCOME_UNKNOWN', { stage: 'conflict-abort' }, afterMerge, effectBinding);
+    }
+    mergeResult = { schemaVersion: 'root-only-base-advanced-merge-result/v1', status: 'MERGE_ABORTED_CONFLICT',
+      taskId, cycleNo, evidenceSignature, oldHeadCommit: prior.candidateHead,
+      oldBaseCommit: prior.oldBase, newBaseCommit, headCommit: afterMerge.head,
+      mergeParents: [], ownMergeAborted: true };
+    writeRootOnlyArtifact(roots.privateRoot, mergeResultFile, mergeResult);
+    hold('ROOT_ONLY_MERGE_CONFLICT', { stage: 'merge', mergeResult }, afterMerge, effectBinding);
+  }
+  if (!exactMerge) {
+    if (mergeError && afterMerge.head === prior.candidateHead && afterMerge.branch === binding.branch
+        && afterMerge.status === '' && afterMerge.unmerged === '' && afterMerge.mergeHead === null
+        && !gitOperationInProgress(binding.worktree)) {
+      mergeResult = { schemaVersion: 'root-only-base-advanced-merge-result/v1', status: 'MERGE_FAILED_NO_EFFECT',
+        taskId, cycleNo, evidenceSignature, oldHeadCommit: prior.candidateHead,
+        oldBaseCommit: prior.oldBase, newBaseCommit, headCommit: afterMerge.head, mergeParents: [] };
+      writeRootOnlyArtifact(roots.privateRoot, mergeResultFile, mergeResult);
+      hold('ROOT_ONLY_MERGE_FAILED_NO_EFFECT', { stage: 'merge', mergeResult }, afterMerge, effectBinding);
+    }
+    hold('ROOT_ONLY_MERGE_OUTCOME_UNKNOWN', { stage: 'merge', returnedError: Boolean(mergeError) }, afterMerge, effectBinding);
+  }
+
+  let remoteAfterMerge;
+  try { remoteAfterMerge = await readRemoteBase({ repo: binding.worktree, baseRef }); }
+  catch {
+    mergeResult = { schemaVersion: 'root-only-base-advanced-merge-result/v1', status: 'MERGED_REMOTE_UNCERTAIN',
+      taskId, cycleNo, evidenceSignature, oldHeadCommit: prior.candidateHead,
+      oldBaseCommit: prior.oldBase, newBaseCommit, headCommit: afterMerge.head, mergeParents: parents,
+      remoteShaBeforeMerge: remoteBeforeMerge, remoteShaAfterMerge: null };
+    writeRootOnlyArtifact(roots.privateRoot, mergeResultFile, mergeResult);
+    hold('ROOT_ONLY_REMOTE_UNCERTAIN_AFTER_MERGE', { stage: 'post-merge' }, afterMerge, effectBinding);
+  }
+  const mergeStatus = remoteAfterMerge === newBaseCommit ? 'MERGED_AND_REMOTE_CONFIRMED' : 'MERGED_REMOTE_MOVED';
+  mergeResult = { schemaVersion: 'root-only-base-advanced-merge-result/v1', status: mergeStatus,
+    taskId, cycleNo, evidenceSignature, admissionSha256, taskSha256,
+    oldHeadCommit: prior.candidateHead, oldBaseCommit: prior.oldBase, newBaseCommit,
+    headCommit: afterMerge.head, mergeParents: parents, remoteShaBeforeMerge: remoteBeforeMerge,
+    remoteShaAfterMerge: isCommit(remoteAfterMerge) ? remoteAfterMerge : null };
+  try { writeRootOnlyArtifact(roots.privateRoot, mergeResultFile, mergeResult); }
+  catch { hold('ROOT_ONLY_ARTIFACT_CORRUPT', { stage: 'merge-result' }, afterMerge, effectBinding); }
+  if (mergeStatus !== 'MERGED_AND_REMOTE_CONFIRMED') {
+    hold('ROOT_ONLY_REMOTE_MOVED_AFTER_MERGE', { stage: 'post-merge', mergeResult }, afterMerge, effectBinding);
+  }
+  const savedReconciliation = await resultForReceipt(mergeResult);
+  return { ...savedReconciliation, mergeResultFile };
+}

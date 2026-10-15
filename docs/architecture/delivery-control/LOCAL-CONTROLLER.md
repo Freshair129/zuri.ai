@@ -315,6 +315,46 @@ Root may request a specific recheck through
 `reassessBaseAdvancedResume({ taskId, evidenceRef, reason })`; this does not
 clear an unknown fetch or merge intent.
 
+### Newly admitted cycle with no controller run
+
+The controller-backed continuation above requires a live task-bound controller
+run and checkpoint. If a paused cycle has no such run, root cannot manufacture
+one or route that old cycle through `resumeTask`. A separately admitted new
+cycle may instead use the root-only base preparation path, and only when its
+immutable admission record documents the prior pause and exhausted repair cap,
+zero controller runs and cycles, no publication or submission, and no unknown effects. The
+record and readiness task are read from their canonical private paths and must
+match the admitted task, dynamically bound cycle, revision, and SHA-256
+bindings. The prior cycle's exhausted repair cap, deadline, and cumulative
+no-progress count remain as recorded; the new cycle uses only its separately
+admitted caps.
+
+Before fetch, the root-only path records immutable operation intent under the
+private task state. It confirms the current branch, worktree, clean exact
+candidate head, absence of an in-progress Git operation, and absence of active
+workers or unknown effects. It fetches the configured `origin/main`, then
+independently reads the live remote ref and requires that SHA to match the
+freshly fetched commit. The admitted old base and candidate must still match,
+and the admitted material movement must be an ancestor of the fetched commit.
+The path performs only an ordinary `git merge --no-edit --no-ff`; it then
+checks the exact first and second parents, clean resulting tree, and that the
+live remote SHA still equals the merged base.
+
+The root-only receipt binds the new task and cycle, admission and readiness
+hashes, prior-cycle history, cycle caps, and resulting commit. It explicitly
+records that no controller run was created, no prior cycle was resumed, and no
+Worker, Verify, or Review role was dispatched. The receipt prepares the
+candidate for a fresh admitted cycle's normal Worker/Verify/Review flow; it is
+not proof that a controller or any role has run. Missing or changed admission,
+worktree or remote movement, dirty/diverged candidate, conflict, unknown
+operation result, or corrupt receipt produces a typed hold. An uncertain or
+conflicted operation cannot be retried against unchanged evidence. Hold files
+are content-addressed: replay with the same evidence returns the original typed
+hold without rewriting it or repeating merge. Changed evidence creates its own
+content-bound hold and remains held until trusted reassessment; it cannot clear
+an unknown effect or authorize a retry by itself. This path does not alter or
+reset the controller-backed `ROOT_REPLAN_PAUSED` flow above.
+
 When the worker needs no source repair on the updated base, root may install
 `supervisors/<campaignId>/prepared/<taskId>.json` in the private control directory:
 `schemaVersion: root-base-prepared-candidate/v1`, `taskId`, `oldHeadCommit`,
