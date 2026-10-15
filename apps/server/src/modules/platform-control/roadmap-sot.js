@@ -1169,7 +1169,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-046",
     "authority": "ROADMAP.md",
-    "evidence": "Audit wave 2026-09-21: ADR-072 currently allows text/Markdown only; a binary/OCR parser needs raw mapping and the downstream Stage 7-9 offset/provenance contract; no parser/provider approval or implementation/test evidence claimed; 24-week baseline; 17-stage flow, \"PDF/OCR/HTML/table parser\" row; FR-115, FR-138"
+    "evidence": "Contract-only candidate proposal `docs/plans/TASK-ZAI-048-BINARY-PARSING-CONTRACT.md` merged in PR #676 as `dcaaffa71555389bb7a4e80499f31a269fe24588` from exact head `110d6f3952ddf0143e8b9ae715058179edc78964`; proposal remains unaccepted by product/service authorities. No parser runtime/tests, OCR/provider call, migration or deployment evidence; keep implementation acceptance open. ADR-072 still limits current admission to text/Markdown; 24-week baseline; 17-stage flow; FR-115, FR-138"
   },
   {
     "id": "TASK-ZAI-049",
