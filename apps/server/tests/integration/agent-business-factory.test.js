@@ -75,6 +75,32 @@ describe('FR-285 Business agent factory persistence', () => {
   let target
   beforeEach(async () => { target = await fixture() })
 
+  it('enforces Tenant/Business pairing and one config per Business in the database', async () => {
+    const other = await fixture()
+    const wrongScope = buildBusinessAgentTemplate({
+      tenantId: other.tenant.id, businessId: target.business.id,
+    })
+    const data = {
+      tenantId: other.tenant.id,
+      businessId: target.business.id,
+      schemaVersion: wrongScope.schemaVersion,
+      templateId: wrongScope.templateId,
+      templateVersion: wrongScope.templateVersion,
+      version: wrongScope.configVersion,
+      delegationPolicy: wrongScope.delegationPolicy,
+      snapshotJson: canonicalJson(wrongScope),
+      snapshotDigest: businessAgentSnapshotDigest(wrongScope),
+      appliedByPersonId: target.owner.id,
+    }
+    await expect(prisma.businessAgentConfig.create({ data })).rejects.toMatchObject({ code: 'P2003' })
+    expect(await prisma.businessAgentConfig.count({ where: { businessId: target.business.id } })).toBe(0)
+
+    await applyBusinessAgentTemplate(target.business.id, { viewer: target.ownerViewer })
+    await expect(prisma.businessAgentConfig.create({ data: { ...data, tenantId: target.tenant.id } }))
+      .rejects.toMatchObject({ code: 'P2002' })
+    expect(await prisma.businessAgentConfig.count({ where: { businessId: target.business.id } })).toBe(1)
+  })
+
   it('previews without writing and authorizes either persisted Business or Tenant OWNER Membership', async () => {
     const beforeConfigs = await prisma.businessAgentConfig.count()
     const beforeAppliedAudits = await prisma.auditEvent.count({
