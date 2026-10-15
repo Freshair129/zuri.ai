@@ -26,6 +26,10 @@ flowchart LR
 Independent tasks can run concurrently when their accepted dependencies and
 write sets permit it. The controller never infers independence from a roadmap
 wave alone. Locks remain held until integration or an explicit safe disposition.
+Each task uses a distinct canonical checkout. The runner rejects duplicate
+worktree bindings and the durable store holds checkout locks alongside path
+locks. Root disposition cannot release these while a lease is active or any
+effect remains unresolved, even when the execution cycle has expired.
 Local claims fence ledger transitions; they cannot revoke filesystem access
 from an already running process. An expired or uncertain dispatch must remain
 quarantined until its process is stopped and its effects are reconciled. Never
@@ -48,6 +52,15 @@ acting. Restore only with all
 prior processes stopped. Never restore an older snapshot while old workers can
 still write. Restart reconciles unfinished dispatches rather than replaying
 them blindly. A lost CLI response is not proof of no effect.
+
+Reconciliation is a trusted-root operation. Its evidence must include
+`sourceRef`, `finding`, `observedAt` and
+`process: {operationId, status, identityRef, checkedAt}`. Process status must be
+`STOPPED` or `NOT_STARTED`; identityRef points to read-only evidence checking
+actual process start identity/command and relevant descendants. The API checks
+the attestation shape and operation binding; root is accountable for its truth.
+A clean Git tree alone does not prove an orphaned process is stopped. Resolving
+effects never resets a deadline or authorizes retry in an inactive cycle.
 
 ## Local backend
 
@@ -118,6 +131,13 @@ currently eligible bound tasks. `serve` keeps polling and exposes the read-only
 dashboard at `http://127.0.0.1:4190/`. On Windows launch a background instance with
 `Start-Process -WindowStyle Hidden`, private stdout/stderr receipts and an
 explicit working directory. Keep its PID so only that instance is stopped.
+
+Dependency-blocked tasks are persisted without starting an execution cycle.
+The runner reevaluates bound intake when accepted base/dependency evidence
+changes; no repeated manual admission is needed. It does not fetch, merge or
+rebase implicitly. Root first integrates the accepted dependency and updates
+the task checkout to a compatible baseline. Intake errors affect their task;
+repeated unchanged observations are suppressed.
 
 The dashboard exposes task/stage codes and attempts only. It rejects cross-site
 requests and DNS rebinding Hosts, has no mutation endpoint and cannot authorize

@@ -59,8 +59,14 @@ export function commitWorkerCandidate({ worktree, taskFile, task, baseCommit, re
 export function createControllerRunner({ controller, repoRoot, stateRoot, config, backend = runCodexRole }) {
   if (!Array.isArray(config.tasks) || ![1, 2].includes(config.maxConcurrent ?? 2)) throw new Error('INVALID_RUNNER_CONFIG');
   const bindings = new Map();
+  const worktrees = new Set();
   for (const task of config.tasks) {
     if (bindings.has(task.taskId)) throw new Error('DUPLICATE_TASK_BINDING');
+    let root;
+    try { root = fs.realpathSync(task.worktree); } catch { root = path.resolve(task.worktree); }
+    const key = process.platform === 'win32' ? root.toLowerCase() : root;
+    if (worktrees.has(key)) throw new Error('DUPLICATE_WORKTREE_BINDING');
+    worktrees.add(key);
     bindings.set(task.taskId, task);
   }
   const active = new Map();

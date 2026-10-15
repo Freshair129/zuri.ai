@@ -12,7 +12,11 @@ const POLICY_SOURCE = path.join(SOURCE_ROOT, 'docs', 'architecture', 'delivery-c
 const tempRoots = new Set();
 
 afterEach(() => {
-  for (const root of tempRoots) rmSync(root, { recursive: true, force: true });
+  for (const root of tempRoots) {
+    assert.ok(path.resolve(root).startsWith(path.resolve(os.tmpdir()) + path.sep));
+    assert.ok(path.basename(root).startsWith('zuri-delivery-controller-'));
+    rmSync(root, { recursive: true, force: true });
+  }
   tempRoots.clear();
 });
 
@@ -173,6 +177,34 @@ test('runs worker, exact-head verifier, reviewer, and records root integration w
   } finally {
     controller.close();
   }
+});
+
+test('root disposition cannot release an active checkout or accept a late PASS after cycle expiry', async () => {
+  const env = fixture();
+  let clockValue = new Date();
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath, now: () => clockValue });
+  try {
+    const task = taskRecord('TASK-DISPOSITION-SAFETY', 'Retain scope locks until the process is stopped.');
+    controller.registerTask({ taskRecord: task, preflightResult: preflight(task, env.repoRoot, env.baseCommit), trustedMandateBinding: trustedBinding(env.repoRoot, task) });
+    const lease = controller.claimNode({ taskId: task.taskId, nodeId: 'worker', ownerId: 'worker', leaseMs: 30_000 });
+    const disposition = () => controller.recordRootDisposition({ taskId: task.taskId, disposition: 'ABANDONED', reason: 'test', evidenceRef: 'fixture://root' });
+    assert.throws(disposition, /Active leases/);
+    controller.recordDispatchIntent({ lease, operationId: 'live-operation', inputDigest: semanticTaskDigest(task) });
+    controller.recordBackendHandle({ lease, sessionId: 'live-worker', model: 'gpt-6-luna', effort: 'max' });
+    assert.throws(disposition, /Active leases/);
+    const conflict = taskRecord('TASK-SAME-CHECKOUT', 'Do not reuse the checkout.', ['other/']);
+    assert.equal(controller.registerTask({ taskRecord: conflict, preflightResult: preflight(conflict, env.repoRoot, env.baseCommit), trustedMandateBinding: trustedBinding(env.repoRoot, conflict) }).state, 'BLOCKED_SCOPE');
+    assert.equal(controller.getRun(task.taskId).state, 'WORKER_RUNNING');
+    mkdirSync(path.join(env.repoRoot, 'src'), { recursive: true });
+    writeFileSync(path.join(env.repoRoot, 'src/candidate'), 'candidate');
+    git(env.repoRoot, ['add', 'src/candidate']); git(env.repoRoot, ['commit', '-m', 'candidate']);
+    const head = git(env.repoRoot, ['rev-parse', 'HEAD']);
+    clockValue = new Date(clockValue.getTime() + 121 * 60_000);
+    controller.nextReadyNodes();
+    assert.throws(() => controller.completeNode({ lease, result: roleResult('worker', 'live-worker', head, sha('late')) }), /inactive execution cycle|fencing|expired/i);
+    assert.equal(controller.getRun(task.taskId).state, 'PAUSED_DEADLINE');
+    assert.throws(disposition, /Unknown effects/);
+  } finally { controller.close(); }
 });
 
 test('a scope escape after worker submission blocks gate dispatch instead of validating the candidate', async () => {
@@ -339,7 +371,8 @@ test('restart quarantines a dispatched unknown effect, read-only no-effect recon
       operationId: 'operation-unknown-1',
       resolution: 'NO_EFFECT',
       effectState: 'NONE',
-      evidence: { sourceRef: 'git://worktree-status', finding: 'No candidate or dirty files were created.', observedAt: clockValue.toISOString() },
+      evidence: { sourceRef: 'git://worktree-status', finding: 'No candidate or dirty files were created.', observedAt: clockValue.toISOString(),
+        process: { status: 'NOT_STARTED', operationId: 'operation-unknown-1', checkedAt: clockValue.toISOString(), identityRef: 'fixture://no-process-spawned' } },
     });
     assert.equal(reconciled.retryAllowed, true);
     assert.equal(controller.getRun(task.taskId).state, 'WORKER_READY');
@@ -358,7 +391,10 @@ test('atomic worker claims enforce configured slot limits even when ready-node s
   const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
   try {
     const records = ['a', 'b', 'c'].map((suffix) => taskRecord(`TASK-SLOT-${suffix}`, `Use worker slot ${suffix}.`, [`src/${suffix}/`]));
-    for (const task of records) controller.registerTask({ taskRecord: task, preflightResult: preflight(task, env.repoRoot, env.baseCommit), trustedMandateBinding: trustedBinding(env.repoRoot, task) });
+    for (const [index, task] of records.entries()) {
+      const { worktreeRoot } = addWorktree(env.repoRoot, env.root, env.baseCommit, `slot-${index}`);
+      controller.registerTask({ taskRecord: task, preflightResult: preflight(task, worktreeRoot, env.baseCommit), worktreeRoot, trustedMandateBinding: trustedBinding(env.repoRoot, task) });
+    }
     const first = controller.claimNode({ taskId: records[0].taskId, nodeId: 'worker', ownerId: 'runner-a' });
     const second = controller.claimNode({ taskId: records[1].taskId, nodeId: 'worker', ownerId: 'runner-b' });
     assert.equal(first.blocked, undefined);

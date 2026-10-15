@@ -395,7 +395,13 @@ function insertNodes(db, taskId, cycleNo, taskDigest, now) {
   }
 }
 
-function pathConflict(db, taskId, scopes) {
+function pathConflict(db, taskId, scopes, worktreeRoot = null) {
+  if (worktreeRoot) {
+    const occupied = db.prepare(`SELECT DISTINCT r.task_id,r.worktree_root FROM delivery_write_locks w
+      JOIN delivery_runs r USING(task_id) WHERE w.task_id<>?`).all(taskId);
+    const same = occupied.find((row) => pathKey(row.worktree_root) === pathKey(worktreeRoot));
+    if (same) return { taskId: same.task_id, scope: 'WORKTREE_LOCK', requested: 'WORKTREE_LOCK' };
+  }
   const locks = db.prepare('SELECT task_id,scope_path FROM delivery_write_locks WHERE task_id<>?').all(taskId);
   for (const scope of scopes) {
     for (const lock of locks) {
@@ -489,6 +495,7 @@ function resetPipelineForWorker(db, clock, run, cycle, currentSnapshot, nextStat
 function completePassInTransaction(store, clock, lease, result, { reconciled = false } = {}) {
   const { db, repoRoot } = store;
   const { run, cycle, node } = cycleAndNode(db, lease);
+  if (!reconciled && cycle.state !== 'ACTIVE') throw new Error('A paused or inactive execution cycle cannot accept a late PASS.');
   if (!reconciled) requireLease(db, lease, ['RUNNING'], nowIso(clock));
   else if (node.state !== 'QUARANTINED') throw new Error('Unknown effect can only reconcile a quarantined node.');
   if (resultOutcome(result) !== 'PASS') throw new TypeError('completeNode only accepts a PASS result; record other outcomes through failNode.');
@@ -713,7 +720,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const unresolvedDeps = dependencies.filter((dependency) => dependency?.accepted !== true);
       if (unresolvedDeps.length && preflightResult.status === 'READY') throw new Error('Preflight READY conflicts with unaccepted dependency evidence.');
       const scopes = taskRecord.writeScope.map(normalizeScopePath);
-      const conflict = pathConflict(tx, taskRecord.taskId, scopes);
+      const conflict = pathConflict(tx, taskRecord.taskId, scopes, taskRepoRoot);
       const dependencyBlocked = preflightResult.status === 'BLOCKED_DEPENDENCY' || unresolvedDeps.length > 0;
       const state = conflict ? 'BLOCKED_SCOPE' : dependencyBlocked ? 'BLOCKED_DEPENDENCY' : 'WORKER_READY';
       const currentCycle = state === 'WORKER_READY' ? 1 : 0;
@@ -984,8 +991,15 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
         || !nonempty(evidence.sourceRef) || !nonempty(evidence.finding) || !nonempty(evidence.observedAt)) {
       throw new TypeError('Read-only reconciliation requires task, node, operation, and authoritative evidence.');
     }
+    const processProof = evidence.process;
+    if (!isRecord(processProof) || processProof.operationId !== operationId
+      || !['STOPPED', 'NOT_STARTED'].includes(processProof.status)
+      || !nonempty(processProof.identityRef) || !Number.isFinite(Date.parse(processProof.checkedAt))) {
+      throw new TypeError('Reconciliation requires a trusted-root process-stop identity attestation for this operation.');
+    }
     if (!['NO_EFFECT', 'APPLIED_WITH_RESULT', 'APPLIED_NO_RESULT'].includes(resolution)) throw new TypeError('Unsupported reconciliation resolution.');
     return store.transaction((tx) => {
+      refreshCycleDeadlines(tx);
       const unknown = tx.prepare('SELECT * FROM delivery_unknown_effects WHERE task_id=? AND operation_id=? AND state=\'UNKNOWN\'').get(taskId, operationId);
       if (!unknown || unknown.node_id !== nodeId) throw new Error('No matching quarantined effect exists.');
       const node = tx.prepare('SELECT * FROM delivery_nodes WHERE task_id=? AND cycle_no=? AND node_id=?').get(taskId, unknown.cycle_no, nodeId);
@@ -995,6 +1009,13 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       if (resolution === 'NO_EFFECT') {
         if (effectState !== 'NONE') throw new TypeError('NO_EFFECT reconciliation must establish effectState NONE.');
         const cycle = tx.prepare('SELECT * FROM delivery_cycles WHERE task_id=? AND cycle_no=?').get(taskId, unknown.cycle_no);
+        if (cycle.state !== 'ACTIVE') {
+          tx.prepare(`UPDATE delivery_unknown_effects SET state='RESOLVED_NO_EFFECT',resolution_json=?,resolved_at=? WHERE id=?`).run(json({ evidence, effectState }), at, unknown.id);
+          tx.prepare(`UPDATE delivery_nodes SET state='BLOCKED',effect_state='NONE',failure_class='CYCLE_INACTIVE',lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE task_id=? AND cycle_no=? AND node_id=?`).run(at, taskId, unknown.cycle_no, nodeId);
+          tx.prepare("UPDATE delivery_runs SET state='PAUSED_CYCLE',updated_at=? WHERE task_id=?").run(at, taskId);
+          eventInTransaction(tx, clock, taskId, unknown.cycle_no, 'UNKNOWN_RESOLVED_CYCLE_INACTIVE', { nodeId, operationId, evidenceSource: evidence.sourceRef });
+          return { status: 'RESOLVED_NO_EFFECT', retryAllowed: false, resumable: true };
+        }
         if (cycle.tool_retries >= policy.retryAndLineage.limits.maxToolRetriesPerExecutionCycle) {
           tx.prepare(`UPDATE delivery_unknown_effects SET state='RESOLVED_NO_EFFECT',resolution_json=?,resolved_at=? WHERE id=?`).run(json({ evidence, effectState }), at, unknown.id);
           tx.prepare(`UPDATE delivery_nodes SET state='BLOCKED',effect_state='NONE',failure_class='RETRY_CAP_EXHAUSTED',lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE task_id=? AND cycle_no=? AND node_id=?`)
@@ -1021,6 +1042,14 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
         return { status: 'BLOCKED_FOR_REASSESSMENT', retryAllowed: false, resumable: true };
       }
       if (effectState !== 'APPLIED' || !isRecord(result)) throw new TypeError('APPLIED_WITH_RESULT requires a known applied effect and complete role result.');
+      const appliedCycle = tx.prepare('SELECT state FROM delivery_cycles WHERE task_id=? AND cycle_no=?').get(taskId, unknown.cycle_no);
+      if (appliedCycle.state !== 'ACTIVE') {
+        tx.prepare(`UPDATE delivery_unknown_effects SET state='RESOLVED_APPLIED',resolution_json=?,resolved_at=? WHERE id=?`).run(json({ evidence, effectState, result }), at, unknown.id);
+        tx.prepare(`UPDATE delivery_nodes SET state='BLOCKED',effect_state='APPLIED',failure_class='CYCLE_INACTIVE',lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE task_id=? AND cycle_no=? AND node_id=?`).run(at, taskId, unknown.cycle_no, nodeId);
+        tx.prepare("UPDATE delivery_runs SET state='PAUSED_CYCLE',updated_at=? WHERE task_id=?").run(at, taskId);
+        eventInTransaction(tx, clock, taskId, unknown.cycle_no, 'APPLIED_RESULT_CAPTURED_CYCLE_INACTIVE', { nodeId, operationId, evidenceSource: evidence.sourceRef });
+        return { status: 'RESOLVED_APPLIED', retryAllowed: false, resumable: true };
+      }
       tx.prepare(`UPDATE delivery_unknown_effects SET state='RESOLVED_APPLIED',resolution_json=?,resolved_at=? WHERE id=?`).run(json({ evidence, effectState, resultDigest: result.resultDigest ?? null }), at, unknown.id);
       tx.prepare(`UPDATE delivery_nodes SET state='RUNNING',effect_state='APPLIED',lease_owner='reconciliation',lease_epoch=lease_epoch+1,lease_expires_at=?,updated_at=? WHERE task_id=? AND cycle_no=? AND node_id=?`)
         .run(addMinutes(at, 1), at, taskId, unknown.cycle_no, nodeId);
@@ -1064,6 +1093,11 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const run = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
       if (!run) throw new Error('Unknown delivery task.');
       if (run.state === 'QUARANTINED') throw new Error('Unknown effects must be reconciled before root disposition.');
+      if (tx.prepare("SELECT 1 FROM delivery_unknown_effects WHERE task_id=? AND state='UNKNOWN' LIMIT 1").get(taskId)) {
+        throw new Error('Unknown effects must be reconciled before root disposition.');
+      }
+      const activeNode = tx.prepare("SELECT node_id FROM delivery_nodes WHERE task_id=? AND state IN ('LEASED','RUNNING') LIMIT 1").get(taskId);
+      if (activeNode) throw new Error('Active leases must finish or be safely reconciled before root disposition can release locks.');
       const at = nowIso(clock);
       const state = disposition === 'YIELD_REASSESS' ? 'YIELD_REASSESS' : disposition === 'ABANDONED' ? 'ABANDONED' : 'BLOCKED_BY_ROOT';
       tx.prepare('UPDATE delivery_runs SET state=?,updated_at=? WHERE task_id=?').run(state, at, taskId);
@@ -1101,7 +1135,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       if (current.violations.length) throw new Error('Resume scope check failed at ' + current.violations[0].path);
       const oldScopes = rowJson(run.proof_scope_json) ?? [];
       const newScopes = taskRecord.writeScope.map(normalizeScopePath);
-      const conflict = pathConflict(tx, taskRecord.taskId, newScopes);
+      const conflict = pathConflict(tx, taskRecord.taskId, newScopes, run.worktree_root);
       if (conflict) throw new Error('Resume writeScope conflicts with ' + conflict.taskId + ' at ' + conflict.scope);
       tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskRecord.taskId);
       for (const scope of newScopes) tx.prepare('INSERT INTO delivery_write_locks(task_id,scope_path) VALUES(?,?)').run(taskRecord.taskId, scope);
@@ -1140,7 +1174,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const current = gitSnapshot(taskRepoRoot, baseline.baseRevision, taskRecord.writeScope);
       if (current.headCommit !== baseline.headRevision || current.branch !== baseline.branch || current.violations.length) throw new Error('New cycle preflight baseline or scope is stale.');
       const scopes = taskRecord.writeScope.map(normalizeScopePath);
-      const conflict = pathConflict(tx, taskId, scopes);
+      const conflict = pathConflict(tx, taskId, scopes, run.worktree_root);
       if (conflict) throw new Error('New cycle scope conflicts with ' + conflict.taskId + ' at ' + conflict.scope);
       tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskId);
       for (const scope of scopes) tx.prepare('INSERT INTO delivery_write_locks(task_id,scope_path) VALUES(?,?)').run(taskId, scope);

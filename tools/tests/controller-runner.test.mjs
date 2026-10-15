@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto';
 import { createControllerRunner, rolePrompt, commitWorkerCandidate } from '../delivery-control/controller-runner.mjs';
 import { openDeliveryController } from '../delivery-control/controller.mjs';
 import { preflightTask } from '../delivery-control/preflight.mjs';
+import { admitConfiguredTasks } from '../delivery-control/controller-cli.mjs';
 
 test('role prompts keep merge and provider effects outside worker authority', () => {
   for (const role of ['worker', 'verifier', 'reviewer']) {
@@ -16,6 +17,10 @@ test('role prompts keep merge and provider effects outside worker authority', ()
     assert.match(prompt, /No additional agents/);
     assert.match(prompt, /Do not.*merge/);
   }
+});
+test('runner rejects two task bindings sharing a canonical checkout', () => {
+  assert.throws(() => createControllerRunner({ controller: {}, repoRoot: process.cwd(), stateRoot: process.cwd(),
+    config: { tasks: [{ taskId: 'A', worktree: process.cwd() }, { taskId: 'B', worktree: path.resolve('.') }] } }), /DUPLICATE_WORKTREE_BINDING/);
 });
 test('unchanged pre-claim errors are reported once and suppressed without spawning', async (t) => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-runner-'));
@@ -73,6 +78,29 @@ test('root refuses out-of-scope worker effects before staging or committing', (t
   assert.throws(() => commitWorkerCandidate(f), /CANDIDATE_BLOCKED_SCOPE/);
   assert.equal(f.git(['rev-parse', 'HEAD']), f.baseCommit);
   assert.equal(f.git(['diff', '--cached', '--name-only']), '');
+});
+test('CLI intake persists dependency-blocked task and wakes after accepted base evidence changes', async (t) => {
+  const f = candidateFixture(t);
+  f.git(['update-ref', 'refs/remotes/origin/main', f.baseCommit]);
+  const task = { ...f.task, dependencies: [{ taskId: 'DEP-OPEN' }] };
+  fs.writeFileSync(f.taskFile, JSON.stringify(task));
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = { tasks: [{ taskId: task.taskId, worktree: f.worktree, taskFile: f.taskFile,
+    trustedMandateBinding: { resolvedBy: 'root', taskId: task.taskId, repositoryRoot: f.worktree,
+      objective: task.objective, writeScope: task.writeScope, sourceRef: 'trusted fixture',
+      authorizedEffects: ['fixture checks'], prohibitions: ['external effects'] } }] };
+  const cache = new Map();
+  await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache });
+  assert.equal(controller.getRun(task.taskId).state, 'BLOCKED_DEPENDENCY');
+  assert.equal(controller.getRun(task.taskId).currentCycle, 0);
+  const roadmap = path.join(f.worktree, 'docs/roadmap/ROADMAP.md');
+  fs.writeFileSync(roadmap, fs.readFileSync(roadmap, 'utf8').replace('DEP-DONE', 'DEP-OPEN'));
+  f.git(['add', 'docs/roadmap/ROADMAP.md']); f.git(['commit', '-qm', 'accepted dependency evidence']);
+  f.git(['update-ref', 'refs/remotes/origin/main', f.git(['rev-parse', 'HEAD'])]);
+  await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache });
+  assert.equal(controller.getRun(task.taskId).state, 'WORKER_READY');
+  assert.equal(controller.getRun(task.taskId).currentCycle, 1);
 });
 test('runner advances two isolated branches through distinct role sessions and durable root-ready state', async (t) => {
   const f = candidateFixture(t);
