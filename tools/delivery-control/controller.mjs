@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { lstatSync, readFileSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { openControllerStore, repositoryPaths } from './controller-store.mjs';
+import { validatePreparedReceiptPath } from './base-advanced-resume.mjs';
 
 const ROLES = Object.freeze([
   { nodeId: 'worker', stage: 'WORKER_IMPLEMENTATION', role: 'worker' },
@@ -163,15 +164,15 @@ function pathInside(root, candidate) {
 function readPreparedBaseResumeReceipt({ store, run, taskRecord, baseline, preparedBaseReceiptFile }) {
   if (!nonempty(preparedBaseReceiptFile)) throw new Error('PREPARED_BASE_RECEIPT_REQUIRED');
   let resolvedFile;
-  try { resolvedFile = realpathSync(preparedBaseReceiptFile); }
-  catch { throw new Error('PREPARED_BASE_RECEIPT_MISSING'); }
   const privateRoot = path.join(store.gitCommonDir, 'zuri-delivery-control');
-  let resolvedPrivateRoot;
-  try { resolvedPrivateRoot = realpathSync(privateRoot); }
-  catch { throw new Error('PREPARED_BASE_RECEIPT_PRIVATE_ROOT_MISSING'); }
-  if (!pathInside(resolvedPrivateRoot, resolvedFile) || resolvedFile === resolvedPrivateRoot) {
+  try { resolvedFile = validatePreparedReceiptPath({ privateRoot, receiptFile: preparedBaseReceiptFile,
+    taskId: taskRecord.taskId }); }
+  catch (error) {
+    if (error.code === 'BASE_ADVANCED_PREPARED_RECEIPT_PATH_MISSING') throw new Error('PREPARED_BASE_RECEIPT_MISSING');
+    if (error.code === 'BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED') throw new Error('PREPARED_BASE_RECEIPT_PATH_REDIRECTED');
     throw new Error('PREPARED_BASE_RECEIPT_MUST_BE_PRIVATE');
   }
+  const resolvedPrivateRoot = realpathSync(privateRoot);
 
   let bytes;
   let receipt;
@@ -181,6 +182,7 @@ function readPreparedBaseResumeReceipt({ store, run, taskRecord, baseline, prepa
   } catch { throw new Error('PREPARED_BASE_RECEIPT_INVALID_JSON'); }
   if (!isRecord(receipt) || receipt.schemaVersion !== 'root-base-prepared-candidate/v1'
       || receipt.taskId !== taskRecord.taskId || receipt.taskId !== run.task_id
+      || receipt.cycleNo !== run.current_cycle
       || !nonempty(receipt.reason) || !nonempty(receipt.evidenceRef)
       || ![receipt.oldHeadCommit, receipt.headCommit, receipt.oldBaseCommit, receipt.newBaseCommit]
         .every((sha) => typeof sha === 'string' && /^[a-f0-9]{40}$/.test(sha))) {
@@ -763,6 +765,27 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     return row ? runShape(db, row, { includeTaskRecord: true }) : null;
   }
 
+  function inspectBaseAdvancedPause(taskId) {
+    const row = db.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
+    if (!row) return null;
+    const cycle = db.prepare('SELECT cycle_no,state,started_at,paused_at,submissions,implementation_repairs,tool_retries FROM delivery_cycles WHERE task_id=? AND cycle_no=?')
+      .get(taskId, row.current_cycle);
+    const disposition = db.prepare(`SELECT payload_json FROM delivery_events
+      WHERE task_id=? AND cycle_no=? AND event_type='ROOT_BASE_ADVANCED_DISPOSITION_RECORDED'
+      ORDER BY sequence DESC LIMIT 1`).get(taskId, row.current_cycle);
+    return {
+      run: runShape(db, row, { includeTaskRecord: true }),
+      cycle,
+      baseAdvancedDisposition: disposition ? rowJson(disposition.payload_json) : null,
+      activeLeases: db.prepare("SELECT cycle_no,node_id,lease_owner,lease_expires_at FROM delivery_nodes WHERE task_id=? AND state IN ('LEASED','RUNNING') ORDER BY cycle_no,node_id")
+        .all(taskId),
+      unknownEffects: db.prepare("SELECT cycle_no,node_id,operation_id,created_at FROM delivery_unknown_effects WHERE task_id=? AND state='UNKNOWN' ORDER BY cycle_no,node_id")
+        .all(taskId),
+      unknownNodes: db.prepare("SELECT cycle_no,node_id FROM delivery_nodes WHERE task_id=? AND effect_state='UNKNOWN' ORDER BY cycle_no,node_id")
+        .all(taskId),
+    };
+  }
+
   function listRuns() {
     return queryRuns(db).map((row) => runShape(db, row));
   }
@@ -1173,6 +1196,77 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     });
   }
 
+  function recordBaseAdvancedDisposition({ taskId, cycleNo, expectedBaseCommit, expectedCandidateHeadCommit,
+    observedBaseCommit, checkpoint, evidenceRef, reason } = {}) {
+    const isCommit = (value) => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value);
+    if (!nonempty(taskId) || !Number.isSafeInteger(cycleNo) || cycleNo < 1
+        || !isCommit(expectedBaseCommit) || !isCommit(expectedCandidateHeadCommit) || !isCommit(observedBaseCommit)
+        || observedBaseCommit === expectedBaseCommit || !nonempty(evidenceRef) || !nonempty(reason)
+        || !isRecord(checkpoint) || checkpoint.status !== 'ROOT_REPLAN_PAUSED' || checkpoint.code !== 'BASE_ADVANCED'
+        || checkpoint.taskId !== taskId || checkpoint.expectedBaseCommit !== expectedBaseCommit
+        || checkpoint.candidateHeadCommit !== expectedCandidateHeadCommit || !isCommit(checkpoint.actualBaseCommit)) {
+      throw new TypeError('BASE_ADVANCED disposition requires the exact paused delivery checkpoint and commit bindings.');
+    }
+    return store.transaction((tx) => {
+      const run = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
+      if (!run || !['ROOT_INTEGRATED_PENDING_CI', 'BLOCKED_STALE_CANDIDATE'].includes(run.state)
+          || run.current_cycle !== cycleNo || run.base_commit !== expectedBaseCommit
+          || run.candidate_head_commit !== expectedCandidateHeadCommit) {
+        throw new Error('BASE_ADVANCED_CONTROLLER_RUN_MISMATCH');
+      }
+      const cycle = tx.prepare('SELECT * FROM delivery_cycles WHERE task_id=? AND cycle_no=?').get(taskId, cycleNo);
+      const initialDisposition = run.state === 'ROOT_INTEGRATED_PENDING_CI' && cycle?.state === 'INTEGRATED';
+      const prior = tx.prepare(`SELECT payload_json FROM delivery_events WHERE task_id=? AND cycle_no=?
+        AND event_type='ROOT_BASE_ADVANCED_DISPOSITION_RECORDED' ORDER BY sequence DESC LIMIT 1`).get(taskId, cycleNo);
+      const priorPayload = prior ? rowJson(prior.payload_json) : null;
+      const reassessment = run.state === 'BLOCKED_STALE_CANDIDATE' && cycle?.state === 'BLOCKED'
+        && priorPayload?.disposition === 'YIELD_REASSESS' && priorPayload?.basis === 'MATERIAL_NEW_EVIDENCE'
+        && priorPayload?.source === 'BASE_ADVANCED' && priorPayload.oldBaseCommit === expectedBaseCommit
+        && priorPayload.oldHeadCommit === expectedCandidateHeadCommit
+        && isDeepStrictEqual(priorPayload.checkpoint, checkpoint);
+      if (!initialDisposition && !reassessment) throw new Error('BASE_ADVANCED_CONTROLLER_CYCLE_MISMATCH');
+      const active = tx.prepare("SELECT COUNT(*) AS count FROM delivery_nodes WHERE task_id=? AND state IN ('LEASED','RUNNING')").get(taskId).count;
+      const unknownEffects = tx.prepare("SELECT COUNT(*) AS count FROM delivery_unknown_effects WHERE task_id=? AND state='UNKNOWN'").get(taskId).count;
+      const unknownNodes = tx.prepare("SELECT COUNT(*) AS count FROM delivery_nodes WHERE task_id=? AND effect_state='UNKNOWN'").get(taskId).count;
+      if (active) throw new Error('BASE_ADVANCED_ACTIVE_LEASES_PRESENT');
+      if (unknownEffects || unknownNodes) throw new Error('BASE_ADVANCED_UNKNOWN_EFFECT_PRESENT');
+      const nodes = tx.prepare('SELECT node_id,state,effect_state FROM delivery_nodes WHERE task_id=? AND cycle_no=? ORDER BY node_id').all(taskId, cycleNo);
+      if (nodes.length !== 3 || nodes.some((node) => node.state !== 'PASSED' || node.effect_state !== 'APPLIED')) {
+        throw new Error('BASE_ADVANCED_ROLE_EVIDENCE_INCOMPLETE');
+      }
+      const current = gitSnapshot(run.worktree_root, run.base_commit, rowJson(run.proof_scope_json));
+      if (!current.clean || current.violations.length || current.branch !== run.branch
+          || current.headCommit !== expectedCandidateHeadCommit) {
+        throw new Error('BASE_ADVANCED_CANDIDATE_NOT_EXACT_AND_CLEAN');
+      }
+      if (!isAncestor(run.worktree_root, expectedBaseCommit, observedBaseCommit)) {
+        throw new Error('BASE_ADVANCED_NEW_BASE_NOT_DESCENDANT');
+      }
+      if (!isAncestor(run.worktree_root, checkpoint.actualBaseCommit, observedBaseCommit)) {
+        throw new Error('BASE_ADVANCED_CHECKPOINT_BASE_NOT_DESCENDANT');
+      }
+      const scopes = rowJson(run.proof_scope_json) ?? [];
+      const conflict = pathConflict(tx, taskId, scopes, run.worktree_root);
+      if (conflict) throw new Error('BASE_ADVANCED_WRITE_SCOPE_LOCKED:' + conflict.taskId);
+      tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskId);
+      for (const scope of scopes) tx.prepare('INSERT INTO delivery_write_locks(task_id,scope_path) VALUES(?,?)').run(taskId, scope);
+      const at = nowIso(clock);
+      if (initialDisposition) {
+        tx.prepare("UPDATE delivery_runs SET state='BLOCKED_STALE_CANDIDATE',updated_at=? WHERE task_id=?").run(at, taskId);
+        tx.prepare("UPDATE delivery_cycles SET state='BLOCKED',paused_at=?,updated_at=? WHERE task_id=? AND cycle_no=?")
+          .run(at, at, taskId, cycleNo);
+      } else {
+        tx.prepare('UPDATE delivery_runs SET updated_at=? WHERE task_id=?').run(at, taskId);
+      }
+      eventInTransaction(tx, clock, taskId, cycleNo, 'ROOT_BASE_ADVANCED_DISPOSITION_RECORDED', {
+        disposition: 'YIELD_REASSESS', basis: 'MATERIAL_NEW_EVIDENCE', source: 'BASE_ADVANCED',
+        oldBaseCommit: expectedBaseCommit, oldHeadCommit: expectedCandidateHeadCommit,
+        observedBaseCommit, checkpoint, evidenceRef, reason,
+      });
+      return runShape(tx, tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId), { includeTaskRecord: true });
+    });
+  }
+
   function recordRootDisposition({ taskId, disposition, evidenceRef, reason } = {}) {
     if (!nonempty(taskId) || !['YIELD_REASSESS', 'BLOCKED', 'ABANDONED'].includes(disposition) || !nonempty(evidenceRef) || !nonempty(reason)) {
       throw new TypeError('Root disposition requires a supported resumable/terminal disposition, evidenceRef, and reason.');
@@ -1237,6 +1331,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const preparedBaseEvidence = preparedBase ? {
         schemaVersion: preparedBase.receipt.schemaVersion,
         taskId: preparedBase.receipt.taskId,
+        cycleNo: preparedBase.receipt.cycleNo,
         receiptPath: preparedBase.receiptPath,
         receiptDigest: preparedBase.receiptDigest,
         oldHeadCommit: preparedBase.receipt.oldHeadCommit,
@@ -1404,12 +1499,14 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     failNode,
     reconcileUnknown,
     recordRootIntegration,
+    recordBaseAdvancedDisposition,
     recordRootDisposition,
     recordPreflightRepair,
     resumeTask,
     admitCycle,
     releaseLease,
     getRun,
+    inspectBaseAdvancedPause,
     listRuns,
     missionControlSnapshot,
     verifyEventChain: () => readAndVerifyEvents(db),

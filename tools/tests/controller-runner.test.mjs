@@ -36,6 +36,7 @@ test('unchanged pre-claim errors are reported once and suppressed without spawni
   const second = await runner.tick();
   assert.equal(second.errors.length, 1); assert.equal(second.active, 0);
   assert.equal((await runner.tick()).errors.length, 0); assert.equal(calls, 0);
+  assert.equal(runner.isActive('T1'), false);
   await runner.stop();
 });
 
@@ -90,13 +91,15 @@ test('root-prepared base merge binds exact receipt bytes through authorization a
   f.git(['checkout', '-q', 'codex/fixture']); f.git(['merge', '--no-ff', '--no-edit', 'upstream']); const headCommit = f.git(['rev-parse', 'HEAD']);
   const input = { ...f, baseCommit: newBaseCommit, result: { ...f.result, headCommit } };
   assert.throws(() => commitWorkerCandidate(input), /NO_CANDIDATE_CHANGES/);
-  const preparedReceiptFile = path.join(f.worktree, '.git/zuri-delivery-control/prepared/root.json'); fs.mkdirSync(path.dirname(preparedReceiptFile), { recursive: true });
-  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: f.task.taskId, oldBaseCommit: f.baseCommit,
+  const preparedReceiptFile = path.join(f.worktree, '.git/zuri-delivery-control/supervisors/fixture/prepared', `${f.task.taskId}.json`); fs.mkdirSync(path.dirname(preparedReceiptFile), { recursive: true });
+  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: f.task.taskId, cycleNo: 1, oldBaseCommit: f.baseCommit,
     oldHeadCommit, headCommit, newBaseCommit, reason: 'Verified newer base; same task/caps', evidenceRef: 'root fixture operation' };
   fs.writeFileSync(preparedReceiptFile, JSON.stringify(receipt));
   const proof = readPreparedCandidate({ worktree: f.worktree, task: f.task, baseCommit: newBaseCommit, receiptFile: preparedReceiptFile });
+  assert.throws(() => readPreparedCandidate({ worktree: f.worktree, task: f.task, baseCommit: newBaseCommit,
+    receiptFile: preparedReceiptFile, expectedCycleNo: 2 }), /PREPARED_CANDIDATE_BINDING_MISMATCH/);
   const acceptedBytes = fs.readFileSync(preparedReceiptFile);
-  const run = { state: 'WORKER_READY', taskRecord: f.task, baseCommit: newBaseCommit,
+  const run = { state: 'WORKER_READY', currentCycle: 1, taskRecord: f.task, baseCommit: newBaseCommit,
     preparedBaseResume: { taskId: f.task.taskId, receiptDigest: proof.receiptDigest } };
   const makeRunner = () => createControllerRunner({ controller: { getRun: () => run }, repoRoot: f.worktree,
     stateRoot: f.artifactDir, config: { tasks: [{ taskId: f.task.taskId, taskFile: f.taskFile,
@@ -118,6 +121,21 @@ test('root-prepared base merge binds exact receipt bytes through authorization a
   assert.equal(candidateReceipt.validationOnly, true);
   assert.equal(candidateReceipt.preparedReceiptDigest, proof.receiptDigest);
   assert.equal(fs.readFileSync(path.join(f.worktree, 'src/feature.txt'), 'utf8'), 'feature');
+});
+
+test('prepared candidate reader rejects a symlinked prepared directory before reading a redirected receipt', (t) => {
+  const f = candidateFixture(t);
+  const privateRoot = path.join(f.worktree, '.git', 'zuri-delivery-control');
+  const prepared = path.join(privateRoot, 'supervisors', 'fixture', 'prepared');
+  fs.mkdirSync(prepared, { recursive: true });
+  const external = path.join(f.worktree, '.git', 'redirected-prepared-receipts');
+  fs.mkdirSync(external, { recursive: true });
+  fs.writeFileSync(path.join(external, `${f.task.taskId}.json`), '{}');
+  fs.rmSync(prepared, { recursive: true, force: true });
+  fs.symlinkSync(external, prepared, process.platform === 'win32' ? 'junction' : 'dir');
+  assert.throws(() => readPreparedCandidate({ worktree: f.worktree, task: f.task,
+    baseCommit: f.baseCommit, receiptFile: path.join(prepared, `${f.task.taskId}.json`) }),
+  /BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED/);
 });
 test('runner holds a worker at stale baseline when HEAD changes after dispatch intent but before backend spawn', async (t) => {
   const f = candidateFixture(t);

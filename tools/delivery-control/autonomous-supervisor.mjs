@@ -11,6 +11,8 @@ import { preflightTask } from './preflight.mjs';
 import { runRoadmapIntake } from './roadmap-intake.mjs';
 import { createGitHubDeliveryAdapter } from './github-delivery.mjs';
 import { startControllerDashboard } from './controller-dashboard.mjs';
+import { baseAdvancedResumeSignature, fetchConfiguredBase, prepareBaseAdvancedResume,
+  readConfiguredRemoteBase, validatePreparedReceiptPath } from './base-advanced-resume.mjs';
 
 const git = (cwd, argv) => execFileSync('git', argv, { cwd, encoding: 'utf8', shell: false, windowsHide: true, timeout: 30_000 }).trim();
 const digest = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -18,9 +20,13 @@ const within = (root, target) => { const relative = path.relative(root, target);
 const parse = (file) => JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
 const staleResumeStates = new Set(['BLOCKED_STALE_CANDIDATE', 'BLOCKED_STALE_BASELINE']);
 
-async function preparedEvidenceSignature({ binding, run, receiptFile, baseRef, readRemoteBase }) {
+async function preparedEvidenceSignature({ binding, run, receiptFile, baseRef, readRemoteBase, privateRoot, stateRoot }) {
   const readEvidence = (file) => {
-    try { return { path: fs.realpathSync(file), bytes: fs.readFileSync(file).toString('base64') }; }
+    try {
+      validatePreparedReceiptPath({ privateRoot, stateRoot, receiptFile: file, taskId: binding.taskId,
+        cycleNo: run?.currentCycle });
+      return { path: fs.realpathSync(file), bytes: fs.readFileSync(file).toString('base64') };
+    }
     catch (error) { return { path: path.resolve(file), error: error.code ?? error.message }; }
   };
   let worktree;
@@ -53,37 +59,6 @@ async function preparedEvidenceSignature({ binding, run, receiptFile, baseRef, r
     fetchedBaseSha,
     remoteBaseSha,
   });
-}
-
-function baseRefParts(baseRef, repo) {
-  if (typeof baseRef !== 'string') throw new Error('PREPARED_BASE_REF_INVALID');
-  const separator = baseRef.indexOf('/');
-  const remote = baseRef.slice(0, separator);
-  const branch = baseRef.slice(separator + 1);
-  if (separator < 1 || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(remote) || !branch
-      || branch.startsWith('-') || branch.includes('..') || branch.endsWith('/') || branch.includes('//')) {
-    throw new Error('PREPARED_BASE_REF_INVALID');
-  }
-  const trackingRef = `refs/remotes/${remote}/${branch}`;
-  git(repo, ['check-ref-format', trackingRef]);
-  return { remote, branch, trackingRef };
-}
-
-function fetchPreparedBase({ repo, baseRef }) {
-  const { remote, branch, trackingRef } = baseRefParts(baseRef, repo);
-  git(repo, ['fetch', '--no-tags', remote, `refs/heads/${branch}:${trackingRef}`]);
-  const sha = git(repo, ['rev-parse', '--verify', `${trackingRef}^{commit}`]);
-  if (!/^[a-f0-9]{40}$/.test(sha)) throw new Error('PREPARED_BASE_FETCH_INVALID');
-  return sha;
-}
-
-function readRemoteBase({ repo, baseRef }) {
-  const { remote, branch } = baseRefParts(baseRef, repo);
-  const output = git(repo, ['ls-remote', '--exit-code', '--heads', remote, `refs/heads/${branch}`]);
-  const matches = output.split(/\r?\n/).map((line) => line.trim().split(/\s+/))
-    .filter(([sha, ref]) => /^[a-f0-9]{40}$/.test(sha ?? '') && ref === `refs/heads/${branch}`);
-  if (matches.length !== 1) throw new Error('PREPARED_BASE_REMOTE_UNAVAILABLE');
-  return matches[0][0];
 }
 
 function preparedBaseError(code) {
@@ -123,6 +98,8 @@ export function loadSupervisorCampaign(repoRoot, campaignFile) {
     || !isDeepStrictEqual(intakeCampaign.prohibitions, campaign.prohibitions)) throw new Error('CAMPAIGN_INTAKE_MISMATCH');
   if (!/^[A-Za-z0-9.-]+\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(campaign.delivery?.expectedOwnerRepo ?? '')
     || !Array.isArray(campaign.delivery.requiredChecks) || !campaign.delivery.requiredChecks.length) throw new Error('DELIVERY_CHECKS_REQUIRED');
+  const deliveryBaseRef = `${campaign.delivery.remoteName ?? 'origin'}/${campaign.delivery.base ?? 'main'}`;
+  if ((intakeCampaign.baseRef ?? 'origin/main') !== deliveryBaseRef) throw new Error('INTAKE_DELIVERY_BASE_MISMATCH');
   return { root, common, privateRoot, file, campaign, intakeFile, intakeCampaign,
     campaignDigest: digest({ campaign, intakeCampaign }) };
 }
@@ -131,7 +108,9 @@ export function loadSupervisorCampaign(repoRoot, campaignFile) {
 export async function createAutonomousSupervisor({ repoRoot, campaignFile, controller: providedController,
   runnerFactory = createControllerRunner, intake = runRoadmapIntake, deliveryFactory = createGitHubDeliveryAdapter,
   admit = admitConfiguredTasks, preflight = preflightTask,
-  fetchPreparedBase: fetchBase = fetchPreparedBase, readRemoteBase: readBase = readRemoteBase,
+  fetchPreparedBase: fetchBase = fetchConfiguredBase, readRemoteBase: readBase = readConfiguredRemoteBase,
+  mergeBase, baseAdvancedResume: prepareAdvancedResume = prepareBaseAdvancedResume,
+  baseAdvancedResumeSignature: advancedSignature = baseAdvancedResumeSignature,
   now = () => Date.now() }) {
   const loaded = loadSupervisorCampaign(repoRoot, campaignFile);
   const { root, common, privateRoot, campaign, intakeFile, intakeCampaign, campaignDigest } = loaded;
@@ -161,6 +140,10 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   state.preparedResumeBlocked ??= {};
   state.preparedResumeReassessments ??= {};
   state.preparedResumeExpectedDigests ??= {};
+  state.preparedResumeReceiptFiles ??= {};
+  state.baseAdvancedResumeBlocked ??= {};
+  state.baseAdvancedResumeReassessments ??= {};
+  state.deliveryHistory ??= {};
   let controller;
   try { controller = providedController ?? await openDeliveryController({ repoRoot: root }); }
   catch (error) { releaseLock(); throw error; }
@@ -234,11 +217,72 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
           signal({ taskId: item.taskId, status: item.state ?? item.status, code: item.code ?? null }, observations);
         }
         for (const binding of state.bindings) {
-          const file = path.join(stateRoot, 'prepared', binding.taskId + '.json');
-          const baseRef = intakeCampaign.baseRef ?? 'origin/main';
+          let file = state.preparedResumeReceiptFiles[binding.taskId]
+            ?? path.join(stateRoot, 'prepared', binding.taskId + '.json');
+          const baseRef = `${campaign.delivery.remoteName ?? 'origin'}/${campaign.delivery.base ?? 'main'}`;
           let run = controller.getRun(binding.taskId);
+          const checkpoint = state.deliveries[binding.taskId];
+          if (checkpoint?.status === 'ROOT_REPLAN_PAUSED' && checkpoint.code === 'BASE_ADVANCED') {
+            // Hold before inspection/merge and on every restart. The controller
+            // state stays non-worker-ready until the receipt is transactionally resumed.
+            runner.hold?.(binding.taskId);
+            const signatureInput = { repoRoot: root, privateRoot, stateRoot, campaignId: campaign.campaignId,
+              binding, checkpoint, controller, baseRef, readRemoteBase: readBase,
+              runnerActive: runner.isActive?.(binding.taskId) ?? false };
+            const signature = await advancedSignature(signatureInput);
+            const previous = state.baseAdvancedResumeBlocked[binding.taskId];
+            const reassessment = state.baseAdvancedResumeReassessments[binding.taskId] ?? null;
+            if (previous?.signature === signature && !reassessment) continue;
+            if (reassessment) { delete state.baseAdvancedResumeReassessments[binding.taskId]; persist(); }
+            try {
+              const prepared = await prepareAdvancedResume({ repoRoot: root, privateRoot, stateRoot,
+                campaignId: campaign.campaignId, binding, checkpoint, controller, runner, baseRef,
+                reassessment, fetchBase, readRemoteBase: readBase, mergeBase });
+              const currentRun = controller.getRun(binding.taskId);
+              if (prepared?.status !== 'READY_TO_RESUME' || prepared.receipt?.taskId !== binding.taskId
+                  || prepared.receipt?.cycleNo !== currentRun?.currentCycle
+                  || prepared.receipt?.oldHeadCommit !== run?.candidateHeadCommit
+                  || prepared.receipt?.oldBaseCommit !== run?.baseCommit
+                  || typeof prepared.receiptFile !== 'string' || !within(privateRoot, path.resolve(prepared.receiptFile))) {
+                throw new Error('BASE_ADVANCED_PREPARED_RECEIPT_BINDING_MISMATCH');
+              }
+              validatePreparedReceiptPath({ privateRoot, stateRoot, receiptFile: prepared.receiptFile,
+                taskId: binding.taskId, cycleNo: currentRun.currentCycle });
+              const receiptFile = fs.realpathSync(prepared.receiptFile);
+              if (!within(privateRoot, receiptFile)) throw new Error('BASE_ADVANCED_PREPARED_RECEIPT_NOT_PRIVATE');
+              state.preparedResumeReceiptFiles[binding.taskId] = receiptFile;
+              const history = state.deliveryHistory[binding.taskId] ?? (state.deliveryHistory[binding.taskId] = []);
+              const checkpointKey = digest([binding.taskId, run.currentCycle, checkpoint.expectedBaseCommit,
+                checkpoint.actualBaseCommit, checkpoint.candidateHeadCommit]);
+              if (!history.some((entry) => entry.checkpointKey === checkpointKey)) history.push({ checkpointKey,
+                checkpoint, invalidatedAt: new Date(now()).toISOString(), cycleNo: run.currentCycle,
+                oldHeadCommit: prepared.receipt.oldHeadCommit, newHeadCommit: prepared.receipt.headCommit,
+                oldBaseCommit: prepared.receipt.oldBaseCommit, newBaseCommit: prepared.receipt.newBaseCommit,
+                preparedReceiptFile: receiptFile, priorEvidenceInvalidated: true });
+              delete state.deliveries[binding.taskId];
+              delete state.deliveryRevisions?.[binding.taskId];
+              adapters.delete(binding.taskId);
+              delete state.baseAdvancedResumeBlocked[binding.taskId];
+              delete state.baseAdvancedResumeReassessments[binding.taskId];
+              persist();
+              file = receiptFile;
+              run = currentRun;
+              signal({ taskId: binding.taskId, status: 'BASE_ADVANCED_RESUME_PREPARED', cycleNo: run.currentCycle,
+                oldHeadCommit: prepared.receipt.oldHeadCommit, newHeadCommit: prepared.receipt.headCommit,
+                oldBaseCommit: prepared.receipt.oldBaseCommit, newBaseCommit: prepared.receipt.newBaseCommit }, observations);
+            } catch (error) {
+              runner.hold?.(binding.taskId);
+              const code = String(error.code ?? error.message);
+              const failedSignature = await advancedSignature(signatureInput);
+              state.baseAdvancedResumeBlocked[binding.taskId] = { signature: failedSignature, code,
+                rootReassessment: reassessment };
+              persist();
+              signal({ taskId: binding.taskId, status: 'BASE_ADVANCED_RESUME_REASSESSMENT_REQUIRED', code }, observations);
+              continue;
+            }
+          }
           if (staleResumeStates.has(run?.state)) {
-            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase, privateRoot, stateRoot });
             const previous = state.preparedResumeBlocked[binding.taskId];
             const reassessment = state.preparedResumeReassessments[binding.taskId] ?? null;
             runner.hold?.(binding.taskId);
@@ -279,7 +323,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
             } catch (error) {
               runner.hold?.(binding.taskId);
               const code = String(error.code ?? error.message);
-              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase, privateRoot, stateRoot });
               state.preparedResumeBlocked[binding.taskId] = {
                 signature: failedSignature,
                 code,
@@ -293,7 +337,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
           if (run?.state === 'WORKER_READY'
               && (run.preparedBaseResume?.receiptDigest || fs.existsSync(file) || state.preparedResumeBlocked[binding.taskId])) {
             runner.hold?.(binding.taskId);
-            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase, privateRoot, stateRoot });
             const previous = state.preparedResumeBlocked[binding.taskId];
             const reassessment = state.preparedResumeReassessments[binding.taskId] ?? null;
             if (previous?.signature === signature && !reassessment) continue;
@@ -311,7 +355,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
               persist();
             } catch (error) {
               const code = String(error.code ?? error.message);
-              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase, privateRoot, stateRoot });
               state.preparedResumeBlocked[binding.taskId] = {
                 signature: failedSignature,
                 code,
@@ -371,7 +415,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
     },
     status() { return { campaignId: campaign.campaignId, campaignDigest, allowedTaskIds: intakeCampaign.allowedTaskIds,
       bindings: state.bindings.map((item) => item.taskId), deliveries: state.deliveries, intake: state.intake,
-      preparedResumeBlocked: state.preparedResumeBlocked }; },
+      preparedResumeBlocked: state.preparedResumeBlocked, baseAdvancedResumeBlocked: state.baseAdvancedResumeBlocked }; },
     reassessPreparedResume({ taskId, evidenceRef, reason } = {}) {
       if (stopped || ticking) throw new Error('SUPERVISOR_NOT_AVAILABLE_FOR_REASSESSMENT');
       if (!state.bindings.some((item) => item.taskId === taskId) || typeof evidenceRef !== 'string' || !evidenceRef.trim()
@@ -381,6 +425,20 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
       persist();
       runner.wake?.(taskId);
       return { taskId, status: 'PREPARED_RESUME_REASSESSMENT_QUEUED' };
+    },
+    reassessBaseAdvancedResume({ taskId, evidenceRef, reason } = {}) {
+      if (stopped || ticking) throw new Error('SUPERVISOR_NOT_AVAILABLE_FOR_REASSESSMENT');
+      if (!state.bindings.some((item) => item.taskId === taskId)
+          || state.deliveries[taskId]?.status !== 'ROOT_REPLAN_PAUSED'
+          || state.deliveries[taskId]?.code !== 'BASE_ADVANCED'
+          || typeof evidenceRef !== 'string' || !evidenceRef.trim()
+          || typeof reason !== 'string' || !reason.trim()) {
+        throw new TypeError('Base advanced reassessment requires the bound paused task, evidence reference, and reason.');
+      }
+      state.baseAdvancedResumeReassessments[taskId] = { evidenceRef, reason, requestedAt: new Date(now()).toISOString() };
+      persist();
+      runner.hold?.(taskId);
+      return { taskId, status: 'BASE_ADVANCED_RESUME_REASSESSMENT_QUEUED' };
     },
     async stop() {
       stopped = true;
