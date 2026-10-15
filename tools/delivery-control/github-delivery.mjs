@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { execFile } from 'node:child_process';
-import { closeSync, constants as fsConstants, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, realpathSync, writeSync } from 'node:fs';
+import { closeSync, constants as fsConstants, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, writeSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import path from 'node:path';
 
@@ -61,15 +61,16 @@ function canonicalRemote(raw) {
     let url;
     try { url = new URL(raw); } catch { return null; }
     const isSsh = url.protocol === 'ssh:';
-    if ((!isSsh && url.username) || url.password || (isSsh && url.username && url.username !== 'git')
+    if ((!isSsh && url.username) || url.password || (isSsh && url.username !== 'git')
+        || (!isSsh && url.port) || (isSsh && url.port && url.port !== '22')
         || url.search || url.hash) return null;
     host = url.hostname;
     pathname = url.pathname;
   } else {
-    const match = /^(?:[^@/:]+@)?([^:/]+):(.+)$/.exec(raw);
-    if (!match) return null;
-    host = match[1];
-    pathname = '/' + match[2];
+    const match = /^(?:([^@/:]+)@)?([^:/]+):(.+)$/.exec(raw);
+    if (!match || match[1] !== 'git') return null;
+    host = match[2];
+    pathname = '/' + match[3];
   }
   const cleanPath = pathname.replace(/^\//, '').replace(/\.git$/i, '');
   const repo = canonicalRepository(host + '/' + cleanPath);
@@ -208,21 +209,24 @@ function writeReceipt(pathname, events, { taskId, campaignDigest, eventType, ope
   return record;
 }
 
-function readReceipts(pathname, taskId, campaignDigest) {
+function readReceipts(pathname, taskId, campaignDigest = null) {
   if (!existsSync(pathname)) return [];
   const text = readFileSync(pathname, 'utf8');
   if (!text.endsWith('\n')) throw new Error('RECEIPT_TAIL_INCOMPLETE');
   const lines = text.split(/\r?\n/).filter(Boolean);
   let previousHash = 'GENESIS';
+  let boundDigest = campaignDigest;
   const events = [];
   for (const line of lines) {
     let record;
     try { record = JSON.parse(line); } catch { throw new Error('RECEIPT_INVALID_JSON'); }
     const { hash, ...body } = record;
+    if (!boundDigest && events.length === 0 && nonempty(record.campaignDigest)) boundDigest = record.campaignDigest;
     if (record.schemaVersion !== GITHUB_DELIVERY_RECEIPT_SCHEMA
         || record.sequence !== events.length + 1
         || record.taskId !== taskId
-        || record.campaignDigest !== campaignDigest
+        || !nonempty(record.campaignDigest)
+        || record.campaignDigest !== boundDigest
         || record.previousHash !== previousHash
         || hash !== sha256(stableJson(body))) {
       throw new Error('RECEIPT_CHAIN_INVALID');
@@ -279,9 +283,30 @@ function receiptPaths(commonDir, campaign) {
   const lockHash = sha256(remoteKey);
   return {
     stateDir,
-    receiptPath: path.join(stateDir, 'receipts', taskHash + '.jsonl'),
+    receiptDir: path.join(stateDir, 'receipts', taskHash),
+    legacyReceiptPath: path.join(stateDir, 'receipts', taskHash + '.jsonl'),
     lockPath: path.join(stateDir, 'locks', lockHash + '.sqlite'),
   };
+}
+
+function revisionReceiptPath(paths, campaign, candidateHeadCommit) {
+  const revisionKey = sha256(campaign.taskId + '\n' + campaign.branch.expectedBaseCommit + '\n' + candidateHeadCommit);
+  return path.join(paths.receiptDir, revisionKey + '.jsonl');
+}
+
+function priorReceiptFiles(paths, currentReceiptPath, taskId) {
+  const candidates = [];
+  if (existsSync(paths.legacyReceiptPath)) candidates.push(paths.legacyReceiptPath);
+  if (existsSync(paths.receiptDir)) {
+    for (const entry of readdirSync(paths.receiptDir, { withFileTypes: true })) {
+      if (!entry.name.endsWith('.jsonl')) continue;
+      if (!entry.isFile()) throw new Error('RECEIPT_PATH_NOT_REGULAR_FILE');
+      candidates.push(path.join(paths.receiptDir, entry.name));
+    }
+  }
+  const current = path.resolve(currentReceiptPath);
+  return candidates.filter((pathname) => path.resolve(pathname) !== current)
+    .map((pathname) => ({ pathname, events: readReceipts(pathname, taskId) }));
 }
 
 function parseRemoteRefs(stdout, expectedRef) {
@@ -311,6 +336,24 @@ function matchingPrs(prs, campaign) {
 
 function isMerged(pr) {
   return pr?.state === 'MERGED' || Boolean(pr?.mergedAt);
+}
+
+function hasAuthorizedMergeEvidence(events, { number, candidateHeadCommit, expectedBaseCommit, operationId, requiredChecks }) {
+  return events.some((receipt) => receipt.eventType === 'MUTATION_INTENT' && receipt.action === 'merge'
+      && (!operationId || receipt.operationId === operationId)
+      && receipt.evidence?.number === number
+      && receipt.evidence?.candidateHeadCommit === candidateHeadCommit
+      && receipt.evidence?.expectedBaseCommit === expectedBaseCommit
+      && receipt.evidence?.baseProtection?.strict === true
+      && receipt.evidence?.baseProtection?.enforcedForAdmins === true
+      && Array.isArray(receipt.evidence?.baseProtection?.requiredChecks)
+      && stableJson([...receipt.evidence.baseProtection.requiredChecks].sort()) === stableJson([...requiredChecks].sort())
+      && events.some((observation) => observation.eventType === 'CI_OBSERVED'
+        && observation.sequence < receipt.sequence
+        && observation.evidence?.number === number
+        && observation.evidence?.headRefOid === candidateHeadCommit
+        && observation.evidence?.baseRefOid === expectedBaseCommit
+        && observation.evidence?.result?.status === 'PASS'));
 }
 
 function verifyGateRecord(run, campaign, repoRoot, eventChain) {
@@ -345,6 +388,7 @@ function verifyGateRecord(run, campaign, repoRoot, eventChain) {
 
 export function createGitHubDeliveryAdapter({
   repoRoot,
+  worktreeRoot,
   controller,
   campaign,
   ghExecutable = 'gh',
@@ -361,12 +405,13 @@ export function createGitHubDeliveryAdapter({
     throw new TypeError('GitHub delivery adapter requires repoRoot, durable controller, executables, and bounded command timeout.');
   }
   const canonicalRoot = realpathSync.native(path.resolve(repoRoot));
+  const candidateRoot = realpathSync.native(path.resolve(worktreeRoot ?? repoRoot));
   const checked = validateCampaign(campaign, canonicalRoot);
   const gh = runGh ?? ((args, options) => execFileResult(ghExecutable, args, options));
   const gitRunner = runGit ?? ((args, options) => execFileResult(gitExecutable, args, options));
 
   async function invokeGit(args, { allowedExitCodes = [0] } = {}) {
-    const result = commandResult(await gitRunner(args, { cwd: canonicalRoot, timeoutMs: commandTimeoutMs }));
+    const result = commandResult(await gitRunner(args, { cwd: candidateRoot, timeoutMs: commandTimeoutMs }));
     if (!allowedExitCodes.includes(result.exitCode)) {
       throw new Error('GIT_COMMAND_FAILED:' + args[0] + ':' + (result.processError ?? result.exitCode ?? result.signal ?? 'UNKNOWN'));
     }
@@ -374,7 +419,7 @@ export function createGitHubDeliveryAdapter({
   }
 
   async function invokeGh(args, { allowedExitCodes = [0] } = {}) {
-    const result = commandResult(await gh(args, { cwd: canonicalRoot, timeoutMs: commandTimeoutMs }));
+    const result = commandResult(await gh(args, { cwd: candidateRoot, timeoutMs: commandTimeoutMs }));
     if (!allowedExitCodes.includes(result.exitCode)) {
       throw new Error('GITHUB_COMMAND_FAILED:' + args[0] + ':' + (result.processError ?? result.exitCode ?? result.signal ?? 'UNKNOWN'));
     }
@@ -388,7 +433,10 @@ export function createGitHubDeliveryAdapter({
 
   async function assertGitBinding(gate) {
     const top = realpathSync.native((await invokeGit(['rev-parse', '--show-toplevel'])).stdout.trim());
-    if (top !== canonicalRoot) return resultError('REPOSITORY_ROOT_MISMATCH');
+    if (top !== candidateRoot) return resultError('REPOSITORY_ROOT_MISMATCH');
+    const repositoryCommon = commandResult(await gitRunner(['rev-parse', '--path-format=absolute', '--git-common-dir'],
+      { cwd: canonicalRoot, timeoutMs: commandTimeoutMs }));
+    if (repositoryCommon.exitCode !== 0 || realpathSync.native(repositoryCommon.stdout.trim()) !== await commonDirectory()) return resultError('WORKTREE_REPOSITORY_MISMATCH');
     const branch = (await invokeGit(['branch', '--show-current'])).stdout.trim();
     if (branch !== campaign.branch.head) return resultError('LOCAL_BRANCH_MISMATCH', { actualBranch: branch });
     const head = (await invokeGit(['rev-parse', '--verify', 'HEAD^{commit}'])).stdout.trim();
@@ -415,6 +463,82 @@ export function createGitHubDeliveryAdapter({
   async function remoteRef(ref) {
     const result = await invokeGit(['ls-remote', '--refs', campaign.repository.remoteName, ref]);
     return parseRemoteRefs(result.stdout, ref);
+  }
+
+  async function inspectPriorIntent(intent) {
+    try {
+      if (intent.action === 'push') {
+        if (intent.evidence?.branch !== campaign.branch.head
+            || intent.evidence?.remoteName !== campaign.repository.remoteName) {
+          return { status: 'UNAVAILABLE', reason: 'revision-remote-binding-changed' };
+        }
+        const remoteHead = await remoteRef('refs/heads/' + campaign.branch.head);
+        return { status: remoteHead === intent.evidence.candidateHeadCommit ? 'APPLIED'
+          : remoteHead === null ? 'NONE' : 'UNKNOWN', remoteHead };
+      }
+      if (intent.action === 'pullRequest') {
+        if (intent.evidence?.headBranch !== campaign.branch.head
+            || intent.evidence?.baseBranch !== campaign.branch.base) {
+          return { status: 'UNAVAILABLE', reason: 'revision-branch-binding-changed' };
+        }
+        const prs = matchingPrs(await pullRequestList(), campaign);
+        const exact = prs.filter((pr) => pr.headRefOid === intent.evidence.candidateHeadCommit);
+        return exact.length === 1 ? { status: 'APPLIED', number: exact[0].number, headRefOid: exact[0].headRefOid }
+          : !prs.length ? { status: 'NONE' } : { status: 'UNKNOWN', pullRequestNumbers: prs.map((pr) => pr.number) };
+      }
+      if (intent.action === 'merge') {
+        const pr = await pullRequestView(intent.evidence.number);
+        if (pr.headRefName !== campaign.branch.head || pr.baseRefName !== campaign.branch.base) {
+          return { status: 'UNAVAILABLE', reason: 'revision-branch-binding-changed' };
+        }
+        if (isMerged(pr) && pr.headRefOid === intent.evidence.candidateHeadCommit) {
+          return { status: 'APPLIED', number: pr.number, headRefOid: pr.headRefOid, mergedAt: pr.mergedAt };
+        }
+        if (pr.state === 'OPEN' && pr.headRefOid === intent.evidence.candidateHeadCommit) {
+          const queue = await mergeQueueEntry(pr.number);
+          return queue ? { status: 'APPLIED', number: pr.number, queued: true, queueState: queue.state ?? null }
+            : { status: 'NONE', number: pr.number, state: pr.state, headRefOid: pr.headRefOid };
+        }
+        return { status: 'UNKNOWN', number: pr.number, state: pr.state, headRefOid: pr.headRefOid };
+      }
+      return { status: 'UNAVAILABLE', reason: 'unsupported-prior-intent' };
+    } catch (error) {
+      return { status: 'UNAVAILABLE', reason: String(error.message ?? error) };
+    }
+  }
+
+  async function pushFastForward({ taskId, gate, remoteHeadCommit, pullRequest, events }) {
+    if (!isCommit(remoteHeadCommit)) return resultError('REMOTE_BRANCH_HEAD_INVALID', { taskId });
+    const ancestry = await invokeGit(['merge-base', '--is-ancestor', remoteHeadCommit, gate.candidateHeadCommit], { allowedExitCodes: [0, 1] });
+    if (ancestry.exitCode !== 0) {
+      return resultError('REMOTE_BRANCH_NOT_FAST_FORWARD', {
+        taskId, priorRemoteHead: remoteHeadCommit, candidateHeadCommit: gate.candidateHeadCommit,
+      });
+    }
+    if (pullRequest) {
+      const fresh = await pullRequestView(pullRequest.number);
+      if (fresh.state !== 'OPEN' || fresh.headRefName !== campaign.branch.head
+          || fresh.baseRefName !== campaign.branch.base || fresh.headRefOid !== remoteHeadCommit
+          || fresh.baseRefOid !== campaign.branch.expectedBaseCommit) {
+        return resultError('FAST_FORWARD_PR_PRECONDITION_CHANGED', {
+          taskId, number: fresh.number, expectedHead: remoteHeadCommit,
+          actualHead: fresh.headRefOid, expectedBase: campaign.branch.expectedBaseCommit,
+          actualBase: fresh.baseRefOid, state: fresh.state,
+        });
+      }
+    }
+    const mutation = await performMutation('push', ['push', '--porcelain', campaign.repository.remoteName,
+      gate.candidateHeadCommit + ':refs/heads/' + campaign.branch.head],
+    { candidateHeadCommit: gate.candidateHeadCommit, remoteName: campaign.repository.remoteName,
+      branch: campaign.branch.head, priorRemoteHead: remoteHeadCommit,
+      ...(pullRequest ? { pullRequestNumber: pullRequest.number } : {}) },
+    events, async () => {
+      const current = await remoteRef('refs/heads/' + campaign.branch.head);
+      if (current === gate.candidateHeadCommit) return { status: 'APPLIED', evidence: { remoteHead: current, priorRemoteHead: remoteHeadCommit } };
+      if (current === remoteHeadCommit) return { status: 'NONE', evidence: { remoteHead: current, priorRemoteHead: remoteHeadCommit } };
+      return { status: 'UNKNOWN', evidence: { remoteHead: current, expectedHead: gate.candidateHeadCommit, priorRemoteHead: remoteHeadCommit } };
+    });
+    return { ...mutation, taskId, candidateHeadCommit: gate.candidateHeadCommit, priorRemoteHead: remoteHeadCommit };
   }
 
   async function pullRequestList() {
@@ -449,12 +573,55 @@ export function createGitHubDeliveryAdapter({
     return payload.data.repository.pullRequest.mergeQueueEntry ?? null;
   }
 
+  async function readBaseProtection() {
+    const [host, owner, name] = campaign.repository.expectedOwnerRepo.split('/');
+    const endpoint = `repos/${owner}/${name}/branches/${encodeURIComponent(campaign.branch.base)}/protection`;
+    let response;
+    try {
+      response = commandResult(await gh(['api', endpoint, '--hostname', host], { cwd: candidateRoot, timeoutMs: commandTimeoutMs }));
+    } catch (error) {
+      return resultError('BASE_PROTECTION_UNAVAILABLE', { detail: String(error.message ?? error) });
+    }
+    if (response.exitCode !== 0 || response.processError || response.timedOut) {
+      return resultError('BASE_PROTECTION_UNAVAILABLE', { exitCode: response.exitCode, processError: response.processError });
+    }
+    let protection;
+    try { protection = parseJson(response.stdout, 'BASE_PROTECTION'); } catch (error) {
+      return resultError('BASE_PROTECTION_UNAVAILABLE', { detail: String(error.message ?? error) });
+    }
+    if (!isRecord(protection)) return resultError('BASE_PROTECTION_UNAVAILABLE');
+    const statusChecks = protection.required_status_checks;
+    const enforceAdmins = protection.enforce_admins;
+    if (!isRecord(statusChecks) || statusChecks.strict !== true) {
+      return resultError('BASE_PROTECTION_NOT_STRICT', { strict: statusChecks?.strict ?? null });
+    }
+    if (!isRecord(enforceAdmins) || enforceAdmins.enabled !== true) {
+      return resultError('BASE_PROTECTION_NOT_ENFORCED', { enforcedForAdmins: enforceAdmins?.enabled ?? null });
+    }
+    const protectedChecks = new Set([
+      ...(Array.isArray(statusChecks.contexts) ? statusChecks.contexts : []),
+      ...(Array.isArray(statusChecks.checks) ? statusChecks.checks.map((item) => item?.context).filter(nonempty) : []),
+    ]);
+    const missingRequiredChecks = checked.requiredChecks.filter((name) => !protectedChecks.has(name));
+    if (missingRequiredChecks.length) {
+      return resultError('BASE_PROTECTION_REQUIRED_CHECKS_MISSING', { missingRequiredChecks });
+    }
+    return {
+      status: 'PASS',
+      evidence: {
+        strict: true,
+        enforcedForAdmins: true,
+        requiredChecks: [...checked.requiredChecks],
+      },
+    };
+  }
+
   async function requiredAndAllChecks(number) {
     const suffix = ['--repo', campaign.repository.expectedOwnerRepo, '--json', 'bucket,name,state,workflow,completedAt'];
     const requiredArgs = ['pr', 'checks', String(number), '--required', ...suffix];
     const allArgs = ['pr', 'checks', String(number), ...suffix];
-    const requiredResult = commandResult(await gh(requiredArgs, { cwd: canonicalRoot, timeoutMs: commandTimeoutMs }));
-    const allResult = commandResult(await gh(allArgs, { cwd: canonicalRoot, timeoutMs: commandTimeoutMs }));
+    const requiredResult = commandResult(await gh(requiredArgs, { cwd: candidateRoot, timeoutMs: commandTimeoutMs }));
+    const allResult = commandResult(await gh(allArgs, { cwd: candidateRoot, timeoutMs: commandTimeoutMs }));
     const parseOutput = (result, description) => {
       const parsed = result.stdout.trim() ? parseJson(result.stdout, description) : [];
       if (!Array.isArray(parsed)) throw new Error(description + '_INVALID');
@@ -518,13 +685,66 @@ export function createGitHubDeliveryAdapter({
       Promise.resolve(controller.verifyEventChain()),
       Promise.resolve(controller.getRun(campaign.taskId)),
     ]);
-    return { run, gate: verifyGateRecord(run, campaign, canonicalRoot, eventChain), eventChain };
+    return { run, gate: verifyGateRecord(run, campaign, candidateRoot, eventChain), eventChain };
   }
 
   function event(events, eventType, evidence, extra = {}) {
     return writeReceipt(receiptFile, events, {
       taskId: campaign.taskId, campaignDigest: checked.digest, eventType, evidence, now, ...extra,
     });
+  }
+
+  async function confirmMergedPullRequest(prSnapshot, gate, events, { operationId } = {}) {
+    if (!prSnapshot || prSnapshot.headRefOid !== gate.candidateHeadCommit || prSnapshot.isDraft
+        || prSnapshot.headRefName !== campaign.branch.head || prSnapshot.baseRefName !== campaign.branch.base) {
+      return resultError('MERGED_PULL_REQUEST_BINDING_MISMATCH', { number: prSnapshot?.number ?? null });
+    }
+    if (!hasAuthorizedMergeEvidence(events, {
+      number: prSnapshot.number,
+      candidateHeadCommit: gate.candidateHeadCommit,
+      expectedBaseCommit: campaign.branch.expectedBaseCommit,
+      requiredChecks: checked.requiredChecks,
+      operationId,
+    })) {
+      return resultError('MERGED_PULL_REQUEST_NO_AUTHORIZED_CI_INTENT', { number: prSnapshot.number });
+    }
+    const fresh = await pullRequestView(prSnapshot.number);
+    if (!isMerged(fresh) || fresh.headRefOid !== gate.candidateHeadCommit
+        || fresh.headRefName !== campaign.branch.head || fresh.baseRefName !== campaign.branch.base || fresh.isDraft) {
+      return resultError('MERGED_PULL_REQUEST_BINDING_MISMATCH', { number: fresh.number });
+    }
+    if (fresh.reviewDecision === 'CHANGES_REQUESTED' || fresh.reviewDecision === 'REVIEW_REQUIRED') {
+      return resultError('MERGED_PULL_REQUEST_REVIEW_NOT_ACCEPTED', { number: fresh.number, reviewDecision: fresh.reviewDecision });
+    }
+    const checkObservation = evaluateChecks(await requiredAndAllChecks(fresh.number));
+    event(events, 'CI_OBSERVED', {
+      number: fresh.number,
+      headRefOid: fresh.headRefOid,
+      baseRefOid: fresh.baseRefOid,
+      result: checkObservation,
+    });
+    if (checkObservation.status !== 'PASS') {
+      return resultError('MERGED_PULL_REQUEST_CI_NOT_ACCEPTED', {
+        number: fresh.number,
+        ciStatus: checkObservation.status,
+        ciCode: checkObservation.code,
+      });
+    }
+    event(events, 'REMOTE_MERGE_CONFIRMED', {
+      number: fresh.number,
+      url: fresh.url,
+      headRefOid: fresh.headRefOid,
+      mergedAt: fresh.mergedAt,
+      ciStatus: checkObservation.status,
+      reviewDecision: fresh.reviewDecision ?? null,
+    });
+    return {
+      status: 'MERGED',
+      number: fresh.number,
+      url: fresh.url,
+      headCommit: gate.candidateHeadCommit,
+      source: 'github-reconciliation',
+    };
   }
 
   async function reconcileIntent(intent, events) {
@@ -558,9 +778,25 @@ export function createGitHubDeliveryAdapter({
     } else if (intent.action === 'merge') {
       const pr = await pullRequestView(intent.evidence.number);
       if (isMerged(pr) && pr.headRefOid === intent.evidence.candidateHeadCommit) {
-        state = 'APPLIED';
-        evidence = { number: pr.number, url: pr.url, mergedAt: pr.mergedAt, headRefOid: pr.headRefOid, baseRefOid: pr.baseRefOid };
+        const confirmed = await confirmMergedPullRequest(pr, { candidateHeadCommit: intent.evidence.candidateHeadCommit }, events, { operationId: intent.operationId });
+        if (confirmed.status === 'MERGED') {
+          state = 'APPLIED';
+          evidence = { number: pr.number, url: pr.url, mergedAt: pr.mergedAt, headRefOid: pr.headRefOid, baseRefOid: pr.baseRefOid };
+        } else {
+          state = 'UNKNOWN';
+          evidence = { number: pr.number, state: pr.state, headRefOid: pr.headRefOid, baseRefOid: pr.baseRefOid, refusal: confirmed.code };
+        }
       } else if (pr.state === 'OPEN' && pr.headRefOid === intent.evidence.candidateHeadCommit) {
+        if (!hasAuthorizedMergeEvidence(events, {
+          number: pr.number,
+          candidateHeadCommit: intent.evidence.candidateHeadCommit,
+          expectedBaseCommit: intent.evidence.expectedBaseCommit,
+          requiredChecks: checked.requiredChecks,
+          operationId: intent.operationId,
+        })) {
+          state = 'UNKNOWN';
+          evidence = { number: pr.number, state: pr.state, headRefOid: pr.headRefOid, refusal: 'MERGE_INTENT_WITHOUT_CI_PASS' };
+        } else {
         const queue = await mergeQueueEntry(pr.number);
         if (queue) {
           state = 'APPLIED';
@@ -568,6 +804,7 @@ export function createGitHubDeliveryAdapter({
         } else {
           state = 'NONE';
           evidence = { number: pr.number, state: pr.state, headRefOid: pr.headRefOid, baseRefOid: pr.baseRefOid, mergeStateStatus: pr.mergeStateStatus };
+        }
         }
       } else {
         state = 'UNKNOWN';
@@ -605,8 +842,8 @@ export function createGitHubDeliveryAdapter({
     const operationId = randomUUID();
     event(events, 'MUTATION_INTENT', evidence, { operationId, action, effectState: 'UNKNOWN' });
     const result = commandResult(await (action === 'push'
-      ? gitRunner(args, { cwd: canonicalRoot, timeoutMs: commandTimeoutMs })
-      : gh(args, { cwd: canonicalRoot, timeoutMs: commandTimeoutMs })));
+      ? gitRunner(args, { cwd: candidateRoot, timeoutMs: commandTimeoutMs })
+      : gh(args, { cwd: candidateRoot, timeoutMs: commandTimeoutMs })));
     let observed;
     try {
       observed = await reconcile({ operationId, action, evidence });
@@ -618,6 +855,7 @@ export function createGitHubDeliveryAdapter({
     }
     if (observed.status === 'APPLIED') {
       event(events, 'MUTATION_RECONCILED', observed.evidence, { operationId, action, effectState: 'APPLIED' });
+      if (action === 'merge' && observed.evidence?.queued) return { status: 'WAITING_MERGE_QUEUE', action, evidence: observed.evidence };
       return { status: action === 'push' ? 'PUSHED' : action === 'pullRequest' ? 'PR_CREATED' : 'MERGED', action, evidence: observed.evidence };
     }
     if (observed.status === 'UNKNOWN') {
@@ -650,22 +888,39 @@ export function createGitHubDeliveryAdapter({
       return resultError('GIT_COMMON_DIRECTORY_UNAVAILABLE', { detail: String(error.message ?? error) });
     }
     const paths = receiptPaths(commonDir, campaign);
-    mkdirSync(path.dirname(paths.receiptPath), { recursive: true });
     let lock;
     try { lock = acquireDurableLock(paths.lockPath); } catch (error) {
       return resultError('DELIVERY_LOCK_UNAVAILABLE', { detail: String(error.message ?? error) });
     }
     if (!lock) return { status: 'BUSY', taskId, repository: campaign.repository.expectedOwnerRepo, branch: campaign.branch.head };
-    receiptFile = paths.receiptPath;
     try {
-      let events;
-      try { events = readReceipts(receiptFile, campaign.taskId, checked.digest); } catch (error) {
-        return resultError('RECEIPT_INVALID', { detail: String(error.message ?? error) });
-      }
       const { run, gate, eventChain } = await gateSnapshot();
       if (gate.status === 'BLOCKED') return { ...gate, taskId };
+      const currentReceiptPath = revisionReceiptPath(paths, campaign, gate.candidateHeadCommit);
+      mkdirSync(path.dirname(currentReceiptPath), { recursive: true });
+      receiptFile = currentReceiptPath;
+      let events;
+      let priorReceipts;
+      try {
+        events = readReceipts(receiptFile, campaign.taskId, checked.digest);
+        priorReceipts = priorReceiptFiles(paths, currentReceiptPath, campaign.taskId);
+      } catch (error) {
+        return resultError('RECEIPT_INVALID', { detail: String(error.message ?? error) });
+      }
       const gitBinding = await assertGitBinding(gate);
       if (gitBinding.status === 'BLOCKED') return { ...gitBinding, taskId };
+      const priorPending = priorReceipts.flatMap((receipt) => {
+        const intent = pendingIntent(receipt.events);
+        return intent ? [{ ...receipt, intent }] : [];
+      });
+      if (priorPending.length) {
+        const observations = await Promise.all(priorPending.map(async (receipt) => ({
+          revision: path.basename(receipt.pathname, '.jsonl'),
+          action: receipt.intent.action,
+          observation: await inspectPriorIntent(receipt.intent),
+        })));
+        return { status: 'UNKNOWN_EFFECT', code: 'PRIOR_REVISION_PENDING_INTENT', taskId, observations };
+      }
       const unresolved = pendingIntent(events);
       if (unresolved) {
         try {
@@ -682,10 +937,6 @@ export function createGitHubDeliveryAdapter({
       const baseRef = 'refs/heads/' + campaign.branch.base;
       const headRef = 'refs/heads/' + campaign.branch.head;
       const [actualBaseCommit, remoteHeadCommit] = await Promise.all([remoteRef(baseRef), remoteRef(headRef)]);
-      if (actualBaseCommit !== campaign.branch.expectedBaseCommit) {
-        return { status: 'REPLAN_REQUIRED', code: 'BASE_ADVANCED', taskId,
-          expectedBaseCommit: campaign.branch.expectedBaseCommit, actualBaseCommit };
-      }
 
       let prs;
       try { prs = matchingPrs(await pullRequestList(), campaign); } catch (error) {
@@ -695,20 +946,20 @@ export function createGitHubDeliveryAdapter({
         return resultError('PULL_REQUEST_AMBIGUOUS', { taskId, pullRequestNumbers: prs.map((pr) => pr.number) });
       }
       if (prs.length === 1 && isMerged(prs[0])) {
-        const pr = prs[0];
-        if (pr.headRefOid !== gate.candidateHeadCommit || pr.isDraft) {
-          return resultError('MERGED_PULL_REQUEST_BINDING_MISMATCH', { taskId, number: pr.number });
-        }
-        event(events, 'REMOTE_MERGE_CONFIRMED', { number: pr.number, url: pr.url, headRefOid: pr.headRefOid, mergedAt: pr.mergedAt });
-        return { status: 'MERGED', taskId, number: pr.number, url: pr.url, headCommit: gate.candidateHeadCommit, source: 'github-reconciliation' };
+        const confirmed = await confirmMergedPullRequest(prs[0], gate, events);
+        return { ...confirmed, taskId };
       }
       if (prs.length === 1 && prs[0].state !== 'OPEN') {
         return resultError('PULL_REQUEST_CLOSED_UNMERGED', { taskId, number: prs[0].number, state: prs[0].state });
       }
+      if (actualBaseCommit !== campaign.branch.expectedBaseCommit) {
+        return { status: 'REPLAN_REQUIRED', code: 'BASE_ADVANCED', taskId,
+          expectedBaseCommit: campaign.branch.expectedBaseCommit, actualBaseCommit };
+      }
 
       if (prs.length === 0) {
         if (remoteHeadCommit && remoteHeadCommit !== gate.candidateHeadCommit) {
-          return resultError('REMOTE_BRANCH_DIVERGED', { taskId, expectedHead: gate.candidateHeadCommit, actualHead: remoteHeadCommit });
+          return pushFastForward({ taskId, gate, remoteHeadCommit, events });
         }
         if (!remoteHeadCommit) {
           const mutation = await performMutation('push', ['push', '--porcelain', campaign.repository.remoteName,
@@ -737,14 +988,29 @@ export function createGitHubDeliveryAdapter({
       }
 
       const listed = prs[0];
-      if (remoteHeadCommit !== gate.candidateHeadCommit || listed.headRefOid !== gate.candidateHeadCommit) {
-        return resultError('PULL_REQUEST_HEAD_MISMATCH', { taskId, number: listed.number, expectedHead: gate.candidateHeadCommit, remoteHeadCommit, pullRequestHead: listed.headRefOid });
-      }
-      if (listed.isDraft) return { status: 'WAITING_DRAFT', taskId, number: listed.number, url: listed.url };
       if (listed.baseRefOid !== campaign.branch.expectedBaseCommit) {
         return { status: 'REPLAN_REQUIRED', code: 'BASE_ADVANCED', taskId,
           expectedBaseCommit: campaign.branch.expectedBaseCommit, actualBaseCommit: listed.baseRefOid, number: listed.number };
       }
+      if (remoteHeadCommit !== gate.candidateHeadCommit) {
+        if (remoteHeadCommit && listed.headRefOid === remoteHeadCommit) {
+          return pushFastForward({ taskId, gate, remoteHeadCommit, pullRequest: listed, events });
+        }
+        return resultError('PULL_REQUEST_HEAD_MISMATCH', { taskId, number: listed.number,
+          expectedHead: gate.candidateHeadCommit, remoteHeadCommit, pullRequestHead: listed.headRefOid });
+      }
+      if (listed.headRefOid !== gate.candidateHeadCommit) {
+        if (isCommit(listed.headRefOid)) {
+          const ancestry = await invokeGit(['merge-base', '--is-ancestor', listed.headRefOid, gate.candidateHeadCommit], { allowedExitCodes: [0, 1] });
+          if (ancestry.exitCode === 0) {
+            return { status: 'WAITING_PR_HEAD_UPDATE', taskId, number: listed.number,
+              expectedHead: gate.candidateHeadCommit, actualHead: listed.headRefOid };
+          }
+        }
+        return resultError('PULL_REQUEST_HEAD_MISMATCH', { taskId, number: listed.number,
+          expectedHead: gate.candidateHeadCommit, remoteHeadCommit, pullRequestHead: listed.headRefOid });
+      }
+      if (listed.isDraft) return { status: 'WAITING_DRAFT', taskId, number: listed.number, url: listed.url };
       const pr = await pullRequestView(listed.number);
       if (pr.state !== 'OPEN' || pr.headRefName !== campaign.branch.head || pr.baseRefName !== campaign.branch.base
           || pr.headRefOid !== gate.candidateHeadCommit || pr.baseRefOid !== campaign.branch.expectedBaseCommit) {
@@ -804,14 +1070,22 @@ export function createGitHubDeliveryAdapter({
           || actionView.mergeStateStatus !== 'CLEAN') {
         return resultError('MERGE_PRECONDITION_CHANGED', { taskId, number: pr.number, actualHead: actionView.headRefOid, actualBase: actionView.baseRefOid, mergeStateStatus: actionView.mergeStateStatus });
       }
+      const baseProtection = await readBaseProtection();
+      if (baseProtection.status !== 'PASS') return { ...baseProtection, taskId, number: pr.number };
       const mutation = await performMutation('merge', ['pr', 'merge', String(pr.number),
         '--repo', campaign.repository.expectedOwnerRepo,
         '--match-head-commit', gate.candidateHeadCommit,
         '--' + campaign.mergeMethod],
-      { number: pr.number, candidateHeadCommit: gate.candidateHeadCommit, expectedBaseCommit: campaign.branch.expectedBaseCommit },
-      events, async () => {
+      { number: pr.number, candidateHeadCommit: gate.candidateHeadCommit,
+        expectedBaseCommit: campaign.branch.expectedBaseCommit, baseProtection: baseProtection.evidence },
+      events, async ({ operationId }) => {
         const current = await pullRequestView(pr.number);
         if (isMerged(current) && current.headRefOid === gate.candidateHeadCommit) {
+          const confirmed = await confirmMergedPullRequest(current, gate, events, { operationId });
+          if (confirmed.status !== 'MERGED') {
+            return { status: 'UNKNOWN', evidence: { number: current.number, state: current.state,
+              headRefOid: current.headRefOid, baseRefOid: current.baseRefOid, refusal: confirmed.code } };
+          }
           return { status: 'APPLIED', evidence: { number: current.number, url: current.url, mergedAt: current.mergedAt, headRefOid: current.headRefOid, baseRefOid: current.baseRefOid } };
         }
         if (current.state === 'OPEN' && current.headRefOid === gate.candidateHeadCommit) {

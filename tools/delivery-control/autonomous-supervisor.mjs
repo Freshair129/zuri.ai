@@ -16,6 +16,12 @@ const digest = (value) => createHash('sha256').update(JSON.stringify(value)).dig
 const within = (root, target) => { const relative = path.relative(root, target); return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative)); };
 const parse = (file) => JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
 
+export function shouldYieldFiniteRun(status, result) {
+  if (result.active > 0) return false;
+  const progressing = new Set(['PUSHED', 'PR_CREATED', 'WAITING_CI', 'WAITING_RETRY_BACKOFF', 'WAITING_MERGE_QUEUE', 'BUSY']);
+  return !Object.values(status.deliveries).some((delivery) => progressing.has(delivery.status));
+}
+
 /** Root-owned private configuration is the authority boundary, never roadmap prose. */
 export function loadSupervisorCampaign(repoRoot, campaignFile) {
   const root = fs.realpathSync(repoRoot);
@@ -39,7 +45,8 @@ export function loadSupervisorCampaign(repoRoot, campaignFile) {
   if (fs.realpathSync(intakeCampaign.repositoryRoot) !== root || !Array.isArray(intakeCampaign.allowedTaskIds)
     || !intakeCampaign.allowedTaskIds.length || new Set(intakeCampaign.allowedTaskIds).size !== intakeCampaign.allowedTaskIds.length
     || !isDeepStrictEqual(intakeCampaign.prohibitions, campaign.prohibitions)) throw new Error('CAMPAIGN_INTAKE_MISMATCH');
-  if (!campaign.delivery?.expectedOwnerRepo || !Array.isArray(campaign.delivery.requiredChecks) || !campaign.delivery.requiredChecks.length) throw new Error('DELIVERY_CHECKS_REQUIRED');
+  if (!/^[A-Za-z0-9.-]+\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(campaign.delivery?.expectedOwnerRepo ?? '')
+    || !Array.isArray(campaign.delivery.requiredChecks) || !campaign.delivery.requiredChecks.length) throw new Error('DELIVERY_CHECKS_REQUIRED');
   return { root, common, privateRoot, file, campaign, intakeFile, intakeCampaign,
     campaignDigest: digest({ campaign, intakeCampaign }) };
 }
@@ -146,6 +153,13 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
         for (const item of await admit({ controller, repoRoot: root, config, cache: intakeCache })) {
           signal({ taskId: item.taskId, status: item.state ?? item.status, code: item.code ?? null }, observations);
         }
+        for (const binding of state.bindings) {
+          const file = path.join(stateRoot, 'prepared', binding.taskId + '.json');
+          if (controller.getRun(binding.taskId)?.state === 'WORKER_READY' && fs.existsSync(file)) {
+            try { runner.authorizePreparedCandidate(binding.taskId, file); }
+            catch (error) { runner.hold(binding.taskId); signal({ taskId: binding.taskId, status: 'ROOT_PREPARATION_REASSESSMENT_REQUIRED', code: String(error.message) }, observations); }
+          }
+        }
         const dispatched = await runner.tick();
         for (const error of dispatched.errors) signal({ ...error, status: 'DISPATCH_BLOCKED' }, observations);
         if (deadlineExpired()) { await runner.stop(); signal({ status: 'PAUSED_DEADLINE' }, observations); return { status: 'PAUSED_DEADLINE', observations }; }
@@ -159,8 +173,15 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
               evidenceRef: `root-campaign:${campaign.campaignId}:${campaignDigest}` });
             run = controller.getRun(binding.taskId);
           }
-          if (run?.state !== 'ROOT_INTEGRATED_PENDING_CI' || state.deliveries[binding.taskId]?.status === 'MERGED') continue;
-          if (!adapters.has(binding.taskId)) adapters.set(binding.taskId, deliveryFactory({ repoRoot: root, controller,
+          if (run?.state !== 'ROOT_INTEGRATED_PENDING_CI') continue;
+          const revision = digest([run.currentCycle, run.baseCommit, run.candidateHeadCommit]);
+          state.deliveryRevisions ??= {};
+          if (state.deliveryRevisions[binding.taskId] !== revision) {
+            adapters.delete(binding.taskId); delete state.deliveries[binding.taskId];
+            state.deliveryRevisions[binding.taskId] = revision; persist();
+          }
+          if (['ROOT_REPLAN_PAUSED', 'MERGED'].includes(state.deliveries[binding.taskId]?.status)) continue;
+          if (!adapters.has(binding.taskId)) adapters.set(binding.taskId, deliveryFactory({ repoRoot: root, worktreeRoot: binding.worktree, controller,
             campaign: { schemaVersion: 'github-delivery-campaign/v1', taskId: run.taskId,
               repository: { remoteName: campaign.delivery.remoteName ?? 'origin', expectedOwnerRepo: campaign.delivery.expectedOwnerRepo },
               branch: { head: run.branch, base: campaign.delivery.base ?? 'main', expectedBaseCommit: run.baseCommit },
@@ -172,10 +193,11 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
                 repositoryRoot: root, taskId: run.taskId, expectedRepository: campaign.delivery.expectedOwnerRepo,
                 headBranch: run.branch, baseBranch: campaign.delivery.base ?? 'main', expectedBaseCommit: run.baseCommit,
                 authorizedEffects: ['push', 'pullRequest', 'merge'] } },
-            ghExecutable: campaign.ghExecutable ?? 'gh', receiptPath: path.join(stateRoot, `delivery-${run.taskId}.jsonl`) }));
+            ghExecutable: campaign.ghExecutable ?? 'gh' }));
           const delivery = await adapters.get(binding.taskId).tick(binding.taskId);
+          if (delivery.status === 'REPLAN_REQUIRED') delivery.status = 'ROOT_REPLAN_PAUSED';
           state.deliveries[binding.taskId] = delivery; persist();
-          signal({ taskId: binding.taskId, status: delivery.status, code: delivery.code ?? null, pullRequest: delivery.pullRequest ?? null }, observations);
+          signal({ taskId: binding.taskId, status: delivery.status, code: delivery.code ?? null, pullRequest: delivery.number ?? delivery.pullRequest ?? null }, observations);
           } catch (error) {
             const delivery = { status: 'DELIVERY_REASSESSMENT_REQUIRED', code: String(error.code ?? error.message) };
             state.deliveries[binding.taskId] = delivery; persist();
@@ -207,7 +229,13 @@ export async function main(argv = process.argv.slice(2)) {
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   try {
     if (command === 'serve') dashboard = await startControllerDashboard({ port: campaign.dashboardPort ?? 4190,
-      readRuns: async () => supervisor.controller.listRuns().map((run) => ({ ...run, status: run.state, nodes: run.stages })) });
+      readRuns: async () => {
+        const runs = supervisor.controller.listRuns().map((run) => ({ ...run, status: run.state, nodes: run.stages }));
+        for (const item of supervisor.status().intake?.candidates ?? []) {
+          if (!runs.some((run) => run.taskId === item.taskId)) runs.push({ taskId: item.taskId, status: item.status, stages: [], blockers: [{ code: item.code }] });
+        }
+        return runs;
+      } });
     do {
       const result = await supervisor.tick();
       for (const observation of result.observations) process.stdout.write(JSON.stringify(observation) + '\n');
@@ -215,6 +243,9 @@ export async function main(argv = process.argv.slice(2)) {
       const status = supervisor.status();
       if (command === 'run' && status.bindings.length === status.allowedTaskIds.length
         && status.bindings.every((taskId) => status.deliveries[taskId]?.status === 'MERGED')) break;
+      if (command === 'run' && shouldYieldFiniteRun(status, result)) {
+        process.stdout.write(JSON.stringify({ status: 'YIELD_REASSESS', intake: status.intake, deliveries: status.deliveries }) + '\n'); break;
+      }
       await new Promise((resolve) => setTimeout(resolve, Math.max(5000, campaign.pollIntervalMs ?? 30_000)));
     } while (!stopping);
   } finally {

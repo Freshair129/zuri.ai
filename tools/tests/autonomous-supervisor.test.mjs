@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { createAutonomousSupervisor, loadSupervisorCampaign } from '../delivery-control/autonomous-supervisor.mjs';
+import { createAutonomousSupervisor, loadSupervisorCampaign, shouldYieldFiniteRun } from '../delivery-control/autonomous-supervisor.mjs';
 
 function fixture(t) {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-supervisor-'));
@@ -18,7 +18,7 @@ function fixture(t) {
   fs.writeFileSync(intakeFile, JSON.stringify({ repositoryRoot: folder, baseRef: 'HEAD', allowedTaskIds: ['T1'], prohibitions }));
   const campaign = { schemaVersion: 'autonomous-delivery-campaign/v1', campaignId: 'fixture', repositoryRoot: folder,
     sourceRef: 'trusted user fixture mandate', authorizedEffects: ['intake', 'dispatch', 'rootIntegration', 'push', 'pullRequest', 'merge'],
-    prohibitions, intakeCampaignFile: intakeFile, delivery: { expectedOwnerRepo: 'fixture/repo', requiredChecks: ['verify'] } };
+    prohibitions, intakeCampaignFile: intakeFile, delivery: { expectedOwnerRepo: 'github.com/fixture/repo', requiredChecks: ['verify'] } };
   fs.writeFileSync(campaignFile, JSON.stringify(campaign));
   const runs = new Map(); const seen = []; const bindings = [];
   const controller = { getRun: (id) => runs.get(id), verifyEventChain: () => ({ count: 0, head: 'GENESIS' }),
@@ -92,5 +92,25 @@ test('deadline is anchored to actual worker cycle and survives restart', async (
   assert.equal((await supervisor.tick()).status, 'PAUSED_DEADLINE'); assert.deepEqual(f.seen, []);
   await supervisor.stop(); supervisor = await createAutonomousSupervisor(f.options);
   assert.equal((await supervisor.tick()).status, 'PAUSED_DEADLINE'); assert.deepEqual(f.seen, []);
+  await supervisor.stop();
+});
+
+test('finite run yields an idle dependency or replan hold without claiming completion', () => {
+  assert.equal(shouldYieldFiniteRun({ deliveries: {}, intake: { status: 'HOLD_DEPENDENCY' } }, { active: 0 }), true);
+  assert.equal(shouldYieldFiniteRun({ deliveries: { T1: { status: 'ROOT_REPLAN_PAUSED' } } }, { active: 0 }), true);
+  assert.equal(shouldYieldFiniteRun({ deliveries: { T1: { status: 'WAITING_CI' } } }, { active: 0 }), false);
+  assert.equal(shouldYieldFiniteRun({ deliveries: {} }, { active: 1 }), false);
+});
+
+test('a base advance pauses only that revision until autonomous root supplies fresh gates', async (t) => {
+  const f = fixture(t); let calls = 0;
+  f.options.deliveryFactory = () => ({ tick: async () => { calls++; return { status: 'REPLAN_REQUIRED', code: 'BASE_ADVANCED', actualBaseCommit: 'c'.repeat(40) }; } });
+  const run = { taskId: 'T1', state: 'ROOT_INTEGRATED_PENDING_CI', candidateHeadCommit: 'a'.repeat(40), branch: 'codex/t1', baseCommit: 'b'.repeat(40) };
+  f.runs.set('T1', run);
+  const supervisor = await createAutonomousSupervisor(f.options);
+  await supervisor.tick(); await supervisor.tick(); assert.equal(calls, 1);
+  assert.equal(supervisor.status().deliveries.T1.status, 'ROOT_REPLAN_PAUSED');
+  run.candidateHeadCommit = 'd'.repeat(40); run.baseCommit = 'c'.repeat(40);
+  await supervisor.tick(); assert.equal(calls, 2);
   await supervisor.stop();
 });

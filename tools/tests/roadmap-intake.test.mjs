@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import os from 'node:os';
@@ -209,6 +210,115 @@ test('active delivery-controller write locks block conflicting intake', (t) => {
   const result = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
   assert.equal(result.status, 'HOLD_SCOPE_CONFLICT');
   assert.equal(result.code, 'ACTIVE_WRITE_SCOPE_CONFLICT');
+  assert.equal(git(f.repo, ['worktree', 'list', '--porcelain']).split('worktree ').length - 1, 1);
+});
+
+test('a locked higher-priority task does not starve an independent ready task', (t) => {
+  const first = makeTask('TASK-ZAI-001', { priority: 'P0' });
+  const second = makeTask('TASK-ZAI-002', { priority: 'P1' });
+  const f = fixture(t, [first, second]);
+  const campaign = JSON.parse(readFileSync(f.campaignFile, 'utf8'));
+  campaign.taskPlans[first.id].writeScope = ['src/shared/'];
+  campaign.taskPlans[second.id].writeScope = ['src/independent/'];
+  writeFileSync(f.campaignFile, JSON.stringify(campaign, null, 2));
+  const controllerDb = new DatabaseSync(path.join(f.common, 'zuri-delivery-control', 'controller-v1.sqlite'));
+  controllerDb.exec('CREATE TABLE delivery_write_locks(task_id TEXT,scope_path TEXT);');
+  controllerDb.prepare('INSERT INTO delivery_write_locks VALUES(?,?)').run('TASK-ZAI-099','src/shared/');
+  controllerDb.close();
+
+  const plan = planRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  assert.equal(plan.status, 'READY_CANDIDATE');
+  assert.equal(plan.selectedTaskId, second.id);
+  assert.equal(plan.candidates.find((item) => item.taskId === first.id).status, 'HOLD_SCOPE_CONFLICT');
+  const result = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  assert.equal(result.status, 'READY');
+  assert.equal(result.taskRecord.taskId, second.id);
+  const receiptDb = new DatabaseSync(path.join(f.common, 'zuri-delivery-control', 'roadmap-intake-v1', 'intake.sqlite'), { readOnly: true });
+  assert.equal(receiptDb.prepare('SELECT 1 FROM intake_receipts WHERE task_id=?').get(first.id), undefined);
+  assert.equal(receiptDb.prepare('SELECT state FROM intake_receipts WHERE task_id=?').get(second.id).state, 'READY');
+  receiptDb.close();
+  assert.equal(git(f.repo, ['worktree', 'list', '--porcelain']).split('worktree ').length - 1, 2);
+});
+
+test('a lock-state change wakes a prior scope hold and admits the task', (t) => {
+  const task = makeTask('TASK-ZAI-001', { priority: 'P0' });
+  const f = fixture(t, [task]);
+  const controllerDb = new DatabaseSync(path.join(f.common, 'zuri-delivery-control', 'controller-v1.sqlite'));
+  controllerDb.exec('CREATE TABLE delivery_write_locks(task_id TEXT,scope_path TEXT);');
+  controllerDb.prepare('INSERT INTO delivery_write_locks VALUES(?,?)').run('TASK-ZAI-099','src/');
+  controllerDb.close();
+
+  const blocked = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  const repeated = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  assert.equal(blocked.status, 'HOLD_SCOPE_CONFLICT');
+  assert.equal(blocked.receiptId, repeated.receiptId);
+  const releaseDb = new DatabaseSync(path.join(f.common, 'zuri-delivery-control', 'controller-v1.sqlite'));
+  releaseDb.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run('TASK-ZAI-099');
+  releaseDb.close();
+
+  const admitted = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  assert.equal(admitted.status, 'READY');
+  assert.equal(admitted.taskRecord.taskId, task.id);
+  assert.notEqual(admitted.receiptId, blocked.receiptId);
+  assert.equal(git(f.repo, ['worktree', 'list', '--porcelain']).split('worktree ').length - 1, 2);
+});
+
+test('a post-claim scope hold is archived before lock-change reassessment', (t) => {
+  const task = makeTask('TASK-ZAI-001');
+  const f = fixture(t, [task]);
+  const plan = planRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  const inputDigest = createHash('sha256').update(JSON.stringify({
+    campaignDigest: plan.campaignDigest,
+    sourceDigest: plan.sourceDigest,
+    taskId: task.id,
+  })).digest('hex');
+  const controllerDb = new DatabaseSync(path.join(f.common, 'zuri-delivery-control', 'controller-v1.sqlite'));
+  controllerDb.exec('CREATE TABLE delivery_write_locks(task_id TEXT,scope_path TEXT);');
+  controllerDb.close();
+  const intakeFile = path.join(f.common, 'zuri-delivery-control', 'roadmap-intake-v1', 'intake.sqlite');
+  mkdirSync(path.dirname(intakeFile), { recursive: true });
+  const intakeDb = new DatabaseSync(intakeFile);
+  intakeDb.exec("CREATE TABLE intake_receipts(task_id TEXT PRIMARY KEY,campaign_id TEXT NOT NULL,input_digest TEXT NOT NULL,campaign_digest TEXT NOT NULL,source_digest TEXT NOT NULL,task_digest TEXT NOT NULL,state TEXT NOT NULL,receipt_json TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL) STRICT;");
+  const oldReceipt = { schemaVersion: 'roadmap-intake-result/v1', status: 'HOLD_SCOPE_CONFLICT', code: 'ACTIVE_WRITE_SCOPE_CONFLICT', taskId: task.id, lockFingerprint: 'prior-lock-snapshot' };
+  intakeDb.prepare('INSERT INTO intake_receipts VALUES(?,?,?,?,?,?,?,?,?,?)').run(task.id, 'test-roadmap-campaign', inputDigest, plan.campaignDigest, plan.sourceDigest, 'prior-task-digest', 'HOLD_SCOPE_CONFLICT', JSON.stringify(oldReceipt), '2026-10-15T00:00:00.000Z', '2026-10-15T00:00:00.000Z');
+  intakeDb.close();
+
+  const admitted = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  assert.equal(admitted.status, 'READY');
+  const historyDb = new DatabaseSync(path.join(f.common, 'zuri-delivery-control', 'roadmap-intake-v1', 'intake.sqlite'), { readOnly: true });
+  const history = historyDb.prepare('SELECT state,receipt_json,transition_reason,observed_lock_fingerprint FROM intake_receipt_history WHERE task_id=?').get(task.id);
+  const current = historyDb.prepare('SELECT state FROM intake_receipts WHERE task_id=?').get(task.id);
+  historyDb.close();
+  assert.equal(history.state, 'HOLD_SCOPE_CONFLICT');
+  assert.equal(history.receipt_json, JSON.stringify(oldReceipt));
+  assert.equal(history.transition_reason, 'LOCK_STATE_CHANGED');
+  assert.equal(history.observed_lock_fingerprint, plan.lockFingerprint);
+  assert.equal(current.state, 'READY');
+});
+
+test('unknown INTAKE_PREPARING receipt is reconciled and never replayed', (t) => {
+  const task = makeTask('TASK-ZAI-001');
+  const f = fixture(t, [task]);
+  const plan = planRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  const inputDigest = createHash('sha256').update(JSON.stringify({
+    campaignDigest: plan.campaignDigest,
+    sourceDigest: plan.sourceDigest,
+    taskId: task.id,
+  })).digest('hex');
+  const controllerDb = new DatabaseSync(path.join(f.common, 'zuri-delivery-control', 'controller-v1.sqlite'));
+  controllerDb.exec('CREATE TABLE delivery_write_locks(task_id TEXT,scope_path TEXT);');
+  controllerDb.close();
+  const intakeFile = path.join(f.common, 'zuri-delivery-control', 'roadmap-intake-v1', 'intake.sqlite');
+  mkdirSync(path.dirname(intakeFile), { recursive: true });
+  const intakeDb = new DatabaseSync(intakeFile);
+  intakeDb.exec("CREATE TABLE intake_receipts(task_id TEXT PRIMARY KEY,campaign_id TEXT NOT NULL,input_digest TEXT NOT NULL,campaign_digest TEXT NOT NULL,source_digest TEXT NOT NULL,task_digest TEXT NOT NULL,state TEXT NOT NULL,receipt_json TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL) STRICT;");
+  const preparing = { schemaVersion: 'roadmap-intake-result/v1', status: 'INTAKE_PREPARING', code: 'INTAKE_CLAIMED', taskId: task.id, receiptId: 'unknown-effect' };
+  intakeDb.prepare('INSERT INTO intake_receipts VALUES(?,?,?,?,?,?,?,?,?,?)').run(task.id, 'test-roadmap-campaign', inputDigest, plan.campaignDigest, plan.sourceDigest, 'prior-task-digest', 'INTAKE_PREPARING', JSON.stringify(preparing), '2026-10-15T00:00:00.000Z', '2026-10-15T00:00:00.000Z');
+  intakeDb.close();
+
+  const result = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  assert.equal(result.status, 'HOLD_RECONCILE');
+  assert.equal(result.code, 'INTAKE_INTERRUPTED_RECONCILIATION_REQUIRED');
   assert.equal(git(f.repo, ['worktree', 'list', '--porcelain']).split('worktree ').length - 1, 1);
 });
 

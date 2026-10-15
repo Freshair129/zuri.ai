@@ -151,7 +151,8 @@ acceptance, review and applicable exact-head CI; a green local stage is not
 `npm run delivery:autonomous -- serve <private-campaign.json>` joins trusted
 roadmap intake, parallel role execution, root integration and GitHub delivery.
 `run` uses the same loop and exits when every allowed task has a verified merged
-receipt. This is repository delivery automation, not Business-runtime approval
+receipt, or yields a resumable no-ready/reassessment result instead of polling
+forever before any worker starts. This is repository delivery automation, not Business-runtime approval
 or production deployment. Sol root owns the campaign and exception decisions;
 the private supervisor implements its preauthorized mechanical transitions.
 Workers cannot create campaigns, grant themselves scope, or invoke GitHub tools.
@@ -227,10 +228,54 @@ the repository/remote/ref, then publishes using argument-array Git/gh calls. Eac
 mutation has a durable intent and bounded reconciliation; lost responses do not
 trigger blind repeats. It discovers an existing PR, checks GitHub's exact head and
 required checks plus all applicable checks, and uses a matching-head merge guard.
-Skipped checks count only as explicitly inapplicable optional checks. A moving
-base yields `BASE_ADVANCED` with the actual SHA for root replanning; it never
-silently reuses old evidence or force-pushes a rebase. A known merged PR is
+Skipped checks count only as explicitly inapplicable optional checks. Direct
+merge also requires authenticated proof of strict up-to-date required checks
+and administrator enforcement on the target branch; a local head check alone
+does not eliminate a concurrent base-update race. A moving base yields
+`BASE_ADVANCED` with the actual SHA and pauses that revision for autonomous root
+replanning; unchanged revisions are not hot-polled. It never silently reuses
+old evidence or force-pushes a rebase. A known merged PR is
 reconciled before recording `MERGED`. No model session receives these credentials.
+
+## Autonomous Sol root continuation
+
+Run a root continuation through the Codex app's thread heartbeat when work must
+continue after the interactive turn. Root is an AI role, not a human approval
+step. Its trusted prompt includes the repository, existing mandate, task
+lineage/caps, independent gates and prohibitions. It checks only on its bounded
+schedule, stays quiet on unchanged/non-actionable state, and notifies on real
+progress, completion or an external blocker. Do not replace this with a web
+endpoint that executes roadmap text. A paused service revision is visible work
+for this autonomous root; it is not a request to repeat a human G0 approval.
+
+Root reconciles each accepted merge into the canonical roadmap and generated
+projections through a separately checked branch/PR. Partial runtime goals remain
+explicit; a merged implementation alone cannot check a broader DoD. After
+accepted canonical closeout, root fetches the verified remote tracking base.
+An intake `baseRef` such as `origin/main` then resolves the newer canonical commit
+without changing the campaign's task allowlist, scope, criteria or permissions.
+Already bound tasks keep their exact base and history until root revalidation.
+
+For a later parallel candidate whose base advanced, root verifies the same
+repository/branch, no active worker/unknown effects, the clean old candidate and
+the authoritative new base. It records a material-evidence disposition, merges
+the new base into the isolated candidate without rebase/reset/force-push, and
+aborts only its own proven conflicting merge. Unknown operation effects remain
+quarantined. A successful merge receives a new read-only preflight and
+`resumeTask` under the same task/cycle, retaining counters and original deadline.
+All three roles run again; prior CI and role passes do not carry forward.
+
+When the worker needs no source repair on the updated base, root may install
+`supervisors/<campaignId>/prepared/<taskId>.json` in the private control directory:
+`schemaVersion: root-base-prepared-candidate/v1`, `taskId`, `oldHeadCommit`,
+`headCommit`, `oldBaseCommit`, `newBaseCommit`, `reason`, and `evidenceRef`.
+The runner validates the private path, actual current head, changed base and
+ancestry preserving both old candidate and new base. Only this root preparation
+allows a validation-only empty commit after a fresh worker PASS. Normal no-change
+worker output remains refused. The commit receipt binds the preparation digest;
+it consumes a normal worker submission and still requires new independent gates
+and hosted CI. A newer verified revision may update its private branch only by
+ordinary fast-forward push; old receipts remain available for reconciliation.
 
 Unattended execution is bounded to the trusted campaign's adopted task contracts.
 It does not invent business policy, equate a partial feature with its broader DoD,
