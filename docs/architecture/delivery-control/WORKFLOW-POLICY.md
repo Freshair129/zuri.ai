@@ -145,6 +145,13 @@ workflow ledger or prove that a production controller exists. Only root can
 reconcile trusted conversation or harness authority. A structural or `READY`
 result cannot replace that reconciliation.
 
+The optional repository-local controller has a separate
+[runtime and operations contract](LOCAL-CONTROLLER.md). Its private queue,
+fenced leases, role dispatch and loopback dashboard do not change preflight's
+read-only semantics or grant Business, provider, merge or deployment authority.
+Runtime evidence must identify the actual backend and exact candidate; a local
+queue or successful model response is not proof of accepted delivery.
+
 Version diff (2026-10-15): v4 makes one task-readiness record and automatic,
 read-only preflight the ordinary path; folds root decision, integration and
 final delivery into one responsibility; separates metadata repair from
