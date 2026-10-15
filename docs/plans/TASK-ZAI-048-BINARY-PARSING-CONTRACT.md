@@ -721,14 +721,15 @@ service owners accept their contracts.
    revision and run the fixture matrix. Root integrates, runs governance, and
    records the actual roadmap disposition only against accepted evidence.
 
-**Documentation governance status:** The root integrator reported that the
-declared chain passed on the initial candidate on 2026-10-15: verification-plan
-map, document registry, inventory and identity checks, document-graph
-generation, document-view check, document-graph check, and strict document
-preflight. Those results predate the §8.1 oracle and fail-closed repair in this
-revision; governance for this revision is **NOT_RUN**. Parser tests,
-implementation acceptance, native pipeline acceptance, production change,
-provider call, and deployment remain **NOT_RUN**.
+**Documentation governance status:** The nine scoped documentation governance
+checks were rerun on candidate revision
+`20e83ecf14555099ce3d48aed01869438ef11dd8` on 2026-10-15; every command
+exited 0. Strict document preflight returned **WARN** with 24 inherited
+warnings and zero critical findings. These results apply only to that exact
+candidate. The corrected final revision exact-head governance disposition
+is maintained as a separate delivery-gate record.
+Parser tests, implementation acceptance, native pipeline acceptance,
+production change, provider call, and deployment remain **NOT_RUN**.
 
 ## Version diff
 
@@ -736,7 +737,8 @@ provider call, and deployment remain **NOT_RUN**.
 location, failure, limit, replay, citation, OCR-exclusion, and fixture-level
 hash/source/offset/citation oracles for TASK-ZAI-048. This repair makes ambiguous
 DOCX/HTML table mapping and DOCX entry-count refusal explicitly fail closed.
-Initial governance results and the current NOT_RUN state are recorded in §10.
+Section 10 separates predecessor-candidate governance results from the corrected
+revision final-head delivery record.
 It changes no requirement row, schema, stage catalog, runtime, admission
 behavior, production state, or acceptance status. No implementation is
 accepted.
