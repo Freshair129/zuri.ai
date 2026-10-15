@@ -3,7 +3,7 @@ doc_type: task-contract-proposal
 task_id: TASK-ZAI-009
 status: candidate
 source_of_truth: false
-version: "0.1.0"
+version: "0.1.1"
 based_on: "73c104ed6834089b580e49b2647eca35bc67f91b"
 updated: "2026-10-15"
 ---
@@ -262,6 +262,10 @@ and future acceptance criteria; lists the decisions needed before adoption.
 This is a documentation proposal only. It issues no contract or requirement,
 grants no implementation authority, and changes no task status.
 
+**0.1.0 → 0.1.1 candidate:** records the failed generated-index delivery check
+and corrected v4 continuation scope. The source audit and open design decisions
+remain unchanged; this revision grants no new authority or completion status.
+
 ## 7. Parent and peer impact
 
 - **TASK-ZAI-007 / role registry:** remains the upstream source for the five
@@ -279,13 +283,25 @@ grants no implementation authority, and changes no task status.
 
 ## 8. Evidence and handoff
 
-The source audit is against base `73c104ed6834089b580e49b2647eca35bc67f91b`.
-The G0-pinned read-set hashes matched at authoring time. Source paths are linked
-in section 1. Existing test files are cited as source evidence only; no
-application tests, builds, generators, or runtime checks were run for this
-documentation proposal.
+The source audit remains pinned to base `73c104ed6834089b580e49b2647eca35bc67f91b`;
+the original authoring record noted that its G0-pinned read-set hashes matched.
+That is historical provenance. The v4 continuation uses automatic task
+preflight and does not repeat a G0 admission ceremony. This document remains a
+candidate and is not an approved factory contract.
 
-Next, an independent verifier should check the proposal's source claims,
-candidate-only lifecycle, single-path diff, and FR-026 boundary. A separate
-reviewer should assess the contract outline and open decisions. Sol must resolve
-any in-scope technical disposition and integrate only after the required gates.
+**Historical delivery repair (2026-10-15):** PR #663's govern/verify failed
+because generated `docs/operations/README.md` was stale and outside the prior
+one-file scope. The v4 continuation remains under `TASK-ZAI-009`, preserves the
+prior lineage, counters, and failure evidence, and adds the designated generated
+output to its write scope. This repairs delivery scope; it does not change the
+pinned source audit or approve this candidate.
+
+Source paths are linked in section 1. Existing test files are cited as source
+evidence only; this proposal revision claims no application-test, build,
+generator, or runtime result.
+
+Next, an independent verifier should check the source claims against the pinned
+base, the candidate plus designated generated-index diff, the v4 automatic
+preflight evidence, and exact-head CI when available. A separate reviewer
+should assess the contract outline and open decisions. This revision claims no
+acceptance or CI result; Sol should integrate only after the required gates.
