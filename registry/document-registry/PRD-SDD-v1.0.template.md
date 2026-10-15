@@ -1,6 +1,6 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.261.0b"
+version: "1.262.0b"
 status: draft
 last_update: "2026-10-15,Codex Root"
 relations:
@@ -21,7 +21,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.261.0b |
+| **Version** | 1.262.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -41,6 +41,7 @@ This clarification does not change any requirement statement or ID.
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.262.0b | 2026-10-15 | Codex Root | Issue standalone reviewed-migration FR-286 for the bounded Standard Business Template v1: pinned catalog definitions without permission grants, immutable provisioning snapshot and one atomic default Business Space. Task13 records isolated SQLite/PostgreSQL acceptance; no production apply or bulk backfill. Existing requirement identities and provenance remain pinned. |
 | 1.261.0b | 2026-10-15 | Codex Root | Issue standalone reviewed-migration FR-285 for the bounded Business Agent Factory v1 contract under delegated root disposition. Adds one requirement; existing canonical rows, IDs, feature memberships and provenance remain unchanged. Config/API and isolated recovery evidence are recorded in Task9; provider/live-agent activation and external migration apply remain NOT_RUN. |
 | 1.260.0b | 2026-10-03 | RWANG | ADR-025 revision 3: distinguish explicit Features and Standalone FRs in a canonical classification pointer. All requirement rows and IDs unchanged. Composed with current main 1.259.0b; canonical registry rows are preserved. |
 | 1.259.0b | 2026-09-27 | Claude Opus 5.5 (MC0) | Status cells only; the statements and IDs are unchanged. FR-022 and FR-103 follow the ADR-093 1.2.0 amendment, the owner's ruling of 2026-09-27: "consent to retain = keep". A sales user records a Customer's advance retention consent. Erasing a member of a shared thread re-seals, under a per-legal-hold key, the evidence of another member who is held and has consented. The retention sweep blanks, without archiving, the past-window lines of an erased key Customer that nobody consented for. Erasure clears the FR-103 consent note and recorder. |
