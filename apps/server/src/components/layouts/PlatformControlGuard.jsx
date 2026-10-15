@@ -31,6 +31,7 @@ export default async function PlatformControlGuard({ children }) {
   if (decision.state === 'SESSION_UNAVAILABLE') {
     return <PlatformControlSessionRetry title={SESSION_UNAVAILABLE_TITLE_TH} detail={SESSION_UNAVAILABLE_DETAIL_TH} />
   }
+  if (decision.state === 'FORBIDDEN') redirect('/access-denied')
   if (decision.state !== 'READY') notFound()
   return children
 }
