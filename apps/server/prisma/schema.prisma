@@ -222,6 +222,12 @@ model Business {
   legalEntityId    String?
   name             String
   status           String   @default("ACTIVE")
+  // @req FR-286 — immutable, version-pinned catalogue snapshot; these markers
+  // are all null for legacy Businesses and all populated for a provisioned v1.
+  provisioningTemplateId      String?
+  provisioningTemplateVersion String?
+  provisioningTemplateDigest  String?
+  provisioningSnapshotJson    String?
   // @req FR-169 — feature capabilities this Business has turned on, keyed by
   // name (`{"physicalStock": true}`). A capability differs from a domain grant
   // (Membership.domainKeysJson): a grant says WHO may open a module, a
@@ -1006,6 +1012,8 @@ model Workspace {
   portfolioId String?
   tenantId    String?
   businessId  String?
+  // @req FR-286 — stable identity for the default Business Space only.
+  provisioningKey String?
   status      String   @default("ACTIVE")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -1023,6 +1031,7 @@ model Workspace {
   @@index([portfolioId])
   @@index([tenantId])
   @@index([businessId])
+  @@unique([businessId, provisioningKey])
 }
 
 // @req FR-043 - direct Business owner plus Development Space context.

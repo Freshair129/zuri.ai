@@ -572,15 +572,15 @@ export const PROGRAMME_CONTAINERS = {
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given the template, when a Business is provisioned from it, then domains, roles, permissions and default workspaces exist without manual steps",
+        "text": "Given either authorized FR-074 creation path, when its transaction commits, then a digest-valid immutable v1 snapshot of domain IDs and app-RBAC role, permission and conflict definitions and one STANDARD_DEFAULT Business Space (schema Workspace) with DB-derived ancestry exist; template metadata grants no Membership, domainKeysJson, RoleBinding or action authority; FR-285 agent roles remain separate",
         "checked": false
       },
       "success": {
-        "text": "Given an existing Business, when the template version changes, then existing data is not overwritten",
+        "text": "Given an intact v1 Business snapshot, when future catalog or template versions appear, then v1 remains historical and readable against its pinned definition; no existing data or settings are automatically overwritten, upgraded or backfilled; incompatible apply refuses without mutation",
         "checked": false
       },
       "exit": {
-        "text": "Given npm test, when the provisioning suite runs, then a second provision of the same Business is a no-op",
+        "text": "Given the same persisted Business and intact v1 default Space, when the private helper is invoked again, then ALREADY_APPLIED preserves all dates, versions, names, Space status, mutable settings and audits; this does not make repeated public create requests idempotent",
         "checked": false
       }
     },

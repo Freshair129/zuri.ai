@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.70.0b"
+version: "1.71.0b"
 status: active
 last_update: "2026-10-15,Codex Root"
 relations:
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.70.0b → 1.71.0b (2026-10-15): adds standalone FR-286 readiness metadata in project-manager for the versioned catalog-only Business bootstrap and stable default Business Space. No feature membership or access grant is inferred; Task13's delivery ledger owns actual acceptance and publication status.
 
 Version diff 1.69.0b → 1.70.0b (2026-10-15): adds FR-285 readiness presentation metadata in the agent domain for standard persisted Business configuration and owner preview/initial apply. FR-285 is Standalone; no FEAT row, membership or existing identity changes. Readiness links code/test references; Task9's canonical delivery ledger separately records isolated acceptance and pending final delivery gates.
 
@@ -195,6 +197,11 @@ also rejects retired classification terminology in live authoritative documents.
 <!-- readiness-metadata:start -->
 ```json
 [
+  {
+    "id": "FR-286",
+    "primaryDomain": "project-manager",
+    "useCase": "Create a Business with a version-pinned domain and RBAC catalog snapshot and one default Business Space atomically, without new grants; preserve same-Business retries and backup integrity."
+  },
   {
     "id": "FR-285",
     "primaryDomain": "agent",

@@ -504,7 +504,7 @@ locates the week.
 | TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | planned | TASK-ZAI-007 | Section 3.1 row 9 |
 | TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | planned | TASK-ZAI-010 | Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | task | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
-| TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template and provisioning path | P0 | Codex | planned | TASK-ZAI-009 | Section 3.1 row 6 |
+| TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template and provisioning path | P0 | Codex | review | TASK-ZAI-009 | Section 3.1 row 6 |
 | TASK-ZAI-014 | SPR-ZAI-05 | task | Onboard Business number two end to end under isolation | P0 | ATHER | planned | TASK-ZAI-013 | Section 3.1 row 6 |
 | TASK-ZAI-015 | SPR-ZAI-05 | task | Per-business visibility regression at two-business scale | P1 | Claude | planned | TASK-ZAI-014 | FEATURE-MAP FR-061 and FR-062 |
 | TASK-ZAI-016 | SPR-ZAI-06 | task | Cross-business governed analytics read model | P0 | Claude | planned | TASK-ZAI-014 | Section 3.1 row 6 |
@@ -1217,13 +1217,13 @@ symbol_links:
   test: unavailable
 definition_of_done:
   acceptance_criteria:
-    - criterion: Given the template, when a Business is provisioned from it, then domains, roles, permissions and default workspaces exist without manual steps
+    - criterion: Given either authorized FR-074 creation path, when its transaction commits, then a digest-valid immutable v1 snapshot of domain IDs and app-RBAC role, permission and conflict definitions and one STANDARD_DEFAULT Business Space (schema Workspace) with DB-derived ancestry exist; template metadata grants no Membership, domainKeysJson, RoleBinding or action authority; FR-285 agent roles remain separate
       checked: false
   success_criteria:
-    - criterion: Given an existing Business, when the template version changes, then existing data is not overwritten
+    - criterion: Given an intact v1 Business snapshot, when future catalog or template versions appear, then v1 remains historical and readable against its pinned definition; no existing data or settings are automatically overwritten, upgraded or backfilled; incompatible apply refuses without mutation
       checked: false
   exit_criteria:
-    - criterion: Given npm test, when the provisioning suite runs, then a second provision of the same Business is a no-op
+    - criterion: Given the same persisted Business and intact v1 default Space, when the private helper is invoked again, then ALREADY_APPLIED preserves all dates, versions, names, Space status, mutable settings and audits; this does not make repeated public create requests idempotent
       checked: false
 changelog: Opened as the reusable path that makes onboarding Business number two a repeatable operation rather than a bespoke migration.
 created_at: 2026-08-20T00:00:00Z,Claude,pending

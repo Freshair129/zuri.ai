@@ -37,10 +37,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 169,
-    "readyFeatureCount": 120,
-    "requirementCount": 283,
-    "verifiedRequirementCount": 247,
+    "featureCount": 170,
+    "readyFeatureCount": 121,
+    "requirementCount": 284,
+    "verifiedRequirementCount": 248,
     "progressPercent": 92.5,
     "gapCount": 60,
     "gaps": [
@@ -1093,7 +1093,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 18
+          "testCount": 19
         }
       ],
       "checks": {
@@ -2146,7 +2146,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-075",
@@ -2372,7 +2372,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 38
+          "testCount": 40
         },
         {
           "id": "FR-192",
@@ -2380,7 +2380,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 21
         },
         {
           "id": "FR-193",
@@ -6036,8 +6036,8 @@
           "title": "Scope-creation authorization",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 14
+          "codeCount": 3,
+          "testCount": 15
         },
         {
           "id": "FR-075",
@@ -6485,7 +6485,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 21
+          "testCount": 23
         },
         {
           "id": "FR-172",
@@ -6589,7 +6589,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 38
+          "testCount": 40
         },
         {
           "id": "FR-193",
@@ -7136,7 +7136,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 18
+          "testCount": 19
+        },
+        {
+          "id": "FR-286",
+          "title": "Standard Business Template",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 23
         }
       ],
       "checks": {
@@ -7586,11 +7594,12 @@
         "FR-251",
         "FR-252",
         "FR-272",
-        "FR-284"
+        "FR-284",
+        "FR-286"
       ],
-      "featureCount": 52,
-      "readyFeatureCount": 47,
-      "progressPercent": 93.4
+      "featureCount": 53,
+      "readyFeatureCount": 48,
+      "progressPercent": 93.5
     }
   },
   "features": [
@@ -10796,7 +10805,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 38
+          "testCount": 40
         },
         {
           "id": "FR-192",
@@ -10804,7 +10813,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -10828,6 +10837,7 @@
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/tests/e2e/fr193-access-members.spec.js",
         "apps/server/tests/integration/agent-business-factory.test.js",
+        "apps/server/tests/integration/business-provisioning-template.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
@@ -10836,17 +10846,24 @@
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
         "apps/server/tests/integration/fr193-remove-controls.test.js",
+        "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
+        "apps/server/tests/integration/governance-snapshot-capture.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
         "apps/server/tests/integration/identity-erase-speaker-events.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+        "apps/server/tests/integration/project-feature-erasure.test.js",
+        "apps/server/tests/integration/project-feature-graph.test.js",
+        "apps/server/tests/integration/project-feature-mutations.test.js",
+        "apps/server/tests/integration/project-feature-read-routes.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/auth-service.test.js",
+        "apps/server/tests/unit/business-provisioning-template.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
@@ -16183,16 +16200,18 @@
           "title": "Scope-creation authorization",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 14
+          "codeCount": 5,
+          "testCount": 15
         }
       ],
       "evidence": [
         "apps/server/src/app/api/scope/route.js",
         "apps/server/src/modules/identity/resolve-viewer.js",
         "apps/server/src/modules/identity/viewer-authority.js",
+        "apps/server/src/modules/project-manager/application/business-provisioning-service.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
+        "apps/server/tests/integration/business-provisioning-template.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr106-api-access-key-listing.test.js",
@@ -17827,7 +17846,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 21
+          "testCount": 23
         }
       ],
       "evidence": [
@@ -17843,11 +17862,13 @@
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
+        "apps/server/tests/integration/business-provisioning-template.test.js",
         "apps/server/tests/integration/fr169-business-capability.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capabilities.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/business-provisioning-template.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -19044,7 +19065,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 18
+          "testCount": 19
         }
       ],
       "evidence": [
@@ -19057,6 +19078,7 @@
         "apps/server/tests/integration/agent-business-factory.test.js",
         "apps/server/tests/integration/agent-factory-backup.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/business-provisioning-template.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
@@ -19070,6 +19092,63 @@
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/unit/agent-business-factory.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js"
+      ]
+    },
+    {
+      "id": "FR-286",
+      "title": "Standard Business Template — persist an immutable versioned catalog-only domain and application RBAC snapshot plus one trusted-ancestry default Business Space in both authorized FR-074 creation transactions; preserve existing grants and Task9 configuration, same-Business helper no-op and post-creation edits, typed conflict refusal, atomic attributed audit, and safe backup recovery without implicit backfill or provider activation.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-286"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "Create a Business with a version-pinned domain and RBAC catalog snapshot and one default Business Space atomically, without new grants; preserve same-Business retries and backup integrity.",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-286",
+          "title": "Standard Business Template",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 23
+        }
+      ],
+      "evidence": [
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/modules/project-manager/application/business-provisioning-service.js",
+        "apps/server/src/modules/project-manager/application/business-provisioning-template.js",
+        "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/business-provisioning-backup.test.js",
+        "apps/server/tests/integration/business-provisioning-template.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
+        "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
+        "apps/server/tests/integration/governance-snapshot-capture.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/phase-b-recovery.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/project-feature-erasure.test.js",
+        "apps/server/tests/integration/project-feature-graph.test.js",
+        "apps/server/tests/integration/project-feature-mutations.test.js",
+        "apps/server/tests/integration/project-feature-read-routes.test.js",
+        "apps/server/tests/integration/scope-and-isolation.test.js",
+        "apps/server/tests/unit/business-provisioning-template.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
       ]

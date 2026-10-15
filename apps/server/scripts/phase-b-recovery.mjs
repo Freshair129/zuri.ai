@@ -38,8 +38,9 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // @req FR-269, FR-270 — bind the Business KPI and WIG weekly-execution models
 // in this static inventory without granting live migration or recovery authority.
 // @req FR-285 — include dependent Business agent config in the static census; no live recovery authority.
-const FROZEN_SCHEMA_SHA256 = '9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa'
-const FROZEN_TARGET_SCHEMA_SHA256 = '9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4'
+// @req FR-286 — rebind added Business/Workspace columns; preserve all 205 model mappings.
+const FROZEN_SCHEMA_SHA256 = "4679367cef0dcb57f17e68a9b1fe1ae56d2c84313d8618b8733b111a68b6cbb7"
+const FROZEN_TARGET_SCHEMA_SHA256 = "764149d3115fb3476983f1e8b1088985a137d15c3c7d9909476d523e8534fe44"
 const FROZEN_APPLICATION_TABLE_COUNT = 205
 
 function ordinalCompare(a, b) {

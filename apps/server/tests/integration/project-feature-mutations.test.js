@@ -145,6 +145,8 @@ afterAll(async () => {
   if (fixture.workstreams.length) await prisma.workstream.deleteMany({ where: { id: { in: fixture.workstreams } } })
   if (fixture.projects.length) await prisma.project.deleteMany({ where: { id: { in: fixture.projects } } })
   if (fixture.workspaces.length) await prisma.workspace.deleteMany({ where: { id: { in: fixture.workspaces } } })
+  // FR-286 default Spaces remain subject to FR-192 Restrict.
+  if (fixture.businesses.length) await prisma.workspace.deleteMany({ where: { businessId: { in: fixture.businesses }, provisioningKey: 'STANDARD_DEFAULT' } })
   if (fixture.businesses.length) await prisma.business.deleteMany({ where: { id: { in: fixture.businesses } } })
   if (fixture.tenants.length) await prisma.tenant.deleteMany({ where: { id: { in: fixture.tenants } } })
   if (fixture.portfolios.length) await prisma.portfolio.deleteMany({ where: { id: { in: fixture.portfolios } } })

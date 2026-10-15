@@ -115,8 +115,8 @@ describe('Phase B offline recovery runners', () => {
   // pre-FR-285 binding reconstructed below keeps that model out of its fixture.
   it('loads the committed pinned 205-table inventory', () => {
     expect(inventory.applicationTables).toHaveLength(205)
-    expect(inventory.schemaSha256).toBe('9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa')
-    expect(inventory.targetSchemaSha256).toBe('9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4')
+    expect(inventory.schemaSha256).toBe("4679367cef0dcb57f17e68a9b1fe1ae56d2c84313d8618b8733b111a68b6cbb7")
+    expect(inventory.targetSchemaSha256).toBe("764149d3115fb3476983f1e8b1088985a137d15c3c7d9909476d523e8534fe44")
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -230,6 +230,9 @@ describe('Phase B offline recovery runners', () => {
   })
 
   for (const historical of [
+    // FR-286 changes columns, not the 205 model mappings. A same-count prior
+    // schema is still a distinct historical binding, refused at every boundary.
+    { name: 'FR-285 205-model predecessor', schemaSha256: '9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa', targetSchemaSha256: '9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4', omit: [] },
     { name: 'API-010 195-model', schemaSha256: '73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1', targetSchemaSha256: '9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9', omit: [...MARKETING_CUSTODY, ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS] },
     { name: 'main 197-model', schemaSha256: '45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06', targetSchemaSha256: 'e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e', omit: ['MemoryProjectionReceipt', ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS] },
   ]) {

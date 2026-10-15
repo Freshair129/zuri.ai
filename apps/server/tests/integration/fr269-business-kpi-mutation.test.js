@@ -294,6 +294,10 @@ describe('FR-269 Business KPI mutation and read scope', () => {
       },
     })
 
+    // FR-192 still protects the Business while its FR-286 default Space exists.
+    await expect(prisma.business.delete({ where: { id: eraseBusiness.id } })).rejects.toMatchObject({ code: 'P2003' })
+    expect(await prisma.businessKpi.findUnique({ where: { id: eraseKpi.id } })).not.toBeNull()
+    await prisma.workspace.deleteMany({ where: { businessId: eraseBusiness.id, provisioningKey: 'STANDARD_DEFAULT' } })
     await prisma.business.delete({ where: { id: eraseBusiness.id } })
 
     expect(await prisma.businessKpi.findUnique({ where: { id: eraseKpi.id } })).toBeNull()

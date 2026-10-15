@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.151.0b"
+version: "2.152.0b"
 updated: "2026-10-15"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.152.0b (2026-10-15): TASK-ZAI-013 is in review with isolated acceptance under the root-adopted Standard Business Template v1 contract and sanctioned FR-286. The bounded implementation adds catalog definitions without access grants, one stable default Business Space in both FR-074 creation paths, same-Business helper no-op and legacy backup-field safety. Task13 criteria are reconciled to these explicit semantics; SQLite acceptance passed 238/238 across 23 files (2 explicitly skipped engine/content cases), disposable PostgreSQL passed 29/29 across 4 files including the source SQL constraints, and the local application build passed. Independent final gates, exact-head hosted CI and merge are pending. The 123-task ledger contains 68 done, 17 review, 4 in-progress, 29 planned and 5 blocked tasks. Task14 Business-number-two browser/runtime isolation follows after Task13 acceptance; production/Supabase/provider effects remain outside this local task.
 
 > Revision 2.151.0b (2026-10-15): Close TASK-ZAI-009 as done / HOSTED_CI / MERGED for the bounded FR-285 factory v1 contract. PR #665 artifact `24c7d99e45f8088657168859dbc02a9c5c2744fb` merged as `cddc52f4fc8e09c59c1f7c033765b75d797a27f1` after distinct independent verify/review PASS, strict governance with zero critical findings, and all applicable exact-head CI gates: Governance `38672680746` and Edge `38672680749`; scheduled E2E and Desktop were skipped, not counted as passes. SQLite 151/151 across 14 files and disposable PostgreSQL 13/13 bind unchanged runtime/test source `f073bdd4`. Five persisted role configurations, scoped owner administration, atomic provisioning, idempotence, backup preservation and the Business lifecycle correction are delivered. Provider/live-agent activation and external migration apply remain NOT_RUN. The canonical 123-task ledger now contains 68 done, 16 review, 4 in-progress, 30 planned and 5 blocked tasks. Next implementation is Task13's bounded Standard Business Template contract and provisioning, which unlocks Task14; Task10's distinct approval-ladder semantics still need their own contract.
 
@@ -504,6 +506,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | ID | Parent ID | Type | Title | Priority | Owner | Status | Dependencies | Source Section |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Business Agent Factory v1 (FR-285): persisted standard five-role config, scoped initial owner apply and atomic Business provisioning | P1 | Codex | done (bounded local factory; hosted CI and PR665 merge verified; canonical delivery ledger below owns evidence) | TASK-ZAI-007; TASK-ZAI-008 | ../change-requests/agent-factory/AGENT-FACTORY-V1.md |
+| TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template v1 (FR-286): catalog-only snapshot and one atomic default Business Space | P0 | Codex | review (isolated SQLite238 and disposablePG29; exact-head CI/final review pending) | TASK-ZAI-009 | ../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md |
 | TASK-ZAI-047 | PHASE-ZAI-KNOWLEDGE | task | Knowledge console (FR-254): source versions, complete processing runs, corpus generations and exact citation artifacts | P0 | RWANG | review (isolated implementation and native acceptance; not deployed) | FR-173; FR-071; FR-110 | ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md |
 | TASK-ZAI-064 | PHASE-ZAI-DELIVERY-TELEMETRY | task | Delivery telemetry decision record — ADR-086 amending ADR-048 D3 for measured time and tokens beside the plan; sizing table; FEAT-034 declarations | P0 | Claude | done (ADR-086 accepted; FR-216..FR-219 and FEAT-034 declared and pinned 2026-09-13) | ADR-048; FR-105 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-065 | PHASE-ZAI-DELIVERY-TELEMETRY | task | Phase card delivery metrics (FR-216) — sprints, tasks, size, plan window and effort estimate; actual time and measured tokens once done; done green, review orange | P0 | Claude | done (FR-216 merged #383, deployed 6630c1df) | TASK-ZAI-064 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
@@ -762,7 +765,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 | TASK-ZAI-010 | SPR-ZAI-04 | Approval Gateway L1 to L4 over the FR-026 action gate | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-007 | ROADMAP.md | Audit wave 2026-09-21: only FR-026 Gate F exists; owner-approved L1-L4 semantics and persistence contract are missing; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 9 |
 | TASK-ZAI-011 | SPR-ZAI-04 | Verification and notification fabric on approval outcomes | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
-| TASK-ZAI-013 | SPR-ZAI-05 | Standard Business Template and provisioning path | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-009 | ROADMAP.md | 24-week baseline; Section 3.1 row 6 |
+| TASK-ZAI-013 | SPR-ZAI-05 | Standard Business Template and provisioning path | review | ISOLATED | ISOLATED_ACCEPTED | TASK-ZAI-009 | FR-286; docs/change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md | FR-286 bounded v1 isolated SQLite 238/238 and disposable PG29/29 accepted; independent final gates/hostedCI/merge pending; no production effect |
 | TASK-ZAI-014 | SPR-ZAI-05 | Onboard Business number two end to end under isolation | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-013 | ROADMAP.md | 24-week baseline; Section 3.1 row 6 |
 | TASK-ZAI-015 | SPR-ZAI-05 | Per-business visibility regression at two-business scale | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-014 | ROADMAP.md | 24-week baseline; FEATURE-MAP FR-061 and FR-062 |
 | TASK-ZAI-016 | SPR-ZAI-06 | Cross-business governed analytics read model | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-014 | ROADMAP.md | 24-week baseline; Section 3.1 row 6 |

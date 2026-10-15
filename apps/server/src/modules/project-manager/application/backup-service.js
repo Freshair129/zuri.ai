@@ -31,6 +31,8 @@ import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
 import { recordAudit } from './audit'
+// @req FR-286 — restore validates historical metadata without provisioning it.
+import { validateStoredBusinessProvisioning } from './business-provisioning-template'
 import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
 import { MEMORY_ERASURE_KINDS } from '@/modules/line-oa-studio/application/line-memory-erasure'
 import { pricingHash } from '@/modules/commerce/domain/pricing-engine'
@@ -1710,6 +1712,56 @@ export async function exportSnapshot({
   return snapshot
 }
 
+const BUSINESS_PROVISIONING_FIELDS = Object.freeze([
+  'provisioningTemplateId', 'provisioningTemplateVersion',
+  'provisioningTemplateDigest', 'provisioningSnapshotJson',
+])
+
+// Missing properties are legacy unavailable evidence. Explicit null values and
+// explicit empty arrays retain the established operator-confirmed replacement
+// semantics. Neither form causes this reader to provision a template.
+function businessProvisioningRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const businesses = Array.isArray(tables.business) ? tables.business : []
+  const workspaces = Array.isArray(tables.workspace) ? tables.workspace : []
+  const tenants = new Map((Array.isArray(tables.tenant) ? tables.tenant : []).map(row => [row?.id, row]))
+  const portfolioIds = new Set((Array.isArray(tables.portfolio) ? tables.portfolio : []).map(row => row?.id))
+  const businessById = new Map(businesses.map(row => [row?.id, row]))
+  const owns = (row, key) => row != null && Object.prototype.hasOwnProperty.call(row, key)
+  const fieldsAvailable = Array.isArray(tables.business) && Array.isArray(tables.workspace)
+    && businesses.every(row => BUSINESS_PROVISIONING_FIELDS.every(key => owns(row, key)))
+    && workspaces.every(row => owns(row, 'provisioningKey'))
+  const errors = []
+  try {
+    for (const workspace of workspaces) {
+      if (workspace?.provisioningKey == null) continue
+      const business = businessById.get(workspace.businessId)
+      if (workspace.provisioningKey !== 'STANDARD_DEFAULT' || !business
+        || !BUSINESS_PROVISIONING_FIELDS.every(key => business[key] != null)) {
+        throw new Error('Keyed Business Space has no complete matching Business template')
+      }
+    }
+    for (const business of businesses) {
+      const keyed = workspaces.filter(row => row?.businessId === business?.id && row.provisioningKey != null)
+      if (!BUSINESS_PROVISIONING_FIELDS.some(key => business?.[key] != null) && keyed.length === 0) continue
+      if (keyed.length !== 1) throw new Error('Marked Business requires exactly one default Space')
+      const tenant = tenants.get(business.tenantId)
+      if (!tenant || !portfolioIds.has(tenant.portfolioId)) throw new Error('Marked Business has no recoverable Tenant/Portfolio ancestry')
+      validateStoredBusinessProvisioning({ ...business, tenant }, keyed[0])
+    }
+  } catch (error) {
+    errors.push(`Business provisioning recovery is invalid: ${error.code || error.message}`)
+  }
+  return { status: errors.length ? 'INVALID' : fieldsAvailable ? 'AVAILABLE' : 'UNAVAILABLE', errors }
+}
+
+async function liveBusinessProvisioningCounts(db) {
+  return {
+    business: await db.business.count({ where: { OR: BUSINESS_PROVISIONING_FIELDS.map(key => ({ [key]: { not: null } })) } }),
+    workspace: await db.workspace.count({ where: { provisioningKey: { not: null } } }),
+  }
+}
+
 export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   const errors = []
   if (unsupportedMarketingReportSnapshot(snapshot)) errors.push('MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED')
@@ -1731,13 +1783,19 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
     recovery = manifest.recovery
     artifactStorageRecovery = artifactStorage.recovery
   }
-  if (errors.length) return { valid: false, errors, warnings, recovery, artifactStorageRecovery, counts: null }
+  const provisioning = businessProvisioningRecovery(snapshot)
+  errors.push(...provisioning.errors)
+  if (errors.length) return {
+    valid: false, errors, warnings, recovery, artifactStorageRecovery, counts: null,
+    businessProvisioningRecovery: provisioning,
+    ...(provisioning.errors.length ? { errorCode: 'BACKUP_BUSINESS_PROVISIONING_RECOVERY_INVALID' } : {}),
+  }
   const counts = Object.fromEntries(SNAPSHOT_MODELS.map((model) => [model, Array.isArray(snapshot.tables[model]) ? snapshot.tables[model].length : 0]))
   const remounted = new Set(remounts.map((mount) => mount.businessId))
   const businessIds = [...new Set(localAssets(snapshot).map((asset) => asset.businessId))]
   const included = new Set(contentManifest(snapshot).filter((entry) => entry.contentIncluded).map((entry) => entry.fileId))
   return {
-    valid: true, errors: [], warnings, recovery, artifactStorageRecovery, counts, exportedAt: snapshot.exportedAt || null,
+    valid: true, errors: [], warnings, recovery, artifactStorageRecovery, businessProvisioningRecovery: provisioning, counts, exportedAt: snapshot.exportedAt || null,
     mountRequiredBusinessIds: businessIds.filter((businessId) => !remounted.has(businessId)).sort(),
     missingContentFileIds: localAssets(snapshot).filter((asset) => !included.has(asset.id)).map((asset) => asset.id).sort(),
   }
@@ -1793,6 +1851,18 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
         errors: [message],
         businessAgentConfigRecovery: { status: 'UNAVAILABLE', liveConfigCount },
         current: { businessAgentConfig: liveConfigCount },
+        wouldReplace: true,
+      }
+    }
+  }
+  if (base.businessProvisioningRecovery.status === 'UNAVAILABLE') {
+    const live = await liveBusinessProvisioningCounts(db)
+    if (live.business > 0 || live.workspace > 0) {
+      if (!nested) await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
+      return {
+        ...base, valid: false, errorCode: 'BACKUP_BUSINESS_PROVISIONING_RECOVERY_UNAVAILABLE',
+        errors: ['Legacy provisioning fields are unavailable while live Business templates or default Space keys exist; refusing replacement'],
+        businessProvisioningRecovery: { ...base.businessProvisioningRecovery, live },
         wouldReplace: true,
       }
     }
@@ -1893,6 +1963,17 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
  * turn into a silent wipe.
  */
 async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
+  const provisioning = businessProvisioningRecovery(snapshot)
+  if (provisioning.errors.length) {
+    throw new BackupRestoreSafetyError('BACKUP_BUSINESS_PROVISIONING_RECOVERY_INVALID', provisioning.errors.join('; '))
+  }
+  if (provisioning.status === 'UNAVAILABLE') {
+    const live = await liveBusinessProvisioningCounts(tx)
+    if (live.business > 0 || live.workspace > 0) {
+      throw new BackupRestoreSafetyError('BACKUP_BUSINESS_PROVISIONING_LIVE_DATA_APPEARED',
+        'Business template or default Space evidence appeared after preview; refusing legacy replacement before deletion')
+    }
+  }
   if (!Array.isArray(snapshot?.tables?.businessAgentConfig) && await tx.businessAgentConfig.count() > 0) {
     throw new BackupRestoreSafetyError(
       'BACKUP_BUSINESS_AGENT_CONFIG_LIVE_DATA_APPEARED',

@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa",
+  "schemaSha256": "4679367cef0dcb57f17e68a9b1fe1ae56d2c84313d8618b8733b111a68b6cbb7",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
