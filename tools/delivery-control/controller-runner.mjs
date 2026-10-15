@@ -5,6 +5,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 import { runCodexRole } from './codex-backend.mjs';
 import { preflightTask } from './preflight.mjs';
+import { validatePreparedReceiptPath } from './base-advanced-resume.mjs';
 
 const git = (cwd, args, { raw = false } = {}) => {
   const output = execFileSync('git', args, { cwd, encoding: 'utf8', shell: false, windowsHide: true, maxBuffer: 8 * 1024 * 1024 });
@@ -32,9 +33,8 @@ export function rolePrompt({ node, task }) {
 /** Root-owned Git effect, after the sandboxed worker has exited. */
 export function readPreparedCandidate({ worktree, task, baseCommit, receiptFile, expectedReceiptDigest, expectedCycleNo }) {
   const common = fs.realpathSync(git(worktree, ['rev-parse', '--path-format=absolute', '--git-common-dir']));
-  const file = fs.realpathSync(receiptFile);
-  const relative = path.relative(path.join(common, 'zuri-delivery-control'), file);
-  if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('PREPARED_RECEIPT_MUST_BE_PRIVATE');
+  const file = validatePreparedReceiptPath({ privateRoot: path.join(common, 'zuri-delivery-control'),
+    receiptFile, taskId: task.taskId, cycleNo: expectedCycleNo });
   const bytes = fs.readFileSync(file);
   const receiptDigest = createHash('sha256').update(bytes).digest('hex');
   if (expectedReceiptDigest && receiptDigest !== expectedReceiptDigest) throw new Error('PREPARED_RECEIPT_DIGEST_MISMATCH');

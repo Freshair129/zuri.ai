@@ -338,7 +338,9 @@ test('BASE_ADVANCED prepared resume invalidates prior delivery evidence and disp
       oldBaseCommit: prepared.run.baseCommit, newBaseCommit: 'c'.repeat(40),
       reason: 'The root fetched and merged the exact advanced base.', evidenceRef: 'private://base-advanced' };
     const folder = path.join(stateRoot, 'prepared'); fs.mkdirSync(folder, { recursive: true });
-    const receiptFile = path.join(folder, 'T1-cycle-2.json'); fs.writeFileSync(receiptFile, JSON.stringify(receipt));
+    const receiptBytes = Buffer.from(JSON.stringify(receipt));
+    const receiptDigest = createHash('sha256').update(receiptBytes).digest('hex');
+    const receiptFile = path.join(folder, `T1-cycle-2-${receiptDigest}.json`); fs.writeFileSync(receiptFile, receiptBytes);
     return { status: 'READY_TO_RESUME', receipt, receiptFile };
   };
   const resume = f.hooks.resumeImpl;

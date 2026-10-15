@@ -164,6 +164,97 @@ test('restart after reconciliation journal recreates receipt without repeating t
   assert.equal(f.dispositionCalls, 1);
 });
 
+test('restart proves an exact merge after crash before reconciliation and journals it without retry', async (t) => {
+  const f = fixture(t);
+  const cycleBefore = preservedCycle(f.cycle);
+  let reads = 0; let merges = 0;
+  const readRemoteBase = async ({ repo, baseRef }) => {
+    reads++;
+    if (reads === 4) throw new Error('simulated stop after merge before reconciliation');
+    return readConfiguredRemoteBase({ repo, baseRef });
+  };
+  const mergeBase = ({ repo, newBaseCommit }) => { merges++; git(repo, ['merge', '--no-edit', '--no-ff', newBaseCommit]); };
+  const input = { ...f.args, readRemoteBase, mergeBase };
+  await assert.rejects(prepareBaseAdvancedResume(input), /BASE_ADVANCED_REMOTE_UNCERTAIN_AFTER_MERGE/);
+  const mergedHead = git(f.worktree, ['rev-parse', 'HEAD']);
+  assert.deepEqual(git(f.worktree, ['rev-list', '--parents', '-n', '1', mergedHead]).split(' ').slice(1),
+    [f.oldHeadCommit, f.newBaseCommit]);
+  assert.equal(fs.existsSync(path.join(f.stateRoot, 'prepared')), false);
+  assert.equal(fs.readdirSync(path.join(f.stateRoot, 'base-advanced-resume', f.task.taskId, 'cycle-3'))
+    .some((name) => name.startsWith('reconciliation-')), false);
+  assert.equal(f.runner.resumeCalls, 0);
+  assert.deepEqual(preservedCycle(f.cycle), cycleBefore);
+
+  const recovered = await prepareBaseAdvancedResume({ ...input,
+    readRemoteBase: ({ repo, baseRef }) => readConfiguredRemoteBase({ repo, baseRef }) });
+  assert.equal(recovered.status, 'READY_TO_RESUME');
+  assert.equal(merges, 1);
+  assert.equal(git(f.worktree, ['rev-parse', 'HEAD']), mergedHead);
+  assert.equal(f.dispositionCalls, 1);
+  assert.equal(f.run.currentCycle, 3);
+  assert.deepEqual(preservedCycle(f.cycle), cycleBefore);
+  assert.equal(heldReconciliations(f)[0].status, 'MERGED_AND_REMOTE_CONFIRMED');
+});
+
+test('private root symlink redirection is rejected before fetch or disposition', async (t) => {
+  const f = fixture(t);
+  const redirected = path.join(path.dirname(f.privateRoot), 'redirected-private');
+  fs.mkdirSync(redirected, { recursive: true });
+  assert.ok(path.resolve(f.privateRoot).startsWith(path.resolve(f.repoRoot) + path.sep));
+  fs.rmSync(f.privateRoot, { recursive: true, force: true });
+  fs.symlinkSync(redirected, f.privateRoot, process.platform === 'win32' ? 'junction' : 'dir');
+  let fetches = 0; let merges = 0;
+  await assert.rejects(prepareBaseAdvancedResume({ ...f.args, fetchBase: async () => { fetches++; },
+    mergeBase: () => { merges++; } }), /BASE_ADVANCED_PRIVATE_ROOT_REDIRECTED|BASE_ADVANCED_PRIVATE_ROOT_MISMATCH/);
+  assert.equal(fetches, 0);
+  assert.equal(merges, 0);
+  assert.equal(f.dispositionCalls, 0);
+  assert.deepEqual(fs.readdirSync(redirected), []);
+});
+
+test('prepared directory symlink is rejected before merge or redirected write', async (t) => {
+  const f = fixture(t);
+  const redirected = path.join(path.dirname(f.privateRoot), 'redirected-prepared');
+  fs.mkdirSync(redirected, { recursive: true });
+  const prepared = path.join(f.stateRoot, 'prepared');
+  fs.mkdirSync(prepared, { recursive: true });
+  fs.rmSync(prepared, { recursive: true, force: true });
+  fs.symlinkSync(redirected, prepared, process.platform === 'win32' ? 'junction' : 'dir');
+  let fetches = 0; let merges = 0;
+  await assert.rejects(prepareBaseAdvancedResume({ ...f.args, fetchBase: async () => { fetches++; },
+    mergeBase: () => { merges++; } }), /BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED/);
+  assert.equal(fetches, 0);
+  assert.equal(merges, 0);
+  assert.equal(f.dispositionCalls, 0);
+  assert.deepEqual(fs.readdirSync(redirected), []);
+});
+
+test('prepared receipt file symlink is rejected without modifying its target or repeating merge', async (t) => {
+  const f = fixture(t);
+  let merges = 0;
+  const mergeBase = ({ repo, newBaseCommit }) => { merges++; git(repo, ['merge', '--no-edit', '--no-ff', newBaseCommit]); };
+  const first = await prepareBaseAdvancedResume({ ...f.args, mergeBase });
+  const target = path.join(path.dirname(f.privateRoot), 'prepared-receipt-target.json');
+  const sentinel = Buffer.from('outside target must remain unchanged');
+  fs.writeFileSync(target, sentinel);
+  fs.unlinkSync(first.receiptFile);
+  try { fs.symlinkSync(target, first.receiptFile, 'file'); }
+  catch (error) {
+    if (error.code === 'EPERM' && process.platform === 'win32') {
+      assert.deepEqual(fs.readFileSync(target), sentinel);
+      t.skip('Windows host does not permit creating file symlinks for this test.');
+      return;
+    }
+    throw error;
+  }
+  await assert.rejects(prepareBaseAdvancedResume({ ...f.args, mergeBase }),
+    /BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED/);
+  assert.equal(merges, 1);
+  assert.deepEqual(fs.readFileSync(target), sentinel);
+  assert.equal(git(f.worktree, ['rev-parse', 'HEAD']), first.receipt.headCommit);
+  assert.equal(f.runner.resumeCalls, 0);
+});
+
 test('remote movement during fetch holds before disposition or merge', async (t) => {
   const f = fixture(t);
   const oldHead = git(f.worktree, ['rev-parse', 'HEAD']);

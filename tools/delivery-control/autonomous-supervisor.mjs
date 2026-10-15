@@ -12,7 +12,7 @@ import { runRoadmapIntake } from './roadmap-intake.mjs';
 import { createGitHubDeliveryAdapter } from './github-delivery.mjs';
 import { startControllerDashboard } from './controller-dashboard.mjs';
 import { baseAdvancedResumeSignature, fetchConfiguredBase, prepareBaseAdvancedResume,
-  readConfiguredRemoteBase } from './base-advanced-resume.mjs';
+  readConfiguredRemoteBase, validatePreparedReceiptPath } from './base-advanced-resume.mjs';
 
 const git = (cwd, argv) => execFileSync('git', argv, { cwd, encoding: 'utf8', shell: false, windowsHide: true, timeout: 30_000 }).trim();
 const digest = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -20,9 +20,13 @@ const within = (root, target) => { const relative = path.relative(root, target);
 const parse = (file) => JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
 const staleResumeStates = new Set(['BLOCKED_STALE_CANDIDATE', 'BLOCKED_STALE_BASELINE']);
 
-async function preparedEvidenceSignature({ binding, run, receiptFile, baseRef, readRemoteBase }) {
+async function preparedEvidenceSignature({ binding, run, receiptFile, baseRef, readRemoteBase, privateRoot, stateRoot }) {
   const readEvidence = (file) => {
-    try { return { path: fs.realpathSync(file), bytes: fs.readFileSync(file).toString('base64') }; }
+    try {
+      validatePreparedReceiptPath({ privateRoot, stateRoot, receiptFile: file, taskId: binding.taskId,
+        cycleNo: run?.currentCycle });
+      return { path: fs.realpathSync(file), bytes: fs.readFileSync(file).toString('base64') };
+    }
     catch (error) { return { path: path.resolve(file), error: error.code ?? error.message }; }
   };
   let worktree;
@@ -242,6 +246,8 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
                   || typeof prepared.receiptFile !== 'string' || !within(privateRoot, path.resolve(prepared.receiptFile))) {
                 throw new Error('BASE_ADVANCED_PREPARED_RECEIPT_BINDING_MISMATCH');
               }
+              validatePreparedReceiptPath({ privateRoot, stateRoot, receiptFile: prepared.receiptFile,
+                taskId: binding.taskId, cycleNo: currentRun.currentCycle });
               const receiptFile = fs.realpathSync(prepared.receiptFile);
               if (!within(privateRoot, receiptFile)) throw new Error('BASE_ADVANCED_PREPARED_RECEIPT_NOT_PRIVATE');
               state.preparedResumeReceiptFiles[binding.taskId] = receiptFile;
@@ -276,7 +282,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
             }
           }
           if (staleResumeStates.has(run?.state)) {
-            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase, privateRoot, stateRoot });
             const previous = state.preparedResumeBlocked[binding.taskId];
             const reassessment = state.preparedResumeReassessments[binding.taskId] ?? null;
             runner.hold?.(binding.taskId);
@@ -317,7 +323,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
             } catch (error) {
               runner.hold?.(binding.taskId);
               const code = String(error.code ?? error.message);
-              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase, privateRoot, stateRoot });
               state.preparedResumeBlocked[binding.taskId] = {
                 signature: failedSignature,
                 code,
@@ -331,7 +337,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
           if (run?.state === 'WORKER_READY'
               && (run.preparedBaseResume?.receiptDigest || fs.existsSync(file) || state.preparedResumeBlocked[binding.taskId])) {
             runner.hold?.(binding.taskId);
-            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase, privateRoot, stateRoot });
             const previous = state.preparedResumeBlocked[binding.taskId];
             const reassessment = state.preparedResumeReassessments[binding.taskId] ?? null;
             if (previous?.signature === signature && !reassessment) continue;
@@ -349,7 +355,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
               persist();
             } catch (error) {
               const code = String(error.code ?? error.message);
-              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase, privateRoot, stateRoot });
               state.preparedResumeBlocked[binding.taskId] = {
                 signature: failedSignature,
                 code,

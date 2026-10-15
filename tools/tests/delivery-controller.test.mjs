@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import os from 'node:os';
 import path from 'node:path';
@@ -459,7 +459,9 @@ test('missing or mismatched prepared-base receipts leave paused run, locks, coun
           preflightResult: preflight(f.task, f.worktreeRoot, f.newBaseCommit),
           trustedMandateBinding: trustedBinding(f.env.repoRoot, f.task),
           resumeEvidence: { reference: 'root://prepared-base-fixture', reason: 'Invalid receipt test.' },
-          preparedBaseReceiptFile: mismatch === 'missing' ? path.join(path.dirname(f.preparedBaseReceiptFile), 'missing.json') : f.preparedBaseReceiptFile }),
+          preparedBaseReceiptFile: mismatch === 'missing'
+            ? path.join(path.dirname(f.preparedBaseReceiptFile), `${f.task.taskId}-cycle-${f.receipt.cycleNo}-${createHash('sha256').update(JSON.stringify(f.receipt)).digest('hex')}.json`)
+            : f.preparedBaseReceiptFile }),
         /PREPARED_BASE_RECEIPT_(REQUIRED|MISSING|OLD_RUN_MISMATCH|SCHEMA_INVALID)/);
         assert.deepEqual(f.controller.getRun(f.task.taskId), before);
         assert.deepEqual(f.controller.nextReadyNodes(), []);
@@ -470,6 +472,27 @@ test('missing or mismatched prepared-base receipts leave paused run, locks, coun
       } finally { f.controller.close(); }
     });
   }
+});
+
+test('controller rejects a prepared directory symlink before reading or resuming', async () => {
+  const f = await staleCandidateFixture();
+  try {
+    const before = f.controller.getRun(f.task.taskId);
+    const eventCount = f.controller.verifyEventChain().count;
+    const prepared = path.dirname(f.preparedBaseReceiptFile);
+    const redirected = path.join(f.env.repoRoot, '.git', 'redirected-prepared-controller');
+    mkdirSync(redirected, { recursive: true });
+    rmSync(prepared, { recursive: true, force: true });
+    symlinkSync(redirected, prepared, process.platform === 'win32' ? 'junction' : 'dir');
+    assert.throws(() => f.controller.resumeTask({ taskRecord: f.task,
+      preflightResult: preflight(f.task, f.worktreeRoot, f.newBaseCommit),
+      trustedMandateBinding: trustedBinding(f.env.repoRoot, f.task),
+      resumeEvidence: { reference: 'root://prepared-base-fixture', reason: 'Reject redirected receipt directory.' },
+      preparedBaseReceiptFile: f.preparedBaseReceiptFile }), /PREPARED_BASE_RECEIPT_PATH_REDIRECTED/);
+    assert.deepEqual(f.controller.getRun(f.task.taskId), before);
+    assert.deepEqual(f.controller.nextReadyNodes(), []);
+    assert.equal(f.controller.verifyEventChain().count, eventCount);
+  } finally { f.controller.close(); }
 });
 
 test('persists dependency blocks, permits corrected acceptance evidence, and releases path locks only by root disposition', async () => {

@@ -15,6 +15,90 @@ const within = (root, target) => {
   const relative = path.relative(root, target);
   return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 };
+const samePath = (left, right) => path.relative(path.resolve(left), path.resolve(right)) === ''
+  && path.relative(path.resolve(right), path.resolve(left)) === '';
+const pathFailure = (code) => { const error = new Error(code); error.code = code; return error; };
+
+function assertCanonicalDirectory(root, target, { allowMissing = false } = {}) {
+  const absoluteRoot = path.resolve(root);
+  let rootStat;
+  try { rootStat = fs.lstatSync(absoluteRoot); }
+  catch { throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_INVALID'); }
+  if (rootStat.isSymbolicLink()) throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED');
+  if (!rootStat.isDirectory()) throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_INVALID');
+  const canonicalRoot = fs.realpathSync(absoluteRoot);
+  if (!samePath(absoluteRoot, canonicalRoot)) throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED');
+
+  const absoluteTarget = path.resolve(target);
+  if (!within(canonicalRoot, absoluteTarget)) throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_INVALID');
+  const relative = path.relative(canonicalRoot, absoluteTarget);
+  let current = canonicalRoot;
+  for (const segment of relative ? relative.split(path.sep) : []) {
+    current = path.join(current, segment);
+    let stat;
+    try { stat = fs.lstatSync(current); }
+    catch (error) {
+      if (allowMissing && error.code === 'ENOENT') return absoluteTarget;
+      throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_MISSING');
+    }
+    if (stat.isSymbolicLink()) throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED');
+    if (!stat.isDirectory() || !samePath(fs.realpathSync(current), current)) {
+      throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED');
+    }
+  }
+  return absoluteTarget;
+}
+
+export function validatePreparedReceiptDirectory({ privateRoot, stateRoot }) {
+  const canonicalPrivate = assertCanonicalDirectory(privateRoot, privateRoot);
+  const canonicalState = path.resolve(stateRoot);
+  const relativeState = path.relative(canonicalPrivate, canonicalState).split(path.sep);
+  if (relativeState.length !== 2 || relativeState[0] !== 'supervisors' || !safeTaskId(relativeState[1])) {
+    throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_INVALID');
+  }
+  assertCanonicalDirectory(canonicalPrivate, canonicalState);
+  const preparedDirectory = path.join(canonicalState, 'prepared');
+  assertCanonicalDirectory(canonicalPrivate, preparedDirectory, { allowMissing: true });
+  return preparedDirectory;
+}
+
+export function validatePreparedReceiptPath({ privateRoot, stateRoot, receiptFile, taskId, cycleNo,
+  requireExisting = true } = {}) {
+  if (!safeTaskId(taskId) || typeof receiptFile !== 'string' || !receiptFile) {
+    throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_INVALID');
+  }
+  const canonicalPrivate = assertCanonicalDirectory(privateRoot, privateRoot);
+  const absoluteFile = path.resolve(receiptFile);
+  let selectedState = stateRoot ? path.resolve(stateRoot) : null;
+  if (!selectedState) {
+    const relativeFile = path.relative(canonicalPrivate, absoluteFile).split(path.sep);
+    if (relativeFile.length !== 4 || relativeFile[0] !== 'supervisors' || !safeTaskId(relativeFile[1])
+        || relativeFile[2] !== 'prepared') throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_INVALID');
+    selectedState = path.join(canonicalPrivate, 'supervisors', relativeFile[1]);
+  }
+  const preparedDirectory = validatePreparedReceiptDirectory({ privateRoot: canonicalPrivate, stateRoot: selectedState });
+  const expectedFile = path.join(preparedDirectory, path.basename(absoluteFile));
+  if (!samePath(absoluteFile, expectedFile)) throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_INVALID');
+  const legacyName = `${taskId}.json`;
+  const escapedTaskId = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const cyclePattern = new RegExp(`^${escapedTaskId}-cycle-${cycleNo === undefined ? '[1-9][0-9]*' : cycleNo}-[a-f0-9]{64}\\.json$`);
+  if (path.basename(absoluteFile) !== legacyName && !cyclePattern.test(path.basename(absoluteFile))) {
+    throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_INVALID');
+  }
+  try {
+    const stat = fs.lstatSync(absoluteFile);
+    if (stat.isSymbolicLink()) throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED');
+    if (!stat.isFile() || !samePath(fs.realpathSync(absoluteFile), absoluteFile)) {
+      throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED');
+    }
+  } catch (error) {
+    if (error.code === 'BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED') throw error;
+    if (error.code === 'ENOENT' && !requireExisting) return absoluteFile;
+    if (error.code === 'ENOENT') throw pathFailure('BASE_ADVANCED_PREPARED_RECEIPT_PATH_MISSING');
+    throw error;
+  }
+  return absoluteFile;
+}
 
 function baseRefParts(baseRef, repo) {
   if (typeof baseRef !== 'string') throw new Error('BASE_ADVANCED_REF_INVALID');
@@ -88,16 +172,29 @@ function safePrivateRoots({ repoRoot, privateRoot, stateRoot, campaignId }) {
   const root = fs.realpathSync(repoRoot);
   const common = fs.realpathSync(git(root, ['rev-parse', '--path-format=absolute', '--git-common-dir']));
   const expectedPrivate = path.join(common, 'zuri-delivery-control');
+  try {
+    if (fs.lstatSync(expectedPrivate).isSymbolicLink()) throw new Error('BASE_ADVANCED_PRIVATE_ROOT_REDIRECTED');
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
   fs.mkdirSync(expectedPrivate, { recursive: true });
   const actualPrivate = fs.realpathSync(expectedPrivate);
-  if (privateRoot && fs.realpathSync(privateRoot) !== actualPrivate) throw new Error('BASE_ADVANCED_PRIVATE_ROOT_MISMATCH');
+  if (!samePath(actualPrivate, expectedPrivate) || !within(common, actualPrivate)
+      || (privateRoot && (!samePath(path.resolve(privateRoot), actualPrivate)
+        || !samePath(fs.realpathSync(privateRoot), actualPrivate)))) {
+    throw new Error('BASE_ADVANCED_PRIVATE_ROOT_MISMATCH');
+  }
   if (!safeTaskId(campaignId)) throw new Error('BASE_ADVANCED_CAMPAIGN_ID_INVALID');
   const campaignStateRoot = path.join(actualPrivate, 'supervisors', campaignId);
+  assertCanonicalDirectory(actualPrivate, campaignStateRoot, { allowMissing: true });
   fs.mkdirSync(campaignStateRoot, { recursive: true });
   const actualStateRoot = fs.realpathSync(campaignStateRoot);
-  if (!within(actualPrivate, actualStateRoot) || (stateRoot && fs.realpathSync(stateRoot) !== actualStateRoot)) {
+  if (!samePath(actualStateRoot, campaignStateRoot) || !within(actualPrivate, actualStateRoot)
+      || (stateRoot && (!samePath(path.resolve(stateRoot), actualStateRoot)
+        || !samePath(fs.realpathSync(stateRoot), actualStateRoot)))) {
     throw new Error('BASE_ADVANCED_STATE_ROOT_MISMATCH');
   }
+  validatePreparedReceiptDirectory({ privateRoot: actualPrivate, stateRoot: actualStateRoot });
   return { root, common, privateRoot: actualPrivate, stateRoot: actualStateRoot };
 }
 
@@ -273,8 +370,96 @@ function makePreparedReceipt({ privateRoot, stateRoot, binding, run, result, res
   };
   const receiptKey = digest(receipt);
   const receiptFile = path.join(stateRoot, 'prepared', `${binding.taskId}-cycle-${run.currentCycle}-${receiptKey}.json`);
-  const saved = putImmutableJson(receiptFile, receipt);
-  return { receipt, receiptFile: saved.file, receiptDigest: saved.digest };
+  validatePreparedReceiptPath({ privateRoot, stateRoot, receiptFile, taskId: binding.taskId,
+    cycleNo: run.currentCycle, requireExisting: false });
+  fs.mkdirSync(path.dirname(receiptFile), { recursive: true });
+  validatePreparedReceiptPath({ privateRoot, stateRoot, receiptFile, taskId: binding.taskId,
+    cycleNo: run.currentCycle, requireExisting: false });
+  const bytes = Buffer.from(JSON.stringify(receipt));
+  try { fs.writeFileSync(receiptFile, bytes, { flag: 'wx' }); }
+  catch (error) {
+    if (error.code !== 'EEXIST') throw error;
+    validatePreparedReceiptPath({ privateRoot, stateRoot, receiptFile, taskId: binding.taskId,
+      cycleNo: run.currentCycle, requireExisting: true });
+    if (!fs.readFileSync(receiptFile).equals(bytes)) throw new Error('BASE_ADVANCED_IMMUTABLE_ARTIFACT_MISMATCH');
+  }
+  validatePreparedReceiptPath({ privateRoot, stateRoot, receiptFile, taskId: binding.taskId,
+    cycleNo: run.currentCycle, requireExisting: true });
+  return { receipt, receiptFile, receiptDigest: createHash('sha256').update(bytes).digest('hex') };
+}
+
+async function recoverUnjournaledMerge({ attemptDir, taskId, run, worktree, snapshot, checkpoint, task,
+  privateRoot, baseRef, readRemoteBase }) {
+  const missing = attemptFiles(attemptDir, 'merge-intent-').filter((file) => {
+    const key = path.basename(file).replace(/^merge-intent-/, '').replace(/\.json$/, '');
+    return !fs.existsSync(path.join(attemptDir, `reconciliation-${key}.json`));
+  });
+  if (!missing.length) return null;
+  if (missing.length !== 1) throw new Error('BASE_ADVANCED_MERGE_OUTCOME_UNKNOWN');
+  const intentFile = missing[0];
+  const key = path.basename(intentFile).replace(/^merge-intent-/, '').replace(/\.json$/, '');
+  const intent = readJson(intentFile);
+  const fetchIntent = readJson(path.join(attemptDir, `fetch-intent-${key}.json`));
+  const fetchResult = readJson(path.join(attemptDir, `fetch-result-${key}.json`));
+  const dispositionFile = intent?.dispositionRef ? resolvePrivateReference(privateRoot, intent.dispositionRef) : null;
+  const disposition = dispositionFile && readJson(dispositionFile);
+  const exactBinding = intent?.schemaVersion === 'root-base-advanced-merge-intent/v1'
+    && intent.evidenceSignature === key && intent.taskId === taskId && intent.cycleNo === run.currentCycle
+    && intent.oldHeadCommit === run.candidateHeadCommit && intent.oldBaseCommit === run.baseCommit
+    && isCommit(intent.newBaseCommit) && intent.newBaseCommit !== run.baseCommit && intent.baseRef === baseRef
+    && intent.operation === 'git merge --no-edit --no-ff'
+    && intent.taskDigest === task.taskDigest && intent.dispositionRef === snapshot.baseAdvancedDisposition?.evidenceRef
+    && dispositionFile && intent.dispositionRef === privateReference(privateRoot, dispositionFile)
+    && fetchIntent?.schemaVersion === 'root-base-advanced-fetch-intent/v1'
+    && fetchIntent.evidenceSignature === key && fetchIntent.taskId === taskId
+    && fetchIntent.cycleNo === run.currentCycle && fetchIntent.oldHeadCommit === run.candidateHeadCommit
+    && fetchIntent.oldBaseCommit === run.baseCommit && fetchIntent.baseRef === baseRef
+    && fetchResult?.schemaVersion === 'root-base-advanced-fetch-result/v1'
+    && fetchResult.status === 'FETCH_CONFIRMED' && fetchResult.taskId === taskId
+    && fetchResult.cycleNo === run.currentCycle && fetchResult.baseRef === baseRef
+    && fetchResult.fetchedBaseSha === intent.newBaseCommit
+    && fetchResult.remoteShaAfterFetch === intent.newBaseCommit
+    && disposition?.schemaVersion === 'root-base-advanced-disposition/v1'
+    && disposition.disposition === 'YIELD_REASSESS' && disposition.basis === 'MATERIAL_NEW_EVIDENCE'
+    && disposition.taskId === taskId && disposition.cycleNo === run.currentCycle
+    && disposition.oldHeadCommit === run.candidateHeadCommit && disposition.oldBaseCommit === run.baseCommit
+    && disposition.newBaseCommit === intent.newBaseCommit && disposition.taskDigest === task.taskDigest
+    && disposition.evidenceRef === `root-campaign:${intent.campaignId}:BASE_ADVANCED:${key}`
+    && isDeepStrictEqual(disposition.checkpoint, checkpoint)
+    && run.state === 'BLOCKED_STALE_CANDIDATE' && snapshot.cycle?.state === 'BLOCKED'
+    && snapshot.baseAdvancedDisposition?.disposition === 'YIELD_REASSESS'
+    && snapshot.baseAdvancedDisposition?.basis === 'MATERIAL_NEW_EVIDENCE'
+    && snapshot.baseAdvancedDisposition?.source === 'BASE_ADVANCED'
+    && snapshot.baseAdvancedDisposition?.oldHeadCommit === run.candidateHeadCommit
+    && snapshot.baseAdvancedDisposition?.oldBaseCommit === run.baseCommit
+    && isDeepStrictEqual(snapshot.baseAdvancedDisposition?.checkpoint, checkpoint);
+  if (!exactBinding) throw new Error('BASE_ADVANCED_MERGE_OUTCOME_UNKNOWN');
+
+  const before = worktreeObservation(worktree);
+  const parentLine = before.head && maybeGit(worktree, ['rev-list', '--parents', '-n', '1', before.head]);
+  const parents = parentLine?.split(/\s+/).slice(1) ?? [];
+  const exactGit = before.head !== run.candidateHeadCommit && before.branch === run.branch && before.status === ''
+    && before.unmerged === '' && before.mergeHead === null && parents.length === 2
+    && parents[0] === run.candidateHeadCommit && parents[1] === intent.newBaseCommit
+    && maybeGit(worktree, ['merge-base', '--is-ancestor', run.baseCommit, intent.newBaseCommit]) !== null
+    && maybeGit(worktree, ['merge-base', '--is-ancestor', checkpoint.actualBaseCommit, intent.newBaseCommit]) !== null;
+  if (!exactGit) throw new Error('BASE_ADVANCED_MERGE_OUTCOME_UNKNOWN');
+  let remoteShaAfterMerge;
+  try { remoteShaAfterMerge = await readRemoteBase({ repo: worktree, baseRef }); }
+  catch { throw new Error('BASE_ADVANCED_MERGE_OUTCOME_UNKNOWN'); }
+  if (remoteShaAfterMerge !== intent.newBaseCommit) throw new Error('BASE_ADVANCED_MERGE_OUTCOME_UNKNOWN');
+  const after = worktreeObservation(worktree);
+  if (after.head !== before.head || after.branch !== run.branch || after.status !== '' || after.unmerged !== '' || after.mergeHead !== null) {
+    throw new Error('BASE_ADVANCED_MERGE_OUTCOME_UNKNOWN');
+  }
+  const file = path.join(attemptDir, `reconciliation-${key}.json`);
+  const result = { schemaVersion: 'root-base-advanced-reconciliation/v1', status: 'MERGED_AND_REMOTE_CONFIRMED',
+    taskId, cycleNo: run.currentCycle, oldHeadCommit: run.candidateHeadCommit, oldBaseCommit: run.baseCommit,
+    newBaseCommit: intent.newBaseCommit, headCommit: after.head, remoteShaAfterMerge, checkpoint,
+    dispositionRef: intent.dispositionRef, taskDigest: task.taskDigest,
+    previousRoleAndCiEvidenceInvalidated: true, mergeParents: parents, observedAt: intent.observedAt ?? fetchResult.observedAt };
+  putImmutableJson(file, result);
+  return { result, file, current: after };
 }
 
 /** Build a stable observation fingerprint without fetching or mutating Git state. */
@@ -346,13 +531,15 @@ export async function prepareBaseAdvancedResume({ repoRoot, privateRoot, stateRo
   const attemptDir = path.join(roots.stateRoot, 'base-advanced-resume', taskId, `cycle-${run.currentCycle}`);
   fs.mkdirSync(attemptDir, { recursive: true });
   if (!within(roots.stateRoot, fs.realpathSync(attemptDir))) throw new Error('BASE_ADVANCED_ARTIFACT_PATH_ESCAPE');
+  const recovered = await recoverUnjournaledMerge({ attemptDir, taskId, run, worktree: binding.worktree,
+    snapshot, checkpoint, task, privateRoot: roots.privateRoot, baseRef, readRemoteBase });
   assertNoUnknownAttempts(attemptDir);
   assertNoPriorHeldReconciliation(attemptDir, { taskId, cycleNo: run.currentCycle,
     oldHeadCommit: run.candidateHeadCommit, oldBaseCommit: run.baseCommit, checkpoint, reassessment });
 
   // A completed Git merge whose result was journaled can be finished as a
   // metadata-only receipt write after a restart. A missing result is unknown.
-  const completed = resultForCurrentHead({ attemptDir, run, worktree: binding.worktree, snapshot, checkpoint,
+  const completed = recovered ?? resultForCurrentHead({ attemptDir, run, worktree: binding.worktree, snapshot, checkpoint,
     task, privateRoot: roots.privateRoot, baseRef });
   if (completed) {
     const remoteAfter = await readRemoteBase({ repo: binding.worktree, baseRef });
@@ -452,7 +639,7 @@ export async function prepareBaseAdvancedResume({ repoRoot, privateRoot, stateRo
   putImmutableJson(mergeIntentFile, { schemaVersion: 'root-base-advanced-merge-intent/v1', taskId,
     cycleNo: run.currentCycle, oldHeadCommit: run.candidateHeadCommit, oldBaseCommit: run.baseCommit,
     newBaseCommit, baseRef, operation: 'git merge --no-edit --no-ff', evidenceSignature: attemptKey,
-    dispositionRef: evidenceRef });
+    dispositionRef: evidenceRef, campaignId, taskDigest: task.taskDigest, observedAt: new Date().toISOString() });
   let mergeError = null;
   try { await mergeBase({ repo: binding.worktree, newBaseCommit }); }
   catch (error) { mergeError = error; }

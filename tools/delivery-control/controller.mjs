@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { lstatSync, readFileSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { openControllerStore, repositoryPaths } from './controller-store.mjs';
+import { validatePreparedReceiptPath } from './base-advanced-resume.mjs';
 
 const ROLES = Object.freeze([
   { nodeId: 'worker', stage: 'WORKER_IMPLEMENTATION', role: 'worker' },
@@ -163,15 +164,15 @@ function pathInside(root, candidate) {
 function readPreparedBaseResumeReceipt({ store, run, taskRecord, baseline, preparedBaseReceiptFile }) {
   if (!nonempty(preparedBaseReceiptFile)) throw new Error('PREPARED_BASE_RECEIPT_REQUIRED');
   let resolvedFile;
-  try { resolvedFile = realpathSync(preparedBaseReceiptFile); }
-  catch { throw new Error('PREPARED_BASE_RECEIPT_MISSING'); }
   const privateRoot = path.join(store.gitCommonDir, 'zuri-delivery-control');
-  let resolvedPrivateRoot;
-  try { resolvedPrivateRoot = realpathSync(privateRoot); }
-  catch { throw new Error('PREPARED_BASE_RECEIPT_PRIVATE_ROOT_MISSING'); }
-  if (!pathInside(resolvedPrivateRoot, resolvedFile) || resolvedFile === resolvedPrivateRoot) {
+  try { resolvedFile = validatePreparedReceiptPath({ privateRoot, receiptFile: preparedBaseReceiptFile,
+    taskId: taskRecord.taskId }); }
+  catch (error) {
+    if (error.code === 'BASE_ADVANCED_PREPARED_RECEIPT_PATH_MISSING') throw new Error('PREPARED_BASE_RECEIPT_MISSING');
+    if (error.code === 'BASE_ADVANCED_PREPARED_RECEIPT_PATH_REDIRECTED') throw new Error('PREPARED_BASE_RECEIPT_PATH_REDIRECTED');
     throw new Error('PREPARED_BASE_RECEIPT_MUST_BE_PRIVATE');
   }
+  const resolvedPrivateRoot = realpathSync(privateRoot);
 
   let bytes;
   let receipt;
