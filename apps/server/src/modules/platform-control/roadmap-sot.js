@@ -37,15 +37,15 @@ export const ROADMAP_SOT = {
     "phases": {
       "PHASE-ZAI-01": {
         "status": "in-progress",
-        "progress": 91
+        "progress": 95
       },
       "PHASE-ZAI-02": {
         "status": "in-progress",
-        "progress": 48
+        "progress": 65
       },
       "PHASE-ZAI-03": {
         "status": "in-progress",
-        "progress": 10
+        "progress": 52
       },
       "PHASE-ZAI-04": {
         "status": "planned",
@@ -53,7 +53,7 @@ export const ROADMAP_SOT = {
       },
       "PHASE-ZAI-05": {
         "status": "in-progress",
-        "progress": 17
+        "progress": 61
       },
       "PHASE-ZAI-06": {
         "status": "planned",
@@ -63,27 +63,27 @@ export const ROADMAP_SOT = {
     "sprints": {
       "SPR-ZAI-01": {
         "status": "in-progress",
-        "progress": 93
+        "progress": 88
       },
       "SPR-ZAI-02": {
         "status": "in-progress",
-        "progress": 91
+        "progress": 97
       },
       "SPR-ZAI-03": {
         "status": "in-progress",
-        "progress": 40
+        "progress": 71
       },
       "SPR-ZAI-04": {
         "status": "in-progress",
-        "progress": 19
+        "progress": 58
       },
       "SPR-ZAI-05": {
         "status": "in-progress",
-        "progress": 21
+        "progress": 83
       },
       "SPR-ZAI-06": {
         "status": "in-progress",
-        "progress": 4
+        "progress": 31
       },
       "SPR-ZAI-07": {
         "status": "planned",
@@ -95,11 +95,11 @@ export const ROADMAP_SOT = {
       },
       "SPR-ZAI-09": {
         "status": "in-progress",
-        "progress": 50
+        "progress": 95
       },
       "SPR-ZAI-10": {
         "status": "planned",
-        "progress": 0
+        "progress": 53
       },
       "SPR-ZAI-11": {
         "status": "planned",
@@ -790,12 +790,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-014",
     "sprint": "SPR-ZAI-05",
     "title": "Onboard Business number two end to end under isolation",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "in-progress",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-013",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 6"
+    "evidence": "PR #671 merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from b982d20733c213640a7cb3e42656f8a37925564a; focused Vitest 21/21, production build and isolated Playwright 1/1 passed; exact-head Governance and Edge passed, hosted E2E/Desktop skipped; SmartGift all-reader isolation, live-agent Business switching and generic private-memory isolation remain open."
   },
   {
     "id": "TASK-ZAI-015",

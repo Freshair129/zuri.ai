@@ -19,6 +19,8 @@ live_document: true
 
 # ROADMAP: zuri-ai — Live Delivery State
 
+> Revision 2.154.0b (2026-10-15): Reconcile TASK-ZAI-014 to in-progress / HOSTED_CI / MERGED for bounded Business-two delivery PR #671, merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from exact head b982d20733c213640a7cb3e42656f8a37925564a. Independent Verify/Review, focused Vitest 21/21, production build and isolated production-mode Playwright 1/1 passed; applicable exact-head hosted Governance and Edge checks passed, while hosted E2E/Desktop were skipped and are not passes. The PR creates Business two under an owner-authorized Tenant, preserves the existing Membership count, persists the default Space and DENY agent config, switches Business context and verifies shared versus Business-owned CRM visibility. SmartGift-sentinel non-disclosure across every reader, live-agent behavior after a Business switch and Business-specific isolation for generic private memory remain open; Task14 is not done. TASK-ZAI-015 stays planned behind Task14. The 123-task ledger now contains 69 done, 16 review, 5 in-progress, 28 planned and 5 blocked. Recompute all phase/sprint percentages from the canonical task statuses using the documented status mapping.
+
 > Revision 2.153.0b (2026-10-15): Close TASK-ZAI-013 as done / HOSTED_CI / MERGED for bounded FR-286 v1. PR #667 artifact `a22ad4ec` merged as `ee5d789e3f504fc8ea1fbac91193b7e449607d54` at 2026-10-15T04:42:22Z after distinct independent Verify/Review PASS and required exact-head Governance `38681966322` and Edge `38681966380` checks passed. E2E and Desktop were skipped, not counted as passes. Unchanged Task13 source passed 238 isolated SQLite tests across 23 files, with 2 explicitly skipped engine/content cases, disposable PostgreSQL 29/29 across 4 files including source SQL constraints, and the local application build. The bounded delivery adds the catalog-only snapshot and default Business Space to both FR-074 creation paths; it grants no memberships or runtime authority. No Task13 local Docker redeploy, schema push/migration apply, production/Supabase/provider effect or live-agent activation is claimed. The separately recorded Task9 local image/schema action is not Task13 evidence. The 123-task ledger now contains 69 done, 16 review, 4 in-progress, 29 planned and 5 blocked tasks. TASK-ZAI-014 remains planned for Business-number-two isolation.
 
 > Revision 2.152.0b (2026-10-15): TASK-ZAI-013 is in review with isolated acceptance under the root-adopted Standard Business Template v1 contract and sanctioned FR-286. The bounded implementation adds catalog definitions without access grants, one stable default Business Space in both FR-074 creation paths, same-Business helper no-op and legacy backup-field safety. Task13 criteria are reconciled to these explicit semantics; SQLite acceptance passed 238/238 across 23 files (2 explicitly skipped engine/content cases), disposable PostgreSQL passed 29/29 across 4 files including the source SQL constraints, and the local application build passed. Independent final gates, exact-head hosted CI and merge are pending. The 123-task ledger contains 68 done, 17 review, 4 in-progress, 29 planned and 5 blocked tasks. Task14 Business-number-two browser/runtime isolation follows after Task13 acceptance; production/Supabase/provider effects remain outside this local task.
@@ -768,7 +770,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 | TASK-ZAI-011 | SPR-ZAI-04 | Verification and notification fabric on approval outcomes | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
 | TASK-ZAI-013 | SPR-ZAI-05 | Standard Business Template and provisioning path | done | HOSTED_CI | MERGED | TASK-ZAI-009 | FR-286; docs/change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md | PR #667 artifact a22ad4ec merged as ee5d789e3f504fc8ea1fbac91193b7e449607d54 at 2026-10-15T04:42:22Z after independent Verify/Review PASS and required exact-head Governance 38681966322/Edge 38681966380 passed; E2E/Desktop skipped, not PASS. Unchanged source SQLite238 passed/2 skipped across23files, PG29/29 (4 files, source SQL constraints), local build pass. Bounded FR-286 only; no Task13 local Docker redeploy, schema push/migration apply, production/Supabase/provider effect or live-agent activation claimed. |
-| TASK-ZAI-014 | SPR-ZAI-05 | Onboard Business number two end to end under isolation | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-013 | ROADMAP.md | 24-week baseline; Section 3.1 row 6 |
+| TASK-ZAI-014 | SPR-ZAI-05 | Onboard Business number two end to end under isolation | in-progress | HOSTED_CI | MERGED | TASK-ZAI-013 | ROADMAP.md | PR #671 merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from b982d20733c213640a7cb3e42656f8a37925564a; focused Vitest 21/21, production build and isolated Playwright 1/1 passed; exact-head Governance and Edge passed, hosted E2E/Desktop skipped; SmartGift all-reader isolation, live-agent Business switching and generic private-memory isolation remain open. |
 | TASK-ZAI-015 | SPR-ZAI-05 | Per-business visibility regression at two-business scale | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-014 | ROADMAP.md | 24-week baseline; FEATURE-MAP FR-061 and FR-062 |
 | TASK-ZAI-016 | SPR-ZAI-06 | Cross-business governed analytics read model | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-014 | ROADMAP.md | 24-week baseline; Section 3.1 row 6 |
 | TASK-ZAI-017 | SPR-ZAI-06 | Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125 | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-005 | ROADMAP.md | Audit wave 2026-09-21: FR-125/ADR-053 implementation is unauthorized; provider verification, owner sign-off and FlowAccount Sandbox credentials are required; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 8; ADR-053 |
@@ -918,77 +920,77 @@ Task names and dependencies below are canonicalized from the programme backlog; 
     "phases": {
       "PHASE-ZAI-01": {
         "status": "in-progress",
-        "progress": 91
+        "progress": 95.0
       },
       "PHASE-ZAI-02": {
         "status": "in-progress",
-        "progress": 48
+        "progress": 65.0
       },
       "PHASE-ZAI-03": {
         "status": "in-progress",
-        "progress": 10
+        "progress": 52.0
       },
       "PHASE-ZAI-04": {
         "status": "planned",
-        "progress": 0
+        "progress": 0.0
       },
       "PHASE-ZAI-05": {
         "status": "in-progress",
-        "progress": 17
+        "progress": 61.0
       },
       "PHASE-ZAI-06": {
         "status": "planned",
-        "progress": 0
+        "progress": 0.0
       }
     },
     "sprints": {
       "SPR-ZAI-01": {
         "status": "in-progress",
-        "progress": 93
+        "progress": 88.0
       },
       "SPR-ZAI-02": {
         "status": "in-progress",
-        "progress": 91
+        "progress": 97.0
       },
       "SPR-ZAI-03": {
         "status": "in-progress",
-        "progress": 40
+        "progress": 71.0
       },
       "SPR-ZAI-04": {
         "status": "in-progress",
-        "progress": 19
+        "progress": 58.0
       },
       "SPR-ZAI-05": {
         "status": "in-progress",
-        "progress": 21
+        "progress": 83.0
       },
       "SPR-ZAI-06": {
         "status": "in-progress",
-        "progress": 4
+        "progress": 31.0
       },
       "SPR-ZAI-07": {
         "status": "planned",
-        "progress": 0
+        "progress": 0.0
       },
       "SPR-ZAI-08": {
         "status": "planned",
-        "progress": 0
+        "progress": 0.0
       },
       "SPR-ZAI-09": {
         "status": "in-progress",
-        "progress": 50
+        "progress": 95.0
       },
       "SPR-ZAI-10": {
         "status": "planned",
-        "progress": 0
+        "progress": 53.0
       },
       "SPR-ZAI-11": {
         "status": "planned",
-        "progress": 0
+        "progress": 0.0
       },
       "SPR-ZAI-12": {
         "status": "planned",
-        "progress": 0
+        "progress": 0.0
       }
     }
   },

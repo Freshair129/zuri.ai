@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.28, 2026-09-27) so the board can open a task the way the html board
+// (v0.4.29, 2026-10-15) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -597,21 +597,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-014",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-05",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "Codex",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "src/lib/home-scope.js",
-      "doc": "docs/DOMAIN-MAP.md",
-      "test": "unavailable"
+      "code": "apps/server/src/modules/identity/entry-read-model.js",
+      "doc": "docs/features/FEAT-009/verification.md",
+      "test": "apps/server/tests/e2e/task14-business-two-isolation.spec.js"
     },
     "linkState": {
-      "code": "missing",
-      "doc": "missing",
-      "test": "unavailable"
+      "code": "present",
+      "doc": "present",
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
@@ -629,7 +629,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened from deliverable six. Multi-business scaffolding is live; exactly one Business is onboarded today.",
+    "changelog": "Partial delivery accepted by PR #671, merged as 1662ede0094044d12eb019c44a476d821410c330 on 2026-10-15. Focused Vitest 21/21, production build, isolated production-mode Playwright 1/1 and exact-head hosted Governance/Edge passed; hosted E2E/Desktop were skipped. The current Task14 spec proves an owner creates and switches to Business two and CRM visibility follows scope; SmartGift-sentinel non-disclosure across every reader, live-agent Business switching and Business-specific generic private-memory isolation remain unchecked. No production, Supabase or live-provider activation is claimed.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 52000,
     "totalTokens": 0,
