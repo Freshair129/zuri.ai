@@ -735,12 +735,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-009",
     "sprint": "SPR-ZAI-03",
     "title": "Agent Factory, the standard five-role Business configuration",
-    "status": "in-progress",
-    "proofScope": "SPEC",
-    "implementationState": "IN_PROGRESS",
+    "status": "review",
+    "proofScope": "ISOLATED",
+    "implementationState": "ISOLATED_ACCEPTED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "2026-10-15: FR-285 and ../change-requests/agent-factory/AGENT-FACTORY-V1.md adopt the bounded local contract under delegated root disposition; candidate audit merged by PR #663 at cb4c49c5. Implementation is in progress; five persisted role configs, scoped owner administration, atomic provisioning, idempotence and deny-by-default delegation are required. No implementation/test acceptance, provider/live-agent activation or external migration apply is claimed yet."
+    "evidence": "2026-10-15: FR-285 and ../change-requests/agent-factory/AGENT-FACTORY-V1.md v0.1.3 adopt the bounded local contract under delegated root disposition; candidate audit merged by PR #663 at cb4c49c5. Implementation at 9d21db80 passes 72/72 SQLite checks across factory, FR-074, role registry, memory partitions, OpenAPI and backup, plus factory persistence/constraint/rollback and backup 12/12 on disposable PostgreSQL; both Prisma schemas validate. Backup preserves config identity/content/timestamps and the original scoped APPLIED audit without replay; legacy missing-config-array restore refuses with live rows, records authorized preview use and rechecks before deletion under Serializable isolation. Five persisted role configs, scoped owner administration, atomic provisioning, idempotence and deny-by-default delegation are implemented. Independent final artifact gates, exact-head build/CI and merge remain pending. Provider/live-agent activation and external migration apply are NOT_RUN."
   },
   {
     "id": "TASK-ZAI-010",

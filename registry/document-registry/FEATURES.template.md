@@ -194,6 +194,11 @@ also rejects retired classification terminology in live authoritative documents.
 ```json
 [
   {
+    "id": "FR-285",
+    "primaryDomain": "agent",
+    "useCase": "An authorized Business owner previews and applies the standard five-role configuration; new Businesses receive it atomically, without starting live agents or granting action authority."
+  },
+  {
     "id": "FR-171",
     "primaryDomain": "agent",
     "useCase": "Inspect exact context, model usage and delivery evidence for a native SERVER LINE turn without repeating side effects."
