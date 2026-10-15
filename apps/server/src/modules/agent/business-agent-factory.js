@@ -61,8 +61,12 @@ async function authorizedTarget(db, businessId, viewer) {
   return { business: { id: business.id, tenantId: business.tenantId }, actorId }
 }
 
+function templateScope(business) {
+  return { tenantId: business.tenantId, businessId: business.id }
+}
+
 function storedConfig(row, business) {
-  const snapshot = validateStoredBusinessAgentConfig(row, business)
+  const snapshot = validateStoredBusinessAgentConfig(row, templateScope(business))
   return {
     schemaVersion: row.schemaVersion,
     templateId: row.templateId,
@@ -141,7 +145,7 @@ export async function previewBusinessAgentTemplate(businessId, { viewer, db = pr
   return db.$transaction(async (tx) => {
     const { business } = await authorizedTarget(tx, businessId, viewer)
     const existing = await tx.businessAgentConfig.findUnique({ where: { businessId } })
-    const template = buildBusinessAgentTemplate(business)
+    const template = buildBusinessAgentTemplate(templateScope(business))
     const snapshotDigest = businessAgentSnapshotDigest(template)
     if (!existing) return { status: 'READY_TO_APPLY', template, snapshotDigest }
     const config = storedConfig(existing, business)
@@ -175,7 +179,7 @@ export async function applyBusinessAgentTemplate(businessId, { viewer, db = pris
         const existing = await tx.businessAgentConfig.findUnique({ where: { businessId } })
         if (existing) {
           const config = storedConfig(existing, business)
-          const expected = businessAgentSnapshotDigest(buildBusinessAgentTemplate(business))
+          const expected = businessAgentSnapshotDigest(buildBusinessAgentTemplate(templateScope(business)))
           if (config.snapshotDigest !== expected) throw failure(409, 'BUSINESS_AGENT_CONFIG_CONFLICT')
           return { status: 'ALREADY_APPLIED', config }
         }
@@ -191,7 +195,7 @@ export async function applyBusinessAgentTemplate(businessId, { viewer, db = pris
         const existing = await tx.businessAgentConfig.findUnique({ where: { businessId } })
         if (!existing) throw error
         const config = storedConfig(existing, business)
-        const expected = businessAgentSnapshotDigest(buildBusinessAgentTemplate(business))
+        const expected = businessAgentSnapshotDigest(buildBusinessAgentTemplate(templateScope(business)))
         if (config.snapshotDigest !== expected) throw failure(409, 'BUSINESS_AGENT_CONFIG_CONFLICT')
         return { status: 'ALREADY_APPLIED', config }
       })
