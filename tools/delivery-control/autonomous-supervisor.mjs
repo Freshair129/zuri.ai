@@ -18,7 +18,7 @@ const parse = (file) => JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEF
 
 export function shouldYieldFiniteRun(status, result) {
   if (result.active > 0) return false;
-  const progressing = new Set(['PUSHED', 'PR_CREATED', 'WAITING_CI', 'WAITING_RETRY_BACKOFF', 'WAITING_MERGE_QUEUE', 'BUSY']);
+  const progressing = new Set(['PUSHED', 'PR_CREATED', 'RECONCILED_APPLIED', 'WAITING_CI', 'WAITING_RETRY_BACKOFF', 'WAITING_MERGE_QUEUE', 'BUSY']);
   return !Object.values(status.deliveries).some((delivery) => progressing.has(delivery.status));
 }
 

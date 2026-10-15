@@ -99,6 +99,7 @@ test('finite run yields an idle dependency or replan hold without claiming compl
   assert.equal(shouldYieldFiniteRun({ deliveries: {}, intake: { status: 'HOLD_DEPENDENCY' } }, { active: 0 }), true);
   assert.equal(shouldYieldFiniteRun({ deliveries: { T1: { status: 'ROOT_REPLAN_PAUSED' } } }, { active: 0 }), true);
   assert.equal(shouldYieldFiniteRun({ deliveries: { T1: { status: 'WAITING_CI' } } }, { active: 0 }), false);
+  assert.equal(shouldYieldFiniteRun({ deliveries: { T1: { status: 'RECONCILED_APPLIED' } } }, { active: 0 }), false);
   assert.equal(shouldYieldFiniteRun({ deliveries: {} }, { active: 1 }), false);
 });
 
