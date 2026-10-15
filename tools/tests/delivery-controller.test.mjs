@@ -158,7 +158,7 @@ async function staleCandidateFixture({ includeCandidate = true } = {}) {
   const receiptRoot = path.join(env.repoRoot, '.git', 'zuri-delivery-control', 'supervisors', 'test-campaign', 'prepared');
   mkdirSync(receiptRoot, { recursive: true });
   const preparedBaseReceiptFile = path.join(receiptRoot, `${task.taskId}.json`);
-  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: task.taskId,
+  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: task.taskId, cycleNo: 1,
     oldHeadCommit, headCommit, oldBaseCommit: env.baseCommit, newBaseCommit,
     reason: 'Retain the same task cycle on the accepted newer base.', evidenceRef: 'root://prepared-base-fixture' };
   writeFileSync(preparedBaseReceiptFile, JSON.stringify(receipt));
@@ -217,6 +217,76 @@ test('runs worker, exact-head verifier, reviewer, and records root integration w
   } finally {
     controller.close();
   }
+});
+
+test('BASE_ADVANCED exact checkpoint pauses the integrated cycle, reacquires scope locks, and resumes it with retained counters', async () => {
+  const env = fixture();
+  const { worktreeRoot } = addWorktree(env.repoRoot, env.root, env.baseCommit, 'base-advanced-cycle');
+  const task = taskRecord('TASK-BASE-ADVANCED-CYCLE', 'Resume the exact integrated cycle after a verified base advance.');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    controller.registerTask({ taskRecord: task, preflightResult: preflight(task, worktreeRoot, env.baseCommit), worktreeRoot,
+      trustedMandateBinding: trustedBinding(env.repoRoot, task) });
+    const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+    mkdirSync(path.join(worktreeRoot, 'src'), { recursive: true });
+    writeFileSync(path.join(worktreeRoot, 'src', 'candidate.mjs'), 'export const candidate = true;\n');
+    git(worktreeRoot, ['add', 'src/candidate.mjs']); git(worktreeRoot, ['commit', '-m', 'reviewed candidate']);
+    const candidate = git(worktreeRoot, ['rev-parse', 'HEAD']);
+    controller.completeNode({ lease: worker.lease, result: roleResult('worker', worker.sessionId, candidate, sha('bridge-worker')) });
+    const verifier = dispatch(controller, task.taskId, 'verifier', 'verifier');
+    controller.completeNode({ lease: verifier.lease, result: roleResult('verifier', verifier.sessionId, candidate, sha('bridge-verifier')) });
+    const reviewer = dispatch(controller, task.taskId, 'reviewer', 'reviewer');
+    controller.completeNode({ lease: reviewer.lease, result: roleResult('reviewer', reviewer.sessionId, candidate, sha('bridge-reviewer')) });
+    controller.recordRootIntegration({ taskId: task.taskId, headCommit: candidate, evidenceRef: 'root://bridge-integration' });
+    const before = controller.getRun(task.taskId);
+    const beforeCycle = before.cycles[0];
+
+    writeFileSync(path.join(env.repoRoot, 'upstream.txt'), 'accepted upstream base advance\n');
+    git(env.repoRoot, ['add', 'upstream.txt']); git(env.repoRoot, ['commit', '-m', 'advance base after review']);
+    const newBase = git(env.repoRoot, ['rev-parse', 'HEAD']);
+    const checkpoint = { status: 'ROOT_REPLAN_PAUSED', code: 'BASE_ADVANCED', taskId: task.taskId,
+      expectedBaseCommit: env.baseCommit, actualBaseCommit: newBase, candidateHeadCommit: candidate, number: 23 };
+    const disposition = controller.recordBaseAdvancedDisposition({ taskId: task.taskId, cycleNo: before.currentCycle,
+      expectedBaseCommit: env.baseCommit, expectedCandidateHeadCommit: candidate, observedBaseCommit: newBase,
+      checkpoint, evidenceRef: 'private://zuri-delivery-control/disposition.json',
+      reason: 'The delivery root observed a newer accepted base.' });
+    assert.equal(disposition.state, 'BLOCKED_STALE_CANDIDATE');
+    assert.equal(controller.getRun(task.taskId).currentCycle, before.currentCycle);
+    const afterDisposition = controller.getRun(task.taskId);
+    assert.equal(afterDisposition.state, 'BLOCKED_STALE_CANDIDATE');
+    assert.equal(afterDisposition.cycles[0].startedAt, beforeCycle.startedAt);
+    assert.equal(afterDisposition.cycles[0].submissions, beforeCycle.submissions);
+    assert.equal(afterDisposition.cycles[0].implementationRepairs, beforeCycle.implementationRepairs);
+    assert.equal(afterDisposition.cycles[0].toolRetries, beforeCycle.toolRetries);
+    const lockDb = new DatabaseSync(env.databasePath);
+    const locks = lockDb.prepare('SELECT scope_path FROM delivery_write_locks WHERE task_id=? ORDER BY scope_path').all(task.taskId);
+    lockDb.close();
+    assert.deepEqual(locks.map((row) => row.scope_path), ['src/']);
+
+    git(worktreeRoot, ['merge', '--no-edit', '--no-ff', newBase]);
+    const mergedHead = git(worktreeRoot, ['rev-parse', 'HEAD']);
+    const privateReceiptRoot = path.join(env.repoRoot, '.git', 'zuri-delivery-control', 'supervisors', 'test-campaign', 'prepared');
+    mkdirSync(privateReceiptRoot, { recursive: true });
+    const receiptFile = path.join(privateReceiptRoot, `${task.taskId}.json`);
+    const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: task.taskId,
+      cycleNo: before.currentCycle, oldHeadCommit: candidate, headCommit: mergedHead,
+      oldBaseCommit: env.baseCommit, newBaseCommit: newBase,
+      reason: 'Root verified the exact BASE_ADVANCED checkpoint and ordinary merge.',
+      evidenceRef: 'private://zuri-delivery-control/disposition.json' };
+    writeFileSync(receiptFile, JSON.stringify(receipt));
+    const resumed = controller.resumeTask({ taskRecord: task,
+      preflightResult: preflight(task, worktreeRoot, newBase), trustedMandateBinding: trustedBinding(env.repoRoot, task),
+      resumeEvidence: { reference: 'private://zuri-delivery-control/disposition.json', reason: receipt.reason },
+      preparedBaseReceiptFile: receiptFile });
+    assert.equal(resumed.state, 'WORKER_READY');
+    assert.equal(resumed.currentCycle, before.currentCycle);
+    assert.equal(resumed.baseCommit, newBase);
+    assert.equal(resumed.cycles[0].startedAt, beforeCycle.startedAt);
+    assert.equal(resumed.cycles[0].submissions, beforeCycle.submissions);
+    assert.equal(resumed.cycles[0].implementationRepairs, beforeCycle.implementationRepairs);
+    assert.equal(resumed.cycles[0].toolRetries, beforeCycle.toolRetries);
+    assert.deepEqual(controller.nextReadyNodes().map((node) => node.nodeId), ['worker']);
+  } finally { controller.close(); }
 });
 
 test('root disposition cannot release an active checkout or accept a late PASS after cycle expiry', async () => {
@@ -370,7 +440,7 @@ test('prepared-base resume binds the original admitted head when the baseline ch
 });
 
 test('missing or mismatched prepared-base receipts leave paused run, locks, counters, and events unchanged', async (t) => {
-  for (const mismatch of ['missing', 'old candidate', 'old base']) {
+  for (const mismatch of ['missing', 'old candidate', 'old base', 'cycle']) {
     await t.test(mismatch, async () => {
       const f = await staleCandidateFixture();
       try {
@@ -381,7 +451,8 @@ test('missing or mismatched prepared-base receipts leave paused run, locks, coun
         eventDb.close();
         if (mismatch !== 'missing') {
           const wrong = { ...f.receipt,
-            ...(mismatch === 'old candidate' ? { oldHeadCommit: f.receipt.oldBaseCommit } : { oldBaseCommit: f.receipt.oldHeadCommit }) };
+            ...(mismatch === 'old candidate' ? { oldHeadCommit: f.receipt.oldBaseCommit }
+              : mismatch === 'old base' ? { oldBaseCommit: f.receipt.oldHeadCommit } : { cycleNo: f.receipt.cycleNo + 1 }) };
           writeFileSync(f.preparedBaseReceiptFile, JSON.stringify(wrong));
         }
         assert.throws(() => f.controller.resumeTask({ taskRecord: f.task,
@@ -389,7 +460,7 @@ test('missing or mismatched prepared-base receipts leave paused run, locks, coun
           trustedMandateBinding: trustedBinding(f.env.repoRoot, f.task),
           resumeEvidence: { reference: 'root://prepared-base-fixture', reason: 'Invalid receipt test.' },
           preparedBaseReceiptFile: mismatch === 'missing' ? path.join(path.dirname(f.preparedBaseReceiptFile), 'missing.json') : f.preparedBaseReceiptFile }),
-        /PREPARED_BASE_RECEIPT_(REQUIRED|MISSING|OLD_RUN_MISMATCH)/);
+        /PREPARED_BASE_RECEIPT_(REQUIRED|MISSING|OLD_RUN_MISMATCH|SCHEMA_INVALID)/);
         assert.deepEqual(f.controller.getRun(f.task.taskId), before);
         assert.deepEqual(f.controller.nextReadyNodes(), []);
         assert.equal(f.controller.verifyEventChain().count, eventCount);

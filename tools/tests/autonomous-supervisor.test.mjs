@@ -29,7 +29,8 @@ function fixture(t) {
   fs.writeFileSync(campaignFile, JSON.stringify(campaign));
   const runs = new Map(); const seen = []; const bindings = [];
   const resumeCalls = []; const preflightCalls = []; const runnerEvents = []; const authorizeCalls = [];
-  const hooks = { resumeImpl: null, fetchedBaseSha: 'c'.repeat(40), remoteBaseSha: 'c'.repeat(40), afterResume: null };
+  const hooks = { resumeImpl: null, fetchedBaseSha: 'c'.repeat(40), remoteBaseSha: 'c'.repeat(40), afterResume: null,
+    baseAdvancedImpl: null, baseAdvancedSignature: 'stable-base-advanced-signature' };
   const controller = { getRun: (id) => runs.get(id), verifyEventChain: () => ({ count: 0, head: 'GENESIS' }),
     resumeTask: (input) => { resumeCalls.push(input); if (!hooks.resumeImpl) throw new Error('TEST_RESUME_NOT_CONFIGURED'); return hooks.resumeImpl(input); },
     recordRootIntegration: ({ taskId, headCommit }) => { const run = runs.get(taskId); assert.equal(run.state, 'ROOT_DELIVERY_READY'); assert.equal(headCommit, run.candidateHeadCommit); run.state = 'ROOT_INTEGRATED_PENDING_CI'; seen.push('integration'); } };
@@ -37,6 +38,11 @@ function fixture(t) {
   const options = { repoRoot: folder, campaignFile, controller, intake: async () => ({ controllerBinding: inputBinding }),
     fetchPreparedBase: async () => hooks.fetchedBaseSha,
     readRemoteBase: async () => hooks.remoteBaseSha,
+    baseAdvancedResume: async (input) => {
+      if (!hooks.baseAdvancedImpl) throw new Error('TEST_BASE_ADVANCED_NOT_CONFIGURED');
+      return hooks.baseAdvancedImpl(input);
+    },
+    baseAdvancedResumeSignature: async () => hooks.baseAdvancedSignature,
     admit: async () => [], preflight: async ({ taskFile, base }) => {
       preflightCalls.push(base);
       return { status: 'READY', taskId: 'T1', baseline: {
@@ -46,6 +52,7 @@ function fixture(t) {
       const held = new Set();
       return {
         addBinding: (item) => bindings.push(item),
+        isActive: () => false,
         hold: (taskId) => held.add(taskId),
         wake: (taskId) => held.delete(taskId),
         authorizePreparedCandidate: (taskId, receiptFile, expectedDigest) => {
@@ -86,7 +93,7 @@ function preparePausedRun(f, receiptOverrides = {}) {
   const preparedDir = path.join(f.privateRoot, 'supervisors', 'fixture', 'prepared');
   fs.mkdirSync(preparedDir, { recursive: true });
   const file = path.join(preparedDir, 'T1.json');
-  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: 'T1', oldHeadCommit: 'a'.repeat(40),
+  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: 'T1', cycleNo: 2, oldHeadCommit: 'a'.repeat(40),
     headCommit, oldBaseCommit: 'b'.repeat(40), newBaseCommit: 'c'.repeat(40), reason: 'Root prepared a newer base.',
     evidenceRef: 'root://prepared-candidate', ...receiptOverrides };
   fs.writeFileSync(file, JSON.stringify(receipt));
@@ -97,7 +104,7 @@ function preparePausedRun(f, receiptOverrides = {}) {
     if (input.taskRecord.taskId !== run.taskId || current.taskId !== run.taskId
         || current.oldHeadCommit !== run.candidateHeadCommit || current.oldBaseCommit !== run.baseCommit
         || current.newBaseCommit !== input.preflightResult.baseline.baseRevision
-        || current.headCommit !== input.preflightResult.baseline.headRevision) throw new Error('PREPARED_BASE_RECEIPT_BINDING_MISMATCH');
+        || current.headCommit !== input.preflightResult.baseline.headRevision || current.cycleNo !== run.currentCycle) throw new Error('PREPARED_BASE_RECEIPT_BINDING_MISMATCH');
     run.preparedBaseResume = { taskId: run.taskId, receiptDigest: createHash('sha256').update(receiptBytes).digest('hex') };
     run.state = 'WORKER_READY'; run.baseCommit = current.newBaseCommit; run.candidateHeadCommit = null;
     f.hooks.afterResume?.(input);
@@ -307,5 +314,85 @@ test('a base advance pauses only that revision until autonomous root supplies fr
   assert.equal(supervisor.status().deliveries.T1.status, 'ROOT_REPLAN_PAUSED');
   run.candidateHeadCommit = 'd'.repeat(40); run.baseCommit = 'c'.repeat(40);
   await supervisor.tick(); assert.equal(calls, 2);
+  await supervisor.stop();
+});
+
+test('BASE_ADVANCED prepared resume invalidates prior delivery evidence and dispatches after receipt authorization', async (t) => {
+  const f = fixture(t);
+  const prepared = preparePausedRun(f);
+  prepared.run.state = 'ROOT_INTEGRATED_PENDING_CI';
+  prepared.run.currentCycle = 2;
+  let deliveryCalls = 0;
+  f.options.deliveryFactory = () => ({ tick: async () => {
+    deliveryCalls++;
+    return { status: 'REPLAN_REQUIRED', code: 'BASE_ADVANCED', expectedBaseCommit: prepared.run.baseCommit,
+      actualBaseCommit: 'c'.repeat(40), candidateHeadCommit: prepared.run.candidateHeadCommit, number: 17 };
+  } });
+  f.hooks.baseAdvancedImpl = async ({ binding, checkpoint, stateRoot }) => {
+    assert.equal(binding.taskId, 'T1');
+    assert.equal(checkpoint.status, 'ROOT_REPLAN_PAUSED');
+    assert.equal(checkpoint.code, 'BASE_ADVANCED');
+    prepared.run.state = 'BLOCKED_STALE_CANDIDATE';
+    const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: 'T1', cycleNo: 2,
+      oldHeadCommit: prepared.run.candidateHeadCommit, headCommit: prepared.headCommit,
+      oldBaseCommit: prepared.run.baseCommit, newBaseCommit: 'c'.repeat(40),
+      reason: 'The root fetched and merged the exact advanced base.', evidenceRef: 'private://base-advanced' };
+    const folder = path.join(stateRoot, 'prepared'); fs.mkdirSync(folder, { recursive: true });
+    const receiptFile = path.join(folder, 'T1-cycle-2.json'); fs.writeFileSync(receiptFile, JSON.stringify(receipt));
+    return { status: 'READY_TO_RESUME', receipt, receiptFile };
+  };
+  const resume = f.hooks.resumeImpl;
+  f.hooks.resumeImpl = (input) => {
+    const run = resume(input);
+    run.stages = [{ role: 'worker', status: 'READY' }, { role: 'verifier', status: 'WAITING' }, { role: 'reviewer', status: 'WAITING' }];
+    return run;
+  };
+  const supervisor = await createAutonomousSupervisor(f.options);
+  await supervisor.tick();
+  assert.equal(supervisor.status().deliveries.T1.status, 'ROOT_REPLAN_PAUSED');
+  f.runnerEvents.length = 0;
+  const result = await supervisor.tick();
+  assert.equal(deliveryCalls, 1);
+  assert.equal(f.resumeCalls.length, 1);
+  assert.equal(f.resumeCalls[0].preparedBaseReceiptFile, f.authorizeCalls[0].receiptFile);
+  assert.equal(prepared.run.state, 'WORKER_READY');
+  assert.equal(prepared.run.currentCycle, 2);
+  assert.deepEqual(prepared.run.stages.map((stage) => stage.status), ['READY', 'WAITING', 'WAITING']);
+  assert.deepEqual(f.runnerEvents, ['resume', 'authorize', 'tick', 'worker-dispatch']);
+  assert.equal(supervisor.status().deliveries.T1, undefined);
+  const checkpoint = JSON.parse(fs.readFileSync(path.join(supervisor.stateRoot, 'checkpoint.json'), 'utf8'));
+  assert.equal(checkpoint.deliveryHistory.T1[0].priorEvidenceInvalidated, true);
+  assert.equal(checkpoint.deliveryHistory.T1[0].checkpoint.status, 'ROOT_REPLAN_PAUSED');
+  assert.equal(result.observations.some((item) => item.status === 'BASE_ADVANCED_RESUME_PREPARED'), true);
+  await supervisor.stop();
+});
+
+test('unchanged BASE_ADVANCED evidence remains held across ticks and supervisor restart', async (t) => {
+  const f = fixture(t);
+  const prepared = preparePausedRun(f);
+  prepared.run.state = 'ROOT_INTEGRATED_PENDING_CI';
+  prepared.run.currentCycle = 2;
+  let deliveries = 0; let bridgeCalls = 0;
+  f.options.deliveryFactory = () => ({ tick: async () => {
+    deliveries++;
+    return { status: 'REPLAN_REQUIRED', code: 'BASE_ADVANCED', expectedBaseCommit: prepared.run.baseCommit,
+      actualBaseCommit: 'c'.repeat(40), candidateHeadCommit: prepared.run.candidateHeadCommit };
+  } });
+  f.hooks.baseAdvancedImpl = async () => { bridgeCalls++; throw new Error('BASE_ADVANCED_MERGE_OUTCOME_UNKNOWN'); };
+  let supervisor = await createAutonomousSupervisor(f.options);
+  await supervisor.tick();
+  await supervisor.tick();
+  await supervisor.tick();
+  assert.equal(bridgeCalls, 1);
+  assert.equal(deliveries, 1);
+  assert.equal(supervisor.status().baseAdvancedResumeBlocked.T1.code, 'BASE_ADVANCED_MERGE_OUTCOME_UNKNOWN');
+  assert.equal(f.runnerEvents.includes('worker-dispatch'), false);
+  await supervisor.stop();
+
+  supervisor = await createAutonomousSupervisor(f.options);
+  await supervisor.tick();
+  assert.equal(bridgeCalls, 1);
+  assert.equal(deliveries, 1);
+  assert.equal(f.runnerEvents.includes('worker-dispatch'), false);
   await supervisor.stop();
 });

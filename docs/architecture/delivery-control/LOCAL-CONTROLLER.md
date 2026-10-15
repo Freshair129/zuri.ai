@@ -238,11 +238,11 @@ old evidence or force-pushes a rebase. A known merged PR is
 reconciled before recording `MERGED`. No model session receives these credentials.
 
 `ROOT_REPLAN_PAUSED` is a supervisor delivery checkpoint stored with the
-supervisor's delivery state; it is not a persisted `delivery_runs.state`. The
-controller's stale checkout states remain `BLOCKED_STALE_CANDIDATE` and
-`BLOCKED_STALE_BASELINE`. The end-to-end bridge from a `BASE_ADVANCED` delivery
-checkpoint through root preparation and controller resume remains a separate
-incomplete feature; the receipt checks below do not claim that bridge is shipped.
+supervisor's delivery state; it is not itself a `delivery_runs.state`. The
+bounded bridge below records the exact checkpoint as a material-evidence
+`YIELD_REASSESS` and moves the matching integrated cycle to
+`BLOCKED_STALE_CANDIDATE`. Other stale checkout cases remain
+`BLOCKED_STALE_CANDIDATE` or `BLOCKED_STALE_BASELINE` as appropriate.
 
 ## Autonomous Sol root continuation
 
@@ -263,56 +263,57 @@ An intake `baseRef` such as `origin/main` then resolves the newer canonical comm
 without changing the campaign's task allowlist, scope, criteria or permissions.
 Already bound tasks keep their exact base and history until root revalidation.
 
-For a later parallel candidate whose base advanced, root reads and retains the
-paused controller run before changing it. It checks the same canonical
-repository and task branch, the supervisor delivery checkpoint is
-`ROOT_REPLAN_PAUSED` (while the controller run is in a persisted stale-checkout
-state), no worker is active, no delivery effect is unknown, and the old
-candidate checkout is clean at the run's `candidateHeadCommit`. Root fetches
-`main`, resolves the fetched commit,
-and confirms a fresh `git ls-remote` for `refs/heads/main` still returns that
-same SHA. If the remote moved during reconciliation, root fetches again and
-reassesses without changing the paused run.
+For a later parallel candidate whose base advanced, the supervisor keeps the
+task held and binds the work to the exact `ROOT_REPLAN_PAUSED` checkpoint:
+`taskId`, old base, candidate head, and observed remote SHA must match the
+controller's `ROOT_INTEGRATED_PENDING_CI` run and current `INTEGRATED` cycle.
+The root verifies the same repository, branch, clean exact candidate, three
+passed role records, no active leases, no unknown effect rows or nodes, and no
+active runner process. It fetches the configured delivery base, then requires a
+fresh `git ls-remote` SHA to equal the fetched SHA. The old base and checkpoint
+base must both be ancestors of that fetched commit.
 
-As a separate root operation, root may record a material-evidence disposition,
-merge that fetched main commit into the isolated candidate without
-rebase/reset/force-push, and abort only its own proven conflicting merge. Before
-writing a prepared-candidate receipt, root
-checks `receipt.oldHeadCommit` against the paused run's candidate head (or its
-retained initial head when no candidate was submitted),
-`receipt.oldBaseCommit === pausedRun.baseCommit`,
-`receipt.newBaseCommit === fetchedMainSha`, and `receipt.headCommit` against the
-actual clean candidate HEAD after the merge. The supervisor independently
-fetches the configured remote branch into its remote-tracking ref, compares that
-fetched SHA with `git ls-remote`, and repeats the remote SHA check immediately
-before resume. A stale remote-tracking ref or a remote that advances during
-preflight leaves the paused run unchanged. `resumeTask` repeats these bindings
-inside its SQLite transaction:
-it requires the receipt's real path to remain under the private control root,
-validates `root-base-prepared-candidate/v1`, matches the stable task ID and
-retained old commits, binds the fresh read-only preflight to the receipt's new
-base SHA and actual resulting HEAD, and verifies candidate/base ancestry plus
-branch and write scope. The raw receipt bytes are read once inside the
-transaction; that single digest is written to the `TASK_RESUMED` event and
-returned as the durable resume proof. The private relative path, commit
-bindings, reason, and evidence reference are stored with it before any lock,
-run, candidate, or cycle update. The supervisor passes that exact digest to
-runner authorization, which re-reads and checks the receipt bytes before
-releasing Worker and again before a validation-only commit. Missing, malformed,
-replaced, stale, or mismatched evidence rolls back the transaction or remains
-held and cannot authorize Worker.
+Before any merge, a narrow controller transaction records
+`YIELD_REASSESS` with basis `MATERIAL_NEW_EVIDENCE`, preserves the task and
+cycle, and reacquires its write-scope locks. It accepts only the exact
+`ROOT_REPLAN_PAUSED` checkpoint on the `ROOT_INTEGRATED_PENDING_CI` run and
+current cycle. The runner remains held throughout, so no worker-ready node is
+exposed. The root then records a private durable merge intent and performs only
+an ordinary `git merge --no-edit --no-ff` of the confirmed base. It aborts only
+when that invocation returns a proven conflict, `MERGE_HEAD` names the intended
+base, unmerged paths exist, and abort restores the exact old clean head. It
+never resets, rebases, or force-pushes this candidate.
 
-Once a valid prepared receipt and stale controller run exist, the autonomous
-supervisor performs this receipt-bound resume before calling the runner. It
-holds the task and checkpoints a signature over the receipt bytes,
-task binding, retained run values, current worktree state, fetched base ref, and
-remote SHA after invalid evidence. The same signature is suppressed across
-iterations and restarts; changed evidence is reconsidered automatically. Root may explicitly request a
-new assessment through `reassessPreparedResume({ taskId, evidenceRef, reason })`.
-Unknown operation effects remain quarantined. A successful merge receives a
-new read-only preflight and `resumeTask` under the same task and cycle,
-retaining counters and the original deadline. All three roles run again; prior
-CI and role passes do not carry forward.
+Fetch intent/results, the material-evidence disposition, merge intent, and
+reconciliation are immutable files under the private supervisor state. A
+restart may finish receipt creation only when the journal, paused controller
+run, exact task/cycle/checkpoint, clean merge result, two exact merge parents,
+and fresh remote SHA all agree. An intent without a conclusive result, an
+uncertain merge, a moved remote, or any unknown effect stays held; the recorded
+step prevents a retrying merge. A conflict with unchanged evidence is also
+held across ticks and restarts. A root reassessment may revisit a proven
+no-effect outcome, but it cannot override an unknown intent.
+
+The immutable `root-base-prepared-candidate/v1` receipt binds the same task and
+cycle, old/new base, old candidate, resulting merge head, reason, and private
+reconciliation reference. The supervisor performs a fresh read-only preflight,
+fetches and compares the configured base again, and repeats the remote SHA check
+immediately before `resumeTask`. If those checks fail, the controller remains
+paused and the runner remains held. `resumeTask` repeats receipt checks inside
+its SQLite transaction: the real path must remain under the private control
+root, task and cycle and retained old commits must match, preflight must bind
+the receipt's new base and actual resulting HEAD, and candidate/base ancestry,
+branch, and write scope must pass. The receipt digest and commit bindings become
+durable `TASK_RESUMED` evidence before the run is made `WORKER_READY`. The
+runner rechecks that exact digest before authorizing the prepared candidate.
+
+The supervisor invalidates prior delivery, role, and CI evidence, then restarts
+Worker, Verify, and Review under the same task and cycle. Counters and the
+original cycle deadline remain intact; old CI and role passes do not carry
+forward. Unchanged blocked evidence is suppressed across ticks and restarts.
+Root may request a specific recheck through
+`reassessBaseAdvancedResume({ taskId, evidenceRef, reason })`; this does not
+clear an unknown fetch or merge intent.
 
 When the worker needs no source repair on the updated base, root may install
 `supervisors/<campaignId>/prepared/<taskId>.json` in the private control directory:

@@ -36,6 +36,7 @@ test('unchanged pre-claim errors are reported once and suppressed without spawni
   const second = await runner.tick();
   assert.equal(second.errors.length, 1); assert.equal(second.active, 0);
   assert.equal((await runner.tick()).errors.length, 0); assert.equal(calls, 0);
+  assert.equal(runner.isActive('T1'), false);
   await runner.stop();
 });
 
@@ -91,12 +92,14 @@ test('root-prepared base merge binds exact receipt bytes through authorization a
   const input = { ...f, baseCommit: newBaseCommit, result: { ...f.result, headCommit } };
   assert.throws(() => commitWorkerCandidate(input), /NO_CANDIDATE_CHANGES/);
   const preparedReceiptFile = path.join(f.worktree, '.git/zuri-delivery-control/prepared/root.json'); fs.mkdirSync(path.dirname(preparedReceiptFile), { recursive: true });
-  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: f.task.taskId, oldBaseCommit: f.baseCommit,
+  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: f.task.taskId, cycleNo: 1, oldBaseCommit: f.baseCommit,
     oldHeadCommit, headCommit, newBaseCommit, reason: 'Verified newer base; same task/caps', evidenceRef: 'root fixture operation' };
   fs.writeFileSync(preparedReceiptFile, JSON.stringify(receipt));
   const proof = readPreparedCandidate({ worktree: f.worktree, task: f.task, baseCommit: newBaseCommit, receiptFile: preparedReceiptFile });
+  assert.throws(() => readPreparedCandidate({ worktree: f.worktree, task: f.task, baseCommit: newBaseCommit,
+    receiptFile: preparedReceiptFile, expectedCycleNo: 2 }), /PREPARED_CANDIDATE_BINDING_MISMATCH/);
   const acceptedBytes = fs.readFileSync(preparedReceiptFile);
-  const run = { state: 'WORKER_READY', taskRecord: f.task, baseCommit: newBaseCommit,
+  const run = { state: 'WORKER_READY', currentCycle: 1, taskRecord: f.task, baseCommit: newBaseCommit,
     preparedBaseResume: { taskId: f.task.taskId, receiptDigest: proof.receiptDigest } };
   const makeRunner = () => createControllerRunner({ controller: { getRun: () => run }, repoRoot: f.worktree,
     stateRoot: f.artifactDir, config: { tasks: [{ taskId: f.task.taskId, taskFile: f.taskFile,

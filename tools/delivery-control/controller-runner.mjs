@@ -30,7 +30,7 @@ export function rolePrompt({ node, task }) {
 }
 
 /** Root-owned Git effect, after the sandboxed worker has exited. */
-export function readPreparedCandidate({ worktree, task, baseCommit, receiptFile, expectedReceiptDigest }) {
+export function readPreparedCandidate({ worktree, task, baseCommit, receiptFile, expectedReceiptDigest, expectedCycleNo }) {
   const common = fs.realpathSync(git(worktree, ['rev-parse', '--path-format=absolute', '--git-common-dir']));
   const file = fs.realpathSync(receiptFile);
   const relative = path.relative(path.join(common, 'zuri-delivery-control'), file);
@@ -40,6 +40,8 @@ export function readPreparedCandidate({ worktree, task, baseCommit, receiptFile,
   if (expectedReceiptDigest && receiptDigest !== expectedReceiptDigest) throw new Error('PREPARED_RECEIPT_DIGEST_MISMATCH');
   const receipt = JSON.parse(bytes.toString('utf8').replace(/^\uFEFF/, ''));
   if (receipt.schemaVersion !== 'root-base-prepared-candidate/v1' || receipt.taskId !== task.taskId
+    || !Number.isSafeInteger(receipt.cycleNo) || receipt.cycleNo < 1
+    || (expectedCycleNo !== undefined && receipt.cycleNo !== expectedCycleNo)
     || receipt.newBaseCommit !== baseCommit || !receipt.evidenceRef || !receipt.reason
     || ![receipt.oldHeadCommit, receipt.headCommit, receipt.oldBaseCommit, receipt.newBaseCommit].every((sha) => /^[a-f0-9]{40}$/.test(sha ?? ''))
     || receipt.oldBaseCommit === receipt.newBaseCommit || receipt.oldHeadCommit === receipt.headCommit
@@ -113,7 +115,7 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
       || !isDeepStrictEqual(task.writeScope, node.writeScope)) throw new Error('TASK_BINDING_CHANGED');
     const prepared = preparedReceipts.get(node.taskId);
     if (node.role === 'worker' && prepared) readPreparedCandidate({ worktree, task, baseCommit: node.baseCommit,
-      receiptFile: prepared.receiptFile, expectedReceiptDigest: prepared.receiptDigest });
+      receiptFile: prepared.receiptFile, expectedReceiptDigest: prepared.receiptDigest, expectedCycleNo: node.cycleNo });
     const readiness = preflightTask({ repo: worktree, taskFile: binding.taskFile, base: node.baseCommit });
     if (readiness.status !== 'READY') throw new Error(`PREFLIGHT_${readiness.status}`);
     const after = JSON.parse(fs.readFileSync(binding.taskFile, 'utf8').replace(/^\uFEFF/, ''));
@@ -218,7 +220,7 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
       if (!/^[a-f0-9]{64}$/.test(expectedReceiptDigest ?? '')
         || run.preparedBaseResume?.receiptDigest !== expectedReceiptDigest) throw new Error('PREPARED_BASE_RESUME_PROOF_REQUIRED');
       readPreparedCandidate({ worktree: binding.worktree, task: run.taskRecord, baseCommit: run.baseCommit,
-        receiptFile, expectedReceiptDigest });
+        receiptFile, expectedReceiptDigest, expectedCycleNo: run.currentCycle });
       preparedReceipts.set(taskId, { receiptFile, receiptDigest: expectedReceiptDigest });
       heldTasks.delete(taskId); suppressed.delete(taskId);
     },
@@ -234,6 +236,7 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
       worktrees.add(key); bindings.set(binding.taskId, binding); config.tasks.push(binding);
     },
     async stop() { abort.abort(); await Promise.allSettled([...active.values()]); },
+    isActive(taskId) { return active.has(taskId); },
     activeCount: () => active.size,
   };
 }
