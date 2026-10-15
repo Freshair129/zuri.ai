@@ -500,7 +500,7 @@ locates the week.
 | TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | done | - | Section 3.1 row 4; ADR-050, ADR-063, ADR-067, ADR-068, ADR-072 |
 | TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | done | TASK-ZAI-006 | Section 3.1 row 5 |
 | TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | done | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
-| TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | review | TASK-ZAI-007 | Proposal scope, AI Control |
+| TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | done | TASK-ZAI-007 | Proposal scope, AI Control |
 | TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | planned | TASK-ZAI-007 | Section 3.1 row 9 |
 | TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | planned | TASK-ZAI-010 | Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | task | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
@@ -1028,8 +1028,8 @@ title: Agent Factory, the standard five-role Business configuration
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: review
-version: 0.1.3
+status: done
+version: 0.1.4
 pic: Codex Root
 executor: GPT-6 Luna max
 approver: Root under the delegated repository mandate
@@ -1041,14 +1041,14 @@ symbol_links:
 definition_of_done:
   acceptance_criteria:
     - criterion: Given either authorized Business creation path, when it commits, then five persisted role configurations and attributed audit exist in the same transaction, with no manual wiring or live-agent claim
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given owner administration and runtime reads, when v1 is used, then Tenant and Business scope stays bounded, missing configuration is NOT_CONFIGURED, and dynamic delegation or unsupported upgrades refuse without implicit fallback
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given the factory and backup suites on isolated SQLite and PostgreSQL, when repeat/concurrent applies, failure, restore or permitted physical Business deletion cases run, then config and its attributed audit stay atomic, identical apply is a no-op, recovery preserves original rows, legacy omission refuses before replacement with a Serializable transaction recheck, and deletion removes only the dependent config while retaining other Business configs and the original audit; the static Phase B inventory covers all 205 models without granting external recovery authority
-      checked: false
-changelog: v0.1.3 binds contract v0.1.4 and the corrected config lifetime and static 205-model census after full CI exposed regression at PR665 head8c8697b2. Runtime/test sourcef073bdd4 passes isolated SQLite151/151 across14files, disposable PostgreSQL13/13 and local Next build; earlier source9d21db80 SQLite72/72 and PostgreSQL12/12 evidence remains historical. Criterion checkboxes remain false until final independent artifact review, exact-head hosted CI and delivery closeout; no provider/live-agent activation or external migration apply is claimed. Prior v0.1.2 reconciled review status and backup recovery; v0.1.1 bound FR-285 and delegated coding-delivery roles.
+      checked: true
+changelog: v0.1.4 closes the bounded contract v0.1.4 after PR665 artifact24c7d99e merged as cddc52f4fc8e09c59c1f7c033765b75d797a27f1. Distinct independent verify/review and exact-head Governance38672680746/Edge38672680749 pass, including all four test shards and hosted build; strict checks have0critical4baselinewarnings. SQLite151/151 across14files and PostgreSQL13/13 bind runtime/test sourcef073bdd4. E2E/Desktop were skipped; provider/live-agent activation and external migration apply remain NOT_RUN. Earlier v0.1.3 evidence/history remains recorded in the canonical roadmap.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5

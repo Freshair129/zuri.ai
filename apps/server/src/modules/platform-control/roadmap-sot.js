@@ -735,12 +735,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-009",
     "sprint": "SPR-ZAI-03",
     "title": "Agent Factory, the standard five-role Business configuration",
-    "status": "review",
-    "proofScope": "ISOLATED",
-    "implementationState": "ISOLATED_ACCEPTED",
+    "status": "done",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "2026-10-15: FR-285 and ../change-requests/agent-factory/AGENT-FACTORY-V1.md v0.1.4 adopt the bounded local contract under delegated root disposition; candidate audit merged by PR #663 at cb4c49c5. Runtime/test source f073bdd4 passes 151/151 isolated SQLite tests across 14 files including every prior failed CI suite, and factory/backup 13/13 on disposable PostgreSQL; local Next build passes. Earlier source9d21db80 72/72 SQLite and 12/12 PostgreSQL evidence remains historical. Config lifetime follows permitted physical Business deletion, preserves sibling config and original audit, and retains FR-192 Membership refusal; the static 205-model Phase B census adds only BusinessAgentConfig and refuses historical bindings. Backup preserves config identity/content/timestamps and the original scoped APPLIED audit without replay; legacy missing-config-array restore refuses with live rows, records authorized preview use and rechecks before deletion under Serializable isolation. Five persisted role configs, scoped owner administration, atomic provisioning, idempotence and deny-by-default delegation are implemented. Independent final artifact gates, exact-head hosted build/CI and merge remain pending. Provider/live-agent activation and external migration apply are NOT_RUN."
+    "evidence": "2026-10-15: FR-285 and ../change-requests/agent-factory/AGENT-FACTORY-V1.md v0.1.4 delivered by PR #665 artifact24c7d99e, merged as cddc52f4fc8e09c59c1f7c033765b75d797a27f1 after distinct independent verify/review and all applicable exact-head Governance38672680746/Edge38672680749 gates passed. E2E/Desktop skipped, not PASS. Runtime/test sourcef073bdd4 passes isolated SQLite151/151 across14files and disposable PostgreSQL13/13; exact-artifact hosted build and strict governance pass. Includes five persisted scoped role configs, live owner Membership checks, atomic Business provisioning, repeat/concurrent no-op, explicit missing runtime config, backup/audit preservation, permitted Business config cascade with FR-192 refusal intact, and static205model recovery inventory/history. Earlier failed CI and source9d21 72/12 acceptance remain historical. Provider/live-agent activation and external migration apply remain NOT_RUN."
   },
   {
     "id": "TASK-ZAI-010",
