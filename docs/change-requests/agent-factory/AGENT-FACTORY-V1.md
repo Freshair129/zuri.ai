@@ -47,6 +47,14 @@ the reviewed local design source, not an implementation completion claim. Requir
   Failed config or audit writes roll back. All agent action writes retain FR-026
   Gate F.
 
+Automatic configuration of a newly created Business is an internal part of the
+already authorized FR-074 creation transaction. It uses the server-resolved
+creator and creation authority, not a client flag or the old request snapshot's
+ownedBusinessIds for a Business that did not yet exist. Keep this provision
+helper out of the public administration path. Explicit preview/apply for an
+existing Business checks active persisted OWNER Membership; no payload can
+select an internal authorization bypass.
+
 ## Acceptance criteria
 
 1. Given the standard v1 template, when built and persisted, then exactly
