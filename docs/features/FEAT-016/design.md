@@ -38,6 +38,7 @@ Feature record: [ZAI:FEAT-016 canonical record](feature.md).
 
 > 🟠 implementation authorized under ADR-056 / FEAT-016; 2026-09-03: Asset migrations `20260902001000` and `20260902103000` applied and recorded on production and the private `asset-evidence` bucket (20 MiB, jpeg/png/webp/pdf) provisioned — Vercel env gate, protected deployment, canary and promotion remain NOT_RUN (CR-016)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [TASK-ZAI-048 — Binary document parsing contract](../../plans/TASK-ZAI-048-BINARY-PARSING-CONTRACT.md) — `relates` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
 
 ### [ZAI:FR-139 canonical record](requirements/FR-139.md)
