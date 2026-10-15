@@ -17,7 +17,7 @@ test('worker environment strips database provider and deploy credentials', () =>
 test('roles select exact policy model, effort, sandbox and no shell prompt argument', () => {
   const folder = path.resolve('.');
   for (const role of ['worker', 'verifier', 'reviewer']) {
-    const args = buildCodexInvocation({ role, worktree: folder, schemaFile: path.join(folder, 's'), resultFile: path.join(folder, 'r') });
+    const args = buildCodexInvocation({ windowsSandbox: 'unelevated', role, worktree: folder, schemaFile: path.join(folder, 's'), resultFile: path.join(folder, 'r') });
     assert.equal(args[args.indexOf('--model') + 1], 'gpt-6-luna');
     assert.equal(args[args.indexOf('--sandbox') + 1], role === 'worker' ? 'workspace-write' : 'read-only');
     assert.ok(args.includes('model_reasoning_effort="max"'));
@@ -25,6 +25,18 @@ test('roles select exact policy model, effort, sandbox and no shell prompt argum
     assert.equal(args.at(-1), '-');
   }
   assert.throws(() => buildCodexInvocation({ role: 'root' }), /Unsupported/);
+});
+
+test('Windows config isolation requires an explicit restricted sandbox implementation', () => {
+  const folder = path.resolve('.');
+  const input = { role: 'worker', worktree: folder, schemaFile: path.join(folder, 's'), resultFile: path.join(folder, 'r'), platform: 'win32' };
+  assert.throws(() => buildCodexInvocation(input), /WINDOWS_SANDBOX_PROFILE_REQUIRED/);
+  assert.throws(() => buildCodexInvocation({ ...input, windowsSandbox: 'disabled' }), /INVALID_WINDOWS_SANDBOX/);
+  const args = buildCodexInvocation({ ...input, windowsSandbox: 'unelevated' });
+  assert.ok(args.includes('windows.sandbox="unelevated"'));
+  assert.ok(args.includes('--ignore-user-config'));
+  assert.equal(args[args.indexOf('--sandbox') + 1], 'workspace-write');
+  assert.ok(!args.some((arg) => /bypass|ignore-rules|danger-full/.test(arg)));
 });
 
 function fixture(t) {
@@ -51,7 +63,7 @@ function processStub({ result, session = 'session-1', code = 0, onInvocation = (
 test('fresh session is bound before accepting exact head result and output directory cannot be reused', async (t) => {
   const { dir, head } = fixture(t);
   let bound;
-  const config = { executable: process.execPath, role: 'verifier', worktree: dir, artifactDir: path.join(dir, 'private'),
+  const config = { executable: process.execPath, windowsSandbox: 'unelevated', role: 'verifier', worktree: dir, artifactDir: path.join(dir, 'private'),
     expectedHead: head, prompt: 'Inspect only', onSession: async (value) => { bound = value; },
     spawnProcess: processStub({ result: { outcome: 'PASS', headCommit: head, summary: 'Checked', evidence: ['fixture'] },
       onInvocation: ({ options }) => { assert.equal(options.shell, false); assert.equal(options.windowsHide, true); } }) };
@@ -61,13 +73,13 @@ test('fresh session is bound before accepting exact head result and output direc
 });
 test('backend failure is unknown with no worker retry or invented session', async (t) => {
   const { dir } = fixture(t);
-  const result = await runCodexRole({ executable: process.execPath, role: 'worker', worktree: dir,
+  const result = await runCodexRole({ executable: process.execPath, windowsSandbox: 'unelevated', role: 'worker', worktree: dir,
     artifactDir: path.join(dir, 'private'), prompt: 'Work', spawnProcess: processStub({ code: 1, session: null }) });
   assert.equal(result.outcome, 'UNKNOWN'); assert.equal(result.effectState, 'UNKNOWN'); assert.equal(result.sessionId, null);
 });
 test('gate result cannot attest a different head', async (t) => {
   const { dir, head } = fixture(t);
-  const result = await runCodexRole({ executable: process.execPath, role: 'reviewer', worktree: dir,
+  const result = await runCodexRole({ executable: process.execPath, windowsSandbox: 'unelevated', role: 'reviewer', worktree: dir,
     artifactDir: path.join(dir, 'private'), expectedHead: head, prompt: 'Review',
     spawnProcess: processStub({ result: { outcome: 'PASS', headCommit: 'a'.repeat(40), summary: 'Wrong head', evidence: [] } }) });
   assert.equal(result.code, 'HEAD_CHANGED');
@@ -75,7 +87,7 @@ test('gate result cannot attest a different head', async (t) => {
 test('stalled session persistence cannot outlive deadline plus stop grace', async (t) => {
   const { dir, head } = fixture(t);
   const started = Date.now();
-  const result = await runCodexRole({ executable: process.execPath, role: 'worker', worktree: dir,
+  const result = await runCodexRole({ executable: process.execPath, windowsSandbox: 'unelevated', role: 'worker', worktree: dir,
     artifactDir: path.join(dir, 'private'), timeoutMs: 20, prompt: 'Bounded test',
     onSession: () => new Promise(() => {}),
     spawnProcess: processStub({ result: { outcome: 'PASS', headCommit: head, summary: 'Stalled', evidence: [] } }) });

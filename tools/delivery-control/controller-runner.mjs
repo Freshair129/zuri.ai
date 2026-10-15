@@ -69,6 +69,8 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
     worktrees.add(key);
     bindings.set(task.taskId, task);
   }
+  if (backend === runCodexRole && process.platform === 'win32'
+    && !['mxc', 'elevated', 'unelevated'].includes(config.windowsSandbox)) throw new Error('WINDOWS_SANDBOX_PROFILE_REQUIRED');
   const active = new Map();
   const pendingErrors = [];
   const suppressed = new Map();
@@ -101,7 +103,7 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
       Promise.resolve().then(() => controller.heartbeat(lease, 30_000)).catch((error) => { heartbeatError = error; roleAbort.abort(); });
     }, 5000);
     try {
-      let result = await backend({ executable: config.codexExecutable, role: node.role, worktree,
+      let result = await backend({ executable: config.codexExecutable, windowsSandbox: config.windowsSandbox, role: node.role, worktree,
         artifactDir, prompt: rolePrompt({ node: { ...node, currentHeadCommit: git(worktree, ['rev-parse', 'HEAD']) }, task }),
         expectedHead: node.role === 'worker' ? null : node.requiredHeadCommit,
         timeoutMs: Math.min(config.roleTimeoutMs ?? 45 * 60_000, 45 * 60_000), signal: roleAbort.signal,
@@ -169,6 +171,17 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
     },
     async drain() { await Promise.allSettled([...active.values()]); },
     wake(taskId) { suppressed.delete(taskId); },
+    addBinding(binding) {
+      const previous = bindings.get(binding.taskId);
+      if (previous) {
+        if (!isDeepStrictEqual(previous, binding)) throw new Error('TASK_BINDING_CHANGED');
+        return;
+      }
+      const root = fs.realpathSync(binding.worktree);
+      const key = process.platform === 'win32' ? root.toLowerCase() : root;
+      if (worktrees.has(key)) throw new Error('DUPLICATE_WORKTREE_BINDING');
+      worktrees.add(key); bindings.set(binding.taskId, binding); config.tasks.push(binding);
+    },
     async stop() { abort.abort(); await Promise.allSettled([...active.values()]); },
     activeCount: () => active.size,
   };

@@ -145,3 +145,95 @@ merge or deployment. It is not `/control/roadmap` and does not expand product
 Operator or Business permissions. Root delivery still requires independent
 acceptance, review and applicable exact-head CI; a green local stage is not
 `MERGED` or production readiness.
+
+## Autonomous root supervisor
+
+`npm run delivery:autonomous -- serve <private-campaign.json>` joins trusted
+roadmap intake, parallel role execution, root integration and GitHub delivery.
+`run` uses the same loop and exits when every allowed task has a verified merged
+receipt. This is repository delivery automation, not Business-runtime approval
+or production deployment. Sol root owns the campaign and exception decisions;
+the private supervisor implements its preauthorized mechanical transitions.
+Workers cannot create campaigns, grant themselves scope, or invoke GitHub tools.
+
+The root installs two JSON files inside the Git common directory's
+`zuri-delivery-control/campaigns/` directory. File provenance is a local trust
+boundary, not a cryptographic signature. The supervisor pins both files' content
+digests, requires the canonical repository and matching prohibitions, and pauses
+for reassessment if the campaign changes. Model worktrees cannot write Git
+metadata; do not place these files in tracked source or expose a web enqueue API.
+
+The intake campaign uses `roadmap-intake-campaign/v1`, `campaignId`,
+`repositoryRoot`, `baseRef`, `objective`, `sourceRef`, `authorizedEffects`,
+`prohibitions`, `allowedTaskIds` and `taskPlans`. Each task plan supplies explicit
+`objective`, `acceptance`, `writeScope`, structured `checks` and
+`mandateReference`. Canonical task criteria must be included. Roadmap prose
+cannot supply commands, expand scope or grant authority. Intake reads the
+canonical ledger and programme at the resolved Git base, selects ready tasks by
+priority then ID, creates a deterministic worktree once, and persists the binding.
+The supervisor excludes already bound tasks so another independent task can start.
+Missing plans, ambiguous criteria, dependency evidence, path conflicts and
+interrupted worktree creation produce typed holds, without resetting old history.
+
+The supervisor campaign has this shape (paths are examples, not authority):
+
+```json
+{
+  "schemaVersion": "autonomous-delivery-campaign/v1",
+  "campaignId": "roadmap-batch-01",
+  "repositoryRoot": "absolute canonical checkout",
+  "sourceRef": "actual trusted user delegation",
+  "authorizedEffects": ["intake", "dispatch", "rootIntegration", "push", "pullRequest", "merge"],
+  "prohibitions": ["production", "Supabase", "providers", "grants", "credentials"],
+  "intakeCampaignFile": "absolute private intake campaign JSON",
+  "codexExecutable": "absolute installed Codex executable",
+  "windowsSandbox": "unelevated",
+  "maxConcurrent": 2,
+  "maxCampaignMinutes": 120,
+  "pollIntervalMs": 30000,
+  "dashboardPort": 4190,
+  "delivery": {
+    "remoteName": "origin",
+    "expectedOwnerRepo": "github.com/OWNER/REPO",
+    "base": "main",
+    "requiredChecks": ["actual required check names"],
+    "notApplicableChecks": ["explicitly inapplicable optional check names"]
+  }
+}
+```
+
+Select the host's authorized Windows implementation explicitly (`mxc`, `elevated`
+or `unelevated`); there is no automatic downgrade. The backend intentionally
+ignores user config to avoid inheriting unrelated providers and full-access
+settings. On Windows that also drops the implementation selection: a requested
+`workspace-write` can resolve to read-only without it. Missing selection now fails
+before dispatch. The local development host already used `unelevated`; explicitly
+passing that value restores its existing restricted-token implementation while
+preserving `workspace-write` for workers, `read-only` for gates, `never` approvals,
+and normal rules. It does not change system/user settings, trust, network grants,
+or bypass protections. Other hosts must select their own permitted implementation.
+
+The supervisor stores bindings, deadlines, delivery checkpoints and events under
+`zuri-delivery-control/supervisors/<campaignId>/`. One root process owns a campaign;
+a live owner blocks another process. Reclaiming a dead root service lock never
+releases controller task locks or reconciles an orphaned worker. The campaign's
+maximum 120-minute deadline is anchored to the first actual worker cycle and
+survives restart. Unchanged intake exceptions are held while independent bound
+tasks continue. Controller caps and cumulative no-progress history remain intact.
+
+Only exact `ROOT_DELIVERY_READY` candidates can be root-integrated. The GitHub
+adapter verifies durable role history and the unchanged clean snapshot, validates
+the repository/remote/ref, then publishes using argument-array Git/gh calls. Each
+mutation has a durable intent and bounded reconciliation; lost responses do not
+trigger blind repeats. It discovers an existing PR, checks GitHub's exact head and
+required checks plus all applicable checks, and uses a matching-head merge guard.
+Skipped checks count only as explicitly inapplicable optional checks. A moving
+base yields `BASE_ADVANCED` with the actual SHA for root replanning; it never
+silently reuses old evidence or force-pushes a rebase. A known merged PR is
+reconciled before recording `MERGED`. No model session receives these credentials.
+
+Unattended execution is bounded to the trusted campaign's adopted task contracts.
+It does not invent business policy, equate a partial feature with its broader DoD,
+apply production migrations, deploy, or self-authorize a successor cycle. A real
+scope/authority/unknown-effect block remains visible for autonomous root
+reassessment; routine transitions do not require another human G0 approval.
