@@ -1,7 +1,7 @@
 ---
-version: "0.7.0b"
+version: "0.7.1b"
 status: active
-last_update: "2026-10-15,Codex"
+last_update: "2026-10-16,Codex"
 id: ZAI:DOMAIN-AGENT
 relations:
   - type: relates_to
@@ -20,6 +20,12 @@ relations:
     target: ZAI:FR-171-NOTE
   - type: relates_to
     target: ZAI:FR-285
+  - type: relates_to
+    target: ZAI:FEAT-043
+  - type: references
+    target: ZAI:FR-256
+  - type: references
+    target: ZAI:FR-257
 domain: agent
 module: src/modules/agent
 owns_models:

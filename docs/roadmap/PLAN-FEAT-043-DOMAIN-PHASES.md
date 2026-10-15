@@ -1,15 +1,15 @@
 ---
 id: "ZAI:PLAN-FEAT-043-PHASES"
 title: "Domain-owned inference pool delivery phases"
-version: "0.1.1b"
+version: "0.1.2b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-18"
 approved_by: "Owner via conversation"
-integration_status: pending
+integration_status: documentation-integrated
 implementation_status: not-started
 created_at: "2026-09-17"
-last_update: "2026-09-18"
+last_update: "2026-10-16"
 author: ChatGPT
 domain: agent
 baseline_commit: "cfd5521e7d004e63ffead1e07f46045f1cdc06f2"
@@ -29,23 +29,35 @@ relations:
     target: "ZAI:FR-258-NOTE"
   - type: relates_to
     target: "ZAI:FR-259-NOTE"
+  - type: references
+    target: "ZAI:FR-255"
+  - type: references
+    target: "ZAI:FR-256"
+  - type: references
+    target: "ZAI:FR-257"
+  - type: references
+    target: "ZAI:FR-258"
+  - type: references
+    target: "ZAI:FR-259"
 ---
 
 # FEAT-043 — Domain-owned inference pool delivery phases
 
-> Design approved by the owner on 2026-09-18; canonical integration and all runtime evidence remain pending.
+> Gate A is documentation-integrated: the repository documentation and domain ownership references are aligned. This status covers documentation only; it does not mean code/runtime integration, hardware validation, deployment or production activation.
 
 ## Current identity and ownership
 
-This candidate adds five new FR subjects under one proposed feature. Existing FR-149/150 remain in FEAT-019, and provider connection FRs remain in their existing bundle. They are dependencies, not reassigned members. New numeric IDs are intentionally unallocated in this draft package; bind them only against the current authoritative registries/ledger.
+FEAT-043 and FR-255 through FR-259 are already issued in the ID ledger and listed as current source-preserved records in the canonical registry, with the five FRs explicitly grouped under FEAT-043. Gate A integrates their repository documentation and ownership references; it does not issue identities or change requirement membership. Existing FR-149/150 remain in FEAT-019, and provider connection FRs remain in their existing bundle. They are dependencies, not reassigned members.
 
-| Candidate requirement | Owning domain | Handoff |
+The source-preserved FEAT and FR compatibility rows retain their original wording, including “approved design — repository declaration pending” and “not registered, not implemented, not deployed.” Those rows remain byte-for-byte unchanged. This plan records the current repository documentation/ownership integration separately; it does not rewrite or reinterpret the pinned source rows.
+
+| Approved requirement | Owning domain | Handoff |
 |---|---|---|
-| FR-255 | integration | Scoped nodes, secrets, qualification, pools and normalized observations |
-| FR-256 | agent | Server orchestration and private model invocation with behavior parity |
-| FR-257 | agent | Atomic capacity, preferred-first spillover, observation freshness and uncertainty |
-| FR-258 | platform-control | Removable operator-only projection over owned read contracts |
-| FR-259 | line-oa-studio | Explicit account policy, immutable job snapshot, delivery preservation and rollback |
+| [[ZAI:FR-255]] | integration | Scoped nodes, secrets, qualification, pools and normalized observations |
+| [[ZAI:FR-256]] | agent | Server orchestration and private model invocation with behavior parity |
+| [[ZAI:FR-257]] | agent | Atomic capacity, preferred-first spillover, observation freshness and uncertainty |
+| [[ZAI:FR-258]] | platform-control | Removable operator-only projection over owned read contracts |
+| [[ZAI:FR-259]] | line-oa-studio | Explicit account policy, immutable job snapshot, delivery preservation and rollback |
 
 ## Runtime handoff map
 
@@ -68,13 +80,15 @@ A phase number documents ownership and handoff. The current metadata tooling val
 
 | Gate | Work package | Entry | Exit evidence | Scope |
 |---|---|---|---|---|
-| A | Documentation reconciliation | Reviewed baseline and owner request | Candidate ADR/FR approval; allocated IDs; registry/charter deltas composed; governance green on full checkout | docs only |
+| A | Documentation reconciliation | Approved design, reviewed baseline and issued identities | Existing FEAT/FR identity and ownership map referenced by the four domain charters; canonical registry and generated documentation views synchronized; scoped documentation checks pass | docs only |
 | B | Single-node private qualification | Approved policy/network scope | Typed connection/profile; negative auth/SSRF tests; same-Business controls; one real synthetic GPU test | Integration + identity review |
 | C | Server model adapter and parity | Gate B, existing grounding/MSP available | Golden tests for context, commands/tools, receipts and no Edge dependency for this lane | Agent + knowledge/MSP contract review |
 | D | Two-node admission and observer | Gate C plus calibrated profiles | PostgreSQL multi-process races, A/B spillover, deadline/stale/uncertain/restart tests | Agent + Integration |
 | E | Operator projection and safe controls | Owned read/action contracts | Operator RBAC, unavailable-value display, remove-dashboard test, secret-free labels | Platform Control |
 | F | LINE policy and delivery integration | Gates B–E | Additive schemas, backward-compatible contracts, per-account opt-in, slow-sibling delivery test, rollback rehearsal | LINE Studio + CRM |
 | G | Production activation | Reviewed artifacts, migration and network receipts | One owner-authorized LINE canary; node-failure/saturation checks; trace/CRM acceptance evidence; explicit expansion decision | Operator action |
+
+Gate A is documentation-integrated only. Gates B through G remain pending and require their separate software, hardware, operational and production evidence.
 
 Work packages may be split into reviewable issues/branches; no package is a claim that a numeric task ID already exists. Integrator reconciles shared PRD/FEATURES/ROADMAP/ledger edits before regenerating views. No two lanes hand-merge generated graph snapshots.
 
@@ -106,3 +120,4 @@ The following immutable repository sources were reviewed; proposed new behavior 
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-17 | candidate | Initial documentation proposal; no runtime implementation or activation | uncommitted; baseline cfd5521 | ChatGPT |
 | 0.1.1b | 2026-09-18 | approved design | Record owner approval; design unchanged; canonical IDs, governance and runtime gates remain pending | uncommitted; baseline cfd5521 | ChatGPT |
+| 0.1.2b | 2026-10-16 | documentation-integrated | Reconcile already-issued FEAT/FR identities and owner charters for Gate A; requirements and runtime scope unchanged | uncommitted; base e114b4e | Codex |

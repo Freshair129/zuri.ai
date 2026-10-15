@@ -1,7 +1,7 @@
 ---
-version: "0.6.1b"
+version: "0.6.2b"
 status: active
-last_update: "2026-09-27T21:00:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-10-16,Codex"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
@@ -22,6 +22,10 @@ relations:
     target: ZAI:FR-149-P1
   - type: relates_to
     target: ZAI:FR-149-P4
+  - type: relates_to
+    target: ZAI:FEAT-043
+  - type: references
+    target: ZAI:FR-255
 domain: integration
 module: src/modules/integration
 owns_routes:

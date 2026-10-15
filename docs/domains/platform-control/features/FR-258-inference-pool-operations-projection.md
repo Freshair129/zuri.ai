@@ -1,15 +1,15 @@
 ---
 id: "ZAI:FR-258-NOTE"
 title: "Inference pool operations projection"
-version: "0.1.1b"
+version: "0.1.2b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-18"
 approved_by: "Owner via conversation"
-integration_status: pending
+integration_status: documentation-integrated
 implementation_status: not-started
 created_at: "2026-09-17"
-last_update: "2026-09-18"
+last_update: "2026-10-16"
 author: ChatGPT
 domain: platform-control
 baseline_commit: "cfd5521e7d004e63ffead1e07f46045f1cdc06f2"
@@ -29,7 +29,7 @@ relations:
 
 # FR-258 — Inference pool operations projection
 
-> Design approved by the owner on 2026-09-18; canonical integration and all runtime evidence remain pending.
+> Gate A is documentation-integrated: the repository documentation and domain ownership references are aligned. This status covers documentation only; it does not mean code/runtime integration, hardware validation, deployment or production activation.
 
 
 ## Behavior and ownership
@@ -103,3 +103,4 @@ The following immutable repository sources were reviewed; proposed new behavior 
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-17 | candidate | Initial documentation proposal; no runtime implementation or activation | uncommitted; baseline cfd5521 | ChatGPT |
 | 0.1.1b | 2026-09-18 | approved design | Record owner approval; design unchanged; canonical IDs, governance and runtime gates remain pending | uncommitted; baseline cfd5521 | ChatGPT |
+| 0.1.2b | 2026-10-16 | documentation-integrated | Record Gate A documentation/ownership integration only; implementation remains not-started | uncommitted; base e114b4e | Codex |

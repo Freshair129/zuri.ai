@@ -19,6 +19,10 @@ relations:
     target: ZAI:FR-150-P1
   - type: relates_to
     target: ZAI:FR-150-P3
+  - type: relates_to
+    target: ZAI:FEAT-043
+  - type: references
+    target: ZAI:FR-259
 domain_id: DOM-LINE-OA-STUDIO
 domain: line-oa-studio
 modules:
@@ -39,9 +43,9 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.16.0b"
+version: "0.16.1b"
 created_at: "2026-09-05T00:00:00+07:00"
-updated_at: "2026-10-04T14:28:26+07:00,Codex"
+updated_at: "2026-10-16T04:29:27+07:00,Codex"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
