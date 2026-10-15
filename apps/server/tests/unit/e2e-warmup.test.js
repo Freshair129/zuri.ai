@@ -110,10 +110,32 @@ describe('the warm-up derives every module under src/app', () => {
     const plan = warmupPlan()
     const urls = plan.map((entry) => entry.url)
     expect(new Set(urls).size).toBe(urls.length)
+    const discoveredHandlers = new Set(discoverRoutes().handlers)
     for (const entry of plan) {
       const handListed = listedByHand.has(entry.url)
-      const handler = entry.url.startsWith('/api/')
+      const handler = discoveredHandlers.has(entry.url)
       expect(entry.method, entry.url).toBe(handListed || !handler ? 'GET' : 'OPTIONS')
+    }
+  })
+
+  it('warms a synthetic non-API handler as OPTIONS and keeps a hand-listed handler as GET', () => {
+    const synthetic = mkdtempSync(path.join(tmpdir(), 'warmup-handler-method-'))
+    try {
+      for (const relative of ['access-denied/route.js', 'api/scope/route.js']) {
+        const absolute = path.join(synthetic, relative)
+        mkdirSync(path.dirname(absolute), { recursive: true })
+        writeFileSync(absolute, '')
+      }
+
+      const handlers = new Set(discoverRoutes(synthetic).handlers)
+      const plan = new Map(warmupPlan(synthetic).map((entry) => [entry.url, entry.method]))
+
+      expect(handlers.has('/access-denied')).toBe(true)
+      expect(plan.get('/access-denied')).toBe('OPTIONS')
+      expect(handlers.has('/api/scope')).toBe(true)
+      expect(plan.get('/api/scope')).toBe('GET')
+    } finally {
+      rmSync(synthetic, { recursive: true, force: true })
     }
   })
 

@@ -4,6 +4,7 @@ module: src/modules/identity
 owns_routes:
   - src/app/(entry)/**
   - src/app/login/**
+  - src/app/access-denied/**
   - src/app/signup/**
   - src/app/reset-password/**
   - src/app/api/auth/**
@@ -54,6 +55,11 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 
 ## Boundaries
 
+- The generic `/access-denied` handler owns the final HTTP403/noindex/no-store
+  response and links to Login/change account and home. It reveals no account or
+  protected data and grants no authority. Platform Control selects this outcome
+  only after its existing trusted viewer predicate refuses an authenticated
+  account; absence of a session still follows the Login boundary.
 - External ids are never primary keys — internal UUID + human `code` +
   ExternalRef mapping (BR-002). This domain owns that mapping discipline for
   everyone.

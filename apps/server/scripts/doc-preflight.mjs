@@ -25,6 +25,7 @@ import { generateDomainState } from './domain-state.mjs'
 import { parseCanonicalIndex, parseCanonicalRecord } from './document-registry-format.mjs'
 import { collectDocumentClaims, isGeneratedDocumentView, requiresSuccessor } from './doc-identities.mjs'
 import { modelSourceFromFrontmatter, readDomainModelSource } from './domain-model-source.mjs'
+import { maskExpectedViewerAssertions } from './viewer-fixture-scan.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -647,7 +648,7 @@ const VIEWER_EXEMPT = new Set([
     // because a comment *explaining* the old hand-built shape sat within ten
     // lines of an unrelated `role:` in a mutation payload — which teaches the
     // next person to delete the explanation rather than fix the fixture.
-    const lines = read(file)
+    const lines = maskExpectedViewerAssertions(read(file))
       .split('\n')
       .map((line) => line.replace(/\/\/.*$/, '').replace(/^\s*\*.*$/, ''))
     // Factory-call lines are blanked for BOTH halves of the test: they can
