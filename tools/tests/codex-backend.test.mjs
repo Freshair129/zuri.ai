@@ -71,10 +71,28 @@ test('fresh session is bound before accepting exact head result and output direc
   assert.equal(result.outcome, 'PASS'); assert.equal(bound.sessionId, 'session-1');
   await assert.rejects(runCodexRole(config), /DIRECTORY_REUSED/);
 });
-test('backend failure is unknown with no worker retry or invented session', async (t) => {
-  const { dir } = fixture(t);
+test('worker launch HEAD mismatch is proven no-effect and never calls spawnProcess', async (t) => {
+  const { dir, head } = fixture(t);
+  execFileSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
+    'commit', '--allow-empty', '-qm', 'advance between dispatch intent and backend launch'], { cwd: dir });
+  let spawnCalls = 0;
   const result = await runCodexRole({ executable: process.execPath, windowsSandbox: 'unelevated', role: 'worker', worktree: dir,
-    artifactDir: path.join(dir, 'private'), prompt: 'Work', spawnProcess: processStub({ code: 1, session: null }) });
+    artifactDir: path.join(dir, 'private'), expectedLaunchHead: head, prompt: 'Work',
+    spawnProcess: () => { spawnCalls++; throw new Error('spawn must not be called'); } });
+  assert.equal(spawnCalls, 0);
+  assert.equal(result.outcome, 'BLOCKED');
+  assert.equal(result.failureClass, 'STALE_BASELINE');
+  assert.equal(result.effectState, 'NONE');
+  assert.equal(result.provenNoEffect, true);
+  assert.equal(result.code, 'LAUNCH_HEAD_MISMATCH');
+  assert.equal(result.expectedHeadCommit, head);
+  assert.notEqual(result.actualHeadCommit, head);
+  assert.equal(fs.existsSync(path.join(dir, 'private', 'process.json')), false);
+});
+test('backend failure is unknown with no worker retry or invented session', async (t) => {
+  const { dir, head } = fixture(t);
+  const result = await runCodexRole({ executable: process.execPath, windowsSandbox: 'unelevated', role: 'worker', worktree: dir,
+    artifactDir: path.join(dir, 'private'), expectedLaunchHead: head, prompt: 'Work', spawnProcess: processStub({ code: 1, session: null }) });
   assert.equal(result.outcome, 'UNKNOWN'); assert.equal(result.effectState, 'UNKNOWN'); assert.equal(result.sessionId, null);
 });
 test('gate result cannot attest a different head', async (t) => {
@@ -88,7 +106,7 @@ test('stalled session persistence cannot outlive deadline plus stop grace', asyn
   const { dir, head } = fixture(t);
   const started = Date.now();
   const result = await runCodexRole({ executable: process.execPath, windowsSandbox: 'unelevated', role: 'worker', worktree: dir,
-    artifactDir: path.join(dir, 'private'), timeoutMs: 20, prompt: 'Bounded test',
+    artifactDir: path.join(dir, 'private'), timeoutMs: 20, expectedLaunchHead: head, prompt: 'Bounded test',
     onSession: () => new Promise(() => {}),
     spawnProcess: processStub({ result: { outcome: 'PASS', headCommit: head, summary: 'Stalled', evidence: [] } }) });
   assert.equal(result.outcome, 'UNKNOWN'); assert.equal(result.code, 'DEADLINE_EXCEEDED');

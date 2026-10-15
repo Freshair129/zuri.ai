@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { DatabaseSync } from 'node:sqlite';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -124,6 +126,44 @@ function dispatch(controller, taskId, nodeId, role, inputDigest = sha(nodeId)) {
   const sessionId = `session-${taskId}-${role}`;
   controller.recordBackendHandle({ lease, sessionId, model: 'gpt-6-luna', effort: 'max', backendRef: `codex://${sessionId}` });
   return { lease, operationId, sessionId };
+}
+
+async function staleCandidateFixture({ includeCandidate = true } = {}) {
+  const env = fixture();
+  const { worktreeRoot, branch } = addWorktree(env.repoRoot, env.root, env.baseCommit, 'prepared-resume');
+  const task = taskRecord('TASK-PREPARED-BASE-RESUME', 'Bind a prepared base to the retained paused run.', ['src/', 'upstream.txt']);
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  controller.registerTask({ taskRecord: task, preflightResult: preflight(task, worktreeRoot, env.baseCommit), worktreeRoot,
+    trustedMandateBinding: trustedBinding(env.repoRoot, task) });
+  let oldHeadCommit = env.baseCommit;
+  if (includeCandidate) {
+    const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+    mkdirSync(path.join(worktreeRoot, 'src'), { recursive: true });
+    writeFileSync(path.join(worktreeRoot, 'src', 'candidate.mjs'), 'export const candidate = true;\n');
+    git(worktreeRoot, ['add', 'src/candidate.mjs']);
+    git(worktreeRoot, ['commit', '-m', 'prepared resume candidate']);
+    oldHeadCommit = git(worktreeRoot, ['rev-parse', 'HEAD']);
+    controller.completeNode({ lease: worker.lease, result: roleResult('worker', worker.sessionId, oldHeadCommit, sha('prepared-resume-worker')) });
+  }
+
+  writeFileSync(path.join(env.repoRoot, 'upstream.txt'), 'accepted base advance\n');
+  git(env.repoRoot, ['add', 'upstream.txt']);
+  git(env.repoRoot, ['commit', '-m', 'advance accepted base']);
+  const newBaseCommit = git(env.repoRoot, ['rev-parse', 'HEAD']);
+  git(worktreeRoot, ['merge', '--no-ff', '--no-edit', newBaseCommit]);
+  const headCommit = git(worktreeRoot, ['rev-parse', 'HEAD']);
+  const blocked = controller.claimNode({ taskId: task.taskId, nodeId: includeCandidate ? 'verifier' : 'worker', ownerId: 'stale-check', leaseMs: 30_000 });
+  assert.equal(blocked.status, includeCandidate ? 'BLOCKED_STALE_CANDIDATE' : 'BLOCKED_STALE_BASELINE');
+
+  const receiptRoot = path.join(env.repoRoot, '.git', 'zuri-delivery-control', 'supervisors', 'test-campaign', 'prepared');
+  mkdirSync(receiptRoot, { recursive: true });
+  const preparedBaseReceiptFile = path.join(receiptRoot, `${task.taskId}.json`);
+  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: task.taskId,
+    oldHeadCommit, headCommit, oldBaseCommit: env.baseCommit, newBaseCommit,
+    reason: 'Retain the same task cycle on the accepted newer base.', evidenceRef: 'root://prepared-base-fixture' };
+  writeFileSync(preparedBaseReceiptFile, JSON.stringify(receipt));
+  return { env, controller, task, worktreeRoot, branch, receipt, preparedBaseReceiptFile, oldHeadCommit, newBaseCommit, headCommit,
+    pausedState: includeCandidate ? 'BLOCKED_STALE_CANDIDATE' : 'BLOCKED_STALE_BASELINE' };
 }
 
 test('runs worker, exact-head verifier, reviewer, and records root integration without claiming CI', async () => {
@@ -263,6 +303,101 @@ test('same-cycle resumes preserve dispatch and repair counters', async () => {
     assert.equal(resumed.cycles[0].implementationRepairs, 1);
   } finally {
     controller.close();
+  }
+});
+
+test('prepared-base resume binds the retained candidate and base transactionally and records receipt evidence', async () => {
+  const f = await staleCandidateFixture();
+  try {
+    const before = f.controller.getRun(f.task.taskId);
+    assert.equal(before.state, 'BLOCKED_STALE_CANDIDATE');
+    assert.equal(before.candidateHeadCommit, f.oldHeadCommit);
+    assert.equal(before.baseCommit, f.receipt.oldBaseCommit);
+    const preflightResult = preflight(f.task, f.worktreeRoot, f.newBaseCommit);
+    const resumed = f.controller.resumeTask({ taskRecord: f.task, preflightResult,
+      trustedMandateBinding: trustedBinding(f.env.repoRoot, f.task),
+      resumeEvidence: { reference: 'root://prepared-base-fixture', reason: f.receipt.reason },
+      preparedBaseReceiptFile: f.preparedBaseReceiptFile });
+    assert.equal(resumed.taskId, f.task.taskId);
+    assert.equal(resumed.state, 'WORKER_READY');
+    assert.equal(resumed.currentCycle, before.currentCycle);
+    assert.equal(resumed.baseCommit, f.newBaseCommit);
+    assert.equal(resumed.cycles[0].submissions, before.cycles[0].submissions);
+    assert.equal(resumed.cycles[0].implementationRepairs, before.cycles[0].implementationRepairs);
+    assert.equal(resumed.cycles[0].toolRetries, before.cycles[0].toolRetries);
+    assert.equal(resumed.stages[0].attempt, before.stages[0].attempt);
+    const readyWorker = f.controller.nextReadyNodes()[0];
+    assert.equal(readyWorker.nodeId, 'worker');
+    assert.equal(readyWorker.expectedLaunchHeadCommit, f.receipt.headCommit);
+
+    const eventDb = new DatabaseSync(f.env.databasePath);
+    const event = eventDb.prepare("SELECT payload_json FROM delivery_events WHERE task_id=? AND event_type='TASK_RESUMED' ORDER BY sequence DESC LIMIT 1").get(f.task.taskId);
+    eventDb.close();
+    const evidence = JSON.parse(event.payload_json).preparedBaseResume;
+    assert.deepEqual(resumed.preparedBaseResume, evidence);
+    assert.deepEqual(f.controller.getRun(f.task.taskId).preparedBaseResume, evidence);
+    assert.equal(evidence.taskId, f.task.taskId);
+    assert.equal(evidence.oldHeadCommit, f.oldHeadCommit);
+    assert.equal(evidence.oldBaseCommit, f.receipt.oldBaseCommit);
+    assert.equal(evidence.newBaseCommit, f.newBaseCommit);
+    assert.equal(evidence.headCommit, f.headCommit);
+    assert.equal(evidence.ancestryVerified, true);
+    assert.equal(evidence.receiptDigest, createHash('sha256').update(readFileSync(f.preparedBaseReceiptFile)).digest('hex'));
+    assert.equal(evidence.receiptPath, `supervisors/test-campaign/prepared/${f.task.taskId}.json`);
+  } finally { f.controller.close(); }
+});
+
+test('prepared-base resume binds the original admitted head when the baseline changed before a candidate existed', async () => {
+  const f = await staleCandidateFixture({ includeCandidate: false });
+  try {
+    const before = f.controller.getRun(f.task.taskId);
+    assert.equal(before.state, 'BLOCKED_STALE_BASELINE');
+    assert.equal(before.candidateHeadCommit, null);
+    assert.equal(f.receipt.oldHeadCommit, before.initialHeadCommit);
+    const resumed = f.controller.resumeTask({ taskRecord: f.task,
+      preflightResult: preflight(f.task, f.worktreeRoot, f.newBaseCommit),
+      trustedMandateBinding: trustedBinding(f.env.repoRoot, f.task),
+      resumeEvidence: { reference: 'root://prepared-base-fixture', reason: f.receipt.reason },
+      preparedBaseReceiptFile: f.preparedBaseReceiptFile });
+    assert.equal(resumed.state, 'WORKER_READY');
+    assert.equal(resumed.taskId, f.task.taskId);
+    assert.equal(resumed.currentCycle, before.currentCycle);
+    assert.equal(resumed.cycles[0].submissions, before.cycles[0].submissions);
+    const readyWorker = f.controller.nextReadyNodes()[0];
+    assert.equal(readyWorker.nodeId, 'worker');
+    assert.equal(readyWorker.expectedLaunchHeadCommit, f.receipt.headCommit);
+  } finally { f.controller.close(); }
+});
+
+test('missing or mismatched prepared-base receipts leave paused run, locks, counters, and events unchanged', async (t) => {
+  for (const mismatch of ['missing', 'old candidate', 'old base']) {
+    await t.test(mismatch, async () => {
+      const f = await staleCandidateFixture();
+      try {
+        const before = f.controller.getRun(f.task.taskId);
+        const eventCount = f.controller.verifyEventChain().count;
+        const eventDb = new DatabaseSync(f.env.databasePath);
+        const lockCount = eventDb.prepare('SELECT COUNT(*) AS count FROM delivery_write_locks WHERE task_id=?').get(f.task.taskId).count;
+        eventDb.close();
+        if (mismatch !== 'missing') {
+          const wrong = { ...f.receipt,
+            ...(mismatch === 'old candidate' ? { oldHeadCommit: f.receipt.oldBaseCommit } : { oldBaseCommit: f.receipt.oldHeadCommit }) };
+          writeFileSync(f.preparedBaseReceiptFile, JSON.stringify(wrong));
+        }
+        assert.throws(() => f.controller.resumeTask({ taskRecord: f.task,
+          preflightResult: preflight(f.task, f.worktreeRoot, f.newBaseCommit),
+          trustedMandateBinding: trustedBinding(f.env.repoRoot, f.task),
+          resumeEvidence: { reference: 'root://prepared-base-fixture', reason: 'Invalid receipt test.' },
+          preparedBaseReceiptFile: mismatch === 'missing' ? path.join(path.dirname(f.preparedBaseReceiptFile), 'missing.json') : f.preparedBaseReceiptFile }),
+        /PREPARED_BASE_RECEIPT_(REQUIRED|MISSING|OLD_RUN_MISMATCH)/);
+        assert.deepEqual(f.controller.getRun(f.task.taskId), before);
+        assert.deepEqual(f.controller.nextReadyNodes(), []);
+        assert.equal(f.controller.verifyEventChain().count, eventCount);
+        const lockDb = new DatabaseSync(f.env.databasePath);
+        assert.equal(lockDb.prepare('SELECT COUNT(*) AS count FROM delivery_write_locks WHERE task_id=?').get(f.task.taskId).count, lockCount);
+        lockDb.close();
+      } finally { f.controller.close(); }
+    });
   }
 });
 

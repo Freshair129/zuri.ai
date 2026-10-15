@@ -30,12 +30,15 @@ export function rolePrompt({ node, task }) {
 }
 
 /** Root-owned Git effect, after the sandboxed worker has exited. */
-export function readPreparedCandidate({ worktree, task, baseCommit, receiptFile }) {
+export function readPreparedCandidate({ worktree, task, baseCommit, receiptFile, expectedReceiptDigest }) {
   const common = fs.realpathSync(git(worktree, ['rev-parse', '--path-format=absolute', '--git-common-dir']));
   const file = fs.realpathSync(receiptFile);
   const relative = path.relative(path.join(common, 'zuri-delivery-control'), file);
   if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('PREPARED_RECEIPT_MUST_BE_PRIVATE');
-  const receipt = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+  const bytes = fs.readFileSync(file);
+  const receiptDigest = createHash('sha256').update(bytes).digest('hex');
+  if (expectedReceiptDigest && receiptDigest !== expectedReceiptDigest) throw new Error('PREPARED_RECEIPT_DIGEST_MISMATCH');
+  const receipt = JSON.parse(bytes.toString('utf8').replace(/^\uFEFF/, ''));
   if (receipt.schemaVersion !== 'root-base-prepared-candidate/v1' || receipt.taskId !== task.taskId
     || receipt.newBaseCommit !== baseCommit || !receipt.evidenceRef || !receipt.reason
     || ![receipt.oldHeadCommit, receipt.headCommit, receipt.oldBaseCommit, receipt.newBaseCommit].every((sha) => /^[a-f0-9]{40}$/.test(sha ?? ''))
@@ -44,10 +47,11 @@ export function readPreparedCandidate({ worktree, task, baseCommit, receiptFile 
   for (const [ancestor, descendant] of [[receipt.oldBaseCommit, receipt.newBaseCommit], [receipt.oldHeadCommit, receipt.headCommit], [receipt.newBaseCommit, receipt.headCommit]]) {
     git(worktree, ['merge-base', '--is-ancestor', ancestor, descendant]);
   }
-  return receipt;
+  return { receipt, receiptDigest, receiptFile: file };
 }
 
-export function commitWorkerCandidate({ worktree, taskFile, task, baseCommit, result, artifactDir, preparedReceiptFile = null }) {
+export function commitWorkerCandidate({ worktree, taskFile, task, baseCommit, result, artifactDir,
+  preparedReceiptFile = null, preparedReceiptDigest = null }) {
   const current = JSON.parse(fs.readFileSync(taskFile, 'utf8').replace(/^\uFEFF/, ''));
   if (!isDeepStrictEqual(current, task)) throw new Error('TASK_BINDING_CHANGED');
   const readiness = preflightTask({ repo: worktree, taskFile, base: baseCommit });
@@ -59,14 +63,15 @@ export function commitWorkerCandidate({ worktree, taskFile, task, baseCommit, re
     ...git(worktree, ['ls-files', '--others', '--exclude-standard', '-z'], { raw: true }).split('\0'),
   ].filter(Boolean))];
   if (!dirty.length && !preparedReceiptFile) throw new Error('NO_CANDIDATE_CHANGES');
-  const prepared = !dirty.length ? readPreparedCandidate({ worktree, task, baseCommit, receiptFile: preparedReceiptFile }) : null;
+  const prepared = !dirty.length ? readPreparedCandidate({ worktree, task, baseCommit,
+    receiptFile: preparedReceiptFile, expectedReceiptDigest: preparedReceiptDigest }) : null;
   // Preflight checked the same committed + dirty path sets against admitted scope.
   if (dirty.length) git(worktree, ['add', '--', ...dirty]);
   git(worktree, ['commit', ...(prepared ? ['--allow-empty'] : []), '-m', `${prepared ? 'chore(delivery): revalidate' : 'feat(delivery):'} ${task.taskId}`]);
   const headCommit = git(worktree, ['rev-parse', 'HEAD']);
   if (headCommit === beforeHead || git(worktree, ['status', '--porcelain', '--untracked-files=all'])) throw new Error('CANDIDATE_NOT_CLEAN');
   const receipt = { schemaVersion: 'root-candidate-commit/v1', taskId: task.taskId,
-    validationOnly: Boolean(prepared), preparedReceiptDigest: prepared ? createHash('sha256').update(fs.readFileSync(preparedReceiptFile)).digest('hex') : null,
+    validationOnly: Boolean(prepared), preparedReceiptDigest: prepared?.receiptDigest ?? null,
     backendResultDigest: result.resultDigest, backendHeadCommit: result.headCommit, headCommit, paths: dirty };
   const bytes = JSON.stringify(receipt);
   fs.writeFileSync(path.join(artifactDir, 'candidate-commit.json'), bytes, { flag: 'wx' });
@@ -106,6 +111,9 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
     const current = JSON.parse(fs.readFileSync(binding.taskFile, 'utf8').replace(/^\uFEFF/, ''));
     if (!task || !isDeepStrictEqual(current, task) || task.taskId !== node.taskId
       || !isDeepStrictEqual(task.writeScope, node.writeScope)) throw new Error('TASK_BINDING_CHANGED');
+    const prepared = preparedReceipts.get(node.taskId);
+    if (node.role === 'worker' && prepared) readPreparedCandidate({ worktree, task, baseCommit: node.baseCommit,
+      receiptFile: prepared.receiptFile, expectedReceiptDigest: prepared.receiptDigest });
     const readiness = preflightTask({ repo: worktree, taskFile: binding.taskFile, base: node.baseCommit });
     if (readiness.status !== 'READY') throw new Error(`PREFLIGHT_${readiness.status}`);
     const after = JSON.parse(fs.readFileSync(binding.taskFile, 'utf8').replace(/^\uFEFF/, ''));
@@ -129,17 +137,24 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
           ? 'Trusted root merged a newer accepted base into the existing candidate. Independently recheck the task and all declared checks; source edits are needed only for real regressions. The root can record a validation-only commit for this prepared candidate.\n' : '')
           + rolePrompt({ node: { ...node, currentHeadCommit: git(worktree, ['rev-parse', 'HEAD']) }, task }),
         expectedHead: node.role === 'worker' ? null : node.requiredHeadCommit,
+        expectedLaunchHead: node.expectedLaunchHeadCommit,
         timeoutMs: Math.min(config.roleTimeoutMs ?? 45 * 60_000, 45 * 60_000), signal: roleAbort.signal,
         onSession: (handle) => controller.recordBackendHandle({ lease, ...handle, backendRef: operationId }) });
       if (heartbeatError) throw heartbeatError;
-      if (result.outcome === 'UNKNOWN') {
+      if (result.failureClass === 'STALE_BASELINE' && result.effectState === 'NONE' && result.provenNoEffect === true) {
+        await controller.failNode({ lease, failureClass: 'STALE_BASELINE', effectState: 'NONE', provenNoEffect: true,
+          evidence: { code: result.code, expectedHeadCommit: result.expectedHeadCommit ?? node.expectedLaunchHeadCommit,
+            actualHeadCommit: result.actualHeadCommit ?? null, operationId }, operationId });
+      } else if (result.outcome === 'UNKNOWN') {
         await controller.failNode({ lease, failureClass: result.effectState === 'UNKNOWN' ? 'UNKNOWN_EFFECT' : 'EXTERNAL_BLOCKER',
           effectState: result.effectState, evidence: { code: result.code, operationId }, operationId });
       } else if (result.outcome === 'PASS') {
         if (node.role === 'worker') {
           await controller.heartbeat(lease, 30_000);
           result = commitWorkerCandidate({ worktree, taskFile: binding.taskFile, task,
-            baseCommit: node.baseCommit, result, artifactDir, preparedReceiptFile: preparedReceipts.get(node.taskId) });
+            baseCommit: node.baseCommit, result, artifactDir,
+            preparedReceiptFile: preparedReceipts.get(node.taskId)?.receiptFile,
+            preparedReceiptDigest: preparedReceipts.get(node.taskId)?.receiptDigest });
           preparedReceipts.delete(node.taskId);
         }
         await controller.completeNode({ lease, result: { ...result, role: node.role,
@@ -196,12 +211,15 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
     async drain() { await Promise.allSettled([...active.values()]); },
     wake(taskId) { suppressed.delete(taskId); heldTasks.delete(taskId); },
     hold(taskId) { heldTasks.add(taskId); },
-    authorizePreparedCandidate(taskId, receiptFile) {
+    authorizePreparedCandidate(taskId, receiptFile, expectedReceiptDigest) {
       if (active.has(taskId)) throw new Error('TASK_ALREADY_ACTIVE');
       const binding = bindings.get(taskId); const run = controller.getRun(taskId);
       if (!binding || run?.state !== 'WORKER_READY') throw new Error('PREPARED_TASK_NOT_READY');
-      readPreparedCandidate({ worktree: binding.worktree, task: run.taskRecord, baseCommit: run.baseCommit, receiptFile });
-      preparedReceipts.set(taskId, receiptFile);
+      if (!/^[a-f0-9]{64}$/.test(expectedReceiptDigest ?? '')
+        || run.preparedBaseResume?.receiptDigest !== expectedReceiptDigest) throw new Error('PREPARED_BASE_RESUME_PROOF_REQUIRED');
+      readPreparedCandidate({ worktree: binding.worktree, task: run.taskRecord, baseCommit: run.baseCommit,
+        receiptFile, expectedReceiptDigest });
+      preparedReceipts.set(taskId, { receiptFile, receiptDigest: expectedReceiptDigest });
       heldTasks.delete(taskId); suppressed.delete(taskId);
     },
     addBinding(binding) {

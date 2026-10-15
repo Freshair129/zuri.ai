@@ -237,6 +237,13 @@ replanning; unchanged revisions are not hot-polled. It never silently reuses
 old evidence or force-pushes a rebase. A known merged PR is
 reconciled before recording `MERGED`. No model session receives these credentials.
 
+`ROOT_REPLAN_PAUSED` is a supervisor delivery checkpoint stored with the
+supervisor's delivery state; it is not a persisted `delivery_runs.state`. The
+controller's stale checkout states remain `BLOCKED_STALE_CANDIDATE` and
+`BLOCKED_STALE_BASELINE`. The end-to-end bridge from a `BASE_ADVANCED` delivery
+checkpoint through root preparation and controller resume remains a separate
+incomplete feature; the receipt checks below do not claim that bridge is shipped.
+
 ## Autonomous Sol root continuation
 
 Run a root continuation through the Codex app's thread heartbeat when work must
@@ -258,24 +265,54 @@ Already bound tasks keep their exact base and history until root revalidation.
 
 For a later parallel candidate whose base advanced, root reads and retains the
 paused controller run before changing it. It checks the same canonical
-repository and task branch, the run is `ROOT_REPLAN_PAUSED`, no worker is active,
-no delivery effect is unknown, and the old candidate checkout is clean at the
-run's `candidateHeadCommit`. Root fetches `main`, resolves the fetched commit,
+repository and task branch, the supervisor delivery checkpoint is
+`ROOT_REPLAN_PAUSED` (while the controller run is in a persisted stale-checkout
+state), no worker is active, no delivery effect is unknown, and the old
+candidate checkout is clean at the run's `candidateHeadCommit`. Root fetches
+`main`, resolves the fetched commit,
 and confirms a fresh `git ls-remote` for `refs/heads/main` still returns that
 same SHA. If the remote moved during reconciliation, root fetches again and
 reassesses without changing the paused run.
 
-Root records a material-evidence disposition, merges that fetched main commit
-into the isolated candidate without rebase/reset/force-push, and aborts only its
-own proven conflicting merge. Before writing a prepared-candidate receipt, root
-checks `receipt.oldHeadCommit === pausedRun.candidateHeadCommit`,
+As a separate root operation, root may record a material-evidence disposition,
+merge that fetched main commit into the isolated candidate without
+rebase/reset/force-push, and abort only its own proven conflicting merge. Before
+writing a prepared-candidate receipt, root
+checks `receipt.oldHeadCommit` against the paused run's candidate head (or its
+retained initial head when no candidate was submitted),
 `receipt.oldBaseCommit === pausedRun.baseCommit`,
-`receipt.newBaseCommit === fetchedMainSha`, and `receipt.headCommit` equals the
-actual clean candidate HEAD after the merge. It repeats the remote SHA check
-before `resumeTask`. Unknown operation effects remain quarantined. A successful
-merge receives a new read-only preflight and `resumeTask` under the same task
-and cycle, retaining counters and the original deadline. All three roles run
-again; prior CI and role passes do not carry forward.
+`receipt.newBaseCommit === fetchedMainSha`, and `receipt.headCommit` against the
+actual clean candidate HEAD after the merge. The supervisor independently
+fetches the configured remote branch into its remote-tracking ref, compares that
+fetched SHA with `git ls-remote`, and repeats the remote SHA check immediately
+before resume. A stale remote-tracking ref or a remote that advances during
+preflight leaves the paused run unchanged. `resumeTask` repeats these bindings
+inside its SQLite transaction:
+it requires the receipt's real path to remain under the private control root,
+validates `root-base-prepared-candidate/v1`, matches the stable task ID and
+retained old commits, binds the fresh read-only preflight to the receipt's new
+base SHA and actual resulting HEAD, and verifies candidate/base ancestry plus
+branch and write scope. The raw receipt bytes are read once inside the
+transaction; that single digest is written to the `TASK_RESUMED` event and
+returned as the durable resume proof. The private relative path, commit
+bindings, reason, and evidence reference are stored with it before any lock,
+run, candidate, or cycle update. The supervisor passes that exact digest to
+runner authorization, which re-reads and checks the receipt bytes before
+releasing Worker and again before a validation-only commit. Missing, malformed,
+replaced, stale, or mismatched evidence rolls back the transaction or remains
+held and cannot authorize Worker.
+
+Once a valid prepared receipt and stale controller run exist, the autonomous
+supervisor performs this receipt-bound resume before calling the runner. It
+holds the task and checkpoints a signature over the receipt bytes,
+task binding, retained run values, current worktree state, fetched base ref, and
+remote SHA after invalid evidence. The same signature is suppressed across
+iterations and restarts; changed evidence is reconsidered automatically. Root may explicitly request a
+new assessment through `reassessPreparedResume({ taskId, evidenceRef, reason })`.
+Unknown operation effects remain quarantined. A successful merge receives a
+new read-only preflight and `resumeTask` under the same task and cycle,
+retaining counters and the original deadline. All three roles run again; prior
+CI and role passes do not carry forward.
 
 When the worker needs no source repair on the updated base, root may install
 `supervisors/<campaignId>/prepared/<taskId>.json` in the private control directory:
