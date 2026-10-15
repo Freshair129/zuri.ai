@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "1bf50bdc16737c19116801eee4dd83cc8c0326e6c7b79d440b62caff29744175",
+  "schemaSha256": "9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -80,6 +80,11 @@
       "modelName": "Business",
       "schemaName": "public",
       "tableName": "Business"
+    },
+    {
+      "modelName": "BusinessAgentConfig",
+      "schemaName": "public",
+      "tableName": "BusinessAgentConfig"
     },
     {
       "modelName": "BusinessBillingProfile",
@@ -1021,6 +1026,5 @@
       "schemaName": "public",
       "tableName": "Workstream"
     }
-  ],
-  "targetSchemaSha256": "75f208f0ed5b13353193ff74e1ff2e86222430c08d03e11148e332fc3f93edae"
+  ]
 }

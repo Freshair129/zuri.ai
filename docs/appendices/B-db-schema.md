@@ -1,5 +1,7 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.67.0b → 1.68.0b (2026-10-15): add FR-285 `BusinessAgentConfig`, the single standard five-role config per Business with composite Tenant/Business foreign key, version/digest, DENY delegation and attributed apply time. Schema now declares 205 models. The source migration is authored; no external migration application or deployment is claimed.
+
 Version diff 1.66.0b → 1.67.0b (2026-10-12): add `BusinessLeadMeasure`, `BusinessLeadMeasureValue`, `BusinessWeeklyCommitment` and `BusinessWigSession` for FR-270; extend BusinessGoal with WIG/lag-Key-Result fields and BusinessKeyResult with its lag-measure flag. The schema declares 204 models. SQLite and Supabase migrations are authored locally and not production-applied.
 
 Version diff 1.64.0b → 1.65.0b (2026-10-10): reconcile the API-010 branch with current main. The schema declares 198 models, preserving MemoryProjectionReceipt and all three Marketing custody models. Both 1.64.0b entries below retain their branch provenance. No live migration or deployment.
@@ -69,9 +71,9 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.67.0b |
+| **Version** | 1.68.0b |
 | **Status** | Candidate |
-| **Last Updated** | 2026-10-12 |
+| **Last Updated** | 2026-10-15 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -111,6 +113,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | LegalEntity / LegalEntityIdentifier | tenantId (was portfolioId); (country,type,value) unique | FR-194/ADR-078 — moved under Tenant so a Business can only reference one in its own Tenant (composite FK); external identifier ไม่ใช่ PK (BR-002) |
 | TaxRegistrationBranch | legalEntityId, (legalEntityId,branchCode) unique | FR-194/ADR-078 — the legal entity's own VAT branch registration (ภ.พ.20); split out of `Branch.taxBranchCode` |
 | Business | tenantId, legalEntityId? | ธุรกิจปฏิบัติการ |
+| BusinessAgentConfig | unique businessId, tenantId, schemaVersion, templateId/templateVersion, version, delegationPolicy, snapshotJson/snapshotDigest, appliedByPersonId/appliedAt, createdAt/updatedAt | FR-285 — composite Business/Tenant FK rejects crossed scope; one config per Business, dependent config cascades on existing physical Business deletion while attributed audit remains. Same v1 apply preserves the row and APPLIED audit; immutable standard snapshot is validated before runtime use. Config is not Membership or action authority. Backup restores the stored row after its Business without invoking factory apply. |
 | Branch | tenantId, businessId, kind, taxRegistrationBranchId? | tenantId ต้องตรงกับ business (tested); FR-194 — `kind` (SITE/WAREHOUSE/KITCHEN/OFFICE), optional link to its LegalEntity's TaxRegistrationBranch (replaces `taxBranchCode`) |
 | Employment | personId, tenantId, businessId, branchId?, employeeNo?, title?, employmentType, status | FR-193/ADR-078 — HR assignment record, separate from Membership's access grant; `resolveViewer` never reads it |
 | Person / Membership | tenant, business?, role, status, domainKeysJson, version | local canonical identity; only ACTIVE Membership contributes authority; MEMBER domain allow-list, OWNER/DEV role grant (FR-038, FR-094); FR-193 moved `branchId`/`employeeRef` off this row into `Employment` |

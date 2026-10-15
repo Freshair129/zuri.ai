@@ -11,6 +11,7 @@ import {
   zWorkspaceInput,
 } from '@/lib/validation/entities'
 import { grantBusinessMembership } from '@/modules/identity/membership-grant-service'
+import { provisionBusinessAgentConfig } from '@/modules/agent/business-agent-factory'
 import { recordAudit } from './audit'
 import { activeWorkstream } from './active-filters'
 import { assertWorkspaceWritable, requireViewer } from './project-authorization'
@@ -38,8 +39,8 @@ import { ownsBusiness, ownsTenant, isInstallationOperator } from '@/modules/iden
 // tenant_id = isolation boundary; business_id = operating business; branch_id = location.
 // A branch is NEVER modeled as a tenant.
 
-const codeExists = (model) => async (code) =>
-  Boolean(await prisma[model].findUnique({ where: { code } }))
+const codeExists = (model, db = prisma) => async (code) =>
+  Boolean(await db[model].findUnique({ where: { code } }))
 
 function refusal(status, message) {
   const error = new Error(message)
@@ -92,7 +93,7 @@ export async function listScope() {
  * an operator primitive, without either one re-deciding the question.
  */
 async function insertPortfolio(name, client = prisma) {
-  const code = await uniqueHumanCode('PF', name, codeExists('portfolio'))
+  const code = await uniqueHumanCode('PF', name, codeExists('portfolio', client))
   const portfolio = await client.portfolio.create({ data: { code, name } })
   await recordAudit(client, { entityType: 'PORTFOLIO', entityId: portfolio.id, action: 'CREATED', payload: { code } })
   return portfolio
@@ -205,17 +206,22 @@ export async function createBusiness(input, { viewer } = {}) {
     if (!legalEntity || legalEntity.tenantId !== data.tenantId) throw refusal(422, 'LEGAL_ENTITY_TENANT_MISMATCH')
   }
   const code = data.code || (await uniqueHumanCode('BUS', data.name, codeExists('business')))
-  const business = await prisma.business.create({
-    data: {
-      code,
-      name: data.name,
-      tenantId: data.tenantId,
-      legalEntityId: data.legalEntityId ?? null,
-      status: data.status || 'ACTIVE',
-    },
+  return prisma.$transaction(async (tx) => {
+    const business = await tx.business.create({
+      data: {
+        code,
+        name: data.name,
+        tenantId: data.tenantId,
+        legalEntityId: data.legalEntityId ?? null,
+        status: data.status || 'ACTIVE',
+      },
+    })
+    // @req FR-285 — this internal write uses the already-passed FR-074
+    // tenant-owner guard; it does not consult a client bypass or old scope list.
+    await provisionBusinessAgentConfig(tx, { business, actorId: viewer.principal.id })
+    await recordAudit(tx, { entityType: 'BUSINESS', entityId: business.id, action: 'CREATED', payload: { code } })
+    return business
   })
-  await recordAudit(prisma, { entityType: 'BUSINESS', entityId: business.id, action: 'CREATED', payload: { code } })
-  return business
 }
 
 /**
@@ -231,27 +237,28 @@ export async function createBusiness(input, { viewer } = {}) {
  * its businessId set in the same transaction (AC-066.8/9), and no screen asks
  * the user to pick or name a Space (AC-066.11).
  */
-export async function createBusinessInGroup(input, { viewer } = {}) {
+export async function createBusinessInGroup(input, { viewer, db = prisma } = {}) {
   const data = zBusinessInGroupInput.parse(input)
   // @req FR-074(c) — self-service provisioning. Any authenticated principal may
   // do this, because a brand-new Tenant has no prior owner to ask. Self-service
   // is not anonymous: the viewer is resolved, the Membership below attributes
   // the scope to them, and the audit event records it.
   requireViewer(viewer, 'createBusinessInGroup')
-  const portfolio =
-    (data.portfolioId && (await prisma.portfolio.findUnique({ where: { id: data.portfolioId } }))) ||
-    (await prisma.portfolio.findFirst({ orderBy: { code: 'asc' } })) ||
-    // Bootstrap of an empty installation, through the unguarded insert: the
-    // caller is self-service rather than an operator, so the exported
-    // createPortfolio would refuse them.
-    (await insertPortfolio('กลุ่มธุรกิจของฉัน'))
+  const selectedPortfolio =
+    (data.portfolioId && (await db.portfolio.findUnique({ where: { id: data.portfolioId } }))) ||
+    (await db.portfolio.findFirst({ orderBy: { code: 'asc' } }))
+
+  // If this is an empty installation, create the first Portfolio inside the
+  // provisioning transaction below. Its audit then rolls back with later scope
+  // or agent-config failures.
 
   // Codes are resolved before the transaction: uniqueness probes are reads.
-  const businessCode = data.code || (await uniqueHumanCode('BUS', data.name, codeExists('business')))
-  const tenantCode = await uniqueHumanCode('TNT', data.name, codeExists('tenant'))
-  const workspaceCode = await uniqueHumanCode('WS', data.name, codeExists('workspace'))
+  const businessCode = data.code || (await uniqueHumanCode('BUS', data.name, codeExists('business', db)))
+  const tenantCode = await uniqueHumanCode('TNT', data.name, codeExists('tenant', db))
+  const workspaceCode = await uniqueHumanCode('WS', data.name, codeExists('workspace', db))
 
-  return prisma.$transaction(async (tx) => {
+  return db.$transaction(async (tx) => {
+    const portfolio = selectedPortfolio || await insertPortfolio('กลุ่มธุรกิจของฉัน', tx)
     const tenant = await tx.tenant.create({
       data: { code: tenantCode, name: data.name, portfolioId: portfolio.id },
     })
@@ -298,6 +305,9 @@ export async function createBusinessInGroup(input, { viewer } = {}) {
       reason: `founder of ${business.code}`,
       actorId: viewer.principal.id,
     }, { db: tx })
+    // @req FR-285 — establish the founder OWNER Membership first, then persist
+    // the scoped standard config and attributed audit in this transaction.
+    await provisionBusinessAgentConfig(tx, { business, actorId: viewer.principal.id })
     await recordAudit(tx, {
       entityType: 'BUSINESS',
       entityId: business.id,

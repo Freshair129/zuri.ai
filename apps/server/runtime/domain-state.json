@@ -37,10 +37,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 168,
-    "readyFeatureCount": 119,
-    "requirementCount": 282,
-    "verifiedRequirementCount": 246,
+    "featureCount": 169,
+    "readyFeatureCount": 120,
+    "requirementCount": 283,
+    "verifiedRequirementCount": 247,
     "progressPercent": 92.5,
     "gapCount": 59,
     "gaps": [
@@ -1075,6 +1075,14 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 25
+        },
+        {
+          "id": "FR-285",
+          "title": "Business Agent Factory",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 18
         }
       ],
       "checks": {
@@ -1084,9 +1092,18 @@
           "gaps": []
         },
         "httpApi": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md",
+            "src/modules/project-manager/api-docs/openapi.js"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "openApiPaths": 344,
+            "missingFromOpenApi": 0
+          }
         },
         "mcp": {
           "status": "not_applicable",
@@ -1121,14 +1138,22 @@
           ],
           "gaps": [],
           "details": {
-            "models": 2,
-            "present": 2
+            "models": 3,
+            "present": 3
           }
         },
         "authorization": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [],
+          "details": {
+            "mutations": 4,
+            "guardedMutations": 4,
+            "reads": 1,
+            "unguardedReads": 0
+          }
         },
         "tests": {
           "status": "partial",
@@ -1148,6 +1173,7 @@
         "apps/server/prisma/schema.prisma",
         "contracts/plan-envelope.schema.json",
         "docs/TRACE.md",
+        "docs/appendices/A-api-spec.md",
         "docs/domains/agent/CHARTER.md",
         "docs/domains/agent/features/FR-026-line-project-work-confirmation.md",
         "docs/domains/agent/features/FR-051-production-supabase-tenant-isolation.md",
@@ -1167,6 +1193,7 @@
         "docs/domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md",
         "docs/domains/agent/features/PHASE-FR-171-P2-memory-provenance.md",
         "docs/domains/agent/features/PHASE-FR-256-P1-server-owned-self-hosted-model-execution.md",
+        "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js"
       ],
       "gaps": [
@@ -1239,10 +1266,10 @@
         }
       ],
       "details": {
-        "routes": 0,
-        "apiRoutes": 0,
+        "routes": 1,
+        "apiRoutes": 1,
         "pageRoutes": 0,
-        "ownedModels": 2,
+        "ownedModels": 3,
         "featureNotes": 18
       },
       "featureIds": [
@@ -1263,11 +1290,12 @@
         "FR-132",
         "FR-141",
         "FR-171",
-        "FR-277"
+        "FR-277",
+        "FR-285"
       ],
-      "featureCount": 18,
-      "readyFeatureCount": 14,
-      "progressPercent": 68.2
+      "featureCount": 19,
+      "readyFeatureCount": 15,
+      "progressPercent": 69.6
     },
     "asset-management": {
       "status": "partial",
@@ -1534,7 +1562,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -2333,7 +2361,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-193",
@@ -2440,7 +2468,7 @@
           "details": {
             "routes": 27,
             "inventoried": 26,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -2996,7 +3024,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -3416,7 +3444,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -4279,7 +4307,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -4477,7 +4505,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -4716,7 +4744,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -5165,7 +5193,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -5449,7 +5477,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -7063,6 +7091,14 @@
             "apps/server/tests/unit/fr045-reconcile-cache.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
+        },
+        {
+          "id": "FR-285",
+          "title": "Business Agent Factory",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 18
         }
       ],
       "checks": {
@@ -7098,7 +7134,7 @@
           "details": {
             "routes": 179,
             "inventoried": 179,
-            "openApiPaths": 343,
+            "openApiPaths": 344,
             "missingFromOpenApi": 0
           }
         },
@@ -10730,7 +10766,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 12
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -10753,6 +10789,7 @@
         "apps/server/src/modules/project-manager/application/project-team-service.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/tests/e2e/fr193-access-members.spec.js",
+        "apps/server/tests/integration/agent-business-factory.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
@@ -18937,6 +18974,61 @@
         "apps/server/tests/unit/fr045-filesystem-port.test.js",
         "apps/server/tests/unit/fr045-path-security.test.js",
         "apps/server/tests/unit/fr045-reconcile-cache.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js"
+      ]
+    },
+    {
+      "id": "FR-285",
+      "title": "Business Agent Factory — persist the standard five role/tool/policy snapshots per server-derived Tenant and Business, authorize preview/apply through active persisted OWNER Membership, create the configuration atomically in both Business creation paths, return NOT_CONFIGURED without implicit defaults, make identical apply idempotent and conflicting/unsupported operations fail closed, deny dynamic delegation, and keep scoped attributed audit plus FR-026 Gate F independent.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-285"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent",
+        "project-manager"
+      ],
+      "useCase": "An authorized Business owner previews and applies the standard five-role configuration; new Businesses receive it atomically, without starting live agents or granting action authority.",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-285",
+          "title": "Business Agent Factory",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 18
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/businesses/[id]/agent-template/route.js",
+        "apps/server/src/modules/agent/business-agent-factory.js",
+        "apps/server/src/modules/agent/business-agent-template.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/integration/agent-business-factory.test.js",
+        "apps/server/tests/integration/agent-factory-backup.test.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
+        "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/phase-b-recovery.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/scope-and-isolation.test.js",
+        "apps/server/tests/unit/agent-business-factory.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
       ]
     }

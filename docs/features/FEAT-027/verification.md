@@ -88,6 +88,7 @@ status: generated
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/integration/agent-business-factory.test.js](../../../apps/server/tests/integration/agent-business-factory.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr191-access-grant-lifecycle.test.js](../../../apps/server/tests/integration/fr191-access-grant-lifecycle.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/workspace-onboarding-flow.test.js](../../../apps/server/tests/integration/workspace-onboarding-flow.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)

@@ -734,13 +734,13 @@ export const ROADMAP_TASK_LEDGER = [
   {
     "id": "TASK-ZAI-009",
     "sprint": "SPR-ZAI-03",
-    "title": "Agent Factory, the standard business agent template",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "title": "Agent Factory, the standard five-role Business configuration",
+    "status": "review",
+    "proofScope": "ISOLATED",
+    "implementationState": "ISOLATED_ACCEPTED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "Audit wave 2026-09-21: no approved Agent Factory contract; proposal/design-gated; owner must declare the canonical local contract; no implementation or test evidence claimed; 24-week baseline; Proposal scope, AI Control"
+    "evidence": "2026-10-15: FR-285 and ../change-requests/agent-factory/AGENT-FACTORY-V1.md v0.1.4 adopt the bounded local contract under delegated root disposition; candidate audit merged by PR #663 at cb4c49c5. Runtime/test source f073bdd4 passes 151/151 isolated SQLite tests across 14 files including every prior failed CI suite, and factory/backup 13/13 on disposable PostgreSQL; local Next build passes. Earlier source9d21db80 72/72 SQLite and 12/12 PostgreSQL evidence remains historical. Config lifetime follows permitted physical Business deletion, preserves sibling config and original audit, and retains FR-192 Membership refusal; the static 205-model Phase B census adds only BusinessAgentConfig and refuses historical bindings. Backup preserves config identity/content/timestamps and the original scoped APPLIED audit without replay; legacy missing-config-array restore refuses with live rows, records authorized preview use and rechecks before deletion under Serializable isolation. Five persisted role configs, scoped owner administration, atomic provisioning, idempotence and deny-by-default delegation are implemented. Independent final artifact gates, exact-head hosted build/CI and merge remain pending. Provider/live-agent activation and external migration apply are NOT_RUN."
   },
   {
     "id": "TASK-ZAI-010",

@@ -201,6 +201,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],
   // @req FR-169 — the only writer of Business.capabilitiesJson; PATCH only.
   ['/api/businesses/{id}/capabilities', ['PATCH']],
+  // @req FR-285 — scoped initial template administration; the three other
+  // mutation verbs are documented refusal handlers, never config upgrades.
+  ['/api/businesses/{id}/agent-template', ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']],
   // @req FR-236 — the only writer of Business.knowledgeCandidatesEnabled
   // (ADR-090 D6, TASK-ZAI-099); PATCH only, OWNER-scoped, same shape as the
   // capability toggle above.
@@ -371,6 +374,11 @@ function pathParameters(path) {
 }
 
 function genericRequest(path, method) {
+  if (path === '/api/businesses/{id}/agent-template') {
+    return method === 'post'
+      ? { body: { required: true, content: { 'application/json': { schema: z.object({}).strict() } } } }
+      : undefined
+  }
   if (!['post', 'put', 'patch'].includes(method)) return undefined
   if (path === '/api/assets/evidence' || path === '/api/assets/import/xlsx') {
     return { body: { content: { 'multipart/form-data': { schema: z.object({ file: z.string().openapi({ format: 'binary' }) }) } } } }
@@ -399,7 +407,23 @@ function genericRequest(path, method) {
   return { body: { content: { 'application/json': { schema: zRouteInventoryRequest } } } }
 }
 
-function genericResponses(path) {
+function genericResponses(path, method) {
+  if (path === '/api/businesses/{id}/agent-template') {
+    if (!['get', 'post'].includes(method)) return {
+      409: json(zError, 'Typed unsupported customization, upgrade or rollback; no config/provider effects.'),
+    }
+    return {
+      200: json(zRouteInventoryResponse, method === 'get'
+        ? 'READY_TO_APPLY with template/digest, or ALREADY_APPLIED with validated persisted config. Preview does not write.'
+        : 'APPLIED or ALREADY_APPLIED with validated persisted config. Identical replay preserves the config and single APPLIED audit.'),
+      400: json(zError, 'POST object is not empty/strict or another validation error.'),
+      401: json(zError, 'Server-resolved authentication required.'),
+      404: json(zError, 'Business is absent/inactive or principal has no active scoped OWNER Membership; same response prevents enumeration.'),
+      409: json(zError, 'Incompatible persisted template/config version; no overwrite.'),
+      500: json(zError, 'Malformed/tampered config or unexpected failure; no successful mutation reported.'),
+      503: json(zError, 'Session resolution unavailable.'),
+    }
+  }
   if (path === '/api/files/{id}/content') return { 200: { description: 'Authorized file content stream', content: { 'application/octet-stream': { schema: zBinaryResponse } } } }
   return {
     200: json(zRouteInventoryResponse, 'Route-specific success response; fields are intentionally not generalized here'),
@@ -451,10 +475,12 @@ function registerInventoryOperations(registry) {
         request: conversationRuntime && methodName === 'post'
           ? { body: { required: true, content: { 'application/json': { schema: zConversationRuntimeEnvelope } } } }
           : genericRequest(path, methodName),
-        responses: conversationRuntime ? conversationRuntimeResponses(methodName) : genericResponses(path),
+        responses: conversationRuntime ? conversationRuntimeResponses(methodName) : genericResponses(path, methodName),
         ...(conversationRuntime
           ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': 'conversation-runtime.v1' }
-          : { 'x-zuri-contract': 'route-inventory' }),
+          : path === '/api/businesses/{id}/agent-template'
+            ? { security: ['get', 'post'].includes(methodName) ? [{ SessionAuth: [] }] : [], 'x-zuri-contract': 'business-agent-config/v1' }
+            : { 'x-zuri-contract': 'route-inventory' }),
       })
     }
   }

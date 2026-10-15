@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.69.0b"
+version: "1.70.0b"
 status: active
-last_update: "2026-10-05T03:14:26+07:00,ATHER"
+last_update: "2026-10-15,Codex Root"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.69.0b → 1.70.0b (2026-10-15): adds FR-285 readiness presentation metadata in the agent domain for standard persisted Business configuration and owner preview/initial apply. FR-285 is Standalone; no FEAT row, membership or existing identity changes. Readiness links code/test references; Task9's canonical delivery ledger separately records isolated acceptance and pending final delivery gates.
 
 Version diff 1.68.0b → 1.69.0b (2026-10-05): readiness metadata gains **FR-278** (primary domain `marketing`) — executives select a Business and week to read verified revenue, order status and aggregate follow-up health while Ads, attribution, Lead and call metrics remain unavailable. A Standalone FR; no FEAT row or membership is added.
 
@@ -47,7 +49,7 @@ Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager Standalon
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.68.0b |
+| **Version** | 1.70.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -193,6 +195,11 @@ also rejects retired classification terminology in live authoritative documents.
 <!-- readiness-metadata:start -->
 ```json
 [
+  {
+    "id": "FR-285",
+    "primaryDomain": "agent",
+    "useCase": "An authorized Business owner previews and applies the standard five-role configuration; new Businesses receive it atomically, without starting live agents or granting action authority."
+  },
   {
     "id": "FR-171",
     "primaryDomain": "agent",

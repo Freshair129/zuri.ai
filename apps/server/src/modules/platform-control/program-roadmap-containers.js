@@ -372,39 +372,39 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-009",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.1.3",
     "priority": "P1",
-    "pic": "Codex",
-    "executor": "Codex",
-    "approver": "Owen",
-    "auditor": "ATHER",
+    "pic": "Codex Root",
+    "executor": "GPT-6 Luna max",
+    "approver": "Root under the delegated repository mandate",
+    "auditor": "Independent GPT-6 Luna max sessions",
     "links": {
-      "code": "src/modules/agent/turn.js",
-      "doc": "docs/ARCHITECTURE.md",
-      "test": "unavailable"
+      "code": "apps/server/src/modules/agent/business-agent-factory.js",
+      "doc": "docs/change-requests/agent-factory/AGENT-FACTORY-V1.md",
+      "test": "apps/server/tests/integration/agent-business-factory.test.js"
     },
     "linkState": {
-      "code": "missing",
+      "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given a new Business, when the template is applied, then the five roles exist with default policy and no manual wiring",
+        "text": "Given either authorized Business creation path, when it commits, then five persisted role configurations and attributed audit exist in the same transaction, with no manual wiring or live-agent claim",
         "checked": false
       },
       "success": {
-        "text": "Given a dynamic sub-agent request, when policy does not permit it, then creation is refused rather than silently downgraded",
+        "text": "Given owner administration and runtime reads, when v1 is used, then Tenant and Business scope stays bounded, missing configuration is NOT_CONFIGURED, and dynamic delegation or unsupported upgrades refuse without implicit fallback",
         "checked": false
       },
       "exit": {
-        "text": "Given npm test, when the factory suite runs, then applying the template twice is idempotent",
+        "text": "Given the factory and backup suites on isolated SQLite and PostgreSQL, when repeat/concurrent applies, failure, restore or permitted physical Business deletion cases run, then config and its attributed audit stay atomic, identical apply is a no-op, recovery preserves original rows, legacy omission refuses before replacement with a Serializable transaction recheck, and deletion removes only the dependent config while retaining other Business configs and the original audit; the static Phase B inventory covers all 205 models without granting external recovery authority",
         "checked": false
       }
     },
-    "changelog": "Opened from the proposal AI Control scope line covering Agent Factory and the standard business template.",
+    "changelog": "v0.1.3 binds contract v0.1.4 and the corrected config lifetime and static 205-model census after full CI exposed regression at PR665 head8c8697b2. Runtime/test sourcef073bdd4 passes isolated SQLite151/151 across14files, disposable PostgreSQL13/13 and local Next build; earlier source9d21db80 SQLite72/72 and PostgreSQL12/12 evidence remains historical. Criterion checkboxes remain false until final independent artifact review, exact-head hosted CI and delivery closeout; no provider/live-agent activation or external migration apply is claimed. Prior v0.1.2 reconciled review status and backup recovery; v0.1.1 bound FR-285 and delegated coding-delivery roles.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 36000,
     "totalTokens": 0,

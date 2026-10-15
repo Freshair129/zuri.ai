@@ -18,6 +18,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [Appendix B — Database Schema Summary](../appendices/B-db-schema.md)
 - [Appendix E — Risk Matrix](../appendices/E-risk-matrix.md)
 - [Appendix F — Glossary](../appendices/F-glossary.md)
+- [Agent Factory v1 local contract](../change-requests/agent-factory/AGENT-FACTORY-V1.md)
 - [CR-001 — Sales, Conversation Intelligence, Engagement & Finance Domains](../change-requests/CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS.md)
 - [CR-002 — Multi-Tier Scope Chain to Zuri Edge Device, GKS (Genesis-Knowledge-System) & MSP (Memory-and-Soul-Passport) Catalog Vault Resolution](../change-requests/CR-002-GKS-MSP-CATALOG-VAULT-RESOLUTION.md)
 - [CR-003 — the shape this repository will accept](../change-requests/CR-003-ACCEPTED-SHAPE.md)
