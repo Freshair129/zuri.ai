@@ -412,6 +412,7 @@
     "FR-282",
     "FR-283",
     "FR-284",
+    "FR-285",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5236,6 +5237,19 @@
         {
           "anchor": "portable managed file content",
           "since": "2026-10-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-285": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "9ee21846289794b5488a82ae436addbb89c375ea6cb8f9819db16e61135f17bb",
+      "history": [
+        {
+          "anchor": "business agent factory",
+          "since": "2026-10-15",
           "reason": "declared"
         }
       ]
