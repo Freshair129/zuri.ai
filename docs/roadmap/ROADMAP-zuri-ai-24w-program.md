@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.30"
-updated: "2026-10-15"
+version: "0.4.31"
+updated: "2026-10-16"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Archived historical static HTML snapshot (v0.4.9; not the current rendered board): `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.30 → 0.4.31 (2026-10-16): Reconcile TASK-ZAI-048 with canonical ROADMAP.md Revision 2.156.0b. PR #676 merged the contract-only candidate at merge `dcaaffa71555389bb7a4e80499f31a269fe24588` from exact source head `110d6f3952ddf0143e8b9ae715058179edc78964`; applicable exact-head checks passed, while E2E and Desktop were skipped. The proposal is not authority acceptance or parser implementation. TASK-ZAI-048 remains planned, all implementation criteria remain unchecked, and parser/runtime tests, OCR/provider activity, migrations and deployment remain NOT_RUN. The 24-week task/status counts are unchanged. The linked HTML remains the explicitly archived historical v0.4.9 snapshot, not a current rendered projection.
 
 Version diff 0.4.29 → 0.4.30 (2026-10-15): Reconcile the projection metadata with canonical ROADMAP.md Revision 2.154.0b and label the linked HTML as a historical v0.4.9 snapshot, not a current board. Task14 remains in-progress with its three open criteria; Task15 remains planned behind Task14. This documentation-only reconciliation claims no E2E, live-agent, provider or production validation.
 
