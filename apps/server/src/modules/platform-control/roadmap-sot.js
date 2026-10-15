@@ -734,13 +734,13 @@ export const ROADMAP_TASK_LEDGER = [
   {
     "id": "TASK-ZAI-009",
     "sprint": "SPR-ZAI-03",
-    "title": "Agent Factory, the standard business agent template",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "title": "Agent Factory, the standard five-role Business configuration",
+    "status": "in-progress",
+    "proofScope": "SPEC",
+    "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "Audit wave 2026-09-21: no approved Agent Factory contract; proposal/design-gated; owner must declare the canonical local contract; no implementation or test evidence claimed; 24-week baseline; Proposal scope, AI Control"
+    "evidence": "2026-10-15: FR-285 and ../change-requests/agent-factory/AGENT-FACTORY-V1.md adopt the bounded local contract under delegated root disposition; candidate audit merged by PR #663 at cb4c49c5. Implementation is in progress; five persisted role configs, scoped owner administration, atomic provisioning, idempotence and deny-by-default delegation are required. No implementation/test acceptance, provider/live-agent activation or external migration apply is claimed yet."
   },
   {
     "id": "TASK-ZAI-010",

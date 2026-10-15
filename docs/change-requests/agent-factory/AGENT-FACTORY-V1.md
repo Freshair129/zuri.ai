@@ -105,11 +105,12 @@ Canonical task status remains unchanged until actual delivery evidence exists.
 
 ## Documentation issuance
 
-Use one standalone reviewed-migration FR (provisional FR-285; recheck freshly
-fetched main before issuance), preserving existing IDs/feature membership and
-using the sanctioned registry and ID writers. The approved source must explicitly
-record root disposition under the trusted user mandate. No source-row hash or
-generated export is edited manually.
+[FR-285](../../requirements/FR-285.md) is a standalone reviewed-migration record.
+Root checked freshly fetched main at 60ffd1d9 before issuance and used the
+sanctioned reviewed-record registration, ID writer and registry generator.
+Existing IDs and feature memberships remain unchanged. This source records root
+disposition under the trusted user mandate; registration does not prove delivery.
+No existing source-row hash or generated export was edited manually.
 
 ## Approval
 

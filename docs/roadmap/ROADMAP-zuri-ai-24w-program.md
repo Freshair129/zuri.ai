@@ -500,7 +500,7 @@ locates the week.
 | TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | done | - | Section 3.1 row 4; ADR-050, ADR-063, ADR-067, ADR-068, ADR-072 |
 | TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | done | TASK-ZAI-006 | Section 3.1 row 5 |
 | TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | done | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
-| TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | planned | TASK-ZAI-007 | Proposal scope, AI Control |
+| TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | in-progress | TASK-ZAI-007 | Proposal scope, AI Control |
 | TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | planned | TASK-ZAI-007 | Section 3.1 row 9 |
 | TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | planned | TASK-ZAI-010 | Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | task | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
@@ -1024,31 +1024,31 @@ task_container_id: TC-TASK-ZAI-009
 task_id: TASK-ZAI-009
 parent_phase_id: PHASE-ZAI-02
 parent_sprint_id: SPR-ZAI-03
-title: Agent Factory, the standard business agent template
+title: Agent Factory, the standard five-role Business configuration
 requirement_type: FR
 complexity: C-2
 access_scope: H2
 status: planned
-version: 0.1.0
-pic: Codex
-executor: Codex
-approver: Owen
-auditor: ATHER
+version: 0.1.1
+pic: Codex Root
+executor: GPT-6 Luna max
+approver: Root under the delegated repository mandate
+auditor: Independent GPT-6 Luna max sessions
 symbol_links:
-  code: src/modules/agent/turn.js
-  doc: docs/ARCHITECTURE.md
-  test: unavailable
+  code: apps/server/src/modules/agent/business-agent-factory.js
+  doc: docs/change-requests/agent-factory/AGENT-FACTORY-V1.md
+  test: apps/server/tests/integration/agent-business-factory.test.js
 definition_of_done:
   acceptance_criteria:
-    - criterion: Given a new Business, when the template is applied, then the five roles exist with default policy and no manual wiring
+    - criterion: Given either authorized Business creation path, when it commits, then five persisted role configurations and attributed audit exist in the same transaction, with no manual wiring or live-agent claim
       checked: false
   success_criteria:
-    - criterion: Given a dynamic sub-agent request, when policy does not permit it, then creation is refused rather than silently downgraded
+    - criterion: Given owner administration and runtime reads, when v1 is used, then Tenant and Business scope stays bounded, missing configuration is NOT_CONFIGURED, and dynamic delegation or unsupported upgrades refuse without implicit fallback
       checked: false
   exit_criteria:
-    - criterion: Given npm test, when the factory suite runs, then applying the template twice is idempotent
+    - criterion: Given the factory suite on isolated SQLite and PostgreSQL, when repeat and concurrent applies or failures run, then one configuration and one APPLIED audit exist, conflicts do not overwrite, and provisioning or audit failures roll back
       checked: false
-changelog: Opened from the proposal AI Control scope line covering Agent Factory and the standard business template.
+changelog: v0.1.1 binds FR-285 and the root-disposition v1 contract, clarifies five persisted configs rather than five running agents, updates source/test links and coding-delivery roles; checked criteria remain false until actual acceptance evidence.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5

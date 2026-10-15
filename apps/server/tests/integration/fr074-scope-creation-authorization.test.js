@@ -122,9 +122,17 @@ describe('FR-074 scope creation authorization', () => {
       expect(error.message).toBe('Tenant not found')
       expect(await prisma.business.count()).toBe(before)
 
-      await expect(
-        createBusiness({ tenantId: tenant.id, name: 'Yes', code: 'BUS-AZS-OK' }, { viewer: tenantOwner }),
-      ).resolves.toMatchObject({ code: 'BUS-AZS-OK' })
+      const created = await createBusiness(
+        { tenantId: tenant.id, name: 'Yes', code: 'BUS-AZS-OK' }, { viewer: tenantOwner },
+      )
+      expect(created).toMatchObject({ code: 'BUS-AZS-OK' })
+      const config = await prisma.businessAgentConfig.findUnique({ where: { businessId: created.id } })
+      expect(config).toMatchObject({
+        tenantId: tenant.id,
+        businessId: created.id,
+        appliedByPersonId: tenantOwner.principal.id,
+        delegationPolicy: 'DENY',
+      })
     })
 
     it('answers for an unowned Tenant exactly as for one that does not exist', async () => {
@@ -205,6 +213,21 @@ describe('FR-074 scope creation authorization', () => {
       expect(membership).not.toBeNull()
       expect(membership.role).toBe('OWNER')
       expect(membership.businessId).toBeNull()
+      const config = await prisma.businessAgentConfig.findUnique({ where: { businessId: result.business.id } })
+      expect(config).toMatchObject({
+        tenantId: result.tenant.id,
+        businessId: result.business.id,
+        appliedByPersonId: founderPerson.id,
+        delegationPolicy: 'DENY',
+      })
+      const applied = await prisma.auditEvent.findFirst({
+        where: { entityType: 'BUSINESS', entityId: result.business.id, action: 'AGENT_CONFIG_APPLIED' },
+      })
+      expect(applied).toMatchObject({
+        actorId: founderPerson.id,
+        tenantId: result.tenant.id,
+        businessId: result.business.id,
+      })
     })
 
     it('is still not anonymous — a missing viewer is a loud crash, not a quiet write', async () => {

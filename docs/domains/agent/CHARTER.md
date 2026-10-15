@@ -1,7 +1,7 @@
 ---
-version: "0.6.0b"
+version: "0.7.0b"
 status: active
-last_update: "2026-09-27T12:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-10-15,Codex"
 id: ZAI:DOMAIN-AGENT
 relations:
   - type: relates_to
@@ -18,13 +18,17 @@ relations:
     target: ZAI:FR-150-P2
   - type: relates_to
     target: ZAI:FR-171-NOTE
+  - type: relates_to
+    target: ZAI:FR-285
 domain: agent
 module: src/modules/agent
 owns_models:
   - AgentTraceEvent
   - LineGroundingShadowComparison
+  - BusinessAgentConfig
 owns_routes:
   - src/app/api/agent/**
+  - src/app/api/businesses/[id]/agent-template/**
 ---
 
 # Domain charter — agent
@@ -44,13 +48,22 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
 
 ## Boundaries
 
-- **Owns one Prisma model for execution evidence.** `AgentTraceEvent` is the
+- **Owns local execution evidence and agent configuration.** `AgentTraceEvent` is the
   one local, scoped, append-only journal under ADR-070/FR-171. It stores
   execution references, exact retained input snapshots, hashes, usage and
   receipt evidence; it does not become authority for CRM, LINE delivery, MSP,
   GKS or Edge state. The agent still does not own the production Postgres
   runtime (`zuri_core.line_channel_binding`, `line_activation_event`) or MSP
   vaults; those remain behind binding and vault ports.
+- **Owns the local Business Agent Factory configuration (FR-285).**
+  `BusinessAgentConfig` pins the standard five role/tool/policy snapshots to one
+  server-derived Tenant and Business. Existing Businesses have no implicit
+  configuration or bulk backfill. The explicit owner administration path checks
+  active persisted Membership; new-Business configuration participates in the
+  already authorized FR-074 creation transaction. The config is not a Membership,
+  cross-Business grant, Gate F authorization or five running model agents.
+  Dynamic delegation is denied in v1. See the
+  [adopted local contract](../../change-requests/agent-factory/AGENT-FACTORY-V1.md).
 - Native SERVER has no private-memory adapter in FR-171 v0.3. Its trace uses
   empty memory refs plus `EXCLUDED_BY_POLICY` and never fabricates MSP session
   or memory-version ids.
@@ -70,6 +83,11 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
 
 ## Public contract
 
+- `GET`/`POST /api/businesses/[id]/agent-template` (FR-285) — owner-scoped local
+  configuration/preview and explicit initial apply. A missing persisted config
+  remains `NOT_CONFIGURED` until apply; identical apply is idempotent, conflicting
+  versions or content refuse without overwrite. Provider provisioning, live-agent
+  activation, upgrades and bulk backfill are outside this v1 contract.
 - `POST /api/agent/line-webhook` — this lane's inbound seam (FR-028). It is no longer
   the product's only LINE inbound seam: a `serverEnabled` account is refused here and
   enters through the Studio's native `POST /api/line-oa/accounts/[id]/webhook`
@@ -155,6 +173,7 @@ code yet; `owns_models` changes only when a model lands.
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.7.0b | 2026-10-15 | FR-285: owns BusinessAgentConfig and its scoped administration route; separates internal FR-074 provisioning from persisted owner administration and preserves Gate F/provider boundaries | Codex |
 | 0.6.0b | 2026-10-04 | Separates API-011 session projection from API-010 episodic memory; assigns the LINE-specific durable projection receipt to LINE OA Studio and records the MSP-main activation gate | Codex |
 | 0.4.0b | 2026-09-14 | ADR-091 / ADR-090 declared (FEAT-037, FEAT-038): the Context Composer as an agent-lane module with one `ContextReceipt` per model call, the CRM-record versus MSP-ledger split with this lane producing consolidation summaries, planned `MemoryProjectionReceipt`, and grounding composition; the one lawful chat-to-knowledge route named in Boundaries; no `owns_models` change | Claude Opus 5 |
 | 0.3.0b | 2026-09-13 | FR-210 / ADR-084 D4: the `#sku` catalogue command wraps the server-owned LINE worker's answer port for verified staff with Inventory write authority; the native path still never calls `handleAgentTurn`, and no model output reaches a write | Claude Opus 5 |

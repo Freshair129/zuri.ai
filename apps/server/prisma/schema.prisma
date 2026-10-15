@@ -344,7 +344,34 @@ model Business {
   businessLeadMeasures             BusinessLeadMeasure[]
   businessWeeklyCommitments        BusinessWeeklyCommitment[]
   businessWigSessions              BusinessWigSession[]
+  // @req FR-285 — one persisted, server-scoped standard agent configuration.
+  agentConfig                      BusinessAgentConfig?
 
+  // @req FR-192, FR-285 — supports composite Tenant + Business references.
+  @@unique([id, tenantId])
+  @@index([tenantId])
+}
+
+// @req FR-285 — one versioned role/tool/policy snapshot per Business.
+model BusinessAgentConfig {
+  id                String   @id @default(uuid())
+  tenantId          String
+  businessId        String   @unique
+  schemaVersion     String
+  templateId        String
+  templateVersion   Int
+  version           Int      @default(1)
+  delegationPolicy  String   @default("DENY")
+  snapshotJson      String
+  snapshotDigest    String
+  appliedByPersonId String
+  appliedAt         DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  business Business @relation(fields: [businessId, tenantId], references: [id, tenantId], onDelete: Restrict)
+
+  @@unique([businessId, tenantId])
   @@index([tenantId])
 }
 
