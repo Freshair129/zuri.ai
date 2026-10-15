@@ -42,6 +42,7 @@ status: generated
 - [apps/server/tests/e2e/fr041-business-first.spec.js](../../../apps/server/tests/e2e/fr041-business-first.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/e2e/fr060-business-home.spec.js](../../../apps/server/tests/e2e/fr060-business-home.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/fr254-knowledge-console.spec.js](../../../apps/server/tests/e2e/fr254-knowledge-console.spec.js) — `verifies` (`transitive`)
+- [apps/server/tests/e2e/task14-business-two-isolation.spec.js](../../../apps/server/tests/e2e/task14-business-two-isolation.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-conversation-inbox.test.js](../../../apps/server/tests/integration/crm-conversation-inbox.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-customer-consent.test.js](../../../apps/server/tests/integration/crm-customer-consent.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-staff-reply.test.js](../../../apps/server/tests/integration/crm-staff-reply.test.js) — `verifies` (`transitive`)

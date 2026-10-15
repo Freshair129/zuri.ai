@@ -1093,7 +1093,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "checks": {
@@ -1698,7 +1698,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-093",
@@ -2098,7 +2098,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 80
+          "testCount": 81
         },
         {
           "id": "FR-059",
@@ -2145,8 +2145,8 @@
           "title": "Scope-creation authorization",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 15
+          "codeCount": 3,
+          "testCount": 18
         },
         {
           "id": "FR-075",
@@ -4093,7 +4093,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-093",
@@ -4982,7 +4982,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 80
+          "testCount": 81
         },
         {
           "id": "FR-075",
@@ -5893,7 +5893,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 80
+          "testCount": 81
         },
         {
           "id": "FR-056",
@@ -6037,7 +6037,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 15
+          "testCount": 18
         },
         {
           "id": "FR-075",
@@ -6125,7 +6125,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-092",
@@ -7136,7 +7136,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-286",
@@ -7144,7 +7144,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 23
+          "testCount": 24
         }
       ],
       "checks": {
@@ -8450,7 +8450,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-093",
@@ -8485,6 +8485,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr060-business-home.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
+        "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
@@ -14857,7 +14858,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 90,
-          "testCount": 80
+          "testCount": 81
         }
       ],
       "evidence": [
@@ -14956,6 +14957,7 @@
         "apps/server/tests/e2e/fr104-password-reset-redemption.spec.js",
         "apps/server/tests/e2e/fr124-product-readiness.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
+        "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
         "apps/server/tests/integration/fr038-business-membership-add.test.js",
@@ -16200,18 +16202,21 @@
           "title": "Scope-creation authorization",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 15
+          "codeCount": 6,
+          "testCount": 18
         }
       ],
       "evidence": [
         "apps/server/src/app/api/scope/route.js",
+        "apps/server/src/modules/identity/entry-read-model.js",
         "apps/server/src/modules/identity/resolve-viewer.js",
         "apps/server/src/modules/identity/viewer-authority.js",
         "apps/server/src/modules/project-manager/application/business-provisioning-service.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/business-provisioning-template.test.js",
+        "apps/server/tests/integration/fr046-entry-contract.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr106-api-access-key-listing.test.js",
@@ -16220,6 +16225,7 @@
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/unit/api-access-auth.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
+        "apps/server/tests/unit/fr046-entry-read-model.test.js",
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/platform-users-view.test.js",
@@ -19065,7 +19071,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -19075,6 +19081,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/agent-business-factory.test.js",
         "apps/server/tests/integration/agent-factory-backup.test.js",
         "apps/server/tests/integration/backup.test.js",
@@ -19120,7 +19127,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 23
+          "testCount": 24
         }
       ],
       "evidence": [
@@ -19128,6 +19135,7 @@
         "apps/server/src/modules/project-manager/application/business-provisioning-service.js",
         "apps/server/src/modules/project-manager/application/business-provisioning-template.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/business-provisioning-backup.test.js",
         "apps/server/tests/integration/business-provisioning-template.test.js",
