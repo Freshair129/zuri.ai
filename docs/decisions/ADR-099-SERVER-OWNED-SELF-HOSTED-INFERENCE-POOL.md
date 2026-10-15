@@ -1,15 +1,15 @@
 ---
 id: "ZAI:ADR-099"
 title: "Server-owned self-hosted inference pool"
-version: "0.1.1b"
+version: "0.1.2b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-18"
 approved_by: "Owner via conversation"
-integration_status: pending
+integration_status: documentation-integrated
 implementation_status: not-started
 created_at: "2026-09-17"
-last_update: "2026-09-18"
+last_update: "2026-10-16"
 author: ChatGPT
 domain: agent
 baseline_commit: "cfd5521e7d004e63ffead1e07f46045f1cdc06f2"
@@ -29,7 +29,7 @@ relations:
 
 # ADR-099 — Server-owned self-hosted inference pool
 
-**Status:** Design approved by the owner in the subsequent `approve` message, recorded 2026-09-18 (Asia/Bangkok). Canonical ID allocation and repository integration remain pending. This approval is not evidence of implementation, test success, migration application or production activation.
+**Status:** Design approved by the owner in the subsequent `approve` message, recorded 2026-09-18 (Asia/Bangkok). Gate A is documentation-integrated: the repository documentation and domain ownership references are aligned. This status covers documentation only; it does not mean code/runtime integration, hardware validation, deployment or production activation. It is not evidence of implementation, test success, migration application or production activation.
 
 ## Context
 
@@ -162,3 +162,4 @@ The following immutable repository sources were reviewed; proposed new behavior 
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-17 | candidate | Initial documentation proposal; no runtime implementation or activation | uncommitted; baseline cfd5521 | ChatGPT |
 | 0.1.1b | 2026-09-18 | approved design | Record owner approval; design unchanged; canonical IDs, governance and runtime gates remain pending | uncommitted; baseline cfd5521 | ChatGPT |
+| 0.1.2b | 2026-10-16 | documentation-integrated | Record Gate A repository documentation and ownership integration; design unchanged and implementation remains not-started | uncommitted; base e114b4e | Codex |
