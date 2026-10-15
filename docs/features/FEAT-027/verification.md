@@ -37,6 +37,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/fr193-access-members.spec.js](../../../apps/server/tests/e2e/fr193-access-members.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/business-provisioning-template.test.js](../../../apps/server/tests/integration/business-provisioning-template.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-archive-legal-hold.test.js](../../../apps/server/tests/integration/crm-archive-legal-hold.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-customer-erasure.test.js](../../../apps/server/tests/integration/crm-customer-erasure.test.js) — `verifies` (`transitive`)
@@ -56,6 +57,7 @@ status: generated
 - [apps/server/tests/integration/workspace-onboarding-flow.test.js](../../../apps/server/tests/integration/workspace-onboarding-flow.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/auth-service.test.js](../../../apps/server/tests/unit/auth-service.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/business-provisioning-template.test.js](../../../apps/server/tests/unit/business-provisioning-template.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr036-team-authorization.test.js](../../../apps/server/tests/unit/fr036-team-authorization.test.js) — `verifies` (`test-reference`)
@@ -89,9 +91,17 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/agent-business-factory.test.js](../../../apps/server/tests/integration/agent-business-factory.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/business-provisioning-template.test.js](../../../apps/server/tests/integration/business-provisioning-template.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr191-access-grant-lifecycle.test.js](../../../apps/server/tests/integration/fr191-access-grant-lifecycle.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/fr269-business-kpi-mutation.test.js](../../../apps/server/tests/integration/fr269-business-kpi-mutation.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/governance-snapshot-capture.test.js](../../../apps/server/tests/integration/governance-snapshot-capture.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/project-feature-erasure.test.js](../../../apps/server/tests/integration/project-feature-erasure.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/project-feature-graph.test.js](../../../apps/server/tests/integration/project-feature-graph.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/project-feature-mutations.test.js](../../../apps/server/tests/integration/project-feature-mutations.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/project-feature-read-routes.test.js](../../../apps/server/tests/integration/project-feature-read-routes.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/workspace-onboarding-flow.test.js](../../../apps/server/tests/integration/workspace-onboarding-flow.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/business-provisioning-template.test.js](../../../apps/server/tests/unit/business-provisioning-template.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/customer-import-review-service.test.js](../../../apps/server/tests/unit/customer-import-review-service.test.js) — `verifies` (`transitive`)

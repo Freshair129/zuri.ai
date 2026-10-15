@@ -413,6 +413,7 @@
     "FR-283",
     "FR-284",
     "FR-285",
+    "FR-286",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5249,6 +5250,19 @@
       "history": [
         {
           "anchor": "business agent factory",
+          "since": "2026-10-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-286": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "75cfd10fbb42d059e55e35353ecd1dfedaa134e95954c77a0faecf145fa6a73d",
+      "history": [
+        {
+          "anchor": "standard business template",
           "since": "2026-10-15",
           "reason": "declared"
         }

@@ -13,6 +13,12 @@ import {
   createBranch,
   createWorkspace,
 } from '@/modules/project-manager/application/scope-service'
+import {
+  STANDARD_BUSINESS_SPACE_KEY,
+  STANDARD_BUSINESS_TEMPLATE_ID,
+  STANDARD_BUSINESS_TEMPLATE_VERSION,
+  validateStoredBusinessProvisioning,
+} from '@/modules/project-manager/application/business-provisioning-template'
 
 // @req FR-074 — every scope creator is authorized at the scope it writes.
 // @req FR-075 — the primitives above any Tenant require operator authority.
@@ -126,6 +132,27 @@ describe('FR-074 scope creation authorization', () => {
         { tenantId: tenant.id, name: 'Yes', code: 'BUS-AZS-OK' }, { viewer: tenantOwner },
       )
       expect(created).toMatchObject({ code: 'BUS-AZS-OK' })
+      const defaultSpaces = await prisma.workspace.findMany({
+        where: { businessId: created.id, provisioningKey: STANDARD_BUSINESS_SPACE_KEY },
+      })
+      expect(defaultSpaces).toHaveLength(1)
+      expect(defaultSpaces[0]).toMatchObject({
+        scopeType: 'BUSINESS',
+        tenantId: tenant.id,
+        portfolioId: portfolio.id,
+      })
+      expect(validateStoredBusinessProvisioning({
+        ...created,
+        tenant: { id: tenant.id, portfolioId: portfolio.id },
+      }, defaultSpaces[0])).toMatchObject({
+        status: 'VALID',
+        templateId: STANDARD_BUSINESS_TEMPLATE_ID,
+        templateVersion: STANDARD_BUSINESS_TEMPLATE_VERSION,
+      })
+      expect(await prisma.membership.count({ where: { tenantId: tenant.id, businessId: created.id } })).toBe(0)
+      expect(await prisma.auditEvent.count({
+        where: { entityType: 'BUSINESS', entityId: created.id, action: 'BUSINESS_TEMPLATE_APPLIED' },
+      })).toBe(1)
       const config = await prisma.businessAgentConfig.findUnique({ where: { businessId: created.id } })
       expect(config).toMatchObject({
         tenantId: tenant.id,
@@ -220,6 +247,12 @@ describe('FR-074 scope creation authorization', () => {
         appliedByPersonId: founderPerson.id,
         delegationPolicy: 'DENY',
       })
+      expect(result.workspace.provisioningKey).toBe(STANDARD_BUSINESS_SPACE_KEY)
+      expect(await prisma.workspace.count({ where: { businessId: result.business.id } })).toBe(1)
+      expect(validateStoredBusinessProvisioning({
+        ...result.business,
+        tenant: { id: result.tenant.id, portfolioId: result.portfolio.id },
+      }, result.workspace).status).toBe('VALID')
       const applied = await prisma.auditEvent.findFirst({
         where: { entityType: 'BUSINESS', entityId: result.business.id, action: 'AGENT_CONFIG_APPLIED' },
       })

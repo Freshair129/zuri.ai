@@ -100,7 +100,15 @@ describe('FR-186 durable Commerce billing documents', () => {
     expect(await getBillingDocument(issued.id, { viewer: member })).toMatchObject({ id: issued.id, documentNumber: issued.documentNumber, snapshot: { order: { id: order.id } } })
     await expect(prisma.salesOrder.delete({ where: { id: order.id } })).rejects.toMatchObject({ code: 'P2003' })
     expect(await prisma.commerceDocument.findUnique({ where: { id: issued.id }, select: { id: true } })).toEqual({ id: issued.id })
-    await expect(prisma.business.delete({ where: { id: business.id } })).rejects.toMatchObject({ code: 'P2003' })
+    // Remove the fixture default Space so billing remains the causal restriction.
+    const defaultSpaces = await prisma.workspace.findMany({ where: { businessId: business.id, provisioningKey: 'STANDARD_DEFAULT' } })
+    await prisma.workspace.deleteMany({ where: { businessId: business.id, provisioningKey: 'STANDARD_DEFAULT' } })
+    try {
+      await expect(prisma.business.delete({ where: { id: business.id } })).rejects.toMatchObject({ code: 'P2003' })
+    } finally {
+      // Keep this surviving fixture internally complete for later backup tests.
+      for (const data of defaultSpaces) await prisma.workspace.create({ data })
+    }
     expect(await prisma.commerceDocument.findUnique({ where: { id: issued.id }, select: { id: true } })).toEqual({ id: issued.id })
   })
 

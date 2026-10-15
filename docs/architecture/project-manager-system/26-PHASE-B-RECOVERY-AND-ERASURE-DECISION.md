@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.19b"
+version: "0.3.20b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-10-15,Codex Root, FR-285 Business config static binding"
+last_update: "2026-10-15,Codex Root, FR-286 provisioning column static binding"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -618,7 +618,24 @@ still requires its existing independent and real-role gates.
 
 ## CHANGELOG
 
-### Current FR-285 static binding
+### Current FR-286 static binding
+
+Root adopts this source-only rebind under the same delegated repository mandate
+and [Standard Business Template v1](../../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md).
+Four Business marker/snapshot columns and Workspace.provisioningKey change the
+schema fingerprint without adding a model. All 205 existing model/schema/table
+mappings remain byte-equivalent as values; no historical receipt is rewritten.
+
+- Exact canonical LF schema SHA-256: `4679367cef0dcb57f17e68a9b1fe1ae56d2c84313d8618b8733b111a68b6cbb7`.
+- Target inventory SHA-256, computed with `computeTargetSchemaSha256`: `764149d3115fb3476983f1e8b1088985a137d15c3c7d9909476d523e8534fe44`.
+
+The current loader binds these values and 205 models. The prior FR-285 binding
+below is historical, including its same model count, and is explicitly refused
+at loader and recovery-runner boundaries. Local tests still gate delivery;
+target visibility, custody, clean-target and production gates are unchanged.
+No external migration application, target connection or live recovery is granted.
+
+### Historical FR-285 static binding
 
 Root reconciles the frozen inventory under the delegated repository mandate
 after full-CI evidence exposed the added model's missing inventory binding.
@@ -631,13 +648,14 @@ and retained audit are specified by the [Factory v1 contract](../../change-reque
 - Exact canonical LF schema SHA-256: `9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa`.
 - Target inventory SHA-256, recomputed with `computeTargetSchemaSha256`: `9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4`.
 
-The loader requires these exact values and all 205 mappings. Earlier bindings
+The FR-285 loader required these exact values and all 205 mappings. This and earlier bindings
 remain historical and are refused by the current loader. Independent source
 review and fresh executable recovery tests still gate delivery; actual external
 target visibility, clean-target, custody and production gates remain in force.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.20b | 2026-10-15 | beta | Rebind FR-286 Business/Workspace provisioning columns with all 205 prior mappings preserved; explicitly refuse the same-count FR-285 predecessor and retain external recovery/production gates | working-tree | Codex Root |
 | 0.3.19b | 2026-10-15 | beta | Add only FR-285 BusinessAgentConfig to the static 205-table census and bind canonical LF schema/inventory digests under delegated root disposition; preserve 204 prior mappings, custody refusals and all external recovery/production gates | working-tree | Codex Root |
 | 0.3.18b | 2026-10-12 | beta | Bind the four FR-270 Business WIG tables in the static 204-table inventory; preserve all earlier mappings, custody guards and production/recovery gates | working-tree | Codex |
 | 0.3.17b | 2026-10-12 | beta | Bind the FR-269 Business KPI tables in the static 200-table inventory; preserve all earlier mappings and production/recovery gates | working-tree | Codex |

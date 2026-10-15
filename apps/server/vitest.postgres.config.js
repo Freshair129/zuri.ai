@@ -13,11 +13,15 @@ import base from './vitest.config'
 // on both isolated SQLite and disposable PostgreSQL; no external DB URL is used.
 // @tested tests/integration/agent-business-factory.test.js
 // @tested tests/integration/agent-factory-backup.test.js
+// @req FR-286 — standard Business provisioning uses the same scope and rollback
+// acceptance against the isolated SQLite and disposable PostgreSQL adapters.
+// @tested tests/integration/business-provisioning-template.test.js
+// @tested tests/integration/business-provisioning-backup.test.js
 export default {
   ...base,
   test: {
     ...base.test,
-    include: ['tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js'],
+    include: ['tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js', 'tests/integration/business-provisioning-template.test.js', 'tests/integration/business-provisioning-backup.test.js'],
     globalSetup: ['tests/global-setup-postgres.js'],
     hookTimeout: 120000,
   },

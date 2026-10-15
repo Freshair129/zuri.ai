@@ -49,6 +49,7 @@ Feature record: [ZAI:FEAT-029 canonical record](feature.md).
 
 > ✅ implemented 2026-09-12 — `operator-bootstrap.js`, `operator-use.js`; migration `20260912140000_access_invite_sod_operator.sql` APPLIED on production 2026-09-12
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [Standard Business Template v1](../../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md) — `references` · `metadata` · `current`
 - [Release safety repair specification — restore, usage rollup and archive storage](../../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md) — `references` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
 

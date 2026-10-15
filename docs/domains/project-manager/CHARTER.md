@@ -83,6 +83,13 @@ trail. This is the back-office console's core.
 
 ## Boundaries
 
+- [FR-286](../../requirements/FR-286.md) owns the standard Business bootstrap:
+  a version-pinned catalog snapshot and one default Business Space (schema
+  `Workspace`) are created atomically through the existing FR-074 paths.
+  [The v1 contract](../../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md)
+  defines same-Business helper no-op, immutable history and safe backup recovery.
+  Catalog definitions confer no rights; Identity retains Membership/RoleBinding
+  authority, and the five FR-285 agent roles remain a separate configuration.
 - **Every write goes through a service in `application/`** and records an
   AuditEvent — route handlers stay thin (CLAUDE.md convention).
 - **Progress is recomputed from pure calculators** in `progress/` (no I/O, no

@@ -12,6 +12,7 @@ import {
 } from '@/lib/validation/entities'
 import { grantBusinessMembership } from '@/modules/identity/membership-grant-service'
 import { provisionBusinessAgentConfig } from '@/modules/agent/business-agent-factory'
+import { provisionStandardBusinessTemplate } from './business-provisioning-service'
 import { recordAudit } from './audit'
 import { activeWorkstream } from './active-filters'
 import { assertWorkspaceWritable, requireViewer } from './project-authorization'
@@ -216,11 +217,17 @@ export async function createBusiness(input, { viewer } = {}) {
         status: data.status || 'ACTIVE',
       },
     })
-    // @req FR-285 — this internal write uses the already-passed FR-074
-    // tenant-owner guard; it does not consult a client bypass or old scope list.
-    await provisionBusinessAgentConfig(tx, { business, actorId: viewer.principal.id })
+    // @req FR-286 — template and default Space use the same already-authorized
+    // Tenant transaction; the helper accepts no client-provided authority.
+    const provisioned = await provisionStandardBusinessTemplate(tx, {
+      business,
+      actorId: viewer.principal.id,
+    })
+    // @req FR-285 — keep the persisted agent config separate from catalog
+    // metadata. This internal write follows the existing FR-074 owner guard.
+    await provisionBusinessAgentConfig(tx, { business: provisioned.business, actorId: viewer.principal.id })
     await recordAudit(tx, { entityType: 'BUSINESS', entityId: business.id, action: 'CREATED', payload: { code } })
-    return business
+    return provisioned.business
   })
 }
 
@@ -305,9 +312,16 @@ export async function createBusinessInGroup(input, { viewer, db = prisma } = {})
       reason: `founder of ${business.code}`,
       actorId: viewer.principal.id,
     }, { db: tx })
-    // @req FR-285 — establish the founder OWNER Membership first, then persist
-    // the scoped standard config and attributed audit in this transaction.
-    await provisionBusinessAgentConfig(tx, { business, actorId: viewer.principal.id })
+    // @req FR-286 — mark this existing starter Space as STANDARD_DEFAULT and
+    // persist the catalog-only snapshot from rows created in this transaction.
+    const provisioned = await provisionStandardBusinessTemplate(tx, {
+      business,
+      actorId: viewer.principal.id,
+      workspace,
+    })
+    // @req FR-285 — the five agent configs remain independent of catalog
+    // definitions and use the existing founder transaction.
+    await provisionBusinessAgentConfig(tx, { business: provisioned.business, actorId: viewer.principal.id })
     await recordAudit(tx, {
       entityType: 'BUSINESS',
       entityId: business.id,
@@ -320,7 +334,7 @@ export async function createBusinessInGroup(input, { viewer, db = prisma } = {})
         ownerPersonId: viewer.principal.id,
       },
     })
-    return { portfolio, tenant, business, workspace }
+    return { portfolio, tenant, business: provisioned.business, workspace: provisioned.workspace }
   })
 }
 

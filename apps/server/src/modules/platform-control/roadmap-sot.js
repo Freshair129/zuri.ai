@@ -779,12 +779,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-013",
     "sprint": "SPR-ZAI-05",
     "title": "Standard Business Template and provisioning path",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "review",
+    "proofScope": "ISOLATED",
+    "implementationState": "ISOLATED_ACCEPTED",
     "dependsOn": "TASK-ZAI-009",
-    "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 6"
+    "authority": "FR-286; docs/change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md",
+    "evidence": "FR-286 bounded v1 isolated SQLite 238/238 and disposable PG29/29 accepted; independent final gates/hostedCI/merge pending; no production effect"
   },
   {
     "id": "TASK-ZAI-014",
