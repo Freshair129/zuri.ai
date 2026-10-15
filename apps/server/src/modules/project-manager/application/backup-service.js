@@ -197,7 +197,12 @@ export const SNAPSHOT_MODELS = [
   // @req FR-194 — a legal entity's own VAT branch registrations restore after
   // it and before any Business/Branch that could reference one.
   'taxRegistrationBranch',
-  'business', 'branch',
+  'business',
+  // @req FR-285 — the persisted Business agent snapshot is configuration
+  // evidence. Restore it after its Tenant and Business parents; reverse
+  // deletion removes it before either parent. Restoring never reapplies the
+  // factory or creates a new AGENT_CONFIG_APPLIED audit event.
+  'businessAgentConfig', 'branch',
   // @req FR-186 — issuer/tax/PromptPay settings are Business-owned operating
   // configuration, while the LegalEntity and Branch identity above remain the
   // authoritative seller records.  The profile and numbering sequence must

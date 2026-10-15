@@ -46,6 +46,19 @@ function currentRouteInventory() {
 const routeInventory = currentRouteInventory()
 
 describe('OpenAPI document', () => {
+  // @req FR-285 — the metadata must not promise unsupported config mutations.
+  it('documents owner template administration, strict empty apply and refusal verbs', () => {
+    const item = doc.paths['/api/businesses/{id}/agent-template']
+    expect(item.get.security).toEqual([{ SessionAuth: [] }])
+    expect(item.post.security).toEqual([{ SessionAuth: [] }])
+    expect(item.post.requestBody.content['application/json'].schema.additionalProperties).toBe(false)
+    expect(Object.keys(item.post.responses).sort()).toEqual(['200', '400', '401', '404', '409', '500', '503'])
+    for (const method of ['patch', 'put', 'delete']) {
+      expect(Object.keys(item[method].responses)).toEqual(['409'])
+      expect(item[method].security).toEqual([])
+      expect(item[method].requestBody).toBeUndefined()
+    }
+  })
   // @req FR-281, FR-282 — report credential must not become native authority.
   it('documents report intake with its dedicated bearer and commit/replay statuses', () => {
     const operation = doc.paths['/api/growth/external-marketing-reports'].post
@@ -276,8 +289,9 @@ describe('OpenAPI document', () => {
       // FR-270 adds seven owner-scoped WIG, lead-measure, value, commitment,
       // and session-step paths, each with one explicit mutation operation:
       // 336 + 7 = 343 paths; 441 + 7 = 448 operations.
-      pathCount: 343,
-      operationCount: 448,
+      // FR-285 adds one path and five operations, including three refusals.
+      pathCount: 344,
+      operationCount: 453,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')

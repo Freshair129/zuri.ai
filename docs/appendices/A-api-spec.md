@@ -1,5 +1,19 @@
 # Appendix A — API Specification
 
+Version diff 1.105.0b → 1.106.0b (2026-10-15): add FR-285 scoped standard Business agent-template preview/initial apply and three explicit refusal verbs. Inventory: 343 route handlers, 344 OpenAPI paths, 453 operations. No provider/live-agent activation or external migration apply is claimed.
+
+### Business Agent Factory v1 (FR-285)
+
+GET and POST `/api/businesses/[id]/agent-template` resolve the principal from the signed server session and require active, unexpired, non-suspended/non-revoked persisted OWNER Membership for the actual Business or its Tenant. Unknown/inactive and unauthorized targets share `404 BUSINESS_NOT_FOUND`. Payload roles/actor/Tenant never grant access. The [adopted contract](../change-requests/agent-factory/AGENT-FACTORY-V1.md) owns the eight acceptance criteria.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/businesses/[id]/agent-template` | Read-only preview: `200 {status: READY_TO_APPLY, template, snapshotDigest}` or `{status: ALREADY_APPLIED, config}`. Missing persisted config is never implicitly written. |
+| POST | `/api/businesses/[id]/agent-template` | Required strict empty JSON object `{}`. `200 {status: APPLIED or ALREADY_APPLIED, config}`. One config and scoped attributed APPLIED audit commit together; identical replay preserves identity/content/timestamps and adds no audit. |
+| PATCH, PUT, DELETE | `/api/businesses/[id]/agent-template` | `409 AGENT_FACTORY_CUSTOMIZE_UNSUPPORTED`, `AGENT_FACTORY_UPGRADE_UNSUPPORTED` or `AGENT_FACTORY_ROLLBACK_UNSUPPORTED` respectively, before reads/writes/provider effects. These refusal handlers do not resolve a session or accept a body. |
+
+Supported verbs can return `401 AUTH_REQUIRED`, `404 BUSINESS_NOT_FOUND`, `409 BUSINESS_AGENT_CONFIG_VERSION_CONFLICT`, `500 BUSINESS_AGENT_CONFIG_CORRUPT` or `503` session resolution unavailable. Non-empty/invalid POST object returns `400`; malformed JSON falls through the shared handler's unexpected-error response. Config includes schema/template/config versions, DENY delegation, exact Tenant/Business scope, the five role/tool/policy snapshots, digest, applying Person and apply time. This is persisted configuration, not live-agent activation or a Gate F action grant.
+
 Version diff 1.104.0b → 1.105.0b (2026-10-12): add the FR-270 Business WIG weekly-execution read/write contract and seven OWNER-scoped mutation handlers. Inventory: 342 route handlers, 343 OpenAPI paths, 448 operations. Local SQLite/PostgreSQL schemas, routes and migrations are implementation evidence; migrations are not production-applied and deployment is not claimed.
 
 Version diff 1.102.0b → 1.103.0b (2026-10-05): add the approved FR-281/FR-282 report-only receiver candidate, POST `/api/growth/external-marketing-reports`. Inventory: 332 route handlers, 333 OpenAPI paths, 438 operations. Only dedicated report bearer authentication is accepted; no session/Enterprise fallback. PostgreSQL receiver runtime, live migration, credentials and deployment remain unqualified/unperformed.
@@ -48,9 +62,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.105.0b |
+| **Version** | 1.106.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-10-12 |
+| **Last Updated** | 2026-10-15 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -100,7 +114,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=342 -->
+<!-- api-spec-counts: route_handlers=343 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 

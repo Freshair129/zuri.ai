@@ -1,5 +1,5 @@
 ---
-version: "0.1.0"
+version: "0.1.2"
 status: approved
 task_id: TASK-ZAI-009
 ---
@@ -37,7 +37,8 @@ the reviewed local design source, not an implementation completion claim. Requir
   and no registry-default fallback.
 - Reapplying identical v1 content is a no-op, with no duplicate config or APPLIED
   audit. A unique Business identity and a transaction handle concurrency.
-  Different template/version/content is a typed conflict without overwrite.
+  A different template or version is a typed conflict without overwrite.
+  Malformed or tampered v1 content is a typed corruption error, also without overwrite.
 - v1 supports no customization, upgrade, rollback command or dynamic child
   creation. Unsupported operations refuse before config/provider effects.
   Dynamic delegation is always DENY. Future upgrades need their own contract.
@@ -79,8 +80,10 @@ select an internal authorization bypass.
 5. Given identical v1 apply calls, including concurrent calls, when completed,
    then one config and one APPLIED audit exist. Reapply preserves identity,
    version and content. The single APPLIED event identifies the server actor,
-   Tenant, Business, template/config versions and snapshot digest. Different content/version produces a conflict without
-   overwrite or another APPLIED audit; audit failure rolls back config.
+   Tenant, Business, template/config versions and snapshot digest. A different
+   template/version produces a typed conflict; malformed or tampered v1 content
+   produces a typed corruption error. Neither overwrites content or adds another
+   APPLIED audit; audit failure rolls back config.
 6. Given any request for dynamic delegation, customization, upgrade, rollback
    command or bulk backfill, when evaluated by v1, then a typed refusal occurs
    before any config, child agent or provider effect. No fallback silently grants
@@ -93,6 +96,9 @@ select an internal authorization bypass.
    persistence path are tested in isolated databases, then Tenant mismatch,
    duplicate application and rollback invariants hold. Production/Supabase
    migration apply is not authorized by this local feature contract.
+   Existing installation backup export/restore preserves this persisted config
+   after its Business, including timestamps/content and the existing apply audit,
+   without replaying factory apply or silently discarding configuration.
 
 ## Task boundary
 
@@ -114,8 +120,17 @@ No existing source-row hash or generated export was edited manually.
 
 ## Approval
 
+The review hash below covers the earlier private v1 design, not this later
+revision text or runtime patch. Root adopted the v0.1.1 error clarification and
+v0.1.2 backup criterion under the same delegated mandate. Independent final
+verification/review must bind the complete artifact head before merge.
+
 Root disposition on 2026-10-15 under the current trusted user mandate and standing in-scope product/technical delegation. The independent Luna reviewer passed the source design at SHA-256 0396B6AE4800EB70ED713A0A8873DEC493B8A462A9CDC4DC90218247B072650C after three bounded findings were corrected. Root adopts these eight criteria for local repository implementation; no production/Supabase migration apply, provider credentials, live-agent activation or bulk backfill is admitted. The user did not separately approve this exact document; root records the delegated decision explicitly.
 
 ## Version diff
+
+0.1.1 -> 0.1.2: adds the existing installation backup round-trip invariant to persistence acceptance after strict governance exposed the new model's missing snapshot integration. Root admits a corrected bounded cycle under the same Task9 identity with prior repair history retained; no restore authority or external migration permission changes.
+
+0.1.0 -> 0.1.1: clarifies the existing fail-closed error categories: incompatible template/version is a conflict; malformed or tampered v1 content is corruption. Both refuse mutation. No authority, feature scope or persistence behavior changes.
 
 0.0.0 -> 0.1.0: adopts the bounded Agent Factory v1 local contract, resolves the candidate proposal's technical choices for v1, specifies runtime NOT_CONFIGURED and scoped audit/rollback requirements, and admits one standalone FR through the reviewed migration workflow. Existing identities, feature memberships and unrelated candidate ADRs remain unchanged.
