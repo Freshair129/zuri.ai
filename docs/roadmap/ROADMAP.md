@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.156.0b"
+version: "2.157.0b"
 updated: "2026-10-16"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.157.0b (2026-10-16): Record FEAT-043 Gate A documentation integration via PR #681, from exact source head `20a3936fb005b1271f60321a8f0bf28cf4805d62` and merge commit `1b270a663d8e597dfea164594eda01c936a34f5c`. This records documentation integration only; FEAT-043 implementation remains not-started and Gates B–G remain pending. No provider, hardware, live-agent, production, credential or Supabase evidence is claimed. The 24-week programme rows, statuses, counts and percentages are unchanged.
 
 > Revision 2.156.0b (2026-10-16): Reconcile TASK-ZAI-048 after contract-only PR #676 merged as `dcaaffa71555389bb7a4e80499f31a269fe24588` from exact source head `110d6f3952ddf0143e8b9ae715058179edc78964`. Applicable exact-head Governance, build, four test shards, verify, changes, Edge, Conversation Runtime, Market Intelligence and SCM checks passed; hosted E2E and Desktop were skipped, not passes. The merged artifact remains a candidate proposal awaiting existing product/service authority acceptance. Keep TASK-ZAI-048 `planned / UNKNOWN / NOT_STARTED`; parser/runtime behavior, parser tests, OCR/provider activity, migrations and deployment remain NOT_RUN. No task status or programme counts change.
 
