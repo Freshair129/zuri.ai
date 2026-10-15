@@ -552,39 +552,39 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-013",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-05",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "priority": "P0",
     "pic": "Codex",
     "executor": "Codex",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "prisma/seed.js",
-      "doc": "docs/DOMAIN-MODEL.md",
-      "test": "unavailable"
+      "code": "apps/server/src/modules/project-manager/application/business-provisioning-service.js",
+      "doc": "docs/change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md",
+      "test": "apps/server/tests/integration/business-provisioning-template.test.js"
     },
     "linkState": {
-      "code": "missing",
+      "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given either authorized FR-074 creation path, when its transaction commits, then a digest-valid immutable v1 snapshot of domain IDs and app-RBAC role, permission and conflict definitions and one STANDARD_DEFAULT Business Space (schema Workspace) with DB-derived ancestry exist; template metadata grants no Membership, domainKeysJson, RoleBinding or action authority; FR-285 agent roles remain separate",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given an intact v1 Business snapshot, when future catalog or template versions appear, then v1 remains historical and readable against its pinned definition; no existing data or settings are automatically overwritten, upgraded or backfilled; incompatible apply refuses without mutation",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given the same persisted Business and intact v1 default Space, when the private helper is invoked again, then ALREADY_APPLIED preserves all dates, versions, names, Space status, mutable settings and audits; this does not make repeated public create requests idempotent",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened as the reusable path that makes onboarding Business number two a repeatable operation rather than a bespoke migration.",
+    "changelog": "Closed as bounded FR-286 v1 after PR #667 merged as ee5d789e3f504fc8ea1fbac91193b7e449607d54 on 2026-10-15. Independent Verify/Review and required exact-head Governance 38681966322/Edge 38681966380 passed; E2E/Desktop were skipped, not passes. Isolated SQLite238 passed/2 skipped (23 files), disposable PostgreSQL29/29 (4 files including source SQL constraints), and local build passed. No Task13 local Docker redeploy, schema apply, production/Supabase/provider effect or live-agent activation is claimed.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 34000,
     "totalTokens": 0,

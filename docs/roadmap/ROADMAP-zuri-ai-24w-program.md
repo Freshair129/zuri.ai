@@ -504,7 +504,7 @@ locates the week.
 | TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | planned | TASK-ZAI-007 | Section 3.1 row 9 |
 | TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | planned | TASK-ZAI-010 | Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | task | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
-| TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template and provisioning path | P0 | Codex | review | TASK-ZAI-009 | Section 3.1 row 6 |
+| TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template and provisioning path | P0 | Codex | done | TASK-ZAI-009 | Section 3.1 row 6 |
 | TASK-ZAI-014 | SPR-ZAI-05 | task | Onboard Business number two end to end under isolation | P0 | ATHER | planned | TASK-ZAI-013 | Section 3.1 row 6 |
 | TASK-ZAI-015 | SPR-ZAI-05 | task | Per-business visibility regression at two-business scale | P1 | Claude | planned | TASK-ZAI-014 | FEATURE-MAP FR-061 and FR-062 |
 | TASK-ZAI-016 | SPR-ZAI-06 | task | Cross-business governed analytics read model | P0 | Claude | planned | TASK-ZAI-014 | Section 3.1 row 6 |
@@ -1205,27 +1205,27 @@ title: Standard Business Template and provisioning path
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: done
+version: 0.1.1
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: prisma/seed.js
-  doc: docs/DOMAIN-MODEL.md
-  test: unavailable
+  code: apps/server/src/modules/project-manager/application/business-provisioning-service.js
+  doc: docs/change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md
+  test: apps/server/tests/integration/business-provisioning-template.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given either authorized FR-074 creation path, when its transaction commits, then a digest-valid immutable v1 snapshot of domain IDs and app-RBAC role, permission and conflict definitions and one STANDARD_DEFAULT Business Space (schema Workspace) with DB-derived ancestry exist; template metadata grants no Membership, domainKeysJson, RoleBinding or action authority; FR-285 agent roles remain separate
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given an intact v1 Business snapshot, when future catalog or template versions appear, then v1 remains historical and readable against its pinned definition; no existing data or settings are automatically overwritten, upgraded or backfilled; incompatible apply refuses without mutation
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given the same persisted Business and intact v1 default Space, when the private helper is invoked again, then ALREADY_APPLIED preserves all dates, versions, names, Space status, mutable settings and audits; this does not make repeated public create requests idempotent
-      checked: false
-changelog: Opened as the reusable path that makes onboarding Business number two a repeatable operation rather than a bespoke migration.
+      checked: true
+changelog: Closed as bounded FR-286 v1 after PR #667 merged as ee5d789e3f504fc8ea1fbac91193b7e449607d54 on 2026-10-15. Independent Verify/Review and required exact-head Governance 38681966322/Edge 38681966380 passed; E2E/Desktop were skipped, not passes. Isolated SQLite238 passed/2 skipped (23 files), disposable PostgreSQL29/29 (4 files including source SQL constraints), and local build passed. No Task13 local Docker redeploy, schema apply, production/Supabase/provider effect or live-agent activation is claimed.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
