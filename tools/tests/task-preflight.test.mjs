@@ -162,6 +162,21 @@ test('canonical non-done and absent dependencies block readiness', (t) => {
   assert.equal(absent.dependencies[0].roadmapStatus, 'UNKNOWN');
 });
 
+test('a task cannot accept its own dependency by changing the working roadmap', (t) => {
+  const f = fixture(t);
+  saveTask(f, taskRecord({ writeScope: ['src/', 'docs/roadmap/ROADMAP.md'], dependencies: [{ taskId: 'TASK-DEP-OPEN' }] }));
+  const roadmap = path.join(f.repo, 'docs', 'roadmap', 'ROADMAP.md');
+  writeFileSync(roadmap, readFileSync(roadmap, 'utf8').replace('| TASK-DEP-OPEN | review |', '| TASK-DEP-OPEN | done |'));
+  const dirty = runPreflight(f);
+  assert.equal(dirty.status, 'BLOCKED_DEPENDENCY');
+  assert.equal(dirty.dependencies[0].roadmapStatus, 'review');
+  runGit(f.repo, 'add', 'docs/roadmap/ROADMAP.md');
+  runGit(f.repo, 'commit', '--quiet', '-m', 'unaccepted dependency status edit');
+  const committed = runPreflight(f);
+  assert.equal(committed.status, 'BLOCKED_DEPENDENCY');
+  assert.equal(committed.dependencies[0].roadmapStatus, 'review');
+});
+
 test('POSIX backslash filenames cannot masquerade as an allowed directory', { skip: process.platform === 'win32' }, (t) => {
   const f = fixture(t);
   saveTask(f, taskRecord());
@@ -272,6 +287,18 @@ test('a Windows batch executable cannot pass shell:false capability checks', (t)
 
   assert.equal(result.status, 'BLOCKED_ENVIRONMENT');
   assert.match(result.issues.find((item) => item.code === 'CHECK_EXECUTABLE_UNAVAILABLE').message, /require shell execution/);
+});
+
+test('ordinary files cannot satisfy declared executable capability', (t) => {
+  const f = fixture(t);
+  for (const name of ['check.ps1', 'README.md', 'fake.exe']) {
+    const file = path.join(f.repo, 'src', name);
+    writeFileSync(file, 'This is a regular non-executable text file.\n');
+    saveTask(f, taskRecord({ checks: [{ shell: false, executable: file, argv: [], cwd: '.' }] }));
+    const result = runPreflight(f);
+    assert.equal(result.status, 'BLOCKED_ENVIRONMENT', name);
+    assert.ok(result.issues.some(issue => issue.code === 'CHECK_EXECUTABLE_UNAVAILABLE'));
+  }
 });
 
 test('main branch is blocked and CLI JSON is machine-readable', (t) => {

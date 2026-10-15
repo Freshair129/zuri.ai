@@ -62,7 +62,8 @@ The equivalent npm entry point is:
 Preflight checks the Git base and working state, all changed-path scope,
 dependency evidence and declared executable/environment capability. When a
 listed dependency is completed in `docs/roadmap/ROADMAP.md`, its completion row
-and evidence cell are exposed in the result. A named dependency revision must
+and evidence cell from the selected base commit are exposed in the result.
+Working-tree or unmerged ledger edits cannot accept a dependency. A named revision must
 resolve and be compatible with the selected base.
 
 The result uses `task-preflight-result/v1` and includes status, `taskId`,

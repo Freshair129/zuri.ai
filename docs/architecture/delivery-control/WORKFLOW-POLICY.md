@@ -21,6 +21,9 @@ Write scopes name exact files unless they end with `/`, which explicitly
 authorizes a directory and its descendants. This intent does not depend on
 whether the target exists yet.
 
+Dependency completion is read from the canonical ledger at the selected base
+commit. Editing a dependency row in the current task cannot accept that dependency.
+
 Derive the objective, acceptance criteria, write scope and dependency references
 from the roadmap where it has the relevant source. Root may resolve technical
 and product choices inside the user's delegated scope. Reconcile a legacy

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
-import { accessSync, constants as fsConstants, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { accessSync, closeSync, constants as fsConstants, lstatSync, openSync, readFileSync, readSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
@@ -214,6 +214,23 @@ function taskFilePath(repoRoot, commonDir, input) {
   return { ok: true, path: real };
 }
 
+function nativeWindowsExecutable(file, size) {
+  if (!/\.(exe|com)$/i.test(file) || size < 88) return false;
+  const descriptor = openSync(file, 'r');
+  try {
+    const dos = Buffer.alloc(64);
+    if (readSync(descriptor, dos, 0, dos.length, 0) !== dos.length || dos.toString('ascii', 0, 2) !== 'MZ') return false;
+    const offset = dos.readUInt32LE(60);
+    if (offset < 64 || offset > size - 24) return false;
+    const pe = Buffer.alloc(24);
+    if (readSync(descriptor, pe, 0, pe.length, offset) !== pe.length || !pe.subarray(0, 4).equals(Buffer.from('PE\0\0'))) return false;
+    const flags = pe.readUInt16LE(22);
+    return (flags & 0x0002) !== 0 && (flags & 0x2000) === 0;
+  } finally {
+    closeSync(descriptor);
+  }
+}
+
 function findExecutable(executable, repoRoot) {
   const hasPath = path.isAbsolute(executable) || executable.includes('/') || executable.includes('\\');
   let candidates = [];
@@ -235,6 +252,7 @@ function findExecutable(executable, repoRoot) {
       if (!info.isFile()) continue;
       if (process.platform === 'win32') {
         if (/\.(bat|cmd)$/i.test(candidate)) return { ok: false, kind: 'environment', reason: 'Batch files require shell execution and cannot satisfy shell: false.' };
+        if (!nativeWindowsExecutable(candidate, info.size)) continue;
       } else {
         accessSync(candidate, fsConstants.X_OK);
       }
@@ -290,9 +308,9 @@ function policyNoProgressCap(repoRoot) {
   return cap;
 }
 
-function roadmapLedger(repoRoot) {
-  const file = path.join(repoRoot, ...ROADMAP_RELATIVE.split('/'));
-  const source = readFileSync(file, 'utf8');
+function roadmapLedger(repoRoot, baseCommit) {
+  // A task cannot accept its own dependency by editing the working ledger.
+  const source = git(repoRoot, ['show', baseCommit + ':' + ROADMAP_RELATIVE]);
   const start = source.indexOf('<!-- roadmap-task-ledger:start -->');
   const end = source.indexOf('<!-- roadmap-task-ledger:end -->');
   if (start < 0 || end <= start) throw new Error('Canonical roadmap task ledger markers are missing.');
@@ -388,7 +406,7 @@ function validatePathBindings(task, repoRoot, issues) {
 
 function inspectDependencies(task, repoRoot, baseCommit, issues) {
   let ledger;
-  try { ledger = roadmapLedger(repoRoot); } catch (error) {
+  try { ledger = roadmapLedger(repoRoot, baseCommit); } catch (error) {
     addIssue(issues, 'BLOCKED_ENVIRONMENT', 'ROADMAP_LEDGER_UNAVAILABLE', error.message, ROADMAP_RELATIVE);
     return [];
   }
