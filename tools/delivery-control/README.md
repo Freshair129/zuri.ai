@@ -1,144 +1,166 @@
-# WF01 local delivery contracts
+# Delivery-control tools
 
-This folder contains strict JSON Schema 2020-12 contracts and a Node.js ESM validator for immutable task packets, delivery DAGs, per-packet execution DAGs, artifact acknowledgements, and typed PARK disposition mapping. The WF01 validator uses Node built-ins and local reads; it does not dispatch work, execute declared commands, call providers, contact a database, alter a ledger, merge code, or persist PARK records. The separate G0 helper writes local append-only preparation reservations and optional structural receipts only.
+The active v4 path checks ordinary task readiness from one task record. The WF01
+packet and DAG validator remains available for historical v1 records and audit;
+it does not authorize work or write a ledger. See the active
+[coding-delivery policy](../../docs/architecture/delivery-control/WORKFLOW-POLICY.md)
+and [machine policy](../../docs/architecture/delivery-control/contracts/model-policy.json).
 
-## Current autonomous workflow
+## Ordinary task readiness
 
-The [coding-delivery policy](../../docs/architecture/delivery-control/WORKFLOW-POLICY.md)
-and [model policy](../../docs/architecture/delivery-control/contracts/model-policy.json)
-govern the agents operating these tools. A delegated Sol root can be the accountable
-`owner` and approval issuer within a recorded user mandate. The v1 contracts do not
-require a human approver. The authority identity, scope, receipt binding, independent
-sessions, and exact document digest still have to match.
+A task file is one JSON object with required `schemaVersion: "task-readiness/v1"`.
+It contains stable task identity, objective, acceptance strings, write scope,
+declared check commands and a mandate provenance reference. Dependencies are
+optional; each names a `taskId` and may include a `revision`.
 
-For real admission, root records the mandate independently of the candidate packet
-and validates the delivery/execution DAG with its separately obtained trusted
-context. An `ok` structural result with `approvalContext: NOT_TRUSTED`, a fixture
-result, or a context copied from untrusted packet contents cannot authorize dispatch.
-Matching caller context proves a binding only; the caller must establish its origin.
+    {
+      "schemaVersion": "task-readiness/v1",
+      "taskId": "TASK-EXAMPLE",
+      "objective": "Update the example documentation flow",
+      "acceptance": ["The documented path matches the current implementation"],
+      "writeScope": ["docs/example.md"],
+      "checks": [
+        {
+          "shell": false,
+          "executable": "node",
+          "argv": ["--test", "tools/tests/task-preflight.test.mjs"],
+          "cwd": "."
+        }
+      ],
+      "mandateReference": "trusted conversation task reference",
+      "dependencies": []
+    }
 
-The WF01 validator does not load the current model-policy file or enforce its global
-run counters, read-scope closure, deadlines, or recovery decisions. Root checks and
-records those in the run manifest and append-only action receipts before dispatch.
-The v1 packet/DAG budgets must fit inside the remaining root-lineage budget. New
-control-plane metadata belongs beside the v1 documents, not in unrecognized schema
-fields. Existing fixtures, park-map bytes, source pins, and historical receipts
-retain their original meaning. This policy update supplies an agent procedure;
-it does not claim a persistent controller or ledger is installed.
+Each declared check uses `shell: false` with `executable`, `argv` and `cwd`.
+Write scopes without a trailing `/` name exact files. A trailing `/` explicitly
+allows a directory and its descendants, including when that directory is new.
+Filesystem existence never broadens an exact-file scope.
+Preflight checks that the declaration is usable and the environment can support
+it; it does not execute the command. The `mandateReference` records provenance
+only. Root reconciles it against trusted conversation or harness context and
+decides which in-scope effects are authorized.
 
-### Prepare G0 without spending execution repair capacity
+Store this record in the private Git common directory so it does not become an
+untracked product file outside its own scope. Resolve the directory once from
+the selected worktree, save the record there, and run from the repository root:
 
-The v3 policy requires a bounded draft preparation before reserving sealed G0.
-`prepare-g0.mjs` loads the active machine policy and calls
-`validateG0Preparation(preparation, packet, policy, { dependencyProofs })`.
-It validates the existing packet plus a separate strict
-[`g0-preparation/v1` sidecar](contracts/g0-preparation.schema.json), including
-one command proof per criterion. The sidecar contains `policyVersion`,
-`rootLineageId`, `packetDigest` (from `canonicalDigest(packet)`),
-`mandateReference`, repository-relative `readSet`, and `acceptanceCommands`.
-Each command has `criterionId`, `shell: false`, an absolute `executable`,
-`argv`, an absolute `cwd`, and `environmentReceiptSha256` matching the packet.
-Private instruction/evidence reads are reconciled separately by root; do not
-insert `.git` or absolute paths into the repository `readSet`.
+    $taskFile = Join-Path ((git rev-parse --path-format=absolute --git-common-dir).Trim()) 'zuri-delivery-control/tasks/TASK-EXAMPLE.json'
+    node tools/delivery-control/preflight.mjs --task-file $taskFile --base origin/main
 
-Choose one invocation below: the first validates without publication; the
-second validates and publishes in one attempt. They are alternatives, not a
-mandatory sequence. Running both consumes two preparation attempts, because
-every valid CLI invocation creates its own reservation before reading candidates.
+The selected base defaults to `origin/main`. Optional flags are:
 
-```powershell
-node tools/delivery-control/prepare-g0.mjs --root-lineage-id TASK-EXAMPLE --packet .\packet.json --preparation .\preparation.json --dependency-proofs .\proofs.json
-node tools/delivery-control/prepare-g0.mjs --root-lineage-id TASK-EXAMPLE --packet .\packet.json --preparation .\preparation.json --dependency-proofs .\proofs.json --publish
-```
+- `--changed` — include `changedPaths`, `committedChangedPaths` and `dirtyPaths`
+  in the result. Preflight checks all changed paths against `writeScope` even
+  when this flag is omitted.
+- `--json` — print the machine-readable result.
+- `--repo <path>` — use the specified repository root.
 
-The helper requires an explicit stable `--root-lineage-id`, then reserves an
-attempt before opening packet, sidecar or dependency-proof files. Malformed JSON
-therefore consumes an attempt. Create-exclusive flat slots live under
-`<git-common-dir>/zuri-delivery-control/preparation-attempts/` as
-`<lineage-sha256>-attempt-<number>.json`; all linked worktrees and sessions share
-them. It checks contiguous bound history and enforces the smaller of the active
-cap and the original reserved cap. Corrupt, ambiguous, redirected or exhausted
-history fails closed. Competing claims fail without waiting or automatic retry.
-Claimed slots are never removed, overwritten or refunded, including a partial
-write left by a crash. There is no per-lineage empty-directory state.
+The equivalent npm entry point is:
 
-Root verifies terminal eligibility and existing full lineage history before
-invocation, retains candidates/diagnostics, and still enforces the original
-deadline and no-progress budget. This local ledger enforces only preparation
-attempt capacity; it does not authenticate lineage identity, implement other
-workflow counters or permit relabeling terminal work. Draft
-failure does not reserve sealed G0, successor, submission or acceptance-repair
-capacity. A successful result is `PREPARED_NOT_ADMITTED`, with
-`authorityGrant: false` and `dispatchAllowed: false`. Root must perform the
-remaining authority, pins, read closure, command/environment capability,
-session, scope and budget checks before sealed G0 and dispatch. Prior terminal
-lineages cannot be revived or have reservations refunded by this helper.
+    npm run delivery:preflight -- --task-file $taskFile --base origin/main
 
-`--publish` writes only successful structural preparation receipts under
-`<git-common-dir>/zuri-delivery-control/preparations/<byte-sha256>.json`. It uses
-Node JSON serialization and round-trip validation, fsync and byte read-back,
-then a create-only same-directory hard link. A duplicate destination is an
-error and existing evidence stays untouched. Unsupported hard links or
-redirected directories fail closed; no overwrite fallback exists. If the CLI
-returns `PREPARATION_ERROR`, reconcile publication read-only before another
-bounded attempt when publication is uncertain or applied, because an error
-after linking may still have written the receipt. For `NOT_ATTEMPTED` with
-effect `NONE`, record the candidate and diagnostic; Sol may prepare one corrected
-draft only within the remaining preparation, deadline and no-progress budgets.
-Neither path retries automatically. Errors return the exact intended `evidenceLocator` and
-`temporaryLocator`, plus `publicationState` and `publicationEffectState` for
-the final receipt. Path checks inspect each existing directory before creating
-children; Windows comparisons normalize letter case and extended path prefixes.
-The G1/G2 acceptance probes verified hard-link publication on the current
-Windows host. That evidence is specific to this filesystem; validate support on
-other target filesystems separately.
+Preflight checks the Git base and working state, all changed-path scope,
+dependency evidence and declared executable/environment capability. When a
+listed dependency is completed in `docs/roadmap/ROADMAP.md`, its completion row
+and evidence cell from the selected base commit are exposed in the result.
+Working-tree or unmerged ledger edits cannot accept a dependency. A named revision must
+resolve and be compatible with the selected base.
 
-The persisted preparation record's `stateWritePerformed: false` is the pure
-validator's result and means validation itself did not write state. The CLI's
-top-level `stateWritePerformed: true` covers the reservation and optional
-receipt publication performed by the helper. Use the reservation and evidence
-locators to audit those helper-side writes.
-This is local complete-file publication and preparation-slot reservation, not a
-durable workflow controller, authority grant or storage durability guarantee.
+The result uses `task-preflight-result/v1` and includes status, `taskId`,
+objective, baseline, dependency evidence, capability-only checks, typed issues
+and a metadata repair summary. It records no authority grant, command execution,
+dispatch or state write. Statuses are:
 
-## Validate locally
+- `READY` — readiness evidence passed. This is not permission to act.
+- `REPAIR_METADATA` — the task record needs a parse, schema or required-field
+  correction.
+- `BLOCKED_DEPENDENCY` — dependency acceptance evidence is not ready.
+- `BLOCKED_SCOPE` — a requested path is unsafe, escapes the repository or is
+  outside `writeScope`.
+- `BLOCKED_ENVIRONMENT` — a declared check or repository environment cannot be
+  supported.
 
-```powershell
-node tools/delivery-control/validate.mjs --kind packet --input .\packet.json --dependency-proofs .\proofs.json
-node tools/delivery-control/validate.mjs --kind delivery-dag --input .\delivery-dag.json --trusted-context .\trusted-context.json --dependency-proofs .\proofs.json
-node tools/delivery-control/validate.mjs --kind execution-dag --input .\execution-dag.json --delivery .\delivery-dag.json --trusted-context .\trusted-context.json --dependency-proofs .\proofs.json
-node tools/delivery-control/validate.mjs --kind fixture --input tools/delivery-control/examples/wf01-valid.json
-```
+## Ordinary delivery and failure resume
 
-The CLI reads only the explicitly named JSON inputs and prints a JSON verdict. Rejected inputs exit nonzero. A structural pass never grants authority, marks a dependency READY without proof, or writes state. For CLI dependency proofs, provide a JSON array with entries shaped as `{"artifactId":"...","bytesBase64":"...","trustedContext":{"authorityId":"...","acceptedReceipt":{...}}}`. The decoded bytes are compared with the artifact digest; the separately supplied context must repeat the exact accepted receipt binding. The validator never fetches artifact bytes.
+The ordinary path is `AUTOMATIC_TASK_PREFLIGHT`, worker implementation,
+independent verification, independent review and one root delivery
+responsibility. Required tests and exact-head CI remain mandatory. An authorized
+commit, push or pull request may collect pending CI; merge and release wait for
+all applicable acceptance, review, test, CI and authority gates. Documentation
+has no blanket CI exemption.
 
-`fixture` mode accepts only the isolated example format marked `fixtureOnly: true`. Its approvals, authority receipt identifiers, artifact receipt, and trust context are deliberately synthetic test values. A fixture-only pass is not a production approval or authenticated receipt.
+A metadata defect proven to have no product effect is `METADATA_DEFECT` and is
+repaired with `REPAIR_METADATA`. It consumes no implementation repair,
+submission, control-plane-successor or execution-cycle capacity, and does not
+start the execution deadline. Unsafe or out-of-scope paths return
+`BLOCKED_SCOPE`. Metadata no-progress at the active cap returns
+`YIELD_REASSESS`, remains resumable and preserves task identity. Preflight does
+not retry a corrected record automatically.
 
-## JavaScript API
+The exported failure classifier also maps the canonical no-progress class to
+resumable reassessment. A transient retry requires explicit same-input safety,
+idempotence or proven effectlessness, and positive remaining capacity from
+`retryAndLineage.limits.maxToolRetriesPerExecutionCycle`. Root records the retry
+against that cycle before acting; the pure classifier does not persist counters.
+Unknown effects always select read-only reconciliation first.
 
-`validate.mjs` exports:
+Implementation and submission caps and execution deadlines apply per bounded
+cycle under the same stable `taskId`. The deadline starts at the cycle's first
+worker dispatch; retries and resumes within that cycle do not reset it. An
+exhausted cycle pauses with its history intact. Root may admit a dated numbered
+cycle only after material new evidence or a corrected implementation plan,
+linking the prior history and reason. The semantic no-progress guard is
+cumulative across cycles. Unknown effects are quarantined for read-only
+reconciliation and are not retried while unknown. External authority gaps block
+the affected action; eligible independent work may continue.
 
-- `validatePacket(packet, { dependencyProofs })`
-- `validateDeliveryDag(deliveryDag, { trustedContext, dependencyProofs })`
-- `validateExecutionDag(executionDag, { trustedContext, dependencyProofs, deliveryDag })`
-- `canonicalDigest(document)`
-- `verifyArtifactAck(artifact, actualBytes, trustedContext)`
-- `verifyApproval(document, trustedContext)`
-- `classifyPark(failureClasses, context)`
+`READY` never grants credentials, production, Business, provider or other
+external authority. Production, destructive and security-sensitive effects
+require their actual risk-specific grants and evidence. Use all
+repository-required tests, independent review and exact-head CI.
 
-Dependency proof entries contain `artifactId`, a `Buffer` or `Uint8Array` in `bytes`, and a per-artifact `trustedContext`. Approval context is passed separately from the document. Results state `authorityGrant: false` and `stateWritePerformed: false`; `classifyPark` returns a validated intended record and says `durableWritePerformed: false`.
+The Node regression suite is
+[tools/tests/task-preflight.test.mjs](../tests/task-preflight.test.mjs); run it
+with:
 
-## Contract invariants
+    npm run delivery:test
 
-- Packet, delivery-DAG, and execution-DAG schemas have separate kind, schema version, and document-version fields. Unknown fields are rejected. Delivery and execution DAG approvals bind kind, revision, acceptance revision, canonical digest, and authority ID. The approval-receipt field itself is excluded from `canonicalDigest` to avoid a self-referential digest; all other document content, including acceptance criteria, is included.
-- Delivery and execution DAG nodes have unique identities and acyclic dependencies. Delivery nodes have unique packet IDs and case-insensitively unique branches. Writes that overlap under case-insensitive Windows path comparison need a common declared lock whose concrete resource path covers the writes.
-- Paths are concrete repository-relative slash paths. Absolute/drive/UNC paths, alternate streams, backslashes, globs, control characters, traversal, `.git`, case aliases, Windows device names, and trailing-dot/space aliases are rejected.
-- Declared effects must include every requested effect. Bounded budgets require non-negative finite safe-integer counters, UTC deadlines ordered below the absolute deadline, and explicit stop conditions. Automatic acceptance repair is limited to two rounds. This validates the sealed bounds; it does not run a clock or enforce limits during execution.
-- Required model mapping is `gpt-6.1-sol` for the Sol role set and `gpt-6-luna` at `max` for the Luna role set, with no fallback or substitution. Worker, verifier, and reviewer must have distinct session IDs bound to their exact roles.
-- At each packet root, delivery-DAG node, and execution-DAG root, owner fields must be non-whitespace. The paired `authority.owner` must exactly equal `owner.ownerId`, and `authority.scope` must exactly equal `owner.scope` using case-sensitive raw string equality (no trimming or normalization). Owner domain is non-whitespace only; it does not imply a domain-rights proof. Schemas state the non-whitespace requirements and relation descriptions; executable validation enforces cross-field equality.
-- Artifact references use `uri: "sha256:<digest>"`, a pinned producer commit and schema version, and an accepted receipt bound to the artifact digest and authority. Actual bytes and a caller-supplied trusted context are mandatory to return a receiver ACK. A producer's `READY` status is not accepted as proof.
-- Every declared PARK route names a typed failure class, targets `PARK`, and binds the exact approved park-map digest. Multiple failures use the map's deterministic priority, with `UNKNOWN_EFFECT` first; unknown classifications fall back to `UNCLASSIFIED` and cannot produce `CLOSED`.
+The governance workflow includes this test job. Test completion and workflow
+results must be verified on the exact revision before claiming a gate passed.
 
-## Trust and persistence boundary
+## Historical WF01 v1 validation
 
-The validator checks that separately supplied trust context fields exactly match the document or receipt. It cannot authenticate who supplied that context, verify a digital signature, prove receipt provenance, or establish that a runtime used the selected model/session. The caller must obtain and authenticate those anchors outside this local tool. Cryptographic signatures and durable handoff are later work (WF05); persistent state, leases, and ledger writes are separate work (WF02). PARK results are intended records only and never claim that a durable transition occurred. This package is a contract validator, not an autonomous controller.
+The v1 packet, delivery-DAG, execution-DAG and G0-preparation schemas remain
+available. They are structural validators for historical records, not the
+ordinary v4 task format. They do not dispatch work, execute declared commands,
+authenticate trusted context, grant authority, or persist a workflow ledger.
+Preserve the v1 schemas, receipts, source pins and WF00
+[SOURCE-RECONCILIATION.md](../../docs/architecture/delivery-control/SOURCE-RECONCILIATION.md)
+as historical evidence.
+
+The legacy G0 command is an audit only under v4:
+
+    node tools/delivery-control/prepare-g0.mjs --root-lineage-id TASK-EXAMPLE --packet .\packet.json --preparation .\preparation.json --dependency-proofs .\proofs.json
+
+It returns `LEGACY_STRUCTURAL_AUDIT_ONLY` or
+`LEGACY_STRUCTURAL_AUDIT_REJECTED`, with `authorityGrant: false`,
+`dispatchAllowed: false` and `stateWritePerformed: false`. The publish flag is
+rejected before any file write. Do not create new v3 preparation reservations
+or receipts. The machine policy retains a frozen v3 audit projection and its
+historical caps; those caps do not govern ordinary v4 readiness or repair.
+
+The lower-level validator remains available for packet, delivery-DAG,
+execution-DAG and fixture inputs. For example:
+
+    node tools/delivery-control/validate.mjs --kind packet --input .\packet.json --dependency-proofs .\proofs.json
+    node tools/delivery-control/validate.mjs --kind delivery-dag --input .\delivery-dag.json --trusted-context .\trusted-context.json --dependency-proofs .\proofs.json
+    node tools/delivery-control/validate.mjs --kind execution-dag --input .\execution-dag.json --delivery .\delivery-dag.json --trusted-context .\trusted-context.json --dependency-proofs .\proofs.json
+
+A validator `PASS` is structural evidence only. It cannot replace trusted
+authority reconciliation, independent verification, review, mandatory tests,
+exact-head CI or any required external grant. The local tools do not establish
+that a persistent controller or ledger is installed.
+
+Version diff (2026-10-15): documents the v4 single-record, read-only ordinary
+preflight, active delivery path and per-cycle resume rules; keeps v1 validation
+available only for historical audit and preserves all mandatory gates.

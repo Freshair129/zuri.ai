@@ -1,47 +1,93 @@
 {
   "policyId": "AUTONOMOUS-CODING-DELIVERY-MODEL-POLICY",
-  "version": 3,
+  "version": 4,
   "status": "ACTIVE",
   "authority": {
-    "ownerDirectionDate": "2026-10-14",
+    "ownerDirectionDate": "2026-10-15",
     "source": "Direct current user task or standing delegation evidenced in trusted conversation or harness context",
-    "scope": "Autonomous repository coding and documentation delivery within the trusted mandate and existing user and repository prohibitions",
-    "admission": "Root derives bounded task admissions from the standing objective and trusted delegation; G0 is agent preflight, with no per-node human approval",
+    "scope": "Ordinary repository coding and documentation under a trusted mandate; high-risk external effects require their risk-specific grants and evidence",
+    "admission": "Ordinary tasks use one task-readiness/v1 record and read-only automated preflight; no sealed G0 admission is required",
     "accountableOwner": "May be a delegated agent when the trusted mandate binds the delegation",
     "trustedAuthorityRecord": {
-      "sufficientProvenance": ["Direct current user task instruction", "Standing delegation in trusted conversation or harness evidence"],
+      "sufficientProvenance": [
+        "Direct current user task instruction",
+        "Standing delegation in trusted conversation or harness evidence"
+      ],
       "recordedBy": "Root/orchestrator, once per mandate",
-      "requiredFields": ["sourceMessageOrReference", "repository", "objective", "effectsInScope", "prohibitions"],
+      "requiredFields": [
+        "sourceMessageOrReference",
+        "repository",
+        "objective",
+        "effectsInScope",
+        "prohibitions"
+      ],
       "derivedPacketsReferenceRecord": true,
       "userAuthoredPacketOrSignatureRequired": false,
       "extraApprovalRequired": false,
       "copiedPacketFieldsEstablishTrust": false,
-      "separatelySuppliedContextMustComeFrom": "Trusted conversation or harness evidence"
+      "separatelySuppliedContextMustComeFrom": "Trusted conversation or harness evidence",
+      "ordinaryTaskRecordReferencesRecord": true,
+      "mandateReferenceIsAuthority": false,
+      "legacyOwnerApprovedLabelRule": "Reconcile a legacy label to current trusted delegation and actual scope; a stale label alone is not a blocker"
     },
-    "supersedesForNewObjectives": "WF00-CODING-DELIVERY-MODEL-POLICY version 1",
-    "historyRule": "Historical pins, packet receipts, source reconciliation, and exhausted run dispositions remain immutable; this policy update is a separate objective and never resets any lineage"
+    "supersedesForNewObjectives": "AUTONOMOUS-CODING-DELIVERY-MODEL-POLICY version 3",
+    "historyRule": "Historical pins, packet receipts, source reconciliation, terminal records and reservations remain immutable. A metadata-only historical block may be reassessed under the same stable task identity and current authority; record a new dated result linked to the old history. Other blocks are not waived and no budget is refunded."
   },
   "operationMode": {
     "autonomousOperation": true,
     "routineHumanApprovalRequired": false,
     "trustedMandateAndVerifiedAuthorityBindingRequiredForDispatch": true,
-    "oldPerNodeAndPerGateHumanApprovalRequirementsSupersededForInScopeWork": true
+    "oldPerNodeAndPerGateHumanApprovalRequirementsSupersededForInScopeWork": true,
+    "ordinaryTasksUseSingleReadinessRecord": true,
+    "sealedG0RequiredForOrdinaryTasks": false,
+    "ordinaryPreflightReadOnly": true
   },
   "models": {
-    "decision": { "model": "gpt-6.1-sol" },
-    "criticalDebugging": { "model": "gpt-6.1-sol" },
-    "integration": { "model": "gpt-6.1-sol" },
-    "audit": { "model": "gpt-6.1-sol" },
-    "orchestration": { "model": "gpt-6.1-sol" },
-    "finalGate": { "model": "gpt-6.1-sol" },
-    "exploration": { "model": "gpt-6-luna", "reasoningEffort": "max" },
-    "research": { "model": "gpt-6-luna", "reasoningEffort": "max" },
-    "worker": { "model": "gpt-6-luna", "reasoningEffort": "max" },
-    "verify": { "model": "gpt-6-luna", "reasoningEffort": "max" },
-    "review": { "model": "gpt-6-luna", "reasoningEffort": "max" }
+    "decision": {
+      "model": "gpt-6.1-sol"
+    },
+    "criticalDebugging": {
+      "model": "gpt-6.1-sol"
+    },
+    "integration": {
+      "model": "gpt-6.1-sol"
+    },
+    "audit": {
+      "model": "gpt-6.1-sol"
+    },
+    "orchestration": {
+      "model": "gpt-6.1-sol"
+    },
+    "finalGate": {
+      "model": "gpt-6.1-sol"
+    },
+    "exploration": {
+      "model": "gpt-6-luna",
+      "reasoningEffort": "max"
+    },
+    "research": {
+      "model": "gpt-6-luna",
+      "reasoningEffort": "max"
+    },
+    "worker": {
+      "model": "gpt-6-luna",
+      "reasoningEffort": "max"
+    },
+    "verify": {
+      "model": "gpt-6-luna",
+      "reasoningEffort": "max"
+    },
+    "review": {
+      "model": "gpt-6-luna",
+      "reasoningEffort": "max"
+    }
   },
   "sessionIdentity": {
-    "distinctSessionRoles": ["worker", "verifier", "reviewer"],
+    "distinctSessionRoles": [
+      "worker",
+      "verifier",
+      "reviewer"
+    ],
     "workerVerifierReviewerMustBeDifferentSessions": true,
     "verifierAndReviewerMustBeDifferentSessions": true,
     "roleSubstitutionAllowed": false,
@@ -70,39 +116,28 @@
   },
   "gates": {
     "gateOrder": [
-      "G0_AGENT_PREFLIGHT",
-      "G1_WORKER_SUBMISSION",
-      "G2_INDEPENDENT_VERIFY",
-      "G2R_INDEPENDENT_REVIEW",
-      "G3_SOL_DECISION",
-      "G3B_SOL_ROOT_INTEGRATION",
-      "G4_EXACT_HEAD_CI",
-      "G5_SOL_FINAL",
-      "CONDITIONAL_DELEGATED_RELEASE_ACTIVATION",
+      "AUTOMATIC_TASK_PREFLIGHT",
+      "WORKER_IMPLEMENTATION",
+      "INDEPENDENT_VERIFY",
+      "INDEPENDENT_REVIEW",
+      "ROOT_DELIVERY",
+      "REQUIRED_TESTS_AND_EXACT_HEAD_CI",
+      "CONDITIONAL_RELEASE_ACTIVATION",
       "SOT_CLOSEOUT",
       "SAFE_CLEANUP"
     ],
-    "g0": "Root derives an agent admission from the standing objective and trusted mandate, verifies authority binding, dependencies, pins, read and write scopes, forbidden effects, acceptance oracle, environment, and receipt destination; no per-gate human approval",
-    "g1": "Worker submission and self-check; not independent verification or authorization",
-    "g2": "Different-session configured verifier checks the exact submitted revision and acceptance criteria",
-    "g2r": "Mandatory independent review by a configured reviewer session different from both worker and verifier, against the same exact verified revision",
-    "g3": "Configured decision role resolves task decisions after G2 and G2R within the trusted mandate; cannot grant missing domain, Business, provider, production, or external authority",
-    "highImpactOrUncertainCase": "Configured decision role owns technical disposition; an effect outside the mandate is a typed blocker, not a human approval prompt",
-    "g3b": "Configured root integration role integrates only after G2, G2R, and G3; rechecks scope, pins, conflicts, locks, and exact evidence",
-    "g4": "Before merge or release, required CI must attest the exact reviewed head and required ancestors. An already-authorized commit, push, or PR may collect this evidence while CI remains pending; publication is not acceptance or merge authorization. A changed head invalidates affected review and CI evidence",
-    "g5": "Configured final gate checks the integrated revision, applicable exact-head CI, authority scope, and remaining gates before an already-authorized merge",
+    "highImpactOrUncertainCase": "Sol owns technical disposition within the trusted mandate. Production, destructive, security-sensitive and other external effects require their actual risk-specific grant and evidence; missing authority is a typed blocker, not a human approval prompt.",
     "delegatedReleaseActivation": "Conditional only when release or activation is part of the task; otherwise mark NOT_APPLICABLE and proceed to SOT closeout. When requested, reuse the existing exact target and environment grant and required gates, with no human prompt. If authority, target binding, or credentials are missing, record a typed blocked action and continue independent eligible work",
     "sotCloseout": "Reconcile through the owning canonical source of truth after the authorized delivery action",
     "safeCleanup": "Only after closeout and evidence retention, after confirming no active assignment, process, lease, or unpreserved worktree state",
     "notApplicable": {
       "status": "NOT_APPLICABLE",
       "allowedWhen": "The gate was not requested by the trusted mandate and is not required by repository policy",
-      "receiptMustExplainWhy": true,
       "mandatoryCiAndAcceptanceCriteriaMayNotUseIt": true,
-      "missingRequiredEvidenceDisposition": "NOT_RUN_OR_BLOCKED; never PASS"
+      "missingRequiredEvidenceDisposition": "NOT_RUN_OR_BLOCKED; never PASS",
+      "reasonMustBeRecorded": true
     },
-    "negativeEvidence": "Any required failure, missing proof, stale pin, scope escape, absent authority binding, unavailable model, or failed command blocks PASS",
-    "missingReviewReceiptDisposition": "BLOCKED",
+    "negativeEvidence": "Required evidence and failed acceptance checks prevent READY or gate PASS. Metadata defects route to REPAIR_METADATA; missing mandatory CI or acceptance evidence is never PASS.",
     "unknownStatusIsPass": false,
     "structuralValidatorPassProvesAuthorization": false,
     "exactHeadCiRequiredWhenApplicable": true,
@@ -121,52 +156,41 @@
     ],
     "failureRouting": {
       "appliesToEveryGate": [
-        "G0_AGENT_PREFLIGHT",
-        "G1_WORKER_SUBMISSION",
-        "G2_INDEPENDENT_VERIFY",
-        "G2R_INDEPENDENT_REVIEW",
-        "G3_SOL_DECISION",
-        "G3B_SOL_ROOT_INTEGRATION",
-        "G4_EXACT_HEAD_CI",
-        "G5_SOL_FINAL",
-        "CONDITIONAL_DELEGATED_RELEASE_ACTIVATION",
+        "AUTOMATIC_TASK_PREFLIGHT",
+        "WORKER_IMPLEMENTATION",
+        "INDEPENDENT_VERIFY",
+        "INDEPENDENT_REVIEW",
+        "ROOT_DELIVERY",
+        "REQUIRED_TESTS_AND_EXACT_HEAD_CI",
+        "CONDITIONAL_RELEASE_ACTIVATION",
         "SOT_CLOSEOUT",
         "SAFE_CLEANUP"
       ],
-      "triageOwner": "Sol",
-      "triagePrecedesEveryRetryOrRepair": true,
-      "triageAccounting": "Mandatory ordinary Sol root triage is part of the triggering gate/action disposition and consumes no separate escalation, retry, repair, submission, or successor attempt. It is bounded by that triggering gate/action and the existing no-progress and deadline budgets. When those budgets are exhausted, triage may only record the terminal disposition and continue independent eligible work; it cannot authorize another attempt",
+      "triageOwner": "Sol for technical, scope, authority or effect ambiguity; ordinary metadata defects are classified and repaired without a separate root gate",
+      "triagePrecedesEveryRetryOrRepair": false,
+      "triageAccounting": "Classify evidence before retry or repair. Proven no-effect metadata repair does not consume implementation, submission, control-plane-successor or execution-cycle capacity. Implementation and submission retries use active per-cycle caps. Exhausted cycles pause for root reassessment; no automatic hot retry or history reset.",
       "routes": [
         {
-          "failureClass": "PROVEN_NO_EFFECT_PACKET_ALLOWLIST_OR_ARGV_DEFECT",
-          "condition": "The failing operation is proven to have had no effect and the defect is in packet, allowlist, or argument construction",
-          "action": "CONTROL_PLANE_REPAIR_SUCCESSOR",
-          "boundedBy": "Existing control-plane repair and total successor budgets",
-          "reentry": "Revalidate G0 and every affected downstream gate; preserve the old packet and receipts and retain the original failure"
+          "failureClass": "METADATA_DEFECT",
+          "condition": "Parse, schema, path, quoting or historical receipt defect is proven to have had no product effect",
+          "action": "REPAIR_METADATA",
+          "countsAs": [],
+          "startsExecutionDeadline": false,
+          "onRepeatedIdenticalNoProgress": "YIELD_REASSESS",
+          "terminal": false
         },
         {
-          "failureClass": "IMPLEMENTATION_TEST_REVIEW_OR_CI_DEFECT",
-          "condition": "The failed acceptance result is attributable to implementation, test, review, integration, or CI evidence",
-          "action": "ACCEPTANCE_REPAIR_AND_NEW_SUBMISSION",
-          "boundedBy": "Existing acceptance repair, submission, successor, gate-evaluation, deadline, and no-progress budgets",
-          "reentry": "Create a new submission in the same root lineage and rerun every affected downstream gate from the earliest invalidated evidence"
+          "failureClass": "IMPLEMENTATION_FAILURE",
+          "condition": "Acceptance evidence fails because of implementation, test, review, integration or CI",
+          "action": "BOUNDED_IMPLEMENTATION_REPAIR_AND_RESUBMISSION",
+          "boundedBy": "Active implementation repair, submission, execution deadline and no-progress caps",
+          "reentry": "Preserve the same task identity and rerun every invalidated downstream gate"
         },
         {
-          "failureClass": "KNOWN_TRANSIENT_TOOL_ERROR",
-          "condition": "The same semantic input can be retried because the operation is idempotent or prior effectlessness is proven",
-          "action": "TOOL_RETRY_SAME_INPUT",
-          "boundedBy": "Existing total tool-retry budget"
-        },
-        {
-          "failureClass": "MISSING_MANDATE_AUTHORITY_SCOPE_OR_DEPENDENCY",
-          "action": "TYPE_BLOCK_AFFECTED_TASK_AND_CONTINUE_INDEPENDENT_ELIGIBLE_WORK",
+          "failureClass": "EXTERNAL_BLOCKER",
+          "condition": "The action needs an external grant, credential, production target or other capability that the mandate does not provide",
+          "action": "BLOCK_AFFECTED_EXTERNAL_ACTION_AND_CONTINUE_INDEPENDENT_ELIGIBLE_WORK",
           "humanApprovalPromptAllowed": false
-        },
-        {
-          "failureClass": "SOURCE_PIN_MISMATCH",
-          "action": "READ_ONLY_AUTHORITATIVE_RECONCILIATION",
-          "repinningToClearFailureAllowed": false,
-          "ifActualSourceChangeIsRequired": "Treat it as an acceptance change; invalidate and rerun affected downstream gates in the same lineage"
         },
         {
           "failureClass": "UNKNOWN_EFFECT",
@@ -176,18 +200,41 @@
           "effectStateRemainsUnknownUntilAuthoritativeEvidence": true
         },
         {
-          "failureClass": "OUT_OF_SCOPE_UNAVAILABLE_CAPABILITY_BUDGET_EXHAUSTED_OR_NO_PROGRESS",
-          "action": "TYPE_BLOCK_AFFECTED_TASK_AND_CONTINUE_INDEPENDENT_ELIGIBLE_WORK",
-          "humanApprovalPromptAllowed": false
+          "failureClass": "IDENTICAL_SEMANTIC_NO_PROGRESS_AT_CAP",
+          "action": "YIELD_REASSESS",
+          "resumable": true,
+          "terminal": false,
+          "continueIndependentEligibleWork": true
+        },
+        {
+          "failureClass": "KNOWN_TRANSIENT_TOOL_ERROR",
+          "condition": "The same semantic input is idempotent or prior effectlessness is proven",
+          "action": "BOUNDED_TOOL_RETRY_SAME_INPUT"
         }
       ],
-      "counterOrDeadlineExhaustionAtAnyGate": "TERMINAL_BLOCKED_OR_FAILED_FOR_AFFECTED_LINEAGE; CONTINUE_INDEPENDENT_ELIGIBLE_WORK",
-      "gateEvaluationExhaustionIncludesG0AndCi": true,
-      "notApplicable": "Use NOT_APPLICABLE only for a gate not requested by the mandate and not required by repository policy; never for mandatory CI or acceptance criteria"
+      "counterOrDeadlineExhaustionAtAnyGate": "Pause the current execution cycle and preserve task identity, cycle history and evidence. A new dated numbered cycle under the same taskId requires root admission after material new evidence or a corrected implementation plan; prior cycle records remain immutable and the semantic no-progress guard remains cumulative.",
+      "notApplicable": "Use NOT_APPLICABLE only for a gate not requested by the mandate and not required by repository policy; never for mandatory CI or acceptance criteria",
+      "noProgressClassification": {
+        "failureClass": "IDENTICAL_SEMANTIC_NO_PROGRESS_AT_CAP",
+        "action": "YIELD_REASSESS",
+        "resumable": true,
+        "terminal": false,
+        "capField": "retryAndLineage.limits.maxOccurrencesPerNoProgressFingerprint"
+      },
+      "gateEvaluationExhaustionIncludesAutomaticPreflightAndCi": false
     },
-    "blockedActionReceiptFields": [
-      "rootLineageId",
-      "nodeId",
+    "documentationUsesSameRequiredCi": true,
+    "automaticTaskPreflight": "Read-only task-readiness/v1 evidence for Git base, dependencies, scope and environment. READY grants no authority, reservation, receipt or dispatch.",
+    "workerImplementation": "Worker implements within the task record writeScope and returns the exact revision, changed paths, self-check evidence and remaining gaps.",
+    "independentVerify": "A distinct verifier checks the exact submitted revision and acceptance criteria.",
+    "independentReview": "A distinct reviewer inspects the same exact submitted revision; reviewer session differs from worker and verifier.",
+    "rootDelivery": "One Sol root delivery responsibility covers in-scope technical and product decisions, integration, authorized commit/push/PR publication and final merge disposition. Authorized publication may collect pending CI; merge or release waits for every applicable acceptance, review, test, exact-head CI and authority gate.",
+    "requiredTestsAndExactHeadCi": "All repository-required tests and CI remain mandatory. CI attests the exact head; a changed head invalidates affected review and CI evidence. This evidence gates merge and release.",
+    "gateOrderScope": "Describes the ordinary v4 path. Root delivery is one continuing responsibility that may publish a PR before CI and completes merge only after CI and all applicable gates pass.",
+    "blockedActionRecordFields": [
+      "taskId",
+      "executionCycle",
+      "stage",
       "action",
       "reasonCode",
       "exactEvidenceReference",
@@ -195,96 +242,287 @@
       "nextPermittedAction",
       "runDisposition",
       "effectState"
-    ]
+    ],
+    "missingIndependentReviewEvidenceDisposition": "BLOCKED"
   },
   "packetPreflight": {
-    "draftPreparation": {
-      "stage": "DRAFT_NOT_ADMITTED",
-      "owner": "Sol",
-      "tool": "tools/delivery-control/prepare-g0.mjs",
-      "schema": "tools/delivery-control/contracts/g0-preparation.schema.json",
-      "requiredBeforeSealedG0Reservation": true,
-      "structuralPassAllowsDispatch": false,
-      "checks": ["Strict packet structure and dependency byte proofs", "Exact packet digest and lineage binding", "Active policy version", "One structured shell=false executable/argv/cwd/environment receipt proof per acceptance criterion", "Scoped repository read-set paths", "JSON serialization round-trip and complete-byte read-back before create-only receipt publication"],
-      "rootStillChecks": ["Trusted mandate provenance and verified authority binding", "Actual baseline and source bytes", "Complete startup and dependency read-set closure including exact private evidence references", "Command semantics and actual environment capability", "Remaining lineage budgets and original deadline", "Distinct role sessions and scoped effects"],
-      "accounting": "The helper requires a stable CLI lineage and reserves a create-exclusive append-only flat slot under git-common-dir before opening candidate files. Linked worktrees and sessions share capacity. Malformed JSON consumes an attempt; corrupt, ambiguous, conflicting or exhausted history blocks candidate reads without automatic retry. Never delete, overwrite or refund slots; policy upgrades cannot raise the original reserved cap. Root still checks full history, original deadline, no-progress and terminal eligibility before invocation. Preparation errors consume this allowance and no-progress budget only; no sealed G0, successor, submission or acceptance-repair capacity is reserved before preparation succeeds. Retain every failed candidate and diagnostic",
-      "completion": "A published PREPARED_NOT_ADMITTED structural receipt binds the exact candidate and active policy digest; root must perform the remaining authority/evidence checks and reserve sealed G0 separately before admission or dispatch",
-      "publication": "Create-only same-directory hard-link publication after serialization, fsync and byte read-back; existing bytes are never overwritten. Unsupported filesystem or uncertain publication requires typed failure and read-only reconciliation; no overwrite fallback",
-      "noProgressFingerprint": ["objective", "stage", "failureClass", "semanticInputDigest"],
-      "onExhaustion": "TERMINAL_BLOCKED for affected root lineage; preserve evidence, continue independent eligible work; no human approval loop, relabeling, deadline extension or counter reset",
-      "history": "Only new or still-eligible lineages use draft preparation. Previously exhausted or terminal lineages remain terminal; this policy does not retroactively reclassify or refund reservations"
-    },
-    "readScopeDistinctFromWriteScope": true,
-    "scopedReadOnlyDiscovery": [
-      "Repository instructions",
-      "Dependencies",
-      "Exact git-common-dir evidence references"
-    ],
-    "forbiddenReadActions": ["Secret dumps", "Path escapes"],
-    "readSetClosureRequiredBeforeDispatch": [
-      "Repository instructions and required startup sources",
-      "Dependencies",
-      "All required source and policy pins",
-      "Prior receipts needed by the lineage",
-      "Expected-missing paths"
-    ],
-    "presenceHashAndBodyReadsAreDistinct": true,
-    "expectedAbsentPathProof": "Existence check; do not record a fictitious hash",
-    "realHashMismatchDisposition": "Read-only reconciliation against actual bytes; never repin to clear the mismatch",
-    "sourceEditDisposition": "Invalidate every affected verification",
-    "controlPlaneRepairSuccessor": "One batched successor is eligible only for diagnosed allowlist or quoting defects with evidence that the failed operation had no effect; preserve old packet and receipts, and retain old failures as failures",
-    "processInvocation": {
-      "shell": false,
-      "requiredFields": ["executable", "argv", "cwd"],
-      "powershellLiteralGitTreeExample": "git rev-parse 'HEAD^{tree}'"
-    }
+    "status": "LEGACY_ARCHIVAL_ONLY",
+    "tool": "tools/delivery-control/prepare-g0.mjs",
+    "requiredForOrdinaryTasks": false,
+    "v4Mode": "READ_ONLY_STRUCTURAL_AUDIT",
+    "newReservationsAllowed": false,
+    "newReceiptPublicationAllowed": false,
+    "auditPolicyReference": "legacyV3Archive.auditPolicy"
   },
   "acceptanceEvidence": {
-    "oracleFormat": "Given/When/Then",
-    "requiredCommandProof": ["executable", "argv", "cwd", "environment"],
-    "receiptFields": [
+    "oracleFormat": "Nonempty acceptance strings, derived from the roadmap where available; actual outcomes remain separate worker, verifier, review, test and CI evidence.",
+    "requiredCommandProof": [
+      "executable",
+      "argv",
+      "cwd"
+    ],
+    "statusesRemainDistinct": [
+      "NOT_APPLICABLE",
+      "NOT_RUN",
+      "UNKNOWN",
+      "FLAKY",
+      "SKIPPED",
+      "PARTIAL",
+      "FAIL",
+      "PASS"
+    ],
+    "notApplicableAllowedForAcceptanceCriteria": false,
+    "missingOrNegativeRequiredEvidenceCanPass": false,
+    "perCriterionEnvironmentHashReceiptRequired": false,
+    "preflightExecutesChecks": false,
+    "deliveryEvidenceFields": [
       "exactRevision",
-      "policyVersion",
       "roleAndSession",
-      "criteriaAndChecks",
+      "acceptanceCriteria",
       "evidenceLocator",
       "commandsAndExitStatus",
-      "environment",
       "verdict",
       "remainingGaps"
-    ],
-    "statusesRemainDistinct": ["NOT_APPLICABLE", "NOT_RUN", "UNKNOWN", "FLAKY", "SKIPPED", "PARTIAL", "FAIL", "PASS"],
-    "notApplicableAllowedForAcceptanceCriteria": false,
-    "missingOrNegativeRequiredEvidenceCanPass": false
+    ]
   },
   "retryAndLineage": {
     "lineageIdentity": {
-      "rootLineageIdDefines": "One independently deliverable task or feature",
-      "stableIdentityFields": ["objectiveIdentity", "acceptanceIdentity"],
+      "rootLineageIdDefines": "Historical v3 lineage identifier; ordinary v4 tasks use stable taskId.",
+      "stableIdentityFields": [
+        "taskId",
+        "objective"
+      ],
       "descendantsAndAcceptanceVersionsShareLineage": true,
       "independentDagObjectivesMayHaveSeparateLineages": true,
-      "relabelingSameFailedWorkCreatesNewLineage": false
+      "relabelingSameFailedWorkCreatesNewLineage": false,
+      "ordinaryTaskIdentityField": "taskId",
+      "rootLineageIdRequiredForOrdinaryTasks": false
     },
-    "scope": "Shared by all descendants and acceptance versions of one rootLineageId",
+    "scope": "Ordinary v4 retry state is keyed by stable taskId; legacy rootLineageId is used only to audit historical v1 records.",
     "preserveLineageAcrossRepairRenameRebasePacketChatAndPolicyUpgrade": true,
-    "reserveCounterBeforeAction": true,
     "persistOutcomeAndCost": true,
     "counterSemantics": {
-      "preparationAttempt": "Every candidate validation or publication attempt uses the shared root-lineage preparation allowance before action, including malformed candidates and publication failures. Successful structural preparation does not replace sealed G0",
-      "submissionAttempt": "Initial submission and each repaired submission count toward the total",
-      "controlPlaneRepairSuccessor": "Consumes both its control-plane repair successor allowance and the total successor plan allowance",
-      "gateEvaluation": "Keyed by canonical gate ID and shared across every descendant in the root lineage",
-      "ordinarySolRootTriage": "Mandatory root triage is part of the triggering gate/action disposition and consumes no separate escalation, retry, repair, submission, or successor counter; it remains bounded by the triggering gate/action and existing no-progress and deadline budgets. At exhaustion, triage may only record terminal disposition and continue independent eligible work; it cannot authorize another attempt",
+      "metadataRepair": "No reservation or implementation/submission/control-plane-successor spend. Record the defect; use the no-progress cap only to choose YIELD_REASSESS.",
+      "implementationRepair": "Bounded by active per-execution-cycle implementation repair and submission caps; rerun invalidated acceptance, review, test and CI gates.",
+      "rootReassessment": "Root may admit a new dated numbered execution cycle under the same taskId only after material new evidence or a corrected implementation plan. Link prior cycle history and reason; do not overwrite or refund prior counters. The semantic no-progress guard remains cumulative across cycles.",
       "reservationRollbackOnFailure": false
     },
     "deadlineAnchors": {
-      "run": "Starts at the first draft preparation or G0 attempt for the rootLineageId, whichever came first; existing anchors remain unchanged",
-      "node": "Starts at the first dispatch of a stable node identity; repair and resume preserve the original start",
+      "run": "Starts at the first worker dispatch in each root-admitted bounded execution cycle under taskId. Preflight and metadata repair do not start an execution cycle.",
+      "node": "Starts at first worker dispatch of the bounded cycle; retries and resumes within the cycle preserve the original start.",
       "boundedWait": "Starts when each wait begins; do not poll unchanged input after it expires",
       "repairOrResumeResetsDeadline": false,
-      "sameLineageSuccessorResetsDeadline": false
+      "sameLineageSuccessorResetsDeadline": false,
+      "newlyAdmittedCycleStartsNewDeadline": true
     },
     "limits": {
+      "maxOccurrencesPerNoProgressFingerprint": 2,
+      "maxBoundedWaitMinutes": 10,
+      "maxSubmissionAttemptsPerExecutionCycle": 3,
+      "maxImplementationRepairRoundsPerExecutionCycle": 2,
+      "maxToolRetriesPerExecutionCycle": 2,
+      "maxRunDurationMinutesPerExecutionCycle": 120,
+      "maxNodeDurationMinutesPerExecutionCycle": 45
+    },
+    "retryClassifier": {
+      "classes": [
+        "METADATA_DEFECT",
+        "IMPLEMENTATION_FAILURE",
+        "EXTERNAL_BLOCKER",
+        "UNKNOWN_EFFECT",
+        "IDENTICAL_SEMANTIC_NO_PROGRESS_AT_CAP",
+        "KNOWN_TRANSIENT_TOOL_ERROR"
+      ],
+      "requiredEvidence": [
+        "taskId",
+        "objective",
+        "stage",
+        "attempt",
+        "repairRound",
+        "failureEvidence",
+        "failureClass",
+        "semanticInputDigest",
+        "nextPermittedAction"
+      ],
+      "reclassificationToBypassLimitsAllowed": false,
+      "unclassifiedRetryDisposition": "BLOCKED_FOR_REASSESSMENT; preserve task identity and evidence",
+      "unknownCounterHistoryDisposition": "BLOCK_ONLY_AFFECTED_TASK; never assume zero or silently reset",
+      "dispositions": {
+        "METADATA_DEFECT": "REPAIR_METADATA only when no product effect is proven",
+        "IMPLEMENTATION_FAILURE": "Bounded implementation repair and new submission",
+        "EXTERNAL_BLOCKER": "Block the affected external action; continue independent work",
+        "UNKNOWN_EFFECT": "Quarantine and reconcile read-only; no retry while unknown",
+        "IDENTICAL_SEMANTIC_NO_PROGRESS_AT_CAP": "YIELD_REASSESS; resumable, not terminal",
+        "KNOWN_TRANSIENT_TOOL_ERROR": "Retry the same input only if idempotent or prior effectlessness is proven",
+        "SCOPE_BLOCKED": "Block the out-of-scope task; do not widen writeScope implicitly",
+        "DEPENDENCY_BLOCKED": "Keep the dependent task blocked until the roadmap evidence is accepted"
+      }
+    },
+    "toolRetryPrerequisites": "Same operation and semantic input; idempotency is established or evidence proves the prior attempt had no effect",
+    "unknownEffectDisposition": {
+      "effectState": "UNKNOWN",
+      "action": "QUARANTINE_AND_READ_ONLY_AUTHORITATIVE_RECONCILIATION",
+      "retryAllowedWhileUnknown": false,
+      "runDispositionIsSeparateFromEffectState": true,
+      "deadlineOrBudgetTerminationPreservesUnknownEffectState": true,
+      "authoritativeReconciliationRequiredBeforeRetry": true
+    },
+    "errorFingerprintFields": [
+      "taskId",
+      "stage",
+      "failureClass",
+      "semanticInputDigest"
+    ],
+    "cosmeticEditCountsAsProgress": false,
+    "newExternalEvidenceMayWakeBlockedTaskWithinRemainingBudget": true,
+    "automaticDeadlineOrBudgetIncreaseAllowed": false,
+    "onExhaustion": "Pause the current bounded execution cycle with task identity and all prior evidence preserved. No automatic retry or cap extension. Root may admit a dated numbered cycle under the same taskId only after material new evidence or a corrected implementation plan, linking the prior cycle and reason; cumulative semantic no-progress protection remains active.",
+    "missingHistory": "Block only the affected lineage; never assume zero or silently reset",
+    "futureResume": "Resume within the same stable taskId and current cycle when evidence arrives within remaining caps. After cycle exhaustion, root may admit a new dated numbered cycle only on material new evidence or corrected implementation plan; retain prior history and cumulative semantic no-progress counts.",
+    "preserveLineageAcrossRepairRenameRebaseChatAndPolicyUpgrade": true,
+    "reserveCounterBeforeAction": false,
+    "executionCycle": {
+      "identity": "Same stable taskId",
+      "numbering": "Root-admitted dated numbered cycles",
+      "caps": "Implementation repair, submission and deadline caps apply within each bounded cycle",
+      "exhaustion": "Pause and preserve history",
+      "nextCycleRequires": [
+        "Material new evidence",
+        "Corrected implementation plan"
+      ],
+      "cosmeticMetadataResetsCycle": false,
+      "promptAloneResetsCycle": false,
+      "semanticNoProgressGuard": "Cumulative across cycles"
+    }
+  },
+  "taskEffectBoundary": {
+    "commitPushPullRequestMerge": "Allowed only when already included in the trusted user mandate and within scope. Authorized commit, push or PR creation may collect pending CI evidence; merge and release wait for all applicable gates.",
+    "productionSupabaseAndMigrationProhibitions": "Preserve existing user and repository prohibitions. Production, destructive, security-sensitive and migration effects require actual risk-specific grants and evidence; this policy adds no authority.",
+    "missingExternalAuthorityOrCredentials": "Typed blocker for the affected action; continue independent eligible work; do not request repeated approval or invent access.",
+    "highRiskEffectsRequireRiskSpecificGrantAndEvidence": true
+  },
+  "runtimeBoundary": {
+    "agentProcedurePolicy": "ACTIVE_V4",
+    "localContractValidator": "EXISTS",
+    "durableLedger": "NOT_ASSUMED_SHIPPED",
+    "runtimeController": "NOT_ASSUMED_SHIPPED",
+    "liveDispatch": "NOT_ASSERTED",
+    "rootOwnedToolingPath": "tools/delivery-control/",
+    "reservedRepositoryLocalNonProductState": "<git-common-dir>/zuri-delivery-control/",
+    "validatorStructuralPassIsAuthorization": false,
+    "cannotPersistTrustedAuthorityLineageAndReceipts": "Preflight does not authenticate mandate or persist workflow state; root reconciles trusted authority and records task history.",
+    "localReadinessTool": "tools/delivery-control/preflight.mjs",
+    "localReadinessIsReadOnlyEvidence": true,
+    "preflightDispatchesOrRunsChecks": false,
+    "legacyPrepareG0Mode": "READ_ONLY_STRUCTURAL_AUDIT; NO NEW RESERVATION OR RECEIPT PUBLICATION",
+    "draftPreparationCounterEnforcement": "LEGACY_V3_ONLY; no v4 ordinary task reservation is created"
+  },
+  "ordinaryPreflight": {
+    "status": "ACTIVE",
+    "enabled": true,
+    "schema": "task-readiness/v1",
+    "tool": "tools/delivery-control/preflight.mjs",
+    "invocation": "node tools/delivery-control/preflight.mjs --task-file <path> --base origin/main",
+    "defaultBase": "origin/main",
+    "optionalFlags": [
+      "--changed",
+      "--json",
+      "--repo <path>"
+    ],
+    "requiredFields": [
+      "schemaVersion",
+      "taskId",
+      "objective",
+      "acceptance",
+      "writeScope",
+      "checks",
+      "mandateReference"
+    ],
+    "optionalFields": [
+      "dependencies"
+    ],
+    "dependencyShape": {
+      "required": [
+        "taskId"
+      ],
+      "optional": [
+        "revision"
+      ]
+    },
+    "checkShape": {
+      "required": [
+        "shell",
+        "executable",
+        "argv",
+        "cwd"
+      ],
+      "shellMustBe": false,
+      "argvItems": "string"
+    },
+    "checks": [
+      "Git base and working state",
+      "ROADMAP dependency status and evidence when available",
+      "Task writeScope path validity and changed-path scope",
+      "Declared executable and environment capability"
+    ],
+    "roadmapSources": "Derive objective, acceptance, scope and dependency references from the applicable roadmap row when available; a completed dependency exposes its evidence cell. A named revision must resolve and be compatible with the selected base.",
+    "checkCommandsExecuted": false,
+    "dispatchPerformed": false,
+    "stateWritePerformed": false,
+    "authorityGrant": false,
+    "resultSchema": "task-preflight-result/v1",
+    "statuses": [
+      "READY",
+      "REPAIR_METADATA",
+      "BLOCKED_DEPENDENCY",
+      "BLOCKED_SCOPE",
+      "BLOCKED_ENVIRONMENT"
+    ],
+    "readyMeans": "Preflight evidence passed; root still binds the trusted mandate and authorizes only in-scope effects.",
+    "workflowStage": "AUTOMATIC_TASK_PREFLIGHT",
+    "sealedAdmissionRequired": false,
+    "reservationCreated": false,
+    "perPhaseReceiptsRequired": false,
+    "changedPathReporting": "--changed includes changedPaths, committedChangedPaths and dirtyPaths in the result; scope checks always run."
+  },
+  "metadataRepair": {
+    "failureClass": "METADATA_DEFECT",
+    "classifierDisposition": "METADATA_REPAIR",
+    "repairAction": "REPAIR_METADATA",
+    "examples": [
+      "JSON parse or schema error",
+      "Invalid repository path or quoting in the task record",
+      "Historical receipt metadata error"
+    ],
+    "requiredEffectEvidence": "Prove the failed operation had no product effect. If its effect is unknown, quarantine and reconcile read-only.",
+    "countsToward": [],
+    "consumesImplementationRepair": false,
+    "noProgressCapField": "retryAndLineage.limits.maxOccurrencesPerNoProgressFingerprint",
+    "executionDeadlineStartsAt": "FIRST_WORKER_DISPATCH",
+    "repeatedIdenticalSemanticOutcome": "YIELD_REASSESS",
+    "resumable": true,
+    "terminalOnMetadataNoProgress": false,
+    "automaticRetry": false,
+    "taskIdentityPreserved": true,
+    "stateWritePerformedByPreflight": false
+  },
+  "legacyV3Archive": {
+    "status": "ARCHIVED_FOR_NEW_WORK",
+    "ordinaryV4UsesHistoricalCaps": false,
+    "auditPolicy": {
+      "version": 3,
+      "status": "ACTIVE",
+      "packetPreflight": {
+        "draftPreparation": {
+          "stage": "DRAFT_NOT_ADMITTED",
+          "tool": "tools/delivery-control/prepare-g0.mjs",
+          "schema": "tools/delivery-control/contracts/g0-preparation.schema.json",
+          "requiredBeforeSealedG0Reservation": true,
+          "structuralPassAllowsDispatch": false
+        }
+      }
+    },
+    "historicalCaps": {
       "maxPreparationAttemptsTotalPerRootLineage": 3,
       "maxSubmissionAttemptsTotalPerRootLineage": 3,
       "maxAcceptanceRepairRoundsTotalPerRootLineage": 2,
@@ -300,66 +538,23 @@
       "maxNodeDurationMinutes": 45,
       "maxBoundedWaitMinutes": 10
     },
-    "retryClassifier": {
-      "classes": [
-        "ACCEPTANCE_REPAIR",
-        "CONTROL_PLANE_REPAIR_SUCCESSOR",
-        "SUCCESSOR_PLAN",
-        "TOOL_RETRY",
-        "REVIEW_WITH_NEW_EVIDENCE",
-        "RECOVERY",
-        "RCA_DECISION",
-        "CIRCUIT_PROBE"
-      ],
-      "requiredEvidence": [
-        "rootLineageId",
-        "objective",
-        "stage",
-        "acceptanceRevision",
-        "attempt",
-        "repairRound",
-        "failureEvidence",
-        "failureClass",
-        "semanticInputDigest",
-        "owner",
-        "nextPermittedAction"
-      ],
-      "reclassificationToBypassLimitsAllowed": false,
-      "unclassifiedRetryDisposition": "BLOCKED",
-      "unknownCounterHistoryDisposition": "BLOCK_ONLY_AFFECTED_LINEAGE"
-    },
-    "toolRetryPrerequisites": "Same operation and semantic input; idempotency is established or evidence proves the prior attempt had no effect",
-    "unknownEffectDisposition": {
-      "effectState": "UNKNOWN",
-      "action": "QUARANTINE_AND_READ_ONLY_AUTHORITATIVE_RECONCILIATION",
-      "retryAllowedWhileUnknown": false,
-      "runDispositionIsSeparateFromEffectState": true,
-      "deadlineOrBudgetTerminationPreservesUnknownEffectState": true,
-      "authoritativeReconciliationRequiredBeforeRetry": true
-    },
-    "errorFingerprintFields": ["objective", "stage", "failureClass", "semanticInputDigest"],
-    "cosmeticEditCountsAsProgress": false,
-    "newExternalEvidenceMayWakeBlockedTaskWithinRemainingBudget": true,
-    "automaticDeadlineOrBudgetIncreaseAllowed": false,
-    "onExhaustion": "TERMINAL_BLOCKED_OR_FAILED; continue independent eligible work; do not prompt, repackage the same task, or poll unchanged input",
-    "missingHistory": "Block only the affected lineage; never assume zero or silently reset",
-    "futureResume": "Preserve lineage history and remaining budget; never silently revive"
-  },
-  "taskEffectBoundary": {
-    "commitPushPullRequestMerge": "Allowed only when already included in the trusted user mandate and within its scope",
-    "productionSupabaseAndMigrationProhibitions": "Preserve existing user and repository prohibitions; migration execution also requires its existing owner instruction; policy adds no authority",
-    "missingExternalAuthorityOrCredentials": "Typed blocked action; continue independent eligible work; do not request a new approval prompt or invent access"
-  },
-  "runtimeBoundary": {
-    "agentProcedurePolicy": "ACTIVE",
-    "localContractValidator": "EXISTS",
-    "draftPreparationCounterEnforcement": "LOCAL_APPEND_ONLY_CREATE_EXCLUSIVE_RESERVATIONS_BEFORE_CANDIDATE_READS; shared across worktrees/sessions; only preparation-attempt cap is enforced. Full history, terminal eligibility, original deadlines and no-progress remain root checks",
-    "durableLedger": "NOT_ASSUMED_SHIPPED",
-    "runtimeController": "NOT_ASSUMED_SHIPPED",
-    "liveDispatch": "NOT_ASSERTED",
-    "rootOwnedToolingPath": "tools/delivery-control/",
-    "reservedRepositoryLocalNonProductState": "<git-common-dir>/zuri-delivery-control/",
-    "validatorStructuralPassIsAuthorization": false,
-    "cannotPersistTrustedAuthorityLineageAndReceipts": "BLOCK_AFFECTED_DISPATCH"
+    "historicalRunDeadlineAnchor": "First draft preparation or G0 attempt for the rootLineageId",
+    "historicalFailureSemantics": "A reservation preceded candidate reads; malformed JSON consumed a preparation attempt. These counters and anchors are not used for ordinary v4 tasks.",
+    "contractsAndReceipts": "Preserve WF01 v1 packet, DAG, G0 preparation schemas, source pins, receipts and WF00 SOURCE-RECONCILIATION history unchanged.",
+    "newReservationsAllowed": false,
+    "newReceiptPublicationAllowed": false,
+    "historicalGateOrder": [
+      "G0_AGENT_PREFLIGHT",
+      "G1_WORKER_SUBMISSION",
+      "G2_INDEPENDENT_VERIFY",
+      "G2R_INDEPENDENT_REVIEW",
+      "G3_SOL_DECISION",
+      "G3B_SOL_ROOT_INTEGRATION",
+      "G4_EXACT_HEAD_CI",
+      "G5_SOL_FINAL",
+      "CONDITIONAL_DELEGATED_RELEASE_ACTIVATION",
+      "SOT_CLOSEOUT",
+      "SAFE_CLEANUP"
+    ]
   }
 }

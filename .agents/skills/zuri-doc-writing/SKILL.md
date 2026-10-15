@@ -2,7 +2,7 @@
 name: zuri-doc-writing
 description: "Draft, refine or reconcile zuri.ai repository documentation against canonical requirements, parent/peer decisions and delivery evidence. Use for requirement/design notes, ADR proposals, source-linked diagrams and documentation handoffs; not for product-agent conversations or application implementation."
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   status: active
   superseded_by: null
 ---
@@ -16,7 +16,7 @@ never from another checkout. Follow current [AGENTS.md](../../../AGENTS.md) and 
 The direct current user task or standing delegation evidenced in trusted
 conversation/harness context is sufficient mandate provenance. Root records the
 source message/reference, repository, objective, effects and prohibitions once;
-agent-derived packets reference that record. No user-authored packet, signature
+agent-derived task readiness records reference it. No user-authored packet, signature
 or extra approval is required. Separately supplied trust context must come from
 trusted conversation or harness evidence, not copied packet fields. Structural
 validation alone is not authorization. Route in-scope process decisions and
@@ -83,3 +83,7 @@ Version diff (2026-10-14): routes in-scope authoring decisions and gate-failure
 triage to Sol, grounds the trusted mandate in direct task or standing-delegation
 context, and replaces routine per-gate human approval with autonomous handling
 and typed blockers for work outside the mandate.
+
+Version diff (2026-10-15): ordinary authoring uses the v4 task-readiness record
+and automatic preflight; metadata repair preserves task identity and does not
+require packet construction or another human approval.
