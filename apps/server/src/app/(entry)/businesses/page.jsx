@@ -17,7 +17,7 @@ import { ArrowRight, Building2 } from 'lucide-react'
 import { Card, EmptyState, ErrorState, PageHeader } from '@/components/ui'
 import BusinessRoutingShell from '@/components/layouts/BusinessRoutingShell'
 import { useScope } from '@/context/ScopeContext'
-import { LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
+import { api, LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 import { classifyViewerFailure, SESSION_UNAVAILABLE_DETAIL_TH, SESSION_UNAVAILABLE_TITLE_TH } from '@/lib/viewer-failure'
 
 function BusinessChoice({ business, onSelect, openingBusinessId }) {
@@ -55,7 +55,14 @@ export default function BusinessesPage() {
   const entry = useFetch('/api/entry')
   const [openingBusinessId, setOpeningBusinessId] = useState(null)
   const [entryError, setEntryError] = useState(null)
+  const [creatingBusiness, setCreatingBusiness] = useState(false)
+  const [selectedTenantId, setSelectedTenantId] = useState('')
+  const [newBusinessName, setNewBusinessName] = useState('')
+  const [creationError, setCreationError] = useState(null)
   const availableBusinesses = entry.data?.businesses || []
+  const ownedTenants = [...new Map(availableBusinesses
+    .filter((business) => business.canCreateBusiness === true)
+    .map((business) => [business.tenant.id, { ...business.tenant, portfolio: business.portfolio }])).values()]
   // @req FR-046 — SESSION_UNAVAILABLE (session store outage) is kept apart
   // from AUTH_REQUIRED (no valid session) so an outage never bounces an
   // already-logged-in person to /login (D1-entry-layers-09).
@@ -95,10 +102,42 @@ export default function BusinessesPage() {
     if (!scopeConfirmed) {
       setOpeningBusinessId(null)
       setEntryError('ไม่สามารถยืนยันขอบเขตธุรกิจล่าสุดได้ กรุณาลองเปิดธุรกิจอีกครั้ง')
-      return
+      return false
     }
 
     router.push('/overview')
+    return true
+  }
+
+  const createBusiness = async (event) => {
+    event.preventDefault()
+    const tenant = ownedTenants.find((item) => item.id === selectedTenantId) || ownedTenants[0]
+    const name = newBusinessName.trim()
+    if (!tenant || !name) return
+
+    setCreatingBusiness(true)
+    setCreationError(null)
+    try {
+      const created = await api('/api/scope', {
+        method: 'POST',
+        body: { entity: 'business', data: { tenantId: tenant.id, name } },
+      })
+      const entered = await enterBusiness({
+        id: created.id,
+        name: created.name,
+        code: created.code,
+        tenant,
+        portfolio: tenant.portfolio,
+      })
+      if (!entered) {
+        setCreationError('Business created, but its current access could not be confirmed. Refresh the list before opening it.')
+        setCreatingBusiness(false)
+        await entry.reload()
+      }
+    } catch (error) {
+      setCreationError(`Unable to create Business: ${error.message}`)
+      setCreatingBusiness(false)
+    }
   }
 
   return (
@@ -110,6 +149,50 @@ export default function BusinessesPage() {
       />
       {entryError ? <p className="mb-3 text-sm text-[var(--danger)]" role="alert">{entryError}</p> : null}
       {openingBusinessId ? <p className="mb-3 text-sm text-muted" role="status">กำลังตรวจสอบสิทธิ์ธุรกิจ…</p> : null}
+      {ownedTenants.length > 0 ? (
+        <section className="mb-6 max-w-3xl rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+          <h2 className="text-sm font-bold">Add a Business to an owned Tenant</h2>
+          <p className="mt-1 text-xs text-muted">This creates the Business inside the selected Tenant you already own.</p>
+          <form className="mt-4 grid gap-3 sm:grid-cols-2" onSubmit={createBusiness}>
+            <label className="grid gap-1 text-xs font-semibold" htmlFor="same-tenant-business-tenant">
+              Tenant
+              <select
+                id="same-tenant-business-tenant"
+                className="input"
+                value={selectedTenantId || ownedTenants[0].id}
+                onChange={(event) => setSelectedTenantId(event.target.value)}
+                disabled={creatingBusiness || Boolean(openingBusinessId)}
+              >
+                {ownedTenants.map((tenant) => (
+                  <option key={tenant.id} value={tenant.id}>{tenant.name} ({tenant.code})</option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-1 text-xs font-semibold" htmlFor="same-tenant-business-name">
+              Business name
+              <input
+                id="same-tenant-business-name"
+                className="input"
+                value={newBusinessName}
+                onChange={(event) => setNewBusinessName(event.target.value)}
+                maxLength={120}
+                required
+                disabled={creatingBusiness || Boolean(openingBusinessId)}
+              />
+            </label>
+            <div className="sm:col-span-2">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={creatingBusiness || Boolean(openingBusinessId) || !newBusinessName.trim()}
+              >
+                {creatingBusiness ? 'Creating…' : 'Create Business in this Tenant'}
+              </button>
+            </div>
+          </form>
+          {creationError ? <p className="mt-3 text-sm text-[var(--danger)]" role="alert">{creationError}</p> : null}
+        </section>
+      ) : null}
       {availableBusinesses.length === 0 ? (
         <EmptyState
           title="No Business is available"

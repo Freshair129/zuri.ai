@@ -16,6 +16,7 @@ export const zEntryResponse = z.object({
     id: z.string().min(1),
     code: z.string().min(1),
     name: z.string().min(1),
+    canCreateBusiness: z.boolean(),
     tenant: z.object({ id: z.string().min(1), code: z.string().min(1), name: z.string().min(1) }).strict(),
     portfolio: z.object({ id: z.string().min(1), code: z.string().min(1), name: z.string().min(1) }).strict(),
   }).strict()),
@@ -32,6 +33,9 @@ function viewerDto(viewer) {
 
 export async function buildViewerEntry({ viewer, db = prisma }) {
   const allowedIds = [...new Set((viewer.visibleBusinessIds || []).filter(Boolean))]
+  const ownedTenantIds = new Set(Array.isArray(viewer.ownedTenantIds)
+    ? viewer.ownedTenantIds.filter((id) => typeof id === 'string' && id)
+    : [])
   if (allowedIds.length === 0) {
     return zEntryResponse.parse({ viewer: viewerDto(viewer), businesses: [] })
   }
@@ -63,6 +67,9 @@ export async function buildViewerEntry({ viewer, db = prisma }) {
       id: business.id,
       code: business.code,
       name: business.name,
+      // @req FR-074 — a presentation capability derived from the existing
+      // tenant-wide OWNER Membership. The creator still rechecks ownsTenant.
+      canCreateBusiness: ownedTenantIds.has(business.tenant.id),
       tenant: {
         id: business.tenant.id,
         code: business.tenant.code,

@@ -20,7 +20,17 @@ describe('FR-046 viewer-scoped entry read model', () => {
     }))
     expect(result).toEqual(OWNER_ENTRY_RESPONSE)
     expect(JSON.stringify(result)).not.toContain('visibleBusinessIds')
+    expect(JSON.stringify(result)).not.toContain('ownedTenantIds')
     expect(JSON.stringify(result)).not.toContain('memberships')
+  })
+
+  it('does not infer same-Tenant create capability from Business ownership alone', async () => {
+    const result = await buildViewerEntry({
+      viewer: { ...OWNER_VIEWER, ownedTenantIds: [] },
+      db: fakeDb(),
+    })
+
+    expect(result.businesses[0].canCreateBusiness).toBe(false)
   })
 
   it('returns an empty list without querying scope when the viewer has no Business grant', async () => {

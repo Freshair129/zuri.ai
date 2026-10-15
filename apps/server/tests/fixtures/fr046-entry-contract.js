@@ -16,6 +16,7 @@ export const OWNER_VIEWER = makeViewer({
   principal: { id: 'person-owner', code: 'PER-OWNER', displayName: 'Owner' },
   visibleBusinessIds: ['business-1'],
   ownedBusinessIds: ['business-1'],
+  ownedTenantIds: ['tenant-1'],
   visibleDomains: ['projects', 'people'],
 })
 
@@ -46,6 +47,7 @@ export const OWNER_ENTRY_RESPONSE = {
     id: 'business-1',
     code: 'BUS-001',
     name: 'Business 01',
+    canCreateBusiness: true,
     tenant: { id: 'tenant-1', code: 'TEN-001', name: 'Tenant 001' },
     portfolio: { id: 'portfolio-1', code: 'PF-001', name: 'Business Group' },
   }],
