@@ -18,6 +18,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [Appendix B — Database Schema Summary](../appendices/B-db-schema.md)
 - [Appendix E — Risk Matrix](../appendices/E-risk-matrix.md)
 - [Appendix F — Glossary](../appendices/F-glossary.md)
+- [Agent Approval Gateway L1-L4 over the FR-026 action gate](../change-requests/agent-approval/APPROVAL-GATEWAY-V1.md)
 - [Agent Factory v1 local contract](../change-requests/agent-factory/AGENT-FACTORY-V1.md)
 - [Standard Business Template v1](../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md)
 - [CR-001 — Sales, Conversation Intelligence, Engagement & Finance Domains](../change-requests/CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS.md)
