@@ -256,14 +256,26 @@ An intake `baseRef` such as `origin/main` then resolves the newer canonical comm
 without changing the campaign's task allowlist, scope, criteria or permissions.
 Already bound tasks keep their exact base and history until root revalidation.
 
-For a later parallel candidate whose base advanced, root verifies the same
-repository/branch, no active worker/unknown effects, the clean old candidate and
-the authoritative new base. It records a material-evidence disposition, merges
-the new base into the isolated candidate without rebase/reset/force-push, and
-aborts only its own proven conflicting merge. Unknown operation effects remain
-quarantined. A successful merge receives a new read-only preflight and
-`resumeTask` under the same task/cycle, retaining counters and original deadline.
-All three roles run again; prior CI and role passes do not carry forward.
+For a later parallel candidate whose base advanced, root reads and retains the
+paused controller run before changing it. It checks the same canonical
+repository and task branch, the run is `ROOT_REPLAN_PAUSED`, no worker is active,
+no delivery effect is unknown, and the old candidate checkout is clean at the
+run's `candidateHeadCommit`. Root fetches `main`, resolves the fetched commit,
+and confirms a fresh `git ls-remote` for `refs/heads/main` still returns that
+same SHA. If the remote moved during reconciliation, root fetches again and
+reassesses without changing the paused run.
+
+Root records a material-evidence disposition, merges that fetched main commit
+into the isolated candidate without rebase/reset/force-push, and aborts only its
+own proven conflicting merge. Before writing a prepared-candidate receipt, root
+checks `receipt.oldHeadCommit === pausedRun.candidateHeadCommit`,
+`receipt.oldBaseCommit === pausedRun.baseCommit`,
+`receipt.newBaseCommit === fetchedMainSha`, and `receipt.headCommit` equals the
+actual clean candidate HEAD after the merge. It repeats the remote SHA check
+before `resumeTask`. Unknown operation effects remain quarantined. A successful
+merge receives a new read-only preflight and `resumeTask` under the same task
+and cycle, retaining counters and the original deadline. All three roles run
+again; prior CI and role passes do not carry forward.
 
 When the worker needs no source repair on the updated base, root may install
 `supervisors/<campaignId>/prepared/<taskId>.json` in the private control directory:

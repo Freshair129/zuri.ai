@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -18,7 +18,8 @@ function git(cwd, args) {
   return execFileSync('git', args, { cwd, encoding: 'utf8', windowsHide: true }).trim();
 }
 
-function makeFixture({ initialRemoteHead = null, holdRemoteRead = null, queueAfterMerge = false } = {}) {
+function makeFixture({ initialRemoteHead = null, holdRemoteRead = null, queueAfterMerge = false,
+  initialNow = '2026-10-15T00:00:00.000Z' } = {}) {
   const repoRoot = realpathSync.native(mkdtempSync(path.join(os.tmpdir(), 'github-delivery-test-')));
   git(repoRoot, ['init', '-q', '-b', HEAD_BRANCH]);
   git(repoRoot, ['config', 'core.autocrlf', 'false']);
@@ -46,6 +47,7 @@ function makeFixture({ initialRemoteHead = null, holdRemoteRead = null, queueAft
     holdRemoteRead,
     queueAfterMerge,
     queueEntry: null,
+    now: new Date(initialNow),
   };
 
   const controller = {
@@ -180,10 +182,40 @@ function makeFixture({ initialRemoteHead = null, holdRemoteRead = null, queueAft
   };
 
   function makeAdapter() {
-    return createGitHubDeliveryAdapter({ repoRoot, controller, campaign, runGit, runGh });
+    return createGitHubDeliveryAdapter({ repoRoot, controller, campaign, runGit, runGh, now: () => new Date(state.now) });
   }
 
   return { ...state, state, campaign, controller, makeAdapter, runGit, runGh };
+}
+
+function advanceCandidate(fixture, name = 'candidate-next.txt') {
+  writeFileSync(path.join(fixture.repoRoot, name), 'next approved revision\n', 'utf8');
+  git(fixture.repoRoot, ['add', name]);
+  git(fixture.repoRoot, ['commit', '-q', '-m', 'next approved revision']);
+  fixture.state.candidateHeadCommit = git(fixture.repoRoot, ['rev-parse', 'HEAD']);
+  return fixture.state.candidateHeadCommit;
+}
+
+function receiptSnapshot(fixture) {
+  const root = path.join(fixture.repoRoot, '.git', 'zuri-delivery-control', 'github-delivery-v1', 'receipts');
+  if (!existsSync(root)) return new Map();
+  const taskDir = readdirSync(root, { withFileTypes: true }).find((entry) => entry.isDirectory());
+  if (!taskDir) return new Map();
+  const directory = path.join(root, taskDir.name);
+  return new Map(readdirSync(directory).filter((name) => name.endsWith('.jsonl'))
+    .map((name) => [name, readFileSync(path.join(directory, name), 'utf8')]));
+}
+
+function receiptEvents(fixture) {
+  const root = path.join(fixture.repoRoot, '.git', 'zuri-delivery-control', 'github-delivery-v1', 'receipts');
+  if (!existsSync(root)) return [];
+  const taskDir = readdirSync(root, { withFileTypes: true }).find((entry) => entry.isDirectory());
+  if (!taskDir) return [];
+  const directory = path.join(root, taskDir.name);
+  return readdirSync(directory).filter((name) => name.endsWith('.jsonl')).map((name) => ({
+    revision: name,
+    events: readFileSync(path.join(directory, name), 'utf8').trim().split(/\r?\n/).map((line) => JSON.parse(line)),
+  }));
 }
 
 test('campaign validation requires a root-matching explicit effect list', () => {
@@ -545,7 +577,7 @@ test('a new controller candidate cannot overwrite a divergent remote PR head', a
   }
 });
 
-test('a pending unknown effect from an older revision is reconciled read-only and holds the new revision', async () => {
+test('an unavailable prior-revision ancestry read is recorded and holds the new revision', async () => {
   const fixture = makeFixture();
   const divergent = 'c'.repeat(40);
   let ambiguous = true;
@@ -576,9 +608,13 @@ test('a pending unknown effect from an older revision is reconciled read-only an
 
     const held = await fixture.makeAdapter().tick();
     assert.equal(held.status, 'UNKNOWN_EFFECT');
-    assert.equal(held.code, 'PRIOR_REVISION_PENDING_INTENT');
-    assert.equal(held.observations.length, 1);
-    assert.equal(held.observations[0].observation.status, 'UNKNOWN');
+    const observations = receiptEvents(fixture).flatMap((receipt) => receipt.events)
+      .filter((record) => record.eventType === 'PRIOR_INTENT_OBSERVATION');
+    assert.equal(observations.length, 1);
+    assert.equal(observations[0].evidence.status, 'UNAVAILABLE');
+    assert.equal((await fixture.makeAdapter().tick()).status, 'UNKNOWN_EFFECT');
+    assert.equal(receiptEvents(fixture).flatMap((receipt) => receipt.events)
+      .filter((record) => record.eventType === 'PRIOR_INTENT_OBSERVATION').length, 1);
     assert.deepEqual(fixture.state.mutationCalls.map(([action]) => action), ['push']);
   } finally {
     rmSync(fixture.repoRoot, { recursive: true, force: true });
@@ -780,6 +816,240 @@ test('a second adapter cannot mutate while another process holds the delivery lo
     assert.deepEqual(fixture.state.mutationCalls.map(([action]) => action), ['pullRequest']);
   } finally {
     releaseRemoteRead();
+    rmSync(fixture.repoRoot, { recursive: true, force: true });
+  }
+});
+
+test('a prior applied push is adjudicated only after ancestry is proven', async () => {
+  const fixture = makeFixture();
+  let loseFirstPush = true;
+  const oldAdapter = createGitHubDeliveryAdapter({
+    repoRoot: fixture.repoRoot,
+    controller: fixture.controller,
+    campaign: fixture.campaign,
+    runGit: async (args, options) => {
+      if (args[0] === 'push' && loseFirstPush) {
+        loseFirstPush = false;
+        await fixture.runGit(args, options);
+        throw new Error('push response lost after remote applied it');
+      }
+      return fixture.runGit(args, options);
+    },
+    runGh: fixture.runGh,
+    now: () => new Date(fixture.state.now),
+  });
+  try {
+    const oldCandidate = fixture.state.candidateHeadCommit;
+    assert.equal((await oldAdapter.tick()).code, 'DELIVERY_STEP_FAILED');
+    const [oldReceiptName, oldReceiptBytes] = [...receiptSnapshot(fixture)][0];
+    const oldIntent = receiptEvents(fixture).flatMap((receipt) => receipt.events)
+      .find((record) => record.eventType === 'MUTATION_INTENT' && record.action === 'push');
+    const newCandidate = advanceCandidate(fixture);
+
+    const resumed = await fixture.makeAdapter().tick();
+    assert.equal(resumed.status, 'PUSHED', JSON.stringify(resumed));
+    assert.equal(fixture.state.remoteHead, newCandidate);
+    const after = receiptSnapshot(fixture);
+    assert.equal(after.get(oldReceiptName), oldReceiptBytes, 'the old receipt remains immutable');
+    const current = receiptEvents(fixture).find((receipt) => receipt.revision !== oldReceiptName);
+    const adjudication = current.events.find((record) => record.eventType === 'PRIOR_INTENT_ADJUDICATED');
+    assert.equal(adjudication.evidence.outcome, 'APPLIED');
+    assert.equal(adjudication.evidence.priorOperationId, oldIntent.operationId);
+    assert.equal(adjudication.evidence.priorIntentHash, oldIntent.hash);
+    assert.equal(adjudication.evidence.observation.remoteHead, oldCandidate);
+  } finally {
+    rmSync(fixture.repoRoot, { recursive: true, force: true });
+  }
+});
+
+test('a prior pull request creation is settled against a descendant candidate', async () => {
+  const fixture = makeFixture();
+  let loseCreateResponse = true;
+  const oldAdapter = createGitHubDeliveryAdapter({
+    repoRoot: fixture.repoRoot,
+    controller: fixture.controller,
+    campaign: fixture.campaign,
+    runGit: fixture.runGit,
+    runGh: async (args, options) => {
+      if (args[0] === 'pr' && args[1] === 'create' && loseCreateResponse) {
+        loseCreateResponse = false;
+        await fixture.runGh(args, options);
+        throw new Error('PR response lost after server created it');
+      }
+      return fixture.runGh(args, options);
+    },
+    now: () => new Date(fixture.state.now),
+  });
+  try {
+    const oldCandidate = fixture.state.candidateHeadCommit;
+    assert.equal((await oldAdapter.tick()).status, 'PUSHED');
+    assert.equal((await oldAdapter.tick()).code, 'DELIVERY_STEP_FAILED');
+    const [oldReceiptName, oldReceiptBytes] = [...receiptSnapshot(fixture)][0];
+    const oldIntent = receiptEvents(fixture).flatMap((receipt) => receipt.events)
+      .find((record) => record.eventType === 'MUTATION_INTENT' && record.action === 'pullRequest');
+    const newCandidate = advanceCandidate(fixture);
+
+    const resumed = await fixture.makeAdapter().tick();
+    assert.equal(resumed.status, 'PUSHED', JSON.stringify(resumed));
+    assert.equal(fixture.state.remoteHead, newCandidate);
+    assert.equal(fixture.state.pullRequests[0].headRefOid, oldCandidate, 'provider head propagation remains an independent wait');
+    assert.equal((await fixture.makeAdapter().tick()).status, 'WAITING_PR_HEAD_UPDATE');
+
+    const after = receiptSnapshot(fixture);
+    assert.equal(after.get(oldReceiptName), oldReceiptBytes, 'the prior PR receipt remains immutable');
+    const current = receiptEvents(fixture).find((receipt) => receipt.revision !== oldReceiptName);
+    const adjudication = current.events.find((record) => record.eventType === 'PRIOR_INTENT_ADJUDICATED');
+    assert.equal(adjudication.evidence.action, 'pullRequest');
+    assert.equal(adjudication.evidence.outcome, 'APPLIED');
+    assert.equal(adjudication.evidence.priorOperationId, oldIntent.operationId);
+    assert.equal(adjudication.evidence.priorIntentHash, oldIntent.hash);
+    assert.equal(adjudication.evidence.observation.headRefOid, oldCandidate);
+  } finally {
+    rmSync(fixture.repoRoot, { recursive: true, force: true });
+  }
+});
+
+test('a prior NONE observation needs a matching second read after the bounded backoff', async () => {
+  const fixture = makeFixture();
+  let loseFirstPush = true;
+  const oldAdapter = createGitHubDeliveryAdapter({
+    repoRoot: fixture.repoRoot,
+    controller: fixture.controller,
+    campaign: fixture.campaign,
+    runGit: async (args, options) => {
+      if (args[0] === 'push' && loseFirstPush) {
+        loseFirstPush = false;
+        fixture.state.mutationCalls.push(['push', [...args]]);
+        throw new Error('push response lost before remote effect');
+      }
+      return fixture.runGit(args, options);
+    },
+    runGh: fixture.runGh,
+    now: () => new Date(fixture.state.now),
+  });
+  try {
+    assert.equal((await oldAdapter.tick()).code, 'DELIVERY_STEP_FAILED');
+    const [oldReceiptName, oldReceiptBytes] = [...receiptSnapshot(fixture)][0];
+    advanceCandidate(fixture);
+
+    const adapter = fixture.makeAdapter();
+    const first = await adapter.tick();
+    assert.equal(first.status, 'WAITING_RETRY_BACKOFF');
+    assert.equal(fixture.state.mutationCalls.length, 1);
+    const firstCount = receiptEvents(fixture).reduce((total, receipt) => total
+      + receipt.events.filter((record) => record.eventType === 'PRIOR_INTENT_OBSERVATION').length, 0);
+    assert.equal(firstCount, 1);
+    assert.equal((await adapter.tick()).status, 'WAITING_RETRY_BACKOFF');
+    assert.equal(receiptEvents(fixture).reduce((total, receipt) => total
+      + receipt.events.filter((record) => record.eventType === 'PRIOR_INTENT_OBSERVATION').length, 0), 1);
+
+    fixture.state.now = new Date(fixture.state.now.getTime() + 31_000);
+    const cleared = await adapter.tick();
+    assert.equal(cleared.status, 'PUSHED', JSON.stringify(cleared));
+    assert.equal(fixture.state.mutationCalls.length, 2);
+    const after = receiptSnapshot(fixture);
+    assert.equal(after.get(oldReceiptName), oldReceiptBytes, 'the old receipt remains immutable');
+    const adjudication = receiptEvents(fixture).flatMap((receipt) => receipt.events)
+      .find((record) => record.eventType === 'PRIOR_INTENT_ADJUDICATED');
+    assert.equal(adjudication.evidence.outcome, 'NONE');
+    assert.equal(adjudication.evidence.observation.remoteHead, null);
+  } finally {
+    rmSync(fixture.repoRoot, { recursive: true, force: true });
+  }
+});
+
+test('a prior UNKNOWN effect remains quarantined without retries or adjudication', async () => {
+  const fixture = makeFixture();
+  git(fixture.repoRoot, ['switch', '-c', 'fixture/divergent']);
+  writeFileSync(path.join(fixture.repoRoot, 'divergent.txt'), 'different line\n', 'utf8');
+  git(fixture.repoRoot, ['add', 'divergent.txt']);
+  git(fixture.repoRoot, ['commit', '-q', '-m', 'divergent remote']);
+  const divergent = git(fixture.repoRoot, ['rev-parse', 'HEAD']);
+  git(fixture.repoRoot, ['switch', HEAD_BRANCH]);
+  let loseFirstPush = true;
+  const oldAdapter = createGitHubDeliveryAdapter({
+    repoRoot: fixture.repoRoot,
+    controller: fixture.controller,
+    campaign: fixture.campaign,
+    runGit: async (args, options) => {
+      if (args[0] === 'push' && loseFirstPush) {
+        loseFirstPush = false;
+        fixture.state.mutationCalls.push(['push', [...args]]);
+        fixture.state.remoteHead = divergent;
+        throw new Error('push outcome uncertain');
+      }
+      return fixture.runGit(args, options);
+    },
+    runGh: fixture.runGh,
+    now: () => new Date(fixture.state.now),
+  });
+  try {
+    assert.equal((await oldAdapter.tick()).code, 'DELIVERY_STEP_FAILED');
+    const [oldReceiptName, oldReceiptBytes] = [...receiptSnapshot(fixture)][0];
+    const oldCandidate = fixture.state.candidateHeadCommit;
+    advanceCandidate(fixture);
+
+    const adapter = fixture.makeAdapter();
+    const first = await adapter.tick();
+    assert.equal(first.status, 'UNKNOWN_EFFECT', JSON.stringify(first));
+    assert.equal((await adapter.tick()).status, 'UNKNOWN_EFFECT');
+    assert.deepEqual(fixture.state.mutationCalls.map(([action]) => action), ['push']);
+    const after = receiptSnapshot(fixture);
+    assert.equal(after.get(oldReceiptName), oldReceiptBytes);
+    const current = receiptEvents(fixture).find((receipt) => receipt.revision !== oldReceiptName);
+    assert.ok(current.events.some((record) => record.eventType === 'PRIOR_INTENT_OBSERVATION'
+      && record.evidence.status === 'UNKNOWN'));
+    assert.ok(!current.events.some((record) => record.eventType === 'PRIOR_INTENT_ADJUDICATED'));
+    const observation = current.events.find((record) => record.eventType === 'PRIOR_INTENT_OBSERVATION');
+    assert.equal(observation.evidence.observation.expectedOldHead, oldCandidate);
+  } finally {
+    rmSync(fixture.repoRoot, { recursive: true, force: true });
+  }
+});
+
+test('a prior queued merge stays paused until merged, then requires a base replan', async () => {
+  const fixture = makeFixture({ queueAfterMerge: true });
+  try {
+    const oldAdapter = fixture.makeAdapter();
+    assert.equal((await oldAdapter.tick()).status, 'PUSHED');
+    assert.equal((await oldAdapter.tick()).status, 'PR_CREATED');
+    fixture.state.requiredChecks = [{ name: 'unit', bucket: 'pass', state: 'SUCCESS', workflow: 'CI' }];
+    fixture.state.allChecks = [{ name: 'unit', bucket: 'pass', state: 'SUCCESS', workflow: 'CI' }];
+    assert.equal((await oldAdapter.tick()).status, 'WAITING_MERGE_QUEUE');
+    const [oldReceiptName, oldReceiptBytes] = [...receiptSnapshot(fixture)].find(([, text]) =>
+      text.includes('"action":"merge"') && text.includes('"eventType":"MUTATION_INTENT"'));
+    assert.ok(oldReceiptName);
+    assert.ok(oldReceiptBytes.includes('"eventType":"MUTATION_RECONCILED"'));
+
+    const oldCandidate = fixture.candidateHeadCommit;
+    const newCandidate = advanceCandidate(fixture);
+    const adapter = fixture.makeAdapter();
+    const waiting = await adapter.tick();
+    assert.equal(waiting.status, 'WAITING_MERGE_QUEUE', JSON.stringify(waiting));
+    assert.deepEqual(fixture.state.mutationCalls.map(([action]) => action), ['push', 'pullRequest', 'merge']);
+    const observations = receiptEvents(fixture).flatMap((receipt) => receipt.events)
+      .filter((record) => record.eventType === 'PRIOR_INTENT_OBSERVATION');
+    assert.equal(observations.at(-1).evidence.status, 'APPLIED');
+    assert.equal(observations.at(-1).evidence.observation.queued, true);
+
+    fixture.state.queueEntry = null;
+    fixture.state.remoteBase = 'd'.repeat(40);
+    fixture.state.pullRequests[0].state = 'MERGED';
+    fixture.state.pullRequests[0].mergedAt = '2026-10-15T00:01:00Z';
+    const completed = await adapter.tick();
+    assert.equal(completed.status, 'REPLAN_REQUIRED', JSON.stringify(completed));
+    assert.equal(completed.code, 'BASE_ADVANCED');
+    assert.equal(completed.expectedBaseCommit, fixture.state.baseCommit);
+    assert.equal(completed.actualBaseCommit, 'd'.repeat(40));
+    assert.equal(fixture.state.pullRequests[0].headRefOid, oldCandidate);
+    assert.equal(fixture.state.candidateHeadCommit, newCandidate);
+    const after = receiptSnapshot(fixture);
+    assert.equal(after.get(oldReceiptName), oldReceiptBytes, 'the queued merge receipt remains immutable');
+    const adjudication = receiptEvents(fixture).flatMap((receipt) => receipt.events)
+      .find((record) => record.eventType === 'PRIOR_INTENT_ADJUDICATED');
+    assert.equal(adjudication.evidence.outcome, 'APPLIED');
+    assert.equal(adjudication.evidence.observation.actualBaseCommit, 'd'.repeat(40));
+  } finally {
     rmSync(fixture.repoRoot, { recursive: true, force: true });
   }
 });

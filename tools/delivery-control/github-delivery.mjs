@@ -242,6 +242,57 @@ function pendingIntent(events) {
   return events.findLast((event) => event.eventType === 'MUTATION_INTENT' && !outcomes.has(event.operationId)) ?? null;
 }
 
+function unresolvedIntents(events) {
+  const outcomes = new Set(events.filter((event) => event.eventType === 'MUTATION_RECONCILED').map((event) => event.operationId));
+  return events.filter((event) => event.eventType === 'MUTATION_INTENT' && !outcomes.has(event.operationId));
+}
+
+function unresolvedOrQueuedMergeIntents(events) {
+  const unresolved = new Set(unresolvedIntents(events).map((event) => event.operationId));
+  const queued = new Set(events.filter((event) => event.eventType === 'MUTATION_RECONCILED'
+    && event.action === 'merge' && event.effectState === 'APPLIED' && event.evidence?.queued === true)
+    .map((event) => event.operationId));
+  return events.filter((event) => event.eventType === 'MUTATION_INTENT'
+    && (unresolved.has(event.operationId) || queued.has(event.operationId)));
+}
+
+function priorIntentIdentity(revision, intent) {
+  return { priorRevision: revision, priorOperationId: intent.operationId, priorIntentHash: intent.hash };
+}
+
+function samePriorIntent(record, identity) {
+  const evidence = record?.evidence;
+  return record?.eventType?.startsWith('PRIOR_INTENT_')
+    && evidence?.priorRevision === identity.priorRevision
+    && evidence?.priorOperationId === identity.priorOperationId
+    && evidence?.priorIntentHash === identity.priorIntentHash;
+}
+
+function uniqueReceiptEvents(archives, currentEvents) {
+  const records = [...archives.flatMap((archive) => archive.events), ...currentEvents];
+  const seen = new Set();
+  return records.filter((record) => {
+    if (seen.has(record.hash)) return false;
+    seen.add(record.hash);
+    return true;
+  });
+}
+
+function priorIntentHistory(archives, currentEvents, identity) {
+  const records = uniqueReceiptEvents(archives, currentEvents);
+  const observations = records.filter((record) => record.eventType === 'PRIOR_INTENT_OBSERVATION'
+    && samePriorIntent(record, identity))
+    .sort((left, right) => (left.evidence.observationSequence ?? 0) - (right.evidence.observationSequence ?? 0));
+  const adjudication = records.findLast((record) => record.eventType === 'PRIOR_INTENT_ADJUDICATED'
+    && samePriorIntent(record, identity)) ?? null;
+  return { observations, latestObservation: observations.at(-1) ?? null, adjudication };
+}
+
+function allPriorAdjudications(archives, currentEvents) {
+  return uniqueReceiptEvents(archives, currentEvents)
+    .filter((record) => record.eventType === 'PRIOR_INTENT_ADJUDICATED');
+}
+
 function mutationAttempts(events, action) {
   return events.filter((event) => event.eventType === 'MUTATION_INTENT' && event.action === action).length;
 }
@@ -306,7 +357,7 @@ function priorReceiptFiles(paths, currentReceiptPath, taskId) {
   }
   const current = path.resolve(currentReceiptPath);
   return candidates.filter((pathname) => path.resolve(pathname) !== current)
-    .map((pathname) => ({ pathname, events: readReceipts(pathname, taskId) }));
+    .map((pathname) => ({ pathname, revision: path.basename(pathname, '.jsonl'), events: readReceipts(pathname, taskId) }));
 }
 
 function parseRemoteRefs(stdout, expectedRef) {
@@ -465,46 +516,94 @@ export function createGitHubDeliveryAdapter({
     return parseRemoteRefs(result.stdout, ref);
   }
 
-  async function inspectPriorIntent(intent) {
-    try {
-      if (intent.action === 'push') {
-        if (intent.evidence?.branch !== campaign.branch.head
-            || intent.evidence?.remoteName !== campaign.repository.remoteName) {
-          return { status: 'UNAVAILABLE', reason: 'revision-remote-binding-changed' };
-        }
-        const remoteHead = await remoteRef('refs/heads/' + campaign.branch.head);
-        return { status: remoteHead === intent.evidence.candidateHeadCommit ? 'APPLIED'
-          : remoteHead === null ? 'NONE' : 'UNKNOWN', remoteHead };
-      }
-      if (intent.action === 'pullRequest') {
-        if (intent.evidence?.headBranch !== campaign.branch.head
-            || intent.evidence?.baseBranch !== campaign.branch.base) {
-          return { status: 'UNAVAILABLE', reason: 'revision-branch-binding-changed' };
-        }
-        const prs = matchingPrs(await pullRequestList(), campaign);
-        const exact = prs.filter((pr) => pr.headRefOid === intent.evidence.candidateHeadCommit);
-        return exact.length === 1 ? { status: 'APPLIED', number: exact[0].number, headRefOid: exact[0].headRefOid }
-          : !prs.length ? { status: 'NONE' } : { status: 'UNKNOWN', pullRequestNumbers: prs.map((pr) => pr.number) };
-      }
-      if (intent.action === 'merge') {
-        const pr = await pullRequestView(intent.evidence.number);
-        if (pr.headRefName !== campaign.branch.head || pr.baseRefName !== campaign.branch.base) {
-          return { status: 'UNAVAILABLE', reason: 'revision-branch-binding-changed' };
-        }
-        if (isMerged(pr) && pr.headRefOid === intent.evidence.candidateHeadCommit) {
-          return { status: 'APPLIED', number: pr.number, headRefOid: pr.headRefOid, mergedAt: pr.mergedAt };
-        }
-        if (pr.state === 'OPEN' && pr.headRefOid === intent.evidence.candidateHeadCommit) {
-          const queue = await mergeQueueEntry(pr.number);
-          return queue ? { status: 'APPLIED', number: pr.number, queued: true, queueState: queue.state ?? null }
-            : { status: 'NONE', number: pr.number, state: pr.state, headRefOid: pr.headRefOid };
-        }
-        return { status: 'UNKNOWN', number: pr.number, state: pr.state, headRefOid: pr.headRefOid };
-      }
-      return { status: 'UNAVAILABLE', reason: 'unsupported-prior-intent' };
-    } catch (error) {
-      return { status: 'UNAVAILABLE', reason: String(error.message ?? error) };
+  async function commitIsAncestor(ancestor, descendant) {
+    if (!isCommit(ancestor) || !isCommit(descendant)) return false;
+    const result = await invokeGit(['merge-base', '--is-ancestor', ancestor, descendant], { allowedExitCodes: [0, 1] });
+    return result.exitCode === 0;
+  }
+
+  function priorIntentContextMatches(intent) {
+    const evidence = intent.evidence ?? {};
+    if (!isCommit(evidence.candidateHeadCommit)
+        || (evidence.expectedRepository && evidence.expectedRepository !== campaign.repository.expectedOwnerRepo)
+        || (evidence.headBranch && evidence.headBranch !== campaign.branch.head)
+        || (evidence.baseBranch && evidence.baseBranch !== campaign.branch.base)) return false;
+    if (intent.action === 'push') {
+      return evidence.remoteName === campaign.repository.remoteName && evidence.branch === campaign.branch.head;
     }
+    if (intent.action === 'pullRequest') {
+      return evidence.headBranch === campaign.branch.head && evidence.baseBranch === campaign.branch.base;
+    }
+    if (intent.action === 'merge') {
+      return Number.isSafeInteger(evidence.number) && isCommit(evidence.expectedBaseCommit);
+    }
+    return false;
+  }
+
+  async function inspectPriorIntent(intent, gate) {
+    if (!priorIntentContextMatches(intent)) {
+      return { status: 'UNKNOWN', evidence: { reason: 'intent-context-mismatch' } };
+    }
+    const oldCandidate = intent.evidence.candidateHeadCommit;
+    if (intent.action === 'push') {
+      const remoteHead = await remoteRef('refs/heads/' + campaign.branch.head);
+      if (remoteHead === null) return { status: 'NONE', evidence: { remoteHead: null } };
+      const oldCommitPresent = remoteHead === oldCandidate || await commitIsAncestor(oldCandidate, remoteHead);
+      const currentCandidateContainsRemote = remoteHead === gate.candidateHeadCommit
+        || await commitIsAncestor(remoteHead, gate.candidateHeadCommit);
+      return oldCommitPresent && currentCandidateContainsRemote
+        ? { status: 'APPLIED', evidence: { remoteHead } }
+        : { status: 'UNKNOWN', evidence: { remoteHead, expectedOldHead: oldCandidate, currentCandidate: gate.candidateHeadCommit } };
+    }
+    if (intent.action === 'pullRequest') {
+      const prs = matchingPrs(await pullRequestList(), campaign);
+      if (prs.length === 0) return { status: 'NONE', evidence: { pullRequests: [] } };
+      if (prs.length !== 1) {
+        return { status: 'UNKNOWN', evidence: { pullRequests: prs.map((pr) => ({ number: pr.number, state: pr.state, headRefOid: pr.headRefOid })) } };
+      }
+      const pr = prs[0];
+      const oldCommitPresent = pr.headRefOid === oldCandidate || await commitIsAncestor(oldCandidate, pr.headRefOid);
+      const currentCandidateContainsPrHead = pr.headRefOid === gate.candidateHeadCommit
+        || await commitIsAncestor(pr.headRefOid, gate.candidateHeadCommit);
+      return oldCommitPresent && currentCandidateContainsPrHead
+        ? { status: 'APPLIED', evidence: { number: pr.number, url: pr.url, state: pr.state, headRefOid: pr.headRefOid } }
+        : { status: 'UNKNOWN', evidence: { number: pr.number, state: pr.state, headRefOid: pr.headRefOid } };
+    }
+    if (intent.action === 'merge') {
+      const expectedBaseCommit = intent.evidence.expectedBaseCommit;
+      const pr = await pullRequestView(intent.evidence.number);
+      if (pr.headRefName !== campaign.branch.head || pr.baseRefName !== campaign.branch.base) {
+        return { status: 'UNKNOWN', evidence: { number: pr.number, state: pr.state, reason: 'merge-target-mismatch' } };
+      }
+      if (isMerged(pr) && pr.headRefOid === oldCandidate) {
+        const actualBaseCommit = await remoteRef('refs/heads/' + campaign.branch.base);
+        return { status: 'APPLIED', evidence: {
+          number: pr.number, url: pr.url, mergedAt: pr.mergedAt,
+          headRefOid: pr.headRefOid, baseRefOid: pr.baseRefOid,
+          expectedBaseCommit, actualBaseCommit, queued: false,
+        } };
+      }
+      if (pr.state !== 'OPEN' || pr.headRefOid !== oldCandidate || pr.baseRefOid !== expectedBaseCommit) {
+        return { status: 'UNKNOWN', evidence: {
+          number: pr.number, state: pr.state, headRefOid: pr.headRefOid,
+          baseRefOid: pr.baseRefOid, expectedBaseCommit,
+        } };
+      }
+      const queue = await mergeQueueEntry(pr.number);
+      if (queue) {
+        return { status: 'APPLIED', evidence: {
+          number: pr.number, headRefOid: pr.headRefOid, baseRefOid: pr.baseRefOid,
+          expectedBaseCommit, queued: true, queueId: queue.id ?? null,
+          queueState: queue.state ?? null, position: queue.position ?? null,
+        } };
+      }
+      return { status: 'NONE', evidence: {
+        number: pr.number, state: pr.state, headRefOid: pr.headRefOid,
+        baseRefOid: pr.baseRefOid, expectedBaseCommit,
+        mergeStateStatus: pr.mergeStateStatus, queued: false,
+      } };
+    }
+    return { status: 'UNKNOWN', evidence: { reason: 'unsupported-prior-intent' } };
   }
 
   async function pushFastForward({ taskId, gate, remoteHeadCommit, pullRequest, events }) {
@@ -830,6 +929,126 @@ export function createGitHubDeliveryAdapter({
     };
   }
 
+  function recordPriorObservation(events, identity, history, observation, { retryAfter } = {}) {
+    const evidence = {
+      ...identity,
+      observationSequence: (history.observations.at(-1)?.evidence?.observationSequence ?? 0) + 1,
+      status: observation.status,
+      observation: observation.evidence,
+      ...(retryAfter ? { retryAfter } : {}),
+    };
+    event(events, 'PRIOR_INTENT_OBSERVATION', evidence, {
+      action: observation.action,
+      effectState: observation.status,
+    });
+    return evidence;
+  }
+
+  function recordPriorAdjudication(events, identity, intent, observation, gate) {
+    const outcome = observation.status;
+    event(events, 'PRIOR_INTENT_ADJUDICATED', {
+      ...identity,
+      action: intent.action,
+      outcome,
+      observation: observation.evidence,
+      candidateHeadCommit: gate.candidateHeadCommit,
+      expectedBaseCommit: intent.evidence.expectedBaseCommit ?? null,
+      expectedRepository: campaign.repository.expectedOwnerRepo,
+      headBranch: campaign.branch.head,
+      baseBranch: campaign.branch.base,
+    }, { action: intent.action, effectState: outcome });
+  }
+
+  async function settlePriorIntent(archive, intent, archives, events, gate) {
+    const identity = priorIntentIdentity(archive.revision, intent);
+    const history = priorIntentHistory(archives, events, identity);
+    if (history.adjudication) return null;
+
+    let observation;
+    try {
+      observation = await inspectPriorIntent(intent, gate);
+    } catch (error) {
+      observation = { status: 'UNAVAILABLE', evidence: { code: String(error.message ?? 'REMOTE_READ_FAILED') } };
+    }
+    observation.action = intent.action;
+    const latest = history.latestObservation;
+    const sameObservation = latest?.evidence?.status === observation.status
+      && stableJson(latest.evidence.observation) === stableJson(observation.evidence);
+
+    if (observation.status === 'UNKNOWN' || observation.status === 'UNAVAILABLE') {
+      if (!sameObservation) recordPriorObservation(events, identity, history, observation);
+      return { status: 'UNKNOWN_EFFECT', action: intent.action, evidence: observation.evidence };
+    }
+    if (observation.status === 'APPLIED') {
+      if (intent.action !== 'merge'
+          && !await commitIsAncestor(intent.evidence.candidateHeadCommit, gate.candidateHeadCommit)) {
+        const unsafe = { status: 'UNKNOWN', action: intent.action,
+          evidence: { reason: 'prior-candidate-not-ancestor', candidateHeadCommit: gate.candidateHeadCommit } };
+        const sameUnsafeObservation = latest?.evidence?.status === unsafe.status
+          && stableJson(latest.evidence.observation) === stableJson(unsafe.evidence);
+        if (!sameUnsafeObservation) recordPriorObservation(events, identity, history, unsafe);
+        return { status: 'UNKNOWN_EFFECT', action: intent.action, evidence: unsafe.evidence };
+      }
+      if (intent.action === 'merge' && observation.evidence.queued) {
+        if (!sameObservation) recordPriorObservation(events, identity, history, observation);
+        return { status: 'WAITING_MERGE_QUEUE', action: 'merge', number: observation.evidence.number,
+          queueState: observation.evidence.queueState, position: observation.evidence.position };
+      }
+      if (!sameObservation) recordPriorObservation(events, identity, history, observation);
+      recordPriorAdjudication(events, identity, intent, observation, gate);
+      if (intent.action === 'merge') {
+        const expectedBaseCommit = intent.evidence.expectedBaseCommit;
+        const actualBaseCommit = observation.evidence.actualBaseCommit;
+        if (actualBaseCommit !== expectedBaseCommit) {
+          return { status: 'REPLAN_REQUIRED', code: 'BASE_ADVANCED', expectedBaseCommit,
+            actualBaseCommit, number: observation.evidence.number, source: 'prior-merge-reconciliation' };
+        }
+        return { status: 'WAITING_BASE_UPDATE', expectedBaseCommit, actualBaseCommit,
+          number: observation.evidence.number, source: 'prior-merge-reconciliation' };
+      }
+      return null;
+    }
+
+    if (observation.status !== 'NONE') {
+      return { status: 'UNKNOWN_EFFECT', action: intent.action, evidence: observation.evidence };
+    }
+    const retryAfter = latest?.evidence?.retryAfter;
+    if (sameObservation && retryAfter && now().getTime() >= Date.parse(retryAfter)) {
+      recordPriorObservation(events, identity, history, observation);
+      recordPriorAdjudication(events, identity, intent, observation, gate);
+      return null;
+    }
+    if (sameObservation && retryAfter) {
+      return { status: 'WAITING_RETRY_BACKOFF', action: intent.action, retryAt: retryAfter };
+    }
+    const nextRetryAt = new Date(now().getTime() + MUTATION_RETRY_DELAY_MS).toISOString();
+    recordPriorObservation(events, identity, history, observation, { retryAfter: nextRetryAt });
+    return { status: 'WAITING_RETRY_BACKOFF', action: intent.action, retryAt: nextRetryAt };
+  }
+
+  async function priorMergeDisposition(archives, events) {
+    const terminal = allPriorAdjudications(archives, events).findLast((record) =>
+      record.evidence?.action === 'merge' && record.evidence?.outcome === 'APPLIED'
+        && record.evidence?.expectedRepository === campaign.repository.expectedOwnerRepo
+        && record.evidence?.headBranch === campaign.branch.head
+        && record.evidence?.baseBranch === campaign.branch.base);
+    if (!terminal) return null;
+    const priorExpectedBase = terminal.evidence.expectedBaseCommit;
+    if (!isCommit(priorExpectedBase)) return { status: 'UNKNOWN_EFFECT', action: 'merge', code: 'PRIOR_MERGE_BASE_MISSING' };
+    const actualBaseCommit = await remoteRef('refs/heads/' + campaign.branch.base);
+    if (campaign.branch.expectedBaseCommit !== priorExpectedBase) {
+      if (actualBaseCommit === campaign.branch.expectedBaseCommit) return null;
+      return { status: 'REPLAN_REQUIRED', code: 'BASE_ADVANCED', expectedBaseCommit: campaign.branch.expectedBaseCommit,
+        actualBaseCommit, source: 'prior-merge-reconciliation' };
+    }
+    if (actualBaseCommit !== priorExpectedBase) {
+      return { status: 'REPLAN_REQUIRED', code: 'BASE_ADVANCED', expectedBaseCommit: priorExpectedBase,
+        actualBaseCommit, source: 'prior-merge-reconciliation' };
+    }
+    return { status: 'WAITING_BASE_UPDATE', expectedBaseCommit: priorExpectedBase,
+      actualBaseCommit, source: 'prior-merge-reconciliation' };
+  }
+
   async function performMutation(action, args, evidence, events, reconcile) {
     const attempts = mutationAttempts(events, action);
     if (attempts >= MAX_MUTATION_ATTEMPTS) {
@@ -909,17 +1128,21 @@ export function createGitHubDeliveryAdapter({
       }
       const gitBinding = await assertGitBinding(gate);
       if (gitBinding.status === 'BLOCKED') return { ...gitBinding, taskId };
-      const priorPending = priorReceipts.flatMap((receipt) => {
-        const intent = pendingIntent(receipt.events);
-        return intent ? [{ ...receipt, intent }] : [];
-      });
-      if (priorPending.length) {
-        const observations = await Promise.all(priorPending.map(async (receipt) => ({
-          revision: path.basename(receipt.pathname, '.jsonl'),
-          action: receipt.intent.action,
-          observation: await inspectPriorIntent(receipt.intent),
-        })));
-        return { status: 'UNKNOWN_EFFECT', code: 'PRIOR_REVISION_PENDING_INTENT', taskId, observations };
+      const knownAdjudications = allPriorAdjudications(priorReceipts, events);
+      const adjudicatedKeys = new Set(knownAdjudications.map((record) => stableJson({
+        revision: record.evidence?.priorRevision,
+        operationId: record.evidence?.priorOperationId,
+        intentHash: record.evidence?.priorIntentHash,
+      })));
+      const priorPending = priorReceipts.flatMap((archive) => unresolvedOrQueuedMergeIntents(archive.events)
+        .map((intent) => ({ archive, intent })))
+        .filter(({ archive, intent }) => !adjudicatedKeys.has(stableJson({
+          revision: archive.revision, operationId: intent.operationId, intentHash: intent.hash,
+        })))
+        .sort((left, right) => left.intent.occurredAt.localeCompare(right.intent.occurredAt));
+      for (const { archive, intent } of priorPending) {
+        const disposition = await settlePriorIntent(archive, intent, priorReceipts, events, gate);
+        if (disposition) return { ...disposition, taskId, candidateHeadCommit: gate.candidateHeadCommit };
       }
       const unresolved = pendingIntent(events);
       if (unresolved) {
@@ -933,6 +1156,9 @@ export function createGitHubDeliveryAdapter({
           return { status: 'UNKNOWN_EFFECT', taskId, action: unresolved.action, code: String(error.message ?? 'REMOTE_READ_FAILED') };
         }
       }
+
+      const terminalMerge = await priorMergeDisposition(priorReceipts, events);
+      if (terminalMerge) return { ...terminalMerge, taskId, candidateHeadCommit: gate.candidateHeadCommit };
 
       const baseRef = 'refs/heads/' + campaign.branch.base;
       const headRef = 'refs/heads/' + campaign.branch.head;
