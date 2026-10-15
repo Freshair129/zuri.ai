@@ -369,7 +369,7 @@ model BusinessAgentConfig {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  business Business @relation(fields: [businessId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  business Business @relation(fields: [businessId, tenantId], references: [id, tenantId], onDelete: Cascade)
 
   @@unique([businessId, tenantId])
   @@index([tenantId])

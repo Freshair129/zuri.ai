@@ -37,9 +37,10 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // adds three excluded retained-evidence models to the complete census, composed with MemoryProjectionReceipt for 198 tables.
 // @req FR-269, FR-270 — bind the Business KPI and WIG weekly-execution models
 // in this static inventory without granting live migration or recovery authority.
-const FROZEN_SCHEMA_SHA256 = '1bf50bdc16737c19116801eee4dd83cc8c0326e6c7b79d440b62caff29744175'
-const FROZEN_TARGET_SCHEMA_SHA256 = '75f208f0ed5b13353193ff74e1ff2e86222430c08d03e11148e332fc3f93edae'
-const FROZEN_APPLICATION_TABLE_COUNT = 204
+// @req FR-285 — include dependent Business agent config in the static census; no live recovery authority.
+const FROZEN_SCHEMA_SHA256 = '9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa'
+const FROZEN_TARGET_SCHEMA_SHA256 = '9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4'
+const FROZEN_APPLICATION_TABLE_COUNT = 205
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0

@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.18b"
+version: "0.3.19b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-10-12,Codex, FR-270 Business WIG schema binding"
+last_update: "2026-10-15,Codex Root, FR-285 Business config static binding"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -345,7 +345,7 @@ The **historical 0.3.16b binding** composes the API-010 branch and main after th
 
 The **historical 0.3.17b binding** extends 0.3.16b with exactly `BusinessKpi` and `BusinessKpiObservation` for FR-269, preserving the prior 198 mappings for 200 total application tables. Its schema digest is `64baeee00e5b9ab48f3ba35a37cc3be50321c27ab7b3b41b9496710717b809ca` and its target digest is `27aeaa988c2b203c20d0e9403ddca03c91cc6618de41e36dc2a1a913d89e2302`.
 
-The **current 0.3.18b binding** extends 0.3.17b with exactly the four FR-270 tables `BusinessLeadMeasure`, `BusinessLeadMeasureValue`, `BusinessWeeklyCommitment` and `BusinessWigSession`, preserving all prior mappings for 204 total application tables. Exact raw `prisma/schema.prisma` bytes give `schemaSha256` `1bf50bdc16737c19116801eee4dd83cc8c0326e6c7b79d440b62caff29744175`; the unchanged `computeTargetSchemaSha256` gives `targetSchemaSha256` `75f208f0ed5b13353193ff74e1ff2e86222430c08d03e11148e332fc3f93edae`. The 200-table binding remains historical and refuses cross-schema recovery. Tests verify the inventory contains every declared Prisma model, preserves the prior 194 mappings, and rejects historical candidates at the loader and adapter boundaries. This static binding does not authorize or prove a live migration, backup, recovery, activation, deployment or production readiness; real-role and executable recovery gates remain separate.
+The **historical 0.3.18b binding** extends 0.3.17b with exactly the four FR-270 tables `BusinessLeadMeasure`, `BusinessLeadMeasureValue`, `BusinessWeeklyCommitment` and `BusinessWigSession`, preserving all prior mappings for 204 total application tables. Exact raw `prisma/schema.prisma` bytes give `schemaSha256` `1bf50bdc16737c19116801eee4dd83cc8c0326e6c7b79d440b62caff29744175`; the unchanged `computeTargetSchemaSha256` gives `targetSchemaSha256` `75f208f0ed5b13353193ff74e1ff2e86222430c08d03e11148e332fc3f93edae`. The 200-table binding remains historical and refuses cross-schema recovery. Tests verify the inventory contains every declared Prisma model, preserves the prior 194 mappings, and rejects historical candidates at the loader and adapter boundaries. This static binding does not authorize or prove a live migration, backup, recovery, activation, deployment or production readiness; real-role and executable recovery gates remain separate.
 
 These three retained-custody models remain explicitly excluded from legacy JSON
 snapshots, recovery-family delegates and insertion/deletion order. They join the
@@ -618,8 +618,27 @@ still requires its existing independent and real-role gates.
 
 ## CHANGELOG
 
+### Current FR-285 static binding
+
+Root reconciles the frozen inventory under the delegated repository mandate
+after full-CI evidence exposed the added model's missing inventory binding.
+This is a local source reconciliation of the existing recovery decision, with
+no production migration, target connection or live recovery authority granted.
+The census contains 205 application models: the prior 204 mappings are preserved
+exactly and only `BusinessAgentConfig` is added. Its dependent Business lifecycle
+and retained audit are specified by the [Factory v1 contract](../../change-requests/agent-factory/AGENT-FACTORY-V1.md).
+
+- Exact canonical LF schema SHA-256: `9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa`.
+- Target inventory SHA-256, recomputed with `computeTargetSchemaSha256`: `9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4`.
+
+The loader requires these exact values and all 205 mappings. Earlier bindings
+remain historical and are refused by the current loader. Independent source
+review and fresh executable recovery tests still gate delivery; actual external
+target visibility, clean-target, custody and production gates remain in force.
+
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.19b | 2026-10-15 | beta | Add only FR-285 BusinessAgentConfig to the static 205-table census and bind canonical LF schema/inventory digests under delegated root disposition; preserve 204 prior mappings, custody refusals and all external recovery/production gates | working-tree | Codex Root |
 | 0.3.18b | 2026-10-12 | beta | Bind the four FR-270 Business WIG tables in the static 204-table inventory; preserve all earlier mappings, custody guards and production/recovery gates | working-tree | Codex |
 | 0.3.17b | 2026-10-12 | beta | Bind the FR-269 Business KPI tables in the static 200-table inventory; preserve all earlier mappings and production/recovery gates | working-tree | Codex |
 | 0.3.16b | 2026-10-10 | beta | Compose API-010 and main into 198-table inventory; preserve both lineages, all mappings and retained-custody refusal; mechanical reconciliation only | working-tree | Codex |

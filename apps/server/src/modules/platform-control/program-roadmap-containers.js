@@ -372,7 +372,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-009",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.1",
+    "version": "0.1.3",
     "priority": "P1",
     "pic": "Codex Root",
     "executor": "GPT-6 Luna max",
@@ -400,11 +400,11 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       },
       "exit": {
-        "text": "Given the factory suite on isolated SQLite and PostgreSQL, when repeat and concurrent applies or failures run, then one configuration and one APPLIED audit exist, conflicts do not overwrite, and provisioning or audit failures roll back",
+        "text": "Given the factory and backup suites on isolated SQLite and PostgreSQL, when repeat/concurrent applies, failure, restore or permitted physical Business deletion cases run, then config and its attributed audit stay atomic, identical apply is a no-op, recovery preserves original rows, legacy omission refuses before replacement with a Serializable transaction recheck, and deletion removes only the dependent config while retaining other Business configs and the original audit; the static Phase B inventory covers all 205 models without granting external recovery authority",
         "checked": false
       }
     },
-    "changelog": "v0.1.1 binds FR-285 and the root-disposition v1 contract, clarifies five persisted configs rather than five running agents, updates source/test links and coding-delivery roles; checked criteria remain false until actual acceptance evidence.",
+    "changelog": "v0.1.3 binds contract v0.1.4 and the corrected config lifetime and static 205-model census after full CI exposed regression at PR665 head8c8697b2. Fresh isolated acceptance and exact-head CI remain pending; earlier source9d21db80 passed SQLite72/72 and disposable PostgreSQL12/12. Criterion checkboxes remain false until final independent artifact review, CI and delivery closeout; no provider/live-agent activation or external migration apply is claimed. Prior v0.1.2 reconciled review status and backup recovery; v0.1.1 bound FR-285 and delegated coding-delivery roles.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 36000,
     "totalTokens": 0,

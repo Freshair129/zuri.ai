@@ -1,8 +1,8 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.260.0b"
+version: "1.261.0b"
 status: draft
-last_update: "2026-10-03T20:30:00+07:00,RWANG"
+last_update: "2026-10-15,Codex Root"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -21,11 +21,11 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.260.0b |
+| **Version** | 1.261.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-10-03 |
+| **Last Updated** | 2026-10-15 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Capability classification
@@ -41,6 +41,7 @@ This clarification does not change any requirement statement or ID.
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.261.0b | 2026-10-15 | Codex Root | Issue standalone reviewed-migration FR-285 for the bounded Business Agent Factory v1 contract under delegated root disposition. Adds one requirement; existing canonical rows, IDs, feature memberships and provenance remain unchanged. Config/API and isolated recovery evidence are recorded in Task9; provider/live-agent activation and external migration apply remain NOT_RUN. |
 | 1.260.0b | 2026-10-03 | RWANG | ADR-025 revision 3: distinguish explicit Features and Standalone FRs in a canonical classification pointer. All requirement rows and IDs unchanged. Composed with current main 1.259.0b; canonical registry rows are preserved. |
 | 1.259.0b | 2026-09-27 | Claude Opus 5.5 (MC0) | Status cells only; the statements and IDs are unchanged. FR-022 and FR-103 follow the ADR-093 1.2.0 amendment, the owner's ruling of 2026-09-27: "consent to retain = keep". A sales user records a Customer's advance retention consent. Erasing a member of a shared thread re-seals, under a per-legal-hold key, the evidence of another member who is held and has consented. The retention sweep blanks, without archiving, the past-window lines of an erased key Customer that nobody consented for. Erasure clears the FR-103 consent note and recorder. |
 | 1.258.0b | 2026-09-27 | Claude Opus 5.5 (MC0 W11) | SDD-110 follows the ADR-106 1.2.0 amendment update: an unverified sender's memory-sync turn now joins the runtime cohort in Core's PENDING memory mode instead of staying SERVER. Subject and ID unchanged; no schema change |

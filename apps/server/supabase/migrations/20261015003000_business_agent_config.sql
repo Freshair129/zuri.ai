@@ -31,7 +31,7 @@ CREATE TABLE "BusinessAgentConfig" (
   CONSTRAINT "BusinessAgentConfig_snapshotDigest_check" CHECK ("snapshotDigest" ~ '^[0-9a-f]{64}$'),
   CONSTRAINT "BusinessAgentConfig_businessId_tenantId_fkey"
     FOREIGN KEY ("businessId", "tenantId") REFERENCES "Business"("id", "tenantId")
-    ON DELETE RESTRICT ON UPDATE CASCADE
+    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE INDEX "BusinessAgentConfig_tenantId_idx" ON "BusinessAgentConfig"("tenantId");

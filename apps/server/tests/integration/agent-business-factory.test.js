@@ -165,6 +165,53 @@ describe('FR-285 Business agent factory persistence', () => {
       .resolves.toMatchObject({ status: 'CONFIGURED', config: { roles: snapshot.roles } })
   })
 
+  it('cascades a Business config on deletion and retains its attributed apply audit', async () => {
+    const other = await fixture()
+    await applyBusinessAgentTemplate(target.business.id, { viewer: target.ownerViewer })
+    await applyBusinessAgentTemplate(other.business.id, { viewer: other.ownerViewer })
+
+    const deletedConfig = await prisma.businessAgentConfig.findUnique({
+      where: { businessId: target.business.id },
+    })
+    const survivingConfig = await prisma.businessAgentConfig.findUnique({
+      where: { businessId: other.business.id },
+    })
+    const appliedAudit = await prisma.auditEvent.findFirst({
+      where: {
+        entityType: 'BUSINESS',
+        entityId: target.business.id,
+        action: 'AGENT_CONFIG_APPLIED',
+      },
+    })
+
+    expect(deletedConfig).not.toBeNull()
+    expect(survivingConfig).not.toBeNull()
+    expect(appliedAudit).toMatchObject({
+      actorId: target.owner.id,
+      tenantId: target.tenant.id,
+      businessId: target.business.id,
+    })
+
+    // FR-192 still prevents deleting a Business with scoped Memberships;
+    // clear only this fixture's Memberships before exercising config lifetime.
+    await expect(prisma.business.delete({ where: { id: target.business.id } }))
+      .rejects.toMatchObject({ code: 'P2003' })
+    await expect(prisma.businessAgentConfig.findUnique({
+      where: { businessId: target.business.id },
+    })).resolves.toEqual(deletedConfig)
+    await prisma.membership.deleteMany({ where: { businessId: target.business.id } })
+    await prisma.business.delete({ where: { id: target.business.id } })
+
+    expect(await prisma.businessAgentConfig.findUnique({
+      where: { businessId: target.business.id },
+    })).toBeNull()
+    await expect(prisma.businessAgentConfig.findUnique({
+      where: { businessId: other.business.id },
+    })).resolves.toEqual(survivingConfig)
+    await expect(prisma.auditEvent.findUnique({ where: { id: appliedAudit.id } }))
+      .resolves.toEqual(appliedAudit)
+  })
+
   it('uses persisted membership instead of payload role or owned Business claims', async () => {
     const forgedOwner = makeViewer({
       role: 'OWNER',

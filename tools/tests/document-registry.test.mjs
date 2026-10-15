@@ -88,17 +88,17 @@ test('parseCanonicalRecord keeps reviewed additions distinct from source-preserv
 
 test('readCanonicalRegistry verifies all pinned canonical records and explicit feature links', () => {
   const records = readCanonicalRegistry().filter(record => record.recordVersion === 1);
-  assert.equal(records.length, 540);
+  assert.equal(records.length, 541);
   assert.deepEqual(records.reduce((counts, record) => {
     counts[record.family] = (counts[record.family] ?? 0) + 1;
     return counts;
-  }, {}), { FEAT: 46, FR: 278, NFR: 25, BR: 44, SEC: 37, SDD: 110 });
+  }, {}), { FEAT: 46, FR: 279, NFR: 25, BR: 44, SEC: 37, SDD: 110 });
   const byId = new Map(records.map((record) => [record.id, record]));
   for (const feature of records.filter((record) => record.family === 'FEAT')) {
     for (const id of feature.requirementKeys) assert.equal(byId.get(id)?.family, 'FR', `${feature.id} -> ${id}`);
   }
-  assert.equal(records.filter((record) => record.status === 'reviewed-migration').map((record) => record.id).join(','), 'FR-278');
-  assert.ok(records.filter((record) => record.id !== 'FR-278').every((record) => record.namespace === 'ZAI' && record.recordVersion === 1 && record.status === 'source-preserved'));
+  assert.equal(records.filter((record) => record.status === 'reviewed-migration').map((record) => record.id).join(','), 'FR-278,FR-285');
+  assert.ok(records.filter((record) => !['FR-278', 'FR-285'].includes(record.id)).every((record) => record.namespace === 'ZAI' && record.recordVersion === 1 && record.status === 'source-preserved'));
 });
 
 test('parseCanonicalIndex preserves additive fields and validates unique keys and paths', () => {

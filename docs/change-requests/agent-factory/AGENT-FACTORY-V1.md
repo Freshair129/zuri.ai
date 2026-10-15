@@ -1,5 +1,5 @@
 ---
-version: "0.1.3"
+version: "0.1.4"
 status: approved
 task_id: TASK-ZAI-009
 ---
@@ -103,6 +103,11 @@ select an internal authorization bypass.
    contains configs, preview/import refuse before destructive replacement and import rechecks
    inside its replacement transaction. Empty installations may still accept
    legacy snapshots without implicitly creating a config.
+   When existing Business lifecycle code physically removes a Business, its
+   dependent config follows that deletion; another Business's config and the
+   original attributed audit remain intact. This adds no Factory deletion API.
+   The static Phase B schema inventory includes this new model, with prior
+   mappings retained and external recovery/migration authority unchanged.
 
 ## Task boundary
 
@@ -126,12 +131,14 @@ No existing source-row hash or generated export was edited manually.
 
 The review hash below covers the earlier private v1 design, not this later
 revision text or runtime patch. Root adopted the v0.1.1 error clarification and
-v0.1.2/v0.1.3 backup criterion under the same delegated mandate. Independent final
+v0.1.2/v0.1.3/v0.1.4 persistence criteria under the same delegated mandate. Independent final
 verification/review must bind the complete artifact head before merge.
 
 Root disposition on 2026-10-15 under the current trusted user mandate and standing in-scope product/technical delegation. The independent Luna reviewer passed the source design at SHA-256 0396B6AE4800EB70ED713A0A8873DEC493B8A462A9CDC4DC90218247B072650C after three bounded findings were corrected. Root adopts these eight criteria for local repository implementation; no production/Supabase migration apply, provider credentials, live-agent activation or bulk backfill is admitted. The user did not separately approve this exact document; root records the delegated decision explicitly.
 
 ## Version diff
+
+0.1.3 -> 0.1.4: restores compatibility with the existing physical Business lifecycle through a dependent config cascade while retaining audit and other Business data; includes the model in the static complete-recovery inventory. Root admits cycle3 on actual full-CI evidence, preserving earlier failures/counters. No deletion endpoint, live migration or recovery grant is added.
 
 0.1.2 -> 0.1.3: makes the no-silent-discard backup guarantee explicit for legacy snapshots missing the config table while live configs exist, including a transaction-side race recheck. Empty-target compatibility and operator restore authority remain unchanged.
 
