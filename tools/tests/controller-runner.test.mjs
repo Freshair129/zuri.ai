@@ -5,10 +5,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { createControllerRunner, rolePrompt, commitWorkerCandidate } from '../delivery-control/controller-runner.mjs';
+import { createControllerRunner, rolePrompt, commitWorkerCandidate, readPreparedCandidate } from '../delivery-control/controller-runner.mjs';
 import { openDeliveryController } from '../delivery-control/controller.mjs';
 import { preflightTask } from '../delivery-control/preflight.mjs';
 import { admitConfiguredTasks } from '../delivery-control/controller-cli.mjs';
+import { runCodexRole } from '../delivery-control/codex-backend.mjs';
 
 test('role prompts keep merge and provider effects outside worker authority', () => {
   for (const role of ['worker', 'verifier', 'reviewer']) {
@@ -80,7 +81,7 @@ test('root refuses out-of-scope worker effects before staging or committing', (t
   assert.equal(f.git(['diff', '--cached', '--name-only']), '');
 });
 
-test('root-prepared base merge can receive a validation-only commit without widening source scope', (t) => {
+test('root-prepared base merge binds exact receipt bytes through authorization and validation-only commit', async (t) => {
   const f = candidateFixture(t);
   fs.writeFileSync(path.join(f.worktree, 'src/feature.txt'), 'feature'); f.git(['add', 'src/feature.txt']); f.git(['commit', '-qm', 'feature']);
   const oldHeadCommit = f.git(['rev-parse', 'HEAD']);
@@ -93,10 +94,79 @@ test('root-prepared base merge can receive a validation-only commit without wide
   const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: f.task.taskId, oldBaseCommit: f.baseCommit,
     oldHeadCommit, headCommit, newBaseCommit, reason: 'Verified newer base; same task/caps', evidenceRef: 'root fixture operation' };
   fs.writeFileSync(preparedReceiptFile, JSON.stringify(receipt));
-  const result = commitWorkerCandidate({ ...input, preparedReceiptFile });
+  const proof = readPreparedCandidate({ worktree: f.worktree, task: f.task, baseCommit: newBaseCommit, receiptFile: preparedReceiptFile });
+  const acceptedBytes = fs.readFileSync(preparedReceiptFile);
+  const run = { state: 'WORKER_READY', taskRecord: f.task, baseCommit: newBaseCommit,
+    preparedBaseResume: { taskId: f.task.taskId, receiptDigest: proof.receiptDigest } };
+  const makeRunner = () => createControllerRunner({ controller: { getRun: () => run }, repoRoot: f.worktree,
+    stateRoot: f.artifactDir, config: { tasks: [{ taskId: f.task.taskId, taskFile: f.taskFile,
+      worktree: f.worktree, branch: 'codex/fixture' }] }, backend: async () => ({ outcome: 'BLOCKED' }) });
+  fs.writeFileSync(preparedReceiptFile, Buffer.concat([acceptedBytes, Buffer.from(' ')]));
+  assert.throws(() => readPreparedCandidate({ worktree: f.worktree, task: f.task, baseCommit: newBaseCommit,
+    receiptFile: preparedReceiptFile, expectedReceiptDigest: proof.receiptDigest }), /PREPARED_RECEIPT_DIGEST_MISMATCH/);
+  const replacedRunner = makeRunner();
+  assert.throws(() => replacedRunner.authorizePreparedCandidate(f.task.taskId, preparedReceiptFile, proof.receiptDigest),
+    /PREPARED_RECEIPT_DIGEST_MISMATCH/);
+  await replacedRunner.stop();
+  fs.writeFileSync(preparedReceiptFile, acceptedBytes);
+  const acceptedRunner = makeRunner();
+  assert.doesNotThrow(() => acceptedRunner.authorizePreparedCandidate(f.task.taskId, preparedReceiptFile, proof.receiptDigest));
+  await acceptedRunner.stop();
+  const result = commitWorkerCandidate({ ...input, preparedReceiptFile, preparedReceiptDigest: proof.receiptDigest });
   assert.notEqual(result.headCommit, headCommit); assert.equal(f.git(['diff', '--name-only', headCommit, result.headCommit]), '');
-  assert.equal(JSON.parse(fs.readFileSync(path.join(f.artifactDir, 'candidate-commit.json'))).validationOnly, true);
+  const candidateReceipt = JSON.parse(fs.readFileSync(path.join(f.artifactDir, 'candidate-commit.json')));
+  assert.equal(candidateReceipt.validationOnly, true);
+  assert.equal(candidateReceipt.preparedReceiptDigest, proof.receiptDigest);
   assert.equal(fs.readFileSync(path.join(f.worktree, 'src/feature.txt'), 'utf8'), 'feature');
+});
+test('runner holds a worker at stale baseline when HEAD changes after dispatch intent but before backend spawn', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const mandate = { resolvedBy: 'root', taskId: f.task.taskId, repositoryRoot: f.worktree,
+    objective: f.task.objective, writeScope: f.task.writeScope, sourceRef: 'trusted fixture',
+    authorizedEffects: ['local fixture changes'], prohibitions: ['no external effects'] };
+  const ready = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+  assert.equal(ready.status, 'READY');
+  controller.registerTask({ taskRecord: f.task, preflightResult: ready, worktreeRoot: f.worktree, trustedMandateBinding: mandate });
+  const initialHead = f.git(['rev-parse', 'HEAD']);
+  let spawnCalls = 0;
+  let countersAtLaunch;
+  const runner = createControllerRunner({ controller, repoRoot: f.worktree, stateRoot: path.join(f.worktree, '.git/runner'),
+    config: { codexExecutable: process.execPath, windowsSandbox: 'unelevated', tasks: [{ taskId: f.task.taskId,
+      taskFile: f.taskFile, worktree: f.worktree, branch: 'codex/fixture' }] },
+    backend: async (input) => {
+      countersAtLaunch = controller.getRun(f.task.taskId).cycles[0];
+      assert.equal(input.expectedLaunchHead, initialHead);
+      f.git(['commit', '--allow-empty', '-qm', 'mutate after dispatch intent']);
+      return runCodexRole({ ...input, spawnProcess: () => { spawnCalls++; throw new Error('unexpected spawn'); } });
+    } });
+  try {
+    const tick = await runner.tick();
+    assert.equal(tick.active, 1);
+    await runner.drain();
+    assert.equal(spawnCalls, 0);
+    const held = controller.getRun(f.task.taskId);
+    assert.equal(held.state, 'BLOCKED_STALE_BASELINE');
+    assert.equal(held.taskId, f.task.taskId);
+    assert.equal(held.currentCycle, 1);
+    assert.equal(held.initialHeadCommit, initialHead);
+    assert.equal(held.candidateHeadCommit, null);
+    assert.equal(held.cycles[0].state, 'BLOCKED');
+    assert.equal(held.cycles[0].submissions, countersAtLaunch.submissions);
+    assert.equal(held.cycles[0].implementationRepairs, countersAtLaunch.implementationRepairs);
+    assert.equal(held.cycles[0].toolRetries, countersAtLaunch.toolRetries);
+    assert.equal(held.stages[0].status, 'BLOCKED');
+    assert.equal(held.stages[0].failureClass, 'STALE_BASELINE');
+    assert.equal(held.stages[0].effectState, 'NONE');
+    assert.deepEqual(controller.nextReadyNodes(), []);
+    const retryPreflight = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+    assert.throws(() => controller.resumeTask({ taskRecord: f.task, preflightResult: retryPreflight,
+      trustedMandateBinding: mandate, resumeEvidence: { reference: 'fixture://retry', reason: 'No receipt supplied.' } }),
+    /PREPARED_BASE_RECEIPT_REQUIRED/);
+    assert.deepEqual(controller.getRun(f.task.taskId), held);
+    assert.deepEqual(controller.nextReadyNodes(), []);
+  } finally { await runner.stop(); }
 });
 test('CLI intake persists dependency-blocked task and wakes after accepted base evidence changes', async (t) => {
   const f = candidateFixture(t);

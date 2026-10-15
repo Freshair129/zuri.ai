@@ -36,7 +36,7 @@ export function buildCodexInvocation({ role, worktree, schemaFile, resultFile, w
 
 /** One fresh role session; no automatic retries or provider/model fallback. */
 export async function runCodexRole({ executable, role, worktree, artifactDir, prompt,
-  timeoutMs = 45 * 60_000, expectedHead = null, onSession = async () => {},
+  timeoutMs = 45 * 60_000, expectedHead = null, expectedLaunchHead = null, onSession = async () => {},
   spawnProcess = spawn, signal, windowsSandbox = null }) {
   if (!path.isAbsolute(executable) || !fs.statSync(executable).isFile()) throw new Error('CODEX_EXECUTABLE_REQUIRED');
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 45 * 60_000) throw new Error('Invalid role deadline');
@@ -75,6 +75,24 @@ export async function runCodexRole({ executable, role, worktree, artifactDir, pr
   };
   let timer;
   try {
+    // A worker's launch point is the controller's persisted initial snapshot.
+    // Re-read it synchronously at the last point before spawn so a checkout
+    // change after claim/dispatch intent cannot start a stale worker session.
+    if (role === 'worker' || expectedLaunchHead !== null) {
+      let actualLaunchHead = null;
+      try {
+        actualLaunchHead = execFileSync('git', ['rev-parse', 'HEAD'], {
+          cwd: worktree, encoding: 'utf8', windowsHide: true,
+        }).trim();
+      } catch {
+        return { outcome: 'BLOCKED', failureClass: 'STALE_BASELINE', effectState: 'NONE', provenNoEffect: true,
+          code: 'LAUNCH_HEAD_UNAVAILABLE', expectedHeadCommit: expectedLaunchHead, actualHeadCommit: null, artifactDir };
+      }
+      if (!/^[a-f0-9]{40}$/.test(expectedLaunchHead ?? '') || actualLaunchHead !== expectedLaunchHead) {
+        return { outcome: 'BLOCKED', failureClass: 'STALE_BASELINE', effectState: 'NONE', provenNoEffect: true,
+          code: 'LAUNCH_HEAD_MISMATCH', expectedHeadCommit: expectedLaunchHead, actualHeadCommit: actualLaunchHead, artifactDir };
+      }
+    }
     child = spawnProcess(executable, args, { cwd: worktree, shell: false, windowsHide: true, detached: process.platform !== 'win32',
       env: backendEnvironment(), stdio: ['pipe', 'pipe', 'pipe'] });
     child.once('exit', () => { processExited = true; });

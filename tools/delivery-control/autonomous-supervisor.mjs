@@ -7,6 +7,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { openDeliveryController } from './controller.mjs';
 import { createControllerRunner } from './controller-runner.mjs';
 import { admitConfiguredTasks } from './controller-cli.mjs';
+import { preflightTask } from './preflight.mjs';
 import { runRoadmapIntake } from './roadmap-intake.mjs';
 import { createGitHubDeliveryAdapter } from './github-delivery.mjs';
 import { startControllerDashboard } from './controller-dashboard.mjs';
@@ -15,6 +16,81 @@ const git = (cwd, argv) => execFileSync('git', argv, { cwd, encoding: 'utf8', sh
 const digest = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const within = (root, target) => { const relative = path.relative(root, target); return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative)); };
 const parse = (file) => JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+const staleResumeStates = new Set(['BLOCKED_STALE_CANDIDATE', 'BLOCKED_STALE_BASELINE']);
+
+async function preparedEvidenceSignature({ binding, run, receiptFile, baseRef, readRemoteBase }) {
+  const readEvidence = (file) => {
+    try { return { path: fs.realpathSync(file), bytes: fs.readFileSync(file).toString('base64') }; }
+    catch (error) { return { path: path.resolve(file), error: error.code ?? error.message }; }
+  };
+  let worktree;
+  try {
+    worktree = {
+      root: fs.realpathSync(binding.worktree),
+      head: git(binding.worktree, ['rev-parse', '--verify', 'HEAD^{commit}']),
+      branch: git(binding.worktree, ['branch', '--show-current']),
+      status: git(binding.worktree, ['status', '--porcelain', '--untracked-files=all']),
+    };
+  } catch (error) { worktree = { error: error.code ?? error.message }; }
+  let remoteBaseSha;
+  try { remoteBaseSha = await readRemoteBase({ repo: binding.worktree, baseRef }); }
+  catch (error) { remoteBaseSha = { error: error.code ?? error.message }; }
+  let fetchedBaseSha;
+  try { fetchedBaseSha = git(binding.worktree, ['rev-parse', '--verify', `${baseRef}^{commit}`]); }
+  catch (error) { fetchedBaseSha = { error: error.code ?? error.message }; }
+  return digest({
+    taskId: binding.taskId,
+    state: run?.state ?? null,
+    currentCycle: run?.currentCycle ?? null,
+    baseCommit: run?.baseCommit ?? null,
+    initialHeadCommit: run?.initialHeadCommit ?? null,
+    candidateHeadCommit: run?.candidateHeadCommit ?? null,
+    branch: run?.branch ?? null,
+    receipt: readEvidence(receiptFile),
+    task: readEvidence(binding.taskFile),
+    worktree,
+    baseRef,
+    fetchedBaseSha,
+    remoteBaseSha,
+  });
+}
+
+function baseRefParts(baseRef, repo) {
+  if (typeof baseRef !== 'string') throw new Error('PREPARED_BASE_REF_INVALID');
+  const separator = baseRef.indexOf('/');
+  const remote = baseRef.slice(0, separator);
+  const branch = baseRef.slice(separator + 1);
+  if (separator < 1 || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(remote) || !branch
+      || branch.startsWith('-') || branch.includes('..') || branch.endsWith('/') || branch.includes('//')) {
+    throw new Error('PREPARED_BASE_REF_INVALID');
+  }
+  const trackingRef = `refs/remotes/${remote}/${branch}`;
+  git(repo, ['check-ref-format', trackingRef]);
+  return { remote, branch, trackingRef };
+}
+
+function fetchPreparedBase({ repo, baseRef }) {
+  const { remote, branch, trackingRef } = baseRefParts(baseRef, repo);
+  git(repo, ['fetch', '--no-tags', remote, `refs/heads/${branch}:${trackingRef}`]);
+  const sha = git(repo, ['rev-parse', '--verify', `${trackingRef}^{commit}`]);
+  if (!/^[a-f0-9]{40}$/.test(sha)) throw new Error('PREPARED_BASE_FETCH_INVALID');
+  return sha;
+}
+
+function readRemoteBase({ repo, baseRef }) {
+  const { remote, branch } = baseRefParts(baseRef, repo);
+  const output = git(repo, ['ls-remote', '--exit-code', '--heads', remote, `refs/heads/${branch}`]);
+  const matches = output.split(/\r?\n/).map((line) => line.trim().split(/\s+/))
+    .filter(([sha, ref]) => /^[a-f0-9]{40}$/.test(sha ?? '') && ref === `refs/heads/${branch}`);
+  if (matches.length !== 1) throw new Error('PREPARED_BASE_REMOTE_UNAVAILABLE');
+  return matches[0][0];
+}
+
+function preparedBaseError(code) {
+  const error = new Error(code);
+  error.code = code;
+  return error;
+}
 
 export function shouldYieldFiniteRun(status, result) {
   if (result.active > 0) return false;
@@ -54,7 +130,8 @@ export function loadSupervisorCampaign(repoRoot, campaignFile) {
 /** One root service; models never receive this object's GitHub or intake capabilities. */
 export async function createAutonomousSupervisor({ repoRoot, campaignFile, controller: providedController,
   runnerFactory = createControllerRunner, intake = runRoadmapIntake, deliveryFactory = createGitHubDeliveryAdapter,
-  admit = admitConfiguredTasks,
+  admit = admitConfiguredTasks, preflight = preflightTask,
+  fetchPreparedBase: fetchBase = fetchPreparedBase, readRemoteBase: readBase = readRemoteBase,
   now = () => Date.now() }) {
   const loaded = loadSupervisorCampaign(repoRoot, campaignFile);
   const { root, common, privateRoot, campaign, intakeFile, intakeCampaign, campaignDigest } = loaded;
@@ -81,6 +158,9 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   try { state = fs.existsSync(checkpointFile) ? parse(checkpointFile) : { schemaVersion: 'autonomous-supervisor-state/v1', campaignDigest, bindings: [], deliveries: {} }; }
   catch (error) { releaseLock(); throw error; }
   if (state.campaignDigest !== campaignDigest) { releaseLock(); throw new Error('CAMPAIGN_CHANGED_REASSESSMENT_REQUIRED'); }
+  state.preparedResumeBlocked ??= {};
+  state.preparedResumeReassessments ??= {};
+  state.preparedResumeExpectedDigests ??= {};
   let controller;
   try { controller = providedController ?? await openDeliveryController({ repoRoot: root }); }
   catch (error) { releaseLock(); throw error; }
@@ -155,9 +235,91 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
         }
         for (const binding of state.bindings) {
           const file = path.join(stateRoot, 'prepared', binding.taskId + '.json');
-          if (controller.getRun(binding.taskId)?.state === 'WORKER_READY' && fs.existsSync(file)) {
-            try { runner.authorizePreparedCandidate(binding.taskId, file); }
-            catch (error) { runner.hold(binding.taskId); signal({ taskId: binding.taskId, status: 'ROOT_PREPARATION_REASSESSMENT_REQUIRED', code: String(error.message) }, observations); }
+          const baseRef = intakeCampaign.baseRef ?? 'origin/main';
+          let run = controller.getRun(binding.taskId);
+          if (staleResumeStates.has(run?.state)) {
+            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+            const previous = state.preparedResumeBlocked[binding.taskId];
+            const reassessment = state.preparedResumeReassessments[binding.taskId] ?? null;
+            runner.hold?.(binding.taskId);
+            if (previous?.signature === signature && !reassessment) continue;
+            if (reassessment) { delete state.preparedResumeReassessments[binding.taskId]; persist(); }
+            try {
+              const taskBytes = fs.readFileSync(binding.taskFile, 'utf8');
+              const taskRecord = JSON.parse(taskBytes.replace(/^\uFEFF/, ''));
+              if (taskRecord.taskId !== binding.taskId || !isDeepStrictEqual(taskRecord, run.taskRecord)) {
+                throw new Error('PREPARED_BASE_RESUME_TASK_BINDING_MISMATCH');
+              }
+              const fetchedBaseSha = await fetchBase({ repo: binding.worktree, baseRef });
+              if (!/^[a-f0-9]{40}$/.test(fetchedBaseSha)) throw new Error('PREPARED_BASE_FETCH_INVALID');
+              const remoteShaAfterFetch = await readBase({ repo: binding.worktree, baseRef });
+              if (remoteShaAfterFetch !== fetchedBaseSha) throw preparedBaseError('PREPARED_BASE_REMOTE_ADVANCED');
+              const ready = await preflight({ repo: binding.worktree, taskFile: binding.taskFile,
+                base: fetchedBaseSha });
+              if (ready.status !== 'READY' || ready.taskId !== binding.taskId) {
+                throw new Error(`PREPARED_BASE_RESUME_PREFLIGHT_${ready.status ?? 'INVALID'}`);
+              }
+              const remoteShaBeforeResume = await readBase({ repo: binding.worktree, baseRef });
+              if (remoteShaBeforeResume !== fetchedBaseSha) throw preparedBaseError('PREPARED_BASE_REMOTE_ADVANCED');
+              if (typeof controller.resumeTask !== 'function') throw new Error('PREPARED_BASE_RESUME_ADAPTER_UNAVAILABLE');
+              const resumed = controller.resumeTask({ taskRecord, preflightResult: ready,
+                trustedMandateBinding: binding.trustedMandateBinding ?? run.trustedMandateBinding,
+                resumeEvidence: { reference: `prepared-base:${path.relative(privateRoot, file).split(path.sep).join('/')}`,
+                  reason: 'Root prepared candidate receipt was validated against the retained paused run.' },
+                preparedBaseReceiptFile: file });
+              const proof = resumed?.preparedBaseResume;
+              if (!proof || proof.taskId !== binding.taskId || !/^[a-f0-9]{64}$/.test(proof.receiptDigest ?? '')) {
+                throw new Error('PREPARED_BASE_RESUME_PROOF_UNAVAILABLE');
+              }
+              state.preparedResumeExpectedDigests[binding.taskId] = { cycleNo: resumed.currentCycle, receiptDigest: proof.receiptDigest };
+              delete state.preparedResumeBlocked[binding.taskId];
+              persist();
+              signal({ taskId: binding.taskId, status: 'PREPARED_BASE_RESUME_ACCEPTED' }, observations);
+              run = controller.getRun(binding.taskId);
+            } catch (error) {
+              runner.hold?.(binding.taskId);
+              const code = String(error.code ?? error.message);
+              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+              state.preparedResumeBlocked[binding.taskId] = {
+                signature: failedSignature,
+                code,
+                rootReassessment: reassessment,
+              };
+              persist();
+              signal({ taskId: binding.taskId, status: 'PREPARED_BASE_RESUME_REASSESSMENT_REQUIRED', code }, observations);
+              continue;
+            }
+          }
+          if (run?.state === 'WORKER_READY'
+              && (run.preparedBaseResume?.receiptDigest || fs.existsSync(file) || state.preparedResumeBlocked[binding.taskId])) {
+            runner.hold?.(binding.taskId);
+            const signature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+            const previous = state.preparedResumeBlocked[binding.taskId];
+            const reassessment = state.preparedResumeReassessments[binding.taskId] ?? null;
+            if (previous?.signature === signature && !reassessment) continue;
+            if (reassessment) { delete state.preparedResumeReassessments[binding.taskId]; persist(); }
+            try {
+              const proof = run.preparedBaseResume;
+              const expected = state.preparedResumeExpectedDigests[binding.taskId];
+              if (!proof?.receiptDigest || (expected && (expected.cycleNo !== run.currentCycle
+                  || expected.receiptDigest !== proof.receiptDigest))) throw new Error('PREPARED_BASE_RESUME_PROOF_MISMATCH');
+              state.preparedResumeExpectedDigests[binding.taskId] = { cycleNo: run.currentCycle, receiptDigest: proof.receiptDigest };
+              persist();
+              runner.authorizePreparedCandidate(binding.taskId, file, proof.receiptDigest);
+              delete state.preparedResumeBlocked[binding.taskId];
+              delete state.preparedResumeReassessments[binding.taskId];
+              persist();
+            } catch (error) {
+              const code = String(error.code ?? error.message);
+              const failedSignature = await preparedEvidenceSignature({ binding, run, receiptFile: file, baseRef, readRemoteBase: readBase });
+              state.preparedResumeBlocked[binding.taskId] = {
+                signature: failedSignature,
+                code,
+                rootReassessment: reassessment,
+              };
+              persist();
+              signal({ taskId: binding.taskId, status: 'ROOT_PREPARATION_REASSESSMENT_REQUIRED', code }, observations);
+            }
           }
         }
         const dispatched = await runner.tick();
@@ -208,7 +370,18 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
       } finally { ticking = false; }
     },
     status() { return { campaignId: campaign.campaignId, campaignDigest, allowedTaskIds: intakeCampaign.allowedTaskIds,
-      bindings: state.bindings.map((item) => item.taskId), deliveries: state.deliveries, intake: state.intake }; },
+      bindings: state.bindings.map((item) => item.taskId), deliveries: state.deliveries, intake: state.intake,
+      preparedResumeBlocked: state.preparedResumeBlocked }; },
+    reassessPreparedResume({ taskId, evidenceRef, reason } = {}) {
+      if (stopped || ticking) throw new Error('SUPERVISOR_NOT_AVAILABLE_FOR_REASSESSMENT');
+      if (!state.bindings.some((item) => item.taskId === taskId) || typeof evidenceRef !== 'string' || !evidenceRef.trim()
+          || typeof reason !== 'string' || !reason.trim()) throw new TypeError('Root reassessment requires a bound task, evidence reference, and reason.');
+      delete state.preparedResumeBlocked[taskId];
+      state.preparedResumeReassessments[taskId] = { evidenceRef, reason, requestedAt: new Date(now()).toISOString() };
+      persist();
+      runner.wake?.(taskId);
+      return { taskId, status: 'PREPARED_RESUME_REASSESSMENT_QUEUED' };
+    },
     async stop() {
       stopped = true;
       await runner.stop(); persist();

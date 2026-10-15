@@ -11,7 +11,7 @@ const ROLES = Object.freeze([
 ]);
 const FAILURE_CLASSES = new Set([
   'METADATA_DEFECT', 'IMPLEMENTATION_FAILURE', 'EXTERNAL_BLOCKER', 'UNKNOWN_EFFECT',
-  'IDENTICAL_SEMANTIC_NO_PROGRESS_AT_CAP', 'KNOWN_TRANSIENT_TOOL_ERROR',
+  'IDENTICAL_SEMANTIC_NO_PROGRESS_AT_CAP', 'KNOWN_TRANSIENT_TOOL_ERROR', 'STALE_BASELINE',
 ]);
 const EFFECT_STATES = new Set(['NONE', 'APPLIED', 'PARTIAL', 'UNKNOWN']);
 
@@ -151,6 +151,68 @@ function isAncestor(repoRoot, ancestor, descendant) {
   return git(repoRoot, ['rev-parse', '--verify', ancestor + '^{commit}'], { allowFailure: true }) !== null
     && git(repoRoot, ['rev-parse', '--verify', descendant + '^{commit}'], { allowFailure: true }) !== null
     && git(repoRoot, ['merge-base', ancestor, descendant], { allowFailure: true }) === ancestor;
+}
+
+function pathInside(root, candidate) {
+  const base = pathKey(root);
+  const target = pathKey(candidate);
+  const relative = path.relative(base, target);
+  return relative === '' || (relative !== '..' && !relative.startsWith('..' + path.sep) && !path.isAbsolute(relative));
+}
+
+function readPreparedBaseResumeReceipt({ store, run, taskRecord, baseline, preparedBaseReceiptFile }) {
+  if (!nonempty(preparedBaseReceiptFile)) throw new Error('PREPARED_BASE_RECEIPT_REQUIRED');
+  let resolvedFile;
+  try { resolvedFile = realpathSync(preparedBaseReceiptFile); }
+  catch { throw new Error('PREPARED_BASE_RECEIPT_MISSING'); }
+  const privateRoot = path.join(store.gitCommonDir, 'zuri-delivery-control');
+  let resolvedPrivateRoot;
+  try { resolvedPrivateRoot = realpathSync(privateRoot); }
+  catch { throw new Error('PREPARED_BASE_RECEIPT_PRIVATE_ROOT_MISSING'); }
+  if (!pathInside(resolvedPrivateRoot, resolvedFile) || resolvedFile === resolvedPrivateRoot) {
+    throw new Error('PREPARED_BASE_RECEIPT_MUST_BE_PRIVATE');
+  }
+
+  let bytes;
+  let receipt;
+  try {
+    bytes = readFileSync(resolvedFile);
+    receipt = JSON.parse(bytes.toString('utf8').replace(/^\uFEFF/, ''));
+  } catch { throw new Error('PREPARED_BASE_RECEIPT_INVALID_JSON'); }
+  if (!isRecord(receipt) || receipt.schemaVersion !== 'root-base-prepared-candidate/v1'
+      || receipt.taskId !== taskRecord.taskId || receipt.taskId !== run.task_id
+      || !nonempty(receipt.reason) || !nonempty(receipt.evidenceRef)
+      || ![receipt.oldHeadCommit, receipt.headCommit, receipt.oldBaseCommit, receipt.newBaseCommit]
+        .every((sha) => typeof sha === 'string' && /^[a-f0-9]{40}$/.test(sha))) {
+    throw new Error('PREPARED_BASE_RECEIPT_SCHEMA_INVALID');
+  }
+  const retainedHead = run.candidate_head_commit ?? run.initial_head_commit;
+  if (receipt.oldHeadCommit !== retainedHead || receipt.oldBaseCommit !== run.base_commit) {
+    throw new Error('PREPARED_BASE_RECEIPT_OLD_RUN_MISMATCH');
+  }
+  if (receipt.oldHeadCommit === receipt.headCommit || receipt.oldBaseCommit === receipt.newBaseCommit
+      || receipt.newBaseCommit !== baseline.baseRevision || receipt.newBaseCommit !== baseline.base) {
+    throw new Error('PREPARED_BASE_RECEIPT_BASELINE_MISMATCH');
+  }
+  return {
+    receipt,
+    receiptPath: path.relative(resolvedPrivateRoot, resolvedFile).split(path.sep).join('/'),
+    receiptDigest: sha256(bytes),
+  };
+}
+
+function validatePreparedBaseResume({ repoRoot, run, receipt, current, baseline }) {
+  if (receipt.headCommit !== current.headCommit || receipt.headCommit !== baseline.headRevision
+      || current.branch !== run.branch || !current.clean || current.violations.length) {
+    throw new Error('PREPARED_BASE_RECEIPT_RESULTING_CANDIDATE_MISMATCH');
+  }
+  for (const [ancestor, descendant] of [
+    [receipt.oldBaseCommit, receipt.newBaseCommit],
+    [receipt.oldHeadCommit, receipt.headCommit],
+    [receipt.newBaseCommit, receipt.headCommit],
+  ]) {
+    if (!isAncestor(repoRoot, ancestor, descendant)) throw new Error('PREPARED_BASE_RECEIPT_ANCESTRY_MISMATCH');
+  }
 }
 
 function gitSnapshot(repoRoot, baseCommit, writeScope) {
@@ -354,6 +416,7 @@ function runShape(db, row, { includeTaskRecord = false } = {}) {
     objective: row.objective,
     branch: row.branch,
     baseCommit: row.base_commit,
+    initialHeadCommit: row.initial_head_commit,
     candidateHeadCommit: row.candidate_head_commit,
     proofScope: rowJson(row.proof_scope_json) ?? [],
     changedFiles: {
@@ -380,9 +443,15 @@ function runShape(db, row, { includeTaskRecord = false } = {}) {
     rootIntegration: rowJson(row.root_integration_json),
     updatedAt: row.updated_at,
   };
+  const latestResume = db.prepare(`SELECT payload_json FROM delivery_events
+    WHERE task_id=? AND cycle_no=? AND event_type='TASK_RESUMED' ORDER BY sequence DESC LIMIT 1`)
+    .get(row.task_id, row.current_cycle);
+  const latestResumePayload = latestResume ? rowJson(latestResume.payload_json) : null;
+  if (latestResumePayload?.preparedBaseResume) output.preparedBaseResume = latestResumePayload.preparedBaseResume;
   if (includeTaskRecord) {
     output.taskRecord = rowJson(row.task_json);
     output.taskRecordDigest = semanticTaskDigest(output.taskRecord);
+    output.trustedMandateBinding = rowJson(row.trusted_mandate_json);
     output.worktreeRoot = row.worktree_root;
   }
   return output;
@@ -569,6 +638,24 @@ function applyFailure(store, clock, lease, options) {
   }
   if (effectState === 'UNKNOWN' || failureClass === 'UNKNOWN_EFFECT') {
     return markUnknown(db, clock, { ...node, task_id: run.task_id, cycle_no: run.current_cycle }, evidence, options.operationId);
+  }
+  if (failureClass === 'STALE_BASELINE') {
+    if (node.role !== 'worker' || effectState !== 'NONE' || options.provenNoEffect !== true) {
+      return markUnknown(db, clock, { ...node, task_id: run.task_id, cycle_no: run.current_cycle }, evidence, options.operationId);
+    }
+    const at = nowIso(clock);
+    db.prepare(`UPDATE delivery_nodes SET state='BLOCKED',failure_class='STALE_BASELINE',effect_state='NONE',evidence_json=?,lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE task_id=? AND cycle_no=? AND node_id=?`)
+      .run(json(evidence), at, run.task_id, run.current_cycle, node.node_id);
+    db.prepare(`UPDATE delivery_cycles SET state='BLOCKED',updated_at=? WHERE task_id=? AND cycle_no=?`)
+      .run(at, run.task_id, run.current_cycle);
+    db.prepare(`UPDATE delivery_runs SET state='BLOCKED_STALE_BASELINE',updated_at=? WHERE task_id=?`)
+      .run(at, run.task_id);
+    eventInTransaction(db, clock, run.task_id, run.current_cycle, 'WORKER_LAUNCH_BLOCKED_STALE_BASELINE', {
+      nodeId: node.node_id, expectedHeadCommit: evidence.expectedHeadCommit ?? null,
+      actualHeadCommit: evidence.actualHeadCommit ?? null, operationId: options.operationId ?? null,
+      provenNoEffect: true,
+    });
+    return { outcome: 'BLOCKED_STALE_BASELINE', resumable: true, retryAllowed: false, effectState: 'NONE' };
   }
   if (!FAILURE_CLASSES.has(failureClass)) {
     db.prepare(`UPDATE delivery_nodes SET state='BLOCKED',failure_class='UNCLASSIFIED',effect_state=?,lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE task_id=? AND cycle_no=? AND node_id=?`)
@@ -781,7 +868,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const activeByRole = Object.fromEntries(active.map((row) => [row.role, row.count]));
       const activeAll = Object.values(activeByRole).reduce((sum, value) => sum + value, 0);
       if (activeAll >= policy.concurrency.agentSlotsMaximum) return [];
-      const queue = tx.prepare(`SELECT n.*,r.objective,r.worktree_root,r.branch,r.base_commit,r.current_cycle,r.proof_scope_json,r.dependencies_json,r.state AS run_state,
+      const queue = tx.prepare(`SELECT n.*,r.objective,r.worktree_root,r.branch,r.base_commit,r.initial_head_commit,r.current_cycle,r.proof_scope_json,r.dependencies_json,r.state AS run_state,
         r.candidate_head_commit,r.candidate_snapshot_digest,c.started_at,c.submissions,c.implementation_repairs,c.tool_retries
         FROM delivery_nodes n JOIN delivery_runs r USING(task_id) JOIN delivery_cycles c USING(task_id,cycle_no)
         WHERE n.state='READY' AND c.state='ACTIVE' ORDER BY n.created_at,r.task_id`).all();
@@ -815,6 +902,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
           inputDigest: node.input_digest,
           baseCommit: run.base_commit,
           requiredHeadCommit: node.required_head_commit,
+          expectedLaunchHeadCommit: node.role === 'worker' ? run.initial_head_commit : null,
           candidateHeadCommit: run.candidate_head_commit,
           branch: run.branch,
           writeScope: rowJson(run.proof_scope_json),
@@ -1109,7 +1197,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     });
   }
 
-  function resumeTask({ taskRecord, preflightResult, trustedMandateBinding, resumeEvidence } = {}) {
+  function resumeTask({ taskRecord, preflightResult, trustedMandateBinding, resumeEvidence, preparedBaseReceiptFile } = {}) {
     requireTaskRecord(taskRecord);
     const binding = checkMandateBinding(trustedMandateBinding, taskRecord, store.repoRoot);
     if (!isRecord(preflightResult) || preflightResult.status !== 'READY' || preflightResult.taskId !== taskRecord.taskId
@@ -1129,14 +1217,44 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
         throw new Error('No-progress yield requires corrected semantic metadata or material new evidence before resume.');
       }
       const baseline = preflightResult.baseline;
+      const requiresPreparedBaseReceipt = ['BLOCKED_STALE_CANDIDATE', 'BLOCKED_STALE_BASELINE'].includes(run.state);
+      if (requiresPreparedBaseReceipt && !nonempty(preparedBaseReceiptFile)) throw new Error('PREPARED_BASE_RECEIPT_REQUIRED');
+      if (!requiresPreparedBaseReceipt && preparedBaseReceiptFile !== undefined && preparedBaseReceiptFile !== null) {
+        throw new Error('PREPARED_BASE_RECEIPT_NOT_APPLICABLE');
+      }
+      const preparedBase = requiresPreparedBaseReceipt
+        ? readPreparedBaseResumeReceipt({ store, run, taskRecord, baseline, preparedBaseReceiptFile }) : null;
       const taskRepoRoot = repositoryPaths(run.worktree_root).repoRoot;
       const current = gitSnapshot(taskRepoRoot, baseline.baseRevision, taskRecord.writeScope);
       if (current.headCommit !== baseline.headRevision || current.branch !== baseline.branch) throw new Error('Resume preflight baseline is stale.');
       if (current.violations.length) throw new Error('Resume scope check failed at ' + current.violations[0].path);
+      if (preparedBase) validatePreparedBaseResume({ repoRoot: taskRepoRoot, run, receipt: preparedBase.receipt, current, baseline });
       const oldScopes = rowJson(run.proof_scope_json) ?? [];
       const newScopes = taskRecord.writeScope.map(normalizeScopePath);
       const conflict = pathConflict(tx, taskRecord.taskId, newScopes, run.worktree_root);
       if (conflict) throw new Error('Resume writeScope conflicts with ' + conflict.taskId + ' at ' + conflict.scope);
+      const digest = semanticTaskDigest(taskRecord);
+      const preparedBaseEvidence = preparedBase ? {
+        schemaVersion: preparedBase.receipt.schemaVersion,
+        taskId: preparedBase.receipt.taskId,
+        receiptPath: preparedBase.receiptPath,
+        receiptDigest: preparedBase.receiptDigest,
+        oldHeadCommit: preparedBase.receipt.oldHeadCommit,
+        headCommit: preparedBase.receipt.headCommit,
+        oldBaseCommit: preparedBase.receipt.oldBaseCommit,
+        newBaseCommit: preparedBase.receipt.newBaseCommit,
+        reason: preparedBase.receipt.reason,
+        evidenceRef: preparedBase.receipt.evidenceRef,
+        ancestryVerified: true,
+      } : null;
+      eventInTransaction(tx, clock, taskRecord.taskId, run.current_cycle, 'TASK_RESUMED', {
+        oldTaskRecordDigest: oldDigest,
+        newTaskRecordDigest: digest,
+        priorScopes: oldScopes,
+        writeScope: newScopes,
+        evidenceRef: resumeEvidence?.reference ?? null,
+        ...(preparedBaseEvidence ? { preparedBaseResume: preparedBaseEvidence } : {}),
+      });
       tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskRecord.taskId);
       for (const scope of newScopes) tx.prepare('INSERT INTO delivery_write_locks(task_id,scope_path) VALUES(?,?)').run(taskRecord.taskId, scope);
       const at = nowIso(clock);
@@ -1144,10 +1262,10 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
         .run(json(taskRecord), taskRecord.objective, json(taskRecord.acceptance), json(binding), baseline.branch, baseline.base, baseline.baseRevision, current.headCommit, current.digest,
           json(newScopes), json(current.changedPaths), json(preflightResult.dependencies ?? []), at, taskRecord.taskId);
       tx.prepare(`UPDATE delivery_cycles SET state='ACTIVE',paused_at=NULL,updated_at=? WHERE task_id=? AND cycle_no=?`).run(at, taskRecord.taskId, run.current_cycle);
-      const digest = semanticTaskDigest(taskRecord);
       insertNodesForResume(tx, taskRecord.taskId, run.current_cycle, digest, at);
-      eventInTransaction(tx, clock, taskRecord.taskId, run.current_cycle, 'TASK_RESUMED', { oldTaskRecordDigest: oldDigest, newTaskRecordDigest: digest, priorScopes: oldScopes, writeScope: newScopes, evidenceRef: resumeEvidence?.reference ?? null });
-      return runShape(tx, tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskRecord.taskId), { includeTaskRecord: true });
+      const resumed = runShape(tx, tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskRecord.taskId), { includeTaskRecord: true });
+      if (preparedBaseEvidence) resumed.preparedBaseResume = preparedBaseEvidence;
+      return resumed;
     });
   }
 
