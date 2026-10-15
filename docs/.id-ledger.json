@@ -10969,6 +10969,7 @@
   "reserved_ids": [
     "FR-279",
     "FR-280",
+    "FR-287",
     "SDD-111"
   ],
   "reservation_history": [
@@ -10981,6 +10982,15 @@
         "FR-279",
         "FR-280",
         "SDD-111"
+      ]
+    },
+    {
+      "revision": "158feeecb514948c84c9cc776b1450c633ac4b03",
+      "declared_in": "docs/change-requests/identity/CONTROL-ACCESS-RESPONSE-20261015.md#0.1.0",
+      "reason": "Preserve branch-only FR-287 issued for the unimplemented member-window proposal; owner clarified Login and forbidden-response repair before any renewal code effect",
+      "at": "2026-10-15",
+      "ids": [
+        "FR-287"
       ]
     }
   ]

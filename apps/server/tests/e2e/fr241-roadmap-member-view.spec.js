@@ -36,7 +36,9 @@ test('a signed-in non-operator reads the roadmap preview and still cannot open t
   await testInfo.attach('roadmap-member-view', { body: await page.screenshot({ fullPage: false }), contentType: 'image/png' })
 
   const control = await page.goto('/control/roadmap')
-  expect(control.status()).toBe(404)
+  expect(control.status()).toBe(403)
+  await expect(page).toHaveURL(/\/access-denied$/)
+  await expect(page.getByRole('heading', { name: 'ไม่มีสิทธิ์เข้าถึงหน้านี้' })).toBeVisible()
 })
 
 test('the member roadmap remains operable at 390px and 430px without page overflow', async ({ page }, testInfo) => {

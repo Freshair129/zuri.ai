@@ -44,6 +44,11 @@ system, never anything from a Business they touch.
 - Authorization is delegated to Identity's `isInstallationOperator` capability
   (FR-075). `isPlatform`, role, Business ownership and domain visibility grant
   nothing here.
+- Under the [owner-directed response correction](../../change-requests/identity/CONTROL-ACCESS-RESPONSE-20261015.md),
+  a missing session follows Login, a session-store outage retains retry, and
+  an authenticated non-operator reaches Identity's generic final403 response.
+  The former denial-as-404 presentation is superseded; no control content or
+  Operator grant is exposed by the correction.
 - The first surface, `/control/roadmap` (FR-105), is an immutable static plan
   projection. It accepts no input and makes no API, database or audit write.
 - FR-241 (ADR-092): `/roadmap`, outside `/control/**`, shows the same plan and

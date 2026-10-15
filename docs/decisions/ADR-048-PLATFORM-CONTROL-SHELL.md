@@ -1,7 +1,7 @@
 ---
-version: "1.1.0"
+version: "1.2.0"
 created_at: "2026-08-20T12:00:00+07:00,ATHER"
-last_update: "2026-08-20T12:00:00+07:00,ATHER"
+last_update: "2026-10-15,Codex Root, owner-directed Login and forbidden response correction"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -55,9 +55,14 @@ The control guard admits only a trusted viewer for which
 must never grant this route. Owning a Business, owning a Tenant, a global role
 label, or domain visibility is also insufficient.
 
-Missing viewer redirects to `/login`. A trusted but non-operator viewer receives
-a non-enumerating 404 state. The server route guard runs before the board is
-rendered, so unauthorised HTML never contains programme data.
+Missing viewer redirects to `/login`; a session-store outage retains the retry
+state. Under the owner's 2026-10-15 instruction, a trusted non-operator viewer
+is directed to a generic `/access-denied` response with actual final HTTP 403,
+noindex/no-store and links to Login/change account or home. This replaces the
+original non-enumerating 404 presentation. The authorization predicate above is
+unchanged. The server guard withholds the control shell and programme content.
+See the [reviewed response contract](../change-requests/identity/CONTROL-ACCESS-RESPONSE-20261015.md)
+for the explicit redirect-then-403 behavior in Next 14 and no-loop acceptance.
 
 ### D3 — The first board is a read-only plan projection
 
@@ -104,5 +109,6 @@ installation-wide authority.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0 | 2026-10-15 | accepted | Owner-directed Login for absent sessions and final403/noindex for signed-in non-operators; preserve the original Operator predicate and store-outage handling | working-tree | Codex Root |
 | 1.0.0 | 2026-08-20 | accepted | Separated the installation-operator programme board from the Business Shell and fixed its authorization/data boundaries | working-tree | ATHER |
 | 1.1.0 | 2026-09-14 | accepted | Amended by ADR-092: a time-boxed member view of the plan outside `/control`; this decision's D1–D4 still govern `/control/**` | working-tree | Claude Opus 5 |

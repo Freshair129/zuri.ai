@@ -42,7 +42,7 @@
     "requirementCount": 284,
     "verifiedRequirementCount": 248,
     "progressPercent": 92.5,
-    "gapCount": 59,
+    "gapCount": 60,
     "gaps": [
       {
         "domain": "agent",
@@ -137,7 +137,18 @@
         "check": "httpApi",
         "summary": "API route is not present in Appendix A",
         "evidence": [
+          "/access-denied",
           "/api/auth/csrf"
+        ]
+      },
+      {
+        "domain": "identity",
+        "id": "API-OPENAPI-001",
+        "severity": "high",
+        "check": "httpApi",
+        "summary": "API route is not represented in the machine-readable OpenAPI generator",
+        "evidence": [
+          "/access-denied"
         ]
       },
       {
@@ -2226,6 +2237,14 @@
           "testCount": 9
         },
         {
+          "id": "FR-105",
+          "title": "Platform Programme Roadmap",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 20
+        },
+        {
           "id": "FR-106",
           "title": "Enterprise API tenant token authentication",
           "declared": "done",
@@ -2461,15 +2480,24 @@
               "severity": "high",
               "summary": "API route is not present in Appendix A",
               "evidence": [
+                "/access-denied",
                 "/api/auth/csrf"
+              ]
+            },
+            {
+              "id": "API-OPENAPI-001",
+              "severity": "high",
+              "summary": "API route is not represented in the machine-readable OpenAPI generator",
+              "evidence": [
+                "/access-denied"
               ]
             }
           ],
           "details": {
-            "routes": 27,
+            "routes": 28,
             "inventoried": 26,
             "openApiPaths": 344,
-            "missingFromOpenApi": 0
+            "missingFromOpenApi": 1
           }
         },
         "mcp": {
@@ -2588,7 +2616,17 @@
           "check": "httpApi",
           "summary": "API route is not present in Appendix A",
           "evidence": [
+            "/access-denied",
             "/api/auth/csrf"
+          ]
+        },
+        {
+          "id": "API-OPENAPI-001",
+          "severity": "high",
+          "check": "httpApi",
+          "summary": "API route is not represented in the machine-readable OpenAPI generator",
+          "evidence": [
+            "/access-denied"
           ]
         },
         {
@@ -2640,8 +2678,8 @@
         }
       ],
       "details": {
-        "routes": 35,
-        "apiRoutes": 27,
+        "routes": 36,
+        "apiRoutes": 28,
         "pageRoutes": 8,
         "ownedModels": 22,
         "featureNotes": 27
@@ -4968,7 +5006,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 18
+          "testCount": 20
         },
         {
           "id": "FR-142",
@@ -6159,7 +6197,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 18
+          "testCount": 20
         },
         {
           "id": "FR-106",
@@ -16727,6 +16765,7 @@
       ],
       "primaryDomain": "platform-control",
       "contributorDomains": [
+        "identity",
         "platform-control",
         "project-manager"
       ],
@@ -16741,14 +16780,15 @@
           "title": "Platform Programme Roadmap",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 18
+          "codeCount": 14,
+          "testCount": 20
         }
       ],
       "evidence": [
         "apps/server/src/app/(control)/control/roadmap/page.jsx",
         "apps/server/src/app/(control)/layout.jsx",
         "apps/server/src/app/(pm)/settings/page.jsx",
+        "apps/server/src/app/access-denied/route.js",
         "apps/server/src/components/layouts/PlatformControlGuard.jsx",
         "apps/server/src/components/layouts/PlatformControlSessionRetry.jsx",
         "apps/server/src/components/layouts/PlatformControlShell.jsx",
@@ -16759,11 +16799,13 @@
         "apps/server/src/modules/platform-control/program-roadmap-containers.js",
         "apps/server/src/modules/platform-control/program-roadmap-data.js",
         "apps/server/src/modules/platform-control/roadmap-sot.js",
+        "apps/server/tests/e2e/fr105-control-access-response.spec.js",
         "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/fr169-business-capability.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/platform-control-access-denied.test.js",
         "apps/server/tests/unit/platform-control-domain-map.test.js",
         "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-guard.test.js",
