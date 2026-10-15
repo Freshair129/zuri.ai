@@ -30,7 +30,24 @@ export function rolePrompt({ node, task }) {
 }
 
 /** Root-owned Git effect, after the sandboxed worker has exited. */
-export function commitWorkerCandidate({ worktree, taskFile, task, baseCommit, result, artifactDir }) {
+export function readPreparedCandidate({ worktree, task, baseCommit, receiptFile }) {
+  const common = fs.realpathSync(git(worktree, ['rev-parse', '--path-format=absolute', '--git-common-dir']));
+  const file = fs.realpathSync(receiptFile);
+  const relative = path.relative(path.join(common, 'zuri-delivery-control'), file);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('PREPARED_RECEIPT_MUST_BE_PRIVATE');
+  const receipt = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+  if (receipt.schemaVersion !== 'root-base-prepared-candidate/v1' || receipt.taskId !== task.taskId
+    || receipt.newBaseCommit !== baseCommit || !receipt.evidenceRef || !receipt.reason
+    || ![receipt.oldHeadCommit, receipt.headCommit, receipt.oldBaseCommit, receipt.newBaseCommit].every((sha) => /^[a-f0-9]{40}$/.test(sha ?? ''))
+    || receipt.oldBaseCommit === receipt.newBaseCommit || receipt.oldHeadCommit === receipt.headCommit
+    || git(worktree, ['rev-parse', 'HEAD']) !== receipt.headCommit) throw new Error('PREPARED_CANDIDATE_BINDING_MISMATCH');
+  for (const [ancestor, descendant] of [[receipt.oldBaseCommit, receipt.newBaseCommit], [receipt.oldHeadCommit, receipt.headCommit], [receipt.newBaseCommit, receipt.headCommit]]) {
+    git(worktree, ['merge-base', '--is-ancestor', ancestor, descendant]);
+  }
+  return receipt;
+}
+
+export function commitWorkerCandidate({ worktree, taskFile, task, baseCommit, result, artifactDir, preparedReceiptFile = null }) {
   const current = JSON.parse(fs.readFileSync(taskFile, 'utf8').replace(/^\uFEFF/, ''));
   if (!isDeepStrictEqual(current, task)) throw new Error('TASK_BINDING_CHANGED');
   const readiness = preflightTask({ repo: worktree, taskFile, base: baseCommit });
@@ -41,13 +58,15 @@ export function commitWorkerCandidate({ worktree, taskFile, task, baseCommit, re
     ...git(worktree, ['diff', '--no-ext-diff', '--name-only', '--no-renames', '-z', 'HEAD'], { raw: true }).split('\0'),
     ...git(worktree, ['ls-files', '--others', '--exclude-standard', '-z'], { raw: true }).split('\0'),
   ].filter(Boolean))];
-  if (!dirty.length) throw new Error('NO_CANDIDATE_CHANGES');
+  if (!dirty.length && !preparedReceiptFile) throw new Error('NO_CANDIDATE_CHANGES');
+  const prepared = !dirty.length ? readPreparedCandidate({ worktree, task, baseCommit, receiptFile: preparedReceiptFile }) : null;
   // Preflight checked the same committed + dirty path sets against admitted scope.
-  git(worktree, ['add', '--', ...dirty]);
-  git(worktree, ['commit', '-m', `feat(delivery): ${task.taskId}`]);
+  if (dirty.length) git(worktree, ['add', '--', ...dirty]);
+  git(worktree, ['commit', ...(prepared ? ['--allow-empty'] : []), '-m', `${prepared ? 'chore(delivery): revalidate' : 'feat(delivery):'} ${task.taskId}`]);
   const headCommit = git(worktree, ['rev-parse', 'HEAD']);
   if (headCommit === beforeHead || git(worktree, ['status', '--porcelain', '--untracked-files=all'])) throw new Error('CANDIDATE_NOT_CLEAN');
   const receipt = { schemaVersion: 'root-candidate-commit/v1', taskId: task.taskId,
+    validationOnly: Boolean(prepared), preparedReceiptDigest: prepared ? createHash('sha256').update(fs.readFileSync(preparedReceiptFile)).digest('hex') : null,
     backendResultDigest: result.resultDigest, backendHeadCommit: result.headCommit, headCommit, paths: dirty };
   const bytes = JSON.stringify(receipt);
   fs.writeFileSync(path.join(artifactDir, 'candidate-commit.json'), bytes, { flag: 'wx' });
@@ -69,7 +88,11 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
     worktrees.add(key);
     bindings.set(task.taskId, task);
   }
+  if (backend === runCodexRole && process.platform === 'win32'
+    && !['mxc', 'elevated', 'unelevated'].includes(config.windowsSandbox)) throw new Error('WINDOWS_SANDBOX_PROFILE_REQUIRED');
   const active = new Map();
+  const preparedReceipts = new Map();
+  const heldTasks = new Set();
   const pendingErrors = [];
   const suppressed = new Map();
   const ownerId = `local-${randomUUID()}`;
@@ -101,8 +124,10 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
       Promise.resolve().then(() => controller.heartbeat(lease, 30_000)).catch((error) => { heartbeatError = error; roleAbort.abort(); });
     }, 5000);
     try {
-      let result = await backend({ executable: config.codexExecutable, role: node.role, worktree,
-        artifactDir, prompt: rolePrompt({ node: { ...node, currentHeadCommit: git(worktree, ['rev-parse', 'HEAD']) }, task }),
+      let result = await backend({ executable: config.codexExecutable, windowsSandbox: config.windowsSandbox, role: node.role, worktree,
+        artifactDir, prompt: (preparedReceipts.has(node.taskId) && node.role === 'worker'
+          ? 'Trusted root merged a newer accepted base into the existing candidate. Independently recheck the task and all declared checks; source edits are needed only for real regressions. The root can record a validation-only commit for this prepared candidate.\n' : '')
+          + rolePrompt({ node: { ...node, currentHeadCommit: git(worktree, ['rev-parse', 'HEAD']) }, task }),
         expectedHead: node.role === 'worker' ? null : node.requiredHeadCommit,
         timeoutMs: Math.min(config.roleTimeoutMs ?? 45 * 60_000, 45 * 60_000), signal: roleAbort.signal,
         onSession: (handle) => controller.recordBackendHandle({ lease, ...handle, backendRef: operationId }) });
@@ -114,7 +139,8 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
         if (node.role === 'worker') {
           await controller.heartbeat(lease, 30_000);
           result = commitWorkerCandidate({ worktree, taskFile: binding.taskFile, task,
-            baseCommit: node.baseCommit, result, artifactDir });
+            baseCommit: node.baseCommit, result, artifactDir, preparedReceiptFile: preparedReceipts.get(node.taskId) });
+          preparedReceipts.delete(node.taskId);
         }
         await controller.completeNode({ lease, result: { ...result, role: node.role,
           verdict: result.outcome, exactHeadCommit: result.headCommit, evidenceRef: operationId } });
@@ -137,7 +163,7 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
       const nodes = await controller.nextReadyNodes({ limit: 100 });
       for (const node of nodes) {
         if (active.size >= (config.maxConcurrent ?? 2) || abort.signal.aborted) break;
-        if (!bindings.has(node.taskId) || active.has(node.taskId)) continue;
+        if (!bindings.has(node.taskId) || active.has(node.taskId) || heldTasks.has(node.taskId)) continue;
         const binding = bindings.get(node.taskId);
         let signature;
         try {
@@ -168,7 +194,27 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
       return { active: active.size, errors };
     },
     async drain() { await Promise.allSettled([...active.values()]); },
-    wake(taskId) { suppressed.delete(taskId); },
+    wake(taskId) { suppressed.delete(taskId); heldTasks.delete(taskId); },
+    hold(taskId) { heldTasks.add(taskId); },
+    authorizePreparedCandidate(taskId, receiptFile) {
+      if (active.has(taskId)) throw new Error('TASK_ALREADY_ACTIVE');
+      const binding = bindings.get(taskId); const run = controller.getRun(taskId);
+      if (!binding || run?.state !== 'WORKER_READY') throw new Error('PREPARED_TASK_NOT_READY');
+      readPreparedCandidate({ worktree: binding.worktree, task: run.taskRecord, baseCommit: run.baseCommit, receiptFile });
+      preparedReceipts.set(taskId, receiptFile);
+      heldTasks.delete(taskId); suppressed.delete(taskId);
+    },
+    addBinding(binding) {
+      const previous = bindings.get(binding.taskId);
+      if (previous) {
+        if (!isDeepStrictEqual(previous, binding)) throw new Error('TASK_BINDING_CHANGED');
+        return;
+      }
+      const root = fs.realpathSync(binding.worktree);
+      const key = process.platform === 'win32' ? root.toLowerCase() : root;
+      if (worktrees.has(key)) throw new Error('DUPLICATE_WORKTREE_BINDING');
+      worktrees.add(key); bindings.set(binding.taskId, binding); config.tasks.push(binding);
+    },
     async stop() { abort.abort(); await Promise.allSettled([...active.values()]); },
     activeCount: () => active.size,
   };

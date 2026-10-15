@@ -145,3 +145,152 @@ merge or deployment. It is not `/control/roadmap` and does not expand product
 Operator or Business permissions. Root delivery still requires independent
 acceptance, review and applicable exact-head CI; a green local stage is not
 `MERGED` or production readiness.
+
+## Autonomous root supervisor
+
+`npm run delivery:autonomous -- serve <private-campaign.json>` joins trusted
+roadmap intake, parallel role execution, root integration and GitHub delivery.
+`run` uses the same loop and exits when every allowed task has a verified merged
+receipt, or yields a resumable no-ready/reassessment result instead of polling
+forever before any worker starts. This is repository delivery automation, not Business-runtime approval
+or production deployment. Sol root owns the campaign and exception decisions;
+the private supervisor implements its preauthorized mechanical transitions.
+Workers cannot create campaigns, grant themselves scope, or invoke GitHub tools.
+
+The root installs two JSON files inside the Git common directory's
+`zuri-delivery-control/campaigns/` directory. File provenance is a local trust
+boundary, not a cryptographic signature. The supervisor pins both files' content
+digests, requires the canonical repository and matching prohibitions, and pauses
+for reassessment if the campaign changes. Model worktrees cannot write Git
+metadata; do not place these files in tracked source or expose a web enqueue API.
+
+The intake campaign uses `roadmap-intake-campaign/v1`, `campaignId`,
+`repositoryRoot`, `baseRef`, `objective`, `sourceRef`, `authorizedEffects`,
+`prohibitions`, `allowedTaskIds` and `taskPlans`. Each task plan supplies explicit
+`objective`, `acceptance`, `writeScope`, structured `checks` and
+`mandateReference`. Canonical task criteria must be included. Roadmap prose
+cannot supply commands, expand scope or grant authority. Intake reads the
+canonical ledger and programme at the resolved Git base, selects ready tasks by
+priority then ID, creates a deterministic worktree once, and persists the binding.
+The supervisor excludes already bound tasks so another independent task can start.
+Missing plans, ambiguous criteria, dependency evidence, path conflicts and
+interrupted worktree creation produce typed holds, without resetting old history.
+
+The supervisor campaign has this shape (paths are examples, not authority):
+
+```json
+{
+  "schemaVersion": "autonomous-delivery-campaign/v1",
+  "campaignId": "roadmap-batch-01",
+  "repositoryRoot": "absolute canonical checkout",
+  "sourceRef": "actual trusted user delegation",
+  "authorizedEffects": ["intake", "dispatch", "rootIntegration", "push", "pullRequest", "merge"],
+  "prohibitions": ["production", "Supabase", "providers", "grants", "credentials"],
+  "intakeCampaignFile": "absolute private intake campaign JSON",
+  "codexExecutable": "absolute installed Codex executable",
+  "windowsSandbox": "unelevated",
+  "maxConcurrent": 2,
+  "maxCampaignMinutes": 120,
+  "pollIntervalMs": 30000,
+  "dashboardPort": 4190,
+  "delivery": {
+    "remoteName": "origin",
+    "expectedOwnerRepo": "github.com/OWNER/REPO",
+    "base": "main",
+    "requiredChecks": ["actual required check names"],
+    "notApplicableChecks": ["explicitly inapplicable optional check names"]
+  }
+}
+```
+
+Select the host's authorized Windows implementation explicitly (`mxc`, `elevated`
+or `unelevated`); there is no automatic downgrade. The backend intentionally
+ignores user config to avoid inheriting unrelated providers and full-access
+settings. On Windows that also drops the implementation selection: a requested
+`workspace-write` can resolve to read-only without it. Missing selection now fails
+before dispatch. The local development host already used `unelevated`; explicitly
+passing that value restores its existing restricted-token implementation while
+preserving `workspace-write` for workers, `read-only` for gates, `never` approvals,
+and normal rules. It does not change system/user settings, trust, network grants,
+or bypass protections. Other hosts must select their own permitted implementation.
+
+The supervisor stores bindings, deadlines, delivery checkpoints and events under
+`zuri-delivery-control/supervisors/<campaignId>/`. One root process owns a campaign;
+a live owner blocks another process. Reclaiming a dead root service lock never
+releases controller task locks or reconciles an orphaned worker. The campaign's
+maximum 120-minute deadline is anchored to the first actual worker cycle and
+survives restart. Unchanged intake exceptions are held while independent bound
+tasks continue. Controller caps and cumulative no-progress history remain intact.
+
+Only exact `ROOT_DELIVERY_READY` candidates can be root-integrated. The GitHub
+adapter verifies durable role history and the unchanged clean snapshot, validates
+the repository/remote/ref, then publishes using argument-array Git/gh calls. Each
+mutation has a durable intent and bounded reconciliation; lost responses do not
+trigger blind repeats. It discovers an existing PR, checks GitHub's exact head and
+required checks plus all applicable checks, and uses a matching-head merge guard.
+Skipped checks count only as explicitly inapplicable optional checks. Direct
+merge also requires authenticated proof of strict up-to-date required checks
+and administrator enforcement on the target branch; a local head check alone
+does not eliminate a concurrent base-update race. A moving base yields
+`BASE_ADVANCED` with the actual SHA and pauses that revision for autonomous root
+replanning; unchanged revisions are not hot-polled. It never silently reuses
+old evidence or force-pushes a rebase. A known merged PR is
+reconciled before recording `MERGED`. No model session receives these credentials.
+
+## Autonomous Sol root continuation
+
+Run a root continuation through the Codex app's thread heartbeat when work must
+continue after the interactive turn. Root is an AI role, not a human approval
+step. Its trusted prompt includes the repository, existing mandate, task
+lineage/caps, independent gates and prohibitions. It checks only on its bounded
+schedule, stays quiet on unchanged/non-actionable state, and notifies on real
+progress, completion or an external blocker. Do not replace this with a web
+endpoint that executes roadmap text. A paused service revision is visible work
+for this autonomous root; it is not a request to repeat a human G0 approval.
+
+Root reconciles each accepted merge into the canonical roadmap and generated
+projections through a separately checked branch/PR. Partial runtime goals remain
+explicit; a merged implementation alone cannot check a broader DoD. After
+accepted canonical closeout, root fetches the verified remote tracking base.
+An intake `baseRef` such as `origin/main` then resolves the newer canonical commit
+without changing the campaign's task allowlist, scope, criteria or permissions.
+Already bound tasks keep their exact base and history until root revalidation.
+
+For a later parallel candidate whose base advanced, root reads and retains the
+paused controller run before changing it. It checks the same canonical
+repository and task branch, the run is `ROOT_REPLAN_PAUSED`, no worker is active,
+no delivery effect is unknown, and the old candidate checkout is clean at the
+run's `candidateHeadCommit`. Root fetches `main`, resolves the fetched commit,
+and confirms a fresh `git ls-remote` for `refs/heads/main` still returns that
+same SHA. If the remote moved during reconciliation, root fetches again and
+reassesses without changing the paused run.
+
+Root records a material-evidence disposition, merges that fetched main commit
+into the isolated candidate without rebase/reset/force-push, and aborts only its
+own proven conflicting merge. Before writing a prepared-candidate receipt, root
+checks `receipt.oldHeadCommit === pausedRun.candidateHeadCommit`,
+`receipt.oldBaseCommit === pausedRun.baseCommit`,
+`receipt.newBaseCommit === fetchedMainSha`, and `receipt.headCommit` equals the
+actual clean candidate HEAD after the merge. It repeats the remote SHA check
+before `resumeTask`. Unknown operation effects remain quarantined. A successful
+merge receives a new read-only preflight and `resumeTask` under the same task
+and cycle, retaining counters and the original deadline. All three roles run
+again; prior CI and role passes do not carry forward.
+
+When the worker needs no source repair on the updated base, root may install
+`supervisors/<campaignId>/prepared/<taskId>.json` in the private control directory:
+`schemaVersion: root-base-prepared-candidate/v1`, `taskId`, `oldHeadCommit`,
+`headCommit`, `oldBaseCommit`, `newBaseCommit`, `reason`, and `evidenceRef`.
+The runner validates the private path, actual current head, changed base and
+ancestry preserving both old candidate and new base. Only this root preparation
+allows a validation-only empty commit after a fresh worker PASS. Normal no-change
+worker output remains refused. The commit receipt binds the preparation digest;
+it consumes a normal worker submission and still requires new independent gates
+and hosted CI. A newer verified revision may update its private branch only by
+ordinary fast-forward push; old receipts remain available for reconciliation.
+
+Unattended execution is bounded to the trusted campaign's adopted task contracts.
+It does not invent business policy, equate a partial feature with its broader DoD,
+apply production migrations, deploy, or self-authorize a successor cycle. A real
+scope/authority/unknown-effect block remains visible for autonomous root
+reassessment; routine transitions do not require another human G0 approval.

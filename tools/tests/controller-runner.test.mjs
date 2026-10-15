@@ -79,6 +79,25 @@ test('root refuses out-of-scope worker effects before staging or committing', (t
   assert.equal(f.git(['rev-parse', 'HEAD']), f.baseCommit);
   assert.equal(f.git(['diff', '--cached', '--name-only']), '');
 });
+
+test('root-prepared base merge can receive a validation-only commit without widening source scope', (t) => {
+  const f = candidateFixture(t);
+  fs.writeFileSync(path.join(f.worktree, 'src/feature.txt'), 'feature'); f.git(['add', 'src/feature.txt']); f.git(['commit', '-qm', 'feature']);
+  const oldHeadCommit = f.git(['rev-parse', 'HEAD']);
+  f.git(['checkout', '-qb', 'upstream', f.baseCommit]); fs.writeFileSync(path.join(f.worktree, 'upstream.txt'), 'base advance');
+  f.git(['add', 'upstream.txt']); f.git(['commit', '-qm', 'new base']); const newBaseCommit = f.git(['rev-parse', 'HEAD']);
+  f.git(['checkout', '-q', 'codex/fixture']); f.git(['merge', '--no-ff', '--no-edit', 'upstream']); const headCommit = f.git(['rev-parse', 'HEAD']);
+  const input = { ...f, baseCommit: newBaseCommit, result: { ...f.result, headCommit } };
+  assert.throws(() => commitWorkerCandidate(input), /NO_CANDIDATE_CHANGES/);
+  const preparedReceiptFile = path.join(f.worktree, '.git/zuri-delivery-control/prepared/root.json'); fs.mkdirSync(path.dirname(preparedReceiptFile), { recursive: true });
+  const receipt = { schemaVersion: 'root-base-prepared-candidate/v1', taskId: f.task.taskId, oldBaseCommit: f.baseCommit,
+    oldHeadCommit, headCommit, newBaseCommit, reason: 'Verified newer base; same task/caps', evidenceRef: 'root fixture operation' };
+  fs.writeFileSync(preparedReceiptFile, JSON.stringify(receipt));
+  const result = commitWorkerCandidate({ ...input, preparedReceiptFile });
+  assert.notEqual(result.headCommit, headCommit); assert.equal(f.git(['diff', '--name-only', headCommit, result.headCommit]), '');
+  assert.equal(JSON.parse(fs.readFileSync(path.join(f.artifactDir, 'candidate-commit.json'))).validationOnly, true);
+  assert.equal(fs.readFileSync(path.join(f.worktree, 'src/feature.txt'), 'utf8'), 'feature');
+});
 test('CLI intake persists dependency-blocked task and wakes after accepted base evidence changes', async (t) => {
   const f = candidateFixture(t);
   f.git(['update-ref', 'refs/remotes/origin/main', f.baseCommit]);

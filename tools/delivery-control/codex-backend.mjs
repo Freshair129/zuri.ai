@@ -19,13 +19,16 @@ export function backendEnvironment(source = process.env) {
     'HOME', 'USERPROFILE', 'HOMEDRIVE', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA', 'CODEX_HOME', 'LANG', 'LC_ALL']);
   return Object.fromEntries(Object.entries(source).filter(([key]) => names.has(key.toUpperCase())));
 }
-export function buildCodexInvocation({ role, worktree, schemaFile, resultFile }) {
+export function buildCodexInvocation({ role, worktree, schemaFile, resultFile, windowsSandbox = null, platform = process.platform }) {
   if (!ROLES.has(role)) throw new Error('Unsupported role');
   for (const value of [worktree, schemaFile, resultFile]) {
     if (!path.isAbsolute(value)) throw new Error('Backend paths must be absolute');
   }
+  if (windowsSandbox !== null && !['mxc', 'elevated', 'unelevated'].includes(windowsSandbox)) throw new Error('INVALID_WINDOWS_SANDBOX');
+  if (platform === 'win32' && !windowsSandbox) throw new Error('WINDOWS_SANDBOX_PROFILE_REQUIRED');
   return ['--no-daemon', '--ask-for-approval', 'never', 'exec', '--ignore-user-config',
     '--model', 'gpt-6-luna', '--config', 'model_reasoning_effort="max"',
+    ...(platform === 'win32' ? ['--config', `windows.sandbox="${windowsSandbox}"`] : []),
     '--sandbox', role === 'worker' ? 'workspace-write' : 'read-only',
     '--cd', worktree, '--json', '--color', 'never', '--output-schema', schemaFile,
     '--output-last-message', resultFile, '-'];
@@ -34,7 +37,7 @@ export function buildCodexInvocation({ role, worktree, schemaFile, resultFile })
 /** One fresh role session; no automatic retries or provider/model fallback. */
 export async function runCodexRole({ executable, role, worktree, artifactDir, prompt,
   timeoutMs = 45 * 60_000, expectedHead = null, onSession = async () => {},
-  spawnProcess = spawn, signal }) {
+  spawnProcess = spawn, signal, windowsSandbox = null }) {
   if (!path.isAbsolute(executable) || !fs.statSync(executable).isFile()) throw new Error('CODEX_EXECUTABLE_REQUIRED');
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 45 * 60_000) throw new Error('Invalid role deadline');
   fs.mkdirSync(artifactDir, { recursive: true });
@@ -43,7 +46,7 @@ export async function runCodexRole({ executable, role, worktree, artifactDir, pr
   // A dispatch directory is single-use. Stale output can never satisfy a new gate.
   if (fs.existsSync(resultFile) || fs.existsSync(path.join(artifactDir, 'events.jsonl'))) throw new Error('DISPATCH_DIRECTORY_REUSED');
   fs.writeFileSync(schemaFile, JSON.stringify(ROLE_RESULT_SCHEMA));
-  const args = buildCodexInvocation({ role, worktree, schemaFile, resultFile });
+  const args = buildCodexInvocation({ role, worktree, schemaFile, resultFile, windowsSandbox });
   const events = fs.openSync(path.join(artifactDir, 'events.jsonl'), 'wx');
   const errors = fs.openSync(path.join(artifactDir, 'stderr.log'), 'wx');
   let child;
