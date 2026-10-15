@@ -27,4 +27,13 @@ describe('FR-044 Business Routing page', () => {
     expect(page).not.toContain('Select a portfolio')
     expect(page).not.toContain('onClick={() => scope.select({ portfolioId:')
   })
+
+  it('offers a separate same-Tenant create path only for the server-derived owner capability', () => {
+    expect(page).toContain('business.canCreateBusiness')
+    expect(page).toContain("api('/api/scope'")
+    expect(page).toContain("entity: 'business'")
+    expect(page).toContain('tenantId: tenant.id')
+    expect(page).toContain('Create Business in this Tenant')
+    expect(page).not.toContain("entity: 'businessInGroup'")
+  })
 })
