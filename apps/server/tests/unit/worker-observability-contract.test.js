@@ -56,7 +56,9 @@ describe('worker observability route contract', () => {
     const response = await handler(request())
     const body = await response.json()
     expect(response.status).toBe(200)
-    expect(body).toMatchObject({ schemaVersion: 'worker-observability/v1', state: 'UNKNOWN', freshness: 'UNKNOWN' })
+    expect(body).toMatchObject({ schemaVersion: 'worker-observability/v1', state: 'UNKNOWN', freshness: 'UNKNOWN',
+      campaignIntake: { state: 'NOT_CAPTURED', authorityGrant: false, dispatchAllowed: false, candidates: [] },
+      source: { roadmapIntake: 'NOT_CAPTURED' } })
     expect(JSON.stringify(body)).not.toContain('private path')
   })
 })

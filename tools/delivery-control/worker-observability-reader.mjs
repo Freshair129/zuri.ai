@@ -10,6 +10,7 @@ const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite');
 
 export const WORKER_OBSERVABILITY_SCHEMA_VERSION = 'worker-observability/v1';
 export const MAX_HEARTBEAT_AGE_MS = 15_000;
+export const MAX_INTAKE_SNAPSHOT_AGE_MS = 60_000;
 const ACTIVE_RUN_STATES = new Set(['RUNNING', 'LEASED', 'WORKER_RUNNING', 'VERIFY_RUNNING', 'REVIEW_RUNNING']);
 const ACTIVE_NODE_STATES = new Set(['RUNNING', 'LEASED']);
 
@@ -52,6 +53,12 @@ const SAFE_TAG = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$/;
 const SAFE_HASH = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/i;
 const SAFE_EVENT_NAME = /^[A-Z][A-Z0-9_-]{0,79}$/;
 const SUPERVISOR_STATUSES = new Set(['INTAKE_BOUND', 'INTAKE_WAITING', 'INTAKE_REASSESSMENT_REQUIRED',
+  'HOLD_TRUSTED_BINDING', 'HOLD_REVIEW_REQUIRED', 'HOLD_AMBIGUOUS_ROADMAP', 'HOLD_DEPENDENCY',
+  'HOLD_TASK_STATUS', 'HOLD_SCOPE_CONFLICT', 'HOLD_PREFLIGHT', 'HOLD_RECONCILE',
+  'HOLD_REASSESSMENT_REQUIRED', 'HOLD_INTAKE_IN_PROGRESS', 'HOLD_COLLISION', 'HOLD_NO_READY_TASK',
+  'HOLD_NOT_ALLOWED', 'HOLD_ENVIRONMENT', 'HOLD_REPOSITORY', 'HOLD_CAMPAIGN', 'HOLD_BASE',
+  'HOLD_ROADMAP', 'HOLD_CONTROLLER_STATE', 'HOLD_SCOPE', 'HOLD_USAGE',
+  'READY_CANDIDATE', 'ALREADY_COMPLETE',
   'BASE_ADVANCED_RESUME_PREPARED', 'BASE_ADVANCED_RESUME_REASSESSMENT_REQUIRED', 'BASE_ADVANCED_RESUME_REASSESSMENT_QUEUED',
   'PREPARED_BASE_RESUME_ACCEPTED', 'PREPARED_BASE_RESUME_REASSESSMENT_REQUIRED', 'PREPARED_RESUME_REASSESSMENT_QUEUED',
   'ROOT_PREPARATION_REASSESSMENT_REQUIRED', 'PAUSED_DEADLINE', 'DISPATCH_BLOCKED', 'RUNNING', 'YIELD_REASSESS',
@@ -61,6 +68,30 @@ const SUPERVISOR_STATUSES = new Set(['INTAKE_BOUND', 'INTAKE_WAITING', 'INTAKE_R
   'REMOTE_BRANCH_DIVERGED', 'UNKNOWN_EFFECT', 'BLOCKED', 'BUSY', 'RECONCILED_APPLIED', 'UNKNOWN']);
 const SUPERVISOR_RECEIPT_FIELDS = new Set(['schemaVersion', 'taskId', 'cycleNo', 'kind', 'status', 'baseCommit',
   'candidateHeadCommit', 'observedAt', 'previousDigest', 'receiptDigest']);
+const INTAKE_STATUSES = new Set(['READY_CANDIDATE', 'ALREADY_COMPLETE', 'INTAKE_WAITING', 'INTAKE_REASSESSMENT_REQUIRED',
+  'HOLD_TRUSTED_BINDING', 'HOLD_REVIEW_REQUIRED', 'HOLD_AMBIGUOUS_ROADMAP', 'HOLD_DEPENDENCY',
+  'HOLD_TASK_STATUS', 'HOLD_SCOPE_CONFLICT', 'HOLD_PREFLIGHT', 'HOLD_RECONCILE',
+  'HOLD_REASSESSMENT_REQUIRED', 'HOLD_INTAKE_IN_PROGRESS', 'HOLD_COLLISION', 'HOLD_NO_READY_TASK',
+  'HOLD_NOT_ALLOWED', 'HOLD_ENVIRONMENT', 'HOLD_REPOSITORY', 'HOLD_CAMPAIGN', 'HOLD_BASE',
+  'HOLD_ROADMAP', 'HOLD_CONTROLLER_STATE', 'HOLD_SCOPE', 'HOLD_USAGE']);
+const INTAKE_CODES = new Set(['TASK_PLAN_SHAPE_INVALID', 'ROOT_DOMAIN_OR_FEATURE_KEY_MISSING',
+  'ROOT_DOMAIN_OR_FEATURE_KEY_INVALID', 'ROOT_DOMAIN_OR_FEATURE_KEY_NOT_NORMALIZED', 'TASK_PLAN_FIELDS_MISSING',
+  'TASK_PLAN_SCOPE_INVALID', 'TASK_PLAN_CHECK_INVALID', 'TASK_NOT_IN_CANONICAL_SOURCES',
+  'TASK_SOURCE_AMBIGUOUS', 'CANONICAL_ACCEPTANCE_NOT_BOUND', 'ROADMAP_DONE', 'TASK_NOT_PLANNED',
+  'DEPENDENCIES_UNACCEPTED', 'TASK_NOT_IN_ROOT_ALLOWLIST', 'NO_ALLOWED_READY_TASK',
+  'NO_UNEXCLUDED_READY_TASK', 'ACTIVE_WRITE_SCOPE_CONFLICT', 'TASK_ALREADY_HAS_INTAKE_RECEIPT',
+  'ROOT_RECONCILIATION_REQUIRED', 'DURABLE_RECEIPT_RECONCILIATION_REQUIRED',
+  'INTAKE_INTERRUPTED_RECONCILIATION_REQUIRED', 'DURABLE_RECEIPT_STATE_MISMATCH_RECONCILIATION_REQUIRED',
+  'AUTOMATIC_PREFLIGHT_BLOCKED', 'TASK_INTAKE_READY', 'INTAKE_CLAIMED', 'INTAKE_LOCK_EXISTS',
+  'INTAKE_LOCK_FAILED', 'SCOPE_HOLD_CHANGED_DURING_REASSESSMENT', 'CONTROLLER_STATE_UNREADABLE',
+  'TASK_ALREADY_REGISTERED', 'WORKTREE_PARENT_ESCAPE', 'WORKTREE_OR_BRANCH_EXISTS',
+  'WORKTREE_BASELINE_MISMATCH', 'INTAKE_EFFECT_REASSESSMENT', 'NO_READY_TASK', 'ROADMAP_TABLE_AMBIGUOUS',
+  'CANONICAL_ROADMAP_UNAVAILABLE', 'GIT_COMMAND_FAILED', 'INTAKE_ERROR', 'EXCLUDE_TASK_IDS_INVALID',
+  'EXCLUDE_TASK_ID_NOT_ALLOWED', 'CAMPAIGN_SCHEMA_INVALID', 'CAMPAIGN_BINDING_INVALID',
+  'CAMPAIGN_TASK_ALLOWLIST_INVALID', 'UNEXPECTED_TASK_PLAN', 'CAMPAIGN_BASE_UNAVAILABLE',
+  'CAMPAIGN_FILE_MISSING', 'CAMPAIGN_OUTSIDE_PRIVATE_ROOT', 'CAMPAIGN_FIELD_INVALID',
+  'CAMPAIGN_READ_FAILED', 'CAMPAIGN_JSON_INVALID', 'CAMPAIGN_CHANGED_DURING_READ',
+  'TASK_ID_INVALID', 'INTAKE_SOURCE_INVALID', 'INTAKE_SOURCE_UNAVAILABLE', 'INTAKE_RESULT_INVALID']);
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex').toUpperCase();
@@ -95,6 +126,56 @@ function safeCommit(value) {
 
 function safeStatus(value) {
   return typeof value === 'string' && SAFE_CODE.test(value) ? value : 'UNKNOWN';
+}
+
+function emptyCampaignIntake(state = 'NOT_CAPTURED', reason = null) {
+  return {
+    state,
+    freshness: 'UNKNOWN',
+    status: state === 'NOT_CAPTURED' ? 'NOT_CAPTURED' : 'UNKNOWN',
+    code: INTAKE_CODES.has(reason) ? reason : null,
+    observedAt: null,
+    ageMs: null,
+    source: 'LOCAL_ROADMAP_INTAKE',
+    proofScope: 'LOCAL_ONLY',
+    authorityGrant: false,
+    dispatchAllowed: false,
+    selectedTaskId: null,
+    candidates: [],
+  };
+}
+
+function projectCampaignIntake(value, nowMs) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+      || !['SNAPSHOT', 'NOT_CAPTURED', 'UNKNOWN'].includes(value.state)) return emptyCampaignIntake('UNKNOWN', 'INTAKE_RESULT_INVALID');
+  if (value.state !== 'SNAPSHOT') return emptyCampaignIntake(value.state, value.code);
+  const observedAt = typeof value.observedAt === 'string' ? iso(value.observedAt) : null;
+  const capturedMs = observedAt === null ? null : asMillis(observedAt);
+  if (capturedMs === null || capturedMs > nowMs) return emptyCampaignIntake('UNKNOWN', 'INTAKE_RESULT_INVALID');
+  const ageMs = nowMs - capturedMs;
+  const candidates = Array.isArray(value.candidates) ? value.candidates.slice(0, 25).flatMap((item) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return [];
+    const taskId = safeTaskId(item.taskId);
+    if (taskId === 'UNKNOWN') return [];
+    return [{ taskId,
+      status: INTAKE_STATUSES.has(item.status) ? item.status : 'UNKNOWN',
+      code: INTAKE_CODES.has(item.code) ? item.code : 'UNKNOWN' }];
+  }) : [];
+  return {
+    state: 'SNAPSHOT',
+    freshness: ageMs <= MAX_INTAKE_SNAPSHOT_AGE_MS ? 'FRESH' : 'STALE',
+    status: INTAKE_STATUSES.has(value.status) ? value.status : 'UNKNOWN',
+    code: INTAKE_CODES.has(value.code) ? value.code : 'UNKNOWN',
+    observedAt,
+    ageMs,
+    source: 'LOCAL_ROADMAP_INTAKE',
+    proofScope: 'LOCAL_ONLY',
+    authorityGrant: false,
+    dispatchAllowed: false,
+    selectedTaskId: value.selectedTaskId === null || value.selectedTaskId === undefined
+      ? null : (safeTaskId(value.selectedTaskId) === 'UNKNOWN' ? null : safeTaskId(value.selectedTaskId)),
+    candidates,
+  };
 }
 
 function eventPayload(event) {
@@ -317,7 +398,8 @@ export function verifySupervisorObservations(records) {
   };
 }
 
-export function projectWorkerObservability({ runs = [], events = [], supervisor = {}, ciReceiptSource = 'NOT_CAPTURED', tags = [], localStatus = {}, now = new Date(), since = null } = {}) {
+export function projectWorkerObservability({ runs = [], events = [], supervisor = {}, ciReceiptSource = 'NOT_CAPTURED',
+  campaignIntake = emptyCampaignIntake(), tags = [], localStatus = {}, now = new Date(), since = null } = {}) {
   const nowMs = asMillis(now);
   if (nowMs === null) throw new TypeError('A valid snapshot time is required.');
   const heartbeatEvents = events;
@@ -484,11 +566,12 @@ export function projectWorkerObservability({ runs = [], events = [], supervisor 
     freshness: 'SNAPSHOT',
     observedAt: new Date(nowMs).toISOString(),
     source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', controllerLiveness: 'NOT_CAPTURED', eventChain: 'VERIFIED',
-      supervisorReceipts: supervisor.state ?? 'NOT_CAPTURED', ciReceipts: ciReceiptSource },
+      supervisorReceipts: supervisor.state ?? 'NOT_CAPTURED', roadmapIntake: campaignIntake.state ?? 'NOT_CAPTURED', ciReceipts: ciReceiptSource },
     summary: { activeWorkers: activeAssignments.length, queuedWorkers: queuedCount, activeTasks: activeTaskCount, mode },
     tasks: [...taskRows.values()].sort((a, b) => a.taskId.localeCompare(b.taskId) || a.cycleNo - b.cycleNo),
     assignments,
     events: eventsSinceOpen,
+    campaignIntake: projectCampaignIntake(campaignIntake, nowMs),
     localTags: safeTags,
     localTagCount: Number.isSafeInteger(tags.totalCount) ? tags.totalCount : safeTags.length,
     localTagsTruncated: tags.truncated === true,
@@ -627,6 +710,76 @@ function readControllerLiveness(common, nowMs) {
   }
   const ageMs = nowMs - heartbeatMs;
   if (ageMs > MAX_HEARTBEAT_AGE_MS) throw new Error('CONTROLLER_HEARTBEAT_STALE');
+  try { process.kill(heartbeat.processId, 0); }
+  catch (error) {
+    if (error?.code === 'ESRCH') throw new Error('CONTROLLER_PROCESS_ABSENT');
+    if (error?.code === 'EPERM') throw new Error('CONTROLLER_PROCESS_UNVERIFIABLE');
+    throw new Error('CONTROLLER_PROCESS_UNVERIFIABLE');
+  }
+}
+
+function readRoadmapIntake(common, nowMs) {
+  const privateRoot = path.join(common, 'zuri-delivery-control');
+  const intakeRoot = path.join(privateRoot, 'roadmap-intake-v1');
+  const databasePath = path.join(intakeRoot, 'intake.sqlite');
+  let privateStat;
+  try { privateStat = lstatSync(privateRoot); } catch (error) {
+    if (error.code === 'ENOENT') return emptyCampaignIntake();
+    return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_UNAVAILABLE');
+  }
+  if (!privateStat.isDirectory() || privateStat.isSymbolicLink()) return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_INVALID');
+  let privateReal;
+  try { privateReal = realpathSync.native(privateRoot); } catch { return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_UNAVAILABLE'); }
+  if (!inside(common, privateReal)) return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_INVALID');
+  let intakeStat;
+  try { intakeStat = lstatSync(intakeRoot); } catch (error) {
+    if (error.code === 'ENOENT') return emptyCampaignIntake();
+    return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_UNAVAILABLE');
+  }
+  if (!intakeStat.isDirectory() || intakeStat.isSymbolicLink()) return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_INVALID');
+  let intakeReal;
+  try { intakeReal = realpathSync.native(intakeRoot); } catch { return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_UNAVAILABLE'); }
+  if (!inside(privateReal, intakeReal)) return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_INVALID');
+  let databaseStat;
+  try { databaseStat = lstatSync(databasePath); } catch (error) {
+    if (error.code === 'ENOENT') return emptyCampaignIntake();
+    return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_UNAVAILABLE');
+  }
+  if (!databaseStat.isFile() || databaseStat.isSymbolicLink()) return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_INVALID');
+  let databaseReal;
+  try { databaseReal = realpathSync.native(databasePath); } catch { return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_UNAVAILABLE'); }
+  if (!inside(intakeReal, databaseReal)) return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_INVALID');
+
+  let db;
+  try {
+    db = new DatabaseSync(databaseReal, { readOnly: true });
+    db.exec('PRAGMA query_only = ON; PRAGMA busy_timeout = 5000; BEGIN');
+    const table = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='intake_evaluations'").get();
+    if (!table) return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_INVALID');
+    const row = db.prepare('SELECT result_json,created_at FROM intake_evaluations ORDER BY created_at DESC,input_digest DESC LIMIT 1').get();
+    if (!row) return emptyCampaignIntake();
+    if (typeof row.result_json !== 'string' || typeof row.created_at !== 'string') {
+      return emptyCampaignIntake('UNKNOWN', 'INTAKE_RESULT_INVALID');
+    }
+    let result;
+    try { result = JSON.parse(row.result_json); } catch { return emptyCampaignIntake('UNKNOWN', 'INTAKE_RESULT_INVALID'); }
+    if (!result || typeof result !== 'object' || Array.isArray(result)
+        || result.schemaVersion !== 'roadmap-intake-result/v1'
+        || result.authorityGrant !== false || result.dispatchAllowed !== false || result.checksExecuted !== false) {
+      return emptyCampaignIntake('UNKNOWN', 'INTAKE_RESULT_INVALID');
+    }
+    const capturedMs = asMillis(row.created_at);
+    if (capturedMs === null || new Date(capturedMs).toISOString() !== row.created_at || capturedMs > nowMs) {
+      return emptyCampaignIntake('UNKNOWN', 'INTAKE_RESULT_INVALID');
+    }
+    return projectCampaignIntake({ state: 'SNAPSHOT', status: result.status, code: result.code,
+      observedAt: row.created_at, selectedTaskId: result.selectedTaskId ?? null,
+      candidates: Array.isArray(result.candidates) ? result.candidates : [] }, nowMs);
+  } catch {
+    return emptyCampaignIntake('UNKNOWN', 'INTAKE_SOURCE_UNAVAILABLE');
+  } finally {
+    db?.close();
+  }
 }
 
 function readSupervisorObservations(common) {
@@ -657,17 +810,24 @@ function readSupervisorObservations(common) {
     events: verified, ciReceipts };
 }
 
-function unavailableSnapshot(reason, now = new Date()) {
+function unavailableSnapshot(reason, now = new Date(), { supervisor = {}, campaignIntake = emptyCampaignIntake(), since = null } = {}) {
   const observedAt = iso(now) ?? new Date().toISOString();
+  const sinceMs = asMillis(since);
+  const events = (supervisor.state === 'INVALID' ? [] : Array.isArray(supervisor.events) ? supervisor.events : [])
+    .filter((event) => sinceMs === null || (asMillis(event.observedAt) ?? 0) >= sinceMs)
+    .slice(0, 200);
+  const intake = projectCampaignIntake(campaignIntake, asMillis(observedAt) ?? Date.now());
   return {
     schemaVersion: WORKER_OBSERVABILITY_SCHEMA_VERSION,
     state: 'UNKNOWN',
     freshness: 'UNKNOWN',
     observedAt,
     reason: safeCode(reason),
-    source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', controllerLiveness: 'UNKNOWN', eventChain: 'UNKNOWN', supervisorReceipts: 'UNKNOWN', ciReceipts: 'UNKNOWN' },
+    source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', controllerLiveness: 'UNKNOWN', eventChain: 'UNKNOWN',
+      supervisorReceipts: supervisor.state === 'VERIFIED' ? 'VERIFIED' : supervisor.state === 'INVALID' ? 'UNKNOWN' : 'NOT_CAPTURED',
+      roadmapIntake: intake.state, ciReceipts: 'UNKNOWN' },
     summary: { activeWorkers: 0, queuedWorkers: 0, activeTasks: 0, mode: 'UNKNOWN' },
-    tasks: [], assignments: [], events: [], localTags: [], localTagCount: 0, localTagsTruncated: false, localTagSetFingerprint: null,
+    tasks: [], assignments: [], events, campaignIntake: intake, localTags: [], localTagCount: 0, localTagsTruncated: false, localTagSetFingerprint: null,
     localStatus: { changedFiles: null, fingerprint: null, headCommit: null, observedAt },
   };
 }
@@ -676,25 +836,30 @@ export function readWorkerObservability({ repoRoot = process.cwd(), since = null
   const snapshotTime = now();
   const nowMs = asMillis(snapshotTime);
   if (nowMs === null) return unavailableSnapshot('INVALID_SNAPSHOT_TIME', new Date());
+  let campaignIntake = emptyCampaignIntake();
+  let supervisor = {};
   try {
     const paths = rootFromGit(repoRoot);
-    readControllerLiveness(paths.common, nowMs);
+    campaignIntake = readRoadmapIntake(paths.common, nowMs);
+    supervisor = readSupervisorObservations(paths.common);
+    if (supervisor.state === 'INVALID') return unavailableSnapshot('SUPERVISOR_SOURCE_INVALID', new Date(nowMs), { supervisor, campaignIntake, since });
+    try { readControllerLiveness(paths.common, nowMs); }
+    catch (error) { return unavailableSnapshot(error?.code ?? error?.message ?? 'CONTROLLER_SOURCE_UNAVAILABLE', new Date(nowMs), { supervisor, campaignIntake, since }); }
     const databasePath = path.join(paths.common, 'zuri-delivery-control', 'controller-v1.sqlite');
     const ledger = readControllerLedger(databasePath, nowMs);
-    const supervisor = readSupervisorObservations(paths.common);
-    if (supervisor.state === 'INVALID') throw new Error('SUPERVISOR_SOURCE_INVALID');
     const githubCi = readGithubCiReceipts(paths.common, ledger.runs);
     const tags = readLocalTags(paths.root, nowMs);
     const localStatus = readLocalStatus(paths.root, nowMs);
     const snapshot = projectWorkerObservability({ runs: ledger.runs, events: ledger.events,
       supervisor: { ...supervisor, events: [...supervisor.events, ...githubCi.events],
         ciReceipts: [...supervisor.ciReceipts, ...githubCi.receipts] }, ciReceiptSource: githubCi.state,
+      campaignIntake,
       tags: { ...tags, totalCount: tags.totalCount, truncated: tags.truncated }, localStatus,
       now: new Date(nowMs), since });
     snapshot.source.controllerLiveness = 'VERIFIED';
     return snapshot;
   } catch (error) {
-    return unavailableSnapshot(error?.code ?? error?.message ?? 'CONTROLLER_SOURCE_UNAVAILABLE', new Date(nowMs));
+    return unavailableSnapshot(error?.code ?? error?.message ?? 'CONTROLLER_SOURCE_UNAVAILABLE', new Date(nowMs), { supervisor, campaignIntake, since });
   }
 }
 

@@ -76,7 +76,7 @@ function snapshot({ runs = [], events = [], supervisor = {}, tags = [], localSta
 }
 
 function createRepoWithLedger({ events = [], runs = [], corruptHead = false,
-  controllerHeartbeat = { schemaVersion: 'controller-liveness/v1', processId: 123,
+  controllerHeartbeat = { schemaVersion: 'controller-liveness/v1', processId: process.pid,
     heartbeatAt: now.toISOString() } } = {}) {
   const root = mkdtempSync(path.join(tmpdir(), 'zuri-worker-observability-'));
   const git = (args) => execFileSync('git', args, { cwd: root, stdio: 'ignore', windowsHide: true });
@@ -125,6 +125,21 @@ function createRepoWithLedger({ events = [], runs = [], corruptHead = false,
   }
   db.close();
   return { root, privateRoot, heartbeatPath, databasePath: path.join(privateRoot, 'controller-v1.sqlite') };
+}
+
+function writeIntakeEvaluation(fixture, { result = {}, createdAt = now.toISOString() } = {}) {
+  const intakeRoot = path.join(fixture.privateRoot, 'roadmap-intake-v1');
+  mkdirSync(intakeRoot, { recursive: true });
+  const databasePath = path.join(intakeRoot, 'intake.sqlite');
+  const db = new DatabaseSync(databasePath);
+  db.exec(`CREATE TABLE intake_evaluations(input_digest TEXT PRIMARY KEY,campaign_id TEXT NOT NULL,
+    result_json TEXT NOT NULL,created_at TEXT NOT NULL) STRICT;`);
+  const record = { schemaVersion: 'roadmap-intake-result/v1', status: 'HOLD_NO_READY_TASK', code: 'NO_ALLOWED_READY_TASK',
+    authorityGrant: false, dispatchAllowed: false, checksExecuted: false, ...result };
+  db.prepare('INSERT INTO intake_evaluations(input_digest,campaign_id,result_json,created_at) VALUES(?,?,?,?)')
+    .run(hash('test-input'), 'private-test-campaign', JSON.stringify(record), createdAt);
+  db.close();
+  return databasePath;
 }
 
 function stableValue(value) {
@@ -284,7 +299,7 @@ test('controller liveness heartbeat is required, valid, and no more than 15000 m
   const stale = createRepoWithLedger({ controllerHeartbeat: { schemaVersion: 'controller-liveness/v1',
     processId: 123, heartbeatAt: '2026-10-16T03:59:44.999Z' } });
   const freshAtLimit = createRepoWithLedger({ controllerHeartbeat: { schemaVersion: 'controller-liveness/v1',
-    processId: 123, heartbeatAt: '2026-10-16T03:59:45.000Z' } });
+    processId: process.pid, heartbeatAt: '2026-10-16T03:59:45.000Z' } });
   const future = createRepoWithLedger({ controllerHeartbeat: { schemaVersion: 'controller-liveness/v1',
     processId: 123, heartbeatAt: '2026-10-16T04:00:00.001Z' } });
   for (const fixture of [absent, invalid, stale, freshAtLimit, future]) {
@@ -303,6 +318,72 @@ test('controller liveness heartbeat is required, valid, and no more than 15000 m
   assert.equal(read(freshAtLimit).source.controllerLiveness, 'VERIFIED');
   assert.equal(read(future).state, 'UNKNOWN');
   assert.equal(read(future).reason, 'CONTROLLER_HEARTBEAT_INVALID');
+});
+
+test('fresh heartbeat from an absent process keeps worker state UNKNOWN', (t) => {
+  const fixture = createRepoWithLedger({ controllerHeartbeat: { schemaVersion: 'controller-liveness/v1',
+    processId: 2_147_483_647, heartbeatAt: now.toISOString() } });
+  t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  const result = readWorkerObservability({ repoRoot: fixture.root, now: () => now });
+  assert.equal(result.state, 'UNKNOWN');
+  assert.equal(result.reason, 'CONTROLLER_PROCESS_ABSENT');
+  assert.equal(result.summary.mode, 'UNKNOWN');
+});
+
+test('intake snapshot explains a blocked campaign while preserving supervisor evidence without a live controller', (t) => {
+  const fixture = createRepoWithLedger({ controllerHeartbeat: null });
+  t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  const secret = 'private objective, C:\\private\\workspace, prompt and session token';
+  const intakeDatabasePath = writeIntakeEvaluation(fixture, { result: {
+    status: 'HOLD_DEPENDENCY', code: 'DEPENDENCIES_UNACCEPTED', selectedTaskId: null,
+    candidates: [{ taskId: 'TASK-ZAI-015', status: 'HOLD_DEPENDENCY', code: 'DEPENDENCIES_UNACCEPTED', objective: secret }],
+    objective: secret, taskRecord: { objective: secret, writeScope: ['C:/private'] }, message: secret,
+  } });
+  const intakeDatabaseBefore = readFileSync(intakeDatabasePath);
+  const eventRoot = path.join(fixture.privateRoot, 'supervisors', 'session-01');
+  mkdirSync(eventRoot, { recursive: true });
+  writeFileSync(path.join(eventRoot, 'events.jsonl'), `${JSON.stringify(supervisorReceipt({
+    taskId: 'TASK-ZAI-015', cycleNo: null, baseCommit: null, candidateHeadCommit: null,
+    status: 'HOLD_DEPENDENCY', observedAt: now.toISOString(),
+  }))}\n`);
+
+  const result = readWorkerObservability({ repoRoot: fixture.root, now: () => now });
+  assert.equal(result.state, 'UNKNOWN');
+  assert.equal(result.summary.mode, 'UNKNOWN');
+  assert.equal(result.campaignIntake.state, 'SNAPSHOT');
+  assert.equal(result.campaignIntake.freshness, 'FRESH');
+  assert.equal(result.campaignIntake.status, 'HOLD_DEPENDENCY');
+  assert.equal(result.campaignIntake.code, 'DEPENDENCIES_UNACCEPTED');
+  assert.deepEqual(result.campaignIntake.candidates, [{ taskId: 'TASK-ZAI-015', status: 'HOLD_DEPENDENCY', code: 'DEPENDENCIES_UNACCEPTED' }]);
+  assert.equal(result.campaignIntake.authorityGrant, false);
+  assert.equal(result.campaignIntake.dispatchAllowed, false);
+  assert.equal(result.source.roadmapIntake, 'SNAPSHOT');
+  assert.equal(result.source.supervisorReceipts, 'VERIFIED');
+  assert.equal(result.events[0].status, 'HOLD_DEPENDENCY');
+  assert.deepEqual(readFileSync(intakeDatabasePath), intakeDatabaseBefore);
+  const serialized = JSON.stringify(result);
+  assert.equal(serialized.includes(secret), false);
+  assert.equal(serialized.includes('private-test-campaign'), false);
+  assert.equal(serialized.includes('session-01'), false);
+});
+
+test('stale intake evaluations remain visible as stale snapshots and reject unexpected authority fields', (t) => {
+  const stale = createRepoWithLedger({ controllerHeartbeat: null });
+  const unsafe = createRepoWithLedger({ controllerHeartbeat: null });
+  t.after(() => rmSync(stale.root, { recursive: true, force: true }));
+  t.after(() => rmSync(unsafe.root, { recursive: true, force: true }));
+  writeIntakeEvaluation(stale, { createdAt: '2026-10-16T03:58:59.999Z', result: {
+    status: 'HOLD_DEPENDENCY', code: 'DEPENDENCIES_UNACCEPTED',
+  } });
+  writeIntakeEvaluation(unsafe, { result: { status: 'READY_CANDIDATE', code: 'TASK_INTAKE_READY', dispatchAllowed: true } });
+  const staleResult = readWorkerObservability({ repoRoot: stale.root, now: () => now });
+  const unsafeResult = readWorkerObservability({ repoRoot: unsafe.root, now: () => now });
+  assert.equal(staleResult.campaignIntake.state, 'SNAPSHOT');
+  assert.equal(staleResult.campaignIntake.freshness, 'STALE');
+  assert.equal(staleResult.campaignIntake.status, 'HOLD_DEPENDENCY');
+  assert.equal(unsafeResult.campaignIntake.state, 'UNKNOWN');
+  assert.equal(unsafeResult.campaignIntake.status, 'UNKNOWN');
+  assert.equal(unsafeResult.campaignIntake.dispatchAllowed, false);
 });
 
 test('invalid append-only controller event chain returns UNKNOWN instead of an empty LIVE event list', (t) => {

@@ -8,6 +8,7 @@ import styles from './worker-observability-panel.module.css'
 
 const POLL_MS = 5000
 const EMPTY_SNAPSHOT = unknownWorkerObservabilitySnapshot('LOADING')
+const EMPTY_INTAKE = EMPTY_SNAPSHOT.campaignIntake
 
 function timeLabel(value) {
   if (!value || !Number.isFinite(Date.parse(value))) return '—'
@@ -133,6 +134,7 @@ export default function WorkerObservabilityPanel() {
   }, [])
 
   const isLive = snapshot.state === 'LIVE'
+  const campaignIntake = snapshot.campaignIntake ?? EMPTY_INTAKE
   const statusLabel = connection === 'connected' ? 'LIVE · LOCAL' : connection === 'loading' ? 'กำลังอ่านข้อมูล' : connection === 'unauthorized' ? 'ไม่มีสิทธิ์อ่าน' : 'UNKNOWN'
 
   return (
@@ -161,6 +163,31 @@ export default function WorkerObservabilityPanel() {
         <Kpi label="Mode" value={isLive ? snapshot.summary.mode : 'UNKNOWN'} meta="distinct task leases" />
         <Kpi label="Last read" value={timeLabel(snapshot.observedAt)} meta={isLive ? 'local snapshot' : 'source not verified'} />
       </div>
+
+      <Card className={styles.subsection} data-testid="worker-campaign-intake">
+        <div className={styles.sectionHeading}>
+          <Activity size={16} aria-hidden />
+          <h3>Campaign intake</h3>
+          <span className={styles.muted}>read-only evaluation · {campaignIntake.freshness}</span>
+        </div>
+        {campaignIntake.state === 'SNAPSHOT' ? (
+          <>
+            <p className={styles.statusLine}>Eligibility: <strong data-state={campaignIntake.status}>{campaignIntake.status}</strong>
+              {campaignIntake.code ? <span className={styles.muted}> · {campaignIntake.code}</span> : null}</p>
+            <p className={styles.muted}>Captured {timeLabel(campaignIntake.observedAt)} · {campaignIntake.proofScope} snapshot · this record cannot dispatch work.</p>
+            {campaignIntake.candidates?.length ? <ul className={styles.candidateList} aria-label="Roadmap intake candidates">
+              {campaignIntake.candidates.map((candidate, index) => <li key={`${candidate.taskId}:${index}`}>
+                <code>{candidate.taskId}</code><strong data-state={candidate.status}>{candidate.status}</strong>
+                <span className={styles.muted}>{candidate.code}</span>
+              </li>)}
+            </ul> : <p className={styles.empty}>This evaluation contains no candidate task.</p>}
+          </>
+        ) : (
+          <p className={styles.empty}>{campaignIntake.state === 'UNKNOWN'
+            ? 'Campaign intake evidence is unavailable or invalid.'
+            : 'No campaign intake evaluation has been captured.'}</p>
+        )}
+      </Card>
 
       <Card className={styles.subsection}>
         <div className={styles.sectionHeading}>
@@ -224,7 +251,7 @@ export default function WorkerObservabilityPanel() {
         </Card>
       </div>
 
-      <p className={styles.footer}>Proof scope: local snapshot only · controller event chain <strong>{snapshot.source?.eventChain || 'UNKNOWN'}</strong> · supervisor receipts <strong>{snapshot.source?.supervisorReceipts || 'NOT_CAPTURED'}</strong> · local CI receipt source <strong>{snapshot.source?.ciReceipts || 'UNKNOWN'}</strong>. Context or memory lineage is <strong>NOT_CAPTURED</strong> unless a verified content-free receipt exists. This view makes no hosted, PORL, or production claim.</p>
+      <p className={styles.footer}>Proof scope: local snapshot only · controller event chain <strong>{snapshot.source?.eventChain || 'UNKNOWN'}</strong> · supervisor receipts <strong>{snapshot.source?.supervisorReceipts || 'NOT_CAPTURED'}</strong> · intake evaluation <strong>{snapshot.source?.roadmapIntake || 'NOT_CAPTURED'}</strong> · local CI receipt source <strong>{snapshot.source?.ciReceipts || 'UNKNOWN'}</strong>. Context or memory lineage is <strong>NOT_CAPTURED</strong> unless a verified content-free receipt exists. This view makes no hosted, PORL, or production claim.</p>
     </section>
   )
 }
