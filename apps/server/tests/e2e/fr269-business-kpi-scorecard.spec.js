@@ -181,9 +181,12 @@ test.describe('FR-269 Business KPI scorecard', () => {
 
     await row.getByRole('button', { name: `Edit ${name}` }).click()
     const editDialog = page.getByRole('dialog', { name: `Edit KPI · ${name}` })
-    await editDialog.getByLabel('Target', { exact: true }).fill('120')
+    const targetInput = editDialog.getByLabel('Target', { exact: true })
+    await targetInput.fill('120')
+    await expect(targetInput).toHaveValue('120')
     await editDialog.getByRole('button', { name: 'Save KPI' }).click()
     await expect(row.getByText('120 USD')).toBeVisible()
+    expect(writes.at(-1).body.target).toBe(120)
 
     page.once('dialog', (dialog) => dialog.accept())
     await row.getByRole('button', { name: `Archive ${name}` }).click()
