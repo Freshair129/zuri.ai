@@ -1,8 +1,12 @@
 import { createHash } from 'node:crypto';
-import { DatabaseSync } from 'node:sqlite';
+import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+
+// Vite 2 cannot resolve node:sqlite as a static import; use the same Node-only
+// builtin loading pattern as the server's SQLite tests.
+const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite');
 
 export const WORKER_OBSERVABILITY_SCHEMA_VERSION = 'worker-observability/v1';
 export const MAX_HEARTBEAT_AGE_MS = 15_000;
