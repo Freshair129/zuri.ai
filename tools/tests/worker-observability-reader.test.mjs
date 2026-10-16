@@ -182,6 +182,35 @@ test('CI receipt source distinguishes unconfigured, verified-empty, and invalid 
   assert.equal(unavailable.source.ciReceipts, 'UNKNOWN');
 });
 
+test('unsupported or invalid supervisor receipts return UNKNOWN while schema-less legacy data stays not captured', (t) => {
+  const unsupported = createRepoWithLedger();
+  const invalidDigest = createRepoWithLedger();
+  const legacy = createRepoWithLedger();
+  for (const fixture of [unsupported, invalidDigest, legacy]) {
+    t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  }
+
+  const writeSupervisorRecord = (fixture, record) => {
+    const sessionRoot = path.join(fixture.privateRoot, 'supervisors', 'session-01');
+    mkdirSync(sessionRoot, { recursive: true });
+    writeFileSync(path.join(sessionRoot, 'events.jsonl'), `${JSON.stringify(record)}\n`);
+  };
+  writeSupervisorRecord(unsupported, { schemaVersion: 'supervisor-observation/v999' });
+  writeSupervisorRecord(invalidDigest, { schemaVersion: 'supervisor-observation/v1', previousDigest: 'LEGACY',
+    receiptDigest: 'f'.repeat(64), taskId: null, cycleNo: null, kind: 'SUPERVISOR_STATUS', status: 'PASS',
+    observedAt: now.toISOString() });
+  writeSupervisorRecord(legacy, { kind: 'LEGACY_SUPERVISOR_STATUS', status: 'PASS' });
+
+  const read = (fixture) => readWorkerObservability({ repoRoot: fixture.root, now: () => now });
+  for (const invalid of [read(unsupported), read(invalidDigest)]) {
+    assert.equal(invalid.state, 'UNKNOWN');
+    assert.equal(invalid.reason, 'SUPERVISOR_SOURCE_INVALID');
+    assert.equal(invalid.source.supervisorReceipts, 'UNKNOWN');
+  }
+  assert.equal(read(legacy).state, 'LIVE');
+  assert.equal(read(legacy).source.supervisorReceipts, 'NOT_CAPTURED');
+});
+
 test('absent or invalid ledger returns an explicit UNKNOWN snapshot', (t) => {
   const absent = mkdtempSync(path.join(tmpdir(), 'zuri-worker-unknown-'));
   t.after(() => rmSync(absent, { recursive: true, force: true }));

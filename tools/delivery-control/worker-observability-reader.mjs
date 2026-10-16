@@ -259,11 +259,18 @@ function readGithubCiReceipts(common, runs) {
 }
 
 export function verifySupervisorObservations(records) {
+  if (!Array.isArray(records)) return { state: 'INVALID', events: [], ciReceipts: [] };
   const accepted = [];
   let previousDigest = 'LEGACY';
   let started = false;
   for (const record of records) {
-    if (record?.schemaVersion !== 'supervisor-observation/v1') continue;
+    if (!record || typeof record !== 'object' || Array.isArray(record)) {
+      return { state: 'INVALID', events: [], ciReceipts: [] };
+    }
+    if (!Object.prototype.hasOwnProperty.call(record, 'schemaVersion')) continue;
+    if (record.schemaVersion !== 'supervisor-observation/v1') {
+      return { state: 'INVALID', events: [], ciReceipts: [] };
+    }
     if (!started) started = true;
     if (record.previousDigest !== previousDigest || record.receiptDigest !== hashSupervisorReceipt(record)) {
       return { state: 'INVALID', events: [], ciReceipts: [] };
@@ -655,6 +662,7 @@ export function readWorkerObservability({ repoRoot = process.cwd(), since = null
     const databasePath = path.join(paths.common, 'zuri-delivery-control', 'controller-v1.sqlite');
     const ledger = readControllerLedger(databasePath, nowMs);
     const supervisor = readSupervisorObservations(paths.common);
+    if (supervisor.state === 'INVALID') throw new Error('SUPERVISOR_SOURCE_INVALID');
     const githubCi = readGithubCiReceipts(paths.common, ledger.runs);
     const tags = readLocalTags(paths.root, nowMs);
     const localStatus = readLocalStatus(paths.root, nowMs);
