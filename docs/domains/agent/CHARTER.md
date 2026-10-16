@@ -50,6 +50,8 @@ ADR-061 adds a server-answer adapter for the server-owned LINE job worker (FR-14
 The Agent-owned FR-026 approval ledger for selected writes: `AgentApprovalRequest`
 binds the exact requester, Tenant, Business, action, target/version and input
 digest; `AgentApprovalDecision` stores one immutable decision per Person/request.
+Under-quorum exact retries preserve `ACTION_PENDING` and the same request ID;
+vote writes use pending/version compare-and-set, and rejection is terminal.
 Identity remains the authority for authenticated Persons and active same-Business
 OWNER Membership. The authenticated queue/decision API records human decisions;
 AI persona metadata never classifies actions or authorizes reviewers. Approval is

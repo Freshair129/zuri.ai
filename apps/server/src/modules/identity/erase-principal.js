@@ -176,7 +176,7 @@ export async function erasePrincipal(input, {
     for (const c of activeCustomers) {
       await tx.customer.update({
         where: { id: c.id },
-        data: { deletedAt: now, displayName: REDACTED, lifecycleStage: 'LOST' },
+        data: { deletedAt: now, displayName: REDACTED, lifecycleStage: 'LOST', version: { increment: 1 } },
       })
     }
     // @req FR-103, FR-022 — the FR-103 consent attestation's free-text note and
@@ -186,7 +186,7 @@ export async function erasePrincipal(input, {
     if (customerIds.length) {
       await tx.customer.updateMany({
         where: { tenantId, id: { in: customerIds } },
-        data: { consentNote: null, consentRecordedByPersonId: null },
+        data: { consentNote: null, consentRecordedByPersonId: null, version: { increment: 1 } },
       })
     }
 

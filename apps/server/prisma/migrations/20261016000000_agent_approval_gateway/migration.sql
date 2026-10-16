@@ -3,6 +3,7 @@ CREATE TABLE "AgentApprovalRequest" (
     "tenantId" TEXT NOT NULL,
     "businessId" TEXT NOT NULL,
     "requesterPersonId" TEXT NOT NULL,
+    "requesterExternalIdentityId" TEXT NOT NULL,
     "actionName" TEXT NOT NULL,
     "tier" INTEGER NOT NULL,
     "quorum" INTEGER NOT NULL,
@@ -20,6 +21,7 @@ CREATE TABLE "AgentApprovalRequest" (
     CONSTRAINT "AgentApprovalRequest_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "AgentApprovalRequest_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "AgentApprovalRequest_requesterPersonId_fkey" FOREIGN KEY ("requesterPersonId") REFERENCES "Person" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "AgentApprovalRequest_requesterExternalIdentityId_fkey" FOREIGN KEY ("requesterExternalIdentityId") REFERENCES "ExternalIdentity" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "AgentApprovalRequest_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "AgentApprovalRequest_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );

@@ -2235,6 +2235,7 @@ model ExternalIdentity {
 
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
   tenant Tenant @relation(fields: [tenantId], references: [id])
+  approvalRequests AgentApprovalRequest[]
 
   @@unique([tenantId, provider, providerSubject])
   @@index([personId])
@@ -2954,6 +2955,7 @@ model AgentApprovalRequest {
   tenantId              String
   businessId            String
   requesterPersonId     String
+  requesterExternalIdentityId String
   actionName            String
   tier                  Int
   quorum                Int
@@ -2972,6 +2974,7 @@ model AgentApprovalRequest {
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   business  Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
   requester Person   @relation("AgentApprovalRequester", fields: [requesterPersonId], references: [id], onDelete: Restrict)
+  requesterExternalIdentity ExternalIdentity @relation(fields: [requesterExternalIdentityId], references: [id], onDelete: Restrict)
   conversation Conversation? @relation("AgentApprovalConversationTarget", fields: [conversationId], references: [id], onDelete: Restrict)
   customer     Customer?     @relation("AgentApprovalCustomerTarget", fields: [customerId], references: [id], onDelete: Restrict)
   decisions    AgentApprovalDecision[]

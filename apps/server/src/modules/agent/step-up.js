@@ -45,10 +45,16 @@ export async function consumeStepUp(tx, { tenantId, personId, token, notBefore =
     row.personId !== personId ||
     row.consumedAt ||
     row.expiresAt.getTime() <= Date.now() ||
-    (notBefore && row.createdAt.getTime() < new Date(notBefore).getTime())
+    (notBefore && row.createdAt.getTime() <= new Date(notBefore).getTime())
   ) {
     throw new Error('STEP_UP_REQUIRED: step-up token is invalid, expired, or already used')
   }
-  await tx.identityLinkToken.update({ where: { id: row.id }, data: { consumedAt: new Date() } })
+  const consumed = await tx.identityLinkToken.updateMany({
+    where: { id: row.id, consumedAt: null },
+    data: { consumedAt: new Date() },
+  })
+  if (consumed.count !== 1) {
+    throw new Error('STEP_UP_REQUIRED: step-up token is invalid, expired, or already used')
+  }
   return row.id
 }

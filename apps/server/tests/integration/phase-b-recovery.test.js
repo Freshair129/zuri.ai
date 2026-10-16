@@ -152,11 +152,14 @@ describe('Phase B offline recovery runners', () => {
     expect(restored.version).toBe(8)
     expect(restoredRow('agentApprovalDecision', historicalDecision)).toEqual(historicalDecision)
 
-    const tx = { agentApprovalRequest: { async findUnique() { return restored } } }
+    const tx = {
+      agentApprovalRequest: { async findUnique() { return restored } },
+      agentApprovalDecision: { async findFirst() { return null } },
+    }
     await expect(consumeAgentApprovalRequest(tx, {
       requestId: restored.id, tenantId: restored.tenantId, requesterPersonId: restored.requesterPersonId,
       action: { name: restored.actionName, approvalTier: 'L4' }, target: { customerId: restored.customerId }, payload: {},
-    })).rejects.toThrow(/AGENT_APPROVAL_NOT_APPROVED: RESTORE_INVALIDATED/)
+    })).rejects.toMatchObject({ message: 'AGENT_APPROVAL_REQUEST_NOT_OPEN', status: 409 })
   })
 
   it('preserves the exact previous 194 mappings and covers every current Prisma model', async () => {

@@ -46,6 +46,9 @@ const FEATURE_MUTATIONS = [
 export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-252 — Identity-owned session-bound API-write CSRF issuance.
   ['/api/auth/csrf', ['GET']],
+  // @req FR-026 — authenticated human OWNER queue and decision routes for Agent writes.
+  ['/api/agent/approval-requests', ['GET']],
+  ['/api/agent/approval-requests/{id}/decision', ['POST']],
   ['/api/projects/{id}/feature-view', ['GET']],
   ['/api/projects/{id}/features', ['GET', 'POST']],
   ['/api/projects/{id}/features/{featureId}', ['GET', 'PATCH', 'DELETE']],
@@ -408,6 +411,14 @@ function genericRequest(path, method) {
 }
 
 function genericResponses(path, method) {
+  if (path.startsWith('/api/agent/approval-requests')) return {
+    200: json(zRouteInventoryResponse, 'Queue or authenticated OWNER decision result.'),
+    400: json(zError, 'Invalid query or decision input.'),
+    401: json(zError, 'Authentication required.'),
+    403: json(zError, 'Authenticated viewer is not an eligible same-Business OWNER.'),
+    404: json(zError, 'Business or approval request was not found.'),
+    409: json(zError, 'Approval request is expired, stale, rejected, or no longer open.'),
+  }
   if (path === '/api/businesses/{id}/agent-template') {
     if (!['get', 'post'].includes(method)) return {
       409: json(zError, 'Typed unsupported customization, upgrade or rollback; no config/provider effects.'),
@@ -480,6 +491,8 @@ function registerInventoryOperations(registry) {
           ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': 'conversation-runtime.v1' }
           : path === '/api/businesses/{id}/agent-template'
             ? { security: ['get', 'post'].includes(methodName) ? [{ SessionAuth: [] }] : [], 'x-zuri-contract': 'business-agent-config/v1' }
+            : path.startsWith('/api/agent/approval-requests')
+              ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'agent-approval.v1' }
             : { 'x-zuri-contract': 'route-inventory' }),
       })
     }

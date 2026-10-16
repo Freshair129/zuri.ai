@@ -86,6 +86,7 @@ describe('agent write/action gate (FR-026)', () => {
       orderBy: { occurredAt: 'desc' },
     })
     expect(audit).not.toBeNull()
+    expect(JSON.parse(audit.payloadJson).target).toEqual({ kind: 'CONVERSATION', id: cust.conversationId })
   })
 
   it('a bare customer principal is DENIED a staff write (and the denial is audited)', async () => {
@@ -103,6 +104,7 @@ describe('agent write/action gate (FR-026)', () => {
 
   it('a customer may edit their OWN record via ownership authorization', async () => {
     const cust = await ingestLineMessage({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Ugf-cust3', displayName: 'ก่อน', threadId: 'T-gf-3', text: 'hi' })
+    const before = await prisma.customer.findUnique({ where: { id: cust.customerId } })
     const r = await executeAgentAction({
       tenantId: tenant.id, lineUserId: 'Ugf-cust3',
       actionName: 'update_own_display_name', target: { customerId: cust.customerId }, payload: { displayName: 'หลัง' },
@@ -110,6 +112,31 @@ describe('agent write/action gate (FR-026)', () => {
     expect(r.executed).toBe(true)
     const c = await prisma.customer.findUnique({ where: { id: cust.customerId } })
     expect(c.displayName).toBe('หลัง')
+    expect(c.version).toBe(before.version + 1)
+  })
+
+  it('stales a pending approval after a Customer self-edit increments its version', async () => {
+    await staffSubject('PSN-gf-stale-version-staff', 'Ugf-stale-version-staff')
+    const cust = await ingestLineMessage({ tenantId: tenant.id, businessId: business.id,
+      lineUserId: 'Ugf-stale-version-customer', displayName: 'Before', threadId: 'T-gf-stale-version', text: 'hi' })
+    const pending = await executeAgentAction({
+      tenantId: tenant.id, lineUserId: 'Ugf-stale-version-staff', actionName: 'set_customer_lifecycle',
+      target: { customerId: cust.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+    })
+    await executeAgentAction({
+      tenantId: tenant.id, lineUserId: 'Ugf-stale-version-customer', actionName: 'update_own_display_name',
+      target: { customerId: cust.customerId }, payload: { displayName: 'After' },
+    })
+    await expect(executeAgentAction({
+      tenantId: tenant.id, lineUserId: 'Ugf-stale-version-staff', actionName: 'set_customer_lifecycle',
+      target: { customerId: cust.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+      approvalRequestId: pending.approvalRequestId,
+    })).rejects.toThrow(/AGENT_APPROVAL_BINDING_MISMATCH/)
+    const row = await prisma.customer.findUnique({ where: { id: cust.customerId } })
+    expect(row.version).toBe(2)
+    expect(row.displayName).toBe('After')
+    expect(row.lifecycleStage).toBe('LEAD')
+    expect((await prisma.agentApprovalRequest.findUnique({ where: { id: pending.approvalRequestId } })).status).toBe('STALE')
   })
 
   it('a HIGH action without a step-up token is refused after its approval quorum', async () => {
@@ -148,6 +175,7 @@ describe('agent write/action gate (FR-026)', () => {
     expect(r.steppedUp).toBe(true)
     const c = await prisma.customer.findUnique({ where: { id: cust.customerId } })
     expect(c.deletedAt).not.toBeNull()
+    expect(c.version).toBe(2)
     // A second approved request cannot reuse the same step-up token.
     const cust2 = await ingestLineMessage({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Ugf-cust6', threadId: 'T-gf-6', text: 'hi' })
     const pending2 = await executeAgentAction({

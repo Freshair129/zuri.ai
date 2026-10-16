@@ -97,6 +97,6 @@ export async function acknowledgeMemoryProjectionErasure(tx, { tenantId, princip
   const result = await tx.memoryProjectionReceipt.updateMany({ where: { tenantId, principalId, erasureStatus: 'PENDING_MSP' },
     data: { erasureStatus: 'ERASED', erasureReceiptId: receiptId } })
   await tx.customer.updateMany({ where: { tenantId, personId: principalId, memoryErasureStatus: 'PENDING_MSP' },
-    data: { memoryErasureStatus: 'ERASED' } })
+    data: { memoryErasureStatus: 'ERASED', version: { increment: 1 } } })
   return result
 }

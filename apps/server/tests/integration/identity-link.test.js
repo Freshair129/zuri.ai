@@ -4,6 +4,8 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { resolveLineIdentity, revokeLineIdentity } from '@/modules/identity/resolve-line-identity'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
+import { createAgentApprovalRequest, consumeAgentApprovalRequest } from '@/modules/agent/approval-gateway'
+import { defaultWriteTools } from '@/modules/agent/write-tools'
 
 // @req FR-022 — account linking: a LINE subject binds to an EXISTING Person via a
 // single-use, expiring token; idempotent, revoke-reactivating, and (opt-in) merging.
@@ -91,6 +93,14 @@ describe('account linking (FR-022)', () => {
   it('merges an auto-minted principal into the canonical one, carrying the Customer', async () => {
     // Customer chats first (auto-mint + customer), then proves they are an existing person.
     const ingest = await ingestLineMessage({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Ulnk-7', threadId: 'T-lnk-7', text: 'hello' })
+    await prisma.membership.create({ data: {
+      personId: ingest.personId, tenantId: tenant.id, businessId: business.id, scopeType: 'BUSINESS', role: 'MANAGER',
+    } })
+    const action = defaultWriteTools().get('set_customer_lifecycle')
+    const approval = await prisma.$transaction(tx => createAgentApprovalRequest(tx, {
+      tenantId: tenant.id, requesterPersonId: ingest.personId, action,
+      target: { customerId: ingest.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+    }))
     const canonical = await staffPerson('PSN-lnk-7', 'Khun A')
     const { token } = await issueLinkToken({ tenantId: tenant.id, personId: canonical.id })
     const r = await redeemLinkToken({ tenantId: tenant.id, token, lineUserId: 'Ulnk-7', merge: true })
@@ -103,5 +113,12 @@ describe('account linking (FR-022)', () => {
     // and the conversation history follows: the Customer was re-pointed
     const customer = await prisma.customer.findUnique({ where: { id: ingest.customerId } })
     expect(customer.personId).toBe(canonical.id)
+    expect(customer.version).toBe(2)
+    const blocked = await prisma.$transaction(tx => consumeAgentApprovalRequest(tx, {
+      requestId: approval.id, tenantId: tenant.id, requesterPersonId: ingest.personId, action,
+      target: { customerId: ingest.customerId }, payload: { lifecycleStage: 'CUSTOMER' }, principal: {},
+    }))
+    expect(blocked.blocked).toBe('AGENT_APPROVAL_BINDING_MISMATCH')
+    expect((await prisma.agentApprovalRequest.findUnique({ where: { id: approval.id } })).status).toBe('STALE')
   })
 })

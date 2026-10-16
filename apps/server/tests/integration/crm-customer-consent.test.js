@@ -4,6 +4,8 @@ import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { recordCustomerConsent } from '@/modules/crm/customer-consent-service'
+import { executeAgentAction } from '@/modules/agent/action-gate'
+import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { getConversationThread } from '@/modules/crm/conversation-read-model'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
 import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
@@ -69,6 +71,18 @@ describe('Customer PDPA consent attestation (FR-103)', () => {
 
   it('a Business owner attests GRANTED — status, timestamp, attester and audit event all land', async () => {
     const viewer = await ownerOf(busA1.id)
+    const requester = await prisma.person.create({ data: { code: `PSN-CONSENT-GATE-${randomUUID()}`, displayName: 'Consent gate requester' } })
+    await prisma.membership.create({ data: {
+      personId: requester.id, tenantId: tenantA.id, businessId: busA1.id, scopeType: 'BUSINESS', role: 'MANAGER',
+    } })
+    const link = await issueLinkToken({ tenantId: tenantA.id, personId: requester.id })
+    const lineUserId = `U-consent-gate-${randomUUID()}`
+    await redeemLinkToken({ tenantId: tenantA.id, token: link.token, lineUserId })
+    const before = await prisma.customer.findUnique({ where: { id: customerA1 } })
+    const pending = await executeAgentAction({
+      tenantId: tenantA.id, lineUserId, actionName: 'set_customer_lifecycle',
+      target: { customerId: customerA1 }, payload: { lifecycleStage: 'CUSTOMER' },
+    })
     const result = await recordCustomerConsent(
       customerA1,
       { businessId: busA1.id, status: 'GRANTED', note: 'ลูกค้ายืนยันทางโทรศัพท์' },
@@ -80,6 +94,7 @@ describe('Customer PDPA consent attestation (FR-103)', () => {
 
     const row = await prisma.customer.findUnique({ where: { id: customerA1 } })
     expect(row.consentStatus).toBe('GRANTED')
+    expect(row.version).toBe(before.version + 1)
     expect(row.consentRecordedAt).not.toBeNull()
     expect(row.consentNote).toBe('ลูกค้ายืนยันทางโทรศัพท์')
 
@@ -92,6 +107,12 @@ describe('Customer PDPA consent attestation (FR-103)', () => {
     expect(JSON.parse(events[0].payloadJson)).toMatchObject({
       businessId: busA1.id, tenantId: tenantA.id, previousStatus: 'PENDING', status: 'GRANTED',
     })
+    await expect(executeAgentAction({
+      tenantId: tenantA.id, lineUserId, actionName: 'set_customer_lifecycle',
+      target: { customerId: customerA1 }, payload: { lifecycleStage: 'CUSTOMER' },
+      approvalRequestId: pending.approvalRequestId,
+    })).rejects.toThrow(/AGENT_APPROVAL_BINDING_MISMATCH/)
+    expect((await prisma.agentApprovalRequest.findUnique({ where: { id: pending.approvalRequestId } })).status).toBe('STALE')
   })
 
   it('the FR-091 thread reads the updated status straight through, no second endpoint', async () => {

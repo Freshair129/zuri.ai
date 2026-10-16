@@ -68,10 +68,11 @@ export async function resolveAuthorizationContext({
   if (!principalId || !resolvedTenantId) return { ...base, decision: deny('IDENTITY_REQUIRED') }
 
   const [person, tenant] = await Promise.all([
-    db.person.findUnique({ where: { id: principalId }, select: { id: true } }),
+    db.person.findUnique({ where: { id: principalId }, select: { id: true, accessDisabledAt: true } }),
     db.tenant.findUnique({ where: { id: resolvedTenantId }, select: { id: true, status: true } }),
   ])
   if (!person) return { ...base, decision: deny('PRINCIPAL_NOT_FOUND') }
+  if (person.accessDisabledAt) return { ...base, decision: deny('PRINCIPAL_DISABLED') }
   if (!tenant || tenant.status !== ACTIVE) return { ...base, decision: deny('TENANT_SCOPE_DENIED') }
 
   let business = null

@@ -121,6 +121,7 @@ export async function recordCustomerConsent(customerId, input, { viewer, db = pr
         consentRecordedAt: new Date(),
         consentRecordedByPersonId: actorId,
         consentNote: data.note ?? null,
+        version: { increment: 1 },
       },
     })
 
