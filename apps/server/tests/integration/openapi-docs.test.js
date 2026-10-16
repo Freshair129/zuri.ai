@@ -290,12 +290,31 @@ describe('OpenAPI document', () => {
       // and session-step paths, each with one explicit mutation operation:
       // 336 + 7 = 343 paths; 441 + 7 = 448 operations.
       // FR-285 adds one path and five operations, including three refusals.
-      // FR-260 adds the read-only Worker observation path and five explicit
-      // refusal methods: 344 + 1 = 345 paths; 453 + 6 = 459 operations.
-      pathCount: 345,
-      operationCount: 459,
+      // FR-260 adds the read-only Worker observation path with five explicit refusal methods.
+      // FR-026 adds the authenticated Agent approval queue and decision paths.
+      // Baseline 344 paths / 453 operations + 3 paths / 8 operations = 347 / 461.
+      pathCount: 347,
+      operationCount: 461,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
+    const approvalQueue = doc.paths['/api/agent/approval-requests'].get
+    const approvalDecision = doc.paths['/api/agent/approval-requests/{id}/decision'].post
+    expect(approvalQueue.security).toEqual([{ SessionAuth: [] }])
+    expect(approvalDecision.security).toEqual([{ SessionAuth: [] }])
+    expect(approvalDecision.parameters).toContainEqual(expect.objectContaining({
+      name: 'X-CSRF-Token',
+      in: 'header',
+      required: true,
+    }))
+    expect(approvalDecision.description).toMatch(/Origin matching the configured application origin/)
+    for (const operation of [approvalQueue, approvalDecision]) {
+      expect(operation.responses).toHaveProperty('400')
+      expect(operation.responses).toHaveProperty('401')
+      expect(operation.responses).toHaveProperty('403')
+      expect(operation.responses).toHaveProperty('404')
+      expect(operation.responses).toHaveProperty('409')
+      expect(operation.responses).toHaveProperty('503')
+    }
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
     expect(doc.paths['/api/import/dry-run'].post['x-zuri-contract']).toBeUndefined()

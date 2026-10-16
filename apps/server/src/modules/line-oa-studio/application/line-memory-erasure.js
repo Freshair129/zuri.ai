@@ -117,7 +117,7 @@ export async function recordMemoryPrincipalErasure(tx, { tenantId, principalId, 
   }
   if (tx.memoryProjectionReceipt?.updateMany) await markMemoryProjectionErasurePending(tx, { tenantId, principalId })
   if (tx.customer?.updateMany) await tx.customer.updateMany({ where: { tenantId, personId: principalId },
-    data: { memoryErasureStatus: 'PENDING_MSP' } })
+    data: { memoryErasureStatus: 'PENDING_MSP', version: { increment: 1 } } })
   return { pendingPrincipalErasures: 1 }
 }
 

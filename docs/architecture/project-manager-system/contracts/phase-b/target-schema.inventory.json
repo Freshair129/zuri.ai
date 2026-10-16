@@ -1,10 +1,21 @@
 {
-  "schemaSha256": "4679367cef0dcb57f17e68a9b1fe1ae56d2c84313d8618b8733b111a68b6cbb7",
+  "schemaSha256": "ddbda079e8fdc4a8521ef75e35cecc9a139a465aa9736d0158c9a779fb793c34",
+  "targetSchemaSha256": "6ca13ac1246889b4449fee8f94af3aad8012e55159a3427bf9ef953f1adc9b76",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
       "schemaName": "public",
       "tableName": "AccessInvite"
+    },
+    {
+      "modelName": "AgentApprovalDecision",
+      "schemaName": "public",
+      "tableName": "AgentApprovalDecision"
+    },
+    {
+      "modelName": "AgentApprovalRequest",
+      "schemaName": "public",
+      "tableName": "AgentApprovalRequest"
     },
     {
       "modelName": "AgentTraceEvent",

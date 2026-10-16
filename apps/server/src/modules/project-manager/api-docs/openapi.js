@@ -46,6 +46,9 @@ const FEATURE_MUTATIONS = [
 export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-252 — Identity-owned session-bound API-write CSRF issuance.
   ['/api/auth/csrf', ['GET']],
+  // @req FR-026 — authenticated human OWNER queue and decision routes for Agent writes.
+  ['/api/agent/approval-requests', ['GET']],
+  ['/api/agent/approval-requests/{id}/decision', ['POST']],
   ['/api/projects/{id}/feature-view', ['GET']],
   ['/api/projects/{id}/features', ['GET', 'POST']],
   ['/api/projects/{id}/features/{featureId}', ['GET', 'PATCH', 'DELETE']],
@@ -410,6 +413,17 @@ function genericRequest(path, method) {
 }
 
 function genericResponses(path, method) {
+  if (path.startsWith('/api/agent/approval-requests')) return {
+    200: json(zRouteInventoryResponse, 'Queue or authenticated OWNER decision result.'),
+    400: json(zError, 'Invalid query or decision input.'),
+    401: json(zError, 'Authentication required.'),
+    403: json(zError, method === 'post'
+      ? 'CSRF token or Origin is invalid, or authenticated viewer is not an eligible same-Business OWNER.'
+      : 'Authenticated viewer is not an eligible same-Business OWNER.'),
+    404: json(zError, 'Business or approval request was not found.'),
+    409: json(zError, 'Approval request is expired, stale, rejected, or no longer open.'),
+    503: json(zError, 'Session or CSRF configuration is unavailable.'),
+  }
   if (path === '/api/businesses/{id}/agent-template') {
     if (!['get', 'post'].includes(method)) return {
       409: json(zError, 'Typed unsupported customization, upgrade or rollback; no config/provider effects.'),
@@ -463,17 +477,29 @@ function registerInventoryOperations(registry) {
       const methodName = method.toLowerCase()
       if (detailedOperations.has(`${methodName} ${path}`)) continue
       const conversationRuntime = path === CONVERSATION_RUNTIME_PATH
+      const approvalDecision = path === '/api/agent/approval-requests/{id}/decision' && methodName === 'post'
       registry.registerPath({
         method: methodName,
         path,
         summary: conversationRuntime ? `Private Conversation Runtime ${method} adapter` : `Route inventory: ${method} ${path}`,
         description: conversationRuntime
           ? `Private ADR-106/SDD-110 service boundary. GET permits only health; POST accepts only the fixed conversation-runtime.v1 operation enum. Core revalidates identity, Tenant/Business, account binding, consent/erasure, transport epoch, lease and ownership from authoritative state. Request and response bodies are bounded to 64 KiB. Operation payload fields: services/conversation-runtime/contracts/v1/operation.schema.json.`
+          : approvalDecision
+            ? 'An authenticated active direct OWNER of the exact Business submits APPROVE or REJECT. The actor is derived from the session. POST requires the session-bound X-CSRF-Token issued by GET /api/auth/csrf and an Origin matching the configured application origin; the checks run before the decision body is read.'
           : `Current handler inventory coverage for ${method} ${path}. This generic operation is deliberately transparent: handler-specific request and response fields are not claimed here; use Appendix A and live route validation for the detailed contract.`,
         tags: conversationRuntime ? ['Internal service'] : ['Route inventory'],
         parameters: conversationRuntime
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
-          : pathParameters(path),
+          : [
+            ...pathParameters(path),
+            ...(approvalDecision ? [{
+              name: 'X-CSRF-Token',
+              in: 'header',
+              required: true,
+              schema: { type: 'string', minLength: 1 },
+              description: 'Session-bound API-write token issued by GET /api/auth/csrf.',
+            }] : []),
+          ],
         request: conversationRuntime && methodName === 'post'
           ? { body: { required: true, content: { 'application/json': { schema: zConversationRuntimeEnvelope } } } }
           : genericRequest(path, methodName),
@@ -482,6 +508,8 @@ function registerInventoryOperations(registry) {
           ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': 'conversation-runtime.v1' }
           : path === '/api/businesses/{id}/agent-template'
             ? { security: ['get', 'post'].includes(methodName) ? [{ SessionAuth: [] }] : [], 'x-zuri-contract': 'business-agent-config/v1' }
+            : path.startsWith('/api/agent/approval-requests')
+              ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'agent-approval.v1' }
             : { 'x-zuri-contract': 'route-inventory' }),
       })
     }

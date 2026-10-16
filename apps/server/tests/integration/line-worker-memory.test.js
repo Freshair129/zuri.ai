@@ -8,6 +8,9 @@ import { admitLineConversation, runLineConversationWorker, readLineConversationT
 import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/application/line-memory-delivery'
 import { acknowledgeMemoryProjectionErasure, markMemoryProjectionErasurePending, recordMemoryProjectionReceipt,
   settleMemoryProjectionDelivery } from '@/modules/line-oa-studio/application/line-memory-projection'
+import { recordMemoryPrincipalErasure } from '@/modules/line-oa-studio/application/line-memory-erasure'
+import { createAgentApprovalRequest, consumeAgentApprovalRequest } from '@/modules/agent/approval-gateway'
+import { defaultWriteTools } from '@/modules/agent/write-tools'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 import { createDeterministicBusinessModel } from '@/modules/agent/grounded-business-answer'
@@ -215,6 +218,57 @@ describe('LINE memory enrollment and receipt recovery', () => {
     const erased = await prisma.memoryProjectionReceipt.findMany({ where: { tenantId: tenant.id, principalId: 'receipt-principal' } })
     expect(erased).toHaveLength(2)
     expect(erased.every(receipt => receipt.erasureStatus === 'ERASED' && receipt.erasureReceiptId === 'msp-erasure-receipt')).toBe(true)
+  })
+
+  it('increments Customer.version for LINE memory erasure and projection acknowledgements, staling approvals', async () => {
+    const fixture = await admittedFixture()
+    const person = await prisma.person.create({ data: { code: `memory-version-${randomUUID()}`, displayName: 'Memory version requester' } })
+    await prisma.membership.create({ data: {
+      personId: person.id, tenantId: tenant.id, businessId: business.id, scopeType: 'BUSINESS', role: 'MANAGER',
+    } })
+    const lineUserId = `memory-version-${randomUUID()}`
+    const { token } = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    await redeemLinkToken({ tenantId: tenant.id, token, channelAccountId: fixture.oa.bindingCode, lineUserId, merge: true })
+    const requesterIdentity = await prisma.externalIdentity.findUnique({
+      where: { tenantId_provider_providerSubject: { tenantId: tenant.id, provider: 'LINE', providerSubject: lineUserId } },
+    })
+    const customer = await prisma.customer.create({ data: {
+      code: `memory-version-customer-${randomUUID()}`, tenantId: tenant.id, businessId: business.id,
+      personId: person.id, displayName: 'Memory version customer',
+    } })
+    const action = defaultWriteTools().get('set_customer_lifecycle')
+    const createApproval = () => prisma.$transaction(tx => createAgentApprovalRequest(tx, {
+      tenantId: tenant.id, requesterPersonId: person.id, requesterExternalIdentityId: requesterIdentity.id, action,
+      target: { customerId: customer.id }, payload: { lifecycleStage: 'ACTIVE' },
+    }))
+    const beforeErasure = await createApproval()
+    const job = await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })
+    await prisma.$transaction(tx => recordMemoryPrincipalErasure(tx, {
+      tenantId: tenant.id, principalId: person.id,
+      jobs: [{ ...job, id: fixture.jobId, businessId: business.id, memorySyncOptIn: true, audienceKind: 'DIRECT' }],
+      speakers: [], now,
+    }))
+    expect(await prisma.customer.findUnique({ where: { id: customer.id } })).toMatchObject({
+      memoryErasureStatus: 'PENDING_MSP', version: 2,
+    })
+    const staleAfterErasure = await prisma.$transaction(tx => consumeAgentApprovalRequest(tx, {
+      requestId: beforeErasure.id, tenantId: tenant.id, requesterPersonId: person.id, action,
+      target: { customerId: customer.id }, payload: { lifecycleStage: 'ACTIVE' }, principal: {},
+    }))
+    expect(staleAfterErasure.blocked).toBe('AGENT_APPROVAL_BINDING_MISMATCH')
+
+    const beforeProjection = await createApproval()
+    await prisma.$transaction(tx => acknowledgeMemoryProjectionErasure(tx, {
+      tenantId: tenant.id, principalId: person.id, erasureReceiptId: 'memory-version-receipt',
+    }))
+    expect(await prisma.customer.findUnique({ where: { id: customer.id } })).toMatchObject({
+      memoryErasureStatus: 'ERASED', version: 3,
+    })
+    const staleAfterProjection = await prisma.$transaction(tx => consumeAgentApprovalRequest(tx, {
+      requestId: beforeProjection.id, tenantId: tenant.id, requesterPersonId: person.id, action,
+      target: { customerId: customer.id }, payload: { lifecycleStage: 'ACTIVE' }, principal: {},
+    }))
+    expect(staleAfterProjection.blocked).toBe('AGENT_APPROVAL_BINDING_MISMATCH')
   })
 
   it('passes the complete persisted scope to the default authorization resolver', async () => {

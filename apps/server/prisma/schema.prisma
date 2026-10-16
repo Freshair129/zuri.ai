@@ -55,6 +55,10 @@ model Tenant {
   channelIdentities          ChannelIdentity[]
   identityLinkTokens         IdentityLinkToken[]
   customers                  Customer[]
+  // @req FR-026 — Agent-owned approval history remains separate from the PM
+  // approval aggregate and is included in portable recovery.
+  agentApprovalRequests     AgentApprovalRequest[]
+  agentApprovalDecisions    AgentApprovalDecision[]
   // @req FR-230 — this Tenant's per-data-class retention shortenings (ADR-091 D2).
   tenantRetentionOverrides   TenantRetentionOverride[]
   // @req SEC-034 — this Tenant's Customers' chat evidence archive legal holds (ADR-093 D6).
@@ -266,6 +270,9 @@ model Business {
   // @req FR-089 — Teams are Business-scoped (ADR-037 D2).
   teams                      Team[]
   customers                  Customer[]
+  // @req FR-026 — scoped Agent approval history for this Business.
+  agentApprovalRequests     AgentApprovalRequest[]
+  agentApprovalDecisions    AgentApprovalDecision[]
   roleBindings               RoleBinding[]
   customerImportBatches      CustomerImportBatch[]
   customerImportReviewCases  CustomerImportReviewCase[]
@@ -481,6 +488,8 @@ model Person {
   customerLegalHoldsRecorded    CustomerLegalHold[]             @relation("CustomerLegalHoldRecordedBy")
   // @req FR-022 — retention consents this sales user collected from a Customer (ADR-093 1.2.0).
   customerRetentionConsentsRecorded CustomerRetentionConsent[]   @relation("CustomerRetentionConsentRecordedBy")
+  agentApprovalRequestsCreated      AgentApprovalRequest[]       @relation("AgentApprovalRequester")
+  agentApprovalDecisions            AgentApprovalDecision[]      @relation("AgentApprovalDecisionPerson")
   passkeyCredentials            PasskeyCredential[]
   // @req FR-268, ADR-101 — Key Results this Person owns, and check-ins this
   // Person recorded (distinct: an OWNER can check in a Key Result owned by
@@ -2219,6 +2228,7 @@ model ExternalIdentity {
 
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
   tenant Tenant @relation(fields: [tenantId], references: [id])
+  approvalRequests AgentApprovalRequest[]
 
   @@unique([tenantId, provider, providerSubject])
   @@index([personId])
@@ -2294,6 +2304,7 @@ model Customer {
   person                Person                         @relation(fields: [personId], references: [id])
   consentRecordedBy     Person?                        @relation("CustomerConsentRecordedBy", fields: [consentRecordedByPersonId], references: [id])
   conversations         Conversation[]
+  agentApprovalRequests AgentApprovalRequest[] @relation("AgentApprovalCustomerTarget")
   importProvenance      CustomerImportProvenance[]     @relation("CustomerImportProvenanceCustomer")
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
   salesTasks            SalesTask[]
@@ -2464,6 +2475,7 @@ model Conversation {
   knowledgeCandidates KnowledgeCandidate[]
   // @req FR-243 — a long-lived conversation reads as separate sittings (ADR-094 D1).
   sessions            ConversationSession[]
+  agentApprovalRequests AgentApprovalRequest[] @relation("AgentApprovalConversationTarget")
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant, channel and account isolates the external namespace:
@@ -2925,6 +2937,64 @@ model AgentTraceEvent {
   @@index([tenantId, businessId, turnId, createdAt])
   // @req FR-022 — the MSP memory erasure scanner's keyset page (kind, then oldest first).
   @@index([kind, occurredAt, id])
+}
+
+// @req FR-026 — Agent owns its approval prerequisite ledger. It is bound to
+// one authenticated requester, one live Tenant/Business, one concrete CRM
+// target version and the exact canonical action input. Decisions are immutable
+// one-per-Person/request rows; the request status records the terminal outcome.
+model AgentApprovalRequest {
+  id                    String   @id @default(uuid())
+  tenantId              String
+  businessId            String
+  requesterPersonId     String
+  requesterExternalIdentityId String
+  actionName            String
+  tier                  Int
+  quorum                Int
+  targetKind            String
+  conversationId        String?
+  customerId            String?
+  targetVersion         String
+  inputSummaryJson      String   @default("{}")
+  inputDigest           String
+  status                String   @default("PENDING")
+  expiresAt             DateTime
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  version               Int      @default(1)
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business  Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  requester Person   @relation("AgentApprovalRequester", fields: [requesterPersonId], references: [id], onDelete: Restrict)
+  requesterExternalIdentity ExternalIdentity @relation(fields: [requesterExternalIdentityId], references: [id], onDelete: Restrict)
+  conversation Conversation? @relation("AgentApprovalConversationTarget", fields: [conversationId], references: [id], onDelete: Restrict)
+  customer     Customer?     @relation("AgentApprovalCustomerTarget", fields: [customerId], references: [id], onDelete: Restrict)
+  decisions    AgentApprovalDecision[]
+
+  @@index([tenantId, businessId, status, expiresAt])
+  @@index([requesterPersonId, createdAt])
+}
+
+// @req FR-026 — decisions are never overwritten, and the unique constraint
+// prevents one Person from supplying multiple votes for a request.
+model AgentApprovalDecision {
+  id         String   @id @default(uuid())
+  requestId  String
+  tenantId   String
+  businessId String
+  personId   String
+  decision   String
+  createdAt  DateTime @default(now())
+  version    Int      @default(1)
+
+  request AgentApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  tenant  Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business Business            @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  person  Person               @relation("AgentApprovalDecisionPerson", fields: [personId], references: [id], onDelete: Restrict)
+
+  @@unique([requestId, personId], map: "AgentApprovalDecision_request_person_key")
+  @@index([tenantId, businessId, createdAt])
 }
 
 // @req FR-231, FR-232 — durable identifiers for each API-011 message append;

@@ -15,6 +15,14 @@ export { createToolRegistry, defaultReadOnlyTools } from './tools'
 export { authorizeAgentAction, executeAgentAction } from './action-gate'
 export { createWriteToolRegistry, defaultWriteTools } from './write-tools'
 export { issueStepUp } from './step-up'
+export {
+  AGENT_APPROVAL_QUORUM,
+  assertDirectBusinessOwner,
+  createAgentApprovalRequest,
+  decideAgentApprovalRequest,
+  digestAgentActionInput,
+  listAgentApprovalQueue,
+} from './approval-gateway'
 // @req FR-027 — the end-to-end agent turn.
 export { handleAgentTurn } from './turn'
 // @req FR-029 — bind the agent to the real MSP + GenesisBlockDB backends.

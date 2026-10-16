@@ -2,6 +2,19 @@
 
 Version diff 1.106.0b → 1.107.0b (2026-10-16): add FR-260's installation-operator-only read-only Worker observations and explicit refusal methods. Inventory: 344 route handlers, 345 OpenAPI paths, 459 operations. No provider/live-agent activation, hosted deployment, or external migration apply is claimed.
 
+Version diff 1.107.0b → 1.108.0b (2026-10-16): add the authenticated FR-026 Agent approval queue and decision paths, with explicit 400/401/403/404/409 responses. Inventory: 346 route handlers, 347 OpenAPI paths, 461 operations. Source migrations are not applied to Supabase or production.
+
+### Agent-owned approval gateway (FR-026)
+
+Approval is a prerequisite to selected Agent writes. Identity resolves the authenticated human; Agent owns the request, decision, queue, and transition state. Every reviewer must be a distinct active direct OWNER Membership for the request's exact Tenant and Business. The requester cannot vote. One person may record one decision per request, and any accepted rejection is terminal. Requests expire after 24 hours. Vote transitions use a pending-status and expected-version compare-and-set in the same transaction as the unique decision row.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/agent/approval-requests?businessId=` | Session-authenticated queue for an active direct same-Business OWNER. Returns pending requests and safe input summaries, never the raw input digest. |
+| POST | `/api/agent/approval-requests/[id]/decision` | The session-authenticated OWNER submits APPROVE or REJECT. Actor identity is derived from the session. The request must include the session-bound `X-CSRF-Token` issued by `GET /api/auth/csrf` and a matching `Origin`. Duplicate, terminal, expired or stale decisions return 409. |
+
+Tier quorum is L1=1, L2=2, L3=3 and L4=4. Only the original requester may resubmit the same request ID with its exact action, concrete target, target version and canonical input. An under-quorum retry returns `ACTION_PENDING` with that request ID and performs no business write. Execution rechecks requester authorization, current OWNER quorum, target version, and a fresh single-use HIGH step-up where required. Gate F, canonical writers and their audit transaction remain mandatory. Invalid input is 400, missing records 404, ineligible viewers or invalid CSRF/Origin are 403, stale/non-open conflicts 409, and unavailable session or CSRF configuration is 503.
+
 ### Business Agent Factory v1 (FR-285)
 
 GET and POST `/api/businesses/[id]/agent-template` resolve the principal from the signed server session and require active, unexpired, non-suspended/non-revoked persisted OWNER Membership for the actual Business or its Tenant. Unknown/inactive and unauthorized targets share `404 BUSINESS_NOT_FOUND`. Payload roles/actor/Tenant never grant access. The [adopted contract](../change-requests/agent-factory/AGENT-FACTORY-V1.md) owns the eight acceptance criteria.
@@ -114,8 +127,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=344 -->
-
+<!-- api-spec-counts: route_handlers=346 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM

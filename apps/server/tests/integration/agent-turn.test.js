@@ -3,6 +3,7 @@ import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { handleAgentTurn, issueStepUp } from '@/modules/agent'
+import { decideAgentApprovalRequest } from '@/modules/agent/approval-gateway'
 
 // @req FR-027 — the end-to-end agent turn: ingest → read context → optional Gate F
 // action → response, with denials/step-up degrading gracefully.
@@ -15,6 +16,25 @@ async function staffSubject(code, lineUserId, role = 'MANAGER') {
   const { token } = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
   await redeemLinkToken({ tenantId: tenant.id, token, lineUserId })
   return person
+}
+
+async function businessOwners(prefix, count) {
+  const people = []
+  for (let index = 0; index < count; index += 1) {
+    const person = await prisma.person.create({ data: { code: `PSN-${prefix}-${index}`, displayName: `${prefix} ${index}` } })
+    await prisma.membership.create({
+      data: {
+        personId: person.id,
+        tenantId: tenant.id,
+        businessId: business.id,
+        scopeType: 'BUSINESS',
+        role: 'OWNER',
+        status: 'ACTIVE',
+      },
+    })
+    people.push(person)
+  }
+  return people
 }
 
 describe('handleAgentTurn (FR-027)', () => {
@@ -94,15 +114,32 @@ describe('handleAgentTurn (FR-027)', () => {
     expect(replay.response).toMatchObject({ kind: 'DUPLICATE', skipReply: true })
   })
 
-  it('a staff turn requesting a LOW action executes it (ACTION_DONE)', async () => {
+  it('returns a pending approval request, then executes only when the requester resubmits that request', async () => {
     await staffSubject('PSN-trn-staff1', 'Utrn-staff1')
     // a customer conversation to close
     const cust = await handleAgentTurn({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-2', threadId: 'T-trn-2', text: 'hi' })
+    const action = {
+      name: 'close_conversation',
+      target: { conversationId: cust.inbound.conversationId },
+    }
+    const pending = await handleAgentTurn({
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-staff1', threadId: 'T-staff-1', text: 'close it',
+      action,
+    }, { serverScope: { transportVerified: true, businessId: business.id } })
+    expect(pending.response).toMatchObject({ kind: 'ACTION_PENDING', action: 'close_conversation', tier: 'L1', quorum: 1 })
+    expect(pending.response.approvalRequestId).toBeTruthy()
+    expect(pending.action).toMatchObject({ executed: false, approvalRequired: true, approvalRequestId: pending.response.approvalRequestId })
+    const [reviewer] = await businessOwners('trn-close-owner', 1)
+    await decideAgentApprovalRequest(prisma, {
+      requestId: pending.response.approvalRequestId,
+      personId: reviewer.id,
+      decision: 'APPROVE',
+    })
     const r = await handleAgentTurn({
       tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-staff1', threadId: 'T-staff-1', text: 'close it',
-      action: { name: 'close_conversation', target: { conversationId: cust.inbound.conversationId } },
+      action: { ...action, approvalRequestId: pending.response.approvalRequestId },
     }, { serverScope: { transportVerified: true, businessId: business.id } })
-    expect(r.response.kind).toBe('ACTION_DONE')
+    expect(r.response).toMatchObject({ kind: 'ACTION_DONE', action: 'close_conversation', approvalRequestId: pending.response.approvalRequestId })
     const convo = await prisma.conversation.findUnique({ where: { id: cust.inbound.conversationId } })
     expect(convo.status).toBe('CLOSED')
   })
@@ -117,14 +154,77 @@ describe('handleAgentTurn (FR-027)', () => {
     expect(r.action).toBeNull()
   })
 
-  it('a HIGH action without step-up degrades to STEP_UP_REQUIRED', async () => {
+  it('returns known action refusal codes gracefully while propagating unknown actions and other AGENT_ACTION errors', async () => {
+    await staffSubject('PSN-trn-refusal', 'Utrn-refusal', 'OWNER')
+    const serverScope = { transportVerified: true, businessId: business.id }
+    const turnInput = (id, actionName = 'test_refusal') => ({
+      tenantId: tenant.id,
+      businessId: business.id,
+      lineUserId: 'Utrn-refusal',
+      threadId: `T-turn-refusal-${id}`,
+      externalMessageId: `MT-TURN-REFUSAL-${id}`,
+      text: 'run action',
+      action: { name: actionName },
+    })
+
+    const unavailable = await handleAgentTurn(turnInput('unavailable', 'refund_order'), { serverScope })
+    expect(unavailable.response).toMatchObject({
+      kind: 'ACTION_DENIED', action: 'refund_order', reason: 'AGENT_ACTION_UNAVAILABLE: refund_order',
+    })
+    expect(unavailable.action).toBeNull()
+
+    const refusals = [
+      'AGENT_ACTION_INPUT_INVALID',
+      'AGENT_ACTION_TARGET_REQUIRED',
+      'AGENT_ACTION_TARGET_INVALID',
+      'AGENT_ACTION_TARGET_NOT_FOUND',
+      'AGENT_ACTION_TARGET_UNSUPPORTED',
+      'AGENT_ACTION_TARGET_SCOPE_MISMATCH',
+      'AGENT_ACTION_BUSINESS_SCOPE_REQUIRED',
+      'AGENT_ACTION_BUSINESS_SCOPE_DENIED',
+    ]
+    for (const [index, reason] of refusals.entries()) {
+      const result = await handleAgentTurn(turnInput(`refusal-${index}`), {
+        serverScope,
+        writeRegistry: { get: () => { throw new Error(reason) } },
+      })
+      expect(result.response).toMatchObject({ kind: 'ACTION_DENIED', action: 'test_refusal', reason })
+      expect(result.action).toBeNull()
+    }
+
+    await expect(handleAgentTurn(turnInput('unknown', 'not_registered'), {
+      serverScope,
+      writeRegistry: { get: () => undefined },
+    })).rejects.toThrow('unknown write action: not_registered')
+
+    await expect(handleAgentTurn(turnInput('unexpected'), {
+      serverScope,
+      writeRegistry: { get: () => { throw new Error('AGENT_ACTION_INTERNAL_FAILURE') } },
+    })).rejects.toThrow('AGENT_ACTION_INTERNAL_FAILURE')
+  })
+
+  it('keeps a HIGH action pending until its approval quorum, then requires step-up', async () => {
     await staffSubject('PSN-trn-staff2', 'Utrn-staff2', 'OWNER')
     const cust = await handleAgentTurn({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-4', threadId: 'T-trn-4', text: 'hi' })
+    const action = { name: 'deactivate_customer', target: { customerId: cust.inbound.customerId } }
+    const pending = await handleAgentTurn({
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-staff2', threadId: 'T-staff-2', text: 'deactivate',
+      action,
+    }, { serverScope: { transportVerified: true, businessId: business.id } })
+    expect(pending.response).toMatchObject({ kind: 'ACTION_PENDING', action: 'deactivate_customer', tier: 'L4', quorum: 4 })
+    const reviewers = await businessOwners('trn-deactivate-no-stepup', 4)
+    for (const reviewer of reviewers) {
+      await decideAgentApprovalRequest(prisma, {
+        requestId: pending.response.approvalRequestId,
+        personId: reviewer.id,
+        decision: 'APPROVE',
+      })
+    }
     const r = await handleAgentTurn({
       tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-staff2', threadId: 'T-staff-2', text: 'deactivate',
-      action: { name: 'deactivate_customer', target: { customerId: cust.inbound.customerId } },
+      action: { ...action, approvalRequestId: pending.response.approvalRequestId },
     }, { serverScope: { transportVerified: true, businessId: business.id } })
-    expect(r.response.kind).toBe('STEP_UP_REQUIRED')
+    expect(r.response).toMatchObject({ kind: 'STEP_UP_REQUIRED', approvalRequestId: pending.response.approvalRequestId })
     const c = await prisma.customer.findUnique({ where: { id: cust.inbound.customerId } })
     expect(c.deletedAt).toBeNull()
   })
@@ -132,12 +232,26 @@ describe('handleAgentTurn (FR-027)', () => {
   it('a HIGH action with a valid step-up token completes the turn (ACTION_DONE)', async () => {
     const staff = await staffSubject('PSN-trn-staff3', 'Utrn-staff3', 'OWNER')
     const cust = await handleAgentTurn({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-5', threadId: 'T-trn-5', text: 'hi' })
+    const action = { name: 'deactivate_customer', target: { customerId: cust.inbound.customerId } }
+    const pending = await handleAgentTurn({
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-staff3', threadId: 'T-staff-3', text: 'deactivate',
+      action,
+    }, { serverScope: { transportVerified: true, businessId: business.id } })
+    expect(pending.response).toMatchObject({ kind: 'ACTION_PENDING', action: 'deactivate_customer', tier: 'L4', quorum: 4 })
+    const reviewers = await businessOwners('trn-deactivate-stepup', 4)
+    for (const reviewer of reviewers) {
+      await decideAgentApprovalRequest(prisma, {
+        requestId: pending.response.approvalRequestId,
+        personId: reviewer.id,
+        decision: 'APPROVE',
+      })
+    }
     const { token } = await issueStepUp({ tenantId: tenant.id, personId: staff.id })
     const r = await handleAgentTurn({
       tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-staff3', threadId: 'T-staff-3', text: 'deactivate',
-      action: { name: 'deactivate_customer', target: { customerId: cust.inbound.customerId }, stepUpToken: token },
+      action: { ...action, approvalRequestId: pending.response.approvalRequestId, stepUpToken: token },
     }, { serverScope: { transportVerified: true, businessId: business.id } })
-    expect(r.response.kind).toBe('ACTION_DONE')
+    expect(r.response).toMatchObject({ kind: 'ACTION_DONE', approvalRequestId: pending.response.approvalRequestId })
     const c = await prisma.customer.findUnique({ where: { id: cust.inbound.customerId } })
     expect(c.deletedAt).not.toBeNull()
   })

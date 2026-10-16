@@ -155,7 +155,7 @@ export async function redeemLinkToken(input) {
         tx.customer.findFirst({ where: { tenantId, personId: targetPersonId, deletedAt: null } }),
       ])
       if (orphanCustomer && !targetCustomer) {
-        await tx.customer.update({ where: { id: orphanCustomer.id }, data: { personId: targetPersonId } })
+        await tx.customer.update({ where: { id: orphanCustomer.id }, data: { personId: targetPersonId, version: { increment: 1 } } })
         await recordAudit(tx, {
           entityType: 'CUSTOMER',
           entityId: orphanCustomer.id,

@@ -35,7 +35,7 @@ export async function issueStepUp(input) {
  * principal — so a failed action rolls the consumption back with the rest of the write.
  * @param {import('@prisma/client').Prisma.TransactionClient} tx
  */
-export async function consumeStepUp(tx, { tenantId, personId, token }) {
+export async function consumeStepUp(tx, { tenantId, personId, token, notBefore = null }) {
   if (!token) throw new Error('STEP_UP_REQUIRED: this action needs a step-up token')
   const row = await tx.identityLinkToken.findUnique({ where: { token } })
   if (
@@ -44,10 +44,17 @@ export async function consumeStepUp(tx, { tenantId, personId, token }) {
     row.tenantId !== tenantId ||
     row.personId !== personId ||
     row.consumedAt ||
-    row.expiresAt.getTime() <= Date.now()
+    row.expiresAt.getTime() <= Date.now() ||
+    (notBefore && row.createdAt.getTime() <= new Date(notBefore).getTime())
   ) {
     throw new Error('STEP_UP_REQUIRED: step-up token is invalid, expired, or already used')
   }
-  await tx.identityLinkToken.update({ where: { id: row.id }, data: { consumedAt: new Date() } })
+  const consumed = await tx.identityLinkToken.updateMany({
+    where: { id: row.id, consumedAt: null },
+    data: { consumedAt: new Date() },
+  })
+  if (consumed.count !== 1) {
+    throw new Error('STEP_UP_REQUIRED: step-up token is invalid, expired, or already used')
+  }
   return row.id
 }
