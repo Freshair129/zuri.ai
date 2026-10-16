@@ -146,6 +146,34 @@ Operator or Business permissions. Root delivery still requires independent
 acceptance, review and applicable exact-head CI; a green local stage is not
 `MERGED` or production readiness.
 
+### Local Workers projection for `/control/roadmap`
+
+In `serve` mode, the host controller also publishes the sanitized
+`worker-observability/v1` projection to
+`apps/server/.worker-observability.local/worker-observability.json` by default.
+The file is replaced atomically every two seconds (the configured interval is
+capped at five seconds). If the controller, ledger, receipts, or verified source
+is unavailable, the export contains an `UNKNOWN` projection. The publisher stops
+when the controller exits.
+
+The web process reads only `ZURI_WORKER_OBSERVABILITY_FILE`, which the local-only
+overlay sets to `/run/zuri/worker-observability/worker-observability.json`. It
+validates the projection and its timestamp, returns `UNKNOWN` when the file is
+absent, invalid, future-dated, or older than 15 seconds, and applies the API's
+`since` filter to events after authentication and operator authorization. The
+source is never opened by the container.
+
+Use the local overlay with the app's existing Compose project directory:
+
+```text
+docker compose --project-directory apps/server -f apps/server/docker-compose.yml -f apps/server/docker-compose.worker-observability.yml config
+```
+
+The overlay mounts only `apps/server/.worker-observability.local` into `web`,
+read-only. That directory is ignored by Git and excluded from the app build
+context. The base Compose file remains unchanged and does not mount `.git`, the
+controller database, or private supervisor state.
+
 ## Autonomous root supervisor
 
 `npm run delivery:autonomous -- serve <private-campaign.json>` joins trusted
