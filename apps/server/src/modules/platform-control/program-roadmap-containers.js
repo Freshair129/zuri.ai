@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.33, 2026-10-16) so the board can open a task the way the html board
+// (v0.4.34, 2026-10-17) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -417,21 +417,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-010",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-04",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "Codex",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "src/modules/agent/action-gate.js",
-      "doc": "docs/FEATURE-MAP.md",
-      "test": "unavailable"
+      "code": "apps/server/src/modules/agent/approval-gateway.js",
+      "doc": "docs/change-requests/agent-approval/APPROVAL-GATEWAY-V1.md",
+      "test": "apps/server/tests/integration/agent-approval-gateway.test.js"
     },
     "linkState": {
-      "code": "missing",
-      "doc": "missing",
-      "test": "unavailable"
+      "code": "present",
+      "doc": "present",
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
@@ -442,21 +442,21 @@ export const PROGRAMME_CONTAINERS = {
       },
       "success": {
         "text": "Given an approval, when the same principal approves twice, then the second approval does not count toward the ladder",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the approval suite runs, then each of L1, L2, L3 and L4 has a passing positive and a passing negative case",
         "checked": false
       }
     },
-    "changelog": "Opened from the deliverable gap analysis. FR-026 today has one step-up tier for high-sensitivity actions, not a four-level ladder.",
+    "changelog": "PR #684 merged as 67bf0371c60b948fe1ff73dc1f3b13cc5d96802d from exact head e3f252421d1e004b4999c130021b17d697a2ae5f. Local SQLite 176 tests, isolated PostgreSQL 15/15, governance/build, exact-head Governance/Edge/test shards and Verify passed; PR E2E/Desktop were skipped. The explicit L2 duplicate-vote test satisfies the success criterion. Keep the L4 under-quorum refusal and complete positive/negative evidence for every tier unchecked; task remains review. No production, Supabase, provider or live-agent activation is claimed.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 58000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-007"
     ],
-    "evidence": "Section 3.1 row 9"
+    "evidence": "PR #684 merged; direct L4 under-quorum and complete tier-negative proof remain open"
   },
   "TASK-ZAI-011": {
     "container": "TC-TASK-ZAI-011",
