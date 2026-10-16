@@ -156,31 +156,47 @@ function withScopeLockState(candidate,taskId,locks) {
   const conflict=lockConflict(locks.rows,taskId,candidate.taskRecord.writeScope);
   return conflict?{...candidate,status:'HOLD_SCOPE_CONFLICT',code:'ACTIVE_WRITE_SCOPE_CONFLICT',scopeConflict:conflict,lockFingerprint:locks.fingerprint}:candidate;
 }
-function selectTask(campaign,tasks,requested,excludeTaskIds=[],locks={rows:[],fingerprint:null}) {
+function taskInputDigest(campaign,sourceDigest,taskId) { return hash({campaignDigest:campaign.campaignDigest,sourceDigest:sourceDigest??null,taskId}); }
+function withPriorReceipt(candidate,row,campaign,sourceDigest,locks) {
+  if(!row)return candidate;
+  const inputDigest=taskInputDigest(campaign,sourceDigest,candidate.taskId);
+  if(candidate.status==='READY_CANDIDATE'&&shouldRetryScopeConflict(row,inputDigest,locks.fingerprint,campaign.campaignDigest,sourceDigest,campaign.baseCommit))return candidate;
+  const prior=priorReceipt(row,inputDigest,{campaignDigest:campaign.campaignDigest,sourceDigest,baseCommit:campaign.baseCommit});
+  if(row.state==='READY'&&prior.status==='READY')return candidate;
+  return {...prior,taskId:candidate.taskId,...(candidate.priority?{priority:candidate.priority}:{}),durableReceipt:true};
+}
+function selectTask(campaign,tasks,requested,excludeTaskIds=[],locks={rows:[],fingerprint:null},sourceDigest=null,priorReceipts=new Map()) {
   if(requested&&!campaign.allowedTaskIds.includes(requested)) return {status:'HOLD_NOT_ALLOWED',code:'TASK_NOT_IN_ROOT_ALLOWLIST',candidates:[]};
-  const candidates=(requested?[requested]:campaign.allowedTaskIds.filter((id)=>!excludeTaskIds.includes(id))).map((id)=>withScopeLockState(assess(id,campaign,tasks),id,locks));
+  const candidates=(requested?[requested]:campaign.allowedTaskIds.filter((id)=>!excludeTaskIds.includes(id))).map((id)=>withPriorReceipt(withScopeLockState(assess(id,campaign,tasks),id,locks),priorReceipts.get(id),campaign,sourceDigest,locks));
   const ready=candidates.filter((x)=>x.status==='READY_CANDIDATE').sort((a,b)=>Number(a.priority.slice(1))-Number(b.priority.slice(1))||a.taskId.localeCompare(b.taskId));
   if(ready.length) return {status:'READY_CANDIDATE',selected:ready[0],candidates};
-  const status=['HOLD_REVIEW_REQUIRED','HOLD_AMBIGUOUS_ROADMAP','HOLD_DEPENDENCY','HOLD_TASK_STATUS','HOLD_SCOPE_CONFLICT'].find((s)=>candidates.some((x)=>x.status===s))??'HOLD_NO_READY_TASK';
+  const status=['HOLD_REVIEW_REQUIRED','HOLD_AMBIGUOUS_ROADMAP','HOLD_DEPENDENCY','HOLD_TASK_STATUS','HOLD_SCOPE_CONFLICT','HOLD_PREFLIGHT','HOLD_RECONCILE','HOLD_REASSESSMENT_REQUIRED','HOLD_INTAKE_IN_PROGRESS','HOLD_COLLISION'].find((s)=>candidates.some((x)=>x.status===s))??'HOLD_NO_READY_TASK';
   return {status,code:candidates[0]?.code??(excludeTaskIds.length?'NO_UNEXCLUDED_READY_TASK':'NO_ALLOWED_READY_TASK'),candidates};
 }
 function readSources(repo,base) {
   try { const roadmap=git(repo,['show',base+':docs/roadmap/ROADMAP.md']),programme=git(repo,['show',base+':docs/roadmap/ROADMAP-zuri-ai-24w-program.md']);return parseRoadmapTasks({roadmapMarkdown:roadmap,programmeMarkdown:programme}); }
   catch(error) { throw new IntakeError('HOLD_ROADMAP','CANONICAL_ROADMAP_UNAVAILABLE',error.message); }
 }
-function planLoaded(loaded,requested,excludeTaskIds=[],locks={rows:[],fingerprint:null}) {
+function planLoaded(loaded,requested,excludeTaskIds=[],locks={rows:[],fingerprint:null},priorReceipts=new Map()) {
   const {campaign,repoRoot}=loaded, parsed=readSources(repoRoot,campaign.baseCommit);
   if(parsed.issues.length) return {result:{schemaVersion:RESULT_SCHEMA,status:'HOLD_AMBIGUOUS_ROADMAP',code:'ROADMAP_TABLE_AMBIGUOUS',issues:parsed.issues,sourceDigest:parsed.sourceDigest,campaignId:campaign.campaignId,authorityGrant:false,dispatchAllowed:false,checksExecuted:false}};
-  const choice=selectTask(campaign,parsed.tasks,requested,excludeTaskIds,locks), result={schemaVersion:RESULT_SCHEMA,status:choice.status,code:choice.code??null,campaignId:campaign.campaignId,requestedTaskId:requested??null,excludedTaskIds:excludeTaskIds,selectedTaskId:choice.selected?.taskId??null,candidates:choice.candidates,sourceDigest:parsed.sourceDigest,campaignDigest:campaign.campaignDigest,baseCommit:campaign.baseCommit,lockFingerprint:locks.fingerprint,authorityGrant:false,dispatchAllowed:false,checksExecuted:false};
+  const choice=selectTask(campaign,parsed.tasks,requested,excludeTaskIds,locks,parsed.sourceDigest,priorReceipts), result={schemaVersion:RESULT_SCHEMA,status:choice.status,code:choice.code??null,campaignId:campaign.campaignId,requestedTaskId:requested??null,excludedTaskIds:excludeTaskIds,selectedTaskId:choice.selected?.taskId??null,candidates:choice.candidates,sourceDigest:parsed.sourceDigest,campaignDigest:campaign.campaignDigest,baseCommit:campaign.baseCommit,lockFingerprint:locks.fingerprint,authorityGrant:false,dispatchAllowed:false,checksExecuted:false};
   if(choice.selected)result.taskRecord=choice.selected.taskRecord; return {result,loaded,choice};
 }
 function errorResult(error) { return {schemaVersion:RESULT_SCHEMA,status:error instanceof IntakeError?error.status:'HOLD_RECONCILE',code:error.code??'INTAKE_ERROR',message:error.message,authorityGrant:false,dispatchAllowed:false,checksExecuted:false}; }
-export function planRoadmapIntake(input={}) { try { const loaded=loadCampaign(input),excluded=normalizeExcludedTaskIds(input.excludeTaskIds,loaded.campaign),locks=readLockSnapshot(loaded.commonDir),output=planLoaded(loaded,input.taskId,excluded,locks);return output.result; } catch(error){return errorResult(error);} }
+export function planRoadmapIntake(input={}) { try { const loaded=loadCampaign(input),excluded=normalizeExcludedTaskIds(input.excludeTaskIds,loaded.campaign),locks=readLockSnapshot(loaded.commonDir),priorReceipts=readReceiptSnapshot(loaded.commonDir),output=planLoaded(loaded,input.taskId,excluded,locks,priorReceipts);return output.result; } catch(error){return errorResult(error);} }
 
 function statePaths(common) { const root=path.join(common,'zuri-delivery-control','roadmap-intake-v1');return {root,database:path.join(root,'intake.sqlite'),tasks:path.join(root,'tasks'),locks:path.join(root,'locks')}; }
 function openDb(file) {
   fs.mkdirSync(path.dirname(file),{recursive:true});const db=new DatabaseSync(file);db.exec('PRAGMA busy_timeout=5000; PRAGMA journal_mode=WAL;');
   db.exec("CREATE TABLE IF NOT EXISTS intake_receipts(task_id TEXT PRIMARY KEY,campaign_id TEXT NOT NULL,input_digest TEXT NOT NULL,campaign_digest TEXT NOT NULL,source_digest TEXT NOT NULL,task_digest TEXT NOT NULL,state TEXT NOT NULL,receipt_json TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL) STRICT; CREATE TABLE IF NOT EXISTS intake_receipt_history(task_id TEXT NOT NULL,sequence INTEGER NOT NULL,campaign_id TEXT NOT NULL,input_digest TEXT NOT NULL,state TEXT NOT NULL,receipt_json TEXT NOT NULL,archived_at TEXT NOT NULL,transition_reason TEXT NOT NULL,observed_lock_fingerprint TEXT NOT NULL,PRIMARY KEY(task_id,sequence)) STRICT; CREATE TABLE IF NOT EXISTS intake_evaluations(input_digest TEXT PRIMARY KEY,campaign_id TEXT NOT NULL,result_json TEXT NOT NULL,created_at TEXT NOT NULL) STRICT;");return db;
+}
+function readReceiptRows(db) { return new Map(db.prepare('SELECT * FROM intake_receipts ORDER BY task_id').all().map((row)=>[row.task_id,row])); }
+function readReceiptSnapshot(common) {
+  const file=statePaths(common).database;if(!fs.existsSync(file))return new Map();let db;
+  try { db=new DatabaseSync(file,{readOnly:true});db.exec('PRAGMA busy_timeout=5000;');if(!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='intake_receipts'").get())return new Map();return readReceiptRows(db); }
+  catch(error) { throw new IntakeError('HOLD_RECONCILE','INTAKE_RECEIPTS_UNREADABLE',error.message); }
+  finally { db?.close(); }
 }
 function atomicWrite(file,content) { fs.mkdirSync(path.dirname(file),{recursive:true});const temp=file+'.'+randomUUID()+'.tmp',fd=fs.openSync(temp,'wx',0o600);try{fs.writeFileSync(fd,content,'utf8');fs.fsyncSync(fd);}finally{fs.closeSync(fd);}fs.renameSync(temp,file); }
 function now() { return new Date().toISOString(); }
@@ -191,13 +207,23 @@ function readLockSnapshot(common) {
     catch(error){throw new IntakeError('HOLD_CONTROLLER_STATE','CONTROLLER_STATE_UNREADABLE',error.message);}finally{db?.close();}}
   return {rows,fingerprint:hash(rows)};
 }
-function shouldRetryScopeConflict(row,inputDigest,lockFingerprint,campaignDigest,sourceDigest) {
+function shouldRetryScopeConflict(row,inputDigest,lockFingerprint,campaignDigest,sourceDigest,baseCommit) {
   if(row.state!=='HOLD_SCOPE_CONFLICT'||row.input_digest!==inputDigest||row.campaign_digest!==campaignDigest||row.source_digest!==sourceDigest)return false;
-  const receipt=JSON.parse(row.receipt_json);return typeof receipt.lockFingerprint==='string'&&receipt.lockFingerprint!==lockFingerprint;
+  let receipt;try { receipt=JSON.parse(row.receipt_json); } catch { return false; }
+  return isRecord(receipt)&&receipt.status==='HOLD_SCOPE_CONFLICT'&&receipt.status===row.state&&(!receipt.baseCommit||receipt.baseCommit===baseCommit)&&typeof receipt.lockFingerprint==='string'&&receipt.lockFingerprint!==lockFingerprint;
 }
-function priorReceipt(row,inputDigest) {
-  if(row.input_digest===inputDigest){const result=JSON.parse(row.receipt_json);if(row.state==='INTAKE_PREPARING'||result.status==='INTAKE_PREPARING')return {...result,status:'HOLD_RECONCILE',code:'INTAKE_INTERRUPTED_RECONCILIATION_REQUIRED'};return result;}
-  return {schemaVersion:RESULT_SCHEMA,status:'HOLD_REASSESSMENT_REQUIRED',code:'TASK_ALREADY_HAS_INTAKE_RECEIPT',taskId:row.task_id,priorState:row.state,priorCampaignId:row.campaign_id,authorityGrant:false,dispatchAllowed:false,checksExecuted:false};
+function priorReceipt(row,inputDigest,{campaignDigest,sourceDigest,baseCommit}={}) {
+  let result;try { result=JSON.parse(row.receipt_json); } catch { result=null; }
+  const changed=[];
+  if(row.input_digest!==inputDigest)changed.push('inputDigest');
+  if(campaignDigest!==undefined&&row.campaign_digest!==campaignDigest)changed.push('campaignDigest');
+  if(sourceDigest!==undefined&&row.source_digest!==sourceDigest)changed.push('sourceDigest');
+  if(result?.baseCommit&&baseCommit&&result.baseCommit!==baseCommit)changed.push('baseCommit');
+  if(changed.length)return {schemaVersion:RESULT_SCHEMA,status:'HOLD_REASSESSMENT_REQUIRED',code:'ROOT_RECONCILIATION_REQUIRED',taskId:row.task_id,priorState:row.state,priorCampaignId:row.campaign_id,changedBindings:changed,authorityGrant:false,dispatchAllowed:false,checksExecuted:false};
+  if(!isRecord(result)||typeof result.status!=='string')return {schemaVersion:RESULT_SCHEMA,status:'HOLD_RECONCILE',code:'DURABLE_RECEIPT_RECONCILIATION_REQUIRED',taskId:row.task_id,priorState:row.state,authorityGrant:false,dispatchAllowed:false,checksExecuted:false};
+  if(row.state==='INTAKE_PREPARING'||result.status==='INTAKE_PREPARING')return {...result,status:'HOLD_RECONCILE',code:'INTAKE_INTERRUPTED_RECONCILIATION_REQUIRED'};
+  if(row.state!==result.status)return {schemaVersion:RESULT_SCHEMA,status:'HOLD_RECONCILE',code:'DURABLE_RECEIPT_STATE_MISMATCH_RECONCILIATION_REQUIRED',taskId:row.task_id,priorState:row.state,authorityGrant:false,dispatchAllowed:false,checksExecuted:false};
+  return result;
 }
 function createTaskWorktree({loaded,selected,sourceDigest,lockFingerprint,db,inputDigest,priorRow=null}) {
   const {campaign,repoRoot,commonDir}=loaded,taskId=selected.taskId,taskRecord=selected.taskRecord,paths=statePaths(commonDir);
@@ -208,7 +234,7 @@ function createTaskWorktree({loaded,selected,sourceDigest,lockFingerprint,db,inp
   try {
     const current=db.prepare('SELECT * FROM intake_receipts WHERE task_id=?').get(taskId);
     if(priorRow){
-      if(!current||current.input_digest!==priorRow.input_digest||current.state!=='HOLD_SCOPE_CONFLICT'||!shouldRetryScopeConflict(current,inputDigest,lockFingerprint,campaign.campaignDigest,sourceDigest))throw new IntakeError('HOLD_REASSESSMENT_REQUIRED','SCOPE_HOLD_CHANGED_DURING_REASSESSMENT','Scope hold changed before retry; reconcile the durable receipt.');
+      if(!current||current.input_digest!==priorRow.input_digest||current.state!=='HOLD_SCOPE_CONFLICT'||!shouldRetryScopeConflict(current,inputDigest,lockFingerprint,campaign.campaignDigest,sourceDigest,campaign.baseCommit))throw new IntakeError('HOLD_REASSESSMENT_REQUIRED','SCOPE_HOLD_CHANGED_DURING_REASSESSMENT','Scope hold changed before retry; reconcile the durable receipt.');
       const sequence=(db.prepare('SELECT COALESCE(MAX(sequence),0)+1 AS next FROM intake_receipt_history WHERE task_id=?').get(taskId)?.next??1);
       db.prepare('INSERT INTO intake_receipt_history(task_id,sequence,campaign_id,input_digest,state,receipt_json,archived_at,transition_reason,observed_lock_fingerprint) VALUES(?,?,?,?,?,?,?,?,?)')
         .run(taskId,sequence,current.campaign_id,current.input_digest,current.state,current.receipt_json,stamp,'LOCK_STATE_CHANGED',lockFingerprint);
@@ -248,12 +274,14 @@ function createTaskWorktree({loaded,selected,sourceDigest,lockFingerprint,db,inp
 }
 export function runRoadmapIntake(input={}) {
   let db;try {
-    const loaded=loadCampaign(input),excluded=normalizeExcludedTaskIds(input.excludeTaskIds,loaded.campaign),locks=readLockSnapshot(loaded.commonDir),planned=planLoaded(loaded,input.taskId,excluded,locks),result=planned.result??planned,dbPaths=statePaths(loaded.commonDir);db=openDb(dbPaths.database);
-    const evaluationDigest=hash({campaignDigest:loaded.campaign.campaignDigest,sourceDigest:result.sourceDigest??null,taskId:input.taskId??null,excludeTaskIds:input.taskId?[]:excluded,lockFingerprint:locks.fingerprint});
+    const loaded=loadCampaign(input),excluded=normalizeExcludedTaskIds(input.excludeTaskIds,loaded.campaign),locks=readLockSnapshot(loaded.commonDir),priorReceipts=readReceiptSnapshot(loaded.commonDir),planned=planLoaded(loaded,input.taskId,excluded,locks,priorReceipts),result=planned.result??planned,dbPaths=statePaths(loaded.commonDir);db=openDb(dbPaths.database);
+    const receiptFingerprint=hash([...priorReceipts.values()].map((row)=>[row.task_id,row.state,row.input_digest,row.campaign_digest,row.source_digest,row.receipt_json,row.created_at,row.updated_at]));
+    const evaluationDigest=hash({campaignDigest:loaded.campaign.campaignDigest,baseCommit:loaded.campaign.baseCommit,sourceDigest:result.sourceDigest??null,taskId:input.taskId??null,excludeTaskIds:input.taskId?[]:excluded,lockFingerprint:locks.fingerprint,receiptFingerprint});
     if(!planned.choice?.selected){const previous=db.prepare('SELECT result_json FROM intake_evaluations WHERE input_digest=?').get(evaluationDigest);if(previous)return JSON.parse(previous.result_json);const output={...result,receiptId:hash(evaluationDigest).slice(0,32),receiptCreated:true};db.prepare('INSERT INTO intake_evaluations(input_digest,campaign_id,result_json,created_at) VALUES(?,?,?,?)').run(evaluationDigest,loaded.campaign.campaignId,json(output),now());return output;}
-    const selected=planned.choice.selected,inputDigest=hash({campaignDigest:loaded.campaign.campaignDigest,sourceDigest:result.sourceDigest??null,taskId:selected.taskId}),prior=db.prepare('SELECT * FROM intake_receipts WHERE task_id=?').get(selected.taskId);
-    if(prior&&!shouldRetryScopeConflict(prior,inputDigest,locks.fingerprint,loaded.campaign.campaignDigest,result.sourceDigest))return priorReceipt(prior,inputDigest);
-    return createTaskWorktree({loaded,selected,sourceDigest:result.sourceDigest,lockFingerprint:locks.fingerprint,db,inputDigest,priorRow:prior??null});
+    const selected=planned.choice.selected,inputDigest=taskInputDigest(loaded.campaign,result.sourceDigest,selected.taskId),prior=db.prepare('SELECT * FROM intake_receipts WHERE task_id=?').get(selected.taskId);
+    if(prior&&!shouldRetryScopeConflict(prior,inputDigest,locks.fingerprint,loaded.campaign.campaignDigest,result.sourceDigest,loaded.campaign.baseCommit))return priorReceipt(prior,inputDigest,{campaignDigest:loaded.campaign.campaignDigest,sourceDigest:result.sourceDigest,baseCommit:loaded.campaign.baseCommit});
+    const admitted=createTaskWorktree({loaded,selected,sourceDigest:result.sourceDigest,lockFingerprint:locks.fingerprint,db,inputDigest,priorRow:prior??null});
+    return {...admitted,candidates:planned.choice.candidates};
   }catch(error){return errorResult(error);}finally{db?.close();}
 }
 function parseArgs(argv) {
