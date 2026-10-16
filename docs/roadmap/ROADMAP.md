@@ -10,14 +10,16 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.159.0b"
-updated: "2026-10-16"
+version: "2.160.0b"
+updated: "2026-10-17"
 owner: "Owen"
 source_of_truth: true
 live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.160.0b (2026-10-17): Reconcile TASK-ZAI-010 after PR #684 merged as `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d` from exact head `e3f252421d1e004b4999c130021b17d697a2ae5f`. The bounded Approval Gateway delivery passed local SQLite 11 suites/176 tests, isolated PostgreSQL 15/15, governance and build; exact-head Governance `38943817999`, Edge `38943818026`, four test shards and Verify passed. E2E/Desktop were skipped by PR workflow policy. Keep TASK-ZAI-010 `review / HOSTED_CI / MERGED`: the task container's direct L4 under-quorum refusal and full positive/negative coverage for L1-L4 remain unproven; duplicate L2 vote rejection is covered. Status counts are 69 done, 17 review, 5 in-progress, 27 planned and 5 blocked among 123 tasks (56.1% done); no production, provider, Supabase or live-agent activation is claimed.
 
 > Revision 2.159.0b (2026-10-16): Reconcile TASK-ZAI-119 after PR #687 merged as `19b22dbe` and PR #688 merged as `dc6799fd` from exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999`. The Workers view now includes sanitized campaign-intake holds, controller heartbeat/PID liveness, and newest-first validated supervisor events. Focused tests passed (35/35 Node, 6/6 isolated Vitest); exact-head Governance `38905060924`, Edge `38905060947`, and manual workflow `38905115144` passed, including E2E. TASK-ZAI-119 remains `review / HOSTED_CI / MERGED`, P1 done and P2 planned; FEAT-044 remains `building`, with external PORL binding and production exit proof open. No live Business/LINE behavior, external PORL, or production deployment is claimed; task and dependency counts are unchanged.
 
@@ -776,7 +778,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 | TASK-ZAI-007 | SPR-ZAI-03 | Agent Role registry with five core roles | done | UNKNOWN | UNKNOWN | TASK-ZAI-006 | ROADMAP.md | 24-week baseline; Section 3.1 row 5 |
 | TASK-ZAI-008 | SPR-ZAI-03 | Role-scoped memory partition and retrieval policy | done | UNKNOWN | UNKNOWN | TASK-ZAI-007 | ROADMAP.md | 24-week baseline; Section 3.1 rows 4 and 5 |
 | TASK-ZAI-009 | SPR-ZAI-03 | Agent Factory, the standard five-role Business configuration | done | HOSTED_CI | MERGED | TASK-ZAI-007 | ROADMAP.md | 2026-10-15: FR-285 and ../change-requests/agent-factory/AGENT-FACTORY-V1.md v0.1.4 delivered by PR #665 artifact24c7d99e, merged as cddc52f4fc8e09c59c1f7c033765b75d797a27f1 after distinct independent verify/review and all applicable exact-head Governance38672680746/Edge38672680749 gates passed. E2E/Desktop skipped, not PASS. Runtime/test sourcef073bdd4 passes isolated SQLite151/151 across14files and disposable PostgreSQL13/13; exact-artifact hosted build and strict governance pass. Includes five persisted scoped role configs, live owner Membership checks, atomic Business provisioning, repeat/concurrent no-op, explicit missing runtime config, backup/audit preservation, permitted Business config cascade with FR-192 refusal intact, and static205model recovery inventory/history. Earlier failed CI and source9d21 72/12 acceptance remain historical. Provider/live-agent activation and external migration apply remain NOT_RUN. |
-| TASK-ZAI-010 | SPR-ZAI-04 | Approval Gateway L1 to L4 over the FR-026 action gate | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-007 | ROADMAP.md | Audit wave 2026-09-21: only FR-026 Gate F exists; owner-approved L1-L4 semantics and persistence contract are missing; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 9 |
+| TASK-ZAI-010 | SPR-ZAI-04 | Approval Gateway L1 to L4 over the FR-026 action gate | review | HOSTED_CI | MERGED | TASK-ZAI-007 | ROADMAP.md | PR #684 exact head `e3f252421d1e004b4999c130021b17d697a2ae5f` merged as `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`; local SQLite 11 suites/176 tests, isolated PostgreSQL 15/15, governance/build passed; exact-head Governance `38943817999`, Edge `38943818026`, test shards and Verify passed; PR E2E/Desktop skipped. TC-TASK-ZAI-010 direct L4 under-quorum refusal and complete L1-L4 positive/negative suite remain unchecked; duplicate L2 vote rejection is covered. |
 | TASK-ZAI-011 | SPR-ZAI-04 | Verification and notification fabric on approval outcomes | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
 | TASK-ZAI-013 | SPR-ZAI-05 | Standard Business Template and provisioning path | done | HOSTED_CI | MERGED | TASK-ZAI-009 | FR-286; docs/change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md | PR #667 artifact a22ad4ec merged as ee5d789e3f504fc8ea1fbac91193b7e449607d54 at 2026-10-15T04:42:22Z after independent Verify/Review PASS and required exact-head Governance 38681966322/Edge 38681966380 passed; E2E/Desktop skipped, not PASS. Unchanged source SQLite238 passed/2 skipped across23files, PG29/29 (4 files, source SQL constraints), local build pass. Bounded FR-286 only; no Task13 local Docker redeploy, schema push/migration apply, production/Supabase/provider effect or live-agent activation claimed. |
@@ -934,7 +936,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
       },
       "PHASE-ZAI-02": {
         "status": "in-progress",
-        "progress": 65.0
+        "progress": 67
       },
       "PHASE-ZAI-03": {
         "status": "in-progress",
@@ -968,7 +970,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
       },
       "SPR-ZAI-04": {
         "status": "in-progress",
-        "progress": 58.0
+        "progress": 63
       },
       "SPR-ZAI-05": {
         "status": "in-progress",

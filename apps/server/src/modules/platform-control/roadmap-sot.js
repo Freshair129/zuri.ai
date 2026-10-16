@@ -41,7 +41,7 @@ export const ROADMAP_SOT = {
       },
       "PHASE-ZAI-02": {
         "status": "in-progress",
-        "progress": 65
+        "progress": 67
       },
       "PHASE-ZAI-03": {
         "status": "in-progress",
@@ -75,7 +75,7 @@ export const ROADMAP_SOT = {
       },
       "SPR-ZAI-04": {
         "status": "in-progress",
-        "progress": 58
+        "progress": 63
       },
       "SPR-ZAI-05": {
         "status": "in-progress",
@@ -746,12 +746,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-010",
     "sprint": "SPR-ZAI-04",
     "title": "Approval Gateway L1 to L4 over the FR-026 action gate",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "review",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "Audit wave 2026-09-21: only FR-026 Gate F exists; owner-approved L1-L4 semantics and persistence contract are missing; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 9"
+    "evidence": "PR #684 exact head `e3f252421d1e004b4999c130021b17d697a2ae5f` merged as `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`; local SQLite 11 suites/176 tests, isolated PostgreSQL 15/15, governance/build passed; exact-head Governance `38943817999`, Edge `38943818026`, test shards and Verify passed; PR E2E/Desktop skipped. TC-TASK-ZAI-010 direct L4 under-quorum refusal and complete L1-L4 positive/negative suite remain unchecked; duplicate L2 vote rejection is covered."
   },
   {
     "id": "TASK-ZAI-011",
