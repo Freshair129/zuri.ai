@@ -30,6 +30,23 @@ const commit = 'a'.repeat(40);
 const base = 'b'.repeat(40);
 const now = new Date('2026-10-16T04:00:00.000Z');
 
+function supervisorReceipt(overrides = {}) {
+  const record = {
+    schemaVersion: 'supervisor-observation/v1',
+    taskId: 'TASK-ZAI-101',
+    cycleNo: 1,
+    kind: 'SUPERVISOR_STATUS',
+    status: 'RUNNING',
+    baseCommit: base,
+    candidateHeadCommit: commit,
+    observedAt: now.toISOString(),
+    previousDigest: 'LEGACY',
+    ...overrides,
+  };
+  const { receiptDigest, ...payload } = record;
+  return { ...payload, receiptDigest: receiptDigest ?? hash(JSON.stringify(payload)).toUpperCase() };
+}
+
 function event(sequence, taskId, cycleNo, eventType, occurredAt, payload) {
   const payloadJson = JSON.stringify(payload);
   const previousHash = sequence === 1 ? 'GENESIS' : null;
@@ -195,10 +212,8 @@ test('unsupported or invalid supervisor receipts return UNKNOWN while schema-les
     mkdirSync(sessionRoot, { recursive: true });
     writeFileSync(path.join(sessionRoot, 'events.jsonl'), `${JSON.stringify(record)}\n`);
   };
-  writeSupervisorRecord(unsupported, { schemaVersion: 'supervisor-observation/v999' });
-  writeSupervisorRecord(invalidDigest, { schemaVersion: 'supervisor-observation/v1', previousDigest: 'LEGACY',
-    receiptDigest: 'f'.repeat(64), taskId: null, cycleNo: null, kind: 'SUPERVISOR_STATUS', status: 'PASS',
-    observedAt: now.toISOString() });
+  writeSupervisorRecord(unsupported, supervisorReceipt({ schemaVersion: 'supervisor-observation/v999' }));
+  writeSupervisorRecord(invalidDigest, supervisorReceipt({ receiptDigest: 'f'.repeat(64) }));
   writeSupervisorRecord(legacy, { kind: 'LEGACY_SUPERVISOR_STATUS', status: 'PASS' });
 
   const read = (fixture) => readWorkerObservability({ repoRoot: fixture.root, now: () => now });
@@ -209,6 +224,43 @@ test('unsupported or invalid supervisor receipts return UNKNOWN while schema-les
   }
   assert.equal(read(legacy).state, 'LIVE');
   assert.equal(read(legacy).source.supervisorReceipts, 'NOT_CAPTURED');
+});
+
+test('digest-valid malformed supervisor v1 rows invalidate the source while valid rows remain verified', (t) => {
+  const malformed = [
+    supervisorReceipt({ kind: 'BROKEN' }),
+    supervisorReceipt({ observedAt: 'not-a-time' }),
+    supervisorReceipt({ taskId: 'bad task id' }),
+    supervisorReceipt({ cycleNo: 0 }),
+    supervisorReceipt({ taskId: null }),
+    supervisorReceipt({ cycleNo: null }),
+    supervisorReceipt({ status: 'PASS' }),
+    supervisorReceipt({ baseCommit: 'not-a-commit' }),
+    supervisorReceipt({ candidateHeadCommit: 9 }),
+    supervisorReceipt({ extraPrivateField: 'must not be accepted' }),
+  ];
+  const fixtures = malformed.map(() => createRepoWithLedger());
+  const valid = createRepoWithLedger();
+  for (const fixture of [...fixtures, valid]) t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+
+  const writeSupervisorRecord = (fixture, record) => {
+    const sessionRoot = path.join(fixture.privateRoot, 'supervisors', 'session-01');
+    mkdirSync(sessionRoot, { recursive: true });
+    writeFileSync(path.join(sessionRoot, 'events.jsonl'), `${JSON.stringify(record)}\n`);
+  };
+  malformed.forEach((record, index) => writeSupervisorRecord(fixtures[index], record));
+  writeSupervisorRecord(valid, supervisorReceipt({ status: 'UNKNOWN' }));
+
+  for (const fixture of fixtures) {
+    const result = readWorkerObservability({ repoRoot: fixture.root, now: () => now });
+    assert.equal(result.state, 'UNKNOWN');
+    assert.equal(result.reason, 'SUPERVISOR_SOURCE_INVALID');
+    assert.equal(result.source.supervisorReceipts, 'UNKNOWN');
+  }
+  const result = readWorkerObservability({ repoRoot: valid.root, now: () => now });
+  assert.equal(result.state, 'LIVE');
+  assert.equal(result.source.supervisorReceipts, 'VERIFIED');
+  assert.equal(result.events[0].status, 'UNKNOWN');
 });
 
 test('absent or invalid ledger returns an explicit UNKNOWN snapshot', (t) => {

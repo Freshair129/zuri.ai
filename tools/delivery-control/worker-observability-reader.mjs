@@ -55,6 +55,8 @@ const SUPERVISOR_STATUSES = new Set(['INTAKE_BOUND', 'INTAKE_WAITING', 'INTAKE_R
   'WAITING_DRAFT', 'WAITING_REVIEW', 'WAITING_MERGEABILITY', 'WAITING_MERGE_QUEUE', 'WAITING_BASE_UPDATE',
   'WAITING_RETRY_BACKOFF', 'REPLAN_REQUIRED', 'ROOT_REPLAN_PAUSED', 'PULL_REQUEST_CLOSED_UNMERGED',
   'REMOTE_BRANCH_DIVERGED', 'UNKNOWN_EFFECT', 'BLOCKED', 'BUSY', 'RECONCILED_APPLIED', 'UNKNOWN']);
+const SUPERVISOR_RECEIPT_FIELDS = new Set(['schemaVersion', 'taskId', 'cycleNo', 'kind', 'status', 'baseCommit',
+  'candidateHeadCommit', 'observedAt', 'previousDigest', 'receiptDigest']);
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex').toUpperCase();
@@ -272,22 +274,36 @@ export function verifySupervisorObservations(records) {
       return { state: 'INVALID', events: [], ciReceipts: [] };
     }
     if (!started) started = true;
-    if (record.previousDigest !== previousDigest || record.receiptDigest !== hashSupervisorReceipt(record)) {
+    const keys = Object.keys(record);
+    const taskId = record.taskId === null ? null : safeTaskId(record.taskId);
+    const cycleNo = record.cycleNo === null ? null : record.cycleNo;
+    const observedAt = typeof record.observedAt === 'string' ? iso(record.observedAt) : null;
+    const validFields = keys.length === SUPERVISOR_RECEIPT_FIELDS.size
+      && keys.every((key) => SUPERVISOR_RECEIPT_FIELDS.has(key))
+      && (record.taskId === null || taskId !== 'UNKNOWN')
+      && (cycleNo === null || (Number.isSafeInteger(cycleNo) && cycleNo > 0 && taskId !== null))
+      && (taskId !== null || (cycleNo === null && record.baseCommit === null && record.candidateHeadCommit === null))
+      && (cycleNo !== null || (record.baseCommit === null && record.candidateHeadCommit === null))
+      && record.kind === 'SUPERVISOR_STATUS'
+      && SUPERVISOR_STATUSES.has(record.status)
+      && (record.baseCommit === null || safeCommit(record.baseCommit) !== null)
+      && (record.candidateHeadCommit === null || safeCommit(record.candidateHeadCommit) !== null)
+      && observedAt !== null
+      && observedAt === record.observedAt
+      && typeof record.previousDigest === 'string'
+      && typeof record.receiptDigest === 'string'
+      && /^[A-F0-9]{64}$/.test(record.receiptDigest);
+    if (!validFields || record.previousDigest !== previousDigest || record.receiptDigest !== hashSupervisorReceipt(record)) {
       return { state: 'INVALID', events: [], ciReceipts: [] };
     }
     previousDigest = record.receiptDigest;
-    const taskId = record.taskId === null ? null : safeTaskId(record.taskId);
-    const cycleNo = Number.isSafeInteger(record.cycleNo) && record.cycleNo > 0 ? record.cycleNo : null;
-    const observedAt = iso(record.observedAt);
-    if (taskId === 'UNKNOWN' || !observedAt || record.kind !== 'SUPERVISOR_STATUS') continue;
-    const status = SUPERVISOR_STATUSES.has(record.status) ? record.status : 'UNKNOWN';
     accepted.push({
       taskId,
       cycleNo,
       observedAt,
       kind: record.kind,
       role: 'delivery',
-      status,
+      status: record.status,
     });
   }
   return {
