@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { preflightTask } from './preflight.mjs';
 import { createControllerRunner, bindWorktree } from './controller-runner.mjs';
 import { startControllerDashboard } from './controller-dashboard.mjs';
+import { readControllerEventProjection } from './worker-observability-reader.mjs';
 
 export async function admitConfiguredTasks({ controller, repoRoot, config, cache = new Map() }) {
   const observations = [];
@@ -62,7 +63,8 @@ export async function main(argv = process.argv.slice(2)) {
     runner = createControllerRunner({ controller, repoRoot, stateRoot, config });
     if (command === 'serve') {
       dashboard = await startControllerDashboard({ port: config.dashboardPort ?? 4190,
-        readRuns: async () => (await controller.listRuns()).map((run) => ({ ...run, status: run.state, nodes: run.stages })) });
+        readRuns: async () => (await controller.listRuns()).map((run) => ({ ...run, status: run.state, nodes: run.stages })),
+        readEvents: async () => readControllerEventProjection({ repoRoot }) });
       print({ code: 'DASHBOARD_LISTENING', url: `http://127.0.0.1:${dashboard.address().port}`, processId: process.pid });
     }
     while (!stopping) {

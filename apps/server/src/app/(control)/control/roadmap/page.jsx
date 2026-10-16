@@ -23,7 +23,7 @@ import { getProductReadinessSnapshot } from '@/modules/project-manager/applicati
 export const metadata = { title: 'Platform Programme Roadmap — Zuri Control' }
 export const dynamic = 'force-dynamic'
 
-const VIEWS = new Set(['programme', 'domains'])
+const VIEWS = new Set(['programme', 'domains', 'workers'])
 
 export default async function PlatformProgrammeRoadmapPage({ searchParams }) {
   const snapshot = getProductReadinessSnapshot()
