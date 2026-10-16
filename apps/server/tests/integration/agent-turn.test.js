@@ -154,6 +154,55 @@ describe('handleAgentTurn (FR-027)', () => {
     expect(r.action).toBeNull()
   })
 
+  it('returns known action refusal codes gracefully while propagating unknown actions and other AGENT_ACTION errors', async () => {
+    await staffSubject('PSN-trn-refusal', 'Utrn-refusal', 'OWNER')
+    const serverScope = { transportVerified: true, businessId: business.id }
+    const turnInput = (id, actionName = 'test_refusal') => ({
+      tenantId: tenant.id,
+      businessId: business.id,
+      lineUserId: 'Utrn-refusal',
+      threadId: `T-turn-refusal-${id}`,
+      externalMessageId: `MT-TURN-REFUSAL-${id}`,
+      text: 'run action',
+      action: { name: actionName },
+    })
+
+    const unavailable = await handleAgentTurn(turnInput('unavailable', 'refund_order'), { serverScope })
+    expect(unavailable.response).toMatchObject({
+      kind: 'ACTION_DENIED', action: 'refund_order', reason: 'AGENT_ACTION_UNAVAILABLE: refund_order',
+    })
+    expect(unavailable.action).toBeNull()
+
+    const refusals = [
+      'AGENT_ACTION_INPUT_INVALID',
+      'AGENT_ACTION_TARGET_REQUIRED',
+      'AGENT_ACTION_TARGET_INVALID',
+      'AGENT_ACTION_TARGET_NOT_FOUND',
+      'AGENT_ACTION_TARGET_UNSUPPORTED',
+      'AGENT_ACTION_TARGET_SCOPE_MISMATCH',
+      'AGENT_ACTION_BUSINESS_SCOPE_REQUIRED',
+      'AGENT_ACTION_BUSINESS_SCOPE_DENIED',
+    ]
+    for (const [index, reason] of refusals.entries()) {
+      const result = await handleAgentTurn(turnInput(`refusal-${index}`), {
+        serverScope,
+        writeRegistry: { get: () => { throw new Error(reason) } },
+      })
+      expect(result.response).toMatchObject({ kind: 'ACTION_DENIED', action: 'test_refusal', reason })
+      expect(result.action).toBeNull()
+    }
+
+    await expect(handleAgentTurn(turnInput('unknown', 'not_registered'), {
+      serverScope,
+      writeRegistry: { get: () => undefined },
+    })).rejects.toThrow('unknown write action: not_registered')
+
+    await expect(handleAgentTurn(turnInput('unexpected'), {
+      serverScope,
+      writeRegistry: { get: () => { throw new Error('AGENT_ACTION_INTERNAL_FAILURE') } },
+    })).rejects.toThrow('AGENT_ACTION_INTERNAL_FAILURE')
+  })
+
   it('keeps a HIGH action pending until its approval quorum, then requires step-up', async () => {
     await staffSubject('PSN-trn-staff2', 'Utrn-staff2', 'OWNER')
     const cust = await handleAgentTurn({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-4', threadId: 'T-trn-4', text: 'hi' })

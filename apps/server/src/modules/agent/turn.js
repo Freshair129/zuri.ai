@@ -18,7 +18,7 @@ import { resolveAgentAuthorization } from './auth-context'
 // @spec ADR-044, ADR-045 D1/D5-D6, BR-020, SEC-018
 // @tested tests/integration/agent-turn.test.js, tests/integration/agent-msp-thread-memory.test.js
 
-const GRACEFUL = /^(AGENT_ACTION_DENIED|AGENT_APPROVAL_|STEP_UP_REQUIRED)/
+const GRACEFUL = /^(?:AGENT_ACTION_DENIED|AGENT_ACTION_UNAVAILABLE|AGENT_ACTION_INPUT_INVALID|AGENT_ACTION_TARGET_[A-Z0-9_]+|AGENT_ACTION_BUSINESS_SCOPE_[A-Z0-9_]+|AGENT_APPROVAL_|STEP_UP_REQUIRED)/
 
 /**
  * Handle one inbound LINE message as a full agent turn.
