@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.31"
+version: "0.4.32"
 updated: "2026-10-16"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Archived historical static HTML snapshot (v0.4.9; not the current rendered board): `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.31 → 0.4.32 (2026-10-16): Reconcile the previously unrecorded canonical ROADMAP.md Revision 2.157.0b FEAT-043 Gate A documentation integration via PR #681, from exact source head `20a3936fb005b1271f60321a8f0bf28cf4805d62` and merge commit `1b270a663d8e597dfea164594eda01c936a34f5c`; FEAT-043 implementation remains not-started and Gates B–G remain pending. Reconcile TASK-ZAI-119 with canonical Revision 2.158.0b after PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact source head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`. Exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks; PR E2E/Desktop were skipped by workflow policy; manual Governance workflow_dispatch `38890209304` passed all jobs including full E2E on the exact head. The installation-operator Workers monitoring view is backed by the local controller ledger/events. Keep TASK-ZAI-119 `review / HOSTED_CI / MERGED`, P1 done, P2 planned, and its exit criterion unchecked; external PORL source binding and hosted/production exit proof remain open, and FEAT-044 remains building. No production deployment, external PORL, or live Business/LINE behavior is claimed. Task and dependency counts remain unchanged. The linked HTML remains the explicitly archived historical v0.4.9 snapshot, not a current rendered projection.
 
 Version diff 0.4.30 → 0.4.31 (2026-10-16): Reconcile TASK-ZAI-048 with canonical ROADMAP.md Revision 2.156.0b. PR #676 merged the contract-only candidate at merge `dcaaffa71555389bb7a4e80499f31a269fe24588` from exact source head `110d6f3952ddf0143e8b9ae715058179edc78964`; applicable exact-head checks passed, while E2E and Desktop were skipped. The proposal is not authority acceptance or parser implementation. TASK-ZAI-048 remains planned, all implementation criteria remain unchecked, and parser/runtime tests, OCR/provider activity, migrations and deployment remain NOT_RUN. The 24-week task/status counts are unchanged. The linked HTML remains the explicitly archived historical v0.4.9 snapshot, not a current rendered projection.
 
@@ -616,7 +618,7 @@ locates the week.
 | TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
 | TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
-| TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
+| TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`; exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks; PR E2E/Desktop skipped by workflow policy; manual Governance `38890209304` passed all jobs including full E2E on exact head; P1 local operator route, blocker/gate evidence, and responsive Workers view done; P2 external PORL binding and hosted/production proof planned; parent remains review / HOSTED_CI / MERGED; FEAT-044 building; no external PORL, production deployment, or live Business/LINE behavior claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
 | TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | P1 | Claude | review | TASK-ZAI-103 | PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103 |
 | TASK-ZAI-121 | SPR-ZAI-10 | task | LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099 | P1 | Claude | review | TASK-ZAI-120 | PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open |
 | TASK-ZAI-123 | SPR-ZAI-10 | task | Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274; Business-scoped OAuth callback and vault custody, one-time AAL2 operator reveal, raw-body signature verification and receipt-only idempotent webhook | P1 | Codex | in-progress | TASK-ZAI-078 | ../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md |
@@ -6228,7 +6230,7 @@ task_container_id: TC-TASK-ZAI-119
 task_id: TASK-ZAI-119
 parent_phase_id: PHASE-ZAI-01
 parent_sprint_id: SPR-ZAI-02
-title: Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations
+title: Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates, Workers monitoring, and provenance-bound PORL observations
 requirement_type: FEAT
 complexity: C-3
 access_scope: H3
@@ -6248,8 +6250,8 @@ subtasks:
     title: PORL observation contract and read-only DAG projection
     status: done
   - id: P1
-    title: Installation-operator route, blocker/gate evidence and mobile board
-    status: review
+    title: Installation-operator route, blocker/gate evidence and responsive board including Workers view
+    status: done
   - id: P2
     title: External PORL source binding and hosted/production proof
     status: planned
@@ -6263,7 +6265,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the external PORL owner and freshness contract, when the source is bound and hosted checks run, then provenance, mobile, authorization and read-only boundaries are verified without claiming deployment here
       checked: false
-changelog: Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Local read-only/operator-only code and focused unit evidence are present. Sanitized targeted Playwright receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; raw reports were removed. The PORL source remains unavailable and no deployment is claimed.
+changelog: Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Local read-only/operator-only code and focused unit evidence are present. Sanitized targeted Playwright receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; raw reports were removed. PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`; exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks, while PR E2E/Desktop were skipped by workflow policy. Manual Governance workflow_dispatch `38890209304` passed all jobs including full E2E on the exact head. The delivered installation-operator Workers monitoring view is backed by local controller ledger/events, so P1 is done. P2 remains planned for external PORL source binding and hosted/production proof; parent remains review and the exit criterion remains unchecked. FEAT-044 remains building. No external PORL, production deployment, or live Business/LINE behavior is claimed.
 created_at: 2026-09-19T00:00:00Z,RWANG,pending
 token_telemetry:
   model_name: gpt-5
@@ -7683,6 +7685,7 @@ second run over the same logs writes the same block.
 
 | Version | Date | Change |
 |---|---|---|
+| 0.4.32 | 2026-10-16 | Reconcile canonical ROADMAP.md Revisions 2.157.0b and 2.158.0b: record FEAT-043 Gate A as docs-only with implementation not-started and Gates B–G pending; record TASK-ZAI-119 PR #686 merge (2026-10-16) and exact-head Governance/Edge plus manual full E2E evidence. Mark only Task119 P1 done; keep parent review, P2 planned and exit criterion unchecked. External PORL and hosted/production proof remain open; task and dependency counts unchanged. |
 | 0.1.0 | 2026-08-20 | Initial authoring against baseline `6ad6ae9`. Proposal 24-week structure mapped onto the verified build: six phases, twelve sprints, thirty backlog items with complete Task Containers, eight acceptance gates restated from the proposal acceptance criteria. |
 | 0.2.0 | 2026-08-20 | Added section 5, Timeline and Provenance: repository creation date, day-by-day history, counting decisions, the anchored 24-week calendar, and the history-against-plan overlay. Phases and Sprints tables gained a Dates column. |
 | 0.3.0 | 2026-08-23 | **Re-baselined to `7d8c9d0`.** The 0.1.0 and 0.2.0 files were destroyed by a concurrent `git reset --hard` in this working tree while untracked, and the repository moved 105 commits in the interval. Corrections in this revision: churn is now measured with `--no-merges` and `awk` path filtering instead of a git pathspec, because a pathspec enables history simplification and inflated the earlier deletion figures; history extended from 10 to 13 days; features 91 to 93 declared and 80 to 82 live; test files 233 to 263; TASK-ZAI-005 closed because FR-071 went live on D11; TASK-ZAI-002 widened from four undeclared features to five; ADR-042 and ADR-043 added as governing sources for the Second Brain tasks; section 2.2 added to state that this plan is measured against a moving repository. |
