@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { lstatSync, readFileSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 import { openControllerStore, repositoryPaths } from './controller-store.mjs';
 import { validatePreparedReceiptPath } from './base-advanced-resume.mjs';
 
@@ -15,6 +16,7 @@ const FAILURE_CLASSES = new Set([
   'IDENTICAL_SEMANTIC_NO_PROGRESS_AT_CAP', 'KNOWN_TRANSIENT_TOOL_ERROR', 'STALE_BASELINE',
 ]);
 const EFFECT_STATES = new Set(['NONE', 'APPLIED', 'PARTIAL', 'UNKNOWN']);
+const ROOT_ADMISSION_RUN_STATES = new Set(['PAUSED_BUDGET_EXHAUSTED', 'PAUSED_DEADLINE', 'BLOCKED_BY_ROOT', 'YIELD_REASSESS']);
 
 function isRecord(value) { return value !== null && typeof value === 'object' && !Array.isArray(value); }
 function nonempty(value) { return typeof value === 'string' && value.trim().length > 0; }
@@ -377,7 +379,7 @@ function priorRoleSessions(db, taskId, cycleNo, currentNodeId) {
   return history.map((item) => rowJson(item.payload_json)).filter((payload) => payload?.nodeId !== currentNodeId && nonempty(payload?.sessionId));
 }
 
-function readAndVerifyEvents(db) {
+function readAndVerifyEvents(db, { includeEvents = false } = {}) {
   const events = db.prepare('SELECT sequence,task_id,cycle_no,event_type,occurred_at,payload_json,previous_hash,event_hash FROM delivery_events ORDER BY sequence').all();
   let previous = 'GENESIS';
   for (const event of events) {
@@ -387,7 +389,239 @@ function readAndVerifyEvents(db) {
   }
   const head = db.prepare("SELECT value FROM controller_meta WHERE key='eventChainHead'").get()?.value;
   if (head !== previous) throw new Error('Controller event chain head does not match its event history.');
-  return { count: events.length, head: previous };
+  return includeEvents ? { count: events.length, head: previous, events } : { count: events.length, head: previous };
+}
+
+function exactIsoMilliseconds(value) {
+  if (typeof value !== 'string') return null;
+  const milliseconds = Date.parse(value);
+  return Number.isFinite(milliseconds) && new Date(milliseconds).toISOString() === value ? milliseconds : null;
+}
+
+function parseSafeIntegerText(value, { positive = false } = {}) {
+  if (typeof value !== 'string' || !/^(?:0|[1-9]\d*)$/.test(value)) return null;
+  let parsed;
+  try { parsed = BigInt(value); } catch { return null; }
+  if (parsed > BigInt(Number.MAX_SAFE_INTEGER) || (positive && parsed < 1n)) return null;
+  return Number(parsed);
+}
+
+const MAX_WORKER_START_EVENT_SKEW_MS = 60_000;
+
+function inspectCampaignDispatchHistoryInTransaction(db, taskIds, verifiedChain = null) {
+  if (!Array.isArray(taskIds) || taskIds.some((taskId) => !nonempty(taskId))
+      || new Set(taskIds).size !== taskIds.length) {
+    throw new TypeError('Campaign dispatch-history inspection requires unique task IDs.');
+  }
+  const normalizedTaskIds = [...taskIds].sort();
+  const selectedTaskIds = new Set(normalizedTaskIds);
+  const chain = verifiedChain ?? readAndVerifyEvents(db, { includeEvents: true });
+  const workerIntents = [];
+  for (const event of chain.events) {
+    if (event.event_type !== 'BACKEND_DISPATCH_INTENT' || !selectedTaskIds.has(event.task_id)) continue;
+    let payload;
+    try { payload = rowJson(event.payload_json); }
+    catch { throw new Error('Campaign worker dispatch event payload is malformed.'); }
+    if (!isRecord(payload) || payload.role !== 'worker') continue;
+    const cycleNo = Number(event.cycle_no);
+    const occurredAtMs = exactIsoMilliseconds(event.occurred_at);
+    if (!Number.isSafeInteger(cycleNo) || cycleNo < 1 || occurredAtMs === null) {
+      throw new Error('Campaign worker dispatch event identity or timestamp is invalid.');
+    }
+    workerIntents.push({ taskId: event.task_id, cycleNo, occurredAt: event.occurred_at,
+      occurredAtMs, sequence: event.sequence });
+  }
+  workerIntents.sort((left, right) => left.occurredAtMs - right.occurredAtMs
+    || left.sequence - right.sequence || left.taskId.localeCompare(right.taskId) || left.cycleNo - right.cycleNo);
+  const intentsByCycle = new Map();
+  for (const intent of workerIntents) {
+    const key = `${intent.taskId}\n${intent.cycleNo}`;
+    const intents = intentsByCycle.get(key) ?? [];
+    intents.push(intent);
+    intentsByCycle.set(key, intents);
+  }
+  const runs = [];
+  const earliestByCycle = new Map();
+  for (const taskId of normalizedTaskIds) {
+    const run = db.prepare('SELECT task_id,CAST(current_cycle AS TEXT) AS current_cycle_text FROM delivery_runs WHERE task_id=?').get(taskId);
+    if (!run) throw new Error(`Campaign dispatch history run is missing for ${taskId}.`);
+    const currentCycle = parseSafeIntegerText(run.current_cycle_text, { positive: true });
+    if (currentCycle === null) throw new Error(`Campaign dispatch history current cycle is invalid for ${taskId}.`);
+    const cycles = db.prepare(`SELECT CAST(cycle_no AS TEXT) AS cycle_no_text,state,started_at,
+      CAST(submissions AS TEXT) AS submissions_text FROM delivery_cycles WHERE task_id=? ORDER BY cycle_no`).all(taskId);
+    if (cycles.length !== currentCycle) throw new Error(`Campaign dispatch history is incomplete for ${taskId}.`);
+    const cycleSummaries = [];
+    for (let index = 0; index < cycles.length; index++) {
+      const cycle = cycles[index];
+      const cycleNo = parseSafeIntegerText(cycle.cycle_no_text, { positive: true });
+      const submissions = parseSafeIntegerText(cycle.submissions_text);
+      if (cycleNo !== index + 1) throw new Error(`Campaign dispatch history is not contiguous for ${taskId}.`);
+      if (submissions === null) throw new Error('Execution cycle dispatch history has an invalid submission count.');
+      const hasStartedAt = cycle.started_at !== null && cycle.started_at !== undefined;
+      const startedAtMs = hasStartedAt ? exactIsoMilliseconds(cycle.started_at) : null;
+      if (hasStartedAt && startedAtMs === null) throw new Error('Execution cycle dispatch history has an invalid start timestamp.');
+      const key = `${taskId}\n${cycleNo}`;
+      const intents = intentsByCycle.get(key) ?? [];
+      if (intents.length !== submissions) {
+        throw new Error('Execution cycle dispatch history does not match immutable worker dispatch events.');
+      }
+      if (hasStartedAt !== (submissions > 0)) {
+        throw new Error('Execution cycle dispatch history is inconsistent: startedAt and submissions disagree.');
+      }
+      const firstIntent = intents[0] ?? null;
+      if (firstIntent) {
+        const skew = firstIntent.occurredAtMs - startedAtMs;
+        if (skew < 0 || skew > MAX_WORKER_START_EVENT_SKEW_MS) {
+          throw new Error('Execution cycle start timestamp does not match immutable worker dispatch events.');
+        }
+        earliestByCycle.set(key, firstIntent.occurredAt);
+      }
+      cycleSummaries.push({ cycleNo, state: cycle.state, submissions, startedAt: cycle.started_at ?? null,
+        workerIntentCount: intents.length, firstWorkerIntentAt: firstIntent?.occurredAt ?? null });
+    }
+    runs.push({ taskId, currentCycle, cycles: cycleSummaries });
+  }
+  for (const intent of workerIntents) {
+    if (!earliestByCycle.has(`${intent.taskId}\n${intent.cycleNo}`)) {
+      throw new Error('Campaign worker dispatch event references an absent cycle.');
+    }
+  }
+  const earliestWorkerIntentAt = workerIntents[0]?.occurredAt ?? null;
+  return {
+    schemaVersion: 'campaign-dispatch-history/v1',
+    taskIds: normalizedTaskIds,
+    runs,
+    workerIntents: workerIntents.map(({ taskId, cycleNo, occurredAt, sequence }) => ({ taskId, cycleNo, occurredAt, sequence })),
+    earliestWorkerIntentAt,
+    eventCount: chain.count,
+    eventHead: chain.head,
+  };
+}
+
+function parseCampaignDeadlinePin(event) {
+  let payload;
+  try { payload = rowJson(event.payload_json); }
+  catch { throw new Error('Campaign deadline pin payload is malformed.'); }
+  if (event.task_id !== null || event.cycle_no !== null || !isRecord(payload)
+      || payload.schemaVersion !== 'campaign-deadline-bound-pin/v1'
+      || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(payload.campaignId ?? '')
+      || !Array.isArray(payload.taskIds) || payload.taskIds.some((taskId) => !nonempty(taskId))
+      || new Set(payload.taskIds).size !== payload.taskIds.length
+      || !isDeepStrictEqual(payload.taskIds, [...payload.taskIds].sort())
+      || !Number.isSafeInteger(payload.campaignDurationMinutes)
+      || payload.campaignDurationMinutes < 1 || payload.campaignDurationMinutes > 120
+      || exactIsoMilliseconds(payload.sourceDeadlineAt) === null
+      || exactIsoMilliseconds(payload.effectiveDeadlineAt) === null
+      || Date.parse(payload.effectiveDeadlineAt) > Date.parse(payload.sourceDeadlineAt)) {
+    throw new Error('Campaign deadline pin history is invalid.');
+  }
+  return payload;
+}
+
+function reconcileCampaignDeadlineInTransaction(db, clock, { campaignId, taskIds, campaignDurationMinutes,
+  checkpointDeadlineAt = null } = {}) {
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(campaignId ?? '')
+      || !Array.isArray(taskIds) || taskIds.some((taskId) => !nonempty(taskId))
+      || new Set(taskIds).size !== taskIds.length
+      || !Number.isSafeInteger(campaignDurationMinutes) || campaignDurationMinutes < 1 || campaignDurationMinutes > 120) {
+    throw new TypeError('Campaign deadline reconciliation requires a stable campaignId, unique task IDs, and pinned duration.');
+  }
+  const chain = readAndVerifyEvents(db, { includeEvents: true });
+  const allPins = chain.events.filter((event) => event.event_type === 'CAMPAIGN_DEADLINE_BOUND_PINNED')
+    .map((event) => ({ event, payload: parseCampaignDeadlinePin(event) }));
+  const campaignPins = allPins.filter((item) => item.payload.campaignId === campaignId);
+  const cumulativeTaskIds = [...new Set([
+    ...taskIds,
+    ...campaignPins.flatMap((item) => item.payload.taskIds),
+  ])].sort();
+  const conflictingPin = allPins.find(({ payload }) => payload.campaignId !== campaignId
+    && payload.taskIds.some((taskId) => cumulativeTaskIds.includes(taskId)));
+  if (conflictingPin) {
+    const taskId = conflictingPin.payload.taskIds.find((id) => cumulativeTaskIds.includes(id));
+    throw new Error(`Campaign deadline pin taskId ${taskId} is already pinned under campaignId ${conflictingPin.payload.campaignId}; overlapping campaigns are not allowed.`);
+  }
+  const history = inspectCampaignDispatchHistoryInTransaction(db, cumulativeTaskIds, chain);
+  let previous = null;
+  for (const item of campaignPins) {
+    const { event, payload } = item;
+    if (payload.campaignDurationMinutes !== campaignDurationMinutes) {
+      throw new Error('Pinned campaign duration changed; reassessment is required.');
+    }
+    const precedingIntents = history.workerIntents.filter((intent) => payload.taskIds.includes(intent.taskId)
+      && intent.sequence < event.sequence);
+    const earliestPreceding = precedingIntents.reduce((earliest, intent) => earliest === null
+      || Date.parse(intent.occurredAt) < Date.parse(earliest) ? intent.occurredAt : earliest, null);
+    if (earliestPreceding === null) throw new Error('Campaign deadline pin has no verified worker dispatch source.');
+    const sourceDeadlineAt = new Date(Date.parse(earliestPreceding)
+      + campaignDurationMinutes * 60_000).toISOString();
+    if (payload.sourceDeadlineAt !== sourceDeadlineAt) {
+      throw new Error('Campaign deadline pin source does not match its immutable worker dispatch history.');
+    }
+    if (previous) {
+      if (previous.payload.taskIds.some((taskId) => !payload.taskIds.includes(taskId))
+          || Date.parse(payload.sourceDeadlineAt) > Date.parse(previous.payload.sourceDeadlineAt)
+          || payload.effectiveDeadlineAt !== new Date(Math.min(Date.parse(previous.payload.effectiveDeadlineAt),
+            Date.parse(payload.sourceDeadlineAt))).toISOString()) {
+        throw new Error('Campaign deadline pin history attempted to extend or discard an earlier bound.');
+      }
+      if (stableJson(previous.payload) === stableJson(payload)) {
+        throw new Error('Campaign deadline pin history contains a redundant no-op event.');
+      }
+    }
+    previous = item;
+  }
+  const sourceDeadlineAt = history.earliestWorkerIntentAt === null ? null
+    : new Date(Date.parse(history.earliestWorkerIntentAt) + campaignDurationMinutes * 60_000).toISOString();
+  if (sourceDeadlineAt === null) {
+    if (previous || checkpointDeadlineAt !== null && checkpointDeadlineAt !== undefined) {
+      throw new Error('A campaign deadline or pin exists without a verified worker dispatch source.');
+    }
+    return { schemaVersion: 'campaign-deadline-reconciliation/v1', campaignId,
+      taskIds: cumulativeTaskIds, campaignDurationMinutes, sourceDeadlineAt: null, effectiveDeadlineAt: null,
+      eventCount: chain.count, eventHead: chain.head, changed: false };
+  }
+  let effectiveDeadlineAt;
+  if (previous) {
+    if (Date.parse(sourceDeadlineAt) > Date.parse(previous.payload.sourceDeadlineAt)) {
+      throw new Error('Campaign deadline source moved later than its immutable pin.');
+    }
+    effectiveDeadlineAt = new Date(Math.min(Date.parse(previous.payload.effectiveDeadlineAt),
+      Date.parse(sourceDeadlineAt))).toISOString();
+  } else {
+    const checkpointMs = exactIsoMilliseconds(checkpointDeadlineAt);
+    effectiveDeadlineAt = checkpointMs !== null && checkpointMs <= Date.parse(sourceDeadlineAt)
+      ? new Date(checkpointMs).toISOString() : sourceDeadlineAt;
+  }
+  const payload = { schemaVersion: 'campaign-deadline-bound-pin/v1', campaignId,
+    taskIds: cumulativeTaskIds, campaignDurationMinutes, sourceDeadlineAt, effectiveDeadlineAt };
+  const changed = !previous || stableJson(previous.payload) !== stableJson(payload);
+  let eventHead = chain.head;
+  let eventCount = chain.count;
+  if (changed) {
+    eventInTransaction(db, clock, null, null, 'CAMPAIGN_DEADLINE_BOUND_PINNED', payload);
+    eventHead = db.prepare("SELECT value FROM controller_meta WHERE key='eventChainHead'").get()?.value ?? eventHead;
+    eventCount++;
+  }
+  return { schemaVersion: 'campaign-deadline-reconciliation/v1', campaignId, taskIds: cumulativeTaskIds,
+    campaignDurationMinutes, sourceDeadlineAt, effectiveDeadlineAt, eventCount, eventHead, changed };
+}
+
+function installCycleAdmissionLockEpoch(db) {
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    db.exec("INSERT OR IGNORE INTO controller_meta(key,value) VALUES ('resourceLockEpoch','0')");
+    for (const [table, prefix] of [['delivery_write_locks', 'write'], ['delivery_domain_locks', 'domain']]) {
+      for (const [operation, timing] of [['INSERT', 'insert'], ['UPDATE', 'update'], ['DELETE', 'delete']]) {
+        db.exec(`CREATE TRIGGER IF NOT EXISTS ${prefix}_locks_epoch_${timing} AFTER ${operation} ON ${table} BEGIN
+          UPDATE controller_meta SET value=CAST(value AS INTEGER)+1 WHERE key='resourceLockEpoch';
+        END`);
+      }
+    }
+    db.exec('COMMIT');
+  } catch (error) {
+    try { db.exec('ROLLBACK'); } catch {}
+    throw error;
+  }
 }
 
 function queryRuns(db, taskId = null) {
@@ -456,6 +690,7 @@ function runShape(db, row, { includeTaskRecord = false } = {}) {
       state: cycle.state,
       admittedAt: cycle.admitted_at,
       admissionReason: cycle.admission_reason,
+      admission: rowJson(cycle.admission_evidence_json),
       startedAt: cycle.started_at,
       pausedAt: cycle.paused_at,
       submissions: cycle.submissions,
@@ -818,11 +1053,29 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
   const store = openControllerStore({ repoRoot, databasePath });
   const { db } = store;
   const clock = now;
+  installCycleAdmissionLockEpoch(db);
   readAndVerifyEvents(db);
 
   function getRun(taskId) {
     const row = db.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
     return row ? runShape(db, row, { includeTaskRecord: true }) : null;
+  }
+
+  function inspectCampaignDispatchHistory({ taskIds } = {}) {
+    if (!Array.isArray(taskIds)) throw new TypeError('Campaign dispatch-history inspection requires taskIds.');
+    db.exec('BEGIN');
+    try {
+      const result = inspectCampaignDispatchHistoryInTransaction(db, taskIds);
+      db.exec('COMMIT');
+      return result;
+    } catch (error) {
+      try { db.exec('ROLLBACK'); } catch {}
+      throw error;
+    }
+  }
+
+  function reconcileCampaignDeadline(input = {}) {
+    return store.transaction((tx) => reconcileCampaignDeadlineInTransaction(tx, clock, input));
   }
 
   function inspectBaseAdvancedPause(taskId) {
@@ -848,6 +1101,43 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
 
   function listRuns() {
     return queryRuns(db).map((row) => runShape(db, row));
+  }
+
+  function inspectCycleAdmissionConflicts({ taskId, writeScope } = {}) {
+    if (!nonempty(taskId) || !Array.isArray(writeScope) || !writeScope.length) {
+      throw new TypeError('Cycle admission conflict inspection requires a taskId and non-empty writeScope.');
+    }
+    const scopes = [...new Set(writeScope.map(normalizeScopePath))];
+    const lockEpoch = db.prepare("SELECT value FROM controller_meta WHERE key='resourceLockEpoch'").get()?.value;
+    if (!/^\d+$/.test(lockEpoch ?? '')) throw new Error('Controller resource-lock epoch is unavailable or malformed.');
+    const run = db.prepare('SELECT task_id,worktree_root,trusted_mandate_json FROM delivery_runs WHERE task_id=?').get(taskId);
+    if (!run) return { taskId, runFound: false, lockEpoch, worktree: [], writeScope: [], domain: [] };
+
+    const compare = (left, right) => left < right ? -1 : left > right ? 1 : 0;
+    const worktree = db.prepare(`SELECT DISTINCT r.task_id,r.worktree_root FROM delivery_write_locks w
+      JOIN delivery_runs r USING(task_id) WHERE w.task_id<>? ORDER BY r.task_id,r.worktree_root`).all(taskId)
+      .filter((row) => pathKey(row.worktree_root) === pathKey(run.worktree_root))
+      .map((row) => ({ taskId: row.task_id, worktreeRoot: row.worktree_root }))
+      .sort((left, right) => compare(left.taskId, right.taskId) || compare(left.worktreeRoot, right.worktreeRoot));
+    const writeScopeConflicts = [];
+    const locks = db.prepare(`SELECT task_id,scope_path FROM delivery_write_locks WHERE task_id<>?
+      ORDER BY task_id,scope_path`).all(taskId);
+    for (const requested of scopes) {
+      for (const lock of locks) {
+        if (scopesOverlap(requested, lock.scope_path)) {
+          writeScopeConflicts.push({ taskId: lock.task_id, scope: lock.scope_path, requested });
+        }
+      }
+    }
+    writeScopeConflicts.sort((left, right) => compare(left.requested, right.requested)
+      || compare(left.scope, right.scope) || compare(left.taskId, right.taskId));
+    const domainOrFeatureKey = storedDomainOrFeatureKey(run);
+    const domainOwner = domainOrFeatureKey
+      ? db.prepare('SELECT task_id FROM delivery_domain_locks WHERE domain_or_feature_key=? AND task_id<>?')
+        .get(domainOrFeatureKey, taskId)
+      : null;
+    const domain = domainOwner ? [{ taskId: domainOwner.task_id, domainOrFeatureKey }] : [];
+    return { taskId, runFound: true, lockEpoch, worktree, writeScope: writeScopeConflicts, domain };
   }
 
   function registerTask({ taskRecord, preflightResult, worktreeRoot = store.repoRoot, trustedMandateBinding } = {}) {
@@ -1128,6 +1418,60 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       tx.prepare('UPDATE delivery_runs SET state=?,updated_at=? WHERE task_id=?').run(taskState, at, run.task_id);
       eventInTransaction(tx, clock, run.task_id, run.current_cycle, 'BACKEND_DISPATCH_INTENT', { nodeId: node.node_id, operationId, inputDigest, role: node.role });
       return { operationId, inputDigest, attempt: node.attempt + 1 };
+    });
+  }
+
+  function cancelDispatchBeforeLaunch({ lease, operationId, reason } = {}) {
+    if (!nonempty(operationId) || reason !== 'CAMPAIGN_DEADLINE_EXPIRED') {
+      throw new TypeError('Pre-launch cancellation requires a dispatch operation and an expired campaign deadline.');
+    }
+    return store.transaction((tx) => {
+      ensureActiveDomainLocks(tx);
+      const at = nowIso(clock);
+      if (!isRecord(lease) || !nonempty(lease.taskId) || !nonempty(lease.nodeId) || !nonempty(lease.ownerId)
+          || !Number.isSafeInteger(lease.cycleNo) || !Number.isSafeInteger(lease.epoch)) {
+        throw new TypeError('A complete fencing lease is required.');
+      }
+      const node = tx.prepare('SELECT * FROM delivery_nodes WHERE task_id=? AND cycle_no=? AND node_id=?')
+        .get(lease.taskId, lease.cycleNo, lease.nodeId);
+      if (!node || node.state !== 'RUNNING' || node.lease_owner !== lease.ownerId || node.lease_epoch !== lease.epoch) {
+        throw new Error('Lease fencing rejected a stale owner or epoch.');
+      }
+      // A deadline cancellation remains safe after expiry only while this exact
+      // owner and fencing epoch still hold the RUNNING row. Recovery or reclaim
+      // changes that row and therefore rejects this path.
+      if (exactIsoMilliseconds(node.lease_expires_at) === null) {
+        throw new Error('Pre-launch cancellation requires an exact lease expiry timestamp.');
+      }
+      const { run, cycle } = cycleAndNode(tx, lease);
+      if (node.dispatch_operation_id !== operationId) throw new Error('Pre-launch cancellation does not match the active dispatch intent.');
+      if (node.session_id !== null || node.backend_ref !== null) throw new Error('A backend handle exists for this dispatch operation.');
+      if (node.effect_state !== 'NONE') throw new Error('Pre-launch cancellation cannot replace existing effect evidence.');
+      if (run.current_cycle !== lease.cycleNo || cycle.state !== 'ACTIVE') {
+        throw new Error('Pre-launch cancellation requires the active execution cycle.');
+      }
+      const chain = readAndVerifyEvents(tx, { includeEvents: true });
+      const latestIntent = chain.events.filter((event) => event.task_id === lease.taskId
+        && event.cycle_no === lease.cycleNo && event.event_type === 'BACKEND_DISPATCH_INTENT')
+        .map((event) => ({ event, payload: rowJson(event.payload_json) }))
+        .filter((item) => item.payload?.nodeId === lease.nodeId).at(-1);
+      if (latestIntent?.payload?.operationId !== operationId) {
+        throw new Error('Pre-launch cancellation does not match the latest immutable dispatch intent.');
+      }
+      const evidence = { operationId, reason, backendLaunched: false, effectState: 'NONE' };
+      tx.prepare(`UPDATE delivery_nodes SET state='BLOCKED',failure_class='CAMPAIGN_DEADLINE_EXPIRED',effect_state='NONE',evidence_json=?,
+        lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE task_id=? AND cycle_no=? AND node_id=?`)
+        .run(json(evidence), at, lease.taskId, lease.cycleNo, lease.nodeId);
+      tx.prepare("UPDATE delivery_cycles SET state='PAUSED',paused_at=?,updated_at=? WHERE task_id=? AND cycle_no=?")
+        .run(at, at, lease.taskId, lease.cycleNo);
+      tx.prepare("UPDATE delivery_runs SET state='PAUSED_DEADLINE',updated_at=? WHERE task_id=?")
+        .run(at, lease.taskId);
+      eventInTransaction(tx, clock, lease.taskId, lease.cycleNo, 'BACKEND_DISPATCH_CANCELLED_BEFORE_LAUNCH', {
+        nodeId: lease.nodeId, operationId, reason, backendLaunched: false,
+        attempt: node.attempt, submissions: cycle.submissions,
+      });
+      return { cancelled: true, backendLaunched: false, taskId: lease.taskId, cycleNo: lease.cycleNo,
+        nodeId: lease.nodeId, operationId, state: 'PAUSED_DEADLINE' };
     });
   }
 
@@ -1468,48 +1812,184 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     });
   }
 
-  function admitCycle({ taskId, taskRecord, preflightResult, trustedMandateBinding, admission } = {}) {
+  function admitCycle({ taskId, taskRecord, preflightResult, trustedMandateBinding, admission,
+    campaignDeadlineAt = null, campaignDeadlineBoundAt = null, campaignId, campaignTaskIds, campaignDurationMinutes,
+    expectedResourceLockEpoch = null } = {}) {
+    const campaignDeadlineMs = typeof campaignDeadlineAt === 'string' ? Date.parse(campaignDeadlineAt) : null;
+    if (campaignDeadlineAt !== null && (typeof campaignDeadlineAt !== 'string' || !Number.isFinite(campaignDeadlineMs)
+        || new Date(campaignDeadlineMs).toISOString() !== campaignDeadlineAt)) {
+      throw new TypeError('Campaign source deadline evidence must be null or an exact ISO timestamp.');
+    }
+    const campaignDeadlineBoundMs = typeof campaignDeadlineBoundAt === 'string' ? Date.parse(campaignDeadlineBoundAt) : null;
+    if (campaignDeadlineBoundAt !== null && (typeof campaignDeadlineBoundAt !== 'string'
+        || !Number.isFinite(campaignDeadlineBoundMs) || new Date(campaignDeadlineBoundMs).toISOString() !== campaignDeadlineBoundAt)) {
+      throw new TypeError('Effective campaign deadline bound must be null or an exact ISO timestamp.');
+    }
+    if (expectedResourceLockEpoch !== null && !/^\d+$/.test(expectedResourceLockEpoch)) {
+      throw new TypeError('Expected resource-lock epoch must be a non-negative integer string or null.');
+    }
+    if (!Array.isArray(campaignTaskIds) || campaignTaskIds.some((id) => !nonempty(id))
+        || new Set(campaignTaskIds).size !== campaignTaskIds.length || !campaignTaskIds.includes(taskId)
+        || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(campaignId ?? '')
+        || !Number.isSafeInteger(campaignDurationMinutes) || campaignDurationMinutes < 1 || campaignDurationMinutes > 120) {
+      throw new TypeError('Successor-cycle admission requires campaign identity, the full unique task set, and its pinned duration.');
+    }
     if (!nonempty(taskId) || !isRecord(admission) || !nonempty(admission.reason) || !nonempty(admission.evidenceRef)
-        || admission.materialChange !== true || !['MATERIAL_NEW_EVIDENCE', 'CORRECTED_IMPLEMENTATION_PLAN'].includes(admission.basis)) {
-      throw new TypeError('A new cycle requires explicit root admission with material evidence or a corrected implementation plan.');
+        || admission.materialChange !== true || !['MATERIAL_NEW_EVIDENCE', 'CORRECTED_IMPLEMENTATION_PLAN'].includes(admission.basis)
+        || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(admission.admissionId ?? '')
+        || !/^[a-f0-9]{64}$/.test(admission.admissionRecordDigest ?? '')
+        || !/^[a-f0-9]{64}$/.test(admission.taskRecordDigest ?? '')
+        || !Number.isSafeInteger(admission.priorCycleNo) || admission.priorCycleNo < 1
+        || !['PAUSED', 'EXHAUSTED'].includes(admission.priorCycleState)) {
+      throw new TypeError('A new cycle requires a validated immutable root admission record and material evidence or a corrected implementation plan.');
     }
     requireTaskRecord(taskRecord);
     if (taskRecord.taskId !== taskId) throw new TypeError('New cycle must preserve the stable taskId.');
     const binding = checkMandateBinding(trustedMandateBinding, taskRecord, store.repoRoot);
     if (!isRecord(preflightResult) || preflightResult.status !== 'READY' || preflightResult.taskId !== taskId
-        || preflightResult.authorityGrant !== false || preflightResult.dispatchAllowed !== false || preflightResult.checksExecuted !== false) {
+        || preflightResult.schemaVersion !== 'task-preflight-result/v1'
+        || normalizeText(preflightResult.objective) !== normalizeText(taskRecord.objective)
+        || preflightResult.authorityGrant !== false || preflightResult.dispatchAllowed !== false
+        || preflightResult.checksExecuted !== false || preflightResult.stateWritePerformed !== false
+        || preflightResult.mandateReferenceIsProvenanceOnly !== true) {
       throw new TypeError('A new cycle requires a fresh matching READY preflight.');
     }
+    const admissionEvidence = {
+      admissionId: admission.admissionId,
+      admissionRecordDigest: admission.admissionRecordDigest,
+      taskRecordDigest: admission.taskRecordDigest,
+      priorCycleNo: admission.priorCycleNo,
+      priorCycleState: admission.priorCycleState,
+      reason: admission.reason,
+      evidenceRef: admission.evidenceRef,
+      materialChange: admission.materialChange,
+      basis: admission.basis,
+    };
     return store.transaction((tx) => {
-      ensureActiveDomainLocks(tx);
+      if (expectedResourceLockEpoch !== null) {
+        const currentLockEpoch = tx.prepare("SELECT value FROM controller_meta WHERE key='resourceLockEpoch'").get()?.value;
+        if (currentLockEpoch !== expectedResourceLockEpoch) {
+          throw new Error('Resource-lock epoch changed after successor-cycle preflight.');
+        }
+      }
+      const deadlinePin = reconcileCampaignDeadlineInTransaction(tx, clock, { campaignId, taskIds: campaignTaskIds,
+        campaignDurationMinutes, checkpointDeadlineAt: campaignDeadlineBoundAt });
+      if (campaignDeadlineAt !== deadlinePin.sourceDeadlineAt) {
+        if (deadlinePin.sourceDeadlineAt !== null && campaignDeadlineAt === null) {
+          throw new Error('Campaign deadline evidence is required after verified worker dispatch has anchored the campaign.');
+        }
+        throw new Error(deadlinePin.sourceDeadlineAt === null
+          ? 'Campaign deadline evidence was supplied without a verified worker dispatch anchor.'
+          : 'Campaign deadline evidence does not match immutable worker dispatch history and pinned campaign duration.');
+      }
+      if (campaignDeadlineBoundAt !== deadlinePin.effectiveDeadlineAt) {
+        throw new Error('Effective campaign deadline bound does not match the immutable campaign pin.');
+      }
+      const effectiveCampaignDeadlineMs = deadlinePin.effectiveDeadlineAt === null ? null
+        : Date.parse(deadlinePin.effectiveDeadlineAt);
       const run = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
-      const previous = tx.prepare('SELECT * FROM delivery_cycles WHERE task_id=? AND cycle_no=?').get(taskId, run?.current_cycle ?? 0);
-      if (!run || !previous || !['PAUSED', 'EXHAUSTED'].includes(previous.state)) throw new Error('Only a paused exhausted cycle can be continued.');
+      if (!run || run.current_cycle < 1) throw new Error('Cannot admit a successor cycle without a registered execution history.');
+      const cycles = tx.prepare(`SELECT cycle_no,state,started_at,CAST(submissions AS TEXT) AS submissions_text
+        FROM delivery_cycles WHERE task_id=? ORDER BY cycle_no`).all(taskId);
+      if (cycles.length !== run.current_cycle || cycles.some((cycle, index) => cycle.cycle_no !== index + 1)) {
+        throw new Error('Execution cycle history is incomplete; a successor cycle cannot be admitted.');
+      }
+      for (const cycle of cycles) {
+        const submissionText = cycle.submissions_text;
+        if (typeof submissionText !== 'string' || !/^-?(?:0|[1-9]\d*)$/.test(submissionText)) {
+          throw new Error('Execution cycle dispatch history has an invalid submission count.');
+        }
+        let submissions;
+        try { submissions = BigInt(submissionText); }
+        catch { throw new Error('Execution cycle dispatch history has an invalid submission count.'); }
+        if (submissions < 0n || submissions > BigInt(Number.MAX_SAFE_INTEGER)) {
+          throw new Error('Execution cycle dispatch history has an invalid submission count.');
+        }
+        const hasStartedAt = cycle.started_at !== null && cycle.started_at !== undefined;
+        if (hasStartedAt) {
+          const startedAtMs = typeof cycle.started_at === 'string' ? Date.parse(cycle.started_at) : NaN;
+          if (!Number.isFinite(startedAtMs) || new Date(startedAtMs).toISOString() !== cycle.started_at) {
+            throw new Error('Execution cycle dispatch history has an invalid start timestamp.');
+          }
+        }
+        if (hasStartedAt !== (submissions > 0n)) {
+          throw new Error('Execution cycle dispatch history is inconsistent: startedAt and submissions disagree.');
+        }
+      }
+      ensureActiveDomainLocks(tx);
       const existingKey = storedDomainOrFeatureKey(run);
       if (!existingKey || existingKey !== binding.domainOrFeatureKey) throw new Error('New cycle domainOrFeatureKey does not match the original root binding.');
+      const priorAdmissionRows = tx.prepare('SELECT task_id,cycle_no,admission_evidence_json FROM delivery_cycles WHERE admission_evidence_json IS NOT NULL').all();
+      const priorAdmissions = priorAdmissionRows.map((row) => ({ ...row, admission: rowJson(row.admission_evidence_json) }))
+        .filter((row) => row.admission?.admissionId === admission.admissionId);
+      if (priorAdmissions.length) {
+        if (priorAdmissions.length !== 1 || priorAdmissions[0].task_id !== taskId
+            || priorAdmissions[0].cycle_no !== admission.priorCycleNo + 1
+            || stableJson(priorAdmissions[0].admission) !== stableJson(admissionEvidence)) {
+          throw new Error('Cycle admission identifier is already bound to conflicting lineage or evidence.');
+        }
+        if (run.current_cycle !== priorAdmissions[0].cycle_no) throw new Error('Cycle admission replay is superseded by a later execution cycle.');
+        if (semanticTaskDigest(rowJson(run.task_json)) !== semanticTaskDigest(taskRecord)) {
+          throw new Error('Cycle admission replay task record no longer matches the admitted cycle.');
+        }
+        return runShape(tx, run, { includeTaskRecord: true });
+      }
+      const previous = cycles.at(-1);
+      if (previous.cycle_no !== admission.priorCycleNo || previous.state !== admission.priorCycleState
+          || !['PAUSED', 'EXHAUSTED'].includes(previous.state)) {
+        throw new Error('Cycle admission predecessor number or state does not match the paused or exhausted controller history.');
+      }
+      if (!ROOT_ADMISSION_RUN_STATES.has(run.state)) {
+        throw new Error('Controller run state is not paused for a successor cycle admission.');
+      }
+      const activeNodes = tx.prepare("SELECT COUNT(*) AS count FROM delivery_nodes WHERE task_id=? AND state IN ('LEASED','RUNNING')").get(taskId).count;
       const openUnknown = tx.prepare("SELECT COUNT(*) AS count FROM delivery_unknown_effects WHERE task_id=? AND state='UNKNOWN'").get(taskId).count;
-      if (openUnknown) throw new Error('Unknown effects must be reconciled before admitting a new cycle.');
+      const unknownNodes = tx.prepare("SELECT COUNT(*) AS count FROM delivery_nodes WHERE task_id=? AND (effect_state='UNKNOWN' OR state='QUARANTINED')").get(taskId).count;
+      if (activeNodes) throw new Error('Active leases must finish or be reconciled before admitting a new cycle.');
+      if (openUnknown || unknownNodes) throw new Error('Unknown effects must be reconciled before admitting a new cycle.');
       const baseline = preflightResult.baseline;
+      if (!isRecord(baseline) || !nonempty(baseline.base) || !/^[a-f0-9]{40}$/.test(baseline.baseRevision ?? '')
+          || !/^[a-f0-9]{40}$/.test(baseline.headRevision ?? '') || !nonempty(baseline.branch)
+          || baseline.branch.toLowerCase() === 'main' || typeof baseline.dirty !== 'boolean') {
+        throw new Error('New cycle requires exact READY worktree and base evidence.');
+      }
       const taskRepoRoot = repositoryPaths(run.worktree_root).repoRoot;
+      const resolvedBase = git(taskRepoRoot, ['rev-parse', '--verify', `${baseline.base}^{commit}`]).trim();
+      if (resolvedBase !== baseline.baseRevision) throw new Error('New cycle preflight base reference is stale.');
       const current = gitSnapshot(taskRepoRoot, baseline.baseRevision, taskRecord.writeScope);
-      if (current.headCommit !== baseline.headRevision || current.branch !== baseline.branch || current.violations.length) throw new Error('New cycle preflight baseline or scope is stale.');
+      if (current.headCommit !== baseline.headRevision || current.branch !== baseline.branch
+          || baseline.dirty !== !current.clean || current.violations.length) throw new Error('New cycle preflight baseline or scope is stale.');
       const scopes = taskRecord.writeScope.map(normalizeScopePath);
       const conflict = pathConflict(tx, taskId, scopes, run.worktree_root);
       if (conflict) throw new Error('New cycle scope conflicts with ' + conflict.taskId + ' at ' + conflict.scope);
-      const domainConflict = acquireDomainLock(tx, taskId, binding.domainOrFeatureKey);
+      const ownDomain = tx.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(taskId);
+      if (ownDomain && ownDomain.domain_or_feature_key !== binding.domainOrFeatureKey) throw new Error('DOMAIN_LOCK_BINDING_MISMATCH');
+      const domainConflict = ownDomain ? null : domainLockConflict(tx, taskId, binding.domainOrFeatureKey);
       if (domainConflict) throw new Error('New cycle domainOrFeatureKey conflicts with ' + domainConflict.taskId);
+      const at = nowIso(clock);
+      if (effectiveCampaignDeadlineMs !== null && Date.parse(at) >= effectiveCampaignDeadlineMs) {
+        throw new Error('Campaign deadline expired before successor cycle admission.');
+      }
+      if (!ownDomain) tx.prepare('INSERT INTO delivery_domain_locks(domain_or_feature_key,task_id) VALUES(?,?)')
+        .run(binding.domainOrFeatureKey, taskId);
       tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskId);
       for (const scope of scopes) tx.prepare('INSERT INTO delivery_write_locks(task_id,scope_path) VALUES(?,?)').run(taskId, scope);
       const nextCycle = run.current_cycle + 1;
-      const at = nowIso(clock);
       tx.prepare(`INSERT INTO delivery_cycles(task_id,cycle_no,state,admitted_at,admission_reason,admission_evidence_json,created_at,updated_at)
-        VALUES(?,?,?,?,?,?,?,?)`).run(taskId, nextCycle, 'ACTIVE', at, admission.reason, json({ evidenceRef: admission.evidenceRef, basis: admission.basis }), at, at);
+        VALUES(?,?,?,?,?,?,?,?)`).run(taskId, nextCycle, 'ACTIVE', at, admission.reason, json(admissionEvidence), at, at);
       const digest = semanticTaskDigest(taskRecord);
       tx.prepare(`UPDATE delivery_runs SET task_json=?,objective=?,acceptance_json=?,trusted_mandate_json=?,branch=?,base_ref=?,base_commit=?,initial_head_commit=?,initial_snapshot_digest=?,proof_scope_json=?,changed_paths_json=?,dependencies_json=?,state='WORKER_READY',current_cycle=?,candidate_head_commit=NULL,candidate_snapshot_digest=NULL,updated_at=? WHERE task_id=?`)
         .run(json(taskRecord), taskRecord.objective, json(taskRecord.acceptance), json(binding), baseline.branch, baseline.base, baseline.baseRevision, current.headCommit, current.digest,
           json(scopes), json(current.changedPaths), json(preflightResult.dependencies ?? []), nextCycle, at, taskId);
       insertNodes(tx, taskId, nextCycle, digest, at);
-      eventInTransaction(tx, clock, taskId, nextCycle, 'ROOT_ADMITTED_EXECUTION_CYCLE', { previousCycle: run.current_cycle, reason: admission.reason, evidenceRef: admission.evidenceRef, basis: admission.basis, taskRecordDigest: digest });
+      eventInTransaction(tx, clock, taskId, nextCycle, 'ROOT_ADMITTED_EXECUTION_CYCLE', {
+        ...admissionEvidence, campaignId, campaignDeadlineAt, campaignDeadlineBoundAt,
+        campaignDurationMinutes, campaignTaskIds: deadlinePin.taskIds,
+        previousCycle: run.current_cycle, semanticTaskDigest: digest,
+      });
+      if (effectiveCampaignDeadlineMs !== null && Date.parse(nowIso(clock)) >= effectiveCampaignDeadlineMs) {
+        throw new Error('Campaign deadline expired during successor cycle admission.');
+      }
       return runShape(tx, tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId), { includeTaskRecord: true });
     });
   }
@@ -1606,6 +2086,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     claimNode,
     heartbeat,
     recordDispatchIntent,
+    cancelDispatchBeforeLaunch,
     recordBackendHandle,
     completeNode,
     failNode,
@@ -1616,12 +2097,18 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     recordPreflightRepair,
     resumeTask,
     admitCycle,
+    inspectCampaignDispatchHistory,
+    reconcileCampaignDeadline,
     releaseLease,
     getRun,
     inspectBaseAdvancedPause,
+    inspectCycleAdmissionConflicts,
     listRuns,
     missionControlSnapshot,
-    verifyEventChain: () => readAndVerifyEvents(db),
+    verifyEventChain: () => {
+      const { count, head } = readAndVerifyEvents(db);
+      return { count, head };
+    },
     close: () => store.close(),
   };
 }

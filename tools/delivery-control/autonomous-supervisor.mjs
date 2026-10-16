@@ -5,6 +5,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { openDeliveryController } from './controller.mjs';
+import { repositoryPaths } from './controller-store.mjs';
 import { createControllerRunner } from './controller-runner.mjs';
 import { admitConfiguredTasks } from './controller-cli.mjs';
 import { preflightTask } from './preflight.mjs';
@@ -17,15 +18,18 @@ import { baseAdvancedResumeSignature, fetchConfiguredBase, prepareBaseAdvancedRe
 
 const git = (cwd, argv) => execFileSync('git', argv, { cwd, encoding: 'utf8', shell: false, windowsHide: true, timeout: 30_000 }).trim();
 const digest = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const bytesDigest = (value) => createHash('sha256').update(value).digest('hex');
+const pathKey = (value) => process.platform === 'win32' ? value.toLowerCase() : value;
 const within = (root, target) => { const relative = path.relative(root, target); return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative)); };
 const parse = (file) => JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
 const staleResumeStates = new Set(['BLOCKED_STALE_CANDIDATE', 'BLOCKED_STALE_BASELINE']);
+const CYCLE_ADMISSION_BASES = new Set(['MATERIAL_NEW_EVIDENCE', 'CORRECTED_IMPLEMENTATION_PLAN']);
 const SUPERVISOR_OBSERVATION_STATUSES = new Set(['INTAKE_BOUND', 'INTAKE_WAITING', 'INTAKE_REASSESSMENT_REQUIRED',
-  'HOLD_TRUSTED_BINDING', 'HOLD_REVIEW_REQUIRED', 'HOLD_AMBIGUOUS_ROADMAP', 'HOLD_DEPENDENCY',
+  'HOLD_TRUSTED_BINDING', 'HOLD_CYCLE_ADMISSION', 'HOLD_REVIEW_REQUIRED', 'HOLD_AMBIGUOUS_ROADMAP', 'HOLD_DEPENDENCY',
   'HOLD_TASK_STATUS', 'HOLD_SCOPE_CONFLICT', 'HOLD_PREFLIGHT', 'HOLD_RECONCILE',
   'HOLD_REASSESSMENT_REQUIRED', 'HOLD_INTAKE_IN_PROGRESS', 'HOLD_COLLISION', 'HOLD_NO_READY_TASK',
   'HOLD_NOT_ALLOWED', 'HOLD_ENVIRONMENT', 'HOLD_REPOSITORY', 'HOLD_CAMPAIGN', 'HOLD_BASE',
-  'HOLD_ROADMAP', 'HOLD_CONTROLLER_STATE', 'HOLD_SCOPE', 'HOLD_USAGE',
+  'HOLD_ROADMAP', 'HOLD_CONTROLLER_STATE', 'HOLD_SCOPE', 'HOLD_USAGE', 'CYCLE_ADMISSION_ACCEPTED', 'CYCLE_ADMISSION_REPLAYED',
   'READY_CANDIDATE', 'ALREADY_COMPLETE',
   'BASE_ADVANCED_RESUME_PREPARED', 'BASE_ADVANCED_RESUME_REASSESSMENT_REQUIRED', 'BASE_ADVANCED_RESUME_REASSESSMENT_QUEUED',
   'PREPARED_BASE_RESUME_ACCEPTED', 'PREPARED_BASE_RESUME_REASSESSMENT_REQUIRED', 'PREPARED_RESUME_REASSESSMENT_QUEUED',
@@ -88,6 +92,145 @@ export function shouldYieldFiniteRun(status, result) {
   return !Object.values(status.deliveries).some((delivery) => progressing.has(delivery.status));
 }
 
+function privateFile(privateRoot, filename, code) {
+  if (typeof filename !== 'string' || !path.isAbsolute(filename)) throw new Error(code);
+  let resolved;
+  try { resolved = fs.realpathSync(filename); }
+  catch { throw new Error(code); }
+  if (!within(privateRoot, resolved) || pathKey(resolved) !== pathKey(path.resolve(filename))) throw new Error(code);
+  const stat = fs.lstatSync(filename);
+  if (!stat.isFile() || stat.isSymbolicLink()) throw new Error(code);
+  return { file: resolved, bytes: fs.readFileSync(resolved) };
+}
+
+function executableCapabilitySnapshot(taskRecord) {
+  const pathValue = process.env.PATH ?? '';
+  const pathExtValue = process.env.PATHEXT ?? '';
+  const pathEntries = pathValue.split(path.delimiter);
+  const extensions = ['', ...pathExtValue.split(';').filter(Boolean)];
+  return {
+    pathValue,
+    pathExtValue,
+    checks: (taskRecord?.checks ?? []).map((check) => {
+      const executable = check?.executable;
+      if (typeof executable !== 'string' || !executable) return { executable: executable ?? null, candidates: [] };
+      const candidates = path.isAbsolute(executable) ? [path.resolve(executable)]
+        : pathEntries.flatMap((folder) => extensions.map((extension) => path.resolve(folder || '.', executable + extension)));
+      return { executable, candidates: [...new Set(candidates)].map((candidate) => {
+        try {
+          const stat = fs.statSync(candidate);
+          return { path: candidate, present: true, isFile: stat.isFile(), size: stat.size, mode: stat.mode,
+            mtimeMs: stat.mtimeMs, ctimeMs: stat.ctimeMs, dev: stat.dev, ino: stat.ino };
+        } catch (error) {
+          return { path: candidate, present: false, code: error.code ?? 'STAT_FAILED' };
+        }
+      }) };
+    }),
+  };
+}
+
+function cycleAdmissionTaskEnvironmentEvidence(privateRoot, binding, admission) {
+  const filename = binding?.taskFile ?? admission.record?.taskFile;
+  try {
+    const taskFile = privateFile(privateRoot, filename, 'CYCLE_ADMISSION_TASK_FILE_MUST_BE_PRIVATE');
+    const taskFileDigest = bytesDigest(taskFile.bytes);
+    const taskPathMatchesAdmission = pathKey(taskFile.file) === pathKey(admission.taskFile);
+    let taskRecord;
+    try { taskRecord = JSON.parse(taskFile.bytes.toString('utf8').replace(/^\uFEFF/, '')); }
+    catch { return { path: taskFile.file, taskFileDigest, taskPathMatchesAdmission, recordError: 'INVALID_JSON' }; }
+    return { path: taskFile.file, taskFileDigest, taskPathMatchesAdmission,
+      capabilities: executableCapabilitySnapshot(taskRecord) };
+  } catch (error) {
+    return { path: filename ?? null, taskPathMatchesAdmission: false, recordError: String(error.code ?? error.message),
+      pathValue: process.env.PATH ?? '', pathExtValue: process.env.PATHEXT ?? '' };
+  }
+}
+
+function cycleAdmissionWorktreeIdentity(worktreePath, expectedCommon) {
+  const worktreeRoot = fs.realpathSync(worktreePath);
+  const repository = repositoryPaths(worktreeRoot);
+  if (pathKey(repository.repoRoot) !== pathKey(worktreeRoot)
+      || pathKey(repository.gitCommonDir) !== pathKey(expectedCommon)) {
+    throw new Error('CYCLE_ADMISSION_WORKTREE_REPOSITORY_MISMATCH');
+  }
+  return { worktreeRoot, repositoryRoot: repository.repoRoot, gitCommonDir: repository.gitCommonDir };
+}
+
+function sameCycleAdmissionWorktreeIdentity(left, right) {
+  return pathKey(left.worktreeRoot) === pathKey(right.worktreeRoot)
+    && pathKey(left.repositoryRoot) === pathKey(right.repositoryRoot)
+    && pathKey(left.gitCommonDir) === pathKey(right.gitCommonDir);
+}
+
+function hasCycleAdmissionLockConflicts(evidence) {
+  return ['worktree', 'writeScope', 'domain'].some((key) => Array.isArray(evidence?.[key]) && evidence[key].length > 0);
+}
+
+function loadCycleAdmissions({ privateRoot, campaign, intakeCampaign }) {
+  const references = campaign.cycleAdmissions ?? [];
+  if (!Array.isArray(references)) throw new Error('INVALID_CYCLE_ADMISSIONS');
+  const taskIds = new Set();
+  const admissionIds = new Set();
+  return references.map((reference) => {
+    if (!reference || typeof reference !== 'object' || Array.isArray(reference)
+        || Object.keys(reference).sort().join(',') !== 'admissionRecordDigest,recordFile,taskId'
+        || typeof reference.taskId !== 'string' || !/^[A-Z][A-Z0-9_-]{0,95}$/.test(reference.taskId)
+        || !intakeCampaign.allowedTaskIds.includes(reference.taskId)
+        || !/^[a-f0-9]{64}$/.test(reference.admissionRecordDigest ?? '')
+        || taskIds.has(reference.taskId)) throw new Error('INVALID_CYCLE_ADMISSION_REFERENCE');
+    taskIds.add(reference.taskId);
+    const recordFile = privateFile(privateRoot, reference.recordFile, 'CYCLE_ADMISSION_MUST_BE_PRIVATE');
+    const actualRecordDigest = bytesDigest(recordFile.bytes);
+    if (actualRecordDigest !== reference.admissionRecordDigest) throw new Error('CYCLE_ADMISSION_DIGEST_MISMATCH');
+    let record;
+    try { record = JSON.parse(recordFile.bytes.toString('utf8').replace(/^\uFEFF/, '')); }
+    catch { throw new Error('CYCLE_ADMISSION_INVALID_JSON'); }
+    const recordKeys = ['admissionId', 'basis', 'evidenceRef', 'materialChange', 'priorCycleNo', 'priorCycleState',
+      'reason', 'schemaVersion', 'taskFile', 'taskId', 'taskRecordDigest'].sort().join(',');
+    if (!record || typeof record !== 'object' || Array.isArray(record)
+        || Object.keys(record).sort().join(',') !== recordKeys
+        || record.schemaVersion !== 'root-execution-cycle-admission/v1'
+        || record.taskId !== reference.taskId
+        || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(record.admissionId ?? '')
+        || admissionIds.has(record.admissionId)
+        || !Number.isSafeInteger(record.priorCycleNo) || record.priorCycleNo < 1
+        || !['PAUSED', 'EXHAUSTED'].includes(record.priorCycleState)
+        || !/^[a-f0-9]{64}$/.test(record.taskRecordDigest ?? '')
+        || typeof record.reason !== 'string' || !record.reason.trim()
+        || typeof record.evidenceRef !== 'string' || !record.evidenceRef.trim()
+        || record.materialChange !== true || !CYCLE_ADMISSION_BASES.has(record.basis)) {
+      throw new Error('CYCLE_ADMISSION_SCHEMA_INVALID');
+    }
+    admissionIds.add(record.admissionId);
+    const taskFile = privateFile(privateRoot, record.taskFile, 'CYCLE_ADMISSION_TASK_RECORD_MUST_BE_PRIVATE');
+    if (bytesDigest(taskFile.bytes) !== record.taskRecordDigest) throw new Error('CYCLE_ADMISSION_TASK_RECORD_DIGEST_MISMATCH');
+    let taskRecord;
+    try { taskRecord = JSON.parse(taskFile.bytes.toString('utf8').replace(/^\uFEFF/, '')); }
+    catch { throw new Error('CYCLE_ADMISSION_TASK_RECORD_INVALID_JSON'); }
+    if (!taskRecord || typeof taskRecord !== 'object' || Array.isArray(taskRecord)
+        || taskRecord.schemaVersion !== 'task-readiness/v1' || taskRecord.taskId !== record.taskId) {
+      throw new Error('CYCLE_ADMISSION_TASK_RECORD_MISMATCH');
+    }
+    return { ...reference, recordFile: recordFile.file, record, taskFile: taskFile.file, taskRecord };
+  });
+}
+
+function cycleAdmissionMatches(run, admission) {
+  const { record, admissionRecordDigest } = admission;
+  const taskRecordDigest = record.taskRecordDigest;
+  const cycleNo = record.priorCycleNo + 1;
+  const cycle = run?.cycles?.find((item) => item.cycleNo === cycleNo);
+  const evidence = cycle?.admission;
+  return run?.currentCycle === cycleNo && cycle?.cycleNo === cycleNo
+    && evidence?.admissionId === record.admissionId
+    && evidence?.admissionRecordDigest === admissionRecordDigest
+    && evidence?.taskRecordDigest === taskRecordDigest
+    && evidence?.priorCycleNo === record.priorCycleNo
+    && evidence?.priorCycleState === record.priorCycleState
+    && evidence?.reason === record.reason && evidence?.evidenceRef === record.evidenceRef
+    && evidence?.materialChange === record.materialChange && evidence?.basis === record.basis;
+}
+
 /** Root-owned private configuration is the authority boundary, never roadmap prose. */
 export function loadSupervisorCampaign(repoRoot, campaignFile) {
   const root = fs.realpathSync(repoRoot);
@@ -115,8 +258,10 @@ export function loadSupervisorCampaign(repoRoot, campaignFile) {
     || !Array.isArray(campaign.delivery.requiredChecks) || !campaign.delivery.requiredChecks.length) throw new Error('DELIVERY_CHECKS_REQUIRED');
   const deliveryBaseRef = `${campaign.delivery.remoteName ?? 'origin'}/${campaign.delivery.base ?? 'main'}`;
   if ((intakeCampaign.baseRef ?? 'origin/main') !== deliveryBaseRef) throw new Error('INTAKE_DELIVERY_BASE_MISMATCH');
+  const cycleAdmissions = loadCycleAdmissions({ privateRoot, campaign, intakeCampaign });
   return { root, common, privateRoot, file, campaign, intakeFile, intakeCampaign,
-    campaignDigest: digest({ campaign, intakeCampaign }) };
+    cycleAdmissions, campaignDigest: digest({ campaign, intakeCampaign,
+      cycleAdmissions: cycleAdmissions.map(({ taskId, admissionRecordDigest }) => ({ taskId, admissionRecordDigest })) }) };
 }
 
 /** One root service; models never receive this object's GitHub or intake capabilities. */
@@ -128,7 +273,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   baseAdvancedResumeSignature: advancedSignature = baseAdvancedResumeSignature,
   now = () => Date.now() }) {
   const loaded = loadSupervisorCampaign(repoRoot, campaignFile);
-  const { root, common, privateRoot, campaign, intakeFile, intakeCampaign, campaignDigest } = loaded;
+  const { root, common, privateRoot, campaign, intakeFile, intakeCampaign, campaignDigest, cycleAdmissions } = loaded;
   const stateRoot = path.join(privateRoot, 'supervisors', campaign.campaignId);
   const controllerStateRoot = path.join(common, 'zuri-delivery-control', 'controller-v1');
   fs.mkdirSync(stateRoot, { recursive: true });
@@ -159,20 +304,36 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   state.preparedResumeReceiptFiles ??= {};
   state.baseAdvancedResumeBlocked ??= {};
   state.baseAdvancedResumeReassessments ??= {};
+  state.cycleAdmissionCheckpoints ??= {};
+  state.cycleAdmissionBlocked ??= {};
   state.deliveryHistory ??= {};
   let controller;
   try { controller = providedController ?? await openDeliveryController({ repoRoot: root }); }
   catch (error) { releaseLock(); throw error; }
   const config = { tasks: [], maxConcurrent: campaign.maxConcurrent ?? 2, codexExecutable: campaign.codexExecutable,
     windowsSandbox: campaign.windowsSandbox, roleTimeoutMs: campaign.roleTimeoutMs };
+  for (const admission of cycleAdmissions) {
+    if (state.bindings.some((item) => item.taskId === admission.taskId)) continue;
+    const run = controller.getRun(admission.taskId);
+    if (!run || !run.worktreeRoot || run.taskId !== admission.taskId) continue;
+    state.bindings.push({ taskId: admission.taskId, worktree: run.worktreeRoot,
+      taskFile: admission.taskFile, trustedMandateBinding: run.trustedMandateBinding });
+  }
   let runner;
-  try { runner = runnerFactory({ controller, repoRoot: root, stateRoot: controllerStateRoot, config }); }
+  try { runner = runnerFactory({ controller, repoRoot: root, stateRoot: controllerStateRoot, config,
+    campaignDeadlineGuard: () => !deadlineExpired() }); }
   catch (error) { if (!providedController) controller.close(); releaseLock(); throw error; }
-  try { for (const binding of state.bindings) runner.addBinding(binding); }
+  try {
+    for (const binding of state.bindings) {
+      runner.addBinding(binding);
+      if (cycleAdmissions.some((item) => item.taskId === binding.taskId)) runner.hold?.(binding.taskId);
+    }
+  }
   catch (error) { await runner.stop(); if (!providedController) controller.close(); releaseLock(); throw error; }
   const adapters = new Map();
   const intakeCache = new Map();
   const lastSignals = new Map();
+  const cycleAdmissionWakes = new Set();
   let ticking = false;
   let stopped = false;
   const persist = () => {
@@ -218,13 +379,55 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
       fs.appendFileSync(eventFile, JSON.stringify({ ...payload, receiptDigest }) + '\n', { flag: 'a' });
     } catch { /* Telemetry is best-effort; an invalid prior receipt remains quarantined. */ }
   };
+  const campaignTaskIds = () => [...new Set([
+    ...state.bindings.map((binding) => binding.taskId),
+    ...cycleAdmissions.map((admission) => admission.taskId),
+  ])].sort();
+  let verifiedCampaignDeadlineAt = null;
+  let reconciledCampaignTaskIds = [];
   const deadlineExpired = () => {
-    if (!state.deadlineAt) {
-      const anchors = state.bindings.flatMap((binding) => controller.getRun(binding.taskId)?.cycles ?? [])
-        .map((cycle) => Date.parse(cycle.startedAt)).filter(Number.isFinite);
-      if (anchors.length) { state.deadlineAt = new Date(Math.min(...anchors) + (campaign.maxCampaignMinutes ?? 120) * 60_000).toISOString(); persist(); }
+    verifiedCampaignDeadlineAt = null;
+    reconciledCampaignTaskIds = [];
+    const exactTimestamp = (value) => {
+      if (typeof value !== 'string') return null;
+      const milliseconds = Date.parse(value);
+      return Number.isFinite(milliseconds) && new Date(milliseconds).toISOString() === value ? milliseconds : null;
+    };
+    const taskIds = campaignTaskIds();
+    let deadlinePin;
+    try {
+      if (typeof controller.reconcileCampaignDeadline !== 'function') return true;
+      deadlinePin = controller.reconcileCampaignDeadline({ campaignId: campaign.campaignId, taskIds,
+        campaignDurationMinutes: campaign.maxCampaignMinutes ?? 120,
+        checkpointDeadlineAt: state.deadlineAt ?? null });
+    } catch { return true; }
+    if (deadlinePin?.schemaVersion !== 'campaign-deadline-reconciliation/v1'
+        || deadlinePin.campaignId !== campaign.campaignId
+        || deadlinePin.campaignDurationMinutes !== (campaign.maxCampaignMinutes ?? 120)
+        || !Array.isArray(deadlinePin.taskIds) || new Set(deadlinePin.taskIds).size !== deadlinePin.taskIds.length
+        || !isDeepStrictEqual(deadlinePin.taskIds, [...deadlinePin.taskIds].sort())
+        || taskIds.some((taskId) => !deadlinePin.taskIds.includes(taskId))) return true;
+    const sourceDeadline = deadlinePin.sourceDeadlineAt === null ? null : exactTimestamp(deadlinePin.sourceDeadlineAt);
+    const effectiveDeadline = deadlinePin.effectiveDeadlineAt === null ? null : exactTimestamp(deadlinePin.effectiveDeadlineAt);
+    if ((deadlinePin.sourceDeadlineAt !== null && sourceDeadline === null)
+        || (deadlinePin.effectiveDeadlineAt !== null && effectiveDeadline === null)
+        || (sourceDeadline === null ? effectiveDeadline !== null
+          : effectiveDeadline === null || effectiveDeadline > sourceDeadline)) return true;
+    verifiedCampaignDeadlineAt = deadlinePin.sourceDeadlineAt;
+    reconciledCampaignTaskIds = deadlinePin.taskIds;
+    const effectiveValue = effectiveDeadline === null ? null : new Date(effectiveDeadline).toISOString();
+    if (state.deadlineAt !== effectiveValue) {
+      state.deadlineAt = effectiveValue;
+      persist();
     }
-    return state.deadlineAt && now() >= Date.parse(state.deadlineAt);
+    return effectiveDeadline !== null && now() >= effectiveDeadline;
+  };
+  const wakeAdmittedCycleOnce = (taskId, admission, cycleNo) => {
+    const key = JSON.stringify([taskId, admission.record.admissionId, cycleNo]);
+    if (cycleAdmissionWakes.has(key)) return false;
+    cycleAdmissionWakes.add(key);
+    runner.wake?.(taskId);
+    return true;
   };
   persist();
   return {
@@ -234,14 +437,45 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
       ticking = true;
       const observations = [];
       try {
-        if (loadSupervisorCampaign(root, loaded.file).campaignDigest !== campaignDigest) throw new Error('CAMPAIGN_CHANGED_REASSESSMENT_REQUIRED');
+        const currentCampaign = loadSupervisorCampaign(root, loaded.file);
+        if (currentCampaign.campaignDigest !== campaignDigest) throw new Error('CAMPAIGN_CHANGED_REASSESSMENT_REQUIRED');
+        const currentCycleAdmissions = currentCampaign.cycleAdmissions;
         controller.verifyEventChain();
+        for (const admission of currentCycleAdmissions) {
+          const { taskId } = admission;
+          let run;
+          let code = 'CYCLE_ADMISSION_CONTROLLER_RUN_REQUIRED';
+          try {
+            run = controller.getRun(taskId);
+          } catch {
+            code = 'CYCLE_ADMISSION_CONTROLLER_RUN_UNAVAILABLE';
+          }
+          if (run?.taskId === taskId && typeof run.worktreeRoot === 'string' && run.worktreeRoot) {
+            if (!state.bindings.some((binding) => binding.taskId === taskId)) {
+              const binding = { taskId, worktree: run.worktreeRoot, taskFile: admission.taskFile,
+                trustedMandateBinding: run.trustedMandateBinding };
+              state.bindings.push(binding);
+              persist();
+              runner.addBinding(binding);
+              runner.hold?.(taskId);
+            }
+            continue;
+          }
+          runner.hold?.(taskId);
+          const signature = digest({ taskId, admissionRecordDigest: admission.admissionRecordDigest, code });
+          if (state.cycleAdmissionBlocked[taskId]?.signature !== signature) {
+            state.cycleAdmissionBlocked[taskId] = { signature, code };
+            persist();
+          }
+          signal({ taskId, status: 'HOLD_CYCLE_ADMISSION', code }, observations);
+          return { status: 'HOLD_CYCLE_ADMISSION', observations };
+        }
         if (deadlineExpired()) { await runner.stop(); signal({ status: 'PAUSED_DEADLINE' }, observations); return { status: 'PAUSED_DEADLINE', observations }; }
         let intakeResult;
         const intakeSignature = digest([campaignDigest, git(root, ['rev-parse', '--verify', intakeCampaign.baseRef ?? 'origin/main']), controller.listRuns?.().map((run) => [run.taskId, run.state]) ?? []]);
         if (state.intakeBlocked?.signature === intakeSignature) intakeResult = { status: 'INTAKE_REASSESSMENT_REQUIRED' };
         else try { intakeResult = await intake({ repoRoot: root, campaignFile: intakeFile,
-          excludeTaskIds: state.bindings.map((item) => item.taskId) }); delete state.intakeBlocked; }
+          excludeTaskIds: [...new Set([...state.bindings.map((item) => item.taskId), ...currentCycleAdmissions.map((item) => item.taskId)])] }); delete state.intakeBlocked; }
         catch (error) {
           state.intakeBlocked = { signature: intakeSignature, code: String(error.code ?? error.message) }; persist();
           intakeResult = { status: 'INTAKE_REASSESSMENT_REQUIRED', code: state.intakeBlocked.code };
@@ -250,7 +484,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
           candidates: (intakeResult.candidates ?? []).map((item) => ({ taskId: item.taskId, status: item.status, code: item.code ?? null })) };
         persist();
         const binding = intakeResult.controllerBinding;
-        if (binding) {
+        if (binding && !currentCycleAdmissions.some((item) => item.taskId === binding.taskId)) {
           if (!intakeCampaign.allowedTaskIds.includes(binding.taskId)) throw new Error('INTAKE_TASK_NOT_AUTHORIZED');
           const old = state.bindings.find((item) => item.taskId === binding.taskId);
           if (old && !isDeepStrictEqual(old, binding)) throw new Error('TASK_BINDING_CHANGED');
@@ -262,6 +496,169 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
         } else signal({ status: intakeResult.status ?? 'INTAKE_WAITING', code: intakeResult.code ?? null }, observations);
         for (const item of await admit({ controller, repoRoot: root, config, cache: intakeCache })) {
           signal({ taskId: item.taskId, status: item.state ?? item.status, code: item.code ?? null }, observations);
+        }
+        for (const admission of currentCycleAdmissions) {
+          const { record, taskId } = admission;
+          const binding = state.bindings.find((item) => item.taskId === taskId);
+          const run = controller.getRun(taskId);
+          const currentCycle = run?.cycles?.find((item) => item.cycleNo === run.currentCycle);
+          const checkpoint = state.cycleAdmissionCheckpoints[taskId];
+          const checkpointMatches = Boolean(checkpoint
+            && checkpoint.admissionId === record.admissionId
+            && checkpoint.admissionRecordDigest === admission.admissionRecordDigest
+            && checkpoint.cycleNo === record.priorCycleNo + 1
+            && cycleAdmissionMatches(run, admission));
+          if (!checkpointMatches) runner.hold?.(taskId);
+          let worktreeEvidence = null;
+          try {
+            if (binding?.worktree) worktreeEvidence = {
+              root: fs.realpathSync(binding.worktree),
+              head: git(binding.worktree, ['rev-parse', '--verify', 'HEAD^{commit}']),
+              branch: git(binding.worktree, ['branch', '--show-current']),
+              status: git(binding.worktree, ['status', '--porcelain', '--untracked-files=all']),
+              base: git(binding.worktree, ['rev-parse', '--verify', `${intakeCampaign.baseRef ?? 'origin/main'}^{commit}`]),
+            };
+          } catch (error) { worktreeEvidence = { error: error.code ?? error.message }; }
+          let controllerWorktreeEvidence;
+          try { controllerWorktreeEvidence = cycleAdmissionWorktreeIdentity(run?.worktreeRoot, common); }
+          catch (error) { controllerWorktreeEvidence = { error: error.code ?? error.message }; }
+          const taskEnvironmentEvidence = cycleAdmissionTaskEnvironmentEvidence(privateRoot, binding, admission);
+          let lockConflictEvidence;
+          try {
+            lockConflictEvidence = controller.inspectCycleAdmissionConflicts({ taskId,
+              writeScope: admission.taskRecord.writeScope });
+          } catch (error) { lockConflictEvidence = { error: error.code ?? error.message }; }
+          const signature = digest({ taskId, admissionRecordDigest: admission.admissionRecordDigest,
+            admissionId: record.admissionId, runState: run?.state ?? null, currentCycle: run?.currentCycle ?? null,
+            cycleState: currentCycle?.state ?? null, worktreeEvidence, controllerWorktreeEvidence,
+            taskEnvironmentEvidence, lockConflictEvidence });
+          if (state.cycleAdmissionBlocked[taskId]?.signature === signature) continue;
+          if (checkpoint) {
+            if (checkpoint.admissionId !== record.admissionId
+                || checkpoint.admissionRecordDigest !== admission.admissionRecordDigest
+                || checkpoint.cycleNo !== record.priorCycleNo + 1
+                || !cycleAdmissionMatches(run, admission)) {
+              state.cycleAdmissionBlocked[taskId] = { signature, code: 'CYCLE_ADMISSION_CHECKPOINT_MISMATCH' };
+              persist();
+              signal({ taskId, status: 'HOLD_CYCLE_ADMISSION', code: 'CYCLE_ADMISSION_CHECKPOINT_MISMATCH' }, observations);
+              continue;
+            }
+            delete state.cycleAdmissionBlocked[taskId];
+            wakeAdmittedCycleOnce(taskId, admission, checkpoint.cycleNo);
+            continue;
+          }
+          try {
+            if (!binding || !run) throw new Error('CYCLE_ADMISSION_CONTROLLER_RUN_REQUIRED');
+            if (lockConflictEvidence?.error || lockConflictEvidence?.runFound !== true
+                || !/^\d+$/.test(lockConflictEvidence.lockEpoch ?? '')) {
+              throw new Error('CYCLE_ADMISSION_LOCK_INSPECTION_UNAVAILABLE');
+            }
+            if (hasCycleAdmissionLockConflicts(lockConflictEvidence)) {
+              throw new Error('CYCLE_ADMISSION_RESOURCE_LOCK_CONFLICT');
+            }
+            const taskFile = privateFile(privateRoot, binding.taskFile, 'CYCLE_ADMISSION_TASK_FILE_MUST_BE_PRIVATE');
+            const worktreeIdentity = cycleAdmissionWorktreeIdentity(run.worktreeRoot, common);
+            const worktreeRoot = worktreeIdentity.worktreeRoot;
+            const bindingWorktreeRoot = fs.realpathSync(binding.worktree);
+            if (pathKey(taskFile.file) !== pathKey(admission.taskFile)
+                || pathKey(bindingWorktreeRoot) !== pathKey(worktreeRoot)
+                || bytesDigest(taskFile.bytes) !== record.taskRecordDigest) {
+              throw new Error('CYCLE_ADMISSION_TASK_OR_WORKTREE_BINDING_MISMATCH');
+            }
+            let taskRecord;
+            try { taskRecord = JSON.parse(taskFile.bytes.toString('utf8').replace(/^\uFEFF/, '')); }
+            catch { throw new Error('CYCLE_ADMISSION_TASK_RECORD_INVALID_JSON'); }
+            if (taskRecord.taskId !== taskId || taskRecord.schemaVersion !== 'task-readiness/v1') {
+              throw new Error('CYCLE_ADMISSION_TASK_RECORD_MISMATCH');
+            }
+            const replay = cycleAdmissionMatches(run, admission);
+            if (!replay && (run.currentCycle !== record.priorCycleNo || currentCycle?.state !== record.priorCycleState
+                || !['PAUSED', 'EXHAUSTED'].includes(currentCycle.state))) {
+              throw new Error('CYCLE_ADMISSION_PREDECESSOR_MISMATCH');
+            }
+            const ready = await preflight({ repo: worktreeRoot, taskFile: taskFile.file,
+              base: intakeCampaign.baseRef ?? 'origin/main' });
+            if (ready?.status !== 'READY' || ready.taskId !== taskId) {
+              throw new Error(`CYCLE_ADMISSION_PREFLIGHT_${ready?.status ?? 'INVALID'}`);
+            }
+            if (deadlineExpired()) throw new Error('CYCLE_ADMISSION_CAMPAIGN_DEADLINE_EXPIRED');
+            if (typeof controller.admitCycle !== 'function') throw new Error('CYCLE_ADMISSION_CONTROLLER_API_UNAVAILABLE');
+            const currentRun = controller.getRun(taskId);
+            const currentWorktreeIdentity = cycleAdmissionWorktreeIdentity(currentRun?.worktreeRoot, common);
+            const reboundWorktreeRoot = fs.realpathSync(binding.worktree);
+            if (!sameCycleAdmissionWorktreeIdentity(worktreeIdentity, currentWorktreeIdentity)
+                || pathKey(reboundWorktreeRoot) !== pathKey(worktreeRoot)
+                || pathKey(currentRun.worktreeRoot) !== pathKey(worktreeRoot)) {
+              throw new Error('CYCLE_ADMISSION_TASK_OR_WORKTREE_BINDING_MISMATCH');
+            }
+            const currentTaskFile = privateFile(privateRoot, binding.taskFile, 'CYCLE_ADMISSION_TASK_FILE_MUST_BE_PRIVATE');
+            if (pathKey(currentTaskFile.file) !== pathKey(admission.taskFile)
+                || bytesDigest(currentTaskFile.bytes) !== record.taskRecordDigest) {
+              throw new Error('CYCLE_ADMISSION_TASK_OR_WORKTREE_BINDING_MISMATCH');
+            }
+            try { taskRecord = JSON.parse(currentTaskFile.bytes.toString('utf8').replace(/^\uFEFF/, '')); }
+            catch { throw new Error('CYCLE_ADMISSION_TASK_RECORD_INVALID_JSON'); }
+            if (taskRecord.taskId !== taskId || taskRecord.schemaVersion !== 'task-readiness/v1') {
+              throw new Error('CYCLE_ADMISSION_TASK_RECORD_MISMATCH');
+            }
+            const postPreflightLocks = controller.inspectCycleAdmissionConflicts({ taskId,
+              writeScope: admission.taskRecord.writeScope });
+            if (postPreflightLocks?.runFound !== true || !/^\d+$/.test(postPreflightLocks.lockEpoch ?? '')
+                || postPreflightLocks.lockEpoch !== lockConflictEvidence.lockEpoch
+                || hasCycleAdmissionLockConflicts(postPreflightLocks)) {
+              throw new Error('CYCLE_ADMISSION_RESOURCE_LOCK_EPOCH_CHANGED_DURING_PREFLIGHT');
+            }
+            const admissionInput = {
+              admissionId: record.admissionId,
+              admissionRecordDigest: admission.admissionRecordDigest,
+              taskRecordDigest: record.taskRecordDigest,
+              priorCycleNo: record.priorCycleNo,
+              priorCycleState: record.priorCycleState,
+              reason: record.reason,
+              evidenceRef: record.evidenceRef,
+              materialChange: record.materialChange,
+              basis: record.basis,
+            };
+            const admitted = controller.admitCycle({ taskId, taskRecord, preflightResult: ready,
+              trustedMandateBinding: binding.trustedMandateBinding ?? run.trustedMandateBinding,
+              admission: admissionInput, campaignId: campaign.campaignId,
+              campaignDeadlineAt: verifiedCampaignDeadlineAt,
+              campaignDeadlineBoundAt: state.deadlineAt ?? null,
+              campaignTaskIds: reconciledCampaignTaskIds, campaignDurationMinutes: campaign.maxCampaignMinutes ?? 120,
+              expectedResourceLockEpoch: postPreflightLocks.lockEpoch });
+            if (!cycleAdmissionMatches(admitted, admission)) throw new Error('CYCLE_ADMISSION_CONTROLLER_RESULT_MISMATCH');
+            const oldCheckpoint = state.deliveries[taskId];
+            if (oldCheckpoint) {
+              const history = state.deliveryHistory[taskId] ?? (state.deliveryHistory[taskId] = []);
+              const checkpointKey = digest([taskId, record.priorCycleNo, oldCheckpoint, record.admissionId]);
+              if (!history.some((item) => item.checkpointKey === checkpointKey)) history.push({ checkpointKey,
+                checkpoint: oldCheckpoint, cycleNo: record.priorCycleNo, admissionId: record.admissionId,
+                invalidatedAt: new Date(now()).toISOString(), priorEvidenceInvalidated: true });
+            }
+            delete state.deliveries[taskId];
+            delete state.deliveryRevisions?.[taskId];
+            delete state.preparedResumeBlocked[taskId];
+            delete state.preparedResumeReassessments[taskId];
+            delete state.preparedResumeExpectedDigests[taskId];
+            delete state.preparedResumeReceiptFiles[taskId];
+            delete state.baseAdvancedResumeBlocked[taskId];
+            delete state.baseAdvancedResumeReassessments[taskId];
+            adapters.delete(taskId);
+            state.cycleAdmissionCheckpoints[taskId] = { admissionId: record.admissionId,
+              admissionRecordDigest: admission.admissionRecordDigest, cycleNo: admitted.currentCycle,
+              taskRecordDigest: record.taskRecordDigest, reconciledAt: new Date(now()).toISOString() };
+            delete state.cycleAdmissionBlocked[taskId];
+            persist();
+            wakeAdmittedCycleOnce(taskId, admission, admitted.currentCycle);
+            signal({ taskId, status: replay ? 'CYCLE_ADMISSION_REPLAYED' : 'CYCLE_ADMISSION_ACCEPTED', cycleNo: admitted.currentCycle,
+              admissionId: record.admissionId }, observations);
+          } catch (error) {
+            const code = String(error.code ?? error.message);
+            state.cycleAdmissionBlocked[taskId] = { signature, code };
+            persist();
+            signal({ taskId, status: 'HOLD_CYCLE_ADMISSION', code }, observations);
+            continue;
+          }
         }
         for (const binding of state.bindings) {
           let file = state.preparedResumeReceiptFiles[binding.taskId]
@@ -412,6 +809,10 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
               signal({ taskId: binding.taskId, status: 'ROOT_PREPARATION_REASSESSMENT_REQUIRED', code }, observations);
             }
           }
+        }
+        if (deadlineExpired()) {
+          await runner.stop(); signal({ status: 'PAUSED_DEADLINE' }, observations);
+          return { status: 'PAUSED_DEADLINE', observations };
         }
         const dispatched = await runner.tick();
         for (const error of dispatched.errors) signal({ ...error, status: 'DISPATCH_BLOCKED' }, observations);
