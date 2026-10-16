@@ -11,14 +11,14 @@ import { resolveAgentAuthorization } from './auth-context'
 // @spec ADR-007 §P7 — LINE → Identity → (MSP) → GKS → Agent → (Zuri Tool) → LINE
 //   response. Memory/knowledge/tool ports are injectable so the same turn runs on the
 //   in-memory defaults (tests/demo) or the real MSP/GenesisBlockDB adapters.
-// @spec Gate E→F — a denied or step-up-needing action degrades to a graceful response,
-//   it never crashes the turn; only programmer errors (unknown action) propagate.
+// @spec Gate E→F — a denied, approval-pending/refused, or step-up-needing action
+//   degrades to a graceful response; only programmer errors (unknown action) propagate.
 // @req FR-097 — the turn receives the channel namespace only from the trusted server
 //   scope and carries it into the canonical ingest/authorization seams.
 // @spec ADR-044, ADR-045 D1/D5-D6, BR-020, SEC-018
 // @tested tests/integration/agent-turn.test.js, tests/integration/agent-msp-thread-memory.test.js
 
-const GRACEFUL = /^(AGENT_ACTION_DENIED|STEP_UP_REQUIRED)/
+const GRACEFUL = /^(AGENT_ACTION_DENIED|AGENT_APPROVAL_|STEP_UP_REQUIRED)/
 
 /**
  * Handle one inbound LINE message as a full agent turn.
@@ -114,10 +114,35 @@ export async function handleAgentTurn(
     } else if (action) {
       try {
         actionResult = await executeAgentAction(
-          { tenantId, lineUserId, actionName: action.name, target: action.target, payload: action.payload, stepUpToken: action.stepUpToken },
+          {
+            tenantId,
+            lineUserId,
+            actionName: action.name,
+            target: action.target,
+            payload: action.payload,
+            stepUpToken: action.stepUpToken,
+            approvalRequestId: action.approvalRequestId,
+          },
           { registry: writeRegistry },
         )
-        response = { kind: 'ACTION_DONE', action: action.name, principalType: context.identity.principalType }
+        if (actionResult?.approvalRequired === true && actionResult.executed === false) {
+          response = {
+            kind: 'ACTION_PENDING',
+            action: action.name,
+            approvalRequestId: actionResult.approvalRequestId,
+            tier: actionResult.tier,
+            quorum: actionResult.quorum,
+            expiresAt: actionResult.expiresAt,
+            principalType: context.identity.principalType,
+          }
+        } else {
+          response = {
+            kind: 'ACTION_DONE',
+            action: action.name,
+            ...(actionResult?.approvalRequestId ? { approvalRequestId: actionResult.approvalRequestId } : {}),
+            principalType: context.identity.principalType,
+          }
+        }
       } catch (err) {
         const msg = String(err?.message ?? err)
         if (!GRACEFUL.test(msg)) throw err // unknown action / real fault propagates
@@ -125,6 +150,7 @@ export async function handleAgentTurn(
           kind: msg.startsWith('STEP_UP_REQUIRED') ? 'STEP_UP_REQUIRED' : 'ACTION_DENIED',
           action: action.name,
           reason: msg,
+          ...(action.approvalRequestId ? { approvalRequestId: action.approvalRequestId } : {}),
         }
       }
     } else if (businessId && businessKnowledge && model && inbound.created.message === false) {

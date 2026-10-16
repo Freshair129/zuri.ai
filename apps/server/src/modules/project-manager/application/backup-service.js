@@ -389,6 +389,10 @@ export const SNAPSHOT_MODELS = [
   // business record (who agreed, who recorded it, when, revoked when), no key.
   'customerRetentionConsent',
   'conversation',
+  // @req FR-026 — Agent approval requests retain their exact requester,
+  // target and lifecycle evidence in portable recovery; votes restore after
+  // their request so one Person/request constraint remains meaningful.
+  'agentApprovalRequest', 'agentApprovalDecision',
   // @req FR-243 — a session hangs off Conversation and Message/ConversationEvent
   // point at it, so it restores between them. Ids, counts and times, no content.
   'conversationSession', 'message',
@@ -2028,6 +2032,11 @@ async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
 
 /** Restore is recovery of evidence, never authorization to repeat an external send. */
 export function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
+  if (model === 'agentApprovalRequest') {
+    const terminal = new Set(['REJECTED', 'EXPIRED', 'STALE', 'EXECUTED', 'RESTORE_INVALIDATED'])
+    if (terminal.has(row.status)) return row
+    return { ...row, status: 'RESTORE_INVALIDATED', version: (row.version ?? 1) + 1 }
+  }
   if (model === 'lineOaAccount') return {
     ...row, serverEnabled: false, transportEpoch: (row.transportEpoch ?? 1) + 1,
     version: (row.version ?? 1) + 1,

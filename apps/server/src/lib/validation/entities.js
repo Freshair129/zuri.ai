@@ -242,6 +242,7 @@ export const zExecuteAgentActionInput = z.object({
   target: z.record(z.any()).default({}),
   payload: z.record(z.any()).default({}),
   stepUpToken: z.string().optional(),
+    approvalRequestId: z.string().min(1).optional(),
 })
 
 // FR-027 — one end-to-end agent turn over a LINE message (optionally requesting an action).
@@ -270,6 +271,7 @@ export const zHandleAgentTurnInput = z.object({
       target: z.record(z.any()).default({}),
       payload: z.record(z.any()).default({}),
       stepUpToken: z.string().optional(),
+      approvalRequestId: z.string().min(1).optional(),
     })
     .optional(),
 })

@@ -45,6 +45,7 @@ export async function resolveAuthorizationContext({
   action = 'READ',
   permission = null,
   ownerPersonId = null,
+  now = Date.now(),
   db = prisma,
 } = {}) {
   const principalId = clean(personId)
@@ -94,9 +95,13 @@ export async function resolveAuthorizationContext({
       status: true,
       domainKeysJson: true,
       version: true,
+      expiresAt: true,
     },
   })
-  const scopedMemberships = memberships.filter((membership) => membershipMatchesBusiness(membership, resolvedBusinessId))
+  const scopedMemberships = memberships.filter((membership) =>
+    membershipMatchesBusiness(membership, resolvedBusinessId) &&
+    (!membership.expiresAt || new Date(membership.expiresAt).getTime() > now),
+  )
 
   let bindings = []
   if (resolvedBusinessId && typeof db.roleBinding?.findMany === 'function') {
@@ -190,6 +195,47 @@ export function authorizeScope(context, {
   }
 
   return { allowed: true, reason: 'AUTHORIZED' }
+}
+
+/**
+ * Resolve the active, direct Business OWNER identities eligible for an
+ * Agent approval vote. Tenant-wide memberships and RoleBindings are excluded:
+ * this is a same-Tenant, exact-Business human approval boundary, not generic
+ * Business write authorization.
+ */
+export async function listActiveDirectBusinessOwnerIds({
+  tenantId,
+  businessId,
+  personIds,
+  now = new Date(),
+  db = prisma,
+} = {}) {
+  if (!clean(tenantId) || !clean(businessId)) return []
+  const [tenant, business] = await Promise.all([
+    db.tenant.findUnique({ where: { id: tenantId }, select: { id: true, status: true } }),
+    db.business.findUnique({ where: { id: businessId }, select: { id: true, tenantId: true, status: true } }),
+  ])
+  if (!tenant || tenant.status !== ACTIVE || !business || business.tenantId !== tenantId || business.status !== ACTIVE) return []
+  const memberships = await db.membership.findMany({
+    where: {
+      tenantId,
+      businessId,
+      scopeType: ROLE_SCOPE_BUSINESS,
+      role: 'OWNER',
+      status: ACTIVE,
+      ...(Array.isArray(personIds) ? { personId: { in: unique(personIds.filter(Boolean)) } } : {}),
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    },
+    select: { personId: true },
+  })
+  const ids = unique(memberships.map(({ personId }) => personId))
+  if (!ids.length) return []
+  const activePeople = await db.person.findMany({
+    where: { id: { in: ids }, accessDisabledAt: null },
+    select: { id: true },
+  })
+  const active = new Set(activePeople.map(({ id }) => id))
+  return ids.filter((id) => active.has(id))
 }
 
 export { ACTIVE as ACTIVE_MEMBERSHIP_STATUS, membershipMatchesBusiness }

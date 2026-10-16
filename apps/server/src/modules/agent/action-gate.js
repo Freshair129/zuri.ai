@@ -5,6 +5,7 @@ import { authorizeScope, resolveAuthorizationContext } from '@/modules/identity/
 import { zExecuteAgentActionInput } from '@/lib/validation/entities'
 import { consumeStepUp } from './step-up'
 import { defaultWriteTools } from './write-tools'
+import { createAgentApprovalRequest, consumeAgentApprovalRequest, resolveActionTarget } from './approval-gateway'
 
 // @req FR-026, FR-096, FR-098 — the Gate F write/action gate: the single place a resolved principal is
 //   authorized to run a write, step-up is enforced for sensitive ones, and the write is
@@ -77,14 +78,18 @@ async function resolveActionBusinessId(tenantId, target = {}) {
  * @returns {{ executed: true, action: string, principalId: string, steppedUp: boolean, result: any }}
  */
 export async function executeAgentAction(input, { registry } = {}) {
-  const { tenantId, lineUserId, actionName, target, payload, stepUpToken } = zExecuteAgentActionInput.parse(input)
+  const { tenantId, lineUserId, actionName, target, payload, stepUpToken, approvalRequestId } = zExecuteAgentActionInput.parse(input)
 
   const reg = registry ?? defaultWriteTools()
   const action = reg.get(actionName)
   if (!action) throw new Error(`unknown write action: ${actionName}`)
+  if (action.available === false) throw new Error(`AGENT_ACTION_UNAVAILABLE: ${actionName}`)
 
   const principal = await resolveLinePrincipal({ tenantId, lineUserId })
-  const businessId = await resolveActionBusinessId(tenantId, target)
+  const boundTarget = action.targetField
+    ? await resolveActionTarget(prisma, { tenantId, action, target })
+    : null
+  const businessId = boundTarget?.businessId ?? await resolveActionBusinessId(tenantId, target)
   const ownerPersonId = typeof action.ownerCheck === 'function' && action.ownerCheck(principal, target)
     ? principal.personId
     : null
@@ -117,6 +122,75 @@ export async function executeAgentAction(input, { registry } = {}) {
       payload: { tenantId, principalId: principal.personId, businessId, reason: decision.reason },
     })
     throw new Error(`AGENT_ACTION_DENIED: ${decision.reason}`)
+  }
+
+  if (action.approvalTier && action.approvalTier !== 'NONE') {
+    if (!approvalRequestId) {
+      const request = await prisma.$transaction((tx) => createAgentApprovalRequest(tx, {
+        tenantId, requesterPersonId: principal.personId, action, target, payload,
+      }))
+      return {
+        executed: false,
+        approvalRequired: true,
+        approvalRequestId: request.id,
+        tier: action.approvalTier,
+        quorum: request.quorum,
+        status: request.status,
+        expiresAt: request.expiresAt,
+      }
+    }
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        const approval = await consumeAgentApprovalRequest(tx, {
+          requestId: approvalRequestId, tenantId, requesterPersonId: principal.personId,
+          action, target, payload, principal,
+        })
+        if (approval.blocked) return { blocked: approval.blocked }
+        if (action.sensitivity === 'HIGH') {
+          await consumeStepUp(tx, {
+            tenantId, personId: principal.personId, token: stepUpToken,
+            notBefore: approval.stepUpNotBefore,
+          })
+        }
+        const out = await action.execute({ tx, tenantId, principal, target, payload, expectedTargetVersion: approval.targetVersion })
+        await recordAudit(tx, {
+          entityType: 'AGENT_ACTION',
+          entityId: actionName,
+          action: 'EXECUTED',
+          actorType: 'AGENT',
+          payload: {
+            tenantId,
+            principalId: principal.personId,
+            businessId,
+            sensitivity: action.sensitivity,
+            approvalRequestId,
+            steppedUp: action.sensitivity === 'HIGH',
+            target,
+          },
+        })
+        return { out }
+      })
+      if (result.blocked) throw new Error(result.blocked)
+      return {
+        executed: true,
+        action: actionName,
+        principalId: principal.personId,
+        steppedUp: action.sensitivity === 'HIGH',
+        approvalRequestId,
+        result: result.out,
+      }
+    } catch (error) {
+      const reason = /^[A-Z][A-Z0-9_]+/.exec(error?.message || '')?.[0]
+      const safeReason = reason && (reason.startsWith('AGENT_') || reason.startsWith('STEP_UP_'))
+        ? reason
+        : 'AGENT_APPROVAL_EXECUTION_REFUSED'
+      await recordAudit(prisma, {
+        entityType: 'AGENT_ACTION', entityId: actionName, action: 'DENIED', actorType: 'AGENT',
+        actorId: principal.personId, tenantId, businessId,
+        payload: { tenantId, principalId: principal.personId, businessId, approvalRequestId, reason: safeReason },
+      })
+      throw error
+    }
   }
 
   const result = await prisma.$transaction(async (tx) => {

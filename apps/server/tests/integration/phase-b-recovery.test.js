@@ -11,11 +11,13 @@ import os from 'node:os'
 import path from 'node:path'
 import {
   PHASE_B_FAMILY_DELEGATES,
+  PHASE_B_FAMILY_MODEL_NAMES,
   PHASE_B_RECOVERY_MANIFEST_VERSION,
   computeSnapshotSha256,
   computeTargetSchemaSha256,
 } from '@/modules/project-manager/application/phase-b-backup'
-import { SNAPSHOT_EXCLUDED_MODELS, SNAPSHOT_MODELS } from '@/modules/project-manager/application/backup-service'
+import { restoredRow, SNAPSHOT_EXCLUDED_MODELS, SNAPSHOT_MODELS } from '@/modules/project-manager/application/backup-service'
+import { consumeAgentApprovalRequest } from '@/modules/agent/approval-gateway'
 import {
   createPrismaTransactionFacade,
   createPostgresRecoveryAdapter,
@@ -30,7 +32,7 @@ const inventory = await loadFrozenSchemaInventory()
 if (!inventory) throw new Error('The committed Phase B target inventory could not be loaded')
 const validRecovery = async () => ({ valid: true })
 const MARKETING_CUSTODY = ['MarketingExternalReport', 'MarketingReportBinding', 'MarketingReportPolicy']
-const POST_204_MODELS = ['BusinessAgentConfig']
+const POST_204_MODELS = ['BusinessAgentConfig', 'AgentApprovalRequest', 'AgentApprovalDecision']
 const POST_204_DELEGATES = POST_204_MODELS.map(name => name[0].toLowerCase() + name.slice(1))
 
 function emptySnapshot() {
@@ -111,12 +113,13 @@ describe('Phase B offline recovery runners', () => {
   // @req FR-022 — the MSP memory erasure scan index on AgentTraceEvent rebinds
   // the schema hash; MemoryProjectionReceipt and the three Marketing custody
   // models compose the previous 198-table mapping; FR-269 adds two KPI and FR-270 four WIG tables.
-  // @req FR-285 — the current 205-table census adds BusinessAgentConfig; the
-  // pre-FR-285 binding reconstructed below keeps that model out of its fixture.
-  it('loads the committed pinned 205-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(205)
-    expect(inventory.schemaSha256).toBe("4679367cef0dcb57f17e68a9b1fe1ae56d2c84313d8618b8733b111a68b6cbb7")
-    expect(inventory.targetSchemaSha256).toBe("764149d3115fb3476983f1e8b1088985a137d15c3c7d9909476d523e8534fe44")
+  // @req FR-285 — BusinessAgentConfig extends the 204-table binding.
+  // @req TASK-ZAI-010 — Agent approval request and decision models join the census;
+  // both histories are portable, while restore invalidates every nonterminal request.
+  it('loads the committed pinned 207-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(207)
+    expect(inventory.schemaSha256).toBe("094d7bb9cf9cefe7d13d06fbe33b2c673aa2af71305088eab24ce6f819c22f88")
+    expect(inventory.targetSchemaSha256).toBe("cb528cab35fa622b2f686a0c27ce58b2f365e4a6d0128f161f22a83fd0002db1")
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -126,7 +129,34 @@ describe('Phase B offline recovery runners', () => {
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining([
       'ProjectApprovalRequest', 'NotionOAuthState', 'NotionWebhookReceipt', 'NotionWebhookVerificationToken', 'MemoryProjectionReceipt',
     ]))
+    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining([
+      'AgentApprovalRequest', 'AgentApprovalDecision',
+    ]))
+    expect(PHASE_B_FAMILY_MODEL_NAMES).not.toContain('AgentApprovalRequest')
+    expect(PHASE_B_FAMILY_MODEL_NAMES).not.toContain('AgentApprovalDecision')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining(BUSINESS_ADDED_MODELS))
+  })
+
+  it('preserves Agent approval history but prevents a restored approved request from executing', async () => {
+    const restored = restoredRow('agentApprovalRequest', {
+      id: 'approval-restored-1', tenantId: 'tenant-1', businessId: 'business-1',
+      requesterPersonId: 'person-1', actionName: 'deactivate_customer', tier: 4, quorum: 4,
+      targetKind: 'CUSTOMER', customerId: 'customer-1', conversationId: null,
+      targetVersion: 'v:3', inputDigest: 'digest', inputSummaryJson: '{}',
+      status: 'APPROVED', expiresAt: new Date(Date.now() + 60_000), version: 7,
+    })
+    const historicalDecision = {
+      id: 'approval-decision-1', requestId: restored.id, personId: 'owner-1', decision: 'APPROVE', version: 1,
+    }
+    expect(restored.status).toBe('RESTORE_INVALIDATED')
+    expect(restored.version).toBe(8)
+    expect(restoredRow('agentApprovalDecision', historicalDecision)).toEqual(historicalDecision)
+
+    const tx = { agentApprovalRequest: { async findUnique() { return restored } } }
+    await expect(consumeAgentApprovalRequest(tx, {
+      requestId: restored.id, tenantId: restored.tenantId, requesterPersonId: restored.requesterPersonId,
+      action: { name: restored.actionName, approvalTier: 'L4' }, target: { customerId: restored.customerId }, payload: {},
+    })).rejects.toThrow(/AGENT_APPROVAL_NOT_APPROVED: RESTORE_INVALIDATED/)
   })
 
   it('preserves the exact previous 194 mappings and covers every current Prisma model', async () => {
@@ -135,7 +165,11 @@ describe('Phase B offline recovery runners', () => {
     expect(previous).toHaveLength(194)
     expect(createHash('sha256').update(JSON.stringify(previous)).digest('hex')).toBe('f170d8b0246546bdf903e7bc4142a85486dc2e20e76e1a532a5fb93a12a98c93')
     expect(completeSnapshot().tables).toHaveProperty('businessAgentConfig')
+    expect(completeSnapshot().tables).toHaveProperty('agentApprovalRequest')
+    expect(completeSnapshot().tables).toHaveProperty('agentApprovalDecision')
     expect(historicalCompleteSnapshot().tables).not.toHaveProperty('businessAgentConfig')
+    expect(historicalCompleteSnapshot().tables).not.toHaveProperty('agentApprovalRequest')
+    expect(historicalCompleteSnapshot().tables).not.toHaveProperty('agentApprovalDecision')
     const bytes = await readFile(new URL('../../prisma/schema.prisma', import.meta.url))
     expect(createHash('sha256').update(bytes).digest('hex')).toBe(inventory.schemaSha256)
     expect(computeTargetSchemaSha256(inventory)).toBe(inventory.targetSchemaSha256)
@@ -148,7 +182,7 @@ describe('Phase B offline recovery runners', () => {
     }
   })
 
-  it('includes all 205 tables in the actual PostgreSQL adapter catalog, privileges, locks and census', async () => {
+  it('includes all 207 tables in the actual PostgreSQL adapter catalog, privileges, locks and census', async () => {
     const queries = []
     const client = { release() {}, async query(sql, values) {
       queries.push({ sql, values })
@@ -161,14 +195,14 @@ describe('Phase B offline recovery runners', () => {
     const adapter = createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_phase_b_adapter_qa', inventory })
     try {
       const tx = await adapter.begin()
-      expect(await tx.reconcileCatalog()).toEqual({ expectedCount: 205, catalogCount: 205 })
+      expect(await tx.reconcileCatalog()).toEqual({ expectedCount: 207, catalogCount: 207 })
       await tx.assertPrivileges({ write: true })
       await tx.lockApplicationTables()
       expect(Object.keys(await tx.countAllApplicationTables()).sort()).toEqual(inventory.applicationTables.map(entry => entry.modelName))
       const names = inventory.applicationTables.map(entry => `"public"."${entry.tableName}"`)
       expect(queries.filter(query => query.sql.includes('has_table_privilege')).map(query => query.values[0])).toEqual(names)
       expect(queries.filter(query => query.sql.startsWith('LOCK TABLE')).map(query => query.sql)).toEqual(names.map(name => `LOCK TABLE ${name} IN SHARE ROW EXCLUSIVE MODE`))
-      expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(205)
+      expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(207)
       await tx.rollback()
     } finally { connect.mockRestore(); await adapter.close() }
   })
@@ -232,7 +266,7 @@ describe('Phase B offline recovery runners', () => {
   for (const historical of [
     // FR-286 changes columns, not the 205 model mappings. A same-count prior
     // schema is still a distinct historical binding, refused at every boundary.
-    { name: 'FR-285 205-model predecessor', schemaSha256: '9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa', targetSchemaSha256: '9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4', omit: [] },
+    { name: 'FR-285 205-model predecessor', schemaSha256: '9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa', targetSchemaSha256: '9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4', omit: ['AgentApprovalRequest', 'AgentApprovalDecision'] },
     { name: 'API-010 195-model', schemaSha256: '73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1', targetSchemaSha256: '9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9', omit: [...MARKETING_CUSTODY, ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS] },
     { name: 'main 197-model', schemaSha256: '45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06', targetSchemaSha256: 'e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e', omit: ['MemoryProjectionReceipt', ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS] },
   ]) {
@@ -248,8 +282,8 @@ describe('Phase B offline recovery runners', () => {
         const bytes = Buffer.from(JSON.stringify(emptySnapshot()))
         expect(await runCleanTargetRestore({ inventory: previous, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
         expect(await runProtectedExport({ inventory: previous, adapter, extractSnapshot: async () => ({ snapshot: historicalCompleteSnapshot(), ...historicalExportedModelContract() }), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED', snapshot: null })
-        expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 205-table inventory/)
-        expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_composed_qa', inventory: previous })).toThrow(/approved 205-table inventory/)
+        expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 207-table inventory/)
+        expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_composed_qa', inventory: previous })).toThrow(/approved 207-table inventory/)
         expect(adapter.events).not.toContain('begin')
       } finally { await rm(dir, { recursive: true, force: true }) }
     })
@@ -543,8 +577,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 205-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 205-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 207-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 207-table inventory/)
     }
   })
 

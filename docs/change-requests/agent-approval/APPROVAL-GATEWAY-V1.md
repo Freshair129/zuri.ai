@@ -1,84 +1,72 @@
 ---
-doc_type: proposal
+doc_type: contract
 task_id: TASK-ZAI-010
-version: "0.1.0"
-status: candidate
-updated_at: "2026-10-15"
+version: "1.0.0"
+status: adopted
+updated_at: "2026-10-16"
 ---
 
-# Agent Approval Gateway L1-L4 over the FR-026 action gate
+# Agent Approval Gateway v1
 
-**Lifecycle: candidate only; non-authoritative.** This proposal is an intake document, not a product requirement, an approved decision, or runtime authority. It does not select approval policy, authorize implementation, change the roadmap, or claim Task10 is implemented or accepted.
+**Lifecycle: adopted for implementation.** Decision `TASK-ZAI-010-L1-L4-DISPOSITION-20261016-01` fixes the approval policy for selected FR-026 writes. This is an Agent-owned prerequisite to Gate F execution. It does not grant Identity permission, replace step-up, execute a write itself, or authorize production deployment or migration application.
 
-**Source snapshot:** repository HEAD dcaaffa71555389bb7a4e80499f31a269fe24588. Findings below come from static inspection of the source and test assets at that revision. Test assets are references, not test results.
+## Ownership and boundary
 
-## Purpose and scope
+- Agent owns `AgentApprovalRequest`, `AgentApprovalDecision`, the action-tier metadata, and the authenticated approval queue/decision API.
+- Identity continues to resolve the requester and reviewer Persons and current Membership authority. An approver must have an active, unexpired, Business-scoped `OWNER` Membership for the exact Tenant and Business on the request. Tenant-wide Membership, RoleBinding, persona metadata, and owner status in another Business do not qualify.
+- The original requester must still pass FR-026 Gate F when executing. The approval is an additional prerequisite, never a substitute for Gate F, resource ownership, Identity scope checks, or the action's canonical writer.
+- HIGH sensitivity remains a separate control. A HIGH write requires fresh single-use step-up when the requester executes it, and that token is consumed in the same transaction as approval consumption, the canonical writer, and its audit event.
+- The PM approval gateway (FR-272 / ADR-103 / `ProjectApprovalRequest`) remains separate and unchanged. Approval decisions are not stored in `AgentTraceEvent` or used as a replacement for `AuditEvent`.
+- AI persona `approvalTier` is not an action classification and does not confer reviewer authority.
 
-TASK-ZAI-010 is recorded as planned in the [roadmap task list](../../roadmap/ROADMAP-zuri-ai-24w-program.md). Its intended subject is a possible L1-L4 approval boundary over selected writes already protected by FR-026 Gate F.
+## Action policy
 
-The proposal separates three things that currently have different owners and contracts:
+The tier is explicit server-owned metadata on each write descriptor, independent of LOW/HIGH sensitivity.
 
-1. FR-026 decides whether a resolved principal may execute a registered write and applies step-up to HIGH-sensitivity actions.
-2. The agent role registry carries an approvalTier value as role metadata.
-3. FR-272 and ADR-103 cover approval admission for Project Manager Agent/Fleet execution-run steps.
+| FR-026 action | Tier | Behavior |
+|---|---:|---|
+| `close_conversation` | L1 | Require one distinct active same-Tenant+Business OWNER approval. |
+| `set_customer_lifecycle` | L2 | Require two distinct active same-Tenant+Business OWNER approvals. |
+| `deactivate_customer` | L4 | Require four distinct active same-Tenant+Business OWNER approvals and a fresh HIGH step-up at execution. |
+| `update_own_display_name` | NONE | Continue through Gate F without an approval request. |
+| `refund_order` | Unavailable | No executor exists; never create, decide, or execute an approval request for it. |
 
-None of these sources, alone, defines an implemented general L1-L4 approval ladder for FR-026 actions.
+The reusable quorum engine supports L3 (three distinct owners), but no production action is assigned L3 in v1. L3 is exercised only with an isolated engine fixture.
 
-## Source map and current behavior
+The requester cannot vote. One Person can record at most one decision per request. Any rejection makes the request terminal. The approval queue and API derive the acting Person from the authenticated Identity session, never from a request body or Agent persona.
 
-| Source | What is present at the inspected revision | Boundary for TASK-ZAI-010 |
-|---|---|---|
-| [FR-026](../../requirements/FR-026.md), [Gate F action gate](../../../apps/server/src/modules/agent/action-gate.js), [step-up service](../../../apps/server/src/modules/agent/step-up.js), and [integration test asset](../../../apps/server/tests/integration/agent-action-gate.test.js) | FR-026 describes a separate WRITE registry and executor, principal resolution, Membership-role and resource-ownership authorization, sensitivity checks, single-use step-up for HIGH actions, and a transactional write with an audit event. The implementation resolves the LINE principal and authorization context and authorizes before entering the write transaction; when authorization returns `allowed=false`, it records `AGENT_ACTION/DENIED` before that transaction, and the cited integration test covers a HIGH step-up refusal but does not assert a `DENIED` audit for that path. For an allowed action, one transaction consumes any required HIGH step-up token, executes the action, and appends the execution audit. The tests cover registry separation, unknown-principal denial, staff and resource-owner cases, denied and successful audit events, HIGH step-up refusal, single-use consumption, and an action with no executor. | Gate F is an action authorization and execution boundary. It does not implement an L1-L4 approval request, reviewer decision, quorum, or approval ledger. A future approval result cannot replace Gate F, Identity authorization, step-up, or the owning writer. |
-| [Agent role registry](../../../apps/server/src/modules/agent/role-registry.js) and [role registry unit test asset](../../../apps/server/tests/unit/agent-role-registry.test.js) | ROLE_SPECIFICATIONS.policy.approvalTier currently contains Executive=L4, Operations=L2, Finance Analyst=L3, Research=L1, and Marketing=L2. Unit assertions check the role-spec values and show a resolved Finance Analyst context carrying L3. | These are existing role metadata values. The Gate F action-gate module does not read approvalTier; the registry test does not establish action-to-tier policy, reviewer eligibility, quorum, or enforcement. This proposal does not reinterpret or change the values. |
-| [FR-026 LINE Project/Work feature note](../../domains/agent/features/FR-026-line-project-work-confirmation.md) | This scoped flow previews a Work change and requires a new signed inbound confirmation bound to the actor, identity, target/version, arguments, and a short expiry. It records proposal and execution receipts and calls the canonical Work writer. | This is a specific confirmation protocol for that tool path. It is not a general multi-reviewer L1-L4 gateway. |
-| [FR-272](../../requirements/FR-272.md), [FR-272 feature note](../../domains/project-manager/features/FR-272-approval-gateway-admission.md), [ADR-103](../../decisions/ADR-103-PM-APPROVAL-GATEWAY-ADMISSION.md), [PM approval service](../../../apps/server/src/modules/project-manager/application/approval-gateway.js), and [PM integration test asset](../../../apps/server/tests/integration/project-approval-gateway.test.js) | ADR-103 remains candidate design-only. The separate FR-272 record reports local implementation with verification and release pending and not deployed. PM owns an approval request scoped to an execution run and step. The request binds an exact digest and PM action class; Identity resolves current reviewer capability and scope; the executor rechecks state, hashes, expiry, revocation, and lease before admission. State transitions are audited, and the design keeps replay approvals separate. Its test asset covers scoped decisions, self-approval refusal, stale input and lease, expiry, revocation, idempotency, and replay isolation. | This is a PM execution-step contract, not an L1-L4 mapping for all FR-026 actions. Its action classes, reviewer model, data model, and lifecycle values are not adopted for Task10. Source and test presence do not establish test execution or production use. |
+## Request lifecycle and effect binding
 
-The [ADR-103 design](../../decisions/ADR-103-PM-APPROVAL-GATEWAY-ADMISSION.md) keeps Project Manager execution admission, Identity grants, executor leases, and owning-domain effects in their respective boundaries. Its documented service and test patterns may inform later review, but this proposal does not merge the PM and Agent approval authorities.
+An initial call for an approval-gated action passes the existing Gate F authorization checks, then records a `PENDING` request. It performs no business write and consumes no step-up token. The fixed expiry is 24 hours from creation; there is no renewal.
 
-## Candidate boundary for review
+Each request binds:
 
-A future approval component, with its owner and insertion point still to be decided, could hold selected FR-026 writes for an approved decision before handing control back to the existing Gate F path. It would not execute writes or grant Identity permissions. Gate F, Identity, step-up, any applicable provider-specific approval gate or record, and each owning domain's canonical writer would remain required authorities; the new gate must not bypass, replace, or weaken any of them.
+- original requester Person;
+- Tenant and Business resolved from the target resource;
+- server-registered action and tier;
+- the action-specific concrete target foreign key;
+- the target's current version stamp; and
+- a SHA-256 digest of the canonical request input, including requester, scope, action, target and exact payload.
 
-An effectful step within the PM execution-run scope remains subject to the PM-owned FR-272 boundary; read-only steps follow the existing no-approval-row path. This proposal does not route it around that boundary, make the PM gateway a generic Agent gateway, or assume both systems share a request store.
+The gateway stores no input payload in its audit records. The requester must resubmit the same request ID and exact action, target and payload. A different requester, scope, action, target, target version, or digest cannot reuse the approvals. Target version changes make the request stale.
 
-No endpoint, state machine, database shape, digest field set, TTL, approver role, approval count, or L1-L4 action mapping is fixed here.
+Before executing, the service re-resolves the requester's LINE identity and current Identity authorization, verifies target ownership and version, and recounts approvals from currently active same-Business OWNER Persons. Ineligible or revoked owners do not count. An expired, rejected, stale, unavailable, changed, cross-scope, duplicate, revoked, or under-quorum request fails closed with no business mutation. It is audited with a bounded reason code and no secrets or payload.
 
-## Decisions reserved for the product owner
+For an eligible request, one database transaction conditionally consumes the still-pending request, consumes the HIGH step-up token when required, invokes the existing canonical writer, and appends the execution audit. Any failure rolls back all four effects. Duplicate execution cannot run a second writer.
 
-Every item below is open. The registry values and PM patterns above are source facts only; they do not resolve these choices.
+## Persistence and API
 
-| Decision | Questions that remain open |
-|---|---|
-| L1-L4 to action mapping | Which FR-026 actions, if any, belong to each tier? How should an eventual tier relate to Gate F sensitivity such as LOW or HIGH? |
-| Reviewer eligibility and scope | Which people or Identity capabilities may review, for which tenant/Business/resource scope? Do role labels have any reviewer meaning? |
-| Decision cardinality and quorum | How many decisions are required at each tier, in what sequence, and what distinct-principal rule applies? How are requester, agent, reviewer, target owner, and executor separated? |
-| Expiry, revocation, and step-up | What expiry policy applies? At which points are grants and approvals revalidated? When is Identity step-up required, and how does it interact with an approval decision? |
-| Persistence and audit | Which owning domain stores the request and current lifecycle projection? What immutable request evidence, audit events, retention, redaction, and recovery rules are required? |
-| Replay and idempotency | What exact identity binds a decision to a request and effect? How do retries, duplicate decisions, changed inputs, replay, and an uncertain effect behave? |
-| Migration ownership | Which domain owns schema and migrations, backup/restore behavior, compatibility, rollback, and the release gate? |
+`AgentApprovalRequest` owns immutable request binding plus its lifecycle state and action-specific target foreign keys. `AgentApprovalDecision` owns immutable APPROVE/REJECT decisions, scoped by Tenant/Business and unique by request/Person. Decisions are not inferred from audit rows or execution traces.
 
-## Source questions requiring reconciliation
+- `GET /api/agent/approval-requests?businessId=...` returns the live queue for an authenticated OWNER of that exact Business. It includes request binding needed to review the action and a current eligible approval count, but no raw input payload or digest.
+- `POST /api/agent/approval-requests/{requestId}/decision` accepts only `{ "decision": "APPROVE" | "REJECT" }`. The authenticated Identity Person is the actor. The service rechecks the request scope and current OWNER Membership before writing one decision.
 
-The current roadmap container for TASK-ZAI-010 remains planned, with its criteria unchecked. It records an acceptance criterion that an L4 action is refused until four distinct approvals exist, a success criterion that the same principal cannot count twice, and an exit criterion for positive and negative cases across L1-L4. Its changelog also says FR-026 has one HIGH-sensitivity step-up tier, not an approval ladder. The task container marks its Task10 test path unavailable; existing Gate F integration tests are not L1-L4 acceptance evidence.
+The API never accepts a Person, role, Tenant, Business, approval tier, quorum, request payload, or execution permission from the caller. Every route fails closed when authentication, Identity, persistence, scope, or the request state is unavailable.
 
-Those roadmap statements are recorded but unchecked. The trusted scope for this candidate explicitly reserves tier/action mapping, reviewer eligibility, quorum/SoD, and decision cardinality for the product owner. The owner must reconcile and adopt, amend, or replace the unchecked criteria through the roadmap's normal authority path before implementation. This proposal neither discards those criteria nor promotes them to approved policy.
+## Verification and release limits
 
-The role registry's existing role-to-tier metadata also needs an owner interpretation before it can be used by a gateway. The current source does not establish that those values classify actions or identify eligible reviewers.
-
-Finally, the PM approval service is currently scoped to PM execution-run steps. Whether any Agent mission or action should call that service, remain under FR-026 only, or use another owner-approved boundary is unresolved. Neither reuse nor duplication is assumed.
-
-## Dependency-ordered future plan
-
-1. **Reconcile authority first.** Resolve the unchecked roadmap criteria against the product owner's intended L1-L4 policy. Keep the roadmap status and acceptance unchanged until its owner makes an authorized update.
-2. **Freeze policy semantics.** Decide tier/action mapping, reviewer eligibility and scope, quorum and separation of duties, decision cardinality, expiry/revocation/step-up behavior, and the treatment of changed requests.
-3. **Assign domain and data ownership.** Decide the Agent, Identity, Project Manager, and domain-writer interfaces; settle persistence, audit, replay/idempotency, retention, migration, backup, and rollback ownership.
-4. **Review a complete contract.** Only after the policy and owners are resolved, specify the request/decision lifecycle, integration seam with Gate F, typed denials, race behavior, and privacy/security acceptance cases. Reconcile any PM interaction with FR-272's owning domain.
-5. **Authorize a separate implementation task.** Register or migrate requirements through the repository's normal reviewed process, then plan code, migration, tests, independent review, exact-head CI, and release gates under the applicable mandate. This candidate does not authorize any of those effects.
-
-## Delivery and evidence boundary
-
-The [active v4 workflow](../../architecture/delivery-control/WORKFLOW-POLICY.md) treats READY as readiness evidence, not product-policy approval or runtime authority. TASK-ZAI-010 remains planned at the inspected source revision. No application tests or builds were run for this proposal, and no live, production, or deployment behavior is claimed.
+SQLite tests cover the action gate, quorum/lifecycle, exact binding, no-write-before-quorum, requester separation, duplicate decisions, terminal rejection, expiry, staleness, revocation, step-up, atomic rollback, audit redaction, and authenticated route behavior. PostgreSQL tests use only the repository's disposable embedded loopback cluster. Migration sources are authored in the repository but are not applied to UAT, production, or Supabase. Passing local checks does not claim hosted CI, deployment, or production acceptance.
 
 ## Version diff
 
-- 0.1.0 - Initial candidate-only source map, boundary proposal, unresolved owner decisions, and dependency-ordered follow-up. No product policy or runtime behavior is approved by this document.
+- 1.0.0 - Adopts the fixed L1-L4 quorum, selected action mapping, same-Business OWNER reviewer rule, 24-hour expiry, exact request binding, Agent persistence/API ownership, fail-closed execution lifecycle, and separation from PM FR-272.
