@@ -1,6 +1,8 @@
 # Appendix A — API Specification
 
-Version diff 1.106.0b → 1.107.0b (2026-10-16): add the authenticated FR-026 Agent approval queue and decision paths, with explicit 400/401/403/404/409 responses. Inventory: 345 route handlers, 346 OpenAPI paths, 455 operations. Source migrations are not applied to Supabase or production.
+Version diff 1.106.0b → 1.107.0b (2026-10-16): add FR-260's installation-operator-only read-only Worker observations and explicit refusal methods. Inventory: 344 route handlers, 345 OpenAPI paths, 459 operations. No provider/live-agent activation, hosted deployment, or external migration apply is claimed.
+
+Version diff 1.107.0b → 1.108.0b (2026-10-16): add the authenticated FR-026 Agent approval queue and decision paths, with explicit 400/401/403/404/409 responses. Inventory: 346 route handlers, 347 OpenAPI paths, 461 operations. Source migrations are not applied to Supabase or production.
 
 ### Agent-owned approval gateway (FR-026)
 
@@ -125,8 +127,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=345 -->
-
+<!-- api-spec-counts: route_handlers=346 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -235,6 +236,7 @@ ADR-110 retires the FR-220/FR-221 harness pairing, device-management and `whoami
 
 | Method | Route | Contract | Failure |
 |---|---|---|---|
+| GET | `/api/platform/worker-observability` | FR-260: installation operator only; same-origin, read-only, private `no-store` snapshot of local worker, queue, verified local CI receipt, tag-transition and content-free memory-provenance observations. Exposes no prompts, paths or session identities; source gaps return `UNKNOWN` or `NOT_CAPTURED` without remote reads or writes | `401 AUTH_REQUIRED`; `403 SAME_ORIGIN_REQUIRED \| OPERATOR_REQUIRED`; non-GET methods return `405 READ_ONLY` |
 | GET | `/api/platform/error-events` | implemented (FR-247): installation operator only, audited `ERROR_EVENTS_READ`; `{ events: [{ id, fingerprint, name, message, frames, occurrenceCount, firstSeenAt, lastSeenAt, correlationId, route, resolvedAt, resolvedByPersonId }] }`, active rows before resolved ones, newest active first — never request/response content | `404` for any non-operator |
 | PATCH | `/api/platform/error-events/[id]` | implemented (FR-247): operator only, audited `ERROR_EVENT_RESOLVED`; sets `resolvedAt`/`resolvedByPersonId`, stops the fingerprint counting as active | `404` for any non-operator |
 | POST | `/api/platform/usage-events` | implemented (FR-248, FR-249): any signed-in person records their own `{ kind: PAGE_VIEW \| ACTION, route?, actionName? }` — a PAGE_VIEW never carries `actionName`, an ACTION never carries `route`; `actionName` is a static label matching `^[\w.:@/-]{1,120}$`, never free text | `400 USAGE_EVENT_KIND_INVALID \| USAGE_EVENT_ROUTE_INVALID \| USAGE_EVENT_ACTION_NAME_INVALID \| USAGE_EVENT_ROUTE_CARRIES_NO_ACTION_NAME \| USAGE_EVENT_ACTION_CARRIES_NO_ROUTE` |

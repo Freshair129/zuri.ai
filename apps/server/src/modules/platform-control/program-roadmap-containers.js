@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.31, 2026-10-16) so the board can open a task the way the html board
+// (v0.4.33, 2026-10-16) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -6015,8 +6015,8 @@ export const PROGRAMME_CONTAINERS = {
       },
       {
         "id": "P1",
-        "title": "Installation-operator route, blocker/gate evidence and mobile board",
-        "status": "review"
+        "title": "Installation-operator route, blocker/gate evidence and responsive board including Workers view",
+        "status": "done"
       },
       {
         "id": "P2",
@@ -6038,14 +6038,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Local read-only/operator-only code and focused unit evidence are present. Sanitized targeted Playwright receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; raw reports were removed. The PORL source remains unavailable and no deployment is claimed.",
+    "changelog": "Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Sanitized responsive receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 at 390x844 and 430x932; raw reports were removed. PR #686 merged as `a0d933fd` from exact head `23186eb7`; PR #687 merged as `19b22dbe` to reconcile its accepted Workers-view slice. PR #688 merged as `dc6799fd` from exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999`; the view now exposes sanitized local campaign intake holds, requires a fresh controller heartbeat and live PID to report LIVE, and sorts validated supervisor events newest-first before limiting UNKNOWN snapshots. Local checks passed (Node 35/35, isolated Vitest 6/6); exact-head Governance `38905060924` and Edge `38905060947` passed; manual workflow `38905115144` passed including E2E. P1 is done. P2 remains planned for external PORL source binding and hosted/production proof; parent remains review and the exit criterion remains unchecked. FEAT-044 remains building. The diagnostics are read-only and local-only; no external PORL, production deployment, or live Business/LINE behavior is claimed.",
     "created": "2026-09-19T00:00:00Z,RWANG,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-064"
     ],
-    "evidence": "PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264"
+    "evidence": "PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`; exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks; PR E2E/Desktop skipped by workflow policy; manual Governance `38890209304` passed all jobs including full E2E on exact head; P1 local operator route, blocker/gate evidence, and responsive Workers view done; P2 external PORL binding and hosted/production proof planned; parent remains review / HOSTED_CI / MERGED; FEAT-044 building; no external PORL, production deployment, or live Business/LINE behavior claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 ; PR #687 merged as `19b22dbe`; PR #688 exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999` merged as `dc6799fd870dcca670ec4511db88d1d56613d440`; local Node 35/35 and isolated Vitest 6/6, exact-head Governance `38905060924`, Edge `38905060947`, and manual E2E `38905115144` passed; sanitized campaign-intake holds, controller liveness, and newest-first event diagnostics delivered; external PORL and production exit proof remain open; FEAT-044 remains building; no deployment or live Business/LINE proof claimed"
   },
   "TASK-ZAI-120": {
     "container": "TC-TASK-ZAI-120",

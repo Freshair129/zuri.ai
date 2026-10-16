@@ -68,12 +68,13 @@ function taskRecord(taskId, objective, writeScope = ['src/'], extra = {}) {
   };
 }
 
-function trustedBinding(repoRoot, task) {
+function trustedBinding(repoRoot, task, domainOrFeatureKey = `test/${task.taskId.toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}`) {
   return {
     resolvedBy: 'root',
     taskId: task.taskId,
     repositoryRoot: repoRoot,
     objective: task.objective,
+    domainOrFeatureKey,
     writeScope: task.writeScope,
     sourceRef: 'conversation://trusted-task',
     authorizedEffects: ['edit the admitted local repository scope'],
@@ -126,6 +127,32 @@ function dispatch(controller, taskId, nodeId, role, inputDigest = sha(nodeId)) {
   const sessionId = `session-${taskId}-${role}`;
   controller.recordBackendHandle({ lease, sessionId, model: 'gpt-6-luna', effort: 'max', backendRef: `codex://${sessionId}` });
   return { lease, operationId, sessionId };
+}
+
+function completeWorkerCandidate(controller, task, worktreeRoot) {
+  const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+  const scope = task.writeScope[0];
+  const relativePath = scope.endsWith('/') ? `${scope}controller-candidate.mjs` : scope;
+  const file = path.join(worktreeRoot, ...relativePath.split('/'));
+  mkdirSync(path.dirname(file), { recursive: true });
+  writeFileSync(file, 'export const candidate = true;\n');
+  git(worktreeRoot, ['add', relativePath]);
+  git(worktreeRoot, ['commit', '-m', `worker candidate ${task.taskId}`]);
+  const headCommit = git(worktreeRoot, ['rev-parse', 'HEAD']);
+  controller.completeNode({ lease: worker.lease,
+    result: roleResult('worker', worker.sessionId, headCommit, sha(`worker-result-${task.taskId}`)) });
+  return headCommit;
+}
+
+function integrateTask(controller, task, worktreeRoot) {
+  const headCommit = completeWorkerCandidate(controller, task, worktreeRoot);
+  for (const role of ['verifier', 'reviewer']) {
+    const node = dispatch(controller, task.taskId, role, role);
+    controller.completeNode({ lease: node.lease,
+      result: roleResult(role, node.sessionId, headCommit, sha(`${role}-result-${task.taskId}`)) });
+  }
+  controller.recordRootIntegration({ taskId: task.taskId, headCommit, evidenceRef: `root://integration-${task.taskId}` });
+  return headCommit;
 }
 
 async function staleCandidateFixture({ includeCandidate = true } = {}) {
@@ -192,6 +219,8 @@ test('runs worker, exact-head verifier, reviewer, and records root integration w
     controller.completeNode({ lease: worker.lease, result: roleResult('worker', worker.sessionId, candidate, sha('worker-result')) });
     assert.equal(controller.getRun(task.taskId).state, 'VERIFY_READY');
     assert.equal(controller.getRun(task.taskId).candidateHeadCommit, candidate);
+    assert.deepEqual(controller.nextReadyNodes().map((node) => node.nodeId), ['verifier']);
+    assert.throws(() => controller.claimNode({ taskId: task.taskId, nodeId: 'reviewer', ownerId: 'reviewer-too-early' }), /not ready to claim/);
 
     const verifier = dispatch(controller, task.taskId, 'verifier', 'verifier');
     assert.throws(() => controller.completeNode({
@@ -200,6 +229,7 @@ test('runs worker, exact-head verifier, reviewer, and records root integration w
     }), /distinct backend sessions|previously used by another role/i);
     controller.completeNode({ lease: verifier.lease, result: roleResult('verifier', verifier.sessionId, candidate, sha('verify-result')) });
     assert.equal(controller.getRun(task.taskId).state, 'REVIEW_READY');
+    assert.deepEqual(controller.nextReadyNodes().map((node) => node.nodeId), ['reviewer']);
 
     const reviewer = dispatch(controller, task.taskId, 'reviewer', 'reviewer');
     controller.completeNode({ lease: reviewer.lease, result: roleResult('reviewer', reviewer.sessionId, candidate, sha('review-result')) });
@@ -208,6 +238,10 @@ test('runs worker, exact-head verifier, reviewer, and records root integration w
     const integration = controller.recordRootIntegration({ taskId: task.taskId, headCommit: candidate, evidenceRef: 'root://integration-evidence' });
     assert.equal(integration.state, 'ROOT_INTEGRATED_PENDING_CI');
     assert.equal(integration.requiredCi, 'NOT_RECORDED_BY_CONTROLLER');
+    const domainLockDb = new DatabaseSync(env.databasePath);
+    assert.equal(domainLockDb.prepare('SELECT COUNT(*) AS count FROM delivery_domain_locks WHERE task_id=?').get(task.taskId).count, 0);
+    assert.equal(domainLockDb.prepare('SELECT COUNT(*) AS count FROM delivery_write_locks WHERE task_id=?').get(task.taskId).count, 0);
+    domainLockDb.close();
     const snapshot = controller.missionControlSnapshot([task.taskId]);
     assert.equal(snapshot.readOnly, true);
     assert.equal(snapshot.tasks[0].state, 'ROOT_INTEGRATED_PENDING_CI');
@@ -542,6 +576,240 @@ test('persists dependency blocks, permits corrected acceptance evidence, and rel
   }
 });
 
+test('root-bound semantic keys reject same-key tasks across disjoint scopes and stay locked through pause and resume', async () => {
+  const env = fixture();
+  const worktrees = ['semantic-a', 'semantic-b', 'semantic-c'].map((label) => addWorktree(env.repoRoot, env.root, env.baseCommit, label));
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    const key = 'delivery-control/workflow-dag-safe-parallel';
+    const first = taskRecord('TASK-SEMANTIC-A', 'Hold one semantic delivery domain.', ['src/semantic-a.txt'], {
+      domainOrFeatureKey: 'task-prose/untrusted-a',
+    });
+    const firstBinding = trustedBinding(env.repoRoot, first, ' Delivery Control/Workflow Dag Safe Parallel ');
+    const admitted = controller.registerTask({ taskRecord: first, worktreeRoot: worktrees[0].worktreeRoot,
+      preflightResult: preflight(first, worktrees[0].worktreeRoot, env.baseCommit), trustedMandateBinding: firstBinding });
+    assert.equal(admitted.state, 'WORKER_READY');
+    assert.equal(admitted.trustedMandateBinding.domainOrFeatureKey, key);
+
+    const sameKey = taskRecord('TASK-SEMANTIC-B', 'Use the same semantic delivery domain.', ['src/semantic-b.txt'], {
+      domainOrFeatureKey: 'task-prose/a-different-key',
+    });
+    const sameKeyBinding = trustedBinding(env.repoRoot, sameKey, key.toUpperCase());
+    const rejected = controller.registerTask({ taskRecord: sameKey, worktreeRoot: worktrees[1].worktreeRoot,
+      preflightResult: preflight(sameKey, worktrees[1].worktreeRoot, env.baseCommit), trustedMandateBinding: sameKeyBinding });
+    assert.equal(rejected.state, 'BLOCKED_SCOPE');
+    assert.equal(rejected.currentCycle, 0);
+    assert.equal(rejected.trustedMandateBinding.domainOrFeatureKey, key);
+    assert.equal(rejected.blockers[0].code, 'BLOCKED_SCOPE');
+    assert.doesNotThrow(() => controller.verifyEventChain());
+
+    const differentKey = taskRecord('TASK-SEMANTIC-C', 'Use an independent semantic key.', ['src/semantic-c.txt'], {
+      domainOrFeatureKey: key,
+    });
+    const separate = controller.registerTask({ taskRecord: differentKey, worktreeRoot: worktrees[2].worktreeRoot,
+      preflightResult: preflight(differentKey, worktrees[2].worktreeRoot, env.baseCommit),
+      trustedMandateBinding: trustedBinding(env.repoRoot, differentKey, 'delivery-control/independent-feature') });
+    assert.equal(separate.state, 'WORKER_READY');
+    assert.equal(separate.trustedMandateBinding.domainOrFeatureKey, 'delivery-control/independent-feature');
+
+    const worker = dispatch(controller, first.taskId, 'worker', 'worker');
+    controller.failNode({ lease: worker.lease, failureClass: 'EXTERNAL_BLOCKER', effectState: 'NONE',
+      evidence: { reference: 'test://pause-before-resume' } });
+    controller.recordRootDisposition({ taskId: first.taskId, disposition: 'YIELD_REASSESS',
+      evidenceRef: 'test://semantic-pause', reason: 'Pause while preserving the semantic lock.' });
+    const beforeResume = controller.getRun(first.taskId);
+    const beforeCycle = beforeResume.cycles[0];
+    const domainLockDb = new DatabaseSync(env.databasePath);
+    assert.equal(domainLockDb.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(first.taskId).domain_or_feature_key, key);
+    domainLockDb.close();
+    const stillRejected = controller.registerTask({ taskRecord: sameKey, worktreeRoot: worktrees[1].worktreeRoot,
+      preflightResult: preflight(sameKey, worktrees[1].worktreeRoot, env.baseCommit), trustedMandateBinding: sameKeyBinding });
+    assert.equal(stillRejected.state, 'BLOCKED_SCOPE');
+
+    const resumed = controller.resumeTask({ taskRecord: first,
+      preflightResult: preflight(first, worktrees[0].worktreeRoot, env.baseCommit), trustedMandateBinding: firstBinding,
+      resumeEvidence: { reference: 'test://semantic-resume', reason: 'Resume in the same execution cycle.' } });
+    assert.equal(resumed.state, 'WORKER_READY');
+    assert.equal(resumed.currentCycle, beforeResume.currentCycle);
+    assert.equal(resumed.cycles[0].startedAt, beforeCycle.startedAt);
+    assert.equal(resumed.cycles[0].submissions, beforeCycle.submissions);
+    assert.equal(resumed.cycles[0].implementationRepairs, beforeCycle.implementationRepairs);
+    assert.equal(resumed.cycles[0].toolRetries, beforeCycle.toolRetries);
+    assert.equal(resumed.trustedMandateBinding.domainOrFeatureKey, key);
+
+    controller.recordRootDisposition({ taskId: first.taskId, disposition: 'BLOCKED',
+      evidenceRef: 'test://semantic-cycle-pause', reason: 'Pause before admitting a material new cycle.' });
+    const pausedLockDb = new DatabaseSync(env.databasePath);
+    assert.equal(pausedLockDb.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(first.taskId).domain_or_feature_key, key);
+    pausedLockDb.close();
+    const nextCycle = controller.admitCycle({ taskId: first.taskId, taskRecord: first,
+      preflightResult: preflight(first, worktrees[0].worktreeRoot, env.baseCommit), trustedMandateBinding: firstBinding,
+      admission: { reason: 'Material new evidence for the same bounded task.', evidenceRef: 'test://material-evidence',
+        materialChange: true, basis: 'MATERIAL_NEW_EVIDENCE' } });
+    assert.equal(nextCycle.currentCycle, 2);
+    assert.equal(nextCycle.cycles[0].submissions, beforeCycle.submissions);
+    assert.equal(nextCycle.cycles[0].startedAt, beforeCycle.startedAt);
+    assert.equal(nextCycle.cycles[1].submissions, 0);
+    const nextCycleLockDb = new DatabaseSync(env.databasePath);
+    assert.equal(nextCycleLockDb.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(first.taskId).domain_or_feature_key, key);
+    nextCycleLockDb.close();
+
+    controller.recordRootDisposition({ taskId: first.taskId, disposition: 'ABANDONED',
+      evidenceRef: 'test://semantic-terminal', reason: 'Terminally close the fixture task.' });
+    const available = controller.registerTask({ taskRecord: sameKey, worktreeRoot: worktrees[1].worktreeRoot,
+      preflightResult: preflight(sameKey, worktrees[1].worktreeRoot, env.baseCommit), trustedMandateBinding: sameKeyBinding });
+    assert.equal(available.state, 'WORKER_READY');
+  } finally {
+    controller.close();
+  }
+});
+
+test('YIELD_REASSESS and BLOCKED pauses retain overlapping write locks until terminal abandonment', async () => {
+  const env = fixture();
+  const firstTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'paused-write-lock-owner');
+  const secondTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'paused-write-lock-contender');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    const sharedScope = ['src/shared-paused-scope.txt'];
+    const first = taskRecord('TASK-PAUSED-WRITE-LOCK-OWNER', 'Retain the overlapping path during reassessment.', sharedScope);
+    const contender = taskRecord('TASK-PAUSED-WRITE-LOCK-CONTENDER', 'Attempt the held path under a different semantic key.', sharedScope);
+    const firstBinding = trustedBinding(env.repoRoot, first, 'delivery-control/paused-write-lock-owner');
+    const contenderBinding = trustedBinding(env.repoRoot, contender, 'delivery-control/paused-write-lock-contender');
+    controller.registerTask({ taskRecord: first, worktreeRoot: firstTree.worktreeRoot,
+      preflightResult: preflight(first, firstTree.worktreeRoot, env.baseCommit), trustedMandateBinding: firstBinding });
+
+    const worker = dispatch(controller, first.taskId, 'worker', 'worker');
+    controller.failNode({ lease: worker.lease, failureClass: 'EXTERNAL_BLOCKER', effectState: 'NONE',
+      evidence: { reference: 'test://pause-write-lock-owner' } });
+    controller.recordRootDisposition({ taskId: first.taskId, disposition: 'YIELD_REASSESS',
+      evidenceRef: 'test://yield-write-lock-owner', reason: 'Retain the path while new evidence is assessed.' });
+
+    const locks = new DatabaseSync(env.databasePath);
+    assert.deepEqual(locks.prepare('SELECT scope_path FROM delivery_write_locks WHERE task_id=?').all(first.taskId).map((row) => row.scope_path),
+      [sharedScope[0]]);
+    assert.equal(locks.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(first.taskId).domain_or_feature_key,
+      firstBinding.domainOrFeatureKey);
+    locks.close();
+    const yieldedContender = controller.registerTask({ taskRecord: contender, worktreeRoot: secondTree.worktreeRoot,
+      preflightResult: preflight(contender, secondTree.worktreeRoot, env.baseCommit), trustedMandateBinding: contenderBinding });
+    assert.equal(yieldedContender.state, 'BLOCKED_SCOPE');
+    assert.equal(yieldedContender.currentCycle, 0);
+
+    controller.resumeTask({ taskRecord: first, preflightResult: preflight(first, firstTree.worktreeRoot, env.baseCommit),
+      trustedMandateBinding: firstBinding, resumeEvidence: { reference: 'test://resume-write-lock-owner', reason: 'Continue after a documented reassessment.' } });
+    controller.recordRootDisposition({ taskId: first.taskId, disposition: 'BLOCKED',
+      evidenceRef: 'test://blocked-write-lock-owner', reason: 'Keep the overlapping path reserved while blocked.' });
+    const pausedLocks = new DatabaseSync(env.databasePath);
+    assert.deepEqual(pausedLocks.prepare('SELECT scope_path FROM delivery_write_locks WHERE task_id=?').all(first.taskId).map((row) => row.scope_path),
+      [sharedScope[0]]);
+    assert.equal(pausedLocks.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(first.taskId).domain_or_feature_key,
+      firstBinding.domainOrFeatureKey);
+    pausedLocks.close();
+    const blockedContender = controller.registerTask({ taskRecord: contender, worktreeRoot: secondTree.worktreeRoot,
+      preflightResult: preflight(contender, secondTree.worktreeRoot, env.baseCommit), trustedMandateBinding: contenderBinding });
+    assert.equal(blockedContender.state, 'BLOCKED_SCOPE');
+    assert.equal(blockedContender.currentCycle, 0);
+
+    controller.recordRootDisposition({ taskId: first.taskId, disposition: 'ABANDONED',
+      evidenceRef: 'test://abandon-write-lock-owner', reason: 'Release both locks at terminal abandonment.' });
+    const releasedLocks = new DatabaseSync(env.databasePath);
+    assert.equal(releasedLocks.prepare('SELECT COUNT(*) AS count FROM delivery_write_locks WHERE task_id=?').get(first.taskId).count, 0);
+    assert.equal(releasedLocks.prepare('SELECT COUNT(*) AS count FROM delivery_domain_locks WHERE task_id=?').get(first.taskId).count, 0);
+    releasedLocks.close();
+    const admittedContender = controller.registerTask({ taskRecord: contender, worktreeRoot: secondTree.worktreeRoot,
+      preflightResult: preflight(contender, secondTree.worktreeRoot, env.baseCommit), trustedMandateBinding: contenderBinding });
+    assert.equal(admittedContender.state, 'WORKER_READY');
+  } finally {
+    controller.close();
+  }
+});
+
+test('integrated pending-CI dispositions reacquire both locks atomically on conflict', async () => {
+  const env = fixture();
+  const integratedTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'integrated-lock-reacquire-target');
+  const semanticTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'integrated-domain-lock-contender');
+  const pathTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'integrated-write-lock-contender');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    const sharedKey = 'delivery-control/integrated-lock-reacquire';
+    const target = taskRecord('TASK-INTEGRATED-LOCK-REACQUIRE', 'Reacquire both locks before a resumable disposition.', ['src/integrated-target.txt']);
+    const targetBinding = trustedBinding(env.repoRoot, target, sharedKey);
+    controller.registerTask({ taskRecord: target, worktreeRoot: integratedTree.worktreeRoot,
+      preflightResult: preflight(target, integratedTree.worktreeRoot, env.baseCommit), trustedMandateBinding: targetBinding });
+    integrateTask(controller, target, integratedTree.worktreeRoot);
+
+    const retainedLockDb = new DatabaseSync(env.databasePath);
+    retainedLockDb.prepare('INSERT INTO delivery_domain_locks(domain_or_feature_key,task_id) VALUES(?,?)')
+      .run(sharedKey, target.taskId);
+    retainedLockDb.close();
+    assert.doesNotThrow(() => controller.nextReadyNodes(), 'an integrated pending-CI run with its own valid lock must not self-conflict');
+    const releaseLockDb = new DatabaseSync(env.databasePath);
+    releaseLockDb.prepare('DELETE FROM delivery_domain_locks WHERE task_id=?').run(target.taskId);
+    releaseLockDb.close();
+
+    const semanticContender = taskRecord('TASK-INTEGRATED-SEMANTIC-CONTENDER', 'Hold the target semantic key after integration.', ['src/semantic-contender.txt']);
+    controller.registerTask({ taskRecord: semanticContender, worktreeRoot: semanticTree.worktreeRoot,
+      preflightResult: preflight(semanticContender, semanticTree.worktreeRoot, env.baseCommit),
+      trustedMandateBinding: trustedBinding(env.repoRoot, semanticContender, sharedKey) });
+    const beforeSemanticConflict = controller.getRun(target.taskId);
+    const semanticEventCount = controller.verifyEventChain().count;
+    assert.throws(() => controller.recordRootDisposition({ taskId: target.taskId, disposition: 'YIELD_REASSESS',
+      evidenceRef: 'test://integrated-domain-conflict', reason: 'Attempt to reacquire a held semantic key.' }), /domainOrFeatureKey conflicts/);
+    const afterSemanticConflict = controller.getRun(target.taskId);
+    assert.deepEqual(afterSemanticConflict, beforeSemanticConflict);
+    assert.equal(controller.verifyEventChain().count, semanticEventCount);
+    let locks = new DatabaseSync(env.databasePath);
+    assert.equal(locks.prepare('SELECT COUNT(*) AS count FROM delivery_write_locks WHERE task_id=?').get(target.taskId).count, 0);
+    assert.equal(locks.prepare('SELECT COUNT(*) AS count FROM delivery_domain_locks WHERE task_id=?').get(target.taskId).count, 0);
+    locks.close();
+
+    controller.recordRootDisposition({ taskId: semanticContender.taskId, disposition: 'ABANDONED',
+      evidenceRef: 'test://release-semantic-contender', reason: 'Release its test lock before checking path conflicts.' });
+    const pathContender = taskRecord('TASK-INTEGRATED-PATH-CONTENDER', 'Hold the target path under a different semantic key.', ['src/integrated-target.txt']);
+    controller.registerTask({ taskRecord: pathContender, worktreeRoot: pathTree.worktreeRoot,
+      preflightResult: preflight(pathContender, pathTree.worktreeRoot, env.baseCommit),
+      trustedMandateBinding: trustedBinding(env.repoRoot, pathContender, 'delivery-control/integrated-path-contender') });
+    const beforePathConflict = controller.getRun(target.taskId);
+    const pathEventCount = controller.verifyEventChain().count;
+    assert.throws(() => controller.recordRootDisposition({ taskId: target.taskId, disposition: 'BLOCKED',
+      evidenceRef: 'test://integrated-path-conflict', reason: 'Attempt to reacquire an overlapping write scope.' }), /writeScope conflicts/);
+    const afterPathConflict = controller.getRun(target.taskId);
+    assert.deepEqual(afterPathConflict, beforePathConflict);
+    assert.equal(controller.verifyEventChain().count, pathEventCount);
+    locks = new DatabaseSync(env.databasePath);
+    assert.equal(locks.prepare('SELECT COUNT(*) AS count FROM delivery_write_locks WHERE task_id=?').get(target.taskId).count, 0);
+    assert.equal(locks.prepare('SELECT COUNT(*) AS count FROM delivery_domain_locks WHERE task_id=?').get(target.taskId).count, 0);
+    locks.close();
+  } finally {
+    controller.close();
+  }
+});
+
+test('an active legacy run without a semantic key blocks new admission and worker dispatch', async () => {
+  const env = fixture();
+  const firstTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'legacy-active');
+  const secondTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'legacy-successor');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    const first = taskRecord('TASK-LEGACY-KEY-MISSING', 'Retain a legacy active run.');
+    controller.registerTask({ taskRecord: first, worktreeRoot: firstTree.worktreeRoot,
+      preflightResult: preflight(first, firstTree.worktreeRoot, env.baseCommit), trustedMandateBinding: trustedBinding(env.repoRoot, first) });
+    const legacyDb = new DatabaseSync(env.databasePath);
+    legacyDb.prepare('UPDATE delivery_runs SET trusted_mandate_json=? WHERE task_id=?')
+      .run(JSON.stringify({ resolvedBy: 'root', taskId: first.taskId, objective: first.objective }), first.taskId);
+    legacyDb.close();
+
+    const second = taskRecord('TASK-LEGACY-KEY-SUCCESSOR', 'Must not collide with an unkeyed active run.', ['src/other.txt']);
+    assert.throws(() => controller.registerTask({ taskRecord: second, worktreeRoot: secondTree.worktreeRoot,
+      preflightResult: preflight(second, secondTree.worktreeRoot, env.baseCommit), trustedMandateBinding: trustedBinding(env.repoRoot, second) }),
+    /ACTIVE_RUN_MISSING_DOMAIN_OR_FEATURE_KEY/);
+    assert.throws(() => controller.nextReadyNodes(), /ACTIVE_RUN_MISSING_DOMAIN_OR_FEATURE_KEY/);
+    assert.equal(controller.getRun(second.taskId), null);
+  } finally {
+    controller.close();
+  }
+});
+
 test('metadata repair stays resumable and free, preserves cumulative no-progress, and registers corrected input under the same task id', async () => {
   const env = fixture();
   const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
@@ -615,20 +883,130 @@ test('restart quarantines a dispatched unknown effect, read-only no-effect recon
   }
 });
 
-test('atomic worker claims enforce configured slot limits even when ready-node selection raced', async () => {
+test('atomic role claims admit two workers plus one gate and enforce both role caps', async () => {
   const env = fixture();
   const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
   try {
-    const records = ['a', 'b', 'c'].map((suffix) => taskRecord(`TASK-SLOT-${suffix}`, `Use worker slot ${suffix}.`, [`src/${suffix}/`]));
+    const records = ['a', 'b', 'c', 'd', 'e'].map((suffix) => taskRecord(`TASK-SLOT-${suffix}`, `Use isolated role slot ${suffix}.`, [`src/${suffix}.txt`]));
+    const trees = [];
     for (const [index, task] of records.entries()) {
       const { worktreeRoot } = addWorktree(env.repoRoot, env.root, env.baseCommit, `slot-${index}`);
+      trees.push(worktreeRoot);
       controller.registerTask({ taskRecord: task, preflightResult: preflight(task, worktreeRoot, env.baseCommit), worktreeRoot, trustedMandateBinding: trustedBinding(env.repoRoot, task) });
     }
+
+    for (const index of [2]) {
+      const task = records[index];
+      const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+      mkdirSync(path.join(trees[index], 'src'), { recursive: true });
+      writeFileSync(path.join(trees[index], 'src', `${index === 2 ? 'c' : 'd'}.txt`), 'role-cap fixture');
+      git(trees[index], ['add', 'src']);
+      git(trees[index], ['commit', '-m', `worker candidate ${task.taskId}`]);
+      controller.completeNode({ lease: worker.lease, result: roleResult('worker', worker.sessionId,
+        git(trees[index], ['rev-parse', 'HEAD']), sha(`candidate-${task.taskId}`)) });
+    }
+
+    const ready = controller.nextReadyNodes();
+    assert.ok(ready.some((node) => node.taskId === records[2].taskId && node.role === 'verifier'));
+    const gate = controller.claimNode({ taskId: records[2].taskId, nodeId: 'verifier', ownerId: 'runner-gate' });
+    assert.equal(gate.blocked, undefined);
+    controller.recordDispatchIntent({ lease: gate, operationId: 'role-capacity-verifier', inputDigest: sha('role-capacity-verifier') });
     const first = controller.claimNode({ taskId: records[0].taskId, nodeId: 'worker', ownerId: 'runner-a' });
     const second = controller.claimNode({ taskId: records[1].taskId, nodeId: 'worker', ownerId: 'runner-b' });
     assert.equal(first.blocked, undefined);
     assert.equal(second.blocked, undefined);
-    assert.throws(() => controller.claimNode({ taskId: records[2].taskId, nodeId: 'worker', ownerId: 'runner-c' }), /concurrency limits/);
+    assert.throws(() => controller.claimNode({ taskId: records[4].taskId, nodeId: 'worker', ownerId: 'runner-worker-over-cap' }), /concurrency limits/);
+    assert.deepEqual(controller.nextReadyNodes(), []);
+  } finally {
+    controller.close();
+  }
+});
+
+test('active workers reserve unverified-submission queue capacity in scheduling and atomic claims', async () => {
+  const env = fixture();
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    const records = [
+      taskRecord('TASK-QUEUE-ACTIVE-PENDING', 'Hold one unverified candidate.', ['src/pending.txt']),
+      taskRecord('TASK-QUEUE-ACTIVE-WORKER', 'Reserve the other queue slot with an active worker.', ['src/active.txt']),
+      taskRecord('TASK-QUEUE-ACTIVE-READY', 'Wait for an available queue reservation.', ['src/ready.txt']),
+    ];
+    const trees = [];
+    for (const [index, task] of records.entries()) {
+      const { worktreeRoot } = addWorktree(env.repoRoot, env.root, env.baseCommit, `queue-active-${index}`);
+      trees.push(worktreeRoot);
+      controller.registerTask({ taskRecord: task, preflightResult: preflight(task, worktreeRoot, env.baseCommit), worktreeRoot,
+        trustedMandateBinding: trustedBinding(env.repoRoot, task) });
+    }
+
+    completeWorkerCandidate(controller, records[0], trees[0]);
+    const activeWorker = controller.claimNode({ taskId: records[1].taskId, nodeId: 'worker', ownerId: 'active-queue-worker' });
+    assert.equal(activeWorker.blocked, undefined);
+    const ready = controller.nextReadyNodes({ limit: 100 });
+    assert.equal(ready.filter((node) => node.role === 'verifier').length, 1);
+    assert.equal(ready.filter((node) => node.role === 'worker').length, 0);
+    assert.throws(() => controller.claimNode({ taskId: records[2].taskId, nodeId: 'worker', ownerId: 'queue-over-cap' }), /concurrency limits/);
+  } finally {
+    controller.close();
+  }
+});
+
+test('workers selected in one ready-node batch reserve unverified-submission queue capacity', async () => {
+  const env = fixture();
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    const records = [
+      taskRecord('TASK-QUEUE-BATCH-PENDING', 'Hold one unverified candidate for review.', ['src/pending.txt']),
+      taskRecord('TASK-QUEUE-BATCH-A', 'Compete for the first remaining queue slot.', ['src/a.txt']),
+      taskRecord('TASK-QUEUE-BATCH-B', 'Compete for the same batch queue slot.', ['src/b.txt']),
+    ];
+    const trees = [];
+    for (const [index, task] of records.entries()) {
+      const { worktreeRoot } = addWorktree(env.repoRoot, env.root, env.baseCommit, `queue-batch-${index}`);
+      trees.push(worktreeRoot);
+      controller.registerTask({ taskRecord: task, preflightResult: preflight(task, worktreeRoot, env.baseCommit), worktreeRoot,
+        trustedMandateBinding: trustedBinding(env.repoRoot, task) });
+    }
+
+    completeWorkerCandidate(controller, records[0], trees[0]);
+    const ready = controller.nextReadyNodes({ limit: 100 });
+    const workerNodes = ready.filter((node) => node.role === 'worker');
+    assert.equal(workerNodes.length, 1);
+    const selected = workerNodes[0];
+    const unselected = records.find((task) => task.taskId !== records[0].taskId && task.taskId !== selected.taskId);
+    const lease = controller.claimNode({ taskId: selected.taskId, nodeId: selected.nodeId, ownerId: 'selected-batch-worker' });
+    assert.equal(lease.blocked, undefined);
+    assert.throws(() => controller.claimNode({ taskId: unselected.taskId, nodeId: 'worker', ownerId: 'unselected-batch-worker' }), /concurrency limits/);
+    assert.equal(controller.nextReadyNodes({ limit: 100 }).some((node) => node.role === 'worker'), false);
+  } finally {
+    controller.close();
+  }
+});
+
+test('atomic gate capacity refuses a second verifier while one gate session is active', async () => {
+  const env = fixture();
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    const records = ['a', 'b'].map((suffix) => taskRecord(`TASK-GATE-SLOT-${suffix}`, `Prepare independent gate slot ${suffix}.`, [`src/${suffix}.txt`]));
+    const trees = [];
+    for (const [index, task] of records.entries()) {
+      const { worktreeRoot } = addWorktree(env.repoRoot, env.root, env.baseCommit, `gate-slot-${index}`);
+      trees.push(worktreeRoot);
+      controller.registerTask({ taskRecord: task, preflightResult: preflight(task, worktreeRoot, env.baseCommit), worktreeRoot, trustedMandateBinding: trustedBinding(env.repoRoot, task) });
+    }
+    for (const [index, task] of records.entries()) {
+      const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+      mkdirSync(path.join(trees[index], 'src'), { recursive: true });
+      writeFileSync(path.join(trees[index], 'src', `${index === 0 ? 'a' : 'b'}.txt`), 'gate-cap fixture');
+      git(trees[index], ['add', 'src']);
+      git(trees[index], ['commit', '-m', `worker candidate ${task.taskId}`]);
+      controller.completeNode({ lease: worker.lease, result: roleResult('worker', worker.sessionId,
+        git(trees[index], ['rev-parse', 'HEAD']), sha(`candidate-${task.taskId}`)) });
+    }
+
+    const firstGate = controller.claimNode({ taskId: records[0].taskId, nodeId: 'verifier', ownerId: 'runner-gate-a' });
+    assert.equal(firstGate.blocked, undefined);
+    assert.throws(() => controller.claimNode({ taskId: records[1].taskId, nodeId: 'verifier', ownerId: 'runner-gate-b' }), /concurrency limits/);
   } finally {
     controller.close();
   }

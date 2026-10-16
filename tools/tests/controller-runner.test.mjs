@@ -26,18 +26,92 @@ test('runner rejects two task bindings sharing a canonical checkout', () => {
 test('unchanged pre-claim errors are reported once and suppressed without spawning', async (t) => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-runner-'));
   t.after(() => fs.rmSync(temp, { recursive: true, force: true }));
+  const policyPath = path.join(temp, 'docs', 'architecture', 'delivery-control', 'contracts', 'model-policy.json');
+  fs.mkdirSync(path.dirname(policyPath), { recursive: true });
+  fs.copyFileSync(new URL('../../docs/architecture/delivery-control/contracts/model-policy.json', import.meta.url), policyPath);
   const file = path.join(temp, 'task.json'); fs.writeFileSync(file, '{}');
   let calls = 0;
-  const runner = createControllerRunner({ controller: { nextReadyNodes: () => [{ taskId: 'T1', branch: 'dev', inputDigest: 'same' }] },
+  const runner = createControllerRunner({ controller: { nextReadyNodes: () => [{ taskId: 'T1', branch: 'dev', role: 'worker', inputDigest: 'same' }] },
     repoRoot: temp, stateRoot: temp, config: { tasks: [{ taskId: 'T1', taskFile: file, worktree: path.join(temp, 'missing') }] },
     backend: () => { calls++; } });
-  assert.equal((await runner.tick()).active, 1);
+  const initial = await runner.tick();
+  assert.deepEqual(initial.errors, []);
+  assert.equal(calls, 0);
   await runner.drain();
   const second = await runner.tick();
   assert.equal(second.errors.length, 1); assert.equal(second.active, 0);
   assert.equal((await runner.tick()).errors.length, 0); assert.equal(calls, 0);
   assert.equal(runner.isActive('T1'), false);
   await runner.stop();
+});
+
+test('runner stop aborts a dispatch whose admission read finishes after stop begins', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const mandate = { resolvedBy: 'root', taskId: f.task.taskId, repositoryRoot: f.worktree,
+    objective: f.task.objective, domainOrFeatureKey: 'test/candidate-test', writeScope: f.task.writeScope,
+    sourceRef: 'trusted fixture', authorizedEffects: ['local fixture changes'], prohibitions: ['external effects'] };
+  const readiness = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+  controller.registerTask({ taskRecord: f.task, preflightResult: readiness, worktreeRoot: f.worktree, trustedMandateBinding: mandate });
+
+  let releaseGetRun;
+  const getRunGate = new Promise((resolve) => { releaseGetRun = resolve; });
+  let signalGetRunEntered;
+  const getRunEntered = new Promise((resolve) => { signalGetRunEntered = resolve; });
+  const originalGetRun = controller.getRun.bind(controller);
+  const delayedController = new Proxy(controller, {
+    get(target, property, receiver) {
+      if (property === 'getRun') return async (taskId) => {
+        signalGetRunEntered();
+        await getRunGate;
+        return originalGetRun(taskId);
+      };
+      const value = Reflect.get(target, property, receiver);
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+  });
+  let backendCalled = false;
+  let backendSawAborted = false;
+  let backendSettled = false;
+  const runner = createControllerRunner({ controller: delayedController, repoRoot: f.worktree,
+    stateRoot: path.join(f.worktree, '.git/runner-delayed-stop'),
+    config: { tasks: [{ taskId: f.task.taskId, taskFile: f.taskFile, worktree: f.worktree, branch: 'codex/fixture' }] },
+    backend: async ({ signal }) => {
+      backendCalled = true;
+      backendSawAborted = signal.aborted;
+      return new Promise((resolve) => {
+        let timeout;
+        const finish = (code) => {
+          clearTimeout(timeout);
+          signal.removeEventListener('abort', onAbort);
+          backendSettled = true;
+          resolve({ outcome: 'UNKNOWN', effectState: 'NONE', code });
+        };
+        const onAbort = () => { backendSawAborted = signal.aborted; finish('aborted-before-backend-start'); };
+        if (signal.aborted) onAbort();
+        else {
+          signal.addEventListener('abort', onAbort, { once: true });
+          timeout = setTimeout(() => finish('fixture-timeout'), 500);
+        }
+      });
+    } });
+
+  try {
+    const tick = await runner.tick();
+    assert.equal(tick.active, 1);
+    await getRunEntered;
+    const stopping = runner.stop();
+    releaseGetRun();
+    await stopping;
+    assert.equal(backendCalled, true);
+    assert.equal(backendSawAborted, true);
+    assert.equal(backendSettled, true);
+    assert.equal(runner.activeCount(), 0);
+  } finally {
+    releaseGetRun();
+    await runner.stop();
+  }
 });
 
 function candidateFixture(t) {
@@ -142,7 +216,7 @@ test('runner holds a worker at stale baseline when HEAD changes after dispatch i
   const controller = await openDeliveryController({ repoRoot: f.worktree });
   f.cleanupHooks.push(() => controller.close());
   const mandate = { resolvedBy: 'root', taskId: f.task.taskId, repositoryRoot: f.worktree,
-    objective: f.task.objective, writeScope: f.task.writeScope, sourceRef: 'trusted fixture',
+    objective: f.task.objective, domainOrFeatureKey: 'test/candidate-test', writeScope: f.task.writeScope, sourceRef: 'trusted fixture',
     authorizedEffects: ['local fixture changes'], prohibitions: ['no external effects'] };
   const ready = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
   assert.equal(ready.status, 'READY');
@@ -195,7 +269,7 @@ test('CLI intake persists dependency-blocked task and wakes after accepted base 
   f.cleanupHooks.push(() => controller.close());
   const config = { tasks: [{ taskId: task.taskId, worktree: f.worktree, taskFile: f.taskFile,
     trustedMandateBinding: { resolvedBy: 'root', taskId: task.taskId, repositoryRoot: f.worktree,
-      objective: task.objective, writeScope: task.writeScope, sourceRef: 'trusted fixture',
+      objective: task.objective, domainOrFeatureKey: `test/${task.taskId.toLowerCase()}`, writeScope: task.writeScope, sourceRef: 'trusted fixture',
       authorizedEffects: ['fixture checks'], prohibitions: ['external effects'] } }] };
   const cache = new Map();
   await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache });
@@ -209,6 +283,95 @@ test('CLI intake persists dependency-blocked task and wakes after accepted base 
   assert.equal(controller.getRun(task.taskId).state, 'WORKER_READY');
   assert.equal(controller.getRun(task.taskId).currentCycle, 1);
 });
+
+test('runner schedules two workers and one independent gate from machine-policy role capacities', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const tasks = [];
+  const bindings = [];
+  for (const label of ['A', 'B', 'C']) {
+    const worktree = path.join(f.worktree, '.git', `role-capacity-${label}`);
+    f.git(['worktree', 'add', '-b', `codex/role-capacity-${label}`, worktree, f.baseCommit]);
+    const task = { ...f.task, taskId: `ROLE-CAPACITY-${label}`, writeScope: [`src/${label.toLowerCase()}.txt`] };
+    const taskFile = path.join(f.worktree, '.git', `role-capacity-${label}.json`);
+    fs.writeFileSync(taskFile, JSON.stringify(task));
+    const ready = preflightTask({ repo: worktree, taskFile, base: f.baseCommit });
+    assert.equal(ready.status, 'READY');
+    controller.registerTask({ taskRecord: task, preflightResult: ready, worktreeRoot: worktree,
+      trustedMandateBinding: { resolvedBy: 'root', taskId: task.taskId, repositoryRoot: f.worktree,
+        objective: task.objective, domainOrFeatureKey: `test/role-capacity-${label.toLowerCase()}`,
+        writeScope: task.writeScope, sourceRef: 'trusted isolated role-capacity fixture',
+        authorizedEffects: ['local fixture changes'], prohibitions: ['external effects'] } });
+    tasks.push({ task, worktree, taskFile });
+    bindings.push({ taskId: task.taskId, worktree, taskFile });
+  }
+
+  const candidate = tasks[2];
+  const workerLease = controller.claimNode({ taskId: candidate.task.taskId, nodeId: 'worker', ownerId: 'fixture-worker' });
+  controller.recordDispatchIntent({ lease: workerLease, operationId: 'role-capacity-candidate', inputDigest: 'c'.repeat(64) });
+  const workerSession = randomUUID();
+  controller.recordBackendHandle({ lease: workerLease, sessionId: workerSession, model: 'gpt-6-luna', effort: 'max' });
+  fs.writeFileSync(path.join(candidate.worktree, 'src', 'c.txt'), 'candidate for exact-head gate');
+  f.git(['-C', candidate.worktree, 'add', 'src/c.txt']);
+  f.git(['-C', candidate.worktree, 'commit', '-m', 'role capacity verifier candidate']);
+  controller.completeNode({ lease: workerLease, result: { role: 'worker', verdict: 'PASS', headCommit: f.git(['-C', candidate.worktree, 'rev-parse', 'HEAD']),
+    sessionId: workerSession, model: 'gpt-6-luna', effort: 'max', resultDigest: 'd'.repeat(64), evidenceRef: 'test://role-capacity-candidate' } });
+
+  const pending = [];
+  const seen = [];
+  let signalTwoStarted;
+  let signalThreeStarted;
+  const twoStarted = new Promise((resolve) => { signalTwoStarted = resolve; });
+  const threeStarted = new Promise((resolve) => { signalThreeStarted = resolve; });
+  const runner = createControllerRunner({ controller, repoRoot: f.worktree, stateRoot: path.join(f.worktree, '.git/runner-role-capacity'),
+    config: { tasks: bindings, maxConcurrent: 2 },
+    backend: async ({ role, worktree, artifactDir, onSession, signal }) => {
+      fs.mkdirSync(artifactDir, { recursive: true });
+      const sessionId = randomUUID();
+      await onSession({ sessionId, model: 'gpt-6-luna', effort: 'max' });
+      seen.push({ role, worktree, sessionId });
+      return new Promise((resolve) => {
+        let settled = false;
+        const finish = (result) => {
+          if (settled) return;
+          settled = true;
+          signal?.removeEventListener('abort', onAbort);
+          resolve(result);
+        };
+        const onAbort = () => finish({ outcome: 'UNKNOWN', effectState: 'NONE', code: 'fixture-aborted' });
+        pending.push(finish);
+        if (seen.length >= 2) signalTwoStarted();
+        if (seen.length >= 3) signalThreeStarted();
+        if (signal?.aborted) onAbort();
+        else signal?.addEventListener('abort', onAbort, { once: true });
+      });
+    } });
+  const timeouts = [];
+  const waitFor = (promise) => Promise.race([promise, new Promise((_, reject) => {
+    timeouts.push(setTimeout(() => reject(new Error('ROLE_CAPACITY_DISPATCH_TIMEOUT')), 5000));
+  })]);
+  try {
+    const firstTick = await runner.tick();
+    assert.equal(firstTick.active, 2);
+    await waitFor(twoStarted);
+    const secondTick = await runner.tick();
+    assert.equal(secondTick.active, 3);
+    await waitFor(threeStarted);
+    assert.deepEqual(seen.map((entry) => entry.role).sort(), ['verifier', 'worker', 'worker']);
+    assert.equal(runner.activeCount(), 3);
+    assert.deepEqual(controller.nextReadyNodes(), []);
+    for (const resolve of pending) resolve({ outcome: 'UNKNOWN', effectState: 'NONE', code: 'fixture-release' });
+    await runner.drain();
+    assert.equal(runner.activeCount(), 0);
+    assert.deepEqual(controller.nextReadyNodes(), []);
+  } finally {
+    for (const timeout of timeouts) clearTimeout(timeout);
+    for (const resolve of pending) resolve({ outcome: 'UNKNOWN', effectState: 'NONE', code: 'fixture-cleanup' });
+    await runner.stop();
+  }
+});
+
 test('runner advances two isolated branches through distinct role sessions and durable root-ready state', async (t) => {
   const f = candidateFixture(t);
   const bindings = [];
@@ -224,7 +387,7 @@ test('runner advances two isolated branches through distinct role sessions and d
     assert.equal(preflightResult.status, 'READY');
     controller.registerTask({ taskRecord: task, preflightResult, worktreeRoot: worktree,
       trustedMandateBinding: { resolvedBy: 'root', taskId: task.taskId, repositoryRoot: f.worktree,
-        objective: task.objective, writeScope: task.writeScope, sourceRef: 'trusted isolated test',
+        objective: task.objective, domainOrFeatureKey: `test/${task.taskId.toLowerCase()}`, writeScope: task.writeScope, sourceRef: 'trusted isolated test',
         authorizedEffects: ['local fixture changes'], prohibitions: ['external effects'] } });
     bindings.push({ taskId: task.taskId, worktree, taskFile });
   }

@@ -42,7 +42,7 @@
     "requirementCount": 284,
     "verifiedRequirementCount": 248,
     "progressPercent": 92.5,
-    "gapCount": 60,
+    "gapCount": 61,
     "gaps": [
       {
         "domain": "agent",
@@ -471,8 +471,11 @@
           "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
           "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
           "apps/server/tests/e2e/fr260-mission-control.spec.js",
+          "apps/server/tests/e2e/worker-observability.spec.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/unit/mission-control-read-model.test.js",
-          "apps/server/tests/unit/mission-control-route-contract.test.js"
+          "apps/server/tests/unit/mission-control-route-contract.test.js",
+          "apps/server/tests/unit/worker-observability-route.test.js"
         ]
       },
       {
@@ -579,6 +582,23 @@
         "check": "requirements",
         "summary": "FR-082 is planned",
         "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-260",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-260 is partial",
+        "evidence": [
+          "apps/server/src/app/api/platform/worker-observability/route.js",
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
+          "apps/server/tests/e2e/fr260-mission-control.spec.js",
+          "apps/server/tests/e2e/worker-observability.spec.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/unit/mission-control-read-model.test.js",
+          "apps/server/tests/unit/mission-control-route-contract.test.js",
+          "apps/server/tests/unit/worker-observability-route.test.js"
+        ]
       },
       {
         "domain": "project-manager",
@@ -1112,7 +1132,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -1573,7 +1593,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -2496,7 +2516,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 1
           }
         },
@@ -3062,7 +3082,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -3482,7 +3502,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -4345,7 +4365,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -4543,7 +4563,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -4782,7 +4802,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -5126,14 +5146,17 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 3,
+          "testCount": 6,
           "evidence": [
             "apps/server/src/app/(control)/control/mission-control/page.jsx",
             "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
             "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
             "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/e2e/worker-observability.spec.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js"
+            "apps/server/tests/unit/mission-control-route-contract.test.js",
+            "apps/server/tests/unit/worker-observability-route.test.js"
           ]
         },
         {
@@ -5231,7 +5254,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -5359,8 +5382,11 @@
             "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
             "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
             "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/e2e/worker-observability.spec.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js"
+            "apps/server/tests/unit/mission-control-route-contract.test.js",
+            "apps/server/tests/unit/worker-observability-route.test.js"
           ]
         },
         {
@@ -5515,7 +5541,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 346,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -6888,6 +6914,24 @@
           "testCount": 22
         },
         {
+          "id": "FR-260",
+          "title": "Mission Control operator projection",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 6,
+          "evidence": [
+            "apps/server/src/app/api/platform/worker-observability/route.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/e2e/worker-observability.spec.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/mission-control-read-model.test.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js",
+            "apps/server/tests/unit/worker-observability-route.test.js"
+          ]
+        },
+        {
           "id": "FR-266",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
           "declared": "n/a",
@@ -7186,9 +7230,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 179,
-            "inventoried": 179,
-            "openApiPaths": 346,
+            "routes": 180,
+            "inventoried": 180,
+            "openApiPaths": 347,
             "missingFromOpenApi": 0
           }
         },
@@ -7376,6 +7420,22 @@
           "evidence": []
         },
         {
+          "id": "REQ-FR-260",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-260 is partial",
+          "evidence": [
+            "apps/server/src/app/api/platform/worker-observability/route.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/e2e/worker-observability.spec.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/mission-control-read-model.test.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js",
+            "apps/server/tests/unit/worker-observability-route.test.js"
+          ]
+        },
+        {
           "id": "REQ-FR-269",
           "severity": "medium",
           "check": "requirements",
@@ -7544,8 +7604,8 @@
         }
       ],
       "details": {
-        "routes": 226,
-        "apiRoutes": 179,
+        "routes": 227,
+        "apiRoutes": 180,
         "pageRoutes": 47,
         "ownedModels": 48,
         "featureNotes": 45
@@ -12635,7 +12695,8 @@
       ],
       "primaryDomain": "platform-control",
       "contributorDomains": [
-        "platform-control"
+        "platform-control",
+        "project-manager"
       ],
       "useCase": "installation operator opens Mission Control and sees the canonical roadmap DAG by wave together with only provenance-bound worker, thread, branch, worktree, commit, check and evidence observations; same-wave work is marked candidate-parallel until merge-safety gates pass, while stale or absent records remain visibly unknown and members never receive operator orchestration detail",
       "progressPercent": 80,
@@ -12655,8 +12716,8 @@
           "title": "Mission Control operator projection",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 3,
-          "testCount": 3
+          "codeCount": 5,
+          "testCount": 6
         },
         {
           "id": "FR-261",
@@ -12693,16 +12754,21 @@
       ],
       "evidence": [
         "apps/server/src/app/(control)/control/mission-control/page.jsx",
+        "apps/server/src/app/api/platform/worker-observability/route.js",
         "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
         "apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js",
         "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
         "apps/server/src/modules/platform-control/mission-control/mission-control-contract.js",
         "apps/server/src/modules/platform-control/programme-member-view.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/tests/e2e/fr260-mission-control.spec.js",
+        "apps/server/tests/e2e/worker-observability.spec.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/mission-control-contract.test.js",
         "apps/server/tests/unit/mission-control-read-model.test.js",
         "apps/server/tests/unit/mission-control-route-contract.test.js",
-        "apps/server/tests/unit/programme-member-view.test.js"
+        "apps/server/tests/unit/programme-member-view.test.js",
+        "apps/server/tests/unit/worker-observability-route.test.js"
       ]
     },
     {

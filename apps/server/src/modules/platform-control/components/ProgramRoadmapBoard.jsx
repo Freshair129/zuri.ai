@@ -14,7 +14,7 @@
 // @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js, tests/unit/program-roadmap-board-telemetry.test.js, tests/unit/programme-member-view.test.js
 
 import { useState } from 'react'
-import { Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, ShieldCheck } from 'lucide-react'
+import { Activity, Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, ShieldCheck } from 'lucide-react'
 import { Card, Kpi, PageHeader, ProgressBar, StatusPill } from '@/components/ui'
 import {
   PROGRAMME_DELIVERABLES,
@@ -37,6 +37,7 @@ import {
 } from '@/modules/platform-control/program-delivery-metrics'
 import { TONE_WORD } from '@/modules/platform-control/program-task-evidence'
 import DomainMapView from './DomainMapView'
+import WorkerObservabilityPanel from './WorkerObservabilityPanel'
 import TiltCard from './TiltCard'
 import styles from './program-roadmap-board.module.css'
 
@@ -438,6 +439,7 @@ function HistoryChart({ history }) {
 const VIEWS = [
   { id: 'programme', label: 'Programme plan', icon: Layers3 },
   { id: 'domains', label: 'Domain map & inventory', icon: Boxes },
+  { id: 'workers', label: 'Workers & activity', icon: Activity },
 ]
 
 const TASK_SOT_BY_ID = new Map(ROADMAP_TASK_LEDGER.map((task) => [task.id, task]))
@@ -540,7 +542,7 @@ export default function ProgramRoadmapBoard({
   closesAt = null,
 }) {
   const member = audience === 'member'
-  const views = VIEWS
+  const views = member ? VIEWS.filter(({ id }) => id !== 'workers') : VIEWS
   const laneUsageMap = new Map(Object.entries(laneUsage))
   const taskUsageByCode = new Map((taskUsageLedger?.tasks || []).map((task) => [task.taskCode, task]))
   const [view, setView] = useState(domainMap && views.some(({ id }) => id !== 'programme' && id === initialView) ? initialView : 'programme')
@@ -578,7 +580,15 @@ export default function ProgramRoadmapBoard({
       )}
 
       {domainMap && (
-        <div className={styles.tabs} role="tablist" aria-label="Roadmap views" data-testid="roadmap-view-tabs">
+        <div className={styles.tabs} role="tablist" aria-label="Roadmap views" data-testid="roadmap-view-tabs" onKeyDown={(event) => {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+          const current = views.findIndex(({ id }) => id === view)
+          const next = event.key === 'Home' ? 0 : event.key === 'End' ? views.length - 1
+            : (current + (event.key === 'ArrowRight' ? 1 : views.length - 1)) % views.length
+          event.preventDefault()
+          selectView(views[next].id)
+          event.currentTarget.querySelector(`#roadmap-tab-${views[next].id}`)?.focus()
+        }}>
           {views.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -587,6 +597,7 @@ export default function ProgramRoadmapBoard({
               id={`roadmap-tab-${id}`}
               aria-selected={view === id}
               aria-controls={`roadmap-panel-${id}`}
+              tabIndex={view === id ? 0 : -1}
               className={styles.tab}
               onClick={() => selectView(id)}
             >
@@ -597,7 +608,11 @@ export default function ProgramRoadmapBoard({
         </div>
       )}
 
-      {view === 'domains' && domainMap ? (
+      {view === 'workers' && !member ? (
+        <div role="tabpanel" id="roadmap-panel-workers" aria-labelledby="roadmap-tab-workers">
+          <WorkerObservabilityPanel />
+        </div>
+      ) : view === 'domains' && domainMap ? (
         <div role="tabpanel" id="roadmap-panel-domains" aria-labelledby="roadmap-tab-domains">
           <DomainMapView domainMap={domainMap} />
         </div>
