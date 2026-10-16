@@ -56,9 +56,20 @@ kit; runtime skills/configuration do not derive permissions from that kit.
 
 The existing `scripts/ci-change-scope.mjs` remains the active CI selector. Its
 related-test import, annotation, scanner, deletion, fan-out and fallback guards
-remain in force. Main pushes retain full Server tests/build. Governance E2E is
-scheduled/manual; it is not an ordinary PR check. All three existing service jobs
-continue to run on non-scheduled governance events.
+remain in force. Governance main pushes retain full Server tests/build, and Edge
+main pushes retain the Edge and Desktop checks. Each workflow coalesces main
+pushes to the newest snapshot while an older run is active; PR runs remain
+separate by PR, and scheduled/manual runs remain independent. A cancelled main
+run is superseded evidence, not a pass. A deployment candidate still needs its
+applicable validation on the exact commit and image that will ship. Governance
+E2E is scheduled/manual; it is not an ordinary PR check. All three existing
+service jobs continue to run on non-scheduled governance events.
+
+On `main`, the Docker image workflow runs for changes under `apps/server/`, which
+is its build context, and when its workflow definition changes. Pull requests
+keep the existing Docker configuration path filter. Version-tag and manual
+builds remain available. Documentation-only or Edge-only main pushes therefore
+do not rebuild the Server image; changes to any Server build input still do.
 
 The Conversation Runtime pilot is **shadow-only**. `verification:plan` reuses the
 active selector and records a candidate plan for a diff confined to Runtime and

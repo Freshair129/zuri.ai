@@ -8,6 +8,9 @@ on:
   push:
     branches: [main]
     tags: ['v*']
+    paths:
+      - apps/server/**
+      - .github/workflows/docker-image.yml
   pull_request:
     paths:
       - apps/server/Dockerfile
@@ -19,6 +22,12 @@ on:
       - apps/server/package-lock.json
       - .github/workflows/docker-image.yml
   workflow_dispatch:
+
+# Build at most one image candidate for the latest main snapshot. Each version
+# tag and manually dispatched build remains independent.
+concurrency:
+  group: docker-image-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || (github.event_name == 'push' && github.ref == 'refs/heads/main' && 'main') || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
 
 permissions:
   contents: read
