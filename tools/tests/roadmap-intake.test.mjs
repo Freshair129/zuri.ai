@@ -7,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { admitConfiguredTasks } from '../delivery-control/controller-cli.mjs';
 import { parseRoadmapTasks, planRoadmapIntake, runRoadmapIntake } from '../delivery-control/roadmap-intake.mjs';
 
 const AC = 'Given a configured task, when intake runs, then it creates one scoped candidate.';
@@ -33,8 +34,8 @@ function directorySnapshot(root) {
   return JSON.stringify(entries);
 }
 
-function makeTask(id, { status = 'planned', priority = 'P1', dependencies = [], evidence = '—', criteria = [AC, AC2] } = {}) {
-  return { id, status, priority, dependencies, evidence, criteria, title: 'Bounded task ' + id };
+function makeTask(id, { status = 'planned', priority = 'P1', dependencies = [], evidence = '—', criteria = [AC, AC2], proofScope = 'UNKNOWN' } = {}) {
+  return { id, status, priority, dependencies, evidence, criteria, proofScope, title: 'Bounded task ' + id };
 }
 function tableRow(cells) { return '| ' + cells.join(' | ') + ' |'; }
 function docsFor(tasks) {
@@ -47,7 +48,7 @@ function docsFor(tasks) {
     tableRow(['ID','Parent ID','Type','Title','Priority','Owner','Status','Dependencies','Source Section']),
     tableRow(Array(9).fill('---'))];
   for (const task of tasks) {
-    roadmap.push(tableRow([task.id,'SPR-ZAI-01',task.title,task.status,'UNKNOWN','NOT_STARTED',task.dependencies.join('; ') || '—','ROADMAP.md',task.evidence]));
+    roadmap.push(tableRow([task.id,'SPR-ZAI-01',task.title,task.status,task.proofScope,'NOT_STARTED',task.dependencies.join('; ') || '—','ROADMAP.md',task.evidence]));
     program.push(tableRow([task.id,'SPR-ZAI-01','task',task.title,task.priority,'Codex',task.status,task.dependencies.join('; ') || '—','source']));
   }
   roadmap.push('<!-- roadmap-task-ledger:end -->');
@@ -74,7 +75,7 @@ function campaignFor(repo, base, taskIds, tasks) {
     allowedTaskIds: taskIds,
     taskPlans: Object.fromEntries(taskIds.map((id) => {
       const task = tasks.find((item) => item.id === id);
-      return [id, { objective: 'Implement ' + task.id + ' from the trusted campaign.', acceptance: task.criteria,
+      return [id, { objective: 'Implement ' + task.id + ' from the trusted campaign.', domainOrFeatureKey: 'test/' + id.toLowerCase(), acceptance: task.criteria,
         writeScope: ['src/' + task.id.toLowerCase() + '/'],
         checks: [{ shell: false, executable: 'git', argv: ['--version'], cwd: '.' }],
         mandateReference: 'trusted-user-task:autonomous-roadmap-continuation#' + id }];
@@ -105,6 +106,15 @@ function fixture(t, tasks, allowed = tasks.filter((task) => task.status === 'pla
   writeFileSync(campaignFile, JSON.stringify(campaignFor(repo, base, allowed, tasks), null, 2));
   t.after(() => rmSync(tempRoot, { recursive: true, force: true }));
   return { tempRoot, repo, base, common, campaignFile, tasks };
+}
+function assertNoIntakeSideEffects(f, taskId) {
+  const branch = 'codex/roadmap-intake/' + taskId.toLowerCase();
+  const worktreeRoot = path.join(path.dirname(f.repo), '.worktrees', 'roadmap-intake-v1', taskId.toLowerCase());
+  assert.equal(existsSync(worktreeRoot), false);
+  assert.equal(git(f.repo, ['branch', '--list', branch]).trim(), '');
+  assert.equal(git(f.repo, ['worktree', 'list', '--porcelain']).split('worktree ').length - 1, 1);
+  assert.equal(existsSync(path.join(f.common, 'zuri-delivery-control', 'controller-v1.sqlite')), false);
+  assert.equal(existsSync(path.join(f.common, 'zuri-delivery-control', 'roadmap-intake-v1')), false);
 }
 
 test('parses the repository canonical Task10 rows and acceptance container', () => {
@@ -155,6 +165,68 @@ test('creates one exact-base worktree and durable controller binding; repeat ret
   assert.equal(second.receiptId, first.receiptId);
   assert.equal(second.worktreeRoot, first.worktreeRoot);
   assert.equal(git(f.repo, ['worktree', 'list', '--porcelain']).split('worktree ').length - 1, 2);
+});
+
+test('root-private per-task key binds trusted mandate and controller CLI forwards it unchanged', async (t) => {
+  const trustedKey = 'domain/private-task-zai-001';
+  const task = makeTask('TASK-ZAI-001', { proofScope: 'roadmap/attacker-override' });
+  const f = fixture(t, [task]);
+  const campaign = JSON.parse(readFileSync(f.campaignFile, 'utf8'));
+  campaign.objective = 'Campaign prose refers to prose/campaign-override.';
+  campaign.taskPlans[task.id].objective = 'Task objective prose refers to prose/objective-override.';
+  campaign.taskPlans[task.id].domainOrFeatureKey = trustedKey;
+  writeFileSync(f.campaignFile, JSON.stringify(campaign, null, 2));
+
+  const intake = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  assert.equal(intake.status, 'READY');
+  assert.equal(intake.controllerBinding.trustedMandateBinding.domainOrFeatureKey, trustedKey);
+  assert.equal(Object.hasOwn(intake.taskRecord, 'domainOrFeatureKey'), false);
+  assert.equal(intake.controllerBinding.trustedMandateBinding.objective, campaign.taskPlans[task.id].objective);
+
+  const registered = [];
+  const controller = {
+    getRun: () => null,
+    listRuns: () => [],
+    registerTask: async (input) => { registered.push(input); return { taskId: input.taskRecord.taskId, state: 'WORKER_READY' }; },
+  };
+  const observations = await admitConfiguredTasks({ controller, repoRoot: f.repo,
+    config: { tasks: [intake.controllerBinding] }, cache: new Map() });
+  assert.equal(observations.length, 1);
+  assert.equal(registered.length, 1);
+  assert.deepEqual(registered[0].trustedMandateBinding, intake.controllerBinding.trustedMandateBinding);
+  assert.equal(registered[0].trustedMandateBinding.domainOrFeatureKey, trustedKey);
+});
+
+test('missing root-private task key yields a typed hold before worktree or controller effects', (t) => {
+  const task = makeTask('TASK-ZAI-001');
+  const f = fixture(t, [task]);
+  const campaign = JSON.parse(readFileSync(f.campaignFile, 'utf8'));
+  delete campaign.taskPlans[task.id].domainOrFeatureKey;
+  writeFileSync(f.campaignFile, JSON.stringify(campaign, null, 2));
+
+  const hold = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+  assert.equal(hold.status, 'HOLD_TRUSTED_BINDING');
+  assert.equal(hold.code, 'ROOT_DOMAIN_OR_FEATURE_KEY_MISSING');
+  assert.equal(hold.dispatchAllowed, false);
+  assertNoIntakeSideEffects(f, task.id);
+});
+
+test('malformed or non-normalized root-private task keys yield typed pre-side-effect holds', (t) => {
+  for (const [key, code] of [
+    ['Feature/Task-ZAI-001', 'ROOT_DOMAIN_OR_FEATURE_KEY_NOT_NORMALIZED'],
+    ['feature//task-zai-001', 'ROOT_DOMAIN_OR_FEATURE_KEY_INVALID'],
+  ]) {
+    const task = makeTask('TASK-ZAI-001');
+    const f = fixture(t, [task]);
+    const campaign = JSON.parse(readFileSync(f.campaignFile, 'utf8'));
+    campaign.taskPlans[task.id].domainOrFeatureKey = key;
+    writeFileSync(f.campaignFile, JSON.stringify(campaign, null, 2));
+
+    const hold = runRoadmapIntake({ repoRoot: f.repo, campaignFile: f.campaignFile });
+    assert.equal(hold.status, 'HOLD_TRUSTED_BINDING');
+    assert.equal(hold.code, code);
+    assertNoIntakeSideEffects(f, task.id);
+  }
 });
 
 test('excludes already-bound tasks and selects the next ready task by priority', (t) => {

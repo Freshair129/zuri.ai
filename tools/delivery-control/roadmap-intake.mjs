@@ -13,7 +13,7 @@ const TASK_ID = /^TASK-ZAI-[0-9]{3}$/;
 const ROADMAP_HEADERS = ['task_id','sprint','task','status','proof_scope','implementation_state','depends_on','authority','evidence'];
 const PROGRAM_HEADERS = ['id','parent id','type','title','priority','owner','status','dependencies','source section'];
 const CAMPAIGN_KEYS = new Set(['schemaVersion','campaignId','repositoryRoot','baseRef','objective','sourceRef','authorizedEffects','prohibitions','allowedTaskIds','taskPlans']);
-const PLAN_KEYS = new Set(['objective','acceptance','writeScope','checks','mandateReference']);
+const PLAN_KEYS = new Set(['objective','acceptance','writeScope','checks','mandateReference','domainOrFeatureKey']);
 
 class IntakeError extends Error { constructor(status, code, message) { super(message); this.status=status; this.code=code; } }
 const isRecord = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -119,13 +119,21 @@ export function parseRoadmapTasks({roadmapMarkdown,programmeMarkdown}={}) {
 }
 function validatePlan(plan,id) {
   if(!isRecord(plan)||Object.keys(plan).some((key)=>!PLAN_KEYS.has(key))) return {status:'HOLD_REVIEW_REQUIRED',code:'TASK_PLAN_SHAPE_INVALID',taskId:id};
+  if(plan.domainOrFeatureKey===undefined||plan.domainOrFeatureKey===null||(typeof plan.domainOrFeatureKey==='string'&&!plan.domainOrFeatureKey.trim()))
+    return {status:'HOLD_TRUSTED_BINDING',code:'ROOT_DOMAIN_OR_FEATURE_KEY_MISSING',taskId:id};
+  if(typeof plan.domainOrFeatureKey!=='string') return {status:'HOLD_TRUSTED_BINDING',code:'ROOT_DOMAIN_OR_FEATURE_KEY_INVALID',taskId:id};
+  const normalizedDomainOrFeatureKey=plan.domainOrFeatureKey.normalize('NFKC').trim().toLowerCase().replace(/\s+/g,'-');
+  if(plan.domainOrFeatureKey!==normalizedDomainOrFeatureKey)
+    return {status:'HOLD_TRUSTED_BINDING',code:'ROOT_DOMAIN_OR_FEATURE_KEY_NOT_NORMALIZED',taskId:id};
+  if(normalizedDomainOrFeatureKey.length>160||!/^[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)+$/.test(normalizedDomainOrFeatureKey))
+    return {status:'HOLD_TRUSTED_BINDING',code:'ROOT_DOMAIN_OR_FEATURE_KEY_INVALID',taskId:id};
   if(!text(plan.objective)||!Array.isArray(plan.acceptance)||!plan.acceptance.length||plan.acceptance.some((x)=>!text(x))||!Array.isArray(plan.writeScope)||!plan.writeScope.length||!Array.isArray(plan.checks)||!plan.checks.length||!text(plan.mandateReference))
     return {status:'HOLD_REVIEW_REQUIRED',code:'TASK_PLAN_FIELDS_MISSING',taskId:id};
   for(const scope of plan.writeScope) if(typeof scope!=='string'||!scope||scope.includes('\\')||scope.startsWith('/')||/^[A-Za-z]:/.test(scope)||scope.split('/').some((x,i,a)=>!x&&!(i===a.length-1&&scope.endsWith('/'))||x==='.'||x==='..'))
     return {status:'HOLD_REVIEW_REQUIRED',code:'TASK_PLAN_SCOPE_INVALID',taskId:id};
   for(const check of plan.checks) if(!isRecord(check)||check.shell!==false||!text(check.executable)||!Array.isArray(check.argv)||check.argv.some((x)=>typeof x!=='string')||!text(check.cwd))
     return {status:'HOLD_REVIEW_REQUIRED',code:'TASK_PLAN_CHECK_INVALID',taskId:id};
-  return {plan:{objective:norm(plan.objective),acceptance:plan.acceptance.map(norm),writeScope:[...plan.writeScope],checks:plan.checks.map((c)=>({shell:false,executable:c.executable,argv:[...c.argv],cwd:c.cwd})),mandateReference:norm(plan.mandateReference)}};
+  return {plan:{objective:norm(plan.objective),acceptance:plan.acceptance.map(norm),writeScope:[...plan.writeScope],checks:plan.checks.map((c)=>({shell:false,executable:c.executable,argv:[...c.argv],cwd:c.cwd})),mandateReference:norm(plan.mandateReference),domainOrFeatureKey:normalizedDomainOrFeatureKey}};
 }
 function assess(id,campaign,tasks) {
   const task=tasks.get(id); if(!task) return {taskId:id,status:'HOLD_AMBIGUOUS_ROADMAP',code:'TASK_NOT_IN_CANONICAL_SOURCES'};
@@ -158,6 +166,7 @@ function withScopeLockState(candidate,taskId,locks) {
 }
 function taskInputDigest(campaign,sourceDigest,taskId) { return hash({campaignDigest:campaign.campaignDigest,sourceDigest:sourceDigest??null,taskId}); }
 function withPriorReceipt(candidate,row,campaign,sourceDigest,locks) {
+  if(candidate.status==='HOLD_TRUSTED_BINDING')return candidate;
   if(!row)return candidate;
   const inputDigest=taskInputDigest(campaign,sourceDigest,candidate.taskId);
   if(candidate.status==='READY_CANDIDATE'&&shouldRetryScopeConflict(row,inputDigest,locks.fingerprint,campaign.campaignDigest,sourceDigest,campaign.baseCommit))return candidate;
@@ -170,8 +179,8 @@ function selectTask(campaign,tasks,requested,excludeTaskIds=[],locks={rows:[],fi
   const candidates=(requested?[requested]:campaign.allowedTaskIds.filter((id)=>!excludeTaskIds.includes(id))).map((id)=>withPriorReceipt(withScopeLockState(assess(id,campaign,tasks),id,locks),priorReceipts.get(id),campaign,sourceDigest,locks));
   const ready=candidates.filter((x)=>x.status==='READY_CANDIDATE').sort((a,b)=>Number(a.priority.slice(1))-Number(b.priority.slice(1))||a.taskId.localeCompare(b.taskId));
   if(ready.length) return {status:'READY_CANDIDATE',selected:ready[0],candidates};
-  const status=['HOLD_REVIEW_REQUIRED','HOLD_AMBIGUOUS_ROADMAP','HOLD_DEPENDENCY','HOLD_TASK_STATUS','HOLD_SCOPE_CONFLICT','HOLD_PREFLIGHT','HOLD_RECONCILE','HOLD_REASSESSMENT_REQUIRED','HOLD_INTAKE_IN_PROGRESS','HOLD_COLLISION'].find((s)=>candidates.some((x)=>x.status===s))??'HOLD_NO_READY_TASK';
-  return {status,code:candidates[0]?.code??(excludeTaskIds.length?'NO_UNEXCLUDED_READY_TASK':'NO_ALLOWED_READY_TASK'),candidates};
+  const status=['HOLD_TRUSTED_BINDING','HOLD_REVIEW_REQUIRED','HOLD_AMBIGUOUS_ROADMAP','HOLD_DEPENDENCY','HOLD_TASK_STATUS','HOLD_SCOPE_CONFLICT','HOLD_PREFLIGHT','HOLD_RECONCILE','HOLD_REASSESSMENT_REQUIRED','HOLD_INTAKE_IN_PROGRESS','HOLD_COLLISION'].find((s)=>candidates.some((x)=>x.status===s))??'HOLD_NO_READY_TASK';
+  return {status,code:candidates.find((candidate)=>candidate.status===status)?.code??candidates[0]?.code??(excludeTaskIds.length?'NO_UNEXCLUDED_READY_TASK':'NO_ALLOWED_READY_TASK'),candidates};
 }
 function readSources(repo,base) {
   try { const roadmap=git(repo,['show',base+':docs/roadmap/ROADMAP.md']),programme=git(repo,['show',base+':docs/roadmap/ROADMAP-zuri-ai-24w-program.md']);return parseRoadmapTasks({roadmapMarkdown:roadmap,programmeMarkdown:programme}); }
@@ -227,6 +236,9 @@ function priorReceipt(row,inputDigest,{campaignDigest,sourceDigest,baseCommit}={
 }
 function createTaskWorktree({loaded,selected,sourceDigest,lockFingerprint,db,inputDigest,priorRow=null}) {
   const {campaign,repoRoot,commonDir}=loaded,taskId=selected.taskId,taskRecord=selected.taskRecord,paths=statePaths(commonDir);
+  const checkedPlan=validatePlan(campaign.taskPlans[taskId],taskId);
+  if(checkedPlan.status)throw new IntakeError(checkedPlan.status,checkedPlan.code,'The root-private task plan has no usable trusted binding key.');
+  const domainOrFeatureKey=checkedPlan.plan.domainOrFeatureKey;
   const taskFile=path.join(paths.tasks,taskId+'.json'),bindingFile=path.join(paths.tasks,taskId+'.controller.json'),branch='codex/roadmap-intake/'+taskId.toLowerCase(),workspace=path.dirname(repoRoot),parent=path.join(workspace,'.worktrees','roadmap-intake-v1'),worktreeRoot=path.join(parent,taskId.toLowerCase());
   const taskDigest=hash(taskRecord),stamp=now();
   const initial={schemaVersion:RESULT_SCHEMA,status:'INTAKE_PREPARING',code:'INTAKE_CLAIMED',receiptId:priorRow?randomUUID():hash(campaign.campaignId+'\0'+taskId+'\0'+inputDigest).slice(0,32),campaignId:campaign.campaignId,taskId,priority:selected.priority,branch,worktreeRoot,taskFile,bindingFile,taskDigest,sourceDigest,baseCommit:campaign.baseCommit,lockFingerprint,authorityGrant:false,dispatchAllowed:false,checksExecuted:false};
@@ -263,7 +275,7 @@ function createTaskWorktree({loaded,selected,sourceDigest,lockFingerprint,db,inp
     if(preflightResult.status!=='READY'){
       const hold={...initial,status:'HOLD_PREFLIGHT',code:'AUTOMATIC_PREFLIGHT_BLOCKED',preflightResult,worktreeCreated:true,taskRecord};db.prepare('UPDATE intake_receipts SET state=?,receipt_json=?,updated_at=? WHERE task_id=?').run(hold.status,json(hold),now(),taskId);return hold;
     }
-    const trustedMandateBinding={resolvedBy:'root',taskId,sourceRef:campaign.sourceRef,repositoryRoot:repoRoot,objective:taskRecord.objective,writeScope:[...taskRecord.writeScope],authorizedEffects:[...campaign.authorizedEffects],prohibitions:[...campaign.prohibitions]};
+    const trustedMandateBinding={resolvedBy:'root',taskId,sourceRef:campaign.sourceRef,repositoryRoot:repoRoot,objective:taskRecord.objective,domainOrFeatureKey,writeScope:[...taskRecord.writeScope],authorizedEffects:[...campaign.authorizedEffects],prohibitions:[...campaign.prohibitions]};
     const controllerBinding={taskId,taskFile,worktree:worktreeRoot,base:campaign.baseCommit,trustedMandateBinding};atomicWrite(bindingFile,json(controllerBinding,null,2)+'\n');
     const ready={...initial,status:'READY',code:'TASK_INTAKE_READY',taskRecord,preflightResult,controllerBinding,controllerBindingFile:bindingFile,worktreeCreated:true,authorityGrant:false,dispatchAllowed:false,checksExecuted:false};
     db.prepare('UPDATE intake_receipts SET state=?,receipt_json=?,updated_at=? WHERE task_id=?').run(ready.status,json(ready),now(),taskId);return ready;
@@ -274,7 +286,9 @@ function createTaskWorktree({loaded,selected,sourceDigest,lockFingerprint,db,inp
 }
 export function runRoadmapIntake(input={}) {
   let db;try {
-    const loaded=loadCampaign(input),excluded=normalizeExcludedTaskIds(input.excludeTaskIds,loaded.campaign),locks=readLockSnapshot(loaded.commonDir),priorReceipts=readReceiptSnapshot(loaded.commonDir),planned=planLoaded(loaded,input.taskId,excluded,locks,priorReceipts),result=planned.result??planned,dbPaths=statePaths(loaded.commonDir);db=openDb(dbPaths.database);
+    const loaded=loadCampaign(input),excluded=normalizeExcludedTaskIds(input.excludeTaskIds,loaded.campaign),locks=readLockSnapshot(loaded.commonDir),priorReceipts=readReceiptSnapshot(loaded.commonDir),planned=planLoaded(loaded,input.taskId,excluded,locks,priorReceipts),result=planned.result??planned;
+    if(result.status==='HOLD_TRUSTED_BINDING')return result;
+    const dbPaths=statePaths(loaded.commonDir);db=openDb(dbPaths.database);
     const receiptFingerprint=hash([...priorReceipts.values()].map((row)=>[row.task_id,row.state,row.input_digest,row.campaign_digest,row.source_digest,row.receipt_json,row.created_at,row.updated_at]));
     const evaluationDigest=hash({campaignDigest:loaded.campaign.campaignDigest,baseCommit:loaded.campaign.baseCommit,sourceDigest:result.sourceDigest??null,taskId:input.taskId??null,excludeTaskIds:input.taskId?[]:excluded,lockFingerprint:locks.fingerprint,receiptFingerprint});
     if(!planned.choice?.selected){const previous=db.prepare('SELECT result_json FROM intake_evaluations WHERE input_digest=?').get(evaluationDigest);if(previous)return JSON.parse(previous.result_json);const output={...result,receiptId:hash(evaluationDigest).slice(0,32),receiptCreated:true};db.prepare('INSERT INTO intake_evaluations(input_digest,campaign_id,result_json,created_at) VALUES(?,?,?,?)').run(evaluationDigest,loaded.campaign.campaignId,json(output),now());return output;}

@@ -91,6 +91,13 @@ CREATE TABLE IF NOT EXISTS delivery_write_locks (
 
 CREATE INDEX IF NOT EXISTS delivery_write_locks_path_idx ON delivery_write_locks(scope_path);
 
+CREATE TABLE IF NOT EXISTS delivery_domain_locks (
+  domain_or_feature_key TEXT PRIMARY KEY,
+  task_id TEXT NOT NULL UNIQUE REFERENCES delivery_runs(task_id)
+) STRICT;
+
+CREATE INDEX IF NOT EXISTS delivery_domain_locks_task_idx ON delivery_domain_locks(task_id);
+
 CREATE TABLE IF NOT EXISTS delivery_no_progress (
   task_id TEXT NOT NULL REFERENCES delivery_runs(task_id),
   fingerprint TEXT NOT NULL,
