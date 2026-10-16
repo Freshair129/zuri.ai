@@ -367,6 +367,32 @@ test('intake snapshot explains a blocked campaign while preserving supervisor ev
   assert.equal(serialized.includes('session-01'), false);
 });
 
+test('unknown controller snapshots keep the newest 200 verified supervisor events in descending time order', (t) => {
+  const fixture = createRepoWithLedger({ controllerHeartbeat: null });
+  t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  const sessionRoot = path.join(fixture.privateRoot, 'supervisors', 'session-01');
+  mkdirSync(sessionRoot, { recursive: true });
+
+  let previousDigest = 'LEGACY';
+  const records = Array.from({ length: 205 }, (_, index) => {
+    const record = supervisorReceipt({
+      observedAt: new Date(now.getTime() - (204 - index) * 1_000).toISOString(),
+      previousDigest,
+    });
+    previousDigest = record.receiptDigest;
+    return record;
+  });
+  writeFileSync(path.join(sessionRoot, 'events.jsonl'), `${records.map((record) => JSON.stringify(record)).join('\n')}\n`);
+
+  const result = readWorkerObservability({ repoRoot: fixture.root, now: () => now });
+  assert.equal(result.state, 'UNKNOWN');
+  assert.equal(result.events.length, 200);
+  assert.equal(result.events[0].observedAt, records.at(-1).observedAt);
+  assert.equal(result.events.at(-1).observedAt, records[5].observedAt);
+  assert.deepEqual(result.events.map((item) => item.observedAt),
+    [...result.events].map((item) => item.observedAt).sort((a, b) => Date.parse(b) - Date.parse(a)));
+});
+
 test('stale intake evaluations remain visible as stale snapshots and reject unexpected authority fields', (t) => {
   const stale = createRepoWithLedger({ controllerHeartbeat: null });
   const unsafe = createRepoWithLedger({ controllerHeartbeat: null });

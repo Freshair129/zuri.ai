@@ -815,6 +815,7 @@ function unavailableSnapshot(reason, now = new Date(), { supervisor = {}, campai
   const sinceMs = asMillis(since);
   const events = (supervisor.state === 'INVALID' ? [] : Array.isArray(supervisor.events) ? supervisor.events : [])
     .filter((event) => sinceMs === null || (asMillis(event.observedAt) ?? 0) >= sinceMs)
+    .sort((a, b) => (asMillis(b.observedAt) ?? 0) - (asMillis(a.observedAt) ?? 0))
     .slice(0, 200);
   const intake = projectCampaignIntake(campaignIntake, asMillis(observedAt) ?? Date.now());
   return {
