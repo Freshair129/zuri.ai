@@ -125,7 +125,7 @@ test('parses the repository canonical Task10 rows and acceptance container', () 
   });
   assert.deepEqual(parsed.issues, []);
   const task = parsed.tasks.get('TASK-ZAI-010');
-  assert.equal(task.status, 'planned');
+  assert.equal(task.status, 'review');
   assert.equal(task.priority, 'P0');
   assert.deepEqual(task.dependencies, ['TASK-ZAI-007']);
   assert.equal(task.criteria.length, 3);
