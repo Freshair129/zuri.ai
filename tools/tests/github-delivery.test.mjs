@@ -330,6 +330,7 @@ test('the adapter accepts an exact passed controller pipeline from a linked cand
   controller = await openDeliveryController({ repoRoot });
   const trustedMandateBinding = {
     resolvedBy: 'root', taskId, repositoryRoot: repoRoot,
+    domainOrFeatureKey: 'test/github-delivery-pipeline',
     objective: taskRecord.objective, writeScope: taskRecord.writeScope,
     sourceRef: 'fixture://trusted-root-mandate',
     authorizedEffects: ['local fixture candidate only'],

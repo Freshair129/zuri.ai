@@ -21,6 +21,15 @@ function nonempty(value) { return typeof value === 'string' && value.trim().leng
 function json(value) { return JSON.stringify(value); }
 function sha256(value) { return createHash('sha256').update(value).digest('hex'); }
 function normalizeText(value) { return typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : value; }
+function normalizeDomainOrFeatureKey(value) {
+  if (!nonempty(value)) throw new TypeError('Trusted root binding requires domainOrFeatureKey.');
+  const normalized = value.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, '-');
+  if (normalized.length > 160
+      || !/^[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)+$/.test(normalized)) {
+    throw new TypeError('Trusted root domainOrFeatureKey must be a normalized slash-separated key.');
+  }
+  return normalized;
+}
 function normalizeSemantic(value) {
   if (Array.isArray(value)) return value.map(normalizeSemantic);
   if (isRecord(value)) return Object.fromEntries(Object.keys(value).sort().map((key) => [key, normalizeSemantic(value[key])]));
@@ -271,6 +280,15 @@ function readPolicy(repoRoot) {
       || policy.sessionIdentity?.verifierAndReviewerMustBeDifferentSessions !== true) {
     throw new Error('Distinct worker, verifier, and reviewer session policy is not active.');
   }
+  const concurrency = policy.concurrency;
+  if (![concurrency?.agentSlotsMaximum, concurrency?.rootSlots, concurrency?.workerSlotsMaximum,
+    concurrency?.gateSlots, concurrency?.unverifiedSubmissionQueueMaximum].every(Number.isSafeInteger)
+      || concurrency.agentSlotsMaximum < 1 || concurrency.rootSlots < 0
+      || concurrency.workerSlotsMaximum < 1 || concurrency.gateSlots < 1
+      || concurrency.unverifiedSubmissionQueueMaximum < 1
+      || concurrency.agentSlotsMaximum < concurrency.rootSlots + concurrency.workerSlotsMaximum + concurrency.gateSlots) {
+    throw new Error('Active v4 role concurrency capacities are unavailable or invalid.');
+  }
   return policy;
 }
 
@@ -292,6 +310,7 @@ function checkMandateBinding(binding, taskRecord, repoRoot) {
       || binding.taskId !== taskRecord.taskId
       || !nonempty(binding.sourceRef)
       || !nonempty(binding.objective)
+      || !nonempty(binding.domainOrFeatureKey)
       || !Array.isArray(binding.writeScope)
       || !Array.isArray(binding.authorizedEffects)
       || !Array.isArray(binding.prohibitions)) {
@@ -314,6 +333,7 @@ function checkMandateBinding(binding, taskRecord, repoRoot) {
   return {
     sourceRef: binding.sourceRef,
     objective: normalizeText(binding.objective),
+    domainOrFeatureKey: normalizeDomainOrFeatureKey(binding.domainOrFeatureKey),
     repositoryRoot: boundRepo,
     writeScope: scopes,
     authorizedEffects: binding.authorizedEffects.map(normalizeText),
@@ -480,6 +500,46 @@ function pathConflict(db, taskId, scopes, worktreeRoot = null) {
     }
   }
   return null;
+}
+
+function storedDomainOrFeatureKey(row) {
+  const binding = row ? rowJson(row.trusted_mandate_json) : null;
+  if (!isRecord(binding) || binding.domainOrFeatureKey === undefined || binding.domainOrFeatureKey === null) return null;
+  return normalizeDomainOrFeatureKey(binding.domainOrFeatureKey);
+}
+
+function domainLockConflict(db, taskId, domainOrFeatureKey) {
+  const owner = db.prepare(`SELECT task_id FROM delivery_domain_locks
+    WHERE domain_or_feature_key=? AND task_id<>?`).get(domainOrFeatureKey, taskId);
+  return owner ? { taskId: owner.task_id, scope: 'DOMAIN_OR_FEATURE_LOCK', requested: domainOrFeatureKey } : null;
+}
+
+function acquireDomainLock(db, taskId, domainOrFeatureKey) {
+  const own = db.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(taskId);
+  if (own) {
+    if (own.domain_or_feature_key !== domainOrFeatureKey) throw new Error('DOMAIN_LOCK_BINDING_MISMATCH');
+    return null;
+  }
+  const conflict = domainLockConflict(db, taskId, domainOrFeatureKey);
+  if (conflict) return conflict;
+  db.prepare('INSERT INTO delivery_domain_locks(domain_or_feature_key,task_id) VALUES(?,?)').run(domainOrFeatureKey, taskId);
+  return null;
+}
+
+function ensureActiveDomainLocks(db) {
+  const rows = db.prepare(`SELECT run.task_id,run.state,run.current_cycle,run.trusted_mandate_json FROM delivery_runs AS run
+    WHERE run.current_cycle>0 AND run.state<>'ABANDONED'
+      AND (run.state<>'ROOT_INTEGRATED_PENDING_CI' OR EXISTS (
+        SELECT 1 FROM delivery_domain_locks AS held WHERE held.task_id=run.task_id
+      )) ORDER BY run.task_id`).all();
+  for (const row of rows) {
+    let domainOrFeatureKey;
+    try { domainOrFeatureKey = storedDomainOrFeatureKey(row); }
+    catch { throw new Error('ACTIVE_RUN_INVALID_DOMAIN_OR_FEATURE_KEY:' + row.task_id); }
+    if (!domainOrFeatureKey) throw new Error('ACTIVE_RUN_MISSING_DOMAIN_OR_FEATURE_KEY:' + row.task_id);
+    const conflict = acquireDomainLock(db, row.task_id, domainOrFeatureKey);
+    if (conflict) throw new Error('ACTIVE_DOMAIN_OR_FEATURE_LOCK_CONFLICT:' + row.task_id + ':' + conflict.taskId);
+  }
 }
 
 function releaseNodeLease(db, taskId, cycleNo, nodeId) {
@@ -813,12 +873,17 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     const dependencies = Array.isArray(preflightResult.dependencies) ? preflightResult.dependencies : [];
     const at = nowIso(clock);
     return store.transaction((tx) => {
+      ensureActiveDomainLocks(tx);
       const existing = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskRecord.taskId);
       if (existing) {
         if (existing.current_cycle !== 0) {
           if (semanticTaskDigest(rowJson(existing.task_json)) !== taskDigest) throw new Error('Task identity already exists with different metadata; use resumeTask or root-admitted admitCycle.');
+          const existingKey = storedDomainOrFeatureKey(existing);
+          if (existingKey && existingKey !== binding.domainOrFeatureKey) throw new Error('Task domainOrFeatureKey cannot change for an existing task identity.');
           return runShape(tx, existing, { includeTaskRecord: true });
         }
+        const existingKey = storedDomainOrFeatureKey(existing);
+        if (existingKey && existingKey !== binding.domainOrFeatureKey) throw new Error('Task domainOrFeatureKey cannot change for an existing task identity.');
       }
       const current = gitSnapshot(taskRepoRoot, baseline.baseRevision, taskRecord.writeScope);
       if (current.headCommit !== baseline.headRevision || current.branch !== baseline.branch) {
@@ -830,7 +895,9 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const unresolvedDeps = dependencies.filter((dependency) => dependency?.accepted !== true);
       if (unresolvedDeps.length && preflightResult.status === 'READY') throw new Error('Preflight READY conflicts with unaccepted dependency evidence.');
       const scopes = taskRecord.writeScope.map(normalizeScopePath);
-      const conflict = pathConflict(tx, taskRecord.taskId, scopes, taskRepoRoot);
+      const scopeConflict = pathConflict(tx, taskRecord.taskId, scopes, taskRepoRoot);
+      const semanticConflict = domainLockConflict(tx, taskRecord.taskId, binding.domainOrFeatureKey);
+      const conflict = scopeConflict ?? semanticConflict;
       const dependencyBlocked = preflightResult.status === 'BLOCKED_DEPENDENCY' || unresolvedDeps.length > 0;
       const state = conflict ? 'BLOCKED_SCOPE' : dependencyBlocked ? 'BLOCKED_DEPENDENCY' : 'WORKER_READY';
       const currentCycle = state === 'WORKER_READY' ? 1 : 0;
@@ -850,6 +917,8 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       if (currentCycle > 0) tx.prepare(`INSERT INTO delivery_cycles(task_id,cycle_no,state,admitted_at,created_at,updated_at) VALUES(?,?,?,?,?,?)`)
         .run(taskRecord.taskId, currentCycle, 'ACTIVE', at, at, at);
       if (currentCycle > 0) {
+        const acquired = acquireDomainLock(tx, taskRecord.taskId, binding.domainOrFeatureKey);
+        if (acquired) throw new Error('DOMAIN_OR_FEATURE_LOCK_RACE:' + acquired.taskId);
         for (const scope of scopes) tx.prepare('INSERT INTO delivery_write_locks(task_id,scope_path) VALUES(?,?)').run(taskRecord.taskId, scope);
         insertNodes(tx, taskRecord.taskId, currentCycle, taskDigest, at);
       }
@@ -857,6 +926,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
         taskRecordDigest: taskDigest,
         preflight: { status: preflightResult.status, baseCommit: baseline.baseRevision, headCommit: baseline.headRevision, branch: baseline.branch },
         mandateBindingDigest: binding.digest,
+        domainOrFeatureKey: binding.domainOrFeatureKey,
         writeScope: scopes,
         ...(conflict ? { conflict } : {}),
         ...(dependencyBlocked ? { unacceptedDependencies: unresolvedDeps.map((item) => item.taskId) } : {}),
@@ -884,13 +954,15 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
   function nextReadyNodes({ limit = 4 } = {}) {
     if (!Number.isSafeInteger(limit) || limit < 1) throw new TypeError('limit must be a positive integer.');
     return store.transaction((tx) => {
+      ensureActiveDomainLocks(tx);
       recoverExpiredLeases(store, clock);
       refreshCycleDeadlines(tx);
       const policy = readPolicy(store.repoRoot);
       const active = tx.prepare("SELECT role,COUNT(*) AS count FROM delivery_nodes WHERE state IN ('LEASED','RUNNING') GROUP BY role").all();
       const activeByRole = Object.fromEntries(active.map((row) => [row.role, row.count]));
       const activeAll = Object.values(activeByRole).reduce((sum, value) => sum + value, 0);
-      if (activeAll >= policy.concurrency.agentSlotsMaximum) return [];
+      const sessionCapacity = policy.concurrency.agentSlotsMaximum - policy.concurrency.rootSlots;
+      if (activeAll >= sessionCapacity) return [];
       const queue = tx.prepare(`SELECT n.*,r.objective,r.worktree_root,r.branch,r.base_commit,r.initial_head_commit,r.current_cycle,r.proof_scope_json,r.dependencies_json,r.state AS run_state,
         r.candidate_head_commit,r.candidate_snapshot_digest,c.started_at,c.submissions,c.implementation_repairs,c.tool_retries
         FROM delivery_nodes n JOIN delivery_runs r USING(task_id) JOIN delivery_cycles c USING(task_id,cycle_no)
@@ -899,10 +971,11 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
         AND task_id IN (SELECT task_id FROM delivery_runs WHERE state IN ('VERIFY_READY','REVIEW_READY'))`).get().count;
       const output = [];
       for (const node of queue) {
-        if (output.length >= limit || activeAll + output.length >= policy.concurrency.agentSlotsMaximum) break;
+        if (output.length >= limit || activeAll + output.length >= sessionCapacity) break;
         if (node.role === 'worker') {
           if ((activeByRole.worker ?? 0) + output.filter((item) => item.role === 'worker').length >= policy.concurrency.workerSlotsMaximum) continue;
-          if (unverified >= policy.concurrency.unverifiedSubmissionQueueMaximum) continue;
+          const workerReservations = unverified + (activeByRole.worker ?? 0) + output.filter((item) => item.role === 'worker').length;
+          if (workerReservations >= policy.concurrency.unverifiedSubmissionQueueMaximum) continue;
           if (node.run_state !== 'WORKER_READY') continue;
         } else {
           if ((activeByRole.verifier ?? 0) + (activeByRole.reviewer ?? 0) + output.filter((item) => item.role !== 'worker').length >= policy.concurrency.gateSlots) continue;
@@ -940,6 +1013,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     if (!nonempty(taskId) || !nonempty(nodeId) || !nonempty(ownerId)) throw new TypeError('taskId, nodeId, and ownerId are required.');
     if (!Number.isSafeInteger(leaseMs) || leaseMs < 1_000) throw new TypeError('leaseMs must be at least one second.');
     return store.transaction((tx) => {
+      ensureActiveDomainLocks(tx);
       recoverExpiredLeases(store, clock);
       refreshCycleDeadlines(tx);
       const node = tx.prepare(`SELECT n.*,r.state AS run_state,r.worktree_root,r.base_commit,r.initial_snapshot_digest,r.initial_head_commit,r.branch,r.proof_scope_json,r.candidate_head_commit,r.candidate_snapshot_digest
@@ -952,10 +1026,12 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const active = tx.prepare("SELECT role,COUNT(*) AS count FROM delivery_nodes WHERE state IN ('LEASED','RUNNING') GROUP BY role").all();
       const activeByRole = Object.fromEntries(active.map((item) => [item.role, item.count]));
       const activeAll = Object.values(activeByRole).reduce((sum, value) => sum + value, 0);
+      const sessionCapacity = policy.concurrency.agentSlotsMaximum - policy.concurrency.rootSlots;
       const unverified = tx.prepare(`SELECT COUNT(*) AS count FROM delivery_nodes WHERE role='worker' AND state='PASSED'
         AND task_id IN (SELECT task_id FROM delivery_runs WHERE state IN ('VERIFY_READY','REVIEW_READY'))`).get().count;
-      if (activeAll >= policy.concurrency.agentSlotsMaximum
-          || (node.role === 'worker' && ((activeByRole.worker ?? 0) >= policy.concurrency.workerSlotsMaximum || unverified >= policy.concurrency.unverifiedSubmissionQueueMaximum))
+      if (activeAll >= sessionCapacity
+          || (node.role === 'worker' && ((activeByRole.worker ?? 0) >= policy.concurrency.workerSlotsMaximum
+            || unverified + (activeByRole.worker ?? 0) >= policy.concurrency.unverifiedSubmissionQueueMaximum))
           || (node.role !== 'worker' && ((activeByRole.verifier ?? 0) + (activeByRole.reviewer ?? 0) >= policy.concurrency.gateSlots))) {
         throw new Error('Atomic claim refused by active policy concurrency limits.');
       }
@@ -1031,6 +1107,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
   function recordDispatchIntent({ lease, operationId, inputDigest } = {}) {
     if (!nonempty(operationId) || !/^[a-f0-9]{64}$/i.test(inputDigest ?? '')) throw new TypeError('Dispatch intent requires operationId and a SHA-256 inputDigest.');
     return store.transaction((tx) => {
+      ensureActiveDomainLocks(tx);
       const node = requireLease(tx, lease, ['LEASED'], nowIso(clock));
       const { run, cycle } = cycleAndNode(tx, lease);
       const policy = readPolicy(store.repoRoot);
@@ -1176,6 +1253,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
   function recordRootIntegration({ taskId, headCommit, evidenceRef } = {}) {
     if (!nonempty(taskId) || !nonempty(headCommit) || !nonempty(evidenceRef)) throw new TypeError('Root integration requires taskId, integrated head commit, and evidenceRef.');
     return store.transaction((tx) => {
+      ensureActiveDomainLocks(tx);
       const run = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
       if (!run || run.state !== 'ROOT_DELIVERY_READY') throw new Error('All worker, exact-head verification, and review stages must pass before root integration.');
       const commit = git(run.worktree_root, ['rev-parse', '--verify', headCommit + '^{commit}']).trim();
@@ -1190,6 +1268,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const integration = { headCommit: commit, evidenceRef, recordedAt: at, requiredCi: 'NOT_RECORDED_BY_CONTROLLER' };
       tx.prepare(`UPDATE delivery_runs SET state='ROOT_INTEGRATED_PENDING_CI',root_integration_json=?,updated_at=? WHERE task_id=?`).run(json(integration), at, taskId);
       tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskId);
+      tx.prepare('DELETE FROM delivery_domain_locks WHERE task_id=?').run(taskId);
       tx.prepare(`UPDATE delivery_cycles SET state='INTEGRATED',updated_at=? WHERE task_id=? AND cycle_no=?`).run(at, taskId, run.current_cycle);
       eventInTransaction(tx, clock, taskId, run.current_cycle, 'ROOT_INTEGRATION_RECORDED', integration);
       return { ...integration, state: 'ROOT_INTEGRATED_PENDING_CI' };
@@ -1208,6 +1287,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       throw new TypeError('BASE_ADVANCED disposition requires the exact paused delivery checkpoint and commit bindings.');
     }
     return store.transaction((tx) => {
+      ensureActiveDomainLocks(tx);
       const run = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
       if (!run || !['ROOT_INTEGRATED_PENDING_CI', 'BLOCKED_STALE_CANDIDATE'].includes(run.state)
           || run.current_cycle !== cycleNo || run.base_commit !== expectedBaseCommit
@@ -1248,6 +1328,10 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const scopes = rowJson(run.proof_scope_json) ?? [];
       const conflict = pathConflict(tx, taskId, scopes, run.worktree_root);
       if (conflict) throw new Error('BASE_ADVANCED_WRITE_SCOPE_LOCKED:' + conflict.taskId);
+      const domainOrFeatureKey = storedDomainOrFeatureKey(run);
+      if (!domainOrFeatureKey) throw new Error('BASE_ADVANCED_DOMAIN_OR_FEATURE_KEY_REQUIRED');
+      const domainConflict = acquireDomainLock(tx, taskId, domainOrFeatureKey);
+      if (domainConflict) throw new Error('BASE_ADVANCED_DOMAIN_OR_FEATURE_LOCKED:' + domainConflict.taskId);
       tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskId);
       for (const scope of scopes) tx.prepare('INSERT INTO delivery_write_locks(task_id,scope_path) VALUES(?,?)').run(taskId, scope);
       const at = nowIso(clock);
@@ -1280,10 +1364,25 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       }
       const activeNode = tx.prepare("SELECT node_id FROM delivery_nodes WHERE task_id=? AND state IN ('LEASED','RUNNING') LIMIT 1").get(taskId);
       if (activeNode) throw new Error('Active leases must finish or be safely reconciled before root disposition can release locks.');
+      if (disposition !== 'ABANDONED') {
+        ensureActiveDomainLocks(tx);
+        const scopes = rowJson(run.proof_scope_json) ?? [];
+        const pathConflictResult = pathConflict(tx, taskId, scopes, run.worktree_root);
+        if (pathConflictResult) throw new Error('Root disposition writeScope conflicts with ' + pathConflictResult.taskId + ' at ' + pathConflictResult.scope);
+        const domainOrFeatureKey = storedDomainOrFeatureKey(run);
+        if (!domainOrFeatureKey) throw new Error('ROOT_DISPOSITION_DOMAIN_OR_FEATURE_KEY_REQUIRED');
+        const domainConflict = acquireDomainLock(tx, taskId, domainOrFeatureKey);
+        if (domainConflict) throw new Error('Root disposition domainOrFeatureKey conflicts with ' + domainConflict.taskId);
+        tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskId);
+        for (const scope of scopes) tx.prepare('INSERT INTO delivery_write_locks(task_id,scope_path) VALUES(?,?)').run(taskId, scope);
+      }
       const at = nowIso(clock);
       const state = disposition === 'YIELD_REASSESS' ? 'YIELD_REASSESS' : disposition === 'ABANDONED' ? 'ABANDONED' : 'BLOCKED_BY_ROOT';
       tx.prepare('UPDATE delivery_runs SET state=?,updated_at=? WHERE task_id=?').run(state, at, taskId);
-      tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskId);
+      if (disposition === 'ABANDONED') {
+        tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskId);
+        tx.prepare('DELETE FROM delivery_domain_locks WHERE task_id=?').run(taskId);
+      }
       tx.prepare(`UPDATE delivery_cycles SET state=?,paused_at=?,updated_at=? WHERE task_id=? AND cycle_no=?`)
         .run(disposition === 'ABANDONED' ? 'ABANDONED' : 'PAUSED', at, at, taskId, run.current_cycle);
       eventInTransaction(tx, clock, taskId, run.current_cycle, 'ROOT_DISPOSITION_RECORDED', { disposition, evidenceRef, reason });
@@ -1299,8 +1398,11 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       throw new TypeError('Resume requires a fresh matching READY read-only preflight.');
     }
     return store.transaction((tx) => {
+      ensureActiveDomainLocks(tx);
       const run = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskRecord.taskId);
       if (!run) throw new Error('Cannot resume an unregistered task; register it after preflight.');
+      const existingKey = storedDomainOrFeatureKey(run);
+      if (!existingKey || existingKey !== binding.domainOrFeatureKey) throw new Error('Resume domainOrFeatureKey does not match the original root binding.');
       if (!['REPAIR_METADATA', 'YIELD_REASSESS', 'BLOCKED_EXTERNAL', 'BLOCKED_FOR_REASSESSMENT', 'BLOCKED_EFFECT_REASSESS', 'BLOCKED_STALE_CANDIDATE', 'BLOCKED_STALE_BASELINE'].includes(run.state)) {
         throw new Error('Task is not in a resumable repair or reassessment state.');
       }
@@ -1327,6 +1429,8 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const newScopes = taskRecord.writeScope.map(normalizeScopePath);
       const conflict = pathConflict(tx, taskRecord.taskId, newScopes, run.worktree_root);
       if (conflict) throw new Error('Resume writeScope conflicts with ' + conflict.taskId + ' at ' + conflict.scope);
+      const domainConflict = acquireDomainLock(tx, taskRecord.taskId, binding.domainOrFeatureKey);
+      if (domainConflict) throw new Error('Resume domainOrFeatureKey conflicts with ' + domainConflict.taskId);
       const digest = semanticTaskDigest(taskRecord);
       const preparedBaseEvidence = preparedBase ? {
         schemaVersion: preparedBase.receipt.schemaVersion,
@@ -1377,9 +1481,12 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       throw new TypeError('A new cycle requires a fresh matching READY preflight.');
     }
     return store.transaction((tx) => {
+      ensureActiveDomainLocks(tx);
       const run = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
       const previous = tx.prepare('SELECT * FROM delivery_cycles WHERE task_id=? AND cycle_no=?').get(taskId, run?.current_cycle ?? 0);
       if (!run || !previous || !['PAUSED', 'EXHAUSTED'].includes(previous.state)) throw new Error('Only a paused exhausted cycle can be continued.');
+      const existingKey = storedDomainOrFeatureKey(run);
+      if (!existingKey || existingKey !== binding.domainOrFeatureKey) throw new Error('New cycle domainOrFeatureKey does not match the original root binding.');
       const openUnknown = tx.prepare("SELECT COUNT(*) AS count FROM delivery_unknown_effects WHERE task_id=? AND state='UNKNOWN'").get(taskId).count;
       if (openUnknown) throw new Error('Unknown effects must be reconciled before admitting a new cycle.');
       const baseline = preflightResult.baseline;
@@ -1389,6 +1496,8 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
       const scopes = taskRecord.writeScope.map(normalizeScopePath);
       const conflict = pathConflict(tx, taskId, scopes, run.worktree_root);
       if (conflict) throw new Error('New cycle scope conflicts with ' + conflict.taskId + ' at ' + conflict.scope);
+      const domainConflict = acquireDomainLock(tx, taskId, binding.domainOrFeatureKey);
+      if (domainConflict) throw new Error('New cycle domainOrFeatureKey conflicts with ' + domainConflict.taskId);
       tx.prepare('DELETE FROM delivery_write_locks WHERE task_id=?').run(taskId);
       for (const scope of scopes) tx.prepare('INSERT INTO delivery_write_locks(task_id,scope_path) VALUES(?,?)').run(taskId, scope);
       const nextCycle = run.current_cycle + 1;
@@ -1423,9 +1532,12 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
     if (!isRecord(trustedMandateBinding) || trustedMandateBinding.resolvedBy !== 'root' || trustedMandateBinding.taskId !== taskId) {
       throw new TypeError('Preflight repair requires root-bound trusted mandate context.');
     }
+    const domainOrFeatureKey = normalizeDomainOrFeatureKey(trustedMandateBinding.domainOrFeatureKey);
     const policy = readPolicy(store.repoRoot);
     return store.transaction((tx) => {
       let row = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
+      const existingKey = storedDomainOrFeatureKey(row);
+      if (existingKey && existingKey !== domainOrFeatureKey) throw new Error('Preflight repair domainOrFeatureKey does not match the original root binding.');
       if (!row) {
         const baselineHead = git(store.repoRoot, ['rev-parse', '--verify', 'HEAD^{commit}']).trim();
         const branch = git(store.repoRoot, ['branch', '--show-current']).trim() || 'unknown';
@@ -1435,7 +1547,7 @@ export async function openDeliveryController({ repoRoot, databasePath, now = () 
         const emptyDigest = sha256(stableJson(semanticInput ?? taskRecord));
         tx.prepare(`INSERT INTO delivery_runs(task_id,worktree_root,objective,acceptance_json,task_json,trusted_mandate_json,branch,base_ref,base_commit,initial_head_commit,initial_snapshot_digest,proof_scope_json,changed_paths_json,dependencies_json,state,current_cycle,created_at,updated_at)
           VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-          .run(taskId, store.repoRoot, sourceObjective, '[]', json(emptyTask), json({ sourceRef: trustedMandateBinding.sourceRef ?? null, digest: sha256(stableJson(trustedMandateBinding)) }), branch, 'unresolved', baselineHead, baselineHead, sha256('preflight-only'), '[]', '[]', '[]', 'REPAIR_METADATA', 0, at, at);
+          .run(taskId, store.repoRoot, sourceObjective, '[]', json(emptyTask), json({ sourceRef: trustedMandateBinding.sourceRef ?? null, domainOrFeatureKey, digest: sha256(stableJson({ ...trustedMandateBinding, domainOrFeatureKey })) }), branch, 'unresolved', baselineHead, baselineHead, sha256('preflight-only'), '[]', '[]', '[]', 'REPAIR_METADATA', 0, at, at);
         row = tx.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(taskId);
         const fingerprint = sha256(`AUTOMATIC_TASK_PREFLIGHT\nMETADATA_DEFECT\n${emptyDigest}`);
         const occurrences = 1;

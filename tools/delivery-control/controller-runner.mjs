@@ -84,6 +84,19 @@ export function commitWorkerCandidate({ worktree, taskFile, task, baseCommit, re
 /** Trusted local runner only. The dashboard cannot call this function. */
 export function createControllerRunner({ controller, repoRoot, stateRoot, config, backend = runCodexRole }) {
   if (!Array.isArray(config.tasks) || ![1, 2].includes(config.maxConcurrent ?? 2)) throw new Error('INVALID_RUNNER_CONFIG');
+  const modelPolicy = JSON.parse(fs.readFileSync(path.join(repoRoot, 'docs', 'architecture', 'delivery-control', 'contracts', 'model-policy.json'), 'utf8'));
+  const capacities = modelPolicy.concurrency;
+  if (![capacities?.agentSlotsMaximum, capacities?.rootSlots, capacities?.workerSlotsMaximum, capacities?.gateSlots].every(Number.isSafeInteger)
+      || capacities.agentSlotsMaximum < 1 || capacities.rootSlots < 0
+      || capacities.workerSlotsMaximum < 1 || capacities.gateSlots < 1
+      || capacities.agentSlotsMaximum < capacities.rootSlots + capacities.workerSlotsMaximum + capacities.gateSlots) {
+    throw new Error('INVALID_MACHINE_ROLE_CAPACITY_POLICY');
+  }
+  // maxConcurrent remains a caller-selected worker ceiling; gates use their
+  // independent machine-policy slot and do not consume a worker slot.
+  const workerSlots = Math.min(config.maxConcurrent ?? capacities.workerSlotsMaximum, capacities.workerSlotsMaximum);
+  const gateSlots = capacities.gateSlots;
+  const sessionSlots = capacities.agentSlotsMaximum - capacities.rootSlots;
   const bindings = new Map();
   const worktrees = new Set();
   for (const task of config.tasks) {
@@ -130,6 +143,7 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
     const roleAbort = new AbortController();
     const cancel = () => roleAbort.abort();
     abort.signal.addEventListener('abort', cancel, { once: true });
+    if (abort.signal.aborted) cancel();
     const heartbeat = setInterval(() => {
       Promise.resolve().then(() => controller.heartbeat(lease, 30_000)).catch((error) => { heartbeatError = error; roleAbort.abort(); });
     }, 5000);
@@ -179,8 +193,15 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
       const errors = pendingErrors.splice(0);
       const nodes = await controller.nextReadyNodes({ limit: 100 });
       for (const node of nodes) {
-        if (active.size >= (config.maxConcurrent ?? 2) || abort.signal.aborted) break;
+        if (abort.signal.aborted) break;
         if (!bindings.has(node.taskId) || active.has(node.taskId) || heldTasks.has(node.taskId)) continue;
+        const roleIsWorker = node.role === 'worker';
+        const roleIsGate = node.role === 'verifier' || node.role === 'reviewer';
+        if (!roleIsWorker && !roleIsGate) continue;
+        const workerCount = [...active.values()].filter((item) => item.role === 'worker').length;
+        const gateCount = active.size - workerCount;
+        if ((roleIsWorker && workerCount >= workerSlots) || (roleIsGate && gateCount >= gateSlots)
+            || active.size >= sessionSlots) continue;
         const binding = bindings.get(node.taskId);
         let signature;
         try {
@@ -205,12 +226,12 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
           pendingErrors.push({ taskId: node.taskId, code: String(error.code ?? error.message) });
         })
           .finally(() => active.delete(node.taskId));
-        active.set(node.taskId, promise);
+        active.set(node.taskId, { role: node.role, promise });
       }
       // Errors remain observable; never recursively retry in a dispatch.
       return { active: active.size, errors };
     },
-    async drain() { await Promise.allSettled([...active.values()]); },
+    async drain() { await Promise.allSettled([...active.values()].map((item) => item.promise)); },
     wake(taskId) { suppressed.delete(taskId); heldTasks.delete(taskId); },
     hold(taskId) { heldTasks.add(taskId); },
     authorizePreparedCandidate(taskId, receiptFile, expectedReceiptDigest) {
@@ -235,7 +256,7 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
       if (worktrees.has(key)) throw new Error('DUPLICATE_WORKTREE_BINDING');
       worktrees.add(key); bindings.set(binding.taskId, binding); config.tasks.push(binding);
     },
-    async stop() { abort.abort(); await Promise.allSettled([...active.values()]); },
+    async stop() { abort.abort(); await Promise.allSettled([...active.values()].map((item) => item.promise)); },
     isActive(taskId) { return active.has(taskId); },
     activeCount: () => active.size,
   };
