@@ -334,9 +334,10 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
     expect(workflow).toContain("if: github.event_name == 'pull_request' && steps.filter.outputs.server == 'true'\n")
     expect(workflow).toContain('gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/labels"')
     expect(workflow).toContain("grep -qx 'ci:full'")
-    // one live run per PR; main, schedule and dispatch are never cancelled
-    expect(workflow).toContain("group: governance-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}")
-    expect(workflow).toContain("cancel-in-progress: ${{ github.event_name == 'pull_request' }}")
+    // PR and main runs supersede older snapshots in their own groups;
+    // schedule/manual runs use unique groups and are not cancelled.
+    expect(workflow).toContain("group: governance-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || (github.event_name == 'push' && github.ref == 'refs/heads/main' && 'main') || github.run_id }}")
+    expect(workflow).toContain("cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}")
     // renames arrive as delete + add
     expect(workflow).toContain('changed=$(git diff --name-only --no-renames "$base" "$head" 2>&1)')
     // the list is split into a quoted array, never an unquoted expansion

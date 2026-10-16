@@ -40,12 +40,13 @@ on:
     - cron: '0 19 * * *'
   workflow_dispatch:
 
-# One live run per pull request: a new push cancels the superseded run. Only
-# pull requests share a group; `main` pushes, the schedule and dispatches each
-# get their own group (the run id) and are never cancelled.
+# Keep one live run per pull request and one live post-merge run for `main`.
+# A newer main snapshot supersedes an older one, so the full main suite finishes
+# on the latest tree instead of spending Actions minutes on every intermediate
+# merge. Scheduled and manually dispatched runs stay independent.
 concurrency:
-  group: governance-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: governance-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || (github.event_name == 'push' && github.ref == 'refs/heads/main' && 'main') || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
 
 jobs:
   # Which parts of the tree changed. The e2e suite takes 7-8 minutes and cannot
