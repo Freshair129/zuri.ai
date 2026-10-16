@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import { DatabaseSync } from 'node:sqlite';
 import { createControllerRunner, rolePrompt, commitWorkerCandidate, readPreparedCandidate } from '../delivery-control/controller-runner.mjs';
 import { openDeliveryController } from '../delivery-control/controller.mjs';
 import { preflightTask } from '../delivery-control/preflight.mjs';
@@ -140,6 +141,149 @@ function candidateFixture(t) {
   fs.writeFileSync(taskFile, JSON.stringify(task));
   return { worktree, git, baseCommit, taskFile, task, artifactDir, cleanupHooks, result: { headCommit: baseCommit, resultDigest: 'a'.repeat(64) } };
 }
+
+test('runner prevents launch when the campaign deadline expires at each dispatch boundary', async (t) => {
+  for (const expireAtCheck of [1, 2, 3]) {
+    await t.test(['after preflight before claim', 'after claim before intent', 'after intent before launch'][expireAtCheck - 1], async (t) => {
+      const f = candidateFixture(t);
+      const controller = await openDeliveryController({ repoRoot: f.worktree });
+      f.cleanupHooks.push(() => controller.close());
+      const mandate = { resolvedBy: 'root', taskId: f.task.taskId, repositoryRoot: f.worktree,
+        objective: f.task.objective, domainOrFeatureKey: 'test/candidate-test', writeScope: f.task.writeScope,
+        sourceRef: 'trusted fixture', authorizedEffects: ['local fixture changes'], prohibitions: ['external effects'] };
+      const ready = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+      controller.registerTask({ taskRecord: f.task, preflightResult: ready, worktreeRoot: f.worktree, trustedMandateBinding: mandate });
+      const counts = { claim: 0, release: 0, intent: 0, cancel: 0 };
+      const observedController = new Proxy(controller, {
+        get(target, property, receiver) {
+          if (property === 'claimNode') return (input) => { counts.claim++; return target.claimNode(input); };
+          if (property === 'releaseLease') return (input) => { counts.release++; return target.releaseLease(input); };
+          if (property === 'recordDispatchIntent') return (input) => { counts.intent++; return target.recordDispatchIntent(input); };
+          if (property === 'cancelDispatchBeforeLaunch') return (input) => { counts.cancel++; return target.cancelDispatchBeforeLaunch(input); };
+          const value = Reflect.get(target, property, receiver);
+          return typeof value === 'function' ? value.bind(target) : value;
+        },
+      });
+      let guardChecks = 0;
+      let backendCalls = 0;
+      const runner = createControllerRunner({ controller: observedController, repoRoot: f.worktree,
+        stateRoot: path.join(f.worktree, '.git', `runner-deadline-${expireAtCheck}`),
+        config: { tasks: [{ taskId: f.task.taskId, taskFile: f.taskFile, worktree: f.worktree, branch: 'codex/fixture' }] },
+        campaignDeadlineGuard: () => ++guardChecks < expireAtCheck,
+        backend: async () => { backendCalls++; throw new Error('BACKEND_MUST_NOT_LAUNCH'); } });
+      try {
+        const tick = await runner.tick();
+        assert.equal(tick.active, 1);
+        await runner.drain();
+        assert.equal(guardChecks, expireAtCheck);
+        assert.equal(backendCalls, 0);
+        const run = controller.getRun(f.task.taskId);
+        const db = new DatabaseSync(controller.databasePath);
+        try {
+          const node = db.prepare('SELECT state,attempt,effect_state,dispatch_operation_id FROM delivery_nodes WHERE task_id=? AND node_id=\'worker\'')
+            .get(f.task.taskId);
+          assert.equal(db.prepare('SELECT COUNT(*) AS count FROM delivery_unknown_effects WHERE task_id=?').get(f.task.taskId).count, 0);
+          if (expireAtCheck === 1) {
+            assert.deepEqual(counts, { claim: 0, release: 0, intent: 0, cancel: 0 });
+            assert.equal(node.state, 'READY');
+            assert.equal(run.cycles[0].submissions, 0);
+            assert.equal(run.state, 'WORKER_READY');
+          } else if (expireAtCheck === 2) {
+            assert.deepEqual(counts, { claim: 1, release: 1, intent: 0, cancel: 0 });
+            assert.equal(node.state, 'READY');
+            assert.equal(run.cycles[0].submissions, 0);
+            assert.equal(run.state, 'WORKER_READY');
+          } else {
+            assert.deepEqual(counts, { claim: 1, release: 0, intent: 1, cancel: 1 });
+            assert.equal(node.state, 'BLOCKED');
+            assert.equal(node.attempt, 1);
+            assert.equal(node.effect_state, 'NONE');
+            assert.ok(node.dispatch_operation_id);
+            assert.equal(run.state, 'PAUSED_DEADLINE');
+            assert.equal(run.cycles[0].state, 'PAUSED');
+            assert.equal(run.cycles[0].submissions, 1);
+            assert.equal(run.cycles[0].implementationRepairs, 0);
+            assert.equal(run.cycles[0].toolRetries, 0);
+            const cancellation = db.prepare(`SELECT event_type,payload_json FROM delivery_events
+              WHERE task_id=? AND event_type='BACKEND_DISPATCH_CANCELLED_BEFORE_LAUNCH'`).get(f.task.taskId);
+            assert.ok(cancellation);
+            assert.equal(JSON.parse(cancellation.payload_json).backendLaunched, false);
+          }
+        } finally { db.close(); }
+        assert.doesNotThrow(() => controller.verifyEventChain());
+      } finally { await runner.stop(); }
+    });
+  }
+});
+
+test('runner records no-launch cancellation when its same-owner lease expires after intent', async (t) => {
+  const f = candidateFixture(t);
+  let clockValue = new Date();
+  const controller = await openDeliveryController({ repoRoot: f.worktree, now: () => clockValue });
+  f.cleanupHooks.push(() => controller.close());
+  const mandate = { resolvedBy: 'root', taskId: f.task.taskId, repositoryRoot: f.worktree,
+    objective: f.task.objective, domainOrFeatureKey: 'test/candidate-test', writeScope: f.task.writeScope,
+    sourceRef: 'trusted fixture', authorizedEffects: ['local fixture changes'], prohibitions: ['external effects'] };
+  const ready = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+  controller.registerTask({ taskRecord: f.task, preflightResult: ready, worktreeRoot: f.worktree, trustedMandateBinding: mandate });
+
+  let guardChecks = 0;
+  let backendCalls = 0;
+  let leaseExpiredAtFinalGuard = false;
+  const runner = createControllerRunner({ controller, repoRoot: f.worktree,
+    stateRoot: path.join(f.worktree, '.git', 'runner-expired-prelaunch-lease'),
+    config: { tasks: [{ taskId: f.task.taskId, taskFile: f.taskFile, worktree: f.worktree, branch: 'codex/fixture' }] },
+    campaignDeadlineGuard: () => {
+      guardChecks++;
+      if (guardChecks === 3) {
+        clockValue = new Date(clockValue.getTime() + 31_000);
+        const db = new DatabaseSync(controller.databasePath);
+        try {
+          const row = db.prepare("SELECT lease_expires_at FROM delivery_nodes WHERE task_id=? AND node_id='worker'")
+            .get(f.task.taskId);
+          leaseExpiredAtFinalGuard = Date.parse(row.lease_expires_at) <= clockValue.getTime();
+        } finally { db.close(); }
+        return false;
+      }
+      return true;
+    },
+    backend: async () => { backendCalls++; throw new Error('BACKEND_MUST_NOT_LAUNCH'); } });
+  try {
+    const tick = await runner.tick();
+    assert.equal(tick.active, 1);
+    await runner.drain();
+    assert.equal(guardChecks, 3);
+    assert.equal(leaseExpiredAtFinalGuard, true);
+    assert.equal(backendCalls, 0);
+    const run = controller.getRun(f.task.taskId);
+    assert.equal(run.state, 'PAUSED_DEADLINE');
+    assert.equal(run.cycles[0].state, 'PAUSED');
+    assert.equal(run.cycles[0].submissions, 1);
+    const db = new DatabaseSync(controller.databasePath);
+    try {
+      const node = db.prepare(`SELECT state,attempt,effect_state,dispatch_operation_id,lease_owner,lease_expires_at
+        FROM delivery_nodes WHERE task_id=? AND node_id='worker'`).get(f.task.taskId);
+      assert.equal(node.state, 'BLOCKED');
+      assert.equal(node.attempt, 1);
+      assert.equal(node.effect_state, 'NONE');
+      assert.ok(node.dispatch_operation_id);
+      assert.equal(node.lease_owner, null);
+      assert.equal(node.lease_expires_at, null);
+      assert.equal(db.prepare('SELECT COUNT(*) AS count FROM delivery_unknown_effects WHERE task_id=?').get(f.task.taskId).count, 0);
+      const cancellation = db.prepare(`SELECT payload_json FROM delivery_events
+        WHERE task_id=? AND event_type='BACKEND_DISPATCH_CANCELLED_BEFORE_LAUNCH'`).get(f.task.taskId);
+      assert.ok(cancellation);
+      const evidence = JSON.parse(cancellation.payload_json);
+      assert.equal(evidence.operationId, node.dispatch_operation_id);
+      assert.equal(evidence.backendLaunched, false);
+      assert.equal(evidence.reason, 'CAMPAIGN_DEADLINE_EXPIRED');
+      assert.equal(evidence.attempt, 1);
+      assert.equal(evidence.submissions, 1);
+    } finally { db.close(); }
+    assert.doesNotThrow(() => controller.verifyEventChain());
+  } finally { await runner.stop(); }
+});
+
 test('trusted root commits scoped source and binds backend result digest to candidate', (t) => {
   const f = candidateFixture(t);
   fs.writeFileSync(path.join(f.worktree, 'src/new.txt'), 'candidate');

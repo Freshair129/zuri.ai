@@ -82,8 +82,10 @@ export function commitWorkerCandidate({ worktree, taskFile, task, baseCommit, re
 }
 
 /** Trusted local runner only. The dashboard cannot call this function. */
-export function createControllerRunner({ controller, repoRoot, stateRoot, config, backend = runCodexRole }) {
+export function createControllerRunner({ controller, repoRoot, stateRoot, config, backend = runCodexRole,
+  campaignDeadlineGuard = () => true }) {
   if (!Array.isArray(config.tasks) || ![1, 2].includes(config.maxConcurrent ?? 2)) throw new Error('INVALID_RUNNER_CONFIG');
+  if (typeof campaignDeadlineGuard !== 'function') throw new Error('INVALID_CAMPAIGN_DEADLINE_GUARD');
   const modelPolicy = JSON.parse(fs.readFileSync(path.join(repoRoot, 'docs', 'architecture', 'delivery-control', 'contracts', 'model-policy.json'), 'utf8'));
   const capacities = modelPolicy.concurrency;
   if (![capacities?.agentSlotsMaximum, capacities?.rootSlots, capacities?.workerSlotsMaximum, capacities?.gateSlots].every(Number.isSafeInteger)
@@ -117,6 +119,11 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
   const suppressed = new Map();
   const ownerId = `local-${randomUUID()}`;
   const abort = new AbortController();
+  const campaignDeadlineAllowsDispatch = () => {
+    try { return campaignDeadlineGuard() === true; }
+    catch { return false; }
+  };
+  const campaignDeadlineError = () => Object.assign(new Error('CAMPAIGN_DEADLINE_EXPIRED'), { code: 'CAMPAIGN_DEADLINE_EXPIRED' });
   async function dispatch(node) {
     const binding = bindings.get(node.taskId);
     if (!binding) return;
@@ -133,29 +140,42 @@ export function createControllerRunner({ controller, repoRoot, stateRoot, config
     if (readiness.status !== 'READY') throw new Error(`PREFLIGHT_${readiness.status}`);
     const after = JSON.parse(fs.readFileSync(binding.taskFile, 'utf8').replace(/^\uFEFF/, ''));
     if (!isDeepStrictEqual(after, task)) throw new Error('TASK_BINDING_CHANGED');
+    if (!campaignDeadlineAllowsDispatch()) throw campaignDeadlineError();
     const claimed = await controller.claimNode({ taskId: node.taskId, nodeId: node.nodeId, ownerId, leaseMs: 30_000 });
     if (claimed.blocked) throw new Error(claimed.status ?? 'CLAIM_BLOCKED');
     const lease = { ...(claimed.lease ?? claimed), taskId: node.taskId, nodeId: node.nodeId, cycleNo: node.cycleNo };
+    if (!campaignDeadlineAllowsDispatch()) {
+      try { await controller.releaseLease(lease); }
+      catch { /* No dispatch intent exists; recovery can safely release this lease. */ }
+      throw campaignDeadlineError();
+    }
     const operationId = randomUUID();
     const artifactDir = path.join(stateRoot, 'dispatches', operationId);
-    await controller.recordDispatchIntent({ lease, operationId, inputDigest: node.inputDigest });
     let heartbeatError = null;
     const roleAbort = new AbortController();
     const cancel = () => roleAbort.abort();
     abort.signal.addEventListener('abort', cancel, { once: true });
     if (abort.signal.aborted) cancel();
+    const backendInput = { executable: config.codexExecutable, windowsSandbox: config.windowsSandbox, role: node.role, worktree,
+      artifactDir, prompt: (preparedReceipts.has(node.taskId) && node.role === 'worker'
+        ? 'Trusted root merged a newer accepted base into the existing candidate. Independently recheck the task and all declared checks; source edits are needed only for real regressions. The root can record a validation-only commit for this prepared candidate.\n' : '')
+        + rolePrompt({ node: { ...node, currentHeadCommit: git(worktree, ['rev-parse', 'HEAD']) }, task }),
+      expectedHead: node.role === 'worker' ? null : node.requiredHeadCommit,
+      expectedLaunchHead: node.expectedLaunchHeadCommit,
+      timeoutMs: Math.min(config.roleTimeoutMs ?? 45 * 60_000, 45 * 60_000), signal: roleAbort.signal,
+      onSession: (handle) => controller.recordBackendHandle({ lease, ...handle, backendRef: operationId }) };
     const heartbeat = setInterval(() => {
       Promise.resolve().then(() => controller.heartbeat(lease, 30_000)).catch((error) => { heartbeatError = error; roleAbort.abort(); });
     }, 5000);
+    try { await controller.recordDispatchIntent({ lease, operationId, inputDigest: node.inputDigest }); }
+    catch (error) { clearInterval(heartbeat); abort.signal.removeEventListener('abort', cancel); throw error; }
+    if (!campaignDeadlineAllowsDispatch()) {
+      clearInterval(heartbeat); abort.signal.removeEventListener('abort', cancel);
+      await controller.cancelDispatchBeforeLaunch({ lease, operationId, reason: 'CAMPAIGN_DEADLINE_EXPIRED' });
+      throw campaignDeadlineError();
+    }
     try {
-      let result = await backend({ executable: config.codexExecutable, windowsSandbox: config.windowsSandbox, role: node.role, worktree,
-        artifactDir, prompt: (preparedReceipts.has(node.taskId) && node.role === 'worker'
-          ? 'Trusted root merged a newer accepted base into the existing candidate. Independently recheck the task and all declared checks; source edits are needed only for real regressions. The root can record a validation-only commit for this prepared candidate.\n' : '')
-          + rolePrompt({ node: { ...node, currentHeadCommit: git(worktree, ['rev-parse', 'HEAD']) }, task }),
-        expectedHead: node.role === 'worker' ? null : node.requiredHeadCommit,
-        expectedLaunchHead: node.expectedLaunchHeadCommit,
-        timeoutMs: Math.min(config.roleTimeoutMs ?? 45 * 60_000, 45 * 60_000), signal: roleAbort.signal,
-        onSession: (handle) => controller.recordBackendHandle({ lease, ...handle, backendRef: operationId }) });
+      let result = await backend(backendInput);
       if (heartbeatError) throw heartbeatError;
       if (result.failureClass === 'STALE_BASELINE' && result.effectState === 'NONE' && result.provenNoEffect === true) {
         await controller.failNode({ lease, failureClass: 'STALE_BASELINE', effectState: 'NONE', provenNoEffect: true,

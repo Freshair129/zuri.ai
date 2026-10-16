@@ -105,6 +105,14 @@ function preflight(task, worktreeRoot, baseCommit, { status = 'READY', dependenc
   };
 }
 
+function successorAdmission(task, { admissionId = 'test-cycle-admission-2', admissionRecordDigest = 'a'.repeat(64),
+  priorCycleNo = 1, priorCycleState = 'PAUSED', reason = 'Material evidence justifies a bounded successor cycle.',
+  evidenceRef = 'test://cycle-admission-evidence', basis = 'MATERIAL_NEW_EVIDENCE' } = {}) {
+  return { admissionId, admissionRecordDigest,
+    taskRecordDigest: createHash('sha256').update(JSON.stringify(task)).digest('hex'),
+    priorCycleNo, priorCycleState, reason, evidenceRef, materialChange: true, basis };
+}
+
 function roleResult(role, sessionId, headCommit, resultDigest) {
   return {
     role,
@@ -619,6 +627,7 @@ test('root-bound semantic keys reject same-key tasks across disjoint scopes and 
       evidenceRef: 'test://semantic-pause', reason: 'Pause while preserving the semantic lock.' });
     const beforeResume = controller.getRun(first.taskId);
     const beforeCycle = beforeResume.cycles[0];
+    const beforeNoProgress = beforeResume.noProgress;
     const domainLockDb = new DatabaseSync(env.databasePath);
     assert.equal(domainLockDb.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(first.taskId).domain_or_feature_key, key);
     domainLockDb.close();
@@ -642,14 +651,51 @@ test('root-bound semantic keys reject same-key tasks across disjoint scopes and 
     const pausedLockDb = new DatabaseSync(env.databasePath);
     assert.equal(pausedLockDb.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(first.taskId).domain_or_feature_key, key);
     pausedLockDb.close();
+    const admission = successorAdmission(first);
+    const campaignId = 'campaign-semantic-cycle-admission';
+    const campaignTaskIds = [first.taskId];
+    const campaignDurationMinutes = 120;
+    const dispatchHistory = controller.inspectCampaignDispatchHistory({ taskIds: campaignTaskIds });
+    const campaignDeadlineAt = new Date(Date.parse(dispatchHistory.earliestWorkerIntentAt)
+      + campaignDurationMinutes * 60_000).toISOString();
+    const preflightLockEpoch = controller.inspectCycleAdmissionConflicts({ taskId: first.taskId, writeScope: first.writeScope }).lockEpoch;
+    const unchangedRun = controller.getRun(first.taskId);
+    const eventCountBeforeEpochMismatch = controller.verifyEventChain().count;
+    const epochRaceDb = new DatabaseSync(env.databasePath);
+    try {
+      const originalScope = epochRaceDb.prepare('SELECT scope_path FROM delivery_write_locks WHERE task_id=?').get(first.taskId).scope_path;
+      epochRaceDb.prepare('UPDATE delivery_write_locks SET scope_path=? WHERE task_id=?').run('src/transient-epoch-race/', first.taskId);
+      epochRaceDb.prepare('UPDATE delivery_write_locks SET scope_path=? WHERE task_id=?').run(originalScope, first.taskId);
+    } finally { epochRaceDb.close(); }
+    assert.throws(() => controller.admitCycle({ taskId: first.taskId, taskRecord: first,
+      preflightResult: preflight(first, worktrees[0].worktreeRoot, env.baseCommit), trustedMandateBinding: firstBinding,
+      admission, campaignId, campaignDeadlineAt, campaignDeadlineBoundAt: campaignDeadlineAt, campaignTaskIds, campaignDurationMinutes,
+      expectedResourceLockEpoch: preflightLockEpoch }), /Resource-lock epoch changed/);
+    assert.deepEqual(controller.getRun(first.taskId), unchangedRun);
+    assert.equal(controller.verifyEventChain().count, eventCountBeforeEpochMismatch);
+    const currentLockEpoch = controller.inspectCycleAdmissionConflicts({ taskId: first.taskId, writeScope: first.writeScope }).lockEpoch;
     const nextCycle = controller.admitCycle({ taskId: first.taskId, taskRecord: first,
       preflightResult: preflight(first, worktrees[0].worktreeRoot, env.baseCommit), trustedMandateBinding: firstBinding,
-      admission: { reason: 'Material new evidence for the same bounded task.', evidenceRef: 'test://material-evidence',
-        materialChange: true, basis: 'MATERIAL_NEW_EVIDENCE' } });
+      admission, campaignId, campaignDeadlineAt, campaignDeadlineBoundAt: campaignDeadlineAt, campaignTaskIds, campaignDurationMinutes,
+      expectedResourceLockEpoch: currentLockEpoch });
     assert.equal(nextCycle.currentCycle, 2);
     assert.equal(nextCycle.cycles[0].submissions, beforeCycle.submissions);
     assert.equal(nextCycle.cycles[0].startedAt, beforeCycle.startedAt);
     assert.equal(nextCycle.cycles[1].submissions, 0);
+    assert.equal(nextCycle.cycles[1].admission.admissionId, admission.admissionId);
+    assert.deepEqual(nextCycle.noProgress, beforeNoProgress);
+    const replayedCycle = controller.admitCycle({ taskId: first.taskId, taskRecord: first,
+      preflightResult: preflight(first, worktrees[0].worktreeRoot, env.baseCommit), trustedMandateBinding: firstBinding,
+      admission, campaignId, campaignDeadlineAt, campaignDeadlineBoundAt: campaignDeadlineAt, campaignTaskIds, campaignDurationMinutes });
+    assert.equal(replayedCycle.currentCycle, 2);
+    assert.equal(replayedCycle.cycles.length, 2);
+    assert.equal(replayedCycle.cycles[0].submissions, beforeCycle.submissions);
+    assert.equal(replayedCycle.cycles[1].submissions, 0);
+    assert.throws(() => controller.admitCycle({ taskId: first.taskId, taskRecord: first,
+      preflightResult: preflight(first, worktrees[0].worktreeRoot, env.baseCommit), trustedMandateBinding: firstBinding,
+      admission: { ...admission, reason: 'Altered content reuses the same immutable admission identifier.' },
+      campaignId, campaignDeadlineAt, campaignDeadlineBoundAt: campaignDeadlineAt, campaignTaskIds, campaignDurationMinutes }),
+    /already bound to conflicting lineage or evidence/);
     const nextCycleLockDb = new DatabaseSync(env.databasePath);
     assert.equal(nextCycleLockDb.prepare('SELECT domain_or_feature_key FROM delivery_domain_locks WHERE task_id=?').get(first.taskId).domain_or_feature_key, key);
     nextCycleLockDb.close();
@@ -659,6 +705,550 @@ test('root-bound semantic keys reject same-key tasks across disjoint scopes and 
     const available = controller.registerTask({ taskRecord: sameKey, worktreeRoot: worktrees[1].worktreeRoot,
       preflightResult: preflight(sameKey, worktrees[1].worktreeRoot, env.baseCommit), trustedMandateBinding: sameKeyBinding });
     assert.equal(available.state, 'WORKER_READY');
+  } finally {
+    controller.close();
+  }
+});
+
+test('cycle-admission conflict inspection returns current worktree, scope, and domain locks without writes', async () => {
+  const env = fixture();
+  const targetTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'cycle-lock-target');
+  const otherTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'cycle-lock-other');
+  const target = taskRecord('TASK-CYCLE-LOCK-TARGET', 'Inspect resource conflicts before cycle reassessment.', ['src/']);
+  const other = taskRecord('TASK-CYCLE-LOCK-OTHER', 'Hold conflicting resource locks for inspection.', ['other/']);
+  const targetBinding = trustedBinding(env.repoRoot, target, 'delivery-control/cycle-lock-target');
+  const otherBinding = trustedBinding(env.repoRoot, other, 'delivery-control/cycle-lock-other');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    controller.registerTask({ taskRecord: target, worktreeRoot: targetTree.worktreeRoot,
+      preflightResult: preflight(target, targetTree.worktreeRoot, env.baseCommit), trustedMandateBinding: targetBinding });
+    controller.registerTask({ taskRecord: other, worktreeRoot: otherTree.worktreeRoot,
+      preflightResult: preflight(other, otherTree.worktreeRoot, env.baseCommit), trustedMandateBinding: otherBinding });
+    const initialEpoch = BigInt(controller.inspectCycleAdmissionConflicts({ taskId: target.taskId, writeScope: target.writeScope }).lockEpoch);
+
+    const database = new DatabaseSync(env.databasePath);
+    try {
+      database.prepare('UPDATE delivery_runs SET worktree_root=? WHERE task_id=?').run(targetTree.worktreeRoot, other.taskId);
+      database.prepare('UPDATE delivery_write_locks SET scope_path=? WHERE task_id=?').run('src/shared/', other.taskId);
+      database.prepare('DELETE FROM delivery_domain_locks WHERE task_id=?').run(other.taskId);
+      database.prepare('UPDATE delivery_domain_locks SET task_id=? WHERE task_id=?').run(other.taskId, target.taskId);
+    } finally { database.close(); }
+
+    const readLocks = () => {
+      const db = new DatabaseSync(env.databasePath);
+      try {
+        return {
+          write: db.prepare('SELECT task_id,scope_path FROM delivery_write_locks ORDER BY task_id,scope_path').all(),
+          domain: db.prepare('SELECT domain_or_feature_key,task_id FROM delivery_domain_locks ORDER BY domain_or_feature_key').all(),
+          lockEpoch: db.prepare("SELECT value FROM controller_meta WHERE key='resourceLockEpoch'").get().value,
+          runs: db.prepare('SELECT task_id,worktree_root,state,current_cycle,updated_at FROM delivery_runs ORDER BY task_id').all(),
+        };
+      } finally { db.close(); }
+    };
+    const before = readLocks();
+    const snapshot = controller.inspectCycleAdmissionConflicts({ taskId: target.taskId, writeScope: target.writeScope });
+    assert.ok(BigInt(snapshot.lockEpoch) > initialEpoch);
+    assert.match(snapshot.lockEpoch, /^\d+$/);
+    assert.deepEqual(snapshot, { taskId: target.taskId, runFound: true, lockEpoch: snapshot.lockEpoch,
+      worktree: [{ taskId: other.taskId, worktreeRoot: targetTree.worktreeRoot }],
+      writeScope: [{ taskId: other.taskId, scope: 'src/shared/', requested: 'src/' }],
+      domain: [{ taskId: other.taskId, domainOrFeatureKey: targetBinding.domainOrFeatureKey }] });
+    assert.deepEqual(controller.inspectCycleAdmissionConflicts({ taskId: target.taskId, writeScope: target.writeScope }), snapshot);
+    assert.equal(readLocks().lockEpoch, snapshot.lockEpoch);
+    assert.deepEqual(readLocks(), before);
+  } finally {
+    controller.close();
+  }
+});
+
+test('successor-cycle admission rejects active, mismatched, stale, rebound, and unknown-effect predecessors', async () => {
+  const env = fixture();
+  const tree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'unsafe-cycle-admission');
+  const task = taskRecord('TASK-UNSAFE-CYCLE-ADMISSION', 'Reject an unsafe successor-cycle admission.');
+  const binding = trustedBinding(env.repoRoot, task, 'delivery-control/unsafe-cycle-admission');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    controller.registerTask({ taskRecord: task, worktreeRoot: tree.worktreeRoot,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding });
+    const admission = successorAdmission(task);
+    const cycleInput = (overrides = {}) => ({ taskId: task.taskId, taskRecord: task,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding,
+      campaignId: 'campaign-unsafe-cycle-admission', campaignTaskIds: [task.taskId], campaignDurationMinutes: 120,
+      admission: { ...admission, ...overrides } });
+
+    assert.throws(() => controller.admitCycle(cycleInput()), /predecessor number or state/);
+    controller.recordRootDisposition({ taskId: task.taskId, disposition: 'BLOCKED',
+      evidenceRef: 'test://unsafe-cycle-pause', reason: 'Pause before checking successor admission guards.' });
+    assert.throws(() => controller.admitCycle(cycleInput({ priorCycleNo: 2 })), /predecessor number or state/);
+    const inconsistentDb = new DatabaseSync(env.databasePath);
+    try {
+      inconsistentDb.prepare("UPDATE delivery_runs SET state='ROOT_INTEGRATED_PENDING_CI' WHERE task_id=?").run(task.taskId);
+      assert.throws(() => controller.admitCycle(cycleInput()), /Controller run state is not paused/);
+      inconsistentDb.prepare("UPDATE delivery_runs SET state='BLOCKED_BY_ROOT' WHERE task_id=?").run(task.taskId);
+    } finally { inconsistentDb.close(); }
+    assert.throws(() => controller.admitCycle({ ...cycleInput(), trustedMandateBinding: trustedBinding(env.repoRoot, task,
+      'delivery-control/different-domain') }), /domainOrFeatureKey does not match/);
+
+    const stalePreflight = preflight(task, tree.worktreeRoot, env.baseCommit);
+    stalePreflight.baseline.headRevision = 'f'.repeat(40);
+    assert.throws(() => controller.admitCycle({ ...cycleInput(), preflightResult: stalePreflight }), /baseline or scope is stale/);
+
+    const unknownDb = new DatabaseSync(env.databasePath);
+    const updated = unknownDb.prepare("UPDATE delivery_nodes SET effect_state='UNKNOWN' WHERE task_id=? AND node_id='worker'")
+      .run(task.taskId);
+    assert.equal(updated.changes, 1);
+    unknownDb.close();
+    assert.throws(() => controller.admitCycle(cycleInput()), /Unknown effects must be reconciled/);
+    assert.throws(() => controller.admitCycle({ taskId: task.taskId, taskRecord: task,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding,
+      campaignId: 'campaign-unsafe-cycle-admission', campaignTaskIds: [task.taskId], campaignDurationMinutes: 120,
+      admission: { ...admission, admissionId: undefined } }), /validated immutable root admission record/);
+  } finally {
+    controller.close();
+  }
+});
+
+test('successor-cycle admission rejects missing execution history without changing persisted history', async () => {
+  const env = fixture();
+  const tree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'missing-cycle-history');
+  const task = taskRecord('TASK-MISSING-CYCLE-HISTORY', 'Reject successor admission when controller history has a missing cycle row.');
+  const binding = trustedBinding(env.repoRoot, task, 'delivery-control/missing-cycle-history');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    controller.registerTask({ taskRecord: task, worktreeRoot: tree.worktreeRoot,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding });
+    const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+    controller.failNode({ lease: worker.lease, failureClass: 'EXTERNAL_BLOCKER', effectState: 'NONE',
+      evidence: { reference: 'test://missing-cycle-history-pause' } });
+    controller.recordRootDisposition({ taskId: task.taskId, disposition: 'BLOCKED',
+      evidenceRef: 'test://missing-cycle-history-pause', reason: 'Pause an eligible predecessor before checking persisted cycle history.' });
+    const campaignTaskIds = [task.taskId];
+    const campaignDurationMinutes = 120;
+    const campaignId = 'campaign-missing-cycle-history';
+    const dispatchHistory = controller.inspectCampaignDispatchHistory({ taskIds: campaignTaskIds });
+    const campaignDeadlineAt = new Date(Date.parse(dispatchHistory.earliestWorkerIntentAt)
+      + campaignDurationMinutes * 60_000).toISOString();
+
+    const database = new DatabaseSync(env.databasePath);
+    let before;
+    try {
+      before = {
+        cycles: database.prepare(`SELECT cycle_no,state,admitted_at,admission_reason,admission_evidence_json,started_at,paused_at,
+          submissions,implementation_repairs,tool_retries FROM delivery_cycles WHERE task_id=? ORDER BY cycle_no`).all(task.taskId),
+        nodes: database.prepare(`SELECT node_id,state,attempt,effect_state,dispatch_operation_id,dispatch_input_digest
+          FROM delivery_nodes WHERE task_id=? ORDER BY cycle_no,node_id`).all(task.taskId),
+        eventCount: database.prepare('SELECT COUNT(*) AS count FROM delivery_events WHERE task_id=?').get(task.taskId).count,
+      };
+      assert.equal(before.cycles.length, 1);
+      assert.equal(before.cycles[0].state, 'PAUSED');
+      assert.equal(before.cycles[0].submissions, 1);
+      database.prepare('UPDATE delivery_runs SET current_cycle=2 WHERE task_id=?').run(task.taskId);
+    } finally { database.close(); }
+
+    const admission = successorAdmission(task);
+    assert.throws(() => controller.admitCycle({ taskId: task.taskId, taskRecord: task,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding, admission,
+      campaignId, campaignDeadlineAt, campaignDeadlineBoundAt: campaignDeadlineAt,
+      campaignTaskIds, campaignDurationMinutes }),
+    /Campaign dispatch history is incomplete/);
+
+    const afterRun = controller.getRun(task.taskId);
+    assert.equal(afterRun.currentCycle, 2);
+    assert.equal(afterRun.state, 'BLOCKED_BY_ROOT');
+    assert.equal(afterRun.cycles.length, 1);
+    assert.equal(afterRun.cycles[0].submissions, before.cycles[0].submissions);
+    assert.equal(afterRun.cycles[0].implementationRepairs, before.cycles[0].implementation_repairs);
+    assert.equal(afterRun.cycles[0].toolRetries, before.cycles[0].tool_retries);
+    const afterDb = new DatabaseSync(env.databasePath);
+    try {
+      const after = {
+        cycles: afterDb.prepare(`SELECT cycle_no,state,admitted_at,admission_reason,admission_evidence_json,started_at,paused_at,
+          submissions,implementation_repairs,tool_retries FROM delivery_cycles WHERE task_id=? ORDER BY cycle_no`).all(task.taskId),
+        nodes: afterDb.prepare(`SELECT node_id,state,attempt,effect_state,dispatch_operation_id,dispatch_input_digest
+          FROM delivery_nodes WHERE task_id=? ORDER BY cycle_no,node_id`).all(task.taskId),
+        eventCount: afterDb.prepare('SELECT COUNT(*) AS count FROM delivery_events WHERE task_id=?').get(task.taskId).count,
+      };
+      assert.deepEqual(after, before);
+      assert.equal(afterDb.prepare('SELECT COUNT(*) AS count FROM delivery_cycles WHERE task_id=?').get(task.taskId).count, 1);
+    } finally { afterDb.close(); }
+    assert.equal(controller.verifyEventChain().count, before.eventCount);
+  } finally {
+    controller.close();
+  }
+});
+
+test('campaign deadline pins remain monotonic and retain previously pinned task anchors', async () => {
+  const env = fixture();
+  const firstTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'campaign-pin-anchor-first');
+  const secondTree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'campaign-pin-anchor-second');
+  let clockValue = new Date('2026-10-17T00:00:00.000Z');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath, now: () => clockValue });
+  try {
+    const firstTask = taskRecord('TASK-CAMPAIGN-PIN-FIRST', 'Keep the earliest worker anchor in a campaign pin.', ['src/first/']);
+    const secondTask = taskRecord('TASK-CAMPAIGN-PIN-SECOND', 'Keep omitted campaign task anchors in the pin.', ['src/second/']);
+    for (const [task, tree, suffix] of [[firstTask, firstTree, 'first'], [secondTask, secondTree, 'second']]) {
+      const binding = trustedBinding(env.repoRoot, task, `test/campaign-pin-${suffix}`);
+      controller.registerTask({ taskRecord: task, worktreeRoot: tree.worktreeRoot,
+        preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding });
+      const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+      controller.failNode({ lease: worker.lease, failureClass: 'EXTERNAL_BLOCKER', effectState: 'NONE',
+        evidence: { reference: `test://campaign-pin-${suffix}` } });
+      controller.recordRootDisposition({ taskId: task.taskId, disposition: 'BLOCKED',
+        evidenceRef: `test://campaign-pin-${suffix}`, reason: 'Pause after recording the campaign worker anchor.' });
+      clockValue = new Date(clockValue.valueOf() + 60_000);
+    }
+
+    const campaignId = 'campaign-pin-cumulative';
+    const campaignDurationMinutes = 120;
+    const firstHistory = controller.inspectCampaignDispatchHistory({ taskIds: [firstTask.taskId] });
+    const firstSourceDeadlineAt = new Date(Date.parse(firstHistory.earliestWorkerIntentAt)
+      + campaignDurationMinutes * 60_000).toISOString();
+    const earlierBoundAt = new Date(Date.parse(firstSourceDeadlineAt) - 60_000).toISOString();
+    const initial = controller.reconcileCampaignDeadline({ campaignId, taskIds: [firstTask.taskId],
+      campaignDurationMinutes, checkpointDeadlineAt: earlierBoundAt });
+    assert.equal(initial.sourceDeadlineAt, firstSourceDeadlineAt);
+    assert.equal(initial.effectiveDeadlineAt, earlierBoundAt);
+
+    const firstPinEventCount = controller.verifyEventChain().count;
+    const omittedFirstTask = controller.reconcileCampaignDeadline({ campaignId, taskIds: [secondTask.taskId],
+      campaignDurationMinutes, checkpointDeadlineAt: new Date(Date.parse(firstSourceDeadlineAt) - 30_000).toISOString() });
+    assert.deepEqual(omittedFirstTask.taskIds, [firstTask.taskId, secondTask.taskId].sort());
+    assert.equal(omittedFirstTask.sourceDeadlineAt, firstSourceDeadlineAt);
+    assert.equal(omittedFirstTask.effectiveDeadlineAt, earlierBoundAt);
+    assert.equal(controller.verifyEventChain().count, firstPinEventCount + 1);
+
+    const cumulativeEventCount = controller.verifyEventChain().count;
+    const unchanged = controller.reconcileCampaignDeadline({ campaignId, taskIds: [secondTask.taskId],
+      campaignDurationMinutes, checkpointDeadlineAt: new Date(Date.parse(firstSourceDeadlineAt) - 30_000).toISOString() });
+    assert.equal(unchanged.changed, false);
+    assert.equal(unchanged.effectiveDeadlineAt, earlierBoundAt);
+    assert.equal(controller.verifyEventChain().count, cumulativeEventCount);
+    assert.throws(() => controller.reconcileCampaignDeadline({ campaignId, taskIds: [secondTask.taskId],
+      campaignDurationMinutes: 90, checkpointDeadlineAt: earlierBoundAt }), /Pinned campaign duration changed/);
+    assert.equal(controller.verifyEventChain().count, cumulativeEventCount);
+  } finally {
+    controller.close();
+  }
+});
+
+test('a later checkpoint cannot extend a durable campaign deadline pin after controller restart or admission', async () => {
+  const env = fixture();
+  const tree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'campaign-pin-restart');
+  const task = taskRecord('TASK-CAMPAIGN-PIN-RESTART', 'Retain an earlier campaign deadline bound across restart.');
+  const binding = trustedBinding(env.repoRoot, task, 'test/campaign-pin-restart');
+  let clockValue = new Date('2026-10-17T00:00:00.000Z');
+  let controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath, now: () => clockValue });
+  controller.registerTask({ taskRecord: task, worktreeRoot: tree.worktreeRoot,
+    preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding });
+  const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+  controller.failNode({ lease: worker.lease, failureClass: 'EXTERNAL_BLOCKER', effectState: 'NONE',
+    evidence: { reference: 'test://campaign-pin-restart' } });
+  controller.recordRootDisposition({ taskId: task.taskId, disposition: 'BLOCKED',
+    evidenceRef: 'test://campaign-pin-restart', reason: 'Pause before checking the durable campaign deadline pin.' });
+
+  const campaignId = 'campaign-pin-restart';
+  const campaignTaskIds = [task.taskId];
+  const campaignDurationMinutes = 120;
+  const history = controller.inspectCampaignDispatchHistory({ taskIds: campaignTaskIds });
+  const campaignDeadlineAt = new Date(Date.parse(history.earliestWorkerIntentAt)
+    + campaignDurationMinutes * 60_000).toISOString();
+  const earlierBoundAt = new Date(Date.parse(campaignDeadlineAt) - 60_000).toISOString();
+  const laterTamperedBoundAt = new Date(Date.parse(campaignDeadlineAt) - 30_000).toISOString();
+  const firstPin = controller.reconcileCampaignDeadline({ campaignId, taskIds: campaignTaskIds,
+    campaignDurationMinutes, checkpointDeadlineAt: earlierBoundAt });
+  assert.equal(firstPin.effectiveDeadlineAt, earlierBoundAt);
+  const pinEventCount = controller.verifyEventChain().count;
+  controller.close();
+
+  controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath, now: () => clockValue });
+  try {
+    const afterRestart = controller.reconcileCampaignDeadline({ campaignId, taskIds: campaignTaskIds,
+      campaignDurationMinutes, checkpointDeadlineAt: laterTamperedBoundAt });
+    assert.equal(afterRestart.changed, false);
+    assert.equal(afterRestart.sourceDeadlineAt, campaignDeadlineAt);
+    assert.equal(afterRestart.effectiveDeadlineAt, earlierBoundAt);
+    assert.equal(controller.verifyEventChain().count, pinEventCount);
+    assert.throws(() => controller.reconcileCampaignDeadline({ campaignId: 'campaign-pin-restart-rotated',
+      taskIds: campaignTaskIds, campaignDurationMinutes,
+      checkpointDeadlineAt: new Date(Date.parse(campaignDeadlineAt) - 15_000).toISOString() }),
+    /already pinned under campaignId campaign-pin-restart; overlapping campaigns are not allowed/);
+    assert.equal(controller.verifyEventChain().count, pinEventCount);
+    const originalCampaignPin = controller.reconcileCampaignDeadline({ campaignId, taskIds: campaignTaskIds,
+      campaignDurationMinutes, checkpointDeadlineAt: laterTamperedBoundAt });
+    assert.equal(originalCampaignPin.effectiveDeadlineAt, earlierBoundAt);
+    assert.equal(controller.verifyEventChain().count, pinEventCount);
+
+    const snapshot = () => {
+      const database = new DatabaseSync(env.databasePath);
+      try {
+        return {
+          run: database.prepare('SELECT task_id,state,current_cycle FROM delivery_runs WHERE task_id=?').get(task.taskId),
+          cycles: database.prepare(`SELECT cycle_no,state,started_at,CAST(submissions AS TEXT) AS submissions,
+            implementation_repairs,tool_retries,admission_evidence_json FROM delivery_cycles WHERE task_id=? ORDER BY cycle_no`).all(task.taskId),
+          nodes: database.prepare('SELECT cycle_no,node_id,state,attempt FROM delivery_nodes WHERE task_id=? ORDER BY cycle_no,node_id').all(task.taskId),
+          locks: {
+            write: database.prepare('SELECT task_id,scope_path FROM delivery_write_locks WHERE task_id=? ORDER BY scope_path').all(task.taskId),
+            domain: database.prepare('SELECT domain_or_feature_key,task_id FROM delivery_domain_locks WHERE task_id=?').all(),
+          },
+          events: database.prepare('SELECT COUNT(*) AS count FROM delivery_events').get().count,
+        };
+      } finally { database.close(); }
+    };
+    const before = snapshot();
+    assert.throws(() => controller.admitCycle({ taskId: task.taskId, taskRecord: task,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding,
+      admission: successorAdmission(task), campaignId, campaignTaskIds, campaignDurationMinutes,
+      campaignDeadlineAt, campaignDeadlineBoundAt: laterTamperedBoundAt }),
+    /Effective campaign deadline bound does not match the immutable campaign pin/);
+    assert.deepEqual(snapshot(), before);
+    assert.equal(controller.verifyEventChain().count, pinEventCount);
+  } finally {
+    controller.close();
+  }
+});
+
+test('successor-cycle admission requires and transactionally enforces the campaign deadline after worker dispatch', async () => {
+  const env = fixture();
+  const tree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'campaign-deadline-admission');
+  const task = taskRecord('TASK-CAMPAIGN-DEADLINE-ADMISSION', 'Do not admit a successor after the immutable campaign deadline.');
+  const binding = trustedBinding(env.repoRoot, task, 'delivery-control/campaign-deadline-admission');
+  let clockValue = new Date();
+  let advanceAtAdmissionBoundary = false;
+  let admissionClockReads = 0;
+  let campaignDeadlineMs = null;
+  const now = () => {
+    if (advanceAtAdmissionBoundary) {
+      admissionClockReads++;
+      if (admissionClockReads === 2) clockValue = new Date(campaignDeadlineMs + 1);
+    }
+    return clockValue;
+  };
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath, now });
+  try {
+    controller.registerTask({ taskRecord: task, worktreeRoot: tree.worktreeRoot,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding });
+    const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+    controller.failNode({ lease: worker.lease, failureClass: 'EXTERNAL_BLOCKER', effectState: 'NONE',
+      evidence: { reference: 'test://campaign-deadline-pause' } });
+    controller.recordRootDisposition({ taskId: task.taskId, disposition: 'BLOCKED',
+      evidenceRef: 'test://campaign-deadline-pause', reason: 'Pause the worker-dispatched predecessor before deadline admission checks.' });
+
+    const admission = successorAdmission(task);
+    const campaignTaskIds = [task.taskId];
+    const campaignDurationMinutes = 120;
+    const campaignId = 'campaign-deadline-admission';
+    const dispatchHistory = controller.inspectCampaignDispatchHistory({ taskIds: campaignTaskIds });
+    const campaignDeadlineAt = new Date(Date.parse(dispatchHistory.earliestWorkerIntentAt)
+      + campaignDurationMinutes * 60_000).toISOString();
+    campaignDeadlineMs = Date.parse(campaignDeadlineAt);
+    const snapshot = () => {
+      const database = new DatabaseSync(env.databasePath);
+      try {
+        return {
+          run: controller.getRun(task.taskId),
+          cycles: database.prepare(`SELECT cycle_no,state,admitted_at,admission_reason,admission_evidence_json,started_at,paused_at,
+            submissions,implementation_repairs,tool_retries FROM delivery_cycles WHERE task_id=? ORDER BY cycle_no`).all(task.taskId),
+          nodes: database.prepare(`SELECT cycle_no,node_id,state,attempt,effect_state,dispatch_operation_id,dispatch_input_digest
+            FROM delivery_nodes WHERE task_id=? ORDER BY cycle_no,node_id`).all(task.taskId),
+          eventCount: database.prepare('SELECT COUNT(*) AS count FROM delivery_events WHERE task_id=?').get(task.taskId).count,
+        };
+      } finally { database.close(); }
+    };
+    const before = snapshot();
+    assert.throws(() => controller.admitCycle({ taskId: task.taskId, taskRecord: task,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding,
+      admission, campaignId, campaignTaskIds, campaignDurationMinutes }),
+    /Campaign deadline evidence is required/);
+    assert.deepEqual(snapshot(), before);
+
+    // The deadline-pin event is the first transaction clock read. Advance on
+    // the next read, after Git/base validation and immediately before writes.
+    advanceAtAdmissionBoundary = true;
+    admissionClockReads = 0;
+    assert.throws(() => controller.admitCycle({ taskId: task.taskId, taskRecord: task,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding,
+      admission, campaignId, campaignDeadlineAt, campaignDeadlineBoundAt: campaignDeadlineAt, campaignTaskIds, campaignDurationMinutes }),
+    /Campaign deadline expired before successor cycle admission/);
+    assert.deepEqual(snapshot(), before);
+    assert.equal(controller.verifyEventChain().count, before.eventCount);
+  } finally {
+    controller.close();
+  }
+});
+
+test('an earlier campaign deadline bound is accepted while live and enforced transactionally after expiry', async (t) => {
+  const prepare = async (subtest, suffix) => {
+    const env = fixture(subtest);
+    const tree = addWorktree(env.repoRoot, env.root, env.baseCommit, `earlier-deadline-${suffix}`);
+    const task = taskRecord(`TASK-EARLIER-DEADLINE-${suffix.toUpperCase()}`,
+      'Keep an earlier valid supervisor checkpoint bound during successor admission.');
+    const binding = trustedBinding(env.repoRoot, task, `delivery-control/earlier-deadline-${suffix}`);
+    let clockValue = new Date();
+    const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath, now: () => clockValue });
+    controller.registerTask({ taskRecord: task, worktreeRoot: tree.worktreeRoot,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding });
+    const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+    controller.failNode({ lease: worker.lease, failureClass: 'EXTERNAL_BLOCKER', effectState: 'NONE',
+      evidence: { reference: 'test://earlier-deadline-pause' } });
+    controller.recordRootDisposition({ taskId: task.taskId, disposition: 'BLOCKED',
+      evidenceRef: 'test://earlier-deadline-pause', reason: 'Pause before enforcing the earlier campaign bound.' });
+    const campaignTaskIds = [task.taskId];
+    const campaignDurationMinutes = 120;
+    const campaignId = `campaign-earlier-deadline-${suffix}`;
+    const history = controller.inspectCampaignDispatchHistory({ taskIds: campaignTaskIds });
+    const campaignDeadlineAt = new Date(Date.parse(history.earliestWorkerIntentAt)
+      + campaignDurationMinutes * 60_000).toISOString();
+    const campaignDeadlineBoundAt = new Date(Date.parse(campaignDeadlineAt) - 60_000).toISOString();
+    return { env, tree, task, binding, controller, campaignId, campaignTaskIds, campaignDurationMinutes,
+      campaignDeadlineAt, campaignDeadlineBoundAt, setClock: (value) => { clockValue = new Date(value); } };
+  };
+
+  await t.test('admits before the earlier bound expires', async (subtest) => {
+    const prepared = await prepare(subtest, 'live');
+    try {
+      const next = prepared.controller.admitCycle({ taskId: prepared.task.taskId, taskRecord: prepared.task,
+        preflightResult: preflight(prepared.task, prepared.tree.worktreeRoot, prepared.env.baseCommit),
+        trustedMandateBinding: prepared.binding, admission: successorAdmission(prepared.task),
+        campaignId: prepared.campaignId,
+        campaignDeadlineAt: prepared.campaignDeadlineAt, campaignDeadlineBoundAt: prepared.campaignDeadlineBoundAt,
+        campaignTaskIds: prepared.campaignTaskIds, campaignDurationMinutes: prepared.campaignDurationMinutes });
+      assert.equal(next.currentCycle, 2);
+      assert.equal(next.cycles.length, 2);
+      assert.equal(next.cycles[0].submissions, 1);
+    } finally { prepared.controller.close(); }
+  });
+
+  await t.test('rejects after the earlier bound expires without admission writes', async (subtest) => {
+    const prepared = await prepare(subtest, 'expired');
+    const snapshot = () => {
+      const database = new DatabaseSync(prepared.env.databasePath);
+      try {
+        return {
+          run: database.prepare('SELECT task_id,state,current_cycle FROM delivery_runs WHERE task_id=?').get(prepared.task.taskId),
+          cycles: database.prepare(`SELECT cycle_no,state,started_at,CAST(submissions AS TEXT) AS submissions,
+            implementation_repairs,tool_retries,admission_evidence_json FROM delivery_cycles WHERE task_id=? ORDER BY cycle_no`).all(prepared.task.taskId),
+          events: database.prepare('SELECT COUNT(*) AS count FROM delivery_events').get().count,
+        };
+      } finally { database.close(); }
+    };
+    try {
+      const before = snapshot();
+      prepared.setClock(Date.parse(prepared.campaignDeadlineBoundAt) + 1);
+      assert.throws(() => prepared.controller.admitCycle({ taskId: prepared.task.taskId, taskRecord: prepared.task,
+        preflightResult: preflight(prepared.task, prepared.tree.worktreeRoot, prepared.env.baseCommit),
+        trustedMandateBinding: prepared.binding, admission: successorAdmission(prepared.task),
+        campaignId: prepared.campaignId,
+        campaignDeadlineAt: prepared.campaignDeadlineAt, campaignDeadlineBoundAt: prepared.campaignDeadlineBoundAt,
+        campaignTaskIds: prepared.campaignTaskIds, campaignDurationMinutes: prepared.campaignDurationMinutes }),
+      /Campaign deadline expired before successor cycle admission/);
+      assert.deepEqual(snapshot(), before);
+      assert.equal(prepared.controller.verifyEventChain().count, before.events);
+    } finally { prepared.controller.close(); }
+  });
+});
+
+test('successor-cycle admission rejects invalid or inconsistent cycle dispatch history without ledger writes', async () => {
+  const env = fixture();
+  const tree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'inconsistent-cycle-dispatch-history');
+  const task = taskRecord('TASK-INCONSISTENT-CYCLE-DISPATCH', 'Reject inconsistent controller dispatch history before admission.');
+  const binding = trustedBinding(env.repoRoot, task, 'delivery-control/inconsistent-cycle-dispatch');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    controller.registerTask({ taskRecord: task, worktreeRoot: tree.worktreeRoot,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding });
+    controller.recordRootDisposition({ taskId: task.taskId, disposition: 'BLOCKED',
+      evidenceRef: 'test://inconsistent-cycle-dispatch', reason: 'Pause before corrupting dispatch history for admission validation.' });
+    const admission = successorAdmission(task);
+    const snapshot = () => {
+      const database = new DatabaseSync(env.databasePath);
+      try {
+        return {
+          run: database.prepare('SELECT * FROM delivery_runs WHERE task_id=?').get(task.taskId),
+          cycles: database.prepare(`SELECT cycle_no,state,started_at,CAST(submissions AS TEXT) AS submissions,
+            implementation_repairs,tool_retries,
+            admission_evidence_json FROM delivery_cycles WHERE task_id=? ORDER BY cycle_no`).all(task.taskId),
+          locks: {
+            write: database.prepare('SELECT task_id,scope_path FROM delivery_write_locks WHERE task_id=? ORDER BY scope_path').all(task.taskId),
+            domain: database.prepare('SELECT domain_or_feature_key,task_id FROM delivery_domain_locks WHERE task_id=?').all(task.taskId),
+            epoch: database.prepare("SELECT value FROM controller_meta WHERE key='resourceLockEpoch'").get().value,
+          },
+          eventCount: database.prepare('SELECT COUNT(*) AS count FROM delivery_events WHERE task_id=?').get(task.taskId).count,
+        };
+      } finally { database.close(); }
+    };
+    const corruptions = [
+      { startedAt: null, submissions: 1 },
+      { startedAt: new Date().toISOString(), submissions: 0 },
+      { startedAt: null, submissions: -1 },
+      { startedAt: null, submissions: BigInt(Number.MAX_SAFE_INTEGER) + 1n },
+      { startedAt: 'not-an-immutable-ISO-anchor', submissions: 1 },
+    ];
+    for (const corruption of corruptions) {
+      const database = new DatabaseSync(env.databasePath);
+      try {
+        database.prepare('UPDATE delivery_cycles SET started_at=?,submissions=? WHERE task_id=? AND cycle_no=1')
+          .run(corruption.startedAt, corruption.submissions, task.taskId);
+      } finally { database.close(); }
+      const before = snapshot();
+      assert.throws(() => controller.admitCycle({ taskId: task.taskId, taskRecord: task,
+        preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding, admission,
+        campaignId: 'campaign-invalid-cycle-dispatch-history', campaignTaskIds: [task.taskId], campaignDurationMinutes: 120 }),
+      /Execution cycle dispatch history (is inconsistent|has an invalid submission count|has an invalid start timestamp|does not match immutable worker dispatch events)/);
+      assert.deepEqual(snapshot(), before);
+      assert.equal(controller.verifyEventChain().count, before.eventCount);
+    }
+  } finally {
+    controller.close();
+  }
+});
+
+test('successor admission rejects jointly reset worker projections against the verified event chain without writes', async () => {
+  const env = fixture();
+  const tree = addWorktree(env.repoRoot, env.root, env.baseCommit, 'reset-worker-dispatch-projection');
+  const task = taskRecord('TASK-RESET-WORKER-PROJECTION', 'Reject dispatch projections reset after worker intents were recorded.');
+  const binding = trustedBinding(env.repoRoot, task, 'delivery-control/reset-worker-projection');
+  const controller = await openDeliveryController({ repoRoot: env.repoRoot, databasePath: env.databasePath });
+  try {
+    controller.registerTask({ taskRecord: task, worktreeRoot: tree.worktreeRoot,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding });
+    const worker = dispatch(controller, task.taskId, 'worker', 'worker');
+    controller.failNode({ lease: worker.lease, failureClass: 'EXTERNAL_BLOCKER', effectState: 'NONE',
+      evidence: { reference: 'test://reset-projection-pause' } });
+    controller.recordRootDisposition({ taskId: task.taskId, disposition: 'BLOCKED',
+      evidenceRef: 'test://reset-projection-pause', reason: 'Pause before checking immutable worker dispatch history.' });
+    const campaignTaskIds = [task.taskId];
+    const campaignDurationMinutes = 120;
+    const history = controller.inspectCampaignDispatchHistory({ taskIds: campaignTaskIds });
+    assert.equal(history.workerIntents.length, 1);
+    const campaignDeadlineAt = new Date(Date.parse(history.earliestWorkerIntentAt)
+      + campaignDurationMinutes * 60_000).toISOString();
+    const admission = successorAdmission(task);
+    const snapshot = () => {
+      const database = new DatabaseSync(env.databasePath);
+      try {
+        return {
+          run: database.prepare('SELECT task_id,state,current_cycle FROM delivery_runs WHERE task_id=?').get(task.taskId),
+          cycles: database.prepare(`SELECT cycle_no,state,started_at,CAST(submissions AS TEXT) AS submissions,
+            implementation_repairs,tool_retries,admission_evidence_json FROM delivery_cycles WHERE task_id=? ORDER BY cycle_no`).all(task.taskId),
+          locks: {
+            write: database.prepare('SELECT task_id,scope_path FROM delivery_write_locks WHERE task_id=? ORDER BY scope_path').all(task.taskId),
+            domain: database.prepare('SELECT domain_or_feature_key,task_id FROM delivery_domain_locks WHERE task_id=?').all(),
+          },
+          eventCount: database.prepare('SELECT COUNT(*) AS count FROM delivery_events').get().count,
+        };
+      } finally { database.close(); }
+    };
+    const database = new DatabaseSync(env.databasePath);
+    try { database.prepare('UPDATE delivery_cycles SET started_at=NULL,submissions=0 WHERE task_id=? AND cycle_no=1').run(task.taskId); }
+    finally { database.close(); }
+    const before = snapshot();
+    assert.throws(() => controller.admitCycle({ taskId: task.taskId, taskRecord: task,
+      preflightResult: preflight(task, tree.worktreeRoot, env.baseCommit), trustedMandateBinding: binding, admission,
+      campaignId: 'campaign-reset-projection', campaignDeadlineAt, campaignDeadlineBoundAt: campaignDeadlineAt,
+      campaignTaskIds, campaignDurationMinutes }),
+    /does not match immutable worker dispatch events/);
+    assert.deepEqual(snapshot(), before);
+    assert.equal(controller.verifyEventChain().count, before.eventCount);
   } finally {
     controller.close();
   }
@@ -862,6 +1452,17 @@ test('restart quarantines a dispatched unknown effect, read-only no-effect recon
     assert.deepEqual(controller.nextReadyNodes(), []);
     assert.equal(controller.getRun(task.taskId).state, 'QUARANTINED');
     assert.throws(() => controller.heartbeat(oldLease), /fencing|expired/i);
+    const recoveredEventCount = controller.verifyEventChain().count;
+    assert.throws(() => controller.cancelDispatchBeforeLaunch({ lease: oldLease, operationId: 'operation-unknown-1',
+      reason: 'CAMPAIGN_DEADLINE_EXPIRED' }), /stale owner or epoch/);
+    assert.equal(controller.verifyEventChain().count, recoveredEventCount);
+    const recoveredDb = new DatabaseSync(env.databasePath);
+    try {
+      assert.equal(recoveredDb.prepare("SELECT COUNT(*) AS count FROM delivery_unknown_effects WHERE task_id=? AND state='UNKNOWN'")
+        .get(task.taskId).count, 1);
+      assert.equal(recoveredDb.prepare("SELECT COUNT(*) AS count FROM delivery_events WHERE task_id=? AND event_type='BACKEND_DISPATCH_CANCELLED_BEFORE_LAUNCH'")
+        .get(task.taskId).count, 0);
+    } finally { recoveredDb.close(); }
     const reconciled = controller.reconcileUnknown({
       taskId: task.taskId,
       nodeId: 'worker',
@@ -876,6 +1477,10 @@ test('restart quarantines a dispatched unknown effect, read-only no-effect recon
     assert.equal(controller.getRun(task.taskId).cycles[0].toolRetries, 1);
     const freshLease = controller.claimNode({ taskId: task.taskId, nodeId: 'worker', ownerId: 'runner-new', leaseMs: 30_000 });
     assert.ok(freshLease.epoch > oldLease.epoch);
+    const reclaimedEventCount = controller.verifyEventChain().count;
+    assert.throws(() => controller.cancelDispatchBeforeLaunch({ lease: oldLease, operationId: 'operation-unknown-1',
+      reason: 'CAMPAIGN_DEADLINE_EXPIRED' }), /stale owner or epoch/);
+    assert.equal(controller.verifyEventChain().count, reclaimedEventCount);
     controller.releaseLease(freshLease);
     assert.equal(controller.verifyEventChain().count >= 7, true);
   } finally {

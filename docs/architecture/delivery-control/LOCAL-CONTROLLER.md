@@ -246,9 +246,135 @@ The supervisor stores bindings, deadlines, delivery checkpoints and events under
 `zuri-delivery-control/supervisors/<campaignId>/`. One root process owns a campaign;
 a live owner blocks another process. Reclaiming a dead root service lock never
 releases controller task locks or reconciles an orphaned worker. The campaign's
-maximum 120-minute deadline is anchored to the first actual worker cycle and
-survives restart. Unchanged intake exceptions are held while independent bound
-tasks continue. Controller caps and cumulative no-progress history remain intact.
+maximum 120-minute deadline is anchored once to the earliest actual worker
+dispatch among bound tasks. Its original `deadlineAt` remains immutable through
+successor cycles and service restarts; an exhausted predecessor is still part of
+the campaign's deadline history. An expired campaign cannot admit or dispatch a
+successor cycle. Separately, the controller's 120-minute execution deadline
+starts at each cycle's first worker dispatch, so a successor has its own
+per-cycle controller cap within the immutable campaign-wide upper bound.
+On every tick and restart the supervisor reconciles the checkpoint against the
+earliest `occurredAt` of a verified `BACKEND_DISPATCH_INTENT` event whose role
+is `worker`, plus the pinned campaign duration. The controller verifies the
+complete event hash chain and exposes a read-only inspection for every bound
+task and configured successor admission. Each cycle's safe nonnegative
+submission count must equal its worker-intent event count. A positive count
+requires `startedAt`, and a start time requires a positive count; the timestamp
+must be canonical and no later than the first worker intent, allowing the
+small skew from the controller's separate clock reads. Reset or inconsistent
+projections fail closed even while dispatch events remain. A stored non-null
+deadline without a verified worker-intent anchor also fails closed. A valid
+earlier checkpoint deadline remains an additional bound; a malformed or later
+checkpoint value can never extend the source-derived bound.
+The controller durably pins that effective value in the append-only, hash-chained
+`CAMPAIGN_DEADLINE_BOUND_PINNED` event, keyed by the stable campaign ID. Each pin
+also records the pinned duration and cumulative task IDs. Reconciliation unions
+newly configured tasks with IDs from prior pins, rejects a duration change, and
+only keeps or tightens the effective deadline as earlier verified dispatch
+evidence is discovered. Once pinned, editing a checkpoint to a later timestamp
+that is still before the source deadline cannot extend the campaign bound,
+including after a supervisor restart. Successor admission repeats this pin and
+source reconciliation inside its transaction before repairing locks or writing
+cycle state. A task ID pinned under one campaign ID cannot be reassigned to a
+different campaign ID; overlapping campaign pins fail closed before writes.
+Every bound run must also exist and expose a safe positive current cycle number
+with a complete, contiguous cycle history from 1 through that number. Missing,
+duplicate, or gapped cycle rows fail closed before the supervisor derives a
+deadline, so a later surviving cycle cannot conceal the earliest dispatch
+anchor.
+Unchanged intake exceptions are held while independent bound tasks continue.
+Controller caps and cumulative no-progress history remain intact.
+
+The supervisor passes the campaign deadline guard into the local runner. The
+runner rechecks it after preflight and immediately before claiming, then again
+after claiming (releasing the unused lease if the campaign has expired). It
+checks once more after recording dispatch intent and directly before calling
+the backend. If expiry occurs in that final gap, the controller appends a
+`BACKEND_DISPATCH_CANCELLED_BEFORE_LAUNCH` event, marks the effect `NONE`, and
+pauses the run and cycle. The dispatch-attempt and submission counters already
+recorded with the intent remain intact, and no backend handle or unknown-effect
+record is created. Cancellation may proceed after lease expiry only while the
+same owner and fencing epoch still hold the `RUNNING` row, the exact dispatch
+intent matches, and no backend session, reference, or effect evidence exists.
+If recovery or reclaim changes the row first, the stale owner cannot cancel it.
+
+### Root-admitted successor cycles
+
+The supervisor accepts a continuation only through a root-owned, digest-pinned
+record referenced by the private campaign's optional `cycleAdmissions` array:
+
+```json
+{
+  "taskId": "TASK-ID",
+  "recordFile": "absolute private cycle-admission JSON path",
+  "admissionRecordDigest": "sha256 of exact record bytes"
+}
+```
+
+The file uses schema `root-execution-cycle-admission/v1` and binds a unique
+`admissionId`, stable `taskId`, `priorCycleNo` and `priorCycleState`, exact
+`taskRecordDigest` and private `taskFile`, nonempty `reason` and `evidenceRef`,
+`materialChange: true`, and a supported `basis` (`MATERIAL_NEW_EVIDENCE` or
+`CORRECTED_IMPLEMENTATION_PLAN`). The campaign reference must name an allowed
+task and the record and task file must resolve under the repository's private
+`zuri-delivery-control` directory. Raw-byte digests pin both records. The
+supervisor requires each configured admission to resolve to its matching
+controller run before it starts intake or dispatch. A missing or unreadable run
+produces `HOLD_CYCLE_ADMISSION` and keeps the task held; once the matching run
+exists, a later tick can reassess the admission. The controller also requires a
+fresh matching READY read-only preflight, exact
+current worktree/base evidence, complete prior cycle history, a matching
+paused or exhausted cycle and resumable controller run state, no active leases
+or unknown effects, and the original semantic-domain and write-scope locks.
+Inside the admission transaction it re-verifies the complete event chain and
+the same worker-intent/projection evidence for the supplied campaign task set
+before repairing locks or writing a successor cycle. The supplied deadline
+source must equal the earliest verified worker intent plus the pinned campaign
+duration. The checkpoint's effective deadline is supplied separately as an
+additional bound; it must match the durable pin, and the transaction enforces
+the immutable minimum. A configured task omission cannot discard anchors from
+prior pins, and a later checkpoint value cannot replace an earlier pin.
+After the awaited preflight, the supervisor re-resolves the private task path and
+reads the bytes again. Both the resolved path and exact-byte digest must still
+match the immutable admission record before the controller can create a cycle.
+The preflight itself uses the controller-pinned, resolved worktree root. After
+it returns, the supervisor resolves the binding and controller worktree again
+and requires the worktree root, canonical repository root, and Git common
+directory to match the captured identity. A path retarget during preflight
+leaves the predecessor unchanged and held.
+An unchanged admission hold is suppressed using a signature that includes the
+current task-file digest and PATH/PATHEXT executable candidates with their
+missing/present metadata. The read-only controller lock snapshot also includes
+all current conflicting worktree, overlapping write-scope, and semantic-domain
+locks. Durable SQLite triggers advance a monotonic resource-lock epoch on every
+insert, update, or delete in either lock table. A known conflict prevents
+preflight and remains suppressed while its snapshot is unchanged; release
+changes the signature. The epoch also detects a conflict acquired and released
+while preflight was awaited, and the controller checks the captured epoch again
+inside the admission transaction. A changed task file or executable capability
+permits a fresh preflight; it never clears prior counters or cumulative
+no-progress.
+The controller transaction also receives the supervisor's immutable campaign
+`deadlineAt` and rechecks it after Git/base validation, immediately before cycle
+writes. Missing deadline evidence is refused once worker-dispatch history has
+anchored the campaign. The controller validates complete, contiguous cycle
+history and every cycle's safe submission count against its `startedAt` before
+admission or lock repair; incomplete, inconsistent, or malformed dispatch
+history rejects admission without ledger writes. `null`
+remains valid before any bound task has dispatched.
+Expiry leaves the run, cycle ledger, and event history unchanged.
+
+Admission is recorded on the new cycle and in the controller event history.
+Replaying the same admission after supervisor checkpoint loss returns that
+already-admitted cycle only when the complete lineage and evidence match; an
+identifier reused for different evidence or a superseded cycle is rejected.
+The supervisor wakes the matching admitted cycle once per process instance, so
+later checkpoint ticks do not clear the runner's repeated-failure suppression;
+a restarted process performs one fresh wake for that same cycle.
+Previous cycle counters, delivery history, and cumulative no-progress history
+remain available. Earlier delivery receipts are retained as invalidated history;
+they do not authorize delivery of the successor. Invalid or stale admission
+records leave the task held without dispatch.
 
 Only exact `ROOT_DELIVERY_READY` candidates can be root-integrated. The GitHub
 adapter verifies durable role history and the unchanged clean snapshot, validates

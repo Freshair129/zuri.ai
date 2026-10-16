@@ -104,15 +104,85 @@ metadata repairs.
 `model-policy.json`, cumulatively across cycles for the same `taskId`. At the
 cap, return `YIELD_REASSESS`: preserve the task and stable identity, mark it
 resumable, and take eligible independent work. This result is not terminal.
-- Implementation and submission caps and execution deadlines apply per bounded
-execution cycle. The deadline starts at that cycle's first worker dispatch;
-retries and resumes within the cycle do not reset its anchor. Exhaustion pauses
-the task while preserving the objective, cycle and evidence. Root may admit a
-new dated, numbered cycle under the same `taskId` only after material new
-evidence or a corrected implementation plan, with the reason and prior history
-linked. Unchanged input, cosmetic metadata edits or a new prompt alone do not
-admit a cycle or reset its caps. Prior cycles remain immutable; the cumulative
-semantic no-progress guard still applies.
+- Implementation and submission caps apply per bounded execution cycle. The
+  controller's 120-minute execution deadline also remains per-cycle, anchored to
+  that cycle's first worker dispatch; an admitted successor receives its own
+  controller cycle cap. The supervisor's campaign timebox is an additional
+  upper bound: it is anchored once to the earliest actual worker dispatch among
+  bound tasks and remains fixed through successor cycles and service restarts.
+  A successor cycle cannot admit or dispatch after that original campaign
+  deadline. The root deadline guard is rechecked after runner preflight, after
+  lease claim and after dispatch intent. Expiry after intent but before backend
+  launch is durably recorded as a proven no-launch cancellation; it pauses the
+  run and cycle without refunding counters or creating an unknown effect.
+  If its 30-second lease expired while awaiting the final guard, cancellation
+  is allowed only when the same owner and fencing epoch still hold the running
+  row, the exact dispatch intent matches, and no backend session, reference,
+  or effect evidence exists. Recovery or reclaim fences the stale cancellation.
+  On every tick and restart the supervisor reconciles its checkpoint deadline
+  to the earliest `occurredAt` of a verified `BACKEND_DISPATCH_INTENT` event
+  whose role is `worker`, plus the pinned campaign duration. The read-only
+  controller inspection covers every bound task and configured successor
+  admission and verifies the full event hash chain. A valid earlier checkpoint
+  deadline stays binding, a malformed or later value cannot extend it, and a
+  stored non-null deadline without a verified dispatch anchor fails closed.
+  The controller pins the effective bound in the append-only hash-chained
+  `CAMPAIGN_DEADLINE_BOUND_PINNED` event under the stable campaign ID, along with
+  the duration and cumulative task IDs. Reconciliation carries prior task IDs
+  forward, rejects a duration change, and only tightens the bound when earlier
+  verified dispatch evidence appears. Editing a checkpoint to a later value
+  before the source deadline cannot extend a prior pin, including after restart.
+  A task ID pinned under one campaign ID cannot be reassigned to another; any
+  overlap across campaign IDs fails closed before writes.
+  Each bound controller run must exist and have a safe positive
+  current cycle with a complete contiguous history from cycle 1; missing,
+  duplicate, or gapped cycle rows fail closed before deadline derivation. Every
+  cycle's safe nonnegative submission counter must agree with
+  its exact count of verified worker-intent events. Positive submissions
+  require a canonical `startedAt` no later than the first worker intent (within
+  the small skew from separate controller clock reads), and a start anchor
+  requires positive submissions. Reset or inconsistent projections fail
+  closed even when the checkpoint contains a later valid deadline.
+  Before intake or runner dispatch, every configured cycle-admission reference
+  must resolve to its matching controller run. A missing or unreadable run
+  produces the typed `HOLD_CYCLE_ADMISSION` result and keeps the task held until
+  a later tick can resolve that run.
+  Successor admission revalidates the private task file's exact bytes after its
+  awaited preflight and passes both the exact event-derived source deadline and
+  the supervisor's effective `deadlineAt` bound into the controller transaction
+  for a final check after Git/base validation. Before lock repair or writes, the
+  controller re-verifies the full event chain and the same worker-intent/
+  projection evidence for the campaign task IDs. It requires the source to
+  equal the earliest verified worker intent plus the pinned campaign duration;
+  the effective bound must match the durable pin, and the transaction enforces
+  the immutable minimum before any lock repair or cycle write. A configured
+  task omission cannot discard anchors from earlier pins. A missing bound is not accepted
+  after worker dispatch has established the campaign anchor.
+  Admission preflight uses the controller-pinned worktree root; after it
+  returns, the supervisor rechecks the binding, canonical repository root, and
+  Git common directory against that captured identity. A retargeted checkout is
+  held without admission. The controller's read-only lock snapshot covers all
+  conflicting worktree, overlapping write-scope, and semantic-domain locks.
+  A lock conflict prevents preflight and stays suppressed until that snapshot
+  changes, including when the conflict is released. SQLite lock-table triggers
+  maintain a durable monotonic epoch, which detects a lock acquired and released
+  during awaited preflight; the controller checks the captured epoch again
+  inside its admission transaction. A checkpointed cycle is woken once per
+  supervisor instance and once after restart, preserving same-instance runner
+  failure suppression on later ticks. The controller validates complete,
+  contiguous cycle history and safe submission/start-anchor consistency across
+  all prior cycles before admission or lock repair; incomplete or inconsistent
+  history is rejected without ledger writes.
+  Unchanged environment holds are suppressed until the task digest or relevant
+  PATH/PATHEXT executable presence/metadata changes; reassessment never resets
+  execution counters or no-progress history.
+  Exhaustion pauses the task
+  while preserving the objective, cycle and evidence. Root may admit a new
+  dated, numbered cycle under the same `taskId` only after material new evidence
+  or a corrected implementation plan, with the reason and prior history linked.
+  Unchanged input, cosmetic metadata edits or a new prompt alone do not admit a
+  cycle or reset its caps. Prior cycles remain immutable; the cumulative
+  semantic no-progress guard still applies.
 - If an attempted operation's effect is unknown, quarantine it and use
 read-only authoritative reconciliation. Do not retry while the effect is
 unknown. Out-of-scope work remains blocked.
