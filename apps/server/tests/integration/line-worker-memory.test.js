@@ -226,13 +226,19 @@ describe('LINE memory enrollment and receipt recovery', () => {
     await prisma.membership.create({ data: {
       personId: person.id, tenantId: tenant.id, businessId: business.id, scopeType: 'BUSINESS', role: 'MANAGER',
     } })
+    const lineUserId = `memory-version-${randomUUID()}`
+    const { token } = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    await redeemLinkToken({ tenantId: tenant.id, token, channelAccountId: fixture.oa.bindingCode, lineUserId, merge: true })
+    const requesterIdentity = await prisma.externalIdentity.findUnique({
+      where: { tenantId_provider_providerSubject: { tenantId: tenant.id, provider: 'LINE', providerSubject: lineUserId } },
+    })
     const customer = await prisma.customer.create({ data: {
       code: `memory-version-customer-${randomUUID()}`, tenantId: tenant.id, businessId: business.id,
       personId: person.id, displayName: 'Memory version customer',
     } })
     const action = defaultWriteTools().get('set_customer_lifecycle')
     const createApproval = () => prisma.$transaction(tx => createAgentApprovalRequest(tx, {
-      tenantId: tenant.id, requesterPersonId: person.id, action,
+      tenantId: tenant.id, requesterPersonId: person.id, requesterExternalIdentityId: requesterIdentity.id, action,
       target: { customerId: customer.id }, payload: { lifecycleStage: 'CUSTOMER' },
     }))
     const beforeErasure = await createApproval()

@@ -86,9 +86,18 @@ describe('FR-181 SmartGift agent tools', () => {
 
     const write = smartgiftWriteTools({ viewer: manager, businessId: b(), now: () => NOW })
     expect(write.list()).toEqual([
-      { name: 'create_quote_stock_reservation', sensitivity: 'LOW', description: expect.any(String) },
-      { name: 'dispatch_customization_work_order', sensitivity: 'HIGH', description: expect.any(String) },
-      { name: 'dispatch_kitting_work_order', sensitivity: 'HIGH', description: expect.any(String) },
+      {
+        name: 'create_quote_stock_reservation', sensitivity: 'LOW', approvalTier: 'NONE',
+        available: true, description: expect.any(String),
+      },
+      {
+        name: 'dispatch_customization_work_order', sensitivity: 'HIGH', approvalTier: 'NONE',
+        available: true, description: expect.any(String),
+      },
+      {
+        name: 'dispatch_kitting_work_order', sensitivity: 'HIGH', approvalTier: 'NONE',
+        available: true, description: expect.any(String),
+      },
     ])
     // Gate E's registry physically cannot hold a write tool, which is the whole
     // point of there being two registries rather than one with a flag.

@@ -118,8 +118,8 @@ describe('Phase B offline recovery runners', () => {
   // both histories are portable, while restore invalidates every nonterminal request.
   it('loads the committed pinned 207-table inventory', () => {
     expect(inventory.applicationTables).toHaveLength(207)
-    expect(inventory.schemaSha256).toBe("094d7bb9cf9cefe7d13d06fbe33b2c673aa2af71305088eab24ce6f819c22f88")
-    expect(inventory.targetSchemaSha256).toBe("cb528cab35fa622b2f686a0c27ce58b2f365e4a6d0128f161f22a83fd0002db1")
+    expect(inventory.schemaSha256).toBe("ddbda079e8fdc4a8521ef75e35cecc9a139a465aa9736d0158c9a779fb793c34")
+    expect(inventory.targetSchemaSha256).toBe("6ca13ac1246889b4449fee8f94af3aad8012e55159a3427bf9ef953f1adc9b76")
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
