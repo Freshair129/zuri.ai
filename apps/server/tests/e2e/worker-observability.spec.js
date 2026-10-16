@@ -56,6 +56,42 @@ test('operator opens the Workers view, reads protected local status, and can use
   await expect(workersTab).toHaveAttribute('aria-selected', 'true')
 })
 
+test('campaign holds remain visible when controller liveness is unknown', async ({ page }) => {
+  const signup = await signupFromIsolatedRateLimitSource(page, '198.51.100.45', {
+    email: `worker-intake-${randomUUID()}@example.test`, displayName: 'Worker intake operator', password: E2E_PASSWORD,
+  })
+  expect(signup.status()).toBe(201)
+  const { user } = await signup.json()
+  const grant = await prisma.platformGrant.create({ data: { personId: user.id, capability: 'OPERATOR', status: 'ACTIVE', expiresAt: new Date(Date.now() + 3600000) } })
+  grantIds.push(grant.id)
+
+  await page.route('**/api/platform/worker-observability**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      schemaVersion: 'worker-observability/v1', state: 'UNKNOWN', freshness: 'UNKNOWN',
+      observedAt: '2026-10-16T04:00:00.000Z', reason: 'CONTROLLER_PROCESS_ABSENT',
+      source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', controllerLiveness: 'UNKNOWN',
+        eventChain: 'UNKNOWN', supervisorReceipts: 'VERIFIED', roadmapIntake: 'SNAPSHOT', ciReceipts: 'UNKNOWN' },
+      summary: { activeWorkers: 0, queuedWorkers: 0, activeTasks: 0, mode: 'UNKNOWN' },
+      tasks: [], assignments: [], events: [], localTags: [], localTagCount: 0, localTagsTruncated: false,
+      localTagSetFingerprint: null,
+      localStatus: { changedFiles: null, fingerprint: null, headCommit: null, observedAt: '2026-10-16T04:00:00.000Z' },
+      campaignIntake: { state: 'SNAPSHOT', freshness: 'FRESH', status: 'HOLD_DEPENDENCY', code: 'DEPENDENCIES_UNACCEPTED',
+        observedAt: '2026-10-16T04:00:00.000Z', ageMs: 0, source: 'LOCAL_ROADMAP_INTAKE', proofScope: 'LOCAL_ONLY',
+        authorityGrant: false, dispatchAllowed: false, selectedTaskId: null,
+        candidates: [{ taskId: 'TASK-ZAI-015', status: 'HOLD_DEPENDENCY', code: 'DEPENDENCIES_UNACCEPTED' }] },
+    }),
+  }))
+  await page.goto('/control/roadmap?view=workers')
+  const intake = page.getByTestId('worker-campaign-intake')
+  await expect(intake).toBeVisible()
+  await expect(intake).toContainText('HOLD_DEPENDENCY')
+  await expect(intake).toContainText('DEPENDENCIES_UNACCEPTED')
+  await expect(intake).toContainText('TASK-ZAI-015')
+  await expect(page.getByTestId('worker-source-unknown')).toBeVisible()
+})
+
 test('keyboard can scroll the assignment table to its rightmost column', async ({ page }) => {
   const signup = await signupFromIsolatedRateLimitSource(page, '198.51.100.42', {
     email: `worker-scroll-${randomUUID()}@example.test`, displayName: 'Worker table operator', password: E2E_PASSWORD,
