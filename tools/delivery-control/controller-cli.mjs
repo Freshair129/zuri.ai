@@ -7,6 +7,33 @@ import { preflightTask } from './preflight.mjs';
 import { createControllerRunner, bindWorktree } from './controller-runner.mjs';
 import { startControllerDashboard, startControllerLivenessHeartbeat } from './controller-dashboard.mjs';
 import { readControllerEventProjection } from './worker-observability-reader.mjs';
+import { startWorkerObservabilityPublisher, DEFAULT_WORKER_OBSERVABILITY_PUBLISH_INTERVAL_MS,
+  MAX_WORKER_OBSERVABILITY_PUBLISH_INTERVAL_MS } from './worker-observability-publisher.mjs';
+
+export function resolveWorkerObservabilityExportDirectory(repoRoot) {
+  return path.resolve(repoRoot, 'apps', 'server', '.worker-observability.local');
+}
+
+export function resolveWorkerObservabilityPublishIntervalMs(configuredInterval) {
+  if (!Number.isSafeInteger(configuredInterval) || configuredInterval < 1) {
+    return DEFAULT_WORKER_OBSERVABILITY_PUBLISH_INTERVAL_MS;
+  }
+  return Math.min(configuredInterval, MAX_WORKER_OBSERVABILITY_PUBLISH_INTERVAL_MS);
+}
+
+export function startConfiguredWorkerObservabilityPublisher({
+  repoRoot,
+  config = {},
+  startPublisher = startWorkerObservabilityPublisher,
+  onError = () => {},
+} = {}) {
+  return startPublisher({
+    repoRoot,
+    exportDirectory: resolveWorkerObservabilityExportDirectory(repoRoot),
+    intervalMs: resolveWorkerObservabilityPublishIntervalMs(config.workerObservabilityPublishIntervalMs),
+    onError,
+  });
+}
 
 export async function admitConfiguredTasks({ controller, repoRoot, config, cache = new Map() }) {
   const observations = [];
@@ -51,6 +78,7 @@ export async function main(argv = process.argv.slice(2)) {
   const intakeCache = new Map();
   let dashboard;
   let liveness;
+  let observabilityPublisher;
   let runner;
   let stopping = false;
   const stop = () => { stopping = true; };
@@ -63,6 +91,11 @@ export async function main(argv = process.argv.slice(2)) {
     if (command === 'status') { print(await controller.listRuns()); return; }
     runner = createControllerRunner({ controller, repoRoot, stateRoot, config });
     if (command === 'serve') {
+      observabilityPublisher = startConfiguredWorkerObservabilityPublisher({
+        repoRoot,
+        config,
+        onError: () => process.stderr.write('WORKER_OBSERVABILITY_EXPORT_FAILED\n'),
+      });
       dashboard = await startControllerDashboard({ port: config.dashboardPort ?? 4190,
         readRuns: async () => (await controller.listRuns()).map((run) => ({ ...run, status: run.state, nodes: run.stages })),
         readEvents: async () => readControllerEventProjection({ repoRoot }) });
@@ -85,6 +118,7 @@ export async function main(argv = process.argv.slice(2)) {
     }
     print({ code: 'RUNNER_STOPPED', runs: await controller.listRuns() });
   } finally {
+    observabilityPublisher?.stop();
     liveness?.stop();
     await runner?.stop();
     if (dashboard) await new Promise((resolve) => dashboard.close(resolve));

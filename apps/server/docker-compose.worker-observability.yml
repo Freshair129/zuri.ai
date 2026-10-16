@@ -1,0 +1,10 @@
+# Local operator overlay only. Keep the base deployment and its mounts unchanged.
+services:
+  web:
+    environment:
+      ZURI_WORKER_OBSERVABILITY_FILE: /run/zuri/worker-observability/worker-observability.json
+    volumes:
+      - type: bind
+        source: ./.worker-observability.local
+        target: /run/zuri/worker-observability
+        read_only: true
