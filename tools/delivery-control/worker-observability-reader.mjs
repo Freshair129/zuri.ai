@@ -6,6 +6,8 @@ import path from 'node:path';
 
 export const WORKER_OBSERVABILITY_SCHEMA_VERSION = 'worker-observability/v1';
 export const MAX_HEARTBEAT_AGE_MS = 15_000;
+const ACTIVE_RUN_STATES = new Set(['RUNNING', 'LEASED', 'WORKER_RUNNING', 'VERIFY_RUNNING', 'REVIEW_RUNNING']);
+const ACTIVE_NODE_STATES = new Set(['RUNNING', 'LEASED']);
 
 const EVENT_KINDS = Object.freeze({
   TASK_REGISTERED: 'TASK_REGISTERED',
@@ -374,7 +376,27 @@ export function projectWorkerObservability({ runs = [], events = [], supervisor 
   const activeAssignments = assignments.filter((item) => item.active);
   const activeTaskCount = new Set(activeAssignments.map((item) => `${item.taskId}:${item.cycleNo}`)).size;
   const queuedCount = assignments.filter((item) => item.queued).length;
-  const mode = activeAssignments.length === 0 ? 'IDLE' : activeTaskCount >= 2 ? 'SWARM' : 'SOLO';
+  const unresolvedRunState = runs.some((run) => {
+    const runState = safeStatus(run.state);
+    const activeNodes = Array.isArray(run.stages)
+      ? run.stages.filter((node) => ACTIVE_NODE_STATES.has(safeStatus(node.state)))
+      : [];
+    const taskId = safeTaskId(run.task_id);
+    const cycleNo = run.current_cycle;
+    const validIdentity = taskId !== 'UNKNOWN' && Number.isSafeInteger(cycleNo) && cycleNo > 0;
+    if (!validIdentity) return ACTIVE_RUN_STATES.has(runState) || activeNodes.length > 0;
+
+    const matchingActiveNodes = activeNodes.filter((node) =>
+      safeTaskId(node.task_id) === taskId && node.cycle_no === cycleNo);
+    const mismatchedActiveNodes = activeNodes.some((node) =>
+      safeTaskId(node.task_id) !== taskId || node.cycle_no !== cycleNo);
+    return mismatchedActiveNodes
+      || (ACTIVE_RUN_STATES.has(runState) && matchingActiveNodes.length === 0);
+  });
+  const unresolvedActiveState = unresolvedRunState
+    || assignments.some((item) => ACTIVE_NODE_STATES.has(item.state) && !item.active);
+  const mode = unresolvedActiveState ? 'UNKNOWN'
+    : activeAssignments.length === 0 ? 'IDLE' : activeTaskCount >= 2 ? 'SWARM' : 'SOLO';
 
   const safeEvents = [];
   for (const event of events) {
@@ -424,12 +446,17 @@ export function projectWorkerObservability({ runs = [], events = [], supervisor 
       createdAt: iso(tag.createdAt),
     })).sort((a, b) => a.name.localeCompare(b.name));
 
+  const tagSetFingerprint = typeof tags.fingerprint === 'string' && /^[A-F0-9]{64}$/i.test(tags.fingerprint)
+    ? tags.fingerprint.toUpperCase()
+    : tags.truncated === true ? null
+      : sha256(JSON.stringify(safeTags.map(({ name, objectId }) => [name, objectId])));
+
   return {
     schemaVersion: WORKER_OBSERVABILITY_SCHEMA_VERSION,
     state: 'LIVE',
     freshness: 'SNAPSHOT',
     observedAt: new Date(nowMs).toISOString(),
-    source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', eventChain: 'VERIFIED',
+    source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', controllerLiveness: 'NOT_CAPTURED', eventChain: 'VERIFIED',
       supervisorReceipts: supervisor.state ?? 'NOT_CAPTURED', ciReceipts: ciReceiptSource },
     summary: { activeWorkers: activeAssignments.length, queuedWorkers: queuedCount, activeTasks: activeTaskCount, mode },
     tasks: [...taskRows.values()].sort((a, b) => a.taskId.localeCompare(b.taskId) || a.cycleNo - b.cycleNo),
@@ -438,6 +465,7 @@ export function projectWorkerObservability({ runs = [], events = [], supervisor 
     localTags: safeTags,
     localTagCount: Number.isSafeInteger(tags.totalCount) ? tags.totalCount : safeTags.length,
     localTagsTruncated: tags.truncated === true,
+    localTagSetFingerprint: tagSetFingerprint,
     localStatus: {
       changedFiles: Number.isSafeInteger(localStatus.changedFiles) ? localStatus.changedFiles : null,
       fingerprint: typeof localStatus.fingerprint === 'string' && /^[A-F0-9]{64}$/.test(localStatus.fingerprint) ? localStatus.fingerprint : null,
@@ -513,7 +541,9 @@ function readLocalTags(root, now) {
     return { name, objectId, createdAt };
   }).filter((row) => row.name && row.objectId);
   const limit = 200;
-  return { totalCount: rows.length, truncated: rows.length > limit, items: rows.slice(-limit).map((row) => ({ ...row, createdAt: iso(row.createdAt) })) };
+  const fingerprint = sha256(JSON.stringify(rows.map(({ name, objectId }) => [name, objectId.toLowerCase()])));
+  return { totalCount: rows.length, truncated: rows.length > limit, fingerprint,
+    items: rows.slice(-limit).map((row) => ({ ...row, createdAt: iso(row.createdAt) })) };
 }
 
 function readLocalStatus(root, now) {
@@ -527,6 +557,49 @@ function readLocalStatus(root, now) {
 function inside(parent, candidate) {
   const rel = path.relative(parent, candidate);
   return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
+}
+
+function readControllerLiveness(common, nowMs) {
+  const privateRoot = path.join(common, 'zuri-delivery-control');
+  const controllerRoot = path.join(privateRoot, 'controller-v1');
+  const heartbeatFile = path.join(controllerRoot, 'controller-liveness.json');
+  let privateStat;
+  let controllerStat;
+  let heartbeatStat;
+  try { privateStat = lstatSync(privateRoot); } catch (error) {
+    if (error.code === 'ENOENT') throw new Error('CONTROLLER_HEARTBEAT_ABSENT');
+    throw error;
+  }
+  if (!privateStat.isDirectory() || privateStat.isSymbolicLink()) throw new Error('CONTROLLER_HEARTBEAT_INVALID');
+  const privateReal = realpathSync.native(privateRoot);
+  if (!inside(common, privateReal)) throw new Error('CONTROLLER_HEARTBEAT_INVALID');
+  try { controllerStat = lstatSync(controllerRoot); } catch (error) {
+    if (error.code === 'ENOENT') throw new Error('CONTROLLER_HEARTBEAT_ABSENT');
+    throw error;
+  }
+  if (!controllerStat.isDirectory() || controllerStat.isSymbolicLink()) throw new Error('CONTROLLER_HEARTBEAT_INVALID');
+  const controllerReal = realpathSync.native(controllerRoot);
+  if (!inside(privateReal, controllerReal)) throw new Error('CONTROLLER_HEARTBEAT_INVALID');
+  try { heartbeatStat = lstatSync(heartbeatFile); } catch (error) {
+    if (error.code === 'ENOENT') throw new Error('CONTROLLER_HEARTBEAT_ABSENT');
+    throw error;
+  }
+  if (!heartbeatStat.isFile() || heartbeatStat.isSymbolicLink()) throw new Error('CONTROLLER_HEARTBEAT_INVALID');
+  const heartbeatReal = realpathSync.native(heartbeatFile);
+  if (!inside(controllerReal, heartbeatReal)) throw new Error('CONTROLLER_HEARTBEAT_INVALID');
+
+  let heartbeat;
+  try { heartbeat = JSON.parse(readFileSync(heartbeatReal, 'utf8')); }
+  catch { throw new Error('CONTROLLER_HEARTBEAT_INVALID'); }
+  if (!heartbeat || heartbeat.schemaVersion !== 'controller-liveness/v1'
+      || !Number.isSafeInteger(heartbeat.processId) || heartbeat.processId < 1
+      || typeof heartbeat.heartbeatAt !== 'string') throw new Error('CONTROLLER_HEARTBEAT_INVALID');
+  const heartbeatMs = asMillis(heartbeat.heartbeatAt);
+  if (heartbeatMs === null || new Date(heartbeatMs).toISOString() !== heartbeat.heartbeatAt || heartbeatMs > nowMs) {
+    throw new Error('CONTROLLER_HEARTBEAT_INVALID');
+  }
+  const ageMs = nowMs - heartbeatMs;
+  if (ageMs > MAX_HEARTBEAT_AGE_MS) throw new Error('CONTROLLER_HEARTBEAT_STALE');
 }
 
 function readSupervisorObservations(common) {
@@ -565,9 +638,9 @@ function unavailableSnapshot(reason, now = new Date()) {
     freshness: 'UNKNOWN',
     observedAt,
     reason: safeCode(reason),
-    source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', eventChain: 'UNKNOWN', supervisorReceipts: 'UNKNOWN', ciReceipts: 'UNKNOWN' },
+    source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', controllerLiveness: 'UNKNOWN', eventChain: 'UNKNOWN', supervisorReceipts: 'UNKNOWN', ciReceipts: 'UNKNOWN' },
     summary: { activeWorkers: 0, queuedWorkers: 0, activeTasks: 0, mode: 'UNKNOWN' },
-    tasks: [], assignments: [], events: [], localTags: [], localTagCount: 0, localTagsTruncated: false,
+    tasks: [], assignments: [], events: [], localTags: [], localTagCount: 0, localTagsTruncated: false, localTagSetFingerprint: null,
     localStatus: { changedFiles: null, fingerprint: null, headCommit: null, observedAt },
   };
 }
@@ -578,17 +651,20 @@ export function readWorkerObservability({ repoRoot = process.cwd(), since = null
   if (nowMs === null) return unavailableSnapshot('INVALID_SNAPSHOT_TIME', new Date());
   try {
     const paths = rootFromGit(repoRoot);
+    readControllerLiveness(paths.common, nowMs);
     const databasePath = path.join(paths.common, 'zuri-delivery-control', 'controller-v1.sqlite');
     const ledger = readControllerLedger(databasePath, nowMs);
     const supervisor = readSupervisorObservations(paths.common);
     const githubCi = readGithubCiReceipts(paths.common, ledger.runs);
     const tags = readLocalTags(paths.root, nowMs);
     const localStatus = readLocalStatus(paths.root, nowMs);
-    return projectWorkerObservability({ runs: ledger.runs, events: ledger.events,
+    const snapshot = projectWorkerObservability({ runs: ledger.runs, events: ledger.events,
       supervisor: { ...supervisor, events: [...supervisor.events, ...githubCi.events],
         ciReceipts: [...supervisor.ciReceipts, ...githubCi.receipts] }, ciReceiptSource: githubCi.state,
       tags: { ...tags, totalCount: tags.totalCount, truncated: tags.truncated }, localStatus,
       now: new Date(nowMs), since });
+    snapshot.source.controllerLiveness = 'VERIFIED';
+    return snapshot;
   } catch (error) {
     return unavailableSnapshot(error?.code ?? error?.message ?? 'CONTROLLER_SOURCE_UNAVAILABLE', new Date(nowMs));
   }

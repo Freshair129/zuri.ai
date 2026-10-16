@@ -10,7 +10,7 @@ import { admitConfiguredTasks } from './controller-cli.mjs';
 import { preflightTask } from './preflight.mjs';
 import { runRoadmapIntake } from './roadmap-intake.mjs';
 import { createGitHubDeliveryAdapter } from './github-delivery.mjs';
-import { startControllerDashboard } from './controller-dashboard.mjs';
+import { startControllerDashboard, startControllerLivenessHeartbeat } from './controller-dashboard.mjs';
 import { createControllerEventReader } from './worker-observability-reader.mjs';
 import { baseAdvancedResumeSignature, fetchConfiguredBase, prepareBaseAdvancedResume,
   readConfiguredRemoteBase, validatePreparedReceiptPath } from './base-advanced-resume.mjs';
@@ -124,6 +124,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   const loaded = loadSupervisorCampaign(repoRoot, campaignFile);
   const { root, common, privateRoot, campaign, intakeFile, intakeCampaign, campaignDigest } = loaded;
   const stateRoot = path.join(privateRoot, 'supervisors', campaign.campaignId);
+  const controllerStateRoot = path.join(common, 'zuri-delivery-control', 'controller-v1');
   fs.mkdirSync(stateRoot, { recursive: true });
   if (!within(privateRoot, fs.realpathSync(stateRoot))) throw new Error('SUPERVISOR_STATE_ESCAPE');
   const lockFile = path.join(stateRoot, 'owner.json');
@@ -159,7 +160,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   const config = { tasks: [], maxConcurrent: campaign.maxConcurrent ?? 2, codexExecutable: campaign.codexExecutable,
     windowsSandbox: campaign.windowsSandbox, roleTimeoutMs: campaign.roleTimeoutMs };
   let runner;
-  try { runner = runnerFactory({ controller, repoRoot: root, stateRoot: path.join(common, 'zuri-delivery-control', 'controller-v1'), config }); }
+  try { runner = runnerFactory({ controller, repoRoot: root, stateRoot: controllerStateRoot, config }); }
   catch (error) { if (!providedController) controller.close(); releaseLock(); throw error; }
   try { for (const binding of state.bindings) runner.addBinding(binding); }
   catch (error) { await runner.stop(); if (!providedController) controller.close(); releaseLock(); throw error; }
@@ -221,7 +222,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   };
   persist();
   return {
-    controller, stateRoot,
+    controller, stateRoot, controllerStateRoot,
     async tick() {
       if (stopped || ticking) return { status: stopped ? 'STOPPED' : 'TICK_ALREADY_RUNNING', observations: [] };
       ticking = true;
@@ -496,18 +497,22 @@ export async function main(argv = process.argv.slice(2)) {
   const supervisor = await createAutonomousSupervisor({ repoRoot: campaign.repositoryRoot, campaignFile });
   let stopping = false;
   let dashboard;
+  let liveness;
   const stop = () => { stopping = true; };
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   try {
-    if (command === 'serve') dashboard = await startControllerDashboard({ port: campaign.dashboardPort ?? 4190,
-      readEvents: createControllerEventReader(campaign.repositoryRoot),
-      readRuns: async () => {
-        const runs = supervisor.controller.listRuns().map((run) => ({ ...run, status: run.state, nodes: run.stages }));
-        for (const item of supervisor.status().intake?.candidates ?? []) {
-          if (!runs.some((run) => run.taskId === item.taskId)) runs.push({ taskId: item.taskId, status: item.status, stages: [], blockers: [{ code: item.code }] });
-        }
-        return runs;
-      } });
+    if (command === 'serve') {
+      dashboard = await startControllerDashboard({ port: campaign.dashboardPort ?? 4190,
+        readEvents: createControllerEventReader(campaign.repositoryRoot),
+        readRuns: async () => {
+          const runs = supervisor.controller.listRuns().map((run) => ({ ...run, status: run.state, nodes: run.stages }));
+          for (const item of supervisor.status().intake?.candidates ?? []) {
+            if (!runs.some((run) => run.taskId === item.taskId)) runs.push({ taskId: item.taskId, status: item.status, stages: [], blockers: [{ code: item.code }] });
+          }
+          return runs;
+        } });
+      liveness = startControllerLivenessHeartbeat({ stateRoot: supervisor.controllerStateRoot });
+    }
     do {
       const result = await supervisor.tick();
       for (const observation of result.observations) process.stdout.write(JSON.stringify(observation) + '\n');
@@ -521,6 +526,7 @@ export async function main(argv = process.argv.slice(2)) {
       await new Promise((resolve) => setTimeout(resolve, Math.max(5000, campaign.pollIntervalMs ?? 30_000)));
     } while (!stopping);
   } finally {
+    liveness?.stop();
     await supervisor.stop();
     if (dashboard) await new Promise((resolve) => dashboard.close(resolve));
     process.removeListener('SIGINT', stop); process.removeListener('SIGTERM', stop);

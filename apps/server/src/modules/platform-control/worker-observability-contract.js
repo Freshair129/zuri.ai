@@ -14,7 +14,7 @@ export function unknownWorkerObservabilitySnapshot(reason = 'SOURCE_UNAVAILABLE'
     freshness: 'UNKNOWN',
     observedAt,
     reason: /^[A-Z][A-Z0-9_-]{0,95}$/.test(reason) ? reason : 'SOURCE_UNAVAILABLE',
-    source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', eventChain: 'UNKNOWN', supervisorReceipts: 'UNKNOWN', ciReceipts: 'UNKNOWN' },
+    source: { kind: 'LOCAL_DELIVERY_CONTROLLER', proofScope: 'LOCAL_ONLY', controllerLiveness: 'UNKNOWN', eventChain: 'UNKNOWN', supervisorReceipts: 'UNKNOWN', ciReceipts: 'UNKNOWN' },
     summary: { activeWorkers: 0, queuedWorkers: 0, activeTasks: 0, mode: 'UNKNOWN' },
     tasks: [],
     assignments: [],
@@ -22,6 +22,7 @@ export function unknownWorkerObservabilitySnapshot(reason = 'SOURCE_UNAVAILABLE'
     localTags: [],
     localTagCount: 0,
     localTagsTruncated: false,
+    localTagSetFingerprint: null,
     localStatus: { changedFiles: null, fingerprint: null, headCommit: null, observedAt },
   }
 }

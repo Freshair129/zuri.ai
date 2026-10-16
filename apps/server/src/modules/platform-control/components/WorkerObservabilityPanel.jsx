@@ -22,15 +22,31 @@ function countLabel(value) {
   return Number.isSafeInteger(value) && value >= 0 ? value : '—'
 }
 
+function handleAssignmentScrollKeyDown(event) {
+  const container = event.currentTarget
+  const step = Math.max(120, Math.floor(container.clientWidth * 0.75))
+  if (event.key === 'Home') container.scrollLeft = 0
+  else if (event.key === 'End') container.scrollLeft = container.scrollWidth
+  else if (event.key === 'ArrowLeft') container.scrollLeft -= step
+  else if (event.key === 'ArrowRight') container.scrollLeft += step
+  else return
+  event.preventDefault()
+}
+
 export function collectLocalChanges(previous, next) {
   const changes = []
   const beforeTags = new Map((previous.tags || []).map((tag) => [tag.name, tag.objectId]))
   const afterTags = new Map((next.localTags || []).map((tag) => [tag.name, tag.objectId]))
-  for (const [name, objectId] of afterTags) {
-    if (beforeTags.get(name) !== objectId) changes.push({ kind: 'LOCAL_TAG_ADDED_OR_MOVED', label: name, observedAt: next.observedAt })
-  }
-  for (const name of beforeTags.keys()) {
-    if (!afterTags.has(name)) changes.push({ kind: 'LOCAL_TAG_REMOVED', label: name, observedAt: next.observedAt })
+  if (previous.tagsTruncated !== true && next.localTagsTruncated !== true) {
+    for (const [name, objectId] of afterTags) {
+      if (beforeTags.get(name) !== objectId) changes.push({ kind: 'LOCAL_TAG_ADDED_OR_MOVED', label: name, observedAt: next.observedAt })
+    }
+    for (const name of beforeTags.keys()) {
+      if (!afterTags.has(name)) changes.push({ kind: 'LOCAL_TAG_REMOVED', label: name, observedAt: next.observedAt })
+    }
+  } else if (previous.tagSetFingerprint && next.localTagSetFingerprint
+    && previous.tagSetFingerprint !== next.localTagSetFingerprint) {
+    changes.push({ kind: 'LOCAL_TAG_SET_CHANGED', label: 'aggregate-only change (tag list truncated)', observedAt: next.observedAt })
   }
   if (previous.headCommit && next.localStatus?.headCommit && previous.headCommit !== next.localStatus.headCommit) {
     changes.push({ kind: 'LOCAL_HEAD_CHANGED', label: shortHash(next.localStatus.headCommit), observedAt: next.observedAt })
@@ -89,6 +105,8 @@ export default function WorkerObservabilityPanel() {
         if (next.state === 'LIVE') {
           baseline.current = {
             tags: Array.isArray(next.localTags) ? next.localTags : [],
+            tagsTruncated: next.localTagsTruncated === true,
+            tagSetFingerprint: next.localTagSetFingerprint ?? null,
             headCommit: next.localStatus?.headCommit ?? null,
             fingerprint: next.localStatus?.fingerprint ?? null,
           }
@@ -151,7 +169,9 @@ export default function WorkerObservabilityPanel() {
           <span className={styles.muted}>opaque references · no prompt, path, session, owner, model, or effort</span>
         </div>
         {isLive && snapshot.assignments.length ? (
-          <div className={styles.tableWrap}>
+          <div className={styles.tableWrap} data-testid="worker-assignment-scroll-region" role="region"
+            aria-label="Worker assignments table; use Home, End, or arrow keys to view all columns"
+            tabIndex={0} onKeyDown={handleAssignmentScrollKeyDown}>
             <table className={styles.table}>
               <thead><tr><th scope="col">Ref</th><th scope="col">Task / cycle</th><th scope="col">Role / stage</th><th scope="col">State / attempt</th><th scope="col">Lease</th><th scope="col">Checked head</th><th scope="col">Context</th></tr></thead>
               <tbody>{snapshot.assignments.map((assignment) => (

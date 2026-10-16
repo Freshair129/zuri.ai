@@ -38,9 +38,9 @@ function event(sequence, taskId, cycleNo, eventType, occurredAt, payload) {
     event_hash: hash(['GENESIS', sequence, taskId ?? '', cycleNo ?? '', eventType, occurredAt, payloadJson].join('\n')) };
 }
 
-function activeRun(taskId, { state = 'RUNNING', epoch = 1, expiresAt = '2026-10-16T04:01:00.000Z', heartbeatAt = '2026-10-16T03:59:55.000Z', role = 'worker', stage = 'WORKER_IMPLEMENTATION', nodeId = 'worker' } = {}) {
+function activeRun(taskId, { state = 'RUNNING', runState = 'RUNNING', epoch = 1, expiresAt = '2026-10-16T04:01:00.000Z', heartbeatAt = '2026-10-16T03:59:55.000Z', role = 'worker', stage = 'WORKER_IMPLEMENTATION', nodeId = 'worker' } = {}) {
   return {
-    task_id: taskId, state: 'RUNNING', current_cycle: 1, base_commit: base,
+    task_id: taskId, state: runState, current_cycle: 1, base_commit: base,
     initial_head_commit: commit, candidate_head_commit: commit,
     cycle_state: 'ACTIVE', updated_at: heartbeatAt,
     stages: [{ task_id: taskId, cycle_no: 1, node_id: nodeId, stage, role, state, attempt: 1,
@@ -58,7 +58,9 @@ function snapshot({ runs = [], events = [], supervisor = {}, tags = [], localSta
   return projectWorkerObservability({ runs, events, supervisor, tags, localStatus, now, since });
 }
 
-function createRepoWithLedger({ events = [], runs = [], corruptHead = false } = {}) {
+function createRepoWithLedger({ events = [], runs = [], corruptHead = false,
+  controllerHeartbeat = { schemaVersion: 'controller-liveness/v1', processId: 123,
+    heartbeatAt: now.toISOString() } } = {}) {
   const root = mkdtempSync(path.join(tmpdir(), 'zuri-worker-observability-'));
   const git = (args) => execFileSync('git', args, { cwd: root, stdio: 'ignore', windowsHide: true });
   git(['init']);
@@ -69,6 +71,13 @@ function createRepoWithLedger({ events = [], runs = [], corruptHead = false } = 
   git(['commit', '-m', 'seed']);
   const privateRoot = path.join(root, '.git', 'zuri-delivery-control');
   mkdirSync(privateRoot, { recursive: true });
+  const controllerStateRoot = path.join(privateRoot, 'controller-v1');
+  mkdirSync(controllerStateRoot, { recursive: true });
+  const heartbeatPath = path.join(controllerStateRoot, 'controller-liveness.json');
+  if (controllerHeartbeat !== null) {
+    writeFileSync(heartbeatPath, typeof controllerHeartbeat === 'string'
+      ? controllerHeartbeat : JSON.stringify(controllerHeartbeat));
+  }
   const db = new DatabaseSync(path.join(privateRoot, 'controller-v1.sqlite'));
   db.exec(`CREATE TABLE controller_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
     CREATE TABLE delivery_events (sequence INTEGER PRIMARY KEY, task_id TEXT, cycle_no INTEGER, event_type TEXT,
@@ -98,7 +107,7 @@ function createRepoWithLedger({ events = [], runs = [], corruptHead = false } = 
       stage.required_head_commit, stage.candidate_head_commit, stage.evidence_json, run.updated_at);
   }
   db.close();
-  return { root, privateRoot, databasePath: path.join(privateRoot, 'controller-v1.sqlite') };
+  return { root, privateRoot, heartbeatPath, databasePath: path.join(privateRoot, 'controller-v1.sqlite') };
 }
 
 function stableValue(value) {
@@ -133,19 +142,24 @@ test('read-only snapshot verifies ledger without changing its SQLite bytes and r
     nodeId: 'worker', ownerId: 'private-owner-id', fencingEpoch: 1, expiresAt: '2026-10-16T04:01:00.000Z',
   });
   const run = activeRun(taskId);
-  const { root, databasePath } = createRepoWithLedger({ events: [heartbeatEvent], runs: [run] });
+  const { root, databasePath, heartbeatPath } = createRepoWithLedger({ events: [heartbeatEvent], runs: [run] });
   t.after(() => rmSync(root, { recursive: true, force: true }));
   execFileSync('git', ['tag', 'local-demo'], { cwd: root, stdio: 'ignore', windowsHide: true });
   const before = readFileSync(databasePath);
+  const heartbeatBefore = readFileSync(heartbeatPath);
   const result = readWorkerObservability({ repoRoot: root, now: () => now });
   const after = readFileSync(databasePath);
+  const heartbeatAfter = readFileSync(heartbeatPath);
   assert.deepEqual(after, before);
+  assert.deepEqual(heartbeatAfter, heartbeatBefore);
   assert.equal(result.state, 'LIVE');
   assert.equal(result.summary.activeWorkers, 1);
   assert.equal(result.source.ciReceipts, 'NOT_CAPTURED');
   assert.equal(result.assignments[0].lease.state, 'FRESH');
   assert.equal(result.assignments[0].contextMemory.state, 'NOT_CAPTURED');
+  assert.equal(result.source.controllerLiveness, 'VERIFIED');
   assert.deepEqual(result.localTags.map((tag) => tag.name), ['local-demo']);
+  assert.match(result.localTagSetFingerprint, /^[A-F0-9]{64}$/);
   const serialized = JSON.stringify(result);
   for (const privateValue of ['private-owner-id', root, 'NODE_LEASE_HEARTBEAT']) assert.equal(serialized.includes(privateValue), false);
 });
@@ -183,6 +197,33 @@ test('absent or invalid ledger returns an explicit UNKNOWN snapshot', (t) => {
   assert.equal(result.source.eventChain, 'UNKNOWN');
 });
 
+test('controller liveness heartbeat is required, valid, and no more than 15000 ms old', (t) => {
+  const absent = createRepoWithLedger({ controllerHeartbeat: null });
+  const invalid = createRepoWithLedger({ controllerHeartbeat: 'not-json' });
+  const stale = createRepoWithLedger({ controllerHeartbeat: { schemaVersion: 'controller-liveness/v1',
+    processId: 123, heartbeatAt: '2026-10-16T03:59:44.999Z' } });
+  const freshAtLimit = createRepoWithLedger({ controllerHeartbeat: { schemaVersion: 'controller-liveness/v1',
+    processId: 123, heartbeatAt: '2026-10-16T03:59:45.000Z' } });
+  const future = createRepoWithLedger({ controllerHeartbeat: { schemaVersion: 'controller-liveness/v1',
+    processId: 123, heartbeatAt: '2026-10-16T04:00:00.001Z' } });
+  for (const fixture of [absent, invalid, stale, freshAtLimit, future]) {
+    t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  }
+
+  const read = (fixture) => readWorkerObservability({ repoRoot: fixture.root, now: () => now });
+  assert.equal(read(absent).state, 'UNKNOWN');
+  assert.equal(read(absent).reason, 'CONTROLLER_HEARTBEAT_ABSENT');
+  assert.equal(read(absent).source.controllerLiveness, 'UNKNOWN');
+  assert.equal(read(invalid).state, 'UNKNOWN');
+  assert.equal(read(invalid).reason, 'CONTROLLER_HEARTBEAT_INVALID');
+  assert.equal(read(stale).state, 'UNKNOWN');
+  assert.equal(read(stale).reason, 'CONTROLLER_HEARTBEAT_STALE');
+  assert.equal(read(freshAtLimit).state, 'LIVE');
+  assert.equal(read(freshAtLimit).source.controllerLiveness, 'VERIFIED');
+  assert.equal(read(future).state, 'UNKNOWN');
+  assert.equal(read(future).reason, 'CONTROLLER_HEARTBEAT_INVALID');
+});
+
 test('invalid append-only controller event chain returns UNKNOWN instead of an empty LIVE event list', (t) => {
   const taskId = 'TASK-ZAI-001';
   const heartbeatEvent = event(1, taskId, 1, 'NODE_LEASE_HEARTBEAT', '2026-10-16T03:59:55.000Z', {
@@ -211,13 +252,19 @@ test('fresh heartbeat and fencing epoch are required for active workers', () => 
   assert.equal(fresh.summary.activeWorkers, 1);
   assert.equal(fresh.assignments[0].lease.state, 'FRESH');
 
+  const missingProof = snapshot({ runs: [activeRun(taskId)] });
+  assert.equal(missingProof.assignments[0].lease.state, 'UNKNOWN');
+  assert.equal(missingProof.summary.mode, 'UNKNOWN');
+
   const stale = snapshot({ runs: [activeRun(taskId)], events: [heartbeat(taskId, { at: '2026-10-16T03:59:44.000Z' })] });
   assert.equal(stale.summary.activeWorkers, 0);
   assert.equal(stale.assignments[0].lease.state, 'STALE');
+  assert.equal(stale.summary.mode, 'UNKNOWN');
 
   const wrongEpoch = snapshot({ runs: [activeRun(taskId)], events: [heartbeat(taskId, { epoch: 2 })] });
   assert.equal(wrongEpoch.summary.activeWorkers, 0);
   assert.equal(wrongEpoch.assignments[0].lease.state, 'UNKNOWN');
+  assert.equal(wrongEpoch.summary.mode, 'UNKNOWN');
 
   const expiredAt = '2026-10-16T03:59:59.000Z';
   const expired = snapshot({ runs: [activeRun(taskId, { expiresAt: expiredAt })], events: [heartbeat(taskId, { expiresAt: expiredAt })] });
@@ -232,9 +279,24 @@ test('fresh heartbeat and fencing epoch are required for active workers', () => 
   assert.equal(headUnknown.assignments[0].checkedHeadCommit, null);
 });
 
+test('active run state without a matching current-cycle active node makes mode UNKNOWN', () => {
+  const taskId = 'TASK-ZAI-011';
+  const missingStage = activeRun(taskId);
+  missingStage.stages = [];
+  assert.equal(snapshot({ runs: [missingStage] }).summary.mode, 'UNKNOWN');
+
+  const wrongCycle = activeRun(taskId);
+  wrongCycle.stages[0].cycle_no = 0;
+  assert.equal(snapshot({ runs: [wrongCycle] }).summary.mode, 'UNKNOWN');
+
+  const invalidCycle = activeRun(taskId);
+  invalidCycle.current_cycle = 0;
+  assert.equal(snapshot({ runs: [invalidCycle] }).summary.mode, 'UNKNOWN');
+});
+
 test('READY-only queue and distinct-task overlapping leases determine idle, solo, and swarm', () => {
-  const readyRun = activeRun('TASK-ZAI-002', { state: 'READY', role: 'verifier', stage: 'INDEPENDENT_VERIFICATION', nodeId: 'verifier' });
-  const waitingRun = activeRun('TASK-ZAI-003', { state: 'WAITING', role: 'reviewer', stage: 'INDEPENDENT_REVIEW', nodeId: 'reviewer' });
+  const readyRun = activeRun('TASK-ZAI-002', { state: 'READY', runState: 'READY', role: 'verifier', stage: 'INDEPENDENT_VERIFICATION', nodeId: 'verifier' });
+  const waitingRun = activeRun('TASK-ZAI-003', { state: 'WAITING', runState: 'WAITING', role: 'reviewer', stage: 'INDEPENDENT_REVIEW', nodeId: 'reviewer' });
   const queued = snapshot({ runs: [readyRun, waitingRun] });
   assert.equal(queued.summary.queuedWorkers, 1);
   assert.equal(queued.summary.mode, 'IDLE');
@@ -251,6 +313,18 @@ test('READY-only queue and distinct-task overlapping leases determine idle, solo
   assert.equal(solo.summary.activeWorkers, 2);
   assert.equal(solo.summary.activeTasks, 1);
   assert.equal(solo.summary.mode, 'SOLO');
+});
+
+test('truncated local tag snapshots retain a full-set fingerprint without claiming completeness', () => {
+  const result = snapshot({ tags: { items: [{ name: 'tag-visible-in-window', objectId: commit }], totalCount: 201,
+    truncated: true, fingerprint: 'c'.repeat(64) } });
+  assert.equal(result.localTagCount, 201);
+  assert.equal(result.localTagsTruncated, true);
+  assert.equal(result.localTagSetFingerprint, 'C'.repeat(64));
+
+  const noDigest = snapshot({ tags: { items: [{ name: 'tag-visible-in-window', objectId: commit }], totalCount: 201,
+    truncated: true } });
+  assert.equal(noDigest.localTagSetFingerprint, null);
 });
 
 test('CI receipts are reported only for exact head and base, with mismatches marked STALE', () => {

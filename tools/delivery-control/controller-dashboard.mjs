@@ -1,4 +1,41 @@
 import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import { randomUUID } from 'node:crypto';
+
+export const CONTROLLER_LIVENESS_INTERVAL_MS = 5000;
+export const CONTROLLER_LIVENESS_FILENAME = 'controller-liveness.json';
+
+/** Publish private process-liveness evidence using an atomic same-directory rename. */
+export function startControllerLivenessHeartbeat({ stateRoot, processId = process.pid,
+  intervalMs = CONTROLLER_LIVENESS_INTERVAL_MS, now = () => new Date() } = {}) {
+  if (typeof stateRoot !== 'string' || !stateRoot.trim()) throw new TypeError('Controller stateRoot is required.');
+  if (!Number.isSafeInteger(processId) || processId < 1) throw new TypeError('A valid process id is required.');
+  if (!Number.isSafeInteger(intervalMs) || intervalMs < 1 || intervalMs > CONTROLLER_LIVENESS_INTERVAL_MS) {
+    throw new RangeError('Controller liveness interval must be between 1 and 5000 ms.');
+  }
+
+  const root = path.resolve(stateRoot);
+  fs.mkdirSync(root, { recursive: true, mode: 0o700 });
+  const rootStat = fs.lstatSync(root);
+  if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) throw new Error('CONTROLLER_LIVENESS_ROOT_INVALID');
+  const heartbeatFile = path.join(root, CONTROLLER_LIVENESS_FILENAME);
+  const write = () => {
+    const body = { schemaVersion: 'controller-liveness/v1', processId,
+      heartbeatAt: new Date(now()).toISOString() };
+    const temporary = `${heartbeatFile}.${processId}.${randomUUID()}.tmp`;
+    fs.writeFileSync(temporary, JSON.stringify(body), { encoding: 'utf8', flag: 'wx', mode: 0o600 });
+    try { fs.renameSync(temporary, heartbeatFile); }
+    catch (error) {
+      try { fs.unlinkSync(temporary); } catch {}
+      throw error;
+    }
+  };
+  write();
+  const timer = setInterval(() => { try { write(); } catch { /* Readers fail closed when an update cannot be written. */ } }, intervalMs);
+  timer.unref?.();
+  return { heartbeatFile, stop: () => clearInterval(timer) };
+}
 
 const PAGE = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Zuri delivery DAG</title>
 <style>body{font:16px system-ui;background:#101827;color:#e7edf5;margin:32px;max-width:1200px}h1{margin-bottom:8px}p{color:#aebdd0}table{border-collapse:collapse;width:100%;margin:24px 0}th,td{text-align:left;border-bottom:1px solid #344258;padding:12px}#status{color:#ffc773}a{color:#89caff}.error{color:#ff9999}</style>

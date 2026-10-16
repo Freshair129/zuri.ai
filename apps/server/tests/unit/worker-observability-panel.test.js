@@ -39,4 +39,30 @@ describe('worker observability UI', () => {
     ])
     expect(JSON.stringify(changes)).not.toContain('file/path')
   })
+
+  it('reports only an aggregate tag-set transition when either displayed list is truncated', () => {
+    const changes = collectLocalChanges({
+      tags: [{ name: 'visible-old', objectId: 'a'.repeat(40) }],
+      tagsTruncated: true,
+      tagSetFingerprint: 'b'.repeat(64),
+      headCommit: null,
+      fingerprint: null,
+    }, {
+      localTags: [{ name: 'visible-new', objectId: 'c'.repeat(40) }],
+      localTagsTruncated: true,
+      localTagSetFingerprint: 'd'.repeat(64),
+      localStatus: {},
+      observedAt: '2026-10-16T04:00:00.000Z',
+    })
+    expect(changes).toEqual([{
+      kind: 'LOCAL_TAG_SET_CHANGED',
+      label: 'aggregate-only change (tag list truncated)',
+      observedAt: '2026-10-16T04:00:00.000Z',
+    }])
+
+    const withoutFingerprint = collectLocalChanges({ tags: [{ name: 'visible-old', objectId: 'a'.repeat(40) }], tagsTruncated: true }, {
+      localTags: [{ name: 'visible-new', objectId: 'c'.repeat(40) }], localTagsTruncated: true, localStatus: {},
+    })
+    expect(withoutFingerprint).toEqual([])
+  })
 })
