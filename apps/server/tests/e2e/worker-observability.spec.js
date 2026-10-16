@@ -20,8 +20,9 @@ test.afterAll(async () => {
 })
 
 test('operator opens the Workers view, reads protected local status, and can use tabs by keyboard', async ({ page }) => {
+  const signupEmail = `worker-view-${randomUUID()}@example.test`
   const signup = await signupFromIsolatedRateLimitSource(page, '198.51.100.41', {
-    email: `worker-view-${randomUUID()}@example.test`, displayName: 'Worker view operator', password: E2E_PASSWORD,
+    email: signupEmail, displayName: 'Worker view operator', password: E2E_PASSWORD,
   })
   expect(signup.status()).toBe(201)
   const { user } = await signup.json()
@@ -44,7 +45,7 @@ test('operator opens the Workers view, reads protected local status, and can use
   expect(['LIVE', 'UNKNOWN']).toContain(snapshot.state)
   expect(snapshot.source.proofScope).toBe('LOCAL_ONLY')
   const projected = JSON.stringify(snapshot)
-  for (const forbidden of ['Worker view operator', user.email, 'private-owner-id', 'memory receipt content', 'C:\\Users\\']) {
+  for (const forbidden of ['Worker view operator', signupEmail, 'private-owner-id', 'memory receipt content', 'C:\\Users\\']) {
     expect(projected).not.toContain(forbidden)
   }
 
