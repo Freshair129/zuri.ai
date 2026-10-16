@@ -599,3 +599,7 @@ export function readControllerEventProjection({ repoRoot = process.cwd(), since 
   if (snapshot.state !== 'LIVE') throw new Error('CONTROLLER_EVENT_SOURCE_UNAVAILABLE');
   return snapshot.events;
 }
+
+export function createControllerEventReader(repoRoot, readProjection = readControllerEventProjection) {
+  return () => readProjection({ repoRoot });
+}

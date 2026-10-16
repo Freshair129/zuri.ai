@@ -6,7 +6,24 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { projectWorkerObservability, readControllerEventProjection, readWorkerObservability, verifyControllerEventChain } from '../delivery-control/worker-observability-reader.mjs';
+import {
+  createControllerEventReader,
+  projectWorkerObservability,
+  readControllerEventProjection,
+  readWorkerObservability,
+  verifyControllerEventChain,
+} from '../delivery-control/worker-observability-reader.mjs';
+
+test('supervisor event reader uses the bound repository root', async () => {
+  const expectedRoot = 'C:\\zuri\\repo';
+  let received;
+  const reader = createControllerEventReader(expectedRoot, async (options) => {
+    received = options;
+    return [{ kind: 'LOCAL_STATUS_CHANGED' }];
+  });
+  assert.deepEqual(await reader(), [{ kind: 'LOCAL_STATUS_CHANGED' }]);
+  assert.deepEqual(received, { repoRoot: expectedRoot });
+});
 
 const hash = (value) => createHash('sha256').update(value).digest('hex');
 const commit = 'a'.repeat(40);

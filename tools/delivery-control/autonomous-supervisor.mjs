@@ -11,7 +11,7 @@ import { preflightTask } from './preflight.mjs';
 import { runRoadmapIntake } from './roadmap-intake.mjs';
 import { createGitHubDeliveryAdapter } from './github-delivery.mjs';
 import { startControllerDashboard } from './controller-dashboard.mjs';
-import { readControllerEventProjection } from './worker-observability-reader.mjs';
+import { createControllerEventReader } from './worker-observability-reader.mjs';
 import { baseAdvancedResumeSignature, fetchConfiguredBase, prepareBaseAdvancedResume,
   readConfiguredRemoteBase, validatePreparedReceiptPath } from './base-advanced-resume.mjs';
 
@@ -500,7 +500,7 @@ export async function main(argv = process.argv.slice(2)) {
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   try {
     if (command === 'serve') dashboard = await startControllerDashboard({ port: campaign.dashboardPort ?? 4190,
-      readEvents: async () => readControllerEventProjection({ repoRoot: root }),
+      readEvents: createControllerEventReader(campaign.repositoryRoot),
       readRuns: async () => {
         const runs = supervisor.controller.listRuns().map((run) => ({ ...run, status: run.state, nodes: run.stages }));
         for (const item of supervisor.status().intake?.candidates ?? []) {
