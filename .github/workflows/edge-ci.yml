@@ -8,6 +8,13 @@ on:
   push:
     branches: [main]
 
+# PR updates and main pushes supersede the older snapshot in their own group.
+# The latest main run still exercises the Edge suite and Desktop build; a push
+# cannot cancel a PR run, and no other workflow event is coupled to main.
+concurrency:
+  group: edge-ci-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || (github.event_name == 'push' && github.ref == 'refs/heads/main' && 'main') || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+
 jobs:
   # Named `edge-verify`, not `verify`. GitHub matches a required status check by
   # its context name alone and cannot tell two same-named jobs apart, so while
