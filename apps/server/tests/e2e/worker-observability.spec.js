@@ -7,15 +7,22 @@ const { E2E_PASSWORD } = require('./e2e-auth')
 const prisma = new PrismaClient({ datasources: { db: { url: e2eTarget().databaseUrl } } })
 const grantIds = []
 
+async function signupFromIsolatedRateLimitSource(page, sourceAddress, data) {
+  return page.request.post('/api/auth/signup', {
+    headers: { 'x-forwarded-for': sourceAddress },
+    data,
+  })
+}
+
 test.afterAll(async () => {
   await prisma.platformGrant.updateMany({ where: { id: { in: grantIds } }, data: { status: 'REVOKED', revokedAt: new Date() } })
   await prisma.$disconnect()
 })
 
 test('operator opens the Workers view, reads protected local status, and can use tabs by keyboard', async ({ page }) => {
-  const signup = await page.request.post('/api/auth/signup', { data: {
+  const signup = await signupFromIsolatedRateLimitSource(page, '198.51.100.41', {
     email: `worker-view-${randomUUID()}@example.test`, displayName: 'Worker view operator', password: E2E_PASSWORD,
-  } })
+  })
   expect(signup.status()).toBe(201)
   const { user } = await signup.json()
   const grant = await prisma.platformGrant.create({ data: { personId: user.id, capability: 'OPERATOR', status: 'ACTIVE', expiresAt: new Date(Date.now() + 3600000) } })
@@ -49,9 +56,9 @@ test('operator opens the Workers view, reads protected local status, and can use
 })
 
 test('keyboard can scroll the assignment table to its rightmost column', async ({ page }) => {
-  const signup = await page.request.post('/api/auth/signup', { data: {
+  const signup = await signupFromIsolatedRateLimitSource(page, '198.51.100.42', {
     email: `worker-scroll-${randomUUID()}@example.test`, displayName: 'Worker table operator', password: E2E_PASSWORD,
-  } })
+  })
   expect(signup.status()).toBe(201)
   const { user } = await signup.json()
   const grant = await prisma.platformGrant.create({ data: { personId: user.id, capability: 'OPERATOR', status: 'ACTIVE', expiresAt: new Date(Date.now() + 3600000) } })
@@ -92,12 +99,13 @@ test('keyboard can scroll the assignment table to its rightmost column', async (
   expect(contextHeaderIsVisible).toBe(true)
 })
 
-test('member roadmap stays redacted and cannot read worker telemetry', async ({ page }) => {
-  const signup = await page.request.post('/api/auth/signup', { data: {
+test('closed member roadmap stays unavailable and cannot read worker telemetry', async ({ page }) => {
+  const signup = await signupFromIsolatedRateLimitSource(page, '198.51.100.43', {
     email: `worker-view-member-${randomUUID()}@example.test`, displayName: 'Worker view member', password: E2E_PASSWORD,
-  } })
+  })
   expect(signup.status()).toBe(201)
-  await page.goto('/roadmap')
+  const roadmap = await page.goto('/roadmap')
+  expect(roadmap?.status()).toBe(404)
   await expect(page.getByRole('tab', { name: 'Workers & activity' })).toHaveCount(0)
   const response = await page.request.get('/api/platform/worker-observability')
   expect(response.status()).toBe(403)
@@ -105,9 +113,9 @@ test('member roadmap stays redacted and cannot read worker telemetry', async ({ 
 })
 
 test('Workers view stays within 390x844 and 430x932 viewports', async ({ page }) => {
-  const signup = await page.request.post('/api/auth/signup', { data: {
+  const signup = await signupFromIsolatedRateLimitSource(page, '198.51.100.44', {
     email: `worker-view-mobile-${randomUUID()}@example.test`, displayName: 'Worker view mobile', password: E2E_PASSWORD,
-  } })
+  })
   expect(signup.status()).toBe(201)
   const { user } = await signup.json()
   const grant = await prisma.platformGrant.create({ data: { personId: user.id, capability: 'OPERATOR', status: 'ACTIVE', expiresAt: new Date(Date.now() + 3600000) } })
