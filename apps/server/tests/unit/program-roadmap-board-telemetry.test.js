@@ -4,6 +4,7 @@
 //   subtask progress bar only when the container lists subtasks.
 // @spec ADR-086 D1, D6; NFR-008
 // @tested tests/unit/program-roadmap-board-telemetry.test.js
+import { readFileSync } from 'node:fs'
 import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -11,11 +12,21 @@ import ProgramRoadmapBoard from '@/modules/platform-control/components/ProgramRo
 import { mergeLaneUsage } from '@/modules/platform-control/program-delivery-metrics'
 import { projectTaskEvidence } from '@/modules/platform-control/program-task-evidence'
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
-import { PROGRAMME_TASKS } from '@/modules/platform-control/program-roadmap-data'
+import { PROGRAMME_SNAPSHOT, PROGRAMME_TASKS } from '@/modules/platform-control/program-roadmap-data'
 import { PROGRAMME_LANES, PROGRAMME_SIZING, PROGRAMME_USAGE } from '@/modules/platform-control/program-roadmap-telemetry'
 import { getProductReadinessSnapshot } from '@/modules/project-manager/application/product-readiness-read-model'
 
 globalThis.React = React
+
+describe('programme snapshot metadata', () => {
+  it('matches the source programme frontmatter so the board cannot show a stale version', () => {
+    const source = readFileSync(new URL('../../../../docs/roadmap/ROADMAP-zuri-ai-24w-program.md', import.meta.url), 'utf8')
+    const field = (name) => source.match(new RegExp(`^${name}: "([^"]+)"$`, 'm'))?.[1]
+
+    expect(PROGRAMME_SNAPSHOT.version).toBe(field('version'))
+    expect(PROGRAMME_SNAPSHOT.updated).toBe(field('updated'))
+  })
+})
 
 const snapshot = getProductReadinessSnapshot()
 const render = (props = {}) => renderToStaticMarkup(createElement(ProgramRoadmapBoard, {
