@@ -81,7 +81,7 @@ describe('Customer PDPA consent attestation (FR-103)', () => {
     const before = await prisma.customer.findUnique({ where: { id: customerA1 } })
     const pending = await executeAgentAction({
       tenantId: tenantA.id, lineUserId, actionName: 'set_customer_lifecycle',
-      target: { customerId: customerA1 }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: customerA1 }, payload: { lifecycleStage: 'ACTIVE' },
     })
     const result = await recordCustomerConsent(
       customerA1,
@@ -109,7 +109,7 @@ describe('Customer PDPA consent attestation (FR-103)', () => {
     })
     await expect(executeAgentAction({
       tenantId: tenantA.id, lineUserId, actionName: 'set_customer_lifecycle',
-      target: { customerId: customerA1 }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: customerA1 }, payload: { lifecycleStage: 'ACTIVE' },
       approvalRequestId: pending.approvalRequestId,
     })).rejects.toThrow(/AGENT_APPROVAL_BINDING_MISMATCH/)
     expect((await prisma.agentApprovalRequest.findUnique({ where: { id: pending.approvalRequestId } })).status).toBe('STALE')

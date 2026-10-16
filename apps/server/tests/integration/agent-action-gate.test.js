@@ -121,7 +121,7 @@ describe('agent write/action gate (FR-026)', () => {
       lineUserId: 'Ugf-stale-version-customer', displayName: 'Before', threadId: 'T-gf-stale-version', text: 'hi' })
     const pending = await executeAgentAction({
       tenantId: tenant.id, lineUserId: 'Ugf-stale-version-staff', actionName: 'set_customer_lifecycle',
-      target: { customerId: cust.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: cust.customerId }, payload: { lifecycleStage: 'ACTIVE' },
     })
     await executeAgentAction({
       tenantId: tenant.id, lineUserId: 'Ugf-stale-version-customer', actionName: 'update_own_display_name',
@@ -129,7 +129,7 @@ describe('agent write/action gate (FR-026)', () => {
     })
     await expect(executeAgentAction({
       tenantId: tenant.id, lineUserId: 'Ugf-stale-version-staff', actionName: 'set_customer_lifecycle',
-      target: { customerId: cust.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: cust.customerId }, payload: { lifecycleStage: 'ACTIVE' },
       approvalRequestId: pending.approvalRequestId,
     })).rejects.toThrow(/AGENT_APPROVAL_BINDING_MISMATCH/)
     const row = await prisma.customer.findUnique({ where: { id: cust.customerId } })

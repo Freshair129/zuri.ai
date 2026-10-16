@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { CUSTOMER_LIFECYCLE } from '@/lib/validation/enums'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { authorizeScope, resolveAuthorizationContext } from '@/modules/identity/authorization-context'
 import { listActiveDirectBusinessOwnerIds } from '@/modules/identity/authorization-context'
@@ -33,7 +34,7 @@ function reviewInputSummary(action, payload) {
     throw approvalError('AGENT_ACTION_INPUT_INVALID', 400)
   }
   if (action.name === 'set_customer_lifecycle') {
-    if (typeof payload.lifecycleStage !== 'string' || !payload.lifecycleStage.trim() || payload.lifecycleStage.length > 64) {
+    if (typeof payload.lifecycleStage !== 'string' || !CUSTOMER_LIFECYCLE.includes(payload.lifecycleStage)) {
       throw approvalError('AGENT_ACTION_INPUT_INVALID', 400)
     }
     return { lifecycleStage: payload.lifecycleStage }
@@ -73,6 +74,8 @@ function requestTarget(request) {
 function publicApprovalRequest(request) {
   const safeRequest = { ...request }
   delete safeRequest.requesterExternalIdentityId
+  delete safeRequest.inputDigest
+  delete safeRequest.inputSummaryJson
   return safeRequest
 }
 

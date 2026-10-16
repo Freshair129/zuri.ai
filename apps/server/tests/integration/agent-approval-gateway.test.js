@@ -63,6 +63,27 @@ describe('Agent approval gateway (FR-026)', () => {
     expect(actions.refund_order.available).toBe(false)
   })
 
+  it('rejects lifecycle values outside the canonical enum before request creation and at the writer boundary', async () => {
+    await staffSubject('PSN-agw-invalid-lifecycle-requester', 'U-agw-invalid-lifecycle-requester')
+    const target = await customer('U-agw-invalid-lifecycle-customer', 'T-agw-invalid-lifecycle')
+    await expect(executeAgentAction({
+      tenantId: tenant.id,
+      lineUserId: 'U-agw-invalid-lifecycle-requester',
+      actionName: 'set_customer_lifecycle',
+      target: { customerId: target.customerId },
+      payload: { lifecycleStage: 'CUSTOMER' },
+    })).rejects.toThrow(/AGENT_ACTION_INPUT_INVALID/)
+    expect(await prisma.agentApprovalRequest.count({ where: { customerId: target.customerId } })).toBe(0)
+
+    const writer = defaultWriteTools().get('set_customer_lifecycle')
+    await expect(writer.execute({
+      tx: { customer: { findFirst: async () => { throw new Error('writer must validate before reading') } } },
+      tenantId: tenant.id,
+      target: { customerId: target.customerId },
+      payload: { lifecycleStage: 'CUSTOMER' },
+    })).rejects.toThrow(/AGENT_ACTION_INPUT_INVALID/)
+  })
+
   it('rejects unknown target fields before creating an approval or persisting audit data', async () => {
     await staffSubject('PSN-agw-target-strict-requester', 'U-agw-target-strict-requester')
     const target = await customer('U-agw-target-strict-customer', 'T-agw-target-strict')
@@ -104,7 +125,7 @@ describe('Agent approval gateway (FR-026)', () => {
     const target = await customer('U-agw-l2-customer', 'T-agw-l2')
     const requestResult = await executeAgentAction({
       tenantId: tenant.id, lineUserId: 'U-agw-l2-requester', actionName: 'set_customer_lifecycle',
-      target: { customerId: target.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: target.customerId }, payload: { lifecycleStage: 'ACTIVE' },
     })
     expect(requestResult.quorum).toBe(2)
     expect((await prisma.customer.findUnique({ where: { id: target.customerId } })).lifecycleStage).toBe('LEAD')
@@ -116,7 +137,7 @@ describe('Agent approval gateway (FR-026)', () => {
     await decideAgentApprovalRequest(prisma, { requestId: requestResult.approvalRequestId, personId: reviewers[1].id, decision: 'APPROVE' })
     await expect(executeAgentAction({
       tenantId: tenant.id, lineUserId: 'U-agw-l2-requester', actionName: 'set_customer_lifecycle',
-      target: { customerId: target.customerId }, payload: { lifecycleStage: 'ACTIVE' },
+      target: { customerId: target.customerId }, payload: { lifecycleStage: 'DORMANT' },
       approvalRequestId: requestResult.approvalRequestId,
     })).rejects.toThrow(/AGENT_APPROVAL_BINDING_MISMATCH/)
     expect((await prisma.customer.findUnique({ where: { id: target.customerId } })).lifecycleStage).toBe('LEAD')
@@ -128,7 +149,7 @@ describe('Agent approval gateway (FR-026)', () => {
     const target = await customer('U-agw-pending-customer', 'T-agw-pending')
     const created = await executeAgentAction({
       tenantId: tenant.id, lineUserId: 'U-agw-pending-requester', actionName: 'set_customer_lifecycle',
-      target: { customerId: target.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: target.customerId }, payload: { lifecycleStage: 'ACTIVE' },
     })
     const reviewers = await owners('agw-pending-owner', 2)
     await decideAgentApprovalRequest(prisma, {
@@ -137,7 +158,7 @@ describe('Agent approval gateway (FR-026)', () => {
 
     const pending = await executeAgentAction({
       tenantId: tenant.id, lineUserId: 'U-agw-pending-requester', actionName: 'set_customer_lifecycle',
-      target: { customerId: target.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: target.customerId }, payload: { lifecycleStage: 'ACTIVE' },
       approvalRequestId: created.approvalRequestId,
     })
     expect(pending).toMatchObject({
@@ -151,12 +172,12 @@ describe('Agent approval gateway (FR-026)', () => {
     })
     const executed = await executeAgentAction({
       tenantId: tenant.id, lineUserId: 'U-agw-pending-requester', actionName: 'set_customer_lifecycle',
-      target: { customerId: target.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: target.customerId }, payload: { lifecycleStage: 'ACTIVE' },
       approvalRequestId: created.approvalRequestId,
     })
     expect(executed).toMatchObject({ executed: true, approvalRequestId: created.approvalRequestId })
     const updatedCustomer = await prisma.customer.findUnique({ where: { id: target.customerId } })
-    expect(updatedCustomer.lifecycleStage).toBe('CUSTOMER')
+    expect(updatedCustomer.lifecycleStage).toBe('ACTIVE')
     expect(updatedCustomer.version).toBe(2)
   })
 
@@ -197,7 +218,7 @@ describe('Agent approval gateway (FR-026)', () => {
     const target = await customer('U-agw-race-customer', 'T-agw-race')
     const created = await executeAgentAction({
       tenantId: tenant.id, lineUserId: 'U-agw-race-requester', actionName: 'set_customer_lifecycle',
-      target: { customerId: target.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: target.customerId }, payload: { lifecycleStage: 'ACTIVE' },
     })
     const reviewers = await owners('agw-race-owner', 3)
     await decideAgentApprovalRequest(prisma, {
@@ -222,7 +243,7 @@ describe('Agent approval gateway (FR-026)', () => {
     if (request.status === 'REJECTED') {
       await expect(executeAgentAction({
         tenantId: tenant.id, lineUserId: 'U-agw-race-requester', actionName: 'set_customer_lifecycle',
-        target: { customerId: target.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+        target: { customerId: target.customerId }, payload: { lifecycleStage: 'ACTIVE' },
         approvalRequestId: created.approvalRequestId,
       })).rejects.toThrow(/AGENT_APPROVAL_REJECTED/)
       expect((await prisma.customer.findUnique({ where: { id: target.customerId } })).lifecycleStage).toBe('LEAD')

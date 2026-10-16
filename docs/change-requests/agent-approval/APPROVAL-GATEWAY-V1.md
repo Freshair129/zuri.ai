@@ -59,9 +59,9 @@ For an eligible request, one database transaction conditionally consumes the app
 `AgentApprovalRequest` owns immutable request binding plus its lifecycle state and action-specific target foreign keys. `AgentApprovalDecision` owns immutable APPROVE/REJECT decisions, scoped by Tenant/Business and unique by request/Person. Decisions are not inferred from audit rows or execution traces.
 
 - `GET /api/agent/approval-requests?businessId=...` returns the live queue for an authenticated OWNER of that exact Business. It includes request binding needed to review the action and a current eligible approval count, but no raw input payload or digest.
-- `POST /api/agent/approval-requests/{id}/decision` accepts `{ "decision": "APPROVE" | "REJECT" }`. The authenticated Identity Person is the actor. The service rechecks the request scope and current OWNER Membership before writing one decision.
+- `POST /api/agent/approval-requests/{id}/decision` accepts `{ "decision": "APPROVE" | "REJECT" }`. The authenticated Identity Person is the actor. The caller must send the session-bound `X-CSRF-Token` issued by `GET /api/auth/csrf` and an `Origin` matching the configured application origin. The service verifies these before reading the body, then rechecks the request scope and current OWNER Membership before writing one decision.
 
-The API never accepts a Person, role, Tenant, Business, approval tier, quorum, request payload, or execution permission from the caller. Invalid input maps to 400, authentication to 401, ineligible viewers to 403, missing records to 404, and terminal/stale/non-open conflicts to 409. Every route fails closed when authentication, Identity, persistence, scope, or the request state is unavailable.
+The API never accepts a Person, role, Tenant, Business, approval tier, quorum, request payload, or execution permission from the caller. Invalid input maps to 400, authentication to 401, ineligible viewers or invalid CSRF/Origin to 403, missing records to 404, terminal/stale/non-open conflicts to 409, and unavailable session or CSRF configuration to 503. Every route fails closed when authentication, Identity, persistence, scope, or the request state is unavailable.
 
 ## Verification and release limits
 

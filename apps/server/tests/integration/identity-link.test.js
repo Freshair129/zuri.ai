@@ -99,7 +99,7 @@ describe('account linking (FR-022)', () => {
     const action = defaultWriteTools().get('set_customer_lifecycle')
     const approval = await prisma.$transaction(tx => createAgentApprovalRequest(tx, {
       tenantId: tenant.id, requesterPersonId: ingest.personId, action,
-      target: { customerId: ingest.customerId }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: ingest.customerId }, payload: { lifecycleStage: 'ACTIVE' },
     }))
     const canonical = await staffPerson('PSN-lnk-7', 'Khun A')
     const { token } = await issueLinkToken({ tenantId: tenant.id, personId: canonical.id })
@@ -116,7 +116,7 @@ describe('account linking (FR-022)', () => {
     expect(customer.version).toBe(2)
     const blocked = await prisma.$transaction(tx => consumeAgentApprovalRequest(tx, {
       requestId: approval.id, tenantId: tenant.id, requesterPersonId: ingest.personId, action,
-      target: { customerId: ingest.customerId }, payload: { lifecycleStage: 'CUSTOMER' }, principal: {},
+      target: { customerId: ingest.customerId }, payload: { lifecycleStage: 'ACTIVE' }, principal: {},
     }))
     expect(blocked.blocked).toBe('AGENT_APPROVAL_BINDING_MISMATCH')
     expect((await prisma.agentApprovalRequest.findUnique({ where: { id: approval.id } })).status).toBe('STALE')

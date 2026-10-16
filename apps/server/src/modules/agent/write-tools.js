@@ -6,6 +6,8 @@
 //   sensitivity and who may run it; the gate enforces them.
 // @tested tests/integration/agent-action-gate.test.js
 
+import { CUSTOMER_LIFECYCLE } from '@/lib/validation/enums'
+
 /**
  * @typedef {Object} WriteActionDescriptor
  * @property {string} name
@@ -104,6 +106,9 @@ export function defaultWriteTools() {
     allowRoles: STAFF_WRITE_ROLES,
     description: 'Set a customer lifecycle stage (staff).',
     async execute({ tx, tenantId, target, payload, expectedTargetVersion }) {
+      if (!payload || !CUSTOMER_LIFECYCLE.includes(payload.lifecycleStage)) {
+        throw new Error('AGENT_ACTION_INPUT_INVALID')
+      }
       const cust = await tx.customer.findFirst({ where: { id: target.customerId, tenantId, deletedAt: null } })
       if (!cust) throw new Error('set_customer_lifecycle: customer not found in tenant')
       if (expectedTargetVersion && expectedTargetVersion !== `v:${cust.version}`) throw new Error('AGENT_APPROVAL_TARGET_STALE')

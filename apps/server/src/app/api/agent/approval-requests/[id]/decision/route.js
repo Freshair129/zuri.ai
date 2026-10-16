@@ -3,13 +3,27 @@
 import { handle, httpError } from '@/app/api/_helpers'
 import prisma from '@/lib/db'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
+import { createSessionPort } from '@/modules/identity/session-port'
+import { assertApiWriteCsrfToken } from '@/modules/identity/api-write-csrf'
 import { decideAgentApprovalRequest } from '@/modules/agent/approval-gateway'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request, { params }) {
   return handle(async () => {
-    const viewer = await resolveRequestViewer(request)
+    const sessionPort = createSessionPort()
+    let session
+    try {
+      session = await sessionPort.read(request)
+    } catch {
+      throw httpError(503, 'SESSION_UNAVAILABLE')
+    }
+    const viewer = await resolveRequestViewer(request, { sessionPort: { read: async () => session } })
+    assertApiWriteCsrfToken({
+      request,
+      token: request.headers.get('x-csrf-token'),
+      session,
+    })
     const requestId = typeof params?.id === 'string' ? params.id.trim() : ''
     if (!requestId) throw httpError(400, 'AGENT_APPROVAL_REQUEST_ID_REQUIRED')
     let body

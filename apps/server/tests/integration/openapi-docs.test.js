@@ -301,12 +301,19 @@ describe('OpenAPI document', () => {
     const approvalDecision = doc.paths['/api/agent/approval-requests/{id}/decision'].post
     expect(approvalQueue.security).toEqual([{ SessionAuth: [] }])
     expect(approvalDecision.security).toEqual([{ SessionAuth: [] }])
+    expect(approvalDecision.parameters).toContainEqual(expect.objectContaining({
+      name: 'X-CSRF-Token',
+      in: 'header',
+      required: true,
+    }))
+    expect(approvalDecision.description).toMatch(/Origin matching the configured application origin/)
     for (const operation of [approvalQueue, approvalDecision]) {
       expect(operation.responses).toHaveProperty('400')
       expect(operation.responses).toHaveProperty('401')
       expect(operation.responses).toHaveProperty('403')
       expect(operation.responses).toHaveProperty('404')
       expect(operation.responses).toHaveProperty('409')
+      expect(operation.responses).toHaveProperty('503')
     }
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

@@ -239,7 +239,7 @@ describe('LINE memory enrollment and receipt recovery', () => {
     const action = defaultWriteTools().get('set_customer_lifecycle')
     const createApproval = () => prisma.$transaction(tx => createAgentApprovalRequest(tx, {
       tenantId: tenant.id, requesterPersonId: person.id, requesterExternalIdentityId: requesterIdentity.id, action,
-      target: { customerId: customer.id }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: customer.id }, payload: { lifecycleStage: 'ACTIVE' },
     }))
     const beforeErasure = await createApproval()
     const job = await prisma.lineConversationJob.findUnique({ where: { id: fixture.jobId } })
@@ -253,7 +253,7 @@ describe('LINE memory enrollment and receipt recovery', () => {
     })
     const staleAfterErasure = await prisma.$transaction(tx => consumeAgentApprovalRequest(tx, {
       requestId: beforeErasure.id, tenantId: tenant.id, requesterPersonId: person.id, action,
-      target: { customerId: customer.id }, payload: { lifecycleStage: 'CUSTOMER' }, principal: {},
+      target: { customerId: customer.id }, payload: { lifecycleStage: 'ACTIVE' }, principal: {},
     }))
     expect(staleAfterErasure.blocked).toBe('AGENT_APPROVAL_BINDING_MISMATCH')
 
@@ -266,7 +266,7 @@ describe('LINE memory enrollment and receipt recovery', () => {
     })
     const staleAfterProjection = await prisma.$transaction(tx => consumeAgentApprovalRequest(tx, {
       requestId: beforeProjection.id, tenantId: tenant.id, requesterPersonId: person.id, action,
-      target: { customerId: customer.id }, payload: { lifecycleStage: 'CUSTOMER' }, principal: {},
+      target: { customerId: customer.id }, payload: { lifecycleStage: 'ACTIVE' }, principal: {},
     }))
     expect(staleAfterProjection.blocked).toBe('AGENT_APPROVAL_BINDING_MISMATCH')
   })

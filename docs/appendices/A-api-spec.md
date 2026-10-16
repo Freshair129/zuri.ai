@@ -11,9 +11,9 @@ Approval is a prerequisite to selected Agent writes. Identity resolves the authe
 | Method | Path | Contract |
 |---|---|---|
 | GET | `/api/agent/approval-requests?businessId=` | Session-authenticated queue for an active direct same-Business OWNER. Returns pending requests and safe input summaries, never the raw input digest. |
-| POST | `/api/agent/approval-requests/[id]/decision` | The session-authenticated OWNER submits a decision, which must be APPROVE or REJECT. Actor identity is derived from the session. Duplicate, terminal, expired or stale decisions return 409. |
+| POST | `/api/agent/approval-requests/[id]/decision` | The session-authenticated OWNER submits APPROVE or REJECT. Actor identity is derived from the session. The request must include the session-bound `X-CSRF-Token` issued by `GET /api/auth/csrf` and a matching `Origin`. Duplicate, terminal, expired or stale decisions return 409. |
 
-Tier quorum is L1=1, L2=2, L3=3 and L4=4. Only the original requester may resubmit the same request ID with its exact action, concrete target, target version and canonical input. An under-quorum retry returns `ACTION_PENDING` with that request ID and performs no business write. Execution rechecks requester authorization, current OWNER quorum, target version, and a fresh single-use HIGH step-up where required. Gate F, canonical writers and their audit transaction remain mandatory. Invalid input is 400, missing records 404, ineligible viewers 403, and stale/non-open conflicts 409.
+Tier quorum is L1=1, L2=2, L3=3 and L4=4. Only the original requester may resubmit the same request ID with its exact action, concrete target, target version and canonical input. An under-quorum retry returns `ACTION_PENDING` with that request ID and performs no business write. Execution rechecks requester authorization, current OWNER quorum, target version, and a fresh single-use HIGH step-up where required. Gate F, canonical writers and their audit transaction remain mandatory. Invalid input is 400, missing records 404, ineligible viewers or invalid CSRF/Origin are 403, stale/non-open conflicts 409, and unavailable session or CSRF configuration is 503.
 
 ### Business Agent Factory v1 (FR-285)
 

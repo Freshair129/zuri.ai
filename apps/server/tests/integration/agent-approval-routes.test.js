@@ -1,8 +1,12 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { randomUUID } from 'node:crypto'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 import { defaultWriteTools } from '@/modules/agent/write-tools'
 import { createAgentApprovalRequest } from '@/modules/agent/approval-gateway'
+import { generateSessionToken, hashSessionToken } from '@/modules/identity/auth-service'
+import { createSessionPort } from '@/modules/identity/session-port'
+import { issueApiWriteCsrfToken } from '@/modules/identity/api-write-csrf'
 
 vi.mock('@/modules/identity/request-viewer', () => ({
   resolveRequestViewer: async (request) => {
@@ -15,6 +19,9 @@ const { GET: getQueue } = await import('@/app/api/agent/approval-requests/route'
 const { POST: postDecision } = await import('@/app/api/agent/approval-requests/[id]/decision/route')
 
 let tenant, business, owner, requestRow
+const SESSION_SECRET = 'approval-route-csrf-secret-long-enough-0123456789'
+const APP_ORIGIN = 'http://local'
+const sessionIds = []
 
 function requestWithViewer(url, viewer, init = {}) {
   const request = new Request(url, init)
@@ -22,8 +29,37 @@ function requestWithViewer(url, viewer, init = {}) {
   return request
 }
 
+async function requestWithCsrf(url, viewer, init = {}, { omitToken = false, origin = APP_ORIGIN } = {}) {
+  const sessionId = randomUUID()
+  const cookie = generateSessionToken(viewer.principal.id, { secret: SESSION_SECRET, sessionId })
+  await prisma.session.create({
+    data: {
+      id: sessionId,
+      personId: viewer.principal.id,
+      tokenHash: hashSessionToken(cookie),
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    },
+  })
+  sessionIds.push(sessionId)
+
+  const headers = new Headers(init.headers)
+  headers.set('cookie', `zuri_session=${cookie}`)
+  headers.set('origin', APP_ORIGIN)
+  const tokenRequest = new Request(url, { ...init, headers })
+  const session = await createSessionPort().read(tokenRequest)
+  const csrf = issueApiWriteCsrfToken({ request: tokenRequest, session })
+
+  if (!omitToken) headers.set('x-csrf-token', csrf.token)
+  headers.set('origin', origin)
+  const request = new Request(url, { ...init, headers })
+  request.__viewer = viewer
+  return request
+}
+
 describe('Agent approval API (FR-026)', () => {
   beforeAll(async () => {
+    vi.stubEnv('ZURI_SESSION_SECRET', SESSION_SECRET)
+    vi.stubEnv('PUBLIC_BASE_URL', APP_ORIGIN)
     const portfolio = await createPortfolio({ name: 'Approval API Group', code: 'PF-AGAPI' })
     tenant = await createTenant({ portfolioId: portfolio.id, name: 'Approval API Tenant', code: 'TNT-AGAPI' })
     business = await createBusiness({ tenantId: tenant.id, name: 'Approval API Business', code: 'BUS-AGAPI' })
@@ -48,8 +84,13 @@ describe('Agent approval API (FR-026)', () => {
     requestRow = await prisma.$transaction((tx) => createAgentApprovalRequest(tx, {
       tenantId: tenant.id, requesterPersonId: requester.id,
       requesterExternalIdentityId: requesterIdentity.id, action,
-      target: { customerId: customer.id }, payload: { lifecycleStage: 'CUSTOMER' },
+      target: { customerId: customer.id }, payload: { lifecycleStage: 'ACTIVE' },
     }))
+  })
+
+  afterAll(async () => {
+    await prisma.session.deleteMany({ where: { id: { in: sessionIds } } })
+    vi.unstubAllEnvs()
   })
 
   it('requires an authenticated viewer before returning an owner approval queue', async () => {
@@ -64,14 +105,15 @@ describe('Agent approval API (FR-026)', () => {
     expect(body.requests).toHaveLength(1)
     expect(body.requests[0]).toMatchObject({
       id: requestRow.id, actionName: 'set_customer_lifecycle', tier: 2, quorum: 2,
-      inputSummary: { lifecycleStage: 'CUSTOMER' }, approvedCount: 0,
+      inputSummary: { lifecycleStage: 'ACTIVE' }, approvedCount: 0,
     })
     expect(body.requests[0]).not.toHaveProperty('inputDigest')
+    expect(body.requests[0]).not.toHaveProperty('inputSummaryJson')
     expect(body.requests[0]).not.toHaveProperty('requesterExternalIdentityId')
   })
 
   it('derives the voter from the authenticated viewer and records one decision', async () => {
-    const forgedActor = await postDecision(requestWithViewer(
+    const forgedActor = await postDecision(await requestWithCsrf(
       `http://local/api/agent/approval-requests/${requestRow.id}/decision`,
       { principal: { id: owner.id } },
       { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision: 'APPROVE', personId: 'attacker' }) },
@@ -79,7 +121,7 @@ describe('Agent approval API (FR-026)', () => {
     expect(forgedActor.status).toBe(400)
     expect(await prisma.agentApprovalDecision.count({ where: { requestId: requestRow.id } })).toBe(0)
 
-    const response = await postDecision(requestWithViewer(
+    const response = await postDecision(await requestWithCsrf(
       `http://local/api/agent/approval-requests/${requestRow.id}/decision`,
       { principal: { id: owner.id } },
       { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision: 'APPROVE' }) },
@@ -88,7 +130,32 @@ describe('Agent approval API (FR-026)', () => {
     const body = await response.json()
     expect(body.decision.personId).toBe(owner.id)
     expect(body.request.status).toBe('PENDING')
+    expect(body.request).not.toHaveProperty('inputDigest')
+    expect(body.request).not.toHaveProperty('inputSummaryJson')
     expect(await prisma.agentApprovalDecision.count({ where: { requestId: requestRow.id } })).toBe(1)
+  })
+
+  it('rejects missing CSRF tokens and cross-origin decisions before parsing or writing', async () => {
+    const url = `http://local/api/agent/approval-requests/${requestRow.id}/decision`
+    const decisionsBefore = await prisma.agentApprovalDecision.count({ where: { requestId: requestRow.id } })
+    const noToken = await postDecision(await requestWithCsrf(
+      url,
+      { principal: { id: owner.id } },
+      { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{' },
+      { omitToken: true },
+    ), { params: { id: requestRow.id } })
+    expect(noToken.status).toBe(403)
+    expect(await noToken.json()).toMatchObject({ error: 'CSRF_INVALID' })
+
+    const wrongOrigin = await postDecision(await requestWithCsrf(
+      url,
+      { principal: { id: owner.id } },
+      { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{' },
+      { origin: 'https://attacker.example' },
+    ), { params: { id: requestRow.id } })
+    expect(wrongOrigin.status).toBe(403)
+    expect(await wrongOrigin.json()).toMatchObject({ error: 'CSRF_INVALID' })
+    expect(await prisma.agentApprovalDecision.count({ where: { requestId: requestRow.id } })).toBe(decisionsBefore)
   })
 
   it('rejects a user without an exact active same-Business OWNER Membership', async () => {
@@ -119,14 +186,14 @@ describe('Agent approval API (FR-026)', () => {
   })
 
   it('maps invalid input, missing requests and terminal decisions to client statuses', async () => {
-    const invalid = await postDecision(requestWithViewer(
+    const invalid = await postDecision(await requestWithCsrf(
       `http://local/api/agent/approval-requests/${requestRow.id}/decision`,
       { principal: { id: owner.id } },
       { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision: 'MAYBE' }) },
     ), { params: { id: requestRow.id } })
     expect(invalid.status).toBe(400)
 
-    const missing = await postDecision(requestWithViewer(
+    const missing = await postDecision(await requestWithCsrf(
       'http://local/api/agent/approval-requests/missing/decision',
       { principal: { id: owner.id } },
       { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision: 'APPROVE' }) },
@@ -137,14 +204,14 @@ describe('Agent approval API (FR-026)', () => {
     await prisma.membership.create({ data: {
       personId: rejectingOwner.id, tenantId: tenant.id, businessId: business.id, scopeType: 'BUSINESS', role: 'OWNER',
     } })
-    const rejected = await postDecision(requestWithViewer(
+    const rejected = await postDecision(await requestWithCsrf(
       `http://local/api/agent/approval-requests/${requestRow.id}/decision`,
       { principal: { id: rejectingOwner.id } },
       { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision: 'REJECT' }) },
     ), { params: { id: requestRow.id } })
     expect(rejected.status).toBe(200)
 
-    const terminal = await postDecision(requestWithViewer(
+    const terminal = await postDecision(await requestWithCsrf(
       `http://local/api/agent/approval-requests/${requestRow.id}/decision`,
       { principal: { id: owner.id } },
       { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision: 'APPROVE' }) },
