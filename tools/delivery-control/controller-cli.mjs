@@ -5,7 +5,8 @@ import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { preflightTask } from './preflight.mjs';
 import { createControllerRunner, bindWorktree } from './controller-runner.mjs';
-import { startControllerDashboard } from './controller-dashboard.mjs';
+import { startControllerDashboard, startControllerLivenessHeartbeat } from './controller-dashboard.mjs';
+import { readControllerEventProjection } from './worker-observability-reader.mjs';
 
 export async function admitConfiguredTasks({ controller, repoRoot, config, cache = new Map() }) {
   const observations = [];
@@ -49,6 +50,7 @@ export async function main(argv = process.argv.slice(2)) {
   const print = (value) => process.stdout.write(`${JSON.stringify(value)}\n`);
   const intakeCache = new Map();
   let dashboard;
+  let liveness;
   let runner;
   let stopping = false;
   const stop = () => { stopping = true; };
@@ -62,7 +64,9 @@ export async function main(argv = process.argv.slice(2)) {
     runner = createControllerRunner({ controller, repoRoot, stateRoot, config });
     if (command === 'serve') {
       dashboard = await startControllerDashboard({ port: config.dashboardPort ?? 4190,
-        readRuns: async () => (await controller.listRuns()).map((run) => ({ ...run, status: run.state, nodes: run.stages })) });
+        readRuns: async () => (await controller.listRuns()).map((run) => ({ ...run, status: run.state, nodes: run.stages })),
+        readEvents: async () => readControllerEventProjection({ repoRoot }) });
+      liveness = startControllerLivenessHeartbeat({ stateRoot });
       print({ code: 'DASHBOARD_LISTENING', url: `http://127.0.0.1:${dashboard.address().port}`, processId: process.pid });
     }
     while (!stopping) {
@@ -81,6 +85,7 @@ export async function main(argv = process.argv.slice(2)) {
     }
     print({ code: 'RUNNER_STOPPED', runs: await controller.listRuns() });
   } finally {
+    liveness?.stop();
     await runner?.stop();
     if (dashboard) await new Promise((resolve) => dashboard.close(resolve));
     controller.close();

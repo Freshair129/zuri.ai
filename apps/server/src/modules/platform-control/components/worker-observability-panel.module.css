@@ -1,0 +1,109 @@
+.panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.heading,
+.sectionHeading,
+.taskTitle,
+.hashes,
+.statusLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+}
+
+.heading {
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+}
+
+.eyebrow {
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.heading h2 { margin-top: 3px; font-size: 22px; font-weight: 800; }
+.description { max-width: 850px; color: var(--text-muted); font-size: 12px; }
+
+.connection,
+.context {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.connection[data-state='connected'] { color: var(--status-success); }
+.connection[data-state='unavailable'], .connection[data-state='unauthorized'] { color: var(--status-danger); }
+.connection[data-state='unknown'], .connection[data-state='loading'] { color: var(--status-warning); }
+
+.notice {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  border: 1px solid var(--border-default);
+  border-inline-start: 4px solid var(--status-warning);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+  padding: 11px 13px;
+  font-size: 12px;
+}
+
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; min-width: 0; }
+.subsection { min-width: 0; overflow: hidden; }
+.sectionHeading { margin-bottom: 12px; font-size: 13px; font-weight: 800; }
+.sectionHeading h3 { font-size: 14px; font-weight: 800; }
+.muted { color: var(--text-muted); font-size: 11px; font-weight: 400; overflow-wrap: anywhere; }
+.tableWrap { width: 100%; overflow-x: auto; border-radius: var(--radius-sm); }
+.tableWrap:focus { outline: 3px solid var(--focus-ring); outline-offset: -3px; }
+.table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.table th, .table td { padding: 8px; border-bottom: 1px solid var(--border-default); text-align: left; vertical-align: top; }
+.table th { color: var(--text-muted); font-size: 10px; font-weight: 700; }
+.table code, .hashes code, .statusLine code { overflow-wrap: anywhere; }
+.empty { color: var(--text-muted); font-size: 12px; padding: 6px 0; }
+.taskList { display: grid; gap: 8px; }
+.task { display: grid; gap: 6px; min-width: 0; padding: 10px; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-subtle); }
+.hashes, .ci { margin: 0; color: var(--text-secondary); font-size: 11px; }
+.lowerGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; min-width: 0; }
+.events, .changes, .tags { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.events li, .changes li, .tags li { display: grid; grid-template-columns: auto minmax(120px, auto) minmax(0, 1fr) auto; align-items: baseline; gap: 7px; min-width: 0; border-bottom: 1px solid var(--border-default); padding: 6px 0; font-size: 11px; }
+.events time, .changes time { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.tags { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 5px; }
+.tags li { grid-template-columns: minmax(0, 1fr) auto; }
+.changeTitle { margin: 12px 0 5px; font-size: 12px; font-weight: 800; }
+.changes li { grid-template-columns: auto minmax(150px, auto) minmax(0, 1fr); }
+.statusLine { margin: 10px 0 3px; font-size: 12px; }
+.footer { color: var(--text-muted); font-size: 11px; }
+
+@media (max-width: 900px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lowerGrid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 520px) {
+  .panel { gap: 11px; }
+  .heading { padding: 12px; }
+  .heading h2 { font-size: 19px; }
+  .description { font-size: 11px; }
+  .kpis { gap: 7px; }
+  .events li { grid-template-columns: auto minmax(0, 1fr); }
+  .events li > :nth-child(n + 3) { grid-column: 2; }
+  .changes li { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  .tags { grid-template-columns: minmax(0, 1fr); }
+  .table { min-width: 680px; }
+}

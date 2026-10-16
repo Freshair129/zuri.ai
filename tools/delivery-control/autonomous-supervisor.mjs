@@ -10,7 +10,8 @@ import { admitConfiguredTasks } from './controller-cli.mjs';
 import { preflightTask } from './preflight.mjs';
 import { runRoadmapIntake } from './roadmap-intake.mjs';
 import { createGitHubDeliveryAdapter } from './github-delivery.mjs';
-import { startControllerDashboard } from './controller-dashboard.mjs';
+import { startControllerDashboard, startControllerLivenessHeartbeat } from './controller-dashboard.mjs';
+import { createControllerEventReader } from './worker-observability-reader.mjs';
 import { baseAdvancedResumeSignature, fetchConfiguredBase, prepareBaseAdvancedResume,
   readConfiguredRemoteBase, validatePreparedReceiptPath } from './base-advanced-resume.mjs';
 
@@ -19,6 +20,14 @@ const digest = (value) => createHash('sha256').update(JSON.stringify(value)).dig
 const within = (root, target) => { const relative = path.relative(root, target); return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative)); };
 const parse = (file) => JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
 const staleResumeStates = new Set(['BLOCKED_STALE_CANDIDATE', 'BLOCKED_STALE_BASELINE']);
+const SUPERVISOR_OBSERVATION_STATUSES = new Set(['INTAKE_BOUND', 'INTAKE_WAITING', 'INTAKE_REASSESSMENT_REQUIRED',
+  'BASE_ADVANCED_RESUME_PREPARED', 'BASE_ADVANCED_RESUME_REASSESSMENT_REQUIRED', 'BASE_ADVANCED_RESUME_REASSESSMENT_QUEUED',
+  'PREPARED_BASE_RESUME_ACCEPTED', 'PREPARED_BASE_RESUME_REASSESSMENT_REQUIRED', 'PREPARED_RESUME_REASSESSMENT_QUEUED',
+  'ROOT_PREPARATION_REASSESSMENT_REQUIRED', 'PAUSED_DEADLINE', 'DISPATCH_BLOCKED', 'RUNNING', 'YIELD_REASSESS',
+  'DELIVERY_REASSESSMENT_REQUIRED', 'PUSHED', 'PR_CREATED', 'MERGED', 'WAITING_CI', 'WAITING_PR_HEAD_UPDATE',
+  'WAITING_DRAFT', 'WAITING_REVIEW', 'WAITING_MERGEABILITY', 'WAITING_MERGE_QUEUE', 'WAITING_BASE_UPDATE',
+  'WAITING_RETRY_BACKOFF', 'REPLAN_REQUIRED', 'ROOT_REPLAN_PAUSED', 'PULL_REQUEST_CLOSED_UNMERGED',
+  'REMOTE_BRANCH_DIVERGED', 'UNKNOWN_EFFECT', 'BLOCKED', 'BUSY', 'RECONCILED_APPLIED']);
 
 async function preparedEvidenceSignature({ binding, run, receiptFile, baseRef, readRemoteBase, privateRoot, stateRoot }) {
   const readEvidence = (file) => {
@@ -115,6 +124,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   const loaded = loadSupervisorCampaign(repoRoot, campaignFile);
   const { root, common, privateRoot, campaign, intakeFile, intakeCampaign, campaignDigest } = loaded;
   const stateRoot = path.join(privateRoot, 'supervisors', campaign.campaignId);
+  const controllerStateRoot = path.join(common, 'zuri-delivery-control', 'controller-v1');
   fs.mkdirSync(stateRoot, { recursive: true });
   if (!within(privateRoot, fs.realpathSync(stateRoot))) throw new Error('SUPERVISOR_STATE_ESCAPE');
   const lockFile = path.join(stateRoot, 'owner.json');
@@ -150,7 +160,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   const config = { tasks: [], maxConcurrent: campaign.maxConcurrent ?? 2, codexExecutable: campaign.codexExecutable,
     windowsSandbox: campaign.windowsSandbox, roleTimeoutMs: campaign.roleTimeoutMs };
   let runner;
-  try { runner = runnerFactory({ controller, repoRoot: root, stateRoot: path.join(common, 'zuri-delivery-control', 'controller-v1'), config }); }
+  try { runner = runnerFactory({ controller, repoRoot: root, stateRoot: controllerStateRoot, config }); }
   catch (error) { if (!providedController) controller.close(); releaseLock(); throw error; }
   try { for (const binding of state.bindings) runner.addBinding(binding); }
   catch (error) { await runner.stop(); if (!providedController) controller.close(); releaseLock(); throw error; }
@@ -169,7 +179,38 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
     const fingerprint = digest(value);
     if (lastSignals.get(key) === fingerprint) return;
     lastSignals.set(key, fingerprint); observations.push(value);
-    fs.appendFileSync(path.join(stateRoot, 'events.jsonl'), JSON.stringify({ at: new Date(now()).toISOString(), ...value }) + '\n');
+    try {
+      const eventFile = path.join(stateRoot, 'events.jsonl');
+      let previousDigest = 'LEGACY';
+      if (fs.existsSync(eventFile)) {
+        const existing = fs.readFileSync(eventFile, 'utf8');
+        if (!existing.endsWith('\n')) throw new Error('SUPERVISOR_EVENT_TAIL_INCOMPLETE');
+        for (const line of existing.split(/\r?\n/).filter(Boolean)) {
+          const record = JSON.parse(line);
+          if (record?.schemaVersion !== 'supervisor-observation/v1') continue;
+          const { receiptDigest, ...payload } = record;
+          const expected = createHash('sha256').update(JSON.stringify(payload)).digest('hex').toUpperCase();
+          if (record.previousDigest !== previousDigest || receiptDigest !== expected) throw new Error('SUPERVISOR_EVENT_CHAIN_INVALID');
+          previousDigest = receiptDigest;
+        }
+      }
+      const taskId = typeof value.taskId === 'string' && /^[A-Z][A-Z0-9_-]{0,95}$/.test(value.taskId) ? value.taskId : null;
+      const run = taskId ? controller.getRun(taskId) : null;
+      const status = SUPERVISOR_OBSERVATION_STATUSES.has(value.status) ? value.status : 'UNKNOWN';
+      const payload = {
+        schemaVersion: 'supervisor-observation/v1',
+        taskId,
+        cycleNo: Number.isSafeInteger(run?.currentCycle) && run.currentCycle > 0 ? run.currentCycle : null,
+        kind: 'SUPERVISOR_STATUS',
+        status,
+        baseCommit: typeof run?.baseCommit === 'string' ? run.baseCommit : null,
+        candidateHeadCommit: typeof run?.candidateHeadCommit === 'string' ? run.candidateHeadCommit : null,
+        observedAt: new Date(now()).toISOString(),
+        previousDigest,
+      };
+      const receiptDigest = createHash('sha256').update(JSON.stringify(payload)).digest('hex').toUpperCase();
+      fs.appendFileSync(eventFile, JSON.stringify({ ...payload, receiptDigest }) + '\n', { flag: 'a' });
+    } catch { /* Telemetry is best-effort; an invalid prior receipt remains quarantined. */ }
   };
   const deadlineExpired = () => {
     if (!state.deadlineAt) {
@@ -181,7 +222,7 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   };
   persist();
   return {
-    controller, stateRoot,
+    controller, stateRoot, controllerStateRoot,
     async tick() {
       if (stopped || ticking) return { status: stopped ? 'STOPPED' : 'TICK_ALREADY_RUNNING', observations: [] };
       ticking = true;
@@ -456,17 +497,22 @@ export async function main(argv = process.argv.slice(2)) {
   const supervisor = await createAutonomousSupervisor({ repoRoot: campaign.repositoryRoot, campaignFile });
   let stopping = false;
   let dashboard;
+  let liveness;
   const stop = () => { stopping = true; };
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   try {
-    if (command === 'serve') dashboard = await startControllerDashboard({ port: campaign.dashboardPort ?? 4190,
-      readRuns: async () => {
-        const runs = supervisor.controller.listRuns().map((run) => ({ ...run, status: run.state, nodes: run.stages }));
-        for (const item of supervisor.status().intake?.candidates ?? []) {
-          if (!runs.some((run) => run.taskId === item.taskId)) runs.push({ taskId: item.taskId, status: item.status, stages: [], blockers: [{ code: item.code }] });
-        }
-        return runs;
-      } });
+    if (command === 'serve') {
+      dashboard = await startControllerDashboard({ port: campaign.dashboardPort ?? 4190,
+        readEvents: createControllerEventReader(campaign.repositoryRoot),
+        readRuns: async () => {
+          const runs = supervisor.controller.listRuns().map((run) => ({ ...run, status: run.state, nodes: run.stages }));
+          for (const item of supervisor.status().intake?.candidates ?? []) {
+            if (!runs.some((run) => run.taskId === item.taskId)) runs.push({ taskId: item.taskId, status: item.status, stages: [], blockers: [{ code: item.code }] });
+          }
+          return runs;
+        } });
+      liveness = startControllerLivenessHeartbeat({ stateRoot: supervisor.controllerStateRoot });
+    }
     do {
       const result = await supervisor.tick();
       for (const observation of result.observations) process.stdout.write(JSON.stringify(observation) + '\n');
@@ -480,6 +526,7 @@ export async function main(argv = process.argv.slice(2)) {
       await new Promise((resolve) => setTimeout(resolve, Math.max(5000, campaign.pollIntervalMs ?? 30_000)));
     } while (!stopping);
   } finally {
+    liveness?.stop();
     await supervisor.stop();
     if (dashboard) await new Promise((resolve) => dashboard.close(resolve));
     process.removeListener('SIGINT', stop); process.removeListener('SIGTERM', stop);

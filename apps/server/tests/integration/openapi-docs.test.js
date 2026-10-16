@@ -290,8 +290,10 @@ describe('OpenAPI document', () => {
       // and session-step paths, each with one explicit mutation operation:
       // 336 + 7 = 343 paths; 441 + 7 = 448 operations.
       // FR-285 adds one path and five operations, including three refusals.
-      pathCount: 344,
-      operationCount: 453,
+      // FR-260 adds the read-only Worker observation path and five explicit
+      // refusal methods: 344 + 1 = 345 paths; 453 + 6 = 459 operations.
+      pathCount: 345,
+      operationCount: 459,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')

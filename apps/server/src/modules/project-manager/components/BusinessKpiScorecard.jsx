@@ -73,18 +73,25 @@ function ScorecardDialog({ open, title, onClose, children }) {
       }
     }
 
-    function reclaimFocusIfEscaped() {
-      setTimeout(() => {
-        if (document.activeElement !== document.body) return
-        const target = containerRef.current?.querySelector(FOCUSABLE_SELECTOR)
-        target?.focus()
-      }, 0)
+    let focusRecoveryFrame = null
+    function reclaimFocusIfEscaped(event) {
+      const container = containerRef.current
+      if (!container?.contains(event.target)) return
+      if (event.relatedTarget instanceof Node && container.contains(event.relatedTarget)) return
+      if (focusRecoveryFrame !== null) cancelAnimationFrame(focusRecoveryFrame)
+      focusRecoveryFrame = requestAnimationFrame(() => {
+        focusRecoveryFrame = null
+        const currentContainer = containerRef.current
+        if (!currentContainer || currentContainer.contains(document.activeElement)) return
+        currentContainer.querySelector(FOCUSABLE_SELECTOR)?.focus()
+      })
     }
 
     document.addEventListener('keydown', onKeyDown, true)
     document.addEventListener('focusout', reclaimFocusIfEscaped, true)
     return () => {
       cancelAnimationFrame(frame)
+      if (focusRecoveryFrame !== null) cancelAnimationFrame(focusRecoveryFrame)
       document.removeEventListener('keydown', onKeyDown, true)
       document.removeEventListener('focusout', reclaimFocusIfEscaped, true)
       if (previousFocus instanceof HTMLElement) previousFocus.focus()

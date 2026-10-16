@@ -21,14 +21,17 @@ test.afterAll(async () => {
 })
 
 test('operator reads fail-closed Mission Control at supported mobile widths', async ({ page }, testInfo) => {
-  const signup = await page.request.post('/api/auth/signup', { data: {
-    email: 'fr260-' + randomUUID() + '@example.test', displayName: 'FR-260 operator', password: E2E_PASSWORD,
-  } })
+  const signup = await page.request.post('/api/auth/signup', {
+    headers: { 'x-forwarded-for': '198.51.100.61' },
+    data: { email: 'fr260-' + randomUUID() + '@example.test', displayName: 'FR-260 operator', password: E2E_PASSWORD },
+  })
   expect(signup.status()).toBe(201)
   const { user } = await signup.json()
 
   const forbidden = await page.goto('/control/mission-control')
-  expect(forbidden?.status()).toBe(404)
+  expect(forbidden?.status()).toBe(403)
+  await expect(page).toHaveURL(/\/access-denied$/)
+  await expect(page.getByRole('heading', { name: 'ไม่มีสิทธิ์เข้าถึงหน้านี้' })).toBeVisible()
 
   const grant = await prisma.platformGrant.create({
     data: { personId: user.id, capability: 'OPERATOR', status: 'ACTIVE', expiresAt: new Date(Date.now() + 3600000) },
