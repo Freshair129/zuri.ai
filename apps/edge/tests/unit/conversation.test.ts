@@ -17,6 +17,7 @@ import {
 import { answerConversation } from '../../src/answer/respond.js';
 import { findWithinBudget, quotePrice, searchProducts } from '../../src/answer/tools.js';
 import { createConversationExecutor } from '../../src/conversation/executor.js';
+import { bindConversationBudget } from '../../src/conversation/deadline.js';
 import { ConversationError, type ConversationJob } from '../../src/conversation/contract.js';
 import type { EdgePublishedCorpusContext } from '../../src/rag/genesisrag17/corpus-context.js';
 import type { GenesisRag17Runtime } from '../../src/rag/genesisrag17/published-rag.js';
@@ -276,6 +277,7 @@ describe('Answering a conversation', () => {
       leaseExpiresAt: new Date(Date.now() + 120000).toISOString(),
       policy: { modelAccess: 'LOCAL_ONLY', role: 'sales', retainHistory: false }, corpusContext,
     };
+    bindConversationBudget(job, performance.now());
     const execute = createConversationExecutor({ llmEnabled: true, llmBaseUrl: 'http://127.0.0.1:11434/v1' }, {
       ragUrl: 'http://127.0.0.1:8888', genesisRag17: runtime,
       fetchFn: (async () => { v4Calls += 1; return new Response('{}'); }) as unknown as typeof fetch,
