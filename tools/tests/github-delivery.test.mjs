@@ -3,8 +3,9 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import test from 'node:test';
+import { createRoleCheckTrace } from '../delivery-control/codex-backend.mjs';
 import { createControllerRunner } from '../delivery-control/controller-runner.mjs';
 import { openDeliveryController } from '../delivery-control/controller.mjs';
 import { createGitHubDeliveryAdapter, GITHUB_DELIVERY_SCHEMA } from '../delivery-control/github-delivery.mjs';
@@ -13,6 +14,19 @@ import { preflightTask } from '../delivery-control/preflight.mjs';
 const HEAD_BRANCH = 'codex/delivery-test';
 const BASE_BRANCH = 'main';
 const REPOSITORY = 'github.com/acme/demo';
+
+function syntheticCheckTrace(checks, worktree, sessionId) {
+  const command = checks[0] && [checks[0].executable, ...checks[0].argv].map((part) => `"${part}"`).join(' ');
+  const itemId = `${sessionId}-required-check`;
+  const events = [
+    { type: 'item.started', item: { id: itemId, type: 'command_execution', command, status: 'in_progress' } },
+    { type: 'item.completed', item: { id: itemId, type: 'command_execution', command, exit_code: 0, status: 'completed' } },
+  ];
+  const trace = createRoleCheckTrace({ checks, invocationCap: 2, worktree, platform: process.platform });
+  for (const event of events) trace.observe(event);
+  const rawTrace = `${events.map((event) => JSON.stringify(event)).join('\n')}\n`;
+  return trace.summary(createHash('sha256').update(rawTrace).digest('hex'));
+}
 
 function git(cwd, args) {
   return execFileSync('git', args, { cwd, encoding: 'utf8', windowsHide: true }).trim();
@@ -360,6 +374,7 @@ test('the adapter accepts an exact passed controller pipeline from a linked cand
         model: 'gpt-6-luna',
         effort: 'max',
         evidence: ['Synthetic test backend only; no provider was invoked.'],
+        checkTrace: syntheticCheckTrace(taskRecord.checks, worktree, sessionId),
         resultDigest: 'e'.repeat(64),
       };
     },

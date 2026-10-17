@@ -89,6 +89,48 @@ acceptance, review, test, CI and authority gate passes. Documentation tasks have
 no blanket CI exemption. A missing or failed required check is `NOT_RUN`,
 `BLOCKED` or `FAIL`, never `PASS`.
 
+Each worker, verifier and reviewer session must prove every declared task check
+from its actual Codex `--json` JSONL stream. The backend matches only
+`command_execution` items, correlates `item.started` and `item.completed` by
+item id. It parses the serialized command string using platform quoting rules,
+resolves executable aliases through the backend `PATH` and `PATHEXT`, requires
+the exact declared arguments, and rejects shell or directory-changing
+prefixes. Duplicate events for one item id count once. The machine policy
+allows at most two invocations of each declared check in one role session, so
+the role may make one corrective rerun. The backend stops the session as soon
+as a third invocation starts. A check passes only when its latest correlated
+invocation completed with `exit_code: 0`; missing, incomplete, malformed,
+failed or over-limit evidence cannot support a role `PASS`.
+
+When this evidence overrides a model-claimed `PASS`, an observed failed
+command is `FAIL`; missing or incomplete evidence and unsupported declared
+working directories are `BLOCKED`; malformed traces and invocation-cap
+violations are `UNKNOWN`. No outcome starts an automatic retry.
+
+Codex CLI 0.162.1 serializes a command item with its id, command string,
+aggregated output, status and optional exit code, but omits the per-item working
+directory. The controller therefore accepts only task checks whose declared
+`cwd` resolves to the worktree root. For each invocation it records
+`cwdProvenance: launch_cwd`, bound to the role process's
+`codex exec --cd <worktree>` launch argument. This provenance comes from the
+launch binding, not from an item field. If a future CLI event includes
+`item.cwd`, that source is labeled `item_cwd`; mixed sources are labeled per
+invocation and at check level. The JSONL trace cannot independently rule out
+an unreported per-command working-directory override.
+
+The private dispatch artifacts retain the JSONL stream for audit. The separate
+`check-trace.json` summary stores the stream SHA-256, a hash of each declared
+check and each item id, per-check invocation counts, exit codes, statuses and
+per-invocation cwd provenance; it omits command output and raw command text.
+This trace proves that Codex
+reported a matching command execution item and its process exit code for that
+session, and binds root `cwd` to the session launch setting. It does not prove
+the per-command working directory independently, the command's semantic
+correctness, the source state it observed during execution, test coverage, or
+the quality of the resulting change. Exact-head validation, independent gates,
+required test/CI evidence and root delivery remain separate checks. No session
+is automatically retried.
+
 ## Failure handling and resume
 
 Classify metadata separately from implementation and external effects.
