@@ -149,7 +149,6 @@ status: generated
 - [apps/server/tests/unit/operator-bootstrap.test.js](../../../apps/server/tests/unit/operator-bootstrap.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/password-reset-service.test.js](../../../apps/server/tests/unit/password-reset-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/person-rls-hardening-migration.test.js](../../../apps/server/tests/unit/person-rls-hardening-migration.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/platform-control-entry-link.test.js](../../../apps/server/tests/unit/platform-control-entry-link.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/platform-control-route-contract.test.js](../../../apps/server/tests/unit/platform-control-route-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/production-migration-reconciliation.test.js](../../../apps/server/tests/unit/production-migration-reconciliation.test.js) — `verifies` (`test-reference`)

@@ -47,7 +47,6 @@ status: generated
 - [apps/server/tests/unit/error-events.test.js](../../../apps/server/tests/unit/error-events.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/observability-logger.test.js](../../../apps/server/tests/unit/observability-logger.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/platform-control-guard.test.js](../../../apps/server/tests/unit/platform-control-guard.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-248](requirements/FR-248.md)
@@ -81,7 +80,6 @@ status: generated
 - [apps/server/tests/integration/release-safety-backup.test.js](../../../apps/server/tests/integration/release-safety-backup.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/business-capability-navigation.test.js](../../../apps/server/tests/unit/business-capability-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/platform-control-guard.test.js](../../../apps/server/tests/unit/platform-control-guard.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/platform-control-route-contract.test.js](../../../apps/server/tests/unit/platform-control-route-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/sign-out.test.js](../../../apps/server/tests/unit/sign-out.test.js) — `verifies` (`transitive`)
@@ -120,7 +118,6 @@ status: generated
 - [apps/server/tests/integration/release-safety-backup.test.js](../../../apps/server/tests/integration/release-safety-backup.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/business-capability-navigation.test.js](../../../apps/server/tests/unit/business-capability-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/platform-control-guard.test.js](../../../apps/server/tests/unit/platform-control-guard.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/platform-control-route-contract.test.js](../../../apps/server/tests/unit/platform-control-route-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/sign-out.test.js](../../../apps/server/tests/unit/sign-out.test.js) — `verifies` (`transitive`)

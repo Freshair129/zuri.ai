@@ -18,7 +18,6 @@ status: generated
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/(control)/control/roadmap/page.jsx](../../../apps/server/src/app/%28control%29/control/roadmap/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/api/platform/task-usage-ledger/route.js](../../../apps/server/src/app/api/platform/task-usage-ledger/route.js) — `implements` (`annotation`)
 - [apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx](../../../apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/platform-control/program-delivery-metrics.js](../../../apps/server/src/modules/platform-control/program-delivery-metrics.js) — `implements` (`annotation`)
@@ -51,7 +50,6 @@ status: generated
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/(control)/control/roadmap/page.jsx](../../../apps/server/src/app/%28control%29/control/roadmap/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/api/platform/programme-usage-reports/route.js](../../../apps/server/src/app/api/platform/programme-usage-reports/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/platform/task-usage-ledger/route.js](../../../apps/server/src/app/api/platform/task-usage-ledger/route.js) — `implements` (`annotation`)
 - [apps/server/src/modules/platform-control/application/programme-usage-reports.js](../../../apps/server/src/modules/platform-control/application/programme-usage-reports.js) — `implements` (`annotation`)
@@ -72,8 +70,6 @@ status: generated
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/platform-control-domain-map.test.js](../../../apps/server/tests/unit/platform-control-domain-map.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/platform-control-route-contract.test.js](../../../apps/server/tests/unit/platform-control-route-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/program-delivery-metrics.test.js](../../../apps/server/tests/unit/program-delivery-metrics.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/programme-usage-reports.test.js](../../../apps/server/tests/unit/programme-usage-reports.test.js) — `verifies` (`test-reference`)
@@ -84,7 +80,6 @@ status: generated
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/(control)/control/roadmap/page.jsx](../../../apps/server/src/app/%28control%29/control/roadmap/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx](../../../apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/platform-control/program-delivery-metrics.js](../../../apps/server/src/modules/platform-control/program-delivery-metrics.js) — `implements` (`annotation`)
 - [apps/server/src/modules/platform-control/program-roadmap-containers.js](../../../apps/server/src/modules/platform-control/program-roadmap-containers.js) — `implements` (`annotation`)
@@ -93,7 +88,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/fr216-programme-delivery-telemetry.spec.js](../../../apps/server/tests/e2e/fr216-programme-delivery-telemetry.spec.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/platform-control-domain-map.test.js](../../../apps/server/tests/unit/platform-control-domain-map.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/platform-control-domain-map.test.js](../../../apps/server/tests/unit/platform-control-domain-map.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/platform-control-route-contract.test.js](../../../apps/server/tests/unit/platform-control-route-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/program-delivery-metrics.test.js](../../../apps/server/tests/unit/program-delivery-metrics.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/program-roadmap-board-telemetry.test.js](../../../apps/server/tests/unit/program-roadmap-board-telemetry.test.js) — `verifies` (`test-reference`)

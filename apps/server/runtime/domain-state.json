@@ -2110,7 +2110,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 25
+          "testCount": 24
         },
         {
           "id": "FR-046",
@@ -2118,7 +2118,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 81
+          "testCount": 80
         },
         {
           "id": "FR-059",
@@ -2174,7 +2174,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 41
+          "testCount": 37
         },
         {
           "id": "FR-076",
@@ -2206,7 +2206,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 25,
-          "testCount": 47
+          "testCount": 46
         },
         {
           "id": "FR-096",
@@ -2262,7 +2262,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 12
         },
         {
           "id": "FR-106",
@@ -5002,7 +5002,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 81
+          "testCount": 80
         },
         {
           "id": "FR-075",
@@ -5010,7 +5010,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 41
+          "testCount": 37
         },
         {
           "id": "FR-095",
@@ -5018,15 +5018,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 47
+          "testCount": 46
         },
         {
           "id": "FR-105",
           "title": "Platform Programme Roadmap",
           "declared": "done",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 20
+          "codeCount": 7,
+          "testCount": 12
         },
         {
           "id": "FR-142",
@@ -5041,15 +5041,15 @@
           "title": "Platform Domain map and inventory",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 6
+          "codeCount": 3,
+          "testCount": 5
         },
         {
           "id": "FR-216",
           "title": "Phase card delivery metrics",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
+          "codeCount": 3,
           "testCount": 8
         },
         {
@@ -5065,15 +5065,15 @@
           "title": "Programme usage report endpoint",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 18
+          "codeCount": 4,
+          "testCount": 16
         },
         {
           "id": "FR-219",
           "title": "Task card evidence badges and subtask progress",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
+          "codeCount": 4,
           "testCount": 8
         },
         {
@@ -5081,8 +5081,8 @@
           "title": "~~Usage reports attributed to person, device and lane",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 7
+          "codeCount": 2,
+          "testCount": 4
         },
         {
           "id": "FR-239",
@@ -5114,7 +5114,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 19
+          "testCount": 18
         },
         {
           "id": "FR-248",
@@ -5122,7 +5122,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-249",
@@ -5130,7 +5130,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-258",
@@ -5239,8 +5239,8 @@
             }
           ],
           "details": {
-            "routes": 4,
-            "inventoried": 4,
+            "routes": 3,
+            "inventoried": 3,
             "missing": 0
           }
         },
@@ -5445,9 +5445,9 @@
         }
       ],
       "details": {
-        "routes": 10,
+        "routes": 9,
         "apiRoutes": 6,
-        "pageRoutes": 4,
+        "pageRoutes": 3,
         "ownedModels": 4,
         "featureNotes": 2
       },
@@ -5775,7 +5775,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 16
         },
         {
           "id": "FR-021",
@@ -5823,7 +5823,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 4
         },
         {
           "id": "FR-034",
@@ -5871,7 +5871,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 23
+          "testCount": 22
         },
         {
           "id": "FR-040",
@@ -5903,7 +5903,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-044",
@@ -5911,7 +5911,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 25
+          "testCount": 24
         },
         {
           "id": "FR-045",
@@ -5927,7 +5927,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 81
+          "testCount": 80
         },
         {
           "id": "FR-056",
@@ -6078,8 +6078,8 @@
           "title": "Installation-operator authority",
           "declared": "done",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 41
+          "codeCount": 8,
+          "testCount": 37
         },
         {
           "id": "FR-077",
@@ -6119,7 +6119,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 26
+          "testCount": 25
         },
         {
           "id": "FR-087",
@@ -6183,7 +6183,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 47
+          "testCount": 46
         },
         {
           "id": "FR-097",
@@ -6230,8 +6230,8 @@
           "title": "Platform Programme Roadmap",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 20
+          "codeCount": 3,
+          "testCount": 12
         },
         {
           "id": "FR-106",
@@ -6287,7 +6287,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 23
+          "testCount": 21
         },
         {
           "id": "FR-127",
@@ -6519,7 +6519,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 23
+          "testCount": 22
         },
         {
           "id": "FR-172",
@@ -6751,7 +6751,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 18
+          "testCount": 16
         },
         {
           "id": "FR-223",
@@ -6855,7 +6855,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 18
         },
         {
           "id": "FR-248",
@@ -6863,7 +6863,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-249",
@@ -6871,7 +6871,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-250",
@@ -8399,7 +8399,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 26
+          "testCount": 25
         },
         {
           "id": "FR-087",
@@ -8476,7 +8476,6 @@
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
-        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
@@ -8621,7 +8620,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 30,
-          "testCount": 47
+          "testCount": 46
         },
         {
           "id": "FR-096",
@@ -8757,7 +8756,6 @@
         "apps/server/tests/unit/operator-bootstrap.test.js",
         "apps/server/tests/unit/password-reset-service.test.js",
         "apps/server/tests/unit/person-rls-hardening-migration.test.js",
-        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/production-migration-reconciliation.test.js",
@@ -11628,7 +11626,7 @@
           "title": "Phase card delivery metrics",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
+          "codeCount": 4,
           "testCount": 8
         },
         {
@@ -11644,20 +11642,19 @@
           "title": "Programme usage report endpoint",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 18
+          "codeCount": 6,
+          "testCount": 16
         },
         {
           "id": "FR-219",
           "title": "Task card evidence badges and subtask progress",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
+          "codeCount": 4,
           "testCount": 8
         }
       ],
       "evidence": [
-        "apps/server/src/app/(control)/control/roadmap/page.jsx",
         "apps/server/src/app/api/platform/programme-usage-reports/route.js",
         "apps/server/src/app/api/platform/task-usage-ledger/route.js",
         "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
@@ -11730,8 +11727,8 @@
           "title": "~~Usage reports attributed to person, device and lane",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 3,
-          "testCount": 7
+          "codeCount": 2,
+          "testCount": 4
         },
         {
           "id": "FR-222",
@@ -11743,14 +11740,10 @@
         }
       ],
       "evidence": [
-        "apps/server/src/app/(control)/control/roadmap/page.jsx",
         "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
         "apps/server/src/modules/platform-control/application/task-usage-ledger.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-        "apps/server/tests/unit/platform-control-domain-map.test.js",
-        "apps/server/tests/unit/platform-control-route-contract.test.js",
-        "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
         "apps/server/tests/unit/task-usage-ledger.test.js"
       ]
@@ -12543,7 +12536,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 19
+          "testCount": 18
         },
         {
           "id": "FR-248",
@@ -12551,7 +12544,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-249",
@@ -12559,7 +12552,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 22
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -12597,7 +12590,6 @@
         "apps/server/tests/unit/error-events.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/observability-logger.test.js",
-        "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/sign-out.test.js",
@@ -13814,7 +13806,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 17
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -13838,7 +13830,6 @@
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/business-shell-guard.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
-        "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/rollup.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/shell-mode.test.js",
@@ -14431,13 +14422,12 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 4
         }
       ],
       "evidence": [
         "apps/server/src/components/layouts/Topbar.jsx",
         "apps/server/tests/unit/domain-state.test.js",
-        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
         "apps/server/tests/unit/topbar-no-dropdown.test.js"
@@ -14638,7 +14628,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 23
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -14665,7 +14655,6 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
-        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-execution-backpath.test.js",
         "apps/server/tests/unit/project-work-route.test.js",
@@ -14816,7 +14805,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 22
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -14844,7 +14833,6 @@
         "apps/server/tests/unit/breadcrumb-switcher.test.js",
         "apps/server/tests/unit/business-strategy-service.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
-        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/project-business-context.test.js",
         "apps/server/tests/unit/project-execution-backpath.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
@@ -14879,7 +14867,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 25
+          "testCount": 24
         }
       ],
       "evidence": [
@@ -14916,7 +14904,6 @@
         "apps/server/tests/unit/fr056-landing.test.js",
         "apps/server/tests/unit/fr120-signup-page.test.js",
         "apps/server/tests/unit/password-reset-page.test.js",
-        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/route-reachability.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
@@ -14950,7 +14937,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 90,
-          "testCount": 81
+          "testCount": 80
         }
       ],
       "evidence": [
@@ -15106,7 +15093,6 @@
         "apps/server/tests/unit/password-reset-page.test.js",
         "apps/server/tests/unit/password-reset-service.test.js",
         "apps/server/tests/unit/people-route.test.js",
-        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/playwright-database-bootstrap.test.js",
@@ -16350,8 +16336,8 @@
           "title": "Installation-operator authority",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 41
+          "codeCount": 11,
+          "testCount": 37
         }
       ],
       "evidence": [
@@ -16360,7 +16346,6 @@
         "apps/server/src/app/api/backup/import/route.js",
         "apps/server/src/app/api/files/migrate/route.js",
         "apps/server/src/components/layouts/PlatformControlShell.jsx",
-        "apps/server/src/components/layouts/Topbar.jsx",
         "apps/server/src/modules/identity/operator-bootstrap.js",
         "apps/server/src/modules/identity/resolve-viewer.js",
         "apps/server/src/modules/identity/viewer-authority.js",
@@ -16398,14 +16383,10 @@
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
-        "apps/server/tests/unit/platform-control-entry-link.test.js",
-        "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/platform-grant-migration.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
-        "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
-        "apps/server/tests/unit/topbar-no-dropdown.test.js",
         "apps/server/tests/unit/viewer-authority.test.js",
         "apps/server/tests/unit/viewer-gate.test.js"
       ]
@@ -16878,19 +16859,16 @@
           "title": "Platform Programme Roadmap",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 20
+          "codeCount": 11,
+          "testCount": 12
         }
       ],
       "evidence": [
-        "apps/server/src/app/(control)/control/roadmap/page.jsx",
         "apps/server/src/app/(control)/layout.jsx",
-        "apps/server/src/app/(pm)/settings/page.jsx",
         "apps/server/src/app/access-denied/route.js",
         "apps/server/src/components/layouts/PlatformControlGuard.jsx",
         "apps/server/src/components/layouts/PlatformControlSessionRetry.jsx",
         "apps/server/src/components/layouts/PlatformControlShell.jsx",
-        "apps/server/src/components/layouts/Topbar.jsx",
         "apps/server/src/lib/platform-control-guard.js",
         "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "apps/server/src/modules/platform-control/components/TiltCard.jsx",
@@ -16899,23 +16877,15 @@
         "apps/server/src/modules/platform-control/roadmap-sot.js",
         "apps/server/tests/e2e/fr105-control-access-response.spec.js",
         "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
-        "apps/server/tests/e2e/smoke.spec.js",
-        "apps/server/tests/integration/adaptive-shell.test.js",
-        "apps/server/tests/integration/fr169-business-capability.test.js",
-        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/platform-control-access-denied.test.js",
         "apps/server/tests/unit/platform-control-domain-map.test.js",
-        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
-        "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
         "apps/server/tests/unit/program-roadmap-mobile.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/programme-member-view.test.js",
-        "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
-        "apps/server/tests/unit/topbar-no-dropdown.test.js",
         "apps/server/tests/unit/viewer-failure.test.js"
       ]
     },
@@ -17525,7 +17495,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 23
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -17553,9 +17523,7 @@
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/platform-control-domain-map.test.js",
-        "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
-        "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/program-task-evidence.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
@@ -17944,7 +17912,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 23
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -17974,7 +17942,6 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
-        "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/profile-permission-service.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
@@ -18328,19 +18295,17 @@
           "title": "Platform Domain map and inventory",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 6
+          "codeCount": 3,
+          "testCount": 5
         }
       ],
       "evidence": [
-        "apps/server/src/app/(control)/control/roadmap/page.jsx",
         "apps/server/src/modules/platform-control/components/DomainMapView.jsx",
         "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "apps/server/src/modules/platform-control/program-domain-map.js",
         "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
         "apps/server/tests/unit/platform-control-domain-map.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
-        "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
         "apps/server/tests/unit/programme-member-view.test.js"
       ]
@@ -18369,12 +18334,11 @@
           "title": "Programme roadmap member view",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
+          "codeCount": 3,
           "testCount": 7
         }
       ],
       "evidence": [
-        "apps/server/src/app/roadmap/page.jsx",
         "apps/server/src/components/layouts/PlatformControlShell.jsx",
         "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "apps/server/src/modules/platform-control/programme-member-view.js",

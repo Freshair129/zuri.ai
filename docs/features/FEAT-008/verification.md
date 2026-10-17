@@ -46,7 +46,6 @@ status: generated
 - [apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js](../../../apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/marketing-navigation.test.js](../../../apps/server/tests/unit/marketing-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/platform-control-entry-link.test.js](../../../apps/server/tests/unit/platform-control-entry-link.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/procurement-routes.test.js](../../../apps/server/tests/unit/procurement-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/project-list-contract.test.js](../../../apps/server/tests/unit/project-list-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/projects-dashboard-read-model.test.js](../../../apps/server/tests/unit/projects-dashboard-read-model.test.js) — `verifies` (`test-reference`)
