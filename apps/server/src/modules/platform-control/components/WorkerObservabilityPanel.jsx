@@ -84,6 +84,21 @@ function handleAssignmentScrollKeyDown(event) {
   event.preventDefault()
 }
 
+export function TaskWorktreeStatus({ task, worktree }) {
+  const exactHead = worktree?.headCommit || null
+  return (
+    <p className={styles.worktreeStatus} data-testid={`worker-task-worktree-${task.taskId}`}>
+      Task worktree · <strong data-state={worktree?.verificationState || 'UNKNOWN'}>{worktree?.verificationState || 'UNKNOWN'}</strong>
+      <span> · ref <code>{worktree?.workspaceRef || 'UNKNOWN'}</code></span>
+      <span> · branch <code>{worktree?.branch || 'UNKNOWN'}</code></span>
+      <span> · verified HEAD <code title={exactHead || undefined} aria-label={exactHead ? `Exact worktree HEAD ${exactHead}` : undefined}>{exactHead ? shortHash(exactHead) : 'UNKNOWN'}</code></span>
+      <span> · dirty files {worktree?.dirtyFileCount == null ? 'UNKNOWN' : countLabel(worktree.dirtyFileCount)}</span>
+      <span> · candidate <strong data-state={worktree?.candidateHeadMatch || 'UNKNOWN'}>{worktree?.candidateHeadMatch || 'UNKNOWN'}</strong></span>
+      {worktree?.reason ? <span className={styles.muted}> · {worktree.reason}</span> : null}
+    </p>
+  )
+}
+
 export function collectLocalChanges(previous, next) {
   const changes = []
   const beforeTags = new Map((previous.tags || []).map((tag) => [tag.name, tag.objectId]))
@@ -237,9 +252,9 @@ export default function WorkerObservabilityPanel() {
     <section className={styles.panel} data-testid="worker-observability-panel" aria-labelledby="worker-observability-title">
       <div className={styles.heading}>
         <div>
-          <p className={styles.eyebrow}>LOCAL CONTROLLER · READ ONLY</p>
+          <p className={styles.eyebrow}>LOCAL CONTROLLER SNAPSHOT · READ ONLY</p>
           <h2 id="worker-observability-title">Workers and activity</h2>
-          <p className={styles.description}>สถานะจาก controller ledger และ local event receipts ณ เวลาที่อ่าน ไม่มีคำสั่ง dispatch, retry, merge หรือ deploy ในหน้านี้</p>
+          <p className={styles.description}>This view reads local controller role assignments and task-cycle leases only; counts are not process counts. SWARM means multiple active task-cycle leases. It does not show Codex sessions or every workspace. ไม่มีคำสั่ง dispatch, retry, merge หรือ deploy ในหน้านี้</p>
         </div>
         <span className={styles.connection} data-state={connection} role="status">
           <Radio size={14} aria-hidden /> {statusLabel}
@@ -256,9 +271,9 @@ export default function WorkerObservabilityPanel() {
       )}
 
       <div className={styles.kpis} aria-label="Worker summary">
-        <Kpi label="Workers active" value={isLive ? countLabel(snapshot.summary.activeWorkers) : '—'} meta={isLive ? `${countLabel(snapshot.summary.activeTasks)} task` : 'UNKNOWN'} />
-        <Kpi label="Queued" value={isLive ? countLabel(snapshot.summary.queuedWorkers) : '—'} meta="persisted READY stages" />
-        <Kpi label="Mode" value={isLive ? snapshot.summary.mode : 'UNKNOWN'} meta="distinct task leases" />
+        <Kpi label="Active role assignments" value={isLive ? countLabel(snapshot.summary.activeWorkers) : '—'} meta={isLive ? `${countLabel(snapshot.summary.activeTasks)} active task-cycle leases` : 'UNKNOWN'} />
+        <Kpi label="Queued role assignments" value={isLive ? countLabel(snapshot.summary.queuedWorkers) : '—'} meta="persisted READY roles" />
+        <Kpi label="Mode" value={isLive ? snapshot.summary.mode : 'UNKNOWN'} meta={isLive && snapshot.summary.mode === 'SWARM' ? 'multiple active task-cycle leases' : 'local controller state'} />
         <Kpi label="Last read" value={timeLabel(snapshot.observedAt)} meta={isLive ? 'local snapshot' : 'source not verified'} />
       </div>
 
@@ -291,11 +306,11 @@ export default function WorkerObservabilityPanel() {
         <div className={styles.sectionHeading}>
           <Activity size={16} aria-hidden />
           <h3>Assignments</h3>
-          <span className={styles.muted}>opaque references · no prompt, path, session, owner, model, or effort</span>
+          <span className={styles.muted}>local controller role assignments · not process counts · no prompt, path, session, owner, model, or effort</span>
         </div>
         {isLive && snapshot.assignments.length ? (
           <div className={styles.tableWrap} data-testid="worker-assignment-scroll-region" role="region"
-            aria-label="Worker assignments table; use Home, End, or arrow keys to view all columns"
+            aria-label="Local controller role assignments table; use Home, End, or arrow keys to view all columns"
             tabIndex={0} onKeyDown={handleAssignmentScrollKeyDown}>
             <table className={styles.table}>
               <thead><tr><th scope="col">Ref</th><th scope="col">Task / cycle</th><th scope="col">Role / stage</th><th scope="col">State / attempt</th><th scope="col">Lease</th><th scope="col">Checked head</th><th scope="col">Context</th></tr></thead>
@@ -318,16 +333,20 @@ export default function WorkerObservabilityPanel() {
       <Card className={styles.subsection}>
         <div className={styles.sectionHeading}><GitBranch size={16} aria-hidden /><h3>Tasks and local CI receipts</h3><span className={styles.muted}>receipt must match current head and base</span></div>
         {isLive && snapshot.tasks.length ? (
-          <div className={styles.taskList}>{snapshot.tasks.map((task) => (
-            <article className={styles.task} key={`${task.taskId}:${task.cycleNo}`} data-testid={`worker-task-${task.taskId}`}>
-              <div className={styles.taskTitle}><strong><code>{task.taskId}</code></strong><span className={styles.muted}>cycle {task.cycleNo} · {task.state}</span></div>
-              <div className={styles.hashes}><span>base <code title={task.baseCommit || ''}>{shortHash(task.baseCommit)}</code></span><span>candidate <code title={task.candidateHeadCommit || ''}>{shortHash(task.candidateHeadCommit)}</code></span></div>
-              <p className={styles.ci}>CI receipt (local): <strong data-state={task.ci?.state || 'UNKNOWN'}>{task.ci?.state || 'UNKNOWN'}</strong>
-                <span className={styles.muted}> · pass {countLabel(task.ci?.checks?.passed)} / fail {countLabel(task.ci?.checks?.failed)} / pending {countLabel(task.ci?.checks?.pending)} / unknown {countLabel(task.ci?.checks?.unknown)}</span>
-                {task.ci?.observedAt ? <span className={styles.muted}> · {timeLabel(task.ci.observedAt)}</span> : null}
-              </p>
-            </article>
-          ))}</div>
+          <div className={styles.taskList}>{snapshot.tasks.map((task) => {
+            const worktree = snapshot.localStatus?.taskWorktrees?.find((item) => item.taskId === task.taskId && item.cycleNo === task.cycleNo)
+            return (
+              <article className={styles.task} key={`${task.taskId}:${task.cycleNo}`} data-testid={`worker-task-${task.taskId}`}>
+                <div className={styles.taskTitle}><strong><code>{task.taskId}</code></strong><span className={styles.muted}>cycle {task.cycleNo} · {task.state}</span></div>
+                <div className={styles.hashes}><span>base <code title={task.baseCommit || ''}>{shortHash(task.baseCommit)}</code></span><span>candidate <code title={task.candidateHeadCommit || ''}>{shortHash(task.candidateHeadCommit)}</code></span></div>
+                <TaskWorktreeStatus task={task} worktree={worktree} />
+                <p className={styles.ci}>CI receipt (local): <strong data-state={task.ci?.state || 'UNKNOWN'}>{task.ci?.state || 'UNKNOWN'}</strong>
+                  <span className={styles.muted}> · pass {countLabel(task.ci?.checks?.passed)} / fail {countLabel(task.ci?.checks?.failed)} / pending {countLabel(task.ci?.checks?.pending)} / unknown {countLabel(task.ci?.checks?.unknown)}</span>
+                  {task.ci?.observedAt ? <span className={styles.muted}> · {timeLabel(task.ci.observedAt)}</span> : null}
+                </p>
+              </article>
+            )
+          })}</div>
         ) : <p className={styles.empty}>{isLive ? 'ยังไม่มี task ใน controller ledger' : 'ไม่มีข้อมูลที่ยืนยันได้'}</p>}
       </Card>
 

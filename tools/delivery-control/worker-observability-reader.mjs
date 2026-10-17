@@ -52,6 +52,17 @@ const SAFE_CODE = /^[A-Z][A-Z0-9_-]{0,95}$/;
 const SAFE_TAG = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$/;
 const SAFE_HASH = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/i;
 const SAFE_EVENT_NAME = /^[A-Z][A-Z0-9_-]{0,79}$/;
+const SAFE_BRANCH = /^(?:main|master|develop|(?:codex|feature|feat|fix|docs|chore|test|refactor|release)\/[A-Za-z0-9][A-Za-z0-9._/-]{0,119})$/;
+const CREDENTIAL_SHAPED_BRANCH_PATTERNS = [
+  /github_pat_[A-Za-z0-9_]{20,}/i,
+  /gh[pousr]_[A-Za-z0-9_]{20,}/i,
+  /AKIA[0-9A-Z]{16}/,
+  /xox[baprs]-[A-Za-z0-9-]{20,}/i,
+  /sk-(?:proj-)?[A-Za-z0-9_-]{20,}/i,
+];
+const TASK_WORKTREE_MATCHES = new Set(['MATCH', 'MISMATCH', 'UNKNOWN']);
+const TASK_WORKTREE_REASONS = new Set(['WORKTREE_PATH_INVALID', 'WORKTREE_REGISTRY_UNAVAILABLE',
+  'WORKTREE_NOT_REGISTERED', 'WORKTREE_UNAVAILABLE', 'WORKTREE_INVALID', 'WORKTREE_REPOSITORY_MISMATCH']);
 const SUPERVISOR_STATUSES = new Set(['INTAKE_BOUND', 'INTAKE_WAITING', 'INTAKE_REASSESSMENT_REQUIRED',
   'HOLD_TRUSTED_BINDING', 'HOLD_REVIEW_REQUIRED', 'HOLD_AMBIGUOUS_ROADMAP', 'HOLD_DEPENDENCY',
   'HOLD_TASK_STATUS', 'HOLD_SCOPE_CONFLICT', 'HOLD_PREFLIGHT', 'HOLD_RECONCILE',
@@ -122,6 +133,118 @@ function rowJson(value) {
 
 function safeCommit(value) {
   return typeof value === 'string' && SAFE_HASH.test(value) ? value.toLowerCase() : null;
+}
+
+function safeBranch(value) {
+  if (typeof value !== 'string') return 'UNKNOWN';
+  if (!value) return 'DETACHED';
+  if (!SAFE_BRANCH.test(value) || value.includes('//') || /(?:^|\/)\.\.?(?:\/|$)/.test(value)
+      || CREDENTIAL_SHAPED_BRANCH_PATTERNS.some((pattern) => pattern.test(value))) return 'UNKNOWN';
+  return value;
+}
+
+function taskWorkspaceRef(common, taskId) {
+  return `workspace-${sha256(`worker-observability-workspace/v1\n${common}\n${taskId}`).slice(0, 16).toLowerCase()}`;
+}
+
+function taskWorktreeUnknown({ common, taskId, cycleNo, observedAt, reason }) {
+  return {
+    workspaceRef: taskWorkspaceRef(common, taskId), taskId, cycleNo, branch: 'UNKNOWN', headCommit: null,
+    dirtyFileCount: null, candidateHeadMatch: 'UNKNOWN', verificationState: 'UNKNOWN', reason, observedAt,
+  };
+}
+
+function canonicalPathKey(value) {
+  if (typeof value !== 'string' || !path.isAbsolute(value)) return null;
+  try {
+    const normalized = path.normalize(path.resolve(value));
+    return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
+  } catch {
+    return null;
+  }
+}
+
+function registeredWorktreePaths(root) {
+  const output = gitRead(root, ['worktree', 'list', '--porcelain', '-z']);
+  return output.split('\0').flatMap((field) => field.startsWith('worktree ') ? [field.slice('worktree '.length)] : []);
+}
+
+function projectTaskWorktreeStatus(value, observedAt) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const taskId = safeTaskId(value.taskId);
+  const cycleNo = value.cycleNo;
+  const workspaceRef = value.workspaceRef;
+  const verificationState = value.verificationState;
+  const candidateHeadMatch = value.candidateHeadMatch;
+  const reason = value.reason;
+  const headCommit = safeCommit(value.headCommit);
+  const dirtyFileCount = value.dirtyFileCount;
+  const statusObservedAt = iso(value.observedAt ?? observedAt);
+  if (taskId === 'UNKNOWN' || !Number.isSafeInteger(cycleNo) || cycleNo < 1
+      || typeof workspaceRef !== 'string' || !/^workspace-[a-f0-9]{16}$/.test(workspaceRef)
+      || !['VERIFIED', 'UNKNOWN'].includes(verificationState)
+      || !TASK_WORKTREE_MATCHES.has(candidateHeadMatch)
+      || !['UNKNOWN', 'DETACHED'].includes(value.branch) && safeBranch(value.branch) !== value.branch
+      || (dirtyFileCount !== null && (!Number.isSafeInteger(dirtyFileCount) || dirtyFileCount < 0))
+      || (reason !== null && !TASK_WORKTREE_REASONS.has(reason))
+      || !statusObservedAt) return null;
+  if (verificationState === 'VERIFIED' && (headCommit === null || dirtyFileCount === null || reason !== null)) return null;
+  if (verificationState === 'UNKNOWN' && (candidateHeadMatch !== 'UNKNOWN' || headCommit !== null
+      || dirtyFileCount !== null || reason === null)) return null;
+  return { workspaceRef, taskId, cycleNo, branch: value.branch, headCommit, dirtyFileCount,
+    candidateHeadMatch, verificationState, reason, observedAt: statusObservedAt };
+}
+
+function inspectTaskWorktree(run, { root, common, registeredPaths, observedAt }) {
+  const taskId = safeTaskId(run?.task_id);
+  const cycleNo = run?.current_cycle;
+  if (taskId === 'UNKNOWN' || !Number.isSafeInteger(cycleNo) || cycleNo < 1) return null;
+  const workspaceRef = taskWorkspaceRef(common, taskId);
+  const unknown = (reason) => taskWorktreeUnknown({ common, taskId, cycleNo, observedAt, reason });
+  if (!Array.isArray(registeredPaths)) return unknown('WORKTREE_REGISTRY_UNAVAILABLE');
+
+  const storedRoot = run.worktree_root;
+  const storedKey = canonicalPathKey(storedRoot);
+  if (!storedKey) return unknown('WORKTREE_PATH_INVALID');
+  const matches = registeredPaths.filter((registeredPath) => canonicalPathKey(registeredPath) === storedKey);
+  if (matches.length !== 1) return unknown('WORKTREE_NOT_REGISTERED');
+  const registeredRoot = matches[0];
+
+  try {
+    const stat = lstatSync(registeredRoot);
+    if (!stat.isDirectory() || stat.isSymbolicLink()) return unknown('WORKTREE_INVALID');
+    const realRoot = realpathSync.native(registeredRoot);
+    if (canonicalPathKey(realRoot) !== canonicalPathKey(registeredRoot)) return unknown('WORKTREE_INVALID');
+
+    const topLevel = realpathSync.native(gitRead(registeredRoot, ['rev-parse', '--show-toplevel']).trim());
+    if (canonicalPathKey(topLevel) !== canonicalPathKey(registeredRoot)) return unknown('WORKTREE_INVALID');
+    const worktreeCommon = realpathSync.native(gitRead(registeredRoot, ['rev-parse', '--path-format=absolute', '--git-common-dir']).trim());
+    if (canonicalPathKey(worktreeCommon) !== canonicalPathKey(common)) return unknown('WORKTREE_REPOSITORY_MISMATCH');
+
+    const branch = safeBranch(gitRead(registeredRoot, ['branch', '--show-current']).trim());
+    const headCommit = safeCommit(gitRead(registeredRoot, ['rev-parse', '--verify', 'HEAD^{commit}']).trim());
+    if (!headCommit) return unknown('WORKTREE_INVALID');
+    const status = gitRead(registeredRoot, ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames']);
+    const dirtyFileCount = status.split('\0').filter(Boolean).length;
+    const candidateHead = safeCommit(run.candidate_head_commit);
+    return {
+      workspaceRef, taskId, cycleNo, branch, headCommit, dirtyFileCount,
+      candidateHeadMatch: candidateHead === null ? 'UNKNOWN' : headCommit === candidateHead ? 'MATCH' : 'MISMATCH',
+      verificationState: 'VERIFIED', reason: null, observedAt,
+    };
+  } catch (error) {
+    return unknown(error?.code === 'ENOENT' ? 'WORKTREE_UNAVAILABLE' : 'WORKTREE_INVALID');
+  }
+}
+
+function readTaskWorktreeStatuses(root, common, runs, now) {
+  let paths;
+  try { paths = registeredWorktreePaths(root); } catch { paths = null; }
+  const observedAt = new Date(now).toISOString();
+  return runs.flatMap((run) => {
+    const status = inspectTaskWorktree(run, { root, common, registeredPaths: paths, observedAt });
+    return status ? [status] : [];
+  });
 }
 
 function safeStatus(value) {
@@ -559,6 +682,12 @@ export function projectWorkerObservability({ runs = [], events = [], supervisor 
     ? tags.fingerprint.toUpperCase()
     : tags.truncated === true ? null
       : sha256(JSON.stringify(safeTags.map(({ name, objectId }) => [name, objectId])));
+  const taskWorktrees = Array.isArray(localStatus.taskWorktrees)
+    ? localStatus.taskWorktrees.flatMap((item) => {
+      const status = projectTaskWorktreeStatus(item, nowMs);
+      return status ? [status] : [];
+    })
+    : [];
 
   return {
     schemaVersion: WORKER_OBSERVABILITY_SCHEMA_VERSION,
@@ -581,6 +710,7 @@ export function projectWorkerObservability({ runs = [], events = [], supervisor 
       fingerprint: typeof localStatus.fingerprint === 'string' && /^[A-F0-9]{64}$/.test(localStatus.fingerprint) ? localStatus.fingerprint : null,
       headCommit: safeCommit(localStatus.headCommit),
       observedAt: iso(localStatus.observedAt ?? nowMs),
+      taskWorktrees,
     },
   };
 }
@@ -607,7 +737,7 @@ function readControllerLedger(databasePath, nowMs) {
       FROM delivery_events ORDER BY sequence`).all();
     const storedHead = db.prepare("SELECT value FROM controller_meta WHERE key='eventChainHead'").get()?.value;
     const chain = verifyControllerEventChain(rawEvents, storedHead);
-    const rows = db.prepare(`SELECT r.task_id,r.state,r.current_cycle,r.base_commit,r.initial_head_commit,r.candidate_head_commit,r.updated_at,
+    const rows = db.prepare(`SELECT r.task_id,r.worktree_root,r.state,r.current_cycle,r.base_commit,r.initial_head_commit,r.candidate_head_commit,r.updated_at,
         c.state AS cycle_state,n.node_id,n.stage,n.role,n.state AS node_state,n.attempt,n.lease_epoch,n.lease_owner,n.lease_expires_at,
         n.required_head_commit,n.candidate_head_commit AS node_candidate_head_commit
       FROM delivery_runs r
@@ -619,7 +749,7 @@ function readControllerLedger(databasePath, nowMs) {
       const key = row.task_id;
       let run = grouped.get(key);
       if (!run) {
-        run = { task_id: row.task_id, state: row.state, current_cycle: row.current_cycle,
+        run = { task_id: row.task_id, worktree_root: row.worktree_root, state: row.state, current_cycle: row.current_cycle,
           base_commit: row.base_commit, initial_head_commit: row.initial_head_commit,
           candidate_head_commit: row.candidate_head_commit, updated_at: row.updated_at,
           cycle_state: row.cycle_state, stages: [] };
@@ -829,7 +959,7 @@ function unavailableSnapshot(reason, now = new Date(), { supervisor = {}, campai
       roadmapIntake: intake.state, ciReceipts: 'UNKNOWN' },
     summary: { activeWorkers: 0, queuedWorkers: 0, activeTasks: 0, mode: 'UNKNOWN' },
     tasks: [], assignments: [], events, campaignIntake: intake, localTags: [], localTagCount: 0, localTagsTruncated: false, localTagSetFingerprint: null,
-    localStatus: { changedFiles: null, fingerprint: null, headCommit: null, observedAt },
+    localStatus: { changedFiles: null, fingerprint: null, headCommit: null, observedAt, taskWorktrees: [] },
   };
 }
 
@@ -850,7 +980,10 @@ export function readWorkerObservability({ repoRoot = process.cwd(), since = null
     const ledger = readControllerLedger(databasePath, nowMs);
     const githubCi = readGithubCiReceipts(paths.common, ledger.runs);
     const tags = readLocalTags(paths.root, nowMs);
-    const localStatus = readLocalStatus(paths.root, nowMs);
+    const localStatus = {
+      ...readLocalStatus(paths.root, nowMs),
+      taskWorktrees: readTaskWorktreeStatuses(paths.root, paths.common, ledger.runs, nowMs),
+    };
     const snapshot = projectWorkerObservability({ runs: ledger.runs, events: ledger.events,
       supervisor: { ...supervisor, events: [...supervisor.events, ...githubCi.events],
         ciReceipts: [...supervisor.ciReceipts, ...githubCi.receipts] }, ciReceiptSource: githubCi.state,
