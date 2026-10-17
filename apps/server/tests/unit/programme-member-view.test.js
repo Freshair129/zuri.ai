@@ -1,9 +1,8 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { resolvePlatformControlDecision } from '@/lib/platform-control-guard'
 import ProgramRoadmapBoard from '@/modules/platform-control/components/ProgramRoadmapBoard'
 import { mergeLaneUsage, phaseDeliveryMetrics } from '@/modules/platform-control/program-delivery-metrics'
 import { PROGRAMME_LANES, PROGRAMME_SIZING, PROGRAMME_USAGE } from '@/modules/platform-control/program-roadmap-telemetry'
@@ -52,10 +51,6 @@ describe('FR-241 window', () => {
     expect(resolveMemberRoadmapDecision({ viewer: null, now: CLOSED })).toEqual({ state: 'CLOSED' })
   })
 
-  it('leaves /control/roadmap operator-only (ADR-048 D2)', () => {
-    expect(resolvePlatformControlDecision({ viewer: makeViewer() })).toEqual({ state: 'FORBIDDEN' })
-    expect(resolvePlatformControlDecision({ viewer: makeOperatorViewer() })).toEqual({ state: 'READY' })
-  })
 })
 
 describe('FR-241 member projection', () => {
@@ -126,12 +121,27 @@ describe('FR-241 boundaries in source', () => {
     expect(board).not.toMatch(/from '@\/modules\/platform-control\/program-roadmap-telemetry'/)
   })
 
-  it('projects on the server outside the control route group, without resolving reporters', () => {
+  it('replaces the expired member roadmap with a noindex moved notice', () => {
     const page = readFileSync(fromRoot('src', 'app', 'roadmap', 'page.jsx'), 'utf8')
-    expect(page).not.toMatch(/^'use client'/)
-    expect(page).toContain('projectMemberLaneUsage(mergeLaneUsage(')
-    expect(page).toContain('resolveMemberRoadmapDecision')
-    expect(page).not.toContain('describeHarnessReporters')
-    expect(page).toContain("audience=\"member\"")
+    expect(page).toContain('robots: { index: false, follow: false }')
+    expect(page).toContain("renderSignedInMovedNotice('/roadmap')")
+    expect(page).not.toMatch(/resolveMemberRoadmapDecision|notFound\(|ProgramRoadmapBoard|projectMemberLaneUsage/)
+  })
+
+  it('shows /control/roadmap to signed-in non-operators without weakening other control routes', () => {
+    const groupedRoute = fromRoot('src', 'app', '(control)', 'control', 'roadmap', 'page.jsx')
+    const controlPage = readFileSync(fromRoot('src', 'app', 'control', 'roadmap', 'page.jsx'), 'utf8')
+    const notice = readFileSync(fromRoot('src', 'app', 'roadmap', 'moved-notice.jsx'), 'utf8')
+    const groupLayout = readFileSync(fromRoot('src', 'app', '(control)', 'layout.jsx'), 'utf8')
+
+    expect(existsSync(groupedRoute)).toBe(false)
+    expect(controlPage).toContain("renderSignedInMovedNotice('/control/roadmap')")
+    expect(controlPage).toContain('robots: { index: false, follow: false }')
+    expect(controlPage).not.toMatch(/PlatformControlGuard|resolvePlatformControlDecision|notFound\(/)
+    expect(notice).toContain('resolveRequestViewer')
+    expect(notice).toContain("redirect('/login')")
+    expect(notice).toContain("failure === 'SESSION_UNAVAILABLE'")
+    expect(notice).not.toMatch(/isInstallationOperator|resolvePlatformControlDecision/)
+    expect(groupLayout).toContain('<PlatformControlGuard>')
   })
 })

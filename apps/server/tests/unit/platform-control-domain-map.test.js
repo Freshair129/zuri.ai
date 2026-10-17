@@ -1,5 +1,5 @@
-// @req FR-211 — /control/roadmap carries a Domain map & inventory tab: each
-// domain's features, FRs and NFRs with the readiness the generated snapshot records.
+// @req FR-211 — the retained domain-map component projects each domain's
+// features, FRs and NFRs with the readiness the generated snapshot records.
 // @spec ADR-048 D3, SDD-055, SEC-020, NFR-008, FR-124
 // @tested tests/unit/platform-control-domain-map.test.js
 import { readFileSync } from 'node:fs'
@@ -104,14 +104,17 @@ describe('FR-211 domain map UI', () => {
     expect(renderToStaticMarkup(createElement(ProgramRoadmapBoard))).not.toContain('role="tablist"')
   })
 
-  it('projects on the server and stays read-only', () => {
-    const page = readFileSync('src/app/(control)/control/roadmap/page.jsx', 'utf8')
+  it('does not expose the domain map from either moved roadmap route', () => {
+    const pages = [
+      readFileSync('src/app/roadmap/page.jsx', 'utf8'),
+      readFileSync('src/app/control/roadmap/page.jsx', 'utf8'),
+    ]
     const view = readFileSync('src/modules/platform-control/components/DomainMapView.jsx', 'utf8')
-    expect(page).not.toContain("'use client'")
-    // FR-219 reads the same snapshot for task badges, so the page reads it once.
-    expect(page).toContain('const snapshot = getProductReadinessSnapshot()')
-    expect(page).toContain('projectDomainMap(snapshot)')
     expect(view).not.toMatch(/import .*(domain-state|product-readiness-read-model)/)
     expect(view).not.toMatch(/fetch\(|method: 'POST'/)
+    for (const page of pages) {
+      expect(page).toContain('renderSignedInMovedNotice')
+      expect(page).not.toMatch(/ProgramRoadmapBoard|projectDomainMap|DomainMapView|PROGRAMME_|listProgrammeUsageReports/)
+    }
   })
 })

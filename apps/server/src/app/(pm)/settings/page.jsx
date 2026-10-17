@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { PageHeader, Card, SectionTitle, Field } from '@/components/ui'
 import { MODE_LABELS, MODE_DEFAULT_STRATEGY } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
 import { api, useFetch } from '@/modules/project-manager/components/useApi'
-import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 
 /**
  * Developer database commands — rendered only in a development build.
@@ -115,39 +113,6 @@ function AddBusinessCard({ scope }) {
   )
 }
 
-// @req FR-105 — an installation operator's one entry point into Platform
-// Control from inside the BusinessShell; nobody else sees it.
-// @req FR-075 — visibility is gated on the exact same `isInstallationOperator`
-// capability the route itself enforces (src/lib/platform-control-guard.js),
-// never re-derived from `isPlatform` or a role (D1-journey-states-tests-docs-12).
-// @req FR-247 — the same card links to the error event list (ADR-095 D1).
-// @req FR-248, FR-249 — and to the feature usage breakdown (ADR-095 D2).
-// @spec ADR-048 D2, SEC-020
-// @tested tests/unit/platform-control-guard.test.js
-function PlatformControlCard() {
-  const viewer = useFetch('/api/viewer')
-  if (!isInstallationOperator(viewer.data)) return null
-  return (
-    <Card>
-      <SectionTitle caption="สำหรับผู้ดูแลการติดตั้งเท่านั้น — โปรแกรมทั้งชุด (immutable static plan) แยกจาก Business shell">
-        Platform Control
-      </SectionTitle>
-      <p className="text-xs">Programme Roadmap (FR-105) — read-only projection of the platform's own delivery plan.</p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <Link href="/control/roadmap" className="btn inline-flex">
-          ไปที่ Platform Control
-        </Link>
-        <Link href="/control/errors" className="btn inline-flex">
-          Error events (FR-247)
-        </Link>
-        <Link href="/control/usage" className="btn inline-flex">
-          Feature usage (FR-248, FR-249)
-        </Link>
-      </div>
-    </Card>
-  )
-}
-
 // @req FR-169 — the Physical Stock toggle. OWNER-only in the UI, matching the
 //   route's own OWNER + ownsBusiness check: a non-owner viewer never sees a
 //   control they would be refused for pressing. Turning it off hides the
@@ -208,7 +173,6 @@ export default function SettingsPage() {
       <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
         <AddBusinessCard scope={scope} />
         <PhysicalStockCard scope={scope} />
-        <PlatformControlCard />
         <Card>
           <SectionTitle caption="Your account and current Business memberships">Identity</SectionTitle>
           <p className="text-xs">Your signed-in account is governed by server-side credentials and memberships.</p>
