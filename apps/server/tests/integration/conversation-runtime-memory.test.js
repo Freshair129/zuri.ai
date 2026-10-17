@@ -55,6 +55,7 @@ const schema = JSON.parse(readFileSync(new URL(
   '../../../../services/conversation-runtime/contracts/v1/operation.schema.json', import.meta.url), 'utf8'))
 
 let tenant, business, workspace, project, account, actor
+let switchBusiness, switchWorkspace, switchProject, switchAccount
 let wire = []
 let deliveries = []
 let openJobs = []
@@ -215,10 +216,10 @@ function mortal(ports, dies) {
     Object.fromEntries(Object.entries(methods).map(([name, fn]) => [name, wrap(group, name, fn)]))]))
 }
 
-async function admit({ memory = true, text = question } = {}) {
+async function admit({ memory = true, text = question, selectedAccount = account } = {}) {
   const eventId = `synthetic-memory-event-${++eventSequence}`
-  const current = await prisma.lineOaAccount.findUnique({ where: { id: account.id } })
-  if (!memory) await prisma.lineOaAccount.update({ where: { id: account.id }, data: { memoryPolicy: 'OFF' } })
+  const current = await prisma.lineOaAccount.findUnique({ where: { id: selectedAccount.id } })
+  if (!memory) await prisma.lineOaAccount.update({ where: { id: selectedAccount.id }, data: { memoryPolicy: 'OFF' } })
   let jobId
   try {
     const admitted = await admitLineConversation({ db: prisma, account: current,
@@ -228,7 +229,7 @@ async function admit({ memory = true, text = question } = {}) {
         source: { type: 'user', userId: lineUser }, message: { type: 'text', id: `synthetic-message-${eventId}`, text } } })
     jobId = admitted.jobId
   } finally {
-    if (!memory) await prisma.lineOaAccount.update({ where: { id: account.id }, data: { memoryPolicy: 'ON' } })
+    if (!memory) await prisma.lineOaAccount.update({ where: { id: selectedAccount.id }, data: { memoryPolicy: 'ON' } })
   }
   openJobs.push(jobId)
   return jobId
@@ -270,9 +271,16 @@ beforeAll(async () => {
   const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
   project = await createProject({ workspaceId: workspace.id, businessId: business.id,
     name: 'Runtime memory project', code: 'PR-CR-MEM' }, { viewer: owner })
+  switchBusiness = await createBusiness({ tenantId: tenant.id, name: 'Runtime memory switch business', code: 'BUS-CR-MEM-SWITCH' })
+  switchWorkspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: switchBusiness.id,
+    name: 'Runtime memory switch workspace', code: 'WS-CR-MEM-SWITCH' })
+  const switchOwner = makeViewer({ visibleBusinessIds: [switchBusiness.id], ownedBusinessIds: [switchBusiness.id] })
+  switchProject = await createProject({ workspaceId: switchWorkspace.id, businessId: switchBusiness.id,
+    name: 'Runtime memory switch project', code: 'PR-CR-MEM-SWITCH' }, { viewer: switchOwner })
   actor = await prisma.person.create({ data: { code: 'PER-CR-MEM', displayName: 'Synthetic memory customer' } })
   await prisma.membership.create({ data: { personId: actor.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
-  await prisma.customer.create({ data: { code: 'CUS-CR-MEM', tenantId: tenant.id, businessId: business.id,
+  await prisma.membership.create({ data: { personId: actor.id, tenantId: tenant.id, businessId: switchBusiness.id, role: 'MEMBER' } })
+  await prisma.customer.create({ data: { code: 'CUS-CR-MEM', tenantId: tenant.id, businessId: null,
     personId: actor.id, displayName: 'Consented memory customer', consentStatus: 'GRANTED' } })
   const provider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE OA' })
   const connection = await createIntegrationConnection({ tenantId: tenant.id, businessId: business.id,
@@ -281,11 +289,19 @@ beforeAll(async () => {
     integrationConnectionId: connection.id, code: 'cr-memory-account', displayName: 'Synthetic memory OA',
     bindingCode: 'cr-memory-binding', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD',
     runtimeOwner: 'CONVERSATION_RUNTIME', memoryPolicy: 'ON', memoryProjectId: project.id } })
+  const switchConnection = await createIntegrationConnection({ tenantId: tenant.id, businessId: switchBusiness.id,
+    providerId: provider.id, name: 'Synthetic memory switch LINE connection', externalAccountId: 'synthetic-memory-destination-switch', status: 'ACTIVE' })
+  switchAccount = await prisma.lineOaAccount.create({ data: { tenantId: tenant.id, businessId: switchBusiness.id,
+    integrationConnectionId: switchConnection.id, code: 'cr-memory-account-switch', displayName: 'Synthetic memory switch OA',
+    bindingCode: 'cr-memory-binding-switch', status: 'CONNECTED', serverEnabled: true, transportMode: 'CLOUD',
+    runtimeOwner: 'CONVERSATION_RUNTIME', memoryPolicy: 'ON', memoryProjectId: switchProject.id } })
   const linkedAt = new Date()
   await prisma.externalIdentity.create({ data: { tenantId: tenant.id, personId: actor.id, provider: 'LINE',
     providerSubject: lineUser, verifiedAt: linkedAt, linkedAt } })
   await prisma.channelIdentity.create({ data: { tenantId: tenant.id, personId: actor.id, channel: 'LINE',
     channelAccountId: account.bindingCode, providerSubject: lineUser, status: 'ACTIVE', verifiedAt: linkedAt, linkedAt } })
+  await prisma.channelIdentity.create({ data: { tenantId: tenant.id, personId: actor.id, channel: 'LINE',
+    channelAccountId: switchAccount.bindingCode, providerSubject: lineUser, status: 'ACTIVE', verifiedAt: linkedAt, linkedAt } })
 })
 
 afterEach(async () => {
@@ -295,12 +311,87 @@ afterEach(async () => {
   wire = []
   deliveries = []
   await prisma.business.update({ where: { id: business.id }, data: { status: 'ACTIVE' } })
+  await prisma.business.update({ where: { id: switchBusiness.id }, data: { status: 'ACTIVE' } })
   await prisma.channelIdentity.update({ where: { tenantId_channel_channelAccountId_providerSubject: {
     tenantId: tenant.id, channel: 'LINE', channelAccountId: account.bindingCode, providerSubject: lineUser } },
+  data: { status: 'ACTIVE', revokedAt: null, verifiedAt: new Date(), linkedAt: new Date() } })
+  await prisma.channelIdentity.update({ where: { tenantId_channel_channelAccountId_providerSubject: {
+    tenantId: tenant.id, channel: 'LINE', channelAccountId: switchAccount.bindingCode, providerSubject: lineUser } },
   data: { status: 'ACTIVE', revokedAt: null, verifiedAt: new Date(), linkedAt: new Date() } })
 })
 
 describe('Conversation Runtime memory-sync turns', () => {
+  it('routes the same principal A to B to A through each Business memory scope', async () => {
+    const episodicScopes = []
+    const episodicCalls = []
+    const episodicMemory = createMspMemoryPort({
+      vaultSetResolver: { resolve: async authorization => {
+        const scope = authorization.authContext.scope
+        episodicScopes.push({ ...scope, principalId: authorization.authContext.actor.principalId,
+          episodicMemoryAllowed: authorization.authContext.policy.episodicMemoryAllowed })
+        return { workspacePrivateVaultId: `api010-${scope.businessId}`,
+          globalPrivateVaultIds: ['api010-global-fallback'], sharedVaultIds: [],
+          permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.RUNTIME-SWITCH' } }
+      } },
+      transport: async (name, input) => {
+        episodicCalls.push({ name, input })
+        if (name !== 'msp_memory_list') return {}
+        return { entities: [{ entity_id: `episode-${input.vault_id}`, vault_id: input.vault_id, current_version: 1,
+          body_json: { fact: `private fact for ${input.vault_id}` }, source_hash: 'b'.repeat(64),
+          recorded_at: '2026-10-04T00:00:00.000Z' }] }
+      },
+    })
+    const msp = createFakeMsp()
+    const built = build({ msp, env: { ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' }, coreOptions: {
+      businessPorts: async () => ({ episodicMemory }),
+      memoryAuthorizationResolver: resolveAgentAuthorization,
+    } })
+    const turns = [
+      { selectedAccount: account, businessId: business.id, workspaceId: workspace.id, projectId: project.id },
+      { selectedAccount: switchAccount, businessId: switchBusiness.id, workspaceId: switchWorkspace.id, projectId: switchProject.id },
+      { selectedAccount: account, businessId: business.id, workspaceId: workspace.id, projectId: project.id },
+    ]
+    const jobIds = []
+    for (const [index, turn] of turns.entries()) {
+      const jobId = await admit({ selectedAccount: turn.selectedAccount })
+      jobIds.push(jobId)
+      expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } })).toMatchObject({
+        tenantId: tenant.id, businessId: turn.businessId, memorySyncOptIn: true, episodicMemoryOptIn: true,
+        episodicWorkspaceId: turn.workspaceId, episodicProjectId: turn.projectId,
+      })
+      const outcome = await createConversationRuntime({ ports: built.ports,
+        claimantId: `runtime-memory-business-switch-${index + 1}` }).runOne()
+      expect(outcome, JSON.stringify(outcome)).toMatchObject({ jobId, status: 'RECORDED' })
+    }
+
+    expect(jobIds).toHaveLength(3)
+    expect(episodicScopes).toEqual([
+      { tenantId: tenant.id, businessId: business.id, workspaceId: workspace.id, projectId: project.id,
+        principalId: actor.id, episodicMemoryAllowed: true },
+      { tenantId: tenant.id, businessId: switchBusiness.id, workspaceId: switchWorkspace.id, projectId: switchProject.id,
+        principalId: actor.id, episodicMemoryAllowed: true },
+      { tenantId: tenant.id, businessId: business.id, workspaceId: workspace.id, projectId: project.id,
+        principalId: actor.id, episodicMemoryAllowed: true },
+    ])
+    expect(episodicCalls.filter(call => call.name === 'msp_memory_list').map(call => call.input.vault_id))
+      .toEqual([`api010-${business.id}`, `api010-${switchBusiness.id}`, `api010-${business.id}`])
+    const modelPackets = built.modelInputs.map(input => JSON.stringify(input.contextPacket))
+    expect(modelPackets[0]).toContain(`private fact for api010-${business.id}`)
+    expect(modelPackets[1]).toContain(`private fact for api010-${switchBusiness.id}`)
+    expect(modelPackets[1]).not.toContain(`private fact for api010-${business.id}`)
+    expect(modelPackets[2]).toContain(`private fact for api010-${business.id}`)
+    expect(modelPackets[2]).not.toContain(`private fact for api010-${switchBusiness.id}`)
+
+    const resolutions = msp.calls.filter(call => call.name === 'msp_thread_resolve')
+    expect(resolutions.map(call => call.input.business_id)).toEqual([
+      business.id, business.id, switchBusiness.id, switchBusiness.id, business.id, business.id,
+    ])
+    const contexts = msp.calls.filter(call => call.name === 'msp_thread_context')
+    expect(contexts).toHaveLength(3)
+    expect(contexts[0].input.thread_id).toBe(contexts[2].input.thread_id)
+    expect(contexts[0].input.thread_id).not.toBe(contexts[1].input.thread_id)
+  })
+
   it('admits a memory-sync opt-in direct message to the runtime cohort', async () => {
     const jobId = await admit()
     expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } })).toMatchObject({
