@@ -35,6 +35,7 @@ function authorization({ writePrivate = false } = {}) {
     authorizedVaults: [{
       scope: 'private',
       tenantId: 'tenant-api010',
+      businessId: 'business-api010',
       principalId: 'person-api010',
       agentId: 'agent-api010',
       workspaceId: 'workspace-api010',
@@ -74,6 +75,21 @@ describe('API-010 canonical MSP memory boundary (FR-057)', () => {
 
     await expect(port.recallAuthorized(denied)).rejects.toThrow(/episodic retrieval requires an ALLOW policy decision/)
     expect(transport.calls).toEqual([])
+  })
+
+  it('rejects a missing or cross-Business authorized vault before any MSP call', async () => {
+    for (const mutate of [
+      scope => { delete scope.businessId },
+      scope => { scope.businessId = 'business-other' },
+    ]) {
+      const transport = transportFor()
+      const port = createMspMemoryPort({ transport, vaultSetResolver: resolverFor(transport) })
+      const context = authorization()
+      mutate(context.authorizedVaults[0])
+
+      await expect(port.recallAuthorized(context)).rejects.toThrow(/does not match AuthContext/)
+      expect(transport.calls).toEqual([])
+    }
   })
 
   it('resolves the canonical set first and reads API-009 by opaque Workspace Private ID', async () => {

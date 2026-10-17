@@ -26,6 +26,7 @@ function authorizedContext(overrides = {}) {
     authorizedVaults: [{
       scope: 'private',
       tenantId: 'tenant-1',
+      businessId: 'business-1',
       principalId: 'person-1',
       agentId: 'agent-1',
       workspaceId: 'workspace-1',
@@ -111,6 +112,29 @@ describe('createMspVaultResolver (FR-057, API-010)', () => {
     })
 
     await expect(resolver.resolve(context)).rejects.toThrow(/projectId|project_id/)
+    expect(calls).toHaveLength(0)
+  })
+
+  it('rejects missing or cross-Business authorized scopes before transport', async () => {
+    const calls = []
+    const resolver = createMspVaultResolver({
+      transport: async (...args) => { calls.push(args); return resolved }, serviceKey: SERVICE_KEY,
+    })
+    const mismatchedBusiness = authorizedContext()
+    mismatchedBusiness.authorizedVaults[0].businessId = 'business-2'
+    const missingAuthorizedBusiness = authorizedContext()
+    delete missingAuthorizedBusiness.authorizedVaults[0].businessId
+    const missingBusiness = authorizedContext()
+    const scopeWithoutBusiness = { ...missingBusiness.authContext.scope }
+    delete scopeWithoutBusiness.businessId
+    missingBusiness.authContext.scope = scopeWithoutBusiness
+    const missingWorkspace = authorizedContext()
+    missingWorkspace.authContext.scope.workspaceId = null
+
+    await expect(resolver.resolve(mismatchedBusiness)).rejects.toThrow(/authorized scope does not match AuthContext/)
+    await expect(resolver.resolve(missingAuthorizedBusiness)).rejects.toThrow(/authorized scope does not match AuthContext/)
+    await expect(resolver.resolve(missingBusiness)).rejects.toThrow(/authorized scope does not match AuthContext/)
+    await expect(resolver.resolve(missingWorkspace)).rejects.toThrow(/API-010 requires workspaceId/)
     expect(calls).toHaveLength(0)
   })
 

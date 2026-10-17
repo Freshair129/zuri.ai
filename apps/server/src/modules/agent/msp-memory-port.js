@@ -152,13 +152,16 @@ export function createMspMemoryPort({
       throw new Error('MSP memory port: episodic retrieval requires an ALLOW policy decision')
     }
     const scopes = authorization.authorizedVaults
+    const authScope = authorization.authContext.scope ?? {}
+    const expectedBusinessId = authScope.businessId ?? null
     if (!Array.isArray(scopes) || scopes.length === 0) {
       throw new Error('MSP memory port: authorized vault set is empty')
     }
     for (const scope of scopes) {
       if (
         scope?.scope !== 'private' ||
-        scope.tenantId !== authorization.authContext.scope.tenantId ||
+        scope.tenantId !== authScope.tenantId ||
+        (scope.businessId ?? null) !== expectedBusinessId ||
         scope.principalId !== authorization.authContext.actor.principalId ||
         scope.agentId !== authorization.authContext.request.agentId ||
         !scope.workspaceId ||
