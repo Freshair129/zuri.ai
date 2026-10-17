@@ -6,6 +6,27 @@ import { defaultReadOnlyTools } from './tools'
 import { resolveAgentAuthorization } from './auth-context'
 import { ROLE_MEMORY_AUDIT_ENTITY, ROLE_MEMORY_ACTIONS } from './role-memory-partition'
 
+function businessPrivateScopeIsBound(authorization) {
+  const authContext = authorization?.authContext
+  const scope = authContext?.scope ?? {}
+  const authorizedScopes = authorization?.authorizedVaults
+  if (!scope.businessId) {
+    return Array.isArray(authorizedScopes) && authorizedScopes.length > 0
+      && authorizedScopes.every(authorizedScope => (authorizedScope?.businessId ?? null) === null)
+  }
+
+  if (!Array.isArray(authorizedScopes) || authorizedScopes.length !== 1) return false
+  const authorizedScope = authorizedScopes[0]
+  return authorizedScope?.scope === 'private'
+    && authorizedScope.tenantId === scope.tenantId
+    && authorizedScope.businessId === scope.businessId
+    && authorizedScope.principalId === authContext.actor?.principalId
+    && authorizedScope.agentId === authContext.request?.agentId
+    && Boolean(scope.workspaceId)
+    && authorizedScope.workspaceId === scope.workspaceId
+    && (authorizedScope.projectId ?? null) === (scope.projectId ?? null)
+}
+
 // @req FR-025, FR-057, FR-096, FR-098, TASK-ZAI-024 — assemble settled identity, policy-filtered memory and knowledge.
 // @spec ADR-007 §P6 / ADR-022 / ADR-045 / Gate E — authorization and vault selection happen before
 //   private-memory retrieval; the model receives no raw scope authority. ADR-043 §D2 and
@@ -88,8 +109,10 @@ export async function assembleAgentContext({
   const scopedKey = authorizedVaults[0]?.scopeKey ?? key
   const memoryPort = memory ?? createInMemoryMemory()
   const episodicPort = memoryPort.requiresEpisodicAuthorization === true
+  const businessScopeBound = businessPrivateScopeIsBound(authorization)
   const privateMemoryReadAllowed = (episodicPort ? policy.episodicMemoryAllowed === true : policy.privateMemoryAllowed === true)
     && policy.mspAuthorization?.read === true
+    && businessScopeBound
   if (!privateMemoryReadAllowed) {
     await recordAudit(prisma, {
       entityType: ROLE_MEMORY_AUDIT_ENTITY,
@@ -99,9 +122,11 @@ export async function assembleAgentContext({
       actorId: authContext.actor?.principalId ?? null,
       tenantId: authContext.scope.tenantId,
       businessId: authContext.scope.businessId,
-      reason: (episodicPort ? policy.episodicMemoryAllowed : policy.privateMemoryAllowed) === true
-        ? 'MEMORY_READ_PERMISSION_DENIED'
-        : episodicPort ? policy.episodicMemoryReason ?? policy.reason : policy.reason,
+      reason: !businessScopeBound
+        ? 'BUSINESS_MEMORY_SCOPE_MISMATCH'
+        : (episodicPort ? policy.episodicMemoryAllowed : policy.privateMemoryAllowed) === true
+          ? 'MEMORY_READ_PERMISSION_DENIED'
+          : episodicPort ? policy.episodicMemoryReason ?? policy.reason : policy.reason,
       payload: {
         partition: 'private',
         agentId: authContext.request?.agentId ?? null,

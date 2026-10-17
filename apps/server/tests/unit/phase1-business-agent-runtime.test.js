@@ -102,7 +102,7 @@ describe('Phase 1 business-agent runtime', () => {
         policy: { decision: 'ALLOW', episodicMemoryAllowed: true, version: 'v1' },
       },
       authorizedVaults: [{ scope: 'private', tenantId: 'tenant-api010', principalId: 'person-api010',
-        agentId: 'agent-api010', workspaceId: 'workspace-api010', projectId: 'project-api010' }],
+        businessId: 'business-api010', agentId: 'agent-api010', workspaceId: 'workspace-api010', projectId: 'project-api010' }],
     }
     await expect(ports.episodicMemory.recallAuthorized(authorization)).resolves.toMatchObject({
       entries: [{ key: 'episodic-1', value: 'private fact' }], key: 'opaque-workspace-vault',

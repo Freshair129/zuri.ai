@@ -86,9 +86,11 @@ function currentScope(authorization) {
   const agentId = required(request.agentId, 'agentId')
   const workspaceId = required(scope.workspaceId, 'workspaceId')
   const projectId = required(scope.projectId, 'projectId')
+  const businessId = optional(scope.businessId)
   if (
     authorizedScope.scope !== 'private' ||
     authorizedScope.tenantId !== tenantId ||
+    optional(authorizedScope.businessId) !== businessId ||
     authorizedScope.principalId !== principalId ||
     authorizedScope.agentId !== agentId ||
     authorizedScope.workspaceId !== workspaceId ||
@@ -100,7 +102,7 @@ function currentScope(authorization) {
   return {
     authContext,
     tenantId,
-    businessId: optional(scope.businessId),
+    businessId,
     principalId,
     agentId,
     instanceId: optional(conversation.instanceId),
