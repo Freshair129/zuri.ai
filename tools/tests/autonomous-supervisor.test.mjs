@@ -5,7 +5,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { createAutonomousSupervisor, loadSupervisorCampaign, shouldYieldFiniteRun } from '../delivery-control/autonomous-supervisor.mjs';
+import { createAutonomousSupervisor, loadSupervisorCampaign, main, shouldYieldFiniteRun } from '../delivery-control/autonomous-supervisor.mjs';
+import { startConfiguredWorkerObservabilityPublisher } from '../delivery-control/controller-cli.mjs';
+import { startWorkerObservabilityPublisher } from '../delivery-control/worker-observability-publisher.mjs';
 
 function fixture(t) {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-supervisor-'));
@@ -567,6 +569,151 @@ test('successor admission and restart preserve the immutable original campaign d
   assert.equal(f.admissionCalls.length, 1);
   assert.equal(JSON.parse(fs.readFileSync(path.join(supervisor.stateRoot, 'checkpoint.json'), 'utf8')).deadlineAt, originalDeadline);
   await supervisor.stop();
+});
+
+function mainSupervisor({ tick = async () => ({ status: 'PAUSED_DEADLINE', observations: [] }) } = {}) {
+  let stopCalls = 0;
+  return {
+    supervisor: {
+      controller: { listRuns: () => [] },
+      controllerStateRoot: 'fixture-controller-state',
+      tick,
+      status: () => ({ intake: null, bindings: [], allowedTaskIds: [], deliveries: {} }),
+      stop: async () => { stopCalls++; },
+    },
+    stopCount: () => stopCalls,
+  };
+}
+
+function saveCampaign(f, overrides = {}) {
+  f.campaign = { ...f.campaign, ...overrides };
+  fs.writeFileSync(f.campaignFile, JSON.stringify(f.campaign));
+  return f.campaign;
+}
+
+test('serve uses the controller publisher configuration and run leaves it untouched', async (t) => {
+  const f = fixture(t);
+  saveCampaign(f, { workerObservabilityPublishIntervalMs: 8_000 });
+  const serving = mainSupervisor();
+  let publisherOptions;
+  let publisherStops = 0;
+  let dashboardStops = 0;
+  let livenessStops = 0;
+  const stderr = [];
+  await main(['serve', f.campaignFile], {
+    createSupervisor: async () => serving.supervisor,
+    startObservabilityPublisher: (options) => startConfiguredWorkerObservabilityPublisher({
+      ...options,
+      startPublisher: (received) => {
+        publisherOptions = received;
+        received.onError(new Error('private path and credential must not be printed'));
+        return { stop: () => { publisherStops++; } };
+      },
+    }),
+    startDashboard: async () => ({ close: (done) => { dashboardStops++; done(); } }),
+    startLiveness: () => ({ stop: () => { livenessStops++; } }),
+    writeError: (message) => stderr.push(message),
+  });
+
+  assert.equal(publisherOptions.repoRoot, f.folder);
+  assert.equal(publisherOptions.exportDirectory,
+    path.join(f.folder, 'apps', 'server', '.worker-observability.local'));
+  assert.equal(publisherOptions.intervalMs, 5_000);
+  assert.equal(publisherStops, 1);
+  assert.equal(dashboardStops, 1);
+  assert.equal(livenessStops, 1);
+  assert.equal(serving.stopCount(), 1);
+  assert.deepEqual(stderr, ['WORKER_OBSERVABILITY_EXPORT_FAILED\n']);
+
+  const running = mainSupervisor();
+  let runPublisherStarts = 0;
+  await main(['run', f.campaignFile], {
+    createSupervisor: async () => running.supervisor,
+    startObservabilityPublisher: () => { runPublisherStarts++; throw new Error('publisher must not start'); },
+  });
+  assert.equal(runPublisherStarts, 0);
+  assert.equal(running.stopCount(), 1);
+});
+
+test('serve repeatedly publishes the allowlisted snapshot and stops its timer', async (t) => {
+  const f = fixture(t);
+  saveCampaign(f, { workerObservabilityPublishIntervalMs: 10 });
+  const serving = mainSupervisor();
+  let snapshotReads = 0;
+  let publisherStops = 0;
+  let dashboardStops = 0;
+  let livenessStops = 0;
+  let exportDirectory;
+  await main(['serve', f.campaignFile], {
+    createSupervisor: async () => serving.supervisor,
+    startObservabilityPublisher: (options) => startConfiguredWorkerObservabilityPublisher({
+      ...options,
+      startPublisher: (publisherOptions) => {
+        exportDirectory = publisherOptions.exportDirectory;
+        const publisher = startWorkerObservabilityPublisher({
+          ...publisherOptions,
+          readSnapshot: () => { snapshotReads++; return null; },
+        });
+        return { stop: () => { publisherStops++; publisher.stop(); } };
+      },
+    }),
+    startDashboard: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 45));
+      return { close: (done) => { dashboardStops++; done(); } };
+    },
+    startLiveness: () => ({ stop: () => { livenessStops++; } }),
+  });
+
+  assert.ok(snapshotReads >= 2, `expected repeated publication, received ${snapshotReads} snapshots`);
+  const published = JSON.parse(fs.readFileSync(path.join(exportDirectory, 'worker-observability.json'), 'utf8'));
+  assert.equal(published.schemaVersion, 'worker-observability/v1');
+  assert.equal(published.state, 'UNKNOWN');
+  assert.equal(publisherStops, 1);
+  assert.equal(dashboardStops, 1);
+  assert.equal(livenessStops, 1);
+  assert.equal(serving.stopCount(), 1);
+
+  const stoppedReadCount = snapshotReads;
+  await new Promise((resolve) => setTimeout(resolve, 35));
+  assert.equal(snapshotReads, stoppedReadCount);
+});
+
+test('serve sanitizes publisher failures and releases resources when liveness startup fails', async (t) => {
+  const f = fixture(t);
+  saveCampaign(f, { workerObservabilityPublishIntervalMs: 10 });
+  const exportDirectory = path.join(f.folder, 'apps', 'server', '.worker-observability.local');
+  fs.mkdirSync(path.dirname(exportDirectory), { recursive: true });
+  fs.writeFileSync(exportDirectory, 'secret path and credential');
+  const serving = mainSupervisor();
+  let publisherStops = 0;
+  let dashboardStops = 0;
+  const stderr = [];
+
+  await assert.rejects(main(['serve', f.campaignFile], {
+    createSupervisor: async () => serving.supervisor,
+    startObservabilityPublisher: (options) => startConfiguredWorkerObservabilityPublisher({
+      ...options,
+      startPublisher: (publisherOptions) => {
+        const publisher = startWorkerObservabilityPublisher(publisherOptions);
+        return { stop: () => { publisherStops++; publisher.stop(); } };
+      },
+    }),
+    startDashboard: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 35));
+      return { close: (done) => { dashboardStops++; done(); } };
+    },
+    startLiveness: () => { throw new Error('LIVENESS_START_FAILED'); },
+    writeError: (message) => stderr.push(message),
+  }), /LIVENESS_START_FAILED/);
+
+  assert.ok(stderr.length >= 2, `expected repeated sanitized reports, received ${stderr.length}`);
+  assert.ok(stderr.every((message) => message === 'WORKER_OBSERVABILITY_EXPORT_FAILED\n'));
+  assert.equal(publisherStops, 1);
+  assert.equal(dashboardStops, 1);
+  assert.equal(serving.stopCount(), 1);
+  const reportsAtStop = stderr.length;
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  assert.equal(stderr.length, reportsAtStop);
 });
 
 test('an earlier valid checkpoint deadline permits admission while live and holds after it expires', async (t) => {
