@@ -535,6 +535,49 @@ test('CLI intake reconciles a commit-then-error without duplicate runs, cycles, 
   assert.equal(controller.getRun(f.task.taskId).cycles.length, 1);
 });
 
+test('repeated intake confirmation preserves suppression after a runner pre-claim failure', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const cache = new Map();
+  const initial = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache }))[0];
+  assert.equal(initial.code, 'TASK_REGISTRATION_CONFIRMED');
+  assert.equal(controller.getRun(f.task.taskId).state, 'WORKER_READY');
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+
+  let preClaimAttempts = 0;
+  let backendCalls = 0;
+  const runner = createControllerRunner({ controller, repoRoot: f.worktree,
+    stateRoot: path.join(f.worktree, '.git', 'runner-intake-confirmation'),
+    config: { tasks: [{ ...config.tasks[0], branch: 'codex/fixture' }] },
+    campaignDeadlineGuard: () => { preClaimAttempts++; return false; },
+    backend: async () => { backendCalls++; throw new Error('BACKEND_MUST_NOT_START'); } });
+  try {
+    const first = await runner.tick();
+    assert.equal(first.active, 1);
+    await runner.drain();
+    const suppressed = await runner.tick();
+    assert.equal(suppressed.active, 0);
+    assert.equal(suppressed.errors.length, 1);
+    assert.equal(preClaimAttempts, 1);
+
+    for (let poll = 0; poll < 3; poll++) {
+      const confirmation = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache, runner }))[0];
+      assert.equal(confirmation.code, 'DURABLE_REGISTRATION_CONFIRMED');
+      assert.equal(confirmation.currentCycle, 1);
+      const tick = await runner.tick();
+      assert.equal(tick.active, 0);
+      assert.deepEqual(tick.errors, []);
+      await runner.drain();
+      assert.equal(preClaimAttempts, 1);
+    }
+    assert.equal(backendCalls, 0);
+    assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+    assert.equal(controller.nextReadyNodes().length, 1);
+  } finally { await runner.stop(); }
+});
+
 test('CLI intake keeps the bounded retry cap stable across unrelated run-state changes', async (t) => {
   const f = candidateFixture(t);
   const controller = await openDeliveryController({ repoRoot: f.worktree });

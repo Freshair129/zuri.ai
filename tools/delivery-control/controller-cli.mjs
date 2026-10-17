@@ -156,13 +156,14 @@ function holdObservation(taskId, code, details = {}) {
   return { taskId, status: 'BLOCKED_FOR_REASSESSMENT', code, hold: true, ...details };
 }
 
-function observe(observations, observation, runner, cache, fingerprint) {
+function observe(observations, observation, runner, cache, fingerprint, wakeForNewWorkerReadyRun = false) {
   observations.push(observation);
   if (observation.hold) {
     runner?.hold(observation.taskId);
     if (fingerprint) cache.set(observation.taskId, { fingerprint, kind: 'hold', observation });
   } else if (observation.registrationConfirmed) {
-    runner?.wake(observation.taskId);
+    const priorIntakeHold = cache.get(observation.taskId)?.kind === 'hold';
+    if (priorIntakeHold || wakeForNewWorkerReadyRun) runner?.wake(observation.taskId);
     cache.set(observation.taskId, { fingerprint, kind: 'confirmed' });
   }
 }
@@ -310,7 +311,8 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
           }), runner, cache, fingerprint);
           continue;
         }
-        observe(observations, { ...registered, registrationConfirmed: true, code: 'TASK_REGISTRATION_CONFIRMED' }, runner, cache, fingerprint);
+        observe(observations, { ...registered, registrationConfirmed: true, code: 'TASK_REGISTRATION_CONFIRMED' }, runner, cache, fingerprint,
+          registered.state === 'WORKER_READY' && (!existing || existing.state !== 'WORKER_READY'));
       } catch (error) {
         let durable;
         try { durable = controller.getRun(binding.taskId); }
@@ -327,7 +329,8 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
         }
         if (durable) {
           if (runMatchesRegistrationInput(durable, binding, taskRecord, preflightResult)) {
-            observe(observations, { ...durable, registrationConfirmed: true, code: 'DURABLE_REGISTRATION_RECONCILED' }, runner, cache, fingerprint);
+            observe(observations, { ...durable, registrationConfirmed: true, code: 'DURABLE_REGISTRATION_RECONCILED' }, runner, cache, fingerprint,
+              durable.state === 'WORKER_READY' && (!existing || existing.state !== 'WORKER_READY'));
           } else {
             const detail = 'Registration failed and the durable task state does not match the attempted input.';
             const saved = updateReconciliation(file, binding.taskId, (state) => {
