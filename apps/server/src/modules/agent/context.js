@@ -109,10 +109,12 @@ export async function assembleAgentContext({
   const scopedKey = authorizedVaults[0]?.scopeKey ?? key
   const memoryPort = memory ?? createInMemoryMemory()
   const episodicPort = memoryPort.requiresEpisodicAuthorization === true
-  const businessScopeBound = businessPrivateScopeIsBound(authorization)
-  const privateMemoryReadAllowed = (episodicPort ? policy.episodicMemoryAllowed === true : policy.privateMemoryAllowed === true)
+  const privateMemoryPolicyAllows = (episodicPort ? policy.episodicMemoryAllowed === true : policy.privateMemoryAllowed === true)
     && policy.mspAuthorization?.read === true
-    && businessScopeBound
+  // Preserve the authorization policy's original refusal reason when it already
+  // denied access; a missing vault is expected on that path, not a scope mismatch.
+  const businessScopeBound = !privateMemoryPolicyAllows || businessPrivateScopeIsBound(authorization)
+  const privateMemoryReadAllowed = privateMemoryPolicyAllows && businessScopeBound
   if (!privateMemoryReadAllowed) {
     await recordAudit(prisma, {
       entityType: ROLE_MEMORY_AUDIT_ENTITY,
