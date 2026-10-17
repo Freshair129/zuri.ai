@@ -674,6 +674,254 @@ test('CLI intake reconciles a pending unknown-effect hold when durable registrat
   finally { db.close(); }
 });
 
+test('CLI intake durably reconciles a persisted post-registration unknown hold with its matching run', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const register = controller.registerTask.bind(controller);
+  const getRun = controller.getRun.bind(controller);
+  let getRunCalls = 0;
+  let registrationCalls = 0;
+  const uncertainController = new Proxy(controller, { get(target, property) {
+    if (property === 'registerTask') return (input) => {
+      registrationCalls++;
+      register(input);
+      throw Object.assign(new Error('fixture post-commit error'), { code: 'FIXTURE_AFTER_COMMIT' });
+    };
+    if (property === 'getRun') return (taskId) => {
+      getRunCalls++;
+      if (getRunCalls === 2) throw Object.assign(new Error('fixture transient durable read failure'), { code: 'FIXTURE_READ_FAILURE' });
+      return getRun(taskId);
+    };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+
+  const persisted = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(persisted.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+  assert.equal(registrationCalls, 1);
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  const stateBefore = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(stateBefore.stickyHold.fingerprint, persisted.fingerprint);
+  assert.equal(stateBefore.stickyHold.phase, 'POST_REGISTRATION_ATTEMPT');
+
+  const priorRecord = { fingerprint: persisted.fingerprint, state: 'RETRY_WAIT', attempts: 1,
+    code: 'REGISTRATION_RETRY_BACKOFF', retryAt: '2030-01-01T00:00:01.000Z', detail: 'prior bounded attempt' };
+  stateBefore.records[persisted.fingerprint] = priorRecord;
+  fs.writeFileSync(stateFile, JSON.stringify(stateBefore));
+
+  const reconciled = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(reconciled.code, 'DURABLE_REGISTRATION_CONFIRMED');
+  assert.equal(reconciled.registrationConfirmed, true);
+  assert.equal(registrationCalls, 1);
+  assert.equal(controller.getRun(f.task.taskId).cycles.length, 1);
+  const stateAfter = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(stateAfter.stickyHold, undefined);
+  assert.deepEqual(stateAfter.records[persisted.fingerprint], priorRecord);
+  assert.equal(stateAfter.reconciledStickyHolds.at(-1).resolution, 'MATCHING_DURABLE_REGISTRATION');
+  const db = new DatabaseSync(controller.databasePath);
+  try {
+    assert.equal(db.prepare('SELECT COUNT(*) AS count FROM delivery_runs WHERE task_id=?').get(f.task.taskId).count, 1);
+    assert.equal(db.prepare('SELECT COUNT(*) AS count FROM delivery_cycles WHERE task_id=?').get(f.task.taskId).count, 1);
+    assert.equal(db.prepare("SELECT COUNT(*) AS count FROM delivery_events WHERE task_id=? AND event_type='TASK_REGISTERED'").get(f.task.taskId).count, 1);
+  } finally { db.close(); }
+});
+
+test('CLI intake clears a persisted pre-registration unknown hold after authoritative absence and registers once', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const getRun = controller.getRun.bind(controller);
+  const register = controller.registerTask.bind(controller);
+  let getRunCalls = 0;
+  let registrationCalls = 0;
+  const uncertainController = new Proxy(controller, { get(target, property) {
+    if (property === 'getRun') return (taskId) => {
+      getRunCalls++;
+      if (getRunCalls === 1) throw Object.assign(new Error('fixture pre-registration read failure'), { code: 'FIXTURE_READ_FAILURE' });
+      return getRun(taskId);
+    };
+    if (property === 'registerTask') return (input) => { registrationCalls++; return register(input); };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+
+  const first = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(first.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+  assert.equal(registrationCalls, 0);
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  const stateBefore = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(stateBefore.stickyHold.fingerprint, first.fingerprint);
+  assert.equal(stateBefore.stickyHold.phase, 'PRE_REGISTRATION_LOOKUP');
+
+  const recovered = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(recovered.code, 'TASK_REGISTRATION_CONFIRMED');
+  assert.equal(recovered.registrationConfirmed, true);
+  assert.equal(registrationCalls, 1);
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+  const stateAfter = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(stateAfter.stickyHold, undefined);
+  assert.equal(stateAfter.reconciledStickyHolds.at(-1).resolution, 'AUTHORITATIVE_ABSENCE_PRE_REGISTRATION');
+});
+
+test('CLI intake converts post-registration authoritative absence to bounded retry without a hot re-register', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const getRun = controller.getRun.bind(controller);
+  const register = controller.registerTask.bind(controller);
+  let getRunCalls = 0;
+  let registrationCalls = 0;
+  let clock = Date.parse('2030-01-01T00:00:00.000Z');
+  let failWithoutEffect = true;
+  const uncertainController = new Proxy(controller, { get(target, property) {
+    if (property === 'getRun') return (taskId) => {
+      getRunCalls++;
+      if (getRunCalls === 2) throw Object.assign(new Error('fixture transient durable read failure'), { code: 'FIXTURE_READ_FAILURE' });
+      return getRun(taskId);
+    };
+    if (property === 'registerTask') return (input) => {
+      registrationCalls++;
+      if (failWithoutEffect) throw Object.assign(new Error('fixture pre-commit failure'), { code: 'FIXTURE_NO_EFFECT' });
+      return register(input);
+    };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+
+  const unknown = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map(), now: () => clock }))[0];
+  assert.equal(unknown.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+  assert.equal(registrationCalls, 1);
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  assert.equal(JSON.parse(fs.readFileSync(stateFile, 'utf8')).stickyHold.phase, 'POST_REGISTRATION_ATTEMPT');
+
+  const absent = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map(), now: () => clock }))[0];
+  assert.equal(absent.code, 'REGISTRATION_RETRY_BACKOFF');
+  assert.equal(absent.attempts, 1);
+  assert.equal(registrationCalls, 1);
+  assert.equal(controller.getRun(f.task.taskId), null);
+  const stateAfterAbsence = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(stateAfterAbsence.stickyHold, undefined);
+  assert.equal(stateAfterAbsence.records[unknown.fingerprint].state, 'RETRY_WAIT');
+  assert.equal(stateAfterAbsence.records[unknown.fingerprint].attempts, 1);
+  assert.equal(stateAfterAbsence.reconciledStickyHolds.at(-1).resolution, 'AUTHORITATIVE_ABSENCE_POST_REGISTRATION');
+
+  clock = Date.parse(absent.retryAt) + 1;
+  failWithoutEffect = false;
+  const retried = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map(), now: () => clock }))[0];
+  assert.equal(retried.code, 'TASK_REGISTRATION_CONFIRMED');
+  assert.equal(registrationCalls, 2);
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+});
+
+test('CLI intake keeps legacy and mismatched unknown holds fail-closed', async (t) => {
+  for (const [label, mutateHold] of [
+    ['legacy hold without phase', (hold) => { delete hold.phase; }],
+    ['hold with a different fingerprint', (hold) => { hold.fingerprint = 'f'.repeat(64); }],
+  ]) {
+    await t.test(label, async (st) => {
+      const f = candidateFixture(st);
+      const controller = await openDeliveryController({ repoRoot: f.worktree });
+      f.cleanupHooks.push(() => controller.close());
+      const config = intakeConfig(f);
+      const getRun = controller.getRun.bind(controller);
+      const register = controller.registerTask.bind(controller);
+      let firstRead = true;
+      let registrationCalls = 0;
+      const uncertainController = new Proxy(controller, { get(target, property) {
+        if (property === 'getRun') return (taskId) => {
+          if (firstRead) {
+            firstRead = false;
+            throw Object.assign(new Error('fixture pre-registration read failure'), { code: 'FIXTURE_READ_FAILURE' });
+          }
+          return getRun(taskId);
+        };
+        if (property === 'registerTask') return (input) => { registrationCalls++; return register(input); };
+        const value = Reflect.get(target, property, target);
+        return typeof value === 'function' ? value.bind(target) : value;
+      } });
+      const first = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+        config, cache: new Map() }))[0];
+      assert.equal(first.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+      const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+        `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+      const state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+      mutateHold(state.stickyHold);
+      fs.writeFileSync(stateFile, JSON.stringify(state));
+
+      const stillHeld = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+        config, cache: new Map() }))[0];
+      assert.equal(stillHeld.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+      assert.equal(stillHeld.hold, true);
+      assert.equal(registrationCalls, 0);
+      assert.equal(controller.getRun(f.task.taskId), null);
+    });
+  }
+});
+
+test('CLI intake clears a legacy phase-less unknown hold only after matching durable registration is read', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const readiness = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+  controller.registerTask({ taskRecord: f.task, preflightResult: readiness, worktreeRoot: f.worktree,
+    trustedMandateBinding: config.tasks[0].trustedMandateBinding });
+  const getRun = controller.getRun.bind(controller);
+  let firstRead = true;
+  let registrationCalls = 0;
+  const uncertainController = new Proxy(controller, { get(target, property) {
+    if (property === 'getRun') return (taskId) => {
+      if (firstRead) {
+        firstRead = false;
+        throw Object.assign(new Error('fixture pre-registration read failure'), { code: 'FIXTURE_READ_FAILURE' });
+      }
+      return getRun(taskId);
+    };
+    if (property === 'registerTask') return (input) => { registrationCalls++; return target.registerTask(input); };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+
+  const unknown = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(unknown.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  const stateBefore = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  delete stateBefore.stickyHold.phase;
+  fs.writeFileSync(stateFile, JSON.stringify(stateBefore));
+
+  const reconciled = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(reconciled.code, 'DURABLE_REGISTRATION_CONFIRMED');
+  assert.equal(reconciled.registrationConfirmed, true);
+  assert.equal(registrationCalls, 0);
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+  const stateAfter = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(stateAfter.stickyHold, undefined);
+  assert.equal(stateAfter.reconciledStickyHolds.at(-1).hold.phase, undefined);
+  assert.equal(stateAfter.reconciledStickyHolds.at(-1).resolution, 'MATCHING_DURABLE_REGISTRATION');
+  const db = new DatabaseSync(controller.databasePath);
+  try {
+    assert.equal(db.prepare("SELECT COUNT(*) AS count FROM delivery_events WHERE task_id=? AND event_type='TASK_REGISTERED'")
+      .get(f.task.taskId).count, 1);
+  } finally { db.close(); }
+});
+
 test('repeated intake confirmation preserves suppression after a runner pre-claim failure', async (t) => {
   const f = candidateFixture(t);
   const controller = await openDeliveryController({ repoRoot: f.worktree });

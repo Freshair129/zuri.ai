@@ -40,6 +40,12 @@ export function startConfiguredWorkerObservabilityPublisher({
 const INTAKE_RECONCILIATION_SCHEMA = 'controller-intake-reconciliation/v1';
 const MAX_REGISTRATION_ATTEMPTS = 3;
 const REGISTRATION_RETRY_BACKOFF_MS = [1_000, 2_000];
+const UNKNOWN_HOLD_PHASES = ['PRE_REGISTRATION_LOOKUP', 'POST_REGISTRATION_ATTEMPT'];
+const UNKNOWN_HOLD_RESOLUTIONS = [
+  'MATCHING_DURABLE_REGISTRATION',
+  'AUTHORITATIVE_ABSENCE_PRE_REGISTRATION',
+  'AUTHORITATIVE_ABSENCE_POST_REGISTRATION',
+];
 
 function normalizeSemantic(value) {
   if (Array.isArray(value)) return value.map(normalizeSemantic);
@@ -98,8 +104,30 @@ function hasLockConflicts(snapshot) {
   return ['worktree', 'writeScope', 'domain'].some((key) => Array.isArray(snapshot?.[key]) && snapshot[key].length > 0);
 }
 
-function pendingSticky(fingerprint, code, detail, recordedAt) {
-  return { kind: 'sticky', hold: { fingerprint, code, detail, recordedAt } };
+function pendingSticky(fingerprint, code, detail, recordedAt, phase) {
+  return { kind: 'sticky', hold: { fingerprint, code, detail, recordedAt, ...(phase ? { phase } : {}) } };
+}
+
+function isCurrentUnknownHold(hold, fingerprint) {
+  return hold?.code === 'DURABLE_CONTROLLER_STATE_UNKNOWN'
+    && hold.fingerprint === fingerprint
+    && (hold.phase === undefined || UNKNOWN_HOLD_PHASES.includes(hold.phase));
+}
+
+function resolveUnknownHold(file, taskId, expectedHold, resolution, resolvedAt, record) {
+  let matched = false;
+  const saved = updateReconciliation(file, taskId, (state) => {
+    const hold = state.stickyHold;
+    if (hold?.code !== expectedHold.code || hold.fingerprint !== expectedHold.fingerprint
+        || hold.phase !== expectedHold.phase || hold.recordedAt !== expectedHold.recordedAt) return state;
+    state.reconciledStickyHolds ??= [];
+    state.reconciledStickyHolds.push({ hold: { ...hold }, resolution, resolvedAt });
+    delete state.stickyHold;
+    if (record) state.records[expectedHold.fingerprint] = record;
+    matched = true;
+    return state;
+  });
+  return saved && matched;
 }
 
 function persistPendingReconciliation(file, taskId, pending) {
@@ -155,6 +183,20 @@ function readReconciliation(file, taskId) {
     if (state.stickyHold && (typeof state.stickyHold.code !== 'string'
         || !/^[a-f0-9]{64}$/.test(state.stickyHold.fingerprint ?? ''))) {
       return { error: new Error('ADMISSION_STATE_HOLD_MISMATCH') };
+    }
+    if (state.stickyHold?.phase !== undefined && !UNKNOWN_HOLD_PHASES.includes(state.stickyHold.phase)) {
+      return { error: new Error('ADMISSION_STATE_HOLD_PHASE_MISMATCH') };
+    }
+    if (state.reconciledStickyHolds !== undefined
+        && (!Array.isArray(state.reconciledStickyHolds) || state.reconciledStickyHolds.some((entry) => (
+          entry?.hold?.code !== 'DURABLE_CONTROLLER_STATE_UNKNOWN'
+          || !/^[a-f0-9]{64}$/.test(entry.hold.fingerprint ?? '')
+          || !UNKNOWN_HOLD_RESOLUTIONS.includes(entry.resolution)
+          || !(UNKNOWN_HOLD_PHASES.includes(entry.hold.phase)
+            || (entry.hold.phase === undefined && entry.resolution === 'MATCHING_DURABLE_REGISTRATION'))
+          || typeof entry.resolvedAt !== 'string' || !Number.isFinite(Date.parse(entry.resolvedAt))
+        )))) {
+      return { error: new Error('ADMISSION_STATE_RECONCILIATION_MISMATCH') };
     }
     return { state };
   } catch (error) { return { error }; }
@@ -218,7 +260,8 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
       try { existing = controller.getRun(binding.taskId); }
       catch {
         const detail = 'Durable controller state could not be read.';
-        const pending = pendingSticky(fingerprint, 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail, new Date(epochMs(now)).toISOString());
+        const pending = pendingSticky(fingerprint, 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail,
+          new Date(epochMs(now)).toISOString(), 'PRE_REGISTRATION_LOOKUP');
         const saved = updateReconciliation(file, binding.taskId, (state) => {
           state.stickyHold ??= pending.hold;
           return state;
@@ -236,9 +279,11 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
         }), runner, cache, fingerprint, false, cache.get(binding.taskId)?.pending ?? null);
         continue;
       }
-      if (loaded.state.stickyHold) {
-        observe(observations, holdObservation(binding.taskId, loaded.state.stickyHold.code, {
-          fingerprint: loaded.state.stickyHold.fingerprint, detail: loaded.state.stickyHold.detail,
+      const stickyHold = loaded.state.stickyHold;
+      const reconcilableUnknownHold = isCurrentUnknownHold(stickyHold, fingerprint);
+      if (stickyHold && !reconcilableUnknownHold) {
+        observe(observations, holdObservation(binding.taskId, stickyHold.code, {
+          fingerprint: stickyHold.fingerprint, detail: stickyHold.detail,
         }), runner, cache, fingerprint);
         continue;
       }
@@ -267,6 +312,75 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
           fingerprint, reasonCode: saved ? undefined : 'TASK_BINDING_MISMATCH', detail,
         }), runner, cache, fingerprint);
         continue;
+      }
+
+      if (reconcilableUnknownHold) {
+        if (existing) {
+          if (!runMatchesRegistrationInput(existing, binding, taskRecord, preflightResult)) {
+            observe(observations, holdObservation(binding.taskId, stickyHold.code, {
+              fingerprint: stickyHold.fingerprint, detail: 'Durable state does not match the input bound to the unknown hold.',
+            }), runner, cache, fingerprint);
+            continue;
+          }
+          const saved = resolveUnknownHold(file, binding.taskId, stickyHold,
+            'MATCHING_DURABLE_REGISTRATION', new Date(currentTime).toISOString());
+          if (!saved) {
+            observe(observations, holdObservation(binding.taskId, stickyHold.code, {
+              fingerprint: stickyHold.fingerprint, detail: 'The matching durable registration was read, but the stale hold could not be durably reclassified.',
+            }), runner, cache, fingerprint);
+            continue;
+          }
+          delete loaded.state.stickyHold;
+        } else if (stickyHold.phase === 'PRE_REGISTRATION_LOOKUP') {
+          const saved = resolveUnknownHold(file, binding.taskId, stickyHold,
+            'AUTHORITATIVE_ABSENCE_PRE_REGISTRATION', new Date(currentTime).toISOString());
+          if (!saved) {
+            observe(observations, holdObservation(binding.taskId, stickyHold.code, {
+              fingerprint: stickyHold.fingerprint, detail: 'Durable absence was read, but the pre-registration hold could not be durably reclassified.',
+            }), runner, cache, fingerprint);
+            continue;
+          }
+          delete loaded.state.stickyHold;
+        } else if (stickyHold.phase === 'POST_REGISTRATION_ATTEMPT') {
+          const prior = loaded.state.records[fingerprint];
+          const priorAttempts = prior?.attempts ?? 0;
+          if (!Number.isSafeInteger(priorAttempts) || priorAttempts < 0 || priorAttempts >= MAX_REGISTRATION_ATTEMPTS) {
+            observe(observations, holdObservation(binding.taskId, stickyHold.code, {
+              fingerprint: stickyHold.fingerprint, attempts: priorAttempts,
+              detail: 'The prior registration attempt count is missing, invalid, or exhausted; the unknown hold remains active.',
+            }), runner, cache, fingerprint);
+            continue;
+          }
+          const attempts = priorAttempts + 1;
+          const exhausted = attempts >= MAX_REGISTRATION_ATTEMPTS;
+          const retryAt = exhausted ? null : new Date(currentTime + REGISTRATION_RETRY_BACKOFF_MS[attempts - 1]).toISOString();
+          const code = exhausted ? 'REGISTRATION_RETRY_EXHAUSTED' : 'REGISTRATION_RETRY_BACKOFF';
+          const detail = exhausted
+            ? 'An authoritative read found no durable registration after the bounded attempt cap.'
+            : 'An authoritative read found no durable registration; retry is held until the backoff expires.';
+          const record = { fingerprint, state: exhausted ? 'HOLD_RETRY_EXHAUSTED' : 'RETRY_WAIT',
+            attempts, code, retryAt, failureCode: 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail,
+            updatedAt: new Date(currentTime).toISOString() };
+          const saved = resolveUnknownHold(file, binding.taskId, stickyHold,
+            'AUTHORITATIVE_ABSENCE_POST_REGISTRATION', new Date(currentTime).toISOString(), record);
+          if (!saved) {
+            observe(observations, holdObservation(binding.taskId, stickyHold.code, {
+              fingerprint: stickyHold.fingerprint, attempts,
+              detail: 'Durable absence was read, but the post-registration hold could not be durably reclassified.',
+            }), runner, cache, fingerprint);
+            continue;
+          }
+          observe(observations, holdObservation(binding.taskId, code, {
+            fingerprint, attempts, retryAt, detail,
+          }), runner, cache, fingerprint);
+          continue;
+        } else {
+          observe(observations, holdObservation(binding.taskId, stickyHold.code, {
+            fingerprint: stickyHold.fingerprint,
+            detail: 'A legacy unknown hold has no phase and no matching durable registration; it remains held.',
+          }), runner, cache, fingerprint);
+          continue;
+        }
       }
 
       if (existing && !runMatchesIdentity(existing, binding, taskRecord)) {
@@ -474,7 +588,8 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
         try { durable = controller.getRun(binding.taskId); }
         catch {
           const detail = 'Registration failed and durable controller state could not be reconciled.';
-          const pending = pendingSticky(fingerprint, 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail, new Date(currentTime).toISOString());
+          const pending = pendingSticky(fingerprint, 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail,
+            new Date(currentTime).toISOString(), 'POST_REGISTRATION_ATTEMPT');
           const saved = updateReconciliation(file, binding.taskId, (state) => {
             state.stickyHold ??= pending.hold;
             return state;
