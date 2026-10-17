@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { GenesisLocalRag, type AnswerRag } from '../../src/rag/genesis-rag.js';
+import type { AnswerRag } from '../../src/rag/genesis-rag.js';
 import type { SearchEvidenceV4 } from '../../src/answer/format-cards.js';
 import { compactSearchForModel } from '../../src/answer/tools.js';
 import { createConversationExecutor } from '../../src/conversation/executor.js';
@@ -95,19 +95,19 @@ const job = (): ConversationJob => ({
   policy: { modelAccess: 'LOCAL_ONLY', role: 'sales', retainHistory: false },
 });
 
-test('off is the default, needs nothing, and hands the answer the v4 door itself', async () => {
+test('off is the default and a Business answer without trusted corpus context fails closed', async () => {
   assert.equal(loadGenesisRag17Settings({}), null);
   assert.equal(createGenesisRag17Runtime({ [MODE_ENV]: 'off', ZURI_MSP_COMMAND: '' }), null);
   const v4 = fakeV4();
   assert.equal(wrapAnswerRag(v4.rag, null), v4.rag);
 
-  let seen: unknown;
+  let answerCalls = 0;
   const execute = createConversationExecutor({ catalogRoot: tmp() }, {
     genesisRag17: createGenesisRag17Runtime({}),
-    answer: (async (_question: string, options: { rag: unknown }) => { seen = options.rag; return { text: 'ตอบ', source: 'model' }; }) as never,
+    answer: (async () => { answerCalls += 1; return { text: 'ตอบ', source: 'model' }; }) as never,
   });
-  assert.deepEqual(await execute(job()), { text: 'ตอบ', source: 'model' });
-  assert.ok(seen instanceof GenesisLocalRag, 'off must pass the unwrapped v4 GenesisLocalRag');
+  await assert.rejects(execute(job()), error => error instanceof ConversationError && error.code === 'BUSINESS_SCOPE_REQUIRED');
+  assert.equal(answerCalls, 0);
 
   const compact = compactSearchForModel(v4Evidence('q', ['TMS06-4'])) as Record<string, unknown>;
   assert.equal('passages' in compact, false);

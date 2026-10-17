@@ -16,6 +16,11 @@ import {
 } from '../../src/answer/memory.js';
 import { answerConversation } from '../../src/answer/respond.js';
 import { findWithinBudget, quotePrice, searchProducts } from '../../src/answer/tools.js';
+import { createConversationExecutor } from '../../src/conversation/executor.js';
+import { bindConversationBudget } from '../../src/conversation/deadline.js';
+import { ConversationError, type ConversationJob } from '../../src/conversation/contract.js';
+import type { EdgePublishedCorpusContext } from '../../src/rag/genesisrag17/corpus-context.js';
+import type { GenesisRag17Runtime } from '../../src/rag/genesisrag17/published-rag.js';
 import { emptyFakeRag, fakeRag, stubResult } from '../helpers/fake-rag.js';
 
 function catalogOf(products: Omit<CatalogProduct, 'book'>[]): Catalog {
@@ -219,6 +224,77 @@ describe('Evidence handed to the model', () => {
 });
 
 describe('Answering a conversation', () => {
+  it('does not read a shared catalog or local RAG when Business context is absent', async () => {
+    let fetchCalls = 0, answerCalls = 0;
+    const job: ConversationJob = {
+      id: 'business-two-job', version: 1, question: 'Find a product for Business two',
+      conversationKey: 'business-two-conversation', leaseExpiresAt: new Date(Date.now() + 120000).toISOString(),
+      policy: { modelAccess: 'LOCAL_ONLY', role: 'sales', retainHistory: false },
+    };
+    const execute = createConversationExecutor({}, {
+      ragUrl: 'http://127.0.0.1:8888', genesisRag17: null,
+      fetchFn: (async () => { fetchCalls += 1; return new Response('{}'); }) as unknown as typeof fetch,
+      answer: async () => {
+        answerCalls += 1;
+        return { text: 'unsafe unscoped answer', source: 'model', toolCalls: [] };
+      },
+    });
+
+    await assert.rejects(execute(job), error => error instanceof ConversationError && error.code === 'BUSINESS_SCOPE_REQUIRED');
+    assert.equal(fetchCalls, 0);
+    assert.equal(answerCalls, 0);
+  });
+
+  it('rejects a SmartGift product response for a Business two corpus without v4 fallback', async () => {
+    const businessTwoScope = { portfolioId: 'portfolio-two', tenantId: 'tenant-two', businessId: 'business-two',
+      workspaceId: '', agentId: '', visibility: 'private' as const };
+    const corpusContext: EdgePublishedCorpusContext = {
+      schemaVersion: 'edge-published-corpus.v1', scope: businessTwoScope, corpusId: 'business-two-corpus',
+      corpusGeneration: 2, manifestHash: 'b'.repeat(64), expiresAt: new Date(Date.now() + 120000).toISOString(),
+      entries: [{ sourceId: 'business-two-source', snapshotId: 'business-two-snapshot', generation: '2',
+        receiptHash: 'c'.repeat(64), rawArtifactId: 'business-two-raw', parsedArtifactId: 'business-two-parsed' }],
+    };
+    const smartGiftScope = { ...businessTwoScope, businessId: 'smartgift-business' };
+    const smartGiftResponse = {
+      schemaVersion: 'genesisrag17.v1', productSchemaVersion: 'published-products.v1', scope: smartGiftScope,
+      corpusId: corpusContext.corpusId, corpusGeneration: corpusContext.corpusGeneration, manifestHash: corpusContext.manifestHash,
+      operation: 'search', results: [{ code: 'SG-PRIVATE-0001', kind: 'PRODUCT', name: 'SMARTGIFT_PRIVATE_SENTINEL', score: 1,
+        citation: { sourceId: 'business-two-source', rawArtifactId: 'business-two-raw', parsedArtifactId: 'business-two-parsed',
+          chunkId: 'sentinel-chunk', contentHash: 'd'.repeat(64), snapshotId: 'business-two-snapshot', generation: '2' },
+        graph: [], price: { code: 'SG-PRIVATE-0001', tiers: [], selected: null, status: 'PRICE_MISSING' } }],
+      lanes: { vectorCalls: 1, graphCalls: 1 }, priceBasis: 'PUBLISHED_CATALOG_SNAPSHOT_NOT_LIVE_QUOTE',
+    };
+    let productCalls = 0, v4Calls = 0;
+    const runtime = { settings: { scope: businessTwoScope }, client: { productQuery: async () => {
+      productCalls += 1;
+      return smartGiftResponse;
+    } } } as unknown as GenesisRag17Runtime;
+    const job: ConversationJob = {
+      id: 'business-two-scoped-job', version: 1, executionId: 'business-two-execution',
+      deadline: { issuedAt: new Date(Date.now() - 1000).toISOString(), answerDeadlineAt: new Date(Date.now() + 60000).toISOString(),
+        remainingBudgetMs: 30000, deliveryMode: 'REPLY' },
+      question: 'Find a product for Business two', conversationKey: 'business-two-scoped-conversation',
+      leaseExpiresAt: new Date(Date.now() + 120000).toISOString(),
+      policy: { modelAccess: 'LOCAL_ONLY', role: 'sales', retainHistory: false }, corpusContext,
+    };
+    bindConversationBudget(job, performance.now());
+    const execute = createConversationExecutor({ llmEnabled: true, llmBaseUrl: 'http://127.0.0.1:11434/v1' }, {
+      ragUrl: 'http://127.0.0.1:8888', genesisRag17: runtime,
+      fetchFn: (async () => { v4Calls += 1; return new Response('{}'); }) as unknown as typeof fetch,
+      answer: async (_question, options) => {
+        const evidence = await options.rag.searchProducts('Business two product lookup');
+        assert.equal(evidence.unavailable, true);
+        return { text: JSON.stringify(evidence), source: 'rules', reason: 'PUBLISHED_CATALOG_EVIDENCE', toolCalls: [] };
+      },
+    });
+
+    const result = await execute(job);
+    assert.equal(productCalls, 1);
+    assert.equal(v4Calls, 0);
+    assert.equal(result.reason, 'PUBLISHED_CATALOG_EVIDENCE');
+    assert.doesNotMatch(result.text, /SMARTGIFT_PRIVATE_SENTINEL|SG-PRIVATE-0001/);
+  });
+
   it('uses the pattern reader when no model is configured, and still answers', async () => {
     const result = await answerConversation('TJS23-2 100 ชุด', {
       ...evidenceBase,

@@ -6,7 +6,6 @@ import path from 'node:path';
 import { createConversationExecutor, headlessProviderHome, validateExecutionPolicy } from '../../src/conversation/executor.js';
 import { ConversationError, type ConversationJob } from '../../src/conversation/contract.js';
 import { buildArgs, saveSession, loadSessionId, type HeadlessOptions } from '../../src/answer/headless.js';
-import { GenesisLocalRag } from '../../src/rag/genesis-rag.js';
 
 const job = (): ConversationJob => ({
   id: '10c0eacf-1e65-413a-a6c1-3f6d125cf123', version: 1, question: 'สินค้าอะไรบ้าง',
@@ -26,37 +25,40 @@ test('local RAG launcher never starts the retired dist conversation worker', () 
   assert.match(launcher, /scripts\\embed-sidecar\.py/);
 });
 
-test('local executor composes the retained Genesis RAG path without a cloud client', async () => {
-  let seen: unknown;
+test('local executor rejects an unscoped Business turn before model or RAG access', async () => {
+  let answerCalls = 0;
   const answer = createConversationExecutor({}, { ragUrl: 'http://127.0.0.1:8888',
     genesisRag17: null,
     answer: async (_question, options) => {
-      seen = options.rag;
-      assert.equal(options.retainHistory, false);
-      return { text: 'คำตอบจากความรู้ในเครื่อง', source: 'model', toolCalls: [] };
+      answerCalls += 1;
+      return { text: 'unscoped answer', source: 'model', toolCalls: [] };
     },
   });
-  assert.deepEqual(await answer(job()), { text: 'คำตอบจากความรู้ในเครื่อง', source: 'model' });
-  assert.ok(seen instanceof GenesisLocalRag);
+  await assert.rejects(answer(job()), error => error instanceof ConversationError && error.code === 'BUSINESS_SCOPE_REQUIRED');
+  assert.equal(answerCalls, 0);
 });
 
-test('empty local catalogue cannot turn a holding rules response into a verified answer', async () => {
+test('empty local catalogue cannot bypass the missing Business scope guard', async () => {
+  let answerCalls = 0;
   const answer = createConversationExecutor({ catalogRoot: path.join(os.tmpdir(), 'zuri-empty-catalog-retired-worker') }, {
     ragUrl: 'http://127.0.0.1:8888',
-    answer: async () => ({ text: 'ไม่พบสินค้า', source: 'rules', toolCalls: [] }),
+    answer: async () => { answerCalls += 1; return { text: 'ไม่พบสินค้า', source: 'rules', toolCalls: [] }; },
   });
-  await assert.rejects(answer(job()), error => error instanceof ConversationError && error.code === 'EXECUTION_FAILED');
+  await assert.rejects(answer(job()), error => error instanceof ConversationError && error.code === 'BUSINESS_SCOPE_REQUIRED');
+  assert.equal(answerCalls, 0);
 });
 
-test('a populated local catalogue can still produce a checked rules answer', async () => {
+test('a populated shared catalogue is never read without a trusted Business corpus', async () => {
   const catalogRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-local-catalog-'));
+  let answerCalls = 0;
   try {
     fs.writeFileSync(path.join(catalogRoot, 'book.json'), JSON.stringify({ label: 'test',
       products: [{ code: 'T1', name: 'Test product', rmb: 10, upc: 10, dims: [10, 10, 10], kg: 1, e: false }] }));
     const answer = createConversationExecutor({ catalogRoot }, { ragUrl: 'http://127.0.0.1:8888',
-      answer: async () => ({ text: 'ตรวจแคตตาล็อกแล้ว', source: 'rules', toolCalls: [] }),
+      answer: async () => { answerCalls += 1; return { text: 'ตรวจแคตตาล็อกแล้ว', source: 'rules', toolCalls: [] }; },
     });
-    assert.deepEqual(await answer(job()), { text: 'ตรวจแคตตาล็อกแล้ว', source: 'rules' });
+    await assert.rejects(answer(job()), error => error instanceof ConversationError && error.code === 'BUSINESS_SCOPE_REQUIRED');
+    assert.equal(answerCalls, 0);
   } finally { fs.rmSync(catalogRoot, { recursive: true, force: true }); }
 });
 

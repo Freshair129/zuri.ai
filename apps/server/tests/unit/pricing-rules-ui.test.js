@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { PricingVariables, PricingFormulas, PricingPreviewInputs, PricingResults, emptyPreviewInput, setAtPath, pricingDiff } from '@/modules/commerce/ui/PricingRulesEditor'
 import { defaultPricingRules } from '@/modules/commerce/domain/pricing-rules'
-import PricingRulesPage from '@/app/(pm)/commerce/pricing-rules/page'
+import PricingRulesPage, { PricingTemplateAction, PricingTemplateUnavailableNotice, pricingEditorReady } from '@/app/(pm)/commerce/pricing-rules/page'
 import PricingCatalogSubmit, { CatalogPriceReview } from '@/modules/commerce/ui/PricingCatalogSubmit'
 import { ScopeProvider } from '@/context/ScopeContext'
 import { sampleInventory } from '../factories/scope-context'
@@ -18,6 +18,14 @@ vi.mock('@/context/ScopeContext', async () => { const { createScopeContextDouble
 const render = (component, props) => renderToStaticMarkup(createElement(component, props))
 
 describe('FR-253 pricing console', () => {
+  it('shows an explicit unavailable state and disables a template-only draft without Business-safe rules', () => {
+    const action = render(PricingTemplateAction, { hasTemplate: false, disabled: false, onClick() {} })
+    const notice = render(PricingTemplateUnavailableNotice, { hasSavedRules: false })
+    expect(action).toMatch(/<button[^>]*disabled=""[^>]*>ร่างใหม่จากแม่แบบ<\/button>/)
+    expect(notice).toContain('ยังไม่มีแม่แบบสูตรที่กำหนดให้ Business นี้')
+    expect(notice).toContain('ระบบไม่ใช้แม่แบบ SmartGift ข้าม Business')
+    expect(pricingEditorReady({ canManage: true, rules: [], template: null }, null)).toBe(false)
+  })
   it('does not allow a draft preview to become a Knowledge publication', () => {
     const html = render(PricingCatalogSubmit, { businessId: 'biz-1', activeRule: null })
     expect(html).toContain('ไม่ใช้ตัวเลขทดลองด้านบน')

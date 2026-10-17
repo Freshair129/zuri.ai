@@ -119,8 +119,22 @@ describe('FR-253 scoped pricing lifecycle', () => {
     await expect(approve(row, { effectiveFrom: later(-1).toISOString() })).rejects.toMatchObject({ status: 422 })
     await expect(approve(row, { effectiveFrom: later(1).toISOString(), expiresAt: later(1).toISOString() })).rejects.toMatchObject({ status: 422 })
     await expect(getActivePricingRuleSet(other.id, { viewer: foreignOwner, now: NOW })).rejects.toMatchObject({ status: 409 })
-    const listed = await listPricingRules({ businessId: business.id }, { viewer: owner, now: NOW })
+    const smartGift = await createBusiness({ tenantId: business.tenantId, code: 'BUS-SMARTGIFT', name: 'SmartGift' })
+    const smartGiftOwner = makeViewer({ visibleBusinessIds: [smartGift.id], ownedBusinessIds: [smartGift.id], visibleDomains: ['commerce'] })
+    const smartGiftSentinel = await createPricingRuleSet({
+      businessId: smartGift.id,
+      name: 'SmartGift-only sentinel policy',
+      rules: defaultPricingRules(),
+    }, { viewer: smartGiftOwner, now: NOW })
+
+    const listed = await listPricingRules({ businessId: other.id }, { viewer: foreignOwner, now: NOW })
     expect(listed.canManage).toBe(true)
-    expect(listed.template).toEqual(defaultPricingRules())
+    expect(listed.template).toBeNull()
+    expect(listed.rules).toEqual([])
+    expect(listed.rules.some((row) => row.id === smartGiftSentinel.id)).toBe(false)
+
+    const smartGiftListing = await listPricingRules({ businessId: smartGift.id }, { viewer: smartGiftOwner, now: NOW })
+    expect(smartGiftListing.template).toEqual(defaultPricingRules())
+    expect(smartGiftListing.rules.map((row) => row.id)).toContain(smartGiftSentinel.id)
   })
 })

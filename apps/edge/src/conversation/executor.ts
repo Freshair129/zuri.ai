@@ -5,9 +5,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import type { AgentConfig } from '../config/index.js';
 import { answerConversation } from '../answer/respond.js';
-import { requireHeadlessPolicy, type HeadlessOptions } from '../answer/headless.js';
+import type { HeadlessOptions } from '../answer/headless.js';
 import { createModelPort } from '../answer/providers/index.js';
-import { loadCatalog } from '../catalog/store.js';
+import type { Catalog } from '../catalog/store.js';
 import { GenesisLocalRag } from '../rag/genesis-rag.js';
 import { createGenesisRag17Runtime, wrapAnswerRag, type GenesisRag17Runtime } from '../rag/genesisrag17/published-rag.js';
 import { ConversationError, type ConversationAnswer, type ConversationJob, isLoopbackUrl } from './contract.js';
@@ -22,8 +22,8 @@ import { createProgressReporter, type ExecutionProgress } from './progress.js';
 //   data behind it; the executor refuses to complete the job rather than let it record as a
 //   verified answer (see the post-answer check below).
 
-// @req FR-189 — the answer's RAG door follows ZURI_EDGE_GENESISRAG17_MODE (ADR-075 D7): `off` (the default)
-//   hands the answer the v4 door itself; `shadow`/`primary` refuse to start without their prerequisites.
+// @req FR-189 — scoped answers use the server-bound published corpus; the legacy v4 door is not
+//   available to a Business turn without that context.
 // @tested tests/unit/genesisrag17-edge.test.ts
 
 export type { ConversationAnswer };
@@ -42,15 +42,19 @@ export function headlessProviderHome(
 export const JOB_MODEL_BUDGET_MS = 30000;
 
 export function validateExecutionPolicy(job: ConversationJob, config: Partial<AgentConfig>, ragUrl: string): void {
+  // The headless pricing MCP has no server-derived Business scope and reads the
+  // local SmartGift catalog. Never let a Business conversation reach that door.
+  if (config.headlessEnabled) throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+  // Separate standalone readers (`mcp/genesis-mcp-server.ts#search_catalog`,
+  // `mcp/pricing-server.ts`, `cli/index.ts`, and `pricing/http-server.ts`,
+  // launched by `scripts/start-pricing-service.ts`) still lack a server-derived
+  // Business scope. They stay outside this executor; this patch does not claim
+  // all-reader isolation, and they must not serve Business-scoped requests.
   // Corpus-bound answers require the instrumented tool path. Neither a local
   // catalog fallback nor a headless CLI is bound to this authorized generation.
-  if ('corpusContext' in job && job.corpusContext
-      && (config.headlessEnabled || !config.llmEnabled || !config.llmBaseUrl)) {
+  if ('corpusContext' in job && job.corpusContext && (!config.llmEnabled || !config.llmBaseUrl)) {
     throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
   }
-  const headlessBin = config.headlessBin || 'claude';
-  const managedHome = headlessProviderHome(config, headlessBin);
-  if (config.headlessEnabled) requireHeadlessPolicy(headlessBin, true, managedHome.codexHome);
   // The RAG adapter is a local capability, never an arbitrary endpoint from a job.
   if (!isLoopbackUrl(ragUrl)) throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
   if (job.policy.modelAccess === 'LOCAL_ONLY' &&
@@ -92,6 +96,7 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
     const budget = remainingConversationBudget(job);
     const memory = 'memoryContext' in job ? job.memoryContext : undefined;
     const corpus = 'corpusContext' in job ? job.corpusContext : undefined;
+    if (!corpus) throw new ConversationError('BUSINESS_SCOPE_REQUIRED');
     if (memory && (config.headlessEnabled || !config.llmEnabled || !config.llmBaseUrl)) {
       throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
     }
@@ -101,9 +106,10 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
     // An opaque server identity is not a filesystem path, even if a future caller gets it wrong.
     const key = crypto.createHash('sha256').update(job.conversationKey).digest('hex');
     try {
-      // Read here so the post-answer check below can see whether there was ever any data to
-      // read, and so a malformed catalogue file's thrown error still hits the `finally` cleanup.
-      const catalog = corpus ? { products: [], byCode: new Map() } : loadCatalog(config.catalogRoot || 'state/catalog');
+      // The shared local catalog has no Business binding. It must not be read
+      // for a Business job; the only product reader below is the server-bound
+      // published corpus, and missing scope stays unavailable.
+      const catalog: Catalog = { products: [], byCode: new Map() };
       const local = Boolean(config.llmBaseUrl);
       const llm = config.llmEnabled ? {
         port: createModelPort({
@@ -143,8 +149,9 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
       const result = await (options.answer || answerConversation)(job.question, {
         catalog, role: 'sales',
         exchangeRate: config.exchangeRateThbPerRmb || 5,
-        rag: wrapAnswerRag(new GenesisLocalRag({ apiUrl: ragUrl, fetchImpl: noRedirectFetch }), genesisRag17,
-          corpus, signal),
+        rag: corpus
+          ? wrapAnswerRag(new GenesisLocalRag({ apiUrl: ragUrl, fetchImpl: noRedirectFetch, allowUnscopedReads: false }), genesisRag17, corpus, signal)
+          : new GenesisLocalRag({ apiUrl: ragUrl, fetchImpl: noRedirectFetch, allowUnscopedReads: false }),
         conversationKey: key,
         memory: { root: path.join(scratch, 'memory'), hashKey: '', retentionHours: 0 },
         retainHistory: false,
