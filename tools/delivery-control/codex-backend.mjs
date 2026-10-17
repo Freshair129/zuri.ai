@@ -16,6 +16,21 @@ export const ROLE_RESULT_SCHEMA = {
 const ROLES = new Set(['worker', 'verifier', 'reviewer']);
 const sha = (s) => createHash('sha256').update(s).digest('hex');
 
+/** Write the complete buffer or fail closed if the filesystem cannot make progress. */
+export function writeBufferFullySync(fd, buffer, writeSync = fs.writeSync) {
+  if (!Buffer.isBuffer(buffer)) throw new TypeError('TRACE_BUFFER_REQUIRED');
+  let offset = 0;
+  while (offset < buffer.length) {
+    const remaining = buffer.length - offset;
+    const written = writeSync(fd, buffer, offset, remaining);
+    if (!Number.isSafeInteger(written) || written <= 0 || written > remaining) {
+      throw new Error('BACKEND_TRACE_WRITE_FAILED');
+    }
+    offset += written;
+  }
+  return offset;
+}
+
 /** Parse a single command string using Windows command-line quoting (plus PowerShell single quotes). */
 export function commandTokens(command, platform = process.platform) {
   if (typeof command !== 'string' || !command.trim()) return null;
@@ -344,7 +359,8 @@ export async function runCodexRole({ executable, role, worktree, artifactDir, pr
       if (disposed || callbackError) return false;
       bytes += chunk.length;
       if (bytes > 16 * 1024 * 1024) { callbackError = new Error('BACKEND_OUTPUT_LIMIT'); stop(); return false; }
-      fs.writeSync(fd, chunk);
+    try { writeBufferFullySync(fd, chunk); }
+    catch { callbackError = new Error('BACKEND_TRACE_WRITE_FAILED'); stop(); return false; }
       return true;
     };
     child.stderr.on('data', (chunk) => capture(errors, chunk));

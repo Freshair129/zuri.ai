@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { backendEnvironment, buildCodexInvocation, commandTokens, createRoleCheckTrace, runCodexRole } from '../delivery-control/codex-backend.mjs';
+import { backendEnvironment, buildCodexInvocation, commandTokens, createRoleCheckTrace, runCodexRole, writeBufferFullySync } from '../delivery-control/codex-backend.mjs';
 
 test('worker environment strips database provider and deploy credentials', () => {
   assert.deepEqual(backendEnvironment({ SystemRoot: 'windows', PATH: 'bin', CODEX_HOME: 'auth-location',
@@ -75,6 +75,20 @@ function startedCommand(id, command) {
 function completedCommand(id, command, exitCode, status = exitCode === 0 ? 'completed' : 'failed') {
   return { type: 'item.completed', item: { id, type: 'command_execution', command, aggregated_output: 'redacted fixture output', exit_code: exitCode, status } };
 }
+test('JSONL capture completes partial file writes and rejects stalled persistence', () => {
+  const source = Buffer.from('complete trace bytes');
+  const stored = Buffer.alloc(source.length);
+  let offset = 0;
+  const writePartial = (_fd, buffer, start, length) => {
+    const count = Math.min(3, length);
+    buffer.copy(stored, offset, start, start + count);
+    offset += count;
+    return count;
+  };
+  assert.equal(writeBufferFullySync(1, source, writePartial), source.length);
+  assert.deepEqual(stored, source);
+  assert.throws(() => writeBufferFullySync(1, source, () => 0), /BACKEND_TRACE_WRITE_FAILED/);
+});
 test('fresh session is bound before accepting exact head result and output directory cannot be reused', async (t) => {
   const { dir, head } = fixture(t);
   const { check, command } = checkFixture(dir);
