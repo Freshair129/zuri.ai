@@ -535,6 +535,145 @@ test('CLI intake reconciles a commit-then-error without duplicate runs, cycles, 
   assert.equal(controller.getRun(f.task.taskId).cycles.length, 1);
 });
 
+test('CLI intake does not re-register an unchanged scope-lock hold and recovers after lock release', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const blockerTask = { ...f.task, taskId: 'INTAKE-LOCK-BLOCKER', writeScope: ['src/'] };
+  const blockerTaskFile = path.join(f.worktree, '.git', 'intake-lock-blocker.json');
+  fs.writeFileSync(blockerTaskFile, JSON.stringify(blockerTask));
+  const blockerPreflight = preflightTask({ repo: f.worktree, taskFile: blockerTaskFile, base: f.baseCommit });
+  assert.equal(blockerPreflight.status, 'READY');
+  controller.registerTask({ taskRecord: blockerTask, preflightResult: blockerPreflight, worktreeRoot: f.worktree,
+    trustedMandateBinding: { resolvedBy: 'root', taskId: blockerTask.taskId, repositoryRoot: f.worktree,
+      objective: blockerTask.objective, domainOrFeatureKey: 'test/intake-lock-blocker', writeScope: blockerTask.writeScope,
+      sourceRef: 'intake lock fixture', authorizedEffects: ['local fixture changes'], prohibitions: ['external effects'] } });
+
+  const register = controller.registerTask.bind(controller);
+  let calls = 0;
+  controller.registerTask = (input) => { calls++; return register(input); };
+  const cache = new Map();
+  const first = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache }))[0];
+  assert.equal(first.code, 'DURABLE_SCOPE_LOCK_BLOCKED');
+  assert.equal(first.hold, true);
+  assert.equal(controller.getRun(f.task.taskId).state, 'BLOCKED_SCOPE');
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 0);
+  assert.equal(calls, 1);
+
+  const unchanged = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache }))[0];
+  assert.equal(unchanged.code, 'DURABLE_SCOPE_LOCK_BLOCKED');
+  assert.equal(calls, 1);
+
+  controller.recordRootDisposition({ taskId: blockerTask.taskId, disposition: 'ABANDONED',
+    evidenceRef: 'test://intake-lock-released', reason: 'Release the fixture resource lock.' });
+  const recovered = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache }))[0];
+  assert.equal(recovered.code, 'TASK_REGISTRATION_CONFIRMED');
+  assert.equal(recovered.state, 'WORKER_READY');
+  assert.equal(calls, 2);
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+});
+
+test('CLI intake persists a pending retry without hot-registering when retry-state writes fail', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const cache = new Map();
+  const register = controller.registerTask.bind(controller);
+  const getRun = controller.getRun.bind(controller);
+  let getRunCalls = 0;
+  let registrationCalls = 0;
+  let failWithoutEffect = true;
+  let clock = Date.parse('2030-01-01T00:00:00.000Z');
+  const guardedController = new Proxy(controller, { get(target, property) {
+    if (property === 'registerTask') return (input) => {
+      registrationCalls++;
+      if (failWithoutEffect) throw Object.assign(new Error('fixture no-effect failure'), { code: 'FIXTURE_NO_EFFECT' });
+      return register(input);
+    };
+    if (property === 'getRun') return (taskId) => {
+      getRunCalls++;
+      if (getRunCalls === 2) {
+        fs.renameSync = () => { throw Object.assign(new Error('fixture state write failure'), { code: 'FIXTURE_WRITE_FAILURE' }); };
+      }
+      return getRun(taskId);
+    };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+  const originalRenameSync = fs.renameSync;
+  let first;
+  try {
+    first = (await admitConfiguredTasks({ controller: guardedController, repoRoot: f.worktree, config, cache,
+      now: () => clock }))[0];
+  } finally { fs.renameSync = originalRenameSync; }
+  assert.equal(first.code, 'ADMISSION_HOLD_PERSIST_FAILED');
+  assert.equal(registrationCalls, 1);
+
+  const persistenceRetry = (await admitConfiguredTasks({ controller: guardedController, repoRoot: f.worktree, config, cache,
+    now: () => clock }))[0];
+  assert.equal(persistenceRetry.code, 'REGISTRATION_RETRY_BACKOFF');
+  assert.equal(persistenceRetry.attempts, 1);
+  assert.equal(registrationCalls, 1);
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  assert.equal(JSON.parse(fs.readFileSync(stateFile, 'utf8')).records[persistenceRetry.fingerprint].attempts, 1);
+
+  clock = Date.parse(persistenceRetry.retryAt) + 1;
+  failWithoutEffect = false;
+  const retried = (await admitConfiguredTasks({ controller: guardedController, repoRoot: f.worktree, config, cache,
+    now: () => clock }))[0];
+  assert.equal(retried.code, 'TASK_REGISTRATION_CONFIRMED');
+  assert.equal(registrationCalls, 2);
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+});
+
+test('CLI intake reconciles a pending unknown-effect hold when durable registration becomes readable', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const cache = new Map();
+  const register = controller.registerTask.bind(controller);
+  const getRun = controller.getRun.bind(controller);
+  let getRunCalls = 0;
+  let registrationCalls = 0;
+  const uncertainController = new Proxy(controller, { get(target, property) {
+    if (property === 'registerTask') return (input) => {
+      registrationCalls++;
+      register(input);
+      throw Object.assign(new Error('fixture post-commit error'), { code: 'FIXTURE_AFTER_COMMIT' });
+    };
+    if (property === 'getRun') return (taskId) => {
+      getRunCalls++;
+      if (getRunCalls === 2) {
+        fs.renameSync = () => { throw Object.assign(new Error('fixture hold write failure'), { code: 'FIXTURE_WRITE_FAILURE' }); };
+        throw Object.assign(new Error('fixture durable read failure'), { code: 'FIXTURE_READ_FAILURE' });
+      }
+      return getRun(taskId);
+    };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+  const originalRenameSync = fs.renameSync;
+  let uncertain;
+  try {
+    uncertain = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree, config, cache }))[0];
+  } finally { fs.renameSync = originalRenameSync; }
+  assert.equal(uncertain.code, 'ADMISSION_HOLD_PERSIST_FAILED');
+  assert.equal(registrationCalls, 1);
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+
+  const reconciled = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree, config, cache }))[0];
+  assert.equal(reconciled.code, 'DURABLE_REGISTRATION_CONFIRMED');
+  assert.equal(registrationCalls, 1);
+  assert.equal(controller.getRun(f.task.taskId).cycles.length, 1);
+  const db = new DatabaseSync(controller.databasePath);
+  try { assert.equal(db.prepare("SELECT COUNT(*) AS count FROM delivery_events WHERE task_id=? AND event_type='TASK_REGISTERED'").get(f.task.taskId).count, 1); }
+  finally { db.close(); }
+});
+
 test('repeated intake confirmation preserves suppression after a runner pre-claim failure', async (t) => {
   const f = candidateFixture(t);
   const controller = await openDeliveryController({ repoRoot: f.worktree });

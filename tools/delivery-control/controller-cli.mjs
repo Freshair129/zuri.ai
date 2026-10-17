@@ -85,6 +85,39 @@ function runMatchesRegistrationInput(run, binding, taskRecord, preflightResult) 
       === JSON.stringify(normalizeSemantic(preflightResult.dependencies ?? [])));
 }
 
+function inspectLockConflictSnapshot(controller, taskId, taskRecord) {
+  const inspected = controller.inspectCycleAdmissionConflicts({ taskId, writeScope: taskRecord.writeScope });
+  return normalizeSemantic({
+    worktree: inspected.worktree ?? [],
+    writeScope: inspected.writeScope ?? [],
+    domain: inspected.domain ?? [],
+  });
+}
+
+function hasLockConflicts(snapshot) {
+  return ['worktree', 'writeScope', 'domain'].some((key) => Array.isArray(snapshot?.[key]) && snapshot[key].length > 0);
+}
+
+function pendingSticky(fingerprint, code, detail, recordedAt) {
+  return { kind: 'sticky', hold: { fingerprint, code, detail, recordedAt } };
+}
+
+function persistPendingReconciliation(file, taskId, pending) {
+  if (pending?.kind === 'retry' && pending.fingerprint && pending.record) {
+    return updateReconciliation(file, taskId, (state) => {
+      state.records[pending.fingerprint] ??= pending.record;
+      return state;
+    });
+  }
+  if (pending?.kind === 'sticky' && pending.hold) {
+    return updateReconciliation(file, taskId, (state) => {
+      state.stickyHold ??= pending.hold;
+      return state;
+    });
+  }
+  return false;
+}
+
 function reconciliationFile(controller, repoRoot, taskId) {
   let privateRoot;
   if (typeof controller.databasePath === 'string' && controller.databasePath.trim()) {
@@ -113,7 +146,9 @@ function readReconciliation(file, taskId) {
     }
     for (const [fingerprint, record] of Object.entries(state.records)) {
       if (!/^[a-f0-9]{64}$/.test(fingerprint) || record?.fingerprint !== fingerprint
-          || !['RETRY_WAIT', 'HOLD_RETRY_EXHAUSTED', 'HOLD_PREFLIGHT'].includes(record.state)) {
+          || !['RETRY_WAIT', 'HOLD_RETRY_EXHAUSTED', 'HOLD_PREFLIGHT', 'HOLD_SCOPE_CONFLICT'].includes(record.state)
+          || (record.state === 'HOLD_SCOPE_CONFLICT'
+            && !['worktree', 'writeScope', 'domain'].every((key) => Array.isArray(record.conflictSnapshot?.[key])))) {
         return { error: new Error('ADMISSION_STATE_RECORD_MISMATCH') };
       }
     }
@@ -156,11 +191,11 @@ function holdObservation(taskId, code, details = {}) {
   return { taskId, status: 'BLOCKED_FOR_REASSESSMENT', code, hold: true, ...details };
 }
 
-function observe(observations, observation, runner, cache, fingerprint, wakeForNewWorkerReadyRun = false) {
+function observe(observations, observation, runner, cache, fingerprint, wakeForNewWorkerReadyRun = false, pending = null) {
   observations.push(observation);
   if (observation.hold) {
     runner?.hold(observation.taskId);
-    if (fingerprint) cache.set(observation.taskId, { fingerprint, kind: 'hold', observation });
+    if (fingerprint) cache.set(observation.taskId, { fingerprint, kind: 'hold', observation, ...(pending ? { pending } : {}) });
   } else if (observation.registrationConfirmed) {
     const priorIntakeHold = cache.get(observation.taskId)?.kind === 'hold';
     if (priorIntakeHold || wakeForNewWorkerReadyRun) runner?.wake(observation.taskId);
@@ -183,14 +218,14 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
       try { existing = controller.getRun(binding.taskId); }
       catch {
         const detail = 'Durable controller state could not be read.';
+        const pending = pendingSticky(fingerprint, 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail, new Date(epochMs(now)).toISOString());
         const saved = updateReconciliation(file, binding.taskId, (state) => {
-          state.stickyHold ??= { fingerprint, code: 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail,
-            recordedAt: new Date(epochMs(now)).toISOString() };
+          state.stickyHold ??= pending.hold;
           return state;
         });
         observe(observations, holdObservation(binding.taskId, saved ? 'DURABLE_CONTROLLER_STATE_UNKNOWN' : 'ADMISSION_HOLD_PERSIST_FAILED', {
           fingerprint, reasonCode: saved ? undefined : 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail,
-        }), runner, cache, fingerprint);
+        }), runner, cache, fingerprint, false, saved ? null : pending);
         continue;
       }
 
@@ -198,7 +233,7 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
       if (loaded.error) {
         observe(observations, holdObservation(binding.taskId, 'ADMISSION_RECONCILIATION_STATE_UNKNOWN', {
           fingerprint, detail: 'Durable admission state could not be verified.',
-        }), runner, cache, fingerprint);
+        }), runner, cache, fingerprint, false, cache.get(binding.taskId)?.pending ?? null);
         continue;
       }
       if (loaded.state.stickyHold) {
@@ -236,18 +271,98 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
 
       if (existing && !runMatchesIdentity(existing, binding, taskRecord)) {
         const detail = 'Durable task state does not match the configured task, worktree, or trusted mandate.';
+        const pending = pendingSticky(fingerprint, 'DURABLE_REGISTRATION_MISMATCH', detail, new Date(currentTime).toISOString());
         const saved = updateReconciliation(file, binding.taskId, (state) => {
-          state.stickyHold ??= { fingerprint, code: 'DURABLE_REGISTRATION_MISMATCH', detail, recordedAt: new Date(currentTime).toISOString() };
+          state.stickyHold ??= pending.hold;
           return state;
         });
         observe(observations, holdObservation(binding.taskId, saved ? 'DURABLE_REGISTRATION_MISMATCH' : 'ADMISSION_HOLD_PERSIST_FAILED', {
           fingerprint, reasonCode: saved ? undefined : 'DURABLE_REGISTRATION_MISMATCH', detail,
-        }), runner, cache, fingerprint);
+        }), runner, cache, fingerprint, false, saved ? null : pending);
         continue;
       }
-      if (existing?.currentCycle > 0 || (existing && runMatchesRegistrationInput(existing, binding, taskRecord, preflightResult))) {
+      const matchesRegistrationInput = existing && runMatchesRegistrationInput(existing, binding, taskRecord, preflightResult);
+      if (existing?.currentCycle > 0) {
         observe(observations, { ...existing, registrationConfirmed: true, code: 'DURABLE_REGISTRATION_CONFIRMED' }, runner, cache, fingerprint);
         continue;
+      }
+      if (matchesRegistrationInput && existing.state !== 'BLOCKED_SCOPE') {
+        observe(observations, { ...existing, registrationConfirmed: true, code: 'DURABLE_REGISTRATION_CONFIRMED' }, runner, cache, fingerprint);
+        continue;
+      }
+      if (matchesRegistrationInput && existing.state === 'BLOCKED_SCOPE') {
+        let conflictSnapshot;
+        try { conflictSnapshot = inspectLockConflictSnapshot(controller, binding.taskId, taskRecord); }
+        catch {
+          const detail = 'Durable resource-lock state could not be inspected.';
+          const pending = pendingSticky(fingerprint, 'DURABLE_LOCK_STATE_UNKNOWN', detail, new Date(currentTime).toISOString());
+          const saved = updateReconciliation(file, binding.taskId, (state) => {
+            state.stickyHold ??= pending.hold;
+            return state;
+          });
+          observe(observations, holdObservation(binding.taskId, saved ? pending.hold.code : 'ADMISSION_HOLD_PERSIST_FAILED', {
+            fingerprint, reasonCode: saved ? undefined : pending.hold.code, detail,
+          }), runner, cache, fingerprint, false, saved ? null : pending);
+          continue;
+        }
+        const priorScope = loaded.state.records[fingerprint];
+        const hasPriorScope = priorScope?.state === 'HOLD_SCOPE_CONFLICT';
+        const sameSnapshot = hasPriorScope
+          && JSON.stringify(priorScope.conflictSnapshot) === JSON.stringify(conflictSnapshot);
+        if (hasLockConflicts(conflictSnapshot) && (!hasPriorScope || sameSnapshot)) {
+          const record = { fingerprint, state: 'HOLD_SCOPE_CONFLICT', attempts: 0,
+            code: 'DURABLE_SCOPE_LOCK_BLOCKED', conflictSnapshot,
+            detail: 'Registration remains blocked by the same durable resource-lock conflict.',
+            updatedAt: new Date(currentTime).toISOString() };
+          const saved = sameSnapshot || updateReconciliation(file, binding.taskId, (state) => {
+            state.records[fingerprint] = record;
+            return state;
+          });
+          observe(observations, holdObservation(binding.taskId, saved ? record.code : 'ADMISSION_HOLD_PERSIST_FAILED', {
+            fingerprint, reasonCode: saved ? undefined : record.code, conflictSnapshot, detail: record.detail,
+          }), runner, cache, fingerprint);
+          continue;
+        }
+        if (hasPriorScope && sameSnapshot && !hasLockConflicts(conflictSnapshot)) {
+          const detail = 'Durable task state remains scope-blocked without a matching resource-lock conflict.';
+          const pending = pendingSticky(fingerprint, 'DURABLE_SCOPE_BLOCK_REASON_UNKNOWN', detail, new Date(currentTime).toISOString());
+          const saved = updateReconciliation(file, binding.taskId, (state) => {
+            state.stickyHold ??= pending.hold;
+            return state;
+          });
+          observe(observations, holdObservation(binding.taskId, saved ? pending.hold.code : 'ADMISSION_HOLD_PERSIST_FAILED', {
+            fingerprint, reasonCode: saved ? undefined : pending.hold.code, detail,
+          }), runner, cache, fingerprint, false, saved ? null : pending);
+          continue;
+        }
+      }
+
+      const pending = cache.get(binding.taskId)?.pending;
+      if (pending?.kind === 'sticky') {
+        const saved = persistPendingReconciliation(file, binding.taskId, pending);
+        observe(observations, holdObservation(binding.taskId, saved ? pending.hold.code : 'ADMISSION_HOLD_PERSIST_FAILED', {
+          fingerprint: pending.hold.fingerprint, reasonCode: saved ? undefined : pending.hold.code,
+          detail: pending.hold.detail,
+        }), runner, cache, fingerprint, false, saved ? null : pending);
+        continue;
+      }
+      if (pending?.kind === 'retry') {
+        const saved = persistPendingReconciliation(file, binding.taskId, pending);
+        if (!saved) {
+          observe(observations, holdObservation(binding.taskId, 'ADMISSION_HOLD_PERSIST_FAILED', {
+            fingerprint: pending.fingerprint, reasonCode: pending.record.code,
+            attempts: pending.record.attempts, retryAt: pending.record.retryAt ?? null, detail: pending.record.detail,
+          }), runner, cache, fingerprint, false, pending);
+          continue;
+        }
+        if (pending.fingerprint === fingerprint) {
+          observe(observations, holdObservation(binding.taskId, pending.record.code, {
+            fingerprint, attempts: pending.record.attempts, retryAt: pending.record.retryAt ?? null,
+            detail: pending.record.detail,
+          }), runner, cache, fingerprint);
+          continue;
+        }
+        cache.delete(binding.taskId);
       }
       const prior = loaded.state.records[fingerprint];
       if (prior?.state === 'HOLD_RETRY_EXHAUSTED' || prior?.state === 'HOLD_PREFLIGHT') {
@@ -302,12 +417,53 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
           trustedMandateBinding: binding.trustedMandateBinding });
         if (!runMatchesRegistrationInput(registered, binding, taskRecord, preflightResult)) {
           const detail = 'Controller returned durable state that does not match the attempted registration input.';
+          const pending = pendingSticky(fingerprint, 'DURABLE_REGISTRATION_MISMATCH', detail, new Date(currentTime).toISOString());
           const saved = updateReconciliation(file, binding.taskId, (state) => {
-            state.stickyHold ??= { fingerprint, code: 'DURABLE_REGISTRATION_MISMATCH', detail, recordedAt: new Date(currentTime).toISOString() };
+            state.stickyHold ??= pending.hold;
             return state;
           });
           observe(observations, holdObservation(binding.taskId, saved ? 'DURABLE_REGISTRATION_MISMATCH' : 'ADMISSION_HOLD_PERSIST_FAILED', {
             fingerprint, reasonCode: saved ? undefined : 'DURABLE_REGISTRATION_MISMATCH', detail,
+          }), runner, cache, fingerprint, false, saved ? null : pending);
+          continue;
+        }
+        if (registered.state === 'BLOCKED_SCOPE' && registered.currentCycle === 0) {
+          let conflictSnapshot;
+          try { conflictSnapshot = inspectLockConflictSnapshot(controller, binding.taskId, taskRecord); }
+          catch {
+            const detail = 'Durable resource-lock state could not be inspected after registration.';
+            const pending = pendingSticky(fingerprint, 'DURABLE_LOCK_STATE_UNKNOWN', detail, new Date(currentTime).toISOString());
+            const saved = updateReconciliation(file, binding.taskId, (state) => {
+              state.stickyHold ??= pending.hold;
+              return state;
+            });
+            observe(observations, holdObservation(binding.taskId, saved ? pending.hold.code : 'ADMISSION_HOLD_PERSIST_FAILED', {
+              fingerprint, reasonCode: saved ? undefined : pending.hold.code, detail,
+            }), runner, cache, fingerprint, false, saved ? null : pending);
+            continue;
+          }
+          if (!hasLockConflicts(conflictSnapshot)) {
+            const detail = 'Controller returned a scope-blocked registration without a matching durable resource-lock conflict.';
+            const pending = pendingSticky(fingerprint, 'DURABLE_SCOPE_BLOCK_REASON_UNKNOWN', detail, new Date(currentTime).toISOString());
+            const saved = updateReconciliation(file, binding.taskId, (state) => {
+              state.stickyHold ??= pending.hold;
+              return state;
+            });
+            observe(observations, holdObservation(binding.taskId, saved ? pending.hold.code : 'ADMISSION_HOLD_PERSIST_FAILED', {
+              fingerprint, reasonCode: saved ? undefined : pending.hold.code, detail,
+            }), runner, cache, fingerprint, false, saved ? null : pending);
+            continue;
+          }
+          const record = { fingerprint, state: 'HOLD_SCOPE_CONFLICT', attempts: 0,
+            code: 'DURABLE_SCOPE_LOCK_BLOCKED', conflictSnapshot,
+            detail: 'Registration is blocked by a durable resource-lock conflict.',
+            updatedAt: new Date(currentTime).toISOString() };
+          const saved = updateReconciliation(file, binding.taskId, (state) => {
+            state.records[fingerprint] = record;
+            return state;
+          });
+          observe(observations, holdObservation(binding.taskId, saved ? record.code : 'ADMISSION_HOLD_PERSIST_FAILED', {
+            fingerprint, reasonCode: saved ? undefined : record.code, conflictSnapshot, detail: record.detail,
           }), runner, cache, fingerprint);
           continue;
         }
@@ -318,13 +474,14 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
         try { durable = controller.getRun(binding.taskId); }
         catch {
           const detail = 'Registration failed and durable controller state could not be reconciled.';
+          const pending = pendingSticky(fingerprint, 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail, new Date(currentTime).toISOString());
           const saved = updateReconciliation(file, binding.taskId, (state) => {
-            state.stickyHold ??= { fingerprint, code: 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail, recordedAt: new Date(currentTime).toISOString() };
+            state.stickyHold ??= pending.hold;
             return state;
           });
           observe(observations, holdObservation(binding.taskId, saved ? 'DURABLE_CONTROLLER_STATE_UNKNOWN' : 'ADMISSION_HOLD_PERSIST_FAILED', {
             fingerprint, reasonCode: saved ? undefined : 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail,
-          }), runner, cache, fingerprint);
+          }), runner, cache, fingerprint, false, saved ? null : pending);
           continue;
         }
         if (durable) {
@@ -333,14 +490,15 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
               durable.state === 'WORKER_READY' && (!existing || existing.state !== 'WORKER_READY'));
           } else {
             const detail = 'Registration failed and the durable task state does not match the attempted input.';
+            const pending = pendingSticky(fingerprint, 'DURABLE_REGISTRATION_MISMATCH', detail, new Date(currentTime).toISOString());
             const saved = updateReconciliation(file, binding.taskId, (state) => {
-              state.stickyHold ??= { fingerprint, code: 'DURABLE_REGISTRATION_MISMATCH', detail, recordedAt: new Date(currentTime).toISOString() };
+              state.stickyHold ??= pending.hold;
               return state;
             });
             observe(observations, holdObservation(binding.taskId, saved ? 'DURABLE_REGISTRATION_MISMATCH' : 'ADMISSION_HOLD_PERSIST_FAILED', {
               fingerprint, reasonCode: saved ? undefined : 'DURABLE_REGISTRATION_MISMATCH',
               failureCode: String(error?.code ?? 'REGISTRATION_ERROR'), detail,
-            }), runner, cache, fingerprint);
+            }), runner, cache, fingerprint, false, saved ? null : pending);
           }
           continue;
         }
@@ -351,25 +509,27 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
         const detail = exhausted
           ? 'No-effect registration attempts reached the bounded retry cap.'
           : 'Registration had no durable effect; retry is held until the backoff expires.';
+        const record = { fingerprint, state: exhausted ? 'HOLD_RETRY_EXHAUSTED' : 'RETRY_WAIT',
+          attempts, code, retryAt, failureCode: String(error?.code ?? 'REGISTRATION_ERROR'), detail,
+          updatedAt: new Date(currentTime).toISOString() };
         const saved = updateReconciliation(file, binding.taskId, (state) => {
-          state.records[fingerprint] = { fingerprint, state: exhausted ? 'HOLD_RETRY_EXHAUSTED' : 'RETRY_WAIT',
-            attempts, code, retryAt, failureCode: String(error?.code ?? 'REGISTRATION_ERROR'), detail,
-            updatedAt: new Date(currentTime).toISOString() };
+          state.records[fingerprint] = record;
           return state;
         });
         observe(observations, holdObservation(binding.taskId, saved ? code : 'ADMISSION_HOLD_PERSIST_FAILED', {
           fingerprint, reasonCode: saved ? undefined : code, attempts, retryAt, detail,
-        }), runner, cache, fingerprint);
+        }), runner, cache, fingerprint, false, saved ? null : { kind: 'retry', fingerprint, record });
       }
     } catch {
       const detail = 'Intake could not verify the configured task and controller state.';
+      const pending = fingerprint ? pendingSticky(fingerprint, 'INTAKE_RECONCILIATION_REQUIRED', detail, new Date().toISOString()) : null;
       const saved = fingerprint && file ? updateReconciliation(file, binding.taskId, (state) => {
-        state.stickyHold ??= { fingerprint, code: 'INTAKE_RECONCILIATION_REQUIRED', detail, recordedAt: new Date().toISOString() };
+        state.stickyHold ??= pending.hold;
         return state;
       }) : false;
       observe(observations, holdObservation(binding.taskId, saved ? 'INTAKE_RECONCILIATION_REQUIRED' : 'ADMISSION_HOLD_PERSIST_FAILED', {
         ...(fingerprint ? { fingerprint } : {}), reasonCode: saved ? undefined : 'INTAKE_RECONCILIATION_REQUIRED', detail,
-      }), runner, cache, fingerprint);
+      }), runner, cache, fingerprint, false, saved || !pending ? null : pending);
     }
   }
   return observations;
