@@ -142,6 +142,14 @@ function candidateFixture(t) {
   return { worktree, git, baseCommit, taskFile, task, artifactDir, cleanupHooks, result: { headCommit: baseCommit, resultDigest: 'a'.repeat(64) } };
 }
 
+function intakeConfig(f) {
+  return { tasks: [{ taskId: f.task.taskId, worktree: f.worktree, taskFile: f.taskFile, base: f.baseCommit,
+    trustedMandateBinding: { resolvedBy: 'root', taskId: f.task.taskId, repositoryRoot: f.worktree,
+      objective: f.task.objective, domainOrFeatureKey: `test/${f.task.taskId.toLowerCase()}`,
+      writeScope: f.task.writeScope, sourceRef: 'trusted intake fixture',
+      authorizedEffects: ['local fixture changes'], prohibitions: ['external effects'] } }] };
+}
+
 test('runner passes the exact task checks and machine-policy invocation cap to each role backend', async (t) => {
   const f = candidateFixture(t);
   const controller = await openDeliveryController({ repoRoot: f.worktree });
@@ -466,6 +474,179 @@ test('runner holds a worker at stale baseline when HEAD changes after dispatch i
     assert.deepEqual(controller.nextReadyNodes(), []);
   } finally { await runner.stop(); }
 });
+test('CLI intake retries a registration failure only after a durable no-effect backoff', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const cache = new Map();
+  const register = controller.registerTask.bind(controller);
+  let attempts = 0;
+  let clock = Date.parse('2030-01-01T00:00:00.000Z');
+  controller.registerTask = () => { attempts++; throw Object.assign(new Error('fixture pre-commit failure'), { code: 'FIXTURE_NO_EFFECT' }); };
+
+  const first = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache, now: () => clock }))[0];
+  assert.equal(first.code, 'REGISTRATION_RETRY_BACKOFF');
+  assert.equal(first.attempts, 1);
+  assert.equal(controller.getRun(f.task.taskId), null);
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  assert.equal(fs.existsSync(stateFile), true);
+  const state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(state.records[first.fingerprint].state, 'RETRY_WAIT');
+  assert.equal(state.records[first.fingerprint].attempts, 1);
+
+  const early = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache: new Map(), now: () => clock }))[0];
+  assert.equal(early.code, 'REGISTRATION_RETRY_BACKOFF');
+  assert.equal(attempts, 1);
+
+  clock = Date.parse(first.retryAt) + 1;
+  controller.registerTask = register;
+  const retried = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache, now: () => clock }))[0];
+  assert.equal(retried.code, 'TASK_REGISTRATION_CONFIRMED');
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+  assert.equal(controller.getRun(f.task.taskId).cycles[0].submissions, 0);
+  assert.equal(controller.getRun(f.task.taskId).cycles[0].implementationRepairs, 0);
+});
+
+test('CLI intake reconciles a commit-then-error without duplicate runs, cycles, locks, or events', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const cache = new Map();
+  const register = controller.registerTask.bind(controller);
+  let calls = 0;
+  controller.registerTask = (input) => { calls++; register(input); throw Object.assign(new Error('fixture post-commit error'), { code: 'FIXTURE_AFTER_COMMIT' }); };
+
+  const reconciled = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache }))[0];
+  assert.equal(reconciled.code, 'DURABLE_REGISTRATION_RECONCILED');
+  assert.equal(reconciled.registrationConfirmed, true);
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+  const db = new DatabaseSync(controller.databasePath);
+  try {
+    assert.equal(db.prepare('SELECT COUNT(*) AS count FROM delivery_runs WHERE task_id=?').get(f.task.taskId).count, 1);
+    assert.equal(db.prepare('SELECT COUNT(*) AS count FROM delivery_cycles WHERE task_id=?').get(f.task.taskId).count, 1);
+    assert.equal(db.prepare('SELECT COUNT(*) AS count FROM delivery_write_locks WHERE task_id=?').get(f.task.taskId).count, 1);
+    assert.equal(db.prepare("SELECT COUNT(*) AS count FROM delivery_events WHERE task_id=? AND event_type='TASK_REGISTERED'").get(f.task.taskId).count, 1);
+  } finally { db.close(); }
+  await admitConfiguredTasks({ controller, repoRoot: f.worktree, config, cache });
+  assert.equal(calls, 1);
+  assert.equal(controller.getRun(f.task.taskId).cycles.length, 1);
+});
+
+test('CLI intake keeps the bounded retry cap stable across unrelated run-state changes', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const register = controller.registerTask.bind(controller);
+  let calls = 0;
+  let clock = Date.parse('2030-01-01T00:00:00.000Z');
+  controller.registerTask = (input) => {
+    if (input.taskRecord.taskId === f.task.taskId) {
+      calls++;
+      throw Object.assign(new Error('fixture no-effect error'), { code: 'FIXTURE_NO_EFFECT' });
+    }
+    return register(input);
+  };
+
+  const observation = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config,
+    cache: new Map(), now: () => clock }))[0];
+  assert.equal(observation.code, 'REGISTRATION_RETRY_BACKOFF');
+  assert.equal(observation.attempts, 1);
+
+  const unrelatedTask = { ...f.task, taskId: 'UNRELATED-CONTROLLER-STATE', writeScope: ['src/unrelated/'],
+    dependencies: [{ taskId: 'DEP-OPEN' }] };
+  const unrelatedTaskFile = path.join(f.worktree, '.git', 'unrelated-task.json');
+  fs.writeFileSync(unrelatedTaskFile, JSON.stringify(unrelatedTask));
+  const unrelatedMandate = { resolvedBy: 'root', taskId: unrelatedTask.taskId, repositoryRoot: f.worktree,
+    objective: unrelatedTask.objective, domainOrFeatureKey: 'test/unrelated-controller-state',
+    writeScope: unrelatedTask.writeScope, sourceRef: 'unrelated retry fixture',
+    authorizedEffects: ['local fixture changes'], prohibitions: ['external effects'] };
+  const unrelatedPreflight = preflightTask({ repo: f.worktree, taskFile: unrelatedTaskFile, base: f.baseCommit });
+  assert.equal(unrelatedPreflight.status, 'BLOCKED_DEPENDENCY');
+  const blockedUnrelated = register({ taskRecord: unrelatedTask, preflightResult: unrelatedPreflight,
+    worktreeRoot: f.worktree, trustedMandateBinding: unrelatedMandate });
+  assert.equal(blockedUnrelated.state, 'BLOCKED_DEPENDENCY');
+
+  const afterUnrelatedRegistration = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config,
+    cache: new Map(), now: () => clock }))[0];
+  assert.equal(afterUnrelatedRegistration.code, 'REGISTRATION_RETRY_BACKOFF');
+  assert.equal(afterUnrelatedRegistration.attempts, 1);
+  assert.equal(afterUnrelatedRegistration.fingerprint, observation.fingerprint);
+  assert.equal(calls, 1);
+
+  fs.writeFileSync(unrelatedTaskFile, JSON.stringify({ ...unrelatedTask, dependencies: [] }));
+  const readyUnrelatedPreflight = preflightTask({ repo: f.worktree, taskFile: unrelatedTaskFile, base: f.baseCommit });
+  assert.equal(readyUnrelatedPreflight.status, 'READY');
+  const readyUnrelated = register({ taskRecord: { ...unrelatedTask, dependencies: [] },
+    preflightResult: readyUnrelatedPreflight, worktreeRoot: f.worktree, trustedMandateBinding: unrelatedMandate });
+  assert.equal(readyUnrelated.state, 'WORKER_READY');
+
+  const afterUnrelatedStateChange = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config,
+    cache: new Map(), now: () => clock }))[0];
+  assert.equal(afterUnrelatedStateChange.code, 'REGISTRATION_RETRY_BACKOFF');
+  assert.equal(afterUnrelatedStateChange.attempts, 1);
+  assert.equal(afterUnrelatedStateChange.fingerprint, observation.fingerprint);
+  assert.equal(calls, 1);
+
+  clock = Date.parse(observation.retryAt);
+  const second = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config,
+    cache: new Map(), now: () => clock }))[0];
+  assert.equal(second.code, 'REGISTRATION_RETRY_BACKOFF');
+  assert.equal(second.attempts, 2);
+  assert.equal(second.fingerprint, observation.fingerprint);
+  clock = Date.parse(second.retryAt);
+  const exhausted = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config,
+    cache: new Map(), now: () => clock }))[0];
+  assert.equal(exhausted.attempts, 3);
+  assert.equal(exhausted.fingerprint, observation.fingerprint);
+  const again = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config,
+    cache: new Map(), now: () => clock }))[0];
+  assert.equal(again.code, 'REGISTRATION_RETRY_EXHAUSTED');
+  assert.equal(calls, 3);
+
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  const state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(state.records[exhausted.fingerprint].state, 'HOLD_RETRY_EXHAUSTED');
+  assert.equal(state.records[exhausted.fingerprint].attempts, 3);
+  assert.equal(state.records[exhausted.fingerprint].retryAt, null);
+});
+
+test('CLI intake holds a task when durable state is unknown and runner does not dispatch it', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const readiness = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+  controller.registerTask({ taskRecord: f.task, preflightResult: readiness, worktreeRoot: f.worktree,
+    trustedMandateBinding: config.tasks[0].trustedMandateBinding });
+  const uncertainController = new Proxy(controller, { get(target, property) {
+    if (property === 'getRun') return () => { throw Object.assign(new Error('fixture unreadable state'), { code: 'FIXTURE_UNKNOWN' }); };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+  let backendCalls = 0;
+  const runner = createControllerRunner({ controller: uncertainController, repoRoot: f.worktree,
+    stateRoot: path.join(f.worktree, '.git', 'runner-intake-hold'),
+    config: { tasks: [{ ...config.tasks[0], branch: 'codex/fixture' }] },
+    backend: async () => { backendCalls++; throw new Error('BACKEND_MUST_NOT_START'); } });
+  try {
+    const held = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+      config, cache: new Map(), runner }))[0];
+    assert.equal(held.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+    assert.equal(held.hold, true);
+    assert.equal(controller.nextReadyNodes().length, 1);
+    const tick = await runner.tick();
+    assert.equal(tick.active, 0);
+    assert.deepEqual(tick.errors, []);
+    assert.equal(backendCalls, 0);
+    assert.equal(controller.nextReadyNodes().length, 1);
+  } finally { await runner.stop(); }
+});
+
 test('CLI intake persists dependency-blocked task and wakes after accepted base evidence changes', async (t) => {
   const f = candidateFixture(t);
   f.git(['update-ref', 'refs/remotes/origin/main', f.baseCommit]);
