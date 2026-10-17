@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.34, 2026-10-17) so the board can open a task the way the html board
+// (v0.4.35, 2026-10-17) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -629,7 +629,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Partial delivery accepted by PR #671, merged as 1662ede0094044d12eb019c44a476d821410c330 on 2026-10-15. Focused Vitest 21/21, production build, isolated production-mode Playwright 1/1 and exact-head hosted Governance/Edge passed; hosted E2E/Desktop were skipped. The current Task14 spec proves an owner creates and switches to Business two and CRM visibility follows scope; SmartGift-sentinel non-disclosure across every reader, live-agent Business switching and Business-specific generic private-memory isolation remain unchecked. No production, Supabase or live-provider activation is claimed.",
+    "changelog": "Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8) and PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head tests passed. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, and Business-scoped Edge SmartGift/RAG/template behavior. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply is unverified; full generic private-memory and live-agent switching plus Task14 E2E remain open. Task14 is still in-progress, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 52000,
     "totalTokens": 0,

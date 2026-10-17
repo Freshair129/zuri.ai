@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.34"
+version: "0.4.35"
 updated: "2026-10-17"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -35,6 +35,7 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Archived historical static HTML snapshot (v0.4.9; not the current rendered board): `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+Version diff 0.4.34 -> 0.4.35 (2026-10-17): Reconcile TASK-ZAI-014 with canonical ROADMAP.md Revision 2.161.0b after PR #695 and #696 merged. PR #695 passed exact-head Governance `39000419267` and Edge `39000419263`; PR #696 passed Governance `39000885341` and Edge `39000885363`, with Desktop passed and E2E skipped. Local targeted tests for the final fixes were NOT_RUN because `npx`/`tsx` were unavailable; applicable hosted exact-head test checks passed. Keep Task14 and TC-TASK-ZAI-014 in-progress, all acceptance/success/exit criteria unchecked, and TASK-ZAI-015 planned behind Task14 because standalone SmartGift readers, production corpusContext supply, full generic private-memory scope switching, live-agent switching and Task14 E2E remain unverified or open. Status counts and phase/sprint progress are unchanged; no production, Supabase, provider, deployment or UAT validation is claimed.
 Version diff 0.4.33 -> 0.4.34 (2026-10-17): Reconcile TASK-ZAI-010 with canonical ROADMAP.md Revision 2.160.0b after PR #684 merged at `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d` from exact head `e3f252421d1e004b4999c130021b17d697a2ae5f`. Local SQLite 11 suites/176 tests, isolated PostgreSQL 15/15, governance/build and exact-head hosted Governance, Edge, four test shards and Verify passed; E2E/Desktop were skipped. Keep the task in review because direct L4 under-quorum refusal and complete positive/negative cases for L1-L4 remain unchecked. The duplicate L2 vote criterion is checked from its explicit integration test. No production, provider, Supabase or live-agent activation is claimed.
 
 Version diff 0.4.32 -> 0.4.33 (2026-10-16): Reconcile TASK-ZAI-119 with canonical ROADMAP.md Revision 2.159.0b after PR #687 merged as `19b22dbe` and PR #688 merged as `dc6799fd` from exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999`. PR #688 adds sanitized campaign intake diagnostics, controller heartbeat/PID liveness and newest-first validated events to the read-only Workers view. Local focused checks and exact-head hosted Governance/Edge and manual E2E passed. Keep P1 done, P2 planned, the parent in review, FEAT-044 building and the external PORL/production exit criterion open; no deployment or live Business/LINE behavior is claimed.
@@ -1280,7 +1281,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm run test:e2e, when the two-business isolation spec runs, then a cross-business read fails closed
       checked: false
-changelog: Partial delivery accepted by PR #671, merged as 1662ede0094044d12eb019c44a476d821410c330 on 2026-10-15. Focused Vitest 21/21, production build, isolated production-mode Playwright 1/1 and exact-head hosted Governance/Edge passed; hosted E2E/Desktop were skipped. The current Task14 spec proves an owner creates and switches to Business two and CRM visibility follows scope; SmartGift-sentinel non-disclosure across every reader, live-agent Business switching and Business-specific generic private-memory isolation remain unchecked. No production, Supabase or live-provider activation is claimed.
+changelog: Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8) and PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head tests passed. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, and Business-scoped Edge SmartGift/RAG/template behavior. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply is unverified; full generic private-memory and live-agent switching plus Task14 E2E remain open. Task14 is still in-progress, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
