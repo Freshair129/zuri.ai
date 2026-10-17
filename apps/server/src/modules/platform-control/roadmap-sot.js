@@ -795,7 +795,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-013",
     "authority": "ROADMAP.md",
-    "evidence": "PR #671 merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from b982d20733c213640a7cb3e42656f8a37925564a; focused Vitest 21/21, production build and isolated Playwright 1/1 passed; exact-head Governance and Edge passed, hosted E2E/Desktop skipped; SmartGift all-reader isolation, live-agent Business switching and generic private-memory isolation remain open."
+    "evidence": "PR #671 merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from b982d20733c213640a7cb3e42656f8a37925564a. PR #695 head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9 merged as 64e91e1d90291733a7ac255a6dafffe7b1fba7c8; exact-head Governance 39000419267 and Edge 39000419263 passed. PR #696 head a26550f071976d37c2003e7d85ded6f7f13ce3e8 merged as 1167d8d28e746e05cac5eda88e07e9418b8e0751; exact-head Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E was skipped. Final local targeted tests for #695/#696 were NOT_RUN due missing npx/tsx; exact-head hosted test checks passed. SmartGift standalone MCP/CLI/local pricing readers remain out of scope, production corpusContext supply is unverified, and full generic-memory Business switching, live-agent switching, and Task14 E2E remain open; Task14 is not done."
   },
   {
     "id": "TASK-ZAI-015",
