@@ -63,6 +63,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Zuri Visual Office 2.5D — Implementation elaboration](../plans/PLAN-VISUAL-OFFICE-2-5D.md)
 - [Release safety repair specification — restore, usage rollup and archive storage](../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md)
 - [TASK-ZAI-009: Agent Factory contract proposal](../plans/TASK-ZAI-009-AGENT-FACTORY-CONTRACT-PROPOSAL.md)
+- [TASK-ZAI-026 — Business-scoped Knowledge Node View](../plans/TASK-ZAI-026-NODE-VIEW-CONTRACT.md)
 - [TASK-ZAI-047 — Knowledge base console](../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md)
 - [TASK-ZAI-048 — Binary document parsing contract](../plans/TASK-ZAI-048-BINARY-PARSING-CONTRACT.md)
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md)

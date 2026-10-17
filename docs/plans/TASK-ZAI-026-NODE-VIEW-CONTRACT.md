@@ -2,7 +2,7 @@
 title: "TASK-ZAI-026 implementation contract — Business-scoped Knowledge Node View"
 doc_id: "TASK-ZAI-026-NODE-VIEW-CONTRACT"
 status: "candidate"
-version: "0.3.0"
+version: "0.4.0"
 updated: "2026-10-18"
 owner: "Codex"
 source_of_truth: false
@@ -13,7 +13,7 @@ live_document: true
 
 **Lifecycle:** Candidate for root adoption. This document recommends a concrete implementation boundary for TASK-ZAI-026. It does not amend canonical requirements or roadmap state, approve `ZAI:FEAT-007` or `ZAI:ADR-035`, authorize code work beyond the accepted task, or claim runtime/test evidence.
 
-**Source revision reviewed:** `7a661d95c7db57122a0899652c354831cac559ac`.
+**Source revision reviewed:** `47f437e6a403246f9547434ecb943a4474eee457`.
 
 ## 1. Recommended contract
 
@@ -186,22 +186,26 @@ Parent/peer impact: TASK-ZAI-024 remains a satisfied Knowledge/retrieval prerequ
 - `source document ID`: ZAI:PM-MULTI-AGENT-DELIVERY.
 - `source path`: `docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md`.
 - `source version`: 0.9.33b, status candidate.
-- `source revision`: `7a661d95c7db57122a0899652c354831cac559ac`.
+- `source revision`: `47f437e6a403246f9547434ecb943a4474eee457` (the checkout HEAD used to read the rule).
+- `source last-change revision`: `c6f3ff71b29280ff0ba33e82376eab8bf8552689` (latest commit changing this path).
 - `raw-byte SHA-256`: `FED035C70C4D88DF8F82F6707158CF5B9E031A00D4D2E894B5EA5C1DD6367D6C`.
-- `section locators`: `#pm-task-rule-entry`; §2 `#pm-roles`; §4 `#pm-gates`; §5 `#pm-packet` and `#pm-rule-check`; §6 `#pm-composition`.
-- `relevant clauses`: `#pm-task-rule-entry` requires checking the exact task/scope/source and attaching a rule-check; session history is a pointer, and reading a rule is not approval or dispatch authority. §2 marks its old role/capacity profile as historical and points to the active model-policy contract. §4 separates worker, verifier, integration and release evidence and rejects unsupported PASS claims. §5 defines this rule-check's fields and requires exact revision/scope/evidence in a worker submission. §6 assigns shared roadmap, registry and generated outputs to root; workers stay within their allowlist.
-- `applicability`: These clauses apply to this bounded documentation submission and its handoff. The active repository v4 policy and the current trusted worker binding control this session; the accepted write scope allows only this contract file and explicitly leaves fixed checks to root. Canonical adoption and generated outputs are root work; this proposal grants neither.
-- `read-command/evidence locator`: This session read `git rev-parse HEAD` as `7a661d95c7db57122a0899652c354831cac559ac`; read Document20 using PowerShell `Get-Content` for lines 1–225 plus focused excerpts covering lines 47–63, 91–112, 113–168, 169–212 and 213–225; and ran `Get-FileHash -Algorithm SHA256` on the source path, which returned the digest recorded above. The task ID, base, scope, dependency and check prohibitions came from the trusted accepted binding in this user prompt.
-- `uncertainty`: Document20 is explicitly `candidate`; its source notice says remote freshness is unknown. No separate repository decision-receipt file was supplied; the current accepted task binding in the trusted prompt is the authority for this worker action, and the previous session note is treated only as historical context. The command output did not capture a read timestamp, so read time is `UNKNOWN`. The active v4 procedure controls where Document20's historic profile differs.
+- `section locators`: `#pm-task-rule-entry`; §2 `#pm-roles`; §4 `#pm-gates`; §5 `#pm-packet`, `#pm-rule-check`, and `#pm-claim-reconciliation`; §6 `#pm-composition`.
+- `relevant clauses`: The entry clause requires checking the current task, scope, source revision, and prohibitions; session history is only a pointer, and reading a rule is not approval or dispatch authority. §2 says its role profile is historical and the active model-policy contract controls current role selection. §4 keeps worker, verification, composition, and release evidence separate; a missing or failed required check cannot be PASS. §5 requires this rule-check's provenance fields and a worker submission with exact revision, changed files, actual commands/results, limitations, and outstanding decisions; root records the final receipt. §6 assigns shared contracts, registries, and generated outputs to root while workers stay inside their file allowlist.
+- `applicability`: These clauses apply to this bounded documentation submission and handoff. The active repository v4 policy and trusted worker binding control this session. The accepted write scope is limited to the contract and its generated operations index entry; fixed checks remain with root. Canonical adoption and shared generated outputs remain root work. This candidate grants no implementation authority.
+- `read-command/evidence locator`: Read `git rev-parse HEAD` as `47f437e6a403246f9547434ecb943a4474eee457`; read the entry point and relevant clauses from Document20 using PowerShell `Get-Content` selections around lines 47–63, 85–180, and 181–225; read the active v4 workflow and model policy; and ran `Get-FileHash -Algorithm SHA256` on the Document20 path, which returned the digest above. `git log -1 --format='%H %cs %s' -- <path>` returned last-change commit `c6f3ff71b29280ff0ba33e82376eab8bf8552689`. The trusted task ID, base, scope, dependency, prohibitions, and fixed checks came from the accepted binding in this user prompt.
+- `uncertainty`: Document20 is explicitly `candidate`; its source notice says remote freshness is unknown. The local rule bytes and checkout revision are pinned above. Command evidence included no read timestamp, so read time is `UNKNOWN`. The active v4 procedure controls where Document20's historical profile differs.
 
 ## 9. Worker evidence and handoff
 
-- Changed path: `docs/plans/TASK-ZAI-026-NODE-VIEW-CONTRACT.md` only.
-- Current implementation evidence: a source-backed candidate contract. No runtime code or tests were changed.
-- Required task checks `git diff --check` and `node tools/document-registry.mjs --check`: NOT_RUN by worker; PENDING_ROOT under the trusted root runner. This document does not claim they passed.
+- Changed paths: `docs/plans/TASK-ZAI-026-NODE-VIEW-CONTRACT.md` and the existing generated entry in `docs/operations/README.md` only. The operations entry is a navigation projection, not an ownership or approval signal.
+- Current implementation evidence: a source-backed candidate contract. No canonical requirement, roadmap row, generated graph/projection, runtime code, or test was changed; Task026 runtime remains unimplemented at this source revision.
+- Read-only task preflight was attempted with `node tools/delivery-control/preflight.mjs --task-file <temporary-readiness-record> --base origin/main --changed --json`. It returned `BLOCKED_ENVIRONMENT` / `REPOSITORY_UNAVAILABLE` (`spawnSync git EPERM`) before repository inspection. Its result reports `checksExecuted: false` and `stateWritePerformed: false`. Root must reconcile this local preflight environment result; it is not a declared-check result.
+- Required task checks `git diff --check`, `node tools/document-registry.mjs --check`, and `node tools/generate-document-views.mjs --check`: NOT_RUN by worker; PENDING_ROOT under the trusted root runner. This document does not claim they passed.
+- Generated graph freshness is pending root: the checked-in `docs/.doc-graph.json` node still records contract hash `0863c439`, from before this candidate revision. `docs:graph` and the full shared-view regeneration write shared projections outside this worker's exact write scope, so root must regenerate the graph and affected views from the composed tree. The authorized `docs/operations/README.md` navigation entry is the sole generated tracked output in this patch.
 - Next role: root reviews/adopts or revises the candidate, then owns canonical record migration, generated views, and the fixed task checks. Independent verification and any implementation task remain separate.
 
 ## Version diff
 
 0.1.0 → 0.2.0: reconciles the canonical roadmap row with the projected task-container DoD; adds exact search/path and whole-depth node-budget behavior; corrects the Knowledge dashboard and renderer paths; distinguishes current `ZAI:FR-024` library code, principal traversal, corpus API, Project Dependency Map, and Data Pipeline Map; records the selected Document20 rule-check with revision and raw-byte digest; and clarifies that TASK-ZAI-027 is a separate Pipeline Builder change with an unsupported dependency edge.
 0.2.0 → 0.3.0: verifies the 24-week task-container source metadata and completed TASK-ZAI-024 dependency; distinguishes the injected principal reader from a Business graph API, including its executable empty-result fallback behavior; records the existing Project Dependency service's mutation boundary; makes the roadmap phrase “governed relation graph” explicitly a Business-scoped Zuri read model for this candidate; fixes request bounds and response shape; adds single-pointer camera controls for WCAG 2.2 AA; and refreshes the Document20 rule-check evidence and root adoption instructions. No canonical record or runtime code changes.
+0.3.0 → 0.4.0: refreshes the reviewed source revision to checkout HEAD `47f437e6`, records the current Document20 source and digest evidence, corrects the changed-path and fixed-check handoff, and records the read-only preflight environment block. The contract remains a candidate; no canonical record, generated graph/projection, or runtime code changes.
