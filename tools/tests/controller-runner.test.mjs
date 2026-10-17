@@ -574,7 +574,7 @@ test('CLI intake does not re-register an unchanged scope-lock hold and recovers 
   assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
 });
 
-test('CLI intake persists a pending retry without hot-registering when retry-state writes fail', async (t) => {
+test('CLI intake recovers a retry-state write failure after restart from the durable reservation', async (t) => {
   const f = candidateFixture(t);
   const controller = await openDeliveryController({ repoRoot: f.worktree });
   f.cleanupHooks.push(() => controller.close());
@@ -610,23 +610,50 @@ test('CLI intake persists a pending retry without hot-registering when retry-sta
   } finally { fs.renameSync = originalRenameSync; }
   assert.equal(first.code, 'ADMISSION_HOLD_PERSIST_FAILED');
   assert.equal(registrationCalls, 1);
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  const reservedState = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(reservedState.records[first.fingerprint].state, 'REGISTRATION_IN_FLIGHT');
+  assert.equal(reservedState.records[first.fingerprint].attempts, 1);
 
-  const persistenceRetry = (await admitConfiguredTasks({ controller: guardedController, repoRoot: f.worktree, config, cache,
+  const persistenceRetry = (await admitConfiguredTasks({ controller: guardedController, repoRoot: f.worktree, config, cache: new Map(),
     now: () => clock }))[0];
   assert.equal(persistenceRetry.code, 'REGISTRATION_RETRY_BACKOFF');
   assert.equal(persistenceRetry.attempts, 1);
   assert.equal(registrationCalls, 1);
-  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
-    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
   assert.equal(JSON.parse(fs.readFileSync(stateFile, 'utf8')).records[persistenceRetry.fingerprint].attempts, 1);
 
   clock = Date.parse(persistenceRetry.retryAt) + 1;
   failWithoutEffect = false;
-  const retried = (await admitConfiguredTasks({ controller: guardedController, repoRoot: f.worktree, config, cache,
+  const retried = (await admitConfiguredTasks({ controller: guardedController, repoRoot: f.worktree, config, cache: new Map(),
     now: () => clock }))[0];
   assert.equal(retried.code, 'TASK_REGISTRATION_CONFIRMED');
   assert.equal(registrationCalls, 2);
   assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+});
+
+test('CLI intake refuses registration when its durable attempt reservation cannot be written', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  let registrationCalls = 0;
+  const guardedController = new Proxy(controller, { get(target, property) {
+    if (property === 'registerTask') return (...args) => { registrationCalls++; return target.registerTask(...args); };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+  const originalRenameSync = fs.renameSync;
+  let refused;
+  try {
+    fs.renameSync = () => { throw Object.assign(new Error('fixture reservation write failure'), { code: 'FIXTURE_WRITE_FAILURE' }); };
+    refused = (await admitConfiguredTasks({ controller: guardedController, repoRoot: f.worktree, config,
+      cache: new Map() }))[0];
+  } finally { fs.renameSync = originalRenameSync; }
+
+  assert.equal(refused.code, 'ADMISSION_HOLD_PERSIST_FAILED');
+  assert.equal(registrationCalls, 0);
+  assert.equal(controller.getRun(f.task.taskId), null);
 });
 
 test('CLI intake reconciles a pending unknown-effect hold when durable registration becomes readable', async (t) => {
@@ -674,7 +701,7 @@ test('CLI intake reconciles a pending unknown-effect hold when durable registrat
   finally { db.close(); }
 });
 
-test('CLI intake durably reconciles a persisted post-registration unknown hold with its matching run', async (t) => {
+test('CLI intake recovers a crash after registration without duplicating the durable run', async (t) => {
   const f = candidateFixture(t);
   const controller = await openDeliveryController({ repoRoot: f.worktree });
   f.cleanupHooks.push(() => controller.close());
@@ -707,13 +734,10 @@ test('CLI intake durably reconciles a persisted post-registration unknown hold w
   const stateBefore = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
   assert.equal(stateBefore.stickyHold.fingerprint, persisted.fingerprint);
   assert.equal(stateBefore.stickyHold.phase, 'POST_REGISTRATION_ATTEMPT');
+  assert.equal(stateBefore.records[persisted.fingerprint].state, 'REGISTRATION_IN_FLIGHT');
+  assert.equal(stateBefore.records[persisted.fingerprint].attempts, 1);
 
-  const priorRecord = { fingerprint: persisted.fingerprint, state: 'RETRY_WAIT', attempts: 1,
-    code: 'REGISTRATION_RETRY_BACKOFF', retryAt: '2030-01-01T00:00:01.000Z', detail: 'prior bounded attempt' };
-  stateBefore.records[persisted.fingerprint] = priorRecord;
-  fs.writeFileSync(stateFile, JSON.stringify(stateBefore));
-
-  const reconciled = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+  const reconciled = (await admitConfiguredTasks({ controller, repoRoot: f.worktree,
     config, cache: new Map() }))[0];
   assert.equal(reconciled.code, 'DURABLE_REGISTRATION_CONFIRMED');
   assert.equal(reconciled.registrationConfirmed, true);
@@ -721,7 +745,9 @@ test('CLI intake durably reconciles a persisted post-registration unknown hold w
   assert.equal(controller.getRun(f.task.taskId).cycles.length, 1);
   const stateAfter = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
   assert.equal(stateAfter.stickyHold, undefined);
-  assert.deepEqual(stateAfter.records[persisted.fingerprint], priorRecord);
+  assert.equal(stateAfter.records[persisted.fingerprint].state, 'REGISTRATION_CONFIRMED');
+  assert.equal(stateAfter.records[persisted.fingerprint].attempts, 1);
+  assert.equal(Number.isFinite(Date.parse(stateAfter.records[persisted.fingerprint].confirmedAt)), true);
   assert.equal(stateAfter.reconciledStickyHolds.at(-1).resolution, 'MATCHING_DURABLE_REGISTRATION');
   const db = new DatabaseSync(controller.databasePath);
   try {
