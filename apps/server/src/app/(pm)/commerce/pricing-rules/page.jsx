@@ -33,6 +33,22 @@ async function api(url, method = 'GET', body, signal) {
   return result
 }
 
+export function PricingTemplateAction({ hasTemplate, disabled, onClick }) {
+  return <button type="button" className="btn" disabled={disabled || !hasTemplate} onClick={onClick}>ร่างใหม่จากแม่แบบ</button>
+}
+
+export function PricingTemplateUnavailableNotice({ hasSavedRules }) {
+  return <Card role="status">
+    <p className="font-medium">ยังไม่มีแม่แบบสูตรที่กำหนดให้ Business นี้</p>
+    <p className="mt-1 text-sm text-muted">ระบบไม่ใช้แม่แบบ SmartGift ข้าม Business เพื่อป้องกันการปะปนของข้อมูล
+      {hasSavedRules ? ' คุณยังคัดลอกชุดสูตรที่บันทึกอยู่ใน Business นี้เพื่อสร้างรุ่นใหม่ได้' : ' โปรดรอแม่แบบที่รองรับ Business นี้ก่อนเริ่มร่างสูตร'}</p>
+  </Card>
+}
+
+export function pricingEditorReady(data, rules) {
+  return data?.canManage === true && rules !== null && rules !== undefined
+}
+
 export function BusinessPricingConsole({ businessId }) {
   const [data, setData] = useState(null), [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null), [rules, setRules] = useState(null), [name, setName] = useState('')
@@ -103,12 +119,13 @@ export function BusinessPricingConsole({ businessId }) {
   const newDraft = (from) => { choose(null, from?.rules || data.template); setSourceId(from?.id || null); setName(from ? `${from.name} (รุ่นใหม่)` : ''); setTab('formulas') }
 
   return <div className="space-y-4">
-    <div className="flex flex-wrap gap-2"><button type="button" className="btn inline-flex items-center gap-2" disabled={busy || loading} onClick={() => load(selected?.id)}><RefreshCw size={15} />โหลดใหม่</button>{data?.canManage && <button type="button" className="btn" disabled={busy || loading} onClick={() => newDraft(null)}>ร่างใหม่จากแม่แบบ</button>}</div>
+    <div className="flex flex-wrap gap-2"><button type="button" className="btn inline-flex items-center gap-2" disabled={busy || loading} onClick={() => load(selected?.id)}><RefreshCw size={15} />โหลดใหม่</button>{data?.canManage && <PricingTemplateAction hasTemplate={Boolean(data.template)} disabled={busy || loading} onClick={() => newDraft(null)} />}</div>
     {loading && <p role="status" className="text-sm text-muted">กำลังโหลดสูตรของ Business…</p>}
     {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800"><p>{error.message}</p>{error.details?.map((detail, i) => <p key={i}>{detail.field}: {detail.message}</p>)}</div>}
     {message && <p role="status" className="rounded-lg bg-[var(--brand-tint)] p-3 text-sm">{message}</p>}
     {!loading && data && !data.canManage && <Card><p>ไม่มีสิทธิ์จัดการสูตรราคา ต้องเป็น OWNER ของ Business นี้</p></Card>}
-    {!loading && data?.canManage && rules && <>
+    {!loading && data?.canManage && !data.template && <PricingTemplateUnavailableNotice hasSavedRules={data.rules.length > 0} />}
+    {!loading && pricingEditorReady(data, rules) && <>
       {!data.rules.length && <Card><p className="text-sm">ยังไม่มีชุดสูตรใน Business นี้ เริ่มจากแม่แบบที่มีที่มา แล้วบันทึกและอนุมัติก่อนใช้งาน</p></Card>}
       <Card><div className="grid gap-3 md:grid-cols-3"><SelectField label="ชุดสูตรที่เลือก" disabled={busy} value={selected?.id || ''} options={[['', 'ร่างใหม่'], ...data.rules.map((rule) => [rule.id, `${rule.name} · v${rule.version} · ${statusLabel(rule)}`])]} onChange={(e) => choose(data.rules.find((rule) => rule.id === e.target.value), data.template)} /><Field label="ชื่อชุดสูตร" disabled={!editable || busy} value={name} onChange={(e) => setName(e.target.value)} /><div className="text-sm"><p>สถานะ: <strong>{selected ? statusLabel(selected) : 'ร่างใหม่'}</strong></p><p>รุ่นบันทึก: {selected?.version ?? 'ยังไม่บันทึก'}</p><p>มีผล: {displayDate(selected?.effectiveFrom)}</p><p>หมดอายุ: {displayDate(selected?.expiresAt)}</p></div></div>{!editable && <div className="mt-3 flex flex-wrap items-center gap-3"><p className="text-sm text-muted">รุ่นที่อนุมัติหรือถอนสิทธิ์แล้วแก้ไขย้อนหลังไม่ได้</p><button type="button" disabled={busy} className="btn" onClick={() => newDraft(selected)}>คัดลอกเป็นร่างรุ่นใหม่</button></div>}<p className="mt-3 text-xs text-muted">สถานะเผยแพร่ความรู้: การอนุมัติสูตรไม่เผยแพร่ราคาอัตโนมัติ ส่งราคาขายจากบัญชีต้นทุนได้ในแท็บทดลองคำนวณ แล้วรอหลักฐานการเผยแพร่</p></Card>
       <div className="flex flex-wrap gap-2" role="group" aria-label="ส่วนจัดการสูตร">{TABS.map(([key, label]) => <button type="button" key={key} className={`btn ${tab === key ? 'btn-primary' : ''}`} aria-pressed={tab === key} onClick={() => setTab(key)}>{label}</button>)}</div>

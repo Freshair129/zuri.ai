@@ -16,6 +16,7 @@ const revision = z.number().int().positive()
 const name = z.string().trim().min(1).max(120)
 const reason = z.string().trim().min(1).max(2000)
 const scope = { businessId: id }
+const SMARTGIFT_BUSINESS_CODE = 'BUS-SMARTGIFT'
 const createSchema = z.object({ ...scope, name, rules: z.unknown(), sourceRuleSetId: id.optional() }).strict()
 const updateSchema = z.object({ ...scope, version: revision, name, rules: z.unknown(), reason }).strict()
 const actionSchema = z.object({ ...scope, version: revision, action: z.enum(['APPROVE', 'REVOKE']), effectiveFrom: z.string().datetime({ offset: true }).optional(), expiresAt: z.string().datetime({ offset: true }).nullable().optional(), reason }).strict()
@@ -67,7 +68,11 @@ export async function listPricingRules(query, { viewer, db = prisma, now = new D
   const business = await ownerBusiness(db, viewer, data.businessId)
   const rows = await db.pricingRuleSet.findMany({ where: { tenantId: business.tenantId, businessId: business.id }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }] })
   const current = await latestEffectiveRule(db, business, now)
-  return { businessId: business.id, rules: rows.map((row) => ({ ...ruleDto(row, now), isActive: row.id === current?.id && Boolean(usable(row, now)) })), template: defaultPricingRules(), canManage: true }
+  const smartGiftBusiness = await db.business.findFirst({
+    where: { id: business.id, tenantId: business.tenantId, code: SMARTGIFT_BUSINESS_CODE },
+    select: { id: true },
+  })
+  return { businessId: business.id, rules: rows.map((row) => ({ ...ruleDto(row, now), isActive: row.id === current?.id && Boolean(usable(row, now)) })), template: smartGiftBusiness ? defaultPricingRules() : null, canManage: true }
 }
 
 export async function createPricingRuleSet(input, { viewer, db = prisma, now = new Date() } = {}) {

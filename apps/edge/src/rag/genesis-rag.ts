@@ -23,6 +23,8 @@ export interface GenesisRagOptions {
   apiUrl?: string;
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
+  /** Permit the legacy local SmartGift reader. Business-scoped turns must set this false. */
+  allowUnscopedReads?: boolean;
 }
 
 export interface PriceEvidenceV4 {
@@ -80,14 +82,17 @@ export class GenesisLocalRag {
   private readonly apiUrl: string;
   private readonly timeoutMs: number;
   private readonly fetchImpl?: typeof fetch;
+  private readonly allowUnscopedReads: boolean;
 
   constructor(opts: GenesisRagOptions = {}) {
     this.apiUrl = (opts.apiUrl || process.env.GENESIS_RAG_API_URL || DEFAULT_API_URL).replace(/\/+$/, '');
     this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.fetchImpl = opts.fetchImpl;
+    this.allowUnscopedReads = opts.allowUnscopedReads ?? true;
   }
 
   async searchProducts(query: string, limit = 5): Promise<SearchEvidenceV4> {
+    if (!this.allowUnscopedReads) return unavailableSearchEvidence(query, 'BUSINESS_SCOPE_REQUIRED');
     try {
       const data = await fetchJson<SearchResponseV4>(`${this.apiUrl}/api/rag/search`, {
         method: 'POST',
@@ -115,6 +120,7 @@ export class GenesisLocalRag {
     budgetPerUnit?: number | null;
     limit?: number;
   }): Promise<SearchEvidenceV4> {
+    if (!this.allowUnscopedReads) return unavailableSearchEvidence(params.query, 'BUSINESS_SCOPE_REQUIRED');
     try {
       const data = await fetchJson<SearchResponseV4>(`${this.apiUrl}/api/rag/search`, {
         method: 'POST',
@@ -139,6 +145,10 @@ export class GenesisLocalRag {
   }
 
   async priceForCode(code: string, qty: number | null): Promise<PriceEvidenceV4> {
+    if (!this.allowUnscopedReads) {
+      return { found: false, code, priceLadder: [], selectedPrice: null, exportDate: null, priceSource: 'none',
+        unavailable: true, reason: 'BUSINESS_SCOPE_REQUIRED' };
+    }
     try {
       const data = await fetchJson<RagPriceResponse>(`${this.apiUrl}/api/rag/price`, {
         method: 'POST',
@@ -169,6 +179,7 @@ export class GenesisLocalRag {
   }
 
   async health(): Promise<{ ok: boolean; dbReady?: boolean; embedReady?: boolean; runId?: string | null; staleRun?: boolean }> {
+    if (!this.allowUnscopedReads) return { ok: false };
     try {
       const body = await fetchJson<{ ok?: boolean; dbReady?: boolean; embedReady?: boolean; runId?: string | null; staleRun?: boolean }>(
         `${this.apiUrl}/health`,

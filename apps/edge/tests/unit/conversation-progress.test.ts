@@ -13,7 +13,10 @@ function job(): ConversationJob {
   return { id: '10000000-0000-0000-0000-000000000001', executionId: '20000000-0000-0000-0000-000000000001', version: 1,
     question: 'synthetic private question', conversationKey: 'private-conversation', leaseExpiresAt: new Date(Date.now() + 120000).toISOString(),
     policy: { modelAccess: 'LOCAL_ONLY', role: 'sales', retainHistory: false },
-    deadline: { issuedAt: new Date().toISOString(), answerDeadlineAt: new Date(Date.now() + 40000).toISOString(), remainingBudgetMs: 40000, deliveryMode: 'REPLY' } };
+    deadline: { issuedAt: new Date().toISOString(), answerDeadlineAt: new Date(Date.now() + 40000).toISOString(), remainingBudgetMs: 40000, deliveryMode: 'REPLY' },
+    corpusContext: { schemaVersion: 'edge-published-corpus.v1',
+      scope: { portfolioId: 'test-portfolio', tenantId: 'test-tenant', businessId: 'test-business', workspaceId: 'test-workspace', agentId: 'test-agent', visibility: 'private' },
+      corpusId: 'test-corpus', corpusGeneration: 1, manifestHash: 'a'.repeat(64), expiresAt: new Date(Date.now() + 60000).toISOString(), entries: [] } };
 }
 test('progress records monotonic spans and exact turn refs, drops arbitrary tools/fields and isolates observer failures', async () => {
   const current = job(); let now = 10; bindConversationBudget(current, now, () => now);
@@ -53,7 +56,9 @@ test('actual local provider rounds and tool invocation report progress even with
   });
   const result = await execute(current);
   await new Promise(resolve => setImmediate(resolve));
-  assert.equal(result.text, 'ตรวจเงื่อนไขแล้ว');
+  assert.equal(result.reason, 'PUBLISHED_CATALOG_UNAVAILABLE');
+  assert.match(result.text, /ยังตรวจสอบข้อมูลจากแคตตาล็อกที่เชื่อมไว้ไม่ได้/);
+  assert.doesNotMatch(result.text, /ตรวจเงื่อนไขแล้ว/);
   assert.equal(rounds, 2);
   assert.deepEqual(events.map(e => `${e.phase}:${e.state}`), [
     'CONTEXT:STARTED', 'CONTEXT:COMPLETED', 'MODEL:STARTED', 'MODEL:COMPLETED',
