@@ -13,6 +13,7 @@ import { channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 
 const DEFAULT_AGENT_ID = 'zuri-line-agent'
 const DEFAULT_WORKSPACE_ID = 'default'
+const DEFAULT_BUSINESS_WORKSPACE_KEY = 'STANDARD_DEFAULT'
 const DEFAULT_POLICY_VERSION = 'FR-057.v1'
 
 function clean(value) {
@@ -55,11 +56,30 @@ async function resolvePersistedScope({ tenantId, businessId, serverScope }) {
     workspaceId = project.workspaceId
   } else if (workspaceId) {
     workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } })
+  } else if (resolvedBusinessId) {
+    // Generic private memory has no caller-selected Space. Resolve the Business's
+    // stable server-provisioned default Space; if it is missing, deny below rather
+    // than creating a shared `workspace:default` partition.
+    workspace = await prisma.workspace.findFirst({
+      where: {
+        tenantId,
+        businessId: resolvedBusinessId,
+        scopeType: 'BUSINESS',
+        provisioningKey: DEFAULT_BUSINESS_WORKSPACE_KEY,
+        status: 'ACTIVE',
+      },
+    })
+    workspaceId = clean(workspace?.id)
+    if (!workspaceId) {
+      return { authorized: false, reason: 'BUSINESS_WORKSPACE_SCOPE_UNAVAILABLE', businessId: resolvedBusinessId, workspaceId: null, projectId }
+    }
   }
 
   if (workspace) {
     const workspaceMatches = workspace.status === 'ACTIVE' && workspace.tenantId === tenantId &&
-      (resolvedBusinessId ? workspace.businessId === resolvedBusinessId : workspace.businessId === null)
+      (resolvedBusinessId
+        ? workspace.scopeType === 'BUSINESS' && workspace.businessId === resolvedBusinessId
+        : workspace.businessId === null)
     if (!workspaceMatches) {
       return { authorized: false, reason: 'WORKSPACE_SCOPE_DENIED', businessId: resolvedBusinessId, workspaceId, projectId }
     }
@@ -74,13 +94,17 @@ async function resolvePersistedScope({ tenantId, businessId, serverScope }) {
   return { authorized: true, reason: null, businessId: resolvedBusinessId, workspaceId, projectId }
 }
 
-function vaultScope({ tenantId, principalId, agentId, workspaceId, projectId }) {
+function vaultScope({ tenantId, businessId, principalId, agentId, workspaceId, projectId }) {
+  const resolvedWorkspaceId = clean(workspaceId) ?? (clean(businessId) ? null : DEFAULT_WORKSPACE_ID)
+  if (!resolvedWorkspaceId) throw new Error('Business private memory requires a server-authorized workspace')
+
   return {
     scope: 'private',
     tenantId,
+    businessId: clean(businessId),
     principalId,
     agentId,
-    workspaceId: workspaceId ?? DEFAULT_WORKSPACE_ID,
+    workspaceId: resolvedWorkspaceId,
     projectId: projectId ?? null,
     // This is a compatibility scope key. A configured MSP adapter may map the
     // structured scope to its canonical vault_id; Zuri never accepts a vault_id
@@ -89,7 +113,7 @@ function vaultScope({ tenantId, principalId, agentId, workspaceId, projectId }) 
       `tenant:${tenantId}`,
       `principal:${principalId}`,
       `agent:${agentId}`,
-      `workspace:${workspaceId ?? DEFAULT_WORKSPACE_ID}`,
+      `workspace:${resolvedWorkspaceId}`,
       ...(projectId ? [`project:${projectId}`] : []),
     ].join('/'),
   }
@@ -248,6 +272,7 @@ export async function resolveAgentAuthorization({
         tenantId,
         principalId: principal.personId,
         agentId,
+        businessId: resolvedBusinessId,
         workspaceId,
         projectId,
       })]

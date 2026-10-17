@@ -3,12 +3,15 @@
 //   thread/session/instance/event are not vault owners.
 // @tested tests/integration/agent-multi-principal.test.js
 
-export function scopedMemoryKey({ tenantId, principalId, agentId, workspaceId = 'default', projectId = null }) {
+export function scopedMemoryKey({ tenantId, principalId, agentId, workspaceId, projectId = null }) {
+  if (typeof workspaceId !== 'string' || !workspaceId.trim()) {
+    throw new Error('scopedMemoryKey: server-authorized workspaceId is required')
+  }
   return [
     `tenant:${tenantId}`,
     `principal:${principalId}`,
     `agent:${agentId}`,
-    `workspace:${workspaceId}`,
+    `workspace:${workspaceId.trim()}`,
     ...(projectId ? [`project:${projectId}`] : []),
   ].join('/')
 }
