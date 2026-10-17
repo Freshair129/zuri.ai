@@ -25,6 +25,9 @@ let foreignProject
 let crossTenantBusiness
 let crossTenantWorkspace
 let crossTenantProject
+let switchBusiness
+let switchWorkspace
+let switchProject
 
 async function linkedStaff(code, lineUserId) {
   const person = await prisma.person.create({ data: { code, displayName: code } })
@@ -51,6 +54,12 @@ describe('FR-057 multi-principal agent context', () => {
     foreignWorkspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: foreignBusiness.id, name: 'Foreign Vault', code: 'WS-FR057-FOREIGN' })
     const ownerOfForeignBusiness = makeViewer({ visibleBusinessIds: [foreignBusiness.id], ownedBusinessIds: [foreignBusiness.id] })
     foreignProject = await createProject({ workspaceId: foreignWorkspace.id, businessId: foreignBusiness.id, name: 'Foreign Project', code: 'PRJ-FR057-FOREIGN' }, { viewer: ownerOfForeignBusiness })
+    switchBusiness = await createBusiness({ tenantId: tenant.id, name: 'Switch Vault Business', code: 'BUS-FR057-SWITCH' })
+    switchWorkspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: switchBusiness.id,
+      name: 'Switch Vault', code: 'WS-FR057-SWITCH' })
+    const ownerOfSwitchBusiness = makeViewer({ visibleBusinessIds: [switchBusiness.id], ownedBusinessIds: [switchBusiness.id] })
+    switchProject = await createProject({ workspaceId: switchWorkspace.id, businessId: switchBusiness.id,
+      name: 'Switch Project', code: 'PRJ-FR057-SWITCH' }, { viewer: ownerOfSwitchBusiness })
     const crossTenant = await createTenant({ portfolioId: portfolio.id, name: 'Cross Tenant', code: 'TNT-FR057-CROSS' })
     crossTenantBusiness = await createBusiness({ tenantId: crossTenant.id, name: 'Cross Tenant Business', code: 'BUS-FR057-CROSS' })
     crossTenantWorkspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: crossTenantBusiness.id, name: 'Cross Tenant Vault', code: 'WS-FR057-CROSS' })
@@ -58,6 +67,9 @@ describe('FR-057 multi-principal agent context', () => {
     crossTenantProject = await createProject({ workspaceId: crossTenantWorkspace.id, businessId: crossTenantBusiness.id, name: 'Cross Tenant Project', code: 'PRJ-FR057-CROSS' }, { viewer: ownerOfCrossTenantBusiness })
     alice = await linkedStaff('PSN-FR057-ALICE', 'UFR057-alice')
     bob = await linkedStaff('PSN-FR057-BOB', 'UFR057-bob')
+    await prisma.membership.create({ data: { personId: alice.id, tenantId: tenant.id, businessId: switchBusiness.id, role: 'MEMBER' } })
+    await prisma.customer.create({ data: { code: 'CUS-FR057-ALICE', tenantId: tenant.id, businessId: null,
+      personId: alice.id, displayName: 'Consented Alice', consentStatus: 'GRANTED' } })
   })
 
   it('isolates private memory for two principals in the same group thread', async () => {
@@ -110,6 +122,81 @@ describe('FR-057 multi-principal agent context', () => {
     })
     expect(first.authorizedVaults[0].principalId).toBe(second.authorizedVaults[0].principalId)
     expect(first.authorizedVaults[0].scopeKey).not.toBe(second.authorizedVaults[0].scopeKey)
+  })
+
+  it('keeps API-010 memory bound to the current Business across A to B to A turns', async () => {
+    const calls = []
+    const resolvedScopes = []
+    const memory = createMspMemoryPort({
+      vaultSetResolver: { resolve: async authorization => {
+        const scope = authorization.authContext.scope
+        resolvedScopes.push({ ...scope, principalId: authorization.authContext.actor.principalId })
+        return { workspacePrivateVaultId: `api010-${scope.businessId}`,
+          globalPrivateVaultIds: ['api010-global-fallback'], sharedVaultIds: [],
+          permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.FR057' } }
+      } },
+      transport: async (name, input) => {
+        calls.push({ name, input })
+        if (name !== 'msp_memory_list') return {}
+        const businessFact = input.vault_id === `api010-${business.id}` ? 'Business A private fact' : 'Business B private fact'
+        return { entities: [{ entity_id: `episode-${input.vault_id}`, vault_id: input.vault_id, current_version: 1,
+          body_json: { fact: businessFact }, source_hash: 'a'.repeat(64), recorded_at: '2026-10-04T00:00:00.000Z' }] }
+      },
+    })
+    const assembleFor = (scopeBusiness, workspace, project, { episodicMemoryOptIn = true } = {}) => assembleAgentContext({
+      tenantId: tenant.id, businessId: scopeBusiness.id, lineUserId: 'UFR057-alice', threadId: 'group-FR057-business-switch', memory,
+      serverScope: { transportVerified: true, businessId: scopeBusiness.id, agentId: 'sales-agent',
+        workspaceId: workspace.id, projectId: project?.id ?? null, episodicMemoryOptIn },
+    })
+
+    const firstA = await assembleFor(business, salesWorkspace, salesProject)
+    const middleB = await assembleFor(switchBusiness, switchWorkspace, switchProject)
+    const lastA = await assembleFor(business, salesWorkspace, salesProject)
+
+    expect([firstA, middleB, lastA].map(context => context.identity.principalId)).toEqual([alice.id, alice.id, alice.id])
+    expect([firstA, middleB, lastA].map(context => context.authContext.scope)).toEqual([
+      { tenantId: tenant.id, businessId: business.id, workspaceId: salesWorkspace.id, projectId: salesProject.id },
+      { tenantId: tenant.id, businessId: switchBusiness.id, workspaceId: switchWorkspace.id, projectId: switchProject.id },
+      { tenantId: tenant.id, businessId: business.id, workspaceId: salesWorkspace.id, projectId: salesProject.id },
+    ])
+    expect([firstA.policy.episodicMemoryAllowed, middleB.policy.episodicMemoryAllowed, lastA.policy.episodicMemoryAllowed])
+      .toEqual([true, true, true])
+    expect(firstA.memory.entries).toEqual([{ fact: 'Business A private fact' }])
+    expect(middleB.memory.entries).toEqual([{ fact: 'Business B private fact' }])
+    expect(lastA.memory.entries).toEqual([{ fact: 'Business A private fact' }])
+    expect(resolvedScopes).toEqual([
+      { tenantId: tenant.id, businessId: business.id, workspaceId: salesWorkspace.id, projectId: salesProject.id, principalId: alice.id },
+      { tenantId: tenant.id, businessId: switchBusiness.id, workspaceId: switchWorkspace.id, projectId: switchProject.id, principalId: alice.id },
+      { tenantId: tenant.id, businessId: business.id, workspaceId: salesWorkspace.id, projectId: salesProject.id, principalId: alice.id },
+    ])
+    expect(calls.filter(call => call.name === 'msp_memory_list').map(call => call.input.vault_id))
+      .toEqual([`api010-${business.id}`, `api010-${switchBusiness.id}`, `api010-${business.id}`])
+
+    const callsBeforeDeniedScopes = calls.length
+    const optedOut = await assembleFor(business, salesWorkspace, salesProject, { episodicMemoryOptIn: false })
+    expect(optedOut.policy).toMatchObject({ episodicMemoryAllowed: false, episodicMemoryReason: 'EPISODIC_MEMORY_NOT_ENROLLED' })
+    expect(optedOut.memory.entries).toEqual([])
+
+    const missingProject = await assembleFor(business, salesWorkspace, null)
+    expect(missingProject.policy).toMatchObject({ episodicMemoryAllowed: false, episodicMemoryReason: 'PRIVATE_MEMORY_SCOPE_UNAVAILABLE' })
+    expect(missingProject.memory.entries).toEqual([])
+
+    const customer = await prisma.customer.findUnique({ where: { tenantId_personId: { tenantId: tenant.id, personId: alice.id } } })
+    await prisma.customer.update({ where: { id: customer.id }, data: { consentStatus: 'PENDING' } })
+    let withoutConsent
+    try {
+      withoutConsent = await assembleFor(business, salesWorkspace, salesProject)
+    } finally {
+      await prisma.customer.update({ where: { id: customer.id }, data: { consentStatus: 'GRANTED' } })
+    }
+    expect(withoutConsent.policy).toMatchObject({ episodicMemoryAllowed: false, episodicMemoryReason: 'CUSTOMER_CONSENT_REQUIRED' })
+    expect(withoutConsent.memory.entries).toEqual([])
+    expect(calls).toHaveLength(callsBeforeDeniedScopes)
+
+    const readsBeforeMismatch = calls.length
+    const staleBusinessVault = { ...middleB, authorizedVaults: firstA.authorizedVaults }
+    await expect(memory.recallAuthorized(staleBusinessVault)).rejects.toThrow(/scope does not match AuthContext/)
+    expect(calls).toHaveLength(readsBeforeMismatch)
   })
 
   it('denies the next turn after Membership revocation', async () => {
