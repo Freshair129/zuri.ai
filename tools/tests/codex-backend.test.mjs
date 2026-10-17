@@ -110,10 +110,13 @@ test('Windows command quoting preserves executable, spaces and exact arguments',
 });
 test('an executable alias matches its deterministic PATH resolution', (t) => {
   const { dir } = fixture(t);
-  const gitExecutable = execFileSync('where.exe', ['git'], { encoding: 'utf8', windowsHide: true }).split(/\r?\n/).find(Boolean).trim();
-  const checks = ['node', 'git'].map((executable) => ({ shell: false, executable, argv: ['--version'], cwd: '.' }));
-  const commands = [process.execPath, gitExecutable].map((executable) => `"${executable}" --version`);
-  const trace = createRoleCheckTrace({ checks, invocationCap: 2, worktree: dir, platform: 'win32', environment: backendEnvironment() });
+  const lookupExecutable = process.platform === 'win32' ? 'where.exe' : 'which';
+  const resolveFromPath = (executable) => execFileSync(lookupExecutable, [executable], { encoding: 'utf8', windowsHide: true })
+    .split(/\r?\n/).find(Boolean).trim();
+  const aliases = ['node', 'git'];
+  const checks = aliases.map((executable) => ({ shell: false, executable, argv: ['--version'], cwd: '.' }));
+  const commands = aliases.map((executable) => `"${resolveFromPath(executable)}" --version`);
+  const trace = createRoleCheckTrace({ checks, invocationCap: 2, worktree: dir, platform: process.platform, environment: backendEnvironment() });
   for (const [index, command] of commands.entries()) {
     trace.observe(startedCommand(`alias-item-${index}`, command));
     trace.observe(completedCommand(`alias-item-${index}`, command, 0));
