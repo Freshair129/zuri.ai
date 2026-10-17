@@ -7,7 +7,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { openDeliveryController } from './controller.mjs';
 import { repositoryPaths } from './controller-store.mjs';
 import { createControllerRunner } from './controller-runner.mjs';
-import { admitConfiguredTasks } from './controller-cli.mjs';
+import { admitConfiguredTasks, startConfiguredWorkerObservabilityPublisher } from './controller-cli.mjs';
 import { preflightTask } from './preflight.mjs';
 import { runRoadmapIntake } from './roadmap-intake.mjs';
 import { createGitHubDeliveryAdapter } from './github-delivery.mjs';
@@ -897,19 +897,29 @@ export async function createAutonomousSupervisor({ repoRoot, campaignFile, contr
   };
 }
 
-export async function main(argv = process.argv.slice(2)) {
+export async function main(argv = process.argv.slice(2), dependencies = {}) {
+  const {
+    createSupervisor = createAutonomousSupervisor,
+    startDashboard = startControllerDashboard,
+    startLiveness = startControllerLivenessHeartbeat,
+    startObservabilityPublisher = startConfiguredWorkerObservabilityPublisher,
+    writeError = (message) => process.stderr.write(message),
+  } = dependencies;
   const [command, campaignFile] = argv;
   if (!['run', 'serve'].includes(command) || !campaignFile || argv.length !== 2) throw new Error('Usage: autonomous-supervisor.mjs run|serve <private-campaign.json>');
   const campaign = parse(campaignFile);
-  const supervisor = await createAutonomousSupervisor({ repoRoot: campaign.repositoryRoot, campaignFile });
+  const supervisor = await createSupervisor({ repoRoot: campaign.repositoryRoot, campaignFile });
   let stopping = false;
   let dashboard;
   let liveness;
+  let observabilityPublisher;
   const stop = () => { stopping = true; };
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   try {
     if (command === 'serve') {
-      dashboard = await startControllerDashboard({ port: campaign.dashboardPort ?? 4190,
+      observabilityPublisher = startObservabilityPublisher({ repoRoot: campaign.repositoryRoot, config: campaign,
+        onError: () => writeError('WORKER_OBSERVABILITY_EXPORT_FAILED\n') });
+      dashboard = await startDashboard({ port: campaign.dashboardPort ?? 4190,
         readEvents: createControllerEventReader(campaign.repositoryRoot),
         readRuns: async () => {
           const runs = supervisor.controller.listRuns().map((run) => ({ ...run, status: run.state, nodes: run.stages }));
@@ -918,7 +928,7 @@ export async function main(argv = process.argv.slice(2)) {
           }
           return runs;
         } });
-      liveness = startControllerLivenessHeartbeat({ stateRoot: supervisor.controllerStateRoot });
+      liveness = startLiveness({ stateRoot: supervisor.controllerStateRoot });
     }
     do {
       const result = await supervisor.tick();
@@ -933,10 +943,17 @@ export async function main(argv = process.argv.slice(2)) {
       await new Promise((resolve) => setTimeout(resolve, Math.max(5000, campaign.pollIntervalMs ?? 30_000)));
     } while (!stopping);
   } finally {
-    liveness?.stop();
-    await supervisor.stop();
-    if (dashboard) await new Promise((resolve) => dashboard.close(resolve));
-    process.removeListener('SIGINT', stop); process.removeListener('SIGTERM', stop);
+    try { observabilityPublisher?.stop(); }
+    finally {
+      try { liveness?.stop(); }
+      finally {
+        try { await supervisor.stop(); }
+        finally {
+          try { if (dashboard) await new Promise((resolve) => dashboard.close(resolve)); }
+          finally { process.removeListener('SIGINT', stop); process.removeListener('SIGTERM', stop); }
+        }
+      }
+    }
   }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) main().catch((error) => { process.stderr.write(`SUPERVISOR_STOPPED: ${error.message}\n`); process.exitCode = 1; });
