@@ -81,6 +81,7 @@
 .candidateList { display: grid; gap: 7px; margin: 8px 0 0; padding: 0; list-style: none; }
 .candidateList li { display: grid; grid-template-columns: minmax(130px, auto) minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: baseline; border-bottom: 1px solid var(--border-default); padding: 7px 0; font-size: 11px; }
 .hashes, .ci { margin: 0; color: var(--text-secondary); font-size: 11px; }
+.worktreeStatus { margin: 0; color: var(--text-secondary); font-size: 11px; overflow-wrap: anywhere; }
 .lowerGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; min-width: 0; }
 .events, .changes, .tags { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
 .events li, .changes li, .tags li { display: grid; grid-template-columns: auto minmax(120px, auto) minmax(0, 1fr) auto; align-items: baseline; gap: 7px; min-width: 0; border-bottom: 1px solid var(--border-default); padding: 6px 0; font-size: 11px; }

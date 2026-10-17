@@ -1,5 +1,8 @@
 import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import ProgramRoadmapBoard from '@/modules/platform-control/components/ProgramRoadmapBoard'
 import WorkerObservabilityPanel, {
@@ -7,7 +10,10 @@ import WorkerObservabilityPanel, {
   collectLocalChanges,
   createInitialWorkerObservabilityState,
   reduceWorkerObservabilityState,
+  TaskWorktreeStatus,
 } from '@/modules/platform-control/components/WorkerObservabilityPanel'
+import { readWorkerObservabilitySource } from '@/modules/platform-control/application/worker-observability-source'
+import { unknownWorkerObservabilitySnapshot } from '@/modules/platform-control/worker-observability-contract'
 
 globalThis.React = React
 
@@ -15,6 +21,9 @@ describe('worker observability UI', () => {
   it('shows a truthful local-only panel with memory marked NOT_CAPTURED and no actions', () => {
     const html = renderToStaticMarkup(createElement(WorkerObservabilityPanel))
     expect(html).toContain('LOCAL CONTROLLER')
+    expect(html).toContain('Active role assignments')
+    expect(html).toContain('not process counts')
+    expect(html).toContain('does not show Codex sessions or every workspace')
     expect(html).toContain('NOT_CAPTURED')
     expect(html).toContain('worker-source-unknown')
     expect(html).toContain('UNKNOWN')
@@ -154,5 +163,89 @@ describe('worker observability UI', () => {
       localTags: [{ name: 'visible-new', objectId: 'c'.repeat(40) }], localTagsTruncated: true, localStatus: {},
     })
     expect(withoutFingerprint).toEqual([])
+  })
+
+  it('accepts sanitized task worktree status while keeping context lineage NOT_CAPTURED', () => {
+    const observedAt = '2026-10-17T06:00:00.000Z'
+    const headCommit = 'a'.repeat(40)
+    const snapshot = unknownWorkerObservabilitySnapshot('TEST', new Date(observedAt))
+    snapshot.state = 'LIVE'
+    snapshot.freshness = 'SNAPSHOT'
+    snapshot.source.controllerLiveness = 'VERIFIED'
+    snapshot.source.eventChain = 'VERIFIED'
+    snapshot.summary = { activeWorkers: 1, queuedWorkers: 0, activeTasks: 1, mode: 'SOLO' }
+    snapshot.assignments = [{
+      assignmentRef: 'worker-001', taskId: 'TASK-ZAI-119', cycleNo: 1, role: 'worker', stage: 'WORKER_IMPLEMENTATION',
+      state: 'RUNNING', attempt: 1, checkedHeadCommit: headCommit,
+      lease: { state: 'FRESH', heartbeatAt: observedAt, ageMs: 0, active: true }, active: true, queued: false,
+      localCheck: { state: 'NOT_CAPTURED', scope: 'LOCAL_ONLY', receiptDigest: null },
+      contextMemory: { state: 'NOT_CAPTURED', sourceKindCounts: [], digest: null },
+    }]
+    snapshot.localStatus = {
+      changedFiles: 0, fingerprint: null, headCommit, observedAt,
+      taskWorktrees: [{
+        workspaceRef: 'workspace-0123456789abcdef', taskId: 'TASK-ZAI-119', cycleNo: 1,
+        branch: 'codex/task-zai-119', headCommit, dirtyFileCount: 2,
+        candidateHeadMatch: 'MATCH', verificationState: 'VERIFIED', reason: null, observedAt,
+      }],
+    }
+    const root = mkdtempSync(path.join(tmpdir(), 'worker-observability-source-'))
+    const filePath = path.join(root, 'snapshot.json')
+    try {
+      writeFileSync(filePath, JSON.stringify(snapshot))
+      const read = readWorkerObservabilitySource({ filePath, now: () => new Date(observedAt) })
+      expect(read.state).toBe('LIVE')
+      expect(read.localStatus.taskWorktrees[0]).toMatchObject({
+        workspaceRef: 'workspace-0123456789abcdef', taskId: 'TASK-ZAI-119',
+        branch: 'codex/task-zai-119', headCommit, dirtyFileCount: 2, candidateHeadMatch: 'MATCH',
+      })
+      expect(read.assignments[0].contextMemory).toEqual({ state: 'NOT_CAPTURED', sourceKindCounts: [], digest: null })
+      const serialized = JSON.stringify(read)
+      expect(serialized).not.toContain(root)
+      expect(serialized).not.toMatch(/prompt|session|owner|model|credential|absolutePath/i)
+
+      snapshot.assignments[0].contextMemory = { state: 'CAPTURED', sourceKindCounts: [], digest: 'b'.repeat(64) }
+      writeFileSync(filePath, JSON.stringify(snapshot))
+      const captured = readWorkerObservabilitySource({ filePath, now: () => new Date(observedAt) })
+      expect(captured.state).toBe('UNKNOWN')
+      expect(captured.reason).toBe('SOURCE_INVALID')
+      expect(JSON.stringify(captured)).not.toContain(root)
+
+      snapshot.assignments[0].contextMemory = { state: 'NOT_CAPTURED', sourceKindCounts: [], digest: null }
+      for (const branch of ['codex//task', 'codex/../secret', 'codex/./secret']) {
+        snapshot.localStatus.taskWorktrees[0].branch = branch
+        writeFileSync(filePath, JSON.stringify(snapshot))
+        const rejected = readWorkerObservabilitySource({ filePath, now: () => new Date(observedAt) })
+        expect(rejected.state).toBe('UNKNOWN')
+        expect(rejected.reason).toBe('SOURCE_INVALID')
+        expect(JSON.stringify(rejected)).not.toContain(branch)
+      }
+      const credentialBranch = `codex/${['github', 'pat'].join('_')}_${'A'.repeat(40)}`
+      snapshot.localStatus.taskWorktrees[0].branch = credentialBranch
+      writeFileSync(filePath, JSON.stringify(snapshot))
+      const credentialRejected = readWorkerObservabilitySource({ filePath, now: () => new Date(observedAt) })
+      expect(credentialRejected.state).toBe('UNKNOWN')
+      expect(credentialRejected.reason).toBe('SOURCE_INVALID')
+      expect(JSON.stringify(credentialRejected)).not.toContain(credentialBranch)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('renders only the sanitized task worktree status fields', () => {
+    const html = renderToStaticMarkup(createElement(TaskWorktreeStatus, {
+      task: { taskId: 'TASK-ZAI-119' },
+      worktree: {
+        workspaceRef: 'workspace-0123456789abcdef', branch: 'codex/task-zai-119',
+        headCommit: 'a'.repeat(40), dirtyFileCount: 2, candidateHeadMatch: 'MATCH', verificationState: 'VERIFIED',
+      },
+    }))
+    expect(html).toContain('Task worktree')
+    expect(html).toContain('workspace-0123456789abcdef')
+    expect(html).toContain('codex/task-zai-119')
+    expect(html).toContain('MATCH')
+    expect(html).toContain(`title="${'a'.repeat(40)}"`)
+    expect(html).toContain(`aria-label="Exact worktree HEAD ${'a'.repeat(40)}"`)
+    expect(html).not.toMatch(/absolutePath|prompt|session|owner|model|credential/i)
   })
 })
