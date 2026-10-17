@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.36, 2026-10-17) so the board can open a task the way the html board
+// (v0.4.37, 2026-10-18) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -629,14 +629,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8) and PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head tests passed. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, and Business-scoped Edge SmartGift/RAG/template behavior. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply is unverified; full generic private-memory and live-agent switching plus Task14 E2E remain open. Task14 is still in-progress, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.",
+    "changelog": "Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8) and PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head tests passed. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, and Business-scoped Edge SmartGift/RAG/template behavior. PR #705 candidate c15ef9dd1f2246b24f71146a40baeae4785665f3 merged as b7add99074de4d310e3ee58e9b898cb0f0938e10 with matching tree ff8c9b3594db39e9fa3a45109fff78a6f9784c98 and base parent 7a661d95c7db57122a0899652c354831cac559ac; hosted Governance 39054993823 and Edge 39054993820 passed applicable checks, and its two isolated synthetic same-principal A/B/A memory/context suites passed 16/16 and 32/32 (48/48 total), with E2E/Desktop skipped. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply, SmartGift-sentinel non-disclosure across every reader, broader generic private-memory scope, live-agent/provider switching and Task14 E2E remain unverified. Task14 stays in-progress / HOSTED_CI / MERGED, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 52000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-013"
     ],
-    "evidence": "Section 3.1 row 6"
+    "evidence": "PR #705 merged as `b7add99074de4d310e3ee58e9b898cb0f0938e10` from candidate `c15ef9dd1f2246b24f71146a40baeae4785665f3`; matching tree `ff8c9b3594db39e9fa3a45109fff78a6f9784c98`, base parent `7a661d95c7db57122a0899652c354831cac559ac`. Hosted Governance 39054993823 and Edge 39054993820 passed applicable checks; isolated synthetic same-principal A/B/A memory/context suites 16/16 + 32/32 = 48/48; E2E/Desktop skipped. Standalone SmartGift MCP/CLI/local pricing readers remain out of scope; production corpusContext, all-reader SmartGift-sentinel non-disclosure, broader generic-memory scope, live-agent/provider switching and full Task14 E2E remain unverified."
   },
   "TASK-ZAI-015": {
     "container": "TC-TASK-ZAI-015",
@@ -864,7 +864,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-012"
     ],
-    "evidence": "Section 3.1 row 1"
+    "evidence": "External source revision 740eb1f5ef0cc8405af143e4a88f1c752d3e5098 contains a standalone Three.js scene/assets; no integrated Zuri product scene, renderer or route. Phase04 remains 0/5 accepted."
   },
   "TASK-ZAI-020": {
     "container": "TC-TASK-ZAI-020",
@@ -909,7 +909,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-019"
     ],
-    "evidence": "Section 3.1 row 1"
+    "evidence": "T3 job/session presence is present in the external prototype; Zuri Business-scoped reads, route/read-port integration and live-source provenance are not evidenced."
   },
   "TASK-ZAI-021": {
     "container": "TC-TASK-ZAI-021",
@@ -954,7 +954,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-019"
     ],
-    "evidence": "UI-DESIGN-SYSTEM section 3"
+    "evidence": "Partial reduced-motion animation freezing and labeled camera-control buttons are present in the prototype; full keyboard, screen-reader, WCAG, mobile and fallback acceptance remains unverified."
   },
   "TASK-ZAI-022": {
     "container": "TC-TASK-ZAI-022",
@@ -999,7 +999,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-020"
     ],
-    "evidence": "Proposal scope, Business Layer"
+    "evidence": "T3 job/session status inputs exist only in the external prototype; Zuri live-turn provenance, Business Mission feed and live-agent/provider switching acceptance are not evidenced."
   },
   "TASK-ZAI-023": {
     "container": "TC-TASK-ZAI-023",
@@ -1045,7 +1045,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-011",
       "TASK-ZAI-022"
     ],
-    "evidence": "Section 3.1 rows 1 and 9"
+    "evidence": "L1-L4 approval queue, authorization and audit-equivalence acceptance are not evidenced; all implementation criteria remain unchecked."
   },
   "TASK-ZAI-024": {
     "container": "TC-TASK-ZAI-024",
@@ -1173,14 +1173,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened from deliverable three. FR-040 provides a 2D read-only project map today; the 3D relationship view is new.",
+    "changelog": "Opened from deliverable three. FR-040 provides a 2D read-only project map today; the 3D relationship view is new. Public PR #704 remains OPEN/unmerged at actual head 452e49190018d8cf2174074f1436f540ef78610f; it changes a proposed contract and navigation only. Hosted Governance 39057868248 and Edge 39057868260 passed applicable checks, with E2E/Desktop skipped. This is not accepted contract, graph API/UI/runtime implementation, or test evidence; all implementation criteria remain unchecked and TASK-ZAI-027 stays planned behind TASK-ZAI-026.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 68000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-024"
     ],
-    "evidence": "Section 3.1 row 3"
+    "evidence": "Public PR #704 remains open/unmerged at head 452e49190018d8cf2174074f1436f540ef78610f and proposes a contract only. Hosted Governance 39057868248 and Edge 39057868260 passed applicable checks; E2E/Desktop skipped. No accepted contract, graph API/UI/runtime implementation or test proof; criteria remain unchecked and TASK-ZAI-027 planned behind it."
   },
   "TASK-ZAI-027": {
     "container": "TC-TASK-ZAI-027",

@@ -795,7 +795,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-013",
     "authority": "ROADMAP.md",
-    "evidence": "PR #671 merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from b982d20733c213640a7cb3e42656f8a37925564a. PR #695 head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9 merged as 64e91e1d90291733a7ac255a6dafffe7b1fba7c8; exact-head Governance 39000419267 and Edge 39000419263 passed. PR #696 head a26550f071976d37c2003e7d85ded6f7f13ce3e8 merged as 1167d8d28e746e05cac5eda88e07e9418b8e0751; exact-head Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E was skipped. Final local targeted tests for #695/#696 were NOT_RUN due missing npx/tsx; exact-head hosted test checks passed. SmartGift standalone MCP/CLI/local pricing readers remain out of scope, production corpusContext supply is unverified, and full generic-memory Business switching, live-agent switching, and Task14 E2E remain open; Task14 is not done."
+    "evidence": "PR #671 merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from b982d20733c213640a7cb3e42656f8a37925564a. PR #695 head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9 merged as 64e91e1d90291733a7ac255a6dafffe7b1fba7c8; exact-head Governance 39000419267 and Edge 39000419263 passed. PR #696 head a26550f071976d37c2003e7d85ded6f7f13ce3e8 merged as 1167d8d28e746e05cac5eda88e07e9418b8e0751; exact-head Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E was skipped. PR #705 candidate c15ef9dd1f2246b24f71146a40baeae4785665f3 merged as b7add99074de4d310e3ee58e9b898cb0f0938e10; candidate/squash tree ff8c9b3594db39e9fa3a45109fff78a6f9784c98 and base parent 7a661d95c7db57122a0899652c354831cac559ac match. Hosted Governance 39054993823 and Edge 39054993820 passed applicable checks; the changed isolated synthetic A/B/A memory/context suites passed 16/16 and 32/32 (48/48 total). E2E and Desktop were skipped. Standalone SmartGift MCP/CLI/local pricing readers remain outside Business scope; production corpusContext supply is unverified; SmartGift-sentinel non-disclosure across every reader, full generic private-memory Business switching beyond the synthetic harness, live-agent/provider switching, and full Task14 E2E remain unverified. No production, deployment, Supabase, provider activation or UAT is claimed; Task14 is not done."
   },
   {
     "id": "TASK-ZAI-015",
@@ -850,7 +850,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-012",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 1"
+    "evidence": "External source revision 740eb1f5ef0cc8405af143e4a88f1c752d3e5098 contains a standalone Three.js scene and room/desk/floor-tile glTF assets; no scene route or renderer is integrated into the Zuri product checkout. Phase04 remains 0/5 accepted."
   },
   {
     "id": "TASK-ZAI-020",
@@ -861,7 +861,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-019",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 1"
+    "evidence": "The external prototype derives presence from T3 jobs/sessions; it does not evidence Zuri Business-scoped reads, route/read-port integration, or live-source provenance."
   },
   {
     "id": "TASK-ZAI-021",
@@ -872,7 +872,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-019",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; UI-DESIGN-SYSTEM section 3"
+    "evidence": "Prototype source has partial reduced-motion animation freezing and labeled camera-control buttons; full keyboard, screen-reader, WCAG, mobile and fallback acceptance remains unverified."
   },
   {
     "id": "TASK-ZAI-022",
@@ -883,7 +883,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-020",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Proposal scope, Business Layer"
+    "evidence": "T3 job/session status inputs exist only in the external prototype; no Zuri live-turn provenance, Business Mission feed, or live-agent/provider switching acceptance is evidenced."
   },
   {
     "id": "TASK-ZAI-023",
@@ -894,7 +894,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-011; TASK-ZAI-022",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 rows 1 and 9"
+    "evidence": "No L1-L4 approval queue, authorization, or audit-equivalence acceptance is evidenced; all implementation criteria remain unchecked."
   },
   {
     "id": "TASK-ZAI-024",
@@ -927,7 +927,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-024",
     "authority": "ROADMAP.md",
-    "evidence": "Audit wave 2026-09-21: FR-082..085/ADR-035 remains design-only; no approved node/traversal/redaction contract; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 3"
+    "evidence": "Public PR #704 remains open/unmerged at head 452e49190018d8cf2174074f1436f540ef78610 and changes a proposed contract plus navigation only. Governance 39057868248 and Edge 39057868260 passed applicable checks; E2E/Desktop were skipped. No accepted contract, graph API/UI/runtime implementation or test evidence; all criteria remain unchecked and TASK-ZAI-027 stays planned behind TASK-ZAI-026."
   },
   {
     "id": "TASK-ZAI-027",
