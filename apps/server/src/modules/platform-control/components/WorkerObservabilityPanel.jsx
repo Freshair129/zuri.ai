@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import { Activity, AlertTriangle, GitBranch, Radio, ShieldCheck } from 'lucide-react'
 import { Card, Kpi } from '@/components/ui'
 import { unknownWorkerObservabilitySnapshot } from '../worker-observability-contract'
@@ -9,6 +9,56 @@ import styles from './worker-observability-panel.module.css'
 const POLL_MS = 5000
 const EMPTY_SNAPSHOT = unknownWorkerObservabilitySnapshot('LOADING')
 const EMPTY_INTAKE = EMPTY_SNAPSHOT.campaignIntake
+const SAFE_ERROR_CODE = /^[A-Z][A-Z0-9_]{0,63}$/
+
+export function classifyWorkerObservabilityFailure(status, errorCode) {
+  const code = typeof errorCode === 'string' && SAFE_ERROR_CODE.test(errorCode) ? errorCode : null
+
+  if (status === 401) {
+    return {
+      connection: 'auth-required',
+      reason: 'AUTH_REQUIRED',
+      label: 'ต้องเข้าสู่ระบบใหม่',
+      message: 'เซสชันหมดอายุหรือยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่',
+    }
+  }
+
+  if (status === 403) {
+    if (code === 'OPERATOR_REQUIRED') {
+      return {
+        connection: 'operator-required',
+        reason: code,
+        label: 'ไม่มีสิทธิ์ Installation Operator',
+        message: 'บัญชีนี้ไม่มีสิทธิ์ Installation Operator',
+      }
+    }
+    if (code === 'SAME_ORIGIN_REQUIRED') {
+      return {
+        connection: 'forbidden',
+        reason: code,
+        label: 'คำขอไม่ตรงกับเว็บไซต์ต้นทาง',
+        message: 'คำขอถูกปฏิเสธ เพราะต้องอ่านข้อมูลจากเว็บไซต์ต้นทางเดียวกัน',
+      }
+    }
+    return {
+      connection: 'forbidden',
+      reason: code || 'HTTP_403',
+      label: 'คำขอถูกปฏิเสธ',
+      message: 'คำขอถูกปฏิเสธ',
+    }
+  }
+
+  if (status === 503 && code === 'SESSION_UNAVAILABLE') {
+    return {
+      connection: 'session-unavailable',
+      reason: code,
+      label: 'บริการเซสชันไม่พร้อมชั่วคราว',
+      message: 'บริการตรวจสอบเซสชันไม่พร้อมชั่วคราว กรุณาลองอีกครั้งภายหลัง',
+    }
+  }
+
+  return null
+}
 
 function timeLabel(value) {
   if (!value || !Number.isFinite(Date.parse(value))) return '—'
@@ -58,11 +108,70 @@ export function collectLocalChanges(previous, next) {
   return changes
 }
 
+export function createInitialWorkerObservabilityState() {
+  return {
+    snapshot: EMPTY_SNAPSHOT,
+    connection: 'loading',
+    failure: null,
+    localChanges: [],
+    baseline: null,
+  }
+}
+
+export function reduceWorkerObservabilityState(state, action) {
+  if (action.type === 'failure') {
+    const failure = action.failure || null
+    return {
+      snapshot: unknownWorkerObservabilitySnapshot(failure?.reason || action.reason || 'SOURCE_UNAVAILABLE'),
+      connection: failure?.connection || action.connection || 'unavailable',
+      failure,
+      localChanges: [],
+      baseline: null,
+    }
+  }
+
+  if (action.type !== 'snapshot') return state
+
+  const next = action.snapshot
+  if (next?.schemaVersion !== 'worker-observability/v1' || !['LIVE', 'UNKNOWN'].includes(next.state)) {
+    return {
+      snapshot: unknownWorkerObservabilitySnapshot('SOURCE_INVALID'),
+      connection: 'unknown',
+      failure: null,
+      localChanges: [],
+      baseline: null,
+    }
+  }
+
+  if (next.state !== 'LIVE') {
+    return {
+      snapshot: next,
+      connection: 'unknown',
+      failure: null,
+      localChanges: [],
+      baseline: null,
+    }
+  }
+
+  const additions = state.baseline ? collectLocalChanges(state.baseline, next) : []
+  return {
+    snapshot: next,
+    connection: 'connected',
+    failure: null,
+    localChanges: [...additions, ...state.localChanges].slice(0, 100),
+    baseline: {
+      tags: Array.isArray(next.localTags) ? next.localTags : [],
+      tagsTruncated: next.localTagsTruncated === true,
+      tagSetFingerprint: next.localTagSetFingerprint ?? null,
+      headCommit: next.localStatus?.headCommit ?? null,
+      fingerprint: next.localStatus?.fingerprint ?? null,
+    },
+  }
+}
+
 export default function WorkerObservabilityPanel() {
-  const [snapshot, setSnapshot] = useState(EMPTY_SNAPSHOT)
-  const [connection, setConnection] = useState('loading')
-  const [localChanges, setLocalChanges] = useState([])
-  const baseline = useRef(null)
+  const [viewState, dispatch] = useReducer(reduceWorkerObservabilityState, undefined, createInitialWorkerObservabilityState)
+  const { snapshot, connection, failure, localChanges } = viewState
 
   useEffect(() => {
     let disposed = false
@@ -84,40 +193,27 @@ export default function WorkerObservabilityPanel() {
           headers: { Accept: 'application/json' },
           signal: activeController.signal,
         })
-        if (response.status === 401 || response.status === 403) {
-          if (!disposed) {
-            setConnection('unauthorized')
-            setSnapshot(unknownWorkerObservabilitySnapshot('AUTH_REQUIRED'))
+        if ([401, 403, 503].includes(response.status)) {
+          let errorCode = null
+          try {
+            const body = await response.json()
+            errorCode = body?.error
+          } catch {
+            // Status still gives us a safe fallback when the error body is absent or invalid.
           }
-          return
+          const nextFailure = classifyWorkerObservabilityFailure(response.status, errorCode)
+          if (nextFailure) {
+            if (!disposed) dispatch({ type: 'failure', failure: nextFailure })
+            return
+          }
         }
         if (!response.ok) throw new Error('SOURCE_UNAVAILABLE')
         const next = await response.json()
         if (disposed) return
-        if (next?.schemaVersion !== 'worker-observability/v1' || !['LIVE', 'UNKNOWN'].includes(next.state)) {
-          setSnapshot(unknownWorkerObservabilitySnapshot('SOURCE_INVALID'))
-          setConnection('unknown')
-          return
-        }
-        if (next.state === 'LIVE' && baseline.current) {
-          const additions = collectLocalChanges(baseline.current, next)
-          if (additions.length) setLocalChanges((current) => [...additions, ...current].slice(0, 100))
-        }
-        if (next.state === 'LIVE') {
-          baseline.current = {
-            tags: Array.isArray(next.localTags) ? next.localTags : [],
-            tagsTruncated: next.localTagsTruncated === true,
-            tagSetFingerprint: next.localTagSetFingerprint ?? null,
-            headCommit: next.localStatus?.headCommit ?? null,
-            fingerprint: next.localStatus?.fingerprint ?? null,
-          }
-        }
-        setSnapshot(next)
-        setConnection(next.state === 'LIVE' ? 'connected' : 'unknown')
+        dispatch({ type: 'snapshot', snapshot: next })
       } catch (error) {
         if (!disposed && error?.name !== 'AbortError') {
-          setSnapshot(unknownWorkerObservabilitySnapshot('SOURCE_UNAVAILABLE'))
-          setConnection('unavailable')
+          dispatch({ type: 'failure', reason: 'SOURCE_UNAVAILABLE', connection: 'unavailable' })
         }
       } finally {
         inFlight = false
@@ -135,7 +231,7 @@ export default function WorkerObservabilityPanel() {
 
   const isLive = snapshot.state === 'LIVE'
   const campaignIntake = snapshot.campaignIntake ?? EMPTY_INTAKE
-  const statusLabel = connection === 'connected' ? 'LIVE · LOCAL' : connection === 'loading' ? 'กำลังอ่านข้อมูล' : connection === 'unauthorized' ? 'ไม่มีสิทธิ์อ่าน' : 'UNKNOWN'
+  const statusLabel = connection === 'connected' ? 'LIVE · LOCAL' : connection === 'loading' ? 'กำลังอ่านข้อมูล' : failure?.label || 'UNKNOWN'
 
   return (
     <section className={styles.panel} data-testid="worker-observability-panel" aria-labelledby="worker-observability-title">
@@ -153,7 +249,9 @@ export default function WorkerObservabilityPanel() {
       {snapshot.state === 'UNKNOWN' && (
         <div className={styles.notice} role="status" data-testid="worker-source-unknown">
           <AlertTriangle size={17} aria-hidden />
-          <span>อ่านข้อมูล worker ไม่ได้หรือหลักฐานไม่ครบ จึงแสดง UNKNOWN แทนการคาดเดา{snapshot.reason && snapshot.reason !== 'LOADING' ? ` · ${snapshot.reason}` : ''}</span>
+          <span>{failure
+            ? `${failure.message} จึงแสดง UNKNOWN แทนการคาดเดา · ${failure.reason}`
+            : `อ่านข้อมูล worker ไม่ได้หรือหลักฐานไม่ครบ จึงแสดง UNKNOWN แทนการคาดเดา${snapshot.reason && snapshot.reason !== 'LOADING' ? ` · ${snapshot.reason}` : ''}`}</span>
         </div>
       )}
 
