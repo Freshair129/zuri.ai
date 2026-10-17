@@ -6,12 +6,16 @@ import { describe, expect, it } from 'vitest'
 
 const fromRoot = (...parts) => resolve(process.cwd(), ...parts)
 
-describe('Zuri navigation no longer advertises Developer Delivery Control', () => {
+describe('Zuri navigation keeps product diagnostics without advertising Developer Delivery Control', () => {
   const settings = readFileSync(fromRoot('src', 'app', '(pm)', 'settings', 'page.jsx'), 'utf8')
   const topbar = readFileSync(fromRoot('src', 'components', 'layouts', 'Topbar.jsx'), 'utf8')
 
-  it('removes the Platform Control card and its roadmap, error, and usage links from Settings', () => {
-    expect(settings).not.toMatch(/PlatformControlCard|\/control\/(roadmap|errors|usage)|isInstallationOperator/)
+  it('keeps operator-gated product diagnostics links and removes roadmap navigation from Settings', () => {
+    expect(settings).toContain('function InstallationDiagnosticsCard()')
+    expect(settings).toContain('if (!isInstallationOperator(viewer.data)) return null')
+    expect(settings).toContain('href="/control/errors"')
+    expect(settings).toContain('href="/control/usage"')
+    expect(settings).not.toMatch(/PlatformControlCard|\/control\/roadmap/)
     expect(settings).toContain('function AddBusinessCard')
     expect(settings).toContain('function PhysicalStockCard')
     expect(settings).toContain('Mode → default strategy')

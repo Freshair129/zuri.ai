@@ -29,7 +29,6 @@ No current binding of this type is present in the frozen graph.
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/(control)/control/roadmap/page.jsx](../../../apps/server/src/app/%28control%29/control/roadmap/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/platform-control/application/programme-usage-reports.js](../../../apps/server/src/modules/platform-control/application/programme-usage-reports.js) — `implements` (`annotation`)
 - [apps/server/src/modules/platform-control/application/task-usage-ledger.js](../../../apps/server/src/modules/platform-control/application/task-usage-ledger.js) — `implements` (`annotation`)
 
@@ -37,9 +36,6 @@ No current binding of this type is present in the frozen graph.
 
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/doc-graph-retired-rules.test.js](../../../apps/server/tests/unit/doc-graph-retired-rules.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/platform-control-domain-map.test.js](../../../apps/server/tests/unit/platform-control-domain-map.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/platform-control-route-contract.test.js](../../../apps/server/tests/unit/platform-control-route-contract.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/program-delivery-metrics.test.js](../../../apps/server/tests/unit/program-delivery-metrics.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/programme-usage-reports.test.js](../../../apps/server/tests/unit/programme-usage-reports.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/task-usage-ledger.test.js](../../../apps/server/tests/unit/task-usage-ledger.test.js) — `verifies` (`test-reference`)
 

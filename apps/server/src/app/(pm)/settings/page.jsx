@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { PageHeader, Card, SectionTitle, Field } from '@/components/ui'
 import { MODE_LABELS, MODE_DEFAULT_STRATEGY } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
 import { api, useFetch } from '@/modules/project-manager/components/useApi'
+import { isInstallationOperator } from '@/modules/identity/viewer-authority'
 
 /**
  * Developer database commands — rendered only in a development build.
@@ -113,6 +115,31 @@ function AddBusinessCard({ scope }) {
   )
 }
 
+// @req FR-075 — installation diagnostics remain visible only to the same
+// installation-operator capability enforced by the product routes.
+// @req FR-247 — error events remain discoverable to installation operators.
+// @req FR-248, FR-249 — feature usage remains discoverable to operators.
+function InstallationDiagnosticsCard() {
+  const viewer = useFetch('/api/viewer')
+  if (!isInstallationOperator(viewer.data)) return null
+  return (
+    <Card>
+      <SectionTitle caption="สำหรับผู้ดูแลการติดตั้งเท่านั้น — เหตุการณ์ข้อผิดพลาดและการใช้งานของระบบ">
+        Installation Diagnostics
+      </SectionTitle>
+      <p className="text-xs">Operational views for runtime errors and product feature usage.</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link href="/control/errors" className="btn inline-flex">
+          Error events (FR-247)
+        </Link>
+        <Link href="/control/usage" className="btn inline-flex">
+          Feature usage (FR-248, FR-249)
+        </Link>
+      </div>
+    </Card>
+  )
+}
+
 // @req FR-169 — the Physical Stock toggle. OWNER-only in the UI, matching the
 //   route's own OWNER + ownsBusiness check: a non-owner viewer never sees a
 //   control they would be refused for pressing. Turning it off hides the
@@ -173,6 +200,7 @@ export default function SettingsPage() {
       <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
         <AddBusinessCard scope={scope} />
         <PhysicalStockCard scope={scope} />
+        <InstallationDiagnosticsCard />
         <Card>
           <SectionTitle caption="Your account and current Business memberships">Identity</SectionTitle>
           <p className="text-xs">Your signed-in account is governed by server-side credentials and memberships.</p>
