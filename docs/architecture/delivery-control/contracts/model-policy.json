@@ -283,7 +283,18 @@
       "commandsAndExitStatus",
       "verdict",
       "remainingGaps"
-    ]
+    ],
+    "roleCheckExecution": {
+      "traceSource": "Codex --json JSONL item.started and item.completed events for command_execution items",
+      "maxInvocationsPerDeclaredCheckPerRoleSession": 2,
+      "invocationIdentity": "A command_execution item id counts once, correlated from item.started to item.completed",
+      "commandMatching": "Tokenize the serialized command string with platform quoting rules; resolve executable aliases from the backend PATH and PATHEXT; require exact argv and reject shell or directory-changing prefixes",
+      "cwdBinding": "Codex CLI 0.162.1 omits per-item cwd from JSONL; only checks whose declared cwd resolves to the worktree root may use launch cwd provenance from --cd worktree",
+      "cwdProofLimit": "Codex CLI 0.162.1 JSONL does not serialize per-item cwd; summaries identify each invocation as launch_cwd. If an item cwd is present, it is tagged item_cwd. Neither source independently rules out an unreported per-command cwd override",
+      "passCondition": "Every declared check has a correlated completed invocation with exit_code 0; the most recent invocation must exit 0; its declared cwd must resolve to the --cd worktree root",
+      "overLimitAction": "Stop the role session when the cap is exceeded and fail closed",
+      "evidenceHandling": "Hash the complete JSONL trace and emit only hashed item/check identifiers, invocation counts, exit codes, statuses and cwd provenance in the check summary; retain raw command/output only in the private dispatch artifact"
+    }
   },
   "retryAndLineage": {
     "lineageIdentity": {

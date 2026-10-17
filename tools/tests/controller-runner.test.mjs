@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { createControllerRunner, rolePrompt, commitWorkerCandidate, readPreparedCandidate } from '../delivery-control/controller-runner.mjs';
 import { openDeliveryController } from '../delivery-control/controller.mjs';
@@ -141,6 +141,68 @@ function candidateFixture(t) {
   fs.writeFileSync(taskFile, JSON.stringify(task));
   return { worktree, git, baseCommit, taskFile, task, artifactDir, cleanupHooks, result: { headCommit: baseCommit, resultDigest: 'a'.repeat(64) } };
 }
+
+test('runner passes the exact task checks and machine-policy invocation cap to each role backend', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const readiness = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+  assert.equal(readiness.status, 'READY');
+  controller.registerTask({ taskRecord: f.task, preflightResult: readiness, worktreeRoot: f.worktree,
+    trustedMandateBinding: { resolvedBy: 'root', taskId: f.task.taskId, repositoryRoot: f.worktree,
+      objective: f.task.objective, domainOrFeatureKey: 'test/check-trace', writeScope: f.task.writeScope,
+      sourceRef: 'trusted fixture', authorizedEffects: ['local fixture checks'], prohibitions: ['external effects'] } });
+  let captured; let failureEvidence;
+  const observedController = new Proxy(controller, { get(target, property) {
+    if (property === 'failNode') return async (input) => { failureEvidence = input.evidence; return target.failNode(input); };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+  const traceSha256 = 'c'.repeat(64);
+  const runner = createControllerRunner({ controller: observedController, repoRoot: f.worktree, stateRoot: path.join(f.worktree, '.git/runner-check-trace'),
+    config: { tasks: [{ taskId: f.task.taskId, taskFile: f.taskFile, worktree: f.worktree, branch: 'codex/fixture' }] },
+    backend: async (input) => { captured = input; return { outcome: 'UNKNOWN', effectState: 'NONE', code: 'fixture-complete',
+      checkTrace: { status: 'MALFORMED', traceSha256, checks: [{ checkIndex: 0, invocationCount: 1, status: 'MALFORMED', invocations: [{ exitCode: null }] }] } }; } });
+  try {
+    await runner.tick();
+    await runner.drain();
+    assert.deepEqual(captured.checks, f.task.checks);
+    assert.equal(captured.maxInvocationsPerDeclaredCheckPerRoleSession, 2);
+    assert.match(captured.prompt, /at most 2 times in this role session/);
+    assert.equal(failureEvidence.checkTrace.traceSha256, traceSha256);
+    assert.match(failureEvidence.checkTrace.artifactRef, /^dispatches\/[a-f0-9-]+\/check-trace\.json$/);
+    assert.deepEqual(failureEvidence.checkTrace.checks[0].exitCodes, [null]);
+  } finally { await runner.stop(); }
+});
+
+test('pre-spawn role blocks keep the unavailable check-trace artifact reference null', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const readiness = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+  controller.registerTask({ taskRecord: f.task, preflightResult: readiness, worktreeRoot: f.worktree,
+    trustedMandateBinding: { resolvedBy: 'root', taskId: f.task.taskId, repositoryRoot: f.worktree,
+      objective: f.task.objective, domainOrFeatureKey: 'test/pre-spawn-check-trace', writeScope: f.task.writeScope,
+      sourceRef: 'trusted fixture', authorizedEffects: ['local fixture checks'], prohibitions: ['external effects'] } });
+  let failureEvidence;
+  const observedController = new Proxy(controller, { get(target, property) {
+    if (property === 'failNode') return async (input) => { failureEvidence = input.evidence; return target.failNode(input); };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+  const runner = createControllerRunner({ controller: observedController, repoRoot: f.worktree,
+    stateRoot: path.join(f.worktree, '.git/runner-check-trace-unavailable'),
+    config: { tasks: [{ taskId: f.task.taskId, taskFile: f.taskFile, worktree: f.worktree, branch: 'codex/fixture' }] },
+    backend: async () => ({ outcome: 'BLOCKED', failureClass: 'STALE_BASELINE', effectState: 'NONE',
+      provenNoEffect: true, code: 'LAUNCH_HEAD_MISMATCH' }) });
+  try {
+    await runner.tick();
+    await runner.drain();
+    assert.equal(failureEvidence.checkTrace.status, 'NOT_AVAILABLE');
+    assert.equal(failureEvidence.checkTrace.traceSha256, null);
+    assert.equal(failureEvidence.checkTrace.artifactRef, null);
+  } finally { await runner.stop(); }
+});
 
 test('runner prevents launch when the campaign deadline expires at each dispatch boundary', async (t) => {
   for (const expireAtCheck of [1, 2, 3]) {
@@ -547,13 +609,20 @@ test('runner advances two isolated branches through distinct role sessions and d
       }
       const headCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: worktree, encoding: 'utf8' }).trim();
       seen.push({ role, sessionId });
-      return { outcome: 'PASS', headCommit, sessionId, model: 'gpt-6-luna', effort: 'max', evidence: ['synthetic fixture only'], resultDigest: 'b'.repeat(64) };
+      const checkSha256 = createHash('sha256').update(JSON.stringify(f.task.checks[0])).digest('hex');
+      return { outcome: 'PASS', headCommit, sessionId, model: 'gpt-6-luna', effort: 'max', evidence: ['synthetic fixture only'], resultDigest: 'b'.repeat(64),
+        checkTrace: { status: 'PASS', traceSha256: 'd'.repeat(64), checks: [{ checkIndex: 0, checkSha256, cwdProvenance: 'launch_cwd', invocationCount: 1,
+          status: 'PASS', invocations: [{ itemIdSha256: 'e'.repeat(64), cwdProvenance: 'launch_cwd', exitCode: 0 }] }] } };
     } });
   for (let round = 0; round < 5; round++) {
     const tick = await runner.tick(); assert.deepEqual(tick.errors, []);
     await runner.drain();
   }
   await runner.stop();
-  assert.equal(seen.length, 6); assert.equal(new Set(seen.map((item) => item.sessionId)).size, 6);
+  assert.equal(seen.length, 6, JSON.stringify(controller.listRuns().map(({ taskId, state, stages, blockers }) => ({ taskId, state, stages, blockers })), null, 2));
+  assert.equal(new Set(seen.map((item) => item.sessionId)).size, 6);
   assert.deepEqual(controller.listRuns().map((run) => run.state), ['ROOT_DELIVERY_READY', 'ROOT_DELIVERY_READY']);
+  for (const run of controller.listRuns()) {
+    assert.ok(controller.getRun(run.taskId).stages.every((stage) => stage.evidenceRef.includes('check-trace.json#PASS:' + 'd'.repeat(64))));
+  }
 });
