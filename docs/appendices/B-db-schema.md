@@ -1,6 +1,6 @@
 # Appendix B — Database Schema Summary
 
-Version diff 1.69.0b → 1.70.0b (2026-10-18): add `AgentApprovalNotification` for TASK-ZAI-011, with Tenant, Business, Person, approval-request and decision foreign keys; unique decision/recipient delivery; and recipient/read plus scope indexes. The schema declares 206 models. SQLite and Supabase migration source and portable-backup handling are local only; no external migration application or deployment is claimed.
+Version diff 1.69.0b → 1.70.0b (2026-10-18): add `AgentApprovalNotification` for TASK-ZAI-011, with Tenant, Business, Person, approval-request and decision foreign keys; unique decision/recipient delivery; and recipient/read plus scope indexes. The schema declares 208 models, including the two TASK-ZAI-010 approval request/decision models. SQLite and Supabase migration source and portable-backup handling are local only; no external migration application or deployment is claimed.
 
 Version diff 1.68.0b → 1.69.0b (2026-10-15): FR-286 adds four nullable all-or-none Business provisioning marker/snapshot fields and nullable Workspace.provisioningKey, unique per Business/key. The standard key identifies one default Business Space with persisted ancestry; other Workspaces remain unkeyed. Catalog snapshots are historical definitions and grant no access. The model census remains 205. Source migration authorship and isolated verification do not imply production/Supabase application.
 
