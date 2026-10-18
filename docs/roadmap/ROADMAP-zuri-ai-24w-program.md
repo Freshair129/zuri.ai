@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.37"
+version: "0.4.38"
 updated: "2026-10-18"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -513,7 +513,7 @@ locates the week.
 | TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | done | TASK-ZAI-006 | Section 3.1 row 5 |
 | TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | done | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | done | TASK-ZAI-007 | Proposal scope, AI Control |
-| TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | review | TASK-ZAI-007 | PR #684 merged; direct L4 under-quorum and complete tier-negative proof remain open |
+| TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | done | TASK-ZAI-007 | PRs #684 and #708 merged; #708 completes the remaining under-quorum/tier-negative acceptance; exact-head checks and independent Verify/Review passed; see ROADMAP.md revision 2.164.0b |
 | TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | planned | TASK-ZAI-010 | Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | task | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
 | TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template and provisioning path | P0 | Codex | done | TASK-ZAI-009 | Section 3.1 row 6 |
@@ -1084,8 +1084,8 @@ title: Approval Gateway L1 to L4 over the FR-026 action gate
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: review
-version: 0.2.0
+status: done
+version: 0.3.0
 pic: ATHER
 executor: Codex
 approver: Owen
@@ -1093,19 +1093,19 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/agent/approval-gateway.js
   doc: docs/change-requests/agent-approval/APPROVAL-GATEWAY-V1.md
-  test: apps/server/tests/integration/agent-approval-gateway.test.js
+  test: apps/server/tests/integration/agent-approval-tier-acceptance.test.js
 delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given an action classified L4, when fewer than four distinct approvals are recorded, then execution is refused
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given an approval, when the same principal approves twice, then the second approval does not count toward the ladder
       checked: true
   exit_criteria:
     - criterion: Given npm test, when the approval suite runs, then each of L1, L2, L3 and L4 has a passing positive and a passing negative case
-      checked: false
-changelog: PR #684 merged as 67bf0371c60b948fe1ff73dc1f3b13cc5d96802d from exact head e3f252421d1e004b4999c130021b17d697a2ae5f. Local SQLite 176 tests, isolated PostgreSQL 15/15, governance/build, exact-head Governance/Edge/test shards and Verify passed; PR E2E/Desktop were skipped. The explicit L2 duplicate-vote test satisfies the success criterion. Keep the L4 under-quorum refusal and complete positive/negative evidence for every tier unchecked; task remains review. No production, Supabase, provider or live-agent activation is claimed.
+      checked: true
+changelog: PR #684 (`67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`) delivered the gateway; PR #708 (`982ae10ab9e03be8a9ef4af34fb46ba58c24d04b`) completed the missing under-quorum cases. Exact-head Governance/Edge and independent Verify/Review passed for both. Focused acceptance passed 176 SQLite + 15 isolated PostgreSQL for #684 and 28/28 for #708. E2E/Desktop were skipped, not passed. Contract v1.1.0 defines no production L3 action; L3 is an isolated registry fixture only. No production/provider activation is claimed.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5

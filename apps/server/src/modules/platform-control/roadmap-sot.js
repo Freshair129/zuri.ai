@@ -746,12 +746,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-010",
     "sprint": "SPR-ZAI-04",
     "title": "Approval Gateway L1 to L4 over the FR-026 action gate",
-    "status": "review",
+    "status": "done",
     "proofScope": "HOSTED_CI",
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "PR #684 exact head `e3f252421d1e004b4999c130021b17d697a2ae5f` merged as `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`; local SQLite 11 suites/176 tests, isolated PostgreSQL 15/15, governance/build passed; exact-head Governance `38943817999`, Edge `38943818026`, test shards and Verify passed; PR E2E/Desktop skipped. TC-TASK-ZAI-010 direct L4 under-quorum refusal and complete L1-L4 positive/negative suite remain unchecked; duplicate L2 vote rejection is covered."
+    "evidence": "PR #684 merged `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`; PR #708 merged `982ae10ab9e03be8a9ef4af34fb46ba58c24d04b`. Exact-head Governance/Edge passed for both; independent Verify/Review PASS_SOURCE. Focused acceptance: #684 SQLite 176 + isolated PostgreSQL 15/15; #708 28/28. E2E/Desktop skipped, not PASS. Contract v1.1.0 assigns no production L3 action; L3 proof uses an isolated registry fixture. No production/Supabase/provider/live-agent activation claimed."
   },
   {
     "id": "TASK-ZAI-011",
