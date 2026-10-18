@@ -83,6 +83,19 @@ describe('bounded binary source profile', () => {
     for (const span of parsed.sourceSpans) expect(parsed.normalizedText.slice(span.artifactStartUtf16, span.artifactEndUtf16)).toBe(span.text)
   })
 
+  it('enforces the HTML table-cell bound across the entire document before projection', async () => {
+    const table = (count) => `<table><tr><td>x</td>${'<td></td>'.repeat(count - 1)}</tr></table>`
+    const parse = (html) => parseKnowledgeBinary({
+      bytes: Buffer.from(html, 'utf8'), mediaType: 'text/html',
+      sourceId: 'html-cell-bound', sourceVersion: 'v1', rawArtifactId: 'html-cell-bound-raw',
+    })
+    const atBound = await parse(table(12_500) + table(12_500))
+    expect(atBound.tables).toHaveLength(2)
+    expect(atBound.tables.flatMap((entry) => entry.rows.flat())).toHaveLength(25_000)
+    await expect(parse(table(12_500) + table(12_501)))
+      .rejects.toMatchObject({ code: 'TABLE_CELL_LIMIT', status: 413 })
+  })
+
   it('normalizes malformed parser errors without exposing library input text', async () => {
     await expect(parseKnowledgeBinary({ bytes: Buffer.from('%PDF-not-a-real-file'), mediaType: 'application/pdf' }))
       .rejects.toMatchObject({ code: 'MALFORMED_PDF', message: 'MALFORMED_PDF' })

@@ -509,11 +509,16 @@ function parseHtml(bytes) {
   preflightHtmlElements(html)
   const document = parse5.parse(html, { sourceCodeLocationInfo: true })
   let elementCount = 0
+  let tableCellCount = 0
   const pathByNode = new Map()
   const walkCount = (node, path, depth) => {
     if (node.tagName) {
       elementCount += 1
       if (elementCount > LIMITS.htmlElements || depth > LIMITS.htmlDepth) fail('HTML_ELEMENT_LIMIT', 413)
+      if (node.tagName === 'td' || node.tagName === 'th') {
+        tableCellCount += 1
+        if (tableCellCount > LIMITS.tableCells) fail('TABLE_CELL_LIMIT', 413)
+      }
       pathByNode.set(node, path)
     }
     const children = node.childNodes || []
@@ -567,7 +572,6 @@ function parseHtml(bytes) {
       }
       findRows(node)
       if (nestedTable) fail('AMBIGUOUS_TABLE_MAPPING')
-      let count = 0
       const occupied = new Map()
       let gridColumns = 0
       const matrix = []
@@ -577,8 +581,6 @@ function parseHtml(bytes) {
         let cursor = 0
         for (let cellIndex = 0; cellIndex < rowCells.length; cellIndex += 1) {
           const cell = rowCells[cellIndex]
-          count += 1
-          if (count > LIMITS.tableCells) fail('TABLE_CELL_LIMIT', 413)
           const span = (name) => {
             const raw = cell.attrs?.find((attr) => attr.name === name)?.value
             if (raw === undefined) return 1
