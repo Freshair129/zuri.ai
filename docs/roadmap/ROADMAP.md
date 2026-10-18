@@ -19,7 +19,7 @@ live_document: true
 
 # ROADMAP: zuri-ai — Live Delivery State
 
-> Revision 2.165.0b (2026-10-18): Reconcile bounded TASK-ZAI-048 source delivery after PR #709 merged to main as `781e6a376e37162d9e930b59d30c2dac74073823` from exact candidate `2984cae8fde6430f262520aeb409837cc17d0fdd`. The focused root batch passed 21/21 on the reviewed patch bytes; all six committed source hashes match that candidate. Independent Verify and Review passed. Exact-head Governance run `39118118499`, Edge run `39118118519` and Docker run `39118118567` passed; E2E and Desktop were skipped by workflow policy, not passes. Keep TASK-ZAI-048 in-progress and every full native, OCR, browser, hard-RSS, provider, deployment and production exit open. No parent task or programme count is changed.
+> Revision 2.165.0b (2026-10-18): Reconcile bounded TASK-ZAI-048 source delivery after PR #709 merged to main as `781e6a376e37162d9e930b59d30c2dac74073823` from exact candidate `2984cae8fde6430f262520aeb409837cc17d0fdd`. The focused root batch passed 21/21 on the reviewed patch bytes; all six committed file hashes match that candidate. Independent Verify and Review passed. Exact-head Governance run `39118118499`, Edge run `39118118519` and Docker run `39118118567` passed; E2E and Desktop were skipped by workflow policy, not passes. Keep TASK-ZAI-048 in-progress and every full native, OCR, browser, hard-RSS, provider, deployment and production exit open. No parent task or programme count is changed.
 
 > Revision 2.164.0b (2026-10-18): Record bounded TASK-ZAI-048 implementation in progress under additive FR-288/SDD-114 with isolated local 88/88 evidence; preserve historical requirements, independent delivery gates and untested native/OCR/production exits. No parent task is marked done.
 
