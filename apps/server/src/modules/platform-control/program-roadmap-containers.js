@@ -417,7 +417,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-010",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-04",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "Codex",
@@ -426,7 +426,7 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/agent/approval-gateway.js",
       "doc": "docs/change-requests/agent-approval/APPROVAL-GATEWAY-V1.md",
-      "test": "apps/server/tests/integration/agent-approval-gateway.test.js"
+      "test": "apps/server/tests/integration/agent-approval-tier-acceptance.test.js"
     },
     "linkState": {
       "code": "present",
@@ -438,7 +438,7 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given an action classified L4, when fewer than four distinct approvals are recorded, then execution is refused",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given an approval, when the same principal approves twice, then the second approval does not count toward the ladder",
@@ -446,17 +446,17 @@ export const PROGRAMME_CONTAINERS = {
       },
       "exit": {
         "text": "Given npm test, when the approval suite runs, then each of L1, L2, L3 and L4 has a passing positive and a passing negative case",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "PR #684 merged as 67bf0371c60b948fe1ff73dc1f3b13cc5d96802d from exact head e3f252421d1e004b4999c130021b17d697a2ae5f. Local SQLite 176 tests, isolated PostgreSQL 15/15, governance/build, exact-head Governance/Edge/test shards and Verify passed; PR E2E/Desktop were skipped. The explicit L2 duplicate-vote test satisfies the success criterion. Keep the L4 under-quorum refusal and complete positive/negative evidence for every tier unchecked; task remains review. No production, Supabase, provider or live-agent activation is claimed.",
+    "changelog": "PR #684 (`67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`) delivered the gateway; PR #708 (`982ae10ab9e03be8a9ef4af34fb46ba58c24d04b`) completed the missing under-quorum cases. Exact-head Governance/Edge and independent Verify/Review passed for both. Focused acceptance passed 176 SQLite + 15 isolated PostgreSQL for #684 and 28/28 for #708. E2E/Desktop were skipped, not passed. Contract v1.1.0 defines no production L3 action; L3 is an isolated registry fixture only. No production/provider activation is claimed.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 58000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-007"
     ],
-    "evidence": "PR #684 merged; direct L4 under-quorum and complete tier-negative proof remain open"
+    "evidence": "PRs #684 and #708 merged; #708 completes the remaining under-quorum/tier-negative acceptance; exact-head checks and independent Verify/Review passed; see ROADMAP.md revision 2.164.0b"
   },
   "TASK-ZAI-011": {
     "container": "TC-TASK-ZAI-011",
