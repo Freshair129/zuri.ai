@@ -1539,7 +1539,7 @@ export async function ingestGenesisRag17Raw(input, {
         // runLocalStage commits as terminal STEP_FAILED evidence and the
         // admission runtime treats as permanent.
         const zeroPii = ZERO_PII_POLICY_BY_PROVIDER[value.provider]
-        if (zeroPii) zeroPii.assert(parsed?.content ?? value.content, { sourceId: value.sourceId, sourceUri: value.sourceUri })
+        if (zeroPii) zeroPii.assert(value.binaryProfile ? parsed?.content ?? value.content : value.content, { sourceId: value.sourceId, sourceUri: value.sourceUri })
         // The frozen v1 policy carries only the two processing permissions; the
         // six-field scope is still explicit and is validated before indexing.
         classification = { scope: value.scope, policy: value.policy, indexable: value.policy.allowEmbedding, publishable: value.policy.allowPublication }
