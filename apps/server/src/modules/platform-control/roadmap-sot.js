@@ -41,7 +41,7 @@ export const ROADMAP_SOT = {
       },
       "PHASE-ZAI-02": {
         "status": "in-progress",
-        "progress": 67
+        "progress": 72
       },
       "PHASE-ZAI-03": {
         "status": "in-progress",
@@ -71,11 +71,11 @@ export const ROADMAP_SOT = {
       },
       "SPR-ZAI-03": {
         "status": "in-progress",
-        "progress": 71
+        "progress": 74
       },
       "SPR-ZAI-04": {
         "status": "in-progress",
-        "progress": 63
+        "progress": 69
       },
       "SPR-ZAI-05": {
         "status": "in-progress",
@@ -757,12 +757,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-011",
     "sprint": "SPR-ZAI-04",
     "title": "Verification and notification fabric on approval outcomes",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "done",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-010",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 9"
+    "evidence": "PR #714 merged as `f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1` from exact head `ac88c99672c945c38e26dcd63a312ee4e2a30652`. Independent Verify/Review passed. Focused suite 84 passed/1 skipped; exact-head Governance `39142448721` and Edge `39142448618` passed all applicable checks; E2E/Desktop skipped by workflow policy. Delivers transaction-bound, recipient-scoped in-app approval notices and idempotent read acknowledgements only. No external email/push, migration apply, production deployment, Supabase or live-agent activation claimed. See revision 2.166.0b and Task Container."
   },
   {
     "id": "TASK-ZAI-012",

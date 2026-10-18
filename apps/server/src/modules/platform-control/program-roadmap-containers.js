@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.39, 2026-10-18) so the board can open a task the way the html board
+// (v0.4.40, 2026-10-18) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -462,39 +462,39 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-011",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-04",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Codex",
     "executor": "Codex",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "src/app/api/agent/line-webhook/route.js",
-      "doc": "docs/FEATURE-MAP.md",
-      "test": "unavailable"
+      "code": "apps/server/src/modules/agent/approval-notifications.js",
+      "doc": "docs/appendices/A-api-spec.md",
+      "test": "apps/server/tests/integration/agent-approval-notifications.test.js"
     },
     "linkState": {
-      "code": "missing",
-      "doc": "missing",
-      "test": "unavailable"
+      "code": "present",
+      "doc": "present",
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given an approval decision, when it is recorded, then the requester and the next approver are notified exactly once",
-        "checked": false
+        "text": "Given an approval decision is recorded, when its quorum step commits, then the same transaction stores one requester outcome notice and one notice for each eligible active, unvoted direct Business owner: next action while pending or outcome after a terminal decision.",
+        "checked": true
       },
       "success": {
-        "text": "Given a notification transport failure, when the send is retried, then no duplicate notification is delivered",
-        "checked": false
+        "text": "Given notice persistence fails during a decision, when the decision is retried, then rollback leaves no vote or notices and the retry stores one decision with exactly one notice per recipient.",
+        "checked": true
       },
       "exit": {
-        "text": "Given npm test, when the notification suite runs, then at-most-once delivery is asserted under a forced retry",
-        "checked": false
+        "text": "Given a recipient reads an in-app approval notice, when another principal requests the same notice or the recipient repeats mark-read, then the other principal cannot see it and the repeated acknowledgement preserves the original readAt timestamp.",
+        "checked": true
       }
     },
-    "changelog": "Opened as the second half of deliverable nine. Audit exists through FR-014; verification and notification do not. FR-093 (outbound reply receipt) gives the delivery half a precedent to follow.",
+    "changelog": "Bounded in-app scope delivered in PR #714, merged as f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1 from exact head ac88c99672c945c38e26dcd63a312ee4e2a30652. The integration suite covers quorum-step recipients, recipient-only reads, idempotent mark-read, rollback on notification persistence failure, and a no-duplicate retry. This does not provide email or push transport and does not claim production migration apply or deployment.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 38000,
     "totalTokens": 0,

@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.165.0b"
+version: "2.166.0b"
 updated: "2026-10-18"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.166.0b (2026-10-18): Close TASK-ZAI-011's bounded in-app approval-notification scope after PR #714 merged as `f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1` from exact head `ac88c99672c945c38e26dcd63a312ee4e2a30652`. Independent Verify and Review passed. Focused integration tests passed 84 with 1 skipped; local `govern` passed with 0 critical and 24 baseline warnings. Exact-head Governance run `39142448721` and Edge run `39142448618` passed, including build, govern, all four test shards, edge-verify, conversation-runtime, SCM and market-intelligence; E2E and Desktop were skipped by workflow policy, not passes. TASK-ZAI-011 is `done / HOSTED_CI / MERGED`. The 123-task ledger now has 71 done, 16 review, 6 in-progress, 25 planned and 5 blocked (57.7% done). Recomputed under the documented board mapping: PHASE-ZAI-02 72, SPR-ZAI-03 74 and SPR-ZAI-04 69. TASK-ZAI-012 remains planned; the wave is not closed. This is durable in-app notification evidence only: no email/push provider, production migration apply, production deployment, Supabase or live-agent activation is claimed.
 
 > Revision 2.165.0b (2026-10-18): Reconcile bounded TASK-ZAI-048 source delivery after PR #709 merged to main as `781e6a376e37162d9e930b59d30c2dac74073823` from exact candidate `2984cae8fde6430f262520aeb409837cc17d0fdd`. The focused root batch passed 21/21 on the reviewed patch bytes; all six committed file hashes match that candidate. Independent Verify and Review passed. Exact-head Governance run `39118118499`, Edge run `39118118519` and Docker run `39118118567` passed; E2E and Desktop were skipped by workflow policy, not passes. Keep TASK-ZAI-048 in-progress and every full native, OCR, browser, hard-RSS, provider, deployment and production exit open. No parent task or programme count is changed.
 
@@ -792,7 +794,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 | TASK-ZAI-008 | SPR-ZAI-03 | Role-scoped memory partition and retrieval policy | done | UNKNOWN | UNKNOWN | TASK-ZAI-007 | ROADMAP.md | 24-week baseline; Section 3.1 rows 4 and 5 |
 | TASK-ZAI-009 | SPR-ZAI-03 | Agent Factory, the standard five-role Business configuration | done | HOSTED_CI | MERGED | TASK-ZAI-007 | ROADMAP.md | 2026-10-15: FR-285 and ../change-requests/agent-factory/AGENT-FACTORY-V1.md v0.1.4 delivered by PR #665 artifact24c7d99e, merged as cddc52f4fc8e09c59c1f7c033765b75d797a27f1 after distinct independent verify/review and all applicable exact-head Governance38672680746/Edge38672680749 gates passed. E2E/Desktop skipped, not PASS. Runtime/test sourcef073bdd4 passes isolated SQLite151/151 across14files and disposable PostgreSQL13/13; exact-artifact hosted build and strict governance pass. Includes five persisted scoped role configs, live owner Membership checks, atomic Business provisioning, repeat/concurrent no-op, explicit missing runtime config, backup/audit preservation, permitted Business config cascade with FR-192 refusal intact, and static205model recovery inventory/history. Earlier failed CI and source9d21 72/12 acceptance remain historical. Provider/live-agent activation and external migration apply remain NOT_RUN. |
 | TASK-ZAI-010 | SPR-ZAI-04 | Approval Gateway L1 to L4 over the FR-026 action gate | done | HOSTED_CI | MERGED | TASK-ZAI-007 | ROADMAP.md | PR #684 merged `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`; PR #708 merged `982ae10ab9e03be8a9ef4af34fb46ba58c24d04b`. Exact-head Governance/Edge passed for both; independent Verify/Review PASS_SOURCE. Focused acceptance: #684 SQLite 176 + isolated PostgreSQL 15/15; #708 28/28. E2E/Desktop skipped, not PASS. Contract v1.1.0 assigns no production L3 action; L3 proof uses an isolated registry fixture. No production/Supabase/provider/live-agent activation claimed. |
-| TASK-ZAI-011 | SPR-ZAI-04 | Verification and notification fabric on approval outcomes | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 9 |
+| TASK-ZAI-011 | SPR-ZAI-04 | Verification and notification fabric on approval outcomes | done | HOSTED_CI | MERGED | TASK-ZAI-010 | ROADMAP.md | PR #714 merged as `f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1` from exact head `ac88c99672c945c38e26dcd63a312ee4e2a30652`. Independent Verify/Review passed. Focused suite 84 passed/1 skipped; exact-head Governance `39142448721` and Edge `39142448618` passed all applicable checks; E2E/Desktop skipped by workflow policy. Delivers transaction-bound, recipient-scoped in-app approval notices and idempotent read acknowledgements only. No external email/push, migration apply, production deployment, Supabase or live-agent activation claimed. See revision 2.166.0b and Task Container. |
 | TASK-ZAI-012 | SPR-ZAI-04 | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
 | TASK-ZAI-013 | SPR-ZAI-05 | Standard Business Template and provisioning path | done | HOSTED_CI | MERGED | TASK-ZAI-009 | FR-286; docs/change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md | PR #667 artifact a22ad4ec merged as ee5d789e3f504fc8ea1fbac91193b7e449607d54 at 2026-10-15T04:42:22Z after independent Verify/Review PASS and required exact-head Governance 38681966322/Edge 38681966380 passed; E2E/Desktop skipped, not PASS. Unchanged source SQLite238 passed/2 skipped across23files, PG29/29 (4 files, source SQL constraints), local build pass. Bounded FR-286 only; no Task13 local Docker redeploy, schema push/migration apply, production/Supabase/provider effect or live-agent activation claimed. |
 | TASK-ZAI-014 | SPR-ZAI-05 | Onboard Business number two end to end under isolation | in-progress | HOSTED_CI | MERGED | TASK-ZAI-013 | ROADMAP.md | PR #671 merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from b982d20733c213640a7cb3e42656f8a37925564a. PR #695 head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9 merged as 64e91e1d90291733a7ac255a6dafffe7b1fba7c8; exact-head Governance 39000419267 and Edge 39000419263 passed. PR #696 head a26550f071976d37c2003e7d85ded6f7f13ce3e8 merged as 1167d8d28e746e05cac5eda88e07e9418b8e0751; exact-head Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E was skipped. Final local targeted tests for #695/#696 were NOT_RUN due missing npx/tsx; exact-head hosted test checks passed. SmartGift standalone MCP/CLI/local pricing readers remain out of scope, production corpusContext supply is unverified, and full generic-memory Business switching, live-agent switching, and Task14 E2E remain open; Task14 is not done. |
@@ -949,7 +951,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
       },
       "PHASE-ZAI-02": {
         "status": "in-progress",
-        "progress": 67
+        "progress": 72
       },
       "PHASE-ZAI-03": {
         "status": "in-progress",
@@ -979,11 +981,11 @@ Task names and dependencies below are canonicalized from the programme backlog; 
       },
       "SPR-ZAI-03": {
         "status": "in-progress",
-        "progress": 71.0
+        "progress": 74.0
       },
       "SPR-ZAI-04": {
         "status": "in-progress",
-        "progress": 63
+        "progress": 69
       },
       "SPR-ZAI-05": {
         "status": "in-progress",
