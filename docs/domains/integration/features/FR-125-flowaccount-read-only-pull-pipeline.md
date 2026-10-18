@@ -5,26 +5,39 @@ module: integration
 source: v2-native
 version: "0.3.0b"
 created_at: "2026-08-20T10:41:14+07:00,ATHER"
-last_update: "2026-10-18T11:57:00+07:00,Codex"
+last_update: "2026-10-18T12:41:00+07:00,Codex"
 status: "candidate"
 superseded_by: null
 ---
 
-# FR-125 — FlowAccount MCP connector with read-only evidence
+# FR-125 — FlowAccount read-only pull pipeline
 
-> Current scope is the 2026-10-18 MCP amendment below. The REST/OpenAPI details
-> in the preserved historical proposal are dated 2026-08-20 and are not MCP
-> capability facts, prerequisites, or implementation requirements.
+> **Provider facts referenced here were verified on 2026-08-20 and have not been
+> re-checked.** Base URLs, `scope`, token lifetime, the `pageSize` ceiling, the
+> rate limits and the endpoint catalog all live in
+> [ADR-053 §2](../../../decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md)
+> with that date attached. Re-verify against FlowAccount's current OpenAPI
+> specification before implementing anything below.
 
 > **Id note.** Drafted as `FR-094` on 2026-08-20. That number was claimed on main
 > by the canonical IAM principal before this branch was re-applied, so this
 > requirement carries **FR-125** and its decision carries **ADR-053**. Ids are
 > keys (AGENTS.md §18) — the earlier declaration keeps its meaning.
 
-## Current MCP amendment — 2026-10-18
+> **TASK-ZAI-017 candidate extension — 2026-10-18.** The MCP content below
+> records the requested task direction; it does not change the pinned FR-125
+> subject or its current normative acceptance. The canonical PRD/FEATURES
+> statements remain the REST-first definition. The original FR-125 REST-first
+> text and AC-125.1–.11 are retained below as history. A sanctioned additive
+> reviewed record must establish MCP requirements before implementation.
+> Historical FR-125 retains its original meaning. The checklist below is for TASK-ZAI-017 review and
+> does not issue or replace FR-125 acceptance criteria.
 
-On direct human instruction, this feature supports FlowAccount's existing
-official hosted AI Connector (MCP). FlowAccount's [Claude connector guide](https://flowaccount.com/help-center/category/ai-connector-mcp/flowaccount-connector-in-claude)
+## TASK-ZAI-017 candidate extension — official FlowAccount MCP (2026-10-18)
+
+On direct human instruction, this TASK-ZAI-017 candidate proposes support for
+FlowAccount's existing official hosted AI Connector (MCP). FlowAccount's
+[Claude connector guide](https://flowaccount.com/help-center/category/ai-connector-mcp/flowaccount-connector-in-claude)
 and [Grok connector guide](https://flowaccount.com/help-center/category/ai-connector-mcp/flowaccount-connector-in-grok)
 document `https://mcp.flowaccount.com/mcp`, OAuth 2.0 login, selection of one
 authorized company, and disconnect/reconnect to change that company. FlowAccount
@@ -39,7 +52,7 @@ pagination contracts. These remain unknown until verified through an authorized
 provider contract. Do not invent endpoint methods, scope names, tool names, or
 schemas from REST documentation or third-party MCP servers.
 
-### Current contract
+### Candidate design proposal
 
 An authorized Zuri user connects through FlowAccount's official OAuth flow and
 selects one FlowAccount company for one trusted Zuri Business. Zuri stores only
@@ -72,23 +85,23 @@ Client Credentials, manual pagination, date windows, backfill, a cursor, a
 rate-limit value, or a scheduler unless the actual MCP capability contract
 documents that behavior. The task does not build a separate MCP server.
 
-### Current acceptance criteria
+### Candidate checklist for TASK-ZAI-017 (not FR-125 acceptance)
 
-#### MCP-AC-125.1 — Official MCP and OAuth connection
+#### Candidate check 1 — Official MCP and OAuth connection
 
 The server connects only to the official FlowAccount MCP service and follows the
 provider's documented OAuth 2.0 flow after its transport and OAuth contract are
 verified. No Client Credentials REST form, custom provider host, guessed OAuth
 scope, or unsupported transport is accepted.
 
-#### MCP-AC-125.2 — Opaque credential handling
+#### Candidate check 2 — Opaque credential handling
 
 OAuth access/refresh material, if issued, is provisioned through the existing
 secret-store port and never persisted in ordinary Prisma fields, browser storage,
 URLs, responses, logs, or audit events. Zuri stores and returns only an opaque
 credential reference and safe connection status.
 
-#### MCP-AC-125.3 — One company and trusted Business scope
+#### Candidate check 3 — One company and trusted Business scope
 
 The selected FlowAccount company is bound to one trusted Zuri Business and
 verified before activation. Every connect, discovery, read, run, and disconnect
@@ -96,21 +109,21 @@ operation re-resolves the trusted viewer and authority; client-supplied
 Tenant/Business/connection identifiers do not grant access. Out-of-scope reads
 are not-found-equivalent and safely audited.
 
-#### MCP-AC-125.4 — Capability discovery and fail-closed policy
+#### Candidate check 4 — Capability discovery and fail-closed policy
 
 The connector records the actual discovered tool manifest and reviewed schema
 version. It executes only explicitly allow-listed read capabilities. Unknown or
 mutating tools are denied; provider annotations including `readOnlyHint` cannot
 override the Zuri allow-list.
 
-#### MCP-AC-125.5 — Read-only behavior
+#### Candidate check 5 — Read-only behavior
 
 Provider read tools may be called only through the server-owned authorized
 connection. Create-document, edit, delete, status, payment, attachment, or any
 other mutation operation is unreachable from this task, even if available from
 the official MCP server.
 
-#### MCP-AC-125.6 — FR-081 evidence path
+#### Candidate check 6 — FR-081 evidence path
 
 Each approved read result with a verified schema and stable identity is mapped to
 `zIngestionEnvelope` and `ingestRawExternalRecord`. It carries trusted scope,
@@ -119,35 +132,35 @@ provenance, and payload hash. Same identity plus hash is unchanged; changed
 payload is new raw evidence. No provider-specific raw table or owner-domain truth
 is introduced.
 
-#### MCP-AC-125.7 — Honest result semantics
+#### Candidate check 7 — Honest result semantics
 
 The connector makes no REST cursor, backfill, date-window, pagination, or
 scheduler claim unless a discovered and verified MCP capability documents it.
 Partial, unsupported, or ambiguous results are identified as such and are not
 presented as a complete report or dataset.
 
-#### MCP-AC-125.8 — Safe errors and audit
+#### Candidate check 8 — Safe errors and audit
 
 Discovery, allowed calls, denials, failures, and disconnects produce
 correlation-linked audit evidence with safe error codes. Tokens, secrets, and
 raw provider payloads do not enter logs or audit events. Retries occur only for
 verified idempotent reads and follow the actual provider contract.
 
-#### MCP-AC-125.9 — Source connection health
+#### Candidate check 9 — Source connection health
 
 The Integration surface reports computed source health from OAuth credential
 state, selected-company binding, last verified discovery/read, and disconnect
 state using the existing health vocabulary. It does not display REST sync
 cursors or stale health snapshots.
 
-#### MCP-AC-125.10 — Truthful financial evidence
+#### Candidate check 10 — Truthful financial evidence
 
 MCP may expose accounting reports, including profit/loss and other financial
 views. Zuri may label only the actual verified report/tool and returned scope,
 company, period, and result; it does not claim complete books or publish values
 as Accounting truth without separate owner-domain requirements and approval.
 
-#### MCP-AC-125.11 — Verification and external acceptance
+#### Candidate check 11 — Verification and external acceptance
 
 Isolated tests cover OAuth state/secret safety, selected-company binding,
 discovery, read allow-list enforcement, mutation refusal, audited denials,
@@ -169,7 +182,7 @@ acceptance.
 No provider connection, OAuth login/token, tool discovery, or tool call was made
 for this documentation correction.
 
-### Current out of scope
+### Candidate out of scope
 
 - Creating documents or any edit/delete/status/payment/attachment operation.
 - A separate Zuri MCP server, REST Client Credentials engine, guessed
@@ -179,12 +192,14 @@ for this documentation correction.
 - Production use before verified provider contract and operator company-match
   evidence.
 
-## Historical REST-first proposal — superseded for current TASK-ZAI-017
+## Historical REST-first proposal — original FR-125 content retained
 
-The original v0.2.0b REST Client Credentials design and its AC-125.1 through
-AC-125.11 are preserved below as history. They are not current provider facts,
-current task requirements, or prerequisites for the MCP connector. The current
-requirements are MCP-AC-125.1 through MCP-AC-125.11 above.
+The original v0.2.0b REST Client Credentials design and AC-125.1 through
+AC-125.11 are preserved below as history. The canonical PRD/FEATURES FR-125
+definition retains its original REST-first meaning. A sanctioned additive reviewed
+record must establish MCP requirements before implementation. The MCP content above is a TASK-ZAI-017 candidate only;
+its checklist is not current normative FR-125 acceptance or an issued FR-125 AC
+family.
 
 ## Rationale (historical REST-first proposal)
 
@@ -309,12 +324,14 @@ evidence, operator company-match approval, rollback drill และ `npm run ver
 
 ## Delivery state
 
-**Candidate; task remains planned / not started.** The task detail is corrected to
-the official MCP direction, but no outgoing FlowAccount MCP client, OAuth
-company-binding implementation, verified tool manifest/schema, tests, or live
-provider acceptance exists at the accepted source. Historical REST gates above
-do not govern the current approach; live OAuth/company contract and operator
-acceptance remain separate evidence.
+**Candidate only; TASK-ZAI-017 remains planned / UNKNOWN / NOT_STARTED.** This
+note proposes support for FlowAccount's official MCP connector as a task-scoped
+extension/replacement candidate. It does not amend normative FR-125 acceptance;
+the canonical REST-first definition retains its original meaning. A sanctioned
+additive reviewed record must establish MCP requirements before implementation. No outgoing FlowAccount MCP client,
+OAuth company-binding implementation, verified tool manifest/schema, tests, or
+live provider acceptance exists at the accepted source. Provider contract and
+operator acceptance remain separate evidence.
 
 ## CHANGELOG
 
@@ -322,4 +339,4 @@ acceptance remain separate evidence.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-20 | candidate | Declared the FlowAccount read-only pull, write-only credential, raw evidence, rate-limit, cursor and no-false-accounting contract | working-tree | ATHER |
 | 0.2.0b | 2026-08-30 | candidate | Re-applied to main from `rescue/flowaccount-docs` as FR-125 (was FR-094; ACs renumbered AC-094.x → AC-125.x). Provider facts marked as verified 2026-08-20 and unre-checked in AC-125.1/.5/.8. AC-125.9 records that `DATA_SOURCE` is not an existing connection kind | pending | Claude Opus 5 |
-| 0.3.0b | 2026-10-18 | candidate | Direct human correction: current scope supports FlowAccount's official hosted MCP connector using OAuth company selection and a Zuri-enforced read-only allow-list. Added dated official endpoint/capability evidence, explicit unknowns, MCP-AC-125.1–.11 and current not-started state. Preserved the REST-first proposal and its ACs as historical, superseded scope. No code or provider action is claimed | pending | Codex |
+| 0.3.0b | 2026-10-18 | candidate | Direct human correction: recorded a TASK-ZAI-017 candidate extension for FlowAccount's official hosted MCP connector using OAuth company selection and a Zuri-enforced read-only allow-list. Added dated official endpoint/capability evidence, explicit unknowns and candidate checklist. Preserved FR-125's original subject and REST-first acceptance as history; a sanctioned additive reviewed-record migration remains required before MCP implementation under its own issued requirements. No code or provider action is claimed | pending | Codex |

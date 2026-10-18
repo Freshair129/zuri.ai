@@ -822,13 +822,13 @@ export const ROADMAP_TASK_LEDGER = [
   {
     "id": "TASK-ZAI-017",
     "sprint": "SPR-ZAI-06",
-    "title": "Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125",
+    "title": "Candidate connector number two under FR-081 — FlowAccount official hosted MCP, OAuth company selection, explicit read-only tool allowlist and audited raw evidence; TASK-ZAI-017 candidate extension pending migration; FR-125 remains REST-first; ADR-053 candidate section",
     "status": "planned",
     "proofScope": "UNKNOWN",
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-005",
     "authority": "ROADMAP.md",
-    "evidence": "Audit wave 2026-09-21: FR-125/ADR-053 implementation is unauthorized; provider verification, owner sign-off and FlowAccount Sandbox credentials are required; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 8; ADR-053"
+    "evidence": "2026-10-18 direct human correction: propose support for the official FlowAccount MCP connector ([official setup guide](https://flowaccount.com/help-center/category/ai-connector-mcp/flowaccount-connector-in-claude)); the endpoint, OAuth/company-selection and read/report capability are documented. This candidate does not amend normative FR-125 acceptance; a sanctioned additive reviewed-record migration is pending. No outgoing MCP client, verified tool/schema/scope contract, live OAuth, or provider acceptance evidence exists; 24-week baseline; Section 3.1 row 8; FR-125; ADR-053"
   },
   {
     "id": "TASK-ZAI-018",
