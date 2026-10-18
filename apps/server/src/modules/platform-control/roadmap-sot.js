@@ -1164,12 +1164,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-048",
     "sprint": "SPR-ZAI-03",
     "title": "Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "in-progress",
+    "proofScope": "LOCAL",
+    "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-046",
     "authority": "ROADMAP.md",
-    "evidence": "Contract-only candidate proposal `docs/plans/TASK-ZAI-048-BINARY-PARSING-CONTRACT.md` merged in PR #676 as `dcaaffa71555389bb7a4e80499f31a269fe24588` from exact head `110d6f3952ddf0143e8b9ae715058179edc78964`; proposal remains unaccepted by product/service authorities. No parser runtime/tests, OCR/provider call, migration or deployment evidence; keep implementation acceptance open. ADR-072 still limits current admission to text/Markdown; 24-week baseline; 17-stage flow; FR-115, FR-138"
+    "evidence": "Bounded managed PDF/DOCX/static HTML source under additive FR-288 and SDD-114; design decision `docs/change-requests/knowledge/binary-document-parsing-20261018.md` preserves historical FR-115/SDD-063. PR #709 source head `2984cae8fde6430f262520aeb409837cc17d0fdd` merged to main as `781e6a376e37162d9e930b59d30c2dac74073823`. The focused root batch passed 21/21 on the reviewed patch bytes and the six committed file hashes match; independent Verify and Review passed. Exact-head Governance run `39118118499`, Edge run `39118118519` and Docker run `39118118567` passed; E2E and Desktop were skipped by workflow policy, not passes. The accepted bounded implementation adds raw-byte identity/admission, PDF/DOCX/static HTML parsing, deterministic source locations and bounded table-span work. Full native Stage 9 through 17 propagation, binary browser/UAT acceptance, hard RSS/egress isolation, OCR/provider, deployment and production remain open; parent task stays in-progress. Prior contract PR #676 remains historical evidence; FR-115, FR-138; ADR-072."
   },
   {
     "id": "TASK-ZAI-049",

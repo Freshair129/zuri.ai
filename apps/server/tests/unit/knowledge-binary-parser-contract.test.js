@@ -1,0 +1,155 @@
+// @req FR-288 — managed binary projection and immutable source locations.
+// @spec SDD-114 — versioned binary source projection and bounded parsing.
+import { readFileSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import {
+  KNOWLEDGE_BINARY_ENCODING,
+  KNOWLEDGE_BINARY_MAX_BYTES,
+  KNOWLEDGE_BINARY_PARSER_VERSION,
+  decodeKnowledgeBinary,
+  detectKnowledgeBinaryMediaType,
+  encodeKnowledgeBinary,
+  hashKnowledgeBinaryBytes,
+  isKnowledgeBinaryProfile,
+  knowledgeBinaryDescriptorFromRawContentType,
+  parseKnowledgeBinary,
+  rawKnowledgeBinaryContentType,
+} from '@/modules/knowledge/knowledge-binary-parser'
+import { genesisRag17BinaryParserIdentity } from '@/modules/knowledge/genesisrag17-source'
+
+const fixtures = [
+  { file: '../fixtures/knowledge-binary/basic.pdf', mediaType: 'application/pdf', text: 'Alice works for Acme Ltd.', spanKind: 'pdf_page' },
+  { file: '../fixtures/knowledge-binary/basic.docx', mediaType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', text: 'Alice works for Acme Ltd.', spanKind: 'docx_paragraph' },
+  { file: '../fixtures/knowledge-binary/basic.html', mediaType: 'text/html', text: 'Alice works for Acme Ltd.', spanKind: 'html_element' },
+]
+
+describe('bounded binary source profile', () => {
+  it.each(fixtures)('parses a real $mediaType fixture with deterministic typed source spans', async ({ file, mediaType, text, spanKind }) => {
+    const bytes = readFileSync(new URL(file, import.meta.url))
+    expect(await detectKnowledgeBinaryMediaType(bytes)).toBe(mediaType)
+    const parserVersion = genesisRag17BinaryParserIdentity({ mediaType })
+    const parsed = await parseKnowledgeBinary({ bytes, mediaType, sourceId: 'fixture-source', sourceVersion: 'fixture-v1', rawArtifactId: 'fixture-raw', parserVersion })
+    expect(parsed.normalizedText).toContain(text)
+    expect(parsed.metadata).toMatchObject({
+      rawSha256: hashKnowledgeBinaryBytes(bytes),
+      rawByteLength: bytes.length,
+      sourceFormat: mediaType,
+      parserVersion,
+      mappingVersion: 'source-locator-map-1',
+    })
+    expect(parsed.sourceSpans.some((span) => span.kind === spanKind)).toBe(true)
+    for (const span of parsed.sourceSpans) {
+      expect(parsed.normalizedText.slice(span.artifactStartUtf16, span.artifactEndUtf16)).toBe(span.text)
+      expect(span.unitEndUtf16 - span.unitStartUtf16).toBe(span.text.length)
+    }
+    if (mediaType === 'text/html') {
+      expect(parsed.metadata).toMatchObject({ profile: 'html-source-dom-v1', cssAndScriptsApplied: false })
+      expect(parsed.tables).toHaveLength(1)
+      expect(parsed.sourceSpans.some((span) => span.kind === 'html_table_cell')).toBe(true)
+    }
+    if (mediaType.includes('wordprocessingml')) {
+      expect(parsed.metadata).toMatchObject({ documentPart: 'word/document.xml', unprocessedParts: [] })
+      expect(parsed.tables).toHaveLength(1)
+      expect(parsed.sourceSpans.some((span) => span.kind === 'docx_table_cell')).toBe(true)
+    }
+  })
+
+  it('only decodes the explicitly tagged binary profile and hashes original bytes', () => {
+    const bytes = Buffer.from('<!doctype html><p>data:</p>', 'utf8')
+    const content = encodeKnowledgeBinary(bytes, 'text/html')
+    const descriptor = { binaryProfile: KNOWLEDGE_BINARY_PARSER_VERSION, binaryEncoding: KNOWLEDGE_BINARY_ENCODING, contentType: 'text/html' }
+    expect(isKnowledgeBinaryProfile(descriptor)).toBe(true)
+    expect(decodeKnowledgeBinary(content, descriptor)).toEqual(bytes)
+    expect(hashKnowledgeBinaryBytes(decodeKnowledgeBinary(content, descriptor))).toBe(hashKnowledgeBinaryBytes(bytes))
+    const rawDescriptor = knowledgeBinaryDescriptorFromRawContentType(rawKnowledgeBinaryContentType('text/html'))
+    expect(rawDescriptor).toMatchObject({ mediaType: 'text/html', contentType: 'text/html', binaryProfile: KNOWLEDGE_BINARY_PARSER_VERSION, binaryEncoding: KNOWLEDGE_BINARY_ENCODING })
+    expect(decodeKnowledgeBinary(content, rawDescriptor)).toEqual(bytes)
+    expect(isKnowledgeBinaryProfile({ content: 'data:text/html;base64,SGVsbG8=', contentType: 'text/html' })).toBe(false)
+    expect(() => decodeKnowledgeBinary(content, { ...descriptor, binaryProfile: 'text' })).toThrow('BINARY_PROFILE_INVALID')
+    expect(() => decodeKnowledgeBinary('data:text/html;base64,AB==', descriptor)).toThrow('BINARY_SERIALIZATION_INVALID')
+    expect(() => decodeKnowledgeBinary('data:text/html;base64,AAAA', { ...descriptor, maxBytes: 2 })).toThrow('INPUT_BYTES_LIMIT')
+    expect(() => encodeKnowledgeBinary(Buffer.alloc(KNOWLEDGE_BINARY_MAX_BYTES + 1), 'text/html')).toThrow('INPUT_BYTES_LIMIT')
+  })
+
+  it('preserves loose and inline static HTML text in document order', async () => {
+    const bytes = Buffer.from('intro <span>one</span><span>two</span> <p>before <em>inline</em> after</p> outro <table><tr><td>A</td></tr></table>', 'utf8')
+    const parsed = await parseKnowledgeBinary({ bytes, mediaType: 'text/html', sourceId: 'html-fragment', sourceVersion: 'v1', rawArtifactId: 'html-raw' })
+    expect(parsed.normalizedText).toContain('intro')
+    expect(parsed.normalizedText).toContain('one' + 'two')
+    expect(parsed.normalizedText).toContain('before inline after')
+    expect(parsed.normalizedText).toContain('outro')
+    expect(parsed.sourceSpans.some((span) => span.kind === 'html_element' && span.tagName === 'span' && span.text === 'one')).toBe(true)
+    expect(parsed.sourceSpans.some((span) => span.kind === 'html_element' && span.tagName === 'span' && span.text === 'two')).toBe(true)
+    for (const span of parsed.sourceSpans) expect(parsed.normalizedText.slice(span.artifactStartUtf16, span.artifactEndUtf16)).toBe(span.text)
+  })
+
+  it('maps a following row sibling after a two-row HTML cell span', async () => {
+    const bytes = Buffer.from('<table><tbody><tr><td rowspan="2">A</td><td>B</td></tr><tr><td>D</td></tr></tbody></table>', 'utf8')
+    const parsed = await parseKnowledgeBinary({ bytes, mediaType: 'text/html', sourceId: 'html-rowspan-placement', sourceVersion: 'v1', rawArtifactId: 'html-rowspan-placement-raw' })
+    expect(parsed.normalizedText).toBe('A\tB\nD')
+    expect(parsed.tables[0]).toMatchObject({ gridColumns: 2, rows: [['A', 'B'], ['D']] })
+    expect(parsed.sourceSpans.find((span) => span.kind === 'html_table_cell' && span.text === 'D'))
+      .toMatchObject({ rowIndex: 1, cellIndex: 0, gridColumn: 1, artifactStartUtf16: 4, artifactEndUtf16: 5 })
+    for (const span of parsed.sourceSpans.filter((item) => item.kind === 'html_table_cell')) {
+      expect(parsed.normalizedText.slice(span.artifactStartUtf16, span.artifactEndUtf16)).toBe(span.text)
+    }
+  })
+
+  it.each(['rowspan', 'colspan'])('accepts HTML %s values through 1000 and rejects invalid bounds', async (attribute) => {
+    const parse = (value) => {
+      const rows = attribute === 'rowspan' ? Math.max(1, Number(value) || 1) : 1
+      const firstRow = attribute === 'rowspan'
+        ? `<tr><td ${attribute}="${value}">x</td><td colspan="2">top</td></tr>`
+        : `<tr><td ${attribute}="${value}">x</td></tr>`
+      const followingRows = attribute === 'rowspan'
+        ? '<tr><td>left</td><td>right</td></tr>'.repeat(rows - 1)
+        : ''
+      return parseKnowledgeBinary({
+        bytes: Buffer.from(`<table><tbody>${firstRow}${followingRows}</tbody></table>`, 'utf8'),
+        mediaType: 'text/html', sourceId: 'html-span-bound', sourceVersion: 'v1', rawArtifactId: 'html-span-bound-raw',
+      })
+    }
+    const spanKey = attribute === 'rowspan' ? 'rowSpan' : 'colSpan'
+    for (const value of [101, 1000]) {
+      const parsed = await parse(value)
+      expect(parsed.sourceSpans.find((span) => span.kind === 'html_table_cell')).toMatchObject({ [spanKey]: value })
+    }
+    for (const value of ['malformed', '0', '1001']) {
+      await expect(parse(value)).rejects.toMatchObject({ code: 'AMBIGUOUS_TABLE_MAPPING' })
+    }
+  })
+
+  it('enforces the HTML table-cell bound across the entire document before projection', async () => {
+    const table = (count) => `<table><tr><td>x</td>${'<td></td>'.repeat(count - 1)}</tr></table>`
+    const parse = (html) => parseKnowledgeBinary({
+      bytes: Buffer.from(html, 'utf8'), mediaType: 'text/html',
+      sourceId: 'html-cell-bound', sourceVersion: 'v1', rawArtifactId: 'html-cell-bound-raw',
+    })
+    const atBound = await parse(table(12_500) + table(12_500))
+    expect(atBound.tables).toHaveLength(2)
+    expect(atBound.tables.flatMap((entry) => entry.rows.flat())).toHaveLength(25_000)
+    await expect(parse(table(12_500) + table(12_501)))
+      .rejects.toMatchObject({ code: 'TABLE_CELL_LIMIT', status: 413 })
+  })
+
+  it('caps document-wide HTML table interval work at 250,000 visits', async () => {
+    const parse = (rowSpan, followingRowCount, sourceId) => {
+      const rowSpans = `<td rowspan="${rowSpan}">x</td>`.repeat(500)
+      const followingRows = '<tr><td>y</td></tr>'.repeat(followingRowCount)
+      const html = `<table><tbody><tr>${rowSpans}</tr>${followingRows}</tbody></table>`
+      return parseKnowledgeBinary({
+        bytes: Buffer.from(html, 'utf8'), mediaType: 'text/html', sourceId, sourceVersion: 'v1', rawArtifactId: `${sourceId}-raw`,
+      })
+    }
+    const atBound = await parse(500, 499, 'html-grid-work-at-bound')
+    expect(atBound.tables[0].rows).toHaveLength(500)
+
+    await expect(parse(501, 500, 'html-grid-work-limit'))
+      .rejects.toMatchObject({ code: 'TABLE_GRID_WORK_LIMIT', status: 413 })
+  })
+
+  it('normalizes malformed parser errors without exposing library input text', async () => {
+    await expect(parseKnowledgeBinary({ bytes: Buffer.from('%PDF-not-a-real-file'), mediaType: 'application/pdf' }))
+      .rejects.toMatchObject({ code: 'MALFORMED_PDF', message: 'MALFORMED_PDF' })
+  })
+})

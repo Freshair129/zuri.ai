@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 171,
+    "featureCount": 172,
     "readyFeatureCount": 121,
-    "requirementCount": 285,
+    "requirementCount": 286,
     "verifiedRequirementCount": 248,
     "progressPercent": 92.2,
-    "gapCount": 61,
+    "gapCount": 62,
     "gaps": [
       {
         "domain": "agent",
@@ -286,6 +286,18 @@
         "evidence": [
           "apps/edge/tests/unit/genesisrag17-edge.test.ts",
           "apps/edge/tests/unit/genesisrag17-products.test.ts"
+        ]
+      },
+      {
+        "domain": "knowledge",
+        "id": "REQ-FR-288",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-288 is partial",
+        "evidence": [
+          "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
+          "apps/server/tests/integration/knowledge-binary-parser-lineage.test.js",
+          "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
         ]
       },
       {
@@ -1846,7 +1858,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-243",
@@ -2944,7 +2956,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-188",
@@ -3000,7 +3012,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-242",
@@ -3766,7 +3778,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-188",
@@ -3834,7 +3846,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-237",
@@ -3850,7 +3862,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-253",
@@ -3867,6 +3879,19 @@
           "status": "verified",
           "codeCount": 8,
           "testCount": 22
+        },
+        {
+          "id": "FR-288",
+          "title": "Managed binary knowledge parsing",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 2,
+          "evidence": [
+            "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
+            "apps/server/tests/integration/knowledge-binary-parser-lineage.test.js",
+            "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
+          ]
         }
       ],
       "checks": {
@@ -4026,6 +4051,17 @@
             "apps/edge/tests/unit/genesisrag17-edge.test.ts",
             "apps/edge/tests/unit/genesisrag17-products.test.ts"
           ]
+        },
+        {
+          "id": "REQ-FR-288",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-288 is partial",
+          "evidence": [
+            "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
+            "apps/server/tests/integration/knowledge-binary-parser-lineage.test.js",
+            "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
+          ]
         }
       ],
       "details": {
@@ -4051,11 +4087,12 @@
         "FR-117",
         "FR-118",
         "FR-119",
-        "FR-131"
+        "FR-131",
+        "FR-288"
       ],
-      "featureCount": 16,
+      "featureCount": 17,
       "readyFeatureCount": 11,
-      "progressPercent": 95.7
+      "progressPercent": 95.2
     },
     "line-oa-studio": {
       "status": "partial",
@@ -4284,7 +4321,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-243",
@@ -6616,7 +6653,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-191",
@@ -6808,7 +6845,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-237",
@@ -10775,7 +10812,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-188",
@@ -10825,6 +10862,7 @@
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
+        "apps/server/tests/integration/knowledge-admission.integration.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
@@ -12139,7 +12177,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-237",
@@ -12155,7 +12193,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -12227,6 +12265,7 @@
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
+        "apps/server/tests/integration/knowledge-admission.integration.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
         "apps/server/tests/integration/knowledge-project.test.js",
         "apps/server/tests/integration/knowledge-query.test.js",
@@ -19254,6 +19293,41 @@
         "apps/server/tests/unit/business-provisioning-template.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
+      ]
+    },
+    {
+      "id": "FR-288",
+      "title": "Managed binary knowledge parsing: authorized active managed FileAssets support deterministic non-OCR PDF, DOCX body XML and static UTF-8 HTML ingestion. Preserve immutable original bytes, SHA-256, size, media type, source version and a typed serialization profile. Emit exact UTF-16 text ranges with typed PDF page, DOCX paragraph or table cell, and HTML element locations through local chunks, mentions and citation resolution. Enforce bounded input, archive expansion, page, paragraph, element, cell, output and worker-time limits; refuse malformed, ambiguous, unsupported or over-limit input without successful partial parsing. Preserve replay identity and old-version citations, current authorization, withdrawal and text or catalog compatibility. Warn for omitted image and DOCX auxiliary content. No OCR, remote resource fetch or production activation is authorized; native Stage 9 onward and full publication acceptance remain separately qualified.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-288"
+      ],
+      "primaryDomain": "knowledge",
+      "contributorDomains": [
+        "knowledge"
+      ],
+      "useCase": "Ingest authorized managed PDF, DOCX and static HTML files with immutable raw-byte identity and exact version-bound source locations; native service acceptance and OCR remain separate.",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-288 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-288",
+          "title": "Managed binary knowledge parsing",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 1,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
+        "apps/server/tests/integration/knowledge-binary-parser-lineage.test.js",
+        "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
       ]
     },
     {

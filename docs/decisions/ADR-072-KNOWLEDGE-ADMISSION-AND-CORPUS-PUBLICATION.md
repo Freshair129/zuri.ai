@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-072
 title: Knowledge admission and corpus publication
-version: "1.0.6b"
+version: "1.1.0b"
 status: beta
 created_at: "2026-09-08T16:30:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-25T12:30:00+07:00,Claude Opus 5.5"
+last_update: "2026-10-18T12:25:00+07:00,Codex"
 relations:
   - type: references
     target: ZAI:ADR-073
@@ -25,6 +25,29 @@ Isolated acceptance: Business owner Files browser admission and session HTTP/MCP
 The owner approved phases 0–4 of the shared-admission plan on 2026-09-08. C-3 / HIGH: documents first, then UI/API/MCP admission, source adapters, status/query/citation and multi-document correction/revocation in isolated test systems. Production, PDF/OCR, external URL fetch, connectors, org-wide sharing and cross-business federation remain subsequent phases. The approved scope does not require another implementation approval.
 
 ## Root cause and boundaries
+
+### Subsequent-phase amendment: managed binary candidate (2026-10-18)
+
+The delegated root decision in
+[the bounded binary extension](../change-requests/knowledge/binary-document-parsing-20261018.md)
+approves implementation and independent review of managed PDF, DOCX and static
+HTML admission through the same service. FR-288/SDD-114 are additive records;
+historical FR-115/SDD-063 and the original phases below stay preserved. Binary
+input uses an explicit versioned profile and encoding, original-byte SHA-256,
+immutable raw storage, bounded non-OCR parsing, and typed source locations for
+local lineage and citation resolution. Text and structured-catalog paths retain
+their existing identities and authorization boundaries.
+
+This is a source candidate under TASK-ZAI-048, not evidence that binary browser
+admission, GKS/native Stage 9 and later propagation, full 17-stage publication,
+hard operating-system isolation or production acceptance have passed. The
+historical text-only statements below describe phases 0–4; the new phase is
+qualified separately. OCR, external URL retrieval and production activation stay
+excluded. Independent review, actual affected checks and exact-head hosted CI
+must precede acceptance; TASK-ZAI-048 remains open.
+
+Version diff 1.0.6b to 1.1.0b: adds the explicitly scoped subsequent-phase
+candidate and its delegated decision without relabelling prior acceptance.
 
 At the audited baseline, FileAsset, document staging, legacy business knowledge and internal GenesisRAG17 were distinct paths. UI/API/MCP callers stopped at files or staging; the tested 17-stage chain started at an internal operator entrypoint. Treating their separate successes as one end-user flow was the readiness gap. This ADR's admission service now connects the approved surfaces. Evidence and source enumeration are in the surface inventory; the RCA records prevention through actual HTTP/browser entrypoint acceptance.
 

@@ -244,6 +244,11 @@ also rejects retired classification terminology in live authoritative documents.
 ```json
 [
   {
+    "id": "FR-288",
+    "primaryDomain": "knowledge",
+    "useCase": "Ingest authorized managed PDF, DOCX and static HTML files with immutable raw-byte identity and exact version-bound source locations; native service acceptance and OCR remain separate."
+  },
+  {
     "id": "FR-286",
     "primaryDomain": "project-manager",
     "useCase": "Create a Business with a version-pinned domain and RBAC catalog snapshot and one default Business Space atomically, without new grants; preserve same-Business retries and backup integrity."

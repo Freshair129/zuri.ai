@@ -12,6 +12,7 @@ import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17
 import { createPipelineRun, requestPipelineReplay, getPipelineMonitor } from '@/platform/integrations/core/pipeline-tracking-service'
 import { KNOWLEDGE_INGESTION_DEFINITION_ID, KNOWLEDGE_INGESTION_CONTRACT_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
+import { encodeKnowledgeBinary, hashKnowledgeBinaryBytes, KNOWLEDGE_BINARY_ENCODING, KNOWLEDGE_BINARY_PARSER_VERSION } from '@/modules/knowledge/knowledge-binary-parser'
 
 // @req FR-173 — scope-bound authority, durable run attachment, lease recovery and no false publication.
 // @spec ADR-072, SEC-003
@@ -104,6 +105,51 @@ describe('knowledge snapshot query', () => {
 })
 
 describe('knowledge durable queue', () => {
+  it('decodes and verifies queued binary bytes on each pass, then binds the typed profile to one restartable run', async () => {
+    const bytes = Buffer.from('<!doctype html><html><body><p>Queued static policy</p></body></html>', 'utf8')
+    const contentHash = hashKnowledgeBinaryBytes(bytes)
+    const fileAssetId = `binary-asset-${randomUUID()}`
+    const metadata = {
+      kind: 'FILE', fileAssetId, mime: 'text/html', size: bytes.length, storageKind: 'MANAGED_BLOB',
+      binaryProfile: KNOWLEDGE_BINARY_PARSER_VERSION, binaryEncoding: KNOWLEDGE_BINARY_ENCODING,
+      binaryMediaType: 'text/html', serialization: 'data-uri-base64', rawByteLength: bytes.length,
+    }
+    const fixture = await durableJob({ sourceKind: 'FILE', sourceMetaJson: JSON.stringify(metadata) })
+    await prisma.knowledgeSource.update({ where: { id: fixture.source.id }, data: { fileAssetId } })
+    await prisma.knowledgeIngestion.update({ where: { id: fixture.job.id }, data: { content: encodeKnowledgeBinary(bytes, 'text/html'), contentHash, sourceVersion: contentHash } })
+    const ingest = vi.fn(async (input, options) => {
+      expect(input.source).toMatchObject({
+        contentHash,
+        contentType: 'text/html',
+        binaryProfile: KNOWLEDGE_BINARY_PARSER_VERSION,
+        binaryEncoding: KNOWLEDGE_BINARY_ENCODING,
+        rawByteLength: bytes.length,
+      })
+      expect(input.source.content).toBe(encodeKnowledgeBinary(bytes, 'text/html'))
+      const run = { executionRunId: `binary-runtime-${fixture.job.id}` }
+      await options.onRunCreated({ db: prisma, run, rawArtifactId: 'binary-runtime-raw', parsedArtifactId: 'binary-runtime-parsed' })
+      return { run, source: { rawArtifactId: 'binary-runtime-raw', parsedArtifactId: 'binary-runtime-parsed' } }
+    })
+    const sourceWorkerFactory = () => ({ runOnce: async () => {} })
+    const transport = vi.fn()
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, ingest, sourceWorkerFactory })
+    await runtime.runOnce()
+    const attached = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(attached).toMatchObject({
+      status: 'RUNNING',
+      contentHash,
+      sourceVersion: contentHash,
+      executionRunId: `binary-runtime-${fixture.job.id}`,
+      rawArtifactId: 'binary-runtime-raw',
+      parsedArtifactId: 'binary-runtime-parsed',
+    })
+
+    await prisma.knowledgeIngestion.update({ where: { id: fixture.job.id }, data: { claimToken: null, leaseExpiresAt: null } })
+    await runtime.runOnce()
+    expect(ingest).toHaveBeenCalledTimes(1)
+    expect(transport).not.toHaveBeenCalled()
+  })
+
   // ADR-072 amendment 2026-09-24 / ADR-090 D7: FR-238 studio descriptions are
   // outside the KNOWLEDGE_ADMISSION Zero-PII gate. One admitted before the
   // admission service wrote its descriptor has sourceMetaJson '{}', so the

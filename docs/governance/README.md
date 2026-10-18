@@ -38,6 +38,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [CR-020 — Observability gaps: error tracking and feature usage](../change-requests/CR-020-OBSERVABILITY-ERROR-TRACKING-AND-FEATURE-USAGE.md)
 - [Platform Control login and forbidden response](../change-requests/identity/CONTROL-ACCESS-RESPONSE-20261015.md)
 - [TASK-ZAI-017 — Official FlowAccount MCP connector v1](../change-requests/integration/TASK017-OFFICIAL-FLOWACCOUNT-MCP-V1.md)
+- [Managed binary knowledge parsing and immutable source locations](../change-requests/knowledge/binary-document-parsing-20261018.md)
 - [ข้อเสนอ Dashboard ผู้บริหาร: จาก Ads ถึงเงินรับที่ยืนยันแล้ว](../change-requests/marketing/line-oa-sales-flow/EXECUTIVE-KPI-DASHBOARD-PROPOSAL.md)
 - [คู่มือใช้ Flow หน้าเดียว](../change-requests/marketing/line-oa-sales-flow/README-flow.md)
 - [จากงบโฆษณา สู่ยอดขายที่วัดผลได้](../change-requests/marketing/line-oa-sales-flow/README.md)

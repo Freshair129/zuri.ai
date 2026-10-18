@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.38, 2026-10-18) so the board can open a task the way the html board
+// (v0.4.39, 2026-10-18) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -2241,14 +2241,14 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/knowledge/parsing.js",
+      "code": "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
       "doc": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
@@ -2266,14 +2266,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that \"adding a binary parser alone is not enough\" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider.",
+    "changelog": "Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that \"adding a binary parser alone is not enough\" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider. 2026-10-18: additive FR-288/SDD-114 govern the bounded managed binary candidate. PR #709's PDF/DOCX/static-HTML source, byte admission, deterministic locations and bounded table-span repair merged at `781e6a376e37162d9e930b59d30c2dac74073823` from `2984cae8fde6430f262520aeb409837cc17d0fdd`; the focused 21/21 patch-byte proof, independent Verify/Review and exact-head hosted Governance/Edge/Docker checks passed. Hosted E2E/Desktop were skipped. Task048 remains in-progress: full native Stage 9–17, OCR, binary browser/UAT, hard RSS/egress, provider, deployment and production exits remain open.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 56000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-046"
     ],
-    "evidence": "17-stage flow, \"PDF/OCR/HTML/table parser\" row; FR-115, FR-138"
+    "evidence": "17-stage flow, \"PDF/OCR/HTML/table parser\" row; FR-115, FR-138; bounded source PR #709 merged, native/OCR/UAT/provider/production exits open"
   },
   "TASK-ZAI-049": {
     "container": "TC-TASK-ZAI-049",
