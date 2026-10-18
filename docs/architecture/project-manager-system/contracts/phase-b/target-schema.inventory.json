@@ -1,6 +1,6 @@
 {
-  "schemaSha256": "ddbda079e8fdc4a8521ef75e35cecc9a139a465aa9736d0158c9a779fb793c34",
-  "targetSchemaSha256": "6ca13ac1246889b4449fee8f94af3aad8012e55159a3427bf9ef953f1adc9b76",
+  "schemaSha256": "47efde1279bc107458cfa28b9e80920df60555089b8763d7634b550c0e9e661b",
+  "targetSchemaSha256": "cb2449ec562fbf9217956442a48b34eac948c74873d7c24f85a2593fd12df38c",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -11,6 +11,11 @@
       "modelName": "AgentApprovalDecision",
       "schemaName": "public",
       "tableName": "AgentApprovalDecision"
+    },
+    {
+      "modelName": "AgentApprovalNotification",
+      "schemaName": "public",
+      "tableName": "AgentApprovalNotification"
     },
     {
       "modelName": "AgentApprovalRequest",

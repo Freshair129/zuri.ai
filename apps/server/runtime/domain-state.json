@@ -812,7 +812,7 @@
           "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "declared": "done",
           "status": "verified",
-          "codeCount": 7,
+          "codeCount": 9,
           "testCount": 23
         },
         {
@@ -1142,9 +1142,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 3,
-            "inventoried": 3,
-            "openApiPaths": 347,
+            "routes": 5,
+            "inventoried": 5,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -1192,9 +1192,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 5,
-            "guardedMutations": 5,
-            "reads": 2,
+            "mutations": 6,
+            "guardedMutations": 6,
+            "reads": 3,
             "unguardedReads": 0
           }
         },
@@ -1309,8 +1309,8 @@
         }
       ],
       "details": {
-        "routes": 3,
-        "apiRoutes": 3,
+        "routes": 5,
+        "apiRoutes": 5,
         "pageRoutes": 0,
         "ownedModels": 5,
         "featureNotes": 18
@@ -1605,7 +1605,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -2528,7 +2528,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 1
           }
         },
@@ -3094,7 +3094,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -3514,7 +3514,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -4402,7 +4402,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -4600,7 +4600,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -4839,7 +4839,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -5291,7 +5291,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -5578,7 +5578,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -5835,7 +5835,7 @@
           "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
+          "codeCount": 3,
           "testCount": 23
         },
         {
@@ -7254,8 +7254,8 @@
             }
           ],
           "details": {
-            "routes": 47,
-            "inventoried": 47,
+            "routes": 48,
+            "inventoried": 48,
             "missing": 0
           }
         },
@@ -7269,7 +7269,7 @@
           "details": {
             "routes": 180,
             "inventoried": 180,
-            "openApiPaths": 347,
+            "openApiPaths": 349,
             "missingFromOpenApi": 0
           }
         },
@@ -7641,9 +7641,9 @@
         }
       ],
       "details": {
-        "routes": 227,
+        "routes": 228,
         "apiRoutes": 180,
-        "pageRoutes": 47,
+        "pageRoutes": 48,
         "ownedModels": 48,
         "featureNotes": 45
       },
@@ -14189,11 +14189,14 @@
           "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
+          "codeCount": 14,
           "testCount": 23
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/notifications/page.jsx",
+        "apps/server/src/app/api/agent/approval-notifications/[id]/route.js",
+        "apps/server/src/app/api/agent/approval-notifications/route.js",
         "apps/server/src/app/api/agent/approval-requests/[id]/decision/route.js",
         "apps/server/src/app/api/agent/approval-requests/route.js",
         "apps/server/src/modules/agent/action-gate.js",

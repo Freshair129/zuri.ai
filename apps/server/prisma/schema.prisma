@@ -59,6 +59,7 @@ model Tenant {
   // approval aggregate and is included in portable recovery.
   agentApprovalRequests     AgentApprovalRequest[]
   agentApprovalDecisions    AgentApprovalDecision[]
+  agentApprovalNotifications AgentApprovalNotification[]
   // @req FR-230 — this Tenant's per-data-class retention shortenings (ADR-091 D2).
   tenantRetentionOverrides   TenantRetentionOverride[]
   // @req SEC-034 — this Tenant's Customers' chat evidence archive legal holds (ADR-093 D6).
@@ -273,6 +274,7 @@ model Business {
   // @req FR-026 — scoped Agent approval history for this Business.
   agentApprovalRequests     AgentApprovalRequest[]
   agentApprovalDecisions    AgentApprovalDecision[]
+  agentApprovalNotifications AgentApprovalNotification[]
   roleBindings               RoleBinding[]
   customerImportBatches      CustomerImportBatch[]
   customerImportReviewCases  CustomerImportReviewCase[]
@@ -490,6 +492,7 @@ model Person {
   customerRetentionConsentsRecorded CustomerRetentionConsent[]   @relation("CustomerRetentionConsentRecordedBy")
   agentApprovalRequestsCreated      AgentApprovalRequest[]       @relation("AgentApprovalRequester")
   agentApprovalDecisions            AgentApprovalDecision[]      @relation("AgentApprovalDecisionPerson")
+  agentApprovalNotificationsReceived AgentApprovalNotification[]  @relation("AgentApprovalNotificationRecipient")
   passkeyCredentials            PasskeyCredential[]
   // @req FR-268, ADR-101 — Key Results this Person owns, and check-ins this
   // Person recorded (distinct: an OWNER can check in a Key Result owned by
@@ -2971,6 +2974,7 @@ model AgentApprovalRequest {
   conversation Conversation? @relation("AgentApprovalConversationTarget", fields: [conversationId], references: [id], onDelete: Restrict)
   customer     Customer?     @relation("AgentApprovalCustomerTarget", fields: [customerId], references: [id], onDelete: Restrict)
   decisions    AgentApprovalDecision[]
+  notifications AgentApprovalNotification[]
 
   @@index([tenantId, businessId, status, expiresAt])
   @@index([requesterPersonId, createdAt])
@@ -2992,9 +2996,36 @@ model AgentApprovalDecision {
   tenant  Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   business Business            @relation(fields: [businessId], references: [id], onDelete: Restrict)
   person  Person               @relation("AgentApprovalDecisionPerson", fields: [personId], references: [id], onDelete: Restrict)
+  notifications AgentApprovalNotification[]
 
   @@unique([requestId, personId], map: "AgentApprovalDecision_request_person_key")
   @@index([tenantId, businessId, createdAt])
+}
+
+// @req TASK-ZAI-011 — one durable in-app outcome per approval decision and
+// recipient. Recipient filtering is enforced again by the service on every read.
+model AgentApprovalNotification {
+  id                String   @id @default(uuid())
+  tenantId          String
+  businessId        String
+  recipientPersonId String
+  approvalRequestId String
+  decisionId        String
+  notificationType String
+  decision          String
+  approvalStatus    String
+  createdAt         DateTime @default(now())
+  readAt            DateTime?
+
+  tenant          Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business        Business             @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  recipient       Person               @relation("AgentApprovalNotificationRecipient", fields: [recipientPersonId], references: [id], onDelete: Restrict)
+  approvalRequest AgentApprovalRequest @relation(fields: [approvalRequestId], references: [id], onDelete: Restrict)
+  decisionRecord  AgentApprovalDecision @relation(fields: [decisionId], references: [id], onDelete: Restrict)
+
+  @@unique([decisionId, recipientPersonId], map: "AgentApprovalNotification_decision_recipient_key")
+  @@index([recipientPersonId, readAt, createdAt], map: "AgentApprovalNotification_recipient_read_created_idx")
+  @@index([tenantId, businessId, createdAt], map: "AgentApprovalNotification_scope_created_idx")
 }
 
 // @req FR-231, FR-232 — durable identifiers for each API-011 message append;
