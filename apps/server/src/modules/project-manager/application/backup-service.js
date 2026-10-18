@@ -391,8 +391,8 @@ export const SNAPSHOT_MODELS = [
   'conversation',
   // @req FR-026 — Agent approval requests retain their exact requester,
   // target and lifecycle evidence in portable recovery; votes restore after
-  // their request so one Person/request constraint remains meaningful.
-  'agentApprovalRequest', 'agentApprovalDecision',
+  // their request and notifications after their decision.
+  'agentApprovalRequest', 'agentApprovalDecision', 'agentApprovalNotification',
   // @req FR-243 — a session hangs off Conversation and Message/ConversationEvent
   // point at it, so it restores between them. Ids, counts and times, no content.
   'conversationSession', 'message',

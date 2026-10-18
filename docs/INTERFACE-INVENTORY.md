@@ -1,7 +1,7 @@
 ---
-version: "1.40.0b"
+version: "1.41.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-10-05T00:00:00+07:00,Codex"
+last_update: "2026-10-18T00:00:00+07:00,Codex"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -12,6 +12,8 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
+Version diff 1.40.0b -> 1.41.0b: add `/notifications`, the authenticated in-app Agent approval inbox and idempotent mark-read action (TASK-ZAI-011 / FR-026); 117 page routes. This is local source only; no production migration or deployment is claimed.
+
 Version diff 1.39.0b -> 1.40.0b: add the FR-278 read-only `/growth/line-sales` executive dashboard and its explicit unavailable Ads/Lead/call states; 116 page routes.
 
 Version diff 1.38.0b -> 1.39.0b: add the FR-275 `/growth/insights` page (Marketing Insights); 115 page routes.
@@ -20,14 +22,14 @@ Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describ
 
 | Field | Value |
 |---|---|
-| **Version** | 1.40.0b |
+| **Version** | 1.41.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-10-05 |
+| **Last Updated** | 2026-10-18 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=116; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=117; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -93,6 +95,7 @@ mean production identity, external providers or cutover gates are complete.
 | `/plugin/authorize` | Plugin Authorization Consent (อนุมัติการเชื่อมต่อปลักอิน) | none — a bare server-rendered page, deliberately outside every shell so nothing about the granting account's scope surrounds a decision about delegating it | state, in server-derived terms only, what a first-party plugin is asking for — its registered name, the capabilities its own viewer resolves to, the exact redirect target and the granting account — and take approval or refusal. Only the POST it submits mints an authorization code (ADR-052 D4) | auth required (→ `/login`), invalid request refused in place without naming or following the `redirect_uri` that failed, session store unavailable stated as an outage rather than a refusal | implemented; `src/app/(entry)/plugin/authorize/page.jsx`, `POST /api/plugin/auth/authorize`, FR-123 |
 | `/workspace-home` | Workspace Home | BusinessRoutingShell | joined top-level Workspaces (Portfolio); owner collaboration panel — ACTIVE members with remove, PENDING invites with revoke, and a mint form whose invite code is shown once with copy affordances (AC-067.1/2/7); owner continuation into the FR-020 one-step Business creator; Business Routing link only when Business access exists (AC-066.6); shell header offers sign-out (FR-046/FR-095) | auth required, incomplete profile redirect, loading, empty, error, session unavailable (503 kept apart from 401 — retry state, no redirect); panel-only states: roster loading, roster refused (same 404 as an absent Workspace), no members, no pending invites, expired-but-revocable invite, minted-code shown once, per-action confirm and server refusal | implemented; `src/app/(entry)/workspace-home/page.jsx`, `src/modules/identity/workspace-collaboration-view.js`, `src/lib/viewer-failure.js`, `/api/onboarding/state`, `/api/workspace-memberships` (GET roster, DELETE remove), `/api/workspace-invites` (POST mint), `/api/workspace-invites/[id]` (DELETE revoke), FR-046, FR-066, FR-067 |
 | `/overview` | Business Home Dashboard | BusinessShell; shell-level cross-domain projection | Business briefing, KPI/health, strategy and attention links; Topbar offers sign-out (FR-046/FR-095) | Business required, ready, forbidden, loading, empty, error, offline | implemented beta; `src/app/(pm)/overview/page.jsx`, FR-060 |
+| `/notifications` | Agent Approval Notifications | BusinessShell; global Topbar destination | read the authenticated person's approval notices and unread count; acknowledge an individual notice idempotently | auth required, loading, empty, error; each notice is recipient-only | implemented locally; `src/app/(pm)/notifications/page.jsx`, `GET /api/agent/approval-notifications`, `POST /api/agent/approval-notifications/[id]`, TASK-ZAI-011 / FR-026; production migration and deployment not claimed |
 
 ### 3.2 Projects & Work domain — global surfaces
 

@@ -1,5 +1,7 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.69.0b → 1.70.0b (2026-10-18): add `AgentApprovalNotification` for TASK-ZAI-011, with Tenant, Business, Person, approval-request and decision foreign keys; unique decision/recipient delivery; and recipient/read plus scope indexes. The schema declares 206 models. SQLite and Supabase migration source and portable-backup handling are local only; no external migration application or deployment is claimed.
+
 Version diff 1.68.0b → 1.69.0b (2026-10-15): FR-286 adds four nullable all-or-none Business provisioning marker/snapshot fields and nullable Workspace.provisioningKey, unique per Business/key. The standard key identifies one default Business Space with persisted ancestry; other Workspaces remain unkeyed. Catalog snapshots are historical definitions and grant no access. The model census remains 205. Source migration authorship and isolated verification do not imply production/Supabase application.
 
 Version diff 1.67.0b → 1.68.0b (2026-10-15): add FR-285 `BusinessAgentConfig`, the single standard five-role config per Business with composite Tenant/Business foreign key, version/digest, DENY delegation and attributed apply time. Schema now declares 205 models. The source migration is authored; no external migration application or deployment is claimed.
@@ -25,6 +27,9 @@ Main history — Version diff 1.63.0b → 1.64.0b (2026-10-05): add three approv
 | MarketingReportPolicy | Business PK, Tenant FK, ingestEnabled false by default, version, timestamps | Trusted installation-operator CAS; immutable scope/no delete. Separate from human visibility. |
 | MarketingReportBinding | UUID, unique SHA-256 keyHash, Tenant/Business, fixed source deployment/Business/system, permission, ACTIVE/REVOKED, version/timestamps | Hash-only credential, immutable scope, one-way audited revocation; no browser provisioning. |
 | MarketingExternalReport | UUID, Tenant/Business/binding/initiative/plan FKs, source report/campaign identity, exact canonicalEnvelope/payloadHash, revision 1/null supersedes, unique receipt UUID, acceptedAt/status, retentionPolicyVersion/retainUntil, unique AuditEvent FK | Unique binding/report; immutable evidence/receipt and linked audit; minimum 90 days, no purge; no Guest projection/native total write. |
+| AgentApprovalRequest | Tenant/Business, requester Person and ExternalIdentity FKs; action/tier/quorum; target kind, optional Conversation/Customer FK, target version, canonical input summary/digest, PENDING lifecycle, expiry and optimistic version | One immutable authorization request; decisions are separate immutable votes. Included in portable snapshot/restore; no external migration application is implied. |
+| AgentApprovalDecision | Request, Tenant, Business and voting Person FKs; APPROVE/REJECT decision and creation time; unique `(requestId, personId)` | One immutable vote per person/request; included in portable snapshot/restore. No external migration application is implied. |
+| AgentApprovalNotification | Tenant and Business FKs; recipient Person, approval request and recorded decision FKs; notification type, decision/status, created/read timestamps; unique `(decisionId, recipientPersonId)` | Recipient-bound in-app notice; indexed by recipient/read/time and Business scope. Included in portable snapshot/restore; no external delivery or migration apply is implied. |
 
 Physical invariants and exact tests: [receiver design](../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md), [bounded verification](../change-requests/marketing/ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md). These records are intentionally excluded from unsupported legacy snapshots with fail-closed export/preview/import guards; a database containing them requires the approved whole-database custody procedure.
 
@@ -73,9 +78,9 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.68.0b |
+| **Version** | 1.70.0b |
 | **Status** | Candidate |
-| **Last Updated** | 2026-10-15 |
+| **Last Updated** | 2026-10-18 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)

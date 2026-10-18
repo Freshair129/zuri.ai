@@ -25,9 +25,20 @@ import {
 import { createProject } from '@/modules/project-manager/application/project-service'
 import { makeViewer } from '../factories/viewer'
 import { createLocalFilesystemPort } from '@/modules/project-manager/local-files/filesystem-port'
+import { decideAgentApprovalRequest } from '@/modules/agent/approval-gateway'
+
+vi.mock('@/modules/identity/request-viewer', () => ({
+  resolveRequestViewer: async (request) => {
+    if (!request.__viewer) throw Object.assign(new Error('AUTH_REQUIRED'), { status: 401 })
+    return request.__viewer
+  },
+}))
+
+const { GET: getApprovalNotifications } = await import('@/app/api/agent/approval-notifications/route')
 
 let owner, business, project, backupKpi, backupObservation, backupPersonId
 let backupGoal, backupLeadMeasure, backupLeadMeasureValue, backupWeeklyCommitment, backupWigSession
+let backupApprovalRequestId, backupApprovalDecisionId, backupApprovalNotificationId
 
 describe('snapshot backup round trip', () => {
   beforeAll(async () => {
@@ -363,6 +374,61 @@ describe('snapshot backup round trip', () => {
       fileSha256: 'd'.repeat(64), messageCount: 1, messageIdListHash: 'e'.repeat(64), previousManifestHash: null,
     }
     await prisma.archiveManifest.create({ data: { ...backupManifest, manifestHash: computeManifestHash(backupManifest) } })
+
+    // @req FR-026 — approval outcomes are portable only when the request and
+    // recorded vote restore before the notification that references both.
+    const requester = await prisma.person.create({
+      data: { code: `PER-BAK-APP-${randomUUID()}`, displayName: 'Backup approval requester' },
+    })
+    const requesterIdentity = await prisma.externalIdentity.create({
+      data: {
+        tenantId: tenant.id,
+        personId: requester.id,
+        provider: 'LINE',
+        providerSubject: `backup-approval-${randomUUID()}`,
+      },
+    })
+    const approvalRequest = await prisma.agentApprovalRequest.create({
+      data: {
+        tenantId: tenant.id,
+        businessId: business.id,
+        requesterPersonId: requester.id,
+        requesterExternalIdentityId: requesterIdentity.id,
+        actionName: 'CUSTOMER_UPDATE',
+        tier: 1,
+        quorum: 1,
+        targetKind: 'CUSTOMER',
+        targetVersion: 'v1',
+        inputDigest: 'f'.repeat(64),
+        status: 'APPROVED',
+        expiresAt: new Date('2027-01-01T00:00:00Z'),
+      },
+    })
+    const approvalDecision = await prisma.agentApprovalDecision.create({
+      data: {
+        requestId: approvalRequest.id,
+        tenantId: tenant.id,
+        businessId: business.id,
+        personId: backupPersonId,
+        decision: 'APPROVE',
+      },
+    })
+    const approvalNotification = await prisma.agentApprovalNotification.create({
+      data: {
+        tenantId: tenant.id,
+        businessId: business.id,
+        recipientPersonId: requester.id,
+        approvalRequestId: approvalRequest.id,
+        decisionId: approvalDecision.id,
+        notificationType: 'REQUESTER_OUTCOME',
+        decision: 'APPROVE',
+        approvalStatus: 'APPROVED',
+      },
+    })
+    backupApprovalRequestId = approvalRequest.id
+    backupApprovalDecisionId = approvalDecision.id
+    backupApprovalNotificationId = approvalNotification.id
+
   })
 
   it('export includes schema version, timestamp and table counts', async () => {
@@ -698,6 +764,171 @@ describe('snapshot backup round trip', () => {
     const restoredObservation = await prisma.businessKpiObservation.findUnique({ where: { id: backupObservation.id } })
     expect(restoredKpi).toMatchObject({ businessId: business.id, name: 'Backup KPI', version: 1 })
     expect(restoredObservation).toMatchObject({ kpiId: backupKpi.id, actorPersonId: backupPersonId, note: 'Backup fixture observation' })
+  })
+
+  it('round trip restores approval notifications after their request and recorded vote', async () => {
+    const snapshot = await exportSnapshot()
+    const notification = snapshot.tables.agentApprovalNotification.find((row) => row.id === backupApprovalNotificationId)
+    expect(snapshot.tables.agentApprovalRequest.find((row) => row.id === backupApprovalRequestId)).toBeTruthy()
+    expect(snapshot.tables.agentApprovalDecision.find((row) => row.id === backupApprovalDecisionId)).toBeTruthy()
+    expect(notification).toMatchObject({
+      approvalRequestId: backupApprovalRequestId,
+      decisionId: backupApprovalDecisionId,
+      notificationType: 'REQUESTER_OUTCOME',
+      decision: 'APPROVE',
+      approvalStatus: 'APPROVED',
+    })
+
+    await prisma.agentApprovalNotification.delete({ where: { id: backupApprovalNotificationId } })
+    await prisma.agentApprovalDecision.delete({ where: { id: backupApprovalDecisionId } })
+    await prisma.agentApprovalRequest.delete({ where: { id: backupApprovalRequestId } })
+    expect(await prisma.agentApprovalNotification.findUnique({ where: { id: backupApprovalNotificationId } })).toBeNull()
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(result.restored).toBe(true)
+    const restored = await prisma.agentApprovalNotification.findUnique({
+      where: { id: backupApprovalNotificationId },
+      include: { approvalRequest: true, decisionRecord: true },
+    })
+    expect(restored).toMatchObject({
+      approvalRequestId: backupApprovalRequestId,
+      decisionId: backupApprovalDecisionId,
+      notificationType: 'REQUESTER_OUTCOME',
+      decision: 'APPROVE',
+      approvalStatus: 'APPROVED',
+      approvalRequest: { id: backupApprovalRequestId, status: 'RESTORE_INVALIDATED' },
+      decisionRecord: { id: backupApprovalDecisionId, decision: 'APPROVE' },
+    })
+  })
+
+  it('keeps a restored pending owner notice historical and prevents a further vote', async () => {
+    // Create this pending fixture here, after the earlier snapshot restore
+    // cases have run. Restore invalidates pending approvals by design, so a
+    // beforeAll fixture would no longer be pending when this snapshot begins.
+    const pendingSuffix = randomUUID().slice(0, 12).toUpperCase()
+    const pendingRequester = await prisma.person.create({
+      data: { code: `PER-BAK-PEND-R-${pendingSuffix}`, displayName: 'Pending approval requester' },
+    })
+    const pendingRequesterIdentity = await prisma.externalIdentity.create({
+      data: {
+        tenantId: business.tenantId,
+        personId: pendingRequester.id,
+        provider: 'LINE',
+        providerSubject: `backup-pending-approval-${pendingSuffix}`,
+      },
+    })
+    const pendingOwners = []
+    for (const [index, displayName] of ['Pending approval voter', 'Pending approval next owner'].entries()) {
+      const person = await prisma.person.create({
+        data: { code: `PER-BAK-PEND-O${index}-${pendingSuffix}`, displayName },
+      })
+      await prisma.membership.create({
+        data: {
+          personId: person.id,
+          tenantId: business.tenantId,
+          businessId: business.id,
+          scopeType: 'BUSINESS',
+          role: 'OWNER',
+          status: 'ACTIVE',
+        },
+      })
+      pendingOwners.push(person)
+    }
+    const pendingRequest = await prisma.agentApprovalRequest.create({
+      data: {
+        tenantId: business.tenantId,
+        businessId: business.id,
+        requesterPersonId: pendingRequester.id,
+        requesterExternalIdentityId: pendingRequesterIdentity.id,
+        actionName: 'CUSTOMER_UPDATE',
+        tier: 2,
+        quorum: 2,
+        targetKind: 'CUSTOMER',
+        targetVersion: 'v1',
+        inputDigest: 'a'.repeat(64),
+        status: 'PENDING',
+        expiresAt: new Date('2027-01-01T00:00:00Z'),
+      },
+    })
+    const pendingDecision = await prisma.agentApprovalDecision.create({
+      data: {
+        requestId: pendingRequest.id,
+        tenantId: business.tenantId,
+        businessId: business.id,
+        personId: pendingOwners[0].id,
+        decision: 'APPROVE',
+      },
+    })
+    const pendingNotification = await prisma.agentApprovalNotification.create({
+      data: {
+        tenantId: business.tenantId,
+        businessId: business.id,
+        recipientPersonId: pendingOwners[1].id,
+        approvalRequestId: pendingRequest.id,
+        decisionId: pendingDecision.id,
+        notificationType: 'OWNER_NEXT_ACTION',
+        decision: 'APPROVE',
+        approvalStatus: 'PENDING',
+      },
+    })
+    const pendingRequestId = pendingRequest.id
+    const pendingDecisionId = pendingDecision.id
+    const pendingNotificationId = pendingNotification.id
+    const pendingRecipientPersonId = pendingOwners[1].id
+
+    const snapshot = await exportSnapshot()
+    const notification = snapshot.tables.agentApprovalNotification.find((row) => row.id === pendingNotificationId)
+    expect(snapshot.tables.agentApprovalRequest.find((row) => row.id === pendingRequestId)).toMatchObject({ status: 'PENDING' })
+    expect(snapshot.tables.agentApprovalDecision.find((row) => row.id === pendingDecisionId)).toMatchObject({ decision: 'APPROVE' })
+    expect(notification).toMatchObject({
+      approvalRequestId: pendingRequestId,
+      decisionId: pendingDecisionId,
+      notificationType: 'OWNER_NEXT_ACTION',
+      decision: 'APPROVE',
+      approvalStatus: 'PENDING',
+    })
+
+    await prisma.agentApprovalNotification.delete({ where: { id: pendingNotificationId } })
+    await prisma.agentApprovalDecision.delete({ where: { id: pendingDecisionId } })
+    await prisma.agentApprovalRequest.delete({ where: { id: pendingRequestId } })
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(result.restored).toBe(true)
+    const restored = await prisma.agentApprovalNotification.findUnique({
+      where: { id: pendingNotificationId },
+      include: { approvalRequest: true, decisionRecord: true },
+    })
+    expect(restored).toMatchObject({
+      approvalRequestId: pendingRequestId,
+      decisionId: pendingDecisionId,
+      notificationType: 'OWNER_NEXT_ACTION',
+      decision: 'APPROVE',
+      approvalStatus: 'PENDING',
+      approvalRequest: { id: pendingRequestId, status: 'RESTORE_INVALIDATED' },
+      decisionRecord: { id: pendingDecisionId, decision: 'APPROVE' },
+    })
+
+    const inboxRequest = new Request('http://local/api/agent/approval-notifications')
+    inboxRequest.__viewer = { principal: { id: pendingRecipientPersonId } }
+    const inboxResponse = await getApprovalNotifications(inboxRequest)
+    expect(inboxResponse.status).toBe(200)
+    const inbox = await inboxResponse.json()
+    const inboxNotice = inbox.notifications.find(({ id }) => id === pendingNotificationId)
+    expect(inboxNotice).toMatchObject({
+      notificationType: 'OWNER_NEXT_ACTION',
+      approvalStatus: 'PENDING',
+      currentRequestStatus: 'RESTORE_INVALIDATED',
+      actionable: false,
+    })
+
+    await expect(decideAgentApprovalRequest(prisma, {
+      requestId: pendingRequestId,
+      personId: pendingRecipientPersonId,
+      decision: 'APPROVE',
+    })).rejects.toThrow('AGENT_APPROVAL_REQUEST_NOT_OPEN')
+    expect(await prisma.agentApprovalDecision.count({ where: { requestId: pendingRequestId } })).toBe(1)
+    expect((await prisma.agentApprovalRequest.findUnique({ where: { id: pendingRequestId } })).status)
+      .toBe('RESTORE_INVALIDATED')
   })
 
   it('round trip carries the WIG lead measure, value, commitment and session graph', async () => {
