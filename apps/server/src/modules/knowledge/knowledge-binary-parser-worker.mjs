@@ -584,7 +584,7 @@ function parseHtml(bytes) {
           const span = (name) => {
             const raw = cell.attrs?.find((attr) => attr.name === name)?.value
             if (raw === undefined) return 1
-            if (!/^\d+$/u.test(raw) || Number(raw) < 1 || Number(raw) > 100) fail('AMBIGUOUS_TABLE_MAPPING')
+            if (!/^\d+$/u.test(raw) || Number(raw) < 1 || Number(raw) > 1000) fail('AMBIGUOUS_TABLE_MAPPING')
             return Number(raw)
           }
           const rowSpan = span('rowspan')
@@ -598,9 +598,12 @@ function parseHtml(bytes) {
           const record = { cell, rowIndex, cellIndex, gridColumn, rowSpan, colSpan, text }
           cells.push(record)
           rowData.push(text)
-          if (rowSpan > 1) for (let rowOffset = 1; rowOffset < rowSpan; rowOffset += 1) for (let column = gridColumn; column < gridColumn + colSpan; column += 1) {
-            if (occupied.has(column)) fail('AMBIGUOUS_TABLE_MAPPING')
-            occupied.set(column, rowIndex + rowOffset)
+          if (rowSpan > 1) {
+            const lastOccupiedRow = rowIndex + rowSpan - 1
+            for (let column = gridColumn; column < gridColumn + colSpan; column += 1) {
+              if (occupied.has(column)) fail('AMBIGUOUS_TABLE_MAPPING')
+              occupied.set(column, lastOccupiedRow)
+            }
           }
           cursor = gridColumn + colSpan
         }

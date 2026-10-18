@@ -83,6 +83,37 @@ describe('bounded binary source profile', () => {
     for (const span of parsed.sourceSpans) expect(parsed.normalizedText.slice(span.artifactStartUtf16, span.artifactEndUtf16)).toBe(span.text)
   })
 
+  it('maps a following row sibling after a two-row HTML cell span', async () => {
+    const bytes = Buffer.from('<table><tbody><tr><td rowspan="2">merged</td><td colspan="2">top</td></tr><tr><td>below</td><td>below-right</td></tr></tbody></table>', 'utf8')
+    const parsed = await parseKnowledgeBinary({ bytes, mediaType: 'text/html', sourceId: 'html-rowspan-placement', sourceVersion: 'v1', rawArtifactId: 'html-rowspan-placement-raw' })
+    expect(parsed.sourceSpans.find((span) => span.kind === 'html_table_cell' && span.text === 'below'))
+      .toMatchObject({ rowIndex: 1, gridColumn: 1 })
+  })
+
+  it.each(['rowspan', 'colspan'])('accepts HTML %s values through 1000 and rejects invalid bounds', async (attribute) => {
+    const parse = (value) => {
+      const rows = attribute === 'rowspan' ? Math.max(1, Number(value) || 1) : 1
+      const firstRow = attribute === 'rowspan'
+        ? `<tr><td ${attribute}="${value}">x</td><td colspan="2">top</td></tr>`
+        : `<tr><td ${attribute}="${value}">x</td></tr>`
+      const followingRows = attribute === 'rowspan'
+        ? '<tr><td>left</td><td>right</td></tr>'.repeat(rows - 1)
+        : ''
+      return parseKnowledgeBinary({
+        bytes: Buffer.from(`<table><tbody>${firstRow}${followingRows}</tbody></table>`, 'utf8'),
+        mediaType: 'text/html', sourceId: 'html-span-bound', sourceVersion: 'v1', rawArtifactId: 'html-span-bound-raw',
+      })
+    }
+    const spanKey = attribute === 'rowspan' ? 'rowSpan' : 'colSpan'
+    for (const value of [101, 1000]) {
+      const parsed = await parse(value)
+      expect(parsed.sourceSpans.find((span) => span.kind === 'html_table_cell')).toMatchObject({ [spanKey]: value })
+    }
+    for (const value of ['malformed', '0', '1001']) {
+      await expect(parse(value)).rejects.toMatchObject({ code: 'AMBIGUOUS_TABLE_MAPPING' })
+    }
+  })
+
   it('enforces the HTML table-cell bound across the entire document before projection', async () => {
     const table = (count) => `<table><tr><td>x</td>${'<td></td>'.repeat(count - 1)}</tr></table>`
     const parse = (html) => parseKnowledgeBinary({
