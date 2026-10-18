@@ -91,7 +91,7 @@ Generated navigation for current source documents in the product grouping. A pat
 - [FR-099 — SoT pipeline plan board](../domains/integration/features/FR-099-sot-pipeline-plan-board.md)
 - [FR-100 — SoT approval inbox and decision export](../domains/integration/features/FR-100-sot-approval-inbox.md)
 - [FR-101 — SoT pipeline graph dashboard](../domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md)
-- [FR-125 — FlowAccount read-only pull pipeline](../domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md)
+- [FR-125 — FlowAccount MCP connector with read-only evidence](../domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md)
 - [FR-129 — Catalog publication approval gate](../domains/integration/features/FR-129-catalog-publication-approval-gate.md)
 - [FR-130 — GitHub repository binding and read-only projection](../domains/integration/features/FR-130-github-repository-projection.md)
 - [FR-255 — Inference node registration and trust](../domains/integration/features/FR-255-inference-node-registration-and-trust.md)

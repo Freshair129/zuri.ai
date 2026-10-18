@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.36"
-updated: "2026-10-17"
+version: "0.4.37"
+updated: "2026-10-18"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -191,7 +191,7 @@ the v0.4.0 column is what changed in the programme's first three weeks.
 | 5 | Five Core Agent Roles | Partial. One generic agent turn; no role registry, no role-scoped policy. | Unchanged in kind. FR-181 adds six SCM tools on the existing gates and FR-098 the authorization context those tools consume, which is the substrate a role policy will bind to. No registry. | Role registry plus five roles, SPR-ZAI-03 |
 | 6 | Two cross-integrated Businesses | Partial. Multi-business scaffolding live; exactly **one** business, SmartGift, onboarded. | Unchanged count. ADR-076 aligned the organizational hierarchy to ERP vocabulary and FR-193/194 put Employment and LegalEntity under Tenant, which is what a second Business's provisioning will stand on. | Business number two plus cross-business analytics, PHASE-ZAI-03 |
 | 7 | Up to 5 full automation workflows | None end to end. | Server-owned job ledgers exist for two narrow flows: FR-152 rich-menu publish jobs and FR-143 edge extraction jobs (ADR-059), both with retry and audit. Neither is a business workflow under approval. | Five workflows, SPR-ZAI-06 and SPR-ZAI-10 |
-| 8 | Up to 3 standard connectors (v0.4.9: plus conversation sessions and business-hours model residency under ADR-094, recorded staff replies and the chat evidence cold archive under ADR-093, TASK-ZAI-105 to 115; v0.4.7: plus the Integration credential vault, self-serve LINE OA onboarding and the complete LINE chat record under ADR-089 and ADR-091, TASK-ZAI-076 to 091, and the vault generalised to other provider kinds, TASK-ZAI-103) | One. LINE through FR-079/080/091/093. | LINE deepened (FR-146 to FR-153, FR-190, server-owned transport under ADR-061). FlowAccount declared as a read-only pull pipeline (FR-125, ADR-053) but not built; GitHub projection partial (FR-130); Google Sheets snapshot intake real for Assets (FR-139). | Connectors two and three, SPR-ZAI-06 and SPR-ZAI-10 — TASK-ZAI-017 re-stated to name FlowAccount; (v0.4.7) a LINE OA connected by its owner from the browser with no operator, SPR-ZAI-03 and SPR-ZAI-04 |
+| 8 | Up to 3 standard connectors (v0.4.9: plus conversation sessions and business-hours model residency under ADR-094, recorded staff replies and the chat evidence cold archive under ADR-093, TASK-ZAI-105 to 115; v0.4.7: plus the Integration credential vault, self-serve LINE OA onboarding and the complete LINE chat record under ADR-089 and ADR-091, TASK-ZAI-076 to 091, and the vault generalised to other provider kinds, TASK-ZAI-103) | One. LINE through FR-079/080/091/093. | LINE deepened (FR-146 to FR-153, FR-190, server-owned transport under ADR-061). FlowAccount's official MCP connector reads accounting data/reports and also advertises document creation; TASK-ZAI-017 will add a Zuri-enforced read-only connector, not yet built (FR-125, ADR-053 §0). GitHub projection partial (FR-130); Google Sheets snapshot intake real for Assets (FR-139). | Connectors two and three, SPR-ZAI-06 and SPR-ZAI-10 — TASK-ZAI-017 re-stated to support FlowAccount's official MCP; (v0.4.7) a LINE OA connected by its owner from the browser with no operator, SPR-ZAI-03 and SPR-ZAI-04 |
 | 9 | Approval L1 to L4 with audit, verification and notification | Partial. Immutable audit through FR-014; a **single** step-up tier; no notification fabric. | Audit strengthened: FR-198/199 give events queryable scope and a Business-readable access history (ADR-080); FR-191/196/197 add withdrawable grants, segregation of duties and time-boxed operator access (ADR-077/079). Approval is still one tier; FR-100 and FR-129 are single-purpose inboxes, not a ladder. | L1 to L4 ladder, verification, notification, SPR-ZAI-04 |
 | 10 | Deployment, data and security checklist, UAT, training, technical documentation | Partial. RLS, scope binding, evaluation and isolation harnesses; no UAT, training or handover pack. | **Deployment is real.** Production runs as a Docker Compose stack behind ngrok (ADR-058, FR-142 liveness probe, FR-145 pooler mode), redeployed many times, with two written outage RCAs. IAM hardening tail (FR-094 to FR-098) and TOTP step-up merged 2026-09-12. `llms.txt` / `llms-full.txt` give the documentation corpus one LLM-readable entry. No UAT, training or handover pack. | Hardening through handover, PHASE-ZAI-06 |
 | 11 | ERP business modules (CR-019) | Not in the proposal; nothing built. | **Built for Business one.** Inventory (FEAT-020), SmartGift SCM (FEAT-025), Sales Tasks (FEAT-022), Commerce (FEAT-023), Procurement (FEAT-024), Marketing (FEAT-021), Asset Management (FEAT-015 to 017), LINE OA Studio (FEAT-018/019), catalog convergence (FEAT-026); SCM and CRM parent slots, capabilities and module tabs (FR-167 to FR-172). Most lanes are "implemented locally" in the PRD with production migrations applied lane by lane. | Production activation and GATE-ZAI-09 for Business one (TASK-ZAI-043/044); Business two under deliverable 6; the SmartGift cost and quote engine (TASK-ZAI-052 to 059, v0.4.2) |
@@ -520,7 +520,7 @@ locates the week.
 | TASK-ZAI-014 | SPR-ZAI-05 | task | Onboard Business number two end to end under isolation | P0 | ATHER | in-progress | TASK-ZAI-013 | Section 3.1 row 6 |
 | TASK-ZAI-015 | SPR-ZAI-05 | task | Per-business visibility regression at two-business scale | P1 | Claude | planned | TASK-ZAI-014 | FEATURE-MAP FR-061 and FR-062 |
 | TASK-ZAI-016 | SPR-ZAI-06 | task | Cross-business governed analytics read model | P0 | Claude | planned | TASK-ZAI-014 | Section 3.1 row 6 |
-| TASK-ZAI-017 | SPR-ZAI-06 | task | Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125 | P0 | Codex | planned | TASK-ZAI-005 | Section 3.1 row 8; ADR-053 |
+| TASK-ZAI-017 | SPR-ZAI-06 | task | Connector number two under FR-081 — FlowAccount official hosted MCP, OAuth company selection, read-only tool allow-list and audited raw evidence, FR-125 | P0 | Codex | planned | TASK-ZAI-005 | Section 3.1 row 8; FR-125; ADR-053 §0 |
 | TASK-ZAI-018 | SPR-ZAI-06 | task | Automation workflows one and two end to end | P1 | ATHER | planned | TASK-ZAI-010; TASK-ZAI-017 | Section 3.1 row 7 |
 | TASK-ZAI-019 | SPR-ZAI-07 | task | Visual Office 2.5D scene model and shell | P0 | Codex | planned | TASK-ZAI-012 | Section 3.1 row 1 |
 | TASK-ZAI-020 | SPR-ZAI-07 | task | Bind Business, Agent, Mission and Approval objects to live reads | P0 | Codex | planned | TASK-ZAI-019 | Section 3.1 row 1 |
@@ -997,7 +997,7 @@ requirement_type: FR
 complexity: C-3
 access_scope: H3
 status: review
-version: 0.2.0
+version: 0.3.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -1389,7 +1389,7 @@ task_container_id: TC-TASK-ZAI-017
 task_id: TASK-ZAI-017
 parent_phase_id: PHASE-ZAI-03
 parent_sprint_id: SPR-ZAI-06
-title: Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125
+title: Connector number two under FR-081 — FlowAccount official hosted MCP, OAuth company selection and read-only evidence, FR-125
 requirement_type: FR
 complexity: C-2
 access_scope: H2
@@ -1400,21 +1400,27 @@ executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/platform/integrations/providers/line/line-oa-evidence.js
+  code: apps/server/src/modules/project-manager/mcp/transport.js (inbound Zuri MCP server only; no FlowAccount client exists)
   doc: docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md
-  test: unavailable
+  test: unavailable (no FlowAccount MCP client or connector suite at accepted baseline)
 delivers: [FR-125]
 definition_of_done:
   acceptance_criteria:
-    - criterion: Given the second connector, when it ingests, then every record carries tenant, Business, connection, provider, lane, entity type and schema version
+    - criterion: Given a FlowAccount OAuth connection, when an authorized user selects one company, then the connection binds that company to the trusted Zuri Business and persists only an opaque credential reference
+      checked: false
+    - criterion: Given a discovered MCP capability, when a read is requested, then only a verified and explicitly allow-listed read capability can execute; unknown or write-capable tools are denied regardless of readOnlyHint
+      checked: false
+    - criterion: Given an allowed read result, when its provider schema and stable identity are verified, then the connector records it through FR-081 with trusted tenant, Business, connection, provider, lane, entity type, schema version and safe provenance
+      checked: false
+    - criterion: Given any connect, discovery, read, refusal or disconnect operation, when it is processed, then trusted viewer/Business authority is re-resolved and an audit record excludes tokens, secrets and raw financial payloads
       checked: false
   success_criteria:
-    - criterion: Given a credential, when it is stored, then only an opaque reference is persisted and no secret transits a URL or log
+    - criterion: Given the official FlowAccount MCP connector, when Zuri connects, then OAuth data is secret-safe and FlowAccount create/mutate operations remain unreachable from this read-only task
       checked: false
   exit_criteria:
-    - criterion: Given npm test, when the connector suite runs, then an out-of-scope read is refused and the refusal is audited
+    - criterion: Given isolated MCP/OAuth contract tests, when the connector suite runs, then company binding, read allow-list enforcement, write/unknown-tool refusal, FR-081 provenance, audit and disconnect pass; live provider OAuth/company acceptance remains separate evidence
       checked: false
-changelog: Opened from deliverable eight. LINE is connector one. The ingestion boundary already exists, and FR-092 added a provider-neutral translation core, so connector two is a conformance exercise rather than new architecture. Re-stated 2026-09-13 (v0.4.0) to name the connector — FR-125 and ADR-053 (2026-08-30) declared FlowAccount as a read-only pull pipeline over one OWNER-authorized Client Credentials connection; the PRD marks it "design candidate only, nothing built and nothing authorized". It stays planned in SPR-ZAI-06. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) are real but narrower than a connector under this deliverable's definition, and are not counted.
+changelog: Opened from deliverable eight. LINE is connector one. FR-081 raw evidence remains the ingestion boundary. Historical 2026-09-13/2026-08-30 text proposed a REST Client Credentials pull; on 2026-10-18 direct human instruction, the current candidate is support for FlowAccount's official hosted MCP connector with OAuth company selection and a Zuri-enforced read-only capability allow-list. No FlowAccount MCP client or provider acceptance evidence exists at the accepted baseline. The task stays planned in SPR-ZAI-06; TASK-ZAI-005 remains its dependency. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) remain outside this task.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -7712,3 +7718,4 @@ second run over the same logs writes the same block.
 | 0.4.15 | 2026-09-20 | Hosted-CI reconciliation for TASK-ZAI-024, TASK-ZAI-036, TASK-ZAI-040 and TASK-ZAI-053: merged implementation evidence recorded; 024/053 are done, 036/040 remain review; production/provider/owner/release gates remain open or NOT_RUN. |
 | 0.4.16 | 2026-09-21 | Hosted-CI reconciliation for TASK-ZAI-056: PR #487 merged the integer-satang pricing engine and FR-181 integration at 5b2964c5; parity is fixture-only and production, owner, deployment, migration, MSP and GKS gates remain NOT_RUN. |
 | 0.4.19 | 2026-09-21 | Reconciled PR #501's scheduled/manual E2E policy and merged evidence for TASK-ZAI-036 (#507), TASK-ZAI-039 (#508), TASK-ZAI-040 (#503) and TASK-ZAI-041 (#506). Hosted Governance/Edge checks passed with E2E/Desktop skipped; all four tasks remain review where provider, migration, owner, release, production, MSP or PORL gates are open. |
+| 0.4.37 | 2026-10-18 | Corrected TASK-ZAI-017 to support FlowAccount's official hosted MCP connector. Added company-bound OAuth, discovered-capability/read-only policy and FR-081 evidence criteria while preserving the prior REST-first proposal as superseded history; task status and TASK-ZAI-005 dependency remain unchanged. No provider acceptance is claimed. |
