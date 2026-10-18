@@ -1,29 +1,24 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-08-20T10:41:14+07:00,ATHER"
-last_update: "2026-08-30T00:00:00+07:00,Claude Opus 5"
+last_update: "2026-10-18T12:41:00+07:00,Codex"
 status: "candidate"
 superseded_by: null
 attributes:
   domain: "integration"
   doc_type: "architecture-decision"
-  scope: "FlowAccount read-only pull pipeline, credential provisioning UI, raw evidence and sync operations"
+  scope: "TASK-ZAI-017 candidate extension to FR-125: FlowAccount official hosted MCP, OAuth company binding, Zuri-enforced read-only capability policy and raw evidence"
 ---
 
 # ADR-053 — FlowAccount read-only pull pipeline and credential provisioning
 
-**Status:** Candidate — เอกสารออกแบบรออนุมัติ; ยังไม่อนุญาตให้แก้ code, schema, secret manager หรือเรียก FlowAccount ด้วย credential จริง
+**Status:** Candidate — TASK-ZAI-017 proposes support for FlowAccount's official hosted MCP connector. This candidate does not amend normative FR-125 acceptance; a sanctioned additive reviewed-record migration is required before it does. No outgoing client, verified provider contract, or live OAuth evidence is implemented or claimed.
 
-> ## ⚠ Provider facts in this document were verified on **2026-08-20**. Re-verify before implementing.
+> ## Historical REST facts below were verified on **2026-08-20**. They are preserved as proposal history, not current MCP capability facts.
 >
-> Every FlowAccount base URL, scope, token lifetime, page-size ceiling, rate
-> limit and endpoint listed here was enumerated against FlowAccount's live
-> OpenAPI specification and published documentation on **2026-08-20**, and has
-> **not** been re-checked since. Rate limits and pagination ceilings in
-> particular have already moved twice in 2026 (2026-05-29 and 2026-07-09 — see
-> §2), so treat every number below as a **dated observation, not a current
-> fact**. Phase 0 of §10 must re-enumerate the specification and reconcile it
-> against this document before any code is written.
+> The TASK-ZAI-017 candidate MCP evidence and design are in §0. MCP transport/version, OAuth
+> registration and scopes, tool names/schemas, result identity and pagination
+> are not established by the linked public pages and remain explicit unknowns.
 
 **Relates to:** [ADR-032](ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md), [ADR-038](ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY.md), [FR-080](../domains/integration/features/FR-080-integration-secret-management-ui.md), [FR-081](../domains/integration/features/FR-081-raw-external-ingestion.md), [FR-125](../domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md)
 
@@ -51,8 +46,112 @@ attributes:
 | Requirement | FR-125 |
 | Risk | HIGH |
 | Complexity | C-3 — Architecture-driven |
-| Target size | Medium, ประมาณ 3–4 สัปดาห์หลังอนุมัติและได้รับ Sandbox credential |
-| Provider facts verified | **2026-08-20** — re-verify before implementing |
+| Target size | Historical REST estimate only; MCP implementation estimate not established |
+| Historical REST facts verified | **2026-08-20** — do not treat as MCP behavior |
+
+## 0. TASK-ZAI-017 candidate extension — official FlowAccount MCP (2026-10-18)
+
+On direct human instruction, this TASK-ZAI-017 candidate proposes support for
+FlowAccount's existing official hosted AI Connector (MCP). The official
+[Claude connector guide](https://flowaccount.com/help-center/category/ai-connector-mcp/flowaccount-connector-in-claude)
+and [Grok connector guide](https://flowaccount.com/help-center/category/ai-connector-mcp/flowaccount-connector-in-grok)
+publish the hosted endpoint `https://mcp.flowaccount.com/mcp`, OAuth 2.0 login,
+and selection of one authorized company for a connection. The guides say the
+selected company remains bound until disconnect/reconnect. They describe reads
+and document creation; the Claude guide says existing documents cannot be edited
+or deleted. FlowAccount's [2026-08-24 overview](https://flowaccount.com/blog/how-to-use-claude-for-accounting-work/)
+states that the connector has more than 30 tools and reads accounting reports.
+This capability is broader than the historical REST catalog in §2; that
+catalog's lack of report endpoints is not evidence that the MCP connector lacks
+reports.
+
+The official public material does not disclose the MCP transport/version,
+OAuth client registration/scopes/token contract, current tool names or schemas,
+tool-to-company binding fields, stable result identities, report-period
+semantics, pagination, or remote revocation contract. Do not infer any of these
+from the historical REST specification, a third-party MCP server, or a
+tool's `readOnlyHint` annotation. Verify them from authorized provider contract
+evidence before implementation makes assumptions about them.
+
+### Candidate design proposal
+
+1. **Use the official hosted service.** Zuri is an MCP client to
+   `https://mcp.flowaccount.com/mcp`; it does not implement another MCP server
+   and does not build a REST Client Credentials pull engine.
+2. **Bind one company to one trusted Zuri Business.** The user completes the
+   provider's OAuth 2.0 login and selects one FlowAccount company. The server
+   must verify the selected provider identity against the trusted Zuri
+   Business before activating the connection. The company is changed by
+   disconnect/reconnect unless the provider documents another supported flow.
+3. **Keep OAuth material opaque.** Store any access/refresh material only through
+   the existing secret-store port; ordinary records, browser storage, URLs,
+   logs and audit events contain no token or secret. Do not assume refresh
+   token issuance or rotation until its scope and contract are verified.
+4. **Discover, then fail closed.** Record the actual tool manifest and schema
+   version after authorized discovery. Execute only reviewed, explicit
+   read-only tool identifiers. Reject unknown tools and all create, update,
+   delete, status, payment, attachment or other mutation tools, even when the
+   MCP server advertises them or labels them `readOnlyHint`.
+5. **Use FR-081 for mapped read evidence.** Convert approved results to
+   `zIngestionEnvelope` and `ingestRawExternalRecord` only after tool schema,
+   company scope, lane, entity type and stable result identity have a reviewed
+   mapping. Preserve verified report identity and period where the tool schema
+   supplies them. Do not write Accounting/CRM/Sales/Inventory truth.
+6. **Audit safely and disconnect locally.** Record actor, trusted connection and
+   company, verified tool identifier, correlation, outcome and payload hash
+   where appropriate; never log OAuth material or raw financial/PII payloads.
+   Disable the local connection and retire its opaque reference on disconnect.
+   Call remote revocation only if the provider documents and supports it.
+7. **Do not invent pull semantics.** This is an explicit user-authorized
+   connector. Do not claim REST pagination, backfill windows, cursors,
+   rate-limit values, retry safety, or scheduling unless the discovered MCP
+   capability contract supports them.
+
+### Candidate checklist for TASK-ZAI-017 (not FR-125 acceptance)
+
+- OAuth connection uses the official MCP endpoint and the provider-verified
+  transport and OAuth contract; arbitrary hosts, guessed scopes, and REST
+  Client Credentials are rejected.
+- Credential handling follows the existing opaque secret-reference boundary.
+- Trusted viewer and Zuri Business authority are resolved before connection,
+  discovery, read, run, and disconnect operations. The selected provider company
+  is verified and bound to exactly one connection/business context.
+- Discovered tools are recorded with a reviewed contract. A strict Zuri
+  allow-list permits verified reads only; unknown/mutating tools are denied
+  regardless of provider annotations.
+- Approved read results are mapped through FR-081 with trusted scope and
+  provenance. Same external identity plus payload hash is unchanged; changed
+  results are new raw evidence. Unsupported/ambiguous result schemas are not
+  represented as complete reports or datasets.
+- Audit evidence covers discovery, reads, denials, failures and disconnects
+  without exposing credentials or raw financial data. Integration health is
+  computed from OAuth state, company binding, discovery/read and disconnect
+  evidence rather than a stale snapshot or REST cursor.
+- Isolated tests cover OAuth secret safety, company binding, discovery, read
+  allow-list enforcement, mutation refusal, audited denials, FR-081 provenance
+  and disconnect. Provider transport/OAuth/tool/report behavior and operator
+  company match remain separate live acceptance evidence.
+
+### Unresolved provider contract facts
+
+- How Zuri obtains/registers an OAuth client, exact authorization scopes and
+  callback contract; which token types are issued and how they expire/refresh.
+- The supported MCP transport/version and session/lifecycle requirements.
+- The live tool inventory and schemas, including read versus create/mutate
+  operations, stable record/report identities, and company binding evidence.
+- Per-tool report periods, pagination, error/retry semantics and service limits.
+- Whether an official remote revocation operation exists.
+
+No provider initialize, tool discovery/call, OAuth login/token or credential
+effect was made for this documentation correction.
+
+## Historical REST-first proposal (original FR-125 design; retained as history)
+
+Sections 1–15 below retain the 2026-08-20 through 2026-08-30 REST Client
+Credentials proposal and its original questions/approval text. The canonical
+PRD/FEATURES FR-125 definition remains REST-first until a sanctioned additive
+reviewed-record migration is accepted. The MCP material above is a TASK-ZAI-017
+candidate only and does not replace current normative FR-125 acceptance.
 
 ## 1. บริบทและปัญหา
 
@@ -601,3 +700,4 @@ secret manager หรือเรียก FlowAccount ด้วย credential �
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-20 | candidate | Proposed FlowAccount Client Credentials onboarding, read-only pull, FR-081 raw evidence, cursor/rate-limit/failure and non-accounting-truth boundary | working-tree | ATHER |
 | 0.2.0b | 2026-08-30 | candidate | Re-applied to main from `rescue/flowaccount-docs` as ADR-053/FR-125 (ids renumbered; NFR/BR/SDD/SEC declarations dropped, see Id note). Provider facts marked as verified 2026-08-20 and unre-checked. Corrected four claims about this repository that no longer held 239 commits later: `DATA_SOURCE` is not an existing connection kind, `OAUTH2_CLIENT_CREDENTIALS`/`ACCOUNTING_DATA_PULL` are not existing enum values, the connection uniqueness constraint is tenant-scoped and excludes `purpose`, and the "R5" approval rule no longer exists | pending | Claude Opus 5 |
+| 0.3.0b | 2026-10-18 | candidate | Direct human correction: recorded a TASK-ZAI-017 candidate extension for the official hosted MCP connector. Added endpoint/OAuth/company-selection and >30-tool/report evidence, explicit transport/OAuth/tool/result unknowns, fail-closed read-only proposal and FR-081 mapping. This candidate does not amend normative FR-125 acceptance; historical FR-125 retains its original REST-first meaning; a sanctioned additive reviewed record must establish MCP requirements before implementation. No code or provider effects claimed | pending | Codex |

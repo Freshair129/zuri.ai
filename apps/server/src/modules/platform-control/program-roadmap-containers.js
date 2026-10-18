@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.36, 2026-10-17) so the board can open a task the way the html board
+// (v0.4.37, 2026-10-18) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -327,7 +327,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-008",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -739,14 +739,14 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/platform/integrations/providers/line/line-oa-evidence.js",
+      "code": "apps/server/src/modules/project-manager/mcp/transport.js (inbound Zuri MCP server only; no FlowAccount client exists)",
       "doc": "docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md",
-      "test": "unavailable"
+      "test": "unavailable (no FlowAccount MCP client or connector suite at accepted baseline)"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
-      "test": "unavailable"
+      "test": "missing"
     },
     "delivers": [
       "FR-125"
@@ -754,26 +754,26 @@ export const PROGRAMME_CONTAINERS = {
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given the second connector, when it ingests, then every record carries tenant, Business, connection, provider, lane, entity type and schema version",
+        "text": "Given a FlowAccount OAuth connection, when an authorized user selects one company, then the connection binds that company to the trusted Zuri Business and persists only an opaque credential reference",
         "checked": false
       },
       "success": {
-        "text": "Given a credential, when it is stored, then only an opaque reference is persisted and no secret transits a URL or log",
+        "text": "Given the official FlowAccount MCP connector, when Zuri connects, then OAuth data is secret-safe and FlowAccount create/mutate operations remain unreachable from this read-only task",
         "checked": false
       },
       "exit": {
-        "text": "Given npm test, when the connector suite runs, then an out-of-scope read is refused and the refusal is audited",
+        "text": "Given isolated MCP/OAuth contract tests, when the connector suite runs, then company binding, read allow-list enforcement, write/unknown-tool refusal, FR-081 provenance, audit and disconnect pass; live provider OAuth/company acceptance remains separate evidence",
         "checked": false
       }
     },
-    "changelog": "Opened from deliverable eight. LINE is connector one. The ingestion boundary already exists, and FR-092 added a provider-neutral translation core, so connector two is a conformance exercise rather than new architecture. Re-stated 2026-09-13 (v0.4.0) to name the connector — FR-125 and ADR-053 (2026-08-30) declared FlowAccount as a read-only pull pipeline over one OWNER-authorized Client Credentials connection; the PRD marks it \"design candidate only, nothing built and nothing authorized\". It stays planned in SPR-ZAI-06. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) are real but narrower than a connector under this deliverable's definition, and are not counted.",
+    "changelog": "Opened from deliverable eight. LINE is connector one. FR-081 raw evidence remains the ingestion boundary. Historical 2026-09-13/2026-08-30 text proposed a REST Client Credentials pull; on 2026-10-18 direct human instruction, this task records a candidate to support FlowAccount's official hosted MCP connector with OAuth company selection and a Zuri-enforced read-only capability allow-list. The candidate does not amend normative FR-125 acceptance; historical FR-125 retains its original REST-first meaning; a sanctioned additive reviewed record must establish MCP requirements before implementation. No FlowAccount MCP client or provider acceptance evidence exists at the accepted baseline. The task stays planned / UNKNOWN / NOT_STARTED in SPR-ZAI-06; TASK-ZAI-005 remains its dependency. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) remain outside this task.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 42000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-005"
     ],
-    "evidence": "Section 3.1 row 8; ADR-053"
+    "evidence": "Section 3.1 row 8; FR-125; ADR-053 candidate section"
   },
   "TASK-ZAI-018": {
     "container": "TC-TASK-ZAI-018",
