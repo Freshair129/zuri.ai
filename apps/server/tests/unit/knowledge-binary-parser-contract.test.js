@@ -84,10 +84,15 @@ describe('bounded binary source profile', () => {
   })
 
   it('maps a following row sibling after a two-row HTML cell span', async () => {
-    const bytes = Buffer.from('<table><tbody><tr><td rowspan="2">merged</td><td colspan="2">top</td></tr><tr><td>below</td><td>below-right</td></tr></tbody></table>', 'utf8')
+    const bytes = Buffer.from('<table><tbody><tr><td rowspan="2">A</td><td>B</td></tr><tr><td>D</td></tr></tbody></table>', 'utf8')
     const parsed = await parseKnowledgeBinary({ bytes, mediaType: 'text/html', sourceId: 'html-rowspan-placement', sourceVersion: 'v1', rawArtifactId: 'html-rowspan-placement-raw' })
-    expect(parsed.sourceSpans.find((span) => span.kind === 'html_table_cell' && span.text === 'below'))
-      .toMatchObject({ rowIndex: 1, gridColumn: 1 })
+    expect(parsed.normalizedText).toBe('A\tB\nD')
+    expect(parsed.tables[0]).toMatchObject({ gridColumns: 2, rows: [['A', 'B'], ['D']] })
+    expect(parsed.sourceSpans.find((span) => span.kind === 'html_table_cell' && span.text === 'D'))
+      .toMatchObject({ rowIndex: 1, cellIndex: 0, gridColumn: 1, artifactStartUtf16: 4, artifactEndUtf16: 5 })
+    for (const span of parsed.sourceSpans.filter((item) => item.kind === 'html_table_cell')) {
+      expect(parsed.normalizedText.slice(span.artifactStartUtf16, span.artifactEndUtf16)).toBe(span.text)
+    }
   })
 
   it.each(['rowspan', 'colspan'])('accepts HTML %s values through 1000 and rejects invalid bounds', async (attribute) => {
@@ -125,6 +130,22 @@ describe('bounded binary source profile', () => {
     expect(atBound.tables.flatMap((entry) => entry.rows.flat())).toHaveLength(25_000)
     await expect(parse(table(12_500) + table(12_501)))
       .rejects.toMatchObject({ code: 'TABLE_CELL_LIMIT', status: 413 })
+  })
+
+  it('caps document-wide HTML table interval work at 250,000 visits', async () => {
+    const parse = (rowSpan, followingRowCount, sourceId) => {
+      const rowSpans = `<td rowspan="${rowSpan}">x</td>`.repeat(500)
+      const followingRows = '<tr><td>y</td></tr>'.repeat(followingRowCount)
+      const html = `<table><tbody><tr>${rowSpans}</tr>${followingRows}</tbody></table>`
+      return parseKnowledgeBinary({
+        bytes: Buffer.from(html, 'utf8'), mediaType: 'text/html', sourceId, sourceVersion: 'v1', rawArtifactId: `${sourceId}-raw`,
+      })
+    }
+    const atBound = await parse(500, 499, 'html-grid-work-at-bound')
+    expect(atBound.tables[0].rows).toHaveLength(500)
+
+    await expect(parse(501, 500, 'html-grid-work-limit'))
+      .rejects.toMatchObject({ code: 'TABLE_GRID_WORK_LIMIT', status: 413 })
   })
 
   it('normalizes malformed parser errors without exposing library input text', async () => {

@@ -13,6 +13,7 @@ const LIMITS = Object.freeze({
   tableCells: 25_000,
   htmlElements: 100_000,
   htmlDepth: 256,
+  tableGridVisits: 250_000,
   archiveBytes: 100 * 1024 * 1024,
   archiveXmlBytes: 20 * 1024 * 1024,
   archiveEntries: 2_000,
@@ -510,6 +511,11 @@ function parseHtml(bytes) {
   const document = parse5.parse(html, { sourceCodeLocationInfo: true })
   let elementCount = 0
   let tableCellCount = 0
+  let tableGridVisits = 0
+  const visitTableGridInterval = () => {
+    tableGridVisits += 1
+    if (tableGridVisits > LIMITS.tableGridVisits) fail('TABLE_GRID_WORK_LIMIT', 413)
+  }
   const pathByNode = new Map()
   const walkCount = (node, path, depth) => {
     if (node.tagName) {
@@ -561,7 +567,7 @@ function parseHtml(bytes) {
       const tableIndex = state.tables.length
       const tablePath = pathByNode.get(node) || []
       const rows = []
-      const cells = []
+      const cellsByRow = []
       let nestedTable = false
       const findRows = (current) => {
         for (const child of current.childNodes || []) {
@@ -572,13 +578,17 @@ function parseHtml(bytes) {
       }
       findRows(node)
       if (nestedTable) fail('AMBIGUOUS_TABLE_MAPPING')
-      const occupied = new Map()
+      let occupiedHead = null
+      const expirations = new Map()
       let gridColumns = 0
       const matrix = []
       rows.forEach((row, rowIndex) => {
         const rowCells = childElements(row).filter((child) => child.tagName === 'td' || child.tagName === 'th')
         const rowData = []
+        const rowRecords = []
         let cursor = 0
+        let intervalCursor = occupiedHead
+        let previousInterval = null
         for (let cellIndex = 0; cellIndex < rowCells.length; cellIndex += 1) {
           const cell = rowCells[cellIndex]
           const span = (name) => {
@@ -589,31 +599,62 @@ function parseHtml(bytes) {
           }
           const rowSpan = span('rowspan')
           const colSpan = span('colspan')
-          while ([...occupied.keys()].some((column) => column >= cursor && column < cursor + colSpan)) cursor += 1
-          if ([...occupied.keys()].some((column) => column >= cursor && column < cursor + colSpan)) fail('AMBIGUOUS_TABLE_MAPPING')
-          const gridColumn = cursor
+          let gridColumn = cursor
+          while (intervalCursor) {
+            visitTableGridInterval()
+            if (intervalCursor.end <= gridColumn) {
+              previousInterval = intervalCursor
+              intervalCursor = intervalCursor.next
+              continue
+            }
+            if (intervalCursor.start >= gridColumn + colSpan) break
+            gridColumn = intervalCursor.end
+            cursor = gridColumn
+            previousInterval = intervalCursor
+            intervalCursor = intervalCursor.next
+          }
           const text = textContent(cell, { skipTables: true })
           totalCellTextBytes += Buffer.byteLength(text, 'utf8')
           if (totalCellTextBytes > LIMITS.outputBytes) fail('OUTPUT_BYTES_LIMIT', 413)
           const record = { cell, rowIndex, cellIndex, gridColumn, rowSpan, colSpan, text }
-          cells.push(record)
+          rowRecords.push(record)
           rowData.push(text)
           if (rowSpan > 1) {
-            const lastOccupiedRow = rowIndex + rowSpan - 1
-            for (let column = gridColumn; column < gridColumn + colSpan; column += 1) {
-              if (occupied.has(column)) fail('AMBIGUOUS_TABLE_MAPPING')
-              occupied.set(column, lastOccupiedRow)
+            const interval = {
+              start: gridColumn,
+              end: gridColumn + colSpan,
+              lastOccupiedRow: rowIndex + rowSpan - 1,
+              previous: previousInterval,
+              next: intervalCursor,
             }
+            if (previousInterval) previousInterval.next = interval
+            else occupiedHead = interval
+            if (intervalCursor) intervalCursor.previous = interval
+            previousInterval = interval
+            const expiring = expirations.get(interval.lastOccupiedRow) || []
+            expiring.push(interval)
+            expirations.set(interval.lastOccupiedRow, expiring)
           }
           cursor = gridColumn + colSpan
         }
-        for (const [column, untilRow] of [...occupied.entries()]) if (untilRow === rowIndex) occupied.delete(column)
-        gridColumns = Math.max(gridColumns, cursor, ...occupied.keys().map((value) => value + 1))
+        gridColumns = Math.max(gridColumns, cursor)
         matrix.push(rowData)
+        cellsByRow.push(rowRecords)
+        const expiring = expirations.get(rowIndex)
+        if (expiring) {
+          expirations.delete(rowIndex)
+          for (const interval of expiring) {
+            visitTableGridInterval()
+            if (interval.previous) interval.previous.next = interval.next
+            else occupiedHead = interval.next
+            if (interval.next) interval.next.previous = interval.previous
+            interval.previous = null
+            interval.next = null
+          }
+        }
       })
-      if (rows.length && matrix.some((row) => row.length !== matrix[0].length)) fail('AMBIGUOUS_TABLE_MAPPING')
       state.tables.push({ tableIndex, tablePath, rows: matrix, gridColumns })
-      rowsByTable.set(node, { tableIndex, tablePath, cells, matrix })
+      rowsByTable.set(node, { tableIndex, tablePath, cellsByRow, matrix })
     }
     for (const child of node.childNodes || []) collectTables(child)
   }
@@ -663,7 +704,7 @@ function parseHtml(bytes) {
           let rowCursor = 0
           for (let rowIndex = 0; rowIndex < table.matrix.length; rowIndex += 1) {
             let cellCursor = rowCursor
-            const rowRecords = table.cells.filter((cell) => cell.rowIndex === rowIndex)
+            const rowRecords = table.cellsByRow[rowIndex]
             for (const cell of rowRecords) {
               if (cell.text.length) state.sourceSpans.push({ kind: 'html_table_cell', tableIndex: table.tableIndex, tablePath: table.tablePath, rowIndex, cellIndex: cell.cellIndex, gridColumn: cell.gridColumn, rowSpan: cell.rowSpan, colSpan: cell.colSpan, unitStartUtf16: 0, unitEndUtf16: cell.text.length, artifactStartUtf16: range.start + cellCursor, artifactEndUtf16: range.start + cellCursor + cell.text.length, text: cell.text })
               cellCursor += cell.text.length + 1

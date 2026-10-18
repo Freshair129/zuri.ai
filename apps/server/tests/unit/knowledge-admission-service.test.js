@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../factories/viewer'
 import { hashKnowledgeBinaryBytes, KNOWLEDGE_BINARY_ENCODING, KNOWLEDGE_BINARY_MAX_BYTES, KNOWLEDGE_BINARY_PARSER_VERSION } from '@/modules/knowledge/knowledge-binary-parser'
+import { hashGenesisRag17Json, hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 import {
   admitKnowledge,
   listKnowledgeIngestions,
@@ -118,6 +119,36 @@ describe('knowledge admission service', () => {
       status: 409,
       code: 'KNOWLEDGE_SOURCE_VERSION_CONFLICT',
     })
+  })
+
+  it('replays a prior canonical legacy request hash without binary descriptor fields', async () => {
+    const input = {
+      businessId: 'b-1',
+      idempotencyKey: 'legacy-hash-replay',
+      source: { kind: 'TEXT', sourceKey: 'policy', version: 'v1', title: 'Legacy policy', content: 'legacy content' },
+    }
+    await admitKnowledge(input, options(repository))
+
+    const legacyRequestHash = hashGenesisRag17Json({
+      businessId: 'b-1',
+      projectId: null,
+      source: {
+        kind: 'TEXT',
+        sourceKey: 'policy',
+        sourceVersion: 'v1',
+        title: 'Legacy policy',
+        fileAssetId: null,
+        contentHash: hashGenesisRag17Text('legacy content'),
+      },
+      scope,
+      policy,
+    })
+    repository.state.ingestions[0].requestHash = legacyRequestHash
+
+    const replayed = await admitKnowledge(input, options(repository))
+
+    expect(repository.state.ingestions[0].requestHash).toBe(legacyRequestHash)
+    expect(replayed).toMatchObject({ id: 'admission-1', unchanged: true })
   })
 
   it('rejects whitespace-only text and preserves a UTF-8 BOM as immutable content', async () => {
