@@ -86,11 +86,31 @@ function verifyApplied(root, manifest, receipt, manifestSha256) {
   const expected = [...manifest.records.map(item => `docs/requirements/${item.id}.md`),
     `${MIGRATIONS}/${manifest.migrationId}.approval.md`, INDEX, LEDGER, 'docs/PRD-SDD-v1.0.md', 'docs/FEATURES.md'].sort();
   insist(receipt.outputs && JSON.stringify(Object.keys(receipt.outputs).sort()) === JSON.stringify(expected), 'applied receipt output inventory mismatch');
+  const expectedBefore = expected;
+  insist(receipt.before && JSON.stringify(Object.keys(receipt.before).sort()) === JSON.stringify(expectedBefore), 'applied receipt before inventory mismatch');
+  insist(receipt.base?.commit === manifest.base.commit && receipt.base?.indexSha256 === manifest.base.indexSha256
+    && receipt.base?.ledgerSha256 === manifest.base.ledgerSha256
+    && JSON.stringify(receipt.ids) === JSON.stringify(manifest.records.map(item => item.id)), 'applied receipt base or ID inventory mismatch');
+  const approval = normalized(git(root, ['show', `${manifest.approval.revision}:${manifest.approval.path}`]));
+  validateApprovalSource(approval, manifest.approval.version, manifest.approval.sha256);
+  insist(sha256(approval) === manifest.approval.sha256, 'pinned approval source drift');
+  const approvalCopyPath = `${MIGRATIONS}/${manifest.migrationId}.approval.md`;
+  insist(receipt.outputs[approvalCopyPath] === manifest.approval.sha256
+    && digestFile(destination(root, approvalCopyPath)) === manifest.approval.sha256, `applied migration approval copy drift: ${approvalCopyPath}`);
+  const manifestPath = `${MIGRATIONS}/${manifest.migrationId}.manifest.json`;
+  for (const item of manifest.records) {
+    const file = `docs/requirements/${item.id}.md`;
+    const expectedDigest = sha256(authoredRecordMarkdown(item, manifest, manifestPath, manifestSha256));
+    insist(receipt.outputs[file] === expectedDigest && digestFile(destination(root, file)) === expectedDigest, `applied migration record drift: ${file}`);
+  }
   const records = readCanonicalRegistry(root);
   for (const item of manifest.records) insist(records.some(record => record.id === item.id && record.migrationId === manifest.migrationId
     && record.manifestSha256 === manifestSha256 && record.statementSha256 === item.statementSha256), 'applied migration record drift');
-  for (const [file, digest] of Object.entries(receipt.outputs)) insist(digestFile(destination(root, file)) === digest, `applied migration output drift: ${file}`);
   verifyPinnedSubjects(root, manifest);
+  // The receipt records the first-apply hashes for shared projections. Later
+  // approved canonical records legitimately change the index, ledger and
+  // compatibility exports, so verify their current derivation instead of
+  // comparing them forever with that historical snapshot.
   writeCanonicalProjections(root, { check: true });
 }
 

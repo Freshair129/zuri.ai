@@ -25,6 +25,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Document inventory and provenance contract](../migrations/document-reintegration/INVENTORY.md)
 - [Documentation reintegration proposal](../migrations/document-reintegration/PROPOSAL.md)
 - [Documentation reintegration implementation receipt](../migrations/document-reintegration/RECEIPT.md)
+- [TASK-ZAI-017 — Official FlowAccount MCP connector v1](../migrations/document-reintegration/record-migrations/flowaccount-mcp-v1-20261018.approval.md)
 - [Main-first reconciliation before report receiver coding](../migrations/document-reintegration/record-migrations/marketing-report-receiver-reconciled-20261005.approval.md)
 - [Portable managed file content](../migrations/document-reintegration/record-migrations/portable-managed-files-20261014.approval.md)
 - [Document query tooling contract](../migrations/document-reintegration/TOOLING.md)

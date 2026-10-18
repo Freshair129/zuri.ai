@@ -105,6 +105,23 @@ test('plan is read-only; apply pins four authored records without changing impor
   } finally { f.cleanup(); }
 });
 
+test('applied replay accepts later canonical projection regeneration but keeps migration-owned records pinned', () => {
+  const f = fixture();
+  try {
+    const receiptPath = path.join(f.root, manifestPath.replace('.manifest.json', '.receipt.json'));
+    assert.equal(applyRecordMigration(f.root, manifestPath).status, 'APPLIED');
+    const receiptBefore = readFileSync(receiptPath);
+    const featuresTemplate = 'registry/document-registry/FEATURES.template.md';
+    put(f.root, featuresTemplate, '# Features with later approved presentation metadata\n');
+    writeCanonicalProjections(f.root);
+    assert.equal(planRecordMigration(f.root, manifestPath).status, 'ALREADY_APPLIED');
+    assert.deepEqual(readFileSync(receiptPath), receiptBefore);
+
+    put(f.root, 'docs/requirements/FR-900.md', 'tampered migration-owned record\n');
+    assert.throws(() => planRecordMigration(f.root, manifestPath), /applied migration record drift/);
+  } finally { f.cleanup(); }
+});
+
 for (const fault of ['unsupported-version', 'wrong-family', 'collision', 'reserved', 'burnt', 'namespace', 'stale-base', 'stale-index', 'stale-ledger', 'wrong-anchor', 'duplicate', 'unknown-field', 'inherit-subject']) {
   test(`rejects ${fault} before changing tracked sources`, () => {
     const f = fixture();
@@ -203,7 +220,8 @@ test('reviewed registration after authored issuance maintains unique export orde
     assert.equal(index.records.find(record => record.id === 'FR-903').exportOrder, 1);
     assert.equal(index.records.find(record => record.id === 'FR-900').exportOrder, 2);
     assert.equal(readFileSync(path.join(f.root, receiptPath), 'utf8'), receipt);
-    assert.throws(() => applyRecordMigration(f.root, manifestPath), /output|drift/);
+    assert.equal(applyRecordMigration(f.root, manifestPath).status, 'ALREADY_APPLIED');
+    assert.equal(readFileSync(path.join(f.root, receiptPath), 'utf8'), receipt);
   } finally { f.cleanup(); }
 });
 

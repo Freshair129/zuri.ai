@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "migrationId": "flowaccount-mcp-v1-20261018",
+  "status": "APPLIED",
+  "manifestSha256": "87140b1fdab2afc75e4b56879747661f2fd93c91eb1c1c56fa18025a5f1da25f",
+  "base": {
+    "commit": "a559afdd22178c2b7a8ea642b56b0edc740077d8",
+    "indexSha256": "add7e75e5884c9f4d9ba7768fe37e9350ecb4e33716687f3528831ac49768135",
+    "ledgerSha256": "4a7e2e87d1c0a1ee0662dbcb5bd0972466e345509083d5399606f2340e115c9a"
+  },
+  "ids": [
+    "FR-289"
+  ],
+  "before": {
+    "docs/migrations/document-reintegration/record-migrations/flowaccount-mcp-v1-20261018.approval.md": null,
+    "docs/requirements/FR-289.md": null,
+    "registry/document-registry/index.json": "add7e75e5884c9f4d9ba7768fe37e9350ecb4e33716687f3528831ac49768135",
+    "docs/PRD-SDD-v1.0.md": "cb566d10464fe1b6fa3c0f600e10b33606b7a18c51bb4ab26214fe58dfd49494",
+    "docs/FEATURES.md": "8bd4452d687330bc3852f2f7d7e18aa2fccfc5559fc1253dbaae5ef5605635e6",
+    "docs/.id-ledger.json": "4a7e2e87d1c0a1ee0662dbcb5bd0972466e345509083d5399606f2340e115c9a"
+  },
+  "outputs": {
+    "docs/migrations/document-reintegration/record-migrations/flowaccount-mcp-v1-20261018.approval.md": "82987a303dabbcb267c6f21c15e3193bb72980175868fc8037c5f9c344c2749b",
+    "docs/requirements/FR-289.md": "4fcf8c886e26a82f3d946fe364f8608cf35afc800eef3aee34dd58bcdc3ecf06",
+    "registry/document-registry/index.json": "4eb4889b40ee81e5ed8367615dd9e86090fc21986069629e7fce6de376318f8f",
+    "docs/PRD-SDD-v1.0.md": "06215d8a0b488413fa80a85c898280822e3e4cfbc5f053fc0367ede3b3e44437",
+    "docs/FEATURES.md": "8bd4452d687330bc3852f2f7d7e18aa2fccfc5559fc1253dbaae5ef5605635e6",
+    "docs/.id-ledger.json": "95024de7123f84d87070d468e3f587946eb3ac34491b1d04c6966514492491d0"
+  }
+}

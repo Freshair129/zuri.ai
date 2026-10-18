@@ -1092,6 +1092,11 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-284",
     "primaryDomain": "project-manager",
     "useCase": "จัดเก็บและอ่านไฟล์ managed ตามสิทธิ์ Business และ Project บน Windows หรือ Linux โดยรักษา path containment และส่งไฟล์ข้อความเข้า Knowledge ได้จริง"
+  },
+  {
+    "id": "FR-289",
+    "primaryDomain": "integration",
+    "useCase": "ทีมเชื่อม Business หนึ่งรายการกับบริษัท FlowAccount ที่เลือกผ่าน official MCP หลังยืนยัน OAuth, protocol, tool schema และสิทธิ์แล้ว โดยรับเฉพาะข้อมูลอ่านที่ผ่าน allow-list พร้อม provenance และปฏิเสธคำสั่งเขียน"
   }
 ]
 ```
