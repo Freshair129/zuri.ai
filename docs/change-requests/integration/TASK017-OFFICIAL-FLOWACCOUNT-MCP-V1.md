@@ -3,7 +3,7 @@ doc_type: intake-note
 title: TASK017 official FlowAccount MCP connector v1
 status: approved
 superseded_by: null
-version: "0.1.1"
+version: "0.1.2"
 date: "2026-10-18"
 complexity: C-4
 risk: HIGH
@@ -132,13 +132,17 @@ stable external identity have an explicit reviewed mapping.
 ## Additive identity and implementation order
 
 Do not rewrite the pinned REST-first FR-125 row, its historical acceptance
-criteria, or ADR-053 decision history. After this design is independently
-reviewed, use the sanctioned record-migration writer to add a new MCP
-requirement with the next collision-free FR identity, bound to a manifest and
-this approved document. The candidate FR-288 is only a coordination hint; the
-writer must recheck the accepted base, all branches/reservations, IDs, subjects,
-and hashes before issuance. Never hand-edit the ledger, canonical index, or
-generated exports.
+criteria, or ADR-053 decision history. FR-288 is already issued by the
+Task048 binary-parsing branch (`codex/roadmap/task048-binary-parsing-20261018`,
+commit `875e77b4`) and is burned for this task even while its PR remains open.
+At preparation on base `ffff6b04070e43aa5c02374d853b0565d0ba83c9`, a read-only
+scan found no FR-289 declaration or reservation across 122 local Git refs and
+113 registered worktrees. FR-289 is therefore the current candidate for the
+additive MCP requirement, not a permanent reservation or issued identity. The
+sanctioned record-migration writer must recheck the accepted base, all
+branches/reservations, IDs, subjects, and hashes before issuance; if any changed
+or conflicts, stop and reassess instead of reusing an ID. Never hand-edit the
+ledger, canonical index, or generated exports.
 
 Implementation follows the issued requirement and uses local fixtures only.
 Provider OAuth, protocol, selected-company identity, tool schemas, mappings,
@@ -155,3 +159,6 @@ leaving provider access and live acceptance open.
 0.1.0 → 0.1.1: adds atomic actor/tenant/Business-bound OAuth state, a distinct
 FlowAccount token kind, FK-backed capability provenance, and a privacy and
 data-lifecycle gate before live reads.
+0.1.1 → 0.1.2: records that FR-288 is already issued on the Task048 branch and
+pins FR-289 only as a collision-scan candidate pending the writer's exact-base
+recheck.
