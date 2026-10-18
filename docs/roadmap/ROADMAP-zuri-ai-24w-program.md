@@ -551,7 +551,7 @@ locates the week.
 | TASK-ZAI-045 | SPR-ZAI-02 | task | Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109 | P0 | RWANG | review | TASK-ZAI-005 | Section 3.1 row 4; ADR-072, ADR-073 |
 | TASK-ZAI-046 | SPR-ZAI-02 | task | Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119 | P0 | Claude | done | TASK-ZAI-045 | Section 3.1 row 4; ADR-050 |
 | TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | review | TASK-ZAI-045 | frozen production-base branch; isolated implementation/native acceptance; runtime activation under TASK-ZAI-050; not deployed; Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110 |
-| TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | planned | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
+| TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | in-progress | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
 | TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | review | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
 | TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | in-progress | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
@@ -2782,7 +2782,7 @@ title: Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with ra
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
+status: in-progress
 version: 0.1.0
 pic: Codex
 executor: Codex
@@ -2802,7 +2802,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the seventeen-stage acceptance suite extended with one PDF and one DOCX fixture, when it runs from the raw entrypoint, then Stage 3 provenance, Stage 7 chunk offsets and Stage 8 occurrences resolve after restart and a citation opens the correct page
       checked: false
-changelog: Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that "adding a binary parser alone is not enough" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider.
+changelog: Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that "adding a binary parser alone is not enough" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider. 2026-10-18: additive FR-288/SDD-114 now govern the bounded managed binary source candidate; isolated parser/admission/runtime/lineage checks passed 88/88. This does not accept full TASK048, native Stage9–17, OCR, binary browser or production exits.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5

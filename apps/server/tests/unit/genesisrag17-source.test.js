@@ -4,7 +4,9 @@ import {
   GENESIS_RAG17_PARSER_VERSION,
   GENESIS_RAG17_PARSER_VERSION_3,
   extractGenesisRag17Mentions,
+  genesisRag17BinaryParserIdentity,
   genesisRag17ParserIdentity,
+  genesisRag17SourceLocators,
   parseGenesisRag17Document,
 } from '@/modules/knowledge/genesisrag17-source'
 import { hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
@@ -17,6 +19,17 @@ import { hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/genesisrag17-corpus-v1.json', import.meta.url), 'utf8'))
 
 describe('GenesisRAG17 source parser', () => {
+  it('binds binary parsed identity to each supported media, locator map and pinned parser build', () => {
+    const pdf = genesisRag17BinaryParserIdentity({ mediaType: 'application/pdf' })
+    const docx = genesisRag17BinaryParserIdentity({ mediaType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+    const html = genesisRag17BinaryParserIdentity({ mediaType: 'text/html' })
+    expect(pdf).toContain('pdfjs=6.4.299;parse5=8.0.1;yauzl=3.4.0;saxes=6.0.0')
+    expect(pdf).toContain('mapping=source-locator-map-1')
+    expect(new Set([pdf, docx, html]).size).toBe(3)
+    expect(genesisRag17BinaryParserIdentity({ mediaType: 'text/html', maxTokens: 4 })).not.toBe(html)
+    expect(() => genesisRag17BinaryParserIdentity({ mediaType: 'application/octet-stream' })).toThrow(/media type is unknown/)
+  })
+
   it('keeps each markdown section as an exact source substring', () => {
     const { parsed, chunks } = parseGenesisRag17Document({
       documentId: 'doc-corpus',
@@ -55,6 +68,13 @@ describe('GenesisRAG17 source parser', () => {
     const parsed = parseGenesisRag17Document({ documentId: 'doc-profile', rawArtifactId: 'raw-profile', content: fixture.text, maxTokens: 4 })
     expect(parsed.parsed.parserVersion).toBe(parserVersion)
     expect(() => parseGenesisRag17Document({ documentId: 'doc-profile', rawArtifactId: 'raw-profile', content: fixture.text, maxTokens: 4, parserVersion: GENESIS_RAG17_PARSER_VERSION })).toThrow(/configuration identity/)
+  })
+
+  it('rejects malformed source spans even when they do not overlap the cited range', () => {
+    expect(() => genesisRag17SourceLocators({
+      content: 'Alice',
+      metadata: { sourceSpans: [{ kind: 'pdf_page', pageIndex: 0, unitStartUtf16: 0, unitEndUtf16: 5, artifactStartUtf16: 20, artifactEndUtf16: 25, text: 'other' }] },
+    }, 0, 5)).toThrow(/source locator span/)
   })
 })
 

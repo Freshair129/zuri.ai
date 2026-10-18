@@ -8,6 +8,7 @@ import { RUN_STATUSES } from '@/platform/integrations/core/pipeline-tracking-con
 import { resolveKnowledgeRuntimeBinding } from './knowledge-runtime'
 import { resolveKnowledgeCitation, validateStoredManifest, scopeFromCorpus, verifyPublicationEvidence } from './knowledge-corpus-service'
 import { hashGenesisRag17Text } from './genesisrag17-contract'
+import { decodeKnowledgeBinary, hashKnowledgeBinaryBytes, knowledgeBinaryDescriptorFromRawContentType, rawKnowledgeBinaryContentType } from './knowledge-binary-parser'
 import { createKnowledgeRepository } from './knowledge-repository'
 
 // @req FR-254 — source, run and publication metadata never bypass live source authority.
@@ -266,21 +267,40 @@ export async function readConsoleCitationArtifact(citationId, input = {}, option
   const citation = await resolveKnowledgeCitation(citationId, { ...d, repository: citationRepository })
   const source = await authorizeSource(await d.repository.source(citation.sourceId), d)
   let content = citation.text
+  let binaryRaw = null
   if (value.kind !== 'chunk') {
     const artifact = await d.repository.artifact(value.kind, value.kind === 'raw' ? citation.rawArtifactId : citation.parsedArtifactId)
     const scope = scopeFromCorpus(source.corpus)
     if (!artifact) throw Object.assign(new Error('Historical source content is unavailable'), { status: 409 })
     for (const key of ['portfolioId', 'tenantId', 'businessId', 'workspaceId', 'agentId', 'visibility']) if (artifact[key] !== scope[key]) throw notFound()
-    if (artifact.documentId !== source.id || value.kind === 'raw' && (artifact.sourceId !== source.id || artifact.version !== citation.sourceVersion || artifact.contentHash !== citation.contentHash || hashGenesisRag17Text(artifact.content) !== artifact.contentHash) || value.kind === 'parsed' && artifact.rawArtifactId !== citation.rawArtifactId) throw notFound()
-    content = artifact.content
+    if (artifact.documentId !== source.id || value.kind === 'raw' && (artifact.sourceId !== source.id || artifact.version !== citation.sourceVersion || artifact.contentHash !== citation.contentHash) || value.kind === 'parsed' && artifact.rawArtifactId !== citation.rawArtifactId) throw notFound()
+    if (value.kind === 'raw') {
+      const descriptor = knowledgeBinaryDescriptorFromRawContentType(artifact.contentType)
+      if (descriptor) {
+        try {
+          if (artifact.contentType !== rawKnowledgeBinaryContentType(descriptor.mediaType, descriptor)) throw new Error('invalid binary content type')
+          const bytes = decodeKnowledgeBinary(artifact.content, { ...descriptor })
+          if (hashKnowledgeBinaryBytes(bytes) !== artifact.contentHash) throw new Error('binary content hash mismatch')
+          binaryRaw = { bytes: bytes.length, mediaType: descriptor.mediaType, encoding: descriptor.binaryEncoding }
+        } catch { throw notFound() }
+        // The raw artifact remains in object storage and its content hash is
+        // returned below; never put the transport data URL in a console response.
+        content = null
+      } else {
+        if (hashGenesisRag17Text(artifact.content) !== artifact.contentHash) throw notFound()
+        content = artifact.content
+      }
+    } else content = artifact.content
   }
   // The resolver re-verifies raw/parsed/chunk hashes and live authority after the
   // additional content read, not just before it. No mutable FileAsset path is read.
   const current = await refreshed(d)
   await resolveKnowledgeCitation(citationId, { ...current, repository: citationRepository })
   await authorizeSource(await d.repository.source(citation.sourceId), current)
-  const bytes = Buffer.byteLength(content, 'utf8')
-  return { kind: value.kind, title: citation.title, content: value.download ? content : content.slice(0, 65536),
-    contentHash: hashGenesisRag17Text(content), bytes, truncated: !value.download && content.length > 65536,
+  const byteLength = binaryRaw ? binaryRaw.bytes : Buffer.byteLength(content, 'utf8')
+  return { kind: value.kind, title: citation.title, content: binaryRaw ? null : value.download ? content : content.slice(0, 65536),
+    contentHash: binaryRaw ? citation.contentHash : hashGenesisRag17Text(content), bytes: byteLength, truncated: !binaryRaw && !value.download && content.length > 65536,
+    ...(binaryRaw ? { mediaType: binaryRaw.mediaType, encoding: binaryRaw.encoding } : {}),
+    ...(citation.locatorMappingVersion ? { locatorMappingVersion: citation.locatorMappingVersion, sourceLocators: citation.sourceLocators } : {}),
     rawArtifactId: citation.rawArtifactId, parsedArtifactId: citation.parsedArtifactId, chunkId: citation.chunkId }
 }

@@ -10,6 +10,12 @@ import { createGenesisRag17SourceWorker, queryGenesisRag17 } from '@/platform/in
 import { finishKnowledgeIngestionRun, recordKnowledgeStageReport } from '@/platform/integrations/core/knowledge-ingestion-executor'
 import { KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
+import {
+  decodeKnowledgeBinary,
+  hashKnowledgeBinaryBytes,
+  isKnowledgeBinaryProfile,
+  KNOWLEDGE_BINARY_MAX_BYTES,
+} from './knowledge-binary-parser'
 
 // @req FR-173 — process-owned admission queue resumes immutable jobs after restart.
 // @req FR-187 — a structured record carries its provider, entity type and
@@ -52,6 +58,14 @@ function admittedSourceContentType(sourceMetaJson, structured) {
   const metadata = admittedSourceMetadata(sourceMetaJson)
   const mime = typeof metadata.mime === 'string' ? metadata.mime.split(';', 1)[0].trim().toLowerCase() : ''
   return mime || 'text/plain'
+}
+
+function admittedSourceBinaryDescriptor(sourceMetaJson, source) {
+  const metadata = admittedSourceMetadata(sourceMetaJson)
+  if (source?.kind !== 'FILE' || !source.fileAssetId || metadata.kind !== 'FILE' || metadata.fileAssetId !== source.fileAssetId) return null
+  const descriptor = { binaryProfile: metadata.binaryProfile, binaryEncoding: metadata.binaryEncoding, contentType: metadata.binaryMediaType }
+  if (!isKnowledgeBinaryProfile(descriptor) || metadata.serialization !== 'data-uri-base64' || !Number.isSafeInteger(metadata.rawByteLength) || metadata.rawByteLength < 1 || metadata.rawByteLength > KNOWLEDGE_BINARY_MAX_BYTES || metadata.size !== metadata.rawByteLength) return null
+  return { ...descriptor, mediaType: descriptor.contentType, rawByteLength: metadata.rawByteLength }
 }
 
 /** No credentials escape this resolver. Public callers must authorize the target first. */
@@ -378,7 +392,14 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
       }
       const binding = await resolveKnowledgeRuntimeBinding(corpus, { db, env })
       if (!isDeepStrictEqual(JSON.parse(corpus.scopeJson), binding.scope) || !isDeepStrictEqual(JSON.parse(corpus.policyJson), binding.policy)) throw unavailable()
-      if (createHash('sha256').update(job.content, 'utf8').digest('hex') !== job.contentHash) throw Object.assign(new Error('Immutable admission content hash mismatch'), { code: 'KNOWLEDGE_CONTENT_HASH_MISMATCH', status: 409 })
+      const binary = admittedSourceBinaryDescriptor(job.sourceMetaJson, source)
+      let immutableHash
+      if (binary) {
+        const rawBytes = decodeKnowledgeBinary(job.content, { ...binary, maxBytes: KNOWLEDGE_BINARY_MAX_BYTES })
+        if (rawBytes.length !== binary.rawByteLength) throw Object.assign(new Error('Immutable admission byte length mismatch'), { code: 'KNOWLEDGE_CONTENT_LENGTH_MISMATCH', status: 409 })
+        immutableHash = hashKnowledgeBinaryBytes(rawBytes)
+      } else immutableHash = createHash('sha256').update(job.content, 'utf8').digest('hex')
+      if (immutableHash !== job.contentHash) throw Object.assign(new Error('Immutable admission content hash mismatch'), { code: 'KNOWLEDGE_CONTENT_HASH_MISMATCH', status: 409 })
       const connectionId = await ensureAdmissionConnection(db, binding.scope)
       const viewer = createKnowledgeExecutionAuthority(binding.scope, 'execute', job.executionRunId)
       executionOptions = { db, viewer, env, transport, now, scope: binding.scope }
@@ -389,8 +410,8 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
         // before it did so has none, so the source kind is the fallback key.
         const structured = structuredSourceDescriptor(job.sourceMetaJson)
           || (source.kind === 'LINE_STUDIO_DESCRIPTION' ? { provider: 'LINE_STUDIO_DESCRIPTION', entityType: 'KNOWLEDGE_DOCUMENT', contentType: 'text/plain' } : null)
-        const contentType = admittedSourceContentType(job.sourceMetaJson, structured)
-        const result = await ingest({ scope: binding.scope, policy: binding.policy, source: { sourceId: source.id, documentId: source.id, version: job.sourceVersion, content: job.content, connectionId, provider: structured?.provider || 'KNOWLEDGE_ADMISSION', entityType: structured?.entityType || 'KNOWLEDGE_DOCUMENT', contentType, sourceType: source.kind === 'FILE' ? 'FILE' : 'MANUAL', sourceUri: `knowledge-source:${source.id}`, externalId: `${source.id}:${job.sourceVersion}` } }, { db, viewer, env, transport, now,
+        const contentType = binary?.mediaType || admittedSourceContentType(job.sourceMetaJson, structured)
+        const result = await ingest({ scope: binding.scope, policy: binding.policy, source: { sourceId: source.id, documentId: source.id, version: job.sourceVersion, content: job.content, connectionId, provider: structured?.provider || 'KNOWLEDGE_ADMISSION', entityType: structured?.entityType || 'KNOWLEDGE_DOCUMENT', contentType, ...(binary ? { contentHash: job.contentHash, binaryProfile: binary.binaryProfile, binaryEncoding: binary.binaryEncoding, rawByteLength: binary.rawByteLength } : {}), sourceType: source.kind === 'FILE' ? 'FILE' : 'MANUAL', sourceUri: `knowledge-source:${source.id}`, externalId: `${source.id}:${job.sourceVersion}` } }, { db, viewer, env, transport, now,
           onRunCreated: async ({ db: tx, run: createdRun, rawArtifactId, parsedArtifactId }) => {
             const linked = await createKnowledgeRepository(tx).updateIngestion(job.id, { executionRunId: createdRun.executionRunId, rawArtifactId, parsedArtifactId }, { claimToken: token })
             if (!linked) throw Object.assign(new Error('Knowledge admission lease was lost'), { status: 409 })

@@ -40,6 +40,7 @@ export const GENESIS_RAG17_EXTERNAL_STAGE_IDS = Object.freeze(
 )
 
 const HASH_PATTERN = /^[a-f0-9]{64}$/i
+const BINARY_PARSER_IDENTITY = /^knowledge-binary-parser-1;mediaType=(?:application\/pdf|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|text\/html);mapping=source-locator-map-1;pdfjs=6\.4\.299;parse5=8\.0\.1;yauzl=3\.4\.0;saxes=6\.0\.0;text=genesisrag17-parser-3(?:;chunker=genesisrag17-chunker-2;maxTokens=[1-9]\d*)?$/u
 const zNonEmptyString = z.string().min(1)
 const zHash = z.string().regex(HASH_PATTERN, 'must be a SHA-256 hex digest')
 const zDate = z.string().datetime({ offset: true })
@@ -78,7 +79,34 @@ export const zGenesisRag17Source = z.object({
   version: zNonEmptyString,
   contentHash: zHash,
   content: z.string().min(1),
+  rawContentHash: zHash.optional(),
+  binaryProfile: zNonEmptyString.optional(),
+  binaryEncoding: zNonEmptyString.optional(),
+  mediaType: z.enum(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/html']).optional(),
+  parserVersion: zNonEmptyString.optional(),
+  locatorMappingVersion: zNonEmptyString.optional(),
 }).strict()
+
+const zElementPath = z.array(z.tuple([zNonEmptyString, z.number().int().nonnegative()])).min(1)
+const zSourceLocation = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('pdf_page'), pageIndex: z.number().int().nonnegative() }).strict(),
+  z.object({ kind: z.literal('docx_paragraph'), bodyParagraphIndex: z.number().int().nonnegative() }).strict(),
+  z.object({ kind: z.literal('docx_table_cell'), tableIndex: z.number().int().nonnegative(), rowIndex: z.number().int().nonnegative(), cellIndex: z.number().int().nonnegative(), gridColumn: z.number().int().nonnegative(), gridSpan: z.number().int().positive(), vMerge: z.enum(['none', 'restart', 'continue']), paragraphIndex: z.number().int().nonnegative() }).strict(),
+  z.object({ kind: z.literal('html_element'), elementPath: zElementPath, tagName: zNonEmptyString }).strict(),
+  z.object({ kind: z.literal('html_table_cell'), tableIndex: z.number().int().nonnegative(), tablePath: zElementPath, rowIndex: z.number().int().nonnegative(), cellIndex: z.number().int().nonnegative(), gridColumn: z.number().int().nonnegative(), rowSpan: z.number().int().positive(), colSpan: z.number().int().positive() }).strict(),
+])
+const zSourceLocator = z.object({
+  sourceSpanIndex: z.number().int().nonnegative(),
+  artifactStartUtf16: z.number().int().nonnegative(),
+  artifactEndUtf16: z.number().int().nonnegative(),
+  unitStartUtf16: z.number().int().nonnegative(),
+  unitEndUtf16: z.number().int().nonnegative(),
+  location: zSourceLocation,
+}).strict().superRefine((locator, ctx) => {
+  if (locator.artifactEndUtf16 < locator.artifactStartUtf16 || locator.unitEndUtf16 < locator.unitStartUtf16 || locator.artifactEndUtf16 - locator.artifactStartUtf16 !== locator.unitEndUtf16 - locator.unitStartUtf16) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['artifactEndUtf16'], message: 'locator ranges must be aligned half-open UTF-16 ranges' })
+  }
+})
 
 export const zGenesisRag17Chunk = z.object({
   chunkId: zNonEmptyString,
@@ -88,6 +116,8 @@ export const zGenesisRag17Chunk = z.object({
   contentHash: zHash,
   startOffset: z.number().int().nonnegative(),
   endOffset: z.number().int().nonnegative(),
+  locatorMappingVersion: zNonEmptyString.optional(),
+  sourceLocators: z.array(zSourceLocator).optional(),
 }).strict()
 
 export const zGenesisRag17Mention = z.object({
@@ -98,6 +128,8 @@ export const zGenesisRag17Mention = z.object({
   chunkId: zNonEmptyString,
   startOffset: z.number().int().nonnegative(),
   endOffset: z.number().int().nonnegative(),
+  locatorMappingVersion: zNonEmptyString.optional(),
+  sourceLocators: z.array(zSourceLocator).optional(),
 }).strict()
 
 export const zGenesisRag17Policy = z.object({
@@ -306,6 +338,10 @@ export function assertGenesisRag17BatchIntegrity(batch) {
   if (parsed.source.contentHash !== hashGenesisRag17Text(parsed.source.content)) {
     throw new Error('GenesisRAG17 source contentHash does not match exact content')
   }
+  const binarySource = ['rawContentHash', 'mediaType', 'parserVersion', 'locatorMappingVersion'].some((key) => parsed.source[key] !== undefined)
+  if (binarySource && (!parsed.source.rawContentHash || parsed.source.binaryProfile !== 'knowledge-binary-parser-1' || parsed.source.binaryEncoding !== 'base64-data-uri-v1' || !parsed.source.mediaType || !parsed.source.parserVersion || !parsed.source.locatorMappingVersion || parsed.source.locatorMappingVersion !== 'source-locator-map-1' || !BINARY_PARSER_IDENTITY.test(parsed.source.parserVersion) || !parsed.source.parserVersion.includes(`mediaType=${parsed.source.mediaType};`))) {
+    throw new Error('GenesisRAG17 binary source lineage metadata is invalid')
+  }
   const stageKeys = new Set()
   for (const stage of parsed.stages) {
     const expectedId = stageIdForNumber(stage.stageNumber)
@@ -324,6 +360,12 @@ export function assertGenesisRag17BatchIntegrity(batch) {
       throw new Error('GenesisRAG17 chunk offsets do not identify an exact source substring')
     }
     if (chunk.contentHash !== hashGenesisRag17Text(chunk.text)) throw new Error('GenesisRAG17 chunk contentHash does not match exact text')
+    if (binarySource) {
+      if (chunk.locatorMappingVersion !== parsed.source.locatorMappingVersion || !Array.isArray(chunk.sourceLocators) || !chunk.sourceLocators.length) throw new Error('GenesisRAG17 binary chunk source locators are missing')
+      for (const locator of chunk.sourceLocators) {
+        if (locator.artifactStartUtf16 < chunk.startOffset || locator.artifactEndUtf16 > chunk.endOffset || parsed.source.content.slice(locator.artifactStartUtf16, locator.artifactEndUtf16) !== chunk.text.slice(locator.artifactStartUtf16 - chunk.startOffset, locator.artifactEndUtf16 - chunk.startOffset)) throw new Error('GenesisRAG17 chunk source locator does not identify its exact text')
+      }
+    }
     if (chunkIds.has(chunk.chunkId) || chunk.ordinal <= previousOrdinal) throw new Error('GenesisRAG17 chunks must have unique increasing ordinals')
     chunkIds.add(chunk.chunkId)
     previousOrdinal = chunk.ordinal
@@ -336,6 +378,15 @@ export function assertGenesisRag17BatchIntegrity(batch) {
       throw new Error('GenesisRAG17 mention offsets do not identify the exact chunk occurrence')
     }
     if (mentionIds.has(mention.sourceMentionId)) throw new Error('GenesisRAG17 sourceMentionId must be unique')
+    if (binarySource) {
+      const owningChunk = chunksById.get(mention.chunkId)
+      if (mention.locatorMappingVersion !== parsed.source.locatorMappingVersion || !Array.isArray(mention.sourceLocators) || !mention.sourceLocators.length) throw new Error('GenesisRAG17 binary mention source locators are missing')
+      const absoluteStart = owningChunk.startOffset + mention.startOffset
+      const absoluteEnd = owningChunk.startOffset + mention.endOffset
+      for (const locator of mention.sourceLocators) {
+        if (locator.artifactStartUtf16 < absoluteStart || locator.artifactEndUtf16 > absoluteEnd || parsed.source.content.slice(locator.artifactStartUtf16, locator.artifactEndUtf16) !== mention.name.slice(locator.artifactStartUtf16 - absoluteStart, locator.artifactEndUtf16 - absoluteStart)) throw new Error('GenesisRAG17 mention source locator does not identify its exact text')
+      }
+    }
     mentionIds.add(mention.sourceMentionId)
   }
   return parsed
