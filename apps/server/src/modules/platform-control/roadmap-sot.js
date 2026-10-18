@@ -1164,12 +1164,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-048",
     "sprint": "SPR-ZAI-03",
     "title": "Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "in-progress",
+    "proofScope": "LOCAL",
+    "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-046",
     "authority": "ROADMAP.md",
-    "evidence": "Contract-only candidate proposal `docs/plans/TASK-ZAI-048-BINARY-PARSING-CONTRACT.md` merged in PR #676 as `dcaaffa71555389bb7a4e80499f31a269fe24588` from exact head `110d6f3952ddf0143e8b9ae715058179edc78964`; proposal remains unaccepted by product/service authorities. No parser runtime/tests, OCR/provider call, migration or deployment evidence; keep implementation acceptance open. ADR-072 still limits current admission to text/Markdown; 24-week baseline; 17-stage flow; FR-115, FR-138"
+    "evidence": "Bounded managed PDF/DOCX/static HTML candidate under additive FR-288 and SDD-114; delegated design decision docs/change-requests/knowledge/binary-document-parsing-20261018.md preserves historical FR-115/SDD-063. Root isolated nine-file parser/admission/runtime/lineage batch passed 88/88 after material repairs; exact raw hash, normalized text hash, typed source locations and replay/citation checks are distinct. Independent Verify/Review and final-head hosted CI remain acceptance gates. Full native Stage 9 through 17 propagation, binary browser acceptance, hard RSS/egress isolation, OCR/provider and production remain unverified or excluded; parent task stays open. Prior contract PR #676 remains historical evidence; FR-115, FR-138; ADR-072."
   },
   {
     "id": "TASK-ZAI-049",

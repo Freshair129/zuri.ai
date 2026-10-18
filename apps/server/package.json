@@ -55,11 +55,15 @@
     "exceljs": "^4.4.0",
     "lucide-react": "0.474.0",
     "next": "14.2.35",
+    "parse5": "8.0.1",
+    "pdfjs-dist": "6.4.299",
     "pg": "8.23.0",
     "qrcode": "^1.5.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "saxes": "6.0.0",
     "three": "^0.186.0",
+    "yauzl": "3.4.0",
     "zod": "3.23.8"
   },
   "devDependencies": {

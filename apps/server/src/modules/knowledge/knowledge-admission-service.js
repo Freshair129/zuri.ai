@@ -12,6 +12,14 @@ import { assertKnowledgeFileWritable, resolveKnowledgeScope } from './knowledge-
 import { resolveKnowledgeRuntimeBinding } from './knowledge-runtime'
 import { createKnowledgeRepository } from './knowledge-repository'
 import {
+  detectKnowledgeBinaryMediaType,
+  encodeKnowledgeBinary,
+  hashKnowledgeBinaryBytes,
+  KNOWLEDGE_BINARY_ENCODING,
+  KNOWLEDGE_BINARY_MAX_BYTES,
+  KNOWLEDGE_BINARY_PARSER_VERSION,
+} from './knowledge-binary-parser'
+import {
   SMARTGIFT_CATALOG_CONTENT_TYPE,
   SMARTGIFT_CATALOG_FORMAT,
   SMARTGIFT_CATALOG_MAX_FILE_BYTES,
@@ -21,6 +29,8 @@ import {
 
 // @req FR-173 — Files, Project Files, HTTP and MCP share one authorized durable
 // admission boundary for immutable Text/Markdown source versions.
+// @req TASK-ZAI-048 — the same FILE boundary admits explicitly typed,
+// hash/size-verified PDF, DOCX and static HTML bytes for the bounded offline parser.
 // @req FR-187 — the same boundary admits one SmartGift structured-record
 // projection as N immutable per-record sources before Stage 1, through the
 // existing queue rather than a second caller or a second write path.
@@ -43,7 +53,7 @@ import {
 // decision keeps holding on its own terms rather than by accident of a
 // shared fallback.
 // @spec ADR-072, ADR-075, ADR-090 D6, D7, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
-// @tested tests/unit/knowledge-admission-service.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js, tests/integration/fr238-line-studio-description-admission.test.js
+// @tested tests/unit/knowledge-admission-service.test.js, tests/integration/knowledge-admission.integration.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js, tests/integration/fr238-line-studio-description-admission.test.js
 
 const MAX_CONTENT_BYTES = 1024 * 1024
 const MAX_LIMIT = 100
@@ -216,6 +226,21 @@ function extensionFor(name) {
   return dot >= 0 ? value.slice(dot) : ''
 }
 
+function binaryMediaTypeForFile(asset) {
+  const mime = String(asset?.mime || '').split(';', 1)[0].trim().toLowerCase()
+  const extension = extensionFor(asset?.name)
+  const byExtension = BINARY_FILE_TYPES.get(extension)
+  if (!byExtension) return null
+  return mime === byExtension || mime === 'application/octet-stream' || mime === 'text/*' ? byExtension : null
+}
+
+const BINARY_FILE_TYPES = new Map([
+  ['.pdf', 'application/pdf'],
+  ['.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  ['.html', 'text/html'],
+  ['.htm', 'text/html'],
+])
+
 function supportedFileType(asset, format = null) {
   const mime = String(asset?.mime || '').split(';', 1)[0].trim().toLowerCase()
   if (format) {
@@ -226,6 +251,10 @@ function supportedFileType(asset, format = null) {
     return (SUPPORTED_MIME_TYPES.has(mime) || mime === 'text/*' || mime === 'application/octet-stream')
       && STRUCTURED_EXTENSIONS.has(extensionFor(asset?.name))
   }
+  // A binary suffix never falls through to the legacy text MIME path when its
+  // declared media type disagrees with the supported parser profile.
+  if (BINARY_FILE_TYPES.has(extensionFor(asset?.name))) return Boolean(binaryMediaTypeForFile(asset))
+  if (binaryMediaTypeForFile(asset)) return true
   if (SUPPORTED_MIME_TYPES.has(mime)) return true
   // Existing FileAssets created before typed Markdown MIME values may carry a
   // generic text MIME. Extension fallback stays limited to a text-looking MIME
@@ -248,7 +277,7 @@ function namespacedIdempotencyKey(businessId, projectId, idempotencyKey) {
   return `knowledge:${hashGenesisRag17Json({ businessId, projectId: projectId || null, idempotencyKey })}`
 }
 
-function sourceMeta({ source, asset, content, contentHash, sourceVersion, title, projectId, sourceKey, structured }) {
+function sourceMeta({ source, asset, content, contentHash, sourceVersion, title, projectId, sourceKey, structured, binaryProfile, binaryEncoding, binaryMediaType, rawByteLength }) {
   return {
     kind: source.kind,
     title,
@@ -261,8 +290,9 @@ function sourceMeta({ source, asset, content, contentHash, sourceVersion, title,
           fileAssetId: asset.id,
           fileAssetVersion: asset.version,
           mime: asset.mime,
-          size: Buffer.byteLength(content, 'utf8'),
+          size: rawByteLength ?? Buffer.byteLength(content, 'utf8'),
           storageKind: asset.storageKind,
+          ...(binaryProfile ? { binaryProfile, binaryEncoding, binaryMediaType, serialization: 'data-uri-base64', rawByteLength } : {}),
         }
       : {}),
     // The structured descriptor is how the queue runtime learns which provider,
@@ -375,7 +405,7 @@ async function loadFileSource(value, { db, fileContentResolver = defaultResolveF
     throw failure(404, 'KNOWLEDGE_FILE_NOT_FOUND', 'File asset not found')
   }
   if (!['LOCAL_FILE', 'MANAGED_BLOB'].includes(asset.storageKind)) {
-    throw failure(415, 'KNOWLEDGE_FILE_TYPE_UNSUPPORTED', 'Only managed text and Markdown files can be admitted')
+    throw failure(415, 'KNOWLEDGE_FILE_TYPE_UNSUPPORTED', 'Only supported managed knowledge files can be admitted')
   }
   if (asset.status !== 'ACTIVE') {
     throw failure(409, 'KNOWLEDGE_FILE_UNAVAILABLE', `File asset is ${asset.status}`)
@@ -383,7 +413,14 @@ async function loadFileSource(value, { db, fileContentResolver = defaultResolveF
   if (!supportedFileType(asset, format)) {
     throw failure(415, 'KNOWLEDGE_FILE_TYPE_UNSUPPORTED', format
       ? 'Only JSON files can be admitted as a structured catalog projection'
-      : 'Only plain text and Markdown files can be admitted')
+      : 'Only plain text, Markdown, PDF, DOCX and static HTML files can be admitted')
+  }
+  const declaredBinaryMediaType = !format ? binaryMediaTypeForFile(asset) : null
+  if (declaredBinaryMediaType && (!Number.isSafeInteger(asset.size) || asset.size < 1)) {
+    throw failure(409, 'KNOWLEDGE_FILE_SIZE_UNAVAILABLE', 'Managed binary file size is unavailable')
+  }
+  if (declaredBinaryMediaType && asset.size > KNOWLEDGE_BINARY_MAX_BYTES) {
+    throw failure(413, 'KNOWLEDGE_CONTENT_TOO_LARGE', `Knowledge file exceeds the ${KNOWLEDGE_BINARY_MAX_BYTES} byte limit`)
   }
 
   let loaded
@@ -398,15 +435,46 @@ async function loadFileSource(value, { db, fileContentResolver = defaultResolveF
     throw failure(409, 'KNOWLEDGE_FILE_UNAVAILABLE', 'File asset content is unavailable')
   }
   let content
+  const binaryMediaType = declaredBinaryMediaType
   try {
-    // The 1 MiB bound is the per-record limit; a structured projection is one
-    // file holding many records, so it gets its own explicit, larger bound.
+    if (binaryMediaType) {
+      const loadedContent = loaded?.content ?? loaded
+      if (!(Buffer.isBuffer(loadedContent) || loadedContent instanceof Uint8Array)) throw failure(409, 'KNOWLEDGE_FILE_UNAVAILABLE', 'Managed binary file content is not available as bytes')
+      const loadedLength = loadedContent.byteLength
+      if (!Number.isSafeInteger(loadedLength) || loadedLength < 1) throw failure(422, 'KNOWLEDGE_CONTENT_EMPTY', 'Knowledge file is empty')
+      if (loadedLength > KNOWLEDGE_BINARY_MAX_BYTES) throw failure(413, 'KNOWLEDGE_CONTENT_TOO_LARGE', `Knowledge file exceeds the ${KNOWLEDGE_BINARY_MAX_BYTES} byte limit`)
+      if (asset.size !== loadedLength) throw failure(409, 'KNOWLEDGE_FILE_SIZE_MISMATCH', 'File asset size does not match managed content')
+      const originalBytes = Buffer.from(loadedContent)
+      const contentHash = hashKnowledgeBinaryBytes(originalBytes)
+      if (asset.sha256 && asset.sha256.toLowerCase() !== contentHash) throw failure(409, 'KNOWLEDGE_FILE_HASH_MISMATCH', 'File asset hash does not match managed content')
+      const detectedMediaType = await detectKnowledgeBinaryMediaType(originalBytes)
+      if (detectedMediaType !== binaryMediaType) throw failure(415, 'KNOWLEDGE_FILE_MEDIA_MISMATCH', 'File asset content does not match its declared media type')
+      content = encodeKnowledgeBinary(originalBytes, binaryMediaType)
+      const sourceKey = value.source.sourceKey || asset.id
+      const sourceVersion = value.source.version || asset.sha256 || contentHash
+      const title = value.source.title || asset.name
+      return {
+        kind: 'FILE',
+        content,
+        contentHash,
+        sourceKey,
+        sourceVersion,
+        title,
+        asset,
+        binaryProfile: KNOWLEDGE_BINARY_PARSER_VERSION,
+        binaryEncoding: KNOWLEDGE_BINARY_ENCODING,
+        contentType: binaryMediaType,
+        rawByteLength: originalBytes.length,
+      }
+    }
+    // The 1 MiB bound remains for text files; structured projections have their
+    // own explicit size limit.
     content = decodeUtf8(loaded?.content ?? loaded, format ? SMARTGIFT_CATALOG_MAX_FILE_BYTES : MAX_CONTENT_BYTES)
   } catch (error) {
     if (error?.status) throw error
     throw failure(409, 'KNOWLEDGE_FILE_UNAVAILABLE', 'File asset content is unavailable')
   }
-  const bytes = Buffer.from(content, 'utf8')
+    const bytes = Buffer.from(content, 'utf8')
   if (Number.isInteger(asset.size) && asset.size !== bytes.length) {
     throw failure(409, 'KNOWLEDGE_FILE_SIZE_MISMATCH', 'File asset size does not match managed content')
   }
@@ -417,7 +485,7 @@ async function loadFileSource(value, { db, fileContentResolver = defaultResolveF
   const sourceKey = value.source.sourceKey || asset.id
   const sourceVersion = value.source.version || asset.sha256 || contentHash
   const title = value.source.title || asset.name
-  return {
+    return {
     kind: 'FILE',
     content,
     contentHash,
@@ -456,6 +524,9 @@ function requestHash({ value, source, contentHash, scope, policy }) {
       title: source.title,
       fileAssetId: source.asset?.id || null,
       contentHash,
+      binaryProfile: source.binaryProfile || null,
+      binaryEncoding: source.binaryEncoding || null,
+      contentType: source.contentType || null,
     },
     scope,
     policy,
@@ -813,6 +884,10 @@ export async function admitKnowledge(input, {
       title: source.title,
       projectId: value.projectId,
       structured,
+      binaryProfile: source.binaryProfile,
+      binaryEncoding: source.binaryEncoding,
+      binaryMediaType: source.contentType,
+      rawByteLength: source.rawByteLength,
     }))
     return await repository.transaction(async (tx) => {
       const corpus = await resolveCorpus(tx, { value, scope, policy, admittedAt })

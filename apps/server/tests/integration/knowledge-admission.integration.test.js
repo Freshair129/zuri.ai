@@ -4,10 +4,12 @@
 // @tested tests/integration/knowledge-admission.integration.test.js
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { randomUUID } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
 import { admitKnowledge } from '@/modules/knowledge/knowledge-admission-service'
+import { hashKnowledgeBinaryBytes, KNOWLEDGE_BINARY_ENCODING, KNOWLEDGE_BINARY_PARSER_VERSION } from '@/modules/knowledge/knowledge-binary-parser'
 
 const resolveViewer = vi.hoisted(() => vi.fn())
 vi.mock('@/modules/knowledge/knowledge-http', async (importOriginal) => ({
@@ -79,6 +81,59 @@ describe('knowledge admission live integration', () => {
     expect(payload).toMatchObject({ status: 'QUEUED', executionRunId: null, source: { sourceKey: 'http-policy' } })
     const row = await prisma.knowledgeIngestion.findUnique({ where: { id: payload.id } })
     expect(row).toMatchObject({ status: 'QUEUED', content: 'HTTP durable text', sourceVersion: 'v1' })
+  })
+
+  it('admits a managed HTML FileAsset with an immutable original-byte hash and explicit encoding', async () => {
+    const bytes = readFileSync(new URL('../fixtures/knowledge-binary/basic.html', import.meta.url))
+    const contentHash = hashKnowledgeBinaryBytes(bytes)
+    const suffix = randomUUID().replaceAll('-', '').slice(0, 12)
+    const asset = await prisma.fileAsset.create({ data: {
+      code: `FIL-KNOWLEDGE-BINARY-${suffix}`,
+      tenantId: tenant.id,
+      businessId: business.id,
+      storageKind: 'MANAGED_BLOB',
+      blobRef: `knowledge-binary-test:${suffix}`,
+      name: 'basic.html',
+      mime: 'text/html',
+      size: bytes.length,
+      sha256: contentHash,
+      status: 'ACTIVE',
+    } })
+    let ingestionId
+    try {
+      const fileContentResolver = vi.fn(async (fileAssetId) => {
+        expect(fileAssetId).toBe(asset.id)
+        return { content: bytes }
+      })
+      const result = await admitKnowledge({
+        businessId: business.id,
+        idempotencyKey: `managed-binary-${suffix}`,
+        source: { kind: 'FILE', fileAssetId: asset.id },
+      }, { db: prisma, viewer, fileContentResolver })
+      ingestionId = result.id
+      const queued = await prisma.knowledgeIngestion.findUnique({ where: { id: result.id } })
+      const metadata = JSON.parse(queued.sourceMetaJson)
+      expect(result).toMatchObject({ status: 'QUEUED', contentHash, source: { kind: 'FILE', fileAssetId: asset.id } })
+      expect(queued.content).toBe(`data:text/html;base64,${bytes.toString('base64')}`)
+      expect(queued.contentHash).toBe(contentHash)
+      expect(queued.contentHash).not.toBe(hashKnowledgeBinaryBytes(Buffer.from(queued.content, 'utf8')))
+      expect(metadata).toMatchObject({
+        binaryProfile: KNOWLEDGE_BINARY_PARSER_VERSION,
+        binaryEncoding: KNOWLEDGE_BINARY_ENCODING,
+        binaryMediaType: 'text/html',
+        serialization: 'data-uri-base64',
+        rawByteLength: bytes.length,
+        contentHash,
+      })
+      expect(fileContentResolver).toHaveBeenCalledTimes(1)
+    } finally {
+      if (ingestionId) {
+        const ingestion = await prisma.knowledgeIngestion.findUnique({ where: { id: ingestionId } })
+        if (ingestion) await prisma.knowledgeIngestion.delete({ where: { id: ingestion.id } })
+        if (ingestion) await prisma.knowledgeSource.delete({ where: { id: ingestion.sourceId } })
+      }
+      await prisma.fileAsset.deleteMany({ where: { id: asset.id } })
+    }
   })
 
   it('lists the same persisted job without returning raw content', async () => {
