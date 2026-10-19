@@ -294,12 +294,13 @@ async function existingMarkdownPaths(graph, root) {
     const sourcePath = normalizeDocPath(node.path || node.canonical_path)
     if (sourcePath) possible.add(sourcePath)
   }
-  const docsRoot = await realpath(path.join(root, 'docs'))
+  const docsRootPath = path.resolve(root, 'docs')
+  const docsRoot = await realpath(docsRootPath)
   const existing = new Set()
   const texts = new Map()
   await Promise.all([...possible].map(async (sourcePath) => {
     const filePath = path.resolve(root, ...sourcePath.split('/'))
-    if (!isWithinDirectory(docsRoot, filePath)) return
+    if (!isWithinDirectory(docsRootPath, filePath)) return
     try {
       const resolved = await realpath(filePath)
       if (!isWithinDirectory(docsRoot, resolved)) return
@@ -341,9 +342,10 @@ export async function readKnowledgeStudioDocument(nodeId, { root = repoRootFromP
   if (!sourcePath) return null
   const normalized = normalizeDocPath(sourcePath)
   if (!normalized) return null
-  const docsRoot = await realpath(path.join(root, 'docs'))
+  const docsRootPath = path.resolve(root, 'docs')
+  const docsRoot = await realpath(docsRootPath)
   const filePath = path.resolve(root, ...normalized.split('/'))
-  if (!isWithinDirectory(docsRoot, filePath)) return null
+  if (!isWithinDirectory(docsRootPath, filePath)) return null
   const resolved = await realpath(filePath)
   if (!isWithinDirectory(docsRoot, resolved)) return null
   const details = await stat(resolved)

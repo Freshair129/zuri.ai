@@ -98,6 +98,12 @@ describe('Knowledge Studio document graph projection', () => {
     const document = await readKnowledgeStudioDocument('domain-knowledge', { root })
     await expect(readFile(path.join(root, sourcePath), 'utf8')).resolves.toBe(content)
     expect(document).toEqual({ nodeId: 'domain-knowledge', path: sourcePath, markdown: content })
+    if (process.platform === 'win32') {
+      const differentlyCasedRoot = root.replace(/[a-z]/gi, (character) => (
+        character === character.toUpperCase() ? character.toLowerCase() : character.toUpperCase()
+      ))
+      await expect(readKnowledgeStudioDocument('domain-knowledge', { root: differentlyCasedRoot })).resolves.toEqual(document)
+    }
     await expect(readKnowledgeStudioDocument('private-path', { root })).resolves.toBeNull()
     expect(projection.counts.nodes).toBe(1)
   })
