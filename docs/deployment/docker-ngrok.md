@@ -1,18 +1,18 @@
 ---
-version: "1.3.2b"
+version: "1.3.4b"
 created_at: "2026-09-03T21:30:00+07:00,CLAUDE"
-last_update: "2026-10-06,ATHER"
+last_update: "2026-10-20,SOL"
 status: "current"
 superseded_by: null
 attributes:
   domain: "platform-control"
   doc_type: "deployment-guide"
-  scope: "Running zuri-ai with Docker Compose on a host machine and exposing it through ngrok"
+  scope: "Running zuri-ai locally with Docker Compose and optionally exposing it through ngrok"
 ---
 
-# Deploying zuri-ai with Docker Compose + ngrok
+# Deploying zuri-ai with Docker Compose and optional ngrok
 
-**Version:** 1.3.2b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirement: FR-142
+**Version:** 1.3.4b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirements: FR-142, [FR-289](../requirements/FR-289.md)
 
 For the owner-requested Windows reinstall and existing-database move, start with
 [Windows recovery and Docker handoff](windows-recovery-and-docker-handoff.md).
@@ -58,10 +58,8 @@ second LINE webhook setup surface.
 - Docker Desktop (Windows/macOS) or Docker Engine 24+ with the Compose plugin
   (`docker compose version` ≥ 2.24 — `env_file: required: false` and
   `depends_on: required: false` are used).
-- An ngrok account and its **authtoken** (dashboard → Your Authtoken).
-- Optional but recommended: an ngrok **assigned/static domain** (dashboard →
-  Domains; the free tier includes one). Without it the public URL changes on
-  every start.
+- An ngrok account, **authtoken**, and **assigned/static domain** only when opting
+  into public ingress. Local Docker deployment does not require ngrok.
 - A Postgres database: either the bundled `local-db` profile or an external one
   (Supabase). Production mode refuses SQLite by design
   (`src/lib/db.js` → `PRODUCTION_DATABASE_URL_REQUIRED`).
@@ -78,12 +76,16 @@ cd apps/server
 2. Fill the required values:
    - `ZURI_SESSION_SECRET` — random, ≥ 32 characters.
    - `DATABASE_URL` — a Postgres URL (see the two options below).
-   - `PUBLIC_BASE_URL` — `https://<your ngrok domain>` (left empty, Compose
-     derives it from `NGROK_DOMAIN`).
-3. Add `NGROK_AUTHTOKEN`.
-4. Add `NGROK_DOMAIN` if you have an assigned domain (e.g. `my-zuri.ngrok-free.app`).
+   - `PUBLIC_BASE_URL` — local origin for local-only deployment, or
+     `https://<your assigned ngrok domain>` for public deployment (left empty,
+     Compose derives it from `NGROK_DOMAIN`).
+3. To enable public ingress, add `NGROK_AUTHTOKEN` and an assigned `NGROK_DOMAIN`
+   (e.g. `my-zuri.ngrok-free.app`). Temporary/random ngrok URLs are disabled.
+4. `npm run docs:graph` from the repository root. This refreshes the ignored graph
+   used by the Knowledge Studio read-only mount.
 5. `docker compose build`
-6. `docker compose up -d`
+6. Start local-only with `docker compose up -d web`, or opt into the assigned public
+   endpoint with `docker compose --profile public up -d`.
 
 or, on Windows, run the two steps and the URL lookup in one go:
 
@@ -91,7 +93,18 @@ or, on Windows, run the two steps and the URL lookup in one go:
 .\scripts\deploy.ps1
 ```
 
-(`scripts/deploy.sh` is the bash equivalent.) Both scripts are idempotent.
+The wrapper defaults to local-only deployment. Add `-Public` to opt into ngrok;
+the token and assigned domain are checked before the public profile can start:
+
+```powershell
+.\scripts\deploy.ps1 -Public
+```
+
+(`scripts/deploy.sh` accepts `--public`.) Both scripts refresh the graph before
+building or starting. The host needs the repository's Node dependencies installed
+for that step. Local-only mode stops before deployment if the resolved
+`COMPOSE_PROFILES` already includes `public`, so a shell or `.env` override cannot
+silently start ngrok without the explicit wrapper option.
 
 ### Database option A — bundled Postgres (`local-db` profile)
 
@@ -136,6 +149,22 @@ docker compose run --rm --no-deps db-migrate node scripts/bootstrap-operator.mjs
 
 ## Verification
 
+### Knowledge Studio source data (FR-289)
+
+The operator-only Knowledge Studio API reads the generated graph and canonical
+Markdown through read-only mounts from the deployment checkout. Compose mounts
+`docs/` and `registry/document-registry/index.json` at
+`/app/knowledge-studio-data`; the web container uses that path as its explicit
+data root. `scripts/deploy.ps1` refreshes the ignored `docs/.doc-graph.json`
+from canonical sources before building or starting the stack. The generated
+graph stays local and is not committed.
+
+The graph canvas remains a local-browser bridge to the captured renderer at
+`http://127.0.0.1:19860`. The Zuri image does not include or publish that
+renderer. The operator's browser must be on the same machine as its local host;
+other browsers can load the Zuri console but cannot use the local canvas unless
+they separately have that host running.
+
 ```bash
 docker compose ps
 ```
@@ -156,7 +185,7 @@ Local checks on the host:
 - `http://localhost:3000/api/health` → `{"status":"ok","db":"ok",…}`
 - `http://localhost:3000/login` → the console.
 
-Public checks:
+Public checks (only when the `public` profile is explicitly enabled):
 
 - `https://<NGROK_DOMAIN>/api/health` → same body over HTTPS.
 - `https://<NGROK_DOMAIN>/login` → the console (on the free tier ngrok shows a
@@ -165,22 +194,17 @@ Public checks:
   from an unbound caller is refused by the fail-closed scope resolver (a 4xx,
   never a 404), which is the expected signature of the seam being reachable.
 
-Finding the public URL when no static domain is configured:
-
-```powershell
-.\scripts\ngrok-url.ps1
-```
-
-It reads ngrok's inspection API on `http://127.0.0.1:4040/api/tunnels`
-(published on the host loopback only). `docker compose logs ngrok` shows the
-same `url=` line.
+The URL lookup helper reads ngrok's inspection API on
+`http://127.0.0.1:4040/api/tunnels` (published on the host loopback only).
+`docker compose logs ngrok` shows the same `url=` line. It requires the public
+profile to be running with its assigned domain.
 
 ## Public URL and the LINE webhook
 
 | Mode | `NGROK_DOMAIN` | Public URL | Survives restart |
 |---|---|---|---|
-| Static domain (recommended) | `my-zuri.ngrok-free.app` | `https://my-zuri.ngrok-free.app` | yes |
-| Fallback | empty | `https://<random>.ngrok-free.app` | **no** — re-read it after every start |
+| Public profile | `my-zuri.ngrok-free.app` | `https://my-zuri.ngrok-free.app` | yes |
+| Local-only default | empty | no public URL | not applicable |
 
 The webhook URL to give the zuri-cli transport (and, through it, the LINE
 Developers console) is:
@@ -196,8 +220,8 @@ so opening the console through the ngrok URL shows the exact value.
 
 ```bash
 docker compose build              # rebuild the image after a code change
-docker compose up -d              # start / apply changes (idempotent)
-docker compose up -d --build      # both in one step
+docker compose up -d web          # start / apply local web changes (idempotent)
+docker compose up -d --build web  # build and start local web in one step
 docker compose ps                 # status + health
 docker compose logs -f            # follow all logs (or: logs -f web)
 docker compose restart web        # restart the app only
@@ -293,7 +317,7 @@ No application change is needed:
    selecting its immutable image digest with `ZURI_WEB_IMAGE`.
 2. Put a domain + TLS terminator (Caddy/Nginx/Cloudflare Tunnel) in front of
    `web:3000` and set `PUBLIC_BASE_URL=https://<domain>`.
-3. Disable the tunnel: `docker compose up -d --scale ngrok=0`, or remove the
+3. Disable the tunnel: `docker compose --profile public stop ngrok`, or remove the
    service.
 
 ## Database connection pooling (FR-145, ADR-058 D9)
@@ -332,6 +356,14 @@ not being Vercel. Leave it unset otherwise.
   one instance, which is the simplest case.
 
 ## Publication containment revision
+
+2026-10-20, version 1.3.3b → 1.3.4b: public ingress requires explicit profile
+selection, an authtoken and an assigned domain; default deploy is local-only. A
+temporary ngrok URL can no longer be created by the Compose service.
+
+2026-10-20, version 1.3.2b → 1.3.3b: documents the read-only Knowledge Studio
+source mounts and local-renderer requirement; the deployment script refreshes the
+generated graph before starting Compose.
 
 2026-10-06, version 1.3.1b → 1.3.2b: adds navigation to the owner-requested Windows recovery/Docker handoff; no Compose, runtime, database, migration or deployment change.
 

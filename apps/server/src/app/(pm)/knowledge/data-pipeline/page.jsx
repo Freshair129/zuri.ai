@@ -10,6 +10,7 @@ export const metadata = { title: 'Data Pipeline Map — Knowledge (GKS)' }
 
 export default async function DataPipelineMapPage({ searchParams }) {
   await requirePipelineMapViewer()
-  const chain = typeof searchParams?.chain === 'string' ? searchParams.chain : null
+  const resolvedSearchParams = await searchParams
+  const chain = typeof resolvedSearchParams?.chain === 'string' ? resolvedSearchParams.chain : null
   return <DataPipelineMapView map={getDataPipelineMap()} initialChainId={chain} />
 }

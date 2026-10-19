@@ -10,14 +10,16 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.166.0b"
-updated: "2026-10-18"
+version: "2.167.0b"
+updated: "2026-10-19"
 owner: "Owen"
 source_of_truth: true
 live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.167.0b (2026-10-19): record the directly requested local Knowledge Studio integration under FR-289. This is an in-progress delivery trace only; no phase, sprint, estimate, product priority, 24-week schedule or production state is assigned or changed.
 
 > Revision 2.166.0b (2026-10-18): Close TASK-ZAI-011's bounded in-app approval-notification scope after PR #714 merged as `f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1` from exact head `ac88c99672c945c38e26dcd63a312ee4e2a30652`. Independent Verify and Review passed. Focused integration tests passed 84 with 1 skipped; local `govern` passed with 0 critical and 24 baseline warnings. Exact-head Governance run `39142448721` and Edge run `39142448618` passed, including build, govern, all four test shards, edge-verify, conversation-runtime, SCM and market-intelligence; E2E and Desktop were skipped by workflow policy, not passes. TASK-ZAI-011 is `done / HOSTED_CI / MERGED`. The 123-task ledger now has 71 done, 16 review, 6 in-progress, 25 planned and 5 blocked (57.7% done). Recomputed under the documented board mapping: PHASE-ZAI-02 72, SPR-ZAI-03 74 and SPR-ZAI-04 69. TASK-ZAI-012 remains planned; the wave is not closed. This is durable in-app notification evidence only: no email/push provider, production migration apply, production deployment, Supabase or live-agent activation is claimed.
 
@@ -539,6 +541,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template v1 (FR-286): catalog-only snapshot and one atomic default Business Space | P0 | Codex | done (bounded FR-286; merged PR #667; hosted CI passed; E2E/Desktop skipped; canonical delivery ledger below owns evidence) | TASK-ZAI-009 | ../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md |
 | TASK-ZAI-047 | PHASE-ZAI-KNOWLEDGE | task | Knowledge console (FR-254): source versions, complete processing runs, corpus generations and exact citation artifacts | P0 | RWANG | review (isolated implementation and native acceptance; not deployed) | FR-173; FR-071; FR-110 | ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md |
 | TASK-ZAI-048 | PHASE-ZAI-KNOWLEDGE | task | Binary document parsing at Stage 2: bounded managed PDF, DOCX and static HTML under FR-288 and SDD-114; parent OCR and full native lineage acceptance remain open | P1 | Codex / Luna | in-progress (PR #709 merged `781e6a3`; focused patch proof 21/21; independent Verify/Review and exact-head hosted CI passed; E2E/Desktop skipped; not deployed) | TASK-ZAI-046 | ../requirements/FR-288.md; ../requirements/SDD-114.md; ../change-requests/knowledge/binary-document-parsing-20261018.md |
+| ZAI-KNOWLEDGE-STUDIO-20261019 | — | task | FR-289 Knowledge Studio: connect the existing local graph renderer to Zuri's installation-operator-only indexed documentation view | — | Codex | in-progress (local implementation; governance, build, browser and hosted gates pending; no deployment) | — | ../requirements/FR-289.md; ../change-requests/knowledge/knowledge-studio-20261019.md |
 | TASK-ZAI-064 | PHASE-ZAI-DELIVERY-TELEMETRY | task | Delivery telemetry decision record — ADR-086 amending ADR-048 D3 for measured time and tokens beside the plan; sizing table; FEAT-034 declarations | P0 | Claude | done (ADR-086 accepted; FR-216..FR-219 and FEAT-034 declared and pinned 2026-09-13) | ADR-048; FR-105 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-065 | PHASE-ZAI-DELIVERY-TELEMETRY | task | Phase card delivery metrics (FR-216) — sprints, tasks, size, plan window and effort estimate; actual time and measured tokens once done; done green, review orange | P0 | Claude | done (FR-216 merged #383, deployed 6630c1df) | TASK-ZAI-064 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-066 | PHASE-ZAI-DELIVERY-TELEMETRY | task | Usage meter (FR-217) — measured tokens and active time per task from Claude Code and Codex session logs, attributed by declared branch, written back with provenance | P0 | Claude | done (FR-217 merged #383 6630c1df) | TASK-ZAI-064 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |

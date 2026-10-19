@@ -1,5 +1,7 @@
 import prisma from '../src/lib/db.js'
 import { bootstrapOperator } from '../src/modules/identity/operator-bootstrap.js'
+import { resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 // @req FR-107 — the one-off command that creates the installation's FIRST
 // operator: Person + credential + ACTIVE OPERATOR PlatformGrant, in one
@@ -57,7 +59,7 @@ export async function main(argv = process.argv.slice(2), dependencies = {}) {
   log(JSON.stringify(output, null, 2))
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file:///${process.argv[1].replace(/\\/g, '/')}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   main().catch((error) => {
     process.stderr.write(`${error?.message ?? 'OPERATOR_BOOTSTRAP_CLI_FAILED'}\n`)
     process.exitCode = 1

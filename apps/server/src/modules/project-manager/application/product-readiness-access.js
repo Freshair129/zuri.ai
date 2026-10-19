@@ -13,8 +13,9 @@ import { resolveProductReadinessDecision } from './product-readiness-read-model'
 // `PlatformControlGuard` (FR-105), which is the only other server-rendered
 // projection in the app.
 
-function serverRequest() {
-  const cookieHeader = cookies().getAll().map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
+async function serverRequest() {
+  const cookieStore = await cookies()
+  const cookieHeader = cookieStore.getAll().map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
   return new Request('https://zuri.local/platform/product-readiness', { headers: { cookie: cookieHeader } })
 }
 
@@ -22,7 +23,7 @@ export async function requireProductReadinessViewer() {
   let viewer = null
   let viewerError = null
   try {
-    viewer = await resolveRequestViewer(serverRequest())
+    viewer = await resolveRequestViewer(await serverRequest())
   } catch (error) {
     viewerError = error
   }

@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.109.0b → 1.110.0b (2026-10-19): add FR-289's installation-operator-only document graph and exact-source Markdown GET routes. Inventory: 350 route handlers, 351 OpenAPI paths and 465 operations. The viewer is read-only and has no Business scope or production-hosted captured component.
+
 Version diff 1.108.0b → 1.109.0b (2026-10-18): add TASK-ZAI-011 recipient-scoped approval notification inbox and idempotent acknowledgement. Inventory: 348 route handlers, 349 OpenAPI paths, 463 operations. The additive schema migrations are local source only; no production or Supabase migration apply is claimed.
 
 Version diff 1.106.0b → 1.107.0b (2026-10-16): add FR-260's installation-operator-only read-only Worker observations and explicit refusal methods. Inventory: 344 route handlers, 345 OpenAPI paths, 459 operations. No provider/live-agent activation, hosted deployment, or external migration apply is claimed.
@@ -88,9 +90,20 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.106.0b |
+| **Version** | 1.110.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-10-15 |
+| **Last Updated** | 2026-10-19 |
+
+### Knowledge Studio document reads (FR-289)
+
+Both routes resolve the current signed session and require installation-operator
+authority on every request. They have no Business scope and perform no database
+reads or writes. Responses use `Cache-Control: private, no-store` and `Vary: Cookie`.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/control/knowledge-studio/graph` | Returns `{ dataset, nodeIds, counts }` from the generated document graph and canonical document registry. The projection is bounded to 2,048 nodes, 8,192 edges and 32 sections; only indexed Markdown paths under `docs/` that exist on disk are included. `401` requires authentication, `403` requires installation-operator authority, and `503` means the generated graph is unavailable. |
+| GET | `/api/control/knowledge-studio/document?nodeId=` | Returns `{ nodeId, path, markdown }` for a node ID from the current projection, resolving the exact indexed Markdown source under `docs/` (maximum 512 KiB). Unknown, stale or unsafe sources return `404`; authentication/authority refusals are `401`/`403`, and unavailable graph/source data is `503`. |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -140,7 +153,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=348 -->
+<!-- api-spec-counts: route_handlers=350 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM

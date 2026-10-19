@@ -9,5 +9,6 @@ export const metadata = { title: 'Documents — Knowledge (GKS)' }
 
 export default async function KnowledgeDocumentsPage({ searchParams }) {
   await requirePipelineMapViewer()
-  return <KnowledgeDocumentsView initialTab={searchParams?.tab} />
+  const resolvedSearchParams = await searchParams
+  return <KnowledgeDocumentsView initialTab={resolvedSearchParams?.tab} />
 }

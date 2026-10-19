@@ -8,7 +8,7 @@ import PlatformControlShell from '@/components/layouts/PlatformControlShell'
 export default function PlatformControlLayout({ children }) {
   return (
     <PlatformControlGuard>
-      <PlatformControlShell>{children}</PlatformControlShell>
+      <PlatformControlShell showKnowledgeStudioLink>{children}</PlatformControlShell>
     </PlatformControlGuard>
   )
 }

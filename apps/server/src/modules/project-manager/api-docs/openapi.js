@@ -52,6 +52,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-026 — recipient-only in-app approval notifications and read acknowledgement.
   ['/api/agent/approval-notifications', ['GET']],
   ['/api/agent/approval-notifications/{id}', ['POST']],
+  ['/api/control/knowledge-studio/graph', ['GET']],
+  ['/api/control/knowledge-studio/document', ['GET']],
   ['/api/projects/{id}/feature-view', ['GET']],
   ['/api/projects/{id}/features', ['GET', 'POST']],
   ['/api/projects/{id}/features/{featureId}', ['GET', 'PATCH', 'DELETE']],
@@ -353,6 +355,18 @@ const zRouteInventoryResponse = z.any().openapi({
   description: 'Handler-specific response fields are intentionally not inferred here. This operation proves route coverage only; the route and Appendix A remain the detailed contract authority.',
 })
 
+const zKnowledgeStudioGraphResponse = z.object({
+  dataset: z.record(z.string(), z.unknown()),
+  nodeIds: z.array(z.string()),
+  counts: z.object({ nodes: z.number().int(), edges: z.number().int(), sections: z.number().int() }).strict(),
+}).strict()
+const zKnowledgeStudioDocumentResponse = z.object({
+  nodeId: z.string(),
+  path: z.string(),
+  markdown: z.string(),
+}).strict()
+const zKnowledgeStudioError = z.object({ error: z.string() }).strict()
+
 const CONVERSATION_RUNTIME_PATH = '/api/internal/conversation-runtime/v1/{operation}'
 const CONVERSATION_RUNTIME_OPERATIONS = ['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory']
 const zConversationRuntimeEnvelope = z.object({
@@ -417,6 +431,19 @@ function genericRequest(path, method) {
 }
 
 function genericResponses(path, method) {
+  if (path === '/api/control/knowledge-studio/graph') return {
+    200: json(zKnowledgeStudioGraphResponse, 'Bounded projection of the generated Zuri document graph.'),
+    401: json(zKnowledgeStudioError, 'Authentication required.'),
+    403: json(zKnowledgeStudioError, 'Installation operator access required.'),
+    503: json(zKnowledgeStudioError, 'Generated document graph unavailable.'),
+  }
+  if (path === '/api/control/knowledge-studio/document') return {
+    200: json(zKnowledgeStudioDocumentResponse, 'Exact Markdown from the indexed source path for the supplied node ID.'),
+    401: json(zKnowledgeStudioError, 'Authentication required.'),
+    403: json(zKnowledgeStudioError, 'Installation operator access required.'),
+    404: json(zKnowledgeStudioError, 'Unknown document node ID or source.'),
+    503: json(zKnowledgeStudioError, 'Generated document graph or source unavailable.'),
+  }
   if (path.startsWith('/api/agent/approval-notifications')) return {
     200: json(zRouteInventoryResponse, method === 'get'
       ? 'Authenticated recipient-only notifications and unread count.'
@@ -492,21 +519,28 @@ function registerInventoryOperations(registry) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
       if (detailedOperations.has(`${methodName} ${path}`)) continue
+      const knowledgeStudio = path.startsWith('/api/control/knowledge-studio/')
       const conversationRuntime = path === CONVERSATION_RUNTIME_PATH
       const approvalDecision = path === '/api/agent/approval-requests/{id}/decision' && methodName === 'post'
       const approvalNotificationRead = path === '/api/agent/approval-notifications/{id}' && methodName === 'post'
       registry.registerPath({
         method: methodName,
         path,
-        summary: conversationRuntime ? `Private Conversation Runtime ${method} adapter` : `Route inventory: ${method} ${path}`,
+        summary: conversationRuntime ? `Private Conversation Runtime ${method} adapter`
+          : knowledgeStudio ? `Knowledge Studio ${method} read`
+            : `Route inventory: ${method} ${path}`,
         description: conversationRuntime
           ? `Private ADR-106/SDD-110 service boundary. GET permits only health; POST accepts only the fixed conversation-runtime.v1 operation enum. Core revalidates identity, Tenant/Business, account binding, consent/erasure, transport epoch, lease and ownership from authoritative state. Request and response bodies are bounded to 64 KiB. Operation payload fields: services/conversation-runtime/contracts/v1/operation.schema.json.`
           : approvalDecision
             ? 'An authenticated active direct OWNER of the exact Business submits APPROVE or REJECT. The actor is derived from the session. POST requires the session-bound X-CSRF-Token issued by GET /api/auth/csrf and an Origin matching the configured application origin; the checks run before the decision body is read.'
             : approvalNotificationRead
               ? 'The authenticated recipient marks their own in-app approval notification read. POST requires the session-bound X-CSRF-Token issued by GET /api/auth/csrf and an Origin matching the configured application origin.'
+          : knowledgeStudio
+            ? path.endsWith('/graph')
+              ? 'Installation-operator-only, read-only projection of the generated Zuri document graph. No Business scope or database access is added; see Appendix A for bounds and unavailable states.'
+              : 'Installation-operator-only, read-only exact Markdown lookup by a node ID in the generated graph. Source paths are resolved from indexed documents; see Appendix A for bounds and unavailable states.'
           : `Current handler inventory coverage for ${method} ${path}. This generic operation is deliberately transparent: handler-specific request and response fields are not claimed here; use Appendix A and live route validation for the detailed contract.`,
-        tags: conversationRuntime ? ['Internal service'] : ['Route inventory'],
+        tags: conversationRuntime ? ['Internal service'] : knowledgeStudio ? ['Platform Control'] : ['Route inventory'],
         parameters: conversationRuntime
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
           : [
@@ -525,6 +559,8 @@ function registerInventoryOperations(registry) {
         responses: conversationRuntime ? conversationRuntimeResponses(methodName) : genericResponses(path, methodName),
         ...(conversationRuntime
           ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': 'conversation-runtime.v1' }
+          : knowledgeStudio
+            ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'knowledge-studio/v1' }
           : path === '/api/businesses/{id}/agent-template'
             ? { security: ['get', 'post'].includes(methodName) ? [{ SessionAuth: [] }] : [], 'x-zuri-contract': 'business-agent-config/v1' }
             : path.startsWith('/api/agent/approval-requests') || path.startsWith('/api/agent/approval-notifications')
@@ -1015,6 +1051,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       { name: 'Feature view', description: 'Scoped explicit Project Features and verified reference reads' },
       { name: 'Feature mutations', description: 'Owner writes with live CSRF, CAS, idempotency and atomic audit' },
       { name: 'Identity', description: 'Map customer core ids onto internal records' },
+      { name: 'Platform Control', description: 'Installation-operator-only operational reads' },
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],
     'x-zuri-route-inventory': {

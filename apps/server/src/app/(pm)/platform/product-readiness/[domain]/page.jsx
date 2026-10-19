@@ -10,10 +10,11 @@ import {
 } from '@/modules/project-manager/application/product-readiness-read-model'
 
 export default async function ProductReadinessDomainPage({ params }) {
+  const { domain } = await params
   // Authorization first: an unknown-vs-known domain key must not be answerable
   // before the viewer is resolved, or the not-found boundary becomes an
   // enumeration oracle for anyone who can reach the route.
   await requireProductReadinessViewer()
-  if (!getProductReadinessDomain(params.domain)) notFound()
-  return <ProductReadinessDashboard snapshot={getProductReadinessSnapshot()} initialDomain={params.domain} />
+  if (!getProductReadinessDomain(domain)) notFound()
+  return <ProductReadinessDashboard snapshot={getProductReadinessSnapshot()} initialDomain={domain} />
 }
