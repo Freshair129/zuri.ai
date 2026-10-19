@@ -177,18 +177,37 @@ function Test-ImageTagIsProjectScoped([string]$image, [string]$projectName) {
   $separator = $reference.LastIndexOf(':')
   if ($separator -le $reference.LastIndexOf('/')) { return $false }
   $tag = $reference.Substring($separator + 1)
-  return $tag.EndsWith("-$projectName", [System.StringComparison]::OrdinalIgnoreCase)
+  return $tag.EndsWith(".$projectName", [System.StringComparison]::OrdinalIgnoreCase)
 }
 
-if ($ProjectName) {
+$resolvedComposeJson = docker compose @composeOptions config --format json | Out-String
+Assert-LastExit 'docker compose resolved project'
+try {
+  $resolvedComposeConfig = $resolvedComposeJson | ConvertFrom-Json -ErrorAction Stop
+} catch {
+  throw '[zuri] Could not read the resolved Compose project name.'
+}
+$resolvedComposeProjectName = [string]$resolvedComposeConfig.name
+if ([string]::IsNullOrWhiteSpace($resolvedComposeProjectName)) {
+  throw '[zuri] Resolved Compose config did not include a project name.'
+}
+if ($ProjectName -and $resolvedComposeProjectName -ne $ProjectName) {
+  throw '[zuri] The resolved Compose project name does not match -ProjectName; remove conflicting COMPOSE_PROJECT_NAME overrides.'
+}
+
+# `COMPOSE_PROJECT_NAME` can select a separately named project even when the
+# caller did not pass -ProjectName. Enforce image isolation against Compose's
+# normalized project name, not only the explicit PowerShell parameter.
+$imageProjectName = if ($ProjectName) { $ProjectName } else { $resolvedComposeProjectName }
+if ($imageProjectName -ne 'zuri-ai') {
   $webImage = Get-ResolvedComposeValue 'ZURI_WEB_IMAGE'
-  if (-not (Test-ImageTagIsProjectScoped $webImage $ProjectName)) {
-    throw "[zuri] ZURI_WEB_IMAGE must have a Docker tag ending in '-$ProjectName' so named Compose projects cannot share or retag one another's image."
+  if (-not (Test-ImageTagIsProjectScoped $webImage $imageProjectName)) {
+    throw "[zuri] ZURI_WEB_IMAGE must have a Docker tag ending in '.$imageProjectName' so named Compose projects cannot share or retag one another's image."
   }
   if ($activeProfiles -contains 'local-db') {
     $toolsImage = Get-ResolvedComposeValue 'ZURI_TOOLS_IMAGE'
-    if (-not (Test-ImageTagIsProjectScoped $toolsImage $ProjectName)) {
-      throw "[zuri] ZURI_TOOLS_IMAGE must have a Docker tag ending in '-$ProjectName' so named local-db projects cannot share or retag one another's image."
+    if (-not (Test-ImageTagIsProjectScoped $toolsImage $imageProjectName)) {
+      throw "[zuri] ZURI_TOOLS_IMAGE must have a Docker tag ending in '.$imageProjectName' so named local-db projects cannot share or retag one another's image."
     }
   }
 }

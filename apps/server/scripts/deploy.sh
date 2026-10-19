@@ -42,6 +42,60 @@ has_configured_value() {
   [[ -n "${value//[[:space:]]/}" ]]
 }
 
+# Compose's normalized config exposes the actual project name after applying
+# `COMPOSE_PROJECT_NAME`, the env file, and the file's top-level `name:`. Keep
+# the full config in the pipe; only emit the project name so secrets never reach
+# the terminal or deploy log.
+resolved_compose_project_name="$(docker compose config --format json | node -e '
+let input = "";
+process.stdin.setEncoding("utf8");
+process.stdin.on("data", (chunk) => { input += chunk; });
+process.stdin.on("end", () => {
+  try {
+    const name = JSON.parse(input).name;
+    if (typeof name !== "string" || name.length === 0) process.exitCode = 1;
+    else process.stdout.write(name);
+  } catch {
+    process.exitCode = 1;
+  }
+});
+')"
+if [ -z "$resolved_compose_project_name" ]; then
+  echo '[zuri] could not read the resolved Compose project name.' >&2
+  exit 1
+fi
+
+image_tag_is_project_scoped() {
+  local image="$1" project_name="$2" reference last_component tag folded_tag folded_project
+  [ -n "$image" ] && [ -n "$project_name" ] || return 1
+  reference="${image%@*}"
+  last_component="${reference##*/}"
+  [[ "$last_component" == *:* ]] || return 1
+  tag="${last_component##*:}"
+  folded_tag="$(printf '%s' "$tag" | LC_ALL=C tr '[:upper:]' '[:lower:]')"
+  folded_project="$(printf '%s' "$project_name" | LC_ALL=C tr '[:upper:]' '[:lower:]')"
+  [[ "$folded_tag" == *."$folded_project" ]]
+}
+
+# The default `zuri-ai` deployment keeps its historical image tags. Any
+# separately named project, including one selected only through the
+# environment, must have project-specific tags before it can build/start.
+if [ "$resolved_compose_project_name" != 'zuri-ai' ]; then
+  web_image="$(resolved_compose_value ZURI_WEB_IMAGE)"
+  if ! image_tag_is_project_scoped "$web_image" "$resolved_compose_project_name"; then
+    echo "[zuri] ZURI_WEB_IMAGE must have a Docker tag ending in '.$resolved_compose_project_name' so named Compose projects cannot share or retag one another's image." >&2
+    exit 1
+  fi
+  active_profiles="$(resolved_compose_value COMPOSE_PROFILES)"
+  if [[ ",$active_profiles," == *,local-db,* ]]; then
+    tools_image="$(resolved_compose_value ZURI_TOOLS_IMAGE)"
+    if ! image_tag_is_project_scoped "$tools_image" "$resolved_compose_project_name"; then
+      echo "[zuri] ZURI_TOOLS_IMAGE must have a Docker tag ending in '.$resolved_compose_project_name' so named local-db projects cannot share or retag one another's image." >&2
+      exit 1
+    fi
+  fi
+fi
+
 if ! has_configured_value ZURI_SESSION_SECRET; then
   echo "[zuri] warning: ZURI_SESSION_SECRET is not set in the resolved Compose environment." >&2
 fi

@@ -101,8 +101,13 @@ contains that stack's database URL and secrets. If `.env.docker` exists, set
 inherit its overrides. If `apps/server/.env.knowledge` exists, set
 `ZURI_KNOWLEDGE_ENV_FILE` to a separate per-project file; the wrapper rejects
 inheritance of the default knowledge credentials. Each named project must use web and (when `local-db` is
-active) tools image tags that end in `-<ProjectName>`; the wrapper checks this
+active) tools image tags that end in `.<ProjectName>`; the wrapper checks this
 before building so two projects cannot retag or consume one another's images.
+Both wrappers validate the effective name returned by `docker compose config`,
+so an inherited `COMPOSE_PROJECT_NAME` receives the same check as an explicit
+PowerShell `-ProjectName`. The dot marker cannot be part of a Compose project
+name, so suffix-related names such as `studio` and `knowledge-studio` remain
+distinct.
 Project names scope containers and volumes, while external database targets are
 shared unless configured separately.
 
@@ -118,8 +123,9 @@ Compose interpolation behavior.
 
 `-EnvironmentFile` accepts a path relative to `apps/server` or an absolute path;
 `-ProjectName` scopes build, start and status commands to that Compose project
-and is appended to each image tag as the uniqueness marker (for example,
-`ZURI_WEB_IMAGE=zuri-ai-knowledge-studio:next15-zuri-knowledge-studio-local`).
+and is appended to each image tag after a dot as the uniqueness marker (for
+example,
+`ZURI_WEB_IMAGE=zuri-ai-knowledge-studio:next15.zuri-knowledge-studio-local`).
 The default remains `.env` and the default Compose project name, so existing
 deployments keep their current behavior. The env file's values stay out of the
 command line. For public mode, the Windows wrapper also reads
