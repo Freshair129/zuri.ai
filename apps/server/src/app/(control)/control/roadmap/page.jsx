@@ -26,6 +26,7 @@ export const dynamic = 'force-dynamic'
 const VIEWS = new Set(['programme', 'domains', 'workers'])
 
 export default async function PlatformProgrammeRoadmapPage({ searchParams }) {
+  const resolvedSearchParams = await searchParams
   const snapshot = getProductReadinessSnapshot()
   const { available, reports } = await listProgrammeUsageReports(prisma)
   const laneUsage = mergeLaneUsage({ lanes: PROGRAMME_LANES, usage: PROGRAMME_USAGE, reports })
@@ -39,7 +40,7 @@ export default async function PlatformProgrammeRoadmapPage({ searchParams }) {
   return (
     <ProgramRoadmapBoard
       domainMap={projectDomainMap(snapshot)}
-      initialView={VIEWS.has(searchParams?.view) ? searchParams.view : 'programme'}
+      initialView={VIEWS.has(resolvedSearchParams?.view) ? resolvedSearchParams.view : 'programme'}
       laneUsage={Object.fromEntries(laneUsage)}
       usageReports={{ available, count: reports.length }}
       taskUsageLedger={redactTaskUsageLedger(taskUsageLedger, 'operator')}

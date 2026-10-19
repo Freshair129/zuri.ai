@@ -22,7 +22,7 @@ function Refusal({ title, detail }) {
 }
 
 export default async function PluginAuthorizePage({ searchParams }) {
-  const result = await readPluginConsent(searchParams)
+  const result = await readPluginConsent(await searchParams)
 
   if (result.state === 'INVALID_REQUEST') {
     // No redirect_uri is echoed and none is followed: the field that would say

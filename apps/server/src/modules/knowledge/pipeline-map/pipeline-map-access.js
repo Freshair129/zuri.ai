@@ -11,8 +11,9 @@ import { resolvePipelineMapDecision } from './pipeline-map-read-model'
 // The Next-only wiring for the pure decision next door, in the shape FR-124's
 // `requireProductReadinessViewer` established.
 
-function serverRequest() {
-  const cookieHeader = cookies().getAll().map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
+async function serverRequest() {
+  const cookieStore = await cookies()
+  const cookieHeader = cookieStore.getAll().map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
   return new Request('https://zuri.local/knowledge/data-pipeline', { headers: { cookie: cookieHeader } })
 }
 
@@ -20,7 +21,7 @@ export async function requirePipelineMapViewer() {
   let viewer = null
   let viewerError = null
   try {
-    viewer = await resolveRequestViewer(serverRequest())
+    viewer = await resolveRequestViewer(await serverRequest())
   } catch (error) {
     viewerError = error
   }

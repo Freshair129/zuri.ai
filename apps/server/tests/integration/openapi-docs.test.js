@@ -46,6 +46,17 @@ function currentRouteInventory() {
 const routeInventory = currentRouteInventory()
 
 describe('OpenAPI document', () => {
+  it('documents Knowledge Studio reads with session authorization and unavailable states', () => {
+    const graph = doc.paths['/api/control/knowledge-studio/graph'].get
+    const source = doc.paths['/api/control/knowledge-studio/document'].get
+    expect(graph.security).toEqual([{ SessionAuth: [] }])
+    expect(graph['x-zuri-contract']).toBe('knowledge-studio/v1')
+    expect(Object.keys(graph.responses).sort()).toEqual(['200', '401', '403', '503'])
+    expect(source.security).toEqual([{ SessionAuth: [] }])
+    expect(source['x-zuri-contract']).toBe('knowledge-studio/v1')
+    expect(Object.keys(source.responses).sort()).toEqual(['200', '401', '403', '404', '503'])
+  })
+
   // @req FR-285 — the metadata must not promise unsupported config mutations.
   it('documents owner template administration, strict empty apply and refusal verbs', () => {
     const item = doc.paths['/api/businesses/{id}/agent-template']
@@ -293,9 +304,9 @@ describe('OpenAPI document', () => {
       // FR-260 adds the read-only Worker observation path with five explicit refusal methods.
       // FR-026 adds the authenticated Agent approval queue and decision paths.
       // Baseline 344 paths / 453 operations + 3 paths / 8 operations for FR-026
-      // and 2 notification paths / 2 operations = 349 / 463.
-      pathCount: 349,
-      operationCount: 463,
+      // and 2 notification paths / 2 operations plus 2 FR-289 read paths = 351 / 465.
+      pathCount: 351,
+      operationCount: 465,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     const approvalQueue = doc.paths['/api/agent/approval-requests'].get

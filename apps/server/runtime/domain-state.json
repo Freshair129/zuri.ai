@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 171,
+    "featureCount": 172,
     "readyFeatureCount": 121,
-    "requirementCount": 285,
+    "requirementCount": 286,
     "verifiedRequirementCount": 248,
-    "progressPercent": 92.5,
-    "gapCount": 62,
+    "progressPercent": 92.4,
+    "gapCount": 64,
     "gaps": [
       {
         "domain": "agent",
@@ -549,6 +549,27 @@
         ]
       },
       {
+        "domain": "platform-control",
+        "id": "REQ-FR-289",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-289 is partial",
+        "evidence": [
+          "apps/server/src/app/(control)/control/knowledge-studio/page.jsx",
+          "apps/server/src/components/layouts/PlatformControlShell.jsx",
+          "apps/server/src/modules/platform-control/knowledge-studio/authorization.js",
+          "apps/server/src/modules/platform-control/knowledge-studio/components/KnowledgeStudioBridge.jsx",
+          "apps/server/src/modules/platform-control/knowledge-studio/knowledge-studio-data.js",
+          "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/unit/knowledge-studio/authorization.test.js",
+          "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
+          "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
+          "apps/server/tests/unit/platform-control-route-contract.test.js",
+          "apps/server/tests/unit/sign-out.test.js"
+        ]
+      },
+      {
         "domain": "project-manager",
         "id": "UI-STATUS-001",
         "severity": "medium",
@@ -783,6 +804,25 @@
           "apps/server/tests/unit/fr045-path-security.test.js",
           "apps/server/tests/unit/fr045-reconcile-cache.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-289",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-289 is partial",
+        "evidence": [
+          "apps/server/src/app/api/control/knowledge-studio/document/route.js",
+          "apps/server/src/app/api/control/knowledge-studio/graph/route.js",
+          "apps/server/src/components/layouts/PlatformControlShell.jsx",
+          "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/unit/knowledge-studio/authorization.test.js",
+          "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
+          "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
+          "apps/server/tests/unit/platform-control-route-contract.test.js",
+          "apps/server/tests/unit/sign-out.test.js"
         ]
       }
     ]
@@ -1144,7 +1184,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -1605,7 +1645,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -2528,7 +2568,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 1
           }
         },
@@ -3094,7 +3134,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -3514,7 +3554,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -3805,7 +3845,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-213",
@@ -4087,11 +4127,12 @@
         "FR-118",
         "FR-119",
         "FR-131",
-        "FR-288"
+        "FR-288",
+        "FR-289"
       ],
-      "featureCount": 17,
+      "featureCount": 18,
       "readyFeatureCount": 11,
-      "progressPercent": 95.2
+      "progressPercent": 94.7
     },
     "line-oa-studio": {
       "status": "partial",
@@ -4402,7 +4443,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -4600,7 +4641,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -4839,7 +4880,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -5257,6 +5298,28 @@
             "apps/server/tests/e2e/fr260-mission-control.spec.js",
             "apps/server/tests/unit/mission-control-route-contract.test.js"
           ]
+        },
+        {
+          "id": "FR-289",
+          "title": "Zuri Knowledge Studio is an installation-operator-only, read-only browser for the indexed Zuri Markdown document graph",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 7,
+          "evidence": [
+            "apps/server/src/app/(control)/control/knowledge-studio/page.jsx",
+            "apps/server/src/components/layouts/PlatformControlShell.jsx",
+            "apps/server/src/modules/platform-control/knowledge-studio/authorization.js",
+            "apps/server/src/modules/platform-control/knowledge-studio/components/KnowledgeStudioBridge.jsx",
+            "apps/server/src/modules/platform-control/knowledge-studio/knowledge-studio-data.js",
+            "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/knowledge-studio/authorization.test.js",
+            "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
+            "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
+            "apps/server/tests/unit/platform-control-route-contract.test.js",
+            "apps/server/tests/unit/sign-out.test.js"
+          ]
         }
       ],
       "checks": {
@@ -5276,8 +5339,8 @@
             }
           ],
           "details": {
-            "routes": 4,
-            "inventoried": 4,
+            "routes": 5,
+            "inventoried": 5,
             "missing": 0
           }
         },
@@ -5291,7 +5354,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -5479,12 +5542,32 @@
             "apps/server/tests/e2e/fr260-mission-control.spec.js",
             "apps/server/tests/unit/mission-control-route-contract.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-289",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-289 is partial",
+          "evidence": [
+            "apps/server/src/app/(control)/control/knowledge-studio/page.jsx",
+            "apps/server/src/components/layouts/PlatformControlShell.jsx",
+            "apps/server/src/modules/platform-control/knowledge-studio/authorization.js",
+            "apps/server/src/modules/platform-control/knowledge-studio/components/KnowledgeStudioBridge.jsx",
+            "apps/server/src/modules/platform-control/knowledge-studio/knowledge-studio-data.js",
+            "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/knowledge-studio/authorization.test.js",
+            "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
+            "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
+            "apps/server/tests/unit/platform-control-route-contract.test.js",
+            "apps/server/tests/unit/sign-out.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 10,
+        "routes": 11,
         "apiRoutes": 6,
-        "pageRoutes": 4,
+        "pageRoutes": 5,
         "ownedModels": 4,
         "featureNotes": 2
       },
@@ -5578,7 +5661,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 349,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -7234,6 +7317,26 @@
           "status": "verified",
           "codeCount": 4,
           "testCount": 24
+        },
+        {
+          "id": "FR-289",
+          "title": "Zuri Knowledge Studio is an installation-operator-only, read-only browser for the indexed Zuri Markdown document graph",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 7,
+          "evidence": [
+            "apps/server/src/app/api/control/knowledge-studio/document/route.js",
+            "apps/server/src/app/api/control/knowledge-studio/graph/route.js",
+            "apps/server/src/components/layouts/PlatformControlShell.jsx",
+            "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/knowledge-studio/authorization.test.js",
+            "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
+            "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
+            "apps/server/tests/unit/platform-control-route-contract.test.js",
+            "apps/server/tests/unit/sign-out.test.js"
+          ]
         }
       ],
       "checks": {
@@ -7267,9 +7370,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 180,
-            "inventoried": 180,
-            "openApiPaths": 349,
+            "routes": 182,
+            "inventoried": 182,
+            "openApiPaths": 351,
             "missingFromOpenApi": 0
           }
         },
@@ -7336,8 +7439,8 @@
           "details": {
             "mutations": 138,
             "guardedMutations": 137,
-            "reads": 81,
-            "unguardedReads": 9
+            "reads": 83,
+            "unguardedReads": 11
           }
         },
         "tests": {
@@ -7638,11 +7741,29 @@
             "apps/server/tests/unit/fr045-reconcile-cache.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-289",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-289 is partial",
+          "evidence": [
+            "apps/server/src/app/api/control/knowledge-studio/document/route.js",
+            "apps/server/src/app/api/control/knowledge-studio/graph/route.js",
+            "apps/server/src/components/layouts/PlatformControlShell.jsx",
+            "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/knowledge-studio/authorization.test.js",
+            "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
+            "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
+            "apps/server/tests/unit/platform-control-route-contract.test.js",
+            "apps/server/tests/unit/sign-out.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 228,
-        "apiRoutes": 180,
+        "routes": 230,
+        "apiRoutes": 182,
         "pageRoutes": 48,
         "ownedModels": 48,
         "featureNotes": 45
@@ -11578,7 +11699,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-213",
@@ -11630,6 +11751,7 @@
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+        "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/pipeline-health-route.test.js",
         "apps/server/tests/unit/pipeline-health-service.test.js",
@@ -19328,6 +19450,54 @@
         "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
         "apps/server/tests/integration/knowledge-binary-parser-lineage.test.js",
         "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
+      ]
+    },
+    {
+      "id": "FR-289",
+      "title": "Zuri Knowledge Studio is an installation-operator-only, read-only browser for the indexed Zuri Markdown document graph. Operators can search and browse documents, filter graph nodes by kind and neighbor hops, use domain groupings derived only from explicit graph relations or document metadata, inspect each node's exact source path, and read its Markdown in a same-page viewer. Domain ownership is never inferred from directory names; explicit metadata and graph relations determine a unique domain grouping. When no unique domain exists, sources under docs/services are grouped in Services (unassigned), and other sources are grouped in Shared (unassigned). The graph and Markdown come only from the generated document graph and available repository source files. The original graph component must run on the operator's browser machine at a loopback origin; the view reports unavailable when it cannot connect, and Zuri does not host or redistribute the captured component bundle. The page and each graph or document API request require installation-operator authority and fail closed for node IDs absent from the graph, unsafe paths, or missing source files.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-289"
+      ],
+      "primaryDomain": "knowledge",
+      "contributorDomains": [
+        "platform-control",
+        "project-manager"
+      ],
+      "useCase": "installation operator ค้นและสำรวจกราฟเอกสาร Markdown ของ Zuri ใน Knowledge Studio กรอง node ตามชนิดและจำนวน hop เปิด source path ที่แน่นอน และอ่านเอกสารในหน้าเดียว โดยแสดงการจัดกลุ่ม domain เฉพาะเมื่อ metadata หรือ graph relation ระบุเจ้าของได้ชัดเจน และใช้ renderer ที่รันบนเครื่อง operator เอง",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-289 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-289",
+          "title": "Zuri Knowledge Studio is an installation-operator-only, read-only browser for the indexed Zuri Markdown document graph",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 8,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(control)/control/knowledge-studio/page.jsx",
+        "apps/server/src/app/(control)/layout.jsx",
+        "apps/server/src/app/api/control/knowledge-studio/document/route.js",
+        "apps/server/src/app/api/control/knowledge-studio/graph/route.js",
+        "apps/server/src/components/layouts/PlatformControlShell.jsx",
+        "apps/server/src/modules/platform-control/knowledge-studio/authorization.js",
+        "apps/server/src/modules/platform-control/knowledge-studio/components/KnowledgeStudioBridge.jsx",
+        "apps/server/src/modules/platform-control/knowledge-studio/knowledge-studio-data.js",
+        "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/knowledge-studio/authorization.test.js",
+        "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
+        "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
+        "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/sign-out.test.js"
       ]
     }
   ],

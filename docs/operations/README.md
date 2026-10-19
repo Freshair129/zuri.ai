@@ -14,7 +14,7 @@ status: generated
 
 Generated navigation for current source documents in the operations grouping. A path's presence here does not declare ownership or approval.
 
-- [Deploying zuri-ai with Docker Compose + ngrok](../deployment/docker-ngrok.md)
+- [Deploying zuri-ai with Docker Compose and optional ngrok](../deployment/docker-ngrok.md)
 - [Windows ใหม่ → กู้ฐาน Zuri-AI เดิม → deploy Docker](../deployment/windows-recovery-and-docker-handoff.md)
 - [Canonical document record format](../migrations/document-reintegration/CANONICAL-FORMAT.md)
 - [Identity compatibility contract](../migrations/document-reintegration/COMPATIBILITY.md)
@@ -26,6 +26,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Documentation reintegration proposal](../migrations/document-reintegration/PROPOSAL.md)
 - [Documentation reintegration implementation receipt](../migrations/document-reintegration/RECEIPT.md)
 - [Managed binary knowledge parsing and immutable source locations](../migrations/document-reintegration/record-migrations/binary-document-parsing-20261018.approval.md)
+- [Local Zuri documentation graph studio](../migrations/document-reintegration/record-migrations/knowledge-studio-20261020.approval.md)
 - [Main-first reconciliation before report receiver coding](../migrations/document-reintegration/record-migrations/marketing-report-receiver-reconciled-20261005.approval.md)
 - [Portable managed file content](../migrations/document-reintegration/record-migrations/portable-managed-files-20261014.approval.md)
 - [Document query tooling contract](../migrations/document-reintegration/TOOLING.md)

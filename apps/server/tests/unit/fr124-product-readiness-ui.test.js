@@ -67,7 +67,7 @@ describe('FR-124 product readiness UI contract', () => {
     expect(platform.sub[0]).toMatchObject({ label: 'Dashboard', path: '/settings' })
     expect(platform.sub[1]).toMatchObject({ label: 'Product Readiness', path: '/platform/product-readiness' })
     expect(summarySource).toContain('getProductReadinessSnapshot')
-    expect(detailSource).toContain('getProductReadinessDomain(params.domain)')
+    expect(detailSource).toContain('getProductReadinessDomain(domain)')
     expect(detailSource).toContain('notFound()')
   })
 
@@ -83,7 +83,7 @@ describe('FR-124 product readiness UI contract', () => {
     // exists, or the not-found boundary enumerates domains for an unauthorized
     // caller.
     expect(detailSource.indexOf('await requireProductReadinessViewer()'))
-      .toBeLessThan(detailSource.indexOf('getProductReadinessDomain(params.domain)'))
+      .toBeLessThan(detailSource.indexOf('getProductReadinessDomain(domain)'))
     expect(accessSource).toContain('resolveRequestViewer')
     expect(accessSource).toContain("redirect(decision.redirect)")
     expect(accessSource).toContain('notFound()')
